@@ -20,6 +20,7 @@
     "@chrysalis/webir": "workspace:*",
     "@chrysalis/ingest": "workspace:*",
     "@chrysalis/emit-hono": "workspace:*",
-    "@chrysalis/oracle": "workspace:*"
+    "@chrysalis/oracle": "workspace:*",
+    "@chrysalis/verify": "workspace:*"
   }
 }

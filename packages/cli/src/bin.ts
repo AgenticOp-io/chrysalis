@@ -9,6 +9,7 @@ import { ingestDirectory } from "@chrysalis/ingest";
 import { countByDialect, countHoles } from "@chrysalis/webir";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
+import { buildReport, replayCorpus, writeReport } from "@chrysalis/verify";
 
 const SUBCOMMANDS = [
   ["init", "Mark a directory as a Chrysalis project"],
@@ -184,6 +185,53 @@ async function cmdCorpus(args: string[]): Promise<number> {
   return 0;
 }
 
+async function cmdVerify(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const flags = parseFlags(args);
+  const corpusRoot = pos[0];
+  const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
+  if (!corpusRoot || !baseUrl) {
+    console.error(
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9]",
+    );
+    return 2;
+  }
+  const reportDir = typeof flags.report === "string" ? flags.report : "reports/verify";
+  const threshold = typeof flags.threshold === "string" ? Number.parseFloat(flags.threshold) : 0.8;
+
+  const corpus = readCorpus({ root: resolve(corpusRoot) });
+  console.log(`[verify] loaded ${corpus.traces.length} traces from ${corpusRoot}`);
+  console.log(`[verify] replaying against ${baseUrl} ...`);
+
+  const outcomes = await replayCorpus(corpus, { baseUrl });
+  const report = buildReport(outcomes);
+  const written = writeReport(resolve(reportDir), report, outcomes);
+  console.log(`[verify] wrote ${written.length} report file(s) under ${reportDir}`);
+
+  console.log("");
+  console.log(`aggregate correctness: ${(report.aggregate.correctness * 100).toFixed(1)}%`);
+  console.log(`frames passed:         ${report.aggregate.framesPassed} / ${report.aggregate.framesTotal}`);
+  console.log("");
+  console.log("per-endpoint:");
+  for (const e of report.endpoints) {
+    const pct = (e.correctness * 100).toFixed(1).padStart(5);
+    const sim = e.avgBodySimilarity.toFixed(2);
+    console.log(`  ${e.route.padEnd(25)} ${pct}%   body≈${sim}   (${e.framesPassed}/${e.framesTotal})`);
+    for (const d of e.divergences) {
+      console.log(`    ✗ ${d.traceId}: ${d.kinds.join(", ")}`);
+      for (const detail of d.details) console.log(`      · ${detail}`);
+    }
+  }
+
+  if (report.aggregate.correctness + 1e-9 < threshold) {
+    console.error(
+      `[verify] correctness ${report.aggregate.correctness.toFixed(3)} below threshold ${threshold}`,
+    );
+    return 1;
+  }
+  return 0;
+}
+
 function cmdStatus(): number {
   console.log("[chrysalis] status — not yet implemented (Milestone 2).");
   console.log("See ROADMAP.md § Milestone 2 for the planned dashboard.");
@@ -214,6 +262,8 @@ async function main(): Promise<number> {
       return await cmdObserve(rest);
     case "corpus":
       return await cmdCorpus(rest);
+    case "verify":
+      return await cmdVerify(rest);
     case "status":
       return cmdStatus();
     default:

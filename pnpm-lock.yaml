@@ -44,6 +44,9 @@ importers:
       '@chrysalis/oracle':
         specifier: workspace:*
         version: link:../oracle
+      '@chrysalis/verify':
+        specifier: workspace:*
+        version: link:../verify
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir

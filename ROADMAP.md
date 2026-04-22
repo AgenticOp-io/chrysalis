@@ -27,13 +27,16 @@ runnable demo and measurable numbers, not a pile of abstractions.
 
 **Goal:** end-to-end on `fixtures/tiny-blog`. Prove the whole thesis once.
 
-**Status: translation axis is live (2, 3, 5, 8). Oracle (1) recording side is
-implemented; remaining work is the corpus-driven loop (4, 6, 7).**
+**Status: translation axis is live (2, 3, 5, 8). Oracle (1) recording side
+is implemented. Verify (6) HTTP-replay + per-route correctness scoring is
+implemented. Remaining: archaeology (4) and runtime chimera (7).**
 The unmodified tiny-blog PHP app is ingested into a 326-node WebIR module
 with zero holes; emit-hono produces a compiling TypeScript project that
 serves live HTTP requests against a seeded SQLite database. The Oracle PHP
 prelude captures HTTP + SQL + session traces into a versioned NDJSON
-corpus; `chrysalis observe` wires it up; `chrysalis corpus` summarizes it.
+corpus; `chrysalis observe` wires it up; `chrysalis corpus` summarizes it;
+`chrysalis verify` replays the corpus against the emitted app and produces
+a per-route correctness report.
 
 Acceptance — every item must be demonstrable on the tiny-blog fixture:
 
@@ -75,11 +78,20 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [ ] Migrate to Drizzle (currently emits hand-rolled SQL for Milestone 1).
 
 6. **Verify (replay oracle)**
-   - [ ] Runs every captured trace against the generated handlers in a sandbox
-   - [ ] Injects deterministic time/RNG and recorded SQL results
-   - [ ] Diffs effects + response per trace
-   - [ ] Produces `reports/<endpoint>.json` with a numeric correctness score
-   - [ ] Attributes each divergence to specific WebIR node IDs
+   - [x] Runs every captured trace against the generated handlers over HTTP,
+         with ordered cookie-chaining so a login cookie flows into the next
+         request (single-user model for Milestone 1)
+   - [x] Diffs status, strict headers (content-type, location), and body per
+         trace with Jaccard similarity after normalization (timestamps,
+         session-cookie values, UUIDs, whitespace)
+   - [x] Produces `reports/verify/summary.json` + one file per route with a
+         per-endpoint and aggregate correctness score
+   - [x] `chrysalis verify <traces> --base-url <url> [--threshold]` CLI
+   - [ ] Injects deterministic time/RNG and **recorded SQL results**
+         (Milestone 2: replay SQL through an interceptor rather than
+         re-issuing it against a fresh DB)
+   - [ ] Attributes each divergence to specific WebIR node IDs (Milestone 3:
+         requires the source map from emit → IR to be bidirectional)
 
 7. **Runtime chimera (dual-stack)**
    - [ ] A Node-based proxy routes per-path to either PHP or the new stack
@@ -94,6 +106,7 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
          and reports per-handler effects
    - [x] `chrysalis observe <dir>` starts the live recorder
    - [x] `chrysalis corpus <dir>` summarizes a traces directory
+   - [x] `chrysalis verify <traces> --base-url <url>` replays and scores
    - [ ] `chrysalis status` prints:
      - Coverage %
      - Correctness % (per endpoint and aggregate)

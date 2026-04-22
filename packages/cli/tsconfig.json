@@ -9,7 +9,8 @@
     { "path": "../webir" },
     { "path": "../ingest" },
     { "path": "../emit-hono" },
-    { "path": "../oracle" }
+    { "path": "../oracle" },
+    { "path": "../verify" }
   ],
   "include": ["src/**/*"]
 }

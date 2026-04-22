@@ -69,3 +69,41 @@ jobs:
 
       - name: Summarize corpus via CLI
         run: node packages/cli/dist/bin.js corpus traces
+
+  verify-e2e:
+    name: verify (replay corpus vs emitted app)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: End-to-end verify (PHP → corpus → emit → replay)
+        env:
+          VERIFY_THRESHOLD: "0.6"
+        run: node scripts/verify-tiny-blog.mjs
+
+      - name: Upload correctness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-report
+          path: reports/verify
+          if-no-files-found: ignore

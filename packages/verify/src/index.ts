@@ -1,42 +1,44 @@
 /**
- * @chrysalis/verify — replay oracle. Deterministic execution of generated
- * handlers against recorded traces; node-level divergence attribution.
+ * @chrysalis/verify — replay oracle.
+ *
+ * Takes a TraceCorpus (produced by `@chrysalis/oracle`) and a running HTTP
+ * endpoint (an app emitted by `@chrysalis/emit-hono` or any compatible
+ * target), replays every captured request, and diffs the responses to
+ * produce per-route correctness scores.
+ *
+ * Node-level divergence attribution (mapping a response diff back to specific
+ * WebIR nodes) is Milestone 3; Milestone 1 delivers the measurement loop so
+ * we have numbers to hold ourselves to.
  */
 
-import type { NodeId, Module } from "@chrysalis/webir";
-import type { TraceCorpus } from "@chrysalis/oracle";
+export {
+  replayCorpus,
+  type ReplayOptions,
+  type TraceOutcome,
+} from "./replay.js";
 
-export interface VerifyInput {
-  readonly generatedProject: string;
-  readonly module: Module;
-  readonly corpus: TraceCorpus;
-}
+export {
+  diffResponse,
+  type DiffResult,
+  type Divergence,
+  type DivergenceKind,
+  type DiffOptions,
+  type ReplayedResponse,
+} from "./diff.js";
 
-export interface Divergence {
-  readonly frameId: string;
-  readonly kind:
-    | "status-mismatch"
-    | "body-mismatch"
-    | "header-mismatch"
-    | "sql-mismatch"
-    | "effect-unexpected"
-    | "effect-missing";
-  readonly detail: string;
-  readonly attributedNodes: ReadonlyArray<NodeId>;
-}
+export {
+  buildReport,
+  writeReport,
+  type CorrectnessReport,
+  type EndpointScore,
+} from "./report.js";
 
-export interface EndpointScore {
-  readonly route: string;
-  readonly framesTotal: number;
-  readonly framesPassed: number;
-  readonly divergences: ReadonlyArray<Divergence>;
-}
-
-export interface CorrectnessReport {
-  readonly aggregate: { framesTotal: number; framesPassed: number };
-  readonly endpoints: ReadonlyArray<EndpointScore>;
-}
-
-export async function verify(_input: VerifyInput): Promise<CorrectnessReport> {
-  throw new Error("verify: not implemented (Milestone 1).");
-}
+export {
+  DEFAULT_BODY_RULES,
+  DEFAULT_HEADER_RULES,
+  normalizeBody,
+  normalizeHeaders,
+  normalizeSetCookie,
+  type NormalizeRule,
+  type Normalized,
+} from "./normalize.js";

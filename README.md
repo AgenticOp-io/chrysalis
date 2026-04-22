@@ -21,7 +21,8 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 
 ## Status
 
-**Pre-alpha, Milestone 1 vertical slice complete; Oracle recorder online.**
+**Pre-alpha. Milestone 1: translation axis + Oracle recording + replay-side
+verify are online.**
 
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling
@@ -34,7 +35,15 @@ headers, and cookies into a versioned NDJSON corpus, with configurable
 capture-time redaction. Driven by `chrysalis observe`, read back by
 `chrysalis corpus`.
 
-The **replay** half (verify, chimera) is the next piece — see
+The **verify** loop is live: `chrysalis verify` replays the captured corpus
+against the emitted app over HTTP, with ordered cookie-chaining, normalizes
+clock-derived nondeterminism (timestamps, session ids, UUIDs), scores each
+endpoint with Jaccard body similarity, and writes per-route reports under
+`reports/verify/`. An end-to-end CI job drives PHP → captures the corpus →
+emits the TypeScript stack → replays → enforces a correctness threshold.
+
+**Remaining for Milestone 1:** archaeology (typed domain models from
+schema + observed shapes) and the chimera runtime proxy. See
 [`ROADMAP.md`](./ROADMAP.md).
 
 ## Read these first
@@ -75,6 +84,22 @@ curl http://127.0.0.1:8080/
 node packages/cli/dist/bin.js corpus traces
 # or do both at once, one request per route:
 node scripts/drive-tiny-blog.mjs
+```
+
+Run the full verify loop (drive PHP → emit → replay → score):
+
+```bash
+node scripts/verify-tiny-blog.mjs
+# produces reports/verify/summary.json and one file per route.
+```
+
+Or point `chrysalis verify` at an already-running emitted app:
+
+```bash
+node packages/cli/dist/bin.js verify traces \
+  --base-url http://127.0.0.1:3000 \
+  --threshold 0.8 \
+  --report reports/verify
 ```
 
 ## Why another converter?

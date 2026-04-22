@@ -452,3 +452,28 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   practice, that window is forever. Capture-time redaction eliminates the
   liability at the cost of some discarded information that can be re-captured
   by adjusting config.
+- **2026-04-22 — D8** Milestone 1 `verify` replays the corpus against the
+  emitted app **over HTTP**, against a **freshly-seeded database**, with
+  ordered single-user cookie chaining. This is the simplest honest measurement
+  we can make today: it is backend-agnostic (not tied to Hono, not tied to any
+  runtime), it measures the integration surface clients actually see, and it
+  catches the real bugs we have. What it does *not* do — and what Milestone 2
+  will — is inject *recorded* SQL results into the emitted handler via a DB
+  interceptor. Today, the replayed handler hits its own SQLite with the same
+  seed PHP started from, and timestamps/auto-ids are normalized in the diff.
+  The trade-off: correct replay depends on DB determinism, which is fine for
+  tiny-blog but will degrade on apps that depend on wall-clock timestamps,
+  `rand()`, or external calls we haven't shimmed. Fixing that is a
+  SQL-replay-in-front-of-the-DB problem, not a verify problem, so it gets
+  solved in the oracle layer once.
+- **2026-04-22 — D9** Verify's response diff uses **Jaccard token similarity
+  over normalized bodies** rather than exact equality. Normalization rules are
+  an allowlist (ISO/SQLite timestamps, session-cookie values, UUIDs,
+  whitespace); anything not in the allowlist is compared strictly. The diff
+  report records which normalization tags fired on each trace, so a rule that
+  is silently suppressing real divergence shows up as "why did this test pass
+  *because* I normalized X?" rather than being invisible. Rejected: structural
+  HTML tree diff (too brittle on whitespace and attribute ordering); exact
+  string equality (fails on every timestamp-rendering page and gives us zero
+  signal). Token Jaccard with allowlisted normalization is the cheapest thing
+  that catches real bugs without drowning us in false positives.

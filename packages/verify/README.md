@@ -2,18 +2,39 @@
 
 ## Purpose
 
-The replay oracle. Executes translated handlers in a sandbox with deterministic
-time/RNG and captured SQL results, diffs the outcome against the original
-`TraceFrame`, and attributes divergences to specific WebIR node IDs.
+The replay oracle. Takes a `TraceCorpus` (from `@chrysalis/oracle`) and a
+running HTTP endpoint (an app emitted by `@chrysalis/emit-hono` or any
+compatible backend), replays every captured request in timestamp order, and
+diffs each response against what was captured.
 
 ## Public API
 
-- `verify(input: VerifyInput): Promise<CorrectnessReport>`
-- `VerifyInput` — generated project path, WebIR module, trace corpus
-- `CorrectnessReport` — per-endpoint scores, per-frame diffs, node-level
-  attribution
+- `replayCorpus(corpus, { baseUrl })` — returns `TraceOutcome[]`.
+- `diffResponse(expected, actual)` — per-pair diff with divergence list and
+  body similarity.
+- `buildReport(outcomes)` → `CorrectnessReport` with per-route and aggregate
+  correctness.
+- `writeReport(outDir, report, outcomes)` — persists `summary.json` + one file
+  per route under `outDir`.
+- `normalizeBody` / `normalizeHeaders` — allowlisted normalization rules
+  (timestamps, session-cookie values, UUIDs, whitespace). Exported so callers
+  can extend them.
 
-## Invariants
+The `verify()` sandbox-mode API (IR-level node attribution, SQL replay,
+deterministic time/RNG injection) is Milestone 2/3 work — see the root
+`DESIGN.md` D8/D9 for why Milestone 1 ships HTTP replay first.
+
+## Invariants (current, Milestone 1)
+
+- **Replay order is deterministic.** Traces are sorted by `header.startedAt`
+  before replay; same corpus → same fetch sequence.
+- **Normalization is an allowlist.** Anything not on the list is compared
+  strictly. Rules that fired are recorded on each outcome, so a rule that
+  silently suppresses a real divergence is visible.
+- **Single-user cookie chaining.** Cookies from each response flow into the
+  next request. Multi-user threading is Milestone 2.
+
+## Invariants (target, Milestone 2+)
 
 - **Replay is byte-deterministic.** Time, RNG, DB reads, outbound HTTP, and
   mail are all injected from the `TraceFrame`. Any nondeterminism surfaces as
