@@ -29,7 +29,8 @@ runnable demo and measurable numbers, not a pile of abstractions.
 
 **Status: translation axis is live (2, 3, 5, 8). Oracle (1) recording side
 is implemented. Verify (6) HTTP-replay + per-route correctness scoring is
-implemented. Remaining: archaeology (4) and runtime chimera (7).**
+implemented. Archaeology (4) DDL + corpus → typed domain models is
+implemented. Remaining: runtime chimera (7) and `chrysalis status`.**
 The unmodified tiny-blog PHP app is ingested into a 326-node WebIR module
 with zero holes; emit-hono produces a compiling TypeScript project that
 serves live HTTP requests against a seeded SQLite database. The Oracle PHP
@@ -63,10 +64,23 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
          (tiny-blog currently yields **zero** holes)
 
 4. **Archaeology**
-   - [ ] Reads the DB schema from the fixture's MySQL/SQLite
-   - [ ] Extracts form field structure from the PHP templates
-   - [ ] Intersects with observed JSON shapes from the trace corpus
-   - [ ] Emits `Post`, `User`, `Comment` types with `@chrysalis-provenance` JSDoc
+   - [x] Reads the DB schema from the fixture's SQLite/MySQL DDL
+         (parser in `packages/archaeology/src/parse-schema.ts`)
+   - [x] Intersects with observed JSON shapes from the trace corpus
+         (groups SQL row shapes by FROM/JOIN-attributed table)
+   - [x] Emits `Post`, `User`, `Comment` types with `@chrysalis-provenance`
+         JSDoc. Nullable columns become `T | null`; `CHECK (col IN (...))`
+         promotes a TEXT column to a string-literal union.
+   - [x] `chrysalis archaeology <schema.sql> [--traces <dir>] [--out <file>]`
+         CLI; `scripts/run-e2e.mjs` auto-generates
+         `generated/tiny-blog/src/domain.ts` and the emitted project still
+         typechecks.
+   - [ ] Extracts form field structure from the PHP templates (deferred to
+         Milestone 2 — low marginal value on tiny-blog since all fields are
+         already covered by DDL + traces)
+   - [ ] emit-hono consumes `domain.ts` as the row type on prepared queries
+         (wiring exists; type substitution in handler bodies is cosmetic and
+         tracked as M1 polish)
 
 5. **Emit (Hono + SQLite)**
    - [x] Produces a runnable project (Hono + `node:sqlite`)
@@ -107,6 +121,8 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [x] `chrysalis observe <dir>` starts the live recorder
    - [x] `chrysalis corpus <dir>` summarizes a traces directory
    - [x] `chrysalis verify <traces> --base-url <url>` replays and scores
+   - [x] `chrysalis archaeology <schema.sql> --out <file>` emits typed
+         domain models (optionally fused with `--traces <dir>`)
    - [ ] `chrysalis status` prints:
      - Coverage %
      - Correctness % (per endpoint and aggregate)

@@ -62,6 +62,18 @@ describe("diffResponse", () => {
     expect(r.divergences.map((d) => d.kind)).toContain("status-mismatch");
   });
 
+  it("does not report header-mismatch when content-type differs only by charset param", () => {
+    const r = diffResponse(
+      expected({ headers: { "content-type": "text/html; charset=UTF-8" } }),
+      {
+        status: 200,
+        headers: { "content-type": "text/html" },
+        body: "<h1>Hello</h1>",
+      },
+    );
+    expect(r.divergences.some((d) => d.kind === "header-mismatch")).toBe(false);
+  });
+
   it("reports a header-mismatch divergence on Location", () => {
     const r = diffResponse(
       expected({

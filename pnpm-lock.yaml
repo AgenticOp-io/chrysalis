@@ -35,6 +35,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@chrysalis/archaeology':
+        specifier: workspace:*
+        version: link:../archaeology
       '@chrysalis/emit-hono':
         specifier: workspace:*
         version: link:../emit-hono

@@ -466,6 +466,16 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   `rand()`, or external calls we haven't shimmed. Fixing that is a
   SQL-replay-in-front-of-the-DB problem, not a verify problem, so it gets
   solved in the oracle layer once.
+- **2026-04-22 — D10** Archaeology's Milestone 1 input set is **DDL +
+  observed SQL row shapes**, not template form scans. Rationale: on
+  tiny-blog, DDL covers every real column, and traces confirm which ones are
+  actually read. Form scans would duplicate that evidence at higher cost
+  (requires a real PHP template parser and a model of how `$_POST` flows
+  into fields). We surface orphan observed shapes (observed-only columns
+  not in DDL) and unknown DDL fragments explicitly in the report rather
+  than papering over them. Form scans are deferred to Milestone 2 where
+  they matter more: applications with dynamic form fields driven by config,
+  where DDL alone will undercount.
 - **2026-04-22 — D9** Verify's response diff uses **Jaccard token similarity
   over normalized bodies** rather than exact equality. Normalization rules are
   an allowlist (ISO/SQLite timestamps, session-cookie values, UUIDs,

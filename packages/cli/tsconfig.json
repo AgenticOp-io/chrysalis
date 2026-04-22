@@ -10,7 +10,8 @@
     { "path": "../ingest" },
     { "path": "../emit-hono" },
     { "path": "../oracle" },
-    { "path": "../verify" }
+    { "path": "../verify" },
+    { "path": "../archaeology" }
   ],
   "include": ["src/**/*"]
 }

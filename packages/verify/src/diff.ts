@@ -64,7 +64,13 @@ export function diffResponse(
     const e = expH[name];
     const a = actH[name];
     if (e === undefined && a === undefined) continue;
-    if (e !== a) {
+    // Content-Type: compare the mime type only, ignore charset/param drift.
+    // PHP sends `text/html; charset=UTF-8`; Hono/Node may send just
+    // `text/html; charset=UTF-8` or `text/html`. The *mime type* is what
+    // matters for integration correctness.
+    const ev = name === "content-type" ? mimeOnly(e) : e;
+    const av = name === "content-type" ? mimeOnly(a) : a;
+    if (ev !== av) {
       divergences.push({
         kind: "header-mismatch",
         detail: `header '${name}'`,
@@ -106,6 +112,12 @@ function jaccardTokenSimilarity(a: string, b: string): number {
   for (const t of ta) if (tb.has(t)) inter += 1;
   const union = ta.size + tb.size - inter;
   return union === 0 ? 1 : inter / union;
+}
+
+function mimeOnly(ct: string | undefined): string | undefined {
+  if (ct == null) return ct;
+  const i = ct.indexOf(";");
+  return (i >= 0 ? ct.slice(0, i) : ct).trim().toLowerCase();
 }
 
 function tokenize(s: string): Set<string> {

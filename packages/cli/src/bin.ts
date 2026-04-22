@@ -10,6 +10,8 @@ import { countByDialect, countHoles } from "@chrysalis/webir";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
 import { buildReport, replayCorpus, writeReport } from "@chrysalis/verify";
+import { emitTypes, runArchaeology } from "@chrysalis/archaeology";
+import { writeFileSync } from "node:fs";
 
 const SUBCOMMANDS = [
   ["init", "Mark a directory as a Chrysalis project"],
@@ -185,6 +187,50 @@ async function cmdCorpus(args: string[]): Promise<number> {
   return 0;
 }
 
+async function cmdArchaeology(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const flags = parseFlags(args);
+  const schemaPath = pos[0];
+  if (!schemaPath) {
+    console.error(
+      "usage: chrysalis archaeology <schema.sql> [--traces <dir>] [--out <file>]",
+    );
+    return 2;
+  }
+  const tracesDir = typeof flags.traces === "string" ? flags.traces : null;
+  const outPath = typeof flags.out === "string" ? flags.out : null;
+
+  const input: Parameters<typeof runArchaeology>[0] = { schemaPath: resolve(schemaPath) };
+  const corpus = tracesDir ? readCorpus({ root: resolve(tracesDir) }) : null;
+  if (corpus) (input as { corpus: typeof corpus }).corpus = corpus;
+  const report = runArchaeology(input);
+
+  console.log(
+    `[archaeology] schema: ${schemaPath} → ${report.entities.length} entities` +
+      (corpus ? ` (corpus: ${corpus.traces.length} traces)` : ""),
+  );
+  for (const e of report.entities) {
+    const ddl = e.fields.filter((f) => f.kind !== "observed-only").length;
+    const obs = e.fields.filter((f) => f.kind !== "ddl").length;
+    console.log(
+      `  ${e.typescriptName.padEnd(16)} table=${e.name.padEnd(12)} fields=${e.fields.length}  (ddl=${ddl}, observed=${obs}, statements=${e.observedStatementCount})`,
+    );
+  }
+  if (report.unknownDdl.length > 0) {
+    console.log(`  ⚠ unknown DDL fragments: ${report.unknownDdl.length}`);
+  }
+  if (report.orphanShapes.length > 0) {
+    console.log(`  ⚠ orphan observed shapes: ${report.orphanShapes.length}`);
+  }
+
+  if (outPath) {
+    const src = emitTypes(report);
+    writeFileSync(resolve(outPath), src);
+    console.log(`[archaeology] wrote ${outPath}`);
+  }
+  return 0;
+}
+
 async function cmdVerify(args: string[]): Promise<number> {
   const pos = positional(args);
   const flags = parseFlags(args);
@@ -262,6 +308,8 @@ async function main(): Promise<number> {
       return await cmdObserve(rest);
     case "corpus":
       return await cmdCorpus(rest);
+    case "archaeology":
+      return await cmdArchaeology(rest);
     case "verify":
       return await cmdVerify(rest);
     case "status":

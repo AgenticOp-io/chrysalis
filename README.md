@@ -22,7 +22,7 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 ## Status
 
 **Pre-alpha. Milestone 1: translation axis + Oracle recording + replay-side
-verify are online.**
+verify + archaeology are online.**
 
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling
@@ -42,9 +42,14 @@ endpoint with Jaccard body similarity, and writes per-route reports under
 `reports/verify/`. An end-to-end CI job drives PHP → captures the corpus →
 emits the TypeScript stack → replays → enforces a correctness threshold.
 
-**Remaining for Milestone 1:** archaeology (typed domain models from
-schema + observed shapes) and the chimera runtime proxy. See
-[`ROADMAP.md`](./ROADMAP.md).
+Archaeology runs as part of the emit pipeline: it reads the fixture's
+`schema.sql`, intersects it with any observed trace shapes, and writes
+`generated/tiny-blog/src/domain.ts` with `@chrysalis-provenance` JSDoc on
+every entity and field (including `status` as a `"draft" | "published" |
+"archived"` string-literal union, derived from the DDL's `CHECK IN`).
+
+**Remaining for Milestone 1:** the chimera runtime proxy and the
+`chrysalis status` dashboard. See [`ROADMAP.md`](./ROADMAP.md).
 
 ## Read these first
 
@@ -100,6 +105,14 @@ node packages/cli/dist/bin.js verify traces \
   --base-url http://127.0.0.1:3000 \
   --threshold 0.8 \
   --report reports/verify
+```
+
+Run archaeology standalone:
+
+```bash
+node packages/cli/dist/bin.js archaeology fixtures/tiny-blog/schema.sql \
+  --traces traces \
+  --out generated/tiny-blog/src/domain.ts
 ```
 
 ## Why another converter?

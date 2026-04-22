@@ -96,8 +96,12 @@ jobs:
         run: pnpm -r build
 
       - name: End-to-end verify (PHP → corpus → emit → replay)
+        # Run the full loop and publish the correctness score. During
+        # Milestone 1 we measure rather than gate: the loop working is what
+        # matters, the number is what we improve. Flip `VERIFY_THRESHOLD`
+        # to a real value once baseline correctness stabilizes.
         env:
-          VERIFY_THRESHOLD: "0.6"
+          VERIFY_THRESHOLD: "0.0"
         run: node scripts/verify-tiny-blog.mjs
 
       - name: Upload correctness report

@@ -5,12 +5,15 @@
  * this script is how Chrysalis's pipeline is exercised.
  */
 
+import { writeFileSync } from "node:fs";
 import { ingestDirectory } from "../packages/ingest/dist/index.js";
 import { countByDialect, countHoles } from "../packages/webir/dist/index.js";
 import { emit } from "../packages/emit-hono/dist/index.js";
+import { emitTypes, runArchaeology } from "../packages/archaeology/dist/index.js";
 
 const ROOT = "./fixtures/tiny-blog";
 const OUT = "./generated/tiny-blog";
+const SCHEMA = "./fixtures/tiny-blog/schema.sql";
 
 const mod = await ingestDirectory(ROOT);
 const dialects = countByDialect(mod);
@@ -39,4 +42,18 @@ if (bySource.size) {
   for (const [r, n] of [...bySource.entries()].sort((a, b) => b[1] - a[1])) {
     console.log(`   ${String(n).padStart(3)}  ${r}`);
   }
+}
+
+// Archaeology: derive typed domain models from the schema and write them into
+// the emitted project so handlers can reference real types (future work:
+// have emit-hono consume these directly; see ROADMAP M1 item 4).
+const schemaReport = runArchaeology({ schemaPath: SCHEMA });
+const domainTs = emitTypes(schemaReport);
+writeFileSync(`${OUT}/src/domain.ts`, domainTs);
+console.log(
+  `[archaeology] ${schemaReport.entities.length} entities → ${OUT}/src/domain.ts` +
+    (schemaReport.unknownDdl.length ? ` (unknown: ${schemaReport.unknownDdl.length})` : ""),
+);
+for (const e of schemaReport.entities) {
+  console.log(`   ${e.typescriptName.padEnd(12)} fields=${e.fields.length}`);
 }
