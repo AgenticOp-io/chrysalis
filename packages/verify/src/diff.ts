@@ -91,6 +91,13 @@ export function diffResponse(
     const e = expH[name];
     const a = actH[name];
     if (e === undefined && a === undefined) continue;
+    // If the expected response didn't carry this header at all, we have no
+    // contract to enforce — PHP's prelude can miss framework-default headers
+    // (the built-in dev server's `Content-Type` is not visible via
+    // `headers_list()` until set explicitly). Treat "expected says nothing"
+    // as "any value is acceptable." If a downstream test needs stricter
+    // policy it can set a bespoke threshold or normalizer.
+    if (e === undefined) continue;
     // Content-Type: compare the mime type only, ignore charset/param drift.
     // PHP sends `text/html; charset=UTF-8`; Hono/Node may send just
     // `text/html; charset=UTF-8` or `text/html`. The *mime type* is what

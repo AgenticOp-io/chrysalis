@@ -150,6 +150,20 @@ describe("diffResponse", () => {
     expect(r.divergences).toHaveLength(0);
   });
 
+  it("does not flag header-mismatch when expected has no value", () => {
+    // PHP's prelude can miss implicit/default headers (dev-server's
+    // content-type). With no expected contract, we should not invent one.
+    const r = diffResponse(
+      expected({ headers: {} }),
+      {
+        status: 200,
+        headers: { "content-type": "text/html; charset=UTF-8" },
+        body: "<h1>Hello</h1>",
+      },
+    );
+    expect(r.divergences.some((d) => d.kind === "header-mismatch")).toBe(false);
+  });
+
   it("still flags clearly-different error bodies", () => {
     // A 400 that actually changed the validation message is a real diff.
     const r = diffResponse(
