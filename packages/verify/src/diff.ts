@@ -75,14 +75,19 @@ export function diffResponse(
 
   const expH = normalizeHeaders(expected.headers);
   const actH = normalizeHeaders(actual.headers);
-  // Redirects (3xx) are defined by status + Location. Their content-type is a
-  // runtime detail — PHP's `header("Location: ...")` does not set one but
-  // most frameworks' redirect helpers (Hono's c.redirect, Express's
-  // res.redirect) do. Comparing content-type on 3xx produces false positives
-  // that are never real bugs.
-  const isRedirect = expected.status >= 300 && expected.status < 400;
+  // Content-type is a runtime detail on responses where the status already
+  // carries the contract:
+  //   - 3xx: redirects are defined by Location. PHP doesn't set content-type;
+  //          Hono's c.redirect / Express's res.redirect do.
+  //   - 4xx/5xx: generic framework error pages. PHP often sends text/html,
+  //          Node servers often send text/plain by default. Body similarity
+  //          catches any real format divergence (JSON vs HTML tokenizes very
+  //          differently).
+  // For 2xx we still compare content-type strictly, since that's where the
+  // meaningful contract lives (is this still serving HTML? still JSON?).
+  const skipContentType = expected.status >= 300;
   for (const name of strictHeaders) {
-    if (isRedirect && name === "content-type") continue;
+    if (skipContentType && name === "content-type") continue;
     const e = expH[name];
     const a = actH[name];
     if (e === undefined && a === undefined) continue;

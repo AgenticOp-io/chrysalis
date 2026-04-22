@@ -486,7 +486,17 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   HTML tree diff (too brittle on whitespace and attribute ordering); exact
   string equality (fails on every timestamp-rendering page and gives us zero
   signal). Token Jaccard with allowlisted normalization is the cheapest thing
-  that catches real bugs without drowning us in false positives.
+  that catches real bugs without drowning us in false positives. Refinements
+  (2026-04-22, same-day) applied once the CI numbers landed: (a) redirects
+  (3xx) skip content-type comparison entirely — their contract is
+  `status + Location`, not the body's mime; (b) non-2xx responses skip
+  content-type too, since framework defaults for generic error pages differ
+  (PHP tends to text/html, Node servers text/plain) and are not a
+  correctness signal; (c) 4xx/5xx responses use a looser body-similarity
+  threshold (0.4) than 2xx (0.9), because error bodies are conventionally
+  free-form and a real format divergence (JSON↔HTML) still tokenizes
+  clearly. 2xx comparison stays strict — the meaningful contract lives
+  there.
 - **2026-04-22 — D11** The Chimera proxy uses the **same diff primitive** as
   `verify` in shadow mode, and treats shadow mode as "verify-in-production"
   rather than a second implementation of response comparison. Concretely,
