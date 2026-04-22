@@ -43,9 +43,24 @@ try {
 if (existsSync(traceDir)) rmSync(traceDir, { recursive: true, force: true });
 mkdirSync(traceDir, { recursive: true });
 
-// Seed the SQLite DB the fixture reads from. Idempotent: overwrites blog.sqlite.
-console.log("[drive] seeding blog.sqlite...");
-execSync("node scripts/seed-db.mjs", { cwd: repo, stdio: "inherit" });
+// Seed both the fixture's sqlite (which PHP reads) and the generated project's
+// sqlite (so the same data flows through emit too).
+console.log("[drive] seeding fixtures/tiny-blog/blog.sqlite + generated/...");
+execSync("node scripts/seed-fixture-db.mjs", { cwd: repo, stdio: "inherit" });
+
+// Compute a real bcrypt hash via the available PHP binary and patch the
+// fixture DB so `password_verify('secret', $hash)` succeeds during the drive.
+// Node doesn't ship bcrypt in stdlib; we already require PHP above, so use it.
+const hash = execSync('php -r "echo password_hash(\'secret\', PASSWORD_BCRYPT);"', {
+  cwd: repo,
+}).toString().trim();
+{
+  const { DatabaseSync } = await import("node:sqlite");
+  const db = new DatabaseSync(resolve(repo, "fixtures/tiny-blog/blog.sqlite"));
+  db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hash, "alice");
+  db.close();
+  console.log(`[drive] patched alice's password hash (${hash.slice(0, 7)}...)`);
+}
 
 const redaction = loadObserveConfig(fixture);
 console.log(`[drive] loaded ${redaction.rules.length} redaction rules from fixture`);

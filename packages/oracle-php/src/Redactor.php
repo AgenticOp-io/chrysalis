@@ -109,9 +109,9 @@ final class Redactor
 
     /**
      * @param array<string, mixed> $map
-     * @return array<string, mixed>
+     * @return array<string, mixed>|\stdClass
      */
-    private function applyToMap(array $map, string $prefix): array
+    private function applyToMap(array $map, string $prefix)
     {
         $out = [];
         foreach ($map as $k => $v) {
@@ -125,7 +125,8 @@ final class Redactor
             }
             $out[(string)$k] = $this->applyKind(is_scalar($v) || $v === null ? (string)$v : (json_encode($v) ?: ''), $kind);
         }
-        return $out;
+        // Preserve object-ness: an empty map must still serialize as `{}`.
+        return count($out) === 0 ? new \stdClass() : $out;
     }
 
     private function findKind(string $fullPath, bool $caseInsensitiveTail = false): ?string

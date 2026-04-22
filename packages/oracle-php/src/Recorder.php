@@ -62,12 +62,12 @@ final class Recorder
             'type' => 'http.request',
             'method' => (string)($_SERVER['REQUEST_METHOD'] ?? 'GET'),
             'path' => self::requestPath(),
-            'query' => self::stringMap($_GET),
-            'headers' => self::collectHeaders(),
-            'cookies' => self::stringMap($_COOKIE),
-            'post' => self::jsonSafe($_POST),
+            'query' => self::asObject(self::stringMap($_GET)),
+            'headers' => self::asObject(self::collectHeaders()),
+            'cookies' => self::asObject(self::stringMap($_COOKIE)),
+            'post' => self::asObject(self::jsonSafe($_POST)),
             'rawBody' => self::captureRawBody(),
-            'session' => self::jsonSafe(self::$sessionPre),
+            'session' => self::asObject(self::jsonSafe(self::$sessionPre)),
         ]);
     }
 
@@ -169,10 +169,10 @@ final class Recorder
         self::emit([
             'type' => 'http.response',
             'status' => http_response_code() === false ? 200 : (int)http_response_code(),
-            'headers' => self::collectResponseHeaders(),
+            'headers' => self::asObject(self::collectResponseHeaders()),
             'body' => self::$responseBody,
             'bodyTruncated' => self::$responseBodyTruncated,
-            'session' => self::jsonSafe($sessionPost),
+            'session' => self::asObject(self::jsonSafe($sessionPost)),
         ]);
 
         $endedAtMicro = microtime(true);
@@ -339,6 +339,22 @@ final class Recorder
             $out[] = self::jsonSafe($vv);
         }
         return $out;
+    }
+
+    /**
+     * Ensure a value serializes as a JSON object (not an empty array). PHP's
+     * associative arrays become `[]` rather than `{}` when empty; the trace
+     * schema requires object-typed fields to always encode as objects.
+     *
+     * @param mixed $v
+     * @return mixed
+     */
+    private static function asObject($v)
+    {
+        if (is_array($v) && count($v) === 0) {
+            return new \stdClass();
+        }
+        return $v;
     }
 
     private static function isoFromMicro(float $micro): string
