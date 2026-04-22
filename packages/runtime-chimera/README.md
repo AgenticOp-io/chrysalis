@@ -3,35 +3,77 @@
 ## Purpose
 
 The production-time runtime that makes **dual-stack coexistence** work. Runs
-legacy PHP and the newly-generated TypeScript app behind a single origin, with
-shared session and shared database, and controls traffic per route, per cohort,
-or per percentage.
+legacy PHP and the newly-generated TypeScript app behind a single origin and
+controls per-request traffic steering between the two stacks.
 
 This is the package that makes Chrysalis adoption safe.
 
-## Public API
+## Public API (Milestone 1)
 
-- `createChimera(config: ChimeraConfig)` — returns an HTTP server / middleware
-- `Router` — per-route modes: `legacy`, `shadow`, `canary`, `cutover`, `done`
-- `SessionBridge` — Redis-backed default; PHP-side handler provided as a
-  small bundled script
-- `SchemaLens` — typed views; both stacks import the same schema module
+- `startChimera(config: ChimeraConfig): Promise<ChimeraHandle>` — starts an HTTP
+  reverse proxy that dispatches to either the legacy or modern upstream based on
+  `config.mode` and `config.rules`. Returns a handle with `port`, `stats()`, and
+  `stop()`.
+- `compileRules(rules) / routeFor(compiled, method, path)` — the tiny route
+  matcher. Patterns are `"/path"`, `"/prefix/*"`, or `"METHOD /path"`. First
+  match wins.
+- `Mode = "legacy" | "cutover" | "shadow"`
+  - `legacy`   — every request → legacy PHP (baseline).
+  - `cutover`  — routes with `target: "modern"` go to the new app; everything
+                 else to legacy.
+  - `shadow`   — every request → legacy (response returned to client); the same
+                 request is mirrored to modern in the background and the two
+                 responses are diffed with `@chrysalis/verify`. Divergences are
+                 appended to `<shadowLogDir>/shadow.ndjson`. The client never
+                 sees modern's output.
+
+### CLI
+
+```
+chrysalis deploy --mode=<legacy|cutover|shadow> \
+                 --legacy http://127.0.0.1:18080 \
+                 --modern http://127.0.0.1:3000 \
+                 [--port 8080] [--host 127.0.0.1] \
+                 [--config chimera.json] \
+                 [--shadow-log-dir reports/shadow]
+```
+
+`chimera.json` (all fields optional; flags override file values):
+
+```json
+{
+  "mode": "cutover",
+  "legacy": "http://127.0.0.1:18080",
+  "modern": "http://127.0.0.1:3000",
+  "rules": [
+    { "match": "GET /api/*", "target": "modern" },
+    { "match": "/health",   "target": "modern" }
+  ]
+}
+```
 
 ## Invariants
 
-- **One request, one stack.** A given request is served entirely by PHP or
-  entirely by the new stack (except in `shadow`, where both run but only
-  legacy's response is returned to the client).
-- **Session wire format is stable.** Changing it is a breaking change to
-  existing migrations and requires a major version bump.
-- **Shadow diffs are first-class reports.** Emitted in the same schema as
-  `@chrysalis/verify`'s `CorrectnessReport`.
-- **No hidden state.** The router's config is declarative and loadable from a
-  single JSON/TOML file per environment.
+- **One request, one stack (to the client).** In `cutover`, a given request is
+  served entirely by one stack. In `shadow`, both run, but only legacy's
+  response is returned.
+- **Shadow never affects user-visible latency or errors.** The mirror is
+  fire-and-observe; failures on the modern side are recorded as divergences,
+  not surfaced to the client.
+- **Shadow diffs are first-class reports.** Emitted in the same NDJSON format
+  `@chrysalis/verify` uses, so dashboards can consume both sources uniformly.
+- **No hidden state.** The router config is declarative and loadable from a
+  single JSON file per environment.
+- **Observability headers.** `x-chrysalis-target: legacy | modern | legacy-shadow`
+  is always set on the response so operators can see which stack served.
 
-## Non-goals
+## Non-goals (Milestone 1)
 
-- Being a general-purpose service mesh or reverse proxy.
-- Supporting non-HTTP protocols (queues, websockets) on day one.
-- Abstracting away the database. The schema lens is a thin typed view; there
-  is no query translation layer here.
+- **Session bridge.** Shared PHP `$_SESSION` ↔ new-stack session store is
+  deferred to Milestone 2 (provisionally Redis-backed). For now, if you cut a
+  route over, it must be session-independent **or** the new stack must read
+  the same session store PHP writes.
+- **Canary / percentage routing.** Deferred to Milestone 2.
+- **Protocols other than HTTP/1.1.** No websockets, SSE, or queue traffic.
+- **Query translation.** There is no database abstraction here; both stacks talk
+  to the same DB directly.

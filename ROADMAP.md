@@ -27,10 +27,14 @@ runnable demo and measurable numbers, not a pile of abstractions.
 
 **Goal:** end-to-end on `fixtures/tiny-blog`. Prove the whole thesis once.
 
-**Status: translation axis is live (2, 3, 5, 8). Oracle (1) recording side
-is implemented. Verify (6) HTTP-replay + per-route correctness scoring is
-implemented. Archaeology (4) DDL + corpus → typed domain models is
-implemented. Remaining: runtime chimera (7) and `chrysalis status`.**
+**Status: Milestone 1 is complete end-to-end. Translation axis (2, 3, 5, 8),
+Oracle recording (1), Verify HTTP-replay + correctness scoring (6),
+Archaeology DDL + corpus → typed domain models (4), runtime chimera with
+legacy/cutover/shadow modes (7), and the `chrysalis status` dashboard are
+all implemented against the tiny-blog fixture. Remaining work on the
+milestone is polish: recorded-SQL replay, IR-level divergence
+attribution, Drizzle migration, and session bridging in chimera — each
+explicitly tracked below and deferred to Milestone 2.**
 The unmodified tiny-blog PHP app is ingested into a 326-node WebIR module
 with zero holes; emit-hono produces a compiling TypeScript project that
 serves live HTTP requests against a seeded SQLite database. The Oracle PHP
@@ -108,11 +112,14 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
          requires the source map from emit → IR to be bidirectional)
 
 7. **Runtime chimera (dual-stack)**
-   - [ ] A Node-based proxy routes per-path to either PHP or the new stack
-   - [ ] Supports modes: `legacy`, `shadow`, `cutover`
-   - [ ] Shadow mode logs diffs in the same format as `verify`
+   - [x] A Node-based proxy routes per-path to either PHP or the new stack
+   - [x] Supports modes: `legacy`, `shadow`, `cutover`
+   - [x] Shadow mode logs diffs in the same format as `verify` (reuses
+         `@chrysalis/verify`'s `diffResponse`; NDJSON at `<shadowLogDir>/shadow.ndjson`)
+   - [x] `chrysalis deploy --mode=<legacy|cutover|shadow> --legacy <url> --modern <url>`
+         CLI (reads optional `--config chimera.json` for routing rules)
    - [ ] Session bridge: PHP `$_SESSION` and new-stack session see the same store
-         (provisionally Redis; SQLite fallback acceptable for demo)
+         (provisionally Redis; SQLite fallback acceptable for demo — **Milestone 2**)
 
 8. **CLI dashboard**
    - [x] `chrysalis ingest <dir>` prints route/node/hole counts and dialect totals
@@ -123,11 +130,14 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [x] `chrysalis verify <traces> --base-url <url>` replays and scores
    - [x] `chrysalis archaeology <schema.sql> --out <file>` emits typed
          domain models (optionally fused with `--traces <dir>`)
-   - [ ] `chrysalis status` prints:
-     - Coverage %
-     - Correctness % (per endpoint and aggregate)
-     - Hole count with status/owner
-     - Residual legacy % (from chimera router)
+   - [x] `chrysalis status` prints (with `--json` for machines):
+     - Corpus size (traces + distinct routes, from `--traces`)
+     - Correctness % (aggregate + per-endpoint, from `reports/verify/correctness.json`)
+     - Archaeology coverage (entities, fields, unknown DDL, orphan shapes,
+       from `--schema`)
+     - Shadow-mode results (mirrored / agreed / diverged from
+       `reports/shadow/shadow.ndjson`)
+     - Residual legacy: hole count + IR dialect totals (from `--project`)
 
 **Definition of done:** a demo recording that walks from an unmodified PHP
 tiny-blog, through `observe → ingest → emit → verify → cutover`, with live

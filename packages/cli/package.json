@@ -22,6 +22,7 @@
     "@chrysalis/emit-hono": "workspace:*",
     "@chrysalis/oracle": "workspace:*",
     "@chrysalis/verify": "workspace:*",
-    "@chrysalis/archaeology": "workspace:*"
+    "@chrysalis/archaeology": "workspace:*",
+    "@chrysalis/runtime-chimera": "workspace:*"
   }
 }

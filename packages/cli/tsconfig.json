@@ -11,7 +11,8 @@
     { "path": "../emit-hono" },
     { "path": "../oracle" },
     { "path": "../verify" },
-    { "path": "../archaeology" }
+    { "path": "../archaeology" },
+    { "path": "../runtime-chimera" }
   ],
   "include": ["src/**/*"]
 }

@@ -11,7 +11,8 @@ import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
 import { buildReport, replayCorpus, writeReport } from "@chrysalis/verify";
 import { emitTypes, runArchaeology } from "@chrysalis/archaeology";
-import { writeFileSync } from "node:fs";
+import { startChimera, type Mode, type RouteRule } from "@chrysalis/runtime-chimera";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const SUBCOMMANDS = [
   ["init", "Mark a directory as a Chrysalis project"],
@@ -278,9 +279,281 @@ async function cmdVerify(args: string[]): Promise<number> {
   return 0;
 }
 
-function cmdStatus(): number {
-  console.log("[chrysalis] status — not yet implemented (Milestone 2).");
-  console.log("See ROADMAP.md § Milestone 2 for the planned dashboard.");
+interface DeployConfigFile {
+  readonly mode?: Mode;
+  readonly legacy?: string;
+  readonly modern?: string;
+  readonly port?: number;
+  readonly host?: string;
+  readonly rules?: ReadonlyArray<RouteRule>;
+  readonly shadowLogDir?: string;
+}
+
+async function cmdDeploy(args: string[]): Promise<number> {
+  const flags = parseFlags(args);
+  const configPath = typeof flags.config === "string" ? resolve(flags.config) : null;
+  const fileCfg: DeployConfigFile = configPath
+    ? (JSON.parse(readFileSync(configPath, "utf8")) as DeployConfigFile)
+    : {};
+
+  const modeRaw = typeof flags.mode === "string" ? flags.mode : fileCfg.mode ?? "legacy";
+  if (modeRaw !== "legacy" && modeRaw !== "cutover" && modeRaw !== "shadow") {
+    console.error(`usage: chrysalis deploy --mode=legacy|cutover|shadow`);
+    console.error(`  unknown mode: ${modeRaw}`);
+    return 2;
+  }
+  const legacy = typeof flags.legacy === "string" ? flags.legacy : fileCfg.legacy;
+  const modern = typeof flags.modern === "string" ? flags.modern : fileCfg.modern;
+  if (!legacy || !modern) {
+    console.error(
+      "usage: chrysalis deploy --mode=<legacy|cutover|shadow> --legacy <url> --modern <url>\n" +
+        "                       [--port 8080] [--host 127.0.0.1]\n" +
+        "                       [--config chimera.json] [--shadow-log-dir reports/shadow]",
+    );
+    return 2;
+  }
+  const port =
+    typeof flags.port === "string"
+      ? Number.parseInt(flags.port, 10)
+      : fileCfg.port ?? 8080;
+  const host = typeof flags.host === "string" ? flags.host : fileCfg.host ?? "127.0.0.1";
+  const rules: ReadonlyArray<RouteRule> = fileCfg.rules ?? [];
+  const shadowLogDir =
+    typeof flags["shadow-log-dir"] === "string"
+      ? flags["shadow-log-dir"]
+      : fileCfg.shadowLogDir;
+
+  console.log(`[deploy] mode:       ${modeRaw}`);
+  console.log(`[deploy] legacy:     ${legacy}`);
+  console.log(`[deploy] modern:     ${modern}`);
+  console.log(`[deploy] listening:  http://${host}:${port}`);
+  console.log(`[deploy] rules:      ${rules.length}`);
+  if (shadowLogDir) console.log(`[deploy] shadow log: ${shadowLogDir}`);
+
+  const handle = await startChimera({
+    mode: modeRaw,
+    legacy,
+    modern,
+    rules,
+    host,
+    port,
+    ...(shadowLogDir ? { shadowLogDir: resolve(shadowLogDir) } : {}),
+  });
+
+  const printStats = () => {
+    const s = handle.stats();
+    console.log(
+      `[deploy] stats  total=${s.total}  legacy=${s.byTarget.legacy}  modern=${s.byTarget.modern}  ` +
+        `shadow(req=${s.shadow.requests} agreed=${s.shadow.agreed} diverged=${s.shadow.diverged})`,
+    );
+  };
+  const statsTimer = setInterval(printStats, 10_000);
+
+  const shutdown = async (): Promise<void> => {
+    clearInterval(statsTimer);
+    console.log("\n[deploy] shutting down...");
+    printStats();
+    await handle.stop();
+  };
+  process.on("SIGINT", () => {
+    void shutdown().then(() => process.exit(0));
+  });
+  process.on("SIGTERM", () => {
+    void shutdown().then(() => process.exit(0));
+  });
+
+  // Park forever; chimera runs in-process.
+  await new Promise<void>(() => {});
+  return 0;
+}
+
+interface StatusSummary {
+  readonly corpus: { traces: number; routes: number } | null;
+  readonly correctness: {
+    readonly aggregate: number;
+    readonly framesPassed: number;
+    readonly framesTotal: number;
+    readonly perRoute: Array<{ route: string; correctness: number }>;
+  } | null;
+  readonly archaeology: {
+    readonly entities: number;
+    readonly fields: number;
+    readonly unknownDdl: number;
+    readonly orphanShapes: number;
+  } | null;
+  readonly shadow: {
+    readonly requests: number;
+    readonly agreed: number;
+    readonly diverged: number;
+  } | null;
+  readonly residualLegacy: {
+    readonly holeCount: number;
+    readonly dialectCounts: Record<string, number>;
+  } | null;
+}
+
+function tryReadJson<T>(path: string): T | null {
+  try {
+    if (!existsSync(path)) return null;
+    return JSON.parse(readFileSync(path, "utf8")) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function cmdStatus(args: string[]): Promise<number> {
+  const flags = parseFlags(args);
+  const project = typeof flags.project === "string" ? resolve(flags.project) : null;
+  const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : "traces";
+  const reportDir = typeof flags.report === "string" ? resolve(flags.report) : "reports/verify";
+  const shadowDir = typeof flags.shadow === "string" ? resolve(flags.shadow) : "reports/shadow";
+  const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
+
+  const summary: StatusSummary = {
+    corpus: null,
+    correctness: null,
+    archaeology: null,
+    shadow: null,
+    residualLegacy: null,
+  };
+
+  // Corpus ------------------------------------------------------------
+  let corpus: ReturnType<typeof readCorpus> | null = null;
+  if (existsSync(tracesDir)) {
+    try {
+      corpus = readCorpus({ root: tracesDir });
+      const routes = new Set<string>();
+      for (const t of corpus.traces) {
+        const req = t.events.find((e) => e.type === "http.request");
+        if (req && req.type === "http.request") routes.add(`${req.method} ${req.path}`);
+      }
+      (summary as { corpus: StatusSummary["corpus"] }).corpus = {
+        traces: corpus.traces.length,
+        routes: routes.size,
+      };
+    } catch {
+      // ignore; corpus simply stays null
+    }
+  }
+
+  // Correctness -------------------------------------------------------
+  type ReportFile = {
+    aggregate: { correctness: number; framesPassed: number; framesTotal: number };
+    endpoints: Array<{ route: string; correctness: number }>;
+  };
+  const report = tryReadJson<ReportFile>(resolve(reportDir, "correctness.json"));
+  if (report) {
+    (summary as { correctness: StatusSummary["correctness"] }).correctness = {
+      aggregate: report.aggregate.correctness,
+      framesPassed: report.aggregate.framesPassed,
+      framesTotal: report.aggregate.framesTotal,
+      perRoute: report.endpoints.map((e) => ({ route: e.route, correctness: e.correctness })),
+    };
+  }
+
+  // Archaeology ------------------------------------------------------
+  if (schemaPath && existsSync(schemaPath)) {
+    try {
+      const input: Parameters<typeof runArchaeology>[0] = { schemaPath };
+      if (corpus) (input as { corpus: typeof corpus }).corpus = corpus;
+      const arch = runArchaeology(input);
+      let fields = 0;
+      for (const e of arch.entities) fields += e.fields.length;
+      (summary as { archaeology: StatusSummary["archaeology"] }).archaeology = {
+        entities: arch.entities.length,
+        fields,
+        unknownDdl: arch.unknownDdl.length,
+        orphanShapes: arch.orphanShapes.length,
+      };
+    } catch {
+      // ignore
+    }
+  }
+
+  // Shadow -----------------------------------------------------------
+  const shadowLog = resolve(shadowDir, "shadow.ndjson");
+  if (existsSync(shadowLog)) {
+    let requests = 0;
+    let agreed = 0;
+    let diverged = 0;
+    for (const line of readFileSync(shadowLog, "utf8").split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        const rec = JSON.parse(line) as { divergences?: ReadonlyArray<unknown> };
+        requests += 1;
+        if ((rec.divergences?.length ?? 0) === 0) agreed += 1;
+        else diverged += 1;
+      } catch {
+        // skip malformed line
+      }
+    }
+    (summary as { shadow: StatusSummary["shadow"] }).shadow = { requests, agreed, diverged };
+  }
+
+  // Residual legacy (holes) ------------------------------------------
+  if (project) {
+    try {
+      const mod = await ingestDirectory(project);
+      (summary as { residualLegacy: StatusSummary["residualLegacy"] }).residualLegacy = {
+        holeCount: countHoles(mod),
+        dialectCounts: countByDialect(mod),
+      };
+    } catch {
+      // ignore
+    }
+  }
+
+  // Render -----------------------------------------------------------
+  if (flags.json) {
+    console.log(JSON.stringify(summary, null, 2));
+    return 0;
+  }
+
+  console.log("chrysalis status");
+  console.log("────────────────");
+  if (summary.corpus) {
+    console.log(`corpus       : ${summary.corpus.traces} traces, ${summary.corpus.routes} routes`);
+  } else {
+    console.log(`corpus       : (none — pass --traces <dir>)`);
+  }
+  if (summary.correctness) {
+    const c = summary.correctness;
+    const pct = (c.aggregate * 100).toFixed(1);
+    console.log(`correctness  : ${pct}%  (${c.framesPassed}/${c.framesTotal} frames passed)`);
+    for (const e of c.perRoute) {
+      const p = (e.correctness * 100).toFixed(1).padStart(5);
+      console.log(`               ${p}%  ${e.route}`);
+    }
+  } else {
+    console.log(`correctness  : (none — run 'chrysalis verify' first)`);
+  }
+  if (summary.archaeology) {
+    const a = summary.archaeology;
+    console.log(
+      `archaeology  : ${a.entities} entities, ${a.fields} fields, ` +
+        `${a.unknownDdl} unknown DDL, ${a.orphanShapes} orphan shapes`,
+    );
+  } else {
+    console.log(`archaeology  : (none — pass --schema <schema.sql>)`);
+  }
+  if (summary.shadow) {
+    const s = summary.shadow;
+    const pct = s.requests === 0 ? "0.0" : ((s.agreed / s.requests) * 100).toFixed(1);
+    console.log(
+      `shadow       : ${s.requests} mirrored, ${s.agreed} agreed (${pct}%), ${s.diverged} diverged`,
+    );
+  } else {
+    console.log(`shadow       : (none — run 'chrysalis deploy --mode=shadow' first)`);
+  }
+  if (summary.residualLegacy) {
+    const r = summary.residualLegacy;
+    const dialects = Object.entries(r.dialectCounts)
+      .map(([k, v]) => `${k}=${v}`)
+      .join(" ");
+    console.log(`residual PHP : ${r.holeCount} holes   dialects: ${dialects}`);
+  } else {
+    console.log(`residual PHP : (none — pass --project <php-dir>)`);
+  }
   return 0;
 }
 
@@ -312,8 +585,10 @@ async function main(): Promise<number> {
       return await cmdArchaeology(rest);
     case "verify":
       return await cmdVerify(rest);
+    case "deploy":
+      return await cmdDeploy(rest);
     case "status":
-      return cmdStatus();
+      return await cmdStatus(rest);
     default:
       console.log(`[chrysalis] '${cmd}' is not implemented yet (Milestone 0 scaffold).`);
       console.log(`[chrysalis] args: ${JSON.stringify(rest)}`);

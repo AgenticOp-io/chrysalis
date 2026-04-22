@@ -487,3 +487,27 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   string equality (fails on every timestamp-rendering page and gives us zero
   signal). Token Jaccard with allowlisted normalization is the cheapest thing
   that catches real bugs without drowning us in false positives.
+- **2026-04-22 — D11** The Chimera proxy uses the **same diff primitive** as
+  `verify` in shadow mode, and treats shadow mode as "verify-in-production"
+  rather than a second implementation of response comparison. Concretely,
+  `packages/runtime-chimera` depends on `@chrysalis/verify` and calls
+  `diffResponse` on every mirrored pair. Rationale: the alternative — a
+  separate diff implementation in the proxy — would inevitably drift from
+  verify's semantics, and shadow-mode decisions ("is this route safe to cut
+  over?") must be interchangeable with verify-mode decisions on replay data.
+  Two codepaths means two thresholds, two bug surfaces, and two definitions of
+  "divergence." Shadow is explicitly fire-and-observe: the mirror to the modern
+  stack runs after the legacy response has already been returned to the
+  client, so a slow or broken modern stack can never degrade user-visible
+  latency or error rate — the worst it can do is miss divergences, which is
+  recoverable.
+- **2026-04-22 — D12** `chrysalis status` is the migration dashboard's
+  **single surface**. It composes file artifacts written by earlier stages
+  (`traces/`, `reports/verify/correctness.json`, `reports/shadow/shadow.ndjson`,
+  the fixture's `schema.sql`, the PHP project for residual-legacy counting)
+  rather than querying a live service. Rationale: stages run at different
+  cadences (observe is interactive, verify is CI-driven, chimera is
+  long-running production), and trying to aggregate them through a live API
+  would force every stage to depend on the dashboard. Reading files on demand
+  makes `status` a pure projection — it can run offline, in CI, or as a
+  pre-commit hook — and keeps the individual stages decoupled.

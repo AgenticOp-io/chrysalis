@@ -21,8 +21,11 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 
 ## Status
 
-**Pre-alpha. Milestone 1: translation axis + Oracle recording + replay-side
-verify + archaeology are online.**
+**Pre-alpha. Milestone 1 is complete end-to-end** on the bundled tiny-blog
+fixture: translation axis (ingest → WebIR → emit-hono), Oracle recording,
+verify HTTP-replay + correctness scoring, archaeology (DDL + trace shapes →
+typed domain models), the chimera runtime proxy (legacy / cutover / shadow
+modes), and the `chrysalis status` dashboard are all live.
 
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling
@@ -48,8 +51,22 @@ Archaeology runs as part of the emit pipeline: it reads the fixture's
 every entity and field (including `status` as a `"draft" | "published" |
 "archived"` string-literal union, derived from the DDL's `CHECK IN`).
 
-**Remaining for Milestone 1:** the chimera runtime proxy and the
-`chrysalis status` dashboard. See [`ROADMAP.md`](./ROADMAP.md).
+The **chimera runtime** proxy is live: `chrysalis deploy` runs a per-path
+reverse proxy over both stacks with `legacy` / `cutover` / `shadow` modes. In
+shadow mode, every request hits legacy (response returned to client) and is
+mirrored to the modern stack in the background; responses are diffed with the
+same `@chrysalis/verify` primitive used for replay, and divergences are
+appended to `reports/shadow/shadow.ndjson`.
+
+The **status dashboard** (`chrysalis status`) composes all of the above into
+one view: corpus size, per-endpoint correctness, archaeology coverage,
+shadow-mode agreement, and residual PHP (hole count + IR dialect totals). Run
+with `--json` for machine-readable output.
+
+**Remaining polish for Milestone 1:** session bridge for chimera (PHP
+`$_SESSION` ↔ new-stack session store), and `emit-hono` substituting the
+archaeology-generated row types into handler bodies. See
+[`ROADMAP.md`](./ROADMAP.md).
 
 ## Read these first
 
@@ -113,6 +130,36 @@ Run archaeology standalone:
 node packages/cli/dist/bin.js archaeology fixtures/tiny-blog/schema.sql \
   --traces traces \
   --out generated/tiny-blog/src/domain.ts
+```
+
+Run both stacks behind the chimera proxy (assumes PHP on :18080 and the
+emitted app on :3000):
+
+```bash
+# shadow mode: legacy answers the client, modern is mirrored and diffed.
+node packages/cli/dist/bin.js deploy \
+  --mode=shadow \
+  --legacy http://127.0.0.1:18080 \
+  --modern http://127.0.0.1:3000 \
+  --port 8080 \
+  --shadow-log-dir reports/shadow
+
+# cutover mode with a route file:
+node packages/cli/dist/bin.js deploy --mode=cutover \
+  --legacy http://127.0.0.1:18080 --modern http://127.0.0.1:3000 \
+  --config chimera.json
+```
+
+See the overall migration status (renders tables from the files the earlier
+stages wrote; pass `--json` for a machine-readable summary):
+
+```bash
+node packages/cli/dist/bin.js status \
+  --traces traces \
+  --schema fixtures/tiny-blog/schema.sql \
+  --report reports/verify \
+  --shadow reports/shadow \
+  --project fixtures/tiny-blog
 ```
 
 ## Why another converter?

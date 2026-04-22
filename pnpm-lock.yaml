@@ -47,6 +47,9 @@ importers:
       '@chrysalis/oracle':
         specifier: workspace:*
         version: link:../oracle
+      '@chrysalis/runtime-chimera':
+        specifier: workspace:*
+        version: link:../runtime-chimera
       '@chrysalis/verify':
         specifier: workspace:*
         version: link:../verify
@@ -83,7 +86,11 @@ importers:
         specifier: ^3.2.2
         version: 3.5.1
 
-  packages/runtime-chimera: {}
+  packages/runtime-chimera:
+    dependencies:
+      '@chrysalis/verify':
+        specifier: workspace:*
+        version: link:../verify
 
   packages/verify:
     dependencies:
