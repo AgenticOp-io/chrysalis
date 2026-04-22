@@ -1,0 +1,18 @@
+{
+  "name": "@chrysalis/parser-bridge",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Subprocess bridge to PHP's nikic/php-parser; emits canonical PHP AST JSON. Includes a pure-JS fallback via glayzzle's php-parser.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "php-parser": "^3.2.2"
+  }
+}

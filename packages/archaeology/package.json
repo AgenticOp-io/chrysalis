@@ -1,0 +1,19 @@
+{
+  "name": "@chrysalis/archaeology",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Schema recovery from DB introspection, form scans, and observed traces; emits unified types with provenance.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@chrysalis/webir": "workspace:*",
+    "@chrysalis/oracle": "workspace:*"
+  }
+}

@@ -1,0 +1,25 @@
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+.DS_Store
+.env
+.env.local
+.vscode/
+.idea/
+coverage/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Chrysalis-specific
+.chrysalis/
+traces/
+reports/
+.holes/
+
+# Generated artifacts (output of `chrysalis emit`, reproducible from the pipeline)
+generated/**/package-lock.json
+generated/**/*.sqlite
+generated/**/*.sqlite-journal

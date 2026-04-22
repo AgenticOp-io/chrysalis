@@ -1,0 +1,35 @@
+{
+  "app": "tiny-blog",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/posts",
+      "file": "pages/posts_list.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/posts/:id",
+      "file": "pages/posts_view.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "post_id" }]
+    },
+    {
+      "method": "POST",
+      "path": "/login",
+      "file": "pages/login.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/posts",
+      "file": "pages/posts_create.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/posts/:id/comments",
+      "file": "pages/comments_create.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "post_id" }]
+    }
+  ]
+}

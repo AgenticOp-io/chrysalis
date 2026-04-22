@@ -1,0 +1,31 @@
+# @chrysalis/emit-hono
+
+## Purpose
+
+Emits a runnable **Hono + Drizzle** TypeScript project from a WebIR `Module`.
+The first Chrysalis backend; the reference for how to write future backends
+(`emit-fastify`, `emit-next`, `emit-rust`, ...).
+
+## Public API
+
+- `emit(input: EmitInput): Promise<EmitResult>`
+- `EmitInput` — WebIR module, target directory, runtime config (bindings,
+  adapters, schema lens configuration)
+- `EmitResult` — file list, hole registry, emission report
+
+## Invariants
+
+- **The output project compiles.** Type errors in generated code are emission
+  bugs. CI must fail if any fixture emits a non-compiling project.
+- **Effect signatures are preserved.** Every handler's generated signature
+  carries the effect union inferred by WebIR.
+- **Provenance survives.** Generated types and non-trivial handlers include
+  `@chrysalis-provenance` JSDoc blocks.
+- **Holes are compiling stubs** that delegate to the chimera runtime. Never
+  emit `throw new Error("TODO")` in place of a hole.
+
+## Non-goals
+
+- Running the generated project. That's user or CI territory.
+- Modifying WebIR. Emission is read-only.
+- Supporting non-Hono targets — those are other packages.

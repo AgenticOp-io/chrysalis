@@ -1,0 +1,15 @@
+{
+  "name": "@chrysalis/oracle",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Oracle sidecar: records HTTP, SQL, and side effects of a running PHP app into a replayable TraceCorpus.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  }
+}
