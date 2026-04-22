@@ -363,16 +363,16 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
     case "parenthesis":
       return convertExpression(file, node.inner as AnyNode);
     case "empty": {
+      // PHP's `empty($x)` returns true iff $x is empty; we lower it to a
+      // call to the `__empty` runtime helper, which preserves that polarity.
+      // No extra negation — negating here would make `if (empty($x))` and
+      // `if (!empty($x))` both emit as `if (!empty(...))`, silently flipping
+      // the branch logic for every page that branches on emptiness.
       const arg = node.expression as AnyNode ?? (node.what as AnyNode);
       return {
-        kind: "UnaryOp",
-        operator: "!",
-        operand: {
-          kind: "Call",
-          callee: { kind: "name", name: "__empty" },
-          args: [convertExpression(file, arg)],
-          pos: pos(file, node),
-        } as unknown as PhpExpr,
+        kind: "Call",
+        callee: { kind: "name", name: "__empty" },
+        args: [convertExpression(file, arg)],
         pos: pos(file, node),
       };
     }
