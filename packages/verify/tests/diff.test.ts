@@ -118,4 +118,52 @@ describe("diffResponse", () => {
     });
     expect(r.divergences.some((d) => d.kind === "body-mismatch")).toBe(true);
   });
+
+  it("skips content-type comparison on 3xx redirects", () => {
+    // PHP's `header("Location: ...")` does not set a content-type; Hono's
+    // c.redirect() does. This should not produce a header-mismatch.
+    const r = diffResponse(
+      expected({
+        status: 302,
+        headers: { location: "/posts" },
+        body: "",
+      }),
+      {
+        status: 302,
+        headers: { "content-type": "text/plain; charset=UTF-8", location: "/posts" },
+        body: "",
+      },
+    );
+    expect(r.divergences.some((d) => d.kind === "header-mismatch")).toBe(false);
+  });
+
+  it("uses a looser body threshold for 4xx/5xx responses", () => {
+    // PHP: "Not Found" ; Hono default 404: "404 Not Found"
+    const r = diffResponse(
+      expected({ status: 404, headers: { "content-type": "text/plain" }, body: "Not Found" }),
+      {
+        status: 404,
+        headers: { "content-type": "text/plain; charset=UTF-8" },
+        body: "404 Not Found",
+      },
+    );
+    expect(r.divergences).toHaveLength(0);
+  });
+
+  it("still flags clearly-different error bodies", () => {
+    // A 400 that actually changed the validation message is a real diff.
+    const r = diffResponse(
+      expected({
+        status: 400,
+        headers: { "content-type": "text/plain" },
+        body: "email is required",
+      }),
+      {
+        status: 400,
+        headers: { "content-type": "text/plain" },
+        body: "password must be at least eight characters long and contain a digit",
+      },
+    );
+    expect(r.divergences.some((d) => d.kind === "body-mismatch")).toBe(true);
+  });
 });

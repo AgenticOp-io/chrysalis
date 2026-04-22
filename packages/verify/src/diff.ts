@@ -26,8 +26,20 @@ export interface ReplayedResponse {
 export interface DiffOptions {
   /** Headers that must match exactly after normalization. */
   readonly strictHeaders?: ReadonlyArray<string>;
-  /** Body similarity threshold (0..1). Below this, we report a body-mismatch. */
+  /**
+   * Body similarity threshold (0..1) for 2xx responses. Below this, we
+   * report a body-mismatch. Defaults to 0.9.
+   */
   readonly bodySimilarityThreshold?: number;
+  /**
+   * Body similarity threshold for 4xx/5xx responses. Error bodies are
+   * conventionally free-form human-readable text (e.g. `"Not Found"` vs
+   * `"404 Not Found"`) and the contract is primarily the status code.
+   * Defaults to 0.4 — wide enough to ignore wording, narrow enough to catch
+   * "one side rendered a page, the other rendered an error." Set to 0 to
+   * disable body comparison on error responses entirely.
+   */
+  readonly errorBodySimilarityThreshold?: number;
 }
 
 export interface DiffResult {
@@ -47,7 +59,10 @@ export function diffResponse(
 ): DiffResult {
   const divergences: Divergence[] = [];
   const strictHeaders = (opts.strictHeaders ?? DEFAULT_STRICT_HEADERS).map((h) => h.toLowerCase());
-  const threshold = opts.bodySimilarityThreshold ?? 0.9;
+  const okThreshold = opts.bodySimilarityThreshold ?? 0.9;
+  const errThreshold = opts.errorBodySimilarityThreshold ?? 0.4;
+  const isError = expected.status >= 400;
+  const threshold = isError ? errThreshold : okThreshold;
 
   if (expected.status !== actual.status) {
     divergences.push({
@@ -60,7 +75,14 @@ export function diffResponse(
 
   const expH = normalizeHeaders(expected.headers);
   const actH = normalizeHeaders(actual.headers);
+  // Redirects (3xx) are defined by status + Location. Their content-type is a
+  // runtime detail — PHP's `header("Location: ...")` does not set one but
+  // most frameworks' redirect helpers (Hono's c.redirect, Express's
+  // res.redirect) do. Comparing content-type on 3xx produces false positives
+  // that are never real bugs.
+  const isRedirect = expected.status >= 300 && expected.status < 400;
   for (const name of strictHeaders) {
+    if (isRedirect && name === "content-type") continue;
     const e = expH[name];
     const a = actH[name];
     if (e === undefined && a === undefined) continue;
