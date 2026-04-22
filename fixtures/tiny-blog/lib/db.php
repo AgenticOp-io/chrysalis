@@ -4,7 +4,12 @@
 function db(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        $pdo = new PDO('sqlite:' . __DIR__ . '/../blog.sqlite');
+        $dsn = 'sqlite:' . __DIR__ . '/../blog.sqlite';
+        // If the Chrysalis Oracle prelude is loaded, use its instrumented PDO
+        // so SQL traffic gets recorded. Otherwise, behave exactly like normal.
+        $pdo = class_exists('\\Chrysalis\\Oracle\\Db\\PDO')
+            ? new \Chrysalis\Oracle\Db\PDO($dsn)
+            : new PDO($dsn);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }

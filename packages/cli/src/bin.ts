@@ -4,13 +4,16 @@
  */
 
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { countByDialect, countHoles } from "@chrysalis/webir";
 import { emit as emitHono } from "@chrysalis/emit-hono";
+import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
 
 const SUBCOMMANDS = [
   ["init", "Mark a directory as a Chrysalis project"],
   ["observe", "Run the oracle sidecar against a live PHP app"],
+  ["corpus", "Read + summarize a traces/ directory"],
   ["ingest", "Translate PHP source into a WebIR module"],
   ["archaeology", "Recover schema from DB + forms + traces"],
   ["emit", "Emit a target project from a WebIR module (e.g. --target=hono)"],
@@ -112,6 +115,75 @@ async function cmdConvert(args: string[]): Promise<number> {
   return cmdEmit(args);
 }
 
+async function cmdObserve(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const flags = parseFlags(args);
+  const root = pos[0];
+  if (!root) {
+    console.error(
+      "usage: chrysalis observe <php-project-dir> [--traces <dir>] [--port 8080] [--host 127.0.0.1]",
+    );
+    return 2;
+  }
+  const phpRoot = resolve(root);
+  const traceDir = resolve(typeof flags.traces === "string" ? flags.traces : "traces");
+  const port = typeof flags.port === "string" ? Number.parseInt(flags.port, 10) : 8080;
+  const host = typeof flags.host === "string" ? flags.host : "127.0.0.1";
+
+  // The prelude ships inside the repo at packages/oracle-php/src/bootstrap.php.
+  // Resolve its path relative to this CLI's installation root.
+  const thisFile = fileURLToPath(import.meta.url);
+  const preludePath = resolve(thisFile, "..", "..", "..", "oracle-php", "src", "bootstrap.php");
+
+  const redaction = loadObserveConfig(phpRoot);
+  console.log(`[observe] php root:   ${phpRoot}`);
+  console.log(`[observe] trace dir:  ${traceDir}`);
+  console.log(`[observe] prelude:    ${preludePath}`);
+  console.log(`[observe] listening:  http://${host}:${port}`);
+  console.log(`[observe] redaction:  ${redaction.rules.length} rule(s)`);
+
+  const handle = startObserver({
+    phpRoot,
+    traceDir,
+    preludePath,
+    redaction,
+    host,
+    port,
+    onStdout: (s) => process.stdout.write(s),
+    onStderr: (s) => process.stderr.write(s),
+  });
+
+  process.on("SIGINT", () => {
+    console.log("\n[observe] shutting down...");
+    void handle.stop();
+  });
+
+  const code = await handle.exited;
+  return code;
+}
+
+async function cmdCorpus(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const root = pos[0];
+  if (!root) {
+    console.error("usage: chrysalis corpus <traces-dir>");
+    return 2;
+  }
+  const corpus = readCorpus({ root: resolve(root) });
+  console.log(`traces: ${corpus.traces.length}`);
+  const byRoute = new Map<string, number>();
+  for (const t of corpus.traces) {
+    const req = t.events.find((e) => e.type === "http.request");
+    if (!req || req.type !== "http.request") continue;
+    const key = `${req.method} ${req.path}`;
+    byRoute.set(key, (byRoute.get(key) ?? 0) + 1);
+  }
+  for (const [route, count] of [...byRoute.entries()].sort()) {
+    console.log(`  ${route.padEnd(30)} ${count}`);
+  }
+  return 0;
+}
+
 function cmdStatus(): number {
   console.log("[chrysalis] status — not yet implemented (Milestone 2).");
   console.log("See ROADMAP.md § Milestone 2 for the planned dashboard.");
@@ -138,6 +210,10 @@ async function main(): Promise<number> {
       return await cmdEmit(rest);
     case "convert":
       return await cmdConvert(rest);
+    case "observe":
+      return await cmdObserve(rest);
+    case "corpus":
+      return await cmdCorpus(rest);
     case "status":
       return cmdStatus();
     default:

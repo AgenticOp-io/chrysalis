@@ -21,13 +21,21 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 
 ## Status
 
-**Pre-alpha, Milestone 1 vertical slice complete.**
+**Pre-alpha, Milestone 1 vertical slice complete; Oracle recorder online.**
 
-The end-to-end pipeline now runs on the bundled `fixtures/tiny-blog` PHP app:
-PHP sources → parser-bridge → WebIR → emit-hono → a compiling TypeScript
-project that passes `tsc --noEmit` *and* actually serves live HTTP traffic
-backed by SQLite (no holes emitted for this fixture). See
-[`ROADMAP.md`](./ROADMAP.md) for what's next (Oracle + Chimera).
+The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
+PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling
+TypeScript project that passes `tsc --noEmit` *and* actually serves live HTTP
+traffic backed by SQLite (no holes emitted for this fixture).
+
+The Oracle's **recording** half is live: a userland PHP prelude
+(`packages/oracle-php/`) captures HTTP requests, SQL queries, session state,
+headers, and cookies into a versioned NDJSON corpus, with configurable
+capture-time redaction. Driven by `chrysalis observe`, read back by
+`chrysalis corpus`.
+
+The **replay** half (verify, chimera) is the next piece — see
+[`ROADMAP.md`](./ROADMAP.md).
 
 ## Read these first
 
@@ -56,6 +64,17 @@ CLI equivalents:
 ```bash
 node packages/cli/dist/bin.js ingest fixtures/tiny-blog
 node packages/cli/dist/bin.js emit fixtures/tiny-blog --out generated/tiny-blog --target=hono
+```
+
+Record a trace corpus from the live PHP app (requires `php` on PATH):
+
+```bash
+node packages/cli/dist/bin.js observe fixtures/tiny-blog --traces traces --port 8080
+# in another terminal:
+curl http://127.0.0.1:8080/
+node packages/cli/dist/bin.js corpus traces
+# or do both at once, one request per route:
+node scripts/drive-tiny-blog.mjs
 ```
 
 ## Why another converter?

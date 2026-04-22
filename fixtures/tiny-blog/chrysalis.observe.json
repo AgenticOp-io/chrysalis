@@ -1,0 +1,11 @@
+{
+  "redaction": {
+    "rules": [
+      { "path": "request.headers.cookie", "kind": "hash" },
+      { "path": "request.cookies.PHPSESSID", "kind": "hash" },
+      { "path": "request.post.password", "kind": "mask" },
+      { "path": "session.user_hash", "kind": "hash" },
+      { "path": "setcookie.PHPSESSID", "kind": "hash" }
+    ]
+  }
+}

@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
@@ -40,3 +40,36 @@ jobs:
           cd generated/tiny-blog
           npm install --no-audit --no-fund
           npx tsc --noEmit
+
+  oracle-live-drive:
+    name: oracle live drive (php + node)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: Drive tiny-blog through the Oracle
+        run: node scripts/drive-tiny-blog.mjs
+
+      - name: Summarize corpus via CLI
+        run: node packages/cli/dist/bin.js corpus traces

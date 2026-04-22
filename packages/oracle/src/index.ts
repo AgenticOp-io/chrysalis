@@ -1,57 +1,57 @@
 /**
  * @chrysalis/oracle — record/replay sidecar for legacy PHP apps.
- * Milestone 1 will implement an HTTP proxy + SQL capture + corpus persistence.
+ *
+ * Milestone 1 implementation (Decision D6): the recording half lives in a
+ * userland PHP prelude (`packages/oracle-php/`) that is loaded via
+ * `auto_prepend_file`. The prelude emits one NDJSON file per request into a
+ * `traces/<iso-date>/` directory. This Node package reads, validates, and
+ * indexes those traces for downstream ingest/verify/chimera stages.
  */
 
-export interface HttpFrame {
-  readonly request: {
-    readonly method: string;
-    readonly path: string;
-    readonly headers: Readonly<Record<string, string>>;
-    readonly body: string | null;
-  };
-  readonly response: {
-    readonly status: number;
-    readonly headers: Readonly<Record<string, string>>;
-    readonly body: string | null;
-  };
-}
+export {
+  SCHEMA_VERSION,
+  type Trace,
+  type TraceBodyEvent,
+  type TraceCorpus,
+  type TraceEvent,
+  type TraceFooter,
+  type TraceHeader,
+  type HttpRequestEvent,
+  type HttpResponseEvent,
+  type SqlQueryEvent,
+  type HeaderCallEvent,
+  type SetCookieEvent,
+  type ExitEvent,
+  type EchoEvent,
+  type TimeReadEvent,
+  type RandomReadEvent,
+  type HoleObservedEvent,
+  type RedactionKind,
+  type RedactionRecord,
+  SchemaError,
+  parseEvent,
+} from "./trace-schema.js";
 
-export interface SqlFrame {
-  readonly query: string;
-  readonly params: ReadonlyArray<unknown>;
-  readonly result: unknown;
-}
+export {
+  TraceFileError,
+  parseTraceFile,
+  readCorpus,
+  groupByRoute,
+  type ReadCorpusOptions,
+  type RouteSignature,
+} from "./reader.js";
 
-export interface TraceFrame {
-  readonly id: string;
-  readonly ts: string;
-  readonly http: HttpFrame;
-  readonly sql: ReadonlyArray<SqlFrame>;
-  readonly outbound: ReadonlyArray<{ kind: string; payload: unknown }>;
-  readonly determinism: {
-    readonly nowMs: ReadonlyArray<number>;
-    readonly randomValues: ReadonlyArray<number>;
-  };
-}
+export {
+  DEFAULT_REDACTION,
+  canonicalJSON,
+  redactionRecords,
+  type RedactionConfig,
+  type RedactionRule,
+} from "./redaction.js";
 
-export interface TraceCorpus {
-  readonly id: string;
-  readonly createdAt: string;
-  readonly frames: ReadonlyArray<TraceFrame>;
-}
-
-export interface ObserveConfig {
-  readonly upstream: string;
-  readonly listen: { readonly host: string; readonly port: number };
-  readonly outDir: string;
-  readonly redact?: ReadonlyArray<string>;
-}
-
-export interface ObserveSession {
-  stop(): Promise<TraceCorpus>;
-}
-
-export async function observe(_config: ObserveConfig): Promise<ObserveSession> {
-  throw new Error("oracle: observe not implemented (Milestone 1).");
-}
+export {
+  startObserver,
+  loadObserveConfig,
+  type ObserveOptions,
+  type ObserveHandle,
+} from "./observe.js";

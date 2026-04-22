@@ -41,6 +41,9 @@ importers:
       '@chrysalis/ingest':
         specifier: workspace:*
         version: link:../ingest
+      '@chrysalis/oracle':
+        specifier: workspace:*
+        version: link:../oracle
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir

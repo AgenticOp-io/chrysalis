@@ -19,6 +19,7 @@
   "dependencies": {
     "@chrysalis/webir": "workspace:*",
     "@chrysalis/ingest": "workspace:*",
-    "@chrysalis/emit-hono": "workspace:*"
+    "@chrysalis/emit-hono": "workspace:*",
+    "@chrysalis/oracle": "workspace:*"
   }
 }

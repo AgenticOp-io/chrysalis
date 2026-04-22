@@ -1,0 +1,17 @@
+{
+    "name": "chrysalis/oracle",
+    "description": "Chrysalis Oracle: userland PHP prelude that records HTTP, SQL, and side effects into a replayable TraceCorpus.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Chrysalis\\Oracle\\": "src/"
+        },
+        "files": [
+            "src/bootstrap.php"
+        ]
+    }
+}

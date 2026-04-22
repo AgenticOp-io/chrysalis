@@ -8,7 +8,8 @@
   "references": [
     { "path": "../webir" },
     { "path": "../ingest" },
-    { "path": "../emit-hono" }
+    { "path": "../emit-hono" },
+    { "path": "../oracle" }
   ],
   "include": ["src/**/*"]
 }

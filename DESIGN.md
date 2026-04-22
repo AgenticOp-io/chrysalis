@@ -430,3 +430,25 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   This softens D2 but preserves its intent: no native JS parser is *bundled*
   as a hidden default; users explicitly choose a provider, and nikic is the
   documented recommendation.
+- **2026-04-22 — D6** The Oracle **records** via a userland PHP prelude
+  (`packages/oracle-php/`) loaded by `auto_prepend_file`, not via an Apache/Nginx
+  proxy and not via a native Zend extension. Rationale: the prelude gives us
+  file-and-line **provenance** on every captured effect (which the wire layer
+  cannot), requires zero compilation (which the extension cannot), and installs
+  with a single `.ini` line on any PHP 7.4+. A native extension remains on the
+  roadmap as a drop-in performance upgrade for high-volume production observation
+  (Milestone 4+); both implementations target the same NDJSON trace schema, so
+  `verify`/`ingest` consume them interchangeably. Cross-language interception
+  (MySQL wire proxy, eBPF) is explicitly **rejected** for Milestone 1 because it
+  cannot attribute SQL to the source line that issued it, and that attribution
+  is load-bearing for every downstream stage.
+- **2026-04-22 — D7** Redaction is applied **at capture time**, in the PHP
+  prelude, before any event is written to disk. There is no unredacted trace
+  file. The redaction config is hashed into the trace header so traces captured
+  under different policies cannot be silently compared. Rationale: the moment
+  we point Chrysalis at a real application, the `traces/` directory contains
+  passwords, session tokens, and PII. If redaction is a post-processing step,
+  there is always a window where the raw artifact exists on disk — and in
+  practice, that window is forever. Capture-time redaction eliminates the
+  liability at the cost of some discarded information that can be re-captured
+  by adjusting config.

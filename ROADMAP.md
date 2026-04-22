@@ -27,18 +27,26 @@ runnable demo and measurable numbers, not a pile of abstractions.
 
 **Goal:** end-to-end on `fixtures/tiny-blog`. Prove the whole thesis once.
 
-**Status: translation axis is live (2–7). Oracle/verify/chimera remain.**
+**Status: translation axis is live (2, 3, 5, 8). Oracle (1) recording side is
+implemented; remaining work is the corpus-driven loop (4, 6, 7).**
 The unmodified tiny-blog PHP app is ingested into a 326-node WebIR module
 with zero holes; emit-hono produces a compiling TypeScript project that
-serves live HTTP requests against a seeded SQLite database.
+serves live HTTP requests against a seeded SQLite database. The Oracle PHP
+prelude captures HTTP + SQL + session traces into a versioned NDJSON
+corpus; `chrysalis observe` wires it up; `chrysalis corpus` summarizes it.
 
 Acceptance — every item must be demonstrable on the tiny-blog fixture:
 
 1. **Oracle (record)**
-   - [ ] `chrysalis observe` proxies HTTP to the running PHP app
-   - [ ] Captures request/response pairs for all 5 endpoints
-   - [ ] Captures SQL queries + result sets via a DB proxy or driver shim
-   - [ ] Persists to a versioned `TraceCorpus` on disk
+   - [x] `chrysalis observe` runs the PHP built-in server with the Oracle
+         prelude loaded via `auto_prepend_file` (D6)
+   - [x] Captures request/response pairs for all 5 endpoints (incl. session
+         state pre- and post-handler)
+   - [x] Captures SQL queries + result sets via a PDO driver shim
+         (`\Chrysalis\Oracle\Db\PDO`)
+   - [x] Persists to a versioned `TraceCorpus` on disk (schema 1.0.0), one
+         NDJSON file per request, redacted at capture time (D7)
+   - [x] `chrysalis corpus <dir>` summarizes a captured corpus
 
 2. **Parser bridge**
    - [x] Emits canonical PHP AST JSON via the glayzzle provider (D5).
@@ -84,6 +92,8 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [x] `chrysalis ingest <dir>` prints route/node/hole counts and dialect totals
    - [x] `chrysalis emit <dir> --out <dir> [--target=hono]` generates the project
          and reports per-handler effects
+   - [x] `chrysalis observe <dir>` starts the live recorder
+   - [x] `chrysalis corpus <dir>` summarizes a traces directory
    - [ ] `chrysalis status` prints:
      - Coverage %
      - Correctness % (per endpoint and aggregate)
