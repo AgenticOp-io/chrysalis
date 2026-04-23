@@ -365,10 +365,22 @@ function convertCall(
   switch (lowering.kind) {
     case "dbQuery": {
       const sqlArg = e.args[0];
-      const sql =
-        sqlArg?.kind === "Literal" && sqlArg.literalKind === "string"
-          ? String(sqlArg.value)
-          : "<dynamic>";
+      let sql: string;
+      let sqlExpr: NodeId | undefined;
+      if (sqlArg?.kind === "Literal" && sqlArg.literalKind === "string") {
+        sql = String(sqlArg.value);
+        sqlExpr = undefined;
+      } else {
+        sql = "<dynamic>";
+        // When the SQL isn't a literal we ALSO convert the expression tree
+        // and stash its NodeId on the db.query node as an attr. Without
+        // this, the rewrite engine couldn't recover the attacker inputs
+        // from the IR for the `parameterize-sql` pass — the concat tree
+        // would be orphaned with no consumer. Keeping it as a non-operand
+        // attr means db.query's operand contract (params only) is
+        // unchanged, so emit, taint, and invariants all keep working.
+        sqlExpr = sqlArg ? convertExpr(ctx, sqlArg, pathParams) : undefined;
+      }
       const tables = guessTables(sql);
       const isRead = /^\s*select\b/i.test(sql) || lowering.mode === "rows" || lowering.mode === "row-or-null";
       // PHP calling convention: `query_*(sql, [p1, p2, ...])`. Unwrap a single
@@ -381,7 +393,7 @@ function convertCall(
         params = args.slice(1);
       }
       const type = classifyDbReturn(lowering.mode);
-      return ctx.effect.dbQuery({
+      const dbQueryOpts: Parameters<typeof ctx.effect.dbQuery>[0] = {
         kind: isRead ? "read" : "write",
         sql,
         params,
@@ -389,7 +401,9 @@ function convertCall(
         tables,
         type,
         origin: loc(ctx, e.pos),
-      });
+      };
+      if (sqlExpr !== undefined) dbQueryOpts.sqlExpr = sqlExpr;
+      return ctx.effect.dbQuery(dbQueryOpts);
     }
     case "htmlspecialchars":
       return ctx.data.call({

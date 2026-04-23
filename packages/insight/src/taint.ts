@@ -196,6 +196,14 @@ function classify(
       // (request fields used as placeholders) are marked and recorded
       // for downstream recognizers like raw-sql-concat.
       for (const o of n.operands) visit(o);
+      // db.query also carries a non-operand `sqlExpr` attr when the
+      // SQL was built dynamically at the call site (see
+      // packages/ingest/src/convert.ts). Treat it as a virtual operand
+      // for taint purposes so request fields appearing only inside the
+      // dynamic SQL tree still get classified as tainted — that's the
+      // exact flow `raw-sql-concat` uses to flip severity to strong.
+      const sqlExpr = (n.attrs as { sqlExpr?: NodeId }).sqlExpr;
+      if (sqlExpr) visit(sqlExpr);
       sources.add(n.id);
       return "tainted";
     }

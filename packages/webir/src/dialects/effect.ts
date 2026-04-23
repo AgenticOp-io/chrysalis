@@ -11,6 +11,14 @@ export interface Builders {
   dbQuery(opts: {
     kind: "read" | "write";
     sql: string;
+    /**
+     * Optional pointer to the expression tree that *built* the SQL, when
+     * the call-site SQL wasn't a string literal. Stored as a non-operand
+     * attr so db.query's operand contract (params only) is unchanged.
+     * Consumed by the `parameterize-sql` rewrite pass to recover
+     * attacker inputs and lift them into bound parameters.
+     */
+    sqlExpr?: NodeId;
     params: ReadonlyArray<NodeId>;
     returns: "rows" | "row-or-null" | "insert-id" | "rowcount";
     /** Tables touched, for effect tagging and archaeology. */
@@ -53,17 +61,19 @@ export interface Builders {
 
 export function builders(m: ModuleBuilder): Builders {
   return {
-    dbQuery({ kind, sql, params, returns, tables, type, origin, provenance: prov }) {
+    dbQuery({ kind, sql, sqlExpr, params, returns, tables, type, origin, provenance: prov }) {
       const effects: Effect[] = tables.map((t) =>
         kind === "read" ? { kind: "db.read", table: t } : { kind: "db.write", table: t },
       );
+      const attrs: Record<string, unknown> = { kind, sql, returns, tables };
+      if (sqlExpr !== undefined) attrs["sqlExpr"] = sqlExpr;
       return m.node({
         dialect: DIALECT,
         op: "db.query",
         type,
         effects: Object.freeze(effects),
         operands: params,
-        attrs: { kind, sql, returns, tables } as Record<string, unknown>,
+        attrs,
         origin,
         provenance: prov ?? [provenance("php-ast", origin, `sql:${kind} ${tables.join(",")}`)],
       });

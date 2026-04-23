@@ -60,8 +60,27 @@ export function descendants(m: Module, root: NodeId): NodeBase[] {
     if (!n) continue;
     out.push(n);
     for (const op of n.operands) stack.push(op);
+    // Non-operand attrs that point at sibling nodes (currently only
+    // `db.query.sqlExpr`) are treated as virtual operands here so
+    // recognizers scoped to `descendants(body)` reach every node in
+    // the handler's logical subtree.
+    const extra = virtualOperandsOf(n);
+    for (const v of extra) stack.push(v);
   }
   return out;
+}
+
+/**
+ * Non-operand attrs that reference sibling nodes. Kept centralized so
+ * any walker can pick up new cross-references without having to know
+ * which dialects they live in.
+ */
+function virtualOperandsOf(n: NodeBase): ReadonlyArray<NodeId> {
+  if (n.dialect === "effect" && n.op === "db.query") {
+    const sqlExpr = (n.attrs as { sqlExpr?: NodeId }).sqlExpr;
+    if (sqlExpr) return [sqlExpr];
+  }
+  return [];
 }
 
 /**
@@ -83,6 +102,7 @@ export function visitDescendants(
     const cont = visit(n);
     if (cont === false) return;
     for (const op of n.operands) go(op);
+    for (const v of virtualOperandsOf(n)) go(v);
   };
   go(root);
 }

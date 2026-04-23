@@ -28,6 +28,7 @@ ingest → insight → rewrite → emit into a single command.
 | pass id | handles recognizer | effect |
 | --- | --- | --- |
 | `sanitize-output` | `unescaped-output` | Wraps tainted leaves of a concat-like echo in `htmlspecialchars`. For `html.template` sinks, flips the offending part's `escape: false` to `true` and wraps its operand. Preserves literal HTML surrounding the taint. |
+| `parameterize-sql` | `raw-sql-concat` | Walks the `sqlExpr` tree stashed by ingest, inlines string literals as SQL text, and lifts every other leaf as a `?`-placeholder bound parameter. Emitted TS becomes `queryAll("SELECT … WHERE id = ?", [id])`. Structurally SQLi-proof. |
 
 ## Invariant verification
 

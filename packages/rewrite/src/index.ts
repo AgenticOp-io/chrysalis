@@ -21,7 +21,9 @@ export {
   type InvariantViolation,
 } from "./invariants.js";
 export { sanitizeOutputPass } from "./passes/sanitize-output.js";
+export { parameterizeSqlPass } from "./passes/parameterize-sql.js";
 import { sanitizeOutputPass } from "./passes/sanitize-output.js";
+import { parameterizeSqlPass } from "./passes/parameterize-sql.js";
 import type { RewritePass } from "./framework.js";
 
 /**
@@ -29,4 +31,7 @@ import type { RewritePass } from "./framework.js";
  * additive transforms come first. Users can pass a custom list to
  * `applyRewrites` to widen or narrow the set.
  */
-export const DEFAULT_PASSES: ReadonlyArray<RewritePass> = [sanitizeOutputPass];
+export const DEFAULT_PASSES: ReadonlyArray<RewritePass> = [
+  sanitizeOutputPass,
+  parameterizeSqlPass,
+];

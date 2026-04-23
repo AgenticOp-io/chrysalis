@@ -219,16 +219,36 @@ jobs:
           node -e '
             const fs = require("fs");
             const r = JSON.parse(fs.readFileSync("reports/rewrite/tiny-n1.json","utf8"));
-            const applied = r.applied.filter(a => a.pass === "sanitize-output");
-            if (applied.length === 0) {
+            const sanitize = r.applied.filter(a => a.pass === "sanitize-output");
+            const paramz = r.applied.filter(a => a.pass === "parameterize-sql");
+            if (sanitize.length === 0) {
               console.error("expected >=1 sanitize-output application, got none");
               process.exit(1);
             }
-            const handler = fs.readFileSync(
+            if (paramz.length === 0) {
+              console.error("expected >=1 parameterize-sql application, got none");
+              process.exit(1);
+            }
+            const search = fs.readFileSync(
               "generated/tiny-n1/src/handlers/search.ts", "utf8",
             );
-            if (!/escapeHtml\(/.test(handler)) {
-              console.error("emitted search.ts has no escapeHtml() call:\n" + handler);
+            if (!/escapeHtml\(/.test(search)) {
+              console.error("emitted search.ts has no escapeHtml() call:\n" + search);
+              process.exit(1);
+            }
+            const lookup = fs.readFileSync(
+              "generated/tiny-n1/src/handlers/lookup.ts", "utf8",
+            );
+            // Emitted SQL must be literal with a `?` placeholder — NOT
+            // a concat expression. This check fails loudly if the
+            // parameterize-sql fix is lost anywhere in the IR → emit
+            // pipeline.
+            if (!/"SELECT[^"]*\?[^"]*"/.test(lookup)) {
+              console.error("emitted lookup.ts lacks parameterized SQL:\n" + lookup);
+              process.exit(1);
+            }
+            if (/\+\s*id/.test(lookup) || /"\s*\.\s*/.test(lookup)) {
+              console.error("emitted lookup.ts still contains SQL concat:\n" + lookup);
               process.exit(1);
             }
             console.log("tiny-n1 rewrite OK:", JSON.stringify(r.summary));

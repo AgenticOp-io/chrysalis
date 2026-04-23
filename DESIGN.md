@@ -658,3 +658,48 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   invariant system is declarative, so every new pass gets
   "I didn't silently mutate an effect I don't own" protection for free
   without any extra test authoring.
+- **2026-04-22 — D17** Ship the `parameterize-sql` rewrite pass as the
+  second member of the `@chrysalis/rewrite` pass catalog. Paired with
+  the `raw-sql-concat` recognizer + the taint primitive, this closes
+  the SQLi half of the OWASP top-two — XSS was closed by
+  `sanitize-output` under D15.
+
+  The structural problem: PHP's `query_all("SELECT ... " . $x)` pattern
+  loses the concat tree at ingest time. The original ingester just
+  flagged the SQL attr as `"<dynamic>"` and moved on, which was enough
+  for detection but not for rewrite (no way to recover the attacker-
+  controlled leaves). Fix: ingest now preserves the full expression
+  tree as a non-operand `sqlExpr` attr on the `effect.db.query` node,
+  and the walkers in `@chrysalis/insight/walk.ts` treat it as a
+  **virtual operand** so taint analysis reaches request fields that
+  only appear inside the dynamic SQL tree. The `operands` array stays
+  the bound-params contract — emit, invariants, and the recognizer's
+  `anyParamTainted` check all continue to work unchanged.
+
+  The pass walks the `sqlExpr` tree, classifying each leaf:
+
+    - a `data.literal` of kind `string` → inlined into the rebuilt
+      literal SQL string verbatim
+    - everything else → emitted as a `?` placeholder, and the node
+      itself is appended to `operands` (bound params)
+
+  After rewrite the db.query has a literal `sql` attr, no `sqlExpr`,
+  and a params array containing the lifted leaves. The emitted TS
+  becomes `queryAll("SELECT ... WHERE id = ?", [id])` — structurally
+  SQLi-proof because the SQL text contains only developer-written
+  characters plus `?` placeholders.
+
+  Invariants: the pass declares `mayModify: ["effect.db.query"]` —
+  it's the narrowest possible claim and keeps the structural
+  invariant verifier catching any cross-pass bug that would touch
+  cookies, sessions, redirects, or response bodies.
+
+  Rejected alternatives: (a) make `sqlExpr` a real operand (operand[0]
+  = SQL tree, operands[1:] = params) — cleaner in theory but requires
+  coordinated changes across the emitter, recognizer, and every
+  consumer of db.query operands, and it breaks the "operands are
+  bound params" mental model that's been stable since Milestone 1;
+  (b) inline all leaves as params even when they're literal strings —
+  structurally safe but emits `? ? ?` instead of the developer's own
+  SQL keywords, making the rewritten code harder to review and
+  diverging from the database's query-plan cache.

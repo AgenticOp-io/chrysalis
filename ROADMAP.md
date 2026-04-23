@@ -177,9 +177,20 @@ Deepen each layer without broadening too fast.
       back and records a `verify-invariant-failed` entry in the report.
       Fast enough to run per-opportunity; complements full HTTP replay,
       which still runs post-rewrite for holistic behavior checks.
+- [x] **Parameterize-sql pass (`@chrysalis/rewrite`, D17)** — second pass
+      in the catalog. Ingest preserves the concat tree as a
+      `sqlExpr` virtual-operand attr on `effect.db.query`; the pass
+      walks it, inlines string literals as SQL text, and lifts every
+      other leaf to a `?`-placeholder bound parameter. After rewrite
+      `raw-sql-concat` no longer fires. Emitted TS for tiny-n1/lookup
+      is now `queryAll("SELECT id, name FROM users WHERE id = ?", [id])`
+      — structurally SQLi-proof. CI rewrite-gate asserts the fix is
+      applied AND that no `.`-concat survives in the emitted lookup.ts.
 - [ ] Intent-preserving rewrites (v1, building on the D15 engine):
   - [x] `@chrysalis/rewrite` package scaffold — `RewritePass` interface,
         `applyRewrites` driver, `sanitize-output` first pass
+  - [x] Raw SQL concat → parameterized literal (`parameterize-sql`;
+        see D17)
   - [ ] Hook `@chrysalis/verify` into the rewrite driver so every
         applied pass re-replays the corpus and rolls back on divergence
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
@@ -189,8 +200,6 @@ Deepen each layer without broadening too fast.
         opportunities whose corpus-boosted confidence ≥ 0.9)
   - [ ] String dispatch → discriminated union + `z.enum`
         (consumes `string-dispatch` opportunities)
-  - [ ] Raw SQL concat → parameterized literal (consumes
-        `raw-sql-concat` opportunities)
 - [ ] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
 - [ ] Oracle: outbound HTTP + mail recording
 - [ ] CI: fixture suite with golden WebIR snapshots and golden generated TS
