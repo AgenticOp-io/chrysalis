@@ -458,6 +458,23 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
   // Evaluate all args once.
   const args = n.operands.map((_, i) => operand(ctx, n, i));
   switch (callee) {
+    case "__ternary":
+      return asBool(args[0] ?? { kind: "null" })
+        ? (args[1] ?? { kind: "null" })
+        : (args[2] ?? { kind: "null" });
+    case "__cast_int":
+      return { kind: "num", value: Math.trunc(asNum(args[0] ?? { kind: "null" })) };
+    case "__cast_float":
+      return { kind: "num", value: asNum(args[0] ?? { kind: "null" }) };
+    case "__cast_string":
+      return { kind: "str", value: stringify(args[0] ?? { kind: "null" }) };
+    case "__cast_bool":
+      return { kind: "bool", value: asBool(args[0] ?? { kind: "null" }) };
+    case "__array_literal":
+      return {
+        kind: "array",
+        entries: args.map((v, i) => ({ key: i, value: v })),
+      };
     case "htmlspecialchars":
       return { kind: "str", value: htmlEscape(stringify(args[0] ?? { kind: "null" })) };
     case "nl2br":

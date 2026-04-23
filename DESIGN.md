@@ -895,6 +895,14 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   `pregMatch(pattern, subject)` implementing **slash-delimited**
   patterns only (closing delimiter = last `/` in the string, flags
   after it). The D19 simulator uses the same rule so behavior-verify
-  stays aligned with emitted TS. Non-slash PHP regex delimiters
+  stays aligned with emitted TS.   Non-slash PHP regex delimiters
   remain best-effort via `new RegExp(pattern)` in the runtime only
   when the pattern does not start with `/`.
+
+  **Cast / ternary pseudo-calls** — Ingest lowers PHP casts to
+  `data.call` with callee `__cast_int`, `__cast_float`, `__cast_string`,
+  `__cast_bool`, and ternary to `__ternary`; `__array_literal` wraps
+  variadic operands into a simulated array. The D19 simulator
+  implements these with the same semantics as emit-hono's
+  `emitKnownCall` so N+1-style handlers (e.g. tiny-n1 dashboard)
+  evaluate without abstention.
