@@ -468,6 +468,20 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       return { kind: "num", value: Math.trunc(asNum(args[0] ?? { kind: "null" })) };
     case "strlen":
       return { kind: "num", value: stringify(args[0] ?? { kind: "null" }).length };
+    case "preg_match": {
+      const pat = stringify(args[0] ?? { kind: "null" });
+      const subj = stringify(args[1] ?? { kind: "null" });
+      const re = phpSlashPatternToRegExp(pat);
+      if (!re) {
+        ctx.errors.push({
+          reason: "preg_match: invalid or unsupported pattern",
+          nodeId: n.id,
+          op: "data.call",
+        });
+        return { kind: "bool", value: false };
+      }
+      return { kind: "bool", value: re.test(subj) };
+    }
     case "password_verify":
       // Opaque by design — value doesn't matter as long as it's
       // deterministic from the inputs.
@@ -651,4 +665,23 @@ function htmlEscape(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+/** Slash-delimited PHP patterns only; mirrors `pregMatch` in emit-hono runtime. */
+function phpSlashPatternToRegExp(pattern: string): RegExp | null {
+  const lastSlash = pattern.lastIndexOf("/");
+  if (pattern.length >= 2 && pattern[0] === "/" && lastSlash > 0) {
+    const body = pattern.slice(1, lastSlash);
+    const flags = pattern.slice(lastSlash + 1).replace(/[^gimsuy]/g, "");
+    try {
+      return new RegExp(body, flags);
+    } catch {
+      return null;
+    }
+  }
+  try {
+    return new RegExp(pattern);
+  } catch {
+    return null;
+  }
 }

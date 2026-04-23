@@ -888,3 +888,13 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   `replayCorpus`. On replay failure the batch rolls back and the CLI
   re-emits the **pre-rewrite** module so `--out` stays consistent
   with the returned IR.
+
+- **2026-04-23 — preg_match lowering** — `preg_match` is lowered to
+  `data.call` / `preg_match` (boolean) instead of a hole when the
+  PHP prelude resolves the call. The emit-hono runtime exposes
+  `pregMatch(pattern, subject)` implementing **slash-delimited**
+  patterns only (closing delimiter = last `/` in the string, flags
+  after it). The D19 simulator uses the same rule so behavior-verify
+  stays aligned with emitted TS. Non-slash PHP regex delimiters
+  remain best-effort via `new RegExp(pattern)` in the runtime only
+  when the pattern does not start with `/`.

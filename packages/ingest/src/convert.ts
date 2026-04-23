@@ -462,6 +462,12 @@ function convertCall(
         origin: loc(ctx, e.pos),
       });
     case "preg_match":
+      return ctx.data.call({
+        callee: "preg_match",
+        args,
+        type: T.bool,
+        origin: loc(ctx, e.pos),
+      });
     case "parse_url":
       return hole(ctx, `pending-lowering:${name}`, e.pos, T.string);
     case "header.location":

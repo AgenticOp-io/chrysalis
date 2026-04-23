@@ -201,6 +201,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `intval(${args[0]})`;
     case "strlen":
       return `strlen(${args[0]})`;
+    case "preg_match":
+      return `pregMatch(${args[0]}, ${args[1]})`;
     case "password_verify":
     case "verify_password":
       return `(await passwordVerify(${args[0]}, ${args[1]}))`;

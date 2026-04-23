@@ -202,6 +202,31 @@ export function strlen(v: unknown): number {
   return String(v ?? "").length;
 }
 
+/**
+ * PHP preg_match for slash-delimited patterns only (first and last slash
+ * enclose the body; flags after the closing slash). Example: email check
+ * uses body ^.+@.+$ with optional u flag.
+ */
+export function pregMatch(pattern: unknown, subject: unknown): boolean {
+  const p = String(pattern ?? "");
+  const s = String(subject ?? "");
+  const lastSlash = p.lastIndexOf("/");
+  if (p.length >= 2 && p[0] === "/" && lastSlash > 0) {
+    const body = p.slice(1, lastSlash);
+    const flags = p.slice(lastSlash + 1).replace(/[^gimsuy]/g, "");
+    try {
+      return new RegExp(body, flags).test(s);
+    } catch {
+      return false;
+    }
+  }
+  try {
+    return new RegExp(p).test(s);
+  } catch {
+    return false;
+  }
+}
+
 export async function passwordVerify(plain: string, hash: string): Promise<boolean> {
   // Milestone 1: placeholder. Real implementation must validate bcrypt.
   // Holes elsewhere will request a proper lowering with bcrypt/argon2.

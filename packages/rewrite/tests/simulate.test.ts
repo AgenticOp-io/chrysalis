@@ -129,6 +129,48 @@ describe("IR simulator (D19 core)", () => {
     expect(res.body).toBe("<h1>&lt;script&gt;");
   });
 
+  it("evaluates preg_match on slash-delimited PHP regex (email sanity)", () => {
+    const m = buildModule(({ data, eff, loc }) => {
+      const rx = data.literal({
+        value: "/^.+@.+$/u",
+        type: T.string,
+        origin: loc(),
+      });
+      const email = data.requestField({
+        source: "body",
+        name: "email",
+        type: T.string,
+        origin: loc(),
+      });
+      const ok = data.call({
+        callee: "preg_match",
+        args: [rx, email],
+        type: T.bool,
+        origin: loc(),
+      });
+      const litOk = data.literal({ value: "ok", type: T.string, origin: loc() });
+      const litBad = data.literal({ value: "bad", type: T.string, origin: loc() });
+      const branch = data.ifElse({
+        cond: ok,
+        then: litOk,
+        else: litBad,
+        origin: loc(),
+      });
+      return eff.echo({ value: branch, origin: loc() });
+    });
+    const good = simulateHandler(m, routeIdOf(m), {
+      ...emptyInput,
+      post: { email: "a@b.co" },
+    });
+    expect(good.errors).toEqual([]);
+    expect(good.body).toBe("ok");
+    const bad = simulateHandler(m, routeIdOf(m), {
+      ...emptyInput,
+      post: { email: "not-an-email" },
+    });
+    expect(bad.body).toBe("bad");
+  });
+
   it("records db.query as a dbRead and evaluates foreach over the stub rows", () => {
     const m = buildModule(({ data, eff, loc }) => {
       const sql = data.literal({
