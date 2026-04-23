@@ -446,7 +446,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
       "usage: chrysalis rewrite <php-project-dir> [--out <ts-out>]\n" +
         "                         [--traces <dir>] [--min-confidence 0.75]\n" +
         "                         [--passes <id,id,...>] [--report <rewrite.json>]\n" +
-        "                         [--json]",
+        "                         [--no-post-verify] [--json]",
     );
     return 2;
   }
@@ -474,9 +474,16 @@ async function cmdRewrite(args: string[]): Promise<number> {
       ? flags.passes.split(",").map((s) => s.trim()).filter(Boolean)
       : null;
 
+  // Post-verify defaults ON: it re-runs each applied opportunity's
+  // recognizer on the rewritten module and rolls back the batch if
+  // any applied rewrite didn't actually fix its finding. Cheap and
+  // directly user-visible; users can disable with `--no-post-verify`
+  // if they want to inspect a partial / broken rewrite.
+  const postVerifyEnabled = flags["no-post-verify"] !== true;
   const result = applyRewrites(mod, insight.opportunities, DEFAULT_PASSES, {
     minConfidence,
     ...(passIds ? { only: passIds } : {}),
+    ...(postVerifyEnabled ? { postVerifyRecognizers: DEFAULT_RECOGNIZERS } : {}),
   });
 
   const reportPath = typeof flags.report === "string" ? resolve(flags.report) : null;
@@ -523,6 +530,19 @@ function renderRewriteReport(report: RewriteReport, minConfidence: number): void
     console.log("\nskipped:");
     for (const s of report.skipped) {
       console.log(`  · ${s.pass}  on  ${s.opportunity}   (${s.reason})`);
+    }
+  }
+  if (report.postVerify) {
+    const pv = report.postVerify;
+    console.log(
+      `\npost-verify    : ${pv.ok ? "ok" : "FAILED"}   ` +
+        `(recognizers re-run: ${pv.recognizersRun.join(", ") || "none"})`,
+    );
+    if (!pv.ok) {
+      for (const f of pv.failures) {
+        console.log(`  ✗ ${f.pass} on ${f.opportunity} — ${f.detail}`);
+      }
+      console.log("(batch rolled back — no rewrites committed to module)");
     }
   }
 }

@@ -30,6 +30,43 @@ ingest → insight → rewrite → emit into a single command.
 | `sanitize-output` | `unescaped-output` | Wraps tainted leaves of a concat-like echo in `htmlspecialchars`. For `html.template` sinks, flips the offending part's `escape: false` to `true` and wraps its operand. Preserves literal HTML surrounding the taint. |
 | `parameterize-sql` | `raw-sql-concat` | Walks the `sqlExpr` tree stashed by ingest, inlines string literals as SQL text, and lifts every other leaf as a `?`-placeholder bound parameter. Emitted TS becomes `queryAll("SELECT … WHERE id = ?", [id])`. Structurally SQLi-proof. |
 
+## Post-rewrite analysis gate (D18)
+
+After a batch of rewrites lands, the driver can re-run each applied
+opportunity's recognizer on the rewritten module and assert that the
+"same" finding no longer appears. If any applied opportunity is still
+findable, the entire batch is rolled back and every rewrite is moved
+into `skipped` with the residual finding's detail for forensic
+inspection.
+
+This sits alongside — not instead of — the per-opportunity invariant
+verifier:
+
+- **Invariants (D16):** _pass hygiene._ "The pass only mutated nodes it
+  declared it would mutate."
+- **Post-verify (D18):** _pass effectiveness._ "The pass actually fixed
+  the finding it claimed to handle."
+
+Enable it by passing `postVerifyRecognizers` to `applyRewrites`:
+
+```ts
+import { DEFAULT_RECOGNIZERS } from "@chrysalis/insight";
+import { DEFAULT_PASSES, applyRewrites } from "@chrysalis/rewrite";
+
+const { module, report } = applyRewrites(mod, opportunities, DEFAULT_PASSES, {
+  postVerifyRecognizers: DEFAULT_RECOGNIZERS,
+});
+if (!report.postVerify?.ok) {
+  for (const f of report.postVerify!.failures) {
+    console.error(`${f.pass} didn't fix ${f.opportunity}: ${f.detail}`);
+  }
+}
+```
+
+The `chrysalis rewrite` CLI enables the gate by default and prints
+`post-verify: ok` or a rollback summary. Pass `--no-post-verify` to
+inspect a broken rewrite without auto-rollback.
+
 ## Invariant verification
 
 Every pass can declare an `invariants: InvariantSpec` field listing the

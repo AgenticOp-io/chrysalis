@@ -251,7 +251,25 @@ jobs:
               console.error("emitted lookup.ts still contains SQL concat:\n" + lookup);
               process.exit(1);
             }
+            // Post-verify gate (D18): the report must record that
+            // every applied opportunity was re-checked by its
+            // recognizer and found no residual. If the gate ran but
+            // failed, the CLI would have rolled back the batch; if
+            // it never ran, we want to know, because CI should
+            // always exercise the gate end-to-end.
+            if (!r.postVerify) {
+              console.error("rewrite report is missing postVerify section");
+              process.exit(1);
+            }
+            if (r.postVerify.ok !== true) {
+              console.error(
+                "post-verify gate FAILED: " +
+                JSON.stringify(r.postVerify.failures, null, 2),
+              );
+              process.exit(1);
+            }
             console.log("tiny-n1 rewrite OK:", JSON.stringify(r.summary));
+            console.log("post-verify OK: recognizers=" + r.postVerify.recognizersRun.join(","));
           '
           node packages/cli/dist/bin.js insight fixtures/tiny-n1 \
             --only unescaped-output,raw-sql-concat --json > reports/rewrite/before.json

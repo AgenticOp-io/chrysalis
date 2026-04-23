@@ -18,13 +18,18 @@ import type {
   WebIRType,
 } from "@chrysalis/webir";
 import { IdGen, synthetic } from "@chrysalis/webir";
-import type { Opportunity } from "@chrysalis/insight";
+import type { Opportunity, Recognizer } from "@chrysalis/insight";
 import {
   formatViolations,
   verifyInvariants,
   type InvariantSpec,
   type InvariantViolation,
 } from "./invariants.js";
+import {
+  postVerifyRewrite,
+  type PostVerifyFailure,
+  type PostVerifyResult,
+} from "./post-verify.js";
 
 /**
  * A single atomic edit to a `Module`. Edits are produced by passes and
@@ -96,6 +101,15 @@ export interface RewriteOptions {
    * sequence occasionally need them off.
    */
   readonly verifyInvariants?: boolean;
+  /**
+   * If provided, after the batch lands the driver re-runs each of
+   * these recognizers on the rewritten module and asserts that every
+   * applied opportunity is no longer findable. If any applied
+   * opportunity still fires, the entire batch is rolled back and the
+   * report carries a non-empty `postVerify.failures`. Default:
+   * disabled. See DESIGN.md D18 for the rationale.
+   */
+  readonly postVerifyRecognizers?: ReadonlyArray<Recognizer>;
 }
 
 export interface AppliedRecord {
@@ -123,6 +137,12 @@ export interface RewriteReport {
     readonly skipped: number;
     readonly byPass: Readonly<Record<string, number>>;
   };
+  /**
+   * Populated when `postVerifyRecognizers` was supplied in options.
+   * `ok: true` means every applied opportunity is no longer findable
+   * by its recognizer. `ok: false` means the batch was rolled back.
+   */
+  readonly postVerify?: PostVerifyResult;
 }
 
 export interface RewriteResult {
@@ -252,19 +272,62 @@ export function applyRewrites(
     }
   }
 
+  // Post-rewrite analysis gate (D18). If the caller supplied
+  // recognizers, re-run them on the rewritten module and roll back
+  // the whole batch if any applied opportunity is still findable.
+  // Rollback is all-or-nothing here on purpose: partial rollback
+  // would leave a module with a mix of verified and unverified
+  // rewrites, which is harder to reason about than either extreme.
+  let postVerify: PostVerifyResult | undefined;
+  let finalModule = currentModule;
+  let finalApplied: ReadonlyArray<AppliedRecord> = applied;
+  let finalSkipped: ReadonlyArray<SkippedRecord> = skipped;
+  const rollbackByPass = new Map<string, number>(byPass);
+  if (opts.postVerifyRecognizers && applied.length > 0) {
+    postVerify = postVerifyRewrite(
+      currentModule,
+      applied,
+      opts.postVerifyRecognizers,
+    );
+    if (!postVerify.ok) {
+      // Roll back: restore the pre-rewrite module and move every
+      // applied opportunity into skipped with the verification
+      // failure detail for forensic inspection.
+      finalModule = mod;
+      const rolledSkipped: SkippedRecord[] = [...skipped];
+      for (const a of applied) {
+        const failure = postVerify.failures.find(
+          (f) => f.opportunity === a.opportunity,
+        );
+        rolledSkipped.push({
+          pass: a.pass,
+          opportunity: a.opportunity,
+          recognizer: a.recognizer,
+          reason: failure
+            ? `rolled back: post-verify found residual — ${failure.detail}`
+            : `rolled back: batch post-verify failed for another opportunity`,
+        });
+      }
+      finalApplied = [];
+      finalSkipped = rolledSkipped;
+      rollbackByPass.clear();
+    }
+  }
+
   const report: RewriteReport = {
     sourceApp: mod.meta.sourceApp,
-    applied,
-    skipped,
+    applied: finalApplied,
+    skipped: finalSkipped,
     summary: {
       considered: opportunities.length,
-      applied: applied.length,
-      skipped: skipped.length,
-      byPass: Object.fromEntries(byPass),
+      applied: finalApplied.length,
+      skipped: finalSkipped.length,
+      byPass: Object.fromEntries(rollbackByPass),
     },
+    ...(postVerify ? { postVerify } : {}),
   };
 
-  return { module: currentModule, report };
+  return { module: finalModule, report };
 }
 
 function applyEditsToModule(mod: Module, edits: ReadonlyArray<Edit>): Module {

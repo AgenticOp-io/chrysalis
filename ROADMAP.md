@@ -191,8 +191,14 @@ Deepen each layer without broadening too fast.
         `applyRewrites` driver, `sanitize-output` first pass
   - [x] Raw SQL concat → parameterized literal (`parameterize-sql`;
         see D17)
-  - [ ] Hook `@chrysalis/verify` into the rewrite driver so every
-        applied pass re-replays the corpus and rolls back on divergence
+  - [x] **Post-rewrite analysis gate (D18)** — re-runs each applied
+        opportunity's recognizer after the batch lands and rolls back
+        all-or-nothing if any applied rewrite failed to fix its
+        finding. Covers "the pass lied" bugs that invariants can't
+        catch. Default-on in the CLI.
+  - [ ] Hook `@chrysalis/verify` HTTP-replay into the rewrite driver
+        so every applied batch re-replays the corpus and rolls back
+        on behavioral divergence (D19).
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
   - [ ] Inline `$_POST` validation → Zod schema at route boundary
         (consumes `scattered-validation` opportunities)

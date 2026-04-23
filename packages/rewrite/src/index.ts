@@ -22,6 +22,11 @@ export {
 } from "./invariants.js";
 export { sanitizeOutputPass } from "./passes/sanitize-output.js";
 export { parameterizeSqlPass } from "./passes/parameterize-sql.js";
+export {
+  postVerifyRewrite,
+  type PostVerifyFailure,
+  type PostVerifyResult,
+} from "./post-verify.js";
 import { sanitizeOutputPass } from "./passes/sanitize-output.js";
 import { parameterizeSqlPass } from "./passes/parameterize-sql.js";
 import type { RewritePass } from "./framework.js";

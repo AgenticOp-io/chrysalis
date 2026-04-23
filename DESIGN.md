@@ -703,3 +703,44 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   structurally safe but emits `? ? ?` instead of the developer's own
   SQL keywords, making the rewritten code harder to review and
   diverging from the database's query-plan cache.
+- **2026-04-22 — D18** Add a **post-rewrite analysis gate** that runs
+  after a batch of rewrites lands and asserts each applied
+  opportunity has actually been fixed (i.e. the recognizer that
+  produced it no longer fires on the same anchor in the rewritten
+  module). If any applied opportunity still fires, the driver rolls
+  back the entire batch and returns the original module with every
+  rewrite recorded in `skipped` for forensic inspection.
+
+  Why a separate layer from invariants (D16): invariants catch
+  **pass hygiene** ("the pass mutated a node it didn't claim to
+  mutate") while post-verify catches **pass effectiveness** ("the
+  pass claimed to fix finding X but the recognizer still reports
+  X"). The two are complementary — invariants run per-opportunity
+  (fast, granular rollback), post-verify runs once per batch (still
+  cheap, one more recognizer pass) and rolls back all-or-nothing.
+
+  All-or-nothing rollback is deliberate: partial rollback at this
+  level would leave a module with a mix of "verified" and
+  "unverified" rewrites, which is harder to reason about than either
+  extreme. The batch of rewrites that landed together got there in a
+  specific interleaving; rolling back only the bad one would produce
+  a state the driver never actually traversed, and any subsequent
+  re-apply would be starting from mystery data. By contrast, the
+  original module is a known-good ground truth.
+
+  Cost model: the gate runs each affected recognizer exactly once
+  over the rewritten module (not once per opportunity). Recognizers
+  are already designed to be cheap — they walk the handler subtree
+  once and emit opportunities — so the gate typically doubles the
+  recognize work but not the total rewrite work.
+
+  Scope: post-verify cannot detect behavioral divergence that no
+  recognizer notices (e.g. a rewrite that silently drops a session
+  write). That's the domain of full HTTP replay via
+  `@chrysalis/verify`, which is the intended D19 layer. Post-verify
+  is the cheap IR-level gate that runs even without a traces corpus.
+
+  The CLI enables post-verify by default (`chrysalis rewrite ...`
+  prints `post-verify: ok` or lists the residual findings and notes
+  the rollback). `--no-post-verify` exists for users who want to
+  inspect a broken / partial rewrite for debugging.
