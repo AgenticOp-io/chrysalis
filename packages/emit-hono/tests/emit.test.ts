@@ -23,6 +23,7 @@ describe("emit-hono: tiny-blog output", () => {
         "src/db.ts",
         "src/session.ts",
         "src/runtime.ts",
+        "src/server.ts",
         "src/index.ts",
         "src/handlers/posts_list.ts",
         "src/handlers/posts_view.ts",

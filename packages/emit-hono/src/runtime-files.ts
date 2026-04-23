@@ -235,8 +235,12 @@ export function __respond(c: Context, html: string, status: number): Response {
 }
 `;
 
-export const INDEX_TS = (mountBlocks: string): string => `import { serve } from "@hono/node-server";
-import { Hono } from "hono";
+/**
+ * Route registration + `app` instance only — no listen. Lets callers
+ * run `app.fetch(request)` in-process (HTTP-replay verification, tests)
+ * without binding a port. `src/index.ts` imports this and calls `serve`.
+ */
+export const SERVER_TS = (mountBlocks: string): string => `import { Hono } from "hono";
 import { sessionMiddleware } from "./session.js";
 
 ${mountBlocks}
@@ -245,6 +249,10 @@ export const app = new Hono();
 app.use("*", sessionMiddleware());
 
 registerRoutes(app);
+`;
+
+export const INDEX_TS = `import { serve } from "@hono/node-server";
+import { app } from "./server.js";
 
 const port = Number(process.env.PORT ?? 3000);
 serve({ fetch: app.fetch, port });

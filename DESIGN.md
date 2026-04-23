@@ -844,3 +844,44 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Comparing against a simulated pre-rewrite response gives us
   *directional* signal ("this change was not predicted by any
   applied pass") which is what actually catches regressions.
+
+- **2026-04-23 — D20** Wire **`@chrysalis/verify` HTTP replay** into the
+  rewrite driver as an **optional async gate** after D16–D19.
+
+  **`ReplayOptions.fetch`** — `replayCorpus` accepts an injected
+  `fetch` (defaults to `globalThis.fetch`). Callers pass
+  `app.fetch.bind(app)` from a Hono app to replay against an
+  in-process handler with no TCP listen. This is the missing
+  primitive for "replay without a subprocess server."
+
+  **`applyRewritesAsync`** — `@chrysalis/rewrite` exposes an async
+  entry point that runs the same synchronous pipeline as
+  `applyRewrites`, then (if `httpReplay` is set and at least one
+  rewrite applied and the module was not already rolled back)
+  invokes `replayCorpus` on the supplied corpus. Any frame with
+  `diff.divergences.length > 0` triggers **all-or-nothing**
+  rollback, same contract as D18/D19. The report gains
+  `httpReplayVerify` with `outcomes` and `failedRoutes`.
+
+  **`emit-hono` split** — generated apps now emit **`src/server.ts`**
+  (defines `export const app` and `registerRoutes`) and a thin
+  **`src/index.ts`** that only calls `serve({ fetch: app.fetch })`.
+  Downstream tools import `./server.js` to obtain `app` without
+  starting a listener.
+
+  **Corpus vs security passes** — Traces captured from PHP encode
+  *pre-fix* response bodies. After `sanitize-output`, emitted HTML
+  differs by design (escaped user input). HTTP replay against a
+  PHP oracle therefore only matches **byte-for-byte** when the
+  batch does not change observable HTML, or when the corpus was
+  re-recorded from the migrated app, or when diff rules are
+  extended (future). D19 remains the gate for "escape transform
+  predicted correctly"; D20 is for **runtime truth** against a
+  handler that should match the oracle (e.g. `parameterize-sql`
+  only, or a post-migration golden corpus).
+
+  **CLI** — `chrysalis rewrite` stays synchronous for now; callers
+  integrate `applyRewritesAsync` from Node (e.g. after `emit` +
+  dynamic `import` of `./server.js` under `tsx`). A first-class CLI
+  flag is a small follow-up once the import path is standardized in
+  CI.

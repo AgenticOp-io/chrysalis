@@ -114,6 +114,39 @@ simulator grows with it. Until then, abstention keeps this gate
 honest: it won't lie and say "behavior unchanged" when it didn't
 actually evaluate the code.
 
+## HTTP replay gate (D20)
+
+After D16–D19, **`applyRewritesAsync`** can replay a
+`TraceCorpus` from `@chrysalis/oracle` against any `fetch`-compatible
+handler — typically **`app.fetch.bind(app)`** from an emitted Hono
+app (`src/server.ts` exports `app` without listening).
+
+```ts
+import { readCorpus } from "@chrysalis/oracle";
+import { applyRewritesAsync, DEFAULT_PASSES } from "@chrysalis/rewrite";
+import { DEFAULT_RECOGNIZERS } from "@chrysalis/insight";
+
+const corpus = readCorpus({ root: "./traces" });
+const { module, report } = await applyRewritesAsync(mod, opps, DEFAULT_PASSES, {
+  postVerifyRecognizers: DEFAULT_RECOGNIZERS,
+  httpReplay: {
+    corpus,
+    baseUrl: "http://127.0.0.1",
+    fetch: app.fetch.bind(app),
+  },
+});
+```
+
+`@chrysalis/verify`'s `replayCorpus` compares each trace's captured
+response to the handler output via `diffResponse`. Any divergence
+rolls back the **entire** rewrite batch; `report.httpReplayVerify`
+lists per-trace outcomes.
+
+**Oracle caveat:** bodies captured from PHP **before** `sanitize-output`
+will not match emitted TS **after** that pass (escaping changes HTML).
+Use the IR behavior-verify gate (D19) to validate those transforms, or
+replay against a corpus recorded from the migrated app.
+
 ## Invariant verification
 
 Every pass can declare an `invariants: InvariantSpec` field listing the

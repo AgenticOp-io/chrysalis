@@ -3,9 +3,13 @@
  */
 export {
   applyRewrites,
+  applyRewritesAsync,
   makeDataCall,
   type AppliedRecord,
+  type AsyncRewriteOptions,
   type Edit,
+  type HttpReplayVerifyOptions,
+  type HttpReplayVerifyResult,
   type RewriteCtx,
   type RewriteOptions,
   type RewritePass,

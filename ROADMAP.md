@@ -205,11 +205,15 @@ Deepen each layer without broadening too fast.
         can see (dropped echoes, swapped redirects, phantom session
         writes). Opt-in via `chrysalis rewrite --verify-behavior`;
         CI exercises it end-to-end on `fixtures/tiny-n1`.
-  - [ ] Hook `@chrysalis/verify` HTTP-replay into the rewrite driver
-        so every applied batch re-replays the corpus against a real
-        emitted app + real DB and rolls back on behavioral
-        divergence. This is the runtime-truth layer on top of D19's
-        IR-level simulation (D20+).
+  - [x] **HTTP-replay gate (D20)** — `replayCorpus` accepts injected
+        `fetch` (in-process Hono). `applyRewritesAsync` runs the
+        corpus after a successful batch and rolls back on any
+        `diffResponse` divergence. Emitted apps split into
+        `src/server.ts` (`export const app`) + `src/index.ts`
+        (listen only). **Caveat:** PHP-captured bodies diverge after
+        `sanitize-output`; use D19 for that contract, or a TS-golden
+        corpus for D20. CLI wiring + CI on a golden trace dir is a
+        follow-up.
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
   - [ ] Inline `$_POST` validation → Zod schema at route boundary
         (consumes `scattered-validation` opportunities)

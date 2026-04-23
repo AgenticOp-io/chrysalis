@@ -7,8 +7,9 @@
  *   - Single-user cookie chaining: cookies from each response feed into the
  *     next request in timestamp order. Good enough for the tiny-blog driver,
  *     which is single-user. Multi-user cookie threading is a Milestone 2 task.
- *   - Replay targets a running HTTP server via global `fetch`. Any emit
- *     backend that speaks HTTP is compatible (not Hono-specific).
+ *   - Replay targets an HTTP handler via `fetch` (global by default, or an
+ *     injected `ReplayOptions.fetch`, e.g. Hono's `app.fetch`). Any backend
+ *     that accepts `Request` and returns `Response` is compatible.
  *   - No SQL-level replay (the generated app uses its own DB, which is
  *     expected to be seeded to the same initial state as the PHP fixture).
  */
@@ -18,6 +19,13 @@ import { diffResponse, type DiffResult, type ReplayedResponse } from "./diff.js"
 
 export interface ReplayOptions {
   readonly baseUrl: string;
+  /**
+   * When set, requests are issued through this function instead of the global
+   * `fetch`. Use `app.fetch.bind(app)` from a Hono app to replay against an
+   * in-process handler with `baseUrl` still shaping the `Request` URL (e.g.
+   * `http://127.0.0.1`). See DESIGN.md D20.
+   */
+  readonly fetch?: typeof globalThis.fetch;
   /**
    * Optional hook invoked *before* each request, after cookies are assembled.
    * Useful for tests that need to inspect/modify request construction without
@@ -98,9 +106,10 @@ async function replayOne(
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? 10_000);
+  const doFetch = opts.fetch ?? globalThis.fetch;
   let actualResp: Response;
   try {
-    actualResp = await fetch(url, { ...init, signal: controller.signal });
+    actualResp = await doFetch(url, { ...init, signal: controller.signal });
   } finally {
     clearTimeout(timer);
   }

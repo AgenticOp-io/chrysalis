@@ -15,6 +15,8 @@ The first Chrysalis backend; the reference for how to write future backends
 
 ## Invariants
 
+- **`src/server.ts` exports `app`; `src/index.ts` only listens.** Downstream
+  verification (`app.fetch` in-process) must not require a TCP server.
 - **The output project compiles.** Type errors in generated code are emission
   bugs. CI must fail if any fixture emits a non-compiling project.
 - **Effect signatures are preserved.** Every handler's generated signature

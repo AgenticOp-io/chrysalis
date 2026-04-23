@@ -106,6 +106,12 @@ importers:
       '@chrysalis/insight':
         specifier: workspace:*
         version: link:../insight
+      '@chrysalis/oracle':
+        specifier: workspace:*
+        version: link:../oracle
+      '@chrysalis/verify':
+        specifier: workspace:*
+        version: link:../verify
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir

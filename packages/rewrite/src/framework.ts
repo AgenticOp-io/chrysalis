@@ -19,6 +19,8 @@ import type {
 } from "@chrysalis/webir";
 import { IdGen, synthetic } from "@chrysalis/webir";
 import type { Opportunity, Recognizer } from "@chrysalis/insight";
+import type { TraceCorpus } from "@chrysalis/oracle";
+import { replayCorpus, type TraceOutcome } from "@chrysalis/verify";
 import {
   formatViolations,
   verifyInvariants,
@@ -127,6 +129,28 @@ export interface RewriteOptions {
   readonly behaviorVerify?: boolean | BehaviorVerifyOptions;
 }
 
+/**
+ * Options for the HTTP corpus replay gate (D20). Supply a
+ * {@link TraceCorpus} (typically from `@chrysalis/oracle`'s
+ * `readCorpus`) and an HTTP handler as `fetch` — e.g.
+ * `app.fetch.bind(app)` from an emitted Hono app.
+ */
+export interface HttpReplayVerifyOptions {
+  readonly corpus: TraceCorpus;
+  readonly baseUrl: string;
+  readonly fetch: typeof globalThis.fetch;
+}
+
+export interface HttpReplayVerifyResult {
+  readonly ok: boolean;
+  readonly outcomes: ReadonlyArray<TraceOutcome>;
+  readonly failedRoutes: ReadonlyArray<string>;
+}
+
+export type AsyncRewriteOptions = RewriteOptions & {
+  readonly httpReplay?: HttpReplayVerifyOptions;
+};
+
 export interface AppliedRecord {
   readonly pass: string;
   readonly opportunity: string;
@@ -165,6 +189,12 @@ export interface RewriteReport {
    * batch was rolled back.
    */
   readonly behaviorVerify?: BehaviorVerifyResult;
+  /**
+   * Populated when `applyRewritesAsync` ran with `httpReplay` and at
+   * least one opportunity applied. `ok: true` means every trace in
+   * the corpus matched the handler's response under `diffResponse`.
+   */
+  readonly httpReplayVerify?: HttpReplayVerifyResult;
 }
 
 export interface RewriteResult {
@@ -380,6 +410,71 @@ export function applyRewrites(
   };
 
   return { module: finalModule, report };
+}
+
+/**
+ * Like {@link applyRewrites} but runs an optional **HTTP replay** gate
+ * after the synchronous stack (invariants, post-verify, behavior-
+ * verify). Replays each trace in the corpus against `httpReplay.fetch`
+ * and rolls back all-or-nothing if any frame diverges from the oracle
+ * response. See DESIGN.md D20.
+ */
+export async function applyRewritesAsync(
+  mod: Module,
+  opportunities: ReadonlyArray<Opportunity>,
+  passes: ReadonlyArray<RewritePass>,
+  opts: AsyncRewriteOptions = {},
+): Promise<RewriteResult> {
+  const { httpReplay, ...syncOpts } = opts;
+  const sync = applyRewrites(mod, opportunities, passes, syncOpts);
+  if (!httpReplay || sync.report.applied.length === 0 || sync.module === mod) {
+    return sync;
+  }
+  const outcomes = await replayCorpus(httpReplay.corpus, {
+    baseUrl: httpReplay.baseUrl,
+    fetch: httpReplay.fetch,
+  });
+  const ok = outcomes.every((o) => o.ok);
+  const httpReplayVerify: HttpReplayVerifyResult = {
+    ok,
+    outcomes: Object.freeze([...outcomes]),
+    failedRoutes: outcomes.filter((o) => !o.ok).map((o) => o.route),
+  };
+  if (!ok) {
+    const rolledSkipped: SkippedRecord[] = [...sync.report.skipped];
+    for (const a of sync.report.applied) {
+      rolledSkipped.push({
+        pass: a.pass,
+        opportunity: a.opportunity,
+        recognizer: a.recognizer,
+        reason:
+          `rolled back: http-replay found divergence on route(s): ` +
+          httpReplayVerify.failedRoutes.join(", "),
+      });
+    }
+    return {
+      module: mod,
+      report: {
+        ...sync.report,
+        applied: [],
+        skipped: rolledSkipped,
+        summary: {
+          considered: sync.report.summary.considered,
+          applied: 0,
+          skipped: rolledSkipped.length,
+          byPass: {},
+        },
+        httpReplayVerify,
+      },
+    };
+  }
+  return {
+    module: sync.module,
+    report: {
+      ...sync.report,
+      httpReplayVerify,
+    },
+  };
 }
 
 function applyEditsToModule(mod: Module, edits: ReadonlyArray<Edit>): Module {

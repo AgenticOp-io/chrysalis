@@ -101,6 +101,33 @@ describe("replayCorpus", () => {
     if (ts) await ts.stop();
   });
 
+  it("honors an injected fetch (in-process handler) without a real server", async () => {
+    const corpus = corpusOf([
+      mkTrace({
+        traceId: "t-injected",
+        startedAt: "2026-04-22T00:00:00Z",
+        method: "GET",
+        path: "/foo",
+        expectedStatus: 200,
+        expectedHeaders: { "content-type": "text/html" },
+        expectedBody: "injected-body",
+      }),
+    ]);
+    const injectedFetch: typeof fetch = async (input) => {
+      void input;
+      return new Response("injected-body", {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      });
+    };
+    const outcomes = await replayCorpus(corpus, {
+      baseUrl: "http://unused.test",
+      fetch: injectedFetch,
+    });
+    expect(outcomes).toHaveLength(1);
+    expect(outcomes[0]!.ok).toBe(true);
+  });
+
   it("reports ok for a perfectly matching mock server", async () => {
     ts = await startTestServer((req) => ({
       status: 200,

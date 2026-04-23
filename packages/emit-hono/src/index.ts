@@ -15,6 +15,7 @@ import {
   INDEX_TS,
   PACKAGE_JSON,
   RUNTIME_TS,
+  SERVER_TS,
   SESSION_TS,
   TSCONFIG_JSON,
 } from "./runtime-files.js";
@@ -126,7 +127,8 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     });
   }
 
-  await writeOne("src/index.ts", INDEX_TS(mountBlockFor(bindings)));
+  await writeOne("src/server.ts", SERVER_TS(mountBlockFor(bindings)));
+  await writeOne("src/index.ts", INDEX_TS);
   await writeOne("chrysalis.holes.json", JSON.stringify(allHoles, null, 2));
 
   return {
