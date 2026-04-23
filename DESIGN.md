@@ -624,3 +624,37 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   all the way through to the emitted TypeScript containing
   `escapeHtml(...)` — this guards the full IR → emit pipeline against
   regressions where a rewrite applied to the IR is lost in translation.
+- **2026-04-22 — D16** Layer a **per-pass structural-invariant verifier**
+  (`@chrysalis/rewrite/invariants`) between the rewrite engine and the
+  emit stage. HTTP-level replay (`@chrysalis/verify`) is the gold-
+  standard behavioral oracle, but it requires spinning up a running
+  server and a full recorded corpus — too heavy to run per-opportunity
+  inside `applyRewrites`. Instead each `RewritePass` now declares an
+  `InvariantSpec` listing which `dialect.op` shapes it is allowed to
+  mutate; `applyRewrites` runs the pass on a scratch module, compares
+  the result to the pre-rewrite module, and **rolls the edit back** if
+  any node outside the allowlist changed structurally or an effect
+  count shifted. The opportunity is reported in the `skipped` list with
+  a `verify-invariant-failed` reason and the precise violations.
+
+  The invariant model is intentionally coarse — it cannot prove full
+  behavioral equivalence (that would need a WebIR interpreter) — but
+  it cheaply rules out the failure classes we care about most in an
+  autonomous rewrite pipeline: a "sanitize" pass accidentally deleting
+  a DB write; a pass introducing an un-provenance-tagged node (breaks
+  the audit trail); a pass mutating an effect it didn't claim to
+  touch. `mayModify` supports both plain `dialect.op` strings and a
+  refined `{ dialectOp, attrMatch }` form so a pass can declare "I
+  only touch `data.binop` *with* `operator: '.'`", preserving
+  protection for arithmetic binops that share the same op name.
+
+  The per-opportunity apply-verify-commit loop also fixes a subtler
+  bug in the original batch model: later passes now see the output of
+  earlier passes on the same module, so multi-pass rewrites compose
+  correctly. Rejected alternatives: (a) defer all verification to
+  post-emit HTTP replay — too slow to block a rewrite and leaves a
+  window where the IR is known-broken on disk; (b) require passes to
+  self-check via bespoke test suites — fine for library code but the
+  invariant system is declarative, so every new pass gets
+  "I didn't silently mutate an effect I don't own" protection for free
+  without any extra test authoring.

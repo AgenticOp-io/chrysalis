@@ -47,6 +47,23 @@ export const sanitizeOutputPass: RewritePass = {
     }
     return applyToTemplate(ctx, op);
   },
+
+  // The pass only ever adds `data.call` wrappers and rewires operand
+  // pointers on nodes in the string-building tree rooted at an echo or
+  // a template sink. It never touches DB writes, redirects, session
+  // writes, cookies, status codes, or arithmetic binops. Any such
+  // mutation would be a bug: the invariant catches it before the
+  // rewrite is committed (see D16). Note the narrow `data.binop`
+  // pattern: we explicitly require `operator: "."` so tampering with
+  // arithmetic `+` / `*` / `-` binops still triggers the invariant.
+  invariants: {
+    mayModify: [
+      "effect.echo",
+      "data.html.template",
+      "data.concat",
+      { dialectOp: "data.binop", attrMatch: { operator: "." } },
+    ],
+  },
 };
 
 function applyToEcho(ctx: RewriteCtx, op: Opportunity): ReadonlyArray<Edit> {

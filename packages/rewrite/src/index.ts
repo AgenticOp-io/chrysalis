@@ -13,6 +13,13 @@ export {
   type RewriteResult,
   type SkippedRecord,
 } from "./framework.js";
+export {
+  verifyInvariants,
+  formatViolations,
+  type InvariantSpec,
+  type InvariantResult,
+  type InvariantViolation,
+} from "./invariants.js";
 export { sanitizeOutputPass } from "./passes/sanitize-output.js";
 import { sanitizeOutputPass } from "./passes/sanitize-output.js";
 import type { RewritePass } from "./framework.js";

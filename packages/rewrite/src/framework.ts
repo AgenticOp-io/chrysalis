@@ -19,6 +19,12 @@ import type {
 } from "@chrysalis/webir";
 import { IdGen, synthetic } from "@chrysalis/webir";
 import type { Opportunity } from "@chrysalis/insight";
+import {
+  formatViolations,
+  verifyInvariants,
+  type InvariantSpec,
+  type InvariantViolation,
+} from "./invariants.js";
 
 /**
  * A single atomic edit to a `Module`. Edits are produced by passes and
@@ -68,6 +74,14 @@ export interface RewritePass {
    * as `skipped` with the thrown message.
    */
   apply(ctx: RewriteCtx, op: Opportunity): ReadonlyArray<Edit>;
+  /**
+   * Optional invariant spec checked by `applyRewrites` after the pass
+   * runs. If any declared invariant is violated, the edits are rolled
+   * back and the opportunity is recorded in `skipped` with a
+   * `verify-invariant-failed` reason. See `invariants.ts` for the
+   * available checks and DESIGN.md D16 for the rationale.
+   */
+  readonly invariants?: InvariantSpec;
 }
 
 export interface RewriteOptions {
@@ -75,6 +89,13 @@ export interface RewriteOptions {
   readonly minConfidence?: number;
   /** Only apply passes in this set (by `id`). Default: all passes. */
   readonly only?: ReadonlyArray<string>;
+  /**
+   * If false, skip the per-opportunity invariant checks declared by
+   * each pass. Default: true. Invariants are cheap — they only walk
+   * the Module twice — but tests that want to exercise a "bare" edit
+   * sequence occasionally need them off.
+   */
+  readonly verifyInvariants?: boolean;
 }
 
 export interface AppliedRecord {
@@ -89,6 +110,7 @@ export interface SkippedRecord {
   readonly opportunity: string;
   readonly recognizer: string;
   readonly reason: string;
+  readonly violations?: ReadonlyArray<InvariantViolation>;
 }
 
 export interface RewriteReport {
@@ -121,31 +143,23 @@ export function applyRewrites(
 ): RewriteResult {
   const minConfidence = opts.minConfidence ?? 0.75;
   const allowedPassIds = opts.only ? new Set(opts.only) : null;
+  const verifyOn = opts.verifyInvariants !== false;
 
   // Seed id generator past any existing ingest ids. We use a dedicated
   // prefix so synthesized nodes are visually distinguishable in debug
   // dumps.
   const ids = new IdGen("rw");
-  const nodesCopy = new Map<NodeId, NodeBase>();
-  for (const [id, node] of mod.nodes) nodesCopy.set(id, node);
-
-  const ctx: RewriteCtx = {
-    module: mod,
-    allocId: () => ids.alloc(),
-    get: (id) => nodesCopy.get(id),
-    synthetic: (reason) => synthetic(reason),
-    provenance: (reason) => ({
-      source: "intent-rewrite",
-      locator: synthetic(reason),
-      reason,
-    }),
+  let currentNodes = new Map<NodeId, NodeBase>();
+  for (const [id, node] of mod.nodes) currentNodes.set(id, node);
+  let currentModule: Module = {
+    nodes: currentNodes,
+    roots: mod.roots,
+    meta: mod.meta,
   };
 
   const applied: AppliedRecord[] = [];
   const skipped: SkippedRecord[] = [];
   const byPass = new Map<string, number>();
-
-  const edits: Edit[] = [];
 
   for (const op of opportunities) {
     for (const pass of passes) {
@@ -160,6 +174,24 @@ export function applyRewrites(
         });
         continue;
       }
+
+      // Per-opportunity context sees the *current* (post-previous-
+      // opportunity) module, so later passes can react to earlier
+      // rewrites. This is more correct than the earlier batch model,
+      // which applied all edits in a single pass and therefore
+      // couldn't compose opportunities.
+      const ctx: RewriteCtx = {
+        module: currentModule,
+        allocId: () => ids.alloc(),
+        get: (id) => currentModule.nodes.get(id),
+        synthetic: (reason) => synthetic(reason),
+        provenance: (reason) => ({
+          source: "intent-rewrite",
+          locator: synthetic(reason),
+          reason,
+        }),
+      };
+
       let patch: ReadonlyArray<Edit>;
       try {
         patch = pass.apply(ctx, op);
@@ -181,7 +213,35 @@ export function applyRewrites(
         });
         continue;
       }
-      edits.push(...patch);
+
+      let candidateModule: Module;
+      try {
+        candidateModule = applyEditsToModule(currentModule, patch);
+      } catch (err) {
+        skipped.push({
+          pass: pass.id,
+          opportunity: op.id,
+          recognizer: op.recognizer,
+          reason: err instanceof Error ? err.message : String(err),
+        });
+        continue;
+      }
+
+      if (verifyOn && pass.invariants) {
+        const v = verifyInvariants(currentModule, candidateModule, pass.invariants);
+        if (!v.ok) {
+          skipped.push({
+            pass: pass.id,
+            opportunity: op.id,
+            recognizer: op.recognizer,
+            reason: `verify-invariant-failed: ${formatViolations(v.violations)}`,
+            violations: v.violations,
+          });
+          continue;
+        }
+      }
+
+      currentModule = candidateModule;
       applied.push({
         pass: pass.id,
         opportunity: op.id,
@@ -192,12 +252,30 @@ export function applyRewrites(
     }
   }
 
+  const report: RewriteReport = {
+    sourceApp: mod.meta.sourceApp,
+    applied,
+    skipped,
+    summary: {
+      considered: opportunities.length,
+      applied: applied.length,
+      skipped: skipped.length,
+      byPass: Object.fromEntries(byPass),
+    },
+  };
+
+  return { module: currentModule, report };
+}
+
+function applyEditsToModule(mod: Module, edits: ReadonlyArray<Edit>): Module {
+  const nodes = new Map<NodeId, NodeBase>();
+  for (const [id, n] of mod.nodes) nodes.set(id, n);
   for (const e of edits) {
     if (e.kind === "add") {
-      nodesCopy.set(e.node.id, e.node);
+      nodes.set(e.node.id, e.node);
       continue;
     }
-    const existing = nodesCopy.get(e.nodeId);
+    const existing = nodes.get(e.nodeId);
     if (!existing) {
       throw new Error(`rewrite: replaceOperand target ${String(e.nodeId)} not found`);
     }
@@ -220,28 +298,9 @@ export function applyRewrites(
         },
       ],
     };
-    nodesCopy.set(e.nodeId, patched);
+    nodes.set(e.nodeId, patched);
   }
-
-  const next: Module = {
-    nodes: nodesCopy,
-    roots: mod.roots,
-    meta: mod.meta,
-  };
-
-  const report: RewriteReport = {
-    sourceApp: mod.meta.sourceApp,
-    applied,
-    skipped,
-    summary: {
-      considered: opportunities.length,
-      applied: applied.length,
-      skipped: skipped.length,
-      byPass: Object.fromEntries(byPass),
-    },
-  };
-
-  return { module: next, report };
+  return { nodes, roots: mod.roots, meta: mod.meta };
 }
 
 /** Helper for passes: construct a well-formed `data.call` node. */

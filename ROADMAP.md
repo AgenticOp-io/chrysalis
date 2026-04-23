@@ -168,6 +168,15 @@ Deepen each layer without broadening too fast.
       `htmlspecialchars` (not the whole string — preserves literal HTML)
       and flips `html.template escape:false` to `true`. CI gate asserts
       the XSS recognizer's output is *actually fixed* in the emitted TS.
+- [x] **Invariant verifier (`@chrysalis/rewrite/invariants`, D16)** —
+      per-pass, per-opportunity structural-invariant checker between
+      pre- and post-rewrite modules. Each pass declares the `dialect.op`
+      shapes it is allowed to mutate (with optional `attrMatch` refinement
+      for sub-shapes like `data.binop` with `operator: "."`); any
+      out-of-allowlist mutation or effect-count change rolls the edit
+      back and records a `verify-invariant-failed` entry in the report.
+      Fast enough to run per-opportunity; complements full HTTP replay,
+      which still runs post-rewrite for holistic behavior checks.
 - [ ] Intent-preserving rewrites (v1, building on the D15 engine):
   - [x] `@chrysalis/rewrite` package scaffold — `RewritePass` interface,
         `applyRewrites` driver, `sanitize-output` first pass

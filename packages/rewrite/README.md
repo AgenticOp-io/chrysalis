@@ -29,6 +29,35 @@ ingest → insight → rewrite → emit into a single command.
 | --- | --- | --- |
 | `sanitize-output` | `unescaped-output` | Wraps tainted leaves of a concat-like echo in `htmlspecialchars`. For `html.template` sinks, flips the offending part's `escape: false` to `true` and wraps its operand. Preserves literal HTML surrounding the taint. |
 
+## Invariant verification
+
+Every pass can declare an `invariants: InvariantSpec` field listing the
+`dialect.op` shapes it is allowed to mutate. `applyRewrites` runs the
+pass's edits on a scratch module, diffs it against the pre-rewrite
+module, and **rolls the edit back** if a node outside the allowlist
+changed structurally or an effect count shifted. Rolled-back
+opportunities land in the `skipped` list with a
+`verify-invariant-failed` reason and the precise violations attached.
+
+Patterns support two forms — a bare `dialect.op` string or a refined
+`{ dialectOp, attrMatch }` — so a pass can declare "I only mutate
+`data.binop` with `operator: '.'`" and still have arithmetic binops
+protected. `sanitize-output`'s spec is:
+
+```ts
+invariants: {
+  mayModify: [
+    "effect.echo",
+    "data.html.template",
+    "data.concat",
+    { dialectOp: "data.binop", attrMatch: { operator: "." } },
+  ],
+}
+```
+
+See DESIGN.md D16 for the rationale and the split with HTTP-level
+replay (`@chrysalis/verify`).
+
 ## CLI
 
 ```
