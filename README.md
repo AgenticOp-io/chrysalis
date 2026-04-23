@@ -150,6 +150,17 @@ node packages/cli/dist/bin.js deploy --mode=cutover \
   --config chimera.json
 ```
 
+Catalog legacy anti-patterns on the IR (N+1 queries, scattered input
+validation, string-based dispatch). Corpus boosts confidence on patterns
+the runtime actually exhibited:
+
+```bash
+node packages/cli/dist/bin.js insight fixtures/tiny-n1
+# or write a machine-readable report:
+node packages/cli/dist/bin.js insight fixtures/tiny-blog \
+  --traces traces --out reports/insight/opportunities.json --json
+```
+
 See the overall migration status (renders tables from the files the earlier
 stages wrote; pass `--json` for a machine-readable summary):
 

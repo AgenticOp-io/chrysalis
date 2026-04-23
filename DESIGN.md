@@ -521,3 +521,28 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   would force every stage to depend on the dashboard. Reading files on demand
   makes `status` a pure projection — it can run offline, in CI, or as a
   pre-commit hook — and keeps the individual stages decoupled.
+- **2026-04-22 — D13** We ship a **dedicated recognition stage**
+  (`@chrysalis/insight`) that walks the WebIR and catalogs legacy
+  anti-patterns as `Opportunity` records, pure over the IR. The three
+  launch recognizers — N+1 queries, scattered input validation, and
+  string-based dispatch — were chosen for high signal-to-noise on real PHP
+  code and because each has a textbook idiomatic replacement on the Node
+  side (batched loaders, zod schemas, discriminated unions). Rationale
+  (why a separate package, not a pass inside `emit-hono`): recognition is a
+  structural query, not a lowering step; it must be re-runnable
+  deterministically across rebuilds, survive emitter swaps (a future
+  `emit-fastify` inherits the same catalog), and feed both the CLI
+  (`chrysalis insight`) and the dashboard (`chrysalis status`). Conflating
+  it with emission would couple the modernization roadmap to the backend
+  choice, which is the exact inversion of what Chrysalis is about.
+  Confidence scoring is *two-tier*: pure IR recognizers cap at 0.8, and the
+  runner boosts toward 1.0 only when the trace corpus confirms the pattern
+  (e.g. the inner N+1 query was actually observed firing N times per
+  request). That keeps the catalog honest — we only promote `strong` when
+  the runtime agreed with us — and paves the way for the Milestone 2
+  rewriter, which will accept only corpus-confirmed opportunities for
+  automatic trace-verified rewrites. Rejected alternative: having each
+  recognizer own both detection and rewrite logic. Rewrite is a separate
+  concern with different failure semantics (a bad detection is noise; a
+  bad rewrite is a regression) and belongs in its own package once the
+  catalog stabilizes.

@@ -151,10 +151,21 @@ Deepen each layer without broadening too fast.
 
 - [ ] Second emit backend: `emit-fastify` (proves WebIR target-portability)
 - [ ] Effect inference: automatic widening/narrowing of effect sets across calls
+- [x] **Insight stage (`@chrysalis/insight`)** — pure recognizers over WebIR
+      with corpus-backed confidence boost (D13). Three launch recognizers:
+      N+1 queries, scattered input validation, string-based dispatch.
+      `chrysalis insight` CLI + dashboard integration. See
+      `packages/insight/README.md`.
 - [ ] Intent-preserving rewrites (v1):
-  - `foreach` accumulator → `.map`/`.reduce`/loop chooser
-  - Inline `$_POST` validation → Zod schema at route boundary
-  - N+1 detection → batched loader (flagged in report; not auto-applied yet)
+  - [ ] `@chrysalis/rewrite` package — consumes `Opportunity` records and
+        emits IR patches; re-runs verify before accepting any rewrite
+  - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
+  - [ ] Inline `$_POST` validation → Zod schema at route boundary
+        (consumes `scattered-validation` opportunities)
+  - [ ] N+1 detection → batched loader (consumes `n-plus-one-queries`
+        opportunities whose corpus-boosted confidence ≥ 0.9)
+  - [ ] String dispatch → discriminated union + `z.enum`
+        (consumes `string-dispatch` opportunities)
 - [ ] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
 - [ ] Oracle: outbound HTTP + mail recording
 - [ ] CI: fixture suite with golden WebIR snapshots and golden generated TS

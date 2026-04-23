@@ -12,7 +12,8 @@
     { "path": "../oracle" },
     { "path": "../verify" },
     { "path": "../archaeology" },
-    { "path": "../runtime-chimera" }
+    { "path": "../runtime-chimera" },
+    { "path": "../insight" }
   ],
   "include": ["src/**/*"]
 }

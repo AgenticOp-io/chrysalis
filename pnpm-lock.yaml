@@ -44,6 +44,9 @@ importers:
       '@chrysalis/ingest':
         specifier: workspace:*
         version: link:../ingest
+      '@chrysalis/insight':
+        specifier: workspace:*
+        version: link:../insight
       '@chrysalis/oracle':
         specifier: workspace:*
         version: link:../oracle
@@ -74,6 +77,15 @@ importers:
       '@chrysalis/parser-bridge':
         specifier: workspace:*
         version: link:../parser-bridge
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
+
+  packages/insight:
+    dependencies:
+      '@chrysalis/oracle':
+        specifier: workspace:*
+        version: link:../oracle
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir

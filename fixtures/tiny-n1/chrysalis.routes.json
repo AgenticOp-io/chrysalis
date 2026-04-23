@@ -1,0 +1,23 @@
+{
+  "app": "tiny-n1",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "file": "pages/dashboard.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/register",
+      "file": "pages/register.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/action",
+      "file": "pages/action.php",
+      "pathParams": []
+    }
+  ]
+}

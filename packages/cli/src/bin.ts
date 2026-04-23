@@ -12,7 +12,15 @@ import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle"
 import { buildReport, replayCorpus, writeReport } from "@chrysalis/verify";
 import { emitTypes, runArchaeology } from "@chrysalis/archaeology";
 import { startChimera, type Mode, type RouteRule } from "@chrysalis/runtime-chimera";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  DEFAULT_RECOGNIZERS,
+  analyzeModule,
+  type InsightReport,
+  type Opportunity,
+  type RecognizerId,
+} from "@chrysalis/insight";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 
 const SUBCOMMANDS = [
   ["init", "Mark a directory as a Chrysalis project"],
@@ -24,6 +32,7 @@ const SUBCOMMANDS = [
   ["convert", "One-shot ingest + emit (Milestone 1 convenience)"],
   ["verify", "Replay oracle traces against the generated code"],
   ["deploy", "Configure the chimera router (--mode=shadow|canary|cutover)"],
+  ["insight", "Catalog anti-patterns on the WebIR and propose idiomatic replacements"],
   ["status", "Print the migration dashboard"],
   ["repair", "LLM-driven repair loop for divergent endpoints (Milestone 3)"],
 ] as const;
@@ -367,6 +376,139 @@ async function cmdDeploy(args: string[]): Promise<number> {
   return 0;
 }
 
+async function cmdInsight(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const flags = parseFlags(args);
+  const root = pos[0];
+  if (!root) {
+    console.error(
+      "usage: chrysalis insight <php-project-dir>\n" +
+        "                         [--traces <dir>] [--out <report.json>]\n" +
+        "                         [--only n-plus-one-queries,scattered-validation,string-dispatch]\n" +
+        "                         [--json]",
+    );
+    return 2;
+  }
+
+  const mod = await ingestDirectory(resolve(root));
+
+  const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
+  let corpus: ReturnType<typeof readCorpus> | null = null;
+  if (tracesDir && existsSync(tracesDir)) {
+    try {
+      corpus = readCorpus({ root: tracesDir });
+    } catch (err) {
+      console.error(`[insight] could not read corpus at ${tracesDir}: ${String(err)}`);
+    }
+  }
+
+  const only = typeof flags.only === "string" ? parseOnly(flags.only) : null;
+
+  const report = analyzeModule(mod, {
+    ...(corpus ? { corpus } : {}),
+    ...(only ? { only } : {}),
+  });
+
+  const outPath = typeof flags.out === "string" ? resolve(flags.out) : null;
+  if (outPath) {
+    mkdirSync(dirname(outPath), { recursive: true });
+    writeFileSync(outPath, JSON.stringify(report, null, 2), "utf8");
+    console.log(`[insight] report written to ${outPath}`);
+  }
+
+  if (flags.json) {
+    console.log(JSON.stringify(report, null, 2));
+    return 0;
+  }
+
+  renderInsightReport(report);
+
+  const strict = flags.strict === true || flags.strict === "true";
+  if (strict && report.opportunities.length > 0) {
+    return 1;
+  }
+  return 0;
+}
+
+function parseOnly(raw: string): ReadonlyArray<RecognizerId> {
+  const known = new Set<RecognizerId>(DEFAULT_RECOGNIZERS.map((r) => r.id));
+  const out: RecognizerId[] = [];
+  for (const tok of raw.split(",").map((s) => s.trim()).filter(Boolean)) {
+    if (known.has(tok as RecognizerId)) out.push(tok as RecognizerId);
+    else console.error(`[insight] unknown recognizer: ${tok}`);
+  }
+  return out;
+}
+
+function renderInsightReport(report: InsightReport): void {
+  console.log(`chrysalis insight — ${report.sourceApp}`);
+  console.log("─".repeat(48));
+  console.log(`recognizers  : ${report.recognizers.join(", ")}`);
+  console.log(
+    `opportunities: ${report.summary.total}  ` +
+      `(strong=${report.summary.bySeverity.strong} ` +
+      `suggestion=${report.summary.bySeverity.suggestion} ` +
+      `info=${report.summary.bySeverity.info})`,
+  );
+  for (const [rec, n] of Object.entries(report.summary.byRecognizer)) {
+    console.log(`  - ${rec.padEnd(26)} ${n}`);
+  }
+  if (report.opportunities.length === 0) {
+    console.log("\nno opportunities found.");
+    return;
+  }
+  console.log("");
+  const sorted = [...report.opportunities].sort(
+    (a, b) => severityRank(b) - severityRank(a) || b.confidence - a.confidence,
+  );
+  for (const op of sorted) {
+    const where = op.route ? `${op.route.method} ${op.route.path}` : "(unscoped)";
+    const origin = renderLocator(op.origin);
+    console.log(
+      `• [${op.severity.toUpperCase()} ${(op.confidence * 100).toFixed(0)}%] ${op.title}`,
+    );
+    console.log(`    at ${where}   ${origin}`);
+    console.log(`    why: ${op.rationale}`);
+    console.log(`    fix: ${op.proposedLift.kind} — ${op.proposedLift.sketch}`);
+    if (op.proposedLift.requires?.length) {
+      console.log(`    requires: ${op.proposedLift.requires.join(", ")}`);
+    }
+    const corpusConf = op.evidence["corpusConfirmations"];
+    if (typeof corpusConf === "number" && corpusConf > 0) {
+      console.log(
+        `    corpus:   ${corpusConf} trace(s), up to ${op.evidence["observedMaxPerRequest"]} firings/req`,
+      );
+    }
+    console.log("");
+  }
+}
+
+function severityRank(op: Opportunity): number {
+  switch (op.severity) {
+    case "strong":
+      return 3;
+    case "suggestion":
+      return 2;
+    case "info":
+      return 1;
+  }
+}
+
+function renderLocator(l: Opportunity["origin"]): string {
+  switch (l.kind) {
+    case "php":
+      return `${l.file}:${l.line}`;
+    case "db":
+      return `db:${l.table}${l.column ? `.${l.column}` : ""}`;
+    case "form":
+      return `form:${l.file}#${l.fieldName}`;
+    case "trace":
+      return `trace:${l.corpusId}/${l.frameId}`;
+    case "synthetic":
+      return `synthetic:${l.reason}`;
+  }
+}
+
 interface StatusSummary {
   readonly corpus: { traces: number; routes: number } | null;
   readonly correctness: {
@@ -389,6 +531,17 @@ interface StatusSummary {
   readonly residualLegacy: {
     readonly holeCount: number;
     readonly dialectCounts: Record<string, number>;
+  } | null;
+  readonly insights: {
+    readonly total: number;
+    readonly byRecognizer: Record<string, number>;
+    readonly bySeverity: Record<string, number>;
+    readonly top: ReadonlyArray<{
+      readonly title: string;
+      readonly severity: string;
+      readonly confidence: number;
+      readonly route: string | null;
+    }>;
   } | null;
 }
 
@@ -415,6 +568,7 @@ async function cmdStatus(args: string[]): Promise<number> {
     archaeology: null,
     shadow: null,
     residualLegacy: null,
+    insights: null,
   };
 
   // Corpus ------------------------------------------------------------
@@ -490,7 +644,7 @@ async function cmdStatus(args: string[]): Promise<number> {
     (summary as { shadow: StatusSummary["shadow"] }).shadow = { requests, agreed, diverged };
   }
 
-  // Residual legacy (holes) ------------------------------------------
+  // Residual legacy (holes) + insights --------------------------------
   if (project) {
     try {
       const mod = await ingestDirectory(project);
@@ -498,8 +652,44 @@ async function cmdStatus(args: string[]): Promise<number> {
         holeCount: countHoles(mod),
         dialectCounts: countByDialect(mod),
       };
+      const insightReport = analyzeModule(mod, corpus ? { corpus } : undefined);
+      const top = [...insightReport.opportunities]
+        .sort((a, b) => severityRank(b) - severityRank(a) || b.confidence - a.confidence)
+        .slice(0, 5)
+        .map((op) => ({
+          title: op.title,
+          severity: op.severity,
+          confidence: op.confidence,
+          route: op.route ? `${op.route.method} ${op.route.path}` : null,
+        }));
+      (summary as { insights: StatusSummary["insights"] }).insights = {
+        total: insightReport.summary.total,
+        byRecognizer: insightReport.summary.byRecognizer as Record<string, number>,
+        bySeverity: insightReport.summary.bySeverity as Record<string, number>,
+        top,
+      };
     } catch {
       // ignore
+    }
+  } else {
+    // A pre-computed insight report on disk is a valid fallback source.
+    const preComputed = tryReadJson<InsightReport>(resolve("reports/insight/opportunities.json"));
+    if (preComputed) {
+      const top = [...preComputed.opportunities]
+        .sort((a, b) => severityRank(b) - severityRank(a) || b.confidence - a.confidence)
+        .slice(0, 5)
+        .map((op) => ({
+          title: op.title,
+          severity: op.severity,
+          confidence: op.confidence,
+          route: op.route ? `${op.route.method} ${op.route.path}` : null,
+        }));
+      (summary as { insights: StatusSummary["insights"] }).insights = {
+        total: preComputed.summary.total,
+        byRecognizer: preComputed.summary.byRecognizer as Record<string, number>,
+        bySeverity: preComputed.summary.bySeverity as Record<string, number>,
+        top,
+      };
     }
   }
 
@@ -554,6 +744,22 @@ async function cmdStatus(args: string[]): Promise<number> {
   } else {
     console.log(`residual PHP : (none — pass --project <php-dir>)`);
   }
+  if (summary.insights) {
+    const i = summary.insights;
+    console.log(
+      `insights     : ${i.total} opportunities  ` +
+        `(strong=${i.bySeverity["strong"] ?? 0} ` +
+        `suggestion=${i.bySeverity["suggestion"] ?? 0} ` +
+        `info=${i.bySeverity["info"] ?? 0})`,
+    );
+    for (const t of i.top) {
+      const p = (t.confidence * 100).toFixed(0).padStart(3);
+      const where = t.route ?? "(unscoped)";
+      console.log(`               [${t.severity.padEnd(10)} ${p}%] ${where}  ${t.title}`);
+    }
+  } else {
+    console.log(`insights     : (none — pass --project <php-dir> or run 'chrysalis insight')`);
+  }
   return 0;
 }
 
@@ -587,6 +793,8 @@ async function main(): Promise<number> {
       return await cmdVerify(rest);
     case "deploy":
       return await cmdDeploy(rest);
+    case "insight":
+      return await cmdInsight(rest);
     case "status":
       return await cmdStatus(rest);
     default:

@@ -112,3 +112,52 @@ jobs:
           name: verify-report
           path: reports/verify
           if-no-files-found: ignore
+
+  insight-catalog:
+    name: insight (catalog WebIR anti-patterns)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: Insight — tiny-n1 must surface all three recognizers
+        # tiny-n1 is a deliberately-broken fixture whose three handlers each
+        # exhibit one anti-pattern. If any recognizer regresses, this fails.
+        run: |
+          mkdir -p reports/insight
+          node packages/cli/dist/bin.js insight fixtures/tiny-n1 \
+            --out reports/insight/tiny-n1.json --json > reports/insight/tiny-n1.stdout.json
+          node -e '
+            const r = JSON.parse(require("fs").readFileSync("reports/insight/tiny-n1.json","utf8"));
+            const by = r.summary.byRecognizer;
+            const need = ["n-plus-one-queries","scattered-validation","string-dispatch"];
+            for (const k of need) {
+              if (!(by[k] > 0)) { console.error("missing recognizer hits:", k, by); process.exit(1); }
+            }
+            console.log("tiny-n1 insight OK:", JSON.stringify(r.summary));
+          '
+
+      - name: Insight — tiny-blog snapshot (non-gating)
+        run: |
+          node packages/cli/dist/bin.js insight fixtures/tiny-blog \
+            --out reports/insight/tiny-blog.json || true
+
+      - name: Upload insight reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: insight-reports
+          path: reports/insight
+          if-no-files-found: ignore
