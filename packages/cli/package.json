@@ -24,6 +24,7 @@
     "@chrysalis/verify": "workspace:*",
     "@chrysalis/archaeology": "workspace:*",
     "@chrysalis/runtime-chimera": "workspace:*",
-    "@chrysalis/insight": "workspace:*"
+    "@chrysalis/insight": "workspace:*",
+    "@chrysalis/rewrite": "workspace:*"
   }
 }

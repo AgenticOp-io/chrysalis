@@ -1,0 +1,266 @@
+/**
+ * @chrysalis/rewrite — framework for IR-level rewrites driven by
+ * `@chrysalis/insight` opportunities.
+ *
+ * Design note (see DESIGN.md D15): rewrite is deliberately a separate
+ * package from `insight`. Detection is pure structural query; rewriting
+ * mutates the IR and must be gated by explicit confidence thresholds.
+ * Splitting them keeps failure semantics cleanly separated — a bad
+ * detection is diagnostic noise, a bad rewrite is a program regression —
+ * and lets recognizers be unit-testable without any rewrite side effects.
+ */
+import type {
+  Locator,
+  Module,
+  NodeBase,
+  NodeId,
+  Provenance,
+  WebIRType,
+} from "@chrysalis/webir";
+import { IdGen, synthetic } from "@chrysalis/webir";
+import type { Opportunity } from "@chrysalis/insight";
+
+/**
+ * A single atomic edit to a `Module`. Edits are produced by passes and
+ * applied in a batch by `applyRewrites`. Two shapes cover the vast
+ * majority of useful rewrites:
+ *
+ *   - `add`: introduce a new node (typically a sanitizer/wrapper call)
+ *   - `replaceOperand`: rewire an existing node's `operands[i]` to a
+ *     different `NodeId`
+ *
+ * More ambitious transforms (e.g. replacing a subtree entirely with a
+ * new subtree) can be expressed as `add` + `replaceOperand` pairs.
+ */
+export type Edit =
+  | { readonly kind: "add"; readonly node: NodeBase }
+  | {
+      readonly kind: "replaceOperand";
+      readonly nodeId: NodeId;
+      readonly index: number;
+      readonly newOperandId: NodeId;
+    };
+
+/**
+ * Context passed to a pass's `apply` method. Gives read access to the
+ * current module and a deterministic id generator for synthesized nodes
+ * (suffix-namespaced per pass to avoid collisions with ingest ids).
+ */
+export interface RewriteCtx {
+  readonly module: Module;
+  allocId(): NodeId;
+  get(id: NodeId): NodeBase | undefined;
+  synthetic(reason: string): Locator;
+  provenance(reason: string): Provenance;
+}
+
+export interface RewritePass {
+  /** Stable machine-readable id; used in reports and as a provenance tag. */
+  readonly id: string;
+  /** Human-readable name for CLI output. */
+  readonly name: string;
+  /** True if this pass handles opportunities of the given recognizer. */
+  handles(op: Opportunity): boolean;
+  /**
+   * Compute the edits that realize the lift for one opportunity. Return
+   * an empty array (or throw) to signal the rewrite can't be applied
+   * cleanly for this specific opportunity; the driver will record it
+   * as `skipped` with the thrown message.
+   */
+  apply(ctx: RewriteCtx, op: Opportunity): ReadonlyArray<Edit>;
+}
+
+export interface RewriteOptions {
+  /** Opportunities below this confidence are not applied. Default: 0.75. */
+  readonly minConfidence?: number;
+  /** Only apply passes in this set (by `id`). Default: all passes. */
+  readonly only?: ReadonlyArray<string>;
+}
+
+export interface AppliedRecord {
+  readonly pass: string;
+  readonly opportunity: string;
+  readonly recognizer: string;
+  readonly editCount: number;
+}
+
+export interface SkippedRecord {
+  readonly pass: string;
+  readonly opportunity: string;
+  readonly recognizer: string;
+  readonly reason: string;
+}
+
+export interface RewriteReport {
+  readonly sourceApp: string;
+  readonly applied: ReadonlyArray<AppliedRecord>;
+  readonly skipped: ReadonlyArray<SkippedRecord>;
+  readonly summary: {
+    readonly considered: number;
+    readonly applied: number;
+    readonly skipped: number;
+    readonly byPass: Readonly<Record<string, number>>;
+  };
+}
+
+export interface RewriteResult {
+  readonly module: Module;
+  readonly report: RewriteReport;
+}
+
+/**
+ * Drive a set of rewrite passes over a module given a list of detected
+ * opportunities. Applies edits in a single batch, producing a new
+ * immutable `Module` with all changes reflected.
+ */
+export function applyRewrites(
+  mod: Module,
+  opportunities: ReadonlyArray<Opportunity>,
+  passes: ReadonlyArray<RewritePass>,
+  opts: RewriteOptions = {},
+): RewriteResult {
+  const minConfidence = opts.minConfidence ?? 0.75;
+  const allowedPassIds = opts.only ? new Set(opts.only) : null;
+
+  // Seed id generator past any existing ingest ids. We use a dedicated
+  // prefix so synthesized nodes are visually distinguishable in debug
+  // dumps.
+  const ids = new IdGen("rw");
+  const nodesCopy = new Map<NodeId, NodeBase>();
+  for (const [id, node] of mod.nodes) nodesCopy.set(id, node);
+
+  const ctx: RewriteCtx = {
+    module: mod,
+    allocId: () => ids.alloc(),
+    get: (id) => nodesCopy.get(id),
+    synthetic: (reason) => synthetic(reason),
+    provenance: (reason) => ({
+      source: "intent-rewrite",
+      locator: synthetic(reason),
+      reason,
+    }),
+  };
+
+  const applied: AppliedRecord[] = [];
+  const skipped: SkippedRecord[] = [];
+  const byPass = new Map<string, number>();
+
+  const edits: Edit[] = [];
+
+  for (const op of opportunities) {
+    for (const pass of passes) {
+      if (allowedPassIds && !allowedPassIds.has(pass.id)) continue;
+      if (!pass.handles(op)) continue;
+      if (op.confidence < minConfidence) {
+        skipped.push({
+          pass: pass.id,
+          opportunity: op.id,
+          recognizer: op.recognizer,
+          reason: `confidence ${op.confidence.toFixed(2)} below threshold ${minConfidence.toFixed(2)}`,
+        });
+        continue;
+      }
+      let patch: ReadonlyArray<Edit>;
+      try {
+        patch = pass.apply(ctx, op);
+      } catch (err) {
+        skipped.push({
+          pass: pass.id,
+          opportunity: op.id,
+          recognizer: op.recognizer,
+          reason: err instanceof Error ? err.message : String(err),
+        });
+        continue;
+      }
+      if (patch.length === 0) {
+        skipped.push({
+          pass: pass.id,
+          opportunity: op.id,
+          recognizer: op.recognizer,
+          reason: "pass returned no edits",
+        });
+        continue;
+      }
+      edits.push(...patch);
+      applied.push({
+        pass: pass.id,
+        opportunity: op.id,
+        recognizer: op.recognizer,
+        editCount: patch.length,
+      });
+      byPass.set(pass.id, (byPass.get(pass.id) ?? 0) + 1);
+    }
+  }
+
+  for (const e of edits) {
+    if (e.kind === "add") {
+      nodesCopy.set(e.node.id, e.node);
+      continue;
+    }
+    const existing = nodesCopy.get(e.nodeId);
+    if (!existing) {
+      throw new Error(`rewrite: replaceOperand target ${String(e.nodeId)} not found`);
+    }
+    if (e.index < 0 || e.index >= existing.operands.length) {
+      throw new Error(
+        `rewrite: replaceOperand index ${e.index} out of range for ${String(e.nodeId)}`,
+      );
+    }
+    const newOps = [...existing.operands];
+    newOps[e.index] = e.newOperandId;
+    const patched: NodeBase = {
+      ...existing,
+      operands: Object.freeze(newOps),
+      provenance: [
+        ...existing.provenance,
+        {
+          source: "intent-rewrite",
+          locator: existing.origin,
+          reason: `operand[${e.index}] rewritten by applyRewrites`,
+        },
+      ],
+    };
+    nodesCopy.set(e.nodeId, patched);
+  }
+
+  const next: Module = {
+    nodes: nodesCopy,
+    roots: mod.roots,
+    meta: mod.meta,
+  };
+
+  const report: RewriteReport = {
+    sourceApp: mod.meta.sourceApp,
+    applied,
+    skipped,
+    summary: {
+      considered: opportunities.length,
+      applied: applied.length,
+      skipped: skipped.length,
+      byPass: Object.fromEntries(byPass),
+    },
+  };
+
+  return { module: next, report };
+}
+
+/** Helper for passes: construct a well-formed `data.call` node. */
+export function makeDataCall(
+  ctx: RewriteCtx,
+  callee: string,
+  args: ReadonlyArray<NodeId>,
+  type: WebIRType,
+  reason: string,
+): NodeBase {
+  return {
+    id: ctx.allocId(),
+    dialect: "data",
+    op: "call",
+    type,
+    effects: [],
+    operands: args,
+    attrs: { callee },
+    origin: ctx.synthetic(reason),
+    provenance: [ctx.provenance(reason)],
+  };
+}

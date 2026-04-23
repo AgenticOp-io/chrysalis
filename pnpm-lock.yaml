@@ -50,6 +50,9 @@ importers:
       '@chrysalis/oracle':
         specifier: workspace:*
         version: link:../oracle
+      '@chrysalis/rewrite':
+        specifier: workspace:*
+        version: link:../rewrite
       '@chrysalis/runtime-chimera':
         specifier: workspace:*
         version: link:../runtime-chimera
@@ -97,6 +100,15 @@ importers:
       php-parser:
         specifier: ^3.2.2
         version: 3.5.1
+
+  packages/rewrite:
+    dependencies:
+      '@chrysalis/insight':
+        specifier: workspace:*
+        version: link:../insight
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
 
   packages/runtime-chimera:
     dependencies:

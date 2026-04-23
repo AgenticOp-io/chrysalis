@@ -576,3 +576,51 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   when a captured response body literally contains the observed
   request-field value, which is the textbook smoking-gun confirmation
   that the unsanitized path survives in production.
+- **2026-04-22 — D15** We ship a **confidence-gated IR rewrite engine**
+  (`@chrysalis/rewrite`) that consumes `@chrysalis/insight` opportunities
+  and produces a patched `Module`. Detection and rewrite are separate
+  packages (see D13): detection is a pure structural query over the IR
+  that is safe to run every build, rewriting is an effectful
+  transformation that must be gated by an explicit confidence threshold
+  (default 0.75) so noisy recognizers cannot flip working code. The
+  engine is built around two atomic edit primitives — `add` (introduce
+  a new node) and `replaceOperand` (rewire an existing node's operand
+  pointer) — which together cover the vast majority of useful lifts; a
+  pass that wants to "replace a whole subtree" does so by adding a new
+  root and rewiring the consumer. Edits are collected across all
+  opportunities and applied in a single batch, so the IR is always
+  consistent at the boundary of `applyRewrites`.
+
+  The first shipped pass, `sanitize-output`, fixes the `unescaped-output`
+  recognizer's XSS findings by wrapping the tainted *leaves* of a
+  concat-like echo value in `htmlspecialchars`. It deliberately walks
+  the string-building tree (both explicit `data.concat` and left-folded
+  `.`-binops) and consults the insight taint primitive so that literal
+  HTML surrounding the taint (e.g. `<h1>`, `</h1>`) is preserved
+  verbatim — the difference between a functional sanitizer and an
+  over-escaper that entity-encodes the entire page. For
+  `data.html.template` sinks it flips the offending expression's
+  `escape: false` to `true` and wraps its operand, letting the emitter
+  inherit the safe-by-default template semantics.
+
+  Why target `htmlspecialchars` rather than the emit-target-specific
+  helper: the emitter already recognizes `htmlspecialchars(x)` and
+  lowers it to the appropriate helper (`escapeHtml` under the
+  Hono runtime). Keeping the rewrite IR-native means future emitters
+  (`emit-fastify`, `emit-bun`) inherit every rewrite in the catalog
+  without changes to the rewrite engine. Rejected alternatives: (a)
+  rewriting the PHP source directly, which couples us to PHP's parser
+  idiosyncrasies and breaks the "IR is the portable substrate"
+  invariant; (b) baking the sanitizer call into the emitter as a
+  special case, which would force every target backend to duplicate
+  that logic and would erase the audit trail of a rewrite as a first-
+  class operation with provenance (`source: "intent-rewrite"` on the
+  emitted nodes).
+
+  Confidence threshold semantics: below threshold the opportunity is
+  **skipped with a recorded reason**, not silently dropped. The CI
+  rewrite-gate runs with the default threshold and asserts that
+  tiny-n1's `unescaped-output` STRONG finding is applied and survives
+  all the way through to the emitted TypeScript containing
+  `escapeHtml(...)` — this guards the full IR → emit pipeline against
+  regressions where a rewrite applied to the IR is lost in translation.

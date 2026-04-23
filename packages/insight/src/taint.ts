@@ -207,8 +207,14 @@ function classify(
 }
 
 function anyOperandTainted(n: NodeBase, visit: (id: NodeId) => Taint): Taint {
+  // Visit all operands unconditionally so every node in the subtree gets
+  // classified and cached. Short-circuiting on the first tainted operand
+  // would leave later siblings unvisited — which matters for `block`
+  // nodes (statement sequences): the recognizer expects every statement
+  // in a handler body to have an entry in the taint map.
+  let tainted = false;
   for (const opId of n.operands) {
-    if (visit(opId) === "tainted") return "tainted";
+    if (visit(opId) === "tainted") tainted = true;
   }
-  return "clean";
+  return tainted ? "tainted" : "clean";
 }

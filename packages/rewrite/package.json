@@ -1,0 +1,19 @@
+{
+  "name": "@chrysalis/rewrite",
+  "version": "0.0.0",
+  "private": true,
+  "description": "IR-level rewrite engine: consumes @chrysalis/insight opportunities and produces patched WebIR modules, gated by confidence thresholds.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@chrysalis/webir": "workspace:*",
+    "@chrysalis/insight": "workspace:*"
+  }
+}

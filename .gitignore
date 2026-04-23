@@ -18,6 +18,7 @@ pnpm-debug.log*
 traces/
 reports/
 .holes/
+tmp/
 
 # Generated artifacts (output of `chrysalis emit`, reproducible from the pipeline)
 generated/**/package-lock.json

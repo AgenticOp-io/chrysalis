@@ -161,9 +161,18 @@ Deepen each layer without broadening too fast.
       for data-flow-driven security recognizers. Corpus boost flips
       `unescaped-output` to STRONG when an observed response contained the
       observed request-field verbatim.
-- [ ] Intent-preserving rewrites (v1):
-  - [ ] `@chrysalis/rewrite` package — consumes `Opportunity` records and
-        emits IR patches; re-runs verify before accepting any rewrite
+- [x] **Rewrite engine (`@chrysalis/rewrite`, D15)** — confidence-gated IR
+      rewrites driven by insight opportunities; `chrysalis rewrite` CLI
+      applies patches, emits TypeScript, and writes a per-opportunity
+      report. First pass `sanitize-output` wraps tainted concat leaves in
+      `htmlspecialchars` (not the whole string — preserves literal HTML)
+      and flips `html.template escape:false` to `true`. CI gate asserts
+      the XSS recognizer's output is *actually fixed* in the emitted TS.
+- [ ] Intent-preserving rewrites (v1, building on the D15 engine):
+  - [x] `@chrysalis/rewrite` package scaffold — `RewritePass` interface,
+        `applyRewrites` driver, `sanitize-output` first pass
+  - [ ] Hook `@chrysalis/verify` into the rewrite driver so every
+        applied pass re-replays the corpus and rolls back on divergence
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
   - [ ] Inline `$_POST` validation → Zod schema at route boundary
         (consumes `scattered-validation` opportunities)
@@ -171,6 +180,8 @@ Deepen each layer without broadening too fast.
         opportunities whose corpus-boosted confidence ≥ 0.9)
   - [ ] String dispatch → discriminated union + `z.enum`
         (consumes `string-dispatch` opportunities)
+  - [ ] Raw SQL concat → parameterized literal (consumes
+        `raw-sql-concat` opportunities)
 - [ ] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
 - [ ] Oracle: outbound HTTP + mail recording
 - [ ] CI: fixture suite with golden WebIR snapshots and golden generated TS

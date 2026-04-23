@@ -13,7 +13,8 @@
     { "path": "../verify" },
     { "path": "../archaeology" },
     { "path": "../runtime-chimera" },
-    { "path": "../insight" }
+    { "path": "../insight" },
+    { "path": "../rewrite" }
   ],
   "include": ["src/**/*"]
 }

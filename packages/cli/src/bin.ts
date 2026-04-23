@@ -19,6 +19,11 @@ import {
   type Opportunity,
   type RecognizerId,
 } from "@chrysalis/insight";
+import {
+  DEFAULT_PASSES,
+  applyRewrites,
+  type RewriteReport,
+} from "@chrysalis/rewrite";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
@@ -33,6 +38,7 @@ const SUBCOMMANDS = [
   ["verify", "Replay oracle traces against the generated code"],
   ["deploy", "Configure the chimera router (--mode=shadow|canary|cutover)"],
   ["insight", "Catalog anti-patterns on the WebIR and propose idiomatic replacements"],
+  ["rewrite", "Apply confidence-gated IR rewrites from insight opportunities, then emit"],
   ["status", "Print the migration dashboard"],
   ["repair", "LLM-driven repair loop for divergent endpoints (Milestone 3)"],
 ] as const;
@@ -430,6 +436,97 @@ async function cmdInsight(args: string[]): Promise<number> {
   return 0;
 }
 
+async function cmdRewrite(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const flags = parseFlags(args);
+  const root = pos[0];
+  const outDir = typeof flags.out === "string" ? flags.out : null;
+  if (!root) {
+    console.error(
+      "usage: chrysalis rewrite <php-project-dir> [--out <ts-out>]\n" +
+        "                         [--traces <dir>] [--min-confidence 0.75]\n" +
+        "                         [--passes <id,id,...>] [--report <rewrite.json>]\n" +
+        "                         [--json]",
+    );
+    return 2;
+  }
+
+  const mod = await ingestDirectory(resolve(root));
+
+  const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
+  let corpus: ReturnType<typeof readCorpus> | null = null;
+  if (tracesDir && existsSync(tracesDir)) {
+    try {
+      corpus = readCorpus({ root: tracesDir });
+    } catch (err) {
+      console.error(`[rewrite] could not read corpus at ${tracesDir}: ${String(err)}`);
+    }
+  }
+
+  const insight = analyzeModule(mod, { ...(corpus ? { corpus } : {}) });
+
+  const minConfidence =
+    typeof flags["min-confidence"] === "string"
+      ? Number.parseFloat(flags["min-confidence"])
+      : 0.75;
+  const passIds =
+    typeof flags.passes === "string"
+      ? flags.passes.split(",").map((s) => s.trim()).filter(Boolean)
+      : null;
+
+  const result = applyRewrites(mod, insight.opportunities, DEFAULT_PASSES, {
+    minConfidence,
+    ...(passIds ? { only: passIds } : {}),
+  });
+
+  const reportPath = typeof flags.report === "string" ? resolve(flags.report) : null;
+  if (reportPath) {
+    mkdirSync(dirname(reportPath), { recursive: true });
+    writeFileSync(reportPath, JSON.stringify(result.report, null, 2), "utf8");
+    console.log(`[rewrite] report written to ${reportPath}`);
+  }
+
+  if (outDir) {
+    const emitRes = await emitHono({ module: result.module, outDir: resolve(outDir) });
+    console.log(`[rewrite] emitted ${emitRes.files.length} file(s) to ${resolve(outDir)}`);
+  }
+
+  if (flags.json) {
+    console.log(JSON.stringify({ report: result.report }, null, 2));
+    return 0;
+  }
+
+  renderRewriteReport(result.report, minConfidence);
+  return 0;
+}
+
+function renderRewriteReport(report: RewriteReport, minConfidence: number): void {
+  console.log(`chrysalis rewrite — ${report.sourceApp}`);
+  console.log("─".repeat(48));
+  console.log(`min-confidence : ${minConfidence.toFixed(2)}`);
+  console.log(
+    `considered     : ${report.summary.considered} opportunity(ies)`,
+  );
+  console.log(
+    `applied        : ${report.summary.applied}   skipped: ${report.summary.skipped}`,
+  );
+  for (const [pass, n] of Object.entries(report.summary.byPass)) {
+    console.log(`  - ${pass.padEnd(26)} ${n}`);
+  }
+  if (report.applied.length > 0) {
+    console.log("\napplied:");
+    for (const a of report.applied) {
+      console.log(`  ✓ ${a.pass}  on  ${a.opportunity}   (edits=${a.editCount})`);
+    }
+  }
+  if (report.skipped.length > 0) {
+    console.log("\nskipped:");
+    for (const s of report.skipped) {
+      console.log(`  · ${s.pass}  on  ${s.opportunity}   (${s.reason})`);
+    }
+  }
+}
+
 function parseOnly(raw: string): ReadonlyArray<RecognizerId> {
   const known = new Set<RecognizerId>(DEFAULT_RECOGNIZERS.map((r) => r.id));
   const out: RecognizerId[] = [];
@@ -795,6 +892,8 @@ async function main(): Promise<number> {
       return await cmdDeploy(rest);
     case "insight":
       return await cmdInsight(rest);
+    case "rewrite":
+      return await cmdRewrite(rest);
     case "status":
       return await cmdStatus(rest);
     default:
