@@ -196,9 +196,20 @@ Deepen each layer without broadening too fast.
         all-or-nothing if any applied rewrite failed to fix its
         finding. Covers "the pass lied" bugs that invariants can't
         catch. Default-on in the CLI.
+  - [x] **Behavior-verify gate (D19)** — in-process IR simulator
+        evaluates each route under both pre- and post-rewrite
+        modules against synthesized benign + attack probe inputs,
+        and rolls back all-or-nothing on any divergence the set of
+        applied passes doesn't account for. Catches silent
+        regressions that neither invariants nor recognizer re-runs
+        can see (dropped echoes, swapped redirects, phantom session
+        writes). Opt-in via `chrysalis rewrite --verify-behavior`;
+        CI exercises it end-to-end on `fixtures/tiny-n1`.
   - [ ] Hook `@chrysalis/verify` HTTP-replay into the rewrite driver
-        so every applied batch re-replays the corpus and rolls back
-        on behavioral divergence (D19).
+        so every applied batch re-replays the corpus against a real
+        emitted app + real DB and rolls back on behavioral
+        divergence. This is the runtime-truth layer on top of D19's
+        IR-level simulation (D20+).
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
   - [ ] Inline `$_POST` validation → Zod schema at route boundary
         (consumes `scattered-validation` opportunities)

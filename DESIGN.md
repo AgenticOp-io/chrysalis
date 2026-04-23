@@ -744,3 +744,103 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   prints `post-verify: ok` or lists the residual findings and notes
   the rollback). `--no-post-verify` exists for users who want to
   inspect a broken / partial rewrite for debugging.
+
+- **2026-04-23 — D19** Add an **in-process IR simulator** and a
+  **behavior-verify gate** that evaluates each route's handler under
+  both the pre- and post-rewrite module on synthesized probe inputs
+  and rolls back the batch if the post-rewrite response diverges
+  from the pass-transformed pre-rewrite response.
+
+  Why a simulator rather than HTTP replay: the typical behavioral
+  oracle for migration tools is "run the old app, run the new app,
+  compare traces." That requires two live deployments, a traces
+  corpus, a DB in a known state, and subprocess orchestration — none
+  of which is cheap or portable enough to put in the default rewrite
+  pipeline. A pure-IR simulator gives us a behavioral signal with
+  none of that plumbing, at the cost of only covering the ops the
+  simulator understands.
+
+  The simulator (`packages/rewrite/src/simulate.ts`) implements
+  exactly the subset of WebIR ops that `@chrysalis/ingest`
+  currently produces: `data.literal`, `data.request.field`,
+  `data.binop` (including lazy `??`), `data.unaryop` (including
+  `isset`/`empty`), `data.member`, `data.call` (with specialized
+  handlers for `__assign`, `htmlspecialchars`, `intval`, `trim`,
+  `strlen`, `password_verify`, `current_user`, `session_start`,
+  and an `echo` fallback), `data.concat`, `data.html.template`,
+  `data.block`, `data.if`/`data.ifElse`, `data.foreach`,
+  `data.hole`, plus the `effect.echo`, `effect.db.query`,
+  `effect.redirect`, `effect.http.error`, `effect.session.read`,
+  `effect.session.write`, `effect.time.now`, `effect.random`
+  effects. Unrecognized ops return a `SimError`; the gate treats
+  runs with non-empty `errors` as **abstain**, not as divergence.
+
+  The probe generator synthesizes one "benign" probe (alphanumeric
+  field values) and one "attack" probe (containing classic XSS
+  triggers `<script>`, `"`, `&`, `'`) per route, reading
+  per-handler request-field metadata out of the IR so each probe
+  targets exactly the inputs the handler actually consumes.
+  Probes with no user-controlled input get only the benign case.
+
+  The DB stub is **param-insensitive** by design: it returns a
+  fixed row set keyed by `(table, kind, returns)` and ignores
+  `params`. If it varied on `params`, pre-rewrite (dynamic SQL
+  passed through a single concat argument, zero bound params)
+  and post-rewrite (parameterized SQL, params lifted to operands)
+  would always look divergent under `parameterize-sql`, defeating
+  the point. The consequence: behavior-verify cannot detect
+  SQL-level semantic regressions through this stub. Real DB
+  semantics belong in a future HTTP-replay layer; this gate's
+  contract is "IR changes outside of declared pass transforms
+  don't change behavior on probe inputs."
+
+  Pass-aware response transforms: the gate predicts what the
+  post-rewrite response *should* look like by transforming the
+  pre-rewrite response according to the set of applied passes:
+
+    - `sanitize-output` — every occurrence of a probe's tainted
+      input value in the pre-body should appear HTML-escaped in
+      the post-body. Replaces longest tainted strings first so
+      nested occurrences don't double-escape.
+    - `parameterize-sql` — no predicted change. The stub's
+      param-insensitivity makes the `db.query` results identical
+      across pre and post; the SQL text diff (`"SELECT … " . $id`
+      → `"SELECT … ?"`) is deliberately not compared.
+    - All other observables (status, redirect target, session
+      writes, db-write side effects, db-read tables) are expected
+      to match byte-for-byte.
+
+  Rollback is all-or-nothing for the same reason D18's is:
+  partial rollback leaves a module in a state that was never
+  traversed by the driver, which is strictly harder to reason
+  about than the original module or the full batch.
+
+  Positioned between D16 (pass hygiene) and an eventual
+  HTTP-replay gate (D20+ — real DB, real emitted TS, real
+  traces), D19 is the cheapest gate that can catch **behavioral
+  regressions a recognizer would never notice**, e.g. a pass
+  that silently drops an echo, swaps a redirect target, or
+  adds an extraneous session write. The behavior-verify test
+  suite exercises exactly that class of "evil pass."
+
+  The gate is opt-in via `chrysalis rewrite --verify-behavior`
+  rather than default, because on a module full of unsupported
+  ops it would abstain on every probe and contribute nothing
+  except noise to the default output. CI exercises it on
+  `fixtures/tiny-n1` where the op coverage is high enough to run
+  real checks.
+
+  Rejected: making the simulator symbolic. A symbolic evaluator
+  would "abstain" less often (returning a structural symbol instead
+  of a concrete error) but would force every response-transform
+  predicate to become symbolic too. The concrete evaluator is
+  simpler, debuggable, and good enough for probes at fixed inputs.
+  If we outgrow it we can layer a symbolic evaluator on top without
+  reshaping the gate's contract.
+
+  Rejected: running the simulator only on the post-rewrite module
+  and hand-checking invariants. That approach can't tell you what
+  *changed* — only that the post-rewrite response is "plausible."
+  Comparing against a simulated pre-rewrite response gives us
+  *directional* signal ("this change was not predicted by any
+  applied pass") which is what actually catches regressions.

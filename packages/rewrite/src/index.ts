@@ -27,6 +27,27 @@ export {
   type PostVerifyFailure,
   type PostVerifyResult,
 } from "./post-verify.js";
+export {
+  verifyBehavior,
+  type BehaviorDivergence,
+  type BehaviorVerifyOptions,
+  type BehaviorVerifyResult,
+  type Probe,
+  type RouteInfo,
+} from "./verify-replay.js";
+export {
+  simulateHandler,
+  simValueEquals,
+  DEFAULT_STUB_DB,
+  type DbReadEvent,
+  type DbWriteEvent,
+  type RequestInput,
+  type SessionWriteEvent,
+  type SimError,
+  type SimResponse,
+  type SimValue,
+  type StubDb,
+} from "./simulate.js";
 import { sanitizeOutputPass } from "./passes/sanitize-output.js";
 import { parameterizeSqlPass } from "./passes/parameterize-sql.js";
 import type { RewritePass } from "./framework.js";

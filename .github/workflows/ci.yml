@@ -215,6 +215,7 @@ jobs:
           node packages/cli/dist/bin.js rewrite fixtures/tiny-n1 \
             --out generated/tiny-n1 \
             --report reports/rewrite/tiny-n1.json \
+            --verify-behavior \
             --json > reports/rewrite/tiny-n1.stdout.json
           node -e '
             const fs = require("fs");
@@ -270,6 +271,32 @@ jobs:
             }
             console.log("tiny-n1 rewrite OK:", JSON.stringify(r.summary));
             console.log("post-verify OK: recognizers=" + r.postVerify.recognizersRun.join(","));
+            // Behavior-verify gate (D19): the report must record that
+            // every probe evaluated under both pre- and post-rewrite
+            // IR produced equivalent responses modulo declared pass
+            // transforms. An abstention budget is allowed (the
+            // simulator covers a subset of ops) but the gate itself
+            // must be ok.
+            if (!r.behaviorVerify) {
+              console.error("rewrite report is missing behaviorVerify section");
+              process.exit(1);
+            }
+            if (r.behaviorVerify.ok !== true) {
+              console.error(
+                "behavior-verify gate FAILED: " +
+                JSON.stringify(r.behaviorVerify.divergences, null, 2),
+              );
+              process.exit(1);
+            }
+            if (r.behaviorVerify.probesRun < 1) {
+              console.error("behavior-verify ran zero probes — probe synthesis is broken");
+              process.exit(1);
+            }
+            console.log(
+              "behavior-verify OK: probes=" + r.behaviorVerify.probesRun +
+              " routes=" + r.behaviorVerify.routesCovered +
+              " abstained=" + r.behaviorVerify.abstained,
+            );
           '
           node packages/cli/dist/bin.js insight fixtures/tiny-n1 \
             --only unescaped-output,raw-sql-concat --json > reports/rewrite/before.json

@@ -446,7 +446,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
       "usage: chrysalis rewrite <php-project-dir> [--out <ts-out>]\n" +
         "                         [--traces <dir>] [--min-confidence 0.75]\n" +
         "                         [--passes <id,id,...>] [--report <rewrite.json>]\n" +
-        "                         [--no-post-verify] [--json]",
+        "                         [--no-post-verify] [--verify-behavior] [--json]",
     );
     return 2;
   }
@@ -480,10 +480,18 @@ async function cmdRewrite(args: string[]): Promise<number> {
   // directly user-visible; users can disable with `--no-post-verify`
   // if they want to inspect a partial / broken rewrite.
   const postVerifyEnabled = flags["no-post-verify"] !== true;
+  // behavior-verify runs the in-process IR simulator against
+  // synthesized probe inputs on both pre and post modules and rolls
+  // back on unexplained divergence. Opt-in for now because the
+  // simulator only covers a subset of ops; it abstains on unknown
+  // ops, so false-positive rollbacks are unlikely but the gate is
+  // loud by design.
+  const behaviorVerifyEnabled = flags["verify-behavior"] === true;
   const result = applyRewrites(mod, insight.opportunities, DEFAULT_PASSES, {
     minConfidence,
     ...(passIds ? { only: passIds } : {}),
     ...(postVerifyEnabled ? { postVerifyRecognizers: DEFAULT_RECOGNIZERS } : {}),
+    ...(behaviorVerifyEnabled ? { behaviorVerify: true } : {}),
   });
 
   const reportPath = typeof flags.report === "string" ? resolve(flags.report) : null;
@@ -543,6 +551,21 @@ function renderRewriteReport(report: RewriteReport, minConfidence: number): void
         console.log(`  ✗ ${f.pass} on ${f.opportunity} — ${f.detail}`);
       }
       console.log("(batch rolled back — no rewrites committed to module)");
+    }
+  }
+  if (report.behaviorVerify) {
+    const bv = report.behaviorVerify;
+    console.log(
+      `\nbehavior-verify: ${bv.ok ? "ok" : "FAILED"}   ` +
+        `(probes=${bv.probesRun} routes=${bv.routesCovered} abstained=${bv.abstained})`,
+    );
+    if (!bv.ok) {
+      for (const d of bv.divergences) {
+        console.log(`  ✗ ${d.route} ${d.probe} [${d.kind}] — ${d.detail}`);
+        console.log(`      expected: ${d.expected}`);
+        console.log(`      actual  : ${d.post}`);
+      }
+      console.log("(batch rolled back — behavioral regression detected)");
     }
   }
 }

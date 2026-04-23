@@ -67,6 +67,53 @@ The `chrysalis rewrite` CLI enables the gate by default and prints
 `post-verify: ok` or a rollback summary. Pass `--no-post-verify` to
 inspect a broken rewrite without auto-rollback.
 
+## Behavior-verify gate (D19)
+
+The third verification layer runs the IR simulator over each route
+in both the pre- and post-rewrite modules against synthesized probe
+inputs, and rolls back if the post-rewrite response diverges from
+what the applied passes' declared transforms predict.
+
+| Layer | Question it answers |
+| :--- | :--- |
+| Invariants (D16) | Did the pass only mutate nodes it declared? |
+| Post-verify (D18) | Did the pass actually fix the finding? |
+| Behavior-verify (D19) | Did the module's response change in a way no applied pass claimed? |
+
+The simulator is in-process and runs on the IR directly — no emit,
+no compile, no server. Two probes per route (benign and XSS-flavored
+attack) exercise the handler; responses include status, body, redirect
+target, DB reads/writes (observably compared by `tables` + returned
+rows, **not** SQL text — that's intentional so `parameterize-sql`
+doesn't flag as a regression), and session writes.
+
+Enable by passing `behaviorVerify: true` (or a richer
+`BehaviorVerifyOptions`) to `applyRewrites`:
+
+```ts
+const { module, report } = applyRewrites(mod, opportunities, DEFAULT_PASSES, {
+  postVerifyRecognizers: DEFAULT_RECOGNIZERS,
+  behaviorVerify: true,
+});
+if (report.behaviorVerify && !report.behaviorVerify.ok) {
+  for (const d of report.behaviorVerify.divergences) {
+    console.error(`${d.route} ${d.probe} [${d.kind}]: ${d.detail}`);
+  }
+}
+```
+
+The `chrysalis rewrite --verify-behavior` CLI flag enables the gate
+and prints `behavior-verify: ok (probes=N routes=N abstained=N)` or
+a divergence report. Abstentions happen when the simulator hits an op
+it doesn't interpret (recorded as `SimError`); they never roll back
+the batch, but the count is reported so you know the coverage.
+
+The simulator's op set is intentionally narrow — exactly what
+`@chrysalis/ingest` produces today. When ingest grows new ops, the
+simulator grows with it. Until then, abstention keeps this gate
+honest: it won't lie and say "behavior unchanged" when it didn't
+actually evaluate the code.
+
 ## Invariant verification
 
 Every pass can declare an `invariants: InvariantSpec` field listing the

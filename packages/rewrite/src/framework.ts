@@ -30,6 +30,11 @@ import {
   type PostVerifyFailure,
   type PostVerifyResult,
 } from "./post-verify.js";
+import {
+  verifyBehavior,
+  type BehaviorVerifyOptions,
+  type BehaviorVerifyResult,
+} from "./verify-replay.js";
 
 /**
  * A single atomic edit to a `Module`. Edits are produced by passes and
@@ -110,6 +115,16 @@ export interface RewriteOptions {
    * disabled. See DESIGN.md D18 for the rationale.
    */
   readonly postVerifyRecognizers?: ReadonlyArray<Recognizer>;
+  /**
+   * When set (either `true` or a `BehaviorVerifyOptions`), after the
+   * batch lands the driver simulates each route in both the pre- and
+   * post-rewrite modules against a set of probe inputs (synthesized
+   * from request-field metadata or supplied by the caller) and
+   * rolls back all-or-nothing if any probe produces a behaviorally
+   * divergent response that isn't explained by an applied pass's
+   * declared transform. Default: disabled. See DESIGN.md D19.
+   */
+  readonly behaviorVerify?: boolean | BehaviorVerifyOptions;
 }
 
 export interface AppliedRecord {
@@ -143,6 +158,13 @@ export interface RewriteReport {
    * by its recognizer. `ok: false` means the batch was rolled back.
    */
   readonly postVerify?: PostVerifyResult;
+  /**
+   * Populated when `behaviorVerify` was enabled. `ok: true` means
+   * every probe produced a post-rewrite response equal to the
+   * pass-transformed pre-rewrite response. `ok: false` means the
+   * batch was rolled back.
+   */
+  readonly behaviorVerify?: BehaviorVerifyResult;
 }
 
 export interface RewriteResult {
@@ -314,6 +336,35 @@ export function applyRewrites(
     }
   }
 
+  // Behavioral verification gate (D19). Runs only if post-verify
+  // didn't already roll back (no point simulating a module that's
+  // about to be thrown away). Simulates each route under probes,
+  // diffs pre vs expected-post, and rolls back all-or-nothing on
+  // unexplained divergence.
+  let behaviorVerify: BehaviorVerifyResult | undefined;
+  if (opts.behaviorVerify && finalApplied.length > 0 && finalModule !== mod) {
+    const behaviorOpts: BehaviorVerifyOptions =
+      typeof opts.behaviorVerify === "object" ? opts.behaviorVerify : {};
+    behaviorVerify = verifyBehavior(mod, finalModule, finalApplied, behaviorOpts);
+    if (!behaviorVerify.ok) {
+      finalModule = mod;
+      const rolledSkipped: SkippedRecord[] = [...finalSkipped];
+      for (const a of finalApplied) {
+        rolledSkipped.push({
+          pass: a.pass,
+          opportunity: a.opportunity,
+          recognizer: a.recognizer,
+          reason:
+            `rolled back: behavior-verify found ${behaviorVerify.divergences.length} ` +
+            `unexplained divergence(s) across ${behaviorVerify.probesRun} probe(s)`,
+        });
+      }
+      finalApplied = [];
+      finalSkipped = rolledSkipped;
+      rollbackByPass.clear();
+    }
+  }
+
   const report: RewriteReport = {
     sourceApp: mod.meta.sourceApp,
     applied: finalApplied,
@@ -325,6 +376,7 @@ export function applyRewrites(
       byPass: Object.fromEntries(rollbackByPass),
     },
     ...(postVerify ? { postVerify } : {}),
+    ...(behaviorVerify ? { behaviorVerify } : {}),
   };
 
   return { module: finalModule, report };
