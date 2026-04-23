@@ -137,6 +137,12 @@ const { module, report } = await applyRewritesAsync(mod, opps, DEFAULT_PASSES, {
 });
 ```
 
+Or emit inside the gate with **`resolveFetch(rewritten)`** (what
+`chrysalis rewrite --http-replay <dir>` does): after the sync pipeline
+succeeds, the driver emits the rewritten module, installs npm deps,
+and dynamically imports `src/server.ts` via `tsx` to obtain
+`app.fetch`.
+
 `@chrysalis/verify`'s `replayCorpus` compares each trace's captured
 response to the handler output via `diffResponse`. Any divergence
 rolls back the **entire** rewrite batch; `report.httpReplayVerify`

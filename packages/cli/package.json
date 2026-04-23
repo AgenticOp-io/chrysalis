@@ -17,6 +17,7 @@
     "clean": "rimraf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "tsx": "^4.21.0",
     "@chrysalis/webir": "workspace:*",
     "@chrysalis/ingest": "workspace:*",
     "@chrysalis/emit-hono": "workspace:*",

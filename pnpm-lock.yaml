@@ -62,6 +62,9 @@ importers:
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
 
   packages/compat: {}
 

@@ -163,6 +163,45 @@ describe("applyRewritesAsync + http-replay (D20)", () => {
     ).toBe(true);
   });
 
+  it("uses resolveFetch(rewritten) when fetch is omitted", async () => {
+    const m = echoQueryModule();
+    const ops = unescapedOutputRecognizer.recognize(m);
+    const expectedHtml = "<p>resolve</p>";
+    const corpus = corpusOf([
+      mkTrace({
+        traceId: "t-rf",
+        startedAt: "2026-04-23T00:00:02Z",
+        method: "GET",
+        path: "/",
+        query: { x: "resolve" },
+        expectedStatus: 200,
+        expectedBody: expectedHtml,
+      }),
+    ]);
+    let seenRewritten = false;
+    const fetchImpl: typeof fetch = async () =>
+      new Response(expectedHtml, {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      });
+
+    const result = await applyRewritesAsync(m, ops, [sanitizeOutputPass], {
+      postVerifyRecognizers: DEFAULT_RECOGNIZERS,
+      behaviorVerify: true,
+      httpReplay: {
+        corpus,
+        baseUrl: "http://127.0.0.1",
+        resolveFetch: async (rewritten) => {
+          seenRewritten = rewritten !== m;
+          return fetchImpl;
+        },
+      },
+    });
+
+    expect(seenRewritten).toBe(true);
+    expect(result.report.httpReplayVerify?.ok).toBe(true);
+  });
+
   it("skips http-replay when nothing applied", async () => {
     const m = echoQueryModule();
     const ops = unescapedOutputRecognizer.recognize(m);

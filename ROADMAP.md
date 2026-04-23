@@ -212,8 +212,9 @@ Deepen each layer without broadening too fast.
         `src/server.ts` (`export const app`) + `src/index.ts`
         (listen only). **Caveat:** PHP-captured bodies diverge after
         `sanitize-output`; use D19 for that contract, or a TS-golden
-        corpus for D20. CLI wiring + CI on a golden trace dir is a
-        follow-up.
+        corpus for D20. **CLI:** `chrysalis rewrite --http-replay
+        <traces> --out <dir>` (optional `--http-replay-skip-install`).
+        CI on a golden trace dir remains a follow-up.
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
   - [ ] Inline `$_POST` validation → Zod schema at route boundary
         (consumes `scattered-validation` opportunities)

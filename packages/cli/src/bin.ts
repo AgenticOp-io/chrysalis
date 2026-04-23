@@ -3,8 +3,8 @@
  * `chrysalis` — the CLI entrypoint. Thin wrapper over the package APIs.
  */
 
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { countByDialect, countHoles } from "@chrysalis/webir";
 import { emit as emitHono } from "@chrysalis/emit-hono";
@@ -22,10 +22,12 @@ import {
 import {
   DEFAULT_PASSES,
   applyRewrites,
+  applyRewritesAsync,
   type RewriteReport,
+  type RewriteResult,
 } from "@chrysalis/rewrite";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { spawnSync } from "node:child_process";
 
 const SUBCOMMANDS = [
   ["init", "Mark a directory as a Chrysalis project"],
@@ -436,6 +438,31 @@ async function cmdInsight(args: string[]): Promise<number> {
   return 0;
 }
 
+function npmInstallEmitted(outDir: string): void {
+  const r = spawnSync("npm", ["install", "--no-audit", "--no-fund"], {
+    cwd: outDir,
+    stdio: "pipe",
+    encoding: "utf8",
+    shell: true,
+  });
+  if (r.status !== 0) {
+    const detail = (r.stderr || r.stdout || "").toString().trim();
+    throw new Error(
+      `npm install failed in ${outDir}${detail ? `: ${detail}` : ""}`,
+    );
+  }
+}
+
+async function loadEmittedHonoFetch(outDir: string): Promise<typeof fetch> {
+  const { tsImport } = await import("tsx/esm/api");
+  const abs = resolve(outDir);
+  const parentURL = pathToFileURL(join(abs, "package.json")).href;
+  const imported = (await tsImport("./src/server.ts", parentURL)) as {
+    app: { fetch: typeof fetch };
+  };
+  return imported.app.fetch.bind(imported.app) as typeof fetch;
+}
+
 async function cmdRewrite(args: string[]): Promise<number> {
   const pos = positional(args);
   const flags = parseFlags(args);
@@ -446,8 +473,17 @@ async function cmdRewrite(args: string[]): Promise<number> {
       "usage: chrysalis rewrite <php-project-dir> [--out <ts-out>]\n" +
         "                         [--traces <dir>] [--min-confidence 0.75]\n" +
         "                         [--passes <id,id,...>] [--report <rewrite.json>]\n" +
-        "                         [--no-post-verify] [--verify-behavior] [--json]",
+        "                         [--no-post-verify] [--verify-behavior]\n" +
+        "                         [--http-replay <traces-dir>] [--http-replay-skip-install]\n" +
+        "                         [--json]",
     );
+    return 2;
+  }
+
+  const httpReplayRoot =
+    typeof flags["http-replay"] === "string" ? resolve(flags["http-replay"]) : null;
+  if (httpReplayRoot && !outDir) {
+    console.error("error: --http-replay requires --out (emit directory for the generated app)");
     return 2;
   }
 
@@ -460,6 +496,20 @@ async function cmdRewrite(args: string[]): Promise<number> {
       corpus = readCorpus({ root: tracesDir });
     } catch (err) {
       console.error(`[rewrite] could not read corpus at ${tracesDir}: ${String(err)}`);
+    }
+  }
+
+  let replayCorpusForHttp: ReturnType<typeof readCorpus> | null = null;
+  if (httpReplayRoot) {
+    if (!existsSync(httpReplayRoot)) {
+      console.error(`error: --http-replay directory not found: ${httpReplayRoot}`);
+      return 2;
+    }
+    try {
+      replayCorpusForHttp = readCorpus({ root: httpReplayRoot });
+    } catch (err) {
+      console.error(`[rewrite] could not read http-replay corpus: ${String(err)}`);
+      return 2;
     }
   }
 
@@ -487,12 +537,54 @@ async function cmdRewrite(args: string[]): Promise<number> {
   // ops, so false-positive rollbacks are unlikely but the gate is
   // loud by design.
   const behaviorVerifyEnabled = flags["verify-behavior"] === true;
-  const result = applyRewrites(mod, insight.opportunities, DEFAULT_PASSES, {
+  const httpReplaySkipInstall = flags["http-replay-skip-install"] === true;
+
+  const rewriteOptsBase = {
     minConfidence,
     ...(passIds ? { only: passIds } : {}),
     ...(postVerifyEnabled ? { postVerifyRecognizers: DEFAULT_RECOGNIZERS } : {}),
     ...(behaviorVerifyEnabled ? { behaviorVerify: true } : {}),
-  });
+  };
+
+  const outAbs = outDir ? resolve(outDir) : "";
+  const useHttpReplay = replayCorpusForHttp !== null && outDir !== null;
+
+  let emittedForHttpReplay = false;
+  let result: RewriteResult;
+
+  if (useHttpReplay) {
+    try {
+      result = await applyRewritesAsync(mod, insight.opportunities, DEFAULT_PASSES, {
+        ...rewriteOptsBase,
+        httpReplay: {
+          corpus: replayCorpusForHttp!,
+          baseUrl: "http://127.0.0.1",
+          resolveFetch: async (rewritten) => {
+            await emitHono({ module: rewritten, outDir: outAbs });
+            emittedForHttpReplay = true;
+            if (!httpReplaySkipInstall) {
+              npmInstallEmitted(outAbs);
+            }
+            return loadEmittedHonoFetch(outAbs);
+          },
+        },
+      });
+    } catch (err) {
+      console.error(`[rewrite] http-replay pipeline failed: ${String(err)}`);
+      return 1;
+    }
+    if (result.report.httpReplayVerify && !result.report.httpReplayVerify.ok) {
+      try {
+        await emitHono({ module: result.module, outDir: outAbs });
+      } catch (revertErr) {
+        console.error(
+          `[rewrite] could not re-emit rolled-back module: ${String(revertErr)}`,
+        );
+      }
+    }
+  } else {
+    result = applyRewrites(mod, insight.opportunities, DEFAULT_PASSES, rewriteOptsBase);
+  }
 
   const reportPath = typeof flags.report === "string" ? resolve(flags.report) : null;
   if (reportPath) {
@@ -501,9 +593,11 @@ async function cmdRewrite(args: string[]): Promise<number> {
     console.log(`[rewrite] report written to ${reportPath}`);
   }
 
-  if (outDir) {
-    const emitRes = await emitHono({ module: result.module, outDir: resolve(outDir) });
-    console.log(`[rewrite] emitted ${emitRes.files.length} file(s) to ${resolve(outDir)}`);
+  if (outDir && !emittedForHttpReplay) {
+    const emitRes = await emitHono({ module: result.module, outDir: outAbs });
+    console.log(`[rewrite] emitted ${emitRes.files.length} file(s) to ${outAbs}`);
+  } else if (emittedForHttpReplay) {
+    console.log(`[rewrite] emitted (during http-replay) to ${outAbs}`);
   }
 
   if (flags.json) {
@@ -566,6 +660,24 @@ function renderRewriteReport(report: RewriteReport, minConfidence: number): void
         console.log(`      actual  : ${d.post}`);
       }
       console.log("(batch rolled back — behavioral regression detected)");
+    }
+  }
+  if (report.httpReplayVerify) {
+    const hr = report.httpReplayVerify;
+    const n = hr.outcomes.length;
+    const passed = hr.outcomes.filter((o) => o.ok).length;
+    console.log(
+      `\nhttp-replay    : ${hr.ok ? "ok" : "FAILED"}   ` +
+        `(frames ${passed}/${n}${hr.failedRoutes.length ? `; failed: ${hr.failedRoutes.join(", ")}` : ""})`,
+    );
+    if (!hr.ok) {
+      for (const o of hr.outcomes) {
+        if (o.ok) continue;
+        console.log(
+          `  ✗ ${o.route} — ${o.diff.divergences.map((d) => d.kind).join(", ") || "divergence"}`,
+        );
+      }
+      console.log("(batch rolled back — HTTP replay diverged from corpus)");
     }
   }
 }

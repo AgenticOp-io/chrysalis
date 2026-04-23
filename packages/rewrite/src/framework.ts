@@ -132,13 +132,22 @@ export interface RewriteOptions {
 /**
  * Options for the HTTP corpus replay gate (D20). Supply a
  * {@link TraceCorpus} (typically from `@chrysalis/oracle`'s
- * `readCorpus`) and an HTTP handler as `fetch` — e.g.
- * `app.fetch.bind(app)` from an emitted Hono app.
+ * `readCorpus`) and either:
+ *
+ * - **`fetch`** — e.g. `app.fetch.bind(app)` from an already-loaded Hono app, or
+ * - **`resolveFetch`** — called after the synchronous rewrite pipeline with the
+ *   **rewritten** `Module` so callers can `emit` and dynamically import
+ *   `src/server.ts` before replay (see `chrysalis rewrite --http-replay`).
+ *
+ * Provide exactly one of `fetch` or `resolveFetch`.
  */
 export interface HttpReplayVerifyOptions {
   readonly corpus: TraceCorpus;
   readonly baseUrl: string;
-  readonly fetch: typeof globalThis.fetch;
+  readonly fetch?: typeof globalThis.fetch;
+  readonly resolveFetch?: (
+    rewritten: Module,
+  ) => Promise<typeof globalThis.fetch>;
 }
 
 export interface HttpReplayVerifyResult {
@@ -415,7 +424,7 @@ export function applyRewrites(
 /**
  * Like {@link applyRewrites} but runs an optional **HTTP replay** gate
  * after the synchronous stack (invariants, post-verify, behavior-
- * verify). Replays each trace in the corpus against `httpReplay.fetch`
+ * verify). Replays each trace in the corpus against the resolved `fetch`
  * and rolls back all-or-nothing if any frame diverges from the oracle
  * response. See DESIGN.md D20.
  */
@@ -430,9 +439,17 @@ export async function applyRewritesAsync(
   if (!httpReplay || sync.report.applied.length === 0 || sync.module === mod) {
     return sync;
   }
+  let fetchImpl: typeof globalThis.fetch;
+  if (httpReplay.resolveFetch) {
+    fetchImpl = await httpReplay.resolveFetch(sync.module);
+  } else if (httpReplay.fetch) {
+    fetchImpl = httpReplay.fetch;
+  } else {
+    throw new Error("httpReplay: provide `fetch` or `resolveFetch`");
+  }
   const outcomes = await replayCorpus(httpReplay.corpus, {
     baseUrl: httpReplay.baseUrl,
-    fetch: httpReplay.fetch,
+    fetch: fetchImpl,
   });
   const ok = outcomes.every((o) => o.ok);
   const httpReplayVerify: HttpReplayVerifyResult = {

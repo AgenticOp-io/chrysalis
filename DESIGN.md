@@ -880,8 +880,11 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   handler that should match the oracle (e.g. `parameterize-sql`
   only, or a post-migration golden corpus).
 
-  **CLI** — `chrysalis rewrite` stays synchronous for now; callers
-  integrate `applyRewritesAsync` from Node (e.g. after `emit` +
-  dynamic `import` of `./server.js` under `tsx`). A first-class CLI
-  flag is a small follow-up once the import path is standardized in
-  CI.
+  **CLI** — `chrysalis rewrite --http-replay <traces-dir>` requires
+  `--out`. It runs `applyRewritesAsync` with `resolveFetch` that
+  emits the rewritten module, runs `npm install` in the output dir
+  (skip with `--http-replay-skip-install` if deps are already
+  present), and loads `src/server.ts` through `tsx` for
+  `replayCorpus`. On replay failure the batch rolls back and the CLI
+  re-emits the **pre-rewrite** module so `--out` stays consistent
+  with the returned IR.
