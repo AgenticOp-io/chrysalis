@@ -241,6 +241,7 @@ function convertExpr(ctx: Ctx, e: PhpExpr, pathParams: RouteSpec["pathParams"]):
         "*": "*",
         "/": "/",
         ".": ".",
+        "??": "??",
       };
       const mapped = opMap[e.operator];
       if (!mapped) return hole(ctx, `binop ${e.operator}`, e.pos);

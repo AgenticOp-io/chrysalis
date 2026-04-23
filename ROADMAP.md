@@ -152,10 +152,15 @@ Deepen each layer without broadening too fast.
 - [ ] Second emit backend: `emit-fastify` (proves WebIR target-portability)
 - [ ] Effect inference: automatic widening/narrowing of effect sets across calls
 - [x] **Insight stage (`@chrysalis/insight`)** — pure recognizers over WebIR
-      with corpus-backed confidence boost (D13). Three launch recognizers:
-      N+1 queries, scattered input validation, string-based dispatch.
-      `chrysalis insight` CLI + dashboard integration. See
-      `packages/insight/README.md`.
+      with corpus-backed confidence boost (D13). Five recognizers so far:
+      N+1 queries, scattered input validation, string-based dispatch,
+      unescaped-output (XSS), raw-sql-concat (SQLi). `chrysalis insight`
+      CLI + dashboard integration. See `packages/insight/README.md`.
+- [x] **Taint primitive (`@chrysalis/insight/taint`, D14)** — intra-handler
+      source→sink reachability with explicit sanitizer allowlist; substrate
+      for data-flow-driven security recognizers. Corpus boost flips
+      `unescaped-output` to STRONG when an observed response contained the
+      observed request-field verbatim.
 - [ ] Intent-preserving rewrites (v1):
   - [ ] `@chrysalis/rewrite` package — consumes `Opportunity` records and
         emits IR patches; re-runs verify before accepting any rewrite

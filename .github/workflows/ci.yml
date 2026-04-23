@@ -132,9 +132,14 @@ jobs:
       - name: Build
         run: pnpm -r build
 
-      - name: Insight — tiny-n1 must surface all three recognizers
-        # tiny-n1 is a deliberately-broken fixture whose three handlers each
-        # exhibit one anti-pattern. If any recognizer regresses, this fails.
+      - name: Insight — tiny-n1 must surface every recognizer
+        # tiny-n1 is a deliberately-broken fixture whose handlers each
+        # exhibit one anti-pattern. If any recognizer regresses, this
+        # fails. We also require at least one STRONG finding from each
+        # security recognizer (raw-sql-concat, unescaped-output) to
+        # catch a class of silent-degradation bugs where the recognizer
+        # still fires but drops to "suggestion" because the taint
+        # pipeline lost a binding along the way.
         run: |
           mkdir -p reports/insight
           node packages/cli/dist/bin.js insight fixtures/tiny-n1 \
@@ -142,9 +147,27 @@ jobs:
           node -e '
             const r = JSON.parse(require("fs").readFileSync("reports/insight/tiny-n1.json","utf8"));
             const by = r.summary.byRecognizer;
-            const need = ["n-plus-one-queries","scattered-validation","string-dispatch"];
+            const need = [
+              "raw-sql-concat",
+              "unescaped-output",
+              "n-plus-one-queries",
+              "scattered-validation",
+              "string-dispatch",
+            ];
             for (const k of need) {
               if (!(by[k] > 0)) { console.error("missing recognizer hits:", k, by); process.exit(1); }
+            }
+            const strongSec = r.opportunities.filter(
+              (o) => o.severity === "strong" &&
+                (o.recognizer === "raw-sql-concat" || o.recognizer === "unescaped-output"),
+            );
+            const secKinds = new Set(strongSec.map((o) => o.recognizer));
+            if (!secKinds.has("raw-sql-concat") || !secKinds.has("unescaped-output")) {
+              console.error(
+                "expected >=1 STRONG finding from each security recognizer; saw:",
+                [...secKinds],
+              );
+              process.exit(1);
             }
             console.log("tiny-n1 insight OK:", JSON.stringify(r.summary));
           '

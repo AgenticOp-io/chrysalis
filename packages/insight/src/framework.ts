@@ -27,7 +27,9 @@ import type { TraceCorpus } from "@chrysalis/oracle";
 export type RecognizerId =
   | "n-plus-one-queries"
   | "scattered-validation"
-  | "string-dispatch";
+  | "string-dispatch"
+  | "unescaped-output"
+  | "raw-sql-concat";
 
 export type Severity = "info" | "suggestion" | "strong";
 
@@ -151,10 +153,60 @@ export function boostWithCorpus(op: Opportunity, corpus: TraceCorpus): Opportuni
   switch (op.recognizer) {
     case "n-plus-one-queries":
       return boostNPlusOne(op, corpus);
+    case "unescaped-output":
+      return boostUnescapedOutput(op, corpus);
+    case "raw-sql-concat":
     case "scattered-validation":
     case "string-dispatch":
       return op;
   }
+}
+
+/**
+ * Corpus boost for XSS: if a captured response body literally contains
+ * the request-field value observed in the same trace, that's a smoking
+ * gun — the tainted string survived the echo unsanitized in real traffic.
+ */
+function boostUnescapedOutput(op: Opportunity, corpus: TraceCorpus): Opportunity {
+  const route = op.route;
+  let matchingTraces = 0;
+  let exampleValue: string | null = null;
+  for (const trace of corpus.traces) {
+    const reqEv = trace.events.find((e) => e.type === "http.request") as
+      | { path: string; post: Record<string, unknown>; query: Record<string, string> }
+      | undefined;
+    if (!reqEv) continue;
+    if (route && !routeMatches(reqEv.path, route.path)) continue;
+    const respEv = trace.events.find((e) => e.type === "http.response") as
+      | { body: string }
+      | undefined;
+    if (!respEv || typeof respEv.body !== "string") continue;
+    const candidates: string[] = [];
+    for (const v of Object.values(reqEv.post)) {
+      if (typeof v === "string" && v.length >= 3) candidates.push(v);
+    }
+    for (const v of Object.values(reqEv.query)) {
+      if (typeof v === "string" && v.length >= 3) candidates.push(v);
+    }
+    for (const c of candidates) {
+      if (respEv.body.includes(c)) {
+        matchingTraces += 1;
+        if (exampleValue === null) exampleValue = c;
+        break;
+      }
+    }
+  }
+  if (matchingTraces === 0) return op;
+  return {
+    ...op,
+    confidence: Math.min(1, op.confidence + 0.2),
+    severity: "strong",
+    evidence: {
+      ...op.evidence,
+      corpusConfirmations: matchingTraces,
+      exampleValueEchoed: exampleValue,
+    },
+  };
 }
 
 function boostNPlusOne(op: Opportunity, corpus: TraceCorpus): Opportunity {

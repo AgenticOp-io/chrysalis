@@ -19,6 +19,8 @@ import type { Module } from "@chrysalis/webir";
 import { nPlusOneRecognizer } from "./recognizers/n-plus-one.js";
 import { scatteredValidationRecognizer } from "./recognizers/scattered-validation.js";
 import { stringDispatchRecognizer } from "./recognizers/string-dispatch.js";
+import { unescapedOutputRecognizer } from "./recognizers/unescaped-output.js";
+import { rawSqlConcatRecognizer } from "./recognizers/raw-sql-concat.js";
 import type { Recognizer } from "./framework.js";
 
 export {
@@ -38,12 +40,17 @@ export {
 export { nPlusOneRecognizer } from "./recognizers/n-plus-one.js";
 export { scatteredValidationRecognizer } from "./recognizers/scattered-validation.js";
 export { stringDispatchRecognizer } from "./recognizers/string-dispatch.js";
+export { unescapedOutputRecognizer } from "./recognizers/unescaped-output.js";
+export { rawSqlConcatRecognizer } from "./recognizers/raw-sql-concat.js";
+export { computeTaint, SANITIZER_CALLS, type Taint, type TaintResult } from "./taint.js";
 
 /**
- * The stock set of recognizers shipped with Chrysalis. Ordered by how
- * diagnostically valuable their output is when seen first.
+ * The stock set of recognizers shipped with Chrysalis. Security-oriented
+ * recognizers lead so they surface first in tabular output.
  */
 export const DEFAULT_RECOGNIZERS: ReadonlyArray<Recognizer> = [
+  rawSqlConcatRecognizer,
+  unescapedOutputRecognizer,
   nPlusOneRecognizer,
   scatteredValidationRecognizer,
   stringDispatchRecognizer,

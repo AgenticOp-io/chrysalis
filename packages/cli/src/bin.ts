@@ -384,7 +384,7 @@ async function cmdInsight(args: string[]): Promise<number> {
     console.error(
       "usage: chrysalis insight <php-project-dir>\n" +
         "                         [--traces <dir>] [--out <report.json>]\n" +
-        "                         [--only n-plus-one-queries,scattered-validation,string-dispatch]\n" +
+        "                         [--only raw-sql-concat,unescaped-output,n-plus-one-queries,scattered-validation,string-dispatch]\n" +
         "                         [--json]",
     );
     return 2;

@@ -546,3 +546,33 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   concern with different failure semantics (a bad detection is noise; a
   bad rewrite is a regression) and belongs in its own package once the
   catalog stabilizes.
+- **2026-04-22 — D14** We add an **intra-handler taint primitive**
+  (`@chrysalis/insight/taint`) as the substrate for data-flow-driven
+  recognizers. The primitive is a binary lattice (`clean | tainted`) with
+  a small, explicit set of sources (`data.request.field`,
+  `effect.session.read`, `effect.db.query` return values) and sanitizers
+  (`htmlspecialchars`, `intval`, `json_encode`, numeric coercions,
+  boolean-yielding operators). Propagation is post-order and single-pass
+  — sound over SSA-ish WebIR — and resolves `data.param` reads through
+  the per-handler bindings map built by `collectBindings`. Rationale for
+  a new primitive rather than per-recognizer ad-hoc flow: multiple
+  security-oriented recognizers (`unescaped-output` for XSS,
+  `raw-sql-concat` for SQLi, and upcoming open-redirect / SSRF
+  recognizers) all ask the same question — "does a source reach this
+  sink, unsanitized, within this handler?" — so the flow logic belongs
+  in one vetted place. Sanitizer list is intentionally small and
+  additive; a future iteration can promote it to a config file so users
+  can register their application's own escapers. The primitive is
+  deliberately conservative (false positives preferred over false
+  negatives) and bounded in scope to a single handler — cross-handler
+  flows are a distinct tier gated by the corpus, not a static-only
+  pass. Rejected alternatives: (a) a full SMT-style dataflow engine
+  (e.g. a lightweight CodeQL), which would overshoot the precision
+  needed by `insight` and couple us to a larger runtime; (b) inlining
+  the flow into each recognizer, which duplicates sanitizer/source
+  tables and makes cross-recognizer consistency impossible to audit.
+  Security-recognizer outputs are corpus-boostable exactly like
+  structural ones: for `unescaped-output` we flip severity to STRONG
+  when a captured response body literally contains the observed
+  request-field value, which is the textbook smoking-gun confirmation
+  that the unsanitized path survives in production.

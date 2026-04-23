@@ -18,6 +18,18 @@
       "path": "/action",
       "file": "pages/action.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/search",
+      "file": "pages/search.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/lookup",
+      "file": "pages/lookup.php",
+      "pathParams": []
     }
   ]
 }
