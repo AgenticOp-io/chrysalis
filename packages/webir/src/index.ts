@@ -125,7 +125,7 @@ export {
 export { IdGen } from "./ids.js";
 export { allNodes, countByDialect, countHoles, irCoverageStats, walk } from "./visit.js";
 export { computeOracleFootprint, type OracleFootprint, type RouteOracleFootprint } from "./oracle-footprint.js";
-export { moduleToGoldenSnapshot } from "./snapshot.js";
+export { moduleToGoldenSnapshot, type GoldenSnapshotOptions } from "./snapshot.js";
 export type { ModuleBuilderOpts } from "./builder.js";
 export * as webRequest from "./dialects/web-request.js";
 export * as effectDialect from "./dialects/effect.js";

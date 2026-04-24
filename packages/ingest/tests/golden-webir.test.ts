@@ -10,7 +10,7 @@ const GOLDEN = resolve(__dirname, "golden/tiny-blog.webir.json");
 describe("golden WebIR snapshots", () => {
   test("tiny-blog ingest matches committed golden fixture", async () => {
     const mod = await ingestDirectory(FIXTURE);
-    const actual = moduleToGoldenSnapshot(mod);
+    const actual = moduleToGoldenSnapshot(mod, { relativizeProjectRoot: FIXTURE });
     const expected = readFileSync(GOLDEN, "utf8");
     expect(actual).toBe(expected);
   });

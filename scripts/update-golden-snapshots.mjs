@@ -22,7 +22,11 @@ const webirGoldenDir = resolve(root, "packages/ingest/tests/golden");
 mkdirSync(webirGoldenDir, { recursive: true });
 const mod = await ingestDirectory(tinyBlog);
 const webirPath = resolve(webirGoldenDir, "tiny-blog.webir.json");
-writeFileSync(webirPath, moduleToGoldenSnapshot(mod), "utf8");
+writeFileSync(
+  webirPath,
+  moduleToGoldenSnapshot(mod, { relativizeProjectRoot: tinyBlog }),
+  "utf8",
+);
 console.log(`[golden] wrote ${webirPath} (${mod.nodes.size} nodes)`);
 
 const emitGoldenDir = resolve(root, "packages/emit-hono/tests/golden");
