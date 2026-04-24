@@ -20,8 +20,9 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router
   (`--canary-percent`, stickiness cookie/header flags for canary)
 - `chrysalis status` — migration dashboard; `--json` includes `migration`
-  (IR coverage with `--project`, correctness from `--report`, optional
-  `reports/migration/*.json` sidecars; `--migration-reports <dir>`)
+  and `oracleFootprint` (`routes[]` with `--project`). With `--project`, also
+  writes `reports/oracle-footprint.json`. Correctness from `--report`, optional
+  `reports/migration/*.json` sidecars (`--migration-reports <dir>`)
 - `chrysalis repair <traces-dir> --base-url <url> --project <php-root>` —
   verify-gated repair loop (`@chrysalis/repair`; stub proposer until an LLM
   adapter is wired)

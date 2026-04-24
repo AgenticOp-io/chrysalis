@@ -331,6 +331,9 @@ Candidates after the Laravel pilot (rough tractability order):
 - [x] Oracle corpus + verify gate for `laravel-min` (`scripts/verify-flagship-laravel-min.mjs`,
       CI job `verify-flagship-laravel-min`; PHP docroot `public/`)
 - [x] Publish `migration` status JSON as a CI artifact (`flagship-laravel-min.json`)
+- [x] Oracle footprint on `chrysalis status` (`computeOracleFootprint` in
+      `@chrysalis/webir`; hydration index, read/write hints, full `routes[]` in
+      `--json`, `reports/oracle-footprint.json` under `--project` — D39/D40)
 
 **Pilot slice status:** `laravel-min` satisfies the phased checklist (dashboard,
 ingest/emit, dual verify, migration artifact). **Still open:** replace the

@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D38 microtime/parse_url lowerings; D37 + §9 checklist sync
+Last updated by: D40 oracle footprint artifact + dimensions; D39; D38 microtime/parse_url; D37 + §9 checklist sync
 
 ---
 
@@ -175,6 +175,20 @@ Verification pipeline:
 5. Emit a per-endpoint `CorrectnessReport` with a numeric score and divergence list.
 6. Optionally, invoke a **repair pass** that proposes IR rewrites scoped to the
    divergent nodes. Repair proposals are re-verified — never trusted.
+
+#### Oracle footprint (static replay surface)
+
+Before running the oracle or a full replay, WebIR alone can summarize **what must
+be hydrated** per HTTP route: wall-clock / RNG effects, session edges, which
+`db.read` tables imply SQL tape rows, outbound HTTP and mail, and how many
+holes sit in the handler body. `@chrysalis/webir` exposes `computeOracleFootprint`
+for this; `chrysalis status` (with `--project`) prints a condensed roll-up
+(hydration index, read/write table hints, route counts, optional session/http/mail/cache/fs
+flags) and writes `reports/oracle-footprint.json` under the project root
+(schema `oracle-footprint/1.0.0`, full per-route rows). `status --json` includes
+the same `routes[]` as the file. This is pure IR analysis — no PHP runtime, no
+new third-party packages — and complements principle 1 (behavioral replay) by
+making the **cost of honest verify** visible in CI.
 
 ### 5.3 Chimera runtime — dual-stack coexistence
 
@@ -1168,3 +1182,28 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
 
   Rejected: returning literal `false` from `parseUrlParts` in TS (breaks typed
   record consumers); use empty object + optional chaining in emitted PHP style.
+
+- **2026-04-23 — D39** **Oracle footprint (static WebIR)** — `computeOracleFootprint`
+  in `@chrysalis/webir` walks each `web.request.route` → handler body, unions
+  reachable effects (`effectsReachableFrom`), aggregates `db.read` tables as a
+  tape hint, flags time/RNG/session/http/mail, counts holes and reachable nodes
+  per route, and derives a **hydration index** (0–100) from a weighted score
+  normalized per route. `chrysalis status` surfaces a condensed summary after
+  ingest. Rationale: teams need a first-party signal for “how heavy is honest
+  replay for this module?” without running PHP or adding migration-tooling
+  dependencies; the IR already encodes the effect surface.
+
+  Rejected: inferring footprint from emitted TypeScript or from trace files only
+  — WebIR stays the single portable truth; traces refine replay but do not
+  replace static effect summaries for greenfield CI.
+
+- **2026-04-23 — D40** **Oracle footprint artifact and full effect surface** —
+  Footprint aggregates `cache.read` / `cache.write` and `fs.read` / `fs.write`,
+  distinct **`db.write`** tables (`writeTablesHint`), and **`totalHoleCount`**
+  across routes. `chrysalis status --project` persists
+  `reports/oracle-footprint.json` (versioned `chrysalisSchema`) for CI and
+  diffing; machine consumers use that file or `status --json` (`routes[]`).
+
+  Rejected: treating write tables as replay tape rows in the same list as reads
+  — writes shape DB state; the hint names tables that need seeding or isolation,
+  not SELECT result replay.

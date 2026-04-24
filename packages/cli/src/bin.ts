@@ -6,7 +6,14 @@
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { ingestDirectory } from "@chrysalis/ingest";
-import { countByDialect, countHoles, irCoverageStats, type Module } from "@chrysalis/webir";
+import {
+  computeOracleFootprint,
+  countByDialect,
+  countHoles,
+  irCoverageStats,
+  type Module,
+  type RouteOracleFootprint,
+} from "@chrysalis/webir";
 import { emit as emitFastify } from "@chrysalis/emit-fastify";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
@@ -1080,6 +1087,22 @@ interface StatusSummary {
       readonly route: string | null;
     }>;
   } | null;
+  /** Static oracle replay surface (WebIR-only); see DESIGN.md Oracle footprint. */
+  readonly oracleFootprint: {
+    readonly hydrationIndex: number;
+    readonly routeCount: number;
+    readonly tapeTablesHint: readonly string[];
+    readonly writeTablesHint: readonly string[];
+    readonly totalHoleCount: number;
+    readonly routesWithWallClock: number;
+    readonly routesWithEntropy: number;
+    readonly routesWithSession: number;
+    readonly routesWithHttpOutbound: number;
+    readonly routesWithMail: number;
+    readonly routesWithCache: number;
+    readonly routesWithFilesystem: number;
+    readonly routes: readonly RouteOracleFootprint[];
+  } | null;
   /**
    * Milestone 4 dashboard roll-up (DESIGN success metrics). Optional sidecars:
    * `reports/migration/idiomaticity.json` `{ "pct": 0..1 }`,
@@ -1215,6 +1238,7 @@ async function cmdStatus(args: string[]): Promise<number> {
     shadow: null,
     residualLegacy: null,
     insights: null,
+    oracleFootprint: null,
     migration: {
       coverage: null,
       correctness: null,
@@ -1315,6 +1339,41 @@ async function cmdStatus(args: string[]): Promise<number> {
         bySeverity: insightReport.summary.bySeverity as Record<string, number>,
         top,
       };
+      const fp = computeOracleFootprint(mod);
+      (summary as { oracleFootprint: StatusSummary["oracleFootprint"] }).oracleFootprint = {
+        hydrationIndex: fp.hydrationIndex,
+        routeCount: fp.routes.length,
+        tapeTablesHint: fp.tapeTablesHint,
+        writeTablesHint: fp.writeTablesHint,
+        totalHoleCount: fp.totalHoleCount,
+        routesWithWallClock: fp.routes.filter((r) => r.wallClock).length,
+        routesWithEntropy: fp.routes.filter((r) => r.entropy).length,
+        routesWithSession: fp.routes.filter((r) => r.session).length,
+        routesWithHttpOutbound: fp.routes.filter((r) => r.httpOutbound).length,
+        routesWithMail: fp.routes.filter((r) => r.mail).length,
+        routesWithCache: fp.routes.filter((r) => r.cache).length,
+        routesWithFilesystem: fp.routes.filter((r) => r.filesystem).length,
+        routes: fp.routes,
+      };
+      try {
+        const fpPath = join(project, "reports/oracle-footprint.json");
+        mkdirSync(dirname(fpPath), { recursive: true });
+        writeFileSync(
+          fpPath,
+          JSON.stringify(
+            {
+              chrysalisSchema: "oracle-footprint/1.0.0",
+              sourceApp: mod.meta.sourceApp,
+              ...fp,
+            },
+            null,
+            2,
+          ),
+          "utf8",
+        );
+      } catch {
+        // ignore disk errors (read-only tree, etc.)
+      }
     } catch {
       // ignore
     }
@@ -1460,6 +1519,31 @@ async function cmdStatus(args: string[]): Promise<number> {
     }
   } else {
     console.log(`insights     : (none — pass --project <php-dir> or run 'chrysalis insight')`);
+  }
+  if (summary.oracleFootprint) {
+    const o = summary.oracleFootprint;
+    const tape =
+      o.tapeTablesHint.length > 0 ? o.tapeTablesHint.slice(0, 5).join(",") + (o.tapeTablesHint.length > 5 ? "…" : "") : "—";
+    const writes =
+      o.writeTablesHint.length > 0
+        ? o.writeTablesHint.slice(0, 3).join(",") + (o.writeTablesHint.length > 3 ? "…" : "")
+        : "—";
+    const extra: string[] = [];
+    if (o.totalHoleCount > 0) extra.push(`holes=${o.totalHoleCount}`);
+    if (o.routesWithSession > 0) extra.push(`sess=${o.routesWithSession}`);
+    if (o.routesWithHttpOutbound > 0) extra.push(`http=${o.routesWithHttpOutbound}`);
+    if (o.routesWithMail > 0) extra.push(`mail=${o.routesWithMail}`);
+    if (o.routesWithCache > 0) extra.push(`cache=${o.routesWithCache}`);
+    if (o.routesWithFilesystem > 0) extra.push(`fs=${o.routesWithFilesystem}`);
+    const extraStr = extra.length > 0 ? `  ${extra.join(" ")}` : "";
+    console.log(
+      `oracle footprint: hydration ${o.hydrationIndex}/100  ` +
+        `routes=${o.routeCount}  time=${o.routesWithWallClock}  rng=${o.routesWithEntropy}  ` +
+        `read→${tape}  write→${writes}${extraStr}  ` +
+        `artifact reports/oracle-footprint.json`,
+    );
+  } else {
+    console.log(`oracle footprint: (none — pass --project <php-dir>)`);
   }
   const mig = summary.migration;
   const covStr =

@@ -16,6 +16,10 @@ visitor/pass infrastructure, and provenance model.
   - `dialects/data` — SSA dataflow over scalars, records, arrays, sums
 - `visit`, `rewrite`, `fold` — pure visitor helpers; `irCoverageStats` for
   non-hole fraction over reachable nodes (Milestone 4 dashboard)
+- `computeOracleFootprint` — per-route static summary of oracle/replay
+  dimensions (time, RNG, DB read/write table hints, session, outbound I/O,
+  cache, filesystem, holes) and a hydration index for status/CI
+  (`oracle-footprint.ts`; CLI writes `reports/oracle-footprint.json`)
 - `Module` — a WebIR compilation unit
 
 ## Invariants
