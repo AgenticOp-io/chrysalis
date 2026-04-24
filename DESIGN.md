@@ -1306,3 +1306,11 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   passes (same bar as the LLM loop). Optional `--repair-verbose` /
   `CHRYSALIS_REPAIR_VERBOSE` logs non-fatal HTTP chat proposer diagnostics to
   stderr without changing the verify gate.
+
+- **2026-04-24 — D48** **Repair snapshot export + stricter hole-patch validation.**
+  After a **successful** `chrysalis repair` (hole-patch path or verify-gated
+  loop), optional `--write-module <path>` writes a deterministic WebIR JSON
+  snapshot via `moduleToGoldenSnapshot` (relative PHP/form locators to
+  `--project`). `parseHoleClosurePatchJson` now rejects unknown `Effect.kind`
+  and `WebIRType.kind` strings so hand-edited patches cannot silently drift
+  from the lattice.

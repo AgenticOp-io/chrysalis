@@ -154,4 +154,26 @@ describe("hole closure", () => {
     expect(parsed.nodesToAdd).toHaveLength(1);
     expect(parsed.signOff.signer).toBe("dev");
   });
+
+  it("parseHoleClosurePatchJson rejects unknown effect kinds", () => {
+    const json = JSON.stringify({
+      holeId: "h1",
+      replacementRootId: "lit1",
+      signOff: { signer: "dev" },
+      nodesToAdd: [
+        {
+          id: "lit1",
+          dialect: "data",
+          op: "literal",
+          type: { kind: "string" },
+          effects: [{ kind: "db.nope", table: "t" }],
+          operands: [],
+          attrs: {},
+          origin: { kind: "synthetic", reason: "patch" },
+          provenance: [],
+        },
+      ],
+    });
+    expect(() => parseHoleClosurePatchJson(json)).toThrow(/unknown effect kind/);
+  });
 });

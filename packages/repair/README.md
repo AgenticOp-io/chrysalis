@@ -22,8 +22,8 @@ only proposes validated `replaceOperand` edits and never bypasses replay.
   operand with a replacement subgraph, record human **sign-off** on the new
   root's provenance, optionally gate on full `replayCorpus`.
 - `parseHoleClosurePatchJson(text)` — parse a JSON hole-closure document for
-  tooling / `chrysalis repair --hole-patch` (validated shape; WebIR `type` /
-  `effects` must match the real lattice).
+  tooling / `chrysalis repair --hole-patch` (validated shape; `Effect.kind` /
+  `WebIRType.kind` must be known lattice members).
 - Types: `RepairProposer`, `RepairProposeContext`, `VerifiedRepairLoopOptions`,
   `VerifiedRepairLoopResult`, `RepairReplayBase`, `ApplyHoleClosureOptions`,
   `HoleClosureSignOff`.

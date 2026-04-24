@@ -26,7 +26,8 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis repair <traces-dir> --base-url <url> --project <php-root>` —
   verify-gated repair (`@chrysalis/repair`): default stub proposer; optional
   `--llm` + `CHRYSALIS_REPAIR_LLM_API_KEY`; `--hole-patch <file.json>` for signed
-  hole closure; `--repair-verbose` for HTTP chat diagnostics
+  hole closure; `--repair-verbose` for HTTP chat diagnostics; `--write-module
+  <webir.json>` after a successful run to dump the accepted module snapshot
 
 ## Invariants
 

@@ -347,6 +347,9 @@ is still a **stub** unless `chrysalis repair --llm` is used with
       `applyHoleClosureAndVerify` (human-authored JSON, same verify gate as the loop)
 - [x] **`--repair-verbose`** / `CHRYSALIS_REPAIR_VERBOSE` — stderr diagnostics for
       the HTTP chat repair proposer (HTTP errors, empty model output, invalid edits)
+- [x] **`--write-module`** after successful repair or hole-patch — WebIR golden snapshot
+      (`moduleToGoldenSnapshot` relative to `--project`)
+- [x] **Hole-patch validation** — known `Effect.kind` / `WebIRType.kind` sets reject typos
 
 ---
 

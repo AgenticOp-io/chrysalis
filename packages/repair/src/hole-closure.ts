@@ -218,16 +218,58 @@ function reviveProvenance(raw: unknown, ctx: string): Provenance {
   };
 }
 
+const HOLE_PATCH_EFFECT_KINDS = new Set<string>([
+  "db.read",
+  "db.write",
+  "session.read",
+  "session.write",
+  "mail.send",
+  "http.fetch",
+  "cache.read",
+  "cache.write",
+  "time.now",
+  "random",
+  "fs.read",
+  "fs.write",
+]);
+
 function reviveEffect(raw: unknown, ctx: string): Effect {
   if (typeof raw !== "object" || raw === null || typeof (raw as { kind?: unknown }).kind !== "string") {
     throw new Error(`hole-patch: ${ctx} must be an effect object`);
   }
+  const rec = raw as Record<string, unknown>;
+  const k = requireString(rec.kind, `${ctx}.kind`);
+  if (!HOLE_PATCH_EFFECT_KINDS.has(k)) {
+    throw new Error(`hole-patch: unknown effect kind '${k}' at ${ctx}`);
+  }
   return raw as Effect;
 }
+
+const HOLE_PATCH_TYPE_KINDS = new Set<string>([
+  "unknown",
+  "void",
+  "null",
+  "bool",
+  "int",
+  "float",
+  "string",
+  "literal",
+  "array",
+  "record",
+  "union",
+  "nullable",
+  "named",
+  "hole",
+]);
 
 function asWebIRType(raw: unknown, ctx: string): WebIRType {
   if (typeof raw !== "object" || raw === null || typeof (raw as { kind?: unknown }).kind !== "string") {
     throw new Error(`hole-patch: ${ctx} must be a WebIR type object`);
+  }
+  const rec = raw as Record<string, unknown>;
+  const k = requireString(rec.kind, `${ctx}.kind`);
+  if (!HOLE_PATCH_TYPE_KINDS.has(k)) {
+    throw new Error(`hole-patch: unknown WebIR type kind '${k}' at ${ctx}`);
   }
   return raw as WebIRType;
 }

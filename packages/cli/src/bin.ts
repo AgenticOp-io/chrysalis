@@ -11,6 +11,7 @@ import {
   countByDialect,
   countHoles,
   irCoverageStats,
+  moduleToGoldenSnapshot,
   type Module,
   type RouteOracleFootprint,
 } from "@chrysalis/webir";
@@ -389,6 +390,13 @@ async function cmdVerify(args: string[]): Promise<number> {
   return 0;
 }
 
+function writeRepairModuleSnapshot(mod: Module, outPath: string, projectRoot: string): void {
+  const abs = resolve(outPath);
+  mkdirSync(dirname(abs), { recursive: true });
+  const json = moduleToGoldenSnapshot(mod, { relativizeProjectRoot: projectRoot });
+  writeFileSync(abs, json, "utf8");
+}
+
 async function cmdRepair(args: string[]): Promise<number> {
   const pos = positional(args);
   const flags = parseFlags(args);
@@ -397,7 +405,7 @@ async function cmdRepair(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (!corpusRoot || !baseUrl || !projectRoot) {
     console.error(
-      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql]",
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql]",
     );
     return 2;
   }
@@ -413,6 +421,8 @@ async function cmdRepair(args: string[]): Promise<number> {
   const repairVerbose = flags["repair-verbose"] === true;
   const holePatchPath =
     typeof flags["hole-patch"] === "string" ? resolve(flags["hole-patch"]) : null;
+  const writeModulePath =
+    typeof flags["write-module"] === "string" ? flags["write-module"] : null;
 
   const corpus = readCorpus({ root: resolve(corpusRoot) });
   const webirModule = await ingestDirectory(projectRoot);
@@ -442,6 +452,10 @@ async function cmdRepair(args: string[]): Promise<number> {
     }, closure);
     if (holeResult.ok) {
       console.log("[repair] hole closure accepted (full corpus replay passed)");
+      if (writeModulePath != null) {
+        writeRepairModuleSnapshot(holeResult.module, writeModulePath, projectRoot);
+        console.log(`[repair] wrote WebIR snapshot to ${resolve(writeModulePath)}`);
+      }
       return 0;
     }
     const bad = holeResult.outcomes.filter((o) => !o.ok);
@@ -475,6 +489,10 @@ async function cmdRepair(args: string[]): Promise<number> {
 
   if (result.ok) {
     console.log(`[repair] corpus verifies (${result.iterationsRun} repair iteration(s))`);
+    if (writeModulePath != null) {
+      writeRepairModuleSnapshot(result.module, writeModulePath, projectRoot);
+      console.log(`[repair] wrote WebIR snapshot to ${resolve(writeModulePath)}`);
+    }
     return 0;
   }
 
