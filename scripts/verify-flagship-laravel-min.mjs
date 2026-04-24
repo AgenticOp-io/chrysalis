@@ -162,15 +162,18 @@ async function loadEmittedFetch(outAbs, kind) {
       throw new Error(`expected Hono app.fetch from ${outAbs}`);
     }
     const honoFetch = mod.app.fetch.bind(mod.app);
-    // Hono expects a real Request; passing (string, init) leaves request.url undefined in getPath.
+    // Hono's app.fetch(request, ...) assumes a Request; (string, init) makes request.url undefined.
     return async (input, init) => {
-      const req =
-        input instanceof Request
-          ? init !== undefined
-            ? new Request(input, init)
-            : input
-          : new Request(input, init);
-      return honoFetch(req);
+      if (typeof input === "string") {
+        return honoFetch(new Request(input, init));
+      }
+      if (input instanceof URL) {
+        return honoFetch(new Request(input, init));
+      }
+      if (input instanceof Request) {
+        return honoFetch(init !== undefined ? new Request(input, init) : input);
+      }
+      return honoFetch(new Request(input, init));
     };
   }
   if (typeof mod.fetch !== "function") {

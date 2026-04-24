@@ -97,7 +97,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm -r build
+        run: |
+          rm -rf packages/verify/dist
+          pnpm -r build
 
       - name: End-to-end verify (PHP → corpus → dual emit → in-process replay)
         # Gates **both** Hono and Fastify emits against the same oracle corpus
@@ -152,7 +154,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm -r build
+        run: |
+          rm -rf packages/verify/dist
+          pnpm -r build
 
       - name: End-to-end verify (laravel-min corpus → dual emit → replay)
         env:
