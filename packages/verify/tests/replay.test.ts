@@ -296,9 +296,9 @@ describe("replayCorpus", () => {
 
   it("sends x-chrysalis-sql-tape when recordedSqlReplay and trace has complete sql rows", async () => {
     let seenTape: string | undefined;
-    const injectedFetch: typeof fetch = async (_input, init) => {
-      const h = new Headers(init?.headers);
-      seenTape = h.get("x-chrysalis-sql-tape") ?? undefined;
+    const injectedFetch: typeof fetch = async (input, init) => {
+      const r = new Request(input, init);
+      seenTape = r.headers.get("x-chrysalis-sql-tape") ?? undefined;
       return new Response("ok", { status: 200, headers: { "content-type": "text/html" } });
     };
     const trace: Trace = {
@@ -366,9 +366,9 @@ describe("replayCorpus", () => {
 
   it("omits sql tape when SELECT rows were not recorded", async () => {
     let seenTape: string | null | undefined = "sentinel";
-    const injectedFetch: typeof fetch = async (_input, init) => {
-      const h = new Headers(init?.headers);
-      seenTape = h.get("x-chrysalis-sql-tape");
+    const injectedFetch: typeof fetch = async (input, init) => {
+      const r = new Request(input, init);
+      seenTape = r.headers.get("x-chrysalis-sql-tape");
       return new Response("ok", { status: 200, headers: { "content-type": "text/html" } });
     };
     const trace: Trace = {
