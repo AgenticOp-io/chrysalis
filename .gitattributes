@@ -1,0 +1,2 @@
+# Golden snapshots must match JSON.stringify output (LF only) on all platforms.
+packages/ingest/tests/golden/*.json text eol=lf
