@@ -1,0 +1,455 @@
+/**
+ * Generates TypeScript text from a WebIR handler body. Collects:
+ *  - the body's emitted statements
+ *  - any holes encountered
+ *  - the effects observed (so the handler signature carries them)
+ */
+
+import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
+import { matchStringDispatchChain } from "@chrysalis/insight";
+import type { HttpEmitProfile } from "./http-profile.js";
+import { honoHttpProfile } from "./http-profile.js";
+import { ident, stringLit } from "./ts-util.js";
+
+export interface EmittedHandler {
+  readonly body: string;
+  readonly holes: ReadonlyArray<{ name: string; line: number; reason: string }>;
+  readonly effectNames: ReadonlyArray<string>;
+  readonly shape: "html" | "redirect" | "mixed";
+  /** Archaeology `domain.ts` types used as row generics (sorted). */
+  readonly domainTypeImports: ReadonlyArray<string>;
+}
+
+export interface EmitHandlerOptions {
+  /**
+   * Map lowercase SQL table name (as tagged on WebIR `db.query`) to the
+   * TypeScript interface name from archaeology `domain.ts`.
+   */
+  readonly domainTypesByTable?: Readonly<Record<string, string>>;
+}
+
+interface EmitCtx {
+  readonly m: Module;
+  readonly profile: HttpEmitProfile;
+  /** PHP variable name -> TS identifier once bound. */
+  readonly bound: Set<string>;
+  readonly holes: { name: string; line: number; reason: string }[];
+  readonly effectNames: Set<string>;
+  /** Lowercase SQL table name -> archaeology interface name; optional. */
+  readonly domainTypesByTable: Readonly<Record<string, string>> | undefined;
+  /** Archaeology interface names referenced for `queryOne<T>` / `queryAll<T>`. */
+  readonly domainTypeImports: Set<string>;
+  /** Index of the HTML buffer accumulator variable (`__html`) as used. */
+  htmlBufferUsed: boolean;
+  /** Whether the `__status` response-status variable has been mutated. */
+  statusVarUsed: boolean;
+  /** Whether we've emitted a redirect / early return. */
+  hasTerminalResponse: boolean;
+  /** Output shape so far. */
+  shape: "html" | "redirect" | "mixed" | null;
+  /** Unique-name counter for synthesised locals. */
+  tmpCounter: number;
+}
+
+function get(ctx: EmitCtx, id: NodeId): NodeBase {
+  const n = ctx.m.nodes.get(id);
+  if (!n) throw new Error(`emit-shared: missing node ${String(id)}`);
+  return n;
+}
+
+function freshTmp(ctx: EmitCtx, prefix = "tmp"): string {
+  ctx.tmpCounter += 1;
+  return `__${prefix}${ctx.tmpCounter}`;
+}
+
+function mergeShape(ctx: EmitCtx, next: "html" | "redirect"): void {
+  if (ctx.shape === null) {
+    ctx.shape = next;
+  } else if (ctx.shape !== next) {
+    ctx.shape = "mixed";
+  }
+}
+
+/** Emit a WebIR data-dialect node as a TS expression. */
+export function emitExpr(ctx: EmitCtx, id: NodeId): string {
+  const n = get(ctx, id);
+  if (n.dialect === "data") return emitDataExpr(ctx, n);
+  if (n.dialect === "effect") return emitEffectExpr(ctx, n);
+  if (n.dialect === "web.request") {
+    return `/* unexpected web.request expression */ null`;
+  }
+  return `null /* unknown dialect ${n.dialect} */`;
+}
+
+function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
+  const p = ctx.profile;
+  switch (n.op) {
+    case "literal": {
+      const v = n.attrs.value;
+      if (v === null) return "null";
+      if (typeof v === "string") return stringLit(v);
+      if (typeof v === "number") return String(v);
+      if (typeof v === "boolean") return v ? "true" : "false";
+      return "null";
+    }
+    case "param":
+      return ident(String(n.attrs.name));
+    case "request.field": {
+      const src = String(n.attrs.source);
+      const name = String(n.attrs.name);
+      switch (src) {
+        case "query":
+          return p.query(name);
+        case "path":
+          return p.pathParam(name);
+        case "body":
+          return `(__body[${stringLit(name)}] ?? null)`;
+        case "cookie":
+          return p.cookie(name);
+        case "header":
+          return p.header(name);
+      }
+      return "null";
+    }
+    case "binop": {
+      const op = String(n.attrs.operator);
+      const left = emitExpr(ctx, n.operands[0]!);
+      const right = emitExpr(ctx, n.operands[1]!);
+      if (op === ".") return `(String(${left}) + String(${right}))`;
+      if (op === "??") return `((${left}) ?? (${right}))`;
+      const mapped =
+        op === "==" ? "===" : op === "!=" ? "!==" : op === "and" ? "&&" : op === "or" ? "||" : op;
+      return `(${left} ${mapped} ${right})`;
+    }
+    case "unaryop": {
+      const op = String(n.attrs.operator);
+      const operand = emitExpr(ctx, n.operands[0]!);
+      if (op === "isset") return `isset(${operand})`;
+      if (op === "empty") return `empty(${operand})`;
+      return `(${op}${operand})`;
+    }
+    case "member": {
+      const obj = emitExpr(ctx, n.operands[0]!);
+      if (typeof n.attrs.key === "string") {
+        const key = String(n.attrs.key);
+        if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)) {
+          return `(${obj} as any).${key}`;
+        }
+        return `(${obj} as any)[${stringLit(key)}]`;
+      }
+      const idxNode = n.operands[1];
+      const idx = idxNode ? emitExpr(ctx, idxNode) : "0";
+      return `(${obj} as any)[${idx}]`;
+    }
+    case "call": {
+      const callee = String(n.attrs.callee);
+      const args = n.operands.map((o) => emitExpr(ctx, o));
+      return emitKnownCall(ctx, callee, args);
+    }
+    case "concat": {
+      const parts = n.operands.map((o) => `String(${emitExpr(ctx, o)})`);
+      return `(${parts.join(" + ") || '""'})`;
+    }
+    case "html.template": {
+      return stringLit("<!-- html template -->");
+    }
+    case "hole": {
+      const reason = String(n.attrs.reason);
+      const holeName = `hole:${reason.replace(/[^a-z0-9]/gi, "_").slice(0, 40)}`;
+      const line = n.origin.kind === "php" ? n.origin.line : 0;
+      ctx.holes.push({ name: holeName, line, reason });
+      return `__hole(${stringLit(holeName)}, null) as any`;
+    }
+    default:
+      return `/* unhandled data.${n.op} */ null`;
+  }
+}
+
+function dbQueryTypeArg(ctx: EmitCtx, n: NodeBase): string {
+  if (!ctx.domainTypesByTable) return "";
+  const tablesRaw = n.attrs.tables;
+  if (!Array.isArray(tablesRaw) || tablesRaw.length !== 1) return "";
+  const table = String(tablesRaw[0]).toLowerCase();
+  const tsName = ctx.domainTypesByTable[table];
+  if (!tsName) return "";
+  ctx.domainTypeImports.add(tsName);
+  return `<${tsName}>`;
+}
+
+function emitEffectExpr(ctx: EmitCtx, n: NodeBase): string {
+  switch (n.op) {
+    case "db.query": {
+      for (const e of n.effects) ctx.effectNames.add(`${e.kind}:${"table" in e ? e.table : ""}`);
+      const mode = String(n.attrs.returns);
+      const sql = String(n.attrs.sql);
+      const params = n.operands.map((o) => emitExpr(ctx, o));
+      const tArg = dbQueryTypeArg(ctx, n);
+      if (mode === "rows") {
+        return `queryAll${tArg}(${stringLit(sql)}, [${params.join(", ")}])`;
+      }
+      if (mode === "row-or-null") {
+        return `queryOne${tArg}(${stringLit(sql)}, [${params.join(", ")}])`;
+      }
+      return `execSql(${stringLit(sql)}, [${params.join(", ")}])`;
+    }
+    case "session.read":
+      ctx.effectNames.add("session.read");
+      return `${ctx.profile.sessionGetter()}.get(${stringLit(String(n.attrs.key))})`;
+    default:
+      return `/* unhandled effect.${n.op} */ null`;
+  }
+}
+
+function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
+  const p = ctx.profile;
+  switch (callee) {
+    case "__ternary":
+      return `((${args[0]}) ? (${args[1]}) : (${args[2]}))`;
+    case "__cast_int":
+      return `intval(${args[0]})`;
+    case "__cast_float":
+      return `Number(${args[0]})`;
+    case "__cast_string":
+      return `String(${args[0]})`;
+    case "__cast_bool":
+      return `Boolean(${args[0]})`;
+    case "__cast_array":
+      return `([${args[0]}] as unknown as unknown[])`;
+    case "__array_literal":
+      return `[${args.join(", ")}]`;
+  }
+  switch (callee) {
+    case "htmlspecialchars":
+      return `escapeHtml(${args[0]})`;
+    case "nl2br":
+      return `nl2br(${args[0]})`;
+    case "trim":
+      return `trim(${args[0]})`;
+    case "intval":
+      return `intval(${args[0]})`;
+    case "strlen":
+      return `strlen(${args[0]})`;
+    case "preg_match":
+      return `pregMatch(${args[0]}, ${args[1]})`;
+    case "password_verify":
+    case "verify_password":
+      return `(await passwordVerify(${args[0]}, ${args[1]}))`;
+    case "require_login":
+      return p.requireLogin();
+    case "current_user":
+      return p.currentUser();
+    case "db":
+      return `db()`;
+    case "session_start":
+      return `undefined /* session_start handled by middleware */`;
+  }
+  ctx.holes.push({
+    name: `call:${callee}`,
+    line: 0,
+    reason: `unresolved call: ${callee}`,
+  });
+  return `(__hole(${stringLit(`call:${callee}`)}, { args: [${args.join(", ")}] }) as any)`;
+}
+
+/** Emit a WebIR node as one or more TS statements. Returns emitted text. */
+export function emitStmt(ctx: EmitCtx, id: NodeId): string {
+  const n = get(ctx, id);
+  if (n.dialect === "data") return emitDataStmt(ctx, n);
+  if (n.dialect === "effect") return emitEffectStmt(ctx, n);
+  return `/* unhandled ${n.dialect}.${n.op} */`;
+}
+
+function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
+  const p = ctx.profile;
+  switch (n.op) {
+    case "block": {
+      const lines: string[] = [];
+      for (const op of n.operands) {
+        const s = emitStmt(ctx, op);
+        if (s.trim().length > 0) lines.push(s);
+      }
+      return lines.join("\n");
+    }
+    case "if": {
+      const dispatch = matchStringDispatchChain(ctx.m, n);
+      if (dispatch) {
+        const d = freshTmp(ctx, "dispatch");
+        const raw = emitExpr(ctx, dispatch.fieldNodeId);
+        const lines: string[] = [];
+        lines.push(`const ${d} = ${raw};`);
+        lines.push(`switch (${d} == null ? "" : String(${d})) {`);
+        for (const b of dispatch.branches) {
+          const arm = emitStmt(ctx, b.thenBodyId);
+          lines.push(`  case ${stringLit(b.literal)}:`);
+          lines.push(indentBlock(indentBlock(arm)));
+          lines.push(`    break;`);
+        }
+        if (dispatch.defaultElseBodyId != null) {
+          const def = emitStmt(ctx, dispatch.defaultElseBodyId);
+          lines.push(`  default:`);
+          lines.push(indentBlock(indentBlock(def)));
+        }
+        lines.push(`}`);
+        return lines.join("\n");
+      }
+      const cond = emitExpr(ctx, n.operands[0]!);
+      const then = emitStmt(ctx, n.operands[1]!);
+      const hasElse = Boolean(n.attrs.hasElse);
+      if (hasElse) {
+        const el = emitStmt(ctx, n.operands[2]!);
+        return `if (${cond}) {\n${indentBlock(then)}\n} else {\n${indentBlock(el)}\n}`;
+      }
+      return `if (${cond}) {\n${indentBlock(then)}\n}`;
+    }
+    case "foreach": {
+      const iter = emitExpr(ctx, n.operands[0]!);
+      const body = emitStmt(ctx, n.operands[1]!);
+      const valName = ident(String(n.attrs.valueName));
+      const keyName = n.attrs.keyName ? ident(String(n.attrs.keyName)) : null;
+      if (keyName) {
+        return `for (const [${keyName}, ${valName}] of Object.entries(${iter} ?? {} as any)) {\n${indentBlock(body)}\n}`;
+      }
+      return `for (const ${valName} of (${iter} ?? []) as any[]) {\n${indentBlock(body)}\n}`;
+    }
+    case "call": {
+      const callee = String(n.attrs.callee);
+      const args = n.operands.map((o) => emitExpr(ctx, o));
+      if (callee === "__assign") {
+        const raw = String((ctx.m.nodes.get(n.operands[0]!)?.attrs as { value?: unknown }).value ?? "x");
+        const rhs = args[1] ?? "undefined";
+        const name = ident(raw);
+        if (ctx.bound.has(name)) return `${name} = ${rhs};`;
+        ctx.bound.add(name);
+        return `let ${name} = ${rhs};`;
+      }
+      if (callee === "__return") {
+        ctx.hasTerminalResponse = true;
+        if (args.length > 0) return `return ${args[0]};`;
+        return p.respondBuffered();
+      }
+      if (callee === "__exit") {
+        ctx.hasTerminalResponse = true;
+        return p.respondBuffered();
+      }
+      return `${emitKnownCall(ctx, callee, args)};`;
+    }
+    case "literal":
+    case "param":
+    case "binop":
+    case "unaryop":
+    case "member":
+    case "concat":
+    case "html.template":
+    case "request.field":
+      return `${emitExpr(ctx, n.id)};`;
+    case "hole":
+      return `${emitDataExpr(ctx, n)};`;
+    default:
+      return `/* unhandled data.${n.op} */`;
+  }
+}
+
+function emitEffectStmt(ctx: EmitCtx, n: NodeBase): string {
+  const p = ctx.profile;
+  switch (n.op) {
+    case "echo": {
+      mergeShape(ctx, "html");
+      ctx.htmlBufferUsed = true;
+      const val = emitExpr(ctx, n.operands[0]!);
+      return `__html += String(${val});`;
+    }
+    case "redirect": {
+      mergeShape(ctx, "redirect");
+      ctx.hasTerminalResponse = true;
+      const loc = emitExpr(ctx, n.operands[0]!);
+      return p.redirectReturn(loc);
+    }
+    case "http.error": {
+      ctx.statusVarUsed = true;
+      const status = Number(n.attrs.status ?? 500);
+      return `__status = ${status};`;
+    }
+    case "session.write": {
+      ctx.effectNames.add("session.write");
+      const val = emitExpr(ctx, n.operands[0]!);
+      return `${p.sessionGetter()}.set(${stringLit(String(n.attrs.key))}, ${val});`;
+    }
+    case "db.query":
+    case "session.read":
+    case "time.now":
+    case "random":
+      return `${emitExpr(ctx, n.id)};`;
+    default:
+      return `/* unhandled effect.${n.op} */`;
+  }
+}
+
+function indentBlock(s: string): string {
+  return s
+    .split("\n")
+    .map((l) => (l.length ? `  ${l}` : l))
+    .join("\n");
+}
+
+/**
+ * Emit a full handler body given the route's `web.request.handler` node id.
+ * The emitted body is the content of the handler function, not including
+ * the function signature.
+ */
+export function emitHandlerBody(
+  m: Module,
+  handlerId: NodeId,
+  opts?: EmitHandlerOptions,
+  profile: HttpEmitProfile = honoHttpProfile,
+): EmittedHandler {
+  const ctx: EmitCtx = {
+    m,
+    profile,
+    bound: new Set<string>(),
+    holes: [],
+    effectNames: new Set<string>(),
+    domainTypesByTable: opts?.domainTypesByTable,
+    domainTypeImports: new Set<string>(),
+    htmlBufferUsed: false,
+    statusVarUsed: false,
+    hasTerminalResponse: false,
+    shape: null,
+    tmpCounter: 0,
+  };
+  const handler = m.nodes.get(handlerId);
+  if (!handler) throw new Error(`emit-shared: handler not found ${String(handlerId)}`);
+  const body = handler.operands[0]!;
+  const preamble: string[] = [];
+  const hasBodyUse = containsRequestSource(m, body, "body");
+  if (hasBodyUse) {
+    preamble.push(profile.bodyPreamble());
+  }
+  const main = emitStmt(ctx, body);
+  const decls: string[] = [`let __html = "";`, `let __status = 200;`];
+  const epilogue: string[] = [profile.respondBuffered()];
+  const text = [...preamble, ...decls, main, ...epilogue]
+    .filter((s): s is string => Boolean(s && s.trim()))
+    .join("\n");
+  return {
+    body: text,
+    holes: ctx.holes,
+    effectNames: [...ctx.effectNames].sort(),
+    shape: ctx.shape ?? "mixed",
+    domainTypeImports: [...ctx.domainTypeImports].sort(),
+  };
+}
+
+function containsRequestSource(m: Module, root: NodeId, source: string): boolean {
+  const seen = new Set<NodeId>();
+  const stack: NodeId[] = [root];
+  while (stack.length > 0) {
+    const id = stack.pop()!;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const n = m.nodes.get(id);
+    if (!n) continue;
+    if (n.op === "request.field" && String(n.attrs.source) === source) return true;
+    for (const o of n.operands) stack.push(o);
+  }
+  return false;
+}
