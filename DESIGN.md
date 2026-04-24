@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D40 oracle footprint artifact + dimensions; D39; D38 microtime/parse_url; D37 + §9 checklist sync
+Last updated by: D45 (Milestone 2 closure); D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1266,3 +1266,24 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Rejected: adding a hard npm `zod` dependency to every emitted app — the helper
   matches the simulator; projects may add `zod` at the app layer when they want
   full schema objects.
+
+- **2026-04-24 — D45** **Milestone 2 closure — archaeology form signal + dispatch
+  union + effect widening + batch `SELECT *`.** (1) **Archaeology:** optional
+  recursive scan of `.php` sources for inline `<input|select|textarea name=…>`
+  (heuristic SQL-in-file + INSERT/UPDATE tie-break for shared column names);
+  merged as `form` provenance on entity fields, with unattributed controls
+  surfaced in reports. This **does not** replace D10’s point that Milestone 1
+  archaeology was **DDL + trace shapes** only; there is still no full Twig/Blade
+  template parser — only text embedded in PHP. (2) **`dispatch-union-zod`:**
+  `string-dispatch` opportunities get a dependency-free enum-shaped boundary
+  (`parseZodEnumBodyFieldRaw`) plus `data.param` rewire; D19 simulator and emit
+  stay aligned. (3) **Effects:** `call_user_func*`, `call_user_func_array`,
+  `forward_static_call`, and `forward_static_call_array` union **all** callee
+  effects from the overlay map (sound over-approximation); nested `FunctionDecl`
+  bodies under `lib/**` and route files participate in `buildCallEffectMap`.
+  (4) **`batch-n1-read`:** inner `SELECT *` is batchable by projecting the FK /
+  `WHERE` column as the hoisted select list (D43’s “no `SELECT *`” v1 note is
+  superseded for this narrow case). **Explicitly not part of M2 closure:**
+  Composer vendor resolution, effect narrowing, bare inner reads without
+  `__assign`, corpus-only batch confidence gating, and a first-class `mysqli`
+  oracle driver remain follow-ons.
