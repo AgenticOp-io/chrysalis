@@ -82,9 +82,10 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [ ] Extracts form field structure from the PHP templates (deferred to
          Milestone 2 — low marginal value on tiny-blog since all fields are
          already covered by DDL + traces)
-   - [ ] emit-hono consumes `domain.ts` as the row type on prepared queries
-         (wiring exists; type substitution in handler bodies is cosmetic and
-         tracked as M1 polish)
+   - [x] emit-hono consumes archaeology interface names as `queryOne<T>` /
+         `queryAll<T>` when `EmitInput.domainTypesByTable` is supplied and
+         the `db.query` node tags a single table (D22). `run-e2e.mjs` and
+         `chrysalis emit --schema` write `src/domain.ts` and pass the map.
 
 5. **Emit (Hono + SQLite)**
    - [x] Produces a runnable project (Hono + `node:sqlite`)

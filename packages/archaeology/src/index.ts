@@ -16,6 +16,7 @@ export { parseSchema, type TableSchema, type ColumnSchema, type SqlPrimitive, ty
 export { summarizeShapes, extractTableNames, type CorpusShapes, type ObservedShape, type ObservedField } from "./corpus-shapes.js";
 export {
   mergeSchema,
+  domainTypesByTable,
   type SchemaReport,
   type EntityReport,
   type EntityFieldReport,

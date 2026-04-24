@@ -12,6 +12,7 @@ import {
   trim,
   intval,
   strlen,
+  pregMatch,
   passwordVerify,
   __hole,
   __respond,

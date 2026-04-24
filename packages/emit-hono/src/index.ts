@@ -25,6 +25,12 @@ export interface EmitInput {
   readonly module: Module;
   readonly outDir: string;
   readonly dbDialect?: "sqlite" | "postgres" | "mysql";
+  /**
+   * When set, single-table `db.query` nodes emit `queryOne<T>` / `queryAll<T>`
+   * with `T` from archaeology `domain.ts`. Keys must be lowercase table names
+   * (same normalization as ingest `guessTables`).
+   */
+  readonly domainTypesByTable?: Readonly<Record<string, string>>;
 }
 
 export interface EmittedFile {
@@ -76,7 +82,7 @@ async function writeFileWithMkdir(path: string, contents: string): Promise<numbe
 }
 
 export async function emit(input: EmitInput): Promise<EmitResult> {
-  const { module: m, outDir } = input;
+  const { module: m, outDir, domainTypesByTable } = input;
   const appName = m.meta.sourceApp || "chrysalis-app";
   const files: EmittedFile[] = [];
   const allHoles: HoleRecord[] = [];
@@ -107,7 +113,11 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     const handler = m.nodes.get(handlerId)!;
     const baseName = ident(String((handler.attrs as { name?: string }).name ?? "handler"));
 
-    const emitted = emitHandlerBody(m, handlerId);
+    const emitted = emitHandlerBody(
+      m,
+      handlerId,
+      domainTypesByTable ? { domainTypesByTable } : undefined,
+    );
     effectsByHandler[baseName] = emitted.effectNames;
 
     // Scope holes to this handler for the registry.
@@ -140,9 +150,13 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
 }
 
 function handlerFileText(name: string, emitted: EmittedHandler): string {
+  const domainImport =
+    emitted.domainTypeImports.length > 0
+      ? `import type { ${emitted.domainTypeImports.join(", ")} } from "../domain.js";\n`
+      : "";
   return `import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
-import { queryAll, queryOne, execSql, db } from "../db.js";
+${domainImport}import { queryAll, queryOne, execSql, db } from "../db.js";
 import { getSession } from "../session.js";
 import {
   escapeHtml,

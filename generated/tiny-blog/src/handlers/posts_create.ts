@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
+import type { Post } from "../domain.js";
 import { queryAll, queryOne, execSql, db } from "../db.js";
 import { getSession } from "../session.js";
 import {
@@ -12,6 +13,7 @@ import {
   trim,
   intval,
   strlen,
+  pregMatch,
   passwordVerify,
   __hole,
   __respond,

@@ -12,6 +12,7 @@ import {
   trim,
   intval,
   strlen,
+  pregMatch,
   passwordVerify,
   __hole,
   __respond,
@@ -43,7 +44,7 @@ export async function posts_view(c: Context): Promise<Response> {
   __html += String("</em></p>\r\n  <div>");
   __html += String(nl2br(escapeHtml((post as any).body)));
   __html += String("</div>\r\n\r\n  <h2>Comments</h2>\r\n  ");
-  if ((!empty(comments))) {
+  if (empty(comments)) {
     __html += String("    <p>No comments yet.</p>\r\n  ");
   } else {
     __html += String("    <ul>\r\n      ");

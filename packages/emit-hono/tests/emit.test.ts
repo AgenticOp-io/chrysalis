@@ -1,22 +1,37 @@
 import { describe, expect, test } from "vitest";
 import { resolve } from "node:path";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { ingestDirectory } from "@chrysalis/ingest";
+import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
 import { emit } from "../src/index.js";
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
+const FIXTURE_SCHEMA = resolve(__dirname, "../../../fixtures/tiny-blog/schema.sql");
 const FIXTURE_N1 = resolve(__dirname, "../../../fixtures/tiny-n1");
+
+function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, outDir: string) {
+  const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+  mkdirSync(resolve(outDir, "src"), { recursive: true });
+  writeFileSync(resolve(outDir, "src/domain.ts"), emitTypes(schemaReport));
+  return emit({
+    module: mod,
+    outDir,
+    domainTypesByTable: domainTypesByTable(schemaReport),
+  });
+}
 
 describe("emit-hono: tiny-blog output", () => {
   test("emits all expected files and zero holes", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
     try {
       const mod = await ingestDirectory(FIXTURE);
-      const res = await emit({ module: mod, outDir: out });
+      const res = await writeDomainAndEmit(mod, out);
 
       expect(res.handlerCount).toBe(5);
       expect(res.holes.length).toBe(0);
+
+      expect(existsSync(resolve(out, "src/domain.ts"))).toBe(true);
 
       const expectedFiles = [
         "package.json",
@@ -44,9 +59,10 @@ describe("emit-hono: tiny-blog output", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
     try {
       const mod = await ingestDirectory(FIXTURE);
-      await emit({ module: mod, outDir: out });
+      await writeDomainAndEmit(mod, out);
       const src = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
-      expect(src).toContain("queryOne(");
+      expect(src).toContain("queryOne<User>(");
+      expect(src).toContain('import type { User } from "../domain.js"');
       expect(src).toContain(`getSession(c).set("user_id"`);
       expect(src).toContain("await passwordVerify(");
       // Must not fall back to a call hole for the wrapper function.
@@ -60,7 +76,7 @@ describe("emit-hono: tiny-blog output", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
     try {
       const mod = await ingestDirectory(FIXTURE);
-      await emit({ module: mod, outDir: out });
+      await writeDomainAndEmit(mod, out);
       const src = readFileSync(resolve(out, "src/handlers/posts_view.ts"), "utf8");
       expect(src).toMatch(/@chrysalis-effects.*db\.read:posts/);
       expect(src).toMatch(/@chrysalis-effects.*db\.read:comments/);

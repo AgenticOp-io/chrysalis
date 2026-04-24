@@ -77,6 +77,9 @@ importers:
         specifier: workspace:*
         version: link:../webir
     devDependencies:
+      '@chrysalis/archaeology':
+        specifier: workspace:*
+        version: link:../archaeology
       '@chrysalis/ingest':
         specifier: workspace:*
         version: link:../ingest

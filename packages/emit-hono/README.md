@@ -9,12 +9,17 @@ The first Chrysalis backend; the reference for how to write future backends
 ## Public API
 
 - `emit(input: EmitInput): Promise<EmitResult>`
-- `EmitInput` — WebIR module, target directory, runtime config (bindings,
-  adapters, schema lens configuration)
+- `EmitInput` — WebIR module, target directory, optional
+  `domainTypesByTable` (lowercase SQL table name → archaeology interface
+  name) for `queryOne<T>` / `queryAll<T>` on single-table reads; runtime
+  config (bindings, adapters, schema lens) as the package grows
 - `EmitResult` — file list, hole registry, emission report
 
 ## Invariants
 
+- **Optional row typing.** With `domainTypesByTable`, exactly one table on
+  a `db.query` → `queryOne<Interface>` or `queryAll<Interface>` and
+  `import type` from `../domain.js`. Multi-table SQL keeps untyped generics.
 - **String-dispatch shape.** If/elseif chains that match
   `matchStringDispatchChain` from `@chrysalis/insight` (same rules as the
   `string-dispatch` recognizer) emit as a single TypeScript `switch` on a

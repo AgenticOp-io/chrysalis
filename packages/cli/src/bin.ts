@@ -10,7 +10,7 @@ import { countByDialect, countHoles } from "@chrysalis/webir";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
 import { buildReport, replayCorpus, writeReport } from "@chrysalis/verify";
-import { emitTypes, runArchaeology } from "@chrysalis/archaeology";
+import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
 import { startChimera, type Mode, type RouteRule } from "@chrysalis/runtime-chimera";
 import {
   DEFAULT_RECOGNIZERS,
@@ -112,7 +112,9 @@ async function cmdEmit(args: string[]): Promise<number> {
   const outDir = typeof flags.out === "string" ? flags.out : null;
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
-    console.error("usage: chrysalis emit <php-project-dir> --out <out> [--target=hono]");
+    console.error(
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono] [--schema <schema.sql>]",
+    );
     return 2;
   }
   if (target !== "hono") {
@@ -120,7 +122,20 @@ async function cmdEmit(args: string[]): Promise<number> {
     return 2;
   }
   const mod = await ingestDirectory(resolve(root));
-  const res = await emitHono({ module: mod, outDir: resolve(outDir) });
+  const outAbs = resolve(outDir);
+  const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
+  let domainMap: Record<string, string> | undefined;
+  if (schemaPath) {
+    const report = runArchaeology({ schemaPath });
+    domainMap = domainTypesByTable(report);
+    mkdirSync(join(outAbs, "src"), { recursive: true });
+    writeFileSync(join(outAbs, "src", "domain.ts"), emitTypes(report));
+  }
+  const res = await emitHono({
+    module: mod,
+    outDir: outAbs,
+    ...(domainMap ? { domainTypesByTable: domainMap } : {}),
+  });
   console.log(`handlers:     ${res.handlerCount}`);
   console.log(`files:        ${res.files.length}`);
   console.log(`emit holes:   ${res.holes.length}`);

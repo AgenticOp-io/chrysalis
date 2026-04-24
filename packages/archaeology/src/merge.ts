@@ -48,6 +48,20 @@ export interface SchemaReport {
   readonly orphanShapes: ReadonlyArray<{ fields: ReadonlyArray<string>; statementCount: number }>;
 }
 
+/**
+ * Map normalized SQL table name (lowercase) to the archaeology TypeScript
+ * interface name (`EntityReport.typescriptName`). Used by `@chrysalis/emit-hono`
+ * for `queryOne<T>` / `queryAll<T>` when ingest tagged exactly one table on
+ * the `db.query` node.
+ */
+export function domainTypesByTable(report: SchemaReport): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const e of report.entities) {
+    out[e.name.toLowerCase()] = e.typescriptName;
+  }
+  return out;
+}
+
 export function mergeSchema(
   ddl: ParsedSchema,
   shapes: CorpusShapes,

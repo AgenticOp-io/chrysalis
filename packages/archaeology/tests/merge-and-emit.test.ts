@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  domainTypesByTable,
   emitTypes,
   mergeSchema,
   parseSchema,
@@ -130,5 +131,18 @@ describe("emitTypes", () => {
     const report = mergeSchema(parsed, shapes);
     const src = emitTypes(report);
     expect(src).toContain("orphan:");
+  });
+
+  it("domainTypesByTable maps DDL names to archaeology interface names", () => {
+    const ddl = parseSchema(
+      `CREATE TABLE users (id INTEGER PRIMARY KEY);
+       CREATE TABLE posts (id INTEGER PRIMARY KEY);`,
+      "schema.sql",
+    );
+    const report = mergeSchema(ddl, { byTable: new Map(), orphan: [] });
+    expect(domainTypesByTable(report)).toEqual({
+      users: "User",
+      posts: "Post",
+    });
   });
 });

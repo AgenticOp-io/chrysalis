@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D21 string-dispatch switch emission (emit-hono + insight)
+Last updated by: D22 archaeology row generics in emit-hono
 
 ---
 
@@ -935,3 +935,24 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   rules would diverge from the recognizer and violate principle 3
   (provenance of *intent* — here, shared definition of "what counts as
   string dispatch").
+
+- **2026-04-23 — D22** **Archaeology row generics in emit** — When callers
+  supply a map from normalized SQL table name (lowercase, matching ingest
+  `guessTables`) to the TypeScript interface name from archaeology
+  (`EntityReport.typescriptName`), `@chrysalis/emit-hono` emits
+  `queryOne<T>` / `queryAll<T>` for `effect.db.query` nodes that tag
+  **exactly one** table. JOINs and other multi-table reads keep the default
+  generic (`Record<string, unknown>`) so we do not assert the wrong row
+  shape.
+
+  **`domainTypesByTable`** — Built by `domainTypesByTable(report)` in
+  `@chrysalis/archaeology`. `emit-hono` does not depend on archaeology;
+  the CLI and `scripts/run-e2e.mjs` run archaeology, write `src/domain.ts`,
+  and pass the map into `emit()`.
+
+  **`chrysalis emit --schema <file.sql>`** — Optional path: generates
+  `src/domain.ts`, then emits handlers with row generics where applicable.
+
+  Rejected: making `emit-hono` import `@chrysalis/archaeology`. That would
+  couple the default backend to schema recovery; the map is optional input
+  and keeps the package graph acyclic.

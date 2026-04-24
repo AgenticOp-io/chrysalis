@@ -17,6 +17,7 @@
     "@chrysalis/insight": "workspace:*"
   },
   "devDependencies": {
+    "@chrysalis/archaeology": "workspace:*",
     "@chrysalis/ingest": "workspace:*"
   }
 }

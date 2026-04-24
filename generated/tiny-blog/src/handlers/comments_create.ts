@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
+import type { Comment, Post } from "../domain.js";
 import { queryAll, queryOne, execSql, db } from "../db.js";
 import { getSession } from "../session.js";
 import {
@@ -12,6 +13,7 @@ import {
   trim,
   intval,
   strlen,
+  pregMatch,
   passwordVerify,
   __hole,
   __respond,
@@ -33,7 +35,7 @@ export async function comments_create(c: Context): Promise<Response> {
     __html += String("Comment body required");
     return __respond(c, __html, __status);
   }
-  let post = queryOne("SELECT id FROM posts WHERE id = ? AND status = 'published'", [c.req.param("id")]);
+  let post = queryOne<Post>("SELECT id FROM posts WHERE id = ? AND status = 'published'", [c.req.param("id")]);
   if ((post === null)) {
     __status = 404;
     __html += String("Post not found");

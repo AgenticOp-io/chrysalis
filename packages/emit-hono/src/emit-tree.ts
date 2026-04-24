@@ -14,6 +14,16 @@ export interface EmittedHandler {
   readonly holes: ReadonlyArray<{ name: string; line: number; reason: string }>;
   readonly effectNames: ReadonlyArray<string>;
   readonly shape: "html" | "redirect" | "mixed";
+  /** Archaeology `domain.ts` types used as row generics (sorted). */
+  readonly domainTypeImports: ReadonlyArray<string>;
+}
+
+export interface EmitHandlerOptions {
+  /**
+   * Map lowercase SQL table name (as tagged on WebIR `db.query`) to the
+   * TypeScript interface name from archaeology `domain.ts`.
+   */
+  readonly domainTypesByTable?: Readonly<Record<string, string>>;
 }
 
 interface EmitCtx {
@@ -22,6 +32,10 @@ interface EmitCtx {
   readonly bound: Set<string>;
   readonly holes: { name: string; line: number; reason: string }[];
   readonly effectNames: Set<string>;
+  /** Lowercase SQL table name -> archaeology interface name; optional. */
+  readonly domainTypesByTable: Readonly<Record<string, string>> | undefined;
+  /** Archaeology interface names referenced for `queryOne<T>` / `queryAll<T>`. */
+  readonly domainTypeImports: Set<string>;
   /** Index of the HTML buffer accumulator variable (`__html`) as used. */
   htmlBufferUsed: boolean;
   /** Whether the `__status` response-status variable has been mutated. */
@@ -149,6 +163,17 @@ function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
   }
 }
 
+function dbQueryTypeArg(ctx: EmitCtx, n: NodeBase): string {
+  if (!ctx.domainTypesByTable) return "";
+  const tablesRaw = n.attrs.tables;
+  if (!Array.isArray(tablesRaw) || tablesRaw.length !== 1) return "";
+  const table = String(tablesRaw[0]).toLowerCase();
+  const tsName = ctx.domainTypesByTable[table];
+  if (!tsName) return "";
+  ctx.domainTypeImports.add(tsName);
+  return `<${tsName}>`;
+}
+
 function emitEffectExpr(ctx: EmitCtx, n: NodeBase): string {
   switch (n.op) {
     case "db.query": {
@@ -156,11 +181,12 @@ function emitEffectExpr(ctx: EmitCtx, n: NodeBase): string {
       const mode = String(n.attrs.returns);
       const sql = String(n.attrs.sql);
       const params = n.operands.map((o) => emitExpr(ctx, o));
+      const tArg = dbQueryTypeArg(ctx, n);
       if (mode === "rows") {
-        return `queryAll(${stringLit(sql)}, [${params.join(", ")}])`;
+        return `queryAll${tArg}(${stringLit(sql)}, [${params.join(", ")}])`;
       }
       if (mode === "row-or-null") {
-        return `queryOne(${stringLit(sql)}, [${params.join(", ")}])`;
+        return `queryOne${tArg}(${stringLit(sql)}, [${params.join(", ")}])`;
       }
       return `execSql(${stringLit(sql)}, [${params.join(", ")}])`;
     }
@@ -384,12 +410,14 @@ function indentBlock(s: string): string {
  * The emitted body is the content of the handler function, not including
  * the function signature.
  */
-export function emitHandlerBody(m: Module, handlerId: NodeId): EmittedHandler {
+export function emitHandlerBody(m: Module, handlerId: NodeId, opts?: EmitHandlerOptions): EmittedHandler {
   const ctx: EmitCtx = {
     m,
     bound: new Set<string>(),
     holes: [],
     effectNames: new Set<string>(),
+    domainTypesByTable: opts?.domainTypesByTable,
+    domainTypeImports: new Set<string>(),
     htmlBufferUsed: false,
     statusVarUsed: false,
     hasTerminalResponse: false,
@@ -420,6 +448,7 @@ export function emitHandlerBody(m: Module, handlerId: NodeId): EmittedHandler {
     holes: ctx.holes,
     effectNames: [...ctx.effectNames].sort(),
     shape: ctx.shape ?? "mixed",
+    domainTypeImports: [...ctx.domainTypeImports].sort(),
   };
 }
 

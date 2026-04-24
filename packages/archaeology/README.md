@@ -17,8 +17,9 @@ schema file/line and any trace IDs that confirmed the column.
 
 ```ts
 import {
-  runArchaeology,   // schema path [+ corpus] → SchemaReport
-  emitTypes,        // SchemaReport → TypeScript source
+  runArchaeology,     // schema path [+ corpus] → SchemaReport
+  emitTypes,          // SchemaReport → TypeScript source
+  domainTypesByTable, // SchemaReport → map for emit-hono row generics (D22)
   parseSchema,      // low-level DDL parser
   summarizeShapes,  // low-level corpus → per-table observed shapes
   mergeSchema,      // DDL + shapes → SchemaReport
@@ -30,6 +31,10 @@ import {
   `EntityReport` per table.
 - `emitTypes(report)` → a TypeScript source string containing one
   `interface` per entity, with provenance JSDoc on every field.
+- `domainTypesByTable(report)` → `{ users: "User", ... }` (keys lowercase)
+  for `EmitInput.domainTypesByTable` in `@chrysalis/emit-hono`. Callers
+  should write `emitTypes` to `src/domain.ts` before `tsc`. The CLI command
+  `chrysalis emit <dir> --out <out> --schema <schema.sql>` does both.
 
 ## Invariants (Milestone 1)
 

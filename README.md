@@ -67,9 +67,9 @@ shadow-mode agreement, and residual PHP (hole count + IR dialect totals). Run
 with `--json` for machine-readable output.
 
 **Remaining polish for Milestone 1:** session bridge for chimera (PHP
-`$_SESSION` ↔ new-stack session store), and `emit-hono` substituting the
-archaeology-generated row types into handler bodies. See
-[`ROADMAP.md`](./ROADMAP.md).
+`$_SESSION` ↔ new-stack session store). Row-level generics from archaeology
+are wired when `domainTypesByTable` is passed (see D22 in [`DESIGN.md`](./DESIGN.md)).
+See [`ROADMAP.md`](./ROADMAP.md).
 
 ## Read these first
 

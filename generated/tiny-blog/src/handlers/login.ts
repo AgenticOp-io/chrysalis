@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
+import type { User } from "../domain.js";
 import { queryAll, queryOne, execSql, db } from "../db.js";
 import { getSession } from "../session.js";
 import {
@@ -12,6 +13,7 @@ import {
   trim,
   intval,
   strlen,
+  pregMatch,
   passwordVerify,
   __hole,
   __respond,
@@ -33,7 +35,7 @@ export async function login(c: Context): Promise<Response> {
     __html += String("Missing credentials");
     return __respond(c, __html, __status);
   }
-  let user = queryOne("SELECT id, password FROM users WHERE username = ?", [username]);
+  let user = queryOne<User>("SELECT id, password FROM users WHERE username = ?", [username]);
   if (((user === null) || (!(await passwordVerify(password, (user as any).password))))) {
     __status = 401;
     __html += String("Invalid credentials");
