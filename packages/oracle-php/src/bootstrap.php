@@ -19,6 +19,8 @@ namespace Chrysalis\Oracle;
 
 require_once __DIR__ . '/Recorder.php';
 require_once __DIR__ . '/Redactor.php';
+require_once __DIR__ . '/HttpStreamWrapper.php';
+require_once __DIR__ . '/Mail.php';
 require_once __DIR__ . '/Sink/NdjsonSink.php';
 require_once __DIR__ . '/Db/Statement.php';
 require_once __DIR__ . '/Db/PDO.php';
@@ -42,6 +44,7 @@ $redaction = $redactionJson !== false && $redactionJson !== ''
 $sink = new Sink\NdjsonSink($traceDir);
 $redactor = new Redactor($redaction['rules'] ?? []);
 Recorder::init($sink, $redactor);
+HttpStreamWrapper::register();
 
 // Session state — if the app calls session_start(), we capture the snapshot
 // pre-handler. The response snapshot is captured at shutdown.

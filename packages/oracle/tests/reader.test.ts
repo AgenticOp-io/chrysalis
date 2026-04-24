@@ -95,6 +95,37 @@ describe("trace-schema", () => {
     expect(e.type).toBe("sql.query");
   });
 
+  it("parses http.outbound", () => {
+    const e = parseEvent({
+      type: "http.outbound",
+      method: "GET",
+      url: "https://example.com/api",
+      status: 200,
+      responseBytes: 42,
+      durationUs: 5000,
+      origin: { file: "lib.php", line: 3 },
+    });
+    expect(e.type).toBe("http.outbound");
+    if (e.type === "http.outbound") {
+      expect(e.url).toBe("https://example.com/api");
+      expect(e.responseBytes).toBe(42);
+    }
+  });
+
+  it("parses mail.send", () => {
+    const e = parseEvent({
+      type: "mail.send",
+      to: "a@example.com",
+      subject: "hi",
+      bodyBytes: 10,
+      origin: { file: "notify.php", line: 1 },
+    });
+    expect(e.type).toBe("mail.send");
+    if (e.type === "mail.send") {
+      expect(e.bodyBytes).toBe(10);
+    }
+  });
+
   it("parses sql.query with optional rows", () => {
     const e = parseEvent({
       type: "sql.query",

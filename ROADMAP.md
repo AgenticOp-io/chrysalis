@@ -259,7 +259,9 @@ Deepen each layer without broadening too fast.
 - [x] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
       (`sql.query.rows` string literals, cardinality cap; CHECK/ENUM validated
       against literals; D28)
-- [ ] Oracle: outbound HTTP + mail recording
+- [x] Oracle: outbound HTTP + mail recording (D32: `http.outbound` stream
+      wrapper; `mail.send` via `Chrysalis\Oracle\Mail::send`; schema + corpus
+      summary; `mysqli` / cURL-only apps still partial)
 - [x] CI: fixture suite with golden WebIR snapshots and golden generated TS
       (`pnpm run update:golden`; `packages/ingest/tests/golden-webir.test.ts`,
       `packages/emit-hono/tests/golden-emit.test.ts`)

@@ -140,6 +140,49 @@ final class Recorder
         self::emit($event);
     }
 
+    /**
+     * Outbound HTTP(S) fetch (after response is fully read). Emitted from
+     * {@see HttpStreamWrapper} when `file_get_contents` / `fopen` use `http://`
+     * or `https://`.
+     *
+     * @param array{file: string, line: int} $origin
+     */
+    public static function onOutboundHttp(
+        string $method,
+        string $url,
+        int $status,
+        int $responseBytes,
+        int $durationUs,
+        array $origin
+    ): void {
+        if (!self::$started) {
+            return;
+        }
+        self::emit([
+            'type' => 'http.outbound',
+            'method' => $method,
+            'url' => $url,
+            'status' => $status,
+            'responseBytes' => $responseBytes,
+            'durationUs' => $durationUs,
+            'origin' => $origin,
+        ]);
+    }
+
+    public static function onMailSend(string $to, string $subject, int $bodyBytes): void
+    {
+        if (!self::$started) {
+            return;
+        }
+        self::emit([
+            'type' => 'mail.send',
+            'to' => $to,
+            'subject' => $subject,
+            'bodyBytes' => $bodyBytes,
+            'origin' => self::callerOutsidePrelude(),
+        ]);
+    }
+
     public static function onHeader(string $header, bool $replace, ?int $httpResponseCode): void
     {
         if (!self::$started) {

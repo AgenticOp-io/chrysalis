@@ -103,6 +103,20 @@ final class Redactor
                     }
                 }
                 break;
+            case 'http.outbound':
+                $kindUrl = $this->findKind('outbound.url');
+                if ($kindUrl !== null && isset($event['url'])) {
+                    $event['url'] = $this->applyKind((string)$event['url'], $kindUrl);
+                }
+                break;
+            case 'mail.send':
+                foreach (['to' => 'mail.to', 'subject' => 'mail.subject'] as $field => $rulePath) {
+                    $kind = $this->findKind($rulePath);
+                    if ($kind !== null && isset($event[$field])) {
+                        $event[$field] = $this->applyKind((string)$event[$field], $kind);
+                    }
+                }
+                break;
         }
         return $event;
     }

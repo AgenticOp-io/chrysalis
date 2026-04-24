@@ -26,6 +26,8 @@ export {
   type TimeReadEvent,
   type RandomReadEvent,
   type HoleObservedEvent,
+  type HttpOutboundEvent,
+  type MailSendEvent,
   type RedactionKind,
   type RedactionRecord,
   SchemaError,

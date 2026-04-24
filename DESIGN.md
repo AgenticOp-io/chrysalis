@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D29 status archaeology depth + D28 trace enums
+Last updated by: D32 Oracle outbound HTTP/mail trace events + D29 status
 
 ---
 
@@ -1049,6 +1049,20 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
 
   Rejected: parsing emitted TypeScript to infer unions — provenance on the
   `SchemaReport` is the canonical source of truth.
+
+- **2026-04-23 — D32** **Oracle: outbound HTTP + mail in trace schema** —
+  PHP observe mode registers userland stream wrappers for `http` and `https`
+  that delegate to the built-in wrappers and emit `http.outbound` after each
+  fetch closes (method, URL, status, response bytes, duration, PHP origin).
+  Mail cannot be monkey-patched from userland; `Chrysalis\Oracle\Mail::send`
+  records `mail.send` (to, subject, body byte length) before calling PHP
+  `mail()`. Node `trace-schema.ts`, default redaction (`outbound.url`,
+  `mail.to`, `mail.subject`), and `chrysalis corpus` summaries stay in lockstep
+  with the prelude.
+
+  Rejected: claiming full `mail()` coverage without an opt-in API — PHP offers
+  no supported global hook. Rejected: depending on `curl` extension only —
+  `file_get_contents('https://…')` must be observed for typical legacy code.
 
 - **2026-04-23 — D30** **Cross-call handler effects via `lib/`** — Route files
   often call shared PHP functions (`require_login`, `current_user`, …) that

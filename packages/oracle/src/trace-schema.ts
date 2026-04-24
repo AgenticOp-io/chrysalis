@@ -132,6 +132,26 @@ export interface HoleObservedEvent {
   readonly origin: { readonly file: string; readonly line: number };
 }
 
+/** Outbound `http://` / `https://` fetch recorded via the PHP stream wrapper. */
+export interface HttpOutboundEvent {
+  readonly type: "http.outbound";
+  readonly method: string;
+  readonly url: string;
+  readonly status: number;
+  readonly responseBytes: number;
+  readonly durationUs: number;
+  readonly origin: { readonly file: string; readonly line: number };
+}
+
+/** Recorded when apps use `Chrysalis\Oracle\Mail::send` instead of raw `mail()`. */
+export interface MailSendEvent {
+  readonly type: "mail.send";
+  readonly to: string;
+  readonly subject: string;
+  readonly bodyBytes: number;
+  readonly origin: { readonly file: string; readonly line: number };
+}
+
 export type TraceBodyEvent =
   | HttpRequestEvent
   | HttpResponseEvent
@@ -142,7 +162,9 @@ export type TraceBodyEvent =
   | EchoEvent
   | TimeReadEvent
   | RandomReadEvent
-  | HoleObservedEvent;
+  | HoleObservedEvent
+  | HttpOutboundEvent
+  | MailSendEvent;
 
 export interface TraceFooter {
   readonly type: "footer";
@@ -447,6 +469,24 @@ export function parseEvent(raw: unknown): TraceEvent {
         type: "observe.hole",
         reason: requireString(o["reason"], "reason"),
         detail: requireString(o["detail"], "detail"),
+        origin: requireOrigin(o["origin"], "origin"),
+      };
+    case "http.outbound":
+      return {
+        type: "http.outbound",
+        method: requireString(o["method"], "method"),
+        url: requireString(o["url"], "url"),
+        status: requireNumber(o["status"], "status"),
+        responseBytes: requireNumber(o["responseBytes"], "responseBytes"),
+        durationUs: requireNumber(o["durationUs"], "durationUs"),
+        origin: requireOrigin(o["origin"], "origin"),
+      };
+    case "mail.send":
+      return {
+        type: "mail.send",
+        to: requireString(o["to"], "to"),
+        subject: requireString(o["subject"], "subject"),
+        bodyBytes: requireNumber(o["bodyBytes"], "bodyBytes"),
         origin: requireOrigin(o["origin"], "origin"),
       };
     default:

@@ -11,6 +11,8 @@
  *   - "session.<key>"             (pre- and post-session)
  *   - "sql.params[<driver>:<sqlPrefix>].<index>"   (deep redaction — see below)
  *   - "setcookie.<name>"
+ *   - "outbound.url"                (http.outbound event — full URL string)
+ *   - "mail.to" / "mail.subject"   (mail.send event)
  *
  * `kind` is one of:
  *   - "drop" — remove the field from the trace entirely.
@@ -51,6 +53,9 @@ export const DEFAULT_REDACTION: RedactionConfig = {
     { path: "session.csrf", kind: "hash" },
     { path: "setcookie.PHPSESSID", kind: "hash" },
     { path: "setcookie.chrysalis_sess", kind: "hash" },
+    { path: "outbound.url", kind: "hash" },
+    { path: "mail.to", kind: "hash" },
+    { path: "mail.subject", kind: "mask" },
   ],
 };
 

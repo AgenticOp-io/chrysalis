@@ -226,7 +226,13 @@ async function cmdCorpus(args: string[]): Promise<number> {
   const corpus = readCorpus({ root: resolve(root) });
   console.log(`traces: ${corpus.traces.length}`);
   const byRoute = new Map<string, number>();
+  let outboundHttp = 0;
+  let mailSend = 0;
   for (const t of corpus.traces) {
+    for (const e of t.events) {
+      if (e.type === "http.outbound") outboundHttp += 1;
+      if (e.type === "mail.send") mailSend += 1;
+    }
     const req = t.events.find((e) => e.type === "http.request");
     if (!req || req.type !== "http.request") continue;
     const key = `${req.method} ${req.path}`;
@@ -234,6 +240,9 @@ async function cmdCorpus(args: string[]): Promise<number> {
   }
   for (const [route, count] of [...byRoute.entries()].sort()) {
     console.log(`  ${route.padEnd(30)} ${count}`);
+  }
+  if (outboundHttp > 0 || mailSend > 0) {
+    console.log(`  side effects: http.outbound=${outboundHttp} mail.send=${mailSend}`);
   }
   return 0;
 }

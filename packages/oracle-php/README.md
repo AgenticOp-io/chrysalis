@@ -14,7 +14,9 @@ app runs. It:
 - starts an output buffer to capture the response body,
 - registers a `shutdown_function` to flush a trace file atomically,
 - subclasses `PDO` in `Chrysalis\Oracle\Db\PDO` so apps that swap their factory
-  get SQL instrumentation for free.
+  get SQL instrumentation for free,
+- registers `HttpStreamWrapper` for `http://` and `https://` so `fopen` /
+  `file_get_contents` URL fetches emit `http.outbound` events.
 
 The schema of the NDJSON output is pinned by
 [`packages/oracle/src/trace-schema.ts`](../oracle/src/trace-schema.ts). The PHP
@@ -46,6 +48,18 @@ verify replays those rows through the `x-chrysalis-sql-tape` header when
 `recordedSqlReplay` is enabled. Large results are capped per query (see
 `Recorder::MAX_SQL_ROWS_PER_EVENT`).
 
+## Outbound HTTP
+
+Requires `allow_url_fopen=1` (default on most installs). The wrapper delegates
+to PHP’s built-in HTTP stream implementation and records method, URL, status,
+response byte length, and duration after the stream closes.
+
+## Mail
+
+There is no safe way to intercept global `mail()` from userland. Use
+`Chrysalis\Oracle\Mail::send(...)` as a drop-in when you want `mail.send`
+events (subject/to redaction uses `mail.subject` / `mail.to` rules).
+
 ## Session bridge (with emitted Hono apps)
 
 When the emitted app sets `CHRYSALIS_SESSION_DIR`, it persists session data as
@@ -57,5 +71,6 @@ Node (plain scalars and arrays — not PHP object graphs).
 
 ## Status
 
-Milestone 1 supports PDO only. `mysqli`, `file_put_contents`, `mail`, and
-outbound HTTP instrumentation are deferred to Milestone 2.
+Milestone 1: PDO SQL capture. Milestone 2 adds outbound HTTP (stream wrapper)
+and opt-in mail via `Mail::send`. `mysqli` and non-URL `file_put_contents`
+remain future work.
