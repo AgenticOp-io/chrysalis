@@ -48,3 +48,6 @@ Full Laravel/Breeze adoption is still open. Milestone 4 phased checklist in
 tree, more routes (DB/session), a wider oracle corpus, and keeping migration
 metrics (`coverage`, `correctness`, optional idiomaticity/residual-legacy)
 non-regressing on `main` with a short note in this file each time they move.
+When the emitted stack diverges from the oracle, use **`chrysalis repair`**
+(see `packages/repair` and `ROADMAP` Milestone 3) against the same traces and
+`--project` PHP root; patches stay verify-gated.

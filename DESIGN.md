@@ -1314,3 +1314,11 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   `--project`). `parseHoleClosurePatchJson` now rejects unknown `Effect.kind`
   and `WebIRType.kind` strings so hand-edited patches cannot silently drift
   from the lattice.
+
+- **2026-04-24 — D49** **Milestone 3 closure.** The repair vertical slice is
+  **complete for v1**: verify-gated `runVerifiedRepairLoop`, opt-in HTTP chat
+  `RepairProposer`, human `hole-patch` JSON with the same replay bar, module
+  snapshot export, and diagnostics env/flags. **Deferred** (not blocking): finer
+  emit↔IR divergence maps, composite proposers, and any repair that weakens the
+  full-corpus gate. Execution focus moves to **Milestone 4** (flagship app and
+  monotonic migration metrics on `main`).

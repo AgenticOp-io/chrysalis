@@ -5,11 +5,11 @@
 Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
-**Active milestone: Milestone 3 — Repair loop.** Milestones 0–2 are complete.
+**Active milestone: Milestone 4 — First real app.** Milestones 0–3 are complete.
 Milestone 2 follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
-confidence) are tracked as prose under Milestone 3 / cross-cutting work rather
-than blocking closure of Milestone 2.
+confidence) stay cross-cutting; repair-loop follow-ons (richer attribution,
+composite proposers) are optional and must not weaken the verify gate.
 
 ---
 
@@ -323,10 +323,9 @@ default).
 
 Close the LLM-verified feedback loop.
 
-**Status:** **In progress** — verify-gated loop is landed; default CLI proposer
-is still a **stub** unless `chrysalis repair --llm` is used with
-`CHRYSALIS_REPAIR_LLM_API_KEY` (OpenAI-compatible HTTP chat proposer in
-`@chrysalis/repair`).
+**Status: complete (v1).** Verify-gated loop, optional HTTP chat proposer, hole
+patches, diagnostics, and `--write-module` are shipped; default CLI proposer
+remains a **stub** when `--llm` is not passed (by design).
 
 - [x] Divergence attribution v1: heuristic ≤5 IR nodes per failure (with ingest
       `module` on replay); precise maps deferred

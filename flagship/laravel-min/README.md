@@ -24,6 +24,20 @@ pnpm run verify:flagship
 Traces land in `traces/flagship-laravel-min/`; verify reports in
 `reports/verify-flagship-laravel-min/{hono,fastify}/`.
 
+### Optional: verify-gated repair
+
+If replay shows divergences and you have a running emitted app URL:
+
+```bash
+chrysalis repair traces/flagship-laravel-min --base-url http://127.0.0.1:<port> \
+  --project flagship/laravel-min
+# Optional: --llm (needs CHRYSALIS_REPAIR_LLM_API_KEY), --hole-patch <patch.json>,
+# --write-module out/webir.json after success
+```
+
+Same full-corpus replay bar as `verify`; see `@chrysalis/repair` and `ROADMAP`
+Milestone 3.
+
 ## Full Laravel (next step)
 
 ```bash

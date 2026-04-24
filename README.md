@@ -32,8 +32,10 @@ including `SELECT *`, dual-stack verify, canary chimera). See `ROADMAP.md` for
 explicit post-M2 deferrals (vendor Composer, `mysqli` oracle shim, bare inner
 N+1 without assign).
 
-**Current engineering focus: Milestone 3 — Repair loop** (LLM adapter for
-`chrysalis repair`, precise emit↔IR maps, and tighter attribution).
+**Current engineering focus: Milestone 4 — First real app** (flagship Laravel
+pilot, wider corpus, monotonic migration metrics on `main`). Milestone 3 repair
+loop (verify-gated `chrysalis repair`, optional LLM, hole patches) is closed for
+v1; emit↔IR maps and richer attribution remain cross-cutting.
 
 **Milestone 4** (first real flagship app) is underway in parallel: `flagship/laravel-min`
 is a Laravel-shaped ingest/emit slice (see `flagship/README.md`). `chrysalis
