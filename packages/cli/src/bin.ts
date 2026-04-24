@@ -7,11 +7,17 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { countByDialect, countHoles } from "@chrysalis/webir";
+import { emit as emitFastify } from "@chrysalis/emit-fastify";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
 import { buildReport, replayCorpus, writeReport } from "@chrysalis/verify";
 import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
-import { startChimera, type Mode, type RouteRule } from "@chrysalis/runtime-chimera";
+import {
+  startChimera,
+  type CanarySettings,
+  type Mode,
+  type RouteRule,
+} from "@chrysalis/runtime-chimera";
 import {
   DEFAULT_RECOGNIZERS,
   analyzeModule,
@@ -35,7 +41,7 @@ const SUBCOMMANDS = [
   ["corpus", "Read + summarize a traces/ directory"],
   ["ingest", "Translate PHP source into a WebIR module"],
   ["archaeology", "Recover schema from DB + forms + traces"],
-  ["emit", "Emit a target project from a WebIR module (e.g. --target=hono)"],
+  ["emit", "Emit a target project from a WebIR module (e.g. --target=hono|fastify)"],
   ["convert", "One-shot ingest + emit (Milestone 1 convenience)"],
   ["verify", "Replay oracle traces against the generated code"],
   ["deploy", "Configure the chimera router (--mode=shadow|canary|cutover)"],
@@ -113,29 +119,33 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono] [--schema <schema.sql>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>]",
     );
     return 2;
   }
-  if (target !== "hono") {
-    console.error(`error: unsupported emit target '${target}'. Supported: hono`);
+  if (target !== "hono" && target !== "fastify") {
+    console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
     return 2;
   }
   const mod = await ingestDirectory(resolve(root));
   const outAbs = resolve(outDir);
   const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
   let domainMap: Record<string, string> | undefined;
+  let schemaReport: ReturnType<typeof runArchaeology> | undefined;
   if (schemaPath) {
-    const report = runArchaeology({ schemaPath });
-    domainMap = domainTypesByTable(report);
+    schemaReport = runArchaeology({ schemaPath });
+    domainMap = domainTypesByTable(schemaReport);
     mkdirSync(join(outAbs, "src"), { recursive: true });
-    writeFileSync(join(outAbs, "src", "domain.ts"), emitTypes(report));
+    writeFileSync(join(outAbs, "src", "domain.ts"), emitTypes(schemaReport));
   }
-  const res = await emitHono({
+  const emitOpts = {
     module: mod,
     outDir: outAbs,
+    ...(schemaReport ? { schemaReport } : {}),
     ...(domainMap ? { domainTypesByTable: domainMap } : {}),
-  });
+  };
+  const res =
+    target === "fastify" ? await emitFastify(emitOpts) : await emitHono(emitOpts);
   console.log(`handlers:     ${res.handlerCount}`);
   console.log(`files:        ${res.files.length}`);
   console.log(`emit holes:   ${res.holes.length}`);
@@ -322,6 +332,12 @@ interface DeployConfigFile {
   readonly host?: string;
   readonly rules?: ReadonlyArray<RouteRule>;
   readonly shadowLogDir?: string;
+  readonly canary?: {
+    readonly percentModern?: number;
+    readonly salt?: string;
+    readonly stickinessCookie?: string;
+    readonly stickinessHeader?: string;
+  };
 }
 
 async function cmdDeploy(args: string[]): Promise<number> {
@@ -332,8 +348,13 @@ async function cmdDeploy(args: string[]): Promise<number> {
     : {};
 
   const modeRaw = typeof flags.mode === "string" ? flags.mode : fileCfg.mode ?? "legacy";
-  if (modeRaw !== "legacy" && modeRaw !== "cutover" && modeRaw !== "shadow") {
-    console.error(`usage: chrysalis deploy --mode=legacy|cutover|shadow`);
+  if (
+    modeRaw !== "legacy" &&
+    modeRaw !== "cutover" &&
+    modeRaw !== "shadow" &&
+    modeRaw !== "canary"
+  ) {
+    console.error(`usage: chrysalis deploy --mode=legacy|cutover|shadow|canary`);
     console.error(`  unknown mode: ${modeRaw}`);
     return 2;
   }
@@ -341,9 +362,11 @@ async function cmdDeploy(args: string[]): Promise<number> {
   const modern = typeof flags.modern === "string" ? flags.modern : fileCfg.modern;
   if (!legacy || !modern) {
     console.error(
-      "usage: chrysalis deploy --mode=<legacy|cutover|shadow> --legacy <url> --modern <url>\n" +
+      "usage: chrysalis deploy --mode=<legacy|cutover|shadow|canary> --legacy <url> --modern <url>\n" +
         "                       [--port 8080] [--host 127.0.0.1]\n" +
-        "                       [--config chimera.json] [--shadow-log-dir reports/shadow]",
+        "                       [--config chimera.json] [--shadow-log-dir reports/shadow]\n" +
+        "                       [--canary-percent 0-100] [--canary-salt <str>]\n" +
+        "                       [--canary-cookie <name>] [--canary-header <name>]",
     );
     return 2;
   }
@@ -358,12 +381,49 @@ async function cmdDeploy(args: string[]): Promise<number> {
       ? flags["shadow-log-dir"]
       : fileCfg.shadowLogDir;
 
+  let canary: CanarySettings | undefined;
+  if (modeRaw === "canary") {
+    const pctFlag = flags["canary-percent"];
+    const pctRaw =
+      typeof pctFlag === "string"
+        ? Number.parseFloat(pctFlag)
+        : fileCfg.canary?.percentModern;
+    if (pctRaw === undefined || Number.isNaN(pctRaw)) {
+      console.error(
+        "error: canary mode requires --canary-percent <0-100> or config.canary.percentModern",
+      );
+      return 2;
+    }
+    const saltFlag = flags["canary-salt"];
+    const salt =
+      typeof saltFlag === "string"
+        ? saltFlag
+        : fileCfg.canary?.salt ?? "chrysalis-canary-v1";
+    const cookieFlag = flags["canary-cookie"];
+    const stickinessCookie =
+      typeof cookieFlag === "string" ? cookieFlag : fileCfg.canary?.stickinessCookie;
+    const headerFlag = flags["canary-header"];
+    const stickinessHeader =
+      typeof headerFlag === "string" ? headerFlag : fileCfg.canary?.stickinessHeader;
+    canary = {
+      percentModern: Math.min(100, Math.max(0, pctRaw)),
+      salt,
+      ...(stickinessCookie ? { stickinessCookie } : {}),
+      ...(stickinessHeader ? { stickinessHeader } : {}),
+    };
+  }
+
   console.log(`[deploy] mode:       ${modeRaw}`);
   console.log(`[deploy] legacy:     ${legacy}`);
   console.log(`[deploy] modern:     ${modern}`);
   console.log(`[deploy] listening:  http://${host}:${port}`);
   console.log(`[deploy] rules:      ${rules.length}`);
   if (shadowLogDir) console.log(`[deploy] shadow log: ${shadowLogDir}`);
+  if (canary) {
+    console.log(`[deploy] canary:     ${canary.percentModern}% modern (salt len=${canary.salt.length})`);
+    if (canary.stickinessCookie) console.log(`[deploy] canary cookie: ${canary.stickinessCookie}`);
+    if (canary.stickinessHeader) console.log(`[deploy] canary header: ${canary.stickinessHeader}`);
+  }
 
   const handle = await startChimera({
     mode: modeRaw,
@@ -373,6 +433,7 @@ async function cmdDeploy(args: string[]): Promise<number> {
     host,
     port,
     ...(shadowLogDir ? { shadowLogDir: resolve(shadowLogDir) } : {}),
+    ...(canary ? { canary } : {}),
   });
 
   const printStats = () => {
@@ -471,14 +532,62 @@ function npmInstallEmitted(outDir: string): void {
   }
 }
 
-async function loadEmittedHonoFetch(outDir: string): Promise<typeof fetch> {
+type EmitTarget = "hono" | "fastify";
+
+async function loadEmittedFetch(
+  outDir: string,
+  target: EmitTarget,
+): Promise<typeof fetch> {
   const { tsImport } = await import("tsx/esm/api");
   const abs = resolve(outDir);
   const parentURL = pathToFileURL(join(abs, "package.json")).href;
+  if (target === "hono") {
+    const imported = (await tsImport("./src/server.ts", parentURL)) as {
+      app: { fetch: typeof fetch };
+    };
+    return imported.app.fetch.bind(imported.app) as typeof fetch;
+  }
   const imported = (await tsImport("./src/server.ts", parentURL)) as {
-    app: { fetch: typeof fetch };
+    fetch: typeof fetch;
   };
-  return imported.app.fetch.bind(imported.app) as typeof fetch;
+  return imported.fetch;
+}
+
+function emitDirForBackend(
+  baseOut: string,
+  backend: EmitTarget,
+  backends: ReadonlyArray<EmitTarget>,
+): string {
+  if (backend === "hono") return resolve(baseOut);
+  if (backends.length === 1 && backends[0] === "fastify") return resolve(baseOut);
+  return resolve(`${baseOut}-fastify`);
+}
+
+/** Comma-separated `hono`, `fastify`; default `[fallback]`. */
+function parseHttpReplayBackends(
+  raw: string | boolean | undefined,
+  fallback: EmitTarget,
+): EmitTarget[] | null {
+  if (raw === undefined || typeof raw === "boolean") {
+    return [fallback];
+  }
+  const parts = raw
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (parts.length === 0) return [fallback];
+  const out: EmitTarget[] = [];
+  for (const p of parts) {
+    if (p !== "hono" && p !== "fastify") {
+      console.error(
+        `error: --http-replay-backends entries must be hono and/or fastify (got '${p}')`,
+      );
+      return null;
+    }
+    const t = p as EmitTarget;
+    if (!out.includes(t)) out.push(t);
+  }
+  return out;
 }
 
 async function cmdRewrite(args: string[]): Promise<number> {
@@ -486,13 +595,21 @@ async function cmdRewrite(args: string[]): Promise<number> {
   const flags = parseFlags(args);
   const root = pos[0];
   const outDir = typeof flags.out === "string" ? flags.out : null;
+  const emitTarget: EmitTarget =
+    typeof flags.target === "string" && flags.target === "fastify" ? "fastify" : "hono";
+  if (typeof flags.target === "string" && flags.target !== "hono" && flags.target !== "fastify") {
+    console.error(`error: unsupported --target '${flags.target}'. Supported: hono, fastify`);
+    return 2;
+  }
   if (!root) {
     console.error(
       "usage: chrysalis rewrite <php-project-dir> [--out <ts-out>]\n" +
+        "                         [--target=hono|fastify]\n" +
         "                         [--traces <dir>] [--min-confidence 0.75]\n" +
         "                         [--passes <id,id,...>] [--report <rewrite.json>]\n" +
         "                         [--no-post-verify] [--verify-behavior]\n" +
-        "                         [--http-replay <traces-dir>] [--http-replay-skip-install]\n" +
+        "                         [--http-replay <traces-dir>] [--http-replay-backends=hono,fastify]\n" +
+        "                         [--http-replay-skip-install]\n" +
         "                         [--json]",
     );
     return 2;
@@ -556,6 +673,12 @@ async function cmdRewrite(args: string[]): Promise<number> {
   // loud by design.
   const behaviorVerifyEnabled = flags["verify-behavior"] === true;
   const httpReplaySkipInstall = flags["http-replay-skip-install"] === true;
+  const httpReplayTargets = httpReplayRoot
+    ? parseHttpReplayBackends(flags["http-replay-backends"], emitTarget)
+    : null;
+  if (httpReplayRoot && httpReplayTargets === null) {
+    return 2;
+  }
 
   const rewriteOptsBase = {
     minConfidence,
@@ -571,20 +694,29 @@ async function cmdRewrite(args: string[]): Promise<number> {
   let result: RewriteResult;
 
   if (useHttpReplay) {
+    const backends = httpReplayTargets!;
     try {
       result = await applyRewritesAsync(mod, insight.opportunities, DEFAULT_PASSES, {
         ...rewriteOptsBase,
         httpReplay: {
           corpus: replayCorpusForHttp!,
           baseUrl: "http://127.0.0.1",
-          resolveFetch: async (rewritten) => {
-            await emitHono({ module: rewritten, outDir: outAbs });
-            emittedForHttpReplay = true;
-            if (!httpReplaySkipInstall) {
-              npmInstallEmitted(outAbs);
-            }
-            return loadEmittedHonoFetch(outAbs);
-          },
+          resolveFetches: backends.map((t) => ({
+            label: t,
+            resolveFetch: async (rewritten) => {
+              const dir = emitDirForBackend(outAbs, t, backends);
+              if (t === "fastify") {
+                await emitFastify({ module: rewritten, outDir: dir });
+              } else {
+                await emitHono({ module: rewritten, outDir: dir });
+              }
+              emittedForHttpReplay = true;
+              if (!httpReplaySkipInstall) {
+                npmInstallEmitted(dir);
+              }
+              return loadEmittedFetch(dir, t);
+            },
+          })),
         },
       });
     } catch (err) {
@@ -593,7 +725,14 @@ async function cmdRewrite(args: string[]): Promise<number> {
     }
     if (result.report.httpReplayVerify && !result.report.httpReplayVerify.ok) {
       try {
-        await emitHono({ module: result.module, outDir: outAbs });
+        for (const t of backends) {
+          const dir = emitDirForBackend(outAbs, t, backends);
+          if (t === "fastify") {
+            await emitFastify({ module: result.module, outDir: dir });
+          } else {
+            await emitHono({ module: result.module, outDir: dir });
+          }
+        }
       } catch (revertErr) {
         console.error(
           `[rewrite] could not re-emit rolled-back module: ${String(revertErr)}`,
@@ -612,7 +751,10 @@ async function cmdRewrite(args: string[]): Promise<number> {
   }
 
   if (outDir && !emittedForHttpReplay) {
-    const emitRes = await emitHono({ module: result.module, outDir: outAbs });
+    const emitRes =
+      emitTarget === "fastify"
+        ? await emitFastify({ module: result.module, outDir: outAbs })
+        : await emitHono({ module: result.module, outDir: outAbs });
     console.log(`[rewrite] emitted ${emitRes.files.length} file(s) to ${outAbs}`);
   } else if (emittedForHttpReplay) {
     console.log(`[rewrite] emitted (during http-replay) to ${outAbs}`);
@@ -682,20 +824,42 @@ function renderRewriteReport(report: RewriteReport, minConfidence: number): void
   }
   if (report.httpReplayVerify) {
     const hr = report.httpReplayVerify;
-    const n = hr.outcomes.length;
-    const passed = hr.outcomes.filter((o) => o.ok).length;
-    console.log(
-      `\nhttp-replay    : ${hr.ok ? "ok" : "FAILED"}   ` +
-        `(frames ${passed}/${n}${hr.failedRoutes.length ? `; failed: ${hr.failedRoutes.join(", ")}` : ""})`,
-    );
-    if (!hr.ok) {
-      for (const o of hr.outcomes) {
-        if (o.ok) continue;
+    if (hr.backends && hr.backends.length > 1) {
+      for (const b of hr.backends) {
+        const n = b.outcomes.length;
+        const passed = b.outcomes.filter((o) => o.ok).length;
         console.log(
-          `  ✗ ${o.route} — ${o.diff.divergences.map((d) => d.kind).join(", ") || "divergence"}`,
+          `\nhttp-replay (${b.label}) : ${b.ok ? "ok" : "FAILED"}   ` +
+            `(frames ${passed}/${n}${b.failedRoutes.length ? `; failed: ${b.failedRoutes.join(", ")}` : ""})`,
         );
+        if (!b.ok) {
+          for (const o of b.outcomes) {
+            if (o.ok) continue;
+            console.log(
+              `  ✗ ${o.route} — ${o.diff.divergences.map((d) => d.kind).join(", ") || "divergence"}`,
+            );
+          }
+        }
       }
-      console.log("(batch rolled back — HTTP replay diverged from corpus)");
+      if (!hr.ok) {
+        console.log("(batch rolled back — HTTP replay diverged from corpus)");
+      }
+    } else {
+      const n = hr.outcomes.length;
+      const passed = hr.outcomes.filter((o) => o.ok).length;
+      console.log(
+        `\nhttp-replay    : ${hr.ok ? "ok" : "FAILED"}   ` +
+          `(frames ${passed}/${n}${hr.failedRoutes.length ? `; failed: ${hr.failedRoutes.join(", ")}` : ""})`,
+      );
+      if (!hr.ok) {
+        for (const o of hr.outcomes) {
+          if (o.ok) continue;
+          console.log(
+            `  ✗ ${o.route} — ${o.diff.divergences.map((d) => d.kind).join(", ") || "divergence"}`,
+          );
+        }
+        console.log("(batch rolled back — HTTP replay diverged from corpus)");
+      }
     }
   }
 }
@@ -779,13 +943,24 @@ function renderLocator(l: Opportunity["origin"]): string {
   }
 }
 
+interface StatusCorrectnessBackend {
+  readonly label: string;
+  readonly aggregate: number;
+  readonly framesPassed: number;
+  readonly framesTotal: number;
+  readonly perRoute: Array<{ route: string; correctness: number }>;
+}
+
 interface StatusSummary {
   readonly corpus: { traces: number; routes: number } | null;
   readonly correctness: {
+    /** Worst backend when `byBackend` is set (portability bar). */
     readonly aggregate: number;
     readonly framesPassed: number;
     readonly framesTotal: number;
     readonly perRoute: Array<{ route: string; correctness: number }>;
+    /** D25-style layout: `reports/verify/hono`, `reports/verify/fastify`. */
+    readonly byBackend?: ReadonlyArray<StatusCorrectnessBackend>;
   } | null;
   readonly archaeology: {
     readonly entities: number;
@@ -822,6 +997,65 @@ function tryReadJson<T>(path: string): T | null {
   } catch {
     return null;
   }
+}
+
+type VerifyReportJson = {
+  aggregate: { correctness: number; framesPassed: number; framesTotal: number };
+  endpoints: Array<{ route: string; correctness: number }>;
+};
+
+function correctnessFromVerifyReport(r: VerifyReportJson): Omit<
+  StatusCorrectnessBackend,
+  "label"
+> {
+  return {
+    aggregate: r.aggregate.correctness,
+    framesPassed: r.aggregate.framesPassed,
+    framesTotal: r.aggregate.framesTotal,
+    perRoute: r.endpoints.map((e) => ({ route: e.route, correctness: e.correctness })),
+  };
+}
+
+/** `summary.json` from `writeReport`, optional legacy `correctness.json`, or D25 subdirs. */
+function readCorrectnessForStatus(reportDir: string): StatusSummary["correctness"] | null {
+  const root = resolve(reportDir);
+  const single =
+    tryReadJson<VerifyReportJson>(join(root, "summary.json")) ??
+    tryReadJson<VerifyReportJson>(join(root, "correctness.json"));
+  if (single) {
+    const c = correctnessFromVerifyReport(single);
+    return {
+      aggregate: c.aggregate,
+      framesPassed: c.framesPassed,
+      framesTotal: c.framesTotal,
+      perRoute: c.perRoute,
+    };
+  }
+
+  const subs = ["hono", "fastify"] as const;
+  const backends: StatusCorrectnessBackend[] = [];
+  for (const id of subs) {
+    const raw = tryReadJson<VerifyReportJson>(join(root, id, "summary.json"));
+    if (raw) backends.push({ label: id, ...correctnessFromVerifyReport(raw) });
+  }
+  if (backends.length === 0) return null;
+  if (backends.length === 1) {
+    const b = backends[0]!;
+    return {
+      aggregate: b.aggregate,
+      framesPassed: b.framesPassed,
+      framesTotal: b.framesTotal,
+      perRoute: b.perRoute,
+    };
+  }
+  const worst = backends.reduce((a, b) => (a.aggregate <= b.aggregate ? a : b));
+  return {
+    aggregate: worst.aggregate,
+    framesPassed: worst.framesPassed,
+    framesTotal: worst.framesTotal,
+    perRoute: worst.perRoute,
+    byBackend: backends,
+  };
 }
 
 async function cmdStatus(args: string[]): Promise<number> {
@@ -861,18 +1095,9 @@ async function cmdStatus(args: string[]): Promise<number> {
   }
 
   // Correctness -------------------------------------------------------
-  type ReportFile = {
-    aggregate: { correctness: number; framesPassed: number; framesTotal: number };
-    endpoints: Array<{ route: string; correctness: number }>;
-  };
-  const report = tryReadJson<ReportFile>(resolve(reportDir, "correctness.json"));
-  if (report) {
-    (summary as { correctness: StatusSummary["correctness"] }).correctness = {
-      aggregate: report.aggregate.correctness,
-      framesPassed: report.aggregate.framesPassed,
-      framesTotal: report.aggregate.framesTotal,
-      perRoute: report.endpoints.map((e) => ({ route: e.route, correctness: e.correctness })),
-    };
+  const correctness = readCorrectnessForStatus(reportDir);
+  if (correctness) {
+    (summary as { correctness: StatusSummary["correctness"] }).correctness = correctness;
   }
 
   // Archaeology ------------------------------------------------------
@@ -978,14 +1203,31 @@ async function cmdStatus(args: string[]): Promise<number> {
   }
   if (summary.correctness) {
     const c = summary.correctness;
-    const pct = (c.aggregate * 100).toFixed(1);
-    console.log(`correctness  : ${pct}%  (${c.framesPassed}/${c.framesTotal} frames passed)`);
-    for (const e of c.perRoute) {
-      const p = (e.correctness * 100).toFixed(1).padStart(5);
-      console.log(`               ${p}%  ${e.route}`);
+    if (c.byBackend && c.byBackend.length > 1) {
+      const pct = (c.aggregate * 100).toFixed(1);
+      console.log(
+        `correctness  : worst ${pct}%  (${c.framesPassed}/${c.framesTotal} frames, limiting backend)  [dual verify]`,
+      );
+      for (const b of c.byBackend) {
+        const bp = (b.aggregate * 100).toFixed(1);
+        console.log(
+          `               ${b.label.padEnd(8)} ${bp}%  (${b.framesPassed}/${b.framesTotal} frames)`,
+        );
+        for (const e of b.perRoute) {
+          const p = (e.correctness * 100).toFixed(1).padStart(5);
+          console.log(`                        ${p}%  ${e.route}`);
+        }
+      }
+    } else {
+      const pct = (c.aggregate * 100).toFixed(1);
+      console.log(`correctness  : ${pct}%  (${c.framesPassed}/${c.framesTotal} frames passed)`);
+      for (const e of c.perRoute) {
+        const p = (e.correctness * 100).toFixed(1).padStart(5);
+        console.log(`               ${p}%  ${e.route}`);
+      }
     }
   } else {
-    console.log(`correctness  : (none — run 'chrysalis verify' first)`);
+    console.log(`correctness  : (none — run 'chrysalis verify' or verify-tiny-blog first)`);
   }
   if (summary.archaeology) {
     const a = summary.archaeology;

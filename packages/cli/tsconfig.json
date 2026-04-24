@@ -8,6 +8,7 @@
   "references": [
     { "path": "../webir" },
     { "path": "../ingest" },
+    { "path": "../emit-fastify" },
     { "path": "../emit-hono" },
     { "path": "../oracle" },
     { "path": "../verify" },
