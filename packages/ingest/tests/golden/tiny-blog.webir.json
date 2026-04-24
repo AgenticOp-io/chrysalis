@@ -1961,7 +1961,20 @@
         "kind": "named",
         "name": "Response"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.read",
+          "table": "posts"
+        },
+        {
+          "kind": "db.read",
+          "table": "users"
+        },
+        {
+          "kind": "db.read",
+          "table": "comments"
+        }
+      ],
       "operands": [
         "n151"
       ],
@@ -2002,7 +2015,20 @@
       "type": {
         "kind": "void"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.read",
+          "table": "posts"
+        },
+        {
+          "kind": "db.read",
+          "table": "users"
+        },
+        {
+          "kind": "db.read",
+          "table": "comments"
+        }
+      ],
       "operands": [
         "n152"
       ],
@@ -4236,7 +4262,15 @@
         "kind": "named",
         "name": "Response"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.read",
+          "table": "users"
+        },
+        {
+          "kind": "session.write"
+        }
+      ],
       "operands": [
         "n213"
       ],
@@ -4277,7 +4311,15 @@
       "type": {
         "kind": "void"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.read",
+          "table": "users"
+        },
+        {
+          "kind": "session.write"
+        }
+      ],
       "operands": [
         "n214"
       ],
@@ -6144,7 +6186,12 @@
         "kind": "named",
         "name": "Response"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.write",
+          "table": "posts"
+        }
+      ],
       "operands": [
         "n266"
       ],
@@ -6185,7 +6232,12 @@
       "type": {
         "kind": "void"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.write",
+          "table": "posts"
+        }
+      ],
       "operands": [
         "n267"
       ],
@@ -8220,7 +8272,16 @@
         "kind": "named",
         "name": "Response"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.read",
+          "table": "posts"
+        },
+        {
+          "kind": "db.write",
+          "table": "comments"
+        }
+      ],
       "operands": [
         "n322"
       ],
@@ -8261,7 +8322,16 @@
       "type": {
         "kind": "void"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.read",
+          "table": "posts"
+        },
+        {
+          "kind": "db.write",
+          "table": "comments"
+        }
+      ],
       "operands": [
         "n323"
       ],
@@ -8474,7 +8544,16 @@
         "kind": "named",
         "name": "Response"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.read",
+          "table": "posts"
+        },
+        {
+          "kind": "db.read",
+          "table": "users"
+        }
+      ],
       "operands": [
         "n37"
       ],
@@ -8515,7 +8594,16 @@
       "type": {
         "kind": "void"
       },
-      "effects": [],
+      "effects": [
+        {
+          "kind": "db.read",
+          "table": "posts"
+        },
+        {
+          "kind": "db.read",
+          "table": "users"
+        }
+      ],
       "operands": [
         "n38"
       ],

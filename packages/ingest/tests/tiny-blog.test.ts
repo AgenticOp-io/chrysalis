@@ -12,33 +12,40 @@ describe("ingest: tiny-blog fixture", () => {
     expect(countHoles(mod)).toBe(0);
   });
 
-  test("infers the expected effects per handler", async () => {
+  test("handler nodes carry effects merged from the body subtree", async () => {
     const mod = await ingestDirectory(FIXTURE);
 
-    const effectsByHandler: Record<string, Set<string>> = {};
+    function tags(es: Iterable<{ kind: string; table?: string }>): string[] {
+      return [...es]
+        .map((e) => ("table" in e ? `${e.kind}:${e.table}` : e.kind))
+        .sort();
+    }
+
+    const byName: Record<string, string[]> = {};
     for (const id of mod.roots) {
       const routeNode = mod.nodes.get(id)!;
       const handlerId = routeNode.operands[0]!;
       const handler = mod.nodes.get(handlerId)!;
       const name = String((handler.attrs as { name?: string }).name ?? "");
-      const collected = new Set<string>();
-      walk(mod, (n) => {
-        if (n.dialect !== "effect") return;
-        for (const e of n.effects) {
-          const tag = "table" in e ? `${e.kind}:${e.table}` : e.kind;
-          collected.add(tag);
-        }
-      });
-      effectsByHandler[name] = collected;
+      byName[name] = tags(handler.effects);
     }
 
-    expect(Object.keys(effectsByHandler).sort()).toEqual([
+    expect(Object.keys(byName).sort()).toEqual([
       "comments_create",
       "login",
       "posts_create",
       "posts_list",
       "posts_view",
     ]);
+    expect(byName.posts_list).toEqual(["db.read:posts", "db.read:users"]);
+    expect(byName.posts_view).toEqual([
+      "db.read:comments",
+      "db.read:posts",
+      "db.read:users",
+    ]);
+    expect(byName.login).toEqual(["db.read:users", "session.write"]);
+    expect(byName.posts_create).toEqual(["db.write:posts"]);
+    expect(byName.comments_create).toEqual(["db.read:posts", "db.write:comments"]);
   });
 
   test("every node has a php-source locator", async () => {

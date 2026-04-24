@@ -16,6 +16,7 @@ import {
   T,
   dataDialect,
   effectDialect,
+  effectsReachableFrom,
   phpLocator,
   provenance as prov,
   webRequest,
@@ -666,6 +667,7 @@ export function ingestHandler(
       .replace(/\.php$/i, "")
       .replace(/[^a-zA-Z0-9]/g, "_") || "handler";
 
+  const handlerEffects = effectsReachableFrom((id) => ctx.m.get(id), body);
   const handlerNode = ctx.route.handler({
     attrs: {
       name: handlerName,
@@ -673,7 +675,7 @@ export function ingestHandler(
       output: T.named("Response"),
     },
     body,
-    effects: [],
+    effects: handlerEffects,
     origin: phpLocator(ast.file, 1, 0),
   });
   const routeNode = ctx.route.route({

@@ -6,6 +6,7 @@ import {
   countHoles,
   dataDialect,
   effectDialect,
+  effectsReachableFrom,
   phpLocator,
   walk,
   webRequest,
@@ -19,6 +20,25 @@ describe("webir module builder", () => {
     const b = d1.literal({ value: 2, type: T.int, origin: phpLocator("a.php", 2, 0) });
     expect(a).toBe("n0");
     expect(b).toBe("n1");
+  });
+
+  test("effectsReachableFrom unions nested effect nodes", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const e = effectDialect.builders(b);
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const arg = d.literal({ value: 1, type: T.int, origin });
+    const q = e.dbQuery({
+      kind: "read",
+      sql: "SELECT 1",
+      params: [arg],
+      returns: "rows",
+      tables: ["t"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const eff = effectsReachableFrom((id) => b.get(id), q);
+    expect(eff).toEqual([{ kind: "db.read", table: "t" }]);
   });
 
   test("effect nodes carry effect sets", () => {

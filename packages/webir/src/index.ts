@@ -114,6 +114,7 @@ export {
   NO_EFFECTS,
   T,
   mergeEffects,
+  effectsReachableFrom,
   phpLocator,
   provenance,
   synthetic,

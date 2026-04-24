@@ -90,6 +90,29 @@ export function mergeEffects(...sets: EffectSet[]): EffectSet {
   return Object.freeze(out);
 }
 
+/**
+ * Union every non-empty {@link NodeBase.effects} on nodes reachable from
+ * `root` via `operands` (cycle-safe). Used to populate `web.request` handler
+ * effect lists from the handler body subgraph.
+ */
+export function effectsReachableFrom(
+  getNode: (id: NodeId) => NodeBase | undefined,
+  root: NodeId,
+): EffectSet {
+  const seen = new Set<NodeId>();
+  const stacks: EffectSet[] = [];
+  const visit = (id: NodeId): void => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    const n = getNode(id);
+    if (!n) return;
+    if (n.effects.length > 0) stacks.push(n.effects);
+    for (const child of n.operands) visit(child);
+  };
+  visit(root);
+  return mergeEffects(...stacks);
+}
+
 export function synthetic(reason: string): Locator {
   return { kind: "synthetic", reason };
 }
