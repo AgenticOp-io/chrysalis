@@ -17,13 +17,14 @@ schema file/line and any trace IDs that confirmed the column.
 
 ```ts
 import {
-  runArchaeology,     // schema path [+ corpus] → SchemaReport
-  emitTypes,          // SchemaReport → TypeScript source
-  domainTypesByTable, // SchemaReport → map for emit-hono row generics (D22)
-  parseSchema,      // low-level DDL parser
-  summarizeShapes,  // low-level corpus → per-table observed shapes
-  mergeSchema,      // DDL + shapes → SchemaReport
-  extractTableNames // heuristic FROM/JOIN extractor
+  runArchaeology,      // schema path [+ corpus] → SchemaReport
+  emitTypes,           // SchemaReport → TypeScript interfaces (`domain.ts`)
+  emitDrizzleSchema,  // SchemaReport → Drizzle sqlite-core `schema.ts`
+  domainTypesByTable,  // SchemaReport → map for emit-hono row generics (D22)
+  parseSchema,       // low-level DDL parser
+  summarizeShapes,   // low-level corpus → per-table observed shapes
+  mergeSchema,       // DDL + shapes → SchemaReport
+  extractTableNames  // heuristic FROM/JOIN extractor
 } from "@chrysalis/archaeology";
 ```
 
@@ -31,6 +32,8 @@ import {
   `EntityReport` per table.
 - `emitTypes(report)` → a TypeScript source string containing one
   `interface` per entity, with provenance JSDoc on every field.
+- `emitDrizzleSchema(report)` → a TypeScript module of `sqliteTable(...)`
+  definitions (for `src/schema.ts` in emit-hono).
 - `domainTypesByTable(report)` → `{ users: "User", ... }` (keys lowercase)
   for `EmitInput.domainTypesByTable` in `@chrysalis/emit-hono`. Callers
   should write `emitTypes` to `src/domain.ts` before `tsc`. The CLI command
@@ -56,4 +59,4 @@ import {
 
 - Writing migrations or changing the database.
 - Inferring application-level invariants beyond per-entity shape.
-- Targeting a specific ORM's type conventions (that's the emit backend's job).
+- Choosing how emitted apps open DB connections (emit backends own drivers).

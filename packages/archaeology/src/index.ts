@@ -24,6 +24,7 @@ export {
   type ProvenanceEntry,
 } from "./merge.js";
 export { emitTypes, type EmitTypesOptions } from "./emit-types.js";
+export { emitDrizzleSchema, type EmitDrizzleSchemaOptions } from "./emit-drizzle-schema.js";
 
 export interface RunArchaeologyInput {
   readonly schemaPath: string;
