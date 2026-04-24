@@ -14,7 +14,7 @@ anti-patterns, and proposes idiomatic typed replacements. Consumed by
 | `unescaped-output` | `echo` (or `data.html.template` with `escape: false`) whose value carries taint from `request.field` or `session.read` through no recognized sanitizer. | `sanitize-output` — `html.escape(...)` or `JSON.stringify` for script contexts |
 | `n-plus-one-queries` | `foreach` body issues a DB read per iteration | `batch-loader` — single `SELECT ... WHERE id IN (...)` + lookup map. **Rewrite:** `@chrysalis/rewrite` `batch-n1-read` automates a strict v1 subset (one inner read per loop, assign-wrapped, param iterable; see that README). |
 | `scattered-validation` | One request field touched by ≥2 distinct guards (isset/empty/trim/intval/preg_match/strlen/compare-to-literal/…) | `zod-schema` — one schema parsed at handler top. **Rewrite:** `@chrysalis/rewrite` **`boundary-zod`** normalizes POST fields (D44); see that README. |
-| `string-dispatch` | `if/elseif` chain on literal equality against a single request field | `action-union` — discriminated union + `z.enum` + exhaustive `switch` (emit-hono already emits a TS `switch` for the same shape via exported `matchStringDispatchChain`) |
+| `string-dispatch` | `if/elseif` chain on literal equality against a single request field | `action-union` — **`dispatch-union-zod`** in `@chrysalis/rewrite` adds enum-shaped boundary coercion + param rewire; emit-hono/fastify still emit a TS `switch` for the same chain shape via `matchStringDispatchChain` |
 
 ### Data-flow primitive
 

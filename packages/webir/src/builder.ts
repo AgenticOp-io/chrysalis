@@ -144,8 +144,19 @@ export function effectsReachableWithCallOverlay(
     if (n.effects.length > 0) stacks.push(n.effects);
     if (n.dialect === "data" && n.op === "call" && callEffects.size > 0) {
       const callee = String((n.attrs as { callee?: string }).callee ?? "");
-      const extra = callee ? callEffects.get(callee) : undefined;
-      if (extra && extra.length > 0) stacks.push(extra);
+      if (
+        callee === "call_user_func" ||
+        callee === "call_user_func_array" ||
+        callee === "forward_static_call" ||
+        callee === "forward_static_call_array"
+      ) {
+        for (const eff of callEffects.values()) {
+          if (eff.length > 0) stacks.push(eff);
+        }
+      } else if (callee) {
+        const extra = callEffects.get(callee);
+        if (extra && extra.length > 0) stacks.push(extra);
+      }
     }
     for (const child of n.operands) visit(child);
   };

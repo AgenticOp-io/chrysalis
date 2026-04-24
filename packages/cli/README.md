@@ -12,7 +12,7 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis init <dir>` — mark a directory as a Chrysalis project
 - `chrysalis observe` — run the oracle sidecar against a live PHP app
 - `chrysalis ingest` — PHP source → WebIR module on disk
-- `chrysalis archaeology` — recover schema from DB + forms + traces
+- `chrysalis archaeology` — recover schema from DB + traces + optional PHP form scan (`--php-root <dir>`, repeatable)
 - `chrysalis emit --target=hono|fastify` — WebIR → generated project
 - `chrysalis verify` — replay oracle traces against the generated code
 - `chrysalis rewrite` — IR rewrites; optional `--http-replay` and

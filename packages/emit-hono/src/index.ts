@@ -193,7 +193,9 @@ function handlerFileText(
   const runtimeBatch = emitted.usesChrysalisBatchHelpers
     ? "  chrysalisPluck,\n  chrysalisRowByColumn,\n"
     : "";
-  const runtimeZod = emitted.usesZod ? "  parseZodBodyFieldRaw,\n" : "";
+  const runtimeZod = emitted.usesZod
+    ? "  parseZodBodyFieldRaw,\n  parseZodEnumBodyFieldRaw,\n"
+    : "";
   return `import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
 ${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";

@@ -18,6 +18,9 @@
 
 import type { ParsedSchema, ColumnSchema, SqlPrimitive } from "./parse-schema.js";
 import type { CorpusShapes, ObservedField } from "./corpus-shapes.js";
+import { collectFormFieldEvidence, type UnattributedFormField } from "./php-form-scan.js";
+
+export type { UnattributedFormField } from "./php-form-scan.js";
 
 /** Prefix on `ProvenanceEntry.detail` when TEXT was promoted from `sql.query.rows` (D28). */
 export const TRACE_LITERAL_UNION_PROVENANCE_PREFIX = "literal union from captured SQL rows";
@@ -25,7 +28,7 @@ export const TRACE_LITERAL_UNION_PROVENANCE_PREFIX = "literal union from capture
 export type FieldKind = "ddl" | "observed-only" | "ddl-and-observed";
 
 export interface ProvenanceEntry {
-  readonly kind: "schema" | "trace";
+  readonly kind: "schema" | "trace" | "form";
   readonly detail: string;
 }
 
@@ -52,6 +55,17 @@ export interface SchemaReport {
   readonly entities: ReadonlyArray<EntityReport>;
   readonly unknownDdl: ReadonlyArray<{ table: string; raw: string; source: { file: string; line: number } }>;
   readonly orphanShapes: ReadonlyArray<{ fields: ReadonlyArray<string>; statementCount: number }>;
+  /** Form controls found in PHP that could not be tied to a single DDL table/column. */
+  readonly unattributedFormFields: ReadonlyArray<UnattributedFormField>;
+}
+
+export interface MergeSchemaOptions {
+  /**
+   * Optional roots of PHP trees to scan for inline `<input|select|textarea>`
+   * `name=` attributes; merged as `@chrysalis-provenance form` on matching
+   * entity fields.
+   */
+  readonly phpRoots?: ReadonlyArray<string>;
 }
 
 /**
@@ -71,7 +85,20 @@ export function domainTypesByTable(report: SchemaReport): Record<string, string>
 export function mergeSchema(
   ddl: ParsedSchema,
   shapes: CorpusShapes,
+  options?: MergeSchemaOptions,
 ): SchemaReport {
+  const formEvidence =
+    options?.phpRoots && options.phpRoots.length > 0
+      ? collectFormFieldEvidence(ddl, options.phpRoots)
+      : { attributed: [] as const, unattributed: [] as const };
+  const formDetailsByCell = new Map<string, string[]>();
+  for (const a of formEvidence.attributed) {
+    const k = `${a.table.toLowerCase()}|${a.column.toLowerCase()}`;
+    const arr = formDetailsByCell.get(k) ?? [];
+    arr.push(a.provenanceDetail);
+    formDetailsByCell.set(k, arr);
+  }
+
   const entities: EntityReport[] = [];
   for (const table of ddl.tables) {
     const observed = shapes.byTable.get(table.name);
@@ -83,11 +110,11 @@ export function mergeSchema(
     for (const col of table.columns) {
       const obs = observedByName.get(col.name) ?? null;
       if (obs) observedByName.delete(col.name);
-      fields.push(mergeField(col, obs, table.name));
+      fields.push(mergeField(col, obs, table.name, formDetailsByCell));
     }
     // Fields observed but not in DDL.
     for (const [, obs] of observedByName) {
-      fields.push(buildObservedOnlyField(obs, table.name));
+      fields.push(buildObservedOnlyField(obs, table.name, formDetailsByCell));
     }
 
     entities.push({
@@ -105,16 +132,23 @@ export function mergeSchema(
       fields: o.fields.map((f) => f.name),
       statementCount: o.statementCount,
     })),
+    unattributedFormFields: [...formEvidence.unattributed],
   };
 }
 
-function mergeField(col: ColumnSchema, obs: ObservedField | null, table: string): EntityFieldReport {
+function mergeField(
+  col: ColumnSchema,
+  obs: ObservedField | null,
+  table: string,
+  formDetailsByCell: Map<string, string[]>,
+): EntityFieldReport {
   const provenance: ProvenanceEntry[] = [
     {
       kind: "schema",
       detail: `${col.source.file}:${col.source.line} (${table}.${col.name} ${describeDdlType(col.type)})`,
     },
   ];
+  appendFormProvenance(provenance, table, col.name, formDetailsByCell);
   const conflicts: string[] = [];
   let ts = tsTypeFor(col.type);
 
@@ -167,7 +201,11 @@ function mergeField(col: ColumnSchema, obs: ObservedField | null, table: string)
   };
 }
 
-function buildObservedOnlyField(obs: ObservedField, table: string): EntityFieldReport {
+function buildObservedOnlyField(
+  obs: ObservedField,
+  table: string,
+  formDetailsByCell: Map<string, string[]>,
+): EntityFieldReport {
   const kind = dominantObservedKind(obs) ?? "unknown";
   const ts = kind === "int" ? "number"
     : kind === "float" ? "number"
@@ -175,6 +213,13 @@ function buildObservedOnlyField(obs: ObservedField, table: string): EntityFieldR
     : kind === "string" ? "string"
     : kind === "blob" ? "Uint8Array"
     : "unknown";
+  const provenance: ProvenanceEntry[] = [
+    {
+      kind: "trace",
+      detail: `observed in ${describeObsCounts(obs)} statements for table ${table}, not in DDL`,
+    },
+  ];
+  appendFormProvenance(provenance, table, obs.name, formDetailsByCell);
   return {
     name: obs.name,
     kind: "observed-only",
@@ -182,14 +227,25 @@ function buildObservedOnlyField(obs: ObservedField, table: string): EntityFieldR
     observed: obs,
     typescriptType: `${ts} | null`,
     nullable: true,
-    provenance: [
-      {
-        kind: "trace",
-        detail: `observed in ${describeObsCounts(obs)} statements for table ${table}, not in DDL`,
-      },
-    ],
+    provenance,
     conflicts: ["not declared in DDL; may be a view, computed column, or stale schema"],
   };
+}
+
+function appendFormProvenance(
+  provenance: ProvenanceEntry[],
+  table: string,
+  column: string,
+  formDetailsByCell: Map<string, string[]>,
+): void {
+  const details = formDetailsByCell.get(`${table.toLowerCase()}|${column.toLowerCase()}`);
+  if (!details?.length) return;
+  const seen = new Set<string>();
+  for (const d of details) {
+    if (seen.has(d)) continue;
+    seen.add(d);
+    provenance.push({ kind: "form", detail: d });
+  }
 }
 
 function liftStringUnionFromTraceLiterals(obs: ObservedField): string | null {

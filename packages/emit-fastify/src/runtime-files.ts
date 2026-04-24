@@ -541,6 +541,14 @@ export function parseZodBodyFieldRaw(
   if (opts.email && !/^[^@]+@[^@]+$/.test(s)) return "";
   return s;
 }
+
+export function parseZodEnumBodyFieldRaw(
+  raw: unknown,
+  allowed: readonly string[],
+): string {
+  const s = raw == null ? "" : String(raw);
+  return (allowed as readonly string[]).includes(s) ? s : "";
+}
 `;
 
 export const SERVER_TS = (imports: string, routeRegistrations: string): string =>

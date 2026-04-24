@@ -1,4 +1,5 @@
 <?php
+// Chrysalis archaeology: inline HTML probe (form-field extraction) — <input name="title"/><textarea name="body"></textarea>
 $me = require_login();
 
 $title = isset($_POST['title']) ? trim($_POST['title']) : '';

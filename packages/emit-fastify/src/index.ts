@@ -169,7 +169,9 @@ function handlerFileText(
   const runtimeBatch = emitted.usesChrysalisBatchHelpers
     ? "  chrysalisPluck,\n  chrysalisRowByColumn,\n"
     : "";
-  const runtimeZod = emitted.usesZod ? "  parseZodBodyFieldRaw,\n" : "";
+  const runtimeZod = emitted.usesZod
+    ? "  parseZodBodyFieldRaw,\n  parseZodEnumBodyFieldRaw,\n"
+    : "";
   return `import type { FastifyReply, FastifyRequest } from "fastify";
 ${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";
 import { getSession } from "../session.js";

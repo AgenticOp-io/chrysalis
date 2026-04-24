@@ -1,9 +1,6 @@
 /**
  * @chrysalis/archaeology — reconstruct typed domain models from DB schema,
- * observed corpus shapes, and (later) template form scans.
- *
- * Milestone 1 scope: DDL + corpus shapes → TypeScript interfaces with
- * `@chrysalis-provenance` JSDoc. Form scanning is deferred to Milestone 2.
+ * observed corpus shapes, and optional heuristic scans of inline HTML in PHP.
  */
 
 import { readFileSync } from "node:fs";
@@ -30,13 +27,26 @@ export {
   type EntityFieldReport,
   type FieldKind,
   type ProvenanceEntry,
+  type MergeSchemaOptions,
+  type UnattributedFormField,
 } from "./merge.js";
 export { emitTypes, type EmitTypesOptions } from "./emit-types.js";
 export { emitDrizzleSchema, type EmitDrizzleSchemaOptions } from "./emit-drizzle-schema.js";
+export {
+  scanPhpTreeForFormControls,
+  extractFormControlHits,
+  extractSqlTableRefsFromPhp,
+  extractWriteTableRefsFromPhp,
+  collectFormFieldEvidence,
+  type FormControlHit,
+  type FormEvidenceAttribution,
+} from "./php-form-scan.js";
 
 export interface RunArchaeologyInput {
   readonly schemaPath: string;
   readonly corpus?: TraceCorpus;
+  /** Absolute or cwd-relative roots scanned for `<input|select|textarea name=…>`. */
+  readonly phpRoots?: ReadonlyArray<string>;
 }
 
 /**
@@ -49,5 +59,9 @@ export function runArchaeology(input: RunArchaeologyInput) {
   const shapes = input.corpus
     ? summarizeShapes(input.corpus)
     : ({ byTable: new Map(), orphan: [] } as const);
-  return mergeSchema(ddl, shapes);
+  return mergeSchema(
+    ddl,
+    shapes,
+    input.phpRoots && input.phpRoots.length > 0 ? { phpRoots: input.phpRoots } : undefined,
+  );
 }

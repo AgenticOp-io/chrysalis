@@ -17,5 +17,8 @@
     "@chrysalis/insight": "workspace:*",
     "@chrysalis/verify": "workspace:*",
     "@chrysalis/oracle": "workspace:*"
+  },
+  "devDependencies": {
+    "@chrysalis/ingest": "workspace:*"
   }
 }

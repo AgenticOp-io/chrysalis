@@ -32,6 +32,7 @@ export { sanitizeOutputPass } from "./passes/sanitize-output.js";
 export { parameterizeSqlPass } from "./passes/parameterize-sql.js";
 export { batchN1ReadPass } from "./passes/batch-n1-read.js";
 export { boundaryZodPass } from "./passes/boundary-zod.js";
+export { dispatchUnionZodPass } from "./passes/dispatch-union-zod.js";
 export {
   postVerifyRewrite,
   type PostVerifyFailure,
@@ -62,6 +63,7 @@ import { sanitizeOutputPass } from "./passes/sanitize-output.js";
 import { parameterizeSqlPass } from "./passes/parameterize-sql.js";
 import { batchN1ReadPass } from "./passes/batch-n1-read.js";
 import { boundaryZodPass } from "./passes/boundary-zod.js";
+import { dispatchUnionZodPass } from "./passes/dispatch-union-zod.js";
 import type { RewritePass } from "./framework.js";
 
 /**
@@ -73,5 +75,6 @@ export const DEFAULT_PASSES: ReadonlyArray<RewritePass> = [
   sanitizeOutputPass,
   parameterizeSqlPass,
   boundaryZodPass,
+  dispatchUnionZodPass,
   batchN1ReadPass,
 ];

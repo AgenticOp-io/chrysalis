@@ -25,7 +25,7 @@ console.log(
 );
 
 // Archaeology before emit so `domain.ts` exists and emit can import row types.
-const schemaReport = runArchaeology({ schemaPath: SCHEMA });
+const schemaReport = runArchaeology({ schemaPath: SCHEMA, phpRoots: [ROOT] });
 const domainTs = emitTypes(schemaReport);
 mkdirSync(join(OUT, "src"), { recursive: true });
 writeFileSync(`${OUT}/src/domain.ts`, domainTs);

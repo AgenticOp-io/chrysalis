@@ -10,7 +10,7 @@
 import { access, readdir } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
 import { join, resolve } from "node:path";
-import type { PhpAst } from "@chrysalis/parser-bridge";
+import type { PhpAst, PhpNode } from "@chrysalis/parser-bridge";
 import { parseFile } from "@chrysalis/parser-bridge";
 import {
   ModuleBuilder,
@@ -42,11 +42,15 @@ function effectSetKey(e: EffectSet): string {
 
 function collectFunctionBodies(ast: PhpAst, builder: ModuleBuilder): Map<string, NodeId> {
   const bodies = new Map<string, NodeId>();
-  for (const stmt of ast.statements) {
-    if (stmt.kind !== "FunctionDecl") continue;
-    const rootId = convertPhpStatementsToBlock(builder, ast.file, stmt.body);
-    bodies.set(stmt.name, rootId);
-  }
+  const walk = (stmts: readonly PhpNode[]) => {
+    for (const stmt of stmts) {
+      if (stmt.kind !== "FunctionDecl") continue;
+      const rootId = convertPhpStatementsToBlock(builder, ast.file, stmt.body);
+      bodies.set(stmt.name, rootId);
+      walk(stmt.body);
+    }
+  };
+  walk(ast.statements);
   return bodies;
 }
 

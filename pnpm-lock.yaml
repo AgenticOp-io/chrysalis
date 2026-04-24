@@ -173,6 +173,10 @@ importers:
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir
+    devDependencies:
+      '@chrysalis/ingest':
+        specifier: workspace:*
+        version: link:../ingest
 
   packages/runtime-chimera:
     dependencies:

@@ -305,6 +305,8 @@ function synthesizeProbesFor(_m: Module, r: RouteInfo): Probe[] {
  *     dbReads are taken from the actual post simulation for that probe.
  *   - boundary-zod: uses the generic predictor (normalized POST strings should
  *     match probes that supply the same field values).
+ *   - dispatch-union-zod: same as boundary-zod for probe POST values that stay
+ *     within the allowed enum set.
  *
  * Everything else is expected to match byte-for-byte.
  */

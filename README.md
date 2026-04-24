@@ -21,15 +21,21 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 
 ## Status
 
-**Pre-alpha. Milestone 1 is complete end-to-end** on the bundled tiny-blog
-fixture: translation axis (ingest → WebIR → emit-hono), Oracle recording,
-verify HTTP-replay + correctness scoring, archaeology (DDL + trace shapes →
-typed domain models, optional Drizzle `schema.ts`), the chimera runtime proxy
-(`legacy` / `cutover` / `shadow` / **`canary`** with stickiness), **emit-fastify**
-as a second emitter behind shared lowering, and the `chrysalis status` dashboard
-are all live.
+**Pre-alpha.** **Milestone 1 is closed** (tiny-blog vertical slice: ingest →
+WebIR → emit-hono, Oracle, verify, archaeology including optional PHP form scan,
+chimera `legacy` / `cutover` / `shadow` / **`canary`**, `chrysalis status`).
 
-**Milestone 4** (first real flagship app) is underway: `flagship/laravel-min`
+**Milestone 2 — Expansion is closed** (emit-fastify, insight, rewrite catalog
+including `dispatch-union-zod` for string dispatch, `call_user_func` effect
+widening, nested lib/route function bodies in the call map, `batch-n1-read`
+including `SELECT *`, dual-stack verify, canary chimera). See `ROADMAP.md` for
+explicit post-M2 deferrals (vendor Composer, `mysqli` oracle shim, bare inner
+N+1 without assign).
+
+**Current engineering focus: Milestone 3 — Repair loop** (LLM adapter for
+`chrysalis repair`, precise emit↔IR maps, and tighter attribution).
+
+**Milestone 4** (first real flagship app) is underway in parallel: `flagship/laravel-min`
 is a Laravel-shaped ingest/emit slice (see `flagship/README.md`). `chrysalis
 status --json` exposes a `migration` object for coverage, correctness, and
 optional sidecars; full Composer Laravel remains the next expansion.

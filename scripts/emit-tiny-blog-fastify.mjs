@@ -22,7 +22,7 @@ console.log(
   `[ingest]    routes=${mod.roots.length} nodes=${mod.nodes.size} holes=${irHoles} dialects=${JSON.stringify(dialects)}`,
 );
 
-const schemaReport = runArchaeology({ schemaPath: SCHEMA });
+const schemaReport = runArchaeology({ schemaPath: SCHEMA, phpRoots: [ROOT] });
 const domainTs = emitTypes(schemaReport);
 mkdirSync(join(OUT, "src"), { recursive: true });
 writeFileSync(`${OUT}/src/domain.ts`, domainTs);

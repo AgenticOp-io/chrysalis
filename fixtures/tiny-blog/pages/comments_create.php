@@ -1,4 +1,5 @@
 <?php
+// Chrysalis archaeology: inline HTML probe — <textarea name="body"></textarea>
 $me = require_login();
 
 $body = isset($_POST['body']) ? trim($_POST['body']) : '';

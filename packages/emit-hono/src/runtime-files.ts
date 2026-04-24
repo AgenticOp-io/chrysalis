@@ -554,6 +554,18 @@ export function parseZodBodyFieldRaw(
   if (opts.email && !/^[^@]+@[^@]+$/.test(s)) return "";
   return s;
 }
+
+/**
+ * Validates \`raw\` against a closed set of string literals (z.enum-shaped).
+ * Used by \`dispatch-union-zod\`; dependency-free like \`parseZodBodyFieldRaw\`.
+ */
+export function parseZodEnumBodyFieldRaw(
+  raw: unknown,
+  allowed: readonly string[],
+): string {
+  const s = raw == null ? "" : String(raw);
+  return (allowed as readonly string[]).includes(s) ? s : "";
+}
 `;
 
 /**

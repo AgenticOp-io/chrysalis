@@ -5,6 +5,12 @@
 Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
+**Active milestone: Milestone 3 — Repair loop.** Milestones 0–2 are complete.
+Milestone 2 follow-ups that remain intentionally open-ended (Composer vendor
+effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
+confidence) are tracked as prose under Milestone 3 / cross-cutting work rather
+than blocking closure of Milestone 2.
+
 ---
 
 ## Milestone 0 — Foundations (days, not weeks)
@@ -79,9 +85,10 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
          CLI; `scripts/run-e2e.mjs` auto-generates
          `generated/tiny-blog/src/domain.ts` and the emitted project still
          typechecks.
-   - [ ] **(v2)** Heuristic form-field extraction from inline HTML/templates in
-         PHP — low marginal value while DDL + trace shapes cover fields (as on
-         tiny-blog); tracked for apps with heavy ad-hoc forms and weak schema
+   - [x] **(v2)** Heuristic form-field extraction from inline HTML/templates in
+         PHP (`@chrysalis/archaeology` `php-form-scan`, `runArchaeology({ phpRoots })`,
+         CLI `--php-root`, `chrysalis status` passes `--project` for scans). INSERT/UPDATE
+         targets disambiguate shared column names (e.g. `body` on posts vs comments).
    - [x] emit-hono consumes archaeology interface names as `queryOne<T>` /
          `queryAll<T>` when `EmitInput.domainTypesByTable` is supplied and
          the `db.query` node tags a single table (D22). `run-e2e.mjs` and
@@ -164,17 +171,32 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
 tiny-blog, through `observe → ingest → emit → verify → cutover`, with live
 metrics, in under 10 minutes.
 
+**Closure:** Milestone 1 acceptance list is fully checked; this milestone is
+**closed**.
+
 ---
 
 ## Milestone 2 — Expansion (4–6 weeks)
 
 Deepen each layer without broadening too fast.
 
+**Status: complete.** Delivered: second emitter, insight+rewrite stack (incl.
+`dispatch-union-zod` for string-dispatch → enum-shaped boundary + param rewire),
+`call_user_func*` effect widening in `effectsReachableWithCallOverlay`, nested
+`FunctionDecl` bodies in `buildCallEffectMap`, `SELECT *` support in
+`batch-n1-read`, dual verify, canary chimera, archaeology/trace enums, CI
+goldens. **Explicitly not required for M2 closure:** Composer vendor callees,
+effect narrowing, bare inner N+1 without `__assign`, corpus-only batch gating,
+and a first-class `mysqli` oracle driver (PDO path remains the supported
+default).
+
 - [x] Second emit backend: `emit-fastify` (proves WebIR target-portability;
       shared `@chrysalis/emit-shared` handler lowering; CLI `--target=fastify`)
-- [x] **Effect inference (widening v1):** cross-call effect sets for manifest
-      routes + `lib/` + same-file helpers (see below). Interprocedural
-      **narrowing**, vendor, and dynamic dispatch remain open.
+- [x] **Effect inference (widening v1 + v2):** cross-call effect sets for manifest
+      routes + `lib/` + same-file helpers (see below). v2 adds nested function
+      bodies in the call map and `call_user_func*` widening (full detail in the
+      nested bullet). **Still future:** Composer vendor, arbitrary variable callees,
+      effect **narrowing**, whole-program refinement.
   - [x] Handler `effects` union over the body subgraph (`effectsReachableFrom`);
         Hono/Fastify `@chrysalis-effects` and `effectsByHandler` prefer that IR
         list (`handlerEffectAnnotationTags` / `effectTagsSorted`), with emit-time
@@ -185,9 +207,13 @@ Deepen each layer without broadening too fast.
   - [x] **Same-file route helpers (D31):** top-level `FunctionDecl` in manifest
         route files are hoisted into `buildCallEffectMap` (after `lib/`, no
         override); stripped from handler lowering (`stripTopLevelFunctionDecls`)
-  - [ ] **Still open:** nested function decls inside handlers, vendor/autoload
-        callees, dynamic `call_user_func` / variable callees; effect **narrowing**
-        and whole-program refinement
+  - [x] **Widening v2 (M2):** nested `FunctionDecl` bodies are walked inside
+        `lib/**` and route files when building `buildCallEffectMap`. Dynamic
+        `call_user_func`, `call_user_func_array`, `forward_static_call`, and
+        `forward_static_call_array` union **all** known callee effects from the
+        overlay map (sound over-approximation). **Still future:** vendor/Composer
+        resolution, variable callee other than the above builtins, effect
+        **narrowing**, whole-program refinement.
 - [x] **Insight stage (`@chrysalis/insight`)** — pure recognizers over WebIR
       with corpus-backed confidence boost (D13). Five recognizers so far:
       N+1 queries, scattered input validation, string-based dispatch,
@@ -224,7 +250,7 @@ Deepen each layer without broadening too fast.
       — structurally SQLi-proof. CI rewrite-gate asserts the fix via
       `scripts/ci-gates.mjs tiny-n1-rewrite` (TypeScript AST on emitted
       handlers + rewrite report JSON), not regex on source (D41).
-- [ ] Intent-preserving rewrites (v1, building on the D15 engine):
+- [x] Intent-preserving rewrites (v1, building on the D15 engine):
   - [x] `@chrysalis/rewrite` package scaffold — `RewritePass` interface,
         `applyRewrites` driver, `sanitize-output` first pass
   - [x] Raw SQL concat → parameterized literal (`parameterize-sql`;
@@ -267,13 +293,15 @@ Deepen each layer without broadening too fast.
         remove legacy guard IR (follow-up: dead-code cleanup / stricter schemas).
   - [x] N+1 detection → batched loader — **`batch-n1-read`** (D43) batches every
         **assign-wrapped** qualifying inner read in the loop (disambiguated vars
-        when multiple). **Still open:** bare inner queries without `__assign`,
-        `SELECT *`, corpus-only confidence gating.
+        when multiple). **`SELECT *`** inner selects batch using the FK column as
+        the projected list. **Deferred post-M2:** bare inner reads without
+        `__assign`, corpus-only confidence gating.
   - [x] **Emit (D21):** matching chains lower to a TS `switch` (shared
         `matchStringDispatchChain` with insight; see Milestone 1 emit).
-  - [ ] String dispatch → discriminated union + `z.enum`
-        (IR rewrite at route boundary; consumes `string-dispatch`
-        opportunities — full lift beyond emission)
+  - [x] String dispatch → discriminated union + `z.enum`
+        — **`dispatch-union-zod`** pass (`__chrysalis_zod_enum_body_field` →
+        `parseZodEnumBodyFieldRaw` in emitted runtimes; D19 simulator parity).
+        Consumes `string-dispatch` opportunities; post-verify clears the finding.
 - [x] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
       (`sql.query.rows` string literals, cardinality cap; CHECK/ENUM validated
       against literals; D28)
@@ -294,6 +322,9 @@ Deepen each layer without broadening too fast.
 ## Milestone 3 — Repair loop (4–6 weeks)
 
 Close the LLM-verified feedback loop.
+
+**Status:** **In progress** — plumbing and verify gates are landed; the default
+repair **proposer remains a stub** until an LLM adapter ships.
 
 - [x] Divergence attribution v1: heuristic ≤5 IR nodes per failure (with ingest
       `module` on replay); precise maps deferred

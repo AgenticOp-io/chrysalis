@@ -2089,7 +2089,7 @@
         "col": 18,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -2097,7 +2097,7 @@
             "col": 18,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "$_BODY['username']",
           "source": "php-ast"
@@ -2122,7 +2122,7 @@
         "col": 12,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -2130,7 +2130,7 @@
             "col": 12,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "unary isset",
           "source": "php-ast"
@@ -2157,7 +2157,7 @@
         "col": 45,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -2165,7 +2165,7 @@
             "col": 45,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "$_BODY['username']",
           "source": "php-ast"
@@ -2190,7 +2190,7 @@
         "col": 40,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -2198,7 +2198,7 @@
             "col": 40,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "call trim",
           "source": "php-ast"
@@ -2221,7 +2221,7 @@
         "col": 67,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -2229,7 +2229,7 @@
             "col": 67,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -2256,7 +2256,7 @@
         "col": 12,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -2264,7 +2264,7 @@
             "col": 12,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "call __ternary",
           "source": "php-ast"
@@ -2320,7 +2320,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -2328,7 +2328,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "literal username",
           "source": "php-ast"
@@ -2354,7 +2354,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -2362,7 +2362,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -2389,7 +2389,7 @@
         "col": 18,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 3
+        "line": 4
       },
       "provenance": [
         {
@@ -2397,7 +2397,7 @@
             "col": 18,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 3
+            "line": 4
           },
           "reason": "$_BODY['password']",
           "source": "php-ast"
@@ -2422,7 +2422,7 @@
         "col": 12,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 3
+        "line": 4
       },
       "provenance": [
         {
@@ -2430,7 +2430,7 @@
             "col": 12,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 3
+            "line": 4
           },
           "reason": "unary isset",
           "source": "php-ast"
@@ -2457,7 +2457,7 @@
         "col": 48,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 3
+        "line": 4
       },
       "provenance": [
         {
@@ -2465,7 +2465,7 @@
             "col": 48,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 3
+            "line": 4
           },
           "reason": "$_BODY['password']",
           "source": "php-ast"
@@ -2490,7 +2490,7 @@
         "col": 40,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 3
+        "line": 4
       },
       "provenance": [
         {
@@ -2498,7 +2498,7 @@
             "col": 40,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 3
+            "line": 4
           },
           "reason": "call __cast_string",
           "source": "php-ast"
@@ -2521,7 +2521,7 @@
         "col": 69,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 3
+        "line": 4
       },
       "provenance": [
         {
@@ -2529,7 +2529,7 @@
             "col": 69,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 3
+            "line": 4
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -2556,7 +2556,7 @@
         "col": 12,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 3
+        "line": 4
       },
       "provenance": [
         {
@@ -2564,7 +2564,7 @@
             "col": 12,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 3
+            "line": 4
           },
           "reason": "call __ternary",
           "source": "php-ast"
@@ -2587,7 +2587,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 3
+        "line": 4
       },
       "provenance": [
         {
@@ -2595,7 +2595,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 3
+            "line": 4
           },
           "reason": "literal password",
           "source": "php-ast"
@@ -2621,7 +2621,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 3
+        "line": 4
       },
       "provenance": [
         {
@@ -2629,7 +2629,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 3
+            "line": 4
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -2685,7 +2685,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -2693,7 +2693,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "param username",
           "source": "php-ast"
@@ -2716,7 +2716,7 @@
         "col": 18,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -2724,7 +2724,7 @@
             "col": 18,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -2750,7 +2750,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -2758,7 +2758,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "binop ===",
           "source": "php-ast"
@@ -2781,7 +2781,7 @@
         "col": 24,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -2789,7 +2789,7 @@
             "col": 24,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "param password",
           "source": "php-ast"
@@ -2812,7 +2812,7 @@
         "col": 38,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -2820,7 +2820,7 @@
             "col": 38,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -2846,7 +2846,7 @@
         "col": 24,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -2854,7 +2854,7 @@
             "col": 24,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "binop ===",
           "source": "php-ast"
@@ -2880,7 +2880,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -2888,7 +2888,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "binop ||",
           "source": "php-ast"
@@ -2911,7 +2911,7 @@
         "col": 23,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 6
+        "line": 7
       },
       "provenance": [
         {
@@ -2919,7 +2919,7 @@
             "col": 23,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 6
+            "line": 7
           },
           "reason": "literal 400",
           "source": "php-ast"
@@ -2942,7 +2942,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 6
+        "line": 7
       },
       "provenance": [
         {
@@ -2950,7 +2950,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 6
+            "line": 7
           },
           "reason": "http 400",
           "source": "php-ast"
@@ -2973,7 +2973,7 @@
         "col": 9,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -2981,7 +2981,7 @@
             "col": 9,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "literal Missing credentials",
           "source": "php-ast"
@@ -3035,7 +3035,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -3043,7 +3043,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "echo",
           "source": "php-ast"
@@ -3066,7 +3066,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 8
+        "line": 9
       },
       "provenance": [
         {
@@ -3074,7 +3074,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 8
+            "line": 9
           },
           "reason": "call __exit",
           "source": "php-ast"
@@ -3099,7 +3099,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 6
+        "line": 7
       },
       "provenance": [
         {
@@ -3107,7 +3107,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 6
+            "line": 7
           },
           "reason": "block",
           "source": "php-ast"
@@ -3133,7 +3133,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -3141,7 +3141,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "if",
           "source": "php-ast"
@@ -3164,7 +3164,7 @@
         "col": 18,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -3172,7 +3172,7 @@
             "col": 18,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "literal SELECT id, password FROM users WHERE username = ?",
           "source": "php-ast"
@@ -3195,7 +3195,7 @@
         "col": 72,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -3203,7 +3203,7 @@
             "col": 72,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "param username",
           "source": "php-ast"
@@ -3231,7 +3231,7 @@
         "col": 71,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -3239,7 +3239,7 @@
             "col": 71,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "call __array_literal",
           "source": "php-ast"
@@ -3262,7 +3262,7 @@
         "col": 72,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -3270,7 +3270,7 @@
             "col": 72,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "param username",
           "source": "php-ast"
@@ -3309,7 +3309,7 @@
         "col": 8,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -3317,7 +3317,7 @@
             "col": 8,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "sql:read users",
           "source": "php-ast"
@@ -3340,7 +3340,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -3348,7 +3348,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "literal user",
           "source": "php-ast"
@@ -3405,7 +3405,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -3413,7 +3413,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -3436,7 +3436,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3444,7 +3444,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "param user",
           "source": "php-ast"
@@ -3467,7 +3467,7 @@
         "col": 14,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3475,7 +3475,7 @@
             "col": 14,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "literal null",
           "source": "php-ast"
@@ -3501,7 +3501,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3509,7 +3509,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "binop ===",
           "source": "php-ast"
@@ -3532,7 +3532,7 @@
         "col": 39,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3540,7 +3540,7 @@
             "col": 39,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "param password",
           "source": "php-ast"
@@ -3563,7 +3563,7 @@
         "col": 50,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3571,7 +3571,7 @@
             "col": 50,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "param user",
           "source": "php-ast"
@@ -3596,7 +3596,7 @@
         "col": 50,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3604,7 +3604,7 @@
             "col": 50,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "member password",
           "source": "php-ast"
@@ -3630,7 +3630,7 @@
         "col": 23,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3638,7 +3638,7 @@
             "col": 23,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "call verify_password",
           "source": "php-ast"
@@ -3663,7 +3663,7 @@
         "col": 22,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3671,7 +3671,7 @@
             "col": 22,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "unary !",
           "source": "php-ast"
@@ -3697,7 +3697,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3705,7 +3705,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "binop ||",
           "source": "php-ast"
@@ -3790,7 +3790,7 @@
         "col": 23,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 14
+        "line": 15
       },
       "provenance": [
         {
@@ -3798,7 +3798,7 @@
             "col": 23,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 14
+            "line": 15
           },
           "reason": "literal 401",
           "source": "php-ast"
@@ -3821,7 +3821,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 14
+        "line": 15
       },
       "provenance": [
         {
@@ -3829,7 +3829,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 14
+            "line": 15
           },
           "reason": "http 401",
           "source": "php-ast"
@@ -3852,7 +3852,7 @@
         "col": 9,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -3860,7 +3860,7 @@
             "col": 9,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "literal Invalid credentials",
           "source": "php-ast"
@@ -3883,7 +3883,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -3891,7 +3891,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "echo",
           "source": "php-ast"
@@ -3914,7 +3914,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 16
+        "line": 17
       },
       "provenance": [
         {
@@ -3922,7 +3922,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 16
+            "line": 17
           },
           "reason": "call __exit",
           "source": "php-ast"
@@ -3947,7 +3947,7 @@
         "col": 4,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 14
+        "line": 15
       },
       "provenance": [
         {
@@ -3955,7 +3955,7 @@
             "col": 4,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 14
+            "line": 15
           },
           "reason": "block",
           "source": "php-ast"
@@ -3981,7 +3981,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -3989,7 +3989,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "if",
           "source": "php-ast"
@@ -4012,7 +4012,7 @@
         "col": 28,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 19
+        "line": 20
       },
       "provenance": [
         {
@@ -4020,7 +4020,7 @@
             "col": 28,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 19
+            "line": 20
           },
           "reason": "param user",
           "source": "php-ast"
@@ -4045,7 +4045,7 @@
         "col": 28,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 19
+        "line": 20
       },
       "provenance": [
         {
@@ -4053,7 +4053,7 @@
             "col": 28,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 19
+            "line": 20
           },
           "reason": "member id",
           "source": "php-ast"
@@ -4078,7 +4078,7 @@
         "col": 23,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 19
+        "line": 20
       },
       "provenance": [
         {
@@ -4086,7 +4086,7 @@
             "col": 23,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 19
+            "line": 20
           },
           "reason": "call __cast_int",
           "source": "php-ast"
@@ -4146,7 +4146,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 19
+        "line": 20
       },
       "provenance": [
         {
@@ -4154,7 +4154,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 19
+            "line": 20
           },
           "reason": "$_SESSION['user_id'] = ...",
           "source": "php-ast"
@@ -4177,7 +4177,7 @@
         "col": 7,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -4185,7 +4185,7 @@
             "col": 7,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "literal Location: /posts",
           "source": "php-ast"
@@ -4208,7 +4208,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -4216,7 +4216,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "header('Location: …')",
           "source": "php-ast"
@@ -4245,7 +4245,7 @@
         "col": 0,
         "file": "pages/login.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -4253,7 +4253,7 @@
             "col": 0,
             "file": "pages/login.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "block",
           "source": "php-ast"
@@ -4369,7 +4369,7 @@
         "col": 6,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -4377,7 +4377,7 @@
             "col": 6,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "call require_login",
           "source": "php-ast"
@@ -4400,7 +4400,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -4408,7 +4408,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "literal me",
           "source": "php-ast"
@@ -4434,7 +4434,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -4442,7 +4442,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -4469,7 +4469,7 @@
         "col": 15,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -4477,7 +4477,7 @@
             "col": 15,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "$_BODY['title']",
           "source": "php-ast"
@@ -4535,7 +4535,7 @@
         "col": 9,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -4543,7 +4543,7 @@
             "col": 9,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "unary isset",
           "source": "php-ast"
@@ -4570,7 +4570,7 @@
         "col": 39,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -4578,7 +4578,7 @@
             "col": 39,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "$_BODY['title']",
           "source": "php-ast"
@@ -4603,7 +4603,7 @@
         "col": 34,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -4611,7 +4611,7 @@
             "col": 34,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "call trim",
           "source": "php-ast"
@@ -4634,7 +4634,7 @@
         "col": 58,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -4642,7 +4642,7 @@
             "col": 58,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -4669,7 +4669,7 @@
         "col": 9,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -4677,7 +4677,7 @@
             "col": 9,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "call __ternary",
           "source": "php-ast"
@@ -4700,7 +4700,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -4708,7 +4708,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "literal title",
           "source": "php-ast"
@@ -4734,7 +4734,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -4742,7 +4742,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -4769,7 +4769,7 @@
         "col": 15,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -4777,7 +4777,7 @@
             "col": 15,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "$_BODY['body']",
           "source": "php-ast"
@@ -4802,7 +4802,7 @@
         "col": 9,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -4810,7 +4810,7 @@
             "col": 9,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "unary isset",
           "source": "php-ast"
@@ -4837,7 +4837,7 @@
         "col": 39,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -4845,7 +4845,7 @@
             "col": 39,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "$_BODY['body']",
           "source": "php-ast"
@@ -4903,7 +4903,7 @@
         "col": 34,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -4911,7 +4911,7 @@
             "col": 34,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "call trim",
           "source": "php-ast"
@@ -4934,7 +4934,7 @@
         "col": 58,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -4942,7 +4942,7 @@
             "col": 58,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -4969,7 +4969,7 @@
         "col": 9,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -4977,7 +4977,7 @@
             "col": 9,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "call __ternary",
           "source": "php-ast"
@@ -5000,7 +5000,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -5008,7 +5008,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "literal body",
           "source": "php-ast"
@@ -5034,7 +5034,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -5042,7 +5042,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -5065,7 +5065,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -5073,7 +5073,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "param title",
           "source": "php-ast"
@@ -5096,7 +5096,7 @@
         "col": 15,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -5104,7 +5104,7 @@
             "col": 15,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -5130,7 +5130,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -5138,7 +5138,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "binop ===",
           "source": "php-ast"
@@ -5161,7 +5161,7 @@
         "col": 21,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -5169,7 +5169,7 @@
             "col": 21,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "param body",
           "source": "php-ast"
@@ -5192,7 +5192,7 @@
         "col": 31,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -5200,7 +5200,7 @@
             "col": 31,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -5257,7 +5257,7 @@
         "col": 21,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -5265,7 +5265,7 @@
             "col": 21,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "binop ===",
           "source": "php-ast"
@@ -5291,7 +5291,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -5299,7 +5299,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "binop ||",
           "source": "php-ast"
@@ -5322,7 +5322,7 @@
         "col": 23,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 8
+        "line": 9
       },
       "provenance": [
         {
@@ -5330,7 +5330,7 @@
             "col": 23,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 8
+            "line": 9
           },
           "reason": "literal 400",
           "source": "php-ast"
@@ -5353,7 +5353,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 8
+        "line": 9
       },
       "provenance": [
         {
@@ -5361,7 +5361,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 8
+            "line": 9
           },
           "reason": "http 400",
           "source": "php-ast"
@@ -5384,7 +5384,7 @@
         "col": 9,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 9
+        "line": 10
       },
       "provenance": [
         {
@@ -5392,7 +5392,7 @@
             "col": 9,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 9
+            "line": 10
           },
           "reason": "literal Title and body required",
           "source": "php-ast"
@@ -5415,7 +5415,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 9
+        "line": 10
       },
       "provenance": [
         {
@@ -5423,7 +5423,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 9
+            "line": 10
           },
           "reason": "echo",
           "source": "php-ast"
@@ -5446,7 +5446,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 10
+        "line": 11
       },
       "provenance": [
         {
@@ -5454,7 +5454,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 10
+            "line": 11
           },
           "reason": "call __exit",
           "source": "php-ast"
@@ -5479,7 +5479,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 8
+        "line": 9
       },
       "provenance": [
         {
@@ -5487,7 +5487,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 8
+            "line": 9
           },
           "reason": "block",
           "source": "php-ast"
@@ -5513,7 +5513,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -5521,7 +5521,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "if",
           "source": "php-ast"
@@ -5544,7 +5544,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 14
+        "line": 15
       },
       "provenance": [
         {
@@ -5552,7 +5552,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 14
+            "line": 15
           },
           "reason": "literal INSERT INTO posts (author_id, title, body) VALUES (?, ?, ?)",
           "source": "php-ast"
@@ -5606,7 +5606,7 @@
         "col": 5,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5614,7 +5614,7 @@
             "col": 5,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "param me",
           "source": "php-ast"
@@ -5639,7 +5639,7 @@
         "col": 5,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5647,7 +5647,7 @@
             "col": 5,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "member id",
           "source": "php-ast"
@@ -5670,7 +5670,7 @@
         "col": 16,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5678,7 +5678,7 @@
             "col": 16,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "param title",
           "source": "php-ast"
@@ -5701,7 +5701,7 @@
         "col": 24,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5709,7 +5709,7 @@
             "col": 24,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "param body",
           "source": "php-ast"
@@ -5739,7 +5739,7 @@
         "col": 4,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5747,7 +5747,7 @@
             "col": 4,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "call __array_literal",
           "source": "php-ast"
@@ -5770,7 +5770,7 @@
         "col": 5,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5778,7 +5778,7 @@
             "col": 5,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "param me",
           "source": "php-ast"
@@ -5803,7 +5803,7 @@
         "col": 5,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5811,7 +5811,7 @@
             "col": 5,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "member id",
           "source": "php-ast"
@@ -5834,7 +5834,7 @@
         "col": 16,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5842,7 +5842,7 @@
             "col": 16,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "param title",
           "source": "php-ast"
@@ -5865,7 +5865,7 @@
         "col": 24,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -5873,7 +5873,7 @@
             "col": 24,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "param body",
           "source": "php-ast"
@@ -5910,7 +5910,7 @@
         "col": 6,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -5918,7 +5918,7 @@
             "col": 6,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "sql:write posts",
           "source": "php-ast"
@@ -5972,7 +5972,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -5980,7 +5980,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "literal id",
           "source": "php-ast"
@@ -6006,7 +6006,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -6014,7 +6014,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -6037,7 +6037,7 @@
         "col": 7,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 18
+        "line": 19
       },
       "provenance": [
         {
@@ -6045,7 +6045,7 @@
             "col": 7,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 18
+            "line": 19
           },
           "reason": "literal Location: /posts/",
           "source": "php-ast"
@@ -6068,7 +6068,7 @@
         "col": 29,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 18
+        "line": 19
       },
       "provenance": [
         {
@@ -6076,7 +6076,7 @@
             "col": 29,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 18
+            "line": 19
           },
           "reason": "param id",
           "source": "php-ast"
@@ -6102,7 +6102,7 @@
         "col": 7,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 18
+        "line": 19
       },
       "provenance": [
         {
@@ -6110,7 +6110,7 @@
             "col": 7,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 18
+            "line": 19
           },
           "reason": "binop .",
           "source": "php-ast"
@@ -6133,7 +6133,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 18
+        "line": 19
       },
       "provenance": [
         {
@@ -6141,7 +6141,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 18
+            "line": 19
           },
           "reason": "header('Location: …')",
           "source": "php-ast"
@@ -6169,7 +6169,7 @@
         "col": 0,
         "file": "pages/posts_create.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -6177,7 +6177,7 @@
             "col": 0,
             "file": "pages/posts_create.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "block",
           "source": "php-ast"
@@ -6301,7 +6301,7 @@
         "col": 6,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -6309,7 +6309,7 @@
             "col": 6,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "call require_login",
           "source": "php-ast"
@@ -6363,7 +6363,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -6371,7 +6371,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "literal me",
           "source": "php-ast"
@@ -6397,7 +6397,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -6405,7 +6405,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -6432,7 +6432,7 @@
         "col": 14,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -6440,7 +6440,7 @@
             "col": 14,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "$_BODY['body']",
           "source": "php-ast"
@@ -6465,7 +6465,7 @@
         "col": 8,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -6473,7 +6473,7 @@
             "col": 8,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "unary isset",
           "source": "php-ast"
@@ -6500,7 +6500,7 @@
         "col": 37,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -6508,7 +6508,7 @@
             "col": 37,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "$_BODY['body']",
           "source": "php-ast"
@@ -6533,7 +6533,7 @@
         "col": 32,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -6541,7 +6541,7 @@
             "col": 32,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "call trim",
           "source": "php-ast"
@@ -6564,7 +6564,7 @@
         "col": 55,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -6572,7 +6572,7 @@
             "col": 55,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -6599,7 +6599,7 @@
         "col": 8,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -6607,7 +6607,7 @@
             "col": 8,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "call __ternary",
           "source": "php-ast"
@@ -6630,7 +6630,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -6638,7 +6638,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "literal body",
           "source": "php-ast"
@@ -6664,7 +6664,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 4
+        "line": 5
       },
       "provenance": [
         {
@@ -6672,7 +6672,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 4
+            "line": 5
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -6728,7 +6728,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -6736,7 +6736,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "param body",
           "source": "php-ast"
@@ -6759,7 +6759,7 @@
         "col": 14,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -6767,7 +6767,7 @@
             "col": 14,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "literal ",
           "source": "php-ast"
@@ -6793,7 +6793,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -6801,7 +6801,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "binop ===",
           "source": "php-ast"
@@ -6824,7 +6824,7 @@
         "col": 23,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 6
+        "line": 7
       },
       "provenance": [
         {
@@ -6832,7 +6832,7 @@
             "col": 23,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 6
+            "line": 7
           },
           "reason": "literal 400",
           "source": "php-ast"
@@ -6855,7 +6855,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 6
+        "line": 7
       },
       "provenance": [
         {
@@ -6863,7 +6863,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 6
+            "line": 7
           },
           "reason": "http 400",
           "source": "php-ast"
@@ -6886,7 +6886,7 @@
         "col": 9,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -6894,7 +6894,7 @@
             "col": 9,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "literal Comment body required",
           "source": "php-ast"
@@ -6917,7 +6917,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 7
+        "line": 8
       },
       "provenance": [
         {
@@ -6925,7 +6925,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 7
+            "line": 8
           },
           "reason": "echo",
           "source": "php-ast"
@@ -6948,7 +6948,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 8
+        "line": 9
       },
       "provenance": [
         {
@@ -6956,7 +6956,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 8
+            "line": 9
           },
           "reason": "call __exit",
           "source": "php-ast"
@@ -6981,7 +6981,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 6
+        "line": 7
       },
       "provenance": [
         {
@@ -6989,7 +6989,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 6
+            "line": 7
           },
           "reason": "block",
           "source": "php-ast"
@@ -7015,7 +7015,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 5
+        "line": 6
       },
       "provenance": [
         {
@@ -7023,7 +7023,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 5
+            "line": 6
           },
           "reason": "if",
           "source": "php-ast"
@@ -7079,7 +7079,7 @@
         "col": 18,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -7087,7 +7087,7 @@
             "col": 18,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "literal SELECT id FROM posts WHERE id = ? AND status = 'published'",
           "source": "php-ast"
@@ -7111,7 +7111,7 @@
         "col": 81,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -7119,7 +7119,7 @@
             "col": 81,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "$_PATH['id']",
           "source": "php-ast"
@@ -7147,7 +7147,7 @@
         "col": 80,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -7155,7 +7155,7 @@
             "col": 80,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "call __array_literal",
           "source": "php-ast"
@@ -7179,7 +7179,7 @@
         "col": 81,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -7187,7 +7187,7 @@
             "col": 81,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "$_PATH['id']",
           "source": "php-ast"
@@ -7226,7 +7226,7 @@
         "col": 8,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -7234,7 +7234,7 @@
             "col": 8,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "sql:read posts",
           "source": "php-ast"
@@ -7257,7 +7257,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -7265,7 +7265,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "literal post",
           "source": "php-ast"
@@ -7291,7 +7291,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 11
+        "line": 12
       },
       "provenance": [
         {
@@ -7299,7 +7299,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 11
+            "line": 12
           },
           "reason": "call __assign",
           "source": "php-ast"
@@ -7322,7 +7322,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 12
+        "line": 13
       },
       "provenance": [
         {
@@ -7330,7 +7330,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 12
+            "line": 13
           },
           "reason": "param post",
           "source": "php-ast"
@@ -7353,7 +7353,7 @@
         "col": 14,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 12
+        "line": 13
       },
       "provenance": [
         {
@@ -7361,7 +7361,7 @@
             "col": 14,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 12
+            "line": 13
           },
           "reason": "literal null",
           "source": "php-ast"
@@ -7387,7 +7387,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 12
+        "line": 13
       },
       "provenance": [
         {
@@ -7395,7 +7395,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 12
+            "line": 13
           },
           "reason": "binop ===",
           "source": "php-ast"
@@ -7483,7 +7483,7 @@
         "col": 23,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -7491,7 +7491,7 @@
             "col": 23,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "literal 404",
           "source": "php-ast"
@@ -7514,7 +7514,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -7522,7 +7522,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "http 404",
           "source": "php-ast"
@@ -7545,7 +7545,7 @@
         "col": 9,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 14
+        "line": 15
       },
       "provenance": [
         {
@@ -7553,7 +7553,7 @@
             "col": 9,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 14
+            "line": 15
           },
           "reason": "literal Post not found",
           "source": "php-ast"
@@ -7576,7 +7576,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 14
+        "line": 15
       },
       "provenance": [
         {
@@ -7584,7 +7584,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 14
+            "line": 15
           },
           "reason": "echo",
           "source": "php-ast"
@@ -7607,7 +7607,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 15
+        "line": 16
       },
       "provenance": [
         {
@@ -7615,7 +7615,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 15
+            "line": 16
           },
           "reason": "call __exit",
           "source": "php-ast"
@@ -7640,7 +7640,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 13
+        "line": 14
       },
       "provenance": [
         {
@@ -7648,7 +7648,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 13
+            "line": 14
           },
           "reason": "block",
           "source": "php-ast"
@@ -7674,7 +7674,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 12
+        "line": 13
       },
       "provenance": [
         {
@@ -7682,7 +7682,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 12
+            "line": 13
           },
           "reason": "if",
           "source": "php-ast"
@@ -7705,7 +7705,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 19
+        "line": 20
       },
       "provenance": [
         {
@@ -7713,7 +7713,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 19
+            "line": 20
           },
           "reason": "literal INSERT INTO comments (post_id, author_id, body) VALUES (?, ?, ?)",
           "source": "php-ast"
@@ -7737,7 +7737,7 @@
         "col": 5,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -7745,7 +7745,7 @@
             "col": 5,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "$_PATH['id']",
           "source": "php-ast"
@@ -7768,7 +7768,7 @@
         "col": 15,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -7776,7 +7776,7 @@
             "col": 15,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "param me",
           "source": "php-ast"
@@ -7832,7 +7832,7 @@
         "col": 15,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -7840,7 +7840,7 @@
             "col": 15,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "member id",
           "source": "php-ast"
@@ -7863,7 +7863,7 @@
         "col": 26,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -7871,7 +7871,7 @@
             "col": 26,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "param body",
           "source": "php-ast"
@@ -7901,7 +7901,7 @@
         "col": 4,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -7909,7 +7909,7 @@
             "col": 4,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "call __array_literal",
           "source": "php-ast"
@@ -7933,7 +7933,7 @@
         "col": 5,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -7941,7 +7941,7 @@
             "col": 5,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "$_PATH['id']",
           "source": "php-ast"
@@ -7964,7 +7964,7 @@
         "col": 15,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -7972,7 +7972,7 @@
             "col": 15,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "param me",
           "source": "php-ast"
@@ -7997,7 +7997,7 @@
         "col": 15,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -8005,7 +8005,7 @@
             "col": 15,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "member id",
           "source": "php-ast"
@@ -8028,7 +8028,7 @@
         "col": 26,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 20
+        "line": 21
       },
       "provenance": [
         {
@@ -8036,7 +8036,7 @@
             "col": 26,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 20
+            "line": 21
           },
           "reason": "param body",
           "source": "php-ast"
@@ -8073,7 +8073,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 18
+        "line": 19
       },
       "provenance": [
         {
@@ -8081,7 +8081,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 18
+            "line": 19
           },
           "reason": "sql:write comments",
           "source": "php-ast"
@@ -8104,7 +8104,7 @@
         "col": 7,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 23
+        "line": 24
       },
       "provenance": [
         {
@@ -8112,7 +8112,7 @@
             "col": 7,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 23
+            "line": 24
           },
           "reason": "literal Location: /posts/",
           "source": "php-ast"
@@ -8136,7 +8136,7 @@
         "col": 29,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 23
+        "line": 24
       },
       "provenance": [
         {
@@ -8144,7 +8144,7 @@
             "col": 29,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 23
+            "line": 24
           },
           "reason": "$_PATH['id']",
           "source": "php-ast"
@@ -8201,7 +8201,7 @@
         "col": 7,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 23
+        "line": 24
       },
       "provenance": [
         {
@@ -8209,7 +8209,7 @@
             "col": 7,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 23
+            "line": 24
           },
           "reason": "binop .",
           "source": "php-ast"
@@ -8232,7 +8232,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 23
+        "line": 24
       },
       "provenance": [
         {
@@ -8240,7 +8240,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 23
+            "line": 24
           },
           "reason": "header('Location: …')",
           "source": "php-ast"
@@ -8269,7 +8269,7 @@
         "col": 0,
         "file": "pages/comments_create.php",
         "kind": "php",
-        "line": 2
+        "line": 3
       },
       "provenance": [
         {
@@ -8277,7 +8277,7 @@
             "col": 0,
             "file": "pages/comments_create.php",
             "kind": "php",
-            "line": 2
+            "line": 3
           },
           "reason": "block",
           "source": "php-ast"

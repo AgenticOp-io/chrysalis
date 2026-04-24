@@ -112,6 +112,21 @@ function positional(args: string[]): string[] {
   return out;
 }
 
+/** Collect `--php-root` / `--php-root=<dir>` for archaeology form scans. */
+function collectPhpRootsFromArgs(args: string[]): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i]!;
+    if (a.startsWith("--php-root=")) {
+      out.push(resolve(a.slice("--php-root=".length)));
+    } else if (a === "--php-root" && args[i + 1] && !args[i + 1]!.startsWith("--")) {
+      out.push(resolve(args[i + 1]!));
+      i += 1;
+    }
+  }
+  return out;
+}
+
 async function cmdIngest(args: string[]): Promise<number> {
   const pos = positional(args);
   const root = pos[0];
@@ -149,7 +164,8 @@ async function cmdEmit(args: string[]): Promise<number> {
   let domainMap: Record<string, string> | undefined;
   let schemaReport: ReturnType<typeof runArchaeology> | undefined;
   if (schemaPath) {
-    schemaReport = runArchaeology({ schemaPath });
+    const phpRoot = resolve(root);
+    schemaReport = runArchaeology({ schemaPath, phpRoots: [phpRoot] });
     domainMap = domainTypesByTable(schemaReport);
     mkdirSync(join(outAbs, "src"), { recursive: true });
     writeFileSync(join(outAbs, "src", "domain.ts"), emitTypes(schemaReport));
@@ -261,21 +277,26 @@ async function cmdArchaeology(args: string[]): Promise<number> {
   const schemaPath = pos[0];
   if (!schemaPath) {
     console.error(
-      "usage: chrysalis archaeology <schema.sql> [--traces <dir>] [--out <file>]",
+      "usage: chrysalis archaeology <schema.sql> [--traces <dir>] [--php-root <dir>] [--out <file>]",
     );
     return 2;
   }
   const tracesDir = typeof flags.traces === "string" ? flags.traces : null;
   const outPath = typeof flags.out === "string" ? flags.out : null;
+  const phpRoots = collectPhpRootsFromArgs(args);
 
-  const input: Parameters<typeof runArchaeology>[0] = { schemaPath: resolve(schemaPath) };
   const corpus = tracesDir ? readCorpus({ root: resolve(tracesDir) }) : null;
-  if (corpus) (input as { corpus: typeof corpus }).corpus = corpus;
+  const input: Parameters<typeof runArchaeology>[0] = {
+    schemaPath: resolve(schemaPath),
+    ...(corpus ? { corpus } : {}),
+    ...(phpRoots.length > 0 ? { phpRoots } : {}),
+  };
   const report = runArchaeology(input);
 
   console.log(
     `[archaeology] schema: ${schemaPath} → ${report.entities.length} entities` +
-      (corpus ? ` (corpus: ${corpus.traces.length} traces)` : ""),
+      (corpus ? ` (corpus: ${corpus.traces.length} traces)` : "") +
+      (phpRoots.length ? ` (php scan: ${phpRoots.length} root(s))` : ""),
   );
   for (const e of report.entities) {
     const ddl = e.fields.filter((f) => f.kind !== "observed-only").length;
@@ -289,6 +310,9 @@ async function cmdArchaeology(args: string[]): Promise<number> {
   }
   if (report.orphanShapes.length > 0) {
     console.log(`  ⚠ orphan observed shapes: ${report.orphanShapes.length}`);
+  }
+  if (report.unattributedFormFields.length > 0) {
+    console.log(`  ⚠ unattributed form fields: ${report.unattributedFormFields.length}`);
   }
 
   if (outPath) {
@@ -698,7 +722,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
       "usage: chrysalis rewrite <php-project-dir> [--out <ts-out>]\n" +
         "                         [--target=hono|fastify]\n" +
         "                         [--traces <dir>] [--min-confidence 0.75]\n" +
-        "                         [--passes sanitize-output,parameterize-sql,boundary-zod,batch-n1-read,...]\n" +
+        "                         [--passes sanitize-output,parameterize-sql,boundary-zod,dispatch-union-zod,batch-n1-read,...]\n" +
         "                         [--report <rewrite.json>]\n" +
         "                         [--no-post-verify] [--verify-behavior]\n" +
         "                         [--http-replay <traces-dir>] [--http-replay-backends=hono,fastify]\n" +
@@ -1067,6 +1091,8 @@ interface StatusSummary {
     readonly fields: number;
     readonly unknownDdl: number;
     readonly orphanShapes: number;
+    /** Form controls in PHP that could not be mapped to a single DDL field. */
+    readonly unattributedFormFields: number;
     /** Fields with at least one `@chrysalis-conflict` (DDL vs traces, enum mismatch, …). */
     readonly fieldsWithConflicts: number;
     /** Fields promoted to string-literal unions from `sql.query.rows` (D28). */
@@ -1164,6 +1190,7 @@ function archaeologyDashboardStats(arch: ReturnType<typeof runArchaeology>): Non
     fields,
     unknownDdl: arch.unknownDdl.length,
     orphanShapes: arch.orphanShapes.length,
+    unattributedFormFields: arch.unattributedFormFields.length,
     fieldsWithConflicts,
     fieldsWithTraceLiteralUnions,
   };
@@ -1288,8 +1315,11 @@ async function cmdStatus(args: string[]): Promise<number> {
   // Archaeology ------------------------------------------------------
   if (schemaPath && existsSync(schemaPath)) {
     try {
-      const input: Parameters<typeof runArchaeology>[0] = { schemaPath };
-      if (corpus) (input as { corpus: typeof corpus }).corpus = corpus;
+      const input: Parameters<typeof runArchaeology>[0] = {
+        schemaPath,
+        ...(corpus ? { corpus } : {}),
+        ...(project ? { phpRoots: [resolve(project)] as const } : {}),
+      };
       const arch = runArchaeology(input);
       (summary as { archaeology: StatusSummary["archaeology"] }).archaeology =
         archaeologyDashboardStats(arch);
@@ -1486,6 +1516,7 @@ async function cmdStatus(args: string[]): Promise<number> {
     console.log(
       `archaeology  : ${a.entities} entities, ${a.fields} fields, ` +
         `${a.unknownDdl} unknown DDL, ${a.orphanShapes} orphan shapes, ` +
+        `${a.unattributedFormFields} unattributed form field(s), ` +
         `${a.fieldsWithConflicts} field conflict(s), ${a.fieldsWithTraceLiteralUnions} trace literal union(s)`,
     );
   } else {

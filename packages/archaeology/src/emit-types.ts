@@ -30,6 +30,19 @@ export function emitTypes(report: SchemaReport, opts: EmitTypesOptions = {}): st
     lines.push("");
   }
 
+  if (report.unattributedFormFields.length > 0) {
+    lines.push("/**");
+    lines.push(" * HTML form controls seen in PHP that could not be tied to one");
+    lines.push(" * entity field (ambiguous table context or unknown column name).");
+    lines.push(" */");
+    for (const u of report.unattributedFormFields) {
+      lines.push(
+        ` // form-unattributed: ${u.name} @ ${u.phpFile}:${u.line} — ${u.reason}`,
+      );
+    }
+    lines.push("");
+  }
+
   if (report.orphanShapes.length > 0) {
     lines.push("/**");
     lines.push(" * Observed-but-unattributed row shapes. These came from SQL we could");

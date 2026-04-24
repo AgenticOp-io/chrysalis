@@ -1,4 +1,5 @@
 <?php
+// Chrysalis archaeology: inline HTML probe — <input name="username"/><input type="password" name="password"/>
 $username = isset($_POST['username']) ? trim($_POST['username']) : '';
 $password = isset($_POST['password']) ? (string)$_POST['password'] : '';
 

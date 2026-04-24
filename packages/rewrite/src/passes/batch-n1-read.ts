@@ -10,7 +10,8 @@
  * - Foreach iterable is a `data.param` (outer rows already bound to a variable).
  * - Inner query is `returns: row-or-null` with one bound param.
  * - Param is `data.member` on `data.param` whose name matches the foreach value.
- * - Inner SQL matches `SELECT ... FROM tbl WHERE col = ?` (no `SELECT *`).
+ * - Inner SQL matches `SELECT ... FROM tbl WHERE col = ?` (including
+ *   `SELECT *`, projected as the FK column for batching).
  * - Inner `db.query` must be the RHS of `__assign` (assign-wrapped).
  */
 import type { NodeBase, NodeId, WebIRType } from "@chrysalis/webir";
@@ -37,9 +38,12 @@ function parseInnerLookupSql(sql: string):
   const s = sql.replace(/\s+/g, " ").trim();
   const m = s.match(/^select\s+(.+?)\s+from\s+(\w+)\s+where\s+(\w+)\s*=\s*\?\s*$/i);
   if (!m) return undefined;
-  const selectList = m[1]!.trim();
-  if (selectList === "*") return undefined;
-  return { selectList, table: m[2]!.trim(), whereCol: m[3]!.trim() };
+  const selectListRaw = m[1]!.trim();
+  const table = m[2]!.trim();
+  const whereCol = m[3]!.trim();
+  // `SELECT *` — use the FK column as the projected list for batch IN + row lookup.
+  const selectList = selectListRaw === "*" ? whereCol : selectListRaw;
+  return { selectList, table, whereCol };
 }
 
 function selectListForBatch(selectList: string, whereCol: string): string {

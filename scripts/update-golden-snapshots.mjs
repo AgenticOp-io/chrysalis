@@ -38,7 +38,7 @@ try {
   /* noop */
 }
 mkdirSync(resolve(out, "src"), { recursive: true });
-const schemaReport = runArchaeology({ schemaPath: tinyBlogSchema });
+const schemaReport = runArchaeology({ schemaPath: tinyBlogSchema, phpRoots: [tinyBlog] });
 writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
 const emitRes = await emit({
   module: mod,

@@ -621,6 +621,17 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       if (email && !/^[^@]+@[^@]+$/.test(s)) return { kind: "str", value: "" };
       return { kind: "str", value: s };
     }
+    case "__chrysalis_zod_enum_body_field": {
+      const rawS = stringify(args[0] ?? { kind: "null" });
+      const allowed: string[] = [];
+      for (let i = 1; i < args.length; i++) {
+        const a = args[i];
+        if (a?.kind === "str") allowed.push(a.value);
+        else break;
+      }
+      if (allowed.length === 0) return { kind: "str", value: "" };
+      return allowed.includes(rawS) ? { kind: "str", value: rawS } : { kind: "str", value: "" };
+    }
     default:
       // Unknown call — record the opaque result so downstream diffs
       // don't silently succeed.

@@ -425,6 +425,11 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
     case "__chrysalis_zod_body_field":
       ctx.usesZod = true;
       return `parseZodBodyFieldRaw(${args[0]}, { minLen: Number(${args[1]}), trim: ${args[2]}, email: ${args[3]} })`;
+    case "__chrysalis_zod_enum_body_field": {
+      ctx.usesZod = true;
+      const rest = args.slice(1);
+      return `parseZodEnumBodyFieldRaw(${args[0]}, [${rest.join(", ")}] as const)`;
+    }
   }
   ctx.holes.push({
     name: `call:${callee}`,
