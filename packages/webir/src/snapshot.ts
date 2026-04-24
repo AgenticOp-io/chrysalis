@@ -4,7 +4,7 @@
  * diffs are stable across Map iteration differences.
  */
 
-import { relative, sep } from "node:path";
+import { relative, resolve, sep } from "node:path";
 import type { Locator, Module, NodeBase, NodeId, Provenance } from "./index.js";
 
 /** Options for portable goldens (Linux CI vs Windows dev, CRLF vs LF). */
@@ -17,7 +17,9 @@ export interface GoldenSnapshotOptions {
 }
 
 function posixRelative(fromRoot: string, absFile: string): string {
-  let rel = relative(fromRoot, absFile);
+  const from = resolve(fromRoot);
+  const to = resolve(absFile);
+  let rel = relative(from, to);
   if (sep === "\\") rel = rel.split("\\").join("/");
   return rel;
 }
