@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D23/D24 verify SQL tape + file session bridge
+Last updated by: D27 Chimera canary + D26/D25 verify/rewrite gates
 
 ---
 
@@ -513,7 +513,8 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   recoverable.
 - **2026-04-22 — D12** `chrysalis status` is the migration dashboard's
   **single surface**. It composes file artifacts written by earlier stages
-  (`traces/`, `reports/verify/correctness.json`, `reports/shadow/shadow.ndjson`,
+  (`traces/`, `reports/verify/summary.json` or per-backend dirs under `reports/verify/`,
+  `reports/shadow/shadow.ndjson`,
   the fixture's `schema.sql`, the PHP project for residual-legacy counting)
   rather than querying a live service. Rationale: stages run at different
   cadences (observe is interactive, verify is CI-driven, chimera is
@@ -962,7 +963,7 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   `sql.query.rows` (JSON-safe objects, capped per query). `@chrysalis/verify`
   can attach a base64url `x-chrysalis-sql-tape` header per trace when
   `recordedSqlReplay` is on and every SELECT event has complete rows (no
-  `rowsTruncated`). Emitted Hono apps run `sqlTapeMiddleware` and satisfy
+  `rowsTruncated`). Emitted Hono/Fastify apps run the SQL-tape hook and satisfy
   `queryOne` / `queryAll` from the tape **in order**; `execSql` still uses
   SQLite so INSERT/UPDATE behavior stays real. CLI: `chrysalis verify
   --no-recorded-sql` disables the header.
@@ -982,3 +983,46 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Rejected: mutating PHP's `session.save_path` alone without documenting JSON
   shape — Node and PHP must agree on payload encoding; documenting JSON is
   the minimal contract.
+
+- **2026-04-24 — D25** **Dual-backend oracle gate (tiny-blog)** — After
+  capturing a trace corpus from PHP, CI runs `scripts/verify-tiny-blog.mjs`,
+  which emits the **same** WebIR module to **both** `@chrysalis/emit-hono`
+  and `@chrysalis/emit-fastify`, seeds each SQLite file identically, and
+  replays the corpus **in-process** via each target's `fetch` (`app.fetch`
+  for Hono; `fetch` from `app.inject` for Fastify). Both must meet the same
+  correctness threshold; reports land under `reports/verify/hono` and
+  `reports/verify/fastify`. Rationale: one oracle, one IR — if only Hono were
+  gated, Fastify could drift silently; gating both is the honest portability
+  proof for Milestone 2. TCP servers for verify are no longer required for
+  this fixture once injected `fetch` matches the replay contract (D20).
+
+  Rejected: comparing only aggregate scores across backends — we persist full
+  per-route reports per backend so a regression localizes to a target.
+
+- **2026-04-24 — D26** **Rewrite HTTP-replay: multi-emitter gate** —
+  `applyRewritesAsync` accepts `httpReplay.resolveFetches`, an ordered list of
+  labeled `resolveFetch` callbacks. After a successful rewrite batch, the
+  **same** corpus is replayed against each resolved `fetch`; **any** divergence
+  rolls back the batch. The CLI exposes `--http-replay-backends=hono,fastify`
+  (comma-separated, de-duplicated): Hono emits to `--out`, Fastify to
+  `{out}-fastify` (or `--out` alone when Fastify is the only backend). This
+  extends D25’s “one IR, many emitters” proof from CI verify into the rewrite
+  pipeline so a pass cannot silently break portability.
+
+  Rejected: hard-coding Fastify’s sibling directory name inside `@chrysalis/rewrite`
+  — the package stays emitter-agnostic; only the CLI picks concrete paths.
+
+- **2026-04-24 — D27** **Chimera canary + stickiness** — `runtime-chimera` adds
+  `mode: "canary"`: same rule table as cutover, but among requests whose rule
+  targets `modern`, only `canary.percentModern` (0–100) are forwarded to the
+  modern stack. Bucketing uses SHA-256(`salt`, stickiness key) mod 100. Key
+  derivation order: `stickinessCookie` value if present, else
+  `stickinessHeader`, else `socket.remoteAddress`, so a returning user stays on
+  the same stack without server-side session. Responses add
+  `x-chrysalis-canary: in | out | n/a` (`n/a` when the route is legacy-eligible
+  only). CLI: `--canary-percent`, optional `--canary-salt`, `--canary-cookie`,
+  `--canary-header`, or `chimera.json` `canary` block.
+
+  Rejected: random per-request sampling without a stickiness key — it would
+  break UX for multi-request flows. Rejected: reading `Date.now()` or
+  `Math.random()` for bucketing — hash-only inputs keep replay/debugging stable.

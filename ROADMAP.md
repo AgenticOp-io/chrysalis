@@ -35,7 +35,7 @@ all implemented against the tiny-blog fixture. Remaining work on the
 milestone is polish: recorded-SQL replay, IR-level divergence
 attribution, Drizzle migration, and session bridging in chimera — each
 explicitly tracked below and deferred to Milestone 2.**
-The unmodified tiny-blog PHP app is ingested into a 326-node WebIR module
+The unmodified tiny-blog PHP app is ingested into a 325-node WebIR module
 with zero holes; emit-hono produces a compiling TypeScript project that
 serves live HTTP requests against a seeded SQLite database. The Oracle PHP
 prelude captures HTTP + SQL + session traces into a versioned NDJSON
@@ -97,7 +97,11 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [x] At least one deliberately-unsupported node appears as a compiling
          hole (none needed for tiny-blog; the infrastructure exists and is
          exercised on synthetic inputs in tests).
-   - [ ] Migrate to Drizzle (currently emits hand-rolled SQL for Milestone 1).
+   - [x] Drizzle schema + dependency in emitted app when `--schema` /
+         `EmitInput.schemaReport` is used (`emitDrizzleSchema`, `src/schema.ts`);
+         handler reads/writes still use sync `node:sqlite` prepares (SQL replay).
+         Follow-up: optional native driver + Drizzle query builder for reads when
+         we accept async or a sync-capable driver.
 
 6. **Verify (replay oracle)**
    - [x] Runs every captured trace against the generated handlers over HTTP,
@@ -143,7 +147,8 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
          domain models (optionally fused with `--traces <dir>`)
    - [x] `chrysalis status` prints (with `--json` for machines):
      - Corpus size (traces + distinct routes, from `--traces`)
-     - Correctness % (aggregate + per-endpoint, from `reports/verify/correctness.json`)
+     - Correctness % (aggregate + per-endpoint, from `reports/verify/summary.json`
+       or dual-backend `reports/verify/{hono,fastify}/summary.json`)
      - Archaeology coverage (entities, fields, unknown DDL, orphan shapes,
        from `--schema`)
      - Shadow-mode results (mirrored / agreed / diverged from
@@ -160,7 +165,8 @@ metrics, in under 10 minutes.
 
 Deepen each layer without broadening too fast.
 
-- [ ] Second emit backend: `emit-fastify` (proves WebIR target-portability)
+- [x] Second emit backend: `emit-fastify` (proves WebIR target-portability;
+      shared `@chrysalis/emit-shared` handler lowering; CLI `--target=fastify`)
 - [ ] Effect inference: automatic widening/narrowing of effect sets across calls
 - [x] **Insight stage (`@chrysalis/insight`)** — pure recognizers over WebIR
       with corpus-backed confidence boost (D13). Five recognizers so far:
@@ -217,14 +223,15 @@ Deepen each layer without broadening too fast.
         writes). Opt-in via `chrysalis rewrite --verify-behavior`;
         CI exercises it end-to-end on `fixtures/tiny-n1`.
   - [x] **HTTP-replay gate (D20)** — `replayCorpus` accepts injected
-        `fetch` (in-process Hono). `applyRewritesAsync` runs the
+        `fetch` (in-process Hono / Fastify `inject`). `applyRewritesAsync` runs the
         corpus after a successful batch and rolls back on any
         `diffResponse` divergence. Emitted apps split into
         `src/server.ts` (`export const app`) + `src/index.ts`
         (listen only). **Caveat:** PHP-captured bodies diverge after
         `sanitize-output`; use D19 for that contract, or a TS-golden
         corpus for D20. **CLI:** `chrysalis rewrite --http-replay
-        <traces> --out <dir>` (optional `--http-replay-skip-install`).
+        <traces> --out <dir>` (optional `--http-replay-skip-install`,
+        `--target=hono|fastify`, `--http-replay-backends=hono,fastify` for D26).
         CI on a golden trace dir remains a follow-up.
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
   - [ ] Inline `$_POST` validation → Zod schema at route boundary
@@ -238,8 +245,14 @@ Deepen each layer without broadening too fast.
         opportunities — full lift beyond emission)
 - [ ] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
 - [ ] Oracle: outbound HTTP + mail recording
-- [ ] CI: fixture suite with golden WebIR snapshots and golden generated TS
-- [ ] Chimera: canary mode with percentage routing + user-hash stickiness
+- [x] CI: fixture suite with golden WebIR snapshots and golden generated TS
+      (`pnpm run update:golden`; `packages/ingest/tests/golden-webir.test.ts`,
+      `packages/emit-hono/tests/golden-emit.test.ts`)
+- [x] Verify: same oracle corpus replayed in-process against **Hono + Fastify**
+      emits (`scripts/verify-tiny-blog.mjs`, D25; reports under `reports/verify/*`)
+- [x] Chimera: canary mode with percentage routing + user-hash stickiness
+      (`mode=canary`, `canary.percentModern`, cookie/header/IP stickiness + salt;
+      `x-chrysalis-canary: in|out|n/a`; see `packages/runtime-chimera`)
 
 ---
 
