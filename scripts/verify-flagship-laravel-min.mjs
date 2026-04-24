@@ -161,7 +161,17 @@ async function loadEmittedFetch(outAbs, kind) {
     if (typeof mod.app?.fetch !== "function") {
       throw new Error(`expected Hono app.fetch from ${outAbs}`);
     }
-    return mod.app.fetch.bind(mod.app);
+    const honoFetch = mod.app.fetch.bind(mod.app);
+    // Hono expects a real Request; passing (string, init) leaves request.url undefined in getPath.
+    return async (input, init) => {
+      const req =
+        input instanceof Request
+          ? init !== undefined
+            ? new Request(input, init)
+            : input
+          : new Request(input, init);
+      return honoFetch(req);
+    };
   }
   if (typeof mod.fetch !== "function") {
     throw new Error(`expected named fetch from Fastify server ${outAbs}`);
