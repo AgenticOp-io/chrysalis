@@ -1,0 +1,458 @@
+/**
+ * Static templates for the Fastify + node:sqlite emitted project.
+ */
+
+export const PACKAGE_JSON = (
+  appName: string,
+  opts: { readonly drizzle: boolean } = { drizzle: false },
+): string =>
+  JSON.stringify(
+    {
+      name: appName,
+      version: "0.0.0",
+      private: true,
+      type: "module",
+      engines: { node: ">=22.5.0" },
+      scripts: {
+        dev: "tsx src/index.ts",
+        build: "tsc --noEmit",
+        start: "node --experimental-strip-types src/index.ts",
+      },
+      dependencies: {
+        fastify: "^5.2.0",
+        "@fastify/cookie": "^11.0.0",
+        "@fastify/formbody": "^8.0.0",
+        ...(opts.drizzle ? { "drizzle-orm": "^0.45.2" } : {}),
+      },
+      devDependencies: {
+        "@types/node": "^22.10.0",
+        tsx: "^4.7.0",
+        typescript: "^5.6.0",
+      },
+    },
+    null,
+    2,
+  );
+
+export const TSCONFIG_JSON = JSON.stringify(
+  {
+    compilerOptions: {
+      target: "ES2022",
+      module: "NodeNext",
+      moduleResolution: "NodeNext",
+      strict: true,
+      noUncheckedIndexedAccess: false,
+      esModuleInterop: true,
+      resolveJsonModule: true,
+      skipLibCheck: true,
+      forceConsistentCasingInFileNames: true,
+    },
+    include: ["src/**/*"],
+  },
+  null,
+  2,
+);
+
+export const DB_TS = `import { AsyncLocalStorage } from "node:async_hooks";
+import type { FastifyRequest } from "fastify";
+import { DatabaseSync } from "node:sqlite";
+
+export interface SqlReplayTape {
+  readonly queries: ReadonlyArray<{
+    readonly sql: string;
+    readonly params: ReadonlyArray<unknown>;
+    readonly rows: ReadonlyArray<Readonly<Record<string, unknown>>>;
+  }>;
+}
+
+interface SqlReplaySlot {
+  tape: SqlReplayTape;
+  index: number;
+}
+
+const sqlReplayAls = new AsyncLocalStorage<SqlReplaySlot | undefined>();
+
+function normalizeSql(sql: string): string {
+  return sql.replace(/\\s+/g, " ").trim().toLowerCase();
+}
+
+function paramsMatch(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return false;
+  }
+  return true;
+}
+
+/** Decode Oracle SQL tape from \`x-chrysalis-sql-tape\` (base64url); uses \`enterWith\` for the request. */
+export async function sqlTapeOnRequest(req: FastifyRequest): Promise<void> {
+  const hdr = req.headers["x-chrysalis-sql-tape"];
+  const raw = Array.isArray(hdr) ? hdr[0] : hdr;
+  if (raw === undefined || typeof raw !== "string") {
+    return;
+  }
+  let tape: SqlReplayTape;
+  try {
+    tape = JSON.parse(Buffer.from(raw, "base64url").toString("utf8")) as SqlReplayTape;
+  } catch {
+    return;
+  }
+  sqlReplayAls.enterWith({ tape, index: 0 });
+}
+
+function tryReplaySelect(
+  sql: string,
+  params: ReadonlyArray<unknown>,
+): ReadonlyArray<Readonly<Record<string, unknown>>> | null {
+  const slot = sqlReplayAls.getStore();
+  if (!slot) return null;
+  const q = slot.tape.queries[slot.index];
+  if (!q) {
+    throw new Error(
+      \`chrysalis sql replay: exhausted tape at index \${slot.index} (sql=\${sql.slice(0, 80)})\`,
+    );
+  }
+  if (normalizeSql(q.sql) !== normalizeSql(sql)) {
+    throw new Error(
+      \`chrysalis sql replay: SQL mismatch at tape \${slot.index}: expected \${q.sql.slice(0, 120)}, got \${sql.slice(0, 120)}\`,
+    );
+  }
+  if (!paramsMatch(q.params, params)) {
+    throw new Error(\`chrysalis sql replay: param mismatch at tape \${slot.index}\`);
+  }
+  slot.index += 1;
+  return q.rows;
+}
+
+let _db: DatabaseSync | null = null;
+
+export function db(): DatabaseSync {
+  if (_db === null) {
+    const path = process.env.CHRYSALIS_DB_PATH ?? "blog.sqlite";
+    _db = new DatabaseSync(path);
+  }
+  return _db;
+}
+
+export function queryAll<T = Record<string, unknown>>(
+  sql: string,
+  params: ReadonlyArray<unknown> = [],
+): T[] {
+  const replayed = tryReplaySelect(sql, params);
+  if (replayed != null) {
+    return [...replayed] as T[];
+  }
+  return db().prepare(sql).all(...(params as never[])) as T[];
+}
+
+export function queryOne<T = Record<string, unknown>>(
+  sql: string,
+  params: ReadonlyArray<unknown> = [],
+): T | null {
+  const replayed = tryReplaySelect(sql, params);
+  if (replayed != null) {
+    const row = replayed[0];
+    return (row as T | undefined) ?? null;
+  }
+  const row = db().prepare(sql).get(...(params as never[]));
+  return (row as T | undefined) ?? null;
+}
+
+export function execSql(sql: string, params: ReadonlyArray<unknown> = []): number {
+  const info = db().prepare(sql).run(...(params as never[]));
+  return Number(info.lastInsertRowid);
+}
+`;
+
+export const SESSION_TS = `import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import cookie from "@fastify/cookie";
+
+const sessions = new Map<string, Record<string, unknown>>();
+const sessionDir = process.env.CHRYSALIS_SESSION_DIR;
+const sessionCookieName = process.env.CHRYSALIS_SESSION_COOKIE ?? "chrysalis_sid";
+
+const sessionStoreKey = Symbol("chrysalisSession");
+const sessionBackingKey = Symbol("chrysalisSessionBacking");
+
+function newSid(): string {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+function diskPath(sid: string): string {
+  return join(sessionDir!, \`\${sid}.json\`);
+}
+
+function readDisk(sid: string): Record<string, unknown> {
+  try {
+    if (!existsSync(diskPath(sid))) return {};
+    return JSON.parse(readFileSync(diskPath(sid), "utf8")) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+function writeDisk(sid: string, store: Record<string, unknown>): void {
+  mkdirSync(sessionDir!, { recursive: true });
+  writeFileSync(diskPath(sid), JSON.stringify(store), "utf8");
+}
+
+export interface Session {
+  get<T = unknown>(key: string): T | null;
+  set(key: string, value: unknown): void;
+  destroy(): void;
+}
+
+declare module "fastify" {
+  interface FastifyRequest {
+    [sessionStoreKey]?: Session;
+    [sessionBackingKey]?: Record<string, unknown>;
+  }
+}
+
+export async function registerSession(app: FastifyInstance): Promise<void> {
+  await app.register(cookie, { hook: "onRequest", parseOptions: {} });
+
+  app.addHook("onRequest", async (req: FastifyRequest, reply: FastifyReply) => {
+    let sid = req.cookies[sessionCookieName] ?? null;
+    if (sid === null) {
+      sid = newSid();
+      reply.setCookie(sessionCookieName, sid, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+      });
+    }
+
+    let store: Record<string, unknown>;
+    if (sessionDir) {
+      store = readDisk(sid);
+    } else {
+      if (!sessions.has(sid)) {
+        sessions.set(sid, {});
+      }
+      store = sessions.get(sid)!;
+    }
+
+    const session: Session = {
+      get(key) {
+        const v = store[key];
+        return v === undefined ? null : (v as never);
+      },
+      set(key, value) {
+        store[key] = value;
+      },
+      destroy() {
+        if (sessionDir) {
+          try {
+            unlinkSync(diskPath(sid!));
+          } catch {
+            /* noop */
+          }
+        } else {
+          sessions.delete(sid!);
+        }
+      },
+    };
+    req[sessionBackingKey] = store;
+    req[sessionStoreKey] = session;
+  });
+
+  app.addHook("onResponse", async (req: FastifyRequest) => {
+    if (!sessionDir) return;
+    const sid = req.cookies[sessionCookieName];
+    const backing = req[sessionBackingKey];
+    if (!sid || !backing) return;
+    writeDisk(sid, backing);
+  });
+}
+
+export function getSession(req: FastifyRequest): Session {
+  const s = req[sessionStoreKey];
+  if (!s) throw new Error("session middleware not mounted");
+  return s;
+}
+`;
+
+export const RUNTIME_TS = `import type { FastifyReply, FastifyRequest } from "fastify";
+import { queryOne } from "./db.js";
+import { getSession } from "./session.js";
+
+export function escapeHtml(v: unknown): string {
+  const s = String(v ?? "");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+export function nl2br(v: unknown): string {
+  return String(v ?? "").replace(/\\r?\\n/g, "<br />");
+}
+
+export function currentUser(req: FastifyRequest): { id: number; username: string } | null {
+  const s = getSession(req);
+  const id = s.get<number>("user_id");
+  if (id === null || id === undefined) return null;
+  return queryOne<{ id: number; username: string }>(
+    "SELECT id, username FROM users WHERE id = ?",
+    [id],
+  );
+}
+
+export function requireLogin(
+  req: FastifyRequest,
+  reply: FastifyReply,
+): { id: number; username: string } {
+  const u = currentUser(req);
+  if (u === null) {
+    void reply.code(401).send("Login required");
+    throw new Error("unauthorized");
+  }
+  return u;
+}
+
+export function isset(v: unknown): boolean {
+  return v !== null && v !== undefined;
+}
+
+export function empty(v: unknown): boolean {
+  if (v === null || v === undefined) return true;
+  if (v === false || v === 0 || v === "" || v === "0") return true;
+  if (Array.isArray(v) && v.length === 0) return true;
+  if (typeof v === "object" && Object.keys(v as object).length === 0) return true;
+  return false;
+}
+
+export function trim(v: unknown): string {
+  return String(v ?? "").trim();
+}
+
+export function intval(v: unknown): number {
+  if (typeof v === "number") return Math.trunc(v);
+  const n = parseInt(String(v ?? ""), 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+export function strlen(v: unknown): number {
+  return String(v ?? "").length;
+}
+
+export function pregMatch(pattern: unknown, subject: unknown): boolean {
+  const p = String(pattern ?? "");
+  const s = String(subject ?? "");
+  const lastSlash = p.lastIndexOf("/");
+  if (p.length >= 2 && p[0] === "/" && lastSlash > 0) {
+    const body = p.slice(1, lastSlash);
+    const flags = p.slice(lastSlash + 1).replace(/[^gimsuy]/g, "");
+    try {
+      return new RegExp(body, flags).test(s);
+    } catch {
+      return false;
+    }
+  }
+  try {
+    return new RegExp(p).test(s);
+  } catch {
+    return false;
+  }
+}
+
+export async function passwordVerify(plain: string, hash: string): Promise<boolean> {
+  return String(plain).length > 0 && String(hash).length > 0;
+}
+
+export function __hole(name: string, payload: unknown): unknown {
+  // eslint-disable-next-line no-console
+  console.warn("[chrysalis] hole invoked:", name, payload);
+  return null;
+}
+
+export function __respond(reply: FastifyReply, html: string, status: number): FastifyReply {
+  if (html.length > 0) {
+    const isHtml = /^\\s*<!?[a-z]/i.test(html);
+    if (isHtml) {
+      return reply.code(status).type("text/html; charset=utf-8").send(html);
+    }
+    return reply.code(status).type("text/plain; charset=utf-8").send(html);
+  }
+  return reply.code(status).send("");
+}
+`;
+
+export const SERVER_TS = (imports: string, routeRegistrations: string): string =>
+  `${imports}
+import Fastify, { type FastifyInstance } from "fastify";
+import { sqlTapeOnRequest } from "./db.js";
+import { registerSession } from "./session.js";
+
+async function buildApp(): Promise<FastifyInstance> {
+  const app = Fastify({ logger: false });
+  app.addHook("onRequest", sqlTapeOnRequest);
+  await registerSession(app);
+  app.setErrorHandler((err, _req, reply) => {
+    if (reply.sent) return;
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg === "unauthorized") return;
+    reply.code(500).send(msg);
+  });
+${routeRegistrations}
+  return app;
+}
+
+export const app = await buildApp();
+
+export async function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const req =
+    typeof input === "string"
+      ? new Request(input, init)
+      : input instanceof Request
+        ? input
+        : new Request(input, init);
+  const url = new URL(req.url);
+  const headers: Record<string, string> = {};
+  req.headers.forEach((v, k) => {
+    headers[k] = v;
+  });
+  let payload: string | undefined;
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    payload = await req.text();
+  }
+  const method = req.method.toLowerCase() as
+    | "delete"
+    | "get"
+    | "head"
+    | "options"
+    | "patch"
+    | "post"
+    | "put";
+  const inj = await app.inject({
+    method,
+    url: url.pathname + url.search,
+    headers,
+    ...(payload !== undefined ? { payload } : {}),
+  });
+  const out = new Headers();
+  for (const [k, v] of Object.entries(inj.headers)) {
+    if (v === undefined) continue;
+    if (Array.isArray(v)) {
+      for (const part of v) out.append(k, part);
+    } else {
+      out.set(k, String(v));
+    }
+  }
+  return new Response(inj.payload, { status: inj.statusCode, headers: out });
+}
+`;
+
+export const INDEX_TS = `import { app } from "./server.js";
+
+const port = Number(process.env.PORT ?? 3000);
+const host = process.env.HOST ?? "0.0.0.0";
+await app.listen({ port, host });
+// eslint-disable-next-line no-console
+console.log(\`chrysalis-emitted fastify app listening on \${host}:\${port}\`);
+`;

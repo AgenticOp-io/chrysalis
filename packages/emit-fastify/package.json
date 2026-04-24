@@ -1,0 +1,23 @@
+{
+  "name": "@chrysalis/emit-fastify",
+  "version": "0.0.0",
+  "private": true,
+  "description": "WebIR → Fastify + SQLite emitter. Second backend; proves WebIR target portability.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@chrysalis/archaeology": "workspace:*",
+    "@chrysalis/emit-shared": "workspace:*",
+    "@chrysalis/webir": "workspace:*"
+  },
+  "devDependencies": {
+    "@chrysalis/ingest": "workspace:*"
+  }
+}
