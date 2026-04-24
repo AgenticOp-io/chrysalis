@@ -1,12 +1,15 @@
 /**
- * Cross-call effect widening for PHP `lib/` sources: each top-level function is
- * lowered to a WebIR subtree in an isolated module; we fixpoint-merge callees'
- * effect sets, then route handlers union overlay effects at `data.call` sites.
+ * Cross-call effect widening: lower PHP function bodies to isolated WebIR,
+ * fixpoint-merge callees' effects, then route handlers union overlay effects at
+ * `data.call` sites.
+ *
+ * Sources: `lib/**.php` (always) and top-level `FunctionDecl` in each manifest
+ * route file (names already defined under `lib/` win).
  */
 
 import { access, readdir } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import type { PhpAst } from "@chrysalis/parser-bridge";
 import { parseFile } from "@chrysalis/parser-bridge";
 import {
@@ -47,35 +50,10 @@ function collectFunctionBodies(ast: PhpAst, builder: ModuleBuilder): Map<string,
   return bodies;
 }
 
-/**
- * Parse all `.php` files under `root/lib` (recursively), build per-function
- * WebIR bodies, and compute a fixpoint map of function name to merged effect
- * set (including nested calls between library functions).
- */
-export async function buildLibraryCallEffectMap(root: string): Promise<ReadonlyMap<string, EffectSet>> {
-  const libDir = join(root, "lib");
-  try {
-    await access(libDir, fsConstants.R_OK);
-  } catch {
-    return new Map();
-  }
-
-  const phpFiles = await collectPhpFilesRecursive(libDir);
-  if (phpFiles.length === 0) return new Map();
-
-  const builder = new ModuleBuilder({ sourceApp: `${root}:lib` });
-  const bodies = new Map<string, NodeId>();
-
-  for (const filePath of phpFiles) {
-    const ast = await parseFile(filePath);
-    const fromFile = collectFunctionBodies(ast, builder);
-    for (const [name, id] of fromFile) {
-      bodies.set(name, id);
-    }
-  }
-
-  if (bodies.size === 0) return new Map();
-
+function runCallEffectFixpoint(
+  builder: ModuleBuilder,
+  bodies: Map<string, NodeId>,
+): ReadonlyMap<string, EffectSet> {
   const getNode = (id: NodeId) => builder.get(id);
   const sig = new Map<string, EffectSet>();
   for (const [name, rootId] of bodies) {
@@ -96,4 +74,60 @@ export async function buildLibraryCallEffectMap(root: string): Promise<ReadonlyM
   }
 
   return sig;
+}
+
+/**
+ * `lib/` only (backward-compatible entry).
+ */
+export async function buildLibraryCallEffectMap(root: string): Promise<ReadonlyMap<string, EffectSet>> {
+  return buildCallEffectMap(root, undefined);
+}
+
+export interface RouteFileRef {
+  readonly file: string;
+}
+
+/**
+ * Parse `root/lib/**.php` plus top-level functions in each `routeSpecs` file,
+ * then fixpoint-merge nested `data.call` effects.
+ */
+export async function buildCallEffectMap(
+  root: string,
+  routeSpecs: ReadonlyArray<RouteFileRef> | undefined,
+): Promise<ReadonlyMap<string, EffectSet>> {
+  const builder = new ModuleBuilder({ sourceApp: `${root}:call-effects` });
+  const bodies = new Map<string, NodeId>();
+
+  const libDir = join(root, "lib");
+  try {
+    await access(libDir, fsConstants.R_OK);
+    const phpFiles = await collectPhpFilesRecursive(libDir);
+    for (const filePath of phpFiles) {
+      const ast = await parseFile(filePath);
+      const fromFile = collectFunctionBodies(ast, builder);
+      for (const [name, id] of fromFile) {
+        bodies.set(name, id);
+      }
+    }
+  } catch {
+    /* no readable lib */
+  }
+
+  if (routeSpecs) {
+    for (const spec of routeSpecs) {
+      const ast = await parseFile(resolve(root, spec.file));
+      const fromFile = collectFunctionBodies(ast, builder);
+      for (const [name, id] of fromFile) {
+        if (!bodies.has(name)) {
+          bodies.set(name, id);
+        }
+      }
+    }
+  }
+
+  if (bodies.size === 0) {
+    return new Map();
+  }
+
+  return runCallEffectFixpoint(builder, bodies);
 }

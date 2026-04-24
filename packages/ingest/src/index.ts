@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { parseFile } from "@chrysalis/parser-bridge";
 import { ModuleBuilder, type Module } from "@chrysalis/webir";
 import { ingestHandler } from "./convert.js";
-import { buildLibraryCallEffectMap } from "./library-effects.js";
+import { buildCallEffectMap } from "./library-effects.js";
 import { loadRouteManifest, type RouteManifest, type RouteSpec } from "./routes.js";
 
 export interface IngestOptions {
@@ -20,11 +20,11 @@ export async function ingestDirectory(
   _opts?: IngestOptions,
 ): Promise<Module> {
   const manifest = await loadRouteManifest(root);
-  const libCallEffects = await buildLibraryCallEffectMap(root);
+  const callEffects = await buildCallEffectMap(root, manifest.routes);
   const builder = new ModuleBuilder({ sourceApp: manifest.app });
   for (const route of manifest.routes) {
     const ast = await parseFile(resolve(root, route.file));
-    const routeNode = ingestHandler(builder, ast, route, libCallEffects);
+    const routeNode = ingestHandler(builder, ast, route, callEffects);
     builder.addRoot(routeNode);
   }
   return builder.finish();
@@ -41,6 +41,6 @@ export async function ingestFile(
   return builder.finish();
 }
 
-export { buildLibraryCallEffectMap };
+export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects.js";
 export { loadRouteManifest };
 export type { RouteManifest, RouteSpec };

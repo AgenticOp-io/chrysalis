@@ -1065,3 +1065,16 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   semantics in TypeScript would drift from `lib/*.php`. Rejected: merging
   library nodes into the shipped route module — golden size and ID stability
   stay route-scoped; only effect sets cross the boundary.
+
+- **2026-04-23 — D31** **Route-file top-level functions in call-effect map** —
+  Legacy route scripts sometimes declare `function foo()` at file scope, then
+  call `foo()` from the procedural body. Ingest now indexes those bodies into
+  the same fixpoint map as `lib/` (names already taken by `lib/` keep the
+  library definition). Handler lowering skips top-level `FunctionDecl`
+  statements so they are not emitted as holes. Rationale: closes a common
+  real-world gap without whole-program analysis; matches PHP’s file-scope
+  function visibility for the typical “one entry script per route” layout.
+
+  Rejected: hoisting nested `function` inside handlers in v1 — needs real scope
+  / closure modeling. Rejected: auto-parsing every `*.php` under the project
+  — only manifest route files plus `lib/` keep the contract explicit.

@@ -27,6 +27,15 @@ import {
 } from "@chrysalis/webir";
 import type { RouteSpec } from "./routes.js";
 
+/**
+ * Top-level `function` declarations in a route file are hoisted for call-effect
+ * inference (`buildCallEffectMap`) and must not be lowered as handler statements
+ * (would otherwise become holes).
+ */
+export function stripTopLevelFunctionDecls(stmts: readonly PhpNode[]): PhpNode[] {
+  return stmts.filter((s) => s.kind !== "FunctionDecl");
+}
+
 interface Ctx {
   readonly m: ModuleBuilder;
   readonly data: ReturnType<typeof dataDialect.builders>;
@@ -676,7 +685,7 @@ export function ingestHandler(
   libCallEffects: ReadonlyMap<string, EffectSet> = new Map(),
 ): NodeId {
   const ctx = makeCtx(builder, ast.file);
-  const body = convertStatements(ctx, ast.statements, route.pathParams);
+  const body = convertStatements(ctx, stripTopLevelFunctionDecls(ast.statements), route.pathParams);
 
   const handlerName =
     route.file
