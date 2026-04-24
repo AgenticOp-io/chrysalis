@@ -141,7 +141,11 @@ Or emit inside the gate with **`resolveFetch(rewritten)`** (what
 `chrysalis rewrite --http-replay <dir>` does): after the sync pipeline
 succeeds, the driver emits the rewritten module, installs npm deps,
 and dynamically imports `src/server.ts` via `tsx` to obtain
-`app.fetch`.
+`app.fetch` (Hono) or the named `fetch` export (Fastify).
+
+**`resolveFetches`** (D26) supplies several labeled resolvers; the **same**
+corpus is replayed against each `fetch` in order, and **all** must pass.
+The CLI maps `--http-replay-backends=hono,fastify` to two emit directories.
 
 `@chrysalis/verify`'s `replayCorpus` compares each trace's captured
 response to the handler output via `diffResponse`. Any divergence

@@ -123,6 +123,7 @@ describe("applyRewritesAsync + http-replay (D20)", () => {
     expect(result.module).not.toBe(m);
     expect(result.report.httpReplayVerify?.ok).toBe(true);
     expect(result.report.httpReplayVerify?.outcomes).toHaveLength(1);
+    expect(result.report.httpReplayVerify?.backends).toBeUndefined();
   });
 
   it("rolls back the full batch when replay diverges", async () => {
@@ -200,6 +201,126 @@ describe("applyRewritesAsync + http-replay (D20)", () => {
 
     expect(seenRewritten).toBe(true);
     expect(result.report.httpReplayVerify?.ok).toBe(true);
+  });
+
+  it("runs resolveFetches for each backend and requires all to pass", async () => {
+    const m = echoQueryModule();
+    const ops = unescapedOutputRecognizer.recognize(m);
+    const expectedHtml = "<p>multi</p>";
+    const corpus = corpusOf([
+      mkTrace({
+        traceId: "t-m1",
+        startedAt: "2026-04-23T00:00:03Z",
+        method: "GET",
+        path: "/",
+        query: { x: "multi" },
+        expectedStatus: 200,
+        expectedBody: expectedHtml,
+      }),
+    ]);
+    const good: typeof fetch = async () =>
+      new Response(expectedHtml, {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      });
+
+    const result = await applyRewritesAsync(m, ops, [sanitizeOutputPass], {
+      postVerifyRecognizers: DEFAULT_RECOGNIZERS,
+      behaviorVerify: true,
+      httpReplay: {
+        corpus,
+        baseUrl: "http://127.0.0.1",
+        resolveFetches: [
+          { label: "a", resolveFetch: async () => good },
+          { label: "b", resolveFetch: async () => good },
+        ],
+      },
+    });
+
+    expect(result.report.httpReplayVerify?.ok).toBe(true);
+    expect(result.report.httpReplayVerify?.backends).toHaveLength(2);
+    expect(result.report.httpReplayVerify?.outcomes).toHaveLength(2);
+  });
+
+  it("rolls back when the second resolveFetches backend diverges", async () => {
+    const m = echoQueryModule();
+    const ops = unescapedOutputRecognizer.recognize(m);
+    const corpus = corpusOf([
+      mkTrace({
+        traceId: "t-m2",
+        startedAt: "2026-04-23T00:00:04Z",
+        method: "GET",
+        path: "/",
+        query: { x: "x" },
+        expectedStatus: 200,
+        expectedBody: "oracle-body",
+      }),
+    ]);
+    const good: typeof fetch = async () =>
+      new Response("oracle-body", {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      });
+    const bad: typeof fetch = async () =>
+      new Response("nope", {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      });
+
+    const result = await applyRewritesAsync(m, ops, [sanitizeOutputPass], {
+      postVerifyRecognizers: DEFAULT_RECOGNIZERS,
+      behaviorVerify: true,
+      httpReplay: {
+        corpus,
+        baseUrl: "http://127.0.0.1",
+        resolveFetches: [
+          { label: "a", resolveFetch: async () => good },
+          { label: "b", resolveFetch: async () => bad },
+        ],
+      },
+    });
+
+    expect(result.report.httpReplayVerify?.ok).toBe(false);
+    expect(result.report.applied).toHaveLength(0);
+    expect(result.module).toBe(m);
+    expect(result.report.httpReplayVerify?.failedRoutes.some((r) => r.startsWith("b:"))).toBe(
+      true,
+    );
+  });
+
+  it("rejects httpReplay when resolveFetches is combined with fetch", async () => {
+    const m = echoQueryModule();
+    const ops = unescapedOutputRecognizer.recognize(m);
+    const corpus = corpusOf([
+      mkTrace({
+        traceId: "t-x",
+        startedAt: "2026-04-23T00:00:05Z",
+        method: "GET",
+        path: "/",
+        query: { x: "x" },
+        expectedStatus: 200,
+        expectedBody: "y",
+      }),
+    ]);
+
+    await expect(
+      applyRewritesAsync(m, ops, [sanitizeOutputPass], {
+        postVerifyRecognizers: DEFAULT_RECOGNIZERS,
+        httpReplay: {
+          corpus,
+          baseUrl: "http://127.0.0.1",
+          fetch: async () =>
+            new Response("y", { status: 200, headers: { "content-type": "text/html" } }),
+          resolveFetches: [
+            {
+              label: "only",
+              resolveFetch: async () =>
+                new Response("y", { status: 200, headers: { "content-type": "text/html" } }),
+            },
+          ],
+        },
+      }),
+    ).rejects.toThrow(/resolveFetches/);
   });
 
   it("skips http-replay when nothing applied", async () => {

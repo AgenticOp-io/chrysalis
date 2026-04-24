@@ -8,6 +8,8 @@ export {
   type AppliedRecord,
   type AsyncRewriteOptions,
   type Edit,
+  type HttpReplayBackendSlice,
+  type HttpReplayResolver,
   type HttpReplayVerifyOptions,
   type HttpReplayVerifyResult,
   type RewriteCtx,

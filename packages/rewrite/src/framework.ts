@@ -137,10 +137,19 @@ export interface RewriteOptions {
  * - **`fetch`** — e.g. `app.fetch.bind(app)` from an already-loaded Hono app, or
  * - **`resolveFetch`** — called after the synchronous rewrite pipeline with the
  *   **rewritten** `Module` so callers can `emit` and dynamically import
- *   `src/server.ts` before replay (see `chrysalis rewrite --http-replay`).
+ *   `src/server.ts` before replay (see `chrysalis rewrite --http-replay`), or
+ * - **`resolveFetches`** — same as `resolveFetch` but **every** resolver must pass
+ *   the same corpus replay (dual-backend gate; DESIGN.md D26).
  *
- * Provide exactly one of `fetch` or `resolveFetch`.
+ * Provide exactly one of `fetch`, `resolveFetch`, or `resolveFetches`.
  */
+export interface HttpReplayResolver {
+  readonly label: string;
+  readonly resolveFetch: (
+    rewritten: Module,
+  ) => Promise<typeof globalThis.fetch>;
+}
+
 export interface HttpReplayVerifyOptions {
   readonly corpus: TraceCorpus;
   readonly baseUrl: string;
@@ -148,14 +157,28 @@ export interface HttpReplayVerifyOptions {
   readonly resolveFetch?: (
     rewritten: Module,
   ) => Promise<typeof globalThis.fetch>;
+  /**
+   * Run the same corpus replay against each resolver; **all** must pass.
+   * Mutually exclusive with `fetch` and `resolveFetch`. See DESIGN.md D26.
+   */
+  readonly resolveFetches?: ReadonlyArray<HttpReplayResolver>;
   /** When true (default), pass Oracle SQL row tapes when traces include `rows`. */
   readonly recordedSqlReplay?: boolean;
+}
+
+export interface HttpReplayBackendSlice {
+  readonly label: string;
+  readonly ok: boolean;
+  readonly outcomes: ReadonlyArray<TraceOutcome>;
+  readonly failedRoutes: ReadonlyArray<string>;
 }
 
 export interface HttpReplayVerifyResult {
   readonly ok: boolean;
   readonly outcomes: ReadonlyArray<TraceOutcome>;
   readonly failedRoutes: ReadonlyArray<string>;
+  /** Present when two or more resolvers ran (dual-backend gate). */
+  readonly backends?: ReadonlyArray<HttpReplayBackendSlice>;
 }
 
 export type AsyncRewriteOptions = RewriteOptions & {
@@ -423,6 +446,31 @@ export function applyRewrites(
   return { module: finalModule, report };
 }
 
+function normalizeHttpReplayResolvers(
+  httpReplay: HttpReplayVerifyOptions,
+): ReadonlyArray<HttpReplayResolver> {
+  const multi = httpReplay.resolveFetches;
+  if (multi !== undefined && multi.length > 0) {
+    if (httpReplay.fetch !== undefined || httpReplay.resolveFetch !== undefined) {
+      throw new Error(
+        "httpReplay: use `resolveFetches` alone, or `fetch` / `resolveFetch`, not both",
+      );
+    }
+    return multi;
+  }
+  if (httpReplay.fetch !== undefined && httpReplay.resolveFetch !== undefined) {
+    throw new Error("httpReplay: provide at most one of `fetch` and `resolveFetch`");
+  }
+  if (httpReplay.resolveFetch !== undefined) {
+    return [{ label: "http-replay", resolveFetch: httpReplay.resolveFetch }];
+  }
+  if (httpReplay.fetch !== undefined) {
+    const bound = httpReplay.fetch;
+    return [{ label: "http-replay", resolveFetch: async () => bound }];
+  }
+  throw new Error("httpReplay: provide `fetch`, `resolveFetch`, or `resolveFetches`");
+}
+
 /**
  * Like {@link applyRewrites} but runs an optional **HTTP replay** gate
  * after the synchronous stack (invariants, post-verify, behavior-
@@ -441,24 +489,38 @@ export async function applyRewritesAsync(
   if (!httpReplay || sync.report.applied.length === 0 || sync.module === mod) {
     return sync;
   }
-  let fetchImpl: typeof globalThis.fetch;
-  if (httpReplay.resolveFetch) {
-    fetchImpl = await httpReplay.resolveFetch(sync.module);
-  } else if (httpReplay.fetch) {
-    fetchImpl = httpReplay.fetch;
-  } else {
-    throw new Error("httpReplay: provide `fetch` or `resolveFetch`");
+
+  const resolvers = normalizeHttpReplayResolvers(httpReplay);
+  const backendSlices: HttpReplayBackendSlice[] = [];
+  const allOutcomes: TraceOutcome[] = [];
+  const allFailed: string[] = [];
+  const multi = resolvers.length > 1;
+
+  for (const r of resolvers) {
+    const fetchImpl = await r.resolveFetch(sync.module);
+    const outcomes = await replayCorpus(httpReplay.corpus, {
+      baseUrl: httpReplay.baseUrl,
+      fetch: fetchImpl,
+      recordedSqlReplay: httpReplay.recordedSqlReplay !== false,
+    });
+    const sliceOk = outcomes.every((o) => o.ok);
+    const failed = outcomes.filter((o) => !o.ok).map((o) => o.route);
+    backendSlices.push({
+      label: r.label,
+      ok: sliceOk,
+      outcomes: Object.freeze([...outcomes]),
+      failedRoutes: Object.freeze([...failed]),
+    });
+    allOutcomes.push(...outcomes);
+    allFailed.push(...failed.map((fr) => (multi ? `${r.label}:${fr}` : fr)));
   }
-  const outcomes = await replayCorpus(httpReplay.corpus, {
-    baseUrl: httpReplay.baseUrl,
-    fetch: fetchImpl,
-    recordedSqlReplay: httpReplay.recordedSqlReplay !== false,
-  });
-  const ok = outcomes.every((o) => o.ok);
+
+  const ok = backendSlices.every((b) => b.ok);
   const httpReplayVerify: HttpReplayVerifyResult = {
     ok,
-    outcomes: Object.freeze([...outcomes]),
-    failedRoutes: outcomes.filter((o) => !o.ok).map((o) => o.route),
+    outcomes: Object.freeze(allOutcomes),
+    failedRoutes: Object.freeze(allFailed),
+    ...(multi ? { backends: Object.freeze([...backendSlices]) } : {}),
   };
   if (!ok) {
     const rolledSkipped: SkippedRecord[] = [...sync.report.skipped];
