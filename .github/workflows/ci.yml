@@ -115,6 +115,10 @@ jobs:
               throw new Error('expected full IR coverage on tiny-blog');
             if (s.migration.correctness == null || s.migration.correctness + 1e-9 < 0.95)
               throw new Error('expected verify correctness >= 0.95');
+            if (!s.oracleFootprint) throw new Error('missing oracleFootprint');
+            if (s.oracleFootprint.routeCount < 1) throw new Error('expected oracle footprint routes on tiny-blog');
+            if (!Array.isArray(s.oracleFootprint.routes) || s.oracleFootprint.routes.length !== s.oracleFootprint.routeCount)
+              throw new Error('oracleFootprint.routes must match routeCount');
           "
 
       - name: Upload correctness report
@@ -165,6 +169,10 @@ jobs:
               throw new Error('expected full IR coverage on laravel-min');
             if (s.migration.correctness == null || s.migration.correctness + 1e-9 < 0.95)
               throw new Error('expected verify correctness >= 0.95');
+            if (!s.oracleFootprint) throw new Error('missing oracleFootprint');
+            if (s.oracleFootprint.routeCount < 1) throw new Error('expected oracle footprint routes on laravel-min');
+            if (!Array.isArray(s.oracleFootprint.routes) || s.oracleFootprint.routes.length !== s.oracleFootprint.routeCount)
+              throw new Error('oracleFootprint.routes must match routeCount');
           "
           node packages/cli/dist/bin.js status --json --project flagship/laravel-min --traces traces/flagship-laravel-min --report reports/verify-flagship-laravel-min > reports/migration/flagship-laravel-min.json
 
