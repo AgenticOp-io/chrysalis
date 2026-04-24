@@ -110,18 +110,7 @@ jobs:
 
       - name: Milestone 4 — migration metrics on status JSON
         run: |
-          node packages/cli/dist/bin.js status --json --project fixtures/tiny-blog --traces traces --report reports/verify | node -e "
-            const s = JSON.parse(require('fs').readFileSync(0,'utf8'));
-            if (!s.migration) throw new Error('missing migration');
-            if (s.migration.coverage == null || s.migration.coverage.pct < 1 - 1e-9)
-              throw new Error('expected full IR coverage on tiny-blog');
-            if (s.migration.correctness == null || s.migration.correctness + 1e-9 < 0.95)
-              throw new Error('expected verify correctness >= 0.95');
-            if (!s.oracleFootprint) throw new Error('missing oracleFootprint');
-            if (s.oracleFootprint.routeCount < 1) throw new Error('expected oracle footprint routes on tiny-blog');
-            if (!Array.isArray(s.oracleFootprint.routes) || s.oracleFootprint.routes.length !== s.oracleFootprint.routeCount)
-              throw new Error('oracleFootprint.routes must match routeCount');
-          "
+          node packages/cli/dist/bin.js status --json --project fixtures/tiny-blog --traces traces --report reports/verify | node scripts/ci-gates.mjs status-migration
 
       - name: Upload correctness report
         if: always()
@@ -166,18 +155,7 @@ jobs:
       - name: Milestone 4 — migration metrics (laravel-min + verify reports)
         run: |
           mkdir -p reports/migration
-          node packages/cli/dist/bin.js status --json --project flagship/laravel-min --traces traces/flagship-laravel-min --report reports/verify-flagship-laravel-min | node -e "
-            const s = JSON.parse(require('fs').readFileSync(0,'utf8'));
-            if (!s.migration) throw new Error('missing migration');
-            if (s.migration.coverage == null || s.migration.coverage.pct < 1 - 1e-9)
-              throw new Error('expected full IR coverage on laravel-min');
-            if (s.migration.correctness == null || s.migration.correctness + 1e-9 < 0.95)
-              throw new Error('expected verify correctness >= 0.95');
-            if (!s.oracleFootprint) throw new Error('missing oracleFootprint');
-            if (s.oracleFootprint.routeCount < 1) throw new Error('expected oracle footprint routes on laravel-min');
-            if (!Array.isArray(s.oracleFootprint.routes) || s.oracleFootprint.routes.length !== s.oracleFootprint.routeCount)
-              throw new Error('oracleFootprint.routes must match routeCount');
-          "
+          node packages/cli/dist/bin.js status --json --project flagship/laravel-min --traces traces/flagship-laravel-min --report reports/verify-flagship-laravel-min | node scripts/ci-gates.mjs status-migration
           node packages/cli/dist/bin.js status --json --project flagship/laravel-min --traces traces/flagship-laravel-min --report reports/verify-flagship-laravel-min > reports/migration/flagship-laravel-min.json
 
       - name: Upload flagship verify + migration JSON
@@ -221,33 +199,7 @@ jobs:
           mkdir -p reports/insight
           node packages/cli/dist/bin.js insight fixtures/tiny-n1 \
             --out reports/insight/tiny-n1.json --json > reports/insight/tiny-n1.stdout.json
-          node -e '
-            const r = JSON.parse(require("fs").readFileSync("reports/insight/tiny-n1.json","utf8"));
-            const by = r.summary.byRecognizer;
-            const need = [
-              "raw-sql-concat",
-              "unescaped-output",
-              "n-plus-one-queries",
-              "scattered-validation",
-              "string-dispatch",
-            ];
-            for (const k of need) {
-              if (!(by[k] > 0)) { console.error("missing recognizer hits:", k, by); process.exit(1); }
-            }
-            const strongSec = r.opportunities.filter(
-              (o) => o.severity === "strong" &&
-                (o.recognizer === "raw-sql-concat" || o.recognizer === "unescaped-output"),
-            );
-            const secKinds = new Set(strongSec.map((o) => o.recognizer));
-            if (!secKinds.has("raw-sql-concat") || !secKinds.has("unescaped-output")) {
-              console.error(
-                "expected >=1 STRONG finding from each security recognizer; saw:",
-                [...secKinds],
-              );
-              process.exit(1);
-            }
-            console.log("tiny-n1 insight OK:", JSON.stringify(r.summary));
-          '
+          node scripts/ci-gates.mjs tiny-n1-insight
 
       - name: Insight — tiny-blog snapshot (non-gating)
         run: |
@@ -283,7 +235,7 @@ jobs:
         #   (1) at least one sanitize-output opportunity was applied,
         #   (2) re-running insight on the rewritten module surfaces no
         #       `unescaped-output` finding, and
-        #   (3) the emitted search handler actually contains `escapeHtml(`.
+        #   (3) the emitted search handler calls escapeHtml (AST check).
         # (1)+(2) guard the rewrite engine; (3) guards the end-to-end
         # IR → emit → TS pipeline against regressions where a rewrite
         # is applied in IR but lost by the emitter.
@@ -294,104 +246,13 @@ jobs:
             --report reports/rewrite/tiny-n1.json \
             --verify-behavior \
             --json > reports/rewrite/tiny-n1.stdout.json
-          node -e '
-            const fs = require("fs");
-            const r = JSON.parse(fs.readFileSync("reports/rewrite/tiny-n1.json","utf8"));
-            const sanitize = r.applied.filter(a => a.pass === "sanitize-output");
-            const paramz = r.applied.filter(a => a.pass === "parameterize-sql");
-            if (sanitize.length === 0) {
-              console.error("expected >=1 sanitize-output application, got none");
-              process.exit(1);
-            }
-            if (paramz.length === 0) {
-              console.error("expected >=1 parameterize-sql application, got none");
-              process.exit(1);
-            }
-            const search = fs.readFileSync(
-              "generated/tiny-n1/src/handlers/search.ts", "utf8",
-            );
-            if (!/escapeHtml\(/.test(search)) {
-              console.error("emitted search.ts has no escapeHtml() call:\n" + search);
-              process.exit(1);
-            }
-            const lookup = fs.readFileSync(
-              "generated/tiny-n1/src/handlers/lookup.ts", "utf8",
-            );
-            // Emitted SQL must be literal with a `?` placeholder — NOT
-            // a concat expression. This check fails loudly if the
-            // parameterize-sql fix is lost anywhere in the IR → emit
-            // pipeline.
-            if (!/"SELECT[^"]*\?[^"]*"/.test(lookup)) {
-              console.error("emitted lookup.ts lacks parameterized SQL:\n" + lookup);
-              process.exit(1);
-            }
-            if (/\+\s*id\b/.test(lookup) || /"\s*\.\s*"/.test(lookup)) {
-              console.error("emitted lookup.ts still contains SQL concat:\n" + lookup);
-              process.exit(1);
-            }
-            // Post-verify gate (D18): the report must record that
-            // every applied opportunity was re-checked by its
-            // recognizer and found no residual. If the gate ran but
-            // failed, the CLI would have rolled back the batch; if
-            // it never ran, we want to know, because CI should
-            // always exercise the gate end-to-end.
-            if (!r.postVerify) {
-              console.error("rewrite report is missing postVerify section");
-              process.exit(1);
-            }
-            if (r.postVerify.ok !== true) {
-              console.error(
-                "post-verify gate FAILED: " +
-                JSON.stringify(r.postVerify.failures, null, 2),
-              );
-              process.exit(1);
-            }
-            console.log("tiny-n1 rewrite OK:", JSON.stringify(r.summary));
-            console.log("post-verify OK: recognizers=" + r.postVerify.recognizersRun.join(","));
-            // Behavior-verify gate (D19): the report must record that
-            // every probe evaluated under both pre- and post-rewrite
-            // IR produced equivalent responses modulo declared pass
-            // transforms. An abstention budget is allowed (the
-            // simulator covers a subset of ops) but the gate itself
-            // must be ok.
-            if (!r.behaviorVerify) {
-              console.error("rewrite report is missing behaviorVerify section");
-              process.exit(1);
-            }
-            if (r.behaviorVerify.ok !== true) {
-              console.error(
-                "behavior-verify gate FAILED: " +
-                JSON.stringify(r.behaviorVerify.divergences, null, 2),
-              );
-              process.exit(1);
-            }
-            if (r.behaviorVerify.probesRun < 1) {
-              console.error("behavior-verify ran zero probes — probe synthesis is broken");
-              process.exit(1);
-            }
-            console.log(
-              "behavior-verify OK: probes=" + r.behaviorVerify.probesRun +
-              " routes=" + r.behaviorVerify.routesCovered +
-              " abstained=" + r.behaviorVerify.abstained,
-            );
-          '
+          node scripts/ci-gates.mjs tiny-n1-rewrite
           node packages/cli/dist/bin.js insight fixtures/tiny-n1 \
             --only unescaped-output,raw-sql-concat --json > reports/rewrite/before.json
           # Post-rewrite: we can't re-ingest generated TS with the PHP
           # ingester, so instead we call insight directly on the rewritten
           # module by piping through the rewrite CLI's JSON payload.
-          node -e '
-            const fs = require("fs");
-            const before = JSON.parse(fs.readFileSync("reports/rewrite/before.json","utf8"));
-            const xssCount = before.opportunities.filter(
-              o => o.recognizer === "unescaped-output",
-            ).length;
-            if (xssCount === 0) {
-              console.error("expected XSS finding pre-rewrite, saw 0");
-              process.exit(1);
-            }
-            console.log("pre-rewrite XSS findings:", xssCount);
-          '
+          node scripts/ci-gates.mjs rewrite-pre-xss
 
       - name: Upload rewrite report
         if: always()

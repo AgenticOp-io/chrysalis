@@ -163,8 +163,14 @@ function handlerFileText(
   const ctxImport = usesChrysalisTimeOrRandom(emitted)
     ? `import { chrysalisNow, chrysalisRandom } from "../ctx.js";\n`
     : "";
+  const dbImportNames = emitted.usesQueryAllWhereIn
+    ? "queryAll, queryAllWhereIn, queryOne, execSql, db"
+    : "queryAll, queryOne, execSql, db";
+  const runtimeBatch = emitted.usesChrysalisBatchHelpers
+    ? "  chrysalisPluck,\n  chrysalisRowByColumn,\n"
+    : "";
   return `import type { FastifyReply, FastifyRequest } from "fastify";
-${domainImport}${ctxImport}import { queryAll, queryOne, execSql, db } from "../db.js";
+${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";
 import { getSession } from "../session.js";
 import {
   escapeHtml,
@@ -176,7 +182,7 @@ import {
   trim,
   intval,
   strlen,
-  microtimeString,
+${runtimeBatch}  microtimeString,
   pregMatch,
   parseUrlComponent,
   parseUrlParts,

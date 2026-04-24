@@ -632,7 +632,11 @@ async function loadEmittedFetch(
   if (target === "hono") {
     const imported = (await tsImport("./src/server.ts", parentURL)) as {
       app: { fetch: typeof fetch };
+      chrysalisInProcessFetch?: (url: string, init?: RequestInit) => Promise<Response>;
     };
+    if (typeof imported.chrysalisInProcessFetch === "function") {
+      return imported.chrysalisInProcessFetch.bind(imported) as typeof fetch;
+    }
     return imported.app.fetch.bind(imported.app) as typeof fetch;
   }
   const imported = (await tsImport("./src/server.ts", parentURL)) as {

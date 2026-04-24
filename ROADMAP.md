@@ -221,8 +221,9 @@ Deepen each layer without broadening too fast.
       other leaf to a `?`-placeholder bound parameter. After rewrite
       `raw-sql-concat` no longer fires. Emitted TS for tiny-n1/lookup
       is now `queryAll("SELECT id, name FROM users WHERE id = ?", [id])`
-      — structurally SQLi-proof. CI rewrite-gate asserts the fix is
-      applied AND that no `.`-concat survives in the emitted lookup.ts.
+      — structurally SQLi-proof. CI rewrite-gate asserts the fix via
+      `scripts/ci-gates.mjs tiny-n1-rewrite` (TypeScript AST on emitted
+      handlers + rewrite report JSON), not regex on source (D41).
 - [ ] Intent-preserving rewrites (v1, building on the D15 engine):
   - [x] `@chrysalis/rewrite` package scaffold — `RewritePass` interface,
         `applyRewrites` driver, `sanitize-output` first pass
@@ -258,8 +259,14 @@ Deepen each layer without broadening too fast.
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
   - [ ] Inline `$_POST` validation → Zod schema at route boundary
         (consumes `scattered-validation` opportunities)
-  - [ ] N+1 detection → batched loader (consumes `n-plus-one-queries`
-        opportunities whose corpus-boosted confidence ≥ 0.9)
+  - [x] N+1 detection → batched loader — **`batch-n1-read`** pass (D43) consumes
+        `n-plus-one-queries` when `innerQueriesInLoop === 1` and structural
+        preconditions hold (param iterable, assign-wrapped inner `row-or-null`,
+        explicit column list, single FK param). **Emit/runtime (D42):**
+        `queryAllWhereIn`, `chrysalisPluck`, `chrysalisRowByColumn`, WebIR
+        `__chrysalis_*` callees in emit + simulator. **Still open:** multi-read
+        loop bodies, bare inner queries without `__assign`, `SELECT *`, tying
+        pass gating to corpus-boosted confidence only.
   - [x] **Emit (D21):** matching chains lower to a TS `switch` (shared
         `matchStringDispatchChain` with insight; see Milestone 1 emit).
   - [ ] String dispatch → discriminated union + `z.enum`

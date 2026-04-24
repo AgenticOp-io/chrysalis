@@ -557,6 +557,57 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
     case "echo":
       ctx.echo.push(stringify(args[0] ?? { kind: "null" }));
       return { kind: "null" };
+    case "__chrysalis_pluck": {
+      const rows = args[0] ?? { kind: "array", entries: [] };
+      const key = stringify(args[1] ?? { kind: "null" });
+      if (rows.kind !== "array") {
+        return { kind: "array", entries: [] };
+      }
+      const out: { key: number; value: SimValue }[] = [];
+      let i = 0;
+      for (const e of rows.entries) {
+        if (e.value.kind === "array") {
+          const cell = e.value.entries.find((x) => String(x.key) === key);
+          out.push({ key: i++, value: cell?.value ?? { kind: "null" } });
+        } else {
+          out.push({ key: i++, value: { kind: "null" } });
+        }
+      }
+      return { kind: "array", entries: out };
+    }
+    case "__chrysalis_row_by_column": {
+      const rows = args[0] ?? { kind: "array", entries: [] };
+      const col = stringify(args[1] ?? { kind: "null" });
+      const keyVal = args[2] ?? { kind: "null" };
+      const want = stringify(keyVal);
+      if (rows.kind !== "array") return { kind: "null" };
+      for (const e of rows.entries) {
+        const row = e.value;
+        if (row.kind !== "array") continue;
+        const cell = row.entries.find((x) => String(x.key) === col);
+        const v = cell?.value;
+        if (v !== undefined && stringify(v) === want) return row;
+      }
+      return { kind: "null" };
+    }
+    case "__chrysalis_query_all_where_in": {
+      const selectList = stringify(args[0] ?? { kind: "null" });
+      const table = stringify(args[1] ?? { kind: "null" });
+      const idCol = stringify(args[2] ?? { kind: "null" });
+      const idsVal = args[3] ?? { kind: "array", entries: [] };
+      const params = idsVal.kind === "array" ? idsVal.entries.map((e) => e.value) : [];
+      const sql = `SELECT ${selectList} FROM ${table} WHERE ${idCol} IN (?) /*expanded*/`;
+      const tables = [table.toLowerCase()];
+      const returned = ctx.db.query({
+        sql,
+        params,
+        tables,
+        kind: "read",
+        returns: "rows",
+      });
+      ctx.dbReads.push({ sql, params, tables, returned });
+      return returned;
+    }
     default:
       // Unknown call — record the opaque result so downstream diffs
       // don't silently succeed.

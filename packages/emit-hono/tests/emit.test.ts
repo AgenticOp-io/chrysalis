@@ -35,6 +35,9 @@ describe("emit-hono: tiny-blog output", () => {
 
       expect(existsSync(resolve(out, "src/domain.ts"))).toBe(true);
 
+      const serverSrc = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(serverSrc).toContain("chrysalisInProcessFetch");
+
       const expectedFiles = [
         "package.json",
         "tsconfig.json",

@@ -158,23 +158,14 @@ async function loadEmittedFetch(outAbs, kind) {
   const parentURL = pathToFileURL(join(outAbs, "package.json")).href;
   const mod = await tsImport("./src/server.ts", parentURL);
   if (kind === "hono") {
+    if (typeof mod.chrysalisInProcessFetch === "function") {
+      return mod.chrysalisInProcessFetch.bind(mod);
+    }
     if (typeof mod.app?.fetch !== "function") {
       throw new Error(`expected Hono app.fetch from ${outAbs}`);
     }
     const honoFetch = mod.app.fetch.bind(mod.app);
-    // Hono's app.fetch(request, ...) assumes a Request; (string, init) makes request.url undefined.
-    return async (input, init) => {
-      if (typeof input === "string") {
-        return honoFetch(new Request(input, init));
-      }
-      if (input instanceof URL) {
-        return honoFetch(new Request(input, init));
-      }
-      if (input instanceof Request) {
-        return honoFetch(init !== undefined ? new Request(input, init) : input);
-      }
-      return honoFetch(new Request(input, init));
-    };
+    return async (url, init) => honoFetch(new Request(url, init));
   }
   if (typeof mod.fetch !== "function") {
     throw new Error(`expected named fetch from Fastify server ${outAbs}`);

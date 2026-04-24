@@ -168,8 +168,8 @@ describe("replayCorpus", () => {
         expectedBody: "injected-body",
       }),
     ]);
-    const injectedFetch: typeof fetch = async (input) => {
-      void input;
+    const injectedFetch: typeof fetch = async (url, _init) => {
+      void url;
       return new Response("injected-body", {
         status: 200,
         headers: { "content-type": "text/html" },

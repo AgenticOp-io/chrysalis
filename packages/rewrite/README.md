@@ -29,6 +29,7 @@ ingest → insight → rewrite → emit into a single command.
 | --- | --- | --- |
 | `sanitize-output` | `unescaped-output` | Wraps tainted leaves of a concat-like echo in `htmlspecialchars`. For `html.template` sinks, flips the offending part's `escape: false` to `true` and wraps its operand. Preserves literal HTML surrounding the taint. |
 | `parameterize-sql` | `raw-sql-concat` | Walks the `sqlExpr` tree stashed by ingest, inlines string literals as SQL text, and lifts every other leaf as a `?`-placeholder bound parameter. Emitted TS becomes `queryAll("SELECT … WHERE id = ?", [id])`. Structurally SQLi-proof. |
+| `batch-n1-read` | `n-plus-one-queries` | **v1:** only when the opportunity reports `innerQueriesInLoop === 1`. Requires the foreach iterable to be a `data.param`, the inner read to be `returns: row-or-null` with one `?` param bound from `member(loopVar, fkColumn)`, SQL shaped like `SELECT cols FROM tbl WHERE col = ?` (no `SELECT *`), and the inner `effect.db.query` to be the RHS of `__assign`. Inserts `__chrysalis_pluck`, `__assign` of id list, `__chrysalis_query_all_where_in`, `__assign` of row batch before the loop; replaces the inner assign RHS with `__chrysalis_row_by_column`. Listed in `DEFAULT_PASSES` after `parameterize-sql`. See DESIGN.md D42/D43. |
 
 ## Post-rewrite analysis gate (D18)
 
@@ -85,7 +86,11 @@ no compile, no server. Two probes per route (benign and XSS-flavored
 attack) exercise the handler; responses include status, body, redirect
 target, DB reads/writes (observably compared by `tables` + returned
 rows, **not** SQL text — that's intentional so `parameterize-sql`
-doesn't flag as a regression), and session writes.
+doesn't flag as a regression), and session writes. When
+`batch-n1-read` is among the applied passes, the expected **db read
+sequence** is taken from the post-rewrite simulation instead of the
+pre-transform prediction, because batching legitimately reduces the
+number of reads (D43).
 
 Enable by passing `behaviorVerify: true` (or a richer
 `BehaviorVerifyOptions`) to `applyRewrites`:

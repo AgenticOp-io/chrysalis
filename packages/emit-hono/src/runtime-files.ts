@@ -150,6 +150,22 @@ export function queryAll<T = Record<string, unknown>>(
   return db().prepare(sql).all(...(params as never[])) as T[];
 }
 
+/**
+ * Batch read: SELECT cols FROM table WHERE idColumn IN (?,?,...).
+ * Identifiers must be static literals from codegen; only ids are dynamic data.
+ */
+export function queryAllWhereIn<T = Record<string, unknown>>(
+  selectList: string,
+  table: string,
+  idColumn: string,
+  ids: ReadonlyArray<unknown>,
+): T[] {
+  if (ids.length === 0) return [];
+  const ph = ids.map(() => "?").join(", ");
+  const sql = \`SELECT \${selectList} FROM \${table} WHERE \${idColumn} IN (\${ph})\`;
+  return queryAll<T>(sql, ids);
+}
+
 export function queryOne<T = Record<string, unknown>>(
   sql: string,
   params: ReadonlyArray<unknown> = [],
@@ -382,6 +398,31 @@ export function strlen(v: unknown): number {
   return String(v ?? "").length;
 }
 
+/** One column per row — used when batching N+1 reads (ids before a single IN query). */
+export function chrysalisPluck(
+  rows: ReadonlyArray<Record<string, unknown>>,
+  key: string,
+): unknown[] {
+  const out: unknown[] = [];
+  for (const r of rows ?? []) {
+    out.push((r as Record<string, unknown>)[key]);
+  }
+  return out;
+}
+
+/** First row where \`row[col]\` equals \`keyVal\` (String comparison). */
+export function chrysalisRowByColumn<T extends Record<string, unknown>>(
+  rows: ReadonlyArray<T>,
+  col: string,
+  keyVal: unknown,
+): T | null {
+  const k = String(keyVal ?? "");
+  for (const r of rows ?? []) {
+    if (String((r as Record<string, unknown>)[col]) === k) return r;
+  }
+  return null;
+}
+
 /** PHP microtime() / microtime(false): "fractional_seconds seconds" string from injectable epoch float. */
 export function microtimeString(epochSeconds: number): string {
   const sec = Math.floor(epochSeconds);
@@ -517,6 +558,17 @@ app.use("*", chrysalisDeterminismMiddleware());
 app.use("*", sessionMiddleware());
 
 registerRoutes(app);
+
+/**
+ * In-process corpus replay: build Request in this module next to app so Hono
+ * always sees a Request with a populated url (avoids tsx / loader edge cases).
+ */
+export async function chrysalisInProcessFetch(
+  url: string,
+  init?: RequestInit,
+): Promise<Response> {
+  return app.fetch(new Request(url, init ?? {}));
+}
 `;
 
 export const INDEX_TS = `import { serve } from "@hono/node-server";

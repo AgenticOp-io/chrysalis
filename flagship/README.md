@@ -44,4 +44,7 @@ Override sidecar directory with `--migration-reports <dir>`.
 ## Status
 
 Full Laravel/Breeze adoption is still open. Milestone 4 phased checklist in
-`ROADMAP.md` is complete except ongoing narrative on `main`.
+`ROADMAP.md` is complete for `laravel-min`; next steps are a Composer-backed
+tree, more routes (DB/session), a wider oracle corpus, and keeping migration
+metrics (`coverage`, `correctness`, optional idiomaticity/residual-legacy)
+non-regressing on `main` with a short note in this file each time they move.

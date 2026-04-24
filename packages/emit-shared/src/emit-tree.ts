@@ -19,6 +19,10 @@ export interface EmittedHandler {
   readonly shape: "html" | "redirect" | "mixed";
   /** Archaeology `domain.ts` types used as row generics (sorted). */
   readonly domainTypeImports: ReadonlyArray<string>;
+  /** Handler calls `queryAllWhereIn` from `db.js` (N+1 batching). */
+  readonly usesQueryAllWhereIn: boolean;
+  /** Handler calls `chrysalisPluck` / `chrysalisRowByColumn` from `runtime.js`. */
+  readonly usesChrysalisBatchHelpers: boolean;
 }
 
 /**
@@ -62,6 +66,8 @@ interface EmitCtx {
   shape: "html" | "redirect" | "mixed" | null;
   /** Unique-name counter for synthesised locals. */
   tmpCounter: number;
+  usesQueryAllWhereIn: boolean;
+  usesChrysalisBatchHelpers: boolean;
 }
 
 function get(ctx: EmitCtx, id: NodeId): NodeBase {
@@ -287,6 +293,15 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `parseUrlComponent(${args[0]}, ${args[1]})`;
     case "parseUrlParts":
       return `parseUrlParts(${args[0]})`;
+    case "__chrysalis_pluck":
+      ctx.usesChrysalisBatchHelpers = true;
+      return `chrysalisPluck((${args[0]}) as ReadonlyArray<Record<string, unknown>>, String(${args[1]}))`;
+    case "__chrysalis_row_by_column":
+      ctx.usesChrysalisBatchHelpers = true;
+      return `chrysalisRowByColumn((${args[0]}) as ReadonlyArray<Record<string, unknown>>, String(${args[1]}), ${args[2]})`;
+    case "__chrysalis_query_all_where_in":
+      ctx.usesQueryAllWhereIn = true;
+      return `queryAllWhereIn(String(${args[0]}), String(${args[1]}), String(${args[2]}), ${args[3]})`;
   }
   ctx.holes.push({
     name: `call:${callee}`,
@@ -460,6 +475,8 @@ export function emitHandlerBody(
     hasTerminalResponse: false,
     shape: null,
     tmpCounter: 0,
+    usesQueryAllWhereIn: false,
+    usesChrysalisBatchHelpers: false,
   };
   const handler = m.nodes.get(handlerId);
   if (!handler) throw new Error(`emit-shared: handler not found ${String(handlerId)}`);
@@ -481,6 +498,8 @@ export function emitHandlerBody(
     effectNames: [...ctx.effectNames].sort(),
     shape: ctx.shape ?? "mixed",
     domainTypeImports: [...ctx.domainTypeImports].sort(),
+    usesQueryAllWhereIn: ctx.usesQueryAllWhereIn,
+    usesChrysalisBatchHelpers: ctx.usesChrysalisBatchHelpers,
   };
 }
 

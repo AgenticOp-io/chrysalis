@@ -28,10 +28,9 @@ export interface ReplayOptions {
   readonly baseUrl: string;
   /**
    * When set, requests are issued through this function instead of the global
-   * `fetch`. Receives a single {@link Request} (same shape as after
-   * `new Request(url, init)`). Use `app.fetch.bind(app)` from Hono for
-   * in-process replay; `baseUrl` + trace path still define the request URL.
-   * See DESIGN.md D20.
+   * `fetch`. Same signature as `fetch(url: string, init?: RequestInit)` — use
+   * emitted `chrysalisInProcessFetch` from Hono projects (builds `Request` next
+   * to `app`). See DESIGN.md D20.
    */
   readonly fetch?: typeof globalThis.fetch;
   /**
@@ -155,12 +154,12 @@ async function replayOne(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? 10_000);
   const doFetch = opts.fetch ?? globalThis.fetch;
-  // Single `Request` argument: Hono's `app.fetch` (and some other handlers) do
-  // not treat `(string, RequestInit)` like global `fetch`; they expect `Request`.
-  const request = new Request(url, { ...init, signal: controller.signal });
+  const fetchInit: RequestInit = { ...init, signal: controller.signal };
   let actualResp: Response;
   try {
-    actualResp = await doFetch(request);
+    // Same `(url, RequestInit)` shape as global `fetch`. Emitted Hono apps use
+    // `chrysalisInProcessFetch`, which builds `Request` next to `app` (tsx-safe).
+    actualResp = await doFetch(url, fetchInit);
   } finally {
     clearTimeout(timer);
   }

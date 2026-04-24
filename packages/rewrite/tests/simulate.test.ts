@@ -262,4 +262,79 @@ describe("IR simulator (D19 core)", () => {
     expect(res.errors.length).toBeGreaterThanOrEqual(1);
     expect(res.errors[0]!.reason).toMatch(/hole/);
   });
+
+  it("supports __chrysalis_pluck and __chrysalis_row_by_column on stub row arrays", () => {
+    const m = buildModule(({ data, eff, loc }) => {
+      const row1 = data.call({
+        callee: "__array_literal",
+        args: [
+          data.literal({ value: 1, type: T.int, origin: loc() }),
+          data.literal({ value: "a", type: T.string, origin: loc() }),
+        ],
+        type: T.unknown,
+        origin: loc(),
+      });
+      const rows = data.call({
+        callee: "__array_literal",
+        args: [row1],
+        type: T.unknown,
+        origin: loc(),
+      });
+      const plucked = data.call({
+        callee: "__chrysalis_pluck",
+        args: [rows, data.literal({ value: "0", type: T.string, origin: loc() })],
+        type: T.unknown,
+        origin: loc(),
+      });
+      const picked = data.call({
+        callee: "__chrysalis_row_by_column",
+        args: [
+          rows,
+          data.literal({ value: "0", type: T.string, origin: loc() }),
+          data.literal({ value: 1, type: T.int, origin: loc() }),
+        ],
+        type: T.unknown,
+        origin: loc(),
+      });
+      const body = data.block({
+        statements: [
+          eff.echo({ value: plucked, origin: loc() }),
+          eff.echo({ value: picked, origin: loc() }),
+        ],
+        type: T.void,
+        origin: loc(),
+      });
+      return body;
+    });
+    const res = simulateHandler(m, routeIdOf(m), emptyInput);
+    expect(res.errors).toEqual([]);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  it("records __chrysalis_query_all_where_in as a db read", () => {
+    const m = buildModule(({ data, eff, loc }) => {
+      const ids = data.call({
+        callee: "__array_literal",
+        args: [data.literal({ value: 1, type: T.int, origin: loc() })],
+        type: T.unknown,
+        origin: loc(),
+      });
+      const q = data.call({
+        callee: "__chrysalis_query_all_where_in",
+        args: [
+          data.literal({ value: "id, name", type: T.string, origin: loc() }),
+          data.literal({ value: "users", type: T.string, origin: loc() }),
+          data.literal({ value: "id", type: T.string, origin: loc() }),
+          ids,
+        ],
+        type: T.unknown,
+        origin: loc(),
+      });
+      return eff.echo({ value: q, origin: loc() });
+    });
+    const res = simulateHandler(m, routeIdOf(m), emptyInput);
+    expect(res.errors).toEqual([]);
+    expect(res.dbReads.length).toBe(1);
+    expect(res.dbReads[0]!.sql).toContain("users");
+  });
 });

@@ -9,8 +9,13 @@ walker and framework-specific HTTP surface via `HttpEmitProfile`.
 ## Public API
 
 - `emitHandlerBody(module, handlerId, options?, profile?)` — handler function
-  body text, holes, inferred effects, domain type imports. Defaults to
-  `honoHttpProfile`.
+  body text, holes, inferred effects, domain type imports, and flags
+  `usesQueryAllWhereIn` / `usesChrysalisBatchHelpers` for conditional handler
+  imports. Defaults to `honoHttpProfile`.
+- Internal `data.call` callees `__chrysalis_pluck`, `__chrysalis_row_by_column`,
+  `__chrysalis_query_all_where_in` lower to runtime/db helpers for N+1 batching
+  (D42). Ingest does not synthesize them; the **`batch-n1-read`** rewrite pass
+  (`@chrysalis/rewrite`, D43) may introduce them on qualified modules.
 - `honoHttpProfile`, `fastifyHttpProfile` — `HttpEmitProfile` values.
 - `emitExpr`, `emitStmt` — lower-level helpers (mainly for tests).
 - `ident`, `stringLit`, … — TS text helpers.

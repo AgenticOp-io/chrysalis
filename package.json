@@ -16,6 +16,7 @@
     "update:golden": "pnpm build && node scripts/update-golden-snapshots.mjs",
     "verify:e2e": "node scripts/verify-tiny-blog.mjs",
     "verify:flagship": "node scripts/verify-flagship-laravel-min.mjs",
+    "ci-gates": "node scripts/ci-gates.mjs",
     "clean": "pnpm -r clean"
   },
   "devDependencies": {

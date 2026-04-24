@@ -12,7 +12,7 @@ anti-patterns, and proposes idiomatic typed replacements. Consumed by
 | --- | --- | --- |
 | `raw-sql-concat` | `db.query` built from a non-literal SQL expression (runtime-concatenated SQL). Combined with any request/session input in the same handler, this is a direct SQL injection. | `parameterize-query` — literal SQL + bound params |
 | `unescaped-output` | `echo` (or `data.html.template` with `escape: false`) whose value carries taint from `request.field` or `session.read` through no recognized sanitizer. | `sanitize-output` — `html.escape(...)` or `JSON.stringify` for script contexts |
-| `n-plus-one-queries` | `foreach` body issues a DB read per iteration | `batch-loader` — single `SELECT ... WHERE id IN (...)` + lookup map |
+| `n-plus-one-queries` | `foreach` body issues a DB read per iteration | `batch-loader` — single `SELECT ... WHERE id IN (...)` + lookup map. **Rewrite:** `@chrysalis/rewrite` `batch-n1-read` automates a strict v1 subset (one inner read per loop, assign-wrapped, param iterable; see that README). |
 | `scattered-validation` | One request field touched by ≥2 distinct guards (isset/empty/trim/intval/preg_match/strlen/compare-to-literal/…) | `zod-schema` — one schema parsed at handler top |
 | `string-dispatch` | `if/elseif` chain on literal equality against a single request field | `action-union` — discriminated union + `z.enum` + exhaustive `switch` (emit-hono already emits a TS `switch` for the same shape via exported `matchStringDispatchChain`) |
 

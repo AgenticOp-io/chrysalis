@@ -145,6 +145,22 @@ export function queryAll<T = Record<string, unknown>>(
   return db().prepare(sql).all(...(params as never[])) as T[];
 }
 
+/**
+ * Batch read: SELECT cols FROM table WHERE idColumn IN (?,?,...).
+ * Identifiers must be static literals from codegen; only ids are dynamic data.
+ */
+export function queryAllWhereIn<T = Record<string, unknown>>(
+  selectList: string,
+  table: string,
+  idColumn: string,
+  ids: ReadonlyArray<unknown>,
+): T[] {
+  if (ids.length === 0) return [];
+  const ph = ids.map(() => "?").join(", ");
+  const sql = \`SELECT \${selectList} FROM \${table} WHERE \${idColumn} IN (\${ph})\`;
+  return queryAll<T>(sql, ids);
+}
+
 export function queryOne<T = Record<string, unknown>>(
   sql: string,
   params: ReadonlyArray<unknown> = [],
@@ -391,6 +407,29 @@ export function intval(v: unknown): number {
 
 export function strlen(v: unknown): number {
   return String(v ?? "").length;
+}
+
+export function chrysalisPluck(
+  rows: ReadonlyArray<Record<string, unknown>>,
+  key: string,
+): unknown[] {
+  const out: unknown[] = [];
+  for (const r of rows ?? []) {
+    out.push((r as Record<string, unknown>)[key]);
+  }
+  return out;
+}
+
+export function chrysalisRowByColumn<T extends Record<string, unknown>>(
+  rows: ReadonlyArray<T>,
+  col: string,
+  keyVal: unknown,
+): T | null {
+  const k = String(keyVal ?? "");
+  for (const r of rows ?? []) {
+    if (String((r as Record<string, unknown>)[col]) === k) return r;
+  }
+  return null;
 }
 
 export function microtimeString(epochSeconds: number): string {

@@ -1207,3 +1207,48 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Rejected: treating write tables as replay tape rows in the same list as reads
   — writes shape DB state; the hint names tables that need seeding or isolation,
   not SELECT result replay.
+
+- **2026-04-24 — D41** **CI gates: structured checks, WebIR stays truth** —
+  GitHub Actions use `scripts/ci-gates.mjs` for migration/oracle-footprint JSON
+  invariants, tiny-n1 insight catalog counts, rewrite pre-baseline XSS findings,
+  and post-rewrite emitted-handler checks. Emitted TypeScript is validated with the
+  TypeScript compiler API (e.g. `escapeHtml(...)` calls, no `+`-built SQL first
+  argument to `queryAll`/`queryOne`/`execSql`) instead of regex on source text.
+  Rationale: matches principle that **WebIR is the owned intermediate language**
+  (oracle footprint and coverage still come from IR + traces), while **edges**
+  use boring, explicit scripts; the **host toolchain remains TypeScript** (no new
+  GP language, no host rewrite).
+
+  Rejected: expanding CI with more string-matching on generated `.ts` without
+  structure — high false positive/negative rate and obscures real regressions.
+  CI JSON readers strip a UTF-8 BOM so artifacts stay valid across platforms.
+
+- **2026-04-24 — D42** **N+1 batching helpers (emit + simulator)** — Emitted
+  apps include `queryAllWhereIn(selectList, table, idColumn, ids)` on `db.js`
+  (static SQL identifiers only; dynamic data is the id list). `runtime.js`
+  adds `chrysalisPluck` and `chrysalisRowByColumn`. WebIR may reference these
+  via internal `data.call` callees `__chrysalis_query_all_where_in`,
+  `__chrysalis_pluck`, and `__chrysalis_row_by_column` lowered by
+  `@chrysalis/emit-shared`; the IR simulator records the batch call as a
+  `db.read` for D19. Rationale: unblocks the `batch-n1-read` rewrite pass
+  without inventing a new emit backend; SQL tape shape will change when a batch
+  replaces per-row queries (regenerate corpora or extend replay matching).
+
+  Rejected: dynamic table/column strings from request input in `queryAllWhereIn`
+  — that reintroduces injection; only codegen literals are allowed.
+
+- **2026-04-23 — D43** **`batch-n1-read` rewrite pass** — `@chrysalis/rewrite`
+  ships `batch-n1-read` (in `DEFAULT_PASSES` after `parameterize-sql`). It
+  splices batched-load `data.call` nodes (`__chrysalis_pluck`,
+  `__chrysalis_query_all_where_in`, `__chrysalis_row_by_column`) ahead of a
+  qualifying foreach and rewires the inner `__assign` (v1 scope: one inner
+  read, param iterable, `row-or-null`, non-`SELECT *`, FK from loop row).
+  **D19:** when this pass applies, expected `dbReads` for a probe are aligned
+  with the **post** simulation, not the generic pre→post predictor, so fewer
+  executed reads after batching do not roll the batch back. Invariants omit
+  `effect.db.query` from strict effect-count preservation because orphaned inner
+  query nodes may remain in the graph while executed reads shrink.
+
+  Rejected: silently rewriting N+1 patterns that violate v1 preconditions —
+  the pass throws or is skipped; unsupported shapes remain insight findings
+  until a broader pass or manual fix.

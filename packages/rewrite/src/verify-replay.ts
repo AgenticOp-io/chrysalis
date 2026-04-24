@@ -136,7 +136,12 @@ export function verifyBehavior(
       continue;
     }
 
-    const expected = predictPostFromPre(preSim, probe, passIds);
+    let expected = predictPostFromPre(preSim, probe, passIds);
+    // batch-n1-read replaces N per-iteration db.read events with one batched
+    // read + pure lookups — the stub DB sequence legitimately differs.
+    if (passIds.has("batch-n1-read")) {
+      expected = { ...expected, dbReads: postSim.dbReads };
+    }
     divergences.push(...diffResponses(route, probe, postSim, expected));
   }
 
@@ -296,6 +301,8 @@ function synthesizeProbesFor(_m: Module, r: RouteInfo): Probe[] {
  *     pre.body should appear HTML-escaped in the post.body.
  *   - parameterize-sql: no observable change — SQL text differs but
  *     the db stub returns the same result given the same params.
+ *   - batch-n1-read: db read *sequence* changes (fewer reads); expected
+ *     dbReads are taken from the actual post simulation for that probe.
  *
  * Everything else is expected to match byte-for-byte.
  */
