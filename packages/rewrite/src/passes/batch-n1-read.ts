@@ -1,14 +1,17 @@
 /**
- * `batch-n1-read` — collapse a single inner `effect.db.query` inside a foreach
- * into one `__chrysalis_query_all_where_in` before the loop plus
- * `__chrysalis_row_by_column` inside the loop (D42).
+ * `batch-n1-read` — collapse inner `effect.db.query` reads inside a foreach
+ * into `__chrysalis_query_all_where_in` before the loop plus
+ * `__chrysalis_row_by_column` inside the loop (D42/D43).
  *
- * Preconditions (v1):
- * - Opportunity from `n-plus-one-queries` with exactly one inner read.
+ * Preconditions:
+ * - Opportunity from `n-plus-one-queries` with at least one inner read.
+ * - Every inner read to batch must be batchable (see below); if none qualify,
+ *   the pass throws and the driver records a skip.
  * - Foreach iterable is a `data.param` (outer rows already bound to a variable).
  * - Inner query is `returns: row-or-null` with one bound param.
  * - Param is `data.member` on `data.param` whose name matches the foreach value.
  * - Inner SQL matches `SELECT ... FROM tbl WHERE col = ?` (no `SELECT *`).
+ * - Inner `db.query` must be the RHS of `__assign` (assign-wrapped).
  */
 import type { NodeBase, NodeId, WebIRType } from "@chrysalis/webir";
 import { T } from "@chrysalis/webir";
@@ -106,32 +109,50 @@ function findForeachInBlock(
   return undefined;
 }
 
-function firstInnerReadStmt(m: ModuleFromCtx, bodyId: NodeId): NodeBase | undefined {
+type BatchableInner = {
+  inner: NodeBase;
+  assign: NodeBase;
+  member: { memberNodeId: NodeId; fkKey: string };
+  parsed: { selectList: string; table: string; whereCol: string };
+};
+
+function collectBatchableInners(
+  m: ModuleFromCtx,
+  bodyId: NodeId,
+  loopVar: string,
+): BatchableInner[] {
   const b = m.nodes.get(bodyId);
-  if (!b || b.op !== "block") return undefined;
+  if (!b || b.op !== "block") return [];
+  const out: BatchableInner[] = [];
   for (const sid of b.operands) {
     const n = m.nodes.get(sid);
     if (!n) continue;
-    if (n.op === "call" && (n.attrs as { callee?: string }).callee === "__assign") {
-      const rhs = n.operands[1];
-      const rhsN = rhs ? m.nodes.get(rhs) : undefined;
-      if (
-        rhsN?.dialect === "effect" &&
-        rhsN.op === "db.query" &&
-        (rhsN.attrs as { kind?: string }).kind === "read"
-      ) {
-        return rhsN;
-      }
-    }
+    if (n.op !== "call" || (n.attrs as { callee?: string }).callee !== "__assign") continue;
+    const rhs = n.operands[1];
+    const inner = rhs ? m.nodes.get(rhs) : undefined;
     if (
-      n.dialect === "effect" &&
-      n.op === "db.query" &&
-      (n.attrs as { kind?: string }).kind === "read"
+      !inner ||
+      inner.dialect !== "effect" ||
+      inner.op !== "db.query" ||
+      (inner.attrs as { kind?: string }).kind !== "read"
     ) {
-      return n;
+      continue;
     }
+    const attrs = inner.attrs as { kind?: string; sql?: string; returns?: string };
+    if (attrs.kind !== "read" || attrs.returns !== "row-or-null") continue;
+    const parsed = parseInnerLookupSql(attrs.sql ?? "");
+    if (!parsed) continue;
+    const params = inner.operands;
+    if (params.length !== 1) continue;
+    const member = unwrapMemberParam(m, params[0]!, loopVar);
+    if (!member) continue;
+    const assign = findAssignForRhs(m, bodyId, inner.id);
+    if (!assign) continue;
+    const assignNameLit = m.nodes.get(assign.operands[0]!);
+    if (assignNameLit?.op !== "literal") continue;
+    out.push({ inner, assign, member, parsed });
   }
-  return undefined;
+  return out;
 }
 
 function findAssignForRhs(m: ModuleFromCtx, bodyId: NodeId, rhsId: NodeId): NodeBase | undefined {
@@ -187,11 +208,12 @@ function unwrapMemberParam(
 
 export const batchN1ReadPass: RewritePass = {
   id: "batch-n1-read",
-  name: "Batch single inner read in foreach",
+  name: "Batch inner foreach reads (IN + row lookup)",
 
   handles(op: Opportunity): boolean {
     if (op.recognizer !== "n-plus-one-queries") return false;
-    if (op.evidence["innerQueriesInLoop"] !== 1) return false;
+    const nInner = Number(op.evidence["innerQueriesInLoop"]);
+    if (!Number.isFinite(nInner) || nInner < 1) return false;
     return true;
   },
 
@@ -211,41 +233,9 @@ export const batchN1ReadPass: RewritePass = {
     const bodyId = fe.operands[1];
     if (!bodyId) throw new Error("batch-n1-read: foreach has no body");
 
-    const inner = firstInnerReadStmt(m, bodyId);
-    if (!inner) throw new Error("batch-n1-read: no inner read in loop body");
-
-    const attrs = inner.attrs as {
-      kind?: string;
-      sql?: string;
-      returns?: string;
-    };
-    if (attrs.kind !== "read" || attrs.returns !== "row-or-null") {
-      throw new Error("batch-n1-read: inner query must be a read returning row-or-null");
-    }
-
-    const parsed = parseInnerLookupSql(attrs.sql ?? "");
-    if (!parsed) {
-      throw new Error("batch-n1-read: inner SQL must look like SELECT cols FROM t WHERE col = ? (no SELECT *)");
-    }
-
-    const params = inner.operands;
-    if (params.length !== 1) {
-      throw new Error("batch-n1-read: inner query must have exactly one bound parameter");
-    }
-
-    const member = unwrapMemberParam(m, params[0]!, loopVar);
-    if (!member) {
-      throw new Error("batch-n1-read: inner param must be member(loopVar, fkColumn)");
-    }
-
-    const assign = findAssignForRhs(m, bodyId, inner.id);
-    if (!assign) {
-      throw new Error("batch-n1-read: inner db.query must be rhs of __assign");
-    }
-
-    const assignNameLit = m.nodes.get(assign.operands[0]!);
-    if (assignNameLit?.op !== "literal") {
-      throw new Error("batch-n1-read: __assign target name not a literal");
+    const batchables = collectBatchableInners(m, bodyId, loopVar);
+    if (batchables.length === 0) {
+      throw new Error("batch-n1-read: no assign-wrapped row-or-null lookups match batch preconditions");
     }
 
     const routeBody = routeBodyId(m, op);
@@ -257,70 +247,91 @@ export const batchN1ReadPass: RewritePass = {
     const block = m.nodes.get(parent.blockId);
     if (!block || block.op !== "block") throw new Error("batch-n1-read: parent not a block");
 
-    const tbl = sanitizeIdentPart(parsed.table);
-    const idsVar = `__chrysalisN1Ids_${tbl}`;
-    const rowsVar = `__chrysalisN1Rows_${tbl}`;
-    const batchSelect = selectListForBatch(parsed.selectList, parsed.whereCol);
-
     const edits: Edit[] = [];
-
     const iterableParamId = fe.operands[0]!;
-    const fkLit = literalNode(ctx, member.fkKey, T.string);
-    edits.push({ kind: "add", node: fkLit });
+    const hoistIds: NodeId[] = [];
+    const replacePairs: { assign: NodeBase; rowLookupId: NodeId }[] = [];
 
-    const pluckCall = makeDataCall(
-      ctx,
-      "__chrysalis_pluck",
-      [iterableParamId, fkLit.id],
-      T.unknown,
-      "batch-n1-read pluck",
-    );
-    edits.push({ kind: "add", node: pluckCall });
+    for (let i = 0; i < batchables.length; i++) {
+      const { assign, member, parsed } = batchables[i]!;
+      const tbl = sanitizeIdentPart(parsed.table);
+      const disamb = batchables.length > 1 ? `_${i}` : "";
+      const idsVar = `__chrysalisN1Ids_${tbl}${disamb}`;
+      const rowsVar = `__chrysalisN1Rows_${tbl}${disamb}`;
+      const batchSelect = selectListForBatch(parsed.selectList, parsed.whereCol);
 
-    const idsNameLit = literalNode(ctx, idsVar, T.string);
-    edits.push({ kind: "add", node: idsNameLit });
-    const assignIds = makeDataCall(ctx, "__assign", [idsNameLit.id, pluckCall.id], T.void, "batch-n1-read assign ids");
-    edits.push({ kind: "add", node: assignIds });
+      const fkLit = literalNode(ctx, member.fkKey, T.string);
+      edits.push({ kind: "add", node: fkLit });
 
-    const selLit = literalNode(ctx, batchSelect, T.string);
-    const tableLit = literalNode(ctx, parsed.table, T.string);
-    const whereLit = literalNode(ctx, parsed.whereCol, T.string);
-    const idsRead = paramNode(ctx, idsVar);
-    edits.push({ kind: "add", node: selLit });
-    edits.push({ kind: "add", node: tableLit });
-    edits.push({ kind: "add", node: whereLit });
-    edits.push({ kind: "add", node: idsRead });
+      const pluckCall = makeDataCall(
+        ctx,
+        "__chrysalis_pluck",
+        [iterableParamId, fkLit.id],
+        T.unknown,
+        `batch-n1-read pluck ${i}`,
+      );
+      edits.push({ kind: "add", node: pluckCall });
 
-    const batchCall = makeDataCall(
-      ctx,
-      "__chrysalis_query_all_where_in",
-      [selLit.id, tableLit.id, whereLit.id, idsRead.id],
-      T.unknown,
-      "batch-n1-read batch query",
-    );
-    edits.push({ kind: "add", node: batchCall });
+      const idsNameLit = literalNode(ctx, idsVar, T.string);
+      edits.push({ kind: "add", node: idsNameLit });
+      const assignIds = makeDataCall(
+        ctx,
+        "__assign",
+        [idsNameLit.id, pluckCall.id],
+        T.void,
+        `batch-n1-read assign ids ${i}`,
+      );
+      edits.push({ kind: "add", node: assignIds });
 
-    const rowsNameLit = literalNode(ctx, rowsVar, T.string);
-    edits.push({ kind: "add", node: rowsNameLit });
-    const assignRows = makeDataCall(ctx, "__assign", [rowsNameLit.id, batchCall.id], T.void, "batch-n1-read assign rows");
-    edits.push({ kind: "add", node: assignRows });
+      const selLit = literalNode(ctx, batchSelect, T.string);
+      const tableLit = literalNode(ctx, parsed.table, T.string);
+      const whereLit = literalNode(ctx, parsed.whereCol, T.string);
+      const idsRead = paramNode(ctx, idsVar);
+      edits.push({ kind: "add", node: selLit });
+      edits.push({ kind: "add", node: tableLit });
+      edits.push({ kind: "add", node: whereLit });
+      edits.push({ kind: "add", node: idsRead });
 
-    const whereColForLookup = literalNode(ctx, parsed.whereCol, T.string);
-    const rowsParam = paramNode(ctx, rowsVar);
-    edits.push({ kind: "add", node: whereColForLookup });
-    edits.push({ kind: "add", node: rowsParam });
+      const batchCall = makeDataCall(
+        ctx,
+        "__chrysalis_query_all_where_in",
+        [selLit.id, tableLit.id, whereLit.id, idsRead.id],
+        T.unknown,
+        `batch-n1-read batch query ${i}`,
+      );
+      edits.push({ kind: "add", node: batchCall });
 
-    const rowLookup = makeDataCall(
-      ctx,
-      "__chrysalis_row_by_column",
-      [rowsParam.id, whereColForLookup.id, member.memberNodeId],
-      T.unknown,
-      "batch-n1-read row lookup",
-    );
-    edits.push({ kind: "add", node: rowLookup });
+      const rowsNameLit = literalNode(ctx, rowsVar, T.string);
+      edits.push({ kind: "add", node: rowsNameLit });
+      const assignRows = makeDataCall(
+        ctx,
+        "__assign",
+        [rowsNameLit.id, batchCall.id],
+        T.void,
+        `batch-n1-read assign rows ${i}`,
+      );
+      edits.push({ kind: "add", node: assignRows });
+
+      const whereColForLookup = literalNode(ctx, parsed.whereCol, T.string);
+      const rowsParam = paramNode(ctx, rowsVar);
+      edits.push({ kind: "add", node: whereColForLookup });
+      edits.push({ kind: "add", node: rowsParam });
+
+      const rowLookup = makeDataCall(
+        ctx,
+        "__chrysalis_row_by_column",
+        [rowsParam.id, whereColForLookup.id, member.memberNodeId],
+        T.unknown,
+        `batch-n1-read row lookup ${i}`,
+      );
+      edits.push({ kind: "add", node: rowLookup });
+
+      hoistIds.push(assignIds.id, assignRows.id);
+      replacePairs.push({ assign, rowLookupId: rowLookup.id });
+    }
 
     const newOps = [...block.operands];
-    newOps.splice(parent.foreachIndex, 0, assignIds.id, assignRows.id);
+    newOps.splice(parent.foreachIndex, 0, ...hoistIds);
     const patchedBlock: NodeBase = {
       ...block,
       operands: Object.freeze(newOps),
@@ -328,12 +339,14 @@ export const batchN1ReadPass: RewritePass = {
     };
     edits.push({ kind: "add", node: patchedBlock });
 
-    edits.push({
-      kind: "replaceOperand",
-      nodeId: assign.id,
-      index: 1,
-      newOperandId: rowLookup.id,
-    });
+    for (const { assign, rowLookupId } of replacePairs) {
+      edits.push({
+        kind: "replaceOperand",
+        nodeId: assign.id,
+        index: 1,
+        newOperandId: rowLookupId,
+      });
+    }
 
     return edits;
   },

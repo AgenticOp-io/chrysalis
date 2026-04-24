@@ -608,6 +608,19 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       ctx.dbReads.push({ sql, params, tables, returned });
       return returned;
     }
+    case "__chrysalis_zod_body_field": {
+      const rawS = stringify(args[0] ?? { kind: "null" });
+      let minLen = 0;
+      const ml = args[1];
+      if (ml?.kind === "num") minLen = ml.value;
+      const trim = args[2]?.kind === "bool" ? args[2].value : false;
+      const email = args[3]?.kind === "bool" ? args[3].value : false;
+      let s = rawS;
+      if (trim) s = s.trim();
+      if (s.length < minLen) return { kind: "str", value: "" };
+      if (email && !/^[^@]+@[^@]+$/.test(s)) return { kind: "str", value: "" };
+      return { kind: "str", value: s };
+    }
     default:
       // Unknown call — record the opaque result so downstream diffs
       // don't silently succeed.

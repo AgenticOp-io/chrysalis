@@ -529,6 +529,18 @@ export function __respond(reply: FastifyReply, html: string, status: number): Fa
   }
   return reply.code(status).send("");
 }
+
+/** See Hono runtime: same contract for \`boundary-zod\` / D19 alignment. */
+export function parseZodBodyFieldRaw(
+  raw: unknown,
+  opts: { readonly minLen: number; readonly trim: boolean; readonly email: boolean },
+): string {
+  let s = raw == null ? "" : String(raw);
+  if (opts.trim) s = s.trim();
+  if (s.length < opts.minLen) return "";
+  if (opts.email && !/^[^@]+@[^@]+$/.test(s)) return "";
+  return s;
+}
 `;
 
 export const SERVER_TS = (imports: string, routeRegistrations: string): string =>

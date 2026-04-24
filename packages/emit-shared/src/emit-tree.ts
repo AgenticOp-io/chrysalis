@@ -23,6 +23,8 @@ export interface EmittedHandler {
   readonly usesQueryAllWhereIn: boolean;
   /** Handler calls `chrysalisPluck` / `chrysalisRowByColumn` from `runtime.js`. */
   readonly usesChrysalisBatchHelpers: boolean;
+  /** Handler uses `zod` via `parseZodBodyFieldRaw` (`boundary-zod` rewrite). */
+  readonly usesZod: boolean;
 }
 
 /**
@@ -68,6 +70,7 @@ interface EmitCtx {
   tmpCounter: number;
   usesQueryAllWhereIn: boolean;
   usesChrysalisBatchHelpers: boolean;
+  usesZod: boolean;
 }
 
 function get(ctx: EmitCtx, id: NodeId): NodeBase {
@@ -87,6 +90,123 @@ function mergeShape(ctx: EmitCtx, next: "html" | "redirect"): void {
   } else if (ctx.shape !== next) {
     ctx.shape = "mixed";
   }
+}
+
+function exprAllowedInReduce(m: Module, id: NodeId, allowedNames: Set<string>): boolean {
+  const n = m.nodes.get(id);
+  if (!n) return false;
+  if (n.op === "literal") return true;
+  if (n.op === "param") return allowedNames.has(String(n.attrs.name));
+  if (n.op === "member") {
+    const o = n.operands[0]!;
+    return exprAllowedInReduce(m, o, allowedNames);
+  }
+  if (n.op === "binop") {
+    return (
+      exprAllowedInReduce(m, n.operands[0]!, allowedNames) &&
+      exprAllowedInReduce(m, n.operands[1]!, allowedNames)
+    );
+  }
+  if (n.op === "call") {
+    const c = String(n.attrs.callee);
+    if ((c === "intval" || c === "__cast_int") && n.operands[0]) {
+      return exprAllowedInReduce(m, n.operands[0]!, allowedNames);
+    }
+    return false;
+  }
+  if (n.op === "unaryop") {
+    return n.operands[0] ? exprAllowedInReduce(m, n.operands[0]!, allowedNames) : false;
+  }
+  return false;
+}
+
+function emitExprSubst(
+  ctx: EmitCtx,
+  id: NodeId,
+  subst: Readonly<Record<string, string>>,
+): string {
+  const n = get(ctx, id);
+  if (n.op === "param") {
+    const name = String(n.attrs.name);
+    if (subst[name] !== undefined) return subst[name]!;
+    return emitExpr(ctx, id);
+  }
+  if (n.op === "literal") return emitExpr(ctx, id);
+  if (n.op === "member") {
+    const obj = emitExprSubst(ctx, n.operands[0]!, subst);
+    if (typeof n.attrs.key === "string") {
+      const key = String(n.attrs.key);
+      if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)) {
+        return `(${obj} as any).${key}`;
+      }
+      return `(${obj} as any)[${stringLit(key)}]`;
+    }
+    const idxNode = n.operands[1];
+    const idx = idxNode ? emitExprSubst(ctx, idxNode, subst) : "0";
+    return `(${obj} as any)[${idx}]`;
+  }
+  if (n.op === "binop") {
+    const op = String(n.attrs.operator);
+    const left = emitExprSubst(ctx, n.operands[0]!, subst);
+    const right = emitExprSubst(ctx, n.operands[1]!, subst);
+    if (op === ".") return `(String(${left}) + String(${right}))`;
+    if (op === "??") return `((${left}) ?? (${right}))`;
+    const mapped =
+      op === "==" ? "===" : op === "!=" ? "!==" : op === "and" ? "&&" : op === "or" ? "||" : op;
+    return `(${left} ${mapped} ${right})`;
+  }
+  if (n.op === "call") {
+    const callee = String(n.attrs.callee);
+    const args = n.operands.map((o) => emitExprSubst(ctx, o, subst));
+    return emitKnownCall(ctx, callee, args);
+  }
+  if (n.op === "unaryop") {
+    const op = String(n.attrs.operator);
+    const operand = emitExprSubst(ctx, n.operands[0]!, subst);
+    if (op === "isset") return `isset(${operand})`;
+    if (op === "empty") return `empty(${operand})`;
+    return `(${op}${operand})`;
+  }
+  return emitExpr(ctx, id);
+}
+
+function tryEmitForeachReduceWithPrev(ctx: EmitCtx, prev: NodeBase, fe: NodeBase): string | null {
+  if (fe.op !== "foreach" || fe.attrs.keyName) return null;
+  if (prev.op !== "call" || String(prev.attrs.callee) !== "__assign") return null;
+  const pName = get(ctx, prev.operands[0]!);
+  const pRhsId = prev.operands[1]!;
+  const pRhs = get(ctx, pRhsId);
+  if (pName.op !== "literal" || pRhs.op !== "literal") return null;
+  const accName = String((pName.attrs as { value?: unknown }).value ?? "");
+  if (!accName || accName === "<complex-target>") return null;
+
+  const iterId = fe.operands[0]!;
+  const bodyId = fe.operands[1]!;
+  const valName = String(fe.attrs.valueName);
+  const body = get(ctx, bodyId);
+  if (body.op !== "block" || body.operands.length !== 1) return null;
+  const stmt = get(ctx, body.operands[0]!);
+  if (stmt.op !== "call" || String(stmt.attrs.callee) !== "__assign") return null;
+  const nameLit = get(ctx, stmt.operands[0]!);
+  if (nameLit.op !== "literal" || String((nameLit.attrs as { value?: unknown }).value) !== accName)
+    return null;
+  const rhsId = stmt.operands[1]!;
+  const rhs = get(ctx, rhsId);
+  if (rhs.op !== "binop") return null;
+  const op = String(rhs.attrs.operator);
+  if (!["+", "-", "."].includes(op)) return null;
+  const left = get(ctx, rhs.operands[0]!);
+  const rightId = rhs.operands[1]!;
+  if (left.op !== "param" || String(left.attrs.name) !== accName) return null;
+  const allowed = new Set([accName, valName]);
+  if (!exprAllowedInReduce(ctx.m, rightId, allowed)) return null;
+
+  const accIdent = ident(accName);
+  const vIdent = ident(valName);
+  const iterExpr = emitExpr(ctx, iterId);
+  const initialExpr = emitExpr(ctx, pRhsId);
+  const stepInner = emitExprSubst(ctx, rhsId, { [accName]: accIdent, [valName]: vIdent });
+  return `const ${accIdent} = (${iterExpr} ?? []).reduce((${accIdent}, ${vIdent}) => ${stepInner}, ${initialExpr});`;
 }
 
 /** Emit a WebIR data-dialect node as a TS expression. */
@@ -302,6 +422,9 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
     case "__chrysalis_query_all_where_in":
       ctx.usesQueryAllWhereIn = true;
       return `queryAllWhereIn(String(${args[0]}), String(${args[1]}), String(${args[2]}), ${args[3]})`;
+    case "__chrysalis_zod_body_field":
+      ctx.usesZod = true;
+      return `parseZodBodyFieldRaw(${args[0]}, { minLen: Number(${args[1]}), trim: ${args[2]}, email: ${args[3]} })`;
   }
   ctx.holes.push({
     name: `call:${callee}`,
@@ -324,8 +447,26 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
   switch (n.op) {
     case "block": {
       const lines: string[] = [];
-      for (const op of n.operands) {
-        const s = emitStmt(ctx, op);
+      const ops = n.operands;
+      for (let i = 0; i < ops.length; i++) {
+        const opId = ops[i]!;
+        const opn = get(ctx, opId);
+        if (opn.op === "foreach" && i > 0) {
+          const prev = get(ctx, ops[i - 1]!);
+          const reduced = tryEmitForeachReduceWithPrev(ctx, prev, opn);
+          if (reduced) {
+            const pLit = get(ctx, prev.operands[0]!);
+            const accRaw = String((pLit.attrs as { value?: unknown }).value ?? "");
+            const accIdent = ident(accRaw);
+            lines.pop();
+            ctx.bound.delete(accIdent);
+            lines.push(reduced);
+            ctx.bound.add(accIdent);
+            i++;
+            continue;
+          }
+        }
+        const s = emitStmt(ctx, opId);
         if (s.trim().length > 0) lines.push(s);
       }
       return lines.join("\n");
@@ -477,6 +618,7 @@ export function emitHandlerBody(
     tmpCounter: 0,
     usesQueryAllWhereIn: false,
     usesChrysalisBatchHelpers: false,
+    usesZod: false,
   };
   const handler = m.nodes.get(handlerId);
   if (!handler) throw new Error(`emit-shared: handler not found ${String(handlerId)}`);
@@ -500,6 +642,7 @@ export function emitHandlerBody(
     domainTypeImports: [...ctx.domainTypeImports].sort(),
     usesQueryAllWhereIn: ctx.usesQueryAllWhereIn,
     usesChrysalisBatchHelpers: ctx.usesChrysalisBatchHelpers,
+    usesZod: ctx.usesZod,
   };
 }
 

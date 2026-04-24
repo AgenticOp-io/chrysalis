@@ -169,6 +169,7 @@ function handlerFileText(
   const runtimeBatch = emitted.usesChrysalisBatchHelpers
     ? "  chrysalisPluck,\n  chrysalisRowByColumn,\n"
     : "";
+  const runtimeZod = emitted.usesZod ? "  parseZodBodyFieldRaw,\n" : "";
   return `import type { FastifyReply, FastifyRequest } from "fastify";
 ${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";
 import { getSession } from "../session.js";
@@ -189,7 +190,7 @@ ${runtimeBatch}  microtimeString,
   passwordVerify,
   __hole,
   __respond,
-} from "../runtime.js";
+${runtimeZod}} from "../runtime.js";
 
 /**
  * @chrysalis-effects ${effectTags.join(", ") || "(none inferred)"}

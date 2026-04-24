@@ -750,7 +750,7 @@ function convertStatement(
       return ctx.effect.echo({ value: concat, origin: loc(ctx, s.pos) });
     }
     case "Assign": {
-      const rhs = convertExpr(ctx, s.value, pathParams);
+      let rhs = convertExpr(ctx, s.value, pathParams);
       // Detect `$_SESSION['k'] = expr`
       if (
         s.target.kind === "ArrayAccess" &&
@@ -764,6 +764,52 @@ function convertStatement(
           value: rhs,
           origin: loc(ctx, s.pos),
         });
+      }
+      // Compound assignment: lower `x += y` to `x = x + y` (and friends).
+      if (
+        s.operator !== "=" &&
+        (s.operator === "+=" ||
+          s.operator === "-=" ||
+          s.operator === ".=" ||
+          s.operator === "??=")
+      ) {
+        if (s.target.kind !== "Variable") {
+          return hole(ctx, `assign:compound:${s.operator}:complex-target`, s.pos, T.void);
+        }
+        const lhs = convertExpr(ctx, s.target, pathParams);
+        if (s.operator === "+=") {
+          rhs = ctx.data.binOp({
+            operator: "+",
+            left: lhs,
+            right: rhs,
+            type: T.unknown,
+            origin: loc(ctx, s.pos),
+          });
+        } else if (s.operator === "-=") {
+          rhs = ctx.data.binOp({
+            operator: "-",
+            left: lhs,
+            right: rhs,
+            type: T.unknown,
+            origin: loc(ctx, s.pos),
+          });
+        } else if (s.operator === ".=") {
+          rhs = ctx.data.binOp({
+            operator: ".",
+            left: lhs,
+            right: rhs,
+            type: T.string,
+            origin: loc(ctx, s.pos),
+          });
+        } else {
+          rhs = ctx.data.binOp({
+            operator: "??",
+            left: lhs,
+            right: rhs,
+            type: T.unknown,
+            origin: loc(ctx, s.pos),
+          });
+        }
       }
       // Everything else: wrap as a pseudo-assign call so the emitter can
       // recover a `let/const`. Variable name is attached to the target node.

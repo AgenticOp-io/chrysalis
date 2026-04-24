@@ -256,17 +256,19 @@ Deepen each layer without broadening too fast.
         **CI:** `rewrite-gate` exercises D19 + emit checks; full D20 HTTP-replay
         against a checked-in golden corpus remains an optional tighten-up (large
         artifact).
-  - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
-  - [ ] Inline `$_POST` validation → Zod schema at route boundary
-        (consumes `scattered-validation` opportunities)
-  - [x] N+1 detection → batched loader — **`batch-n1-read`** pass (D43) consumes
-        `n-plus-one-queries` when `innerQueriesInLoop === 1` and structural
-        preconditions hold (param iterable, assign-wrapped inner `row-or-null`,
-        explicit column list, single FK param). **Emit/runtime (D42):**
-        `queryAllWhereIn`, `chrysalisPluck`, `chrysalisRowByColumn`, WebIR
-        `__chrysalis_*` callees in emit + simulator. **Still open:** multi-read
-        loop bodies, bare inner queries without `__assign`, `SELECT *`, tying
-        pass gating to corpus-boosted confidence only.
+  - [x] `foreach` accumulator → `.map`/`.reduce`/loop chooser — ingest lowers
+        `+=` / `-=` / `.=` / `??=` on simple variables to binops; **emit** emits
+        `Array.reduce` when a literal init + foreach + single `__assign` with
+        `acc binop expr(loopVar)` matches (v1 subset).
+  - [x] Inline `$_POST` validation → boundary normalize — **`boundary-zod`** pass
+        (D44) consumes `scattered-validation` for `body` fields: prepends
+        `parseZodBodyFieldRaw` (runtime helper, zod-shaped contract without npm
+        `zod`) and rewires `request.field` uses to a shared `param`. Does not
+        remove legacy guard IR (follow-up: dead-code cleanup / stricter schemas).
+  - [x] N+1 detection → batched loader — **`batch-n1-read`** (D43) batches every
+        **assign-wrapped** qualifying inner read in the loop (disambiguated vars
+        when multiple). **Still open:** bare inner queries without `__assign`,
+        `SELECT *`, corpus-only confidence gating.
   - [x] **Emit (D21):** matching chains lower to a TS `switch` (shared
         `matchStringDispatchChain` with insight; see Milestone 1 emit).
   - [ ] String dispatch → discriminated union + `z.enum`

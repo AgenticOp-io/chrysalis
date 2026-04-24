@@ -538,6 +538,22 @@ export function __respond(c: Context, html: string, status: number): Response {
   }
   return c.text("", status as Parameters<typeof c.text>[1]);
 }
+
+/**
+ * Normalizes a raw POST field for handlers rewritten by \`boundary-zod\`.
+ * Matches the D19 simulator; intentionally dependency-free (no npm \`zod\`
+ * required) so emitted apps stay minimal.
+ */
+export function parseZodBodyFieldRaw(
+  raw: unknown,
+  opts: { readonly minLen: number; readonly trim: boolean; readonly email: boolean },
+): string {
+  let s = raw == null ? "" : String(raw);
+  if (opts.trim) s = s.trim();
+  if (s.length < opts.minLen) return "";
+  if (opts.email && !/^[^@]+@[^@]+$/.test(s)) return "";
+  return s;
+}
 `;
 
 /**

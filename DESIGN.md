@@ -1252,3 +1252,17 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Rejected: silently rewriting N+1 patterns that violate v1 preconditions —
   the pass throws or is skipped; unsupported shapes remain insight findings
   until a broader pass or manual fix.
+
+- **2026-04-23 — D44** **`boundary-zod` + foreach reduce + multi-inner N+1** —
+  **`boundary-zod`** rewrites `scattered-validation` opportunities on POST
+  fields: clone one `request.field`, `__chrysalis_zod_body_field` →
+  `parseZodBodyFieldRaw` in emit (dependency-free string normalization aligned
+  with the D19 simulator). **`foreach` reduce:** compound assignment in ingest;
+  emit prefers `Array.reduce` when init + foreach + accumulating assign match a
+  strict structural pattern. **`batch-n1-read`** batches multiple inner reads in
+  one application when each satisfies the existing SQL/FK/`__assign`
+  preconditions.
+
+  Rejected: adding a hard npm `zod` dependency to every emitted app — the helper
+  matches the simulator; projects may add `zod` at the app layer when they want
+  full schema objects.

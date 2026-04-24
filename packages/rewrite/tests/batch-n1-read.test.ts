@@ -88,7 +88,86 @@ describe("batch-n1-read pass", () => {
     expect(vb.ok).toBe(true);
   });
 
-  it("is skipped when the loop has two inner reads (tiny-n1 dashboard shape)", () => {
+  it("batches two assign-wrapped inner reads in one pass", () => {
+    const m = buildModule(({ data, eff, loc }) => {
+      const outer = eff.dbQuery({
+        kind: "read",
+        sql: "SELECT id, author_id FROM posts",
+        params: [],
+        returns: "rows",
+        tables: ["posts"],
+        type: T.array(T.record({})),
+        origin: loc(),
+      });
+      const postsAssign = data.call({
+        callee: "__assign",
+        args: [
+          data.literal({ value: "posts", type: T.string, origin: loc() }),
+          outer,
+        ],
+        type: T.void,
+        origin: loc(),
+      });
+      const postsRead = data.param({ name: "posts", type: T.unknown, origin: loc() });
+      const rowParam = data.param({ name: "row", type: T.record({}), origin: loc() });
+      const q1 = eff.dbQuery({
+        kind: "read",
+        sql: "SELECT id, name FROM users WHERE id = ?",
+        params: [data.member({ obj: rowParam, key: "author_id", type: T.int, origin: loc() })],
+        returns: "row-or-null",
+        tables: ["users"],
+        type: T.nullable(T.record({})),
+        origin: loc(),
+      });
+      const a1 = data.call({
+        callee: "__assign",
+        args: [
+          data.literal({ value: "user", type: T.string, origin: loc() }),
+          q1,
+        ],
+        type: T.void,
+        origin: loc(),
+      });
+      const q2 = eff.dbQuery({
+        kind: "read",
+        sql: "SELECT post_id, c FROM comment_counts WHERE post_id = ?",
+        params: [data.member({ obj: rowParam, key: "id", type: T.int, origin: loc() })],
+        returns: "row-or-null",
+        tables: ["comment_counts"],
+        type: T.nullable(T.record({})),
+        origin: loc(),
+      });
+      const a2 = data.call({
+        callee: "__assign",
+        args: [
+          data.literal({ value: "cc", type: T.string, origin: loc() }),
+          q2,
+        ],
+        type: T.void,
+        origin: loc(),
+      });
+      const body = data.block({ statements: [a1, a2], origin: loc() });
+      const loop = data.foreach({
+        iterable: postsRead,
+        valueName: "row",
+        body,
+        origin: loc(),
+      });
+      return data.block({ statements: [postsAssign, loop], origin: loc() });
+    });
+    const [op0] = nPlusOneRecognizer.recognize(m);
+    expect(op0!.evidence["innerQueriesInLoop"]).toBe(2);
+    const op = { ...op0!, confidence: 0.95 };
+    const { module: next, report } = applyRewrites(m, [op], [batchN1ReadPass], {
+      minConfidence: 0.5,
+      verifyInvariants: true,
+    });
+    expect(report.applied).toHaveLength(1);
+    const vb = verifyBehavior(m, next, report.applied, { synthesizeProbes: true });
+    expect(vb.ok).toBe(true);
+  });
+
+  it("is skipped when inner reads are not assign-wrapped (no batchable inners)", () => {
     const m = buildModule(({ data, eff, loc }) => {
       const outer = eff.dbQuery({
         kind: "read",
@@ -119,16 +198,7 @@ describe("batch-n1-read pass", () => {
         type: T.nullable(T.record({})),
         origin: loc(),
       });
-      const q2 = eff.dbQuery({
-        kind: "read",
-        sql: "SELECT COUNT(*) AS c FROM comments WHERE post_id = ?",
-        params: [data.member({ obj: rowParam, key: "id", type: T.int, origin: loc() })],
-        returns: "row-or-null",
-        tables: ["comments"],
-        type: T.nullable(T.record({})),
-        origin: loc(),
-      });
-      const body = data.block({ statements: [q1, q2], origin: loc() });
+      const body = data.block({ statements: [q1], origin: loc() });
       const loop = data.foreach({
         iterable: postsRead,
         valueName: "row",
@@ -138,12 +208,14 @@ describe("batch-n1-read pass", () => {
       return data.block({ statements: [postsAssign, loop], origin: loc() });
     });
     const [op0] = nPlusOneRecognizer.recognize(m);
-    expect(op0!.evidence["innerQueriesInLoop"]).toBe(2);
     const op = { ...op0!, confidence: 0.95 };
     const { report } = applyRewrites(m, [op], [batchN1ReadPass], { minConfidence: 0.5 });
     expect(report.applied).toHaveLength(0);
-    // handles() is false when innerQueriesInLoop !== 1 — pass is not considered.
-    expect(report.skipped.filter((s) => s.pass === "batch-n1-read")).toHaveLength(0);
+    expect(
+      report.skipped.some(
+        (s) => s.pass === "batch-n1-read" && s.reason.includes("assign-wrapped"),
+      ),
+    ).toBe(true);
   });
 
   it("composes with DEFAULT_PASSES when opportunity is above confidence threshold", () => {

@@ -303,6 +303,8 @@ function synthesizeProbesFor(_m: Module, r: RouteInfo): Probe[] {
  *     the db stub returns the same result given the same params.
  *   - batch-n1-read: db read *sequence* changes (fewer reads); expected
  *     dbReads are taken from the actual post simulation for that probe.
+ *   - boundary-zod: uses the generic predictor (normalized POST strings should
+ *     match probes that supply the same field values).
  *
  * Everything else is expected to match byte-for-byte.
  */

@@ -698,7 +698,8 @@ async function cmdRewrite(args: string[]): Promise<number> {
       "usage: chrysalis rewrite <php-project-dir> [--out <ts-out>]\n" +
         "                         [--target=hono|fastify]\n" +
         "                         [--traces <dir>] [--min-confidence 0.75]\n" +
-        "                         [--passes <id,id,...>] [--report <rewrite.json>]\n" +
+        "                         [--passes sanitize-output,parameterize-sql,boundary-zod,batch-n1-read,...]\n" +
+        "                         [--report <rewrite.json>]\n" +
         "                         [--no-post-verify] [--verify-behavior]\n" +
         "                         [--http-replay <traces-dir>] [--http-replay-backends=hono,fastify]\n" +
         "                         [--http-replay-skip-install]\n" +
