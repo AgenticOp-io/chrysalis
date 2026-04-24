@@ -1287,3 +1287,13 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Composer vendor resolution, effect narrowing, bare inner reads without
   `__assign`, corpus-only batch confidence gating, and a first-class `mysqli`
   oracle driver remain follow-ons.
+
+- **2026-04-24 — D46** **Opt-in HTTP chat repair proposer (Milestone 3).**
+  `chrysalis repair --llm` with `CHRYSALIS_REPAIR_LLM_API_KEY` calls an
+  OpenAI-compatible Chat Completions endpoint from the **CLI / repair package**
+  only. The model returns JSON describing `replaceOperand` edits; the package
+  validates node ids against the WebIR module before `applyModuleEdits`, and
+  **`runVerifiedRepairLoop` still requires a full-corpus replay** to accept a
+  patch. This does **not** relax D3 / AGENTS rules about network or
+  non-injected time/random in **generated** handlers — it is developer tooling,
+  not emitted runtime.

@@ -44,7 +44,11 @@ import {
   type RewriteReport,
   type RewriteResult,
 } from "@chrysalis/rewrite";
-import { runVerifiedRepairLoop, stubRepairProposer } from "@chrysalis/repair";
+import {
+  createHttpChatRepairProposerFromEnv,
+  runVerifiedRepairLoop,
+  stubRepairProposer,
+} from "@chrysalis/repair";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
@@ -391,8 +395,13 @@ async function cmdRepair(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (!corpusRoot || !baseUrl || !projectRoot) {
     console.error(
-      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql]",
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql]",
     );
+    return 2;
+  }
+  const useLlm = flags.llm === true;
+  if (useLlm && !process.env.CHRYSALIS_REPAIR_LLM_API_KEY) {
+    console.error("[repair] --llm requires CHRYSALIS_REPAIR_LLM_API_KEY");
     return 2;
   }
   const maxIterRaw =
@@ -403,6 +412,12 @@ async function cmdRepair(args: string[]): Promise<number> {
   const corpus = readCorpus({ root: resolve(corpusRoot) });
   const webirModule = await ingestDirectory(projectRoot);
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
+  if (useLlm) {
+    const model = process.env.CHRYSALIS_REPAIR_LLM_MODEL ?? "gpt-4o-mini";
+    console.log(
+      `[repair] HTTP chat repair proposer enabled (model ${model}); patches still require full-corpus replay`,
+    );
+  }
 
   const result = await runVerifiedRepairLoop({
     corpus,
@@ -411,7 +426,7 @@ async function cmdRepair(args: string[]): Promise<number> {
       baseUrl,
       recordedSqlReplay: flags["no-recorded-sql"] !== true,
     },
-    proposer: stubRepairProposer(),
+    proposer: useLlm ? createHttpChatRepairProposerFromEnv() : stubRepairProposer(),
     maxIterations,
     ...(endpoint !== undefined ? { endpoint } : {}),
   });
@@ -430,9 +445,15 @@ async function cmdRepair(args: string[]): Promise<number> {
       console.error(`    IR nodes: ${o.attributedNodeIds.join(", ")}`);
     }
   }
-  console.error(
-    "[repair] default proposer is a stub; implement RepairProposer or integrate an LLM (see @chrysalis/repair).",
-  );
+  if (useLlm) {
+    console.error(
+      "[repair] LLM proposer returned no verify-gated patch or exhausted iterations; see @chrysalis/repair.",
+    );
+  } else {
+    console.error(
+      "[repair] default proposer is a stub; pass --llm with CHRYSALIS_REPAIR_LLM_API_KEY or supply a custom RepairProposer.",
+    );
+  }
   return 1;
 }
 

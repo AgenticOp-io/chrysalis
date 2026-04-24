@@ -14,6 +14,13 @@ export {
 } from "./stub.js";
 
 export {
+  createHttpChatRepairProposer,
+  createHttpChatRepairProposerFromEnv,
+  tryParseRepairEditsFromLlmJson,
+  type HttpChatRepairProposerOptions,
+} from "./http-chat-repair-proposer.js";
+
+export {
   applyHoleClosure,
   applyHoleClosureAndVerify,
   findHoleOperandRef,

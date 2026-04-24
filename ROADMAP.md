@@ -323,8 +323,10 @@ default).
 
 Close the LLM-verified feedback loop.
 
-**Status:** **In progress** — plumbing and verify gates are landed; the default
-repair **proposer remains a stub** until an LLM adapter ships.
+**Status:** **In progress** — verify-gated loop is landed; default CLI proposer
+is still a **stub** unless `chrysalis repair --llm` is used with
+`CHRYSALIS_REPAIR_LLM_API_KEY` (OpenAI-compatible HTTP chat proposer in
+`@chrysalis/repair`).
 
 - [x] Divergence attribution v1: heuristic ≤5 IR nodes per failure (with ingest
       `module` on replay); precise maps deferred
@@ -332,7 +334,10 @@ repair **proposer remains a stub** until an LLM adapter ships.
       `applyModuleEdits`)
 - [x] Patches are **always** full-corpus re-verified in `runVerifiedRepairLoop`
 - [x] CLI: `chrysalis repair <traces-dir> --base-url <url> --project <php-root>`
-      (bounded `--max-iter`; default proposer is a stub until an LLM adapter lands)
+      (bounded `--max-iter`; optional `--llm` + `CHRYSALIS_REPAIR_LLM_*` for HTTP chat proposer)
+- [x] Opt-in **HTTP Chat Completions** repair proposer (`createHttpChatRepairProposer*`,
+      `replaceOperand`-only JSON, neighbor catalog from attributed nodes; tooling-only
+      network — not emitted handler code)
 - [x] Operand edits from the loop record `provenance` with `source: "repair-pass"`
 - [x] Hole auto-closure API: `applyHoleClosure` + `applyHoleClosureAndVerify`
       (`@chrysalis/repair`) — replacement subgraph, `hand-authored` sign-off on
