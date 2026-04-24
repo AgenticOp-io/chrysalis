@@ -120,6 +120,7 @@ export {
 } from "./builder.js";
 export { IdGen } from "./ids.js";
 export { allNodes, countByDialect, countHoles, walk } from "./visit.js";
+export { moduleToGoldenSnapshot } from "./snapshot.js";
 export type { ModuleBuilderOpts } from "./builder.js";
 export * as webRequest from "./dialects/web-request.js";
 export * as effectDialect from "./dialects/effect.js";
