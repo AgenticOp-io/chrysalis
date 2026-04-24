@@ -24,21 +24,31 @@ $a = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $b = getrandmax();
 $c = microtime(true);
 $d = uniqid("p_", true);
-echo htmlspecialchars($a . $b . $c . $d);
+$e = microtime();
+$f = parse_url("http://example.com/p?q=1");
+echo htmlspecialchars($a . $b . $c . $d . $e . ($f["path"] ?? ""));
 `,
         "utf8",
       );
 
       const mod = await ingestDirectory(root);
-      let parseUrlCalls = 0;
+      let parseUrlComponentCalls = 0;
+      let parseUrlPartsCalls = 0;
       let getrandmaxLits = 0;
       let epochFloat = 0;
       let uniqidTime = 0;
       let dechexCalls = 0;
+      let microtimeStringCalls = 0;
       for (const [, n] of mod.nodes) {
         const callee = (n.attrs as { callee?: string }).callee;
         if (n.dialect === "data" && n.op === "call" && callee === "parseUrlComponent") {
-          parseUrlCalls++;
+          parseUrlComponentCalls++;
+        }
+        if (n.dialect === "data" && n.op === "call" && callee === "parseUrlParts") {
+          parseUrlPartsCalls++;
+        }
+        if (n.dialect === "data" && n.op === "call" && callee === "microtimeString") {
+          microtimeStringCalls++;
         }
         if (n.dialect === "data" && n.op === "call" && callee === "__dechex") {
           dechexCalls++;
@@ -53,9 +63,11 @@ echo htmlspecialchars($a . $b . $c . $d);
           uniqidTime++;
         }
       }
-      expect(parseUrlCalls).toBe(1);
+      expect(parseUrlComponentCalls).toBe(1);
+      expect(parseUrlPartsCalls).toBe(1);
+      expect(microtimeStringCalls).toBe(1);
       expect(getrandmaxLits).toBe(1);
-      expect(epochFloat).toBe(1);
+      expect(epochFloat).toBe(2);
       expect(uniqidTime).toBe(1);
       expect(dechexCalls).toBeGreaterThanOrEqual(2);
     } finally {

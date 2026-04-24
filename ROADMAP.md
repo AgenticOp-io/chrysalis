@@ -79,9 +79,9 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
          CLI; `scripts/run-e2e.mjs` auto-generates
          `generated/tiny-blog/src/domain.ts` and the emitted project still
          typechecks.
-   - [ ] Extracts form field structure from the PHP templates (deferred to
-         Milestone 2 — low marginal value on tiny-blog since all fields are
-         already covered by DDL + traces)
+   - [ ] **(v2)** Heuristic form-field extraction from inline HTML/templates in
+         PHP — low marginal value while DDL + trace shapes cover fields (as on
+         tiny-blog); tracked for apps with heavy ad-hoc forms and weak schema
    - [x] emit-hono consumes archaeology interface names as `queryOne<T>` /
          `queryAll<T>` when `EmitInput.domainTypesByTable` is supplied and
          the `db.query` node tags a single table (D22). `run-e2e.mjs` and
@@ -172,7 +172,9 @@ Deepen each layer without broadening too fast.
 
 - [x] Second emit backend: `emit-fastify` (proves WebIR target-portability;
       shared `@chrysalis/emit-shared` handler lowering; CLI `--target=fastify`)
-- [ ] Effect inference: automatic widening/narrowing of effect sets across calls
+- [x] **Effect inference (widening v1):** cross-call effect sets for manifest
+      routes + `lib/` + same-file helpers (see below). Interprocedural
+      **narrowing**, vendor, and dynamic dispatch remain open.
   - [x] Handler `effects` union over the body subgraph (`effectsReachableFrom`);
         Hono/Fastify `@chrysalis-effects` and `effectsByHandler` prefer that IR
         list (`handlerEffectAnnotationTags` / `effectTagsSorted`), with emit-time
@@ -183,8 +185,9 @@ Deepen each layer without broadening too fast.
   - [x] **Same-file route helpers (D31):** top-level `FunctionDecl` in manifest
         route files are hoisted into `buildCallEffectMap` (after `lib/`, no
         override); stripped from handler lowering (`stripTopLevelFunctionDecls`)
-  - [ ] Callees elsewhere (nested decls still holes, vendor, dynamic); effect
-        **narrowing** / interprocedural refinement (still open)
+  - [ ] **Still open:** nested function decls inside handlers, vendor/autoload
+        callees, dynamic `call_user_func` / variable callees; effect **narrowing**
+        and whole-program refinement
 - [x] **Insight stage (`@chrysalis/insight`)** — pure recognizers over WebIR
       with corpus-backed confidence boost (D13). Five recognizers so far:
       N+1 queries, scattered input validation, string-based dispatch,
@@ -249,7 +252,9 @@ Deepen each layer without broadening too fast.
         corpus for D20. **CLI:** `chrysalis rewrite --http-replay
         <traces> --out <dir>` (optional `--http-replay-skip-install`,
         `--target=hono|fastify`, `--http-replay-backends=hono,fastify` for D26).
-        CI on a golden trace dir remains a follow-up.
+        **CI:** `rewrite-gate` exercises D19 + emit checks; full D20 HTTP-replay
+        against a checked-in golden corpus remains an optional tighten-up (large
+        artifact).
   - [ ] `foreach` accumulator → `.map`/`.reduce`/loop chooser
   - [ ] Inline `$_POST` validation → Zod schema at route boundary
         (consumes `scattered-validation` opportunities)

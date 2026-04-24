@@ -531,15 +531,31 @@ function convertCall(
       });
     }
     case "microtime_builtin": {
-      if (e.args.length === 0) {
-        return hole(ctx, "microtime:string-mode", e.pos, T.string);
+      const origin = loc(ctx, e.pos);
+      const stringMode =
+        e.args.length === 0 ||
+        (e.args[0]?.kind === "Literal" &&
+          e.args[0].literalKind === "bool" &&
+          e.args[0].value === false);
+      if (stringMode) {
+        const t = ctx.effect.timeNow({
+          format: "epoch_float",
+          origin,
+          provenance: [prov("php-ast", origin, "microtime()")],
+        });
+        return ctx.data.call({
+          callee: "microtimeString",
+          args: [t],
+          type: T.string,
+          origin,
+        });
       }
       const a = e.args[0]!;
       if (a.kind === "Literal" && a.literalKind === "bool" && a.value === true) {
         return ctx.effect.timeNow({
           format: "epoch_float",
-          origin: loc(ctx, e.pos),
-          provenance: [prov("php-ast", loc(ctx, e.pos), "microtime(true)")],
+          origin,
+          provenance: [prov("php-ast", origin, "microtime(true)")],
         });
       }
       return hole(ctx, "microtime:unsupported-args", e.pos, T.unknown);
@@ -622,7 +638,12 @@ function convertCall(
       const urlExpr = args[0] ?? hole(ctx, "parse_url:no-url", e.pos, T.string);
       const compArg = e.args[1];
       if (compArg === undefined) {
-        return hole(ctx, "parse_url:full-result", e.pos, T.unknown);
+        return ctx.data.call({
+          callee: "parseUrlParts",
+          args: [urlExpr],
+          type: T.record({}),
+          origin: loc(ctx, e.pos),
+        });
       }
       let comp: number | undefined;
       if (compArg.kind === "Literal" && compArg.literalKind === "int" && typeof compArg.value === "number") {

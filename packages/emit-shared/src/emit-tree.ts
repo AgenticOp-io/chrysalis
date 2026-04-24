@@ -256,6 +256,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `[${args.join(", ")}]`;
     case "__dechex":
       return `(((${args[0]}) >>> 0).toString(16))`;
+    case "microtimeString":
+      return `microtimeString(Number(${args[0]}))`;
   }
   switch (callee) {
     case "htmlspecialchars":
@@ -283,6 +285,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `undefined /* session_start handled by middleware */`;
     case "parseUrlComponent":
       return `parseUrlComponent(${args[0]}, ${args[1]})`;
+    case "parseUrlParts":
+      return `parseUrlParts(${args[0]})`;
   }
   ctx.holes.push({
     name: `call:${callee}`,

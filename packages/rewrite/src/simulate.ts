@@ -515,6 +515,33 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       }
       return { kind: "bool", value: re.test(subj) };
     }
+    case "microtimeString": {
+      const n = asNum(args[0] ?? { kind: "null" });
+      const sec = Math.floor(n);
+      const frac = n - sec;
+      return { kind: "str", value: `${frac.toFixed(8)} ${sec}` };
+    }
+    case "parseUrlParts": {
+      const u = stringify(args[0] ?? { kind: "null" });
+      try {
+        const p = new URL(u, "http://chrysalis-parse-url.invalid");
+        const entries: { key: string; value: SimValue }[] = [];
+        const scheme = p.protocol.replace(/:$/, "");
+        if (scheme) entries.push({ key: "scheme", value: { kind: "str", value: scheme } });
+        if (p.username) entries.push({ key: "user", value: { kind: "str", value: p.username } });
+        if (p.password) entries.push({ key: "pass", value: { kind: "str", value: p.password } });
+        if (p.hostname) entries.push({ key: "host", value: { kind: "str", value: p.hostname } });
+        if (p.port) entries.push({ key: "port", value: { kind: "str", value: String(p.port) } });
+        if (p.pathname) entries.push({ key: "path", value: { kind: "str", value: p.pathname } });
+        const q = p.search ? p.search.slice(1) : "";
+        if (q) entries.push({ key: "query", value: { kind: "str", value: q } });
+        const frag = p.hash ? p.hash.slice(1) : "";
+        if (frag) entries.push({ key: "fragment", value: { kind: "str", value: frag } });
+        return { kind: "array", entries };
+      } catch {
+        return { kind: "array", entries: [] };
+      }
+    }
     case "password_verify":
       // Opaque by design — value doesn't matter as long as it's
       // deterministic from the inputs.

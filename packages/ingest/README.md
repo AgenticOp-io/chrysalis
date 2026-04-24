@@ -24,6 +24,13 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 - Ingest is deterministic: same input AST → byte-equal WebIR (modulo timestamps
   in `Module.meta`).
 
+## Known PHP builtins (partial list)
+
+Lowered to WebIR effects or `data.call` helpers (see `convert.ts`): SQL helpers,
+session, redirects, `time`, `rand` family, `getrandmax`, `microtime` (float and
+string modes), `uniqid` (literal entropy flag), `parse_url` (component or full
+parts record). Anything else becomes a hole or generic call.
+
 ## Non-goals
 
 - Running or executing PHP.

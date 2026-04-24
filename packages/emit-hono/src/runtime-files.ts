@@ -382,6 +382,13 @@ export function strlen(v: unknown): number {
   return String(v ?? "").length;
 }
 
+/** PHP microtime() / microtime(false): "fractional_seconds seconds" string from injectable epoch float. */
+export function microtimeString(epochSeconds: number): string {
+  const sec = Math.floor(epochSeconds);
+  const frac = epochSeconds - sec;
+  return \`\${frac.toFixed(8)} \${sec}\`;
+}
+
 /**
  * PHP parse_url second-argument mode: PHP_URL_* component integers only.
  * Relative URLs resolve against http://chrysalis-parse-url.invalid (path-only
@@ -413,6 +420,29 @@ export function parseUrlComponent(url: unknown, component: number): string | nul
     }
   } catch {
     return null;
+  }
+}
+
+/** PHP parse_url(url) single-arg: associative array keys scheme, host, port, user, pass, path, query, fragment. */
+export function parseUrlParts(url: unknown): Record<string, string> {
+  const u = String(url ?? "");
+  try {
+    const p = new URL(u, "http://chrysalis-parse-url.invalid");
+    const out: Record<string, string> = {};
+    const scheme = p.protocol.replace(/:$/, "");
+    if (scheme) out.scheme = scheme;
+    if (p.username) out.user = p.username;
+    if (p.password) out.pass = p.password;
+    if (p.hostname) out.host = p.hostname;
+    if (p.port) out.port = String(p.port);
+    if (p.pathname) out.path = p.pathname;
+    const q = p.search ? p.search.slice(1) : "";
+    if (q) out.query = q;
+    const frag = p.hash ? p.hash.slice(1) : "";
+    if (frag) out.fragment = frag;
+    return out;
+  } catch {
+    return {};
   }
 }
 

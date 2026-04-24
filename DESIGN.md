@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D37 injectable time/RNG + verify determinism headers; §9 checklist sync
+Last updated by: D38 microtime/parse_url lowerings; D37 + §9 checklist sync
 
 ---
 
@@ -1154,5 +1154,17 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   reading wall clock or `Math.random` in handler bodies when the IR marks the effects.
 
   Rejected: silently translating nondeterministic PHP builtins to raw `Date`/`Math`
-  in handlers. Rejected: expanding `uniqid`/`microtime` to full PHP bit-accuracy in
+  in handlers.   Rejected: expanding `uniqid`/`microtime` to full PHP bit-accuracy in
   v1 — documented approximations and holes where needed.
+
+- **2026-04-23 — D38** **`microtime()` string mode + `parse_url($url)` array-like
+  lowering** — `microtime()` / `microtime(false)` lower to `effect.time.now`
+  (`epoch_float`) wrapped by runtime `microtimeString` (injectable wall clock).
+  Single-argument `parse_url` lowers to `parseUrlParts` → `Record<string, string>`
+  with PHP-shaped keys (`scheme`, `host`, `port`, …); parse failures yield `{}`
+  (PHP returns `false` — callers that branch on false may need a follow-up).
+  Rationale: closes common front-controller patterns without `Date`/`Math` in
+  handlers for those paths.
+
+  Rejected: returning literal `false` from `parseUrlParts` in TS (breaks typed
+  record consumers); use empty object + optional chaining in emitted PHP style.
