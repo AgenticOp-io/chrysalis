@@ -19,8 +19,12 @@ Subcommands (some are Milestone 1 stubs):
   `--http-replay-backends=hono,fastify`
 - `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router
   (`--canary-percent`, stickiness cookie/header flags for canary)
-- `chrysalis status` — print the migration dashboard
-- `chrysalis repair <endpoint>` — (Milestone 3) LLM-driven repair loop
+- `chrysalis status` — migration dashboard; `--json` includes `migration`
+  (IR coverage with `--project`, correctness from `--report`, optional
+  `reports/migration/*.json` sidecars; `--migration-reports <dir>`)
+- `chrysalis repair <traces-dir> --base-url <url> --project <php-root>` —
+  verify-gated repair loop (`@chrysalis/repair`; stub proposer until an LLM
+  adapter is wired)
 
 ## Invariants
 

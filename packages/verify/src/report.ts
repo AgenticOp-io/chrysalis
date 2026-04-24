@@ -18,6 +18,7 @@ export interface EndpointScore {
     readonly traceId: string;
     readonly kinds: ReadonlyArray<Divergence["kind"]>;
     readonly details: ReadonlyArray<string>;
+    readonly attributedNodeIds?: ReadonlyArray<string>;
   }>;
 }
 
@@ -56,6 +57,9 @@ export function buildReport(outcomes: ReadonlyArray<TraceOutcome>): CorrectnessR
         traceId: t.traceId,
         kinds: t.diff.divergences.map((d) => d.kind),
         details: t.diff.divergences.map((d) => d.detail),
+        ...(t.attributedNodeIds && t.attributedNodeIds.length > 0
+          ? { attributedNodeIds: t.attributedNodeIds }
+          : {}),
       }));
     endpoints.push({
       route,
@@ -119,6 +123,9 @@ export function writeReport(
           expected: { status: t.expected.status, headers: t.expected.headers },
           actual: { status: t.actual.status, headers: t.actual.headers },
           divergences: t.diff.divergences,
+          ...(t.attributedNodeIds && t.attributedNodeIds.length > 0
+            ? { attributedNodeIds: t.attributedNodeIds }
+            : {}),
         })),
         null,
         2,

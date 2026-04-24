@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D32 Oracle outbound HTTP/mail trace events + D29 status
+Last updated by: D37 injectable time/RNG + verify determinism headers; §9 checklist sync
 
 ---
 
@@ -343,22 +343,22 @@ Proves the thesis end-to-end on one small app.
 
 **Must demonstrate:**
 
-- [ ] Oracle records HTTP + SQL + session traces of the PHP app in use
-- [ ] `parser-bridge` produces PHP AST JSON
-- [ ] `ingest` produces WebIR with at least `web.request`, `effect`, `data` dialects
-- [ ] `archaeology` produces a unified `Post`, `User`, `Comment` type with provenance
-- [ ] `emit-hono` produces a compiling, runnable Hono + Drizzle project
-- [ ] `verify` replays every captured trace and produces a per-endpoint correctness score
-- [ ] `runtime-chimera` has a working traffic router with `legacy`, `shadow`, `cutover` modes
-- [ ] CLI prints a migration dashboard showing translation %, hole count, correctness score
-- [ ] At least one deliberately-left hole compiles and delegates to legacy PHP
+- [x] Oracle records HTTP + SQL + session traces of the PHP app in use
+- [x] `parser-bridge` produces PHP AST JSON
+- [x] `ingest` produces WebIR with at least `web.request`, `effect`, `data` dialects
+- [x] `archaeology` produces a unified `Post`, `User`, `Comment` type with provenance
+- [x] `emit-hono` produces a compiling, runnable Hono + Drizzle project
+- [x] `verify` replays every captured trace and produces a per-endpoint correctness score
+- [x] `runtime-chimera` has a working traffic router with `legacy`, `shadow`, `cutover` modes
+- [x] CLI prints a migration dashboard showing translation %, hole count, correctness score
+- [x] At least one deliberately-left hole compiles and delegates to legacy PHP
 
 **Out of scope for Milestone 1:**
 
 - LLM-driven repair passes (design stub only)
 - Intent-preserving rewrites beyond a handful of obvious ones
-- More than one emit backend
-- Anything WordPress, Laravel, Symfony, or ORM-related
+- Exhaustive alternate emit targets beyond the portability proofs in-tree (see `ROADMAP.md`; Fastify landed in Milestone 2)
+- Anything WordPress, Laravel, Symfony, or ORM-related at flagship scale without a controlled pilot
 
 ---
 
@@ -1092,3 +1092,67 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Rejected: hoisting nested `function` inside handlers in v1 — needs real scope
   / closure modeling. Rejected: auto-parsing every `*.php` under the project
   — only manifest route files plus `lib/` keep the contract explicit.
+
+- **2026-04-23 — D33** **Verified repair loop (Milestone 3 v1)** — New package
+  `@chrysalis/repair` drives `RepairProposer` → `applyModuleEdits` → full
+  `replayCorpus` acceptance. CLI `chrysalis repair` wires the loop with a stub
+  proposer; callers must supply real proposals (LLM or otherwise). Exported
+  `applyModuleEdits` from `@chrysalis/rewrite` tags operand rewrites with
+  configurable provenance (`repair-pass` in the loop). Rejected: accepting patches
+  without full-corpus replay. Rejected: baking a specific LLM vendor into
+  `webir` / `verify`.
+
+- **2026-04-23 — D34** **Verify-gated hole closure (Milestone 3)** —
+  `applyHoleClosure` in `@chrysalis/repair` adds a replacement subgraph,
+  rewires the unique parent `replaceOperand` away from `data.hole`, and
+  appends a `hand-authored` provenance entry on the replacement root recording
+  the human signer (and optional note). `applyHoleClosureAndVerify` runs full
+  `replayCorpus` before the closure is considered accepted. v1 rejects holes
+  referenced from more than one operand site. Rejected: deleting the old hole
+  `NodeId` from the map without a general `removeNode` edit — unreachable nodes
+  are benign and `countHoles` is root-walk scoped.
+
+- **2026-04-23 — D35** **Milestone 4 dashboard roll-up** — `chrysalis status`
+  always includes a `migration` object: **coverage** from
+  `irCoverageStats(module)` when `--project` ingests WebIR; **correctness**
+  mirrors the verify-report aggregate; **idiomaticity** and **residual legacy
+  request %** read optional JSON sidecars under `reports/migration/` (or
+  `--migration-reports`) so CI and chimera can feed signals without new core
+  dependencies. Milestone 4’s flagship target is documented as Laravel-first in
+  `ROADMAP.md` / `flagship/README.md`.
+
+  Rejected: hard-coding Laravel paths in `status` — only generic sidecars and
+  IR coverage belong in core CLI.
+
+- **2026-04-23 — D36** **Flagship skeleton (`flagship/laravel-min`)** — A
+  Laravel-**shaped** tree (e.g. `public/index.php`, `app/Http/Handlers/`) with
+  `chrysalis.routes.json` proves ingest + emit on a second app layout without
+  vendoring Composer Laravel in-repo. Real Breeze (or similar) stays a
+  documented follow-up; oracle + verify for the flagship mirror `tiny-blog` when
+  routes gain DB/session.
+
+  Rejected: committing `vendor/` or a full framework tree as the default M4
+  slice — blows CI time and review surface; the skeleton stays procedural PHP
+  until the pilot explicitly opts into framework bootstrap.
+
+  **Observe docroot:** Laravel-style apps use `public/` as the PHP server root;
+  `startObserver({ phpRoot })` must point at `public/`, while
+  `loadObserveConfig` and `ingestDirectory` use the project root (where
+  `chrysalis.observe.json` and `chrysalis.routes.json` live). See
+  `scripts/verify-flagship-laravel-min.mjs`.
+
+- **2026-04-23 — D37** **Injectable clock/PRNG in emitted apps + verify wiring** —
+  Emitted Hono/Fastify stacks ship `src/ctx.ts` (`chrysalisNow`, `chrysalisRandom`,
+  optional request middleware reading `x-chrysalis-now-iso` and
+  `x-chrysalis-random-seed`). Ingest lowers PHP `time()`, `rand`/`mt_rand`/`random_int`,
+  `microtime(true)`, `uniqid` (literal entropy flag), `getrandmax`/`mt_getrandmax`,
+  and `parse_url` with a `PHP_URL_*` component to WebIR/effects or runtime helpers
+  (`parseUrlComponent`); remaining shapes stay holes. `@chrysalis/verify` replay
+  sends those headers by default from trace `startedAt` and a deterministic FNV-1a
+  seed of `traceId` (`injectDeterminismHeaders: false` to disable). Rationale:
+  honors principle 7 (determinism in the runtime) for generated handlers without
+  reading wall clock or `Math.random` in handler bodies when the IR marks the effects.
+
+  Rejected: silently translating nondeterministic PHP builtins to raw `Date`/`Math`
+  in handlers. Rejected: expanding `uniqid`/`microtime` to full PHP bit-accuracy in
+  v1 — documented approximations and holes where needed.

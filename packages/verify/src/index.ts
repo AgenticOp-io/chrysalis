@@ -6,16 +6,23 @@
  * target), replays every captured request, and diffs the responses to
  * produce per-route correctness scores.
  *
- * Node-level divergence attribution (mapping a response diff back to specific
- * WebIR nodes) is Milestone 3; Milestone 1 delivers the measurement loop so
- * we have numbers to hold ourselves to.
+ * Heuristic divergence attribution (≤5 WebIR nodes per failed trace when
+ * `ReplayOptions.module` is set) is Milestone 3 v1; emit-level source maps are
+ * future work.
  */
 
 export {
   replayCorpus,
+  traceDeterminismSeed,
   type ReplayOptions,
   type TraceOutcome,
 } from "./replay.js";
+
+export {
+  MAX_ATTRIBUTION_NODES,
+  attributeDivergenceToNodes,
+  findHandlerBodyRoot,
+} from "./attribute.js";
 
 export {
   buildSqlReplayTapeFromTrace,

@@ -9,6 +9,7 @@ import { emit } from "../src/index.js";
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
 const FIXTURE_SCHEMA = resolve(__dirname, "../../../fixtures/tiny-blog/schema.sql");
 const FIXTURE_N1 = resolve(__dirname, "../../../fixtures/tiny-n1");
+const FLAGSHIP_LARAVEL_MIN = resolve(__dirname, "../../../flagship/laravel-min");
 
 function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, outDir: string) {
   const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
@@ -38,6 +39,7 @@ describe("emit-hono: tiny-blog output", () => {
         "package.json",
         "tsconfig.json",
         "src/db.ts",
+        "src/ctx.ts",
         "src/schema.ts",
         "src/session.ts",
         "src/runtime.ts",
@@ -83,6 +85,21 @@ describe("emit-hono: tiny-blog output", () => {
       expect(src).toMatch(/@chrysalis-effects.*db\.read:posts/);
       expect(src).toMatch(/@chrysalis-effects.*db\.read:comments/);
       expect(src).toMatch(/@chrysalis-effects.*session\.read/);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-hono: flagship laravel-min (Milestone 4 slice)", () => {
+  test("emits one handler and zero holes", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
+    try {
+      const mod = await ingestDirectory(FLAGSHIP_LARAVEL_MIN);
+      const res = await emit({ module: mod, outDir: out });
+      expect(res.handlerCount).toBe(1);
+      expect(res.holes.length).toBe(0);
+      expect(existsSync(resolve(out, "src/handlers/home_show.ts"))).toBe(true);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

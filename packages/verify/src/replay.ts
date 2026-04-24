@@ -14,7 +14,9 @@
  *     expected to be seeded to the same initial state as the PHP fixture).
  */
 
+import type { Module } from "@chrysalis/webir";
 import type { HttpRequestEvent, HttpResponseEvent, Trace, TraceCorpus } from "@chrysalis/oracle";
+import { attributeDivergenceToNodes } from "./attribute.js";
 import { diffResponse, type DiffResult, type ReplayedResponse } from "./diff.js";
 import {
   buildSqlReplayTapeFromTrace,
@@ -53,6 +55,27 @@ export interface ReplayOptions {
    * Request timeout in ms. Defaults to 10000.
    */
   readonly timeoutMs?: number;
+  /**
+   * When replay diverges, map failures to up to five WebIR nodes in the
+   * matching route (heuristic; Milestone 3 v1).
+   */
+  readonly module?: Module;
+  /**
+   * When true (default), each request includes `x-chrysalis-now-iso` (trace
+   * `startedAt`) and `x-chrysalis-random-seed` (FNV-1a of `traceId`) so
+   * emitted apps using injectable time/RNG align with corpus metadata.
+   */
+  readonly injectDeterminismHeaders?: boolean;
+}
+
+/** Stable uint32 seed derived from a trace id (used for `x-chrysalis-random-seed`). */
+export function traceDeterminismSeed(traceId: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < traceId.length; i++) {
+    h ^= traceId.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
 }
 
 export interface TraceOutcome {
@@ -62,6 +85,8 @@ export interface TraceOutcome {
   readonly actual: ReplayedResponse;
   readonly diff: DiffResult;
   readonly ok: boolean; // true iff diff has zero divergences
+  /** Present when `ReplayOptions.module` was set, replay failed, and attribution found nodes. */
+  readonly attributedNodeIds?: ReadonlyArray<string>;
 }
 
 export async function replayCorpus(
@@ -112,6 +137,11 @@ async function replayOne(
     headers["x-chrysalis-sql-tape"] = encodeSqlTapeHeader(tape);
   }
 
+  if (opts.injectDeterminismHeaders !== false) {
+    headers["x-chrysalis-now-iso"] = trace.header.startedAt;
+    headers["x-chrysalis-random-seed"] = String(traceDeterminismSeed(trace.header.traceId));
+  }
+
   const init: RequestInit = {
     method: req.method,
     headers,
@@ -142,13 +172,20 @@ async function replayOne(
   }
 
   const diff = diffResponse(resp, actual);
+  const ok = diff.divergences.length === 0;
+  let attributedNodeIds: readonly string[] | undefined;
+  if (!ok && opts.module) {
+    const ids = attributeDivergenceToNodes(opts.module, `${req.method} ${req.path}`, diff.divergences);
+    if (ids.length > 0) attributedNodeIds = ids;
+  }
   return {
     traceId: trace.header.traceId,
     route: `${req.method} ${req.path}`,
     expected: resp,
     actual,
     diff,
-    ok: diff.divergences.length === 0,
+    ok,
+    ...(attributedNodeIds ? { attributedNodeIds } : {}),
   };
 }
 

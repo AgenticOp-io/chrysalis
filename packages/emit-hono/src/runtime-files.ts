@@ -169,23 +169,73 @@ export function execSql(sql: string, params: ReadonlyArray<unknown> = []): numbe
 }
 `;
 
+/**
+ * Per-request clock + PRNG (DESIGN: handlers do not call Date.now / Math.random).
+ * Optional verify headers: `x-chrysalis-now-iso`, `x-chrysalis-random-seed` (uint32).
+ */
+export const CTX_TS = `import { AsyncLocalStorage } from "node:async_hooks";
+import type { MiddlewareHandler } from "hono";
+
+export interface ChrysalisHandlerContext {
+  readonly nowIso: string;
+  nextRandom: () => number;
+}
+
+const handlerCtxAls = new AsyncLocalStorage<ChrysalisHandlerContext>();
+
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a += 0x6d2b79f5;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Wall clock for \`effect.time.now\` lowering; falls back to system time outside ALS. */
+export function chrysalisNow(): string {
+  return handlerCtxAls.getStore()?.nowIso ?? new Date().toISOString();
+}
+
+/** Unit interval PRNG for \`effect.random\` lowering; falls back to Math.random outside ALS. */
+export function chrysalisRandom(): number {
+  const s = handlerCtxAls.getStore();
+  if (s) return s.nextRandom();
+  return Math.random();
+}
+
+export const chrysalisDeterminismMiddleware = (): MiddlewareHandler => {
+  return async (c, next) => {
+    const hdrNow = c.req.header("x-chrysalis-now-iso");
+    const hdrSeed = c.req.header("x-chrysalis-random-seed");
+    const nowIso = hdrNow && hdrNow.length > 0 ? hdrNow : new Date().toISOString();
+    let seed = (Math.random() * 0xffffffff) >>> 0;
+    if (hdrSeed != null && hdrSeed.length > 0) {
+      const n = Number.parseInt(hdrSeed, 10);
+      if (Number.isFinite(n)) seed = n >>> 0;
+    }
+    const ctx: ChrysalisHandlerContext = { nowIso, nextRandom: mulberry32(seed) };
+    return handlerCtxAls.run(ctx, () => next());
+  };
+};
+`;
+
 export const SESSION_TS = `import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Context, MiddlewareHandler } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
+import { chrysalisRandom } from "./ctx.js";
 
-/**
- * Session store: in-memory by default, or JSON files under
- * \`CHRYSALIS_SESSION_DIR\` when set (Milestone 2 chimera bridge). PHP can
- * read/write the same files if it uses the same session id cookie value
- * (\`CHRYSALIS_SESSION_COOKIE\`, default \`chrysalis_sid\`) and JSON shape.
- */
 const sessions = new Map<string, Record<string, unknown>>();
 const sessionDir = process.env.CHRYSALIS_SESSION_DIR;
 const sessionCookieName = process.env.CHRYSALIS_SESSION_COOKIE ?? "chrysalis_sid";
 
 function newSid(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const a = Math.floor(chrysalisRandom() * 1e12).toString(36);
+  const b = Math.floor(chrysalisRandom() * 1e12).toString(36);
+  return a + b;
 }
 
 function diskPath(sid: string): string {
@@ -333,10 +383,39 @@ export function strlen(v: unknown): number {
 }
 
 /**
- * PHP preg_match for slash-delimited patterns only (first and last slash
- * enclose the body; flags after the closing slash). Example: email check
- * uses body ^.+@.+$ with optional u flag.
+ * PHP parse_url second-argument mode: PHP_URL_* component integers only.
+ * Relative URLs resolve against http://chrysalis-parse-url.invalid (path-only
+ * strings match PHP request URI behavior).
  */
+export function parseUrlComponent(url: unknown, component: number): string | null {
+  const u = String(url ?? "");
+  try {
+    const parsed = new URL(u, "http://chrysalis-parse-url.invalid");
+    switch (component) {
+      case 0:
+        return parsed.protocol.replace(/:$/, "") || null;
+      case 1:
+        return parsed.hostname || null;
+      case 2:
+        return parsed.port ? String(parsed.port) : null;
+      case 3:
+        return parsed.username || null;
+      case 4:
+        return parsed.password || null;
+      case 5:
+        return parsed.pathname || null;
+      case 6:
+        return parsed.search ? parsed.search.slice(1) : null;
+      case 7:
+        return parsed.hash ? parsed.hash.slice(1) : null;
+      default:
+        return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
 export function pregMatch(pattern: unknown, subject: unknown): boolean {
   const p = String(pattern ?? "");
   const s = String(subject ?? "");
@@ -396,6 +475,7 @@ export function __respond(c: Context, html: string, status: number): Response {
  * without binding a port. `src/index.ts` imports this and calls `serve`.
  */
 export const SERVER_TS = (mountBlocks: string): string => `import { Hono } from "hono";
+import { chrysalisDeterminismMiddleware } from "./ctx.js";
 import { sqlTapeMiddleware } from "./db.js";
 import { sessionMiddleware } from "./session.js";
 
@@ -403,6 +483,7 @@ ${mountBlocks}
 
 export const app = new Hono();
 app.use("*", sqlTapeMiddleware);
+app.use("*", chrysalisDeterminismMiddleware());
 app.use("*", sessionMiddleware());
 
 registerRoutes(app);

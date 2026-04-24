@@ -38,3 +38,24 @@ export function countHoles(m: Module): number {
   });
   return n;
 }
+
+/**
+ * IR-level **coverage** (Milestone 4 / DESIGN success metrics): fraction of
+ * reachable nodes that are not `data.hole`. Uses the same root-walk as
+ * {@link countHoles}.
+ */
+export function irCoverageStats(m: Module): {
+  readonly nodeCount: number;
+  readonly holeCount: number;
+  /** 0..1; 1 when every reachable node is a non-hole. */
+  readonly coverage: number;
+} {
+  let nodeCount = 0;
+  let holeCount = 0;
+  walk(m, (node) => {
+    nodeCount += 1;
+    if (node.dialect === "data" && node.op === "hole") holeCount += 1;
+  });
+  const coverage = nodeCount === 0 ? 1 : (nodeCount - holeCount) / nodeCount;
+  return { nodeCount, holeCount, coverage };
+}

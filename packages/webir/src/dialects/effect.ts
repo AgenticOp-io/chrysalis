@@ -39,8 +39,23 @@ export interface Builders {
     origin: Locator;
     provenance?: ReadonlyArray<Provenance>;
   }): NodeId;
-  timeNow(opts: { origin: Locator; provenance?: ReadonlyArray<Provenance> }): NodeId;
-  random(opts: { origin: Locator; provenance?: ReadonlyArray<Provenance> }): NodeId;
+  timeNow(opts: {
+    origin: Locator;
+    /**
+     * - `iso` — injectable wall clock string (default).
+     * - `unix` — PHP `time()` seconds since epoch (`int`).
+     * - `epoch_ms` — milliseconds since epoch (`int`), for `uniqid`-style lowerings.
+     * - `epoch_float` — seconds with fractional part (`float`), for `microtime(true)`.
+     */
+    format?: "iso" | "unix" | "epoch_ms" | "epoch_float";
+    provenance?: ReadonlyArray<Provenance>;
+  }): NodeId;
+  random(opts: {
+    min: NodeId;
+    max: NodeId;
+    origin: Locator;
+    provenance?: ReadonlyArray<Provenance>;
+  }): NodeId;
   redirect(opts: {
     location: NodeId;
     origin: Locator;
@@ -102,25 +117,41 @@ export function builders(m: ModuleBuilder): Builders {
         provenance: prov ?? [provenance("php-ast", origin, `$_SESSION['${key}'] = ...`)],
       });
     },
-    timeNow({ origin, provenance: prov }) {
+    timeNow({ origin, format = "iso", provenance: prov }) {
+      const attrs: Record<string, unknown> = {};
+      if (format !== "iso") attrs.format = format;
+      const type: WebIRType =
+        format === "unix" || format === "epoch_ms"
+          ? { kind: "int" }
+          : format === "epoch_float"
+            ? { kind: "float" }
+            : { kind: "string" };
+      const defaultReason =
+        format === "unix"
+          ? "time()"
+          : format === "epoch_ms"
+            ? "epoch_ms"
+            : format === "epoch_float"
+              ? "microtime(true)"
+              : "time.now";
       return m.node({
         dialect: DIALECT,
         op: "time.now",
-        type: { kind: "string" },
+        type,
         effects: Object.freeze<Effect[]>([{ kind: "time.now" }]),
         operands: [],
-        attrs: {},
+        attrs,
         origin,
-        provenance: prov ?? [provenance("php-ast", origin, "time.now")],
+        provenance: prov ?? [provenance("php-ast", origin, defaultReason)],
       });
     },
-    random({ origin, provenance: prov }) {
+    random({ min, max, origin, provenance: prov }) {
       return m.node({
         dialect: DIALECT,
         op: "random",
         type: { kind: "int" },
         effects: Object.freeze<Effect[]>([{ kind: "random" }]),
-        operands: [],
+        operands: [min, max],
         attrs: {},
         origin,
         provenance: prov ?? [provenance("php-ast", origin, "random")],

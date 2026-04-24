@@ -6,7 +6,7 @@
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { ingestDirectory } from "@chrysalis/ingest";
-import { countByDialect, countHoles } from "@chrysalis/webir";
+import { countByDialect, countHoles, irCoverageStats, type Module } from "@chrysalis/webir";
 import { emit as emitFastify } from "@chrysalis/emit-fastify";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
@@ -37,6 +37,7 @@ import {
   type RewriteReport,
   type RewriteResult,
 } from "@chrysalis/rewrite";
+import { runVerifiedRepairLoop, stubRepairProposer } from "@chrysalis/repair";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
@@ -298,20 +299,27 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--no-recorded-sql]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--no-recorded-sql] [--project <php-root>]",
     );
     return 2;
   }
   const reportDir = typeof flags.report === "string" ? flags.report : "reports/verify";
   const threshold = typeof flags.threshold === "string" ? Number.parseFloat(flags.threshold) : 0.8;
+  const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
 
   const corpus = readCorpus({ root: resolve(corpusRoot) });
   console.log(`[verify] loaded ${corpus.traces.length} traces from ${corpusRoot}`);
+  let verifyModule: Module | undefined;
+  if (projectRoot) {
+    verifyModule = await ingestDirectory(projectRoot);
+    console.log(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
+  }
   console.log(`[verify] replaying against ${baseUrl} ...`);
 
   const outcomes = await replayCorpus(corpus, {
     baseUrl,
     recordedSqlReplay: flags["no-recorded-sql"] !== true,
+    ...(verifyModule ? { module: verifyModule } : {}),
   });
   const report = buildReport(outcomes);
   const written = writeReport(resolve(reportDir), report, outcomes);
@@ -328,6 +336,9 @@ async function cmdVerify(args: string[]): Promise<number> {
     console.log(`  ${e.route.padEnd(25)} ${pct}%   body≈${sim}   (${e.framesPassed}/${e.framesTotal})`);
     for (const d of e.divergences) {
       console.log(`    ✗ ${d.traceId}: ${d.kinds.join(", ")}`);
+      if (d.attributedNodeIds && d.attributedNodeIds.length > 0) {
+        console.log(`      IR nodes: ${d.attributedNodeIds.join(", ")}`);
+      }
       for (const detail of d.details) console.log(`      · ${detail}`);
     }
   }
@@ -339,6 +350,59 @@ async function cmdVerify(args: string[]): Promise<number> {
     return 1;
   }
   return 0;
+}
+
+async function cmdRepair(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const flags = parseFlags(args);
+  const corpusRoot = pos[0];
+  const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
+  const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
+  if (!corpusRoot || !baseUrl || !projectRoot) {
+    console.error(
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql]",
+    );
+    return 2;
+  }
+  const maxIterRaw =
+    typeof flags["max-iter"] === "string" ? Number.parseInt(flags["max-iter"], 10) : 5;
+  const maxIterations = Number.isFinite(maxIterRaw) && maxIterRaw > 0 ? maxIterRaw : 5;
+  const endpoint = typeof flags.endpoint === "string" ? flags.endpoint : undefined;
+
+  const corpus = readCorpus({ root: resolve(corpusRoot) });
+  const webirModule = await ingestDirectory(projectRoot);
+  console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
+
+  const result = await runVerifiedRepairLoop({
+    corpus,
+    initialModule: webirModule,
+    replayBase: {
+      baseUrl,
+      recordedSqlReplay: flags["no-recorded-sql"] !== true,
+    },
+    proposer: stubRepairProposer(),
+    maxIterations,
+    ...(endpoint !== undefined ? { endpoint } : {}),
+  });
+
+  if (result.ok) {
+    console.log(`[repair] corpus verifies (${result.iterationsRun} repair iteration(s))`);
+    return 0;
+  }
+
+  const failed = result.finalOutcomes.filter((o) => !o.ok);
+  console.error(`[repair] still failing: ${failed.length} trace(s)`);
+  if (result.message) console.error(`[repair] ${result.message}`);
+  for (const o of failed.slice(0, 5)) {
+    console.error(`  ${o.route} trace=${o.traceId}`);
+    if (o.attributedNodeIds?.length) {
+      console.error(`    IR nodes: ${o.attributedNodeIds.join(", ")}`);
+    }
+  }
+  console.error(
+    "[repair] default proposer is a stub; implement RepairProposer or integrate an LLM (see @chrysalis/repair).",
+  );
+  return 1;
 }
 
 interface DeployConfigFile {
@@ -1016,6 +1080,21 @@ interface StatusSummary {
       readonly route: string | null;
     }>;
   } | null;
+  /**
+   * Milestone 4 dashboard roll-up (DESIGN success metrics). Optional sidecars:
+   * `reports/migration/idiomaticity.json` `{ "pct": 0..1 }`,
+   * `residual-legacy.json` `{ "legacyRequestPct": 0..100 }`.
+   */
+  migration: {
+    readonly coverage: {
+      readonly pct: number;
+      readonly nodes: number;
+      readonly holes: number;
+    } | null;
+    readonly correctness: number | null;
+    readonly idiomaticity: number | null;
+    readonly residualLegacyRequestPct: number | null;
+  };
 }
 
 function tryReadJson<T>(path: string): T | null {
@@ -1124,6 +1203,11 @@ async function cmdStatus(args: string[]): Promise<number> {
   const shadowDir = typeof flags.shadow === "string" ? resolve(flags.shadow) : "reports/shadow";
   const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
 
+  const migrationReportsDir =
+    typeof flags["migration-reports"] === "string"
+      ? resolve(flags["migration-reports"])
+      : resolve("reports/migration");
+
   const summary: StatusSummary = {
     corpus: null,
     correctness: null,
@@ -1131,6 +1215,12 @@ async function cmdStatus(args: string[]): Promise<number> {
     shadow: null,
     residualLegacy: null,
     insights: null,
+    migration: {
+      coverage: null,
+      correctness: null,
+      idiomaticity: null,
+      residualLegacyRequestPct: null,
+    },
   };
 
   // Corpus ------------------------------------------------------------
@@ -1200,9 +1290,11 @@ async function cmdStatus(args: string[]): Promise<number> {
   }
 
   // Residual legacy (holes) + insights --------------------------------
+  let ingestedMod: Module | null = null;
   if (project) {
     try {
       const mod = await ingestDirectory(project);
+      ingestedMod = mod;
       (summary as { residualLegacy: StatusSummary["residualLegacy"] }).residualLegacy = {
         holeCount: countHoles(mod),
         dialectCounts: countByDialect(mod),
@@ -1247,6 +1339,37 @@ async function cmdStatus(args: string[]): Promise<number> {
       };
     }
   }
+
+  // Milestone 4 roll-up (coverage + optional sidecars) ----------------
+  const idiomaticityJson = tryReadJson<{ pct: number }>(
+    join(migrationReportsDir, "idiomaticity.json"),
+  );
+  const residualLegacyJson = tryReadJson<{ legacyRequestPct: number }>(
+    join(migrationReportsDir, "residual-legacy.json"),
+  );
+  summary.migration = {
+    coverage: ingestedMod
+      ? (() => {
+          const s = irCoverageStats(ingestedMod);
+          return { pct: s.coverage, nodes: s.nodeCount, holes: s.holeCount };
+        })()
+      : null,
+    correctness: summary.correctness?.aggregate ?? null,
+    idiomaticity:
+      idiomaticityJson != null &&
+      typeof idiomaticityJson.pct === "number" &&
+      idiomaticityJson.pct >= 0 &&
+      idiomaticityJson.pct <= 1
+        ? idiomaticityJson.pct
+        : null,
+    residualLegacyRequestPct:
+      residualLegacyJson != null &&
+      typeof residualLegacyJson.legacyRequestPct === "number" &&
+      residualLegacyJson.legacyRequestPct >= 0 &&
+      residualLegacyJson.legacyRequestPct <= 100
+        ? residualLegacyJson.legacyRequestPct
+        : null,
+  };
 
   // Render -----------------------------------------------------------
   if (flags.json) {
@@ -1338,6 +1461,22 @@ async function cmdStatus(args: string[]): Promise<number> {
   } else {
     console.log(`insights     : (none — pass --project <php-dir> or run 'chrysalis insight')`);
   }
+  const mig = summary.migration;
+  const covStr =
+    mig.coverage != null
+      ? `${(mig.coverage.pct * 100).toFixed(1)}% (${mig.coverage.nodes} nodes, ${mig.coverage.holes} holes)`
+      : "— (pass --project for IR coverage)";
+  const corrStr =
+    mig.correctness != null ? `${(mig.correctness * 100).toFixed(1)}%` : "—";
+  const idioStr =
+    mig.idiomaticity != null ? `${(mig.idiomaticity * 100).toFixed(1)}%` : "—";
+  const resStr =
+    mig.residualLegacyRequestPct != null
+      ? `${mig.residualLegacyRequestPct.toFixed(1)}% legacy`
+      : "—";
+  console.log(
+    `migration(M4): coverage ${covStr}  correctness ${corrStr}  idiomaticity ${idioStr}  residual ${resStr}`,
+  );
   return 0;
 }
 
@@ -1377,6 +1516,8 @@ async function main(): Promise<number> {
       return await cmdRewrite(rest);
     case "status":
       return await cmdStatus(rest);
+    case "repair":
+      return await cmdRepair(rest);
     default:
       console.log(`[chrysalis] '${cmd}' is not implemented yet (Milestone 0 scaffold).`);
       console.log(`[chrysalis] args: ${JSON.stringify(rest)}`);

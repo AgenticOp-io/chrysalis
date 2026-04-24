@@ -14,7 +14,8 @@ visitor/pass infrastructure, and provenance model.
   - `dialects/web-request` — routes, handlers, request/response shapes
   - `dialects/effect` — `DB.read`, `DB.write`, `Mail.send`, `Session.*`, `Time.*`, `Random.*`, `Http.fetch`, `Cache.*`
   - `dialects/data` — SSA dataflow over scalars, records, arrays, sums
-- `visit`, `rewrite`, `fold` — pure visitor helpers
+- `visit`, `rewrite`, `fold` — pure visitor helpers; `irCoverageStats` for
+  non-hole fraction over reachable nodes (Milestone 4 dashboard)
 - `Module` — a WebIR compilation unit
 
 ## Invariants

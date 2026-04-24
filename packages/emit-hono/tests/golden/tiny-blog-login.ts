@@ -14,6 +14,7 @@ import {
   intval,
   strlen,
   pregMatch,
+  parseUrlComponent,
   passwordVerify,
   __hole,
   __respond,

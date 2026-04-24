@@ -164,10 +164,60 @@ export function execSql(sql: string, params: ReadonlyArray<unknown> = []): numbe
 }
 `;
 
+export const CTX_TS = `import { AsyncLocalStorage } from "node:async_hooks";
+import type { FastifyRequest } from "fastify";
+
+export interface ChrysalisHandlerContext {
+  readonly nowIso: string;
+  nextRandom: () => number;
+}
+
+const handlerCtxAls = new AsyncLocalStorage<ChrysalisHandlerContext>();
+
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a += 0x6d2b79f5;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function chrysalisNow(): string {
+  return handlerCtxAls.getStore()?.nowIso ?? new Date().toISOString();
+}
+
+export function chrysalisRandom(): number {
+  const s = handlerCtxAls.getStore();
+  if (s) return s.nextRandom();
+  return Math.random();
+}
+
+export function chrysalisDeterminismOnRequest(req: FastifyRequest): void {
+  const hdrNow = req.headers["x-chrysalis-now-iso"];
+  const hdrSeed = req.headers["x-chrysalis-random-seed"];
+  const nowRaw = Array.isArray(hdrNow) ? hdrNow[0] : hdrNow;
+  const seedRaw = Array.isArray(hdrSeed) ? hdrSeed[0] : hdrSeed;
+  const nowIso =
+    nowRaw !== undefined && typeof nowRaw === "string" && nowRaw.length > 0
+      ? nowRaw
+      : new Date().toISOString();
+  let seed = (Math.random() * 0xffffffff) >>> 0;
+  if (seedRaw !== undefined && typeof seedRaw === "string" && seedRaw.length > 0) {
+    const n = Number.parseInt(seedRaw, 10);
+    if (Number.isFinite(n)) seed = n >>> 0;
+  }
+  handlerCtxAls.enterWith({ nowIso, nextRandom: mulberry32(seed) });
+}
+`;
+
 export const SESSION_TS = `import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import cookie from "@fastify/cookie";
+import { chrysalisRandom } from "./ctx.js";
 
 const sessions = new Map<string, Record<string, unknown>>();
 const sessionDir = process.env.CHRYSALIS_SESSION_DIR;
@@ -177,7 +227,9 @@ const sessionStoreKey = Symbol("chrysalisSession");
 const sessionBackingKey = Symbol("chrysalisSessionBacking");
 
 function newSid(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const a = Math.floor(chrysalisRandom() * 1e12).toString(36);
+  const b = Math.floor(chrysalisRandom() * 1e12).toString(36);
+  return a + b;
 }
 
 function diskPath(sid: string): string {
@@ -341,6 +393,35 @@ export function strlen(v: unknown): number {
   return String(v ?? "").length;
 }
 
+export function parseUrlComponent(url: unknown, component: number): string | null {
+  const u = String(url ?? "");
+  try {
+    const parsed = new URL(u, "http://chrysalis-parse-url.invalid");
+    switch (component) {
+      case 0:
+        return parsed.protocol.replace(/:$/, "") || null;
+      case 1:
+        return parsed.hostname || null;
+      case 2:
+        return parsed.port ? String(parsed.port) : null;
+      case 3:
+        return parsed.username || null;
+      case 4:
+        return parsed.password || null;
+      case 5:
+        return parsed.pathname || null;
+      case 6:
+        return parsed.search ? parsed.search.slice(1) : null;
+      case 7:
+        return parsed.hash ? parsed.hash.slice(1) : null;
+      default:
+        return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
 export function pregMatch(pattern: unknown, subject: unknown): boolean {
   const p = String(pattern ?? "");
   const s = String(subject ?? "");
@@ -386,12 +467,14 @@ export function __respond(reply: FastifyReply, html: string, status: number): Fa
 export const SERVER_TS = (imports: string, routeRegistrations: string): string =>
   `${imports}
 import Fastify, { type FastifyInstance } from "fastify";
+import { chrysalisDeterminismOnRequest } from "./ctx.js";
 import { sqlTapeOnRequest } from "./db.js";
 import { registerSession } from "./session.js";
 
 async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   app.addHook("onRequest", sqlTapeOnRequest);
+  app.addHook("onRequest", chrysalisDeterminismOnRequest);
   await registerSession(app);
   app.setErrorHandler((err, _req, reply) => {
     if (reply.sent) return;

@@ -9,7 +9,8 @@ diffs each response against what was captured.
 
 ## Public API
 
-- `replayCorpus(corpus, { baseUrl, fetch?, recordedSqlReplay? })` — returns `TraceOutcome[]`.
+- `replayCorpus(corpus, { baseUrl, fetch?, recordedSqlReplay?, injectDeterminismHeaders?, module? })` — returns `TraceOutcome[]`. By default each request includes `x-chrysalis-now-iso` (trace `startedAt`) and `x-chrysalis-random-seed` (FNV-1a of `traceId`) for emitted apps that use `chrysalisNow` / `chrysalisRandom`. Set `injectDeterminismHeaders: false` to omit them.
+- `traceDeterminismSeed(traceId)` — uint32 seed helper (same algorithm as replay headers).
 - `buildSqlReplayTapeFromTrace` / `canSqlReplayTrace` / `encodeSqlTapeHeader` —
   helpers for recorded SELECT rows (optional `sql.query.rows` in traces).
 - `diffResponse(expected, actual)` — per-pair diff with divergence list and
@@ -29,8 +30,11 @@ Hono app's `sqlTapeMiddleware` + `queryOne` / `queryAll` serve SELECTs from
 the tape in order. Traces without row payloads behave as before (live DB).
 Use `chrysalis verify ... --no-recorded-sql` to disable.
 
-IR-level node attribution, deterministic time/RNG injection in the handler,
-and symbolic verify remain Milestone 2/3 work — see `DESIGN.md`.
+**Heuristic IR attribution (Milestone 3 v1):** when `replayCorpus` is called
+with `module` (ingested WebIR), failed traces attach up to five `NodeId`s on
+`TraceOutcome.attributedNodeIds`. The `chrysalis verify --project` and
+`chrysalis repair` CLIs pass this through. Handler determinism headers (above)
+complement SQL tape replay for injectable clock/PRNG in generated TypeScript.
 
 ## Invariants (current, Milestone 1)
 

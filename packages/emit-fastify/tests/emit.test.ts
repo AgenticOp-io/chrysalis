@@ -36,6 +36,11 @@ describe("emit-fastify: tiny-blog output", () => {
       expect(server).toContain("Fastify");
       expect(server).toContain("export async function fetch(");
       expect(server).toContain("app.inject");
+      expect(server).toContain("chrysalisDeterminismOnRequest");
+
+      const ctx = readFileSync(resolve(out, "src/ctx.ts"), "utf8");
+      expect(ctx).toContain("chrysalisNow");
+      expect(ctx).toContain("chrysalisRandom");
 
       const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
       expect(login).toContain("FastifyRequest");

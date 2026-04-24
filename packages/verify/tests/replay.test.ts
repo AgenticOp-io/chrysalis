@@ -6,7 +6,7 @@ import {
   type Trace,
   type TraceCorpus,
 } from "@chrysalis/oracle";
-import { buildReport, replayCorpus } from "../src/index.js";
+import { buildReport, replayCorpus, traceDeterminismSeed } from "../src/index.js";
 
 function mkTrace(overrides: {
   traceId: string;
@@ -102,6 +102,58 @@ describe("replayCorpus", () => {
       await ts.stop();
       ts = undefined;
     }
+  });
+
+  it("injects chrysalis determinism headers from trace metadata by default", async () => {
+    const corpus = corpusOf([
+      mkTrace({
+        traceId: "trace-seed-a",
+        startedAt: "2026-05-01T12:34:56.789Z",
+        method: "GET",
+        path: "/x",
+        expectedStatus: 200,
+        expectedHeaders: { "content-type": "text/html" },
+        expectedBody: "ok",
+      }),
+    ]);
+    let sawNow = "";
+    let sawSeed = "";
+    const injectedFetch: typeof fetch = async (input, init) => {
+      const r = new Request(input, init);
+      sawNow = r.headers.get("x-chrysalis-now-iso") ?? "";
+      sawSeed = r.headers.get("x-chrysalis-random-seed") ?? "";
+      return new Response("ok", {
+        status: 200,
+        headers: { "content-type": "text/html" },
+      });
+    };
+    await replayCorpus(corpus, { baseUrl: "http://unused.test", fetch: injectedFetch });
+    expect(sawNow).toBe("2026-05-01T12:34:56.789Z");
+    expect(sawSeed).toBe(String(traceDeterminismSeed("trace-seed-a")));
+  });
+
+  it("omits determinism headers when injectDeterminismHeaders is false", async () => {
+    const corpus = corpusOf([
+      mkTrace({
+        traceId: "t-no-hdr",
+        startedAt: "2026-05-01T00:00:00Z",
+        method: "GET",
+        path: "/x",
+        expectedStatus: 200,
+        expectedBody: "ok",
+      }),
+    ]);
+    const injectedFetch: typeof fetch = async (input, init) => {
+      const r = new Request(input, init);
+      expect(r.headers.get("x-chrysalis-now-iso")).toBeNull();
+      expect(r.headers.get("x-chrysalis-random-seed")).toBeNull();
+      return new Response("ok", { status: 200, headers: { "content-type": "text/html" } });
+    };
+    await replayCorpus(corpus, {
+      baseUrl: "http://unused.test",
+      fetch: injectedFetch,
+      injectDeterminismHeaders: false,
+    });
   });
 
   it("honors an injected fetch (in-process handler) without a real server", async () => {

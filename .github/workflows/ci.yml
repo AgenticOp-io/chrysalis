@@ -106,12 +106,76 @@ jobs:
           VERIFY_THRESHOLD: "0.95"
         run: node scripts/verify-tiny-blog.mjs
 
+      - name: Milestone 4 — migration metrics on status JSON
+        run: |
+          node packages/cli/dist/bin.js status --json --project fixtures/tiny-blog --traces traces --report reports/verify | node -e "
+            const s = JSON.parse(require('fs').readFileSync(0,'utf8'));
+            if (!s.migration) throw new Error('missing migration');
+            if (s.migration.coverage == null || s.migration.coverage.pct < 1 - 1e-9)
+              throw new Error('expected full IR coverage on tiny-blog');
+            if (s.migration.correctness == null || s.migration.correctness + 1e-9 < 0.95)
+              throw new Error('expected verify correctness >= 0.95');
+          "
+
       - name: Upload correctness report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: verify-report
           path: reports/verify
+          if-no-files-found: ignore
+
+  verify-flagship-laravel-min:
+    name: verify flagship (laravel-min)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: End-to-end verify (laravel-min corpus → dual emit → replay)
+        env:
+          VERIFY_THRESHOLD: "0.95"
+        run: node scripts/verify-flagship-laravel-min.mjs
+
+      - name: Milestone 4 — migration metrics (laravel-min + verify reports)
+        run: |
+          mkdir -p reports/migration
+          node packages/cli/dist/bin.js status --json --project flagship/laravel-min --traces traces/flagship-laravel-min --report reports/verify-flagship-laravel-min | node -e "
+            const s = JSON.parse(require('fs').readFileSync(0,'utf8'));
+            if (!s.migration) throw new Error('missing migration');
+            if (s.migration.coverage == null || s.migration.coverage.pct < 1 - 1e-9)
+              throw new Error('expected full IR coverage on laravel-min');
+            if (s.migration.correctness == null || s.migration.correctness + 1e-9 < 0.95)
+              throw new Error('expected verify correctness >= 0.95');
+          "
+          node packages/cli/dist/bin.js status --json --project flagship/laravel-min --traces traces/flagship-laravel-min --report reports/verify-flagship-laravel-min > reports/migration/flagship-laravel-min.json
+
+      - name: Upload flagship verify + migration JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flagship-laravel-min-verify
+          path: |
+            reports/verify-flagship-laravel-min
+            reports/migration/flagship-laravel-min.json
           if-no-files-found: ignore
 
   insight-catalog:

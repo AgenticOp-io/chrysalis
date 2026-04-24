@@ -16,6 +16,7 @@ import {
 } from "@chrysalis/emit-shared";
 import type { Module, NodeBase } from "@chrysalis/webir";
 import {
+  CTX_TS,
   DB_TS,
   INDEX_TS,
   PACKAGE_JSON,
@@ -92,6 +93,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     await writeOne("src/schema.ts", emitDrizzleSchema(schemaReport));
   }
   await writeOne("src/db.ts", DB_TS);
+  await writeOne("src/ctx.ts", CTX_TS);
   await writeOne("src/runtime.ts", RUNTIME_TS);
   await writeOne("src/session.ts", SESSION_TS);
 
@@ -145,6 +147,10 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   };
 }
 
+function usesChrysalisTimeOrRandom(emitted: EmittedHandler): boolean {
+  return emitted.effectNames.includes("time.now") || emitted.effectNames.includes("random");
+}
+
 function handlerFileText(
   name: string,
   emitted: EmittedHandler,
@@ -154,8 +160,11 @@ function handlerFileText(
     emitted.domainTypeImports.length > 0
       ? `import type { ${emitted.domainTypeImports.join(", ")} } from "../domain.js";\n`
       : "";
+  const ctxImport = usesChrysalisTimeOrRandom(emitted)
+    ? `import { chrysalisNow, chrysalisRandom } from "../ctx.js";\n`
+    : "";
   return `import type { FastifyReply, FastifyRequest } from "fastify";
-${domainImport}import { queryAll, queryOne, execSql, db } from "../db.js";
+${domainImport}${ctxImport}import { queryAll, queryOne, execSql, db } from "../db.js";
 import { getSession } from "../session.js";
 import {
   escapeHtml,
@@ -168,6 +177,7 @@ import {
   intval,
   strlen,
   pregMatch,
+  parseUrlComponent,
   passwordVerify,
   __hole,
   __respond,

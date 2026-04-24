@@ -53,6 +53,9 @@ importers:
       '@chrysalis/oracle':
         specifier: workspace:*
         version: link:../oracle
+      '@chrysalis/repair':
+        specifier: workspace:*
+        version: link:../repair
       '@chrysalis/rewrite':
         specifier: workspace:*
         version: link:../rewrite
@@ -140,6 +143,21 @@ importers:
       php-parser:
         specifier: ^3.2.2
         version: 3.5.1
+
+  packages/repair:
+    dependencies:
+      '@chrysalis/oracle':
+        specifier: workspace:*
+        version: link:../oracle
+      '@chrysalis/rewrite':
+        specifier: workspace:*
+        version: link:../rewrite
+      '@chrysalis/verify':
+        specifier: workspace:*
+        version: link:../verify
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
 
   packages/rewrite:
     dependencies:

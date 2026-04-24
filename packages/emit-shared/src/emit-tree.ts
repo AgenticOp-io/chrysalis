@@ -212,6 +212,26 @@ function emitEffectExpr(ctx: EmitCtx, n: NodeBase): string {
     case "session.read":
       recordEffectsFromNode(ctx, n);
       return `${ctx.profile.sessionGetter()}.get(${stringLit(String(n.attrs.key))})`;
+    case "time.now": {
+      recordEffectsFromNode(ctx, n);
+      const fmt = n.attrs.format;
+      if (fmt === "unix") {
+        return "Math.floor(Date.parse(chrysalisNow()) / 1000)";
+      }
+      if (fmt === "epoch_ms") {
+        return "Date.parse(chrysalisNow())";
+      }
+      if (fmt === "epoch_float") {
+        return "(Date.parse(chrysalisNow()) / 1000)";
+      }
+      return "chrysalisNow()";
+    }
+    case "random": {
+      recordEffectsFromNode(ctx, n);
+      const lo = emitExpr(ctx, n.operands[0]!);
+      const hi = emitExpr(ctx, n.operands[1]!);
+      return `(Math.floor(chrysalisRandom() * ((${hi}) - (${lo}) + 1)) + (${lo}))`;
+    }
     default:
       return `/* unhandled effect.${n.op} */ null`;
   }
@@ -234,6 +254,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `([${args[0]}] as unknown as unknown[])`;
     case "__array_literal":
       return `[${args.join(", ")}]`;
+    case "__dechex":
+      return `(((${args[0]}) >>> 0).toString(16))`;
   }
   switch (callee) {
     case "htmlspecialchars":
@@ -259,6 +281,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `db()`;
     case "session_start":
       return `undefined /* session_start handled by middleware */`;
+    case "parseUrlComponent":
+      return `parseUrlComponent(${args[0]}, ${args[1]})`;
   }
   ctx.holes.push({
     name: `call:${callee}`,

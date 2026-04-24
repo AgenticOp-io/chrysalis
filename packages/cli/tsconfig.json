@@ -15,7 +15,8 @@
     { "path": "../archaeology" },
     { "path": "../runtime-chimera" },
     { "path": "../insight" },
-    { "path": "../rewrite" }
+    { "path": "../rewrite" },
+    { "path": "../repair" }
   ],
   "include": ["src/**/*"]
 }

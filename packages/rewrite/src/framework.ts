@@ -322,7 +322,7 @@ export function applyRewrites(
 
       let candidateModule: Module;
       try {
-        candidateModule = applyEditsToModule(currentModule, patch);
+        candidateModule = applyModuleEdits(currentModule, patch);
       } catch (err) {
         skipped.push({
           pass: pass.id,
@@ -559,7 +559,34 @@ export async function applyRewritesAsync(
   };
 }
 
-function applyEditsToModule(mod: Module, edits: ReadonlyArray<Edit>): Module {
+/**
+ * Options for {@link applyModuleEdits}. Defaults preserve historical
+ * `applyRewrites` provenance text.
+ */
+export interface ApplyModuleEditsOptions {
+  /**
+   * Stored as `provenance[].source` on each `replaceOperand` edit.
+   * Default: `"intent-rewrite"`.
+   */
+  readonly provenanceSource?: Provenance["source"];
+  /**
+   * Stored as `provenance[].reason` on each `replaceOperand` edit.
+   * Default: `` `operand[${i}] rewritten by applyRewrites` ``.
+   */
+  readonly replaceOperandReason?: string | ((operandIndex: number) => string);
+}
+
+/**
+ * Apply a batch of structural edits to a module. Used by `applyRewrites`
+ * and by Milestone 3 repair drivers that produce edits out-of-band (LLM,
+ * human, or tests).
+ */
+export function applyModuleEdits(
+  mod: Module,
+  edits: ReadonlyArray<Edit>,
+  opts?: ApplyModuleEditsOptions,
+): Module {
+  const provSource = opts?.provenanceSource ?? "intent-rewrite";
   const nodes = new Map<NodeId, NodeBase>();
   for (const [id, n] of mod.nodes) nodes.set(id, n);
   for (const e of edits) {
@@ -578,17 +605,19 @@ function applyEditsToModule(mod: Module, edits: ReadonlyArray<Edit>): Module {
     }
     const newOps = [...existing.operands];
     newOps[e.index] = e.newOperandId;
+    const reason =
+      typeof opts?.replaceOperandReason === "function"
+        ? opts.replaceOperandReason(e.index)
+        : (opts?.replaceOperandReason ?? `operand[${e.index}] rewritten by applyRewrites`);
+    const provEntry: Provenance = {
+      source: provSource,
+      locator: existing.origin,
+      reason,
+    };
     const patched: NodeBase = {
       ...existing,
       operands: Object.freeze(newOps),
-      provenance: [
-        ...existing.provenance,
-        {
-          source: "intent-rewrite",
-          locator: existing.origin,
-          reason: `operand[${e.index}] rewritten by applyRewrites`,
-        },
-      ],
+      provenance: [...existing.provenance, provEntry],
     };
     nodes.set(e.nodeId, patched);
   }

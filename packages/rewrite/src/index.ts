@@ -2,10 +2,12 @@
  * @chrysalis/rewrite — public API.
  */
 export {
+  applyModuleEdits,
   applyRewrites,
   applyRewritesAsync,
   makeDataCall,
   type AppliedRecord,
+  type ApplyModuleEditsOptions,
   type AsyncRewriteOptions,
   type Edit,
   type HttpReplayBackendSlice,

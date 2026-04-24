@@ -1,0 +1,21 @@
+{
+  "name": "@chrysalis/repair",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Milestone 3 verified repair loop: propose WebIR edits from verify failures, re-run oracle replay before accepting.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@chrysalis/oracle": "workspace:*",
+    "@chrysalis/rewrite": "workspace:*",
+    "@chrysalis/verify": "workspace:*",
+    "@chrysalis/webir": "workspace:*"
+  }
+}

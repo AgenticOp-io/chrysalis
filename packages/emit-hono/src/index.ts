@@ -20,7 +20,16 @@ import {
   ident,
   type EmittedHandler,
 } from "@chrysalis/emit-shared";
-import { DB_TS, INDEX_TS, PACKAGE_JSON, RUNTIME_TS, SERVER_TS, SESSION_TS, TSCONFIG_JSON } from "./runtime-files.js";
+import {
+  CTX_TS,
+  DB_TS,
+  INDEX_TS,
+  PACKAGE_JSON,
+  RUNTIME_TS,
+  SERVER_TS,
+  SESSION_TS,
+  TSCONFIG_JSON,
+} from "./runtime-files.js";
 
 export interface EmitInput {
   readonly module: Module;
@@ -107,8 +116,9 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     await writeOne("src/schema.ts", emitDrizzleSchema(schemaReport));
   }
   await writeOne("src/db.ts", DB_TS);
-  await writeOne("src/runtime.ts", RUNTIME_TS);
+  await writeOne("src/ctx.ts", CTX_TS);
   await writeOne("src/session.ts", SESSION_TS);
+  await writeOne("src/runtime.ts", RUNTIME_TS);
 
   const bindings: RouteBinding[] = [];
 
@@ -161,6 +171,10 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   };
 }
 
+function usesChrysalisTimeOrRandom(emitted: EmittedHandler): boolean {
+  return emitted.effectNames.includes("time.now") || emitted.effectNames.includes("random");
+}
+
 function handlerFileText(
   name: string,
   emitted: EmittedHandler,
@@ -170,9 +184,12 @@ function handlerFileText(
     emitted.domainTypeImports.length > 0
       ? `import type { ${emitted.domainTypeImports.join(", ")} } from "../domain.js";\n`
       : "";
+  const ctxImport = usesChrysalisTimeOrRandom(emitted)
+    ? `import { chrysalisNow, chrysalisRandom } from "../ctx.js";\n`
+    : "";
   return `import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
-${domainImport}import { queryAll, queryOne, execSql, db } from "../db.js";
+${domainImport}${ctxImport}import { queryAll, queryOne, execSql, db } from "../db.js";
 import { getSession } from "../session.js";
 import {
   escapeHtml,
@@ -185,6 +202,7 @@ import {
   intval,
   strlen,
   pregMatch,
+  parseUrlComponent,
   passwordVerify,
   __hole,
   __respond,

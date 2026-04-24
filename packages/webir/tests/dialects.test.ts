@@ -4,6 +4,7 @@ import {
   T,
   countByDialect,
   countHoles,
+  irCoverageStats,
   dataDialect,
   effectDialect,
   effectsReachableFrom,
@@ -110,5 +111,25 @@ describe("webir module builder", () => {
       count += 1;
     });
     expect(count).toBe(3);
+  });
+
+  test("irCoverageStats counts holes vs reachable nodes", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const lit = d.literal({ value: 1, type: T.int, origin });
+    b.addRoot(lit);
+    const ok = b.finish();
+    expect(irCoverageStats(ok)).toEqual({ nodeCount: 1, holeCount: 0, coverage: 1 });
+
+    const b2 = new ModuleBuilder({ sourceApp: "demo2" });
+    const d2 = dataDialect.builders(b2);
+    const h = d2.hole({ reason: "x", input: T.string, output: T.string, origin });
+    b2.addRoot(h);
+    const holesOnly = b2.finish();
+    const st = irCoverageStats(holesOnly);
+    expect(st.nodeCount).toBe(1);
+    expect(st.holeCount).toBe(1);
+    expect(st.coverage).toBe(0);
   });
 });

@@ -28,6 +28,7 @@ import {
   readCorpus,
   startObserver,
 } from "../packages/oracle/dist/index.js";
+import { ingestDirectory } from "../packages/ingest/dist/index.js";
 import {
   buildReport,
   replayCorpus,
@@ -132,6 +133,7 @@ const backends = [
   { id: "fastify", dir: generatedFastify, kind: "fastify" },
 ];
 
+const webirModule = await ingestDirectory(fixture);
 let exitCode = 0;
 for (const b of backends) {
   console.log(`\n[verify-e2e] —— replay vs ${b.id} (in-process fetch) ——`);
@@ -140,6 +142,7 @@ for (const b of backends) {
     baseUrl,
     fetch: fetchFn,
     recordedSqlReplay: true,
+    module: webirModule,
   });
   const report = buildReport(outcomes);
   const outDir = join(reportRoot, b.id);
@@ -157,6 +160,9 @@ for (const b of backends) {
     );
     for (const d of e.divergences) {
       console.log(`    ✗ ${d.traceId}: ${d.kinds.join(", ")}`);
+      if (d.attributedNodeIds?.length) {
+        console.log(`      IR nodes: ${d.attributedNodeIds.join(", ")}`);
+      }
       for (const detail of d.details) console.log(`      · ${detail}`);
     }
   }

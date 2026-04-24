@@ -31,10 +31,10 @@ runnable demo and measurable numbers, not a pile of abstractions.
 Oracle recording (1), Verify HTTP-replay + correctness scoring (6),
 Archaeology DDL + corpus → typed domain models (4), runtime chimera with
 legacy/cutover/shadow modes (7), and the `chrysalis status` dashboard are
-all implemented against the tiny-blog fixture. Remaining work on the
-milestone is polish: recorded-SQL replay, IR-level divergence
-attribution, Drizzle migration, and session bridging in chimera — each
-explicitly tracked below and deferred to Milestone 2.**
+all implemented against the tiny-blog fixture. Follow-ups once shipped as
+vertical slice: recorded-SQL replay, heuristic IR divergence attribution,
+Drizzle migration, and session bridging landed in Milestones 2–3 (see items
+below).**
 The unmodified tiny-blog PHP app is ingested into a 325-node WebIR module
 with zero holes; emit-hono produces a compiling TypeScript project that
 serves live HTTP requests against a seeded SQLite database. The Oracle PHP
@@ -117,10 +117,13 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
          `x-chrysalis-sql-tape`; emit-hono serves `queryOne` / `queryAll` from
          the tape when the header is present (`recordedSqlReplay`, default on
          in `verify-tiny-blog` / CLI unless `--no-recorded-sql`). Mutations
-         still hit SQLite. Deterministic time/RNG injection in handlers remains
-         open.
-   - [ ] Attributes each divergence to specific WebIR node IDs (Milestone 3:
-         requires the source map from emit → IR to be bidirectional)
+         still hit SQLite. Deterministic time/RNG uses `src/ctx.ts` in emits;
+         `verify` replay sends `x-chrysalis-now-iso` / `x-chrysalis-random-seed`
+         from trace metadata by default.
+   - [x] Heuristic divergence attribution: up to five WebIR `NodeId`s per failed
+        trace when `replayCorpus` receives the ingest `module` (`chrysalis verify
+        --project`, `chrysalis repair`). Precise bidirectional emit↔IR maps remain
+        future work.
 
 7. **Runtime chimera (dual-stack)**
    - [x] A Node-based proxy routes per-path to either PHP or the new stack
@@ -278,31 +281,57 @@ Deepen each layer without broadening too fast.
 
 Close the LLM-verified feedback loop.
 
-- [ ] Divergence attribution is precise enough to localize to ≤5 IR nodes per failure
-- [ ] Repair pass interface: given a `DivergenceReport` and the local IR, an
-      agent proposes an IR patch
-- [ ] Patches are **always** re-verified before acceptance; never trusted
-- [ ] CLI: `chrysalis repair <endpoint>` loop with bounded iterations and cost
-- [ ] Proposed patches are committed as IR diffs with rationale in provenance
-- [ ] Hole auto-closure: when a hole's enclosing traces pass verification with a
-      candidate translation, the hole is closed with human sign-off
+- [x] Divergence attribution v1: heuristic ≤5 IR nodes per failure (with ingest
+      `module` on replay); precise maps deferred
+- [x] Repair pass interface: `@chrysalis/repair` (`RepairProposer`, edits via
+      `applyModuleEdits`)
+- [x] Patches are **always** full-corpus re-verified in `runVerifiedRepairLoop`
+- [x] CLI: `chrysalis repair <traces-dir> --base-url <url> --project <php-root>`
+      (bounded `--max-iter`; default proposer is a stub until an LLM adapter lands)
+- [x] Operand edits from the loop record `provenance` with `source: "repair-pass"`
+- [x] Hole auto-closure API: `applyHoleClosure` + `applyHoleClosureAndVerify`
+      (`@chrysalis/repair`) — replacement subgraph, `hand-authored` sign-off on
+      the new root, full-corpus replay gate; v1 supports a single operand parent
+      per hole (CLI / serialized patch format deferred)
 
 ---
 
 ## Milestone 4 — First real app (open-ended)
 
-Pick a flagship open-source PHP app and migrate it end-to-end in public.
+**Goal:** one public flagship migration with the four success metrics visible on
+every commit (see `DESIGN.md` and `chrysalis status` → `migration`).
 
-Candidates (in rough order of tractability):
-1. A small Laravel blog or starter kit
+**Official first target (v1):** a **small Laravel** app (Breeze or similar
+starter + a handful of routes we control). Tractable routing, Composer
+autoload, and Blade/HTTP patterns without WordPress-style global hooks.
+
+**Tracker:** `flagship/README.md` (vendor tree and CI wiring land there as the
+app is adopted).
+
+Candidates after the Laravel pilot (rough tractability order):
 2. osTicket
 3. phpBB (hard; good stress test)
-4. WordPress — **not yet.** WordPress needs its own design spike because of
-   the plugin ecosystem, `wp_*` globals, and the hook/filter model.
+4. WordPress — **not yet** (dedicated design spike: plugins, `wp_*`, hooks)
 
-Success looks like: a public migration dashboard for the chosen app, with
-Coverage / Correctness / Idiomaticity / Residual-Legacy numbers updated on
-every commit.
+**Phased checklist**
+
+- [x] Dashboard roll-up: `chrysalis status` exposes `migration` (IR coverage
+      when `--project` is set; correctness from verify reports; optional
+      `reports/migration/idiomaticity.json` and `residual-legacy.json`)
+- [x] Flagship skeleton under `flagship/laravel-min` (Laravel-**shaped** tree +
+      `chrysalis.routes.json`; full Composer Laravel documented in README, not
+      vendored)
+- [x] First ingest + emit slice (GET `/`, zero holes) gated in CI via ingest +
+      emit-hono tests
+- [x] Oracle corpus + verify gate for `laravel-min` (`scripts/verify-flagship-laravel-min.mjs`,
+      CI job `verify-flagship-laravel-min`; PHP docroot `public/`)
+- [x] Publish `migration` status JSON as a CI artifact (`flagship-laravel-min.json`)
+
+**Pilot slice status:** `laravel-min` satisfies the phased checklist (dashboard,
+ingest/emit, dual verify, migration artifact). **Still open:** replace the
+skeleton with Composer Laravel / Breeze, add DB/session routes, widen the
+corpus, and track monotonic **coverage / correctness / idiomaticity /
+residual-legacy** on `main` with a short narrative in `flagship/README.md`.
 
 ---
 

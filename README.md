@@ -29,6 +29,11 @@ typed domain models, optional Drizzle `schema.ts`), the chimera runtime proxy
 as a second emitter behind shared lowering, and the `chrysalis status` dashboard
 are all live.
 
+**Milestone 4** (first real flagship app) is underway: `flagship/laravel-min`
+is a Laravel-shaped ingest/emit slice (see `flagship/README.md`). `chrysalis
+status --json` exposes a `migration` object for coverage, correctness, and
+optional sidecars; full Composer Laravel remains the next expansion.
+
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling
 TypeScript project that passes `tsc --noEmit` *and* actually serves live HTTP
@@ -52,7 +57,8 @@ endpoint with Jaccard body similarity, and writes per-route reports under
 `reports/verify/summary.json` (or per-backend `hono/` / `fastify/` after dual
 verify). An end-to-end CI job drives PHP → captures the corpus → dual emit →
 in-process replay → enforces a correctness threshold on **each** emitter.
-Locally: `pnpm run verify:e2e` (requires PHP on PATH).
+Locally: `pnpm run verify:e2e` (tiny-blog) and `pnpm run verify:flagship`
+(flagship `laravel-min`; requires PHP on PATH).
 
 Archaeology runs as part of the emit pipeline: it reads the fixture's
 `schema.sql`, intersects it with any observed trace shapes, and writes

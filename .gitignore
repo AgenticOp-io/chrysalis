@@ -26,3 +26,5 @@ generated/**/*.sqlite
 generated/**/*.sqlite-journal
 # Rebuilt in CI via scripts/emit-tiny-blog-fastify.mjs
 generated/tiny-blog-fastify/
+generated/flagship-laravel-min/
+generated/flagship-laravel-min-fastify/

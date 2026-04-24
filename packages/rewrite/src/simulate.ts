@@ -313,10 +313,26 @@ function evalNode(ctx: SimCtx, n: NodeBase): SimValue {
       return evalSessionRead(ctx, n);
     case "effect.session.write":
       return evalSessionWrite(ctx, n);
-    case "effect.time.now":
-      return { kind: "num", value: 0 };
-    case "effect.random":
-      return { kind: "num", value: 0 };
+    case "effect.time.now": {
+      const fmt = n.attrs.format;
+      if (fmt === "unix" || fmt === "epoch_ms" || fmt === "epoch_float") {
+        return { kind: "num", value: 0 };
+      }
+      return { kind: "str", value: "" };
+    }
+    case "effect.random": {
+      const lo = operand(ctx, n, 0);
+      const hi = operand(ctx, n, 1);
+      if (lo.kind !== "num" || hi.kind !== "num") {
+        ctx.errors.push({
+          reason: "random bounds not numeric",
+          nodeId: n.id,
+          op: tag,
+        });
+        return { kind: "num", value: 0 };
+      }
+      return { kind: "num", value: lo.value };
+    }
 
     default:
       ctx.errors.push({ reason: "unrecognized op", nodeId: n.id, op: tag });

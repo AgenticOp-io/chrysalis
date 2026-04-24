@@ -104,7 +104,12 @@ type CallLowering =
   | { kind: "require" }
   | { kind: "session_start" }
   | { kind: "isset_builtin" }
-  | { kind: "empty_builtin" };
+  | { kind: "empty_builtin" }
+  | { kind: "time_builtin" }
+  | { kind: "php_rand" }
+  | { kind: "getrandmax_builtin" }
+  | { kind: "microtime_builtin" }
+  | { kind: "uniqid_builtin" };
 
 const KNOWN_CALLS: Record<string, CallLowering> = {
   query_all: { kind: "dbQuery", mode: "rows", tableFrom: "firstArg" },
@@ -128,6 +133,14 @@ const KNOWN_CALLS: Record<string, CallLowering> = {
   __require: { kind: "require" },
   __require_once: { kind: "require" },
   session_start: { kind: "session_start" },
+  time: { kind: "time_builtin" },
+  rand: { kind: "php_rand" },
+  mt_rand: { kind: "php_rand" },
+  random_int: { kind: "php_rand" },
+  getrandmax: { kind: "getrandmax_builtin" },
+  mt_getrandmax: { kind: "getrandmax_builtin" },
+  microtime: { kind: "microtime_builtin" },
+  uniqid: { kind: "uniqid_builtin" },
 };
 
 /** Crude table guesser from a SQL literal. Used for effect tagging. */
@@ -474,6 +487,109 @@ function convertCall(
         type: T.int,
         origin: loc(ctx, e.pos),
       });
+    case "time_builtin": {
+      if (e.args.length !== 0) {
+        return hole(ctx, "time:args", e.pos, T.int);
+      }
+      return ctx.effect.timeNow({
+        format: "unix",
+        origin: loc(ctx, e.pos),
+        provenance: [prov("php-ast", loc(ctx, e.pos), "time()")],
+      });
+    }
+    case "php_rand": {
+      const origin = loc(ctx, e.pos);
+      if (e.args.length === 0) {
+        const min = ctx.data.literal({ value: 0, type: T.int, origin });
+        const max = ctx.data.literal({ value: 2_147_483_647, type: T.int, origin });
+        return ctx.effect.random({
+          min,
+          max,
+          origin,
+          provenance: [prov("php-ast", origin, `${name}()`)],
+        });
+      }
+      if (e.args.length === 2) {
+        return ctx.effect.random({
+          min: args[0]!,
+          max: args[1]!,
+          origin,
+          provenance: [prov("php-ast", origin, `${name}(…)`)],
+        });
+      }
+      return hole(ctx, `rand:args:${e.args.length}`, e.pos, T.int);
+    }
+    case "getrandmax_builtin": {
+      if (e.args.length !== 0) {
+        return hole(ctx, "getrandmax:args", e.pos, T.int);
+      }
+      return ctx.data.literal({
+        value: 2_147_483_647,
+        type: T.int,
+        origin: loc(ctx, e.pos),
+        provenance: [prov("php-ast", loc(ctx, e.pos), `${name}()`)],
+      });
+    }
+    case "microtime_builtin": {
+      if (e.args.length === 0) {
+        return hole(ctx, "microtime:string-mode", e.pos, T.string);
+      }
+      const a = e.args[0]!;
+      if (a.kind === "Literal" && a.literalKind === "bool" && a.value === true) {
+        return ctx.effect.timeNow({
+          format: "epoch_float",
+          origin: loc(ctx, e.pos),
+          provenance: [prov("php-ast", loc(ctx, e.pos), "microtime(true)")],
+        });
+      }
+      return hole(ctx, "microtime:unsupported-args", e.pos, T.unknown);
+    }
+    case "uniqid_builtin": {
+      const origin = loc(ctx, e.pos);
+      const prefixArg = e.args[0];
+      const prefix = prefixArg
+        ? convertExpr(ctx, prefixArg, pathParams)
+        : ctx.data.literal({ value: "", type: T.string, origin });
+      const ms = ctx.effect.timeNow({
+        format: "epoch_ms",
+        origin,
+        provenance: [prov("php-ast", origin, "uniqid")],
+      });
+      const hexMs = ctx.data.call({
+        callee: "__dechex",
+        args: [ms],
+        type: T.string,
+        origin,
+      });
+      let acc: NodeId = ctx.data.concat({ parts: [prefix, hexMs], origin });
+      const entArg = e.args[1];
+      let useEntropy = false;
+      if (entArg === undefined) {
+        useEntropy = false;
+      } else if (entArg.kind === "Literal" && entArg.literalKind === "bool") {
+        useEntropy = entArg.value === true;
+      } else {
+        return hole(ctx, "uniqid:dynamic-entropy", e.pos, T.string);
+      }
+      if (useEntropy) {
+        const lo = ctx.data.literal({ value: 0, type: T.int, origin });
+        const hi = ctx.data.literal({ value: 0xffffff, type: T.int, origin });
+        const r = ctx.effect.random({
+          min: lo,
+          max: hi,
+          origin,
+          provenance: [prov("php-ast", origin, "uniqid:entropy")],
+        });
+        const hexR = ctx.data.call({
+          callee: "__dechex",
+          args: [r],
+          type: T.string,
+          origin,
+        });
+        acc = ctx.data.concat({ parts: [acc, hexR], origin });
+      }
+      return acc;
+    }
     case "isset_builtin":
       return ctx.data.unaryOp({
         operator: "isset",
@@ -502,8 +618,43 @@ function convertCall(
         type: T.bool,
         origin: loc(ctx, e.pos),
       });
-    case "parse_url":
-      return hole(ctx, `pending-lowering:${name}`, e.pos, T.string);
+    case "parse_url": {
+      const urlExpr = args[0] ?? hole(ctx, "parse_url:no-url", e.pos, T.string);
+      const compArg = e.args[1];
+      if (compArg === undefined) {
+        return hole(ctx, "parse_url:full-result", e.pos, T.unknown);
+      }
+      let comp: number | undefined;
+      if (compArg.kind === "Literal" && compArg.literalKind === "int" && typeof compArg.value === "number") {
+        comp = compArg.value;
+      } else if (compArg.kind === "ConstFetch") {
+        const map: Record<string, number> = {
+          PHP_URL_SCHEME: 0,
+          PHP_URL_HOST: 1,
+          PHP_URL_PORT: 2,
+          PHP_URL_USER: 3,
+          PHP_URL_PASS: 4,
+          PHP_URL_PATH: 5,
+          PHP_URL_QUERY: 6,
+          PHP_URL_FRAGMENT: 7,
+        };
+        comp = map[compArg.name];
+      }
+      if (comp === undefined) {
+        return hole(ctx, "parse_url:component", e.pos, T.nullable(T.string));
+      }
+      const compLit = ctx.data.literal({
+        value: comp,
+        type: T.int,
+        origin: loc(ctx, e.pos),
+      });
+      return ctx.data.call({
+        callee: "parseUrlComponent",
+        args: [urlExpr, compLit],
+        type: T.nullable(T.string),
+        origin: loc(ctx, e.pos),
+      });
+    }
     case "header.location":
       return ctx.effect.redirect({
         location: args[0] ?? hole(ctx, "header: no location", e.pos, T.string),

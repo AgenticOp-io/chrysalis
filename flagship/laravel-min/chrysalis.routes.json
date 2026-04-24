@@ -1,0 +1,11 @@
+{
+  "app": "laravel-min",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "file": "app/Http/Handlers/home_show.php",
+      "pathParams": []
+    }
+  ]
+}
