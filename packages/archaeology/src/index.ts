@@ -13,7 +13,14 @@ import { mergeSchema } from "./merge.js";
 import type { TraceCorpus } from "@chrysalis/oracle";
 
 export { parseSchema, type TableSchema, type ColumnSchema, type SqlPrimitive, type ParsedSchema } from "./parse-schema.js";
-export { summarizeShapes, extractTableNames, type CorpusShapes, type ObservedShape, type ObservedField } from "./corpus-shapes.js";
+export {
+  summarizeShapes,
+  extractTableNames,
+  MAX_TRACE_STRING_ENUM_DISTINCT,
+  type CorpusShapes,
+  type ObservedShape,
+  type ObservedField,
+} from "./corpus-shapes.js";
 export {
   mergeSchema,
   domainTypesByTable,

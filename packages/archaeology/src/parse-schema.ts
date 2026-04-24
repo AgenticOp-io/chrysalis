@@ -132,8 +132,8 @@ function normalizeType(typeName: string, typeArgs: string, constraints: string):
     const vals = [...typeArgs.matchAll(/'([^']*)'/g)].map((mm) => mm[1]!);
     return { kind: "enum", values: vals };
   }
-  // CHECK (col IN (...)) implies enum-ish, but only when no enum type. We let
-  // merge handle that elevation since it might also come from trace data.
+  // CHECK (col IN (...)) on TEXT is promoted to enum here; plain TEXT can be
+  // lifted to a literal union later from `sql.query.rows` in merge (v2).
   if (t === "INTEGER" || t === "INT" || t === "BIGINT" || t === "SMALLINT" || t === "TINYINT") {
     return { kind: "int" };
   }

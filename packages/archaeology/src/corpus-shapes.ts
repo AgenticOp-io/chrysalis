@@ -17,10 +17,25 @@
 
 import type { SqlQueryEvent, TraceCorpus } from "@chrysalis/oracle";
 
+/** Max distinct string literals kept per column for enum-from-traces (Archaeology v2). */
+export const MAX_TRACE_STRING_ENUM_DISTINCT = 16;
+
+/** Scan at most this many captured rows per sql.query event when harvesting literals. */
+const MAX_ROWS_SCANNED_PER_QUERY = 200;
+
+/** Ignore literals longer than this (likely free text, not an enum). */
+const MAX_TRACE_LITERAL_LEN = 128;
+
 export interface ObservedField {
   readonly name: string;
   readonly typeTagCounts: Record<string, number>;
   readonly sampleTraceIds: ReadonlyArray<string>; // up to 3 examples
+  /**
+   * Distinct string values seen in captured `sql.query.rows` for this column.
+   * Omitted when cardinality exceeds {@link MAX_TRACE_STRING_ENUM_DISTINCT} or
+   * values fail safety checks (newlines, excessive length).
+   */
+  readonly observedStringLiterals?: ReadonlyArray<string>;
 }
 
 export interface ObservedShape {
@@ -82,23 +97,74 @@ export function summarizeShapes(corpus: TraceCorpus): CorpusShapes {
   return { byTable: flat, orphan: orphan.map((a) => a.toObserved()) };
 }
 
+type StringLiteralAgg = { readonly kind: "set"; readonly values: Set<string> } | { readonly kind: "overflow" };
+
+function isTraceEnumLiteralCandidate(s: string): boolean {
+  if (s.length === 0 || s.length > MAX_TRACE_LITERAL_LEN) return false;
+  if (/[\n\r\0]/.test(s)) return false;
+  return true;
+}
+
+function addStringLiteral(agg: StringLiteralAgg | undefined, lit: string): StringLiteralAgg {
+  if (agg?.kind === "overflow") return agg;
+  const set = agg?.kind === "set" ? new Set(agg.values) : new Set<string>();
+  set.add(lit);
+  if (set.size > MAX_TRACE_STRING_ENUM_DISTINCT) return { kind: "overflow" };
+  return { kind: "set", values: set };
+}
+
+function mergeStringLiteralAggs(a: StringLiteralAgg | undefined, b: StringLiteralAgg | undefined): StringLiteralAgg | undefined {
+  if (!a && !b) return undefined;
+  if (a?.kind === "overflow" || b?.kind === "overflow") return { kind: "overflow" };
+  const set = new Set<string>();
+  if (a?.kind === "set") for (const v of a.values) set.add(v);
+  if (b?.kind === "set") for (const v of b.values) set.add(v);
+  if (set.size > MAX_TRACE_STRING_ENUM_DISTINCT) return { kind: "overflow" };
+  if (set.size === 0) return undefined;
+  return { kind: "set", values: set };
+}
+
+function literalsFromAgg(agg: StringLiteralAgg | undefined): ReadonlyArray<string> | undefined {
+  if (!agg || agg.kind === "overflow") return undefined;
+  if (agg.values.size < 2) return undefined;
+  return [...agg.values].sort((x, y) => x.localeCompare(y));
+}
+
 class Aggregator {
-  private readonly fields: Map<string, { typeTagCounts: Record<string, number>; samples: string[] }> = new Map();
+  private readonly fields: Map<
+    string,
+    {
+      typeTagCounts: Record<string, number>;
+      samples: string[];
+      stringLiterals: StringLiteralAgg | undefined;
+    }
+  > = new Map();
   private statementCount = 0;
 
   constructor(private readonly tables: ReadonlyArray<string>) {}
 
   absorb(sq: SqlQueryEvent, traceId: string): void {
     this.statementCount += 1;
+    const rows = sq.rows;
+    const rowSlice = rows?.slice(0, MAX_ROWS_SCANNED_PER_QUERY) ?? [];
     for (const f of sq.rowShape) {
       let entry = this.fields.get(f.name);
       if (!entry) {
-        entry = { typeTagCounts: {}, samples: [] };
+        entry = { typeTagCounts: {}, samples: [], stringLiterals: undefined };
         this.fields.set(f.name, entry);
       }
       entry.typeTagCounts[f.typeTag] = (entry.typeTagCounts[f.typeTag] ?? 0) + 1;
       if (entry.samples.length < 3 && !entry.samples.includes(traceId)) {
         entry.samples.push(traceId);
+      }
+      if (rowSlice.length > 0) {
+        for (const row of rowSlice) {
+          const raw = row[f.name];
+          if (typeof raw !== "string") continue;
+          if (!isTraceEnumLiteralCandidate(raw)) continue;
+          entry.stringLiterals = addStringLiteral(entry.stringLiterals, raw);
+          if (entry.stringLiterals.kind === "overflow") break;
+        }
       }
     }
   }
@@ -106,10 +172,12 @@ class Aggregator {
   toObserved(): ObservedShape {
     const fields: ObservedField[] = [];
     for (const [name, entry] of [...this.fields.entries()].sort()) {
+      const lit = literalsFromAgg(entry.stringLiterals);
       fields.push({
         name,
         typeTagCounts: { ...entry.typeTagCounts },
         sampleTraceIds: [...entry.samples],
+        ...(lit ? { observedStringLiterals: lit } : {}),
       });
     }
     return {
@@ -126,7 +194,7 @@ class Aggregator {
       for (const [name, entry] of a.fields) {
         let target = out.fields.get(name);
         if (!target) {
-          target = { typeTagCounts: {}, samples: [] };
+          target = { typeTagCounts: {}, samples: [], stringLiterals: undefined };
           out.fields.set(name, target);
         }
         for (const [tag, n] of Object.entries(entry.typeTagCounts)) {
@@ -135,6 +203,7 @@ class Aggregator {
         for (const s of entry.samples) {
           if (target.samples.length < 3 && !target.samples.includes(s)) target.samples.push(s);
         }
+        target.stringLiterals = mergeStringLiteralAggs(target.stringLiterals, entry.stringLiterals);
       }
     }
     return out;

@@ -7,7 +7,8 @@ independent signals:
 
 1. Database DDL (column types, nullability, FKs, `CHECK (col IN (...))`)
 2. Observed SQL row shapes from the `TraceCorpus` (attributed to tables
-   via a `FROM`/`JOIN` regex)
+   via a `FROM`/`JOIN` regex), plus **bounded distinct string literals**
+   from captured `sql.query.rows` when the PHP oracle recorded result rows
 3. _(Milestone 2)_ HTML/form scans from the PHP templates
 
 Each field on each entity carries `@chrysalis-provenance` JSDoc citing the
@@ -48,8 +49,11 @@ import {
   strings, the field carries `@chrysalis-conflict ddl=int vs observed=string`
   and keeps the DDL type as authoritative.
 - **Enums from evidence.** TEXT columns with a `CHECK (col IN ('a','b'))`
-  constraint become `"a" | "b"` string-literal unions. Observed-only enum
-  widening is Milestone 2.
+  constraint become `"a" | "b"` string-literal unions. Plain TEXT without
+  CHECK may be promoted to a small literal union when traces include
+  `sql.query.rows` with 2..`MAX_TRACE_STRING_ENUM_DISTINCT` distinct short
+  strings; larger cardinality is ignored (treated as free text). Values not
+  listed in a DDL enum produce `@chrysalis-conflict` entries.
 - **Nothing disappears silently.** DDL the parser doesn't recognize appears
   in `report.unknownDdl`; observed SQL that can't be table-attributed
   appears in `report.orphanShapes`; both are rendered as comment blocks in

@@ -6,10 +6,17 @@ import {
   parseSchema,
   summarizeShapes,
   extractTableNames,
+  MAX_TRACE_STRING_ENUM_DISTINCT,
 } from "../src/index.js";
 import { SCHEMA_VERSION, type TraceCorpus } from "@chrysalis/oracle";
 
-function corpus(events: Array<{ sql: string; shape: Array<[string, string]> }>): TraceCorpus {
+function corpus(
+  events: Array<{
+    sql: string;
+    shape: Array<[string, string]>;
+    rows?: ReadonlyArray<Readonly<Record<string, unknown>>>;
+  }>,
+): TraceCorpus {
   return {
     id: "test",
     createdAt: "2026-04-22T00:00:00Z",
@@ -29,8 +36,9 @@ function corpus(events: Array<{ sql: string; shape: Array<[string, string]> }>):
           driver: "pdo",
           sql: e.sql,
           params: [],
-          rowCount: 1,
+          rowCount: e.rows?.length ?? 1,
           rowShape: e.shape.map(([name, typeTag]) => ({ name, typeTag })),
+          ...(e.rows ? { rows: e.rows } : {}),
           durationUs: 100,
           origin: { file: "x.php", line: 1 },
         },
@@ -106,6 +114,73 @@ CREATE TABLE posts (
     const email = users.fields.find((f) => f.name === "email")!;
     expect(email.kind).toBe("observed-only");
     expect(email.typescriptType).toContain("string | null");
+  });
+
+  it("promotes plain TEXT to a string-literal union from sql.query.rows (v2)", () => {
+    const ddl = parseSchema(
+      `CREATE TABLE members (
+        id INTEGER PRIMARY KEY,
+        role TEXT NOT NULL
+      );`,
+      "schema.sql",
+    );
+    const c = corpus([
+      {
+        sql: "SELECT id, role FROM members",
+        shape: [
+          ["id", "integer"],
+          ["role", "text"],
+        ],
+        rows: [
+          { id: 1, role: "admin" },
+          { id: 2, role: "member" },
+        ],
+      },
+    ]);
+    const report = mergeSchema(ddl, summarizeShapes(c));
+    const role = report.entities[0]!.fields.find((f) => f.name === "role")!;
+    expect(role.typescriptType).toBe(`"admin" | "member"`);
+    expect(role.provenance.some((p) => p.detail.includes("literal union"))).toBe(true);
+  });
+
+  it("records a conflict when trace literals fall outside a DDL CHECK enum", () => {
+    const ddl = parseSchema(
+      `CREATE TABLE t (
+        id INTEGER PRIMARY KEY,
+        status TEXT NOT NULL CHECK (status IN ('on', 'off'))
+      );`,
+      "schema.sql",
+    );
+    const c = corpus([
+      {
+        sql: "SELECT status FROM t",
+        shape: [["status", "text"]],
+        rows: [{ status: "on" }, { status: "maybe" }],
+      },
+    ]);
+    const report = mergeSchema(ddl, summarizeShapes(c));
+    const f = report.entities[0]!.fields.find((x) => x.name === "status")!;
+    expect(f.conflicts.some((c) => c.includes("maybe") && c.includes("not in DDL enum"))).toBe(
+      true,
+    );
+  });
+
+  it("drops trace literal sets above the cardinality cap", () => {
+    const rows: Array<Record<string, unknown>> = [];
+    for (let i = 0; i < MAX_TRACE_STRING_ENUM_DISTINCT + 2; i++) {
+      rows.push({ tag: `v${i}` });
+    }
+    const ddl = parseSchema(
+      `CREATE TABLE wide (id INTEGER PRIMARY KEY, tag TEXT NOT NULL);`,
+      "s.sql",
+    );
+    const c = corpus([{ sql: "SELECT tag FROM wide", shape: [["tag", "text"]], rows }]);
+    const shapes = summarizeShapes(c);
+    const tagField = shapes.byTable.get("wide")!.fields.find((f) => f.name === "tag")!;
+    expect(tagField.observedStringLiterals).toBeUndefined();
+    const report = mergeSchema(ddl, shapes);
+    const f = report.entities[0]!.fields.find((x) => x.name === "tag")!;
+    expect(f.typescriptType).toBe("string");
   });
 });
 

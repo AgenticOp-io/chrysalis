@@ -11,6 +11,9 @@
  *     merged in as additional provenance. If they disagree on type, we
  *     record both in `conflicts` and keep the DDL type as the declared type
  *     (because it's explicit and the observation is a sample).
+ *   - TEXT without CHECK may become a string-literal union when captured
+ *     `sql.query.rows` yield 2..N distinct short strings. DDL enums are
+ *     checked against those literals; extras become conflicts.
  */
 
 import type { ParsedSchema, ColumnSchema, SqlPrimitive } from "./parse-schema.js";
@@ -121,6 +124,26 @@ function mergeField(col: ColumnSchema, obs: ObservedField | null, table: string)
     if (observedKind && observedKind !== canonicalKindOf(col.type)) {
       conflicts.push(`ddl=${canonicalKindOf(col.type)} vs observed=${observedKind}`);
     }
+    if (col.type.kind === "enum" && obs.observedStringLiterals) {
+      for (const v of obs.observedStringLiterals) {
+        if (!col.type.values.includes(v)) {
+          conflicts.push(
+            `trace literal ${JSON.stringify(v)} not in DDL enum {${col.type.values.map((x) => JSON.stringify(x)).join(", ")}}`,
+          );
+        }
+      }
+    }
+  }
+
+  if (col.type.kind === "string" && obs?.observedStringLiterals) {
+    const lifted = liftStringUnionFromTraceLiterals(obs);
+    if (lifted) {
+      ts = lifted;
+      provenance.push({
+        kind: "trace",
+        detail: `literal union from captured SQL rows: ${obs.observedStringLiterals.map((v) => JSON.stringify(v)).join(" | ")}`,
+      });
+    }
   }
 
   // If DDL says NOT NULL but the column has a DEFAULT that isn't NULL, treat
@@ -164,6 +187,13 @@ function buildObservedOnlyField(obs: ObservedField, table: string): EntityFieldR
     ],
     conflicts: ["not declared in DDL; may be a view, computed column, or stale schema"],
   };
+}
+
+function liftStringUnionFromTraceLiterals(obs: ObservedField): string | null {
+  const lit = obs.observedStringLiterals;
+  if (!lit || lit.length < 2) return null;
+  if (dominantObservedKind(obs) !== "string") return null;
+  return lit.map((v) => JSON.stringify(v)).join(" | ");
 }
 
 function canonicalKindOf(p: SqlPrimitive): string {

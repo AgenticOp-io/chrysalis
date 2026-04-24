@@ -243,7 +243,9 @@ Deepen each layer without broadening too fast.
   - [ ] String dispatch → discriminated union + `z.enum`
         (IR rewrite at route boundary; consumes `string-dispatch`
         opportunities — full lift beyond emission)
-- [ ] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
+- [x] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
+      (`sql.query.rows` string literals, cardinality cap; CHECK/ENUM validated
+      against literals; D28)
 - [ ] Oracle: outbound HTTP + mail recording
 - [x] CI: fixture suite with golden WebIR snapshots and golden generated TS
       (`pnpm run update:golden`; `packages/ingest/tests/golden-webir.test.ts`,

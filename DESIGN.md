@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D27 Chimera canary + D26/D25 verify/rewrite gates
+Last updated by: D28 archaeology trace enums + D27 chimera canary
 
 ---
 
@@ -1026,3 +1026,16 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Rejected: random per-request sampling without a stickiness key — it would
   break UX for multi-request flows. Rejected: reading `Date.now()` or
   `Math.random()` for bucketing — hash-only inputs keep replay/debugging stable.
+
+- **2026-04-24 — D28** **Archaeology: enums from captured SQL rows** — The
+  Oracle already records `sql.query.rows` on PHP captures. `@chrysalis/archaeology`
+  now harvests **string** cell values per column (bounded: max distinct count,
+  max literal length, no control characters; skip non-strings). Plain DDL
+  `TEXT` columns can become `"a" | "b"` unions when 2..N distinct values
+  survive the cap. DDL enums (`CHECK ... IN` / `ENUM`) are **validated**:
+  any trace literal not in the declared set becomes a `@chrysalis-conflict`
+  on the field (DDL stays authoritative for the type).
+
+  Rejected: unbounded union growth from high-cardinality columns — above the
+  cap we omit literals and keep `string`. Rejected: inferring numeric/boolean
+  unions from row JSON in this pass (string-only v1).
