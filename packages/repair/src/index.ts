@@ -24,6 +24,7 @@ export {
   applyHoleClosure,
   applyHoleClosureAndVerify,
   findHoleOperandRef,
+  parseHoleClosurePatchJson,
   type ApplyHoleClosureOptions,
   type HoleClosureSignOff,
   type HoleClosureVerifyResult,

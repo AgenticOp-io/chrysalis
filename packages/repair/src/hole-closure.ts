@@ -1,7 +1,16 @@
 import type { TraceCorpus } from "@chrysalis/oracle";
 import { applyModuleEdits, type Edit } from "@chrysalis/rewrite";
 import { replayCorpus, type ReplayOptions, type TraceOutcome } from "@chrysalis/verify";
-import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
+import {
+  nodeId,
+  type Effect,
+  type Locator,
+  type Module,
+  type NodeBase,
+  type NodeId,
+  type Provenance,
+  type WebIRType,
+} from "@chrysalis/webir";
 import type { RepairReplayBase } from "./types.js";
 
 export interface HoleClosureSignOff {
@@ -129,4 +138,166 @@ export async function applyHoleClosureAndVerify(
   const outcomes = await replayImpl(corpus, { ...replayBase, module: patched } as ReplayOptions);
   const ok = outcomes.every((o) => o.ok);
   return { ok, module: patched, outcomes };
+}
+
+function requireString(v: unknown, ctx: string): string {
+  if (typeof v !== "string" || v === "") {
+    throw new Error(`hole-patch: ${ctx} must be a non-empty string`);
+  }
+  return v;
+}
+
+function requireRecord(v: unknown, ctx: string): Readonly<Record<string, unknown>> {
+  if (typeof v !== "object" || v === null || Array.isArray(v)) {
+    throw new Error(`hole-patch: ${ctx} must be an object`);
+  }
+  return v as Readonly<Record<string, unknown>>;
+}
+
+function reviveLocator(raw: unknown, ctx: string): Locator {
+  const o = requireRecord(raw, ctx);
+  const kind = requireString(o.kind, `${ctx}.kind`);
+  switch (kind) {
+    case "php": {
+      const line = Number(o.line);
+      const col = Number(o.col);
+      if (!Number.isFinite(line) || !Number.isFinite(col)) {
+        throw new Error(`hole-patch: ${ctx} php locator needs finite line and col`);
+      }
+      return {
+        kind: "php",
+        file: requireString(o.file, `${ctx}.file`),
+        line,
+        col,
+      };
+    }
+    case "db":
+      return {
+        kind: "db",
+        table: requireString(o.table, `${ctx}.table`),
+        ...(typeof o.column === "string" ? { column: o.column } : {}),
+      };
+    case "form":
+      return {
+        kind: "form",
+        file: requireString(o.file, `${ctx}.file`),
+        fieldName: requireString(o.fieldName, `${ctx}.fieldName`),
+      };
+    case "trace":
+      return {
+        kind: "trace",
+        corpusId: requireString(o.corpusId, `${ctx}.corpusId`),
+        frameId: requireString(o.frameId, `${ctx}.frameId`),
+      };
+    case "synthetic":
+      return { kind: "synthetic", reason: requireString(o.reason, `${ctx}.reason`) };
+    default:
+      throw new Error(`hole-patch: unsupported locator kind '${kind}' at ${ctx}`);
+  }
+}
+
+function reviveProvenance(raw: unknown, ctx: string): Provenance {
+  const o = requireRecord(raw, ctx);
+  const source = requireString(o.source, `${ctx}.source`);
+  const allowed: ReadonlySet<Provenance["source"]> = new Set([
+    "php-ast",
+    "db-schema",
+    "form-scan",
+    "trace-corpus",
+    "repair-pass",
+    "intent-rewrite",
+    "hand-authored",
+  ]);
+  if (!allowed.has(source as Provenance["source"])) {
+    throw new Error(`hole-patch: invalid provenance source at ${ctx}`);
+  }
+  return {
+    source: source as Provenance["source"],
+    locator: reviveLocator(o.locator, `${ctx}.locator`),
+    reason: requireString(o.reason, `${ctx}.reason`),
+  };
+}
+
+function reviveEffect(raw: unknown, ctx: string): Effect {
+  if (typeof raw !== "object" || raw === null || typeof (raw as { kind?: unknown }).kind !== "string") {
+    throw new Error(`hole-patch: ${ctx} must be an effect object`);
+  }
+  return raw as Effect;
+}
+
+function asWebIRType(raw: unknown, ctx: string): WebIRType {
+  if (typeof raw !== "object" || raw === null || typeof (raw as { kind?: unknown }).kind !== "string") {
+    throw new Error(`hole-patch: ${ctx} must be a WebIR type object`);
+  }
+  return raw as WebIRType;
+}
+
+function reviveNodeBase(raw: unknown, index: number): NodeBase {
+  const ctx = `nodesToAdd[${index}]`;
+  const o = requireRecord(raw, ctx);
+  const id = nodeId(requireString(o.id, `${ctx}.id`));
+  const operandsRaw = o.operands;
+  if (!Array.isArray(operandsRaw)) {
+    throw new Error(`hole-patch: ${ctx}.operands must be an array`);
+  }
+  const operands = operandsRaw.map((x, j) =>
+    nodeId(requireString(x, `${ctx}.operands[${j}]`)),
+  );
+  const effectsRaw = o.effects;
+  if (!Array.isArray(effectsRaw)) {
+    throw new Error(`hole-patch: ${ctx}.effects must be an array`);
+  }
+  const effects = effectsRaw.map((e, j) => reviveEffect(e, `${ctx}.effects[${j}]`));
+  const provRaw = o.provenance;
+  if (!Array.isArray(provRaw)) {
+    throw new Error(`hole-patch: ${ctx}.provenance must be an array`);
+  }
+  const provenance = provRaw.map((p, j) => reviveProvenance(p, `${ctx}.provenance[${j}]`));
+  const attrs =
+    o.attrs === undefined
+      ? {}
+      : (requireRecord(o.attrs, `${ctx}.attrs`) as Readonly<Record<string, unknown>>);
+  return {
+    id,
+    dialect: requireString(o.dialect, `${ctx}.dialect`),
+    op: requireString(o.op, `${ctx}.op`),
+    type: asWebIRType(o.type, `${ctx}.type`),
+    effects,
+    operands,
+    attrs,
+    origin: reviveLocator(o.origin, `${ctx}.origin`),
+    provenance,
+  };
+}
+
+/**
+ * Parse a JSON file for {@link applyHoleClosure} / {@link applyHoleClosureAndVerify}.
+ * Shape: `{ "holeId", "replacementRootId", "nodesToAdd": NodeBase[], "signOff": { "signer", "note?" } }`.
+ */
+export function parseHoleClosurePatchJson(text: string): ApplyHoleClosureOptions {
+  let root: unknown;
+  try {
+    root = JSON.parse(text) as unknown;
+  } catch (e) {
+    throw new Error(
+      `hole-patch: invalid JSON (${e instanceof Error ? e.message : String(e)})`,
+    );
+  }
+  const o = requireRecord(root, "root");
+  const holeId = nodeId(requireString(o.holeId, "holeId"));
+  const replacementRootId = nodeId(requireString(o.replacementRootId, "replacementRootId"));
+  const signOffRaw = o.signOff;
+  const signOffRec = requireRecord(signOffRaw, "signOff");
+  const signOff: HoleClosureSignOff = {
+    signer: requireString(signOffRec.signer, "signOff.signer"),
+    ...(typeof signOffRec.note === "string" && signOffRec.note !== ""
+      ? { note: signOffRec.note }
+      : {}),
+  };
+  const nodesRaw = o.nodesToAdd;
+  if (!Array.isArray(nodesRaw) || nodesRaw.length === 0) {
+    throw new Error("hole-patch: nodesToAdd must be a non-empty array");
+  }
+  const nodesToAdd = nodesRaw.map((n, i) => reviveNodeBase(n, i));
+  return { holeId, replacementRootId, nodesToAdd, signOff };
 }

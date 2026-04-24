@@ -1297,3 +1297,12 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   patch. This does **not** relax D3 / AGENTS rules about network or
   non-injected time/random in **generated** handlers — it is developer tooling,
   not emitted runtime.
+
+- **2026-04-24 — D47** **Hole-closure patch file + repair diagnostics (Milestone 3).**
+  `parseHoleClosurePatchJson` accepts a JSON document describing
+  `applyHoleClosure` inputs (hole id, replacement subgraph nodes, human
+  `signOff`). `chrysalis repair … --hole-patch <file.json>` ingests the PHP
+  project, applies closure once, and accepts it only if **full-corpus replay**
+  passes (same bar as the LLM loop). Optional `--repair-verbose` /
+  `CHRYSALIS_REPAIR_VERBOSE` logs non-fatal HTTP chat proposer diagnostics to
+  stderr without changing the verify gate.

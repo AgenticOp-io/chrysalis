@@ -342,7 +342,11 @@ is still a **stub** unless `chrysalis repair --llm` is used with
 - [x] Hole auto-closure API: `applyHoleClosure` + `applyHoleClosureAndVerify`
       (`@chrysalis/repair`) — replacement subgraph, `hand-authored` sign-off on
       the new root, full-corpus replay gate; v1 supports a single operand parent
-      per hole (CLI / serialized patch format deferred)
+      per hole
+- [x] **`--hole-patch`** on `chrysalis repair` — `parseHoleClosurePatchJson` +
+      `applyHoleClosureAndVerify` (human-authored JSON, same verify gate as the loop)
+- [x] **`--repair-verbose`** / `CHRYSALIS_REPAIR_VERBOSE` — stderr diagnostics for
+      the HTTP chat repair proposer (HTTP errors, empty model output, invalid edits)
 
 ---
 

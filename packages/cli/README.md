@@ -24,8 +24,9 @@ Subcommands (some are Milestone 1 stubs):
   writes `reports/oracle-footprint.json`. Correctness from `--report`, optional
   `reports/migration/*.json` sidecars (`--migration-reports <dir>`)
 - `chrysalis repair <traces-dir> --base-url <url> --project <php-root>` —
-  verify-gated repair loop (`@chrysalis/repair`; stub proposer until an LLM
-  adapter is wired)
+  verify-gated repair (`@chrysalis/repair`): default stub proposer; optional
+  `--llm` + `CHRYSALIS_REPAIR_LLM_API_KEY`; `--hole-patch <file.json>` for signed
+  hole closure; `--repair-verbose` for HTTP chat diagnostics
 
 ## Invariants
 
@@ -33,8 +34,9 @@ Subcommands (some are Milestone 1 stubs):
   invokes.
 - Key commands support `--json` (or write a report path) for machine-readable
   output alongside human-readable logs.
-- No network access by default. Oracle, observe, and deploy commands are the
-  only ones that touch networks, and they require explicit configuration.
+- No network access by default. Oracle, observe, deploy, `verify` / `repair`
+  (when pointed at a `--base-url`), and `repair --llm` may touch networks when
+  explicitly configured.
 
 ## Non-goals
 

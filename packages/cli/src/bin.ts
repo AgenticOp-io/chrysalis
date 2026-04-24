@@ -45,7 +45,9 @@ import {
   type RewriteResult,
 } from "@chrysalis/rewrite";
 import {
+  applyHoleClosureAndVerify,
   createHttpChatRepairProposerFromEnv,
+  parseHoleClosurePatchJson,
   runVerifiedRepairLoop,
   stubRepairProposer,
 } from "@chrysalis/repair";
@@ -395,7 +397,7 @@ async function cmdRepair(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (!corpusRoot || !baseUrl || !projectRoot) {
     console.error(
-      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql]",
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql]",
     );
     return 2;
   }
@@ -408,10 +410,48 @@ async function cmdRepair(args: string[]): Promise<number> {
     typeof flags["max-iter"] === "string" ? Number.parseInt(flags["max-iter"], 10) : 5;
   const maxIterations = Number.isFinite(maxIterRaw) && maxIterRaw > 0 ? maxIterRaw : 5;
   const endpoint = typeof flags.endpoint === "string" ? flags.endpoint : undefined;
+  const repairVerbose = flags["repair-verbose"] === true;
+  const holePatchPath =
+    typeof flags["hole-patch"] === "string" ? resolve(flags["hole-patch"]) : null;
 
   const corpus = readCorpus({ root: resolve(corpusRoot) });
   const webirModule = await ingestDirectory(projectRoot);
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
+
+  if (holePatchPath != null) {
+    let patchText: string;
+    try {
+      patchText = readFileSync(holePatchPath, "utf8");
+    } catch (e) {
+      console.error(
+        `[repair] cannot read --hole-patch ${holePatchPath}: ${e instanceof Error ? e.message : String(e)}`,
+      );
+      return 2;
+    }
+    let closure;
+    try {
+      closure = parseHoleClosurePatchJson(patchText);
+    } catch (e) {
+      console.error(`[repair] invalid hole patch JSON: ${e instanceof Error ? e.message : String(e)}`);
+      return 2;
+    }
+    console.log(`[repair] applying hole closure from ${holePatchPath}`);
+    const holeResult = await applyHoleClosureAndVerify(webirModule, corpus, {
+      baseUrl,
+      recordedSqlReplay: flags["no-recorded-sql"] !== true,
+    }, closure);
+    if (holeResult.ok) {
+      console.log("[repair] hole closure accepted (full corpus replay passed)");
+      return 0;
+    }
+    const bad = holeResult.outcomes.filter((o) => !o.ok);
+    console.error(`[repair] hole closure rejected: ${bad.length} failing trace(s) after replay`);
+    for (const o of bad.slice(0, 5)) {
+      console.error(`  ${o.route} trace=${o.traceId}`);
+    }
+    return 1;
+  }
+
   if (useLlm) {
     const model = process.env.CHRYSALIS_REPAIR_LLM_MODEL ?? "gpt-4o-mini";
     console.log(
@@ -426,7 +466,9 @@ async function cmdRepair(args: string[]): Promise<number> {
       baseUrl,
       recordedSqlReplay: flags["no-recorded-sql"] !== true,
     },
-    proposer: useLlm ? createHttpChatRepairProposerFromEnv() : stubRepairProposer(),
+    proposer: useLlm
+      ? createHttpChatRepairProposerFromEnv({ verbose: repairVerbose })
+      : stubRepairProposer(),
     maxIterations,
     ...(endpoint !== undefined ? { endpoint } : {}),
   });

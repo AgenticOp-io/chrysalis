@@ -16,6 +16,7 @@ import {
   applyHoleClosure,
   applyHoleClosureAndVerify,
   findHoleOperandRef,
+  parseHoleClosurePatchJson,
 } from "../src/hole-closure.js";
 
 describe("hole closure", () => {
@@ -126,5 +127,31 @@ describe("hole closure", () => {
     expect(r.ok).toBe(true);
     expect(countHoles(r.module)).toBe(0);
     expect(replay).toHaveBeenCalledTimes(1);
+  });
+
+  it("parseHoleClosurePatchJson round-trips a minimal patch file", () => {
+    const json = JSON.stringify({
+      holeId: "h1",
+      replacementRootId: "lit1",
+      signOff: { signer: "dev", note: "from fixture" },
+      nodesToAdd: [
+        {
+          id: "lit1",
+          dialect: "data",
+          op: "literal",
+          type: { kind: "string" },
+          effects: [],
+          operands: [],
+          attrs: { value: "ok" },
+          origin: { kind: "synthetic", reason: "patch" },
+          provenance: [],
+        },
+      ],
+    });
+    const parsed = parseHoleClosurePatchJson(json);
+    expect(String(parsed.holeId)).toBe("h1");
+    expect(String(parsed.replacementRootId)).toBe("lit1");
+    expect(parsed.nodesToAdd).toHaveLength(1);
+    expect(parsed.signOff.signer).toBe("dev");
   });
 });

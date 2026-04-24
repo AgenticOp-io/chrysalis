@@ -22,6 +22,8 @@ export interface HttpChatRepairProposerOptions {
    * Set false or `CHRYSALIS_REPAIR_LLM_JSON_MODE=0` for endpoints that reject it.
    */
   readonly useJsonResponseFormat?: boolean;
+  /** Non-fatal diagnostics (HTTP errors, JSON parse failures, empty model output). */
+  readonly onDiagnostic?: (message: string) => void;
 }
 
 const DEFAULT_BASE = "https://api.openai.com/v1/chat/completions";
@@ -153,6 +155,7 @@ export function createHttpChatRepairProposer(
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const maxCatalog = opts.maxCatalogNodes ?? DEFAULT_MAX_CATALOG;
   const useJsonResponseFormat = opts.useJsonResponseFormat !== false;
+  const diag = opts.onDiagnostic;
 
   return {
     async propose(ctx: RepairProposeContext): Promise<Edit[] | null> {
@@ -206,21 +209,35 @@ export function createHttpChatRepairProposer(
         });
         if (!res.ok) {
           const errText = await res.text().catch(() => "");
-          throw new Error(`repair LLM HTTP ${res.status}: ${errText.slice(0, 200)}`);
+          const msg = `HTTP ${res.status}: ${errText.slice(0, 200)}`;
+          diag?.(msg);
+          throw new Error(`repair LLM ${msg}`);
         }
         const json = (await res.json()) as {
           choices?: ReadonlyArray<{ message?: { content?: string | null } }>;
         };
         const content = json.choices?.[0]?.message?.content;
-        if (typeof content !== "string" || content.trim() === "") return null;
+        if (typeof content !== "string" || content.trim() === "") {
+          diag?.("empty model message content");
+          return null;
+        }
         let parsed: unknown;
         try {
           parsed = parseProposerJson(content);
-        } catch {
+        } catch (e) {
+          diag?.(`model JSON parse failed: ${e instanceof Error ? e.message : String(e)}`);
           return null;
         }
-        return tryParseRepairEditsFromLlmJson(ctx.module, parsed);
-      } catch {
+        const edits = tryParseRepairEditsFromLlmJson(ctx.module, parsed);
+        if (edits == null) {
+          diag?.("model output did not yield valid replaceOperand edits");
+        }
+        return edits;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (!msg.startsWith("repair LLM HTTP")) {
+          diag?.(`request failed: ${msg}`);
+        }
         return null;
       } finally {
         clearTimeout(timer);
@@ -233,8 +250,12 @@ export function createHttpChatRepairProposer(
  * Reads `CHRYSALIS_REPAIR_LLM_API_KEY` (required),
  * optional `CHRYSALIS_REPAIR_LLM_BASE_URL`, `CHRYSALIS_REPAIR_LLM_MODEL`,
  * `CHRYSALIS_REPAIR_LLM_JSON_MODE` (`0` / `false` disables `response_format`).
+ * Pass `verbose: true` or set `CHRYSALIS_REPAIR_VERBOSE=1` to log LLM diagnostics
+ * to stderr (merged with optional `opts.verbose`).
  */
-export function createHttpChatRepairProposerFromEnv(): RepairProposer {
+export function createHttpChatRepairProposerFromEnv(opts?: {
+  readonly verbose?: boolean;
+}): RepairProposer {
   const apiKey = process.env.CHRYSALIS_REPAIR_LLM_API_KEY ?? "";
   if (apiKey === "") {
     throw new Error("CHRYSALIS_REPAIR_LLM_API_KEY is not set");
@@ -242,11 +263,22 @@ export function createHttpChatRepairProposerFromEnv(): RepairProposer {
   const jsonMode = process.env.CHRYSALIS_REPAIR_LLM_JSON_MODE ?? "";
   const useJsonResponseFormat =
     jsonMode !== "0" && jsonMode.toLowerCase() !== "false";
+  const envVerbose =
+    process.env.CHRYSALIS_REPAIR_VERBOSE === "1" ||
+    process.env.CHRYSALIS_REPAIR_VERBOSE === "true";
+  const verbose = opts?.verbose === true || envVerbose;
   return createHttpChatRepairProposer({
     fetchImpl: globalThis.fetch.bind(globalThis) as typeof fetch,
     apiKey,
     baseUrl: process.env.CHRYSALIS_REPAIR_LLM_BASE_URL ?? DEFAULT_BASE,
     model: process.env.CHRYSALIS_REPAIR_LLM_MODEL ?? DEFAULT_MODEL,
     useJsonResponseFormat,
+    ...(verbose
+      ? {
+          onDiagnostic: (message: string) => {
+            console.error(`[repair-llm] ${message}`);
+          },
+        }
+      : {}),
   });
 }

@@ -6,8 +6,9 @@ Runs a **bounded, verify-gated** repair loop over WebIR: when oracle replay
 finds divergences, a `RepairProposer` may supply `Edit[]` patches; each patch
 is applied with `@chrysalis/rewrite`'s `applyModuleEdits` and kept only if the
 **entire** trace corpus replays without divergence. The CLI can opt into an
-OpenAI-compatible **HTTP chat** proposer (`--llm` + `CHRYSALIS_REPAIR_LLM_*`);
-it only proposes validated `replaceOperand` edits and never bypasses replay.
+OpenAI-compatible **HTTP chat** proposer (`--llm` + `CHRYSALIS_REPAIR_LLM_*`;
+`--repair-verbose` or `CHRYSALIS_REPAIR_VERBOSE=1` for stderr diagnostics). It
+only proposes validated `replaceOperand` edits and never bypasses replay.
 
 ## Public API
 
@@ -20,6 +21,9 @@ it only proposes validated `replaceOperand` edits and never bypasses replay.
 - `applyHoleClosure` / `applyHoleClosureAndVerify` — replace a `data.hole`
   operand with a replacement subgraph, record human **sign-off** on the new
   root's provenance, optionally gate on full `replayCorpus`.
+- `parseHoleClosurePatchJson(text)` — parse a JSON hole-closure document for
+  tooling / `chrysalis repair --hole-patch` (validated shape; WebIR `type` /
+  `effects` must match the real lattice).
 - Types: `RepairProposer`, `RepairProposeContext`, `VerifiedRepairLoopOptions`,
   `VerifiedRepairLoopResult`, `RepairReplayBase`, `ApplyHoleClosureOptions`,
   `HoleClosureSignOff`.
