@@ -38,6 +38,9 @@ importers:
       '@chrysalis/archaeology':
         specifier: workspace:*
         version: link:../archaeology
+      '@chrysalis/emit-fastify':
+        specifier: workspace:*
+        version: link:../emit-fastify
       '@chrysalis/emit-hono':
         specifier: workspace:*
         version: link:../emit-hono
@@ -68,8 +71,30 @@ importers:
 
   packages/compat: {}
 
+  packages/emit-fastify:
+    dependencies:
+      '@chrysalis/archaeology':
+        specifier: workspace:*
+        version: link:../archaeology
+      '@chrysalis/emit-shared':
+        specifier: workspace:*
+        version: link:../emit-shared
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
+    devDependencies:
+      '@chrysalis/ingest':
+        specifier: workspace:*
+        version: link:../ingest
+
   packages/emit-hono:
     dependencies:
+      '@chrysalis/archaeology':
+        specifier: workspace:*
+        version: link:../archaeology
+      '@chrysalis/emit-shared':
+        specifier: workspace:*
+        version: link:../emit-shared
       '@chrysalis/insight':
         specifier: workspace:*
         version: link:../insight
@@ -77,12 +102,18 @@ importers:
         specifier: workspace:*
         version: link:../webir
     devDependencies:
-      '@chrysalis/archaeology':
-        specifier: workspace:*
-        version: link:../archaeology
       '@chrysalis/ingest':
         specifier: workspace:*
         version: link:../ingest
+
+  packages/emit-shared:
+    dependencies:
+      '@chrysalis/insight':
+        specifier: workspace:*
+        version: link:../insight
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
 
   packages/ingest:
     dependencies:

@@ -3,22 +3,24 @@
  * Full loop for tiny-blog:
  *   1. seed the fixture DB and hash alice's password (via `php -r`)
  *   2. start the Oracle observer; drive all 5 routes; stop
- *   3. ingest + emit the tiny-blog fixture into generated/tiny-blog
- *   4. npm-install the emitted project
- *   5. seed generated/tiny-blog/blog.sqlite with the same hash
- *   6. start the emitted app; wait for :3000
- *   7. replay the captured corpus against it via @chrysalis/verify
- *   8. emit a correctness report; exit non-zero if below threshold
+ *   3. ingest + emit **Hono** → generated/tiny-blog and **Fastify** → generated/tiny-blog-fastify
+ *   4. npm-install both emitted projects
+ *   5. seed each project's blog.sqlite with the same rows + alice hash
+ *   6. replay the captured corpus **in-process** (injected `fetch`) against each
+ *      backend — same WebIR, same oracle, two targets (portability gate)
+ *   7. write reports under reports/verify/hono and reports/verify/fastify;
+ *      exit non-zero if either backend falls below threshold
  *
  * Requires `php` on PATH. If absent, exits 0 with a skip notice (same policy
  * as scripts/drive-tiny-blog.mjs).
  */
 
-import { execSync, spawn } from "node:child_process";
+import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { rm } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { DatabaseSync } from "node:sqlite";
 
 import {
@@ -35,16 +37,16 @@ import {
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "..");
 const fixture = resolve(repo, "fixtures/tiny-blog");
-const generated = resolve(repo, "generated/tiny-blog");
+const generatedHono = resolve(repo, "generated/tiny-blog");
+const generatedFastify = resolve(repo, "generated/tiny-blog-fastify");
 const traceDir = resolve(repo, "traces");
-const reportDir = resolve(repo, "reports/verify");
+const reportRoot = resolve(repo, "reports/verify");
 const preludePath = resolve(repo, "packages/oracle-php/src/bootstrap.php");
 const fixtureDb = resolve(fixture, "blog.sqlite");
-const generatedDb = resolve(generated, "blog.sqlite");
+const honoDb = join(generatedHono, "blog.sqlite");
+const fastifyDb = join(generatedFastify, "blog.sqlite");
 
-// Thresholds (tunable via env).
 const THRESHOLD = Number.parseFloat(process.env.VERIFY_THRESHOLD ?? "0.6");
-const PORT = Number.parseInt(process.env.VERIFY_PORT ?? "3737", 10);
 
 try {
   execSync("php --version", { stdio: "ignore" });
@@ -94,59 +96,64 @@ try {
 const corpus = readCorpus({ root: traceDir });
 console.log(`[verify-e2e] corpus: ${corpus.traces.length} traces captured`);
 
-// ---------- 3) ingest + emit ----------
-console.log("[verify-e2e] emitting generated/tiny-blog...");
-if (existsSync(generated)) rmSync(generated, { recursive: true, force: true });
+// ---------- 3) emit both backends ----------
+console.log("[verify-e2e] emitting Hono → generated/tiny-blog...");
+if (existsSync(generatedHono)) rmSync(generatedHono, { recursive: true, force: true });
 execSync("node scripts/run-e2e.mjs", { cwd: repo, stdio: "inherit" });
 
-// ---------- 4) npm install in the emitted project ----------
-console.log("[verify-e2e] npm install in generated/tiny-blog...");
-execSync("npm install --no-audit --no-fund --silent", {
-  cwd: generated,
-  stdio: "inherit",
-});
+console.log("[verify-e2e] emitting Fastify → generated/tiny-blog-fastify...");
+if (existsSync(generatedFastify)) rmSync(generatedFastify, { recursive: true, force: true });
+execSync("node scripts/emit-tiny-blog-fastify.mjs", { cwd: repo, stdio: "inherit" });
 
-// ---------- 5) seed generated DB with the same hash ----------
+// ---------- 4) npm install ----------
+for (const dir of [generatedHono, generatedFastify]) {
+  const label = dir === generatedHono ? "hono" : "fastify";
+  console.log(`[verify-e2e] npm install (${label})...`);
+  execSync("npm install --no-audit --no-fund --silent", {
+    cwd: dir,
+    stdio: "inherit",
+  });
+}
+
+// ---------- 5) seed emitted DBs ----------
 console.log("[verify-e2e] seeding generated/tiny-blog/blog.sqlite...");
-execSync("node scripts/seed-db.mjs", { cwd: repo, stdio: "inherit" });
-patchAlicePassword(generatedDb, aliceHash);
+execFileSync("node", ["scripts/seed-db.mjs", honoDb], { cwd: repo, stdio: "inherit" });
+console.log("[verify-e2e] seeding generated/tiny-blog-fastify/blog.sqlite...");
+execFileSync("node", ["scripts/seed-db.mjs", fastifyDb], { cwd: repo, stdio: "inherit" });
+patchAlicePassword(honoDb, aliceHash);
+patchAlicePassword(fastifyDb, aliceHash);
 
-// ---------- 6) start the emitted app ----------
-console.log(`[verify-e2e] starting emitted app on :${PORT}...`);
-const app = spawn("npx", ["tsx", "src/index.ts"], {
-  cwd: generated,
-  env: { ...process.env, PORT: String(PORT) },
-  stdio: ["ignore", "pipe", "pipe"],
-  shell: process.platform === "win32",
-});
-app.stdout?.on("data", (b) => process.stdout.write(`[app] ${b}`));
-app.stderr?.on("data", (b) => process.stderr.write(`[app] ${b}`));
+// ---------- 6–7) in-process replay both ----------
+const baseUrl = "http://127.0.0.1:3000";
+await rm(reportRoot, { recursive: true, force: true });
 
-let exitCode = 1;
-try {
-  await waitUp(`http://127.0.0.1:${PORT}/`);
-  console.log(`[verify-e2e] app up at http://127.0.0.1:${PORT}`);
+const backends = [
+  { id: "hono", dir: generatedHono, kind: "hono" },
+  { id: "fastify", dir: generatedFastify, kind: "fastify" },
+];
 
-  // ---------- 7) replay + report ----------
-  await rm(reportDir, { recursive: true, force: true });
+let exitCode = 0;
+for (const b of backends) {
+  console.log(`\n[verify-e2e] —— replay vs ${b.id} (in-process fetch) ——`);
+  const fetchFn = await loadEmittedFetch(b.dir, b.kind);
   const outcomes = await replayCorpus(corpus, {
-    baseUrl: `http://127.0.0.1:${PORT}`,
+    baseUrl,
+    fetch: fetchFn,
     recordedSqlReplay: true,
   });
   const report = buildReport(outcomes);
-  const written = writeReport(reportDir, report, outcomes);
-  console.log(`[verify-e2e] wrote ${written.length} report file(s) under ${reportDir}`);
+  const outDir = join(reportRoot, b.id);
+  const written = writeReport(outDir, report, outcomes);
+  console.log(`[verify-e2e] wrote ${written.length} report file(s) under ${outDir}`);
 
-  console.log("");
   console.log(
-    `aggregate correctness: ${(report.aggregate.correctness * 100).toFixed(1)}%  (${report.aggregate.framesPassed}/${report.aggregate.framesTotal})`,
+    `[verify-e2e] ${b.id} aggregate: ${(report.aggregate.correctness * 100).toFixed(1)}%  (${report.aggregate.framesPassed}/${report.aggregate.framesTotal})`,
   );
-  console.log("");
   for (const e of report.endpoints) {
     const pct = (e.correctness * 100).toFixed(1).padStart(5);
     const sim = e.avgBodySimilarity.toFixed(2);
     console.log(
-      `  ${e.route.padEnd(25)} ${pct}%   body≈${sim}   (${e.framesPassed}/${e.framesTotal})`,
+      `  [${b.id}] ${e.route.padEnd(25)} ${pct}%   body≈${sim}   (${e.framesPassed}/${e.framesTotal})`,
     );
     for (const d of e.divergences) {
       console.log(`    ✗ ${d.traceId}: ${d.kinds.join(", ")}`);
@@ -156,20 +163,40 @@ try {
 
   if (report.aggregate.correctness + 1e-9 < THRESHOLD) {
     console.error(
-      `[verify-e2e] correctness ${report.aggregate.correctness.toFixed(3)} below threshold ${THRESHOLD}`,
+      `[verify-e2e] ${b.id}: correctness ${report.aggregate.correctness.toFixed(3)} below threshold ${THRESHOLD}`,
     );
     exitCode = 1;
-  } else {
-    exitCode = 0;
   }
-} finally {
-  if (!app.killed) app.kill();
-  await new Promise((r) => app.once("exit", r));
+}
+
+if (exitCode === 0) {
+  console.log("\n[verify-e2e] dual-backend gate OK (Hono + Fastify both above threshold).");
 }
 
 process.exit(exitCode);
 
 // ---------- helpers ----------
+
+/**
+ * @param {string} outAbs absolute path to emitted project root
+ * @param {"hono" | "fastify"} kind
+ */
+async function loadEmittedFetch(outAbs, kind) {
+  const { tsImport } = await import("tsx/esm/api");
+  process.env.CHRYSALIS_DB_PATH = join(outAbs, "blog.sqlite");
+  const parentURL = pathToFileURL(join(outAbs, "package.json")).href;
+  const mod = await tsImport("./src/server.ts", parentURL);
+  if (kind === "hono") {
+    if (typeof mod.app?.fetch !== "function") {
+      throw new Error(`expected Hono app.fetch from ${outAbs}`);
+    }
+    return mod.app.fetch.bind(mod.app);
+  }
+  if (typeof mod.fetch !== "function") {
+    throw new Error(`expected named fetch from Fastify server ${outAbs}`);
+  }
+  return mod.fetch;
+}
 
 async function waitUp(url, attempts = 50, delayMs = 200) {
   for (let i = 0; i < attempts; i++) {

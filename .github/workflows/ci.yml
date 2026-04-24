@@ -32,10 +32,14 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: End-to-end — ingest + emit tiny-blog, typecheck the result
+      - name: End-to-end — ingest + emit tiny-blog (Hono + Fastify), typecheck both
         run: |
           node scripts/run-e2e.mjs
+          node scripts/emit-tiny-blog-fastify.mjs
           cd generated/tiny-blog
+          npm install --no-audit --no-fund
+          npx tsc --noEmit
+          cd ../tiny-blog-fastify
           npm install --no-audit --no-fund
           npx tsc --noEmit
 
@@ -95,12 +99,9 @@ jobs:
       - name: Build
         run: pnpm -r build
 
-      - name: End-to-end verify (PHP → corpus → emit → replay)
-        # Milestone 1 gate. Current baseline on tiny-blog is 100% (6/6)
-        # traces passing after the `empty()` ingest fix. The threshold is
-        # set conservatively below that so a single-trace regression surfaces
-        # as a CI failure rather than a report-artifact detail. Raise to
-        # 1.0 (perfect) once we're confident the surface is stable.
+      - name: End-to-end verify (PHP → corpus → dual emit → in-process replay)
+        # Gates **both** Hono and Fastify emits against the same oracle corpus
+        # (D25). Baseline is 100% per backend; threshold is conservative.
         env:
           VERIFY_THRESHOLD: "0.95"
         run: node scripts/verify-tiny-blog.mjs

@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
  * Seed a SQLite DB for the generated tiny-blog project from fixtures/.../schema.sql.
- * Produces `generated/tiny-blog/blog.sqlite`.
+ * Default: `generated/tiny-blog/blog.sqlite`.
+ * Usage: `node scripts/seed-db.mjs [path/to/blog.sqlite]`
  */
 import { readFile, rm } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 
 const SCHEMA = "./fixtures/tiny-blog/schema.sql";
-const OUT = "./generated/tiny-blog/blog.sqlite";
+const OUT = process.argv[2] ?? "./generated/tiny-blog/blog.sqlite";
 
 await rm(OUT, { force: true });
 const db = new DatabaseSync(OUT);

@@ -24,3 +24,5 @@ tmp/
 generated/**/package-lock.json
 generated/**/*.sqlite
 generated/**/*.sqlite-journal
+# Rebuilt in CI via scripts/emit-tiny-blog-fastify.mjs
+generated/tiny-blog-fastify/
