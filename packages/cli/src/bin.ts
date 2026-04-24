@@ -969,7 +969,14 @@ interface StatusCorrectnessBackend {
 }
 
 interface StatusSummary {
-  readonly corpus: { traces: number; routes: number } | null;
+  readonly corpus: {
+    traces: number;
+    routes: number;
+    /** D32: `http.outbound` events summed across all traces. */
+    httpOutbound?: number;
+    /** D32: `mail.send` events summed across all traces. */
+    mailSend?: number;
+  } | null;
   readonly correctness: {
     /** Worst backend when `byBackend` is set (portability bar). */
     readonly aggregate: number;
@@ -1132,13 +1139,21 @@ async function cmdStatus(args: string[]): Promise<number> {
     try {
       corpus = readCorpus({ root: tracesDir });
       const routes = new Set<string>();
+      let httpOutbound = 0;
+      let mailSend = 0;
       for (const t of corpus.traces) {
         const req = t.events.find((e) => e.type === "http.request");
         if (req && req.type === "http.request") routes.add(`${req.method} ${req.path}`);
+        for (const e of t.events) {
+          if (e.type === "http.outbound") httpOutbound += 1;
+          if (e.type === "mail.send") mailSend += 1;
+        }
       }
       (summary as { corpus: StatusSummary["corpus"] }).corpus = {
         traces: corpus.traces.length,
         routes: routes.size,
+        ...(httpOutbound > 0 ? { httpOutbound } : {}),
+        ...(mailSend > 0 ? { mailSend } : {}),
       };
     } catch {
       // ignore; corpus simply stays null
@@ -1242,7 +1257,12 @@ async function cmdStatus(args: string[]): Promise<number> {
   console.log("chrysalis status");
   console.log("────────────────");
   if (summary.corpus) {
-    console.log(`corpus       : ${summary.corpus.traces} traces, ${summary.corpus.routes} routes`);
+    const c = summary.corpus;
+    const side =
+      (c.httpOutbound ?? 0) > 0 || (c.mailSend ?? 0) > 0
+        ? `  oracle side-effects: http.outbound=${c.httpOutbound ?? 0} mail.send=${c.mailSend ?? 0}`
+        : "";
+    console.log(`corpus       : ${c.traces} traces, ${c.routes} routes${side}`);
   } else {
     console.log(`corpus       : (none — pass --traces <dir>)`);
   }

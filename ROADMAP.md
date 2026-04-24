@@ -146,7 +146,8 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [x] `chrysalis archaeology <schema.sql> --out <file>` emits typed
          domain models (optionally fused with `--traces <dir>`)
    - [x] `chrysalis status` prints (with `--json` for machines):
-     - Corpus size (traces + distinct routes, from `--traces`)
+     - Corpus size (traces + distinct routes, from `--traces`; optional D32
+       `http.outbound` / `mail.send` totals when present)
      - Correctness % (aggregate + per-endpoint, from `reports/verify/summary.json`
        or dual-backend `reports/verify/{hono,fastify}/summary.json`)
      - Archaeology coverage (entities, fields, unknown DDL, orphan shapes,

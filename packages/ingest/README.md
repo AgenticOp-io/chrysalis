@@ -8,8 +8,10 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 
 ## Public API
 
-- `ingestFile(astPath: string): Promise<Module>`
+- `ingestFile(phpPath: string, route: RouteSpec, opts?: IngestFileOptions): Promise<Module>`
 - `ingestDirectory(root: string, opts?: IngestOptions): Promise<Module>`
+- `IngestFileOptions.projectRoot` — when set, applies the same `buildCallEffectMap`
+  widening as `ingestDirectory` (`lib/` + hoisted functions for that route)
 - `IngestOptions` — include/exclude globs, PHPDoc handling, hole policy
 
 ## Invariants
