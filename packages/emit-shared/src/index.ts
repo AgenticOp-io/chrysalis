@@ -7,6 +7,7 @@ export {
   emitHandlerBody,
   emitExpr,
   emitStmt,
+  handlerEffectAnnotationTags,
   type EmittedHandler,
   type EmitHandlerOptions,
 } from "./emit-tree.js";

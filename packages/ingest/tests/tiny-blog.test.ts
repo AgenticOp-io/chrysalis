@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { resolve } from "node:path";
 import { ingestDirectory } from "../src/index.js";
-import { countByDialect, countHoles, walk } from "@chrysalis/webir";
+import { countByDialect, countHoles, effectTagsSorted, walk } from "@chrysalis/webir";
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
 
@@ -15,19 +15,13 @@ describe("ingest: tiny-blog fixture", () => {
   test("handler nodes carry effects merged from the body subtree", async () => {
     const mod = await ingestDirectory(FIXTURE);
 
-    function tags(es: Iterable<{ kind: string; table?: string }>): string[] {
-      return [...es]
-        .map((e) => ("table" in e ? `${e.kind}:${e.table}` : e.kind))
-        .sort();
-    }
-
-    const byName: Record<string, string[]> = {};
+    const byName: Record<string, readonly string[]> = {};
     for (const id of mod.roots) {
       const routeNode = mod.nodes.get(id)!;
       const handlerId = routeNode.operands[0]!;
       const handler = mod.nodes.get(handlerId)!;
       const name = String((handler.attrs as { name?: string }).name ?? "");
-      byName[name] = tags(handler.effects);
+      byName[name] = effectTagsSorted(handler.effects);
     }
 
     expect(Object.keys(byName).sort()).toEqual([

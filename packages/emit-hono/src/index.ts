@@ -13,7 +13,13 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
-import { emitHandlerBody, honoHttpProfile, ident, type EmittedHandler } from "@chrysalis/emit-shared";
+import {
+  emitHandlerBody,
+  handlerEffectAnnotationTags,
+  honoHttpProfile,
+  ident,
+  type EmittedHandler,
+} from "@chrysalis/emit-shared";
 import { DB_TS, INDEX_TS, PACKAGE_JSON, RUNTIME_TS, SERVER_TS, SESSION_TS, TSCONFIG_JSON } from "./runtime-files.js";
 
 export interface EmitInput {
@@ -123,7 +129,8 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
       domainTypesByTable ? { domainTypesByTable } : undefined,
       honoHttpProfile,
     );
-    effectsByHandler[baseName] = emitted.effectNames;
+    const effectTags = handlerEffectAnnotationTags(handler, emitted);
+    effectsByHandler[baseName] = effectTags;
 
     // Scope holes to this handler for the registry.
     const phpFile = handler.origin.kind === "php" ? handler.origin.file : "unknown";
@@ -132,7 +139,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     }
 
     const handlerFile = `src/handlers/${baseName}.ts`;
-    await writeOne(handlerFile, handlerFileText(baseName, emitted));
+    await writeOne(handlerFile, handlerFileText(baseName, emitted, effectTags));
 
     bindings.push({
       method: attrs.method,
@@ -154,7 +161,11 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   };
 }
 
-function handlerFileText(name: string, emitted: EmittedHandler): string {
+function handlerFileText(
+  name: string,
+  emitted: EmittedHandler,
+  effectTags: ReadonlyArray<string>,
+): string {
   const domainImport =
     emitted.domainTypeImports.length > 0
       ? `import type { ${emitted.domainTypeImports.join(", ")} } from "../domain.js";\n`
@@ -180,7 +191,7 @@ import {
 } from "../runtime.js";
 
 /**
- * @chrysalis-effects ${emitted.effectNames.join(", ") || "(none inferred)"}
+ * @chrysalis-effects ${effectTags.join(", ") || "(none inferred)"}
  * @chrysalis-shape ${emitted.shape}
  * @chrysalis-holes ${emitted.holes.length}
  */

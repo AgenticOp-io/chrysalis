@@ -1,4 +1,5 @@
 import type {
+  Effect,
   EffectSet,
   Locator,
   Module,
@@ -88,6 +89,16 @@ export function mergeEffects(...sets: EffectSet[]): EffectSet {
     }
   }
   return Object.freeze(out);
+}
+
+/** Stable string tag for an effect (matches CLI / ingest expectations). */
+export function effectTag(e: Effect): string {
+  return "table" in e ? `${e.kind}:${e.table}` : e.kind;
+}
+
+/** Sorted tags for a handler-level or merged effect list. */
+export function effectTagsSorted(effects: EffectSet): readonly string[] {
+  return Object.freeze([...effects].map(effectTag).sort());
 }
 
 /**

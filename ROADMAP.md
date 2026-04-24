@@ -169,6 +169,10 @@ Deepen each layer without broadening too fast.
 - [x] Second emit backend: `emit-fastify` (proves WebIR target-portability;
       shared `@chrysalis/emit-shared` handler lowering; CLI `--target=fastify`)
 - [ ] Effect inference: automatic widening/narrowing of effect sets across calls
+  - [x] Handler `effects` union over the body subgraph (`effectsReachableFrom`);
+        Hono/Fastify `@chrysalis-effects` and `effectsByHandler` prefer that IR
+        list (`handlerEffectAnnotationTags` / `effectTagsSorted`), with emit-time
+        collection as fallback for hand-built modules
 - [x] **Insight stage (`@chrysalis/insight`)** — pure recognizers over WebIR
       with corpus-backed confidence boost (D13). Five recognizers so far:
       N+1 queries, scattered input validation, string-based dispatch,

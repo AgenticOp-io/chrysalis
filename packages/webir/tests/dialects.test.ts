@@ -7,6 +7,7 @@ import {
   dataDialect,
   effectDialect,
   effectsReachableFrom,
+  effectTag,
   phpLocator,
   walk,
   webRequest,
@@ -20,6 +21,11 @@ describe("webir module builder", () => {
     const b = d1.literal({ value: 2, type: T.int, origin: phpLocator("a.php", 2, 0) });
     expect(a).toBe("n0");
     expect(b).toBe("n1");
+  });
+
+  test("effectTag formats db and session kinds", () => {
+    expect(effectTag({ kind: "db.read", table: "posts" })).toBe("db.read:posts");
+    expect(effectTag({ kind: "session.write" })).toBe("session.write");
   });
 
   test("effectsReachableFrom unions nested effect nodes", () => {

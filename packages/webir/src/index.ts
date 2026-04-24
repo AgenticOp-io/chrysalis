@@ -115,6 +115,8 @@ export {
   T,
   mergeEffects,
   effectsReachableFrom,
+  effectTag,
+  effectTagsSorted,
   phpLocator,
   provenance,
   synthetic,

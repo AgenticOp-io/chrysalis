@@ -6,6 +6,7 @@
  */
 
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
+import { effectTag, effectTagsSorted } from "@chrysalis/webir";
 import { matchStringDispatchChain } from "@chrysalis/insight";
 import type { HttpEmitProfile } from "./http-profile.js";
 import { honoHttpProfile } from "./http-profile.js";
@@ -18,6 +19,18 @@ export interface EmittedHandler {
   readonly shape: "html" | "redirect" | "mixed";
   /** Archaeology `domain.ts` types used as row generics (sorted). */
   readonly domainTypeImports: ReadonlyArray<string>;
+}
+
+/**
+ * Tags for `@chrysalis-effects` and emit reports: prefer the handler node's
+ * merged IR effects when present (ingest fills these), else tags collected
+ * during lowering (hand-built modules).
+ */
+export function handlerEffectAnnotationTags(
+  handler: NodeBase,
+  emitted: EmittedHandler,
+): readonly string[] {
+  return handler.effects.length > 0 ? effectTagsSorted(handler.effects) : emitted.effectNames;
 }
 
 export interface EmitHandlerOptions {
@@ -176,10 +189,14 @@ function dbQueryTypeArg(ctx: EmitCtx, n: NodeBase): string {
   return `<${tsName}>`;
 }
 
+function recordEffectsFromNode(ctx: EmitCtx, n: NodeBase): void {
+  for (const e of n.effects) ctx.effectNames.add(effectTag(e));
+}
+
 function emitEffectExpr(ctx: EmitCtx, n: NodeBase): string {
   switch (n.op) {
     case "db.query": {
-      for (const e of n.effects) ctx.effectNames.add(`${e.kind}:${"table" in e ? e.table : ""}`);
+      recordEffectsFromNode(ctx, n);
       const mode = String(n.attrs.returns);
       const sql = String(n.attrs.sql);
       const params = n.operands.map((o) => emitExpr(ctx, o));
@@ -193,7 +210,7 @@ function emitEffectExpr(ctx: EmitCtx, n: NodeBase): string {
       return `execSql(${stringLit(sql)}, [${params.join(", ")}])`;
     }
     case "session.read":
-      ctx.effectNames.add("session.read");
+      recordEffectsFromNode(ctx, n);
       return `${ctx.profile.sessionGetter()}.get(${stringLit(String(n.attrs.key))})`;
     default:
       return `/* unhandled effect.${n.op} */ null`;
@@ -370,7 +387,7 @@ function emitEffectStmt(ctx: EmitCtx, n: NodeBase): string {
       return `__status = ${status};`;
     }
     case "session.write": {
-      ctx.effectNames.add("session.write");
+      recordEffectsFromNode(ctx, n);
       const val = emitExpr(ctx, n.operands[0]!);
       return `${p.sessionGetter()}.set(${stringLit(String(n.attrs.key))}, ${val});`;
     }
