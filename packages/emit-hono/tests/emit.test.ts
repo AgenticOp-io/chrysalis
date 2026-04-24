@@ -82,6 +82,7 @@ describe("emit-hono: tiny-blog output", () => {
       const src = readFileSync(resolve(out, "src/handlers/posts_view.ts"), "utf8");
       expect(src).toMatch(/@chrysalis-effects.*db\.read:posts/);
       expect(src).toMatch(/@chrysalis-effects.*db\.read:comments/);
+      expect(src).toMatch(/@chrysalis-effects.*session\.read/);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

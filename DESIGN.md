@@ -1049,3 +1049,19 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
 
   Rejected: parsing emitted TypeScript to infer unions — provenance on the
   `SchemaReport` is the canonical source of truth.
+
+- **2026-04-23 — D30** **Cross-call handler effects via `lib/`** — Route files
+  often call shared PHP functions (`require_login`, `current_user`, …) that
+  are not inlined into the route AST. Ingest therefore parses all top-level
+  `FunctionDecl` bodies under `<project>/lib/**.php` into a throwaway WebIR
+  module, runs a fixpoint on `effectsReachableWithCallOverlay` so nested
+  library calls merge transitively, and passes the resulting map into route
+  handler effect inference so `data.call` sites union callee effects.
+  Rationale: keeps a single oracle-aligned IR for routes without requiring
+  whole-program PHP linking in v1; under-approximation when a callee is not
+  defined under `lib/`.
+
+  Rejected: hard-coding effect stubs only for known names — duplicating PHP
+  semantics in TypeScript would drift from `lib/*.php`. Rejected: merging
+  library nodes into the shipped route module — golden size and ID stability
+  stay route-scoped; only effect sets cross the boundary.

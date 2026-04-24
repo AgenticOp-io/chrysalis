@@ -16,10 +16,11 @@ import {
   T,
   dataDialect,
   effectDialect,
-  effectsReachableFrom,
+  effectsReachableWithCallOverlay,
   phpLocator,
   provenance as prov,
   webRequest,
+  type EffectSet,
   type Locator,
   type NodeId,
   type WebIRType,
@@ -37,8 +38,31 @@ interface Ctx {
   readonly effectObjs: Parameters<typeof import("@chrysalis/webir").mergeEffects>[0];
 }
 
+function makeCtx(builder: ModuleBuilder, file: string): Ctx {
+  return {
+    m: builder,
+    data: dataDialect.builders(builder),
+    effect: effectDialect.builders(builder),
+    route: webRequest.builders(builder),
+    file,
+    effects: new Set(),
+    effectObjs: [],
+  };
+}
+
 function loc(ctx: Ctx, p: PhpPos): Locator {
   return phpLocator(ctx.file, p.line, p.col);
+}
+
+/** Build a `data.block` from PHP statements (library bodies, etc.). */
+export function convertPhpStatementsToBlock(
+  builder: ModuleBuilder,
+  file: string,
+  stmts: readonly PhpNode[],
+  pathParams: RouteSpec["pathParams"] = [],
+): NodeId {
+  const ctx = makeCtx(builder, file);
+  return convertStatements(ctx, stmts, pathParams);
 }
 
 function hole(ctx: Ctx, reason: string, p: PhpPos, output: WebIRType = T.unknown): NodeId {
@@ -649,16 +673,9 @@ export function ingestHandler(
   builder: ModuleBuilder,
   ast: PhpAst,
   route: RouteSpec,
+  libCallEffects: ReadonlyMap<string, EffectSet> = new Map(),
 ): NodeId {
-  const ctx: Ctx = {
-    m: builder,
-    data: dataDialect.builders(builder),
-    effect: effectDialect.builders(builder),
-    route: webRequest.builders(builder),
-    file: ast.file,
-    effects: new Set(),
-    effectObjs: [],
-  };
+  const ctx = makeCtx(builder, ast.file);
   const body = convertStatements(ctx, ast.statements, route.pathParams);
 
   const handlerName =
@@ -667,7 +684,11 @@ export function ingestHandler(
       .replace(/\.php$/i, "")
       .replace(/[^a-zA-Z0-9]/g, "_") || "handler";
 
-  const handlerEffects = effectsReachableFrom((id) => ctx.m.get(id), body);
+  const handlerEffects = effectsReachableWithCallOverlay(
+    (id) => ctx.m.get(id),
+    body,
+    libCallEffects,
+  );
   const handlerNode = ctx.route.handler({
     attrs: {
       name: handlerName,

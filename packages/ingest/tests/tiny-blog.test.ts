@@ -36,10 +36,20 @@ describe("ingest: tiny-blog fixture", () => {
       "db.read:comments",
       "db.read:posts",
       "db.read:users",
+      "session.read",
     ]);
     expect(byName.login).toEqual(["db.read:users", "session.write"]);
-    expect(byName.posts_create).toEqual(["db.write:posts"]);
-    expect(byName.comments_create).toEqual(["db.read:posts", "db.write:comments"]);
+    expect(byName.posts_create).toEqual([
+      "db.read:users",
+      "db.write:posts",
+      "session.read",
+    ]);
+    expect(byName.comments_create).toEqual([
+      "db.read:posts",
+      "db.read:users",
+      "db.write:comments",
+      "session.read",
+    ]);
   });
 
   test("every node has a php-source locator", async () => {

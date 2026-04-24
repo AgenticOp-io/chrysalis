@@ -1973,6 +1973,9 @@
         {
           "kind": "db.read",
           "table": "comments"
+        },
+        {
+          "kind": "session.read"
         }
       ],
       "operands": [
@@ -2027,6 +2030,9 @@
         {
           "kind": "db.read",
           "table": "comments"
+        },
+        {
+          "kind": "session.read"
         }
       ],
       "operands": [
@@ -6188,6 +6194,13 @@
       },
       "effects": [
         {
+          "kind": "session.read"
+        },
+        {
+          "kind": "db.read",
+          "table": "users"
+        },
+        {
           "kind": "db.write",
           "table": "posts"
         }
@@ -6233,6 +6246,13 @@
         "kind": "void"
       },
       "effects": [
+        {
+          "kind": "session.read"
+        },
+        {
+          "kind": "db.read",
+          "table": "users"
+        },
         {
           "kind": "db.write",
           "table": "posts"
@@ -8274,6 +8294,13 @@
       },
       "effects": [
         {
+          "kind": "session.read"
+        },
+        {
+          "kind": "db.read",
+          "table": "users"
+        },
+        {
           "kind": "db.read",
           "table": "posts"
         },
@@ -8323,6 +8350,13 @@
         "kind": "void"
       },
       "effects": [
+        {
+          "kind": "session.read"
+        },
+        {
+          "kind": "db.read",
+          "table": "users"
+        },
         {
           "kind": "db.read",
           "table": "posts"

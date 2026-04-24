@@ -173,6 +173,11 @@ Deepen each layer without broadening too fast.
         Hono/Fastify `@chrysalis-effects` and `effectsByHandler` prefer that IR
         list (`handlerEffectAnnotationTags` / `effectTagsSorted`), with emit-time
         collection as fallback for hand-built modules
+  - [x] **Library cross-call widening (D30):** `lib/**/*.php` top-level functions
+        → fixpoint effect map; `effectsReachableWithCallOverlay` on route bodies
+        (`buildLibraryCallEffectMap`, `ingestDirectory`)
+  - [ ] Callees outside `lib/` (same-file closures, vendor, dynamic); effect
+        **narrowing** / interprocedural refinement (still open)
 - [x] **Insight stage (`@chrysalis/insight`)** — pure recognizers over WebIR
       with corpus-backed confidence boost (D13). Five recognizers so far:
       N+1 queries, scattered input validation, string-based dispatch,

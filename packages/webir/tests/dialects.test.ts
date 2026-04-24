@@ -7,6 +7,7 @@ import {
   dataDialect,
   effectDialect,
   effectsReachableFrom,
+  effectsReachableWithCallOverlay,
   effectTag,
   phpLocator,
   walk,
@@ -26,6 +27,24 @@ describe("webir module builder", () => {
   test("effectTag formats db and session kinds", () => {
     expect(effectTag({ kind: "db.read", table: "posts" })).toBe("db.read:posts");
     expect(effectTag({ kind: "session.write" })).toBe("session.write");
+  });
+
+  test("effectsReachableWithCallOverlay merges callee map at data.call", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const arg = d.literal({ value: 1, type: T.int, origin });
+    const call = d.call({
+      callee: "peer",
+      args: [arg],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["peer", Object.freeze([{ kind: "session.read" as const }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    expect(eff).toEqual([{ kind: "session.read" }]);
   });
 
   test("effectsReachableFrom unions nested effect nodes", () => {

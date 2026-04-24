@@ -124,6 +124,35 @@ export function effectsReachableFrom(
   return mergeEffects(...stacks);
 }
 
+/**
+ * Like {@link effectsReachableFrom}, but when visiting a `data.call` node,
+ * also unions `callEffects.get(callee)` when present. Used for cross-call
+ * widening (e.g. PHP functions in `lib/` ingested separately).
+ */
+export function effectsReachableWithCallOverlay(
+  getNode: (id: NodeId) => NodeBase | undefined,
+  root: NodeId,
+  callEffects: ReadonlyMap<string, EffectSet>,
+): EffectSet {
+  const seen = new Set<NodeId>();
+  const stacks: EffectSet[] = [];
+  const visit = (id: NodeId): void => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    const n = getNode(id);
+    if (!n) return;
+    if (n.effects.length > 0) stacks.push(n.effects);
+    if (n.dialect === "data" && n.op === "call" && callEffects.size > 0) {
+      const callee = String((n.attrs as { callee?: string }).callee ?? "");
+      const extra = callee ? callEffects.get(callee) : undefined;
+      if (extra && extra.length > 0) stacks.push(extra);
+    }
+    for (const child of n.operands) visit(child);
+  };
+  visit(root);
+  return mergeEffects(...stacks);
+}
+
 export function synthetic(reason: string): Locator {
   return { kind: "synthetic", reason };
 }

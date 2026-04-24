@@ -115,6 +115,7 @@ export {
   T,
   mergeEffects,
   effectsReachableFrom,
+  effectsReachableWithCallOverlay,
   effectTag,
   effectTagsSorted,
   phpLocator,
