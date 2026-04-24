@@ -26,8 +26,8 @@ Subcommands (some are Milestone 1 stubs):
 
 - The CLI is a thin orchestrator. Business logic lives in the packages it
   invokes.
-- Every command prints a report in a stable machine-readable format (JSON)
-  in addition to any human-readable output.
+- Key commands support `--json` (or write a report path) for machine-readable
+  output alongside human-readable logs.
 - No network access by default. Oracle, observe, and deploy commands are the
   only ones that touch networks, and they require explicit configuration.
 
