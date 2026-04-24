@@ -16,6 +16,11 @@
 
 import type { HttpRequestEvent, HttpResponseEvent, Trace, TraceCorpus } from "@chrysalis/oracle";
 import { diffResponse, type DiffResult, type ReplayedResponse } from "./diff.js";
+import {
+  buildSqlReplayTapeFromTrace,
+  canSqlReplayTrace,
+  encodeSqlTapeHeader,
+} from "./sql-replay.js";
 
 export interface ReplayOptions {
   readonly baseUrl: string;
@@ -37,6 +42,13 @@ export interface ReplayOptions {
    * different session cookie name and you want each trace replayed fresh.
    */
   readonly disableCookieChain?: boolean;
+  /**
+   * When true, replays recorded SELECT result sets via the
+   * `x-chrysalis-sql-tape` request header (base64url JSON). Requires traces
+   * captured with oracle-php that records `sql.query.rows`. Per-trace: if
+   * {@link canSqlReplayTrace} is false, the request is sent without the header.
+   */
+  readonly recordedSqlReplay?: boolean;
   /**
    * Request timeout in ms. Defaults to 10000.
    */
@@ -93,6 +105,11 @@ async function replayOne(
 
   if (!opts.disableCookieChain && cookieJar.size > 0) {
     headers["cookie"] = [...cookieJar.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
+  }
+
+  if (opts.recordedSqlReplay === true && canSqlReplayTrace(trace)) {
+    const tape = buildSqlReplayTapeFromTrace(trace);
+    headers["x-chrysalis-sql-tape"] = encodeSqlTapeHeader(tape);
   }
 
   const init: RequestInit = {

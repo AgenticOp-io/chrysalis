@@ -69,10 +69,10 @@ chrysalis deploy --mode=<legacy|cutover|shadow> \
 
 ## Non-goals (Milestone 1)
 
-- **Session bridge.** Shared PHP `$_SESSION` ↔ new-stack session store is
-  deferred to Milestone 2 (provisionally Redis-backed). For now, if you cut a
-  route over, it must be session-independent **or** the new stack must read
-  the same session store PHP writes.
+- **Production session bridge.** Redis (or equivalent) shared between PHP and
+  Node is still the target for production. **Demo bridge:** emitted Hono apps
+  can set `CHRYSALIS_SESSION_DIR` + `CHRYSALIS_SESSION_COOKIE` to persist JSON
+  session files PHP can align with (see `oracle-php` README and `DESIGN.md` D24).
 - **Canary / percentage routing.** Deferred to Milestone 2.
 - **Protocols other than HTTP/1.1.** No websockets, SSE, or queue traffic.
 - **Query translation.** There is no database abstraction here; both stacks talk

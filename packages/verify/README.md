@@ -9,7 +9,9 @@ diffs each response against what was captured.
 
 ## Public API
 
-- `replayCorpus(corpus, { baseUrl })` — returns `TraceOutcome[]`.
+- `replayCorpus(corpus, { baseUrl, fetch?, recordedSqlReplay? })` — returns `TraceOutcome[]`.
+- `buildSqlReplayTapeFromTrace` / `canSqlReplayTrace` / `encodeSqlTapeHeader` —
+  helpers for recorded SELECT rows (optional `sql.query.rows` in traces).
 - `diffResponse(expected, actual)` — per-pair diff with divergence list and
   body similarity.
 - `buildReport(outcomes)` → `CorrectnessReport` with per-route and aggregate
@@ -20,9 +22,15 @@ diffs each response against what was captured.
   (timestamps, session-cookie values, UUIDs, whitespace). Exported so callers
   can extend them.
 
-The `verify()` sandbox-mode API (IR-level node attribution, SQL replay,
-deterministic time/RNG injection) is Milestone 2/3 work — see the root
-`DESIGN.md` D8/D9 for why Milestone 1 ships HTTP replay first.
+**Recorded SQL results (Milestone 2):** when traces include `rows` on
+`sql.query` events (PHP PDO recorder) and `recordedSqlReplay: true`, each
+replay request sends `x-chrysalis-sql-tape` (base64url JSON). The emitted
+Hono app's `sqlTapeMiddleware` + `queryOne` / `queryAll` serve SELECTs from
+the tape in order. Traces without row payloads behave as before (live DB).
+Use `chrysalis verify ... --no-recorded-sql` to disable.
+
+IR-level node attribution, deterministic time/RNG injection in the handler,
+and symbolic verify remain Milestone 2/3 work — see `DESIGN.md`.
 
 ## Invariants (current, Milestone 1)
 

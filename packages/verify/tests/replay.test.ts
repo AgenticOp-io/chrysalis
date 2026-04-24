@@ -95,10 +95,13 @@ async function startTestServer(
 }
 
 describe("replayCorpus", () => {
-  let ts: TestServer;
+  let ts: TestServer | undefined;
 
   afterEach(async () => {
-    if (ts) await ts.stop();
+    if (ts) {
+      await ts.stop();
+      ts = undefined;
+    }
   });
 
   it("honors an injected fetch (in-process handler) without a real server", async () => {
@@ -237,5 +240,138 @@ describe("replayCorpus", () => {
     expect(report.aggregate.framesPassed).toBe(1);
     expect(report.aggregate.correctness).toBe(0.5);
     expect(report.endpoints).toHaveLength(2);
+  });
+
+  it("sends x-chrysalis-sql-tape when recordedSqlReplay and trace has complete sql rows", async () => {
+    let seenTape: string | undefined;
+    const injectedFetch: typeof fetch = async (_input, init) => {
+      const h = new Headers(init?.headers);
+      seenTape = h.get("x-chrysalis-sql-tape") ?? undefined;
+      return new Response("ok", { status: 200, headers: { "content-type": "text/html" } });
+    };
+    const trace: Trace = {
+      header: {
+        type: "header",
+        schemaVersion: SCHEMA_VERSION,
+        traceId: "t-sql",
+        startedAt: "2026-04-22T00:00:00Z",
+        php: { version: "8.3.0", sapi: "cli-server" },
+        redaction: { configHash: "deadbeef", rules: [] },
+      },
+      events: [
+        {
+          type: "http.request",
+          method: "GET",
+          path: "/",
+          query: {},
+          headers: {},
+          cookies: {},
+          post: {},
+          rawBody: null,
+          session: {},
+        },
+        {
+          type: "sql.query",
+          driver: "sqlite",
+          sql: "SELECT 1 AS x",
+          params: [],
+          rowCount: 1,
+          rowShape: [{ name: "x", typeTag: "integer" }],
+          rows: [{ x: 1 }],
+          durationUs: 10,
+          origin: { file: "a.php", line: 2 },
+        },
+        {
+          type: "http.response",
+          status: 200,
+          headers: { "content-type": "text/html" },
+          body: "ok",
+          bodyTruncated: false,
+          session: {},
+        },
+      ],
+      footer: {
+        type: "footer",
+        endedAt: "2026-04-22T00:00:01Z",
+        durationUs: 1000,
+        eventCount: 3,
+        exitStatus: 0,
+      },
+    };
+    await replayCorpus(corpusOf([trace]), {
+      baseUrl: "http://unused.test",
+      fetch: injectedFetch,
+      recordedSqlReplay: true,
+    });
+    expect(seenTape).toBeDefined();
+    const decoded = JSON.parse(Buffer.from(seenTape!, "base64url").toString("utf8")) as {
+      queries: Array<{ sql: string; params: unknown[]; rows: Array<Record<string, unknown>> }>;
+    };
+    expect(decoded.queries).toEqual([
+      { sql: "SELECT 1 AS x", params: [], rows: [{ x: 1 }] },
+    ]);
+  });
+
+  it("omits sql tape when SELECT rows were not recorded", async () => {
+    let seenTape: string | null | undefined = "sentinel";
+    const injectedFetch: typeof fetch = async (_input, init) => {
+      const h = new Headers(init?.headers);
+      seenTape = h.get("x-chrysalis-sql-tape");
+      return new Response("ok", { status: 200, headers: { "content-type": "text/html" } });
+    };
+    const trace: Trace = {
+      header: {
+        type: "header",
+        schemaVersion: SCHEMA_VERSION,
+        traceId: "t-norows",
+        startedAt: "2026-04-22T00:00:00Z",
+        php: { version: "8.3.0", sapi: "cli-server" },
+        redaction: { configHash: "deadbeef", rules: [] },
+      },
+      events: [
+        {
+          type: "http.request",
+          method: "GET",
+          path: "/",
+          query: {},
+          headers: {},
+          cookies: {},
+          post: {},
+          rawBody: null,
+          session: {},
+        },
+        {
+          type: "sql.query",
+          driver: "sqlite",
+          sql: "SELECT 1",
+          params: [],
+          rowCount: 1,
+          rowShape: [{ name: "x", typeTag: "integer" }],
+          durationUs: 10,
+          origin: { file: "a.php", line: 2 },
+        },
+        {
+          type: "http.response",
+          status: 200,
+          headers: { "content-type": "text/html" },
+          body: "ok",
+          bodyTruncated: false,
+          session: {},
+        },
+      ],
+      footer: {
+        type: "footer",
+        endedAt: "2026-04-22T00:00:01Z",
+        durationUs: 1000,
+        eventCount: 3,
+        exitStatus: 0,
+      },
+    };
+    await replayCorpus(corpusOf([trace]), {
+      baseUrl: "http://unused.test",
+      fetch: injectedFetch,
+      recordedSqlReplay: true,
+    });
+    expect(seenTape).toBeNull();
   });
 });

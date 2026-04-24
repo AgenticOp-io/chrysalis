@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { sqlTapeMiddleware } from "./db.js";
 import { sessionMiddleware } from "./session.js";
 
 import { posts_list } from "./handlers/posts_list.js";
@@ -16,6 +17,7 @@ function registerRoutes(app: import("hono").Hono): void {
 }
 
 export const app = new Hono();
+app.use("*", sqlTapeMiddleware);
 app.use("*", sessionMiddleware());
 
 registerRoutes(app);

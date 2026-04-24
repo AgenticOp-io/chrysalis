@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D22 archaeology row generics in emit-hono
+Last updated by: D23/D24 verify SQL tape + file session bridge
 
 ---
 
@@ -956,3 +956,29 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Rejected: making `emit-hono` import `@chrysalis/archaeology`. That would
   couple the default backend to schema recovery; the map is optional input
   and keeps the package graph acyclic.
+
+- **2026-04-23 — D23** **Recorded SELECT rows in verify replay** — The PHP
+  PDO wrapper buffers each SELECT after `execute()` / `query()` and records
+  `sql.query.rows` (JSON-safe objects, capped per query). `@chrysalis/verify`
+  can attach a base64url `x-chrysalis-sql-tape` header per trace when
+  `recordedSqlReplay` is on and every SELECT event has complete rows (no
+  `rowsTruncated`). Emitted Hono apps run `sqlTapeMiddleware` and satisfy
+  `queryOne` / `queryAll` from the tape **in order**; `execSql` still uses
+  SQLite so INSERT/UPDATE behavior stays real. CLI: `chrysalis verify
+  --no-recorded-sql` disables the header.
+
+  Rejected: replaying writes from tape — inserts/updates still execute against
+  the real DB so auto-increment and constraints stay honest.
+
+- **2026-04-23 — D24** **File JSON session bridge (demo)** — When
+  `CHRYSALIS_SESSION_DIR` is set, emitted `session.ts` reads/writes
+  `{sid}.json` after each request. Cookie name follows
+  `CHRYSALIS_SESSION_COOKIE` (default `chrysalis_sid`). PHP can share state
+  by using the same directory and cookie plus JSON-compatible keys (see
+  `packages/oracle-php/README.md`). Production dual-stack should move to Redis
+  or another shared service; this is the SQLite-analog "acceptable for demo"
+  path from the roadmap.
+
+  Rejected: mutating PHP's `session.save_path` alone without documenting JSON
+  shape — Node and PHP must agree on payload encoding; documenting JSON is
+  the minimal contract.

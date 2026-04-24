@@ -38,6 +38,23 @@ Redaction is applied **at capture time**. Traces on disk are always safe to
 share at whatever level the configured rules specify. See the `RedactionConfig`
 type in the Node package for rule semantics.
 
+## SQL query rows (verify replay)
+
+Prepared statements and `PDO::query()` buffer the full result set after execute
+so each `sql.query` event can include a `rows` array (JSON objects). Node
+verify replays those rows through the `x-chrysalis-sql-tape` header when
+`recordedSqlReplay` is enabled. Large results are capped per query (see
+`Recorder::MAX_SQL_ROWS_PER_EVENT`).
+
+## Session bridge (with emitted Hono apps)
+
+When the emitted app sets `CHRYSALIS_SESSION_DIR`, it persists session data as
+`{dir}/{sid}.json`. To share state with PHP, use the **same** directory, the
+same cookie name (`CHRYSALIS_SESSION_COOKIE`, default `chrysalis_sid`), and
+read/write JSON objects with the same keys (e.g. `user_id`). PHP must call
+`session_name()` to match the cookie name and load/save JSON compatible with
+Node (plain scalars and arrays — not PHP object graphs).
+
 ## Status
 
 Milestone 1 supports PDO only. `mysqli`, `file_put_contents`, `mail`, and

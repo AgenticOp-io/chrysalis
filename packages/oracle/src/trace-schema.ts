@@ -67,6 +67,10 @@ export interface SqlQueryEvent {
   readonly params: ReadonlyArray<unknown>;
   readonly rowCount: number;
   readonly rowShape: ReadonlyArray<{ readonly name: string; readonly typeTag: string }>;
+  /** Present for SELECT-shaped queries when the PHP recorder captured rows. */
+  readonly rows?: ReadonlyArray<Readonly<Record<string, unknown>>>;
+  /** True when `rows` omits tail rows beyond the recorder cap. */
+  readonly rowsTruncated?: boolean;
   readonly durationUs: number;
   readonly origin: { readonly file: string; readonly line: number };
 }
@@ -205,6 +209,32 @@ function requireObject(v: unknown, path: string): Record<string, unknown> {
   return v;
 }
 
+function parseSqlJsonValue(v: unknown, path: string): unknown {
+  if (v === null || typeof v === "string" || typeof v === "number" || typeof v === "boolean") {
+    return v;
+  }
+  if (Array.isArray(v)) {
+    return v.map((x, i) => parseSqlJsonValue(x, `${path}[${i}]`));
+  }
+  if (isObj(v)) {
+    const out: Record<string, unknown> = {};
+    for (const [k, val] of Object.entries(v)) {
+      out[k] = parseSqlJsonValue(val, `${path}.${k}`);
+    }
+    return out;
+  }
+  throw new SchemaError(path, "unsupported sql.rows value", v);
+}
+
+function parseSqlRowObject(v: unknown, path: string): Readonly<Record<string, unknown>> {
+  const obj = requireObject(v, path);
+  const out: Record<string, unknown> = {};
+  for (const [k, val] of Object.entries(obj)) {
+    out[k] = parseSqlJsonValue(val, `${path}.${k}`);
+  }
+  return out;
+}
+
 function requireArray(v: unknown, path: string): unknown[] {
   if (!Array.isArray(v)) throw new SchemaError(path, "expected array", v);
   return v;
@@ -314,8 +344,16 @@ export function parseEvent(raw: unknown): TraceEvent {
           typeTag: requireString(so["typeTag"], `rowShape[${i}].typeTag`),
         };
       });
-      return {
-        type: "sql.query",
+      const rowsRaw = o["rows"];
+      let rows: ReadonlyArray<Readonly<Record<string, unknown>>> | undefined;
+      if (rowsRaw !== undefined) {
+        const ra = requireArray(rowsRaw, "rows");
+        rows = ra.map((row, i) => parseSqlRowObject(row, `rows[${i}]`));
+      }
+      const rowsTruncated =
+        o["rowsTruncated"] === undefined ? undefined : requireBool(o["rowsTruncated"], "rowsTruncated");
+      const base = {
+        type: "sql.query" as const,
         driver: driver as SqlQueryEvent["driver"],
         sql: requireString(o["sql"], "sql"),
         params: requireArray(o["params"], "params"),
@@ -323,6 +361,14 @@ export function parseEvent(raw: unknown): TraceEvent {
         rowShape,
         durationUs: requireNumber(o["durationUs"], "durationUs"),
         origin: requireOrigin(o["origin"], "origin"),
+      };
+      if (rows === undefined && rowsTruncated === undefined) {
+        return base;
+      }
+      return {
+        ...base,
+        ...(rows !== undefined ? { rows } : {}),
+        ...(rowsTruncated !== undefined ? { rowsTruncated } : {}),
       };
     }
     case "php.header":

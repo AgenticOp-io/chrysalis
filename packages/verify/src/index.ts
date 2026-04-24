@@ -18,6 +18,13 @@ export {
 } from "./replay.js";
 
 export {
+  buildSqlReplayTapeFromTrace,
+  canSqlReplayTrace,
+  encodeSqlTapeHeader,
+  type SqlReplayTape,
+} from "./sql-replay.js";
+
+export {
   diffResponse,
   type DiffResult,
   type Divergence,

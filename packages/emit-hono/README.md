@@ -17,6 +17,9 @@ The first Chrysalis backend; the reference for how to write future backends
 
 ## Invariants
 
+- **Session store.** Default in-memory Map; set `CHRYSALIS_SESSION_DIR` for
+  JSON files per sid (chimera / PHP bridge demo). Optional
+  `CHRYSALIS_SESSION_COOKIE` overrides the default `chrysalis_sid` name.
 - **Optional row typing.** With `domainTypesByTable`, exactly one table on
   a `db.query` → `queryOne<Interface>` or `queryAll<Interface>` and
   `import type` from `../domain.js`. Multi-table SQL keeps untyped generics.

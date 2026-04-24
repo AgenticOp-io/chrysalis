@@ -271,7 +271,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--no-recorded-sql]",
     );
     return 2;
   }
@@ -282,7 +282,10 @@ async function cmdVerify(args: string[]): Promise<number> {
   console.log(`[verify] loaded ${corpus.traces.length} traces from ${corpusRoot}`);
   console.log(`[verify] replaying against ${baseUrl} ...`);
 
-  const outcomes = await replayCorpus(corpus, { baseUrl });
+  const outcomes = await replayCorpus(corpus, {
+    baseUrl,
+    recordedSqlReplay: flags["no-recorded-sql"] !== true,
+  });
   const report = buildReport(outcomes);
   const written = writeReport(resolve(reportDir), report, outcomes);
   console.log(`[verify] wrote ${written.length} report file(s) under ${reportDir}`);

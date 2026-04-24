@@ -148,6 +148,8 @@ export interface HttpReplayVerifyOptions {
   readonly resolveFetch?: (
     rewritten: Module,
   ) => Promise<typeof globalThis.fetch>;
+  /** When true (default), pass Oracle SQL row tapes when traces include `rows`. */
+  readonly recordedSqlReplay?: boolean;
 }
 
 export interface HttpReplayVerifyResult {
@@ -450,6 +452,7 @@ export async function applyRewritesAsync(
   const outcomes = await replayCorpus(httpReplay.corpus, {
     baseUrl: httpReplay.baseUrl,
     fetch: fetchImpl,
+    recordedSqlReplay: httpReplay.recordedSqlReplay !== false,
   });
   const ok = outcomes.every((o) => o.ok);
   const httpReplayVerify: HttpReplayVerifyResult = {

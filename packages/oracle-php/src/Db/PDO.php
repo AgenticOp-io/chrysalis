@@ -41,7 +41,14 @@ final class PDO extends BasePDO
             return false;
         }
         $origin = Recorder::callerOutsidePrelude();
+        if ($stmt instanceof Statement) {
+            $stmt->rememberSql($query, self::driverFor($this));
+        }
         $shape = self::inferRowShape($stmt);
+        $rowsForRecorder = [];
+        if ($stmt instanceof Statement && $stmt->columnCount() > 0) {
+            $rowsForRecorder = $stmt->adoptBufferedResultFromQuery();
+        }
         Recorder::onSqlQuery(
             self::driverFor($this),
             $query,
@@ -49,7 +56,8 @@ final class PDO extends BasePDO
             self::safeRowCount($stmt),
             $shape,
             $durationUs,
-            $origin
+            $origin,
+            $rowsForRecorder,
         );
         return $stmt;
     }
@@ -82,7 +90,8 @@ final class PDO extends BasePDO
             $result,
             [],
             $durationUs,
-            $origin
+            $origin,
+            [],
         );
         return $result;
     }

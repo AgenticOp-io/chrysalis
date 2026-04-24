@@ -4,7 +4,8 @@
  *
  * Milestone 1 scope: per-path routing with `legacy` / `cutover` / `shadow`
  * modes, backed by the same response-diff primitive `@chrysalis/verify`
- * uses. Session bridging and canary sampling are Milestone 2.
+ * uses. Demo file session bridge pairs with emit-hono env vars; Redis and
+ * canary sampling are Milestone 2 expansion.
  */
 
 export { startChimera, type ChimeraHandle, type ChimeraStats } from "./proxy.js";

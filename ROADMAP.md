@@ -109,9 +109,12 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [x] Produces `reports/verify/summary.json` + one file per route with a
          per-endpoint and aggregate correctness score
    - [x] `chrysalis verify <traces> --base-url <url> [--threshold]` CLI
-   - [ ] Injects deterministic time/RNG and **recorded SQL results**
-         (Milestone 2: replay SQL through an interceptor rather than
-         re-issuing it against a fresh DB)
+   - [x] **Recorded SQL results** — traces capture SELECT `rows`; verify sends
+         `x-chrysalis-sql-tape`; emit-hono serves `queryOne` / `queryAll` from
+         the tape when the header is present (`recordedSqlReplay`, default on
+         in `verify-tiny-blog` / CLI unless `--no-recorded-sql`). Mutations
+         still hit SQLite. Deterministic time/RNG injection in handlers remains
+         open.
    - [ ] Attributes each divergence to specific WebIR node IDs (Milestone 3:
          requires the source map from emit → IR to be bidirectional)
 
@@ -122,8 +125,12 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
          `@chrysalis/verify`'s `diffResponse`; NDJSON at `<shadowLogDir>/shadow.ndjson`)
    - [x] `chrysalis deploy --mode=<legacy|cutover|shadow> --legacy <url> --modern <url>`
          CLI (reads optional `--config chimera.json` for routing rules)
-   - [ ] Session bridge: PHP `$_SESSION` and new-stack session see the same store
-         (provisionally Redis; SQLite fallback acceptable for demo — **Milestone 2**)
+   - [x] **Session bridge (file JSON, demo-grade)** — emitted Hono stack
+         persists sessions under `CHRYSALIS_SESSION_DIR` as `{sid}.json` with
+         cookie name `CHRYSALIS_SESSION_COOKIE` (`chrysalis_sid` default). PHP
+         can share the directory + cookie + JSON keys (documented in
+         `packages/oracle-php/README.md`). Redis / shared infra remains a
+         follow-up for production.
 
 8. **CLI dashboard**
    - [x] `chrysalis ingest <dir>` prints route/node/hole counts and dialect totals

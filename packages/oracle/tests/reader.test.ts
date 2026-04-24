@@ -95,6 +95,26 @@ describe("trace-schema", () => {
     expect(e.type).toBe("sql.query");
   });
 
+  it("parses sql.query with optional rows", () => {
+    const e = parseEvent({
+      type: "sql.query",
+      driver: "pdo",
+      sql: "SELECT * FROM posts",
+      params: [],
+      rowCount: 1,
+      rowShape: [{ name: "id", typeTag: "int" }],
+      rows: [{ id: 1, title: "hi" }],
+      rowsTruncated: false,
+      durationUs: 120,
+      origin: { file: "index.php", line: 10 },
+    });
+    expect(e.type).toBe("sql.query");
+    if (e.type === "sql.query") {
+      expect(e.rows).toEqual([{ id: 1, title: "hi" }]);
+      expect(e.rowsTruncated).toBe(false);
+    }
+  });
+
   it("canonicalJSON produces stable output regardless of key order", () => {
     const a = canonicalJSON({ b: 1, a: 2 });
     const b = canonicalJSON({ a: 2, b: 1 });

@@ -129,7 +129,10 @@ try {
 
   // ---------- 7) replay + report ----------
   await rm(reportDir, { recursive: true, force: true });
-  const outcomes = await replayCorpus(corpus, { baseUrl: `http://127.0.0.1:${PORT}` });
+  const outcomes = await replayCorpus(corpus, {
+    baseUrl: `http://127.0.0.1:${PORT}`,
+    recordedSqlReplay: true,
+  });
   const report = buildReport(outcomes);
   const written = writeReport(reportDir, report, outcomes);
   console.log(`[verify-e2e] wrote ${written.length} report file(s) under ${reportDir}`);

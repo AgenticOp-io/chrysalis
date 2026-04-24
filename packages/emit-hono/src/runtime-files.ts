@@ -50,7 +50,80 @@ export const TSCONFIG_JSON = JSON.stringify(
   2,
 );
 
-export const DB_TS = `import { DatabaseSync } from "node:sqlite";
+export const DB_TS = `import { AsyncLocalStorage } from "node:async_hooks";
+import type { MiddlewareHandler } from "hono";
+import { DatabaseSync } from "node:sqlite";
+
+/**
+ * Recorded SELECT results from the Oracle (verify / Milestone 2). When the
+ * \`x-chrysalis-sql-tape\` header is present, \`queryOne\` / \`queryAll\` serve
+ * from the tape in order instead of SQLite.
+ */
+export interface SqlReplayTape {
+  readonly queries: ReadonlyArray<{
+    readonly sql: string;
+    readonly params: ReadonlyArray<unknown>;
+    readonly rows: ReadonlyArray<Readonly<Record<string, unknown>>>;
+  }>;
+}
+
+interface SqlReplaySlot {
+  tape: SqlReplayTape;
+  index: number;
+}
+
+const sqlReplayAls = new AsyncLocalStorage<SqlReplaySlot | undefined>();
+
+function normalizeSql(sql: string): string {
+  return sql.replace(/\\s+/g, " ").trim().toLowerCase();
+}
+
+function paramsMatch(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return false;
+  }
+  return true;
+}
+
+/** Per-request middleware: decode tape from \`x-chrysalis-sql-tape\` (base64url). */
+export const sqlTapeMiddleware: MiddlewareHandler = async (c, next) => {
+  const raw = c.req.header("x-chrysalis-sql-tape");
+  if (!raw) {
+    return sqlReplayAls.run(undefined, () => next());
+  }
+  let tape: SqlReplayTape;
+  try {
+    tape = JSON.parse(Buffer.from(raw, "base64url").toString("utf8")) as SqlReplayTape;
+  } catch {
+    return sqlReplayAls.run(undefined, () => next());
+  }
+  return sqlReplayAls.run({ tape, index: 0 }, () => next());
+};
+
+function tryReplaySelect(
+  sql: string,
+  params: ReadonlyArray<unknown>,
+): ReadonlyArray<Readonly<Record<string, unknown>>> | null {
+  const slot = sqlReplayAls.getStore();
+  if (!slot) return null;
+  const q = slot.tape.queries[slot.index];
+  if (!q) {
+    throw new Error(
+      \`chrysalis sql replay: exhausted tape at index \${slot.index} (sql=\${sql.slice(0, 80)})\`,
+    );
+  }
+  if (normalizeSql(q.sql) !== normalizeSql(sql)) {
+    throw new Error(
+      \`chrysalis sql replay: SQL mismatch at tape \${slot.index}: expected \${q.sql.slice(0, 120)}, got \${sql.slice(0, 120)}\`,
+    );
+  }
+  if (!paramsMatch(q.params, params)) {
+    throw new Error(\`chrysalis sql replay: param mismatch at tape \${slot.index}\`);
+  }
+  slot.index += 1;
+  return q.rows;
+}
 
 let _db: DatabaseSync | null = null;
 
@@ -66,6 +139,10 @@ export function queryAll<T = Record<string, unknown>>(
   sql: string,
   params: ReadonlyArray<unknown> = [],
 ): T[] {
+  const replayed = tryReplaySelect(sql, params);
+  if (replayed != null) {
+    return [...replayed] as T[];
+  }
   return db().prepare(sql).all(...(params as never[])) as T[];
 }
 
@@ -73,6 +150,11 @@ export function queryOne<T = Record<string, unknown>>(
   sql: string,
   params: ReadonlyArray<unknown> = [],
 ): T | null {
+  const replayed = tryReplaySelect(sql, params);
+  if (replayed != null) {
+    const row = replayed[0];
+    return (row as T | undefined) ?? null;
+  }
   const row = db().prepare(sql).get(...(params as never[]));
   return (row as T | undefined) ?? null;
 }
@@ -83,17 +165,41 @@ export function execSql(sql: string, params: ReadonlyArray<unknown> = []): numbe
 }
 `;
 
-export const SESSION_TS = `import type { Context, MiddlewareHandler } from "hono";
+export const SESSION_TS = `import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import type { Context, MiddlewareHandler } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 
 /**
- * Minimal in-memory session store for Milestone 1. Swap for Redis or a
- * shared store when integrating with the chimera runtime.
+ * Session store: in-memory by default, or JSON files under
+ * \`CHRYSALIS_SESSION_DIR\` when set (Milestone 2 chimera bridge). PHP can
+ * read/write the same files if it uses the same session id cookie value
+ * (\`CHRYSALIS_SESSION_COOKIE\`, default \`chrysalis_sid\`) and JSON shape.
  */
 const sessions = new Map<string, Record<string, unknown>>();
+const sessionDir = process.env.CHRYSALIS_SESSION_DIR;
+const sessionCookieName = process.env.CHRYSALIS_SESSION_COOKIE ?? "chrysalis_sid";
 
 function newSid(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+function diskPath(sid: string): string {
+  return join(sessionDir!, \`\${sid}.json\`);
+}
+
+function readDisk(sid: string): Record<string, unknown> {
+  try {
+    if (!existsSync(diskPath(sid))) return {};
+    return JSON.parse(readFileSync(diskPath(sid), "utf8")) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+function writeDisk(sid: string, store: Record<string, unknown>): void {
+  mkdirSync(sessionDir!, { recursive: true });
+  writeFileSync(diskPath(sid), JSON.stringify(store), "utf8");
 }
 
 export interface Session {
@@ -104,17 +210,26 @@ export interface Session {
 
 export function sessionMiddleware(): MiddlewareHandler {
   return async (c, next) => {
-    let sid = getCookie(c, "chrysalis_sid") ?? null;
-    if (sid === null || !sessions.has(sid)) {
+    let sid = getCookie(c, sessionCookieName) ?? null;
+    if (sid === null) {
       sid = newSid();
-      sessions.set(sid, {});
-      setCookie(c, "chrysalis_sid", sid, {
+      setCookie(c, sessionCookieName, sid, {
         httpOnly: true,
         sameSite: "Lax",
         path: "/",
       });
     }
-    const store = sessions.get(sid)!;
+
+    let store: Record<string, unknown>;
+    if (sessionDir) {
+      store = readDisk(sid);
+    } else {
+      if (!sessions.has(sid)) {
+        sessions.set(sid, {});
+      }
+      store = sessions.get(sid)!;
+    }
+
     const session: Session = {
       get(key) {
         const v = store[key];
@@ -124,11 +239,22 @@ export function sessionMiddleware(): MiddlewareHandler {
         store[key] = value;
       },
       destroy() {
-        sessions.delete(sid!);
+        if (sessionDir) {
+          try {
+            unlinkSync(diskPath(sid));
+          } catch {
+            /* noop */
+          }
+        } else {
+          sessions.delete(sid);
+        }
       },
     };
     c.set("session", session);
     await next();
+    if (sessionDir) {
+      writeDisk(sid, store);
+    }
   };
 }
 
@@ -266,11 +392,13 @@ export function __respond(c: Context, html: string, status: number): Response {
  * without binding a port. `src/index.ts` imports this and calls `serve`.
  */
 export const SERVER_TS = (mountBlocks: string): string => `import { Hono } from "hono";
+import { sqlTapeMiddleware } from "./db.js";
 import { sessionMiddleware } from "./session.js";
 
 ${mountBlocks}
 
 export const app = new Hono();
+app.use("*", sqlTapeMiddleware);
 app.use("*", sessionMiddleware());
 
 registerRoutes(app);

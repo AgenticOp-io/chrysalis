@@ -96,6 +96,13 @@ final class Recorder
         ]);
     }
 
+    /** Cap rows recorded per query to keep traces bounded. */
+    private const MAX_SQL_ROWS_PER_EVENT = 500;
+
+    /**
+     * @param list<array<string, mixed>> $resultRows Assoc rows for SELECT-style
+     *        queries; empty for statements with no column set.
+     */
     public static function onSqlQuery(
         string $driver,
         string $sql,
@@ -103,12 +110,13 @@ final class Recorder
         int $rowCount,
         array $rowShape,
         int $durationUs,
-        array $origin
+        array $origin,
+        array $resultRows = []
     ): void {
         if (!self::$started) {
             return;
         }
-        self::emit([
+        $event = [
             'type' => 'sql.query',
             'driver' => $driver,
             'sql' => $sql,
@@ -117,7 +125,19 @@ final class Recorder
             'rowShape' => $rowShape,
             'durationUs' => $durationUs,
             'origin' => $origin,
-        ]);
+        ];
+        if (count($rowShape) > 0) {
+            $trimmed = array_slice($resultRows, 0, self::MAX_SQL_ROWS_PER_EVENT);
+            $encoded = [];
+            foreach ($trimmed as $row) {
+                $encoded[] = self::jsonSafe($row);
+            }
+            $event['rows'] = $encoded;
+            if (count($resultRows) > count($trimmed)) {
+                $event['rowsTruncated'] = true;
+            }
+        }
+        self::emit($event);
     }
 
     public static function onHeader(string $header, bool $replace, ?int $httpResponseCode): void
