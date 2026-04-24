@@ -11,7 +11,8 @@ describe("golden WebIR snapshots", () => {
   test("tiny-blog ingest matches committed golden fixture", async () => {
     const mod = await ingestDirectory(FIXTURE);
     const actual = moduleToGoldenSnapshot(mod, { relativizeProjectRoot: FIXTURE });
-    const expected = readFileSync(GOLDEN, "utf8");
+    // Git on Windows may check out the golden with CRLF; JSON.stringify uses LF only.
+    const expected = readFileSync(GOLDEN, "utf8").replace(/\r\n/g, "\n");
     expect(actual).toBe(expected);
   });
 });

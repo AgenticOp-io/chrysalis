@@ -89,8 +89,14 @@ function nodeToGolden(n: NodeBase, opts: GoldenSnapshotOptions): unknown {
  * Pass {@link GoldenSnapshotOptions.relativizeProjectRoot} so locator paths are
  * stable across machines; all strings normalize CRLF to LF.
  */
+function compareGoldenNodeIds(a: NodeId, b: NodeId): number {
+  const sa = String(a);
+  const sb = String(b);
+  return sa < sb ? -1 : sa > sb ? 1 : 0;
+}
+
 export function moduleToGoldenSnapshot(mod: Module, options: GoldenSnapshotOptions = {}): string {
-  const sortedIds = [...mod.nodes.keys()].sort((a, b) => String(a).localeCompare(String(b)));
+  const sortedIds = [...mod.nodes.keys()].sort(compareGoldenNodeIds);
   const nodes = sortedIds.map((id) => nodeToGolden(mod.nodes.get(id)!, options));
   const payload = {
     meta: stableValue(mod.meta) as unknown,
