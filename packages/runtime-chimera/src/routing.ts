@@ -18,12 +18,24 @@
 
 export type Target = "legacy" | "modern";
 
-export type Mode = "legacy" | "cutover" | "shadow";
+export type Mode = "legacy" | "cutover" | "shadow" | "canary";
+
+export interface CanarySettings {
+  /**
+   * Share of **modern-eligible** traffic sent to the modern stack (0–100).
+   * Rules that target `legacy` always stay on legacy.
+   */
+  readonly percentModern: number;
+  /** Mixed into the stickiness hash (per-environment bucket control). */
+  readonly salt: string;
+  readonly stickinessCookie?: string;
+  readonly stickinessHeader?: string;
+}
 
 export interface RouteRule {
   /** Pattern. Either `"/path"` or `"METHOD /path"`. Supports trailing `*`. */
   readonly match: string;
-  /** Stack this rule targets when in cutover mode. Ignored in legacy/shadow. */
+  /** Stack this rule targets in `cutover` / `canary`. Ignored in legacy/shadow. */
   readonly target: Target;
 }
 
@@ -32,6 +44,8 @@ export interface ChimeraConfig {
   readonly legacy: string; // e.g. http://127.0.0.1:18080
   readonly modern: string; // e.g. http://127.0.0.1:3000
   readonly rules: ReadonlyArray<RouteRule>;
+  /** Required when `mode === "canary"`. */
+  readonly canary?: CanarySettings;
   /**
    * Listen address. Defaults to 127.0.0.1. Use "0.0.0.0" to expose to the
    * network.

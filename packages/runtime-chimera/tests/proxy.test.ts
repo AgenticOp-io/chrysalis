@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { AddressInfo } from "node:net";
 import { afterEach, describe, expect, it } from "vitest";
+import { canaryBucket } from "../src/canary.js";
 import {
   compileRules,
   routeFor,
@@ -41,6 +42,17 @@ describe("compileRules + routeFor", () => {
 });
 
 describe("chimera proxy", () => {
+  it("rejects canary mode without canary settings", async () => {
+    await expect(
+      startChimera({
+        mode: "canary",
+        legacy: "http://127.0.0.1:1",
+        modern: "http://127.0.0.1:2",
+        rules: [],
+      }),
+    ).rejects.toThrow(/canary/);
+  });
+
   const servers: Array<{ close: () => Promise<void> }> = [];
   const chimeras: ChimeraHandle[] = [];
 
@@ -171,5 +183,70 @@ describe("chimera proxy", () => {
     }
     expect(h.stats().shadow.agreed).toBe(1);
     expect(h.stats().shadow.diverged).toBe(0);
+  });
+
+  it("canary: percent 0 keeps modern-eligible routes on legacy", async () => {
+    const legacy = await mkUpstream((req) => ({ body: `legacy:${req.url}` }));
+    const modern = await mkUpstream((req) => ({ body: `modern:${req.url}` }));
+    const h = await startChimera({
+      mode: "canary",
+      legacy,
+      modern,
+      rules: [{ match: "/api/*", target: "modern" }],
+      canary: { percentModern: 0, salt: "s" },
+    });
+    chimeras.push(h);
+    const resp = await fetch(`http://127.0.0.1:${h.port}/api/x`);
+    expect(await resp.text()).toBe("legacy:/api/x");
+    expect(resp.headers.get("x-chrysalis-target")).toBe("legacy");
+    expect(resp.headers.get("x-chrysalis-canary")).toBe("out");
+  });
+
+  it("canary: percent 100 sends modern-eligible routes to modern", async () => {
+    const legacy = await mkUpstream((req) => ({ body: `legacy:${req.url}` }));
+    const modern = await mkUpstream((req) => ({ body: `modern:${req.url}` }));
+    const h = await startChimera({
+      mode: "canary",
+      legacy,
+      modern,
+      rules: [{ match: "/api/*", target: "modern" }],
+      canary: { percentModern: 100, salt: "s" },
+    });
+    chimeras.push(h);
+    const resp = await fetch(`http://127.0.0.1:${h.port}/api/x`);
+    expect(await resp.text()).toBe("modern:/api/x");
+    expect(resp.headers.get("x-chrysalis-canary")).toBe("in");
+  });
+
+  it("canary: same cookie yields stable target at 50%", async () => {
+    const legacy = await mkUpstream(() => ({ body: "legacy" }));
+    const modern = await mkUpstream(() => ({ body: "modern" }));
+    const salt = "proxy-stickiness";
+    let vIn: string | null = null;
+    let vOut: string | null = null;
+    for (let i = 0; i < 500; i++) {
+      const v = `u${i}`;
+      const b = canaryBucket(`c:sid=${v}`, salt);
+      if (b < 50 && !vIn) vIn = v;
+      if (b >= 50 && !vOut) vOut = v;
+      if (vIn && vOut) break;
+    }
+    expect(vIn).not.toBeNull();
+    expect(vOut).not.toBeNull();
+    const h = await startChimera({
+      mode: "canary",
+      legacy,
+      modern,
+      rules: [{ match: "/api/*", target: "modern" }],
+      canary: { percentModern: 50, salt, stickinessCookie: "sid" },
+    });
+    chimeras.push(h);
+    const url = `http://127.0.0.1:${h.port}/api/x`;
+    const hIn = { headers: { cookie: `sid=${vIn}` } };
+    const bodyA = await (await fetch(url, hIn)).text();
+    const bodyB = await (await fetch(url, hIn)).text();
+    expect(bodyA).toBe(bodyB);
+    const bodyC = await (await fetch(url, { headers: { cookie: `sid=${vOut}` } })).text();
+    expect(bodyA).not.toBe(bodyC);
   });
 });

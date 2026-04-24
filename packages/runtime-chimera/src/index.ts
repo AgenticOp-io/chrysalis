@@ -2,16 +2,16 @@
  * @chrysalis/runtime-chimera — the dual-stack proxy that lets the legacy
  * PHP app and the Chrysalis-emitted app coexist behind a single origin.
  *
- * Milestone 1 scope: per-path routing with `legacy` / `cutover` / `shadow`
- * modes, backed by the same response-diff primitive `@chrysalis/verify`
- * uses. Demo file session bridge pairs with emit-hono env vars; Redis and
- * canary sampling are Milestone 2 expansion.
+ * Modes: `legacy` / `cutover` / `shadow` / `canary` (percentage + stickiness
+ * on modern-eligible routes). Demo file session bridge pairs with emit-hono
+ * env vars; Redis for production sessions remains a follow-up.
  */
 
 export { startChimera, type ChimeraHandle, type ChimeraStats } from "./proxy.js";
 export {
   compileRules,
   routeFor,
+  type CanarySettings,
   type ChimeraConfig,
   type Mode,
   type RouteRule,

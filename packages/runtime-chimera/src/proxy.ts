@@ -14,6 +14,11 @@
  *                to `shadowLogDir`/shadow.ndjson as one record per request.
  *                Client never sees modern's output. Modern's errors never
  *                affect the client.
+ *   - `canary`   same routing table as cutover, but among requests that match
+ *                a `modern` rule, only `canary.percentModern` percent (0–100)
+ *                go to modern; the rest stay on legacy. Bucketing is
+ *                deterministic from `stickinessCookie` / `stickinessHeader` /
+ *                client IP + `salt` so the same user always sees the same stack.
  *
  * Headers:
  *   - Strips `host` and the hop-by-hop headers before forwarding.
@@ -32,6 +37,7 @@ import {
 import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { diffResponse, type ReplayedResponse } from "@chrysalis/verify";
+import { resolveCanaryTarget } from "./canary.js";
 import {
   compileRules,
   routeFor,
@@ -72,6 +78,9 @@ export interface ChimeraStats {
 }
 
 export async function startChimera(config: ChimeraConfig): Promise<ChimeraHandle> {
+  if (config.mode === "canary" && !config.canary) {
+    throw new Error("chimera: mode 'canary' requires config.canary settings");
+  }
   const rules = compileRules(config.rules);
   const stats = {
     total: 0,
@@ -149,6 +158,16 @@ async function handle(
   let target: Target;
   if (config.mode === "legacy" || config.mode === "shadow") {
     target = "legacy";
+  } else if (config.mode === "canary") {
+    const m = routeFor(rules, method, path);
+    const ruleTarget = m?.target ?? "legacy";
+    const r = resolveCanaryTarget({
+      eligibleModern: ruleTarget === "modern",
+      settings: config.canary!,
+      req,
+    });
+    target = r.target;
+    res.setHeader("x-chrysalis-canary", r.canaryTag);
   } else {
     // cutover: routes with target=modern beat the default; default is legacy.
     const m = routeFor(rules, method, path);
