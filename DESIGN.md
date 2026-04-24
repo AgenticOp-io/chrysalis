@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D28 archaeology trace enums + D27 chimera canary
+Last updated by: D29 status archaeology depth + D28 trace enums
 
 ---
 
@@ -1039,3 +1039,13 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Rejected: unbounded union growth from high-cardinality columns — above the
   cap we omit literals and keep `string`. Rejected: inferring numeric/boolean
   unions from row JSON in this pass (string-only v1).
+
+- **2026-04-24 — D29** **`chrysalis status` archaeology signals** — When
+  `--schema` runs `runArchaeology`, the dashboard now counts **fields with any
+  `conflicts`** and **fields whose provenance includes trace-promoted literal
+  unions** (prefix shared as `TRACE_LITERAL_UNION_PROVENANCE_PREFIX` in
+  `@chrysalis/archaeology`). Operators see merge quality at a glance without
+  opening `domain.ts`.
+
+  Rejected: parsing emitted TypeScript to infer unions — provenance on the
+  `SchemaReport` is the canonical source of truth.

@@ -24,6 +24,7 @@ export {
 export {
   mergeSchema,
   domainTypesByTable,
+  TRACE_LITERAL_UNION_PROVENANCE_PREFIX,
   type SchemaReport,
   type EntityReport,
   type EntityFieldReport,

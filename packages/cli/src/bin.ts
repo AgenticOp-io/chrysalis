@@ -11,7 +11,12 @@ import { emit as emitFastify } from "@chrysalis/emit-fastify";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
 import { buildReport, replayCorpus, writeReport } from "@chrysalis/verify";
-import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
+import {
+  domainTypesByTable,
+  emitTypes,
+  runArchaeology,
+  TRACE_LITERAL_UNION_PROVENANCE_PREFIX,
+} from "@chrysalis/archaeology";
 import {
   startChimera,
   type CanarySettings,
@@ -970,6 +975,10 @@ interface StatusSummary {
     readonly fields: number;
     readonly unknownDdl: number;
     readonly orphanShapes: number;
+    /** Fields with at least one `@chrysalis-conflict` (DDL vs traces, enum mismatch, …). */
+    readonly fieldsWithConflicts: number;
+    /** Fields promoted to string-literal unions from `sql.query.rows` (D28). */
+    readonly fieldsWithTraceLiteralUnions: number;
   } | null;
   readonly shadow: {
     readonly requests: number;
@@ -1006,6 +1015,36 @@ type VerifyReportJson = {
   aggregate: { correctness: number; framesPassed: number; framesTotal: number };
   endpoints: Array<{ route: string; correctness: number }>;
 };
+
+function archaeologyDashboardStats(arch: ReturnType<typeof runArchaeology>): NonNullable<
+  StatusSummary["archaeology"]
+> {
+  let fields = 0;
+  let fieldsWithConflicts = 0;
+  let fieldsWithTraceLiteralUnions = 0;
+  for (const e of arch.entities) {
+    for (const f of e.fields) {
+      fields += 1;
+      if (f.conflicts.length > 0) fieldsWithConflicts += 1;
+      if (
+        f.provenance.some(
+          (p) =>
+            p.kind === "trace" && p.detail.startsWith(TRACE_LITERAL_UNION_PROVENANCE_PREFIX),
+        )
+      ) {
+        fieldsWithTraceLiteralUnions += 1;
+      }
+    }
+  }
+  return {
+    entities: arch.entities.length,
+    fields,
+    unknownDdl: arch.unknownDdl.length,
+    orphanShapes: arch.orphanShapes.length,
+    fieldsWithConflicts,
+    fieldsWithTraceLiteralUnions,
+  };
+}
 
 function correctnessFromVerifyReport(r: VerifyReportJson): Omit<
   StatusCorrectnessBackend,
@@ -1109,14 +1148,8 @@ async function cmdStatus(args: string[]): Promise<number> {
       const input: Parameters<typeof runArchaeology>[0] = { schemaPath };
       if (corpus) (input as { corpus: typeof corpus }).corpus = corpus;
       const arch = runArchaeology(input);
-      let fields = 0;
-      for (const e of arch.entities) fields += e.fields.length;
-      (summary as { archaeology: StatusSummary["archaeology"] }).archaeology = {
-        entities: arch.entities.length,
-        fields,
-        unknownDdl: arch.unknownDdl.length,
-        orphanShapes: arch.orphanShapes.length,
-      };
+      (summary as { archaeology: StatusSummary["archaeology"] }).archaeology =
+        archaeologyDashboardStats(arch);
     } catch {
       // ignore
     }
@@ -1236,7 +1269,8 @@ async function cmdStatus(args: string[]): Promise<number> {
     const a = summary.archaeology;
     console.log(
       `archaeology  : ${a.entities} entities, ${a.fields} fields, ` +
-        `${a.unknownDdl} unknown DDL, ${a.orphanShapes} orphan shapes`,
+        `${a.unknownDdl} unknown DDL, ${a.orphanShapes} orphan shapes, ` +
+        `${a.fieldsWithConflicts} field conflict(s), ${a.fieldsWithTraceLiteralUnions} trace literal union(s)`,
     );
   } else {
     console.log(`archaeology  : (none — pass --schema <schema.sql>)`);

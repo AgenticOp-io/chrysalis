@@ -150,7 +150,8 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
      - Correctness % (aggregate + per-endpoint, from `reports/verify/summary.json`
        or dual-backend `reports/verify/{hono,fastify}/summary.json`)
      - Archaeology coverage (entities, fields, unknown DDL, orphan shapes,
-       from `--schema`)
+       field conflict count, trace-promoted literal unions; from `--schema`
+       and optional `--traces`)
      - Shadow-mode results (mirrored / agreed / diverged from
        `reports/shadow/shadow.ndjson`)
      - Residual legacy: hole count + IR dialect totals (from `--project`)

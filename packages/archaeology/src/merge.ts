@@ -19,6 +19,9 @@
 import type { ParsedSchema, ColumnSchema, SqlPrimitive } from "./parse-schema.js";
 import type { CorpusShapes, ObservedField } from "./corpus-shapes.js";
 
+/** Prefix on `ProvenanceEntry.detail` when TEXT was promoted from `sql.query.rows` (D28). */
+export const TRACE_LITERAL_UNION_PROVENANCE_PREFIX = "literal union from captured SQL rows";
+
 export type FieldKind = "ddl" | "observed-only" | "ddl-and-observed";
 
 export interface ProvenanceEntry {
@@ -141,7 +144,7 @@ function mergeField(col: ColumnSchema, obs: ObservedField | null, table: string)
       ts = lifted;
       provenance.push({
         kind: "trace",
-        detail: `literal union from captured SQL rows: ${obs.observedStringLiterals.map((v) => JSON.stringify(v)).join(" | ")}`,
+        detail: `${TRACE_LITERAL_UNION_PROVENANCE_PREFIX}: ${obs.observedStringLiterals.map((v) => JSON.stringify(v)).join(" | ")}`,
       });
     }
   }
