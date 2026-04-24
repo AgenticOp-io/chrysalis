@@ -6,6 +6,7 @@
  */
 
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
+import { matchStringDispatchChain } from "@chrysalis/insight";
 import { ident, stringLit } from "./ts-util.js";
 
 export interface EmittedHandler {
@@ -244,6 +245,29 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
       return lines.join("\n");
     }
     case "if": {
+      const dispatch = matchStringDispatchChain(ctx.m, n);
+      if (dispatch) {
+        const d = freshTmp(ctx, "dispatch");
+        const raw = emitExpr(ctx, dispatch.fieldNodeId);
+        const lines: string[] = [];
+        lines.push(`const ${d} = ${raw};`);
+        lines.push(
+          `switch (${d} == null ? "" : String(${d})) {`,
+        );
+        for (const b of dispatch.branches) {
+          const arm = emitStmt(ctx, b.thenBodyId);
+          lines.push(`  case ${stringLit(b.literal)}:`);
+          lines.push(indentBlock(indentBlock(arm)));
+          lines.push(`    break;`);
+        }
+        if (dispatch.defaultElseBodyId != null) {
+          const def = emitStmt(ctx, dispatch.defaultElseBodyId);
+          lines.push(`  default:`);
+          lines.push(indentBlock(indentBlock(def)));
+        }
+        lines.push(`}`);
+        return lines.join("\n");
+      }
       const cond = emitExpr(ctx, n.operands[0]!);
       const then = emitStmt(ctx, n.operands[1]!);
       const hasElse = Boolean(n.attrs.hasElse);

@@ -6,6 +6,7 @@ import { ingestDirectory } from "@chrysalis/ingest";
 import { emit } from "../src/index.js";
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
+const FIXTURE_N1 = resolve(__dirname, "../../../fixtures/tiny-n1");
 
 describe("emit-hono: tiny-blog output", () => {
   test("emits all expected files and zero holes", async () => {
@@ -63,6 +64,24 @@ describe("emit-hono: tiny-blog output", () => {
       const src = readFileSync(resolve(out, "src/handlers/posts_view.ts"), "utf8");
       expect(src).toMatch(/@chrysalis-effects.*db\.read:posts/);
       expect(src).toMatch(/@chrysalis-effects.*db\.read:comments/);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-hono: string-dispatch switch (tiny-n1 /action)", () => {
+  test("action handler emits switch on POST op", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE_N1);
+      await emit({ module: mod, outDir: out });
+      const src = readFileSync(resolve(out, "src/handlers/action.ts"), "utf8");
+      expect(src).toContain("switch (");
+      expect(src).toMatch(/case ['"]create['"]/);
+      expect(src).toMatch(/case ['"]update['"]/);
+      expect(src).toMatch(/case ['"]delete['"]/);
+      expect(src).toMatch(/case ['"]archive['"]/);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

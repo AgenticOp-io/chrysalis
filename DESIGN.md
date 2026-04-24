@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: initial scaffold
+Last updated by: D21 string-dispatch switch emission (emit-hono + insight)
 
 ---
 
@@ -906,3 +906,32 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   implements these with the same semantics as emit-hono's
   `emitKnownCall` so N+1-style handlers (e.g. tiny-n1 dashboard)
   evaluate without abstention.
+
+- **2026-04-23 — D21** **String-dispatch `switch` emission** — `@chrysalis/emit-hono`
+  emits an idiomatic TypeScript `switch` when a `data.if` head matches the
+  same structural predicate as the `string-dispatch` insight recognizer.
+
+  **`matchStringDispatchChain`** — Exported from `@chrysalis/insight`
+  (implementation in `recognizers/string-dispatch.ts`). It returns the
+  branch literals, `then` body node ids, optional terminal `else` body, and
+  the `request.field` node id used as the discriminant. The recognizer
+  delegates to this helper so detection and emission cannot drift.
+
+  **Emit shape** — One temp holds the raw field expression; the `switch`
+  discriminant is `v == null ? "" : String(v)` so behavior stays close to
+  PHP loose comparisons without mapping `null` to the string `"null"`.
+  Each case runs the emitted `then` body and `break`s; a terminal `else`
+  becomes `default`.
+
+  **Dependency direction** — `emit-hono` depends on `insight` for the
+  matcher only. `insight` does not depend on any emit package (no cycle).
+
+  **Non-goal in this decision** — A future IR rewrite still replaces the
+  pattern with a validated `z.enum` action union at the route boundary;
+  D21 is emission-only, not the full `action-union` lift from the
+  opportunity catalog.
+
+  Rejected: reimplementing the chain walk inside emit-hono. Duplicated
+  rules would diverge from the recognizer and violate principle 3
+  (provenance of *intent* — here, shared definition of "what counts as
+  string dispatch").

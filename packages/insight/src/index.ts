@@ -39,7 +39,11 @@ export {
 
 export { nPlusOneRecognizer } from "./recognizers/n-plus-one.js";
 export { scatteredValidationRecognizer } from "./recognizers/scattered-validation.js";
-export { stringDispatchRecognizer } from "./recognizers/string-dispatch.js";
+export {
+  stringDispatchRecognizer,
+  matchStringDispatchChain,
+  type StringDispatchChainMatch,
+} from "./recognizers/string-dispatch.js";
 export { unescapedOutputRecognizer } from "./recognizers/unescaped-output.js";
 export { rawSqlConcatRecognizer } from "./recognizers/raw-sql-concat.js";
 export { computeTaint, SANITIZER_CALLS, type Taint, type TaintResult } from "./taint.js";

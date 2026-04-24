@@ -25,6 +25,66 @@ import { descendants, routes } from "../walk.js";
 
 const RECOGNIZER_ID = "string-dispatch" as const;
 
+/**
+ * Structural match for an if/elseif chain that dispatches on one request
+ * field vs string literals. Used by `@chrysalis/emit-hono` to emit a
+ * TypeScript `switch` instead of a nested if ladder.
+ */
+export interface StringDispatchChainMatch {
+  readonly field: { source: string; name: string };
+  readonly fieldNodeId: NodeId;
+  readonly branches: ReadonlyArray<{
+    readonly ifNodeId: NodeId;
+    readonly thenBodyId: NodeId;
+    readonly literal: string;
+  }>;
+  /** Else branch of the last `if` in the chain, if present. */
+  readonly defaultElseBodyId: NodeId | null;
+  readonly visitedIfIds: ReadonlyArray<NodeId>;
+}
+
+/**
+ * If `head` starts a string-dispatch chain (see recognizer docs), return
+ * its shape; otherwise `null`. Does not consult opportunity confidence.
+ */
+export function matchStringDispatchChain(
+  m: Module,
+  head: NodeBase,
+): StringDispatchChainMatch | null {
+  if (head.dialect !== "data" || head.op !== "if") return null;
+  const chain = collectChain(m, head);
+  if (chain.branches.length < 2) return null;
+
+  const field = chain.branches[0]!.field;
+  if (!chain.branches.every((b) => b.field.source === field.source && b.field.name === field.name)) {
+    return null;
+  }
+  const literals = chain.branches.map((b) => b.literal);
+  if (new Set(literals).size !== literals.length) return null;
+
+  const cond0 = m.nodes.get(chain.branches[0]!.condId);
+  if (!cond0) return null;
+  const meta = matchLiteralEquality(m, cond0);
+  if (!meta?.fieldNodeId) return null;
+
+  const lastIf = chain.branches[chain.branches.length - 1]!.node;
+  const hasElse = (lastIf.attrs as { hasElse?: boolean }).hasElse === true;
+  const defaultElseBodyId =
+    hasElse && lastIf.operands[2] !== undefined ? lastIf.operands[2]! : null;
+
+  return {
+    field,
+    fieldNodeId: meta.fieldNodeId,
+    branches: chain.branches.map((b) => ({
+      ifNodeId: b.node.id,
+      thenBodyId: b.node.operands[1]!,
+      literal: b.literal,
+    })),
+    defaultElseBodyId,
+    visitedIfIds: [...chain.visited],
+  };
+}
+
 interface Branch {
   readonly condId: NodeId;
   readonly node: NodeBase; // the ifElse node
@@ -46,29 +106,26 @@ export const stringDispatchRecognizer: Recognizer = {
       for (const n of descendants(m, route.bodyNode.id)) {
         if (n.dialect !== "data" || n.op !== "if") continue;
         if (visited.has(n.id)) continue;
-        const chain = collectChain(m, n);
-        for (const inner of chain.visited) visited.add(inner);
-        if (chain.branches.length < 2) continue;
+        const mat = matchStringDispatchChain(m, n);
+        if (!mat) continue;
+        for (const id of mat.visitedIfIds) visited.add(id);
 
-        const field = chain.branches[0]!.field;
-        if (!chain.branches.every((b) => b.field.source === field.source && b.field.name === field.name)) continue;
-        const literals = chain.branches.map((b) => b.literal);
-        if (new Set(literals).size !== literals.length) continue;
-
+        const literals = mat.branches.map((b) => b.literal);
+        const field = mat.field;
         const id = `${RECOGNIZER_ID}:${route.method}:${route.path}:${String(n.id)}`;
-        const confidence = Math.min(0.8, 0.55 + 0.05 * chain.branches.length);
-        const severity = chain.branches.length >= 4 ? "strong" : "suggestion";
-        const nodeIds = chain.branches.map((b) => b.node.id);
+        const confidence = Math.min(0.8, 0.55 + 0.05 * mat.branches.length);
+        const severity = mat.branches.length >= 4 ? "strong" : "suggestion";
+        const nodeIds = mat.branches.map((b) => b.ifNodeId);
         out.push({
           recognizer: RECOGNIZER_ID,
           id,
-          title: `Dispatch on \`${field.source}.${field.name}\` (${chain.branches.length} branches)`,
+          title: `Dispatch on \`${field.source}.${field.name}\` (${mat.branches.length} branches)`,
           severity,
           confidence,
           nodes: nodeIds,
           origin: n.origin,
           route: { method: route.method, path: route.path },
-          rationale: `if/elseif chain over ${chain.branches.length} string literals (${literals.map((s) => `"${s}"`).join(", ")}) against the same request field. Non-exhaustive by construction; silently falls through on unknown values.`,
+          rationale: `if/elseif chain over ${mat.branches.length} string literals (${literals.map((s) => `"${s}"`).join(", ")}) against the same request field. Non-exhaustive by construction; silently falls through on unknown values.`,
           proposedLift: {
             kind: "action-union",
             sketch: `Introduce \`type Action = ${literals.map((s) => `"${s}"`).join(" | ")}\`; validate the field with \`z.enum(${JSON.stringify(literals)})\`; replace the chain with a \`switch (action)\` whose \`default\` clause returns 400.`,
@@ -78,8 +135,8 @@ export const stringDispatchRecognizer: Recognizer = {
             source: field.source,
             name: field.name,
             branches: literals,
-            branchCount: chain.branches.length,
-            hasDefault: chain.hasTerminalElse,
+            branchCount: mat.branches.length,
+            hasDefault: mat.defaultElseBodyId != null,
           },
         });
       }
@@ -148,7 +205,7 @@ function unwrapSingleStatementBlock(m: Module, n: NodeBase): NodeBase {
 function matchLiteralEquality(
   m: Module,
   cond: NodeBase,
-): { literal: string; field: { source: string; name: string } } | null {
+): { literal: string; field: { source: string; name: string }; fieldNodeId: NodeId } | null {
   if (cond.dialect !== "data" || cond.op !== "binop") return null;
   const op = (cond.attrs as { operator?: string }).operator ?? "";
   if (op !== "==" && op !== "===") return null;
@@ -163,6 +220,7 @@ function matchLiteralEquality(
   return {
     literal: pair.literal,
     field: { source: fieldAttrs.source, name: fieldAttrs.name },
+    fieldNodeId: pair.field.id,
   };
 }
 

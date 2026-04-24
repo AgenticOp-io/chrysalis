@@ -13,7 +13,8 @@
     "clean": "rimraf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@chrysalis/webir": "workspace:*"
+    "@chrysalis/webir": "workspace:*",
+    "@chrysalis/insight": "workspace:*"
   },
   "devDependencies": {
     "@chrysalis/ingest": "workspace:*"

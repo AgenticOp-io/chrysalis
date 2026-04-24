@@ -30,7 +30,10 @@ modes), and the `chrysalis status` dashboard are all live.
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling
 TypeScript project that passes `tsc --noEmit` *and* actually serves live HTTP
-traffic backed by SQLite (no holes emitted for this fixture).
+traffic backed by SQLite (no holes emitted for this fixture). Emit also
+lowers **string-dispatch** if/elseif chains to a TypeScript `switch` when
+they match the same structural rules as `@chrysalis/insight` (see D21 in
+`DESIGN.md`).
 
 The Oracle's **recording** half is live: a userland PHP prelude
 (`packages/oracle-php/`) captures HTTP requests, SQL queries, session state,

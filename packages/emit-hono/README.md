@@ -15,6 +15,10 @@ The first Chrysalis backend; the reference for how to write future backends
 
 ## Invariants
 
+- **String-dispatch shape.** If/elseif chains that match
+  `matchStringDispatchChain` from `@chrysalis/insight` (same rules as the
+  `string-dispatch` recognizer) emit as a single TypeScript `switch` on a
+  normalized string discriminant, not a nested if ladder.
 - **`src/server.ts` exports `app`; `src/index.ts` only listens.** Downstream
   verification (`app.fetch` in-process) must not require a TCP server.
 - **The output project compiles.** Type errors in generated code are emission

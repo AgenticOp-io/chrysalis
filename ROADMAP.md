@@ -90,6 +90,9 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [x] Produces a runnable project (Hono + `node:sqlite`)
    - [x] Routes mirror the PHP URL structure
    - [x] Handlers carry `@chrysalis-effects` annotations derived from WebIR
+   - [x] Eligible **string-dispatch** if/elseif chains (one `request.field`
+         vs distinct string literals, same matcher as `@chrysalis/insight`)
+         emit as a TypeScript `switch` with a normalized discriminant (D21).
    - [x] At least one deliberately-unsupported node appears as a compiling
          hole (none needed for tiny-blog; the infrastructure exists and is
          exercised on synthetic inputs in tests).
@@ -220,8 +223,11 @@ Deepen each layer without broadening too fast.
         (consumes `scattered-validation` opportunities)
   - [ ] N+1 detection → batched loader (consumes `n-plus-one-queries`
         opportunities whose corpus-boosted confidence ≥ 0.9)
+  - [x] **Emit (D21):** matching chains lower to a TS `switch` (shared
+        `matchStringDispatchChain` with insight; see Milestone 1 emit).
   - [ ] String dispatch → discriminated union + `z.enum`
-        (consumes `string-dispatch` opportunities)
+        (IR rewrite at route boundary; consumes `string-dispatch`
+        opportunities — full lift beyond emission)
 - [ ] Archaeology v2: infer enum types from observed traces + DB CHECK constraints
 - [ ] Oracle: outbound HTTP + mail recording
 - [ ] CI: fixture suite with golden WebIR snapshots and golden generated TS

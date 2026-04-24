@@ -5,6 +5,6 @@
     "outDir": "dist",
     "composite": true
   },
-  "references": [{ "path": "../webir" }],
+  "references": [{ "path": "../webir" }, { "path": "../insight" }],
   "include": ["src/**/*"]
 }

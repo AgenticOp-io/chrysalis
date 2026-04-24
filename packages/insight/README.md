@@ -14,7 +14,7 @@ anti-patterns, and proposes idiomatic typed replacements. Consumed by
 | `unescaped-output` | `echo` (or `data.html.template` with `escape: false`) whose value carries taint from `request.field` or `session.read` through no recognized sanitizer. | `sanitize-output` — `html.escape(...)` or `JSON.stringify` for script contexts |
 | `n-plus-one-queries` | `foreach` body issues a DB read per iteration | `batch-loader` — single `SELECT ... WHERE id IN (...)` + lookup map |
 | `scattered-validation` | One request field touched by ≥2 distinct guards (isset/empty/trim/intval/preg_match/strlen/compare-to-literal/…) | `zod-schema` — one schema parsed at handler top |
-| `string-dispatch` | `if/elseif` chain on literal equality against a single request field | `action-union` — discriminated union + `z.enum` + exhaustive `switch` |
+| `string-dispatch` | `if/elseif` chain on literal equality against a single request field | `action-union` — discriminated union + `z.enum` + exhaustive `switch` (emit-hono already emits a TS `switch` for the same shape via exported `matchStringDispatchChain`) |
 
 ### Data-flow primitive
 
@@ -39,6 +39,13 @@ pure over the IR and remain trivially unit-testable.
 `severity` is a coarse three-level grouping (`info` / `suggestion` /
 `strong`) chosen so the CLI and status dashboard can tier their output
 without exposing raw confidence numbers.
+
+## Shared structural helpers
+
+- **`matchStringDispatchChain(m, head)`** — Returns branch literals and body
+  node ids for an eligible if/elseif chain, or `null`. Used by the
+  `string-dispatch` recognizer and by `@chrysalis/emit-hono` so detection
+  and emission stay aligned (see `DESIGN.md` decision D21).
 
 ## Invariants
 

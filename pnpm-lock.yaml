@@ -70,6 +70,9 @@ importers:
 
   packages/emit-hono:
     dependencies:
+      '@chrysalis/insight':
+        specifier: workspace:*
+        version: link:../insight
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir
