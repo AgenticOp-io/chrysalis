@@ -46,7 +46,10 @@ const SUBCOMMANDS = [
   ["verify", "Replay oracle traces against the generated code"],
   ["deploy", "Configure the chimera router (--mode=shadow|canary|cutover)"],
   ["insight", "Catalog anti-patterns on the WebIR and propose idiomatic replacements"],
-  ["rewrite", "Apply confidence-gated IR rewrites from insight opportunities, then emit"],
+  [
+    "rewrite",
+    "Apply IR rewrites from insight; optional --http-replay-backends=hono,fastify",
+  ],
   ["status", "Print the migration dashboard"],
   ["repair", "LLM-driven repair loop for divergent endpoints (Milestone 3)"],
 ] as const;

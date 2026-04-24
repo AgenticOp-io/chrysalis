@@ -13,9 +13,12 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis observe` — run the oracle sidecar against a live PHP app
 - `chrysalis ingest` — PHP source → WebIR module on disk
 - `chrysalis archaeology` — recover schema from DB + forms + traces
-- `chrysalis emit --target=hono` — WebIR → generated project
+- `chrysalis emit --target=hono|fastify` — WebIR → generated project
 - `chrysalis verify` — replay oracle traces against the generated code
-- `chrysalis deploy --mode=shadow|canary|cutover` — configure the chimera router
+- `chrysalis rewrite` — IR rewrites; optional `--http-replay` and
+  `--http-replay-backends=hono,fastify`
+- `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router
+  (`--canary-percent`, stickiness cookie/header flags for canary)
 - `chrysalis status` — print the migration dashboard
 - `chrysalis repair <endpoint>` — (Milestone 3) LLM-driven repair loop
 

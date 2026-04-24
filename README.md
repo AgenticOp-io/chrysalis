@@ -24,13 +24,17 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 **Pre-alpha. Milestone 1 is complete end-to-end** on the bundled tiny-blog
 fixture: translation axis (ingest → WebIR → emit-hono), Oracle recording,
 verify HTTP-replay + correctness scoring, archaeology (DDL + trace shapes →
-typed domain models), the chimera runtime proxy (legacy / cutover / shadow
-modes), and the `chrysalis status` dashboard are all live.
+typed domain models, optional Drizzle `schema.ts`), the chimera runtime proxy
+(`legacy` / `cutover` / `shadow` / **`canary`** with stickiness), **emit-fastify**
+as a second emitter behind shared lowering, and the `chrysalis status` dashboard
+are all live.
 
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling
 TypeScript project that passes `tsc --noEmit` *and* actually serves live HTTP
-traffic backed by SQLite (no holes emitted for this fixture). Emit also
+traffic backed by SQLite (no holes emitted for this fixture). The same WebIR
+module typechecks as **Hono** or **Fastify** (`chrysalis emit --target=…`).
+CI replays the oracle corpus in-process against both stacks. Emit also
 lowers **string-dispatch** if/elseif chains to a TypeScript `switch` when
 they match the same structural rules as `@chrysalis/insight` (see D21 in
 `DESIGN.md`).
@@ -45,8 +49,10 @@ The **verify** loop is live: `chrysalis verify` replays the captured corpus
 against the emitted app over HTTP, with ordered cookie-chaining, normalizes
 clock-derived nondeterminism (timestamps, session ids, UUIDs), scores each
 endpoint with Jaccard body similarity, and writes per-route reports under
-`reports/verify/`. An end-to-end CI job drives PHP → captures the corpus →
-emits the TypeScript stack → replays → enforces a correctness threshold.
+`reports/verify/summary.json` (or per-backend `hono/` / `fastify/` after dual
+verify). An end-to-end CI job drives PHP → captures the corpus → dual emit →
+in-process replay → enforces a correctness threshold on **each** emitter.
+Locally: `pnpm run verify:e2e` (requires PHP on PATH).
 
 Archaeology runs as part of the emit pipeline: it reads the fixture's
 `schema.sql`, intersects it with any observed trace shapes, and writes
@@ -55,11 +61,13 @@ every entity and field (including `status` as a `"draft" | "published" |
 "archived"` string-literal union, derived from the DDL's `CHECK IN`).
 
 The **chimera runtime** proxy is live: `chrysalis deploy` runs a per-path
-reverse proxy over both stacks with `legacy` / `cutover` / `shadow` modes. In
-shadow mode, every request hits legacy (response returned to client) and is
-mirrored to the modern stack in the background; responses are diffed with the
-same `@chrysalis/verify` primitive used for replay, and divergences are
-appended to `reports/shadow/shadow.ndjson`.
+reverse proxy over both stacks with `legacy` / `cutover` / `shadow` / `canary`
+modes. **Canary** applies the same rules as cutover but sends only a configured
+percentage of modern-eligible traffic to the new stack, with deterministic
+cookie/header/IP stickiness. In shadow mode, every request hits legacy (response
+returned to client) and is mirrored to the modern stack in the background;
+responses are diffed with the same `@chrysalis/verify` primitive used for replay,
+and divergences are appended to `reports/shadow/shadow.ndjson`.
 
 The **status dashboard** (`chrysalis status`) composes all of the above into
 one view: corpus size, per-endpoint correctness, archaeology coverage,
@@ -98,6 +106,7 @@ CLI equivalents:
 ```bash
 node packages/cli/dist/bin.js ingest fixtures/tiny-blog
 node packages/cli/dist/bin.js emit fixtures/tiny-blog --out generated/tiny-blog --target=hono
+node packages/cli/dist/bin.js emit fixtures/tiny-blog --out generated/tiny-blog-fastify --target=fastify
 ```
 
 Record a trace corpus from the live PHP app (requires `php` on PATH):
