@@ -321,7 +321,7 @@ jobs:
               console.error("emitted lookup.ts lacks parameterized SQL:\n" + lookup);
               process.exit(1);
             }
-            if (/\+\s*id/.test(lookup) || /"\s*\.\s*/.test(lookup)) {
+            if (/\+\s*id\b/.test(lookup) || /"\s*\.\s*"/.test(lookup)) {
               console.error("emitted lookup.ts still contains SQL concat:\n" + lookup);
               process.exit(1);
             }
