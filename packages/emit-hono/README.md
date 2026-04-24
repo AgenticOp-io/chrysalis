@@ -2,17 +2,20 @@
 
 ## Purpose
 
-Emits a runnable **Hono + Drizzle** TypeScript project from a WebIR `Module`.
-The first Chrysalis backend; the reference for how to write future backends
-(`emit-fastify`, `emit-next`, `emit-rust`, ...).
+Emits a runnable **Hono + SQLite (`node:sqlite`)** TypeScript project from a
+WebIR `Module`, with optional **Drizzle sqlite-core schema** (`src/schema.ts`)
+when archaeology supplies `EmitInput.schemaReport`. Handler bodies are lowered
+via `@chrysalis/emit-shared` (`honoHttpProfile`). The first Chrysalis backend;
+the reference for how to write additional backends (`emit-fastify`, `emit-next`,
+`emit-rust`, ...).
 
 ## Public API
 
 - `emit(input: EmitInput): Promise<EmitResult>`
-- `EmitInput` — WebIR module, target directory, optional
-  `domainTypesByTable` (lowercase SQL table name → archaeology interface
-  name) for `queryOne<T>` / `queryAll<T>` on single-table reads; runtime
-  config (bindings, adapters, schema lens) as the package grows
+- `EmitInput` — WebIR module, target directory, optional `schemaReport` (emits
+  `src/schema.ts` + `drizzle-orm` dependency), optional `domainTypesByTable`
+  (lowercase SQL table name → archaeology interface name) for `queryOne<T>` /
+  `queryAll<T>` on single-table reads; runtime config as the package grows
 - `EmitResult` — file list, hole registry, emission report
 
 ## Invariants
@@ -23,6 +26,9 @@ The first Chrysalis backend; the reference for how to write future backends
 - **Optional row typing.** With `domainTypesByTable`, exactly one table on
   a `db.query` → `queryOne<Interface>` or `queryAll<Interface>` and
   `import type` from `../domain.js`. Multi-table SQL keeps untyped generics.
+- **Drizzle schema file.** With `schemaReport`, `src/schema.ts` mirrors the
+  same merged DDL as `domain.ts`; runtime I/O remains `queryOne` / `queryAll`
+  on `node:sqlite` (no native addon) so verify SQL replay stays deterministic.
 - **String-dispatch shape.** If/elseif chains that match
   `matchStringDispatchChain` from `@chrysalis/insight` (same rules as the
   `string-dispatch` recognizer) emit as a single TypeScript `switch` on a

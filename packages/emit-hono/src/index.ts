@@ -2,29 +2,29 @@
  * @chrysalis/emit-hono — WebIR → Hono + SQLite project emitter.
  *
  * Produces a compiling TypeScript project that mirrors the original PHP
- * app's routes, using Hono for HTTP, better-sqlite3 for the DB, and a small
- * in-memory session store. This is the Milestone 1 reference backend.
+ * app's routes, using Hono for HTTP, `node:sqlite` for sync DB access, and a
+ * small session store. When `schemaReport` is passed, also emits
+ * `src/schema.ts` (Drizzle sqlite-core) plus a `drizzle-orm` dependency for
+ * tooling and future query-builder reads; handlers still use `queryOne` /
+ * `queryAll` over prepares (portable, matches SQL replay tapes).
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
-import { emitHandlerBody, type EmittedHandler } from "./emit-tree.js";
-import {
-  DB_TS,
-  INDEX_TS,
-  PACKAGE_JSON,
-  RUNTIME_TS,
-  SERVER_TS,
-  SESSION_TS,
-  TSCONFIG_JSON,
-} from "./runtime-files.js";
-import { ident } from "./ts-util.js";
+import { emitHandlerBody, honoHttpProfile, ident, type EmittedHandler } from "@chrysalis/emit-shared";
+import { DB_TS, INDEX_TS, PACKAGE_JSON, RUNTIME_TS, SERVER_TS, SESSION_TS, TSCONFIG_JSON } from "./runtime-files.js";
 
 export interface EmitInput {
   readonly module: Module;
   readonly outDir: string;
   readonly dbDialect?: "sqlite" | "postgres" | "mysql";
+  /**
+   * When set, emits `src/schema.ts` and adds `drizzle-orm` to package.json.
+   * Should accompany `domainTypesByTable` from the same `runArchaeology` report.
+   */
+  readonly schemaReport?: SchemaReport;
   /**
    * When set, single-table `db.query` nodes emit `queryOne<T>` / `queryAll<T>`
    * with `T` from archaeology `domain.ts`. Keys must be lowercase table names
@@ -82,8 +82,9 @@ async function writeFileWithMkdir(path: string, contents: string): Promise<numbe
 }
 
 export async function emit(input: EmitInput): Promise<EmitResult> {
-  const { module: m, outDir, domainTypesByTable } = input;
+  const { module: m, outDir, domainTypesByTable, schemaReport } = input;
   const appName = m.meta.sourceApp || "chrysalis-app";
+  const useDrizzle = schemaReport !== undefined;
   const files: EmittedFile[] = [];
   const allHoles: HoleRecord[] = [];
   const effectsByHandler: Record<string, ReadonlyArray<string>> = {};
@@ -94,11 +95,14 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     files.push({ path: relPath, contentsLength: len });
   };
 
-  await writeOne("package.json", PACKAGE_JSON(appName));
+  await writeOne("package.json", PACKAGE_JSON(appName, { drizzle: useDrizzle }));
   await writeOne("tsconfig.json", TSCONFIG_JSON);
+  if (useDrizzle) {
+    await writeOne("src/schema.ts", emitDrizzleSchema(schemaReport));
+  }
   await writeOne("src/db.ts", DB_TS);
-  await writeOne("src/session.ts", SESSION_TS);
   await writeOne("src/runtime.ts", RUNTIME_TS);
+  await writeOne("src/session.ts", SESSION_TS);
 
   const bindings: RouteBinding[] = [];
 
@@ -117,6 +121,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
       m,
       handlerId,
       domainTypesByTable ? { domainTypesByTable } : undefined,
+      honoHttpProfile,
     );
     effectsByHandler[baseName] = emitted.effectNames;
 

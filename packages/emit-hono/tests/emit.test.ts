@@ -17,6 +17,7 @@ function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, ou
   return emit({
     module: mod,
     outDir,
+    schemaReport,
     domainTypesByTable: domainTypesByTable(schemaReport),
   });
 }
@@ -37,6 +38,7 @@ describe("emit-hono: tiny-blog output", () => {
         "package.json",
         "tsconfig.json",
         "src/db.ts",
+        "src/schema.ts",
         "src/session.ts",
         "src/runtime.ts",
         "src/server.ts",

@@ -5,6 +5,11 @@
     "outDir": "dist",
     "composite": true
   },
-  "references": [{ "path": "../webir" }, { "path": "../insight" }],
+  "references": [
+    { "path": "../archaeology" },
+    { "path": "../emit-shared" },
+    { "path": "../webir" },
+    { "path": "../insight" }
+  ],
   "include": ["src/**/*"]
 }

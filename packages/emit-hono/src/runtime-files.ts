@@ -4,7 +4,10 @@
  * generated from WebIR.
  */
 
-export const PACKAGE_JSON = (appName: string): string =>
+export const PACKAGE_JSON = (
+  appName: string,
+  opts: { readonly drizzle: boolean } = { drizzle: false },
+): string =>
   JSON.stringify(
     {
       name: appName,
@@ -20,6 +23,7 @@ export const PACKAGE_JSON = (appName: string): string =>
       dependencies: {
         hono: "^4.6.0",
         "@hono/node-server": "^1.13.0",
+        ...(opts.drizzle ? { "drizzle-orm": "^0.45.2" } : {}),
       },
       devDependencies: {
         "@types/node": "^22.10.0",
