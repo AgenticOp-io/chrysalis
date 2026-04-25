@@ -164,6 +164,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-eq-one-count",
+      "file": "chrysalis/handlers/eq_one_count_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
