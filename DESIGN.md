@@ -1494,3 +1494,11 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   (`chrysalis/lib/db.php`, `chrysalis/schema.sql`, `count_show.php`) and seeds the same
   schema for fixture + emitted replay in `verify:laravel-full`. Template ingest/emit parity
   rises to eleven handlers across Hono/Fastify.
+
+- **2026-04-24 — D76** **Composer template framework-wrapper route (`/chrysalis-framework`).**
+  Adds one bounded Laravel service-wrapper surface in `routes/chrysalis.php`: route
+  ownership still comes from explicit `chrysalis.routes.json` + procedural handler
+  (`framework_show.php`), while the runtime response is created through Laravel's
+  `ResponseFactory` resolved from the service container. Verify corpus adds
+  `GET /chrysalis-framework` x2 and template ingest/emit parity rises to twelve handlers
+  across Hono/Fastify.

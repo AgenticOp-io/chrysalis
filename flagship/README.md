@@ -41,7 +41,7 @@ fake scores; add JSON when a pipeline produces them.
 ## Current tree
 
 - **`laravel-full/`** — Composer Laravel **adoption track** (README, empty manifest
-  example, **`chrysalis-templates/`** ingest slice for ping/health/json/redirect/DB-count/session `visit/me/login/logout`, query, and POST routes; no
+  example, **`chrysalis-templates/`** ingest slice for ping/health/json/redirect/DB-count/framework-wrapper/session `visit/me/login/logout`, query, and POST routes; no
   `vendor/` in git). Run   **`pnpm run scaffold:laravel-full`** to create or refresh
   **`flagship/chrysalis-laravel-work/`** (gitignored): `composer create-project` on first
   run, then copy templates + **`routes/chrysalis.php`** + **`web.php`** include. After build,

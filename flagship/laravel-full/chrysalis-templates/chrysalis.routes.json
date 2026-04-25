@@ -50,6 +50,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-framework",
+      "file": "chrysalis/handlers/framework_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
