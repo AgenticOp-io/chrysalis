@@ -1,20 +1,27 @@
 # laravel-min (Milestone 4 flagship skeleton)
 
 This is **not** a full Composer/Laravel install. It is a **Laravel-shaped**
-directory layout with two procedural routes (`GET /`, `GET /health`) so
-Chrysalis can **ingest and emit** a minimal multi-route slice while the real
-Breeze (or similar) app is documented below.
+directory layout with three procedural routes (`GET /`, `GET /health`,
+`GET /items`) plus a **Composer `autoload.files`** entry so CI can run
+`composer install` and `public/index.php` loads `vendor/autoload.php` when
+present.
 
 ## Layout
 
-- `public/index.php` — front controller for local `php -S`
+- `public/index.php` — front controller for local `php -S` (optional Composer autoload)
 - `app/Http/Handlers/` — handler scripts (mirrors where Laravel keeps HTTP-layer code)
+- `lib/db.php` — PDO + `query_all` / `query_one` / `exec_sql` (Chrysalis-ingest-friendly, oracle-aware)
+- `schema.sql` — SQLite `items` seed used by verify and emitted `blog.sqlite`
+- `data/` — runtime SQLite (`app.sqlite`); created by `pnpm run verify:flagship` / CI (gitignored)
 - `chrysalis.routes.json` — ingest manifest (required)
 - `chrysalis.observe.json` — Oracle redaction (minimal)
+- `composer.json` — PHP 8.1+ and `app/autoload.php` (run `composer install` in this directory)
 
 ## Commands
 
 ```bash
+cd flagship/laravel-min && composer install   # optional locally; required in CI before verify
+cd ../..
 chrysalis ingest flagship/laravel-min
 chrysalis emit flagship/laravel-min --out generated/laravel-min
 chrysalis status --json --project flagship/laravel-min

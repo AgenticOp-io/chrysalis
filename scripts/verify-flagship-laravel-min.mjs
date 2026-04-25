@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Milestone 4: Oracle capture + dual emit (Hono + Fastify) + in-process verify
- * for `flagship/laravel-min` (GET `/` and GET `/health`).
+ * for `flagship/laravel-min` (GET `/`, `/health`, `/items` + widened capture loop).
  *
  * PHP's document root is `public/` (Laravel-shaped); ingest manifest lives at
  * project root (`chrysalis.routes.json`).
@@ -11,7 +11,7 @@
  */
 
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -54,6 +54,8 @@ try {
 if (existsSync(traceDir)) rmSync(traceDir, { recursive: true, force: true });
 mkdirSync(traceDir, { recursive: true });
 
+initLaravelMinSqliteDb(fixture);
+
 const redaction = loadObserveConfig(fixture);
 const obsPort = 18081;
 const observer = startObserver({
@@ -69,10 +71,7 @@ const observer = startObserver({
 try {
   await waitUp(`http://127.0.0.1:${obsPort}/`);
   console.log(`[verify-flagship] PHP observer up at http://127.0.0.1:${obsPort} (docroot=public/)`);
-  const r = await fetch(`http://127.0.0.1:${obsPort}/`);
-  if (!r.ok) console.warn(`[verify-flagship] GET / returned ${r.status}`);
-  const h = await fetch(`http://127.0.0.1:${obsPort}/health`);
-  if (!h.ok) console.warn(`[verify-flagship] GET /health returned ${h.status}`);
+  await driveLaravelMinCorpus(obsPort);
 } finally {
   await observer.stop();
 }
@@ -104,10 +103,11 @@ for (const dir of [generatedHono, generatedFastify]) {
     stdio: "inherit",
   });
   const dbPath = join(dir, "blog.sqlite");
-  if (!existsSync(dbPath)) {
-    const db = new DatabaseSync(dbPath);
-    db.close();
-  }
+  if (existsSync(dbPath)) rmSync(dbPath);
+  const schemaSql = readFileSync(join(fixture, "schema.sql"), "utf8");
+  const db = new DatabaseSync(dbPath);
+  db.exec(schemaSql);
+  db.close();
 }
 
 await rm(reportRoot, { recursive: true, force: true });
@@ -173,6 +173,29 @@ async function loadEmittedFetch(outAbs, kind) {
     throw new Error(`expected named fetch from Fastify server ${outAbs}`);
   }
   return mod.fetch;
+}
+
+function initLaravelMinSqliteDb(fixtureRoot) {
+  const dataDir = join(fixtureRoot, "data");
+  const dbPath = join(dataDir, "app.sqlite");
+  mkdirSync(dataDir, { recursive: true });
+  if (existsSync(dbPath)) rmSync(dbPath);
+  const sql = readFileSync(join(fixtureRoot, "schema.sql"), "utf8");
+  const db = new DatabaseSync(dbPath);
+  db.exec(sql);
+  db.close();
+  console.log(`[verify-flagship] fixture DB ready at ${dbPath}`);
+}
+
+async function driveLaravelMinCorpus(port) {
+  const base = `http://127.0.0.1:${port}`;
+  const paths = ["/", "/health", "/items", "/health", "/items", "/"];
+  for (const p of paths) {
+    const r = await fetch(`${base}${p}`);
+    if (!r.ok) {
+      console.warn(`[verify-flagship] GET ${p} returned ${r.status}`);
+    }
+  }
 }
 
 async function waitUp(url, attempts = 50, delayMs = 200) {

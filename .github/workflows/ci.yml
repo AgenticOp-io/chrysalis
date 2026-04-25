@@ -131,6 +131,7 @@ jobs:
         with:
           php-version: "8.3"
           extensions: pdo_sqlite
+          tools: composer:v2
 
       - uses: pnpm/action-setup@v4
 
@@ -146,6 +147,10 @@ jobs:
         run: |
           rm -rf packages/verify/dist
           pnpm -r build
+
+      - name: Composer install (laravel-min autoload)
+        run: composer install --no-interaction --no-progress --no-dev
+        working-directory: flagship/laravel-min
 
       - name: End-to-end verify (laravel-min corpus → dual emit → replay)
         env:

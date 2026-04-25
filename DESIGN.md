@@ -1322,3 +1322,14 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   emit↔IR divergence maps, composite proposers, and any repair that weakens the
   full-corpus gate. Execution focus moves to **Milestone 4** (flagship app and
   monotonic migration metrics on `main`).
+
+- **2026-04-24 — D50** **Flagship `laravel-min`: Composer path + DB route + wider
+  oracle corpus.** The skeleton ships **`composer.json`** (PHP constraint +
+  `autoload.files` for `app/autoload.php`); CI runs **`composer install`** so
+  `public/index.php` can load **`vendor/autoload.php`** without vendoring that
+  tree in git. **`GET /items`** reads SQLite via the same **`query_all`** surface
+  as `fixtures/tiny-blog` (ingest/emit parity, oracle SQL capture). The flagship
+  verify script seeds **`data/app.sqlite`** from **`schema.sql`**, replays the
+  same DDL+DML into each emitted **`blog.sqlite`**, and **drives six HTTP hits**
+  across three routes before dual-backend replay — stretching the corpus while
+  keeping the existing correctness gate.
