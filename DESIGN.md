@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1600,3 +1600,9 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   **`{"idSpan":2}`** on the seeded ids **1..3** table. Manifest, Laravel stub routes, **`verify-flagship-laravel-full`**
   (two **`GET`** captures), ingest + dual-emit parity tests, and README counts move to **twenty-one** template handlers.
   Same incremental oracle scope as **D86–D88**.
+
+- **2026-04-25 — D90** **Composer template sum-squares aggregate route (`/chrysalis-sum-squares`).**
+  Adds **`sum_squares_show.php`**: **`SELECT SUM(id * id) AS ss FROM items`** via **`query_one`**, returning
+  **`{"sumSquares":14}`** on the seeded ids **1..3** table. Manifest, Laravel stub routes, **`verify-flagship-laravel-full`**
+  (two **`GET`** captures), ingest + dual-emit parity tests, and README counts move to **twenty-two** template handlers.
+  Same incremental oracle scope as **D86–D89**.

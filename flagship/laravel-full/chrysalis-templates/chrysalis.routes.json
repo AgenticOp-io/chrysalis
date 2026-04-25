@@ -110,6 +110,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-sum-squares",
+      "file": "chrysalis/handlers/sum_squares_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
