@@ -229,6 +229,11 @@ Route::get("/chrysalis-ne-zero-count", function () {
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
 });
 
+Route::get("/chrysalis-items-snapshot", function () {
+    $body = require base_path("chrysalis/handlers/items_snapshot_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
 Route::post("/chrysalis-session/login", function () {
     $body = require base_path("chrysalis/handlers/session_login_post.php");
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);

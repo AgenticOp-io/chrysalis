@@ -260,6 +260,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-items-snapshot",
+      "file": "chrysalis/handlers/items_snapshot_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
