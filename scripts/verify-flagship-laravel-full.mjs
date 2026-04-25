@@ -28,6 +28,7 @@
  * **`GET /chrysalis-lt-two-count`** (twice),
  * **`GET /chrysalis-gt-one-count`** (twice),
  * **`GET /chrysalis-gte-one-count`** (twice),
+ * **`GET /chrysalis-lte-one-count`** (twice),
  * **`GET /chrysalis-framework`** (twice),
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/login`** +
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/logout`** +
@@ -415,6 +416,12 @@ async function driveLaravelFullCorpus(port) {
     const r = await fetch(`${base}/chrysalis-gte-one-count`);
     if (!r.ok) {
       console.warn(`[verify-flagship-laravel-full] GET /chrysalis-gte-one-count returned ${r.status}`);
+    }
+  }
+  for (let i = 0; i < 2; i++) {
+    const r = await fetch(`${base}/chrysalis-lte-one-count`);
+    if (!r.ok) {
+      console.warn(`[verify-flagship-laravel-full] GET /chrysalis-lte-one-count returned ${r.status}`);
     }
   }
   const me0 = await fetch(`${base}/chrysalis-session/me`);
