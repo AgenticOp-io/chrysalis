@@ -30,16 +30,16 @@ The directory **`chrysalis-templates/`** is a **mini project root** you can run
 `chrysalis ingest` against (see `packages/ingest/tests/flagship-laravel-full-templates.test.ts`).
 It contains:
 
-- **`chrysalis.routes.json`** — twenty-seven routes:
+- **`chrysalis.routes.json`** — twenty-eight routes:
   **`GET /chrysalis-ping`**, **`GET /chrysalis-health.txt`**,
   **`GET /api/chrysalis-health`**, **`GET /chrysalis-jump`**,
-  **`GET /chrysalis-count`**, **`GET /chrysalis-framework`**, **`GET /chrysalis-first-item`**, **`GET /chrysalis-last-item`**, **`GET /chrysalis-items`**, **`GET /chrysalis-lib-count`**, **`GET /chrysalis-sum-ids`**, **`GET /chrysalis-min-id`**, **`GET /chrysalis-max-id`**, **`GET /chrysalis-avg-id`**, **`GET /chrysalis-id-span`**, **`GET /chrysalis-sum-squares`**, **`GET /chrysalis-even-count`**, **`GET /chrysalis-odd-count`**, **`GET /chrysalis-gt-two-count`**, **`GET /chrysalis-lt-three-count`**, **`GET /chrysalis-gte-two-count`**,
+  **`GET /chrysalis-count`**, **`GET /chrysalis-framework`**, **`GET /chrysalis-first-item`**, **`GET /chrysalis-last-item`**, **`GET /chrysalis-items`**, **`GET /chrysalis-lib-count`**, **`GET /chrysalis-sum-ids`**, **`GET /chrysalis-min-id`**, **`GET /chrysalis-max-id`**, **`GET /chrysalis-avg-id`**, **`GET /chrysalis-id-span`**, **`GET /chrysalis-sum-squares`**, **`GET /chrysalis-even-count`**, **`GET /chrysalis-odd-count`**, **`GET /chrysalis-gt-two-count`**, **`GET /chrysalis-lt-three-count`**, **`GET /chrysalis-gte-two-count`**, **`GET /chrysalis-lte-three-count`**,
   **`GET /chrysalis-session/visit`**, **`GET /chrysalis-session/me`**,
   **`GET /chrysalis-hello`**, **`POST /chrysalis-session/login`**,
   **`POST /chrysalis-session/logout`**,
   **`POST /chrysalis-echo`**
   → `ping_show.php`, `health_txt_show.php`, `api_health_show.php`, `jump_show.php`,
-  `count_show.php`, `framework_show.php`, `first_item_show.php`, `last_item_show.php`, `items_list_show.php`, `lib_count_show.php`, `sum_ids_show.php`, `min_id_show.php`, `max_id_show.php`, `avg_id_show.php`, `id_span_show.php`, `sum_squares_show.php`, `even_count_show.php`, `odd_count_show.php`, `gt_two_count_show.php`, `lt_three_count_show.php`, `gte_two_count_show.php`, `session_visit_show.php`, `session_me_show.php`, `hello_show.php`,
+  `count_show.php`, `framework_show.php`, `first_item_show.php`, `last_item_show.php`, `items_list_show.php`, `lib_count_show.php`, `sum_ids_show.php`, `min_id_show.php`, `max_id_show.php`, `avg_id_show.php`, `id_span_show.php`, `sum_squares_show.php`, `even_count_show.php`, `odd_count_show.php`, `gt_two_count_show.php`, `lt_three_count_show.php`, `gte_two_count_show.php`, `lte_three_count_show.php`, `session_visit_show.php`, `session_me_show.php`, `hello_show.php`,
   `session_login_post.php`, `session_logout_post.php`, `echo_post.php`
 - **`chrysalis/handlers/*.php`** — deterministic plain text / JSON / redirect / DB / session / query surfaces
   (no `Date.now`, no env)
@@ -69,7 +69,7 @@ Then:
 
 1. **`php artisan serve`** (or your stack) and open:
    **`/chrysalis-ping`**, **`/chrysalis-health.txt`**, **`/api/chrysalis-health`**,
-   **`/chrysalis-jump`**, **`/chrysalis-count`**, **`/chrysalis-framework`**, **`/chrysalis-first-item`**, **`/chrysalis-last-item`**, **`/chrysalis-items`**, **`/chrysalis-lib-count`**, **`/chrysalis-sum-ids`**, **`/chrysalis-min-id`**, **`/chrysalis-max-id`**, **`/chrysalis-avg-id`**, **`/chrysalis-id-span`**, **`/chrysalis-sum-squares`**, **`/chrysalis-even-count`**, **`/chrysalis-odd-count`**, **`/chrysalis-gt-two-count`**, **`/chrysalis-lt-three-count`**, **`/chrysalis-gte-two-count`**, **`/chrysalis-session/visit`**, **`/chrysalis-session/me`**,
+   **`/chrysalis-jump`**, **`/chrysalis-count`**, **`/chrysalis-framework`**, **`/chrysalis-first-item`**, **`/chrysalis-last-item`**, **`/chrysalis-items`**, **`/chrysalis-lib-count`**, **`/chrysalis-sum-ids`**, **`/chrysalis-min-id`**, **`/chrysalis-max-id`**, **`/chrysalis-avg-id`**, **`/chrysalis-id-span`**, **`/chrysalis-sum-squares`**, **`/chrysalis-even-count`**, **`/chrysalis-odd-count`**, **`/chrysalis-gt-two-count`**, **`/chrysalis-lt-three-count`**, **`/chrysalis-gte-two-count`**, **`/chrysalis-lte-three-count`**, **`/chrysalis-session/visit`**, **`/chrysalis-session/me`**,
    **`/chrysalis-hello?name=you`**,
    then `curl -X POST -d "username=flagship" http://127.0.0.1:8000/chrysalis-session/login`,
    `curl -X POST http://127.0.0.1:8000/chrysalis-session/logout`,
@@ -83,7 +83,7 @@ Then:
    (`scripts/verify-flagship-laravel-full.mjs`). It skips if PHP is missing or if
    **`vendor/`** / **`public/index.php`** are absent; otherwise it captures
    **`/chrysalis-ping`** x2, **`/chrysalis-health.txt`** x2, **`/api/chrysalis-health`** x2,
-   **`/chrysalis-jump`** (manual redirect), **`/chrysalis-count`** x2, **`/chrysalis-framework`** x2, **`/chrysalis-first-item`** x2, **`/chrysalis-last-item`** x2, **`/chrysalis-items`** x2, **`/chrysalis-lib-count`** x2, **`/chrysalis-sum-ids`** x2, **`/chrysalis-min-id`** x2, **`/chrysalis-max-id`** x2, **`/chrysalis-avg-id`** x2, **`/chrysalis-id-span`** x2, **`/chrysalis-sum-squares`** x2, **`/chrysalis-even-count`** x2, **`/chrysalis-odd-count`** x2, **`/chrysalis-gt-two-count`** x2, **`/chrysalis-lt-three-count`** x2, **`/chrysalis-gte-two-count`** x2, **`/chrysalis-session/visit`** x2,
+   **`/chrysalis-jump`** (manual redirect), **`/chrysalis-count`** x2, **`/chrysalis-framework`** x2, **`/chrysalis-first-item`** x2, **`/chrysalis-last-item`** x2, **`/chrysalis-items`** x2, **`/chrysalis-lib-count`** x2, **`/chrysalis-sum-ids`** x2, **`/chrysalis-min-id`** x2, **`/chrysalis-max-id`** x2, **`/chrysalis-avg-id`** x2, **`/chrysalis-id-span`** x2, **`/chrysalis-sum-squares`** x2, **`/chrysalis-even-count`** x2, **`/chrysalis-odd-count`** x2, **`/chrysalis-gt-two-count`** x2, **`/chrysalis-lt-three-count`** x2, **`/chrysalis-gte-two-count`** x2, **`/chrysalis-lte-three-count`** x2, **`/chrysalis-session/visit`** x2,
    **`/chrysalis-hello?name=...`** x2, **`GET /chrysalis-session/me`** around
    login/logout POSTs, and **`POST /chrysalis-echo`** x2 against **`public/`**,
    ingests the project root, dual-emits, and replays
