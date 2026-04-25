@@ -203,7 +203,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: flagship/chrysalis-laravel-work
-          key: laravel-full-work-${{ runner.os }}-${{ hashFiles('scripts/scaffold-flagship-laravel.mjs', 'flagship/laravel-full/chrysalis-templates/**') }}
+          key: laravel-full-work-breeze-${{ runner.os }}-${{ hashFiles('scripts/scaffold-flagship-laravel.mjs', 'flagship/laravel-full/chrysalis-templates/**') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -214,6 +214,9 @@ jobs:
           pnpm -r build
 
       - name: Scaffold/refresh Composer Laravel worktree
+        env:
+          # Milestone 5: prove Breeze + Chrysalis template routes coexist (ingest stays manifest-scoped).
+          CHRYSALIS_SCAFFOLD_BREEZE: "1"
         run: pnpm run scaffold:laravel-full
 
       - name: Verify composer-backed flagship slice

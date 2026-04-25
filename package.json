@@ -19,6 +19,7 @@
     "verify:laravel-full": "node scripts/verify-flagship-laravel-full.mjs",
     "status:laravel-full": "node scripts/status-flagship-laravel-full.mjs",
     "scaffold:laravel-full": "node scripts/scaffold-flagship-laravel.mjs",
+    "scaffold:laravel-full:breeze": "node scripts/scaffold-flagship-laravel.mjs --with-breeze",
     "ci-gates": "node scripts/ci-gates.mjs",
     "clean": "pnpm -r clean"
   },

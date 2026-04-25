@@ -97,12 +97,20 @@ Then:
    refreshes the scaffold, runs `verify:laravel-full`, then `status:laravel-full`, and uploads
    verify + migration artifacts.
 
-## Optional Breeze
+## Optional Breeze (Milestone 5)
 
-Breeze adds Blade, auth scaffolding, and Vite front-end assets. Chrysalis scope
-should stay **bounded**: pick a small set of routes and handler entry files you
-control, list them in `chrysalis.routes.json`, and grow the oracle corpus
-incrementally.
+CI enables Breeze on the canonical worktree via **`CHRYSALIS_SCAFFOLD_BREEZE=1`**
+when running **`pnpm run scaffold:laravel-full`** (see root **`package.json`** and
+**`.github/workflows/ci.yml`**). Locally, either set that env var or run
+**`pnpm run scaffold:laravel-full:breeze`** (same as **`--with-breeze`** on the script).
+
+The scaffold runs **`composer require laravel/breeze --dev`**, **`php artisan breeze:install blade --no-interaction`**,
+**`php artisan migrate --force`**, then **`npm ci`/`npm install`** and **`npm run build`**, and finally
+re-syncs **`chrysalis-templates/`** so **`routes/web.php`** still loads **`routes/chrysalis.php`**.
+
+Chrysalis ingest remains **manifest-scoped** (`chrysalis.routes.json` only). Breeze’s published auth
+UI is **out of scope** until those entrypoints are listed in the manifest and the oracle is extended
+(see `ROADMAP.md` Milestone 5).
 
 ## Relation to `laravel-min`
 

@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1562,3 +1562,16 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   oracle root alongside the existing CI job **`verify flagship (laravel-full scaffold)`**.
   **`flagship/laravel-min/`** remains the **Laravel-shaped** fast fixture and verify harness until a
   later item explicitly merges or replaces it; no vendor tree is committed to git.
+
+- **2026-04-25 — D85** **Milestone 5 — optional Laravel Breeze in the canonical worktree.** The
+  scaffold script (`scripts/scaffold-flagship-laravel.mjs`) accepts **`--with-breeze`** or env
+  **`CHRYSALIS_SCAFFOLD_BREEZE=1`** ( **`pnpm run scaffold:laravel-full:breeze`** ). When set, after
+  **`composer create-project`** (or on an existing tree without **`laravel/breeze`**), it runs
+  **`composer require laravel/breeze --dev`**, **`php artisan breeze:install blade --no-interaction`**,
+  **`php artisan migrate --force`**, ensures **`database/database.sqlite`**, then **`npm ci`/`npm install`**
+  and **`npm run build`**, then copies Chrysalis templates and re-appends **`routes/chrysalis.php`**
+  to **`routes/web.php`**. CI enables the env flag on **`verify flagship (laravel-full scaffold)`** so
+  **`verify:laravel-full`** continuously validates coexistence. **Ingest scope is unchanged:** only
+  files listed in **`chrysalis.routes.json`** are translated; Breeze’s published PHP is ignored until
+  explicitly routed in the manifest. **Not claimed:** ingest/verify parity on Breeze’s auth Blade stack
+  (deferred ROADMAP item).

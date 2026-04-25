@@ -13,7 +13,13 @@
  *
  * Usage (from repo root):
  *   pnpm run scaffold:laravel-full
- *   node scripts/scaffold-flagship-laravel.mjs --out flagship/my-laravel
+ *   pnpm run scaffold:laravel-full:breeze   # same as CHRYSALIS_SCAFFOLD_BREEZE=1
+ *   node scripts/scaffold-flagship-laravel.mjs --out flagship/my-laravel [--with-breeze]
+ *
+ * **Breeze:** With `--with-breeze` or env **`CHRYSALIS_SCAFFOLD_BREEZE=1`**, installs
+ * `laravel/breeze` (Blade), runs migrations, then `npm` build. Chrysalis template sync
+ * still runs afterward so **`routes/web.php`** keeps **`require …/chrysalis.php`**. Ingest
+ * stays manifest-scoped (`chrysalis.routes.json` only).
  */
 
 import { execSync } from "node:child_process";
@@ -34,10 +40,13 @@ const repo = resolve(here, "..");
 
 const args = process.argv.slice(2);
 let outRel = "flagship/chrysalis-laravel-work";
+let withBreeze = process.env.CHRYSALIS_SCAFFOLD_BREEZE === "1";
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--out" && args[i + 1]) {
     outRel = args[i + 1];
     i += 1;
+  } else if (args[i] === "--with-breeze") {
+    withBreeze = true;
   }
 }
 
@@ -51,6 +60,73 @@ function isNonEmptyDir(dir) {
   } catch {
     return false;
   }
+}
+
+/**
+ * @param {string} laravelRoot
+ * @returns {boolean}
+ */
+function composerJsonHasBreeze(laravelRoot) {
+  try {
+    const raw = readFileSync(join(laravelRoot, "composer.json"), "utf8");
+    const j = JSON.parse(raw);
+    const all = { ...(j.require ?? {}), ...(j["require-dev"] ?? {}) };
+    return Object.prototype.hasOwnProperty.call(all, "laravel/breeze");
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * @param {string} laravelRoot
+ */
+function ensureSqliteDatabaseFile(laravelRoot) {
+  const dbDir = join(laravelRoot, "database");
+  if (!existsSync(dbDir)) {
+    mkdirSync(dbDir, { recursive: true });
+  }
+  const dbFile = join(dbDir, "database.sqlite");
+  if (!existsSync(dbFile)) {
+    writeFileSync(dbFile, "");
+  }
+}
+
+/**
+ * Optional Laravel Breeze (Blade) for Milestone 5 coexistence with Chrysalis routes.
+ * @param {string} laravelRoot
+ * @param {boolean} enabled
+ */
+function ensureBreeze(laravelRoot, enabled) {
+  if (!enabled) {
+    return;
+  }
+  if (composerJsonHasBreeze(laravelRoot)) {
+    console.log(
+      "[scaffold-flagship-laravel] laravel/breeze already required — skipping Breeze install.",
+    );
+    return;
+  }
+  console.log("[scaffold-flagship-laravel] Installing Laravel Breeze (Blade stack) …");
+  execSync("composer require laravel/breeze --dev --no-interaction --no-progress", {
+    cwd: laravelRoot,
+    stdio: "inherit",
+  });
+  execSync("php artisan breeze:install blade --no-interaction", {
+    cwd: laravelRoot,
+    stdio: "inherit",
+  });
+  ensureSqliteDatabaseFile(laravelRoot);
+  execSync("php artisan migrate --force --no-interaction", {
+    cwd: laravelRoot,
+    stdio: "inherit",
+  });
+  const lock = join(laravelRoot, "package-lock.json");
+  const npmCmd = existsSync(lock)
+    ? "npm ci --no-audit --no-fund"
+    : "npm install --no-audit --no-fund";
+  execSync(npmCmd, { cwd: laravelRoot, stdio: "inherit" });
+  execSync("npm run build", { cwd: laravelRoot, stdio: "inherit" });
+  console.log("[scaffold-flagship-laravel] Breeze (Blade) + frontend build complete.");
 }
 
 /**
@@ -122,6 +198,8 @@ if (!laravelPresent) {
     `[scaffold-flagship-laravel] Laravel already at ${outAbs} — skipping create-project, re-syncing Chrysalis files.`,
   );
 }
+
+ensureBreeze(outAbs, withBreeze);
 
 installChrysalisTemplates(repo, outAbs);
 

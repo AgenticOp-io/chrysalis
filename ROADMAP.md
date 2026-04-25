@@ -449,7 +449,7 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
 
 ## Milestone 5 — Flagship depth
 
-**Status: in progress (phase 1 landed 2026-04-25).** This milestone **does not reopen** the M4 v1
+**Status: in progress (phase 1 D84; Breeze coexistence D85).** This milestone **does not reopen** the M4 v1
 checklist. Acceptance patterns (zero-hole manifests where we claim parity, verify
 when scripted, `chrysalis status` inputs documented) stay the same as M4 v1 unless
 `DESIGN.md` Decision Log says otherwise.
@@ -468,7 +468,14 @@ idiomaticity / residual-legacy JSON.
       **`status:laravel-full`** with cache-backed worktree reuse (D84).
 - [ ] **`laravel-min`:** keep as the **shaped** regression fixture **or** fold its oracle cases into
       the worktree and retire duplicate harness — explicit choice deferred.
-- [ ] Optional **Breeze** (or similar) UI slice behind the same verify + migration story.
+- [x] **Breeze coexistence:** **`pnpm run scaffold:laravel-full`** supports **`--with-breeze`** /
+      **`CHRYSALIS_SCAFFOLD_BREEZE=1`** (alias **`pnpm run scaffold:laravel-full:breeze`**) — Composer
+      requires **`laravel/breeze`**, **`php artisan breeze:install blade --no-interaction`**, SQLite
+      **`migrate --force`**, then **`npm ci`/`npm install`** + **`npm run build`** before Chrysalis
+      template sync. CI sets the env var on **`verify flagship (laravel-full scaffold)`** so
+      **`verify:laravel-full`** gates a tree where Breeze and Chrysalis routes coexist; ingest remains
+      **`chrysalis.routes.json`-only** (D85). **Deferred:** list Breeze handler entrypoints in the
+      manifest and extend the oracle when we want ingest/verify parity on first-party auth UI.
 - [ ] Production-shaped auth follow-ups (rotating CSRF, gateways, MFA/OAuth) where we
       choose to own them — emit holes until then.
 - [ ] Larger oracle corpora than scripted drivers; pipeline-owned **idiomaticity** and

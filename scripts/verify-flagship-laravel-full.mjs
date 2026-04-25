@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * Milestone 4 (optional): Oracle capture + dual emit (Hono + Fastify) + verify for
+ * Milestone 4–5: Oracle capture + dual emit (Hono + Fastify) + verify for
  * **`flagship/chrysalis-laravel-work`** after `pnpm run scaffold:laravel-full`.
+ * CI scaffolds with **`CHRYSALIS_SCAFFOLD_BREEZE=1`** (Laravel Breeze + Vite build) so this
+ * script continuously gates **Chrysalis routes** alongside a real starter kit; ingest still
+ * reads only **`chrysalis.routes.json`**.
  *
  * Corpus: **`GET /chrysalis-ping`** (twice), **`GET /chrysalis-health.txt`** (twice),
  * **`GET /api/chrysalis-health`** (twice), **`GET /chrysalis-jump`** (302 manual),
