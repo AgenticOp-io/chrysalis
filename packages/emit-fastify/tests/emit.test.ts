@@ -91,12 +91,12 @@ describe("emit-fastify: flagship laravel-min (Milestone 4 slice)", () => {
 });
 
 describe("emit-fastify: flagship laravel-full chrysalis-templates", () => {
-  test("emits forty-two handlers and zero holes", async () => {
+  test("emits forty-three handlers and zero holes", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-lf-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_FULL_TEMPLATES);
       const res = await emit({ module: mod, outDir: out });
-      expect(res.handlerCount).toBe(42);
+      expect(res.handlerCount).toBe(43);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/ping_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/health_txt_show.ts"))).toBe(true);
@@ -136,6 +136,7 @@ describe("emit-fastify: flagship laravel-full chrysalis-templates", () => {
       expect(existsSync(resolve(out, "src/handlers/between_one_two_count_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/gt_three_count_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/lt_one_count_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/gte_three_count_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_me_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_login_post.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_logout_post.ts"))).toBe(true);
