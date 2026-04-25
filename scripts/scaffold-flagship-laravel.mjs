@@ -160,7 +160,7 @@ function installChrysalisTemplates(repoRoot, laravelRoot) {
     );
   }
   console.log(
-    "[scaffold-flagship-laravel] Chrysalis templates: ping, health.txt, api/chrysalis-health, chrysalis-jump, chrysalis-count, chrysalis-framework, chrysalis-first-item, chrysalis-last-item, chrysalis-items, chrysalis-lib-count, chrysalis-sum-ids, chrysalis-min-id, chrysalis-max-id, chrysalis-avg-id, session visit/me/login/logout, chrysalis-hello, chrysalis-echo",
+    "[scaffold-flagship-laravel] Chrysalis templates: ping, health.txt, api/chrysalis-health, chrysalis-jump, chrysalis-count, chrysalis-framework, chrysalis-first-item, chrysalis-last-item, chrysalis-items, chrysalis-lib-count, chrysalis-sum-ids, chrysalis-min-id, chrysalis-max-id, chrysalis-avg-id, chrysalis-id-span, session visit/me/login/logout, chrysalis-hello, chrysalis-echo",
   );
 }
 

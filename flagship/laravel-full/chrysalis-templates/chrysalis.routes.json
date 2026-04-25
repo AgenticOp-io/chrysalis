@@ -104,6 +104,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-id-span",
+      "file": "chrysalis/handlers/id_span_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
