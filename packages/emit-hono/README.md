@@ -45,10 +45,10 @@ the reference for how to write additional backends (`emit-fastify`, `emit-next`,
   emit `throw new Error("TODO")` in place of a hole.
 - **Flagship parity:** Vitest ingests **`flagship/laravel-min`** (nineteen handlers, zero holes,
   expected handler files including `api_health_show.ts` … `session_*`) and
-  **`flagship/laravel-full/chrysalis-templates`** (thirty-three handlers:
+  **`flagship/laravel-full/chrysalis-templates`** (thirty-four handlers:
   `ping_show.ts`, `health_txt_show.ts`, `api_health_show.ts`, `jump_show.ts`, `count_show.ts`,
   `framework_show.ts`, `first_item_show.ts`, `last_item_show.ts`, `items_list_show.ts`, `lib_count_show.ts`, `sum_ids_show.ts`, `min_id_show.ts`, `max_id_show.ts`, `avg_id_show.ts`, `id_span_show.ts`, `sum_squares_show.ts`, `even_count_show.ts`, `odd_count_show.ts`, `gt_two_count_show.ts`, `lt_three_count_show.ts`, `gte_two_count_show.ts`, `lte_three_count_show.ts`, `ne_two_count_show.ts`, `session_visit_show.ts`, `session_me_show.ts`, `hello_show.ts`,
-  `between_count_show.ts`, `eq_one_count_show.ts`, `eq_three_count_show.ts`, `eq_two_count_show.ts`, `session_login_post.ts`, `session_logout_post.ts`, `echo_post.ts`, zero holes) —
+  `between_count_show.ts`, `eq_one_count_show.ts`, `eq_three_count_show.ts`, `eq_two_count_show.ts`, `ne_one_count_show.ts`, `session_login_post.ts`, `session_logout_post.ts`, `echo_post.ts`, zero holes) —
   mirrored by `@chrysalis/emit-fastify` tests.
 
 ## Non-goals
