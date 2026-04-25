@@ -422,7 +422,7 @@ with a short narrative in `flagship/README.md`.
       **`GET /chrysalis-ping`** + **`GET /chrysalis-health.txt`** +
       **`GET /api/chrysalis-health`** + **`GET /chrysalis-jump`** +
       **`GET /chrysalis-count`** + **`GET /chrysalis-framework`** + **`GET /chrysalis-first-item`** +
-      **`GET /chrysalis-items`** +
+      **`GET /chrysalis-items`** + **`GET /chrysalis-lib-count`** +
       **`GET /chrysalis-session/visit`** + **`GET /chrysalis-session/me`** +
       **`POST /chrysalis-session/login`** + **`POST /chrysalis-session/logout`** +
       **`GET /chrysalis-hello`** + **`POST /chrysalis-echo`**;

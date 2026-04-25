@@ -25,8 +25,8 @@ Emits a runnable **Fastify + `node:sqlite`** TypeScript project from a WebIR
 - **Effect annotations** and **provenance** JSDoc match emit-hono output shape.
 - **Flagship parity:** Same Vitest slices as emit-hono — **`flagship/laravel-min`**
   (nineteen handlers, zero holes, key handler files) and **`flagship/laravel-full/chrysalis-templates`**
-  (fourteen handlers: `ping_show.ts`, `health_txt_show.ts`, `api_health_show.ts`, `jump_show.ts`,
-  `count_show.ts`, `framework_show.ts`, `first_item_show.ts`, `items_list_show.ts`, `session_visit_show.ts`, `session_me_show.ts`, `hello_show.ts`,
+  (fifteen handlers: `ping_show.ts`, `health_txt_show.ts`, `api_health_show.ts`, `jump_show.ts`,
+  `count_show.ts`, `framework_show.ts`, `first_item_show.ts`, `items_list_show.ts`, `lib_count_show.ts`, `session_visit_show.ts`, `session_me_show.ts`, `hello_show.ts`,
   `session_login_post.ts`, `session_logout_post.ts`, `echo_post.ts`, zero holes).
 
 ## Non-goals

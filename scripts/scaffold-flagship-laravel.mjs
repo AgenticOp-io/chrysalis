@@ -5,7 +5,7 @@
  *
  * After `composer create-project` (or when re-run on an existing tree), copies
  * `flagship/laravel-full/chrysalis-templates/` into the app: `chrysalis.routes.json`,
- * `chrysalis/handlers/*.php` + support files, `routes/chrysalis.php`, and appends
+ * `chrysalis/**`, `routes/chrysalis.php`, and appends
  * `require __DIR__.'/chrysalis.php'` to `routes/web.php` when missing.
  *
  * Requires `composer` on PATH and network access to Packagist (first run only).
@@ -83,7 +83,7 @@ function installChrysalisTemplates(repoRoot, laravelRoot) {
     );
   }
   console.log(
-    "[scaffold-flagship-laravel] Chrysalis templates: ping, health.txt, api/chrysalis-health, chrysalis-jump, chrysalis-count, chrysalis-framework, chrysalis-first-item, chrysalis-items, session visit/me/login/logout, chrysalis-hello, chrysalis-echo",
+    "[scaffold-flagship-laravel] Chrysalis templates: ping, health.txt, api/chrysalis-health, chrysalis-jump, chrysalis-count, chrysalis-framework, chrysalis-first-item, chrysalis-items, chrysalis-lib-count, session visit/me/login/logout, chrysalis-hello, chrysalis-echo",
   );
 }
 

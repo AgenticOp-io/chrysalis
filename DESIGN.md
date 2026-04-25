@@ -1516,3 +1516,12 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   bounded **`foreach`** that builds the same plain-text lines as `laravel-min`
   **`GET /items`**. Verify corpus adds **`GET /chrysalis-items`** x2; template
   ingest/emit parity rises to fourteen handlers across Hono/Fastify.
+
+- **2026-04-24 — D79** **Composer template second aggregate JSON route (`/chrysalis-lib-count`).**
+  Adds **`lib_count_show.php`**: same bounded **`query_one`** aggregate as **`/chrysalis-count`**, but
+  returns **`{"countViaLib":…}`** so the oracle + dual replay corpus exercises an additional JSON
+  envelope without new SQL shapes. **Note:** ingest widens effects for same-file and **`lib/**`**
+  helpers (D31/D30), but **`emit-*`** still records emit-time holes for **`data.call`** to arbitrary
+  PHP function names that are not in **`emitKnownCall`**; this handler stays **inline-only** so the
+  flagship slice remains **zero-hole** until callee emission is generalized. Verify adds
+  **`GET /chrysalis-lib-count`** x2; template ingest/emit parity rises to fifteen handlers across Hono/Fastify.
