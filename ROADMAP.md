@@ -387,10 +387,12 @@ Candidates after the Laravel pilot (rough tractability order):
       `--json`, `reports/oracle-footprint.json` under `--project` — D39/D40)
 
 **Pilot slice status:** `laravel-min` satisfies the phased checklist (dashboard,
-ingest/emit, dual verify, migration artifact). **Still open:** replace the
-skeleton with Composer Laravel / Breeze, add DB/session routes, widen the
-corpus, and track monotonic **coverage / correctness / idiomaticity /
-residual-legacy** on `main` with a short narrative in `flagship/README.md`.
+ingest/emit, dual verify, migration artifact). **v1.1 slice:** second route
+`GET /health` (plain `ok`) so the oracle corpus and replay gate cover multiple
+handlers. **Still open:** replace the skeleton with Composer Laravel / Breeze,
+add DB/session routes, widen the corpus further, and track monotonic **coverage
+/ correctness / idiomaticity / residual-legacy** on `main` with a short
+narrative in `flagship/README.md`.
 
 ---
 

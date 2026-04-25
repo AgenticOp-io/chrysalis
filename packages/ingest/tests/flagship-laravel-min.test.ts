@@ -6,14 +6,14 @@ import { ingestDirectory } from "../src/index.js";
 const FLAGSHIP = resolve(__dirname, "../../../flagship/laravel-min");
 
 describe("flagship laravel-min", () => {
-  test("ingests single route with manifest-driven Laravel-shaped paths", async () => {
+  test("ingests manifest routes with Laravel-shaped paths", async () => {
     const mod = await ingestDirectory(FLAGSHIP);
     expect(mod.meta.sourceApp).toBe("laravel-min");
     let routeNodes = 0;
     walk(mod, (n) => {
       if (n.dialect === "web.request" && n.op === "route") routeNodes += 1;
     });
-    expect(routeNodes).toBe(1);
+    expect(routeNodes).toBe(2);
     expect(countHoles(mod)).toBe(0);
   });
 });

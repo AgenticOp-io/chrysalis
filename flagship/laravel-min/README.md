@@ -1,8 +1,9 @@
 # laravel-min (Milestone 4 flagship skeleton)
 
 This is **not** a full Composer/Laravel install. It is a **Laravel-shaped**
-directory layout with one procedural route so Chrysalis can **ingest and emit
-today** while the real Breeze (or similar) app is documented below.
+directory layout with two procedural routes (`GET /`, `GET /health`) so
+Chrysalis can **ingest and emit** a minimal multi-route slice while the real
+Breeze (or similar) app is documented below.
 
 ## Layout
 

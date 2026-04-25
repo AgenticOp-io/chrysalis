@@ -95,14 +95,15 @@ describe("emit-hono: tiny-blog output", () => {
 });
 
 describe("emit-hono: flagship laravel-min (Milestone 4 slice)", () => {
-  test("emits one handler and zero holes", async () => {
+  test("emits two handlers and zero holes", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_MIN);
       const res = await emit({ module: mod, outDir: out });
-      expect(res.handlerCount).toBe(1);
+      expect(res.handlerCount).toBe(2);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/home_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/health_show.ts"))).toBe(true);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

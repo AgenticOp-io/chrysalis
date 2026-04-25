@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Milestone 4: Oracle capture + dual emit (Hono + Fastify) + in-process verify
- * for `flagship/laravel-min`.
+ * for `flagship/laravel-min` (GET `/` and GET `/health`).
  *
  * PHP's document root is `public/` (Laravel-shaped); ingest manifest lives at
  * project root (`chrysalis.routes.json`).
@@ -71,6 +71,8 @@ try {
   console.log(`[verify-flagship] PHP observer up at http://127.0.0.1:${obsPort} (docroot=public/)`);
   const r = await fetch(`http://127.0.0.1:${obsPort}/`);
   if (!r.ok) console.warn(`[verify-flagship] GET / returned ${r.status}`);
+  const h = await fetch(`http://127.0.0.1:${obsPort}/health`);
+  if (!h.ok) console.warn(`[verify-flagship] GET /health returned ${h.status}`);
 } finally {
   await observer.stop();
 }

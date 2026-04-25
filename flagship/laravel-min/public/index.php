@@ -12,6 +12,11 @@ if ($method === 'GET' && $path === '/') {
     exit;
 }
 
+if ($method === 'GET' && $path === '/health') {
+    require dirname(__DIR__) . '/app/Http/Handlers/health_show.php';
+    exit;
+}
+
 http_response_code(404);
 header('Content-Type: text/plain; charset=utf-8');
 echo 'Not Found';

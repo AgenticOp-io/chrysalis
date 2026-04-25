@@ -36,7 +36,7 @@ Override sidecar directory with `--migration-reports <dir>`.
 
 ## Current tree
 
-- **`laravel-min/`** — Laravel-shaped layout, one GET `/` route; ingest/emit
+- **`laravel-min/`** — Laravel-shaped layout, `GET /` and `GET /health`; ingest/emit
   tests plus **`scripts/verify-flagship-laravel-min.mjs`** (Oracle → dual emit →
   replay) in CI job `verify-flagship-laravel-min`. Not a Composer Laravel
   install; see `laravel-min/README.md` for the full-framework next step.

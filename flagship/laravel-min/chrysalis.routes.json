@@ -6,6 +6,12 @@
       "path": "/",
       "file": "app/Http/Handlers/home_show.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "file": "app/Http/Handlers/health_show.php",
+      "pathParams": []
     }
   ]
 }
