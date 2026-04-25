@@ -1567,7 +1567,7 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   scaffold script (`scripts/scaffold-flagship-laravel.mjs`) accepts **`--with-breeze`** or env
   **`CHRYSALIS_SCAFFOLD_BREEZE=1`** ( **`pnpm run scaffold:laravel-full:breeze`** ). When set, after
   **`composer create-project`** (or on an existing tree without **`laravel/breeze`**), it runs
-  **`composer require laravel/breeze --dev`**, **`php artisan breeze:install blade --no-interaction`**,
+  **`composer require laravel/breeze --dev`**, **`php artisan breeze:install blade --no-interaction --pest`**,
   **`php artisan migrate --force`**, ensures **`database/database.sqlite`**, then **`npm ci`/`npm install`**
   and **`npm run build`**, then copies Chrysalis templates and re-appends **`routes/chrysalis.php`**
   to **`routes/web.php`**. CI enables the env flag on **`verify flagship (laravel-full scaffold)`** so

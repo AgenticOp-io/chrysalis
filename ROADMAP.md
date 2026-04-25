@@ -470,7 +470,7 @@ idiomaticity / residual-legacy JSON.
       the worktree and retire duplicate harness — explicit choice deferred.
 - [x] **Breeze coexistence:** **`pnpm run scaffold:laravel-full`** supports **`--with-breeze`** /
       **`CHRYSALIS_SCAFFOLD_BREEZE=1`** (alias **`pnpm run scaffold:laravel-full:breeze`**) — Composer
-      requires **`laravel/breeze`**, **`php artisan breeze:install blade --no-interaction`**, SQLite
+      requires **`laravel/breeze`**, **`php artisan breeze:install blade --no-interaction --pest`**, SQLite
       **`migrate --force`**, then **`npm ci`/`npm install`** + **`npm run build`** before Chrysalis
       template sync. CI sets the env var on **`verify flagship (laravel-full scaffold)`** so
       **`verify:laravel-full`** gates a tree where Breeze and Chrysalis routes coexist; ingest remains

@@ -17,7 +17,7 @@
  *   node scripts/scaffold-flagship-laravel.mjs --out flagship/my-laravel [--with-breeze]
  *
  * **Breeze:** With `--with-breeze` or env **`CHRYSALIS_SCAFFOLD_BREEZE=1`**, installs
- * `laravel/breeze` (Blade), runs migrations, then `npm` build. Chrysalis template sync
+ * `laravel/breeze` (Blade + **`--pest`** for non-interactive install), runs migrations, then `npm` build. Chrysalis template sync
  * still runs afterward so **`routes/web.php`** keeps **`require …/chrysalis.php`**. Ingest
  * stays manifest-scoped (`chrysalis.routes.json` only).
  */
@@ -111,7 +111,7 @@ function ensureBreeze(laravelRoot, enabled) {
     cwd: laravelRoot,
     stdio: "inherit",
   });
-  execSync("php artisan breeze:install blade --no-interaction", {
+  execSync("php artisan breeze:install blade --no-interaction --pest", {
     cwd: laravelRoot,
     stdio: "inherit",
   });

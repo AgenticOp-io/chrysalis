@@ -104,7 +104,7 @@ when running **`pnpm run scaffold:laravel-full`** (see root **`package.json`** a
 **`.github/workflows/ci.yml`**). Locally, either set that env var or run
 **`pnpm run scaffold:laravel-full:breeze`** (same as **`--with-breeze`** on the script).
 
-The scaffold runs **`composer require laravel/breeze --dev`**, **`php artisan breeze:install blade --no-interaction`**,
+The scaffold runs **`composer require laravel/breeze --dev`**, **`php artisan breeze:install blade --no-interaction --pest`**,
 **`php artisan migrate --force`**, then **`npm ci`/`npm install`** and **`npm run build`**, and finally
 re-syncs **`chrysalis-templates/`** so **`routes/web.php`** still loads **`routes/chrysalis.php`**.
 
