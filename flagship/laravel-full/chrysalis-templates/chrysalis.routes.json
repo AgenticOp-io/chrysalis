@@ -188,6 +188,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-ne-three-count",
+      "file": "chrysalis/handlers/ne_three_count_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
