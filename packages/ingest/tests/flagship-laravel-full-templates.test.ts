@@ -7,14 +7,14 @@ import { ingestDirectory } from "../src/index.js";
 const TEMPLATES = resolve(__dirname, "../../../flagship/laravel-full/chrysalis-templates");
 
 describe("flagship laravel-full chrysalis-templates", () => {
-  test("ingests twenty-four-route manifest with zero holes", async () => {
+  test("ingests twenty-five-route manifest with zero holes", async () => {
     const mod = await ingestDirectory(TEMPLATES);
     expect(mod.meta.sourceApp).toBe("laravel-full");
     let routeNodes = 0;
     walk(mod, (n) => {
       if (n.dialect === "web.request" && n.op === "route") routeNodes += 1;
     });
-    expect(routeNodes).toBe(24);
+    expect(routeNodes).toBe(25);
     expect(countHoles(mod)).toBe(0);
   });
 });

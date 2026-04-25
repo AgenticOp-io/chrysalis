@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D92 (Milestone 5 — `chrysalis-odd-count` template + oracle); D91 (Milestone 5 — `chrysalis-even-count` template + oracle); D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D93 (Milestone 5 — `chrysalis-gt-two-count` template + oracle); D92 (Milestone 5 — `chrysalis-odd-count` template + oracle); D91 (Milestone 5 — `chrysalis-even-count` template + oracle); D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1618,3 +1618,9 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   returning **`{"oddCount":2}`** on the seeded ids **1..3** table. Manifest, Laravel stub routes,
   **`verify-flagship-laravel-full`** (two **`GET`** captures), ingest + dual-emit parity tests, and README
   counts move to **twenty-four** template handlers. Same incremental oracle scope as **D86–D91**.
+
+- **2026-04-25 — D93** **Composer template greater-than filter count (`/chrysalis-gt-two-count`).**
+  Adds **`gt_two_count_show.php`**: **`SELECT COUNT(*) AS c FROM items WHERE id > 2`** via **`query_one`**,
+  returning **`{"gtTwoCount":1}`** on the seeded ids **1..3** table. Manifest, Laravel stub routes,
+  **`verify-flagship-laravel-full`** (two **`GET`** captures), ingest + dual-emit parity tests, and README
+  counts move to **twenty-five** template handlers. Same incremental oracle scope as **D86–D92**.
