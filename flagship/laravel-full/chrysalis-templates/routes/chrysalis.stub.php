@@ -109,6 +109,11 @@ Route::get("/chrysalis-sum-squares", function () {
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
 });
 
+Route::get("/chrysalis-even-count", function () {
+    $body = require base_path("chrysalis/handlers/even_count_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
 Route::post("/chrysalis-session/login", function () {
     $body = require base_path("chrysalis/handlers/session_login_post.php");
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);

@@ -116,6 +116,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-even-count",
+      "file": "chrysalis/handlers/even_count_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
