@@ -1532,3 +1532,8 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   records a second single-row read with inverted ordering (deterministic **`charlie`** on the template
   schema). Verify adds **`GET /chrysalis-last-item`** x2; template ingest/emit parity rises to sixteen
   handlers across Hono/Fastify.
+
+- **2026-04-24 — D81** **Composer template `SUM(id)` aggregate route (`/chrysalis-sum-ids`).**
+  Adds **`sum_ids_show.php`**: **`SELECT SUM(id) AS s FROM items`** via **`query_one`**, returning
+  **`{"sumIds":6}`** on the seeded three-row **`items`** table (ids 1..3). Verify adds
+  **`GET /chrysalis-sum-ids`** x2; template ingest/emit parity rises to seventeen handlers across Hono/Fastify.
