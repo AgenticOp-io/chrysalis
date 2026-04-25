@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Milestone 4: create a real Composer Laravel app under flagship/ for Chrysalis
- * adoption work. Output is gitignored (see repo .gitignore).
+ * Milestone 4–5: create a real Composer Laravel app under flagship/ for Chrysalis
+ * adoption work. Default output **`flagship/chrysalis-laravel-work/`** is the M5
+ * canonical full Laravel ingest root (D84). Output is gitignored (see repo .gitignore).
  *
  * After `composer create-project` (or when re-run on an existing tree), copies
  * `flagship/laravel-full/chrysalis-templates/` into the app: `chrysalis.routes.json`,

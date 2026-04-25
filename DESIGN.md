@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1552,5 +1552,13 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
 - **2026-04-25 — D83** **Milestone 5 roadmap shell (flagship depth, draft).** `ROADMAP.md`
   names **Milestone 5 — Flagship depth (draft)** as the successor track for former **Milestone 4+**
   items (tracked Composer flagship, optional Breeze, production auth where owned, larger corpora,
-  optional idiomaticity/residual-legacy gates). **No new product claims:** checklist is unchecked;
-  M4 v1 acceptance is unchanged (D82).
+  optional idiomaticity/residual-legacy gates). **No new product claims** at introduction beyond
+  naming the track; M4 v1 acceptance is unchanged (D82). The first concrete M5 checklist item
+  (canonical Composer worktree + CI) is recorded under **D84**.
+
+- **2026-04-25 — D84** **Milestone 5 phase 1 — canonical Composer Laravel worktree.** The repo
+  **starts** M5 by naming **`flagship/chrysalis-laravel-work/`** (materialized by
+  **`pnpm run scaffold:laravel-full`**, gitignored) as the **canonical full Laravel** ingest and
+  oracle root alongside the existing CI job **`verify flagship (laravel-full scaffold)`**.
+  **`flagship/laravel-min/`** remains the **Laravel-shaped** fast fixture and verify harness until a
+  later item explicitly merges or replaces it; no vendor tree is committed to git.

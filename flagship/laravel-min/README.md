@@ -1,5 +1,10 @@
 # laravel-min (Milestone 4 flagship skeleton)
 
+**Milestone 5 note:** this tree stays the **Laravel-shaped** fast regression fixture (nineteen routes,
+`verify:flagship`). The **canonical full Composer Laravel** ingest/oracle root is
+**`../chrysalis-laravel-work/`** — run **`pnpm run scaffold:laravel-full`** from the repo root (see
+**`../laravel-full/README.md`** and `DESIGN.md` D84).
+
 **Credentials (fixture only):** user `flagship`, password `secret`, CSRF body field
 `csrf=flagship_csrf_static` — for oracle/verify and local smoke tests, not real
 secrets.

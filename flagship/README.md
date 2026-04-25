@@ -1,8 +1,9 @@
-# Flagship migration (Milestone 4)
+# Flagship migration (Milestones 4–5)
 
-This directory will hold the **first real PHP application** Chrysalis tracks
+This directory holds the **first real PHP applications** Chrysalis tracks
 end-to-end in public: ingest roots, optional Oracle corpora, and notes on
-Laravel (or successor) layout.
+Laravel (or successor) layout. **Milestone 5** adds a **canonical Composer Laravel**
+worktree — see **Current tree** below.
 
 ## First target
 
@@ -54,13 +55,14 @@ fake scores; add JSON when a pipeline produces them.
   **`GET|POST /login`** (bcrypt + CSRF), **`POST /logout`**, **`GET /session/me`**; optional `composer install` for `vendor/` autoload; ingest/emit
   tests plus **`scripts/verify-flagship-laravel-min.mjs`** (Oracle → dual emit →
   replay) in CI job `verify-flagship-laravel-min`. Not a Composer Laravel
-  install; see `laravel-min/README.md` for the full-framework next step.
+  install; for the **full** tree see **`chrysalis-laravel-work/`** (`laravel-min/README.md`, D84).
 
 ## Status
 
 **Milestone 4 v1 pilot is complete** (see Milestone 4 in `ROADMAP.md` and `DESIGN.md` D82). The phased
 checklist (dashboard, `laravel-min` oracle + dual verify + migration/footprint, `laravel-full` templates +
-scaffold + CI) is fully checked. **Milestone 5 (draft)** covers full **Composer Laravel / Breeze** depth, production auth beyond the fixture,
+scaffold + CI) is fully checked. **Milestone 5 (in progress)** names **`chrysalis-laravel-work/`** as the
+canonical full Laravel root (D84) and covers **Composer Laravel / Breeze** depth, production auth beyond the fixture,
 larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
 `laravel-min/README.md` for the Laravel-shaped pilot.
 

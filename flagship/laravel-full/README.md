@@ -1,8 +1,9 @@
-# Composer Laravel (Milestone 4 adoption track)
+# Composer Laravel (Milestone 4–5 adoption track)
 
 This directory is **documentation and templates only**. It does **not** ship a
-`vendor/` tree. Use it together with `laravel-min` (Laravel-shaped oracle pilot)
-as the bridge toward a **real** `composer create-project laravel/laravel` app.
+`vendor/` tree. **`pnpm run scaffold:laravel-full`** materializes **`flagship/chrysalis-laravel-work/`**,
+the **Milestone 5** canonical full Laravel tree (gitignored; CI-gated). Use **`laravel-min`**
+alongside it as the Laravel-shaped fast fixture until those harnesses are consolidated.
 
 ## Why Chrysalis needs explicit route files
 
