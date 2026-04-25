@@ -1502,3 +1502,10 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   `ResponseFactory` resolved from the service container. Verify corpus adds
   `GET /chrysalis-framework` x2 and template ingest/emit parity rises to twelve handlers
   across Hono/Fastify.
+
+- **2026-04-24 — D77** **Composer template DB-first-item route (`/chrysalis-first-item`).**
+  Adds a second bounded SQL-read shape over the template-local SQLite surface:
+  `first_item_show.php` returns the first seeded item name from
+  `SELECT name FROM items ORDER BY id ASC LIMIT 1`. Verify corpus adds
+  `GET /chrysalis-first-item` x2 and template ingest/emit parity rises to thirteen
+  handlers across Hono/Fastify.

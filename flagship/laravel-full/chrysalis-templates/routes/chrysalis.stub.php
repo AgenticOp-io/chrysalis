@@ -59,6 +59,11 @@ Route::get("/chrysalis-framework", function () {
     return chrysalisFrameworkJson((string) $body);
 });
 
+Route::get("/chrysalis-first-item", function () {
+    $body = require base_path("chrysalis/handlers/first_item_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
 Route::post("/chrysalis-session/login", function () {
     $body = require base_path("chrysalis/handlers/session_login_post.php");
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);

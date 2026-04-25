@@ -6,7 +6,7 @@
  * Corpus: **`GET /chrysalis-ping`** (twice), **`GET /chrysalis-health.txt`** (twice),
  * **`GET /api/chrysalis-health`** (twice), **`GET /chrysalis-jump`** (302 manual),
  * **`GET /chrysalis-session/visit`** (twice), **`GET /chrysalis-hello?name=...`**
- * (twice), **`GET /chrysalis-count`** (twice),
+ * (twice), **`GET /chrysalis-count`** (twice), **`GET /chrysalis-first-item`** (twice),
  * **`GET /chrysalis-framework`** (twice),
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/login`** +
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/logout`** +
@@ -238,6 +238,12 @@ async function driveLaravelFullCorpus(port) {
     const r = await fetch(`${base}/chrysalis-framework`);
     if (!r.ok) {
       console.warn(`[verify-flagship-laravel-full] GET /chrysalis-framework returned ${r.status}`);
+    }
+  }
+  for (let i = 0; i < 2; i++) {
+    const r = await fetch(`${base}/chrysalis-first-item`);
+    if (!r.ok) {
+      console.warn(`[verify-flagship-laravel-full] GET /chrysalis-first-item returned ${r.status}`);
     }
   }
   const me0 = await fetch(`${base}/chrysalis-session/me`);

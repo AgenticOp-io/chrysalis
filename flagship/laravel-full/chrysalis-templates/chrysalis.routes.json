@@ -56,6 +56,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-first-item",
+      "file": "chrysalis/handlers/first_item_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
