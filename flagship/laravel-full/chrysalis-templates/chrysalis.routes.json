@@ -224,6 +224,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-gt-three-count",
+      "file": "chrysalis/handlers/gt_three_count_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
