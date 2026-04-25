@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1575,3 +1575,10 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   files listed in **`chrysalis.routes.json`** are translated; Breeze’s published PHP is ignored until
   explicitly routed in the manifest. **Not claimed:** ingest/verify parity on Breeze’s auth Blade stack
   (deferred ROADMAP item).
+
+- **2026-04-25 — D86** **Composer template `MIN(id)` aggregate route (`/chrysalis-min-id`).**
+  Adds **`min_id_show.php`**: **`SELECT MIN(id) AS m FROM items`** via **`query_one`**, returning
+  **`{"minId":1}`** on the seeded three-row **`items`** table. **`chrysalis.routes.json`**, **`routes/chrysalis.stub.php`**,
+  **`verify-flagship-laravel-full.mjs`** (two **`GET`** captures), ingest + dual-emit parity tests, and
+  README counts move to **eighteen** template handlers. Does **not** close the Milestone 5 “larger corpora /
+  sidecar gates” item — incremental oracle growth only.

@@ -437,6 +437,7 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
       **`GET /chrysalis-count`** + **`GET /chrysalis-framework`** + **`GET /chrysalis-first-item`** +
       **`GET /chrysalis-last-item`** +
       **`GET /chrysalis-items`** + **`GET /chrysalis-lib-count`** + **`GET /chrysalis-sum-ids`** +
+      **`GET /chrysalis-min-id`** +
       **`GET /chrysalis-session/visit`** + **`GET /chrysalis-session/me`** +
       **`POST /chrysalis-session/login`** + **`POST /chrysalis-session/logout`** +
       **`GET /chrysalis-hello`** + **`POST /chrysalis-echo`**;
@@ -449,7 +450,7 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
 
 ## Milestone 5 — Flagship depth
 
-**Status: in progress (phase 1 D84; Breeze coexistence D85).** This milestone **does not reopen** the M4 v1
+**Status: in progress (D84–D86: canonical worktree, Breeze coexistence, template oracle growth).** This milestone **does not reopen** the M4 v1
 checklist. Acceptance patterns (zero-hole manifests where we claim parity, verify
 when scripted, `chrysalis status` inputs documented) stay the same as M4 v1 unless
 `DESIGN.md` Decision Log says otherwise.
@@ -479,7 +480,9 @@ idiomaticity / residual-legacy JSON.
 - [ ] Production-shaped auth follow-ups (rotating CSRF, gateways, MFA/OAuth) where we
       choose to own them — emit holes until then.
 - [ ] Larger oracle corpora than scripted drivers; pipeline-owned **idiomaticity** and
-      **residual-legacy** JSON when those numbers should gate releases.
+      **residual-legacy** JSON when those numbers should gate releases. **Incremental (D86):**
+      **`GET /chrysalis-min-id`** (`MIN(id)` aggregate, manifest + **`verify:laravel-full`** x2) on
+      **`chrysalis-templates/`** — eighteen template routes, dual emit parity tests updated.
 
 **Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.
 
