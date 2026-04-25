@@ -18,7 +18,7 @@
  * **`GET /chrysalis-sum-squares`** (twice), **`GET /chrysalis-even-count`** (twice),
  * **`GET /chrysalis-odd-count`** (twice), **`GET /chrysalis-gt-two-count`** (twice),
  * **`GET /chrysalis-lt-three-count`** (twice), **`GET /chrysalis-gte-two-count`** (twice),
- * **`GET /chrysalis-lte-three-count`** (twice),
+ * **`GET /chrysalis-lte-three-count`** (twice), **`GET /chrysalis-ne-two-count`** (twice),
  * **`GET /chrysalis-framework`** (twice),
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/login`** +
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/logout`** +
@@ -346,6 +346,12 @@ async function driveLaravelFullCorpus(port) {
     const r = await fetch(`${base}/chrysalis-lte-three-count`);
     if (!r.ok) {
       console.warn(`[verify-flagship-laravel-full] GET /chrysalis-lte-three-count returned ${r.status}`);
+    }
+  }
+  for (let i = 0; i < 2; i++) {
+    const r = await fetch(`${base}/chrysalis-ne-two-count`);
+    if (!r.ok) {
+      console.warn(`[verify-flagship-laravel-full] GET /chrysalis-ne-two-count returned ${r.status}`);
     }
   }
   const me0 = await fetch(`${base}/chrysalis-session/me`);
