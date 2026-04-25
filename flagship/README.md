@@ -77,7 +77,8 @@ larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON â
 
 **`laravel-full` templates (M4 v1):** 50 manifest routes on committed **`chrysalis-templates/`**;
 ingest/emit parity tests expect **zero holes**; optional **`verify:laravel-full`** when the scaffolded
-Composer tree exists (see `laravel-full/README.md`).
+Composer tree exists (see `laravel-full/README.md`). Stress replay gate:
+**`pnpm run verify:laravel-full:stress`**.
 
 **Coverage / correctness** come from WebIR + verify reports (`chrysalis status`
 with `--project`, `--traces`, `--report`). **Idiomaticity** and **residual

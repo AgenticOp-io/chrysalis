@@ -17,6 +17,7 @@
     "verify:e2e": "node scripts/verify-tiny-blog.mjs",
     "verify:flagship": "node scripts/verify-flagship-laravel-min.mjs",
     "verify:laravel-full": "node scripts/verify-flagship-laravel-full.mjs",
+    "verify:laravel-full:stress": "node scripts/verify-flagship-laravel-full.mjs --stress-runs=3",
     "status:laravel-full": "node scripts/status-flagship-laravel-full.mjs",
     "scaffold:laravel-full": "node scripts/scaffold-flagship-laravel.mjs",
     "scaffold:laravel-full:breeze": "node scripts/scaffold-flagship-laravel.mjs --with-breeze",

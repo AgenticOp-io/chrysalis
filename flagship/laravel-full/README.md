@@ -89,6 +89,8 @@ Then:
    ingests the project root, dual-emits, and replays
    (same harness shape as `verify:flagship`). Traces land under
    **`traces/flagship-laravel-full/`**; reports under **`reports/verify-flagship-laravel-full/`**.
+   Stress option: run **`pnpm run verify:laravel-full:stress`** to replay each backend three
+   times (`--stress-runs=3`) and fail on report fingerprint drift.
 5. Optional status roll-up: **`pnpm run status:laravel-full`**
    (`scripts/status-flagship-laravel-full.mjs`). It skips when scaffold/traces/reports are missing;
    otherwise it gates `status-migration` and writes

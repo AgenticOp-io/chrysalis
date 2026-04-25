@@ -46,7 +46,8 @@ emit↔IR maps and richer attribution remain cross-cutting.
 **`GET`**s, **`/jump`**, fixture **login/logout/me**), and **`verify:flagship`**. **`flagship/laravel-full`**
 ships **`chrysalis-templates/`** (17 bounded template routes), **`pnpm run scaffold:laravel-full`**,
 and optional **`verify:laravel-full`** / **`status:laravel-full`** when **`chrysalis-laravel-work`** exists
-(see `flagship/laravel-full/README.md`).
+(see `flagship/laravel-full/README.md`). Stress replay gate:
+**`verify:laravel-full:stress`**.
 
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling

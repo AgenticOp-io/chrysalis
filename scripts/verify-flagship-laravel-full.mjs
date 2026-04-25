@@ -48,6 +48,10 @@
  * Ingest uses project-root **`chrysalis.routes.json`** (Chrysalis handlers); PHP docroot is
  * Laravel **`public/`**.
  *
+ * Optional stress mode:
+ * - `--stress-runs=N` (or `CHRYSALIS_VERIFY_STRESS_RUNS=N`) repeats replay N times
+ *   per backend and fails on report fingerprint drift.
+ *
  * Skips with exit 0 when:
  * - PHP is not on PATH
  * - Scaffold tree is missing **`vendor/autoload.php`** or **`public/index.php`**
@@ -57,6 +61,7 @@
  */
 
 import { execSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -92,6 +97,7 @@ const observeFallback = resolve(
 );
 const schemaSource = resolve(fixture, "chrysalis/schema.sql");
 const THRESHOLD = Number.parseFloat(process.env.VERIFY_THRESHOLD ?? "0.95");
+const STRESS_RUNS = parseStressRuns();
 const OBS_PORT = 18082;
 
 try {
@@ -192,30 +198,49 @@ let exitCode = 0;
 for (const b of backends) {
   console.log(`\n[verify-flagship-laravel-full] —— replay vs ${b.id} ——`);
   const fetchFn = await loadEmittedFetch(b.dir, b.kind);
-  const outcomes = await replayCorpus(corpus, {
-    baseUrl,
-    fetch: fetchFn,
-    recordedSqlReplay: true,
-    module: webirModule,
-  });
-  const report = buildReport(outcomes);
   const outDir = join(reportRoot, b.id);
-  const written = writeReport(outDir, report, outcomes);
-  console.log(`[verify-flagship-laravel-full] wrote ${written.length} report file(s) under ${outDir}`);
-  console.log(
-    `[verify-flagship-laravel-full] ${b.id} aggregate: ${(report.aggregate.correctness * 100).toFixed(1)}%  (${report.aggregate.framesPassed}/${report.aggregate.framesTotal})`,
-  );
-
-  if (report.aggregate.correctness + 1e-9 < THRESHOLD) {
-    console.error(
-      `[verify-flagship-laravel-full] ${b.id}: correctness ${report.aggregate.correctness.toFixed(3)} below threshold ${THRESHOLD}`,
+  let baselineFingerprint = "";
+  for (let run = 1; run <= STRESS_RUNS; run++) {
+    resetEmittedBackendState(b.dir);
+    const outcomes = await replayCorpus(corpus, {
+      baseUrl,
+      fetch: fetchFn,
+      recordedSqlReplay: true,
+      module: webirModule,
+    });
+    const report = buildReport(outcomes);
+    const runOutDir = STRESS_RUNS === 1 ? outDir : join(outDir, `run-${run}`);
+    const written = writeReport(runOutDir, report, outcomes);
+    console.log(`[verify-flagship-laravel-full] wrote ${written.length} report file(s) under ${runOutDir}`);
+    console.log(
+      `[verify-flagship-laravel-full] ${b.id} run ${run}/${STRESS_RUNS}: ${(report.aggregate.correctness * 100).toFixed(1)}%  (${report.aggregate.framesPassed}/${report.aggregate.framesTotal})`,
     );
-    exitCode = 1;
+    const fp = fingerprintReport(report);
+    if (run === 1) {
+      baselineFingerprint = fp;
+    } else if (baselineFingerprint !== fp) {
+      console.error(
+        `[verify-flagship-laravel-full] ${b.id} run ${run}: report fingerprint drift detected vs run 1`,
+      );
+      exitCode = 1;
+    }
+    if (report.aggregate.correctness + 1e-9 < THRESHOLD) {
+      console.error(
+        `[verify-flagship-laravel-full] ${b.id} run ${run}: correctness ${report.aggregate.correctness.toFixed(3)} below threshold ${THRESHOLD}`,
+      );
+      exitCode = 1;
+    }
   }
 }
 
 if (exitCode === 0) {
-  console.log("\n[verify-flagship-laravel-full] dual-backend gate OK (chrysalis-laravel-work).");
+  if (STRESS_RUNS > 1) {
+    console.log(
+      `\n[verify-flagship-laravel-full] dual-backend stress gate OK (${STRESS_RUNS} runs, chrysalis-laravel-work).`,
+    );
+  } else {
+    console.log("\n[verify-flagship-laravel-full] dual-backend gate OK (chrysalis-laravel-work).");
+  }
 }
 
 process.exit(exitCode);
@@ -580,6 +605,36 @@ function applyFlagshipUserPassword(dbPath) {
     db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hash, "flagship");
   }
   db.close();
+}
+
+function resetEmittedBackendState(outAbs) {
+  const dbPath = join(outAbs, "blog.sqlite");
+  if (existsSync(dbPath)) rmSync(dbPath);
+  const schemaSql = readFileSync(schemaSource, "utf8");
+  const db = new DatabaseSync(dbPath);
+  db.exec(schemaSql);
+  db.close();
+  applyFlagshipUserPassword(dbPath);
+  const sessDir = join(outAbs, "chrysalis-sessions");
+  if (existsSync(sessDir)) rmSync(sessDir, { recursive: true, force: true });
+  mkdirSync(sessDir, { recursive: true });
+}
+
+/**
+ * @param {ReturnType<typeof buildReport>} report
+ */
+function fingerprintReport(report) {
+  return createHash("sha256").update(JSON.stringify(report)).digest("hex");
+}
+
+function parseStressRuns() {
+  const arg = process.argv.find((a) => a.startsWith("--stress-runs="));
+  const raw = arg ? arg.slice("--stress-runs=".length) : (process.env.CHRYSALIS_VERIFY_STRESS_RUNS ?? "1");
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    throw new Error(`invalid stress run count: ${raw}`);
+  }
+  return parsed;
 }
 
 function initLaravelFullSqliteDb(fixtureRoot) {
