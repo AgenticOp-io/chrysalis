@@ -254,6 +254,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-ne-zero-count",
+      "file": "chrysalis/handlers/ne_zero_count_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
