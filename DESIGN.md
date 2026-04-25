@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1582,3 +1582,9 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   **`verify-flagship-laravel-full.mjs`** (two **`GET`** captures), ingest + dual-emit parity tests, and
   README counts move to **eighteen** template handlers. Does **not** close the Milestone 5 “larger corpora /
   sidecar gates” item — incremental oracle growth only.
+
+- **2026-04-25 — D87** **Composer template `MAX(id)` aggregate route (`/chrysalis-max-id`).**
+  Adds **`max_id_show.php`**: **`SELECT MAX(id) AS x FROM items`** via **`query_one`**, returning
+  **`{"maxId":3}`** on the seeded **`items`** table. Manifest, Laravel stub routes, **`verify-flagship-laravel-full`**
+  (two **`GET`** captures), ingest + dual-emit parity tests, and README counts move to **nineteen**
+  template handlers. Same “incremental corpus only” scope as **D86**.
