@@ -5,7 +5,7 @@
 ## 0. Before you do anything
 
 1. Read `DESIGN.md` in full. It is the north star.
-2. Read `ROADMAP.md` to know which milestone is active (called out at the top of that file).
+2. Read `ROADMAP.md` to know which milestone is active (file header and Milestone 4 section for flagship follow-ons).
 3. Read the `README.md` of the specific package you're about to touch.
 4. If your plan contradicts `DESIGN.md`, do one of two things:
    - **Change `DESIGN.md` first**, with a new entry in the Decision Log section, or

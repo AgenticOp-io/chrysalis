@@ -32,20 +32,21 @@ including `SELECT *`, dual-stack verify, canary chimera). See `ROADMAP.md` for
 explicit post-M2 deferrals (vendor Composer, `mysqli` oracle shim, bare inner
 N+1 without assign).
 
-**Current engineering focus: Milestone 4 — First real app** (flagship Laravel
-pilot, wider corpus, monotonic migration metrics on `main`). Milestone 3 repair
-loop (verify-gated `chrysalis repair`, optional LLM, hole patches) is closed for
-v1; emit↔IR maps and richer attribution remain cross-cutting.
+**Milestone 4 v1 pilot is closed** (2026-04-25): flagship **Laravel-shaped** (`flagship/laravel-min`)
+and **Composer adoption templates** (`flagship/laravel-full`) meet the phased acceptance in
+`ROADMAP.md` — ingest/emit **zero holes** on committed manifests, oracle + dual verify in CI where
+scripted, migration + oracle-footprint artifacts, and `chrysalis status --json` inputs documented in
+`flagship/README.md`. **Current focus:** **Milestone 4+** flagship expansion (Composer/Breeze depth,
+larger corpora, optional idiomaticity/residual-legacy sidecars) — see Milestone 4 in `ROADMAP.md`.
+Milestone 3 repair loop (verify-gated `chrysalis repair`, optional LLM, hole patches) is closed for v1;
+emit↔IR maps and richer attribution remain cross-cutting.
 
-**Milestone 4** (first real flagship app) is underway in parallel: `flagship/laravel-min`
-is a Laravel-shaped ingest/emit slice with **Composer autoload**, **SQLite
-reads** (`GET /items`, `GET /count`), **`GET /hello`** (query string), **`POST /echo`**, a **PHP session counter**
-(`GET /session/visit`), **`GET /api/health`** (JSON), **`GET /robots.txt`**, **`GET /humans.txt`**, **`GET /.well-known/security.txt`**, **`GET /sitemap.xml`**, **`GET /css/pilot.css`**, **`GET /manifest.webmanifest`**, **`GET /jump`** (302 redirect), **`GET|POST /login`** + **`POST /logout`**
-+ **`GET /session/me`** (bcrypt + CSRF fixture auth), and a **multi-hit oracle driver** in `verify:flagship` (see
-`flagship/README.md`). `chrysalis status --json` exposes a `migration` object
-for coverage, correctness, and optional sidecars; full Composer Laravel remains
-the next expansion (**`flagship/laravel-full/README.md`**, **`pnpm run scaffold:laravel-full`**,
-**`pnpm run verify:laravel-full`** / **`pnpm run status:laravel-full`** when the scaffold tree exists).
+**Flagship snapshot:** `flagship/laravel-min` carries **Composer autoload**, **SQLite** routes
+(**`/items`**, **`/count`**, **`/hello`**, **`POST /echo`**, **`/session/visit`**, **`/api/health`**, metadata
+**`GET`**s, **`/jump`**, fixture **login/logout/me**), and **`verify:flagship`**. **`flagship/laravel-full`**
+ships **`chrysalis-templates/`** (17 bounded template routes), **`pnpm run scaffold:laravel-full`**,
+and optional **`verify:laravel-full`** / **`status:laravel-full`** when **`chrysalis-laravel-work`** exists
+(see `flagship/laravel-full/README.md`).
 
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling

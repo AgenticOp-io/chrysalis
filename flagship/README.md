@@ -58,12 +58,14 @@ fake scores; add JSON when a pipeline produces them.
 
 ## Status
 
-Full **Composer Laravel / Breeze** adoption is still open: start from
-`laravel-full/README.md` and the **`scaffold:laravel-full`** script; keep using
-`laravel-min/README.md` for the shaped pilot. The Milestone 4 **phased checklist**
-in `ROADMAP.md` remains satisfied for `laravel-min`.
+**Milestone 4 v1 pilot is complete** (see Milestone 4 in `ROADMAP.md` and `DESIGN.md` D82). The phased
+checklist (dashboard, `laravel-min` oracle + dual verify + migration/footprint, `laravel-full` templates +
+scaffold + CI) is fully checked. **Milestone 4+ follow-ons** remain: full **Composer Laravel / Breeze**
+depth, production auth beyond the fixture, larger corpora, and pipeline-owned **idiomaticity** /
+**residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
+`laravel-min/README.md` for the Laravel-shaped pilot.
 
-**Pilot snapshot (2026-04-24; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`)** — for regression triage and CI artifacts:
+**Pilot snapshot — `laravel-min` (2026-04-24; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`)** — for regression triage and CI artifacts:
 
 | Item | Value |
 |------|--------|
@@ -72,16 +74,20 @@ in `ROADMAP.md` remains satisfied for `laravel-min`.
 | Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** |
 | Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable) |
 
+**`laravel-full` templates (M4 v1):** 17 manifest routes on committed **`chrysalis-templates/`**;
+ingest/emit parity tests expect **zero holes**; optional **`verify:laravel-full`** when the scaffolded
+Composer tree exists (see `laravel-full/README.md`).
+
 **Coverage / correctness** come from WebIR + verify reports (`chrysalis status`
 with `--project`, `--traces`, `--report`). **Idiomaticity** and **residual
 legacy** stay optional until you add JSON under `--migration-reports` (see
 `laravel-min/migration-reports/README.md`); when either metric moves in a
 material way, extend this table or add a dated one-line note below.
 
-Still intentionally open: **Composer Laravel** and **full** web auth (rotating
-CSRF, gateways, MFA/OAuth), a **larger** oracle corpus than the scripted driver,
-and pipeline-owned **idiomaticity** / **residual-legacy** scores. This pilot already
-uses **bcrypt** + **CSRF field** + **logout** on a deterministic fixture user.
+**Milestone 4+ (not v1-gated):** deeper **Composer Laravel** / **Breeze** integration, **full** web auth
+(rotating CSRF, gateways, MFA/OAuth), a **larger** oracle corpus than the scripted drivers, and
+pipeline-owned **idiomaticity** / **residual-legacy** scores. The v1 pilots already exercise **bcrypt** +
+**CSRF field** + **logout** on deterministic fixture users where applicable.
 
 When the emitted stack diverges from the oracle, use **`chrysalis repair`**
 (see `packages/repair` and `ROADMAP` Milestone 3) against the same traces and

@@ -5,8 +5,11 @@
 Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
-**Active milestone: Milestone 4 — First real app.** Milestones 0–3 are complete.
-Milestone 2 follow-ups that remain intentionally open-ended (Composer vendor
+**Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
+Milestone 4 below) meet the scoped acceptance. **Current engineering focus:** flagship
+expansion (Composer Laravel depth, optional Breeze, larger corpora, optional
+migration sidecars) — see **Milestone 4+ follow-ons** in that section. Milestone 2
+follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
 confidence) stay cross-cutting; repair-loop follow-ons (richer attribution,
 composite proposers) are optional and must not weaken the verify gate.
@@ -352,10 +355,21 @@ remains a **stub** when `--llm` is not passed (by design).
 
 ---
 
-## Milestone 4 — First real app (open-ended)
+## Milestone 4 — First real app
 
-**Goal:** one public flagship migration with the four success metrics visible on
-every commit (see `DESIGN.md` and `chrysalis status` → `migration`).
+**Milestone 4 v1 pilot — status: COMPLETE (2026-04-25).** The **phased checklist**
+below is fully checked: `laravel-min` ships a Laravel-shaped, Composer-autoloaded,
+oracle-verified, dual-emit pilot with migration + footprint artifacts in CI;
+`laravel-full` ships a **bounded** Composer adoption track (`chrysalis-templates/`,
+scaffold, optional verify/status, dedicated CI). Ingest/emit parity for both
+slices stays **zero-hole** on the committed manifests. This closes **M4 v1** as
+the “first real app *pilot*” — not full Breeze production parity (see follow-ons).
+
+**Goal (north star, unchanged):** one public flagship migration with the four
+success metrics visible on every commit (see `DESIGN.md` and `chrysalis status`
+→ `migration`). **v1 delivered:** coverage + correctness are **CI-gated and
+machine-readable** for both pilots; idiomaticity + residual legacy remain
+**optional sidecars** (documented under `flagship/laravel-min/migration-reports/`).
 
 **Official first target (v1):** a **small Laravel** app (Breeze or similar
 starter + a handful of routes we control). Tractable routing, Composer
@@ -364,12 +378,19 @@ autoload, and Blade/HTTP patterns without WordPress-style global hooks.
 **Tracker:** `flagship/README.md` (vendor tree and CI wiring land there as the
 app is adopted).
 
+**Milestone 4+ follow-ons** (explicitly **not** part of M4 v1 closure):
+- Replace **`laravel-min`** skeleton with a **tracked** Composer tree (or grow
+  **`chrysalis-laravel-work`** into the canonical demo) and optional **Breeze** UI.
+- Production-shaped auth (rotating CSRF, gateways, MFA/OAuth) beyond the fixture.
+- Larger oracle corpora than the scripted drivers; pipeline-owned **idiomaticity**
+  and **residual-legacy** JSON when those numbers should gate releases.
+
 Candidates after the Laravel pilot (rough tractability order):
 2. osTicket
 3. phpBB (hard; good stress test)
 4. WordPress — **not yet** (dedicated design spike: plugins, `wp_*`, hooks)
 
-**Phased checklist**
+**Phased checklist (M4 v1 — all complete)**
 
 - [x] Dashboard roll-up: `chrysalis status` exposes `migration` (IR coverage
       when `--project` is set; correctness from verify reports; optional
@@ -410,11 +431,9 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
       two `GET /session/visit`, two `GET /api/health`, then session/`login`/`logout` chain as in `verify-flagship-laravel-min.mjs`; base loop includes `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, and `/manifest.webmanifest`).
       Optional **idiomaticity** / **residual-legacy** JSON hooks for `chrysalis status`
       are documented under `flagship/laravel-min/migration-reports/README.md`.
-      **Still open:** replace the skeleton with
-Composer Laravel / Breeze, full-stack auth (rotating CSRF, gateways, MFA/OAuth),
-even larger corpora than the scripted driver, and track
-monotonic **coverage / correctness / idiomaticity / residual-legacy** on `main`
-with a short narrative in `flagship/README.md`.
+      **Milestone 4+ follow-ons** for this pilot (Composer/Breeze depth, production auth,
+      larger corpora, optional sidecar metrics) are listed under **Milestone 4+ follow-ons**
+      above; `flagship/README.md` carries the dated **pilot snapshot** table for regression triage.
 
 - [x] **Composer Laravel flagship wiring** — `flagship/laravel-full` adoption docs +
       **`pnpm run scaffold:laravel-full`** (gitignored **`flagship/chrysalis-laravel-work/`**);

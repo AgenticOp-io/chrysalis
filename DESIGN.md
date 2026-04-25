@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D45 (Milestone 2 closure); D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1537,3 +1537,14 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   Adds **`sum_ids_show.php`**: **`SELECT SUM(id) AS s FROM items`** via **`query_one`**, returning
   **`{"sumIds":6}`** on the seeded three-row **`items`** table (ids 1..3). Verify adds
   **`GET /chrysalis-sum-ids`** x2; template ingest/emit parity rises to seventeen handlers across Hono/Fastify.
+
+- **2026-04-25 — D82** **Milestone 4 v1 pilot closure.** The **Milestone 4 phased checklist**
+  in `ROADMAP.md` is complete: **`flagship/laravel-min`** (Laravel-shaped tree, Composer autoload,
+  multi-route oracle driver, dual emit + verify in CI, migration + oracle-footprint artifacts) and
+  **`flagship/laravel-full`** (bounded **`chrysalis-templates/`** slice, scaffold, optional verify/status,
+  dedicated CI). **Coverage** and **correctness** are reproducible from `chrysalis status --json` inputs
+  documented in `flagship/README.md`; **idiomaticity** and **residual legacy** remain optional sidecars
+  until a pipeline owns those files. **Explicitly not claimed as closed:** full Composer **Breeze**
+  product surface, production-grade rotating CSRF / gateways / MFA, and arbitrary **`lib/`** PHP callee
+  emission without emit-time holes (see D79). Follow-on work stays under **Milestone 4+** in `ROADMAP.md`
+  until a future milestone split is warranted.
