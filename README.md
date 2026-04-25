@@ -36,8 +36,8 @@ N+1 without assign).
 and **Composer adoption templates** (`flagship/laravel-full`) meet the phased acceptance in
 `ROADMAP.md` — ingest/emit **zero holes** on committed manifests, oracle + dual verify in CI where
 scripted, migration + oracle-footprint artifacts, and `chrysalis status --json` inputs documented in
-`flagship/README.md`. **Current focus:** **Milestone 4+** flagship expansion (Composer/Breeze depth,
-larger corpora, optional idiomaticity/residual-legacy sidecars) — see Milestone 4 in `ROADMAP.md`.
+`flagship/README.md`. **Current focus:** **Milestone 5 (draft)** — flagship Composer depth, optional Breeze, larger corpora,
+optional sidecar gates — see `ROADMAP.md`.
 Milestone 3 repair loop (verify-gated `chrysalis repair`, optional LLM, hole patches) is closed for v1;
 emit↔IR maps and richer attribution remain cross-cutting.
 

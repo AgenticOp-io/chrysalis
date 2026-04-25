@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1548,3 +1548,9 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   product surface, production-grade rotating CSRF / gateways / MFA, and arbitrary **`lib/`** PHP callee
   emission without emit-time holes (see D79). Follow-on work stays under **Milestone 4+** in `ROADMAP.md`
   until a future milestone split is warranted.
+
+- **2026-04-25 — D83** **Milestone 5 roadmap shell (flagship depth, draft).** `ROADMAP.md`
+  names **Milestone 5 — Flagship depth (draft)** as the successor track for former **Milestone 4+**
+  items (tracked Composer flagship, optional Breeze, production auth where owned, larger corpora,
+  optional idiomaticity/residual-legacy gates). **No new product claims:** checklist is unchecked;
+  M4 v1 acceptance is unchanged (D82).

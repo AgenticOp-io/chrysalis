@@ -6,9 +6,9 @@ Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
 **Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
-Milestone 4 below) meet the scoped acceptance. **Current engineering focus:** flagship
-expansion (Composer Laravel depth, optional Breeze, larger corpora, optional
-migration sidecars) — see **Milestone 4+ follow-ons** in that section. Milestone 2
+Milestone 4 below) meet the scoped acceptance. **Current engineering focus:**
+**Milestone 5 (draft)** — flagship Composer depth, optional Breeze, larger corpora,
+optional migration sidecars (see below). Milestone 2
 follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
 confidence) stay cross-cutting; repair-loop follow-ons (richer attribution,
@@ -378,12 +378,7 @@ autoload, and Blade/HTTP patterns without WordPress-style global hooks.
 **Tracker:** `flagship/README.md` (vendor tree and CI wiring land there as the
 app is adopted).
 
-**Milestone 4+ follow-ons** (explicitly **not** part of M4 v1 closure):
-- Replace **`laravel-min`** skeleton with a **tracked** Composer tree (or grow
-  **`chrysalis-laravel-work`** into the canonical demo) and optional **Breeze** UI.
-- Production-shaped auth (rotating CSRF, gateways, MFA/OAuth) beyond the fixture.
-- Larger oracle corpora than the scripted drivers; pipeline-owned **idiomaticity**
-  and **residual-legacy** JSON when those numbers should gate releases.
+**Milestone 4+ follow-ons** — the working checklist now lives under **Milestone 5 — Flagship depth (draft)** (section after the M4 v1 phased checklist). This heading stays for historical links and grep.
 
 Candidates after the Laravel pilot (rough tractability order):
 2. osTicket
@@ -431,9 +426,8 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
       two `GET /session/visit`, two `GET /api/health`, then session/`login`/`logout` chain as in `verify-flagship-laravel-min.mjs`; base loop includes `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, and `/manifest.webmanifest`).
       Optional **idiomaticity** / **residual-legacy** JSON hooks for `chrysalis status`
       are documented under `flagship/laravel-min/migration-reports/README.md`.
-      **Milestone 4+ follow-ons** for this pilot (Composer/Breeze depth, production auth,
-      larger corpora, optional sidecar metrics) are listed under **Milestone 4+ follow-ons**
-      above; `flagship/README.md` carries the dated **pilot snapshot** table for regression triage.
+      **Milestone 5 (draft)** covers follow-on work (Composer/Breeze depth, production auth,
+      larger corpora, optional sidecar metrics); `flagship/README.md` carries the dated **pilot snapshot** table for regression triage.
 
 - [x] **Composer Laravel flagship wiring** — `flagship/laravel-full` adoption docs +
       **`pnpm run scaffold:laravel-full`** (gitignored **`flagship/chrysalis-laravel-work/`**);
@@ -450,6 +444,32 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
       **`pnpm run status:laravel-full`** (both optional; skip when scaffold traces/reports are absent);
       CI now has a dedicated **`verify flagship (laravel-full scaffold)`** job with cache-backed
       scaffold reuse.
+
+---
+
+## Milestone 5 — Flagship depth (draft)
+
+**Status: not started — scope shell only.** This milestone **does not reopen** the M4 v1
+checklist; it carries the former **Milestone 4+ follow-ons** into a named track so work
+items have a home. Acceptance patterns (zero-hole manifests where we claim parity, verify
+when scripted, `chrysalis status` inputs documented) stay the same as M4 v1 unless
+`DESIGN.md` Decision Log says otherwise.
+
+**Goal:** deepen the **tracked** Composer flagship (`laravel-min` replacement or canonical
+**`chrysalis-laravel-work`**) toward real starter-kit surfaces, richer oracle corpora, and
+optional release gates for idiomaticity / residual-legacy JSON.
+
+**Draft checklist** (lifted from Milestone 4+; reorder as we learn):
+
+- [ ] Replace or grow **`laravel-min`** into a **tracked** Composer tree (or establish
+      **`chrysalis-laravel-work`** as the canonical demo) with CI that matches that choice.
+- [ ] Optional **Breeze** (or similar) UI slice behind the same verify + migration story.
+- [ ] Production-shaped auth follow-ups (rotating CSRF, gateways, MFA/OAuth) where we
+      choose to own them — emit holes until then.
+- [ ] Larger oracle corpora than scripted drivers; pipeline-owned **idiomaticity** and
+      **residual-legacy** JSON when those numbers should gate releases.
+
+**Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.
 
 ---
 

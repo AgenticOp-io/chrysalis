@@ -60,9 +60,8 @@ fake scores; add JSON when a pipeline produces them.
 
 **Milestone 4 v1 pilot is complete** (see Milestone 4 in `ROADMAP.md` and `DESIGN.md` D82). The phased
 checklist (dashboard, `laravel-min` oracle + dual verify + migration/footprint, `laravel-full` templates +
-scaffold + CI) is fully checked. **Milestone 4+ follow-ons** remain: full **Composer Laravel / Breeze**
-depth, production auth beyond the fixture, larger corpora, and pipeline-owned **idiomaticity** /
-**residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
+scaffold + CI) is fully checked. **Milestone 5 (draft)** covers full **Composer Laravel / Breeze** depth, production auth beyond the fixture,
+larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
 `laravel-min/README.md` for the Laravel-shaped pilot.
 
 **Pilot snapshot — `laravel-min` (2026-04-24; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`)** — for regression triage and CI artifacts:
