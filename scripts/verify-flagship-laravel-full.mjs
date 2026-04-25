@@ -70,6 +70,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { ingestDirectory } from "../packages/ingest/dist/index.js";
 import {
+  groupByRoute,
   loadObserveConfig,
   readCorpus,
   startObserver,
@@ -150,6 +151,7 @@ try {
 
 const corpus = readCorpus({ root: traceDir });
 console.log(`[verify-flagship-laravel-full] corpus: ${corpus.traces.length} traces`);
+assertCorpusSemantics(corpus);
 
 const webirModule = await ingestDirectory(fixture);
 
@@ -635,6 +637,35 @@ function parseStressRuns() {
     throw new Error(`invalid stress run count: ${raw}`);
   }
   return parsed;
+}
+
+function assertCorpusSemantics(corpus) {
+  const byRoute = groupByRoute(corpus);
+  assertRouteBody(byRoute, "GET /chrysalis-items-snapshot", '{"itemsSnapshot":{"count":3,"minId":1,"maxId":3,"sumId":6}}');
+  assertRouteBody(byRoute, "GET /chrysalis-items-group-parity", '{"parityCounts":{"even":1,"odd":2}}');
+  assertRouteBody(byRoute, "GET /chrysalis-items-cte-rollup", '{"cteRollup":{"count":3,"sumId":6,"avgId":2}}');
+  assertRouteBody(byRoute, "GET /chrysalis-recursive-stress", '{"recursiveStress":{"maxN":30,"sumN":465}}');
+}
+
+function assertRouteBody(byRoute, routeSig, expectedBody) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship-laravel-full] missing traces for ${routeSig}`);
+  }
+  for (const trace of traces) {
+    const response = trace.events.find((e) => e.type === "http.response");
+    if (!response || response.type !== "http.response") {
+      throw new Error(`[verify-flagship-laravel-full] missing http.response event for ${routeSig}`);
+    }
+    if (response.status !== 200) {
+      throw new Error(`[verify-flagship-laravel-full] ${routeSig} expected status 200, got ${response.status}`);
+    }
+    if (response.body !== expectedBody) {
+      throw new Error(
+        `[verify-flagship-laravel-full] ${routeSig} body mismatch; expected ${expectedBody}, got ${response.body}`,
+      );
+    }
+  }
 }
 
 function initLaravelFullSqliteDb(fixtureRoot) {

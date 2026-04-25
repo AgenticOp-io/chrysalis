@@ -514,7 +514,9 @@ idiomaticity / residual-legacy JSON.
       / **`GET /chrysalis-recursive-stress`**
       (`MIN`/`MAX`/`ROUND(AVG(id))`/`MAX(id)-MIN(id)`/`SUM(id*id)` + mixed
       `COUNT/MIN/MAX/SUM` snapshot aggregates, manifest + **`verify:laravel-full`**
-      + deterministic count/snapshot/group/CTE/recursive routes x2 each) on **`chrysalis-templates/`** — **fifty**
+      + deterministic count/snapshot/group/CTE/recursive routes x2 each, plus
+      stress replay (`verify:laravel-full:stress`) and semantic body assertions
+      on high-complexity routes in the verify harness) on **`chrysalis-templates/`** — **fifty**
       template routes, dual emit parity tests updated.
 
 **Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.
