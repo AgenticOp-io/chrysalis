@@ -387,11 +387,11 @@ Candidates after the Laravel pilot (rough tractability order):
       `--json`, `reports/oracle-footprint.json` under `--project` — D39/D40)
 
 **Pilot slice status:** `laravel-min` satisfies the phased checklist (dashboard,
-ingest/emit, dual verify, migration artifact). **v1.1–v1.2:** `GET /health` plus
-`GET /items` backed by SQLite (`schema.sql` → `data/app.sqlite`, same seed into
-emitted `blog.sqlite` for SQL replay); `composer.json` + CI `composer install`
-so `vendor/autoload.php` loads `app/autoload.php`; verify script drives a **six-hit**
-route mix for a wider oracle corpus. **Still open:** replace the skeleton with
+ingest/emit, dual verify, migration artifact). **v1.1–v1.3:** `GET /health`,
+`GET /items` (`query_all`), **`GET /count`** (`query_one` aggregate) on SQLite
+(`schema.sql` → `data/app.sqlite`, same seed into emitted `blog.sqlite` for SQL
+replay); `composer.json` + CI `composer install` loads `vendor/autoload.php`;
+verify script drives an **eight-hit** route mix across four paths. **Still open:** replace the skeleton with
 Composer Laravel / Breeze, session-aware routes, larger corpora, and track
 monotonic **coverage / correctness / idiomaticity / residual-legacy** on `main`
 with a short narrative in `flagship/README.md`.

@@ -13,7 +13,7 @@ describe("flagship laravel-min", () => {
     walk(mod, (n) => {
       if (n.dialect === "web.request" && n.op === "route") routeNodes += 1;
     });
-    expect(routeNodes).toBe(3);
+    expect(routeNodes).toBe(4);
     expect(countHoles(mod)).toBe(0);
   });
 });

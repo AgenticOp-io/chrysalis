@@ -39,7 +39,7 @@ v1; emit↔IR maps and richer attribution remain cross-cutting.
 
 **Milestone 4** (first real flagship app) is underway in parallel: `flagship/laravel-min`
 is a Laravel-shaped ingest/emit slice with **Composer autoload**, **SQLite
-`GET /items`**, and a **multi-hit oracle driver** in `verify:flagship` (see
+reads** (`GET /items`, `GET /count`), and a **multi-hit oracle driver** in `verify:flagship` (see
 `flagship/README.md`). `chrysalis status --json` exposes a `migration` object
 for coverage, correctness, and optional sidecars; full Composer Laravel remains
 the next expansion.

@@ -1333,3 +1333,10 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   same DDL+DML into each emitted **`blog.sqlite`**, and **drives six HTTP hits**
   across three routes before dual-backend replay — stretching the corpus while
   keeping the existing correctness gate.
+
+- **2026-04-24 — D51** **`laravel-min` `GET /count` (`query_one`).** Adds a fourth
+  manifest route that reads **`SELECT COUNT(*) AS c FROM items`** via the same
+  **`query_one`** lowering as tiny-blog (read-only aggregate, safe for oracle +
+  dual emit replay). The flagship verify driver now exercises **four routes**
+  with **eight sequential hits** before replay, further stress-testing routing,
+  SQL capture, and migration status without mutating fixture rows during capture.

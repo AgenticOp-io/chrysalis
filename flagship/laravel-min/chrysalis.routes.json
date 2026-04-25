@@ -18,6 +18,12 @@
       "path": "/items",
       "file": "app/Http/Handlers/items_list.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/count",
+      "file": "app/Http/Handlers/items_count.php",
+      "pathParams": []
     }
   ]
 }

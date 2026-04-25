@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Milestone 4: Oracle capture + dual emit (Hono + Fastify) + in-process verify
- * for `flagship/laravel-min` (GET `/`, `/health`, `/items` + widened capture loop).
+ * for `flagship/laravel-min` (GET `/`, `/health`, `/items`, `/count` + widened capture loop).
  *
  * PHP's document root is `public/` (Laravel-shaped); ingest manifest lives at
  * project root (`chrysalis.routes.json`).
@@ -189,7 +189,16 @@ function initLaravelMinSqliteDb(fixtureRoot) {
 
 async function driveLaravelMinCorpus(port) {
   const base = `http://127.0.0.1:${port}`;
-  const paths = ["/", "/health", "/items", "/health", "/items", "/"];
+  const paths = [
+    "/",
+    "/health",
+    "/items",
+    "/count",
+    "/items",
+    "/count",
+    "/health",
+    "/",
+  ];
   for (const p of paths) {
     const r = await fetch(`${base}${p}`);
     if (!r.ok) {

@@ -1,8 +1,8 @@
 # laravel-min (Milestone 4 flagship skeleton)
 
 This is **not** a full Composer/Laravel install. It is a **Laravel-shaped**
-directory layout with three procedural routes (`GET /`, `GET /health`,
-`GET /items`) plus a **Composer `autoload.files`** entry so CI can run
+directory layout with four procedural routes (`GET /`, `GET /health`,
+`GET /items`, `GET /count`) plus a **Composer `autoload.files`** entry so CI can run
 `composer install` and `public/index.php` loads `vendor/autoload.php` when
 present.
 

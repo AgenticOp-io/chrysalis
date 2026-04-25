@@ -27,6 +27,11 @@ if ($method === 'GET' && $path === '/items') {
     exit;
 }
 
+if ($method === 'GET' && $path === '/count') {
+    require dirname(__DIR__) . '/app/Http/Handlers/items_count.php';
+    exit;
+}
+
 http_response_code(404);
 header('Content-Type: text/plain; charset=utf-8');
 echo 'Not Found';
