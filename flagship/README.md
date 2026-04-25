@@ -42,7 +42,7 @@ fake scores; add JSON when a pipeline produces them.
 ## Current tree
 
 - **`laravel-full/`** â€” Composer Laravel **adoption track** (README, empty manifest
-  example, **`chrysalis-templates/`** ingest slice for ping/health/json/redirect/DB surfaces (count, **`countViaLib`**, **`SUM(id)`**, **`MIN(id)`**, **`MAX(id)`**, **`ROUND(AVG(id))`**, **`MAX(id)-MIN(id)`**, **`SUM(id*id)`**, **`COUNT WHERE id%2=0`**, **`COUNT WHERE id%2=1`**, **`COUNT WHERE id>2`**, first/last item, items list), framework-wrapper, session `visit/me/login/logout`, query, and POST routes; no
+  example, **`chrysalis-templates/`** ingest slice for ping/health/json/redirect/DB surfaces (count, **`countViaLib`**, **`SUM(id)`**, **`MIN(id)`**, **`MAX(id)`**, **`ROUND(AVG(id))`**, **`MAX(id)-MIN(id)`**, **`SUM(id*id)`**, **`COUNT WHERE id%2=0`**, **`COUNT WHERE id%2=1`**, **`COUNT WHERE id>2`**, **`COUNT WHERE id<3`**, first/last item, items list), framework-wrapper, session `visit/me/login/logout`, query, and POST routes; no
   `vendor/` in git). Run   **`pnpm run scaffold:laravel-full`** to create or refresh
   **`flagship/chrysalis-laravel-work/`** (gitignored): `composer create-project` on first
   run, then copy templates + **`routes/chrysalis.php`** + **`web.php`** include. After build,
@@ -75,7 +75,7 @@ larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON â
 | Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** |
 | Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable) |
 
-**`laravel-full` templates (M4 v1):** 25 manifest routes on committed **`chrysalis-templates/`**;
+**`laravel-full` templates (M4 v1):** 26 manifest routes on committed **`chrysalis-templates/`**;
 ingest/emit parity tests expect **zero holes**; optional **`verify:laravel-full`** when the scaffolded
 Composer tree exists (see `laravel-full/README.md`).
 
