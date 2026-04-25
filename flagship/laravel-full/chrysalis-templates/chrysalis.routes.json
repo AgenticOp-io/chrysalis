@@ -63,6 +63,12 @@
     },
     {
       "method": "GET",
+      "path": "/chrysalis-last-item",
+      "file": "chrysalis/handlers/last_item_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
       "path": "/chrysalis-items",
       "file": "chrysalis/handlers/items_list_show.php",
       "pathParams": []

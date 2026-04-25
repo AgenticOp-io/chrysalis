@@ -29,16 +29,16 @@ The directory **`chrysalis-templates/`** is a **mini project root** you can run
 `chrysalis ingest` against (see `packages/ingest/tests/flagship-laravel-full-templates.test.ts`).
 It contains:
 
-- **`chrysalis.routes.json`** — fifteen routes:
+- **`chrysalis.routes.json`** — sixteen routes:
   **`GET /chrysalis-ping`**, **`GET /chrysalis-health.txt`**,
   **`GET /api/chrysalis-health`**, **`GET /chrysalis-jump`**,
-  **`GET /chrysalis-count`**, **`GET /chrysalis-framework`**, **`GET /chrysalis-first-item`**, **`GET /chrysalis-items`**, **`GET /chrysalis-lib-count`**,
+  **`GET /chrysalis-count`**, **`GET /chrysalis-framework`**, **`GET /chrysalis-first-item`**, **`GET /chrysalis-last-item`**, **`GET /chrysalis-items`**, **`GET /chrysalis-lib-count`**,
   **`GET /chrysalis-session/visit`**, **`GET /chrysalis-session/me`**,
   **`GET /chrysalis-hello`**, **`POST /chrysalis-session/login`**,
   **`POST /chrysalis-session/logout`**,
   **`POST /chrysalis-echo`**
   → `ping_show.php`, `health_txt_show.php`, `api_health_show.php`, `jump_show.php`,
-  `count_show.php`, `framework_show.php`, `first_item_show.php`, `items_list_show.php`, `lib_count_show.php`, `session_visit_show.php`, `session_me_show.php`, `hello_show.php`,
+  `count_show.php`, `framework_show.php`, `first_item_show.php`, `last_item_show.php`, `items_list_show.php`, `lib_count_show.php`, `session_visit_show.php`, `session_me_show.php`, `hello_show.php`,
   `session_login_post.php`, `session_logout_post.php`, `echo_post.php`
 - **`chrysalis/handlers/*.php`** — deterministic plain text / JSON / redirect / DB / session / query surfaces
   (no `Date.now`, no env)
@@ -68,7 +68,7 @@ Then:
 
 1. **`php artisan serve`** (or your stack) and open:
    **`/chrysalis-ping`**, **`/chrysalis-health.txt`**, **`/api/chrysalis-health`**,
-   **`/chrysalis-jump`**, **`/chrysalis-count`**, **`/chrysalis-framework`**, **`/chrysalis-first-item`**, **`/chrysalis-items`**, **`/chrysalis-lib-count`**, **`/chrysalis-session/visit`**, **`/chrysalis-session/me`**,
+   **`/chrysalis-jump`**, **`/chrysalis-count`**, **`/chrysalis-framework`**, **`/chrysalis-first-item`**, **`/chrysalis-last-item`**, **`/chrysalis-items`**, **`/chrysalis-lib-count`**, **`/chrysalis-session/visit`**, **`/chrysalis-session/me`**,
    **`/chrysalis-hello?name=you`**,
    then `curl -X POST -d "username=flagship" http://127.0.0.1:8000/chrysalis-session/login`,
    `curl -X POST http://127.0.0.1:8000/chrysalis-session/logout`,
@@ -82,7 +82,7 @@ Then:
    (`scripts/verify-flagship-laravel-full.mjs`). It skips if PHP is missing or if
    **`vendor/`** / **`public/index.php`** are absent; otherwise it captures
    **`/chrysalis-ping`** x2, **`/chrysalis-health.txt`** x2, **`/api/chrysalis-health`** x2,
-   **`/chrysalis-jump`** (manual redirect), **`/chrysalis-count`** x2, **`/chrysalis-framework`** x2, **`/chrysalis-first-item`** x2, **`/chrysalis-items`** x2, **`/chrysalis-lib-count`** x2, **`/chrysalis-session/visit`** x2,
+   **`/chrysalis-jump`** (manual redirect), **`/chrysalis-count`** x2, **`/chrysalis-framework`** x2, **`/chrysalis-first-item`** x2, **`/chrysalis-last-item`** x2, **`/chrysalis-items`** x2, **`/chrysalis-lib-count`** x2, **`/chrysalis-session/visit`** x2,
    **`/chrysalis-hello?name=...`** x2, **`GET /chrysalis-session/me`** around
    login/logout POSTs, and **`POST /chrysalis-echo`** x2 against **`public/`**,
    ingests the project root, dual-emits, and replays

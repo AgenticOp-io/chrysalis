@@ -1525,3 +1525,10 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   PHP function names that are not in **`emitKnownCall`**; this handler stays **inline-only** so the
   flagship slice remains **zero-hole** until callee emission is generalized. Verify adds
   **`GET /chrysalis-lib-count`** x2; template ingest/emit parity rises to fifteen handlers across Hono/Fastify.
+
+- **2026-04-24 — D80** **Composer template DB-last-item route (`/chrysalis-last-item`).**
+  Adds **`last_item_show.php`**: **`SELECT name FROM items ORDER BY id DESC LIMIT 1`** with the same
+  literal JSON concatenation pattern as **`/chrysalis-first-item`**, so the seeded SQLite corpus
+  records a second single-row read with inverted ordering (deterministic **`charlie`** on the template
+  schema). Verify adds **`GET /chrysalis-last-item`** x2; template ingest/emit parity rises to sixteen
+  handlers across Hono/Fastify.

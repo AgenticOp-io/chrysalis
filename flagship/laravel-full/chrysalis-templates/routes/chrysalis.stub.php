@@ -64,6 +64,11 @@ Route::get("/chrysalis-first-item", function () {
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
 });
 
+Route::get("/chrysalis-last-item", function () {
+    $body = require base_path("chrysalis/handlers/last_item_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
 Route::get("/chrysalis-items", function () {
     $body = require base_path("chrysalis/handlers/items_list_show.php");
     return response((string) $body, 200, ["Content-Type" => "text/plain; charset=utf-8"]);
