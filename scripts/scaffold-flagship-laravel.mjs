@@ -160,7 +160,7 @@ function installChrysalisTemplates(repoRoot, laravelRoot) {
     );
   }
   console.log(
-    "[scaffold-flagship-laravel] Chrysalis templates: ping, health.txt, api/chrysalis-health, chrysalis-jump, chrysalis-count, chrysalis-framework, chrysalis-first-item, chrysalis-last-item, chrysalis-items, chrysalis-lib-count, chrysalis-sum-ids, chrysalis-min-id, chrysalis-max-id, chrysalis-avg-id, chrysalis-id-span, chrysalis-sum-squares, chrysalis-even-count, chrysalis-odd-count, chrysalis-gt-two-count, chrysalis-lt-three-count, chrysalis-gte-two-count, chrysalis-lte-three-count, chrysalis-ne-two-count, session visit/me/login/logout, chrysalis-hello, chrysalis-echo",
+    "[scaffold-flagship-laravel] Chrysalis templates: ping, health.txt, api/chrysalis-health, chrysalis-jump, chrysalis-count, chrysalis-framework, chrysalis-first-item, chrysalis-last-item, chrysalis-items, chrysalis-lib-count, chrysalis-sum-ids, chrysalis-min-id, chrysalis-max-id, chrysalis-avg-id, chrysalis-id-span, chrysalis-sum-squares, chrysalis-even-count, chrysalis-odd-count, chrysalis-gt-two-count, chrysalis-lt-three-count, chrysalis-gte-two-count, chrysalis-lte-three-count, chrysalis-ne-two-count, chrysalis-between-count, session visit/me/login/logout, chrysalis-hello, chrysalis-echo",
   );
 }
 
