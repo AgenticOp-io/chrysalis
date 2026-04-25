@@ -468,7 +468,7 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
 
 ## Milestone 5 — Flagship depth
 
-**Status: in progress (D84–D104: canonical worktree, Breeze coexistence, template oracle growth).** This milestone **does not reopen** the M4 v1
+**Status: in progress (D84–D105: canonical worktree, Breeze coexistence, template oracle growth).** This milestone **does not reopen** the M4 v1
 checklist. Acceptance patterns (zero-hole manifests where we claim parity, verify
 when scripted, `chrysalis status` inputs documented) stay the same as M4 v1 unless
 `DESIGN.md` Decision Log says otherwise.
@@ -498,15 +498,16 @@ idiomaticity / residual-legacy JSON.
 - [ ] Production-shaped auth follow-ups (rotating CSRF, gateways, MFA/OAuth) where we
       choose to own them — emit holes until then.
 - [ ] Larger oracle corpora than scripted drivers; pipeline-owned **idiomaticity** and
-      **residual-legacy** JSON when those numbers should gate releases. **Incremental (D86–D104):**
+      **residual-legacy** JSON when those numbers should gate releases. **Incremental (D86–D105):**
       **`GET /chrysalis-min-id`** / **`GET /chrysalis-max-id`** / **`GET /chrysalis-avg-id`** / **`GET /chrysalis-id-span`**
       / **`GET /chrysalis-sum-squares`** / **`GET /chrysalis-even-count`** / **`GET /chrysalis-odd-count`**
       / **`GET /chrysalis-gt-two-count`** / **`GET /chrysalis-lt-three-count`** / **`GET /chrysalis-gte-two-count`**
       / **`GET /chrysalis-lte-three-count`** / **`GET /chrysalis-ne-two-count`** / **`GET /chrysalis-between-count`**
       / **`GET /chrysalis-eq-one-count`** / **`GET /chrysalis-eq-three-count`** / **`GET /chrysalis-eq-two-count`**
       / **`GET /chrysalis-ne-one-count`** / **`GET /chrysalis-ne-three-count`** / **`GET /chrysalis-lt-two-count`**
+      / **`GET /chrysalis-gt-one-count`**
       (`MIN`/`MAX`/`ROUND(AVG(id))`/`MAX(id)-MIN(id)`/`SUM(id*id)` aggregates, manifest + **`verify:laravel-full`**
-      + `WHERE`-filter counts x2 each) on **`chrysalis-templates/`** — **thirty-six**
+      + `WHERE`-filter counts x2 each) on **`chrysalis-templates/`** — **thirty-seven**
       template routes, dual emit parity tests updated.
 
 **Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.

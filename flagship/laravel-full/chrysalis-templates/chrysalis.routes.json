@@ -200,6 +200,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-gt-one-count",
+      "file": "chrysalis/handlers/gt_one_count_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
