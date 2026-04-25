@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 /**
  * Milestone 4: Oracle capture + dual emit (Hono + Fastify) + in-process verify
- * for `flagship/laravel-min` (GET `/`, `/health`, `/items`, `/count` + widened capture loop).
+ * for `flagship/laravel-min` (GET routes + query `GET /hello`, two `POST /echo`
+ * bodies, `GET /jump` (302 `Location: /health`), `GET /session/visit` x2,
+ * `GET /session/me`, `GET /login` + `POST /login` (bcrypt + CSRF) + `GET /session/me`,
+ * `POST /logout` + `GET /session/me` again, `GET /api/health` x2, `GET /robots.txt`,
+ * `GET /humans.txt`, `GET /.well-known/security.txt`, `GET /sitemap.xml`,
+ * `GET /css/pilot.css`, and `GET /manifest.webmanifest` in the base GET fan-out + widened capture loop).
  *
  * PHP's document root is `public/` (Laravel-shaped); ingest manifest lives at
  * project root (`chrysalis.routes.json`).
@@ -108,6 +113,10 @@ for (const dir of [generatedHono, generatedFastify]) {
   const db = new DatabaseSync(dbPath);
   db.exec(schemaSql);
   db.close();
+  applyFlagshipUserPassword(dbPath);
+  const sessDir = join(dir, "chrysalis-sessions");
+  if (existsSync(sessDir)) rmSync(sessDir, { recursive: true, force: true });
+  mkdirSync(sessDir, { recursive: true });
 }
 
 await rm(reportRoot, { recursive: true, force: true });
@@ -157,6 +166,7 @@ process.exit(exitCode);
 async function loadEmittedFetch(outAbs, kind) {
   const { tsImport } = await import("tsx/esm/api");
   process.env.CHRYSALIS_DB_PATH = join(outAbs, "blog.sqlite");
+  process.env.CHRYSALIS_SESSION_DIR = join(outAbs, "chrysalis-sessions");
   const parentURL = pathToFileURL(join(outAbs, "package.json")).href;
   const mod = await tsImport("./src/server.ts", parentURL);
   if (kind === "hono") {
@@ -175,6 +185,16 @@ async function loadEmittedFetch(outAbs, kind) {
   return mod.fetch;
 }
 
+/** Bcrypt-hash `secret` for user `flagship` (matches `login_post.php` + driver). */
+function applyFlagshipUserPassword(dbPath) {
+  const hash = execSync('php -r "echo password_hash(\'secret\', PASSWORD_BCRYPT);"', {
+    encoding: "utf8",
+  }).trim();
+  const db = new DatabaseSync(dbPath);
+  db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hash, "flagship");
+  db.close();
+}
+
 function initLaravelMinSqliteDb(fixtureRoot) {
   const dataDir = join(fixtureRoot, "data");
   const dbPath = join(dataDir, "app.sqlite");
@@ -184,6 +204,7 @@ function initLaravelMinSqliteDb(fixtureRoot) {
   const db = new DatabaseSync(dbPath);
   db.exec(sql);
   db.close();
+  applyFlagshipUserPassword(dbPath);
   console.log(`[verify-flagship] fixture DB ready at ${dbPath}`);
 }
 
@@ -198,12 +219,112 @@ async function driveLaravelMinCorpus(port) {
     "/count",
     "/health",
     "/",
+    "/items",
+    "/count",
+    "/robots.txt",
+    "/humans.txt",
+    "/.well-known/security.txt",
+    "/sitemap.xml",
+    "/css/pilot.css",
+    "/manifest.webmanifest",
   ];
   for (const p of paths) {
     const r = await fetch(`${base}${p}`);
     if (!r.ok) {
       console.warn(`[verify-flagship] GET ${p} returned ${r.status}`);
     }
+  }
+
+  const helloA = await fetch(`${base}/hello?name=flagship-corpus`);
+  if (!helloA.ok) {
+    console.warn(`[verify-flagship] GET /hello returned ${helloA.status}`);
+  }
+  const helloB = await fetch(`${base}/hello?name=chrysalis`);
+  if (!helloB.ok) {
+    console.warn(`[verify-flagship] GET /hello returned ${helloB.status}`);
+  }
+
+  const apiHealth = await fetch(`${base}/api/health`);
+  if (!apiHealth.ok) {
+    console.warn(`[verify-flagship] GET /api/health returned ${apiHealth.status}`);
+  }
+
+  const jump = await fetch(`${base}/jump`, { redirect: "manual" });
+  if (jump.status < 300 || jump.status >= 400) {
+    console.warn(`[verify-flagship] GET /jump expected 3xx, got ${jump.status}`);
+  }
+
+  const echoRes = await fetch(`${base}/echo`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ msg: "flagship-verify" }).toString(),
+    redirect: "manual",
+  });
+  if (!echoRes.ok) {
+    console.warn(`[verify-flagship] POST /echo returned ${echoRes.status}`);
+  }
+
+  const echo2 = await fetch(`${base}/echo`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ msg: "second-post" }).toString(),
+    redirect: "manual",
+  });
+  if (!echo2.ok) {
+    console.warn(`[verify-flagship] POST /echo (second) returned ${echo2.status}`);
+  }
+
+  for (let i = 0; i < 2; i++) {
+    const sv = await fetch(`${base}/session/visit`);
+    if (!sv.ok) {
+      console.warn(`[verify-flagship] GET /session/visit returned ${sv.status}`);
+    }
+  }
+
+  const me0 = await fetch(`${base}/session/me`);
+  if (!me0.ok) {
+    console.warn(`[verify-flagship] GET /session/me returned ${me0.status}`);
+  }
+
+  const loginForm = await fetch(`${base}/login`);
+  if (!loginForm.ok) {
+    console.warn(`[verify-flagship] GET /login returned ${loginForm.status}`);
+  }
+  const loginPost = await fetch(`${base}/login`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrf: "flagship_csrf_static",
+      username: "flagship",
+      password: "secret",
+    }).toString(),
+    redirect: "manual",
+  });
+  if (loginPost.status < 300 || loginPost.status >= 400) {
+    console.warn(`[verify-flagship] POST /login expected 3xx, got ${loginPost.status}`);
+  }
+  const me1 = await fetch(`${base}/session/me`);
+  if (!me1.ok) {
+    console.warn(`[verify-flagship] GET /session/me (after login) returned ${me1.status}`);
+  }
+
+  const logoutRes = await fetch(`${base}/logout`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: "",
+    redirect: "manual",
+  });
+  if (logoutRes.status < 300 || logoutRes.status >= 400) {
+    console.warn(`[verify-flagship] POST /logout expected 3xx, got ${logoutRes.status}`);
+  }
+  const me2 = await fetch(`${base}/session/me`);
+  if (!me2.ok) {
+    console.warn(`[verify-flagship] GET /session/me (after logout) returned ${me2.status}`);
+  }
+
+  const apiTail = await fetch(`${base}/api/health`);
+  if (!apiTail.ok) {
+    console.warn(`[verify-flagship] GET /api/health (tail) returned ${apiTail.status}`);
   }
 }
 

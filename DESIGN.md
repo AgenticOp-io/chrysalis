@@ -1340,3 +1340,157 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   dual emit replay). The flagship verify driver now exercises **four routes**
   with **eight sequential hits** before replay, further stress-testing routing,
   SQL capture, and migration status without mutating fixture rows during capture.
+
+- **2026-04-24 — D52** **`laravel-min` session-aware counter (`GET /session/visit`).**
+  Adds a sixth manifest route using PHP **`session_name('chrysalis_sid')`** (same
+  default as emitted **`session.ts`**) plus **`$_SESSION['visits']`** read/write
+  after **`session_start()`**. The flagship verify driver issues **two** sequential
+  hits on that path (after the existing GET/POST mix) so **`@chrysalis/verify`**
+  cookie chaining matches emitted session persistence; replay sets
+  **`CHRYSALIS_SESSION_DIR`** under each generated app so file-backed session JSON
+  is empty at corpus start, mirroring SQL replay hygiene. Ingest lowers
+  **`session_name`** and **`session_set_cookie_params`** to the same void stub as
+  **`session_start()`** (middleware owns cookie policy in emitted TypeScript).
+
+- **2026-04-24 — D53** **`laravel-min` `GET /hello` (query string).** Adds a seventh
+  manifest route that echoes **`$_GET['name']`** (with **`trim`** and **`??`**)
+  as plain text so the flagship oracle driver records **query-shaped** HTTP
+  requests; verify hits **`/hello`** twice with different **`name=`** values to
+  widen the corpus without new server-side mutable state beyond existing session
+  and SQL paths.
+
+- **2026-04-24 — D54** **`laravel-min` session login + `me` (`POST /session/login`,
+  `GET /session/me`).** Adds two manifest routes so the oracle records a minimal
+  **anonymous read → form login → authenticated read** sequence on the same
+  PHP session cookie as the visit counter; verify replays it with the same
+  **`CHRYSALIS_SESSION_DIR`** discipline as D52. The driver also widens the base
+  **`GET`/`items`/`count`** loop to **ten** hits before query/echo/session phases.
+
+- **2026-04-24 — D55** **`laravel-min` `GET /jump` (redirect).** Adds a manifest route
+  that issues **`header('Location: /health')`** then **`exit`**, lowering to the
+  same **`effect.redirect`** path as tiny-blog logins. The flagship verify driver
+  records a   **`GET /jump`** with **`redirect: manual`** so the oracle preserves the
+  **3xx + `Location`** contract for dual-emit replay (no automatic follow).
+
+- **2026-04-24 — D56** **`laravel-min` production-shaped session auth (fixture).**
+  Replaces naive body-only session login with **`GET /login`** (HTML form + static
+  **`csrf`** in session), **`POST /login`** (**`query_one`** + **`password_verify`**,
+  redirect on success), and **`POST /logout`** (clears session user id, redirects).
+  **`schema.sql`** gains a **`users`** table; **`verify-flagship-laravel-min.mjs`**
+  bcrypt-seeds **`secret`** for user **`flagship`** on both fixture and emitted
+  **`blog.sqlite`** via PHP **`password_hash`** so oracle and replay stay aligned.
+  CSRF is **deterministic** in this skeleton (not production-grade entropy); real
+  apps still need token rotation and origin checks beyond this pilot.
+
+- **2026-04-24 — D57** **`laravel-min` `GET /api/health` (JSON).** Adds a read-only
+  JSON health endpoint with explicit **`Content-Type: application/json`** and a
+  fixed **`{"ok":true,"app":"laravel-min"}`** body (no **`json_encode`** in PHP, so
+  ingest/emit stay on the echo/redirect surfaces already gated in CI). The flagship
+  verify driver hits **`/api/health`** twice (mid-corpus and after the auth/logout
+  tail) to widen the oracle without new mutable server state.
+
+- **2026-04-24 — D58** **`laravel-min` `GET /robots.txt`.** Adds a plain-text crawl
+  policy endpoint (common production surface) and includes **`/robots.txt`** in the
+  flagship verify script’s base **`GET`** fan-out so the oracle records another
+  stable path alongside HTML, JSON, redirects, SQL, and session flows.
+
+- **2026-04-24 — D59** **`laravel-min` `GET /humans.txt`.** Adds a deterministic
+  plain-text **`humans.txt`** endpoint (common public metadata surface) and one more
+  **`GET`** in the flagship verify driver’s base path loop so the oracle corpus grows
+  without new mutable server state.
+
+- **2026-04-24 — D60** **`laravel-min` `GET /.well-known/security.txt`.** Adds a
+  deterministic RFC 9116-style **`security.txt`** document at the well-known path (fixture
+  **`Contact`** / **`Acknowledgments`** lines only, no live security workflow) and extends
+  the verify driver’s base **`GET`** loop so emitted stacks exercise multi-segment static
+  paths alongside the existing pilot surfaces.
+
+- **2026-04-24 — D61** **`laravel-min` `GET /sitemap.xml`.** Adds a minimal deterministic
+  XML sitemap (**`application/xml`**, single fixture URL) and one more base-loop **`GET`**
+  so the oracle records another common production content type without dynamic URL generation
+  or database reads.
+
+- **2026-04-24 — D62** **`laravel-min` `GET /css/pilot.css`.** Adds a deterministic static
+  stylesheet (**`text/css`**, Laravel-shaped **`public/css/...`** URL) and one more base-loop
+  **`GET`** so routing and replay cover a nested static asset path alongside metadata and API
+  surfaces.
+
+- **2026-04-24 — D63** **`laravel-min` `GET /manifest.webmanifest`.** Adds a minimal Web App
+  Manifest (**`application/manifest+json`**, literal JSON echo like **`/api/health`**, no
+  **`json_encode`**) and one more base-loop **`GET`** so the oracle sees the standard PWA
+  metadata filename alongside other static surfaces.
+
+- **2026-04-24 — D64** **Composer Laravel adoption track (`flagship/laravel-full`).**
+  Adds documentation + **`chrysalis.routes.example.json`** for a real **`composer
+  create-project`** tree, **`pnpm run scaffold:laravel-full`** (`scripts/scaffold-flagship-laravel.mjs`)
+  that writes **`flagship/chrysalis-laravel-work/`** (gitignored), and cross-links from
+  **`laravel-min`** / **`flagship/README.md`**. Does **not** vendor Laravel in git; CI remains
+  on **`laravel-min`** until bounded handler manifests and verify corpora exist for the
+  Composer-backed app.
+
+- **2026-04-24 — D65** **`laravel-full/chrysalis-templates` + scaffold wiring.** Ships a
+  committed **ingestable** slice (`GET /chrysalis-ping`, literal string return) and a Laravel
+  **`routes/chrysalis.php`** stub merged by **`scaffold-flagship-laravel.mjs`** (append
+  **`require`** to **`routes/web.php`** when missing). Re-running the scaffold on an existing
+  Composer tree **re-syncs** templates without re-downloading Laravel. Vitest covers ingest of
+  the template root; runtime PHP still requires Composer + **`php artisan serve`** locally.
+
+- **2026-04-24 — D66** **`verify:laravel-full` (optional Oracle + dual verify).** Adds
+  **`scripts/verify-flagship-laravel-full.mjs`** and **`pnpm run verify:laravel-full`**: skips when
+  PHP is missing or **`flagship/chrysalis-laravel-work`** lacks **`vendor/`** / **`public/index.php`**;
+  otherwise captures **`GET /chrysalis-ping`** twice, ingests the Composer tree, dual-emits, replays
+  with the same **`blog.sqlite`** bootstrap as **`laravel-min`** verify for harness parity. CI runs
+  the script after **`verify-flagship-laravel-min`** (no-op skip until a cached scaffold tree exists).
+
+- **2026-04-24 — D67** **`chrysalis-templates` second route + emit parity.** Adds **`GET /chrysalis-health.txt`**
+  (`health_txt_show.php`), Laravel **`routes/chrysalis.php`** wiring, widens **`verify:laravel-full`**
+  corpus (four GETs), and Vitest emit-hono / emit-fastify coverage for the two-handler template slice
+  alongside **`laravel-min`**.
+
+- **2026-04-24 — D68** **Optional `status:laravel-full` migration roll-up.** Adds
+  **`scripts/status-flagship-laravel-full.mjs`** and **`pnpm run status:laravel-full`**:
+  skip when scaffold/traces/reports are absent; otherwise run `chrysalis status --json` for
+  **`flagship/chrysalis-laravel-work`**, enforce **`status-migration`** gate, and write
+  **`reports/migration/flagship-laravel-full.json`**.
+
+- **2026-04-24 — D69** **Dedicated CI job for Composer Laravel scaffold verify/status.**
+  Moves `laravel-full` checks out of the `laravel-min` job into
+  **`verify flagship (laravel-full scaffold)`** with separate artifacts and cache-backed
+  reuse of both Composer package cache and the scaffolded
+  **`flagship/chrysalis-laravel-work`** tree keyed by scaffold/templates inputs.
+
+- **2026-04-24 — D70** **Composer template corpus widened (JSON + redirect).**
+  Extends `laravel-full/chrysalis-templates` with **`GET /api/chrysalis-health`**
+  (`application/json`, literal body) and **`GET /chrysalis-jump`** (302 redirect to
+  `/chrysalis-health.txt`) alongside existing text endpoints; verify driver now records
+  these paths and emit parity tests require four template handlers across Hono/Fastify.
+
+- **2026-04-24 — D71** **Composer template session route (`/chrysalis-session/visit`).**
+  Adds deterministic session counter behavior to `laravel-full/chrysalis-templates`
+  (`session_name('chrysalis_sid')`, `session_start`, `$_SESSION['visits']` increment,
+  JSON body), updates Laravel route stub + verify corpus, and requires five template
+  handlers in ingest/emit parity tests (Hono/Fastify).
+
+- **2026-04-24 — D72** **Composer template POST echo route (`/chrysalis-echo`).**
+  Adds a bounded form POST surface to `laravel-full/chrysalis-templates` (`echo_post.php`,
+  URL-encoded `msg` input, JSON response), widens `verify:laravel-full` with two POST bodies,
+  and raises template ingest/emit parity to six handlers across Hono/Fastify.
+
+- **2026-04-24 — D73** **Composer template query route (`/chrysalis-hello`).**
+  Adds a deterministic query-parameter surface (`hello_show.php`, `$_GET['name']` + `trim`)
+  to `laravel-full/chrysalis-templates`, widens `verify:laravel-full` with two
+  `GET /chrysalis-hello?name=...` hits, and raises template ingest/emit parity to seven
+  handlers across Hono/Fastify.
+
+- **2026-04-24 — D74** **Composer template auth-like session trio (`me/login/logout`).**
+  Adds bounded session read/write surfaces to `laravel-full/chrysalis-templates`:
+  **`GET /chrysalis-session/me`**, **`POST /chrysalis-session/login`**
+  (`username=flagship`), and **`POST /chrysalis-session/logout`**. Verify corpus now
+  exercises the `me → login → me → logout → me` sequence; template ingest/emit parity
+  rises to ten handlers across Hono/Fastify.
+
+- **2026-04-24 — D75** **Composer template DB-count route (`/chrysalis-count`).**
+  Adds a bounded SQL-read surface backed by template-local SQLite
+  (`chrysalis/lib/db.php`, `chrysalis/schema.sql`, `count_show.php`) and seeds the same
+  schema for fixture + emitted replay in `verify:laravel-full`. Template ingest/emit parity
+  rises to eleven handlers across Hono/Fastify.

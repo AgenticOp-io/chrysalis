@@ -9,8 +9,62 @@
     },
     {
       "method": "GET",
+      "path": "/hello",
+      "file": "app/Http/Handlers/hello_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
       "path": "/health",
       "file": "app/Http/Handlers/health_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/jump",
+      "file": "app/Http/Handlers/jump_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "file": "app/Http/Handlers/api_health_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/robots.txt",
+      "file": "app/Http/Handlers/robots_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/humans.txt",
+      "file": "app/Http/Handlers/humans_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/.well-known/security.txt",
+      "file": "app/Http/Handlers/security_txt_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "file": "app/Http/Handlers/sitemap_xml_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/css/pilot.css",
+      "file": "app/Http/Handlers/pilot_css_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/manifest.webmanifest",
+      "file": "app/Http/Handlers/manifest_show.php",
       "pathParams": []
     },
     {
@@ -23,6 +77,42 @@
       "method": "GET",
       "path": "/count",
       "file": "app/Http/Handlers/items_count.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/echo",
+      "file": "app/Http/Handlers/echo_post.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/session/visit",
+      "file": "app/Http/Handlers/session_visit_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/login",
+      "file": "app/Http/Handlers/login_form_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/login",
+      "file": "app/Http/Handlers/login_post.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/logout",
+      "file": "app/Http/Handlers/logout_post.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/session/me",
+      "file": "app/Http/Handlers/session_me_show.php",
       "pathParams": []
     }
   ]

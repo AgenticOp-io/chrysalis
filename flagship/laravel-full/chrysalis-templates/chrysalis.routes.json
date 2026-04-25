@@ -1,0 +1,71 @@
+{
+  "app": "laravel-full",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/chrysalis-ping",
+      "file": "chrysalis/handlers/ping_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chrysalis-health.txt",
+      "file": "chrysalis/handlers/health_txt_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/chrysalis-health",
+      "file": "chrysalis/handlers/api_health_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chrysalis-jump",
+      "file": "chrysalis/handlers/jump_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chrysalis-session/visit",
+      "file": "chrysalis/handlers/session_visit_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chrysalis-hello",
+      "file": "chrysalis/handlers/hello_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chrysalis-count",
+      "file": "chrysalis/handlers/count_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chrysalis-session/me",
+      "file": "chrysalis/handlers/session_me_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/chrysalis-session/login",
+      "file": "chrysalis/handlers/session_login_post.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/chrysalis-session/logout",
+      "file": "chrysalis/handlers/session_logout_post.php",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/chrysalis-echo",
+      "file": "chrysalis/handlers/echo_post.php",
+      "pathParams": []
+    }
+  ]
+}

@@ -65,4 +65,11 @@ describe("parser-bridge glayzzle provider", () => {
     expect(ifNode.cond.operator).toBe("!");
     expect(ifNode.cond.operand.kind).toBe("Call");
   });
+
+  test("declare(strict_types=1) becomes a Noop statement", async () => {
+    const ast = await parseSource("<?php\ndeclare(strict_types=1);\n\$x = 1;");
+    const kinds = ast.statements.map((s) => s.kind);
+    expect(kinds).toContain("Noop");
+    expect(kinds).toContain("Assign");
+  });
 });

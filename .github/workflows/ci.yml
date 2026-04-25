@@ -173,6 +173,69 @@ jobs:
             reports/migration/flagship-laravel-min.json
           if-no-files-found: ignore
 
+  verify-flagship-laravel-full:
+    name: verify flagship (laravel-full scaffold)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite
+          tools: composer:v2
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Restore Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-cache-${{ runner.os }}-${{ hashFiles('scripts/scaffold-flagship-laravel.mjs') }}
+
+      - name: Restore scaffolded Laravel worktree cache
+        uses: actions/cache@v4
+        with:
+          path: flagship/chrysalis-laravel-work
+          key: laravel-full-work-${{ runner.os }}-${{ hashFiles('scripts/scaffold-flagship-laravel.mjs', 'flagship/laravel-full/chrysalis-templates/**') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: |
+          rm -rf packages/verify/dist
+          pnpm -r build
+
+      - name: Scaffold/refresh Composer Laravel worktree
+        run: pnpm run scaffold:laravel-full
+
+      - name: Verify composer-backed flagship slice
+        env:
+          VERIFY_THRESHOLD: "0.95"
+        run: pnpm run verify:laravel-full
+
+      - name: Compute migration status (laravel-full)
+        env:
+          VERIFY_THRESHOLD: "0.95"
+        run: pnpm run status:laravel-full
+
+      - name: Upload flagship laravel-full verify + migration JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flagship-laravel-full-verify
+          path: |
+            reports/verify-flagship-laravel-full
+            reports/migration/flagship-laravel-full.json
+          if-no-files-found: ignore
+
   insight-catalog:
     name: insight (catalog WebIR anti-patterns)
     runs-on: ubuntu-latest

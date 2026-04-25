@@ -39,10 +39,13 @@ v1; emit↔IR maps and richer attribution remain cross-cutting.
 
 **Milestone 4** (first real flagship app) is underway in parallel: `flagship/laravel-min`
 is a Laravel-shaped ingest/emit slice with **Composer autoload**, **SQLite
-reads** (`GET /items`, `GET /count`), and a **multi-hit oracle driver** in `verify:flagship` (see
+reads** (`GET /items`, `GET /count`), **`GET /hello`** (query string), **`POST /echo`**, a **PHP session counter**
+(`GET /session/visit`), **`GET /api/health`** (JSON), **`GET /robots.txt`**, **`GET /humans.txt`**, **`GET /.well-known/security.txt`**, **`GET /sitemap.xml`**, **`GET /css/pilot.css`**, **`GET /manifest.webmanifest`**, **`GET /jump`** (302 redirect), **`GET|POST /login`** + **`POST /logout`**
++ **`GET /session/me`** (bcrypt + CSRF fixture auth), and a **multi-hit oracle driver** in `verify:flagship` (see
 `flagship/README.md`). `chrysalis status --json` exposes a `migration` object
 for coverage, correctness, and optional sidecars; full Composer Laravel remains
-the next expansion.
+the next expansion (**`flagship/laravel-full/README.md`**, **`pnpm run scaffold:laravel-full`**,
+**`pnpm run verify:laravel-full`** / **`pnpm run status:laravel-full`** when the scaffold tree exists).
 
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling

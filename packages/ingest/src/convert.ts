@@ -103,6 +103,8 @@ type CallLowering =
   | { kind: "exit" }
   | { kind: "require" }
   | { kind: "session_start" }
+  /** PHP `session_name` / `session_set_cookie_params` — runtime only; emitted middleware owns cookies. */
+  | { kind: "session_php_config_noop" }
   | { kind: "isset_builtin" }
   | { kind: "empty_builtin" }
   | { kind: "time_builtin" }
@@ -133,6 +135,8 @@ const KNOWN_CALLS: Record<string, CallLowering> = {
   __require: { kind: "require" },
   __require_once: { kind: "require" },
   session_start: { kind: "session_start" },
+  session_name: { kind: "session_php_config_noop" },
+  session_set_cookie_params: { kind: "session_php_config_noop" },
   time: { kind: "time_builtin" },
   rand: { kind: "php_rand" },
   mt_rand: { kind: "php_rand" },
@@ -701,6 +705,13 @@ function convertCall(
         type: T.unknown,
         origin: loc(ctx, e.pos),
       });
+    case "session_php_config_noop":
+      return ctx.data.call({
+        callee: "session_start",
+        args: [],
+        type: T.void,
+        origin: loc(ctx, e.pos),
+      });
     case "exit":
     case "require":
       return hole(ctx, `call:${lowering.kind}`, e.pos, T.void);
@@ -732,6 +743,8 @@ function convertStatement(
   pathParams: RouteSpec["pathParams"],
 ): NodeId | null {
   switch (s.kind) {
+    case "Noop":
+      return null;
     case "InlineHtml": {
       return ctx.effect.echo({
         value: ctx.data.literal({

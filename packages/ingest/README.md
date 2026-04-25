@@ -27,9 +27,11 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 ## Known PHP builtins (partial list)
 
 Lowered to WebIR effects or `data.call` helpers (see `convert.ts`): SQL helpers,
-session, redirects, `time`, `rand` family, `getrandmax`, `microtime` (float and
-string modes), `uniqid` (literal entropy flag), `parse_url` (component or full
-parts record). Anything else becomes a hole or generic call.
+`session_start`, `session_name`, `session_set_cookie_params` (PHP-only cookie
+setup; emitted middleware owns cookies), `$_SESSION[...]` read/write, redirects,
+`time`, `rand` family, `getrandmax`, `microtime` (float and string modes), `uniqid`
+(literal entropy flag), `parse_url` (component or full parts record). Anything else
+becomes a hole or generic call.
 
 ## Non-goals
 

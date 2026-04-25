@@ -1,0 +1,5 @@
+# If someone runs Composer inside this docs-only folder by mistake, do not commit.
+/vendor/
+/node_modules/
+/.env
+/.env.*

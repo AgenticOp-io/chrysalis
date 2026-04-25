@@ -388,13 +388,47 @@ Candidates after the Laravel pilot (rough tractability order):
 
 **Pilot slice status:** `laravel-min` satisfies the phased checklist (dashboard,
 ingest/emit, dual verify, migration artifact). **v1.1–v1.3:** `GET /health`,
-`GET /items` (`query_all`), **`GET /count`** (`query_one` aggregate) on SQLite
+`GET /items` (`query_all`), **`GET /count`** (`query_one` aggregate), **`GET /hello`**
+(`$_GET['name']` + `trim`), **`GET /jump`** (`header('Location: /health')` redirect), **`GET /api/health`**
+(JSON body, `application/json`), **`GET /robots.txt`** (plain crawl policy),
+**`GET /humans.txt`** (plain `humans.txt` credits), **`GET /.well-known/security.txt`**
+(RFC 9116-style plain text, fixture contact lines only), **`GET /sitemap.xml`**
+(minimal sitemap index, **`application/xml`**, fixed fixture **`loc`** only),
+**`GET /css/pilot.css`** (static stylesheet, **`text/css`**, fixture rules only),
+**`GET /manifest.webmanifest`** (PWA manifest, **`application/manifest+json`**, fixed literal body),
+**`POST /echo`**
+(`$_POST['msg']`), **`GET /session/visit`** (PHP `session_start` +
+`session_name('chrysalis_sid')`, `$_SESSION['visits']` counter; verify hits it
+twice with cookie chaining so replay matches emitted session middleware),
+**`GET /login`** + **`POST /login`** (static CSRF token + **`password_verify`** over
+**`users`** via **`query_one`**), **`POST /logout`**, **`GET /session/me`** (session user id;
+verify: `me` → login form+POST → `me` → logout → `me`) on SQLite
 (`schema.sql` → `data/app.sqlite`, same seed into emitted `blog.sqlite` for SQL
 replay); `composer.json` + CI `composer install` loads `vendor/autoload.php`;
-verify script drives an **eight-hit** route mix across four paths. **Still open:** replace the skeleton with
-Composer Laravel / Breeze, session-aware routes, larger corpora, and track
+verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in the base path loop,
+      two `GET /hello?name=…`, one `GET /jump` (302, `redirect: manual`), two `POST /echo` bodies,
+      two `GET /session/visit`, two `GET /api/health`, then session/`login`/`logout` chain as in `verify-flagship-laravel-min.mjs`; base loop includes `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, and `/manifest.webmanifest`).
+      Optional **idiomaticity** / **residual-legacy** JSON hooks for `chrysalis status`
+      are documented under `flagship/laravel-min/migration-reports/README.md`.
+      **Still open:** replace the skeleton with
+Composer Laravel / Breeze, full-stack auth (rotating CSRF, gateways, MFA/OAuth),
+even larger corpora than the scripted driver, and track
 monotonic **coverage / correctness / idiomaticity / residual-legacy** on `main`
 with a short narrative in `flagship/README.md`.
+
+- [x] **Composer Laravel flagship wiring** — `flagship/laravel-full` adoption docs +
+      **`pnpm run scaffold:laravel-full`** (gitignored **`flagship/chrysalis-laravel-work/`**);
+      committed **`chrysalis-templates/`** + ingest test + scaffold wiring for
+      **`GET /chrysalis-ping`** + **`GET /chrysalis-health.txt`** +
+      **`GET /api/chrysalis-health`** + **`GET /chrysalis-jump`** +
+      **`GET /chrysalis-count`** +
+      **`GET /chrysalis-session/visit`** + **`GET /chrysalis-session/me`** +
+      **`POST /chrysalis-session/login`** + **`POST /chrysalis-session/logout`** +
+      **`GET /chrysalis-hello`** + **`POST /chrysalis-echo`**;
+      **`pnpm run verify:laravel-full`** +
+      **`pnpm run status:laravel-full`** (both optional; skip when scaffold traces/reports are absent);
+      CI now has a dedicated **`verify flagship (laravel-full scaffold)`** job with cache-backed
+      scaffold reuse.
 
 ---
 

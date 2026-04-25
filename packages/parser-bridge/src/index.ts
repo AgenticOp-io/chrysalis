@@ -38,6 +38,7 @@ export type {
   PhpRequire,
   PhpFunctionDecl,
   PhpExit,
+  PhpNoop,
   PhpNodeUnknown,
   PhpExprUnknown,
 } from "./schema.js";

@@ -7,7 +7,7 @@
  * regenerating golden fixtures.
  */
 
-export const SCHEMA_VERSION = "0.1.0";
+export const SCHEMA_VERSION = "0.1.1";
 
 export type Pos = {
   readonly file: string;
@@ -32,7 +32,14 @@ export type PhpNode =
   | PhpRequire
   | PhpFunctionDecl
   | PhpExit
+  | PhpNoop
   | PhpNodeUnknown;
+
+/** Statement that lowers to nothing (e.g. `declare(strict_types=1);`). */
+export interface PhpNoop {
+  readonly kind: "Noop";
+  readonly pos: Pos;
+}
 
 export type PhpExpr =
   | PhpLiteral

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { resolve } from "node:path";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
@@ -9,6 +9,11 @@ import { emit } from "../src/index.js";
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
 const FIXTURE_SCHEMA = resolve(__dirname, "../../../fixtures/tiny-blog/schema.sql");
 const FIXTURE_N1 = resolve(__dirname, "../../../fixtures/tiny-n1");
+const FLAGSHIP_LARAVEL_MIN = resolve(__dirname, "../../../flagship/laravel-min");
+const FLAGSHIP_LARAVEL_FULL_TEMPLATES = resolve(
+  __dirname,
+  "../../../flagship/laravel-full/chrysalis-templates",
+);
 
 function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, outDir: string) {
   const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
@@ -46,6 +51,64 @@ describe("emit-fastify: tiny-blog output", () => {
       expect(login).toContain("FastifyRequest");
       expect(login).toContain("queryOne<User>(");
       expect(login).toContain("getSession(req)");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-fastify: flagship laravel-min (Milestone 4 slice)", () => {
+  test("emits nineteen handlers and zero holes", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-flag-"));
+    try {
+      const mod = await ingestDirectory(FLAGSHIP_LARAVEL_MIN);
+      const res = await emit({ module: mod, outDir: out });
+      expect(res.handlerCount).toBe(19);
+      expect(res.holes.length).toBe(0);
+      expect(existsSync(resolve(out, "src/handlers/home_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/hello_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/health_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/jump_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/api_health_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/robots_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/humans_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/security_txt_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/sitemap_xml_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/pilot_css_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/manifest_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/login_form_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/login_post.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/logout_post.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/items_list.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/items_count.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/echo_post.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/session_visit_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/session_me_show.ts"))).toBe(true);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-fastify: flagship laravel-full chrysalis-templates", () => {
+  test("emits eleven handlers and zero holes", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-lf-"));
+    try {
+      const mod = await ingestDirectory(FLAGSHIP_LARAVEL_FULL_TEMPLATES);
+      const res = await emit({ module: mod, outDir: out });
+      expect(res.handlerCount).toBe(11);
+      expect(res.holes.length).toBe(0);
+      expect(existsSync(resolve(out, "src/handlers/ping_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/health_txt_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/api_health_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/jump_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/session_visit_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/hello_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/count_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/session_me_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/session_login_post.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/session_logout_post.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/echo_post.ts"))).toBe(true);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

@@ -203,6 +203,11 @@ function convertStatement(file: string, node: AnyNode): PhpNode {
       // guard. Marking as Unknown for now; ingest will lower this to a hole.
       return unknownStmt(file, node, "static variable declaration");
     }
+    case "declare": {
+      // `declare(strict_types=1);` — PHP runtime typing; WebIR uses explicit
+      // lowering elsewhere. Parser emits a no-op; ingest drops it.
+      return { kind: "Noop", pos: pos(file, node) };
+    }
     case "block":
       return unknownStmt(file, node, "bare block");
     default:

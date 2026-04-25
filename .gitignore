@@ -28,5 +28,10 @@ generated/**/*.sqlite-journal
 generated/tiny-blog-fastify/
 generated/flagship-laravel-min/
 generated/flagship-laravel-min-fastify/
+generated/flagship-laravel-full/
+generated/flagship-laravel-full-fastify/
 # Rebuilt locally / in CI from fixtures/tiny-n1
 generated/tiny-n1/
+
+# Composer Laravel scaffold output (see flagship/laravel-full/README.md)
+flagship/chrysalis-laravel-work/
