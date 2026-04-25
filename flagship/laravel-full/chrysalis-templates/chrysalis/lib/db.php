@@ -28,3 +28,12 @@ function query_one(string $sql): ?array
     $row = $stmt->fetch();
     return $row === false ? null : $row;
 }
+
+/**
+ * @return array<int, array<string, mixed>>
+ */
+function query_all(string $sql): array
+{
+    $stmt = db_connect()->query($sql);
+    return $stmt->fetchAll();
+}

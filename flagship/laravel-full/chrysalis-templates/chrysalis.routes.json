@@ -62,6 +62,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-items",
+      "file": "chrysalis/handlers/items_list_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",

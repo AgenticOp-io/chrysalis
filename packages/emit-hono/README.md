@@ -45,9 +45,9 @@ the reference for how to write additional backends (`emit-fastify`, `emit-next`,
   emit `throw new Error("TODO")` in place of a hole.
 - **Flagship parity:** Vitest ingests **`flagship/laravel-min`** (nineteen handlers, zero holes,
   expected handler files including `api_health_show.ts` … `session_*`) and
-  **`flagship/laravel-full/chrysalis-templates`** (thirteen handlers:
+  **`flagship/laravel-full/chrysalis-templates`** (fourteen handlers:
   `ping_show.ts`, `health_txt_show.ts`, `api_health_show.ts`, `jump_show.ts`, `count_show.ts`,
-  `framework_show.ts`, `first_item_show.ts`, `session_visit_show.ts`, `session_me_show.ts`, `hello_show.ts`,
+  `framework_show.ts`, `first_item_show.ts`, `items_list_show.ts`, `session_visit_show.ts`, `session_me_show.ts`, `hello_show.ts`,
   `session_login_post.ts`, `session_logout_post.ts`, `echo_post.ts`, zero holes) —
   mirrored by `@chrysalis/emit-fastify` tests.
 

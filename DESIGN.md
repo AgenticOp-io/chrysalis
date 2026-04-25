@@ -1509,3 +1509,10 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   `SELECT name FROM items ORDER BY id ASC LIMIT 1`. Verify corpus adds
   `GET /chrysalis-first-item` x2 and template ingest/emit parity rises to thirteen
   handlers across Hono/Fastify.
+
+- **2026-04-24 — D78** **Composer template items list route (`/chrysalis-items`).**
+  Extends template-local `chrysalis/lib/db.php` with **`query_all`** and adds
+  `items_list_show.php`: **`SELECT id, name FROM items ORDER BY id ASC`** plus a
+  bounded **`foreach`** that builds the same plain-text lines as `laravel-min`
+  **`GET /items`**. Verify corpus adds **`GET /chrysalis-items`** x2; template
+  ingest/emit parity rises to fourteen handlers across Hono/Fastify.
