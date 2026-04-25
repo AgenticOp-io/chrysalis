@@ -468,7 +468,7 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
 
 ## Milestone 5 — Flagship depth
 
-**Status: in progress (D84–D115: canonical worktree, Breeze coexistence, template oracle growth).** This milestone **does not reopen** the M4 v1
+**Status: in progress (D84–D115: canonical worktree, Breeze coexistence, template oracle growth + complexity ladder).** This milestone **does not reopen** the M4 v1
 checklist. Acceptance patterns (zero-hole manifests where we claim parity, verify
 when scripted, `chrysalis status` inputs documented) stay the same as M4 v1 unless
 `DESIGN.md` Decision Log says otherwise.
@@ -510,8 +510,11 @@ idiomaticity / residual-legacy JSON.
       / **`GET /chrysalis-lt-one-count`** / **`GET /chrysalis-gte-three-count`**
       / **`GET /chrysalis-lte-two-count`** / **`GET /chrysalis-eq-zero-count`**
       / **`GET /chrysalis-ne-zero-count`** / **`GET /chrysalis-items-snapshot`**
-      (`MIN`/`MAX`/`ROUND(AVG(id))`/`MAX(id)-MIN(id)`/`SUM(id*id)` aggregates, manifest + **`verify:laravel-full`**
-      + `WHERE`-filter counts x2 each) on **`chrysalis-templates/`** — **forty-seven**
+      / **`GET /chrysalis-items-group-parity`** / **`GET /chrysalis-items-cte-rollup`**
+      / **`GET /chrysalis-recursive-stress`**
+      (`MIN`/`MAX`/`ROUND(AVG(id))`/`MAX(id)-MIN(id)`/`SUM(id*id)` + mixed
+      `COUNT/MIN/MAX/SUM` snapshot aggregates, manifest + **`verify:laravel-full`**
+      + deterministic count/snapshot/group/CTE/recursive routes x2 each) on **`chrysalis-templates/`** — **fifty**
       template routes, dual emit parity tests updated.
 
 **Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.

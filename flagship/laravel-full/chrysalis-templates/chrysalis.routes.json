@@ -266,6 +266,24 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-items-group-parity",
+      "file": "chrysalis/handlers/items_group_parity_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chrysalis-items-cte-rollup",
+      "file": "chrysalis/handlers/items_cte_rollup_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chrysalis-recursive-stress",
+      "file": "chrysalis/handlers/recursive_stress_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",

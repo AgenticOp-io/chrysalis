@@ -234,6 +234,21 @@ Route::get("/chrysalis-items-snapshot", function () {
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
 });
 
+Route::get("/chrysalis-items-group-parity", function () {
+    $body = require base_path("chrysalis/handlers/items_group_parity_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
+Route::get("/chrysalis-items-cte-rollup", function () {
+    $body = require base_path("chrysalis/handlers/items_cte_rollup_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
+Route::get("/chrysalis-recursive-stress", function () {
+    $body = require base_path("chrysalis/handlers/recursive_stress_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
 Route::post("/chrysalis-session/login", function () {
     $body = require base_path("chrysalis/handlers/session_login_post.php");
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
