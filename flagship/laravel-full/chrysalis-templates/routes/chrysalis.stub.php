@@ -94,6 +94,11 @@ Route::get("/chrysalis-max-id", function () {
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
 });
 
+Route::get("/chrysalis-avg-id", function () {
+    $body = require base_path("chrysalis/handlers/avg_id_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
 Route::post("/chrysalis-session/login", function () {
     $body = require base_path("chrysalis/handlers/session_login_post.php");
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);

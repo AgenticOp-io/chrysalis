@@ -14,6 +14,7 @@
  * **`GET /chrysalis-items`** (twice), **`GET /chrysalis-lib-count`** (twice),
  * **`GET /chrysalis-sum-ids`** (twice), **`GET /chrysalis-min-id`** (twice),
  * **`GET /chrysalis-max-id`** (twice),
+ * **`GET /chrysalis-avg-id`** (twice),
  * **`GET /chrysalis-framework`** (twice),
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/login`** +
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/logout`** +
@@ -287,6 +288,12 @@ async function driveLaravelFullCorpus(port) {
     const r = await fetch(`${base}/chrysalis-max-id`);
     if (!r.ok) {
       console.warn(`[verify-flagship-laravel-full] GET /chrysalis-max-id returned ${r.status}`);
+    }
+  }
+  for (let i = 0; i < 2; i++) {
+    const r = await fetch(`${base}/chrysalis-avg-id`);
+    if (!r.ok) {
+      console.warn(`[verify-flagship-laravel-full] GET /chrysalis-avg-id returned ${r.status}`);
     }
   }
   const me0 = await fetch(`${base}/chrysalis-session/me`);

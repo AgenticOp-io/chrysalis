@@ -98,6 +98,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-avg-id",
+      "file": "chrysalis/handlers/avg_id_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",
