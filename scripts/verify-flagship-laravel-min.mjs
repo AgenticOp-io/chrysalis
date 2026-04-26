@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Milestone 4: Oracle capture + dual emit (Hono + Fastify) + in-process verify
- * for `flagship/laravel-min` (GET routes + query `GET /hello`, two `POST /echo`
+ * for `flagship/laravel-min` (GET routes + **`GET /hello`** default / empty / two
+ * named queries / encoded multi-word **`name`**, two `POST /echo`
  * bodies, `GET /jump` (302 `Location: /health`), `GET /session/visit` x2,
  * `GET /session/me`, `GET /login` + `POST /login` (bcrypt + CSRF) + `GET /session/me`,
  * `POST /logout` + `GET /session/me` again, `GET /api/health` x2, `GET /robots.txt`,
@@ -13,6 +14,9 @@
  *
  * Requires PHP on PATH. Exits 0 with a skip notice if PHP is missing (same as
  * verify-tiny-blog.mjs).
+ *
+ * Writes **`reports/migration/flagship-laravel-min-emit-stats.json`** for
+ * **`pnpm run status:laravel-min`** → **`scripts/flagship-migration-metrics.mjs`**.
  */
 
 import { execSync } from "node:child_process";
@@ -24,6 +28,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import { ingestDirectory } from "../packages/ingest/dist/index.js";
 import {
+  groupByRoute,
   loadObserveConfig,
   readCorpus,
   startObserver,
@@ -83,6 +88,7 @@ try {
 
 const corpus = readCorpus({ root: traceDir });
 console.log(`[verify-flagship] corpus: ${corpus.traces.length} traces`);
+assertLaravelMinCapturedHelloBodies(corpus);
 
 const webirModule = await ingestDirectory(fixture);
 
@@ -99,6 +105,29 @@ const resF = await emitFastify({ module: webirModule, outDir: generatedFastify }
 console.log(
   `[verify-flagship] emit-fastify handlers=${resF.handlerCount} emit-holes=${resF.holes.length}`,
 );
+
+const routesManifestPath = join(fixture, "chrysalis.routes.json");
+let manifestRoutes = 0;
+try {
+  const rawRoutes = readFileSync(routesManifestPath, "utf8");
+  const parsedRoutes = JSON.parse(rawRoutes);
+  manifestRoutes = Array.isArray(parsedRoutes.routes) ? parsedRoutes.routes.length : 0;
+} catch {
+  console.warn(`[verify-flagship] could not read manifest routes from ${routesManifestPath}`);
+}
+const migrationReportsDir = resolve(repo, "reports/migration");
+mkdirSync(migrationReportsDir, { recursive: true });
+const emitStatsPayload = {
+  schema: "chrysalis/flagship-laravel-min-emit-stats/1",
+  manifestRoutes,
+  hono: { holes: resH.holes.length, handlerCount: resH.handlerCount },
+  fastify: { holes: resF.holes.length, handlerCount: resF.handlerCount },
+};
+writeFileSync(
+  join(migrationReportsDir, "flagship-laravel-min-emit-stats.json"),
+  `${JSON.stringify(emitStatsPayload, null, 2)}\n`,
+);
+console.log("[verify-flagship] wrote reports/migration/flagship-laravel-min-emit-stats.json");
 
 for (const dir of [generatedHono, generatedFastify]) {
   const label = dir === generatedHono ? "hono" : "fastify";
@@ -235,6 +264,14 @@ async function driveLaravelMinCorpus(port) {
     }
   }
 
+  const helloDefault = await fetch(`${base}/hello`);
+  if (!helloDefault.ok) {
+    console.warn(`[verify-flagship] GET /hello (default) returned ${helloDefault.status}`);
+  }
+  const helloEmpty = await fetch(`${base}/hello?name=`);
+  if (!helloEmpty.ok) {
+    console.warn(`[verify-flagship] GET /hello?name= returned ${helloEmpty.status}`);
+  }
   const helloA = await fetch(`${base}/hello?name=flagship-corpus`);
   if (!helloA.ok) {
     console.warn(`[verify-flagship] GET /hello returned ${helloA.status}`);
@@ -242,6 +279,10 @@ async function driveLaravelMinCorpus(port) {
   const helloB = await fetch(`${base}/hello?name=chrysalis`);
   if (!helloB.ok) {
     console.warn(`[verify-flagship] GET /hello returned ${helloB.status}`);
+  }
+  const helloEncoded = await fetch(`${base}/hello?name=${encodeURIComponent("x y")}`);
+  if (!helloEncoded.ok) {
+    console.warn(`[verify-flagship] GET /hello (encoded name) returned ${helloEncoded.status}`);
   }
 
   const apiHealth = await fetch(`${base}/api/health`);
@@ -325,6 +366,40 @@ async function driveLaravelMinCorpus(port) {
   const apiTail = await fetch(`${base}/api/health`);
   if (!apiTail.ok) {
     console.warn(`[verify-flagship] GET /api/health (tail) returned ${apiTail.status}`);
+  }
+}
+
+/** Asserts oracle capture covered each distinct `hello_show` plaintext body (grouped `GET /hello`). */
+function assertLaravelMinCapturedHelloBodies(corpus) {
+  const byRoute = groupByRoute(corpus);
+  const routeSig = "GET /hello";
+  for (const body of [
+    "hello:guest\n",
+    "hello:\n",
+    "hello:flagship-corpus\n",
+    "hello:chrysalis\n",
+    "hello:x y\n",
+  ]) {
+    assertRouteContainsBody(byRoute, routeSig, body);
+  }
+}
+
+/**
+ * @param {ReturnType<typeof groupByRoute>} byRoute
+ * @param {string} routeSig
+ * @param {string} expectedBody
+ */
+function assertRouteContainsBody(byRoute, routeSig, expectedBody) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship] missing traces for ${routeSig}`);
+  }
+  const hasBody = traces.some((trace) => {
+    const response = trace.events.find((e) => e.type === "http.response");
+    return response && response.type === "http.response" && response.body === expectedBody;
+  });
+  if (!hasBody) {
+    throw new Error(`[verify-flagship] ${routeSig} missing expected body ${JSON.stringify(expectedBody)}`);
   }
 }
 

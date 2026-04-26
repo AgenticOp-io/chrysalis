@@ -29,9 +29,12 @@ chrysalis status --json --project flagship/laravel-min \
   section).
 - **Idiomaticity** — optional `reports/migration/idiomaticity.json`:
   `{ "pct": 0.15 }` (0..1), maintained by your pipeline (e.g. rewrite pass
-  stats).
+  stats). For **`laravel-full`**, **`status:laravel-full`** can auto-write this from
+  emitted-handler **`@chrysalis/compat`** scans when emit stats exist (D132).
 - **Residual legacy** — optional `reports/migration/residual-legacy.json`:
   `{ "legacyRequestPct": 45.0 }` (0..100), e.g. from chimera or edge logs.
+  For **`laravel-full`**, **`status:laravel-full`** can auto-write a **hole-density**
+  index vs manifest routes when emit stats exist (not chimera traffic; see D132).
 
 Override sidecar directory with `--migration-reports <dir>`.
 
@@ -50,11 +53,12 @@ fake scores; add JSON when a pipeline produces them.
   (otherwise skips), and **`pnpm run status:laravel-full`** writes optional migration JSON when
   scaffold traces/reports are present. CI mirrors this via a dedicated
   **`verify flagship (laravel-full scaffold)`** job with cache-backed scaffold reuse.
-- **`laravel-min/`** — Laravel-shaped layout, `GET /`, `/hello?name=…` (query echo),
+- **`laravel-min/`** — Laravel-shaped layout, `GET /`, **`GET /hello`** (default / empty / named / encoded **`name`** query shapes, D136),
   `/health`, `/api/health` (JSON), `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, `/jump` → 302 `/health`, `/items`, `/count`, `POST /echo`, `GET /session/visit` (visit counter),
   **`GET|POST /login`** (bcrypt + CSRF), **`POST /logout`**, **`GET /session/me`**; optional `composer install` for `vendor/` autoload; ingest/emit
   tests plus **`scripts/verify-flagship-laravel-min.mjs`** (Oracle → dual emit →
-  replay) in CI job `verify-flagship-laravel-min`. Not a Composer Laravel
+  replay) in CI job `verify-flagship-laravel-min`. **Decision D122:** retained as the
+  permanent fast regression fixture (not folded into `laravel-full`). Not a Composer Laravel
   install; for the **full** tree see **`chrysalis-laravel-work/`** (`laravel-min/README.md`, D84).
 
 ## Status
@@ -66,19 +70,21 @@ canonical full Laravel root (D84) and covers **Composer Laravel / Breeze** depth
 larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
 `laravel-min/README.md` for the Laravel-shaped pilot.
 
-**Pilot snapshot — `laravel-min` (2026-04-24; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`)** — for regression triage and CI artifacts:
+**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle, D136)** — for regression triage and CI artifacts:
 
 | Item | Value |
 |------|--------|
 | Manifest routes | 19 (includes `/api/health`, `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, `/jump`, `/login`, `/logout`, `/session/me`) |
-| Oracle driver HTTP requests | 31 per `scripts/verify-flagship-laravel-min.mjs` run |
+| Oracle driver HTTP requests | 34 per `scripts/verify-flagship-laravel-min.mjs` run |
 | Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** |
-| Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable) |
+| Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable); **`pnpm run status:laravel-min`** also writes **`idiomaticity.json`** / **`residual-legacy.json`** when emit-stats exist (D133) |
 
 **`laravel-full` templates (M4 v1):** 50 manifest routes on committed **`chrysalis-templates/`**;
 ingest/emit parity tests expect **zero holes**; optional **`verify:laravel-full`** when the scaffolded
 Composer tree exists (see `laravel-full/README.md`). Stress replay gate:
-**`pnpm run verify:laravel-full:stress`**.
+**`pnpm run verify:laravel-full:stress`**. Seed-variant matrix gate:
+**`pnpm run verify:laravel-full:seed-matrix`**. Five-nines confidence gate:
+**`pnpm run verify:laravel-full:5nines`** (includes rolling confidence trend gate).
 
 **Coverage / correctness** come from WebIR + verify reports (`chrysalis status`
 with `--project`, `--traces`, `--report`). **Idiomaticity** and **residual
@@ -90,6 +96,8 @@ material way, extend this table or add a dated one-line note below.
 (rotating CSRF, gateways, MFA/OAuth), a **larger** oracle corpus than the scripted drivers, and
 pipeline-owned **idiomaticity** / **residual-legacy** scores. The v1 pilots already exercise **bcrypt** +
 **CSRF field** + **logout** on deterministic fixture users where applicable.
+**Decision D122:** Breeze first-party auth UI and production auth internals remain
+out of owned parity scope until a dedicated milestone opens them.
 
 When the emitted stack diverges from the oracle, use **`chrysalis repair`**
 (see `packages/repair` and `ROADMAP` Milestone 3) against the same traces and

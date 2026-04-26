@@ -83,21 +83,42 @@ Then:
    (`scripts/verify-flagship-laravel-full.mjs`). It skips if PHP is missing or if
    **`vendor/`** / **`public/index.php`** are absent; otherwise it captures
    **`/chrysalis-ping`** x2, **`/chrysalis-health.txt`** x2, **`/api/chrysalis-health`** x2,
-   **`/chrysalis-jump`** (manual redirect), **`/chrysalis-count`** x2, **`/chrysalis-framework`** x2, **`/chrysalis-first-item`** x2, **`/chrysalis-last-item`** x2, **`/chrysalis-items`** x2, **`/chrysalis-lib-count`** x2, **`/chrysalis-sum-ids`** x2, **`/chrysalis-min-id`** x2, **`/chrysalis-max-id`** x2, **`/chrysalis-avg-id`** x2, **`/chrysalis-id-span`** x2, **`/chrysalis-sum-squares`** x2, **`/chrysalis-even-count`** x2, **`/chrysalis-odd-count`** x2, **`/chrysalis-gt-two-count`** x2, **`/chrysalis-lt-three-count`** x2, **`/chrysalis-gte-two-count`** x2, **`/chrysalis-lte-three-count`** x2, **`/chrysalis-ne-two-count`** x2, **`/chrysalis-between-count`** x2, **`/chrysalis-eq-one-count`** x2, **`/chrysalis-eq-three-count`** x2, **`/chrysalis-eq-two-count`** x2, **`/chrysalis-ne-one-count`** x2, **`/chrysalis-ne-three-count`** x2, **`/chrysalis-lt-two-count`** x2, **`/chrysalis-gt-one-count`** x2, **`/chrysalis-gte-one-count`** x2, **`/chrysalis-lte-one-count`** x2, **`/chrysalis-between-one-two-count`** x2, **`/chrysalis-gt-three-count`** x2, **`/chrysalis-lt-one-count`** x2, **`/chrysalis-gte-three-count`** x2, **`/chrysalis-lte-two-count`** x2, **`/chrysalis-eq-zero-count`** x2, **`/chrysalis-ne-zero-count`** x2, **`/chrysalis-items-snapshot`** x2, **`/chrysalis-items-group-parity`** x2, **`/chrysalis-items-cte-rollup`** x2, **`/chrysalis-recursive-stress`** x2, **`/chrysalis-session/visit`** x2,
-   **`/chrysalis-hello?name=...`** x2, **`GET /chrysalis-session/me`** around
+   **`/chrysalis-jump`** (manual redirect), **`/chrysalis-count`** x2, **`/chrysalis-framework`** x2, **`/chrysalis-first-item`** x2, **`/chrysalis-last-item`** x2, **`/chrysalis-items`** x2, **`/chrysalis-lib-count`** x2, **`/chrysalis-sum-ids`** x2, **`/chrysalis-min-id`** x2, **`/chrysalis-max-id`** x2, **`/chrysalis-avg-id`** x2, **`/chrysalis-id-span`** x2, **`/chrysalis-sum-squares`** x2, **`/chrysalis-even-count`** x2, **`/chrysalis-odd-count`** x2, **`/chrysalis-gt-two-count`** x2, **`/chrysalis-lt-three-count`** x2, **`/chrysalis-gte-two-count`** x2, **`/chrysalis-lte-three-count`** x2, **`/chrysalis-ne-two-count`** x2, **`/chrysalis-between-count`** x2, **`/chrysalis-eq-one-count`** x2, **`/chrysalis-eq-three-count`** x2, **`/chrysalis-eq-two-count`** x2, **`/chrysalis-ne-one-count`** x2, **`/chrysalis-ne-three-count`** x2, **`/chrysalis-lt-two-count`** x2, **`/chrysalis-gt-one-count`** x2, **`/chrysalis-gte-one-count`** x2, **`/chrysalis-lte-one-count`** x2, **`/chrysalis-between-one-two-count`** x2, **`/chrysalis-gt-three-count`** x2, **`/chrysalis-lt-one-count`** x2, **`/chrysalis-gte-three-count`** x2, **`/chrysalis-lte-two-count`** x2, **`/chrysalis-eq-zero-count`** x2, **`/chrysalis-ne-zero-count`** x2, **`/chrysalis-items-snapshot`** x2, **`/chrysalis-items-group-parity`** x2, **`/chrysalis-items-cte-rollup`** x2, **`/chrysalis-recursive-stress`** x2,    **`/chrysalis-session/visit`** x2,
+   **`/chrysalis-hello`** (no query, default name), **`/chrysalis-hello?name=`**, **`/chrysalis-hello?name=...`** x2,
+   plus one encoded multi-word name, **`GET /chrysalis-session/me`** around
    login/logout POSTs, and **`POST /chrysalis-echo`** x2 against **`public/`**,
    ingests the project root, dual-emits, and replays
    (same harness shape as `verify:flagship`). Traces land under
    **`traces/flagship-laravel-full/`**; reports under **`reports/verify-flagship-laravel-full/`**.
    Stress option: run **`pnpm run verify:laravel-full:stress`** to replay each backend three
    times (`--stress-runs=3`) and fail on report fingerprint drift.
+   Seed-variant option: run **`pnpm run verify:laravel-full:seed-matrix`** to replay across
+   **`baseline`**, **`empty`**, and **`ten`** item seeds (`--seed-variants=...`) with seed-aware
+   semantic assertions. The top-level confidence JSON then includes **`matrixCrossBackendParityOk`**
+   (rollup over variants).
+   Five-nines gate: run **`pnpm run verify:laravel-full:5nines`** to combine
+   seed matrix + stress replay, enforce negative-path/semantic/metamorphic checks,
+   and gate `reports/confidence/flagship-laravel-full.json` via `ci-gates`
+   (includes `cross-backend-verify-parity`: Hono vs Fastify run-1 stable verify report match).
+   Trend history is written to
+   **`reports/confidence/history/flagship-laravel-full.history.json`** and checked by
+   `confidence-trend` (rolling streak; warmup support via env).
+   CI automatically flips warmup to strict mode once history reaches the configured
+   streak using `confidence-trend-ready`.
 5. Optional status roll-up: **`pnpm run status:laravel-full`**
    (`scripts/status-flagship-laravel-full.mjs`). It skips when scaffold/traces/reports are missing;
    otherwise it gates `status-migration` and writes
-   **`reports/migration/flagship-laravel-full.json`**.
+   **`reports/migration/flagship-laravel-full.json`**. When
+   **`reports/migration/flagship-laravel-full-emit-stats.json`** exists (after a successful
+   **`verify:laravel-full`**), it also writes **`reports/migration/idiomaticity.json`** and
+   **`reports/migration/residual-legacy.json`** for `chrysalis status --json` (see
+   **`scripts/flagship-migration-metrics.mjs`**).
+   CI may run **`node scripts/ci-gates.mjs migration-sidecar-floors`** after status when
+   **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set (D134).
 6. CI parity: workflow job **`verify flagship (laravel-full scaffold)`** restores caches,
-   refreshes the scaffold, runs `verify:laravel-full`, then `status:laravel-full`, and uploads
-   verify + migration artifacts.
+   refreshes the scaffold, runs `verify:laravel-full:5nines`, then `status:laravel-full`, and uploads
+   verify + migration + confidence artifacts. The lane runs at
+   **`VERIFY_THRESHOLD=0.99999`** and persists confidence trend history via cache.
 
 ## Optional Breeze (Milestone 5)
 
@@ -117,7 +138,8 @@ UI is **out of scope** until those entrypoints are listed in the manifest and th
 ## Relation to `laravel-min`
 
 - **`laravel-min`** — committed Laravel-shaped pilot; CI ingest, dual emit, and
-  `verify:flagship` run against it today.
+  `verify:flagship` run against it today. **Decision D122:** this remains the
+  permanent fast regression fixture and is not folded into `laravel-full`.
 - **`chrysalis-laravel-work`** — local Composer output; not committed; the next
   place to wire **`chrysalis.routes.json`**, Oracle traces, and (when ready) a
   sibling verify script or an extension of the existing driver.

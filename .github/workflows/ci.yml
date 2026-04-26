@@ -158,10 +158,15 @@ jobs:
         run: node scripts/verify-flagship-laravel-min.mjs
 
       - name: Milestone 4 — migration metrics (laravel-min + verify reports)
-        run: |
-          mkdir -p reports/migration
-          node packages/cli/dist/bin.js status --json --project flagship/laravel-min --traces traces/flagship-laravel-min --report reports/verify-flagship-laravel-min | node scripts/ci-gates.mjs status-migration
-          node packages/cli/dist/bin.js status --json --project flagship/laravel-min --traces traces/flagship-laravel-min --report reports/verify-flagship-laravel-min > reports/migration/flagship-laravel-min.json
+        env:
+          VERIFY_THRESHOLD: "0.95"
+        run: pnpm run status:laravel-min
+
+      - name: Gate migration sidecar floors (idiomaticity / residual-legacy)
+        env:
+          CHRYSALIS_IDIOMATICITY_MIN: "0.01"
+          CHRYSALIS_RESIDUAL_LEGACY_MAX: "50"
+        run: node scripts/ci-gates.mjs migration-sidecar-floors
 
       - name: Upload flagship verify + migration JSON
         if: always()
@@ -171,6 +176,9 @@ jobs:
           path: |
             reports/verify-flagship-laravel-min
             reports/migration/flagship-laravel-min.json
+            reports/migration/flagship-laravel-min-emit-stats.json
+            reports/migration/idiomaticity.json
+            reports/migration/residual-legacy.json
           if-no-files-found: ignore
 
   verify-flagship-laravel-full:
@@ -205,6 +213,16 @@ jobs:
           path: flagship/chrysalis-laravel-work
           key: laravel-full-work-breeze-${{ runner.os }}-${{ hashFiles('scripts/scaffold-flagship-laravel.mjs', 'flagship/laravel-full/chrysalis-templates/**') }}
 
+      - name: Restore confidence trend history
+        id: confidence-history-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: reports/confidence/history
+          key: confidence-history-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            confidence-history-${{ runner.os }}-${{ github.ref_name }}-
+            confidence-history-${{ runner.os }}-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -212,6 +230,18 @@ jobs:
         run: |
           rm -rf packages/verify/dist
           pnpm -r build
+
+      - name: Decide confidence trend mode (warmup vs strict)
+        env:
+          CONFIDENCE_STREAK_REQUIRED: "30"
+        run: |
+          if node scripts/ci-gates.mjs confidence-trend-ready reports/confidence/history/flagship-laravel-full.history.json; then
+            echo "CONFIDENCE_TREND_ALLOW_WARMUP=0" >> "$GITHUB_ENV"
+            echo "confidence trend mode: strict"
+          else
+            echo "CONFIDENCE_TREND_ALLOW_WARMUP=1" >> "$GITHUB_ENV"
+            echo "confidence trend mode: warmup"
+          fi
 
       - name: Scaffold/refresh Composer Laravel worktree
         env:
@@ -221,13 +251,21 @@ jobs:
 
       - name: Verify composer-backed flagship slice
         env:
-          VERIFY_THRESHOLD: "0.95"
-        run: pnpm run verify:laravel-full
+          VERIFY_THRESHOLD: "0.99999"
+          CONFIDENCE_5NINES: "0.99999"
+          CONFIDENCE_STREAK_REQUIRED: "30"
+        run: pnpm run verify:laravel-full:5nines
 
       - name: Compute migration status (laravel-full)
         env:
           VERIFY_THRESHOLD: "0.95"
         run: pnpm run status:laravel-full
+
+      - name: Gate migration sidecar floors (idiomaticity / residual-legacy)
+        env:
+          CHRYSALIS_IDIOMATICITY_MIN: "0.01"
+          CHRYSALIS_RESIDUAL_LEGACY_MAX: "50"
+        run: node scripts/ci-gates.mjs migration-sidecar-floors
 
       - name: Upload flagship laravel-full verify + migration JSON
         if: always()
@@ -237,7 +275,19 @@ jobs:
           path: |
             reports/verify-flagship-laravel-full
             reports/migration/flagship-laravel-full.json
+            reports/migration/flagship-laravel-full-emit-stats.json
+            reports/migration/idiomaticity.json
+            reports/migration/residual-legacy.json
+            reports/confidence/flagship-laravel-full.json
+            reports/confidence/history/flagship-laravel-full.history.json
           if-no-files-found: ignore
+
+      - name: Save confidence trend history
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: reports/confidence/history
+          key: confidence-history-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
 
   insight-catalog:
     name: insight (catalog WebIR anti-patterns)

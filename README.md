@@ -38,16 +38,22 @@ and **Composer adoption templates** (`flagship/laravel-full`) meet the phased ac
 scripted, migration + oracle-footprint artifacts, and `chrysalis status --json` inputs documented in
 `flagship/README.md`. **Current focus:** **Milestone 5 (in progress)** — canonical **`chrysalis-laravel-work/`** Composer tree (D84),
 optional Breeze, larger corpora, optional sidecar gates — see `ROADMAP.md`.
+**Decision D122:** `flagship/laravel-min` remains the permanent fast regression fixture; Breeze
+first-party auth UI and production auth internals stay outside owned parity scope until a dedicated milestone.
 Milestone 3 repair loop (verify-gated `chrysalis repair`, optional LLM, hole patches) is closed for v1;
 emit↔IR maps and richer attribution remain cross-cutting.
 
 **Flagship snapshot:** `flagship/laravel-min` carries **Composer autoload**, **SQLite** routes
 (**`/items`**, **`/count`**, **`/hello`**, **`POST /echo`**, **`/session/visit`**, **`/api/health`**, metadata
-**`GET`**s, **`/jump`**, fixture **login/logout/me**), and **`verify:flagship`**. **`flagship/laravel-full`**
-ships **`chrysalis-templates/`** (17 bounded template routes), **`pnpm run scaffold:laravel-full`**,
-and optional **`verify:laravel-full`** / **`status:laravel-full`** when **`chrysalis-laravel-work`** exists
+**`GET`**s, **`/jump`**, fixture **login/logout/me**), **`verify:flagship`**, and
+**`status:laravel-min`** (migration gate + optional sidecars after verify).
+**`flagship/laravel-full`** ships **`chrysalis-templates/`** (17 bounded template routes),
+**`pnpm run scaffold:laravel-full`**, and optional **`verify:laravel-full`** /
+**`status:laravel-full`** when **`chrysalis-laravel-work`** exists
 (see `flagship/laravel-full/README.md`). Stress replay gate:
-**`verify:laravel-full:stress`**.
+**`verify:laravel-full:stress`**. Seed-variant matrix gate:
+**`verify:laravel-full:seed-matrix`** (baseline/empty/ten). Five-nines confidence gate:
+**`verify:laravel-full:5nines`** (includes rolling `confidence-trend`).
 
 The end-to-end translation pipeline runs on the bundled `fixtures/tiny-blog`
 PHP app: PHP sources → parser-bridge → WebIR → emit-hono → a compiling

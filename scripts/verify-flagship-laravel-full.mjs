@@ -8,8 +8,9 @@
  *
  * Corpus: **`GET /chrysalis-ping`** (twice), **`GET /chrysalis-health.txt`** (twice),
  * **`GET /api/chrysalis-health`** (twice), **`GET /chrysalis-jump`** (302 manual),
- * **`GET /chrysalis-session/visit`** (twice), **`GET /chrysalis-hello?name=...`**
- * (twice), **`GET /chrysalis-count`** (twice), **`GET /chrysalis-first-item`** (twice),
+ * **`GET /chrysalis-session/visit`** (twice), **`GET /chrysalis-hello`** (no query, default
+ * `name`), **`GET /chrysalis-hello?name=`** (empty trimmed name), **`GET /chrysalis-hello?name=...`**
+ * twice (**`flagship`** / **`composer`**) plus one percent-encoded **`x y`**, **`GET /chrysalis-count`** (twice), **`GET /chrysalis-first-item`** (twice),
  * **`GET /chrysalis-last-item`** (twice),
  * **`GET /chrysalis-items`** (twice), **`GET /chrysalis-lib-count`** (twice),
  * **`GET /chrysalis-sum-ids`** (twice), **`GET /chrysalis-min-id`** (twice),
@@ -41,16 +42,25 @@
  * **`GET /chrysalis-items-cte-rollup`** (twice),
  * **`GET /chrysalis-recursive-stress`** (twice),
  * **`GET /chrysalis-framework`** (twice),
- * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/login`** +
+ * **`GET /chrysalis-session/me`** + **`GET /chrysalis-session/login`** (negative method guard) +
+ * **`POST /chrysalis-session/login`** (bad username) + **`POST /chrysalis-session/login`** +
  * **`GET /chrysalis-session/me`** + **`POST /chrysalis-session/logout`** +
  * **`GET /chrysalis-session/me`**, and **`POST /chrysalis-echo`**
  * (two form bodies).
  * Ingest uses project-root **`chrysalis.routes.json`** (Chrysalis handlers); PHP docroot is
  * Laravel **`public/`**.
  *
+ * Writes **`reports/migration/flagship-laravel-full-emit-stats.json`** (manifest route count +
+ * per-emitter hole/handler counts) for **`status:laravel-full`** to derive optional migration
+ * sidecars (`idiomaticity.json`, `residual-legacy.json`) via **`scripts/flagship-migration-metrics.mjs`**.
+ *
  * Optional stress mode:
  * - `--stress-runs=N` (or `CHRYSALIS_VERIFY_STRESS_RUNS=N`) repeats replay N times
  *   per backend and fails on report fingerprint drift.
+ * - `--seed-variant=baseline|empty|ten` (or `CHRYSALIS_VERIFY_SEED_VARIANT`) rewrites
+ *   the SQLite seed rows before capture + replay.
+ * - `--seed-variants=baseline,empty,ten` (or `CHRYSALIS_VERIFY_SEED_VARIANTS`) runs a
+ *   sequential seed matrix.
  *
  * Skips with exit 0 when:
  * - PHP is not on PATH
@@ -62,7 +72,7 @@
 
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -84,6 +94,7 @@ import { emit as emitHono } from "../packages/emit-hono/dist/index.js";
 import { emit as emitFastify } from "../packages/emit-fastify/dist/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
+const scriptPath = fileURLToPath(import.meta.url);
 const repo = resolve(here, "..");
 const fixture = resolve(repo, "flagship/chrysalis-laravel-work");
 const docroot = resolve(fixture, "public");
@@ -91,6 +102,10 @@ const traceDir = resolve(repo, "traces/flagship-laravel-full");
 const generatedHono = resolve(repo, "generated/flagship-laravel-full");
 const generatedFastify = resolve(repo, "generated/flagship-laravel-full-fastify");
 const reportRoot = resolve(repo, "reports/verify-flagship-laravel-full");
+const confidenceRoot = resolve(repo, "reports/confidence");
+const confidencePath = resolve(confidenceRoot, "flagship-laravel-full.json");
+const confidenceHistoryRoot = resolve(confidenceRoot, "history");
+const confidenceHistoryPath = resolve(confidenceHistoryRoot, "flagship-laravel-full.history.json");
 const preludePath = resolve(repo, "packages/oracle-php/src/bootstrap.php");
 const observeFallback = resolve(
   repo,
@@ -99,7 +114,53 @@ const observeFallback = resolve(
 const schemaSource = resolve(fixture, "chrysalis/schema.sql");
 const THRESHOLD = Number.parseFloat(process.env.VERIFY_THRESHOLD ?? "0.95");
 const STRESS_RUNS = parseStressRuns();
+const SEED_VARIANT = parseSeedVariant();
+const SEED_VARIANTS = parseSeedVariants();
+let seedSchemaSql = null;
 const OBS_PORT = 18082;
+
+if (!process.argv.includes("--_seed-driver") && SEED_VARIANTS.length > 1) {
+  let matrixExit = 0;
+  const matrix = [];
+  for (const variant of SEED_VARIANTS) {
+    console.log(`\n[verify-flagship-laravel-full] seed matrix: ${variant}`);
+    if (existsSync(confidencePath)) {
+      rmSync(confidencePath, { force: true });
+    }
+    try {
+      execSync(
+        `"${process.execPath}" "${scriptPath}" --_seed-driver --seed-variant=${variant} --stress-runs=${STRESS_RUNS}`,
+        {
+          cwd: repo,
+          stdio: "inherit",
+          env: { ...process.env, CHRYSALIS_VERIFY_MATRIX_ACTIVE: "1" },
+        },
+      );
+      if (existsSync(confidencePath)) {
+        const child = JSON.parse(readFileSync(confidencePath, "utf8"));
+        matrix.push({ variant, ...child });
+      } else {
+        matrix.push({ variant, skipped: true });
+      }
+    } catch {
+      matrixExit = 1;
+    }
+  }
+  const matrixCrossBackendParityOk = matrix.every(
+    (m) => m.skipped === true || m.crossBackendParity?.ok !== false,
+  );
+  const summary = {
+    profile: "flagship-laravel-full",
+    target: "5-nines-confidence",
+    matrix,
+    matrixExit,
+    matrixCrossBackendParityOk,
+  };
+  mkdirSync(confidenceRoot, { recursive: true });
+  writeFileSync(confidencePath, `${JSON.stringify(summary, null, 2)}\n`);
+  console.log(`[verify-flagship-laravel-full] wrote confidence artifact ${confidencePath}`);
+  process.exit(matrixExit);
+}
 
 try {
   execSync("php --version", { stdio: "ignore" });
@@ -152,6 +213,7 @@ try {
 const corpus = readCorpus({ root: traceDir });
 console.log(`[verify-flagship-laravel-full] corpus: ${corpus.traces.length} traces`);
 assertCorpusSemantics(corpus);
+let riskCells = buildRiskCells(corpus);
 
 const webirModule = await ingestDirectory(fixture);
 
@@ -169,6 +231,29 @@ console.log(
   `[verify-flagship-laravel-full] emit-fastify handlers=${resF.handlerCount} emit-holes=${resF.holes.length}`,
 );
 
+const routesManifestPath = join(fixture, "chrysalis.routes.json");
+let manifestRoutes = 0;
+try {
+  const rawRoutes = readFileSync(routesManifestPath, "utf8");
+  const parsedRoutes = JSON.parse(rawRoutes);
+  manifestRoutes = Array.isArray(parsedRoutes.routes) ? parsedRoutes.routes.length : 0;
+} catch {
+  console.warn(`[verify-flagship-laravel-full] could not read manifest routes from ${routesManifestPath}`);
+}
+const migrationReportsDir = resolve(repo, "reports/migration");
+mkdirSync(migrationReportsDir, { recursive: true });
+const emitStatsPayload = {
+  schema: "chrysalis/flagship-laravel-full-emit-stats/1",
+  manifestRoutes,
+  hono: { holes: resH.holes.length, handlerCount: resH.handlerCount },
+  fastify: { holes: resF.holes.length, handlerCount: resF.handlerCount },
+};
+writeFileSync(
+  join(migrationReportsDir, "flagship-laravel-full-emit-stats.json"),
+  `${JSON.stringify(emitStatsPayload, null, 2)}\n`,
+);
+console.log(`[verify-flagship-laravel-full] wrote reports/migration/flagship-laravel-full-emit-stats.json`);
+
 for (const dir of [generatedHono, generatedFastify]) {
   const label = dir === generatedHono ? "hono" : "fastify";
   console.log(`[verify-flagship-laravel-full] npm install (${label})...`);
@@ -178,9 +263,8 @@ for (const dir of [generatedHono, generatedFastify]) {
   });
   const dbPath = join(dir, "blog.sqlite");
   if (existsSync(dbPath)) rmSync(dbPath);
-  const schemaSql = readFileSync(schemaSource, "utf8");
   const db = new DatabaseSync(dbPath);
-  db.exec(schemaSql);
+  db.exec(getSeedSchemaSql());
   db.close();
   applyFlagshipUserPassword(dbPath);
   const sessDir = join(dir, "chrysalis-sessions");
@@ -197,11 +281,16 @@ const backends = [
 ];
 
 let exitCode = 0;
+const backendSummaries = [];
 for (const b of backends) {
   console.log(`\n[verify-flagship-laravel-full] —— replay vs ${b.id} ——`);
   const fetchFn = await loadEmittedFetch(b.dir, b.kind);
   const outDir = join(reportRoot, b.id);
   let baselineFingerprint = "";
+  let firstRunStableFingerprint = "";
+  let driftDetected = false;
+  let minCorrectness = 1;
+  let maxCorrectness = 0;
   for (let run = 1; run <= STRESS_RUNS; run++) {
     resetEmittedBackendState(b.dir);
     const outcomes = await replayCorpus(corpus, {
@@ -217,14 +306,16 @@ for (const b of backends) {
     console.log(
       `[verify-flagship-laravel-full] ${b.id} run ${run}/${STRESS_RUNS}: ${(report.aggregate.correctness * 100).toFixed(1)}%  (${report.aggregate.framesPassed}/${report.aggregate.framesTotal})`,
     );
-    const fp = fingerprintReport(report);
+    const fp = stableReportFingerprint(report);
     if (run === 1) {
       baselineFingerprint = fp;
+      firstRunStableFingerprint = fp;
     } else if (baselineFingerprint !== fp) {
       console.error(
-        `[verify-flagship-laravel-full] ${b.id} run ${run}: report fingerprint drift detected vs run 1`,
+        `[verify-flagship-laravel-full] ${b.id} run ${run}: stable report fingerprint drift detected vs run 1`,
       );
       exitCode = 1;
+      driftDetected = true;
     }
     if (report.aggregate.correctness + 1e-9 < THRESHOLD) {
       console.error(
@@ -232,8 +323,56 @@ for (const b of backends) {
       );
       exitCode = 1;
     }
+    minCorrectness = Math.min(minCorrectness, report.aggregate.correctness);
+    maxCorrectness = Math.max(maxCorrectness, report.aggregate.correctness);
   }
+  backendSummaries.push({
+    backend: b.id,
+    stressRuns: STRESS_RUNS,
+    driftDetected,
+    minCorrectness,
+    maxCorrectness,
+    threshold: THRESHOLD,
+    firstRunStableFingerprint,
+  });
 }
+
+const crossBackendParity = assertCrossBackendReportParity(backendSummaries);
+if (!crossBackendParity.ok) {
+  console.error(
+    `[verify-flagship-laravel-full] cross-backend verify parity FAILED: Hono and Fastify run-1 ` +
+      `stable report fingerprints differ (see confidence.crossBackendParity).`,
+  );
+  exitCode = 1;
+}
+
+riskCells = [
+  ...riskCells,
+  {
+    cell: "cross-backend-verify-parity",
+    status: crossBackendParity.ok ? "covered" : "at-risk",
+    kpi: { value: crossBackendParity.ok ? 1 : 0, min: 1, unit: "match" },
+    evidence: "run-1 stable verify report (aggregate + per-endpoint scores) identical for Hono and Fastify",
+  },
+];
+
+const confidence = {
+  profile: "flagship-laravel-full",
+  target: "5-nines-confidence",
+  targetCorrectness: 0.99999,
+  seedVariant: SEED_VARIANT,
+  stressRuns: STRESS_RUNS,
+  semanticChecks: "passed",
+  metamorphicChecks: "passed",
+  riskCells,
+  crossBackendParity,
+  exitCode,
+  backends: backendSummaries,
+};
+mkdirSync(confidenceRoot, { recursive: true });
+writeFileSync(confidencePath, `${JSON.stringify(confidence, null, 2)}\n`);
+console.log(`[verify-flagship-laravel-full] wrote confidence artifact ${confidencePath}`);
+appendConfidenceHistory(confidence);
 
 if (exitCode === 0) {
   if (STRESS_RUNS > 1) {
@@ -280,6 +419,14 @@ async function driveLaravelFullCorpus(port) {
       console.warn(`[verify-flagship-laravel-full] GET /chrysalis-session/visit returned ${r.status}`);
     }
   }
+  const helloDefault = await fetch(`${base}/chrysalis-hello`);
+  if (!helloDefault.ok) {
+    console.warn(`[verify-flagship-laravel-full] GET /chrysalis-hello (default) returned ${helloDefault.status}`);
+  }
+  const helloEmpty = await fetch(`${base}/chrysalis-hello?name=`);
+  if (!helloEmpty.ok) {
+    console.warn(`[verify-flagship-laravel-full] GET /chrysalis-hello?name= returned ${helloEmpty.status}`);
+  }
   const helloA = await fetch(`${base}/chrysalis-hello?name=flagship`);
   if (!helloA.ok) {
     console.warn(`[verify-flagship-laravel-full] GET /chrysalis-hello returned ${helloA.status}`);
@@ -287,6 +434,12 @@ async function driveLaravelFullCorpus(port) {
   const helloB = await fetch(`${base}/chrysalis-hello?name=composer`);
   if (!helloB.ok) {
     console.warn(`[verify-flagship-laravel-full] GET /chrysalis-hello returned ${helloB.status}`);
+  }
+  const helloEncoded = await fetch(
+    `${base}/chrysalis-hello?name=${encodeURIComponent("x y")}`,
+  );
+  if (!helloEncoded.ok) {
+    console.warn(`[verify-flagship-laravel-full] GET /chrysalis-hello (encoded name) returned ${helloEncoded.status}`);
   }
   for (let i = 0; i < 2; i++) {
     const r = await fetch(`${base}/chrysalis-count`);
@@ -532,6 +685,36 @@ async function driveLaravelFullCorpus(port) {
   if (!me0.ok) {
     console.warn(`[verify-flagship-laravel-full] GET /chrysalis-session/me returned ${me0.status}`);
   }
+  const loginWrongMethod = await fetch(`${base}/chrysalis-session/login`);
+  if (loginWrongMethod.status !== 405) {
+    console.warn(
+      `[verify-flagship-laravel-full] GET /chrysalis-session/login expected 405, got ${loginWrongMethod.status}`,
+    );
+  }
+  const badLogin = await fetch(`${base}/chrysalis-session/login`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ username: "intruder" }).toString(),
+  });
+  if (!badLogin.ok) {
+    console.warn(`[verify-flagship-laravel-full] POST /chrysalis-session/login (bad) returned ${badLogin.status}`);
+  }
+  const emptyLogin = await fetch(`${base}/chrysalis-session/login`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({}).toString(),
+  });
+  if (!emptyLogin.ok) {
+    console.warn(`[verify-flagship-laravel-full] POST /chrysalis-session/login (empty) returned ${emptyLogin.status}`);
+  }
+  const jsonLogin = await fetch(`${base}/chrysalis-session/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ username: "flagship" }),
+  });
+  if (!jsonLogin.ok) {
+    console.warn(`[verify-flagship-laravel-full] POST /chrysalis-session/login (json) returned ${jsonLogin.status}`);
+  }
   const login = await fetch(`${base}/chrysalis-session/login`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -548,9 +731,31 @@ async function driveLaravelFullCorpus(port) {
   if (!logout.ok) {
     console.warn(`[verify-flagship-laravel-full] POST /chrysalis-session/logout returned ${logout.status}`);
   }
+  const logoutAgain = await fetch(`${base}/chrysalis-session/logout`, { method: "POST" });
+  if (!logoutAgain.ok) {
+    console.warn(`[verify-flagship-laravel-full] POST /chrysalis-session/logout (second) returned ${logoutAgain.status}`);
+  }
+  const logoutWrongMethod = await fetch(`${base}/chrysalis-session/logout`);
+  if (logoutWrongMethod.status !== 405) {
+    console.warn(
+      `[verify-flagship-laravel-full] GET /chrysalis-session/logout expected 405, got ${logoutWrongMethod.status}`,
+    );
+  }
   const me2 = await fetch(`${base}/chrysalis-session/me`);
   if (!me2.ok) {
     console.warn(`[verify-flagship-laravel-full] GET /chrysalis-session/me returned ${me2.status}`);
+  }
+  const relogin = await fetch(`${base}/chrysalis-session/login`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ username: "flagship" }).toString(),
+  });
+  if (!relogin.ok) {
+    console.warn(`[verify-flagship-laravel-full] POST /chrysalis-session/login (relogin) returned ${relogin.status}`);
+  }
+  const me3 = await fetch(`${base}/chrysalis-session/me`);
+  if (!me3.ok) {
+    console.warn(`[verify-flagship-laravel-full] GET /chrysalis-session/me (after relogin) returned ${me3.status}`);
   }
   const echoA = await fetch(`${base}/chrysalis-echo`, {
     method: "POST",
@@ -567,6 +772,26 @@ async function driveLaravelFullCorpus(port) {
   });
   if (!echoB.ok) {
     console.warn(`[verify-flagship-laravel-full] POST /chrysalis-echo (second) returned ${echoB.status}`);
+  }
+  const echoEmpty = await fetch(`${base}/chrysalis-echo`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({}).toString(),
+  });
+  if (!echoEmpty.ok) {
+    console.warn(`[verify-flagship-laravel-full] POST /chrysalis-echo (empty) returned ${echoEmpty.status}`);
+  }
+  const echoJson = await fetch(`${base}/chrysalis-echo`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ msg: "json-body" }),
+  });
+  if (!echoJson.ok) {
+    console.warn(`[verify-flagship-laravel-full] POST /chrysalis-echo (json) returned ${echoJson.status}`);
+  }
+  const echoWrongMethod = await fetch(`${base}/chrysalis-echo`);
+  if (echoWrongMethod.status !== 405) {
+    console.warn(`[verify-flagship-laravel-full] GET /chrysalis-echo expected 405, got ${echoWrongMethod.status}`);
   }
 }
 
@@ -612,9 +837,8 @@ function applyFlagshipUserPassword(dbPath) {
 function resetEmittedBackendState(outAbs) {
   const dbPath = join(outAbs, "blog.sqlite");
   if (existsSync(dbPath)) rmSync(dbPath);
-  const schemaSql = readFileSync(schemaSource, "utf8");
   const db = new DatabaseSync(dbPath);
-  db.exec(schemaSql);
+  db.exec(getSeedSchemaSql());
   db.close();
   applyFlagshipUserPassword(dbPath);
   const sessDir = join(outAbs, "chrysalis-sessions");
@@ -623,10 +847,41 @@ function resetEmittedBackendState(outAbs) {
 }
 
 /**
+ * Fingerprint of verify outcome for drift and cross-backend checks. Omits
+ * `generatedAt` so replays and emitters are comparable.
+ *
  * @param {ReturnType<typeof buildReport>} report
  */
-function fingerprintReport(report) {
-  return createHash("sha256").update(JSON.stringify(report)).digest("hex");
+function stableReportFingerprint(report) {
+  const stable = {
+    aggregate: report.aggregate,
+    endpoints: report.endpoints,
+  };
+  return createHash("sha256").update(JSON.stringify(stable)).digest("hex");
+}
+
+/**
+ * @param {ReadonlyArray<{
+ *   backend: string;
+ *   firstRunStableFingerprint: string;
+ * }>} summaries
+ */
+function assertCrossBackendReportParity(summaries) {
+  const withFp = summaries.filter((s) => typeof s.firstRunStableFingerprint === "string" && s.firstRunStableFingerprint.length > 0);
+  if (withFp.length < 2) {
+    return { ok: true, skipped: true, reason: "fewer than two backends with stable fingerprints" };
+  }
+  const ref = withFp[0].firstRunStableFingerprint;
+  const mismatches = withFp.filter((s) => s.firstRunStableFingerprint !== ref);
+  if (mismatches.length > 0) {
+    return {
+      ok: false,
+      refFingerprint: ref,
+      mismatchedBackends: mismatches.map((s) => s.backend),
+      fingerprints: Object.fromEntries(withFp.map((s) => [s.backend, s.firstRunStableFingerprint])),
+    };
+  }
+  return { ok: true, refFingerprint: ref, fingerprints: Object.fromEntries(withFp.map((s) => [s.backend, s.firstRunStableFingerprint])) };
 }
 
 function parseStressRuns() {
@@ -640,11 +895,36 @@ function parseStressRuns() {
 }
 
 function assertCorpusSemantics(corpus) {
+  const expectations = semanticExpectationsForSeed(SEED_VARIANT);
   const byRoute = groupByRoute(corpus);
-  assertRouteBody(byRoute, "GET /chrysalis-items-snapshot", '{"itemsSnapshot":{"count":3,"minId":1,"maxId":3,"sumId":6}}');
-  assertRouteBody(byRoute, "GET /chrysalis-items-group-parity", '{"parityCounts":{"even":1,"odd":2}}');
-  assertRouteBody(byRoute, "GET /chrysalis-items-cte-rollup", '{"cteRollup":{"count":3,"sumId":6,"avgId":2}}');
-  assertRouteBody(byRoute, "GET /chrysalis-recursive-stress", '{"recursiveStress":{"maxN":30,"sumN":465}}');
+  assertRouteBody(byRoute, "GET /chrysalis-items-snapshot", expectations.itemsSnapshot);
+  assertRouteBody(byRoute, "GET /chrysalis-items-group-parity", expectations.itemsGroupParity);
+  assertRouteBody(byRoute, "GET /chrysalis-items-cte-rollup", expectations.itemsCteRollup);
+  assertRouteBody(byRoute, "GET /chrysalis-recursive-stress", expectations.recursiveStress);
+  assertRouteStatus(byRoute, "GET /chrysalis-session/login", 405);
+  assertRouteContainsBody(byRoute, "POST /chrysalis-session/login", '{"ok":false}');
+  assertRouteContainsBody(byRoute, "POST /chrysalis-session/login", '{"ok":true}');
+  assertRouteContainsBody(byRoute, "GET /chrysalis-session/me", '{"user":null}');
+  assertRouteContainsBody(byRoute, "GET /chrysalis-session/me", '{"user":"flagship"}');
+  assertRouteStatus(byRoute, "GET /chrysalis-session/logout", 405);
+  assertRouteContainsBody(byRoute, "POST /chrysalis-session/logout", '{"ok":true}');
+  assertRouteStatus(byRoute, "GET /chrysalis-echo", 405);
+  assertRouteContainsBody(byRoute, "POST /chrysalis-echo", '{"msg":""}');
+  assertRouteContainsBody(byRoute, "GET /chrysalis-hello", "hello world\n");
+  assertRouteContainsBody(byRoute, "GET /chrysalis-hello", "hello \n");
+  assertRouteContainsBody(byRoute, "GET /chrysalis-hello", "hello flagship\n");
+  assertRouteContainsBody(byRoute, "GET /chrysalis-hello", "hello composer\n");
+  assertRouteContainsBody(byRoute, "GET /chrysalis-hello", "hello x y\n");
+  assertRouteHeaderContains(byRoute, "GET /chrysalis-items-snapshot", "content-type", "application/json");
+  assertRouteHeaderContains(byRoute, "GET /chrysalis-session/me", "content-type", "application/json");
+  assertRouteHeaderContains(byRoute, "GET /chrysalis-health.txt", "content-type", "text/plain");
+  assertRouteHeaderContains(byRoute, "GET /api/chrysalis-health", "content-type", "application/json");
+  assertRouteHeaderContains(byRoute, "GET /chrysalis-jump", "location", "/chrysalis-health.txt");
+  assertRouteHeaderContains(byRoute, "POST /chrysalis-session/login", "set-cookie", "chrysalis_sid=");
+  assertRouteHeaderContains(byRoute, "POST /chrysalis-session/logout", "set-cookie", "chrysalis_sid=");
+  assertRouteHeaderContains(byRoute, "GET /chrysalis-session/me", "set-cookie", "chrysalis_sid=");
+  assertSessionTransitionSequence(byRoute);
+  assertMetamorphicRelations(byRoute);
 }
 
 function assertRouteBody(byRoute, routeSig, expectedBody) {
@@ -668,16 +948,413 @@ function assertRouteBody(byRoute, routeSig, expectedBody) {
   }
 }
 
+function assertRouteStatus(byRoute, routeSig, expectedStatus) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship-laravel-full] missing traces for ${routeSig}`);
+  }
+  for (const trace of traces) {
+    const response = trace.events.find((e) => e.type === "http.response");
+    if (!response || response.type !== "http.response") {
+      throw new Error(`[verify-flagship-laravel-full] missing http.response event for ${routeSig}`);
+    }
+    if (response.status !== expectedStatus) {
+      throw new Error(
+        `[verify-flagship-laravel-full] ${routeSig} expected status ${expectedStatus}, got ${response.status}`,
+      );
+    }
+  }
+}
+
+function assertRouteContainsBody(byRoute, routeSig, expectedBody) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship-laravel-full] missing traces for ${routeSig}`);
+  }
+  const hasBody = traces.some((trace) => {
+    const response = trace.events.find((e) => e.type === "http.response");
+    return response && response.type === "http.response" && response.body === expectedBody;
+  });
+  if (!hasBody) {
+    throw new Error(`[verify-flagship-laravel-full] ${routeSig} missing expected body ${expectedBody}`);
+  }
+}
+
+function assertRouteHeaderContains(byRoute, routeSig, headerName, expectedFragment) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship-laravel-full] missing traces for ${routeSig}`);
+  }
+  for (const trace of traces) {
+    const response = trace.events.find((e) => e.type === "http.response");
+    if (!response || response.type !== "http.response") {
+      throw new Error(`[verify-flagship-laravel-full] missing http.response event for ${routeSig}`);
+    }
+    const key = Object.keys(response.headers ?? {}).find((k) => k.toLowerCase() === headerName.toLowerCase());
+    const value = key ? String(response.headers[key] ?? "") : "";
+    if (!value.toLowerCase().includes(expectedFragment.toLowerCase())) {
+      throw new Error(
+        `[verify-flagship-laravel-full] ${routeSig} expected header ${headerName} to include ${expectedFragment}, got ${value}`,
+      );
+    }
+  }
+}
+
+function assertMetamorphicRelations(byRoute) {
+  const snapshot = parseRouteBody(byRoute, "GET /chrysalis-items-snapshot", "itemsSnapshot");
+  const parity = parseRouteBody(byRoute, "GET /chrysalis-items-group-parity", "parityCounts");
+  const cte = parseRouteBody(byRoute, "GET /chrysalis-items-cte-rollup", "cteRollup");
+  const recursive = parseRouteBody(byRoute, "GET /chrysalis-recursive-stress", "recursiveStress");
+
+  if (snapshot.count !== parity.even + parity.odd) {
+    throw new Error("[verify-flagship-laravel-full] metamorphic mismatch: snapshot.count != even + odd");
+  }
+  if (snapshot.count !== cte.count || snapshot.sumId !== cte.sumId) {
+    throw new Error("[verify-flagship-laravel-full] metamorphic mismatch: snapshot and cte rollup disagree");
+  }
+  const expectedMaxN = snapshot.count * 10;
+  if (recursive.maxN !== expectedMaxN) {
+    throw new Error(
+      `[verify-flagship-laravel-full] metamorphic mismatch: recursive maxN ${recursive.maxN} != ${expectedMaxN}`,
+    );
+  }
+  const expectedSumN = (recursive.maxN * (recursive.maxN + 1)) / 2;
+  if (recursive.sumN !== expectedSumN) {
+    throw new Error(
+      `[verify-flagship-laravel-full] metamorphic mismatch: recursive sumN ${recursive.sumN} != ${expectedSumN}`,
+    );
+  }
+}
+
+function assertSessionTransitionSequence(byRoute) {
+  const traces = byRoute.get("GET /chrysalis-session/me") ?? [];
+  if (traces.length < 4) {
+    throw new Error(
+      `[verify-flagship-laravel-full] expected >=4 GET /chrysalis-session/me traces for transition check, got ${traces.length}`,
+    );
+  }
+  const bodies = traces.map((trace) => {
+    const response = trace.events.find((e) => e.type === "http.response");
+    if (!response || response.type !== "http.response") {
+      throw new Error("[verify-flagship-laravel-full] missing http.response in GET /chrysalis-session/me trace");
+    }
+    return response.body;
+  });
+  const expected = ['{"user":null}', '{"user":"flagship"}', '{"user":null}', '{"user":"flagship"}'];
+  for (let i = 0; i < expected.length; i++) {
+    if (bodies[i] !== expected[i]) {
+      throw new Error(
+        `[verify-flagship-laravel-full] session transition mismatch at step ${i + 1}: expected ${expected[i]}, got ${bodies[i]}`,
+      );
+    }
+  }
+}
+
+function parseRouteBody(byRoute, routeSig, key) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship-laravel-full] missing traces for ${routeSig}`);
+  }
+  const response = traces[0].events.find((e) => e.type === "http.response");
+  if (!response || response.type !== "http.response") {
+    throw new Error(`[verify-flagship-laravel-full] missing http.response event for ${routeSig}`);
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(response.body);
+  } catch {
+    throw new Error(`[verify-flagship-laravel-full] ${routeSig} body is not valid JSON: ${response.body}`);
+  }
+  if (parsed == null || typeof parsed !== "object" || !(key in parsed)) {
+    throw new Error(`[verify-flagship-laravel-full] ${routeSig} missing expected top-level key ${key}`);
+  }
+  return parsed[key];
+}
+
+function buildRiskCells(corpus) {
+  const byRoute = groupByRoute(corpus);
+  const tracesTotal = corpus.traces.length;
+  const getCount = (routeSig) => (byRoute.get(routeSig) ?? []).length;
+  const sumCounts = (routeSigs) => routeSigs.reduce((acc, sig) => acc + getCount(sig), 0);
+  const kpi = (id, value, min, unit) => ({
+    cell: id,
+    status: value >= min ? "covered" : "at-risk",
+    kpi: { value, min, unit },
+  });
+  return [
+    {
+      ...kpi(
+        "http-health-and-metadata",
+        sumCounts([
+          "GET /chrysalis-ping",
+          "GET /chrysalis-health.txt",
+          "GET /api/chrysalis-health",
+        ]),
+        6,
+        "traces",
+      ),
+      evidence: "ping + health endpoints captured multiple times",
+    },
+    {
+      ...kpi("redirect-contract", getCount("GET /chrysalis-jump"), 1, "traces"),
+      evidence: "manual redirect capture for /chrysalis-jump",
+    },
+    {
+      ...kpi(
+        "session-auth-happy-path",
+        sumCounts([
+          "POST /chrysalis-session/login",
+          "POST /chrysalis-session/logout",
+          "GET /chrysalis-session/me",
+        ]),
+        8,
+        "traces",
+      ),
+      evidence: "login/me/logout/relogin sequence assertions",
+    },
+    {
+      ...kpi(
+        "session-auth-negative-path",
+        getCount("GET /chrysalis-session/login") +
+          getCount("GET /chrysalis-session/logout") +
+          getCount("POST /chrysalis-session/login"),
+        5,
+        "traces",
+      ),
+      evidence: "method-guard, wrong-method logout, bad/empty/json login semantic assertions",
+    },
+    {
+      ...kpi("session-idempotency", getCount("POST /chrysalis-session/logout"), 2, "traces"),
+      evidence: "logout invoked repeatedly and remains stable",
+    },
+    {
+      ...kpi("session-transition-monotonicity", getCount("GET /chrysalis-session/me"), 4, "traces"),
+      evidence: "me state follows null->flagship->null->flagship transition",
+    },
+    {
+      ...kpi(
+        "header-contract-strictness",
+        sumCounts([
+          "GET /chrysalis-health.txt",
+          "GET /api/chrysalis-health",
+          "GET /chrysalis-items-snapshot",
+          "GET /chrysalis-session/me",
+        ]),
+        6,
+        "traces",
+      ),
+      evidence: "content-type invariants for text/plain and application/json routes",
+    },
+    {
+      ...kpi("redirect-location-invariants", getCount("GET /chrysalis-jump"), 1, "traces"),
+      evidence: "redirect location header remains pinned to /chrysalis-health.txt",
+    },
+    {
+      ...kpi(
+        "cookie-session-header-invariants",
+        sumCounts([
+          "POST /chrysalis-session/login",
+          "POST /chrysalis-session/logout",
+          "GET /chrysalis-session/me",
+        ]),
+        8,
+        "traces",
+      ),
+      evidence: "set-cookie contains chrysalis_sid across session transitions",
+    },
+    {
+      ...kpi(
+        "request-shape-robustness",
+        getCount("GET /chrysalis-echo") + getCount("POST /chrysalis-echo"),
+        5,
+        "traces",
+      ),
+      evidence: "echo route method guard + form/json/empty request shape handling",
+    },
+    {
+      ...kpi(
+        "sql-aggregates-and-cte",
+        sumCounts([
+          "GET /chrysalis-items-snapshot",
+          "GET /chrysalis-items-group-parity",
+          "GET /chrysalis-items-cte-rollup",
+          "GET /chrysalis-recursive-stress",
+        ]),
+        8,
+        "traces",
+      ),
+      evidence: "snapshot/parity/cte/recursive semantic + metamorphic checks",
+    },
+    {
+      ...kpi("seed-cardinality-variance", SEED_VARIANTS.length > 1 ? SEED_VARIANTS.length : 1, 1, "variants"),
+      evidence: "seed matrix baseline/empty/ten where enabled",
+    },
+    {
+      ...kpi("determinism-under-replay", STRESS_RUNS, 1, "runs"),
+      evidence: "report fingerprint drift detection across stress runs",
+    },
+    {
+      ...kpi("dual-emitter-parity", 2, 2, "backends"),
+      evidence: "hono and fastify replayed against same corpus",
+    },
+    {
+      ...kpi("overall-corpus-volume", tracesTotal, 1, "traces"),
+      evidence: "total corpus traces used for replay + assertions",
+    },
+  ];
+}
+
+function appendConfidenceHistory(confidence) {
+  const current = readConfidenceHistory();
+  const minCorrectness =
+    confidence.backends.length > 0
+      ? Math.min(...confidence.backends.map((b) => Number(b.minCorrectness ?? 0)))
+      : 0;
+  const driftDetected = confidence.backends.some((b) => b.driftDetected === true);
+  const riskCovered = confidence.riskCells.every((c) => c.status === "covered");
+  const crossBackendParityOk = confidence.crossBackendParity?.ok !== false;
+  const matrixActive = process.env.CHRYSALIS_VERIFY_MATRIX_ACTIVE === "1";
+  const matrixCrossBackendParityOk = crossBackendParityOk;
+  const entry = {
+    timestamp: new Date().toISOString(),
+    seedVariant: confidence.seedVariant,
+    stressRuns: confidence.stressRuns,
+    exitCode: confidence.exitCode,
+    semanticChecks: confidence.semanticChecks,
+    metamorphicChecks: confidence.metamorphicChecks,
+    minCorrectness,
+    driftDetected,
+    riskCovered,
+    crossBackendParityOk,
+    matrixActive,
+    matrixCrossBackendParityOk,
+  };
+  current.entries.push(entry);
+  const maxEntries = Number.parseInt(process.env.CHRYSALIS_CONFIDENCE_HISTORY_MAX ?? "200", 10);
+  if (Number.isFinite(maxEntries) && maxEntries > 0 && current.entries.length > maxEntries) {
+    current.entries = current.entries.slice(current.entries.length - maxEntries);
+  }
+  mkdirSync(confidenceHistoryRoot, { recursive: true });
+  writeFileSync(confidenceHistoryPath, `${JSON.stringify(current, null, 2)}\n`);
+  console.log(`[verify-flagship-laravel-full] wrote confidence history ${confidenceHistoryPath}`);
+}
+
+function readConfidenceHistory() {
+  if (!existsSync(confidenceHistoryPath)) {
+    return { profile: "flagship-laravel-full", entries: [] };
+  }
+  try {
+    const parsed = JSON.parse(readFileSync(confidenceHistoryPath, "utf8"));
+    if (parsed && parsed.profile === "flagship-laravel-full" && Array.isArray(parsed.entries)) {
+      return parsed;
+    }
+  } catch {}
+  return { profile: "flagship-laravel-full", entries: [] };
+}
+
+function parseSeedVariant() {
+  const arg = process.argv.find((a) => a.startsWith("--seed-variant="));
+  const raw = arg ? arg.slice("--seed-variant=".length) : (process.env.CHRYSALIS_VERIFY_SEED_VARIANT ?? "baseline");
+  if (!["baseline", "empty", "ten"].includes(raw)) {
+    throw new Error(`invalid seed variant: ${raw}`);
+  }
+  return raw;
+}
+
+function parseSeedVariants() {
+  const arg = process.argv.find((a) => a.startsWith("--seed-variants="));
+  const raw = arg ? arg.slice("--seed-variants=".length) : process.env.CHRYSALIS_VERIFY_SEED_VARIANTS;
+  if (!raw) return [SEED_VARIANT];
+  const variants = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (variants.length === 0) return [SEED_VARIANT];
+  for (const v of variants) {
+    if (!["baseline", "empty", "ten"].includes(v)) {
+      throw new Error(`invalid seed variant in list: ${v}`);
+    }
+  }
+  return variants;
+}
+
+function buildSeedSchemaSql(seedVariant) {
+  const base = readFileSync(schemaSource, "utf8");
+  const insertIdx = base.indexOf("INSERT INTO items");
+  const schemaOnly = (insertIdx >= 0 ? base.slice(0, insertIdx) : base).trimEnd();
+  const rows = seedRows(seedVariant);
+  if (rows.length === 0) return `${schemaOnly}\n`;
+  const values = rows.map((name) => `  ('${name.replace(/'/g, "''")}')`).join(",\n");
+  return `${schemaOnly}\n\nINSERT INTO items (name) VALUES\n${values};\n`;
+}
+
+function getSeedSchemaSql() {
+  if (seedSchemaSql === null) {
+    seedSchemaSql = buildSeedSchemaSql(SEED_VARIANT);
+  }
+  return seedSchemaSql;
+}
+
+function seedRows(seedVariant) {
+  switch (seedVariant) {
+    case "baseline":
+      return ["alpha", "bravo", "charlie"];
+    case "empty":
+      return [];
+    case "ten":
+      return [
+        "alpha",
+        "bravo",
+        "charlie",
+        "delta",
+        "echo",
+        "foxtrot",
+        "golf",
+        "hotel",
+        "india",
+        "juliet",
+      ];
+    default:
+      return ["alpha", "bravo", "charlie"];
+  }
+}
+
+function semanticExpectationsForSeed(seedVariant) {
+  switch (seedVariant) {
+    case "empty":
+      return {
+        itemsSnapshot: '{"itemsSnapshot":{"count":0,"minId":0,"maxId":0,"sumId":0}}',
+        itemsGroupParity: '{"parityCounts":{"even":0,"odd":0}}',
+        itemsCteRollup: '{"cteRollup":{"count":0,"sumId":0,"avgId":0}}',
+        recursiveStress: '{"recursiveStress":{"maxN":1,"sumN":1}}',
+      };
+    case "ten":
+      return {
+        itemsSnapshot: '{"itemsSnapshot":{"count":10,"minId":1,"maxId":10,"sumId":55}}',
+        itemsGroupParity: '{"parityCounts":{"even":5,"odd":5}}',
+        itemsCteRollup: '{"cteRollup":{"count":10,"sumId":55,"avgId":6}}',
+        recursiveStress: '{"recursiveStress":{"maxN":100,"sumN":5050}}',
+      };
+    case "baseline":
+    default:
+      return {
+        itemsSnapshot: '{"itemsSnapshot":{"count":3,"minId":1,"maxId":3,"sumId":6}}',
+        itemsGroupParity: '{"parityCounts":{"even":1,"odd":2}}',
+        itemsCteRollup: '{"cteRollup":{"count":3,"sumId":6,"avgId":2}}',
+        recursiveStress: '{"recursiveStress":{"maxN":30,"sumN":465}}',
+      };
+  }
+}
+
 function initLaravelFullSqliteDb(fixtureRoot) {
   const dataDir = join(fixtureRoot, "chrysalis/data");
   const dbPath = join(dataDir, "app.sqlite");
   mkdirSync(dataDir, { recursive: true });
   if (existsSync(dbPath)) rmSync(dbPath);
-  const sql = readFileSync(schemaSource, "utf8");
   const db = new DatabaseSync(dbPath);
-  db.exec(sql);
+  db.exec(getSeedSchemaSql());
   db.close();
-  console.log(`[verify-flagship-laravel-full] fixture DB ready at ${dbPath}`);
+  console.log(`[verify-flagship-laravel-full] fixture DB ready at ${dbPath} (seed=${SEED_VARIANT})`);
 }
 
 /**

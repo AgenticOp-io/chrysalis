@@ -485,20 +485,31 @@ idiomaticity / residual-legacy JSON.
       materializes or refreshes it from **`flagship/laravel-full/chrysalis-templates/`**). CI job
       **`verify flagship (laravel-full scaffold)`** runs scaffold → **`verify:laravel-full`** →
       **`status:laravel-full`** with cache-backed worktree reuse (D84).
-- [ ] **`laravel-min`:** keep as the **shaped** regression fixture **or** fold its oracle cases into
-      the worktree and retire duplicate harness — explicit choice deferred.
+- [x] **`laravel-min` decision (D122):** keep as the **shaped**, fast regression fixture and
+      retain its dedicated oracle harness. Do **not** fold into `laravel-full`; its role is
+      quick CI signal, deterministic triage, and migration sidecar continuity.
 - [x] **Breeze coexistence:** **`pnpm run scaffold:laravel-full`** supports **`--with-breeze`** /
       **`CHRYSALIS_SCAFFOLD_BREEZE=1`** (alias **`pnpm run scaffold:laravel-full:breeze`**) — Composer
       requires **`laravel/breeze`**, **`php artisan breeze:install blade --no-interaction --pest`**, SQLite
       **`migrate --force`**, then **`npm ci`/`npm install`** + **`npm run build`** before Chrysalis
       template sync. CI sets the env var on **`verify flagship (laravel-full scaffold)`** so
       **`verify:laravel-full`** gates a tree where Breeze and Chrysalis routes coexist; ingest remains
-      **`chrysalis.routes.json`-only** (D85). **Deferred:** list Breeze handler entrypoints in the
-      manifest and extend the oracle when we want ingest/verify parity on first-party auth UI.
-- [ ] Production-shaped auth follow-ups (rotating CSRF, gateways, MFA/OAuth) where we
-      choose to own them — emit holes until then.
+      **`chrysalis.routes.json`-only** (D85). **Decision (D122):** keep Breeze first-party auth UI
+      out of parity scope for now; do not onboard Breeze handler entrypoints until a dedicated milestone.
+- [x] Production-shaped auth boundary (D122): rotating CSRF internals, gateways, MFA/OAuth
+      remain explicitly **out of owned parity scope** for current milestones; represent via
+      holes and residual-legacy reporting until a focused auth milestone is opened.
 - [ ] Larger oracle corpora than scripted drivers; pipeline-owned **idiomaticity** and
-      **residual-legacy** JSON when those numbers should gate releases. **Incremental (D86–D115):**
+      **residual-legacy** JSON when those numbers should gate releases (**partial D132:** flagship
+      verify emits **`flagship-laravel-full-emit-stats.json`**; **`status:laravel-full`** writes
+      **`idiomaticity.json`** + **`residual-legacy.json`** from emitted-handler compat scan + hole
+      density; **`laravel-min`** mirror (**`flagship-laravel-min-emit-stats.json`** +
+      **`pnpm run status:laravel-min`**, D133); optional **`migration-sidecar-floors`**
+      CI gate (D134, env **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`**);
+      chimera production `legacyRequestPct` remains a separate integration). **D135:** extra
+      **`chrysalis-hello`** query shapes + semantic bodies in **`verify:laravel-full`** capture.
+      **D136:** same idea on **`laravel-min`** for **`GET /hello`** + post-capture body assertions
+      in **`verify:flagship`**. **Incremental (D86–D115):**
       **`GET /chrysalis-min-id`** / **`GET /chrysalis-max-id`** / **`GET /chrysalis-avg-id`** / **`GET /chrysalis-id-span`**
       / **`GET /chrysalis-sum-squares`** / **`GET /chrysalis-even-count`** / **`GET /chrysalis-odd-count`**
       / **`GET /chrysalis-gt-two-count`** / **`GET /chrysalis-lt-three-count`** / **`GET /chrysalis-gte-two-count`**
@@ -516,8 +527,30 @@ idiomaticity / residual-legacy JSON.
       `COUNT/MIN/MAX/SUM` snapshot aggregates, manifest + **`verify:laravel-full`**
       + deterministic count/snapshot/group/CTE/recursive routes x2 each, plus
       stress replay (`verify:laravel-full:stress`) and semantic body assertions
-      on high-complexity routes in the verify harness) on **`chrysalis-templates/`** — **fifty**
-      template routes, dual emit parity tests updated.
+      on high-complexity routes in the verify harness; plus seed-variant replay
+      matrix (`verify:laravel-full:seed-matrix`) for **`baseline`** / **`empty`** /
+      **`ten`** seeded DB states with per-seed semantic assertions; plus
+      five-nines confidence gate (`verify:laravel-full:5nines`) adding negative-path
+      assertions (`GET /chrysalis-session/login` method guard + bad-login semantics),
+      metamorphic cross-route invariants, and a pipeline confidence artifact
+      at `reports/confidence/flagship-laravel-full.json` with per-cell numeric KPI
+      thresholds enforced by `confidence-5nines`, plus rolling history gate
+      (`confidence-trend`) over `reports/confidence/history/flagship-laravel-full.history.json`
+      with a strict CI lane (`VERIFY_THRESHOLD=0.99999`) and auto-switch from
+      warmup to strict mode once history reaches `CONFIDENCE_STREAK_REQUIRED`,
+      plus request-shape robustness checks (JSON/form mismatch + method guard on
+      form handlers) represented as a dedicated confidence risk cell, plus
+      session idempotency checks (repeat logout stability) as another confidence
+      risk cell, plus session transition monotonicity checks (`me` sequence
+      `null -> flagship -> null -> flagship`) as another confidence risk cell,
+      plus header contract strictness and redirect location invariants as
+      dedicated confidence risk cells, plus cookie/session header invariants
+      (`set-cookie` carries `chrysalis_sid=` on session transitions) as a
+      dedicated confidence risk cell) plus `cross-backend-verify-parity` (Hono vs
+      Fastify run-1 stable verify report match) plus trend-history parity carry-
+      forward (`crossBackendParityOk` in streak entries), plus
+      `matrixCrossBackendParityOk` on the parent JSON when the seed matrix runs, on
+      **`chrysalis-templates/`** — **fifty** template routes, dual emit parity tests updated.
 
 **Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.
 

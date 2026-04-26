@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D116 (Milestone 5 — stress replay + semantic route assertions in `verify:laravel-full`); D115 (Milestone 5 — complexity ladder pack: snapshot/group-by/CTE/recursive templates + oracle); D114 (Milestone 5 — `chrysalis-ne-zero-count` template + oracle); D113 (Milestone 5 — `chrysalis-eq-zero-count` template + oracle); D112 (Milestone 5 — `chrysalis-lte-two-count` template + oracle); D111 (Milestone 5 — `chrysalis-gte-three-count` template + oracle); D110 (Milestone 5 — `chrysalis-lt-one-count` template + oracle); D109 (Milestone 5 — `chrysalis-gt-three-count` template + oracle); D108 (Milestone 5 — `chrysalis-between-one-two-count` template + oracle); D107 (Milestone 5 — `chrysalis-lte-one-count` template + oracle); D106 (Milestone 5 — `chrysalis-gte-one-count` template + oracle); D105 (Milestone 5 — `chrysalis-gt-one-count` template + oracle); D104 (Milestone 5 — `chrysalis-lt-two-count` template + oracle); D103 (Milestone 5 — `chrysalis-ne-three-count` template + oracle); D102 (Milestone 5 — `chrysalis-ne-one-count` template + oracle); D101 (Milestone 5 — `chrysalis-eq-two-count` template + oracle); D100 (Milestone 5 — `chrysalis-eq-three-count` template + oracle); D99 (Milestone 5 — `chrysalis-eq-one-count` template + oracle); D98 (Milestone 5 — `chrysalis-between-count` template + oracle); D97 (Milestone 5 — `chrysalis-ne-two-count` template + oracle); D96 (Milestone 5 — `chrysalis-lte-three-count` template + oracle); D95 (Milestone 5 — `chrysalis-gte-two-count` template + oracle); D94 (Milestone 5 — `chrysalis-lt-three-count` template + oracle); D93 (Milestone 5 — `chrysalis-gt-two-count` template + oracle); D92 (Milestone 5 — `chrysalis-odd-count` template + oracle); D91 (Milestone 5 — `chrysalis-even-count` template + oracle); D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D136 (Milestone 5 — laravel-min verify: wider `/hello` oracle + capture assertions); D135 (Milestone 5 — flagship full verify: wider `chrysalis-hello` oracle shapes); D134 (Milestone 5 — optional CI floors for idiomaticity/residual sidecars); D133 (Milestone 4–5 — laravel-min emit-stats + status sidecars + CI artifacts); D132 (Milestone 5 — pipeline-owned idiomaticity/residual sidecars + CI matrix rollup gates); D131 (Milestone 5 — matrix confidence rollup + chimera test fetch retries); D130 (Milestone 5 — confidence trend stores/enforces cross-backend parity health); D129 (Milestone 5 — cross-emitter verify report parity in five-nines gate); D128 (Milestone 5 — cookie/session header invariants in five-nines confidence gate); D127 (Milestone 5 — header contract strictness + redirect location invariants); D126 (Milestone 5 — session transition monotonicity checks in five-nines confidence gate); D125 (Milestone 5 — session idempotency assertions in five-nines confidence gate); D124 (Milestone 5 — request-shape robustness checks in five-nines gate); D123 (Milestone 5 — CI auto-switch from confidence warmup to strict trend mode); D122 (Milestone 5 — resolve laravel-min/Breeze/auth ownership boundaries); D121 (Milestone 5 — rolling confidence trend gate + stricter threshold + expanded negative-path assertions); D120 (Milestone 5 — per-cell KPI thresholds in five-nines confidence dashboard); D119 (Milestone 5 — risk-cell dashboard coverage in five-nines confidence artifact); D118 (Milestone 5 — five-nines confidence gate with negative-path + metamorphic checks + CI artifact); D117 (Milestone 5 — seed-variant replay matrix + seed-aware semantic assertions in `verify:laravel-full`); D116 (Milestone 5 — stress replay + semantic route assertions in `verify:laravel-full`); D115 (Milestone 5 — complexity ladder pack: snapshot/group-by/CTE/recursive templates + oracle); D114 (Milestone 5 — `chrysalis-ne-zero-count` template + oracle); D113 (Milestone 5 — `chrysalis-eq-zero-count` template + oracle); D112 (Milestone 5 — `chrysalis-lte-two-count` template + oracle); D111 (Milestone 5 — `chrysalis-gte-three-count` template + oracle); D110 (Milestone 5 — `chrysalis-lt-one-count` template + oracle); D109 (Milestone 5 — `chrysalis-gt-three-count` template + oracle); D108 (Milestone 5 — `chrysalis-between-one-two-count` template + oracle); D107 (Milestone 5 — `chrysalis-lte-one-count` template + oracle); D106 (Milestone 5 — `chrysalis-gte-one-count` template + oracle); D105 (Milestone 5 — `chrysalis-gt-one-count` template + oracle); D104 (Milestone 5 — `chrysalis-lt-two-count` template + oracle); D103 (Milestone 5 — `chrysalis-ne-three-count` template + oracle); D102 (Milestone 5 — `chrysalis-ne-one-count` template + oracle); D101 (Milestone 5 — `chrysalis-eq-two-count` template + oracle); D100 (Milestone 5 — `chrysalis-eq-three-count` template + oracle); D99 (Milestone 5 — `chrysalis-eq-one-count` template + oracle); D98 (Milestone 5 — `chrysalis-between-count` template + oracle); D97 (Milestone 5 — `chrysalis-ne-two-count` template + oracle); D96 (Milestone 5 — `chrysalis-lte-three-count` template + oracle); D95 (Milestone 5 — `chrysalis-gte-two-count` template + oracle); D94 (Milestone 5 — `chrysalis-lt-three-count` template + oracle); D93 (Milestone 5 — `chrysalis-gt-two-count` template + oracle); D92 (Milestone 5 — `chrysalis-odd-count` template + oracle); D91 (Milestone 5 — `chrysalis-even-count` template + oracle); D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -1770,3 +1770,160 @@ Append-only. When a decision here is overturned, add a new entry; never delete.
   **`/chrysalis-items-snapshot`**, **`/chrysalis-items-group-parity`**,
   **`/chrysalis-items-cte-rollup`**, and **`/chrysalis-recursive-stress`**.
   Also adds **`pnpm run verify:laravel-full:stress`** and README callouts.
+
+- **2026-04-26 — D117** **Seed-variant replay matrix for `verify:laravel-full`.**
+  Extends **`scripts/verify-flagship-laravel-full.mjs`** with seed controls:
+  **`--seed-variant=baseline|empty|ten`** (or **`CHRYSALIS_VERIFY_SEED_VARIANT`**) and
+  **`--seed-variants=...`** (or **`CHRYSALIS_VERIFY_SEED_VARIANTS`**) for sequential matrix replay.
+  Fixture capture DB and emitted backend DB now share the same seed-specific schema rewrite,
+  preserving oracle parity while exercising edge cardinalities (`0`, `3`, `10` rows).
+  Semantic assertions for **`/chrysalis-items-snapshot`**,
+  **`/chrysalis-items-group-parity`**, **`/chrysalis-items-cte-rollup`**, and
+  **`/chrysalis-recursive-stress`** are now seed-aware. Adds
+  **`pnpm run verify:laravel-full:seed-matrix`** and README/ROADMAP callouts.
+
+- **2026-04-26 — D118** **Five-nines confidence gate for `laravel-full` verify.**
+  Extends **`scripts/verify-flagship-laravel-full.mjs`** with explicit negative-path
+  semantics (`GET /chrysalis-session/login` method guard and bad-login body),
+  metamorphic cross-route invariants (snapshot/parity/CTE/recursive relations),
+  and confidence artifact emission at
+  **`reports/confidence/flagship-laravel-full.json`** (per backend correctness/drift).
+  Adds **`pnpm run verify:laravel-full:5nines`**, extends **`scripts/ci-gates.mjs`**
+  with `confidence-5nines`, and upgrades CI to run + artifact this gate.
+
+- **2026-04-26 — D119** **Risk-cell dashboard in five-nines confidence artifact.**
+  Extends **`reports/confidence/flagship-laravel-full.json`** shape with `riskCells`
+  coverage rows (health/metadata, redirects, session happy+negative paths, SQL
+  aggregates/CTE, seed variance, replay determinism, dual-emitter parity).
+  Extends `confidence-5nines` CI gate to require all risk cells and require each
+  cell to remain `covered`, making confidence artifacts directly actionable.
+
+- **2026-04-26 — D120** **Per-cell KPI thresholds in five-nines dashboard.**
+  Extends each confidence `riskCells[]` row with numeric `kpi` payload
+  (`value`, `min`, `unit`) computed from the captured corpus and replay settings.
+  Adds KPI gate enforcement in `confidence-5nines` so confidence fails when a
+  cell regresses beneath threshold, turning the artifact into a trendable,
+  machine-enforced confidence dashboard.
+
+- **2026-04-26 — D121** **Rolling confidence trend gate + stricter five-nines CI lane.**
+  Extends **`scripts/verify-flagship-laravel-full.mjs`** to append per-run entries into
+  **`reports/confidence/history/flagship-laravel-full.history.json`** and broadens
+  negative-path semantics (`GET /chrysalis-session/logout` method guard, empty-login, empty-echo).
+  Extends **`scripts/ci-gates.mjs`** with `confidence-trend` (rolling streak check) and
+  updates **`verify:laravel-full:5nines`** to require both `confidence-5nines` and
+  `confidence-trend`. CI now restores/saves confidence history cache and runs the
+  laravel-full lane at **`VERIFY_THRESHOLD=0.99999`**.
+
+- **2026-04-26 — D122** **Resolve flagship scope boundaries (laravel-min, Breeze, auth ownership).**
+  Chooses to keep **`flagship/laravel-min`** as the permanent **shaped fast fixture**
+  with its own verify harness (not folded into `laravel-full`). Chooses to keep
+  **Breeze first-party auth UI** outside manifest parity scope until a dedicated
+  milestone explicitly onboards those routes. Chooses to keep production-shaped
+  auth internals (rotating CSRF, gateways, MFA/OAuth) outside owned parity scope
+  for current milestones and represent them via explicit holes/residual-legacy
+  reporting until that milestone is opened.
+
+- **2026-04-26 — D123** **CI auto-switch for confidence trend strictness.**
+  Adds `confidence-trend-ready` to **`scripts/ci-gates.mjs`** so CI can detect when
+  enough history exists to enforce strict rolling trend gates. The
+  `verify flagship (laravel-full scaffold)` workflow now sets
+  `CONFIDENCE_TREND_ALLOW_WARMUP` dynamically: warmup while history is short,
+  strict mode once history reaches `CONFIDENCE_STREAK_REQUIRED`.
+
+- **2026-04-26 — D124** **Request-shape robustness checks in five-nines gate.**
+  Extends laravel-full verify corpus with JSON content-type mismatch probes for
+  form-only handlers (`POST /chrysalis-session/login`, `POST /chrysalis-echo`) and
+  method-guard probe for `GET /chrysalis-echo`. Adds corresponding semantic
+  assertions and introduces a dedicated confidence risk cell
+  `request-shape-robustness` enforced by `confidence-5nines`.
+
+- **2026-04-26 — D125** **Session idempotency checks in five-nines gate.**
+  Extends laravel-full verify corpus to invoke `POST /chrysalis-session/logout`
+  twice and asserts stable success semantics (`{"ok":true}` remains available
+  across repeated logout traces). Adds dedicated confidence risk cell
+  `session-idempotency` with KPI thresholding under `confidence-5nines`.
+
+- **2026-04-26 — D126** **Session transition monotonicity checks in five-nines gate.**
+  Extends laravel-full verify corpus with relogin branch and additional
+  `GET /chrysalis-session/me` observation. Adds explicit transition assertion
+  that session state follows `null -> flagship -> null -> flagship` in order.
+  Adds dedicated confidence risk cell `session-transition-monotonicity` with
+  KPI thresholds enforced by `confidence-5nines`.
+
+- **2026-04-26 — D127** **Header contract strictness + redirect location invariants.**
+  Extends semantic assertions for laravel-full verify to enforce content-type
+  contracts on text/json routes (`/chrysalis-health.txt`, `/api/chrysalis-health`,
+  `/chrysalis-items-snapshot`, `/chrysalis-session/me`) and location header
+  invariant on `/chrysalis-jump`. Adds confidence risk cells
+  `header-contract-strictness` and `redirect-location-invariants` enforced by
+  `confidence-5nines`.
+
+- **2026-04-26 — D128** **Cookie/session header invariants in five-nines gate.**
+  Extends laravel-full semantic assertions to require `set-cookie` with
+  `chrysalis_sid=` on session transition routes (`POST /chrysalis-session/login`,
+  `POST /chrysalis-session/logout`, `GET /chrysalis-session/me`). Adds confidence
+  risk cell `cookie-session-header-invariants` with KPI thresholds enforced by
+  `confidence-5nines`.
+
+- **2026-04-26 — D129** **Cross-emitter verify report parity in five-nines gate.**
+  After Hono and Fastify replays, compares a **stable** `buildReport` fingerprint
+  (aggregate + per-endpoint scores; excludes `generatedAt`) for run 1 of each
+  backend. Mismatch fails the verify run and the confidence risk cell
+  `cross-backend-verify-parity`. Stress-run drift also uses the stable fingerprint
+  so multi-run stress mode measures real verify drift, not timestamp noise.
+
+- **2026-04-26 — D130** **Trend history tracks cross-backend parity health.**
+  `appendConfidenceHistory` now persists `crossBackendParityOk` from each five-
+  nines run so rolling confidence trend entries retain explicit emitter parity
+  state. `confidence-trend` treats `crossBackendParityOk: false` as a regression
+  (while remaining backward-compatible with older entries that omit the field).
+
+- **2026-04-26 — D131** **Seed matrix confidence + chimera test robustness.**
+  Multi-seed `verify:laravel-full:5nines` parent artifact adds
+  `matrixCrossBackendParityOk` (true when every non-skipped variant has
+  `crossBackendParity.ok !== false`). `runtime-chimera` proxy integration tests
+  retry the first `fetch` to the chimera port to absorb occasional Windows
+  `bad port` / `fetch failed` races after `listen`.
+
+- **2026-04-26 — D132** **Pipeline-owned idiomaticity/residual sidecars (flagship full).**
+  `verify-flagship-laravel-full.mjs` writes **`reports/migration/flagship-laravel-full-emit-stats.json`**
+  (manifest route count + per-emitter hole/handler counts). **`status-flagship-laravel-full.mjs`**
+  then writes **`reports/migration/idiomaticity.json`** (`pct` from emitted-handler
+  `@chrysalis/compat` scan, dual-emitter conservative `min`) and
+  **`reports/migration/residual-legacy.json`** (`legacyRequestPct` from emit-hole
+  density vs manifest routes; documented as distinct from chimera production
+  traffic). **`confidence-5nines`** requires **`matrixCrossBackendParityOk: true`**
+  on seed-matrix parent artifacts; **`confidence-trend`** rejects
+  **`matrixCrossBackendParityOk: false`** when present on history rows; matrix
+  verify children set **`CHRYSALIS_VERIFY_MATRIX_ACTIVE=1`** so history rows carry
+  **`matrixActive` / `matrixCrossBackendParityOk`**. Logic lives in
+  **`scripts/flagship-migration-metrics.mjs`** (no `webir`/`emit` imports).
+
+- **2026-04-26 — D133** **Laravel-min parity for emit-stats + migration sidecars.**
+  `verify-flagship-laravel-min.mjs` writes **`flagship-laravel-min-emit-stats.json`**.
+  New **`pnpm run status:laravel-min`** (`scripts/status-flagship-laravel-min.mjs`)
+  runs the same **`status-migration`** gate as CI, persists **`flagship-laravel-min.json`**,
+  and calls **`writeFlagshipLaravelMinMigrationSidecars`** (shared metrics module with
+  **`pilot`** field on sidecars). CI uploads emit-stats + sidecars for both flagship
+  jobs; **`writeMigrationSidecars`** parameterizes emit-stats path + generated handler
+  roots.
+
+- **2026-04-26 — D134** **Optional CI floors for migration sidecars.**
+  Adds **`ci-gates.mjs migration-sidecar-floors [reports/migration]`** driven by
+  **`CHRYSALIS_IDIOMATICITY_MIN`** (0..1, requires **`idiomaticity.json`**) and/or
+  **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** (0..100, requires **`residual-legacy.json`**).
+  If neither env var is set, the gate skips. CI flagship jobs run the gate after
+  **`status:laravel-*`** with conservative defaults (**`0.01`** / **`50`**) to catch
+  regressions without over-fitting current emit noise.
+
+- **2026-04-26 — D135** **Flagship full verify: wider `chrysalis-hello` oracle shapes.**
+  **`verify-flagship-laravel-full.mjs`** captures **`GET /chrysalis-hello`** with no query
+  (default **`world`** trim path), **`?name=`** (empty trimmed segment), the existing
+  **`flagship` / `composer`** pair, and **`name=x%20y`** (decoded space). Semantic
+  assertions pin each distinct plaintext body on the grouped route **`GET /chrysalis-hello`**.
+
+- **2026-04-26 — D136** **`laravel-min` verify: wider `/hello` oracle + post-capture assertions.**
+  **`verify-flagship-laravel-min.mjs`** captures **`GET /hello`** with no query (default
+  **`guest`**), **`?name=`**, the existing **`flagship-corpus` / `chrysalis`** pair, and
+  **`name=x%20y`**. Immediately after **`readCorpus`**, asserts each expected **`hello:`…**
+  body appears on the grouped route **`GET /hello`** (same path-keying as D135).

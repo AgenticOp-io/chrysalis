@@ -63,6 +63,31 @@ describe("chimera proxy", () => {
     servers.length = 0;
   });
 
+  /**
+   * After `startChimera`, the listening port is valid but some platforms occasionally
+   * throw `TypeError: fetch failed` / `bad port` on the first client request; retry
+   * a few times before failing the test.
+   */
+  async function fetchChimera(
+    h: ChimeraHandle,
+    path: string,
+    init?: RequestInit,
+  ): Promise<Response> {
+    expect(h.port).toBeGreaterThan(0);
+    expect(h.port).toBeLessThan(65536);
+    const url = `http://127.0.0.1:${h.port}${path.startsWith("/") ? path : `/${path}`}`;
+    let last: unknown;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      try {
+        return await fetch(url, init);
+      } catch (e) {
+        last = e;
+        await new Promise((r) => setTimeout(r, 20));
+      }
+    }
+    throw last;
+  }
+
   async function mkUpstream(
     handler: (req: import("node:http").IncomingMessage, body: string) =>
       | { status?: number; headers?: Record<string, string>; body: string }
@@ -91,7 +116,7 @@ describe("chimera proxy", () => {
       rules: [{ match: "/api/*", target: "modern" }],
     });
     chimeras.push(h);
-    const resp = await fetch(`http://127.0.0.1:${h.port}/api/foo`);
+    const resp = await fetchChimera(h, "/api/foo");
     expect(await resp.text()).toBe("legacy:/api/foo");
     expect(resp.headers.get("x-chrysalis-target")).toBe("legacy");
     expect(h.stats().byTarget.legacy).toBe(1);
@@ -108,12 +133,8 @@ describe("chimera proxy", () => {
       rules: [{ match: "/api/*", target: "modern" }],
     });
     chimeras.push(h);
-    expect(await (await fetch(`http://127.0.0.1:${h.port}/api/foo`)).text()).toBe(
-      "modern:/api/foo",
-    );
-    expect(await (await fetch(`http://127.0.0.1:${h.port}/home`)).text()).toBe(
-      "legacy:/home",
-    );
+    expect(await (await fetchChimera(h, "/api/foo")).text()).toBe("modern:/api/foo");
+    expect(await (await fetchChimera(h, "/home")).text()).toBe("legacy:/home");
     expect(h.stats().byTarget.modern).toBe(1);
     expect(h.stats().byTarget.legacy).toBe(1);
   });
@@ -123,7 +144,7 @@ describe("chimera proxy", () => {
     const modern = await mkUpstream(() => ({ body: "" }));
     const h = await startChimera({ mode: "legacy", legacy, modern, rules: [] });
     chimeras.push(h);
-    const resp = await fetch(`http://127.0.0.1:${h.port}/upload`, {
+    const resp = await fetchChimera(h, "/upload", {
       method: "POST",
       headers: { "content-type": "text/plain" },
       body: "hello world",
@@ -144,7 +165,7 @@ describe("chimera proxy", () => {
     });
     chimeras.push(h);
 
-    const resp = await fetch(`http://127.0.0.1:${h.port}/x`);
+    const resp = await fetchChimera(h, "/x");
     expect(await resp.text()).toBe("<h1>legacy</h1>");
     expect(resp.headers.get("x-chrysalis-target")).toBe("legacy-shadow");
 
@@ -176,7 +197,7 @@ describe("chimera proxy", () => {
       shadowLogDir: shadowDir,
     });
     chimeras.push(h);
-    await fetch(`http://127.0.0.1:${h.port}/x`);
+    await fetchChimera(h, "/x");
     for (let i = 0; i < 40; i++) {
       if (h.stats().shadow.agreed + h.stats().shadow.diverged >= 1) break;
       await new Promise((r) => setTimeout(r, 50));
@@ -196,7 +217,7 @@ describe("chimera proxy", () => {
       canary: { percentModern: 0, salt: "s" },
     });
     chimeras.push(h);
-    const resp = await fetch(`http://127.0.0.1:${h.port}/api/x`);
+    const resp = await fetchChimera(h, "/api/x");
     expect(await resp.text()).toBe("legacy:/api/x");
     expect(resp.headers.get("x-chrysalis-target")).toBe("legacy");
     expect(resp.headers.get("x-chrysalis-canary")).toBe("out");
@@ -213,7 +234,7 @@ describe("chimera proxy", () => {
       canary: { percentModern: 100, salt: "s" },
     });
     chimeras.push(h);
-    const resp = await fetch(`http://127.0.0.1:${h.port}/api/x`);
+    const resp = await fetchChimera(h, "/api/x");
     expect(await resp.text()).toBe("modern:/api/x");
     expect(resp.headers.get("x-chrysalis-canary")).toBe("in");
   });
@@ -241,12 +262,11 @@ describe("chimera proxy", () => {
       canary: { percentModern: 50, salt, stickinessCookie: "sid" },
     });
     chimeras.push(h);
-    const url = `http://127.0.0.1:${h.port}/api/x`;
     const hIn = { headers: { cookie: `sid=${vIn}` } };
-    const bodyA = await (await fetch(url, hIn)).text();
-    const bodyB = await (await fetch(url, hIn)).text();
+    const bodyA = await (await fetchChimera(h, "/api/x", hIn)).text();
+    const bodyB = await (await fetchChimera(h, "/api/x", hIn)).text();
     expect(bodyA).toBe(bodyB);
-    const bodyC = await (await fetch(url, { headers: { cookie: `sid=${vOut}` } })).text();
+    const bodyC = await (await fetchChimera(h, "/api/x", { headers: { cookie: `sid=${vOut}` } })).text();
     expect(bodyA).not.toBe(bodyC);
   });
 });

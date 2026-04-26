@@ -19,6 +19,7 @@ traces/
 reports/
 .holes/
 tmp/
+tmp-emit-out/
 
 # Generated artifacts (output of `chrysalis emit`, reproducible from the pipeline)
 generated/**/package-lock.json

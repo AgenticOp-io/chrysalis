@@ -7,11 +7,20 @@
  *   node scripts/ci-gates.mjs tiny-n1-insight [reports/insight/tiny-n1.json]
  *   node scripts/ci-gates.mjs rewrite-pre-xss [reports/rewrite/before.json]
  *   node scripts/ci-gates.mjs tiny-n1-rewrite [repo-root]
+ *   node scripts/ci-gates.mjs confidence-5nines [reports/confidence/flagship-laravel-full.json]
+ *     (seed-matrix parent JSON must include matrixCrossBackendParityOk: true)
+ *   node scripts/ci-gates.mjs confidence-trend [reports/confidence/history/flagship-laravel-full.history.json]
+ *   node scripts/ci-gates.mjs confidence-trend-ready [reports/confidence/history/flagship-laravel-full.history.json]
+ *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
  *
  * Env: VERIFY_THRESHOLD (default 0.95) for status-migration.
+ * Env: CHRYSALIS_IDIOMATICITY_MIN (0..1) and/or CHRYSALIS_RESIDUAL_LEGACY_MAX (0..100) for
+ * migration-sidecar-floors; if neither is set, the gate skips. When set, the corresponding
+ * JSON file under reports/migration must exist and satisfy the floor/ceiling.
  */
 import fs from "node:fs";
 import { createRequire } from "node:module";
+import { resolve } from "node:path";
 
 const require = createRequire(import.meta.url);
 
@@ -244,6 +253,219 @@ function assertTinyN1Rewrite(root) {
   );
 }
 
+function assertConfidence5Nines(path) {
+  const minConfidence = Number(process.env.CONFIDENCE_5NINES ?? "0.99999");
+  const r = readJsonFile(path);
+  if (Array.isArray(r.matrix) && r.matrix.length > 0 && r.matrixCrossBackendParityOk !== true) {
+    fail(
+      "confidence-5nines: seed matrix artifact must include matrixCrossBackendParityOk: true (rollup over variants)",
+    );
+  }
+  const requiredRiskCells = new Set([
+    "http-health-and-metadata",
+    "redirect-contract",
+    "session-auth-happy-path",
+    "session-auth-negative-path",
+    "session-idempotency",
+    "session-transition-monotonicity",
+    "request-shape-robustness",
+    "header-contract-strictness",
+    "redirect-location-invariants",
+    "cookie-session-header-invariants",
+    "sql-aggregates-and-cte",
+    "seed-cardinality-variance",
+    "determinism-under-replay",
+    "dual-emitter-parity",
+    "cross-backend-verify-parity",
+    "overall-corpus-volume",
+  ]);
+  const variants = Array.isArray(r.matrix) && r.matrix.length > 0 ? r.matrix : [r];
+  let checked = 0;
+  for (const v of variants) {
+    if (v.skipped === true) {
+      continue;
+    }
+    if (!Array.isArray(v.backends) || v.backends.length === 0) {
+      fail("confidence-5nines: missing backend summaries");
+    }
+    if (v.semanticChecks !== "passed") {
+      fail("confidence-5nines: semantic checks not marked as passed");
+    }
+    if (v.metamorphicChecks !== "passed") {
+      fail("confidence-5nines: metamorphic checks not marked as passed");
+    }
+    if (v.exitCode !== 0) {
+      fail(`confidence-5nines: verify exitCode must be 0, got ${v.exitCode}`);
+    }
+    if (!Array.isArray(v.riskCells)) {
+      fail("confidence-5nines: missing riskCells");
+    }
+    const seen = new Set();
+    for (const cell of v.riskCells) {
+      if (cell?.status !== "covered") {
+        fail(`confidence-5nines: risk cell not covered (${cell?.cell ?? "unknown"})`);
+      }
+      if (
+        !cell?.kpi ||
+        typeof cell.kpi.value !== "number" ||
+        typeof cell.kpi.min !== "number" ||
+        typeof cell.kpi.unit !== "string"
+      ) {
+        fail(`confidence-5nines: missing/invalid KPI payload for risk cell ${cell?.cell ?? "unknown"}`);
+      }
+      if (cell.kpi.value + 1e-9 < cell.kpi.min) {
+        fail(
+          `confidence-5nines: KPI below minimum for ${cell.cell} (${cell.kpi.value} < ${cell.kpi.min} ${cell.kpi.unit})`,
+        );
+      }
+      if (typeof cell?.cell === "string") {
+        seen.add(cell.cell);
+      }
+    }
+    for (const expectedCell of requiredRiskCells) {
+      if (!seen.has(expectedCell)) {
+        fail(`confidence-5nines: missing risk cell ${expectedCell}`);
+      }
+    }
+    for (const b of v.backends) {
+      if (b.driftDetected) {
+        fail(`confidence-5nines: backend ${b.backend} has driftDetected=true`);
+      }
+      if (b.minCorrectness + 1e-9 < minConfidence) {
+        fail(
+          `confidence-5nines: backend ${b.backend} minCorrectness ${b.minCorrectness} < ${minConfidence}`,
+        );
+      }
+    }
+    checked++;
+  }
+  if (checked === 0) {
+    console.log("confidence-5nines skipped: no runnable PHP/scaffolded variants in this environment");
+    return;
+  }
+  console.log(
+    `confidence-5nines OK: target=${minConfidence} variants_checked=${checked} variants_total=${variants.length}`,
+  );
+}
+
+function assertConfidenceTrend(path) {
+  const required = Number.parseInt(process.env.CONFIDENCE_STREAK_REQUIRED ?? "30", 10);
+  const minConfidence = Number(process.env.CONFIDENCE_5NINES ?? "0.99999");
+  const allowWarmup = (process.env.CONFIDENCE_TREND_ALLOW_WARMUP ?? "1") === "1";
+  if (!fs.existsSync(path)) {
+    if (allowWarmup) {
+      console.log(`confidence-trend warmup: history file missing (${path})`);
+      return;
+    }
+    fail(`confidence-trend: history file missing (${path})`);
+  }
+  const r = readJsonFile(path);
+  if (!r || !Array.isArray(r.entries)) {
+    fail("confidence-trend: invalid history payload");
+  }
+  const recent = r.entries.slice(-required);
+  if (recent.length < required) {
+    if (allowWarmup) {
+      console.log(`confidence-trend warmup: have ${recent.length}/${required} entries`);
+      return;
+    }
+    fail(`confidence-trend: insufficient history ${recent.length}/${required}`);
+  }
+  for (const e of recent) {
+    if (e.exitCode !== 0) fail(`confidence-trend: non-zero exitCode at ${e.timestamp}`);
+    if (e.semanticChecks !== "passed") fail(`confidence-trend: semantic check failed at ${e.timestamp}`);
+    if (e.metamorphicChecks !== "passed") fail(`confidence-trend: metamorphic check failed at ${e.timestamp}`);
+    if (e.driftDetected === true) fail(`confidence-trend: drift detected at ${e.timestamp}`);
+    if (e.riskCovered !== true) fail(`confidence-trend: risk coverage regressed at ${e.timestamp}`);
+    if (e.crossBackendParityOk === false) {
+      fail(`confidence-trend: cross-backend parity failed at ${e.timestamp}`);
+    }
+    if (e.matrixCrossBackendParityOk === false) {
+      fail(`confidence-trend: matrix cross-backend parity failed at ${e.timestamp}`);
+    }
+    if (Number(e.minCorrectness ?? 0) + 1e-9 < minConfidence) {
+      fail(`confidence-trend: minCorrectness ${e.minCorrectness} < ${minConfidence} at ${e.timestamp}`);
+    }
+  }
+  console.log(`confidence-trend OK: streak=${required} minConfidence=${minConfidence}`);
+}
+
+function assertConfidenceTrendReady(path) {
+  const required = Number.parseInt(process.env.CONFIDENCE_STREAK_REQUIRED ?? "30", 10);
+  if (!fs.existsSync(path)) {
+    fail(`confidence-trend-ready: history file missing (${path})`);
+  }
+  const r = readJsonFile(path);
+  if (!r || !Array.isArray(r.entries)) {
+    fail("confidence-trend-ready: invalid history payload");
+  }
+  const count = r.entries.length;
+  if (count < required) {
+    fail(`confidence-trend-ready: insufficient history ${count}/${required}`);
+  }
+  console.log(`confidence-trend-ready: strict mode ready (${count}/${required})`);
+}
+
+function parseOptionalEnvNumber(raw, label) {
+  if (raw == null) return null;
+  const s = String(raw).trim();
+  if (s === "") return null;
+  const n = Number(s);
+  if (!Number.isFinite(n)) {
+    fail(`${label}: expected a finite number, got ${JSON.stringify(raw)}`);
+  }
+  return n;
+}
+
+function assertMigrationSidecarFloors(dirArg) {
+  const idioMin = parseOptionalEnvNumber(process.env.CHRYSALIS_IDIOMATICITY_MIN, "CHRYSALIS_IDIOMATICITY_MIN");
+  const resMax = parseOptionalEnvNumber(process.env.CHRYSALIS_RESIDUAL_LEGACY_MAX, "CHRYSALIS_RESIDUAL_LEGACY_MAX");
+  if (idioMin == null && resMax == null) {
+    console.log(
+      "migration-sidecar-floors skipped: set CHRYSALIS_IDIOMATICITY_MIN and/or CHRYSALIS_RESIDUAL_LEGACY_MAX",
+    );
+    return;
+  }
+  const migrationDir = resolve(dirArg ?? "reports/migration");
+  if (idioMin != null) {
+    if (idioMin < 0 || idioMin > 1) {
+      fail("migration-sidecar-floors: CHRYSALIS_IDIOMATICITY_MIN must be between 0 and 1 inclusive");
+    }
+    const p = resolve(migrationDir, "idiomaticity.json");
+    if (!fs.existsSync(p)) {
+      fail(`migration-sidecar-floors: ${p} missing (CHRYSALIS_IDIOMATICITY_MIN is set)`);
+    }
+    const j = readJsonFile(p);
+    if (typeof j.pct !== "number" || j.pct < 0 || j.pct > 1) {
+      fail("migration-sidecar-floors: idiomaticity.json missing numeric pct in [0,1]");
+    }
+    if (j.pct + 1e-9 < idioMin) {
+      fail(`migration-sidecar-floors: idiomaticity pct ${j.pct} < CHRYSALIS_IDIOMATICITY_MIN ${idioMin}`);
+    }
+  }
+  if (resMax != null) {
+    if (resMax < 0 || resMax > 100) {
+      fail("migration-sidecar-floors: CHRYSALIS_RESIDUAL_LEGACY_MAX must be between 0 and 100 inclusive");
+    }
+    const p = resolve(migrationDir, "residual-legacy.json");
+    if (!fs.existsSync(p)) {
+      fail(`migration-sidecar-floors: ${p} missing (CHRYSALIS_RESIDUAL_LEGACY_MAX is set)`);
+    }
+    const j = readJsonFile(p);
+    if (typeof j.legacyRequestPct !== "number" || j.legacyRequestPct < 0 || j.legacyRequestPct > 100) {
+      fail("migration-sidecar-floors: residual-legacy.json missing numeric legacyRequestPct in [0,100]");
+    }
+    if (j.legacyRequestPct > resMax + 1e-9) {
+      fail(
+        `migration-sidecar-floors: legacyRequestPct ${j.legacyRequestPct} > CHRYSALIS_RESIDUAL_LEGACY_MAX ${resMax}`,
+      );
+    }
+  }
+  console.log(
+    `migration-sidecar-floors OK: dir=${migrationDir} idiomaticity_min=${idioMin ?? "(unset)"} residual_max=${resMax ?? "(unset)"}`,
+  );
+}
+
 const [, , cmd, arg0] = process.argv;
 
 switch (cmd) {
@@ -259,10 +481,22 @@ switch (cmd) {
   case "tiny-n1-rewrite":
     assertTinyN1Rewrite(arg0 ?? ".");
     break;
+  case "confidence-5nines":
+    assertConfidence5Nines(arg0 ?? "reports/confidence/flagship-laravel-full.json");
+    break;
+  case "confidence-trend":
+    assertConfidenceTrend(arg0 ?? "reports/confidence/history/flagship-laravel-full.history.json");
+    break;
+  case "confidence-trend-ready":
+    assertConfidenceTrendReady(arg0 ?? "reports/confidence/history/flagship-laravel-full.history.json");
+    break;
+  case "migration-sidecar-floors":
+    assertMigrationSidecarFloors(arg0);
+    break;
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|migration-sidecar-floors> [path]",
     );
     process.exit(1);
 }

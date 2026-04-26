@@ -38,10 +38,18 @@ chrysalis emit flagship/laravel-min --out generated/laravel-min
 chrysalis status --json --project flagship/laravel-min
 # Oracle capture + dual emit + replay (from repo root; needs PHP):
 pnpm run verify:flagship
+# Migration JSON + optional idiomaticity/residual sidecars (emit-stats from verify):
+pnpm run status:laravel-min
 ```
 
-Traces land in `traces/flagship-laravel-min/`; verify reports in
-`reports/verify-flagship-laravel-min/{hono,fastify}/`.
+Traces land in `traces/flagship-laravel-min/`; oracle capture hits **`GET /hello`** with
+no query (default **`guest`**), **`?name=`**, two fixed names, and an encoded multi-word
+**`name`**, then asserts each distinct **`hello:`** body before ingest/emit. Verify reports in
+`reports/verify-flagship-laravel-min/{hono,fastify}/`. Verify also writes
+**`reports/migration/flagship-laravel-min-emit-stats.json`**; **`pnpm run status:laravel-min`**
+mirrors CI: gates **`status-migration`**, writes **`reports/migration/flagship-laravel-min.json`**,
+and when emit stats exist, **`idiomaticity.json`** / **`residual-legacy.json`** (see
+**`scripts/flagship-migration-metrics.mjs`**).
 
 ### Optional: verify-gated repair
 
