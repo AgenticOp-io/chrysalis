@@ -88,7 +88,7 @@ try {
 
 const corpus = readCorpus({ root: traceDir });
 console.log(`[verify-flagship] corpus: ${corpus.traces.length} traces`);
-assertLaravelMinCapturedHelloBodies(corpus);
+assertLaravelMinCorpusSemantics(corpus);
 
 const webirModule = await ingestDirectory(fixture);
 
@@ -369,10 +369,9 @@ async function driveLaravelMinCorpus(port) {
   }
 }
 
-/** Asserts oracle capture covered each distinct `hello_show` plaintext body (grouped `GET /hello`). */
-function assertLaravelMinCapturedHelloBodies(corpus) {
+function assertLaravelMinCorpusSemantics(corpus) {
   const byRoute = groupByRoute(corpus);
-  const routeSig = "GET /hello";
+
   for (const body of [
     "hello:guest\n",
     "hello:\n",
@@ -380,8 +379,17 @@ function assertLaravelMinCapturedHelloBodies(corpus) {
     "hello:chrysalis\n",
     "hello:x y\n",
   ]) {
-    assertRouteContainsBody(byRoute, routeSig, body);
+    assertRouteContainsBody(byRoute, "GET /hello", body);
   }
+
+  assertRouteBody(byRoute, "GET /health", "ok\n");
+  assertRouteBody(byRoute, "GET /api/health", '{"ok":true,"app":"laravel-min"}');
+  assertRouteStatus(byRoute, "GET /jump", 302);
+  assertRouteHeaderContains(byRoute, "GET /jump", "location", "/health");
+  assertRouteContainsBody(byRoute, "GET /session/me", "user:anon\n");
+  assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
+  assertRouteStatus(byRoute, "POST /login", 302);
+  assertRouteStatus(byRoute, "POST /logout", 302);
 }
 
 /**
@@ -400,6 +408,62 @@ function assertRouteContainsBody(byRoute, routeSig, expectedBody) {
   });
   if (!hasBody) {
     throw new Error(`[verify-flagship] ${routeSig} missing expected body ${JSON.stringify(expectedBody)}`);
+  }
+}
+
+function assertRouteBody(byRoute, routeSig, expectedBody) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship] missing traces for ${routeSig}`);
+  }
+  for (const trace of traces) {
+    const response = trace.events.find((e) => e.type === "http.response");
+    if (!response || response.type !== "http.response") {
+      throw new Error(`[verify-flagship] missing http.response event for ${routeSig}`);
+    }
+    if (response.body !== expectedBody) {
+      throw new Error(
+        `[verify-flagship] ${routeSig} body mismatch; expected ${expectedBody}, got ${response.body}`,
+      );
+    }
+  }
+}
+
+function assertRouteStatus(byRoute, routeSig, expectedStatus) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship] missing traces for ${routeSig}`);
+  }
+  for (const trace of traces) {
+    const response = trace.events.find((e) => e.type === "http.response");
+    if (!response || response.type !== "http.response") {
+      throw new Error(`[verify-flagship] missing http.response event for ${routeSig}`);
+    }
+    if (response.status !== expectedStatus) {
+      throw new Error(
+        `[verify-flagship] ${routeSig} expected status ${expectedStatus}, got ${response.status}`,
+      );
+    }
+  }
+}
+
+function assertRouteHeaderContains(byRoute, routeSig, headerName, expectedFragment) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship] missing traces for ${routeSig}`);
+  }
+  for (const trace of traces) {
+    const response = trace.events.find((e) => e.type === "http.response");
+    if (!response || response.type !== "http.response") {
+      throw new Error(`[verify-flagship] missing http.response event for ${routeSig}`);
+    }
+    const key = Object.keys(response.headers ?? {}).find((k) => k.toLowerCase() === headerName.toLowerCase());
+    const value = key ? String(response.headers[key] ?? "") : "";
+    if (!value.toLowerCase().includes(expectedFragment.toLowerCase())) {
+      throw new Error(
+        `[verify-flagship] ${routeSig} expected header ${headerName} to include ${expectedFragment}, got ${value}`,
+      );
+    }
   }
 }
 

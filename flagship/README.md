@@ -70,7 +70,7 @@ canonical full Laravel root (D84) and covers **Composer Laravel / Breeze** depth
 larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
 `laravel-min/README.md` for the Laravel-shaped pilot.
 
-**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle, D136)** — for regression triage and CI artifacts:
+**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle + post-capture route semantics, D136/D137** — for regression triage and CI artifacts:
 
 | Item | Value |
 |------|--------|
@@ -102,3 +102,4 @@ out of owned parity scope until a dedicated milestone opens them.
 When the emitted stack diverges from the oracle, use **`chrysalis repair`**
 (see `packages/repair` and `ROADMAP` Milestone 3) against the same traces and
 `--project` PHP root; patches stay verify-gated.
+

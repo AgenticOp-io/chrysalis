@@ -566,3 +566,4 @@ idiomaticity / residual-legacy JSON.
   the trace corpus is a launch blocker, not a nice-to-have.
 - **Performance.** Verification must be parallelizable across traces.
   Aim for thousands of traces per minute on a laptop.
+

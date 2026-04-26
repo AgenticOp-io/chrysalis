@@ -44,7 +44,9 @@ pnpm run status:laravel-min
 
 Traces land in `traces/flagship-laravel-min/`; oracle capture hits **`GET /hello`** with
 no query (default **`guest`**), **`?name=`**, two fixed names, and an encoded multi-word
-**`name`**, then asserts each distinct **`hello:`** body before ingest/emit. Verify reports in
+**`name`**, then asserts each distinct **`hello:`** body plus route contracts for
+`/health`, `/api/health`, `/jump`, `/session/me`, and login/logout redirects before ingest/emit.
+Verify reports in
 `reports/verify-flagship-laravel-min/{hono,fastify}/`. Verify also writes
 **`reports/migration/flagship-laravel-min-emit-stats.json`**; **`pnpm run status:laravel-min`**
 mirrors CI: gates **`status-migration`**, writes **`reports/migration/flagship-laravel-min.json`**,
@@ -80,3 +82,4 @@ pnpm run scaffold:laravel-full
 
 Document new routes in `chrysalis.routes.json` and extend this README as the
 pilot grows.
+
