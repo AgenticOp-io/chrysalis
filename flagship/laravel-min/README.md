@@ -45,7 +45,9 @@ pnpm run status:laravel-min
 Traces land in `traces/flagship-laravel-min/`; oracle capture hits **`GET /hello`** with
 no query (default **`guest`**), **`?name=`**, two fixed names, and an encoded multi-word
 **`name`**, then asserts each distinct **`hello:`** body plus route contracts for
-`/health`, `/api/health`, `/jump`, `/session/me`, and login/logout redirects before ingest/emit.
+`/health`, `/api/health`, `/jump`, `/session/me`, login/logout redirects, and
+metadata/static outputs (`/robots.txt`, `/humans.txt`, `/.well-known/security.txt`,
+`/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`) before ingest/emit.
 Verify reports in
 `reports/verify-flagship-laravel-min/{hono,fastify}/`. Verify also writes
 **`reports/migration/flagship-laravel-min-emit-stats.json`**; **`pnpm run status:laravel-min`**

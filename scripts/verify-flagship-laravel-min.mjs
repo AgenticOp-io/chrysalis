@@ -386,6 +386,34 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteBody(byRoute, "GET /api/health", '{"ok":true,"app":"laravel-min"}');
   assertRouteStatus(byRoute, "GET /jump", 302);
   assertRouteHeaderContains(byRoute, "GET /jump", "location", "/health");
+  assertRouteBody(byRoute, "GET /robots.txt", "User-agent: *\nDisallow:\n");
+  assertRouteBody(byRoute, "GET /humans.txt", "Chrysalis flagship pilot\nProject: laravel-min\n");
+  assertRouteBody(
+    byRoute,
+    "GET /.well-known/security.txt",
+    "Contact: mailto:chrysalis-security@example.invalid\nAcknowledgments: Chrysalis flagship pilot (fixture only).\n",
+  );
+  assertRouteBody(
+    byRoute,
+    "GET /sitemap.xml",
+    '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://chrysalis-pilot.example.invalid/</loc></url></urlset>',
+  );
+  assertRouteBody(
+    byRoute,
+    "GET /css/pilot.css",
+    "/* chrysalis flagship laravel-min pilot */\n:root { color: #111; }\n",
+  );
+  assertRouteBody(
+    byRoute,
+    "GET /manifest.webmanifest",
+    '{"name":"Chrysalis laravel-min pilot","short_name":"pilot","start_url":"/","display":"standalone"}',
+  );
+  assertRouteHeaderContains(byRoute, "GET /robots.txt", "content-type", "text/plain");
+  assertRouteHeaderContains(byRoute, "GET /humans.txt", "content-type", "text/plain");
+  assertRouteHeaderContains(byRoute, "GET /.well-known/security.txt", "content-type", "text/plain");
+  assertRouteHeaderContains(byRoute, "GET /sitemap.xml", "content-type", "application/xml");
+  assertRouteHeaderContains(byRoute, "GET /css/pilot.css", "content-type", "text/css");
+  assertRouteHeaderContains(byRoute, "GET /manifest.webmanifest", "content-type", "application/manifest+json");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:anon\n");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
   assertRouteStatus(byRoute, "POST /login", 302);

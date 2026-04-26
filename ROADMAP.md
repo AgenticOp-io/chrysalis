@@ -509,7 +509,10 @@ idiomaticity / residual-legacy JSON.
       chimera production `legacyRequestPct` remains a separate integration). **D135:** extra
       **`chrysalis-hello`** query shapes + semantic bodies in **`verify:laravel-full`** capture.
       **D136:** same idea on **`laravel-min`** for **`GET /hello`** + post-capture body assertions
-      in **`verify:flagship`**. **Incremental (D86–D115):**
+      in **`verify:flagship`**. **D137/D138:** broadened `verify:flagship` post-capture semantics
+      for core/session plus metadata/static contracts (`/robots.txt`, `/humans.txt`,
+      `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`).
+      **Incremental (D86–D115):**
       **`GET /chrysalis-min-id`** / **`GET /chrysalis-max-id`** / **`GET /chrysalis-avg-id`** / **`GET /chrysalis-id-span`**
       / **`GET /chrysalis-sum-squares`** / **`GET /chrysalis-even-count`** / **`GET /chrysalis-odd-count`**
       / **`GET /chrysalis-gt-two-count`** / **`GET /chrysalis-lt-three-count`** / **`GET /chrysalis-gte-two-count`**
