@@ -20,6 +20,7 @@
  */
 
 import { execSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -157,6 +158,7 @@ const backends = [
 ];
 
 let exitCode = 0;
+const backendSummaries = [];
 for (const b of backends) {
   console.log(`\n[verify-flagship] —— replay vs ${b.id} ——`);
   const fetchFn = await loadEmittedFetch(b.dir, b.kind);
@@ -173,6 +175,11 @@ for (const b of backends) {
   console.log(
     `[verify-flagship] ${b.id} aggregate: ${(report.aggregate.correctness * 100).toFixed(1)}%  (${report.aggregate.framesPassed}/${report.aggregate.framesTotal})`,
   );
+  backendSummaries.push({
+    backend: b.id,
+    stableFingerprint: stableReportFingerprint(report),
+    correctness: report.aggregate.correctness,
+  });
 
   if (report.aggregate.correctness + 1e-9 < THRESHOLD) {
     console.error(
@@ -180,6 +187,14 @@ for (const b of backends) {
     );
     exitCode = 1;
   }
+}
+
+const crossBackendParity = assertCrossBackendReportParity(backendSummaries);
+if (!crossBackendParity.ok) {
+  console.error(
+    `[verify-flagship] cross-backend verify parity FAILED: ${JSON.stringify(crossBackendParity, null, 2)}`,
+  );
+  exitCode = 1;
 }
 
 if (exitCode === 0) {
@@ -493,6 +508,35 @@ function assertRouteHeaderContains(byRoute, routeSig, headerName, expectedFragme
       );
     }
   }
+}
+
+function stableReportFingerprint(report) {
+  const stable = {
+    aggregate: report.aggregate,
+    endpoints: report.endpoints,
+  };
+  return createHash("sha256").update(JSON.stringify(stable)).digest("hex");
+}
+
+function assertCrossBackendReportParity(summaries) {
+  if (summaries.length < 2) {
+    return { ok: true, skipped: true, reason: "fewer than two backend summaries" };
+  }
+  const ref = summaries[0].stableFingerprint;
+  const mismatches = summaries.filter((s) => s.stableFingerprint !== ref);
+  if (mismatches.length > 0) {
+    return {
+      ok: false,
+      refFingerprint: ref,
+      mismatchedBackends: mismatches.map((s) => s.backend),
+      fingerprints: Object.fromEntries(summaries.map((s) => [s.backend, s.stableFingerprint])),
+    };
+  }
+  return {
+    ok: true,
+    refFingerprint: ref,
+    fingerprints: Object.fromEntries(summaries.map((s) => [s.backend, s.stableFingerprint])),
+  };
 }
 
 async function waitUp(url, attempts = 50, delayMs = 200) {

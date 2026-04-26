@@ -48,6 +48,7 @@ no query (default **`guest`**), **`?name=`**, two fixed names, and an encoded mu
 `/health`, `/api/health`, `/jump`, `/session/me`, login/logout redirects, and
 metadata/static outputs (`/robots.txt`, `/humans.txt`, `/.well-known/security.txt`,
 `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`) before ingest/emit.
+Verify also enforces stable cross-backend report parity (Hono vs Fastify fingerprints).
 Verify reports in
 `reports/verify-flagship-laravel-min/{hono,fastify}/`. Verify also writes
 **`reports/migration/flagship-laravel-min-emit-stats.json`**; **`pnpm run status:laravel-min`**
@@ -84,4 +85,5 @@ pnpm run scaffold:laravel-full
 
 Document new routes in `chrysalis.routes.json` and extend this README as the
 pilot grows.
+
 

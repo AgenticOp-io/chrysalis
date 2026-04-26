@@ -76,7 +76,7 @@ larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON â
 |------|--------|
 | Manifest routes | 19 (includes `/api/health`, `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, `/jump`, `/login`, `/logout`, `/session/me`) |
 | Oracle driver HTTP requests | 34 per `scripts/verify-flagship-laravel-min.mjs` run |
-| Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** |
+| Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** + stable cross-backend report parity gate (D139) |
 | Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable); **`pnpm run status:laravel-min`** also writes **`idiomaticity.json`** / **`residual-legacy.json`** when emit-stats exist (D133) |
 
 **`laravel-full` templates (M4 v1):** 50 manifest routes on committed **`chrysalis-templates/`**;
@@ -102,4 +102,5 @@ out of owned parity scope until a dedicated milestone opens them.
 When the emitted stack diverges from the oracle, use **`chrysalis repair`**
 (see `packages/repair` and `ROADMAP` Milestone 3) against the same traces and
 `--project` PHP root; patches stay verify-gated.
+
 

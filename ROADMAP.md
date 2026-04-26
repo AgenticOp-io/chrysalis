@@ -512,6 +512,8 @@ idiomaticity / residual-legacy JSON.
       in **`verify:flagship`**. **D137/D138:** broadened `verify:flagship` post-capture semantics
       for core/session plus metadata/static contracts (`/robots.txt`, `/humans.txt`,
       `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`).
+      **D139:** adds stable cross-backend verify-report parity checks (Hono/Fastify)
+      in `verify:flagship` to catch emitter drift on the same corpus.
       **Incremental (D86–D115):**
       **`GET /chrysalis-min-id`** / **`GET /chrysalis-max-id`** / **`GET /chrysalis-avg-id`** / **`GET /chrysalis-id-span`**
       / **`GET /chrysalis-sum-squares`** / **`GET /chrysalis-even-count`** / **`GET /chrysalis-odd-count`**
@@ -569,4 +571,5 @@ idiomaticity / residual-legacy JSON.
   the trace corpus is a launch blocker, not a nice-to-have.
 - **Performance.** Verification must be parallelizable across traces.
   Aim for thousands of traces per minute on a laptop.
+
 
