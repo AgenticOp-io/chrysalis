@@ -41,6 +41,9 @@ describe("emit-hono: tiny-blog output", () => {
 
       const serverSrc = readFileSync(resolve(out, "src/server.ts"), "utf8");
       expect(serverSrc).toContain("chrysalisInProcessFetch");
+      const sessionSrc = readFileSync(resolve(out, "src/session.ts"), "utf8");
+      expect(sessionSrc).toContain("CHRYSALIS_SESSION_SQLITE_PATH");
+      expect(sessionSrc).toContain("CREATE TABLE IF NOT EXISTS chrysalis_sessions");
 
       const expectedFiles = [
         "package.json",

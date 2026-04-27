@@ -231,12 +231,14 @@ export function chrysalisDeterminismOnRequest(req: FastifyRequest): void {
 
 export const SESSION_TS = `import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import cookie from "@fastify/cookie";
 import { chrysalisRandom } from "./ctx.js";
 
 const sessions = new Map<string, Record<string, unknown>>();
 const sessionDir = process.env.CHRYSALIS_SESSION_DIR;
+const sessionSqlitePath = process.env.CHRYSALIS_SESSION_SQLITE_PATH;
 const sessionCookieName = process.env.CHRYSALIS_SESSION_COOKIE ?? "chrysalis_sid";
 
 const sessionStoreKey = Symbol("chrysalisSession");
@@ -264,6 +266,49 @@ function readDisk(sid: string): Record<string, unknown> {
 function writeDisk(sid: string, store: Record<string, unknown>): void {
   mkdirSync(sessionDir!, { recursive: true });
   writeFileSync(diskPath(sid), JSON.stringify(store), "utf8");
+}
+
+let _sessionDb: DatabaseSync | null = null;
+function sessionDb(): DatabaseSync {
+  if (_sessionDb === null) {
+    _sessionDb = new DatabaseSync(sessionSqlitePath!);
+    _sessionDb.exec(
+      "CREATE TABLE IF NOT EXISTS chrysalis_sessions (" +
+        "sid TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_at TEXT NOT NULL)",
+    );
+  }
+  return _sessionDb;
+}
+
+function readSqlite(sid: string): Record<string, unknown> {
+  try {
+    const row = sessionDb()
+      .prepare("SELECT payload FROM chrysalis_sessions WHERE sid = ?")
+      .get(sid) as { payload?: string } | undefined;
+    if (!row || typeof row.payload !== "string") return {};
+    return JSON.parse(row.payload) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+function writeSqlite(sid: string, store: Record<string, unknown>): void {
+  const payload = JSON.stringify(store);
+  const nowIso = new Date().toISOString();
+  sessionDb()
+    .prepare(
+      "INSERT INTO chrysalis_sessions(sid,payload,updated_at) VALUES(?,?,?) " +
+        "ON CONFLICT(sid) DO UPDATE SET payload=excluded.payload, updated_at=excluded.updated_at",
+    )
+    .run(sid, payload, nowIso);
+}
+
+function deleteSqlite(sid: string): void {
+  try {
+    sessionDb().prepare("DELETE FROM chrysalis_sessions WHERE sid = ?").run(sid);
+  } catch {
+    /* noop */
+  }
 }
 
 export interface Session {
@@ -294,7 +339,9 @@ export async function registerSession(app: FastifyInstance): Promise<void> {
     }
 
     let store: Record<string, unknown>;
-    if (sessionDir) {
+    if (sessionSqlitePath) {
+      store = readSqlite(sid);
+    } else if (sessionDir) {
       store = readDisk(sid);
     } else {
       if (!sessions.has(sid)) {
@@ -312,7 +359,9 @@ export async function registerSession(app: FastifyInstance): Promise<void> {
         store[key] = value;
       },
       destroy() {
-        if (sessionDir) {
+        if (sessionSqlitePath) {
+          deleteSqlite(sid!);
+        } else if (sessionDir) {
           try {
             unlinkSync(diskPath(sid!));
           } catch {
@@ -328,11 +377,15 @@ export async function registerSession(app: FastifyInstance): Promise<void> {
   });
 
   app.addHook("onResponse", async (req: FastifyRequest) => {
-    if (!sessionDir) return;
+    if (!sessionDir && !sessionSqlitePath) return;
     const sid = req.cookies[sessionCookieName];
     const backing = req[sessionBackingKey];
     if (!sid || !backing) return;
-    writeDisk(sid, backing);
+    if (sessionSqlitePath) {
+      writeSqlite(sid, backing);
+    } else {
+      writeDisk(sid, backing);
+    }
   });
 }
 

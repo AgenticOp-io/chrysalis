@@ -84,10 +84,10 @@ chrysalis deploy --mode=<legacy|cutover|shadow|canary> \
 
 ## Non-goals (Milestone 1)
 
-- **Production session bridge.** Redis (or equivalent) shared between PHP and
-  Node is still the target for production. **Demo bridge:** emitted Hono apps
-  can set `CHRYSALIS_SESSION_DIR` + `CHRYSALIS_SESSION_COOKIE` to persist JSON
-  session files PHP can align with (see `oracle-php` README and `DESIGN.md` D24).
+- **Distributed session bridge.** Multi-host Redis/Valkey parity is still a
+  follow-on target. Current emitted runtimes ship: file bridge
+  (`CHRYSALIS_SESSION_DIR`) and single-host shared SQLite bridge
+  (`CHRYSALIS_SESSION_SQLITE_PATH`) plus `CHRYSALIS_SESSION_COOKIE`.
 - **Weighted multi-variant canaries** (e.g. A/B/C beyond two stacks). Only a
   single modern upstream + percentage is supported today.
 - **Protocols other than HTTP/1.1.** No websockets, SSE, or queue traffic.

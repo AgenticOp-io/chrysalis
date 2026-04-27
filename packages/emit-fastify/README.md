@@ -20,7 +20,8 @@ Emits a runnable **Fastify + `node:sqlite`** TypeScript project from a WebIR
   `app.inject`, compatible with `@chrysalis/verify` `ReplayOptions.fetch`.
 - **SQL replay tape:** same `x-chrysalis-sql-tape` contract as emit-hono
   (`AsyncLocalStorage` + `enterWith` on request).
-- **Session / env:** same `CHRYSALIS_SESSION_DIR`, `CHRYSALIS_SESSION_COOKIE`,
+- **Session / env:** same `CHRYSALIS_SESSION_DIR`,
+  `CHRYSALIS_SESSION_SQLITE_PATH`, `CHRYSALIS_SESSION_COOKIE`,
   `CHRYSALIS_DB_PATH` semantics as emit-hono.
 - **Effect annotations** and **provenance** JSDoc match emit-hono output shape.
 - **Flagship parity:** Same Vitest slices as emit-hono — **`flagship/laravel-min`**

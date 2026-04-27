@@ -46,6 +46,9 @@ describe("emit-fastify: tiny-blog output", () => {
       const ctx = readFileSync(resolve(out, "src/ctx.ts"), "utf8");
       expect(ctx).toContain("chrysalisNow");
       expect(ctx).toContain("chrysalisRandom");
+      const session = readFileSync(resolve(out, "src/session.ts"), "utf8");
+      expect(session).toContain("CHRYSALIS_SESSION_SQLITE_PATH");
+      expect(session).toContain("CREATE TABLE IF NOT EXISTS chrysalis_sessions");
 
       const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
       expect(login).toContain("FastifyRequest");

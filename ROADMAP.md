@@ -636,6 +636,9 @@ without weakening corpus replay gates.
 - [ ] **Session infra production track:** define and ship shared-store session
       bridge option (Redis or equivalent) for chimera/cutover readiness; keep
       deterministic verify behavior.
+      **D176:** emitted Hono/Fastify runtimes add shared SQLite session backend
+      (`CHRYSALIS_SESSION_SQLITE_PATH`, table `chrysalis_sessions`) with existing
+      memory/file fallback, preserving deterministic verify defaults.
 - [x] **Migration sidecar release policy:** formalize when idiomaticity/residual
       sidecars become required release gates (including threshold policy + CI lane).
       **D166:** adds `ci-gates` command `migration-sidecar-floors-release`

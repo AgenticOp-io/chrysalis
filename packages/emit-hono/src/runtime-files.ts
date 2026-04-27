@@ -240,12 +240,14 @@ export const chrysalisDeterminismMiddleware = (): MiddlewareHandler => {
 
 export const SESSION_TS = `import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import type { Context, MiddlewareHandler } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { chrysalisRandom } from "./ctx.js";
 
 const sessions = new Map<string, Record<string, unknown>>();
 const sessionDir = process.env.CHRYSALIS_SESSION_DIR;
+const sessionSqlitePath = process.env.CHRYSALIS_SESSION_SQLITE_PATH;
 const sessionCookieName = process.env.CHRYSALIS_SESSION_COOKIE ?? "chrysalis_sid";
 
 function newSid(): string {
@@ -272,6 +274,49 @@ function writeDisk(sid: string, store: Record<string, unknown>): void {
   writeFileSync(diskPath(sid), JSON.stringify(store), "utf8");
 }
 
+let _sessionDb: DatabaseSync | null = null;
+function sessionDb(): DatabaseSync {
+  if (_sessionDb === null) {
+    _sessionDb = new DatabaseSync(sessionSqlitePath!);
+    _sessionDb.exec(
+      "CREATE TABLE IF NOT EXISTS chrysalis_sessions (" +
+        "sid TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_at TEXT NOT NULL)",
+    );
+  }
+  return _sessionDb;
+}
+
+function readSqlite(sid: string): Record<string, unknown> {
+  try {
+    const row = sessionDb()
+      .prepare("SELECT payload FROM chrysalis_sessions WHERE sid = ?")
+      .get(sid) as { payload?: string } | undefined;
+    if (!row || typeof row.payload !== "string") return {};
+    return JSON.parse(row.payload) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+function writeSqlite(sid: string, store: Record<string, unknown>): void {
+  const payload = JSON.stringify(store);
+  const nowIso = new Date().toISOString();
+  sessionDb()
+    .prepare(
+      "INSERT INTO chrysalis_sessions(sid,payload,updated_at) VALUES(?,?,?) " +
+        "ON CONFLICT(sid) DO UPDATE SET payload=excluded.payload, updated_at=excluded.updated_at",
+    )
+    .run(sid, payload, nowIso);
+}
+
+function deleteSqlite(sid: string): void {
+  try {
+    sessionDb().prepare("DELETE FROM chrysalis_sessions WHERE sid = ?").run(sid);
+  } catch {
+    /* noop */
+  }
+}
+
 export interface Session {
   get<T = unknown>(key: string): T | null;
   set(key: string, value: unknown): void;
@@ -291,7 +336,9 @@ export function sessionMiddleware(): MiddlewareHandler {
     }
 
     let store: Record<string, unknown>;
-    if (sessionDir) {
+    if (sessionSqlitePath) {
+      store = readSqlite(sid);
+    } else if (sessionDir) {
       store = readDisk(sid);
     } else {
       if (!sessions.has(sid)) {
@@ -309,7 +356,9 @@ export function sessionMiddleware(): MiddlewareHandler {
         store[key] = value;
       },
       destroy() {
-        if (sessionDir) {
+        if (sessionSqlitePath) {
+          deleteSqlite(sid);
+        } else if (sessionDir) {
           try {
             unlinkSync(diskPath(sid));
           } catch {
@@ -322,7 +371,9 @@ export function sessionMiddleware(): MiddlewareHandler {
     };
     c.set("session", session);
     await next();
-    if (sessionDir) {
+    if (sessionSqlitePath) {
+      writeSqlite(sid, store);
+    } else if (sessionDir) {
       writeDisk(sid, store);
     }
   };
