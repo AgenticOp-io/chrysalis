@@ -516,6 +516,8 @@ idiomaticity / residual-legacy JSON.
       in `verify:flagship` to catch emitter drift on the same corpus.
       **D140:** adds echo request-shape negatives and method guard checks in
       `verify:flagship` (`POST /echo` empty/json => 400 + body; `GET /echo` => 404).
+      **D141:** pins **`GET /`**, **`/items`**, **`/count`**, **`/session/visit`**, **`/login`**
+      semantics in `verify:flagship` post-capture checks (seeded DB + visit counter).
       **Incremental (D86–D115):**
       **`GET /chrysalis-min-id`** / **`GET /chrysalis-max-id`** / **`GET /chrysalis-avg-id`** / **`GET /chrysalis-id-span`**
       / **`GET /chrysalis-sum-squares`** / **`GET /chrysalis-even-count`** / **`GET /chrysalis-odd-count`**

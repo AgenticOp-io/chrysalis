@@ -70,7 +70,7 @@ canonical full Laravel root (D84) and covers **Composer Laravel / Breeze** depth
 larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
 `laravel-min/README.md` for the Laravel-shaped pilot.
 
-**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle + post-capture route semantics, D136/D137/D138, echo negative-shape checks D140)** — for regression triage and CI artifacts:
+**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle + post-capture route semantics, D136/D137/D138, echo D140, home/db/visit/login D141)** — for regression triage and CI artifacts:
 
 | Item | Value |
 |------|--------|

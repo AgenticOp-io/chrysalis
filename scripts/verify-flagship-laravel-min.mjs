@@ -423,6 +423,21 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteBody(byRoute, "GET /api/health", '{"ok":true,"app":"laravel-min"}');
   assertRouteStatus(byRoute, "GET /jump", 302);
   assertRouteHeaderContains(byRoute, "GET /jump", "location", "/health");
+  assertRouteBody(
+    byRoute,
+    "GET /",
+    '<h1>laravel-min</h1><p>Chrysalis flagship skeleton</p>',
+  );
+  assertRouteHeaderContains(byRoute, "GET /", "content-type", "text/html");
+  assertRouteBody(byRoute, "GET /items", "1:alpha\n2:beta\n");
+  assertRouteHeaderContains(byRoute, "GET /items", "content-type", "text/plain");
+  assertRouteBody(byRoute, "GET /count", "2\n");
+  assertRouteHeaderContains(byRoute, "GET /count", "content-type", "text/plain");
+  assertRouteContainsBody(byRoute, "GET /session/visit", "visits:1\n");
+  assertRouteContainsBody(byRoute, "GET /session/visit", "visits:2\n");
+  assertRouteHeaderContains(byRoute, "GET /login", "content-type", "text/html");
+  assertRouteContainsBody(byRoute, "GET /login", "<title>Login</title>");
+  assertRouteContainsBody(byRoute, "GET /login", 'name="csrf"');
   assertRouteBody(byRoute, "GET /robots.txt", "User-agent: *\nDisallow:\n");
   assertRouteBody(byRoute, "GET /humans.txt", "Chrysalis flagship pilot\nProject: laravel-min\n");
   assertRouteBody(
