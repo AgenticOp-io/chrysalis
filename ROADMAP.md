@@ -522,6 +522,7 @@ idiomaticity / residual-legacy JSON.
       **D143:** two more **`POST /login`** negatives (wrong password, empty creds) + corpus pins.
       **D144:** wrong-method **`GET /logout`** (**404**) in `verify:flagship` oracle + semantics.
       **D145:** wrong-method **`POST /session/me`** (**404**) in `verify:flagship` oracle + semantics.
+      **D146:** wrong-method **`POST /session/visit`** (**404**) in `verify:flagship` oracle + semantics.
       **Incremental (D86–D115):**
       **`GET /chrysalis-min-id`** / **`GET /chrysalis-max-id`** / **`GET /chrysalis-avg-id`** / **`GET /chrysalis-id-span`**
       / **`GET /chrysalis-sum-squares`** / **`GET /chrysalis-even-count`** / **`GET /chrysalis-odd-count`**

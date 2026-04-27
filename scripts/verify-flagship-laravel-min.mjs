@@ -6,7 +6,7 @@
  * bodies, `GET /jump` (302 `Location: /health`), `GET /session/visit` x2,
  * `GET /session/me`, `GET /login` + `POST /login` (bad CSRF 403, bad password 401, empty 400, then bcrypt + CSRF) + `GET /session/me`,
  * `POST /logout` + `GET /session/me` again, wrong-method **`GET /echo`** / **`GET /logout`** /
- * **`POST /session/me`** (404),
+ * **`POST /session/me`** / **`POST /session/visit`** (404),
  * `GET /api/health` x2, `GET /robots.txt`,
  * `GET /humans.txt`, `GET /.well-known/security.txt`, `GET /sitemap.xml`,
  * `GET /css/pilot.css`, and `GET /manifest.webmanifest` in the base GET fan-out + widened capture loop).
@@ -361,6 +361,10 @@ async function driveLaravelMinCorpus(port) {
   if (meWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /session/me expected 404, got ${meWrongMethod.status}`);
   }
+  const visitWrongMethod = await fetch(`${base}/session/visit`, { method: "POST" });
+  if (visitWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /session/visit expected 404, got ${visitWrongMethod.status}`);
+  }
 
   for (let i = 0; i < 2; i++) {
     const sv = await fetch(`${base}/session/visit`);
@@ -520,6 +524,8 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteBody(byRoute, "GET /logout", "Not Found");
   assertRouteStatus(byRoute, "POST /session/me", 404);
   assertRouteBody(byRoute, "POST /session/me", "Not Found");
+  assertRouteStatus(byRoute, "POST /session/visit", 404);
+  assertRouteBody(byRoute, "POST /session/visit", "Not Found");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:anon\n");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
   assertRouteContainsStatus(byRoute, "POST /login", 302);
