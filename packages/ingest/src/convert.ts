@@ -36,6 +36,17 @@ export function stripTopLevelFunctionDecls(stmts: readonly PhpNode[]): PhpNode[]
   return stmts.filter((s) => s.kind !== "FunctionDecl");
 }
 
+/** Bare function name or `Class::method` for static calls (parser `callee.kind === "expr"`). */
+function tryCallCalleeLabel(e: Extract<PhpExpr, { kind: "Call" }>): string | undefined {
+  if (e.callee.kind === "name") {
+    return e.callee.name;
+  }
+  if (e.callee.kind === "expr" && e.callee.expr.kind === "StaticFetch") {
+    return `${e.callee.expr.className}::${e.callee.expr.name}`;
+  }
+  return undefined;
+}
+
 interface Ctx {
   readonly m: ModuleBuilder;
   readonly data: ReturnType<typeof dataDialect.builders>;
@@ -397,10 +408,10 @@ function convertCall(
   e: Extract<PhpExpr, { kind: "Call" }>,
   pathParams: RouteSpec["pathParams"],
 ): NodeId {
-  if (e.callee.kind !== "name") {
+  const name = tryCallCalleeLabel(e);
+  if (name === undefined) {
     return hole(ctx, `call:${e.callee.kind}`, e.pos);
   }
-  const name = e.callee.name;
   const lowering = KNOWN_CALLS[name];
   const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
 

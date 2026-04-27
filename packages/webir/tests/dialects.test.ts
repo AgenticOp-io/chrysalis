@@ -66,6 +66,24 @@ describe("webir module builder", () => {
     expect(eff).toEqual([{ kind: "session.read" }]);
   });
 
+  test("effectsReachableWithCallOverlay matches static Class::method callee", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const arg = d.literal({ value: 1, type: T.int, origin });
+    const call = d.call({
+      callee: "\\Acme\\Repo\\Thing::run",
+      args: [arg],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["Acme\\Repo\\Thing::run", Object.freeze([{ kind: "db.read" as const, table: "t1" }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    expect(eff).toEqual([{ kind: "db.read", table: "t1" }]);
+  });
+
   test("effectsReachableWithCallOverlay unions overlay keys that share an unqualified tail", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });
     const d = dataDialect.builders(b);

@@ -606,6 +606,9 @@ without weakening corpus replay gates.
       `FunctionDecl` names, maps `usegroup` to `Noop`, bumps parser `SCHEMA_VERSION`
       to `0.1.2`; narrows vendor overlay vs FQN calls when declarations live in a
       namespace. Braced-only / class / const declarations in namespaces remain partial.
+      **D173:** ingest `convertCall` lowers `Class::method()` (parser `callee` as
+      `StaticFetch`) to `data.call` for overlay hooks; class method bodies in the
+      call-effect map are still not collected (parser `class` remains `Unknown`).
 - [ ] **Effect narrowing follow-up:** add confidence-preserving narrowing where
       over-approximation is currently too coarse, without reducing safety; include
       regression fixtures proving no missed side effects.
