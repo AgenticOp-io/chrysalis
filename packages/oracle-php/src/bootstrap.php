@@ -24,6 +24,7 @@ require_once __DIR__ . '/Mail.php';
 require_once __DIR__ . '/Sink/NdjsonSink.php';
 require_once __DIR__ . '/Db/Statement.php';
 require_once __DIR__ . '/Db/PDO.php';
+require_once __DIR__ . '/Db/MySQLi.php';
 
 if (getenv('CHRYSALIS_DISABLE') === '1') {
     return;

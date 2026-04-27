@@ -603,6 +603,9 @@ without weakening corpus replay gates.
       regression fixtures proving no missed side effects.
 - [ ] **Oracle breadth (`mysqli` path):** add first-class `mysqli` capture/replay
       support to complement PDO, with schema/tests and corpus summary integration.
+      **D165:** ships `Chrysalis\Oracle\Db\MySQLi` `query()`-path SQL capture
+      (driver/sql/duration/rowCount/shape) + bootstrap/README wiring; prepared
+      statement and row-payload parity remain follow-ons.
 - [ ] **Session infra production track:** define and ship shared-store session
       bridge option (Redis or equivalent) for chimera/cutover readiness; keep
       deterministic verify behavior.
