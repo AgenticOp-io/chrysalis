@@ -466,6 +466,34 @@ function assertMigrationSidecarFloors(dirArg) {
   );
 }
 
+function assertMigrationSidecarFloorsRelease(dirArg) {
+  const releaseIdioMin = parseOptionalEnvNumber(
+    process.env.CHRYSALIS_RELEASE_IDIOMATICITY_MIN,
+    "CHRYSALIS_RELEASE_IDIOMATICITY_MIN",
+  );
+  const releaseResMax = parseOptionalEnvNumber(
+    process.env.CHRYSALIS_RELEASE_RESIDUAL_LEGACY_MAX,
+    "CHRYSALIS_RELEASE_RESIDUAL_LEGACY_MAX",
+  );
+  if (releaseIdioMin != null && (releaseIdioMin < 0 || releaseIdioMin > 1)) {
+    fail("migration-sidecar-floors-release: CHRYSALIS_RELEASE_IDIOMATICITY_MIN must be between 0 and 1 inclusive");
+  }
+  if (releaseResMax != null && (releaseResMax < 0 || releaseResMax > 100)) {
+    fail(
+      "migration-sidecar-floors-release: CHRYSALIS_RELEASE_RESIDUAL_LEGACY_MAX must be between 0 and 100 inclusive",
+    );
+  }
+  const prevIdio = process.env.CHRYSALIS_IDIOMATICITY_MIN;
+  const prevRes = process.env.CHRYSALIS_RESIDUAL_LEGACY_MAX;
+  process.env.CHRYSALIS_IDIOMATICITY_MIN = String(
+    parseOptionalEnvNumber(prevIdio, "CHRYSALIS_IDIOMATICITY_MIN") ?? releaseIdioMin ?? 0.01,
+  );
+  process.env.CHRYSALIS_RESIDUAL_LEGACY_MAX = String(
+    parseOptionalEnvNumber(prevRes, "CHRYSALIS_RESIDUAL_LEGACY_MAX") ?? releaseResMax ?? 50,
+  );
+  assertMigrationSidecarFloors(dirArg);
+}
+
 const [, , cmd, arg0] = process.argv;
 
 switch (cmd) {
@@ -493,10 +521,13 @@ switch (cmd) {
   case "migration-sidecar-floors":
     assertMigrationSidecarFloors(arg0);
     break;
+  case "migration-sidecar-floors-release":
+    assertMigrationSidecarFloorsRelease(arg0);
+    break;
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|migration-sidecar-floors> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|migration-sidecar-floors|migration-sidecar-floors-release> [path]",
     );
     process.exit(1);
 }

@@ -609,8 +609,12 @@ without weakening corpus replay gates.
 - [ ] **Session infra production track:** define and ship shared-store session
       bridge option (Redis or equivalent) for chimera/cutover readiness; keep
       deterministic verify behavior.
-- [ ] **Migration sidecar release policy:** formalize when idiomaticity/residual
+- [x] **Migration sidecar release policy:** formalize when idiomaticity/residual
       sidecars become required release gates (including threshold policy + CI lane).
+      **D166:** adds `ci-gates` command `migration-sidecar-floors-release`
+      (defaults: idiomaticity >= `0.01`, residual legacy <= `50`) and repo script
+      `pnpm run release-gate:migration-sidecars`; flagship CI lanes now use the
+      release-gate command instead of ad-hoc env wiring.
 - [ ] **Auth boundary milestone carve-out:** open dedicated scope for production auth
       internals currently out of owned parity scope (rotating CSRF internals,
       gateways, MFA/OAuth), with explicit hole policy and success metrics.

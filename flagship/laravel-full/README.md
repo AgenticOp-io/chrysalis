@@ -113,8 +113,11 @@ Then:
    **`verify:laravel-full`**), it also writes **`reports/migration/idiomaticity.json`** and
    **`reports/migration/residual-legacy.json`** for `chrysalis status --json` (see
    **`scripts/flagship-migration-metrics.mjs`**).
-   CI may run **`node scripts/ci-gates.mjs migration-sidecar-floors`** after status when
-   **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set (D134).
+  CI runs **`pnpm run release-gate:migration-sidecars`** after status (D166),
+  enforcing release defaults (**idiomaticity >= 0.01**, **residual legacy <= 50**)
+  via `migration-sidecar-floors-release`. Override with
+  **`CHRYSALIS_RELEASE_IDIOMATICITY_MIN`** / **`CHRYSALIS_RELEASE_RESIDUAL_LEGACY_MAX`**
+  or per-run **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`**.
 6. CI parity: workflow job **`verify flagship (laravel-full scaffold)`** restores caches,
    refreshes the scaffold, runs `verify:laravel-full:5nines`, then `status:laravel-full`, and uploads
    verify + migration + confidence artifacts. The lane runs at

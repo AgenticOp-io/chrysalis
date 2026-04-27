@@ -22,6 +22,7 @@
     "verify:laravel-full:5nines": "node scripts/verify-flagship-laravel-full.mjs --seed-variants=baseline,empty,ten --stress-runs=3 && node scripts/ci-gates.mjs confidence-5nines && node scripts/ci-gates.mjs confidence-trend",
     "status:laravel-full": "node scripts/status-flagship-laravel-full.mjs",
     "status:laravel-min": "node scripts/status-flagship-laravel-min.mjs",
+    "release-gate:migration-sidecars": "node scripts/ci-gates.mjs migration-sidecar-floors-release",
     "scaffold:laravel-full": "node scripts/scaffold-flagship-laravel.mjs",
     "scaffold:laravel-full:breeze": "node scripts/scaffold-flagship-laravel.mjs --with-breeze",
     "ci-gates": "node scripts/ci-gates.mjs",

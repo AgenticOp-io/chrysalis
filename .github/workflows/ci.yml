@@ -163,10 +163,7 @@ jobs:
         run: pnpm run status:laravel-min
 
       - name: Gate migration sidecar floors (idiomaticity / residual-legacy)
-        env:
-          CHRYSALIS_IDIOMATICITY_MIN: "0.01"
-          CHRYSALIS_RESIDUAL_LEGACY_MAX: "50"
-        run: node scripts/ci-gates.mjs migration-sidecar-floors
+        run: pnpm run release-gate:migration-sidecars
 
       - name: Upload flagship verify + migration JSON
         if: always()
@@ -262,10 +259,7 @@ jobs:
         run: pnpm run status:laravel-full
 
       - name: Gate migration sidecar floors (idiomaticity / residual-legacy)
-        env:
-          CHRYSALIS_IDIOMATICITY_MIN: "0.01"
-          CHRYSALIS_RESIDUAL_LEGACY_MAX: "50"
-        run: node scripts/ci-gates.mjs migration-sidecar-floors
+        run: pnpm run release-gate:migration-sidecars
 
       - name: Upload flagship laravel-full verify + migration JSON
         if: always()

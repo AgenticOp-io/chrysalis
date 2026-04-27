@@ -18,6 +18,15 @@ function runFloors(migrationDir: string, env: Record<string, string | undefined>
   });
 }
 
+function runReleaseFloors(migrationDir: string, env: Record<string, string | undefined>): void {
+  execFileSync(process.execPath, [ciGates, "migration-sidecar-floors-release", migrationDir], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: { ...process.env, ...env },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+}
+
 function runFloorsExpectFail(migrationDir: string, env: Record<string, string | undefined>): string {
   try {
     execFileSync(process.execPath, [ciGates, "migration-sidecar-floors", migrationDir], {
@@ -102,6 +111,27 @@ describe("ci-gates migration-sidecar-floors", () => {
       mkdirSync(dir, { recursive: true });
       const out = runFloorsExpectFail(dir, { CHRYSALIS_IDIOMATICITY_MIN: "0.1" });
       expect(out).toContain("missing");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("ci-gates migration-sidecar-floors-release", () => {
+  it("uses default release thresholds when env vars are unset", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-sidecar-floor-release-"));
+    try {
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, "idiomaticity.json"), `${JSON.stringify({ pct: 0.02 })}\n`);
+      writeFileSync(join(dir, "residual-legacy.json"), `${JSON.stringify({ legacyRequestPct: 40 })}\n`);
+      expect(() =>
+        runReleaseFloors(dir, {
+          CHRYSALIS_IDIOMATICITY_MIN: "",
+          CHRYSALIS_RESIDUAL_LEGACY_MAX: "",
+          CHRYSALIS_RELEASE_IDIOMATICITY_MIN: "",
+          CHRYSALIS_RELEASE_RESIDUAL_LEGACY_MAX: "",
+        }),
+      ).not.toThrow();
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
