@@ -124,8 +124,12 @@ final class MySQLiStatement extends \mysqli_stmt
             return $res;
         }
         if ($res === false) {
-            $this->pendingRecord = false;
-            $this->pendingParams = null;
+            // mysqlnd-less environments return false here for SELECT-shaped statements.
+            // Keep pending state so a later store_result() call can still emit sql.query.
+            if ($this->field_count <= 0) {
+                $this->pendingRecord = false;
+                $this->pendingParams = null;
+            }
             return false;
         }
         if ($res->field_count <= 0) {

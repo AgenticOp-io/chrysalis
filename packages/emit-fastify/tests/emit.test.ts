@@ -48,6 +48,8 @@ describe("emit-fastify: tiny-blog output", () => {
       expect(ctx).toContain("chrysalisRandom");
       const session = readFileSync(resolve(out, "src/session.ts"), "utf8");
       expect(session).toContain("CHRYSALIS_SESSION_SQLITE_PATH");
+      expect(session).toContain("CHRYSALIS_SESSION_REDIS_URL");
+      expect(session).toContain('await import("redis")');
       expect(session).toContain("CREATE TABLE IF NOT EXISTS chrysalis_sessions");
 
       const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");

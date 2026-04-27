@@ -63,7 +63,9 @@ mutations and on the first `get_result()` or `store_result()` for result sets;
 as vanilla `mysqli_stmt::get_result()`). Each `sql.query` carries a `params`
 array from `execute([...])` when used, or from the variables last passed to
 `bind_param()` (execute-time snapshot). Indirect `bind_param` via
-`call_user_func_array` is not traced as parameters.
+`call_user_func_array` is not traced as parameters. On mysqlnd-less installs
+where `get_result()` returns `false`, pending SELECT capture is preserved so a
+subsequent `store_result()` can still emit `sql.query`.
 
 ## Outbound HTTP
 

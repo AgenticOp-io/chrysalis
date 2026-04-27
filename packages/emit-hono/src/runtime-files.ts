@@ -23,6 +23,7 @@ export const PACKAGE_JSON = (
       dependencies: {
         hono: "^4.6.0",
         "@hono/node-server": "^1.13.0",
+        redis: "^5.8.2",
         ...(opts.drizzle ? { "drizzle-orm": "^0.45.2" } : {}),
       },
       devDependencies: {
@@ -248,6 +249,7 @@ import { chrysalisRandom } from "./ctx.js";
 const sessions = new Map<string, Record<string, unknown>>();
 const sessionDir = process.env.CHRYSALIS_SESSION_DIR;
 const sessionSqlitePath = process.env.CHRYSALIS_SESSION_SQLITE_PATH;
+const sessionRedisUrl = process.env.CHRYSALIS_SESSION_REDIS_URL;
 const sessionCookieName = process.env.CHRYSALIS_SESSION_COOKIE ?? "chrysalis_sid";
 
 function newSid(): string {
@@ -317,6 +319,49 @@ function deleteSqlite(sid: string): void {
   }
 }
 
+let _redisClientPromise: Promise<import("redis").RedisClientType> | null = null;
+async function redisClient(): Promise<import("redis").RedisClientType> {
+  if (_redisClientPromise === null) {
+    _redisClientPromise = (async () => {
+      const { createClient } = await import("redis");
+      const c = createClient({ url: sessionRedisUrl! });
+      await c.connect();
+      return c;
+    })();
+  }
+  return _redisClientPromise;
+}
+
+function redisKey(sid: string): string {
+  return "chrysalis:sess:" + sid;
+}
+
+async function readRedis(sid: string): Promise<Record<string, unknown>> {
+  try {
+    const raw = await (await redisClient()).get(redisKey(sid));
+    if (!raw) return {};
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+async function writeRedis(sid: string, store: Record<string, unknown>): Promise<void> {
+  try {
+    await (await redisClient()).set(redisKey(sid), JSON.stringify(store));
+  } catch {
+    /* noop */
+  }
+}
+
+async function deleteRedis(sid: string): Promise<void> {
+  try {
+    await (await redisClient()).del(redisKey(sid));
+  } catch {
+    /* noop */
+  }
+}
+
 export interface Session {
   get<T = unknown>(key: string): T | null;
   set(key: string, value: unknown): void;
@@ -336,7 +381,9 @@ export function sessionMiddleware(): MiddlewareHandler {
     }
 
     let store: Record<string, unknown>;
-    if (sessionSqlitePath) {
+    if (sessionRedisUrl) {
+      store = await readRedis(sid);
+    } else if (sessionSqlitePath) {
       store = readSqlite(sid);
     } else if (sessionDir) {
       store = readDisk(sid);
@@ -356,7 +403,9 @@ export function sessionMiddleware(): MiddlewareHandler {
         store[key] = value;
       },
       destroy() {
-        if (sessionSqlitePath) {
+        if (sessionRedisUrl) {
+          void deleteRedis(sid);
+        } else if (sessionSqlitePath) {
           deleteSqlite(sid);
         } else if (sessionDir) {
           try {
@@ -371,7 +420,9 @@ export function sessionMiddleware(): MiddlewareHandler {
     };
     c.set("session", session);
     await next();
-    if (sessionSqlitePath) {
+    if (sessionRedisUrl) {
+      await writeRedis(sid, store);
+    } else if (sessionSqlitePath) {
       writeSqlite(sid, store);
     } else if (sessionDir) {
       writeDisk(sid, store);

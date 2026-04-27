@@ -84,10 +84,10 @@ chrysalis deploy --mode=<legacy|cutover|shadow|canary> \
 
 ## Non-goals (Milestone 1)
 
-- **Distributed session bridge.** Multi-host Redis/Valkey parity is still a
-  follow-on target. Current emitted runtimes ship: file bridge
-  (`CHRYSALIS_SESSION_DIR`) and single-host shared SQLite bridge
-  (`CHRYSALIS_SESSION_SQLITE_PATH`) plus `CHRYSALIS_SESSION_COOKIE`.
+- **Redis/Valkey operations envelope.** Emitted runtimes now support
+  `CHRYSALIS_SESSION_REDIS_URL` for shared-session storage, but full production
+  rollout policy (HA topology, retry/backpressure policy, and cutover SLO guardrails)
+  remains an operator track outside Milestone 1 scope.
 - **Weighted multi-variant canaries** (e.g. A/B/C beyond two stacks). Only a
   single modern upstream + percentage is supported today.
 - **Protocols other than HTTP/1.1.** No websockets, SSE, or queue traffic.

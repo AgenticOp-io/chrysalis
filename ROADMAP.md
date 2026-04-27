@@ -633,12 +633,19 @@ without weakening corpus replay gates.
       **D170:** prepared-statement `sql.query.params` from `execute([...])` or
       `bind_param()` snapshot (indirect `bind_param` via `call_user_func_array`
       not captured).
+      **D177:** `MySQLiStatement::get_result()` on mysqlnd-less runtimes keeps
+      pending SELECT capture alive so `store_result()` can still emit `sql.query`
+      instead of dropping the event.
 - [ ] **Session infra production track:** define and ship shared-store session
       bridge option (Redis or equivalent) for chimera/cutover readiness; keep
       deterministic verify behavior.
       **D176:** emitted Hono/Fastify runtimes add shared SQLite session backend
       (`CHRYSALIS_SESSION_SQLITE_PATH`, table `chrysalis_sessions`) with existing
       memory/file fallback, preserving deterministic verify defaults.
+      **D178:** emitted Hono/Fastify runtimes add Redis backend
+      (`CHRYSALIS_SESSION_REDIS_URL`, keys `chrysalis:sess:*`) with sqlite/file/memory
+      fallback order preserved; deterministic verify defaults unchanged unless
+      explicitly configured.
 - [x] **Migration sidecar release policy:** formalize when idiomaticity/residual
       sidecars become required release gates (including threshold policy + CI lane).
       **D166:** adds `ci-gates` command `migration-sidecar-floors-release`

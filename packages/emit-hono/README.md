@@ -23,7 +23,9 @@ the reference for how to write additional backends (`emit-fastify`, `emit-next`,
 - **Session store.** Default in-memory Map; set `CHRYSALIS_SESSION_DIR` for
   JSON files per sid (chimera / PHP bridge demo), or set
   `CHRYSALIS_SESSION_SQLITE_PATH` for a shared SQLite-backed session table
-  (`chrysalis_sessions`) suitable for single-host cutover/canary. Optional
+  (`chrysalis_sessions`) suitable for single-host cutover/canary, or
+  `CHRYSALIS_SESSION_REDIS_URL` for a shared Redis keyspace (`chrysalis:sess:*`)
+  in multi-host cutovers. Optional
   `CHRYSALIS_SESSION_COOKIE` overrides the default `chrysalis_sid` name.
 - **Optional row typing.** With `domainTypesByTable`, exactly one table on
   a `db.query` → `queryOne<Interface>` or `queryAll<Interface>` and

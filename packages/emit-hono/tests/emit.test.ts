@@ -43,6 +43,8 @@ describe("emit-hono: tiny-blog output", () => {
       expect(serverSrc).toContain("chrysalisInProcessFetch");
       const sessionSrc = readFileSync(resolve(out, "src/session.ts"), "utf8");
       expect(sessionSrc).toContain("CHRYSALIS_SESSION_SQLITE_PATH");
+      expect(sessionSrc).toContain("CHRYSALIS_SESSION_REDIS_URL");
+      expect(sessionSrc).toContain('await import("redis")');
       expect(sessionSrc).toContain("CREATE TABLE IF NOT EXISTS chrysalis_sessions");
 
       const expectedFiles = [
