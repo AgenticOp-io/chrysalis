@@ -710,6 +710,11 @@ do not silently best-guess.
   reads optional 6A fields from `residual-legacy.json` into `migration`
   (`authResidualLegacyRequestPct`, `authEmitHoleMax`) and prints the auth line next
   to legacy-req density.
+- [x] **Ingest IR `auth:` hole reasons (D185):** `isAuthBoundaryCallee` and
+  `authTaggedHoleReason` live in `@chrysalis/webir`; every ingest `data.hole` reason
+  passes through `authTaggedHoleReason` so static unknowns that mention
+  auth-boundary symbols (e.g. `facades\Gate`, CSRF) are tagged consistently with
+  emit-time auth holes; `@chrysalis/emit-shared` re-exports the helper from webir.
 
 ---
 

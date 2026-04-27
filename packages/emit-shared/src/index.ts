@@ -3,12 +3,12 @@
  */
 
 export { honoHttpProfile, fastifyHttpProfile, type HttpEmitProfile, type HttpEmitFrameworkId } from "./http-profile.js";
+export { isAuthBoundaryCallee } from "@chrysalis/webir";
 export {
   emitHandlerBody,
   emitExpr,
   emitStmt,
   handlerEffectAnnotationTags,
-  isAuthBoundaryCallee,
   type EmittedHandler,
   type EmitHandlerOptions,
 } from "./emit-tree.js";

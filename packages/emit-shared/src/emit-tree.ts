@@ -6,31 +6,11 @@
  */
 
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
-import { effectTag, effectTagsSorted } from "@chrysalis/webir";
+import { effectTag, effectTagsSorted, isAuthBoundaryCallee } from "@chrysalis/webir";
 import { matchStringDispatchChain } from "@chrysalis/insight";
 import type { HttpEmitProfile } from "./http-profile.js";
 import { honoHttpProfile } from "./http-profile.js";
 import { ident, stringLit } from "./ts-util.js";
-
-/**
- * Heuristic: auth-boundary / identity-adjacent callees that should be tracked
- * separately in emit hole reports (Milestone 6A). Conservative: false positives
- * are preferred over missing auth-tagged coverage.
- */
-export function isAuthBoundaryCallee(callee: string): boolean {
-  const n = callee.trim().replace(/^\\+/, "");
-  const lower = n.toLowerCase();
-  if (lower === "auth") return true;
-  if (lower.includes("csrf")) return true;
-  if (lower.includes("sanctum") || lower.includes("passport")) return true;
-  if (lower.includes("gate::") || lower.includes("\\gate\\") || lower.includes("\\illuminate\\auth\\")) {
-    return true;
-  }
-  if (lower.startsWith("auth::") || lower.includes("\\auth\\") || lower.includes("\\authorization\\")) {
-    return true;
-  }
-  return false;
-}
 
 export interface EmittedHandler {
   readonly body: string;

@@ -29,6 +29,9 @@ visitor/pass infrastructure, and provenance model.
   (`__ternary`, `??`) by unioning only resolved targets while preserving
   widening fallback when any branch is unresolved.
 - `Module` — a WebIR compilation unit
+- `isAuthBoundaryCallee` / `authTaggedHoleReason` (`auth-boundary.ts`) — shared
+  Milestone 6A heuristics; ingest applies `authTaggedHoleReason` to every `data.hole`
+  reason string; emit tags unresolved auth-related `data.call` callees the same way.
 
 ## Invariants
 

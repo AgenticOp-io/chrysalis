@@ -14,6 +14,7 @@ import type {
 import {
   ModuleBuilder,
   T,
+  authTaggedHoleReason,
   dataDialect,
   effectDialect,
   effectsReachableWithCallOverlay,
@@ -87,7 +88,7 @@ export function convertPhpStatementsToBlock(
 
 function hole(ctx: Ctx, reason: string, p: PhpPos, output: WebIRType = T.unknown): NodeId {
   return ctx.data.hole({
-    reason,
+    reason: authTaggedHoleReason(reason),
     input: T.unknown,
     output,
     origin: loc(ctx, p),
