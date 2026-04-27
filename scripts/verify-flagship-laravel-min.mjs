@@ -4,7 +4,7 @@
  * for `flagship/laravel-min` (GET routes + **`GET /hello`** default / empty / two
  * named queries / encoded multi-word **`name`**, two `POST /echo`
  * bodies, `GET /jump` (302 `Location: /health`), `GET /session/visit` x2,
- * `GET /session/me`, `GET /login` + `POST /login` (bcrypt + CSRF) + `GET /session/me`,
+ * `GET /session/me`, `GET /login` + `POST /login` (bad CSRF 403, then bcrypt + CSRF) + `GET /session/me`,
  * `POST /logout` + `GET /session/me` again, `GET /api/health` x2, `GET /robots.txt`,
  * `GET /humans.txt`, `GET /.well-known/security.txt`, `GET /sitemap.xml`,
  * `GET /css/pilot.css`, and `GET /manifest.webmanifest` in the base GET fan-out + widened capture loop).
@@ -368,6 +368,19 @@ async function driveLaravelMinCorpus(port) {
   if (!loginForm.ok) {
     console.warn(`[verify-flagship] GET /login returned ${loginForm.status}`);
   }
+  const loginBadCsrf = await fetch(`${base}/login`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrf: "intruder",
+      username: "flagship",
+      password: "secret",
+    }).toString(),
+    redirect: "manual",
+  });
+  if (loginBadCsrf.status !== 403) {
+    console.warn(`[verify-flagship] POST /login (bad csrf) expected 403, got ${loginBadCsrf.status}`);
+  }
   const loginPost = await fetch(`${base}/login`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -473,7 +486,9 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteBody(byRoute, "GET /echo", "Not Found");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:anon\n");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
-  assertRouteStatus(byRoute, "POST /login", 302);
+  assertRouteContainsStatus(byRoute, "POST /login", 302);
+  assertRouteContainsStatus(byRoute, "POST /login", 403);
+  assertRouteContainsBody(byRoute, "POST /login", "csrf rejected\n");
   assertRouteStatus(byRoute, "POST /logout", 302);
 }
 
@@ -529,6 +544,25 @@ function assertRouteStatus(byRoute, routeSig, expectedStatus) {
         `[verify-flagship] ${routeSig} expected status ${expectedStatus}, got ${response.status}`,
       );
     }
+  }
+}
+
+/**
+ * @param {ReturnType<typeof groupByRoute>} byRoute
+ * @param {string} routeSig
+ * @param {number} expectedStatus
+ */
+function assertRouteContainsStatus(byRoute, routeSig, expectedStatus) {
+  const traces = byRoute.get(routeSig) ?? [];
+  if (traces.length === 0) {
+    throw new Error(`[verify-flagship] missing traces for ${routeSig}`);
+  }
+  const has = traces.some((trace) => {
+    const response = trace.events.find((e) => e.type === "http.response");
+    return response && response.type === "http.response" && response.status === expectedStatus;
+  });
+  if (!has) {
+    throw new Error(`[verify-flagship] ${routeSig} missing a trace with status ${expectedStatus}`);
   }
 }
 

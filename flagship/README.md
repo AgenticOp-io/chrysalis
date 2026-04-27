@@ -70,12 +70,12 @@ canonical full Laravel root (D84) and covers **Composer Laravel / Breeze** depth
 larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
 `laravel-min/README.md` for the Laravel-shaped pilot.
 
-**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle + post-capture route semantics, D136/D137/D138, echo D140, home/db/visit/login D141)** — for regression triage and CI artifacts:
+**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, bad-CSRF `POST /login`, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle + post-capture route semantics, D136/D137/D138, echo D140, home/db/visit/login D141, bad-CSRF D142)** — for regression triage and CI artifacts:
 
 | Item | Value |
 |------|--------|
 | Manifest routes | 19 (includes `/api/health`, `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, `/jump`, `/login`, `/logout`, `/session/me`) |
-| Oracle driver HTTP requests | 37 per `scripts/verify-flagship-laravel-min.mjs` run |
+| Oracle driver HTTP requests | 38 per `scripts/verify-flagship-laravel-min.mjs` run |
 | Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** + stable cross-backend report parity gate (D139) |
 | Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable); **`pnpm run status:laravel-min`** also writes **`idiomaticity.json`** / **`residual-legacy.json`** when emit-stats exist (D133) |
 

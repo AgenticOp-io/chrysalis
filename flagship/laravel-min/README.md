@@ -51,7 +51,8 @@ metadata/static outputs (`/robots.txt`, `/humans.txt`, `/.well-known/security.tx
 Echo request-shape negatives are pinned too: empty/json `POST /echo` => `400 msg required`,
 and `GET /echo` stays `404 Not Found`.
 Post-capture checks also pin **`GET /`** HTML, **`/items`** / **`/count`** (seeded **`items`** table),
-**`/session/visit`** visit counter steps, and minimal **`GET /login`** form HTML.
+**`/session/visit`** visit counter steps, minimal **`GET /login`** form HTML, and a
+**`POST /login`** **403** on bad **CSRF** before the good login.
 Verify also enforces stable cross-backend report parity (Hono vs Fastify fingerprints).
 Verify reports in
 `reports/verify-flagship-laravel-min/{hono,fastify}/`. Verify also writes
