@@ -60,7 +60,10 @@ may stay unknown until the client finishes reading).
 `MySQLi::prepare()` returns `MySQLiStatement`, which emits on `execute()` for
 mutations and on the first `get_result()` or `store_result()` for result sets;
 `get_result()` includes row payloads when mysqlnd is available (same requirement
-as vanilla `mysqli_stmt::get_result()`).
+as vanilla `mysqli_stmt::get_result()`). Each `sql.query` carries a `params`
+array from `execute([...])` when used, or from the variables last passed to
+`bind_param()` (execute-time snapshot). Indirect `bind_param` via
+`call_user_func_array` is not traced as parameters.
 
 ## Outbound HTTP
 

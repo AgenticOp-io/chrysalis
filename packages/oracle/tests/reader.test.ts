@@ -78,6 +78,24 @@ describe("trace-schema", () => {
     expect(() => parseEvent({ type: "nope" })).toThrow(SchemaError);
   });
 
+  it("parses a sql.query event with mysqli driver and bound params", () => {
+    const e = parseEvent({
+      type: "sql.query",
+      driver: "mysqli",
+      sql: "SELECT id FROM users WHERE id = ?",
+      params: [42],
+      rowCount: 1,
+      rowShape: [{ name: "id", typeTag: "mysqli:3" }],
+      durationUs: 80,
+      origin: { file: "db.php", line: 5 },
+    });
+    expect(e.type).toBe("sql.query");
+    if (e.type === "sql.query") {
+      expect(e.driver).toBe("mysqli");
+      expect(e.params).toEqual([42]);
+    }
+  });
+
   it("parses a sql.query event with row shape", () => {
     const e = parseEvent({
       type: "sql.query",

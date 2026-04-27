@@ -612,6 +612,9 @@ without weakening corpus replay gates.
       `store_result`), buffered `query()` rows for store-result selects, and
       consistent `driver: "mysqli"`; `MYSQLI_USE_RESULT` / non-mysqlnd gaps remain
       follow-ons if needed.
+      **D170:** prepared-statement `sql.query.params` from `execute([...])` or
+      `bind_param()` snapshot (indirect `bind_param` via `call_user_func_array`
+      not captured).
 - [ ] **Session infra production track:** define and ship shared-store session
       bridge option (Redis or equivalent) for chimera/cutover readiness; keep
       deterministic verify behavior.
