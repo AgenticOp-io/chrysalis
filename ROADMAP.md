@@ -615,12 +615,40 @@ without weakening corpus replay gates.
       (defaults: idiomaticity >= `0.01`, residual legacy <= `50`) and repo script
       `pnpm run release-gate:migration-sidecars`; flagship CI lanes now use the
       release-gate command instead of ad-hoc env wiring.
-- [ ] **Auth boundary milestone carve-out:** open dedicated scope for production auth
+- [x] **Auth boundary milestone carve-out:** open dedicated scope for production auth
       internals currently out of owned parity scope (rotating CSRF internals,
       gateways, MFA/OAuth), with explicit hole policy and success metrics.
+      **D167:** adds a dedicated scoped auth track definition below so this work
+      no longer lives as an implicit deferred note.
 
 **Tracker (planned):** `flagship/README.md`, `flagship/laravel-full/README.md`,
 and this roadmap section.
+
+---
+
+## Milestone 6A — Auth boundary (scoped, deferred implementation)
+
+**Status: scoped.** This is a dedicated follow-on track for production auth
+surfaces explicitly excluded from M4/M5 owned parity scope.
+
+**Scope (owned):**
+- rotating CSRF internals and token lifecycle semantics
+- framework auth gateways/guards where they influence request authz/authn flow
+- MFA/OAuth boundary handling required for parity claims
+
+**Scope (still out for now):**
+- bespoke identity-provider integrations not represented in fixture/scaffold corpora
+- proprietary enterprise auth middleware with no reproducible oracle corpus
+
+**Hole policy:** when auth internals are encountered outside current owned slice,
+emit explicit auth-labeled holes and surface them in residual-legacy reporting;
+do not silently best-guess.
+
+**Success metrics (entry criteria to mark complete):**
+- representative oracle corpus includes auth boundary positive + negative traces
+- verify replay keeps correctness gate for auth routes at target threshold
+- residual-legacy report shows explicit auth-hole closure trend
+- docs/README parity scope statements updated to reflect what is now owned
 
 ---
 
