@@ -520,6 +520,7 @@ idiomaticity / residual-legacy JSON.
       semantics in `verify:flagship` post-capture checks (seeded DB + visit counter).
       **D142:** one extra oracle **`POST /login`** (bad CSRF) + mixed-status assertion helpers.
       **D143:** two more **`POST /login`** negatives (wrong password, empty creds) + corpus pins.
+      **D144:** wrong-method **`GET /logout`** (**404**) in `verify:flagship` oracle + semantics.
       **Incremental (D86–D115):**
       **`GET /chrysalis-min-id`** / **`GET /chrysalis-max-id`** / **`GET /chrysalis-avg-id`** / **`GET /chrysalis-id-span`**
       / **`GET /chrysalis-sum-squares`** / **`GET /chrysalis-even-count`** / **`GET /chrysalis-odd-count`**

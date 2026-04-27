@@ -5,7 +5,8 @@
  * named queries / encoded multi-word **`name`**, two `POST /echo`
  * bodies, `GET /jump` (302 `Location: /health`), `GET /session/visit` x2,
  * `GET /session/me`, `GET /login` + `POST /login` (bad CSRF 403, bad password 401, empty 400, then bcrypt + CSRF) + `GET /session/me`,
- * `POST /logout` + `GET /session/me` again, `GET /api/health` x2, `GET /robots.txt`,
+ * `POST /logout` + `GET /session/me` again, wrong-method **`GET /echo`** / **`GET /logout`** (404),
+ * `GET /api/health` x2, `GET /robots.txt`,
  * `GET /humans.txt`, `GET /.well-known/security.txt`, `GET /sitemap.xml`,
  * `GET /css/pilot.css`, and `GET /manifest.webmanifest` in the base GET fan-out + widened capture loop).
  *
@@ -351,6 +352,10 @@ async function driveLaravelMinCorpus(port) {
   if (echoWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] GET /echo expected 404, got ${echoWrongMethod.status}`);
   }
+  const logoutWrongMethod = await fetch(`${base}/logout`);
+  if (logoutWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] GET /logout expected 404, got ${logoutWrongMethod.status}`);
+  }
 
   for (let i = 0; i < 2; i++) {
     const sv = await fetch(`${base}/session/visit`);
@@ -506,6 +511,8 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteContainsBody(byRoute, "POST /echo", "msg required\n");
   assertRouteStatus(byRoute, "GET /echo", 404);
   assertRouteBody(byRoute, "GET /echo", "Not Found");
+  assertRouteStatus(byRoute, "GET /logout", 404);
+  assertRouteBody(byRoute, "GET /logout", "Not Found");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:anon\n");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
   assertRouteContainsStatus(byRoute, "POST /login", 302);
