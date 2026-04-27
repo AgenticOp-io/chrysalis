@@ -15,7 +15,8 @@ app runs. It:
 - registers a `shutdown_function` to flush a trace file atomically,
 - subclasses `PDO` in `Chrysalis\Oracle\Db\PDO` so apps that swap their factory
   get SQL instrumentation for free,
-- subclasses `mysqli` in `Chrysalis\Oracle\Db\MySQLi` for query-path SQL
+- subclasses `mysqli` / `mysqli_stmt` in `Chrysalis\Oracle\Db\MySQLi` and
+  `Chrysalis\Oracle\Db\MySQLiStatement` for `query()` and prepared-statement SQL
   instrumentation when apps use mysqli factories,
 - registers `HttpStreamWrapper` for `http://` and `https://` so `fopen` /
   `file_get_contents` URL fetches emit `http.outbound` events.
@@ -50,9 +51,16 @@ verify replays those rows through the `x-chrysalis-sql-tape` header when
 `recordedSqlReplay` is enabled. Large results are capped per query (see
 `Recorder::MAX_SQL_ROWS_PER_EVENT`).
 
-`MySQLi::query()` capture records SQL text, duration, driver, row count, and
-result shape metadata without buffering row payloads. Replay still works, but
-`rows`-exact SQL tape parity remains strongest on the PDO path.
+`MySQLi::query()` records SQL text, duration, driver `mysqli`, row count, shape,
+and (for default `MYSQLI_STORE_RESULT` selects) full assoc rows after buffering,
+then rewinds the live `mysqli_result` with `data_seek(0)` so the app sees the
+same cursor. Unbuffered `MYSQLI_USE_RESULT` selects omit row payloads (row count
+may stay unknown until the client finishes reading).
+
+`MySQLi::prepare()` returns `MySQLiStatement`, which emits on `execute()` for
+mutations and on the first `get_result()` or `store_result()` for result sets;
+`get_result()` includes row payloads when mysqlnd is available (same requirement
+as vanilla `mysqli_stmt::get_result()`).
 
 ## Outbound HTTP
 
@@ -78,6 +86,6 @@ Node (plain scalars and arrays — not PHP object graphs).
 ## Status
 
 Milestone 1: PDO SQL capture. Milestone 2 adds outbound HTTP (stream wrapper)
-and opt-in mail via `Mail::send`. Milestone 6 begins first-class `mysqli`
-capture via `Chrysalis\Oracle\Db\MySQLi` (`query()` path). Non-URL
-`file_put_contents` remains future work.
+and opt-in mail via `Mail::send`. Milestone 6 adds first-class `mysqli` capture
+via `Chrysalis\Oracle\Db\MySQLi` and `MySQLiStatement` (`query()` + prepared
+paths). Non-URL `file_put_contents` remains future work.
