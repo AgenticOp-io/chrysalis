@@ -49,7 +49,8 @@ no query (default **`guest`**), **`?name=`**, two fixed names, and an encoded mu
 metadata/static outputs (`/robots.txt`, `/humans.txt`, `/.well-known/security.txt`,
 `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`) before ingest/emit.
 Echo request-shape negatives are pinned too: empty/json `POST /echo` => `400 msg required`,
-and `GET /echo` / `GET /logout` / `POST /session/me` / `POST /session/visit` stay `404 Not Found`
+and `GET /echo` / `GET /logout` / `POST /session/me` / `POST /session/visit` / `POST /count`
+stay `404 Not Found`
 (front controller method guards).
 Post-capture checks also pin **`GET /`** HTML, **`/items`** / **`/count`** (seeded **`items`** table),
 **`/session/visit`** visit counter steps, minimal **`GET /login`** form HTML, and a
