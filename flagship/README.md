@@ -32,9 +32,11 @@ chrysalis status --json --project flagship/laravel-min \
   stats). For **`laravel-full`**, **`status:laravel-full`** can auto-write this from
   emitted-handler **`@chrysalis/compat`** scans when emit stats exist (D132).
 - **Residual legacy** — optional `reports/migration/residual-legacy.json`:
-  `{ "legacyRequestPct": 45.0 }` (0..100), e.g. from chimera or edge logs.
-  For **`laravel-full`**, **`status:laravel-full`** can auto-write a **hole-density**
-  index vs manifest routes when emit stats exist (not chimera traffic; see D132).
+  includes `legacyRequestPct` (0..100) and, when emit stats include per-emitter
+  `authHoles`, `authLegacyRequestPct` and `authEmitHoleMax` for auth-boundary
+  emit holes (Milestone 6A; D183). For **`laravel-full`**, **`status:laravel-full`**
+  can auto-write hole-density vs manifest routes when emit stats exist (not chimera
+  traffic; see D132).
 
 Override sidecar directory with `--migration-reports <dir>`.
 

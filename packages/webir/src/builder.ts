@@ -168,8 +168,11 @@ export function effectsReachableWithCallOverlay(
     const callee = String((argNode.attrs as { callee?: string }).callee ?? "");
     if (callee !== "__array_literal") return "";
     if (argNode.operands.length < 2) return "";
-    const partA = getNode(argNode.operands[0]);
-    const partB = getNode(argNode.operands[1]);
+    const op0 = argNode.operands[0];
+    const op1 = argNode.operands[1];
+    if (op0 === undefined || op1 === undefined) return "";
+    const partA = getNode(op0);
+    const partB = getNode(op1);
     const a =
       partA &&
       partA.dialect === "data" &&

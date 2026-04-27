@@ -8,6 +8,7 @@ export {
   emitExpr,
   emitStmt,
   handlerEffectAnnotationTags,
+  isAuthBoundaryCallee,
   type EmittedHandler,
   type EmitHandlerOptions,
 } from "./emit-tree.js";

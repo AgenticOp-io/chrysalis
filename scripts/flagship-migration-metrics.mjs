@@ -75,6 +75,46 @@ export function residualLegacyRequestPctFromEmitStats(stats) {
 }
 
 /**
+ * Counts emit report holes tagged for the auth-boundary track (`reason` starts with `auth:`).
+ *
+ * @param {ReadonlyArray<{ reason?: string }> | undefined} holes
+ * @returns {number}
+ */
+export function countAuthTaggedHoles(holes) {
+  if (!Array.isArray(holes)) {
+    return 0;
+  }
+  let n = 0;
+  for (const h of holes) {
+    if (typeof h?.reason === "string" && h.reason.startsWith("auth:")) {
+      n += 1;
+    }
+  }
+  return n;
+}
+
+/**
+ * @param {{ holes?: number; authHoles?: number } | undefined} emitter
+ */
+function authHoleCountFromEmitterStats(emitter) {
+  const n = emitter && typeof emitter.authHoles === "number" ? emitter.authHoles : 0;
+  return Math.max(0, n);
+}
+
+/**
+ * Auth-boundary hole density vs manifest routes (parallel to legacyRequestPct).
+ * @param {number} manifestRoutes
+ * @param {number} maxAuthHoles
+ */
+export function authLegacyRequestPctFromEmitStats(manifestRoutes, maxAuthHoles) {
+  if (typeof manifestRoutes !== "number" || manifestRoutes < 1) {
+    return null;
+  }
+  const routes = Math.max(1, manifestRoutes);
+  return Math.min(100, (100 * Math.max(0, maxAuthHoles)) / routes);
+}
+
+/**
  * @param {string} repoRoot
  * @param {{
  *   emitStatsFilename: string;
@@ -133,12 +173,20 @@ export function writeMigrationSidecars(repoRoot, spec) {
     return wrote;
   }
   const maxHoles = Math.max(stats.hono?.holes ?? 0, stats.fastify?.holes ?? 0);
+  const maxAuthHoles = Math.max(
+    authHoleCountFromEmitterStats(stats.hono),
+    authHoleCountFromEmitterStats(stats.fastify),
+  );
+  const authLegacyRequestPct = authLegacyRequestPctFromEmitStats(stats.manifestRoutes, maxAuthHoles) ?? 0;
   const residual = {
     legacyRequestPct,
     pilot: spec.pilot,
     definition: "emit-hole-density-vs-manifest-routes",
     manifestRoutes: stats.manifestRoutes,
     emitHoleMax: maxHoles,
+    authLegacyRequestPct,
+    authEmitHoleMax: maxAuthHoles,
+    authDefinition: "emit-auth-hole-density-vs-manifest-routes",
     source: spec.emitStatsFilename,
     notes:
       "Oracle capture in this pipeline is 100% PHP docroot; this metric indexes emit-time holes vs manifest route count, not chimera production traffic (DESIGN.md success metrics).",

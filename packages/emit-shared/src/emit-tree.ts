@@ -12,6 +12,26 @@ import type { HttpEmitProfile } from "./http-profile.js";
 import { honoHttpProfile } from "./http-profile.js";
 import { ident, stringLit } from "./ts-util.js";
 
+/**
+ * Heuristic: auth-boundary / identity-adjacent callees that should be tracked
+ * separately in emit hole reports (Milestone 6A). Conservative: false positives
+ * are preferred over missing auth-tagged coverage.
+ */
+export function isAuthBoundaryCallee(callee: string): boolean {
+  const n = callee.trim().replace(/^\\+/, "");
+  const lower = n.toLowerCase();
+  if (lower === "auth") return true;
+  if (lower.includes("csrf")) return true;
+  if (lower.includes("sanctum") || lower.includes("passport")) return true;
+  if (lower.includes("gate::") || lower.includes("\\gate\\") || lower.includes("\\illuminate\\auth\\")) {
+    return true;
+  }
+  if (lower.startsWith("auth::") || lower.includes("\\auth\\") || lower.includes("\\authorization\\")) {
+    return true;
+  }
+  return false;
+}
+
 export interface EmittedHandler {
   readonly body: string;
   readonly holes: ReadonlyArray<{ name: string; line: number; reason: string }>;
@@ -431,10 +451,12 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `parseZodEnumBodyFieldRaw(${args[0]}, [${rest.join(", ")}] as const)`;
     }
   }
+  const baseReason = `unresolved call: ${callee}`;
+  const reason = isAuthBoundaryCallee(callee) ? `auth:${baseReason}` : baseReason;
   ctx.holes.push({
     name: `call:${callee}`,
     line: 0,
-    reason: `unresolved call: ${callee}`,
+    reason,
   });
   return `(__hole(${stringLit(`call:${callee}`)}, { args: [${args.join(", ")}] }) as any)`;
 }

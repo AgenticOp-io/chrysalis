@@ -30,6 +30,22 @@ describe("flagship-migration-metrics.mjs", () => {
     expect(m.idiomaticityPctFromScans(a, b)).toBe(1);
   });
 
+  it("countAuthTaggedHoles sums reasons prefixed with auth:", () => {
+    expect(m.countAuthTaggedHoles(undefined)).toBe(0);
+    expect(
+      m.countAuthTaggedHoles([
+        { reason: "auth:unresolved call: Gate::check" },
+        { reason: "unresolved call: other" },
+      ]),
+    ).toBe(1);
+  });
+
+  it("authLegacyRequestPctFromEmitStats mirrors hole density for auth-tagged holes", () => {
+    expect(m.authLegacyRequestPctFromEmitStats(4, 1)).toBeCloseTo(25, 5);
+    expect(m.authLegacyRequestPctFromEmitStats(10, 0)).toBe(0);
+    expect(m.authLegacyRequestPctFromEmitStats(0, 2)).toBe(null);
+  });
+
   it("residualLegacyRequestPctFromEmitStats caps at 100", () => {
     expect(
       m.residualLegacyRequestPctFromEmitStats({
@@ -58,8 +74,8 @@ describe("flagship-migration-metrics.mjs", () => {
           {
             schema: "chrysalis/flagship-laravel-full-emit-stats/1",
             manifestRoutes: 4,
-            hono: { holes: 1, handlerCount: 4 },
-            fastify: { holes: 0, handlerCount: 4 },
+            hono: { holes: 1, authHoles: 1, handlerCount: 4 },
+            fastify: { holes: 0, authHoles: 0, handlerCount: 4 },
           },
           null,
           2,
@@ -80,6 +96,9 @@ describe("flagship-migration-metrics.mjs", () => {
       expect(idio.pilot).toBe("laravel-full");
       const res = JSON.parse(readFileSync(join(migrationDir, "residual-legacy.json"), "utf8"));
       expect(res.legacyRequestPct).toBeCloseTo(25, 5);
+      expect(res.authLegacyRequestPct).toBeCloseTo(25, 5);
+      expect(res.authEmitHoleMax).toBe(1);
+      expect(res.authDefinition).toBe("emit-auth-hole-density-vs-manifest-routes");
       expect(res.definition).toBe("emit-hole-density-vs-manifest-routes");
       expect(res.pilot).toBe("laravel-full");
     } finally {
@@ -98,8 +117,8 @@ describe("flagship-migration-metrics.mjs", () => {
           {
             schema: "chrysalis/flagship-laravel-min-emit-stats/1",
             manifestRoutes: 2,
-            hono: { holes: 0, handlerCount: 2 },
-            fastify: { holes: 0, handlerCount: 2 },
+            hono: { holes: 0, authHoles: 0, handlerCount: 2 },
+            fastify: { holes: 0, authHoles: 0, handlerCount: 2 },
           },
           null,
           2,
@@ -119,6 +138,8 @@ describe("flagship-migration-metrics.mjs", () => {
       expect(idio.pilot).toBe("laravel-min");
       const res = JSON.parse(readFileSync(join(migrationDir, "residual-legacy.json"), "utf8"));
       expect(res.legacyRequestPct).toBe(0);
+      expect(res.authLegacyRequestPct).toBe(0);
+      expect(res.authEmitHoleMax).toBe(0);
       expect(res.pilot).toBe("laravel-min");
     } finally {
       rmSync(dir, { recursive: true, force: true });

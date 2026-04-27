@@ -8,8 +8,7 @@ runnable demo and measurable numbers, not a pile of abstractions.
 **Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
 Milestone 4 below) meet the scoped acceptance. **Milestone 5 is now complete**
 (see section below). **Milestone 6 checklist is complete. Current engineering focus:**
-**Milestone 6A (auth boundary scoped track)** for deferred depth work (vendor effects, oracle breadth, and production
-hardening boundaries). Milestone 2
+**Milestone 6A (auth boundary scoped track)** (in progress). Milestone 2
 follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
 confidence) stay cross-cutting; repair-loop follow-ons (richer attribution,
@@ -679,8 +678,8 @@ and this roadmap section.
 
 ## Milestone 6A — Auth boundary (scoped, deferred implementation)
 
-**Status: scoped.** This is a dedicated follow-on track for production auth
-surfaces explicitly excluded from M4/M5 owned parity scope.
+**Status: scoped; first instrumentation slice landed (D183).** This is a dedicated
+follow-on track for production auth surfaces explicitly excluded from M4/M5 owned parity scope.
 
 **Scope (owned):**
 - rotating CSRF internals and token lifecycle semantics
@@ -700,6 +699,13 @@ do not silently best-guess.
 - verify replay keeps correctness gate for auth routes at target threshold
 - residual-legacy report shows explicit auth-hole closure trend
 - docs/README parity scope statements updated to reflect what is now owned
+
+**Checklist (incremental):**
+- [x] **Auth-tagged emit holes + migration sidecar (D183):** unresolved `data.call`
+  sites whose callee matches auth-boundary heuristics (e.g. `Gate::…`, `auth`,
+  CSRF/Sanctum/Passport tokens) emit `auth:unresolved call: …` reasons; flagship
+  emit-stats add per-emitter `authHoles`; `residual-legacy.json` adds
+  `authLegacyRequestPct` + `authEmitHoleMax` for trend tracking.
 
 ---
 

@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
+import { ModuleBuilder, T, dataDialect, phpLocator, webRequest } from "@chrysalis/webir";
 import { emit } from "../src/index.js";
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
@@ -194,6 +195,43 @@ describe("emit-hono: flagship laravel-full chrysalis-templates", () => {
       expect(existsSync(resolve(out, "src/handlers/session_login_post.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_logout_post.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/echo_post.ts"))).toBe(true);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-hono: Milestone 6A auth-boundary emit holes", () => {
+  test("tags unresolved Gate facade call with auth: unresolved hole reason", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-auth-emit-"));
+    try {
+      const b = new ModuleBuilder({ sourceApp: "auth-hole-fixture" });
+      const d = dataDialect.builders(b);
+      const r = webRequest.builders(b);
+      const origin = phpLocator("routes/gate.php", 1, 0);
+      const arg = d.literal({ value: "edit", type: T.string, origin });
+      const call = d.call({
+        callee: "Illuminate\\Support\\Facades\\Gate::allows",
+        args: [arg],
+        type: T.unknown,
+        origin,
+      });
+      const handler = r.handler({
+        attrs: { name: "gate_probe", input: T.record({}), output: T.string },
+        body: call,
+        effects: [],
+        origin,
+      });
+      const route = r.route({
+        attrs: { method: "GET", path: "/gate-probe", pathParams: [] },
+        handler,
+        origin,
+      });
+      b.addRoot(route);
+      const mod = b.finish();
+      const res = await emit({ module: mod, outDir: out });
+      expect(res.holes.length).toBeGreaterThan(0);
+      expect(res.holes.some((h) => h.reason.startsWith("auth:"))).toBe(true);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

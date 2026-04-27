@@ -47,6 +47,7 @@ import {
 } from "../packages/verify/dist/index.js";
 import { emit as emitHono } from "../packages/emit-hono/dist/index.js";
 import { emit as emitFastify } from "../packages/emit-fastify/dist/index.js";
+import { countAuthTaggedHoles } from "./flagship-migration-metrics.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "..");
@@ -127,8 +128,16 @@ mkdirSync(migrationReportsDir, { recursive: true });
 const emitStatsPayload = {
   schema: "chrysalis/flagship-laravel-min-emit-stats/1",
   manifestRoutes,
-  hono: { holes: resH.holes.length, handlerCount: resH.handlerCount },
-  fastify: { holes: resF.holes.length, handlerCount: resF.handlerCount },
+  hono: {
+    holes: resH.holes.length,
+    authHoles: countAuthTaggedHoles(resH.holes),
+    handlerCount: resH.handlerCount,
+  },
+  fastify: {
+    holes: resF.holes.length,
+    authHoles: countAuthTaggedHoles(resF.holes),
+    handlerCount: resF.handlerCount,
+  },
 };
 writeFileSync(
   join(migrationReportsDir, "flagship-laravel-min-emit-stats.json"),
