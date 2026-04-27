@@ -609,6 +609,9 @@ without weakening corpus replay gates.
       **D173:** ingest `convertCall` lowers `Class::method()` (parser `callee` as
       `StaticFetch`) to `data.call` for overlay hooks; class method bodies in the
       call-effect map are still not collected (parser `class` remains `Unknown`).
+      **D174:** glayzzle now flattens top-level static class methods into synthetic
+      `FunctionDecl` entries (`Ns\Class::method`), so vendor class helpers
+      participate in call-overlay fixpointing.
 - [ ] **Effect narrowing follow-up:** add confidence-preserving narrowing where
       over-approximation is currently too coarse, without reducing safety; include
       regression fixtures proving no missed side effects.

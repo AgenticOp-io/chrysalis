@@ -180,6 +180,58 @@ echo "ok";
     }
   });
 
+  test("collects namespaced static class methods for call-effect overlay", async () => {
+    const root = mkdtempSync(join(tmpdir(), "chrysalis-ingest-"));
+    try {
+      mkdirSync(join(root, "pages"), { recursive: true });
+      mkdirSync(join(root, "vendor", "acme"), { recursive: true });
+      writeFileSync(
+        join(root, "chrysalis.routes.json"),
+        JSON.stringify({
+          app: "test-app",
+          routes: [
+            {
+              method: "GET",
+              path: "/x",
+              file: "pages/x.php",
+              pathParams: [],
+            },
+          ],
+        }),
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "vendor/acme/helpers.php"),
+        `<?php
+namespace Acme\\Helpers;
+
+class Rows {
+  public static function one() {
+    return query_one("SELECT id FROM users WHERE id = 1", []);
+  }
+}
+`,
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "pages/x.php"),
+        `<?php
+$r = \\Acme\\Helpers\\Rows::one();
+echo "ok";
+`,
+        "utf8",
+      );
+
+      const mod = await ingestDirectory(root);
+      expect(mod.roots.length).toBe(1);
+      const route = mod.nodes.get(mod.roots[0]!)!;
+      const handler = mod.nodes.get(route.operands[0]!)!;
+      expect(effectTagsSorted(handler.effects)).toEqual(["db.read:users"]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("resolves fully-qualified call to vendor helper keyed by short name", async () => {
     const root = mkdtempSync(join(tmpdir(), "chrysalis-ingest-"));
     try {

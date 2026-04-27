@@ -106,9 +106,43 @@ function convertProgramStatements(file: string, nodes: AnyNode[], parentNs: stri
       const innerNs = composePhpNamespacePrefix(parentNs, declared);
       const inner = (node.children as AnyNode[] | undefined) ?? [];
       out.push(...convertProgramStatements(file, inner, innerNs));
+    } else if (node.kind === "class") {
+      out.push(...convertTopLevelClassToFunctionDecls(file, node, parentNs));
     } else {
       out.push(convertStatement(file, node, parentNs));
     }
+  }
+  return out;
+}
+
+/** Flatten top-level static class methods into `FunctionDecl` with `Class::method` names. */
+function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, nsPrefix: string): PhpNode[] {
+  const classShort = String((classNode.name as AnyNode | undefined)?.name ?? "");
+  if (!classShort) {
+    return [unknownStmt(file, classNode, "class without name")];
+  }
+  const classFqn = nsPrefix ? `${nsPrefix}\\${classShort}` : classShort;
+  const members = Array.isArray(classNode.body) ? (classNode.body as AnyNode[]) : [];
+  const out: PhpNode[] = [];
+  for (const member of members) {
+    if (member.kind !== "method") continue;
+    if (!Boolean(member.isStatic)) continue;
+    const methodName = String((member.name as AnyNode | undefined)?.name ?? "");
+    if (!methodName) continue;
+    const args = Array.isArray(member.arguments) ? (member.arguments as AnyNode[]) : [];
+    const body = member.body as AnyNode | undefined;
+    out.push({
+      kind: "FunctionDecl",
+      name: `${classFqn}::${methodName}`,
+      params: args.map((a) => ({
+        name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
+        hint: typeNameFromHint(a.type as AnyNode | null),
+        default: a.value ? convertExpression(file, a.value as AnyNode) : null,
+      })),
+      returnHint: typeNameFromHint(member.type as AnyNode | null),
+      body: body?.kind === "block" ? convertBody(file, body.children, nsPrefix) : [],
+      pos: pos(file, member),
+    });
   }
   return out;
 }

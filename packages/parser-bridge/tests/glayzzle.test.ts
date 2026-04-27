@@ -116,4 +116,24 @@ function g() { return 1; }
     if (fn?.kind !== "FunctionDecl") return;
     expect(fn.name).toBe("X\\g");
   });
+
+  test("top-level static class methods become qualified FunctionDecl entries", async () => {
+    const ast = await parseSource(`<?php
+namespace Acme\\Repo;
+
+class UserRepo {
+  public static function row($id) {
+    return query_one("SELECT id FROM users WHERE id = 1", []);
+  }
+  public function instanceOnly() {
+    return 1;
+  }
+}
+`);
+    const names = ast.statements
+      .filter((s): s is Extract<typeof s, { kind: "FunctionDecl" }> => s.kind === "FunctionDecl")
+      .map((s) => s.name)
+      .sort();
+    expect(names).toEqual(["Acme\\Repo\\UserRepo::row"]);
+  });
 });
