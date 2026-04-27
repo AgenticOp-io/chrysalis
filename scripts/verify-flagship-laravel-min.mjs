@@ -4,7 +4,7 @@
  * for `flagship/laravel-min` (GET routes + **`GET /hello`** default / empty / two
  * named queries / encoded multi-word **`name`**, two `POST /echo`
  * bodies, `GET /jump` (302 `Location: /health`), `GET /session/visit` x2,
- * `GET /session/me`, `GET /login` + `POST /login` (bad CSRF 403, then bcrypt + CSRF) + `GET /session/me`,
+ * `GET /session/me`, `GET /login` + `POST /login` (bad CSRF 403, bad password 401, empty 400, then bcrypt + CSRF) + `GET /session/me`,
  * `POST /logout` + `GET /session/me` again, `GET /api/health` x2, `GET /robots.txt`,
  * `GET /humans.txt`, `GET /.well-known/security.txt`, `GET /sitemap.xml`,
  * `GET /css/pilot.css`, and `GET /manifest.webmanifest` in the base GET fan-out + widened capture loop).
@@ -381,6 +381,28 @@ async function driveLaravelMinCorpus(port) {
   if (loginBadCsrf.status !== 403) {
     console.warn(`[verify-flagship] POST /login (bad csrf) expected 403, got ${loginBadCsrf.status}`);
   }
+  const loginBadPassword = await fetch(`${base}/login`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrf: "flagship_csrf_static",
+      username: "flagship",
+      password: "wrong-password",
+    }).toString(),
+    redirect: "manual",
+  });
+  if (loginBadPassword.status !== 401) {
+    console.warn(`[verify-flagship] POST /login (bad password) expected 401, got ${loginBadPassword.status}`);
+  }
+  const loginEmptyCreds = await fetch(`${base}/login`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ csrf: "flagship_csrf_static" }).toString(),
+    redirect: "manual",
+  });
+  if (loginEmptyCreds.status !== 400) {
+    console.warn(`[verify-flagship] POST /login (empty creds) expected 400, got ${loginEmptyCreds.status}`);
+  }
   const loginPost = await fetch(`${base}/login`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -488,7 +510,11 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
   assertRouteContainsStatus(byRoute, "POST /login", 302);
   assertRouteContainsStatus(byRoute, "POST /login", 403);
+  assertRouteContainsStatus(byRoute, "POST /login", 401);
+  assertRouteContainsStatus(byRoute, "POST /login", 400);
   assertRouteContainsBody(byRoute, "POST /login", "csrf rejected\n");
+  assertRouteContainsBody(byRoute, "POST /login", "invalid credentials\n");
+  assertRouteContainsBody(byRoute, "POST /login", "credentials required\n");
   assertRouteStatus(byRoute, "POST /logout", 302);
 }
 
