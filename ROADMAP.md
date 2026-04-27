@@ -7,7 +7,9 @@ runnable demo and measurable numbers, not a pile of abstractions.
 
 **Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
 Milestone 4 below) meet the scoped acceptance. **Milestone 5 is now complete**
-(see section below). Milestone 2
+(see section below). **Current engineering focus:** **Milestone 6 (planning)**
+for deferred depth work (vendor effects, oracle breadth, and production
+hardening boundaries). Milestone 2
 follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
 confidence) stay cross-cutting; repair-loop follow-ons (richer attribution,
@@ -580,6 +582,38 @@ idiomaticity / residual-legacy JSON.
       **`chrysalis-templates/`** — **fifty** template routes, dual emit parity tests updated.
 
 **Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.
+
+---
+
+## Milestone 6 — Depth follow-ons
+
+**Status: planning.** Milestone 5 is complete; this milestone captures explicit
+follow-ons that were intentionally optional/deferred so they can be executed as
+tracked checklist items.
+
+**Goal:** convert deferred backlog into verify-safe, measurable deliverables
+without weakening corpus replay gates.
+
+**Checklist:**
+
+- [ ] **Composer/vendor effect depth:** extend call/effect overlay for Composer vendor
+      callees (sound widening first), with fixtures + goldens + effect annotation parity.
+- [ ] **Effect narrowing follow-up:** add confidence-preserving narrowing where
+      over-approximation is currently too coarse, without reducing safety; include
+      regression fixtures proving no missed side effects.
+- [ ] **Oracle breadth (`mysqli` path):** add first-class `mysqli` capture/replay
+      support to complement PDO, with schema/tests and corpus summary integration.
+- [ ] **Session infra production track:** define and ship shared-store session
+      bridge option (Redis or equivalent) for chimera/cutover readiness; keep
+      deterministic verify behavior.
+- [ ] **Migration sidecar release policy:** formalize when idiomaticity/residual
+      sidecars become required release gates (including threshold policy + CI lane).
+- [ ] **Auth boundary milestone carve-out:** open dedicated scope for production auth
+      internals currently out of owned parity scope (rotating CSRF internals,
+      gateways, MFA/OAuth), with explicit hole policy and success metrics.
+
+**Tracker (planned):** `flagship/README.md`, `flagship/laravel-full/README.md`,
+and this roadmap section.
 
 ---
 
