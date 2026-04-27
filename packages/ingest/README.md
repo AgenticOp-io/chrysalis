@@ -11,7 +11,7 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 - `ingestFile(phpPath: string, route: RouteSpec, opts?: IngestFileOptions): Promise<Module>`
 - `ingestDirectory(root: string, opts?: IngestOptions): Promise<Module>`
 - `IngestFileOptions.projectRoot` — when set, applies the same `buildCallEffectMap`
-  widening as `ingestDirectory` (`lib/` + hoisted functions for that route)
+  widening as `ingestDirectory` (`lib/`, optional `vendor/`, + hoisted functions for that route)
 - `IngestOptions` — include/exclude globs, PHPDoc handling, hole policy
 
 ## Invariants

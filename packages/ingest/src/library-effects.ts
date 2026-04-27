@@ -3,8 +3,9 @@
  * fixpoint-merge callees' effects, then route handlers union overlay effects at
  * `data.call` sites.
  *
- * Sources: `lib/**.php` (always) and top-level `FunctionDecl` in each manifest
- * route file (names already defined under `lib/` win).
+ * Sources: `lib/**.php` (always), `vendor/**.php` (best-effort, optional), and
+ * top-level `FunctionDecl` in each manifest route file. Name precedence:
+ * `lib` wins over `vendor`, and both win over route-local helpers.
  */
 
 import { access, readdir } from "node:fs/promises";
@@ -91,9 +92,23 @@ export interface RouteFileRef {
   readonly file: string;
 }
 
+function mergeBodies(
+  target: Map<string, NodeId>,
+  incoming: ReadonlyMap<string, NodeId>,
+  opts?: { readonly overwrite?: boolean },
+): void {
+  const overwrite = opts?.overwrite ?? false;
+  for (const [name, id] of incoming) {
+    if (overwrite || !target.has(name)) {
+      target.set(name, id);
+    }
+  }
+}
+
 /**
- * Parse `root/lib/**.php` plus top-level functions in each `routeSpecs` file,
- * then fixpoint-merge nested `data.call` effects.
+ * Parse `root/lib/**.php`, optional `root/vendor/**.php`, plus top-level
+ * functions in each `routeSpecs` file, then fixpoint-merge nested
+ * `data.call` effects.
  */
 export async function buildCallEffectMap(
   root: string,
@@ -109,23 +124,31 @@ export async function buildCallEffectMap(
     for (const filePath of phpFiles) {
       const ast = await parseFile(filePath);
       const fromFile = collectFunctionBodies(ast, builder);
-      for (const [name, id] of fromFile) {
-        bodies.set(name, id);
-      }
+      mergeBodies(bodies, fromFile, { overwrite: true });
     }
   } catch {
     /* no readable lib */
+  }
+
+  const vendorDir = join(root, "vendor");
+  try {
+    await access(vendorDir, fsConstants.R_OK);
+    const phpFiles = await collectPhpFilesRecursive(vendorDir);
+    for (const filePath of phpFiles) {
+      const ast = await parseFile(filePath);
+      const fromFile = collectFunctionBodies(ast, builder);
+      // Local library helpers keep precedence over vendor helpers.
+      mergeBodies(bodies, fromFile);
+    }
+  } catch {
+    /* no readable vendor */
   }
 
   if (routeSpecs) {
     for (const spec of routeSpecs) {
       const ast = await parseFile(resolve(root, spec.file));
       const fromFile = collectFunctionBodies(ast, builder);
-      for (const [name, id] of fromFile) {
-        if (!bodies.has(name)) {
-          bodies.set(name, id);
-        }
-      }
+      mergeBodies(bodies, fromFile);
     }
   }
 
