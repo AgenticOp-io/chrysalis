@@ -601,6 +601,9 @@ without weakening corpus replay gates.
 - [ ] **Effect narrowing follow-up:** add confidence-preserving narrowing where
       over-approximation is currently too coarse, without reducing safety; include
       regression fixtures proving no missed side effects.
+      **D168:** deepens `call_user_func*` narrowing with callable-name normalization
+      (leading `\`) plus safe fallback widening for unknown literal callees;
+      regression tests cover narrowed + fallback paths.
 - [ ] **Oracle breadth (`mysqli` path):** add first-class `mysqli` capture/replay
       support to complement PDO, with schema/tests and corpus summary integration.
       **D165:** ships `Chrysalis\Oracle\Db\MySQLi` `query()`-path SQL capture

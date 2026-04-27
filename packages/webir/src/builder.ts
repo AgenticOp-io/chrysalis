@@ -134,6 +134,22 @@ export function effectsReachableWithCallOverlay(
   root: NodeId,
   callEffects: ReadonlyMap<string, EffectSet>,
 ): EffectSet {
+  const normalizeCallableName = (raw: string): string => raw.trim().replace(/^\\+/, "");
+  const tryPushNamedCalleeEffects = (raw: string): boolean => {
+    const name = normalizeCallableName(raw);
+    if (!name) return false;
+    const extra = callEffects.get(name);
+    if (extra && extra.length > 0) {
+      stacks.push(extra);
+      return true;
+    }
+    return false;
+  };
+  const pushAllOverlayEffects = (): void => {
+    for (const eff of callEffects.values()) {
+      if (eff.length > 0) stacks.push(eff);
+    }
+  };
   const seen = new Set<NodeId>();
   const stacks: EffectSet[] = [];
   const visit = (id: NodeId): void => {
@@ -157,21 +173,15 @@ export function effectsReachableWithCallOverlay(
           firstArg.dialect === "data" &&
           firstArg.op === "literal" &&
           typeof (firstArg.attrs as { value?: unknown }).value === "string"
-            ? ((firstArg.attrs as { value: string }).value || "").trim()
+            ? String((firstArg.attrs as { value: string }).value ?? "")
             : "";
-        if (resolvedCallee) {
-          const narrowed = callEffects.get(resolvedCallee);
-          if (narrowed && narrowed.length > 0) {
-            stacks.push(narrowed);
-          }
-        } else {
-          for (const eff of callEffects.values()) {
-            if (eff.length > 0) stacks.push(eff);
-          }
+        // Narrow when the callable is explicit; preserve old widening fallback
+        // when unresolved or unknown to avoid missing effects.
+        if (!resolvedCallee || !tryPushNamedCalleeEffects(resolvedCallee)) {
+          pushAllOverlayEffects();
         }
       } else if (callee) {
-        const extra = callEffects.get(callee);
-        if (extra && extra.length > 0) stacks.push(extra);
+        tryPushNamedCalleeEffects(callee);
       }
     }
     for (const child of n.operands) visit(child);

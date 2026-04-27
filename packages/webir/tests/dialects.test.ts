@@ -69,6 +69,48 @@ describe("webir module builder", () => {
     expect(tags.has("session.write")).toBe(false);
   });
 
+  test("effectsReachableWithCallOverlay normalizes leading slash in literal callee", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const arg = d.literal({ value: "\\a", type: T.string, origin });
+    const call = d.call({
+      callee: "call_user_func",
+      args: [arg],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["a", Object.freeze([{ kind: "db.read" as const, table: "t1" }])],
+      ["b", Object.freeze([{ kind: "session.write" as const }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    const tags = new Set(eff.map(effectTag));
+    expect(tags.has("db.read:t1")).toBe(true);
+    expect(tags.has("session.write")).toBe(false);
+  });
+
+  test("effectsReachableWithCallOverlay falls back to widening for unknown literal callee", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const arg = d.literal({ value: "missing_func", type: T.string, origin });
+    const call = d.call({
+      callee: "call_user_func",
+      args: [arg],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["a", Object.freeze([{ kind: "db.read" as const, table: "t1" }])],
+      ["b", Object.freeze([{ kind: "session.write" as const }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    const tags = new Set(eff.map(effectTag));
+    expect(tags.has("db.read:t1")).toBe(true);
+    expect(tags.has("session.write")).toBe(true);
+  });
+
   test("effectsReachableWithCallOverlay still widens call_user_func when callee is dynamic", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });
     const d = dataDialect.builders(b);
