@@ -135,12 +135,47 @@ export function effectsReachableWithCallOverlay(
   callEffects: ReadonlyMap<string, EffectSet>,
 ): EffectSet {
   const normalizeCallableName = (raw: string): string => raw.trim().replace(/^\\+/, "");
+  /** Right-most segment of a normalized `\`-separated PHP symbol (function name). */
+  const unqualifiedTail = (norm: string): string => {
+    const i = norm.lastIndexOf("\\");
+    return i === -1 ? norm : norm.slice(i + 1);
+  };
+  /**
+   * Merge overlay entries that share the same unqualified tail so calls parsed as
+   * fully-qualified names (e.g. `\Acme\Helpers\foo`) still match Composer/vendor
+   * helpers indexed by short `FunctionDecl` names (`foo`). When several keys
+   * collide on one tail, effects are unioned (sound widening).
+   */
+  const suffixWidened = ((): ReadonlyMap<string, EffectSet> => {
+    if (callEffects.size === 0) return new Map();
+    const groups = new Map<string, EffectSet[]>();
+    for (const [k, eff] of callEffects) {
+      if (!eff.length) continue;
+      const tail = unqualifiedTail(normalizeCallableName(k));
+      if (!tail) continue;
+      const list = groups.get(tail) ?? [];
+      list.push(eff);
+      groups.set(tail, list);
+    }
+    const out = new Map<string, EffectSet>();
+    for (const [tail, list] of groups) {
+      out.set(tail, list.length === 1 ? list[0]! : mergeEffects(...list));
+    }
+    return out;
+  })();
   const tryPushNamedCalleeEffects = (raw: string): boolean => {
     const name = normalizeCallableName(raw);
     if (!name) return false;
     const extra = callEffects.get(name);
     if (extra && extra.length > 0) {
       stacks.push(extra);
+      return true;
+    }
+    const tail = unqualifiedTail(name);
+    if (!tail) return false;
+    const widened = suffixWidened.get(tail);
+    if (widened && widened.length > 0) {
+      stacks.push(widened);
       return true;
     }
     return false;

@@ -598,6 +598,10 @@ without weakening corpus replay gates.
 
 - [ ] **Composer/vendor effect depth:** extend call/effect overlay for Composer vendor
       callees (sound widening first), with fixtures + goldens + effect annotation parity.
+      **D171:** `effectsReachableWithCallOverlay` matches FQN callees to short
+      `FunctionDecl` overlay keys via unqualified-tail merge; ingest fixture + webir
+      tests; Vitest aliases `@chrysalis/webir` to `src/` (stale `dist/` was masking
+      ingest↔webir integration). Class methods / PSR-4 symbol maps remain follow-ons.
 - [ ] **Effect narrowing follow-up:** add confidence-preserving narrowing where
       over-approximation is currently too coarse, without reducing safety; include
       regression fixtures proving no missed side effects.

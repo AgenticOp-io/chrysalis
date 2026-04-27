@@ -8,13 +8,15 @@ const root = dirname(fileURLToPath(import.meta.url));
  * Tests import workspace packages by name (`@chrysalis/ingest`, etc.). Those
  * packages declare `main` as `dist/`, which is easy to forget to rebuild after
  * a source change and then cross-package tests silently use stale code. Point
- * Vitest at `src/` for packages that sit on the PHP parse → ingest boundary.
+ * Vitest at `src/` for packages on the parse → ingest → WebIR boundary (ingest
+ * imports WebIR from workspace `dist/` unless aliased).
  */
 export default defineConfig({
   resolve: {
     alias: {
       "@chrysalis/parser-bridge": resolve(root, "packages/parser-bridge/src/index.ts"),
       "@chrysalis/ingest": resolve(root, "packages/ingest/src/index.ts"),
+      "@chrysalis/webir": resolve(root, "packages/webir/src/index.ts"),
     },
   },
   test: {

@@ -48,6 +48,45 @@ describe("webir module builder", () => {
     expect(eff).toEqual([{ kind: "session.read" }]);
   });
 
+  test("effectsReachableWithCallOverlay matches FQN callee to short overlay key via tail", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const arg = d.literal({ value: 1, type: T.int, origin });
+    const call = d.call({
+      callee: "\\Vendor\\Pkg\\peer",
+      args: [arg],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["peer", Object.freeze([{ kind: "session.read" as const }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    expect(eff).toEqual([{ kind: "session.read" }]);
+  });
+
+  test("effectsReachableWithCallOverlay unions overlay keys that share an unqualified tail", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const arg = d.literal({ value: 1, type: T.int, origin });
+    const call = d.call({
+      callee: "\\Any\\Ns\\dup",
+      args: [arg],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["LibNs\\dup", Object.freeze([{ kind: "db.read" as const, table: "t1" }])],
+      ["VendorNs\\dup", Object.freeze([{ kind: "db.read" as const, table: "t2" }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    const tags = new Set(eff.map(effectTag));
+    expect(tags.has("db.read:t1")).toBe(true);
+    expect(tags.has("db.read:t2")).toBe(true);
+  });
+
   test("effectsReachableWithCallOverlay narrows call_user_func for literal callee", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });
     const d = dataDialect.builders(b);

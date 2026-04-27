@@ -5,7 +5,9 @@
  *
  * Sources: `lib/**.php` (always), `vendor/**.php` (best-effort, optional), and
  * top-level `FunctionDecl` in each manifest route file. Name precedence:
- * `lib` wins over `vendor`, and both win over route-local helpers.
+ * `lib` wins over `vendor`, and both win over route-local helpers. Route lowering
+ * matches fully-qualified PHP callees to those short names via the unqualified
+ * tail in `effectsReachableWithCallOverlay` (see `@chrysalis/webir` builder).
  */
 
 import { access, readdir } from "node:fs/promises";

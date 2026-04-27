@@ -20,6 +20,10 @@ visitor/pass infrastructure, and provenance model.
   dimensions (time, RNG, DB read/write table hints, session, outbound I/O,
   cache, filesystem, holes) and a hydration index for status/CI
   (`oracle-footprint.ts`; CLI writes `reports/oracle-footprint.json`)
+- `effectsReachableWithCallOverlay` (`builder.ts`) — unions `lib/` / `vendor`
+  helper effects at `data.call` sites; resolves fully-qualified PHP function
+  names to short `FunctionDecl` overlay keys via the unqualified tail, merging
+  all overlay keys that share that tail when ambiguous (sound widening).
 - `Module` — a WebIR compilation unit
 
 ## Invariants
