@@ -1221,7 +1221,8 @@ interface StatusSummary {
   /**
    * Milestone 4 dashboard roll-up (DESIGN success metrics). Optional sidecars:
    * `reports/migration/idiomaticity.json` `{ "pct": 0..1 }`,
-   * `residual-legacy.json` `{ "legacyRequestPct": 0..100 }`.
+   * `residual-legacy.json` `{ "legacyRequestPct": 0..100 }` plus optional Milestone 6A
+   * fields `authLegacyRequestPct`, `authEmitHoleMax` (see D183).
    */
   migration: {
     readonly coverage: {
@@ -1232,6 +1233,10 @@ interface StatusSummary {
     readonly correctness: number | null;
     readonly idiomaticity: number | null;
     readonly residualLegacyRequestPct: number | null;
+    /** Auth-boundary subset of emit hole density vs manifest routes (when sidecar lists it). */
+    readonly authResidualLegacyRequestPct: number | null;
+    /** Max auth-tagged emit holes across Hono/Fastify (when sidecar lists it). */
+    readonly authEmitHoleMax: number | null;
   };
 }
 
@@ -1360,6 +1365,8 @@ async function cmdStatus(args: string[]): Promise<number> {
       correctness: null,
       idiomaticity: null,
       residualLegacyRequestPct: null,
+      authResidualLegacyRequestPct: null,
+      authEmitHoleMax: null,
     },
   };
 
@@ -1522,9 +1529,11 @@ async function cmdStatus(args: string[]): Promise<number> {
   const idiomaticityJson = tryReadJson<{ pct: number }>(
     join(migrationReportsDir, "idiomaticity.json"),
   );
-  const residualLegacyJson = tryReadJson<{ legacyRequestPct: number }>(
-    join(migrationReportsDir, "residual-legacy.json"),
-  );
+  const residualLegacyJson = tryReadJson<{
+    legacyRequestPct: number;
+    authLegacyRequestPct?: number;
+    authEmitHoleMax?: number;
+  }>(join(migrationReportsDir, "residual-legacy.json"));
   summary.migration = {
     coverage: ingestedMod
       ? (() => {
@@ -1546,6 +1555,21 @@ async function cmdStatus(args: string[]): Promise<number> {
       residualLegacyJson.legacyRequestPct >= 0 &&
       residualLegacyJson.legacyRequestPct <= 100
         ? residualLegacyJson.legacyRequestPct
+        : null,
+    authResidualLegacyRequestPct:
+      residualLegacyJson != null &&
+      typeof residualLegacyJson.authLegacyRequestPct === "number" &&
+      residualLegacyJson.authLegacyRequestPct >= 0 &&
+      residualLegacyJson.authLegacyRequestPct <= 100
+        ? residualLegacyJson.authLegacyRequestPct
+        : null,
+    authEmitHoleMax:
+      residualLegacyJson != null &&
+      typeof residualLegacyJson.authEmitHoleMax === "number" &&
+      Number.isFinite(residualLegacyJson.authEmitHoleMax) &&
+      Number.isInteger(residualLegacyJson.authEmitHoleMax) &&
+      residualLegacyJson.authEmitHoleMax >= 0
+        ? residualLegacyJson.authEmitHoleMax
         : null,
   };
 
@@ -1674,10 +1698,18 @@ async function cmdStatus(args: string[]): Promise<number> {
     mig.correctness != null ? `${(mig.correctness * 100).toFixed(1)}%` : "—";
   const idioStr =
     mig.idiomaticity != null ? `${(mig.idiomaticity * 100).toFixed(1)}%` : "—";
-  const resStr =
-    mig.residualLegacyRequestPct != null
-      ? `${mig.residualLegacyRequestPct.toFixed(1)}% legacy`
-      : "—";
+  const residualParts: string[] = [];
+  if (mig.residualLegacyRequestPct != null) {
+    residualParts.push(`${mig.residualLegacyRequestPct.toFixed(1)}% legacy-req`);
+  }
+  if (mig.authResidualLegacyRequestPct != null) {
+    const holeMax =
+      mig.authEmitHoleMax != null && mig.authEmitHoleMax > 0
+        ? ` (max ${mig.authEmitHoleMax} auth-tagged emit holes)`
+        : "";
+    residualParts.push(`auth ${mig.authResidualLegacyRequestPct.toFixed(1)}%${holeMax}`);
+  }
+  const resStr = residualParts.length > 0 ? residualParts.join("  ") : "—";
   console.log(
     `migration(M4): coverage ${covStr}  correctness ${corrStr}  idiomaticity ${idioStr}  residual ${resStr}`,
   );

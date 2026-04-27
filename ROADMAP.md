@@ -706,6 +706,10 @@ do not silently best-guess.
   CSRF/Sanctum/Passport tokens) emit `auth:unresolved call: …` reasons; flagship
   emit-stats add per-emitter `authHoles`; `residual-legacy.json` adds
   `authLegacyRequestPct` + `authEmitHoleMax` for trend tracking.
+- [x] **Status dashboard auth metrics (D184):** `chrysalis status` (human + `--json`)
+  reads optional 6A fields from `residual-legacy.json` into `migration`
+  (`authResidualLegacyRequestPct`, `authEmitHoleMax`) and prints the auth line next
+  to legacy-req density.
 
 ---
 

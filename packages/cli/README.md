@@ -22,7 +22,9 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis status` — migration dashboard; `--json` includes `migration`
   and `oracleFootprint` (`routes[]` with `--project`). With `--project`, also
   writes `reports/oracle-footprint.json`. Correctness from `--report`, optional
-  `reports/migration/*.json` sidecars (`--migration-reports <dir>`)
+  `reports/migration/*.json` sidecars (`--migration-reports <dir>`); when
+  `residual-legacy.json` includes 6A fields, `migration` also surfaces
+  `authResidualLegacyRequestPct` and `authEmitHoleMax`
 - `chrysalis repair <traces-dir> --base-url <url> --project <php-root>` —
   verify-gated repair (`@chrysalis/repair`): default stub proposer; optional
   `--llm` + `CHRYSALIS_REPAIR_LLM_API_KEY`; `--hole-patch <file.json>` for signed
