@@ -150,8 +150,24 @@ export function effectsReachableWithCallOverlay(
         callee === "forward_static_call" ||
         callee === "forward_static_call_array"
       ) {
-        for (const eff of callEffects.values()) {
-          if (eff.length > 0) stacks.push(eff);
+        const firstArgNodeId = n.operands[0];
+        const firstArg = firstArgNodeId ? getNode(firstArgNodeId) : undefined;
+        const resolvedCallee =
+          firstArg &&
+          firstArg.dialect === "data" &&
+          firstArg.op === "literal" &&
+          typeof (firstArg.attrs as { value?: unknown }).value === "string"
+            ? ((firstArg.attrs as { value: string }).value || "").trim()
+            : "";
+        if (resolvedCallee) {
+          const narrowed = callEffects.get(resolvedCallee);
+          if (narrowed && narrowed.length > 0) {
+            stacks.push(narrowed);
+          }
+        } else {
+          for (const eff of callEffects.values()) {
+            if (eff.length > 0) stacks.push(eff);
+          }
         }
       } else if (callee) {
         const extra = callEffects.get(callee);

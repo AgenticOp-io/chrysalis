@@ -48,11 +48,32 @@ describe("webir module builder", () => {
     expect(eff).toEqual([{ kind: "session.read" }]);
   });
 
-  test("effectsReachableWithCallOverlay widens call_user_func across all callees", () => {
+  test("effectsReachableWithCallOverlay narrows call_user_func for literal callee", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });
     const d = dataDialect.builders(b);
     const origin = phpLocator("a.php", 1, 0);
-    const arg = d.literal({ value: "f", type: T.string, origin });
+    const arg = d.literal({ value: "a", type: T.string, origin });
+    const call = d.call({
+      callee: "call_user_func",
+      args: [arg],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["a", Object.freeze([{ kind: "db.read" as const, table: "t1" }])],
+      ["b", Object.freeze([{ kind: "session.write" as const }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    const tags = new Set(eff.map(effectTag));
+    expect(tags.has("db.read:t1")).toBe(true);
+    expect(tags.has("session.write")).toBe(false);
+  });
+
+  test("effectsReachableWithCallOverlay still widens call_user_func when callee is dynamic", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const arg = d.param({ name: "fn", type: T.string, origin });
     const call = d.call({
       callee: "call_user_func",
       args: [arg],
