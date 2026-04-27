@@ -217,6 +217,66 @@ describe("webir module builder", () => {
     expect(tags.has("session.write")).toBe(true);
   });
 
+  test("effectsReachableWithCallOverlay narrows ternary callable choices when both are explicit", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const cond = d.param({ name: "flag", type: T.bool, origin });
+    const a = d.literal({ value: "a", type: T.string, origin });
+    const bLit = d.literal({ value: "b", type: T.string, origin });
+    const ternaryCallable = d.call({
+      callee: "__ternary",
+      args: [cond, a, bLit],
+      type: T.string,
+      origin,
+    });
+    const call = d.call({
+      callee: "call_user_func",
+      args: [ternaryCallable],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["a", Object.freeze([{ kind: "db.read" as const, table: "t1" }])],
+      ["b", Object.freeze([{ kind: "session.write" as const }])],
+      ["c", Object.freeze([{ kind: "db.write" as const, table: "t2" }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    const tags = new Set(eff.map(effectTag));
+    expect(tags.has("db.read:t1")).toBe(true);
+    expect(tags.has("session.write")).toBe(true);
+    expect(tags.has("db.write:t2")).toBe(false);
+  });
+
+  test("effectsReachableWithCallOverlay falls back to full widening for partial ternary callable", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const cond = d.param({ name: "flag", type: T.bool, origin });
+    const known = d.literal({ value: "a", type: T.string, origin });
+    const unknown = d.param({ name: "fn", type: T.string, origin });
+    const ternaryCallable = d.call({
+      callee: "__ternary",
+      args: [cond, known, unknown],
+      type: T.string,
+      origin,
+    });
+    const call = d.call({
+      callee: "call_user_func",
+      args: [ternaryCallable],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["a", Object.freeze([{ kind: "db.read" as const, table: "t1" }])],
+      ["b", Object.freeze([{ kind: "session.write" as const }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    const tags = new Set(eff.map(effectTag));
+    expect(tags.has("db.read:t1")).toBe(true);
+    expect(tags.has("session.write")).toBe(true);
+  });
+
   test("effectsReachableFrom unions nested effect nodes", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });
     const e = effectDialect.builders(b);

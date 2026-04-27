@@ -11,7 +11,8 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 - `ingestFile(phpPath: string, route: RouteSpec, opts?: IngestFileOptions): Promise<Module>`
 - `ingestDirectory(root: string, opts?: IngestOptions): Promise<Module>`
 - `IngestFileOptions.projectRoot` — when set, applies the same `buildCallEffectMap`
-  widening as `ingestDirectory` (`lib/`, optional `vendor/`, + hoisted functions for that route)
+  widening as `ingestDirectory` (`lib/`, Composer-aware optional `vendor/`,
+  + hoisted functions for that route)
 - `IngestOptions` — include/exclude globs, PHPDoc handling, hole policy
 
 ## Invariants
@@ -28,7 +29,7 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 
 Lowered to WebIR effects or `data.call` helpers (see `convert.ts`): SQL helpers,
 static `Class::method()` calls (parser `StaticFetch` callee) as `data.call` with
-a `class::method` label (not a hole; overlay keys may still omit class methods),
+a `class::method` label (not a hole; class methods are collected into call-effect overlays),
 `session_start`, `session_name`, `session_set_cookie_params` (PHP-only cookie
 setup; emitted middleware owns cookies), `$_SESSION[...]` read/write, redirects,
 `time`, `rand` family, `getrandmax`, `microtime` (float and string modes), `uniqid`

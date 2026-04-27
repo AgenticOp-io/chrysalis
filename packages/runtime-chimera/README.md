@@ -84,10 +84,11 @@ chrysalis deploy --mode=<legacy|cutover|shadow|canary> \
 
 ## Non-goals (Milestone 1)
 
-- **Redis/Valkey operations envelope.** Emitted runtimes now support
-  `CHRYSALIS_SESSION_REDIS_URL` for shared-session storage, but full production
-  rollout policy (HA topology, retry/backpressure policy, and cutover SLO guardrails)
-  remains an operator track outside Milestone 1 scope.
+- **Redis/Valkey operations envelope.** Release policy now has a CI gate lane
+  (`session-bridge-release`) that enforces explicit session backend posture and
+  multi-host Redis requirements, but full operations posture (HA topology,
+  retry/backpressure behavior, and cutover SLO guardrails) remains an operator
+  track outside Milestone 1 scope.
 - **Weighted multi-variant canaries** (e.g. A/B/C beyond two stacks). Only a
   single modern upstream + percentage is supported today.
 - **Protocols other than HTTP/1.1.** No websockets, SSE, or queue traffic.

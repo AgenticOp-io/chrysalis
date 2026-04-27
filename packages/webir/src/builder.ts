@@ -187,6 +187,44 @@ export function effectsReachableWithCallOverlay(
     if (!a || !b) return "";
     return `${a}::${b}`;
   };
+  const resolveCallableCandidates = (
+    node: NodeBase | undefined,
+  ): { readonly names: readonly string[]; readonly complete: boolean } => {
+    if (!node) return { names: [], complete: false };
+    if (node.dialect === "data" && node.op === "literal") {
+      const raw = (node.attrs as { value?: unknown }).value;
+      return typeof raw === "string" && raw !== ""
+        ? { names: [raw], complete: true }
+        : { names: [], complete: false };
+    }
+    if (node.dialect === "data" && node.op === "call") {
+      const callee = String((node.attrs as { callee?: string }).callee ?? "");
+      if (callee === "__array_literal") {
+        const single = tryResolveCallableArrayLiteral(node);
+        return single ? { names: [single], complete: true } : { names: [], complete: false };
+      }
+      if (callee === "__ternary") {
+        const thenNode = node.operands[1] ? getNode(node.operands[1]) : undefined;
+        const elseNode = node.operands[2] ? getNode(node.operands[2]) : undefined;
+        const a = resolveCallableCandidates(thenNode);
+        const b = resolveCallableCandidates(elseNode);
+        const names = [...new Set([...a.names, ...b.names])];
+        return { names, complete: names.length > 0 && a.complete && b.complete };
+      }
+    }
+    if (node.dialect === "data" && node.op === "binop") {
+      const operator = String((node.attrs as { operator?: unknown }).operator ?? "");
+      if (operator === "??") {
+        const left = node.operands[0] ? getNode(node.operands[0]) : undefined;
+        const right = node.operands[1] ? getNode(node.operands[1]) : undefined;
+        const a = resolveCallableCandidates(left);
+        const b = resolveCallableCandidates(right);
+        const names = [...new Set([...a.names, ...b.names])];
+        return { names, complete: names.length > 0 && a.complete && b.complete };
+      }
+    }
+    return { names: [], complete: false };
+  };
   const tryPushNamedCalleeEffects = (raw: string): boolean => {
     const name = normalizeCallableName(raw);
     if (!name) return false;
@@ -227,16 +265,16 @@ export function effectsReachableWithCallOverlay(
       ) {
         const firstArgNodeId = n.operands[0];
         const firstArg = firstArgNodeId ? getNode(firstArgNodeId) : undefined;
-        const resolvedCallee =
-          firstArg &&
-          firstArg.dialect === "data" &&
-          firstArg.op === "literal" &&
-          typeof (firstArg.attrs as { value?: unknown }).value === "string"
-            ? String((firstArg.attrs as { value: string }).value ?? "")
-            : tryResolveCallableArrayLiteral(firstArg);
-        // Narrow when the callable is explicit; preserve old widening fallback
-        // when unresolved or unknown to avoid missing effects.
-        if (!resolvedCallee || !tryPushNamedCalleeEffects(resolvedCallee)) {
+        const resolved = resolveCallableCandidates(firstArg);
+        let fullyMatched = resolved.names.length > 0;
+        for (const name of resolved.names) {
+          if (!tryPushNamedCalleeEffects(name)) {
+            fullyMatched = false;
+          }
+        }
+        // Narrow when callable choices are explicit and all matched. Preserve the
+        // widening fallback whenever resolution is partial/unknown to avoid missed effects.
+        if (!(resolved.complete && fullyMatched)) {
           pushAllOverlayEffects();
         }
       } else if (callee) {

@@ -40,15 +40,17 @@ class MySQLi extends \mysqli
                     'typeTag' => 'mysqli:' . (string)($field->type ?? 'unknown'),
                 ];
             }
-            if (
-                $result_mode === MYSQLI_STORE_RESULT
-                && $result->field_count > 0
-            ) {
+            $isSelect = $result->field_count > 0;
+            if ($result_mode === MYSQLI_STORE_RESULT && $isSelect) {
                 while (($row = $result->fetch_assoc()) !== null) {
                     $rows[] = $row;
                 }
                 $result->data_seek(0);
                 $rowCount = count($rows);
+            } elseif ($result_mode === MYSQLI_USE_RESULT && $isSelect) {
+                // Unbuffered result sets cannot provide stable num_rows before the client drains
+                // the cursor; avoid forcing reads or driver-dependent warnings here.
+                $rowCount = 0;
             } else {
                 $rowCount = (int)$result->num_rows;
             }

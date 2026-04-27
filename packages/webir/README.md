@@ -25,7 +25,9 @@ visitor/pass infrastructure, and provenance model.
   names to short `FunctionDecl` overlay keys via the unqualified tail, merging
   all overlay keys that share that tail when ambiguous (sound widening); also
   narrows `call_user_func*` callable arrays lowered as `__array_literal` +
-  literal strings to `Class::method` before matching.
+  literal strings to `Class::method`, and narrows explicit callable choice nodes
+  (`__ternary`, `??`) by unioning only resolved targets while preserving
+  widening fallback when any branch is unresolved.
 - `Module` — a WebIR compilation unit
 
 ## Invariants

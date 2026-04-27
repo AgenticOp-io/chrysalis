@@ -54,8 +54,9 @@ verify replays those rows through the `x-chrysalis-sql-tape` header when
 `MySQLi::query()` records SQL text, duration, driver `mysqli`, row count, shape,
 and (for default `MYSQLI_STORE_RESULT` selects) full assoc rows after buffering,
 then rewinds the live `mysqli_result` with `data_seek(0)` so the app sees the
-same cursor. Unbuffered `MYSQLI_USE_RESULT` selects omit row payloads (row count
-may stay unknown until the client finishes reading).
+same cursor. Unbuffered `MYSQLI_USE_RESULT` selects omit row payloads and
+report `rowCount: 0` (unknown at capture time) to avoid forcing cursor drains
+or driver-specific `num_rows` behavior before app reads.
 
 `MySQLi::prepare()` returns `MySQLiStatement`, which emits on `execute()` for
 mutations and on the first `get_result()` or `store_result()` for result sets;

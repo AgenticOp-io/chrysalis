@@ -7,8 +7,8 @@ runnable demo and measurable numbers, not a pile of abstractions.
 
 **Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
 Milestone 4 below) meet the scoped acceptance. **Milestone 5 is now complete**
-(see section below). **Current engineering focus:** **Milestone 6 (planning)**
-for deferred depth work (vendor effects, oracle breadth, and production
+(see section below). **Milestone 6 checklist is complete. Current engineering focus:**
+**Milestone 6A (auth boundary scoped track)** for deferred depth work (vendor effects, oracle breadth, and production
 hardening boundaries). Milestone 2
 follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
@@ -587,7 +587,7 @@ idiomaticity / residual-legacy JSON.
 
 ## Milestone 6 — Depth follow-ons
 
-**Status: planning.** Milestone 5 is complete; this milestone captures explicit
+**Status: complete.** Milestone 5 is complete; this milestone captures explicit
 follow-ons that were intentionally optional/deferred so they can be executed as
 tracked checklist items.
 
@@ -596,7 +596,7 @@ without weakening corpus replay gates.
 
 **Checklist:**
 
-- [ ] **Composer/vendor effect depth:** extend call/effect overlay for Composer vendor
+- [x] **Composer/vendor effect depth:** extend call/effect overlay for Composer vendor
       callees (sound widening first), with fixtures + goldens + effect annotation parity.
       **D171:** `effectsReachableWithCallOverlay` matches FQN callees to short
       `FunctionDecl` overlay keys via unqualified-tail merge; ingest fixture + webir
@@ -612,7 +612,11 @@ without weakening corpus replay gates.
       **D174:** glayzzle now flattens top-level static class methods into synthetic
       `FunctionDecl` entries (`Ns\Class::method`), so vendor class helpers
       participate in call-overlay fixpointing.
-- [ ] **Effect narrowing follow-up:** add confidence-preserving narrowing where
+      **D181:** `buildCallEffectMap` now reads vendor package `composer.json`
+      autoload metadata (`autoload.files`, `autoload.psr-4`) in addition to
+      recursive `vendor/**/*.php` fallback; adds regression fixture proving
+      non-`.php` autoloaded helpers (e.g. `.inc`) participate in overlay effects.
+- [x] **Effect narrowing follow-up:** add confidence-preserving narrowing where
       over-approximation is currently too coarse, without reducing safety; include
       regression fixtures proving no missed side effects.
       **D168:** deepens `call_user_func*` narrowing with callable-name normalization
@@ -622,7 +626,10 @@ without weakening corpus replay gates.
       lowered as `__array_literal` + string literals (e.g. `["Ns\\Class","run"]`
       → `Ns\\Class::run`) before overlay match; unknown/dynamic arrays keep full
       widening fallback.
-- [ ] **Oracle breadth (`mysqli` path):** add first-class `mysqli` capture/replay
+      **D182:** narrows `call_user_func*` for explicit callable choice nodes
+      (`__ternary`, `??`) by unioning effects of resolved branches only; keeps
+      full widening fallback when any branch is unresolved or unmapped.
+- [x] **Oracle breadth (`mysqli` path):** add first-class `mysqli` capture/replay
       support to complement PDO, with schema/tests and corpus summary integration.
       **D165:** ships `Chrysalis\Oracle\Db\MySQLi` `query()`-path SQL capture
       (driver/sql/duration/rowCount/shape) + bootstrap/README wiring.
@@ -636,7 +643,10 @@ without weakening corpus replay gates.
       **D177:** `MySQLiStatement::get_result()` on mysqlnd-less runtimes keeps
       pending SELECT capture alive so `store_result()` can still emit `sql.query`
       instead of dropping the event.
-- [ ] **Session infra production track:** define and ship shared-store session
+      **D180:** `MySQLi::query()` `MYSQLI_USE_RESULT` path now treats row count as
+      unknown-at-capture (`rowCount: 0`) without consulting `num_rows`, avoiding
+      premature/unreliable row-count reads on unbuffered cursors.
+- [x] **Session infra production track:** define and ship shared-store session
       bridge option (Redis or equivalent) for chimera/cutover readiness; keep
       deterministic verify behavior.
       **D176:** emitted Hono/Fastify runtimes add shared SQLite session backend
@@ -646,6 +656,10 @@ without weakening corpus replay gates.
       (`CHRYSALIS_SESSION_REDIS_URL`, keys `chrysalis:sess:*`) with sqlite/file/memory
       fallback order preserved; deterministic verify defaults unchanged unless
       explicitly configured.
+      **D179:** adds `ci-gates` command `session-bridge-release` and repo script
+      `pnpm run release-gate:session-bridge`, formalizing release policy:
+      strict mode requires explicit backend selection, multi-host deploys require
+      Redis + URL, and memory mode is blocked unless explicitly overridden.
 - [x] **Migration sidecar release policy:** formalize when idiomaticity/residual
       sidecars become required release gates (including threshold policy + CI lane).
       **D166:** adds `ci-gates` command `migration-sidecar-floors-release`

@@ -23,6 +23,7 @@
     "status:laravel-full": "node scripts/status-flagship-laravel-full.mjs",
     "status:laravel-min": "node scripts/status-flagship-laravel-min.mjs",
     "release-gate:migration-sidecars": "node scripts/ci-gates.mjs migration-sidecar-floors-release",
+    "release-gate:session-bridge": "node scripts/ci-gates.mjs session-bridge-release",
     "scaffold:laravel-full": "node scripts/scaffold-flagship-laravel.mjs",
     "scaffold:laravel-full:breeze": "node scripts/scaffold-flagship-laravel.mjs --with-breeze",
     "ci-gates": "node scripts/ci-gates.mjs",

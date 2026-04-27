@@ -10,9 +10,9 @@
  * tail in `effectsReachableWithCallOverlay` (see `@chrysalis/webir` builder).
  */
 
-import { access, readdir } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import type { PhpAst, PhpNode } from "@chrysalis/parser-bridge";
 import { parseFile } from "@chrysalis/parser-bridge";
 import {
@@ -37,6 +37,76 @@ async function collectPhpFilesRecursive(dir: string): Promise<string[]> {
     }
   }
   return out;
+}
+
+async function collectComposerJsonFilesRecursive(dir: string): Promise<string[]> {
+  const out: string[] = [];
+  const entries = await readdir(dir, { withFileTypes: true });
+  for (const ent of entries) {
+    const p = join(dir, ent.name);
+    if (ent.isDirectory()) {
+      out.push(...(await collectComposerJsonFilesRecursive(p)));
+    } else if (ent.isFile() && ent.name === "composer.json") {
+      out.push(p);
+    }
+  }
+  return out;
+}
+
+async function collectPhpFilesFromDirs(dirs: readonly string[]): Promise<string[]> {
+  const out: string[] = [];
+  for (const dir of dirs) {
+    try {
+      await access(dir, fsConstants.R_OK);
+      out.push(...(await collectPhpFilesRecursive(dir)));
+    } catch {
+      /* ignore unreadable/missing dir */
+    }
+  }
+  return out;
+}
+
+type ComposerJsonLike = {
+  readonly autoload?: {
+    readonly files?: readonly string[];
+    readonly "psr-4"?: Readonly<Record<string, string | readonly string[]>>;
+  };
+};
+
+async function collectComposerAutoloadFiles(vendorDir: string): Promise<string[]> {
+  const out = new Set<string>();
+  const composerJsonFiles = await collectComposerJsonFilesRecursive(vendorDir);
+  for (const composerJsonPath of composerJsonFiles) {
+    let parsed: ComposerJsonLike;
+    try {
+      parsed = JSON.parse(await readFile(composerJsonPath, "utf8")) as ComposerJsonLike;
+    } catch {
+      continue;
+    }
+    const pkgRoot = dirname(composerJsonPath);
+    const files = parsed.autoload?.files ?? [];
+    for (const rel of files) {
+      if (typeof rel !== "string" || rel.trim() === "") continue;
+      out.add(resolve(pkgRoot, rel));
+    }
+    const psr4 = parsed.autoload?.["psr-4"];
+    if (!psr4) continue;
+    const dirs: string[] = [];
+    for (const maybeDirs of Object.values(psr4)) {
+      if (typeof maybeDirs === "string") {
+        dirs.push(resolve(pkgRoot, maybeDirs));
+      } else if (Array.isArray(maybeDirs)) {
+        for (const d of maybeDirs) {
+          if (typeof d === "string" && d.trim() !== "") {
+            dirs.push(resolve(pkgRoot, d));
+          }
+        }
+      }
+    }
+    const phpFiles = await collectPhpFilesFromDirs(dirs);
+    for (const f of phpFiles) out.add(f);
+  }
+  return [...out];
 }
 
 function effectSetKey(e: EffectSet): string {
@@ -135,8 +205,12 @@ export async function buildCallEffectMap(
   const vendorDir = join(root, "vendor");
   try {
     await access(vendorDir, fsConstants.R_OK);
-    const phpFiles = await collectPhpFilesRecursive(vendorDir);
-    for (const filePath of phpFiles) {
+    // Prefer Composer autoload metadata when available (autoload.files, psr-4).
+    // Keep a recursive vendor scan fallback so coverage remains sound.
+    const composerIndexed = await collectComposerAutoloadFiles(vendorDir);
+    const recursivePhp = await collectPhpFilesRecursive(vendorDir);
+    const candidateFiles = new Set<string>([...composerIndexed, ...recursivePhp]);
+    for (const filePath of candidateFiles) {
       const ast = await parseFile(filePath);
       const fromFile = collectFunctionBodies(ast, builder);
       // Local library helpers keep precedence over vendor helpers.

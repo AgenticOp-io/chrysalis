@@ -12,11 +12,20 @@
  *   node scripts/ci-gates.mjs confidence-trend [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs confidence-trend-ready [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
+ *   node scripts/ci-gates.mjs session-bridge-release
  *
  * Env: VERIFY_THRESHOLD (default 0.95) for status-migration.
  * Env: CHRYSALIS_IDIOMATICITY_MIN (0..1) and/or CHRYSALIS_RESIDUAL_LEGACY_MAX (0..100) for
  * migration-sidecar-floors; if neither is set, the gate skips. When set, the corresponding
  * JSON file under reports/migration must exist and satisfy the floor/ceiling.
+ * Env: session-bridge-release:
+ *   CHRYSALIS_SESSION_BRIDGE_MODE   memory|file|sqlite|redis (required in strict mode)
+ *   CHRYSALIS_DEPLOY_TOPOLOGY       single-host|multi-host (default: multi-host)
+ *   CHRYSALIS_SESSION_RELEASE_STRICT 1|0 (default: 1)
+ *   CHRYSALIS_SESSION_REDIS_URL     required when mode=redis
+ *   CHRYSALIS_SESSION_SQLITE_PATH   required when mode=sqlite
+ *   CHRYSALIS_SESSION_DIR           required when mode=file
+ *   CHRYSALIS_ALLOW_MEMORY_SESSION_RELEASE=1 to permit mode=memory
  */
 import fs from "node:fs";
 import { createRequire } from "node:module";
@@ -494,6 +503,53 @@ function assertMigrationSidecarFloorsRelease(dirArg) {
   assertMigrationSidecarFloors(dirArg);
 }
 
+function requireNonEmptyEnv(name, context) {
+  const v = process.env[name];
+  if (v == null || String(v).trim() === "") {
+    fail(`${context}: ${name} must be set`);
+  }
+}
+
+function assertSessionBridgeRelease() {
+  const strict = (process.env.CHRYSALIS_SESSION_RELEASE_STRICT ?? "1") === "1";
+  const topology = (process.env.CHRYSALIS_DEPLOY_TOPOLOGY ?? "multi-host").trim();
+  if (topology !== "single-host" && topology !== "multi-host") {
+    fail(
+      "session-bridge-release: CHRYSALIS_DEPLOY_TOPOLOGY must be single-host or multi-host",
+    );
+  }
+  const modeRaw = process.env.CHRYSALIS_SESSION_BRIDGE_MODE;
+  const mode = modeRaw == null ? "" : String(modeRaw).trim();
+  if (mode === "") {
+    if (strict) {
+      fail("session-bridge-release: CHRYSALIS_SESSION_BRIDGE_MODE must be set in strict mode");
+    }
+    console.log("session-bridge-release skipped: bridge mode unset (strict disabled)");
+    return;
+  }
+  const allowed = new Set(["memory", "file", "sqlite", "redis"]);
+  if (!allowed.has(mode)) {
+    fail("session-bridge-release: CHRYSALIS_SESSION_BRIDGE_MODE must be one of memory|file|sqlite|redis");
+  }
+
+  if (topology === "multi-host" && mode !== "redis") {
+    fail("session-bridge-release: multi-host topology requires CHRYSALIS_SESSION_BRIDGE_MODE=redis");
+  }
+
+  if (mode === "redis") {
+    requireNonEmptyEnv("CHRYSALIS_SESSION_REDIS_URL", "session-bridge-release");
+  } else if (mode === "sqlite") {
+    requireNonEmptyEnv("CHRYSALIS_SESSION_SQLITE_PATH", "session-bridge-release");
+  } else if (mode === "file") {
+    requireNonEmptyEnv("CHRYSALIS_SESSION_DIR", "session-bridge-release");
+  } else if ((process.env.CHRYSALIS_ALLOW_MEMORY_SESSION_RELEASE ?? "0") !== "1") {
+    fail(
+      "session-bridge-release: memory mode blocked for release unless CHRYSALIS_ALLOW_MEMORY_SESSION_RELEASE=1",
+    );
+  }
+  console.log(`session-bridge-release OK: topology=${topology} mode=${mode}`);
+}
+
 const [, , cmd, arg0] = process.argv;
 
 switch (cmd) {
@@ -524,10 +580,13 @@ switch (cmd) {
   case "migration-sidecar-floors-release":
     assertMigrationSidecarFloorsRelease(arg0);
     break;
+  case "session-bridge-release":
+    assertSessionBridgeRelease();
+    break;
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|migration-sidecar-floors|migration-sidecar-floors-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|migration-sidecar-floors|migration-sidecar-floors-release|session-bridge-release> [path]",
     );
     process.exit(1);
 }
