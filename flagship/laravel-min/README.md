@@ -50,7 +50,9 @@ metadata/static outputs (`/robots.txt`, `/humans.txt`, `/.well-known/security.tx
 `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`) before ingest/emit.
 Echo request-shape negatives are pinned too: empty/json `POST /echo` => `400 msg required`,
 and `GET /echo` / `GET /logout` / `POST /session/me` / `POST /session/visit` / `POST /count`
-stay `404 Not Found`
+/ `POST /items` / `POST /health` / `POST /api/health` / `POST /jump` / `POST /hello` / `POST /`
+/ `POST /robots.txt` / `POST /humans.txt` / `POST /.well-known/security.txt` / `POST /sitemap.xml`
+/ `POST /css/pilot.css` / `POST /manifest.webmanifest` / `PUT /login` stay `404 Not Found`
 (front controller method guards).
 Post-capture checks also pin **`GET /`** HTML, **`/items`** / **`/count`** (seeded **`items`** table),
 **`/session/visit`** visit counter steps, minimal **`GET /login`** form HTML, and a

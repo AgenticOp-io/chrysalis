@@ -6,7 +6,11 @@
  * bodies, `GET /jump` (302 `Location: /health`), `GET /session/visit` x2,
  * `GET /session/me`, `GET /login` + `POST /login` (bad CSRF 403, bad password 401, empty 400, then bcrypt + CSRF) + `GET /session/me`,
  * `POST /logout` + `GET /session/me` again, wrong-method **`GET /echo`** / **`GET /logout`** /
- * **`POST /session/me`** / **`POST /session/visit`** / **`POST /count`** (404),
+ * **`POST /session/me`** / **`POST /session/visit`** / **`POST /count`** / **`POST /items`** /
+ * **`POST /health`** / **`POST /api/health`** / **`POST /jump`** / **`POST /hello`** /
+ * **`POST /`** / **`POST /robots.txt`** / **`POST /humans.txt`** /
+ * **`POST /.well-known/security.txt`** / **`POST /sitemap.xml`** /
+ * **`POST /css/pilot.css`** / **`POST /manifest.webmanifest`** / **`PUT /login`** (404),
  * `GET /api/health` x2, `GET /robots.txt`,
  * `GET /humans.txt`, `GET /.well-known/security.txt`, `GET /sitemap.xml`,
  * `GET /css/pilot.css`, and `GET /manifest.webmanifest` in the base GET fan-out + widened capture loop).
@@ -369,6 +373,58 @@ async function driveLaravelMinCorpus(port) {
   if (countWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /count expected 404, got ${countWrongMethod.status}`);
   }
+  const itemsWrongMethod = await fetch(`${base}/items`, { method: "POST" });
+  if (itemsWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /items expected 404, got ${itemsWrongMethod.status}`);
+  }
+  const healthWrongMethod = await fetch(`${base}/health`, { method: "POST" });
+  if (healthWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /health expected 404, got ${healthWrongMethod.status}`);
+  }
+  const apiHealthWrongMethod = await fetch(`${base}/api/health`, { method: "POST" });
+  if (apiHealthWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /api/health expected 404, got ${apiHealthWrongMethod.status}`);
+  }
+  const jumpWrongMethod = await fetch(`${base}/jump`, { method: "POST" });
+  if (jumpWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /jump expected 404, got ${jumpWrongMethod.status}`);
+  }
+  const helloWrongMethod = await fetch(`${base}/hello`, { method: "POST" });
+  if (helloWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /hello expected 404, got ${helloWrongMethod.status}`);
+  }
+  const homeWrongMethod = await fetch(`${base}/`, { method: "POST" });
+  if (homeWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST / expected 404, got ${homeWrongMethod.status}`);
+  }
+  const robotsWrongMethod = await fetch(`${base}/robots.txt`, { method: "POST" });
+  if (robotsWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /robots.txt expected 404, got ${robotsWrongMethod.status}`);
+  }
+  const humansWrongMethod = await fetch(`${base}/humans.txt`, { method: "POST" });
+  if (humansWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /humans.txt expected 404, got ${humansWrongMethod.status}`);
+  }
+  const securityWrongMethod = await fetch(`${base}/.well-known/security.txt`, { method: "POST" });
+  if (securityWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /.well-known/security.txt expected 404, got ${securityWrongMethod.status}`);
+  }
+  const sitemapWrongMethod = await fetch(`${base}/sitemap.xml`, { method: "POST" });
+  if (sitemapWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /sitemap.xml expected 404, got ${sitemapWrongMethod.status}`);
+  }
+  const cssWrongMethod = await fetch(`${base}/css/pilot.css`, { method: "POST" });
+  if (cssWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /css/pilot.css expected 404, got ${cssWrongMethod.status}`);
+  }
+  const manifestWrongMethod = await fetch(`${base}/manifest.webmanifest`, { method: "POST" });
+  if (manifestWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] POST /manifest.webmanifest expected 404, got ${manifestWrongMethod.status}`);
+  }
+  const loginPutWrongMethod = await fetch(`${base}/login`, { method: "PUT" });
+  if (loginPutWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] PUT /login expected 404, got ${loginPutWrongMethod.status}`);
+  }
 
   for (let i = 0; i < 2; i++) {
     const sv = await fetch(`${base}/session/visit`);
@@ -532,6 +588,32 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteBody(byRoute, "POST /session/visit", "Not Found");
   assertRouteStatus(byRoute, "POST /count", 404);
   assertRouteBody(byRoute, "POST /count", "Not Found");
+  assertRouteStatus(byRoute, "POST /items", 404);
+  assertRouteBody(byRoute, "POST /items", "Not Found");
+  assertRouteStatus(byRoute, "POST /health", 404);
+  assertRouteBody(byRoute, "POST /health", "Not Found");
+  assertRouteStatus(byRoute, "POST /api/health", 404);
+  assertRouteBody(byRoute, "POST /api/health", "Not Found");
+  assertRouteStatus(byRoute, "POST /jump", 404);
+  assertRouteBody(byRoute, "POST /jump", "Not Found");
+  assertRouteStatus(byRoute, "POST /hello", 404);
+  assertRouteBody(byRoute, "POST /hello", "Not Found");
+  assertRouteStatus(byRoute, "POST /", 404);
+  assertRouteBody(byRoute, "POST /", "Not Found");
+  assertRouteStatus(byRoute, "POST /robots.txt", 404);
+  assertRouteBody(byRoute, "POST /robots.txt", "Not Found");
+  assertRouteStatus(byRoute, "POST /humans.txt", 404);
+  assertRouteBody(byRoute, "POST /humans.txt", "Not Found");
+  assertRouteStatus(byRoute, "POST /.well-known/security.txt", 404);
+  assertRouteBody(byRoute, "POST /.well-known/security.txt", "Not Found");
+  assertRouteStatus(byRoute, "POST /sitemap.xml", 404);
+  assertRouteBody(byRoute, "POST /sitemap.xml", "Not Found");
+  assertRouteStatus(byRoute, "POST /css/pilot.css", 404);
+  assertRouteBody(byRoute, "POST /css/pilot.css", "Not Found");
+  assertRouteStatus(byRoute, "POST /manifest.webmanifest", 404);
+  assertRouteBody(byRoute, "POST /manifest.webmanifest", "Not Found");
+  assertRouteStatus(byRoute, "PUT /login", 404);
+  assertRouteBody(byRoute, "PUT /login", "Not Found");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:anon\n");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
   assertRouteContainsStatus(byRoute, "POST /login", 302);

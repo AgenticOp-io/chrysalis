@@ -70,12 +70,12 @@ canonical full Laravel root (D84) and covers **Composer Laravel / Breeze** depth
 larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON — start from `laravel-full/README.md` and **`scaffold:laravel-full`**, and keep
 `laravel-min/README.md` for the Laravel-shaped pilot.
 
-**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, `POST /login` negatives (D142/D143), wrong-method `GET /logout` D144 + `POST /session/me` D145 + `POST /session/visit` D146 + `POST /count` D147, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle + post-capture route semantics, D136/D137/D138, echo D140, home/db/visit/login D141)** — for regression triage and CI artifacts:
+**Pilot snapshot — `laravel-min` (2026-04-26; bcrypt login + CSRF + logout, `POST /login` negatives (D142/D143), method-guard pack D144-D160 (`GET /logout`, `POST /session/me`, `POST /session/visit`, `POST /count`, `POST /items`, `POST /health`, `POST /api/health`, `POST /jump`, `POST /hello`, `POST /`, `POST /robots.txt`, `POST /humans.txt`, `POST /.well-known/security.txt`, `POST /sitemap.xml`, `POST /css/pilot.css`, `POST /manifest.webmanifest`, `PUT /login`) as 404, `/jump`, session `me`, wider GET loop incl. metadata, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, wider `/hello` oracle + post-capture route semantics, D136/D137/D138, echo D140, home/db/visit/login D141)** — for regression triage and CI artifacts:
 
 | Item | Value |
 |------|--------|
 | Manifest routes | 19 (includes `/api/health`, `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, `/jump`, `/login`, `/logout`, `/session/me`) |
-| Oracle driver HTTP requests | 44 per `scripts/verify-flagship-laravel-min.mjs` run |
+| Oracle driver HTTP requests | 57 per `scripts/verify-flagship-laravel-min.mjs` run |
 | Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** + stable cross-backend report parity gate (D139) |
 | Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable); **`pnpm run status:laravel-min`** also writes **`idiomaticity.json`** / **`residual-legacy.json`** when emit-stats exist (D133) |
 

@@ -524,6 +524,19 @@ idiomaticity / residual-legacy JSON.
       **D145:** wrong-method **`POST /session/me`** (**404**) in `verify:flagship` oracle + semantics.
       **D146:** wrong-method **`POST /session/visit`** (**404**) in `verify:flagship` oracle + semantics.
       **D147:** wrong-method **`POST /count`** (**404**) in `verify:flagship` oracle + semantics.
+      **D148:** wrong-method **`POST /items`** (**404**) in `verify:flagship` oracle + semantics.
+      **D149:** wrong-method **`POST /health`** (**404**) in `verify:flagship` oracle + semantics.
+      **D150:** wrong-method **`POST /api/health`** (**404**) in `verify:flagship` oracle + semantics.
+      **D151:** wrong-method **`POST /jump`** (**404**) in `verify:flagship` oracle + semantics.
+      **D152:** wrong-method **`POST /hello`** (**404**) in `verify:flagship` oracle + semantics.
+      **D153:** wrong-method **`POST /`** (**404**) in `verify:flagship` oracle + semantics.
+      **D154:** wrong-method **`POST /robots.txt`** (**404**) in `verify:flagship` oracle + semantics.
+      **D155:** wrong-method **`POST /humans.txt`** (**404**) in `verify:flagship` oracle + semantics.
+      **D156:** wrong-method **`POST /.well-known/security.txt`** (**404**) in `verify:flagship` oracle + semantics.
+      **D157:** wrong-method **`POST /sitemap.xml`** (**404**) in `verify:flagship` oracle + semantics.
+      **D158:** wrong-method **`POST /css/pilot.css`** (**404**) in `verify:flagship` oracle + semantics.
+      **D159:** wrong-method **`POST /manifest.webmanifest`** (**404**) in `verify:flagship` oracle + semantics.
+      **D160:** wrong-method **`PUT /login`** (**404**) in `verify:flagship` oracle + semantics.
       **Incremental (D86–D115):**
       **`GET /chrysalis-min-id`** / **`GET /chrysalis-max-id`** / **`GET /chrysalis-avg-id`** / **`GET /chrysalis-id-span`**
       / **`GET /chrysalis-sum-squares`** / **`GET /chrysalis-even-count`** / **`GET /chrysalis-odd-count`**
