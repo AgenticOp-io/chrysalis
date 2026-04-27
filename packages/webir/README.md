@@ -23,7 +23,9 @@ visitor/pass infrastructure, and provenance model.
 - `effectsReachableWithCallOverlay` (`builder.ts`) — unions `lib/` / `vendor`
   helper effects at `data.call` sites; resolves fully-qualified PHP function
   names to short `FunctionDecl` overlay keys via the unqualified tail, merging
-  all overlay keys that share that tail when ambiguous (sound widening).
+  all overlay keys that share that tail when ambiguous (sound widening); also
+  narrows `call_user_func*` callable arrays lowered as `__array_literal` +
+  literal strings to `Class::method` before matching.
 - `Module` — a WebIR compilation unit
 
 ## Invariants

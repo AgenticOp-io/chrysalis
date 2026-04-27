@@ -147,6 +147,34 @@ describe("webir module builder", () => {
     expect(tags.has("session.write")).toBe(false);
   });
 
+  test("effectsReachableWithCallOverlay narrows call_user_func array-literal callable", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const classLit = d.literal({ value: "Acme\\Repo\\Thing", type: T.string, origin });
+    const methodLit = d.literal({ value: "run", type: T.string, origin });
+    const callable = d.call({
+      callee: "__array_literal",
+      args: [classLit, methodLit],
+      type: T.array(T.unknown),
+      origin,
+    });
+    const call = d.call({
+      callee: "call_user_func",
+      args: [callable],
+      type: T.unknown,
+      origin,
+    });
+    const overlay = new Map([
+      ["Acme\\Repo\\Thing::run", Object.freeze([{ kind: "db.read" as const, table: "t1" }])],
+      ["other", Object.freeze([{ kind: "session.write" as const }])],
+    ]);
+    const eff = effectsReachableWithCallOverlay((id) => b.get(id), call, overlay);
+    const tags = new Set(eff.map(effectTag));
+    expect(tags.has("db.read:t1")).toBe(true);
+    expect(tags.has("session.write")).toBe(false);
+  });
+
   test("effectsReachableWithCallOverlay falls back to widening for unknown literal callee", () => {
     const b = new ModuleBuilder({ sourceApp: "demo" });
     const d = dataDialect.builders(b);

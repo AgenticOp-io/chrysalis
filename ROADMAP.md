@@ -618,6 +618,10 @@ without weakening corpus replay gates.
       **D168:** deepens `call_user_func*` narrowing with callable-name normalization
       (leading `\`) plus safe fallback widening for unknown literal callees;
       regression tests cover narrowed + fallback paths.
+      **D175:** narrows `call_user_func*` when callable is an array literal
+      lowered as `__array_literal` + string literals (e.g. `["Ns\\Class","run"]`
+      → `Ns\\Class::run`) before overlay match; unknown/dynamic arrays keep full
+      widening fallback.
 - [ ] **Oracle breadth (`mysqli` path):** add first-class `mysqli` capture/replay
       support to complement PDO, with schema/tests and corpus summary integration.
       **D165:** ships `Chrysalis\Oracle\Db\MySQLi` `query()`-path SQL capture

@@ -163,6 +163,30 @@ export function effectsReachableWithCallOverlay(
     }
     return out;
   })();
+  const tryResolveCallableArrayLiteral = (argNode: NodeBase | undefined): string => {
+    if (!argNode || argNode.dialect !== "data" || argNode.op !== "call") return "";
+    const callee = String((argNode.attrs as { callee?: string }).callee ?? "");
+    if (callee !== "__array_literal") return "";
+    if (argNode.operands.length < 2) return "";
+    const partA = getNode(argNode.operands[0]);
+    const partB = getNode(argNode.operands[1]);
+    const a =
+      partA &&
+      partA.dialect === "data" &&
+      partA.op === "literal" &&
+      typeof (partA.attrs as { value?: unknown }).value === "string"
+        ? String((partA.attrs as { value: string }).value ?? "")
+        : "";
+    const b =
+      partB &&
+      partB.dialect === "data" &&
+      partB.op === "literal" &&
+      typeof (partB.attrs as { value?: unknown }).value === "string"
+        ? String((partB.attrs as { value: string }).value ?? "")
+        : "";
+    if (!a || !b) return "";
+    return `${a}::${b}`;
+  };
   const tryPushNamedCalleeEffects = (raw: string): boolean => {
     const name = normalizeCallableName(raw);
     if (!name) return false;
@@ -209,7 +233,7 @@ export function effectsReachableWithCallOverlay(
           firstArg.op === "literal" &&
           typeof (firstArg.attrs as { value?: unknown }).value === "string"
             ? String((firstArg.attrs as { value: string }).value ?? "")
-            : "";
+            : tryResolveCallableArrayLiteral(firstArg);
         // Narrow when the callable is explicit; preserve old widening fallback
         // when unresolved or unknown to avoid missing effects.
         if (!resolvedCallee || !tryPushNamedCalleeEffects(resolvedCallee)) {
