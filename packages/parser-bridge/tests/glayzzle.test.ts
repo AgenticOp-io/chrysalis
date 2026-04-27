@@ -72,4 +72,48 @@ describe("parser-bridge glayzzle provider", () => {
     expect(kinds).toContain("Noop");
     expect(kinds).toContain("Assign");
   });
+
+  test("namespace prefixes FunctionDecl names", async () => {
+    const ast = await parseSource(`<?php
+namespace Acme\\Helpers;
+
+function row_from_users() {
+  return 1;
+}
+`);
+    const fn = ast.statements.find((s) => s.kind === "FunctionDecl");
+    expect(fn?.kind).toBe("FunctionDecl");
+    if (fn?.kind !== "FunctionDecl") return;
+    expect(fn.name).toBe("Acme\\Helpers\\row_from_users");
+  });
+
+  test("nested namespace composes names", async () => {
+    const ast = await parseSource(`<?php
+namespace A\\B {
+  function f1() {}
+  namespace C\\D {
+    function f2() {}
+  }
+}
+`);
+    const names = ast.statements
+      .filter((s): s is Extract<typeof s, { kind: "FunctionDecl" }> => s.kind === "FunctionDecl")
+      .map((s) => s.name)
+      .sort();
+    expect(names).toEqual(["A\\B\\C\\D\\f2", "A\\B\\f1"]);
+  });
+
+  test("namespace with usegroup keeps following FunctionDecl", async () => {
+    const ast = await parseSource(`<?php
+namespace X;
+use Y\\Z;
+function g() { return 1; }
+`);
+    const kinds = ast.statements.map((s) => s.kind);
+    expect(kinds).toContain("Noop");
+    const fn = ast.statements.find((s) => s.kind === "FunctionDecl");
+    expect(fn?.kind).toBe("FunctionDecl");
+    if (fn?.kind !== "FunctionDecl") return;
+    expect(fn.name).toBe("X\\g");
+  });
 });

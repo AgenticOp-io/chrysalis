@@ -602,6 +602,10 @@ without weakening corpus replay gates.
       `FunctionDecl` overlay keys via unqualified-tail merge; ingest fixture + webir
       tests; Vitest aliases `@chrysalis/webir` to `src/` (stale `dist/` was masking
       ingest↔webir integration). Class methods / PSR-4 symbol maps remain follow-ons.
+      **D172:** glayzzle provider flattens `namespace` blocks, qualifies top-level
+      `FunctionDecl` names, maps `usegroup` to `Noop`, bumps parser `SCHEMA_VERSION`
+      to `0.1.2`; narrows vendor overlay vs FQN calls when declarations live in a
+      namespace. Braced-only / class / const declarations in namespaces remain partial.
 - [ ] **Effect narrowing follow-up:** add confidence-preserving narrowing where
       over-approximation is currently too coarse, without reducing safety; include
       regression fixtures proving no missed side effects.

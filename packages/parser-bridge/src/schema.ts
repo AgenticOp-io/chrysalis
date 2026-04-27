@@ -7,7 +7,7 @@
  * regenerating golden fixtures.
  */
 
-export const SCHEMA_VERSION = "0.1.1";
+export const SCHEMA_VERSION = "0.1.2";
 
 export type Pos = {
   readonly file: string;

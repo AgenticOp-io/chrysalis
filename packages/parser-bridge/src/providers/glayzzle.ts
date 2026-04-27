@@ -68,12 +68,57 @@ function unknownExpr(file: string, node: AnyNode, detail: string): PhpExpr {
   return { kind: "UnknownExpr", detail, pos: pos(file, node) };
 }
 
-function convertBody(file: string, body: unknown): PhpNode[] {
-  if (!Array.isArray(body)) return [];
-  return (body as AnyNode[]).map((n) => convertStatement(file, n));
+/** Combine outer PHP namespace with a relative `namespace` declaration name. */
+function composePhpNamespacePrefix(parentNs: string, declaredName: string): string {
+  const d = declaredName.trim();
+  if (!d) return parentNs;
+  if (!parentNs) return d;
+  return `${parentNs}\\${d}`;
 }
 
-function convertStatement(file: string, node: AnyNode): PhpNode {
+/** `name` on a php-parser `namespace` node (string, identifier, or composite array). */
+function extractNamespaceDeclaredName(node: AnyNode): string {
+  const raw = node.name;
+  if (raw === null || raw === undefined) return "";
+  if (typeof raw === "string") return raw.trim();
+  if (Array.isArray(raw)) {
+    const parts: string[] = [];
+    for (const p of raw as unknown[]) {
+      if (typeof p === "string") parts.push(p);
+      else if (p && typeof p === "object" && "name" in (p as AnyNode)) {
+        parts.push(String((p as AnyNode).name ?? ""));
+      }
+    }
+    return parts.filter(Boolean).join("\\");
+  }
+  if (typeof raw === "object" && (raw as AnyNode).kind === "identifier") {
+    return String((raw as AnyNode).name ?? "");
+  }
+  return "";
+}
+
+/** Top-level (and nested) statement list with namespace prefixing for `FunctionDecl` names. */
+function convertProgramStatements(file: string, nodes: AnyNode[], parentNs: string): PhpNode[] {
+  const out: PhpNode[] = [];
+  for (const node of nodes) {
+    if (node.kind === "namespace") {
+      const declared = extractNamespaceDeclaredName(node);
+      const innerNs = composePhpNamespacePrefix(parentNs, declared);
+      const inner = (node.children as AnyNode[] | undefined) ?? [];
+      out.push(...convertProgramStatements(file, inner, innerNs));
+    } else {
+      out.push(convertStatement(file, node, parentNs));
+    }
+  }
+  return out;
+}
+
+function convertBody(file: string, body: unknown, nsPrefix: string): PhpNode[] {
+  if (!Array.isArray(body)) return [];
+  return (body as AnyNode[]).map((n) => convertStatement(file, n, nsPrefix));
+}
+
+function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNode {
   switch (node.kind) {
     case "inline":
       return { kind: "InlineHtml", text: String(node.value ?? ""), pos: pos(file, node) };
@@ -91,13 +136,13 @@ function convertStatement(file: string, node: AnyNode): PhpNode {
       const inner = node.expression as AnyNode;
       // Unwrap common statement-like expressions into proper statements.
       if (inner?.kind === "assign") {
-        return convertStatement(file, inner);
+        return convertStatement(file, inner, nsPrefix);
       }
       if (inner?.kind === "include") {
-        return convertStatement(file, inner);
+        return convertStatement(file, inner, nsPrefix);
       }
       if (inner?.kind === "exit" || inner?.kind === "die") {
-        return convertStatement(file, inner);
+        return convertStatement(file, inner, nsPrefix);
       }
       return {
         kind: "ExpressionStatement",
@@ -125,15 +170,20 @@ function convertStatement(file: string, node: AnyNode): PhpNode {
       let elseBody: PhpNode[] | null = null;
       if (elseNode) {
         if (elseNode.kind === "block") {
-          elseBody = convertBody(file, elseNode.children);
+          elseBody = convertBody(file, elseNode.children, nsPrefix);
         } else if (elseNode.kind === "if") {
-          elseBody = [convertStatement(file, elseNode)];
+          elseBody = [convertStatement(file, elseNode, nsPrefix)];
         } else {
-          elseBody = [convertStatement(file, elseNode)];
+          elseBody = [convertStatement(file, elseNode, nsPrefix)];
         }
       }
       const body = node.body as AnyNode | undefined;
-      const thenBody = body?.kind === "block" ? convertBody(file, body.children) : body ? [convertStatement(file, body)] : [];
+      const thenBody =
+        body?.kind === "block"
+          ? convertBody(file, body.children, nsPrefix)
+          : body
+            ? [convertStatement(file, body, nsPrefix)]
+            : [];
       return {
         kind: "If",
         cond: convertExpression(file, node.test as AnyNode),
@@ -144,7 +194,12 @@ function convertStatement(file: string, node: AnyNode): PhpNode {
     }
     case "foreach": {
       const body = node.body as AnyNode | undefined;
-      const bodyArr = body?.kind === "block" ? convertBody(file, body.children) : body ? [convertStatement(file, body)] : [];
+      const bodyArr =
+        body?.kind === "block"
+          ? convertBody(file, body.children, nsPrefix)
+          : body
+            ? [convertStatement(file, body, nsPrefix)]
+            : [];
       const key = node.key as AnyNode | null;
       const value = node.value as AnyNode;
       return {
@@ -172,19 +227,25 @@ function convertStatement(file: string, node: AnyNode): PhpNode {
     case "function": {
       const args = Array.isArray(node.arguments) ? (node.arguments as AnyNode[]) : [];
       const body = node.body as AnyNode | undefined;
+      const shortName = String((node.name as AnyNode)?.name ?? "<anonymous>");
+      const declName =
+        shortName !== "<anonymous>" && nsPrefix !== "" ? `${nsPrefix}\\${shortName}` : shortName;
       return {
         kind: "FunctionDecl",
-        name: String((node.name as AnyNode)?.name ?? node.name ?? "<anonymous>"),
+        name: declName,
         params: args.map((a) => ({
           name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
           hint: typeNameFromHint(a.type as AnyNode | null),
           default: a.value ? convertExpression(file, a.value as AnyNode) : null,
         })),
         returnHint: typeNameFromHint(node.type as AnyNode | null),
-        body: body?.kind === "block" ? convertBody(file, body.children) : [],
+        body: body?.kind === "block" ? convertBody(file, body.children, nsPrefix) : [],
         pos: pos(file, node),
       };
     }
+    case "usegroup":
+      // Import side effects are out of scope for the canonical AST; keep position only.
+      return { kind: "Noop", pos: pos(file, node) };
     case "exit":
     case "die":
       return {
@@ -473,6 +534,6 @@ export function parseSourceWithGlayzzle(src: string, filename: string): PhpAst {
   return {
     schemaVersion: SCHEMA_VERSION,
     file: filename,
-    statements: children.map((c) => convertStatement(filename, c)),
+    statements: convertProgramStatements(filename, children, ""),
   };
 }
