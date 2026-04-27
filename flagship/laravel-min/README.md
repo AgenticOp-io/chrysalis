@@ -48,6 +48,8 @@ no query (default **`guest`**), **`?name=`**, two fixed names, and an encoded mu
 `/health`, `/api/health`, `/jump`, `/session/me`, login/logout redirects, and
 metadata/static outputs (`/robots.txt`, `/humans.txt`, `/.well-known/security.txt`,
 `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`) before ingest/emit.
+Echo request-shape negatives are pinned too: empty/json `POST /echo` => `400 msg required`,
+and `GET /echo` stays `404 Not Found`.
 Verify also enforces stable cross-backend report parity (Hono vs Fastify fingerprints).
 Verify reports in
 `reports/verify-flagship-laravel-min/{hono,fastify}/`. Verify also writes

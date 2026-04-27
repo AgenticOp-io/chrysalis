@@ -329,6 +329,28 @@ async function driveLaravelMinCorpus(port) {
   if (!echo2.ok) {
     console.warn(`[verify-flagship] POST /echo (second) returned ${echo2.status}`);
   }
+  const echoEmpty = await fetch(`${base}/echo`, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({}).toString(),
+    redirect: "manual",
+  });
+  if (echoEmpty.ok || echoEmpty.status !== 400) {
+    console.warn(`[verify-flagship] POST /echo (empty) expected 400, got ${echoEmpty.status}`);
+  }
+  const echoJson = await fetch(`${base}/echo`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ msg: "json-body" }),
+    redirect: "manual",
+  });
+  if (echoJson.ok || echoJson.status !== 400) {
+    console.warn(`[verify-flagship] POST /echo (json) expected 400, got ${echoJson.status}`);
+  }
+  const echoWrongMethod = await fetch(`${base}/echo`);
+  if (echoWrongMethod.status !== 404) {
+    console.warn(`[verify-flagship] GET /echo expected 404, got ${echoWrongMethod.status}`);
+  }
 
   for (let i = 0; i < 2; i++) {
     const sv = await fetch(`${base}/session/visit`);
@@ -429,6 +451,11 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteHeaderContains(byRoute, "GET /sitemap.xml", "content-type", "application/xml");
   assertRouteHeaderContains(byRoute, "GET /css/pilot.css", "content-type", "text/css");
   assertRouteHeaderContains(byRoute, "GET /manifest.webmanifest", "content-type", "application/manifest+json");
+  assertRouteContainsBody(byRoute, "POST /echo", "echo:flagship-verify\n");
+  assertRouteContainsBody(byRoute, "POST /echo", "echo:second-post\n");
+  assertRouteContainsBody(byRoute, "POST /echo", "msg required\n");
+  assertRouteStatus(byRoute, "GET /echo", 404);
+  assertRouteBody(byRoute, "GET /echo", "Not Found");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:anon\n");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
   assertRouteStatus(byRoute, "POST /login", 302);
