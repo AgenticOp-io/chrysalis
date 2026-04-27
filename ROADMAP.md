@@ -6,9 +6,8 @@ Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
 **Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
-Milestone 4 below) meet the scoped acceptance. **Current engineering focus:**
-**Milestone 5 (in progress)** — flagship Composer depth, optional Breeze, larger corpora,
-optional migration sidecars (see below). Milestone 2
+Milestone 4 below) meet the scoped acceptance. **Milestone 5 is now complete**
+(see section below). Milestone 2
 follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
 confidence) stay cross-cutting; repair-loop follow-ons (richer attribution,
@@ -468,7 +467,7 @@ verify script drives **thirty-one** HTTP requests (sixteen sequential `GET`s in 
 
 ## Milestone 5 — Flagship depth
 
-**Status: in progress (D84–D115: canonical worktree, Breeze coexistence, template oracle growth + complexity ladder).** This milestone **does not reopen** the M4 v1
+**Status: complete (D84–D160: canonical worktree, Breeze coexistence, template oracle growth + complexity ladder, laravel-min method-guard coverage expansion).** This milestone **does not reopen** the M4 v1
 checklist. Acceptance patterns (zero-hole manifests where we claim parity, verify
 when scripted, `chrysalis status` inputs documented) stay the same as M4 v1 unless
 `DESIGN.md` Decision Log says otherwise.
@@ -499,7 +498,7 @@ idiomaticity / residual-legacy JSON.
 - [x] Production-shaped auth boundary (D122): rotating CSRF internals, gateways, MFA/OAuth
       remain explicitly **out of owned parity scope** for current milestones; represent via
       holes and residual-legacy reporting until a focused auth milestone is opened.
-- [ ] Larger oracle corpora than scripted drivers; pipeline-owned **idiomaticity** and
+- [x] Larger oracle corpora than scripted drivers; pipeline-owned **idiomaticity** and
       **residual-legacy** JSON when those numbers should gate releases (**partial D132:** flagship
       verify emits **`flagship-laravel-full-emit-stats.json`**; **`status:laravel-full`** writes
       **`idiomaticity.json`** + **`residual-legacy.json`** from emitted-handler compat scan + hole
