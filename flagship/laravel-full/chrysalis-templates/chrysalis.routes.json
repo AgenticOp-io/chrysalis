@@ -284,6 +284,12 @@
       "pathParams": []
     },
     {
+      "method": "GET",
+      "path": "/chrysalis-auth-probe",
+      "file": "chrysalis/handlers/chrysalis_auth_sanctum_oauth_probe_show.php",
+      "pathParams": []
+    },
+    {
       "method": "POST",
       "path": "/chrysalis-session/login",
       "file": "chrysalis/handlers/session_login_post.php",

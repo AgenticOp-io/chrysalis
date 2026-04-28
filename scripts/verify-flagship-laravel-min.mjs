@@ -4,7 +4,8 @@
  * for `flagship/laravel-min` (GET routes + **`GET /hello`** default / empty / two
  * named queries / encoded multi-word **`name`**, two `POST /echo`
  * bodies, `GET /jump` (302 `Location: /health`), `GET /session/visit` x2,
- * `GET /session/me`, `GET /login` + `POST /login` (bad CSRF 403, bad password 401, empty 400, then bcrypt + CSRF) + `GET /session/me`,
+ * `GET /session/me`, **`GET /gate-probe`** + **`GET /gate-probe?m=deny`** (Gate facade stub),
+ * `GET /login` + `POST /login` (bad CSRF 403, bad password 401, empty 400, then bcrypt + CSRF) + `GET /session/me`,
  * `POST /logout` + `GET /session/me` again, wrong-method **`GET /echo`** / **`GET /logout`** /
  * **`POST /session/me`** / **`POST /session/visit`** / **`POST /count`** / **`POST /items`** /
  * **`POST /health`** / **`POST /api/health`** / **`POST /jump`** / **`POST /hello`** /
@@ -27,7 +28,7 @@
  *
  * **Milestone 6A:** after each backend replay, enforces the same **`VERIFY_THRESHOLD`**
  * on the auth-boundary route subset defined in **`milestone-6a-auth-verify-gate.mjs`**
- * (`GET/POST /login`, `POST /logout`, `GET /session/me`) and fails if any required
+ * (`GET/POST /login`, `POST /logout`, `GET /session/me`, **`GET /gate-probe`**) and fails if any required
  * route is missing from the corpus.
  */
 
@@ -483,6 +484,15 @@ async function driveLaravelMinCorpus(port) {
     console.warn(`[verify-flagship] GET /session/me returned ${me0.status}`);
   }
 
+  const gateAllow = await fetch(`${base}/gate-probe`);
+  if (!gateAllow.ok) {
+    console.warn(`[verify-flagship] GET /gate-probe returned ${gateAllow.status}`);
+  }
+  const gateDeny = await fetch(`${base}/gate-probe?m=deny`);
+  if (!gateDeny.ok) {
+    console.warn(`[verify-flagship] GET /gate-probe?m=deny returned ${gateDeny.status}`);
+  }
+
   const loginForm = await fetch(`${base}/login`);
   if (!loginForm.ok) {
     console.warn(`[verify-flagship] GET /login returned ${loginForm.status}`);
@@ -661,6 +671,8 @@ function assertLaravelMinCorpusSemantics(corpus) {
   assertRouteBody(byRoute, "PUT /login", "Not Found");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:anon\n");
   assertRouteContainsBody(byRoute, "GET /session/me", "user:1\n");
+  assertRouteContainsBody(byRoute, "GET /gate-probe", "allow:1\n");
+  assertRouteContainsBody(byRoute, "GET /gate-probe", "deny:1\n");
   assertRouteContainsStatus(byRoute, "POST /login", 302);
   assertRouteContainsStatus(byRoute, "POST /login", 403);
   assertRouteContainsStatus(byRoute, "POST /login", 401);

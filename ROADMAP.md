@@ -578,7 +578,7 @@ idiomaticity / residual-legacy JSON.
       Fastify run-1 stable verify report match) plus trend-history parity carry-
       forward (`crossBackendParityOk` in streak entries), plus
       `matrixCrossBackendParityOk` on the parent JSON when the seed matrix runs, on
-      **`chrysalis-templates/`** — **fifty** template routes, dual emit parity tests updated.
+      **`chrysalis-templates/`** — **fifty-one** template routes, dual emit parity tests updated.
 
 **Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.
 
@@ -741,10 +741,12 @@ residual sidecars; **no** silent best-effort translation that bypasses WebIR or 
   `migration.authIngestHoleMax`.
 - [x] **Widened heuristic labeling (D189 foundation):** `@chrysalis/webir` `isAuthBoundaryCallee`
   includes Socialite/Fortify/OAuth-shaped callee token substrings (ingest + emit tagging).
-- [ ] **Gate/policy oracle probes:** add reproducible flagship routes + corpus traces that exercise
-  `Gate`/policy **`allows`** / **`denies`** shapes before claiming lowered parity (depends on pilot placement).
-- [ ] **OAuth/Sanctum scaffold probes:** extend **`laravel-full` templates** + verify harness when
-  stable redirect/token oracle shapes exist (Socialite/OAuth routes remain **`auth:` holes** until then).
+- [x] **Gate/policy oracle probes (D190):** `GET /gate-probe` on **`flagship/laravel-min`**
+  (stub `Illuminate\Support\Facades\Gate` in `lib/gate_facade_stub.php`); verify + M6A auth slice
+  assert `allow:1` / `deny:1` bodies.
+- [x] **OAuth/Sanctum scaffold probes (D190):** **`GET /chrysalis-auth-probe`** on
+  **`chrysalis-templates`** (stubs `Laravel\Sanctum\NewAccessToken` + `League\OAuth2\Client\GenericProvider`);
+  `verify-flagship-laravel-full` captures + pins JSON; M6A auth route list includes the path.
 
 ---
 

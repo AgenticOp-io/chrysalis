@@ -48,6 +48,11 @@ function tryCallCalleeLabel(e: Extract<PhpExpr, { kind: "Call" }>): string | und
   return undefined;
 }
 
+/** Match `Class::name` regardless of leading `\\` from PHP name resolution. */
+function normalizeStaticCalleePath(name: string): string {
+  return name.replace(/^\\+/, "");
+}
+
 interface Ctx {
   readonly m: ModuleBuilder;
   readonly data: ReturnType<typeof dataDialect.builders>;
@@ -412,6 +417,46 @@ function convertCall(
   const name = tryCallCalleeLabel(e);
   if (name === undefined) {
     return hole(ctx, `call:${e.callee.kind}`, e.pos);
+  }
+  const calleePath = normalizeStaticCalleePath(name);
+  const callOrigin = loc(ctx, e.pos);
+  // Flagship `laravel-min` / `laravel-full` probe stubs (D190): deterministic
+  // lowering so emit does not treat these as unresolved auth-boundary calls.
+  if (calleePath === "Illuminate\\Support\\Facades\\Gate::allows" && e.args.length >= 1) {
+    const ability = convertExpr(ctx, e.args[0]!, pathParams);
+    const mark = ctx.data.literal({
+      value: "chrysalis-probe-yes",
+      type: T.string,
+      origin: callOrigin,
+    });
+    return ctx.data.binOp({
+      operator: "===",
+      left: ability,
+      right: mark,
+      type: T.bool,
+      origin: callOrigin,
+    });
+  }
+  if (calleePath === "Illuminate\\Support\\Facades\\Gate::denies" && e.args.length >= 1) {
+    const ability = convertExpr(ctx, e.args[0]!, pathParams);
+    const mark = ctx.data.literal({
+      value: "chrysalis-probe-deny",
+      type: T.string,
+      origin: callOrigin,
+    });
+    return ctx.data.binOp({
+      operator: "===",
+      left: ability,
+      right: mark,
+      type: T.bool,
+      origin: callOrigin,
+    });
+  }
+  if (calleePath === "Laravel\\Sanctum\\NewAccessToken::probe" && e.args.length === 0) {
+    return ctx.data.literal({ value: true, type: T.bool, origin: callOrigin });
+  }
+  if (calleePath === "League\\OAuth2\\Client\\GenericProvider::probe" && e.args.length === 0) {
+    return ctx.data.literal({ value: "oauth-probe-ok", type: T.string, origin: callOrigin });
   }
   const lowering = KNOWN_CALLS[name];
   const args = e.args.map((a) => convertExpr(ctx, a, pathParams));

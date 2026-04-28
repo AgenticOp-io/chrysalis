@@ -63,12 +63,12 @@ describe("emit-fastify: tiny-blog output", () => {
 });
 
 describe("emit-fastify: flagship laravel-min (Milestone 4 slice)", () => {
-  test("emits nineteen handlers and zero holes", async () => {
+  test("emits twenty handlers and zero holes", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-flag-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_MIN);
       const res = await emit({ module: mod, outDir: out });
-      expect(res.handlerCount).toBe(19);
+      expect(res.handlerCount).toBe(20);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/home_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/hello_show.ts"))).toBe(true);
@@ -89,6 +89,7 @@ describe("emit-fastify: flagship laravel-min (Milestone 4 slice)", () => {
       expect(existsSync(resolve(out, "src/handlers/echo_post.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_visit_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_me_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/gate_probe_show.ts"))).toBe(true);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }
@@ -96,12 +97,12 @@ describe("emit-fastify: flagship laravel-min (Milestone 4 slice)", () => {
 });
 
 describe("emit-fastify: flagship laravel-full chrysalis-templates", () => {
-  test("emits fifty handlers and zero holes", async () => {
+  test("emits fifty-one handlers and zero holes", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-lf-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_FULL_TEMPLATES);
       const res = await emit({ module: mod, outDir: out });
-      expect(res.handlerCount).toBe(50);
+      expect(res.handlerCount).toBe(51);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/ping_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/health_txt_show.ts"))).toBe(true);
@@ -149,6 +150,9 @@ describe("emit-fastify: flagship laravel-full chrysalis-templates", () => {
       expect(existsSync(resolve(out, "src/handlers/items_group_parity_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/items_cte_rollup_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/recursive_stress_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/chrysalis_auth_sanctum_oauth_probe_show.ts"))).toBe(
+        true,
+      );
       expect(existsSync(resolve(out, "src/handlers/session_me_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_login_post.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_logout_post.ts"))).toBe(true);

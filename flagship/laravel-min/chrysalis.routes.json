@@ -114,6 +114,12 @@
       "path": "/session/me",
       "file": "app/Http/Handlers/session_me_show.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/gate-probe",
+      "file": "app/Http/Handlers/gate_probe_show.php",
+      "pathParams": []
     }
   ]
 }

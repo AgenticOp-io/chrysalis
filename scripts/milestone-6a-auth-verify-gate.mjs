@@ -9,6 +9,7 @@ export const LARAVEL_MIN_AUTH_BOUNDARY_ROUTES = Object.freeze([
   "POST /login",
   "POST /logout",
   "GET /session/me",
+  "GET /gate-probe",
 ]);
 
 /** Composer scaffold pilot (`chrysalis-laravel-work`): Chrysalis session helpers. */
@@ -18,6 +19,7 @@ export const LARAVEL_FULL_AUTH_BOUNDARY_ROUTES = Object.freeze([
   "GET /chrysalis-session/me",
   "GET /chrysalis-session/logout",
   "POST /chrysalis-session/logout",
+  "GET /chrysalis-auth-probe",
 ]);
 
 /**

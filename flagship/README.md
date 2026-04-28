@@ -81,8 +81,8 @@ larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON â
 
 | Item | Value |
 |------|--------|
-| Manifest routes | 19 (includes `/api/health`, `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, `/jump`, `/login`, `/logout`, `/session/me`) |
-| Oracle driver HTTP requests | 57 per `scripts/verify-flagship-laravel-min.mjs` run |
+| Manifest routes | 20 (adds **`/gate-probe`**; includes `/api/health`, `/robots.txt`, `/humans.txt`, `/.well-known/security.txt`, `/sitemap.xml`, `/css/pilot.css`, `/manifest.webmanifest`, `/jump`, `/login`, `/logout`, `/session/me`) |
+| Oracle driver HTTP requests | 59 per `scripts/verify-flagship-laravel-min.mjs` run |
 | Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** + stable cross-backend report parity gate (D139) |
 | Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable); **`pnpm run status:laravel-min`** also writes **`idiomaticity.json`** / **`residual-legacy.json`** when emit-stats exist (D133) |
 
