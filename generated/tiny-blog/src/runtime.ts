@@ -61,11 +61,95 @@ export function strlen(v: unknown): number {
   return String(v ?? "").length;
 }
 
+/** One column per row — used when batching N+1 reads (ids before a single IN query). */
+export function chrysalisPluck(
+  rows: ReadonlyArray<Record<string, unknown>>,
+  key: string,
+): unknown[] {
+  const out: unknown[] = [];
+  for (const r of rows ?? []) {
+    out.push((r as Record<string, unknown>)[key]);
+  }
+  return out;
+}
+
+/** First row where `row[col]` equals `keyVal` (String comparison). */
+export function chrysalisRowByColumn<T extends Record<string, unknown>>(
+  rows: ReadonlyArray<T>,
+  col: string,
+  keyVal: unknown,
+): T | null {
+  const k = String(keyVal ?? "");
+  for (const r of rows ?? []) {
+    if (String((r as Record<string, unknown>)[col]) === k) return r;
+  }
+  return null;
+}
+
+/** PHP microtime() / microtime(false): "fractional_seconds seconds" string from injectable epoch float. */
+export function microtimeString(epochSeconds: number): string {
+  const sec = Math.floor(epochSeconds);
+  const frac = epochSeconds - sec;
+  return `${frac.toFixed(8)} ${sec}`;
+}
+
 /**
- * PHP preg_match for slash-delimited patterns only (first and last slash
- * enclose the body; flags after the closing slash). Example: email check
- * uses body ^.+@.+$ with optional u flag.
+ * PHP parse_url second-argument mode: PHP_URL_* component integers only.
+ * Relative URLs resolve against http://chrysalis-parse-url.invalid (path-only
+ * strings match PHP request URI behavior).
  */
+export function parseUrlComponent(url: unknown, component: number): string | null {
+  const u = String(url ?? "");
+  try {
+    const parsed = new URL(u, "http://chrysalis-parse-url.invalid");
+    switch (component) {
+      case 0:
+        return parsed.protocol.replace(/:$/, "") || null;
+      case 1:
+        return parsed.hostname || null;
+      case 2:
+        return parsed.port ? String(parsed.port) : null;
+      case 3:
+        return parsed.username || null;
+      case 4:
+        return parsed.password || null;
+      case 5:
+        return parsed.pathname || null;
+      case 6:
+        return parsed.search ? parsed.search.slice(1) : null;
+      case 7:
+        return parsed.hash ? parsed.hash.slice(1) : null;
+      default:
+        return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
+/** PHP parse_url(url) single-arg: associative array keys scheme, host, port, user, pass, path, query, fragment. */
+export function parseUrlParts(url: unknown): Record<string, string> {
+  const u = String(url ?? "");
+  try {
+    const p = new URL(u, "http://chrysalis-parse-url.invalid");
+    const out: Record<string, string> = {};
+    const scheme = p.protocol.replace(/:$/, "");
+    if (scheme) out.scheme = scheme;
+    if (p.username) out.user = p.username;
+    if (p.password) out.pass = p.password;
+    if (p.hostname) out.host = p.hostname;
+    if (p.port) out.port = String(p.port);
+    if (p.pathname) out.path = p.pathname;
+    const q = p.search ? p.search.slice(1) : "";
+    if (q) out.query = q;
+    const frag = p.hash ? p.hash.slice(1) : "";
+    if (frag) out.fragment = frag;
+    return out;
+  } catch {
+    return {};
+  }
+}
+
 export function pregMatch(pattern: unknown, subject: unknown): boolean {
   const p = String(pattern ?? "");
   const s = String(subject ?? "");
@@ -116,4 +200,32 @@ export function __respond(c: Context, html: string, status: number): Response {
     return isHtml ? c.html(html, s) : c.text(html, s);
   }
   return c.text("", status as Parameters<typeof c.text>[1]);
+}
+
+/**
+ * Normalizes a raw POST field for handlers rewritten by `boundary-zod`.
+ * Matches the D19 simulator; intentionally dependency-free (no npm `zod`
+ * required) so emitted apps stay minimal.
+ */
+export function parseZodBodyFieldRaw(
+  raw: unknown,
+  opts: { readonly minLen: number; readonly trim: boolean; readonly email: boolean },
+): string {
+  let s = raw == null ? "" : String(raw);
+  if (opts.trim) s = s.trim();
+  if (s.length < opts.minLen) return "";
+  if (opts.email && !/^[^@]+@[^@]+$/.test(s)) return "";
+  return s;
+}
+
+/**
+ * Validates `raw` against a closed set of string literals (z.enum-shaped).
+ * Used by `dispatch-union-zod`; dependency-free like `parseZodBodyFieldRaw`.
+ */
+export function parseZodEnumBodyFieldRaw(
+  raw: unknown,
+  allowed: readonly string[],
+): string {
+  const s = raw == null ? "" : String(raw);
+  return (allowed as readonly string[]).includes(s) ? s : "";
 }

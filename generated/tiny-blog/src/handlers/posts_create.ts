@@ -13,14 +13,17 @@ import {
   trim,
   intval,
   strlen,
+  microtimeString,
   pregMatch,
+  parseUrlComponent,
+  parseUrlParts,
   passwordVerify,
   __hole,
   __respond,
 } from "../runtime.js";
 
 /**
- * @chrysalis-effects db.write:posts
+ * @chrysalis-effects db.read:users, db.write:posts, session.read
  * @chrysalis-shape mixed
  * @chrysalis-holes 0
  */

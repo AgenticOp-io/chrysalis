@@ -19,11 +19,13 @@ export interface User {
   /**
    * Declared in DDL; no observations yet. Treat as ground truth until proven otherwise.
    * @chrysalis-provenance schema — ./fixtures/tiny-blog/schema.sql:3 (users.username string)
+   * @chrysalis-provenance form — C:\Users\david\Downloads\PHP_converter\fixtures\tiny-blog\pages\login.php:2 <input name="username">
    */
   username: string;
   /**
    * Declared in DDL; no observations yet. Treat as ground truth until proven otherwise.
    * @chrysalis-provenance schema — ./fixtures/tiny-blog/schema.sql:3 (users.password string)
+   * @chrysalis-provenance form — C:\Users\david\Downloads\PHP_converter\fixtures\tiny-blog\pages\login.php:2 <input name="password">; input type="password"
    */
   password: string;
   /**
@@ -52,11 +54,13 @@ export interface Post {
   /**
    * Declared in DDL; no observations yet. Treat as ground truth until proven otherwise.
    * @chrysalis-provenance schema — ./fixtures/tiny-blog/schema.sql:10 (posts.title string)
+   * @chrysalis-provenance form — C:\Users\david\Downloads\PHP_converter\fixtures\tiny-blog\pages\posts_create.php:2 <input name="title">
    */
   title: string;
   /**
    * Declared in DDL; no observations yet. Treat as ground truth until proven otherwise.
    * @chrysalis-provenance schema — ./fixtures/tiny-blog/schema.sql:10 (posts.body string)
+   * @chrysalis-provenance form — C:\Users\david\Downloads\PHP_converter\fixtures\tiny-blog\pages\posts_create.php:2 <textarea name="body">
    */
   body: string;
   /**
@@ -95,6 +99,7 @@ export interface Comment {
   /**
    * Declared in DDL; no observations yet. Treat as ground truth until proven otherwise.
    * @chrysalis-provenance schema — ./fixtures/tiny-blog/schema.sql:20 (comments.body string)
+   * @chrysalis-provenance form — C:\Users\david\Downloads\PHP_converter\fixtures\tiny-blog\pages\comments_create.php:2 <textarea name="body">
    */
   body: string;
   /**
@@ -103,3 +108,9 @@ export interface Comment {
    */
   created_at: string;
 }
+
+/**
+ * HTML form controls seen in PHP that could not be tied to one
+ * entity field (ambiguous table context or unknown column name).
+ */
+ // form-unattributed: body @ C:\Users\david\Downloads\PHP_converter\fixtures\tiny-blog\pages\posts_view.php:48 — ambiguous table (multiple candidates in schema or file context)

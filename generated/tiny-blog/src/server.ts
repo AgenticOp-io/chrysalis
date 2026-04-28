@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { chrysalisDeterminismMiddleware } from "./ctx.js";
 import { sqlTapeMiddleware } from "./db.js";
 import { sessionMiddleware } from "./session.js";
 
@@ -18,6 +19,18 @@ function registerRoutes(app: import("hono").Hono): void {
 
 export const app = new Hono();
 app.use("*", sqlTapeMiddleware);
+app.use("*", chrysalisDeterminismMiddleware());
 app.use("*", sessionMiddleware());
 
 registerRoutes(app);
+
+/**
+ * In-process corpus replay: build Request in this module next to app so Hono
+ * always sees a Request with a populated url (avoids tsx / loader edge cases).
+ */
+export async function chrysalisInProcessFetch(
+  url: string,
+  init?: RequestInit,
+): Promise<Response> {
+  return app.fetch(new Request(url, init ?? {}));
+}
