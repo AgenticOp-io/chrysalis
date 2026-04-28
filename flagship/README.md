@@ -86,7 +86,7 @@ larger corpora, and pipeline-owned **idiomaticity** / **residual-legacy** JSON â
 | Verify layout | Dual emit (Hono + Fastify), `VERIFY_THRESHOLD` default **0.95** + stable cross-backend report parity gate (D139) |
 | Migration JSON in CI | `reports/migration/flagship-laravel-min.json` (human + machine-readable); **`pnpm run status:laravel-min`** also writes **`idiomaticity.json`** / **`residual-legacy.json`** when emit-stats exist (D133) |
 
-**`laravel-full` templates (M4 v1):** 50 manifest routes on committed **`chrysalis-templates/`**;
+**`laravel-full` templates (M4 v1):** 52 manifest routes on committed **`chrysalis-templates/`**;
 ingest/emit parity tests expect **zero holes**; optional **`verify:laravel-full`** when the scaffolded
 Composer tree exists (see `laravel-full/README.md`). Stress replay gate:
 **`pnpm run verify:laravel-full:stress`**. Seed-variant matrix gate:

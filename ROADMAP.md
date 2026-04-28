@@ -578,7 +578,7 @@ idiomaticity / residual-legacy JSON.
       Fastify run-1 stable verify report match) plus trend-history parity carry-
       forward (`crossBackendParityOk` in streak entries), plus
       `matrixCrossBackendParityOk` on the parent JSON when the seed matrix runs, on
-      **`chrysalis-templates/`** — **fifty-one** template routes, dual emit parity tests updated.
+      **`chrysalis-templates/`** — **fifty-two** template routes, dual emit parity tests updated.
 
 **Tracker:** `flagship/README.md` and `flagship/laravel-full/README.md`.
 
@@ -751,6 +751,10 @@ residual sidecars; **no** silent best-effort translation that bypasses WebIR or 
       `data.call` → emit `JSON.stringify`; PHP arrays whose items **all** use string literal keys lower to
       `__object_literal` (computed-key object TS); mixed keys → ingest hole. Auth-probe handler uses
       idiomatic `json_encode([...])` again.
+- [x] **Socialite / Fortify oracle probe (D192):** **`GET /chrysalis-socialite-fortify-probe`** on
+      **`chrysalis-templates`** with stubs **`Laravel\Socialite\Facades\Socialite::probe`** and
+      **`Laravel\Fortify\Fortify::probe`**; ingest lowers both to string literals; verify pins JSON;
+      M6A auth route list includes the path.
 
 ---
 

@@ -42,6 +42,7 @@
  * **`GET /chrysalis-items-cte-rollup`** (twice),
  * **`GET /chrysalis-recursive-stress`** (twice),
  * **`GET /chrysalis-auth-probe`** (twice; Sanctum/OAuth stub JSON),
+ * **`GET /chrysalis-socialite-fortify-probe`** (twice; Socialite/Fortify stub JSON),
  * **`GET /chrysalis-framework`** (twice),
  * **`GET /chrysalis-session/me`** + **`GET /chrysalis-session/login`** (negative method guard) +
  * **`POST /chrysalis-session/login`** (bad username) + **`POST /chrysalis-session/login`** +
@@ -727,6 +728,14 @@ async function driveLaravelFullCorpus(port) {
       console.warn(`[verify-flagship-laravel-full] GET /chrysalis-auth-probe returned ${r.status}`);
     }
   }
+  for (let i = 0; i < 2; i++) {
+    const r = await fetch(`${base}/chrysalis-socialite-fortify-probe`);
+    if (!r.ok) {
+      console.warn(
+        `[verify-flagship-laravel-full] GET /chrysalis-socialite-fortify-probe returned ${r.status}`,
+      );
+    }
+  }
   const me0 = await fetch(`${base}/chrysalis-session/me`);
   if (!me0.ok) {
     console.warn(`[verify-flagship-laravel-full] GET /chrysalis-session/me returned ${me0.status}`);
@@ -951,6 +960,11 @@ function assertCorpusSemantics(corpus) {
     byRoute,
     "GET /chrysalis-auth-probe",
     '{"sanctum":true,"oauth":"oauth-probe-ok"}',
+  );
+  assertRouteBody(
+    byRoute,
+    "GET /chrysalis-socialite-fortify-probe",
+    '{"socialite":"socialite-probe-ok","fortify":"fortify-probe-ok"}',
   );
   assertRouteStatus(byRoute, "GET /chrysalis-session/login", 405);
   assertRouteContainsBody(byRoute, "POST /chrysalis-session/login", '{"ok":false}');

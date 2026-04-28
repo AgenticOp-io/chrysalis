@@ -488,6 +488,12 @@ function convertCall(
   if (calleePath === "League\\OAuth2\\Client\\GenericProvider::probe" && e.args.length === 0) {
     return ctx.data.literal({ value: "oauth-probe-ok", type: T.string, origin: callOrigin });
   }
+  if (calleePath === "Laravel\\Socialite\\Facades\\Socialite::probe" && e.args.length === 0) {
+    return ctx.data.literal({ value: "socialite-probe-ok", type: T.string, origin: callOrigin });
+  }
+  if (calleePath === "Laravel\\Fortify\\Fortify::probe" && e.args.length === 0) {
+    return ctx.data.literal({ value: "fortify-probe-ok", type: T.string, origin: callOrigin });
+  }
   const lowering = KNOWN_CALLS[name];
   const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
 

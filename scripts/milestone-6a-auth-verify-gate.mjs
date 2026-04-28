@@ -20,6 +20,7 @@ export const LARAVEL_FULL_AUTH_BOUNDARY_ROUTES = Object.freeze([
   "GET /chrysalis-session/logout",
   "POST /chrysalis-session/logout",
   "GET /chrysalis-auth-probe",
+  "GET /chrysalis-socialite-fortify-probe",
 ]);
 
 /**
