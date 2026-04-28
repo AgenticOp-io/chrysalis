@@ -313,15 +313,19 @@ function deleteSqlite(sid: string): void {
   }
 }
 
-let _redisClientPromise: Promise<import("redis").RedisClientType> | null = null;
-async function redisClient(): Promise<import("redis").RedisClientType> {
+function createRedisClientPromise() {
+  return (async () => {
+    const { createClient } = await import("redis");
+    const c = createClient({ url: sessionRedisUrl! });
+    await c.connect();
+    return c;
+  })();
+}
+
+let _redisClientPromise: ReturnType<typeof createRedisClientPromise> | null = null;
+async function redisClient() {
   if (_redisClientPromise === null) {
-    _redisClientPromise = (async () => {
-      const { createClient } = await import("redis");
-      const c = createClient({ url: sessionRedisUrl! });
-      await c.connect();
-      return c;
-    })();
+    _redisClientPromise = createRedisClientPromise();
   }
   return _redisClientPromise;
 }
