@@ -188,6 +188,33 @@ function stringify(v: SimValue): string {
   }
 }
 
+/** JSON.stringify-like output for `json_encode` simulation (Milestone 6A / D191). */
+function jsonEncodeSimValue(v: SimValue): string {
+  switch (v.kind) {
+    case "str":
+      return JSON.stringify(v.value);
+    case "num":
+      return JSON.stringify(v.value);
+    case "bool":
+      return JSON.stringify(v.value);
+    case "null":
+      return "null";
+    case "symbol":
+      return JSON.stringify(`{${v.tag}}`);
+    case "array": {
+      if (v.entries.length === 0) return "[]";
+      const dense0ToN = v.entries.every((e, i) => typeof e.key === "number" && e.key === i);
+      if (dense0ToN) {
+        return `[${v.entries.map((e) => jsonEncodeSimValue(e.value)).join(",")}]`;
+      }
+      const parts = v.entries.map(
+        (e) => `${JSON.stringify(String(e.key))}:${jsonEncodeSimValue(e.value)}`,
+      );
+      return `{${parts.join(",")}}`;
+    }
+  }
+}
+
 interface SimCtx {
   readonly m: Module;
   readonly input: RequestInput;
@@ -491,6 +518,23 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
         kind: "array",
         entries: args.map((v, i) => ({ key: i, value: v })),
       };
+    case "__object_literal": {
+      const entries: { key: string | number; value: SimValue }[] = [];
+      for (let i = 0; i < args.length; i += 2) {
+        const keySim = args[i] ?? { kind: "null" };
+        const valSim = args[i + 1] ?? { kind: "null" };
+        const keyStr =
+          keySim.kind === "str"
+            ? keySim.value
+            : keySim.kind === "num"
+              ? String(keySim.value)
+              : stringify(keySim);
+        entries.push({ key: keyStr, value: valSim });
+      }
+      return { kind: "array", entries };
+    }
+    case "json_encode":
+      return { kind: "str", value: jsonEncodeSimValue(args[0] ?? { kind: "null" }) };
     case "htmlspecialchars":
       return { kind: "str", value: htmlEscape(stringify(args[0] ?? { kind: "null" })) };
     case "nl2br":

@@ -745,8 +745,12 @@ residual sidecars; **no** silent best-effort translation that bypasses WebIR or 
   (stub `Illuminate\Support\Facades\Gate` in `lib/gate_facade_stub.php`); verify + M6A auth slice
   assert `allow:1` / `deny:1` bodies.
 - [x] **OAuth/Sanctum scaffold probes (D190):** **`GET /chrysalis-auth-probe`** on
-  **`chrysalis-templates`** (stubs `Laravel\Sanctum\NewAccessToken` + `League\OAuth2\Client\GenericProvider`);
-  `verify-flagship-laravel-full` captures + pins JSON; M6A auth route list includes the path.
+      **`chrysalis-templates`** (stubs `Laravel\Sanctum\NewAccessToken` + `League\OAuth2\Client\GenericProvider`);
+      `verify-flagship-laravel-full` captures + pins JSON; M6A auth route list includes the path.
+- [x] **`json_encode` + associative array lowering (D191):** single-arg `json_encode` lowers to
+      `data.call` → emit `JSON.stringify`; PHP arrays whose items **all** use string literal keys lower to
+      `__object_literal` (computed-key object TS); mixed keys → ingest hole. Auth-probe handler uses
+      idiomatic `json_encode([...])` again.
 
 ---
 

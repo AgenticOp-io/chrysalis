@@ -26,7 +26,8 @@ $c = microtime(true);
 $d = uniqid("p_", true);
 $e = microtime();
 $f = parse_url("http://example.com/p?q=1");
-echo htmlspecialchars($a . $b . $c . $d . $e . ($f["path"] ?? ""));
+$j = json_encode(["k" => "v"]);
+echo htmlspecialchars($a . $b . $c . $d . $e . ($f["path"] ?? "") . $j);
 `,
         "utf8",
       );
@@ -39,6 +40,8 @@ echo htmlspecialchars($a . $b . $c . $d . $e . ($f["path"] ?? ""));
       let uniqidTime = 0;
       let dechexCalls = 0;
       let microtimeStringCalls = 0;
+      let jsonEncodeCalls = 0;
+      let objectLiteralCalls = 0;
       for (const [, n] of mod.nodes) {
         const callee = (n.attrs as { callee?: string }).callee;
         if (n.dialect === "data" && n.op === "call" && callee === "parseUrlComponent") {
@@ -49,6 +52,12 @@ echo htmlspecialchars($a . $b . $c . $d . $e . ($f["path"] ?? ""));
         }
         if (n.dialect === "data" && n.op === "call" && callee === "microtimeString") {
           microtimeStringCalls++;
+        }
+        if (n.dialect === "data" && n.op === "call" && callee === "json_encode") {
+          jsonEncodeCalls++;
+        }
+        if (n.dialect === "data" && n.op === "call" && callee === "__object_literal") {
+          objectLiteralCalls++;
         }
         if (n.dialect === "data" && n.op === "call" && callee === "__dechex") {
           dechexCalls++;
@@ -70,6 +79,8 @@ echo htmlspecialchars($a . $b . $c . $d . $e . ($f["path"] ?? ""));
       expect(epochFloat).toBe(2);
       expect(uniqidTime).toBe(1);
       expect(dechexCalls).toBeGreaterThanOrEqual(2);
+      expect(jsonEncodeCalls).toBe(1);
+      expect(objectLiteralCalls).toBe(1);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

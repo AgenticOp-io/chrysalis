@@ -128,7 +128,8 @@ type CallLowering =
   | { kind: "php_rand" }
   | { kind: "getrandmax_builtin" }
   | { kind: "microtime_builtin" }
-  | { kind: "uniqid_builtin" };
+  | { kind: "uniqid_builtin" }
+  | { kind: "json_encode" };
 
 const KNOWN_CALLS: Record<string, CallLowering> = {
   query_all: { kind: "dbQuery", mode: "rows", tableFrom: "firstArg" },
@@ -162,6 +163,7 @@ const KNOWN_CALLS: Record<string, CallLowering> = {
   mt_getrandmax: { kind: "getrandmax_builtin" },
   microtime: { kind: "microtime_builtin" },
   uniqid: { kind: "uniqid_builtin" },
+  json_encode: { kind: "json_encode" },
 };
 
 /** Crude table guesser from a SQL literal. Used for effect tagging. */
@@ -373,12 +375,40 @@ function convertExpr(ctx: Ctx, e: PhpExpr, pathParams: RouteSpec["pathParams"]):
       });
     }
     case "Array": {
-      return ctx.data.call({
-        callee: "__array_literal",
-        args: e.items.map((it) => convertExpr(ctx, it.value, pathParams)),
-        type: T.array(T.unknown),
-        origin: loc(ctx, e.pos),
-      });
+      if (e.items.length === 0) {
+        return ctx.data.call({
+          callee: "__array_literal",
+          args: [],
+          type: T.array(T.unknown),
+          origin: loc(ctx, e.pos),
+        });
+      }
+      const allStringLiteralKeys = e.items.every(
+        (it) => it.key !== null && it.key.kind === "Literal" && it.key.literalKind === "string",
+      );
+      const allUnkeyed = e.items.every((it) => it.key === null);
+      if (allStringLiteralKeys) {
+        const flat: NodeId[] = [];
+        for (const it of e.items) {
+          flat.push(convertExpr(ctx, it.key!, pathParams));
+          flat.push(convertExpr(ctx, it.value, pathParams));
+        }
+        return ctx.data.call({
+          callee: "__object_literal",
+          args: flat,
+          type: T.unknown,
+          origin: loc(ctx, e.pos),
+        });
+      }
+      if (allUnkeyed) {
+        return ctx.data.call({
+          callee: "__array_literal",
+          args: e.items.map((it) => convertExpr(ctx, it.value, pathParams)),
+          type: T.array(T.unknown),
+          origin: loc(ctx, e.pos),
+        });
+      }
+      return hole(ctx, "array: mixed or non-string-literal keys", e.pos);
     }
     case "Call": {
       return convertCall(ctx, e, pathParams);
@@ -548,6 +578,17 @@ function convertCall(
         type: T.int,
         origin: loc(ctx, e.pos),
       });
+    case "json_encode": {
+      if (e.args.length !== 1) {
+        return hole(ctx, "json_encode:arg count", e.pos, T.string);
+      }
+      return ctx.data.call({
+        callee: "json_encode",
+        args: [args[0]!],
+        type: T.string,
+        origin: loc(ctx, e.pos),
+      });
+    }
     case "time_builtin": {
       if (e.args.length !== 0) {
         return hole(ctx, "time:args", e.pos, T.int);

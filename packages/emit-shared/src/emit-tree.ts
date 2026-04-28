@@ -380,6 +380,15 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `([${args[0]}] as unknown as unknown[])`;
     case "__array_literal":
       return `[${args.join(", ")}]`;
+    case "__object_literal": {
+      const parts: string[] = [];
+      for (let i = 0; i < args.length; i += 2) {
+        const ke = args[i];
+        const ve = args[i + 1];
+        parts.push(`[${ke ?? "null"}]: ${ve ?? "null"}`);
+      }
+      return `({ ${parts.join(", ")} })`;
+    }
     case "__dechex":
       return `(((${args[0]}) >>> 0).toString(16))`;
     case "microtimeString":
@@ -396,6 +405,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `intval(${args[0]})`;
     case "strlen":
       return `strlen(${args[0]})`;
+    case "json_encode":
+      return `JSON.stringify(${args[0]})`;
     case "preg_match":
       return `pregMatch(${args[0]}, ${args[1]})`;
     case "password_verify":

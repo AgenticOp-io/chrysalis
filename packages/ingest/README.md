@@ -35,8 +35,11 @@ a `class::method` label (not a hole; class methods are collected into call-effec
 `session_start`, `session_name`, `session_set_cookie_params` (PHP-only cookie
 setup; emitted middleware owns cookies), `$_SESSION[...]` read/write, redirects,
 `time`, `rand` family, `getrandmax`, `microtime` (float and string modes), `uniqid`
-(literal entropy flag), `parse_url` (component or full parts record). Anything else
-becomes a hole or generic call.
+(literal entropy flag), `parse_url` (component or full parts record), `json_encode`
+(single argument only — extra args / options are a hole). PHP arrays with **only**
+string literal keys lower to `__object_literal` (object-shaped JSON); unkeyed lists
+still use `__array_literal`. Mixed or non-string-literal keys become an ingest hole.
+Anything else becomes a hole or generic call.
 
 ## Non-goals
 
