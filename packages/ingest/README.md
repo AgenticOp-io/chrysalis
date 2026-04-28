@@ -22,7 +22,8 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 - Unsupported constructs never throw and never silently elide — they become
   `hole` nodes with a descriptive `reason` and typed input/output contracts
   inferred from context. When a reason clearly references auth-boundary PHP
-  (Gate, CSRF, Sanctum/Passport, …), ingest prefixes it with `auth:` (Milestone 6A).
+  (Gate, CSRF, Sanctum/Passport, Socialite/Fortify/OAuth-shaped tokens — DESIGN D189),
+  ingest prefixes it with `auth:` (Milestone 6A).
 - Ingest is deterministic: same input AST → byte-equal WebIR (modulo timestamps
   in `Module.meta`).
 

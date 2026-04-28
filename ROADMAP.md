@@ -676,29 +676,42 @@ and this roadmap section.
 
 ---
 
-## Milestone 6A — Auth boundary (scoped, deferred implementation)
+## Milestone 6A — Auth boundary
 
-**Status: scoped; first instrumentation slice landed (D183).** This is a dedicated
-follow-on track for production auth surfaces explicitly excluded from M4/M5 owned parity scope.
+**Status: widened charter (D189).** Flagship **laravel-min** + **laravel-full** pilots remain the
+baseline oracle + dual-backend gates (D188). The milestone **now owns** the Laravel-first-party
+auth/adoption slice end-to-end **subject to DESIGN §3 oracle validation** — not merely procedural
+login stubs.
 
-**Scope (owned):**
-- rotating CSRF internals and token lifecycle semantics
-- framework auth gateways/guards where they influence request authz/authn flow
-- MFA/OAuth boundary handling required for parity claims
+**Scope (owned — D189):**
+- Session-bound identity flows plus **POST negatives** (CSRF/credentials/password), logout,
+  session-bound **`me`/identity reads** — gated today via **`milestone-6a-auth-verify-gate.mjs`**
+- **`Gate` / policies / `Authorization`** call sites — WebIR lowering where feasible;
+  otherwise **`auth:`** holes / **`auth:` unresolved emits** until oracle-backed fixtures land
+- **Sanctum / Passport / PAT / token guards** — explicit **`auth:`** tagging + residual metrics;
+  parity claims require traces, not source-only stubs
+- **Fortify / Breeze / Socialite / OAuth2-shaped surfaces** — inherit the same hole-first policy;
+  widening commits Chrysalis to **tracking + fixtures + metrics**, not silent vendor emulation
+- Rotating **CSRF/session token lifecycle** semantics where captured by oracle replay
 
-**Scope (still out for now):**
-- bespoke identity-provider integrations not represented in fixture/scaffold corpora
-- proprietary enterprise auth middleware with no reproducible oracle corpus
+**Scope (explicit exclusions — unchanged principles):**
+- Handler output **without** oracle-backed verification for emitted TS (DESIGN §3)
+- MFA/device cryptographic ceremonies **without** a reproducible corpus — emit **`auth:`** holes
+- Proprietary stacks **until** the operator attaches an **`observe`-compatible NDJSON corpus**
+  (same rule as other Chimera adoption tracks)
 
-**Hole policy:** when auth internals are encountered outside current owned slice,
-emit explicit auth-labeled holes and surface them in residual-legacy reporting;
-do not silently best-guess.
+**Hole policy:** unsupported constructs remain **`auth:`-labeled holes** (ingest + emit) and appear in
+residual sidecars; **no** silent best-effort translation that bypasses WebIR or weakens dual-stack honesty.
 
-**Success metrics (entry criteria to mark complete):**
-- representative oracle corpus includes auth boundary positive + negative traces
-- verify replay keeps correctness gate for auth routes at target threshold
-- residual-legacy report shows explicit auth-hole closure trend
-- docs/README parity scope statements updated to reflect what is now owned
+**Success metrics (owned slice — flagship pilots):**
+- [x] representative oracle corpus includes auth boundary positive + negative traces
+      (**laravel-min**: CSRF/password/credential negatives + login/logout/session/me;
+      **laravel-full scaffold**: session login/me/logout Chrysalis routes — captured before ingest)
+- [x] verify replay keeps correctness gate for auth routes at target threshold (aggregate gate plus
+      explicit **auth-route subset gate** at `VERIFY_THRESHOLD` — D188)
+- [x] residual-legacy report exposes paired emit + ingest auth-hole counts (`authEmitHoleMax`,
+      `authIngestHoleMax`) for closure trending — D188
+- [x] flagship README + DESIGN decision log state parity scope vs backlog (D188)
 
 **Checklist (incremental):**
 - [x] **Auth-tagged emit holes + migration sidecar (D183):** unresolved `data.call`
@@ -715,6 +728,23 @@ do not silently best-guess.
   passes through `authTaggedHoleReason` so static unknowns that mention
   auth-boundary symbols (e.g. `facades\Gate`, CSRF) are tagged consistently with
   emit-time auth holes; `@chrysalis/emit-shared` re-exports the helper from webir.
+- [x] **Ingest `auth:` e2e + static detail (D186):** glayzzle static `Unknown` detail
+  lists bound names; `fixtures/auth-tag-probe` + `auth-tagging-integration.test.ts`
+  assert a `data.hole` with an `auth:`-prefixed reason for a `static $csrfToken` site.
+- [x] **Ingest auth hole count in status/ingest (D187):** `countAuthTaggedHoles` in
+  `@chrysalis/webir`; `chrysalis status --json` → `migration.coverage.authHoles`
+  and human line; `chrysalis ingest` parenthetical when count is non-zero.
+- [x] **Flagship auth-route verify gate + ingest residual snapshot (D188):**
+  `scripts/milestone-6a-auth-verify-gate.mjs`; laravel-min + laravel-full verify scripts
+  enforce threshold on auth oracle slice; emit-stats carries `ingest.{holes,authHoles}`;
+  `residual-legacy.json` adds `authIngestHoleMax`; `chrysalis status` surfaces
+  `migration.authIngestHoleMax`.
+- [x] **Widened heuristic labeling (D189 foundation):** `@chrysalis/webir` `isAuthBoundaryCallee`
+  includes Socialite/Fortify/OAuth-shaped callee token substrings (ingest + emit tagging).
+- [ ] **Gate/policy oracle probes:** add reproducible flagship routes + corpus traces that exercise
+  `Gate`/policy **`allows`** / **`denies`** shapes before claiming lowered parity (depends on pilot placement).
+- [ ] **OAuth/Sanctum scaffold probes:** extend **`laravel-full` templates** + verify harness when
+  stable redirect/token oracle shapes exist (Socialite/OAuth routes remain **`auth:` holes** until then).
 
 ---
 

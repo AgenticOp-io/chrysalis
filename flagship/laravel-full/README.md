@@ -5,6 +5,8 @@ This directory is **documentation and templates only**. It does **not** ship a
 the **Milestone 5** canonical full Laravel tree (gitignored; CI-gated). Use **`laravel-min`**
 alongside it as the Laravel-shaped fast fixture until those harnesses are consolidated.
 
+**Milestone 6A:** once scaffolded, **`pnpm run verify:laravel-full`** applies **`VERIFY_THRESHOLD`** to the full corpus and to the Chrysalis **session auth slice** (`GET/POST …/chrysalis-session/login`, `GET …/me`, `GET/POST …/logout`) via **`scripts/milestone-6a-auth-verify-gate.mjs`** (D188). See **`flagship/laravel-min/README.md`** for the complementary procedural-login oracle.
+
 ## Why Chrysalis needs explicit route files
 
 `chrysalis ingest` reads **`chrysalis.routes.json`** at the project root. Each

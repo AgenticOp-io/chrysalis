@@ -178,6 +178,16 @@ export function writeMigrationSidecars(repoRoot, spec) {
     authHoleCountFromEmitterStats(stats.fastify),
   );
   const authLegacyRequestPct = authLegacyRequestPctFromEmitStats(stats.manifestRoutes, maxAuthHoles) ?? 0;
+  /** @type {number | null} */
+  let authIngestHoleMax = null;
+  if (
+    stats.ingest != null &&
+    typeof stats.ingest === "object" &&
+    typeof stats.ingest.authHoles === "number" &&
+    Number.isFinite(stats.ingest.authHoles)
+  ) {
+    authIngestHoleMax = Math.max(0, Math.floor(stats.ingest.authHoles));
+  }
   const residual = {
     legacyRequestPct,
     pilot: spec.pilot,
@@ -187,9 +197,11 @@ export function writeMigrationSidecars(repoRoot, spec) {
     authLegacyRequestPct,
     authEmitHoleMax: maxAuthHoles,
     authDefinition: "emit-auth-hole-density-vs-manifest-routes",
+    authIngestHoleMax,
+    authIngestDefinition: "ingest-auth-tagged-data.hole-count-snapshot-at-verify",
     source: spec.emitStatsFilename,
     notes:
-      "Oracle capture in this pipeline is 100% PHP docroot; this metric indexes emit-time holes vs manifest route count, not chimera production traffic (DESIGN.md success metrics).",
+      "Oracle capture in this pipeline is 100% PHP docroot; this metric indexes emit-time holes vs manifest route count, not chimera production traffic (DESIGN.md success metrics). authIngestHoleMax (D188) counts WebIR ingest holes whose reason starts with auth:, captured alongside emit stats for closure trending vs emit auth holes.",
     schema: "chrysalis/migration-residual-legacy/1",
   };
   writeFileSync(join(migrationDir, "residual-legacy.json"), `${JSON.stringify(residual, null, 2)}\n`);

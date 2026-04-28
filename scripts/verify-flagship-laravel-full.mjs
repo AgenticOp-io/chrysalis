@@ -92,7 +92,15 @@ import {
 } from "../packages/verify/dist/index.js";
 import { emit as emitHono } from "../packages/emit-hono/dist/index.js";
 import { emit as emitFastify } from "../packages/emit-fastify/dist/index.js";
+import {
+  countAuthTaggedHoles as countWebirAuthTaggedHoles,
+  countHoles as countWebirHoles,
+} from "../packages/webir/dist/index.js";
 import { countAuthTaggedHoles } from "./flagship-migration-metrics.mjs";
+import {
+  LARAVEL_FULL_AUTH_BOUNDARY_ROUTES,
+  authBoundaryReplayRollup,
+} from "./milestone-6a-auth-verify-gate.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const scriptPath = fileURLToPath(import.meta.url);
@@ -246,6 +254,10 @@ mkdirSync(migrationReportsDir, { recursive: true });
 const emitStatsPayload = {
   schema: "chrysalis/flagship-laravel-full-emit-stats/1",
   manifestRoutes,
+  ingest: {
+    holes: countWebirHoles(webirModule),
+    authHoles: countWebirAuthTaggedHoles(webirModule),
+  },
   hono: {
     holes: resH.holes.length,
     authHoles: countAuthTaggedHoles(resH.holes),
@@ -332,6 +344,24 @@ for (const b of backends) {
       );
       exitCode = 1;
     }
+
+    const authRollup = authBoundaryReplayRollup(report, LARAVEL_FULL_AUTH_BOUNDARY_ROUTES);
+    if (authRollup.missingRoutes.length > 0) {
+      console.error(
+        `[verify-flagship-laravel-full] Milestone 6A auth corpus incomplete [${b.id} run ${run}]: missing routes ${authRollup.missingRoutes.join(", ")}`,
+      );
+      exitCode = 1;
+    } else if (authRollup.framesTotal > 0 && authRollup.correctness + 1e-9 < THRESHOLD) {
+      console.error(
+        `[verify-flagship-laravel-full] Milestone 6A auth-route correctness ${authRollup.correctness.toFixed(3)} below threshold ${THRESHOLD} (${authRollup.framesPassed}/${authRollup.framesTotal} frames) [${b.id} run ${run}]`,
+      );
+      exitCode = 1;
+    } else if (authRollup.framesTotal > 0) {
+      console.log(
+        `[verify-flagship-laravel-full] Milestone 6A auth-route gate OK: ${(authRollup.correctness * 100).toFixed(1)}% (${authRollup.framesPassed}/${authRollup.framesTotal}) [${b.id} run ${run}]`,
+      );
+    }
+
     minCorrectness = Math.min(minCorrectness, report.aggregate.correctness);
     maxCorrectness = Math.max(maxCorrectness, report.aggregate.correctness);
   }

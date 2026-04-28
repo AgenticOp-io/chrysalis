@@ -11,7 +11,8 @@ Subcommands (some are Milestone 1 stubs):
 
 - `chrysalis init <dir>` — mark a directory as a Chrysalis project
 - `chrysalis observe` — run the oracle sidecar against a live PHP app
-- `chrysalis ingest` — PHP source → WebIR module on disk
+- `chrysalis ingest` — PHP source → WebIR module on disk; prints auth-tagged
+  ingest hole count when non-zero (6A)
 - `chrysalis archaeology` — recover schema from DB + traces + optional PHP form scan (`--php-root <dir>`, repeatable)
 - `chrysalis emit --target=hono|fastify` — WebIR → generated project
 - `chrysalis verify` — replay oracle traces against the generated code
@@ -24,7 +25,11 @@ Subcommands (some are Milestone 1 stubs):
   writes `reports/oracle-footprint.json`. Correctness from `--report`, optional
   `reports/migration/*.json` sidecars (`--migration-reports <dir>`); when
   `residual-legacy.json` includes 6A fields, `migration` also surfaces
-  `authResidualLegacyRequestPct` and `authEmitHoleMax`
+  `authResidualLegacyRequestPct` and `authEmitHoleMax`; with `--project`,
+  `migration.coverage.authHoles` counts ingest holes whose reason starts with
+  `auth:` (parallel to emit-stats auth holes); optional **`migration.authIngestHoleMax`**
+  mirrors **`residual-legacy.json`** after flagship verify (paired with emit-side
+  **`authEmitHoleMax`**); the human migration line rolls emit + ingest counts into the auth row when non-zero
 - `chrysalis repair <traces-dir> --base-url <url> --project <php-root>` —
   verify-gated repair (`@chrysalis/repair`): default stub proposer; optional
   `--llm` + `CHRYSALIS_REPAIR_LLM_API_KEY`; `--hole-patch <file.json>` for signed

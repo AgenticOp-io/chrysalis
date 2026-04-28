@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { ingestDirectory } from "@chrysalis/ingest";
 import {
   computeOracleFootprint,
+  countAuthTaggedHoles,
   countByDialect,
   countHoles,
   irCoverageStats,
@@ -147,7 +148,12 @@ async function cmdIngest(args: string[]): Promise<number> {
   const mod = await ingestDirectory(resolve(root));
   console.log(`routes:   ${mod.roots.length}`);
   console.log(`nodes:    ${mod.nodes.size}`);
-  console.log(`holes:    ${countHoles(mod)}`);
+  const holes = countHoles(mod);
+  const authTagged = countAuthTaggedHoles(mod);
+  console.log(
+    `holes:    ${holes}` +
+      (authTagged > 0 ? `  (${authTagged} auth-tagged ingest holes)` : ""),
+  );
   console.log(`dialects: ${JSON.stringify(countByDialect(mod))}`);
   return 0;
 }
@@ -1222,13 +1228,15 @@ interface StatusSummary {
    * Milestone 4 dashboard roll-up (DESIGN success metrics). Optional sidecars:
    * `reports/migration/idiomaticity.json` `{ "pct": 0..1 }`,
    * `residual-legacy.json` `{ "legacyRequestPct": 0..100 }` plus optional Milestone 6A
-   * fields `authLegacyRequestPct`, `authEmitHoleMax` (see D183).
+   * fields `authLegacyRequestPct`, `authEmitHoleMax`, `authIngestHoleMax` (D188).
    */
   migration: {
     readonly coverage: {
       readonly pct: number;
       readonly nodes: number;
       readonly holes: number;
+      /** WebIR ingest: `data.hole` reasons with `auth:` prefix (Milestone 6A). */
+      readonly authHoles: number;
     } | null;
     readonly correctness: number | null;
     readonly idiomaticity: number | null;
@@ -1237,6 +1245,8 @@ interface StatusSummary {
     readonly authResidualLegacyRequestPct: number | null;
     /** Max auth-tagged emit holes across Hono/Fastify (when sidecar lists it). */
     readonly authEmitHoleMax: number | null;
+    /** Ingest `auth:`-tagged `data.hole` count from flagship verify emit-stats snapshot. */
+    readonly authIngestHoleMax: number | null;
   };
 }
 
@@ -1367,6 +1377,7 @@ async function cmdStatus(args: string[]): Promise<number> {
       residualLegacyRequestPct: null,
       authResidualLegacyRequestPct: null,
       authEmitHoleMax: null,
+      authIngestHoleMax: null,
     },
   };
 
@@ -1533,12 +1544,18 @@ async function cmdStatus(args: string[]): Promise<number> {
     legacyRequestPct: number;
     authLegacyRequestPct?: number;
     authEmitHoleMax?: number;
+    authIngestHoleMax?: number | null;
   }>(join(migrationReportsDir, "residual-legacy.json"));
   summary.migration = {
     coverage: ingestedMod
       ? (() => {
           const s = irCoverageStats(ingestedMod);
-          return { pct: s.coverage, nodes: s.nodeCount, holes: s.holeCount };
+          return {
+            pct: s.coverage,
+            nodes: s.nodeCount,
+            holes: s.holeCount,
+            authHoles: countAuthTaggedHoles(ingestedMod),
+          };
         })()
       : null,
     correctness: summary.correctness?.aggregate ?? null,
@@ -1570,6 +1587,14 @@ async function cmdStatus(args: string[]): Promise<number> {
       Number.isInteger(residualLegacyJson.authEmitHoleMax) &&
       residualLegacyJson.authEmitHoleMax >= 0
         ? residualLegacyJson.authEmitHoleMax
+        : null,
+    authIngestHoleMax:
+      residualLegacyJson != null &&
+      typeof residualLegacyJson.authIngestHoleMax === "number" &&
+      Number.isFinite(residualLegacyJson.authIngestHoleMax) &&
+      Number.isInteger(residualLegacyJson.authIngestHoleMax) &&
+      residualLegacyJson.authIngestHoleMax >= 0
+        ? residualLegacyJson.authIngestHoleMax
         : null,
   };
 
@@ -1692,7 +1717,9 @@ async function cmdStatus(args: string[]): Promise<number> {
   const mig = summary.migration;
   const covStr =
     mig.coverage != null
-      ? `${(mig.coverage.pct * 100).toFixed(1)}% (${mig.coverage.nodes} nodes, ${mig.coverage.holes} holes)`
+      ? `${(mig.coverage.pct * 100).toFixed(1)}% (${mig.coverage.nodes} nodes, ${mig.coverage.holes} holes` +
+          (mig.coverage.authHoles > 0 ? `, ${mig.coverage.authHoles} auth-tagged` : "") +
+          ")"
       : "— (pass --project for IR coverage)";
   const corrStr =
     mig.correctness != null ? `${(mig.correctness * 100).toFixed(1)}%` : "—";
@@ -1703,11 +1730,14 @@ async function cmdStatus(args: string[]): Promise<number> {
     residualParts.push(`${mig.residualLegacyRequestPct.toFixed(1)}% legacy-req`);
   }
   if (mig.authResidualLegacyRequestPct != null) {
-    const holeMax =
-      mig.authEmitHoleMax != null && mig.authEmitHoleMax > 0
-        ? ` (max ${mig.authEmitHoleMax} auth-tagged emit holes)`
-        : "";
-    residualParts.push(`auth ${mig.authResidualLegacyRequestPct.toFixed(1)}%${holeMax}`);
+    const bits: string[] = [`${mig.authResidualLegacyRequestPct.toFixed(1)}%`];
+    if (mig.authEmitHoleMax != null && mig.authEmitHoleMax > 0) {
+      bits.push(`emit max ${mig.authEmitHoleMax}`);
+    }
+    if (mig.authIngestHoleMax != null && mig.authIngestHoleMax > 0) {
+      bits.push(`ingest auth ${mig.authIngestHoleMax}`);
+    }
+    residualParts.push(`auth ${bits.join(" · ")}`);
   }
   const resStr = residualParts.length > 0 ? residualParts.join("  ") : "—";
   console.log(

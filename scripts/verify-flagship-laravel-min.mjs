@@ -22,7 +22,13 @@
  * verify-tiny-blog.mjs).
  *
  * Writes **`reports/migration/flagship-laravel-min-emit-stats.json`** for
- * **`pnpm run status:laravel-min`** → **`scripts/flagship-migration-metrics.mjs`**.
+ * **`pnpm run status:laravel-min`** → **`scripts/flagship-migration-metrics.mjs`**
+ * (includes **`ingest.holes` / `ingest.authHoles`** for residual sidecars, D188).
+ *
+ * **Milestone 6A:** after each backend replay, enforces the same **`VERIFY_THRESHOLD`**
+ * on the auth-boundary route subset defined in **`milestone-6a-auth-verify-gate.mjs`**
+ * (`GET/POST /login`, `POST /logout`, `GET /session/me`) and fails if any required
+ * route is missing from the corpus.
  */
 
 import { execSync } from "node:child_process";
@@ -47,7 +53,15 @@ import {
 } from "../packages/verify/dist/index.js";
 import { emit as emitHono } from "../packages/emit-hono/dist/index.js";
 import { emit as emitFastify } from "../packages/emit-fastify/dist/index.js";
+import {
+  countAuthTaggedHoles as countWebirAuthTaggedHoles,
+  countHoles as countWebirHoles,
+} from "../packages/webir/dist/index.js";
 import { countAuthTaggedHoles } from "./flagship-migration-metrics.mjs";
+import {
+  LARAVEL_MIN_AUTH_BOUNDARY_ROUTES,
+  authBoundaryReplayRollup,
+} from "./milestone-6a-auth-verify-gate.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "..");
@@ -128,6 +142,10 @@ mkdirSync(migrationReportsDir, { recursive: true });
 const emitStatsPayload = {
   schema: "chrysalis/flagship-laravel-min-emit-stats/1",
   manifestRoutes,
+  ingest: {
+    holes: countWebirHoles(webirModule),
+    authHoles: countWebirAuthTaggedHoles(webirModule),
+  },
   hono: {
     holes: resH.holes.length,
     authHoles: countAuthTaggedHoles(resH.holes),
@@ -190,6 +208,24 @@ for (const b of backends) {
   console.log(
     `[verify-flagship] ${b.id} aggregate: ${(report.aggregate.correctness * 100).toFixed(1)}%  (${report.aggregate.framesPassed}/${report.aggregate.framesTotal})`,
   );
+
+  const authRollup = authBoundaryReplayRollup(report, LARAVEL_MIN_AUTH_BOUNDARY_ROUTES);
+  if (authRollup.missingRoutes.length > 0) {
+    console.error(
+      `[verify-flagship] Milestone 6A auth corpus incomplete [${b.id}]: missing routes ${authRollup.missingRoutes.join(", ")}`,
+    );
+    exitCode = 1;
+  } else if (authRollup.framesTotal > 0 && authRollup.correctness + 1e-9 < THRESHOLD) {
+    console.error(
+      `[verify-flagship] Milestone 6A auth-route correctness ${authRollup.correctness.toFixed(3)} below threshold ${THRESHOLD} (${authRollup.framesPassed}/${authRollup.framesTotal} frames) [${b.id}]`,
+    );
+    exitCode = 1;
+  } else if (authRollup.framesTotal > 0) {
+    console.log(
+      `[verify-flagship] Milestone 6A auth-route gate OK: ${(authRollup.correctness * 100).toFixed(1)}% (${authRollup.framesPassed}/${authRollup.framesTotal}) [${b.id}]`,
+    );
+  }
+
   backendSummaries.push({
     backend: b.id,
     stableFingerprint: stableReportFingerprint(report),

@@ -1,0 +1,11 @@
+{
+  "app": "auth-tag-probe",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/probe",
+      "file": "pages/probe.php",
+      "pathParams": []
+    }
+  ]
+}

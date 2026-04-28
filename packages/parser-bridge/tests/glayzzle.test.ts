@@ -136,4 +136,15 @@ class UserRepo {
       .sort();
     expect(names).toEqual(["Acme\\Repo\\UserRepo::row"]);
   });
+
+  test("top-level static var Unknown lists variable names in detail", async () => {
+    const ast = await parseSource(`<?php
+static $csrfToken = 1;
+`);
+    expect(ast.statements).toHaveLength(1);
+    const st = ast.statements[0];
+    expect(st?.kind).toBe("Unknown");
+    if (st?.kind !== "Unknown") return;
+    expect(st.detail).toBe("static variable declaration ($csrfToken)");
+  });
 });

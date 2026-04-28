@@ -21,6 +21,9 @@ reports/
 tmp/
 tmp-emit-out/
 
+# Local scratch emits (not CI fixtures)
+generated/tmp-*/
+
 # Generated artifacts (output of `chrysalis emit`, reproducible from the pipeline)
 generated/**/package-lock.json
 generated/**/*.sqlite

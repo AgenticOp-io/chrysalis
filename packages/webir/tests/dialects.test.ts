@@ -3,6 +3,7 @@ import {
   ModuleBuilder,
   T,
   countByDialect,
+  countAuthTaggedHoles,
   countHoles,
   irCoverageStats,
   dataDialect,
@@ -340,6 +341,19 @@ describe("webir module builder", () => {
       count += 1;
     });
     expect(count).toBe(3);
+  });
+
+  test("countAuthTaggedHoles only counts data.hole with auth-prefixed reason", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    b.addRoot(d.hole({ reason: "plain", input: T.unknown, output: T.string, origin }));
+    b.addRoot(
+      d.hole({ reason: "auth:static x", input: T.unknown, output: T.void, origin }),
+    );
+    const mod = b.finish();
+    expect(countHoles(mod)).toBe(2);
+    expect(countAuthTaggedHoles(mod)).toBe(1);
   });
 
   test("irCoverageStats counts holes vs reachable nodes", () => {

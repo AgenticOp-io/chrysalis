@@ -6,6 +6,9 @@ describe("auth-boundary helpers (6A)", () => {
     expect(isAuthBoundaryCallee("auth")).toBe(true);
     expect(isAuthBoundaryCallee("\\Illuminate\\Support\\Facades\\Gate::allows")).toBe(true);
     expect(isAuthBoundaryCallee("csrf_token")).toBe(true);
+    expect(isAuthBoundaryCallee("\\Laravel\\Socialite\\Facades\\Socialite::driver")).toBe(true);
+    expect(isAuthBoundaryCallee("\\Laravel\\Fortify\\Fortify::bootstrap")).toBe(true);
+    expect(isAuthBoundaryCallee("\\League\\OAuth2\\Server\\AuthorizationServer")).toBe(true);
     expect(isAuthBoundaryCallee("query_one")).toBe(false);
   });
 

@@ -19,7 +19,10 @@ Chrysalis that knows about PHP's parse syntax.
   `nikic/php-parser` subprocess path is planned for parity corpora. The glayzzle
   AST flattens `namespace` blocks, qualifies top-level `FunctionDecl` names, and
   emits synthetic `FunctionDecl` entries for top-level static class methods as
-  `Ns\Class::method` so ingest call-effect maps align with FQN PHP calls.
+  `Ns\Class::method` so ingest call-effect maps align with FQN PHP calls; for
+  function- or top-level `static $x` declarations that stay `Unknown`, the detail
+  text lists the bound names (e.g. `static variable declaration ($csrfToken)`) so
+  ingest can run auth-adjacent hole tagging on the reason string.
 - The AST JSON schema is pinned and tested via golden fixtures. Bumping the
   PHP-side parser version requires regenerating fixtures.
 - The bridge is stateless. Each call is an isolated subprocess or a pooled

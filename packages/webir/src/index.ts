@@ -123,7 +123,14 @@ export {
   synthetic,
 } from "./builder.js";
 export { IdGen } from "./ids.js";
-export { allNodes, countByDialect, countHoles, irCoverageStats, walk } from "./visit.js";
+export {
+  allNodes,
+  countAuthTaggedHoles,
+  countByDialect,
+  countHoles,
+  irCoverageStats,
+  walk,
+} from "./visit.js";
 export { isAuthBoundaryCallee, authTaggedHoleReason } from "./auth-boundary.js";
 export { computeOracleFootprint, type OracleFootprint, type RouteOracleFootprint } from "./oracle-footprint.js";
 export { moduleToGoldenSnapshot, type GoldenSnapshotOptions } from "./snapshot.js";

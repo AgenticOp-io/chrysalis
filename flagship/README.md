@@ -13,6 +13,11 @@ dynamics.
 
 ## Metrics
 
+**Milestone 6A (widened charter, DESIGN D189):** residual migration JSON pairs **`authEmitHoleMax`**
+(emit) with **`authIngestHoleMax`** (ingest snapshot) so Laravel **`Gate`/Sanctum/OAuth/Socialite**
+surfaces — tracked as **`auth:`** holes/calls until oracle-backed lowering ships — show closure trends
+alongside legacy density.
+
 Run the unified dashboard (four DESIGN success metrics roll up under
 `migration`):
 

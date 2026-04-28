@@ -5,6 +5,13 @@
 **`../chrysalis-laravel-work/`** — run **`pnpm run scaffold:laravel-full`** from the repo root (see
 **`../laravel-full/README.md`** and `DESIGN.md` D84).
 
+**Milestone 6A (auth boundary — owned slice):** `scripts/verify-flagship-laravel-min.mjs` is the
+**representative oracle** for session + **CSRF + password + empty-credential negatives** on
+`GET/POST /login`, `POST /logout`, and `GET /session/me`. CI applies `VERIFY_THRESHOLD` to the **full**
+replay report and to a **fixed auth-route subset** (`milestone-6a-auth-verify-gate.mjs`, D188).
+Full Sanctum/MFA/OAuth translation is **not** claimed here; this pilot only gates the procedural
+auth surface Chrysalis already models in ingest/emit.
+
 **Credentials (fixture only):** user `flagship`, password `secret`, CSRF body field
 `csrf=flagship_csrf_static` — for oracle/verify and local smoke tests, not real
 secrets.

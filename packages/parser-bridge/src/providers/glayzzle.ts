@@ -296,7 +296,21 @@ function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNod
       // `static $x = ...;` — function-scoped persistence. A faithful TS
       // equivalent requires module-scoped mutable state with initialization
       // guard. Marking as Unknown for now; ingest will lower this to a hole.
-      return unknownStmt(file, node, "static variable declaration");
+      // Include bound variable names so `authTaggedHoleReason` can tag auth-
+      // related statics (e.g. `$csrfToken`) without widening the generic text.
+      const vars = Array.isArray(node.variables) ? (node.variables as AnyNode[]) : [];
+      const names: string[] = [];
+      for (const item of vars) {
+        const v = (item as AnyNode).variable as AnyNode | undefined;
+        if (v?.kind === "variable") {
+          names.push(String(v.name ?? ""));
+        }
+      }
+      const detail =
+        names.length > 0
+          ? `static variable declaration ($${names.join(", $")})`
+          : "static variable declaration";
+      return unknownStmt(file, node, detail);
     }
     case "declare": {
       // `declare(strict_types=1);` — PHP runtime typing; WebIR uses explicit

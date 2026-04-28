@@ -39,6 +39,17 @@ export function countHoles(m: Module): number {
   return n;
 }
 
+/** Count ingest `data.hole` nodes tagged for the auth-boundary track (`attrs.reason` starts with `auth:`). */
+export function countAuthTaggedHoles(m: Module): number {
+  let n = 0;
+  walk(m, (node) => {
+    if (node.dialect !== "data" || node.op !== "hole") return;
+    const r = node.attrs.reason;
+    if (typeof r === "string" && r.startsWith("auth:")) n += 1;
+  });
+  return n;
+}
+
 /**
  * IR-level **coverage** (Milestone 4 / DESIGN success metrics): fraction of
  * reachable nodes that are not `data.hole`. Uses the same root-walk as

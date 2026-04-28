@@ -10,6 +10,10 @@ export function isAuthBoundaryCallee(callee: string): boolean {
   if (lower === "auth") return true;
   if (lower.includes("csrf")) return true;
   if (lower.includes("sanctum") || lower.includes("passport")) return true;
+  // Laravel OAuth / login scaffolding (widened Milestone 6A charter — DESIGN D189).
+  if (lower.includes("socialite")) return true;
+  if (lower.includes("fortify")) return true;
+  if (lower.includes("oauth")) return true;
   if (
     lower.includes("gate::") ||
     lower.includes("\\gate\\") ||

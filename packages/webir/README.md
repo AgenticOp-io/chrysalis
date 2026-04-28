@@ -14,8 +14,10 @@ visitor/pass infrastructure, and provenance model.
   - `dialects/web-request` — routes, handlers, request/response shapes
   - `dialects/effect` — `DB.read`, `DB.write`, `Mail.send`, `Session.*`, `Time.*`, `Random.*`, `Http.fetch`, `Cache.*`
   - `dialects/data` — SSA dataflow over scalars, records, arrays, sums
-- `visit`, `rewrite`, `fold` — pure visitor helpers; `irCoverageStats` for
-  non-hole fraction over reachable nodes (Milestone 4 dashboard)
+- `visit`, `rewrite`, `fold` — pure visitor helpers; `countHoles` /
+  `countAuthTaggedHoles` (6A: `data.hole` with `auth:`-prefixed reason) /
+  `irCoverageStats` for non-hole fraction over reachable nodes (Milestone 4
+  dashboard)
 - `computeOracleFootprint` — per-route static summary of oracle/replay
   dimensions (time, RNG, DB read/write table hints, session, outbound I/O,
   cache, filesystem, holes) and a hydration index for status/CI
@@ -30,7 +32,8 @@ visitor/pass infrastructure, and provenance model.
   widening fallback when any branch is unresolved.
 - `Module` — a WebIR compilation unit
 - `isAuthBoundaryCallee` / `authTaggedHoleReason` (`auth-boundary.ts`) — shared
-  Milestone 6A heuristics; ingest applies `authTaggedHoleReason` to every `data.hole`
+  Milestone 6A heuristics (Gate/auth/csrf/Sanctum/Passport/Socialite/Fortify/OAuth tokens —
+  widening D189); ingest applies `authTaggedHoleReason` to every `data.hole`
   reason string; emit tags unresolved auth-related `data.call` callees the same way.
 
 ## Invariants

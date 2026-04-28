@@ -7,10 +7,37 @@ import { beforeAll, describe, expect, it } from "vitest";
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "../../..");
 const metricsHref = pathToFileURL(join(repoRoot, "scripts/flagship-migration-metrics.mjs")).href;
+const milestone6aGateHref = pathToFileURL(join(repoRoot, "scripts/milestone-6a-auth-verify-gate.mjs")).href;
 
 async function loadMetrics() {
   return import(metricsHref) as Promise<typeof import("../../../scripts/flagship-migration-metrics.mjs")>;
 }
+
+describe("milestone-6a-auth-verify-gate.mjs", () => {
+  it("authBoundaryReplayRollup sums frames for listed routes only", async () => {
+    const g = await import(milestone6aGateHref);
+    const report = {
+      endpoints: [
+        { route: "POST /login", framesTotal: 2, framesPassed: 2 },
+        { route: "GET /login", framesTotal: 1, framesPassed: 0 },
+        { route: "GET /other", framesTotal: 99, framesPassed: 99 },
+      ],
+    };
+    const r = g.authBoundaryReplayRollup(report, ["POST /login", "GET /login"]);
+    expect(r.framesTotal).toBe(3);
+    expect(r.framesPassed).toBe(2);
+    expect(r.correctness).toBeCloseTo(2 / 3, 5);
+    expect(r.missingRoutes).toEqual([]);
+  });
+
+  it("authBoundaryReplayRollup reports missing route keys", async () => {
+    const g = await import(milestone6aGateHref);
+    const report = { endpoints: [{ route: "GET /x", framesTotal: 1, framesPassed: 1 }] };
+    const r = g.authBoundaryReplayRollup(report, ["POST /login"]);
+    expect(r.missingRoutes).toEqual(["POST /login"]);
+    expect(r.framesTotal).toBe(0);
+  });
+});
 
 describe("flagship-migration-metrics.mjs", () => {
   let m: Awaited<ReturnType<typeof loadMetrics>>;
@@ -74,6 +101,7 @@ describe("flagship-migration-metrics.mjs", () => {
           {
             schema: "chrysalis/flagship-laravel-full-emit-stats/1",
             manifestRoutes: 4,
+            ingest: { holes: 40, authHoles: 2 },
             hono: { holes: 1, authHoles: 1, handlerCount: 4 },
             fastify: { holes: 0, authHoles: 0, handlerCount: 4 },
           },
@@ -98,6 +126,7 @@ describe("flagship-migration-metrics.mjs", () => {
       expect(res.legacyRequestPct).toBeCloseTo(25, 5);
       expect(res.authLegacyRequestPct).toBeCloseTo(25, 5);
       expect(res.authEmitHoleMax).toBe(1);
+      expect(res.authIngestHoleMax).toBe(2);
       expect(res.authDefinition).toBe("emit-auth-hole-density-vs-manifest-routes");
       expect(res.definition).toBe("emit-hole-density-vs-manifest-routes");
       expect(res.pilot).toBe("laravel-full");
@@ -117,6 +146,7 @@ describe("flagship-migration-metrics.mjs", () => {
           {
             schema: "chrysalis/flagship-laravel-min-emit-stats/1",
             manifestRoutes: 2,
+            ingest: { holes: 200, authHoles: 0 },
             hono: { holes: 0, authHoles: 0, handlerCount: 2 },
             fastify: { holes: 0, authHoles: 0, handlerCount: 2 },
           },
@@ -140,6 +170,7 @@ describe("flagship-migration-metrics.mjs", () => {
       expect(res.legacyRequestPct).toBe(0);
       expect(res.authLegacyRequestPct).toBe(0);
       expect(res.authEmitHoleMax).toBe(0);
+      expect(res.authIngestHoleMax).toBe(0);
       expect(res.pilot).toBe("laravel-min");
     } finally {
       rmSync(dir, { recursive: true, force: true });
