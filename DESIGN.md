@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D227 (machine JSON docs: root README table + CLI/verify README + ingest export `normalizeDbFactoryCalleeLabel`); D226 (`migration-debt --json-out` `kind`/`schemaVersion`/`toolVersion`); D225 (`fixtures/laravel-shaped-db-factory-probe` + FQN `dbFactoryReturnCallees` docs); D224 (manifest `dbFactoryReturnCallees` for declared DB factory `->query` lowering); D223 (`verify --json-summary` `schemaVersion`/`toolVersion` + `db-query-unknown-receiver-probe` migration gate); D222 (`chrysalis verify --json-summary`); D221 (Wave 3 — `new PDO` receiver tracking, parser-parity-probe + nikic, verify stderr diagnostics bundle); D220 (Lane B — copy alias `$b = $a` for tracked DB receivers + mysqli-probe `alias-copy` route); D219 (Lane B — `new mysqli` / `mysqli_connect` variable aliases for `$x->query` lowering + mysqli-probe route); D218 (Lane B — `legacy:db-query-unknown-receiver` hole for `$x->query` when receiver is not `db()` / tracked `db()` alias; fixture `db-query-unknown-receiver-probe`); D217 (Wave 2 closure: `db()` factory alias tracking for `$db->query` lowering + mysqli-probe alias route; `migration-debt` `--max-holes` / `--min-correctness` gates; verify per-route stdout vs per-trace divergence stderr; nikic strip-pos on mysqli direct/alias pages); D216 (Wave 2 slice: `db()->query` ingest lowering, mysqli-probe direct route, migration-debt CI artifact, nikic `lib/db.php` parity, repair stderr replay pointer); D215 (multi-lane Wave 1 closure: mysqli-probe ingest fixture, migration-debt `--json-out`, verify replay env doc + threshold stderr pointer, nikic parity on mysqli route); D214 (CI MySQL 8 service + oracle-php `mysqli_capture_smoke.php` for mysqli `sql.query` tape); D213 (`replayCorpus` only-route / only-trace-id + CI nikic step + migration-debt script); D212 (`chrysalis verify` divergence histogram + summary path + next-step hints); D211 (multi-lane program: parser / oracle / verify / holes — ROADMAP § multi-lane); D210 (UTF-8 BOM strip for `chrysalis.observe.json` + CI `composer:v2` for parser-bridge pretest); D209 (`chrysalis.observe.json` strict parse + CLI `observe` error surface); D208 (`loadObserveConfig` merges `chrysalis.observe.json` onto `DEFAULT_REDACTION`); D207 (`replay-worker.js` path resolves from `src/` via adjacent `dist/`); D206 (mutation-only DEFAULT `sql.params` + optional verify `worker_threads`); D205 (`sql.params[...]` bind redaction in oracle-php + CI root `tsc -b`); D204 (CLI `verify`/`repair` replay tuning flags); D203 (`sql.row.*` redaction for captured SQL row payloads); D202 (default trace redaction expansion + optional `replayCorpus` concurrency); D201 (corpus-gated `sanitize-output`; oracle footprint `dynamicNewCount` per route); D199b (status `dynamicNewWebIrCount` for `__new_dynamic` calls); D200 (corpus-gated `parameterize-sql` + `raw-sql-concat` corpus boost); D199 (status tracks dynamic new holes + top reasons); D198 (dynamic `new $x(...)` parser shape + `__new_dynamic` emit/runtime bridge); D197 (corpus-gated `batch-n1-read` + `phpFqnNew` ctor registry hook); D196 (ingest/CLI parser-provider wiring for `nikic` opt-in pipelines); D195 (parser-bridge **`nikic` provider**: subprocess JSON mapper); D194 (FQN `new` → `phpFqnNew` + runtime hole delegation); D193 (throw + unqualified `new` glayzzle → WebIR → emit); D192 (Milestone 6A — Socialite + Fortify flagship oracle probe); D191 (Milestone 6A — `json_encode` + PHP associative array → `__object_literal` lowering); D190 (Milestone 6A — Gate + Sanctum/OAuth flagship oracle probes); D189 (Milestone 6A — ingest auth hole count in status / CLI JSON); D186 (Milestone 6A — static hole detail + ingest auth-tag e2e test); D185 (Milestone 6A — ingest + webir shared auth hole tagging); D184 (Milestone 6A — status reads auth residual-legacy sidecar); D183 (Milestone 6A — auth-boundary emit hole tagging + residual sidecar); D182 (Milestone 6 — confidence-preserving callable-choice narrowing); D181 (Milestone 6 — composer autoload-aware vendor effect depth); D180 (Milestone 6 — mysqli use-result unbuffered row-count semantics); D179 (Milestone 6 — session bridge release-policy CI gate lane); D178 (Milestone 6 — emitted Redis session bridge option); D177 (Milestone 6 — mysqli get_result fallback keeps pending capture); D176 (Milestone 6 — emitted shared SQLite session bridge option); D175 (Milestone 6 — call_user_func array-literal callable narrowing); D174 (Milestone 6 — parser class static methods into overlay map); D173 (Milestone 6 — ingest static `Class::method` call lowering); D172 (Milestone 6 — parser-bridge glayzzle namespace + qualified FunctionDecl); D171 (Milestone 6 — call-overlay FQN tail match + Vitest webir src alias); D170 (Milestone 6 — oracle-php mysqli prepared-statement params in traces); D169 (Milestone 6 — oracle-php mysqli prepared + buffered query rows); D168 (Milestone 6 — deeper call_user_func overlay narrowing + safe fallback); D167 (Milestone 6A auth-boundary scoped track); D166 (Milestone 6 — migration sidecar release-policy gate lane); D165 (Milestone 6 — oracle-php mysqli query-path capture); D164 (Milestone 6 — call_user_func overlay narrowing for literal callees); D163 (Milestone 6 — ingest vendor helper effects in call overlay); D162 (Milestone 6 roadmap shell — deferred depth backlog promoted to checklist); D161 (Milestone 5 closure — checklist complete in ROADMAP); D160 (Milestone 5 — laravel-min D148-D160 method-guard pack); D147 (Milestone 5 — laravel-min POST /count method guard); D146 (Milestone 5 — laravel-min POST /session/visit method guard); D145 (Milestone 5 — laravel-min POST /session/me method guard); D144 (Milestone 5 — laravel-min GET /logout method guard); D143 (Milestone 5 — laravel-min login empty/invalid credential negatives); D142 (Milestone 5 — laravel-min bad-CSRF login negative trace); D141 (Milestone 5 — laravel-min home/db/visit/login post-capture assertions); D140 (Milestone 5 — laravel-min echo request-shape + method-guard assertions); D139 (Milestone 5 — laravel-min cross-backend verify report parity); D138 (Milestone 5 — laravel-min metadata/static route contract assertions); D137 (Milestone 5 — laravel-min verify corpus semantics: health/jump/session/login); D136 (Milestone 5 — laravel-min verify: wider `/hello` oracle + capture assertions); D135 (Milestone 5 — flagship full verify: wider `chrysalis-hello` oracle shapes); D134 (Milestone 5 — optional CI floors for idiomaticity/residual sidecars); D133 (Milestone 4–5 — laravel-min emit-stats + status sidecars + CI artifacts); D132 (Milestone 5 — pipeline-owned idiomaticity/residual sidecars + CI matrix rollup gates); D131 (Milestone 5 — matrix confidence rollup + chimera test fetch retries); D130 (Milestone 5 — confidence trend stores/enforces cross-backend parity health); D129 (Milestone 5 — cross-emitter verify report parity in five-nines gate); D128 (Milestone 5 — cookie/session header invariants in five-nines confidence gate); D127 (Milestone 5 — header contract strictness + redirect location invariants); D126 (Milestone 5 — session transition monotonicity checks in five-nines confidence gate); D125 (Milestone 5 — session idempotency assertions in five-nines confidence gate); D124 (Milestone 5 — request-shape robustness checks in five-nines gate); D123 (Milestone 5 — CI auto-switch from confidence warmup to strict trend mode); D122 (Milestone 5 — resolve laravel-min/Breeze/auth ownership boundaries); D121 (Milestone 5 — rolling confidence trend gate + stricter threshold + expanded negative-path assertions); D120 (Milestone 5 — per-cell KPI thresholds in five-nines confidence dashboard); D119 (Milestone 5 — risk-cell dashboard coverage in five-nines confidence artifact); D118 (Milestone 5 — five-nines confidence gate with negative-path + metamorphic checks + CI artifact); D117 (Milestone 5 — seed-variant replay matrix + seed-aware semantic assertions in `verify:laravel-full`); D116 (Milestone 5 — stress replay + semantic route assertions in `verify:laravel-full`); D115 (Milestone 5 — complexity ladder pack: snapshot/group-by/CTE/recursive templates + oracle); D114 (Milestone 5 — `chrysalis-ne-zero-count` template + oracle); D113 (Milestone 5 — `chrysalis-eq-zero-count` template + oracle); D112 (Milestone 5 — `chrysalis-lte-two-count` template + oracle); D111 (Milestone 5 — `chrysalis-gte-three-count` template + oracle); D110 (Milestone 5 — `chrysalis-lt-one-count` template + oracle); D109 (Milestone 5 — `chrysalis-gt-three-count` template + oracle); D108 (Milestone 5 — `chrysalis-between-one-two-count` template + oracle); D107 (Milestone 5 — `chrysalis-lte-one-count` template + oracle); D106 (Milestone 5 — `chrysalis-gte-one-count` template + oracle); D105 (Milestone 5 — `chrysalis-gt-one-count` template + oracle); D104 (Milestone 5 — `chrysalis-lt-two-count` template + oracle); D103 (Milestone 5 — `chrysalis-ne-three-count` template + oracle); D102 (Milestone 5 — `chrysalis-ne-one-count` template + oracle); D101 (Milestone 5 — `chrysalis-eq-two-count` template + oracle); D100 (Milestone 5 — `chrysalis-eq-three-count` template + oracle); D99 (Milestone 5 — `chrysalis-eq-one-count` template + oracle); D98 (Milestone 5 — `chrysalis-between-count` template + oracle); D97 (Milestone 5 — `chrysalis-ne-two-count` template + oracle); D96 (Milestone 5 — `chrysalis-lte-three-count` template + oracle); D95 (Milestone 5 — `chrysalis-gte-two-count` template + oracle); D94 (Milestone 5 — `chrysalis-lt-three-count` template + oracle); D93 (Milestone 5 — `chrysalis-gt-two-count` template + oracle); D92 (Milestone 5 — `chrysalis-odd-count` template + oracle); D91 (Milestone 5 — `chrysalis-even-count` template + oracle); D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D229 (flagship dual-backend machine verify summaries in `reports/ci` + CI artifact uploads); D228 (verify-e2e dual-backend machine summary artifact `reports/ci/verify-e2e-summary.json` + CI upload); D227 (machine JSON docs: root README table + CLI/verify README + ingest export `normalizeDbFactoryCalleeLabel`); D226 (`migration-debt --json-out` `kind`/`schemaVersion`/`toolVersion`); D225 (`fixtures/laravel-shaped-db-factory-probe` + FQN `dbFactoryReturnCallees` docs); D224 (manifest `dbFactoryReturnCallees` for declared DB factory `->query` lowering); D223 (`verify --json-summary` `schemaVersion`/`toolVersion` + `db-query-unknown-receiver-probe` migration gate); D222 (`chrysalis verify --json-summary`); D221 (Wave 3 — `new PDO` receiver tracking, parser-parity-probe + nikic, verify stderr diagnostics bundle); D220 (Lane B — copy alias `$b = $a` for tracked DB receivers + mysqli-probe `alias-copy` route); D219 (Lane B — `new mysqli` / `mysqli_connect` variable aliases for `$x->query` lowering + mysqli-probe route); D218 (Lane B — `legacy:db-query-unknown-receiver` hole for `$x->query` when receiver is not `db()` / tracked `db()` alias; fixture `db-query-unknown-receiver-probe`); D217 (Wave 2 closure: `db()` factory alias tracking for `$db->query` lowering + mysqli-probe alias route; `migration-debt` `--max-holes` / `--min-correctness` gates; verify per-route stdout vs per-trace divergence stderr; nikic strip-pos on mysqli direct/alias pages); D216 (Wave 2 slice: `db()->query` ingest lowering, mysqli-probe direct route, migration-debt CI artifact, nikic `lib/db.php` parity, repair stderr replay pointer); D215 (multi-lane Wave 1 closure: mysqli-probe ingest fixture, migration-debt `--json-out`, verify replay env doc + threshold stderr pointer, nikic parity on mysqli route); D214 (CI MySQL 8 service + oracle-php `mysqli_capture_smoke.php` for mysqli `sql.query` tape); D213 (`replayCorpus` only-route / only-trace-id + CI nikic step + migration-debt script); D212 (`chrysalis verify` divergence histogram + summary path + next-step hints); D211 (multi-lane program: parser / oracle / verify / holes — ROADMAP § multi-lane); D210 (UTF-8 BOM strip for `chrysalis.observe.json` + CI `composer:v2` for parser-bridge pretest); D209 (`chrysalis.observe.json` strict parse + CLI `observe` error surface); D208 (`loadObserveConfig` merges `chrysalis.observe.json` onto `DEFAULT_REDACTION`); D207 (`replay-worker.js` path resolves from `src/` via adjacent `dist/`); D206 (mutation-only DEFAULT `sql.params` + optional verify `worker_threads`); D205 (`sql.params[...]` bind redaction in oracle-php + CI root `tsc -b`); D204 (CLI `verify`/`repair` replay tuning flags); D203 (`sql.row.`* redaction for captured SQL row payloads); D202 (default trace redaction expansion + optional `replayCorpus` concurrency); D201 (corpus-gated `sanitize-output`; oracle footprint `dynamicNewCount` per route); D199b (status `dynamicNewWebIrCount` for `__new_dynamic` calls); D200 (corpus-gated `parameterize-sql` + `raw-sql-concat` corpus boost); D199 (status tracks dynamic new holes + top reasons); D198 (dynamic `new $x(...)` parser shape + `__new_dynamic` emit/runtime bridge); D197 (corpus-gated `batch-n1-read` + `phpFqnNew` ctor registry hook); D196 (ingest/CLI parser-provider wiring for `nikic` opt-in pipelines); D195 (parser-bridge `**nikic` provider**: subprocess JSON mapper); D194 (FQN `new` → `phpFqnNew` + runtime hole delegation); D193 (throw + unqualified `new` glayzzle → WebIR → emit); D192 (Milestone 6A — Socialite + Fortify flagship oracle probe); D191 (Milestone 6A — `json_encode` + PHP associative array → `__object_literal` lowering); D190 (Milestone 6A — Gate + Sanctum/OAuth flagship oracle probes); D189 (Milestone 6A — ingest auth hole count in status / CLI JSON); D186 (Milestone 6A — static hole detail + ingest auth-tag e2e test); D185 (Milestone 6A — ingest + webir shared auth hole tagging); D184 (Milestone 6A — status reads auth residual-legacy sidecar); D183 (Milestone 6A — auth-boundary emit hole tagging + residual sidecar); D182 (Milestone 6 — confidence-preserving callable-choice narrowing); D181 (Milestone 6 — composer autoload-aware vendor effect depth); D180 (Milestone 6 — mysqli use-result unbuffered row-count semantics); D179 (Milestone 6 — session bridge release-policy CI gate lane); D178 (Milestone 6 — emitted Redis session bridge option); D177 (Milestone 6 — mysqli get_result fallback keeps pending capture); D176 (Milestone 6 — emitted shared SQLite session bridge option); D175 (Milestone 6 — call_user_func array-literal callable narrowing); D174 (Milestone 6 — parser class static methods into overlay map); D173 (Milestone 6 — ingest static `Class::method` call lowering); D172 (Milestone 6 — parser-bridge glayzzle namespace + qualified FunctionDecl); D171 (Milestone 6 — call-overlay FQN tail match + Vitest webir src alias); D170 (Milestone 6 — oracle-php mysqli prepared-statement params in traces); D169 (Milestone 6 — oracle-php mysqli prepared + buffered query rows); D168 (Milestone 6 — deeper call_user_func overlay narrowing + safe fallback); D167 (Milestone 6A auth-boundary scoped track); D166 (Milestone 6 — migration sidecar release-policy gate lane); D165 (Milestone 6 — oracle-php mysqli query-path capture); D164 (Milestone 6 — call_user_func overlay narrowing for literal callees); D163 (Milestone 6 — ingest vendor helper effects in call overlay); D162 (Milestone 6 roadmap shell — deferred depth backlog promoted to checklist); D161 (Milestone 5 closure — checklist complete in ROADMAP); D160 (Milestone 5 — laravel-min D148-D160 method-guard pack); D147 (Milestone 5 — laravel-min POST /count method guard); D146 (Milestone 5 — laravel-min POST /session/visit method guard); D145 (Milestone 5 — laravel-min POST /session/me method guard); D144 (Milestone 5 — laravel-min GET /logout method guard); D143 (Milestone 5 — laravel-min login empty/invalid credential negatives); D142 (Milestone 5 — laravel-min bad-CSRF login negative trace); D141 (Milestone 5 — laravel-min home/db/visit/login post-capture assertions); D140 (Milestone 5 — laravel-min echo request-shape + method-guard assertions); D139 (Milestone 5 — laravel-min cross-backend verify report parity); D138 (Milestone 5 — laravel-min metadata/static route contract assertions); D137 (Milestone 5 — laravel-min verify corpus semantics: health/jump/session/login); D136 (Milestone 5 — laravel-min verify: wider `/hello` oracle + capture assertions); D135 (Milestone 5 — flagship full verify: wider `chrysalis-hello` oracle shapes); D134 (Milestone 5 — optional CI floors for idiomaticity/residual sidecars); D133 (Milestone 4–5 — laravel-min emit-stats + status sidecars + CI artifacts); D132 (Milestone 5 — pipeline-owned idiomaticity/residual sidecars + CI matrix rollup gates); D131 (Milestone 5 — matrix confidence rollup + chimera test fetch retries); D130 (Milestone 5 — confidence trend stores/enforces cross-backend parity health); D129 (Milestone 5 — cross-emitter verify report parity in five-nines gate); D128 (Milestone 5 — cookie/session header invariants in five-nines confidence gate); D127 (Milestone 5 — header contract strictness + redirect location invariants); D126 (Milestone 5 — session transition monotonicity checks in five-nines confidence gate); D125 (Milestone 5 — session idempotency assertions in five-nines confidence gate); D124 (Milestone 5 — request-shape robustness checks in five-nines gate); D123 (Milestone 5 — CI auto-switch from confidence warmup to strict trend mode); D122 (Milestone 5 — resolve laravel-min/Breeze/auth ownership boundaries); D121 (Milestone 5 — rolling confidence trend gate + stricter threshold + expanded negative-path assertions); D120 (Milestone 5 — per-cell KPI thresholds in five-nines confidence dashboard); D119 (Milestone 5 — risk-cell dashboard coverage in five-nines confidence artifact); D118 (Milestone 5 — five-nines confidence gate with negative-path + metamorphic checks + CI artifact); D117 (Milestone 5 — seed-variant replay matrix + seed-aware semantic assertions in `verify:laravel-full`); D116 (Milestone 5 — stress replay + semantic route assertions in `verify:laravel-full`); D115 (Milestone 5 — complexity ladder pack: snapshot/group-by/CTE/recursive templates + oracle); D114 (Milestone 5 — `chrysalis-ne-zero-count` template + oracle); D113 (Milestone 5 — `chrysalis-eq-zero-count` template + oracle); D112 (Milestone 5 — `chrysalis-lte-two-count` template + oracle); D111 (Milestone 5 — `chrysalis-gte-three-count` template + oracle); D110 (Milestone 5 — `chrysalis-lt-one-count` template + oracle); D109 (Milestone 5 — `chrysalis-gt-three-count` template + oracle); D108 (Milestone 5 — `chrysalis-between-one-two-count` template + oracle); D107 (Milestone 5 — `chrysalis-lte-one-count` template + oracle); D106 (Milestone 5 — `chrysalis-gte-one-count` template + oracle); D105 (Milestone 5 — `chrysalis-gt-one-count` template + oracle); D104 (Milestone 5 — `chrysalis-lt-two-count` template + oracle); D103 (Milestone 5 — `chrysalis-ne-three-count` template + oracle); D102 (Milestone 5 — `chrysalis-ne-one-count` template + oracle); D101 (Milestone 5 — `chrysalis-eq-two-count` template + oracle); D100 (Milestone 5 — `chrysalis-eq-three-count` template + oracle); D99 (Milestone 5 — `chrysalis-eq-one-count` template + oracle); D98 (Milestone 5 — `chrysalis-between-count` template + oracle); D97 (Milestone 5 — `chrysalis-ne-two-count` template + oracle); D96 (Milestone 5 — `chrysalis-lte-three-count` template + oracle); D95 (Milestone 5 — `chrysalis-gte-two-count` template + oracle); D94 (Milestone 5 — `chrysalis-lt-three-count` template + oracle); D93 (Milestone 5 — `chrysalis-gt-two-count` template + oracle); D92 (Milestone 5 — `chrysalis-odd-count` template + oracle); D91 (Milestone 5 — `chrysalis-even-count` template + oracle); D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -609,37 +609,37 @@ pass that wants to "replace a whole subtree" does so by adding a new
 root and rewiring the consumer. Edits are collected across all
 opportunities and applied in a single batch, so the IR is always
 consistent at the boundary of `applyRewrites`.
-  The first shipped pass, `sanitize-output`, fixes the `unescaped-output`
-  recognizer's XSS findings by wrapping the tainted *leaves* of a
-  concat-like echo value in `htmlspecialchars`. It deliberately walks
-  the string-building tree (both explicit `data.concat` and left-folded
-  `.`-binops) and consults the insight taint primitive so that literal
-  HTML surrounding the taint (e.g. `<h1>`, `</h1>`) is preserved
-  verbatim — the difference between a functional sanitizer and an
-  over-escaper that entity-encodes the entire page. For
-  `data.html.template` sinks it flips the offending expression's
-  `escape: false` to `true` and wraps its operand, letting the emitter
-  inherit the safe-by-default template semantics.
-  Why target `htmlspecialchars` rather than the emit-target-specific
-  helper: the emitter already recognizes `htmlspecialchars(x)` and
-  lowers it to the appropriate helper (`escapeHtml` under the
-  Hono runtime). Keeping the rewrite IR-native means future emitters
-  (`emit-fastify`, `emit-bun`) inherit every rewrite in the catalog
-  without changes to the rewrite engine. Rejected alternatives: (a)
-  rewriting the PHP source directly, which couples us to PHP's parser
-  idiosyncrasies and breaks the "IR is the portable substrate"
-  invariant; (b) baking the sanitizer call into the emitter as a
-  special case, which would force every target backend to duplicate
-  that logic and would erase the audit trail of a rewrite as a first-
-  class operation with provenance (`source: "intent-rewrite"` on the
-  emitted nodes).
-  Confidence threshold semantics: below threshold the opportunity is
-  **skipped with a recorded reason**, not silently dropped. The CI
-  rewrite-gate runs with the default threshold and asserts that
-  tiny-n1's `unescaped-output` STRONG finding is applied and survives
-  all the way through to the emitted TypeScript containing
-  `escapeHtml(...)` — this guards the full IR → emit pipeline against
-  regressions where a rewrite applied to the IR is lost in translation.
+The first shipped pass, `sanitize-output`, fixes the `unescaped-output`
+recognizer's XSS findings by wrapping the tainted *leaves* of a
+concat-like echo value in `htmlspecialchars`. It deliberately walks
+the string-building tree (both explicit `data.concat` and left-folded
+`.`-binops) and consults the insight taint primitive so that literal
+HTML surrounding the taint (e.g. `<h1>`, `</h1>`) is preserved
+verbatim — the difference between a functional sanitizer and an
+over-escaper that entity-encodes the entire page. For
+`data.html.template` sinks it flips the offending expression's
+`escape: false` to `true` and wraps its operand, letting the emitter
+inherit the safe-by-default template semantics.
+Why target `htmlspecialchars` rather than the emit-target-specific
+helper: the emitter already recognizes `htmlspecialchars(x)` and
+lowers it to the appropriate helper (`escapeHtml` under the
+Hono runtime). Keeping the rewrite IR-native means future emitters
+(`emit-fastify`, `emit-bun`) inherit every rewrite in the catalog
+without changes to the rewrite engine. Rejected alternatives: (a)
+rewriting the PHP source directly, which couples us to PHP's parser
+idiosyncrasies and breaks the "IR is the portable substrate"
+invariant; (b) baking the sanitizer call into the emitter as a
+special case, which would force every target backend to duplicate
+that logic and would erase the audit trail of a rewrite as a first-
+class operation with provenance (`source: "intent-rewrite"` on the
+emitted nodes).
+Confidence threshold semantics: below threshold the opportunity is
+**skipped with a recorded reason**, not silently dropped. The CI
+rewrite-gate runs with the default threshold and asserts that
+tiny-n1's `unescaped-output` STRONG finding is applied and survives
+all the way through to the emitted TypeScript containing
+`escapeHtml(...)` — this guards the full IR → emit pipeline against
+regressions where a rewrite applied to the IR is lost in translation.
 - **2026-04-22 — D16** Layer a **per-pass structural-invariant verifier**
 (`@chrysalis/rewrite/invariants`) between the rewrite engine and the
 emit stage. HTTP-level replay (`@chrysalis/verify`) is the gold-
@@ -652,43 +652,43 @@ the result to the pre-rewrite module, and **rolls the edit back** if
 any node outside the allowlist changed structurally or an effect
 count shifted. The opportunity is reported in the `skipped` list with
 a `verify-invariant-failed` reason and the precise violations.
-  The invariant model is intentionally coarse — it cannot prove full
-  behavioral equivalence (that would need a WebIR interpreter) — but
-  it cheaply rules out the failure classes we care about most in an
-  autonomous rewrite pipeline: a "sanitize" pass accidentally deleting
-  a DB write; a pass introducing an un-provenance-tagged node (breaks
-  the audit trail); a pass mutating an effect it didn't claim to
-  touch. `mayModify` supports both plain `dialect.op` strings and a
-  refined `{ dialectOp, attrMatch }` form so a pass can declare "I
-  only touch `data.binop` *with* `operator: '.'`", preserving
-  protection for arithmetic binops that share the same op name.
-  The per-opportunity apply-verify-commit loop also fixes a subtler
-  bug in the original batch model: later passes now see the output of
-  earlier passes on the same module, so multi-pass rewrites compose
-  correctly. Rejected alternatives: (a) defer all verification to
-  post-emit HTTP replay — too slow to block a rewrite and leaves a
-  window where the IR is known-broken on disk; (b) require passes to
-  self-check via bespoke test suites — fine for library code but the
-  invariant system is declarative, so every new pass gets
-  "I didn't silently mutate an effect I don't own" protection for free
-  without any extra test authoring.
+The invariant model is intentionally coarse — it cannot prove full
+behavioral equivalence (that would need a WebIR interpreter) — but
+it cheaply rules out the failure classes we care about most in an
+autonomous rewrite pipeline: a "sanitize" pass accidentally deleting
+a DB write; a pass introducing an un-provenance-tagged node (breaks
+the audit trail); a pass mutating an effect it didn't claim to
+touch. `mayModify` supports both plain `dialect.op` strings and a
+refined `{ dialectOp, attrMatch }` form so a pass can declare "I
+only touch `data.binop` *with* `operator: '.'`", preserving
+protection for arithmetic binops that share the same op name.
+The per-opportunity apply-verify-commit loop also fixes a subtler
+bug in the original batch model: later passes now see the output of
+earlier passes on the same module, so multi-pass rewrites compose
+correctly. Rejected alternatives: (a) defer all verification to
+post-emit HTTP replay — too slow to block a rewrite and leaves a
+window where the IR is known-broken on disk; (b) require passes to
+self-check via bespoke test suites — fine for library code but the
+invariant system is declarative, so every new pass gets
+"I didn't silently mutate an effect I don't own" protection for free
+without any extra test authoring.
 - **2026-04-22 — D17** Ship the `parameterize-sql` rewrite pass as the
 second member of the `@chrysalis/rewrite` pass catalog. Paired with
 the `raw-sql-concat` recognizer + the taint primitive, this closes
 the SQLi half of the OWASP top-two — XSS was closed by
 `sanitize-output` under D15.
-  The structural problem: PHP's `query_all("SELECT ... " . $x)` pattern
-  loses the concat tree at ingest time. The original ingester just
-  flagged the SQL attr as `"<dynamic>"` and moved on, which was enough
-  for detection but not for rewrite (no way to recover the attacker-
-  controlled leaves). Fix: ingest now preserves the full expression
-  tree as a non-operand `sqlExpr` attr on the `effect.db.query` node,
-  and the walkers in `@chrysalis/insight/walk.ts` treat it as a
-  **virtual operand** so taint analysis reaches request fields that
-  only appear inside the dynamic SQL tree. The `operands` array stays
-  the bound-params contract — emit, invariants, and the recognizer's
-  `anyParamTainted` check all continue to work unchanged.
-  The pass walks the `sqlExpr` tree, classifying each leaf:
+The structural problem: PHP's `query_all("SELECT ... " . $x)` pattern
+loses the concat tree at ingest time. The original ingester just
+flagged the SQL attr as `"<dynamic>"` and moved on, which was enough
+for detection but not for rewrite (no way to recover the attacker-
+controlled leaves). Fix: ingest now preserves the full expression
+tree as a non-operand `sqlExpr` attr on the `effect.db.query` node,
+and the walkers in `@chrysalis/insight/walk.ts` treat it as a
+**virtual operand** so taint analysis reaches request fields that
+only appear inside the dynamic SQL tree. The `operands` array stays
+the bound-params contract — emit, invariants, and the recognizer's
+`anyParamTainted` check all continue to work unchanged.
+The pass walks the `sqlExpr` tree, classifying each leaf:
   - a `data.literal` of kind `string` → inlined into the rebuilt
   literal SQL string verbatim
   - everything else → emitted as a `?` placeholder, and the node
@@ -718,82 +718,82 @@ produced it no longer fires on the same anchor in the rewritten
 module). If any applied opportunity still fires, the driver rolls
 back the entire batch and returns the original module with every
 rewrite recorded in `skipped` for forensic inspection.
-  Why a separate layer from invariants (D16): invariants catch
-  **pass hygiene** ("the pass mutated a node it didn't claim to
-  mutate") while post-verify catches **pass effectiveness** ("the
-  pass claimed to fix finding X but the recognizer still reports
-  X"). The two are complementary — invariants run per-opportunity
-  (fast, granular rollback), post-verify runs once per batch (still
-  cheap, one more recognizer pass) and rolls back all-or-nothing.
-  All-or-nothing rollback is deliberate: partial rollback at this
-  level would leave a module with a mix of "verified" and
-  "unverified" rewrites, which is harder to reason about than either
-  extreme. The batch of rewrites that landed together got there in a
-  specific interleaving; rolling back only the bad one would produce
-  a state the driver never actually traversed, and any subsequent
-  re-apply would be starting from mystery data. By contrast, the
-  original module is a known-good ground truth.
-  Cost model: the gate runs each affected recognizer exactly once
-  over the rewritten module (not once per opportunity). Recognizers
-  are already designed to be cheap — they walk the handler subtree
-  once and emit opportunities — so the gate typically doubles the
-  recognize work but not the total rewrite work.
-  Scope: post-verify cannot detect behavioral divergence that no
-  recognizer notices (e.g. a rewrite that silently drops a session
-  write). That's the domain of full HTTP replay via
-  `@chrysalis/verify`, which is the intended D19 layer. Post-verify
-  is the cheap IR-level gate that runs even without a traces corpus.
-  The CLI enables post-verify by default (`chrysalis rewrite ...`
-  prints `post-verify: ok` or lists the residual findings and notes
-  the rollback). `--no-post-verify` exists for users who want to
-  inspect a broken / partial rewrite for debugging.
+Why a separate layer from invariants (D16): invariants catch
+**pass hygiene** ("the pass mutated a node it didn't claim to
+mutate") while post-verify catches **pass effectiveness** ("the
+pass claimed to fix finding X but the recognizer still reports
+X"). The two are complementary — invariants run per-opportunity
+(fast, granular rollback), post-verify runs once per batch (still
+cheap, one more recognizer pass) and rolls back all-or-nothing.
+All-or-nothing rollback is deliberate: partial rollback at this
+level would leave a module with a mix of "verified" and
+"unverified" rewrites, which is harder to reason about than either
+extreme. The batch of rewrites that landed together got there in a
+specific interleaving; rolling back only the bad one would produce
+a state the driver never actually traversed, and any subsequent
+re-apply would be starting from mystery data. By contrast, the
+original module is a known-good ground truth.
+Cost model: the gate runs each affected recognizer exactly once
+over the rewritten module (not once per opportunity). Recognizers
+are already designed to be cheap — they walk the handler subtree
+once and emit opportunities — so the gate typically doubles the
+recognize work but not the total rewrite work.
+Scope: post-verify cannot detect behavioral divergence that no
+recognizer notices (e.g. a rewrite that silently drops a session
+write). That's the domain of full HTTP replay via
+`@chrysalis/verify`, which is the intended D19 layer. Post-verify
+is the cheap IR-level gate that runs even without a traces corpus.
+The CLI enables post-verify by default (`chrysalis rewrite ...`
+prints `post-verify: ok` or lists the residual findings and notes
+the rollback). `--no-post-verify` exists for users who want to
+inspect a broken / partial rewrite for debugging.
 - **2026-04-23 — D19** Add an **in-process IR simulator** and a
 **behavior-verify gate** that evaluates each route's handler under
 both the pre- and post-rewrite module on synthesized probe inputs
 and rolls back the batch if the post-rewrite response diverges
 from the pass-transformed pre-rewrite response.
-  Why a simulator rather than HTTP replay: the typical behavioral
-  oracle for migration tools is "run the old app, run the new app,
-  compare traces." That requires two live deployments, a traces
-  corpus, a DB in a known state, and subprocess orchestration — none
-  of which is cheap or portable enough to put in the default rewrite
-  pipeline. A pure-IR simulator gives us a behavioral signal with
-  none of that plumbing, at the cost of only covering the ops the
-  simulator understands.
-  The simulator (`packages/rewrite/src/simulate.ts`) implements
-  exactly the subset of WebIR ops that `@chrysalis/ingest`
-  currently produces: `data.literal`, `data.request.field`,
-  `data.binop` (including lazy `??`), `data.unaryop` (including
-  `isset`/`empty`), `data.member`, `data.call` (with specialized
-  handlers for `__assign`, `htmlspecialchars`, `intval`, `trim`,
-  `strlen`, `password_verify`, `current_user`, `session_start`,
-  and an `echo` fallback), `data.concat`, `data.html.template`,
-  `data.block`, `data.if`/`data.ifElse`, `data.foreach`,
-  `data.hole`, plus the `effect.echo`, `effect.db.query`,
-  `effect.redirect`, `effect.http.error`, `effect.session.read`,
-  `effect.session.write`, `effect.time.now`, `effect.random`
-  effects. Unrecognized ops return a `SimError`; the gate treats
-  runs with non-empty `errors` as **abstain**, not as divergence.
-  The probe generator synthesizes one "benign" probe (alphanumeric
-  field values) and one "attack" probe (containing classic XSS
-  triggers `<script>`, `"`, `&`, `'`) per route, reading
-  per-handler request-field metadata out of the IR so each probe
-  targets exactly the inputs the handler actually consumes.
-  Probes with no user-controlled input get only the benign case.
-  The DB stub is **param-insensitive** by design: it returns a
-  fixed row set keyed by `(table, kind, returns)` and ignores
-  `params`. If it varied on `params`, pre-rewrite (dynamic SQL
-  passed through a single concat argument, zero bound params)
-  and post-rewrite (parameterized SQL, params lifted to operands)
-  would always look divergent under `parameterize-sql`, defeating
-  the point. The consequence: behavior-verify cannot detect
-  SQL-level semantic regressions through this stub. Real DB
-  semantics belong in a future HTTP-replay layer; this gate's
-  contract is "IR changes outside of declared pass transforms
-  don't change behavior on probe inputs."
-  Pass-aware response transforms: the gate predicts what the
-  post-rewrite response *should* look like by transforming the
-  pre-rewrite response according to the set of applied passes:
+Why a simulator rather than HTTP replay: the typical behavioral
+oracle for migration tools is "run the old app, run the new app,
+compare traces." That requires two live deployments, a traces
+corpus, a DB in a known state, and subprocess orchestration — none
+of which is cheap or portable enough to put in the default rewrite
+pipeline. A pure-IR simulator gives us a behavioral signal with
+none of that plumbing, at the cost of only covering the ops the
+simulator understands.
+The simulator (`packages/rewrite/src/simulate.ts`) implements
+exactly the subset of WebIR ops that `@chrysalis/ingest`
+currently produces: `data.literal`, `data.request.field`,
+`data.binop` (including lazy `??`), `data.unaryop` (including
+`isset`/`empty`), `data.member`, `data.call` (with specialized
+handlers for `__assign`, `htmlspecialchars`, `intval`, `trim`,
+`strlen`, `password_verify`, `current_user`, `session_start`,
+and an `echo` fallback), `data.concat`, `data.html.template`,
+`data.block`, `data.if`/`data.ifElse`, `data.foreach`,
+`data.hole`, plus the `effect.echo`, `effect.db.query`,
+`effect.redirect`, `effect.http.error`, `effect.session.read`,
+`effect.session.write`, `effect.time.now`, `effect.random`
+effects. Unrecognized ops return a `SimError`; the gate treats
+runs with non-empty `errors` as **abstain**, not as divergence.
+The probe generator synthesizes one "benign" probe (alphanumeric
+field values) and one "attack" probe (containing classic XSS
+triggers `<script>`, `"`, `&`, `'`) per route, reading
+per-handler request-field metadata out of the IR so each probe
+targets exactly the inputs the handler actually consumes.
+Probes with no user-controlled input get only the benign case.
+The DB stub is **param-insensitive** by design: it returns a
+fixed row set keyed by `(table, kind, returns)` and ignores
+`params`. If it varied on `params`, pre-rewrite (dynamic SQL
+passed through a single concat argument, zero bound params)
+and post-rewrite (parameterized SQL, params lifted to operands)
+would always look divergent under `parameterize-sql`, defeating
+the point. The consequence: behavior-verify cannot detect
+SQL-level semantic regressions through this stub. Real DB
+semantics belong in a future HTTP-replay layer; this gate's
+contract is "IR changes outside of declared pass transforms
+don't change behavior on probe inputs."
+Pass-aware response transforms: the gate predicts what the
+post-rewrite response *should* look like by transforming the
+pre-rewrite response according to the set of applied passes:
   - `sanitize-output` — every occurrence of a probe's tainted
   input value in the pre-body should appear HTML-escaped in
   the post-body. Replaces longest tainted strings first so
@@ -837,42 +837,42 @@ from the pass-transformed pre-rewrite response.
   applied pass") which is what actually catches regressions.
 - **2026-04-23 — D20** Wire `**@chrysalis/verify` HTTP replay** into the
 rewrite driver as an **optional async gate** after D16–D19.
-  *`*ReplayOptions.fetch`** — `replayCorpus` accepts an injected
-  `fetch` (defaults to `globalThis.fetch`). Callers pass
-  `app.fetch.bind(app)` from a Hono app to replay against an
-  in-process handler with no TCP listen. This is the missing
-  primitive for "replay without a subprocess server."
-  **`applyRewritesAsync`** — `@chrysalis/rewrite` exposes an async
-  entry point that runs the same synchronous pipeline as
-  `applyRewrites`, then (if `httpReplay` is set and at least one
-  rewrite applied and the module was not already rolled back)
-  invokes `replayCorpus` on the supplied corpus. Any frame with
-  `diff.divergences.length > 0` triggers **all-or-nothing**
-  rollback, same contract as D18/D19. The report gains
-  `httpReplayVerify` with `outcomes` and `failedRoutes`.
-  **`emit-hono` split** — generated apps now emit **`src/server.ts`**
-  (defines `export const app` and `registerRoutes`) and a thin
-  **`src/index.ts`** that only calls `serve({ fetch: app.fetch })`.
-  Downstream tools import `./server.js` to obtain `app` without
-  starting a listener.
-  **Corpus vs security passes** — Traces captured from PHP encode
-  *pre-fix* response bodies. After `sanitize-output`, emitted HTML
-  differs by design (escaped user input). HTTP replay against a
-  PHP oracle therefore only matches **byte-for-byte** when the
-  batch does not change observable HTML, or when the corpus was
-  re-recorded from the migrated app, or when diff rules are
-  extended (future). D19 remains the gate for "escape transform
-  predicted correctly"; D20 is for **runtime truth** against a
-  handler that should match the oracle (e.g. `parameterize-sql`
-  only, or a post-migration golden corpus).
-  **CLI** — `chrysalis rewrite --http-replay <traces-dir>` requires
-  `--out`. It runs `applyRewritesAsync` with `resolveFetch` that
-  emits the rewritten module, runs `npm install` in the output dir
-  (skip with `--http-replay-skip-install` if deps are already
-  present), and loads `src/server.ts` through `tsx` for
-  `replayCorpus`. On replay failure the batch rolls back and the CLI
-  re-emits the **pre-rewrite** module so `--out` stays consistent
-  with the returned IR.
+`**ReplayOptions.fetch`** — `replayCorpus` accepts an injected
+`fetch` (defaults to `globalThis.fetch`). Callers pass
+`app.fetch.bind(app)` from a Hono app to replay against an
+in-process handler with no TCP listen. This is the missing
+primitive for "replay without a subprocess server."
+`**applyRewritesAsync**` — `@chrysalis/rewrite` exposes an async
+entry point that runs the same synchronous pipeline as
+`applyRewrites`, then (if `httpReplay` is set and at least one
+rewrite applied and the module was not already rolled back)
+invokes `replayCorpus` on the supplied corpus. Any frame with
+`diff.divergences.length > 0` triggers **all-or-nothing**
+rollback, same contract as D18/D19. The report gains
+`httpReplayVerify` with `outcomes` and `failedRoutes`.
+`**emit-hono` split** — generated apps now emit `**src/server.ts**`
+(defines `export const app` and `registerRoutes`) and a thin
+`**src/index.ts**` that only calls `serve({ fetch: app.fetch })`.
+Downstream tools import `./server.js` to obtain `app` without
+starting a listener.
+**Corpus vs security passes** — Traces captured from PHP encode
+*pre-fix* response bodies. After `sanitize-output`, emitted HTML
+differs by design (escaped user input). HTTP replay against a
+PHP oracle therefore only matches **byte-for-byte** when the
+batch does not change observable HTML, or when the corpus was
+re-recorded from the migrated app, or when diff rules are
+extended (future). D19 remains the gate for "escape transform
+predicted correctly"; D20 is for **runtime truth** against a
+handler that should match the oracle (e.g. `parameterize-sql`
+only, or a post-migration golden corpus).
+**CLI** — `chrysalis rewrite --http-replay <traces-dir>` requires
+`--out`. It runs `applyRewritesAsync` with `resolveFetch` that
+emits the rewritten module, runs `npm install` in the output dir
+(skip with `--http-replay-skip-install` if deps are already
+present), and loads `src/server.ts` through `tsx` for
+`replayCorpus`. On replay failure the batch rolls back and the CLI
+re-emits the **pre-rewrite** module so `--out` stays consistent
+with the returned IR.
 - **2026-04-23 — preg_match lowering** — `preg_match` is lowered to
 `data.call` / `preg_match` (boolean) instead of a hole when the
 PHP prelude resolves the call. The emit-hono runtime exposes
@@ -882,36 +882,36 @@ after it). The D19 simulator uses the same rule so behavior-verify
 stays aligned with emitted TS.   Non-slash PHP regex delimiters
 remain best-effort via `new RegExp(pattern)` in the runtime only
 when the pattern does not start with `/`.
-  **Cast / ternary pseudo-calls** — Ingest lowers PHP casts to
-  `data.call` with callee `__cast_int`, `__cast_float`, `__cast_string`,
-  `__cast_bool`, and ternary to `__ternary`; `__array_literal` wraps
-  variadic operands into a simulated array. The D19 simulator
-  implements these with the same semantics as emit-hono's
-  `emitKnownCall` so N+1-style handlers (e.g. tiny-n1 dashboard)
-  evaluate without abstention.
+**Cast / ternary pseudo-calls** — Ingest lowers PHP casts to
+`data.call` with callee `__cast_int`, `__cast_float`, `__cast_string`,
+`__cast_bool`, and ternary to `__ternary`; `__array_literal` wraps
+variadic operands into a simulated array. The D19 simulator
+implements these with the same semantics as emit-hono's
+`emitKnownCall` so N+1-style handlers (e.g. tiny-n1 dashboard)
+evaluate without abstention.
 - **2026-04-23 — D21** **String-dispatch `switch` emission** — `@chrysalis/emit-hono`
 emits an idiomatic TypeScript `switch` when a `data.if` head matches the
 same structural predicate as the `string-dispatch` insight recognizer.
-  **`matchStringDispatchChain`** — Exported from `@chrysalis/insight`
-  (implementation in `recognizers/string-dispatch.ts`). It returns the
-  branch literals, `then` body node ids, optional terminal `else` body, and
-  the `request.field` node id used as the discriminant. The recognizer
-  delegates to this helper so detection and emission cannot drift.
-  **Emit shape** — One temp holds the raw field expression; the `switch`
-  discriminant is `v == null ? "" : String(v)` so behavior stays close to
-  PHP loose comparisons without mapping `null` to the string `"null"`.
-  Each case runs the emitted `then` body and `break`s; a terminal `else`
-  becomes `default`.
-  **Dependency direction** — `emit-hono` depends on `insight` for the
-  matcher only. `insight` does not depend on any emit package (no cycle).
-  **Non-goal in this decision** — A future IR rewrite still replaces the
-  pattern with a validated `z.enum` action union at the route boundary;
-  D21 is emission-only, not the full `action-union` lift from the
-  opportunity catalog.
-  Rejected: reimplementing the chain walk inside emit-hono. Duplicated
-  rules would diverge from the recognizer and violate principle 3
-  (provenance of *intent* — here, shared definition of "what counts as
-  string dispatch").
+`**matchStringDispatchChain**` — Exported from `@chrysalis/insight`
+(implementation in `recognizers/string-dispatch.ts`). It returns the
+branch literals, `then` body node ids, optional terminal `else` body, and
+the `request.field` node id used as the discriminant. The recognizer
+delegates to this helper so detection and emission cannot drift.
+**Emit shape** — One temp holds the raw field expression; the `switch`
+discriminant is `v == null ? "" : String(v)` so behavior stays close to
+PHP loose comparisons without mapping `null` to the string `"null"`.
+Each case runs the emitted `then` body and `break`s; a terminal `else`
+becomes `default`.
+**Dependency direction** — `emit-hono` depends on `insight` for the
+matcher only. `insight` does not depend on any emit package (no cycle).
+**Non-goal in this decision** — A future IR rewrite still replaces the
+pattern with a validated `z.enum` action union at the route boundary;
+D21 is emission-only, not the full `action-union` lift from the
+opportunity catalog.
+Rejected: reimplementing the chain walk inside emit-hono. Duplicated
+rules would diverge from the recognizer and violate principle 3
+(provenance of *intent* — here, shared definition of "what counts as
+string dispatch").
 - **2026-04-23 — D22** **Archaeology row generics in emit** — When callers
 supply a map from normalized SQL table name (lowercase, matching ingest
 `guessTables`) to the TypeScript interface name from archaeology
@@ -920,15 +920,15 @@ supply a map from normalized SQL table name (lowercase, matching ingest
 **exactly one** table. JOINs and other multi-table reads keep the default
 generic (`Record<string, unknown>`) so we do not assert the wrong row
 shape.
-  **`domainTypesByTable`** — Built by `domainTypesByTable(report)` in
-  `@chrysalis/archaeology`. `emit-hono` does not depend on archaeology;
-  the CLI and `scripts/run-e2e.mjs` run archaeology, write `src/domain.ts`,
-  and pass the map into `emit()`.
-  **`chrysalis emit --schema <file.sql>`** — Optional path: generates
-  `src/domain.ts`, then emits handlers with row generics where applicable.
-  Rejected: making `emit-hono` import `@chrysalis/archaeology`. That would
-  couple the default backend to schema recovery; the map is optional input
-  and keeps the package graph acyclic.
+`**domainTypesByTable**` — Built by `domainTypesByTable(report)` in
+`@chrysalis/archaeology`. `emit-hono` does not depend on archaeology;
+the CLI and `scripts/run-e2e.mjs` run archaeology, write `src/domain.ts`,
+and pass the map into `emit()`.
+`**chrysalis emit --schema <file.sql>**` — Optional path: generates
+`src/domain.ts`, then emits handlers with row generics where applicable.
+Rejected: making `emit-hono` import `@chrysalis/archaeology`. That would
+couple the default backend to schema recovery; the map is optional input
+and keeps the package graph acyclic.
 - **2026-04-23 — D23** **Recorded SELECT rows in verify replay** — The PHP
 PDO wrapper buffers each SELECT after `execute()` / `query()` and records
 `sql.query.rows` (JSON-safe objects, capped per query). `@chrysalis/verify`
@@ -937,8 +937,8 @@ can attach a base64url `x-chrysalis-sql-tape` header per trace when
 `rowsTruncated`). Emitted Hono/Fastify apps run the SQL-tape hook and satisfy
 `queryOne` / `queryAll` from the tape **in order**; `execSql` still uses
 SQLite so INSERT/UPDATE behavior stays real. CLI: `chrysalis verify --no-recorded-sql` disables the header.
-  Rejected: replaying writes from tape — inserts/updates still execute against
-  the real DB so auto-increment and constraints stay honest.
+Rejected: replaying writes from tape — inserts/updates still execute against
+the real DB so auto-increment and constraints stay honest.
 - **2026-04-23 — D24** **File JSON session bridge (demo)** — When
 `CHRYSALIS_SESSION_DIR` is set, emitted `session.ts` reads/writes
 `{sid}.json` after each request. Cookie name follows
@@ -947,9 +947,9 @@ by using the same directory and cookie plus JSON-compatible keys (see
 `packages/oracle-php/README.md`). Production dual-stack should move to Redis
 or another shared service; this is the SQLite-analog "acceptable for demo"
 path from the roadmap.
-  Rejected: mutating PHP's `session.save_path` alone without documenting JSON
-  shape — Node and PHP must agree on payload encoding; documenting JSON is
-  the minimal contract.
+Rejected: mutating PHP's `session.save_path` alone without documenting JSON
+shape — Node and PHP must agree on payload encoding; documenting JSON is
+the minimal contract.
 - **2026-04-24 — D25** **Dual-backend oracle gate (tiny-blog)** — After
 capturing a trace corpus from PHP, CI runs `scripts/verify-tiny-blog.mjs`,
 which emits the **same** WebIR module to **both** `@chrysalis/emit-hono`
@@ -961,8 +961,8 @@ correctness threshold; reports land under `reports/verify/hono` and
 gated, Fastify could drift silently; gating both is the honest portability
 proof for Milestone 2. TCP servers for verify are no longer required for
 this fixture once injected `fetch` matches the replay contract (D20).
-  Rejected: comparing only aggregate scores across backends — we persist full
-  per-route reports per backend so a regression localizes to a target.
+Rejected: comparing only aggregate scores across backends — we persist full
+per-route reports per backend so a regression localizes to a target.
 - **2026-04-24 — D26** **Rewrite HTTP-replay: multi-emitter gate** —
 `applyRewritesAsync` accepts `httpReplay.resolveFetches`, an ordered list of
 labeled `resolveFetch` callbacks. After a successful rewrite batch, the
@@ -972,8 +972,8 @@ rolls back the batch. The CLI exposes `--http-replay-backends=hono,fastify`
 `{out}-fastify` (or `--out` alone when Fastify is the only backend). This
 extends D25’s “one IR, many emitters” proof from CI verify into the rewrite
 pipeline so a pass cannot silently break portability.
-  Rejected: hard-coding Fastify’s sibling directory name inside `@chrysalis/rewrite`
-  — the package stays emitter-agnostic; only the CLI picks concrete paths.
+Rejected: hard-coding Fastify’s sibling directory name inside `@chrysalis/rewrite`
+— the package stays emitter-agnostic; only the CLI picks concrete paths.
 - **2026-04-24 — D27** **Chimera canary + stickiness** — `runtime-chimera` adds
 `mode: "canary"`: same rule table as cutover, but among requests whose rule
 targets `modern`, only `canary.percentModern` (0–100) are forwarded to the
@@ -984,9 +984,9 @@ the same stack without server-side session. Responses add
 `x-chrysalis-canary: in | out | n/a` (`n/a` when the route is legacy-eligible
 only). CLI: `--canary-percent`, optional `--canary-salt`, `--canary-cookie`,
 `--canary-header`, or `chimera.json` `canary` block.
-  Rejected: random per-request sampling without a stickiness key — it would
-  break UX for multi-request flows. Rejected: reading `Date.now()` or
-  `Math.random()` for bucketing — hash-only inputs keep replay/debugging stable.
+Rejected: random per-request sampling without a stickiness key — it would
+break UX for multi-request flows. Rejected: reading `Date.now()` or
+`Math.random()` for bucketing — hash-only inputs keep replay/debugging stable.
 - **2026-04-24 — D28** **Archaeology: enums from captured SQL rows** — The
 Oracle already records `sql.query.rows` on PHP captures. `@chrysalis/archaeology`
 now harvests **string** cell values per column (bounded: max distinct count,
@@ -995,17 +995,17 @@ max literal length, no control characters; skip non-strings). Plain DDL
 survive the cap. DDL enums (`CHECK ... IN` / `ENUM`) are **validated**:
 any trace literal not in the declared set becomes a `@chrysalis-conflict`
 on the field (DDL stays authoritative for the type).
-  Rejected: unbounded union growth from high-cardinality columns — above the
-  cap we omit literals and keep `string`. Rejected: inferring numeric/boolean
-  unions from row JSON in this pass (string-only v1).
+Rejected: unbounded union growth from high-cardinality columns — above the
+cap we omit literals and keep `string`. Rejected: inferring numeric/boolean
+unions from row JSON in this pass (string-only v1).
 - **2026-04-24 — D29** `**chrysalis status` archaeology signals** — When
 `--schema` runs `runArchaeology`, the dashboard now counts **fields with any
-`conflicts`** and **fields whose provenance includes trace-promoted literal
+`conflicts**` and **fields whose provenance includes trace-promoted literal
 unions** (prefix shared as `TRACE_LITERAL_UNION_PROVENANCE_PREFIX` in
 `@chrysalis/archaeology`). Operators see merge quality at a glance without
 opening `domain.ts`.
-  Rejected: parsing emitted TypeScript to infer unions — provenance on the
-  `SchemaReport` is the canonical source of truth.
+Rejected: parsing emitted TypeScript to infer unions — provenance on the
+`SchemaReport` is the canonical source of truth.
 - **2026-04-23 — D32** **Oracle: outbound HTTP + mail in trace schema** —
 PHP observe mode registers userland stream wrappers for `http` and `https`
 that delegate to the built-in wrappers and emit `http.outbound` after each
@@ -1015,10 +1015,10 @@ records `mail.send` (to, subject, body byte length) before calling PHP
 `mail()`. Node `trace-schema.ts`, default redaction (`outbound.url`,
 `mail.to`, `mail.subject`), and `chrysalis corpus` summaries stay in lockstep
 with the prelude.
-  Rejected: claiming full `mail()` coverage without an opt-in API — PHP offers
-  no supported global hook. Rejected: depending on `curl` extension only —
-  `file_get_contents('https://…')` must be observed for typical legacy code.
-- **2026-04-23 — D30** **Cross-call handler effects via `lib/`** — Route files
+Rejected: claiming full `mail()` coverage without an opt-in API — PHP offers
+no supported global hook. Rejected: depending on `curl` extension only —
+`file_get_contents('https://…')` must be observed for typical legacy code.
+- **2026-04-23 — D30** **Cross-call handler effects via `lib/**` — Route files
 often call shared PHP functions (`require_login`, `current_user`, …) that
 are not inlined into the route AST. Ingest therefore parses all top-level
 `FunctionDecl` bodies under `<project>/lib/**.php` into a throwaway WebIR
@@ -1028,10 +1028,10 @@ handler effect inference so `data.call` sites union callee effects.
 Rationale: keeps a single oracle-aligned IR for routes without requiring
 whole-program PHP linking in v1; under-approximation when a callee is not
 defined under `lib/`.
-  Rejected: hard-coding effect stubs only for known names — duplicating PHP
-  semantics in TypeScript would drift from `lib/*.php`. Rejected: merging
-  library nodes into the shipped route module — golden size and ID stability
-  stay route-scoped; only effect sets cross the boundary.
+Rejected: hard-coding effect stubs only for known names — duplicating PHP
+semantics in TypeScript would drift from `lib/*.php`. Rejected: merging
+library nodes into the shipped route module — golden size and ID stability
+stay route-scoped; only effect sets cross the boundary.
 - **2026-04-23 — D31** **Route-file top-level functions in call-effect map** —
 Legacy route scripts sometimes declare `function foo()` at file scope, then
 call `foo()` from the procedural body. Ingest now indexes those bodies into
@@ -1040,9 +1040,9 @@ library definition). Handler lowering skips top-level `FunctionDecl`
 statements so they are not emitted as holes. Rationale: closes a common
 real-world gap without whole-program analysis; matches PHP’s file-scope
 function visibility for the typical “one entry script per route” layout.
-  Rejected: hoisting nested `function` inside handlers in v1 — needs real scope
-  / closure modeling. Rejected: auto-parsing every `*.php` under the project
-  — only manifest route files plus `lib/` keep the contract explicit.
+Rejected: hoisting nested `function` inside handlers in v1 — needs real scope
+/ closure modeling. Rejected: auto-parsing every `*.php` under the project
+— only manifest route files plus `lib/` keep the contract explicit.
 - **2026-04-23 — D33** **Verified repair loop (Milestone 3 v1)** — New package
 `@chrysalis/repair` drives `RepairProposer` → `applyModuleEdits` → full
 `replayCorpus` acceptance. CLI `chrysalis repair` wires the loop with a stub
@@ -1068,22 +1068,22 @@ request %** read optional JSON sidecars under `reports/migration/` (or
 `--migration-reports`) so CI and chimera can feed signals without new core
 dependencies. Milestone 4’s flagship target is documented as Laravel-first in
 `ROADMAP.md` / `flagship/README.md`.
-  Rejected: hard-coding Laravel paths in `status` — only generic sidecars and
-  IR coverage belong in core CLI.
+Rejected: hard-coding Laravel paths in `status` — only generic sidecars and
+IR coverage belong in core CLI.
 - **2026-04-23 — D36** **Flagship skeleton (`flagship/laravel-min`)** — A
 Laravel-**shaped** tree (e.g. `public/index.php`, `app/Http/Handlers/`) with
 `chrysalis.routes.json` proves ingest + emit on a second app layout without
 vendoring Composer Laravel in-repo. Real Breeze (or similar) stays a
 documented follow-up; oracle + verify for the flagship mirror `tiny-blog` when
 routes gain DB/session.
-  Rejected: committing `vendor/` or a full framework tree as the default M4
-  slice — blows CI time and review surface; the skeleton stays procedural PHP
-  until the pilot explicitly opts into framework bootstrap.
-  **Observe docroot:** Laravel-style apps use `public/` as the PHP server root;
-  `startObserver({ phpRoot })` must point at `public/`, while
-  `loadObserveConfig` and `ingestDirectory` use the project root (where
-  `chrysalis.observe.json` and `chrysalis.routes.json` live). See
-  `scripts/verify-flagship-laravel-min.mjs`.
+Rejected: committing `vendor/` or a full framework tree as the default M4
+slice — blows CI time and review surface; the skeleton stays procedural PHP
+until the pilot explicitly opts into framework bootstrap.
+**Observe docroot:** Laravel-style apps use `public/` as the PHP server root;
+`startObserver({ phpRoot })` must point at `public/`, while
+`loadObserveConfig` and `ingestDirectory` use the project root (where
+`chrysalis.observe.json` and `chrysalis.routes.json` live). See
+`scripts/verify-flagship-laravel-min.mjs`.
 - **2026-04-23 — D37** **Injectable clock/PRNG in emitted apps + verify wiring** —
 Emitted Hono/Fastify stacks ship `src/ctx.ts` (`chrysalisNow`, `chrysalisRandom`,
 optional request middleware reading `x-chrysalis-now-iso` and
@@ -1095,9 +1095,9 @@ sends those headers by default from trace `startedAt` and a deterministic FNV-1a
 seed of `traceId` (`injectDeterminismHeaders: false` to disable). Rationale:
 honors principle 7 (determinism in the runtime) for generated handlers without
 reading wall clock or `Math.random` in handler bodies when the IR marks the effects.
-  Rejected: silently translating nondeterministic PHP builtins to raw `Date`/`Math`
-  in handlers.   Rejected: expanding `uniqid`/`microtime` to full PHP bit-accuracy in
-  v1 — documented approximations and holes where needed.
+Rejected: silently translating nondeterministic PHP builtins to raw `Date`/`Math`
+in handlers.   Rejected: expanding `uniqid`/`microtime` to full PHP bit-accuracy in
+v1 — documented approximations and holes where needed.
 - **2026-04-23 — D38** `**microtime()` string mode + `parse_url($url)` array-like
 lowering** — `microtime()` / `microtime(false)` lower to `effect.time.now`
 (`epoch_float`) wrapped by runtime `microtimeString` (injectable wall clock).
@@ -1106,8 +1106,8 @@ with PHP-shaped keys (`scheme`, `host`, `port`, …); parse failures yield `{}`
 (PHP returns `false` — callers that branch on false may need a follow-up).
 Rationale: closes common front-controller patterns without `Date`/`Math` in
 handlers for those paths.
-  Rejected: returning literal `false` from `parseUrlParts` in TS (breaks typed
-  record consumers); use empty object + optional chaining in emitted PHP style.
+Rejected: returning literal `false` from `parseUrlParts` in TS (breaks typed
+record consumers); use empty object + optional chaining in emitted PHP style.
 - **2026-04-23 — D39** **Oracle footprint (static WebIR)** — `computeOracleFootprint`
 in `@chrysalis/webir` walks each `web.request.route` → handler body, unions
 reachable effects (`effectsReachableFrom`), aggregates `db.read` tables as a
@@ -1117,18 +1117,18 @@ normalized per route. `chrysalis status` surfaces a condensed summary after
 ingest. Rationale: teams need a first-party signal for “how heavy is honest
 replay for this module?” without running PHP or adding migration-tooling
 dependencies; the IR already encodes the effect surface.
-  Rejected: inferring footprint from emitted TypeScript or from trace files only
-  — WebIR stays the single portable truth; traces refine replay but do not
-  replace static effect summaries for greenfield CI.
+Rejected: inferring footprint from emitted TypeScript or from trace files only
+— WebIR stays the single portable truth; traces refine replay but do not
+replace static effect summaries for greenfield CI.
 - **2026-04-23 — D40** **Oracle footprint artifact and full effect surface** —
 Footprint aggregates `cache.read` / `cache.write` and `fs.read` / `fs.write`,
 distinct `**db.write`** tables (`writeTablesHint`), and `**totalHoleCount**`
 across routes. `chrysalis status --project` persists
 `reports/oracle-footprint.json` (versioned `chrysalisSchema`) for CI and
 diffing; machine consumers use that file or `status --json` (`routes[]`).
-  Rejected: treating write tables as replay tape rows in the same list as reads
-  — writes shape DB state; the hint names tables that need seeding or isolation,
-  not SELECT result replay.
+Rejected: treating write tables as replay tape rows in the same list as reads
+— writes shape DB state; the hint names tables that need seeding or isolation,
+not SELECT result replay.
 - **2026-04-24 — D41** **CI gates: structured checks, WebIR stays truth** —
 GitHub Actions use `scripts/ci-gates.mjs` for migration/oracle-footprint JSON
 invariants, tiny-n1 insight catalog counts, rewrite pre-baseline XSS findings,
@@ -1139,9 +1139,9 @@ Rationale: matches principle that **WebIR is the owned intermediate language**
 (oracle footprint and coverage still come from IR + traces), while **edges**
 use boring, explicit scripts; the **host toolchain remains TypeScript** (no new
 GP language, no host rewrite).
-  Rejected: expanding CI with more string-matching on generated `.ts` without
-  structure — high false positive/negative rate and obscures real regressions.
-  CI JSON readers strip a UTF-8 BOM so artifacts stay valid across platforms.
+Rejected: expanding CI with more string-matching on generated `.ts` without
+structure — high false positive/negative rate and obscures real regressions.
+CI JSON readers strip a UTF-8 BOM so artifacts stay valid across platforms.
 - **2026-04-24 — D42** **N+1 batching helpers (emit + simulator)** — Emitted
 apps include `queryAllWhereIn(selectList, table, idColumn, ids)` on `db.js`
 (static SQL identifiers only; dynamic data is the id list). `runtime.js`
@@ -1152,8 +1152,8 @@ via internal `data.call` callees `__chrysalis_query_all_where_in`,
 `db.read` for D19. Rationale: unblocks the `batch-n1-read` rewrite pass
 without inventing a new emit backend; SQL tape shape will change when a batch
 replaces per-row queries (regenerate corpora or extend replay matching).
-  Rejected: dynamic table/column strings from request input in `queryAllWhereIn`
-  — that reintroduces injection; only codegen literals are allowed.
+Rejected: dynamic table/column strings from request input in `queryAllWhereIn`
+— that reintroduces injection; only codegen literals are allowed.
 - **2026-04-23 — D43** `**batch-n1-read` rewrite pass** — `@chrysalis/rewrite`
 ships `batch-n1-read` (in `DEFAULT_PASSES` after `parameterize-sql`). It
 splices batched-load `data.call` nodes (`__chrysalis_pluck`,
@@ -1165,9 +1165,9 @@ with the **post** simulation, not the generic pre→post predictor, so fewer
 executed reads after batching do not roll the batch back. Invariants omit
 `effect.db.query` from strict effect-count preservation because orphaned inner
 query nodes may remain in the graph while executed reads shrink.
-  Rejected: silently rewriting N+1 patterns that violate v1 preconditions —
-  the pass throws or is skipped; unsupported shapes remain insight findings
-  until a broader pass or manual fix.
+Rejected: silently rewriting N+1 patterns that violate v1 preconditions —
+the pass throws or is skipped; unsupported shapes remain insight findings
+until a broader pass or manual fix.
 - **2026-04-23 — D44** `**boundary-zod` + foreach reduce + multi-inner N+1** —
 `**boundary-zod`** rewrites `scattered-validation` opportunities on POST
 fields: clone one `request.field`, `__chrysalis_zod_body_field` →
@@ -1177,9 +1177,9 @@ emit prefers `Array.reduce` when init + foreach + accumulating assign match a
 strict structural pattern. `**batch-n1-read`** batches multiple inner reads in
 one application when each satisfies the existing SQL/FK/`__assign`
 preconditions.
-  Rejected: adding a hard npm `zod` dependency to every emitted app — the helper
-  matches the simulator; projects may add `zod` at the app layer when they want
-  full schema objects.
+Rejected: adding a hard npm `zod` dependency to every emitted app — the helper
+matches the simulator; projects may add `zod` at the app layer when they want
+full schema objects.
 - **2026-04-24 — D45** **Milestone 2 closure — archaeology form signal + dispatch
 union + effect widening + batch `SELECT *`.** (1) **Archaeology:** optional
 recursive scan of `.php` sources for inline `<input|select|textarea name=…>`
@@ -1273,7 +1273,7 @@ PHP session cookie as the visit counter; verify replays it with the same
 that issues `**header('Location: /health')`** then `**exit**`, lowering to the
 same `**effect.redirect**` path as tiny-blog logins. The flagship verify driver
 records a   `**GET /jump**` with `**redirect: manual**` so the oracle preserves the
-**3xx + `Location`** contract for dual-emit replay (no automatic follow).
+**3xx + `Location**` contract for dual-emit replay (no automatic follow).
 - **2026-04-24 — D56** `**laravel-min` production-shaped session auth (fixture).**
 Replaces naive body-only session login with `**GET /login`** (HTML form + static
 `**csrf**` in session), `**POST /login**` (`**query_one**` + `**password_verify**`,
@@ -1398,7 +1398,7 @@ ingest/emit parity rises to fourteen handlers across Hono/Fastify.
 - **2026-04-24 — D79** **Composer template second aggregate JSON route (`/chrysalis-lib-count`).**
 Adds `**lib_count_show.php`**: same bounded `**query_one**` aggregate as `**/chrysalis-count**`, but
 returns `**{"countViaLib":…}**` so the oracle + dual replay corpus exercises an additional JSON
-envelope without new SQL shapes. **Note:** ingest widens effects for same-file and `**lib/**`**
+envelope without new SQL shapes. Note: ingest widens effects for same-file and `**lib/****`
 helpers (D31/D30), but `**emit-***` still records emit-time holes for `**data.call**` to arbitrary
 PHP function names that are not in `**emitKnownCall**`; this handler stays **inline-only** so the
 flagship slice remains **zero-hole** until callee emission is generalized. Verify adds
@@ -1460,144 +1460,144 @@ Adds `**max_id_show.php`**: `**SELECT MAX(id) AS x FROM items**` via `**query_on
 template handlers. Same “incremental corpus only” scope as **D86**.
 - **2026-04-25 — D88** **Composer template `ROUND(AVG(id))` aggregate route (`/chrysalis-avg-id`).**
 Adds `**avg_id_show.php`**: `**SELECT ROUND(AVG(id)) AS a FROM items**` via `**query_one**`, returning
-`**{"avgId":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes, `**verify-flagship-laravel-full`**
+`**{"avgId":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes, `**verify-flagship-laravel-full**`
 (two `**GET**` captures), ingest + dual-emit parity tests, and README counts move to **twenty** template handlers.
 Same incremental oracle scope as **D86–D87**.
 - **2026-04-25 — D89** **Composer template id-span aggregate route (`/chrysalis-id-span`).**
 Adds `**id_span_show.php`**: `**SELECT (MAX(id) - MIN(id)) AS s FROM items**` via `**query_one**`, returning
-`**{"idSpan":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes, `**verify-flagship-laravel-full`**
+`**{"idSpan":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes, `**verify-flagship-laravel-full**`
 (two `**GET**` captures), ingest + dual-emit parity tests, and README counts move to **twenty-one** template handlers.
 Same incremental oracle scope as **D86–D88**.
 - **2026-04-25 — D90** **Composer template sum-squares aggregate route (`/chrysalis-sum-squares`).**
 Adds `**sum_squares_show.php`**: `**SELECT SUM(id * id) AS ss FROM items**` via `**query_one**`, returning
-`**{"sumSquares":14}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes, `**verify-flagship-laravel-full`**
+`**{"sumSquares":14}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes, `**verify-flagship-laravel-full**`
 (two `**GET**` captures), ingest + dual-emit parity tests, and README counts move to **twenty-two** template handlers.
 Same incremental oracle scope as **D86–D89**.
 - **2026-04-25 — D91** **Composer template filtered-count route (`/chrysalis-even-count`).**
 Adds `**even_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE (id % 2) = 0**` via `**query_one**`,
-returning `**{"evenCount":1}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"evenCount":1}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **twenty-three** template handlers. Same incremental oracle scope as **D86–D90**.
 - **2026-04-25 — D92** **Composer template odd-count route (`/chrysalis-odd-count`).**
 Adds `**odd_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE (id % 2) = 1**` via `**query_one**`,
-returning `**{"oddCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"oddCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **twenty-four** template handlers. Same incremental oracle scope as **D86–D91**.
 - **2026-04-25 — D93** **Composer template greater-than filter count (`/chrysalis-gt-two-count`).**
 Adds `**gt_two_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id > 2**` via `**query_one**`,
-returning `**{"gtTwoCount":1}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"gtTwoCount":1}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **twenty-five** template handlers. Same incremental oracle scope as **D86–D92**.
 - **2026-04-25 — D94** **Composer template less-than filter count (`/chrysalis-lt-three-count`).**
 Adds `**lt_three_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id < 3**` via `**query_one**`,
-returning `**{"ltThreeCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"ltThreeCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **twenty-six** template handlers. Same incremental oracle scope as **D86–D93**.
 - **2026-04-25 — D95** **Composer template greater-equal filter count (`/chrysalis-gte-two-count`).**
 Adds `**gte_two_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id >= 2**` via `**query_one**`,
-returning `**{"gteTwoCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"gteTwoCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **twenty-seven** template handlers. Same incremental oracle scope as **D86–D94**.
 - **2026-04-25 — D96** **Composer template less-equal filter count (`/chrysalis-lte-three-count`).**
 Adds `**lte_three_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id <= 3**` via `**query_one**`,
-returning `**{"lteThreeCount":3}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"lteThreeCount":3}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **twenty-eight** template handlers. Same incremental oracle scope as **D86–D95**.
 - **2026-04-25 — D97** **Composer template not-equal filter count (`/chrysalis-ne-two-count`).**
 Adds `**ne_two_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id <> 2**` via `**query_one**`,
-returning `**{"neTwoCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"neTwoCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **twenty-nine** template handlers. Same incremental oracle scope as **D86–D96**.
 - **2026-04-25 — D98** **Composer template BETWEEN filter count (`/chrysalis-between-count`).**
 Adds `**between_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id BETWEEN 2 AND 3**` via `**query_one**`,
-returning `**{"betweenCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"betweenCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty** template handlers. Same incremental oracle scope as **D86–D97**.
 - **2026-04-25 — D99** **Composer template equals filter count (`/chrysalis-eq-one-count`).**
 Adds `**eq_one_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id = 1**` via `**query_one**`,
-returning `**{"eqOneCount":1}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"eqOneCount":1}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-one** template handlers. Same incremental oracle scope as **D86–D98**.
 - **2026-04-25 — D100** **Composer template equals filter count (`/chrysalis-eq-three-count`).**
 Adds `**eq_three_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id = 3**` via `**query_one**`,
-returning `**{"eqThreeCount":1}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"eqThreeCount":1}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-two** template handlers. Same incremental oracle scope as **D86–D99**.
 - **2026-04-25 — D101** **Composer template equals filter count (`/chrysalis-eq-two-count`).**
 Adds `**eq_two_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id = 2**` via `**query_one**`,
-returning `**{"eqTwoCount":1}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"eqTwoCount":1}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-three** template handlers. Same incremental oracle scope as **D86–D100**.
 - **2026-04-25 — D102** **Composer template not-equal filter count (`/chrysalis-ne-one-count`).**
 Adds `**ne_one_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id <> 1**` via `**query_one**`,
-returning `**{"neOneCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"neOneCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-four** template handlers. Same incremental oracle scope as **D86–D101**.
 - **2026-04-25 — D103** **Composer template not-equal filter count (`/chrysalis-ne-three-count`).**
 Adds `**ne_three_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id <> 3**` via `**query_one**`,
-returning `**{"neThreeCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"neThreeCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-five** template handlers. Same incremental oracle scope as **D86–D102**.
 - **2026-04-25 — D104** **Composer template less-than filter count (`/chrysalis-lt-two-count`).**
 Adds `**lt_two_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id < 2**` via `**query_one**`,
-returning `**{"ltTwoCount":1}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"ltTwoCount":1}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-six** template handlers. Same incremental oracle scope as **D86–D103**.
 - **2026-04-25 — D105** **Composer template greater-than filter count (`/chrysalis-gt-one-count`).**
 Adds `**gt_one_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id > 1**` via `**query_one**`,
-returning `**{"gtOneCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"gtOneCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-seven** template handlers. Same incremental oracle scope as **D86–D104**.
 - **2026-04-25 — D106** **Composer template greater-or-equal filter count (`/chrysalis-gte-one-count`).**
 Adds `**gte_one_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id >= 1**` via `**query_one**`,
-returning `**{"gteOneCount":3}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"gteOneCount":3}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-eight** template handlers. Same incremental oracle scope as **D86–D105**.
 - **2026-04-25 — D107** **Composer template less-or-equal filter count (`/chrysalis-lte-one-count`).**
 Adds `**lte_one_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id <= 1**` via `**query_one**`,
-returning `**{"lteOneCount":1}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"lteOneCount":1}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **thirty-nine** template handlers. Same incremental oracle scope as **D86–D106**.
 - **2026-04-25 — D108** **Composer template bounded filter count (`/chrysalis-between-one-two-count`).**
 Adds `**between_one_two_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id BETWEEN 1 AND 2**`
-via `**query_one**`, returning `**{"betweenOneTwoCount":2}**` on the seeded ids **1..3** table.
-Manifest, Laravel stub routes, `**verify-flagship-laravel-full`** (two `**GET**` captures), ingest +
+via `**query_one**`, returning `**{"betweenOneTwoCount":2}**` on the seeded ids 1..3 table.
+Manifest, Laravel stub routes, `**verify-flagship-laravel-full**` (two `**GET**` captures), ingest +
 dual-emit parity tests, and README counts move to **forty** template handlers. Same incremental
 oracle scope as **D86–D107**.
 - **2026-04-25 — D109** **Composer template greater-than filter count (`/chrysalis-gt-three-count`).**
 Adds `**gt_three_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id > 3**` via `**query_one**`,
-returning `**{"gtThreeCount":0}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"gtThreeCount":0}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **forty-one** template handlers. Same incremental oracle scope as **D86–D108**.
 - **2026-04-25 — D110** **Composer template strict-lower-bound filter count (`/chrysalis-lt-one-count`).**
 Adds `**lt_one_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id < 1**` via `**query_one**`,
-returning `**{"ltOneCount":0}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"ltOneCount":0}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **forty-two** template handlers. Same incremental oracle scope as **D86–D109**.
 - **2026-04-25 — D111** **Composer template inclusive-upper-bound filter count (`/chrysalis-gte-three-count`).**
 Adds `**gte_three_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id >= 3**` via `**query_one**`,
-returning `**{"gteThreeCount":1}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"gteThreeCount":1}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **forty-three** template handlers. Same incremental oracle scope as **D86–D110**.
 - **2026-04-25 — D112** **Composer template inclusive-two filter count (`/chrysalis-lte-two-count`).**
 Adds `**lte_two_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id <= 2**` via `**query_one**`,
-returning `**{"lteTwoCount":2}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"lteTwoCount":2}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **forty-four** template handlers. Same incremental oracle scope as **D86–D111**.
 - **2026-04-25 — D113** **Composer template zero-equality filter count (`/chrysalis-eq-zero-count`).**
 Adds `**eq_zero_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id = 0**` via `**query_one**`,
-returning `**{"eqZeroCount":0}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"eqZeroCount":0}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **forty-five** template handlers. Same incremental oracle scope as **D86–D112**.
 - **2026-04-25 — D114** **Composer template zero-inequality filter count (`/chrysalis-ne-zero-count`).**
 Adds `**ne_zero_count_show.php`**: `**SELECT COUNT(*) AS c FROM items WHERE id <> 0**` via `**query_one**`,
-returning `**{"neZeroCount":3}**` on the seeded ids **1..3** table. Manifest, Laravel stub routes,
-`**verify-flagship-laravel-full`** (two `**GET**` captures), ingest + dual-emit parity tests, and README
+returning `**{"neZeroCount":3}**` on the seeded ids 1..3 table. Manifest, Laravel stub routes,
+`**verify-flagship-laravel-full**` (two `**GET**` captures), ingest + dual-emit parity tests, and README
 counts move to **forty-six** template handlers. Same incremental oracle scope as **D86–D113**.
 - **2026-04-25 — D115** **Composer complexity ladder pack (realistic → unrealistic).**
 Adds `**items_snapshot_show.php`**, `**items_group_parity_show.php**`, `**items_cte_rollup_show.php**`,
-and `**recursive_stress_show.php**` with deterministic outputs on seeded ids **1..3**:
-`**/chrysalis-items-snapshot`** (`COUNT/MIN/MAX/SUM` in one row),
+and `**recursive_stress_show.php**` with deterministic outputs on seeded ids 1..3:
+`**/chrysalis-items-snapshot**` (`COUNT/MIN/MAX/SUM` in one row),
 `**/chrysalis-items-group-parity**` (`GROUP BY id % 2` parity buckets),
 `**/chrysalis-items-cte-rollup**` (`WITH`-CTE rollup), and
 `**/chrysalis-recursive-stress**` (recursive CTE stress shape intended as near-unrealistic upper bound).
@@ -1782,8 +1782,8 @@ use `**assertRouteContainsStatus**` so `**POST /login**` can include both **403*
 **302** traces without weakening the happy-path redirect pin.
 - **2026-04-26 — D143** `**laravel-min` login credential negative traces.**
 Adds oracle `**POST /login`** with valid CSRF but wrong password (**401** +
-`**invalid credentials`**) and with only **CSRF** (empty user/pass → **400** +
-`**credentials required`**). Post-capture semantics assert all four status/body
+`**invalid credentials`**) and with only CSRF (empty user/pass → 400 +
+`**credentials required**`). Post-capture semantics assert all four status/body
 variants alongside the happy-path **302** redirect.
 - **2026-04-26 — D144** `**laravel-min` `GET /logout` method guard (404).**
 Oracle driver records `**GET /logout`** against the fixture front controller; only
@@ -1792,14 +1792,14 @@ default as `**GET /echo**`). Post-capture semantics pin `**GET /logout**` status
 - **2026-04-26 — D145** `**laravel-min` `POST /session/me` method guard (404).**
 Oracle driver records wrong-method `**POST /session/me`**; the fixture front
 controller wires `**GET /session/me**` only, so default handling remains
-**404** `**Not Found`**. Post-capture semantics pin status/body for this route.
+404 `**Not Found**`. Post-capture semantics pin status/body for this route.
 - **2026-04-26 — D146** `**laravel-min` `POST /session/visit` method guard (404).**
 Oracle driver records wrong-method `**POST /session/visit`**; the fixture front
 controller wires `**GET /session/visit**` only, so default handling remains
-**404** `**Not Found`**. Post-capture semantics pin status/body for this route.
+404 `**Not Found**`. Post-capture semantics pin status/body for this route.
 - **2026-04-26 — D147** `**laravel-min` `POST /count` method guard (404).**
 Oracle driver records wrong-method `**POST /count`**; the fixture front controller
-wires `**GET /count**` only, so default handling remains **404** `**Not Found`**.
+wires `**GET /count**` only, so default handling remains 404 `**Not Found**`.
 Post-capture semantics pin status/body for this route.
 - **2026-04-26 — D148-D160** `**laravel-min` method-guard expansion pack (404).**
 Oracle driver now records additional wrong-method calls and post-capture semantics
@@ -1966,257 +1966,219 @@ broader bullets (CSRF rotation semantics, Gate/MFA/OAuth) read like aspirations 
 explicit widening boundary.
 **Now**, Milestone **6A owns** the Chrysalis adoption path for **first-party Laravel-shaped**
 authentication and authorization surfaces **when oracle-backed**: session-bound login flows,
-`**Gate` / policies / `Authorization`**, **Sanctum / Passport / PAT** tokens as emitted sites or
+`**Gate` / policies / `Authorization`**, Sanctum / Passport / PAT tokens as emitted sites or
 `**auth:` holes**, **Fortify / Breeze scaffolding hooks**, and **OAuth/OAuth2/Socialite**
 redirect/token exchanges — always **through WebIR**, never compat-default shortcuts. Anything not
 lowered yet stays an `**auth:`-labeled hole** or unresolved `**auth:` emit call**, tracked beside
 ingest `**authIngestHoleMax`** for closure trending.
-  **Still excluded:** translations **without** oracle-attested emitted handlers (DESIGN §3),
-  silent guessing on MFA/crypto ceremonies, and proprietary middleware **without** a reproducible
-  NDJSON corpus (customers may attach corpora to bring those surfaces **into** scope case-by-case).
-
+**Still excluded:** translations **without** oracle-attested emitted handlers (DESIGN §3),
+silent guessing on MFA/crypto ceremonies, and proprietary middleware **without** a reproducible
+NDJSON corpus (customers may attach corpora to bring those surfaces **into** scope case-by-case).
 - **2026-04-27 — D190** **Flagship oracle probes for `Gate` + Sanctum/OAuth-shaped callees.**
-  **`laravel-min`** adds **`GET /gate-probe`** (and `?m=deny`) backed by a tiny
-  `Illuminate\Support\Facades\Gate` stub so the PHP oracle captures **`allows`/`denies`** static
-  calls before ingest. **`laravel-full/chrysalis-templates`** adds **`GET /chrysalis-auth-probe`**
-  returning JSON from stub **`Laravel\Sanctum\NewAccessToken::probe`** and
-  **`League\OAuth2\Client\GenericProvider::probe`**. Both flagship verify scripts pin response shapes;
-  **`milestone-6a-auth-verify-gate.mjs`** includes the new routes in the Milestone 6A replay slice.
-  **Ingest** lowers these calls to deterministic WebIR (`Gate::{allows,denies}` → string equality on the
-  committed probe ability names; the two `::probe()` methods → literals) so dual-emit stays hole-free.
-
-- **2026-04-27 — D191** **`json_encode` + associative PHP arrays in WebIR.**
-  Single-argument **`json_encode($v)`** lowers to **`data.call` `json_encode`**; **emit** maps to
-  **`JSON.stringify`**. PHP **array literals** whose entries all use **string literal** keys lower to
-  **`__object_literal`** (flat `key`, `value` operand pairs); unkeyed list entries still use
-  **`__array_literal`**. Mixed key styles (or non-string-literal keys) become an **ingest hole**
-  (`array: mixed or non-string-literal keys`) so we do not silently mis-translate. The flagship
-  **`chrysalis-auth-probe`** handler again uses idiomatic **`return json_encode([ "k" => … ]);`**
-  (D190’s string-concat workaround is superseded).
-
+`**laravel-min**` adds `**GET /gate-probe**` (and `?m=deny`) backed by a tiny
+`Illuminate\Support\Facades\Gate` stub so the PHP oracle captures `**allows`/`denies**` static
+calls before ingest. `**laravel-full/chrysalis-templates**` adds `**GET /chrysalis-auth-probe**`
+returning JSON from stub `**Laravel\Sanctum\NewAccessToken::probe**` and
+`**League\OAuth2\Client\GenericProvider::probe**`. Both flagship verify scripts pin response shapes;
+`**milestone-6a-auth-verify-gate.mjs**` includes the new routes in the Milestone 6A replay slice.
+**Ingest** lowers these calls to deterministic WebIR (`Gate::{allows,denies}` → string equality on the
+committed probe ability names; the two `::probe()` methods → literals) so dual-emit stays hole-free.
+- **2026-04-27 — D191** `**json_encode` + associative PHP arrays in WebIR.**
+Single-argument `**json_encode($v)**` lowers to `**data.call` `json_encode**`; **emit** maps to
+`**JSON.stringify**`. PHP **array literals** whose entries all use **string literal** keys lower to
+`**__object_literal**` (flat `key`, `value` operand pairs); unkeyed list entries still use
+`**__array_literal**`. Mixed key styles (or non-string-literal keys) become an **ingest hole**
+(`array: mixed or non-string-literal keys`) so we do not silently mis-translate. The flagship
+`**chrysalis-auth-probe**` handler again uses idiomatic `**return json_encode([ "k" => … ]);**`
+(D190’s string-concat workaround is superseded).
 - **2026-04-27 — D192** **Socialite + Fortify shaped `::probe()` on `chrysalis-templates`.**
-  Adds **`GET /chrysalis-socialite-fortify-probe`** with committed stubs
-  **`Laravel\Socialite\Facades\Socialite::probe`** and **`Laravel\Fortify\Fortify::probe`**
-  returning fixed strings. **Ingest** lowers both to string **literals** (same pattern as D190
-  Sanctum/OAuth probes) so dual-emit stays hole-free; **verify-flagship-laravel-full** pins the JSON
-  body; **milestone-6a-auth-verify-gate** includes the route in the auth slice.
-
+Adds `**GET /chrysalis-socialite-fortify-probe**` with committed stubs
+`**Laravel\Socialite\Facades\Socialite::probe**` and `**Laravel\Fortify\Fortify::probe**`
+returning fixed strings. **Ingest** lowers both to string **literals** (same pattern as D190
+Sanctum/OAuth probes) so dual-emit stays hole-free; **verify-flagship-laravel-full** pins the JSON
+body; **milestone-6a-auth-verify-gate** includes the route in the auth slice.
 - **2026-04-27 — D193** **Glayzzle `throw` + `new` (unqualified) through WebIR to emit.**
-  Parser schema **0.1.3** adds **`Throw`** statements and **`New`** expressions (`new` with a
-  `name` target only; dynamic `new $x` stays `UnknownExpr`). **Ingest** lowers **`throw`**
-  to **`data.call` `__throw`** (same terminal family as **`__return`** / **`__exit`**) and
-  **`new Foo(…)`** with identifier segments to **`__new`** with a string **literal** class name
-  operand (see **D194** for FQN). **Emit** maps **`__throw`** to **`throw …;`** and **`__new`**
-  to **`new ClassName(…)`** when the first operand is a single-segment literal. **Verify**
-  attribution treats **`__throw`** like **`__return`** for status/body heuristics. Fixture
-  **`fixtures/throw-new-probe`** exercises the three routes.
-
+Parser schema **0.1.3** adds `**Throw**` statements and `**New**` expressions (`new` with a
+`name` target only; dynamic `new $x` stays `UnknownExpr`). **Ingest** lowers `**throw**`
+to `**data.call` `__throw**` (same terminal family as `**__return**` / `**__exit**`) and
+`**new Foo(…)**` with identifier segments to `**__new**` with a string **literal** class name
+operand (see **D194** for FQN). **Emit** maps `**__throw**` to `**throw …;**` and `**__new**`
+to `**new ClassName(…)**` when the first operand is a single-segment literal. **Verify**
+attribution treats `**__throw**` like `**__return**` for status/body heuristics. Fixture
+`**fixtures/throw-new-probe**` exercises the three routes.
 - **2026-04-27 — D194** **FQN / multi-segment `new` — WebIR `__new`, emit `phpFqnNew`, runtime hole.**
-  **Ingest** no longer emits an ingest **hole** for valid PHP class names with two or more
-  segments joined by `\\` (each segment a normal PHP identifier). The first **`__new`**
-  operand remains a **string literal** holding the full FQN. **Emit** keeps direct
-  **`new Ident(…)`** for a **single** segment; for FQN it emits **`phpFqnNew`** with the
-  FQN string literal and ctor args
-  and sets **`usesPhpFqnNew`** so generated handlers import **`phpFqnNew`** from runtime.
-  **`phpFqnNew`** delegates to **`__hole(`new:` + fqn with `\\` → `.`)** so translation
-  stays compiling and observable; there is still no static TypeScript class for an arbitrary
-  PHP namespace. **Dynamic `new $x`** remains **`UnknownExpr`** / unsupported; **class registry** wiring for
-  **`phpFqnNew`** remains future work.
-
-- **2026-04-27 — D195** **`nikic/php-parser` subprocess provider (`provider: "nikic"`).**
-  **`packages/parser-bridge`** uses Composer **`nikic/php-parser`**; **`php/dump-nikic-ast.php`** prints
-  **`json_encode`** of the Stmt array (stdin mode `-` for **`parseSource`**). **`providers/nikic-json.ts`**
-  maps **`nodeType`** JSON to canonical **`PhpAst`** (parallel to **`glayzzle`**). **`Expr_ConstFetch`**
-  for **`null` / `true` / `false`** lowers like glayzzle keyword literals. **`vendor/`** is not committed;
-  CI runs **`composer install`** in **`packages/parser-bridge`** before **`pnpm`** tests so **`nikic`**
-  parity specs run.
-
+**Ingest** no longer emits an ingest **hole** for valid PHP class names with two or more
+segments joined by `\\` (each segment a normal PHP identifier). The first `**__new**`
+operand remains a **string literal** holding the full FQN. **Emit** keeps direct
+`**new Ident(…)**` for a **single** segment; for FQN it emits `**phpFqnNew**` with the
+FQN string literal and ctor args
+and sets `**usesPhpFqnNew**` so generated handlers import `**phpFqnNew**` from runtime.
+`**phpFqnNew**` delegates to `**__hole(`new:`+ fqn with→`.`)** so translation stays compiling and observable; there is still no static TypeScript class for an arbitrary PHP namespace. **Dynamic` new $x`** remains **`UnknownExpr`** / unsupported; **class registry** wiring for **`phpFqnNew`** remains future work.
+- **2026-04-27 — D195** `**nikic/php-parser` subprocess provider (`provider: "nikic"`).**
+`**packages/parser-bridge*`* uses Composer `**nikic/php-parser**`; `**php/dump-nikic-ast.php**` prints
+`**json_encode**` of the Stmt array (stdin mode `-` for `**parseSource**`). `**providers/nikic-json.ts**`
+maps `**nodeType**` JSON to canonical `**PhpAst**` (parallel to `**glayzzle**`). `**Expr_ConstFetch**`
+for `**null` / `true` / `false**` lowers like glayzzle keyword literals. `**vendor/**` is not committed;
+CI runs `**composer install**` in `**packages/parser-bridge**` before `**pnpm**` tests so `**nikic**`
+parity specs run.
 - **2026-04-27 — D196** **Ingest + CLI parser-provider wiring (`--parser-provider`).**
-  **`@chrysalis/ingest`** adds **`IngestOptions.parserProvider`** / **`IngestFileOptions.parserProvider`**
-  and threads the provider through route parsing plus **`buildCallEffectMap`** (lib/vendor/route helper scans).
-  CLI commands that ingest source (**`ingest`**, **`emit`**, **`verify --project`**, **`repair`**,
-  **`insight`**, **`rewrite`**, **`status --project`**) accept **`--parser-provider glayzzle|nikic`**.
-  Default remains glayzzle for stability and zero-PHP setup; nikic is opt-in and explicitly exercised
-  by ingest integration tests when parser-bridge vendor deps are present.
-
+`**@chrysalis/ingest`** adds `**IngestOptions.parserProvider**` / `**IngestFileOptions.parserProvider**`
+and threads the provider through route parsing plus `**buildCallEffectMap**` (lib/vendor/route helper scans).
+CLI commands that ingest source (`**ingest**`, `**emit**`, `**verify --project**`, `**repair**`,
+`**insight**`, `**rewrite**`, `**status --project**`) accept `**--parser-provider glayzzle|nikic**`.
+Default remains glayzzle for stability and zero-PHP setup; nikic is opt-in and explicitly exercised
+by ingest integration tests when parser-bridge vendor deps are present.
 - **2026-04-28 — D197** **Close two Milestone-2 depth gaps: corpus-gated N+1 rewrite + FQN ctor bridge.**
-  (1) **Rewrite gating:** `batch-n1-read` now requires corpus confirmation (`corpusConfirmations>=1`
-  or `observedMaxPerRequest>=2`) before it applies, enforcing the intended corpus-backed confidence
-  model for high-impact SQL rewrites. Structural shape still must match (`row-or-null`, one `?`,
-  foreach member param, SQL lookup form). (2) **FQN runtime bridge:** emitted runtimes expose
-  `registerPhpFqnCtor(fqn, ctor)`; `phpFqnNew` first checks that registry, then falls back to hole
-  delegation. This keeps default-safe behavior while allowing projects to close specific FQN holes
-  without custom emitter forks.
-
+(1) **Rewrite gating:** `batch-n1-read` now requires corpus confirmation (`corpusConfirmations>=1`
+or `observedMaxPerRequest>=2`) before it applies, enforcing the intended corpus-backed confidence
+model for high-impact SQL rewrites. Structural shape still must match (`row-or-null`, one `?`,
+foreach member param, SQL lookup form). (2) **FQN runtime bridge:** emitted runtimes expose
+`registerPhpFqnCtor(fqn, ctor)`; `phpFqnNew` first checks that registry, then falls back to hole
+delegation. This keeps default-safe behavior while allowing projects to close specific FQN holes
+without custom emitter forks.
 - **2026-04-28 — D198** **Model dynamic class construction (`new $x(...)`) end-to-end.**
-  Parser providers now produce canonical **`NewDynamic`** when `new` targets a non-name class
-  expression (keeping anonymous classes as unsupported holes). Ingest lowers this to
-  **`__new_dynamic(classExpr, ...args)`** instead of a generic unknown hole. Emit lowers
-  `__new_dynamic` to runtime **`phpDynamicNew`**, and emitted runtimes resolve the class
-  expression through the existing constructor registry when it is a string, otherwise delegating
-  to hole `new:dynamic`. This preserves safety-by-default while letting adopters close dynamic
-  constructor gaps without backend-specific emitter forks.
-
+Parser providers now produce canonical `**NewDynamic`** when `new` targets a non-name class
+expression (keeping anonymous classes as unsupported holes). Ingest lowers this to
+`**__new_dynamic(classExpr, ...args)**` instead of a generic unknown hole. Emit lowers
+`__new_dynamic` to runtime `**phpDynamicNew**`, and emitted runtimes resolve the class
+expression through the existing constructor registry when it is a string, otherwise delegating
+to hole `new:dynamic`. This preserves safety-by-default while letting adopters close dynamic
+constructor gaps without backend-specific emitter forks.
 - **2026-04-28 — D199** **Expose dynamic-constructor debt in status dashboards.**
-  `chrysalis status --project ...` now computes top ingest hole reasons and explicitly reports
-  `new:dynamic` hole count. JSON output includes `residualLegacy.topHoleReasons` and
-  `residualLegacy.dynamicNewHoleCount` so CI and migration dashboards can track dynamic
-  constructor closure as a first-class KPI rather than an undifferentiated hole total.
-  **D199b:** `residualLegacy.dynamicNewWebIrCount` counts WebIR `data.call` sites with callee
-  `__new_dynamic` (the normal ingest lowering for `new $x(...)`), distinct from rare ingest
-  holes whose reason begins with `new:dynamic`.
-
+`chrysalis status --project ...` now computes top ingest hole reasons and explicitly reports
+`new:dynamic` hole count. JSON output includes `residualLegacy.topHoleReasons` and
+`residualLegacy.dynamicNewHoleCount` so CI and migration dashboards can track dynamic
+constructor closure as a first-class KPI rather than an undifferentiated hole total.
+**D199b:** `residualLegacy.dynamicNewWebIrCount` counts WebIR `data.call` sites with callee
+`__new_dynamic` (the normal ingest lowering for `new $x(...)`), distinct from rare ingest
+holes whose reason begins with `new:dynamic`.
 - **2026-04-28 — D200** **Corpus-gated `parameterize-sql` + trace boost for `raw-sql-concat`.**
-  High-impact SQL rewrites stay corpus-backed: `parameterize-sql` applies only when
-  `corpusConfirmations>=1` or `observedMaxPerRequest>=2`, matching `batch-n1-read`.
-  `boostRawSqlConcat` attaches those fields when oracle traces on the opportunity route include
-  at least one `sql.query` event (per-trace SQL counts feed `observedMaxPerRequest`). Insight
-  with `--traces` therefore supplies evidence automatically; tests may inject evidence explicitly.
-
+High-impact SQL rewrites stay corpus-backed: `parameterize-sql` applies only when
+`corpusConfirmations>=1` or `observedMaxPerRequest>=2`, matching `batch-n1-read`.
+`boostRawSqlConcat` attaches those fields when oracle traces on the opportunity route include
+at least one `sql.query` event (per-trace SQL counts feed `observedMaxPerRequest`). Insight
+with `--traces` therefore supplies evidence automatically; tests may inject evidence explicitly.
 - **2026-04-28 — D201** **Corpus-gated `sanitize-output` + oracle footprint `dynamicNewCount`.**
-  XSS sanitization rewrites match other high-impact passes: `sanitize-output` applies only when
-  `corpusConfirmations>=1` or `observedMaxPerRequest>=2`. Static oracle footprint (`computeOracleFootprint`)
-  counts **`data.call`** sites with callee **`__new_dynamic`** per route (`dynamicNewCount`), bumps hydration weight,
-  and CLI JSON/report aggregates **`routesWithDynamicNew`** so migration dashboards surface dynamic-constructor
-  debt alongside replay hydration hints.
-
+XSS sanitization rewrites match other high-impact passes: `sanitize-output` applies only when
+`corpusConfirmations>=1` or `observedMaxPerRequest>=2`. Static oracle footprint (`computeOracleFootprint`)
+counts `**data.call`** sites with callee `**__new_dynamic**` per route (`dynamicNewCount`), bumps hydration weight,
+and CLI JSON/report aggregates `**routesWithDynamicNew**` so migration dashboards surface dynamic-constructor
+debt alongside replay hydration hints.
 - **2026-04-28 — D202** **Stronger default oracle redaction + verify replay throughput hook.**
-  **`DEFAULT_REDACTION`** expands coverage for common web leaks (API key / auth-token headers, Laravel
-  and framework session cookies, CSRF-shaped POST fields, OAuth-ish query params, `response.headers.set-cookie`)
-  while keeping **`packages/oracle-php/src/Redactor.php`** in lockstep with `packages/oracle/src/redaction.ts`.
-  **`replayCorpus`** accepts optional **`concurrency` > 1** only when **`disableCookieChain: true`**, using an
-  isolated cookie jar per trace and returning outcomes in chronological order — safe for stress corpora
-  without cross-request session coupling; default remains sequential for the common cookie-chained case.
-
-- **2026-04-28 — D203** **`sql.row.<field>` redaction for SELECT row captures.**
-  Oracle **`sql.query`** events may include **`rows`** (bounded assoc payloads). Default rules now
-  **hash or mask** common high-risk **column names** (`password`, `token`, `api_key`, …) at capture time
-  in   **`Redactor.php`**, with the same paths in **`DEFAULT_REDACTION`** for config parity. **Bind
-  `params` are not blanket-redacted** so recorded-SQL replay and tape semantics stay usable; optional
-  targeted **`sql.params[...]`** bind rules ship in **D205**.
-
+`**DEFAULT_REDACTION`** expands coverage for common web leaks (API key / auth-token headers, Laravel
+and framework session cookies, CSRF-shaped POST fields, OAuth-ish query params, `response.headers.set-cookie`)
+while keeping `**packages/oracle-php/src/Redactor.php**` in lockstep with `packages/oracle/src/redaction.ts`.
+`**replayCorpus**` accepts optional `**concurrency` > 1** only when `**disableCookieChain: true`**, using an
+isolated cookie jar per trace and returning outcomes in chronological order — safe for stress corpora
+without cross-request session coupling; default remains sequential for the common cookie-chained case.
+- **2026-04-28 — D203** `**sql.row.<field>` redaction for SELECT row captures.**
+Oracle `**sql.query`** events may include `**rows**` (bounded assoc payloads). Default rules now
+**hash or mask** common high-risk **column names** (`password`, `token`, `api_key`, …) at capture time
+in   `**Redactor.php`**, with the same paths in `**DEFAULT_REDACTION**` for config parity. **Bind
+`params` are not blanket-redacted** so recorded-SQL replay and tape semantics stay usable; optional
+targeted `**sql.params[...]`** bind rules ship in **D205**.
 - **2026-04-28 — D204** **CLI wiring for verify/repair replay throughput and timeouts.**
-  **`chrysalis verify`** and **`chrysalis repair`** accept **`--replay-concurrency`**, **`--disable-cookie-chain`**,
-  and **`--replay-timeout-ms`**, with env aliases **`CHRYSALIS_VERIFY_REPLAY_CONCURRENCY`**,
-  **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN`**, **`CHRYSALIS_VERIFY_TIMEOUT_MS`** so CI scripts can scale
-  independent-trace replay without forking ad-hoc Node drivers.
-
+`**chrysalis verify`** and `**chrysalis repair**` accept `**--replay-concurrency**`, `**--disable-cookie-chain**`,
+and `**--replay-timeout-ms**`, with env aliases `**CHRYSALIS_VERIFY_REPLAY_CONCURRENCY**`,
+`**CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN**`, `**CHRYSALIS_VERIFY_TIMEOUT_MS**` so CI scripts can scale
+independent-trace replay without forking ad-hoc Node drivers.
 - **2026-04-28 — D205** **Targeted `sql.params[driver:prefix].index` redaction in oracle-php + CI root build.**
-  **`Redactor.php`** now evaluates rules whose path matches **`sql.params[<driver>:<sqlPrefix>].<index>`**
-  against each **`sql.query`** event’s **`params`** list: optional **`driver`** wildcard (`*`), case-insensitive
-  SQL **prefix** match (non-empty prefix required), **`drop`** coerced to **`mask`** so positional bind counts stay
-  stable for SQL tape replay. **`packages/oracle/src/redaction.ts`** documents the grammar (DEFAULT remains
-  conservative — operators opt in to bind rules). CI runs **`pnpm exec tsc -b --force`** at the repo root so the
-  solution **`tsconfig.json`** stays green alongside **`pnpm -r typecheck`**.
-
+`**Redactor.php`** now evaluates rules whose path matches `**sql.params[<driver>:<sqlPrefix>].<index>**`
+against each `**sql.query**` event’s `**params**` list: optional `**driver**` wildcard (`*`), case-insensitive
+SQL **prefix** match (non-empty prefix required), `**drop`** coerced to `**mask**` so positional bind counts stay
+stable for SQL tape replay. `**packages/oracle/src/redaction.ts**` documents the grammar (DEFAULT remains
+conservative — operators opt in to bind rules). CI runs `**pnpm exec tsc -b --force**` at the repo root so the
+solution `**tsconfig.json**` stays green alongside `**pnpm -r typecheck**`.
 - **2026-04-28 — D206** **Mutation-only DEFAULT bind redaction + worker-thread verify opt-in.**
-  **`Redactor.php`** applies **`sql.params[...]`** rules only when **`rowShape`** is empty so SELECT binds that
-  participate in **`x-chrysalis-sql-tape`** **`paramsMatch`** stay bit-accurate; **`DEFAULT_REDACTION`** adds one
-  narrow rule (**`UPDATE users SET password`** bind index 0). **`replayCorpus`** may use **`worker_threads`**
-  (**`workerThreads: true`**) when **`concurrency` > 1**, **`disableCookieChain`**, global **`fetch`** (no injected
-  **`fetch`** / **`onRequest`**), **no** **`module`**, and built **`replay-worker.js`** exists — intended for remote
-  **`chrysalis verify --base-url`** throughput; **`chrysalis repair`** forces **`workerThreads: false`** (always needs IR).
-
-- **2026-04-28 — D207** **`replay-worker.js` resolution for TypeScript test runs.**
-  **`replayCorpus`** looks for **`replay-worker.js`** next to **`replay.js`**, then **`../dist/replay-worker.js`**
-  relative to **`src/replay.ts`**, so Vitest and **`tsx`** can exercise **`workerThreads`** after **`pnpm build`**
-  without requiring **`replay-worker.ts`** beside **`replay.ts`**.
-
-- **2026-04-28 — D208** **`chrysalis.observe.json` merges onto default redaction.**
-  **`loadObserveConfig`** previously treated a present file as a full replacement, so minimal
-  fixtures (for example a single `request.headers.cookie` rule) dropped the rest of
-  **`DEFAULT_REDACTION`**. File rules now **layer**: default order and paths stay, matching paths
-  take the file's **`kind`**, and extra file-only paths append. Trace header redaction hashes change
-  for projects that relied on the old replace semantics.
-
+`**Redactor.php`** applies `**sql.params[...]**` rules only when `**rowShape**` is empty so SELECT binds that
+participate in `**x-chrysalis-sql-tape**` `**paramsMatch**` stay bit-accurate; `**DEFAULT_REDACTION**` adds one
+narrow rule (`**UPDATE users SET password**` bind index 0). `**replayCorpus**` may use `**worker_threads**`
+(`**workerThreads: true**`) when `**concurrency` > 1**, `**disableCookieChain`**, global `**fetch**` (no injected
+`**fetch**` / `**onRequest**`), **no** `**module`**, and built `**replay-worker.js**` exists — intended for remote
+`**chrysalis verify --base-url**` throughput; `**chrysalis repair**` forces `**workerThreads: false**` (always needs IR).
+- **2026-04-28 — D207** `**replay-worker.js` resolution for TypeScript test runs.**
+`**replayCorpus`** looks for `**replay-worker.js**` next to `**replay.js**`, then `**../dist/replay-worker.js**`
+relative to `**src/replay.ts**`, so Vitest and `**tsx**` can exercise `**workerThreads**` after `**pnpm build**`
+without requiring `**replay-worker.ts**` beside `**replay.ts**`.
+- **2026-04-28 — D208** `**chrysalis.observe.json` merges onto default redaction.**
+`**loadObserveConfig`** previously treated a present file as a full replacement, so minimal
+fixtures (for example a single `request.headers.cookie` rule) dropped the rest of
+`**DEFAULT_REDACTION**`. File rules now **layer**: default order and paths stay, matching paths
+take the file's `**kind`**, and extra file-only paths append. Trace header redaction hashes change
+for projects that relied on the old replace semantics.
 - **2026-04-28 — D209** **Strict `chrysalis.observe.json` validation + dev hook for nikic vendor.**
-  **`loadObserveConfig`** now rejects invalid JSON, non-object roots, bad **`redaction`** / **`rules`**
-  shapes, and entries with supported **`kind`** but missing / empty **`path`** (unknown kinds remain
-  skipped). Errors include the absolute config path. **`chrysalis observe`** catches failures and exits
-  **2** with **`[observe]`** stderr. Root **`pnpm run vendor:parser-bridge`** runs **`composer install`**
-  in **`packages/parser-bridge`** so local Vitest can run **nikic** parity tests; **`pretest`** (**`scripts/ensure-parser-bridge-vendor.mjs`**) runs automatically before **`pnpm test`** when **`vendor/`** is missing and Composer is on **`PATH`** (CI relies on this instead of a duplicate workflow step). **`CHRYSALIS_SKIP_PARSER_VENDOR=1`** skips the hook; **`pnpm exec vitest run`** bypasses **`pretest`** entirely.
-
+`**loadObserveConfig`** now rejects invalid JSON, non-object roots, bad `**redaction**` / `**rules**`
+shapes, and entries with supported `**kind**` but missing / empty `**path**` (unknown kinds remain
+skipped). Errors include the absolute config path. `**chrysalis observe**` catches failures and exits
+**2** with `**[observe]`** stderr. Root `**pnpm run vendor:parser-bridge**` runs `**composer install**`
+in `**packages/parser-bridge**` so local Vitest can run **nikic** parity tests; `**pretest`** (`**scripts/ensure-parser-bridge-vendor.mjs**`) runs automatically before `**pnpm test**` when `**vendor/**` is missing and Composer is on `**PATH**` (CI relies on this instead of a duplicate workflow step). `**CHRYSALIS_SKIP_PARSER_VENDOR=1**` skips the hook; `**pnpm exec vitest run**` bypasses `**pretest**` entirely.
 - **2026-04-28 — D210** **UTF-8 BOM tolerance for `chrysalis.observe.json` + explicit Composer in CI.**
-  **`loadObserveConfig`** strips a leading **`U+FEFF`** before **`JSON.parse`** so editor-saved UTF-8-with-BOM
-  configs do not fail spuriously. **`typecheck-and-test`** sets **`tools: composer:v2`** on **`setup-php`**
-  so **`pretest`** vendor install is not dependent on the runner image’s default Composer layout.
-
+`**loadObserveConfig`** strips a leading `**U+FEFF**` before `**JSON.parse**` so editor-saved UTF-8-with-BOM
+configs do not fail spuriously. `**typecheck-and-test**` sets `**tools: composer:v2**` on `**setup-php**`
+so `**pretest**` vendor install is not dependent on the runner image’s default Composer layout.
 - **2026-04-28 — D211** **Multi-lane program (co-designed).** Chrysalis advances on four parallel tracks —
-  **parser contract** (glayzzle default vs **nikic** opt-in, parity and CI honesty), **oracle depth**
-  (broader PHP/DB capture without weakening redaction or replay semantics), **verify UX** (operator-facing
-  failure clarity, narrow replay, large-corpus ergonomics), and **hole economics** (clustered visibility into
-  ingest/emit/auth/dynamic-new debt tied to `status` and sidecars). Work is intentionally **sharded into
-  waves** with explicit dependencies (see **`ROADMAP.md`** “Multi-lane program”); no single release pretends
-  to close all four lanes at once.
-
-- **2026-04-28 — D212** **Verify UX: divergence histogram + actionable footer.** **`@chrysalis/verify`**
-  exports **`divergenceKindHistogram`** / **`failedTraceCount`** on **`CorrectnessReport`**. **`chrysalis verify`**
-  prints an absolute **`summary.json`** path on every run, a per-kind failure tally when any trace fails,
-  and **next steps** (open summary, example **`repair`** line when **`--project`** was passed, otherwise a
-  **`--project`** attribution hint). Threshold failures also repeat the summary path on stderr.
-
+**parser contract** (glayzzle default vs **nikic** opt-in, parity and CI honesty), **oracle depth**
+(broader PHP/DB capture without weakening redaction or replay semantics), **verify UX** (operator-facing
+failure clarity, narrow replay, large-corpus ergonomics), and **hole economics** (clustered visibility into
+ingest/emit/auth/dynamic-new debt tied to `status` and sidecars). Work is intentionally **sharded into
+waves** with explicit dependencies (see `**ROADMAP.md`** “Multi-lane program”); no single release pretends
+to close all four lanes at once.
+- **2026-04-28 — D212** **Verify UX: divergence histogram + actionable footer.** `**@chrysalis/verify`**
+exports `**divergenceKindHistogram**` / `**failedTraceCount**` on `**CorrectnessReport**`. `**chrysalis verify**`
+prints an absolute `**summary.json**` path on every run, a per-kind failure tally when any trace fails,
+and **next steps** (open summary, example `**repair`** line when `**--project**` was passed, otherwise a
+`**--project**` attribution hint). Threshold failures also repeat the summary path on stderr.
 - **2026-04-28 — D213** **Wave-1 multi-lane slice: verify narrowing + nikic CI signal + migration debt script.**
-  **`ReplayOptions`** gains **`onlyRoute`** (exact `METHOD path` key) and **`onlyTraceId`**; **`replayCorpus`**
-  filters before ordering and throws if filters are set but match zero traces. **`chrysalis verify`** wires
-  **`--only-route`** / **`--only-trace-id`** and maps CLI errors to exit **2**. **`chrysalis repair`** does
-  **not** expose these flags: the verified repair gate still requires full-corpus replay for acceptance.
-  CI **`typecheck-and-test`** runs **`pnpm run vendor:parser-bridge`** then **nikic** Vitest alone so parity
-  cannot hide inside the aggregate suite. Root **`pnpm run migration-debt`** runs **`scripts/migration-debt.mjs`**
-  (wraps **`chrysalis status --json`**) for a compact debt summary.
-
-- **2026-04-28 — D214** **Lane B — mysqli CI smoke against live MySQL.** **`typecheck-and-test`** runs a
-  **MySQL 8.0** service container and **`php packages/oracle-php/tests/mysqli_capture_smoke.php`** with
-  **`CHRYSALIS_MYSQLI_SMOKE=1`**. The script uses a minimal **`Recorder`** harness (no full HTTP bootstrap),
-  connects with **`Chrysalis\Oracle\Db\MySQLi`**, runs **`query()`** plus **`prepare` / `bind_param` /
-  `execute` / `get_result()`**, then asserts the NDJSON trace contains at least two **`sql.query`** events
-  with **`driver: "mysqli"`** and a bound **`params`** snapshot for the prepared SELECT. The script exits
-  **0** with a skip message when the env flag is unset so local **`pnpm test`** is unchanged. PHP is built
-  with **`mysqli`** explicitly enabled in CI for this step.
-
-- **2026-04-28 — D215** **Multi-lane Wave 1 closure (operator + ingest + parser honesty).** **`fixtures/mysqli-probe`**
-  documents mysqli-backed **`lib/db.php`** while route files keep the same **`query_*` / `exec_sql`** helper
-  names as **`fixtures/tiny-blog`**, so ingest **`effect.db.query`** tags stay stable without PDO. **`scripts/migration-debt.mjs`**
-  accepts **`--json-out <path>`** / **`--json-out=<path>`** and writes a compact JSON snapshot (**`generatedAt`**, corpus,
-  correctness, residual/migration slices, oracle route count) for CI or local trend scripts. **`@chrysalis/verify`**
-  README gains a **Replay environment** table (**`CHRYSALIS_VERIFY_*`** ↔ CLI flags); **`chrysalis verify`** repeats that
-  pointer on threshold failure stderr. Parser-bridge **nikic** Vitest adds **`fixtures/mysqli-probe/pages/smoke.php`**
-  strip-pos parity against glayzzle.
-
-- **2026-04-28 — D216** **Wave 2 — `db()->query` ingest + economics/verify polish.** Ingest lowers **`db()->query(...)`**
-  (literal or dynamic SQL, optional extra operands for mysqli result modes) to **`effect.db.query`** only when the
-  receiver is a **`db()`** call — arbitrary **`$x->query`** stays unchanged. **`fixtures/mysqli-probe`** adds
-  **`GET /widgets/db-query`** exercising the pattern next to **`query_one`**. CI **`typecheck-and-test`** runs
-  **`migration-debt --json-out reports/ci/migration-debt.json`** after tests and uploads it as **`migration-debt-json`**.
-  Parser-bridge **nikic** Vitest adds strip-pos parity on **`fixtures/mysqli-probe/lib/db.php`**.   **`chrysalis repair`**
-  stderr on failure points at **`packages/verify/README.md`** (full-corpus replay; no narrow filters).
-
+`**ReplayOptions`** gains `**onlyRoute**` (exact `METHOD path` key) and `**onlyTraceId**`; `**replayCorpus**`
+filters before ordering and throws if filters are set but match zero traces. `**chrysalis verify**` wires
+`**--only-route**` / `**--only-trace-id**` and maps CLI errors to exit **2**. `**chrysalis repair`** does
+**not** expose these flags: the verified repair gate still requires full-corpus replay for acceptance.
+CI `**typecheck-and-test`** runs `**pnpm run vendor:parser-bridge**` then **nikic** Vitest alone so parity
+cannot hide inside the aggregate suite. Root `**pnpm run migration-debt`** runs `**scripts/migration-debt.mjs**`
+(wraps `**chrysalis status --json**`) for a compact debt summary.
+- **2026-04-28 — D214** **Lane B — mysqli CI smoke against live MySQL.** `**typecheck-and-test`** runs a
+**MySQL 8.0** service container and `**php packages/oracle-php/tests/mysqli_capture_smoke.php`** with
+`**CHRYSALIS_MYSQLI_SMOKE=1**`. The script uses a minimal `**Recorder**` harness (no full HTTP bootstrap),
+connects with `**Chrysalis\Oracle\Db\MySQLi**`, runs `**query()**` plus `**prepare` / `bind_param` /
+`execute` / `get_result()**`, then asserts the NDJSON trace contains at least two `**sql.query**` events
+with `**driver: "mysqli"**` and a bound `**params**` snapshot for the prepared SELECT. The script exits
+**0** with a skip message when the env flag is unset so local `**pnpm test`** is unchanged. PHP is built
+with `**mysqli**` explicitly enabled in CI for this step.
+- **2026-04-28 — D215** **Multi-lane Wave 1 closure (operator + ingest + parser honesty).** `**fixtures/mysqli-probe`**
+documents mysqli-backed `**lib/db.php**` while route files keep the same `**query_*` / `exec_sql**` helper
+names as `**fixtures/tiny-blog**`, so ingest `**effect.db.query**` tags stay stable without PDO. `**scripts/migration-debt.mjs**`
+accepts `**--json-out <path>**` / `**--json-out=<path>**` and writes a compact JSON snapshot (`**generatedAt**`, corpus,
+correctness, residual/migration slices, oracle route count) for CI or local trend scripts. `**@chrysalis/verify**`
+README gains a **Replay environment** table (`**CHRYSALIS_VERIFY_*`** ↔ CLI flags); `**chrysalis verify**` repeats that
+pointer on threshold failure stderr. Parser-bridge **nikic** Vitest adds `**fixtures/mysqli-probe/pages/smoke.php`**
+strip-pos parity against glayzzle.
+- **2026-04-28 — D216** **Wave 2 — `db()->query` ingest + economics/verify polish.** Ingest lowers `**db()->query(...)`**
+(literal or dynamic SQL, optional extra operands for mysqli result modes) to `**effect.db.query**` only when the
+receiver is a `**db()**` call — arbitrary `**$x->query**` stays unchanged. `**fixtures/mysqli-probe**` adds
+`**GET /widgets/db-query**` exercising the pattern next to `**query_one**`. CI `**typecheck-and-test**` runs
+`**migration-debt --json-out reports/ci/migration-debt.json**` after tests and uploads it as `**migration-debt-json**`.
+Parser-bridge **nikic** Vitest adds strip-pos parity on `**fixtures/mysqli-probe/lib/db.php`**.   `**chrysalis repair**`
+stderr on failure points at `**packages/verify/README.md**` (full-corpus replay; no narrow filters).
 - **2026-04-28 — D217** **Wave 2 closure — alias `db()` receivers + verify/migration-debt polish.** Ingest tracks
-  **`$v = db()`** assignments and treats **`$v->query(...)`** like **`db()->query(...)`** when **`$v`** is in the
-  current alias set; **`If`** / **`Foreach`** fork alias sets per branch and union-merge (over-approximate for
-  effects). **`fixtures/mysqli-probe`** adds **`GET /widgets/alias-query`**. **`chrysalis verify`** prints one
-  summary line per route on stdout; per-trace divergence detail lines move to stderr under **`[verify] stderr:`**
-  when **`failedFrames > 0`**. **`scripts/migration-debt.mjs`** accepts **`--max-holes N`** and
-  **`--min-correctness <0..1>`** (exit **4** on breach or missing required JSON fields). Parser-bridge **nikic**
-  Vitest adds strip-pos parity on **`pages/direct_query.php`** and **`pages/alias_query.php`**; **`packages/cli/tests/migration-debt-gates.test.ts`**
-  covers **`--max-holes`** / **`--min-correctness`**. CI **`typecheck-and-test`** enforces **`--max-holes 0`** on **tiny-blog** and **`--max-holes 5`** on **mysqli-probe**; **`verify-e2e`** enforces **`--max-holes 0`** + **`--min-correctness 1`** on **tiny-blog** after **`verify-tiny-blog.mjs`** (uses **`--report reports/verify`**).
+`**$v = db()`** assignments and treats `**$v->query(...)**` like `**db()->query(...)**` when `**$v**` is in the
+current alias set; `**If**` / `**Foreach**` fork alias sets per branch and union-merge (over-approximate for
+effects). `**fixtures/mysqli-probe**` adds `**GET /widgets/alias-query**`. `**chrysalis verify**` prints one
+summary line per route on stdout; per-trace divergence detail lines move to stderr under `**[verify] stderr:**`
+when `**failedFrames > 0**`. `**scripts/migration-debt.mjs**` accepts `**--max-holes N**` and
+`**--min-correctness <0..1>**` (exit **4** on breach or missing required JSON fields). Parser-bridge **nikic**
+Vitest adds strip-pos parity on `**pages/direct_query.php`** and `**pages/alias_query.php**`; `**packages/cli/tests/migration-debt-gates.test.ts**`
+covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` enforces `**--max-holes 0**` on **tiny-blog** and `**--max-holes 5`** on **mysqli-probe**; `**verify-e2e`** enforces `**--max-holes 0**` + `**--min-correctness 1**` on **tiny-blog** after `**verify-tiny-blog.mjs`** (uses `**--report reports/verify**`).
+- **2026-04-28 — D218** **Lane B — explicit hole for untracked `->query`.** Method calls `**$recv->query(...)`** where the callee is a `**PropertyFetch**` named `**query**` and `**tryLowerDbFactoryQueryCall**` does not apply (receiver is not `**db()**` or a `**db()**`-aliased variable) become `**data.hole**` with reason `**legacy:db-query-unknown-receiver**` instead of the generic `**call:expr**`, so reports and `**chrysalis status**` attribute residual debt accurately. `**fixtures/db-query-unknown-receiver-probe**` uses `**new SQLite3**` (untracked); `**packages/ingest/tests/db-query-unknown-receiver.test.ts**` locks the reason string.
+- **2026-04-28 — D219** **Lane B — mysqli connection aliases.** Assignments `**$v = new mysqli(...)`** (class name `**mysqli**` or FQN ending in `**\\mysqli**`) and `**$v = mysqli_connect(...)**` add `**$v**` to the same alias set as `**$v = db()**`, so `**$v->query(...)**` lowers to `**effect.db.query**`. `**fixtures/mysqli-probe**` adds `**GET /widgets/mysqli-new-query**`; the unknown-receiver negative probe later uses `**new SQLite3**` (**D218** / **D221**).
+- **2026-04-28 — D220** **Lane B — copy alias for DB receivers.** `**$b = $a`** adds `**$b**` to the tracked receiver set when `**$a**` is already tracked (same sequential + `**if` / `foreach**` merge as other aliases). `**fixtures/mysqli-probe**` adds `**GET /widgets/alias-copy**` (`**$a = db(); $b = $a; $b->query(...)**`). CI `**mysqli-probe**` `**--max-holes**` ceiling tracks ingest debt (see **D221**).
+- **2026-04-28 — D221** **Wave 3 — PDO receivers + parser parity + verify stderr.** Ingest tracks `**$v = new PDO(...)`** like `**mysqli**` for `**$v->query**` lowering (`**isPdoClassName**`). `**fixtures/mysqli-probe**` adds `**GET /widgets/pdo-query**`; the unknown-receiver negative probe switches to `**new SQLite3**`. `**fixtures/parser-parity-probe**` holds coalesce + nested-array snippets with **nikic** strip-pos parity. `**chrysalis verify`** sends failed-frame counts, divergence-kind histogram, and next-step hints to **stderr** under `**[verify] stderr: failure diagnostics`**, then per-trace lines under `**[verify] stderr: per-trace divergences**`; **stdout** stays aggregate + per-route summaries.
+- **2026-04-28 — D222** **Lane C — `verify --json-summary`.** `**chrysalis verify ... --json-summary`** routes progress to **stderr** and prints one JSON object on **stdout** with `**kind: "chrysalis.verify.summary"`**, `**aggregate**`, `**endpoints**`, `**divergenceKinds**`, `**failedFrameCount**`, `**failedTraceCount**`, `**pass**` (vs `**threshold**`), and paths. Human tables and duplicate stderr divergence listings are suppressed so `**jq**` / CI can consume **stdout** only. Threshold failure still exits **1** and prints the replay README pointer on **stderr**.
+- **2026-04-28 — D223** **Lane C + D — JSON summary contract + ingest gate.** `**--json-summary`** stdout adds `**schemaVersion: 1**` (increment when fields are renamed or meanings change) and `**toolVersion**` from the repo root `**package.json**` `**version**` (fallback `**0.0.0**`). `**packages/cli/tests/verify-json-summary.test.ts**` locks the shape. CI `**migration-debt**` adds `**--max-holes 1**` on `**fixtures/db-query-unknown-receiver-probe**` (expected single `**legacy:db-query-unknown-receiver**` hole); `**migration-debt:gate:ingest**` includes the same.
+- **2026-04-28 — D224** **Lane B — manifest-declared DB factory returns.** `**chrysalis.routes.json`** may include `**dbFactoryReturnCallees**`: normalized callee labels (`Class::method` or global function) the project **declares** return a connection whose `**->query`** may lower to `**effect.db.query**`. Assignments `**$v = DeclaredFactory::getConnection()**` add `**$v**` to the same alias set as `**db()**`; `**DeclaredFactory::getConnection()->query(...)**` chains are accepted when the static call label is listed. No PHP body analysis — omission keeps `**legacy:db-query-unknown-receiver**`. `**fixtures/mysqli-probe**` adds `**DbFactory::getConnection**`, `**factory_query**`, `**factory_query_chain**`; `**packages/ingest/tests/db-factory-manifest.test.ts**` locks positive and negative behavior.
+- **2026-04-28 — D225** **Lane B + A — Laravel-shaped FQN callees in a probe fixture.** `**fixtures/laravel-shaped-db-factory-probe`** documents three manifest strings used in real stacks: `**Illuminate\Support\Facades\DB::connection**`, `**App\Database\Support\Conn::make**`, `**ChrysalisProbe\Repo::db**` (minimal `**lib/**` classes, not a full framework). `**lib/pdo_probe_schema.php**` creates `**probe_row**` in `**sqlite::memory:**` so handler SQL is valid at PHP runtime. Handlers use `**FROM probe_row**` so `**guessTables**` tags `**db.read:probe_row**`. Ingest + `**migration-debt --max-holes 0**` CI gate; **nikic** strip-pos parity on the four page files.
+- **2026-04-28 — D226** **Lane D — `migration-debt --json-out` contract.** `**scripts/migration-debt.mjs`** `**--json-out**` embeds `**kind: "chrysalis.migration-debt.summary"**`, `**schemaVersion: 1**`, and `**toolVersion**` (repo root `**package.json**`, fallback `**0.0.0**`) alongside `**corpus**`, `**correctness**`, `**residualLegacy**`, `**migration**`, `**oracleFootprintRouteCount**`. CI artifact `**reports/ci/migration-debt.json**` gains the same fields for `**jq**` / dashboards. `**packages/cli/tests/migration-debt-json.test.ts**` locks `**kind**` and `**schemaVersion**`.
+- **2026-04-28 — D227** **Documentation — machine-readable JSON index.** Root `**README.md`** adds a table linking `**status --json**`, `**verify --json-summary**`, and `**migration-debt --json-out**` with contract notes. `**packages/cli/README.md**` documents `**scripts/migration-debt.mjs**` flags and `**verify --json-summary**` top-level keys. `**packages/verify/README.md**` adds a `**--json-summary` field reference** table. `**@chrysalis/ingest`** re-exports `**normalizeDbFactoryCalleeLabel**` alongside `**dbFactoryReturnCalleeSet**` / `**loadRouteManifest**` and lists both helpers in `**packages/ingest/README.md**`.
+- **2026-04-29 — D228** **Lane C — dual-backend verify machine artifact in CI.** `**scripts/verify-tiny-blog.mjs`** now writes `**reports/ci/verify-e2e-summary.json**` with `**kind: "chrysalis.verify.summary.dual"**`, `**schemaVersion: 1**`, `**toolVersion**`, replay metadata, pass/fail bit, and per-backend aggregate/endpoint payloads sourced from the same in-process replay reports. CI `**verify-e2e**` artifact upload now includes this JSON next to `**reports/verify**` so dashboards can consume verify output without parsing logs or replaying twice.
 
-- **2026-04-28 — D218** **Lane B — explicit hole for untracked `->query`.** Method calls **`$recv->query(...)`** where the callee is a **`PropertyFetch`** named **`query`** and **`tryLowerDbFactoryQueryCall`** does not apply (receiver is not **`db()`** or a **`db()`**-aliased variable) become **`data.hole`** with reason **`legacy:db-query-unknown-receiver`** instead of the generic **`call:expr`**, so reports and **`chrysalis status`** attribute residual debt accurately. **`fixtures/db-query-unknown-receiver-probe`** uses **`new SQLite3`** (untracked); **`packages/ingest/tests/db-query-unknown-receiver.test.ts`** locks the reason string.
-
-- **2026-04-28 — D219** **Lane B — mysqli connection aliases.** Assignments **`$v = new mysqli(...)`** (class name **`mysqli`** or FQN ending in **`\\mysqli`**) and **`$v = mysqli_connect(...)`** add **`$v`** to the same alias set as **`$v = db()`**, so **`$v->query(...)`** lowers to **`effect.db.query`**. **`fixtures/mysqli-probe`** adds **`GET /widgets/mysqli-new-query`**; the unknown-receiver negative probe later uses **`new SQLite3`** (**D218** / **D221**).
-
-- **2026-04-28 — D220** **Lane B — copy alias for DB receivers.** **`$b = $a`** adds **`$b`** to the tracked receiver set when **`$a`** is already tracked (same sequential + **`if` / `foreach`** merge as other aliases). **`fixtures/mysqli-probe`** adds **`GET /widgets/alias-copy`** (**`$a = db(); $b = $a; $b->query(...)`**). CI **`mysqli-probe`** **`--max-holes`** ceiling tracks ingest debt (see **D221**).
-
-- **2026-04-28 — D221** **Wave 3 — PDO receivers + parser parity + verify stderr.** Ingest tracks **`$v = new PDO(...)`** like **`mysqli`** for **`$v->query`** lowering (**`isPdoClassName`**). **`fixtures/mysqli-probe`** adds **`GET /widgets/pdo-query`**; the unknown-receiver negative probe switches to **`new SQLite3`**. **`fixtures/parser-parity-probe`** holds coalesce + nested-array snippets with **nikic** strip-pos parity. **`chrysalis verify`** sends failed-frame counts, divergence-kind histogram, and next-step hints to **stderr** under **`[verify] stderr: failure diagnostics`**, then per-trace lines under **`[verify] stderr: per-trace divergences`**; **stdout** stays aggregate + per-route summaries.
-
-- **2026-04-28 — D222** **Lane C — `verify --json-summary`.** **`chrysalis verify ... --json-summary`** routes progress to **stderr** and prints one JSON object on **stdout** with **`kind: "chrysalis.verify.summary"`**, **`aggregate`**, **`endpoints`**, **`divergenceKinds`**, **`failedFrameCount`**, **`failedTraceCount`**, **`pass`** (vs **`threshold`**), and paths. Human tables and duplicate stderr divergence listings are suppressed so **`jq`** / CI can consume **stdout** only. Threshold failure still exits **1** and prints the replay README pointer on **stderr**.
-
-- **2026-04-28 — D223** **Lane C + D — JSON summary contract + ingest gate.** **`--json-summary`** stdout adds **`schemaVersion: 1`** (increment when fields are renamed or meanings change) and **`toolVersion`** from the repo root **`package.json`** **`version`** (fallback **`0.0.0`**). **`packages/cli/tests/verify-json-summary.test.ts`** locks the shape. CI **`migration-debt`** adds **`--max-holes 1`** on **`fixtures/db-query-unknown-receiver-probe`** (expected single **`legacy:db-query-unknown-receiver`** hole); **`migration-debt:gate:ingest`** includes the same.
-
-- **2026-04-28 — D224** **Lane B — manifest-declared DB factory returns.** **`chrysalis.routes.json`** may include **`dbFactoryReturnCallees`**: normalized callee labels (`Class::method` or global function) the project **declares** return a connection whose **`->query`** may lower to **`effect.db.query`**. Assignments **`$v = DeclaredFactory::getConnection()`** add **`$v`** to the same alias set as **`db()`**; **`DeclaredFactory::getConnection()->query(...)`** chains are accepted when the static call label is listed. No PHP body analysis — omission keeps **`legacy:db-query-unknown-receiver`**. **`fixtures/mysqli-probe`** adds **`DbFactory::getConnection`**, **`factory_query`**, **`factory_query_chain`**; **`packages/ingest/tests/db-factory-manifest.test.ts`** locks positive and negative behavior.
-
-- **2026-04-28 — D225** **Lane B + A — Laravel-shaped FQN callees in a probe fixture.** **`fixtures/laravel-shaped-db-factory-probe`** documents three manifest strings used in real stacks: **`Illuminate\Support\Facades\DB::connection`**, **`App\Database\Support\Conn::make`**, **`ChrysalisProbe\Repo::db`** (minimal **`lib/`** classes, not a full framework). **`lib/pdo_probe_schema.php`** creates **`probe_row`** in **`sqlite::memory:`** so handler SQL is valid at PHP runtime. Handlers use **`FROM probe_row`** so **`guessTables`** tags **`db.read:probe_row`**. Ingest + **`migration-debt --max-holes 0`** CI gate; **nikic** strip-pos parity on the four page files.
-
-- **2026-04-28 — D226** **Lane D — `migration-debt --json-out` contract.** **`scripts/migration-debt.mjs`** **`--json-out`** embeds **`kind: "chrysalis.migration-debt.summary"`**, **`schemaVersion: 1`**, and **`toolVersion`** (repo root **`package.json`**, fallback **`0.0.0`**) alongside **`corpus`**, **`correctness`**, **`residualLegacy`**, **`migration`**, **`oracleFootprintRouteCount`**. CI artifact **`reports/ci/migration-debt.json`** gains the same fields for **`jq`** / dashboards. **`packages/cli/tests/migration-debt-json.test.ts`** locks **`kind`** and **`schemaVersion`**.
-
-- **2026-04-28 — D227** **Documentation — machine-readable JSON index.** Root **`README.md`** adds a table linking **`status --json`**, **`verify --json-summary`**, and **`migration-debt --json-out`** with contract notes. **`packages/cli/README.md`** documents **`scripts/migration-debt.mjs`** flags and **`verify --json-summary`** top-level keys. **`packages/verify/README.md`** adds a **`--json-summary` field reference** table. **`@chrysalis/ingest`** re-exports **`normalizeDbFactoryCalleeLabel`** alongside **`dbFactoryReturnCalleeSet`** / **`loadRouteManifest`** and lists both helpers in **`packages/ingest/README.md`**.
+- **2026-04-29 — D229** **Lane C — flagship dual-backend verify machine artifacts in CI.** `**scripts/verify-flagship-laravel-min.mjs`** now writes `**reports/ci/verify-flagship-laravel-min-summary.json**`, and `**scripts/verify-flagship-laravel-full.mjs`** writes `**reports/ci/verify-flagship-laravel-full-summary.json**`. Both use `**kind: "chrysalis.verify.summary.dual"**`, `**schemaVersion: 1**`, `**toolVersion**`, pass/fail status, and per-backend replay summary payloads from the same verify runs. CI artifact uploads for flagship verify jobs now include these JSON files alongside verify and migration reports.
 

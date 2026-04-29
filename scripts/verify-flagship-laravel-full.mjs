@@ -118,6 +118,8 @@ const traceDir = resolve(repo, "traces/flagship-laravel-full");
 const generatedHono = resolve(repo, "generated/flagship-laravel-full");
 const generatedFastify = resolve(repo, "generated/flagship-laravel-full-fastify");
 const reportRoot = resolve(repo, "reports/verify-flagship-laravel-full");
+const ciReportDir = resolve(repo, "reports/ci");
+const ciSummaryPath = resolve(ciReportDir, "verify-flagship-laravel-full-summary.json");
 const confidenceRoot = resolve(repo, "reports/confidence");
 const confidencePath = resolve(confidenceRoot, "flagship-laravel-full.json");
 const confidenceHistoryRoot = resolve(confidenceRoot, "history");
@@ -425,6 +427,31 @@ const confidence = {
   exitCode,
   backends: backendSummaries,
 };
+mkdirSync(ciReportDir, { recursive: true });
+writeFileSync(
+  ciSummaryPath,
+  `${JSON.stringify(
+    {
+      kind: "chrysalis.verify.summary.dual",
+      schemaVersion: 1,
+      toolVersion: repoToolVersion(repo),
+      profile: "flagship-laravel-full",
+      corpusRoot: traceDir,
+      threshold: THRESHOLD,
+      reportDir: reportRoot,
+      generatedAt: new Date().toISOString(),
+      pass: exitCode === 0,
+      crossBackendParity,
+      stressRuns: STRESS_RUNS,
+      seedVariant: SEED_VARIANT,
+      backends: backendSummaries,
+    },
+    null,
+    2,
+  )}\n`,
+  "utf8",
+);
+console.log(`[verify-flagship-laravel-full] wrote machine summary: ${ciSummaryPath}`);
 mkdirSync(confidenceRoot, { recursive: true });
 writeFileSync(confidencePath, `${JSON.stringify(confidence, null, 2)}\n`);
 console.log(`[verify-flagship-laravel-full] wrote confidence artifact ${confidencePath}`);
@@ -441,6 +468,17 @@ if (exitCode === 0) {
 }
 
 process.exit(exitCode);
+
+function repoToolVersion(root) {
+  try {
+    const raw = readFileSync(resolve(root, "package.json"), "utf8");
+    const j = JSON.parse(raw);
+    if (typeof j.version === "string" && j.version.length > 0) return j.version;
+  } catch {
+    // keep default
+  }
+  return "0.0.0";
+}
 
 /**
  * @param {number} port

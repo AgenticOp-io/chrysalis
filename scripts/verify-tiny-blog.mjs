@@ -20,7 +20,7 @@
  */
 
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
@@ -47,6 +47,8 @@ const generatedHono = resolve(repo, "generated/tiny-blog");
 const generatedFastify = resolve(repo, "generated/tiny-blog-fastify");
 const traceDir = resolve(repo, "traces");
 const reportRoot = resolve(repo, "reports/verify");
+const ciReportDir = resolve(repo, "reports/ci");
+const ciSummaryPath = resolve(ciReportDir, "verify-e2e-summary.json");
 const preludePath = resolve(repo, "packages/oracle-php/src/bootstrap.php");
 const fixtureDb = resolve(fixture, "blog.sqlite");
 const honoDb = join(generatedHono, "blog.sqlite");
@@ -149,6 +151,7 @@ const backends = [
 
 const webirModule = await ingestDirectory(fixture);
 let exitCode = 0;
+const backendSummaries = [];
 for (const b of backends) {
   console.log(`\n[verify-e2e] —— replay vs ${b.id} (in-process fetch) ——`);
   const fetchFn = await loadEmittedFetch(b.dir, b.kind);
@@ -188,13 +191,53 @@ for (const b of backends) {
     );
     exitCode = 1;
   }
+  backendSummaries.push({
+    backend: b.id,
+    summaryPath: join(outDir, "summary.json"),
+    aggregate: report.aggregate,
+    failedFrameCount: report.aggregate.framesTotal - report.aggregate.framesPassed,
+    endpoints: report.endpoints,
+  });
 }
+
+mkdirSync(ciReportDir, { recursive: true });
+writeFileSync(
+  ciSummaryPath,
+  `${JSON.stringify(
+    {
+      kind: "chrysalis.verify.summary.dual",
+      schemaVersion: 1,
+      toolVersion: repoToolVersion(repo),
+      corpusRoot: traceDir,
+      threshold: THRESHOLD,
+      reportDir: reportRoot,
+      generatedAt: new Date().toISOString(),
+      pass: exitCode === 0,
+      backends: backendSummaries,
+    },
+    null,
+    2,
+  )}\n`,
+  "utf8",
+);
+console.log(`[verify-e2e] wrote machine summary: ${ciSummaryPath}`);
 
 if (exitCode === 0) {
   console.log("\n[verify-e2e] dual-backend gate OK (Hono + Fastify both above threshold).");
 }
 
 process.exit(exitCode);
+
+function repoToolVersion(root) {
+  try {
+    const raw = readFileSync(resolve(root, "package.json"), "utf8");
+    const j = JSON.parse(raw);
+    if (typeof j.version === "string" && j.version.length > 0) return j.version;
+  } catch {
+    // keep default
+  }
+  return "0.0.0";
+}
 
 // ---------- helpers ----------
 

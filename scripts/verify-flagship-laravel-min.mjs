@@ -38,7 +38,7 @@
 
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -77,6 +77,8 @@ const traceDir = resolve(repo, "traces/flagship-laravel-min");
 const generatedHono = resolve(repo, "generated/flagship-laravel-min");
 const generatedFastify = resolve(repo, "generated/flagship-laravel-min-fastify");
 const reportRoot = resolve(repo, "reports/verify-flagship-laravel-min");
+const ciReportDir = resolve(repo, "reports/ci");
+const ciSummaryPath = resolve(ciReportDir, "verify-flagship-laravel-min-summary.json");
 const preludePath = resolve(repo, "packages/oracle-php/src/bootstrap.php");
 const THRESHOLD = Number.parseFloat(process.env.VERIFY_THRESHOLD ?? "0.95");
 
@@ -264,11 +266,46 @@ if (!crossBackendParity.ok) {
   exitCode = 1;
 }
 
+mkdirSync(ciReportDir, { recursive: true });
+writeFileSync(
+  ciSummaryPath,
+  `${JSON.stringify(
+    {
+      kind: "chrysalis.verify.summary.dual",
+      schemaVersion: 1,
+      toolVersion: repoToolVersion(repo),
+      profile: "flagship-laravel-min",
+      corpusRoot: traceDir,
+      threshold: THRESHOLD,
+      reportDir: reportRoot,
+      generatedAt: new Date().toISOString(),
+      pass: exitCode === 0,
+      crossBackendParity,
+      backends: backendSummaries,
+    },
+    null,
+    2,
+  )}\n`,
+  "utf8",
+);
+console.log(`[verify-flagship] wrote machine summary: ${ciSummaryPath}`);
+
 if (exitCode === 0) {
   console.log("\n[verify-flagship] dual-backend gate OK (laravel-min).");
 }
 
 process.exit(exitCode);
+
+function repoToolVersion(root) {
+  try {
+    const raw = readFileSync(resolve(root, "package.json"), "utf8");
+    const j = JSON.parse(raw);
+    if (typeof j.version === "string" && j.version.length > 0) return j.version;
+  } catch {
+    // keep default
+  }
+  return "0.0.0";
+}
 
 /**
  * @param {string} outAbs

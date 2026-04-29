@@ -196,7 +196,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: verify-report
-          path: reports/verify
+          path: |
+            reports/verify
+            reports/ci/verify-e2e-summary.json
           if-no-files-found: ignore
 
   verify-flagship-laravel-min:
@@ -256,6 +258,7 @@ jobs:
           name: flagship-laravel-min-verify
           path: |
             reports/verify-flagship-laravel-min
+            reports/ci/verify-flagship-laravel-min-summary.json
             reports/migration/flagship-laravel-min.json
             reports/migration/flagship-laravel-min-emit-stats.json
             reports/migration/idiomaticity.json
@@ -357,6 +360,7 @@ jobs:
           name: flagship-laravel-full-verify
           path: |
             reports/verify-flagship-laravel-full
+            reports/ci/verify-flagship-laravel-full-summary.json
             reports/migration/flagship-laravel-full.json
             reports/migration/flagship-laravel-full-emit-stats.json
             reports/migration/idiomaticity.json
