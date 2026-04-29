@@ -51,6 +51,18 @@ CI **`typecheck-and-test`**, **`oracle-live-drive`**, **`verify-e2e`**, **`verif
 **`verify-flagship-laravel-full`** run both after install/build so Node Vitest skips (no PHP on PATH) do not
 hide PHP regressions.
 
+**mysqli end-to-end smoke (CI only by default):** with **`CHRYSALIS_MYSQLI_SMOKE=1`** and env
+**`CHRYSALIS_MYSQL_HOST`**, **`CHRYSALIS_MYSQL_PORT`**, **`CHRYSALIS_MYSQL_USER`**, **`CHRYSALIS_MYSQL_PASSWORD`**,
+**`CHRYSALIS_MYSQL_DATABASE`** pointing at a reachable MySQL 8 server (CI uses a job service), run:
+
+```sh
+php packages/oracle-php/tests/mysqli_capture_smoke.php
+```
+
+The script retries the TCP connect, exercises **`Chrysalis\Oracle\Db\MySQLi`** + prepared **`get_result()`**,
+and checks the written NDJSON for mysqli **`sql.query`** events including **`params`**. Without the smoke
+flag it prints a skip line and exits **0**.
+
 ## Running
 
 The `chrysalis observe` CLI sets up the env and starts PHP's built-in server

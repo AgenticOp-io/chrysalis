@@ -10,6 +10,19 @@ jobs:
   typecheck-and-test:
     name: typecheck + build + test
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: chrysalis_mysqli_ci
+          MYSQL_DATABASE: chrysalis_mysqli_smoke
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pchrysalis_mysqli_ci"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
     steps:
       - uses: actions/checkout@v4
 
@@ -28,6 +41,7 @@ jobs:
         with:
           php-version: "8.3"
           tools: composer:v2
+          extensions: mysqli
 
       - name: Typecheck
         run: pnpm -r typecheck
@@ -42,6 +56,16 @@ jobs:
         run: |
           php packages/oracle-php/tests/redactor_sql_rows_test.php
           php packages/oracle-php/tests/redactor_sql_params_test.php
+
+      - name: Oracle-php mysqli capture smoke (MySQL 8 service)
+        env:
+          CHRYSALIS_MYSQLI_SMOKE: "1"
+          CHRYSALIS_MYSQL_HOST: 127.0.0.1
+          CHRYSALIS_MYSQL_PORT: "3306"
+          CHRYSALIS_MYSQL_USER: root
+          CHRYSALIS_MYSQL_PASSWORD: chrysalis_mysqli_ci
+          CHRYSALIS_MYSQL_DATABASE: chrysalis_mysqli_smoke
+        run: php packages/oracle-php/tests/mysqli_capture_smoke.php
 
       - name: Parser-bridge nikic parity (Vitest)
         run: |
