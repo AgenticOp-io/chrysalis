@@ -797,4 +797,30 @@ residual sidecars; **no** silent best-effort translation that bypasses WebIR or 
   **`replay-worker.js`** path fallback so **`src/replay.ts`** (Vitest) finds **`dist/replay-worker.js`**
   after a package build; regression tests for worker vs async pool and invalid combinations.
 
+---
+
+## Multi-lane program (parser, oracle, verify, holes)
+
+**Status:** active (DESIGN **D211**, 2026-04). We are intentionally running **four tracks** in parallel —
+not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optional CLI/CI touch) so
+`main` stays mergeable.
+
+| Lane | North star | Depends on | First thin slices (examples) |
+| ---- | ---------- | ---------- | ---------------------------- |
+| **A — Parser contract** | Same repo, same CI: glayzzle default, **nikic** opt-in with **honest** skips when `vendor/` or `php` is missing; parity tests stay the oracle for shape drift. | `packages/parser-bridge`, Vitest, Composer pretest | Document “when to use nikic”; optional **CI matrix row** or scheduled job that runs nikic parity only when PHP+Composer exist; tighten parity fixtures before widening surface. |
+| **B — Oracle depth** | Traces remain the spec: wider real stacks (**mysqli**, vendor autoload, edge drivers) **without** breaking redaction rules or SQL tape semantics. | oracle-php prelude, `Redactor.php` lockstep with `redaction.ts` | Spike **mysqli** capture behind a hole or feature flag; extend PHP smoke tests; keep **mutation-only** `sql.params` default for SELECT tapes. |
+| **C — Verify UX** | Operators can **act** on failure: which trace, which route, which divergence class, what to run next. | `replayCorpus`, report JSON, CLI | Narrow replay flags (`--route` / trace filter) or richer stderr summaries; link report paths in CLI output; document replay env in one place. |
+| **D — Hole economics** | One place answers “where is debt?” — ingest vs emit vs auth vs dynamic **`new`**, trendable across commits. | `chrysalis status --json`, sidecars, `oracleFootprint` | Aggregate or document existing JSON fields into a **single “migration debt” view** (CLI or doc); optional small script under `scripts/` before any new service. |
+
+**Sequencing rules**
+
+1. **Oracle and redaction** win over convenience: no capture shortcut that breaks verify or leaks secrets.
+2. **Parser parity** before widening ingest on contested syntax (nikic/glayzzle disagree → fix mapper or document hole).
+3. **Verify UX** may land early; it mostly consumes existing reports.
+4. **Hole economics** composes existing artifacts first; new fields need provenance in `DESIGN.md`.
+
+**Wave 0 (done / in flight):** observe merge + validation (**D208–D210**), replay worker resolution (**D207**), parser-bridge nikic subprocess + pretest vendor, sql row/params redaction smoke in CI.
+
+**Wave 1 (next commits — pick any lane to start):** one deliverable per PR from the “First thin slices” row; cross-link PR description to this table.
+
 
