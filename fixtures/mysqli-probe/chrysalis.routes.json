@@ -1,0 +1,11 @@
+{
+  "app": "mysqli-probe",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/widgets",
+      "file": "pages/smoke.php",
+      "pathParams": []
+    }
+  ]
+}

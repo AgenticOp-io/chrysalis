@@ -61,7 +61,8 @@ php packages/oracle-php/tests/mysqli_capture_smoke.php
 
 The script retries the TCP connect, exercises **`Chrysalis\Oracle\Db\MySQLi`** + prepared **`get_result()`**,
 and checks the written NDJSON for mysqli **`sql.query`** events including **`params`**. Without the smoke
-flag it prints a skip line and exits **0**.
+flag it prints a skip line and exits **0**. Ingest coverage for mysqli-backed apps that still use the same
+SQL helper names lives in **`fixtures/mysqli-probe`** (**DESIGN D215**).
 
 ## Running
 

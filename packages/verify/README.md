@@ -26,6 +26,19 @@ diffs each response against what was captured.
   (timestamps, session-cookie values, UUIDs, whitespace). Exported so callers
   can extend them.
 
+### Replay environment (CLI + env)
+
+**`chrysalis verify`** forwards **`--replay-concurrency`**, **`--disable-cookie-chain`**, **`--replay-timeout-ms`**, **`--replay-worker-threads`**, **`--only-route`**, **`--only-trace-id`** into **`resolveVerifyReplayExtras`** together with env:
+
+| Env | Effect |
+| --- | --- |
+| **`CHRYSALIS_VERIFY_REPLAY_CONCURRENCY`** | Same as **`--replay-concurrency`** (integer). |
+| **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`** | Same as **`--disable-cookie-chain`**. |
+| **`CHRYSALIS_VERIFY_TIMEOUT_MS`** | Same as **`--replay-timeout-ms`** (milliseconds, minimum 1000). |
+| **`CHRYSALIS_VERIFY_WORKER_THREADS=1`** | Same as **`--replay-worker-threads`** (requires **`concurrency` > 1**, global **`fetch`**, no **`module`** — see **`resolveVerifyReplayExtras`** / DESIGN D206). |
+
+Implementation: **`packages/verify/src/verify-replay-extras.ts`**. On threshold failure **`chrysalis verify`** also prints a pointer to this README in the repo.
+
 **Recorded SQL results (Milestone 2):** when traces include `rows` on
 `sql.query` events (PHP PDO recorder) and `recordedSqlReplay: true`, each
 replay request sends `x-chrysalis-sql-tape` (base64url JSON). The emitted

@@ -522,6 +522,7 @@ async function cmdVerify(args: string[]): Promise<number> {
       `[verify] correctness ${report.aggregate.correctness.toFixed(3)} below threshold ${threshold}`,
     );
     console.error(`[verify] summary: ${summaryAbs}`);
+    console.error("[verify] replay flags and CHRYSALIS_VERIFY_* env: packages/verify/README.md");
     return 1;
   }
   return 0;

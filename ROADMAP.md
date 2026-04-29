@@ -807,10 +807,10 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 
 | Lane | North star | Depends on | First thin slices (examples) |
 | ---- | ---------- | ---------- | ---------------------------- |
-| **A — Parser contract** | Same repo, same CI: glayzzle default, **nikic** opt-in with **honest** skips when `vendor/` or `php` is missing; parity tests stay the oracle for shape drift. | `packages/parser-bridge`, Vitest, Composer pretest | **D213:** explicit CI step (**`vendor:parser-bridge`** + **nikic** Vitest); README “when to use nikic”. Next: widen parity fixtures / optional matrix. |
-| **B — Oracle depth** | Traces remain the spec: wider real stacks (**mysqli**, vendor autoload, edge drivers) **without** breaking redaction rules or SQL tape semantics. | oracle-php prelude, `Redactor.php` lockstep with `redaction.ts` | **D214:** CI **`mysqli_capture_smoke.php`** against **MySQL 8** (`query` + prepared **`get_result`** + **`params`**). **mysqli** code under **`packages/oracle-php/src/Db/`** (D165+). Next: ingest fixtures / lowering paths where apps bypass PDO. |
-| **C — Verify UX** | Operators can **act** on failure: which trace, which route, which divergence class, what to run next. | `replayCorpus`, report JSON, CLI | **D212** + **D213:** histogram, summary path, hints, and **`--only-route` / `--only-trace-id`** slice replay. Next: richer stderr, replay env doc consolidation. |
-| **D — Hole economics** | One place answers “where is debt?” — ingest vs emit vs auth vs dynamic **`new`**, trendable across commits. | `chrysalis status --json`, sidecars, `oracleFootprint` | **D213:** **`pnpm run migration-debt`** (**`scripts/migration-debt.mjs`**) wraps **`status --json`**. Next: optional JSON artifact / trend file for CI. |
+| **A — Parser contract** | Same repo, same CI: glayzzle default, **nikic** opt-in with **honest** skips when `vendor/` or `php` is missing; parity tests stay the oracle for shape drift. | `packages/parser-bridge`, Vitest, Composer pretest | **D213** + **D215:** CI nikic step; README “when to use nikic”; **nikic** strip-pos parity on **`fixtures/mysqli-probe/pages/smoke.php`**. Next: optional matrix / deeper fixtures. |
+| **B — Oracle depth** | Traces remain the spec: wider real stacks (**mysqli**, vendor autoload, edge drivers) **without** breaking redaction rules or SQL tape semantics. | oracle-php prelude, `Redactor.php` lockstep with `redaction.ts` | **D214** + **D215:** CI **`mysqli_capture_smoke.php`**; **`fixtures/mysqli-probe`** for mysqli lib + same SQL helper ingest path as tiny-blog. Next: raw **`$mysqli->query`** lowering (no helper) when needed. |
+| **C — Verify UX** | Operators can **act** on failure: which trace, which route, which divergence class, what to run next. | `replayCorpus`, report JSON, CLI | **D212** + **D213** + **D215:** histogram, summary path, hints, narrow replay, **Replay environment** README table, stderr pointer on threshold failure. Next: repair-focused hints / stderr only. |
+| **D — Hole economics** | One place answers “where is debt?” — ingest vs emit vs auth vs dynamic **`new`**, trendable across commits. | `chrysalis status --json`, sidecars, `oracleFootprint` | **D213** + **D215:** **`pnpm run migration-debt`**; **`--json-out`** snapshot for CI/trends. Next: rolling trend gate / artifact in CI (optional). |
 
 **Sequencing rules**
 
@@ -821,6 +821,6 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 
 **Wave 0 (done / in flight):** observe merge + validation (**D208–D210**), replay worker resolution (**D207**), parser-bridge nikic subprocess + pretest vendor, sql row/params redaction smoke in CI.
 
-**Wave 1 (in progress):** **D213** landed verify filters + nikic CI signal + **`migration-debt`** script + docs; remaining Wave 1 items are the “Next” bullets in each lane row above.
+**Wave 1 (closed 2026-04-28):** **D213–D215** shipped verify narrowing, nikic CI honesty, **`migration-debt`** (+ **`--json-out`**), mysqli oracle CI smoke, **`fixtures/mysqli-probe`**, verify replay env consolidation, and parser parity on the mysqli route page. **Wave 2** continues from the refreshed “Next” bullets in the lane table above.
 
 
