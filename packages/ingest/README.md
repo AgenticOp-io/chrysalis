@@ -33,7 +33,8 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 
 Lowered to WebIR effects or `data.call` helpers (see `convert.ts`): **`query_all` /
 `query_one` / `exec_sql`** (used by **`fixtures/tiny-blog`** and **`fixtures/mysqli-probe`**;
-PDO vs mysqli in `lib/` does not change ingest lowering at call sites), static `Class::method()` calls (parser `StaticFetch` callee) as `data.call` with
+PDO vs mysqli in `lib/` does not change ingest lowering at call sites), **`db()->query(...)`**
+(factory **`db()`** only — not arbitrary **`$x->query`**), static `Class::method()` calls (parser `StaticFetch` callee) as `data.call` with
 a `class::method` label (not a hole; class methods are collected into call-effect overlays),
 `session_start`, `session_name`, `session_set_cookie_params` (PHP-only cookie
 setup; emitted middleware owns cookies), `$_SESSION[...]` read/write, redirects,

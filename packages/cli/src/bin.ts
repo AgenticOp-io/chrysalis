@@ -621,6 +621,9 @@ async function cmdRepair(args: string[]): Promise<number> {
     for (const o of bad.slice(0, 5)) {
       console.error(`  ${o.route} trace=${o.traceId}`);
     }
+    console.error(
+      "[repair] replay tuning flags (repair replays the full corpus; no --only-route / --only-trace-id): packages/verify/README.md",
+    );
     return 1;
   }
 
@@ -674,6 +677,9 @@ async function cmdRepair(args: string[]): Promise<number> {
       "[repair] default proposer is a stub; pass --llm with CHRYSALIS_REPAIR_LLM_API_KEY or supply a custom RepairProposer.",
     );
   }
+  console.error(
+    "[repair] replay tuning flags (repair replays the full corpus; no --only-route / --only-trace-id): packages/verify/README.md",
+  );
   return 1;
 }
 

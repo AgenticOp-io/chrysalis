@@ -807,10 +807,10 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 
 | Lane | North star | Depends on | First thin slices (examples) |
 | ---- | ---------- | ---------- | ---------------------------- |
-| **A — Parser contract** | Same repo, same CI: glayzzle default, **nikic** opt-in with **honest** skips when `vendor/` or `php` is missing; parity tests stay the oracle for shape drift. | `packages/parser-bridge`, Vitest, Composer pretest | **D213** + **D215:** CI nikic step; README “when to use nikic”; **nikic** strip-pos parity on **`fixtures/mysqli-probe/pages/smoke.php`**. Next: optional matrix / deeper fixtures. |
-| **B — Oracle depth** | Traces remain the spec: wider real stacks (**mysqli**, vendor autoload, edge drivers) **without** breaking redaction rules or SQL tape semantics. | oracle-php prelude, `Redactor.php` lockstep with `redaction.ts` | **D214** + **D215:** CI **`mysqli_capture_smoke.php`**; **`fixtures/mysqli-probe`** for mysqli lib + same SQL helper ingest path as tiny-blog. Next: raw **`$mysqli->query`** lowering (no helper) when needed. |
-| **C — Verify UX** | Operators can **act** on failure: which trace, which route, which divergence class, what to run next. | `replayCorpus`, report JSON, CLI | **D212** + **D213** + **D215:** histogram, summary path, hints, narrow replay, **Replay environment** README table, stderr pointer on threshold failure. Next: repair-focused hints / stderr only. |
-| **D — Hole economics** | One place answers “where is debt?” — ingest vs emit vs auth vs dynamic **`new`**, trendable across commits. | `chrysalis status --json`, sidecars, `oracleFootprint` | **D213** + **D215:** **`pnpm run migration-debt`**; **`--json-out`** snapshot for CI/trends. Next: rolling trend gate / artifact in CI (optional). |
+| **A — Parser contract** | Same repo, same CI: glayzzle default, **nikic** opt-in with **honest** skips when `vendor/` or `php` is missing; parity tests stay the oracle for shape drift. | `packages/parser-bridge`, Vitest, Composer pretest | **D213** + **D215** + **D216:** CI nikic step; README “when to use nikic”; **nikic** strip-pos parity on **`fixtures/mysqli-probe/pages/smoke.php`** and **`lib/db.php`**. Next: optional matrix / contested-syntax fixtures. |
+| **B — Oracle depth** | Traces remain the spec: wider real stacks (**mysqli**, vendor autoload, edge drivers) **without** breaking redaction rules or SQL tape semantics. | oracle-php prelude, `Redactor.php` lockstep with `redaction.ts` | **D214** + **D215** + **D216:** CI **`mysqli_capture_smoke.php`**; **`fixtures/mysqli-probe`** includes **`db()->query`** ingest route. Next: **`$conn->query`** on variables (alias/taint-aware) or hole policy. |
+| **C — Verify UX** | Operators can **act** on failure: which trace, which route, which divergence class, what to run next. | `replayCorpus`, report JSON, CLI | **D212**–**D216:** verify + **repair** stderr pointers to **`packages/verify/README.md`** (replay env + full-corpus repair rule). Next: richer per-trace stderr only. |
+| **D — Hole economics** | One place answers “where is debt?” — ingest vs emit vs auth vs dynamic **`new`**, trendable across commits. | `chrysalis status --json`, sidecars, `oracleFootprint` | **D213** + **D215** + **D216:** **`migration-debt`** + **`--json-out`**; CI uploads **`migration-debt-json`** artifact. Next: optional trend gate on summary fields. |
 
 **Sequencing rules**
 
@@ -821,6 +821,8 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 
 **Wave 0 (done / in flight):** observe merge + validation (**D208–D210**), replay worker resolution (**D207**), parser-bridge nikic subprocess + pretest vendor, sql row/params redaction smoke in CI.
 
-**Wave 1 (closed 2026-04-28):** **D213–D215** shipped verify narrowing, nikic CI honesty, **`migration-debt`** (+ **`--json-out`**), mysqli oracle CI smoke, **`fixtures/mysqli-probe`**, verify replay env consolidation, and parser parity on the mysqli route page. **Wave 2** continues from the refreshed “Next” bullets in the lane table above.
+**Wave 1 (closed 2026-04-28):** **D213–D215** shipped verify narrowing, nikic CI honesty, **`migration-debt`** (+ **`--json-out`**), mysqli oracle CI smoke, **`fixtures/mysqli-probe`**, verify replay env consolidation, and parser parity on the mysqli route page.
+
+**Wave 2 (in progress):** **D216** adds **`db()->query`** ingest lowering + second mysqli-probe route, **nikic** parity on **`lib/db.php`**, **`migration-debt`** JSON **CI artifact**, and **repair** stderr replay hints. Remaining “Next” bullets in the lane table above.
 
 

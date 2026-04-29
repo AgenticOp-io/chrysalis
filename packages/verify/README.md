@@ -39,6 +39,8 @@ diffs each response against what was captured.
 
 Implementation: **`packages/verify/src/verify-replay-extras.ts`**. On threshold failure **`chrysalis verify`** also prints a pointer to this README in the repo.
 
+**`chrysalis repair`** forwards the same replay tuning flags as **`verify`** (concurrency, cookie chain, timeout, worker threads) via **`resolveVerifyReplayExtras`**, but it **does not** accept **`--only-route`** / **`--only-trace-id`**: the repair gate always replays the **full** corpus. On repair failure the CLI prints a pointer here as well.
+
 **Recorded SQL results (Milestone 2):** when traces include `rows` on
 `sql.query` events (PHP PDO recorder) and `recordedSqlReplay: true`, each
 replay request sends `x-chrysalis-sql-tape` (base64url JSON). The emitted

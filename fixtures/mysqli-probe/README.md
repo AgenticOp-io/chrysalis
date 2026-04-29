@@ -13,3 +13,6 @@ There is no bundled MySQL database; `schema.sql` documents a minimal table layou
 
 Route pages intentionally omit `require_once lib/db.php` (same pattern as `fixtures/tiny-blog/pages/*`): a
 front controller would load `lib/db.php` before the page; ingest still resolves **`query_*`** via the call-effect map.
+
+**`GET /widgets/db-query`** (`pages/direct_query.php`) calls **`db()->query("SELECT …")`**, which ingest lowers to
+**`effect.db.query`** (same narrow rule as the SQL helpers: receiver must be **`db()`**, not an arbitrary variable).

@@ -75,6 +75,15 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Migration debt JSON (tiny-blog) + upload artifact
+        run: node scripts/migration-debt.mjs --project fixtures/tiny-blog --json-out reports/ci/migration-debt.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: migration-debt-json
+          path: reports/ci/migration-debt.json
+          if-no-files-found: warn
+
       - name: End-to-end — ingest + emit tiny-blog (Hono + Fastify), typecheck both
         run: |
           node scripts/run-e2e.mjs

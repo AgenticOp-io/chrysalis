@@ -65,4 +65,12 @@ $maybe = null ?? "fallback";
     const nk = await parseSource(src, "smoke.php", { provider: "nikic" });
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
+
+  run("matches glayzzle on mysqli-probe lib/db.php (positions stripped)", async () => {
+    const libPath = resolve(bridgeRoot, "../../fixtures/mysqli-probe/lib/db.php");
+    const src = readFileSync(libPath, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "db.php");
+    const nk = await parseSource(src, "db.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
 });

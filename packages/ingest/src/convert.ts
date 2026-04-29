@@ -48,6 +48,59 @@ function tryCallCalleeLabel(e: Extract<PhpExpr, { kind: "Call" }>): string | und
   return undefined;
 }
 
+/**
+ * `db()->query("…")` on the shared `db()` factory return (PDO or mysqli in `lib/`).
+ * Intentionally narrow: arbitrary `$x->query(...)` stays a generic call/hole so we
+ * do not attribute SQL to unknown receivers.
+ */
+function tryLowerDbFactoryQueryCall(
+  ctx: Ctx,
+  e: Extract<PhpExpr, { kind: "Call" }>,
+  pathParams: RouteSpec["pathParams"],
+): NodeId | undefined {
+  if (e.callee.kind !== "expr") {
+    return undefined;
+  }
+  const ex = e.callee.expr;
+  if (ex.kind !== "PropertyFetch" || ex.name !== "query") {
+    return undefined;
+  }
+  if (ex.target.kind !== "Call") {
+    return undefined;
+  }
+  if (tryCallCalleeLabel(ex.target) !== "db") {
+    return undefined;
+  }
+  const sqlArg = e.args[0];
+  let sql: string;
+  let sqlExpr: NodeId | undefined;
+  if (sqlArg?.kind === "Literal" && sqlArg.literalKind === "string") {
+    sql = String(sqlArg.value);
+    sqlExpr = undefined;
+  } else {
+    sql = "<dynamic>";
+    sqlExpr = sqlArg ? convertExpr(ctx, sqlArg, pathParams) : undefined;
+  }
+  const tables = guessTables(sql);
+  const isRead = /^\s*select\b/i.test(sql);
+  const mode = "rows" as const;
+  const params = e.args.slice(1).map((a) => convertExpr(ctx, a, pathParams));
+  const type = classifyDbReturn(mode);
+  const dbQueryOpts: Parameters<typeof ctx.effect.dbQuery>[0] = {
+    kind: isRead ? "read" : "write",
+    sql,
+    params,
+    returns: mode,
+    tables,
+    type,
+    origin: loc(ctx, e.pos),
+  };
+  if (sqlExpr !== undefined) {
+    dbQueryOpts.sqlExpr = sqlExpr;
+  }
+  return ctx.effect.dbQuery(dbQueryOpts);
+}
+
 /** Match `Class::name` regardless of leading `\\` from PHP name resolution. */
 function normalizeStaticCalleePath(name: string): string {
   return name.replace(/^\\+/, "");
@@ -477,6 +530,10 @@ function convertCall(
   e: Extract<PhpExpr, { kind: "Call" }>,
   pathParams: RouteSpec["pathParams"],
 ): NodeId {
+  const factoryQuery = tryLowerDbFactoryQueryCall(ctx, e, pathParams);
+  if (factoryQuery !== undefined) {
+    return factoryQuery;
+  }
   const name = tryCallCalleeLabel(e);
   if (name === undefined) {
     return hole(ctx, `call:${e.callee.kind}`, e.pos);

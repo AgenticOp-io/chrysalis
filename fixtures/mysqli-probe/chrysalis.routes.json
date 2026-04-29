@@ -6,6 +6,12 @@
       "path": "/widgets",
       "file": "pages/smoke.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/widgets/db-query",
+      "file": "pages/direct_query.php",
+      "pathParams": []
     }
   ]
 }
