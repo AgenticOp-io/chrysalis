@@ -46,6 +46,7 @@ export {
 export {
   DEFAULT_REDACTION,
   canonicalJSON,
+  mergeObserveFileRulesWithDefaults,
   redactionRecords,
   type RedactionConfig,
   type RedactionRule,

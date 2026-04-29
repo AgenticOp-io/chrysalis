@@ -3,7 +3,7 @@
  */
 
 import { resolve } from "node:path";
-import { parseFile } from "@chrysalis/parser-bridge";
+import { parseFile, type Provider } from "@chrysalis/parser-bridge";
 import { ModuleBuilder, type Module } from "@chrysalis/webir";
 import { ingestHandler } from "./convert.js";
 import { buildCallEffectMap } from "./library-effects.js";
@@ -22,6 +22,8 @@ export interface IngestOptions {
   readonly include?: ReadonlyArray<string>;
   readonly exclude?: ReadonlyArray<string>;
   readonly holePolicy?: "liberal" | "strict";
+  /** Parser bridge provider; default is parser-bridge's default (`glayzzle`). */
+  readonly parserProvider?: Provider;
 }
 
 /** Options for {@link ingestFile} parity with {@link ingestDirectory} call widening. */
@@ -32,17 +34,23 @@ export interface IngestFileOptions {
    * include `lib/` and same-file hoisted functions (same as directory ingest).
    */
   readonly projectRoot?: string;
+  /** Parser bridge provider; default is parser-bridge's default (`glayzzle`). */
+  readonly parserProvider?: Provider;
 }
 
 export async function ingestDirectory(
   root: string,
-  _opts?: IngestOptions,
+  opts?: IngestOptions,
 ): Promise<Module> {
   const manifest = await loadRouteManifest(root);
-  const callEffects = await buildCallEffectMap(root, manifest.routes);
+  const callEffects = await buildCallEffectMap(root, manifest.routes, {
+    ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+  });
   const builder = new ModuleBuilder({ sourceApp: manifest.app });
   for (const route of manifest.routes) {
-    const ast = await parseFile(resolve(root, route.file));
+    const ast = await parseFile(resolve(root, route.file), {
+      ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
+    });
     const routeNode = ingestHandler(builder, ast, route, callEffects);
     builder.addRoot(routeNode);
   }
@@ -54,10 +62,16 @@ export async function ingestFile(
   route: RouteSpec,
   opts?: IngestFileOptions,
 ): Promise<Module> {
-  const ast = await parseFile(phpPath);
+  const ast = await parseFile(phpPath, {
+    ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
+  });
   const root = opts?.projectRoot ? resolve(opts.projectRoot) : "";
   const callEffects =
-    root !== "" ? await buildCallEffectMap(root, [route]) : new Map();
+    root !== ""
+      ? await buildCallEffectMap(root, [route], {
+          ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+        })
+      : new Map();
   const builder = new ModuleBuilder({ sourceApp: await sourceAppFromProjectRoot(root) });
   const routeNode = ingestHandler(builder, ast, route, callEffects);
   builder.addRoot(routeNode);

@@ -434,6 +434,39 @@ function convertExpr(ctx: Ctx, e: PhpExpr, pathParams: RouteSpec["pathParams"]):
         type: T.unknown,
         origin: loc(ctx, e.pos),
       });
+    case "New": {
+      const segs = e.className.replace(/^\\+/, "").split("\\").filter((s) => s.length > 0);
+      if (segs.length === 0) {
+        return hole(ctx, "new: empty class name", e.pos);
+      }
+      for (const seg of segs) {
+        if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(seg)) {
+          return hole(ctx, "new: invalid class name segment", e.pos);
+        }
+      }
+      const fqn = segs.join("\\");
+      const ctorArgs = e.args.map((a) => convertExpr(ctx, a, pathParams));
+      const nameLit = ctx.data.literal({
+        value: fqn,
+        type: T.string,
+        origin: loc(ctx, e.pos),
+      });
+      return ctx.data.call({
+        callee: "__new",
+        args: [nameLit, ...ctorArgs],
+        type: T.unknown,
+        origin: loc(ctx, e.pos),
+      });
+    }
+    case "NewDynamic": {
+      const ctorArgs = e.args.map((a) => convertExpr(ctx, a, pathParams));
+      return ctx.data.call({
+        callee: "__new_dynamic",
+        args: [convertExpr(ctx, e.classExpr, pathParams), ...ctorArgs],
+        type: T.unknown,
+        origin: loc(ctx, e.pos),
+      });
+    }
     default:
       return hole(ctx, `expr:${(e as PhpExpr).kind}`, (e as PhpExpr).pos);
   }
@@ -991,6 +1024,14 @@ function convertStatement(
       return ctx.data.call({
         callee: "__exit",
         args: s.value ? [convertExpr(ctx, s.value, pathParams)] : [],
+        type: T.void,
+        origin: loc(ctx, s.pos),
+      });
+    }
+    case "Throw": {
+      return ctx.data.call({
+        callee: "__throw",
+        args: [convertExpr(ctx, s.expr, pathParams)],
         type: T.void,
         origin: loc(ctx, s.pos),
       });

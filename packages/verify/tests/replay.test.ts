@@ -1,5 +1,8 @@
+import { existsSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import { AddressInfo } from "node:net";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   SCHEMA_VERSION,
@@ -7,6 +10,10 @@ import {
   type TraceCorpus,
 } from "@chrysalis/oracle";
 import { buildReport, replayCorpus, traceDeterminismSeed } from "../src/index.js";
+
+/** Built worker entry (present after `pnpm build` in `@chrysalis/verify`). */
+const replayWorkerJs = join(dirname(fileURLToPath(import.meta.url)), "../dist/replay-worker.js");
+const workerDistAvailable = existsSync(replayWorkerJs);
 
 function mkTrace(overrides: {
   traceId: string;
@@ -425,5 +432,175 @@ describe("replayCorpus", () => {
       recordedSqlReplay: true,
     });
     expect(seenTape).toBeNull();
+  });
+
+  it("rejects concurrency>1 when cookie chaining is enabled", async () => {
+    await expect(
+      replayCorpus(
+        corpusOf([
+          mkTrace({
+            traceId: "c1",
+            startedAt: "2026-04-22T12:00:00Z",
+            method: "GET",
+            path: "/",
+            expectedStatus: 200,
+            expectedBody: "x",
+          }),
+        ]),
+        {
+          baseUrl: "http://unused.test",
+          concurrency: 2,
+          fetch: async () =>
+            new Response("x", { status: 200, headers: { "content-type": "text/html" } }),
+        },
+      ),
+    ).rejects.toThrow(/disableCookieChain/);
+  });
+
+  it("replays concurrently when disableCookieChain and concurrency>1", async () => {
+    const t1 = mkTrace({
+      traceId: "p1",
+      startedAt: "2026-04-22T00:00:01Z",
+      method: "GET",
+      path: "/a",
+      expectedStatus: 200,
+      expectedBody: "ok",
+    });
+    const t2 = mkTrace({
+      traceId: "p2",
+      startedAt: "2026-04-22T00:00:02Z",
+      method: "GET",
+      path: "/b",
+      expectedStatus: 200,
+      expectedBody: "ok",
+    });
+    let inflight = 0;
+    let maxInflight = 0;
+    const fetchImpl: typeof fetch = async () => {
+      inflight += 1;
+      maxInflight = Math.max(maxInflight, inflight);
+      await new Promise<void>((r) => setTimeout(r, 30));
+      inflight -= 1;
+      return new Response("ok", { status: 200, headers: { "content-type": "text/html" } });
+    };
+    const outcomes = await replayCorpus(corpusOf([t1, t2]), {
+      baseUrl: "http://127.0.0.1",
+      disableCookieChain: true,
+      concurrency: 2,
+      fetch: fetchImpl,
+      injectDeterminismHeaders: false,
+    });
+    expect(maxInflight).toBe(2);
+    expect(outcomes).toHaveLength(2);
+    expect(outcomes.every((o) => o.ok)).toBe(true);
+  });
+
+  it("rejects workerThreads with injected fetch (remote replay requires global fetch)", async () => {
+    await expect(
+      replayCorpus(
+        corpusOf([
+          mkTrace({
+            traceId: "w1",
+            startedAt: "2026-04-22T12:00:00Z",
+            method: "GET",
+            path: "/",
+            expectedStatus: 200,
+            expectedBody: "x",
+          }),
+        ]),
+        {
+          baseUrl: "http://unused.test",
+          disableCookieChain: true,
+          concurrency: 2,
+          workerThreads: true,
+          fetch: async () =>
+            new Response("x", { status: 200, headers: { "content-type": "text/html" } }),
+        },
+      ),
+    ).rejects.toThrow(/workerThreads requires global fetch/);
+  });
+
+  it("rejects workerThreads with module attribution (global fetch)", async () => {
+    const fakeModule = { id: "m", nodes: [] } as unknown as import("@chrysalis/webir").Module;
+    const srv = await startTestServer(() => ({
+      status: 200,
+      headers: { "content-type": "text/html" },
+      body: "x",
+    }));
+    try {
+      await expect(
+        replayCorpus(
+          corpusOf([
+            mkTrace({
+              traceId: "w2",
+              startedAt: "2026-04-22T12:00:01Z",
+              method: "GET",
+              path: "/",
+              expectedStatus: 200,
+              expectedBody: "x",
+            }),
+          ]),
+          {
+            baseUrl: srv.url,
+            disableCookieChain: true,
+            concurrency: 2,
+            workerThreads: true,
+            module: fakeModule,
+            injectDeterminismHeaders: false,
+          },
+        ),
+      ).rejects.toThrow(/IR module attribution/);
+    } finally {
+      await srv.stop();
+    }
+  });
+});
+
+const describeWorkerDist = workerDistAvailable ? describe : describe.skip;
+
+describeWorkerDist("replayCorpus workerThreads (dist/replay-worker.js)", () => {
+  let ts: TestServer | undefined;
+
+  afterEach(async () => {
+    if (ts) {
+      await ts.stop();
+      ts = undefined;
+    }
+  });
+
+  it("matches outcomes from the async concurrency pool", async () => {
+    const t1 = mkTrace({
+      traceId: "wt1",
+      startedAt: "2026-04-22T00:00:01Z",
+      method: "GET",
+      path: "/x",
+      expectedStatus: 200,
+      expectedBody: "ok",
+    });
+    const t2 = mkTrace({
+      traceId: "wt2",
+      startedAt: "2026-04-22T00:00:02Z",
+      method: "GET",
+      path: "/y",
+      expectedStatus: 200,
+      expectedBody: "ok",
+    });
+    ts = await startTestServer((_req, _body) => ({
+      status: 200,
+      headers: { "content-type": "text/html" },
+      body: "ok",
+    }));
+    const corpus = corpusOf([t1, t2]);
+    const base = {
+      baseUrl: ts.url,
+      disableCookieChain: true as const,
+      concurrency: 2,
+      injectDeterminismHeaders: false as const,
+    };
+    const poolOut = await replayCorpus(corpus, { ...base });
+    const workerOut = await replayCorpus(corpus, { ...base, workerThreads: true });
+    expect(poolOut.map((o) => o.traceId)).toEqual(workerOut.map((o) => o.traceId));
+    expect(poolOut.map((o) => o.ok)).toEqual(workerOut.map((o) => o.ok));
+    expect(poolOut.every((o) => o.ok)).toBe(true);
   });
 });

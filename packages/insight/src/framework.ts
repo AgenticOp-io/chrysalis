@@ -156,6 +156,7 @@ export function boostWithCorpus(op: Opportunity, corpus: TraceCorpus): Opportuni
     case "unescaped-output":
       return boostUnescapedOutput(op, corpus);
     case "raw-sql-concat":
+      return boostRawSqlConcat(op, corpus);
     case "scattered-validation":
     case "string-dispatch":
       return op;
@@ -206,6 +207,41 @@ function boostUnescapedOutput(op: Opportunity, corpus: TraceCorpus): Opportunity
       corpusConfirmations: matchingTraces,
       exampleValueEchoed: exampleValue,
     },
+  };
+}
+
+/**
+ * Corpus boost for dynamic SQL: traces on the same route that executed at least
+ * one `sql.query` confirm the handler really hits the database — evidence for
+ * `parameterize-sql` corpus gating (DESIGN D200).
+ */
+function boostRawSqlConcat(op: Opportunity, corpus: TraceCorpus): Opportunity {
+  const route = op.route;
+  let confirmingTraces = 0;
+  let maxPerRequest = 0;
+  for (const trace of corpus.traces) {
+    const reqEv = trace.events.find((e) => e.type === "http.request") as
+      | { path: string }
+      | undefined;
+    if (!reqEv) continue;
+    if (route && !routeMatches(reqEv.path, route.path)) continue;
+    let sqlCount = 0;
+    for (const ev of trace.events) {
+      if (ev.type === "sql.query") sqlCount += 1;
+    }
+    if (sqlCount > maxPerRequest) maxPerRequest = sqlCount;
+    if (sqlCount >= 1) confirmingTraces += 1;
+  }
+  if (confirmingTraces === 0) return op;
+  const evidence = {
+    ...op.evidence,
+    corpusConfirmations: confirmingTraces,
+    observedMaxPerRequest: maxPerRequest,
+  };
+  return {
+    ...op,
+    confidence: Math.min(1, op.confidence + 0.1),
+    evidence,
   };
 }
 

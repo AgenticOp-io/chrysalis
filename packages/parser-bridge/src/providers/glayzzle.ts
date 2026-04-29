@@ -280,6 +280,17 @@ function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNod
     case "usegroup":
       // Import side effects are out of scope for the canonical AST; keep position only.
       return { kind: "Noop", pos: pos(file, node) };
+    case "throw": {
+      const w = node.what as AnyNode | undefined;
+      if (!w) {
+        return unknownStmt(file, node, "throw: missing value");
+      }
+      return {
+        kind: "Throw",
+        expr: convertExpression(file, w),
+        pos: pos(file, node),
+      };
+    }
     case "exit":
     case "die":
       return {
@@ -564,6 +575,29 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
         right: cur,
         pos: pos(file, node),
       }));
+    }
+    case "new": {
+      const what = node.what as AnyNode | undefined;
+      if (!what) {
+        return unknownExpr(file, node, "new: missing class");
+      }
+      if (what.kind !== "name") {
+        const callArgs = Array.isArray(node.arguments) ? (node.arguments as AnyNode[]) : [];
+        return {
+          kind: "NewDynamic",
+          classExpr: convertExpression(file, what),
+          args: callArgs.map((a) => convertExpression(file, a)),
+          pos: pos(file, node),
+        };
+      }
+      const className = String((what as AnyNode).name ?? "").replace(/^\\+/, "");
+      const callArgs = Array.isArray(node.arguments) ? (node.arguments as AnyNode[]) : [];
+      return {
+        kind: "New",
+        className,
+        args: callArgs.map((a) => convertExpression(file, a)),
+        pos: pos(file, node),
+      };
     }
     default:
       return unknownExpr(file, node, `unhandled expr: ${node.kind}`);

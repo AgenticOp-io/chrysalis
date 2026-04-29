@@ -7,8 +7,9 @@ runnable demo and measurable numbers, not a pile of abstractions.
 
 **Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
 Milestone 4 below) meet the scoped acceptance. **Milestone 5 is now complete**
-(see section below). **Milestone 6 checklist is complete. Current engineering focus:**
-**Milestone 6A (auth boundary scoped track)** (in progress). Milestone 2
+(see section below). **Milestone 6 checklist is complete.** **Milestone 6A (auth boundary scoped track)**
+scoped checklist (D183–D192) is **complete**; deeper auth/vendor parity stays
+cross-cutting under the same hole policy. Milestone 2
 follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
 confidence) stay cross-cutting; repair-loop follow-ons (richer attribution,
@@ -66,8 +67,10 @@ Acceptance — every item must be demonstrable on the tiny-blog fixture:
    - [x] `chrysalis corpus <dir>` summarizes a captured corpus
 
 2. **Parser bridge**
-   - [x] Emits canonical PHP AST JSON via the glayzzle provider (D5).
-         Nikic provider remains the canonical production path and is TBD.
+   - [x] Emits canonical PHP AST JSON via the glayzzle provider (D5) or the
+         **`nikic/php-parser` subprocess** (**`provider: "nikic"`**, D195) with the
+         same **`PhpAst`** shape; default CLI/ingest paths stay **glayzzle** unless
+         configured.
    - [x] Handles the fixture's full syntax surface without unknown nodes.
 
 3. **Ingest (PHP AST → WebIR)**
@@ -760,13 +763,37 @@ residual sidecars; **no** silent best-effort translation that bypasses WebIR or 
 
 ## Cross-cutting, never-done work
 
+- **PHP surface vs glayzzle.** Parser coverage grows incrementally (D193 `throw` + `new`,
+  D194 FQN `new`, D195 `provider: "nikic"` with **`nikic-json.ts`** parity, D196 ingest/CLI
+  **`--parser-provider`** wiring across project-level workflows, D197 FQN ctor registry hook,
+  D198 dynamic `new $x(...)` as `__new_dynamic` + runtime bridge, D199/D199b status visibility for
+  dynamic constructor KPIs (`dynamicNewWebIrCount` + ingest hole reasons), D200 corpus-gated `parameterize-sql`,
+  D201 corpus-gated `sanitize-output` + oracle footprint `dynamicNewCount` / `routesWithDynamicNew`).
+- **Rewrite confidence.** `batch-n1-read` now handles assign-wrapped and bare inner reads and
+  enforces corpus-backed gating (D197). Remaining rewrite depth should keep this confidence-first model.
 - **Docs.** Every package `README.md` must stay current with its code.
   Drift is a bug.
 - **Telemetry-free.** The tool does not phone home. Users can opt in to
   anonymous metrics later if we want a metrics story; opt-in only.
 - **Security.** The oracle records production traffic. Secrets redaction in
-  the trace corpus is a launch blocker, not a nice-to-have.
+  the trace corpus is a launch blocker, not a nice-to-have. **D202** widened
+  `DEFAULT_REDACTION` (Node + PHP prelude lockstep); operators still customize
+  via `chrysalis.observe.json`, merged onto defaults (**D208**) so partial files cannot drop baseline rules;
+  **D209** validates file shape and surfaces parse errors in **`chrysalis observe`** (exit **2**).
+  **D203:** `sql.row.*` rules redact sensitive
+  **column values** inside captured SELECT **`rows`**. **D205:** targeted
+  **`sql.params[<driver>:<sqlPrefix>].<index>`** bind redaction is implemented in
+  **`oracle-php`** `Redactor.php` (grammar in `packages/oracle/src/redaction.ts`);
+  DEFAULT stays conservative; operators add explicit bind rules where replay safety allows.
 - **Performance.** Verification must be parallelizable across traces.
-  Aim for thousands of traces per minute on a laptop.
+  **`replayCorpus`** now supports **`concurrency` > 1** when **`disableCookieChain: true`**
+  (D202); cookie-chained corpora stay sequential by default. **D204:** **`chrysalis verify` /
+  `repair`** expose the same knobs (flags + `CHRYSALIS_VERIFY_*` env); repo
+  **`scripts/verify-tiny-blog.mjs`** and **`scripts/verify-flagship-laravel-*.mjs`** call
+  **`resolveVerifyReplayExtras({})`** from **`@chrysalis/verify`** so harnesses honor the same env without duplicating parsing.
+  **D206:** optional **`worker_threads`** replay when **`CHRYSALIS_VERIFY_WORKER_THREADS=1`** (and compatible knobs);
+  **`sql.params`** defaults stay **mutation-only** so SELECT tape params stay stable. **D207:** worker entry
+  **`replay-worker.js`** path fallback so **`src/replay.ts`** (Vitest) finds **`dist/replay-worker.js`**
+  after a package build; regression tests for worker vs async pool and invalid combinations.
 
 

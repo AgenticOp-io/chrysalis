@@ -1,0 +1,12 @@
+{
+  "name": "chrysalis/parser-bridge-php",
+  "description": "nikic/php-parser for the parser-bridge nikic subprocess provider",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.2",
+    "nikic/php-parser": "^5.0"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}

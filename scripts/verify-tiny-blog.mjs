@@ -13,6 +13,10 @@
  *
  * Requires `php` on PATH. If absent, exits 0 with a skip notice (same policy
  * as scripts/drive-tiny-blog.mjs).
+ *
+ * Replay tuning (same as `chrysalis verify`, env-only): `CHRYSALIS_VERIFY_REPLAY_CONCURRENCY`,
+ * `CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`, `CHRYSALIS_VERIFY_TIMEOUT_MS`,
+ * `CHRYSALIS_VERIFY_WORKER_THREADS=1` (with concurrency / cookie-chain off; in-process `fetch` cannot use workers). See DESIGN D204 / D206.
  */
 
 import { execSync } from "node:child_process";
@@ -32,6 +36,7 @@ import { ingestDirectory } from "../packages/ingest/dist/index.js";
 import {
   buildReport,
   replayCorpus,
+  resolveVerifyReplayExtras,
   writeReport,
 } from "../packages/verify/dist/index.js";
 
@@ -48,6 +53,15 @@ const honoDb = join(generatedHono, "blog.sqlite");
 const fastifyDb = join(generatedFastify, "blog.sqlite");
 
 const THRESHOLD = Number.parseFloat(process.env.VERIFY_THRESHOLD ?? "0.6");
+
+const replayParsed = resolveVerifyReplayExtras({});
+if (!replayParsed.ok) {
+  console.error(replayParsed.message);
+  process.exit(2);
+}
+if (replayParsed.logHint) {
+  console.log(`[verify-e2e] replay options: ${replayParsed.logHint}`);
+}
 
 try {
   execSync("php --version", { stdio: "ignore" });
@@ -143,6 +157,7 @@ for (const b of backends) {
     fetch: fetchFn,
     recordedSqlReplay: true,
     module: webirModule,
+    ...replayParsed.extras,
   });
   const report = buildReport(outcomes);
   const outDir = join(reportRoot, b.id);

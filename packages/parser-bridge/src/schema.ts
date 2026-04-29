@@ -7,7 +7,7 @@
  * regenerating golden fixtures.
  */
 
-export const SCHEMA_VERSION = "0.1.2";
+export const SCHEMA_VERSION = "0.1.4";
 
 export type Pos = {
   readonly file: string;
@@ -32,6 +32,7 @@ export type PhpNode =
   | PhpRequire
   | PhpFunctionDecl
   | PhpExit
+  | PhpThrow
   | PhpNoop
   | PhpNodeUnknown;
 
@@ -56,6 +57,8 @@ export type PhpExpr =
   | PhpConstFetch
   | PhpStaticFetch
   | PhpPropertyFetch
+  | PhpNew
+  | PhpNewDynamic
   | PhpExprUnknown;
 
 export interface PhpInlineHtml {
@@ -126,6 +129,33 @@ export interface PhpFunctionDecl {
 export interface PhpExit {
   readonly kind: "Exit";
   readonly value: PhpExpr | null;
+  readonly pos: Pos;
+}
+
+/** `throw` statement (PHP 7+ / expression-throw in PHP 8+). */
+export interface PhpThrow {
+  readonly kind: "Throw";
+  /** Thrown value (commonly `new` or a variable). */
+  readonly expr: PhpExpr;
+  readonly pos: Pos;
+}
+
+/**
+ * `new ClassName(args…)`; class name is the PHP parser's resolved `name` string
+ * (may include `\\` for FQN — ingest may lower to a hole for multi-segment names).
+ */
+export interface PhpNew {
+  readonly kind: "New";
+  readonly className: string;
+  readonly args: ReadonlyArray<PhpExpr>;
+  readonly pos: Pos;
+}
+
+/** `new $x(...)` / computed-class `new` target expression. */
+export interface PhpNewDynamic {
+  readonly kind: "NewDynamic";
+  readonly classExpr: PhpExpr;
+  readonly args: ReadonlyArray<PhpExpr>;
   readonly pos: Pos;
 }
 

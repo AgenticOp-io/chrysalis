@@ -14,7 +14,7 @@ import { access, readdir, readFile } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import type { PhpAst, PhpNode } from "@chrysalis/parser-bridge";
-import { parseFile } from "@chrysalis/parser-bridge";
+import { parseFile, type Provider } from "@chrysalis/parser-bridge";
 import {
   ModuleBuilder,
   effectTagsSorted,
@@ -164,6 +164,10 @@ export interface RouteFileRef {
   readonly file: string;
 }
 
+export interface CallEffectMapOptions {
+  readonly parserProvider?: Provider;
+}
+
 function mergeBodies(
   target: Map<string, NodeId>,
   incoming: ReadonlyMap<string, NodeId>,
@@ -185,6 +189,7 @@ function mergeBodies(
 export async function buildCallEffectMap(
   root: string,
   routeSpecs: ReadonlyArray<RouteFileRef> | undefined,
+  opts?: CallEffectMapOptions,
 ): Promise<ReadonlyMap<string, EffectSet>> {
   const builder = new ModuleBuilder({ sourceApp: `${root}:call-effects` });
   const bodies = new Map<string, NodeId>();
@@ -194,7 +199,9 @@ export async function buildCallEffectMap(
     await access(libDir, fsConstants.R_OK);
     const phpFiles = await collectPhpFilesRecursive(libDir);
     for (const filePath of phpFiles) {
-      const ast = await parseFile(filePath);
+      const ast = await parseFile(filePath, {
+        ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
+      });
       const fromFile = collectFunctionBodies(ast, builder);
       mergeBodies(bodies, fromFile, { overwrite: true });
     }
@@ -211,7 +218,9 @@ export async function buildCallEffectMap(
     const recursivePhp = await collectPhpFilesRecursive(vendorDir);
     const candidateFiles = new Set<string>([...composerIndexed, ...recursivePhp]);
     for (const filePath of candidateFiles) {
-      const ast = await parseFile(filePath);
+      const ast = await parseFile(filePath, {
+        ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
+      });
       const fromFile = collectFunctionBodies(ast, builder);
       // Local library helpers keep precedence over vendor helpers.
       mergeBodies(bodies, fromFile);
@@ -222,7 +231,9 @@ export async function buildCallEffectMap(
 
   if (routeSpecs) {
     for (const spec of routeSpecs) {
-      const ast = await parseFile(resolve(root, spec.file));
+      const ast = await parseFile(resolve(root, spec.file), {
+        ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
+      });
       const fromFile = collectFunctionBodies(ast, builder);
       mergeBodies(bodies, fromFile);
     }

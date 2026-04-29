@@ -10,14 +10,22 @@ walker and framework-specific HTTP surface via `HttpEmitProfile`.
 
 - `emitHandlerBody(module, handlerId, options?, profile?)` — handler function
   body text, holes, inferred effects, domain type imports, and flags
-  `usesQueryAllWhereIn` / `usesChrysalisBatchHelpers` for conditional handler
-  imports. Defaults to `honoHttpProfile`.
+  `usesQueryAllWhereIn` / `usesChrysalisBatchHelpers` / `usesPhpFqnNew` /
+  `usesPhpDynamicNew` / `usesZod` for conditional handler imports. Defaults to
+  `honoHttpProfile`.
 - Internal `data.call` callees `__chrysalis_pluck`, `__chrysalis_row_by_column`,
   `__chrysalis_query_all_where_in` lower to runtime/db helpers for N+1 batching
   (D42). Ingest does not synthesize them; the **`batch-n1-read`** rewrite pass
   (`@chrysalis/rewrite`, D43) may introduce them on qualified modules.
 - `__chrysalis_zod_body_field` lowers to `parseZodBodyFieldRaw` (runtime.ts) when
   **`boundary-zod`** runs (D44).
+- **`__new`** with a string literal: single-segment global class → `new Name(…)`;
+  multi-segment FQN → `phpFqnNew` at runtime (D194). Runtime backends expose
+  optional `registerPhpFqnCtor(fqn, ctor)` to resolve known PHP class names
+  without hole fallback.
+- **`__new_dynamic`** lowers to `phpDynamicNew(classExpr, ...args)`: runtime
+  resolves registered string class names and otherwise delegates to a typed
+  hole (`new:dynamic`).
 - **Emit:** `data.block` may emit `Array.reduce` instead of `for…of` when a
   literal init, `data.foreach`, and a single accumulating `__assign` match the v1
   reduce pattern (see ROADMAP).

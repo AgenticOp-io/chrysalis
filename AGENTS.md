@@ -64,6 +64,14 @@ If you find yourself doing any of these, stop:
 - No emojis in code or generated output.
 - Keep commit messages descriptive; group by package.
 
+### Oracle-php redaction lockstep
+
+If you touch **`packages/oracle/src/redaction.ts`** (`DEFAULT_REDACTION`) or
+**`packages/oracle-php/src/Redactor.php`**, keep paths and semantics aligned and run
+**`pnpm run test:oracle-php-redactor`** with PHP on `PATH` before pushing. CI also runs
+those smoke tests in **`typecheck-and-test`**, **`oracle-live-drive`**, and **`verify-e2e`**
+(plus flagship verify jobs).
+
 ## 6. What to show the human
 
 At the end of any non-trivial change, report:

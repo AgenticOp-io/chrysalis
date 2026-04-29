@@ -1,0 +1,35 @@
+{
+  "app": "throw-new-probe",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/throw",
+      "file": "pages/throw.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/newok",
+      "file": "pages/newok.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/nsnew",
+      "file": "pages/nsnew.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/dynnew",
+      "file": "pages/dynnew.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/dynfqn",
+      "file": "pages/dynfqn.php",
+      "pathParams": []
+    }
+  ]
+}

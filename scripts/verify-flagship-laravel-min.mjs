@@ -22,6 +22,10 @@
  * Requires PHP on PATH. Exits 0 with a skip notice if PHP is missing (same as
  * verify-tiny-blog.mjs).
  *
+ * Replay tuning (env-only, same as `chrysalis verify`): `CHRYSALIS_VERIFY_REPLAY_CONCURRENCY`,
+ * `CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`, `CHRYSALIS_VERIFY_TIMEOUT_MS`,
+ * `CHRYSALIS_VERIFY_WORKER_THREADS=1` (D204 / D206).
+ *
  * Writes **`reports/migration/flagship-laravel-min-emit-stats.json`** for
  * **`pnpm run status:laravel-min`** → **`scripts/flagship-migration-metrics.mjs`**
  * (includes **`ingest.holes` / `ingest.authHoles`** for residual sidecars, D188).
@@ -50,6 +54,7 @@ import {
 import {
   buildReport,
   replayCorpus,
+  resolveVerifyReplayExtras,
   writeReport,
 } from "../packages/verify/dist/index.js";
 import { emit as emitHono } from "../packages/emit-hono/dist/index.js";
@@ -74,6 +79,15 @@ const generatedFastify = resolve(repo, "generated/flagship-laravel-min-fastify")
 const reportRoot = resolve(repo, "reports/verify-flagship-laravel-min");
 const preludePath = resolve(repo, "packages/oracle-php/src/bootstrap.php");
 const THRESHOLD = Number.parseFloat(process.env.VERIFY_THRESHOLD ?? "0.95");
+
+const replayParsed = resolveVerifyReplayExtras({});
+if (!replayParsed.ok) {
+  console.error(replayParsed.message);
+  process.exit(2);
+}
+if (replayParsed.logHint) {
+  console.log(`[verify-flagship] replay options: ${replayParsed.logHint}`);
+}
 
 try {
   execSync("php --version", { stdio: "ignore" });
@@ -201,6 +215,7 @@ for (const b of backends) {
     fetch: fetchFn,
     recordedSqlReplay: true,
     module: webirModule,
+    ...replayParsed.extras,
   });
   const report = buildReport(outcomes);
   const outDir = join(reportRoot, b.id);

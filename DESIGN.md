@@ -5,7 +5,7 @@
 > (b) change your plan. Do not silently drift.**
 
 Status: **v0.1 — foundational**
-Last updated by: D192 (Milestone 6A — Socialite + Fortify flagship oracle probe); D191 (Milestone 6A — `json_encode` + PHP associative array → `__object_literal` lowering); D190 (Milestone 6A — Gate + Sanctum/OAuth flagship oracle probes); D189 (Milestone 6A — ingest auth hole count in status / CLI JSON); D186 (Milestone 6A — static hole detail + ingest auth-tag e2e test); D185 (Milestone 6A — ingest + webir shared auth hole tagging); D184 (Milestone 6A — status reads auth residual-legacy sidecar); D183 (Milestone 6A — auth-boundary emit hole tagging + residual sidecar); D182 (Milestone 6 — confidence-preserving callable-choice narrowing); D181 (Milestone 6 — composer autoload-aware vendor effect depth); D180 (Milestone 6 — mysqli use-result unbuffered row-count semantics); D179 (Milestone 6 — session bridge release-policy CI gate lane); D178 (Milestone 6 — emitted Redis session bridge option); D177 (Milestone 6 — mysqli get_result fallback keeps pending capture); D176 (Milestone 6 — emitted shared SQLite session bridge option); D175 (Milestone 6 — call_user_func array-literal callable narrowing); D174 (Milestone 6 — parser class static methods into overlay map); D173 (Milestone 6 — ingest static `Class::method` call lowering); D172 (Milestone 6 — parser-bridge glayzzle namespace + qualified FunctionDecl); D171 (Milestone 6 — call-overlay FQN tail match + Vitest webir src alias); D170 (Milestone 6 — oracle-php mysqli prepared-statement params in traces); D169 (Milestone 6 — oracle-php mysqli prepared + buffered query rows); D168 (Milestone 6 — deeper call_user_func overlay narrowing + safe fallback); D167 (Milestone 6A auth-boundary scoped track); D166 (Milestone 6 — migration sidecar release-policy gate lane); D165 (Milestone 6 — oracle-php mysqli query-path capture); D164 (Milestone 6 — call_user_func overlay narrowing for literal callees); D163 (Milestone 6 — ingest vendor helper effects in call overlay); D162 (Milestone 6 roadmap shell — deferred depth backlog promoted to checklist); D161 (Milestone 5 closure — checklist complete in ROADMAP); D160 (Milestone 5 — laravel-min D148-D160 method-guard pack); D147 (Milestone 5 — laravel-min POST /count method guard); D146 (Milestone 5 — laravel-min POST /session/visit method guard); D145 (Milestone 5 — laravel-min POST /session/me method guard); D144 (Milestone 5 — laravel-min GET /logout method guard); D143 (Milestone 5 — laravel-min login empty/invalid credential negatives); D142 (Milestone 5 — laravel-min bad-CSRF login negative trace); D141 (Milestone 5 — laravel-min home/db/visit/login post-capture assertions); D140 (Milestone 5 — laravel-min echo request-shape + method-guard assertions); D139 (Milestone 5 — laravel-min cross-backend verify report parity); D138 (Milestone 5 — laravel-min metadata/static route contract assertions); D137 (Milestone 5 — laravel-min verify corpus semantics: health/jump/session/login); D136 (Milestone 5 — laravel-min verify: wider `/hello` oracle + capture assertions); D135 (Milestone 5 — flagship full verify: wider `chrysalis-hello` oracle shapes); D134 (Milestone 5 — optional CI floors for idiomaticity/residual sidecars); D133 (Milestone 4–5 — laravel-min emit-stats + status sidecars + CI artifacts); D132 (Milestone 5 — pipeline-owned idiomaticity/residual sidecars + CI matrix rollup gates); D131 (Milestone 5 — matrix confidence rollup + chimera test fetch retries); D130 (Milestone 5 — confidence trend stores/enforces cross-backend parity health); D129 (Milestone 5 — cross-emitter verify report parity in five-nines gate); D128 (Milestone 5 — cookie/session header invariants in five-nines confidence gate); D127 (Milestone 5 — header contract strictness + redirect location invariants); D126 (Milestone 5 — session transition monotonicity checks in five-nines confidence gate); D125 (Milestone 5 — session idempotency assertions in five-nines confidence gate); D124 (Milestone 5 — request-shape robustness checks in five-nines gate); D123 (Milestone 5 — CI auto-switch from confidence warmup to strict trend mode); D122 (Milestone 5 — resolve laravel-min/Breeze/auth ownership boundaries); D121 (Milestone 5 — rolling confidence trend gate + stricter threshold + expanded negative-path assertions); D120 (Milestone 5 — per-cell KPI thresholds in five-nines confidence dashboard); D119 (Milestone 5 — risk-cell dashboard coverage in five-nines confidence artifact); D118 (Milestone 5 — five-nines confidence gate with negative-path + metamorphic checks + CI artifact); D117 (Milestone 5 — seed-variant replay matrix + seed-aware semantic assertions in `verify:laravel-full`); D116 (Milestone 5 — stress replay + semantic route assertions in `verify:laravel-full`); D115 (Milestone 5 — complexity ladder pack: snapshot/group-by/CTE/recursive templates + oracle); D114 (Milestone 5 — `chrysalis-ne-zero-count` template + oracle); D113 (Milestone 5 — `chrysalis-eq-zero-count` template + oracle); D112 (Milestone 5 — `chrysalis-lte-two-count` template + oracle); D111 (Milestone 5 — `chrysalis-gte-three-count` template + oracle); D110 (Milestone 5 — `chrysalis-lt-one-count` template + oracle); D109 (Milestone 5 — `chrysalis-gt-three-count` template + oracle); D108 (Milestone 5 — `chrysalis-between-one-two-count` template + oracle); D107 (Milestone 5 — `chrysalis-lte-one-count` template + oracle); D106 (Milestone 5 — `chrysalis-gte-one-count` template + oracle); D105 (Milestone 5 — `chrysalis-gt-one-count` template + oracle); D104 (Milestone 5 — `chrysalis-lt-two-count` template + oracle); D103 (Milestone 5 — `chrysalis-ne-three-count` template + oracle); D102 (Milestone 5 — `chrysalis-ne-one-count` template + oracle); D101 (Milestone 5 — `chrysalis-eq-two-count` template + oracle); D100 (Milestone 5 — `chrysalis-eq-three-count` template + oracle); D99 (Milestone 5 — `chrysalis-eq-one-count` template + oracle); D98 (Milestone 5 — `chrysalis-between-count` template + oracle); D97 (Milestone 5 — `chrysalis-ne-two-count` template + oracle); D96 (Milestone 5 — `chrysalis-lte-three-count` template + oracle); D95 (Milestone 5 — `chrysalis-gte-two-count` template + oracle); D94 (Milestone 5 — `chrysalis-lt-three-count` template + oracle); D93 (Milestone 5 — `chrysalis-gt-two-count` template + oracle); D92 (Milestone 5 — `chrysalis-odd-count` template + oracle); D91 (Milestone 5 — `chrysalis-even-count` template + oracle); D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
+Last updated by: D209 (`chrysalis.observe.json` strict parse + CLI `observe` error surface); D208 (`loadObserveConfig` merges `chrysalis.observe.json` onto `DEFAULT_REDACTION`); D207 (`replay-worker.js` path resolves from `src/` via adjacent `dist/`); D206 (mutation-only DEFAULT `sql.params` + optional verify `worker_threads`); D205 (`sql.params[...]` bind redaction in oracle-php + CI root `tsc -b`); D204 (CLI `verify`/`repair` replay tuning flags); D203 (`sql.row.*` redaction for captured SQL row payloads); D202 (default trace redaction expansion + optional `replayCorpus` concurrency); D201 (corpus-gated `sanitize-output`; oracle footprint `dynamicNewCount` per route); D199b (status `dynamicNewWebIrCount` for `__new_dynamic` calls); D200 (corpus-gated `parameterize-sql` + `raw-sql-concat` corpus boost); D199 (status tracks dynamic new holes + top reasons); D198 (dynamic `new $x(...)` parser shape + `__new_dynamic` emit/runtime bridge); D197 (corpus-gated `batch-n1-read` + `phpFqnNew` ctor registry hook); D196 (ingest/CLI parser-provider wiring for `nikic` opt-in pipelines); D195 (parser-bridge **`nikic` provider**: subprocess JSON mapper); D194 (FQN `new` → `phpFqnNew` + runtime hole delegation); D193 (throw + unqualified `new` glayzzle → WebIR → emit); D192 (Milestone 6A — Socialite + Fortify flagship oracle probe); D191 (Milestone 6A — `json_encode` + PHP associative array → `__object_literal` lowering); D190 (Milestone 6A — Gate + Sanctum/OAuth flagship oracle probes); D189 (Milestone 6A — ingest auth hole count in status / CLI JSON); D186 (Milestone 6A — static hole detail + ingest auth-tag e2e test); D185 (Milestone 6A — ingest + webir shared auth hole tagging); D184 (Milestone 6A — status reads auth residual-legacy sidecar); D183 (Milestone 6A — auth-boundary emit hole tagging + residual sidecar); D182 (Milestone 6 — confidence-preserving callable-choice narrowing); D181 (Milestone 6 — composer autoload-aware vendor effect depth); D180 (Milestone 6 — mysqli use-result unbuffered row-count semantics); D179 (Milestone 6 — session bridge release-policy CI gate lane); D178 (Milestone 6 — emitted Redis session bridge option); D177 (Milestone 6 — mysqli get_result fallback keeps pending capture); D176 (Milestone 6 — emitted shared SQLite session bridge option); D175 (Milestone 6 — call_user_func array-literal callable narrowing); D174 (Milestone 6 — parser class static methods into overlay map); D173 (Milestone 6 — ingest static `Class::method` call lowering); D172 (Milestone 6 — parser-bridge glayzzle namespace + qualified FunctionDecl); D171 (Milestone 6 — call-overlay FQN tail match + Vitest webir src alias); D170 (Milestone 6 — oracle-php mysqli prepared-statement params in traces); D169 (Milestone 6 — oracle-php mysqli prepared + buffered query rows); D168 (Milestone 6 — deeper call_user_func overlay narrowing + safe fallback); D167 (Milestone 6A auth-boundary scoped track); D166 (Milestone 6 — migration sidecar release-policy gate lane); D165 (Milestone 6 — oracle-php mysqli query-path capture); D164 (Milestone 6 — call_user_func overlay narrowing for literal callees); D163 (Milestone 6 — ingest vendor helper effects in call overlay); D162 (Milestone 6 roadmap shell — deferred depth backlog promoted to checklist); D161 (Milestone 5 closure — checklist complete in ROADMAP); D160 (Milestone 5 — laravel-min D148-D160 method-guard pack); D147 (Milestone 5 — laravel-min POST /count method guard); D146 (Milestone 5 — laravel-min POST /session/visit method guard); D145 (Milestone 5 — laravel-min POST /session/me method guard); D144 (Milestone 5 — laravel-min GET /logout method guard); D143 (Milestone 5 — laravel-min login empty/invalid credential negatives); D142 (Milestone 5 — laravel-min bad-CSRF login negative trace); D141 (Milestone 5 — laravel-min home/db/visit/login post-capture assertions); D140 (Milestone 5 — laravel-min echo request-shape + method-guard assertions); D139 (Milestone 5 — laravel-min cross-backend verify report parity); D138 (Milestone 5 — laravel-min metadata/static route contract assertions); D137 (Milestone 5 — laravel-min verify corpus semantics: health/jump/session/login); D136 (Milestone 5 — laravel-min verify: wider `/hello` oracle + capture assertions); D135 (Milestone 5 — flagship full verify: wider `chrysalis-hello` oracle shapes); D134 (Milestone 5 — optional CI floors for idiomaticity/residual sidecars); D133 (Milestone 4–5 — laravel-min emit-stats + status sidecars + CI artifacts); D132 (Milestone 5 — pipeline-owned idiomaticity/residual sidecars + CI matrix rollup gates); D131 (Milestone 5 — matrix confidence rollup + chimera test fetch retries); D130 (Milestone 5 — confidence trend stores/enforces cross-backend parity health); D129 (Milestone 5 — cross-emitter verify report parity in five-nines gate); D128 (Milestone 5 — cookie/session header invariants in five-nines confidence gate); D127 (Milestone 5 — header contract strictness + redirect location invariants); D126 (Milestone 5 — session transition monotonicity checks in five-nines confidence gate); D125 (Milestone 5 — session idempotency assertions in five-nines confidence gate); D124 (Milestone 5 — request-shape robustness checks in five-nines gate); D123 (Milestone 5 — CI auto-switch from confidence warmup to strict trend mode); D122 (Milestone 5 — resolve laravel-min/Breeze/auth ownership boundaries); D121 (Milestone 5 — rolling confidence trend gate + stricter threshold + expanded negative-path assertions); D120 (Milestone 5 — per-cell KPI thresholds in five-nines confidence dashboard); D119 (Milestone 5 — risk-cell dashboard coverage in five-nines confidence artifact); D118 (Milestone 5 — five-nines confidence gate with negative-path + metamorphic checks + CI artifact); D117 (Milestone 5 — seed-variant replay matrix + seed-aware semantic assertions in `verify:laravel-full`); D116 (Milestone 5 — stress replay + semantic route assertions in `verify:laravel-full`); D115 (Milestone 5 — complexity ladder pack: snapshot/group-by/CTE/recursive templates + oracle); D114 (Milestone 5 — `chrysalis-ne-zero-count` template + oracle); D113 (Milestone 5 — `chrysalis-eq-zero-count` template + oracle); D112 (Milestone 5 — `chrysalis-lte-two-count` template + oracle); D111 (Milestone 5 — `chrysalis-gte-three-count` template + oracle); D110 (Milestone 5 — `chrysalis-lt-one-count` template + oracle); D109 (Milestone 5 — `chrysalis-gt-three-count` template + oracle); D108 (Milestone 5 — `chrysalis-between-one-two-count` template + oracle); D107 (Milestone 5 — `chrysalis-lte-one-count` template + oracle); D106 (Milestone 5 — `chrysalis-gte-one-count` template + oracle); D105 (Milestone 5 — `chrysalis-gt-one-count` template + oracle); D104 (Milestone 5 — `chrysalis-lt-two-count` template + oracle); D103 (Milestone 5 — `chrysalis-ne-three-count` template + oracle); D102 (Milestone 5 — `chrysalis-ne-one-count` template + oracle); D101 (Milestone 5 — `chrysalis-eq-two-count` template + oracle); D100 (Milestone 5 — `chrysalis-eq-three-count` template + oracle); D99 (Milestone 5 — `chrysalis-eq-one-count` template + oracle); D98 (Milestone 5 — `chrysalis-between-count` template + oracle); D97 (Milestone 5 — `chrysalis-ne-two-count` template + oracle); D96 (Milestone 5 — `chrysalis-lte-three-count` template + oracle); D95 (Milestone 5 — `chrysalis-gte-two-count` template + oracle); D94 (Milestone 5 — `chrysalis-lt-three-count` template + oracle); D93 (Milestone 5 — `chrysalis-gt-two-count` template + oracle); D92 (Milestone 5 — `chrysalis-odd-count` template + oracle); D91 (Milestone 5 — `chrysalis-even-count` template + oracle); D90 (Milestone 5 — `chrysalis-sum-squares` template + oracle); D89 (Milestone 5 — `chrysalis-id-span` template + oracle); D88 (Milestone 5 — `chrysalis-avg-id` template + oracle); D87 (Milestone 5 — `chrysalis-max-id` template + oracle); D86 (Milestone 5 — `chrysalis-min-id` template + oracle); D85 (Milestone 5 — Breeze in scaffold + CI); D84 (Milestone 5 phase 1 — canonical Laravel worktree); D83 (Milestone 5 roadmap shell); D82 (Milestone 4 v1 pilot closure); D81; D40 oracle footprint; D39; D38; D37 + section 9 checklist sync
 
 ---
 
@@ -2000,4 +2000,139 @@ ingest `**authIngestHoleMax`** for closure trending.
   returning fixed strings. **Ingest** lowers both to string **literals** (same pattern as D190
   Sanctum/OAuth probes) so dual-emit stays hole-free; **verify-flagship-laravel-full** pins the JSON
   body; **milestone-6a-auth-verify-gate** includes the route in the auth slice.
+
+- **2026-04-27 — D193** **Glayzzle `throw` + `new` (unqualified) through WebIR to emit.**
+  Parser schema **0.1.3** adds **`Throw`** statements and **`New`** expressions (`new` with a
+  `name` target only; dynamic `new $x` stays `UnknownExpr`). **Ingest** lowers **`throw`**
+  to **`data.call` `__throw`** (same terminal family as **`__return`** / **`__exit`**) and
+  **`new Foo(…)`** with identifier segments to **`__new`** with a string **literal** class name
+  operand (see **D194** for FQN). **Emit** maps **`__throw`** to **`throw …;`** and **`__new`**
+  to **`new ClassName(…)`** when the first operand is a single-segment literal. **Verify**
+  attribution treats **`__throw`** like **`__return`** for status/body heuristics. Fixture
+  **`fixtures/throw-new-probe`** exercises the three routes.
+
+- **2026-04-27 — D194** **FQN / multi-segment `new` — WebIR `__new`, emit `phpFqnNew`, runtime hole.**
+  **Ingest** no longer emits an ingest **hole** for valid PHP class names with two or more
+  segments joined by `\\` (each segment a normal PHP identifier). The first **`__new`**
+  operand remains a **string literal** holding the full FQN. **Emit** keeps direct
+  **`new Ident(…)`** for a **single** segment; for FQN it emits **`phpFqnNew`** with the
+  FQN string literal and ctor args
+  and sets **`usesPhpFqnNew`** so generated handlers import **`phpFqnNew`** from runtime.
+  **`phpFqnNew`** delegates to **`__hole(`new:` + fqn with `\\` → `.`)** so translation
+  stays compiling and observable; there is still no static TypeScript class for an arbitrary
+  PHP namespace. **Dynamic `new $x`** remains **`UnknownExpr`** / unsupported; **class registry** wiring for
+  **`phpFqnNew`** remains future work.
+
+- **2026-04-27 — D195** **`nikic/php-parser` subprocess provider (`provider: "nikic"`).**
+  **`packages/parser-bridge`** uses Composer **`nikic/php-parser`**; **`php/dump-nikic-ast.php`** prints
+  **`json_encode`** of the Stmt array (stdin mode `-` for **`parseSource`**). **`providers/nikic-json.ts`**
+  maps **`nodeType`** JSON to canonical **`PhpAst`** (parallel to **`glayzzle`**). **`Expr_ConstFetch`**
+  for **`null` / `true` / `false`** lowers like glayzzle keyword literals. **`vendor/`** is not committed;
+  CI runs **`composer install`** in **`packages/parser-bridge`** before **`pnpm`** tests so **`nikic`**
+  parity specs run.
+
+- **2026-04-27 — D196** **Ingest + CLI parser-provider wiring (`--parser-provider`).**
+  **`@chrysalis/ingest`** adds **`IngestOptions.parserProvider`** / **`IngestFileOptions.parserProvider`**
+  and threads the provider through route parsing plus **`buildCallEffectMap`** (lib/vendor/route helper scans).
+  CLI commands that ingest source (**`ingest`**, **`emit`**, **`verify --project`**, **`repair`**,
+  **`insight`**, **`rewrite`**, **`status --project`**) accept **`--parser-provider glayzzle|nikic`**.
+  Default remains glayzzle for stability and zero-PHP setup; nikic is opt-in and explicitly exercised
+  by ingest integration tests when parser-bridge vendor deps are present.
+
+- **2026-04-28 — D197** **Close two Milestone-2 depth gaps: corpus-gated N+1 rewrite + FQN ctor bridge.**
+  (1) **Rewrite gating:** `batch-n1-read` now requires corpus confirmation (`corpusConfirmations>=1`
+  or `observedMaxPerRequest>=2`) before it applies, enforcing the intended corpus-backed confidence
+  model for high-impact SQL rewrites. Structural shape still must match (`row-or-null`, one `?`,
+  foreach member param, SQL lookup form). (2) **FQN runtime bridge:** emitted runtimes expose
+  `registerPhpFqnCtor(fqn, ctor)`; `phpFqnNew` first checks that registry, then falls back to hole
+  delegation. This keeps default-safe behavior while allowing projects to close specific FQN holes
+  without custom emitter forks.
+
+- **2026-04-28 — D198** **Model dynamic class construction (`new $x(...)`) end-to-end.**
+  Parser providers now produce canonical **`NewDynamic`** when `new` targets a non-name class
+  expression (keeping anonymous classes as unsupported holes). Ingest lowers this to
+  **`__new_dynamic(classExpr, ...args)`** instead of a generic unknown hole. Emit lowers
+  `__new_dynamic` to runtime **`phpDynamicNew`**, and emitted runtimes resolve the class
+  expression through the existing constructor registry when it is a string, otherwise delegating
+  to hole `new:dynamic`. This preserves safety-by-default while letting adopters close dynamic
+  constructor gaps without backend-specific emitter forks.
+
+- **2026-04-28 — D199** **Expose dynamic-constructor debt in status dashboards.**
+  `chrysalis status --project ...` now computes top ingest hole reasons and explicitly reports
+  `new:dynamic` hole count. JSON output includes `residualLegacy.topHoleReasons` and
+  `residualLegacy.dynamicNewHoleCount` so CI and migration dashboards can track dynamic
+  constructor closure as a first-class KPI rather than an undifferentiated hole total.
+  **D199b:** `residualLegacy.dynamicNewWebIrCount` counts WebIR `data.call` sites with callee
+  `__new_dynamic` (the normal ingest lowering for `new $x(...)`), distinct from rare ingest
+  holes whose reason begins with `new:dynamic`.
+
+- **2026-04-28 — D200** **Corpus-gated `parameterize-sql` + trace boost for `raw-sql-concat`.**
+  High-impact SQL rewrites stay corpus-backed: `parameterize-sql` applies only when
+  `corpusConfirmations>=1` or `observedMaxPerRequest>=2`, matching `batch-n1-read`.
+  `boostRawSqlConcat` attaches those fields when oracle traces on the opportunity route include
+  at least one `sql.query` event (per-trace SQL counts feed `observedMaxPerRequest`). Insight
+  with `--traces` therefore supplies evidence automatically; tests may inject evidence explicitly.
+
+- **2026-04-28 — D201** **Corpus-gated `sanitize-output` + oracle footprint `dynamicNewCount`.**
+  XSS sanitization rewrites match other high-impact passes: `sanitize-output` applies only when
+  `corpusConfirmations>=1` or `observedMaxPerRequest>=2`. Static oracle footprint (`computeOracleFootprint`)
+  counts **`data.call`** sites with callee **`__new_dynamic`** per route (`dynamicNewCount`), bumps hydration weight,
+  and CLI JSON/report aggregates **`routesWithDynamicNew`** so migration dashboards surface dynamic-constructor
+  debt alongside replay hydration hints.
+
+- **2026-04-28 — D202** **Stronger default oracle redaction + verify replay throughput hook.**
+  **`DEFAULT_REDACTION`** expands coverage for common web leaks (API key / auth-token headers, Laravel
+  and framework session cookies, CSRF-shaped POST fields, OAuth-ish query params, `response.headers.set-cookie`)
+  while keeping **`packages/oracle-php/src/Redactor.php`** in lockstep with `packages/oracle/src/redaction.ts`.
+  **`replayCorpus`** accepts optional **`concurrency` > 1** only when **`disableCookieChain: true`**, using an
+  isolated cookie jar per trace and returning outcomes in chronological order — safe for stress corpora
+  without cross-request session coupling; default remains sequential for the common cookie-chained case.
+
+- **2026-04-28 — D203** **`sql.row.<field>` redaction for SELECT row captures.**
+  Oracle **`sql.query`** events may include **`rows`** (bounded assoc payloads). Default rules now
+  **hash or mask** common high-risk **column names** (`password`, `token`, `api_key`, …) at capture time
+  in   **`Redactor.php`**, with the same paths in **`DEFAULT_REDACTION`** for config parity. **Bind
+  `params` are not blanket-redacted** so recorded-SQL replay and tape semantics stay usable; optional
+  targeted **`sql.params[...]`** bind rules ship in **D205**.
+
+- **2026-04-28 — D204** **CLI wiring for verify/repair replay throughput and timeouts.**
+  **`chrysalis verify`** and **`chrysalis repair`** accept **`--replay-concurrency`**, **`--disable-cookie-chain`**,
+  and **`--replay-timeout-ms`**, with env aliases **`CHRYSALIS_VERIFY_REPLAY_CONCURRENCY`**,
+  **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN`**, **`CHRYSALIS_VERIFY_TIMEOUT_MS`** so CI scripts can scale
+  independent-trace replay without forking ad-hoc Node drivers.
+
+- **2026-04-28 — D205** **Targeted `sql.params[driver:prefix].index` redaction in oracle-php + CI root build.**
+  **`Redactor.php`** now evaluates rules whose path matches **`sql.params[<driver>:<sqlPrefix>].<index>`**
+  against each **`sql.query`** event’s **`params`** list: optional **`driver`** wildcard (`*`), case-insensitive
+  SQL **prefix** match (non-empty prefix required), **`drop`** coerced to **`mask`** so positional bind counts stay
+  stable for SQL tape replay. **`packages/oracle/src/redaction.ts`** documents the grammar (DEFAULT remains
+  conservative — operators opt in to bind rules). CI runs **`pnpm exec tsc -b --force`** at the repo root so the
+  solution **`tsconfig.json`** stays green alongside **`pnpm -r typecheck`**.
+
+- **2026-04-28 — D206** **Mutation-only DEFAULT bind redaction + worker-thread verify opt-in.**
+  **`Redactor.php`** applies **`sql.params[...]`** rules only when **`rowShape`** is empty so SELECT binds that
+  participate in **`x-chrysalis-sql-tape`** **`paramsMatch`** stay bit-accurate; **`DEFAULT_REDACTION`** adds one
+  narrow rule (**`UPDATE users SET password`** bind index 0). **`replayCorpus`** may use **`worker_threads`**
+  (**`workerThreads: true`**) when **`concurrency` > 1**, **`disableCookieChain`**, global **`fetch`** (no injected
+  **`fetch`** / **`onRequest`**), **no** **`module`**, and built **`replay-worker.js`** exists — intended for remote
+  **`chrysalis verify --base-url`** throughput; **`chrysalis repair`** forces **`workerThreads: false`** (always needs IR).
+
+- **2026-04-28 — D207** **`replay-worker.js` resolution for TypeScript test runs.**
+  **`replayCorpus`** looks for **`replay-worker.js`** next to **`replay.js`**, then **`../dist/replay-worker.js`**
+  relative to **`src/replay.ts`**, so Vitest and **`tsx`** can exercise **`workerThreads`** after **`pnpm build`**
+  without requiring **`replay-worker.ts`** beside **`replay.ts`**.
+
+- **2026-04-28 — D208** **`chrysalis.observe.json` merges onto default redaction.**
+  **`loadObserveConfig`** previously treated a present file as a full replacement, so minimal
+  fixtures (for example a single `request.headers.cookie` rule) dropped the rest of
+  **`DEFAULT_REDACTION`**. File rules now **layer**: default order and paths stay, matching paths
+  take the file's **`kind`**, and extra file-only paths append. Trace header redaction hashes change
+  for projects that relied on the old replace semantics.
+
+- **2026-04-28 — D209** **Strict `chrysalis.observe.json` validation + dev hook for nikic vendor.**
+  **`loadObserveConfig`** now rejects invalid JSON, non-object roots, bad **`redaction`** / **`rules`**
+  shapes, and entries with supported **`kind`** but missing / empty **`path`** (unknown kinds remain
+  skipped). Errors include the absolute config path. **`chrysalis observe`** catches failures and exits
+  **2** with **`[observe]`** stderr. Root **`pnpm run vendor:parser-bridge`** runs **`composer install`**
+  in **`packages/parser-bridge`** so local Vitest can run **nikic** parity tests; **`pretest`** (**`scripts/ensure-parser-bridge-vendor.mjs`**) runs automatically before **`pnpm test`** when **`vendor/`** is missing and Composer is on **`PATH`** (CI relies on this instead of a duplicate workflow step). **`CHRYSALIS_SKIP_PARSER_VENDOR=1`** skips the hook; **`pnpm exec vitest run`** bypasses **`pretest`** entirely.
 

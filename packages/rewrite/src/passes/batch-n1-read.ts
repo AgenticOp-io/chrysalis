@@ -12,7 +12,8 @@
  * - Param is `data.member` on `data.param` whose name matches the foreach value.
  * - Inner SQL matches `SELECT ... FROM tbl WHERE col = ?` (including
  *   `SELECT *`, projected as the FK column for batching).
- * - Inner `db.query` must be the RHS of `__assign` (assign-wrapped).
+ * - Inner `db.query` may be assign-wrapped (`__assign`) or bare as a loop-body
+ *   statement. Bare reads are replaced by a row lookup expression statement.
  */
 import type { NodeBase, NodeId, WebIRType } from "@chrysalis/webir";
 import { T } from "@chrysalis/webir";
@@ -115,7 +116,9 @@ function findForeachInBlock(
 
 type BatchableInner = {
   inner: NodeBase;
-  assign: NodeBase;
+  replacement:
+    | { kind: "assign-rhs"; assign: NodeBase }
+    | { kind: "body-statement"; bodyBlockId: NodeId; stmtIndex: number };
   member: { memberNodeId: NodeId; fkKey: string };
   parsed: { selectList: string; table: string; whereCol: string };
 };
@@ -128,12 +131,23 @@ function collectBatchableInners(
   const b = m.nodes.get(bodyId);
   if (!b || b.op !== "block") return [];
   const out: BatchableInner[] = [];
-  for (const sid of b.operands) {
+  for (let stmtIndex = 0; stmtIndex < b.operands.length; stmtIndex++) {
+    const sid = b.operands[stmtIndex]!;
     const n = m.nodes.get(sid);
     if (!n) continue;
-    if (n.op !== "call" || (n.attrs as { callee?: string }).callee !== "__assign") continue;
-    const rhs = n.operands[1];
-    const inner = rhs ? m.nodes.get(rhs) : undefined;
+    let inner: NodeBase | undefined;
+    let replacement: BatchableInner["replacement"] | undefined;
+    if (n.op === "call" && (n.attrs as { callee?: string }).callee === "__assign") {
+      const rhs = n.operands[1];
+      inner = rhs ? m.nodes.get(rhs) : undefined;
+      if (!inner) continue;
+      replacement = { kind: "assign-rhs", assign: n };
+    } else if (n.dialect === "effect" && n.op === "db.query") {
+      inner = n;
+      replacement = { kind: "body-statement", bodyBlockId: bodyId, stmtIndex };
+    } else {
+      continue;
+    }
     if (
       !inner ||
       inner.dialect !== "effect" ||
@@ -150,29 +164,13 @@ function collectBatchableInners(
     if (params.length !== 1) continue;
     const member = unwrapMemberParam(m, params[0]!, loopVar);
     if (!member) continue;
-    const assign = findAssignForRhs(m, bodyId, inner.id);
-    if (!assign) continue;
-    const assignNameLit = m.nodes.get(assign.operands[0]!);
-    if (assignNameLit?.op !== "literal") continue;
-    out.push({ inner, assign, member, parsed });
+    if (replacement.kind === "assign-rhs") {
+      const assignNameLit = m.nodes.get(replacement.assign.operands[0]!);
+      if (assignNameLit?.op !== "literal") continue;
+    }
+    out.push({ inner, replacement, member, parsed });
   }
   return out;
-}
-
-function findAssignForRhs(m: ModuleFromCtx, bodyId: NodeId, rhsId: NodeId): NodeBase | undefined {
-  const b = m.nodes.get(bodyId);
-  if (!b || b.op !== "block") return undefined;
-  for (const sid of b.operands) {
-    const n = m.nodes.get(sid);
-    if (
-      n?.op === "call" &&
-      (n.attrs as { callee?: string }).callee === "__assign" &&
-      n.operands[1] === rhsId
-    ) {
-      return n;
-    }
-  }
-  return undefined;
 }
 
 function unwrapMemberParam(
@@ -222,6 +220,13 @@ export const batchN1ReadPass: RewritePass = {
   },
 
   apply(ctx: RewriteCtx, op: Opportunity): ReadonlyArray<Edit> {
+    const corpusHits = Number(op.evidence["corpusConfirmations"] ?? 0);
+    const maxPerReq = Number(op.evidence["observedMaxPerRequest"] ?? 0);
+    if (!(Number.isFinite(corpusHits) && corpusHits >= 1) && !(Number.isFinite(maxPerReq) && maxPerReq >= 2)) {
+      throw new Error(
+        "batch-n1-read: corpus gating requires confirmed repeated inner query firing (run insight/rewrite with --traces)",
+      );
+    }
     const m = ctx.module;
     const fe = findForeach(m, op);
     if (!fe) throw new Error("batch-n1-read: foreach not in opportunity nodes");
@@ -239,7 +244,9 @@ export const batchN1ReadPass: RewritePass = {
 
     const batchables = collectBatchableInners(m, bodyId, loopVar);
     if (batchables.length === 0) {
-      throw new Error("batch-n1-read: no assign-wrapped row-or-null lookups match batch preconditions");
+      throw new Error(
+        "batch-n1-read: no batchable row-or-null lookups match preconditions (assign-wrapped or bare)",
+      );
     }
 
     const routeBody = routeBodyId(m, op);
@@ -254,10 +261,11 @@ export const batchN1ReadPass: RewritePass = {
     const edits: Edit[] = [];
     const iterableParamId = fe.operands[0]!;
     const hoistIds: NodeId[] = [];
-    const replacePairs: { assign: NodeBase; rowLookupId: NodeId }[] = [];
+    const replaceAssignRhs: { assign: NodeBase; rowLookupId: NodeId }[] = [];
+    const replaceBodyStatements: { bodyBlockId: NodeId; stmtIndex: number; rowLookupId: NodeId }[] = [];
 
     for (let i = 0; i < batchables.length; i++) {
-      const { assign, member, parsed } = batchables[i]!;
+      const { replacement, member, parsed } = batchables[i]!;
       const tbl = sanitizeIdentPart(parsed.table);
       const disamb = batchables.length > 1 ? `_${i}` : "";
       const idsVar = `__chrysalisN1Ids_${tbl}${disamb}`;
@@ -331,7 +339,15 @@ export const batchN1ReadPass: RewritePass = {
       edits.push({ kind: "add", node: rowLookup });
 
       hoistIds.push(assignIds.id, assignRows.id);
-      replacePairs.push({ assign, rowLookupId: rowLookup.id });
+      if (replacement.kind === "assign-rhs") {
+        replaceAssignRhs.push({ assign: replacement.assign, rowLookupId: rowLookup.id });
+      } else {
+        replaceBodyStatements.push({
+          bodyBlockId: replacement.bodyBlockId,
+          stmtIndex: replacement.stmtIndex,
+          rowLookupId: rowLookup.id,
+        });
+      }
     }
 
     const newOps = [...block.operands];
@@ -343,11 +359,19 @@ export const batchN1ReadPass: RewritePass = {
     };
     edits.push({ kind: "add", node: patchedBlock });
 
-    for (const { assign, rowLookupId } of replacePairs) {
+    for (const { assign, rowLookupId } of replaceAssignRhs) {
       edits.push({
         kind: "replaceOperand",
         nodeId: assign.id,
         index: 1,
+        newOperandId: rowLookupId,
+      });
+    }
+    for (const { bodyBlockId, stmtIndex, rowLookupId } of replaceBodyStatements) {
+      edits.push({
+        kind: "replaceOperand",
+        nodeId: bodyBlockId,
+        index: stmtIndex,
         newOperandId: rowLookupId,
       });
     }

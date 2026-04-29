@@ -15,6 +15,17 @@ import {
 } from "../src/index.js";
 import { buildModule } from "./helpers.js";
 
+function withCorpusEvidence<T extends { evidence: Record<string, unknown> }>(op: T): T {
+  return {
+    ...op,
+    evidence: {
+      ...op.evidence,
+      corpusConfirmations: 1,
+      observedMaxPerRequest: 2,
+    },
+  };
+}
+
 /**
  * Module fixture: lookup-style dynamic SQL built by `"..." . $_GET['id']`.
  * Reused across tests in this file.
@@ -55,7 +66,7 @@ function dynamicSqlModule() {
 describe("post-verify gate (D18)", () => {
   it("passes when every applied rewrite actually fixes its finding", () => {
     const m = dynamicSqlModule();
-    const ops = rawSqlConcatRecognizer.recognize(m);
+    const ops = rawSqlConcatRecognizer.recognize(m).map(withCorpusEvidence);
     expect(ops).toHaveLength(1);
 
     const { module: next, report } = applyRewrites(
@@ -103,7 +114,7 @@ describe("post-verify gate (D18)", () => {
     };
 
     const m = dynamicSqlModule();
-    const ops = rawSqlConcatRecognizer.recognize(m);
+    const ops = rawSqlConcatRecognizer.recognize(m).map(withCorpusEvidence);
 
     const { module: next, report } = applyRewrites(m, ops, [lyingPass], {
       postVerifyRecognizers: DEFAULT_RECOGNIZERS,
@@ -125,7 +136,7 @@ describe("post-verify gate (D18)", () => {
     const m = dynamicSqlModule();
     // Force nothing to apply by setting min-confidence above any
     // possible finding, and still ask for post-verify.
-    const ops = rawSqlConcatRecognizer.recognize(m);
+    const ops = rawSqlConcatRecognizer.recognize(m).map(withCorpusEvidence);
     const { report } = applyRewrites(m, ops, [parameterizeSqlPass], {
       minConfidence: 1.01,
       postVerifyRecognizers: DEFAULT_RECOGNIZERS,
@@ -179,7 +190,7 @@ describe("post-verify gate (D18)", () => {
       return data.block({ statements: [q, echo], type: T.unknown, origin: loc() });
     });
 
-    const sqli = rawSqlConcatRecognizer.recognize(m);
+    const sqli = rawSqlConcatRecognizer.recognize(m).map(withCorpusEvidence);
     const xss = unescapedOutputRecognizer.recognize(m);
     expect(sqli.length).toBeGreaterThan(0);
     expect(xss.length).toBeGreaterThan(0);
@@ -209,7 +220,7 @@ describe("post-verify gate (D18)", () => {
 
     const { module: next, report } = applyRewrites(
       m,
-      [...sqli, ...xss],
+      [...sqli, ...xss.map(withCorpusEvidence)],
       [lyingPass, sanitizeOutputPass],
       { postVerifyRecognizers: DEFAULT_RECOGNIZERS },
     );

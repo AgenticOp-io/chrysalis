@@ -25,6 +25,10 @@ export interface EmittedHandler {
   readonly usesChrysalisBatchHelpers: boolean;
   /** Handler uses `zod` via `parseZodBodyFieldRaw` (`boundary-zod` rewrite). */
   readonly usesZod: boolean;
+  /** Handler uses `phpFqnNew` for namespaced `new` (PHP FQN has no static TS class). */
+  readonly usesPhpFqnNew: boolean;
+  /** Handler uses `phpDynamicNew` for dynamic class construction (`new $x`). */
+  readonly usesPhpDynamicNew: boolean;
 }
 
 /**
@@ -71,12 +75,21 @@ interface EmitCtx {
   usesQueryAllWhereIn: boolean;
   usesChrysalisBatchHelpers: boolean;
   usesZod: boolean;
+  usesPhpFqnNew: boolean;
+  usesPhpDynamicNew: boolean;
 }
 
 function get(ctx: EmitCtx, id: NodeId): NodeBase {
   const n = ctx.m.nodes.get(id);
   if (!n) throw new Error(`emit-shared: missing node ${String(id)}`);
   return n;
+}
+
+/** Two or more PHP identifier segments joined by `\\` (FQN / namespaced class). */
+function isValidPhpFqnTypeString(v: string): boolean {
+  const segs = v.replace(/^\\+/, "").split("\\").filter((s) => s.length > 0);
+  if (segs.length < 2) return false;
+  return segs.every((s) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(s));
 }
 
 function freshTmp(ctx: EmitCtx, prefix = "tmp"): string {
@@ -282,6 +295,27 @@ function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
     }
     case "call": {
       const callee = String(n.attrs.callee);
+      if (callee === "__new" && n.operands.length >= 1) {
+        const clsNode = ctx.m.nodes.get(n.operands[0]!);
+        if (clsNode?.dialect === "data" && clsNode.op === "literal") {
+          const v = (clsNode.attrs as { value?: unknown }).value;
+          if (typeof v === "string" && /^[A-Za-z_][A-Za-z0-9_]*$/.test(v)) {
+            const rest = n.operands.slice(1).map((o) => emitExpr(ctx, o));
+            return `new ${ident(v)}(${rest.join(", ")})`;
+          }
+          if (typeof v === "string" && isValidPhpFqnTypeString(v)) {
+            const rest = n.operands.slice(1).map((o) => emitExpr(ctx, o));
+            ctx.usesPhpFqnNew = true;
+            return `phpFqnNew(${stringLit(v)}, ${rest.join(", ")})`;
+          }
+        }
+      }
+      if (callee === "__new_dynamic" && n.operands.length >= 1) {
+        const classExpr = emitExpr(ctx, n.operands[0]!);
+        const rest = n.operands.slice(1).map((o) => emitExpr(ctx, o));
+        ctx.usesPhpDynamicNew = true;
+        return rest.length > 0 ? `phpDynamicNew(${classExpr}, ${rest.join(", ")})` : `phpDynamicNew(${classExpr})`;
+      }
       const args = n.operands.map((o) => emitExpr(ctx, o));
       return emitKnownCall(ctx, callee, args);
     }
@@ -441,6 +475,13 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       const rest = args.slice(1);
       return `parseZodEnumBodyFieldRaw(${args[0]}, [${rest.join(", ")}] as const)`;
     }
+    case "__new_dynamic": {
+      ctx.usesPhpDynamicNew = true;
+      const rest = args.slice(1);
+      return rest.length > 0
+        ? `phpDynamicNew(${args[0]}, ${rest.join(", ")})`
+        : `phpDynamicNew(${args[0]})`;
+    }
   }
   const baseReason = `unresolved call: ${callee}`;
   const reason = isAuthBoundaryCallee(callee) ? `auth:${baseReason}` : baseReason;
@@ -546,6 +587,11 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
         if (args.length > 0) return `return ${args[0]};`;
         return p.respondBuffered();
       }
+      if (callee === "__throw") {
+        ctx.hasTerminalResponse = true;
+        if (args.length > 0) return `throw ${args[0]};`;
+        return "throw new Error('throw');";
+      }
       if (callee === "__exit") {
         ctx.hasTerminalResponse = true;
         return p.respondBuffered();
@@ -637,6 +683,8 @@ export function emitHandlerBody(
     usesQueryAllWhereIn: false,
     usesChrysalisBatchHelpers: false,
     usesZod: false,
+    usesPhpFqnNew: false,
+    usesPhpDynamicNew: false,
   };
   const handler = m.nodes.get(handlerId);
   if (!handler) throw new Error(`emit-shared: handler not found ${String(handlerId)}`);
@@ -661,6 +709,8 @@ export function emitHandlerBody(
     usesQueryAllWhereIn: ctx.usesQueryAllWhereIn,
     usesChrysalisBatchHelpers: ctx.usesChrysalisBatchHelpers,
     usesZod: ctx.usesZod,
+    usesPhpFqnNew: ctx.usesPhpFqnNew,
+    usesPhpDynamicNew: ctx.usesPhpDynamicNew,
   };
 }
 

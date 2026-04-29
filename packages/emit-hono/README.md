@@ -47,6 +47,14 @@ the reference for how to write additional backends (`emit-fastify`, `emit-next`,
   `@chrysalis-provenance` JSDoc blocks.
 - **Holes are compiling stubs** that delegate to the chimera runtime. Never
   emit `throw new Error("TODO")` in place of a hole.
+- **Constructor bridge bootstrap.** Generated `src/runtime.ts` exports
+  `registerPhpFqnCtor(fqn, ctor)` for static/FQN `new` and dynamic
+  `phpDynamicNew` resolution. Register project constructors once during startup
+  (for example in `src/index.ts`) to close migration holes without emitter
+  forks.
+- **Vitest npm probes:** a temp emitted project runs `npm install` only when
+  `CI=true` (default on GitHub Actions) or `CHRYSALIS_E2E_EMIT=1` locally, so
+  default `pnpm test` stays fast without network.
 - **Flagship parity:** Vitest ingests **`flagship/laravel-min`** (nineteen handlers, zero holes,
   expected handler files including `api_health_show.ts` … `session_*`) and
   **`flagship/laravel-full/chrysalis-templates`** (fifty-two handlers:

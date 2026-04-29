@@ -83,10 +83,22 @@ function normalizeSql(sql: string): string {
   return sql.replace(/\\s+/g, " ").trim().toLowerCase();
 }
 
+/** Oracle tapes follow PHP binds (e.g. int); emitted handlers often use string path params. */
+function sqlBindParamEqual(x: unknown, y: unknown): boolean {
+  if (Object.is(x, y)) return true;
+  if (typeof x === "number" && typeof y === "string") {
+    return y.trim() !== "" && !Number.isNaN(Number(y)) && x === Number(y);
+  }
+  if (typeof y === "number" && typeof x === "string") {
+    return x.trim() !== "" && !Number.isNaN(Number(x)) && y === Number(x);
+  }
+  return JSON.stringify(x) === JSON.stringify(y);
+}
+
 function paramsMatch(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
-    if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return false;
+    if (!sqlBindParamEqual(a[i], b[i])) return false;
   }
   return true;
 }
@@ -627,6 +639,48 @@ export function __hole(name: string, payload: unknown): unknown {
   // eslint-disable-next-line no-console
   console.warn("[chrysalis] hole invoked:", name, payload);
   return null;
+}
+
+type PhpFqnCtor = (...args: unknown[]) => unknown;
+const phpFqnCtorRegistry = new Map<string, PhpFqnCtor>();
+
+/**
+ * Optional bridge: register a runtime constructor for a PHP FQN so namespaced
+ * construction can become a real object instead of a hole.
+ *
+ * Bootstrap example in emitted app entrypoint:
+ * import { registerPhpFqnCtor } from "./runtime.js";
+ * class AcmeThing { constructor(public n: unknown) {} }
+ * registerPhpFqnCtor("Acme\\Namespaced\\Thing", (...args) => new AcmeThing(args[0]));
+ */
+export function registerPhpFqnCtor(fqn: string, ctor: PhpFqnCtor): void {
+  phpFqnCtorRegistry.set(String(fqn), ctor);
+}
+
+/**
+ * PHP namespaced new (no corresponding static TS import). Delegates to
+ * {@link __hole} so handlers compile; production stacks register classes or
+ * bridge to legacy.
+ */
+export function phpFqnNew(fqn: string, ...args: unknown[]): unknown {
+  const ctor = phpFqnCtorRegistry.get(String(fqn));
+  if (ctor) return ctor(...args);
+  return __hole(
+    "new:" + fqn.split(String.fromCharCode(92)).join("."),
+    { fqn, args },
+  );
+}
+
+/**
+ * Dynamic class construction via registry when classExpr is a string; otherwise
+ * preserve behavior via a typed hole.
+ */
+export function phpDynamicNew(classExpr: unknown, ...args: unknown[]): unknown {
+  if (typeof classExpr === "string") {
+    const ctor = phpFqnCtorRegistry.get(classExpr);
+    if (ctor) return ctor(...args);
+  }
+  return __hole("new:dynamic", { classExpr, args });
 }
 
 /**

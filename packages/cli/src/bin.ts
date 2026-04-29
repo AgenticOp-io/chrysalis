@@ -13,13 +13,19 @@ import {
   countHoles,
   irCoverageStats,
   moduleToGoldenSnapshot,
+  walk,
   type Module,
   type RouteOracleFootprint,
 } from "@chrysalis/webir";
 import { emit as emitFastify } from "@chrysalis/emit-fastify";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
-import { buildReport, replayCorpus, writeReport } from "@chrysalis/verify";
+import {
+  buildReport,
+  replayCorpus,
+  resolveVerifyReplayExtras,
+  writeReport,
+} from "@chrysalis/verify";
 import {
   domainTypesByTable,
   emitTypes,
@@ -85,6 +91,12 @@ function printHelp(): void {
   for (const [name, desc] of SUBCOMMANDS) {
     console.log(`  ${name.padEnd(12)} ${desc}`);
   }
+  console.log(
+    "\nParser selection for ingest-driven commands: --parser-provider glayzzle|nikic (default: glayzzle)",
+  );
+  console.log(
+    "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
+  );
   console.log("\nRead DESIGN.md before contributing.");
 }
 
@@ -123,6 +135,30 @@ function positional(args: string[]): string[] {
   return out;
 }
 
+type ParserProvider = "glayzzle" | "nikic";
+
+function parserProviderFromFlags(
+  flags: Record<string, string | boolean>,
+): ParserProvider | null | undefined {
+  const raw = flags["parser-provider"];
+  const envRaw = process.env.CHRYSALIS_PARSER_PROVIDER;
+  if (raw === undefined) {
+    if (!envRaw || envRaw.trim() === "") return undefined;
+    if (envRaw === "glayzzle" || envRaw === "nikic") return envRaw;
+    console.error(
+      `error: unsupported CHRYSALIS_PARSER_PROVIDER '${envRaw}'. Supported: glayzzle, nikic`,
+    );
+    return null;
+  }
+  if (raw === "glayzzle" || raw === "nikic") return raw;
+  if (typeof raw === "string") {
+    console.error(`error: unsupported --parser-provider '${raw}'. Supported: glayzzle, nikic`);
+    return null;
+  }
+  console.error("error: --parser-provider requires a value (glayzzle|nikic)");
+  return null;
+}
+
 /** Collect `--php-root` / `--php-root=<dir>` for archaeology form scans. */
 function collectPhpRootsFromArgs(args: string[]): string[] {
   const out: string[] = [];
@@ -140,12 +176,17 @@ function collectPhpRootsFromArgs(args: string[]): string[] {
 
 async function cmdIngest(args: string[]): Promise<number> {
   const pos = positional(args);
+  const flags = parseFlags(args);
   const root = pos[0];
   if (!root) {
-    console.error("usage: chrysalis ingest <php-project-dir>");
+    console.error("usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic]");
     return 2;
   }
-  const mod = await ingestDirectory(resolve(root));
+  const parserProvider = parserProviderFromFlags(flags);
+  if (parserProvider === null) return 2;
+  const mod = await ingestDirectory(resolve(root), {
+    ...(parserProvider ? { parserProvider } : {}),
+  });
   console.log(`routes:   ${mod.roots.length}`);
   console.log(`nodes:    ${mod.nodes.size}`);
   const holes = countHoles(mod);
@@ -166,15 +207,19 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>] [--parser-provider glayzzle|nikic]",
     );
     return 2;
   }
+  const parserProvider = parserProviderFromFlags(flags);
+  if (parserProvider === null) return 2;
   if (target !== "hono" && target !== "fastify") {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
     return 2;
   }
-  const mod = await ingestDirectory(resolve(root));
+  const mod = await ingestDirectory(resolve(root), {
+    ...(parserProvider ? { parserProvider } : {}),
+  });
   const outAbs = resolve(outDir);
   const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
   let domainMap: Record<string, string> | undefined;
@@ -217,6 +262,9 @@ async function cmdObserve(args: string[]): Promise<number> {
     console.error(
       "usage: chrysalis observe <php-project-dir> [--traces <dir>] [--port 8080] [--host 127.0.0.1]",
     );
+    console.error(
+      "  Optional chrysalis.observe.json in the project dir merges onto built-in default redaction (same path overrides kind).",
+    );
     return 2;
   }
   const phpRoot = resolve(root);
@@ -229,12 +277,25 @@ async function cmdObserve(args: string[]): Promise<number> {
   const thisFile = fileURLToPath(import.meta.url);
   const preludePath = resolve(thisFile, "..", "..", "..", "oracle-php", "src", "bootstrap.php");
 
-  const redaction = loadObserveConfig(phpRoot);
+  let redaction;
+  try {
+    redaction = loadObserveConfig(phpRoot);
+  } catch (e) {
+    const m = e instanceof Error ? e.message : String(e);
+    console.error(`[observe] ${m}`);
+    return 2;
+  }
+  const observeJsonPath = join(phpRoot, "chrysalis.observe.json");
+  const observeJson = existsSync(observeJsonPath);
   console.log(`[observe] php root:   ${phpRoot}`);
   console.log(`[observe] trace dir:  ${traceDir}`);
   console.log(`[observe] prelude:    ${preludePath}`);
   console.log(`[observe] listening:  http://${host}:${port}`);
-  console.log(`[observe] redaction:  ${redaction.rules.length} rule(s)`);
+  console.log(
+    observeJson
+      ? `[observe] redaction:  ${redaction.rules.length} rule(s) (defaults + chrysalis.observe.json)`
+      : `[observe] redaction:  ${redaction.rules.length} rule(s) (built-in defaults only)`,
+  );
 
   const handle = startObserver({
     phpRoot,
@@ -346,20 +407,32 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--no-recorded-sql] [--project <php-root>]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--no-recorded-sql] [--project <php-root>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
   const reportDir = typeof flags.report === "string" ? flags.report : "reports/verify";
   const threshold = typeof flags.threshold === "string" ? Number.parseFloat(flags.threshold) : 0.8;
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
+  const parserProvider = parserProviderFromFlags(flags);
+  if (parserProvider === null) return 2;
 
   const corpus = readCorpus({ root: resolve(corpusRoot) });
   console.log(`[verify] loaded ${corpus.traces.length} traces from ${corpusRoot}`);
   let verifyModule: Module | undefined;
   if (projectRoot) {
-    verifyModule = await ingestDirectory(projectRoot);
+    verifyModule = await ingestDirectory(projectRoot, {
+      ...(parserProvider ? { parserProvider } : {}),
+    });
     console.log(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
+  }
+  const replayParsed = resolveVerifyReplayExtras(flags);
+  if (!replayParsed.ok) {
+    console.error(replayParsed.message);
+    return 2;
+  }
+  if (replayParsed.logHint) {
+    console.log(`[verify] replay options: ${replayParsed.logHint}`);
   }
   console.log(`[verify] replaying against ${baseUrl} ...`);
 
@@ -367,6 +440,7 @@ async function cmdVerify(args: string[]): Promise<number> {
     baseUrl,
     recordedSqlReplay: flags["no-recorded-sql"] !== true,
     ...(verifyModule ? { module: verifyModule } : {}),
+    ...replayParsed.extras,
   });
   const report = buildReport(outcomes);
   const written = writeReport(resolve(reportDir), report, outcomes);
@@ -414,7 +488,7 @@ async function cmdRepair(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (!corpusRoot || !baseUrl || !projectRoot) {
     console.error(
-      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql]",
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -432,9 +506,22 @@ async function cmdRepair(args: string[]): Promise<number> {
     typeof flags["hole-patch"] === "string" ? resolve(flags["hole-patch"]) : null;
   const writeModulePath =
     typeof flags["write-module"] === "string" ? flags["write-module"] : null;
+  const parserProvider = parserProviderFromFlags(flags);
+  if (parserProvider === null) return 2;
+
+  const replayParsed = resolveVerifyReplayExtras(flags);
+  if (!replayParsed.ok) {
+    console.error(replayParsed.message);
+    return 2;
+  }
+  if (replayParsed.logHint) {
+    console.log(`[repair] replay options: ${replayParsed.logHint}`);
+  }
 
   const corpus = readCorpus({ root: resolve(corpusRoot) });
-  const webirModule = await ingestDirectory(projectRoot);
+  const webirModule = await ingestDirectory(projectRoot, {
+    ...(parserProvider ? { parserProvider } : {}),
+  });
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
 
   if (holePatchPath != null) {
@@ -455,10 +542,17 @@ async function cmdRepair(args: string[]): Promise<number> {
       return 2;
     }
     console.log(`[repair] applying hole closure from ${holePatchPath}`);
-    const holeResult = await applyHoleClosureAndVerify(webirModule, corpus, {
-      baseUrl,
-      recordedSqlReplay: flags["no-recorded-sql"] !== true,
-    }, closure);
+    const holeResult = await applyHoleClosureAndVerify(
+      webirModule,
+      corpus,
+      {
+        baseUrl,
+        recordedSqlReplay: flags["no-recorded-sql"] !== true,
+        ...replayParsed.extras,
+        workerThreads: false,
+      },
+      closure,
+    );
     if (holeResult.ok) {
       console.log("[repair] hole closure accepted (full corpus replay passed)");
       if (writeModulePath != null) {
@@ -488,6 +582,8 @@ async function cmdRepair(args: string[]): Promise<number> {
     replayBase: {
       baseUrl,
       recordedSqlReplay: flags["no-recorded-sql"] !== true,
+      ...replayParsed.extras,
+      workerThreads: false,
     },
     proposer: useLlm
       ? createHttpChatRepairProposerFromEnv({ verbose: repairVerbose })
@@ -674,12 +770,17 @@ async function cmdInsight(args: string[]): Promise<number> {
       "usage: chrysalis insight <php-project-dir>\n" +
         "                         [--traces <dir>] [--out <report.json>]\n" +
         "                         [--only raw-sql-concat,unescaped-output,n-plus-one-queries,scattered-validation,string-dispatch]\n" +
+        "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
     return 2;
   }
+  const parserProvider = parserProviderFromFlags(flags);
+  if (parserProvider === null) return 2;
 
-  const mod = await ingestDirectory(resolve(root));
+  const mod = await ingestDirectory(resolve(root), {
+    ...(parserProvider ? { parserProvider } : {}),
+  });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
   let corpus: ReturnType<typeof readCorpus> | null = null;
@@ -817,10 +918,13 @@ async function cmdRewrite(args: string[]): Promise<number> {
         "                         [--no-post-verify] [--verify-behavior]\n" +
         "                         [--http-replay <traces-dir>] [--http-replay-backends=hono,fastify]\n" +
         "                         [--http-replay-skip-install]\n" +
+        "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
     return 2;
   }
+  const parserProvider = parserProviderFromFlags(flags);
+  if (parserProvider === null) return 2;
 
   const httpReplayRoot =
     typeof flags["http-replay"] === "string" ? resolve(flags["http-replay"]) : null;
@@ -829,7 +933,9 @@ async function cmdRewrite(args: string[]): Promise<number> {
     return 2;
   }
 
-  const mod = await ingestDirectory(resolve(root));
+  const mod = await ingestDirectory(resolve(root), {
+    ...(parserProvider ? { parserProvider } : {}),
+  });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
   let corpus: ReturnType<typeof readCorpus> | null = null;
@@ -1196,6 +1302,12 @@ interface StatusSummary {
   readonly residualLegacy: {
     readonly holeCount: number;
     readonly dialectCounts: Record<string, number>;
+    /** Top ingest hole reasons (exact strings), sorted desc by count. */
+    readonly topHoleReasons: ReadonlyArray<{ readonly reason: string; readonly count: number }>;
+    /** Ingest `data.hole` nodes whose reason starts with `new:dynamic` (unusual if lowering uses `__new_dynamic`). */
+    readonly dynamicNewHoleCount: number;
+    /** WebIR `data.call` sites with callee `__new_dynamic` (dynamic class construction lowering). */
+    readonly dynamicNewWebIrCount: number;
   } | null;
   readonly insights: {
     readonly total: number;
@@ -1222,6 +1334,7 @@ interface StatusSummary {
     readonly routesWithMail: number;
     readonly routesWithCache: number;
     readonly routesWithFilesystem: number;
+    readonly routesWithDynamicNew: number;
     readonly routes: readonly RouteOracleFootprint[];
   } | null;
   /**
@@ -1295,6 +1408,32 @@ function archaeologyDashboardStats(arch: ReturnType<typeof runArchaeology>): Non
   };
 }
 
+function holeReasonStats(mod: Module): {
+  readonly top: ReadonlyArray<{ readonly reason: string; readonly count: number }>;
+  readonly dynamicNewCount: number;
+  readonly dynamicNewWebIrCount: number;
+} {
+  const counts = new Map<string, number>();
+  let dynamicNewCount = 0;
+  let dynamicNewWebIrCount = 0;
+  walk(mod, (n) => {
+    if (n.dialect === "data" && n.op === "hole") {
+      const reason = typeof n.attrs.reason === "string" ? n.attrs.reason : "unknown";
+      counts.set(reason, (counts.get(reason) ?? 0) + 1);
+      if (reason.startsWith("new:dynamic")) dynamicNewCount += 1;
+    }
+    if (n.dialect === "data" && n.op === "call") {
+      const c = String((n.attrs as { callee?: string }).callee ?? "");
+      if (c === "__new_dynamic") dynamicNewWebIrCount += 1;
+    }
+  });
+  const top = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 5)
+    .map(([reason, count]) => ({ reason, count }));
+  return { top, dynamicNewCount, dynamicNewWebIrCount };
+}
+
 function correctnessFromVerifyReport(r: VerifyReportJson): Omit<
   StatusCorrectnessBackend,
   "label"
@@ -1351,6 +1490,8 @@ function readCorrectnessForStatus(reportDir: string): StatusSummary["correctness
 
 async function cmdStatus(args: string[]): Promise<number> {
   const flags = parseFlags(args);
+  const parserProvider = parserProviderFromFlags(flags);
+  if (parserProvider === null) return 2;
   const project = typeof flags.project === "string" ? resolve(flags.project) : null;
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : "traces";
   const reportDir = typeof flags.report === "string" ? resolve(flags.report) : "reports/verify";
@@ -1454,11 +1595,17 @@ async function cmdStatus(args: string[]): Promise<number> {
   let ingestedMod: Module | null = null;
   if (project) {
     try {
-      const mod = await ingestDirectory(project);
+      const mod = await ingestDirectory(project, {
+        ...(parserProvider ? { parserProvider } : {}),
+      });
       ingestedMod = mod;
+      const holeStats = holeReasonStats(mod);
       (summary as { residualLegacy: StatusSummary["residualLegacy"] }).residualLegacy = {
         holeCount: countHoles(mod),
         dialectCounts: countByDialect(mod),
+        topHoleReasons: holeStats.top,
+        dynamicNewHoleCount: holeStats.dynamicNewCount,
+        dynamicNewWebIrCount: holeStats.dynamicNewWebIrCount,
       };
       const insightReport = analyzeModule(mod, corpus ? { corpus } : undefined);
       const top = [...insightReport.opportunities]
@@ -1490,6 +1637,7 @@ async function cmdStatus(args: string[]): Promise<number> {
         routesWithMail: fp.routes.filter((r) => r.mail).length,
         routesWithCache: fp.routes.filter((r) => r.cache).length,
         routesWithFilesystem: fp.routes.filter((r) => r.filesystem).length,
+        routesWithDynamicNew: fp.routes.filter((r) => r.dynamicNewCount > 0).length,
         routes: fp.routes,
       };
       try {
@@ -1669,7 +1817,17 @@ async function cmdStatus(args: string[]): Promise<number> {
     const dialects = Object.entries(r.dialectCounts)
       .map(([k, v]) => `${k}=${v}`)
       .join(" ");
-    console.log(`residual PHP : ${r.holeCount} holes   dialects: ${dialects}`);
+    const dynamicHolePart =
+      r.dynamicNewHoleCount > 0 ? `  dynamic-new ingest holes: ${r.dynamicNewHoleCount}` : "";
+    const dynamicIrPart =
+      r.dynamicNewWebIrCount > 0 ? `  WebIR __new_dynamic: ${r.dynamicNewWebIrCount}` : "";
+    const topReasonsPart =
+      r.topHoleReasons.length > 0
+        ? `  top reasons: ${r.topHoleReasons.map((x) => `${x.reason}=${x.count}`).join(", ")}`
+        : "";
+    console.log(
+      `residual PHP : ${r.holeCount} holes   dialects: ${dialects}${dynamicHolePart}${dynamicIrPart}${topReasonsPart}`,
+    );
   } else {
     console.log(`residual PHP : (none — pass --project <php-dir>)`);
   }
@@ -1704,6 +1862,7 @@ async function cmdStatus(args: string[]): Promise<number> {
     if (o.routesWithMail > 0) extra.push(`mail=${o.routesWithMail}`);
     if (o.routesWithCache > 0) extra.push(`cache=${o.routesWithCache}`);
     if (o.routesWithFilesystem > 0) extra.push(`fs=${o.routesWithFilesystem}`);
+    if (o.routesWithDynamicNew > 0) extra.push(`dynnew=${o.routesWithDynamicNew}`);
     const extraStr = extra.length > 0 ? `  ${extra.join(" ")}` : "";
     console.log(
       `oracle footprint: hydration ${o.hydrationIndex}/100  ` +

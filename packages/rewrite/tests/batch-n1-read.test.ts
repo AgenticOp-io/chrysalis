@@ -68,11 +68,22 @@ function batchN1Module() {
 }
 
 describe("batch-n1-read pass", () => {
+  function withCorpusEvidence<T extends { evidence: Record<string, unknown> }>(op: T): T {
+    return {
+      ...op,
+      evidence: {
+        ...op.evidence,
+        corpusConfirmations: 1,
+        observedMaxPerRequest: 2,
+      },
+    };
+  }
+
   it("hoists a batched IN read and replaces inner query with row lookup", () => {
     const m = batchN1Module();
     const [op0] = nPlusOneRecognizer.recognize(m);
     expect(op0).toBeDefined();
-    const op = { ...op0!, confidence: 0.95 };
+    const op = withCorpusEvidence({ ...op0!, confidence: 0.95 });
 
     const { module: next, report } = applyRewrites(m, [op], [batchN1ReadPass], {
       minConfidence: 0.5,
@@ -157,7 +168,7 @@ describe("batch-n1-read pass", () => {
     });
     const [op0] = nPlusOneRecognizer.recognize(m);
     expect(op0!.evidence["innerQueriesInLoop"]).toBe(2);
-    const op = { ...op0!, confidence: 0.95 };
+    const op = withCorpusEvidence({ ...op0!, confidence: 0.95 });
     const { module: next, report } = applyRewrites(m, [op], [batchN1ReadPass], {
       minConfidence: 0.5,
       verifyInvariants: true,
@@ -167,7 +178,7 @@ describe("batch-n1-read pass", () => {
     expect(vb.ok).toBe(true);
   });
 
-  it("is skipped when inner reads are not assign-wrapped (no batchable inners)", () => {
+  it("batches bare inner reads (no __assign wrapper) by replacing body statements", () => {
     const m = buildModule(({ data, eff, loc }) => {
       const outer = eff.dbQuery({
         kind: "read",
@@ -208,20 +219,22 @@ describe("batch-n1-read pass", () => {
       return data.block({ statements: [postsAssign, loop], origin: loc() });
     });
     const [op0] = nPlusOneRecognizer.recognize(m);
-    const op = { ...op0!, confidence: 0.95 };
-    const { report } = applyRewrites(m, [op], [batchN1ReadPass], { minConfidence: 0.5 });
-    expect(report.applied).toHaveLength(0);
-    expect(
-      report.skipped.some(
-        (s) => s.pass === "batch-n1-read" && s.reason.includes("assign-wrapped"),
-      ),
-    ).toBe(true);
+    const op = withCorpusEvidence({ ...op0!, confidence: 0.95 });
+    const { module: next, report } = applyRewrites(m, [op], [batchN1ReadPass], {
+      minConfidence: 0.5,
+      verifyInvariants: true,
+    });
+    expect(report.applied).toHaveLength(1);
+    const after = nPlusOneRecognizer.recognize(next);
+    expect(after.length).toBeLessThanOrEqual(1);
+    const vb = verifyBehavior(m, next, report.applied, { synthesizeProbes: true });
+    expect(vb.ok).toBe(true);
   });
 
   it("composes with DEFAULT_PASSES when opportunity is above confidence threshold", () => {
     const m = batchN1Module();
     const [op0] = nPlusOneRecognizer.recognize(m);
-    const op = { ...op0!, confidence: 0.95 };
+    const op = withCorpusEvidence({ ...op0!, confidence: 0.95 });
     const { report } = applyRewrites(m, [op], DEFAULT_PASSES, {
       only: ["batch-n1-read"],
       minConfidence: 0.5,

@@ -11,7 +11,48 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { resolve, join } from "node:path";
-import { DEFAULT_REDACTION, canonicalJSON, type RedactionConfig } from "./redaction.js";
+import {
+  DEFAULT_REDACTION,
+  canonicalJSON,
+  mergeObserveFileRulesWithDefaults,
+  type RedactionConfig,
+  type RedactionRule,
+} from "./redaction.js";
+
+function parseObserveRedactionRules(parsedRoot: unknown, absConfigPath: string): RedactionRule[] {
+  if (parsedRoot === null || typeof parsedRoot !== "object" || Array.isArray(parsedRoot)) {
+    throw new Error(`chrysalis.observe.json (${absConfigPath}): root value must be a JSON object`);
+  }
+  const root = parsedRoot as Record<string, unknown>;
+  const red = root.redaction;
+  if (red === undefined) return [];
+  if (red === null || typeof red !== "object" || Array.isArray(red)) {
+    throw new Error(`chrysalis.observe.json (${absConfigPath}): "redaction" must be a JSON object`);
+  }
+  const rulesRaw = (red as Record<string, unknown>).rules;
+  if (rulesRaw === undefined) return [];
+  if (!Array.isArray(rulesRaw)) {
+    throw new Error(`chrysalis.observe.json (${absConfigPath}): redaction.rules must be an array`);
+  }
+  const out: RedactionRule[] = [];
+  for (let i = 0; i < rulesRaw.length; i++) {
+    const r = rulesRaw[i];
+    if (r === null || typeof r !== "object" || Array.isArray(r)) {
+      throw new Error(`chrysalis.observe.json (${absConfigPath}): redaction.rules[${i}] must be an object`);
+    }
+    const rec = r as Record<string, unknown>;
+    const kind = rec.kind;
+    if (kind !== "drop" && kind !== "hash" && kind !== "mask") continue;
+    const p = rec.path;
+    if (typeof p !== "string" || p.trim() === "") {
+      throw new Error(
+        `chrysalis.observe.json (${absConfigPath}): redaction.rules[${i}] has supported kind ${String(kind)} but "path" must be a non-empty string`,
+      );
+    }
+    out.push({ path: p.trim(), kind });
+  }
+  return out;
+}
 
 export interface ObserveOptions {
   readonly phpRoot: string; // directory served by `php -S` (docroot)
@@ -85,17 +126,25 @@ export function startObserver(opts: ObserveOptions): ObserveHandle {
 
 /**
  * Loads a redaction config from `chrysalis.observe.json` in the given dir.
- * Falls back to {@link DEFAULT_REDACTION} when no file exists.
+ * When the file exists, its rules are **merged** onto {@link DEFAULT_REDACTION}
+ * (same `path` overrides `kind`; extra paths append). When absent, returns
+ * defaults unchanged.
+ *
+ * Malformed JSON or invalid shapes throw {@link Error} with the config path in
+ * the message (unknown rule `kind` values are skipped; supported kinds require a
+ * non-empty string `path`).
  */
 export function loadObserveConfig(dir: string): RedactionConfig {
-  const path = join(dir, "chrysalis.observe.json");
-  if (!existsSync(path)) return DEFAULT_REDACTION;
-  const raw = readFileSync(path, "utf8");
-  const parsed = JSON.parse(raw) as { redaction?: { rules?: Array<{ path: string; kind: string }> } };
-  const rules = parsed.redaction?.rules ?? [];
-  return {
-    rules: rules
-      .filter((r) => r.kind === "drop" || r.kind === "hash" || r.kind === "mask")
-      .map((r) => ({ path: r.path, kind: r.kind as "drop" | "hash" | "mask" })),
-  };
+  const observePath = join(dir, "chrysalis.observe.json");
+  if (!existsSync(observePath)) return DEFAULT_REDACTION;
+  const absConfigPath = resolve(observePath);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(observePath, "utf8"));
+  } catch (e) {
+    const m = e instanceof Error ? e.message : String(e);
+    throw new Error(`Failed to parse chrysalis.observe.json (${absConfigPath}): ${m}`);
+  }
+  const normalized = parseObserveRedactionRules(parsed, absConfigPath);
+  return { rules: mergeObserveFileRulesWithDefaults(normalized) };
 }

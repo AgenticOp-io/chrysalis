@@ -5,6 +5,17 @@ import { applyRewrites, sanitizeOutputPass } from "../src/index.js";
 import { buildModule } from "./helpers.js";
 
 describe("rewrite engine — sanitize-output", () => {
+  function withCorpusEvidence<T extends { evidence: Record<string, unknown> }>(op: T): T {
+    return {
+      ...op,
+      evidence: {
+        ...op.evidence,
+        corpusConfirmations: 1,
+        observedMaxPerRequest: 2,
+      },
+    };
+  }
+
   it("wraps an echo of a tainted request field in htmlspecialchars", () => {
     const m = buildModule(({ data, eff, loc }) => {
       const field = data.requestField({
@@ -15,7 +26,7 @@ describe("rewrite engine — sanitize-output", () => {
       });
       return eff.echo({ value: field, origin: loc() });
     });
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     expect(ops).toHaveLength(1);
     const { module: next, report } = applyRewrites(m, ops, [sanitizeOutputPass]);
     expect(report.applied).toHaveLength(1);
@@ -39,6 +50,23 @@ describe("rewrite engine — sanitize-output", () => {
     expect(after).toHaveLength(0);
   });
 
+  it("skips without corpus confirmation", () => {
+    const m = buildModule(({ data, eff, loc }) => {
+      const field = data.requestField({
+        source: "query",
+        name: "name",
+        type: T.string,
+        origin: loc(),
+      });
+      return eff.echo({ value: field, origin: loc() });
+    });
+    const ops = unescapedOutputRecognizer.recognize(m);
+    expect(ops).toHaveLength(1);
+    const { report } = applyRewrites(m, ops, [sanitizeOutputPass]);
+    expect(report.applied).toHaveLength(0);
+    expect(report.skipped.some((s) => s.reason.includes("corpus gating"))).toBe(true);
+  });
+
   it("is idempotent: re-rewriting does not double-wrap", () => {
     const m = buildModule(({ data, eff, loc }) => {
       const field = data.requestField({
@@ -50,7 +78,11 @@ describe("rewrite engine — sanitize-output", () => {
       return eff.echo({ value: field, origin: loc() });
     });
     const firstReport = analyzeModule(m, { only: ["unescaped-output"] });
-    const { module: once } = applyRewrites(m, firstReport.opportunities, [sanitizeOutputPass]);
+    const { module: once } = applyRewrites(
+      m,
+      firstReport.opportunities.map(withCorpusEvidence),
+      [sanitizeOutputPass],
+    );
     const secondReport = analyzeModule(once, { only: ["unescaped-output"] });
     const { module: twice, report } = applyRewrites(
       once,
@@ -87,7 +119,7 @@ describe("rewrite engine — sanitize-output", () => {
       });
       return eff.echo({ value: tpl, origin: loc() });
     });
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     expect(ops).toHaveLength(1);
     const { module: next, report } = applyRewrites(m, ops, [sanitizeOutputPass]);
     expect(report.applied).toHaveLength(1);
@@ -124,7 +156,7 @@ describe("rewrite engine — sanitize-output", () => {
       });
       return eff.echo({ value: field, origin: loc() });
     });
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     const { module: next, report } = applyRewrites(m, ops, [sanitizeOutputPass], {
       minConfidence: 0.99,
     });
@@ -154,7 +186,7 @@ describe("rewrite engine — sanitize-output", () => {
       const concat = data.concat({ parts: [lit1, field, lit2], origin: loc() });
       return eff.echo({ value: concat, origin: loc() });
     });
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     expect(ops).toHaveLength(1);
     const { module: next, report } = applyRewrites(m, ops, [sanitizeOutputPass]);
     expect(report.applied).toHaveLength(1);

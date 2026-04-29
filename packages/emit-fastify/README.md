@@ -25,6 +25,12 @@ Emits a runnable **Fastify + `node:sqlite`** TypeScript project from a WebIR
   `CHRYSALIS_SESSION_COOKIE`,
   `CHRYSALIS_DB_PATH` semantics as emit-hono.
 - **Effect annotations** and **provenance** JSDoc match emit-hono output shape.
+- **Constructor bridge bootstrap.** Generated `src/runtime.ts` exports
+  `registerPhpFqnCtor(fqn, ctor)` for both FQN static `new` and dynamic
+  `phpDynamicNew` lookup paths. Register constructors once during app startup
+  (for example in `src/index.ts`) to replace hole fallbacks incrementally.
+- **Vitest npm probes:** same as emit-hono — temp `npm install` only when
+  `CI=true` or `CHRYSALIS_E2E_EMIT=1`.
 - **Flagship parity:** Same Vitest slices as emit-hono — **`flagship/laravel-min`**
   (nineteen handlers, zero holes, key handler files) and **`flagship/laravel-full/chrysalis-templates`**
   (fifty-two handlers: `ping_show.ts`, `health_txt_show.ts`, `api_health_show.ts`, `jump_show.ts`,

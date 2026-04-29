@@ -33,7 +33,7 @@ present.
 - `schema.sql` — SQLite `items` + `users` seed (`flagship` user; password bcrypt of `secret` applied by `verify:flagship` / CI)
 - `data/` — runtime SQLite (`app.sqlite`); created by `pnpm run verify:flagship` / CI (gitignored)
 - `chrysalis.routes.json` — ingest manifest (required)
-- `chrysalis.observe.json` — Oracle redaction (minimal)
+- `chrysalis.observe.json` — optional extra oracle redaction rules (merged onto built-in defaults; this fixture lists only `request.headers.cookie`)
 - `migration-reports/README.md` — optional `idiomaticity.json` / `residual-legacy.json` for `chrysalis status`
 - `composer.json` — PHP 8.1+ and `app/autoload.php` (run `composer install` in this directory)
 

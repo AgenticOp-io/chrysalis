@@ -186,6 +186,48 @@ export function __hole(name: string, payload: unknown): unknown {
   return null;
 }
 
+type PhpFqnCtor = (...args: unknown[]) => unknown;
+const phpFqnCtorRegistry = new Map<string, PhpFqnCtor>();
+
+/**
+ * Optional bridge: register a runtime constructor for a PHP FQN so namespaced
+ * construction can become a real object instead of a hole.
+ *
+ * Bootstrap example in emitted app entrypoint:
+ * import { registerPhpFqnCtor } from "./runtime.js";
+ * class AcmeThing { constructor(public n: unknown) {} }
+ * registerPhpFqnCtor("Acme\Namespaced\Thing", (...args) => new AcmeThing(args[0]));
+ */
+export function registerPhpFqnCtor(fqn: string, ctor: PhpFqnCtor): void {
+  phpFqnCtorRegistry.set(String(fqn), ctor);
+}
+
+/**
+ * PHP namespaced new (no corresponding static TS import). Delegates to
+ * {@link __hole} so handlers compile; production stacks register classes or
+ * bridge to legacy.
+ */
+export function phpFqnNew(fqn: string, ...args: unknown[]): unknown {
+  const ctor = phpFqnCtorRegistry.get(String(fqn));
+  if (ctor) return ctor(...args);
+  return __hole(
+    "new:" + fqn.split(String.fromCharCode(92)).join("."),
+    { fqn, args },
+  );
+}
+
+/**
+ * Dynamic class construction via registry when classExpr is a string; otherwise
+ * preserve behavior via a typed hole.
+ */
+export function phpDynamicNew(classExpr: unknown, ...args: unknown[]): unknown {
+  if (typeof classExpr === "string") {
+    const ctor = phpFqnCtorRegistry.get(classExpr);
+    if (ctor) return ctor(...args);
+  }
+  return __hole("new:dynamic", { classExpr, args });
+}
+
 /**
  * Final-response helper. Mirrors the PHP "set status then echo then exit"
  * sequence: if there is buffered HTML, return it with the accumulated

@@ -8,7 +8,8 @@ namespace Chrysalis\Oracle;
  * Applies a list of redaction rules to an event array before it is written to
  * disk. Rules are matched against fixed dotted paths derived from the event
  * type. See `packages/oracle/src/redaction.ts` for the authoritative rule
- * semantics; the two implementations must stay in lockstep.
+ * semantics; the two implementations must stay in lockstep with
+ * `packages/oracle/src/redaction.ts` (`DEFAULT_REDACTION` rules array).
  */
 final class Redactor
 {
@@ -117,8 +118,140 @@ final class Redactor
                     }
                 }
                 break;
+            case 'sql.query':
+                if (isset($event['rows']) && is_array($event['rows'])) {
+                    $event['rows'] = $this->redactSqlQueryRows($event['rows']);
+                }
+                if (isset($event['params']) && is_array($event['params'])) {
+                    $rowShape = $event['rowShape'] ?? [];
+                    // SELECT-shaped queries feed `params` into recorded-SQL tape matching (`paramsMatch` in
+                    // emitted runtimes). Only mutate-shaped events (empty `rowShape`) may apply sql.params rules.
+                    if (!is_array($rowShape) || count($rowShape) === 0) {
+                        $driver = (string)($event['driver'] ?? '');
+                        $sql = (string)($event['sql'] ?? '');
+                        $event['params'] = $this->redactSqlQueryParams($driver, $sql, $event['params']);
+                    }
+                }
+                break;
         }
         return $event;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     * @return list<array<string, mixed>>
+     */
+    private function redactSqlQueryRows(array $rows): array
+    {
+        $out = [];
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                $out[] = $row;
+                continue;
+            }
+            $new = [];
+            foreach ($row as $col => $val) {
+                $kind = $this->findRowFieldKind((string)$col);
+                if ($kind === null) {
+                    $new[(string)$col] = $val;
+                    continue;
+                }
+                if ($kind === 'drop') {
+                    continue;
+                }
+                $s = is_scalar($val) || $val === null ? (string)$val : (json_encode($val) ?: '');
+                $new[(string)$col] = $this->applyKind($s, $kind);
+            }
+            $out[] = $new;
+        }
+        return $out;
+    }
+
+    /**
+     * Rules use path `sql.params[<driver>:<sqlPrefix>].<index>` (see `packages/oracle/src/redaction.ts`).
+     * Driver may be `*` (any). Prefix matches the start of trimmed SQL (case-insensitive).
+     * Empty prefix is ignored (no match). `drop` on params is applied as `mask` so bind arity stays stable for tapes.
+     *
+     * @param list<mixed> $params
+     * @return list<mixed>
+     */
+    private function redactSqlQueryParams(string $driver, string $sql, array $params): array
+    {
+        $trimSql = ltrim($sql);
+        foreach ($this->rules as $r) {
+            $parsed = $this->parseSqlParamsRulePath($r['path']);
+            if ($parsed === null) {
+                continue;
+            }
+            [$ruleDriver, $prefix, $index] = $parsed;
+            if (!$this->sqlParamsDriverMatches($ruleDriver, $driver)) {
+                continue;
+            }
+            if (!$this->sqlStartsWithCaseInsensitivePrefix($trimSql, $prefix)) {
+                continue;
+            }
+            if (!array_key_exists($index, $params)) {
+                continue;
+            }
+            $kind = $r['kind'] === 'drop' ? 'mask' : $r['kind'];
+            $val = $params[$index];
+            $s = is_scalar($val) || $val === null ? (string)$val : (json_encode($val) ?: '');
+            $params[$index] = $this->applyKind($s, $kind);
+        }
+
+        return $params;
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: int}|null tuple: driver pattern, SQL prefix, param index
+     */
+    private function parseSqlParamsRulePath(string $path): ?array
+    {
+        if (!preg_match('/^sql\.params\[([^:]+):(.+)\]\.(\d+)\z/', $path, $m)) {
+            return null;
+        }
+        $idx = (int)$m[3];
+        if ($idx < 0) {
+            return null;
+        }
+
+        return [$m[1], $m[2], $idx];
+    }
+
+    private function sqlParamsDriverMatches(string $ruleDriver, string $actual): bool
+    {
+        if ($ruleDriver === '*' || $ruleDriver === '') {
+            return true;
+        }
+
+        return strcasecmp($ruleDriver, $actual) === 0;
+    }
+
+    /**
+     * Prefix must be non-empty; matches when trimmed SQL starts with prefix (byte-wise casefold ASCII-ish via strtolower).
+     */
+    private function sqlStartsWithCaseInsensitivePrefix(string $trimSql, string $prefix): bool
+    {
+        $p = ltrim($prefix);
+        if ($p === '') {
+            return false;
+        }
+
+        return str_starts_with(strtolower($trimSql), strtolower($p));
+    }
+
+    private function findRowFieldKind(string $column): ?string
+    {
+        foreach ($this->rules as $r) {
+            if (!str_starts_with($r['path'], 'sql.row.')) {
+                continue;
+            }
+            $field = substr($r['path'], 8);
+            if ($field !== '' && strcasecmp($field, $column) === 0) {
+                return $r['kind'];
+            }
+        }
+        return null;
     }
 
     /**

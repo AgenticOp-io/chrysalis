@@ -172,6 +172,8 @@ function handlerFileText(
   const runtimeZod = emitted.usesZod
     ? "  parseZodBodyFieldRaw,\n  parseZodEnumBodyFieldRaw,\n"
     : "";
+  const runtimeFqn = emitted.usesPhpFqnNew ? "  phpFqnNew,\n" : "";
+  const runtimeDynamicNew = emitted.usesPhpDynamicNew ? "  phpDynamicNew,\n" : "";
   return `import type { FastifyReply, FastifyRequest } from "fastify";
 ${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";
 import { getSession } from "../session.js";
@@ -191,7 +193,7 @@ ${runtimeBatch}  microtimeString,
   parseUrlParts,
   passwordVerify,
   __hole,
-  __respond,
+${runtimeFqn}${runtimeDynamicNew}  __respond,
 ${runtimeZod}} from "../runtime.js";
 
 /**

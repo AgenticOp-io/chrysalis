@@ -4,7 +4,8 @@
  * Takes a TraceCorpus (produced by `@chrysalis/oracle`) and a running HTTP
  * endpoint (an app emitted by `@chrysalis/emit-hono` or any compatible
  * target), replays every captured request, and diffs the responses to
- * produce per-route correctness scores.
+ * produce per-route correctness scores. Optional **`concurrency`** (with
+ * **`disableCookieChain`**) speeds replay for independent traces (D202).
  *
  * Heuristic divergence attribution (≤5 WebIR nodes per failed trace when
  * `ReplayOptions.module` is set) is Milestone 3 v1; emit-level source maps are
@@ -17,6 +18,11 @@ export {
   type ReplayOptions,
   type TraceOutcome,
 } from "./replay.js";
+
+export {
+  resolveVerifyReplayExtras,
+  type VerifyReplayExtrasResult,
+} from "./verify-replay-extras.js";
 
 export {
   MAX_ATTRIBUTION_NODES,

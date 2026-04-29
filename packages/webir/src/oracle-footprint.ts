@@ -25,6 +25,8 @@ export interface RouteOracleFootprint {
   readonly cache: boolean;
   /** Any `fs.read` / `fs.write` in the handler body subgraph. */
   readonly filesystem: boolean;
+  /** Sites lowered from PHP `new $class(...)` as `data.call` with callee `__new_dynamic`. */
+  readonly dynamicNewCount: number;
 }
 
 export interface OracleFootprint {
@@ -68,6 +70,16 @@ function countNodesInSubtree(get: (id: NodeId) => NodeBase | undefined, root: No
   let n = 0;
   walkOperands(get, root, () => {
     n += 1;
+  });
+  return n;
+}
+
+function countDynamicNewInSubtree(get: (id: NodeId) => NodeBase | undefined, root: NodeId): number {
+  let n = 0;
+  walkOperands(get, root, (node) => {
+    if (node.dialect !== "data" || node.op !== "call") return;
+    const callee = String((node.attrs as { callee?: string }).callee ?? "");
+    if (callee === "__new_dynamic") n += 1;
   });
   return n;
 }
@@ -128,6 +140,7 @@ function routeHydrationScore(r: RouteOracleFootprint): number {
   if (r.mail) s += 12;
   if (r.cache) s += 6;
   if (r.filesystem) s += 12;
+  s += r.dynamicNewCount * 4;
   return s;
 }
 
@@ -172,6 +185,7 @@ export function computeOracleFootprint(m: Module): OracleFootprint {
       mail: sum.mail,
       cache: sum.cache,
       filesystem: sum.filesystem,
+      dynamicNewCount: countDynamicNewInSubtree(get, bodyId),
     });
   }
 

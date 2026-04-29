@@ -17,6 +17,10 @@
  * target framework. Keeping the rewrite framework-agnostic means a
  * future `emit-fastify` inherits this fix for free.
  *
+ * Corpus gate: applies only when `corpusConfirmations >= 1` or
+ * `observedMaxPerRequest >= 2` (same contract as `batch-n1-read` /
+ * `parameterize-sql`), so automatic XSS fixes stay trace-backed.
+ *
  * Safety: `htmlspecialchars` is an idempotent transform on clean text.
  * On attacker-controlled input it swaps `<`, `>`, `&`, `'`, `"` for
  * entity references. Traces that didn't contain those characters in the
@@ -40,6 +44,14 @@ export const sanitizeOutputPass: RewritePass = {
   },
 
   apply(ctx: RewriteCtx, op: Opportunity): ReadonlyArray<Edit> {
+    const corpusHits = Number(op.evidence["corpusConfirmations"] ?? 0);
+    const maxPerReq = Number(op.evidence["observedMaxPerRequest"] ?? 0);
+    if (!(Number.isFinite(corpusHits) && corpusHits >= 1) && !(Number.isFinite(maxPerReq) && maxPerReq >= 2)) {
+      throw new Error(
+        "sanitize-output: corpus gating requires trace-backed XSS confirmation (run insight/rewrite with --traces)",
+      );
+    }
+
     const isTemplate = op.evidence["isTemplate"] === true;
 
     if (!isTemplate) {

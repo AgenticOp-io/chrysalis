@@ -71,6 +71,17 @@ function corpusOf(traces: Trace[]): TraceCorpus {
   };
 }
 
+function withCorpusEvidence<T extends { evidence: Record<string, unknown> }>(op: T): T {
+  return {
+    ...op,
+    evidence: {
+      ...op.evidence,
+      corpusConfirmations: 1,
+      observedMaxPerRequest: 2,
+    },
+  };
+}
+
 /** Single route GET / echoing a query field — produces unescaped-output. */
 function echoQueryModule() {
   return buildModule(
@@ -90,7 +101,7 @@ function echoQueryModule() {
 describe("applyRewritesAsync + http-replay (D20)", () => {
   it("runs replay after a successful batch and keeps commits when fetch matches corpus", async () => {
     const m = echoQueryModule();
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     const expectedHtml = "<p>hello</p>";
     const corpus = corpusOf([
       mkTrace({
@@ -128,7 +139,7 @@ describe("applyRewritesAsync + http-replay (D20)", () => {
 
   it("rolls back the full batch when replay diverges", async () => {
     const m = echoQueryModule();
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     const corpus = corpusOf([
       mkTrace({
         traceId: "t1",
@@ -166,7 +177,7 @@ describe("applyRewritesAsync + http-replay (D20)", () => {
 
   it("uses resolveFetch(rewritten) when fetch is omitted", async () => {
     const m = echoQueryModule();
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     const expectedHtml = "<p>resolve</p>";
     const corpus = corpusOf([
       mkTrace({
@@ -205,7 +216,7 @@ describe("applyRewritesAsync + http-replay (D20)", () => {
 
   it("runs resolveFetches for each backend and requires all to pass", async () => {
     const m = echoQueryModule();
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     const expectedHtml = "<p>multi</p>";
     const corpus = corpusOf([
       mkTrace({
@@ -244,7 +255,7 @@ describe("applyRewritesAsync + http-replay (D20)", () => {
 
   it("rolls back when the second resolveFetches backend diverges", async () => {
     const m = echoQueryModule();
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     const corpus = corpusOf([
       mkTrace({
         traceId: "t-m2",
@@ -290,7 +301,7 @@ describe("applyRewritesAsync + http-replay (D20)", () => {
 
   it("rejects httpReplay when resolveFetches is combined with fetch", async () => {
     const m = echoQueryModule();
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     const corpus = corpusOf([
       mkTrace({
         traceId: "t-x",

@@ -30,6 +30,10 @@
  * echo/html.template), so in practice they don't overlap on the same
  * nodes. The per-opportunity apply-verify-commit loop (D16) handles
  * any cross-pass interactions correctly.
+ *
+ * Corpus gating (D200): same confidence model as `batch-n1-read` — applies only
+ * when `corpusConfirmations >= 1` or `observedMaxPerRequest >= 2` (attached by
+ * `boostRawSqlConcat` when traces include matching-route SQL, or injected in tests).
  */
 import type { NodeBase, NodeId } from "@chrysalis/webir";
 import { T } from "@chrysalis/webir";
@@ -45,6 +49,13 @@ export const parameterizeSqlPass: RewritePass = {
   },
 
   apply(ctx: RewriteCtx, op: Opportunity): ReadonlyArray<Edit> {
+    const corpusHits = Number(op.evidence["corpusConfirmations"] ?? 0);
+    const maxPerReq = Number(op.evidence["observedMaxPerRequest"] ?? 0);
+    if (!(Number.isFinite(corpusHits) && corpusHits >= 1) && !(Number.isFinite(maxPerReq) && maxPerReq >= 2)) {
+      throw new Error(
+        "parameterize-sql: corpus gating requires trace-backed SQL evidence on this route (run insight/rewrite with --traces)",
+      );
+    }
     const queryId = op.nodes[0];
     if (!queryId) throw new Error("parameterize-sql: opportunity has no anchor node");
     const query = ctx.get(queryId);

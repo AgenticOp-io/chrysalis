@@ -13,6 +13,8 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 - `IngestFileOptions.projectRoot` — when set, applies the same `buildCallEffectMap`
   widening as `ingestDirectory` (`lib/`, Composer-aware optional `vendor/`,
   + hoisted functions for that route)
+- `IngestOptions.parserProvider` / `IngestFileOptions.parserProvider` — forwards
+  parser selection to `@chrysalis/parser-bridge` (`glayzzle` default, optional `nikic`)
 - `IngestOptions` — include/exclude globs, PHPDoc handling, hole policy
 
 ## Invariants

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { execSync } from "node:child_process";
 import { resolve } from "node:path";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -9,11 +10,15 @@ import { emit } from "../src/index.js";
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
 const FIXTURE_SCHEMA = resolve(__dirname, "../../../fixtures/tiny-blog/schema.sql");
 const FIXTURE_N1 = resolve(__dirname, "../../../fixtures/tiny-n1");
+const FIXTURE_THROW_NEW = resolve(__dirname, "../../../fixtures/throw-new-probe");
 const FLAGSHIP_LARAVEL_MIN = resolve(__dirname, "../../../flagship/laravel-min");
 const FLAGSHIP_LARAVEL_FULL_TEMPLATES = resolve(
   __dirname,
   "../../../flagship/laravel-full/chrysalis-templates",
 );
+
+/** Temp-dir `npm install` probes: on by default in GitHub Actions (`CI=true`); opt in locally with `CHRYSALIS_E2E_EMIT=1`. */
+const RUN_EMIT_NPM_E2E = process.env.CI === "true" || process.env.CHRYSALIS_E2E_EMIT === "1";
 
 function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, outDir: string) {
   const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
@@ -42,6 +47,7 @@ describe("emit-fastify: tiny-blog output", () => {
       expect(server).toContain("export async function fetch(");
       expect(server).toContain("app.inject");
       expect(server).toContain("chrysalisDeterminismOnRequest");
+      expect(server).toContain("@fastify/formbody");
 
       const ctx = readFileSync(resolve(out, "src/ctx.ts"), "utf8");
       expect(ctx).toContain("chrysalisNow");
@@ -60,6 +66,64 @@ describe("emit-fastify: tiny-blog output", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+});
+
+describe("emit-fastify: dynamic new bridge", () => {
+  test("emits phpDynamicNew helper usage for dynamic constructor paths", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dyn-f-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE_THROW_NEW);
+      const res = await emit({ module: mod, outDir: out });
+      expect(res.handlerCount).toBe(5);
+      const dynSrc = readFileSync(resolve(out, "src/handlers/dynnew.ts"), "utf8");
+      expect(dynSrc).toContain("phpDynamicNew(");
+      expect(dynSrc).toContain('from "../runtime.js"');
+      const dynFqnSrc = readFileSync(resolve(out, "src/handlers/dynfqn.ts"), "utf8");
+      expect(dynFqnSrc).toContain("phpDynamicNew(");
+      const runtimeSrc = readFileSync(resolve(out, "src/runtime.ts"), "utf8");
+      expect(runtimeSrc).toContain("export function phpDynamicNew(");
+      expect(runtimeSrc).toContain('return __hole("new:dynamic"');
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test.skipIf(!RUN_EMIT_NPM_E2E)(
+    "dynnew GET responds in-process via server fetch after npm install",
+    async () => {
+      const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dyn-fetch-f-"));
+      try {
+        const mod = await ingestDirectory(FIXTURE_THROW_NEW);
+        await emit({ module: mod, outDir: out });
+        execSync("npm install", { cwd: out, stdio: "pipe" });
+        writeFileSync(
+          resolve(out, "_chrysalis_dyn_probe.ts"),
+          `import { registerPhpFqnCtor } from "./src/runtime.js";
+import { fetch } from "./src/server.js";
+
+class PhpException extends Error {
+  constructor(message?: string) {
+    super(message ?? "");
+    this.name = "Exception";
+  }
+}
+registerPhpFqnCtor("Exception", (...args) => new PhpException(args[0] != null ? String(args[0]) : ""));
+
+const res = await fetch("http://127.0.0.1/dynnew");
+console.log(String(res.status));
+`,
+        );
+        const statusLine = execSync("npx tsx _chrysalis_dyn_probe.ts", {
+          cwd: out,
+          encoding: "utf8",
+        }).trim();
+        expect(statusLine).toBe("200");
+      } finally {
+        rmSync(out, { recursive: true, force: true });
+      }
+    },
+    120_000,
+  );
 });
 
 describe("emit-fastify: flagship laravel-min (Milestone 4 slice)", () => {

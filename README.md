@@ -36,8 +36,7 @@ N+1 without assign).
 and **Composer adoption templates** (`flagship/laravel-full`) meet the phased acceptance in
 `ROADMAP.md` — ingest/emit **zero holes** on committed manifests, oracle + dual verify in CI where
 scripted, migration + oracle-footprint artifacts, and `chrysalis status --json` inputs documented in
-`flagship/README.md`. **Current focus:** **Milestone 5 (in progress)** — canonical **`chrysalis-laravel-work/`** Composer tree (D84),
-optional Breeze, larger corpora, optional sidecar gates — see `ROADMAP.md`.
+`flagship/README.md`. **Milestone 5** and **Milestone 6 / 6A** scoped checklists are **complete** (see **`ROADMAP.md`**); ongoing work is cross-cutting (parser surface, verify depth, migration sidecars).
 **Decision D122:** `flagship/laravel-min` remains the permanent fast regression fixture; Breeze
 first-party auth UI and production auth internals stay outside owned parity scope until a dedicated milestone.
 Milestone 3 repair loop (verify-gated `chrysalis repair`, optional LLM, hole patches) is closed for v1;
@@ -120,6 +119,10 @@ See [`ROADMAP.md`](./ROADMAP.md).
 pnpm install
 pnpm -r build
 pnpm test
+# With PHP on PATH — Oracle capture-time redactor smoke (also runs in CI):
+pnpm run test:oracle-php-redactor
+# Optional: emit-hono / emit-fastify Vitest also has temp-dir `npm install` probes;
+# they run when CI=true (e.g. GitHub Actions) or when CHRYSALIS_E2E_EMIT=1.
 node scripts/run-e2e.mjs            # ingest + emit the tiny-blog fixture
 node scripts/seed-db.mjs            # create generated/tiny-blog/blog.sqlite
 cd generated/tiny-blog
@@ -134,6 +137,10 @@ CLI equivalents:
 node packages/cli/dist/bin.js ingest fixtures/tiny-blog
 node packages/cli/dist/bin.js emit fixtures/tiny-blog --out generated/tiny-blog --target=hono
 node packages/cli/dist/bin.js emit fixtures/tiny-blog --out generated/tiny-blog-fastify --target=fastify
+# opt in to parser-bridge's nikic provider (default remains glayzzle):
+node packages/cli/dist/bin.js ingest fixtures/tiny-blog --parser-provider nikic
+# or set a shell default for ingest-driven commands:
+CHRYSALIS_PARSER_PROVIDER=nikic node packages/cli/dist/bin.js status --project fixtures/tiny-blog
 ```
 
 Record a trace corpus from the live PHP app (requires `php` on PATH):
@@ -211,6 +218,11 @@ node packages/cli/dist/bin.js status \
   --shadow reports/shadow \
   --project fixtures/tiny-blog
 ```
+
+## Local development
+
+After **`pnpm install`**, run **`pnpm test`** as usual. Before the first test run, **`pretest`** installs
+**`packages/parser-bridge/vendor`** via Composer when **`vendor/`** is missing and **`composer`** is runnable, so **nikic** parity tests *can* run. Those tests also require **`php`** on **`PATH`** (they subprocess PHP); without PHP they stay skipped even when **`vendor/`** exists. Without Composer, you get a one-line **`[pretest]`** warning and the suite still passes. Manual install: **`pnpm run vendor:parser-bridge`** (PHP + Composer). To skip the **`pretest`** vendor step entirely (e.g. offline): set **`CHRYSALIS_SKIP_PARSER_VENDOR=1`** before **`pnpm test`**, or run **`pnpm exec vitest run`** (does not invoke **`pretest`**).
 
 ## Why another converter?
 

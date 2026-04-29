@@ -175,4 +175,35 @@ describe("computeOracleFootprint", () => {
     expect(fp.routes[0]!.wallClock).toBe(true);
     expect(fp.routes[0]!.entropy).toBe(true);
   });
+
+  test("__new_dynamic sites increment dynamicNewCount and hydration score", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const r = webRequest.builders(b);
+    const origin = phpLocator("dyn.php", 1, 0);
+    const clsName = d.literal({ value: "Exception", type: T.string, origin });
+    const dyn = d.call({
+      callee: "__new_dynamic",
+      args: [clsName],
+      type: T.unknown,
+      origin,
+    });
+    const body = d.block({ statements: [dyn], origin });
+    const handler = r.handler({
+      attrs: { name: "dynnew_h", input: T.record({}), output: T.string },
+      body,
+      effects: [],
+      origin,
+    });
+    const route = r.route({
+      attrs: { method: "GET", path: "/dynnew", pathParams: [] },
+      handler,
+      origin,
+    });
+    b.addRoot(route);
+    const fp = computeOracleFootprint(b.finish());
+    expect(fp.routes).toHaveLength(1);
+    expect(fp.routes[0]!.dynamicNewCount).toBe(1);
+    expect(fp.hydrationIndex).toBeGreaterThan(0);
+  });
 });

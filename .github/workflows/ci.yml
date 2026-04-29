@@ -23,11 +23,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Set up PHP (parser-bridge nikic provider)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+
       - name: Typecheck
         run: pnpm -r typecheck
 
+      - name: Root TypeScript solution build
+        run: pnpm exec tsc -b --force
+
       - name: Build
         run: pnpm -r build
+
+      - name: Oracle-php Redactor smoke (sql.row + sql.params)
+        run: |
+          php packages/oracle-php/tests/redactor_sql_rows_test.php
+          php packages/oracle-php/tests/redactor_sql_params_test.php
 
       - name: Test
         run: pnpm test
@@ -68,6 +81,11 @@ jobs:
       - name: Build
         run: pnpm -r build
 
+      - name: Oracle-php Redactor smoke (sql.row + sql.params)
+        run: |
+          php packages/oracle-php/tests/redactor_sql_rows_test.php
+          php packages/oracle-php/tests/redactor_sql_params_test.php
+
       - name: Drive tiny-blog through the Oracle
         run: node scripts/drive-tiny-blog.mjs
 
@@ -100,6 +118,11 @@ jobs:
         run: |
           rm -rf packages/verify/dist
           pnpm -r build
+
+      - name: Oracle-php Redactor smoke (sql.row + sql.params)
+        run: |
+          php packages/oracle-php/tests/redactor_sql_rows_test.php
+          php packages/oracle-php/tests/redactor_sql_params_test.php
 
       - name: End-to-end verify (PHP → corpus → dual emit → in-process replay)
         # Gates **both** Hono and Fastify emits against the same oracle corpus
@@ -147,6 +170,11 @@ jobs:
         run: |
           rm -rf packages/verify/dist
           pnpm -r build
+
+      - name: Oracle-php Redactor smoke (sql.row + sql.params)
+        run: |
+          php packages/oracle-php/tests/redactor_sql_rows_test.php
+          php packages/oracle-php/tests/redactor_sql_params_test.php
 
       - name: Composer install (laravel-min autoload)
         run: composer install --no-interaction --no-progress --no-dev
@@ -227,6 +255,11 @@ jobs:
         run: |
           rm -rf packages/verify/dist
           pnpm -r build
+
+      - name: Oracle-php Redactor smoke (sql.row + sql.params)
+        run: |
+          php packages/oracle-php/tests/redactor_sql_rows_test.php
+          php packages/oracle-php/tests/redactor_sql_params_test.php
 
       - name: Decide confidence trend mode (warmup vs strict)
         env:

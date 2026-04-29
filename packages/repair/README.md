@@ -28,6 +28,9 @@ only proposes validated `replaceOperand` edits and never bypasses replay.
   `VerifiedRepairLoopResult`, `RepairReplayBase`, `ApplyHoleClosureOptions`,
   `HoleClosureSignOff`.
 
+**Ctor bridges:** emitted apps expose **`registerPhpFqnCtor`** (and **`phpDynamicNew`** for runtime-class strings).
+Hole closure (**`parseHoleClosurePatchJson`** / **`applyHoleClosure`** / **`chrysalis repair --hole-patch`**) is for replacing **`data.hole`** subgraphs with human-signed replacements verified by replay. Closing **specific static FQNs** is normally **`registerPhpFqnCtor`**; **`hole-patch`** applies when you must splice verified IR at a hole site rather than extending the ctor registry.
+
 ## Invariants
 
 - Patches are never accepted without a successful full-corpus replay (same

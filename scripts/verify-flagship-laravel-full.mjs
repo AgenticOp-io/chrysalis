@@ -64,6 +64,10 @@
  * - `--seed-variants=baseline,empty,ten` (or `CHRYSALIS_VERIFY_SEED_VARIANTS`) runs a
  *   sequential seed matrix.
  *
+ * Replay tuning (same as `chrysalis verify`, env-only): `CHRYSALIS_VERIFY_REPLAY_CONCURRENCY`,
+ * `CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`, `CHRYSALIS_VERIFY_TIMEOUT_MS`,
+ * `CHRYSALIS_VERIFY_WORKER_THREADS=1` (D204 / D206).
+ *
  * Skips with exit 0 when:
  * - PHP is not on PATH
  * - Scaffold tree is missing **`vendor/autoload.php`** or **`public/index.php`**
@@ -90,6 +94,7 @@ import {
 import {
   buildReport,
   replayCorpus,
+  resolveVerifyReplayExtras,
   writeReport,
 } from "../packages/verify/dist/index.js";
 import { emit as emitHono } from "../packages/emit-hono/dist/index.js";
@@ -129,6 +134,15 @@ const SEED_VARIANT = parseSeedVariant();
 const SEED_VARIANTS = parseSeedVariants();
 let seedSchemaSql = null;
 const OBS_PORT = 18082;
+
+const replayParsed = resolveVerifyReplayExtras({});
+if (!replayParsed.ok) {
+  console.error(replayParsed.message);
+  process.exit(2);
+}
+if (replayParsed.logHint) {
+  console.log(`[verify-flagship-laravel-full] replay options: ${replayParsed.logHint}`);
+}
 
 if (!process.argv.includes("--_seed-driver") && SEED_VARIANTS.length > 1) {
   let matrixExit = 0;
@@ -321,6 +335,7 @@ for (const b of backends) {
       fetch: fetchFn,
       recordedSqlReplay: true,
       module: webirModule,
+      ...replayParsed.extras,
     });
     const report = buildReport(outcomes);
     const runOutDir = STRESS_RUNS === 1 ? outDir : join(outDir, `run-${run}`);

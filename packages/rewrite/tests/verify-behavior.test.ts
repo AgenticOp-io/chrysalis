@@ -14,6 +14,17 @@ import {
 } from "../src/index.js";
 import { buildModule } from "./helpers.js";
 
+function withCorpusEvidence<T extends { evidence: Record<string, unknown> }>(op: T): T {
+  return {
+    ...op,
+    evidence: {
+      ...op.evidence,
+      corpusConfirmations: 1,
+      observedMaxPerRequest: 2,
+    },
+  };
+}
+
 /**
  * Module fixture: an echo of a query field wrapped in a literal
  * prefix — classic XSS anti-pattern that sanitize-output fixes.
@@ -41,7 +52,7 @@ function echoQueryFieldModule() {
 describe("verify-behavior gate (D19)", () => {
   it("accepts sanitize-output: pre-body with tainted chars matches post-body with the same chars html-escaped", () => {
     const m = echoQueryFieldModule();
-    const ops = unescapedOutputRecognizer.recognize(m);
+    const ops = unescapedOutputRecognizer.recognize(m).map(withCorpusEvidence);
     expect(ops.length).toBeGreaterThan(0);
 
     const { module: next, report } = applyRewrites(

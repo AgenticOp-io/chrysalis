@@ -26,10 +26,22 @@ function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, " ").trim().toLowerCase();
 }
 
+/** Oracle tapes follow PHP binds (e.g. int); emitted handlers often use string path params. */
+function sqlBindParamEqual(x: unknown, y: unknown): boolean {
+  if (Object.is(x, y)) return true;
+  if (typeof x === "number" && typeof y === "string") {
+    return y.trim() !== "" && !Number.isNaN(Number(y)) && x === Number(y);
+  }
+  if (typeof y === "number" && typeof x === "string") {
+    return x.trim() !== "" && !Number.isNaN(Number(x)) && y === Number(x);
+  }
+  return JSON.stringify(x) === JSON.stringify(y);
+}
+
 function paramsMatch(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
-    if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return false;
+    if (!sqlBindParamEqual(a[i], b[i])) return false;
   }
   return true;
 }

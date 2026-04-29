@@ -4,6 +4,17 @@ import { rawSqlConcatRecognizer } from "@chrysalis/insight";
 import { applyRewrites, parameterizeSqlPass } from "../src/index.js";
 import { buildModule } from "./helpers.js";
 
+function withCorpusEvidence<T extends { evidence: Record<string, unknown> }>(op: T): T {
+  return {
+    ...op,
+    evidence: {
+      ...op.evidence,
+      corpusConfirmations: 1,
+      observedMaxPerRequest: 2,
+    },
+  };
+}
+
 function findDbQuery(mod: ReturnType<typeof buildModule>): NodeBase {
   for (const n of mod.nodes.values()) {
     if (n.dialect === "effect" && n.op === "db.query") return n;
@@ -46,7 +57,7 @@ describe("rewrite engine — parameterize-sql", () => {
       });
     });
 
-    const ops = rawSqlConcatRecognizer.recognize(m);
+    const ops = rawSqlConcatRecognizer.recognize(m).map(withCorpusEvidence);
     expect(ops).toHaveLength(1);
     expect(ops[0]!.severity).toBe("strong");
 
@@ -107,7 +118,7 @@ describe("rewrite engine — parameterize-sql", () => {
       });
     });
 
-    const ops = rawSqlConcatRecognizer.recognize(m);
+    const ops = rawSqlConcatRecognizer.recognize(m).map(withCorpusEvidence);
     const { module: next, report } = applyRewrites(m, ops, [parameterizeSqlPass]);
     expect(report.applied).toHaveLength(1);
 
@@ -131,7 +142,7 @@ describe("rewrite engine — parameterize-sql", () => {
         origin: loc(),
       });
     });
-    const ops = rawSqlConcatRecognizer.recognize(m);
+    const ops = rawSqlConcatRecognizer.recognize(m).map(withCorpusEvidence);
     // Without taint sources the severity drops to "suggestion"
     // (confidence 0.55) which is below the default 0.75 threshold, so
     // to test the no-sqlExpr path we pass a custom threshold of 0.
@@ -179,7 +190,7 @@ describe("rewrite engine — parameterize-sql", () => {
       });
     });
 
-    const ops = rawSqlConcatRecognizer.recognize(m);
+    const ops = rawSqlConcatRecognizer.recognize(m).map(withCorpusEvidence);
     const { module: next, report } = applyRewrites(m, ops, [parameterizeSqlPass]);
     expect(report.applied).toHaveLength(1);
 

@@ -77,10 +77,22 @@ function normalizeSql(sql: string): string {
   return sql.replace(/\\s+/g, " ").trim().toLowerCase();
 }
 
+/** Oracle tapes follow PHP binds (e.g. int); emitted handlers often use string path params. */
+function sqlBindParamEqual(x: unknown, y: unknown): boolean {
+  if (Object.is(x, y)) return true;
+  if (typeof x === "number" && typeof y === "string") {
+    return y.trim() !== "" && !Number.isNaN(Number(y)) && x === Number(y);
+  }
+  if (typeof y === "number" && typeof x === "string") {
+    return x.trim() !== "" && !Number.isNaN(Number(x)) && y === Number(x);
+  }
+  return JSON.stringify(x) === JSON.stringify(y);
+}
+
 function paramsMatch(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
-    if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return false;
+    if (!sqlBindParamEqual(a[i], b[i])) return false;
   }
   return true;
 }
@@ -212,7 +224,8 @@ export function chrysalisRandom(): number {
   return Math.random();
 }
 
-export function chrysalisDeterminismOnRequest(req: FastifyRequest): void {
+/** Async so Fastify 5 + \`inject()\` do not hang with sync \`onRequest\` hooks (Node 22+). */
+export async function chrysalisDeterminismOnRequest(req: FastifyRequest): Promise<void> {
   const hdrNow = req.headers["x-chrysalis-now-iso"];
   const hdrSeed = req.headers["x-chrysalis-random-seed"];
   const nowRaw = Array.isArray(hdrNow) ? hdrNow[0] : hdrNow;
@@ -627,6 +640,42 @@ export function __hole(name: string, payload: unknown): unknown {
   return null;
 }
 
+type PhpFqnCtor = (...args: unknown[]) => unknown;
+const phpFqnCtorRegistry = new Map<string, PhpFqnCtor>();
+
+/**
+ * Optional runtime bridge for PHP FQN constructor mapping.
+ *
+ * Bootstrap example in emitted app entrypoint:
+ * import { registerPhpFqnCtor } from "./runtime.js";
+ * class AcmeThing { constructor(public n: unknown) {} }
+ * registerPhpFqnCtor("Acme\\Namespaced\\Thing", (...args) => new AcmeThing(args[0]));
+ */
+export function registerPhpFqnCtor(fqn: string, ctor: PhpFqnCtor): void {
+  phpFqnCtorRegistry.set(String(fqn), ctor);
+}
+
+/**
+ * Same contract as Hono runtime: namespaced new lowers here; no static import for FQN.
+ */
+export function phpFqnNew(fqn: string, ...args: unknown[]): unknown {
+  const ctor = phpFqnCtorRegistry.get(String(fqn));
+  if (ctor) return ctor(...args);
+  return __hole(
+    "new:" + fqn.split(String.fromCharCode(92)).join("."),
+    { fqn, args },
+  );
+}
+
+/** Dynamic class construction via registry or hole fallback. */
+export function phpDynamicNew(classExpr: unknown, ...args: unknown[]): unknown {
+  if (typeof classExpr === "string") {
+    const ctor = phpFqnCtorRegistry.get(classExpr);
+    if (ctor) return ctor(...args);
+  }
+  return __hole("new:dynamic", { classExpr, args });
+}
+
 export function __respond(reply: FastifyReply, html: string, status: number): FastifyReply {
   if (html.length > 0) {
     const isHtml = /^\\s*<!?[a-z]/i.test(html);
@@ -662,6 +711,7 @@ export function parseZodEnumBodyFieldRaw(
 export const SERVER_TS = (imports: string, routeRegistrations: string): string =>
   `${imports}
 import Fastify, { type FastifyInstance } from "fastify";
+import formbody from "@fastify/formbody";
 import { chrysalisDeterminismOnRequest } from "./ctx.js";
 import { sqlTapeOnRequest } from "./db.js";
 import { registerSession } from "./session.js";
@@ -671,6 +721,7 @@ async function buildApp(): Promise<FastifyInstance> {
   app.addHook("onRequest", sqlTapeOnRequest);
   app.addHook("onRequest", chrysalisDeterminismOnRequest);
   await registerSession(app);
+  await app.register(formbody);
   app.setErrorHandler((err, _req, reply) => {
     if (reply.sent) return;
     const msg = err instanceof Error ? err.message : String(err);
@@ -678,10 +729,15 @@ async function buildApp(): Promise<FastifyInstance> {
     reply.code(500).send(msg);
   });
 ${routeRegistrations}
+  app.setNotFoundHandler((_req, reply) => {
+    reply.code(404).type("text/plain; charset=utf-8").send("Not Found");
+  });
   return app;
 }
 
-export const app = await buildApp();
+const _app = await buildApp();
+await _app.ready();
+export const app = _app;
 
 export async function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const req =

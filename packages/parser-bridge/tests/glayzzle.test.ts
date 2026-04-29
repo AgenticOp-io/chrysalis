@@ -137,6 +137,50 @@ class UserRepo {
     expect(names).toEqual(["Acme\\Repo\\UserRepo::row"]);
   });
 
+  test("throw statement wraps new Exception", async () => {
+    const ast = await parseSource(`<?php
+throw new Exception("x");
+`);
+    expect(ast.statements).toHaveLength(1);
+    const s = ast.statements[0];
+    expect(s?.kind).toBe("Throw");
+    if (s?.kind !== "Throw") return;
+    expect(s.expr.kind).toBe("New");
+    if (s.expr.kind !== "New") return;
+    expect(s.expr.className).toBe("Exception");
+    expect(s.expr.args).toHaveLength(1);
+  });
+
+  test("assign of new unqualified class", async () => {
+    const ast = await parseSource("<?php $a = new Exception('z');");
+    const s = ast.statements[0];
+    expect(s?.kind).toBe("Assign");
+    if (s?.kind !== "Assign") return;
+    expect(s.value.kind).toBe("New");
+    if (s.value.kind !== "New") return;
+    expect(s.value.className).toBe("Exception");
+  });
+
+  test("new with FQN strips leading backslash, keeps namespace segments", async () => {
+    const ast = await parseSource("<?php $x = new \\Acme\\Namespaced\\Thing(1);");
+    const s = ast.statements[0];
+    expect(s?.kind).toBe("Assign");
+    if (s?.kind !== "Assign") return;
+    expect(s.value.kind).toBe("New");
+    if (s.value.kind !== "New") return;
+    expect(s.value.className).toBe("Acme\\Namespaced\\Thing");
+  });
+
+  test("dynamic new is represented as NewDynamic", async () => {
+    const ast = await parseSource("<?php $klass = 'Exception'; $x = new $klass('z');");
+    const s = ast.statements[1];
+    expect(s?.kind).toBe("Assign");
+    if (s?.kind !== "Assign") return;
+    expect(s.value.kind).toBe("NewDynamic");
+    if (s.value.kind !== "NewDynamic") return;
+    expect(s.value.classExpr.kind).toBe("Variable");
+  });
+
   test("top-level static var Unknown lists variable names in detail", async () => {
     const ast = await parseSource(`<?php
 static $csrfToken = 1;

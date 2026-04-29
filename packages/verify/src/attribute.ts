@@ -72,7 +72,8 @@ function nodeMatchesDivergenceKind(n: NodeBase, kind: DivergenceKind): boolean {
           c !== "__ternary" &&
           !c.startsWith("__cast_") &&
           !c.startsWith("__array") &&
-          !c.startsWith("__return")
+          !c.startsWith("__return") &&
+          !c.startsWith("__throw")
         );
       }
     }
@@ -84,7 +85,7 @@ function nodeMatchesDivergenceKind(n: NodeBase, kind: DivergenceKind): boolean {
     }
     if (n.dialect === "data" && n.op === "call") {
       const c = String((n.attrs as { callee?: string }).callee ?? "");
-      return c === "__exit" || c === "__return";
+      return c === "__exit" || c === "__return" || c === "__throw";
     }
     return false;
   }

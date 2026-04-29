@@ -25,6 +25,32 @@ The schema of the NDJSON output is pinned by
 [`packages/oracle/src/trace-schema.ts`](../oracle/src/trace-schema.ts). The PHP
 and Node sides both assert against the same `SCHEMA_VERSION`.
 
+**`sql.query` row redaction:** rules with path **`sql.row.<column>`** (see
+`DEFAULT_REDACTION` in the Node oracle package) apply to **`rows`** cells on a
+case-insensitive column-name match.
+
+**`sql.query` bind redaction:** rules with path **`sql.params[<driver>:<sqlPrefix>].<index>`**
+(see `packages/oracle/src/redaction.ts`) apply to **`params`** list entries when the event’s
+**`driver`** matches (`*` matches any) and **`sql`** starts with **`sqlPrefix`** (case-insensitive,
+prefix must be non-empty). **`drop`** is stored as **mask** so bind arity stays stable for replay tapes.
+**`sql.params` rules run only when `rowShape` is empty** (mutation-shaped events): SELECT binds can
+appear in recorded-SQL tape matching and are left untouched at capture time.
+
+## Smoke tests (PHP)
+
+From the repo root (PHP 8+ on `PATH`):
+
+```sh
+pnpm run test:oracle-php-redactor
+# equivalent:
+php packages/oracle-php/tests/redactor_sql_rows_test.php
+php packages/oracle-php/tests/redactor_sql_params_test.php
+```
+
+CI **`typecheck-and-test`**, **`oracle-live-drive`**, **`verify-e2e`**, **`verify-flagship-laravel-min`**, and
+**`verify-flagship-laravel-full`** run both after install/build so Node Vitest skips (no PHP on PATH) do not
+hide PHP regressions.
+
 ## Running
 
 The `chrysalis observe` CLI sets up the env and starts PHP's built-in server
@@ -41,7 +67,10 @@ php -d auto_prepend_file=packages/oracle-php/src/bootstrap.php \
 
 Redaction is applied **at capture time**. Traces on disk are always safe to
 share at whatever level the configured rules specify. See the `RedactionConfig`
-type in the Node package for rule semantics.
+type in the Node package for rule semantics. **`Redactor.php` must stay in
+lockstep** with `packages/oracle/src/redaction.ts` (`DEFAULT_REDACTION`); the
+CLI loads **`chrysalis.observe.json`** when present, **merges** those rules onto
+**`DEFAULT_REDACTION`** (same path overrides `kind`), and passes the resulting canonical JSON in the env.
 
 ## SQL query rows (verify replay)
 

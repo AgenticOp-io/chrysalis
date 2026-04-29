@@ -64,4 +64,38 @@ describe("emit-hono: foreach reduce chooser", () => {
     expect(emitted.body).toContain(".reduce(");
     expect(emitted.body).not.toMatch(/for \(const row of/);
   });
+
+  test("emits phpDynamicNew for __new_dynamic calls", () => {
+    const m = new ModuleBuilder({ sourceApp: "dynamic-new-test" });
+    const data = dataDialect.builders(m);
+    const web = webRequest.builders(m);
+    let line = 1;
+    const loc = () => phpLocator("dyn.php", line++, 1);
+
+    const ctorName = data.param({ name: "klass", type: T.string, origin: loc() });
+    const dynamicNew = data.call({
+      callee: "__new_dynamic",
+      args: [ctorName, data.literal({ value: "x", type: T.string, origin: loc() })],
+      type: T.unknown,
+      origin: loc(),
+    });
+    const blk = data.block({ statements: [dynamicNew], origin: loc() });
+    const handler = web.handler({
+      attrs: { name: "dyn_handler", input: T.unknown, output: T.unknown },
+      body: blk,
+      effects: [],
+      origin: loc(),
+    });
+    const route = web.route({
+      attrs: { method: "GET", path: "/dyn", pathParams: [] },
+      handler,
+      origin: loc(),
+    });
+    m.addRoot(route);
+    const mod = m.finish();
+
+    const emitted = emitHandlerBody(mod, handler, undefined, honoHttpProfile);
+    expect(emitted.body).toContain("phpDynamicNew(");
+    expect(emitted.usesPhpDynamicNew).toBe(true);
+  });
 });
