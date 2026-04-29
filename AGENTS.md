@@ -72,6 +72,10 @@ If you touch **`packages/oracle/src/redaction.ts`** (`DEFAULT_REDACTION`) or
 those smoke tests in **`typecheck-and-test`**, **`oracle-live-drive`**, and **`verify-e2e`**
 (plus flagship verify jobs).
 
+### Parser-bridge vendor (nikic Vitest)
+
+**`pnpm test`** runs **`pretest`** (**`scripts/ensure-parser-bridge-vendor.mjs`**) so **`packages/parser-bridge/vendor/`** is created when Composer is runnable; CI **`typecheck-and-test`** relies on this (no separate Composer step). **`tests/nikic.test.ts`** and ingest’s **`parser-provider=nikic`** parity case still need **`php`** on **`PATH`**. Skip the hook with **`CHRYSALIS_SKIP_PARSER_VENDOR=1`**, or run **`pnpm exec vitest run`** to bypass **`pretest`**. Manual install: **`pnpm run vendor:parser-bridge`**.
+
 ## 6. What to show the human
 
 At the end of any non-trivial change, report:
