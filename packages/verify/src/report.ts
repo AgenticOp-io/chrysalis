@@ -6,7 +6,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { TraceOutcome } from "./replay.js";
-import type { Divergence } from "./diff.js";
+import type { Divergence, DivergenceKind } from "./diff.js";
 
 export interface EndpointScore {
   readonly route: string;
@@ -82,6 +82,36 @@ export function buildReport(outcomes: ReadonlyArray<TraceOutcome>): CorrectnessR
     },
     endpoints,
   };
+}
+
+export interface DivergenceHistogramEntry {
+  readonly kind: DivergenceKind;
+  readonly count: number;
+}
+
+/**
+ * Counts divergence kinds across failed traces (one increment per kind per
+ * failed trace row in {@link CorrectnessReport.endpoints} `divergences`).
+ */
+export function divergenceKindHistogram(report: CorrectnessReport): DivergenceHistogramEntry[] {
+  const counts = new Map<DivergenceKind, number>();
+  for (const e of report.endpoints) {
+    for (const d of e.divergences) {
+      for (const k of d.kinds) {
+        counts.set(k, (counts.get(k) ?? 0) + 1);
+      }
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([kind, count]) => ({ kind, count }));
+}
+
+/** Number of failed traces (sum of per-endpoint `divergences.length`). */
+export function failedTraceCount(report: CorrectnessReport): number {
+  let n = 0;
+  for (const e of report.endpoints) n += e.divergences.length;
+  return n;
 }
 
 /**

@@ -49,7 +49,10 @@ export {
 export {
   buildReport,
   writeReport,
+  divergenceKindHistogram,
+  failedTraceCount,
   type CorrectnessReport,
+  type DivergenceHistogramEntry,
   type EndpointScore,
 } from "./report.js";
 

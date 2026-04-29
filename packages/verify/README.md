@@ -18,6 +18,8 @@ diffs each response against what was captured.
   body similarity.
 - `buildReport(outcomes)` → `CorrectnessReport` with per-route and aggregate
   correctness.
+- `divergenceKindHistogram(report)` / `failedTraceCount(report)` — aggregate
+  failure diagnostics for CLI dashboards (**DESIGN D212**).
 - `writeReport(outDir, report, outcomes)` — persists `summary.json` + one file
   per route under `outDir`.
 - `normalizeBody` / `normalizeHeaders` — allowlisted normalization rules

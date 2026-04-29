@@ -60,6 +60,10 @@ If you find yourself doing any of these, stop:
 - TypeScript strict mode, everywhere. No `any` without a `// FIXME: …` note.
 - Package READMEs state: *purpose, public API, invariants, non-goals*. Keep
   those four headings.
+- Vitest **`packages/cli/tests/*`** subprocesses load workspace packages from each
+  package’s **`dist/`** (e.g. **`@chrysalis/verify`**). After changing a package’s
+  **exported** API surface, run **`pnpm --filter <pkg> build`** or **`pnpm -r build`**
+  before expecting those CLI tests to pass locally.
 - No proactive new files. If a change fits in an existing file, keep it there.
 - No emojis in code or generated output.
 - Keep commit messages descriptive; group by package.

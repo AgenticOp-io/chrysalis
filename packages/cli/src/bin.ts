@@ -22,6 +22,7 @@ import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
 import {
   buildReport,
+  divergenceKindHistogram,
   replayCorpus,
   resolveVerifyReplayExtras,
   writeReport,
@@ -443,12 +444,41 @@ async function cmdVerify(args: string[]): Promise<number> {
     ...replayParsed.extras,
   });
   const report = buildReport(outcomes);
-  const written = writeReport(resolve(reportDir), report, outcomes);
+  const reportDirResolved = resolve(reportDir);
+  const summaryAbs = join(reportDirResolved, "summary.json");
+  const written = writeReport(reportDirResolved, report, outcomes);
   console.log(`[verify] wrote ${written.length} report file(s) under ${reportDir}`);
+  console.log(`[verify] summary: ${summaryAbs}`);
 
   console.log("");
   console.log(`aggregate correctness: ${(report.aggregate.correctness * 100).toFixed(1)}%`);
   console.log(`frames passed:         ${report.aggregate.framesPassed} / ${report.aggregate.framesTotal}`);
+  const failedFrames = report.aggregate.framesTotal - report.aggregate.framesPassed;
+  if (failedFrames > 0) {
+    const hist = divergenceKindHistogram(report);
+    console.log("");
+    console.log(`failed traces:         ${failedFrames}`);
+    if (hist.length > 0) {
+      console.log("divergence kinds (counts across failed traces):");
+      for (const { kind, count } of hist) {
+        console.log(`  ${kind.padEnd(22)} ${count}`);
+      }
+    }
+    console.log("");
+    console.log("next steps:");
+    console.log(`  · open summary: ${summaryAbs}`);
+    const absCorpus = resolve(corpusRoot);
+    if (projectRoot) {
+      const absProj = resolve(projectRoot);
+      console.log(
+        `  · repair (example): chrysalis repair ${absCorpus} --base-url ${baseUrl} --project ${absProj}`,
+      );
+    } else {
+      console.log(
+        "  · add --project <php-root> for IR node attribution on failures (same flag as verify)",
+      );
+    }
+  }
   console.log("");
   console.log("per-endpoint:");
   for (const e of report.endpoints) {
@@ -468,6 +498,7 @@ async function cmdVerify(args: string[]): Promise<number> {
     console.error(
       `[verify] correctness ${report.aggregate.correctness.toFixed(3)} below threshold ${threshold}`,
     );
+    console.error(`[verify] summary: ${summaryAbs}`);
     return 1;
   }
   return 0;
