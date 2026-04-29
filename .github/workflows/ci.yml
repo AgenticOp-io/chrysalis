@@ -43,6 +43,11 @@ jobs:
           php packages/oracle-php/tests/redactor_sql_rows_test.php
           php packages/oracle-php/tests/redactor_sql_params_test.php
 
+      - name: Parser-bridge nikic parity (Vitest)
+        run: |
+          pnpm run vendor:parser-bridge
+          pnpm exec vitest run packages/parser-bridge/tests/nikic.test.ts
+
       - name: Test
         run: pnpm test
 

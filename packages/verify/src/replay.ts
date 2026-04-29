@@ -8,14 +8,50 @@ import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
-import type { Trace, TraceCorpus } from "@chrysalis/oracle";
+import type { HttpRequestEvent, Trace, TraceCorpus } from "@chrysalis/oracle";
 import { replayOne } from "./replay-http.js";
 import type { ReplayOptions, TraceOutcome } from "./replay-types.js";
 export type { ReplayOptions, TraceOutcome } from "./replay-types.js";
 export { traceDeterminismSeed } from "./replay-types.js";
 
+function normalizeRouteKey(s: string): string {
+  return s.trim().replace(/\s+/g, " ");
+}
+
+function traceRouteKey(trace: Trace): string | null {
+  const req = trace.events.find((e) => e.type === "http.request") as HttpRequestEvent | undefined;
+  if (!req) return null;
+  return normalizeRouteKey(`${req.method} ${req.path}`);
+}
+
+function applyTraceFilters(traces: ReadonlyArray<Trace>, opts: ReplayOptions): Trace[] {
+  let out = [...traces];
+  if (opts.onlyRoute !== undefined && opts.onlyRoute.trim() !== "") {
+    const want = normalizeRouteKey(opts.onlyRoute);
+    out = out.filter((t) => traceRouteKey(t) === want);
+  }
+  if (opts.onlyTraceId !== undefined && opts.onlyTraceId.trim() !== "") {
+    const id = opts.onlyTraceId.trim();
+    out = out.filter((t) => t.header.traceId === id);
+  }
+  return out;
+}
+
 export async function replayCorpus(corpus: TraceCorpus, opts: ReplayOptions): Promise<TraceOutcome[]> {
-  const ordered = [...corpus.traces].sort((a, b) =>
+  const filtered = applyTraceFilters(corpus.traces, opts);
+  if (
+    (opts.onlyRoute !== undefined && opts.onlyRoute.trim() !== "") ||
+    (opts.onlyTraceId !== undefined && opts.onlyTraceId.trim() !== "")
+  ) {
+    if (filtered.length === 0) {
+      throw new Error(
+        `replayCorpus: no traces matched filters (onlyRoute=${JSON.stringify(
+          opts.onlyRoute ?? null,
+        )}, onlyTraceId=${JSON.stringify(opts.onlyTraceId ?? null)}; corpus has ${corpus.traces.length} trace(s))`,
+      );
+    }
+  }
+  const ordered = [...filtered].sort((a, b) =>
     a.header.startedAt.localeCompare(b.header.startedAt),
   );
   const conc = Math.max(1, Math.floor(opts.concurrency ?? 1));

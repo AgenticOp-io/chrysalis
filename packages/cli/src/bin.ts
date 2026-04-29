@@ -408,7 +408,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--no-recorded-sql] [--project <php-root>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--project <php-root>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -437,12 +437,35 @@ async function cmdVerify(args: string[]): Promise<number> {
   }
   console.log(`[verify] replaying against ${baseUrl} ...`);
 
-  const outcomes = await replayCorpus(corpus, {
-    baseUrl,
-    recordedSqlReplay: flags["no-recorded-sql"] !== true,
-    ...(verifyModule ? { module: verifyModule } : {}),
-    ...replayParsed.extras,
-  });
+  const onlyRoute = typeof flags["only-route"] === "string" ? flags["only-route"] : undefined;
+  const onlyTraceId = typeof flags["only-trace-id"] === "string" ? flags["only-trace-id"] : undefined;
+  if (onlyRoute) {
+    console.log(`[verify] filter only-route: ${onlyRoute.trim()}`);
+  }
+  if (onlyTraceId) {
+    console.log(`[verify] filter only-trace-id: ${onlyTraceId.trim()}`);
+  }
+
+  let outcomes;
+  try {
+    outcomes = await replayCorpus(corpus, {
+      baseUrl,
+      recordedSqlReplay: flags["no-recorded-sql"] !== true,
+      ...(verifyModule ? { module: verifyModule } : {}),
+      ...(onlyRoute !== undefined && onlyRoute.trim() !== "" ? { onlyRoute: onlyRoute.trim() } : {}),
+      ...(onlyTraceId !== undefined && onlyTraceId.trim() !== ""
+        ? { onlyTraceId: onlyTraceId.trim() }
+        : {}),
+      ...replayParsed.extras,
+    });
+  } catch (e) {
+    const m = e instanceof Error ? e.message : String(e);
+    if (m.startsWith("replayCorpus: no traces matched")) {
+      console.error(`[verify] ${m}`);
+      return 2;
+    }
+    throw e;
+  }
   const report = buildReport(outcomes);
   const reportDirResolved = resolve(reportDir);
   const summaryAbs = join(reportDirResolved, "summary.json");

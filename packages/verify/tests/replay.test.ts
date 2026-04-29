@@ -554,6 +554,86 @@ describe("replayCorpus", () => {
       await srv.stop();
     }
   });
+
+  it("onlyRoute replays a subset of traces", async () => {
+    const t1 = mkTrace({
+      traceId: "f1",
+      startedAt: "2026-04-22T00:00:01Z",
+      method: "GET",
+      path: "/a",
+      expectedStatus: 200,
+      expectedBody: "ok",
+    });
+    const t2 = mkTrace({
+      traceId: "f2",
+      startedAt: "2026-04-22T00:00:02Z",
+      method: "POST",
+      path: "/b",
+      expectedStatus: 200,
+      expectedBody: "ok",
+    });
+    ts = await startTestServer(() => ({
+      status: 200,
+      headers: { "content-type": "text/html" },
+      body: "ok",
+    }));
+    const out = await replayCorpus(corpusOf([t1, t2]), {
+      baseUrl: ts.url,
+      onlyRoute: "POST /b",
+      injectDeterminismHeaders: false,
+    });
+    expect(out).toHaveLength(1);
+    expect(out[0]?.traceId).toBe("f2");
+  });
+
+  it("onlyTraceId selects a single trace", async () => {
+    const t1 = mkTrace({
+      traceId: "tid-a",
+      startedAt: "2026-04-22T00:00:01Z",
+      method: "GET",
+      path: "/",
+      expectedStatus: 200,
+      expectedBody: "x",
+    });
+    const t2 = mkTrace({
+      traceId: "tid-b",
+      startedAt: "2026-04-22T00:00:02Z",
+      method: "GET",
+      path: "/",
+      expectedStatus: 200,
+      expectedBody: "x",
+    });
+    ts = await startTestServer(() => ({
+      status: 200,
+      headers: { "content-type": "text/html" },
+      body: "x",
+    }));
+    const out = await replayCorpus(corpusOf([t1, t2]), {
+      baseUrl: ts.url,
+      onlyTraceId: "tid-b",
+      injectDeterminismHeaders: false,
+    });
+    expect(out).toHaveLength(1);
+    expect(out[0]?.traceId).toBe("tid-b");
+  });
+
+  it("throws when filters match no traces", async () => {
+    const t1 = mkTrace({
+      traceId: "z1",
+      startedAt: "2026-04-22T00:00:01Z",
+      method: "GET",
+      path: "/",
+      expectedStatus: 200,
+      expectedBody: "x",
+    });
+    await expect(
+      replayCorpus(corpusOf([t1]), {
+        baseUrl: "http://127.0.0.1:9",
+        onlyRoute: "GET /nope",
+        injectDeterminismHeaders: false,
+      }),
+    ).rejects.toThrow(/no traces matched filters/);
+  });
 });
 
 const describeWorkerDist = workerDistAvailable ? describe : describe.skip;

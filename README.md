@@ -224,6 +224,10 @@ node packages/cli/dist/bin.js status \
 After **`pnpm install`**, run **`pnpm test`** as usual. Before the first test run, **`pretest`** installs
 **`packages/parser-bridge/vendor`** via Composer when **`vendor/`** is missing and **`composer`** is runnable, so **nikic** parity tests *can* run. Those tests also require **`php`** on **`PATH`** (they subprocess PHP); without PHP they stay skipped even when **`vendor/`** exists. Without Composer, you get a one-line **`[pretest]`** warning and the suite still passes. Manual install: **`pnpm run vendor:parser-bridge`** (PHP + Composer). To skip the **`pretest`** vendor step entirely (e.g. offline): set **`CHRYSALIS_SKIP_PARSER_VENDOR=1`** before **`pnpm test`**, or run **`pnpm exec vitest run`** (does not invoke **`pretest`**).
 
+**Migration debt (one screen):** **`pnpm run migration-debt -- --project <php-root> [...]`** forwards to **`chrysalis status --json`** and prints corpus / correctness / holes / auth counters. Same optional flags as **`status`** (e.g. **`--traces`**, **`--report`**).
+
+**Verify on huge corpora:** **`chrysalis verify … --only-route \"METHOD /path\"`** or **`--only-trace-id <id>`** replays a slice only (see **`DESIGN` D213**).
+
 ## Why another converter?
 
 Because every existing one reads your source code and hopes. Chrysalis reads

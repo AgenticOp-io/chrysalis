@@ -10,6 +10,11 @@ From the repo root, **`pnpm test`** runs **`scripts/ensure-parser-bridge-vendor.
 is missing (Composer runnable), or run **`pnpm run vendor:parser-bridge`** manually.
 Set **`CHRYSALIS_SKIP_PARSER_VENDOR=1`** to skip that hook. **`tests/nikic.test.ts`** still requires **`php`** on **`PATH`** in addition to **`vendor/`**.
 
+**When to use `nikic`:** opt in for **parity-sensitive** pipelines (throw / dynamic **`new`**, namespaces, edge
+syntax) or when glayzzle mis-parses a file; default **`glayzzle`** stays self-contained. CI runs
+**`packages/parser-bridge/tests/nikic.test.ts`** explicitly after **`vendor:parser-bridge`** so parity
+cannot regress silently.
+
 ## Public API
 
 - `parseFile(path: string, opts?: { provider?: "glayzzle" | "nikic" }): Promise<PhpAst>`

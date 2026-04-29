@@ -19,6 +19,16 @@ export interface ReplayOptions {
    * verify). Requires built `replay-worker.js` next to `replay.js`. Ignored when incompatible.
    */
   readonly workerThreads?: boolean;
+  /**
+   * When set, only replay traces whose route key is exactly this string (after
+   * trim / internal whitespace collapse), e.g. `GET /posts`. Matches the same
+   * `route` string as {@link TraceOutcome.route}. Intended for large corpora.
+   */
+  readonly onlyRoute?: string;
+  /**
+   * When set, only replay the trace with this `header.traceId` (exact match after trim).
+   */
+  readonly onlyTraceId?: string;
 }
 
 export interface TraceOutcome {
