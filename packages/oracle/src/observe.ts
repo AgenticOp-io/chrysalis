@@ -19,6 +19,11 @@ import {
   type RedactionRule,
 } from "./redaction.js";
 
+/** Strip a leading UTF-8 BOM so `JSON.parse` succeeds (common for Windows-saved JSON). */
+function stripLeadingUtf8Bom(s: string): string {
+  return s.replace(/^\uFEFF/, "");
+}
+
 function parseObserveRedactionRules(parsedRoot: unknown, absConfigPath: string): RedactionRule[] {
   if (parsedRoot === null || typeof parsedRoot !== "object" || Array.isArray(parsedRoot)) {
     throw new Error(`chrysalis.observe.json (${absConfigPath}): root value must be a JSON object`);
@@ -132,7 +137,7 @@ export function startObserver(opts: ObserveOptions): ObserveHandle {
  *
  * Malformed JSON or invalid shapes throw {@link Error} with the config path in
  * the message (unknown rule `kind` values are skipped; supported kinds require a
- * non-empty string `path`).
+ * non-empty string `path`). A leading UTF-8 BOM is stripped before parsing (**D210**).
  */
 export function loadObserveConfig(dir: string): RedactionConfig {
   const observePath = join(dir, "chrysalis.observe.json");
@@ -140,7 +145,7 @@ export function loadObserveConfig(dir: string): RedactionConfig {
   const absConfigPath = resolve(observePath);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(readFileSync(observePath, "utf8"));
+    parsed = JSON.parse(stripLeadingUtf8Bom(readFileSync(observePath, "utf8")));
   } catch (e) {
     const m = e instanceof Error ? e.message : String(e);
     throw new Error(`Failed to parse chrysalis.observe.json (${absConfigPath}): ${m}`);

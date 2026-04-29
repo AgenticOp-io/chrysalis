@@ -780,6 +780,7 @@ residual sidecars; **no** silent best-effort translation that bypasses WebIR or 
   `DEFAULT_REDACTION` (Node + PHP prelude lockstep); operators still customize
   via `chrysalis.observe.json`, merged onto defaults (**D208**) so partial files cannot drop baseline rules;
   **D209** validates file shape and surfaces parse errors in **`chrysalis observe`** (exit **2**).
+  **D210:** strip UTF-8 BOM before parse; CI pins **`composer:v2`** for **`pretest`** vendor install.
   **D203:** `sql.row.*` rules redact sensitive
   **column values** inside captured SELECT **`rows`**. **D205:** targeted
   **`sql.params[<driver>:<sqlPrefix>].<index>`** bind redaction is implemented in

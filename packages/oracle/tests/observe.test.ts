@@ -11,6 +11,16 @@ describe("loadObserveConfig", () => {
     expect(cfg.rules.length).toBe(DEFAULT_REDACTION.rules.length);
   });
 
+  it("accepts UTF-8 BOM before JSON (Windows-saved files)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-observe-cfg-"));
+    const body = JSON.stringify({
+      redaction: { rules: [{ path: "request.headers.x-bom-probe", kind: "hash" }] },
+    });
+    writeFileSync(join(dir, "chrysalis.observe.json"), `\uFEFF${body}`, "utf8");
+    const cfg = loadObserveConfig(dir);
+    expect(cfg.rules.find((r) => r.path === "request.headers.x-bom-probe")?.kind).toBe("hash");
+  });
+
   it("treats empty observe file rules as full defaults after merge", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-observe-cfg-"));
     writeFileSync(join(dir, "chrysalis.observe.json"), JSON.stringify({ redaction: { rules: [] } }));
