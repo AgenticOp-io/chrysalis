@@ -100,6 +100,14 @@ one view: corpus size, per-endpoint correctness, archaeology coverage,
 shadow-mode agreement, and residual PHP (hole count + IR dialect totals). Run
 with `--json` for machine-readable output.
 
+**Machine-readable JSON (CI and dashboards):**
+
+| Source | Contract | Notes |
+| --- | --- | --- |
+| `chrysalis status --json` | Human-oriented status object; **not** version-tagged as a schema — treat keys as stable within a release, not forever. | Requires `--project` for residual-legacy / migration slices. Optional `reports/migration/*.json` sidecars. |
+| `chrysalis verify … --json-summary` | **`kind`: `"chrysalis.verify.summary"`**, **`schemaVersion`**: `1`, **`toolVersion`**: repo root version. | One JSON object on **stdout**; progress on **stderr**. See `packages/verify/README.md` and `packages/cli/README.md`. |
+| `node scripts/migration-debt.mjs --project <php-root> --json-out <path>` | **`kind`: `"chrysalis.migration-debt.summary"`**, **`schemaVersion`**: `1`, **`toolVersion`**, **`generatedAt`**, plus slices from `status --json`. | Forwards other argv to `chrysalis status`. Gates: **`--max-holes`**, **`--min-correctness`**. See `packages/cli/README.md`. |
+
 **Remaining polish for Milestone 1:** session bridge for chimera (PHP
 `$_SESSION` ↔ new-stack session store). Row-level generics from archaeology
 are wired when `domainTypesByTable` is passed (see D22 in [`DESIGN.md`](./DESIGN.md)).

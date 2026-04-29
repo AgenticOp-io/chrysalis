@@ -23,6 +23,7 @@ import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle"
 import {
   buildReport,
   divergenceKindHistogram,
+  failedTraceCount,
   replayCorpus,
   resolveVerifyReplayExtras,
   writeReport,
@@ -408,7 +409,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--project <php-root>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--project <php-root>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -417,15 +418,17 @@ async function cmdVerify(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const jsonSummary = flags["json-summary"] === true;
+  const vlog = jsonSummary ? (m: string) => console.error(m) : (m: string) => console.log(m);
 
   const corpus = readCorpus({ root: resolve(corpusRoot) });
-  console.log(`[verify] loaded ${corpus.traces.length} traces from ${corpusRoot}`);
+  vlog(`[verify] loaded ${corpus.traces.length} traces from ${corpusRoot}`);
   let verifyModule: Module | undefined;
   if (projectRoot) {
     verifyModule = await ingestDirectory(projectRoot, {
       ...(parserProvider ? { parserProvider } : {}),
     });
-    console.log(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
+    vlog(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
   }
   const replayParsed = resolveVerifyReplayExtras(flags);
   if (!replayParsed.ok) {
@@ -433,17 +436,17 @@ async function cmdVerify(args: string[]): Promise<number> {
     return 2;
   }
   if (replayParsed.logHint) {
-    console.log(`[verify] replay options: ${replayParsed.logHint}`);
+    vlog(`[verify] replay options: ${replayParsed.logHint}`);
   }
-  console.log(`[verify] replaying against ${baseUrl} ...`);
+  vlog(`[verify] replaying against ${baseUrl} ...`);
 
   const onlyRoute = typeof flags["only-route"] === "string" ? flags["only-route"] : undefined;
   const onlyTraceId = typeof flags["only-trace-id"] === "string" ? flags["only-trace-id"] : undefined;
   if (onlyRoute) {
-    console.log(`[verify] filter only-route: ${onlyRoute.trim()}`);
+    vlog(`[verify] filter only-route: ${onlyRoute.trim()}`);
   }
   if (onlyTraceId) {
-    console.log(`[verify] filter only-trace-id: ${onlyTraceId.trim()}`);
+    vlog(`[verify] filter only-trace-id: ${onlyTraceId.trim()}`);
   }
 
   let outcomes;
@@ -470,54 +473,96 @@ async function cmdVerify(args: string[]): Promise<number> {
   const reportDirResolved = resolve(reportDir);
   const summaryAbs = join(reportDirResolved, "summary.json");
   const written = writeReport(reportDirResolved, report, outcomes);
-  console.log(`[verify] wrote ${written.length} report file(s) under ${reportDir}`);
-  console.log(`[verify] summary: ${summaryAbs}`);
+  vlog(`[verify] wrote ${written.length} report file(s) under ${reportDir}`);
+  vlog(`[verify] summary: ${summaryAbs}`);
 
-  console.log("");
-  console.log(`aggregate correctness: ${(report.aggregate.correctness * 100).toFixed(1)}%`);
-  console.log(`frames passed:         ${report.aggregate.framesPassed} / ${report.aggregate.framesTotal}`);
   const failedFrames = report.aggregate.framesTotal - report.aggregate.framesPassed;
-  if (failedFrames > 0) {
-    const hist = divergenceKindHistogram(report);
+  const hist = failedFrames > 0 ? divergenceKindHistogram(report) : [];
+
+  if (!jsonSummary) {
     console.log("");
-    console.log(`failed traces:         ${failedFrames}`);
+    console.log(`aggregate correctness: ${(report.aggregate.correctness * 100).toFixed(1)}%`);
+    console.log(`frames passed:         ${report.aggregate.framesPassed} / ${report.aggregate.framesTotal}`);
+    console.log("");
+    console.log("per-endpoint:");
+    for (const e of report.endpoints) {
+      const pct = (e.correctness * 100).toFixed(1).padStart(5);
+      const sim = e.avgBodySimilarity.toFixed(2);
+      console.log(`  ${e.route.padEnd(25)} ${pct}%   body≈${sim}   (${e.framesPassed}/${e.framesTotal})`);
+    }
+  }
+  if (failedFrames > 0 && !jsonSummary) {
+    console.error("");
+    console.error("[verify] stderr: failure diagnostics");
+    console.error(`[verify]   failed frames: ${failedFrames}`);
     if (hist.length > 0) {
-      console.log("divergence kinds (counts across failed traces):");
+      console.error("[verify]   divergence kinds (failed traces):");
       for (const { kind, count } of hist) {
-        console.log(`  ${kind.padEnd(22)} ${count}`);
+        console.error(`[verify]     ${kind.padEnd(22)} ${count}`);
       }
     }
-    console.log("");
-    console.log("next steps:");
-    console.log(`  · open summary: ${summaryAbs}`);
+    console.error("[verify]   next steps:");
+    console.error(`[verify]     · open summary: ${summaryAbs}`);
     const absCorpus = resolve(corpusRoot);
     if (projectRoot) {
       const absProj = resolve(projectRoot);
-      console.log(
-        `  · repair (example): chrysalis repair ${absCorpus} --base-url ${baseUrl} --project ${absProj}`,
+      console.error(
+        `[verify]     · repair (example): chrysalis repair ${absCorpus} --base-url ${baseUrl} --project ${absProj}`,
       );
     } else {
-      console.log(
-        "  · add --project <php-root> for IR node attribution on failures (same flag as verify)",
+      console.error(
+        "[verify]     · add --project <php-root> for IR node attribution on failures (same flag as verify)",
       );
     }
-  }
-  console.log("");
-  console.log("per-endpoint:");
-  for (const e of report.endpoints) {
-    const pct = (e.correctness * 100).toFixed(1).padStart(5);
-    const sim = e.avgBodySimilarity.toFixed(2);
-    console.log(`  ${e.route.padEnd(25)} ${pct}%   body≈${sim}   (${e.framesPassed}/${e.framesTotal})`);
-    for (const d of e.divergences) {
-      console.log(`    ✗ ${d.traceId}: ${d.kinds.join(", ")}`);
-      if (d.attributedNodeIds && d.attributedNodeIds.length > 0) {
-        console.log(`      IR nodes: ${d.attributedNodeIds.join(", ")}`);
+    console.error("");
+    console.error("[verify] stderr: per-trace divergences");
+    for (const e of report.endpoints) {
+      for (const d of e.divergences) {
+        console.error(`[verify]   ${e.route}  trace=${d.traceId}  kinds=${d.kinds.join(", ")}`);
+        if (d.attributedNodeIds && d.attributedNodeIds.length > 0) {
+          console.error(`[verify]     IR nodes: ${d.attributedNodeIds.join(", ")}`);
+        }
+        for (const detail of d.details) {
+          console.error(`[verify]     · ${detail}`);
+        }
       }
-      for (const detail of d.details) console.log(`      · ${detail}`);
     }
   }
 
-  if (report.aggregate.correctness + 1e-9 < threshold) {
+  const pass = report.aggregate.correctness + 1e-9 >= threshold;
+  if (jsonSummary) {
+    const repoRoot = resolve(fileURLToPath(import.meta.url), "..", "..", "..");
+    let toolVersion = "0.0.0";
+    try {
+      const raw = readFileSync(join(repoRoot, "package.json"), "utf8");
+      const j = JSON.parse(raw) as { version?: string };
+      if (typeof j.version === "string" && j.version.length > 0) {
+        toolVersion = j.version;
+      }
+    } catch {
+      // keep default
+    }
+    console.log(
+      JSON.stringify({
+        kind: "chrysalis.verify.summary",
+        schemaVersion: 1,
+        toolVersion,
+        corpusRoot: resolve(corpusRoot),
+        baseUrl,
+        reportDir: reportDirResolved,
+        summaryPath: summaryAbs,
+        threshold,
+        aggregate: report.aggregate,
+        failedFrameCount: failedFrames,
+        failedTraceCount: failedTraceCount(report),
+        divergenceKinds: hist,
+        endpoints: report.endpoints,
+        pass,
+      }),
+    );
+  }
+
+  if (!pass) {
     console.error(
       `[verify] correctness ${report.aggregate.correctness.toFixed(3)} below threshold ${threshold}`,
     );

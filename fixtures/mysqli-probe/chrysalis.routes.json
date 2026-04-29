@@ -1,5 +1,8 @@
 {
   "app": "mysqli-probe",
+  "dbFactoryReturnCallees": [
+    "DbFactory::getConnection"
+  ],
   "routes": [
     {
       "method": "GET",
@@ -11,6 +14,42 @@
       "method": "GET",
       "path": "/widgets/db-query",
       "file": "pages/direct_query.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/widgets/alias-query",
+      "file": "pages/alias_query.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/widgets/mysqli-new-query",
+      "file": "pages/mysqli_new_query.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/widgets/alias-copy",
+      "file": "pages/alias_copy.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/widgets/pdo-query",
+      "file": "pages/pdo_query.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/widgets/factory-query",
+      "file": "pages/factory_query.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/widgets/factory-query-chain",
+      "file": "pages/factory_query_chain.php",
       "pathParams": []
     }
   ]

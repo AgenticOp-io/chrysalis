@@ -1,0 +1,11 @@
+{
+  "app": "db-query-unknown-receiver-probe",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/mysqli-query",
+      "file": "pages/mysqli_query.php",
+      "pathParams": []
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "app": "laravel-shaped-db-factory-probe",
+  "dbFactoryReturnCallees": [
+    "Illuminate\\Support\\Facades\\DB::connection",
+    "App\\Database\\Support\\Conn::make",
+    "ChrysalisProbe\\Repo::db"
+  ],
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/probe/illuminate-chain",
+      "file": "pages/illuminate_db_chain.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/probe/illuminate-assign",
+      "file": "pages/illuminate_db_assign.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/probe/conn-make",
+      "file": "pages/conn_make_assign.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/probe/repo-db-chain",
+      "file": "pages/repo_db_chain.php",
+      "pathParams": []
+    }
+  ]
+}

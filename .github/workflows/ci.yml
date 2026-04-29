@@ -75,8 +75,21 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Migration debt JSON (tiny-blog) + upload artifact
-        run: node scripts/migration-debt.mjs --project fixtures/tiny-blog --json-out reports/ci/migration-debt.json
+      - name: Migration debt JSON (tiny-blog) + ingest hole gate
+        # `--max-holes` uses ingest-only residualLegacy (no verify reports needed).
+        run: node scripts/migration-debt.mjs --project fixtures/tiny-blog --json-out reports/ci/migration-debt.json --max-holes 0
+
+      - name: Migration debt — mysqli-probe hole ceiling
+        # Ceiling tracks known residual ingest holes (see `chrysalis status --json`); raise only when debt grows.
+        run: node scripts/migration-debt.mjs --project fixtures/mysqli-probe --max-holes 5
+
+      - name: Migration debt — db-query-unknown-receiver-probe hole ceiling
+        # Negative probe: one expected `legacy:db-query-unknown-receiver` hole (SQLite3).
+        run: node scripts/migration-debt.mjs --project fixtures/db-query-unknown-receiver-probe --max-holes 1
+
+      - name: Migration debt — laravel-shaped-db-factory-probe (zero holes)
+        # Documents FQN `dbFactoryReturnCallees` (Illuminate DB facade shape, App\\Conn, Repo::db).
+        run: node scripts/migration-debt.mjs --project fixtures/laravel-shaped-db-factory-probe --max-holes 0
 
       - uses: actions/upload-artifact@v4
         with:
@@ -169,6 +182,10 @@ jobs:
         env:
           VERIFY_THRESHOLD: "0.95"
         run: node scripts/verify-tiny-blog.mjs
+
+      - name: Migration debt gates (tiny-blog, post-verify)
+        # `--min-correctness` requires `reports/verify` (dual-backend summaries).
+        run: node scripts/migration-debt.mjs --project fixtures/tiny-blog --traces traces --report reports/verify --max-holes 0 --min-correctness 1
 
       - name: Milestone 4 — migration metrics on status JSON
         run: |

@@ -49,10 +49,19 @@ function tryCallCalleeLabel(e: Extract<PhpExpr, { kind: "Call" }>): string | und
 }
 
 /**
- * `db()->query("…")` on the shared `db()` factory return (PDO or mysqli in `lib/`).
- * Intentionally narrow: arbitrary `$x->query(...)` stays a generic call/hole so we
- * do not attribute SQL to unknown receivers.
+ * `db()->query("…")` on the shared `db()` factory return (PDO or mysqli in `lib/`), plus
+ * **`DeclaredFactory::getConnection()->query`** when listed in **`chrysalis.routes.json`** **`dbFactoryReturnCallees`**,
+ * plus **`$m->query`** when **`$m`** was assigned **`db()`**, **`new mysqli`**, **`new PDO`**, **`mysqli_connect(...)`**, a
+ * manifest-declared factory call, or copied from a tracked variable (**`$b = $a`** when **`$a`** is already tracked)
+ * (same conservative **`if` / `foreach`** alias merge as **`$db = db()`**). Other **`$x->query`**
+ * stays a **`legacy:db-query-unknown-receiver`** hole so we do not guess SQL receivers.
  */
+function calleeIsDeclaredDbFactoryReturn(ctx: Ctx, e: Extract<PhpExpr, { kind: "Call" }>): boolean {
+  const lab = tryCallCalleeLabel(e);
+  if (lab === undefined) return false;
+  return ctx.dbFactoryReturnCallees.has(normalizeStaticCalleePath(lab));
+}
+
 function tryLowerDbFactoryQueryCall(
   ctx: Ctx,
   e: Extract<PhpExpr, { kind: "Call" }>,
@@ -65,10 +74,13 @@ function tryLowerDbFactoryQueryCall(
   if (ex.kind !== "PropertyFetch" || ex.name !== "query") {
     return undefined;
   }
-  if (ex.target.kind !== "Call") {
-    return undefined;
-  }
-  if (tryCallCalleeLabel(ex.target) !== "db") {
+  const receiverOk =
+    ex.target.kind === "Call"
+      ? tryCallCalleeLabel(ex.target) === "db" || calleeIsDeclaredDbFactoryReturn(ctx, ex.target)
+      : ex.target.kind === "Variable"
+        ? ctx.dbFactoryAliases.has(ex.target.name)
+        : false;
+  if (!receiverOk) {
     return undefined;
   }
   const sqlArg = e.args[0];
@@ -106,6 +118,18 @@ function normalizeStaticCalleePath(name: string): string {
   return name.replace(/^\\+/, "");
 }
 
+/** Unqualified or FQN **`mysqli`** for `new mysqli(...)` connection tracking. */
+function isMysqliClassName(raw: string): boolean {
+  const n = normalizeStaticCalleePath(raw);
+  return n === "mysqli" || n.endsWith("\\mysqli");
+}
+
+/** Unqualified or FQN **`PDO`** for `new PDO(...)` connection tracking. */
+function isPdoClassName(raw: string): boolean {
+  const n = normalizeStaticCalleePath(raw);
+  return n === "PDO" || n.endsWith("\\PDO");
+}
+
 interface Ctx {
   readonly m: ModuleBuilder;
   readonly data: ReturnType<typeof dataDialect.builders>;
@@ -115,9 +139,25 @@ interface Ctx {
   readonly effects: Set<string>;
   /** Effect objects accumulated as we emit effectful nodes. */
   readonly effectObjs: Parameters<typeof import("@chrysalis/webir").mergeEffects>[0];
+  /**
+   * Callee labels from **`chrysalis.routes.json`** **`dbFactoryReturnCallees`** (normalized). Declared
+   * factory returns only — no body inference.
+   */
+  readonly dbFactoryReturnCallees: ReadonlySet<string>;
+  /**
+   * PHP variables whose **`->query`** calls may be lowered to **`effect.db.query`**: assigned
+   * from **`db()`**, **`new mysqli`**, **`new PDO`**, **`mysqli_connect(...)`**, a **manifest-declared** factory
+   * call, or copied from another tracked variable (**`$b = $a`**) (sequential + merged across `if`/`foreach`
+   * branches for over-approximate widening).
+   */
+  dbFactoryAliases: Set<string>;
 }
 
-function makeCtx(builder: ModuleBuilder, file: string): Ctx {
+function makeCtx(
+  builder: ModuleBuilder,
+  file: string,
+  dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
+): Ctx {
   return {
     m: builder,
     data: dataDialect.builders(builder),
@@ -126,7 +166,25 @@ function makeCtx(builder: ModuleBuilder, file: string): Ctx {
     file,
     effects: new Set(),
     effectObjs: [],
+    dbFactoryReturnCallees,
+    dbFactoryAliases: new Set(),
   };
+}
+
+function forkDbAliasScope(ctx: Ctx): Ctx {
+  return { ...ctx, dbFactoryAliases: new Set(ctx.dbFactoryAliases) };
+}
+
+function mergeDbAliasesUnion(ctx: Ctx, pre: ReadonlySet<string>, ...branchEnds: ReadonlyArray<ReadonlySet<string>>): void {
+  ctx.dbFactoryAliases.clear();
+  for (const v of pre) {
+    ctx.dbFactoryAliases.add(v);
+  }
+  for (const b of branchEnds) {
+    for (const v of b) {
+      ctx.dbFactoryAliases.add(v);
+    }
+  }
 }
 
 function loc(ctx: Ctx, p: PhpPos): Locator {
@@ -139,8 +197,9 @@ export function convertPhpStatementsToBlock(
   file: string,
   stmts: readonly PhpNode[],
   pathParams: RouteSpec["pathParams"] = [],
+  dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
 ): NodeId {
-  const ctx = makeCtx(builder, file);
+  const ctx = makeCtx(builder, file, dbFactoryReturnCallees);
   return convertStatements(ctx, stmts, pathParams);
 }
 
@@ -536,6 +595,13 @@ function convertCall(
   }
   const name = tryCallCalleeLabel(e);
   if (name === undefined) {
+    if (
+      e.callee.kind === "expr" &&
+      e.callee.expr.kind === "PropertyFetch" &&
+      e.callee.expr.name === "query"
+    ) {
+      return hole(ctx, "legacy:db-query-unknown-receiver", e.pos);
+    }
     return hole(ctx, `call:${e.callee.kind}`, e.pos);
   }
   const calleePath = normalizeStaticCalleePath(name);
@@ -957,6 +1023,25 @@ function convertStatement(
       return ctx.effect.echo({ value: concat, origin: loc(ctx, s.pos) });
     }
     case "Assign": {
+      if (s.target.kind === "Variable") {
+        if (s.operator === "=") {
+          if (
+            (s.value.kind === "Call" && tryCallCalleeLabel(s.value) === "db") ||
+            (s.value.kind === "New" && isMysqliClassName(s.value.className)) ||
+            (s.value.kind === "New" && isPdoClassName(s.value.className)) ||
+            (s.value.kind === "Call" && tryCallCalleeLabel(s.value) === "mysqli_connect") ||
+            (s.value.kind === "Call" && calleeIsDeclaredDbFactoryReturn(ctx, s.value))
+          ) {
+            ctx.dbFactoryAliases.add(s.target.name);
+          } else if (s.value.kind === "Variable" && ctx.dbFactoryAliases.has(s.value.name)) {
+            ctx.dbFactoryAliases.add(s.target.name);
+          } else {
+            ctx.dbFactoryAliases.delete(s.target.name);
+          }
+        } else {
+          ctx.dbFactoryAliases.delete(s.target.name);
+        }
+      }
       let rhs = convertExpr(ctx, s.value, pathParams);
       // Detect `$_SESSION['k'] = expr`
       if (
@@ -1044,23 +1129,34 @@ function convertStatement(
       return convertExpr(ctx, s.expr, pathParams);
     }
     case "If": {
+      const pre = new Set(ctx.dbFactoryAliases);
       const cond = convertExpr(ctx, s.cond, pathParams);
-      const then = convertStatements(ctx, s.then, pathParams);
+      const ctxThen = forkDbAliasScope(ctx);
+      const then = convertStatements(ctxThen, s.then, pathParams);
       if (s.else !== null) {
+        const ctxElse = forkDbAliasScope(ctx);
+        const elseBlock = convertStatements(ctxElse, s.else, pathParams);
+        mergeDbAliasesUnion(ctx, pre, ctxThen.dbFactoryAliases, ctxElse.dbFactoryAliases);
         return ctx.data.ifElse({
           cond,
           then,
-          else: convertStatements(ctx, s.else, pathParams),
+          else: elseBlock,
           origin: loc(ctx, s.pos),
         });
       }
+      mergeDbAliasesUnion(ctx, pre, ctxThen.dbFactoryAliases);
       return ctx.data.ifElse({ cond, then, origin: loc(ctx, s.pos) });
     }
     case "Foreach": {
+      const pre = new Set(ctx.dbFactoryAliases);
+      const iterable = convertExpr(ctx, s.iterable, pathParams);
+      const ctxBody = forkDbAliasScope(ctx);
+      const body = convertStatements(ctxBody, s.body, pathParams);
+      mergeDbAliasesUnion(ctx, pre, ctxBody.dbFactoryAliases);
       const base = {
-        iterable: convertExpr(ctx, s.iterable, pathParams),
+        iterable,
         valueName: s.valueName,
-        body: convertStatements(ctx, s.body, pathParams),
+        body,
         origin: loc(ctx, s.pos),
       };
       if (s.keyName) {
@@ -1116,8 +1212,9 @@ export function ingestHandler(
   ast: PhpAst,
   route: RouteSpec,
   libCallEffects: ReadonlyMap<string, EffectSet> = new Map(),
+  dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
 ): NodeId {
-  const ctx = makeCtx(builder, ast.file);
+  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees);
   const body = convertStatements(ctx, stripTopLevelFunctionDecls(ast.statements), route.pathParams);
 
   const handlerName =

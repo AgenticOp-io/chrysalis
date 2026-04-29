@@ -37,7 +37,26 @@ diffs each response against what was captured.
 | **`CHRYSALIS_VERIFY_TIMEOUT_MS`** | Same as **`--replay-timeout-ms`** (milliseconds, minimum 1000). |
 | **`CHRYSALIS_VERIFY_WORKER_THREADS=1`** | Same as **`--replay-worker-threads`** (requires **`concurrency` > 1**, global **`fetch`**, no **`module`** — see **`resolveVerifyReplayExtras`** / DESIGN D206). |
 
-Implementation: **`packages/verify/src/verify-replay-extras.ts`**. On threshold failure **`chrysalis verify`** also prints a pointer to this README in the repo.
+Implementation: **`packages/verify/src/verify-replay-extras.ts`**. On threshold failure **`chrysalis verify`** also prints a pointer to this README in the repo. **stdout** carries aggregate correctness, frame counts, and one summary line per route (unless **`--json-summary`**). When any frame fails, **stderr** prints **`[verify] stderr: failure diagnostics`** (failed frame count, divergence-kind histogram, next-step hints), then **`[verify] stderr: per-trace divergences`** (trace id, kinds, optional IR node ids, details). With **`--json-summary`**, progress lines go to **stderr** and **stdout** is a single JSON object (one line): **`schemaVersion`** is the JSON-summary contract version (**D223**).
+
+#### `--json-summary` field reference
+
+| Field | Description |
+| --- | --- |
+| **`kind`** | Always **`"chrysalis.verify.summary"`**. |
+| **`schemaVersion`** | Integer contract version (currently **`1`**). |
+| **`toolVersion`** | Version string from the repo root **`package.json`**. |
+| **`corpusRoot`** | Absolute path to the traces directory passed to **`verify`**. |
+| **`baseUrl`** | Base URL used for replay. |
+| **`reportDir`** | Directory where **`summary.json`** and per-route files were written. |
+| **`summaryPath`** | Absolute path to **`summary.json`**. |
+| **`threshold`** | Correctness threshold used for **`pass`** (CLI **`--threshold`**). |
+| **`aggregate`** | Same structure as **`CorrectnessReport.aggregate`** in the written report. |
+| **`failedFrameCount`** | Count of replay frames that did not meet correctness. |
+| **`failedTraceCount`** | Count of traces with at least one failing frame. |
+| **`divergenceKinds`** | Histogram `{ kind, count }[]` from **`divergenceKindHistogram`**. |
+| **`endpoints`** | Per-route rows (same as report **`endpoints`**). |
+| **`pass`** | **`true`** iff aggregate correctness **≥** **`threshold`**. |
 
 **`chrysalis repair`** forwards the same replay tuning flags as **`verify`** (concurrency, cookie chain, timeout, worker threads) via **`resolveVerifyReplayExtras`**, but it **does not** accept **`--only-route`** / **`--only-trace-id`**: the repair gate always replays the **full** corpus. On repair failure the CLI prints a pointer here as well.
 

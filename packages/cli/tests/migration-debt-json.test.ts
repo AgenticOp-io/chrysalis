@@ -21,6 +21,9 @@ describe("migration-debt --json-out", () => {
       expect(r.stdout).toContain("migration debt");
       expect(r.stdout).toContain("wrote JSON summary:");
       const j = JSON.parse(readFileSync(outPath, "utf8")) as {
+        kind: string;
+        schemaVersion: number;
+        toolVersion: string;
         generatedAt: string;
         corpus: unknown;
         correctness: unknown;
@@ -28,6 +31,10 @@ describe("migration-debt --json-out", () => {
         migration: unknown;
         oracleFootprintRouteCount: number;
       };
+      expect(j.kind).toBe("chrysalis.migration-debt.summary");
+      expect(j.schemaVersion).toBe(1);
+      expect(typeof j.toolVersion).toBe("string");
+      expect(j.toolVersion.length).toBeGreaterThan(0);
       expect(typeof j.generatedAt).toBe("string");
       expect(j).toHaveProperty("corpus");
       expect(j).toHaveProperty("correctness");

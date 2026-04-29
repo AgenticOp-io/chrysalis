@@ -22,6 +22,7 @@ Subcommands (some are Milestone 1 stubs):
   **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`**), **`--replay-timeout-ms`**,
   **`--replay-worker-threads`** (remote verify throughput; no **`--project`**),
   and env **`CHRYSALIS_VERIFY_*`** aliases (**`CHRYSALIS_VERIFY_WORKER_THREADS=1`**, D206).
+  **`--json-summary`** prints a single JSON object on **stdout** (progress on **stderr**); includes **`schemaVersion`** (stable for **`jq`**) and **`toolVersion`** (repo root **`package.json`**); use for CI (**D222**, **D223**).
   On failures: divergence-kind counts, absolute **`summary.json`** path, and **`repair`** / **`--project`** hints (**D212**).
   **`--only-route "METHOD /path"`** and **`--only-trace-id <id>`** narrow replay for large corpora (**D213**)
 - `chrysalis rewrite` — IR rewrites; optional `--http-replay` and
@@ -45,8 +46,32 @@ Subcommands (some are Milestone 1 stubs):
   (`--replay-concurrency`, `--disable-cookie-chain`, `--replay-timeout-ms`; worker threads
   are disabled because repair always ingests **`--project`**); default stub proposer; optional
   `--llm` + `CHRYSALIS_REPAIR_LLM_API_KEY`; `--hole-patch <file.json>` for signed
-  hole closure; `--repair-verbose` for HTTP chat diagnostics; `--write-module
+  hole closure; `--repair-verbose` for HTTP chat diagnostics;   `--write-module
   <webir.json>` after a successful run to dump the accepted module snapshot
+
+### Related script: `scripts/migration-debt.mjs`
+
+Runs `chrysalis status --json` (via the CLI entry) and prints a one-screen human summary. **Requires `--project <php-root>`** (same as `status`).
+
+**Script-only flags** (stripped before invoking `status`; everything else is forwarded):
+
+| Flag | Effect |
+| --- | --- |
+| **`--json-out <path>`** or **`--json-out=<path>`** | Writes pretty-printed JSON with **`kind`**: `"chrysalis.migration-debt.summary"`, **`schemaVersion`**: `1`, **`toolVersion`** (repo root `package.json`), **`generatedAt`** (ISO-8601), and slices: **`corpus`**, **`correctness`**, **`residualLegacy`**, **`migration`**, **`oracleFootprintRouteCount`** (integer). |
+| **`--max-holes <n>`** | Exit **4** if `residualLegacy.holeCount` is missing or **>** `n`. |
+| **`--min-correctness <0..1>`** | Exit **4** if `correctness.aggregate` is missing or below the threshold. |
+
+Example:
+
+```bash
+node scripts/migration-debt.mjs --project fixtures/tiny-blog --json-out reports/migration-debt.json
+```
+
+Repo **`package.json`** scripts **`migration-debt:gate:ingest`** and **`migration-debt:gate:post-verify`** mirror these thresholds in CI (see root **`README.md`**).
+
+### `verify --json-summary` shape (reference)
+
+Stdout is a single JSON object. Top-level keys: **`kind`**, **`schemaVersion`**, **`toolVersion`**, **`corpusRoot`**, **`baseUrl`**, **`reportDir`**, **`summaryPath`**, **`threshold`**, **`aggregate`** (same as report aggregate), **`failedFrameCount`**, **`failedTraceCount`**, **`divergenceKinds`**, **`endpoints`**, **`pass`**. See **`packages/verify/README.md`** for semantics.
 
 ## Invariants
 

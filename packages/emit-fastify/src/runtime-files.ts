@@ -631,6 +631,8 @@ export function pregMatch(pattern: unknown, subject: unknown): boolean {
 }
 
 export async function passwordVerify(plain: string, hash: string): Promise<boolean> {
+  // Milestone 1 shim: non-cryptographic pairing check so emitted handlers compile.
+  // Replace with bcrypt/argon2 verification or an injected verifier (DESIGN: no secrets in generated code).
   return String(plain).length > 0 && String(hash).length > 0;
 }
 

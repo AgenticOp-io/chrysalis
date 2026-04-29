@@ -7,7 +7,12 @@ import { parseFile, type Provider } from "@chrysalis/parser-bridge";
 import { ModuleBuilder, type Module } from "@chrysalis/webir";
 import { ingestHandler } from "./convert.js";
 import { buildCallEffectMap } from "./library-effects.js";
-import { loadRouteManifest, type RouteManifest, type RouteSpec } from "./routes.js";
+import {
+  dbFactoryReturnCalleeSet,
+  loadRouteManifest,
+  type RouteManifest,
+  type RouteSpec,
+} from "./routes.js";
 
 async function sourceAppFromProjectRoot(projectRoot: string): Promise<string> {
   if (projectRoot === "") return "single-file";
@@ -43,6 +48,7 @@ export async function ingestDirectory(
   opts?: IngestOptions,
 ): Promise<Module> {
   const manifest = await loadRouteManifest(root);
+  const dbFactoryReturns = dbFactoryReturnCalleeSet(manifest);
   const callEffects = await buildCallEffectMap(root, manifest.routes, {
     ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
   });
@@ -51,7 +57,7 @@ export async function ingestDirectory(
     const ast = await parseFile(resolve(root, route.file), {
       ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
     });
-    const routeNode = ingestHandler(builder, ast, route, callEffects);
+    const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns);
     builder.addRoot(routeNode);
   }
   return builder.finish();
@@ -72,12 +78,20 @@ export async function ingestFile(
           ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
         })
       : new Map();
+  let dbFactoryReturns: ReadonlySet<string> = new Set();
+  if (root !== "") {
+    try {
+      dbFactoryReturns = dbFactoryReturnCalleeSet(await loadRouteManifest(root));
+    } catch {
+      /* single-file / no manifest */
+    }
+  }
   const builder = new ModuleBuilder({ sourceApp: await sourceAppFromProjectRoot(root) });
-  const routeNode = ingestHandler(builder, ast, route, callEffects);
+  const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns);
   builder.addRoot(routeNode);
   return builder.finish();
 }
 
 export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects.js";
-export { loadRouteManifest };
+export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";
 export type { RouteManifest, RouteSpec };

@@ -73,4 +73,116 @@ $maybe = null ?? "fallback";
     const nk = await parseSource(src, "db.php", { provider: "nikic" });
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
+
+  run("matches glayzzle on mysqli-probe direct_query.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/mysqli-probe/pages/direct_query.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "direct_query.php");
+    const nk = await parseSource(src, "direct_query.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on mysqli-probe alias_query.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/mysqli-probe/pages/alias_query.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "alias_query.php");
+    const nk = await parseSource(src, "alias_query.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on mysqli-probe mysqli_new_query.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/mysqli-probe/pages/mysqli_new_query.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "mysqli_new_query.php");
+    const nk = await parseSource(src, "mysqli_new_query.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on mysqli-probe alias_copy.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/mysqli-probe/pages/alias_copy.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "alias_copy.php");
+    const nk = await parseSource(src, "alias_copy.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on mysqli-probe pdo_query.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/mysqli-probe/pages/pdo_query.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "pdo_query.php");
+    const nk = await parseSource(src, "pdo_query.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on mysqli-probe factory_query.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/mysqli-probe/pages/factory_query.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "factory_query.php");
+    const nk = await parseSource(src, "factory_query.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on mysqli-probe factory_query_chain.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/mysqli-probe/pages/factory_query_chain.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "factory_query_chain.php");
+    const nk = await parseSource(src, "factory_query_chain.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on laravel-shaped-db-factory-probe illuminate_db_chain.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/laravel-shaped-db-factory-probe/pages/illuminate_db_chain.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "illuminate_db_chain.php");
+    const nk = await parseSource(src, "illuminate_db_chain.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on laravel-shaped-db-factory-probe illuminate_db_assign.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/laravel-shaped-db-factory-probe/pages/illuminate_db_assign.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "illuminate_db_assign.php");
+    const nk = await parseSource(src, "illuminate_db_assign.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on laravel-shaped-db-factory-probe conn_make_assign.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/laravel-shaped-db-factory-probe/pages/conn_make_assign.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "conn_make_assign.php");
+    const nk = await parseSource(src, "conn_make_assign.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on laravel-shaped-db-factory-probe repo_db_chain.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/laravel-shaped-db-factory-probe/pages/repo_db_chain.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "repo_db_chain.php");
+    const nk = await parseSource(src, "repo_db_chain.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on db-query-unknown-receiver probe (SQLite3, positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/db-query-unknown-receiver-probe/pages/mysqli_query.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "mysqli_query.php");
+    const nk = await parseSource(src, "mysqli_query.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe coalesce_chain.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/coalesce_chain.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "coalesce_chain.php");
+    const nk = await parseSource(src, "coalesce_chain.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe nested_array.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/nested_array.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "nested_array.php");
+    const nk = await parseSource(src, "nested_array.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
 });

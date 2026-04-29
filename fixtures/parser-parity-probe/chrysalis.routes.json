@@ -1,0 +1,17 @@
+{
+  "app": "parser-parity-probe",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/coalesce",
+      "file": "pages/coalesce_chain.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/nested-array",
+      "file": "pages/nested_array.php",
+      "pathParams": []
+    }
+  ]
+}

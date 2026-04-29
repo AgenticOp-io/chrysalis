@@ -1,27 +1,48 @@
 #!/usr/bin/env node
 /**
  * One-screen migration debt summary from `chrysalis status --json`.
- * Forwards argv (minus this script) to `chrysalis status` (must include `--project`).
+ * Forwards argv (minus script-only flags) to `chrysalis status` (must include `--project`).
  *
- * Optional **`--json-out <path>`** or **`--json-out=<path>`** writes a small summary
- * artifact (same fields as the human view, plus **`generatedAt`**) for CI or trends.
+ * Script-only flags (stripped before `status`):
+ *   --json-out <path> | --json-out=<path>   write compact JSON summary
+ *   --max-holes <n>     exit 4 if residualLegacy.holeCount > n (requires residualLegacy in JSON)
+ *   --min-correctness <0..1>  exit 4 if correctness.aggregate < value (requires correctness in JSON)
  *
- *   node scripts/migration-debt.mjs --project fixtures/tiny-blog [--traces traces] ...
  *   node scripts/migration-debt.mjs --project fixtures/tiny-blog --json-out reports/migration-debt.json
+ *   node scripts/migration-debt.mjs --project fixtures/tiny-blog --max-holes 50 --min-correctness 0.5
+ *
+ * `--json-out` writes **`kind`**, **`schemaVersion`**, **`toolVersion`** (repo root package.json) plus
+ * status slices — same machine-consumer idea as **`chrysalis verify --json-summary`** (D226).
+ *
+ * CI mirrors the same thresholds via `pnpm run migration-debt:gate:ingest` (ingest-only; no verify reports)
+ * and `pnpm run migration-debt:gate:post-verify` after `pnpm run verify:e2e` (needs `reports/verify`).
  */
 import { spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CLI = resolve(ROOT, "packages/cli/src/bin.ts");
 
+function repoToolVersion(root) {
+  try {
+    const raw = readFileSync(resolve(root, "package.json"), "utf8");
+    const j = JSON.parse(raw);
+    if (typeof j.version === "string" && j.version.length > 0) return j.version;
+  } catch {
+    /* keep default */
+  }
+  return "0.0.0";
+}
+
 /** @param {string[]} argv */
-function stripJsonOut(argv) {
+function stripScriptOnlyFlags(argv) {
   const forward = [...argv];
   let jsonPath = null;
-  for (let i = 0; i < forward.length; i++) {
+  let maxHoles = null;
+  let minCorrectness = null;
+  for (let i = 0; i < forward.length; ) {
     const a = forward[i];
     if (a === "--json-out") {
       jsonPath = forward[i + 1];
@@ -30,7 +51,7 @@ function stripJsonOut(argv) {
         process.exit(2);
       }
       forward.splice(i, 2);
-      break;
+      continue;
     }
     if (a.startsWith("--json-out=")) {
       jsonPath = a.slice("--json-out=".length);
@@ -39,18 +60,61 @@ function stripJsonOut(argv) {
         process.exit(2);
       }
       forward.splice(i, 1);
-      break;
+      continue;
     }
+    if (a === "--max-holes") {
+      const v = forward[i + 1];
+      if (v === undefined || !/^\d+$/.test(v)) {
+        console.error("migration-debt: --max-holes requires a non-negative integer");
+        process.exit(2);
+      }
+      maxHoles = Number.parseInt(v, 10);
+      forward.splice(i, 2);
+      continue;
+    }
+    if (a.startsWith("--max-holes=")) {
+      const rest = a.slice("--max-holes=".length);
+      if (!/^\d+$/.test(rest)) {
+        console.error("migration-debt: --max-holes= requires a non-negative integer");
+        process.exit(2);
+      }
+      maxHoles = Number.parseInt(rest, 10);
+      forward.splice(i, 1);
+      continue;
+    }
+    if (a === "--min-correctness") {
+      const v = forward[i + 1];
+      const x = v === undefined ? NaN : Number.parseFloat(v);
+      if (!Number.isFinite(x) || x < 0 || x > 1) {
+        console.error("migration-debt: --min-correctness requires a number in [0, 1]");
+        process.exit(2);
+      }
+      minCorrectness = x;
+      forward.splice(i, 2);
+      continue;
+    }
+    if (a.startsWith("--min-correctness=")) {
+      const rest = a.slice("--min-correctness=".length);
+      const x = Number.parseFloat(rest);
+      if (!Number.isFinite(x) || x < 0 || x > 1) {
+        console.error("migration-debt: --min-correctness= requires a number in [0, 1]");
+        process.exit(2);
+      }
+      minCorrectness = x;
+      forward.splice(i, 1);
+      continue;
+    }
+    i += 1;
   }
-  return { forward, jsonPath };
+  return { forward, jsonPath, maxHoles, minCorrectness };
 }
 
 const argv = process.argv.slice(2);
-const { forward, jsonPath } = stripJsonOut(argv);
+const { forward, jsonPath, maxHoles, minCorrectness } = stripScriptOnlyFlags(argv);
 const pi = forward.indexOf("--project");
 if (pi < 0 || !forward[pi + 1]) {
   console.error(
-    "usage: node scripts/migration-debt.mjs --project <php-root> [--json-out <path> | --json-out=<path>] [...optional chrysalis status args]",
+    "usage: node scripts/migration-debt.mjs --project <php-root> [--json-out <path>] [--max-holes N] [--min-correctness 0..1] [... chrysalis status args]",
   );
   process.exit(2);
 }
@@ -128,6 +192,9 @@ if (jsonPath) {
   const abs = resolve(ROOT, jsonPath);
   mkdirSync(dirname(abs), { recursive: true });
   const summary = {
+    kind: "chrysalis.migration-debt.summary",
+    schemaVersion: 1,
+    toolVersion: repoToolVersion(ROOT),
     generatedAt: new Date().toISOString(),
     corpus: s.corpus ?? null,
     correctness: s.correctness ?? null,
@@ -140,4 +207,30 @@ if (jsonPath) {
   writeFileSync(abs, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
   console.log("");
   console.log(`wrote JSON summary: ${abs}`);
+}
+
+if (maxHoles !== null) {
+  const hc = s.residualLegacy?.holeCount;
+  if (typeof hc !== "number") {
+    console.error("migration-debt: --max-holes requires residualLegacy.holeCount in status JSON");
+    process.exit(4);
+  }
+  if (hc > maxHoles) {
+    console.error(`migration-debt: holeCount ${hc} exceeds --max-holes ${maxHoles}`);
+    process.exit(4);
+  }
+}
+
+if (minCorrectness !== null) {
+  const agg = s.correctness?.aggregate;
+  if (typeof agg !== "number") {
+    console.error("migration-debt: --min-correctness requires correctness.aggregate in status JSON");
+    process.exit(4);
+  }
+  if (agg + 1e-9 < minCorrectness) {
+    console.error(
+      `migration-debt: aggregate correctness ${agg.toFixed(4)} is below --min-correctness ${minCorrectness}`,
+    );
+    process.exit(4);
+  }
 }

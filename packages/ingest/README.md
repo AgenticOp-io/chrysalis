@@ -16,6 +16,9 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 - `IngestOptions.parserProvider` / `IngestFileOptions.parserProvider` — forwards
   parser selection to `@chrysalis/parser-bridge` (`glayzzle` default, optional `nikic`)
 - `IngestOptions` — include/exclude globs, PHPDoc handling, hole policy
+- `normalizeDbFactoryCalleeLabel(label)` — strips leading **`\\`** from manifest callee strings for stable matching.
+- `dbFactoryReturnCalleeSet(manifest)` — builds the **`Set<string>`** used during ingest from **`dbFactoryReturnCallees`**.
+- `chrysalis.routes.json` optional **`dbFactoryReturnCallees`**: string list of normalized callee labels (`Class::method` or global function) the project **declares** return a DB connection; enables **`$x->query`** / **`Factory::get()->query`** lowering without body inference (**D224**). Example FQNs: **`fixtures/laravel-shaped-db-factory-probe`** (**D225**).
 
 ## Invariants
 
@@ -33,8 +36,8 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 
 Lowered to WebIR effects or `data.call` helpers (see `convert.ts`): **`query_all` /
 `query_one` / `exec_sql`** (used by **`fixtures/tiny-blog`** and **`fixtures/mysqli-probe`**;
-PDO vs mysqli in `lib/` does not change ingest lowering at call sites), **`db()->query(...)`**
-(factory **`db()`** only — not arbitrary **`$x->query`**), static `Class::method()` calls (parser `StaticFetch` callee) as `data.call` with
+PDO vs mysqli in `lib/` does not change ingest lowering at call sites), **`db()->query(...)`** and
+**manifest-declared** factory returns (**`dbFactoryReturnCallees`**), tracked **`new mysqli` / `new PDO` / `mysqli_connect`** and copy aliases — other **`$x->query`** stays **`legacy:db-query-unknown-receiver`**, static `Class::method()` calls (parser `StaticFetch` callee) as `data.call` with
 a `class::method` label (not a hole; class methods are collected into call-effect overlays),
 `session_start`, `session_name`, `session_set_cookie_params` (PHP-only cookie
 setup; emitted middleware owns cookies), `$_SESSION[...]` read/write, redirects,

@@ -1,14 +1,14 @@
-import { describe, expect, test } from "vitest";
 import { resolve } from "node:path";
+import { describe, expect, test } from "vitest";
 import { ingestDirectory } from "../src/index.js";
 import { countHoles, effectTagsSorted, walk } from "@chrysalis/webir";
 
-const FIXTURE = resolve(__dirname, "../../../fixtures/mysqli-probe");
+const FIXTURE = resolve(__dirname, "../../../fixtures/laravel-shaped-db-factory-probe");
 
-describe("ingest: mysqli-probe fixture", () => {
-  test("eight routes, no holes; manifest dbFactoryReturnCallees + mysqli/PDO/copy aliases", async () => {
+describe("ingest: laravel-shaped-db-factory-probe", () => {
+  test("four routes, zero holes; FQN manifest callees for DB::connection, Conn::make, Repo::db", async () => {
     const mod = await ingestDirectory(FIXTURE);
-    expect(mod.roots.length).toBe(8);
+    expect(mod.roots.length).toBe(4);
     expect(countHoles(mod)).toBe(0);
 
     const byName: Record<string, readonly string[]> = {};
@@ -19,14 +19,9 @@ describe("ingest: mysqli-probe fixture", () => {
       const name = String((handler.attrs as { name?: string }).name ?? "");
       byName[name] = effectTagsSorted(handler.effects);
     }
-    expect(byName.smoke).toEqual(["db.read:widgets"]);
-    expect(byName.direct_query).toEqual(["db.read:widgets"]);
-    expect(byName.alias_query).toEqual(["db.read:widgets"]);
-    expect(byName.mysqli_new_query).toEqual(["db.read:widgets"]);
-    expect(byName.alias_copy).toEqual(["db.read:widgets"]);
-    expect(byName.pdo_query).toEqual(["db.read:widgets"]);
-    expect(byName.factory_query).toEqual(["db.read:widgets"]);
-    expect(byName.factory_query_chain).toEqual(["db.read:widgets"]);
+    for (const k of ["illuminate_db_chain", "illuminate_db_assign", "conn_make_assign", "repo_db_chain"]) {
+      expect(byName[k]).toEqual(["db.read:probe_row"]);
+    }
   });
 
   test("every node has a php-source locator", async () => {
