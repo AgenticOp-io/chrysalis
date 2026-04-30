@@ -13,6 +13,7 @@
  *   node scripts/ci-gates.mjs confidence-trend-ready [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs verify-dual-summary [reports/ci/verify-e2e-summary.json]
  *   node scripts/ci-gates.mjs verify-merged-summary [reports/ci/verify-e2e-merged-summary.json]
+ *   node scripts/ci-gates.mjs corpus-merge-summary [path/to/corpus-merge-summary.json]
  * File-backed JSON gates resolve paths, print missing/invalid JSON hints via readJsonGateArtifact
  * (also tiny-n1-rewrite report JSON, migration-sidecar-floors sidecar JSON). status-migration validates stdin JSON.
  *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
@@ -593,6 +594,89 @@ function assertVerifyMergedSummary(path) {
   );
 }
 
+function assertNonNegativeInt(label, name, v) {
+  if (typeof v !== "number" || !Number.isFinite(v) || v < 0 || Math.floor(v) !== v) {
+    fail(`${label}: expected non-negative integer ${name}, got ${JSON.stringify(v)}`);
+  }
+}
+
+function assertCorpusMergeSummary(path) {
+  const label = "corpus-merge-summary";
+  const s = readJsonGateArtifact(label, path, {
+    missingLabel: "summary file missing",
+    missingHint: [
+      "Create it with chrysalis corpus-merge … --json-out <file> or pass a fixture path:",
+      "  pnpm run ci:corpus-merge-summary -- <path>",
+    ],
+  });
+  if (s.kind !== "chrysalis.corpus-merge.summary") {
+    fail(`${label}: expected kind chrysalis.corpus-merge.summary, got ${JSON.stringify(s.kind)}`);
+  }
+  if (s.schemaVersion !== 1) {
+    fail(`${label}: expected schemaVersion 1, got ${JSON.stringify(s.schemaVersion)}`);
+  }
+  if (typeof s.toolVersion !== "string" || s.toolVersion.length === 0) {
+    fail(`${label}: missing toolVersion`);
+  }
+  if (typeof s.generatedAt !== "string" || s.generatedAt.length === 0) {
+    fail(`${label}: missing generatedAt`);
+  }
+  const o = s.options;
+  if (!o || typeof o !== "object") {
+    fail(`${label}: missing options object`);
+  }
+  if (typeof o.outDir !== "string" || o.outDir.length === 0) {
+    fail(`${label}: options.outDir must be a non-empty string`);
+  }
+  if (o.onDuplicate !== "error" && o.onDuplicate !== "skip") {
+    fail(`${label}: options.onDuplicate must be error or skip, got ${JSON.stringify(o.onDuplicate)}`);
+  }
+  if (o.dedupeTraceId !== "off" && o.dedupeTraceId !== "skip") {
+    fail(`${label}: options.dedupeTraceId must be off or skip, got ${JSON.stringify(o.dedupeTraceId)}`);
+  }
+  if (typeof o.dryRun !== "boolean") {
+    fail(`${label}: options.dryRun must be a boolean, got ${JSON.stringify(o.dryRun)}`);
+  }
+  if (o.sampleModulo !== undefined) {
+    const m = o.sampleModulo;
+    if (typeof m !== "number" || !Number.isFinite(m) || m < 1 || Math.floor(m) !== m) {
+      fail(`${label}: options.sampleModulo must be a finite integer >= 1, got ${JSON.stringify(m)}`);
+    }
+  }
+  if (o.sampleRemainder !== undefined) {
+    const r = o.sampleRemainder;
+    if (typeof r !== "number" || !Number.isFinite(r) || r < 0 || Math.floor(r) !== r) {
+      fail(`${label}: options.sampleRemainder must be a non-negative finite integer, got ${JSON.stringify(r)}`);
+    }
+    const m = o.sampleModulo;
+    if (typeof m !== "number" || !Number.isFinite(m) || m < 1) {
+      fail(`${label}: options.sampleRemainder requires a valid options.sampleModulo`);
+    }
+    if (r >= m) {
+      fail(`${label}: options.sampleRemainder must satisfy 0 <= r < sampleModulo (got ${r}, ${m})`);
+    }
+  }
+  if (!Array.isArray(s.sources) || s.sources.length < 1) {
+    fail(`${label}: expected non-empty sources[]`);
+  }
+  for (let i = 0; i < s.sources.length; i++) {
+    if (typeof s.sources[i] !== "string" || s.sources[i].length === 0) {
+      fail(`${label}: sources[${i}] must be a non-empty string`);
+    }
+  }
+  const c = s.counts;
+  if (!c || typeof c !== "object") {
+    fail(`${label}: missing counts object`);
+  }
+  assertNonNegativeInt(label, "counts.copiedFiles", c.copiedFiles);
+  assertNonNegativeInt(label, "counts.skippedDuplicates", c.skippedDuplicates);
+  assertNonNegativeInt(label, "counts.skippedTraceIdDuplicates", c.skippedTraceIdDuplicates);
+  assertNonNegativeInt(label, "counts.skippedBySampling", c.skippedBySampling);
+  console.log(
+    `${label} OK: sources=${s.sources.length} copied=${c.copiedFiles} skippedDup=${c.skippedDuplicates} skippedTraceId=${c.skippedTraceIdDuplicates} skippedSample=${c.skippedBySampling}`,
+  );
+}
+
 function parseOptionalEnvNumber(raw, label) {
   if (raw == null) return null;
   const s = String(raw).trim();
@@ -758,6 +842,9 @@ switch (cmd) {
   case "verify-merged-summary":
     assertVerifyMergedSummary(arg0 ?? "reports/ci/verify-e2e-merged-summary.json");
     break;
+  case "corpus-merge-summary":
+    assertCorpusMergeSummary(arg0 ?? "reports/ci/corpus-merge-summary.json");
+    break;
   case "migration-sidecar-floors":
     assertMigrationSidecarFloors(arg0);
     break;
@@ -770,7 +857,7 @@ switch (cmd) {
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|migration-sidecar-floors|migration-sidecar-floors-release|session-bridge-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|migration-sidecar-floors|migration-sidecar-floors-release|session-bridge-release> [path]",
     );
     process.exit(1);
 }

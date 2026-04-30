@@ -62,6 +62,7 @@ export {
 export {
   mergeCorpusDirectories,
   type CorpusMergeDuplicatePolicy,
+  type CorpusMergeTraceIdPolicy,
   type MergeCorpusDirectoriesOptions,
   type MergeCorpusDirectoriesResult,
 } from "./merge-corpus.js";

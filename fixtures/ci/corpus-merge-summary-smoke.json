@@ -1,0 +1,24 @@
+{
+  "kind": "chrysalis.corpus-merge.summary",
+  "schemaVersion": 1,
+  "toolVersion": "1.0.1",
+  "generatedAt": "2026-04-30T00:00:00.000Z",
+  "options": {
+    "outDir": "/tmp/chrysalis-ci/merged-traces",
+    "onDuplicate": "skip",
+    "dedupeTraceId": "skip",
+    "dryRun": false,
+    "sampleModulo": 4,
+    "sampleRemainder": 1
+  },
+  "sources": [
+    "/tmp/chrysalis-ci/host-a/traces",
+    "/tmp/chrysalis-ci/host-b/traces"
+  ],
+  "counts": {
+    "copiedFiles": 3,
+    "skippedDuplicates": 1,
+    "skippedTraceIdDuplicates": 0,
+    "skippedBySampling": 2
+  }
+}

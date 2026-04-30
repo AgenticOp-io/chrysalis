@@ -27,6 +27,7 @@ Do **not** rely on `process.env` inside **generated** handlers or verify sandbox
 ```text
 node scripts/ci-gates.mjs verify-dual-summary [path]
 node scripts/ci-gates.mjs verify-merged-summary [path]
+node scripts/ci-gates.mjs corpus-merge-summary [path]
 node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
 node scripts/ci-gates.mjs session-bridge-release
 ```
@@ -38,7 +39,7 @@ node scripts/ci-gates.mjs session-bridge-release
 Under a typical workspace root:
 
 - `reports/verify/` — replay summaries and per-route files  
-- `reports/ci/` — dual-backend verify summaries and **merged** partition summaries (`verify-e2e-merged-summary.json`) consumed by CI gates  
+- `reports/ci/` — dual-backend verify summaries, **merged** partition summaries (`verify-e2e-merged-summary.json`), and optional **`corpus-merge`** machine summaries (`chrysalis corpus-merge … --json-out`) consumed by CI gates  
 - `reports/migration/` — idiomaticity / residual-legacy sidecars when generated  
 - `reports/shadow/` — shadow-mode divergence stream  
 

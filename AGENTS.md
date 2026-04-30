@@ -71,7 +71,7 @@ If you find yourself doing any of these, stop:
 
 ### Local `ci-gates`
 
-- Root **`pnpm run ci:*`** scripts invoke **`scripts/ci-gates.mjs`** with consistent missing-file / invalid-JSON stderr (**`readJsonGateArtifact`**, **`DESIGN` D231**).
+- Root **`pnpm run ci:*`** scripts invoke **`scripts/ci-gates.mjs`** with consistent missing-file / invalid-JSON stderr (**`readJsonGateArtifact`**, **`DESIGN` D231**). Includes **`ci:corpus-merge-summary`** for **`chrysalis.corpus-merge.summary`** artifacts (**`fixtures/ci/corpus-merge-summary-smoke.json`** in **`typecheck-and-test`**).
 - **`pnpm run ci:insight`** runs **`chrysalis insight`** then **`tiny-n1-insight`**; use **`pnpm run ci:tiny-n1-insight`** when the insight JSON artifact already exists.
 - **`pnpm run ci:migration-sidecar-floors`** no-ops (exit **0**, skip log) unless **`CHRYSALIS_IDIOMATICITY_MIN`** and/or **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set; coverage is in **`packages/cli/tests/ci-gates-json-artifacts.test.ts`**.
 

@@ -27,7 +27,7 @@ Subcommands (some are Milestone 1 stubs):
   On failures: divergence-kind counts, absolute **`summary.json`** path, and **`repair`** / **`--project`** hints (**D212**).
   **`--only-route "METHOD /path"`** and **`--only-trace-id <id>`** narrow replay for large corpora (**D213**)
 - `chrysalis verify-merge` — merge per-shard **`summary.json`** files; **`--json-out`** prints **`chrysalis.verify.summary.merged`** (V2-M1)
-- `chrysalis corpus-merge` — merge multiple **`traces/`**-shaped roots into **`--out`**; **`--on-duplicate error|skip`** (V2-M3)
+- `chrysalis corpus-merge` — merge multiple **`traces/`**-shaped roots into **`--out`** (V2-M3); **`--on-duplicate error|skip`**, optional **`--dedupe-trace-id skip`**, **`--sample-modulo K --sample-remainder R`**, **`--dry-run`**, **`--json-out <file>`** (**`chrysalis.corpus-merge.summary`**)
 - `chrysalis rewrite` — IR rewrites; optional `--http-replay` and
   `--http-replay-backends=hono,fastify`
 - `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router
@@ -82,15 +82,16 @@ Local check (defaults to `reports/ci/verify-e2e-summary.json` when no path is pa
 pnpm run ci:verify-dual-summary
 pnpm run ci:verify-dual-summary -- reports/ci/verify-flagship-laravel-min-summary.json
 pnpm run ci:verify-merged-summary -- fixtures/ci/verify-merged-summary-smoke.json
+pnpm run ci:corpus-merge-summary -- fixtures/ci/corpus-merge-summary-smoke.json
 pnpm run ci:tiny-n1-insight -- reports/insight/tiny-n1.json
 pnpm run ci:migration-sidecar-floors -- reports/migration
 ```
 
 The default path is only present after a dual-summary writer has run (for example **`pnpm run verify:e2e`** for `reports/ci/verify-e2e-summary.json`); if the file is missing, the gate prints **`verify-dual-summary: summary file missing`** with the resolved path and a short hint instead of an uncaught filesystem stack trace. Malformed JSON yields **`verify-dual-summary: invalid JSON`** (path + parse error); other read failures use **`verify-dual-summary: could not read`**.
 
-Vitest: **`packages/cli/tests/verify-dual-summary-gate.test.ts`** (dual contract); **`packages/cli/tests/ci-gates-verify-merged-summary.test.ts`** (merged contract); **`packages/cli/tests/ci-gates-json-artifacts.test.ts`** (missing/invalid JSON across **`readJsonGateArtifact`** gates, **`migration-sidecar-floors`** missing **`idiomaticity.json`**, skip path, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, **`status-migration`** stdin).
+Vitest: **`packages/cli/tests/verify-dual-summary-gate.test.ts`** (dual contract); **`packages/cli/tests/ci-gates-verify-merged-summary.test.ts`** (merged verify contract); **`packages/cli/tests/ci-gates-corpus-merge-summary.test.ts`** (**`corpus-merge-summary`** contract); **`packages/cli/tests/ci-gates-json-artifacts.test.ts`** (missing/invalid JSON across **`readJsonGateArtifact`** gates, **`migration-sidecar-floors`** missing **`idiomaticity.json`**, skip path, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, **`status-migration`** stdin).
 
-Root **`package.json`**: **`pnpm run ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`** (optional **`-- <path>`**; sidecar gate **no-ops** unless **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set), plus **`ci:verify-dual-summary`** and **`ci:verify-merged-summary`** above.
+Root **`package.json`**: **`pnpm run ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`** (optional **`-- <path>`**; sidecar gate **no-ops** unless **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set), plus **`ci:verify-dual-summary`**, **`ci:verify-merged-summary`**, and **`ci:corpus-merge-summary`** above.
 
 Current CI files validated by dual-summary gate:
 
@@ -101,6 +102,10 @@ Current CI files validated by dual-summary gate:
 ### Related gate: `scripts/ci-gates.mjs verify-merged-summary`
 
 Validates **`chrysalis.verify.summary.merged`** (**`schemaVersion`**: **`1`**, **`toolVersion`**, **`shardCount`**, **`inputs[]`** with per-shard aggregates, **`merged`** report). Optional **`CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS`** enforces **`merged.aggregate.correctness`**. **`verify-tiny-blog.mjs`** writes **`reports/ci/verify-e2e-merged-summary.json`** after the Hono replay (partition smoke or single-shard fallback).
+
+### Related gate: `scripts/ci-gates.mjs corpus-merge-summary`
+
+Validates **`chrysalis.corpus-merge.summary`** written by **`chrysalis corpus-merge … --json-out`**: **`schemaVersion`**: **`1`**, **`toolVersion`**, **`generatedAt`**, **`options`** (**`outDir`**, **`onDuplicate`**, **`dedupeTraceId`**, **`dryRun`**, optional sampling fields), non-empty **`sources[]`**, and **`counts`** (non-negative integers). Fixture: **`fixtures/ci/corpus-merge-summary-smoke.json`**.
 
 ### `verify --json-summary` shape (reference)
 

@@ -27,6 +27,17 @@ describe("ci-gates readJsonGateArtifact", () => {
     expect(r.stderr).toContain("pnpm run ci:insight");
   });
 
+  test("corpus-merge-summary reports file missing with hint", () => {
+    const missing = join(tmpdir(), `chrysalis-corpus-merge-summary-${Date.now()}.json`);
+    const r = spawnSync(process.execPath, [CI_GATES, "corpus-merge-summary", missing], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("corpus-merge-summary: summary file missing");
+    expect(r.stderr).toContain("pnpm run ci:corpus-merge-summary");
+  });
+
   test("confidence-trend-ready reports invalid JSON", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-trend-ready-badjson-"));
     const p = join(dir, "history.json");

@@ -78,6 +78,9 @@ jobs:
       - name: Gate verify merged-summary JSON (fixture contract)
         run: node scripts/ci-gates.mjs verify-merged-summary fixtures/ci/verify-merged-summary-smoke.json
 
+      - name: Gate corpus-merge summary JSON (fixture contract)
+        run: node scripts/ci-gates.mjs corpus-merge-summary fixtures/ci/corpus-merge-summary-smoke.json
+
       - name: Migration debt JSON (tiny-blog) + ingest hole gate
         # `--max-holes` uses ingest-only residualLegacy (no verify reports needed).
         run: node scripts/migration-debt.mjs --project fixtures/tiny-blog --json-out reports/ci/migration-debt.json --max-holes 0
