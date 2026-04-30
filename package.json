@@ -35,6 +35,7 @@
     "scaffold:laravel-full": "node scripts/scaffold-flagship-laravel.mjs",
     "scaffold:laravel-full:breeze": "node scripts/scaffold-flagship-laravel.mjs --with-breeze",
     "ci-gates": "node scripts/ci-gates.mjs",
+    "ci:verify-dual-summary": "node scripts/ci-gates.mjs verify-dual-summary",
     "clean": "pnpm -r clean"
   },
   "devDependencies": {

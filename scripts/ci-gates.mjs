@@ -11,6 +11,7 @@
  *     (seed-matrix parent JSON must include matrixCrossBackendParityOk: true)
  *   node scripts/ci-gates.mjs confidence-trend [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs confidence-trend-ready [reports/confidence/history/flagship-laravel-full.history.json]
+ *   node scripts/ci-gates.mjs verify-dual-summary [reports/ci/verify-e2e-summary.json]
  *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
  *   node scripts/ci-gates.mjs session-bridge-release
  *
@@ -415,6 +416,90 @@ function assertConfidenceTrendReady(path) {
   console.log(`confidence-trend-ready: strict mode ready (${count}/${required})`);
 }
 
+function assertVerifyDualSummary(path) {
+  const abs = resolve(path);
+  if (!fs.existsSync(abs)) {
+    fail(
+      [
+        `verify-dual-summary: summary file missing: ${abs}`,
+        "Create it with a dual-summary verify script (e.g. pnpm run verify:e2e) or pass an existing path:",
+        "  pnpm run ci:verify-dual-summary -- <path>",
+      ].join("\n"),
+    );
+  }
+  let s;
+  try {
+    s = readJsonFile(abs);
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      fail(`verify-dual-summary: invalid JSON in ${abs}: ${e.message}`);
+    }
+    const msg = e instanceof Error ? e.message : String(e);
+    fail(`verify-dual-summary: could not read ${abs}: ${msg}`);
+  }
+  if (s.kind !== "chrysalis.verify.summary.dual") {
+    fail(`verify-dual-summary: expected kind chrysalis.verify.summary.dual, got ${JSON.stringify(s.kind)}`);
+  }
+  if (s.schemaVersion !== 1) {
+    fail(`verify-dual-summary: expected schemaVersion 1, got ${JSON.stringify(s.schemaVersion)}`);
+  }
+  if (typeof s.toolVersion !== "string" || s.toolVersion.length === 0) {
+    fail("verify-dual-summary: missing toolVersion");
+  }
+  if (typeof s.reportDir !== "string" || s.reportDir.length === 0) {
+    fail("verify-dual-summary: missing reportDir");
+  }
+  if (typeof s.corpusRoot !== "string" || s.corpusRoot.length === 0) {
+    fail("verify-dual-summary: missing corpusRoot");
+  }
+  if (typeof s.pass !== "boolean") {
+    fail(`verify-dual-summary: pass must be boolean, got ${JSON.stringify(s.pass)}`);
+  }
+  if (!Array.isArray(s.backends) || s.backends.length < 1) {
+    fail("verify-dual-summary: expected non-empty backends[]");
+  }
+  if (s.backends.length !== 2) {
+    fail(`verify-dual-summary: expected exactly 2 backends (hono + fastify), got ${s.backends.length}`);
+  }
+  const ids = new Set(s.backends.map((b) => b?.backend));
+  if (!ids.has("hono") || !ids.has("fastify")) {
+    fail(`verify-dual-summary: expected hono and fastify backend ids, got ${[...ids].join(", ")}`);
+  }
+  for (const b of s.backends) {
+    if (typeof b?.backend !== "string" || b.backend.length === 0) {
+      fail("verify-dual-summary: each backend row must include backend name");
+    }
+    const hasCorrectness =
+      typeof b.correctness === "number" ||
+      typeof b.minCorrectness === "number" ||
+      typeof b.aggregate?.correctness === "number";
+    if (!hasCorrectness) {
+      fail(`verify-dual-summary: backend ${b.backend} missing correctness field`);
+    }
+    if (typeof b.summaryPath !== "string" || b.summaryPath.length === 0) {
+      fail(`verify-dual-summary: backend ${b.backend} missing summaryPath`);
+    }
+    if (!b.aggregate || typeof b.aggregate.correctness !== "number") {
+      fail(`verify-dual-summary: backend ${b.backend} missing aggregate.correctness`);
+    }
+    if (!Array.isArray(b.endpoints)) {
+      fail(`verify-dual-summary: backend ${b.backend} missing endpoints[]`);
+    }
+    if (typeof b.failedFrameCount !== "number" || !Number.isFinite(b.failedFrameCount)) {
+      fail(`verify-dual-summary: backend ${b.backend} missing failedFrameCount`);
+    }
+  }
+  const expectedProfile = process.env.CHRYSALIS_VERIFY_DUAL_PROFILE;
+  if (expectedProfile && s.profile !== expectedProfile) {
+    fail(
+      `verify-dual-summary: expected profile ${JSON.stringify(expectedProfile)}, got ${JSON.stringify(s.profile)}`,
+    );
+  }
+  console.log(
+    `verify-dual-summary OK: profile=${s.profile ?? "(none)"} pass=${s.pass} backends=${s.backends.length}`,
+  );
+}
+
 function parseOptionalEnvNumber(raw, label) {
   if (raw == null) return null;
   const s = String(raw).trim();
@@ -574,6 +659,9 @@ switch (cmd) {
   case "confidence-trend-ready":
     assertConfidenceTrendReady(arg0 ?? "reports/confidence/history/flagship-laravel-full.history.json");
     break;
+  case "verify-dual-summary":
+    assertVerifyDualSummary(arg0 ?? "reports/ci/verify-e2e-summary.json");
+    break;
   case "migration-sidecar-floors":
     assertMigrationSidecarFloors(arg0);
     break;
@@ -586,7 +674,7 @@ switch (cmd) {
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|migration-sidecar-floors|migration-sidecar-floors-release|session-bridge-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|migration-sidecar-floors|migration-sidecar-floors-release|session-bridge-release> [path]",
     );
     process.exit(1);
 }

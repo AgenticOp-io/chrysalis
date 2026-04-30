@@ -330,6 +330,8 @@ for (const b of backends) {
   let driftDetected = false;
   let minCorrectness = 1;
   let maxCorrectness = 0;
+  let lastReport = null;
+  let lastRunOutDir = null;
   for (let run = 1; run <= STRESS_RUNS; run++) {
     resetEmittedBackendState(b.dir);
     const outcomes = await replayCorpus(corpus, {
@@ -383,6 +385,11 @@ for (const b of backends) {
 
     minCorrectness = Math.min(minCorrectness, report.aggregate.correctness);
     maxCorrectness = Math.max(maxCorrectness, report.aggregate.correctness);
+    lastReport = report;
+    lastRunOutDir = runOutDir;
+  }
+  if (!lastReport || !lastRunOutDir) {
+    throw new Error(`[verify-flagship-laravel-full] internal error: no replay report for backend ${b.id}`);
   }
   backendSummaries.push({
     backend: b.id,
@@ -392,6 +399,11 @@ for (const b of backends) {
     maxCorrectness,
     threshold: THRESHOLD,
     firstRunStableFingerprint,
+    summaryPath: join(lastRunOutDir, "summary.json"),
+    aggregate: lastReport.aggregate,
+    failedFrameCount: lastReport.aggregate.framesTotal - lastReport.aggregate.framesPassed,
+    endpoints: lastReport.endpoints,
+    correctness: lastReport.aggregate.correctness,
   });
 }
 

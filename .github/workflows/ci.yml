@@ -183,6 +183,9 @@ jobs:
           VERIFY_THRESHOLD: "0.95"
         run: node scripts/verify-tiny-blog.mjs
 
+      - name: Gate verify dual-summary JSON (tiny-blog)
+        run: node scripts/ci-gates.mjs verify-dual-summary reports/ci/verify-e2e-summary.json
+
       - name: Migration debt gates (tiny-blog, post-verify)
         # `--min-correctness` requires `reports/verify` (dual-backend summaries).
         run: node scripts/migration-debt.mjs --project fixtures/tiny-blog --traces traces --report reports/verify --max-holes 0 --min-correctness 1
@@ -242,6 +245,11 @@ jobs:
         env:
           VERIFY_THRESHOLD: "0.95"
         run: node scripts/verify-flagship-laravel-min.mjs
+
+      - name: Gate verify dual-summary JSON (laravel-min)
+        env:
+          CHRYSALIS_VERIFY_DUAL_PROFILE: "flagship-laravel-min"
+        run: node scripts/ci-gates.mjs verify-dual-summary reports/ci/verify-flagship-laravel-min-summary.json
 
       - name: Milestone 4 — migration metrics (laravel-min + verify reports)
         env:
@@ -344,6 +352,11 @@ jobs:
           CONFIDENCE_5NINES: "0.99999"
           CONFIDENCE_STREAK_REQUIRED: "30"
         run: pnpm run verify:laravel-full:5nines
+
+      - name: Gate verify dual-summary JSON (laravel-full)
+        env:
+          CHRYSALIS_VERIFY_DUAL_PROFILE: "flagship-laravel-full"
+        run: node scripts/ci-gates.mjs verify-dual-summary reports/ci/verify-flagship-laravel-full-summary.json
 
       - name: Compute migration status (laravel-full)
         env:

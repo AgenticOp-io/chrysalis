@@ -101,3 +101,15 @@ Before starting:
 The goal is that a year from now, a stranger reading `DESIGN.md` and this file
 can understand the whole system and contribute without re-litigating the
 architecture.
+
+## 8. Optional: Cursor and the agent cookbook
+
+If you use **Cursor**, the project includes **`.cursor/rules/chrysalis.mdc`**
+(`alwaysApply: true`) so Composer / Agent sessions load Chrysalis baseline
+instructions alongside Cursor’s own harness.
+
+For **how to work with agents in Cursor** (prompts, context limits, scope,
+failure patterns), use Cursor’s cookbook, starting with
+[Working with agents](https://cursor.com/docs/cookbook/agent-workflows).
+That material is an **optional** productivity layer: it does not override
+`DESIGN.md`, `ROADMAP.md`, or the rules in sections 1–7 above.

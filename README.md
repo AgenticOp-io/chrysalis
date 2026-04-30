@@ -106,6 +106,7 @@ with `--json` for machine-readable output.
 | --- | --- | --- |
 | `chrysalis status --json` | Human-oriented status object; **not** version-tagged as a schema — treat keys as stable within a release, not forever. | Requires `--project` for residual-legacy / migration slices. Optional `reports/migration/*.json` sidecars. |
 | `chrysalis verify … --json-summary` | **`kind`: `"chrysalis.verify.summary"`**, **`schemaVersion`**: `1`, **`toolVersion`**: repo root version. | One JSON object on **stdout**; progress on **stderr**. See `packages/verify/README.md` and `packages/cli/README.md`. |
+| `scripts/verify-*.mjs` dual-backend CI summaries | **`kind`: `"chrysalis.verify.summary.dual"`**, **`schemaVersion`**: `1`, **`toolVersion`**: repo root version. | Written under `reports/ci/verify-e2e-summary.json`, `reports/ci/verify-flagship-laravel-min-summary.json`, `reports/ci/verify-flagship-laravel-full-summary.json`. Run **`pnpm run ci:verify-dual-summary`** (defaults to `reports/ci/verify-e2e-summary.json`) or **`pnpm run ci:verify-dual-summary -- <path>`** to invoke `scripts/ci-gates.mjs verify-dual-summary`. |
 | `node scripts/migration-debt.mjs --project <php-root> --json-out <path>` | **`kind`: `"chrysalis.migration-debt.summary"`**, **`schemaVersion`**: `1`, **`toolVersion`**, **`generatedAt`**, plus slices from `status --json`. | Forwards other argv to `chrysalis status`. Gates: **`--max-holes`**, **`--min-correctness`**. See `packages/cli/README.md`. |
 
 **Remaining polish for Milestone 1:** session bridge for chimera (PHP
@@ -120,6 +121,10 @@ See [`ROADMAP.md`](./ROADMAP.md).
 - [`ROADMAP.md`](./ROADMAP.md) — staged milestones with acceptance criteria.
 - [`AGENTS.md`](./AGENTS.md) — rules for humans and AI assistants contributing
   code. The project has strong anti-drift rules; please respect them.
+- **Cursor:** project rule **`.cursor/rules/chrysalis.mdc`** loads with the agent;
+  for Cursor-specific agent workflows see the
+  [agent cookbook](https://cursor.com/docs/cookbook/agent-workflows) (optional;
+  does not replace `DESIGN.md` / `AGENTS.md`).
 
 ## Quick start
 

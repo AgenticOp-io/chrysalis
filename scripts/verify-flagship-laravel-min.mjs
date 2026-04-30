@@ -246,6 +246,10 @@ for (const b of backends) {
 
   backendSummaries.push({
     backend: b.id,
+    summaryPath: join(outDir, "summary.json"),
+    aggregate: report.aggregate,
+    failedFrameCount: report.aggregate.framesTotal - report.aggregate.framesPassed,
+    endpoints: report.endpoints,
     stableFingerprint: stableReportFingerprint(report),
     correctness: report.aggregate.correctness,
   });

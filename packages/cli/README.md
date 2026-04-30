@@ -69,6 +69,27 @@ node scripts/migration-debt.mjs --project fixtures/tiny-blog --json-out reports/
 
 Repo **`package.json`** scripts **`migration-debt:gate:ingest`** and **`migration-debt:gate:post-verify`** mirror these thresholds in CI (see root **`README.md`**).
 
+### Related gate: `scripts/ci-gates.mjs verify-dual-summary`
+
+Validates machine-readable dual-backend verify summary artifacts: **`kind`**, **`schemaVersion`**, **`toolVersion`**, **`corpusRoot`**, **`reportDir`**, **`pass`**, and exactly two backend rows (**`hono`** and **`fastify`**) each with **`summaryPath`**, **`aggregate.correctness`**, **`endpoints[]`**, **`failedFrameCount`**, and a correctness field (**`correctness`** and/or stress **`minCorrectness`**). Optional env **`CHRYSALIS_VERIFY_DUAL_PROFILE`** pins the expected **`profile`** string for flagship lanes.
+
+Local check (defaults to `reports/ci/verify-e2e-summary.json` when no path is passed through):
+
+```bash
+pnpm run ci:verify-dual-summary
+pnpm run ci:verify-dual-summary -- reports/ci/verify-flagship-laravel-min-summary.json
+```
+
+The default path is only present after a dual-summary writer has run (for example **`pnpm run verify:e2e`** for `reports/ci/verify-e2e-summary.json`); if the file is missing, the gate prints **`verify-dual-summary: summary file missing`** with the resolved path and a short hint instead of an uncaught filesystem stack trace. Malformed JSON yields **`verify-dual-summary: invalid JSON`** (path + parse error); other read failures use **`verify-dual-summary: could not read`**.
+
+Vitest: **`packages/cli/tests/verify-dual-summary-gate.test.ts`**.
+
+Current CI files validated by this gate:
+
+- `reports/ci/verify-e2e-summary.json`
+- `reports/ci/verify-flagship-laravel-min-summary.json`
+- `reports/ci/verify-flagship-laravel-full-summary.json`
+
 ### `verify --json-summary` shape (reference)
 
 Stdout is a single JSON object. Top-level keys: **`kind`**, **`schemaVersion`**, **`toolVersion`**, **`corpusRoot`**, **`baseUrl`**, **`reportDir`**, **`summaryPath`**, **`threshold`**, **`aggregate`** (same as report aggregate), **`failedFrameCount`**, **`failedTraceCount`**, **`divergenceKinds`**, **`endpoints`**, **`pass`**. See **`packages/verify/README.md`** for semantics.
