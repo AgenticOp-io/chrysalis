@@ -12,7 +12,7 @@ turns modernization into a specification problem — the oracle *is* the spec.
 - `ObserveSession.stop()` — finalize and flush the corpus
 - `TraceFrame`, `TraceCorpus` — the recorded data model
 - `readCorpus` / `parseTraceFile` — load validated trace corpora from disk
-- `mergeCorpusDirectories({ sources, outDir, onDuplicate?, dedupeTraceId? })` — copy multiple **`readCorpus`**-shaped trace roots into one **`YYYY-MM-DD/*.ndjson`** tree (**V2-M3**; CLI: **`chrysalis corpus-merge`**)
+- `mergeCorpusDirectories({ sources, outDir, onDuplicate?, dedupeTraceId?, sampleModulo?, sampleRemainder? })` — copy multiple **`readCorpus`**-shaped trace roots into one **`YYYY-MM-DD/*.ndjson`** tree (**V2-M3**; CLI: **`chrysalis corpus-merge`**)
 
 ## Invariants
 

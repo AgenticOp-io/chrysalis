@@ -883,7 +883,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 **Goal:** Multiple **observe** agents (different hosts, envs, or canary cells) contribute traces into a **single operator workflow** without corrupting the spec story.
 
 - [x] **Corpus layout (operator doc v1):** **`docs/ADMINISTRATION.md`** — multi-host trace directory conventions and merge discipline (path merge via **`corpus-merge`**; content dedupe/sampling still manual / future).
-- [x] **Corpus tree merge (v1):** **`mergeCorpusDirectories`** + **`chrysalis corpus-merge`** copy **`YYYY-MM-DD/*.ndjson`** into one **`--out`** root; **`--on-duplicate error|skip`** and optional **`--dedupe-trace-id skip`** (header traceId winner by source order). Vitest **`packages/oracle/tests/merge-corpus.test.ts`** + CLI test. Sampling hooks remain future slice.
+- [x] **Corpus tree merge (v1):** **`mergeCorpusDirectories`** + **`chrysalis corpus-merge`** copy **`YYYY-MM-DD/*.ndjson`** into one **`--out`** root; **`--on-duplicate error|skip`**, optional **`--dedupe-trace-id skip`** (header traceId winner by source order), and deterministic sampling **`--sample-modulo K --sample-remainder R`** (traceId hash buckets). Vitest **`packages/oracle/tests/merge-corpus.test.ts`** + CLI test.
 - [ ] **Retention:** rotation + compression; redaction remains **DEFAULT + observe merge** lockstep with `oracle-php`.
 - [ ] **Ops docs:** `docs/ADMINISTRATION.md` extended for multi-host capture and storage sizing.
 

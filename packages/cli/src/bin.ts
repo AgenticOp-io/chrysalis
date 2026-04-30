@@ -444,7 +444,7 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
   const outDir = typeof flags.out === "string" ? resolve(flags.out) : null;
   if (pos.length < 1 || !outDir) {
     console.error(
-      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip] [--dedupe-trace-id off|skip]",
+      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip] [--dedupe-trace-id off|skip] [--sample-modulo K --sample-remainder R]",
     );
     return 2;
   }
@@ -478,11 +478,43 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
     console.error("error: --dedupe-trace-id must be off or skip");
     return 2;
   }
+  const sampleModuloRaw = flags["sample-modulo"];
+  const sampleRemainderRaw = flags["sample-remainder"];
+  let sampleModulo: number | undefined;
+  let sampleRemainder: number | undefined;
+  if (sampleModuloRaw !== undefined || sampleRemainderRaw !== undefined) {
+    if (typeof sampleModuloRaw !== "string") {
+      console.error("error: --sample-modulo requires an integer >= 1");
+      return 2;
+    }
+    const m = Math.floor(Number.parseFloat(sampleModuloRaw));
+    if (!Number.isFinite(m) || m < 1) {
+      console.error("error: --sample-modulo must be a finite integer >= 1");
+      return 2;
+    }
+    const r =
+      typeof sampleRemainderRaw === "string"
+        ? Math.floor(Number.parseFloat(sampleRemainderRaw))
+        : 0;
+    if (!Number.isFinite(r) || r < 0 || r >= m) {
+      console.error(`error: --sample-remainder must satisfy 0 <= r < sample-modulo (got ${r}, ${m})`);
+      return 2;
+    }
+    sampleModulo = m;
+    sampleRemainder = r;
+  }
   const sources = pos.map((p) => resolve(p));
   try {
-    const r = mergeCorpusDirectories({ sources, outDir, onDuplicate: policy, dedupeTraceId });
+    const r = mergeCorpusDirectories({
+      sources,
+      outDir,
+      onDuplicate: policy,
+      dedupeTraceId,
+      ...(sampleModulo !== undefined ? { sampleModulo } : {}),
+      ...(sampleRemainder !== undefined ? { sampleRemainder } : {}),
+    });
     console.log(
-      `[corpus-merge] copied ${r.copiedFiles} trace file(s); skipped ${r.skippedDuplicates} duplicate path(s); skipped ${r.skippedTraceIdDuplicates} duplicate traceId(s)`,
+      `[corpus-merge] copied ${r.copiedFiles} trace file(s); skipped ${r.skippedDuplicates} duplicate path(s); skipped ${r.skippedTraceIdDuplicates} duplicate traceId(s); skipped ${r.skippedBySampling} by sampling`,
     );
   } catch (e) {
     console.error(`[corpus-merge] ${e instanceof Error ? e.message : String(e)}`);

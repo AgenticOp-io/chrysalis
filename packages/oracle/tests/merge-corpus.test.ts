@@ -19,6 +19,7 @@ describe("mergeCorpusDirectories", () => {
       const r = mergeCorpusDirectories({ sources: [a, b], outDir: out });
       expect(r.copiedFiles).toBe(2);
       expect(r.skippedDuplicates).toBe(0);
+      expect(r.skippedBySampling).toBe(0);
       expect(existsSync(join(out, day, "t1.ndjson"))).toBe(true);
       expect(existsSync(join(out, day, "t2.ndjson"))).toBe(true);
     } finally {
@@ -61,6 +62,7 @@ describe("mergeCorpusDirectories", () => {
       expect(r.copiedFiles).toBe(1);
       expect(r.skippedDuplicates).toBe(1);
       expect(r.skippedTraceIdDuplicates).toBe(0);
+      expect(r.skippedBySampling).toBe(0);
       expect(readFileSync(join(out, day, "same.ndjson"), "utf8")).toBe("first\n");
     } finally {
       rmSync(base, { recursive: true, force: true });
@@ -86,8 +88,32 @@ describe("mergeCorpusDirectories", () => {
       expect(r.copiedFiles).toBe(1);
       expect(r.skippedDuplicates).toBe(0);
       expect(r.skippedTraceIdDuplicates).toBe(1);
+      expect(r.skippedBySampling).toBe(0);
       expect(existsSync(join(out, day, "one.ndjson"))).toBe(true);
       expect(existsSync(join(out, day, "two.ndjson"))).toBe(false);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
+
+  test("sampleModulo/sampleRemainder deterministically keep only matching traceIds", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-merge-sample-"));
+    try {
+      const a = join(base, "a");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      writeFileSync(join(a, day, "a.ndjson"), '{"type":"header","traceId":"alpha"}\n');
+      writeFileSync(join(a, day, "b.ndjson"), '{"type":"header","traceId":"beta"}\n');
+      writeFileSync(join(a, day, "c.ndjson"), '{"type":"header","traceId":"gamma"}\n');
+      const out = join(base, "merged");
+      const r = mergeCorpusDirectories({
+        sources: [a],
+        outDir: out,
+        sampleModulo: 2,
+        sampleRemainder: 0,
+      });
+      expect(r.copiedFiles + r.skippedBySampling).toBe(3);
+      expect(r.skippedBySampling).toBeGreaterThanOrEqual(1);
     } finally {
       rmSync(base, { recursive: true, force: true });
     }

@@ -60,4 +60,29 @@ describe("corpus-merge CLI", () => {
       rmSync(base, { recursive: true, force: true });
     }
   });
+
+  test("supports deterministic sampling flags", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-corpus-merge-cli-sample-"));
+    try {
+      const a = join(base, "a");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      writeFileSync(join(a, day, "a.ndjson"), '{"type":"header","traceId":"alpha"}\n');
+      writeFileSync(join(a, day, "b.ndjson"), '{"type":"header","traceId":"beta"}\n');
+      writeFileSync(join(a, day, "c.ndjson"), '{"type":"header","traceId":"gamma"}\n');
+      const out = join(base, "merged");
+      const r = spawnSync(
+        process.execPath,
+        [BIN, "corpus-merge", a, "--out", out, "--sample-modulo", "2", "--sample-remainder", "0"],
+        {
+          encoding: "utf8",
+          cwd: ROOT,
+        },
+      );
+      expect(r.status).toBe(0);
+      expect(r.stdout).toMatch(/skipped .* by sampling/);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
 });

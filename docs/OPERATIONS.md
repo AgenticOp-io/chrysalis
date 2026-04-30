@@ -105,6 +105,14 @@ node packages/cli/dist/bin.js corpus-merge traces-cell-a traces-cell-b --out tra
 
 With **`--dedupe-trace-id skip`**, later files whose header **`traceId`** already appeared in an earlier copied file are skipped (source argument order still defines winner).
 
+Optional deterministic sampling (bucket by **`traceId`** hash):
+
+```bash
+node packages/cli/dist/bin.js corpus-merge traces-cell-a traces-cell-b --out traces-merged --sample-modulo 8 --sample-remainder 0
+```
+
+This keeps approximately **1/8** of traces with stable selection across runs for the same corpus + flags, which is useful for quick replay smoke checks before full-corpus verify.
+
 **Ingest / emit sharding (V2-M2):** **`chrysalis ingest`** and **`chrysalis emit`** accept **`--shard-index i --shard-count K`** to lower only manifest routes in that bucket (relative **`chrysalis.routes.json`** **`file`** paths). Library **`buildCallEffectMap`** still scans the full route list for effect widening.
 
 **Ingest AST cache (V2-M2, opt-in):** the same commands accept **`--ingest-cache <dir>`** to reuse on-disk PHP AST JSON between runs (invalidated when file bytes, parser provider, or ingest cache version change). Omit the flag for a cold parse every time.

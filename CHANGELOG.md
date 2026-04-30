@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2-M2 — opt-in ingest AST cache:** **`ingestDirectory`** **`ingestCacheDir`**, **`INGEST_AST_CACHE_VERSION`**, **`packages/ingest/src/parse-cache.ts`**; CLI **`--ingest-cache <dir>`** on **`ingest`** and **`emit`**.
 
-- **V2-M3 — corpus tree merge:** **`mergeCorpusDirectories`** in **`@chrysalis/oracle`**, CLI **`chrysalis corpus-merge`** with **`--out`**, **`--on-duplicate error|skip`**, and optional **`--dedupe-trace-id skip`**.
+- **V2-M3 — corpus tree merge:** **`mergeCorpusDirectories`** in **`@chrysalis/oracle`**, CLI **`chrysalis corpus-merge`** with **`--out`**, **`--on-duplicate error|skip`**, optional **`--dedupe-trace-id skip`**, and deterministic sampling **`--sample-modulo K --sample-remainder R`**.
 
 ## [1.0.1] - 2026-04-29
 
