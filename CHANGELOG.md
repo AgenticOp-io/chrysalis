@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - GitHub Project (v2) playbook [`docs/GITHUB_PROJECT.md`](./docs/GITHUB_PROJECT.md) and maintainer bootstrap [`scripts/bootstrap-github-project.mjs`](./scripts/bootstrap-github-project.mjs) (`pnpm run github:project-bootstrap`) after `gh auth refresh -s project,read:project`.
 
+### Fixed
+
+- **Release workflow:** `.github/workflows/release.yml` now uses **bash** explicitly, sets **`GH_REPO`**, and if a GitHub Release for the tag already exists, runs **`gh release upload … --clobber`** instead of failing on duplicate **`gh release create`**.
+
 ## [1.0.0] - 2026-04-30
 
 ### Added

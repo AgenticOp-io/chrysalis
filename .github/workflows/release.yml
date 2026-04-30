@@ -23,17 +23,28 @@ jobs:
           name: chrysalis-source-${{ github.ref_name }}
           path: release/*
 
-      - name: Create GitHub Release
+      - name: Create or refresh GitHub Release assets
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
         run: |
-          set -e
+          set -euo pipefail
           shopt -s nullglob
           files=(release/*.tar.gz release/*.zip)
           if [ ${#files[@]} -eq 0 ]; then
             echo "No archives under release/"
             exit 1
           fi
-          gh release create "${GITHUB_REF_NAME}" "${files[@]}" \
-            --title "Chrysalis ${GITHUB_REF_NAME}" \
-            --notes "Source archives produced with \`git archive\` (see \`docs/RELEASE.md\`). Summary: [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/CHANGELOG.md)."
+          command -v gh
+          tag="${GITHUB_REF_NAME}"
+          notes="Source archives produced with \`git archive\` (see \`docs/RELEASE.md\`). Summary: [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/${tag}/CHANGELOG.md)."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release ${tag} already exists; uploading/replacing assets (--clobber)."
+            gh release upload "$tag" "${files[@]}" --clobber
+          else
+            echo "Creating release ${tag}."
+            gh release create "$tag" "${files[@]}" \
+              --title "Chrysalis ${tag}" \
+              --notes "${notes}"
+          fi

@@ -61,6 +61,18 @@ To track post-v1 work in a **GitHub Project** linked to this repository, see [`G
 | Tarballs excluded from git | `release/` in `.gitignore` |
 | SBOM / npm publish | Not part of default v1 source release |
 
+## GitHub Actions release workflow (`.github/workflows/release.yml`)
+
+Runs on every push of a semver tag `v*.*.*`. It builds `release/*.tar.gz` and `release/*.zip`, then either **creates** a GitHub Release or, if that tag’s release **already exists** (workflow retry, manual release first, or race), **uploads assets with `--clobber`**. That avoids the common failure:
+
+```text
+HTTP 422: Validation Failed (already_exists / release already exists)
+```
+
+The job sets **`GH_REPO`** so `gh` always targets this repository from the workspace checkout.
+
+If the job still fails, check the log for **`command -v gh`** (CLI missing), **`gh release view`** / **`gh release upload`** errors, or org policies blocking **`GITHUB_TOKEN`** from creating releases.
+
 ## Verifying a tarball
 
 ```bash
