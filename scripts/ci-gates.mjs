@@ -12,6 +12,7 @@
  *   node scripts/ci-gates.mjs confidence-trend [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs confidence-trend-ready [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs verify-dual-summary [reports/ci/verify-e2e-summary.json]
+ * File-backed JSON gates resolve paths, print missing/invalid JSON hints via readJsonGateArtifact.
  *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
  *   node scripts/ci-gates.mjs session-bridge-release
  *
@@ -48,6 +49,31 @@ function readJsonFile(path) {
   return JSON.parse(stripBom(fs.readFileSync(path, "utf8")));
 }
 
+/**
+ * Read a JSON artifact for CI gates: resolve path, optional existence check,
+ * and SyntaxError-safe parse with a consistent operator-facing prefix.
+ *
+ * @param {string} gatePrefix e.g. "tiny-n1-insight"
+ * @param {string} path
+ * @param {{ missingLabel?: string, missingHint?: string[], assumeExists?: boolean }} [options]
+ */
+function readJsonGateArtifact(gatePrefix, path, options = {}) {
+  const { missingLabel = "file missing", missingHint = [], assumeExists = false } = options;
+  const abs = resolve(path);
+  if (!assumeExists && !fs.existsSync(abs)) {
+    fail([`${gatePrefix}: ${missingLabel}: ${abs}`, ...missingHint].join("\n"));
+  }
+  try {
+    return JSON.parse(stripBom(fs.readFileSync(abs, "utf8")));
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      fail(`${gatePrefix}: invalid JSON in ${abs}: ${e.message}`);
+    }
+    const msg = e instanceof Error ? e.message : String(e);
+    fail(`${gatePrefix}: could not read ${abs}: ${msg}`);
+  }
+}
+
 function readStdinUtf8() {
   return stripBom(fs.readFileSync(0, "utf8"));
 }
@@ -78,7 +104,9 @@ function assertStatusMigration() {
 }
 
 function assertTinyN1Insight(path) {
-  const r = readJsonFile(path);
+  const r = readJsonGateArtifact("tiny-n1-insight", path, {
+    missingHint: ["Run: pnpm run ci:insight"],
+  });
   const by = r.summary?.byRecognizer;
   const need = [
     "raw-sql-concat",
@@ -110,7 +138,9 @@ function assertTinyN1Insight(path) {
 }
 
 function assertRewritePreXss(path) {
-  const before = readJsonFile(path);
+  const before = readJsonGateArtifact("rewrite-pre-xss", path, {
+    missingHint: ["Produce reports/rewrite/before.json from the tiny-n1 rewrite CI step or pass the gate path explicitly."],
+  });
   const xssCount = before.opportunities.filter(
     (o) => o.recognizer === "unescaped-output",
   ).length;
@@ -265,7 +295,9 @@ function assertTinyN1Rewrite(root) {
 
 function assertConfidence5Nines(path) {
   const minConfidence = Number(process.env.CONFIDENCE_5NINES ?? "0.99999");
-  const r = readJsonFile(path);
+  const r = readJsonGateArtifact("confidence-5nines", path, {
+    missingHint: ["Produce reports/confidence/flagship-laravel-full.json from the flagship verify + status pipeline."],
+  });
   if (Array.isArray(r.matrix) && r.matrix.length > 0 && r.matrixCrossBackendParityOk !== true) {
     fail(
       "confidence-5nines: seed matrix artifact must include matrixCrossBackendParityOk: true (rollup over variants)",
@@ -362,14 +394,15 @@ function assertConfidenceTrend(path) {
   const required = Number.parseInt(process.env.CONFIDENCE_STREAK_REQUIRED ?? "30", 10);
   const minConfidence = Number(process.env.CONFIDENCE_5NINES ?? "0.99999");
   const allowWarmup = (process.env.CONFIDENCE_TREND_ALLOW_WARMUP ?? "1") === "1";
-  if (!fs.existsSync(path)) {
+  const abs = resolve(path);
+  if (!fs.existsSync(abs)) {
     if (allowWarmup) {
-      console.log(`confidence-trend warmup: history file missing (${path})`);
+      console.log(`confidence-trend warmup: history file missing (${abs})`);
       return;
     }
-    fail(`confidence-trend: history file missing (${path})`);
+    fail(`confidence-trend: history file missing (${abs})`);
   }
-  const r = readJsonFile(path);
+  const r = readJsonGateArtifact("confidence-trend", path, { assumeExists: true });
   if (!r || !Array.isArray(r.entries)) {
     fail("confidence-trend: invalid history payload");
   }
@@ -402,10 +435,10 @@ function assertConfidenceTrend(path) {
 
 function assertConfidenceTrendReady(path) {
   const required = Number.parseInt(process.env.CONFIDENCE_STREAK_REQUIRED ?? "30", 10);
-  if (!fs.existsSync(path)) {
-    fail(`confidence-trend-ready: history file missing (${path})`);
-  }
-  const r = readJsonFile(path);
+  const r = readJsonGateArtifact("confidence-trend-ready", path, {
+    missingLabel: "history file missing",
+    missingHint: ["Append history entries from flagship verify runs (see scripts/status-flagship-laravel-full.mjs)."],
+  });
   if (!r || !Array.isArray(r.entries)) {
     fail("confidence-trend-ready: invalid history payload");
   }
@@ -417,26 +450,13 @@ function assertConfidenceTrendReady(path) {
 }
 
 function assertVerifyDualSummary(path) {
-  const abs = resolve(path);
-  if (!fs.existsSync(abs)) {
-    fail(
-      [
-        `verify-dual-summary: summary file missing: ${abs}`,
-        "Create it with a dual-summary verify script (e.g. pnpm run verify:e2e) or pass an existing path:",
-        "  pnpm run ci:verify-dual-summary -- <path>",
-      ].join("\n"),
-    );
-  }
-  let s;
-  try {
-    s = readJsonFile(abs);
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      fail(`verify-dual-summary: invalid JSON in ${abs}: ${e.message}`);
-    }
-    const msg = e instanceof Error ? e.message : String(e);
-    fail(`verify-dual-summary: could not read ${abs}: ${msg}`);
-  }
+  const s = readJsonGateArtifact("verify-dual-summary", path, {
+    missingLabel: "summary file missing",
+    missingHint: [
+      "Create it with a dual-summary verify script (e.g. pnpm run verify:e2e) or pass an existing path:",
+      "  pnpm run ci:verify-dual-summary -- <path>",
+    ],
+  });
   if (s.kind !== "chrysalis.verify.summary.dual") {
     fail(`verify-dual-summary: expected kind chrysalis.verify.summary.dual, got ${JSON.stringify(s.kind)}`);
   }

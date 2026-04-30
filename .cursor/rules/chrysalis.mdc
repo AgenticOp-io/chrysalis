@@ -1,0 +1,10 @@
+---
+description: Chrysalis baseline for Cursor agents (repo rules + cookbook link)
+alwaysApply: true
+---
+
+# Chrysalis (Cursor)
+
+1. **Authoritative repo rules** live in **`AGENTS.md`**. Follow it before any other AI guidance. Read **`DESIGN.md`** and **`ROADMAP.md`** as required there.
+2. **Cursor-specific workflow** (prompts, context, scope, harness behavior): use Cursor’s **agent cookbook** — start at [Working with agents](https://cursor.com/docs/cookbook/agent-workflows). That doc complements `AGENTS.md`; it does not replace Chrysalis architecture or the non-negotiables in `DESIGN.md`.
+3. Prefer **scoped tasks** with a clear “done when”, run **`pnpm test`** (or the smallest relevant package tests) after substantive changes, and respect existing package boundaries (no circular deps, no oracle/env shortcuts in generated or verify code).

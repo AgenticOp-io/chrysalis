@@ -7,6 +7,10 @@ build/
 .env.local
 .vscode/
 .idea/
+# Cursor editor local state; shared rules live under .cursor/rules/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/chrysalis.mdc
 coverage/
 *.log
 npm-debug.log*
