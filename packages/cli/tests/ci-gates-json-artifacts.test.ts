@@ -35,4 +35,64 @@ describe("ci-gates readJsonGateArtifact", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  test("rewrite-pre-xss reports file missing with hint", () => {
+    const missing = join(tmpdir(), `chrysalis-rewrite-pre-${Date.now()}.json`);
+    const r = spawnSync(process.execPath, [CI_GATES, "rewrite-pre-xss", missing], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("rewrite-pre-xss: file missing");
+    expect(r.stderr).toContain("reports/rewrite/before.json");
+  });
+
+  test("confidence-5nines reports file missing with hint", () => {
+    const missing = join(tmpdir(), `chrysalis-5nines-${Date.now()}.json`);
+    const r = spawnSync(process.execPath, [CI_GATES, "confidence-5nines", missing], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("confidence-5nines: file missing");
+    expect(r.stderr).toContain("flagship-laravel-full.json");
+  });
+
+  test("confidence-trend reports history file missing when warmup is off", () => {
+    const missing = join(tmpdir(), `chrysalis-trend-${Date.now()}.json`);
+    const r = spawnSync(process.execPath, [CI_GATES, "confidence-trend", missing], {
+      cwd: ROOT,
+      encoding: "utf8",
+      env: { ...process.env, CONFIDENCE_TREND_ALLOW_WARMUP: "0" },
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("confidence-trend: history file missing");
+  });
+
+  test("migration-sidecar-floors reports invalid JSON for idiomaticity.json", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-sidecar-badjson-"));
+    try {
+      writeFileSync(join(dir, "idiomaticity.json"), "not json\n", "utf8");
+      const r = spawnSync(process.execPath, [CI_GATES, "migration-sidecar-floors", dir], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env: { ...process.env, CHRYSALIS_IDIOMATICITY_MIN: "0.5", CHRYSALIS_RESIDUAL_LEGACY_MAX: "" },
+      });
+      expect(r.status).toBe(1);
+      expect(r.stderr).toContain("migration-sidecar-floors: invalid JSON");
+      expect(r.stderr).toContain("idiomaticity.json");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("status-migration reports invalid JSON on stdin", () => {
+    const r = spawnSync(process.execPath, [CI_GATES, "status-migration"], {
+      cwd: ROOT,
+      encoding: "utf8",
+      input: "{",
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("status-migration: invalid JSON on stdin");
+  });
 });

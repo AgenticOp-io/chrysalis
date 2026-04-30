@@ -12,7 +12,8 @@
  *   node scripts/ci-gates.mjs confidence-trend [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs confidence-trend-ready [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs verify-dual-summary [reports/ci/verify-e2e-summary.json]
- * File-backed JSON gates resolve paths, print missing/invalid JSON hints via readJsonGateArtifact.
+ * File-backed JSON gates resolve paths, print missing/invalid JSON hints via readJsonGateArtifact
+ * (also tiny-n1-rewrite report JSON, migration-sidecar-floors sidecar JSON). status-migration validates stdin JSON.
  *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
  *   node scripts/ci-gates.mjs session-bridge-release
  *
@@ -43,10 +44,6 @@ function fail(msg) {
 /** Strip UTF-8 BOM so JSON.parse works if a tool wrote the file with BOM. */
 function stripBom(s) {
   return s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
-}
-
-function readJsonFile(path) {
-  return JSON.parse(stripBom(fs.readFileSync(path, "utf8")));
 }
 
 /**
@@ -80,7 +77,15 @@ function readStdinUtf8() {
 
 function assertStatusMigration() {
   const threshold = Number(process.env.VERIFY_THRESHOLD ?? "0.95");
-  const s = JSON.parse(readStdinUtf8());
+  let s;
+  try {
+    s = JSON.parse(readStdinUtf8());
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      fail(`status-migration: invalid JSON on stdin: ${e.message}`);
+    }
+    throw e;
+  }
   if (!s.migration) fail("status-migration: missing migration");
   if (s.migration.coverage == null || s.migration.coverage.pct < 1 - 1e-9) {
     fail("status-migration: expected full IR coverage");
@@ -244,7 +249,9 @@ function assertTinyN1Rewrite(root) {
   const SEARCH = `${root}/generated/tiny-n1/src/handlers/search.ts`;
   const LOOKUP = `${root}/generated/tiny-n1/src/handlers/lookup.ts`;
 
-  const r = readJsonFile(REPORT);
+  const r = readJsonGateArtifact("tiny-n1-rewrite", REPORT, {
+    missingHint: ["Run the tiny-n1 rewrite CI job so reports/rewrite/tiny-n1.json exists."],
+  });
 
   const sanitize = r.applied.filter((a) => a.pass === "sanitize-output");
   const paramz = r.applied.filter((a) => a.pass === "parameterize-sql");
@@ -549,7 +556,7 @@ function assertMigrationSidecarFloors(dirArg) {
     if (!fs.existsSync(p)) {
       fail(`migration-sidecar-floors: ${p} missing (CHRYSALIS_IDIOMATICITY_MIN is set)`);
     }
-    const j = readJsonFile(p);
+    const j = readJsonGateArtifact("migration-sidecar-floors", p, { assumeExists: true });
     if (typeof j.pct !== "number" || j.pct < 0 || j.pct > 1) {
       fail("migration-sidecar-floors: idiomaticity.json missing numeric pct in [0,1]");
     }
@@ -565,7 +572,7 @@ function assertMigrationSidecarFloors(dirArg) {
     if (!fs.existsSync(p)) {
       fail(`migration-sidecar-floors: ${p} missing (CHRYSALIS_RESIDUAL_LEGACY_MAX is set)`);
     }
-    const j = readJsonFile(p);
+    const j = readJsonGateArtifact("migration-sidecar-floors", p, { assumeExists: true });
     if (typeof j.legacyRequestPct !== "number" || j.legacyRequestPct < 0 || j.legacyRequestPct > 100) {
       fail("migration-sidecar-floors: residual-legacy.json missing numeric legacyRequestPct in [0,100]");
     }
