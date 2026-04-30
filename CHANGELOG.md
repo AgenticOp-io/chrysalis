@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2-M3 — corpus tree merge:** **`mergeCorpusDirectories`** in **`@chrysalis/oracle`**, CLI **`chrysalis corpus-merge`** with **`--out`**, **`--on-duplicate error|skip`**, optional **`--dedupe-trace-id skip`**, deterministic sampling **`--sample-modulo K --sample-remainder R`**, **`--dry-run`** preview mode, and **`--json-out <file>`** machine summary (**`chrysalis.corpus-merge.summary`**). **`scripts/ci-gates.mjs corpus-merge-summary`**, fixture **`fixtures/ci/corpus-merge-summary-smoke.json`**, root **`pnpm run ci:corpus-merge-summary`**, Vitest **`packages/cli/tests/ci-gates-corpus-merge-summary.test.ts`**, and **`typecheck-and-test`** gate step.
 
-- **V2 operator tests / help:** **`chrysalis --help`** documents scale-out flag families; Vitest **`packages/cli/tests/cli-help-scaleout.test.ts`**. **`corpus-merge-summary`** invalid JSON stderr coverage in **`ci-gates-json-artifacts`**. **`mergeCorpusDirectories`** dry-run vs live counter parity; CLI **`corpus-merge`** tests for **`--json-out`** fields and **`--dry-run --json-out`**.
+- **V2 operator tests / help:** **`chrysalis --help`** documents scale-out flag families; Vitest **`packages/cli/tests/cli-help-scaleout.test.ts`**. **`corpus-merge-summary`** invalid JSON + wrong-**`kind`** stderr coverage. **`mergeCorpusDirectories`** dry-run vs live counter parity; CLI **`corpus-merge`** tests for **`--json-out`** fields and **`--dry-run --json-out`**. **`docs/ADMINISTRATION.md`**, **`packages/verify/README.md`**, and **`packages/cli/README.md`** cross-link **`--help`** / gate tests.
 
 ## [1.0.1] - 2026-04-29
 

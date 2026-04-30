@@ -105,7 +105,7 @@ Validates **`chrysalis.verify.summary.merged`** (**`schemaVersion`**: **`1`**, *
 
 ### Related gate: `scripts/ci-gates.mjs corpus-merge-summary`
 
-Validates **`chrysalis.corpus-merge.summary`** written by **`chrysalis corpus-merge … --json-out`**: **`schemaVersion`**: **`1`**, **`toolVersion`**, **`generatedAt`**, **`options`** (**`outDir`**, **`onDuplicate`**, **`dedupeTraceId`**, **`dryRun`**, optional sampling fields), non-empty **`sources[]`**, and **`counts`** (non-negative integers). Fixture: **`fixtures/ci/corpus-merge-summary-smoke.json`**.
+Validates **`chrysalis.corpus-merge.summary`** written by **`chrysalis corpus-merge … --json-out`**: **`schemaVersion`**: **`1`**, **`toolVersion`**, **`generatedAt`**, **`options`** (**`outDir`**, **`onDuplicate`**, **`dedupeTraceId`**, **`dryRun`**, optional sampling fields), non-empty **`sources[]`**, and **`counts`** (non-negative integers). Fixture: **`fixtures/ci/corpus-merge-summary-smoke.json`**. Vitest also covers **`readJsonGateArtifact`** missing/invalid JSON and a wrong-**`kind`** rejection (**`packages/cli/tests/ci-gates-json-artifacts.test.ts`**, **`ci-gates-corpus-merge-summary.test.ts`**).
 
 ### `verify --json-summary` shape (reference)
 

@@ -32,7 +32,7 @@ node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
 node scripts/ci-gates.mjs session-bridge-release
 ```
 
-`pnpm run ci:*` shims exist at the repo root. Missing JSON and invalid JSON produce operator-oriented stderr (`DESIGN` D231). See [`AGENTS.md`](../AGENTS.md) Local `ci-gates` and root `README.md`.
+`pnpm run ci:*` shims exist at the repo root. Missing JSON and invalid JSON produce operator-oriented stderr (`DESIGN` D231). See [`AGENTS.md`](../AGENTS.md) Local `ci-gates` and root `README.md`. For a one-line map of V2 CLI scale-out flags (verify sharding, **`verify-merge`**, **`corpus-merge`**, ingest/emit sharding, **`--ingest-cache`**), run **`chrysalis --help`** locally (Vitest locks the banner text).
 
 ## Reports layout
 
