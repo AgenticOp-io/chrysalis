@@ -4,7 +4,7 @@ This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagge
 
 ## Version policy
 
-- **Root** `package.json` `version` is the release identifier (e.g. `1.0.0`).
+- **Root** `package.json` `version` is the release identifier (e.g. `1.0.1`).
 - Workspace packages use the same semver for clarity; consumers still resolve via `workspace:*`.
 
 ## Steps to cut a release
@@ -12,11 +12,11 @@ This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagge
 1. **Freeze main** — merge all intended work; CI green.  
 2. **Update changelog** — edit root `CHANGELOG.md` with the new version section and date.  
 3. **Bump versions** — root and `packages/*/package.json` `version` fields.  
-4. **Commit** — e.g. `release: v1.0.0`.  
+4. **Commit** — e.g. `release: v1.0.1`.  
 5. **Tag** — annotated tag recommended:
 
    ```bash
-   git tag -a v1.0.0 -m "Chrysalis v1.0.0"
+   git tag -a v1.0.1 -m "Chrysalis v1.0.1"
    ```
 
 6. **Artifacts** — from repo root, after commit:
@@ -31,15 +31,15 @@ This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagge
 
    ```bash
    git push origin main
-   git push origin v1.0.0
+   git push origin v1.0.1
    ```
 
 8. **GitHub Release** — pushing a semver tag matching **`v*.*.*`** runs **`.github/workflows/release.yml`**, which builds the same archives and calls **`gh release create`** with **`GITHUB_TOKEN`**. If that job is disabled or fails, use the UI or CLI manually:
 
-   *Releases* → *Draft a new release* → choose tag `v1.0.0` → attach the two files under `release/` → publish.
+   *Releases* → *Draft a new release* → choose tag `v1.0.1` → attach the two files under `release/` → publish.
 
    ```bash
-   gh release create v1.0.0 release/chrysalis-1.0.0-source.tar.gz release/chrysalis-1.0.0-source.zip --title "Chrysalis v1.0.0" --notes-file CHANGELOG.md
+   gh release create v1.0.1 release/chrysalis-1.0.1-source.tar.gz release/chrysalis-1.0.1-source.zip --title "Chrysalis v1.0.1" --notes-file CHANGELOG.md
    ```
 
    Adjust filenames to match the version you built.
@@ -76,8 +76,8 @@ If the job still fails, check the log for **`command -v gh`** (CLI missing), **`
 ## Verifying a tarball
 
 ```bash
-tar -tzf release/chrysalis-1.0.0-source.tar.gz | head
-mkdir /tmp/chrysalis-unpack && tar -xzf release/chrysalis-1.0.0-source.tar.gz -C /tmp/chrysalis-unpack
-cd /tmp/chrysalis-unpack/chrysalis-1.0.0
+tar -tzf release/chrysalis-1.0.1-source.tar.gz | head
+mkdir /tmp/chrysalis-unpack && tar -xzf release/chrysalis-1.0.1-source.tar.gz -C /tmp/chrysalis-unpack
+cd /tmp/chrysalis-unpack/chrysalis-1.0.1
 pnpm install && pnpm -r build && pnpm test
 ```

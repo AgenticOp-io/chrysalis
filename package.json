@@ -1,6 +1,6 @@
 {
   "name": "chrysalis-root",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Chrysalis — a web framework you can grow inside a legacy PHP app until it consumes it.",
   "license": "MIT",

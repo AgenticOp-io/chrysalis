@@ -43,7 +43,7 @@ GitHub also provides built-in fields (Title, Assignees, **Status** for linked is
 
 1. **Views** — Add a *Table* view grouped by **Lane**; add a *Board* view if you prefer Kanban by **Board status**.  
 2. **Roadmap items** — Create **draft issues** or link existing issues for each open “Next” bullet in `ROADMAP.md` (parser, oracle, verify, holes). Set **Lane** on each item.  
-3. **Releases** — Pin or link **[v1.0.0](https://github.com/theorem6/chrysalis/releases/tag/v1.0.0)** in the project **Readme** field (if enabled) or a pinned draft issue titled “Released: v1.0.0”.  
+3. **Releases** — Pin or link **[v1.0.1](https://github.com/theorem6/chrysalis/releases/tag/v1.0.1)** (or **[v1.0.0](https://github.com/theorem6/chrysalis/releases/tag/v1.0.0)**) in the project **Readme** field (if enabled) or a pinned draft issue titled “Released: v1.0.1”.  
 4. **Workflows** — Optionally add a repository **rule set** or **branch protection** that references the project (org feature).  
 5. **Org vs user** — For an **organization** project, set `CHRYSALIS_GH_PROJECT_OWNER` to the org name and ensure `gh` is authenticated with org access.
 

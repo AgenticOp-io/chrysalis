@@ -64,6 +64,20 @@ node scripts/run-e2e.mjs
 
 See the root [`README.md`](../README.md) Quick start for `seed-db`, serving the emitted app, and `chrysalis verify`.
 
+## Installing from a release tarball
+
+Official **source archives** live on [GitHub Releases](https://github.com/theorem6/chrysalis/releases) (`chrysalis-<version>-source.tar.gz` / `.zip`). After download:
+
+```bash
+tar -xzf chrysalis-1.0.1-source.tar.gz
+cd chrysalis-1.0.1
+pnpm install
+pnpm -r build
+pnpm test
+```
+
+Then continue with **Prerequisites** and **Verify the install** above (PHP on `PATH`, optional `pnpm run test:oracle-php-redactor`, etc.). Full release mechanics: [`RELEASE.md`](./RELEASE.md).
+
 ## CLI on your PATH (optional)
 
 The published binary name is **`chrysalis`**, wired from `@chrysalis/cli` after build. You can run via `npx` from the repo root after `pnpm -r build`:

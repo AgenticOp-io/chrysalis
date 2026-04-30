@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/verify",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Replay engine: runs generated handlers against recorded traces, attributes divergences to IR nodes, emits correctness reports.",
   "license": "MIT",

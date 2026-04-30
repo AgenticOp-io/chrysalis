@@ -7,13 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-04-29
+
 ### Added
 
-- GitHub Project (v2) playbook [`docs/GITHUB_PROJECT.md`](./docs/GITHUB_PROJECT.md) and maintainer bootstrap [`scripts/bootstrap-github-project.mjs`](./scripts/bootstrap-github-project.mjs) (`pnpm run github:project-bootstrap`) after `gh auth refresh -s project,read:project`.
+- **Install from release:** [`docs/INSTALLATION.md`](./docs/INSTALLATION.md) now documents unpacking **`chrysalis-1.0.1-source.{tar.gz,zip}`** from GitHub Releases and running **`pnpm install` / `pnpm -r build` / `pnpm test`** before deeper smoke checks.
+- **GitHub Project (v2)** playbook [`docs/GITHUB_PROJECT.md`](./docs/GITHUB_PROJECT.md) and maintainer bootstrap [`scripts/bootstrap-github-project.mjs`](./scripts/bootstrap-github-project.mjs) (`pnpm run github:project-bootstrap`) after `gh auth refresh -s project,read:project`.
 
 ### Fixed
 
-- **Release workflow:** `.github/workflows/release.yml` now uses **bash** explicitly, sets **`GH_REPO`**, and if a GitHub Release for the tag already exists, runs **`gh release upload … --clobber`** instead of failing on duplicate **`gh release create`**.
+- **Release workflow:** `.github/workflows/release.yml` uses **bash** + **`GH_REPO`**, and if a GitHub Release for the tag already exists, runs **`gh release upload … --clobber`** instead of failing on duplicate **`gh release create`**.
 
 ## [1.0.0] - 2026-04-30
 
@@ -32,4 +35,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Milestone 4 v1 pilot** and scoped **Milestones 5–6 / 6A** are complete per `ROADMAP.md`; cross-cutting parser, oracle, verify depth, and optional repair follow-ons remain on the roadmap after v1.0.0.
 - This release is a **source distribution** (monorepo); it does not imply npm publication of `@chrysalis/*` packages to a registry unless separately documented.
 
+[1.0.1]: https://github.com/theorem6/chrysalis/releases/tag/v1.0.1
 [1.0.0]: https://github.com/theorem6/chrysalis/releases/tag/v1.0.0
