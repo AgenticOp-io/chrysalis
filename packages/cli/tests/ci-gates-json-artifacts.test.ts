@@ -113,6 +113,24 @@ describe("ci-gates readJsonGateArtifact", () => {
     }
   });
 
+  test("migration-sidecar-floors fails when residual-legacy.json is missing", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-sidecar-missing-residual-"));
+    try {
+      const env = envWithoutSidecarFloors();
+      env.CHRYSALIS_RESIDUAL_LEGACY_MAX = "50";
+      const r = spawnSync(process.execPath, [CI_GATES, "migration-sidecar-floors", dir], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env,
+      });
+      expect(r.status).toBe(1);
+      expect(r.stderr).toContain("migration-sidecar-floors:");
+      expect(r.stderr).toContain("missing (CHRYSALIS_RESIDUAL_LEGACY_MAX is set)");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("migration-sidecar-floors reports invalid JSON for residual-legacy.json", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-sidecar-bad-residual-"));
     try {
