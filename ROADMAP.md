@@ -7,6 +7,8 @@ runnable demo and measurable numbers, not a pile of abstractions.
 
 **v1.0.1 (2026-04-29)** patch release: **install-from-tarball** steps in **`docs/INSTALLATION.md`**, GitHub Project bootstrap (**`docs/GITHUB_PROJECT.md`**), and an **idempotent tag release workflow** (upload assets when the GitHub Release already exists). **v1.0.0** was the first tagged source release with the full **`docs/`** set, **`LICENSE`**, and **`pnpm run release:artifacts`**. **Program tracking:** **`docs/GITHUB_PROJECT.md`** + **`pnpm run github:project-bootstrap`**. Ongoing engineering continues on **`main`** per the lanes below.
 
+**Chrysalis 2.0** is chartered in **[Road to Chrysalis 2.0](#road-to-chrysalis-20--scale-out--warehouse-sized-codebases)** below: multi-server / massive-site **operations and performance** without relaxing **DESIGN.md** non-negotiables (behavioral oracle, WebIR, verify gates, holes, provenance).
+
 **Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
 Milestone 4 below) meet the scoped acceptance. **Milestone 5 is now complete**
 (see section below). **Milestone 6 checklist is complete.** **Milestone 6A (auth boundary scoped track)**
@@ -832,5 +834,101 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 **Wave 4 (closed 2026-04-28):** **D222**–**D226** — **`verify --json-summary`**; **`migration-debt --json-out`** versioned JSON (**D226**); ingest gates + **`dbFactoryReturnCallees`** (**D224**–**D225**). Next wave: deeper oracle stacks / contested-syntax parser pages as gaps appear / optional factory body proof (strict).
 
 **Wave 5 (2026-04-29):** **D228**–**D231** — machine-readable **`chrysalis.verify.summary.dual`** artifacts for tiny-blog + flagship verify jobs; CI **`verify-dual-summary`** gate + profile env; flagship summary row parity with contract fields; **`readJsonGateArtifact`** extended to **`tiny-n1-rewrite`**, **`migration-sidecar-floors`**, and **`status-migration`** stdin (**`JSON.parse`** errors); root **`pnpm run ci:*`** shims for common **`ci-gates`** entrypoints; **`ci-gates-json-artifacts.test.ts`** covers migration sidecar missing/invalid/skip, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, and invalid JSON across gates; **`README.md`**, **`AGENTS.md`**, **`packages/cli/README.md`** document **`ci:insight`** vs gate-only **`ci:tiny-n1-insight`**; committed **`.cursor/rules/chrysalis.mdc`** with local **`.cursor/*`** ignored elsewhere.
+
+---
+
+## Road to Chrysalis 2.0 — scale-out + warehouse-sized codebases
+
+**North star:** Any team can run Chrysalis on **very large PHP estates** and **multi-node fleets**—capture, translate, verify, and operate dual-stack—without changing the thesis: **the running app remains the spec**, **WebIR stays the asset**, **verify stays the gate**, **holes stay honest**, **time/RNG/I/O stay injected** for replay.
+
+**Explicit non-goals (same as `DESIGN.md` §3):** Skipping oracle-backed verification for speed; emitting TypeScript that bypasses WebIR; silent “best effort” for unsupported constructs; adding request-scoped PHP↔TS FFI beyond the existing chimera request unit.
+
+This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbered V2-M1…** so they do not collide with closed v1 milestones 0–6A. Work can interleave with the **Multi-lane program** above; sequencing rules below resolve conflicts.
+
+### Dimensions of scale (all must remain measurable)
+
+| Dimension | v1 reality | v2 target |
+| --- | --- | --- |
+| **Code volume** | Whole-tree ingest in one CLI invocation | **Resumable / incremental ingest** with content-addressed caches, bounded memory, documented sharding across subtrees |
+| **Trace volume** | NDJSON per request; operator-managed disks | **Tiered corpora** (rotation, compression, optional object-store layout), **multi-host capture** with merge semantics and namespace rules |
+| **Verify throughput** | Concurrency + optional `worker_threads` (D202–D207) | **Partitioned replay** (trace shards), **merged machine reports**, optional **worker fleet** protocol that preserves per-trace semantics |
+| **Emit output size** | Monolithic generated app for pilots | **Chunked / multi-package emit layouts** where backends allow, keeping provenance on every surface |
+| **Runtime / chimera** | Single proxy + Redis session option (M6) | **Coordinated multi-instance chimera** (routing tables, sticky shadow/canary), **%-traffic canary**, multi-AZ cutover **runbooks** |
+
+### Milestone V2-M1 — Partitioned verify (provably equivalent sharding)
+
+**Goal:** Operators can split a corpus into **K shards**, replay in parallel on separate machines or processes, and **merge** results into one report that matches **single-process** replay on a golden fixture (within existing diff semantics).
+
+- [ ] **Contract:** Versioned **`chrysalis.verify.summary.merged`** (or bump **`chrysalis.verify.summary`**) documents shard inputs, per-shard paths, merge order, and aggregate fields; **`toolVersion`** + **`schemaVersion`** rules match D223-style discipline.
+- [ ] **CLI / library:** `verify` (or companion script) accepts **`--shard-id` / `--shard-count`** or explicit trace ID lists; writes per-shard artifacts; **`verify-merge`** (name TBD) combines shards idempotently.
+- [ ] **Proof:** Fixture-based test: monolithic run vs K-way partition → **same pass/fail** and aggregate correctness within a declared epsilon (e.g. ordering-insensitive trace lists).
+- [ ] **Docs:** `docs/OPERATIONS.md` (or new **`docs/SCALE.md`**) — when to shard, disk layout, CI fan-out example.
+
+**Done when:** CI runs at least one **partitioned + merged** verify path on a committed fixture and gates the merged JSON with **`ci-gates`**.
+
+### Milestone V2-M2 — Resumable ingest + shard boundaries
+
+**Goal:** Ingest **does not require** a single long-lived process that holds the entire IR in RAM; teams can define **shard roots** (e.g. service, bounded context, repo subtree) and resume after failure.
+
+- [ ] **Incremental cache:** content-addressed inputs (file hash + parser version + ingest version) → skip unchanged modules; clear invalidation rules.
+- [ ] **Merge model:** how WebIR modules from shards combine in **`chrysalis status`** / emit (no duplicate routes; deterministic ordering).
+- [ ] **Stress fixture:** synthetic **N-route / N-file** tree (size class documented) completes ingest under declared **time + RSS** budgets on CI runner class X.
+- [ ] **Hole policy unchanged:** new scale paths must not introduce silent translation; cache misses fall back to full parse.
+
+**Done when:** documented **N-file** ingest completes with **resume** after simulated crash; `status --json` reflects merged shard stats.
+
+### Milestone V2-M3 — Multi-host oracle + corpus operations
+
+**Goal:** Multiple **observe** agents (different hosts, envs, or canary cells) contribute traces into a **single operator workflow** without corrupting the spec story.
+
+- [ ] **Corpus layout:** documented directory convention for **`host` / `cell` / `build-id`** (metadata in sidecar JSON or NDJSON envelope—design before implementation).
+- [ ] **Merge / dedupe:** tooling to combine corpora for verify (dedupe keys, optional sampling hooks **documented** so operators know what was dropped).
+- [ ] **Retention:** rotation + compression; redaction remains **DEFAULT + observe merge** lockstep with `oracle-php`.
+- [ ] **Ops docs:** `docs/ADMINISTRATION.md` extended for multi-host capture and storage sizing.
+
+**Done when:** two synthetic “hosts” produce traces, merge runs, and **verify** passes against merged corpus on a fixture sized for CI.
+
+### Milestone V2-M4 — Emit layout + build scalability
+
+**Goal:** Generated TypeScript stays **auditable** but **fits** large teams’ build systems (incremental `tsc`, optional package boundaries).
+
+- [ ] **Emit strategy flags** (per backend): e.g. route **file splitting**, shared **lib chunk**, lazy route registration where the server framework supports it—all with **provenance** preserved on emitted files.
+- [ ] **Emit stats → CI:** extend existing emit-stats / migration sidecars with **layout metrics** (files, lines, largest handler) for regression budgets.
+
+**Done when:** flagship or a new **large-layout** fixture proves **multi-file emit** at a configured threshold without losing verify parity on a pinned corpus subset.
+
+### Milestone V2-M5 — Multi-instance chimera + traffic-shaped rollout
+
+**Goal:** **More than one** chimera/proxy instance can share consistent **routing + session + shadow** semantics for large sites.
+
+- [ ] **Shared config source:** routing table + mode (legacy/shadow/cutover/canary) from a **documented** shared store or signed file bundle; no ad-hoc per-node drift.
+- [ ] **Canary percentage:** optional **%-traffic** to modern stack with **aggregate shadow metrics** (existing diff format extended, not replaced).
+- [ ] **Session:** build on Redis bridge (M6); document **stickiness** requirements when shadow spans nodes.
+- [ ] **Runbooks:** `docs/OPERATIONS.md` — multi-AZ cutover, rollback, “all nodes read same route map” checklist.
+
+**Done when:** local or CI **multi-process** chimera demo (two nodes) + doc sign-off criteria; no weakening of verify before cutover.
+
+### Milestone V2-M6 — Operator aggregation (optional, last)
+
+**Goal:** **Fleet view**—many repos or many shards—feeds a dashboard that aggregates **`chrysalis status --json`** and verify summaries **without** becoming a new source of truth (read-only mirror of repo artifacts).
+
+- [ ] **Schema:** stable JSON for uplink; versioned.
+- [ ] **Privacy:** no third-party telemetry; self-hosted or air-gapped.
+
+**Done when:** documented reference architecture + sample exporter script or minimal UI—**optional** for tagging `v2.0.0` if V2-M1–V5 are complete.
+
+### Sequencing vs multi-lane work
+
+1. **Redaction + corpus schema stability** (oracle lane) precedes any **default-on** multi-host merge that could mix secrets.
+2. **Partitioned verify (V2-M1)** can land early; it mostly composes existing **`replayCorpus`** semantics.
+3. **Incremental ingest (V2-M2)** should stay parser-accurate: **Lane A** parity gates apply before widening ingest shortcuts.
+4. **Chimera multi-instance (V2-M5)** is operationally independent of ingest but **depends** on session + routing truth shared across nodes.
+
+### v2.0.0 tag criteria (proposal)
+
+- V2-M1 **and** V2-M2 **closed** (verify sharding + ingest resume are non-negotiable for “any size”).
+- At least **one** of V2-M3 / V2-M4 **closed** (operators choose corpus-scale vs emit-scale priority).
+- V2-M5 **closed** or explicitly **deferred** with DESIGN Decision Log entry if release must slip.
+- `CHANGELOG.md` + `DESIGN.md` Decision Log summarize scale contracts (`schemaVersion` bumps, corpus layout version, chimera config version).
 
 
