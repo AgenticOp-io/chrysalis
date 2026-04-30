@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/emit-fastify",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "WebIR → Fastify + SQLite emitter. Second backend; proves WebIR target portability.",
   "license": "MIT",

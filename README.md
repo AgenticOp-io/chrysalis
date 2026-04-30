@@ -21,7 +21,9 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 
 ## Status
 
-**Pre-alpha.** **Milestone 1 is closed** (tiny-blog vertical slice: ingest →
+**v1.0.0** is the first **tagged source release** (see [`CHANGELOG.md`](./CHANGELOG.md)). The repo remains a **fast-moving monorepo**: milestones through **6A** (scoped) are complete per [`ROADMAP.md`](./ROADMAP.md); cross-cutting parser, oracle, verify depth, and optional repair work continue on `main` after the tag.
+
+**Milestone 1 is closed** (tiny-blog vertical slice: ingest →
 WebIR → emit-hono, Oracle, verify, archaeology including optional PHP form scan,
 chimera `legacy` / `cutover` / `shadow` / **`canary`**, `chrysalis status`).
 
@@ -123,6 +125,9 @@ See [`ROADMAP.md`](./ROADMAP.md).
 - [`ROADMAP.md`](./ROADMAP.md) — staged milestones with acceptance criteria.
 - [`AGENTS.md`](./AGENTS.md) — rules for humans and AI assistants contributing
   code. The project has strong anti-drift rules; please respect them.
+- **[`docs/`](./docs/)** — installation, day-to-day operations, administration, and [release process](./docs/RELEASE.md).
+- [`CHANGELOG.md`](./CHANGELOG.md) — release notes.
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — short contributor entrypoint.
 - **Cursor:** project rule **`.cursor/rules/chrysalis.mdc`** loads with the agent;
   for Cursor-specific agent workflows see the
   [agent cookbook](https://cursor.com/docs/cookbook/agent-workflows) (optional;

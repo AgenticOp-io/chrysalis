@@ -27,6 +27,9 @@ reports/
 tmp/
 tmp-emit-out/
 
+# Local release tarballs (see pnpm run release:artifacts, docs/RELEASE.md)
+release/
+
 # Local scratch emits (not CI fixtures)
 generated/tmp-*/
 

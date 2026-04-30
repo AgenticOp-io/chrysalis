@@ -1,0 +1,67 @@
+# Release process (maintainers)
+
+This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagged in Git; release artifacts are **source tarballs** produced with `git archive` (no `npm publish` of individual packages in this flow).
+
+## Version policy
+
+- **Root** `package.json` `version` is the release identifier (e.g. `1.0.0`).
+- Workspace packages use the same semver for clarity; consumers still resolve via `workspace:*`.
+
+## Steps to cut a release
+
+1. **Freeze main** — merge all intended work; CI green.  
+2. **Update changelog** — edit root `CHANGELOG.md` with the new version section and date.  
+3. **Bump versions** — root and `packages/*/package.json` `version` fields.  
+4. **Commit** — e.g. `release: v1.0.0`.  
+5. **Tag** — annotated tag recommended:
+
+   ```bash
+   git tag -a v1.0.0 -m "Chrysalis v1.0.0"
+   ```
+
+6. **Artifacts** — from repo root, after commit:
+
+   ```bash
+   pnpm run release:artifacts
+   ```
+
+   This writes `release/chrysalis-<version>-source.tar.gz` and `.zip` (git-tracked files only; respect `.gitattributes` export-ignore if added later).
+
+7. **Push** — branch and tags:
+
+   ```bash
+   git push origin main
+   git push origin v1.0.0
+   ```
+
+8. **GitHub Release** — pushing a semver tag matching **`v*.*.*`** runs **`.github/workflows/release.yml`**, which builds the same archives and calls **`gh release create`** with **`GITHUB_TOKEN`**. If that job is disabled or fails, use the UI or CLI manually:
+
+   *Releases* → *Draft a new release* → choose tag `v1.0.0` → attach the two files under `release/` → publish.
+
+   ```bash
+   gh release create v1.0.0 release/chrysalis-1.0.0-source.tar.gz release/chrysalis-1.0.0-source.zip --title "Chrysalis v1.0.0" --notes-file CHANGELOG.md
+   ```
+
+   Adjust filenames to match the version you built.
+
+## Checklist (common gaps)
+
+| Item | Status in repo |
+| --- | --- |
+| License file | `LICENSE` (MIT) |
+| Changelog | `CHANGELOG.md` |
+| Install / ops / admin docs | `docs/` |
+| Security reporting | `SECURITY.md` |
+| Version in `package.json` | Bumped per release |
+| Tag matches changelog version | Manual verify |
+| Tarballs excluded from git | `release/` in `.gitignore` |
+| SBOM / npm publish | Not part of default v1 source release |
+
+## Verifying a tarball
+
+```bash
+tar -tzf release/chrysalis-1.0.0-source.tar.gz | head
+mkdir /tmp/chrysalis-unpack && tar -xzf release/chrysalis-1.0.0-source.tar.gz -C /tmp/chrysalis-unpack
+cd /tmp/chrysalis-unpack/chrysalis-1.0.0
+pnpm install && pnpm -r build && pnpm test
+```

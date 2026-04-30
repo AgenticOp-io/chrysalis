@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/insight",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Pattern recognition over WebIR: catalogs legacy anti-patterns and proposes trace-verified rewrites.",
   "license": "MIT",

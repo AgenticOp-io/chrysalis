@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  source-archives:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build source archives (git archive)
+        run: node scripts/make-release-artifacts.mjs
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrysalis-source-${{ github.ref_name }}
+          path: release/*
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          shopt -s nullglob
+          files=(release/*.tar.gz release/*.zip)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No archives under release/"
+            exit 1
+          fi
+          gh release create "${GITHUB_REF_NAME}" "${files[@]}" \
+            --title "Chrysalis ${GITHUB_REF_NAME}" \
+            --notes "Source archives produced with \`git archive\` (see \`docs/RELEASE.md\`). Summary: [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/CHANGELOG.md)."

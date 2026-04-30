@@ -1,9 +1,13 @@
 {
   "name": "chrysalis-root",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Chrysalis — a web framework you can grow inside a legacy PHP app until it consumes it.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theorem6/chrysalis.git"
+  },
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=20.0.0"
@@ -42,6 +46,7 @@
     "ci:confidence-trend": "node scripts/ci-gates.mjs confidence-trend",
     "ci:confidence-trend-ready": "node scripts/ci-gates.mjs confidence-trend-ready",
     "ci:migration-sidecar-floors": "node scripts/ci-gates.mjs migration-sidecar-floors",
+    "release:artifacts": "node scripts/make-release-artifacts.mjs",
     "clean": "pnpm -r clean"
   },
   "devDependencies": {
