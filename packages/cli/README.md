@@ -67,7 +67,7 @@ Example:
 node scripts/migration-debt.mjs --project fixtures/tiny-blog --json-out reports/migration-debt.json
 ```
 
-Repo **`package.json`** scripts **`migration-debt:gate:ingest`** and **`migration-debt:gate:post-verify`** mirror these thresholds in CI (see root **`README.md`**).
+Repo **`package.json`** scripts **`migration-debt:gate:ingest`** and **`migration-debt:gate:post-verify`** mirror these thresholds in CI (see root **`README.md`**). For **`tiny-n1-insight`**, **`pnpm run ci:insight`** runs **`chrysalis insight`** then the gate; **`pnpm run ci:tiny-n1-insight`** runs the gate only when **`reports/insight/tiny-n1.json`** is already present.
 
 ### Related gate: `scripts/ci-gates.mjs verify-dual-summary`
 
@@ -84,7 +84,7 @@ pnpm run ci:migration-sidecar-floors -- reports/migration
 
 The default path is only present after a dual-summary writer has run (for example **`pnpm run verify:e2e`** for `reports/ci/verify-e2e-summary.json`); if the file is missing, the gate prints **`verify-dual-summary: summary file missing`** with the resolved path and a short hint instead of an uncaught filesystem stack trace. Malformed JSON yields **`verify-dual-summary: invalid JSON`** (path + parse error); other read failures use **`verify-dual-summary: could not read`**.
 
-Vitest: **`packages/cli/tests/verify-dual-summary-gate.test.ts`** (dual contract); **`packages/cli/tests/ci-gates-json-artifacts.test.ts`** (**`readJsonGateArtifact`**, **`status-migration`** stdin, **`migration-sidecar-floors`** invalid JSON, confidence / rewrite missing files).
+Vitest: **`packages/cli/tests/verify-dual-summary-gate.test.ts`** (dual contract); **`packages/cli/tests/ci-gates-json-artifacts.test.ts`** (missing/invalid JSON across **`readJsonGateArtifact`** gates, **`migration-sidecar-floors`** missing **`idiomaticity.json`**, skip path, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, **`status-migration`** stdin).
 
 Root **`package.json`**: **`pnpm run ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`** (optional **`-- <path>`**; sidecar gate **no-ops** unless **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set), plus **`ci:verify-dual-summary`** above.
 

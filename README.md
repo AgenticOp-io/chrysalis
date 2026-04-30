@@ -158,6 +158,10 @@ node packages/cli/dist/bin.js ingest fixtures/tiny-blog --parser-provider nikic
 CHRYSALIS_PARSER_PROVIDER=nikic node packages/cli/dist/bin.js status --project fixtures/tiny-blog
 ```
 
+### `scripts/ci-gates.mjs` locally
+
+Root **`package.json`** exposes **`pnpm run ci:*`** shims that forward to **`node scripts/ci-gates.mjs …`** (optional path after **`--`** where the gate accepts one). **`pnpm run ci:insight`** runs **`chrysalis insight`** for **`fixtures/tiny-n1`** then the **`tiny-n1-insight`** gate (requires a built CLI under **`packages/cli/dist/`**). Use **`pnpm run ci:tiny-n1-insight`** when **`reports/insight/tiny-n1.json`** already exists and you only want the gate. **`pnpm run ci:migration-sidecar-floors`** exits **0** with a skip log unless **`CHRYSALIS_IDIOMATICITY_MIN`** and/or **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set.
+
 Record a trace corpus from the live PHP app (requires `php` on PATH):
 
 ```bash

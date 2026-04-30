@@ -68,6 +68,12 @@ If you find yourself doing any of these, stop:
 - No emojis in code or generated output.
 - Keep commit messages descriptive; group by package.
 
+### Local `ci-gates`
+
+- Root **`pnpm run ci:*`** scripts invoke **`scripts/ci-gates.mjs`** with consistent missing-file / invalid-JSON stderr (**`readJsonGateArtifact`**, **`DESIGN` D231**).
+- **`pnpm run ci:insight`** runs **`chrysalis insight`** then **`tiny-n1-insight`**; use **`pnpm run ci:tiny-n1-insight`** when the insight JSON artifact already exists.
+- **`pnpm run ci:migration-sidecar-floors`** no-ops (exit **0**, skip log) unless **`CHRYSALIS_IDIOMATICITY_MIN`** and/or **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set; coverage is in **`packages/cli/tests/ci-gates-json-artifacts.test.ts`**.
+
 ### Oracle-php redaction lockstep
 
 If you touch **`packages/oracle/src/redaction.ts`** (`DEFAULT_REDACTION`) or
