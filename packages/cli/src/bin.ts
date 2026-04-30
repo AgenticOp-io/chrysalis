@@ -444,7 +444,7 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
   const outDir = typeof flags.out === "string" ? resolve(flags.out) : null;
   if (pos.length < 1 || !outDir) {
     console.error(
-      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip]",
+      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip] [--dedupe-trace-id off|skip]",
     );
     return 2;
   }
@@ -463,11 +463,26 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
     console.error("error: --on-duplicate must be error or skip");
     return 2;
   }
+  const dedupeTraceIdRaw = flags["dedupe-trace-id"];
+  if (dedupeTraceIdRaw === true) {
+    console.error("error: --dedupe-trace-id requires a value: off or skip");
+    return 2;
+  }
+  const dedupeTraceId =
+    dedupeTraceIdRaw === undefined || dedupeTraceIdRaw === "off"
+      ? "off"
+      : dedupeTraceIdRaw === "skip"
+        ? "skip"
+        : null;
+  if (dedupeTraceId === null) {
+    console.error("error: --dedupe-trace-id must be off or skip");
+    return 2;
+  }
   const sources = pos.map((p) => resolve(p));
   try {
-    const r = mergeCorpusDirectories({ sources, outDir, onDuplicate: policy });
+    const r = mergeCorpusDirectories({ sources, outDir, onDuplicate: policy, dedupeTraceId });
     console.log(
-      `[corpus-merge] copied ${r.copiedFiles} trace file(s); skipped ${r.skippedDuplicates} duplicate path(s)`,
+      `[corpus-merge] copied ${r.copiedFiles} trace file(s); skipped ${r.skippedDuplicates} duplicate path(s); skipped ${r.skippedTraceIdDuplicates} duplicate traceId(s)`,
     );
   } catch (e) {
     console.error(`[corpus-merge] ${e instanceof Error ? e.message : String(e)}`);

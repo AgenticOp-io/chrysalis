@@ -97,6 +97,14 @@ node packages/cli/dist/bin.js corpus-merge traces-cell-a traces-cell-b --out tra
 
 Default **`--on-duplicate`** is **`error`** (refuse if the same day + filename already exists under **`--out`**). Use **`--on-duplicate skip`** when duplicates are expected; the **first** source in the argument list wins.
 
+Optional **content-level** dedupe by trace identity:
+
+```bash
+node packages/cli/dist/bin.js corpus-merge traces-cell-a traces-cell-b --out traces-merged --dedupe-trace-id skip
+```
+
+With **`--dedupe-trace-id skip`**, later files whose header **`traceId`** already appeared in an earlier copied file are skipped (source argument order still defines winner).
+
 **Ingest / emit sharding (V2-M2):** **`chrysalis ingest`** and **`chrysalis emit`** accept **`--shard-index i --shard-count K`** to lower only manifest routes in that bucket (relative **`chrysalis.routes.json`** **`file`** paths). Library **`buildCallEffectMap`** still scans the full route list for effect widening.
 
 **Ingest AST cache (V2-M2, opt-in):** the same commands accept **`--ingest-cache <dir>`** to reuse on-disk PHP AST JSON between runs (invalidated when file bytes, parser provider, or ingest cache version change). Omit the flag for a cold parse every time.

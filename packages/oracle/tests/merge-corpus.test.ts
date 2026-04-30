@@ -60,7 +60,34 @@ describe("mergeCorpusDirectories", () => {
       const r = mergeCorpusDirectories({ sources: [a, b], outDir: out, onDuplicate: "skip" });
       expect(r.copiedFiles).toBe(1);
       expect(r.skippedDuplicates).toBe(1);
+      expect(r.skippedTraceIdDuplicates).toBe(0);
       expect(readFileSync(join(out, day, "same.ndjson"), "utf8")).toBe("first\n");
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
+
+  test("dedupeTraceId skip keeps first traceId regardless of destination path", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-merge-traceid-"));
+    try {
+      const a = join(base, "a");
+      const b = join(base, "b");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      mkdirSync(join(b, day), { recursive: true });
+      writeFileSync(join(a, day, "one.ndjson"), '{"type":"header","traceId":"t-1"}\n');
+      writeFileSync(join(b, day, "two.ndjson"), '{"type":"header","traceId":"t-1"}\n');
+      const out = join(base, "merged");
+      const r = mergeCorpusDirectories({
+        sources: [a, b],
+        outDir: out,
+        dedupeTraceId: "skip",
+      });
+      expect(r.copiedFiles).toBe(1);
+      expect(r.skippedDuplicates).toBe(0);
+      expect(r.skippedTraceIdDuplicates).toBe(1);
+      expect(existsSync(join(out, day, "one.ndjson"))).toBe(true);
+      expect(existsSync(join(out, day, "two.ndjson"))).toBe(false);
     } finally {
       rmSync(base, { recursive: true, force: true });
     }

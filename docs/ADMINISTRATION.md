@@ -46,7 +46,7 @@ Back up **trace corpora** (`traces/` or your chosen directory) and any **custom 
 
 ## Multi-host trace corpora (V2-M3 planning)
 
-When several machines or cells each run **`chrysalis observe`**, keep each capture under a **stable top-level directory** (for example `traces/<host-or-cell>/…` or separate repos) so operators never overwrite NDJSON in place. Before **`chrysalis verify`**, merge or symlink day-buckets into one **`readCorpus`** root only after **redaction defaults** and **`chrysalis.observe.json`** merge rules are aligned on all writers (`DESIGN.md`, `packages/oracle/README.md`). Prefer **`chrysalis corpus-merge <dir> … --out <merged>`** (path-level merge with **`--on-duplicate`**) over ad-hoc copies when combining hosts. Document which host produced which subdirectory in runbooks; **content-level** trace dedupe and sampling remain explicit operator choices until a later V2 slice.
+When several machines or cells each run **`chrysalis observe`**, keep each capture under a **stable top-level directory** (for example `traces/<host-or-cell>/…` or separate repos) so operators never overwrite NDJSON in place. Before **`chrysalis verify`**, merge or symlink day-buckets into one **`readCorpus`** root only after **redaction defaults** and **`chrysalis.observe.json`** merge rules are aligned on all writers (`DESIGN.md`, `packages/oracle/README.md`). Prefer **`chrysalis corpus-merge <dir> … --out <merged>`** (path-level merge with **`--on-duplicate`**, optional content dedupe via **`--dedupe-trace-id skip`**) over ad-hoc copies when combining hosts. Document which host produced which subdirectory in runbooks; sampling policy remains an explicit operator decision.
 
 ## Redaction and security
 

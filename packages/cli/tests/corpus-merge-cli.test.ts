@@ -32,4 +32,32 @@ describe("corpus-merge CLI", () => {
       rmSync(base, { recursive: true, force: true });
     }
   });
+
+  test("supports --dedupe-trace-id skip", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-corpus-merge-cli-dedupe-"));
+    try {
+      const a = join(base, "a");
+      const b = join(base, "b");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      mkdirSync(join(b, day), { recursive: true });
+      writeFileSync(join(a, day, "one.ndjson"), '{"type":"header","traceId":"same"}\n');
+      writeFileSync(join(b, day, "two.ndjson"), '{"type":"header","traceId":"same"}\n');
+      const out = join(base, "merged");
+      const r = spawnSync(
+        process.execPath,
+        [BIN, "corpus-merge", a, b, "--out", out, "--dedupe-trace-id", "skip"],
+        {
+          encoding: "utf8",
+          cwd: ROOT,
+        },
+      );
+      expect(r.status).toBe(0);
+      expect(r.stdout).toMatch(/skipped 1 duplicate traceId/);
+      expect(existsSync(join(out, day, "one.ndjson"))).toBe(true);
+      expect(existsSync(join(out, day, "two.ndjson"))).toBe(false);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
 });
