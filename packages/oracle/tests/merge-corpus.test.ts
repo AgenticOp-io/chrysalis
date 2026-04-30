@@ -118,4 +118,24 @@ describe("mergeCorpusDirectories", () => {
       rmSync(base, { recursive: true, force: true });
     }
   });
+
+  test("dryRun computes stats without writing files", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-merge-dryrun-"));
+    try {
+      const a = join(base, "a");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      writeFileSync(join(a, day, "a.ndjson"), '{"type":"header","traceId":"alpha"}\n');
+      const out = join(base, "merged");
+      const r = mergeCorpusDirectories({
+        sources: [a],
+        outDir: out,
+        dryRun: true,
+      });
+      expect(r.copiedFiles).toBe(1);
+      expect(existsSync(out)).toBe(false);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
 });

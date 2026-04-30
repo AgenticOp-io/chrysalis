@@ -113,6 +113,12 @@ node packages/cli/dist/bin.js corpus-merge traces-cell-a traces-cell-b --out tra
 
 This keeps approximately **1/8** of traces with stable selection across runs for the same corpus + flags, which is useful for quick replay smoke checks before full-corpus verify.
 
+Preview merge effects without writing files:
+
+```bash
+node packages/cli/dist/bin.js corpus-merge traces-cell-a traces-cell-b --out traces-merged --dry-run
+```
+
 **Ingest / emit sharding (V2-M2):** **`chrysalis ingest`** and **`chrysalis emit`** accept **`--shard-index i --shard-count K`** to lower only manifest routes in that bucket (relative **`chrysalis.routes.json`** **`file`** paths). Library **`buildCallEffectMap`** still scans the full route list for effect widening.
 
 **Ingest AST cache (V2-M2, opt-in):** the same commands accept **`--ingest-cache <dir>`** to reuse on-disk PHP AST JSON between runs (invalidated when file bytes, parser provider, or ingest cache version change). Omit the flag for a cold parse every time.

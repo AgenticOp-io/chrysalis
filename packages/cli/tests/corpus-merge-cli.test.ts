@@ -85,4 +85,28 @@ describe("corpus-merge CLI", () => {
       rmSync(base, { recursive: true, force: true });
     }
   });
+
+  test("supports --dry-run without writing output", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-corpus-merge-cli-dryrun-"));
+    try {
+      const a = join(base, "a");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      writeFileSync(join(a, day, "a.ndjson"), '{"type":"header","traceId":"alpha"}\n');
+      const out = join(base, "merged");
+      const r = spawnSync(
+        process.execPath,
+        [BIN, "corpus-merge", a, "--out", out, "--dry-run"],
+        {
+          encoding: "utf8",
+          cwd: ROOT,
+        },
+      );
+      expect(r.status).toBe(0);
+      expect(r.stdout).toMatch(/dry-run: no files written/);
+      expect(existsSync(out)).toBe(false);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
 });

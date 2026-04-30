@@ -444,7 +444,7 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
   const outDir = typeof flags.out === "string" ? resolve(flags.out) : null;
   if (pos.length < 1 || !outDir) {
     console.error(
-      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip] [--dedupe-trace-id off|skip] [--sample-modulo K --sample-remainder R]",
+      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip] [--dedupe-trace-id off|skip] [--sample-modulo K --sample-remainder R] [--dry-run]",
     );
     return 2;
   }
@@ -480,6 +480,7 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
   }
   const sampleModuloRaw = flags["sample-modulo"];
   const sampleRemainderRaw = flags["sample-remainder"];
+  const dryRun = flags["dry-run"] === true;
   let sampleModulo: number | undefined;
   let sampleRemainder: number | undefined;
   if (sampleModuloRaw !== undefined || sampleRemainderRaw !== undefined) {
@@ -512,10 +513,14 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
       dedupeTraceId,
       ...(sampleModulo !== undefined ? { sampleModulo } : {}),
       ...(sampleRemainder !== undefined ? { sampleRemainder } : {}),
+      ...(dryRun ? { dryRun: true } : {}),
     });
     console.log(
       `[corpus-merge] copied ${r.copiedFiles} trace file(s); skipped ${r.skippedDuplicates} duplicate path(s); skipped ${r.skippedTraceIdDuplicates} duplicate traceId(s); skipped ${r.skippedBySampling} by sampling`,
     );
+    if (dryRun) {
+      console.log("[corpus-merge] dry-run: no files written");
+    }
   } catch (e) {
     console.error(`[corpus-merge] ${e instanceof Error ? e.message : String(e)}`);
     return 2;

@@ -37,6 +37,8 @@ export interface MergeCorpusDirectoriesOptions {
   readonly sampleModulo?: number;
   /** Remainder for traceId sampling bucket. Defaults to 0 when `sampleModulo` is set. */
   readonly sampleRemainder?: number;
+  /** When true, compute merge stats and validations without writing files. */
+  readonly dryRun?: boolean;
 }
 
 function fnv1a32(input: string): number {
@@ -75,6 +77,7 @@ function readHeaderTraceId(ndjsonPath: string): string | null {
 export function mergeCorpusDirectories(options: MergeCorpusDirectoriesOptions): MergeCorpusDirectoriesResult {
   const policy: CorpusMergeDuplicatePolicy = options.onDuplicate ?? "error";
   const traceIdPolicy: CorpusMergeTraceIdPolicy = options.dedupeTraceId ?? "off";
+  const dryRun = options.dryRun === true;
   const sampleModulo =
     options.sampleModulo === undefined ? null : Math.floor(options.sampleModulo);
   const sampleRemainderRaw = options.sampleRemainder ?? 0;
@@ -89,12 +92,13 @@ export function mergeCorpusDirectories(options: MergeCorpusDirectoriesOptions): 
       );
     }
   }
-  mkdirSync(options.outDir, { recursive: true });
+  if (!dryRun) mkdirSync(options.outDir, { recursive: true });
   let copiedFiles = 0;
   let skippedDuplicates = 0;
   let skippedTraceIdDuplicates = 0;
   let skippedBySampling = 0;
   const seenTraceIds = new Set<string>();
+  const plannedDestinations = new Set<string>();
 
   for (const srcRoot of options.sources) {
     if (!existsSync(srcRoot)) {
@@ -129,8 +133,8 @@ export function mergeCorpusDirectories(options: MergeCorpusDirectoriesOptions): 
         }
         const destDir = join(options.outDir, day);
         const destFile = join(destDir, file);
-        mkdirSync(destDir, { recursive: true });
-        if (existsSync(destFile)) {
+        if (!dryRun) mkdirSync(destDir, { recursive: true });
+        if (plannedDestinations.has(destFile) || existsSync(destFile)) {
           if (policy === "skip") {
             skippedDuplicates += 1;
             continue;
@@ -139,7 +143,8 @@ export function mergeCorpusDirectories(options: MergeCorpusDirectoriesOptions): 
             `mergeCorpusDirectories: duplicate trace path ${join(day, file)} (dest exists: ${destFile}); use onDuplicate: 'skip' or use a fresh outDir`,
           );
         }
-        cpSync(srcFile, destFile);
+        if (!dryRun) cpSync(srcFile, destFile);
+        plannedDestinations.add(destFile);
         copiedFiles += 1;
       }
     }
