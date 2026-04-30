@@ -57,6 +57,12 @@ export {
 } from "./report.js";
 
 export {
+  mergeCorrectnessReports,
+  buildMergedVerifySummaryJson,
+  type MergedVerifySummaryJson,
+} from "./merge-partition.js";
+
+export {
   DEFAULT_BODY_RULES,
   DEFAULT_HEADER_RULES,
   normalizeBody,

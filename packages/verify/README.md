@@ -9,7 +9,7 @@ diffs each response against what was captured.
 
 ## Public API
 
-- `replayCorpus(corpus, { baseUrl, fetch?, recordedSqlReplay?, injectDeterminismHeaders?, module?, disableCookieChain?, concurrency?, timeoutMs?, workerThreads?, onlyRoute?, onlyTraceId? })` — returns `TraceOutcome[]`. By default each request includes `x-chrysalis-now-iso` (trace `startedAt`) and `x-chrysalis-random-seed` (FNV-1a of `traceId`) for emitted apps that use `chrysalisNow` / `chrysalisRandom`. Set `injectDeterminismHeaders: false` to omit them. **`onlyRoute`** / **`onlyTraceId`** restrict replay to matching traces (same route key as outcomes: `METHOD path`); throws if filters match nothing. **`concurrency` > 1** is allowed only with **`disableCookieChain: true`** (isolated cookie jar per trace; outcomes remain sorted by capture time). Optional **`workerThreads: true`** with **`concurrency` > 1**, global **`fetch`** (no injected fetch / `onRequest`), and **no** `module` uses **`worker_threads`** for isolated replay (remote verify); requires **`dist/replay-worker.js`** from **`pnpm build`**, looked up next to the compiled **`replay.js`** or under **`dist/`** when **`replay` is loaded from TypeScript sources. The **`chrysalis verify`** / **`chrysalis repair`** CLIs forward **`--replay-concurrency`**, **`--disable-cookie-chain`**, **`--replay-timeout-ms`**, **`--replay-worker-threads`** (plus `CHRYSALIS_VERIFY_*` env aliases); **`chrysalis verify`** also accepts **`--only-route`** / **`--only-trace-id`** (DESIGN D213). See DESIGN D204 / D206.
+- `replayCorpus(corpus, { baseUrl, fetch?, …, onlyRoute?, onlyTraceId?, shardIndex?, shardCount? })` — returns `TraceOutcome[]`. By default each request includes `x-chrysalis-now-iso` (trace `startedAt`) and `x-chrysalis-random-seed` (FNV-1a of `traceId`) for emitted apps that use `chrysalisNow` / `chrysalisRandom`. Set `injectDeterminismHeaders: false` to omit them. **`onlyRoute`** / **`onlyTraceId`** restrict replay to matching traces (same route key as outcomes: `METHOD path`); throws if filters match nothing. **`shardCount`** (>= 2) with optional **`shardIndex`** (default `0`) replays only traces where `traceDeterminismSeed(traceId) % shardCount === shardIndex` (V2-M1 partitioned verify). **`concurrency` > 1** is allowed only with **`disableCookieChain: true`** (isolated cookie jar per trace; outcomes remain sorted by capture time). Optional **`workerThreads: true`** with **`concurrency` > 1**, global **`fetch`** (no injected fetch / `onRequest`), and **no** `module` uses **`worker_threads`** for isolated replay (remote verify); requires **`dist/replay-worker.js`** from **`pnpm build`**, looked up next to the compiled **`replay.js`** or under **`dist/`** when **`replay` is loaded from TypeScript sources. The **`chrysalis verify`** / **`chrysalis repair`** CLIs forward **`--replay-concurrency`**, **`--disable-cookie-chain`**, **`--replay-timeout-ms`**, **`--replay-worker-threads`**, **`--shard-index`**, **`--shard-count`** (plus `CHRYSALIS_VERIFY_*` env aliases); **`chrysalis verify`** also accepts **`--only-route`** / **`--only-trace-id`** (DESIGN D213). **`chrysalis repair`** does not accept shard or route filters. See DESIGN D204 / D206.
 - `resolveVerifyReplayExtras(flags?)` — merges CLI-style flags with **`CHRYSALIS_VERIFY_*`** env vars into **`Partial<ReplayOptions>`** (same rules as the CLI). Repo **`scripts/verify-*.mjs`** pass `{}` so CI can tune replay without forking scripts.
 - `traceDeterminismSeed(traceId)` — uint32 seed helper (same algorithm as replay headers).
 - `buildSqlReplayTapeFromTrace` / `canSqlReplayTrace` / `encodeSqlTapeHeader` —
@@ -22,13 +22,15 @@ diffs each response against what was captured.
   failure diagnostics for CLI dashboards (**DESIGN D212**).
 - `writeReport(outDir, report, outcomes)` — persists `summary.json` + one file
   per route under `outDir`.
+- `mergeCorrectnessReports(reports)` — merges disjoint per-shard **`CorrectnessReport`** values (same shape as **`summary.json`**) into one report; callers must ensure shards partition traces.
+- `buildMergedVerifySummaryJson({ toolVersion, shardCount, inputs })` — wraps merged aggregate + endpoints in **`kind: "chrysalis.verify.summary.merged"`**, **`schemaVersion: 1`** (machine JSON for **`chrysalis verify-merge --json-out`**).
 - `normalizeBody` / `normalizeHeaders` — allowlisted normalization rules
   (timestamps, session-cookie values, UUIDs, whitespace). Exported so callers
   can extend them.
 
 ### Replay environment (CLI + env)
 
-**`chrysalis verify`** forwards **`--replay-concurrency`**, **`--disable-cookie-chain`**, **`--replay-timeout-ms`**, **`--replay-worker-threads`**, **`--only-route`**, **`--only-trace-id`** into **`resolveVerifyReplayExtras`** together with env:
+**`chrysalis verify`** forwards **`--replay-concurrency`**, **`--disable-cookie-chain`**, **`--replay-timeout-ms`**, **`--replay-worker-threads`**, **`--only-route`**, **`--only-trace-id`**, **`--shard-index`**, **`--shard-count`** into **`resolveVerifyReplayExtras`** together with env:
 
 | Env | Effect |
 | --- | --- |
@@ -36,6 +38,14 @@ diffs each response against what was captured.
 | **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`** | Same as **`--disable-cookie-chain`**. |
 | **`CHRYSALIS_VERIFY_TIMEOUT_MS`** | Same as **`--replay-timeout-ms`** (milliseconds, minimum 1000). |
 | **`CHRYSALIS_VERIFY_WORKER_THREADS=1`** | Same as **`--replay-worker-threads`** (requires **`concurrency` > 1**, global **`fetch`**, no **`module`** — see **`resolveVerifyReplayExtras`** / DESIGN D206). |
+| **`CHRYSALIS_VERIFY_SHARD_COUNT`** | Same as **`--shard-count`** (integer >= 2). |
+| **`CHRYSALIS_VERIFY_SHARD_INDEX`** | Same as **`--shard-index`** (defaults to **`0`** when **`CHRYSALIS_VERIFY_SHARD_COUNT`** is set). |
+
+**`chrysalis verify-merge`** reads one or more **`summary.json`** files from parallel shard runs and prints merged **`CorrectnessReport`** JSON (human-readable by default). With **`--json-out`**, stdout is a single line **`chrysalis.verify.summary.merged`** object (**`schemaVersion: 1`**) including per-input shard metadata. Optional **`--shard-count`** (defaults to number of files) records the replay fan-out **K** when some shards produced no report file.
+
+### Partitioned verify (V2-M1)
+
+Run **`K`** independent **`verify`** invocations with the same corpus and **`--shard-index i --shard-count K`** (and typically **`--disable-cookie-chain`** if using **`--replay-concurrency > 1`**). Each run writes its own **`--report`** directory. Combine with **`verify-merge r0/summary.json r1/summary.json … --json-out`**. Merged aggregate matches monolithic verify when shards form a complete partition (Vitest: **`packages/verify/tests/replay.test.ts`**).
 
 Implementation: **`packages/verify/src/verify-replay-extras.ts`**. On threshold failure **`chrysalis verify`** also prints a pointer to this README in the repo. **stdout** carries aggregate correctness, frame counts, and one summary line per route (unless **`--json-summary`**). When any frame fails, **stderr** prints **`[verify] stderr: failure diagnostics`** (failed frame count, divergence-kind histogram, next-step hints), then **`[verify] stderr: per-trace divergences`** (trace id, kinds, optional IR node ids, details). With **`--json-summary`**, progress lines go to **stderr** and **stdout** is a single JSON object (one line): **`schemaVersion`** is the JSON-summary contract version (**D223**).
 
@@ -58,7 +68,7 @@ Implementation: **`packages/verify/src/verify-replay-extras.ts`**. On threshold 
 | **`endpoints`** | Per-route rows (same as report **`endpoints`**). |
 | **`pass`** | **`true`** iff aggregate correctness **≥** **`threshold`**. |
 
-**`chrysalis repair`** forwards the same replay tuning flags as **`verify`** (concurrency, cookie chain, timeout, worker threads) via **`resolveVerifyReplayExtras`**, but it **does not** accept **`--only-route`** / **`--only-trace-id`**: the repair gate always replays the **full** corpus. On repair failure the CLI prints a pointer here as well.
+**`chrysalis repair`** forwards the same replay tuning flags as **`verify`** (concurrency, cookie chain, timeout, worker threads) via **`resolveVerifyReplayExtras`**, but it **does not** accept **`--only-route`** / **`--only-trace-id`** / **`--shard-*`**: the repair gate always replays the **full** corpus. On repair failure the CLI prints a pointer here as well.
 
 **Recorded SQL results (Milestone 2):** when traces include `rows` on
 `sql.query` events (PHP PDO recorder) and `recordedSqlReplay: true`, each

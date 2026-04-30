@@ -29,6 +29,17 @@ export interface ReplayOptions {
    * When set, only replay the trace with this `header.traceId` (exact match after trim).
    */
   readonly onlyTraceId?: string;
+  /**
+   * K-way deterministic shard of the corpus (V2-M1). When {@link shardCount} is set
+   * (>= 2), only traces with `traceDeterminismSeed(traceId) % shardCount === shardIndex`
+   * are replayed. {@link shardIndex} defaults to `0` when omitted. Incompatible with
+   * overlapping filters that drop every trace.
+   */
+  readonly shardIndex?: number;
+  /**
+   * Number of shards (>= 2). Omit both shard fields to replay the full corpus.
+   */
+  readonly shardCount?: number;
 }
 
 export interface TraceOutcome {

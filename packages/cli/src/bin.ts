@@ -21,12 +21,16 @@ import { emit as emitFastify } from "@chrysalis/emit-fastify";
 import { emit as emitHono } from "@chrysalis/emit-hono";
 import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
 import {
+  buildMergedVerifySummaryJson,
   buildReport,
   divergenceKindHistogram,
   failedTraceCount,
+  mergeCorrectnessReports,
   replayCorpus,
   resolveVerifyReplayExtras,
   writeReport,
+  type CorrectnessReport,
+  type ReplayOptions,
 } from "@chrysalis/verify";
 import {
   domainTypesByTable,
@@ -73,6 +77,7 @@ const SUBCOMMANDS = [
   ["emit", "Emit a target project from a WebIR module (e.g. --target=hono|fastify)"],
   ["convert", "One-shot ingest + emit (Milestone 1 convenience)"],
   ["verify", "Replay oracle traces against the generated code"],
+  ["verify-merge", "Merge per-shard verify summary.json files (V2-M1)"],
   ["deploy", "Configure the chimera router (--mode=shadow|canary|cutover)"],
   ["insight", "Catalog anti-patterns on the WebIR and propose idiomatic replacements"],
   [
@@ -409,7 +414,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--project <php-root>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -447,6 +452,11 @@ async function cmdVerify(args: string[]): Promise<number> {
   }
   if (onlyTraceId) {
     vlog(`[verify] filter only-trace-id: ${onlyTraceId.trim()}`);
+  }
+  if (replayParsed.extras.shardCount !== undefined) {
+    vlog(
+      `[verify] shard ${replayParsed.extras.shardIndex ?? 0}/${replayParsed.extras.shardCount} (deterministic trace filter)`,
+    );
   }
 
   let outcomes;
@@ -531,17 +541,7 @@ async function cmdVerify(args: string[]): Promise<number> {
 
   const pass = report.aggregate.correctness + 1e-9 >= threshold;
   if (jsonSummary) {
-    const repoRoot = resolve(fileURLToPath(import.meta.url), "..", "..", "..");
-    let toolVersion = "0.0.0";
-    try {
-      const raw = readFileSync(join(repoRoot, "package.json"), "utf8");
-      const j = JSON.parse(raw) as { version?: string };
-      if (typeof j.version === "string" && j.version.length > 0) {
-        toolVersion = j.version;
-      }
-    } catch {
-      // keep default
-    }
+    const toolVersion = readRootToolVersion();
     console.log(
       JSON.stringify({
         kind: "chrysalis.verify.summary",
@@ -569,6 +569,109 @@ async function cmdVerify(args: string[]): Promise<number> {
     console.error(`[verify] summary: ${summaryAbs}`);
     console.error("[verify] replay flags and CHRYSALIS_VERIFY_* env: packages/verify/README.md");
     return 1;
+  }
+  return 0;
+}
+
+function readRootToolVersion(): string {
+  const repoRoot = resolve(fileURLToPath(import.meta.url), "..", "..", "..");
+  let toolVersion = "0.0.0";
+  try {
+    const raw = readFileSync(join(repoRoot, "package.json"), "utf8");
+    const j = JSON.parse(raw) as { version?: string };
+    if (typeof j.version === "string" && j.version.length > 0) {
+      toolVersion = j.version;
+    }
+  } catch {
+    // keep default
+  }
+  return toolVersion;
+}
+
+async function cmdVerifyMerge(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const flags = parseFlags(args);
+  if (pos.length < 1) {
+    console.error(
+      "usage: chrysalis verify-merge <summary.json> [<summary.json> ...] [--shard-count K] [--json-out]",
+    );
+    console.error(
+      "  Each file must match reports/verify/summary.json (CorrectnessReport). Shards must be disjoint.",
+    );
+    console.error(
+      "  --shard-count defaults to the number of files (replay K when every shard wrote a report).",
+    );
+    return 2;
+  }
+
+  let metaShardCount = pos.length;
+  if (typeof flags["shard-count"] === "string") {
+    const k = Math.floor(Number.parseFloat(flags["shard-count"]));
+    if (!Number.isFinite(k) || k < 1) {
+      console.error("[verify-merge] error: --shard-count must be a finite integer >= 1");
+      return 2;
+    }
+    metaShardCount = k;
+  }
+
+  const reports: CorrectnessReport[] = [];
+  const paths: string[] = [];
+  for (const p of pos) {
+    const abs = resolve(p);
+    if (!existsSync(abs)) {
+      console.error(`[verify-merge] missing file: ${abs}`);
+      return 2;
+    }
+    let raw: string;
+    try {
+      raw = readFileSync(abs, "utf8");
+    } catch (e) {
+      console.error(`[verify-merge] could not read ${abs}: ${e instanceof Error ? e.message : String(e)}`);
+      return 2;
+    }
+    let j: unknown;
+    try {
+      j = JSON.parse(raw) as unknown;
+    } catch (e) {
+      console.error(
+        `[verify-merge] invalid JSON in ${abs}: ${e instanceof Error ? e.message : String(e)}`,
+      );
+      return 2;
+    }
+    if (
+      typeof j !== "object" ||
+      j === null ||
+      typeof (j as CorrectnessReport).aggregate !== "object" ||
+      (j as CorrectnessReport).aggregate === null ||
+      !Array.isArray((j as CorrectnessReport).endpoints)
+    ) {
+      console.error(`[verify-merge] invalid summary shape (expected CorrectnessReport): ${abs}`);
+      return 2;
+    }
+    reports.push(j as CorrectnessReport);
+    paths.push(abs);
+  }
+
+  const merged = mergeCorrectnessReports(reports);
+  const jsonOut = flags["json-out"] === true;
+  if (jsonOut) {
+    const toolVersion = readRootToolVersion();
+    const inputs = paths.map((path, i) => ({
+      path,
+      shardIndex: i,
+      report: reports[i]!,
+    }));
+    console.log(
+      JSON.stringify(
+        buildMergedVerifySummaryJson({
+          toolVersion,
+          shardCount: metaShardCount,
+          inputs,
+        }),
+      ),
+    );
+  } else {
+    console.log(JSON.stringify(merged, null, 2));
   }
   return 0;
 }
@@ -614,6 +717,9 @@ async function cmdRepair(args: string[]): Promise<number> {
     console.error(replayParsed.message);
     return 2;
   }
+  const repairReplayExtras = Object.fromEntries(
+    Object.entries(replayParsed.extras).filter(([k]) => k !== "shardIndex" && k !== "shardCount"),
+  ) as Partial<ReplayOptions>;
   if (replayParsed.logHint) {
     console.log(`[repair] replay options: ${replayParsed.logHint}`);
   }
@@ -648,7 +754,7 @@ async function cmdRepair(args: string[]): Promise<number> {
       {
         baseUrl,
         recordedSqlReplay: flags["no-recorded-sql"] !== true,
-        ...replayParsed.extras,
+        ...repairReplayExtras,
         workerThreads: false,
       },
       closure,
@@ -667,7 +773,7 @@ async function cmdRepair(args: string[]): Promise<number> {
       console.error(`  ${o.route} trace=${o.traceId}`);
     }
     console.error(
-      "[repair] replay tuning flags (repair replays the full corpus; no --only-route / --only-trace-id): packages/verify/README.md",
+      "[repair] replay tuning flags (repair replays the full corpus; no --only-route / --only-trace-id / --shard-*): packages/verify/README.md",
     );
     return 1;
   }
@@ -685,7 +791,7 @@ async function cmdRepair(args: string[]): Promise<number> {
     replayBase: {
       baseUrl,
       recordedSqlReplay: flags["no-recorded-sql"] !== true,
-      ...replayParsed.extras,
+      ...repairReplayExtras,
       workerThreads: false,
     },
     proposer: useLlm
@@ -2039,6 +2145,8 @@ async function main(): Promise<number> {
       return await cmdArchaeology(rest);
     case "verify":
       return await cmdVerify(rest);
+    case "verify-merge":
+      return await cmdVerifyMerge(rest);
     case "deploy":
       return await cmdDeploy(rest);
     case "insight":

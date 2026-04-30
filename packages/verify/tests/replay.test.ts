@@ -9,7 +9,7 @@ import {
   type Trace,
   type TraceCorpus,
 } from "@chrysalis/oracle";
-import { buildReport, replayCorpus, traceDeterminismSeed } from "../src/index.js";
+import { buildReport, mergeCorrectnessReports, replayCorpus, traceDeterminismSeed } from "../src/index.js";
 
 /** Built worker entry (present after `pnpm build` in `@chrysalis/verify`). */
 const replayWorkerJs = join(dirname(fileURLToPath(import.meta.url)), "../dist/replay-worker.js");
@@ -682,5 +682,72 @@ describeWorkerDist("replayCorpus workerThreads (dist/replay-worker.js)", () => {
     expect(poolOut.map((o) => o.traceId)).toEqual(workerOut.map((o) => o.traceId));
     expect(poolOut.map((o) => o.ok)).toEqual(workerOut.map((o) => o.ok));
     expect(poolOut.every((o) => o.ok)).toBe(true);
+  });
+
+  it("shard partition + merged report matches monolithic verify (K=2)", async () => {
+    const k = 2;
+    const bucket0: string[] = [];
+    const bucket1: string[] = [];
+    for (let i = 0; i < 400 && (bucket0.length < 8 || bucket1.length < 8); i++) {
+      const traceId = `shard-par-${i}`;
+      if (traceDeterminismSeed(traceId) % k === 0 && bucket0.length < 8) bucket0.push(traceId);
+      if (traceDeterminismSeed(traceId) % k === 1 && bucket1.length < 8) bucket1.push(traceId);
+    }
+    expect(bucket0.length).toBe(8);
+    expect(bucket1.length).toBe(8);
+    const allIds = [...bucket0, ...bucket1];
+    const traces = allIds.map((traceId, idx) =>
+      mkTrace({
+        traceId,
+        startedAt: `2026-04-22T01:${String(Math.floor(idx / 10)).padStart(2, "0")}:${String(idx % 60).padStart(2, "0")}Z`,
+        method: "GET",
+        path: `/t/${encodeURIComponent(traceId)}`,
+        expectedStatus: 200,
+        expectedBody: `<p>${traceId}</p>`,
+      }),
+    );
+    ts = await startTestServer((req) => {
+      const u = new URL(req.url ?? "/", "http://127.0.0.1");
+      const seg = u.pathname.replace(/^\/t\//, "");
+      const id = decodeURIComponent(seg);
+      return {
+        status: 200,
+        headers: { "content-type": "text/html" },
+        body: `<p>${id}</p>`,
+      };
+    });
+    const corpus = corpusOf(traces);
+    const mono = await replayCorpus(corpus, { baseUrl: ts.url });
+    const s0 = await replayCorpus(corpus, { baseUrl: ts.url, shardCount: 2, shardIndex: 0 });
+    const s1 = await replayCorpus(corpus, { baseUrl: ts.url, shardCount: 2, shardIndex: 1 });
+    const full = buildReport(mono);
+    const merged = mergeCorrectnessReports([buildReport(s0), buildReport(s1)]);
+    expect(merged.aggregate).toEqual(full.aggregate);
+    expect(merged.endpoints.length).toBe(full.endpoints.length);
+    for (const e of full.endpoints) {
+      const got = merged.endpoints.find((x) => x.route === e.route);
+      expect(got).toBeDefined();
+      expect(got!.framesTotal).toBe(e.framesTotal);
+      expect(got!.framesPassed).toBe(e.framesPassed);
+      expect(got!.correctness).toBe(e.correctness);
+    }
+  });
+
+  it("throws when shard filter matches no traces", async () => {
+    const corpus = corpusOf([
+      mkTrace({
+        traceId: "only-one",
+        startedAt: "2026-04-22T00:00:00Z",
+        method: "GET",
+        path: "/",
+        expectedStatus: 200,
+        expectedBody: "x",
+      }),
+    ]);
+    const k = 2;
+    const idx = traceDeterminismSeed("only-one") % k === 0 ? 1 : 0;
+    await expect(replayCorpus(corpus, { baseUrl: "http://x", shardCount: k, shardIndex: idx })).rejects.toThrow(
+      /no traces matched filters/,
+    );
   });
 });

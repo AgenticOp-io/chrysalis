@@ -10,9 +10,13 @@ import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import type { HttpRequestEvent, Trace, TraceCorpus } from "@chrysalis/oracle";
 import { replayOne } from "./replay-http.js";
-import type { ReplayOptions, TraceOutcome } from "./replay-types.js";
+import { traceDeterminismSeed, type ReplayOptions, type TraceOutcome } from "./replay-types.js";
 export type { ReplayOptions, TraceOutcome } from "./replay-types.js";
 export { traceDeterminismSeed } from "./replay-types.js";
+
+function shardFilterActive(opts: ReplayOptions): boolean {
+  return opts.shardCount !== undefined;
+}
 
 function normalizeRouteKey(s: string): string {
   return s.trim().replace(/\s+/g, " ");
@@ -34,6 +38,23 @@ function applyTraceFilters(traces: ReadonlyArray<Trace>, opts: ReplayOptions): T
     const id = opts.onlyTraceId.trim();
     out = out.filter((t) => t.header.traceId === id);
   }
+  if (opts.shardCount !== undefined) {
+    const k = Math.floor(opts.shardCount);
+    if (!Number.isFinite(k) || k < 2) {
+      throw new Error(`replayCorpus: shardCount must be a finite integer >= 2 (got ${JSON.stringify(opts.shardCount)})`);
+    }
+    const idx = opts.shardIndex === undefined ? 0 : Math.floor(opts.shardIndex);
+    if (!Number.isFinite(idx) || idx < 0 || idx >= k) {
+      throw new Error(
+        `replayCorpus: shardIndex must satisfy 0 <= shardIndex < shardCount (shardIndex=${JSON.stringify(
+          opts.shardIndex,
+        )}, shardCount=${k})`,
+      );
+    }
+    out = out.filter((t) => traceDeterminismSeed(t.header.traceId) % k === idx);
+  } else if (opts.shardIndex !== undefined) {
+    throw new Error("replayCorpus: shardIndex requires shardCount (>= 2)");
+  }
   return out;
 }
 
@@ -41,13 +62,16 @@ export async function replayCorpus(corpus: TraceCorpus, opts: ReplayOptions): Pr
   const filtered = applyTraceFilters(corpus.traces, opts);
   if (
     (opts.onlyRoute !== undefined && opts.onlyRoute.trim() !== "") ||
-    (opts.onlyTraceId !== undefined && opts.onlyTraceId.trim() !== "")
+    (opts.onlyTraceId !== undefined && opts.onlyTraceId.trim() !== "") ||
+    shardFilterActive(opts)
   ) {
     if (filtered.length === 0) {
       throw new Error(
         `replayCorpus: no traces matched filters (onlyRoute=${JSON.stringify(
           opts.onlyRoute ?? null,
-        )}, onlyTraceId=${JSON.stringify(opts.onlyTraceId ?? null)}; corpus has ${corpus.traces.length} trace(s))`,
+        )}, onlyTraceId=${JSON.stringify(opts.onlyTraceId ?? null)}, shardIndex=${JSON.stringify(
+          opts.shardIndex ?? null,
+        )}, shardCount=${JSON.stringify(opts.shardCount ?? null)}; corpus has ${corpus.traces.length} trace(s))`,
       );
     }
   }

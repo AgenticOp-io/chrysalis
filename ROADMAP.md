@@ -859,12 +859,12 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 **Goal:** Operators can split a corpus into **K shards**, replay in parallel on separate machines or processes, and **merge** results into one report that matches **single-process** replay on a golden fixture (within existing diff semantics).
 
-- [ ] **Contract:** Versioned **`chrysalis.verify.summary.merged`** (or bump **`chrysalis.verify.summary`**) documents shard inputs, per-shard paths, merge order, and aggregate fields; **`toolVersion`** + **`schemaVersion`** rules match D223-style discipline.
-- [ ] **CLI / library:** `verify` (or companion script) accepts **`--shard-id` / `--shard-count`** or explicit trace ID lists; writes per-shard artifacts; **`verify-merge`** (name TBD) combines shards idempotently.
-- [ ] **Proof:** Fixture-based test: monolithic run vs K-way partition → **same pass/fail** and aggregate correctness within a declared epsilon (e.g. ordering-insensitive trace lists).
-- [ ] **Docs:** `docs/OPERATIONS.md` (or new **`docs/SCALE.md`**) — when to shard, disk layout, CI fan-out example.
+- [x] **Contract:** **`chrysalis.verify.summary.merged`** with **`schemaVersion: 1`** documents shard inputs, per-shard paths, and merged **`CorrectnessReport`**; **`toolVersion`** matches **`verify --json-summary`** discipline (**`buildMergedVerifySummaryJson`** in **`@chrysalis/verify`**).
+- [x] **CLI / library:** **`chrysalis verify --shard-index i --shard-count K`** (and **`CHRYSALIS_VERIFY_SHARD_*`** env) filters traces deterministically; **`chrysalis verify-merge`** combines **`summary.json`** shards; **`mergeCorrectnessReports`** in **`@chrysalis/verify`**.
+- [x] **Proof:** Vitest **`packages/verify/tests/replay.test.ts`** (partition + merge vs monolithic aggregate) and **`merge-partition.test.ts`**.
+- [x] **Docs:** **`packages/verify/README.md`** + **`docs/OPERATIONS.md`** (partitioned verify + **`verify-merge`**).
 
-**Done when:** CI runs at least one **partitioned + merged** verify path on a committed fixture and gates the merged JSON with **`ci-gates`**.
+**Done when:** CI runs at least one **partitioned + merged** verify path on a committed fixture and gates the merged JSON with **`ci-gates`** (library + Vitest parity landed; **`ci-gates`** hookup pending).
 
 ### Milestone V2-M2 — Resumable ingest + shard boundaries
 

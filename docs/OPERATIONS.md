@@ -77,6 +77,16 @@ Repository scripts wrap full loops (tiny-blog, flagship):
 
 See [`packages/verify/README.md`](../packages/verify/README.md) for fields in `summary.json` and JSON summary output.
 
+### Partitioned verify (large corpora, V2-M1)
+
+To fan out replay across processes or machines, run multiple **`verify`** commands on the **same** traces directory with **`--shard-index i --shard-count K`** (and the same **`--base-url`** / **`--project`** / SQL flags). Each shard writes its own **`--report`** tree. Merge **`summary.json`** files without re-running HTTP:
+
+```bash
+node packages/cli/dist/bin.js verify-merge reports/verify-shard0/summary.json reports/verify-shard1/summary.json --json-out
+```
+
+Use **`--shard-count`** on **`verify-merge`** only when the replay fan-out **K** differs from the number of summary files (for example an empty shard produced no report).
+
 ## Status and migration debt
 
 ```bash
