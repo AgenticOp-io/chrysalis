@@ -38,6 +38,22 @@ describe("ci-gates readJsonGateArtifact", () => {
     expect(r.stderr).toContain("pnpm run ci:corpus-merge-summary");
   });
 
+  test("corpus-merge-summary reports invalid JSON", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-corpus-merge-badjson-"));
+    const p = join(dir, "summary.json");
+    try {
+      writeFileSync(p, "{\n", "utf8");
+      const r = spawnSync(process.execPath, [CI_GATES, "corpus-merge-summary", p], {
+        cwd: ROOT,
+        encoding: "utf8",
+      });
+      expect(r.status).toBe(1);
+      expect(r.stderr).toContain("corpus-merge-summary: invalid JSON");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("confidence-trend-ready reports invalid JSON", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-trend-ready-badjson-"));
     const p = join(dir, "history.json");

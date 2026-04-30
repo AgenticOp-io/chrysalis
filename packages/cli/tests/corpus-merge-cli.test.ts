@@ -132,10 +132,53 @@ describe("corpus-merge CLI", () => {
       const j = JSON.parse(readFileSync(jsonOut, "utf8")) as {
         kind: string;
         schemaVersion: number;
+        toolVersion: string;
+        generatedAt: string;
+        options: { outDir: string; onDuplicate: string; dedupeTraceId: string; dryRun: boolean };
+        sources: string[];
         counts: { copiedFiles: number };
       };
       expect(j.kind).toBe("chrysalis.corpus-merge.summary");
       expect(j.schemaVersion).toBe(1);
+      expect(typeof j.toolVersion).toBe("string");
+      expect(j.toolVersion.length).toBeGreaterThan(0);
+      expect(typeof j.generatedAt).toBe("string");
+      expect(j.generatedAt.length).toBeGreaterThan(0);
+      expect(j.options.onDuplicate).toBe("error");
+      expect(j.options.dedupeTraceId).toBe("off");
+      expect(j.options.dryRun).toBe(false);
+      expect(j.sources.length).toBe(1);
+      expect(j.counts.copiedFiles).toBe(1);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
+
+  test("writes summary JSON with --dry-run and --json-out (no files copied to out)", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-corpus-merge-cli-json-dry-"));
+    try {
+      const a = join(base, "a");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      writeFileSync(join(a, day, "a.ndjson"), '{"type":"header","traceId":"alpha"}\n');
+      const out = join(base, "merged");
+      const jsonOut = join(base, "summary.json");
+      const r = spawnSync(
+        process.execPath,
+        [BIN, "corpus-merge", a, "--out", out, "--dry-run", "--json-out", jsonOut],
+        {
+          encoding: "utf8",
+          cwd: ROOT,
+        },
+      );
+      expect(r.status).toBe(0);
+      expect(existsSync(out)).toBe(false);
+      expect(existsSync(jsonOut)).toBe(true);
+      const j = JSON.parse(readFileSync(jsonOut, "utf8")) as {
+        options: { dryRun: boolean };
+        counts: { copiedFiles: number };
+      };
+      expect(j.options.dryRun).toBe(true);
       expect(j.counts.copiedFiles).toBe(1);
     } finally {
       rmSync(base, { recursive: true, force: true });

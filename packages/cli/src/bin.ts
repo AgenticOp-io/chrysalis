@@ -105,6 +105,9 @@ function printHelp(): void {
   console.log(
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
+  console.log(
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --ingest-cache\n",
+  );
   console.log("\nRead DESIGN.md before contributing.");
 }
 

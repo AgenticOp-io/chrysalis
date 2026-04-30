@@ -138,4 +138,37 @@ describe("mergeCorpusDirectories", () => {
       rmSync(base, { recursive: true, force: true });
     }
   });
+
+  test("dryRun counters match a live merge for the same sources and flags", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-merge-dryrun-parity-"));
+    try {
+      const a = join(base, "a");
+      const b = join(base, "b");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      mkdirSync(join(b, day), { recursive: true });
+      writeFileSync(join(a, day, "one.ndjson"), '{"type":"header","traceId":"x"}\n');
+      writeFileSync(join(b, day, "one.ndjson"), '{"type":"header","traceId":"y"}\n');
+      const outLive = join(base, "live");
+      const outDry = join(base, "dry");
+      const live = mergeCorpusDirectories({
+        sources: [a, b],
+        outDir: outLive,
+        onDuplicate: "skip",
+        dedupeTraceId: "skip",
+      });
+      const dry = mergeCorpusDirectories({
+        sources: [a, b],
+        outDir: outDry,
+        onDuplicate: "skip",
+        dedupeTraceId: "skip",
+        dryRun: true,
+      });
+      expect(dry).toEqual(live);
+      expect(existsSync(outLive)).toBe(true);
+      expect(existsSync(outDry)).toBe(false);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
 });
