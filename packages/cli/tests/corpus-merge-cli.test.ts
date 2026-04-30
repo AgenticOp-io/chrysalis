@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, expect, test } from "vitest";
@@ -105,6 +105,38 @@ describe("corpus-merge CLI", () => {
       expect(r.status).toBe(0);
       expect(r.stdout).toMatch(/dry-run: no files written/);
       expect(existsSync(out)).toBe(false);
+    } finally {
+      rmSync(base, { recursive: true, force: true });
+    }
+  });
+
+  test("writes summary JSON with --json-out", () => {
+    const base = mkdtempSync(join(tmpdir(), "chrysalis-corpus-merge-cli-json-"));
+    try {
+      const a = join(base, "a");
+      const day = "2026-04-29";
+      mkdirSync(join(a, day), { recursive: true });
+      writeFileSync(join(a, day, "a.ndjson"), '{"type":"header","traceId":"alpha"}\n');
+      const out = join(base, "merged");
+      const jsonOut = join(base, "summary.json");
+      const r = spawnSync(
+        process.execPath,
+        [BIN, "corpus-merge", a, "--out", out, "--json-out", jsonOut],
+        {
+          encoding: "utf8",
+          cwd: ROOT,
+        },
+      );
+      expect(r.status).toBe(0);
+      expect(existsSync(jsonOut)).toBe(true);
+      const j = JSON.parse(readFileSync(jsonOut, "utf8")) as {
+        kind: string;
+        schemaVersion: number;
+        counts: { copiedFiles: number };
+      };
+      expect(j.kind).toBe("chrysalis.corpus-merge.summary");
+      expect(j.schemaVersion).toBe(1);
+      expect(j.counts.copiedFiles).toBe(1);
     } finally {
       rmSync(base, { recursive: true, force: true });
     }

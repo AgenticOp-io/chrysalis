@@ -444,7 +444,7 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
   const outDir = typeof flags.out === "string" ? resolve(flags.out) : null;
   if (pos.length < 1 || !outDir) {
     console.error(
-      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip] [--dedupe-trace-id off|skip] [--sample-modulo K --sample-remainder R] [--dry-run]",
+      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip] [--dedupe-trace-id off|skip] [--sample-modulo K --sample-remainder R] [--dry-run] [--json-out <file>]",
     );
     return 2;
   }
@@ -481,6 +481,12 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
   const sampleModuloRaw = flags["sample-modulo"];
   const sampleRemainderRaw = flags["sample-remainder"];
   const dryRun = flags["dry-run"] === true;
+  const jsonOutRaw = flags["json-out"];
+  if (jsonOutRaw === true) {
+    console.error("error: --json-out requires a file path");
+    return 2;
+  }
+  const jsonOutPath = typeof jsonOutRaw === "string" ? resolve(jsonOutRaw) : null;
   let sampleModulo: number | undefined;
   let sampleRemainder: number | undefined;
   if (sampleModuloRaw !== undefined || sampleRemainderRaw !== undefined) {
@@ -520,6 +526,28 @@ async function cmdCorpusMerge(args: string[]): Promise<number> {
     );
     if (dryRun) {
       console.log("[corpus-merge] dry-run: no files written");
+    }
+    if (jsonOutPath !== null) {
+      const toolVersion = readRootToolVersion();
+      const payload = {
+        kind: "chrysalis.corpus-merge.summary",
+        schemaVersion: 1,
+        toolVersion,
+        generatedAt: new Date().toISOString(),
+        options: {
+          outDir,
+          onDuplicate: policy,
+          dedupeTraceId,
+          dryRun,
+          ...(sampleModulo !== undefined ? { sampleModulo } : {}),
+          ...(sampleRemainder !== undefined ? { sampleRemainder } : {}),
+        },
+        sources,
+        counts: r,
+      } as const;
+      mkdirSync(dirname(jsonOutPath), { recursive: true });
+      writeFileSync(jsonOutPath, JSON.stringify(payload, null, 2), "utf8");
+      console.log(`[corpus-merge] summary: ${jsonOutPath}`);
     }
   } catch (e) {
     console.error(`[corpus-merge] ${e instanceof Error ? e.message : String(e)}`);
