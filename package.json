@@ -47,6 +47,7 @@
     "ci:confidence-trend-ready": "node scripts/ci-gates.mjs confidence-trend-ready",
     "ci:migration-sidecar-floors": "node scripts/ci-gates.mjs migration-sidecar-floors",
     "release:artifacts": "node scripts/make-release-artifacts.mjs",
+    "github:project-bootstrap": "node scripts/bootstrap-github-project.mjs",
     "clean": "pnpm -r clean"
   },
   "devDependencies": {

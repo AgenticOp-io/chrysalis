@@ -44,6 +44,10 @@ This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagge
 
    Adjust filenames to match the version you built.
 
+## Planning (GitHub Project)
+
+To track post-v1 work in a **GitHub Project** linked to this repository, see [`GITHUB_PROJECT.md`](./GITHUB_PROJECT.md) and run `pnpm run github:project-bootstrap` after `gh auth refresh -s project,read:project`.
+
 ## Checklist (common gaps)
 
 | Item | Status in repo |

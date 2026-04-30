@@ -125,7 +125,7 @@ See [`ROADMAP.md`](./ROADMAP.md).
 - [`ROADMAP.md`](./ROADMAP.md) — staged milestones with acceptance criteria.
 - [`AGENTS.md`](./AGENTS.md) — rules for humans and AI assistants contributing
   code. The project has strong anti-drift rules; please respect them.
-- **[`docs/`](./docs/)** — installation, day-to-day operations, administration, and [release process](./docs/RELEASE.md).
+- **[`docs/`](./docs/)** — installation, day-to-day operations, administration, [release process](./docs/RELEASE.md), and [GitHub Project bootstrap](./docs/GITHUB_PROJECT.md).
 - [`CHANGELOG.md`](./CHANGELOG.md) — release notes.
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — short contributor entrypoint.
 - **Cursor:** project rule **`.cursor/rules/chrysalis.mdc`** loads with the agent;

@@ -10,6 +10,7 @@ Start with the repository root [`README.md`](../README.md), then [`DESIGN.md`](.
 | [Operations](./OPERATIONS.md) | Day-to-day users of the CLI | Ingest, emit, observe, verify, status, repair, chimera deploy, common scripts |
 | [Administration](./ADMINISTRATION.md) | SRE / platform / release owners | Reports layout, env vars, CI gates, migration sidecars, redaction, upgrades |
 | [Release process](./RELEASE.md) | Maintainers | Version tags, tarballs, GitHub Releases, checklist |
+| [GitHub Project](./GITHUB_PROJECT.md) | Maintainers & PM | Bootstrap a GitHub Project (v2) linked to the repo, lanes, fields |
 
 ## Package references
 

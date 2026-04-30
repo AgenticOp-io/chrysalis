@@ -5,7 +5,7 @@
 Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
-**v1.0.0 (2026-04-30)** is the first tagged **source release** with operator docs under **`docs/`**, **`CHANGELOG.md`**, **`LICENSE`**, and **`pnpm run release:artifacts`** (see **`docs/RELEASE.md`**). Ongoing engineering continues on **`main`** per the lanes below.
+**v1.0.0 (2026-04-30)** is the first tagged **source release** with operator docs under **`docs/`**, **`CHANGELOG.md`**, **`LICENSE`**, and **`pnpm run release:artifacts`** (see **`docs/RELEASE.md`**). **Program tracking:** use **`docs/GITHUB_PROJECT.md`** + **`pnpm run github:project-bootstrap`** to attach a **GitHub Project** to the repo (lanes + fields). Ongoing engineering continues on **`main`** per the lanes below.
 
 **Milestone 4 v1 pilot is complete.** Milestones 0–3 and **Milestone 4 v1** (see
 Milestone 4 below) meet the scoped acceptance. **Milestone 5 is now complete**
