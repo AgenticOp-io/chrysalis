@@ -109,7 +109,7 @@ with `--json` for machine-readable output.
 | `scripts/verify-*.mjs` dual-backend CI summaries | **`kind`: `"chrysalis.verify.summary.dual"`**, **`schemaVersion`**: `1`, **`toolVersion`**: repo root version. | Written under `reports/ci/verify-e2e-summary.json`, `reports/ci/verify-flagship-laravel-min-summary.json`, `reports/ci/verify-flagship-laravel-full-summary.json`. Run **`pnpm run ci:verify-dual-summary`** (defaults to `reports/ci/verify-e2e-summary.json`) or **`pnpm run ci:verify-dual-summary -- <path>`** to invoke `scripts/ci-gates.mjs verify-dual-summary`. |
 | `node scripts/migration-debt.mjs --project <php-root> --json-out <path>` | **`kind`: `"chrysalis.migration-debt.summary"`**, **`schemaVersion`**: `1`, **`toolVersion`**, **`generatedAt`**, plus slices from `status --json`. | Forwards other argv to `chrysalis status`. Gates: **`--max-holes`**, **`--min-correctness`**. See `packages/cli/README.md`. |
 
-Other **`scripts/ci-gates.mjs`** entrypoints have matching **`pnpm run ci:*`** shims (**`ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**); pass a path after **`--`** when the gate accepts one.
+Other **`scripts/ci-gates.mjs`** entrypoints have matching **`pnpm run ci:*`** shims (**`ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`**); pass a path after **`--`** when the gate accepts one.
 
 **Remaining polish for Milestone 1:** session bridge for chimera (PHP
 `$_SESSION` ↔ new-stack session store). Row-level generics from archaeology

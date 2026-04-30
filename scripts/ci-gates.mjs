@@ -122,8 +122,7 @@ function assertTinyN1Insight(path) {
   ];
   for (const k of need) {
     if (!(by[k] > 0)) {
-      console.error("tiny-n1-insight: missing recognizer hits:", k, by);
-      process.exit(1);
+      fail(`tiny-n1-insight: missing recognizer hits for ${JSON.stringify(k)}: ${JSON.stringify(by)}`);
     }
   }
   const strongSec = r.opportunities.filter(
@@ -133,11 +132,9 @@ function assertTinyN1Insight(path) {
   );
   const secKinds = new Set(strongSec.map((o) => o.recognizer));
   if (!secKinds.has("raw-sql-concat") || !secKinds.has("unescaped-output")) {
-    console.error(
-      "tiny-n1-insight: expected >=1 STRONG finding from each security recognizer; saw:",
-      [...secKinds],
+    fail(
+      `tiny-n1-insight: expected >=1 STRONG finding from each security recognizer; saw: ${JSON.stringify([...secKinds])}`,
     );
-    process.exit(1);
   }
   console.log("tiny-n1 insight OK:", JSON.stringify(r.summary));
 }

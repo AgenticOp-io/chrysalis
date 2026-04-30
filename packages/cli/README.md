@@ -78,13 +78,15 @@ Local check (defaults to `reports/ci/verify-e2e-summary.json` when no path is pa
 ```bash
 pnpm run ci:verify-dual-summary
 pnpm run ci:verify-dual-summary -- reports/ci/verify-flagship-laravel-min-summary.json
+pnpm run ci:tiny-n1-insight -- reports/insight/tiny-n1.json
+pnpm run ci:migration-sidecar-floors -- reports/migration
 ```
 
 The default path is only present after a dual-summary writer has run (for example **`pnpm run verify:e2e`** for `reports/ci/verify-e2e-summary.json`); if the file is missing, the gate prints **`verify-dual-summary: summary file missing`** with the resolved path and a short hint instead of an uncaught filesystem stack trace. Malformed JSON yields **`verify-dual-summary: invalid JSON`** (path + parse error); other read failures use **`verify-dual-summary: could not read`**.
 
 Vitest: **`packages/cli/tests/verify-dual-summary-gate.test.ts`** (dual contract); **`packages/cli/tests/ci-gates-json-artifacts.test.ts`** (**`readJsonGateArtifact`**, **`status-migration`** stdin, **`migration-sidecar-floors`** invalid JSON, confidence / rewrite missing files).
 
-Root **`package.json`**: **`pnpm run ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`** (optional **`-- <path>`**), plus **`ci:verify-dual-summary`** above.
+Root **`package.json`**: **`pnpm run ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`** (optional **`-- <path>`**; sidecar gate **no-ops** unless **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set), plus **`ci:verify-dual-summary`** above.
 
 Current CI files validated by this gate:
 
