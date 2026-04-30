@@ -56,6 +56,43 @@ describe("ci-gates corpus-merge-summary", () => {
     }
   });
 
+  test("fails when schemaVersion is not 1", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-corpus-merge-gate-schema-"));
+    const p = join(dir, "bad.json");
+    try {
+      writeFileSync(
+        p,
+        JSON.stringify({
+          kind: "chrysalis.corpus-merge.summary",
+          schemaVersion: 2,
+          toolVersion: "0.0.0",
+          generatedAt: "2026-01-01T00:00:00.000Z",
+          options: {
+            outDir: "/x",
+            onDuplicate: "error",
+            dedupeTraceId: "off",
+            dryRun: false,
+          },
+          sources: ["/a"],
+          counts: {
+            copiedFiles: 0,
+            skippedDuplicates: 0,
+            skippedTraceIdDuplicates: 0,
+            skippedBySampling: 0,
+          },
+        }),
+      );
+      const r = spawnSync(process.execPath, [CI_GATES, "corpus-merge-summary", p], {
+        cwd: ROOT,
+        encoding: "utf8",
+      });
+      expect(r.status).toBe(1);
+      expect(r.stderr).toContain("expected schemaVersion 1");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("fails when sampleRemainder >= sampleModulo", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-corpus-merge-gate-"));
     const p = join(dir, "bad.json");
