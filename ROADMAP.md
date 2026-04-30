@@ -873,10 +873,12 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 - [x] **Route-level ingest sharding (v1):** **`ingestDirectory`** **`shardIndex` / `shardCount`** filters manifest routes by **`routeFileShardBucket(file)`**; **`buildCallEffectMap`** keeps the **full** route list for sound lib widening. **`chrysalis ingest` / `emit`** **`--shard-*`**. Vitest **`packages/ingest/tests/route-shard-ingest.test.ts`**.
 - [x] **Incremental cache (v1, opt-in):** **`ingestDirectory`** **`ingestCacheDir`** + **`loadOrParsePhpAstWithCache`** (SHA-256 of file bytes + parser provider + **`INGEST_AST_CACHE_VERSION`**); **`chrysalis ingest` / `emit`** **`--ingest-cache <dir>`**. Vitest **`packages/ingest/tests/parse-cache.test.ts`**. WebIR module merge / status aggregation remains future work.
 - [ ] **Merge model:** how WebIR modules from shards combine in **`chrysalis status`** / emit (no duplicate routes; deterministic ordering).
-- [ ] **Stress fixture:** synthetic **N-route / N-file** tree (size class documented) completes ingest under declared **time + RSS** budgets on CI runner class X.
+- [x] **Synthetic many-route ingest (v0, CI-sized):** Vitest **`packages/ingest/tests/many-routes-synthetic-ingest.test.ts`** builds a temp **12-route** manifest + trivial PHP pages; asserts full ingest and **K=4** shard partition counts (documents a stress **size class**; optional **time/RSS** CI budgets remain future work).
 - [ ] **Hole policy unchanged:** new scale paths must not introduce silent translation; cache misses fall back to full parse.
 
 **Done when:** documented **N-file** ingest completes with **resume** after simulated crash; `status --json` reflects merged shard stats.
+
+**Progress (2026-04-30):** **Parser-level resume / reuse** is covered by **`parse-cache`** Vitest (AST JSON keyed by bytes + parser + cache version). **Many-route shard math** is covered by the synthetic ingest test above. **Still open for full milestone closure:** WebIR **merge model** for shard outputs in **`status` / emit**, **emit-side** crash resume with partial artifacts on disk, **`status --json`** aggregation across shard emits, and optional **RSS/time** gates on the synthetic tree.
 
 ### Milestone V2-M3 — Multi-host oracle + corpus operations
 
@@ -884,10 +886,11 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 - [x] **Corpus layout (operator doc v1):** **`docs/ADMINISTRATION.md`** — multi-host trace directory conventions and merge discipline (path merge via **`corpus-merge`**; content dedupe/sampling still manual / future).
 - [x] **Corpus tree merge (v1):** **`mergeCorpusDirectories`** + **`chrysalis corpus-merge`** copy **`YYYY-MM-DD/*.ndjson`** into one **`--out`** root; **`--on-duplicate error|skip`**, optional **`--dedupe-trace-id skip`** (header traceId winner by source order), deterministic sampling **`--sample-modulo K --sample-remainder R`** (traceId hash buckets), **`--dry-run`**, and **`--json-out`** machine summary (**`chrysalis.corpus-merge.summary`**). Vitest **`packages/oracle/tests/merge-corpus.test.ts`** + CLI tests; CI gate **`corpus-merge-summary`** on **`fixtures/ci/corpus-merge-summary-smoke.json`** (**`pnpm run ci:corpus-merge-summary`**).
+- [x] **Multi-host merge → verify (v1, tiny-blog):** **`scripts/verify-tiny-blog.mjs`** splits captured NDJSON across **`reports/ci/traces-host-a`** and **`reports/ci/traces-host-b`**, merges into **`reports/ci/traces-merged-multi-host`**, asserts trace-count parity with the monolithic capture, and replays the merged corpus against **Hono** at **`VERIFY_THRESHOLD`** (same WebIR module as monolithic replays; **pristine `blog.sqlite` copy** for merged replay so DB state matches a fresh verify).
 - [ ] **Retention:** rotation + compression; redaction remains **DEFAULT + observe merge** lockstep with `oracle-php`.
 - [ ] **Ops docs:** `docs/ADMINISTRATION.md` extended for multi-host capture and storage sizing.
 
-**Done when:** two synthetic “hosts” produce traces, merge runs, and **verify** passes against merged corpus on a fixture sized for CI.
+**Done when:** two synthetic “hosts” produce traces, merge runs, and **verify** passes against merged corpus on a fixture sized for CI. **Closed:** **`verify-tiny-blog.mjs`** path above (runs in **`verify-e2e`** when PHP is available).
 
 ### Milestone V2-M4 — Emit layout + build scalability
 

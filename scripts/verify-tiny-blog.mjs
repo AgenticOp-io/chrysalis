@@ -8,6 +8,9 @@
  *   5. seed each project's blog.sqlite with the same rows + alice hash
  *   6. replay the captured corpus **in-process** (injected `fetch`) against each
  *      backend — same WebIR, same oracle, two targets (portability gate)
+ *   6b. **V2-M3:** split captured NDJSON across two synthetic host trees, **`mergeCorpusDirectories`**
+ *      into **`reports/ci/traces-merged-multi-host`**, replay the merged corpus vs **Hono** (same
+ *      threshold as monolithic replay).
  *   7. write reports under reports/verify/hono and reports/verify/fastify;
  *      exit non-zero if either backend falls below threshold
  *
@@ -20,7 +23,17 @@
  */
 
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { rm } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
@@ -29,6 +42,7 @@ import { DatabaseSync } from "node:sqlite";
 
 import {
   loadObserveConfig,
+  mergeCorpusDirectories,
   readCorpus,
   startObserver,
 } from "../packages/oracle/dist/index.js";
@@ -117,6 +131,24 @@ try {
 const corpus = readCorpus({ root: traceDir });
 console.log(`[verify-e2e] corpus: ${corpus.traces.length} traces captured`);
 
+const tracesHostA = resolve(repo, "reports/ci/traces-host-a");
+const tracesHostB = resolve(repo, "reports/ci/traces-host-b");
+const tracesMergedMultiHost = resolve(repo, "reports/ci/traces-merged-multi-host");
+for (const p of [tracesHostA, tracesHostB, tracesMergedMultiHost]) {
+  if (existsSync(p)) rmSync(p, { recursive: true, force: true });
+}
+splitTraceTreeToTwoHosts(traceDir, tracesHostA, tracesHostB);
+mergeCorpusDirectories({ sources: [tracesHostA, tracesHostB], outDir: tracesMergedMultiHost });
+const mergedMultiHostCorpus = readCorpus({ root: tracesMergedMultiHost });
+if (mergedMultiHostCorpus.traces.length !== corpus.traces.length) {
+  throw new Error(
+    `[verify-e2e] multi-host merge trace count mismatch: merged=${mergedMultiHostCorpus.traces.length} monolithic=${corpus.traces.length}`,
+  );
+}
+console.log(
+  `[verify-e2e] multi-host corpus-merge OK: ${tracesHostA} + ${tracesHostB} -> ${tracesMergedMultiHost} (${mergedMultiHostCorpus.traces.length} traces)`,
+);
+
 // ---------- 3) emit both backends ----------
 console.log("[verify-e2e] emitting Hono → generated/tiny-blog...");
 if (existsSync(generatedHono)) rmSync(generatedHono, { recursive: true, force: true });
@@ -143,6 +175,10 @@ console.log("[verify-e2e] seeding generated/tiny-blog-fastify/blog.sqlite...");
 execFileSync("node", ["scripts/seed-db.mjs", fastifyDb], { cwd: repo, stdio: "inherit" });
 patchAlicePassword(honoDb, aliceHash);
 patchAlicePassword(fastifyDb, aliceHash);
+
+const pristineHonoDbForMultiHostReplay = resolve(repo, "reports/ci/pristine-hono-blog.sqlite");
+mkdirSync(dirname(pristineHonoDbForMultiHostReplay), { recursive: true });
+copyFileSync(honoDb, pristineHonoDbForMultiHostReplay);
 
 // ---------- 6–7) in-process replay both ----------
 const baseUrl = "http://127.0.0.1:3000";
@@ -249,6 +285,35 @@ for (const b of backends) {
   });
 }
 
+console.log("\n[verify-e2e] —— merged multi-host corpus replay vs Hono (V2-M3) ——");
+const fetchHonoForMerged = await loadEmittedFetch(
+  generatedHono,
+  "hono",
+  pristineHonoDbForMultiHostReplay,
+);
+const mergedHostOutcomes = await replayCorpus(mergedMultiHostCorpus, {
+  baseUrl,
+  fetch: fetchHonoForMerged,
+  recordedSqlReplay: true,
+  module: webirModule,
+  ...replayParsed.extras,
+});
+const mergedHostReport = buildReport(mergedHostOutcomes);
+console.log(
+  `[verify-e2e] multi-host merged corpus aggregate: ${(mergedHostReport.aggregate.correctness * 100).toFixed(1)}% (${mergedHostReport.aggregate.framesPassed}/${mergedHostReport.aggregate.framesTotal})`,
+);
+if (honoReport && mergedHostReport.aggregate.framesTotal !== honoReport.aggregate.framesTotal) {
+  throw new Error(
+    `[verify-e2e] multi-host merged replay framesTotal ${mergedHostReport.aggregate.framesTotal} != monolithic hono ${honoReport.aggregate.framesTotal}`,
+  );
+}
+if (mergedHostReport.aggregate.correctness + 1e-9 < THRESHOLD) {
+  console.error(
+    `[verify-e2e] multi-host merged corpus: correctness ${mergedHostReport.aggregate.correctness.toFixed(3)} below threshold ${THRESHOLD}`,
+  );
+  exitCode = 1;
+}
+
 mkdirSync(ciReportDir, { recursive: true });
 writeFileSync(
   ciSummaryPath,
@@ -306,10 +371,11 @@ function repoToolVersion(root) {
 /**
  * @param {string} outAbs absolute path to emitted project root
  * @param {"hono" | "fastify"} kind
+ * @param {string | null} [dbPathOverride] when set, use this sqlite file instead of `outAbs/blog.sqlite` (isolated replay)
  */
-async function loadEmittedFetch(outAbs, kind) {
+async function loadEmittedFetch(outAbs, kind, dbPathOverride = null) {
   const { tsImport } = await import("tsx/esm/api");
-  process.env.CHRYSALIS_DB_PATH = join(outAbs, "blog.sqlite");
+  process.env.CHRYSALIS_DB_PATH = dbPathOverride ?? join(outAbs, "blog.sqlite");
   const parentURL = pathToFileURL(join(outAbs, "package.json")).href;
   const mod = await tsImport("./src/server.ts", parentURL);
   if (kind === "hono") {
@@ -377,4 +443,42 @@ function patchAlicePassword(dbPath, hash) {
   const db = new DatabaseSync(dbPath);
   db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hash, "alice");
   db.close();
+}
+
+/**
+ * List `YYYY-MM-DD/*.ndjson` paths relative to a `readCorpus` root.
+ * @param {string} traceRoot
+ * @returns {string[]}
+ */
+function listTraceNdjsonRelativePaths(traceRoot) {
+  const out = [];
+  for (const day of readdirSync(traceRoot)) {
+    const dayPath = join(traceRoot, day);
+    if (!statSync(dayPath).isDirectory()) continue;
+    for (const file of readdirSync(dayPath)) {
+      if (!file.endsWith(".ndjson")) continue;
+      out.push(join(day, file));
+    }
+  }
+  return out.sort();
+}
+
+/**
+ * Simulate two capture cells by copying each trace file to exactly one of two host roots (stable sort, alternating).
+ * @param {string} traceRoot
+ * @param {string} hostA
+ * @param {string} hostB
+ */
+function splitTraceTreeToTwoHosts(traceRoot, hostA, hostB) {
+  mkdirSync(hostA, { recursive: true });
+  mkdirSync(hostB, { recursive: true });
+  const rels = listTraceNdjsonRelativePaths(traceRoot);
+  for (let i = 0; i < rels.length; i++) {
+    const rel = rels[i];
+    const destRoot = i % 2 === 0 ? hostA : hostB;
+    const src = join(traceRoot, rel);
+    const dest = join(destRoot, rel);
+    mkdirSync(dirname(dest), { recursive: true });
+    cpSync(src, dest);
+  }
 }

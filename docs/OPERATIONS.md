@@ -71,7 +71,7 @@ node packages/cli/dist/bin.js verify traces --base-url http://127.0.0.1:3000 --j
 
 Repository scripts wrap full loops (tiny-blog, flagship):
 
-- `pnpm run verify:e2e`
+- `pnpm run verify:e2e` — runs **`scripts/verify-tiny-blog.mjs`**: after PHP capture, splits NDJSON into two synthetic host trees under **`reports/ci/`**, **`mergeCorpusDirectories`** into **`reports/ci/traces-merged-multi-host`**, and replays that merged corpus against **Hono** at the same **`VERIFY_THRESHOLD`** as the monolithic corpus (V2-M3), using a **pristine sqlite copy** so the merged replay is not affected by earlier in-process replays on **`generated/tiny-blog/blog.sqlite`**.
 - `pnpm run verify:flagship`
 - `pnpm run verify:laravel-full` (when flagship worktree exists)
 

@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2 operator tests / help:** **`chrysalis --help`** documents scale-out flag families; Vitest **`packages/cli/tests/cli-help-scaleout.test.ts`**. **`corpus-merge-summary`** invalid JSON + wrong-**`kind`** stderr coverage. **`mergeCorpusDirectories`** dry-run vs live counter parity; CLI **`corpus-merge`** tests for **`--json-out`** fields and **`--dry-run --json-out`**. **`docs/ADMINISTRATION.md`**, **`packages/verify/README.md`**, and **`packages/cli/README.md`** cross-link **`--help`** / gate tests.
 
+- **V2-M3 — multi-host merge verify (tiny-blog e2e):** **`scripts/verify-tiny-blog.mjs`** splits captured traces into **`reports/ci/traces-host-{a,b}`**, merges to **`reports/ci/traces-merged-multi-host`**, replays merged corpus vs **Hono** at **`VERIFY_THRESHOLD`** using a **pristine `blog.sqlite` copy** (**`reports/ci/pristine-hono-blog.sqlite`**) so merged replay is isolated from earlier in-process replays. **`docs/OPERATIONS.md`** and **`ROADMAP.md`** updated.
+
+- **V2-M2 — synthetic many-route ingest:** Vitest **`packages/ingest/tests/many-routes-synthetic-ingest.test.ts`** (12-route temp tree, K=4 shard partition). **`ROADMAP.md`** progress note for remaining merge-model / emit-resume / RSS work.
+
 ## [1.0.1] - 2026-04-29
 
 ### Added
