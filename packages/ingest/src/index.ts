@@ -4,6 +4,7 @@
 
 import { resolve } from "node:path";
 import { parseFile, type Provider } from "@chrysalis/parser-bridge";
+import { loadOrParsePhpAstWithCache } from "./parse-cache.js";
 import { ModuleBuilder, type Module } from "@chrysalis/webir";
 import { ingestHandler } from "./convert.js";
 import { buildCallEffectMap } from "./library-effects.js";
@@ -38,6 +39,11 @@ export interface IngestOptions {
   readonly shardIndex?: number;
   /** Ingest shard count (>= 2). Omit both shard fields to ingest all routes. */
   readonly shardCount?: number;
+  /**
+   * When set, reuse cached PHP AST JSON keyed by source SHA-256 + parser provider +
+   * {@link INGEST_AST_CACHE_VERSION} (V2-M2). Omit for a cold run.
+   */
+  readonly ingestCacheDir?: string;
 }
 
 /** Options for {@link ingestFile} parity with {@link ingestDirectory} call widening. */
@@ -74,10 +80,16 @@ export async function ingestDirectory(
     throw new Error("ingestDirectory: shardIndex requires shardCount (>= 2)");
   }
   const builder = new ModuleBuilder({ sourceApp: manifest.app });
+  const cacheDir = opts?.ingestCacheDir !== undefined ? resolve(opts.ingestCacheDir) : undefined;
+  const provider = opts?.parserProvider;
   for (const route of routes) {
-    const ast = await parseFile(resolve(root, route.file), {
-      ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
-    });
+    const abs = resolve(root, route.file);
+    const ast =
+      cacheDir !== undefined
+        ? await loadOrParsePhpAstWithCache(abs, provider ?? "glayzzle", cacheDir)
+        : await parseFile(abs, {
+            ...(provider ? { provider } : {}),
+          });
     const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns);
     builder.addRoot(routeNode);
   }
@@ -113,6 +125,7 @@ export async function ingestFile(
   return builder.finish();
 }
 
+export { INGEST_AST_CACHE_VERSION } from "./parse-cache.js";
 export { filterRoutesForShard, routeFileShardBucket } from "./route-shard.js";
 export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects.js";
 export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";

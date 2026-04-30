@@ -87,7 +87,19 @@ node packages/cli/dist/bin.js verify-merge reports/verify-shard0/summary.json re
 
 Use **`--shard-count`** on **`verify-merge`** only when the replay fan-out **K** differs from the number of summary files (for example an empty shard produced no report).
 
+### Merging trace directories (multi-host, V2-M3)
+
+Combine several **`readCorpus`**-shaped roots (each with **`YYYY-MM-DD/*.ndjson`**) into one output tree for **`chrysalis verify`** or **`chrysalis corpus`**:
+
+```bash
+node packages/cli/dist/bin.js corpus-merge traces-cell-a traces-cell-b --out traces-merged
+```
+
+Default **`--on-duplicate`** is **`error`** (refuse if the same day + filename already exists under **`--out`**). Use **`--on-duplicate skip`** when duplicates are expected; the **first** source in the argument list wins.
+
 **Ingest / emit sharding (V2-M2):** **`chrysalis ingest`** and **`chrysalis emit`** accept **`--shard-index i --shard-count K`** to lower only manifest routes in that bucket (relative **`chrysalis.routes.json`** **`file`** paths). Library **`buildCallEffectMap`** still scans the full route list for effect widening.
+
+**Ingest AST cache (V2-M2, opt-in):** the same commands accept **`--ingest-cache <dir>`** to reuse on-disk PHP AST JSON between runs (invalidated when file bytes, parser provider, or ingest cache version change). Omit the flag for a cold parse every time.
 
 ## Status and migration debt
 

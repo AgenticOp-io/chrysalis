@@ -19,7 +19,7 @@ import {
 } from "@chrysalis/webir";
 import { emit as emitFastify } from "@chrysalis/emit-fastify";
 import { emit as emitHono } from "@chrysalis/emit-hono";
-import { loadObserveConfig, readCorpus, startObserver } from "@chrysalis/oracle";
+import { loadObserveConfig, mergeCorpusDirectories, readCorpus, startObserver } from "@chrysalis/oracle";
 import {
   buildMergedVerifySummaryJson,
   buildReport,
@@ -78,6 +78,7 @@ const SUBCOMMANDS = [
   ["convert", "One-shot ingest + emit (Milestone 1 convenience)"],
   ["verify", "Replay oracle traces against the generated code"],
   ["verify-merge", "Merge per-shard verify summary.json files (V2-M1)"],
+  ["corpus-merge", "Merge multiple traces/ day-bucket trees into one corpus root (V2-M3)"],
   ["deploy", "Configure the chimera router (--mode=shadow|canary|cutover)"],
   ["insight", "Catalog anti-patterns on the WebIR and propose idiomatic replacements"],
   [
@@ -192,6 +193,20 @@ function parserProviderFromFlags(
   return null;
 }
 
+function ingestCacheDirFromFlags(
+  flags: Record<string, string | boolean>,
+): { ok: true; ingestCacheDir?: string } | { ok: false; message: string } {
+  const raw = flags["ingest-cache"];
+  if (raw === undefined) return { ok: true };
+  if (raw === true || raw === "") {
+    return { ok: false, message: "error: --ingest-cache requires a directory path" };
+  }
+  if (typeof raw !== "string") {
+    return { ok: false, message: "error: --ingest-cache requires a directory path" };
+  }
+  return { ok: true, ingestCacheDir: resolve(raw) };
+}
+
 /** Collect `--php-root` / `--php-root=<dir>` for archaeology form scans. */
 function collectPhpRootsFromArgs(args: string[]): string[] {
   const out: string[] = [];
@@ -213,12 +228,17 @@ async function cmdIngest(args: string[]): Promise<number> {
   const root = pos[0];
   if (!root) {
     console.error(
-      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K]",
+      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const cacheOpts = ingestCacheDirFromFlags(flags);
+  if (!cacheOpts.ok) {
+    console.error(cacheOpts.message);
+    return 2;
+  }
   const shardOpts = ingestShardOptsFromFlags(flags);
   if (!shardOpts.ok) {
     console.error(shardOpts.message);
@@ -229,9 +249,13 @@ async function cmdIngest(args: string[]): Promise<number> {
       `[ingest] shard ${shardOpts.opts.shardIndex ?? 0}/${shardOpts.opts.shardCount} (route file filter; call map uses full manifest)`,
     );
   }
+  if (cacheOpts.ingestCacheDir !== undefined) {
+    console.log(`[ingest] AST cache: ${cacheOpts.ingestCacheDir}`);
+  }
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
     ...shardOpts.opts,
+    ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
   });
   console.log(`routes:   ${mod.roots.length}`);
   console.log(`nodes:    ${mod.nodes.size}`);
@@ -253,12 +277,17 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const cacheOpts = ingestCacheDirFromFlags(flags);
+  if (!cacheOpts.ok) {
+    console.error(cacheOpts.message);
+    return 2;
+  }
   const shardOpts = ingestShardOptsFromFlags(flags);
   if (!shardOpts.ok) {
     console.error(shardOpts.message);
@@ -269,6 +298,9 @@ async function cmdEmit(args: string[]): Promise<number> {
       `[emit] shard ${shardOpts.opts.shardIndex ?? 0}/${shardOpts.opts.shardCount} (partial route set; call map uses full manifest)`,
     );
   }
+  if (cacheOpts.ingestCacheDir !== undefined) {
+    console.log(`[emit] AST cache: ${cacheOpts.ingestCacheDir}`);
+  }
   if (target !== "hono" && target !== "fastify") {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
     return 2;
@@ -276,6 +308,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
     ...shardOpts.opts,
+    ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
   });
   const outAbs = resolve(outDir);
   const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
@@ -405,6 +438,44 @@ async function cmdCorpus(args: string[]): Promise<number> {
   return 0;
 }
 
+async function cmdCorpusMerge(args: string[]): Promise<number> {
+  const pos = positional(args);
+  const flags = parseFlags(args);
+  const outDir = typeof flags.out === "string" ? resolve(flags.out) : null;
+  if (pos.length < 1 || !outDir) {
+    console.error(
+      "usage: chrysalis corpus-merge <traces-dir> [<traces-dir> ...] --out <merged-dir> [--on-duplicate error|skip]",
+    );
+    return 2;
+  }
+  const onDup = flags["on-duplicate"];
+  if (onDup === true) {
+    console.error("error: --on-duplicate requires a value: error or skip");
+    return 2;
+  }
+  const policy =
+    onDup === undefined || onDup === "error"
+      ? "error"
+      : onDup === "skip"
+        ? "skip"
+        : null;
+  if (policy === null) {
+    console.error("error: --on-duplicate must be error or skip");
+    return 2;
+  }
+  const sources = pos.map((p) => resolve(p));
+  try {
+    const r = mergeCorpusDirectories({ sources, outDir, onDuplicate: policy });
+    console.log(
+      `[corpus-merge] copied ${r.copiedFiles} trace file(s); skipped ${r.skippedDuplicates} duplicate path(s)`,
+    );
+  } catch (e) {
+    console.error(`[corpus-merge] ${e instanceof Error ? e.message : String(e)}`);
+    return 2;
+  }
+  return 0;
+}
+
 async function cmdArchaeology(args: string[]): Promise<number> {
   const pos = positional(args);
   const flags = parseFlags(args);
@@ -464,7 +535,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--ingest-cache <dir>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -473,6 +544,11 @@ async function cmdVerify(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const cacheOpts = ingestCacheDirFromFlags(flags);
+  if (!cacheOpts.ok) {
+    console.error(cacheOpts.message);
+    return 2;
+  }
   const jsonSummary = flags["json-summary"] === true;
   const vlog = jsonSummary ? (m: string) => console.error(m) : (m: string) => console.log(m);
 
@@ -482,6 +558,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   if (projectRoot) {
     verifyModule = await ingestDirectory(projectRoot, {
       ...(parserProvider ? { parserProvider } : {}),
+      ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
     });
     vlog(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
   }
@@ -741,7 +818,7 @@ async function cmdRepair(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (!corpusRoot || !baseUrl || !projectRoot) {
     console.error(
-      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--ingest-cache <dir>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -761,6 +838,11 @@ async function cmdRepair(args: string[]): Promise<number> {
     typeof flags["write-module"] === "string" ? flags["write-module"] : null;
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const cacheOpts = ingestCacheDirFromFlags(flags);
+  if (!cacheOpts.ok) {
+    console.error(cacheOpts.message);
+    return 2;
+  }
 
   const replayParsed = resolveVerifyReplayExtras(flags);
   if (!replayParsed.ok) {
@@ -777,6 +859,7 @@ async function cmdRepair(args: string[]): Promise<number> {
   const corpus = readCorpus({ root: resolve(corpusRoot) });
   const webirModule = await ingestDirectory(projectRoot, {
     ...(parserProvider ? { parserProvider } : {}),
+    ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
   });
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
 
@@ -1032,6 +1115,7 @@ async function cmdInsight(args: string[]): Promise<number> {
       "usage: chrysalis insight <php-project-dir>\n" +
         "                         [--traces <dir>] [--out <report.json>]\n" +
         "                         [--only raw-sql-concat,unescaped-output,n-plus-one-queries,scattered-validation,string-dispatch]\n" +
+        "                         [--ingest-cache <dir>]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -1039,9 +1123,15 @@ async function cmdInsight(args: string[]): Promise<number> {
   }
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const cacheOpts = ingestCacheDirFromFlags(flags);
+  if (!cacheOpts.ok) {
+    console.error(cacheOpts.message);
+    return 2;
+  }
 
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
+    ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
   });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
@@ -1180,6 +1270,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
         "                         [--no-post-verify] [--verify-behavior]\n" +
         "                         [--http-replay <traces-dir>] [--http-replay-backends=hono,fastify]\n" +
         "                         [--http-replay-skip-install]\n" +
+        "                         [--ingest-cache <dir>]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -1187,6 +1278,11 @@ async function cmdRewrite(args: string[]): Promise<number> {
   }
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const cacheOpts = ingestCacheDirFromFlags(flags);
+  if (!cacheOpts.ok) {
+    console.error(cacheOpts.message);
+    return 2;
+  }
 
   const httpReplayRoot =
     typeof flags["http-replay"] === "string" ? resolve(flags["http-replay"]) : null;
@@ -1197,6 +1293,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
 
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
+    ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
   });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
@@ -1754,6 +1851,11 @@ async function cmdStatus(args: string[]): Promise<number> {
   const flags = parseFlags(args);
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const cacheOpts = ingestCacheDirFromFlags(flags);
+  if (!cacheOpts.ok) {
+    console.error(cacheOpts.message);
+    return 2;
+  }
   const project = typeof flags.project === "string" ? resolve(flags.project) : null;
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : "traces";
   const reportDir = typeof flags.report === "string" ? resolve(flags.report) : "reports/verify";
@@ -1859,6 +1961,7 @@ async function cmdStatus(args: string[]): Promise<number> {
     try {
       const mod = await ingestDirectory(project, {
         ...(parserProvider ? { parserProvider } : {}),
+        ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
       });
       ingestedMod = mod;
       const holeStats = holeReasonStats(mod);
@@ -2191,6 +2294,8 @@ async function main(): Promise<number> {
       return await cmdObserve(rest);
     case "corpus":
       return await cmdCorpus(rest);
+    case "corpus-merge":
+      return await cmdCorpusMerge(rest);
     case "archaeology":
       return await cmdArchaeology(rest);
     case "verify":

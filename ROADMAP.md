@@ -871,7 +871,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 **Goal:** Ingest **does not require** a single long-lived process that holds the entire IR in RAM; teams can define **shard roots** (e.g. service, bounded context, repo subtree) and resume after failure.
 
 - [x] **Route-level ingest sharding (v1):** **`ingestDirectory`** **`shardIndex` / `shardCount`** filters manifest routes by **`routeFileShardBucket(file)`**; **`buildCallEffectMap`** keeps the **full** route list for sound lib widening. **`chrysalis ingest` / `emit`** **`--shard-*`**. Vitest **`packages/ingest/tests/route-shard-ingest.test.ts`**.
-- [ ] **Incremental cache:** content-addressed inputs (file hash + parser version + ingest version) → skip unchanged modules; clear invalidation rules.
+- [x] **Incremental cache (v1, opt-in):** **`ingestDirectory`** **`ingestCacheDir`** + **`loadOrParsePhpAstWithCache`** (SHA-256 of file bytes + parser provider + **`INGEST_AST_CACHE_VERSION`**); **`chrysalis ingest` / `emit`** **`--ingest-cache <dir>`**. Vitest **`packages/ingest/tests/parse-cache.test.ts`**. WebIR module merge / status aggregation remains future work.
 - [ ] **Merge model:** how WebIR modules from shards combine in **`chrysalis status`** / emit (no duplicate routes; deterministic ordering).
 - [ ] **Stress fixture:** synthetic **N-route / N-file** tree (size class documented) completes ingest under declared **time + RSS** budgets on CI runner class X.
 - [ ] **Hole policy unchanged:** new scale paths must not introduce silent translation; cache misses fall back to full parse.
@@ -882,8 +882,8 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 **Goal:** Multiple **observe** agents (different hosts, envs, or canary cells) contribute traces into a **single operator workflow** without corrupting the spec story.
 
-- [x] **Corpus layout (operator doc v1):** **`docs/ADMINISTRATION.md`** — multi-host trace directory conventions and merge discipline (dedupe/sampling still manual until **`corpus-merge`** tooling).
-- [ ] **Merge / dedupe:** tooling to combine corpora for verify (dedupe keys, optional sampling hooks **documented** so operators know what was dropped).
+- [x] **Corpus layout (operator doc v1):** **`docs/ADMINISTRATION.md`** — multi-host trace directory conventions and merge discipline (path merge via **`corpus-merge`**; content dedupe/sampling still manual / future).
+- [x] **Corpus tree merge (v1):** **`mergeCorpusDirectories`** + **`chrysalis corpus-merge`** copy **`YYYY-MM-DD/*.ndjson`** into one **`--out`** root; **`--on-duplicate error|skip`**. Vitest **`packages/oracle/tests/merge-corpus.test.ts`**. **Content-level** dedupe keys / sampling hooks remain operator-runbook + future slice.
 - [ ] **Retention:** rotation + compression; redaction remains **DEFAULT + observe merge** lockstep with `oracle-php`.
 - [ ] **Ops docs:** `docs/ADMINISTRATION.md` extended for multi-host capture and storage sizing.
 

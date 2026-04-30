@@ -33,3 +33,23 @@ describe("cli parser provider validation", () => {
   });
 });
 
+describe("cli ingest cache flag validation", () => {
+  test("rejects --ingest-cache without a value", () => {
+    const r = runCli(["ingest", "fixtures/tiny-blog", "--ingest-cache"]);
+    expect((r.status ?? 0) !== 0).toBe(true);
+    expect(r.stderr).toContain("--ingest-cache requires a directory path");
+  });
+
+  test("accepts --ingest-cache with a directory value", () => {
+    const r = runCli(["ingest", "fixtures/tiny-blog", "--ingest-cache", "reports/ingest-cache-test"]);
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain("routes:");
+  });
+
+  test("verify rejects --ingest-cache without a value", () => {
+    const r = runCli(["verify", "traces", "--base-url", "http://127.0.0.1:1", "--ingest-cache"]);
+    expect((r.status ?? 0) !== 0).toBe(true);
+    expect(r.stderr).toContain("--ingest-cache requires a directory path");
+  });
+});
+

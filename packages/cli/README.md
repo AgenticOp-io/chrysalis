@@ -14,9 +14,9 @@ Subcommands (some are Milestone 1 stubs):
   **`chrysalis.observe.json`** in the PHP root **merges** onto built-in default redaction (same `path` overrides `kind`).
   Bad JSON or invalid rule shapes exit **2** with **`[observe]`** stderr (**D209**).
 - `chrysalis ingest` — PHP source → WebIR module on disk; prints auth-tagged
-  ingest hole count when non-zero (6A); optional **`--shard-index` / `--shard-count`** (V2-M2 route filter)
+  ingest hole count when non-zero (6A); optional **`--shard-index` / `--shard-count`** (V2-M2 route filter); optional **`--ingest-cache <dir>`** (V2-M2 AST cache)
 - `chrysalis archaeology` — recover schema from DB + traces + optional PHP form scan (`--php-root <dir>`, repeatable)
-- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2)
+- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--ingest-cache <dir>`**
 - `chrysalis verify` — replay oracle traces against the generated code; optional
   **`--replay-concurrency N`** (requires **`--disable-cookie-chain`** or
   **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`**), **`--replay-timeout-ms`**,
@@ -27,6 +27,7 @@ Subcommands (some are Milestone 1 stubs):
   On failures: divergence-kind counts, absolute **`summary.json`** path, and **`repair`** / **`--project`** hints (**D212**).
   **`--only-route "METHOD /path"`** and **`--only-trace-id <id>`** narrow replay for large corpora (**D213**)
 - `chrysalis verify-merge` — merge per-shard **`summary.json`** files; **`--json-out`** prints **`chrysalis.verify.summary.merged`** (V2-M1)
+- `chrysalis corpus-merge` — merge multiple **`traces/`**-shaped roots into **`--out`**; **`--on-duplicate error|skip`** (V2-M3)
 - `chrysalis rewrite` — IR rewrites; optional `--http-replay` and
   `--http-replay-backends=hono,fastify`
 - `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router

@@ -11,7 +11,8 @@ turns modernization into a specification problem — the oracle *is* the spec.
 - `observe(config: ObserveConfig): Promise<ObserveSession>` — starts the sidecar
 - `ObserveSession.stop()` — finalize and flush the corpus
 - `TraceFrame`, `TraceCorpus` — the recorded data model
-- `loadCorpus(path)` / `saveCorpus(path, corpus)` — persistence
+- `readCorpus` / `parseTraceFile` — load validated trace corpora from disk
+- `mergeCorpusDirectories({ sources, outDir, onDuplicate? })` — copy multiple **`readCorpus`**-shaped trace roots into one **`YYYY-MM-DD/*.ndjson`** tree (**V2-M3**; CLI: **`chrysalis corpus-merge`**)
 
 ## Invariants
 

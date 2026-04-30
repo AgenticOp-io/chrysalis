@@ -15,6 +15,8 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
   + hoisted functions for that route)
 - `IngestOptions.parserProvider` / `IngestFileOptions.parserProvider` — forwards
   parser selection to `@chrysalis/parser-bridge` (`glayzzle` default, optional `nikic`)
+- `IngestOptions.ingestCacheDir` (V2-M2, opt-in) — reuse on-disk PHP AST JSON keyed by file SHA-256, parser provider, and **`INGEST_AST_CACHE_VERSION`**; **`chrysalis ingest` / `emit`** expose **`--ingest-cache <dir>`**.
+- `INGEST_AST_CACHE_VERSION` — bump in **`parse-cache.ts`** when ingest lowering changes without parser output changing (cache invalidation).
 - `IngestOptions` — include/exclude globs, PHPDoc handling, hole policy, optional **`shardIndex` / `shardCount`** (V2-M2): only routes whose manifest **`file`** maps to the shard are lowered; **`buildCallEffectMap`** still uses the **full** route list for sound effect widening.
 - `filterRoutesForShard` / `routeFileShardBucket` — deterministic route sharding (same FNV mix as verify **`traceDeterminismSeed`** on the relative path string).
 - `normalizeDbFactoryCalleeLabel(label)` — strips leading **`\\`** from manifest callee strings for stable matching.

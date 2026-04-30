@@ -58,3 +58,10 @@ export {
   type ObserveOptions,
   type ObserveHandle,
 } from "./observe.js";
+
+export {
+  mergeCorpusDirectories,
+  type CorpusMergeDuplicatePolicy,
+  type MergeCorpusDirectoriesOptions,
+  type MergeCorpusDirectoriesResult,
+} from "./merge-corpus.js";
