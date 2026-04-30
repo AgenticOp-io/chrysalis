@@ -7,6 +7,7 @@ import { parseFile, type Provider } from "@chrysalis/parser-bridge";
 import { ModuleBuilder, type Module } from "@chrysalis/webir";
 import { ingestHandler } from "./convert.js";
 import { buildCallEffectMap } from "./library-effects.js";
+import { filterRoutesForShard } from "./route-shard.js";
 import {
   dbFactoryReturnCalleeSet,
   loadRouteManifest,
@@ -29,6 +30,14 @@ export interface IngestOptions {
   readonly holePolicy?: "liberal" | "strict";
   /** Parser bridge provider; default is parser-bridge's default (`glayzzle`). */
   readonly parserProvider?: Provider;
+  /**
+   * When set with {@link shardCount} (>= 2), only manifest routes whose
+   * {@link RouteSpec.file} falls in this shard are lowered. Call-map widening
+   * still uses the full route list.
+   */
+  readonly shardIndex?: number;
+  /** Ingest shard count (>= 2). Omit both shard fields to ingest all routes. */
+  readonly shardCount?: number;
 }
 
 /** Options for {@link ingestFile} parity with {@link ingestDirectory} call widening. */
@@ -52,8 +61,20 @@ export async function ingestDirectory(
   const callEffects = await buildCallEffectMap(root, manifest.routes, {
     ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
   });
+  let routes = manifest.routes;
+  if (opts?.shardCount !== undefined) {
+    const idx = opts.shardIndex ?? 0;
+    routes = filterRoutesForShard(manifest.routes, idx, opts.shardCount);
+    if (routes.length === 0) {
+      throw new Error(
+        `ingestDirectory: no routes matched shard filter (shardIndex=${idx}, shardCount=${opts.shardCount}; manifest has ${manifest.routes.length} route(s))`,
+      );
+    }
+  } else if (opts?.shardIndex !== undefined) {
+    throw new Error("ingestDirectory: shardIndex requires shardCount (>= 2)");
+  }
   const builder = new ModuleBuilder({ sourceApp: manifest.app });
-  for (const route of manifest.routes) {
+  for (const route of routes) {
     const ast = await parseFile(resolve(root, route.file), {
       ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
     });
@@ -92,6 +113,7 @@ export async function ingestFile(
   return builder.finish();
 }
 
+export { filterRoutesForShard, routeFileShardBucket } from "./route-shard.js";
 export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects.js";
 export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";
 export type { RouteManifest, RouteSpec };

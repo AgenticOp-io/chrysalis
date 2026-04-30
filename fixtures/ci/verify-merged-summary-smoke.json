@@ -1,0 +1,23 @@
+{
+  "kind": "chrysalis.verify.summary.merged",
+  "schemaVersion": 1,
+  "toolVersion": "1.0.1",
+  "shardCount": 2,
+  "inputs": [
+    {
+      "path": "reports/verify/hono/__partition_shard0__.json",
+      "shardIndex": 0,
+      "aggregate": { "framesTotal": 2, "framesPassed": 2, "correctness": 1 }
+    },
+    {
+      "path": "reports/verify/hono/__partition_shard1__.json",
+      "shardIndex": 1,
+      "aggregate": { "framesTotal": 3, "framesPassed": 3, "correctness": 1 }
+    }
+  ],
+  "merged": {
+    "generatedAt": "2026-04-29T00:00:00.000Z",
+    "aggregate": { "framesTotal": 5, "framesPassed": 5, "correctness": 1 },
+    "endpoints": []
+  }
+}

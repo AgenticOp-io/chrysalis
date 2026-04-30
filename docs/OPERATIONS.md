@@ -87,6 +87,8 @@ node packages/cli/dist/bin.js verify-merge reports/verify-shard0/summary.json re
 
 Use **`--shard-count`** on **`verify-merge`** only when the replay fan-out **K** differs from the number of summary files (for example an empty shard produced no report).
 
+**Ingest / emit sharding (V2-M2):** **`chrysalis ingest`** and **`chrysalis emit`** accept **`--shard-index i --shard-count K`** to lower only manifest routes in that bucket (relative **`chrysalis.routes.json`** **`file`** paths). Library **`buildCallEffectMap`** still scans the full route list for effect widening.
+
 ## Status and migration debt
 
 ```bash

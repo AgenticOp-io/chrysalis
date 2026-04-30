@@ -12,6 +12,7 @@
  *   node scripts/ci-gates.mjs confidence-trend [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs confidence-trend-ready [reports/confidence/history/flagship-laravel-full.history.json]
  *   node scripts/ci-gates.mjs verify-dual-summary [reports/ci/verify-e2e-summary.json]
+ *   node scripts/ci-gates.mjs verify-merged-summary [reports/ci/verify-e2e-merged-summary.json]
  * File-backed JSON gates resolve paths, print missing/invalid JSON hints via readJsonGateArtifact
  * (also tiny-n1-rewrite report JSON, migration-sidecar-floors sidecar JSON). status-migration validates stdin JSON.
  *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
@@ -524,6 +525,74 @@ function assertVerifyDualSummary(path) {
   );
 }
 
+function assertVerifyMergedSummary(path) {
+  const s = readJsonGateArtifact("verify-merged-summary", path, {
+    missingLabel: "summary file missing",
+    missingHint: [
+      "Create it with verify-tiny-blog (partition smoke) or pass a fixture path:",
+      "  pnpm run ci:verify-merged-summary -- <path>",
+    ],
+  });
+  if (s.kind !== "chrysalis.verify.summary.merged") {
+    fail(`verify-merged-summary: expected kind chrysalis.verify.summary.merged, got ${JSON.stringify(s.kind)}`);
+  }
+  if (s.schemaVersion !== 1) {
+    fail(`verify-merged-summary: expected schemaVersion 1, got ${JSON.stringify(s.schemaVersion)}`);
+  }
+  if (typeof s.toolVersion !== "string" || s.toolVersion.length === 0) {
+    fail("verify-merged-summary: missing toolVersion");
+  }
+  if (typeof s.shardCount !== "number" || !Number.isFinite(s.shardCount) || s.shardCount < 1) {
+    fail(`verify-merged-summary: shardCount must be a finite number >= 1, got ${JSON.stringify(s.shardCount)}`);
+  }
+  if (!Array.isArray(s.inputs) || s.inputs.length < 1) {
+    fail("verify-merged-summary: expected non-empty inputs[]");
+  }
+  for (let i = 0; i < s.inputs.length; i++) {
+    const row = s.inputs[i];
+    if (typeof row?.path !== "string" || row.path.length === 0) {
+      fail(`verify-merged-summary: inputs[${i}] missing path`);
+    }
+    if (typeof row.shardIndex !== "number" || !Number.isFinite(row.shardIndex)) {
+      fail(`verify-merged-summary: inputs[${i}] missing shardIndex`);
+    }
+    if (!row.aggregate || typeof row.aggregate.framesTotal !== "number") {
+      fail(`verify-merged-summary: inputs[${i}] missing aggregate.framesTotal`);
+    }
+    if (typeof row.aggregate.framesPassed !== "number") {
+      fail(`verify-merged-summary: inputs[${i}] missing aggregate.framesPassed`);
+    }
+    if (typeof row.aggregate.correctness !== "number") {
+      fail(`verify-merged-summary: inputs[${i}] missing aggregate.correctness`);
+    }
+  }
+  if (!s.merged || typeof s.merged !== "object") {
+    fail("verify-merged-summary: missing merged");
+  }
+  const m = s.merged;
+  if (!m.aggregate || typeof m.aggregate.framesTotal !== "number") {
+    fail("verify-merged-summary: merged.aggregate.framesTotal missing");
+  }
+  if (typeof m.aggregate.framesPassed !== "number") {
+    fail("verify-merged-summary: merged.aggregate.framesPassed missing");
+  }
+  if (typeof m.aggregate.correctness !== "number" || !Number.isFinite(m.aggregate.correctness)) {
+    fail("verify-merged-summary: merged.aggregate.correctness missing or non-finite");
+  }
+  if (!Array.isArray(m.endpoints)) {
+    fail("verify-merged-summary: merged.endpoints must be an array");
+  }
+  const minCorr = parseOptionalEnvNumber(process.env.CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS, "CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS");
+  if (minCorr != null && m.aggregate.correctness + 1e-9 < minCorr) {
+    fail(
+      `verify-merged-summary: merged aggregate correctness ${m.aggregate.correctness} < CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS ${minCorr}`,
+    );
+  }
+  console.log(
+    `verify-merged-summary OK: shardCount=${s.shardCount} inputs=${s.inputs.length} frames=${m.aggregate.framesPassed}/${m.aggregate.framesTotal}`,
+  );
+}
+
 function parseOptionalEnvNumber(raw, label) {
   if (raw == null) return null;
   const s = String(raw).trim();
@@ -686,6 +755,9 @@ switch (cmd) {
   case "verify-dual-summary":
     assertVerifyDualSummary(arg0 ?? "reports/ci/verify-e2e-summary.json");
     break;
+  case "verify-merged-summary":
+    assertVerifyMergedSummary(arg0 ?? "reports/ci/verify-e2e-merged-summary.json");
+    break;
   case "migration-sidecar-floors":
     assertMigrationSidecarFloors(arg0);
     break;
@@ -698,7 +770,7 @@ switch (cmd) {
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|migration-sidecar-floors|migration-sidecar-floors-release|session-bridge-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|migration-sidecar-floors|migration-sidecar-floors-release|session-bridge-release> [path]",
     );
     process.exit(1);
 }

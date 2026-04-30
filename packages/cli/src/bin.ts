@@ -144,6 +144,32 @@ function positional(args: string[]): string[] {
 
 type ParserProvider = "glayzzle" | "nikic";
 
+function ingestShardOptsFromFlags(
+  flags: Record<string, string | boolean>,
+): { ok: true; opts: { shardIndex?: number; shardCount?: number } } | { ok: false; message: string } {
+  const scRaw = flags["shard-count"];
+  const siRaw = flags["shard-index"];
+  if (scRaw === undefined && siRaw === undefined) {
+    return { ok: true, opts: {} };
+  }
+  if (typeof scRaw !== "string") {
+    return { ok: false, message: "error: ingest shard filter requires --shard-count <int>=2" };
+  }
+  const k = Math.floor(Number.parseFloat(scRaw));
+  if (!Number.isFinite(k) || k < 2) {
+    return { ok: false, message: "error: --shard-count must be a finite integer >= 2" };
+  }
+  const idx =
+    typeof siRaw === "string" ? Math.floor(Number.parseFloat(siRaw)) : 0;
+  if (typeof siRaw === "string" && !Number.isFinite(idx)) {
+    return { ok: false, message: "error: --shard-index must be a finite integer" };
+  }
+  if (idx < 0 || idx >= k) {
+    return { ok: false, message: `error: --shard-index must satisfy 0 <= index < shard-count (got ${idx}, ${k})` };
+  }
+  return { ok: true, opts: { shardCount: k, shardIndex: idx } };
+}
+
 function parserProviderFromFlags(
   flags: Record<string, string | boolean>,
 ): ParserProvider | null | undefined {
@@ -186,13 +212,26 @@ async function cmdIngest(args: string[]): Promise<number> {
   const flags = parseFlags(args);
   const root = pos[0];
   if (!root) {
-    console.error("usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic]");
+    console.error(
+      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K]",
+    );
     return 2;
   }
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const shardOpts = ingestShardOptsFromFlags(flags);
+  if (!shardOpts.ok) {
+    console.error(shardOpts.message);
+    return 2;
+  }
+  if (shardOpts.opts.shardCount !== undefined) {
+    console.log(
+      `[ingest] shard ${shardOpts.opts.shardIndex ?? 0}/${shardOpts.opts.shardCount} (route file filter; call map uses full manifest)`,
+    );
+  }
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
+    ...shardOpts.opts,
   });
   console.log(`routes:   ${mod.roots.length}`);
   console.log(`nodes:    ${mod.nodes.size}`);
@@ -214,18 +253,29 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>] [--parser-provider glayzzle|nikic]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K]",
     );
     return 2;
   }
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
+  const shardOpts = ingestShardOptsFromFlags(flags);
+  if (!shardOpts.ok) {
+    console.error(shardOpts.message);
+    return 2;
+  }
+  if (shardOpts.opts.shardCount !== undefined) {
+    console.log(
+      `[emit] shard ${shardOpts.opts.shardIndex ?? 0}/${shardOpts.opts.shardCount} (partial route set; call map uses full manifest)`,
+    );
+  }
   if (target !== "hono" && target !== "fastify") {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
     return 2;
   }
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
+    ...shardOpts.opts,
   });
   const outAbs = resolve(outDir);
   const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;

@@ -15,7 +15,8 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
   + hoisted functions for that route)
 - `IngestOptions.parserProvider` / `IngestFileOptions.parserProvider` — forwards
   parser selection to `@chrysalis/parser-bridge` (`glayzzle` default, optional `nikic`)
-- `IngestOptions` — include/exclude globs, PHPDoc handling, hole policy
+- `IngestOptions` — include/exclude globs, PHPDoc handling, hole policy, optional **`shardIndex` / `shardCount`** (V2-M2): only routes whose manifest **`file`** maps to the shard are lowered; **`buildCallEffectMap`** still uses the **full** route list for sound effect widening.
+- `filterRoutesForShard` / `routeFileShardBucket` — deterministic route sharding (same FNV mix as verify **`traceDeterminismSeed`** on the relative path string).
 - `normalizeDbFactoryCalleeLabel(label)` — strips leading **`\\`** from manifest callee strings for stable matching.
 - `dbFactoryReturnCalleeSet(manifest)` — builds the **`Set<string>`** used during ingest from **`dbFactoryReturnCallees`**.
 - `chrysalis.routes.json` optional **`dbFactoryReturnCallees`**: string list of normalized callee labels (`Class::method` or global function) the project **declares** return a DB connection; enables **`$x->query`** / **`Factory::get()->query`** lowering without body inference (**D224**). Example FQNs: **`fixtures/laravel-shaped-db-factory-probe`** (**D225**).

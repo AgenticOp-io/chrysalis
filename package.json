@@ -40,6 +40,7 @@
     "scaffold:laravel-full:breeze": "node scripts/scaffold-flagship-laravel.mjs --with-breeze",
     "ci-gates": "node scripts/ci-gates.mjs",
     "ci:verify-dual-summary": "node scripts/ci-gates.mjs verify-dual-summary",
+    "ci:verify-merged-summary": "node scripts/ci-gates.mjs verify-merged-summary",
     "ci:tiny-n1-insight": "node scripts/ci-gates.mjs tiny-n1-insight",
     "ci:rewrite-pre-xss": "node scripts/ci-gates.mjs rewrite-pre-xss",
     "ci:confidence-5nines": "node scripts/ci-gates.mjs confidence-5nines",

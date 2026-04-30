@@ -34,9 +34,12 @@ import {
 } from "../packages/oracle/dist/index.js";
 import { ingestDirectory } from "../packages/ingest/dist/index.js";
 import {
+  buildMergedVerifySummaryJson,
   buildReport,
+  mergeCorrectnessReports,
   replayCorpus,
   resolveVerifyReplayExtras,
+  traceDeterminismSeed,
   writeReport,
 } from "../packages/verify/dist/index.js";
 
@@ -49,6 +52,7 @@ const traceDir = resolve(repo, "traces");
 const reportRoot = resolve(repo, "reports/verify");
 const ciReportDir = resolve(repo, "reports/ci");
 const ciSummaryPath = resolve(ciReportDir, "verify-e2e-summary.json");
+const ciMergedSummaryPath = resolve(ciReportDir, "verify-e2e-merged-summary.json");
 const preludePath = resolve(repo, "packages/oracle-php/src/bootstrap.php");
 const fixtureDb = resolve(fixture, "blog.sqlite");
 const honoDb = join(generatedHono, "blog.sqlite");
@@ -152,6 +156,11 @@ const backends = [
 const webirModule = await ingestDirectory(fixture);
 let exitCode = 0;
 const backendSummaries = [];
+/** @type {import("../packages/verify/dist/index.js").CorrectnessReport | null} */
+let honoReport = null;
+/** @type {string | null} */
+let honoSummaryPathForManifest = null;
+let honoPartitionMerged = null;
 for (const b of backends) {
   console.log(`\n[verify-e2e] —— replay vs ${b.id} (in-process fetch) ——`);
   const fetchFn = await loadEmittedFetch(b.dir, b.kind);
@@ -166,6 +175,46 @@ for (const b of backends) {
   const outDir = join(reportRoot, b.id);
   const written = writeReport(outDir, report, outcomes);
   console.log(`[verify-e2e] wrote ${written.length} report file(s) under ${outDir}`);
+  if (b.id === "hono") {
+    honoReport = report;
+    honoSummaryPathForManifest = join(outDir, "summary.json");
+    const k = 2;
+    const b0 = [];
+    const b1 = [];
+    for (const o of outcomes) {
+      (traceDeterminismSeed(o.traceId) % k === 0 ? b0 : b1).push(o);
+    }
+    if (b0.length > 0 && b1.length > 0) {
+      const r0 = buildReport(b0);
+      const r1 = buildReport(b1);
+      const mergedRep = mergeCorrectnessReports([r0, r1]);
+      if (mergedRep.aggregate.framesTotal !== report.aggregate.framesTotal) {
+        throw new Error(
+          `[verify-e2e] partition merge framesTotal mismatch: merged=${mergedRep.aggregate.framesTotal} full=${report.aggregate.framesTotal}`,
+        );
+      }
+      if (Math.abs(mergedRep.aggregate.correctness - report.aggregate.correctness) > 1e-9) {
+        throw new Error(
+          `[verify-e2e] partition merge correctness mismatch: merged=${mergedRep.aggregate.correctness} full=${report.aggregate.correctness}`,
+        );
+      }
+      honoPartitionMerged = buildMergedVerifySummaryJson({
+        toolVersion: repoToolVersion(repo),
+        shardCount: k,
+        inputs: [
+          { path: join(outDir, "__partition_shard0__.json"), shardIndex: 0, report: r0 },
+          { path: join(outDir, "__partition_shard1__.json"), shardIndex: 1, report: r1 },
+        ],
+      });
+      console.log(
+        `[verify-e2e] hono partition smoke (K=${k}): shard0=${b0.length} shard1=${b1.length} frames (merge == monolithic OK)`,
+      );
+    } else {
+      console.log(
+        `[verify-e2e] hono partition smoke skipped (K=${k}: empty shard; traceIds not spread across buckets)`,
+      );
+    }
+  }
 
   console.log(
     `[verify-e2e] ${b.id} aggregate: ${(report.aggregate.correctness * 100).toFixed(1)}%  (${report.aggregate.framesPassed}/${report.aggregate.framesTotal})`,
@@ -221,6 +270,19 @@ writeFileSync(
   "utf8",
 );
 console.log(`[verify-e2e] wrote machine summary: ${ciSummaryPath}`);
+
+if (!honoPartitionMerged && honoReport && honoSummaryPathForManifest) {
+  honoPartitionMerged = buildMergedVerifySummaryJson({
+    toolVersion: repoToolVersion(repo),
+    shardCount: 1,
+    inputs: [{ path: honoSummaryPathForManifest, shardIndex: 0, report: honoReport }],
+  });
+  console.log("[verify-e2e] merged summary: single-shard fallback (K=2 had an empty bucket)");
+}
+if (honoPartitionMerged) {
+  writeFileSync(ciMergedSummaryPath, `${JSON.stringify(honoPartitionMerged, null, 2)}\n`, "utf8");
+  console.log(`[verify-e2e] wrote merged partition summary: ${ciMergedSummaryPath}`);
+}
 
 if (exitCode === 0) {
   console.log("\n[verify-e2e] dual-backend gate OK (Hono + Fastify both above threshold).");

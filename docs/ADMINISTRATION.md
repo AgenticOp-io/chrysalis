@@ -11,6 +11,7 @@ Verify and replay honor **`CHRYSALIS_VERIFY_*`** and related knobs exposed by `@
 | `CHRYSALIS_SKIP_PARSER_VENDOR` | `pretest` | Skip Composer vendor install for parser-bridge |
 | `CHRYSALIS_PARSER_PROVIDER` | ingest / CLI | e.g. `nikic` vs default |
 | `CHRYSALIS_VERIFY_DUAL_PROFILE` | `scripts/ci-gates.mjs verify-dual-summary` | Pins expected `profile` on dual-summary JSON |
+| `CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS` | `scripts/ci-gates.mjs verify-merged-summary` | When set (0..1), requires `merged.aggregate.correctness` at least this value |
 | `CHRYSALIS_IDIOMATICITY_MIN` / `CHRYSALIS_RESIDUAL_LEGACY_MAX` | `migration-sidecar-floors` | When set, enforces floors against `reports/migration/*.json` |
 | `CHRYSALIS_RELEASE_*` | `migration-sidecar-floors-release` | Release policy wrapper (see `ci-gates` help text) |
 | `CHRYSALIS_SESSION_*`, `CHRYSALIS_DEPLOY_TOPOLOGY` | `session-bridge-release` gate | See `scripts/ci-gates.mjs` header comment |
@@ -25,6 +26,7 @@ Do **not** rely on `process.env` inside **generated** handlers or verify sandbox
 
 ```text
 node scripts/ci-gates.mjs verify-dual-summary [path]
+node scripts/ci-gates.mjs verify-merged-summary [path]
 node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
 node scripts/ci-gates.mjs session-bridge-release
 ```
@@ -36,11 +38,15 @@ node scripts/ci-gates.mjs session-bridge-release
 Under a typical workspace root:
 
 - `reports/verify/` — replay summaries and per-route files  
-- `reports/ci/` — dual-backend verify summaries consumed by CI gates  
+- `reports/ci/` — dual-backend verify summaries and **merged** partition summaries (`verify-e2e-merged-summary.json`) consumed by CI gates  
 - `reports/migration/` — idiomaticity / residual-legacy sidecars when generated  
 - `reports/shadow/` — shadow-mode divergence stream  
 
 Back up **trace corpora** (`traces/` or your chosen directory) and any **custom observe config**; they are the behavioral contract for verify.
+
+## Multi-host trace corpora (V2-M3 planning)
+
+When several machines or cells each run **`chrysalis observe`**, keep each capture under a **stable top-level directory** (for example `traces/<host-or-cell>/…` or separate repos) so operators never overwrite NDJSON in place. Before **`chrysalis verify`**, concatenate or symlink day-buckets into one **`readCorpus`** root only after **redaction defaults** and **`chrysalis.observe.json`** merge rules are aligned on all writers (`DESIGN.md`, `packages/oracle/README.md`). Document which host produced which subdirectory in runbooks; dedupe and sampling remain explicit operator choices until first-class **`corpus-merge`** tooling ships on the V2 roadmap.
 
 ## Redaction and security
 

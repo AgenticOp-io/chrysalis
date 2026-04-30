@@ -864,12 +864,13 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 - [x] **Proof:** Vitest **`packages/verify/tests/replay.test.ts`** (partition + merge vs monolithic aggregate) and **`merge-partition.test.ts`**.
 - [x] **Docs:** **`packages/verify/README.md`** + **`docs/OPERATIONS.md`** (partitioned verify + **`verify-merge`**).
 
-**Done when:** CI runs at least one **partitioned + merged** verify path on a committed fixture and gates the merged JSON with **`ci-gates`** (library + Vitest parity landed; **`ci-gates`** hookup pending).
+**Done when:** CI runs at least one **partitioned + merged** verify path on a committed fixture and gates the merged JSON with **`ci-gates`**. **Closed:** **`verify-merged-summary`** gate + **`verify-tiny-blog.mjs`** **`reports/ci/verify-e2e-merged-summary.json`** + fixture **`fixtures/ci/verify-merged-summary-smoke.json`** in **`typecheck-and-test`**.
 
 ### Milestone V2-M2 — Resumable ingest + shard boundaries
 
 **Goal:** Ingest **does not require** a single long-lived process that holds the entire IR in RAM; teams can define **shard roots** (e.g. service, bounded context, repo subtree) and resume after failure.
 
+- [x] **Route-level ingest sharding (v1):** **`ingestDirectory`** **`shardIndex` / `shardCount`** filters manifest routes by **`routeFileShardBucket(file)`**; **`buildCallEffectMap`** keeps the **full** route list for sound lib widening. **`chrysalis ingest` / `emit`** **`--shard-*`**. Vitest **`packages/ingest/tests/route-shard-ingest.test.ts`**.
 - [ ] **Incremental cache:** content-addressed inputs (file hash + parser version + ingest version) → skip unchanged modules; clear invalidation rules.
 - [ ] **Merge model:** how WebIR modules from shards combine in **`chrysalis status`** / emit (no duplicate routes; deterministic ordering).
 - [ ] **Stress fixture:** synthetic **N-route / N-file** tree (size class documented) completes ingest under declared **time + RSS** budgets on CI runner class X.
@@ -881,7 +882,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 **Goal:** Multiple **observe** agents (different hosts, envs, or canary cells) contribute traces into a **single operator workflow** without corrupting the spec story.
 
-- [ ] **Corpus layout:** documented directory convention for **`host` / `cell` / `build-id`** (metadata in sidecar JSON or NDJSON envelope—design before implementation).
+- [x] **Corpus layout (operator doc v1):** **`docs/ADMINISTRATION.md`** — multi-host trace directory conventions and merge discipline (dedupe/sampling still manual until **`corpus-merge`** tooling).
 - [ ] **Merge / dedupe:** tooling to combine corpora for verify (dedupe keys, optional sampling hooks **documented** so operators know what was dropped).
 - [ ] **Retention:** rotation + compression; redaction remains **DEFAULT + observe merge** lockstep with `oracle-php`.
 - [ ] **Ops docs:** `docs/ADMINISTRATION.md` extended for multi-host capture and storage sizing.

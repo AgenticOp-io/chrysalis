@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **V2-M1 — CI gate for merged verify JSON:** `scripts/ci-gates.mjs verify-merged-summary`, root **`pnpm run ci:verify-merged-summary`**, fixture **`fixtures/ci/verify-merged-summary-smoke.json`**, **`verify-tiny-blog.mjs`** emits **`reports/ci/verify-e2e-merged-summary.json`** (K=2 partition parity smoke or single-shard fallback). Optional **`CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS`** in CI.
+
+- **V2-M2 — ingest / emit route sharding:** **`ingestDirectory`** accepts **`shardIndex` / `shardCount`**; **`buildCallEffectMap`** still uses all manifest routes. **`chrysalis ingest`** and **`chrysalis emit`** accept **`--shard-index`** / **`--shard-count`**. FNV bucket helper **`packages/ingest/src/route-shard.ts`**.
+
 ## [1.0.1] - 2026-04-29
 
 ### Added
