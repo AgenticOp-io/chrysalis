@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **V2-M5 (D257):** Multi-key chimera deploy HMAC — **`hmacSha256`** as hex **string** or **`{ keyId: hex }`**; **`parseChimeraDeployConfigJson`** **`hmacPreviousSecrets`** / **`hmacSecretsByKeyId`**; **`computeChimeraDeployConfigHmacHexByKeyIds`**; CLI **`--config-hmac-keys-json`**; **`CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON`**, **`CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS`**; **`docs/OPERATIONS.md`** / **`ADMINISTRATION.md`** updated.
+
 - **V2-M4 / V2-M5 (D256):** **`emitStrategy.handlerImportBarrel`**, **`src/chrysalis-handler-imports.ts`**, CLI **`--emit-handler-import-barrel`**; **`chrysalis deploy --config-url`** + **`CHRYSALIS_CHIMERA_CONFIG_URL`**; **SIGHUP/SIGUSR2** config reload; **`ci:chimera-lb-smoke`** + round-robin LB Vitest; **`docs/OPERATIONS.md`** KMS/HMAC rotation; **`aggregateEmittedHandlerImports`** / barrel builders in **`@chrysalis/emit-shared`**.
 
 - **V2-M5 / V2-M2 / V2-M6 (D255):** Optional **`hmacSha256`** on chimera deploy JSON; **`parseChimeraDeployConfigJson`** HMAC verification; CLI **`--config-hmac-secret`**; **`computeChimeraDeployConfigHmacHex`** / **`stableStringifyChimeraDeploySigningPayload`**; optional **`CHRYSALIS_INGEST_RSS_MAX_BYTES`**; **`scripts/export-fleet-status-uplink.mjs`** + **`pnpm run fleet:export-status-uplink`**; fleet fixture **`items[].status`**; deploy **`stats`** log includes shadow line/canary fields; two-instance chimera Vitest.

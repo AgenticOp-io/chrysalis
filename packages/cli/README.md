@@ -31,7 +31,7 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis rewrite` — IR rewrites; optional `--http-replay` and
   `--http-replay-backends=hono,fastify`
 - `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router
-  (`--config` file **D253**, **`--config-url`** / **`CHRYSALIS_CHIMERA_CONFIG_URL`** **D256**, optional **HMAC** **D255**, **SIGHUP/SIGUSR2** reload **D256**, `--canary-percent`, stickiness cookie/header flags for canary)
+  (`--config` file **D253**, **`--config-url`** / **`CHRYSALIS_CHIMERA_CONFIG_URL`** **D256**, optional **HMAC** **D255** / multi-key **D257** (`--config-hmac-keys-json`, **`CHRYSALIS_CHIMERA_CONFIG_HMAC_*`**), **SIGHUP/SIGUSR2** reload **D256**, `--canary-percent`, stickiness cookie/header flags for canary)
 - `chrysalis status` — migration dashboard; **`--json`** prints a single JSON object on **stdout**; shard / merge-all-shards progress lines go to **stderr** (same machine contract as **`verify --json-summary`**). **`--json`** includes `migration`
   and `oracleFootprint` (`routes[]` with `--project`) and **`ingestSharding`** (`monolithic` | **`routeShard`** | **`mergedShards`**) when **`--project`** ingest succeeds (**DESIGN D248**). With **`--project`**, optional **`--merge-all-shards --shard-count K`** ingests each shard and merges for full-route metrics (same **`mergeWebIrModules`** as **`ingest`**). With `--project`, also
   writes `reports/oracle-footprint.json`. Correctness from `--report`, optional

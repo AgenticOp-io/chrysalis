@@ -45,6 +45,7 @@ import {
   type CanarySettings,
   type ChimeraDeployConfigFile,
   type ChimeraHandle,
+  type ParseChimeraDeployConfigOptions,
   type RouteRule,
 } from "@chrysalis/runtime-chimera";
 import {
@@ -1166,6 +1167,86 @@ function chimeraDeployHmacSecret(flags: Record<string, string | boolean>): strin
   return undefined;
 }
 
+function chimeraDeployHmacParseOptions(
+  flags: Record<string, string | boolean>,
+): { ok: true; options: ParseChimeraDeployConfigOptions } | { ok: false; message: string } {
+  const primary = chimeraDeployHmacSecret(flags);
+  const prevRaw = process.env.CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS;
+  let hmacPreviousSecrets: string[] | undefined;
+  if (typeof prevRaw === "string" && prevRaw.trim().length > 0) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(prevRaw) as unknown;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return {
+        ok: false,
+        message: `CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS must be valid JSON array of strings (${msg})`,
+      };
+    }
+    if (!Array.isArray(parsed) || !parsed.every((x) => typeof x === "string")) {
+      return {
+        ok: false,
+        message:
+          "CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS must be a JSON array of strings",
+      };
+    }
+    hmacPreviousSecrets = parsed as string[];
+  }
+
+  const keysFromFlag =
+    typeof flags["config-hmac-keys-json"] === "string" ? flags["config-hmac-keys-json"] : undefined;
+  const keysFromEnv = process.env.CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON;
+  const keysRaw =
+    keysFromFlag !== undefined && keysFromFlag.trim().length > 0
+      ? keysFromFlag
+      : typeof keysFromEnv === "string" && keysFromEnv.trim().length > 0
+        ? keysFromEnv
+        : undefined;
+
+  let hmacSecretsByKeyId: Record<string, string> | undefined;
+  if (keysRaw !== undefined) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(keysRaw) as unknown;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return {
+        ok: false,
+        message: `--config-hmac-keys-json / CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON must be valid JSON (${msg})`,
+      };
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return {
+        ok: false,
+        message:
+          "--config-hmac-keys-json / CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON must be a JSON object (key id → secret string)",
+      };
+    }
+    const m: Record<string, string> = {};
+    for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof v === "string" && v.length > 0) m[k] = v;
+    }
+    if (Object.keys(m).length === 0) {
+      return {
+        ok: false,
+        message:
+          "--config-hmac-keys-json / CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON must contain at least one non-empty string value",
+      };
+    }
+    hmacSecretsByKeyId = m;
+  }
+
+  const options: ParseChimeraDeployConfigOptions = {
+    ...(primary !== undefined ? { hmacSecret: primary } : {}),
+    ...(hmacPreviousSecrets !== undefined && hmacPreviousSecrets.length > 0
+      ? { hmacPreviousSecrets }
+      : {}),
+    ...(hmacSecretsByKeyId !== undefined ? { hmacSecretsByKeyId } : {}),
+  };
+  return { ok: true, options };
+}
+
 function mergeChimeraDeployFlagsAndFile(
   flags: Record<string, string | boolean>,
   fileCfg: ChimeraDeployConfigFile,
@@ -1193,6 +1274,7 @@ function mergeChimeraDeployFlagsAndFile(
         "usage: chrysalis deploy --mode=<legacy|cutover|shadow|canary> --legacy <url> --modern <url>\n" +
         "                       [--port 8080] [--host 127.0.0.1]\n" +
         "                       [--config chimera.json] [--config-url <url>] [--config-hmac-secret <str>]\n" +
+        "                       [--config-hmac-keys-json <json>]\n" +
         "                       [--shadow-log-dir reports/shadow]\n" +
         "                       [--canary-percent 0-100] [--canary-salt <str>]\n" +
         "                       [--canary-cookie <name>] [--canary-header <name>]",
@@ -1264,7 +1346,12 @@ async function cmdDeploy(args: string[]): Promise<number> {
     return 2;
   }
 
-  const hmacSecret = chimeraDeployHmacSecret(flags);
+  const hmacOptsResult = chimeraDeployHmacParseOptions(flags);
+  if (!hmacOptsResult.ok) {
+    console.error(`error: ${hmacOptsResult.message}`);
+    return 2;
+  }
+  const hmacParseOpts = hmacOptsResult.options;
 
   async function loadConfigText(): Promise<
     { ok: true; text: string; label: string } | { ok: false; message: string }
@@ -1363,9 +1450,7 @@ async function cmdDeploy(args: string[]): Promise<number> {
         console.error(`[deploy] reload skipped: ${loaded.message}`);
         return;
       }
-      const parsed = parseChimeraDeployConfigJson(loaded.text, loaded.label, {
-        ...(hmacSecret !== undefined ? { hmacSecret } : {}),
-      });
+      const parsed = parseChimeraDeployConfigJson(loaded.text, loaded.label, hmacParseOpts);
       if (!parsed.ok) {
         console.error(`[deploy] reload skipped: ${parsed.message}`);
         return;
@@ -1390,9 +1475,7 @@ async function cmdDeploy(args: string[]): Promise<number> {
     console.error(`[deploy] ${loaded0.message}`);
     return 2;
   }
-  const parsed0 = parseChimeraDeployConfigJson(loaded0.text, loaded0.label, {
-    ...(hmacSecret !== undefined ? { hmacSecret } : {}),
-  });
+  const parsed0 = parseChimeraDeployConfigJson(loaded0.text, loaded0.label, hmacParseOpts);
   if (!parsed0.ok) {
     console.error(parsed0.message);
     return 2;

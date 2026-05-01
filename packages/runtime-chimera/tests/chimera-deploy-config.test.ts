@@ -6,6 +6,7 @@ import {
   CHIMERA_DEPLOY_CONFIG_KIND,
   CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
   computeChimeraDeployConfigHmacHex,
+  computeChimeraDeployConfigHmacHexByKeyIds,
   parseChimeraDeployConfigJson,
 } from "../src/chimera-deploy-config.js";
 
@@ -139,6 +140,58 @@ describe("parseChimeraDeployConfigJson", () => {
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.value.legacy).toBe("http://a");
+  });
+
+  it("accepts hmacSha256 when a previous secret matches (string rotation)", () => {
+    const base: Record<string, unknown> = {
+      kind: CHIMERA_DEPLOY_CONFIG_KIND,
+      schemaVersion: CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+      legacy: "http://a",
+      modern: "http://b",
+      rules: [],
+    };
+    const oldSecret = "rotated-out";
+    const hmac = computeChimeraDeployConfigHmacHex(base, oldSecret);
+    const r = parseChimeraDeployConfigJson(JSON.stringify({ ...base, hmacSha256: hmac }), "signed.json", {
+      hmacSecret: "new-primary",
+      hmacPreviousSecrets: [oldSecret],
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("accepts hmacSha256 object when any key id verifies", () => {
+    const base: Record<string, unknown> = {
+      kind: CHIMERA_DEPLOY_CONFIG_KIND,
+      schemaVersion: CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+      legacy: "http://a",
+      modern: "http://b",
+      rules: [{ match: "/z", target: "modern" }],
+    };
+    const map = computeChimeraDeployConfigHmacHexByKeyIds(base, {
+      k2025: "old-kms",
+      k2026: "new-kms",
+    });
+    const r = parseChimeraDeployConfigJson(JSON.stringify({ ...base, hmacSha256: map }), "signed.json", {
+      hmacSecretsByKeyId: { k2026: "new-kms" },
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.value.rules).toHaveLength(1);
+  });
+
+  it("rejects hmacSha256 object when no supplied key id matches", () => {
+    const base: Record<string, unknown> = {
+      kind: CHIMERA_DEPLOY_CONFIG_KIND,
+      schemaVersion: CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+      legacy: "http://a",
+      modern: "http://b",
+      rules: [],
+    };
+    const map = computeChimeraDeployConfigHmacHexByKeyIds(base, { k2026: "new-kms" });
+    const r = parseChimeraDeployConfigJson(JSON.stringify({ ...base, hmacSha256: map }), "signed.json", {
+      hmacSecretsByKeyId: { k2026: "wrong" },
+    });
+    expect(r.ok).toBe(false);
   });
 
   it("parses committed fixture", () => {

@@ -22,6 +22,7 @@ export {
   CHIMERA_DEPLOY_CONFIG_KIND,
   CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
   computeChimeraDeployConfigHmacHex,
+  computeChimeraDeployConfigHmacHexByKeyIds,
   parseChimeraDeployConfigJson,
   stableStringifyChimeraDeploySigningPayload,
   type ChimeraDeployConfigFile,

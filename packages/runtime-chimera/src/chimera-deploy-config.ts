@@ -2,8 +2,9 @@
  * Versioned JSON contract for `chrysalis deploy --config` (V2-M5 shared config source, DESIGN D253).
  * Unversioned objects (no `kind`) remain accepted for backward compatibility.
  *
- * Optional **`hmacSha256`** (hex digest, 32 bytes) authenticates the JSON object excluding that field,
- * using **`stableStringifyChimeraDeploySigningPayload`** + **HMAC-SHA256** (**DESIGN D255**).
+ * Optional **`hmacSha256`** authenticates the JSON object excluding that field, using
+ * **`stableStringifyChimeraDeploySigningPayload`** + **HMAC-SHA256** (**DESIGN D255**).
+ * It may be a **64-hex string** or an **object** mapping opaque key ids to hex digests (**DESIGN D257**).
  */
 
 import { createHmac, timingSafeEqual } from "node:crypto";
@@ -14,8 +15,17 @@ export const CHIMERA_DEPLOY_CONFIG_KIND = "chrysalis.chimera.config" as const;
 export const CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION = 1 as const;
 
 export interface ParseChimeraDeployConfigOptions {
-  /** When the JSON includes **`hmacSha256`**, this secret must be set or parsing fails. */
+  /** When **`hmacSha256`** is a hex string, this secret is tried first. */
   readonly hmacSecret?: string;
+  /**
+   * When **`hmacSha256`** is a hex string, try these after **`hmacSecret`** (rotation windows).
+   */
+  readonly hmacPreviousSecrets?: readonly string[];
+  /**
+   * When **`hmacSha256`** is an object **`{ [keyId]: hex }`**, supply the matching secret per id.
+   * Verification succeeds if **any** entry matches.
+   */
+  readonly hmacSecretsByKeyId?: Readonly<Record<string, string>>;
 }
 
 /** Recursive JSON with sorted object keys (signing payload only; excludes **`hmacSha256`**). */
@@ -46,6 +56,49 @@ export function computeChimeraDeployConfigHmacHex(
 ): string {
   const payload = stableStringifyChimeraDeploySigningPayload(deployFieldsOnly);
   return createHmac("sha256", secret).update(payload, "utf8").digest("hex");
+}
+
+/**
+ * Build **`hmacSha256`** as an object of digests (same signing payload for each key id), for dual-key
+ * publication in one JSON document during KMS rotation.
+ */
+export function computeChimeraDeployConfigHmacHexByKeyIds(
+  deployFieldsOnly: Record<string, unknown>,
+  keyIdToSecret: Readonly<Record<string, string>>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [keyId, secret] of Object.entries(keyIdToSecret)) {
+    out[keyId] = computeChimeraDeployConfigHmacHex(deployFieldsOnly, secret);
+  }
+  return out;
+}
+
+const HEX64 = /^[0-9a-fA-F]{64}$/;
+
+function verifyHmacHexAgainstSecrets(
+  restUnknown: Record<string, unknown>,
+  hexField: string,
+  secrets: readonly string[],
+): boolean {
+  if (secrets.length === 0) return false;
+  const payload = stableStringifyChimeraDeploySigningPayload(restUnknown);
+  const got = Buffer.from(hexField.toLowerCase(), "hex");
+  for (const secret of secrets) {
+    const expected = createHmac("sha256", secret).update(payload, "utf8").digest();
+    if (got.length === expected.length && timingSafeEqual(got, expected)) return true;
+  }
+  return false;
+}
+
+function collectStringHmacSecrets(options?: ParseChimeraDeployConfigOptions): string[] {
+  const out: string[] = [];
+  if (typeof options?.hmacSecret === "string" && options.hmacSecret.length > 0) {
+    out.push(options.hmacSecret);
+  }
+  for (const s of options?.hmacPreviousSecrets ?? []) {
+    if (typeof s === "string" && s.length > 0) out.push(s);
+  }
+  return out;
 }
 
 export interface ChimeraDeployConfigFile {
@@ -146,26 +199,69 @@ export function parseChimeraDeployConfigJson(
 
   const hmacField = o.hmacSha256;
   if (hmacField !== undefined) {
-    if (typeof hmacField !== "string" || !/^[0-9a-fA-F]{64}$/.test(hmacField)) {
-      return {
-        ok: false,
-        message: `${pathLabel}: hmacSha256 must be a 64-character hexadecimal string when set`,
-      };
-    }
-    const secret = options?.hmacSecret;
-    if (typeof secret !== "string" || secret.length === 0) {
-      return {
-        ok: false,
-        message: `${pathLabel}: config declares hmacSha256 but no HMAC secret was provided (set CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET or pass --config-hmac-secret <secret>)`,
-      };
-    }
     const restUnknown: Record<string, unknown> = { ...o };
     delete restUnknown.hmacSha256;
-    const payload = stableStringifyChimeraDeploySigningPayload(restUnknown);
-    const expected = createHmac("sha256", secret).update(payload, "utf8").digest();
-    const got = Buffer.from(hmacField.toLowerCase(), "hex");
-    if (got.length !== expected.length || !timingSafeEqual(got, expected)) {
-      return { ok: false, message: `${pathLabel}: hmacSha256 verification failed` };
+
+    if (typeof hmacField === "string") {
+      if (!HEX64.test(hmacField)) {
+        return {
+          ok: false,
+          message: `${pathLabel}: hmacSha256 must be a 64-character hexadecimal string when it is a string`,
+        };
+      }
+      const secrets = collectStringHmacSecrets(options);
+      if (secrets.length === 0) {
+        return {
+          ok: false,
+          message: `${pathLabel}: config declares hmacSha256 but no HMAC secret was provided (set CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET or pass --config-hmac-secret <secret>; optional CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS JSON array during rotation)`,
+        };
+      }
+      if (!verifyHmacHexAgainstSecrets(restUnknown, hmacField, secrets)) {
+        return { ok: false, message: `${pathLabel}: hmacSha256 verification failed` };
+      }
+    } else if (hmacField && typeof hmacField === "object" && !Array.isArray(hmacField)) {
+      const hmap = hmacField as Record<string, unknown>;
+      const keyIds = Object.keys(hmap);
+      if (keyIds.length === 0) {
+        return { ok: false, message: `${pathLabel}: hmacSha256 object must not be empty` };
+      }
+      const byId = options?.hmacSecretsByKeyId;
+      if (!byId || typeof byId !== "object") {
+        return {
+          ok: false,
+          message: `${pathLabel}: hmacSha256 is an object; provide key id → secret map (CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON or ParseChimeraDeployConfigOptions.hmacSecretsByKeyId)`,
+        };
+      }
+      let anyVerified = false;
+      for (const keyId of keyIds) {
+        const hexVal = hmap[keyId];
+        if (typeof hexVal !== "string" || !HEX64.test(hexVal)) {
+          return {
+            ok: false,
+            message: `${pathLabel}: hmacSha256.${keyId} must be a 64-character hexadecimal string`,
+          };
+        }
+        const secret = byId[keyId];
+        if (typeof secret !== "string" || secret.length === 0) continue;
+        const payload = stableStringifyChimeraDeploySigningPayload(restUnknown);
+        const expected = createHmac("sha256", secret).update(payload, "utf8").digest();
+        const got = Buffer.from(hexVal.toLowerCase(), "hex");
+        if (got.length === expected.length && timingSafeEqual(got, expected)) {
+          anyVerified = true;
+          break;
+        }
+      }
+      if (!anyVerified) {
+        return {
+          ok: false,
+          message: `${pathLabel}: hmacSha256 object did not verify against any supplied key id secret`,
+        };
+      }
+    } else {
+      return {
+        ok: false,
+        message: `${pathLabel}: hmacSha256 must be a 64-character hex string or a non-empty object of key id → hex digest`,
+      };
     }
   }
 
