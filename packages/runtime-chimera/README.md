@@ -45,10 +45,13 @@ chrysalis deploy --mode=<legacy|cutover|shadow|canary> \
                  [--canary-cookie <name>] [--canary-header <name>]
 ```
 
-`chimera.json` (all fields optional; flags override file values):
+`chimera.json` (all fields optional; flags override file values). **Versioned (V2-M5, DESIGN D253):** set **`"kind": "chrysalis.chimera.config"`** and **`"schemaVersion": 1`** so every node can load the same file and the CLI rejects unknown contract versions. Omit **`kind`** for legacy implicit v0 files (still supported).
 
 ```json
 {
+  "kind": "chrysalis.chimera.config",
+  "schemaVersion": 1,
+  "toolVersion": "1.0.0",
   "mode": "cutover",
   "legacy": "http://127.0.0.1:18080",
   "modern": "http://127.0.0.1:3000",

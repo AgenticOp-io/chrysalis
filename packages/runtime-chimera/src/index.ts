@@ -18,3 +18,9 @@ export {
   type Target,
   type CompiledRule,
 } from "./routing.js";
+export {
+  CHIMERA_DEPLOY_CONFIG_KIND,
+  CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+  parseChimeraDeployConfigJson,
+  type ChimeraDeployConfigFile,
+} from "./chimera-deploy-config.js";

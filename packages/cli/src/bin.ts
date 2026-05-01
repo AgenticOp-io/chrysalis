@@ -40,9 +40,10 @@ import {
   TRACE_LITERAL_UNION_PROVENANCE_PREFIX,
 } from "@chrysalis/archaeology";
 import {
+  parseChimeraDeployConfigJson,
   startChimera,
   type CanarySettings,
-  type Mode,
+  type ChimeraDeployConfigFile,
   type RouteRule,
 } from "@chrysalis/runtime-chimera";
 import {
@@ -1135,28 +1136,18 @@ async function cmdRepair(args: string[]): Promise<number> {
   return 1;
 }
 
-interface DeployConfigFile {
-  readonly mode?: Mode;
-  readonly legacy?: string;
-  readonly modern?: string;
-  readonly port?: number;
-  readonly host?: string;
-  readonly rules?: ReadonlyArray<RouteRule>;
-  readonly shadowLogDir?: string;
-  readonly canary?: {
-    readonly percentModern?: number;
-    readonly salt?: string;
-    readonly stickinessCookie?: string;
-    readonly stickinessHeader?: string;
-  };
-}
-
 async function cmdDeploy(args: string[]): Promise<number> {
   const flags = parseFlags(args);
   const configPath = typeof flags.config === "string" ? resolve(flags.config) : null;
-  const fileCfg: DeployConfigFile = configPath
-    ? (JSON.parse(readFileSync(configPath, "utf8")) as DeployConfigFile)
-    : {};
+  let fileCfg: ChimeraDeployConfigFile = {};
+  if (configPath) {
+    const parsed = parseChimeraDeployConfigJson(readFileSync(configPath, "utf8"), configPath);
+    if (!parsed.ok) {
+      console.error(parsed.message);
+      return 2;
+    }
+    fileCfg = parsed.value;
+  }
 
   const modeRaw = typeof flags.mode === "string" ? flags.mode : fileCfg.mode ?? "legacy";
   if (

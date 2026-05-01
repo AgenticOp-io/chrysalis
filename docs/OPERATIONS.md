@@ -19,6 +19,15 @@ All examples assume repository root as current working directory and a built CLI
 
 Use `node packages/cli/dist/bin.js <subcommand> --help` if `chrysalis` is not on your PATH.
 
+### Chimera deploy config (multi-node, V2-M5)
+
+For **several chimera processes** behind a load balancer, every instance should read the **same** routing file (mounted from config management, object storage, or a release artifact). Use the versioned envelope so incompatible parsers fail loudly:
+
+- **`kind`:** **`chrysalis.chimera.config`**
+- **`schemaVersion`:** **1**
+
+Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis deploy --config <path>`** validates JSON (including UTF-8 BOM), **`rules`**, **`canary`**, and **`schemaVersion`** when **`kind`** is set. Flags still override file fields. Example: **`fixtures/chimera-deploy-config-v1-smoke.json`** in this repo. **Not yet specified:** signing, automatic reload on change, or fleet-wide config revision pins (see **ROADMAP** V2-M5 remaining bullets).
+
 ## Ingest and emit
 
 ```bash

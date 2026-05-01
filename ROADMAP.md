@@ -905,7 +905,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 **Goal:** **More than one** chimera/proxy instance can share consistent **routing + session + shadow** semantics for large sites.
 
-- [ ] **Shared config source:** routing table + mode (legacy/shadow/cutover/canary) from a **documented** shared store or signed file bundle; no ad-hoc per-node drift.
+- [x] **Shared config source (v1 contract):** **`kind`:** **`chrysalis.chimera.config`**, **`schemaVersion`:** **1** on **`chrysalis deploy --config`** JSON; **`parseChimeraDeployConfigJson`** (**`@chrysalis/runtime-chimera`**); legacy files without **`kind`** unchanged. Fixture **`fixtures/chimera-deploy-config-v1-smoke.json`**. **Remaining:** signed bundles, hot reload / drift detection across nodes, central store integration.
 - [ ] **Canary percentage:** optional **%-traffic** to modern stack with **aggregate shadow metrics** (existing diff format extended, not replaced).
 - [ ] **Session:** build on Redis bridge (M6); document **stickiness** requirements when shadow spans nodes.
 - [ ] **Runbooks:** `docs/OPERATIONS.md` — multi-AZ cutover, rollback, “all nodes read same route map” checklist.

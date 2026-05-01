@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2-M4 — emit strategy v1 (D252):** **`emitStrategy.routeRegistration`** **`eager`** (default) vs **`lazy`** on **`@chrysalis/emit-hono`** / **`emit-fastify`**; **`chrysalis emit --emit-route-registration=lazy|eager`**. **`provenanceRoot`** + **`formatEmitProvenanceDisplay`** + **`@chrysalis-provenance`** on handler modules. **`chrysalis rewrite`** emits with **`provenanceRoot`**. Vitest: **`packages/emit-shared/tests/emit-provenance.test.ts`**, lazy **`server.ts`** in **`emit-hono`** / **`emit-fastify`** tests; golden **`tiny-blog-login.ts`** updated.
 
+- **V2-M5 — chimera deploy config v1 (D253):** **`parseChimeraDeployConfigJson`** + **`chrysalis.chimera.config`** / **`schemaVersion: 1`** in **`@chrysalis/runtime-chimera`**; **`chrysalis deploy --config`** validates (BOM-safe, **`rules`** / **`canary`** shape). Fixture **`fixtures/chimera-deploy-config-v1-smoke.json`**. Vitest **`packages/runtime-chimera/tests/chimera-deploy-config.test.ts`**.
+
 - **V2-M2 — `chrysalis status --json` `ingestSharding` (D248):** machine-readable ingest mode (**`monolithic`**, **`routeShard`**, **`mergedShards`**) when **`--project`** succeeds; human dashboard prints **`ingest`** line only for shard / merge modes.
 
 - **V2-M2 — `mergeWebIrModules` structural dedupe (D247):** cross-shard nodes with the same structural key (dialect/op/type/effects/attrs/origin/provenance/operand keys) share one **`NodeId`**; collapses duplicate **`lib/`** IR across shards. **`packages/webir/src/merge-dedupe-key.ts`**.
