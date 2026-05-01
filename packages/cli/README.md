@@ -60,7 +60,7 @@ Runs `chrysalis status --json` (via the CLI entry) and prints a one-screen human
 
 | Flag | Effect |
 | --- | --- |
-| **`--json-out <path>`** or **`--json-out=<path>`** | Writes pretty-printed JSON with **`kind`**: `"chrysalis.migration-debt.summary"`, **`schemaVersion`**: `1`, **`toolVersion`** (repo root `package.json`), **`generatedAt`** (ISO-8601), and slices: **`corpus`**, **`correctness`**, **`residualLegacy`**, **`migration`**, **`oracleFootprintRouteCount`** (integer). |
+| **`--json-out <path>`** or **`--json-out=<path>`** | Writes pretty-printed JSON with **`kind`**: `"chrysalis.migration-debt.summary"`, **`schemaVersion`**: `1`, **`toolVersion`** (repo root `package.json`), **`generatedAt`** (ISO-8601), and slices: **`corpus`**, **`correctness`**, **`residualLegacy`**, **`migration`**, **`oracleFootprintRouteCount`** (integer), optional **`ingestSharding`** (same shape as **`chrysalis status --json`**, **DESIGN D248**). |
 | **`--max-holes <n>`** | Exit **4** if `residualLegacy.holeCount` is missing or **>** `n`. |
 | **`--min-correctness <0..1>`** | Exit **4** if `correctness.aggregate` is missing or below the threshold. |
 

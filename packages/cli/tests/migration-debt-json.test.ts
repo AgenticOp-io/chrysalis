@@ -30,6 +30,7 @@ describe("migration-debt --json-out", () => {
         residualLegacy: unknown;
         migration: unknown;
         oracleFootprintRouteCount: number;
+        ingestSharding: { mode: string; shardCount?: number; shardIndex?: number } | null;
       };
       expect(j.kind).toBe("chrysalis.migration-debt.summary");
       expect(j.schemaVersion).toBe(1);
@@ -41,6 +42,43 @@ describe("migration-debt --json-out", () => {
       expect(j).toHaveProperty("residualLegacy");
       expect(j).toHaveProperty("migration");
       expect(typeof j.oracleFootprintRouteCount).toBe("number");
+      expect(j).toHaveProperty("ingestSharding");
+      expect(j.ingestSharding).toEqual({ mode: "monolithic" });
+    } finally {
+      try {
+        unlinkSync(outPath);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+
+  test("forwards merge-all-shards and writes ingestSharding in JSON", () => {
+    const outPath = join(tmpdir(), `chrysalis-migration-debt-shard-${Date.now()}.json`);
+    const r = spawnSync(
+      process.execPath,
+      [
+        SCRIPT,
+        "--project",
+        "fixtures/tiny-blog",
+        "--merge-all-shards",
+        "--shard-count",
+        "2",
+        "--json-out",
+        outPath,
+      ],
+      {
+        cwd: ROOT,
+        encoding: "utf8",
+      },
+    );
+    try {
+      expect(r.status).toBe(0);
+      expect(r.stdout).toContain("merge-all-shards K=2");
+      const j = JSON.parse(readFileSync(outPath, "utf8")) as {
+        ingestSharding: { mode: string; shardCount: number };
+      };
+      expect(j.ingestSharding).toEqual({ mode: "mergedShards", shardCount: 2 });
     } finally {
       try {
         unlinkSync(outPath);

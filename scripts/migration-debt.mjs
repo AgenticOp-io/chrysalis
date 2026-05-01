@@ -12,7 +12,8 @@
  *   node scripts/migration-debt.mjs --project fixtures/tiny-blog --max-holes 50 --min-correctness 0.5
  *
  * `--json-out` writes **`kind`**, **`schemaVersion`**, **`toolVersion`** (repo root package.json) plus
- * status slices — same machine-consumer idea as **`chrysalis verify --json-summary`** (D226).
+ * status slices (including optional **`ingestSharding`**, **DESIGN D248**) —
+ * same machine-consumer idea as **`chrysalis verify --json-summary`** (D226).
  *
  * CI mirrors the same thresholds via `pnpm run migration-debt:gate:ingest` (ingest-only; no verify reports)
  * and `pnpm run migration-debt:gate:post-verify` after `pnpm run verify:e2e` (needs `reports/verify`).
@@ -188,6 +189,21 @@ if (s.oracleFootprint?.routes?.length) {
   console.log(`oracle routes: ${s.oracleFootprint.routes.length} (see status --json oracleFootprint)`);
 }
 
+const ingestSharding = s.ingestSharding;
+if (ingestSharding && typeof ingestSharding === "object" && ingestSharding !== null) {
+  const mode = ingestSharding.mode;
+  if (mode === "monolithic") {
+    console.log("ingest:        monolithic (all manifest routes)");
+  } else if (mode === "routeShard") {
+    const idx = ingestSharding.shardIndex;
+    const k = ingestSharding.shardCount;
+    console.log(`ingest:        route shard ${idx}/${k}`);
+  } else if (mode === "mergedShards") {
+    const k = ingestSharding.shardCount;
+    console.log(`ingest:        merge-all-shards K=${k}`);
+  }
+}
+
 if (jsonPath) {
   const abs = resolve(ROOT, jsonPath);
   mkdirSync(dirname(abs), { recursive: true });
@@ -203,6 +219,7 @@ if (jsonPath) {
     oracleFootprintRouteCount: Array.isArray(s.oracleFootprint?.routes)
       ? s.oracleFootprint.routes.length
       : 0,
+    ingestSharding: ingestSharding ?? null,
   };
   writeFileSync(abs, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
   console.log("");

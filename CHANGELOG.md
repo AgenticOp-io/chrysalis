@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Docs (10-slice V2 batch):** **`packages/verify/README.md`** (trace vs route sharding); **`docs/ADMINISTRATION.md`** corpus retention v0; **`ROADMAP.md`** V2-M2/M3 checkboxes aligned; **`cli-help-scaleout.test.ts`** asserts **`--shard-count`** in **`--help`**.
 
+- **`migration-debt.mjs`:** human output + **`--json-out`** include **`ingestSharding`** when present; Vitest **`migration-debt-json.test.ts`** covers **`mergedShards`** forwarding.
+
 ### Fixed
 
 - **`chrysalis status --json` with shard flags:** merge/shard progress lines go to **stderr** in JSON mode so **stdout** is a single JSON object (machine-readable contract).
