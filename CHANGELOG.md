@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Docs + CLI test:** **`AGENTS.md`**, **`docs/OPERATIONS.md`**, root **`README.md`**, **`packages/cli` / `ingest` READMEs** reference **D247**; Vitest **`packages/cli/tests/merge-all-shards-emit-cli.test.ts`** for **`emit --merge-all-shards`** (parity with ingest/status subprocess coverage).
 
+- **V2-M2 — merge dedupe key tests:** **`packages/webir/tests/merge-dedupe-key.test.ts`** locks **`mergeDedupeStructuralKey`** / **`canonicalWebIRType`** (origin sensitivity, operand order, union/record canonicalization).
+
 ### Fixed
 
 - **`chrysalis status --json` with shard flags:** merge/shard progress lines go to **stderr** in JSON mode so **stdout** is a single JSON object (machine-readable contract).
