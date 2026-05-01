@@ -14,9 +14,9 @@ Subcommands (some are Milestone 1 stubs):
   **`chrysalis.observe.json`** in the PHP root **merges** onto built-in default redaction (same `path` overrides `kind`).
   Bad JSON or invalid rule shapes exit **2** with **`[observe]`** stderr (**D209**).
 - `chrysalis ingest` — PHP source → WebIR module on disk; prints auth-tagged
-  ingest hole count when non-zero (6A); optional **`--shard-index` / `--shard-count`** (V2-M2 route filter); optional **`--ingest-cache <dir>`** (V2-M2 AST cache)
+  ingest hole count when non-zero (6A); optional **`--shard-index` / `--shard-count`** (V2-M2 route filter); optional **`--merge-all-shards --shard-count K`** (run **`mergeWebIrModules`** over every shard **`0..K-1`**); optional **`--ingest-cache <dir>`** (V2-M2 AST cache)
 - `chrysalis archaeology` — recover schema from DB + traces + optional PHP form scan (`--php-root <dir>`, repeatable)
-- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--ingest-cache <dir>`**
+- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--merge-all-shards --shard-count K`** (full merged module); optional **`--ingest-cache <dir>`**
 - `chrysalis verify` — replay oracle traces against the generated code; optional
   **`--replay-concurrency N`** (requires **`--disable-cookie-chain`** or
   **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`**), **`--replay-timeout-ms`**,
@@ -33,7 +33,7 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router
   (`--canary-percent`, stickiness cookie/header flags for canary)
 - `chrysalis status` — migration dashboard; `--json` includes `migration`
-  and `oracleFootprint` (`routes[]` with `--project`). With `--project`, also
+  and `oracleFootprint` (`routes[]` with `--project`). With **`--project`**, optional **`--merge-all-shards --shard-count K`** ingests each shard and merges for full-route metrics (same **`mergeWebIrModules`** as **`ingest`**). With `--project`, also
   writes `reports/oracle-footprint.json`. Correctness from `--report`, optional
   `reports/migration/*.json` sidecars (`--migration-reports <dir>`); when
   `residual-legacy.json` includes 6A fields, `migration` also surfaces

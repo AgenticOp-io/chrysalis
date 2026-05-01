@@ -17,5 +17,6 @@ describe("chrysalis --help", () => {
     expect(r.stdout).toContain("verify-merge");
     expect(r.stdout).toContain("corpus-merge");
     expect(r.stdout).toContain("--ingest-cache");
+    expect(r.stdout).toContain("--merge-all-shards");
   });
 });

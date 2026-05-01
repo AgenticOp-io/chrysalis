@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2-M2 — synthetic many-route ingest:** Vitest **`packages/ingest/tests/many-routes-synthetic-ingest.test.ts`** (12-route temp tree, K=4 shard partition). **`ROADMAP.md`** progress note for remaining merge-model / emit-resume / RSS work.
 
+- **V2-M2 — WebIR shard merge (v1):** **`mergeWebIrModules`** (**`@chrysalis/webir`**), CLI **`--merge-all-shards --shard-count K`** on **`ingest` / `emit` / `status`**, Vitest + CLI subprocess coverage. Optional future: dedupe shared **`lib/`** nodes to match monolithic **`nodes.size`**.
+
 ## [1.0.1] - 2026-04-29
 
 ### Added

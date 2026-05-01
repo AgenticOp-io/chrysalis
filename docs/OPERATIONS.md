@@ -127,7 +127,7 @@ node packages/cli/dist/bin.js corpus-merge traces-cell-a traces-cell-b --out tra
 
 The summary uses **`kind`**: **`"chrysalis.corpus-merge.summary"`** and **`schemaVersion`**: **`1`**. CI validates the shape with **`pnpm run ci:corpus-merge-summary -- fixtures/ci/corpus-merge-summary-smoke.json`** (see root **`README.md`**).
 
-**Ingest / emit sharding (V2-M2):** **`chrysalis ingest`** and **`chrysalis emit`** accept **`--shard-index i --shard-count K`** to lower only manifest routes in that bucket (relative **`chrysalis.routes.json`** **`file`** paths). Library **`buildCallEffectMap`** still scans the full route list for effect widening.
+**Ingest / emit sharding (V2-M2):** **`chrysalis ingest`** and **`chrysalis emit`** accept **`--shard-index i --shard-count K`** to lower only manifest routes in that bucket (relative **`chrysalis.routes.json`** **`file`** paths). Library **`buildCallEffectMap`** still scans the full route list for effect widening. For a **single merged WebIR module** covering all shards, use **`--merge-all-shards --shard-count K`** (runs **`mergeWebIrModules`** in **`@chrysalis/webir`**). **`chrysalis status --project …`** supports the same flags for full-route migration metrics.
 
 **Ingest AST cache (V2-M2, opt-in):** the same commands accept **`--ingest-cache <dir>`** to reuse on-disk PHP AST JSON between runs (invalidated when file bytes, parser provider, or ingest cache version change). Omit the flag for a cold parse every time.
 

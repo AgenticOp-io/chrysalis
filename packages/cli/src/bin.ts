@@ -12,6 +12,7 @@ import {
   countByDialect,
   countHoles,
   irCoverageStats,
+  mergeWebIrModules,
   moduleToGoldenSnapshot,
   walk,
   type Module,
@@ -106,7 +107,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --ingest-cache\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
@@ -148,14 +149,36 @@ function positional(args: string[]): string[] {
 
 type ParserProvider = "glayzzle" | "nikic";
 
-function ingestShardOptsFromFlags(
+type ShardIngestMode =
+  | { mode: "none" }
+  | { mode: "single"; shardIndex: number; shardCount: number }
+  | { mode: "mergeAll"; shardCount: number };
+
+function shardIngestModeFromFlags(
   flags: Record<string, string | boolean>,
-): { ok: true; opts: { shardIndex?: number; shardCount?: number } } | { ok: false; message: string } {
+): { ok: true; value: ShardIngestMode } | { ok: false; message: string } {
   const scRaw = flags["shard-count"];
   const siRaw = flags["shard-index"];
-  if (scRaw === undefined && siRaw === undefined) {
-    return { ok: true, opts: {} };
+  const mergeAll = flags["merge-all-shards"] === true;
+
+  if (scRaw === undefined && siRaw === undefined && !mergeAll) {
+    return { ok: true, value: { mode: "none" } };
   }
+
+  if (mergeAll) {
+    if (typeof scRaw !== "string") {
+      return { ok: false, message: "error: --merge-all-shards requires --shard-count <int>" };
+    }
+    if (siRaw !== undefined) {
+      return { ok: false, message: "error: --merge-all-shards cannot be combined with --shard-index" };
+    }
+    const k = Math.floor(Number.parseFloat(scRaw));
+    if (!Number.isFinite(k) || k < 2) {
+      return { ok: false, message: "error: --shard-count must be a finite integer >= 2" };
+    }
+    return { ok: true, value: { mode: "mergeAll", shardCount: k } };
+  }
+
   if (typeof scRaw !== "string") {
     return { ok: false, message: "error: ingest shard filter requires --shard-count <int>=2" };
   }
@@ -171,7 +194,39 @@ function ingestShardOptsFromFlags(
   if (idx < 0 || idx >= k) {
     return { ok: false, message: `error: --shard-index must satisfy 0 <= index < shard-count (got ${idx}, ${k})` };
   }
-  return { ok: true, opts: { shardCount: k, shardIndex: idx } };
+  return { ok: true, value: { mode: "single", shardCount: k, shardIndex: idx } };
+}
+
+async function ingestProjectWithShardMode(
+  root: string,
+  mode: ShardIngestMode,
+  extras: { parserProvider?: ParserProvider; ingestCacheDir?: string },
+): Promise<Module> {
+  const base = {
+    ...(extras.parserProvider ? { parserProvider: extras.parserProvider } : {}),
+    ...(extras.ingestCacheDir !== undefined ? { ingestCacheDir: extras.ingestCacheDir } : {}),
+  };
+  if (mode.mode === "none") {
+    return ingestDirectory(root, base);
+  }
+  if (mode.mode === "single") {
+    return ingestDirectory(root, {
+      ...base,
+      shardIndex: mode.shardIndex,
+      shardCount: mode.shardCount,
+    });
+  }
+  const mods: Module[] = [];
+  for (let i = 0; i < mode.shardCount; i++) {
+    mods.push(
+      await ingestDirectory(root, {
+        ...base,
+        shardIndex: i,
+        shardCount: mode.shardCount,
+      }),
+    );
+  }
+  return mergeWebIrModules(mods);
 }
 
 function parserProviderFromFlags(
@@ -231,7 +286,7 @@ async function cmdIngest(args: string[]): Promise<number> {
   const root = pos[0];
   if (!root) {
     console.error(
-      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
@@ -242,22 +297,25 @@ async function cmdIngest(args: string[]): Promise<number> {
     console.error(cacheOpts.message);
     return 2;
   }
-  const shardOpts = ingestShardOptsFromFlags(flags);
-  if (!shardOpts.ok) {
-    console.error(shardOpts.message);
+  const shardMode = shardIngestModeFromFlags(flags);
+  if (!shardMode.ok) {
+    console.error(shardMode.message);
     return 2;
   }
-  if (shardOpts.opts.shardCount !== undefined) {
+  if (shardMode.value.mode === "mergeAll") {
     console.log(
-      `[ingest] shard ${shardOpts.opts.shardIndex ?? 0}/${shardOpts.opts.shardCount} (route file filter; call map uses full manifest)`,
+      `[ingest] merge-all-shards: ${shardMode.value.shardCount} shard ingests -> mergeWebIrModules`,
+    );
+  } else if (shardMode.value.mode === "single") {
+    console.log(
+      `[ingest] shard ${shardMode.value.shardIndex}/${shardMode.value.shardCount} (route file filter; call map uses full manifest)`,
     );
   }
   if (cacheOpts.ingestCacheDir !== undefined) {
     console.log(`[ingest] AST cache: ${cacheOpts.ingestCacheDir}`);
   }
-  const mod = await ingestDirectory(resolve(root), {
+  const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
-    ...shardOpts.opts,
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
   });
   console.log(`routes:   ${mod.roots.length}`);
@@ -280,7 +338,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
@@ -291,14 +349,18 @@ async function cmdEmit(args: string[]): Promise<number> {
     console.error(cacheOpts.message);
     return 2;
   }
-  const shardOpts = ingestShardOptsFromFlags(flags);
-  if (!shardOpts.ok) {
-    console.error(shardOpts.message);
+  const shardMode = shardIngestModeFromFlags(flags);
+  if (!shardMode.ok) {
+    console.error(shardMode.message);
     return 2;
   }
-  if (shardOpts.opts.shardCount !== undefined) {
+  if (shardMode.value.mode === "mergeAll") {
     console.log(
-      `[emit] shard ${shardOpts.opts.shardIndex ?? 0}/${shardOpts.opts.shardCount} (partial route set; call map uses full manifest)`,
+      `[emit] merge-all-shards: ${shardMode.value.shardCount} shard ingests -> mergeWebIrModules`,
+    );
+  } else if (shardMode.value.mode === "single") {
+    console.log(
+      `[emit] shard ${shardMode.value.shardIndex}/${shardMode.value.shardCount} (partial route set; call map uses full manifest)`,
     );
   }
   if (cacheOpts.ingestCacheDir !== undefined) {
@@ -308,9 +370,8 @@ async function cmdEmit(args: string[]): Promise<number> {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
     return 2;
   }
-  const mod = await ingestDirectory(resolve(root), {
+  const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
-    ...shardOpts.opts,
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
   });
   const outAbs = resolve(outDir);
@@ -1939,6 +2000,11 @@ async function cmdStatus(args: string[]): Promise<number> {
     console.error(cacheOpts.message);
     return 2;
   }
+  const shardMode = shardIngestModeFromFlags(flags);
+  if (!shardMode.ok) {
+    console.error(shardMode.message);
+    return 2;
+  }
   const project = typeof flags.project === "string" ? resolve(flags.project) : null;
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : "traces";
   const reportDir = typeof flags.report === "string" ? resolve(flags.report) : "reports/verify";
@@ -2042,7 +2108,16 @@ async function cmdStatus(args: string[]): Promise<number> {
   let ingestedMod: Module | null = null;
   if (project) {
     try {
-      const mod = await ingestDirectory(project, {
+      if (shardMode.value.mode === "mergeAll") {
+        console.log(
+          `[status] merge-all-shards: ${shardMode.value.shardCount} shard ingests -> mergeWebIrModules`,
+        );
+      } else if (shardMode.value.mode === "single") {
+        console.log(
+          `[status] shard ${shardMode.value.shardIndex}/${shardMode.value.shardCount} (partial route set for migration metrics)`,
+        );
+      }
+      const mod = await ingestProjectWithShardMode(project, shardMode.value, {
         ...(parserProvider ? { parserProvider } : {}),
         ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
       });

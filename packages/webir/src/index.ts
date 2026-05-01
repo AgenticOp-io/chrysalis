@@ -134,6 +134,7 @@ export {
 export { isAuthBoundaryCallee, authTaggedHoleReason } from "./auth-boundary.js";
 export { computeOracleFootprint, type OracleFootprint, type RouteOracleFootprint } from "./oracle-footprint.js";
 export { moduleToGoldenSnapshot, type GoldenSnapshotOptions } from "./snapshot.js";
+export { mergeWebIrModules } from "./merge-modules.js";
 export type { ModuleBuilderOpts } from "./builder.js";
 export * as webRequest from "./dialects/web-request.js";
 export * as effectDialect from "./dialects/effect.js";
