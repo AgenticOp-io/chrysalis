@@ -16,7 +16,7 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis ingest` — PHP source → WebIR module on disk; prints auth-tagged
   ingest hole count when non-zero (6A); optional **`--shard-index` / `--shard-count`** (V2-M2 route filter); optional **`--merge-all-shards --shard-count K`** (run **`mergeWebIrModules`** over every shard **`0..K-1`**); optional **`--ingest-cache <dir>`** (V2-M2 AST cache)
 - `chrysalis archaeology` — recover schema from DB + traces + optional PHP form scan (`--php-root <dir>`, repeatable)
-- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--merge-all-shards --shard-count K`** (full merged module); optional **`--ingest-cache <dir>`**
+- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--merge-all-shards --shard-count K`** (full merged module via **`mergeWebIrModules`**, **D247** cross-shard dedupe); optional **`--ingest-cache <dir>`**
 - `chrysalis verify` — replay oracle traces against the generated code; optional
   **`--replay-concurrency N`** (requires **`--disable-cookie-chain`** or
   **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`**), **`--replay-timeout-ms`**,

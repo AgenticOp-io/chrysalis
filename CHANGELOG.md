@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2-M2 — `mergeWebIrModules` structural dedupe (D247):** cross-shard nodes with the same structural key (dialect/op/type/effects/attrs/origin/provenance/operand keys) share one **`NodeId`**; collapses duplicate **`lib/`** IR across shards. **`packages/webir/src/merge-dedupe-key.ts`**.
 
+- **Docs + CLI test:** **`AGENTS.md`**, **`docs/OPERATIONS.md`**, root **`README.md`**, **`packages/cli` / `ingest` READMEs** reference **D247**; Vitest **`packages/cli/tests/merge-all-shards-emit-cli.test.ts`** for **`emit --merge-all-shards`** (parity with ingest/status subprocess coverage).
+
 ### Fixed
 
 - **`chrysalis status --json` with shard flags:** merge/shard progress lines go to **stderr** in JSON mode so **stdout** is a single JSON object (machine-readable contract).

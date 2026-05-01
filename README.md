@@ -163,7 +163,7 @@ node packages/cli/dist/bin.js emit fixtures/tiny-blog --out generated/tiny-blog-
 node packages/cli/dist/bin.js ingest fixtures/tiny-blog --parser-provider nikic
 # or set a shell default for ingest-driven commands:
 CHRYSALIS_PARSER_PROVIDER=nikic node packages/cli/dist/bin.js status --project fixtures/tiny-blog
-# scale-out: merge K shard ingests (same model as ingest/emit; see DESIGN D246):
+# scale-out: merge K shard ingests (ingest/emit/status; DESIGN D246, structural dedupe D247):
 node packages/cli/dist/bin.js status --project fixtures/tiny-blog --merge-all-shards --shard-count 2
 ```
 
