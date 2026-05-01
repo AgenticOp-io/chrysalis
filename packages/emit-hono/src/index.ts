@@ -14,11 +14,14 @@ import { dirname, join } from "node:path";
 import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
 import {
+  clearEmitResumeState,
   emitHandlerBody,
   formatEmitProvenanceDisplay,
   handlerEffectAnnotationTags,
   honoHttpProfile,
   ident,
+  loadEmitResumeCompletedHandlers,
+  markEmitResumeHandlerComplete,
   type ChrysalisEmitStrategyV1,
   type EmittedHandler,
 } from "@chrysalis/emit-shared";
@@ -52,6 +55,12 @@ export interface EmitInput {
   readonly emitStrategy?: ChrysalisEmitStrategyV1;
   /** When set, `@chrysalis-provenance` prefers paths relative to this directory (posix). */
   readonly provenanceRoot?: string;
+  /**
+   * When true, skips rewriting handler files already recorded in
+   * `<outDir>/.chrysalis-emit-state.json` (crash resume, V2-M2). The state file is
+   * removed when a full emit completes; a normal emit (`false`) clears any stale state at start.
+   */
+  readonly emitResume?: boolean;
 }
 
 export interface EmittedFile {
@@ -103,7 +112,18 @@ async function writeFileWithMkdir(path: string, contents: string): Promise<numbe
 }
 
 export async function emit(input: EmitInput): Promise<EmitResult> {
-  const { module: m, outDir, domainTypesByTable, schemaReport, emitStrategy, provenanceRoot } = input;
+  const {
+    module: m,
+    outDir,
+    domainTypesByTable,
+    schemaReport,
+    emitStrategy,
+    provenanceRoot,
+    emitResume: emitResumeFlag,
+  } = input;
+  const emitResume = emitResumeFlag === true;
+  if (!emitResume) clearEmitResumeState(outDir);
+  const resumeSet = emitResume ? loadEmitResumeCompletedHandlers(outDir) : null;
   const routeRegistration = emitStrategy?.routeRegistration ?? "eager";
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
@@ -156,10 +176,18 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     }
 
     const handlerFile = `src/handlers/${baseName}.ts`;
-    await writeOne(
-      handlerFile,
-      handlerFileText(baseName, emitted, effectTags, formatEmitProvenanceDisplay(provenanceRoot, phpFile)),
+    const handlerRel = handlerFile.replace(/\\/g, "/");
+    const handlerSrc = handlerFileText(
+      baseName,
+      emitted,
+      effectTags,
+      formatEmitProvenanceDisplay(provenanceRoot, phpFile),
     );
+    const skipWrite = resumeSet !== null && resumeSet.has(handlerRel);
+    if (!skipWrite) {
+      await writeOne(handlerFile, handlerSrc);
+      if (emitResume) markEmitResumeHandlerComplete(outDir, handlerRel);
+    }
 
     bindings.push({
       method: attrs.method,
@@ -172,6 +200,8 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   await writeOne("src/server.ts", SERVER_TS(mountBlockFor(bindings, routeRegistration), routeRegistration));
   await writeOne("src/index.ts", INDEX_TS);
   await writeOne("chrysalis.holes.json", JSON.stringify(allHoles, null, 2));
+
+  clearEmitResumeState(outDir);
 
   return {
     files,

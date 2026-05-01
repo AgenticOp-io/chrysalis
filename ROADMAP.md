@@ -873,12 +873,12 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 - [x] **Route-level ingest sharding (v1):** **`ingestDirectory`** **`shardIndex` / `shardCount`** filters manifest routes by **`routeFileShardBucket(file)`**; **`buildCallEffectMap`** keeps the **full** route list for sound lib widening. **`chrysalis ingest` / `emit`** **`--shard-*`**. Vitest **`packages/ingest/tests/route-shard-ingest.test.ts`**.
 - [x] **Incremental cache (v1, opt-in):** **`ingestDirectory`** **`ingestCacheDir`** + **`loadOrParsePhpAstWithCache`** (SHA-256 of file bytes + parser provider + **`INGEST_AST_CACHE_VERSION`**); **`chrysalis ingest` / `emit`** **`--ingest-cache <dir>`**. Vitest **`packages/ingest/tests/parse-cache.test.ts`**.
 - [x] **Merge model (v1 + cross-shard dedupe):** **`mergeWebIrModules`** in **`@chrysalis/webir`** remaps node ids and unions disjoint shard roots; duplicate **`METHOD path`** on route roots throws. **Structural dedupe** ( **`merge-dedupe-key.ts`**, **DESIGN D247** ) reuses one **`NodeId`** per structural key so shared **`lib/`** IR across shards is not duplicated. **`chrysalis ingest` / `emit` / `status`** accept **`--merge-all-shards --shard-count K`** to run **`ingestDirectory`** for each shard **`i`** and merge (Vitest: **`packages/webir/tests/merge-modules.test.ts`**, **`packages/webir/tests/merge-dedupe-key.test.ts`**, **`packages/ingest/tests/merge-webir-modules.test.ts`**, CLI **`merge-all-shards-ingest-cli.test.ts`**, **`merge-all-shards-emit-cli.test.ts`**, **`route-shard-status-cli.test.ts`**). **Note:** monolithic ingest may still **over-count** **`nodes.size`** (per-route passes); merged graphs can be **smaller** — optional future: within-module dedupe when ingesting all routes in one builder.
-- [x] **Synthetic many-route ingest (v0, CI-sized):** Vitest **`packages/ingest/tests/many-routes-synthetic-ingest.test.ts`** builds a temp **12-route** manifest + trivial PHP pages; asserts full ingest and **K=4** shard partition counts (documents a stress **size class**; optional **time/RSS** CI budgets remain future work).
+- [x] **Synthetic many-route ingest (v0, CI-sized):** Vitest **`packages/ingest/tests/many-routes-synthetic-ingest.test.ts`** builds a temp **12-route** manifest + trivial PHP pages; asserts full ingest and **K=4** shard partition counts (documents a stress **size class**). Optional wall-clock ceiling when **`CHRYSALIS_INGEST_BUDGET_MS`** is set (**DESIGN D254**); RSS budgets remain future work.
 - [x] **Hole policy unchanged:** new scale paths must not introduce silent translation; **AST cache** rejects invalid entries and **re-parses** (**`parse-cache.test.ts`**, **DESIGN D248**).
 
 **Done when:** documented **N-file** ingest completes with **resume** after simulated crash; `status --json` reflects merged shard stats.
 
-**Progress (2026-04-30):** **Parser-level resume / reuse** is covered by **`parse-cache`** Vitest (AST JSON keyed by bytes + parser + cache version; **corrupt entry** re-parse test). **Many-route shard math** is covered by the synthetic ingest test. **WebIR merge** + **`--merge-all-shards`** on **`ingest` / `emit` / `status`** shipped (**D246–D247**). **`status --json`** includes **`ingestSharding`** (**D248**). **Still open for full milestone closure:** **emit-side** crash resume with partial artifacts on disk, optional **RSS/time** gates on the synthetic tree, simulated **multi-file** ingest resume runbook.
+**Progress (2026-04-30):** **Parser-level resume / reuse** is covered by **`parse-cache`** Vitest (AST JSON keyed by bytes + parser + cache version; **corrupt entry** re-parse test). **Many-route shard math** is covered by the synthetic ingest test. **WebIR merge** + **`--merge-all-shards`** on **`ingest` / `emit` / `status`** shipped (**D246–D247**). **`status --json`** includes **`ingestSharding`** (**D248**). **Emit-side crash resume (v1):** **`emit-hono` / `emit-fastify`** **`emitResume`**, **`.chrysalis-emit-state.json`**, CLI **`chrysalis emit --emit-resume`** (**DESIGN D254**). **Still open:** RSS budgets on the synthetic tree, simulated **multi-file** ingest resume runbook beyond emit.
 
 ### Milestone V2-M3 — Multi-host oracle + corpus operations
 
@@ -906,9 +906,9 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 **Goal:** **More than one** chimera/proxy instance can share consistent **routing + session + shadow** semantics for large sites.
 
 - [x] **Shared config source (v1 contract):** **`kind`:** **`chrysalis.chimera.config`**, **`schemaVersion`:** **1** on **`chrysalis deploy --config`** JSON; **`parseChimeraDeployConfigJson`** (**`@chrysalis/runtime-chimera`**); legacy files without **`kind`** unchanged. Fixture **`fixtures/chimera-deploy-config-v1-smoke.json`**. **Remaining:** signed bundles, hot reload / drift detection across nodes, central store integration.
-- [ ] **Canary percentage:** optional **%-traffic** to modern stack with **aggregate shadow metrics** (existing diff format extended, not replaced).
-- [ ] **Session:** build on Redis bridge (M6); document **stickiness** requirements when shadow spans nodes.
-- [ ] **Runbooks:** `docs/OPERATIONS.md` — multi-AZ cutover, rollback, “all nodes read same route map” checklist.
+- [x] **Canary / shadow aggregation (proxy stats v1, D254):** **`ChimeraStats.canary`** summarizes modern-rule traffic vs served stack; **`ChimeraStats.shadow`** adds **`divergenceLines`** and **`mirrorErrors`** (fetch failures no longer inflate **`diverged`**). **Remaining:** fleet-wide sinks / NDJSON extensions beyond per-node **`stats()`**.
+- [ ] **Session:** Redis (or equivalent) shared session bridge (**M6**); file-backed SQLite sessions remain per-instance until then.
+- [x] **Runbooks / stickiness (doc slice, D254):** **`docs/OPERATIONS.md`** — multi-AZ cutover outline, rollback, shared route map, LB + canary cookie stickiness, session caveats, emit-resume pointer. **Remaining:** CI **multi-process** chimera demo (two nodes).
 
 **Done when:** local or CI **multi-process** chimera demo (two nodes) + doc sign-off criteria; no weakening of verify before cutover.
 
@@ -916,8 +916,8 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 **Goal:** **Fleet view**—many repos or many shards—feeds a dashboard that aggregates **`chrysalis status --json`** and verify summaries **without** becoming a new source of truth (read-only mirror of repo artifacts).
 
-- [ ] **Schema:** stable JSON for uplink; versioned.
-- [ ] **Privacy:** no third-party telemetry; self-hosted or air-gapped.
+- [x] **Schema (v0 reference uplink):** fixture **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** (**`kind`:** **`chrysalis.fleet.status-uplink`**, **`schemaVersion`:** **0**); Vitest **`packages/cli/tests/fleet-status-uplink-schema.test.ts`**. **Remaining:** exporter script / UI, privacy review per deployment.
+- [ ] **Privacy:** no third-party telemetry; self-hosted or air-gapped (contract unchanged—reference JSON only).
 
 **Done when:** documented reference architecture + sample exporter script or minimal UI—**optional** for tagging `v2.0.0` if V2-M1–V5 are complete.
 

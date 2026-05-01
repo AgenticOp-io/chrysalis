@@ -44,6 +44,7 @@ describe("many-route synthetic ingest (V2-M2 stress class)", () => {
       }
       expect(shardRouteSum).toBe(SYNTHETIC_ROUTE_COUNT);
 
+      const t0 = Date.now();
       const full = await ingestDirectory(base);
       expect(full.roots.length).toBe(SYNTHETIC_ROUTE_COUNT);
 
@@ -51,6 +52,13 @@ describe("many-route synthetic ingest (V2-M2 stress class)", () => {
         const part = await ingestDirectory(base, { shardIndex: s, shardCount: SHARD_COUNT });
         const expected = filterRoutesForShard(manifest.routes, s, SHARD_COUNT).length;
         expect(part.roots.length).toBe(expected);
+      }
+
+      const budgetRaw = process.env.CHRYSALIS_INGEST_BUDGET_MS;
+      if (budgetRaw !== undefined && budgetRaw !== "") {
+        const ms = Number.parseInt(budgetRaw, 10);
+        expect(Number.isFinite(ms) && ms > 0).toBe(true);
+        expect(Date.now() - t0).toBeLessThan(ms);
       }
     } finally {
       rmSync(base, { recursive: true, force: true });

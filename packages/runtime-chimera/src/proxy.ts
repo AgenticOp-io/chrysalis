@@ -69,11 +69,23 @@ export interface ChimeraHandle {
 export interface ChimeraStats {
   readonly total: number;
   readonly byTarget: { legacy: number; modern: number };
-  /** Only populated in shadow mode. */
+  /** Only meaningful in shadow mode (zeros otherwise). */
   readonly shadow: {
     readonly requests: number;
     readonly agreed: number;
+    /** Mirror returned a response but differed from legacy (non-empty diff). */
     readonly diverged: number;
+    /** Sum of `divergences.length` across diverged shadow mirrors. */
+    readonly divergenceLines: number;
+    /** Modern mirror threw or fetch failed before a diff could run. */
+    readonly mirrorErrors: number;
+  };
+  /** Only meaningful in canary mode (zeros otherwise). */
+  readonly canary: {
+    readonly modernRuleMatches: number;
+    readonly servedModern: number;
+    readonly servedLegacyWhileModernRule: number;
+    readonly noModernRule: number;
   };
 }
 
@@ -85,7 +97,13 @@ export async function startChimera(config: ChimeraConfig): Promise<ChimeraHandle
   const stats = {
     total: 0,
     byTarget: { legacy: 0, modern: 0 },
-    shadow: { requests: 0, agreed: 0, diverged: 0 },
+    shadow: { requests: 0, agreed: 0, diverged: 0, divergenceLines: 0, mirrorErrors: 0 },
+    canary: {
+      modernRuleMatches: 0,
+      servedModern: 0,
+      servedLegacyWhileModernRule: 0,
+      noModernRule: 0,
+    },
   };
 
   const shadowLogPath =
@@ -130,6 +148,7 @@ export async function startChimera(config: ChimeraConfig): Promise<ChimeraHandle
       total: stats.total,
       byTarget: { ...stats.byTarget },
       shadow: { ...stats.shadow },
+      canary: { ...stats.canary },
     }),
     stop: () =>
       new Promise<void>((resolve, reject) =>
@@ -146,7 +165,19 @@ async function handle(
   stats: {
     total: number;
     byTarget: { legacy: number; modern: number };
-    shadow: { requests: number; agreed: number; diverged: number };
+    shadow: {
+      requests: number;
+      agreed: number;
+      diverged: number;
+      divergenceLines: number;
+      mirrorErrors: number;
+    };
+    canary: {
+      modernRuleMatches: number;
+      servedModern: number;
+      servedLegacyWhileModernRule: number;
+      noModernRule: number;
+    };
   },
   shadowLogPath: string | null,
 ): Promise<void> {
@@ -168,6 +199,13 @@ async function handle(
     });
     target = r.target;
     res.setHeader("x-chrysalis-canary", r.canaryTag);
+    if (ruleTarget === "modern") {
+      stats.canary.modernRuleMatches += 1;
+      if (target === "modern") stats.canary.servedModern += 1;
+      else stats.canary.servedLegacyWhileModernRule += 1;
+    } else {
+      stats.canary.noModernRule += 1;
+    }
   } else {
     // cutover: routes with target=modern beat the default; default is legacy.
     const m = routeFor(rules, method, path);
@@ -206,7 +244,13 @@ async function shadowDiffInBackground(
   primary: ReplayedResponse,
   config: ChimeraConfig,
   stats: {
-    shadow: { requests: number; agreed: number; diverged: number };
+    shadow: {
+      requests: number;
+      agreed: number;
+      diverged: number;
+      divergenceLines: number;
+      mirrorErrors: number;
+    };
   },
   shadowLogPath: string | null,
   path: string,
@@ -226,7 +270,10 @@ async function shadowDiffInBackground(
     };
     const d = diffResponse(expected, mirror);
     if (d.divergences.length === 0) stats.shadow.agreed += 1;
-    else stats.shadow.diverged += 1;
+    else {
+      stats.shadow.diverged += 1;
+      stats.shadow.divergenceLines += d.divergences.length;
+    }
     if (shadowLogPath) {
       const record = {
         at: new Date().toISOString(),
@@ -241,7 +288,7 @@ async function shadowDiffInBackground(
       appendFileSync(shadowLogPath, JSON.stringify(record) + "\n");
     }
   } catch (err) {
-    stats.shadow.diverged += 1;
+    stats.shadow.mirrorErrors += 1;
     if (shadowLogPath) {
       appendFileSync(
         shadowLogPath,

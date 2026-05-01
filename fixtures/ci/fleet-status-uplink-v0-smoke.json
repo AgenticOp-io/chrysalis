@@ -1,0 +1,14 @@
+{
+  "kind": "chrysalis.fleet.status-uplink",
+  "schemaVersion": 0,
+  "collectedAt": "2026-04-30T12:00:00.000Z",
+  "toolVersion": "1.0.0",
+  "items": [
+    {
+      "projectLabel": "fixtures/tiny-blog",
+      "ingestSharding": { "mode": "monolithic" },
+      "routes": 5,
+      "emitHoles": 0
+    }
+  ]
+}

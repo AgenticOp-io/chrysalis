@@ -22,3 +22,10 @@ export type {
   ChrysalisEmitStrategyV1,
 } from "./emit-strategy.js";
 export { formatEmitProvenanceDisplay } from "./emit-provenance.js";
+export {
+  clearEmitResumeState,
+  EMIT_RESUME_STATE_BASENAME,
+  loadEmitResumeCompletedHandlers,
+  markEmitResumeHandlerComplete,
+  type EmitResumeStateV1,
+} from "./emit-resume-state.js";

@@ -356,7 +356,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
@@ -415,6 +415,7 @@ async function cmdEmit(args: string[]): Promise<number> {
     ...(schemaReport ? { schemaReport } : {}),
     ...(domainMap ? { domainTypesByTable: domainMap } : {}),
     ...(routeReg.value === "lazy" ? { emitStrategy: { routeRegistration: "lazy" as const } } : {}),
+    ...(flags["emit-resume"] === true ? { emitResume: true as const } : {}),
   };
   const res =
     target === "fastify" ? await emitFastify(emitOpts) : await emitHono(emitOpts);

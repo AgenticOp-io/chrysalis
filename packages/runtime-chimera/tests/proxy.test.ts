@@ -121,6 +121,7 @@ describe("chimera proxy", () => {
     expect(resp.headers.get("x-chrysalis-target")).toBe("legacy");
     expect(h.stats().byTarget.legacy).toBe(1);
     expect(h.stats().byTarget.modern).toBe(0);
+    expect(h.stats().canary.modernRuleMatches).toBe(0);
   });
 
   it("routes per rule in cutover mode", async () => {
@@ -172,11 +173,14 @@ describe("chimera proxy", () => {
     // Wait for the fire-and-observe mirror to complete (counted by
     // agreed+diverged, not the immediate `requests` counter).
     for (let i = 0; i < 40; i++) {
-      if (h.stats().shadow.agreed + h.stats().shadow.diverged >= 1) break;
+      const s = h.stats().shadow;
+      if (s.agreed + s.diverged + s.mirrorErrors >= 1) break;
       await new Promise((r) => setTimeout(r, 50));
     }
     expect(h.stats().shadow.requests).toBe(1);
     expect(h.stats().shadow.diverged).toBe(1);
+    expect(h.stats().shadow.divergenceLines).toBeGreaterThan(0);
+    expect(h.stats().shadow.mirrorErrors).toBe(0);
 
     const log = readFileSync(join(shadowDir, "shadow.ndjson"), "utf8").trim();
     expect(log.length).toBeGreaterThan(0);
@@ -199,11 +203,37 @@ describe("chimera proxy", () => {
     chimeras.push(h);
     await fetchChimera(h, "/x");
     for (let i = 0; i < 40; i++) {
-      if (h.stats().shadow.agreed + h.stats().shadow.diverged >= 1) break;
+      const s = h.stats().shadow;
+      if (s.agreed + s.diverged + s.mirrorErrors >= 1) break;
       await new Promise((r) => setTimeout(r, 50));
     }
     expect(h.stats().shadow.agreed).toBe(1);
     expect(h.stats().shadow.diverged).toBe(0);
+    expect(h.stats().shadow.divergenceLines).toBe(0);
+    expect(h.stats().shadow.mirrorErrors).toBe(0);
+  });
+
+  it("shadow mode: mirror fetch failures increment mirrorErrors, not diverged", async () => {
+    const legacy = await mkUpstream(() => ({ body: "ok" }));
+    const modern = "http://127.0.0.1:1";
+    const shadowDir = mkdtempSync(join(tmpdir(), "chrysalis-shadow-"));
+    const h = await startChimera({
+      mode: "shadow",
+      legacy,
+      modern,
+      rules: [],
+      shadowLogDir: shadowDir,
+    });
+    chimeras.push(h);
+    await fetchChimera(h, "/x");
+    for (let i = 0; i < 80; i++) {
+      const s = h.stats().shadow;
+      if (s.mirrorErrors >= 1 || s.agreed + s.diverged >= 1) break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    expect(h.stats().shadow.mirrorErrors).toBe(1);
+    expect(h.stats().shadow.diverged).toBe(0);
+    expect(h.stats().shadow.agreed).toBe(0);
   });
 
   it("canary: percent 0 keeps modern-eligible routes on legacy", async () => {
@@ -221,6 +251,10 @@ describe("chimera proxy", () => {
     expect(await resp.text()).toBe("legacy:/api/x");
     expect(resp.headers.get("x-chrysalis-target")).toBe("legacy");
     expect(resp.headers.get("x-chrysalis-canary")).toBe("out");
+    expect(h.stats().canary.modernRuleMatches).toBe(1);
+    expect(h.stats().canary.servedLegacyWhileModernRule).toBe(1);
+    expect(h.stats().canary.servedModern).toBe(0);
+    expect(h.stats().canary.noModernRule).toBe(0);
   });
 
   it("canary: percent 100 sends modern-eligible routes to modern", async () => {
@@ -237,6 +271,9 @@ describe("chimera proxy", () => {
     const resp = await fetchChimera(h, "/api/x");
     expect(await resp.text()).toBe("modern:/api/x");
     expect(resp.headers.get("x-chrysalis-canary")).toBe("in");
+    expect(h.stats().canary.servedModern).toBe(1);
+    expect(h.stats().canary.modernRuleMatches).toBe(1);
+    expect(h.stats().canary.servedLegacyWhileModernRule).toBe(0);
   });
 
   it("canary: same cookie yields stable target at 50%", async () => {

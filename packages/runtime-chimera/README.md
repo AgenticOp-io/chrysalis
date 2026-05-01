@@ -73,8 +73,9 @@ chrysalis deploy --mode=<legacy|cutover|shadow|canary> \
   served entirely by one stack. In `shadow`, both run, but only legacy's
   response is returned.
 - **Shadow never affects user-visible latency or errors.** The mirror is
-  fire-and-observe; failures on the modern side are recorded as divergences,
-  not surfaced to the client.
+  fire-and-observe; failures on the modern side increment **`stats().shadow.mirrorErrors`**
+  (and the NDJSON log **`error`** field); response diffs increment **`diverged`** and
+  **`divergenceLines`**. None of this is surfaced to the client.
 - **Shadow diffs are first-class reports.** Emitted in the same NDJSON format
   `@chrysalis/verify` uses, so dashboards can consume both sources uniformly.
 - **No hidden state.** The router config is declarative and loadable from a

@@ -8,11 +8,14 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import {
+  clearEmitResumeState,
   emitHandlerBody,
   formatEmitProvenanceDisplay,
   fastifyHttpProfile,
   handlerEffectAnnotationTags,
   ident,
+  loadEmitResumeCompletedHandlers,
+  markEmitResumeHandlerComplete,
   type ChrysalisEmitStrategyV1,
   type EmittedHandler,
 } from "@chrysalis/emit-shared";
@@ -35,6 +38,8 @@ export interface EmitInput {
   readonly domainTypesByTable?: Readonly<Record<string, string>>;
   readonly emitStrategy?: ChrysalisEmitStrategyV1;
   readonly provenanceRoot?: string;
+  /** See `@chrysalis/emit-hono` `EmitInput.emitResume`. */
+  readonly emitResume?: boolean;
 }
 
 export interface EmittedFile {
@@ -78,7 +83,18 @@ async function writeFileWithMkdir(path: string, contents: string): Promise<numbe
 }
 
 export async function emit(input: EmitInput): Promise<EmitResult> {
-  const { module: m, outDir, domainTypesByTable, schemaReport, emitStrategy, provenanceRoot } = input;
+  const {
+    module: m,
+    outDir,
+    domainTypesByTable,
+    schemaReport,
+    emitStrategy,
+    provenanceRoot,
+    emitResume: emitResumeFlag,
+  } = input;
+  const emitResume = emitResumeFlag === true;
+  if (!emitResume) clearEmitResumeState(outDir);
+  const resumeSet = emitResume ? loadEmitResumeCompletedHandlers(outDir) : null;
   const routeRegistration = emitStrategy?.routeRegistration ?? "eager";
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
@@ -146,6 +162,8 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   await writeOne("src/server.ts", SERVER_TS(imports, registrations));
   await writeOne("src/index.ts", INDEX_TS);
   await writeOne("chrysalis.holes.json", JSON.stringify(allHoles, null, 2));
+
+  clearEmitResumeState(outDir);
 
   return {
     files,

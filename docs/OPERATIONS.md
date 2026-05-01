@@ -9,7 +9,7 @@ All examples assume repository root as current working directory and a built CLI
 | Goal | Typical entrypoint |
 | --- | --- |
 | PHP to WebIR | `chrysalis ingest <php-root>` |
-| WebIR to TS (Hono / Fastify) | `chrysalis emit <php-root> --out <dir> --target=hono` or `fastify` |
+| WebIR to TS (Hono / Fastify) | `chrysalis emit <php-root> --out <dir> --target=hono` or `fastify`; optional **`--emit-resume`** after a partial emit (**V2-M2**, **DESIGN D254**) |
 | Record live PHP traffic | `chrysalis observe <php-root> --traces <dir> …` |
 | Summarize a corpus | `chrysalis corpus <traces-dir>` |
 | Replay corpus against emitted app | `chrysalis verify <traces-dir> --base-url <url> --report <dir>` |
@@ -27,6 +27,19 @@ For **several chimera processes** behind a load balancer, every instance should 
 - **`schemaVersion`:** **1**
 
 Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis deploy --config <path>`** validates JSON (including UTF-8 BOM), **`rules`**, **`canary`**, and **`schemaVersion`** when **`kind`** is set. Flags still override file fields. Example: **`fixtures/chimera-deploy-config-v1-smoke.json`** in this repo. **Not yet specified:** signing, automatic reload on change, or fleet-wide config revision pins (see **ROADMAP** V2-M5 remaining bullets).
+
+### Multi-AZ cutover, stickiness, and shadow across nodes
+
+- **Same route map everywhere:** mount one versioned **`chrysalis.chimera.config`** (or legacy implicit v0 file) on every chimera instance, or inject equivalent env/flags at boot. The load balancer must not pin “different configs” per node during cutover.
+- **Drain before config flips:** shrink traffic on a cell, wait for **`chimera`** in-flight requests (and upstream PHP-FPM / Node pools) to finish, then roll the file and restart instances in a wave. Roll back by restoring the prior file revision and reversing the wave.
+- **Canary and shadow:** **`ChimeraStats`** (**`@chrysalis/runtime-chimera`**) exposes per-process counters; aggregate in your metrics stack. Canary stickiness uses the configured cookie/header/IP salt so a user stays on one stack; keep that cookie **sticky to the chimera layer** (LB session affinity or client → same chimera IP) so the bucket is meaningful across retries.
+- **Sessions:** until **M6** Redis (or equivalent) is the shared session store, file-backed SQLite sessions in emitted apps are per-instance; dual-stack login flows that rely on shared session state need either **one** modern node behind chimera or the **Redis** bridge described in **`packages/runtime-chimera`** / **`ROADMAP`** session items.
+- **Hot reload:** reloading **`chrysalis.json`** without process restart is **not** implemented; treat deploys as **restart** or **rolling replace**. A future **SIGHUP** or sidecar watcher would need a **DESIGN** entry before code lands.
+- **Emit crash resume:** **`chrysalis emit … --emit-resume`** skips rewriting handler files already recorded under **`<outDir>/.chrysalis-emit-state.json`**; scaffolding and **`chrysalis.holes.json`** are always regenerated on a successful run. Remove **`--emit-resume`** for a clean slate (the CLI clears stale state when resume is off).
+
+### Fleet status uplink (reference JSON, V2-M6 v0)
+
+Operators may aggregate **`chrysalis status --json`**, verify summaries, and chimera stats into dashboards. A minimal versioned envelope lives at **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** (**`kind`:** **`chrysalis.fleet.status-uplink`**, **`schemaVersion`:** **0**). It is **not** sent by the CLI; it documents a stable shape for exporters you run in your own environment (**no third-party telemetry**).
 
 ## Ingest and emit
 

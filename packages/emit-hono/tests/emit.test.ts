@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
+import { EMIT_RESUME_STATE_BASENAME } from "@chrysalis/emit-shared";
 import { ModuleBuilder, T, dataDialect, phpLocator, webRequest } from "@chrysalis/webir";
 import { emit } from "../src/index.js";
 
@@ -327,6 +328,56 @@ describe("emit-hono: Milestone 6A auth-boundary emit holes", () => {
       const res = await emit({ module: mod, outDir: out });
       expect(res.holes.length).toBeGreaterThan(0);
       expect(res.holes.some((h) => h.reason.startsWith("auth:"))).toBe(true);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-hono: emitResume", () => {
+  test("skips completed handler writes then clears state on success", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-resume-"));
+    try {
+      const mkMod = () => {
+        const b = new ModuleBuilder({ sourceApp: "emit-resume-t" });
+        const d = dataDialect.builders(b);
+        const r = webRequest.builders(b);
+        const oa = phpLocator("pages/a.php", 1, 0);
+        const holeA = d.hole({ reason: "ra", input: T.unknown, output: T.string, origin: oa });
+        const hA = r.handler({
+          attrs: { name: "ha", input: T.record({}), output: T.string },
+          body: holeA,
+          effects: [],
+          origin: oa,
+        });
+        b.addRoot(r.route({ attrs: { method: "GET", path: "/a", pathParams: [] }, handler: hA, origin: oa }));
+        const ob = phpLocator("pages/b.php", 1, 0);
+        const holeB = d.hole({ reason: "rb", input: T.unknown, output: T.string, origin: ob });
+        const hB = r.handler({
+          attrs: { name: "hb", input: T.record({}), output: T.string },
+          body: holeB,
+          effects: [],
+          origin: ob,
+        });
+        b.addRoot(r.route({ attrs: { method: "GET", path: "/b", pathParams: [] }, handler: hB, origin: ob }));
+        return b.finish();
+      };
+      const mod = mkMod();
+      await emit({ module: mod, outDir: out });
+      const haPath = resolve(out, "src/handlers/ha.ts");
+      const hbPath = resolve(out, "src/handlers/hb.ts");
+      const haBefore = readFileSync(haPath, "utf8");
+      const hbBefore = readFileSync(hbPath, "utf8");
+      rmSync(hbPath);
+      writeFileSync(
+        resolve(out, EMIT_RESUME_STATE_BASENAME),
+        JSON.stringify({ version: 1, completedHandlers: ["src/handlers/ha.ts"] }),
+        "utf8",
+      );
+      await emit({ module: mod, outDir: out, emitResume: true });
+      expect(readFileSync(haPath, "utf8")).toBe(haBefore);
+      expect(readFileSync(hbPath, "utf8")).toBe(hbBefore);
+      expect(existsSync(resolve(out, EMIT_RESUME_STATE_BASENAME))).toBe(false);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }
