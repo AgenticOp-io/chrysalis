@@ -13,9 +13,13 @@ function assertFleetStatusUplinkV0(raw: unknown): void {
   expect(o.schemaVersion).toBe(0);
   expect(typeof o.collectedAt).toBe("string");
   expect(Array.isArray(o.items)).toBe(true);
-  for (const it of o.items as unknown[]) {
-    expect(typeof it).toBe("object");
-    expect(it).not.toBeNull();
+  for (const item of o.items as unknown[]) {
+    expect(typeof item).toBe("object");
+    expect(item).not.toBeNull();
+    const row = item as Record<string, unknown>;
+    expect(typeof row.projectLabel).toBe("string");
+    expect(typeof row.status).toBe("object");
+    expect(row.status).not.toBeNull();
   }
 }
 

@@ -124,6 +124,32 @@ describe("chimera proxy", () => {
     expect(h.stats().canary.modernRuleMatches).toBe(0);
   });
 
+  it("two chimera instances can share the same upstreams on different ports", async () => {
+    const legacy = await mkUpstream((req) => ({ body: `legacy:${req.url}` }));
+    const modern = await mkUpstream((req) => ({ body: `modern:${req.url}` }));
+    const rules = [{ match: "/api/*", target: "modern" as const }];
+    const h1 = await startChimera({
+      mode: "cutover",
+      legacy,
+      modern,
+      rules,
+      host: "127.0.0.1",
+      port: 0,
+    });
+    const h2 = await startChimera({
+      mode: "cutover",
+      legacy,
+      modern,
+      rules,
+      host: "127.0.0.1",
+      port: 0,
+    });
+    chimeras.push(h1, h2);
+    expect(h1.port).not.toBe(h2.port);
+    expect(await (await fetchChimera(h1, "/api/x")).text()).toBe("modern:/api/x");
+    expect(await (await fetchChimera(h2, "/api/x")).text()).toBe("modern:/api/x");
+  });
+
   it("routes per rule in cutover mode", async () => {
     const legacy = await mkUpstream((req) => ({ body: `legacy:${req.url}` }));
     const modern = await mkUpstream((req) => ({ body: `modern:${req.url}` }));

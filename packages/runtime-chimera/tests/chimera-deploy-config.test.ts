@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   CHIMERA_DEPLOY_CONFIG_KIND,
   CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+  computeChimeraDeployConfigHmacHex,
   parseChimeraDeployConfigJson,
 } from "../src/chimera-deploy-config.js";
 
@@ -88,6 +89,56 @@ describe("parseChimeraDeployConfigJson", () => {
     const bom = "\uFEFF";
     const r = parseChimeraDeployConfigJson(bom + body, "bom.json");
     expect(r.ok).toBe(true);
+  });
+
+  it("rejects hmacSha256 without secret", () => {
+    const base: Record<string, unknown> = {
+      kind: CHIMERA_DEPLOY_CONFIG_KIND,
+      schemaVersion: CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+      legacy: "http://a",
+      modern: "http://b",
+      rules: [],
+    };
+    const hmac = computeChimeraDeployConfigHmacHex(base, "secret");
+    const r = parseChimeraDeployConfigJson(JSON.stringify({ ...base, hmacSha256: hmac }), "signed.json");
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.message).toContain("HMAC secret");
+  });
+
+  it("rejects wrong HMAC secret", () => {
+    const base: Record<string, unknown> = {
+      kind: CHIMERA_DEPLOY_CONFIG_KIND,
+      schemaVersion: CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+      legacy: "http://a",
+      modern: "http://b",
+      rules: [{ match: "/x", target: "modern" }],
+    };
+    const hmac = computeChimeraDeployConfigHmacHex(base, "good");
+    const r = parseChimeraDeployConfigJson(JSON.stringify({ ...base, hmacSha256: hmac }), "signed.json", {
+      hmacSecret: "bad",
+    });
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.message).toContain("verification failed");
+  });
+
+  it("accepts valid hmacSha256 with matching secret", () => {
+    const base: Record<string, unknown> = {
+      kind: CHIMERA_DEPLOY_CONFIG_KIND,
+      schemaVersion: CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+      legacy: "http://a",
+      modern: "http://b",
+      rules: [{ match: "/x", target: "modern" }],
+    };
+    const secret = "fixture-signing-key";
+    const hmac = computeChimeraDeployConfigHmacHex(base, secret);
+    const r = parseChimeraDeployConfigJson(JSON.stringify({ ...base, hmacSha256: hmac }), "signed.json", {
+      hmacSecret: secret,
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.value.legacy).toBe("http://a");
   });
 
   it("parses committed fixture", () => {

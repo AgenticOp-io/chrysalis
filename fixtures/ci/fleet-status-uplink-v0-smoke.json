@@ -6,9 +6,11 @@
   "items": [
     {
       "projectLabel": "fixtures/tiny-blog",
-      "ingestSharding": { "mode": "monolithic" },
-      "routes": 5,
-      "emitHoles": 0
+      "status": {
+        "ingestSharding": { "mode": "monolithic" },
+        "routes": 5,
+        "emitHoles": 0
+      }
     }
   ]
 }

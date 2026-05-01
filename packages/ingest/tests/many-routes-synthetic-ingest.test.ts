@@ -60,6 +60,13 @@ describe("many-route synthetic ingest (V2-M2 stress class)", () => {
         expect(Number.isFinite(ms) && ms > 0).toBe(true);
         expect(Date.now() - t0).toBeLessThan(ms);
       }
+
+      const rssMaxRaw = process.env.CHRYSALIS_INGEST_RSS_MAX_BYTES;
+      if (rssMaxRaw !== undefined && rssMaxRaw !== "") {
+        const limit = Number.parseInt(rssMaxRaw, 10);
+        expect(Number.isFinite(limit) && limit > 0).toBe(true);
+        expect(process.memoryUsage().rss).toBeLessThan(limit);
+      }
     } finally {
       rmSync(base, { recursive: true, force: true });
     }

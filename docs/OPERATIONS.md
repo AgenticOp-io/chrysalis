@@ -26,7 +26,7 @@ For **several chimera processes** behind a load balancer, every instance should 
 - **`kind`:** **`chrysalis.chimera.config`**
 - **`schemaVersion`:** **1**
 
-Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis deploy --config <path>`** validates JSON (including UTF-8 BOM), **`rules`**, **`canary`**, and **`schemaVersion`** when **`kind`** is set. Flags still override file fields. Example: **`fixtures/chimera-deploy-config-v1-smoke.json`** in this repo. **Not yet specified:** signing, automatic reload on change, or fleet-wide config revision pins (see **ROADMAP** V2-M5 remaining bullets).
+Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis deploy --config <path>`** validates JSON (including UTF-8 BOM), **`rules`**, **`canary`**, and **`schemaVersion`** when **`kind`** is set. Flags still override file fields. Example: **`fixtures/chimera-deploy-config-v1-smoke.json`** in this repo. **Optional signing (V2-M5, D255):** add top-level **`hmacSha256`** (64 hex chars) over the full JSON object **excluding** that field, using **HMAC-SHA256** and **`stableStringifyChimeraDeploySigningPayload`** from **`@chrysalis/runtime-chimera`** (or **`computeChimeraDeployConfigHmacHex`** to generate the digest). Deploy with **`CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET`** or **`chrysalis deploy --config-hmac-secret <secret>`**. **Not yet specified:** automatic reload, central store, or fleet-wide revision pins.
 
 ### Multi-AZ cutover, stickiness, and shadow across nodes
 
@@ -39,7 +39,14 @@ Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis 
 
 ### Fleet status uplink (reference JSON, V2-M6 v0)
 
-Operators may aggregate **`chrysalis status --json`**, verify summaries, and chimera stats into dashboards. A minimal versioned envelope lives at **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** (**`kind`:** **`chrysalis.fleet.status-uplink`**, **`schemaVersion`:** **0**). It is **not** sent by the CLI; it documents a stable shape for exporters you run in your own environment (**no third-party telemetry**).
+Operators may aggregate **`chrysalis status --json`**, verify summaries, and chimera stats into dashboards. A minimal versioned envelope lives at **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** (**`kind`:** **`chrysalis.fleet.status-uplink`**, **`schemaVersion`:** **0**). Each **`items[]`** entry has **`projectLabel`** and a nested **`status`** object (arbitrary JSON, typically **`chrysalis status --json`**).
+
+Local wrapper script (stdout only, no network):
+
+```bash
+node packages/cli/dist/bin.js status --project fixtures/tiny-blog --json > /tmp/st.json
+pnpm run fleet:export-status-uplink -- --payload-json /tmp/st.json --project-label fixtures/tiny-blog
+```
 
 ## Ingest and emit
 

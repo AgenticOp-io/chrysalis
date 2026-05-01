@@ -1142,7 +1142,17 @@ async function cmdDeploy(args: string[]): Promise<number> {
   const configPath = typeof flags.config === "string" ? resolve(flags.config) : null;
   let fileCfg: ChimeraDeployConfigFile = {};
   if (configPath) {
-    const parsed = parseChimeraDeployConfigJson(readFileSync(configPath, "utf8"), configPath);
+    const hmacFlag = flags["config-hmac-secret"];
+    const hmacSecretEnv = process.env.CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET;
+    const hmacSecret =
+      typeof hmacFlag === "string" && hmacFlag.length > 0
+        ? hmacFlag
+        : typeof hmacSecretEnv === "string" && hmacSecretEnv.length > 0
+          ? hmacSecretEnv
+          : undefined;
+    const parsed = parseChimeraDeployConfigJson(readFileSync(configPath, "utf8"), configPath, {
+      ...(hmacSecret !== undefined ? { hmacSecret } : {}),
+    });
     if (!parsed.ok) {
       console.error(parsed.message);
       return 2;
@@ -1167,7 +1177,8 @@ async function cmdDeploy(args: string[]): Promise<number> {
     console.error(
       "usage: chrysalis deploy --mode=<legacy|cutover|shadow|canary> --legacy <url> --modern <url>\n" +
         "                       [--port 8080] [--host 127.0.0.1]\n" +
-        "                       [--config chimera.json] [--shadow-log-dir reports/shadow]\n" +
+        "                       [--config chimera.json] [--config-hmac-secret <str>]\n" +
+        "                       [--shadow-log-dir reports/shadow]\n" +
         "                       [--canary-percent 0-100] [--canary-salt <str>]\n" +
         "                       [--canary-cookie <name>] [--canary-header <name>]",
     );
@@ -1241,10 +1252,15 @@ async function cmdDeploy(args: string[]): Promise<number> {
 
   const printStats = () => {
     const s = handle.stats();
-    console.log(
+    const sh = s.shadow;
+    let line =
       `[deploy] stats  total=${s.total}  legacy=${s.byTarget.legacy}  modern=${s.byTarget.modern}  ` +
-        `shadow(req=${s.shadow.requests} agreed=${s.shadow.agreed} diverged=${s.shadow.diverged})`,
-    );
+      `shadow(req=${sh.requests} agreed=${sh.agreed} diverged=${sh.diverged} lines=${sh.divergenceLines} mirrorErr=${sh.mirrorErrors})`;
+    if (modeRaw === "canary") {
+      const c = s.canary;
+      line += `  canary(modernRule=${c.modernRuleMatches} servedModern=${c.servedModern} legacyDespiteModern=${c.servedLegacyWhileModernRule} noRule=${c.noModernRule})`;
+    }
+    console.log(line);
   };
   const statsTimer = setInterval(printStats, 10_000);
 

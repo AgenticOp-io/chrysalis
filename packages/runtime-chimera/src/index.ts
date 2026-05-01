@@ -21,6 +21,9 @@ export {
 export {
   CHIMERA_DEPLOY_CONFIG_KIND,
   CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION,
+  computeChimeraDeployConfigHmacHex,
   parseChimeraDeployConfigJson,
+  stableStringifyChimeraDeploySigningPayload,
   type ChimeraDeployConfigFile,
+  type ParseChimeraDeployConfigOptions,
 } from "./chimera-deploy-config.js";

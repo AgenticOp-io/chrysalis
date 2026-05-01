@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **V2-M5 / V2-M2 / V2-M6 (D255):** Optional **`hmacSha256`** on chimera deploy JSON; **`parseChimeraDeployConfigJson`** HMAC verification; CLI **`--config-hmac-secret`**; **`computeChimeraDeployConfigHmacHex`** / **`stableStringifyChimeraDeploySigningPayload`**; optional **`CHRYSALIS_INGEST_RSS_MAX_BYTES`**; **`scripts/export-fleet-status-uplink.mjs`** + **`pnpm run fleet:export-status-uplink`**; fleet fixture **`items[].status`**; deploy **`stats`** log includes shadow line/canary fields; two-instance chimera Vitest.
+
 - **V2-M2 / V2-M5 / V2-M6 (D254):** **`ChimeraStats`** — shadow **`divergenceLines`**, **`mirrorErrors`**, and canary aggregate counters; **`emitResume`** + **`.chrysalis-emit-state.json`** in **`@chrysalis/emit-hono`** / **`emit-fastify`**; CLI **`chrysalis emit --emit-resume`**; optional **`CHRYSALIS_INGEST_BUDGET_MS`** in **`many-routes-synthetic-ingest`**; fixture **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** + Vitest **`fleet-status-uplink-schema.test.ts`**; **`docs/OPERATIONS.md`** multi-AZ / stickiness / emit-resume; **`docs/ADMINISTRATION.md`** env row.
 
 - **V2-M1 — CI gate for merged verify JSON:** `scripts/ci-gates.mjs verify-merged-summary`, root **`pnpm run ci:verify-merged-summary`**, fixture **`fixtures/ci/verify-merged-summary-smoke.json`**, **`verify-tiny-blog.mjs`** emits **`reports/ci/verify-e2e-merged-summary.json`** (K=2 partition parity smoke or single-shard fallback). Optional **`CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS`** in CI.

@@ -1,13 +1,52 @@
 /**
  * Versioned JSON contract for `chrysalis deploy --config` (V2-M5 shared config source, DESIGN D253).
  * Unversioned objects (no `kind`) remain accepted for backward compatibility.
+ *
+ * Optional **`hmacSha256`** (hex digest, 32 bytes) authenticates the JSON object excluding that field,
+ * using **`stableStringifyChimeraDeploySigningPayload`** + **HMAC-SHA256** (**DESIGN D255**).
  */
 
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type { Mode, RouteRule, Target } from "./routing.js";
 
 export const CHIMERA_DEPLOY_CONFIG_KIND = "chrysalis.chimera.config" as const;
 
 export const CHIMERA_DEPLOY_CONFIG_SCHEMA_VERSION = 1 as const;
+
+export interface ParseChimeraDeployConfigOptions {
+  /** When the JSON includes **`hmacSha256`**, this secret must be set or parsing fails. */
+  readonly hmacSecret?: string;
+}
+
+/** Recursive JSON with sorted object keys (signing payload only; excludes **`hmacSha256`**). */
+export function stableStringifyChimeraDeploySigningPayload(obj: Record<string, unknown>): string {
+  return stableStringifyUnknown(obj);
+}
+
+function stableStringifyUnknown(v: unknown): string {
+  if (v === null) return "null";
+  const t = typeof v;
+  if (t === "string") return JSON.stringify(v);
+  if (t === "number") return JSON.stringify(v);
+  if (t === "boolean") return JSON.stringify(v);
+  if (Array.isArray(v)) return `[${v.map(stableStringifyUnknown).join(",")}]`;
+  if (t === "object") {
+    const rec = v as Record<string, unknown>;
+    const keys = Object.keys(rec).sort();
+    const inner = keys.map((k) => `${JSON.stringify(k)}:${stableStringifyUnknown(rec[k])}`);
+    return `{${inner.join(",")}}`;
+  }
+  return JSON.stringify(v);
+}
+
+/** Operator helper: HMAC-SHA256 hex for a deploy JSON object **without** **`hmacSha256`**. */
+export function computeChimeraDeployConfigHmacHex(
+  deployFieldsOnly: Record<string, unknown>,
+  secret: string,
+): string {
+  const payload = stableStringifyChimeraDeploySigningPayload(deployFieldsOnly);
+  return createHmac("sha256", secret).update(payload, "utf8").digest("hex");
+}
 
 export interface ChimeraDeployConfigFile {
   readonly kind?: typeof CHIMERA_DEPLOY_CONFIG_KIND;
@@ -91,6 +130,7 @@ function parseCanary(raw: unknown): ChimeraDeployConfigFile["canary"] | undefine
 export function parseChimeraDeployConfigJson(
   rawText: string,
   pathLabel: string,
+  options?: ParseChimeraDeployConfigOptions,
 ): { ok: true; value: ChimeraDeployConfigFile } | { ok: false; message: string } {
   let root: unknown;
   try {
@@ -103,6 +143,31 @@ export function parseChimeraDeployConfigJson(
     return { ok: false, message: `${pathLabel}: expected a JSON object` };
   }
   const o = root as Record<string, unknown>;
+
+  const hmacField = o.hmacSha256;
+  if (hmacField !== undefined) {
+    if (typeof hmacField !== "string" || !/^[0-9a-fA-F]{64}$/.test(hmacField)) {
+      return {
+        ok: false,
+        message: `${pathLabel}: hmacSha256 must be a 64-character hexadecimal string when set`,
+      };
+    }
+    const secret = options?.hmacSecret;
+    if (typeof secret !== "string" || secret.length === 0) {
+      return {
+        ok: false,
+        message: `${pathLabel}: config declares hmacSha256 but no HMAC secret was provided (set CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET or pass --config-hmac-secret <secret>)`,
+      };
+    }
+    const restUnknown: Record<string, unknown> = { ...o };
+    delete restUnknown.hmacSha256;
+    const payload = stableStringifyChimeraDeploySigningPayload(restUnknown);
+    const expected = createHmac("sha256", secret).update(payload, "utf8").digest();
+    const got = Buffer.from(hmacField.toLowerCase(), "hex");
+    if (got.length !== expected.length || !timingSafeEqual(got, expected)) {
+      return { ok: false, message: `${pathLabel}: hmacSha256 verification failed` };
+    }
+  }
 
   if (o.kind !== undefined && o.kind !== CHIMERA_DEPLOY_CONFIG_KIND) {
     return {

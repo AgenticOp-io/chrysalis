@@ -905,10 +905,10 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 **Goal:** **More than one** chimera/proxy instance can share consistent **routing + session + shadow** semantics for large sites.
 
-- [x] **Shared config source (v1 contract):** **`kind`:** **`chrysalis.chimera.config`**, **`schemaVersion`:** **1** on **`chrysalis deploy --config`** JSON; **`parseChimeraDeployConfigJson`** (**`@chrysalis/runtime-chimera`**); legacy files without **`kind`** unchanged. Fixture **`fixtures/chimera-deploy-config-v1-smoke.json`**. **Remaining:** signed bundles, hot reload / drift detection across nodes, central store integration.
+- [x] **Shared config source (v1 contract):** **`kind`:** **`chrysalis.chimera.config`**, **`schemaVersion`:** **1** on **`chrysalis deploy --config`** JSON; **`parseChimeraDeployConfigJson`** (**`@chrysalis/runtime-chimera`**); legacy files without **`kind`** unchanged. Fixture **`fixtures/chimera-deploy-config-v1-smoke.json`**. **Optional HMAC (D255):** top-level **`hmacSha256`** + **`CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET`** or **`--config-hmac-secret`**. **Remaining:** hot reload / drift detection across nodes, central store integration, KMS-style key rotation runbooks.
 - [x] **Canary / shadow aggregation (proxy stats v1, D254):** **`ChimeraStats.canary`** summarizes modern-rule traffic vs served stack; **`ChimeraStats.shadow`** adds **`divergenceLines`** and **`mirrorErrors`** (fetch failures no longer inflate **`diverged`**). **Remaining:** fleet-wide sinks / NDJSON extensions beyond per-node **`stats()`**.
 - [ ] **Session:** Redis (or equivalent) shared session bridge (**M6**); file-backed SQLite sessions remain per-instance until then.
-- [x] **Runbooks / stickiness (doc slice, D254):** **`docs/OPERATIONS.md`** — multi-AZ cutover outline, rollback, shared route map, LB + canary cookie stickiness, session caveats, emit-resume pointer. **Remaining:** CI **multi-process** chimera demo (two nodes).
+- [x] **Runbooks / stickiness (doc slice, D254):** **`docs/OPERATIONS.md`** — multi-AZ cutover outline, rollback, shared route map, LB + canary cookie stickiness, session caveats, emit-resume pointer. **Multi-process smoke (D255):** Vitest starts **two** **`startChimera`** handles (ephemeral ports). **Remaining:** CI demo with distinct hosts / LB harness.
 
 **Done when:** local or CI **multi-process** chimera demo (two nodes) + doc sign-off criteria; no weakening of verify before cutover.
 
@@ -916,7 +916,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 **Goal:** **Fleet view**—many repos or many shards—feeds a dashboard that aggregates **`chrysalis status --json`** and verify summaries **without** becoming a new source of truth (read-only mirror of repo artifacts).
 
-- [x] **Schema (v0 reference uplink):** fixture **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** (**`kind`:** **`chrysalis.fleet.status-uplink`**, **`schemaVersion`:** **0**); Vitest **`packages/cli/tests/fleet-status-uplink-schema.test.ts`**. **Remaining:** exporter script / UI, privacy review per deployment.
+- [x] **Schema (v0 reference uplink):** fixture **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** (**`kind`:** **`chrysalis.fleet.status-uplink`**, **`schemaVersion`:** **0**; **`items[].projectLabel`** + **`items[].status`**); Vitest **`fleet-status-uplink-schema.test.ts`** + **`fleet-status-uplink-export-script.test.ts`**; **`scripts/export-fleet-status-uplink.mjs`**. **Remaining:** richer exporter / UI, privacy review per deployment.
 - [ ] **Privacy:** no third-party telemetry; self-hosted or air-gapped (contract unchanged—reference JSON only).
 
 **Done when:** documented reference architecture + sample exporter script or minimal UI—**optional** for tagging `v2.0.0` if V2-M1–V5 are complete.
