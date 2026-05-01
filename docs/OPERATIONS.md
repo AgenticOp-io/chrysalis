@@ -159,6 +159,12 @@ Scale-out ingest mode is forwarded (same flags as **`status`**), e.g. merged sha
 pnpm run migration-debt -- --project fixtures/tiny-blog --merge-all-shards --shard-count 2 --json-out reports/migration-debt-merged.json
 ```
 
+Or a single route shard (partial route set for **`oracleFootprint`** / holes):
+
+```bash
+pnpm run migration-debt -- --project fixtures/tiny-blog --shard-index 0 --shard-count 2 --json-out reports/migration-debt-r0.json
+```
+
 See [`packages/cli/README.md`](../packages/cli/README.md) for `--max-holes`, `--min-correctness`, and `--json-out`.
 
 ## CI helper scripts (local parity)

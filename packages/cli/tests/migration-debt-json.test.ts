@@ -19,6 +19,7 @@ describe("migration-debt --json-out", () => {
     try {
       expect(r.status).toBe(0);
       expect(r.stdout).toContain("migration debt");
+      expect(r.stdout).toContain("ingest:        monolithic");
       expect(r.stdout).toContain("wrote JSON summary:");
       const j = JSON.parse(readFileSync(outPath, "utf8")) as {
         kind: string;
@@ -79,6 +80,42 @@ describe("migration-debt --json-out", () => {
         ingestSharding: { mode: string; shardCount: number };
       };
       expect(j.ingestSharding).toEqual({ mode: "mergedShards", shardCount: 2 });
+    } finally {
+      try {
+        unlinkSync(outPath);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+
+  test("forwards route shard flags and writes routeShard in JSON", () => {
+    const outPath = join(tmpdir(), `chrysalis-migration-debt-rshard-${Date.now()}.json`);
+    const r = spawnSync(
+      process.execPath,
+      [
+        SCRIPT,
+        "--project",
+        "fixtures/tiny-blog",
+        "--shard-index",
+        "0",
+        "--shard-count",
+        "2",
+        "--json-out",
+        outPath,
+      ],
+      {
+        cwd: ROOT,
+        encoding: "utf8",
+      },
+    );
+    try {
+      expect(r.status).toBe(0);
+      expect(r.stdout).toContain("route shard 0/2");
+      const j = JSON.parse(readFileSync(outPath, "utf8")) as {
+        ingestSharding: { mode: string; shardIndex: number; shardCount: number };
+      };
+      expect(j.ingestSharding).toEqual({ mode: "routeShard", shardIndex: 0, shardCount: 2 });
     } finally {
       try {
         unlinkSync(outPath);

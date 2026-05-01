@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Docs (10-slice V2 batch):** **`packages/verify/README.md`** (trace vs route sharding); **`docs/ADMINISTRATION.md`** corpus retention v0; **`ROADMAP.md`** V2-M2/M3 checkboxes aligned; **`cli-help-scaleout.test.ts`** asserts **`--shard-count`** in **`--help`**.
 
-- **`migration-debt.mjs`:** human output + **`--json-out`** include **`ingestSharding`** when present; Vitest **`migration-debt-json.test.ts`** covers **`mergedShards`** forwarding.
+- **`migration-debt.mjs`:** human output + **`--json-out`** include **`ingestSharding`** when present; Vitest **`migration-debt-json.test.ts`** covers **`mergedShards`**, **`routeShard`**, and monolithic human line + **`docs/OPERATIONS.md`** route-shard **`migration-debt`** example.
 
 - **CLI:** Vitest **`packages/cli/tests/route-shard-status-cli.test.ts`** for **`status --project … --shard-index/--shard-count --json`** (**`ingestSharding.routeShard`**). **`docs/OPERATIONS.md`** migration-debt example with **`--merge-all-shards`**. **`ROADMAP.md`** removes stale “merge future work” note on incremental cache line.
 
