@@ -51,6 +51,7 @@
     "ci:emit-layout-floors": "node scripts/ci-gates.mjs emit-layout-floors",
     "release:artifacts": "node scripts/make-release-artifacts.mjs",
     "fleet:export-status-uplink": "node scripts/export-fleet-status-uplink.mjs",
+    "ci:chimera-lb-smoke": "vitest run packages/runtime-chimera/tests/proxy-lb-round-robin.test.ts",
     "github:project-bootstrap": "node scripts/bootstrap-github-project.mjs",
     "clean": "pnpm -r clean"
   },

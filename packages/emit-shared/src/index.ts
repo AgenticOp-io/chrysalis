@@ -29,3 +29,11 @@ export {
   markEmitResumeHandlerComplete,
   type EmitResumeStateV1,
 } from "./emit-resume-state.js";
+export {
+  aggregateEmittedHandlerImports,
+  buildFastifyChrysalisHandlerImportsSource,
+  buildHonoChrysalisHandlerImportsSource,
+  fastifyBarrelValueImportClause,
+  honoBarrelValueImportClause,
+  type AggregatedHandlerImportNeeds,
+} from "./chrysalis-handler-imports.js";

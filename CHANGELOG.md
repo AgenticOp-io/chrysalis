@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **V2-M4 / V2-M5 (D256):** **`emitStrategy.handlerImportBarrel`**, **`src/chrysalis-handler-imports.ts`**, CLI **`--emit-handler-import-barrel`**; **`chrysalis deploy --config-url`** + **`CHRYSALIS_CHIMERA_CONFIG_URL`**; **SIGHUP/SIGUSR2** config reload; **`ci:chimera-lb-smoke`** + round-robin LB Vitest; **`docs/OPERATIONS.md`** KMS/HMAC rotation; **`aggregateEmittedHandlerImports`** / barrel builders in **`@chrysalis/emit-shared`**.
+
 - **V2-M5 / V2-M2 / V2-M6 (D255):** Optional **`hmacSha256`** on chimera deploy JSON; **`parseChimeraDeployConfigJson`** HMAC verification; CLI **`--config-hmac-secret`**; **`computeChimeraDeployConfigHmacHex`** / **`stableStringifyChimeraDeploySigningPayload`**; optional **`CHRYSALIS_INGEST_RSS_MAX_BYTES`**; **`scripts/export-fleet-status-uplink.mjs`** + **`pnpm run fleet:export-status-uplink`**; fleet fixture **`items[].status`**; deploy **`stats`** log includes shadow line/canary fields; two-instance chimera Vitest.
 
 - **V2-M2 / V2-M5 / V2-M6 (D254):** **`ChimeraStats`** — shadow **`divergenceLines`**, **`mirrorErrors`**, and canary aggregate counters; **`emitResume`** + **`.chrysalis-emit-state.json`** in **`@chrysalis/emit-hono`** / **`emit-fastify`**; CLI **`chrysalis emit --emit-resume`**; optional **`CHRYSALIS_INGEST_BUDGET_MS`** in **`many-routes-synthetic-ingest`**; fixture **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** + Vitest **`fleet-status-uplink-schema.test.ts`**; **`docs/OPERATIONS.md`** multi-AZ / stickiness / emit-resume; **`docs/ADMINISTRATION.md`** env row.

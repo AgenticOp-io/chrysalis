@@ -13,6 +13,7 @@ Verify and replay honor **`CHRYSALIS_VERIFY_*`** and related knobs exposed by `@
 | `CHRYSALIS_INGEST_BUDGET_MS` | Vitest **`many-routes-synthetic-ingest`** | When set to a positive integer, asserts wall-clock for the synthetic full-ingest + shard loop stays under this many milliseconds (**DESIGN D254**). |
 | `CHRYSALIS_INGEST_RSS_MAX_BYTES` | Vitest **`many-routes-synthetic-ingest`** | When set, asserts **RSS** after the loop is below this byte ceiling (optional perf guard; **DESIGN D255**). |
 | `CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET` | **`chrysalis deploy --config`** | When the JSON file includes **`hmacSha256`**, this secret (or **`--config-hmac-secret`**) must match the signature (**DESIGN D255**). |
+| `CHRYSALIS_CHIMERA_CONFIG_URL` | **`chrysalis deploy`** | When **`--config`** is not set, load versioned JSON from this URL (same contract as file). Mutually exclusive with **`--config`**. Optional central store / object-storage pointer (**DESIGN D256**). |
 | `CHRYSALIS_VERIFY_DUAL_PROFILE` | `scripts/ci-gates.mjs verify-dual-summary` | Pins expected `profile` on dual-summary JSON |
 | `CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS` | `scripts/ci-gates.mjs verify-merged-summary` | When set (0..1), requires `merged.aggregate.correctness` at least this value |
 | `CHRYSALIS_IDIOMATICITY_MIN` / `CHRYSALIS_RESIDUAL_LEGACY_MAX` | `migration-sidecar-floors` | When set, enforces floors against `reports/migration/*.json` |

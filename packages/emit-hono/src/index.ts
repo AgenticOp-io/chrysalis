@@ -14,10 +14,13 @@ import { dirname, join } from "node:path";
 import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
 import {
+  aggregateEmittedHandlerImports,
+  buildHonoChrysalisHandlerImportsSource,
   clearEmitResumeState,
   emitHandlerBody,
   formatEmitProvenanceDisplay,
   handlerEffectAnnotationTags,
+  honoBarrelValueImportClause,
   honoHttpProfile,
   ident,
   loadEmitResumeCompletedHandlers,
@@ -150,6 +153,17 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   const bindings: RouteBinding[] = [];
 
   const routeRoots = nodesByDialect(m, "web.request", "route");
+  const handlerImportBarrel = emitStrategy?.handlerImportBarrel === true;
+  const routeJobs: Array<{
+    attrs: { method: string; path: string; pathParams: ReadonlyArray<{ name: string }> };
+    baseName: string;
+    emitted: EmittedHandler;
+    effectTags: ReadonlyArray<string>;
+    phpFile: string;
+    handlerFile: string;
+    handlerRel: string;
+  }> = [];
+
   for (const routeNode of routeRoots) {
     const attrs = routeNode.attrs as {
       method: string;
@@ -169,7 +183,6 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     const effectTags = handlerEffectAnnotationTags(handler, emitted);
     effectsByHandler[baseName] = effectTags;
 
-    // Scope holes to this handler for the registry.
     const phpFile = handler.origin.kind === "php" ? handler.origin.file : "unknown";
     for (const h of emitted.holes) {
       allHoles.push({ name: h.name, file: phpFile, line: h.line, reason: h.reason });
@@ -177,23 +190,33 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
 
     const handlerFile = `src/handlers/${baseName}.ts`;
     const handlerRel = handlerFile.replace(/\\/g, "/");
+    routeJobs.push({ attrs, baseName, emitted, effectTags, phpFile, handlerFile, handlerRel });
+  }
+
+  if (handlerImportBarrel && routeJobs.length > 0) {
+    const agg = aggregateEmittedHandlerImports(routeJobs.map((j) => j.emitted));
+    await writeOne("src/chrysalis-handler-imports.ts", buildHonoChrysalisHandlerImportsSource(agg));
+  }
+
+  for (const job of routeJobs) {
     const handlerSrc = handlerFileText(
-      baseName,
-      emitted,
-      effectTags,
-      formatEmitProvenanceDisplay(provenanceRoot, phpFile),
+      job.baseName,
+      job.emitted,
+      job.effectTags,
+      formatEmitProvenanceDisplay(provenanceRoot, job.phpFile),
+      handlerImportBarrel,
     );
-    const skipWrite = resumeSet !== null && resumeSet.has(handlerRel);
+    const skipWrite = resumeSet !== null && resumeSet.has(job.handlerRel);
     if (!skipWrite) {
-      await writeOne(handlerFile, handlerSrc);
-      if (emitResume) markEmitResumeHandlerComplete(outDir, handlerRel);
+      await writeOne(job.handlerFile, handlerSrc);
+      if (emitResume) markEmitResumeHandlerComplete(outDir, job.handlerRel);
     }
 
     bindings.push({
-      method: attrs.method,
-      path: attrs.path,
-      handlerName: baseName,
-      file: handlerFile,
+      method: job.attrs.method,
+      path: job.attrs.path,
+      handlerName: job.baseName,
+      file: job.handlerFile,
     });
   }
 
@@ -220,14 +243,12 @@ function handlerFileText(
   emitted: EmittedHandler,
   effectTags: ReadonlyArray<string>,
   provenanceFile: string,
+  useImportBarrel: boolean,
 ): string {
   const domainImport =
     emitted.domainTypeImports.length > 0
       ? `import type { ${emitted.domainTypeImports.join(", ")} } from "../domain.js";\n`
       : "";
-  const ctxImport = usesChrysalisTimeOrRandom(emitted)
-    ? `import { chrysalisNow, chrysalisRandom } from "../ctx.js";\n`
-    : "";
   const dbImportNames = emitted.usesQueryAllWhereIn
     ? "queryAll, queryAllWhereIn, queryOne, execSql, db"
     : "queryAll, queryOne, execSql, db";
@@ -239,6 +260,28 @@ function handlerFileText(
     : "";
   const runtimeFqn = emitted.usesPhpFqnNew ? "  phpFqnNew,\n" : "";
   const runtimeDynamicNew = emitted.usesPhpDynamicNew ? "  phpDynamicNew,\n" : "";
+
+  if (useImportBarrel) {
+    return `import type { Context } from "../chrysalis-handler-imports.js";
+import {
+  ${honoBarrelValueImportClause(emitted)}
+} from "../chrysalis-handler-imports.js";
+${domainImport}
+/**
+ * @chrysalis-provenance ${JSON.stringify(provenanceFile)}
+ * @chrysalis-effects ${effectTags.join(", ") || "(none inferred)"}
+ * @chrysalis-shape ${emitted.shape}
+ * @chrysalis-holes ${emitted.holes.length}
+ */
+export async function ${name}(c: Context): Promise<Response> {
+${indent(emitted.body, 2)}
+}
+`;
+  }
+
+  const ctxImport = usesChrysalisTimeOrRandom(emitted)
+    ? `import { chrysalisNow, chrysalisRandom } from "../ctx.js";\n`
+    : "";
   return `import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
 ${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";

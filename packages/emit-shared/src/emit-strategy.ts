@@ -8,4 +8,9 @@ export type ChrysalisEmitRouteRegistration = "eager" | "lazy";
 
 export interface ChrysalisEmitStrategyV1 {
   readonly routeRegistration?: ChrysalisEmitRouteRegistration;
+  /**
+   * Emit **`src/chrysalis-handler-imports.ts`** re-export barrel; handlers import runtime/db/session
+   * surface through it (DESIGN D256). Default **false** (per-handler imports unchanged).
+   */
+  readonly handlerImportBarrel?: boolean;
 }

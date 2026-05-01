@@ -45,7 +45,7 @@ chrysalis deploy --mode=<legacy|cutover|shadow|canary> \
                  [--canary-cookie <name>] [--canary-header <name>]
 ```
 
-`chimera.json` (all fields optional; flags override file values). **Versioned (V2-M5, DESIGN D253):** set **`"kind": "chrysalis.chimera.config"`** and **`"schemaVersion": 1`** so every node can load the same file and the CLI rejects unknown contract versions. Omit **`kind`** for legacy implicit v0 files (still supported). **Optional HMAC (D255):** top-level **`hmacSha256`** (64 hex chars) signs the rest of the file; deploy with **`CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET`** or **`--config-hmac-secret`**. Use **`computeChimeraDeployConfigHmacHex`** / **`stableStringifyChimeraDeploySigningPayload`** from this package to generate signatures.
+`chimera.json` (all fields optional; flags override file values). **Versioned (V2-M5, DESIGN D253):** set **`"kind": "chrysalis.chimera.config"`** and **`"schemaVersion": 1`** so every node can load the same file and the CLI rejects unknown contract versions. Omit **`kind`** for legacy implicit v0 files (still supported). **Optional HMAC (D255):** top-level **`hmacSha256`** (64 hex chars) signs the rest of the file; deploy with **`CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET`** or **`--config-hmac-secret`**. Use **`computeChimeraDeployConfigHmacHex`** / **`stableStringifyChimeraDeploySigningPayload`** from this package to generate signatures. **Central URL + reload (D256):** **`chrysalis deploy --config-url …`** or **`CHRYSALIS_CHIMERA_CONFIG_URL`**; send **`SIGHUP`** or **`SIGUSR2`** to the deploy process to re-fetch/re-read JSON and restart the in-process chimera (brief local blip; failures keep the prior server).
 
 ```json
 {

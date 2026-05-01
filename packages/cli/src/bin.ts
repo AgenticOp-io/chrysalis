@@ -44,6 +44,7 @@ import {
   startChimera,
   type CanarySettings,
   type ChimeraDeployConfigFile,
+  type ChimeraHandle,
   type RouteRule,
 } from "@chrysalis/runtime-chimera";
 import {
@@ -356,7 +357,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
@@ -408,13 +409,20 @@ async function cmdEmit(args: string[]): Promise<number> {
     mkdirSync(join(outAbs, "src"), { recursive: true });
     writeFileSync(join(outAbs, "src", "domain.ts"), emitTypes(schemaReport));
   }
+  const emitStrategy: {
+    routeRegistration?: "lazy";
+    handlerImportBarrel?: true;
+  } = {
+    ...(routeReg.value === "lazy" ? { routeRegistration: "lazy" as const } : {}),
+    ...(flags["emit-handler-import-barrel"] === true ? { handlerImportBarrel: true as const } : {}),
+  };
   const emitOpts = {
     module: mod,
     outDir: outAbs,
     provenanceRoot: resolve(root),
     ...(schemaReport ? { schemaReport } : {}),
     ...(domainMap ? { domainTypesByTable: domainMap } : {}),
-    ...(routeReg.value === "lazy" ? { emitStrategy: { routeRegistration: "lazy" as const } } : {}),
+    ...(Object.keys(emitStrategy).length > 0 ? { emitStrategy } : {}),
     ...(flags["emit-resume"] === true ? { emitResume: true as const } : {}),
   };
   const res =
@@ -1137,82 +1145,81 @@ async function cmdRepair(args: string[]): Promise<number> {
   return 1;
 }
 
-async function cmdDeploy(args: string[]): Promise<number> {
-  const flags = parseFlags(args);
-  const configPath = typeof flags.config === "string" ? resolve(flags.config) : null;
-  let fileCfg: ChimeraDeployConfigFile = {};
-  if (configPath) {
-    const hmacFlag = flags["config-hmac-secret"];
-    const hmacSecretEnv = process.env.CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET;
-    const hmacSecret =
-      typeof hmacFlag === "string" && hmacFlag.length > 0
-        ? hmacFlag
-        : typeof hmacSecretEnv === "string" && hmacSecretEnv.length > 0
-          ? hmacSecretEnv
-          : undefined;
-    const parsed = parseChimeraDeployConfigJson(readFileSync(configPath, "utf8"), configPath, {
-      ...(hmacSecret !== undefined ? { hmacSecret } : {}),
-    });
-    if (!parsed.ok) {
-      console.error(parsed.message);
-      return 2;
-    }
-    fileCfg = parsed.value;
-  }
+type ChimeraCliDeployMode = "legacy" | "cutover" | "shadow" | "canary";
 
-  const modeRaw = typeof flags.mode === "string" ? flags.mode : fileCfg.mode ?? "legacy";
+interface ChimeraDeployMerged {
+  readonly modeRaw: ChimeraCliDeployMode;
+  readonly legacy: string;
+  readonly modern: string;
+  readonly host: string;
+  readonly port: number;
+  readonly rules: ReadonlyArray<RouteRule>;
+  readonly shadowLogDir: string | undefined;
+  readonly canary: CanarySettings | undefined;
+}
+
+function chimeraDeployHmacSecret(flags: Record<string, string | boolean>): string | undefined {
+  const hmacFlag = flags["config-hmac-secret"];
+  const hmacSecretEnv = process.env.CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET;
+  if (typeof hmacFlag === "string" && hmacFlag.length > 0) return hmacFlag;
+  if (typeof hmacSecretEnv === "string" && hmacSecretEnv.length > 0) return hmacSecretEnv;
+  return undefined;
+}
+
+function mergeChimeraDeployFlagsAndFile(
+  flags: Record<string, string | boolean>,
+  fileCfg: ChimeraDeployConfigFile,
+):
+  | { ok: true; merged: ChimeraDeployMerged }
+  | { ok: false; message: string } {
+  const modeRaw = (typeof flags.mode === "string" ? flags.mode : fileCfg.mode ?? "legacy") as ChimeraCliDeployMode;
   if (
     modeRaw !== "legacy" &&
     modeRaw !== "cutover" &&
     modeRaw !== "shadow" &&
     modeRaw !== "canary"
   ) {
-    console.error(`usage: chrysalis deploy --mode=legacy|cutover|shadow|canary`);
-    console.error(`  unknown mode: ${modeRaw}`);
-    return 2;
+    return {
+      ok: false,
+      message: `usage: chrysalis deploy --mode=legacy|cutover|shadow|canary\n  unknown mode: ${modeRaw}`,
+    };
   }
   const legacy = typeof flags.legacy === "string" ? flags.legacy : fileCfg.legacy;
   const modern = typeof flags.modern === "string" ? flags.modern : fileCfg.modern;
   if (!legacy || !modern) {
-    console.error(
-      "usage: chrysalis deploy --mode=<legacy|cutover|shadow|canary> --legacy <url> --modern <url>\n" +
+    return {
+      ok: false,
+      message:
+        "usage: chrysalis deploy --mode=<legacy|cutover|shadow|canary> --legacy <url> --modern <url>\n" +
         "                       [--port 8080] [--host 127.0.0.1]\n" +
-        "                       [--config chimera.json] [--config-hmac-secret <str>]\n" +
+        "                       [--config chimera.json] [--config-url <url>] [--config-hmac-secret <str>]\n" +
         "                       [--shadow-log-dir reports/shadow]\n" +
         "                       [--canary-percent 0-100] [--canary-salt <str>]\n" +
         "                       [--canary-cookie <name>] [--canary-header <name>]",
-    );
-    return 2;
+    };
   }
   const port =
-    typeof flags.port === "string"
-      ? Number.parseInt(flags.port, 10)
-      : fileCfg.port ?? 8080;
+    typeof flags.port === "string" ? Number.parseInt(flags.port, 10) : fileCfg.port ?? 8080;
   const host = typeof flags.host === "string" ? flags.host : fileCfg.host ?? "127.0.0.1";
   const rules: ReadonlyArray<RouteRule> = fileCfg.rules ?? [];
   const shadowLogDir =
-    typeof flags["shadow-log-dir"] === "string"
-      ? flags["shadow-log-dir"]
-      : fileCfg.shadowLogDir;
+    typeof flags["shadow-log-dir"] === "string" ? flags["shadow-log-dir"] : fileCfg.shadowLogDir;
 
   let canary: CanarySettings | undefined;
   if (modeRaw === "canary") {
     const pctFlag = flags["canary-percent"];
     const pctRaw =
-      typeof pctFlag === "string"
-        ? Number.parseFloat(pctFlag)
-        : fileCfg.canary?.percentModern;
+      typeof pctFlag === "string" ? Number.parseFloat(pctFlag) : fileCfg.canary?.percentModern;
     if (pctRaw === undefined || Number.isNaN(pctRaw)) {
-      console.error(
-        "error: canary mode requires --canary-percent <0-100> or config.canary.percentModern",
-      );
-      return 2;
+      return {
+        ok: false,
+        message:
+          "error: canary mode requires --canary-percent <0-100> or config.canary.percentModern",
+      };
     }
     const saltFlag = flags["canary-salt"];
     const salt =
-      typeof saltFlag === "string"
-        ? saltFlag
-        : fileCfg.canary?.salt ?? "chrysalis-canary-v1";
+      typeof saltFlag === "string" ? saltFlag : fileCfg.canary?.salt ?? "chrysalis-canary-v1";
     const cookieFlag = flags["canary-cookie"];
     const stickinessCookie =
       typeof cookieFlag === "string" ? cookieFlag : fileCfg.canary?.stickinessCookie;
@@ -1227,48 +1234,194 @@ async function cmdDeploy(args: string[]): Promise<number> {
     };
   }
 
-  console.log(`[deploy] mode:       ${modeRaw}`);
-  console.log(`[deploy] legacy:     ${legacy}`);
-  console.log(`[deploy] modern:     ${modern}`);
-  console.log(`[deploy] listening:  http://${host}:${port}`);
-  console.log(`[deploy] rules:      ${rules.length}`);
-  if (shadowLogDir) console.log(`[deploy] shadow log: ${shadowLogDir}`);
-  if (canary) {
-    console.log(`[deploy] canary:     ${canary.percentModern}% modern (salt len=${canary.salt.length})`);
-    if (canary.stickinessCookie) console.log(`[deploy] canary cookie: ${canary.stickinessCookie}`);
-    if (canary.stickinessHeader) console.log(`[deploy] canary header: ${canary.stickinessHeader}`);
+  return {
+    ok: true,
+    merged: {
+      modeRaw,
+      legacy,
+      modern,
+      host,
+      port,
+      rules,
+      shadowLogDir: typeof shadowLogDir === "string" ? shadowLogDir : undefined,
+      canary,
+    },
+  };
+}
+
+async function cmdDeploy(args: string[]): Promise<number> {
+  const flags = parseFlags(args);
+  const configUrlFromFlag = typeof flags["config-url"] === "string" ? flags["config-url"] : null;
+  const configUrlFromEnv = process.env.CHRYSALIS_CHIMERA_CONFIG_URL;
+  const configUrl =
+    (typeof configUrlFromFlag === "string" && configUrlFromFlag.length > 0 ? configUrlFromFlag : null) ??
+    (typeof configUrlFromEnv === "string" && configUrlFromEnv.length > 0 ? configUrlFromEnv : null);
+  const configPath = typeof flags.config === "string" ? resolve(flags.config) : null;
+  if (configUrl && configPath) {
+    console.error(
+      "error: use only one of --config <file> or --config-url / CHRYSALIS_CHIMERA_CONFIG_URL",
+    );
+    return 2;
   }
 
-  const handle = await startChimera({
-    mode: modeRaw,
-    legacy,
-    modern,
-    rules,
-    host,
-    port,
-    ...(shadowLogDir ? { shadowLogDir: resolve(shadowLogDir) } : {}),
-    ...(canary ? { canary } : {}),
-  });
+  const hmacSecret = chimeraDeployHmacSecret(flags);
 
-  const printStats = () => {
+  async function loadConfigText(): Promise<
+    { ok: true; text: string; label: string } | { ok: false; message: string }
+  > {
+    if (configUrl) {
+      try {
+        const ac = new AbortController();
+        const to = setTimeout(() => ac.abort(), 30_000);
+        const res = await fetch(configUrl, { redirect: "manual", signal: ac.signal });
+        clearTimeout(to);
+        if (!res.ok) {
+          return { ok: false, message: `config-url ${configUrl}: HTTP ${res.status}` };
+        }
+        return { ok: true, text: await res.text(), label: configUrl };
+      } catch (e) {
+        const m = e instanceof Error ? e.message : String(e);
+        return { ok: false, message: `config-url ${configUrl}: ${m}` };
+      }
+    }
+    if (configPath) {
+      return { ok: true, text: readFileSync(configPath, "utf8"), label: configPath };
+    }
+    return { ok: true, text: "{}", label: "(flags only)" };
+  }
+
+  let statsTimer: ReturnType<typeof setInterval> | undefined;
+  let handle: ChimeraHandle | undefined;
+  let modeRawForStats: ChimeraCliDeployMode = "legacy";
+  let reloadBusy = false;
+
+  const stopServerAndTimer = async (): Promise<void> => {
+    if (statsTimer !== undefined) {
+      clearInterval(statsTimer);
+      statsTimer = undefined;
+    }
+    if (handle !== undefined) {
+      await handle.stop();
+      handle = undefined;
+    }
+  };
+
+  const printStats = (): void => {
+    if (!handle) return;
     const s = handle.stats();
     const sh = s.shadow;
     let line =
       `[deploy] stats  total=${s.total}  legacy=${s.byTarget.legacy}  modern=${s.byTarget.modern}  ` +
       `shadow(req=${sh.requests} agreed=${sh.agreed} diverged=${sh.diverged} lines=${sh.divergenceLines} mirrorErr=${sh.mirrorErrors})`;
-    if (modeRaw === "canary") {
+    if (modeRawForStats === "canary") {
       const c = s.canary;
       line += `  canary(modernRule=${c.modernRuleMatches} servedModern=${c.servedModern} legacyDespiteModern=${c.servedLegacyWhileModernRule} noRule=${c.noModernRule})`;
     }
     console.log(line);
   };
-  const statsTimer = setInterval(printStats, 10_000);
+
+  async function applyMerged(merged: ChimeraDeployMerged, logBanner: boolean): Promise<void> {
+    if (logBanner) {
+      console.log(`[deploy] mode:       ${merged.modeRaw}`);
+      console.log(`[deploy] legacy:     ${merged.legacy}`);
+      console.log(`[deploy] modern:     ${merged.modern}`);
+      console.log(`[deploy] listening:  http://${merged.host}:${merged.port}`);
+      console.log(`[deploy] rules:      ${merged.rules.length}`);
+      if (merged.shadowLogDir) console.log(`[deploy] shadow log: ${merged.shadowLogDir}`);
+      if (merged.canary) {
+        console.log(
+          `[deploy] canary:     ${merged.canary.percentModern}% modern (salt len=${merged.canary.salt.length})`,
+        );
+        if (merged.canary.stickinessCookie)
+          console.log(`[deploy] canary cookie: ${merged.canary.stickinessCookie}`);
+        if (merged.canary.stickinessHeader)
+          console.log(`[deploy] canary header: ${merged.canary.stickinessHeader}`);
+      }
+    }
+    await stopServerAndTimer();
+    handle = await startChimera({
+      mode: merged.modeRaw,
+      legacy: merged.legacy,
+      modern: merged.modern,
+      rules: merged.rules,
+      host: merged.host,
+      port: merged.port,
+      ...(merged.shadowLogDir ? { shadowLogDir: resolve(merged.shadowLogDir) } : {}),
+      ...(merged.canary ? { canary: merged.canary } : {}),
+    });
+    modeRawForStats = merged.modeRaw;
+    statsTimer = setInterval(printStats, 10_000);
+  }
+
+  async function reloadFromSignal(): Promise<void> {
+    if (reloadBusy) return;
+    reloadBusy = true;
+    try {
+      console.log("[deploy] reloading configuration (SIGHUP/SIGUSR2)...");
+      const loaded = await loadConfigText();
+      if (!loaded.ok) {
+        console.error(`[deploy] reload skipped: ${loaded.message}`);
+        return;
+      }
+      const parsed = parseChimeraDeployConfigJson(loaded.text, loaded.label, {
+        ...(hmacSecret !== undefined ? { hmacSecret } : {}),
+      });
+      if (!parsed.ok) {
+        console.error(`[deploy] reload skipped: ${parsed.message}`);
+        return;
+      }
+      const mergedResult = mergeChimeraDeployFlagsAndFile(flags, parsed.value);
+      if (!mergedResult.ok) {
+        console.error(`[deploy] reload skipped: ${mergedResult.message}`);
+        return;
+      }
+      await applyMerged(mergedResult.merged, false);
+      console.log("[deploy] reload complete.");
+    } catch (e) {
+      const m = e instanceof Error ? e.message : String(e);
+      console.error(`[deploy] reload failed: ${m}`);
+    } finally {
+      reloadBusy = false;
+    }
+  }
+
+  const loaded0 = await loadConfigText();
+  if (!loaded0.ok) {
+    console.error(`[deploy] ${loaded0.message}`);
+    return 2;
+  }
+  const parsed0 = parseChimeraDeployConfigJson(loaded0.text, loaded0.label, {
+    ...(hmacSecret !== undefined ? { hmacSecret } : {}),
+  });
+  if (!parsed0.ok) {
+    console.error(parsed0.message);
+    return 2;
+  }
+  const merged0 = mergeChimeraDeployFlagsAndFile(flags, parsed0.value);
+  if (!merged0.ok) {
+    console.error(merged0.message);
+    return 2;
+  }
+
+  try {
+    await applyMerged(merged0.merged, true);
+  } catch (e) {
+    const m = e instanceof Error ? e.message : String(e);
+    console.error(`[deploy] failed to start: ${m}`);
+    return 2;
+  }
+
+  process.on("SIGHUP", () => {
+    void reloadFromSignal();
+  });
+  process.on("SIGUSR2", () => {
+    void reloadFromSignal();
+  });
 
   const shutdown = async (): Promise<void> => {
-    clearInterval(statsTimer);
     console.log("\n[deploy] shutting down...");
     printStats();
-    await handle.stop();
+    await stopServerAndTimer();
   };
   process.on("SIGINT", () => {
     void shutdown().then(() => process.exit(0));
@@ -1277,7 +1430,6 @@ async function cmdDeploy(args: string[]): Promise<number> {
     void shutdown().then(() => process.exit(0));
   });
 
-  // Park forever; chimera runs in-process.
   await new Promise<void>(() => {});
   return 0;
 }

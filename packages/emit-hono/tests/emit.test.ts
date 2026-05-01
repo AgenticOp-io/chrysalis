@@ -334,6 +334,28 @@ describe("emit-hono: Milestone 6A auth-boundary emit holes", () => {
   });
 });
 
+describe("emit-hono: handlerImportBarrel", () => {
+  test("emits chrysalis-handler-imports.ts and handlers use barrel", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-barrel-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { handlerImportBarrel: true },
+      });
+      const barrel = readFileSync(resolve(out, "src/chrysalis-handler-imports.ts"), "utf8");
+      expect(barrel).toContain('export type { Context } from "hono"');
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-handler-imports.js");
+      expect(login).not.toContain('from "hono/cookie"');
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("emit-hono: emitResume", () => {
   test("skips completed handler writes then clears state on success", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-resume-"));

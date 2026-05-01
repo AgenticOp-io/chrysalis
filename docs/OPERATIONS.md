@@ -9,7 +9,7 @@ All examples assume repository root as current working directory and a built CLI
 | Goal | Typical entrypoint |
 | --- | --- |
 | PHP to WebIR | `chrysalis ingest <php-root>` |
-| WebIR to TS (Hono / Fastify) | `chrysalis emit <php-root> --out <dir> --target=hono` or `fastify`; optional **`--emit-resume`** after a partial emit (**V2-M2**, **DESIGN D254**) |
+| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`** (**shared import barrel**, **DESIGN D256**) |
 | Record live PHP traffic | `chrysalis observe <php-root> --traces <dir> …` |
 | Summarize a corpus | `chrysalis corpus <traces-dir>` |
 | Replay corpus against emitted app | `chrysalis verify <traces-dir> --base-url <url> --report <dir>` |
@@ -26,7 +26,19 @@ For **several chimera processes** behind a load balancer, every instance should 
 - **`kind`:** **`chrysalis.chimera.config`**
 - **`schemaVersion`:** **1**
 
-Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis deploy --config <path>`** validates JSON (including UTF-8 BOM), **`rules`**, **`canary`**, and **`schemaVersion`** when **`kind`** is set. Flags still override file fields. Example: **`fixtures/chimera-deploy-config-v1-smoke.json`** in this repo. **Optional signing (V2-M5, D255):** add top-level **`hmacSha256`** (64 hex chars) over the full JSON object **excluding** that field, using **HMAC-SHA256** and **`stableStringifyChimeraDeploySigningPayload`** from **`@chrysalis/runtime-chimera`** (or **`computeChimeraDeployConfigHmacHex`** to generate the digest). Deploy with **`CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET`** or **`chrysalis deploy --config-hmac-secret <secret>`**. **Not yet specified:** automatic reload, central store, or fleet-wide revision pins.
+Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis deploy --config <path>`** validates JSON (including UTF-8 BOM), **`rules`**, **`canary`**, and **`schemaVersion`** when **`kind`** is set. Flags still override file fields. Example: **`fixtures/chimera-deploy-config-v1-smoke.json`** in this repo. **Optional signing (V2-M5, D255):** add top-level **`hmacSha256`** (64 hex chars) over the full JSON object **excluding** that field, using **HMAC-SHA256** and **`stableStringifyChimeraDeploySigningPayload`** from **`@chrysalis/runtime-chimera`** (or **`computeChimeraDeployConfigHmacHex`** to generate the digest). Deploy with **`CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET`** or **`chrysalis deploy --config-hmac-secret <secret>`**. **Central config URL:** **`chrysalis deploy --config-url <https://…/chimera.json>`** or **`CHRYSALIS_CHIMERA_CONFIG_URL`** fetches the same JSON as **`--config`** (30s timeout, no redirect follow). Mutually exclusive with **`--config <file>`**. Use for object storage, config service, or Git raw URLs; **HMAC** verification applies when the document includes **`hmacSha256`**.
+
+**Hot reload (process-local):** send **`SIGHUP`** or **`SIGUSR2`** to the **`chrysalis deploy`** process to re-read **`--config`**, re-fetch **`--config-url`**, or re-parse flags-only state. On success the old chimera server is stopped and a new one starts (brief drop on that instance). On parse/HMAC/merge failure the previous server keeps running. **Windows:** signal support varies; prefer process manager restarts or Linux sidecars for production reload.
+
+### HMAC secret rotation (KMS-style runbook)
+
+1. **Generate** a new HMAC key in your KMS; keep the old key available during cutover.
+2. **Dual-sign (optional):** run two deploy config blobs (old vs new secret) is **not** supported in one file—publish **one** file at a time. Instead, **stagger cells**: canary cell on new secret + new file, then remaining cells.
+3. **Update file** in your store (S3, Vault export, etc.): recompute **`hmacSha256`** with **`computeChimeraDeployConfigHmacHex`** and the **new** secret; deploy nodes pick it up on **SIGHUP** or restart.
+4. **Roll clients:** set **`CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET`** (or **`--config-hmac-secret`**) to the new material before or with the file flip; nodes with only the old secret will reject the new signature until updated.
+5. **Retire** the old key after all instances validate the new config.
+
+**Not yet specified:** fleet-wide revision pins beyond operator discipline, or multi-key signature lists in one JSON file.
 
 ### Multi-AZ cutover, stickiness, and shadow across nodes
 
