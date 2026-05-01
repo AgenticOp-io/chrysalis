@@ -15,6 +15,39 @@ function envWithoutSidecarFloors(): Record<string, string | undefined> {
   return env;
 }
 
+const EMIT_LAYOUT_ENV_KEYS = [
+  "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_LINES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_LARGEST_FILE_LINES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_FILES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_LINES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_LARGEST_FILE_LINES",
+] as const;
+
+function envWithoutEmitLayoutFloors(): Record<string, string | undefined> {
+  const env: Record<string, string | undefined> = { ...process.env };
+  for (const k of EMIT_LAYOUT_ENV_KEYS) {
+    delete env[k];
+  }
+  return env;
+}
+
+function minimalFlagshipEmitStats(overrides: Record<string, unknown> = {}) {
+  const layout = {
+    tsFileCount: 5,
+    tsLineCount: 100,
+    largestFileRelativePath: "src/a.ts",
+    largestFileLineCount: 40,
+  };
+  return {
+    schema: "chrysalis/flagship-laravel-min-emit-stats/1",
+    manifestRoutes: 1,
+    hono: { holes: 0, authHoles: 0, handlerCount: 1, layout: { ...layout } },
+    fastify: { holes: 0, authHoles: 0, handlerCount: 1, layout: { ...layout } },
+    ...overrides,
+  };
+}
+
 describe("ci-gates readJsonGateArtifact", () => {
   test("tiny-n1-insight reports file missing with hint", () => {
     const missing = join(tmpdir(), `chrysalis-tiny-n1-insight-${Date.now()}.json`);
@@ -185,6 +218,107 @@ describe("ci-gates readJsonGateArtifact", () => {
     });
     expect(r.status).toBe(0);
     expect(r.stdout).toContain("migration-sidecar-floors skipped");
+  });
+
+  test("emit-layout-floors skips when CHRYSALIS_EMIT_LAYOUT_MAX_* are unset", () => {
+    const r = spawnSync(process.execPath, [CI_GATES, "emit-layout-floors", "."], {
+      cwd: ROOT,
+      encoding: "utf8",
+      env: envWithoutEmitLayoutFloors(),
+    });
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain("emit-layout-floors skipped");
+  });
+
+  test("emit-layout-floors fails when emit-stats file is missing", () => {
+    const missing = join(tmpdir(), `chrysalis-emit-layout-${Date.now()}.json`);
+    const env = envWithoutEmitLayoutFloors();
+    env.CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES = "10";
+    const r = spawnSync(process.execPath, [CI_GATES, "emit-layout-floors", missing], {
+      cwd: ROOT,
+      encoding: "utf8",
+      env,
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("emit-layout-floors:");
+    expect(r.stderr).toContain("emit-stats file missing");
+  });
+
+  test("emit-layout-floors reports invalid JSON", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-emit-layout-badjson-"));
+    const p = join(dir, "emit-stats.json");
+    try {
+      writeFileSync(p, "{\n", "utf8");
+      const env = envWithoutEmitLayoutFloors();
+      env.CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES = "10";
+      const r = spawnSync(process.execPath, [CI_GATES, "emit-layout-floors", p], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env,
+      });
+      expect(r.status).toBe(1);
+      expect(r.stderr).toContain("emit-layout-floors: invalid JSON");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("emit-layout-floors fails when hono tsFileCount exceeds ceiling", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-emit-layout-over-"));
+    const p = join(dir, "emit-stats.json");
+    try {
+      writeFileSync(
+        p,
+        JSON.stringify(
+          minimalFlagshipEmitStats({
+            hono: {
+              holes: 0,
+              authHoles: 0,
+              handlerCount: 1,
+              layout: {
+                tsFileCount: 100,
+                tsLineCount: 1,
+                largestFileRelativePath: "a.ts",
+                largestFileLineCount: 1,
+              },
+            },
+          }),
+        ),
+        "utf8",
+      );
+      const env = envWithoutEmitLayoutFloors();
+      env.CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES = "50";
+      const r = spawnSync(process.execPath, [CI_GATES, "emit-layout-floors", p], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env,
+      });
+      expect(r.status).toBe(1);
+      expect(r.stderr).toContain("tsFileCount 100");
+      expect(r.stderr).toContain("CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES 50");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("emit-layout-floors OK when within ceilings", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-emit-layout-ok-"));
+    const p = join(dir, "emit-stats.json");
+    try {
+      writeFileSync(p, JSON.stringify(minimalFlagshipEmitStats()), "utf8");
+      const env = envWithoutEmitLayoutFloors();
+      env.CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES = "10";
+      env.CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_FILES = "10";
+      const r = spawnSync(process.execPath, [CI_GATES, "emit-layout-floors", p], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env,
+      });
+      expect(r.status).toBe(0);
+      expect(r.stdout).toContain("emit-layout-floors OK");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   test("tiny-n1-insight reports invalid JSON", () => {

@@ -17,12 +17,18 @@
  * File-backed JSON gates resolve paths, print missing/invalid JSON hints via readJsonGateArtifact
  * (also tiny-n1-rewrite report JSON, migration-sidecar-floors sidecar JSON). status-migration validates stdin JSON.
  *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
+ *   node scripts/ci-gates.mjs emit-layout-floors [reports/migration/flagship-laravel-min-emit-stats.json]
  *   node scripts/ci-gates.mjs session-bridge-release
  *
  * Env: VERIFY_THRESHOLD (default 0.95) for status-migration.
  * Env: CHRYSALIS_IDIOMATICITY_MIN (0..1) and/or CHRYSALIS_RESIDUAL_LEGACY_MAX (0..100) for
  * migration-sidecar-floors; if neither is set, the gate skips. When set, the corresponding
  * JSON file under reports/migration must exist and satisfy the floor/ceiling.
+ * Env: optional ceilings on emit-stats layout (D251); if none are set, emit-layout-floors skips.
+ *   CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES, CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_LINES,
+ *   CHRYSALIS_EMIT_LAYOUT_MAX_HONO_LARGEST_FILE_LINES,
+ *   CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_FILES, CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_LINES,
+ *   CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_LARGEST_FILE_LINES (non-negative integers; actual must be <= max).
  * Env: session-bridge-release:
  *   CHRYSALIS_SESSION_BRIDGE_MODE   memory|file|sqlite|redis (required in strict mode)
  *   CHRYSALIS_DEPLOY_TOPOLOGY       single-host|multi-host (default: multi-host)
@@ -688,6 +694,128 @@ function parseOptionalEnvNumber(raw, label) {
   return n;
 }
 
+/** @param {string | undefined} raw @param {string} label */
+function parseOptionalEnvNonNegativeInt(raw, label) {
+  const n = parseOptionalEnvNumber(raw, label);
+  if (n == null) return null;
+  if (!Number.isInteger(n) || n < 0) {
+    fail(`${label}: expected a non-negative integer, got ${JSON.stringify(raw)}`);
+  }
+  return n;
+}
+
+const EMIT_LAYOUT_FLOOR_ENV_KEYS = [
+  "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_LINES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_LARGEST_FILE_LINES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_FILES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_LINES",
+  "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_LARGEST_FILE_LINES",
+];
+
+function anyEmitLayoutFloorEnvSet() {
+  for (const k of EMIT_LAYOUT_FLOOR_ENV_KEYS) {
+    const v = process.env[k];
+    if (v != null && String(v).trim() !== "") return true;
+  }
+  return false;
+}
+
+/**
+ * @param {string} gatePrefix
+ * @param {string} emitterKey
+ * @param {{ holes?: unknown; layout?: unknown } | undefined} emitter
+ * @param {{ maxTsFiles: number | null; maxTsLines: number | null; maxLargestLines: number | null }} caps
+ */
+function assertEmitLayoutEmitterWithinCaps(gatePrefix, emitterKey, emitter, caps) {
+  const { maxTsFiles, maxTsLines, maxLargestLines } = caps;
+  if (maxTsFiles == null && maxTsLines == null && maxLargestLines == null) return;
+  const layout = emitter && typeof emitter === "object" ? emitter.layout : null;
+  if (!layout || typeof layout !== "object") {
+    fail(
+      `${gatePrefix}: missing ${emitterKey}.layout (set when CHRYSALIS_EMIT_LAYOUT_MAX_${emitterKey.toUpperCase()}_* is set)`,
+    );
+  }
+  const files = layout.tsFileCount;
+  const lines = layout.tsLineCount;
+  const largest = layout.largestFileLineCount;
+  if (typeof files !== "number" || !Number.isInteger(files) || files < 0) {
+    fail(`${gatePrefix}: ${emitterKey}.layout.tsFileCount must be a non-negative integer`);
+  }
+  if (typeof lines !== "number" || !Number.isInteger(lines) || lines < 0) {
+    fail(`${gatePrefix}: ${emitterKey}.layout.tsLineCount must be a non-negative integer`);
+  }
+  if (typeof largest !== "number" || !Number.isInteger(largest) || largest < 0) {
+    fail(`${gatePrefix}: ${emitterKey}.layout.largestFileLineCount must be a non-negative integer`);
+  }
+  if (maxTsFiles != null && files > maxTsFiles) {
+    fail(
+      `${gatePrefix}: ${emitterKey}.layout.tsFileCount ${files} > CHRYSALIS_EMIT_LAYOUT_MAX_${emitterKey.toUpperCase()}_TS_FILES ${maxTsFiles}`,
+    );
+  }
+  if (maxTsLines != null && lines > maxTsLines) {
+    fail(
+      `${gatePrefix}: ${emitterKey}.layout.tsLineCount ${lines} > CHRYSALIS_EMIT_LAYOUT_MAX_${emitterKey.toUpperCase()}_TS_LINES ${maxTsLines}`,
+    );
+  }
+  if (maxLargestLines != null && largest > maxLargestLines) {
+    fail(
+      `${gatePrefix}: ${emitterKey}.layout.largestFileLineCount ${largest} > CHRYSALIS_EMIT_LAYOUT_MAX_${emitterKey.toUpperCase()}_LARGEST_FILE_LINES ${maxLargestLines}`,
+    );
+  }
+}
+
+function assertEmitLayoutFloors(pathArg) {
+  if (!anyEmitLayoutFloorEnvSet()) {
+    console.log(
+      "emit-layout-floors skipped: set one or more CHRYSALIS_EMIT_LAYOUT_MAX_HONO_* / CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_*",
+    );
+    return;
+  }
+  const statsPath = resolve(pathArg ?? "reports/migration/flagship-laravel-min-emit-stats.json");
+  const stats = readJsonGateArtifact("emit-layout-floors", statsPath, {
+    missingLabel: "emit-stats file missing",
+    missingHint: [
+      "Run verify flagship or pass path to reports/migration/flagship-laravel-*-emit-stats.json",
+    ],
+  });
+  const maxHonoFiles = parseOptionalEnvNonNegativeInt(
+    process.env.CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES,
+    "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_FILES",
+  );
+  const maxHonoLines = parseOptionalEnvNonNegativeInt(
+    process.env.CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_LINES,
+    "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_TS_LINES",
+  );
+  const maxHonoLargest = parseOptionalEnvNonNegativeInt(
+    process.env.CHRYSALIS_EMIT_LAYOUT_MAX_HONO_LARGEST_FILE_LINES,
+    "CHRYSALIS_EMIT_LAYOUT_MAX_HONO_LARGEST_FILE_LINES",
+  );
+  const maxFastFiles = parseOptionalEnvNonNegativeInt(
+    process.env.CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_FILES,
+    "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_FILES",
+  );
+  const maxFastLines = parseOptionalEnvNonNegativeInt(
+    process.env.CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_LINES,
+    "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_TS_LINES",
+  );
+  const maxFastLargest = parseOptionalEnvNonNegativeInt(
+    process.env.CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_LARGEST_FILE_LINES,
+    "CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_LARGEST_FILE_LINES",
+  );
+  assertEmitLayoutEmitterWithinCaps("emit-layout-floors", "hono", stats.hono, {
+    maxTsFiles: maxHonoFiles,
+    maxTsLines: maxHonoLines,
+    maxLargestLines: maxHonoLargest,
+  });
+  assertEmitLayoutEmitterWithinCaps("emit-layout-floors", "fastify", stats.fastify, {
+    maxTsFiles: maxFastFiles,
+    maxTsLines: maxFastLines,
+    maxLargestLines: maxFastLargest,
+  });
+  console.log(`emit-layout-floors OK: path=${statsPath}`);
+}
+
 function assertMigrationSidecarFloors(dirArg) {
   const idioMin = parseOptionalEnvNumber(process.env.CHRYSALIS_IDIOMATICITY_MIN, "CHRYSALIS_IDIOMATICITY_MIN");
   const resMax = parseOptionalEnvNumber(process.env.CHRYSALIS_RESIDUAL_LEGACY_MAX, "CHRYSALIS_RESIDUAL_LEGACY_MAX");
@@ -851,13 +979,16 @@ switch (cmd) {
   case "migration-sidecar-floors-release":
     assertMigrationSidecarFloorsRelease(arg0);
     break;
+  case "emit-layout-floors":
+    assertEmitLayoutFloors(arg0);
+    break;
   case "session-bridge-release":
     assertSessionBridgeRelease();
     break;
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|migration-sidecar-floors|migration-sidecar-floors-release|session-bridge-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|session-bridge-release> [path]",
     );
     process.exit(1);
 }

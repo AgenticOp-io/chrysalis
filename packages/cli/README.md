@@ -85,13 +85,14 @@ pnpm run ci:verify-merged-summary -- fixtures/ci/verify-merged-summary-smoke.jso
 pnpm run ci:corpus-merge-summary -- fixtures/ci/corpus-merge-summary-smoke.json
 pnpm run ci:tiny-n1-insight -- reports/insight/tiny-n1.json
 pnpm run ci:migration-sidecar-floors -- reports/migration
+pnpm run ci:emit-layout-floors -- reports/migration/flagship-laravel-min-emit-stats.json
 ```
 
 The default path is only present after a dual-summary writer has run (for example **`pnpm run verify:e2e`** for `reports/ci/verify-e2e-summary.json`); if the file is missing, the gate prints **`verify-dual-summary: summary file missing`** with the resolved path and a short hint instead of an uncaught filesystem stack trace. Malformed JSON yields **`verify-dual-summary: invalid JSON`** (path + parse error); other read failures use **`verify-dual-summary: could not read`**.
 
-Vitest: **`packages/cli/tests/verify-dual-summary-gate.test.ts`** (dual contract); **`packages/cli/tests/ci-gates-verify-merged-summary.test.ts`** (merged verify contract); **`packages/cli/tests/ci-gates-corpus-merge-summary.test.ts`** (**`corpus-merge-summary`** contract); **`packages/cli/tests/ci-gates-json-artifacts.test.ts`** (missing/invalid JSON across **`readJsonGateArtifact`** gates, **`migration-sidecar-floors`** missing **`idiomaticity.json`**, skip path, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, **`status-migration`** stdin).
+Vitest: **`packages/cli/tests/verify-dual-summary-gate.test.ts`** (dual contract); **`packages/cli/tests/ci-gates-verify-merged-summary.test.ts`** (merged verify contract); **`packages/cli/tests/ci-gates-corpus-merge-summary.test.ts`** (**`corpus-merge-summary`** contract); **`packages/cli/tests/ci-gates-json-artifacts.test.ts`** (missing/invalid JSON across **`readJsonGateArtifact`** gates, **`migration-sidecar-floors`** missing **`idiomaticity.json`**, **`emit-layout-floors`** skip / ceilings, skip path, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, **`status-migration`** stdin).
 
-Root **`package.json`**: **`pnpm run ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`** (optional **`-- <path>`**; sidecar gate **no-ops** unless **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set), plus **`ci:verify-dual-summary`**, **`ci:verify-merged-summary`**, and **`ci:corpus-merge-summary`** above.
+Root **`package.json`**: **`pnpm run ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`** (optional **`-- <path>`**; sidecar gate **no-ops** unless **`CHRYSALIS_IDIOMATICITY_MIN`** / **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set), **`ci:emit-layout-floors`** (**no-ops** unless **`CHRYSALIS_EMIT_LAYOUT_MAX_*`** set; flagship **`emit-stats`**), plus **`ci:verify-dual-summary`**, **`ci:verify-merged-summary`**, and **`ci:corpus-merge-summary`** above.
 
 Current CI files validated by dual-summary gate:
 

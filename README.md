@@ -113,7 +113,7 @@ with `--json` for machine-readable output.
 | `chrysalis corpus-merge … --json-out <file>` (V2-M3) | **`kind`: `"chrysalis.corpus-merge.summary"`**, **`schemaVersion`**: `1`, **`toolVersion`**, **`generatedAt`**, **`options`**, **`sources[]`**, **`counts`**. | Fixture: **`fixtures/ci/corpus-merge-summary-smoke.json`**. Gate: **`pnpm run ci:corpus-merge-summary`** / **`pnpm run ci:corpus-merge-summary -- <path>`** → `scripts/ci-gates.mjs corpus-merge-summary`. |
 | `node scripts/migration-debt.mjs --project <php-root> --json-out <path>` | **`kind`: `"chrysalis.migration-debt.summary"`**, **`schemaVersion`**: `1`, **`toolVersion`**, **`generatedAt`**, plus slices from `status --json`. | Forwards other argv to `chrysalis status`. Gates: **`--max-holes`**, **`--min-correctness`**. See `packages/cli/README.md`. |
 
-Other **`scripts/ci-gates.mjs`** entrypoints have matching **`pnpm run ci:*`** shims (**`ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`**, **`ci:corpus-merge-summary`**); pass a path after **`--`** when the gate accepts one.
+Other **`scripts/ci-gates.mjs`** entrypoints have matching **`pnpm run ci:*`** shims (**`ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`**, **`ci:emit-layout-floors`**, **`ci:corpus-merge-summary`**); pass a path after **`--`** when the gate accepts one.
 
 **Remaining polish for Milestone 1:** session bridge for chimera (PHP
 `$_SESSION` ↔ new-stack session store). Row-level generics from archaeology
@@ -169,7 +169,7 @@ node packages/cli/dist/bin.js status --project fixtures/tiny-blog --merge-all-sh
 
 ### `scripts/ci-gates.mjs` locally
 
-Root **`package.json`** exposes **`pnpm run ci:*`** shims that forward to **`node scripts/ci-gates.mjs …`** (optional path after **`--`** where the gate accepts one). **`pnpm run ci:insight`** runs **`chrysalis insight`** for **`fixtures/tiny-n1`** then the **`tiny-n1-insight`** gate (requires a built CLI under **`packages/cli/dist/`**). Use **`pnpm run ci:tiny-n1-insight`** when **`reports/insight/tiny-n1.json`** already exists and you only want the gate. **`pnpm run ci:migration-sidecar-floors`** exits **0** with a skip log unless **`CHRYSALIS_IDIOMATICITY_MIN`** and/or **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set.
+Root **`package.json`** exposes **`pnpm run ci:*`** shims that forward to **`node scripts/ci-gates.mjs …`** (optional path after **`--`** where the gate accepts one). **`pnpm run ci:insight`** runs **`chrysalis insight`** for **`fixtures/tiny-n1`** then the **`tiny-n1-insight`** gate (requires a built CLI under **`packages/cli/dist/`**). Use **`pnpm run ci:tiny-n1-insight`** when **`reports/insight/tiny-n1.json`** already exists and you only want the gate. **`pnpm run ci:migration-sidecar-floors`** exits **0** with a skip log unless **`CHRYSALIS_IDIOMATICITY_MIN`** and/or **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set. **`pnpm run ci:emit-layout-floors`** skips unless **`CHRYSALIS_EMIT_LAYOUT_MAX_*`** env ceilings are set (**`emit-stats`** layout, **DESIGN D251**).
 
 Record a trace corpus from the live PHP app (requires `php` on PATH):
 
