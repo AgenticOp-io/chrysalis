@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`migration-debt.mjs`:** human output + **`--json-out`** include **`ingestSharding`** when present; Vitest **`migration-debt-json.test.ts`** covers **`mergedShards`** forwarding.
 
+- **CLI:** Vitest **`packages/cli/tests/route-shard-status-cli.test.ts`** for **`status --project … --shard-index/--shard-count --json`** (**`ingestSharding.routeShard`**). **`docs/OPERATIONS.md`** migration-debt example with **`--merge-all-shards`**. **`ROADMAP.md`** removes stale “merge future work” note on incremental cache line.
+
 ### Fixed
 
 - **`chrysalis status --json` with shard flags:** merge/shard progress lines go to **stderr** in JSON mode so **stdout** is a single JSON object (machine-readable contract).

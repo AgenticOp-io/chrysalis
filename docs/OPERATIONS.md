@@ -153,6 +153,12 @@ Migration snapshot with optional gates:
 pnpm run migration-debt -- --project fixtures/tiny-blog --max-holes 0 --json-out reports/migration-debt.json
 ```
 
+Scale-out ingest mode is forwarded (same flags as **`status`**), e.g. merged shards:
+
+```bash
+pnpm run migration-debt -- --project fixtures/tiny-blog --merge-all-shards --shard-count 2 --json-out reports/migration-debt-merged.json
+```
+
 See [`packages/cli/README.md`](../packages/cli/README.md) for `--max-holes`, `--min-correctness`, and `--json-out`.
 
 ## CI helper scripts (local parity)
