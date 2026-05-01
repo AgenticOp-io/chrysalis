@@ -40,7 +40,7 @@ Under a typical workspace root:
 
 - `reports/verify/` — replay summaries and per-route files  
 - `reports/ci/` — dual-backend verify summaries, **merged** partition summaries (`verify-e2e-merged-summary.json`), and optional **`corpus-merge`** machine summaries (`chrysalis corpus-merge … --json-out`) consumed by CI gates  
-- `reports/migration/` — idiomaticity / residual-legacy sidecars when generated  
+- `reports/migration/` — idiomaticity / residual-legacy sidecars when generated; flagship **`flagship-laravel-*-emit-stats.json`** may include per-backend **`layout`** (**`tsFileCount`**, **`tsLineCount`**, largest **`.ts`** file) from **`@chrysalis/emit-shared`** (**DESIGN D250**)  
 - `reports/shadow/` — shadow-mode divergence stream  
 
 Back up **trace corpora** (`traces/` or your chosen directory) and any **custom observe config**; they are the behavioral contract for verify.

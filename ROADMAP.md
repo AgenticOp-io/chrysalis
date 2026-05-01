@@ -897,7 +897,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 **Goal:** Generated TypeScript stays **auditable** but **fits** large teams’ build systems (incremental `tsc`, optional package boundaries).
 
 - [ ] **Emit strategy flags** (per backend): e.g. route **file splitting**, shared **lib chunk**, lazy route registration where the server framework supports it—all with **provenance** preserved on emitted files.
-- [ ] **Emit stats → CI:** extend existing emit-stats / migration sidecars with **layout metrics** (files, lines, largest handler) for regression budgets.
+- [x] **Emit stats layout (v1):** **`summarizeEmittedTypeScriptLayout`** (**`@chrysalis/emit-shared`**) → **`hono.layout`** / **`fastify.layout`** in **`flagship-laravel-min`** / **`full`** **`emit-stats.json`** (**`tsFileCount`**, **`tsLineCount`**, **`largestFileRelativePath`**, **`largestFileLineCount`**). Vitest **`packages/emit-shared/tests/emitted-ts-layout.test.ts`**. Optional **CI floor gates** on layout numbers remain future work.
 
 **Done when:** flagship or a new **large-layout** fixture proves **multi-file emit** at a configured threshold without losing verify parity on a pinned corpus subset.
 

@@ -99,6 +99,7 @@ import {
 } from "../packages/verify/dist/index.js";
 import { emit as emitHono } from "../packages/emit-hono/dist/index.js";
 import { emit as emitFastify } from "../packages/emit-fastify/dist/index.js";
+import { summarizeEmittedTypeScriptLayout } from "../packages/emit-shared/dist/index.js";
 import {
   countAuthTaggedHoles as countWebirAuthTaggedHoles,
   countHoles as countWebirHoles,
@@ -280,11 +281,13 @@ const emitStatsPayload = {
     holes: resH.holes.length,
     authHoles: countAuthTaggedHoles(resH.holes),
     handlerCount: resH.handlerCount,
+    layout: summarizeEmittedTypeScriptLayout(generatedHono),
   },
   fastify: {
     holes: resF.holes.length,
     authHoles: countAuthTaggedHoles(resF.holes),
     handlerCount: resF.handlerCount,
+    layout: summarizeEmittedTypeScriptLayout(generatedFastify),
   },
 };
 writeFileSync(

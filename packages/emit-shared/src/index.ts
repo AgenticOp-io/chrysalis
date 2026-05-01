@@ -13,3 +13,7 @@ export {
   type EmitHandlerOptions,
 } from "./emit-tree.js";
 export { ident, stringLit, jsonLit, indent } from "./ts-util.js";
+export {
+  summarizeEmittedTypeScriptLayout,
+  type EmittedTsLayout,
+} from "./emitted-ts-layout.js";
