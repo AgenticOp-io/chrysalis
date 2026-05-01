@@ -52,6 +52,7 @@
     "release:artifacts": "node scripts/make-release-artifacts.mjs",
     "fleet:export-status-uplink": "node scripts/export-fleet-status-uplink.mjs",
     "ci:chimera-lb-smoke": "vitest run packages/runtime-chimera/tests/proxy-lb-round-robin.test.ts",
+    "ci:chimera-operator-snapshot": "vitest run packages/runtime-chimera/tests/chimera-operator-snapshot.test.ts packages/emit-shared/tests/chrysalis-route-paths.test.ts",
     "github:project-bootstrap": "node scripts/bootstrap-github-project.mjs",
     "clean": "pnpm -r clean"
   },

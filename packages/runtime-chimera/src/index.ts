@@ -28,3 +28,11 @@ export {
   type ChimeraDeployConfigFile,
   type ParseChimeraDeployConfigOptions,
 } from "./chimera-deploy-config.js";
+export {
+  CHIMERA_OPERATOR_SNAPSHOT_KIND,
+  CHIMERA_OPERATOR_SNAPSHOT_SCHEMA_VERSION,
+  buildChimeraOperatorSnapshot,
+  chimeraDeployRoutingFingerprintPayload,
+  computeChimeraDeployRoutingFingerprintSha256,
+  type ChimeraOperatorSnapshotV1,
+} from "./chimera-operator-snapshot.js";

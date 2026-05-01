@@ -37,3 +37,8 @@ export {
   honoBarrelValueImportClause,
   type AggregatedHandlerImportNeeds,
 } from "./chrysalis-handler-imports.js";
+export {
+  buildChrysalisRoutePathsModuleSource,
+  normalizeEmitRoutePath,
+  type ChrysalisRoutePathBinding,
+} from "./chrysalis-route-paths.js";

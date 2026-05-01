@@ -40,6 +40,7 @@ import {
   TRACE_LITERAL_UNION_PROVENANCE_PREFIX,
 } from "@chrysalis/archaeology";
 import {
+  buildChimeraOperatorSnapshot,
   parseChimeraDeployConfigJson,
   startChimera,
   type CanarySettings,
@@ -69,7 +70,8 @@ import {
   runVerifiedRepairLoop,
   stubRepairProposer,
 } from "@chrysalis/repair";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { hostname } from "node:os";
 import { spawnSync } from "node:child_process";
 
 const SUBCOMMANDS = [
@@ -358,7 +360,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-route-path-constants] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
@@ -413,9 +415,11 @@ async function cmdEmit(args: string[]): Promise<number> {
   const emitStrategy: {
     routeRegistration?: "lazy";
     handlerImportBarrel?: true;
+    emitRoutePathConstants?: true;
   } = {
     ...(routeReg.value === "lazy" ? { routeRegistration: "lazy" as const } : {}),
     ...(flags["emit-handler-import-barrel"] === true ? { handlerImportBarrel: true as const } : {}),
+    ...(flags["emit-route-path-constants"] === true ? { emitRoutePathConstants: true as const } : {}),
   };
   const emitOpts = {
     module: mod,
@@ -1275,6 +1279,8 @@ function mergeChimeraDeployFlagsAndFile(
         "                       [--port 8080] [--host 127.0.0.1]\n" +
         "                       [--config chimera.json] [--config-url <url>] [--config-hmac-secret <str>]\n" +
         "                       [--config-hmac-keys-json <json>]\n" +
+        "                       [--operator-metrics-json <path>] [--operator-metrics-ndjson <path>]\n" +
+        "                       [--operator-metrics-interval-ms <n>]\n" +
         "                       [--shadow-log-dir reports/shadow]\n" +
         "                       [--canary-percent 0-100] [--canary-salt <str>]\n" +
         "                       [--canary-cookie <name>] [--canary-header <name>]",
@@ -1331,6 +1337,23 @@ function mergeChimeraDeployFlagsAndFile(
   };
 }
 
+function chimeraRoutingFieldsForSnapshot(
+  merged: ChimeraDeployMerged,
+  toolVersion?: string,
+): Record<string, unknown> {
+  return {
+    mode: merged.modeRaw,
+    legacy: merged.legacy,
+    modern: merged.modern,
+    host: merged.host,
+    port: merged.port,
+    rules: merged.rules,
+    ...(merged.shadowLogDir !== undefined ? { shadowLogDir: merged.shadowLogDir } : {}),
+    ...(merged.canary !== undefined ? { canary: merged.canary } : {}),
+    ...(toolVersion !== undefined ? { toolVersion } : {}),
+  };
+}
+
 async function cmdDeploy(args: string[]): Promise<number> {
   const flags = parseFlags(args);
   const configUrlFromFlag = typeof flags["config-url"] === "string" ? flags["config-url"] : null;
@@ -1352,6 +1375,36 @@ async function cmdDeploy(args: string[]): Promise<number> {
     return 2;
   }
   const hmacParseOpts = hmacOptsResult.options;
+
+  const metricsJsonPath =
+    typeof flags["operator-metrics-json"] === "string" && flags["operator-metrics-json"].length > 0
+      ? resolve(flags["operator-metrics-json"])
+      : undefined;
+  const metricsNdjsonPath =
+    typeof flags["operator-metrics-ndjson"] === "string" && flags["operator-metrics-ndjson"].length > 0
+      ? resolve(flags["operator-metrics-ndjson"])
+      : undefined;
+  const metricsIntervalRaw = flags["operator-metrics-interval-ms"];
+  let metricsIntervalMs = 10_000;
+  if (typeof metricsIntervalRaw === "string") {
+    const n = Number.parseInt(metricsIntervalRaw, 10);
+    if (!Number.isFinite(n) || n < 1000) {
+      console.error("error: --operator-metrics-interval-ms must be an integer >= 1000");
+      return 2;
+    }
+    metricsIntervalMs = n;
+  }
+  const operatorMetricsEnabled = metricsJsonPath !== undefined || metricsNdjsonPath !== undefined;
+
+  const instanceId =
+    typeof process.env.CHRYSALIS_CHIMERA_INSTANCE_ID === "string" &&
+    process.env.CHRYSALIS_CHIMERA_INSTANCE_ID.length > 0
+      ? process.env.CHRYSALIS_CHIMERA_INSTANCE_ID
+      : `${hostname()}:${process.pid}`;
+
+  let lastMerged: ChimeraDeployMerged | undefined;
+  let lastToolVersion: string | undefined;
+  let lastConfigLabel = "";
 
   async function loadConfigText(): Promise<
     { ok: true; text: string; label: string } | { ok: false; message: string }
@@ -1381,6 +1434,7 @@ async function cmdDeploy(args: string[]): Promise<number> {
   let handle: ChimeraHandle | undefined;
   let modeRawForStats: ChimeraCliDeployMode = "legacy";
   let reloadBusy = false;
+  const tickIntervalMs = operatorMetricsEnabled ? metricsIntervalMs : 10_000;
 
   const stopServerAndTimer = async (): Promise<void> => {
     if (statsTimer !== undefined) {
@@ -1407,7 +1461,40 @@ async function cmdDeploy(args: string[]): Promise<number> {
     console.log(line);
   };
 
-  async function applyMerged(merged: ChimeraDeployMerged, logBanner: boolean): Promise<void> {
+  const writeOperatorMetricsFiles = (): void => {
+    if (!operatorMetricsEnabled || !handle || lastMerged === undefined) return;
+    try {
+      const snap = buildChimeraOperatorSnapshot({
+        wallTimeIso: new Date().toISOString(),
+        instanceId,
+        configLabel: lastConfigLabel,
+        routingFields: chimeraRoutingFieldsForSnapshot(lastMerged, lastToolVersion),
+        ...(lastToolVersion !== undefined ? { toolVersion: lastToolVersion } : {}),
+        stats: handle.stats(),
+      });
+      const compact = JSON.stringify(snap);
+      const pretty = `${JSON.stringify(snap, null, 2)}\n`;
+      if (metricsJsonPath !== undefined) writeFileSync(metricsJsonPath, pretty, "utf8");
+      if (metricsNdjsonPath !== undefined) appendFileSync(metricsNdjsonPath, `${compact}\n`, "utf8");
+    } catch (e) {
+      const m = e instanceof Error ? e.message : String(e);
+      console.error(`[deploy] operator metrics write failed: ${m}`);
+    }
+  };
+
+  const tickDeploy = (): void => {
+    printStats();
+    writeOperatorMetricsFiles();
+  };
+
+  async function applyMerged(
+    merged: ChimeraDeployMerged,
+    logBanner: boolean,
+    context: { configLabel: string; toolVersion?: string },
+  ): Promise<void> {
+    lastMerged = merged;
+    lastToolVersion = context.toolVersion;
+    lastConfigLabel = context.configLabel;
     if (logBanner) {
       console.log(`[deploy] mode:       ${merged.modeRaw}`);
       console.log(`[deploy] legacy:     ${merged.legacy}`);
@@ -1437,7 +1524,7 @@ async function cmdDeploy(args: string[]): Promise<number> {
       ...(merged.canary ? { canary: merged.canary } : {}),
     });
     modeRawForStats = merged.modeRaw;
-    statsTimer = setInterval(printStats, 10_000);
+    statsTimer = setInterval(tickDeploy, tickIntervalMs);
   }
 
   async function reloadFromSignal(): Promise<void> {
@@ -1460,7 +1547,12 @@ async function cmdDeploy(args: string[]): Promise<number> {
         console.error(`[deploy] reload skipped: ${mergedResult.message}`);
         return;
       }
-      await applyMerged(mergedResult.merged, false);
+      await applyMerged(mergedResult.merged, false, {
+        configLabel: loaded.label,
+        ...(parsed.value.toolVersion !== undefined
+          ? { toolVersion: parsed.value.toolVersion }
+          : {}),
+      });
       console.log("[deploy] reload complete.");
     } catch (e) {
       const m = e instanceof Error ? e.message : String(e);
@@ -1487,7 +1579,10 @@ async function cmdDeploy(args: string[]): Promise<number> {
   }
 
   try {
-    await applyMerged(merged0.merged, true);
+    await applyMerged(merged0.merged, true, {
+      configLabel: loaded0.label,
+      ...(parsed0.value.toolVersion !== undefined ? { toolVersion: parsed0.value.toolVersion } : {}),
+    });
   } catch (e) {
     const m = e instanceof Error ? e.message : String(e);
     console.error(`[deploy] failed to start: ${m}`);
@@ -1503,7 +1598,7 @@ async function cmdDeploy(args: string[]): Promise<number> {
 
   const shutdown = async (): Promise<void> => {
     console.log("\n[deploy] shutting down...");
-    printStats();
+    tickDeploy();
     await stopServerAndTimer();
   };
   process.on("SIGINT", () => {

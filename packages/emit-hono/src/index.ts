@@ -15,6 +15,7 @@ import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
 import {
   aggregateEmittedHandlerImports,
+  buildChrysalisRoutePathsModuleSource,
   buildHonoChrysalisHandlerImportsSource,
   clearEmitResumeState,
   emitHandlerBody,
@@ -128,6 +129,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   if (!emitResume) clearEmitResumeState(outDir);
   const resumeSet = emitResume ? loadEmitResumeCompletedHandlers(outDir) : null;
   const routeRegistration = emitStrategy?.routeRegistration ?? "eager";
+  const routePathConstants = emitStrategy?.emitRoutePathConstants === true;
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
   const files: EmittedFile[] = [];
@@ -220,7 +222,18 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     });
   }
 
-  await writeOne("src/server.ts", SERVER_TS(mountBlockFor(bindings, routeRegistration), routeRegistration));
+  if (routePathConstants && bindings.length > 0) {
+    await writeOne(
+      "src/chrysalis-route-paths.ts",
+      buildChrysalisRoutePathsModuleSource(
+        bindings.map((b) => ({ handlerName: b.handlerName, path: b.path })),
+      ),
+    );
+  }
+  await writeOne(
+    "src/server.ts",
+    SERVER_TS(mountBlockFor(bindings, routeRegistration, routePathConstants), routeRegistration),
+  );
   await writeOne("src/index.ts", INDEX_TS);
   await writeOne("chrysalis.holes.json", JSON.stringify(allHoles, null, 2));
 
@@ -317,20 +330,33 @@ ${indent(emitted.body, 2)}
 `;
 }
 
-function mountBlockFor(bindings: RouteBinding[], routeRegistration: "eager" | "lazy"): string {
+function mountBlockFor(
+  bindings: RouteBinding[],
+  routeRegistration: "eager" | "lazy",
+  useRoutePaths: boolean,
+): string {
   if (routeRegistration === "lazy") {
     const blocks = bindings
       .map((b) => {
         const method = b.method.toLowerCase();
         const honoPath = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
         const rel = `./handlers/${b.handlerName}.js`;
-        return `  {\n    const m = await import(${JSON.stringify(rel)});\n    app.${method}(${JSON.stringify(honoPath)}, m.${b.handlerName});\n  }`;
+        const pathArg = useRoutePaths
+          ? `ChrysalisRoutePaths[${JSON.stringify(b.handlerName)}]`
+          : JSON.stringify(honoPath);
+        return `  {\n    const m = await import(${JSON.stringify(rel)});\n    app.${method}(${pathArg}, m.${b.handlerName});\n  }`;
       })
       .join("\n");
-    return `async function registerRoutes(app: import("hono").Hono): Promise<void> {
+    const head = useRoutePaths
+      ? `import { ChrysalisRoutePaths } from "./chrysalis-route-paths.js";\n\n`
+      : "";
+    return `${head}async function registerRoutes(app: import("hono").Hono): Promise<void> {
 ${blocks}
 }`;
   }
+  const pathImport = useRoutePaths
+    ? `import { ChrysalisRoutePaths } from "./chrysalis-route-paths.js";\n`
+    : "";
   const imports = bindings
     .map((b) => `import { ${b.handlerName} } from "./handlers/${b.handlerName}.js";`)
     .join("\n");
@@ -339,11 +365,14 @@ ${blocks}
     .map((b) => {
       const method = b.method.toLowerCase();
       const honoPath = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
-      return `  app.${method}(${JSON.stringify(honoPath)}, ${b.handlerName});`;
+      const pathArg = useRoutePaths
+        ? `ChrysalisRoutePaths[${JSON.stringify(b.handlerName)}]`
+        : JSON.stringify(honoPath);
+      return `  app.${method}(${pathArg}, ${b.handlerName});`;
     })
     .join("\n");
 
-  return `${imports}
+  return `${pathImport}${imports}
 
 function registerRoutes(app: import("hono").Hono): void {
 ${registrations}

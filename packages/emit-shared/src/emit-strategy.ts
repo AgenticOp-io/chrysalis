@@ -13,4 +13,9 @@ export interface ChrysalisEmitStrategyV1 {
    * surface through it (DESIGN D256). Default **false** (per-handler imports unchanged).
    */
   readonly handlerImportBarrel?: boolean;
+  /**
+   * Emit **`src/chrysalis-route-paths.ts`** and reference route paths only through
+   * **`ChrysalisRoutePaths`** in **`server.ts`** (drift-friendly, V2-M4). Default **false**.
+   */
+  readonly emitRoutePathConstants?: boolean;
 }

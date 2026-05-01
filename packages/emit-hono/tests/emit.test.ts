@@ -356,6 +356,29 @@ describe("emit-hono: handlerImportBarrel", () => {
   });
 });
 
+describe("emit-hono: emitRoutePathConstants", () => {
+  test("emits chrysalis-route-paths.ts and server uses ChrysalisRoutePaths", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-rpc-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitRoutePathConstants: true },
+      });
+      const paths = readFileSync(resolve(out, "src/chrysalis-route-paths.ts"), "utf8");
+      expect(paths).toContain("export const ChrysalisRoutePaths");
+      expect(paths).toContain('"login"');
+      const server = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(server).toContain("ChrysalisRoutePaths");
+      expect(server).toContain("./chrysalis-route-paths.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("emit-hono: emitResume", () => {
   test("skips completed handler writes then clears state on success", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-resume-"));

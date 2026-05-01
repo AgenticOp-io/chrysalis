@@ -1,0 +1,26 @@
+{
+  "kind": "chrysalis.chimera.operator-snapshot",
+  "schemaVersion": 1,
+  "wallTimeIso": "2026-04-30T00:00:00.000Z",
+  "instanceId": "ci-smoke",
+  "configLabel": "fixtures/ci/chimera-operator-snapshot-v1-smoke.json",
+  "deployRoutingFingerprintSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "toolVersion": "fixture",
+  "stats": {
+    "total": 0,
+    "byTarget": { "legacy": 0, "modern": 0 },
+    "shadow": {
+      "requests": 0,
+      "agreed": 0,
+      "diverged": 0,
+      "divergenceLines": 0,
+      "mirrorErrors": 0
+    },
+    "canary": {
+      "modernRuleMatches": 0,
+      "servedModern": 0,
+      "servedLegacyWhileModernRule": 0,
+      "noModernRule": 0
+    }
+  }
+}

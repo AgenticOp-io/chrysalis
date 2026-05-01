@@ -16,6 +16,7 @@ Verify and replay honor **`CHRYSALIS_VERIFY_*`** and related knobs exposed by `@
 | `CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS` | **`chrysalis deploy`** | JSON array of strings: additional HMAC secrets for verifying a string **`hmacSha256`** during key rotation (**DESIGN D257**). |
 | `CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON` | **`chrysalis deploy`** | JSON object (**key id → secret**) when **`hmacSha256`** is an object of digests; optional CLI **`--config-hmac-keys-json`** (**DESIGN D257**). |
 | `CHRYSALIS_CHIMERA_CONFIG_URL` | **`chrysalis deploy`** | When **`--config`** is not set, load versioned JSON from this URL (same contract as file). Mutually exclusive with **`--config`**. Optional central store / object-storage pointer (**DESIGN D256**). |
+| `CHRYSALIS_CHIMERA_INSTANCE_ID` | **`chrysalis deploy`** | Label for **`chrysalis.chimera.operator-snapshot`** when using **`--operator-metrics-json`** / **`--operator-metrics-ndjson`**; defaults to **`hostname:pid`** (**DESIGN D258**). |
 | `CHRYSALIS_VERIFY_DUAL_PROFILE` | `scripts/ci-gates.mjs verify-dual-summary` | Pins expected `profile` on dual-summary JSON |
 | `CHRYSALIS_VERIFY_MERGED_MIN_CORRECTNESS` | `scripts/ci-gates.mjs verify-merged-summary` | When set (0..1), requires `merged.aggregate.correctness` at least this value |
 | `CHRYSALIS_IDIOMATICITY_MIN` / `CHRYSALIS_RESIDUAL_LEGACY_MAX` | `migration-sidecar-floors` | When set, enforces floors against `reports/migration/*.json` |

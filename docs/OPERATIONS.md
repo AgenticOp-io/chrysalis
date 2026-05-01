@@ -9,7 +9,7 @@ All examples assume repository root as current working directory and a built CLI
 | Goal | Typical entrypoint |
 | --- | --- |
 | PHP to WebIR | `chrysalis ingest <php-root>` |
-| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`** (**shared import barrel**, **DESIGN D256**) |
+| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-route-path-constants`** (**DESIGN D256**, **D258**) |
 | Record live PHP traffic | `chrysalis observe <php-root> --traces <dir> …` |
 | Summarize a corpus | `chrysalis corpus <traces-dir>` |
 | Replay corpus against emitted app | `chrysalis verify <traces-dir> --base-url <url> --report <dir>` |
@@ -30,6 +30,17 @@ Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis 
 
 **Hot reload (process-local):** send **`SIGHUP`** or **`SIGUSR2`** to the **`chrysalis deploy`** process to re-read **`--config`**, re-fetch **`--config-url`**, or re-parse flags-only state. On success the old chimera server is stopped and a new one starts (brief drop on that instance). On parse/HMAC/merge failure the previous server keeps running. **Windows:** signal support varies; prefer process manager restarts or Linux sidecars for production reload.
 
+### Operator drift metrics (D258)
+
+**`chrysalis deploy`** can write versioned **`chrysalis.chimera.operator-snapshot`** JSON (**`schemaVersion`:** **1**; example **`fixtures/ci/chimera-operator-snapshot-v1-smoke.json`**) alongside live **`ChimeraStats`**. Each document includes **`deployRoutingFingerprintSha256`** over routing fields (**mode**, upstream URLs, **rules**, **canary**, **shadowLogDir**, **host**, **port**, optional **`toolVersion`**) — **no** HMAC material.
+
+- **`--operator-metrics-json <path>`** — overwrite on each tick with pretty-printed JSON.
+- **`--operator-metrics-ndjson <path>`** — append one JSON line per tick (log / fleet sinks).
+- **`--operator-metrics-interval-ms <n>`** — default **10000**; minimum **1000**. Applies to both console stats and metrics files when either metrics path is set; otherwise stats still print every **10s** as before.
+- **`CHRYSALIS_CHIMERA_INSTANCE_ID`** — defaults to **`hostname:pid`**.
+
+**Offline fingerprint (CI/scripts):** `node scripts/chimera-routing-fingerprint.mjs path/to/chimera.json` prints the same routing fingerprint hex (**requires** built **`packages/runtime-chimera/dist/`**, i.e. **`pnpm -r build`**).
+
 ### HMAC secret rotation (KMS-style runbook)
 
 1. **Generate** a new HMAC key in your KMS; keep the old key available during cutover.
@@ -48,6 +59,10 @@ Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis 
 - **Sessions:** until **M6** Redis (or equivalent) is the shared session store, file-backed SQLite sessions in emitted apps are per-instance; dual-stack login flows that rely on shared session state need either **one** modern node behind chimera or the **Redis** bridge described in **`packages/runtime-chimera`** / **`ROADMAP`** session items.
 - **Hot reload:** **`chrysalis deploy`** reloads on **SIGHUP** / **SIGUSR2** when using **`--config`** or **`--config-url`** (**DESIGN D256**). **Windows** signal support is limited; prefer restarts there.
 - **Emit crash resume:** **`chrysalis emit … --emit-resume`** skips rewriting handler files already recorded under **`<outDir>/.chrysalis-emit-state.json`**; scaffolding and **`chrysalis.holes.json`** are always regenerated on a successful run. Remove **`--emit-resume`** for a clean slate (the CLI clears stale state when resume is off).
+
+### Fleet JSON and privacy (V2-M6)
+
+Chrysalis provides **schemas, fixtures, and CLI exporters** only. It does **not** send telemetry to third parties. Treat **`chrysalis.fleet.status-uplink`**, **`chrysalis.chimera.operator-snapshot`**, verify summaries, **`chrysalis status --json`**, and trace corpora as **sensitive operator artifacts**: store them on infrastructure you control (self-hosted metrics, air-gapped object stores, VPC buckets). Align **`packages/oracle`** redaction defaults before merging multi-host traces.
 
 ### Fleet status uplink (reference JSON, V2-M6 v0)
 

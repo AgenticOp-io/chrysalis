@@ -16,7 +16,7 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis ingest` — PHP source → WebIR module on disk; prints auth-tagged
   ingest hole count when non-zero (6A); optional **`--shard-index` / `--shard-count`** (V2-M2 route filter); optional **`--merge-all-shards --shard-count K`** (run **`mergeWebIrModules`** over every shard **`0..K-1`**); optional **`--ingest-cache <dir>`** (V2-M2 AST cache)
 - `chrysalis archaeology` — recover schema from DB + traces + optional PHP form scan (`--php-root <dir>`, repeatable)
-- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--merge-all-shards --shard-count K`** (full merged module via **`mergeWebIrModules`**, **D247** cross-shard dedupe); optional **`--ingest-cache <dir>`**; optional **`--emit-resume`** (skip completed handler writes via **`.chrysalis-emit-state.json`**, **D254**); optional **`--emit-handler-import-barrel`** (**`src/chrysalis-handler-imports.ts`**, **D256**)
+- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--merge-all-shards --shard-count K`** (full merged module via **`mergeWebIrModules`**, **D247** cross-shard dedupe); optional **`--ingest-cache <dir>`**; optional **`--emit-resume`** (skip completed handler writes via **`.chrysalis-emit-state.json`**, **D254**); optional **`--emit-handler-import-barrel`** (**`src/chrysalis-handler-imports.ts`**, **D256**); optional **`--emit-route-path-constants`** (**`src/chrysalis-route-paths.ts`**, **D258**)
 - `chrysalis verify` — replay oracle traces against the generated code; optional
   **`--replay-concurrency N`** (requires **`--disable-cookie-chain`** or
   **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`**), **`--replay-timeout-ms`**,
@@ -31,7 +31,7 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis rewrite` — IR rewrites; optional `--http-replay` and
   `--http-replay-backends=hono,fastify`
 - `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router
-  (`--config` file **D253**, **`--config-url`** / **`CHRYSALIS_CHIMERA_CONFIG_URL`** **D256**, optional **HMAC** **D255** / multi-key **D257** (`--config-hmac-keys-json`, **`CHRYSALIS_CHIMERA_CONFIG_HMAC_*`**), **SIGHUP/SIGUSR2** reload **D256**, `--canary-percent`, stickiness cookie/header flags for canary)
+  (`--config` file **D253**, **`--config-url`** / **`CHRYSALIS_CHIMERA_CONFIG_URL`** **D256**, optional **HMAC** **D255** / multi-key **D257**, **operator-metrics-*** / **`CHRYSALIS_CHIMERA_INSTANCE_ID`** **D258**, **SIGHUP/SIGUSR2** reload **D256**, `--canary-percent`, stickiness cookie/header flags for canary)
 - `chrysalis status` — migration dashboard; **`--json`** prints a single JSON object on **stdout**; shard / merge-all-shards progress lines go to **stderr** (same machine contract as **`verify --json-summary`**). **`--json`** includes `migration`
   and `oracleFootprint` (`routes[]` with `--project`) and **`ingestSharding`** (`monolithic` | **`routeShard`** | **`mergedShards`**) when **`--project`** ingest succeeds (**DESIGN D248**). With **`--project`**, optional **`--merge-all-shards --shard-count K`** ingests each shard and merges for full-route metrics (same **`mergeWebIrModules`** as **`ingest`**). With `--project`, also
   writes `reports/oracle-footprint.json`. Correctness from `--report`, optional

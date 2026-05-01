@@ -9,6 +9,7 @@ import { dirname, join } from "node:path";
 import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import {
   aggregateEmittedHandlerImports,
+  buildChrysalisRoutePathsModuleSource,
   buildFastifyChrysalisHandlerImportsSource,
   clearEmitResumeState,
   emitHandlerBody,
@@ -99,6 +100,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   if (!emitResume) clearEmitResumeState(outDir);
   const resumeSet = emitResume ? loadEmitResumeCompletedHandlers(outDir) : null;
   const routeRegistration = emitStrategy?.routeRegistration ?? "eager";
+  const routePathConstants = emitStrategy?.emitRoutePathConstants === true;
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
   const files: EmittedFile[] = [];
@@ -190,7 +192,15 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     });
   }
 
-  const { imports, registrations } = mountBlockFor(bindings, routeRegistration);
+  if (routePathConstants && bindings.length > 0) {
+    await writeOne(
+      "src/chrysalis-route-paths.ts",
+      buildChrysalisRoutePathsModuleSource(
+        bindings.map((b) => ({ handlerName: b.handlerName, path: b.path })),
+      ),
+    );
+  }
+  const { imports, registrations } = mountBlockFor(bindings, routeRegistration, routePathConstants);
   await writeOne("src/server.ts", SERVER_TS(imports, registrations));
   await writeOne("src/index.ts", INDEX_TS);
   await writeOne("chrysalis.holes.json", JSON.stringify(allHoles, null, 2));
@@ -290,6 +300,7 @@ ${indent(emitted.body, 2)}
 function mountBlockFor(
   bindings: RouteBinding[],
   routeRegistration: "eager" | "lazy",
+  useRoutePaths: boolean,
 ): { imports: string; registrations: string } {
   if (routeRegistration === "lazy") {
     const registrations = bindings
@@ -297,19 +308,31 @@ function mountBlockFor(
         const method = b.method.toLowerCase();
         const path = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
         const rel = `./handlers/${b.handlerName}.js`;
-        return `  {\n    const m = await import(${JSON.stringify(rel)});\n    app.${method}(${JSON.stringify(path)}, m.${b.handlerName});\n  }`;
+        const pathArg = useRoutePaths
+          ? `ChrysalisRoutePaths[${JSON.stringify(b.handlerName)}]`
+          : JSON.stringify(path);
+        return `  {\n    const m = await import(${JSON.stringify(rel)});\n    app.${method}(${pathArg}, m.${b.handlerName});\n  }`;
       })
       .join("\n");
-    return { imports: "", registrations };
+    const lazyImports = useRoutePaths
+      ? `import { ChrysalisRoutePaths } from "./chrysalis-route-paths.js";\n`
+      : "";
+    return { imports: lazyImports, registrations };
   }
-  const imports = bindings
+  let imports = bindings
     .map((b) => `import { ${b.handlerName} } from "./handlers/${b.handlerName}.js";`)
     .join("\n");
+  if (useRoutePaths) {
+    imports = `import { ChrysalisRoutePaths } from "./chrysalis-route-paths.js";\n${imports}`;
+  }
   const registrations = bindings
     .map((b) => {
       const method = b.method.toLowerCase();
       const path = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
-      return `  app.${method}(${JSON.stringify(path)}, ${b.handlerName});`;
+      const pathArg = useRoutePaths
+        ? `ChrysalisRoutePaths[${JSON.stringify(b.handlerName)}]`
+        : JSON.stringify(path);
+      return `  app.${method}(${pathArg}, ${b.handlerName});`;
     })
     .join("\n");
   return { imports, registrations };

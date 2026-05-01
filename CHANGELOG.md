@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **V2-M4 / V2-M5 / V2-M6 (D258):** **`chrysalis.chimera.operator-snapshot`** + **`deployRoutingFingerprintSha256`**; **`chrysalis deploy --operator-metrics-json`**, **`--operator-metrics-ndjson`**, **`--operator-metrics-interval-ms`**, **`CHRYSALIS_CHIMERA_INSTANCE_ID`**; **`scripts/chimera-routing-fingerprint.mjs`**; **`pnpm run ci:chimera-operator-snapshot`**; **`emitStrategy.emitRoutePathConstants`**, **`buildChrysalisRoutePathsModuleSource`**, **`src/chrysalis-route-paths.ts`**, CLI **`--emit-route-path-constants`**; **`docs/OPERATIONS.md`** operator drift + fleet privacy; fixture **`fixtures/ci/chimera-operator-snapshot-v1-smoke.json`**.
+
 - **V2-M5 (D257):** Multi-key chimera deploy HMAC — **`hmacSha256`** as hex **string** or **`{ keyId: hex }`**; **`parseChimeraDeployConfigJson`** **`hmacPreviousSecrets`** / **`hmacSecretsByKeyId`**; **`computeChimeraDeployConfigHmacHexByKeyIds`**; CLI **`--config-hmac-keys-json`**; **`CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON`**, **`CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS`**; **`docs/OPERATIONS.md`** / **`ADMINISTRATION.md`** updated.
 
 - **V2-M4 / V2-M5 (D256):** **`emitStrategy.handlerImportBarrel`**, **`src/chrysalis-handler-imports.ts`**, CLI **`--emit-handler-import-barrel`**; **`chrysalis deploy --config-url`** + **`CHRYSALIS_CHIMERA_CONFIG_URL`**; **SIGHUP/SIGUSR2** config reload; **`ci:chimera-lb-smoke`** + round-robin LB Vitest; **`docs/OPERATIONS.md`** KMS/HMAC rotation; **`aggregateEmittedHandlerImports`** / barrel builders in **`@chrysalis/emit-shared`**.
