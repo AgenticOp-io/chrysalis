@@ -28,9 +28,13 @@ describe("chrysalis status --merge-all-shards", () => {
     );
     expect(r.status).toBe(0);
     expect(() => JSON.parse(r.stdout)).not.toThrow();
-    const j = JSON.parse(r.stdout) as { oracleFootprint: { routeCount: number } | null };
+    const j = JSON.parse(r.stdout) as {
+      oracleFootprint: { routeCount: number } | null;
+      ingestSharding: { mode: string; shardCount?: number } | null;
+    };
     expect(j.oracleFootprint).not.toBeNull();
     expect(j.oracleFootprint!.routeCount).toBeGreaterThan(0);
+    expect(j.ingestSharding).toEqual({ mode: "mergedShards", shardCount: 2 });
     expect(r.stderr).toContain("merge-all-shards");
   });
 });

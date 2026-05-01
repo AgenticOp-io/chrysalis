@@ -70,3 +70,7 @@ For vulnerability reports, see [`SECURITY.md`](../SECURITY.md).
 
 - CI: attach `reports/verify`, `reports/ci`, and migration artifacts as workflow artifacts where configured.  
 - Production chimera / observe: use your platform log stack; Chrysalis does not mandate a log format beyond NDJSON traces on disk.
+
+## Corpus volume and retention (v0)
+
+Oracle traces are **append-only NDJSON** per request. Growth is roughly **linear in traffic** and **per-route cardinality**; multi-host layouts multiply writers, not the merge semantics (**`corpus-merge`**). **Rotation:** archive or delete **day buckets** (`YYYY-MM-DD/`) after verify snapshots and legal retention windows; Chrysalis does not ship a built-in compactor. **Compression:** gzip **day bundles** or object-store **prefixes** as an operator choice; **`readCorpus`** expects uncompressed files today. **Sizing:** plan disk for **peak capture rate × retention** plus merged copies when using **`corpus-merge`** (duplicates **`--on-duplicate skip`** reduce bytes only when the same trace id appears twice). Default **redaction** still applies at capture (**`DEFAULT_REDACTION`** + optional **`chrysalis.observe.json`**).

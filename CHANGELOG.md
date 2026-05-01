@@ -27,11 +27,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **V2-M2 — `chrysalis status --json` `ingestSharding` (D248):** machine-readable ingest mode (**`monolithic`**, **`routeShard`**, **`mergedShards`**) when **`--project`** succeeds; human dashboard prints **`ingest`** line only for shard / merge modes.
+
 - **V2-M2 — `mergeWebIrModules` structural dedupe (D247):** cross-shard nodes with the same structural key (dialect/op/type/effects/attrs/origin/provenance/operand keys) share one **`NodeId`**; collapses duplicate **`lib/`** IR across shards. **`packages/webir/src/merge-dedupe-key.ts`**.
 
 - **Docs + CLI test:** **`AGENTS.md`**, **`docs/OPERATIONS.md`**, root **`README.md`**, **`packages/cli` / `ingest` READMEs** reference **D247**; Vitest **`packages/cli/tests/merge-all-shards-emit-cli.test.ts`** for **`emit --merge-all-shards`** (parity with ingest/status subprocess coverage).
 
 - **V2-M2 — merge dedupe key tests:** **`packages/webir/tests/merge-dedupe-key.test.ts`** locks **`mergeDedupeStructuralKey`** / **`canonicalWebIRType`** (origin sensitivity, operand order, union/record canonicalization).
+
+- **Ingest AST cache:** Vitest corrupt-cache re-parse coverage in **`packages/ingest/tests/parse-cache.test.ts`**.
+
+- **Docs (10-slice V2 batch):** **`packages/verify/README.md`** (trace vs route sharding); **`docs/ADMINISTRATION.md`** corpus retention v0; **`ROADMAP.md`** V2-M2/M3 checkboxes aligned; **`cli-help-scaleout.test.ts`** asserts **`--shard-count`** in **`--help`**.
 
 ### Fixed
 

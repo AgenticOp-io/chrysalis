@@ -19,6 +19,7 @@ describe("cli status --project JSON", () => {
     const r = runCli(["status", "--project", "fixtures/throw-new-probe", "--json"]);
     expect(r.status).toBe(0);
     const summary = JSON.parse(r.stdout) as {
+      ingestSharding: { mode: string } | null;
       residualLegacy: {
         holeCount: number;
         dialectCounts: Record<string, number>;
@@ -27,6 +28,7 @@ describe("cli status --project JSON", () => {
         dynamicNewWebIrCount: number;
       } | null;
     };
+    expect(summary.ingestSharding).toEqual({ mode: "monolithic" });
     expect(summary.residualLegacy).not.toBeNull();
     expect(typeof summary.residualLegacy!.holeCount).toBe("number");
     expect(Array.isArray(summary.residualLegacy!.topHoleReasons)).toBe(true);

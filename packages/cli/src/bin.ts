@@ -1841,6 +1841,15 @@ interface StatusSummary {
     readonly routes: readonly RouteOracleFootprint[];
   } | null;
   /**
+   * Set when `--project` ingest succeeds. Machine-readable ingest mode for migration
+   * metrics (V2-M2): monolithic, single route shard, or merged shards.
+   */
+  readonly ingestSharding:
+    | { readonly mode: "monolithic" }
+    | { readonly mode: "routeShard"; readonly shardIndex: number; readonly shardCount: number }
+    | { readonly mode: "mergedShards"; readonly shardCount: number }
+    | null;
+  /**
    * Milestone 4 dashboard roll-up (DESIGN success metrics). Optional sidecars:
    * `reports/migration/idiomaticity.json` `{ "pct": 0..1 }`,
    * `residual-legacy.json` `{ "legacyRequestPct": 0..100 }` plus optional Milestone 6A
@@ -2024,6 +2033,7 @@ async function cmdStatus(args: string[]): Promise<number> {
     residualLegacy: null,
     insights: null,
     oracleFootprint: null,
+    ingestSharding: null,
     migration: {
       coverage: null,
       correctness: null,
@@ -2123,6 +2133,18 @@ async function cmdStatus(args: string[]): Promise<number> {
         ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
       });
       ingestedMod = mod;
+      const ingestSharding: NonNullable<StatusSummary["ingestSharding"]> =
+        shardMode.value.mode === "none"
+          ? { mode: "monolithic" }
+          : shardMode.value.mode === "single"
+            ? {
+                mode: "routeShard",
+                shardIndex: shardMode.value.shardIndex,
+                shardCount: shardMode.value.shardCount,
+              }
+            : { mode: "mergedShards", shardCount: shardMode.value.shardCount };
+      (summary as { ingestSharding: StatusSummary["ingestSharding"] }).ingestSharding =
+        ingestSharding;
       const holeStats = holeReasonStats(mod);
       (summary as { residualLegacy: StatusSummary["residualLegacy"] }).residualLegacy = {
         holeCount: countHoles(mod),
@@ -2278,6 +2300,14 @@ async function cmdStatus(args: string[]): Promise<number> {
 
   console.log("chrysalis status");
   console.log("────────────────");
+  if (summary.ingestSharding && summary.ingestSharding.mode !== "monolithic") {
+    const sh = summary.ingestSharding;
+    if (sh.mode === "routeShard") {
+      console.log(`ingest       : shard ${sh.shardIndex}/${sh.shardCount} (route filter)`);
+    } else {
+      console.log(`ingest       : merge-all-shards K=${sh.shardCount}`);
+    }
+  }
   if (summary.corpus) {
     const c = summary.corpus;
     const side =
