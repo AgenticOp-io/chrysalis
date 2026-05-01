@@ -8,11 +8,15 @@ import {
   webRequest,
 } from "../src/index.js";
 
-function oneGetRouteModule(path: string, sourceApp: string): ReturnType<ModuleBuilder["finish"]> {
+function oneGetRouteModule(
+  path: string,
+  sourceApp: string,
+  phpFile = "pages/x.php",
+): ReturnType<ModuleBuilder["finish"]> {
   const b = new ModuleBuilder({ sourceApp, chrysalisVersion: "1.0.0" });
   const w = webRequest.builders(b);
   const d = dataDialect.builders(b);
-  const origin = phpLocator("pages/x.php", 1, 0);
+  const origin = phpLocator(phpFile, 1, 0);
   const body = d.literal({ value: 1, type: T.int, origin });
   const resp = w.response({
     attrs: { status: 200, kind: "html" },
@@ -35,9 +39,19 @@ function oneGetRouteModule(path: string, sourceApp: string): ReturnType<ModuleBu
 }
 
 describe("mergeWebIrModules", () => {
-  test("merges disjoint routes", () => {
+  test("merges disjoint routes and dedupes identical shared subgraphs (same origins)", () => {
     const a = oneGetRouteModule("/a", "demo");
     const b = oneGetRouteModule("/b", "demo");
+    const m = mergeWebIrModules([a, b]);
+    expect(m.roots.length).toBe(2);
+    // Same PHP file/lines for handler chain: literal/response/handler bodies collapse to one copy.
+    expect(m.nodes.size).toBeLessThan(a.nodes.size + b.nodes.size);
+    expect(m.nodes.size).toBe(5);
+  });
+
+  test("does not dedupe when PHP locator file differs", () => {
+    const a = oneGetRouteModule("/a", "demo", "routes/a.php");
+    const b = oneGetRouteModule("/b", "demo", "routes/b.php");
     const m = mergeWebIrModules([a, b]);
     expect(m.roots.length).toBe(2);
     expect(m.nodes.size).toBe(a.nodes.size + b.nodes.size);

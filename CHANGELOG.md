@@ -23,7 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2-M2 — synthetic many-route ingest:** Vitest **`packages/ingest/tests/many-routes-synthetic-ingest.test.ts`** (12-route temp tree, K=4 shard partition). **`ROADMAP.md`** progress note for remaining merge-model / emit-resume / RSS work.
 
-- **V2-M2 — WebIR shard merge (v1):** **`mergeWebIrModules`** (**`@chrysalis/webir`**), CLI **`--merge-all-shards --shard-count K`** on **`ingest` / `emit` / `status`**, Vitest + CLI subprocess coverage. Optional future: dedupe shared **`lib/`** nodes to match monolithic **`nodes.size`**.
+- **V2-M2 — WebIR shard merge (v1):** **`mergeWebIrModules`** (**`@chrysalis/webir`**), CLI **`--merge-all-shards --shard-count K`** on **`ingest` / `emit` / `status`**, Vitest + CLI subprocess coverage. Cross-shard structural dedupe landed in **D247** (**`merge-dedupe-key.ts`**); monolithic per-route ingest may still inflate **`nodes.size`** vs merged.
+
+### Added
+
+- **V2-M2 — `mergeWebIrModules` structural dedupe (D247):** cross-shard nodes with the same structural key (dialect/op/type/effects/attrs/origin/provenance/operand keys) share one **`NodeId`**; collapses duplicate **`lib/`** IR across shards. **`packages/webir/src/merge-dedupe-key.ts`**.
 
 ### Fixed
 

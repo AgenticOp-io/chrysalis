@@ -31,7 +31,7 @@ visitor/pass infrastructure, and provenance model.
   (`__ternary`, `??`) by unioning only resolved targets while preserving
   widening fallback when any branch is unresolved.
 - `Module` — a WebIR compilation unit
-- `mergeWebIrModules(modules)` — combine disjoint shard **`Module`** graphs (same `sourceApp`; no duplicate `METHOD path` route roots); remaps **`NodeId`**s into one builder (**V2-M2**; used with **`--merge-all-shards`** on **`ingest` / `emit` / `status`**)
+- `mergeWebIrModules(modules)` — combine disjoint shard **`Module`** graphs (same `sourceApp`; no duplicate `METHOD path` route roots); remaps **`NodeId`**s into one builder; **structural dedupe** reuses one node per canonical key (**`merge-dedupe-key.ts`**, **DESIGN D247**) so shared **`lib/`** IR across shards is not duplicated (**V2-M2**; used with **`--merge-all-shards`** on **`ingest` / `emit` / `status`**)
 - `isAuthBoundaryCallee` / `authTaggedHoleReason` (`auth-boundary.ts`) — shared
   Milestone 6A heuristics (Gate/auth/csrf/Sanctum/Passport/Socialite/Fortify/OAuth tokens —
   widening D189); ingest applies `authTaggedHoleReason` to every `data.hole`

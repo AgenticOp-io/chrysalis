@@ -4,6 +4,7 @@
  */
 
 import { ModuleBuilder } from "./builder.js";
+import { mergeDedupeStructuralKey } from "./merge-dedupe-key.js";
 import type { Module, NodeBase, NodeId } from "./index.js";
 
 function postOrderReachable(m: Module): NodeId[] {
@@ -35,6 +36,11 @@ function routeKeyForRoot(m: Module, rootId: NodeId): string | null {
  * own disjoint routes (no duplicate `METHOD path` on root `web.request` route
  * nodes). NodeIds are remapped into a fresh graph so operand edges stay valid.
  *
+ * Identical subgraphs lowered from the same PHP origins (shared `lib/`, etc.)
+ * are **deduplicated** across shards using a structural key (dialect, op,
+ * types, effects, attrs, origin, provenance, and operand subtree keys), so
+ * merged `nodes.size` can match monolithic ingest for the same project.
+ *
  * @throws if `sourceApp` differs across inputs, on duplicate route keys, or on
  *   operand graph inconsistencies.
  */
@@ -52,36 +58,55 @@ export function mergeWebIrModules(modules: readonly Module[]): Module {
     chrysalisVersion: modules[0]!.meta.chrysalisVersion,
   });
   const seenRoutes = new Set<string>();
+  /** Structural key -> canonical NodeId in the merged builder (first shard wins). */
+  const globalKeyToNewId = new Map<string, NodeId>();
 
   for (const m of modules) {
-    const idMap = new Map<NodeId, NodeId>();
+    const localOldToNew = new Map<NodeId, NodeId>();
+    const structuralMemo = new Map<NodeId, string>();
     const order = postOrderReachable(m);
-    for (const oldId of order) {
-      idMap.set(oldId, builder.ids.alloc());
-    }
+
     for (const oldId of order) {
       const n = m.nodes.get(oldId)!;
-      const newId = idMap.get(oldId)!;
-      const operands = n.operands.map((oid) => {
-        const mapped = idMap.get(oid);
+      const operandKeys = n.operands.map((oid) => {
+        const k = structuralMemo.get(oid);
+        if (!k) {
+          throw new Error(`mergeWebIrModules: operand ${String(oid)} not in structural memo`);
+        }
+        return k;
+      });
+      const key = mergeDedupeStructuralKey(n, operandKeys);
+      const existing = globalKeyToNewId.get(key);
+      if (existing !== undefined) {
+        localOldToNew.set(oldId, existing);
+        structuralMemo.set(oldId, key);
+        continue;
+      }
+      const newOperandIds = n.operands.map((oid) => {
+        const mapped = localOldToNew.get(oid);
         if (!mapped) {
           throw new Error(`mergeWebIrModules: operand ${String(oid)} not in shard id map`);
         }
         return mapped;
       });
+      const newId = builder.ids.alloc();
       const next: NodeBase = {
         id: newId,
         dialect: n.dialect,
         op: n.op,
         type: n.type,
         effects: n.effects,
-        operands,
+        operands: newOperandIds,
         attrs: n.attrs,
         origin: n.origin,
         provenance: n.provenance,
       };
       builder.node(next);
+      globalKeyToNewId.set(key, newId);
+      localOldToNew.set(oldId, newId);
+      structuralMemo.set(oldId, key);
     }
+
     for (const r of m.roots) {
       const rk = routeKeyForRoot(m, r);
       if (rk !== null) {
@@ -90,7 +115,7 @@ export function mergeWebIrModules(modules: readonly Module[]): Module {
         }
         seenRoutes.add(rk);
       }
-      const nr = idMap.get(r);
+      const nr = localOldToNew.get(r);
       if (!nr) throw new Error(`mergeWebIrModules: missing root mapping for ${String(r)}`);
       builder.addRoot(nr);
     }

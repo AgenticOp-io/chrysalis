@@ -14,5 +14,9 @@ describe("mergeWebIrModules + ingestDirectory shards", () => {
     const merged = mergeWebIrModules([s0, s1]);
     expect(merged.roots.length).toBe(full.roots.length);
     expect(countHoles(merged)).toBe(countHoles(full));
+    // Monolithic ingest lowers each route file in isolation; shared lib/ helpers can
+    // appear as duplicate IR in one module. Merge dedupes structurally identical nodes
+    // across shards, so merged.nodes.size is often *smaller* than full.nodes.size.
+    expect(merged.nodes.size).toBeLessThanOrEqual(full.nodes.size);
   });
 });
