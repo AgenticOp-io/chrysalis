@@ -2108,12 +2108,13 @@ async function cmdStatus(args: string[]): Promise<number> {
   let ingestedMod: Module | null = null;
   if (project) {
     try {
+      const statusDiag = flags.json ? console.error : console.log;
       if (shardMode.value.mode === "mergeAll") {
-        console.log(
+        statusDiag(
           `[status] merge-all-shards: ${shardMode.value.shardCount} shard ingests -> mergeWebIrModules`,
         );
       } else if (shardMode.value.mode === "single") {
-        console.log(
+        statusDiag(
           `[status] shard ${shardMode.value.shardIndex}/${shardMode.value.shardCount} (partial route set for migration metrics)`,
         );
       }

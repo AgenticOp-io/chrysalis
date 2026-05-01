@@ -143,6 +143,8 @@ JSON for automation:
 node packages/cli/dist/bin.js status --project fixtures/tiny-blog --json
 ```
 
+With **`--merge-all-shards`** or **`--shard-index`**, shard/merge progress is printed to **stderr** when **`--json`** is set so **stdout** remains one parseable JSON object.
+
 Migration snapshot with optional gates:
 
 ```bash

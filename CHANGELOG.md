@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2-M2 — WebIR shard merge (v1):** **`mergeWebIrModules`** (**`@chrysalis/webir`**), CLI **`--merge-all-shards --shard-count K`** on **`ingest` / `emit` / `status`**, Vitest + CLI subprocess coverage. Optional future: dedupe shared **`lib/`** nodes to match monolithic **`nodes.size`**.
 
+### Fixed
+
+- **`chrysalis status --json` with shard flags:** merge/shard progress lines go to **stderr** in JSON mode so **stdout** is a single JSON object (machine-readable contract).
+
 ## [1.0.1] - 2026-04-29
 
 ### Added
