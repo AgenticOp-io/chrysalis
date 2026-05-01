@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **V2-M4 — emit layout metrics (D250):** **`summarizeEmittedTypeScriptLayout`** in **`@chrysalis/emit-shared`**; **`hono.layout`** / **`fastify.layout`** on flagship **`emit-stats`** JSON from **`verify-flagship-laravel-*.mjs`**. Vitest **`packages/emit-shared/tests/emitted-ts-layout.test.ts`**.
+- **V2-M4 — emit layout metrics (D250):** **`summarizeEmittedTypeScriptLayout`** in **`@chrysalis/emit-shared`**; **`hono.layout`** / **`fastify.layout`** on flagship **`emit-stats`** JSON from **`verify-flagship-laravel-*.mjs`**. Vitest **`packages/emit-shared/tests/emitted-ts-layout.test.ts`**. **Docs:** **`flagship/laravel-min/README.md`** and **`flagship/laravel-full/README.md`** describe **`layout`** on **`emit-stats`**.
 
 - **V2-M2 — `chrysalis status --json` `ingestSharding` (D248):** machine-readable ingest mode (**`monolithic`**, **`routeShard`**, **`mergedShards`**) when **`--project`** succeeds; human dashboard prints **`ingest`** line only for shard / merge modes.
 

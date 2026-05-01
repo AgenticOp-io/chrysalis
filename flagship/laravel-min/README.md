@@ -69,7 +69,7 @@ Post-capture checks also pin **`GET /`** HTML, **`/items`** / **`/count`** (seed
 Verify also enforces stable cross-backend report parity (Hono vs Fastify fingerprints).
 Verify reports in
 `reports/verify-flagship-laravel-min/{hono,fastify}/`. Verify also writes
-**`reports/migration/flagship-laravel-min-emit-stats.json`**; **`pnpm run status:laravel-min`**
+**`reports/migration/flagship-laravel-min-emit-stats.json`** (per-emitter **`layout`**: **`tsFileCount`**, **`tsLineCount`**, largest **`.ts`** file; **DESIGN D250**); **`pnpm run status:laravel-min`**
 mirrors CI: gates **`status-migration`**, writes **`reports/migration/flagship-laravel-min.json`**,
 and when emit stats exist, **`idiomaticity.json`** / **`residual-legacy.json`** (see
 **`scripts/flagship-migration-metrics.mjs`**).

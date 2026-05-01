@@ -113,7 +113,8 @@ Then:
    otherwise it gates `status-migration` and writes
    **`reports/migration/flagship-laravel-full.json`**. When
    **`reports/migration/flagship-laravel-full-emit-stats.json`** exists (after a successful
-   **`verify:laravel-full`**), it also writes **`reports/migration/idiomaticity.json`** and
+   **`verify:laravel-full`**; the file includes per-emitter **`layout`** metrics for generated
+   **`.ts`** — **DESIGN D250**), it also writes **`reports/migration/idiomaticity.json`** and
    **`reports/migration/residual-legacy.json`** for `chrysalis status --json` (see
    **`scripts/flagship-migration-metrics.mjs`**).
   CI runs **`pnpm run release-gate:migration-sidecars`** after status (D166),
