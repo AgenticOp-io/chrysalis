@@ -23,6 +23,7 @@ import {
 } from "../runtime.js";
 
 /**
+ * @chrysalis-provenance "pages/login.php"
  * @chrysalis-effects db.read:users, session.write
  * @chrysalis-shape mixed
  * @chrysalis-holes 0

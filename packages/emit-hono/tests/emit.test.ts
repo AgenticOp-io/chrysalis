@@ -30,6 +30,7 @@ function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, ou
     outDir,
     schemaReport,
     domainTypesByTable: domainTypesByTable(schemaReport),
+    provenanceRoot: FIXTURE,
   });
 }
 
@@ -77,6 +78,30 @@ describe("emit-hono: tiny-blog output", () => {
     }
   });
 
+  test("lazy route registration uses dynamic import per handler in server.ts", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-lazy-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { routeRegistration: "lazy" },
+      });
+      const lazyServer = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(lazyServer).toContain("await registerRoutes(app)");
+      expect(lazyServer).toContain('await import("./handlers/');
+      expect(lazyServer).not.toContain('from "./handlers/login.js"');
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
   test("login handler contains session.write and queryOne", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
     try {
@@ -114,7 +139,7 @@ describe("emit-hono: dynamic new bridge", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dyn-h-"));
     try {
       const mod = await ingestDirectory(FIXTURE_THROW_NEW);
-      const res = await emit({ module: mod, outDir: out });
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_THROW_NEW });
       expect(res.handlerCount).toBe(5);
       const dynSrc = readFileSync(resolve(out, "src/handlers/dynnew.ts"), "utf8");
       expect(dynSrc).toContain("phpDynamicNew(");
@@ -135,7 +160,7 @@ describe("emit-hono: dynamic new bridge", () => {
       const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dyn-fetch-"));
       try {
         const mod = await ingestDirectory(FIXTURE_THROW_NEW);
-        await emit({ module: mod, outDir: out });
+        await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_THROW_NEW });
         execSync("npm install", { cwd: out, stdio: "pipe" });
         writeFileSync(
           resolve(out, "_chrysalis_dyn_probe.ts"),
@@ -172,7 +197,7 @@ describe("emit-hono: flagship laravel-min (Milestone 4 slice)", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_MIN);
-      const res = await emit({ module: mod, outDir: out });
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FLAGSHIP_LARAVEL_MIN });
       expect(res.handlerCount).toBe(20);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/home_show.ts"))).toBe(true);
@@ -206,7 +231,7 @@ describe("emit-hono: flagship laravel-full chrysalis-templates", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-lf-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_FULL_TEMPLATES);
-      const res = await emit({ module: mod, outDir: out });
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FLAGSHIP_LARAVEL_FULL_TEMPLATES });
       expect(res.handlerCount).toBe(52);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/ping_show.ts"))).toBe(true);
@@ -313,7 +338,7 @@ describe("emit-hono: string-dispatch switch (tiny-n1 /action)", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-"));
     try {
       const mod = await ingestDirectory(FIXTURE_N1);
-      await emit({ module: mod, outDir: out });
+      await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_N1 });
       const src = readFileSync(resolve(out, "src/handlers/action.ts"), "utf8");
       expect(src).toContain("switch (");
       expect(src).toMatch(/case ['"]create['"]/);

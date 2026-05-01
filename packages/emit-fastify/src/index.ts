@@ -9,9 +9,11 @@ import { dirname, join } from "node:path";
 import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import {
   emitHandlerBody,
+  formatEmitProvenanceDisplay,
   fastifyHttpProfile,
   handlerEffectAnnotationTags,
   ident,
+  type ChrysalisEmitStrategyV1,
   type EmittedHandler,
 } from "@chrysalis/emit-shared";
 import type { Module, NodeBase } from "@chrysalis/webir";
@@ -31,6 +33,8 @@ export interface EmitInput {
   readonly outDir: string;
   readonly schemaReport?: SchemaReport;
   readonly domainTypesByTable?: Readonly<Record<string, string>>;
+  readonly emitStrategy?: ChrysalisEmitStrategyV1;
+  readonly provenanceRoot?: string;
 }
 
 export interface EmittedFile {
@@ -74,7 +78,8 @@ async function writeFileWithMkdir(path: string, contents: string): Promise<numbe
 }
 
 export async function emit(input: EmitInput): Promise<EmitResult> {
-  const { module: m, outDir, domainTypesByTable, schemaReport } = input;
+  const { module: m, outDir, domainTypesByTable, schemaReport, emitStrategy, provenanceRoot } = input;
+  const routeRegistration = emitStrategy?.routeRegistration ?? "eager";
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
   const files: EmittedFile[] = [];
@@ -124,7 +129,10 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     }
 
     const handlerFile = `src/handlers/${baseName}.ts`;
-    await writeOne(handlerFile, handlerFileText(baseName, emitted, effectTags));
+    await writeOne(
+      handlerFile,
+      handlerFileText(baseName, emitted, effectTags, formatEmitProvenanceDisplay(provenanceRoot, phpFile)),
+    );
 
     bindings.push({
       method: attrs.method,
@@ -134,7 +142,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     });
   }
 
-  const { imports, registrations } = mountBlockFor(bindings);
+  const { imports, registrations } = mountBlockFor(bindings, routeRegistration);
   await writeOne("src/server.ts", SERVER_TS(imports, registrations));
   await writeOne("src/index.ts", INDEX_TS);
   await writeOne("chrysalis.holes.json", JSON.stringify(allHoles, null, 2));
@@ -155,6 +163,7 @@ function handlerFileText(
   name: string,
   emitted: EmittedHandler,
   effectTags: ReadonlyArray<string>,
+  provenanceFile: string,
 ): string {
   const domainImport =
     emitted.domainTypeImports.length > 0
@@ -197,6 +206,7 @@ ${runtimeFqn}${runtimeDynamicNew}  __respond,
 ${runtimeZod}} from "../runtime.js";
 
 /**
+ * @chrysalis-provenance ${JSON.stringify(provenanceFile)}
  * @chrysalis-effects ${effectTags.join(", ") || "(none inferred)"}
  * @chrysalis-shape ${emitted.shape}
  * @chrysalis-holes ${emitted.holes.length}
@@ -207,7 +217,21 @@ ${indent(emitted.body, 2)}
 `;
 }
 
-function mountBlockFor(bindings: RouteBinding[]): { imports: string; registrations: string } {
+function mountBlockFor(
+  bindings: RouteBinding[],
+  routeRegistration: "eager" | "lazy",
+): { imports: string; registrations: string } {
+  if (routeRegistration === "lazy") {
+    const registrations = bindings
+      .map((b) => {
+        const method = b.method.toLowerCase();
+        const path = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
+        const rel = `./handlers/${b.handlerName}.js`;
+        return `  {\n    const m = await import(${JSON.stringify(rel)});\n    app.${method}(${JSON.stringify(path)}, m.${b.handlerName});\n  }`;
+      })
+      .join("\n");
+    return { imports: "", registrations };
+  }
   const imports = bindings
     .map((b) => `import { ${b.handlerName} } from "./handlers/${b.handlerName}.js";`)
     .join("\n");

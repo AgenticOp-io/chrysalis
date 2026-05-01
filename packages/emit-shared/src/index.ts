@@ -17,3 +17,8 @@ export {
   summarizeEmittedTypeScriptLayout,
   type EmittedTsLayout,
 } from "./emitted-ts-layout.js";
+export type {
+  ChrysalisEmitRouteRegistration,
+  ChrysalisEmitStrategyV1,
+} from "./emit-strategy.js";
+export { formatEmitProvenanceDisplay } from "./emit-provenance.js";

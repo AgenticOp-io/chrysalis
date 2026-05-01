@@ -45,6 +45,7 @@ const emitRes = await emit({
   outDir: out,
   schemaReport,
   domainTypesByTable: domainTypesByTable(schemaReport),
+  provenanceRoot: tinyBlog,
 });
 const loginSrc = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
 const loginGoldenPath = resolve(emitGoldenDir, "tiny-blog-login.ts");

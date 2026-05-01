@@ -24,6 +24,7 @@ describe("golden emitted TypeScript", () => {
         outDir: out,
         schemaReport,
         domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
       });
       const actual = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
       const expected = readFileSync(GOLDEN_LOGIN, "utf8");

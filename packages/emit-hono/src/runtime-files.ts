@@ -733,7 +733,12 @@ export function parseZodEnumBodyFieldRaw(
  * run `app.fetch(request)` in-process (HTTP-replay verification, tests)
  * without binding a port. `src/index.ts` imports this and calls `serve`.
  */
-export const SERVER_TS = (mountBlocks: string): string => `import { Hono } from "hono";
+export const SERVER_TS = (
+  mountBlocks: string,
+  routeRegistration: "eager" | "lazy",
+): string => {
+  const routeHook = routeRegistration === "lazy" ? "await registerRoutes(app);" : "registerRoutes(app);";
+  return `import { Hono } from "hono";
 import { chrysalisDeterminismMiddleware } from "./ctx.js";
 import { sqlTapeMiddleware } from "./db.js";
 import { sessionMiddleware } from "./session.js";
@@ -745,7 +750,7 @@ app.use("*", sqlTapeMiddleware);
 app.use("*", chrysalisDeterminismMiddleware());
 app.use("*", sessionMiddleware());
 
-registerRoutes(app);
+${routeHook}
 
 /**
  * In-process corpus replay: build Request in this module next to app so Hono
@@ -758,6 +763,7 @@ export async function chrysalisInProcessFetch(
   return app.fetch(new Request(url, init ?? {}));
 }
 `;
+};
 
 export const INDEX_TS = `import { serve } from "@hono/node-server";
 import { app } from "./server.js";

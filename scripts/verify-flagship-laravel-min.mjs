@@ -134,14 +134,14 @@ const webirModule = await ingestDirectory(fixture);
 
 console.log("[verify-flagship] emitting Hono...");
 if (existsSync(generatedHono)) rmSync(generatedHono, { recursive: true, force: true });
-const resH = await emitHono({ module: webirModule, outDir: generatedHono });
+const resH = await emitHono({ module: webirModule, outDir: generatedHono, provenanceRoot: fixture });
 console.log(
   `[verify-flagship] emit-hono handlers=${resH.handlerCount} emit-holes=${resH.holes.length}`,
 );
 
 console.log("[verify-flagship] emitting Fastify...");
 if (existsSync(generatedFastify)) rmSync(generatedFastify, { recursive: true, force: true });
-const resF = await emitFastify({ module: webirModule, outDir: generatedFastify });
+const resF = await emitFastify({ module: webirModule, outDir: generatedFastify, provenanceRoot: fixture });
 console.log(
   `[verify-flagship] emit-fastify handlers=${resF.handlerCount} emit-holes=${resF.holes.length}`,
 );

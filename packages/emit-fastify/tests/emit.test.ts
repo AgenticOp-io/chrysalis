@@ -29,6 +29,7 @@ function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, ou
     outDir,
     schemaReport,
     domainTypesByTable: domainTypesByTable(schemaReport),
+    provenanceRoot: FIXTURE,
   });
 }
 
@@ -66,6 +67,29 @@ describe("emit-fastify: tiny-blog output", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("lazy route registration uses dynamic import in buildApp", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-lazy-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { routeRegistration: "lazy" },
+      });
+      const server = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(server).toContain('await import("./handlers/');
+      expect(server).not.toContain('from "./handlers/login.js"');
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("emit-fastify: dynamic new bridge", () => {
@@ -73,7 +97,7 @@ describe("emit-fastify: dynamic new bridge", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dyn-f-"));
     try {
       const mod = await ingestDirectory(FIXTURE_THROW_NEW);
-      const res = await emit({ module: mod, outDir: out });
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_THROW_NEW });
       expect(res.handlerCount).toBe(5);
       const dynSrc = readFileSync(resolve(out, "src/handlers/dynnew.ts"), "utf8");
       expect(dynSrc).toContain("phpDynamicNew(");
@@ -94,7 +118,7 @@ describe("emit-fastify: dynamic new bridge", () => {
       const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dyn-fetch-f-"));
       try {
         const mod = await ingestDirectory(FIXTURE_THROW_NEW);
-        await emit({ module: mod, outDir: out });
+        await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_THROW_NEW });
         execSync("npm install", { cwd: out, stdio: "pipe" });
         writeFileSync(
           resolve(out, "_chrysalis_dyn_probe.ts"),
@@ -131,7 +155,7 @@ describe("emit-fastify: flagship laravel-min (Milestone 4 slice)", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-flag-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_MIN);
-      const res = await emit({ module: mod, outDir: out });
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FLAGSHIP_LARAVEL_MIN });
       expect(res.handlerCount).toBe(20);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/home_show.ts"))).toBe(true);
@@ -165,7 +189,7 @@ describe("emit-fastify: flagship laravel-full chrysalis-templates", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-lf-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_FULL_TEMPLATES);
-      const res = await emit({ module: mod, outDir: out });
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FLAGSHIP_LARAVEL_FULL_TEMPLATES });
       expect(res.handlerCount).toBe(52);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/ping_show.ts"))).toBe(true);
@@ -235,7 +259,7 @@ describe("emit-fastify: string-dispatch (tiny-n1)", () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-fn1-"));
     try {
       const mod = await ingestDirectory(FIXTURE_N1);
-      await emit({ module: mod, outDir: out });
+      await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_N1 });
       const src = readFileSync(resolve(out, "src/handlers/action.ts"), "utf8");
       expect(src).toContain("switch (");
     } finally {

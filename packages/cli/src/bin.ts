@@ -197,6 +197,23 @@ function shardIngestModeFromFlags(
   return { ok: true, value: { mode: "single", shardCount: k, shardIndex: idx } };
 }
 
+function emitRouteRegistrationFromFlags(
+  flags: Record<string, string | boolean>,
+): { ok: true; value: "lazy" | undefined } | { ok: false; message: string } {
+  const raw = flags["emit-route-registration"];
+  if (raw === undefined) return { ok: true, value: undefined };
+  if (typeof raw !== "string") {
+    return { ok: false, message: "error: --emit-route-registration expects eager|lazy" };
+  }
+  const v = raw.trim().toLowerCase();
+  if (v === "eager") return { ok: true, value: undefined };
+  if (v === "lazy") return { ok: true, value: "lazy" };
+  return {
+    ok: false,
+    message: `error: --emit-route-registration must be eager or lazy (got ${JSON.stringify(raw)})`,
+  };
+}
+
 async function ingestProjectWithShardMode(
   root: string,
   mode: ShardIngestMode,
@@ -338,7 +355,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
@@ -370,6 +387,11 @@ async function cmdEmit(args: string[]): Promise<number> {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
     return 2;
   }
+  const routeReg = emitRouteRegistrationFromFlags(flags);
+  if (!routeReg.ok) {
+    console.error(routeReg.message);
+    return 2;
+  }
   const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
@@ -388,8 +410,10 @@ async function cmdEmit(args: string[]): Promise<number> {
   const emitOpts = {
     module: mod,
     outDir: outAbs,
+    provenanceRoot: resolve(root),
     ...(schemaReport ? { schemaReport } : {}),
     ...(domainMap ? { domainTypesByTable: domainMap } : {}),
+    ...(routeReg.value === "lazy" ? { emitStrategy: { routeRegistration: "lazy" as const } } : {}),
   };
   const res =
     target === "fastify" ? await emitFastify(emitOpts) : await emitHono(emitOpts);
@@ -1420,6 +1444,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
     );
     return 2;
   }
+  const rootAbs = resolve(root);
   const parserProvider = parserProviderFromFlags(flags);
   if (parserProvider === null) return 2;
   const cacheOpts = ingestCacheDirFromFlags(flags);
@@ -1435,7 +1460,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
     return 2;
   }
 
-  const mod = await ingestDirectory(resolve(root), {
+  const mod = await ingestDirectory(rootAbs, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
   });
@@ -1522,9 +1547,9 @@ async function cmdRewrite(args: string[]): Promise<number> {
             resolveFetch: async (rewritten) => {
               const dir = emitDirForBackend(outAbs, t, backends);
               if (t === "fastify") {
-                await emitFastify({ module: rewritten, outDir: dir });
+                await emitFastify({ module: rewritten, outDir: dir, provenanceRoot: rootAbs });
               } else {
-                await emitHono({ module: rewritten, outDir: dir });
+                await emitHono({ module: rewritten, outDir: dir, provenanceRoot: rootAbs });
               }
               emittedForHttpReplay = true;
               if (!httpReplaySkipInstall) {
@@ -1544,9 +1569,9 @@ async function cmdRewrite(args: string[]): Promise<number> {
         for (const t of backends) {
           const dir = emitDirForBackend(outAbs, t, backends);
           if (t === "fastify") {
-            await emitFastify({ module: result.module, outDir: dir });
+            await emitFastify({ module: result.module, outDir: dir, provenanceRoot: rootAbs });
           } else {
-            await emitHono({ module: result.module, outDir: dir });
+            await emitHono({ module: result.module, outDir: dir, provenanceRoot: rootAbs });
           }
         }
       } catch (revertErr) {
@@ -1569,8 +1594,8 @@ async function cmdRewrite(args: string[]): Promise<number> {
   if (outDir && !emittedForHttpReplay) {
     const emitRes =
       emitTarget === "fastify"
-        ? await emitFastify({ module: result.module, outDir: outAbs })
-        : await emitHono({ module: result.module, outDir: outAbs });
+        ? await emitFastify({ module: result.module, outDir: outAbs, provenanceRoot: rootAbs })
+        : await emitHono({ module: result.module, outDir: outAbs, provenanceRoot: rootAbs });
     console.log(`[rewrite] emitted ${emitRes.files.length} file(s) to ${outAbs}`);
   } else if (emittedForHttpReplay) {
     console.log(`[rewrite] emitted (during http-replay) to ${outAbs}`);

@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **V2-M4 — optional emit layout CI ceilings (D251):** **`scripts/ci-gates.mjs emit-layout-floors`** reads flagship **`emit-stats`** and enforces **`CHRYSALIS_EMIT_LAYOUT_MAX_*`** ceilings when set; **`pnpm run ci:emit-layout-floors`** (no-op skip when no env). Vitest **`packages/cli/tests/ci-gates-json-artifacts.test.ts`**.
 
+- **V2-M4 — emit strategy v1 (D252):** **`emitStrategy.routeRegistration`** **`eager`** (default) vs **`lazy`** on **`@chrysalis/emit-hono`** / **`emit-fastify`**; **`chrysalis emit --emit-route-registration=lazy|eager`**. **`provenanceRoot`** + **`formatEmitProvenanceDisplay`** + **`@chrysalis-provenance`** on handler modules. **`chrysalis rewrite`** emits with **`provenanceRoot`**. Vitest: **`packages/emit-shared/tests/emit-provenance.test.ts`**, lazy **`server.ts`** in **`emit-hono`** / **`emit-fastify`** tests; golden **`tiny-blog-login.ts`** updated.
+
 - **V2-M2 — `chrysalis status --json` `ingestSharding` (D248):** machine-readable ingest mode (**`monolithic`**, **`routeShard`**, **`mergedShards`**) when **`--project`** succeeds; human dashboard prints **`ingest`** line only for shard / merge modes.
 
 - **V2-M2 — `mergeWebIrModules` structural dedupe (D247):** cross-shard nodes with the same structural key (dialect/op/type/effects/attrs/origin/provenance/operand keys) share one **`NodeId`**; collapses duplicate **`lib/`** IR across shards. **`packages/webir/src/merge-dedupe-key.ts`**.

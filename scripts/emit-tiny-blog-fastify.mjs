@@ -4,7 +4,7 @@
  */
 
 import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { ingestDirectory } from "../packages/ingest/dist/index.js";
 import { countByDialect, countHoles } from "../packages/webir/dist/index.js";
 import { emit } from "../packages/emit-fastify/dist/index.js";
@@ -36,6 +36,7 @@ const res = await emit({
   outDir: OUT,
   schemaReport,
   domainTypesByTable: domainTypesByTable(schemaReport),
+  provenanceRoot: resolve(ROOT),
 });
 console.log(
   `[emit-fastify] handlers=${res.handlerCount} files=${res.files.length} emit-holes=${res.holes.length}`,

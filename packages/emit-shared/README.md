@@ -33,6 +33,8 @@ walker and framework-specific HTTP surface via `HttpEmitProfile`.
 - `emitExpr`, `emitStmt` — lower-level helpers (mainly for tests).
 - `ident`, `stringLit`, … — TS text helpers.
 - **`summarizeEmittedTypeScriptLayout(outDir)`** — post-emit filesystem scan of **`.ts`** files (skips **`node_modules`**, **`chrysalis-sessions`**, …); returns **`EmittedTsLayout`** for **`emit-stats`** / dashboards (**V2-M4**, **DESIGN D250**).
+- **`ChrysalisEmitStrategyV1`**, **`ChrysalisEmitRouteRegistration`** — consumed by HTTP emitters for **`routeRegistration`** (**`eager`** vs **`lazy`** server binding; **DESIGN D252**).
+- **`formatEmitProvenanceDisplay(provenanceRoot, originFile)`** — stable posix path for **`@chrysalis-provenance`** in emitted handlers when **`provenanceRoot`** is the PHP project directory.
 
 ## Invariants
 

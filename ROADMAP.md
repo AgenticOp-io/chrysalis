@@ -896,7 +896,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 **Goal:** Generated TypeScript stays **auditable** but **fits** large teams’ build systems (incremental `tsc`, optional package boundaries).
 
-- [ ] **Emit strategy flags** (per backend): e.g. route **file splitting**, shared **lib chunk**, lazy route registration where the server framework supports it—all with **provenance** preserved on emitted files.
+- [x] **Emit strategy flags (v1):** **`emitStrategy.routeRegistration`** **`eager`** (default) vs **`lazy`** (dynamic **`import()`** per route in **`server.ts`**); CLI **`--emit-route-registration`**. **`provenanceRoot`** + **`@chrysalis-provenance`** on handler files (**`formatEmitProvenanceDisplay`**). **Remaining:** shared **lib chunk** extraction, further split/merge policies.
 - [x] **Emit stats layout (v1):** **`summarizeEmittedTypeScriptLayout`** (**`@chrysalis/emit-shared`**) → **`hono.layout`** / **`fastify.layout`** in **`flagship-laravel-min`** / **`full`** **`emit-stats.json`** (**`tsFileCount`**, **`tsLineCount`**, **`largestFileRelativePath`**, **`largestFileLineCount`**). Vitest **`packages/emit-shared/tests/emitted-ts-layout.test.ts`**. Optional **CI ceiling gate** on layout numbers: **`emit-layout-floors`** + **`CHRYSALIS_EMIT_LAYOUT_MAX_*`** (**DESIGN D251**); default skip when unset.
 
 **Done when:** flagship or a new **large-layout** fixture proves **multi-file emit** at a configured threshold without losing verify parity on a pinned corpus subset.
