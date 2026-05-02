@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
 import { EMIT_RESUME_STATE_BASENAME, summarizeEmittedTypeScriptLayout } from "@chrysalis/emit-shared";
-import { ModuleBuilder, T, dataDialect, phpLocator, webRequest } from "@chrysalis/webir";
+import { ModuleBuilder, T, dataDialect, phpLocator, webRequest, type Module } from "@chrysalis/webir";
 import { emit } from "../src/index.js";
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
@@ -21,6 +21,32 @@ const FLAGSHIP_LARAVEL_FULL_TEMPLATES = resolve(
 
 /** Temp-dir `npm install` probes: on by default in GitHub Actions (`CI=true`); opt in locally with `CHRYSALIS_E2E_EMIT=1`. */
 const RUN_EMIT_NPM_E2E = process.env.CI === "true" || process.env.CHRYSALIS_E2E_EMIT === "1";
+
+/** Two GET routes whose lowered bodies match (same probe hole), for D282 combination tests. */
+function moduleTwoRoutesIdenticalProbeHoles(): Module {
+  const b = new ModuleBuilder({ sourceApp: "emit-dedupe-body" });
+  const d = dataDialect.builders(b);
+  const r = webRequest.builders(b);
+  const oa = phpLocator("pages/a.php", 1, 0);
+  const ob = phpLocator("pages/b.php", 1, 0);
+  const holeA = d.hole({ reason: "probe", input: T.unknown, output: T.string, origin: oa });
+  const holeB = d.hole({ reason: "probe", input: T.unknown, output: T.string, origin: ob });
+  const h1 = r.handler({
+    attrs: { name: "handler_a", input: T.record({}), output: T.string },
+    body: holeA,
+    effects: [],
+    origin: oa,
+  });
+  const h2 = r.handler({
+    attrs: { name: "handler_b", input: T.record({}), output: T.string },
+    body: holeB,
+    effects: [],
+    origin: ob,
+  });
+  b.addRoot(r.route({ attrs: { method: "GET", path: "/a", pathParams: [] }, handler: h1, origin: oa }));
+  b.addRoot(r.route({ attrs: { method: "GET", path: "/b", pathParams: [] }, handler: h2, origin: ob }));
+  return b.finish();
+}
 
 function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, outDir: string) {
   const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
@@ -472,28 +498,7 @@ describe("emit-hono: emitDedupeIdenticalHandlerBodies", () => {
   test("writes chrysalis-deduped module and thin handlers when two bodies match", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dedupe-"));
     try {
-      const b = new ModuleBuilder({ sourceApp: "emit-dedupe-body" });
-      const d = dataDialect.builders(b);
-      const r = webRequest.builders(b);
-      const oa = phpLocator("pages/a.php", 1, 0);
-      const ob = phpLocator("pages/b.php", 1, 0);
-      const holeA = d.hole({ reason: "probe", input: T.unknown, output: T.string, origin: oa });
-      const holeB = d.hole({ reason: "probe", input: T.unknown, output: T.string, origin: ob });
-      const h1 = r.handler({
-        attrs: { name: "handler_a", input: T.record({}), output: T.string },
-        body: holeA,
-        effects: [],
-        origin: oa,
-      });
-      const h2 = r.handler({
-        attrs: { name: "handler_b", input: T.record({}), output: T.string },
-        body: holeB,
-        effects: [],
-        origin: ob,
-      });
-      b.addRoot(r.route({ attrs: { method: "GET", path: "/a", pathParams: [] }, handler: h1, origin: oa }));
-      b.addRoot(r.route({ attrs: { method: "GET", path: "/b", pathParams: [] }, handler: h2, origin: ob }));
-      const mod = b.finish();
+      const mod = moduleTwoRoutesIdenticalProbeHoles();
       await emit({
         module: mod,
         outDir: out,
@@ -516,6 +521,58 @@ describe("emit-hono: emitDedupeIdenticalHandlerBodies", () => {
       expect(bSrc).toContain(`return ${idA}(c);`);
       expect(aSrc).not.toContain("__hole(");
       expect(bSrc).not.toContain("__hole(");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("dedupe with handlerImportBarrel: thin handlers use barrel; shared dedupe module uses direct hono", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dedupe-barrel-"));
+    try {
+      const mod = moduleTwoRoutesIdenticalProbeHoles();
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: resolve(__dirname, "../../../fixtures/tiny-blog"),
+        emitStrategy: {
+          emitDedupeIdenticalHandlerBodies: true,
+          handlerImportBarrel: true,
+        },
+      });
+      expect(existsSync(resolve(out, "src/chrysalis-handler-imports.ts"))).toBe(true);
+      const dedupeDir = resolve(out, "src/chrysalis-deduped");
+      expect(readdirSync(dedupeDir).length).toBe(1);
+      const aSrc = readFileSync(resolve(out, "src/handlers/handler_a.ts"), "utf8");
+      expect(aSrc).toContain("../chrysalis-handler-imports.js");
+      expect(aSrc).toContain("../chrysalis-deduped/");
+      const id = aSrc.match(/chrysalisBodyDedupe_[0-9a-f]+/)?.[0];
+      expect(id).toBeDefined();
+      const shared = readFileSync(resolve(out, "src/chrysalis-deduped", `${id}.ts`), "utf8");
+      expect(shared).toContain('from "hono"');
+      expect(shared).not.toContain("chrysalis-handler-imports");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("dedupe with routeRegistration lazy: server uses dynamic import; dedupe unchanged", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dedupe-lazy-"));
+    try {
+      const mod = moduleTwoRoutesIdenticalProbeHoles();
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: resolve(__dirname, "../../../fixtures/tiny-blog"),
+        emitStrategy: {
+          emitDedupeIdenticalHandlerBodies: true,
+          routeRegistration: "lazy",
+        },
+      });
+      const serverTs = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(serverTs).toContain("await import(");
+      expect(serverTs).toContain("./handlers/handler_a.js");
+      const dedupeDir = resolve(out, "src/chrysalis-deduped");
+      expect(readdirSync(dedupeDir).length).toBe(1);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

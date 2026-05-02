@@ -1,0 +1,17 @@
+{
+  "app": "dedupe-identical-handlers",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/a",
+      "file": "pages/twin_a.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/b",
+      "file": "pages/twin_b.php",
+      "pathParams": []
+    }
+  ]
+}
