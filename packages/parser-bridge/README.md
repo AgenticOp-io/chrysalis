@@ -7,7 +7,7 @@ versioned PHP AST JSON back to Node. This package is the **only** place in
 Chrysalis that knows about PHP's parse syntax.
 
 From the repo root, **`pnpm test`** runs **`scripts/ensure-parser-bridge-vendor.mjs`** first when **`vendor/`**
-is missing (Composer runnable), or run **`pnpm run vendor:parser-bridge`** manually.
+is missing: it uses **`composer`** on **`PATH`**, or bootstraps **`composer.phar`** via the official installer when **`php`** is available (**`scripts/parser-bridge-composer-install.mjs`**). Run **`pnpm run vendor:parser-bridge`** manually to force install.
 Set **`CHRYSALIS_SKIP_PARSER_VENDOR=1`** to skip that hook. **`tests/nikic.test.ts`** still requires **`php`** on **`PATH`** in addition to **`vendor/`**.
 
 **When to use `nikic`:** opt in for **parity-sensitive** pipelines (throw / dynamic **`new`**, namespaces, edge

@@ -52,3 +52,4 @@ flagship/chrysalis-laravel-work/
 # parser-bridge nikic / composer (lock file is committed; vendor is not)
 packages/parser-bridge/vendor/
 packages/parser-bridge/composer.phar
+packages/parser-bridge/composer-setup.php
