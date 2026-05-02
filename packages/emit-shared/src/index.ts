@@ -31,6 +31,7 @@ export {
 } from "./emit-resume-state.js";
 export {
   aggregateEmittedHandlerImports,
+  buildChrysalisRuntimeSharedImportsModuleSource,
   buildFastifyChrysalisHandlerImportsSource,
   buildHonoChrysalisHandlerImportsSource,
   fastifyBarrelValueImportClause,

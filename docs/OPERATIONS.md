@@ -9,7 +9,7 @@ All examples assume repository root as current working directory and a built CLI
 | Goal | Typical entrypoint |
 | --- | --- |
 | PHP to WebIR | `chrysalis ingest <php-root>` |
-| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-route-path-constants`** (**DESIGN D256**, **D258**), **`--emit-handler-fingerprints`** (**D259**), **`--emit-runtime-facade`** (**D272**) |
+| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-shared-runtime-imports`** (**D281**, not with barrel), **`--emit-route-path-constants`** (**DESIGN D256**, **D258**), **`--emit-handler-fingerprints`** (**D259**), **`--emit-runtime-facade`** (**D272**) |
 | Record live PHP traffic | `chrysalis observe <php-root> --traces <dir> …` |
 | Summarize a corpus | `chrysalis corpus <traces-dir>` |
 | Replay corpus against emitted app | `chrysalis verify <traces-dir> --base-url <url> --report <dir>` |
@@ -76,7 +76,7 @@ Stdout is **`chrysalis.verify.summary.batch`** (**`schemaVersion`:** **1**). Fix
 - **Canary and shadow:** **`ChimeraStats`** (**`@chrysalis/runtime-chimera`**) exposes per-process counters; aggregate in your metrics stack. Canary stickiness uses the configured cookie/header/IP salt so a user stays on one stack; keep that cookie **sticky to the chimera layer** (LB session affinity or client → same chimera IP) so the bucket is meaningful across retries.
 - **Sessions:** for **multi-host** dual-stack login, point **both** emitted Node and legacy PHP at the same **`CHRYSALIS_SESSION_REDIS_URL`** and cookie (**`CHRYSALIS_SESSION_COOKIE`**, default **`chrysalis_sid`**). Node uses the built-in Redis mode in emitted **`session.ts`**; PHP registers **`Chrysalis\Oracle\Session\RedisChrysalisSessionHandler::registerFromEnv()`** before **`session_start()`** (**DESIGN D178 / D273**, **`packages/oracle-php`**). File-backed or SQLite session files are **per-instance** unless shared storage mounts them; use Redis for LB + chimera fan-out.
 - **Hot reload:** **`chrysalis deploy`** reloads on **SIGHUP** / **SIGUSR2** when using **`--config`** or **`--config-url`** (**DESIGN D256**). **Windows** signal support is limited; prefer restarts there.
-- **Emit crash resume:** **`chrysalis emit … --emit-resume`** skips rewriting handler files already recorded under **`<outDir>/.chrysalis-emit-state.json`**; scaffolding and **`chrysalis.holes.json`** are always regenerated on a successful run. Remove **`--emit-resume`** for a clean slate (the CLI clears stale state when resume is off).
+- **Emit crash resume:** **`chrysalis emit … --emit-resume`** skips rewriting handler files already recorded under **`<outDir>/.chrysalis-emit-state.json`**; scaffolding and **`chrysalis.holes.json`** are always regenerated on a successful run. Aggregated layout files (**`src/chrysalis-handler-imports.ts`**, **`src/chrysalis-runtime-imports.ts`**) are rewritten each successful emit from the full route set so they stay consistent with any resumed handler writes. Remove **`--emit-resume`** for a clean slate (the CLI clears stale state when resume is off).
 
 ### Fleet JSON and privacy (V2-M6)
 
@@ -105,7 +105,7 @@ Chrysalis **does not** operate a hosted fleet dashboard or third-party telemetry
 | **`chrysalis.verify.summary.batch`** | **`scripts/aggregate-verify-summaries.mjs`** | **`pnpm run ci:verify-summary-batch`** |
 | **`chrysalis.fleet.status-uplink`** (**`schemaVersion`:** **0**) | **`scripts/export-fleet-status-uplink.mjs`** (**`pnpm run fleet:export-status-uplink`**) | Vitest **`fleet-status-uplink-*`** |
 
-**Emit-side artifacts** (per project **`--out`**, not a single fleet kind): **`chrysalis.emit.handlerFingerprints`** (**`--emit-handler-fingerprints`**), optional **`src/chrysalis-runtime-facade.ts`** (**`--emit-runtime-facade`**, **DESIGN D272**).
+**Emit-side artifacts** (per project **`--out`**, not a single fleet kind): **`chrysalis.emit.handlerFingerprints`** (**`--emit-handler-fingerprints`**), optional **`src/chrysalis-runtime-facade.ts`** (**`--emit-runtime-facade`**, **DESIGN D272**), optional **`src/chrysalis-runtime-imports.ts`** (**`--emit-shared-runtime-imports`**, **DESIGN D281**; mutually exclusive with **`--emit-handler-import-barrel`**).
 
 **Out of scope (by design):** Chrysalis-operated multi-tenant SaaS, default-on third-party analytics, or automatic uplink to external vendors. Operators connect scripts to **their** metrics stack (Grafana, Loki, internal ETL). **Privacy:** *Fleet JSON and privacy (V2-M6)* above; **per-deployment** review of uplink bundles remains **operator-owned** (see also schema bullet **Remaining** in **`ROADMAP.md`**).
 

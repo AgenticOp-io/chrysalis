@@ -28,4 +28,11 @@ export interface ChrysalisEmitStrategyV1 {
    * imports through it from handlers and the optional import barrel (**DESIGN D272**). Default **false**.
    */
   readonly runtimeFacadeModule?: boolean;
+  /**
+   * Emit **`src/chrysalis-runtime-imports.ts`**: aggregated **`export { … } from "./runtime.js"`** (or from
+   * **`./chrysalis-runtime-facade.js`** when **`runtimeFacadeModule`** is set) so handlers import lowering
+   * helpers through one module instead of repeating the long runtime import block (**DESIGN D281**).
+   * Incompatible with **`handlerImportBarrel`** (barrel already centralizes imports). Default **false**.
+   */
+  readonly emitSharedRuntimeImports?: boolean;
 }

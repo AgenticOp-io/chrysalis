@@ -29,7 +29,8 @@ export function aggregateEmittedHandlerImports(
   };
 }
 
-function runtimeExportNames(agg: AggregatedHandlerImportNeeds): string[] {
+/** Symbols re-exported from **`runtime.js`** (or facade) for barrels and **`chrysalis-runtime-imports.ts`**. */
+export function runtimeExportNamesForAgg(agg: AggregatedHandlerImportNeeds): string[] {
   const lines: string[] = [
     "escapeHtml",
     "nl2br",
@@ -74,7 +75,7 @@ export function buildHonoChrysalisHandlerImportsSource(
   const db = agg.usesQueryAllWhereIn
     ? "queryAll, queryAllWhereIn, queryOne, execSql, db"
     : "queryAll, queryOne, execSql, db";
-  const rt = runtimeExportNames(agg);
+  const rt = runtimeExportNamesForAgg(agg);
   const runtimeFrom =
     options?.runtimeFacadeModule === true ? "./chrysalis-runtime-facade.js" : "./runtime.js";
   const parts: string[] = [
@@ -98,7 +99,7 @@ export function buildFastifyChrysalisHandlerImportsSource(
   const db = agg.usesQueryAllWhereIn
     ? "queryAll, queryAllWhereIn, queryOne, execSql, db"
     : "queryAll, queryOne, execSql, db";
-  const rt = runtimeExportNames(agg);
+  const rt = runtimeExportNamesForAgg(agg);
   const runtimeFrom =
     options?.runtimeFacadeModule === true ? "./chrysalis-runtime-facade.js" : "./runtime.js";
   const parts: string[] = [
@@ -149,6 +150,25 @@ ${runtimeBatch}  microtimeString,
   __hole,
 ${runtimeFqn}${runtimeDynamicNew}  __respond,
 ${runtimeZod}`;
+}
+
+/**
+ * Source for **`src/chrysalis-runtime-imports.ts`** when **`emitStrategy.emitSharedRuntimeImports`** is set
+ * without **`handlerImportBarrel`** (**DESIGN D281**).
+ */
+export function buildChrysalisRuntimeSharedImportsModuleSource(
+  relativeRuntimeModule: string,
+  agg: AggregatedHandlerImportNeeds,
+): string {
+  const names = runtimeExportNamesForAgg(agg);
+  return `/**
+ * Aggregated runtime re-exports for emitted handlers (V2-M4, DESIGN D281).
+ * Do not edit by hand; regenerate with \`chrysalis emit\`.
+ */
+export {
+  ${names.join(",\n  ")},
+} from "${relativeRuntimeModule}";
+`;
 }
 
 export function fastifyBarrelValueImportClause(emitted: EmittedHandler): string {

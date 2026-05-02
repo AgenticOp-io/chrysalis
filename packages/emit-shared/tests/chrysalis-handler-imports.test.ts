@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   aggregateEmittedHandlerImports,
+  buildChrysalisRuntimeSharedImportsModuleSource,
   buildFastifyChrysalisHandlerImportsSource,
   buildHonoChrysalisHandlerImportsSource,
 } from "../src/chrysalis-handler-imports.js";
@@ -84,5 +85,67 @@ describe("chrysalis-handler-imports barrel", () => {
     ]);
     const src = buildFastifyChrysalisHandlerImportsSource(agg, { runtimeFacadeModule: true });
     expect(src).toContain("./chrysalis-runtime-facade.js");
+  });
+});
+
+describe("buildChrysalisRuntimeSharedImportsModuleSource", () => {
+  test("re-exports base runtime symbols from ./runtime.js", () => {
+    const agg = aggregateEmittedHandlerImports([
+      {
+        body: "",
+        holes: [],
+        effectNames: [],
+        shape: "html",
+        domainTypeImports: [],
+        usesQueryAllWhereIn: false,
+        usesChrysalisBatchHelpers: false,
+        usesZod: false,
+        usesPhpFqnNew: false,
+        usesPhpDynamicNew: false,
+      },
+    ]);
+    const src = buildChrysalisRuntimeSharedImportsModuleSource("./runtime.js", agg);
+    expect(src).toContain('from "./runtime.js"');
+    expect(src).toContain("escapeHtml");
+    expect(src).toContain("export {");
+  });
+
+  test("includes zod helpers when any handler uses zod", () => {
+    const agg = aggregateEmittedHandlerImports([
+      {
+        body: "",
+        holes: [],
+        effectNames: [],
+        shape: "html",
+        domainTypeImports: [],
+        usesQueryAllWhereIn: false,
+        usesChrysalisBatchHelpers: false,
+        usesZod: true,
+        usesPhpFqnNew: false,
+        usesPhpDynamicNew: false,
+      },
+    ]);
+    const src = buildChrysalisRuntimeSharedImportsModuleSource("./runtime.js", agg);
+    expect(src).toContain("parseZodBodyFieldRaw");
+  });
+
+  test("can target facade module path", () => {
+    const agg = aggregateEmittedHandlerImports([
+      {
+        body: "",
+        holes: [],
+        effectNames: [],
+        shape: "html",
+        domainTypeImports: [],
+        usesQueryAllWhereIn: false,
+        usesChrysalisBatchHelpers: false,
+        usesZod: false,
+        usesPhpFqnNew: false,
+        usesPhpDynamicNew: false,
+      },
+    ]);
+    const src = buildChrysalisRuntimeSharedImportsModuleSource("./chrysalis-runtime-facade.js", agg);
+    expect(src).toContain('from "./chrysalis-runtime-facade.js"');
+    expect(src).not.toContain("./runtime.js");
   });
 });

@@ -17,7 +17,7 @@ the reference for how to write additional backends (`emit-fastify`, `emit-next`,
   (lowercase SQL table name → archaeology interface name) for `queryOne<T>` /
   `queryAll<T>` on single-table reads; runtime config as the package grows
 - `EmitResult` — file list, hole registry, emission report
-- **Emit strategy (CLI → `emitStrategy`):** `chrysalis emit` forwards flags for **`routeRegistration`**, **`provenanceRoot`**, **`emitRoutePathConstants`** (**`src/chrysalis-route-paths.ts`**), **`emitHandlerFingerprints`** (**`chrysalis.emit-handler-fingerprints.json`**), **`emitResume`**, **`handlerImportBarrel`**, **`runtimeFacadeModule`** (**`src/chrysalis-runtime-facade.ts`**, CLI **`--emit-runtime-facade`**) — see **`packages/cli/README.md`** (**DESIGN D252**, **D256**, **D258**, **D259**, **D272**, **D260–D269**).
+- **Emit strategy (CLI → `emitStrategy`):** `chrysalis emit` forwards flags for **`routeRegistration`**, **`provenanceRoot`**, **`emitRoutePathConstants`** (**`src/chrysalis-route-paths.ts`**), **`emitHandlerFingerprints`** (**`chrysalis.emit-handler-fingerprints.json`**), **`emitResume`**, **`handlerImportBarrel`**, **`runtimeFacadeModule`** (**`src/chrysalis-runtime-facade.ts`**, CLI **`--emit-runtime-facade`**), **`emitSharedRuntimeImports`** (**`src/chrysalis-runtime-imports.ts`**, CLI **`--emit-shared-runtime-imports`**, **D281**; not with barrel) — see **`packages/cli/README.md`** (**DESIGN D252**, **D256**, **D258**, **D259**, **D272**, **D281**, **D260–D269**).
 
 ## Invariants
 

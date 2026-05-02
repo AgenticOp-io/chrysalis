@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Emit shared runtime imports (DESIGN D281):** **`emitStrategy.emitSharedRuntimeImports`** → **`src/chrysalis-runtime-imports.ts`**; **`chrysalis emit --emit-shared-runtime-imports`**; **`emit-hono`** / **`emit-fastify`** + **`@chrysalis/emit-shared`** **`buildChrysalisRuntimeSharedImportsModuleSource`**. Mutually exclusive with **`handlerImportBarrel`** / **`--emit-handler-import-barrel`**. **`docs/OPERATIONS.md`** command map + emit-side artifacts + **`--emit-resume`** note (aggregated import modules rewritten each successful emit). Vitest **`packages/cli/tests/emit-shared-runtime-imports-cli.test.ts`** (reject barrel combo + successful **`emit`** + **`--merge-all-shards`** with flag), **`packages/emit-shared/tests/chrysalis-handler-imports.test.ts`**, **`emit-hono` / `emit-fastify`** **`emitResume`** + **`routeRegistration.lazy`** + shared-imports integration; **`emit-hono`** **`golden-emit`** asserts **`emitSharedRuntimeImports`** login matches baseline golden with import path substitution.
+
 - **Ingest progress on verify/repair/insight (DESIGN D280):** **`chrysalis verify --ingest-progress-file`** (requires **`--project`**), **`repair`**, **`insight`** — same **`ingestDirectory`** option as **D277**.
 
 - **Ingest progress validation (DESIGN D278):** **`parseIngestProgressJson`**, **`readIngestProgressFile`** in **`@chrysalis/ingest`**; fixture **`fixtures/ci/ingest-progress-v0-smoke.json`**; **`docs/OPERATIONS.md`**, **`ROADMAP.md`** V2-M4, **`packages/emit-shared/README.md`**.
@@ -31,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`typecheck-and-test`:** Redis **7** service + PHP **redis** extension; **`pnpm run test:oracle-php-session-redis`** with **`CHRYSALIS_SESSION_REDIS_URL`** (**DESIGN D273**). Redis service health check aligned with **`shivammathur/setup-php`** examples; smoke step asserts **phpredis** before running.
 
 ### Fixed
+
+- **`buildFastifyChrysalisHandlerImportsSource`:** use **`runtimeExportNamesForAgg`** for the Fastify handler-import barrel (was a stale **`runtimeExportNames`** reference).
 
 - **Parser-bridge vendor without global Composer:** `pnpm test` pretest and `pnpm run vendor:parser-bridge` use `scripts/parser-bridge-composer-install.mjs` — try `composer` on `PATH`, else bootstrap `packages/parser-bridge/composer.phar` via the official installer when `php` is available (Windows-friendly).
 

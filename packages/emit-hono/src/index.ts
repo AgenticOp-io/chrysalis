@@ -17,6 +17,7 @@ import {
   aggregateEmittedHandlerImports,
   buildChrysalisRoutePathsModuleSource,
   buildChrysalisRuntimeFacadeModuleSource,
+  buildChrysalisRuntimeSharedImportsModuleSource,
   buildEmitHandlerFingerprintsJson,
   buildHonoChrysalisHandlerImportsSource,
   clearEmitResumeState,
@@ -135,6 +136,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   const routePathConstants = emitStrategy?.emitRoutePathConstants === true;
   const emitHandlerFingerprints = emitStrategy?.emitHandlerFingerprints === true;
   const runtimeFacadeModule = emitStrategy?.runtimeFacadeModule === true;
+  const emitSharedRuntimeImports = emitStrategy?.emitSharedRuntimeImports === true;
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
   const files: EmittedFile[] = [];
@@ -164,6 +166,11 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
 
   const routeRoots = nodesByDialect(m, "web.request", "route");
   const handlerImportBarrel = emitStrategy?.handlerImportBarrel === true;
+  if (emitSharedRuntimeImports && handlerImportBarrel) {
+    throw new Error(
+      "emit-hono: emitStrategy.emitSharedRuntimeImports cannot be combined with handlerImportBarrel",
+    );
+  }
   const routeJobs: Array<{
     attrs: { method: string; path: string; pathParams: ReadonlyArray<{ name: string }> };
     baseName: string;
@@ -211,6 +218,17 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     );
   }
 
+  if (emitSharedRuntimeImports && !handlerImportBarrel && routeJobs.length > 0) {
+    const agg = aggregateEmittedHandlerImports(routeJobs.map((j) => j.emitted));
+    await writeOne(
+      "src/chrysalis-runtime-imports.ts",
+      buildChrysalisRuntimeSharedImportsModuleSource(
+        runtimeFacadeModule ? "./chrysalis-runtime-facade.js" : "./runtime.js",
+        agg,
+      ),
+    );
+  }
+
   const handlerFingerprintRows: Array<{ name: string; sourceSha256: string }> = [];
   for (const job of routeJobs) {
     const handlerSrc = handlerFileText(
@@ -220,6 +238,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
       formatEmitProvenanceDisplay(provenanceRoot, job.phpFile),
       handlerImportBarrel,
       runtimeFacadeModule,
+      emitSharedRuntimeImports,
     );
     if (emitHandlerFingerprints) {
       handlerFingerprintRows.push({ name: job.baseName, sourceSha256: sha256Utf8Hex(handlerSrc) });
@@ -280,6 +299,7 @@ function handlerFileText(
   provenanceFile: string,
   useImportBarrel: boolean,
   useRuntimeFacade: boolean,
+  useSharedRuntimeImports: boolean,
 ): string {
   const domainImport =
     emitted.domainTypeImports.length > 0
@@ -296,7 +316,11 @@ function handlerFileText(
     : "";
   const runtimeFqn = emitted.usesPhpFqnNew ? "  phpFqnNew,\n" : "";
   const runtimeDynamicNew = emitted.usesPhpDynamicNew ? "  phpDynamicNew,\n" : "";
-  const runtimeModule = useRuntimeFacade ? "../chrysalis-runtime-facade.js" : "../runtime.js";
+  const runtimeModule = useSharedRuntimeImports
+    ? "../chrysalis-runtime-imports.js"
+    : useRuntimeFacade
+      ? "../chrysalis-runtime-facade.js"
+      : "../runtime.js";
 
   if (useImportBarrel) {
     return `import type { Context } from "../chrysalis-handler-imports.js";

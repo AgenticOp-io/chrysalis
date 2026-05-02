@@ -5,6 +5,8 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
+import { EMIT_RESUME_STATE_BASENAME } from "@chrysalis/emit-shared";
+import { ModuleBuilder, T, dataDialect, phpLocator, webRequest } from "@chrysalis/webir";
 import { emit } from "../src/index.js";
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
@@ -32,6 +34,78 @@ function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, ou
     provenanceRoot: FIXTURE,
   });
 }
+
+describe("emit-fastify: emitSharedRuntimeImports", () => {
+  test("emits chrysalis-runtime-imports.ts and handlers import through it", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-shared-rt-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitSharedRuntimeImports: true },
+      });
+      const shared = readFileSync(resolve(out, "src/chrysalis-runtime-imports.ts"), "utf8");
+      expect(shared).toContain('from "./runtime.js"');
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-imports.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("shared runtime module re-exports via facade when runtimeFacadeModule set", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-shared-rt-facade-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitSharedRuntimeImports: true, runtimeFacadeModule: true },
+      });
+      const shared = readFileSync(resolve(out, "src/chrysalis-runtime-imports.ts"), "utf8");
+      expect(shared).toContain('from "./chrysalis-runtime-facade.js"');
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-imports.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects emitSharedRuntimeImports with handlerImportBarrel", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-shared-barrel-bad-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await expect(
+        emit({
+          module: mod,
+          outDir: out,
+          schemaReport,
+          domainTypesByTable: domainTypesByTable(schemaReport),
+          provenanceRoot: FIXTURE,
+          emitStrategy: { emitSharedRuntimeImports: true, handlerImportBarrel: true },
+        }),
+      ).rejects.toThrow(/emitSharedRuntimeImports cannot be combined with handlerImportBarrel/);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
 
 describe("emit-fastify: runtimeFacadeModule", () => {
   test("emits chrysalis-runtime-facade.ts and handlers import through it", async () => {
@@ -138,6 +212,31 @@ describe("emit-fastify: tiny-blog output", () => {
       const server = readFileSync(resolve(out, "src/server.ts"), "utf8");
       expect(server).toContain('await import("./handlers/');
       expect(server).not.toContain('from "./handlers/login.js"');
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("lazy route registration works with emitSharedRuntimeImports", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-lazy-sri-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { routeRegistration: "lazy", emitSharedRuntimeImports: true },
+      });
+      const server = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(server).toContain('await import("./handlers/');
+      expect(existsSync(resolve(out, "src/chrysalis-runtime-imports.ts"))).toBe(true);
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-imports.js");
     } finally {
       rmSync(out, { recursive: true, force: true });
     }
@@ -300,6 +399,62 @@ describe("emit-fastify: flagship laravel-full chrysalis-templates", () => {
       expect(existsSync(resolve(out, "src/handlers/session_login_post.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/session_logout_post.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/echo_post.ts"))).toBe(true);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-fastify: emitResume", () => {
+  test("emitResume with emitSharedRuntimeImports restores skipped handler", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-resume-sri-"));
+    const emitStrategy = { emitSharedRuntimeImports: true as const };
+    try {
+      const mkMod = () => {
+        const b = new ModuleBuilder({ sourceApp: "emit-f-resume-sri" });
+        const d = dataDialect.builders(b);
+        const r = webRequest.builders(b);
+        const oa = phpLocator("pages/a.php", 1, 0);
+        const holeA = d.hole({ reason: "ra", input: T.unknown, output: T.string, origin: oa });
+        const hA = r.handler({
+          attrs: { name: "ha", input: T.record({}), output: T.string },
+          body: holeA,
+          effects: [],
+          origin: oa,
+        });
+        b.addRoot(r.route({ attrs: { method: "GET", path: "/a", pathParams: [] }, handler: hA, origin: oa }));
+        const ob = phpLocator("pages/b.php", 1, 0);
+        const holeB = d.hole({ reason: "rb", input: T.unknown, output: T.string, origin: ob });
+        const hB = r.handler({
+          attrs: { name: "hb", input: T.record({}), output: T.string },
+          body: holeB,
+          effects: [],
+          origin: ob,
+        });
+        b.addRoot(r.route({ attrs: { method: "GET", path: "/b", pathParams: [] }, handler: hB, origin: ob }));
+        return b.finish();
+      };
+      const mod = mkMod();
+      await emit({ module: mod, outDir: out, emitStrategy });
+      const sharedPath = resolve(out, "src/chrysalis-runtime-imports.ts");
+      expect(existsSync(sharedPath)).toBe(true);
+      const haPath = resolve(out, "src/handlers/ha.ts");
+      const hbPath = resolve(out, "src/handlers/hb.ts");
+      expect(readFileSync(haPath, "utf8")).toContain("../chrysalis-runtime-imports.js");
+      const haBefore = readFileSync(haPath, "utf8");
+      const hbBefore = readFileSync(hbPath, "utf8");
+      const sharedBefore = readFileSync(sharedPath, "utf8");
+      rmSync(hbPath);
+      writeFileSync(
+        resolve(out, EMIT_RESUME_STATE_BASENAME),
+        JSON.stringify({ version: 1, completedHandlers: ["src/handlers/ha.ts"] }),
+        "utf8",
+      );
+      await emit({ module: mod, outDir: out, emitResume: true, emitStrategy });
+      expect(readFileSync(haPath, "utf8")).toBe(haBefore);
+      expect(readFileSync(hbPath, "utf8")).toBe(hbBefore);
+      expect(readFileSync(sharedPath, "utf8")).toBe(sharedBefore);
+      expect(existsSync(resolve(out, EMIT_RESUME_STATE_BASENAME))).toBe(false);
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

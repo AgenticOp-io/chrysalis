@@ -33,4 +33,33 @@ describe("golden emitted TypeScript", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("login handler with emitSharedRuntimeImports matches golden fixture", async () => {
+    const mod = await ingestDirectory(FIXTURE);
+    const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-golden-sri-"));
+    try {
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitSharedRuntimeImports: true },
+      });
+      const actual = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      const expected = readFileSync(GOLDEN_LOGIN, "utf8").replace(
+        '} from "../runtime.js";',
+        '} from "../chrysalis-runtime-imports.js";',
+      );
+      expect(actual).toBe(expected);
+      expect(readFileSync(resolve(out, "src/chrysalis-runtime-imports.ts"), "utf8")).toContain(
+        'from "./runtime.js"',
+      );
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });

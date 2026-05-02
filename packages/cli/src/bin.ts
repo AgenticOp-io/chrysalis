@@ -112,7 +112,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file, verify|repair|insight --ingest-progress-file (verify needs --project); emit --emit-handler-fingerprints, --emit-runtime-facade; PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file, verify|repair|insight --ingest-progress-file (verify needs --project); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
@@ -398,7 +398,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>]",
     );
     return 2;
   }
@@ -443,6 +443,12 @@ async function cmdEmit(args: string[]): Promise<number> {
     console.error(routeReg.message);
     return 2;
   }
+  if (flags["emit-shared-runtime-imports"] === true && flags["emit-handler-import-barrel"] === true) {
+    console.error(
+      "error: --emit-shared-runtime-imports cannot be combined with --emit-handler-import-barrel",
+    );
+    return 2;
+  }
   const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
@@ -467,12 +473,14 @@ async function cmdEmit(args: string[]): Promise<number> {
     emitRoutePathConstants?: true;
     emitHandlerFingerprints?: true;
     runtimeFacadeModule?: true;
+    emitSharedRuntimeImports?: true;
   } = {
     ...(routeReg.value === "lazy" ? { routeRegistration: "lazy" as const } : {}),
     ...(flags["emit-handler-import-barrel"] === true ? { handlerImportBarrel: true as const } : {}),
     ...(flags["emit-route-path-constants"] === true ? { emitRoutePathConstants: true as const } : {}),
     ...(flags["emit-handler-fingerprints"] === true ? { emitHandlerFingerprints: true as const } : {}),
     ...(flags["emit-runtime-facade"] === true ? { runtimeFacadeModule: true as const } : {}),
+    ...(flags["emit-shared-runtime-imports"] === true ? { emitSharedRuntimeImports: true as const } : {}),
   };
   const emitOpts = {
     module: mod,
