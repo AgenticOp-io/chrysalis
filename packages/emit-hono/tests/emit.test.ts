@@ -402,6 +402,28 @@ describe("emit-hono: emitHandlerFingerprints", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("emitHandlerFingerprints works with emitSharedRuntimeImports", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-fp-sri-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitHandlerFingerprints: true, emitSharedRuntimeImports: true },
+      });
+      const raw = readFileSync(resolve(out, "chrysalis.emit-handler-fingerprints.json"), "utf8");
+      const j = JSON.parse(raw) as { kind: string; handlers: Record<string, string> };
+      expect(j.kind).toBe("chrysalis.emit.handlerFingerprints");
+      expect(Object.keys(j.handlers).length).toBeGreaterThan(0);
+      expect(existsSync(resolve(out, "src/chrysalis-runtime-imports.ts"))).toBe(true);
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-imports.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("emit-hono: runtimeFacadeModule", () => {
@@ -523,6 +545,26 @@ describe("emit-hono: emitRoutePathConstants", () => {
       const server = readFileSync(resolve(out, "src/server.ts"), "utf8");
       expect(server).toContain("ChrysalisRoutePaths");
       expect(server).toContain("./chrysalis-route-paths.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("emitRoutePathConstants works with emitSharedRuntimeImports", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-rpc-sri-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitRoutePathConstants: true, emitSharedRuntimeImports: true },
+      });
+      const server = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(server).toContain("ChrysalisRoutePaths");
+      expect(existsSync(resolve(out, "src/chrysalis-runtime-imports.ts"))).toBe(true);
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-imports.js");
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

@@ -241,6 +241,31 @@ describe("emit-fastify: tiny-blog output", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("emitRoutePathConstants works with emitSharedRuntimeImports", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-rpc-sri-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitRoutePathConstants: true, emitSharedRuntimeImports: true },
+      });
+      const server = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(server).toContain("ChrysalisRoutePaths");
+      expect(existsSync(resolve(out, "src/chrysalis-runtime-imports.ts"))).toBe(true);
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-imports.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("emit-fastify: dynamic new bridge", () => {
