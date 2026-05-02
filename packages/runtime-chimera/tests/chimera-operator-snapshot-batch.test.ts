@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -9,6 +9,16 @@ import {
   CHIMERA_OPERATOR_SNAPSHOT_BATCH_SCHEMA_VERSION,
   CHIMERA_OPERATOR_SNAPSHOT_KIND,
 } from "../src/chimera-operator-snapshot.js";
+
+function runAggregateScript(root: string, scriptAbs: string, fileArgs: string[], stdin?: string) {
+  const r = spawnSync(process.execPath, [scriptAbs, ...fileArgs], {
+    cwd: root,
+    encoding: "utf8",
+    input: stdin,
+    maxBuffer: 4 * 1024 * 1024,
+  });
+  return { status: r.status, stdout: r.stdout ?? "", stderr: r.stderr ?? "" };
+}
 
 describe("chimera operator-snapshot.batch fixture", () => {
   it("parses committed batch smoke JSON", () => {
@@ -50,5 +60,41 @@ describe("chimera operator-snapshot.batch fixture", () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  it("aggregate script reads NDJSON from stdin when given no file args", () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const root = resolve(here, "../../..");
+    const script = resolve(root, "scripts/aggregate-chimera-operator-snapshots.mjs");
+    const snapPath = resolve(here, "../../../fixtures/ci/chimera-operator-snapshot-v1-smoke.json");
+    const oneLine = JSON.stringify(JSON.parse(readFileSync(snapPath, "utf8")));
+    const { status, stdout } = runAggregateScript(root, script, [], `${oneLine}\n`);
+    expect(status).toBe(0);
+    const j = JSON.parse(stdout) as { kind: string; itemCount: number };
+    expect(j.kind).toBe(CHIMERA_OPERATOR_SNAPSHOT_BATCH_KIND);
+    expect(j.itemCount).toBe(1);
+  });
+
+  it("aggregate script exits 2 on invalid JSON line", () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const root = resolve(here, "../../..");
+    const script = resolve(root, "scripts/aggregate-chimera-operator-snapshots.mjs");
+    const { status, stderr } = runAggregateScript(root, script, [], "NOT_JSON\n");
+    expect(status).toBe(2);
+    expect(stderr).toMatch(/invalid JSON/i);
+  });
+
+  it("aggregate script exits 2 when kind is not chrysalis.chimera.operator-snapshot", () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const root = resolve(here, "../../..");
+    const script = resolve(root, "scripts/aggregate-chimera-operator-snapshots.mjs");
+    const { status, stderr } = runAggregateScript(
+      root,
+      script,
+      [],
+      `${JSON.stringify({ kind: "wrong.kind" })}\n`,
+    );
+    expect(status).toBe(2);
+    expect(stderr).toMatch(/expected kind/i);
   });
 });

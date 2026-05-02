@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **V2-M6 operator ergonomics (D260–D269):** **`chrysalis --help`** scale-out line documents **`--emit-handler-fingerprints`** + **`aggregate-chimera-operator-snapshots.mjs`**; root **`README.md`** machine-JSON table rows; **`docs/README.md`**, **`emit-shared`**, **`emit-hono`**, **`emit-fastify`** README updates; Vitest **stdin**, **invalid JSON**, and **wrong kind** coverage for the aggregate script.
+
 - **V2-M5 / V2-M6 (D259):** **`chrysalis.chimera.operator-snapshot.batch`** (**`schemaVersion`:** **1**); **`scripts/aggregate-chimera-operator-snapshots.mjs`** (NDJSON → batch JSON); fixture **`fixtures/ci/chimera-operator-snapshot-batch-v1-smoke.json`**; **`emitStrategy.emitHandlerFingerprints`**, **`chrysalis.emit-handler-fingerprints.json`**, CLI **`--emit-handler-fingerprints`**; Vitest + extended **`pnpm run ci:chimera-operator-snapshot`**.
 
 - **V2-M4 / V2-M5 / V2-M6 (D258):** **`chrysalis.chimera.operator-snapshot`** + **`deployRoutingFingerprintSha256`**; **`chrysalis deploy --operator-metrics-json`**, **`--operator-metrics-ndjson`**, **`--operator-metrics-interval-ms`**, **`CHRYSALIS_CHIMERA_INSTANCE_ID`**; **`scripts/chimera-routing-fingerprint.mjs`**; **`pnpm run ci:chimera-operator-snapshot`**; **`emitStrategy.emitRoutePathConstants`**, **`buildChrysalisRoutePathsModuleSource`**, **`src/chrysalis-route-paths.ts`**, CLI **`--emit-route-path-constants`**; **`docs/OPERATIONS.md`** operator drift + fleet privacy; fixture **`fixtures/ci/chimera-operator-snapshot-v1-smoke.json`**.

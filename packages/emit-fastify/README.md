@@ -13,6 +13,7 @@ Emits a runnable **Fastify + `node:sqlite`** TypeScript project from a WebIR
   `src/schema.ts` + dependency), optional `domainTypesByTable` (archaeology row
   generics on `queryOne` / `queryAll`).
 - `EmitResult` — emitted files, holes, handler count, effects per handler.
+- **Emit strategy (CLI → `emitStrategy`):** same optional artifacts as **emit-hono** — **`chrysalis-route-paths.ts`**, **`chrysalis.emit-handler-fingerprints.json`**, resume/barrel/provenance/lazy routes — via **`chrysalis emit`** flags; see **`packages/cli/README.md`** (**DESIGN D252**, **D256**, **D258**, **D259**, **D260–D269**).
 
 ## Invariants
 
