@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **`chrysalis --help`:** scale-out line mentions **`--emit-runtime-facade`** and **`pnpm run test:oracle-php-session-redis`**; **`packages/cli/README.md`**, **`docs/ADMINISTRATION.md`** aligned.
+
 ### Fixed
 
 - **Parser-bridge vendor without global Composer:** `pnpm test` pretest and `pnpm run vendor:parser-bridge` use `scripts/parser-bridge-composer-install.mjs` — try `composer` on `PATH`, else bootstrap `packages/parser-bridge/composer.phar` via the official installer when `php` is available (Windows-friendly).

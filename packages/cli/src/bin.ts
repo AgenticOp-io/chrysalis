@@ -112,7 +112,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache; emit --emit-handler-fingerprints; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache; emit --emit-handler-fingerprints, --emit-runtime-facade; PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
