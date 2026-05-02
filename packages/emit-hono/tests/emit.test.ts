@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
-import { EMIT_RESUME_STATE_BASENAME } from "@chrysalis/emit-shared";
+import { EMIT_RESUME_STATE_BASENAME, summarizeEmittedTypeScriptLayout } from "@chrysalis/emit-shared";
 import { ModuleBuilder, T, dataDialect, phpLocator, webRequest } from "@chrysalis/webir";
 import { emit } from "../src/index.js";
 
@@ -469,6 +469,28 @@ describe("emit-hono: runtimeFacadeModule", () => {
 });
 
 describe("emit-hono: emitSharedRuntimeImports", () => {
+  test("summarizeEmittedTypeScriptLayout counts one extra .ts when shared module is emitted", async () => {
+    const baseOut = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-layout-base-"));
+    const sriOut = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-layout-sri-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await emit({ module: mod, outDir: baseOut, provenanceRoot: FIXTURE });
+      await emit({
+        module: mod,
+        outDir: sriOut,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitSharedRuntimeImports: true },
+      });
+      const baseLayout = summarizeEmittedTypeScriptLayout(baseOut);
+      const sriLayout = summarizeEmittedTypeScriptLayout(sriOut);
+      expect(sriLayout.tsFileCount).toBe(baseLayout.tsFileCount + 1);
+      expect(sriLayout.tsLineCount).toBeGreaterThan(baseLayout.tsLineCount);
+    } finally {
+      rmSync(baseOut, { recursive: true, force: true });
+      rmSync(sriOut, { recursive: true, force: true });
+    }
+  });
+
   test("emits chrysalis-runtime-imports.ts and handlers import through it", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-shared-rt-"));
     try {

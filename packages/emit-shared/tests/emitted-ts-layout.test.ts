@@ -28,4 +28,22 @@ describe("summarizeEmittedTypeScriptLayout", () => {
     expect(s.tsFileCount).toBe(0);
     expect(s.largestFileRelativePath).toBeNull();
   });
+
+  test("counts src/chrysalis-runtime-imports.ts like any other emitted .ts", () => {
+    const root = mkdtempSync(join(tmpdir(), "chrysalis-emit-layout-sri-file-"));
+    try {
+      mkdirSync(join(root, "src"), { recursive: true });
+      writeFileSync(
+        join(root, "src", "chrysalis-runtime-imports.ts"),
+        `export { escapeHtml } from "./runtime.js";\n`,
+        "utf8",
+      );
+      const s = summarizeEmittedTypeScriptLayout(root);
+      expect(s.tsFileCount).toBe(1);
+      expect(s.tsLineCount).toBeGreaterThanOrEqual(1);
+      expect(s.largestFileRelativePath).toBe("src/chrysalis-runtime-imports.ts");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
 });

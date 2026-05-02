@@ -81,4 +81,34 @@ describe("chrysalis emit --emit-shared-runtime-imports", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("emit with --emit-route-path-constants and --emit-shared-runtime-imports", () => {
+    const out = mkdtempSync(join(tmpdir(), "chrysalis-emit-cli-rpc-sri-"));
+    try {
+      const r = spawnSync(
+        process.execPath,
+        [
+          BIN,
+          "emit",
+          FIXTURE,
+          "--out",
+          out,
+          "--target",
+          "hono",
+          "--emit-route-path-constants",
+          "--emit-shared-runtime-imports",
+        ],
+        { encoding: "utf8", cwd: ROOT },
+      );
+      expect(r.status).toBe(0);
+      expect(existsSync(join(out, "src/chrysalis-route-paths.ts"))).toBe(true);
+      expect(existsSync(join(out, "src/chrysalis-runtime-imports.ts"))).toBe(true);
+      const server = readFileSync(join(out, "src/server.ts"), "utf8");
+      expect(server).toContain("ChrysalisRoutePaths");
+      const login = readFileSync(join(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-imports.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });
