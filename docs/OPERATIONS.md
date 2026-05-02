@@ -19,6 +19,8 @@ All examples assume repository root as current working directory and a built CLI
 
 Use `node packages/cli/dist/bin.js <subcommand> --help` if `chrysalis` is not on your PATH.
 
+**Contributors — PHP session bridge smoke (D273):** from the repo root, **`pnpm run test:oracle-php-session-redis`** exercises **`RedisChrysalisSessionHandler`** against **`CHRYSALIS_SESSION_REDIS_URL`** (requires **phpredis**). It **skips** when the extension or URL is unset. CI **`typecheck-and-test`** runs it with a Redis **7** service.
+
 ### Chimera deploy config (multi-node, V2-M5)
 
 For **several chimera processes** behind a load balancer, every instance should read the **same** routing file (mounted from config management, object storage, or a release artifact). Use the versioned envelope so incompatible parsers fail loudly:

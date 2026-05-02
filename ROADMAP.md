@@ -920,6 +920,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 - [x] **Privacy (doc slice, D258):** **`docs/OPERATIONS.md`** — **Fleet JSON and privacy (V2-M6)**; no third-party telemetry; self-hosted or air-gapped JSON artifacts only.
 - [x] **Operator JSON micro-slices (D260–D269):** **`chrysalis --help`** scale-out line + **`aggregate-chimera-operator-snapshots.mjs`** pointer; **`emit-shared` / `emit-hono` / `emit-fastify` / root `README.md` / `docs/README.md`** cross-links for **batch** + **emit-handler-fingerprints** artifacts; Vitest **stdin** + **invalid JSON** + **wrong kind** on the aggregate script (**`packages/runtime-chimera/tests/chimera-operator-snapshot-batch.test.ts`**).
 - [x] **Verify summary batch (D271):** **`chrysalis.verify.summary.batch`** + **`scripts/aggregate-verify-summaries.mjs`** for merging **`chrysalis verify --json-summary`** artifacts offline; **`pnpm run ci:verify-summary-batch`**; **`docs/OPERATIONS.md`** + root **`README.md`** machine-JSON table.
+- [x] **Operator doc refresh (D272–D273):** **`docs/README.md`** (Operations row + **`oracle-php`** pointer), **`docs/OPERATIONS.md`** (contributor **`pnpm run test:oracle-php-session-redis`** note), root **`README.md`** session parity paragraph (replaces stale Milestone 1 “session bridge” polish).
 
 **Done when:** documented reference architecture + sample exporter script or minimal UI—**optional** for tagging `v2.0.0` if V2-M1–V5 are complete.
 

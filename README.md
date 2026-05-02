@@ -119,9 +119,12 @@ with `--json` for machine-readable output.
 
 Other **`scripts/ci-gates.mjs`** entrypoints have matching **`pnpm run ci:*`** shims (**`ci:tiny-n1-insight`**, **`ci:rewrite-pre-xss`**, **`ci:confidence-5nines`**, **`ci:confidence-trend`**, **`ci:confidence-trend-ready`**, **`ci:migration-sidecar-floors`**, **`ci:emit-layout-floors`**, **`ci:corpus-merge-summary`**); pass a path after **`--`** when the gate accepts one.
 
-**Remaining polish for Milestone 1:** session bridge for chimera (PHP
-`$_SESSION` ↔ new-stack session store). Row-level generics from archaeology
-are wired when `domainTypesByTable` is passed (see D22 in [`DESIGN.md`](./DESIGN.md)).
+**Multi-stack session parity (V2-M5, DESIGN D178 / D273):** use the same
+**`CHRYSALIS_SESSION_REDIS_URL`** and cookie on emitted Node and legacy PHP; PHP
+calls **`Chrysalis\Oracle\Session\RedisChrysalisSessionHandler::registerFromEnv()`**
+before **`session_start()`** (see **`packages/oracle-php/README.md`**). File-backed
+JSON sessions remain for single-host demos. Row-level generics from archaeology
+are wired when **`domainTypesByTable`** is passed (see D22 in [`DESIGN.md`](./DESIGN.md)).
 See [`ROADMAP.md`](./ROADMAP.md).
 
 ## Read these first
