@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **V2-M6 / fleet (D271):** **`chrysalis.verify.summary.batch`** (**`schemaVersion`:** **1**); **`scripts/aggregate-verify-summaries.mjs`**; **`@chrysalis/verify`** **`VERIFY_SUMMARY_*`** constants; fixture **`fixtures/ci/verify-summary-batch-v1-smoke.json`**; **`pnpm run ci:verify-summary-batch`**; **`chrysalis --help`** scale-out line; **`docs/OPERATIONS.md`**.
+
 - **V2-M6 operator ergonomics (D260–D269):** **`chrysalis --help`** scale-out line documents **`--emit-handler-fingerprints`** + **`aggregate-chimera-operator-snapshots.mjs`**; root **`README.md`** machine-JSON table rows; **`docs/README.md`**, **`emit-shared`**, **`emit-hono`**, **`emit-fastify`** README updates; Vitest **stdin**, **invalid JSON**, and **wrong kind** coverage for the aggregate script.
 
 - **V2-M5 / V2-M6 (D259):** **`chrysalis.chimera.operator-snapshot.batch`** (**`schemaVersion`:** **1**); **`scripts/aggregate-chimera-operator-snapshots.mjs`** (NDJSON → batch JSON); fixture **`fixtures/ci/chimera-operator-snapshot-batch-v1-smoke.json`**; **`emitStrategy.emitHandlerFingerprints`**, **`chrysalis.emit-handler-fingerprints.json`**, CLI **`--emit-handler-fingerprints`**; Vitest + extended **`pnpm run ci:chimera-operator-snapshot`**.

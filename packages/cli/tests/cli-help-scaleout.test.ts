@@ -21,5 +21,6 @@ describe("chrysalis --help", () => {
     expect(r.stdout).toContain("--shard-count");
     expect(r.stdout).toContain("--emit-handler-fingerprints");
     expect(r.stdout).toContain("aggregate-chimera-operator-snapshots.mjs");
+    expect(r.stdout).toContain("aggregate-verify-summaries.mjs");
   });
 });

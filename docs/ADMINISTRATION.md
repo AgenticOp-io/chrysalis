@@ -41,7 +41,7 @@ node scripts/ci-gates.mjs emit-layout-floors [path/to/flagship-*-emit-stats.json
 node scripts/ci-gates.mjs session-bridge-release
 ```
 
-`pnpm run ci:*` shims exist at the repo root. Missing JSON and invalid JSON produce operator-oriented stderr (`DESIGN` D231). See [`AGENTS.md`](../AGENTS.md) Local `ci-gates` and root `README.md`. For a one-line map of V2 CLI scale-out flags (verify sharding, **`verify-merge`**, **`corpus-merge`**, ingest/emit sharding, **`--ingest-cache`**), run **`chrysalis --help`** locally (Vitest locks the banner text). **`pnpm run ci:chimera-operator-snapshot`** also exercises operator-snapshot **batch** JSON and **`emit-handler-fingerprints`** helpers (**DESIGN D259**). To merge **`--operator-metrics-ndjson`** captures offline, use **`scripts/aggregate-chimera-operator-snapshots.mjs`** (see **`docs/OPERATIONS.md`**).
+`pnpm run ci:*` shims exist at the repo root. Missing JSON and invalid JSON produce operator-oriented stderr (`DESIGN` D231). See [`AGENTS.md`](../AGENTS.md) Local `ci-gates` and root `README.md`. For a one-line map of V2 CLI scale-out flags (verify sharding, **`verify-merge`**, **`corpus-merge`**, ingest/emit sharding, **`--ingest-cache`**), run **`chrysalis --help`** locally (Vitest locks the banner text). **`pnpm run ci:chimera-operator-snapshot`** also exercises operator-snapshot **batch** JSON and **`emit-handler-fingerprints`** helpers (**DESIGN D259**). **`pnpm run ci:verify-summary-batch`** covers **`chrysalis.verify.summary.batch`** + **`aggregate-verify-summaries.mjs`** (**DESIGN D271**). To merge **`--operator-metrics-ndjson`** captures offline, use **`scripts/aggregate-chimera-operator-snapshots.mjs`** (see **`docs/OPERATIONS.md`**).
 
 ## Reports layout
 

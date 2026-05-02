@@ -24,6 +24,7 @@ diffs each response against what was captured.
   per route under `outDir`.
 - `mergeCorrectnessReports(reports)` — merges disjoint per-shard **`CorrectnessReport`** values (same shape as **`summary.json`**) into one report; callers must ensure shards partition traces.
 - `buildMergedVerifySummaryJson({ toolVersion, shardCount, inputs })` — wraps merged aggregate + endpoints in **`kind: "chrysalis.verify.summary.merged"`**, **`schemaVersion: 1`** (machine JSON for **`chrysalis verify-merge --json-out`**).
+- **`VERIFY_SUMMARY_KIND`**, **`VERIFY_SUMMARY_BATCH_KIND`**, **`VERIFY_SUMMARY_BATCH_SCHEMA_VERSION`** — constants for **`chrysalis verify --json-summary`** and offline **`chrysalis.verify.summary.batch`** rollups (**`scripts/aggregate-verify-summaries.mjs`**, **DESIGN D271**).
 - `normalizeBody` / `normalizeHeaders` — allowlisted normalization rules
   (timestamps, session-cookie values, UUIDs, whitespace). Exported so callers
   can extend them.

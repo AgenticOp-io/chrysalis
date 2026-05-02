@@ -71,3 +71,9 @@ export {
   type NormalizeRule,
   type Normalized,
 } from "./normalize.js";
+
+export {
+  VERIFY_SUMMARY_BATCH_KIND,
+  VERIFY_SUMMARY_BATCH_SCHEMA_VERSION,
+  VERIFY_SUMMARY_KIND,
+} from "./verify-summary-batch.js";

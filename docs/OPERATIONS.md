@@ -49,6 +49,14 @@ node scripts/aggregate-chimera-operator-snapshots.mjs ops-a.ndjson ops-b.ndjson 
 
 Stdout is a single **`chrysalis.chimera.operator-snapshot.batch`** document (**`schemaVersion`:** **1**; **`itemCount`**, **`items[]`**, **`wallTimeIso`**). Example committed fixture: **`fixtures/ci/chimera-operator-snapshot-batch-v1-smoke.json`**.
 
+**Verify summary batch (D271):** collect **`chrysalis verify --json-summary`** lines (or one pretty-printed summary per file) from shard/replica runs, then merge:
+
+```bash
+node scripts/aggregate-verify-summaries.mjs shard0.json shard1.json > verify-batch.json
+```
+
+Stdout is **`chrysalis.verify.summary.batch`** (**`schemaVersion`:** **1**). Fixture: **`fixtures/ci/verify-summary-batch-v1-smoke.json`**. **`pnpm run ci:verify-summary-batch`** runs Vitest coverage.
+
 ### HMAC secret rotation (KMS-style runbook)
 
 1. **Generate** a new HMAC key in your KMS; keep the old key available during cutover.

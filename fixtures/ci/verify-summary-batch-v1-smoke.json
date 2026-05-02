@@ -1,0 +1,40 @@
+{
+  "kind": "chrysalis.verify.summary.batch",
+  "schemaVersion": 1,
+  "wallTimeIso": "2026-05-02T00:00:00.000Z",
+  "itemCount": 2,
+  "items": [
+    {
+      "kind": "chrysalis.verify.summary",
+      "schemaVersion": 1,
+      "toolVersion": "1.0.1",
+      "corpusRoot": "fixtures/tiny-blog/traces",
+      "baseUrl": "http://127.0.0.1:3000",
+      "reportDir": "reports/verify-a",
+      "summaryPath": "reports/verify-a/summary.json",
+      "threshold": 0.95,
+      "aggregate": { "framesTotal": 3, "framesPassed": 3, "correctness": 1 },
+      "failedFrameCount": 0,
+      "failedTraceCount": 0,
+      "divergenceKinds": [],
+      "endpoints": [],
+      "pass": true
+    },
+    {
+      "kind": "chrysalis.verify.summary",
+      "schemaVersion": 1,
+      "toolVersion": "1.0.1",
+      "corpusRoot": "fixtures/tiny-blog/traces",
+      "baseUrl": "http://127.0.0.1:3001",
+      "reportDir": "reports/verify-b",
+      "summaryPath": "reports/verify-b/summary.json",
+      "threshold": 0.95,
+      "aggregate": { "framesTotal": 2, "framesPassed": 2, "correctness": 1 },
+      "failedFrameCount": 0,
+      "failedTraceCount": 0,
+      "divergenceKinds": [],
+      "endpoints": [],
+      "pass": true
+    }
+  ]
+}
