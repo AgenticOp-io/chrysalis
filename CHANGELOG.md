@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **V2-M2 ingest runbook (DESIGN D275):** **`docs/OPERATIONS.md`** — *Ingest scale and resume (V2-M2 runbook)*; **`ROADMAP.md`** V2-M2 progress; **`docs/README.md`**; **`docs/ADMINISTRATION.md`** CI gates paragraph; **`DESIGN.md`** Decision Log.
 - **V2-M6 closure (DESIGN D274):** **`docs/OPERATIONS.md`** — *Fleet aggregation reference (V2-M6 closure)*; **`ROADMAP.md`** marks **V2-M6** closed and updates **`v2.0.0` tag criteria**; **`docs/README.md`** Operations row; **`DESIGN.md`** Decision Log.
 - **`chrysalis --help`:** scale-out line mentions **`--emit-runtime-facade`** and **`pnpm run test:oracle-php-session-redis`**; **`packages/cli/README.md`**, **`docs/ADMINISTRATION.md`** aligned.
 - **Emit READMEs:** **`emit-hono`** / **`emit-fastify`** document **`runtimeFacadeModule`** / **`--emit-runtime-facade`** (**D272**). Root **`README.md`** machine-readable table adds the runtime-facade row.

@@ -124,6 +124,18 @@ node packages/cli/dist/bin.js ingest fixtures/tiny-blog --parser-provider nikic
 
 Archaeology-backed domain types flow through emit when configured; see root README and `packages/archaeology/README.md`.
 
+### Ingest scale and resume (V2-M2 runbook)
+
+There is **no** first-class **ingest** crash-resume state file (unlike **`chrysalis emit --emit-resume`** and **`<outDir>/.chrysalis-emit-state.json`**, **DESIGN D254**). Operators restart large ingests safely using:
+
+1. **`--ingest-cache <dir>`** — AST JSON cache keyed by **SHA-256** of file bytes + parser provider + **`INGEST_AST_CACHE_VERSION`**. Survives process restarts; **invalid** cache entries are rejected and the source file is re-parsed (**`packages/ingest`**, **`parse-cache.test.ts`**).
+
+2. **Route sharding** — **`--shard-index i --shard-count K`** filters routes per manifest bucket; **`--merge-all-shards --shard-count K`** on **`ingest` / `emit` / `status`** ingests each shard and **`mergeWebIrModules`** (**DESIGN D246–D248**, **`ROADMAP` V2-M2**). Retry a failed **shard** by re-running the same **`i`**, **`K`** pair.
+
+3. **Recovery:** after a failed monolithic ingest, fix the underlying error (I/O, OOM, syntax), keep the same cache directory, and re-run **`ingest`** — unchanged files hit the cache. For **sharded** pipelines, complete missing shards, then run **`--merge-all-shards`** when all shards **`0 … K-1`** have been ingested successfully.
+
+4. **Wall-clock guard:** optional **`CHRYSALIS_INGEST_BUDGET_MS`** is honored by the synthetic many-route ingest stress test; production estates should prefer **sharding** + **cache** over one giant process. **RSS** caps remain future work.
+
 ## Oracle: observe and corpus
 
 1. Start observe (example port 8080):
