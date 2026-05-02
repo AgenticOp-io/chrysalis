@@ -379,6 +379,48 @@ describe("emit-hono: emitHandlerFingerprints", () => {
   });
 });
 
+describe("emit-hono: runtimeFacadeModule", () => {
+  test("emits chrysalis-runtime-facade.ts and handlers import through it", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-facade-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { runtimeFacadeModule: true },
+      });
+      const facade = readFileSync(resolve(out, "src/chrysalis-runtime-facade.ts"), "utf8");
+      expect(facade).toContain('export * from "./runtime.js"');
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-facade.js");
+      expect(login).not.toContain('from "../runtime.js"');
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("barrel mode re-exports runtime via facade when both flags set", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-facade-barrel-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { handlerImportBarrel: true, runtimeFacadeModule: true },
+      });
+      const barrel = readFileSync(resolve(out, "src/chrysalis-handler-imports.ts"), "utf8");
+      expect(barrel).toContain("./chrysalis-runtime-facade.js");
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-handler-imports.js");
+      expect(login).not.toContain("chrysalis-runtime-facade");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("emit-hono: emitRoutePathConstants", () => {
   test("emits chrysalis-route-paths.ts and server uses ChrysalisRoutePaths", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-rpc-"));

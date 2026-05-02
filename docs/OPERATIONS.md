@@ -9,7 +9,7 @@ All examples assume repository root as current working directory and a built CLI
 | Goal | Typical entrypoint |
 | --- | --- |
 | PHP to WebIR | `chrysalis ingest <php-root>` |
-| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-route-path-constants`** (**DESIGN D256**, **D258**), **`--emit-handler-fingerprints`** (**D259**) |
+| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-route-path-constants`** (**DESIGN D256**, **D258**), **`--emit-handler-fingerprints`** (**D259**), **`--emit-runtime-facade`** (**D272**) |
 | Record live PHP traffic | `chrysalis observe <php-root> --traces <dir> …` |
 | Summarize a corpus | `chrysalis corpus <traces-dir>` |
 | Replay corpus against emitted app | `chrysalis verify <traces-dir> --base-url <url> --report <dir>` |
@@ -72,7 +72,7 @@ Stdout is **`chrysalis.verify.summary.batch`** (**`schemaVersion`:** **1**). Fix
 - **Same route map everywhere:** mount one versioned **`chrysalis.chimera.config`** (or legacy implicit v0 file) on every chimera instance, or inject equivalent env/flags at boot. The load balancer must not pin “different configs” per node during cutover.
 - **Drain before config flips:** shrink traffic on a cell, wait for **`chimera`** in-flight requests (and upstream PHP-FPM / Node pools) to finish, then roll the file and restart instances in a wave. Roll back by restoring the prior file revision and reversing the wave.
 - **Canary and shadow:** **`ChimeraStats`** (**`@chrysalis/runtime-chimera`**) exposes per-process counters; aggregate in your metrics stack. Canary stickiness uses the configured cookie/header/IP salt so a user stays on one stack; keep that cookie **sticky to the chimera layer** (LB session affinity or client → same chimera IP) so the bucket is meaningful across retries.
-- **Sessions:** until **M6** Redis (or equivalent) is the shared session store, file-backed SQLite sessions in emitted apps are per-instance; dual-stack login flows that rely on shared session state need either **one** modern node behind chimera or the **Redis** bridge described in **`packages/runtime-chimera`** / **`ROADMAP`** session items.
+- **Sessions:** for **multi-host** dual-stack login, point **both** emitted Node and legacy PHP at the same **`CHRYSALIS_SESSION_REDIS_URL`** and cookie (**`CHRYSALIS_SESSION_COOKIE`**, default **`chrysalis_sid`**). Node uses the built-in Redis mode in emitted **`session.ts`**; PHP registers **`Chrysalis\Oracle\Session\RedisChrysalisSessionHandler::registerFromEnv()`** before **`session_start()`** (**DESIGN D178 / D273**, **`packages/oracle-php`**). File-backed or SQLite session files are **per-instance** unless shared storage mounts them; use Redis for LB + chimera fan-out.
 - **Hot reload:** **`chrysalis deploy`** reloads on **SIGHUP** / **SIGUSR2** when using **`--config`** or **`--config-url`** (**DESIGN D256**). **Windows** signal support is limited; prefer restarts there.
 - **Emit crash resume:** **`chrysalis emit … --emit-resume`** skips rewriting handler files already recorded under **`<outDir>/.chrysalis-emit-state.json`**; scaffolding and **`chrysalis.holes.json`** are always regenerated on a successful run. Remove **`--emit-resume`** for a clean slate (the CLI clears stale state when resume is off).
 

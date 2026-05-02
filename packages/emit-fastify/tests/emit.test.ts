@@ -33,6 +33,32 @@ function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, ou
   });
 }
 
+describe("emit-fastify: runtimeFacadeModule", () => {
+  test("emits chrysalis-runtime-facade.ts and handlers import through it", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-facade-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { runtimeFacadeModule: true },
+      });
+      const facade = readFileSync(resolve(out, "src/chrysalis-runtime-facade.ts"), "utf8");
+      expect(facade).toContain('export * from "./runtime.js"');
+      const login = readFileSync(resolve(out, "src/handlers/login.ts"), "utf8");
+      expect(login).toContain("../chrysalis-runtime-facade.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("emit-fastify: emitHandlerFingerprints", () => {
   test("writes chrysalis.emit-handler-fingerprints.json", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-fp-"));

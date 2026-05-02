@@ -16,6 +16,7 @@ import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
 import {
   aggregateEmittedHandlerImports,
   buildChrysalisRoutePathsModuleSource,
+  buildChrysalisRuntimeFacadeModuleSource,
   buildEmitHandlerFingerprintsJson,
   buildHonoChrysalisHandlerImportsSource,
   clearEmitResumeState,
@@ -133,6 +134,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   const routeRegistration = emitStrategy?.routeRegistration ?? "eager";
   const routePathConstants = emitStrategy?.emitRoutePathConstants === true;
   const emitHandlerFingerprints = emitStrategy?.emitHandlerFingerprints === true;
+  const runtimeFacadeModule = emitStrategy?.runtimeFacadeModule === true;
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
   const files: EmittedFile[] = [];
@@ -154,6 +156,9 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   await writeOne("src/ctx.ts", CTX_TS);
   await writeOne("src/session.ts", SESSION_TS);
   await writeOne("src/runtime.ts", RUNTIME_TS);
+  if (runtimeFacadeModule) {
+    await writeOne("src/chrysalis-runtime-facade.ts", buildChrysalisRuntimeFacadeModuleSource());
+  }
 
   const bindings: RouteBinding[] = [];
 
@@ -200,7 +205,10 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
 
   if (handlerImportBarrel && routeJobs.length > 0) {
     const agg = aggregateEmittedHandlerImports(routeJobs.map((j) => j.emitted));
-    await writeOne("src/chrysalis-handler-imports.ts", buildHonoChrysalisHandlerImportsSource(agg));
+    await writeOne(
+      "src/chrysalis-handler-imports.ts",
+      buildHonoChrysalisHandlerImportsSource(agg, { runtimeFacadeModule }),
+    );
   }
 
   const handlerFingerprintRows: Array<{ name: string; sourceSha256: string }> = [];
@@ -211,6 +219,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
       job.effectTags,
       formatEmitProvenanceDisplay(provenanceRoot, job.phpFile),
       handlerImportBarrel,
+      runtimeFacadeModule,
     );
     if (emitHandlerFingerprints) {
       handlerFingerprintRows.push({ name: job.baseName, sourceSha256: sha256Utf8Hex(handlerSrc) });
@@ -270,6 +279,7 @@ function handlerFileText(
   effectTags: ReadonlyArray<string>,
   provenanceFile: string,
   useImportBarrel: boolean,
+  useRuntimeFacade: boolean,
 ): string {
   const domainImport =
     emitted.domainTypeImports.length > 0
@@ -286,6 +296,7 @@ function handlerFileText(
     : "";
   const runtimeFqn = emitted.usesPhpFqnNew ? "  phpFqnNew,\n" : "";
   const runtimeDynamicNew = emitted.usesPhpDynamicNew ? "  phpDynamicNew,\n" : "";
+  const runtimeModule = useRuntimeFacade ? "../chrysalis-runtime-facade.js" : "../runtime.js";
 
   if (useImportBarrel) {
     return `import type { Context } from "../chrysalis-handler-imports.js";
@@ -329,7 +340,7 @@ ${runtimeBatch}  microtimeString,
   passwordVerify,
   __hole,
 ${runtimeFqn}${runtimeDynamicNew}  __respond,
-${runtimeZod}} from "../runtime.js";
+${runtimeZod}} from "${runtimeModule}";
 
 /**
  * @chrysalis-provenance ${JSON.stringify(provenanceFile)}

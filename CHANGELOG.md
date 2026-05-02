@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **V2-M5 session bridge (D273):** **`Chrysalis\Oracle\Session\RedisChrysalisSessionHandler`** + **`registerFromEnv()`** (**`packages/oracle-php`**) — PHP sessions in Redis using the same **`chrysalis:sess:`** JSON keys as emitted apps with **`CHRYSALIS_SESSION_REDIS_URL`** (**DESIGN D178**). Optional smoke **`packages/oracle-php/tests/redis_session_bridge_smoke.php`**. **`docs/OPERATIONS.md`** and **`oracle-php` README** updated.
+
+- **V2-M4 (D272):** **`emitStrategy.runtimeFacadeModule`**, **`buildChrysalisRuntimeFacadeModuleSource`**, emitted **`src/chrysalis-runtime-facade.ts`**; **`emit-hono`** / **`emit-fastify`** + optional **`chrysalis-handler-imports`** barrel route runtime imports through the facade; CLI **`chrysalis emit --emit-runtime-facade`**.
+
 - **V2-M6 / fleet (D271):** **`chrysalis.verify.summary.batch`** (**`schemaVersion`:** **1**); **`scripts/aggregate-verify-summaries.mjs`**; **`@chrysalis/verify`** **`VERIFY_SUMMARY_*`** constants; fixture **`fixtures/ci/verify-summary-batch-v1-smoke.json`**; **`pnpm run ci:verify-summary-batch`**; **`chrysalis --help`** scale-out line; **`docs/OPERATIONS.md`**.
 
 - **V2-M6 operator ergonomics (D260–D269):** **`chrysalis --help`** scale-out line documents **`--emit-handler-fingerprints`** + **`aggregate-chimera-operator-snapshots.mjs`**; root **`README.md`** machine-JSON table rows; **`docs/README.md`**, **`emit-shared`**, **`emit-hono`**, **`emit-fastify`** README updates; Vitest **stdin**, **invalid JSON**, and **wrong kind** coverage for the aggregate script.

@@ -23,4 +23,9 @@ export interface ChrysalisEmitStrategyV1 {
    * handler source (drift / build cache hints, **DESIGN D259**). Default **false**.
    */
   readonly emitHandlerFingerprints?: boolean;
+  /**
+   * Emit **`src/chrysalis-runtime-facade.ts`** (re-export of **`./runtime.js`**) and route runtime
+   * imports through it from handlers and the optional import barrel (**DESIGN D272**). Default **false**.
+   */
+  readonly runtimeFacadeModule?: boolean;
 }

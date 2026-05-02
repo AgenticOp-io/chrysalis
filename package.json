@@ -23,6 +23,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:oracle-php-redactor": "php packages/oracle-php/tests/redactor_sql_rows_test.php && php packages/oracle-php/tests/redactor_sql_params_test.php",
+    "test:oracle-php-session-redis": "php packages/oracle-php/tests/redis_session_bridge_smoke.php",
     "ci:emit-check": "node scripts/run-e2e.mjs && npm install --no-audit --no-fund --prefix generated/tiny-blog && npx tsc --noEmit -p generated/tiny-blog/tsconfig.json && node scripts/emit-tiny-blog-fastify.mjs && npm install --no-audit --no-fund --prefix generated/tiny-blog-fastify && npx tsc --noEmit -p generated/tiny-blog-fastify/tsconfig.json",
     "ci:insight": "node packages/cli/dist/bin.js insight fixtures/tiny-n1 --out reports/insight/tiny-n1.json --json && node scripts/ci-gates.mjs tiny-n1-insight",
     "update:golden": "pnpm build && node scripts/update-golden-snapshots.mjs",

@@ -360,7 +360,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
     );
     return 2;
   }
@@ -417,11 +417,13 @@ async function cmdEmit(args: string[]): Promise<number> {
     handlerImportBarrel?: true;
     emitRoutePathConstants?: true;
     emitHandlerFingerprints?: true;
+    runtimeFacadeModule?: true;
   } = {
     ...(routeReg.value === "lazy" ? { routeRegistration: "lazy" as const } : {}),
     ...(flags["emit-handler-import-barrel"] === true ? { handlerImportBarrel: true as const } : {}),
     ...(flags["emit-route-path-constants"] === true ? { emitRoutePathConstants: true as const } : {}),
     ...(flags["emit-handler-fingerprints"] === true ? { emitHandlerFingerprints: true as const } : {}),
+    ...(flags["emit-runtime-facade"] === true ? { runtimeFacadeModule: true as const } : {}),
   };
   const emitOpts = {
     module: mod,

@@ -61,12 +61,22 @@ function runtimeExportNames(agg: AggregatedHandlerImportNeeds): string[] {
   return lines;
 }
 
+export interface BuildChrysalisHandlerImportsOptions {
+  /** When true, runtime re-exports use **`./chrysalis-runtime-facade.js`** (DESIGN D272). */
+  readonly runtimeFacadeModule?: boolean;
+}
+
 /** Hono: shared barrel at **`src/chrysalis-handler-imports.ts`**. */
-export function buildHonoChrysalisHandlerImportsSource(agg: AggregatedHandlerImportNeeds): string {
+export function buildHonoChrysalisHandlerImportsSource(
+  agg: AggregatedHandlerImportNeeds,
+  options?: BuildChrysalisHandlerImportsOptions,
+): string {
   const db = agg.usesQueryAllWhereIn
     ? "queryAll, queryAllWhereIn, queryOne, execSql, db"
     : "queryAll, queryOne, execSql, db";
   const rt = runtimeExportNames(agg);
+  const runtimeFrom =
+    options?.runtimeFacadeModule === true ? "./chrysalis-runtime-facade.js" : "./runtime.js";
   const parts: string[] = [
     `export type { Context } from "hono";`,
     `export { getCookie } from "hono/cookie";`,
@@ -76,16 +86,21 @@ export function buildHonoChrysalisHandlerImportsSource(agg: AggregatedHandlerImp
   if (agg.usesChrysalisTimeOrRandom) {
     parts.push(`export { chrysalisNow, chrysalisRandom } from "./ctx.js";`);
   }
-  parts.push(`export {\n  ${rt.join(",\n  ")},\n} from "./runtime.js";\n`);
+  parts.push(`export {\n  ${rt.join(",\n  ")},\n} from "${runtimeFrom}";\n`);
   return parts.join("\n");
 }
 
 /** Fastify: shared barrel at **`src/chrysalis-handler-imports.ts`**. */
-export function buildFastifyChrysalisHandlerImportsSource(agg: AggregatedHandlerImportNeeds): string {
+export function buildFastifyChrysalisHandlerImportsSource(
+  agg: AggregatedHandlerImportNeeds,
+  options?: BuildChrysalisHandlerImportsOptions,
+): string {
   const db = agg.usesQueryAllWhereIn
     ? "queryAll, queryAllWhereIn, queryOne, execSql, db"
     : "queryAll, queryOne, execSql, db";
   const rt = runtimeExportNames(agg);
+  const runtimeFrom =
+    options?.runtimeFacadeModule === true ? "./chrysalis-runtime-facade.js" : "./runtime.js";
   const parts: string[] = [
     `export type { FastifyReply, FastifyRequest } from "fastify";`,
     `export { ${db} } from "./db.js";`,
@@ -94,7 +109,7 @@ export function buildFastifyChrysalisHandlerImportsSource(agg: AggregatedHandler
   if (agg.usesChrysalisTimeOrRandom) {
     parts.push(`export { chrysalisNow, chrysalisRandom } from "./ctx.js";`);
   }
-  parts.push(`export {\n  ${rt.join(",\n  ")},\n} from "./runtime.js";\n`);
+  parts.push(`export {\n  ${rt.join(",\n  ")},\n} from "${runtimeFrom}";\n`);
   return parts.join("\n");
 }
 

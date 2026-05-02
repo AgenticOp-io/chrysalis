@@ -122,7 +122,9 @@ There is no safe way to intercept global `mail()` from userland. Use
 `Chrysalis\Oracle\Mail::send(...)` as a drop-in when you want `mail.send`
 events (subject/to redaction uses `mail.subject` / `mail.to` rules).
 
-## Session bridge (with emitted Hono apps)
+## Session bridge (with emitted Hono / Fastify apps)
+
+### File-backed (`CHRYSALIS_SESSION_DIR`)
 
 When the emitted app sets `CHRYSALIS_SESSION_DIR`, it persists session data as
 `{dir}/{sid}.json`. To share state with PHP, use the **same** directory, the
@@ -130,6 +132,19 @@ same cookie name (`CHRYSALIS_SESSION_COOKIE`, default `chrysalis_sid`), and
 read/write JSON objects with the same keys (e.g. `user_id`). PHP must call
 `session_name()` to match the cookie name and load/save JSON compatible with
 Node (plain scalars and arrays — not PHP object graphs).
+
+### Redis (`CHRYSALIS_SESSION_REDIS_URL`, DESIGN D178 / D273)
+
+Emitted TypeScript uses Redis keys `chrysalis:sess:<sid>` with a JSON object
+payload (same cookie name env as above). For **legacy PHP** on the same origin,
+call **`Chrysalis\Oracle\Session\RedisChrysalisSessionHandler::registerFromEnv()`**
+once **before** `session_start()` when `CHRYSALIS_SESSION_REDIS_URL` is set to the
+same URL as the Node process. Requires the **phpredis** extension (`ext-redis`).
+The handler sets `session.serialize_handler` to `php_serialize` so PHP session
+arrays round-trip as JSON next to Node.
+
+`rediss://` (TLS) URLs are not parsed by the PHP helper; use a local proxy or extend
+the connector for your environment.
 
 ## Status
 

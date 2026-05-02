@@ -33,7 +33,8 @@ walker and framework-specific HTTP surface via `HttpEmitProfile`.
 - `emitExpr`, `emitStmt` — lower-level helpers (mainly for tests).
 - `ident`, `stringLit`, … — TS text helpers.
 - **`summarizeEmittedTypeScriptLayout(outDir)`** — post-emit filesystem scan of **`.ts`** files (skips **`node_modules`**, **`chrysalis-sessions`**, …); returns **`EmittedTsLayout`** for **`emit-stats`** / dashboards (**V2-M4**, **DESIGN D250**).
-- **`ChrysalisEmitStrategyV1`**, **`ChrysalisEmitRouteRegistration`** — consumed by HTTP emitters for **`routeRegistration`** (**`eager`** vs **`lazy`** server binding; **DESIGN D252**).
+- **`ChrysalisEmitStrategyV1`**, **`ChrysalisEmitRouteRegistration`** — consumed by HTTP emitters for **`routeRegistration`** (**`eager`** vs **`lazy`** server binding; **DESIGN D252**) and optional **`runtimeFacadeModule`** (**`src/chrysalis-runtime-facade.ts`**, **DESIGN D272**).
+- **`buildChrysalisRuntimeFacadeModuleSource`** — text for **`src/chrysalis-runtime-facade.ts`** (**`export * from "./runtime.js"`**) when **`emitStrategy.runtimeFacadeModule`** is set.
 - **`formatEmitProvenanceDisplay(provenanceRoot, originFile)`** — stable posix path for **`@chrysalis-provenance`** in emitted handlers when **`provenanceRoot`** is the PHP project directory.
 - **Per-handler emit fingerprints (D259):** **`buildEmitHandlerFingerprintsJson`**, **`EMIT_HANDLER_FINGERPRINTS_KIND`**, **`EMIT_HANDLER_FINGERPRINTS_SCHEMA_VERSION`**, **`sha256Utf8Hex`** — when **`emitStrategy.emitHandlerFingerprints`** is set, HTTP emitters write **`chrysalis.emit-handler-fingerprints.json`** (SHA-256 of each emitted handler source text at **`outDir`**).
 

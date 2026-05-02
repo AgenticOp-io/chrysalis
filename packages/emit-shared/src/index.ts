@@ -36,7 +36,9 @@ export {
   fastifyBarrelValueImportClause,
   honoBarrelValueImportClause,
   type AggregatedHandlerImportNeeds,
+  type BuildChrysalisHandlerImportsOptions,
 } from "./chrysalis-handler-imports.js";
+export { buildChrysalisRuntimeFacadeModuleSource } from "./chrysalis-runtime-facade.js";
 export {
   buildChrysalisRoutePathsModuleSource,
   normalizeEmitRoutePath,
