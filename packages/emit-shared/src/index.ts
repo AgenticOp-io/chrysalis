@@ -42,3 +42,9 @@ export {
   normalizeEmitRoutePath,
   type ChrysalisRoutePathBinding,
 } from "./chrysalis-route-paths.js";
+export {
+  EMIT_HANDLER_FINGERPRINTS_KIND,
+  EMIT_HANDLER_FINGERPRINTS_SCHEMA_VERSION,
+  buildEmitHandlerFingerprintsJson,
+  sha256Utf8Hex,
+} from "./emit-handler-fingerprints.js";

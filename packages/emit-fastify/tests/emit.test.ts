@@ -33,6 +33,32 @@ function writeDomainAndEmit(mod: Awaited<ReturnType<typeof ingestDirectory>>, ou
   });
 }
 
+describe("emit-fastify: emitHandlerFingerprints", () => {
+  test("writes chrysalis.emit-handler-fingerprints.json", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-fp-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      const schemaReport = runArchaeology({ schemaPath: FIXTURE_SCHEMA });
+      mkdirSync(resolve(out, "src"), { recursive: true });
+      writeFileSync(resolve(out, "src/domain.ts"), emitTypes(schemaReport), "utf8");
+      await emit({
+        module: mod,
+        outDir: out,
+        schemaReport,
+        domainTypesByTable: domainTypesByTable(schemaReport),
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitHandlerFingerprints: true },
+      });
+      const raw = readFileSync(resolve(out, "chrysalis.emit-handler-fingerprints.json"), "utf8");
+      const j = JSON.parse(raw) as { kind: string; handlers: Record<string, string> };
+      expect(j.kind).toBe("chrysalis.emit.handlerFingerprints");
+      expect(Object.keys(j.handlers).length).toBe(5);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("emit-fastify: tiny-blog output", () => {
   test("emits Fastify server and schema; login uses req/reply", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-"));

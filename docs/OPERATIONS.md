@@ -9,7 +9,7 @@ All examples assume repository root as current working directory and a built CLI
 | Goal | Typical entrypoint |
 | --- | --- |
 | PHP to WebIR | `chrysalis ingest <php-root>` |
-| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-route-path-constants`** (**DESIGN D256**, **D258**) |
+| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-route-path-constants`** (**DESIGN D256**, **D258**), **`--emit-handler-fingerprints`** (**D259**) |
 | Record live PHP traffic | `chrysalis observe <php-root> --traces <dir> …` |
 | Summarize a corpus | `chrysalis corpus <traces-dir>` |
 | Replay corpus against emitted app | `chrysalis verify <traces-dir> --base-url <url> --report <dir>` |
@@ -40,6 +40,14 @@ Omit **`kind`** only for legacy single-file configs (implicit v0). **`chrysalis 
 - **`CHRYSALIS_CHIMERA_INSTANCE_ID`** — defaults to **`hostname:pid`**.
 
 **Offline fingerprint (CI/scripts):** `node scripts/chimera-routing-fingerprint.mjs path/to/chimera.json` prints the same routing fingerprint hex (**requires** built **`packages/runtime-chimera/dist/`**, i.e. **`pnpm -r build`**).
+
+**Fleet batch merge (D259):** append **`--operator-metrics-ndjson`** lines from many nodes into one or more **NDJSON** files, then merge offline:
+
+```bash
+node scripts/aggregate-chimera-operator-snapshots.mjs ops-a.ndjson ops-b.ndjson > operator-batch.json
+```
+
+Stdout is a single **`chrysalis.chimera.operator-snapshot.batch`** document (**`schemaVersion`:** **1**; **`itemCount`**, **`items[]`**, **`wallTimeIso`**). Example committed fixture: **`fixtures/ci/chimera-operator-snapshot-batch-v1-smoke.json`**.
 
 ### HMAC secret rotation (KMS-style runbook)
 

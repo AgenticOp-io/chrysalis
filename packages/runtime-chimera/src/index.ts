@@ -29,6 +29,8 @@ export {
   type ParseChimeraDeployConfigOptions,
 } from "./chimera-deploy-config.js";
 export {
+  CHIMERA_OPERATOR_SNAPSHOT_BATCH_KIND,
+  CHIMERA_OPERATOR_SNAPSHOT_BATCH_SCHEMA_VERSION,
   CHIMERA_OPERATOR_SNAPSHOT_KIND,
   CHIMERA_OPERATOR_SNAPSHOT_SCHEMA_VERSION,
   buildChimeraOperatorSnapshot,

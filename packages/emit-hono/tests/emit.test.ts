@@ -356,6 +356,29 @@ describe("emit-hono: handlerImportBarrel", () => {
   });
 });
 
+describe("emit-hono: emitHandlerFingerprints", () => {
+  test("writes chrysalis.emit-handler-fingerprints.json with stable kind", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-fp-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE);
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitHandlerFingerprints: true },
+      });
+      const raw = readFileSync(resolve(out, "chrysalis.emit-handler-fingerprints.json"), "utf8");
+      const j = JSON.parse(raw) as { kind: string; schemaVersion: number; handlers: Record<string, string> };
+      expect(j.kind).toBe("chrysalis.emit.handlerFingerprints");
+      expect(j.schemaVersion).toBe(1);
+      expect(Object.keys(j.handlers).length).toBeGreaterThan(0);
+      expect(Object.values(j.handlers).every((h) => /^[0-9a-f]{64}$/.test(h))).toBe(true);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("emit-hono: emitRoutePathConstants", () => {
   test("emits chrysalis-route-paths.ts and server uses ChrysalisRoutePaths", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-rpc-"));

@@ -10,6 +10,7 @@ import { emitDrizzleSchema, type SchemaReport } from "@chrysalis/archaeology";
 import {
   aggregateEmittedHandlerImports,
   buildChrysalisRoutePathsModuleSource,
+  buildEmitHandlerFingerprintsJson,
   buildFastifyChrysalisHandlerImportsSource,
   clearEmitResumeState,
   emitHandlerBody,
@@ -20,6 +21,7 @@ import {
   ident,
   loadEmitResumeCompletedHandlers,
   markEmitResumeHandlerComplete,
+  sha256Utf8Hex,
   type ChrysalisEmitStrategyV1,
   type EmittedHandler,
 } from "@chrysalis/emit-shared";
@@ -101,6 +103,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   const resumeSet = emitResume ? loadEmitResumeCompletedHandlers(outDir) : null;
   const routeRegistration = emitStrategy?.routeRegistration ?? "eager";
   const routePathConstants = emitStrategy?.emitRoutePathConstants === true;
+  const emitHandlerFingerprints = emitStrategy?.emitHandlerFingerprints === true;
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
   const files: EmittedFile[] = [];
@@ -170,6 +173,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     await writeOne("src/chrysalis-handler-imports.ts", buildFastifyChrysalisHandlerImportsSource(agg));
   }
 
+  const handlerFingerprintRows: Array<{ name: string; sourceSha256: string }> = [];
   for (const job of routeJobs) {
     const handlerSrc = handlerFileText(
       job.baseName,
@@ -178,6 +182,9 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
       formatEmitProvenanceDisplay(provenanceRoot, job.phpFile),
       handlerImportBarrel,
     );
+    if (emitHandlerFingerprints) {
+      handlerFingerprintRows.push({ name: job.baseName, sourceSha256: sha256Utf8Hex(handlerSrc) });
+    }
     const skipWrite = resumeSet !== null && resumeSet.has(job.handlerRel);
     if (!skipWrite) {
       await writeOne(job.handlerFile, handlerSrc);
@@ -204,6 +211,12 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   await writeOne("src/server.ts", SERVER_TS(imports, registrations));
   await writeOne("src/index.ts", INDEX_TS);
   await writeOne("chrysalis.holes.json", JSON.stringify(allHoles, null, 2));
+  if (emitHandlerFingerprints && handlerFingerprintRows.length > 0) {
+    await writeOne(
+      "chrysalis.emit-handler-fingerprints.json",
+      buildEmitHandlerFingerprintsJson({ handlers: handlerFingerprintRows, sourceApp: appName }),
+    );
+  }
 
   clearEmitResumeState(outDir);
 

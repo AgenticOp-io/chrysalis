@@ -18,4 +18,9 @@ export interface ChrysalisEmitStrategyV1 {
    * **`ChrysalisRoutePaths`** in **`server.ts`** (drift-friendly, V2-M4). Default **false**.
    */
   readonly emitRoutePathConstants?: boolean;
+  /**
+   * Write **`chrysalis.emit-handler-fingerprints.json`** with per-handler **SHA-256** of emitted
+   * handler source (drift / build cache hints, **DESIGN D259**). Default **false**.
+   */
+  readonly emitHandlerFingerprints?: boolean;
 }

@@ -1,0 +1,58 @@
+{
+  "kind": "chrysalis.chimera.operator-snapshot.batch",
+  "schemaVersion": 1,
+  "wallTimeIso": "2026-04-30T00:00:00.000Z",
+  "itemCount": 2,
+  "items": [
+    {
+      "kind": "chrysalis.chimera.operator-snapshot",
+      "schemaVersion": 1,
+      "wallTimeIso": "2026-04-30T00:00:00.000Z",
+      "instanceId": "cell-a",
+      "configLabel": "s3://cfg/chimera.json",
+      "deployRoutingFingerprintSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "stats": {
+        "total": 1,
+        "byTarget": { "legacy": 1, "modern": 0 },
+        "shadow": {
+          "requests": 0,
+          "agreed": 0,
+          "diverged": 0,
+          "divergenceLines": 0,
+          "mirrorErrors": 0
+        },
+        "canary": {
+          "modernRuleMatches": 0,
+          "servedModern": 0,
+          "servedLegacyWhileModernRule": 0,
+          "noModernRule": 0
+        }
+      }
+    },
+    {
+      "kind": "chrysalis.chimera.operator-snapshot",
+      "schemaVersion": 1,
+      "wallTimeIso": "2026-04-30T00:00:01.000Z",
+      "instanceId": "cell-b",
+      "configLabel": "s3://cfg/chimera.json",
+      "deployRoutingFingerprintSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "stats": {
+        "total": 2,
+        "byTarget": { "legacy": 1, "modern": 1 },
+        "shadow": {
+          "requests": 0,
+          "agreed": 0,
+          "diverged": 0,
+          "divergenceLines": 0,
+          "mirrorErrors": 0
+        },
+        "canary": {
+          "modernRuleMatches": 0,
+          "servedModern": 0,
+          "servedLegacyWhileModernRule": 0,
+          "noModernRule": 0
+        }
+      }
+    }
+  ]
+}

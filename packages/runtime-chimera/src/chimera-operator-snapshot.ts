@@ -11,6 +11,11 @@ export const CHIMERA_OPERATOR_SNAPSHOT_KIND = "chrysalis.chimera.operator-snapsh
 
 export const CHIMERA_OPERATOR_SNAPSHOT_SCHEMA_VERSION = 1 as const;
 
+/** NDJSON aggregation envelope (DESIGN D259). */
+export const CHIMERA_OPERATOR_SNAPSHOT_BATCH_KIND = "chrysalis.chimera.operator-snapshot.batch" as const;
+
+export const CHIMERA_OPERATOR_SNAPSHOT_BATCH_SCHEMA_VERSION = 1 as const;
+
 export interface ChimeraOperatorSnapshotV1 {
   readonly kind: typeof CHIMERA_OPERATOR_SNAPSHOT_KIND;
   readonly schemaVersion: typeof CHIMERA_OPERATOR_SNAPSHOT_SCHEMA_VERSION;
