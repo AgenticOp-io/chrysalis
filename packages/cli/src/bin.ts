@@ -112,7 +112,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file; emit --emit-handler-fingerprints, --emit-runtime-facade; PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file, verify|repair|insight --ingest-progress-file (verify needs --project); emit --emit-handler-fingerprints, --emit-runtime-facade; PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
@@ -771,7 +771,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--ingest-cache <dir>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -785,6 +785,15 @@ async function cmdVerify(args: string[]): Promise<number> {
     console.error(cacheOpts.message);
     return 2;
   }
+  const progressOptsVerify = ingestProgressFileFromFlags(flags, { mode: "none" });
+  if (!progressOptsVerify.ok) {
+    console.error(progressOptsVerify.message);
+    return 2;
+  }
+  if (progressOptsVerify.ingestProgressFile !== undefined && !projectRoot) {
+    console.error("error: --ingest-progress-file requires --project for verify");
+    return 2;
+  }
   const jsonSummary = flags["json-summary"] === true;
   const vlog = jsonSummary ? (m: string) => console.error(m) : (m: string) => console.log(m);
 
@@ -792,9 +801,15 @@ async function cmdVerify(args: string[]): Promise<number> {
   vlog(`[verify] loaded ${corpus.traces.length} traces from ${corpusRoot}`);
   let verifyModule: Module | undefined;
   if (projectRoot) {
+    if (progressOptsVerify.ingestProgressFile !== undefined) {
+      vlog(`[verify] ingest progress JSON: ${progressOptsVerify.ingestProgressFile}`);
+    }
     verifyModule = await ingestDirectory(projectRoot, {
       ...(parserProvider ? { parserProvider } : {}),
       ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
+      ...(progressOptsVerify.ingestProgressFile !== undefined
+        ? { ingestProgressFile: progressOptsVerify.ingestProgressFile }
+        : {}),
     });
     vlog(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
   }
@@ -1054,7 +1069,7 @@ async function cmdRepair(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (!corpusRoot || !baseUrl || !projectRoot) {
     console.error(
-      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--ingest-cache <dir>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -1079,6 +1094,11 @@ async function cmdRepair(args: string[]): Promise<number> {
     console.error(cacheOpts.message);
     return 2;
   }
+  const progressOptsRepair = ingestProgressFileFromFlags(flags, { mode: "none" });
+  if (!progressOptsRepair.ok) {
+    console.error(progressOptsRepair.message);
+    return 2;
+  }
 
   const replayParsed = resolveVerifyReplayExtras(flags);
   if (!replayParsed.ok) {
@@ -1093,9 +1113,15 @@ async function cmdRepair(args: string[]): Promise<number> {
   }
 
   const corpus = readCorpus({ root: resolve(corpusRoot) });
+  if (progressOptsRepair.ingestProgressFile !== undefined) {
+    console.log(`[repair] ingest progress JSON: ${progressOptsRepair.ingestProgressFile}`);
+  }
   const webirModule = await ingestDirectory(projectRoot, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
+    ...(progressOptsRepair.ingestProgressFile !== undefined
+      ? { ingestProgressFile: progressOptsRepair.ingestProgressFile }
+      : {}),
   });
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
 
@@ -1675,6 +1701,7 @@ async function cmdInsight(args: string[]): Promise<number> {
         "                         [--traces <dir>] [--out <report.json>]\n" +
         "                         [--only raw-sql-concat,unescaped-output,n-plus-one-queries,scattered-validation,string-dispatch]\n" +
         "                         [--ingest-cache <dir>]\n" +
+        "                         [--ingest-progress-file <path>]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -1687,10 +1714,18 @@ async function cmdInsight(args: string[]): Promise<number> {
     console.error(cacheOpts.message);
     return 2;
   }
+  const progressOptsInsight = ingestProgressFileFromFlags(flags, { mode: "none" });
+  if (!progressOptsInsight.ok) {
+    console.error(progressOptsInsight.message);
+    return 2;
+  }
 
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
+    ...(progressOptsInsight.ingestProgressFile !== undefined
+      ? { ingestProgressFile: progressOptsInsight.ingestProgressFile }
+      : {}),
   });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
