@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### CI
 
-- **`typecheck-and-test`:** Redis **7** service + PHP **redis** extension; **`pnpm run test:oracle-php-session-redis`** with **`CHRYSALIS_SESSION_REDIS_URL`** (**DESIGN D273**).
+- **`typecheck-and-test`:** Redis **7** service + PHP **redis** extension; **`pnpm run test:oracle-php-session-redis`** with **`CHRYSALIS_SESSION_REDIS_URL`** (**DESIGN D273**). Redis service health check aligned with **`shivammathur/setup-php`** examples; smoke step asserts **phpredis** before running.
 
 ### Fixed
 

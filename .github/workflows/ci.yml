@@ -24,14 +24,11 @@ jobs:
           --health-timeout=5s
           --health-retries=30
       redis:
-        image: redis:7-alpine
+        image: redis:7
         ports:
           - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 4s
-          --health-timeout 3s
-          --health-retries 5
+        # Match shivammathur/setup-php service examples (laravel-mysql.yml): stable Docker health parsing.
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v4
 
@@ -69,7 +66,9 @@ jobs:
       - name: Oracle-php Redis session bridge smoke (D273)
         env:
           CHRYSALIS_SESSION_REDIS_URL: redis://127.0.0.1:6379/0
-        run: pnpm run test:oracle-php-session-redis
+        run: |
+          php -r 'if (!extension_loaded("redis")) { fwrite(STDERR, "error: phpredis (redis) extension not loaded\n"); exit(1);}'
+          pnpm run test:oracle-php-session-redis
 
       - name: Oracle-php mysqli capture smoke (MySQL 8 service)
         env:
