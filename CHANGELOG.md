@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - **`chrysalis --help`:** scale-out line mentions **`--emit-runtime-facade`** and **`pnpm run test:oracle-php-session-redis`**; **`packages/cli/README.md`**, **`docs/ADMINISTRATION.md`** aligned.
+- **Emit READMEs:** **`emit-hono`** / **`emit-fastify`** document **`runtimeFacadeModule`** / **`--emit-runtime-facade`** (**D272**). Root **`README.md`** machine-readable table adds the runtime-facade row.
+
+### CI
+
+- **`typecheck-and-test`:** Redis **7** service + PHP **redis** extension; **`pnpm run test:oracle-php-session-redis`** with **`CHRYSALIS_SESSION_REDIS_URL`** (**DESIGN D273**).
 
 ### Fixed
 

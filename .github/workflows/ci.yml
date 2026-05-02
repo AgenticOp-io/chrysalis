@@ -23,6 +23,15 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=30
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 4s
+          --health-timeout 3s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -41,7 +50,7 @@ jobs:
         with:
           php-version: "8.3"
           tools: composer:v2
-          extensions: mysqli
+          extensions: mysqli, redis
 
       - name: Typecheck
         run: pnpm -r typecheck
@@ -56,6 +65,11 @@ jobs:
         run: |
           php packages/oracle-php/tests/redactor_sql_rows_test.php
           php packages/oracle-php/tests/redactor_sql_params_test.php
+
+      - name: Oracle-php Redis session bridge smoke (D273)
+        env:
+          CHRYSALIS_SESSION_REDIS_URL: redis://127.0.0.1:6379/0
+        run: pnpm run test:oracle-php-session-redis
 
       - name: Oracle-php mysqli capture smoke (MySQL 8 service)
         env:

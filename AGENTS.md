@@ -82,7 +82,10 @@ If you touch **`packages/oracle/src/redaction.ts`** (`DEFAULT_REDACTION`) or
 **`packages/oracle-php/src/Redactor.php`**, keep paths and semantics aligned and run
 **`pnpm run test:oracle-php-redactor`** with PHP on `PATH` before pushing. CI also runs
 those smoke tests in **`typecheck-and-test`**, **`oracle-live-drive`**, and **`verify-e2e`**
-(plus flagship verify jobs).
+(plus flagship verify jobs). If you touch **`packages/oracle-php/src/Session/`** or session
+bridge semantics, run **`pnpm run test:oracle-php-session-redis`** with **`CHRYSALIS_SESSION_REDIS_URL`**
+and **phpredis** when possible; CI **`typecheck-and-test`** runs that script against a Redis **7**
+service with the **redis** PHP extension.
 
 ### Parser-bridge vendor (nikic Vitest)
 
