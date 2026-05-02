@@ -914,6 +914,8 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 ### Milestone V2-M6 — Operator aggregation (optional, last)
 
+**Status: closed (2026-05-02).** Reference: **`docs/OPERATIONS.md`** — **Fleet aggregation reference (V2-M6 closure)**; **DESIGN D274**.
+
 **Goal:** **Fleet view**—many repos or many shards—feeds a dashboard that aggregates **`chrysalis status --json`** and verify summaries **without** becoming a new source of truth (read-only mirror of repo artifacts).
 
 - [x] **Schema (v0 reference uplink):** fixture **`fixtures/ci/fleet-status-uplink-v0-smoke.json`** (**`kind`:** **`chrysalis.fleet.status-uplink`**, **`schemaVersion`:** **0**; **`items[].projectLabel`** + **`items[].status`**); Vitest **`fleet-status-uplink-schema.test.ts`** + **`fleet-status-uplink-export-script.test.ts`**; **`scripts/export-fleet-status-uplink.mjs`**. **Remaining:** richer exporter / UI, privacy review per deployment.
@@ -922,7 +924,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 - [x] **Verify summary batch (D271):** **`chrysalis.verify.summary.batch`** + **`scripts/aggregate-verify-summaries.mjs`** for merging **`chrysalis verify --json-summary`** artifacts offline; **`pnpm run ci:verify-summary-batch`**; **`docs/OPERATIONS.md`** + root **`README.md`** machine-JSON table.
 - [x] **Operator doc refresh (D272–D273):** **`docs/README.md`** (Operations row + **`oracle-php`** pointer), **`docs/OPERATIONS.md`** (contributor **`pnpm run test:oracle-php-session-redis`** note), root **`README.md`** session parity paragraph (replaces stale Milestone 1 “session bridge” polish).
 
-**Done when:** documented reference architecture + sample exporter script or minimal UI—**optional** for tagging `v2.0.0` if V2-M1–V5 are complete.
+**Done when (met):** documented reference architecture (**`docs/OPERATIONS.md`** fleet aggregation section) + offline merge scripts (**`aggregate-chimera-operator-snapshots.mjs`**, **`aggregate-verify-summaries.mjs`**) + **`export-fleet-status-uplink.mjs`** + machine-JSON index (root **`README.md`**). **Optional** richer exporter UI / hosted dashboard remains **operator-owned** (not required for closure).
 
 ### Sequencing vs multi-lane work
 
@@ -936,6 +938,7 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 - V2-M1 **and** V2-M2 **closed** (verify sharding + ingest resume are non-negotiable for “any size”).
 - At least **one** of V2-M3 / V2-M4 **closed** (operators choose corpus-scale vs emit-scale priority).
 - V2-M5 **closed** or explicitly **deferred** with DESIGN Decision Log entry if release must slip.
+- V2-M6 **closed** (operator aggregation reference + offline merge scripts documented; **DESIGN D274**) or explicitly deferred.
 - `CHANGELOG.md` + `DESIGN.md` Decision Log summarize scale contracts (`schemaVersion` bumps, corpus layout version, chimera config version).
 
 

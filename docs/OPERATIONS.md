@@ -93,6 +93,22 @@ node packages/cli/dist/bin.js status --project fixtures/tiny-blog --json > /tmp/
 pnpm run fleet:export-status-uplink -- --payload-json /tmp/st.json --project-label fixtures/tiny-blog
 ```
 
+### Fleet aggregation reference (V2-M6 closure)
+
+Chrysalis **does not** operate a hosted fleet dashboard or third-party telemetry. **V2-M6** is **closed** when operators can assemble a **read-only** view from **repo-local and CI-generated JSON** plus **offline merge scripts**—the same contracts as the root **`README.md`** machine-readable table.
+
+**Offline merge and batch contracts**
+
+| Kind | Script / entry | CI gate (when applicable) |
+| --- | --- | --- |
+| **`chrysalis.chimera.operator-snapshot.batch`** | **`scripts/aggregate-chimera-operator-snapshots.mjs`** (NDJSON lines or stdin) | **`pnpm run ci:chimera-operator-snapshot`** |
+| **`chrysalis.verify.summary.batch`** | **`scripts/aggregate-verify-summaries.mjs`** | **`pnpm run ci:verify-summary-batch`** |
+| **`chrysalis.fleet.status-uplink`** (**`schemaVersion`:** **0**) | **`scripts/export-fleet-status-uplink.mjs`** (**`pnpm run fleet:export-status-uplink`**) | Vitest **`fleet-status-uplink-*`** |
+
+**Emit-side artifacts** (per project **`--out`**, not a single fleet kind): **`chrysalis.emit.handlerFingerprints`** (**`--emit-handler-fingerprints`**), optional **`src/chrysalis-runtime-facade.ts`** (**`--emit-runtime-facade`**, **DESIGN D272**).
+
+**Out of scope (by design):** Chrysalis-operated multi-tenant SaaS, default-on third-party analytics, or automatic uplink to external vendors. Operators connect scripts to **their** metrics stack (Grafana, Loki, internal ETL). **Privacy:** *Fleet JSON and privacy (V2-M6)* above; **per-deployment** review of uplink bundles remains **operator-owned** (see also schema bullet **Remaining** in **`ROADMAP.md`**).
+
 ## Ingest and emit
 
 ```bash
