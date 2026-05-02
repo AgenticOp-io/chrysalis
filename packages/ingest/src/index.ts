@@ -158,9 +158,12 @@ export {
   INGEST_PROGRESS_KIND,
   INGEST_PROGRESS_SCHEMA_VERSION,
   fingerprintIngestRouteList,
+  parseIngestProgressJson,
+  readIngestProgressFile,
   recordIngestRouteProgress,
   routeKeyForIngestProgress,
   type IngestProgressStateV0,
+  type ParseIngestProgressResult,
 } from "./ingest-progress.js";
 export { filterRoutesForShard, routeFileShardBucket } from "./route-shard.js";
 export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects.js";

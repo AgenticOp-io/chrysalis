@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Ingest progress validation (DESIGN D278):** **`parseIngestProgressJson`**, **`readIngestProgressFile`** in **`@chrysalis/ingest`**; fixture **`fixtures/ci/ingest-progress-v0-smoke.json`**; **`docs/OPERATIONS.md`**, **`ROADMAP.md`** V2-M4, **`packages/emit-shared/README.md`**.
+
 - **Ingest progress JSON (DESIGN D277):** **`chrysalis.ingest.progress`** **`schemaVersion` 0** — optional **`--ingest-progress-file <path>`** on **`chrysalis ingest`**, **`emit`**, **`status --project`**; **`IngestOptions.ingestProgressFile`** in **`@chrysalis/ingest`**. Vitest **`packages/ingest/tests/ingest-progress-file.test.ts`**, **`packages/cli/tests/ingest-progress-file-cli.test.ts`**.
 
 ### Documentation

@@ -37,6 +37,7 @@ walker and framework-specific HTTP surface via `HttpEmitProfile`.
 - **`buildChrysalisRuntimeFacadeModuleSource`** — text for **`src/chrysalis-runtime-facade.ts`** (**`export * from "./runtime.js"`**) when **`emitStrategy.runtimeFacadeModule`** is set.
 - **`formatEmitProvenanceDisplay(provenanceRoot, originFile)`** — stable posix path for **`@chrysalis-provenance`** in emitted handlers when **`provenanceRoot`** is the PHP project directory.
 - **Per-handler emit fingerprints (D259):** **`buildEmitHandlerFingerprintsJson`**, **`EMIT_HANDLER_FINGERPRINTS_KIND`**, **`EMIT_HANDLER_FINGERPRINTS_SCHEMA_VERSION`**, **`sha256Utf8Hex`** — when **`emitStrategy.emitHandlerFingerprints`** is set, HTTP emitters write **`chrysalis.emit-handler-fingerprints.json`** (SHA-256 of each emitted handler source text at **`outDir`**).
+- **V2-M4 layout scalability (surface area, D278):** optional **`emitStrategy.handlerImportBarrel`** (**`src/chrysalis-handler-imports.ts`**), **`emitRoutePathConstants`**, **`emitHandlerFingerprints`**, **`runtimeFacadeModule`** reduce duplicated import noise and give operators stable hooks. **Per-handler bodies** stay one file per route unless **`routeRegistration.lazy`** splits server wiring; **deduplicating identical handler bodies** across routes is not implemented (would require IR-level commoning — **ROADMAP** V2-M4 *Remaining*).
 
 ## Invariants
 

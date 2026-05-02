@@ -69,20 +69,109 @@ function writeAtomicJson(path: string, value: unknown): void {
   renameSync(tmp, path);
 }
 
-function loadExisting(path: string): IngestProgressStateV0 | null {
+export type ParseIngestProgressResult =
+  | { ok: true; value: IngestProgressStateV0 }
+  | { ok: false; error: string };
+
+function isSha256Hex(s: string): boolean {
+  return /^[a-f0-9]{64}$/i.test(s);
+}
+
+/**
+ * Validate **`chrysalis.ingest.progress`** JSON (e.g. operator scripts, offline checks).
+ * Does not read from disk; see {@link readIngestProgressFile}.
+ */
+export function parseIngestProgressJson(raw: string): ParseIngestProgressResult {
+  let j: unknown;
+  try {
+    j = JSON.parse(raw) as unknown;
+  } catch {
+    return { ok: false, error: "invalid JSON" };
+  }
+  if (typeof j !== "object" || j === null || Array.isArray(j)) {
+    return { ok: false, error: "root must be a JSON object" };
+  }
+  const o = j as Record<string, unknown>;
+  if (o.kind !== INGEST_PROGRESS_KIND) {
+    return { ok: false, error: `kind must be ${JSON.stringify(INGEST_PROGRESS_KIND)}` };
+  }
+  if (o.schemaVersion !== INGEST_PROGRESS_SCHEMA_VERSION) {
+    return { ok: false, error: `schemaVersion must be ${String(INGEST_PROGRESS_SCHEMA_VERSION)}` };
+  }
+  if (typeof o.toolVersion !== "string" || o.toolVersion.length === 0) {
+    return { ok: false, error: "toolVersion must be a non-empty string" };
+  }
+  if (typeof o.manifestRouteFingerprint !== "string" || !isSha256Hex(o.manifestRouteFingerprint)) {
+    return { ok: false, error: "manifestRouteFingerprint must be a 64-character hex SHA-256 digest" };
+  }
+  if (typeof o.sourceApp !== "string" || o.sourceApp.length === 0) {
+    return { ok: false, error: "sourceApp must be a non-empty string" };
+  }
+  if (typeof o.projectRoot !== "string" || o.projectRoot.length === 0) {
+    return { ok: false, error: "projectRoot must be a non-empty string" };
+  }
+  if (!Array.isArray(o.completedRouteKeys)) {
+    return { ok: false, error: "completedRouteKeys must be an array" };
+  }
+  for (const k of o.completedRouteKeys) {
+    if (typeof k !== "string" || k.length === 0) {
+      return { ok: false, error: "completedRouteKeys must contain only non-empty strings" };
+    }
+  }
+  if (typeof o.updatedAt !== "string" || o.updatedAt.length === 0) {
+    return { ok: false, error: "updatedAt must be a non-empty string" };
+  }
+  let shardFilter: IngestProgressStateV0["shardFilter"];
+  if (o.shardFilter !== undefined) {
+    const sf = o.shardFilter;
+    if (typeof sf !== "object" || sf === null || Array.isArray(sf)) {
+      return { ok: false, error: "shardFilter must be an object when set" };
+    }
+    const sfo = sf as Record<string, unknown>;
+    if (typeof sfo.shardIndex !== "number" || !Number.isInteger(sfo.shardIndex)) {
+      return { ok: false, error: "shardFilter.shardIndex must be an integer" };
+    }
+    if (typeof sfo.shardCount !== "number" || !Number.isInteger(sfo.shardCount)) {
+      return { ok: false, error: "shardFilter.shardCount must be an integer" };
+    }
+    if (sfo.shardCount < 2) {
+      return { ok: false, error: "shardFilter.shardCount must be >= 2" };
+    }
+    if (sfo.shardIndex < 0 || sfo.shardIndex >= sfo.shardCount) {
+      return { ok: false, error: "shardFilter.shardIndex must satisfy 0 <= index < shardCount" };
+    }
+    shardFilter = { shardIndex: sfo.shardIndex, shardCount: sfo.shardCount };
+  }
+  const value: IngestProgressStateV0 = {
+    kind: INGEST_PROGRESS_KIND,
+    schemaVersion: INGEST_PROGRESS_SCHEMA_VERSION,
+    toolVersion: o.toolVersion,
+    manifestRouteFingerprint: o.manifestRouteFingerprint.toLowerCase(),
+    sourceApp: o.sourceApp,
+    projectRoot: o.projectRoot,
+    completedRouteKeys: o.completedRouteKeys as string[],
+    updatedAt: o.updatedAt,
+    ...(shardFilter !== undefined ? { shardFilter } : {}),
+  };
+  return { ok: true, value };
+}
+
+/**
+ * Read and strictly validate a progress file from disk.
+ */
+export function readIngestProgressFile(path: string): ParseIngestProgressResult {
   try {
     const raw = readFileSync(path, "utf8");
-    const j = JSON.parse(raw) as Partial<IngestProgressStateV0>;
-    if (j?.kind !== INGEST_PROGRESS_KIND || j.schemaVersion !== INGEST_PROGRESS_SCHEMA_VERSION) {
-      return null;
-    }
-    if (typeof j.manifestRouteFingerprint !== "string" || !Array.isArray(j.completedRouteKeys)) {
-      return null;
-    }
-    return j as IngestProgressStateV0;
-  } catch {
-    return null;
+    return parseIngestProgressJson(raw);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { ok: false, error: `read failed: ${msg}` };
   }
+}
+
+function loadExisting(path: string): IngestProgressStateV0 | null {
+  const r = readIngestProgressFile(path);
+  return r.ok ? r.value : null;
 }
 
 /**

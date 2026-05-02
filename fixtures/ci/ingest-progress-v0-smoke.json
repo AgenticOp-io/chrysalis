@@ -1,0 +1,14 @@
+{
+  "kind": "chrysalis.ingest.progress",
+  "schemaVersion": 0,
+  "toolVersion": "1.0.1",
+  "manifestRouteFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+  "sourceApp": "ci-smoke",
+  "projectRoot": "/tmp/chrysalis-ingest-progress-smoke",
+  "completedRouteKeys": ["GET /health"],
+  "updatedAt": "2026-05-02T12:00:00.000Z",
+  "shardFilter": {
+    "shardIndex": 0,
+    "shardCount": 2
+  }
+}

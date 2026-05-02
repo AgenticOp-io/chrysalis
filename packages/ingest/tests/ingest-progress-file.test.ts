@@ -7,6 +7,8 @@ import {
   INGEST_PROGRESS_SCHEMA_VERSION,
   fingerprintIngestRouteList,
   ingestDirectory,
+  parseIngestProgressJson,
+  readIngestProgressFile,
 } from "../src/index.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -35,6 +37,11 @@ describe("ingest progress file (diagnostic JSON)", () => {
       const fp = fingerprintIngestRouteList(manifest.routes);
       expect(j.manifestRouteFingerprint).toBe(fp);
       expect(j.completedRouteKeys.length).toBe(manifest.routes.length);
+      const parsed = readIngestProgressFile(progressPath);
+      expect(parsed.ok).toBe(true);
+      if (parsed.ok) {
+        expect(parsed.value.completedRouteKeys.length).toBe(manifest.routes.length);
+      }
     } finally {
       try {
         unlinkSync(progressPath);
@@ -42,5 +49,19 @@ describe("ingest progress file (diagnostic JSON)", () => {
         /* test cleanup */
       }
     }
+  });
+
+  it("parseIngestProgressJson accepts fixture smoke file and rejects bad kind", () => {
+    const fixturePath = join(HERE, "../../../fixtures/ci/ingest-progress-v0-smoke.json");
+    const fromDisk = readIngestProgressFile(fixturePath);
+    expect(fromDisk.ok).toBe(true);
+    if (fromDisk.ok) {
+      expect(fromDisk.value.kind).toBe(INGEST_PROGRESS_KIND);
+      expect(fromDisk.value.manifestRouteFingerprint).toMatch(/^[a-f0-9]{64}$/);
+    }
+    const bad = parseIngestProgressJson(
+      JSON.stringify({ kind: "other", schemaVersion: 0, toolVersion: "x", manifestRouteFingerprint: "a".repeat(64), sourceApp: "a", projectRoot: "/", completedRouteKeys: [], updatedAt: "t" }),
+    );
+    expect(bad.ok).toBe(false);
   });
 });
