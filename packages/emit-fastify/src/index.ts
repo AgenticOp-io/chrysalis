@@ -14,7 +14,9 @@ import {
   buildChrysalisRuntimeSharedImportsModuleSource,
   buildEmitHandlerFingerprintsJson,
   buildFastifyChrysalisHandlerImportsSource,
+  chrysalisBodyDedupeExportId,
   clearEmitResumeState,
+  computeEmittedHandlerDedupeKey,
   emitHandlerBody,
   fastifyBarrelValueImportClause,
   formatEmitProvenanceDisplay,
@@ -108,6 +110,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   const emitHandlerFingerprints = emitStrategy?.emitHandlerFingerprints === true;
   const runtimeFacadeModule = emitStrategy?.runtimeFacadeModule === true;
   const emitSharedRuntimeImports = emitStrategy?.emitSharedRuntimeImports === true;
+  const emitDedupeIdenticalHandlerBodies = emitStrategy?.emitDedupeIdenticalHandlerBodies === true;
   const appName = m.meta.sourceApp || "chrysalis-app";
   const useDrizzle = schemaReport !== undefined;
   const files: EmittedFile[] = [];
@@ -199,8 +202,44 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     );
   }
 
+  const jobRelToDedupeExportId = new Map<string, string>();
+  const dedupeModuleWritten = new Set<string>();
+  if (emitDedupeIdenticalHandlerBodies && routeJobs.length > 1) {
+    const groups = new Map<string, (typeof routeJobs)[number][]>();
+    for (const job of routeJobs) {
+      const k = computeEmittedHandlerDedupeKey(job.emitted, job.effectTags);
+      const list = groups.get(k);
+      if (list) list.push(job);
+      else groups.set(k, [job]);
+    }
+    for (const [k, members] of groups) {
+      if (members.length < 2) continue;
+      const exportId = chrysalisBodyDedupeExportId(k);
+      for (const m of members) jobRelToDedupeExportId.set(m.handlerRel, exportId);
+    }
+    for (const job of routeJobs) {
+      const exportId = jobRelToDedupeExportId.get(job.handlerRel);
+      if (!exportId || dedupeModuleWritten.has(exportId)) continue;
+      dedupeModuleWritten.add(exportId);
+      const head = `/**\n * Shared lowered handler body (DESIGN D282). Regenerate with chrysalis emit.\n */\n`;
+      const modSrc =
+        head +
+        handlerFileText(
+          exportId,
+          job.emitted,
+          job.effectTags,
+          formatEmitProvenanceDisplay(undefined, "chrysalis:deduped-handler"),
+          false,
+          runtimeFacadeModule,
+          emitSharedRuntimeImports,
+        );
+      await writeOne(`src/chrysalis-deduped/${exportId}.ts`, modSrc);
+    }
+  }
+
   const handlerFingerprintRows: Array<{ name: string; sourceSha256: string }> = [];
   for (const job of routeJobs) {
+    const dedupeId = jobRelToDedupeExportId.get(job.handlerRel);
     const handlerSrc = handlerFileText(
       job.baseName,
       job.emitted,
@@ -209,6 +248,7 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
       handlerImportBarrel,
       runtimeFacadeModule,
       emitSharedRuntimeImports,
+      dedupeId !== undefined ? { thinDelegateToDeduped: dedupeId } : undefined,
     );
     if (emitHandlerFingerprints) {
       handlerFingerprintRows.push({ name: job.baseName, sourceSha256: sha256Utf8Hex(handlerSrc) });
@@ -268,7 +308,11 @@ function handlerFileText(
   useImportBarrel: boolean,
   useRuntimeFacade: boolean,
   useSharedRuntimeImports: boolean,
+  dedupe?: { readonly thinDelegateToDeduped: string },
 ): string {
+  const thin = dedupe?.thinDelegateToDeduped;
+  const dedupeImportLine = thin ? `import { ${thin} } from "../chrysalis-deduped/${thin}.js";\n` : "";
+  const fnBody = thin ? `return ${thin}(req, reply);\n` : emitted.body;
   const domainImport =
     emitted.domainTypeImports.length > 0
       ? `import type { ${emitted.domainTypeImports.join(", ")} } from "../domain.js";\n`
@@ -295,7 +339,7 @@ function handlerFileText(
 import {
   ${fastifyBarrelValueImportClause(emitted)}
 } from "../chrysalis-handler-imports.js";
-${domainImport}
+${dedupeImportLine}${domainImport}
 /**
  * @chrysalis-provenance ${JSON.stringify(provenanceFile)}
  * @chrysalis-effects ${effectTags.join(", ") || "(none inferred)"}
@@ -303,7 +347,7 @@ ${domainImport}
  * @chrysalis-holes ${emitted.holes.length}
  */
 export async function ${name}(req: FastifyRequest, reply: FastifyReply): Promise<FastifyReply | void> {
-${indent(emitted.body, 2)}
+${indent(fnBody, 2)}
 }
 `;
   }
@@ -312,7 +356,7 @@ ${indent(emitted.body, 2)}
     ? `import { chrysalisNow, chrysalisRandom } from "../ctx.js";\n`
     : "";
   return `import type { FastifyReply, FastifyRequest } from "fastify";
-${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";
+${dedupeImportLine}${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";
 import { getSession } from "../session.js";
 import {
   escapeHtml,
@@ -340,7 +384,7 @@ ${runtimeZod}} from "${runtimeModule}";
  * @chrysalis-holes ${emitted.holes.length}
  */
 export async function ${name}(req: FastifyRequest, reply: FastifyReply): Promise<FastifyReply | void> {
-${indent(emitted.body, 2)}
+${indent(fnBody, 2)}
 }
 `;
 }

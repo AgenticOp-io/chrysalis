@@ -51,3 +51,7 @@ export {
   buildEmitHandlerFingerprintsJson,
   sha256Utf8Hex,
 } from "./emit-handler-fingerprints.js";
+export {
+  chrysalisBodyDedupeExportId,
+  computeEmittedHandlerDedupeKey,
+} from "./emit-handler-body-dedupe.js";

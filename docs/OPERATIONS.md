@@ -9,7 +9,7 @@ All examples assume repository root as current working directory and a built CLI
 | Goal | Typical entrypoint |
 | --- | --- |
 | PHP to WebIR | `chrysalis ingest <php-root>` |
-| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-shared-runtime-imports`** (**D281**, not with barrel), **`--emit-route-path-constants`** (**DESIGN D256**, **D258**), **`--emit-handler-fingerprints`** (**D259**), **`--emit-runtime-facade`** (**D272**) |
+| WebIR to TS (Hono / Fastify) | `chrysalis emit … --target=hono` or `fastify`; optional **`--emit-resume`**, **`--emit-handler-import-barrel`**, **`--emit-shared-runtime-imports`** (**D281**, not with barrel), **`--emit-dedupe-identical-handler-bodies`** (**D282**), **`--emit-route-path-constants`** (**DESIGN D256**, **D258**), **`--emit-handler-fingerprints`** (**D259**), **`--emit-runtime-facade`** (**D272**) |
 | Record live PHP traffic | `chrysalis observe <php-root> --traces <dir> …` |
 | Summarize a corpus | `chrysalis corpus <traces-dir>` |
 | Replay corpus against emitted app | `chrysalis verify <traces-dir> --base-url <url> --report <dir>` |
@@ -105,7 +105,7 @@ Chrysalis **does not** operate a hosted fleet dashboard or third-party telemetry
 | **`chrysalis.verify.summary.batch`** | **`scripts/aggregate-verify-summaries.mjs`** | **`pnpm run ci:verify-summary-batch`** |
 | **`chrysalis.fleet.status-uplink`** (**`schemaVersion`:** **0**) | **`scripts/export-fleet-status-uplink.mjs`** (**`pnpm run fleet:export-status-uplink`**) | Vitest **`fleet-status-uplink-*`** |
 
-**Emit-side artifacts** (per project **`--out`**, not a single fleet kind): **`chrysalis.emit.handlerFingerprints`** (**`--emit-handler-fingerprints`**), optional **`src/chrysalis-runtime-facade.ts`** (**`--emit-runtime-facade`**, **DESIGN D272**), optional **`src/chrysalis-runtime-imports.ts`** (**`--emit-shared-runtime-imports`**, **DESIGN D281**; mutually exclusive with **`--emit-handler-import-barrel`**).
+**Emit-side artifacts** (per project **`--out`**, not a single fleet kind): **`chrysalis.emit.handlerFingerprints`** (**`--emit-handler-fingerprints`**), optional **`src/chrysalis-runtime-facade.ts`** (**`--emit-runtime-facade`**, **DESIGN D272**), optional **`src/chrysalis-runtime-imports.ts`** (**`--emit-shared-runtime-imports`**, **DESIGN D281**; mutually exclusive with **`--emit-handler-import-barrel`**), optional **`src/chrysalis-deduped/*.ts`** (**`--emit-dedupe-identical-handler-bodies`**, **DESIGN D282**).
 
 **Out of scope (by design):** Chrysalis-operated multi-tenant SaaS, default-on third-party analytics, or automatic uplink to external vendors. Operators connect scripts to **their** metrics stack (Grafana, Loki, internal ETL). **Privacy:** *Fleet JSON and privacy (V2-M6)* above; **per-deployment** review of uplink bundles remains **operator-owned** (see also schema bullet **Remaining** in **`ROADMAP.md`**).
 

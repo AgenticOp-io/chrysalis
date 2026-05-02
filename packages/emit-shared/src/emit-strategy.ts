@@ -35,4 +35,10 @@ export interface ChrysalisEmitStrategyV1 {
    * Incompatible with **`handlerImportBarrel`** (barrel already centralizes imports). Default **false**.
    */
   readonly emitSharedRuntimeImports?: boolean;
+  /**
+   * When **true**, routes whose lowered handler bodies match (**`computeEmittedHandlerDedupeKey`**)
+   * share one implementation under **`src/chrysalis-deduped/`**; per-route handler files delegate (**DESIGN D282**).
+   * Default **false**. WebIR is unchanged; dedupe is emit-output only.
+   */
+  readonly emitDedupeIdenticalHandlerBodies?: boolean;
 }

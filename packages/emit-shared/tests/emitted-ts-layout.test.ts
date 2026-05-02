@@ -29,6 +29,26 @@ describe("summarizeEmittedTypeScriptLayout", () => {
     expect(s.largestFileRelativePath).toBeNull();
   });
 
+  test("counts src/chrysalis-deduped/*.ts like any other emitted .ts", () => {
+    const root = mkdtempSync(join(tmpdir(), "chrysalis-emit-layout-dedupe-dir-"));
+    try {
+      mkdirSync(join(root, "src", "chrysalis-deduped"), { recursive: true });
+      writeFileSync(
+        join(root, "src", "chrysalis-deduped", "chrysalisBodyDedupe_abcd0123ef456789.ts"),
+        `export async function chrysalisBodyDedupe_abcd0123ef456789(c: Context): Promise<Response> {\n  return __hole("x");\n}\n`,
+        "utf8",
+      );
+      const s = summarizeEmittedTypeScriptLayout(root);
+      expect(s.tsFileCount).toBe(1);
+      expect(s.tsLineCount).toBeGreaterThanOrEqual(1);
+      expect(s.largestFileRelativePath).toBe(
+        "src/chrysalis-deduped/chrysalisBodyDedupe_abcd0123ef456789.ts",
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("counts src/chrysalis-runtime-imports.ts like any other emitted .ts", () => {
     const root = mkdtempSync(join(tmpdir(), "chrysalis-emit-layout-sri-file-"));
     try {

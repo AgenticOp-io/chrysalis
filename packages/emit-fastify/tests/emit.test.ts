@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { execSync } from "node:child_process";
 import { resolve } from "node:path";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { ingestDirectory } from "@chrysalis/ingest";
 import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archaeology";
@@ -101,6 +101,60 @@ describe("emit-fastify: emitSharedRuntimeImports", () => {
           emitStrategy: { emitSharedRuntimeImports: true, handlerImportBarrel: true },
         }),
       ).rejects.toThrow(/emitSharedRuntimeImports cannot be combined with handlerImportBarrel/);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-fastify: emitDedupeIdenticalHandlerBodies", () => {
+  test("writes chrysalis-deduped module and thin handlers when two bodies match", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-dedupe-"));
+    try {
+      const b = new ModuleBuilder({ sourceApp: "emit-dedupe-body" });
+      const d = dataDialect.builders(b);
+      const r = webRequest.builders(b);
+      const oa = phpLocator("pages/a.php", 1, 0);
+      const ob = phpLocator("pages/b.php", 1, 0);
+      const holeA = d.hole({ reason: "probe", input: T.unknown, output: T.string, origin: oa });
+      const holeB = d.hole({ reason: "probe", input: T.unknown, output: T.string, origin: ob });
+      const h1 = r.handler({
+        attrs: { name: "handler_a", input: T.record({}), output: T.string },
+        body: holeA,
+        effects: [],
+        origin: oa,
+      });
+      const h2 = r.handler({
+        attrs: { name: "handler_b", input: T.record({}), output: T.string },
+        body: holeB,
+        effects: [],
+        origin: ob,
+      });
+      b.addRoot(r.route({ attrs: { method: "GET", path: "/a", pathParams: [] }, handler: h1, origin: oa }));
+      b.addRoot(r.route({ attrs: { method: "GET", path: "/b", pathParams: [] }, handler: h2, origin: ob }));
+      const mod = b.finish();
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: { emitDedupeIdenticalHandlerBodies: true },
+      });
+      const dedupeDir = resolve(out, "src/chrysalis-deduped");
+      expect(existsSync(dedupeDir)).toBe(true);
+      expect(readdirSync(dedupeDir).length).toBe(1);
+      const serverTs = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(serverTs).toContain("handler_a");
+      const aSrc = readFileSync(resolve(out, "src/handlers/handler_a.ts"), "utf8");
+      const bSrc = readFileSync(resolve(out, "src/handlers/handler_b.ts"), "utf8");
+      const idA = aSrc.match(/chrysalisBodyDedupe_[0-9a-f]+/)?.[0];
+      const idB = bSrc.match(/chrysalisBodyDedupe_[0-9a-f]+/)?.[0];
+      expect(idA).toBeDefined();
+      expect(idA).toBe(idB);
+      expect(existsSync(resolve(dedupeDir, `${idA}.ts`))).toBe(true);
+      expect(aSrc).toContain(`return ${idA}(req, reply);`);
+      expect(bSrc).toContain(`return ${idA}(req, reply);`);
+      expect(aSrc).not.toContain("__hole(");
+      expect(bSrc).not.toContain("__hole(");
     } finally {
       rmSync(out, { recursive: true, force: true });
     }
