@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Parser-bridge vendor without global Composer:** `pnpm test` pretest and `pnpm run vendor:parser-bridge` use `scripts/parser-bridge-composer-install.mjs` — try `composer` on `PATH`, else bootstrap `packages/parser-bridge/composer.phar` via the official installer when `php` is available (Windows-friendly).
 
+### Documentation
+
+- **DESIGN D270**, **`docs/INSTALLATION.md`**, **`AGENTS.md`**, **`ROADMAP.md`**: document parser-bridge **`composer.phar`** bootstrap when global Composer is absent.
+
 ### Added
 
 - **V2-M6 operator ergonomics (D260–D269):** **`chrysalis --help`** scale-out line documents **`--emit-handler-fingerprints`** + **`aggregate-chimera-operator-snapshots.mjs`**; root **`README.md`** machine-JSON table rows; **`docs/README.md`**, **`emit-shared`**, **`emit-hono`**, **`emit-fastify`** README updates; Vitest **stdin**, **invalid JSON**, and **wrong kind** coverage for the aggregate script.

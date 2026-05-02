@@ -9,7 +9,7 @@ Chrysalis is a **pnpm monorepo** (Node 20+). You install dependencies at the rep
 | **Node.js** `>= 20` | Runtime and toolchain (`package.json` `engines`) |
 | **pnpm** `9.x` (see root `packageManager`) | Workspace installs and scripts |
 | **PHP** on `PATH` | Oracle prelude, `chrysalis observe`, parser-bridge **nikic** parity tests, redactor smoke tests |
-| **Composer** (optional but recommended) | `packages/parser-bridge` vendor tree for **nikic**; CI runs `pretest` to create it when Composer is available |
+| **Composer** on `PATH` (optional) | Faster **`composer install`** for **`packages/parser-bridge/vendor`**; if missing, **`pretest`** / **`pnpm run vendor:parser-bridge`** can bootstrap **`composer.phar`** when **PHP** + network are available (**`scripts/parser-bridge-composer-install.mjs`**, **DESIGN D270**) |
 | **Git** | Source checkout; release tarballs use `git archive` |
 
 Optional: **SQLite** client tools for inspecting fixture DBs; not required for the default test pipeline.
@@ -22,9 +22,11 @@ cd chrysalis
 pnpm install
 ```
 
-If Composer is not installed, `pnpm test` still runs: `pretest` prints a short warning and Vitest may skip **nikic**-specific cases. To skip vendor bootstrap entirely: `set CHRYSALIS_SKIP_PARSER_VENDOR=1` (Windows) or `export CHRYSALIS_SKIP_PARSER_VENDOR=1` (Unix) before `pnpm test`, or run `pnpm exec vitest run` directly (bypasses `pretest`).
+If **PHP** is on `PATH` but **Composer** is not, `pretest` tries to download the official Composer installer and place **`packages/parser-bridge/composer.phar`**, then installs **`vendor/`** (requires network once). If **PHP** is missing, `pretest` prints a warning and Vitest may skip **nikic**-specific cases.
 
-Manual parser-bridge vendor install:
+To skip vendor bootstrap entirely: `set CHRYSALIS_SKIP_PARSER_VENDOR=1` (Windows) or `export CHRYSALIS_SKIP_PARSER_VENDOR=1` (Unix) before `pnpm test`, or run `pnpm exec vitest run` directly (bypasses `pretest`).
+
+Manual parser-bridge vendor install (same logic as `pretest`):
 
 ```bash
 pnpm run vendor:parser-bridge
@@ -96,7 +98,7 @@ node packages/cli/dist/bin.js --help
 
 | Symptom | Likely cause | Mitigation |
 | --- | --- | --- |
-| `pretest` / parser vendor failures | No Composer or network | `CHRYSALIS_SKIP_PARSER_VENDOR=1` or `pnpm run vendor:parser-bridge` on a networked machine |
+| `pretest` / parser vendor failures | No **PHP**, no network during bootstrap, or Composer install error | Install **PHP 8.x**; ensure network for first bootstrap; **`pnpm run vendor:parser-bridge`**; or **`CHRYSALIS_SKIP_PARSER_VENDOR=1`** to skip **nikic** tests |
 | Vitest failures after pulling | Stale `dist/` vs source | `pnpm -r build` |
 | `php` not found | PHP not on `PATH` | Install PHP 8.x and re-open shell |
 | Windows path issues | Mixed slashes | Prefer `pnpm` and `node` from the repo root; use `/` in docs where shell-agnostic |

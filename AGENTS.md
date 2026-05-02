@@ -86,7 +86,7 @@ those smoke tests in **`typecheck-and-test`**, **`oracle-live-drive`**, and **`v
 
 ### Parser-bridge vendor (nikic Vitest)
 
-**`pnpm test`** runs **`pretest`** (**`scripts/ensure-parser-bridge-vendor.mjs`**) so **`packages/parser-bridge/vendor/`** is created when Composer is runnable; CI **`typecheck-and-test`** relies on this (no separate Composer step). **`tests/nikic.test.ts`** and ingest’s **`parser-provider=nikic`** parity case still need **`php`** on **`PATH`**. Skip the hook with **`CHRYSALIS_SKIP_PARSER_VENDOR=1`**, or run **`pnpm exec vitest run`** to bypass **`pretest`**. Manual install: **`pnpm run vendor:parser-bridge`**.
+**`pnpm test`** runs **`pretest`** (**`scripts/ensure-parser-bridge-vendor.mjs`**) so **`packages/parser-bridge/vendor/`** is created: **`composer`** on **`PATH`** if available, else **`scripts/parser-bridge-composer-install.mjs`** bootstraps **`composer.phar`** when **`php`** is runnable (**DESIGN D270**). CI **`typecheck-and-test`** relies on this (no separate global Composer step). **`tests/nikic.test.ts`** and ingest’s **`parser-provider=nikic`** parity case still need **`php`** on **`PATH`**. Skip the hook with **`CHRYSALIS_SKIP_PARSER_VENDOR=1`**, or run **`pnpm exec vitest run`** to bypass **`pretest`**. Manual install: **`pnpm run vendor:parser-bridge`**.
 
 ## 6. What to show the human
 
