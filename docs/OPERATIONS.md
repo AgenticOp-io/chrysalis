@@ -126,7 +126,9 @@ Archaeology-backed domain types flow through emit when configured; see root READ
 
 ### Ingest scale and resume (V2-M2 runbook)
 
-There is **no** first-class **ingest** crash-resume state file (unlike **`chrysalis emit --emit-resume`** and **`<outDir>/.chrysalis-emit-state.json`**, **DESIGN D254**). Operators restart large ingests safely using:
+There is **no** first-class **ingest** resume that **skips lowering work** (unlike **`chrysalis emit --emit-resume`**, which skips completed **emit** file writes using **`<outDir>/.chrysalis-emit-state.json`**, **DESIGN D254**). Optional **`--ingest-progress-file <path>`** on **`ingest`**, **`emit`**, and **`status --project`** appends a versioned **`chrysalis.ingest.progress`** JSON (**DESIGN D277**) after each route completes: **`completedRouteKeys`**, manifest fingerprint, optional shard filter. Use for **forensics** (see how far a run got before OOM/kill); it does **not** replace **`--ingest-cache`**, sharding, or a future full WebIR checkpoint design. **`--ingest-progress-file`** is rejected with **`--merge-all-shards`** (each shard would clobber the same path).
+
+Operators restart large ingests safely using:
 
 1. **`--ingest-cache <dir>`** — AST JSON cache keyed by **SHA-256** of file bytes + parser provider + **`INGEST_AST_CACHE_VERSION`**. Survives process restarts; **invalid** cache entries are rejected and the source file is re-parsed (**`packages/ingest`**, **`parse-cache.test.ts`**).
 

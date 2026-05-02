@@ -112,7 +112,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache; emit --emit-handler-fingerprints, --emit-runtime-facade; PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file; emit --emit-handler-fingerprints, --emit-runtime-facade; PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
@@ -222,11 +222,16 @@ function emitRouteRegistrationFromFlags(
 async function ingestProjectWithShardMode(
   root: string,
   mode: ShardIngestMode,
-  extras: { parserProvider?: ParserProvider; ingestCacheDir?: string },
+  extras: {
+    parserProvider?: ParserProvider;
+    ingestCacheDir?: string;
+    ingestProgressFile?: string;
+  },
 ): Promise<Module> {
   const base = {
     ...(extras.parserProvider ? { parserProvider: extras.parserProvider } : {}),
     ...(extras.ingestCacheDir !== undefined ? { ingestCacheDir: extras.ingestCacheDir } : {}),
+    ...(extras.ingestProgressFile !== undefined ? { ingestProgressFile: extras.ingestProgressFile } : {}),
   };
   if (mode.mode === "none") {
     return ingestDirectory(root, base);
@@ -287,6 +292,28 @@ function ingestCacheDirFromFlags(
   return { ok: true, ingestCacheDir: resolve(raw) };
 }
 
+function ingestProgressFileFromFlags(
+  flags: Record<string, string | boolean>,
+  shardMode: ShardIngestMode,
+): { ok: true; ingestProgressFile?: string } | { ok: false; message: string } {
+  const raw = flags["ingest-progress-file"];
+  if (raw === undefined) return { ok: true };
+  if (raw === true || raw === "") {
+    return { ok: false, message: "error: --ingest-progress-file requires a path" };
+  }
+  if (typeof raw !== "string") {
+    return { ok: false, message: "error: --ingest-progress-file requires a path" };
+  }
+  if (shardMode.mode === "mergeAll") {
+    return {
+      ok: false,
+      message:
+        "error: --ingest-progress-file cannot be used with --merge-all-shards (each shard overwrites the same path; use per-shard runs with distinct files instead)",
+    };
+  }
+  return { ok: true, ingestProgressFile: resolve(raw) };
+}
+
 /** Collect `--php-root` / `--php-root=<dir>` for archaeology form scans. */
 function collectPhpRootsFromArgs(args: string[]): string[] {
   const out: string[] = [];
@@ -308,7 +335,7 @@ async function cmdIngest(args: string[]): Promise<number> {
   const root = pos[0];
   if (!root) {
     console.error(
-      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>]",
     );
     return 2;
   }
@@ -324,6 +351,11 @@ async function cmdIngest(args: string[]): Promise<number> {
     console.error(shardMode.message);
     return 2;
   }
+  const progressOpts = ingestProgressFileFromFlags(flags, shardMode.value);
+  if (!progressOpts.ok) {
+    console.error(progressOpts.message);
+    return 2;
+  }
   if (shardMode.value.mode === "mergeAll") {
     console.log(
       `[ingest] merge-all-shards: ${shardMode.value.shardCount} shard ingests -> mergeWebIrModules`,
@@ -336,9 +368,15 @@ async function cmdIngest(args: string[]): Promise<number> {
   if (cacheOpts.ingestCacheDir !== undefined) {
     console.log(`[ingest] AST cache: ${cacheOpts.ingestCacheDir}`);
   }
+  if (progressOpts.ingestProgressFile !== undefined) {
+    console.log(`[ingest] progress JSON: ${progressOpts.ingestProgressFile}`);
+  }
   const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
+    ...(progressOpts.ingestProgressFile !== undefined
+      ? { ingestProgressFile: progressOpts.ingestProgressFile }
+      : {}),
   });
   console.log(`routes:   ${mod.roots.length}`);
   console.log(`nodes:    ${mod.nodes.size}`);
@@ -360,7 +398,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>]",
     );
     return 2;
   }
@@ -376,6 +414,11 @@ async function cmdEmit(args: string[]): Promise<number> {
     console.error(shardMode.message);
     return 2;
   }
+  const progressOptsEmit = ingestProgressFileFromFlags(flags, shardMode.value);
+  if (!progressOptsEmit.ok) {
+    console.error(progressOptsEmit.message);
+    return 2;
+  }
   if (shardMode.value.mode === "mergeAll") {
     console.log(
       `[emit] merge-all-shards: ${shardMode.value.shardCount} shard ingests -> mergeWebIrModules`,
@@ -387,6 +430,9 @@ async function cmdEmit(args: string[]): Promise<number> {
   }
   if (cacheOpts.ingestCacheDir !== undefined) {
     console.log(`[emit] AST cache: ${cacheOpts.ingestCacheDir}`);
+  }
+  if (progressOptsEmit.ingestProgressFile !== undefined) {
+    console.log(`[emit] ingest progress JSON: ${progressOptsEmit.ingestProgressFile}`);
   }
   if (target !== "hono" && target !== "fastify") {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
@@ -400,6 +446,9 @@ async function cmdEmit(args: string[]): Promise<number> {
   const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
+    ...(progressOptsEmit.ingestProgressFile !== undefined
+      ? { ingestProgressFile: progressOptsEmit.ingestProgressFile }
+      : {}),
   });
   const outAbs = resolve(outDir);
   const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
@@ -2381,7 +2430,16 @@ async function cmdStatus(args: string[]): Promise<number> {
     console.error(shardMode.message);
     return 2;
   }
+  const progressOptsStatus = ingestProgressFileFromFlags(flags, shardMode.value);
+  if (!progressOptsStatus.ok) {
+    console.error(progressOptsStatus.message);
+    return 2;
+  }
   const project = typeof flags.project === "string" ? resolve(flags.project) : null;
+  if (progressOptsStatus.ingestProgressFile !== undefined && !project) {
+    console.error("error: --ingest-progress-file requires --project for status");
+    return 2;
+  }
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : "traces";
   const reportDir = typeof flags.report === "string" ? resolve(flags.report) : "reports/verify";
   const shadowDir = typeof flags.shadow === "string" ? resolve(flags.shadow) : "reports/shadow";
@@ -2498,6 +2556,9 @@ async function cmdStatus(args: string[]): Promise<number> {
       const mod = await ingestProjectWithShardMode(project, shardMode.value, {
         ...(parserProvider ? { parserProvider } : {}),
         ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
+        ...(progressOptsStatus.ingestProgressFile !== undefined
+          ? { ingestProgressFile: progressOptsStatus.ingestProgressFile }
+          : {}),
       });
       ingestedMod = mod;
       const ingestSharding: NonNullable<StatusSummary["ingestSharding"]> =

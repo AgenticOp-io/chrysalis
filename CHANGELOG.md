@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Ingest progress JSON (DESIGN D277):** **`chrysalis.ingest.progress`** **`schemaVersion` 0** — optional **`--ingest-progress-file <path>`** on **`chrysalis ingest`**, **`emit`**, **`status --project`**; **`IngestOptions.ingestProgressFile`** in **`@chrysalis/ingest`**. Vitest **`packages/ingest/tests/ingest-progress-file.test.ts`**, **`packages/cli/tests/ingest-progress-file-cli.test.ts`**.
+
 ### Documentation
 
 - **V2-M2 synthetic ingest CI guards (DESIGN D276):** **`docs/OPERATIONS.md`**, **`ROADMAP.md`**, **`packages/ingest/README.md`**, **`docs/README.md`**, **`docs/ADMINISTRATION.md`** — document **`CHRYSALIS_INGEST_RSS_MAX_BYTES`** / **`CHRYSALIS_INGEST_BUDGET_MS`** (Vitest **`many-routes-synthetic-ingest`**, **D255** alignment); **`DESIGN.md`** Decision Log.

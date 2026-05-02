@@ -3,6 +3,11 @@
  */
 
 import { resolve } from "node:path";
+import {
+  fingerprintIngestRouteList,
+  recordIngestRouteProgress,
+  routeKeyForIngestProgress,
+} from "./ingest-progress.js";
 import { parseFile, type Provider } from "@chrysalis/parser-bridge";
 import { loadOrParsePhpAstWithCache } from "./parse-cache.js";
 import { ModuleBuilder, type Module } from "@chrysalis/webir";
@@ -44,6 +49,11 @@ export interface IngestOptions {
    * {@link INGEST_AST_CACHE_VERSION} (V2-M2). Omit for a cold run.
    */
   readonly ingestCacheDir?: string;
+  /**
+   * When set, append per-route completion keys to this JSON file after each successful
+   * route root (crash-forensics / operator diagnostics only; does not skip ingest work).
+   */
+  readonly ingestProgressFile?: string;
 }
 
 /** Options for {@link ingestFile} parity with {@link ingestDirectory} call widening. */
@@ -82,6 +92,14 @@ export async function ingestDirectory(
   const builder = new ModuleBuilder({ sourceApp: manifest.app });
   const cacheDir = opts?.ingestCacheDir !== undefined ? resolve(opts.ingestCacheDir) : undefined;
   const provider = opts?.parserProvider;
+  const progressPath =
+    opts?.ingestProgressFile !== undefined ? resolve(opts.ingestProgressFile) : undefined;
+  const routeFingerprint = fingerprintIngestRouteList(routes);
+  const projectRootAbs = resolve(root);
+  const shardFilter =
+    opts?.shardCount !== undefined
+      ? { shardIndex: opts.shardIndex ?? 0, shardCount: opts.shardCount }
+      : undefined;
   for (const route of routes) {
     const abs = resolve(root, route.file);
     const ast =
@@ -92,6 +110,16 @@ export async function ingestDirectory(
           });
     const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns);
     builder.addRoot(routeNode);
+    if (progressPath !== undefined) {
+      recordIngestRouteProgress({
+        progressFilePath: progressPath,
+        projectRoot: projectRootAbs,
+        sourceApp: manifest.app,
+        manifestRouteFingerprint: routeFingerprint,
+        routeKey: routeKeyForIngestProgress(route),
+        ...(shardFilter !== undefined ? { shardFilter } : {}),
+      });
+    }
   }
   return builder.finish();
 }
@@ -126,6 +154,14 @@ export async function ingestFile(
 }
 
 export { INGEST_AST_CACHE_VERSION } from "./parse-cache.js";
+export {
+  INGEST_PROGRESS_KIND,
+  INGEST_PROGRESS_SCHEMA_VERSION,
+  fingerprintIngestRouteList,
+  recordIngestRouteProgress,
+  routeKeyForIngestProgress,
+  type IngestProgressStateV0,
+} from "./ingest-progress.js";
 export { filterRoutesForShard, routeFileShardBucket } from "./route-shard.js";
 export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects.js";
 export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";
