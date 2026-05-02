@@ -134,7 +134,7 @@ There is **no** first-class **ingest** crash-resume state file (unlike **`chrysa
 
 3. **Recovery:** after a failed monolithic ingest, fix the underlying error (I/O, OOM, syntax), keep the same cache directory, and re-run **`ingest`** — unchanged files hit the cache. For **sharded** pipelines, complete missing shards, then run **`--merge-all-shards`** when all shards **`0 … K-1`** have been ingested successfully.
 
-4. **Wall-clock guard:** optional **`CHRYSALIS_INGEST_BUDGET_MS`** is honored by the synthetic many-route ingest stress test; production estates should prefer **sharding** + **cache** over one giant process. **RSS** caps remain future work.
+4. **CI stress guards (Vitest only):** **`packages/ingest/tests/many-routes-synthetic-ingest.test.ts`** optionally asserts **wall-clock** when **`CHRYSALIS_INGEST_BUDGET_MS`** is set and **process RSS** (`process.memoryUsage().rss`) when **`CHRYSALIS_INGEST_RSS_MAX_BYTES`** is set (**DESIGN D255**). These are **best-effort** regression rails on the **12-route** temp tree, not a guarantee about peak RSS for arbitrary estates. Production paths should still prefer **sharding** + **`--ingest-cache`** over one giant process (**DESIGN D276**).
 
 ## Oracle: observe and corpus
 

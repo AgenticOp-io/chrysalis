@@ -10,8 +10,8 @@ Verify and replay honor **`CHRYSALIS_VERIFY_*`** and related knobs exposed by `@
 | --- | --- | --- |
 | `CHRYSALIS_SKIP_PARSER_VENDOR` | `pretest` | Skip Composer vendor install for parser-bridge |
 | `CHRYSALIS_PARSER_PROVIDER` | ingest / CLI | e.g. `nikic` vs default |
-| `CHRYSALIS_INGEST_BUDGET_MS` | Vitest **`many-routes-synthetic-ingest`** | When set to a positive integer, asserts wall-clock for the synthetic full-ingest + shard loop stays under this many milliseconds (**DESIGN D254**). |
-| `CHRYSALIS_INGEST_RSS_MAX_BYTES` | Vitest **`many-routes-synthetic-ingest`** | When set, asserts **RSS** after the loop is below this byte ceiling (optional perf guard; **DESIGN D255**). |
+| `CHRYSALIS_INGEST_BUDGET_MS` | Vitest **`many-routes-synthetic-ingest`** | When set to a positive integer, asserts wall-clock for the synthetic full-ingest + shard loop stays under this many milliseconds (**DESIGN D254**; **`docs/OPERATIONS.md`** V2-M2 runbook, **D276**). |
+| `CHRYSALIS_INGEST_RSS_MAX_BYTES` | Vitest **`many-routes-synthetic-ingest`** | When set, asserts **`process.memoryUsage().rss`** after the loop is below this byte ceiling (optional Vitest guard; **DESIGN D255**, **D276**). |
 | `CHRYSALIS_CHIMERA_CONFIG_HMAC_SECRET` | **`chrysalis deploy --config`** | When **`hmacSha256`** is a **hex string**, tried first with optional **`CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS`** (**DESIGN D255**, **D257**). |
 | `CHRYSALIS_CHIMERA_CONFIG_HMAC_PREVIOUS_SECRETS` | **`chrysalis deploy`** | JSON array of strings: additional HMAC secrets for verifying a string **`hmacSha256`** during key rotation (**DESIGN D257**). |
 | `CHRYSALIS_CHIMERA_CONFIG_HMAC_KEYS_JSON` | **`chrysalis deploy`** | JSON object (**key id → secret**) when **`hmacSha256`** is an object of digests; optional CLI **`--config-hmac-keys-json`** (**DESIGN D257**). |
