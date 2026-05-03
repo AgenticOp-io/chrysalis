@@ -577,6 +577,79 @@ describe("emit-hono: emitDedupeIdenticalHandlerBodies", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("dedupe with emitRoutePathConstants: server uses ChrysalisRoutePaths; one deduped module", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dedupe-rpc-"));
+    try {
+      const mod = moduleTwoRoutesIdenticalProbeHoles();
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: resolve(__dirname, "../../../fixtures/tiny-blog"),
+        emitStrategy: {
+          emitDedupeIdenticalHandlerBodies: true,
+          emitRoutePathConstants: true,
+        },
+      });
+      const paths = readFileSync(resolve(out, "src/chrysalis-route-paths.ts"), "utf8");
+      expect(paths).toContain("handler_a");
+      expect(paths).toContain("handler_b");
+      const serverTs = readFileSync(resolve(out, "src/server.ts"), "utf8");
+      expect(serverTs).toContain("ChrysalisRoutePaths");
+      expect(serverTs).toContain("./chrysalis-route-paths.js");
+      expect(readdirSync(resolve(out, "src/chrysalis-deduped")).length).toBe(1);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("dedupe with runtimeFacadeModule: shared body imports runtime via facade", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dedupe-facade-"));
+    try {
+      const mod = moduleTwoRoutesIdenticalProbeHoles();
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: resolve(__dirname, "../../../fixtures/tiny-blog"),
+        emitStrategy: {
+          emitDedupeIdenticalHandlerBodies: true,
+          runtimeFacadeModule: true,
+        },
+      });
+      expect(existsSync(resolve(out, "src/chrysalis-runtime-facade.ts"))).toBe(true);
+      const id = readFileSync(resolve(out, "src/handlers/handler_a.ts"), "utf8").match(
+        /chrysalisBodyDedupe_[0-9a-f]+/,
+      )?.[0];
+      expect(id).toBeDefined();
+      const shared = readFileSync(resolve(out, "src/chrysalis-deduped", `${id}.ts`), "utf8");
+      expect(shared).toContain("../chrysalis-runtime-facade.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("dedupe with emitHandlerFingerprints: JSON lists distinct thin-wrapper shas", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-dedupe-fp-"));
+    try {
+      const mod = moduleTwoRoutesIdenticalProbeHoles();
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: resolve(__dirname, "../../../fixtures/tiny-blog"),
+        emitStrategy: {
+          emitDedupeIdenticalHandlerBodies: true,
+          emitHandlerFingerprints: true,
+        },
+      });
+      const raw = readFileSync(resolve(out, "chrysalis.emit-handler-fingerprints.json"), "utf8");
+      const j = JSON.parse(raw) as { handlers: Record<string, string> };
+      expect(j.handlers.handler_a).toMatch(/^[0-9a-f]{64}$/);
+      expect(j.handlers.handler_b).toMatch(/^[0-9a-f]{64}$/);
+      expect(j.handlers.handler_a).not.toBe(j.handlers.handler_b);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("emit-hono: emitSharedRuntimeImports", () => {

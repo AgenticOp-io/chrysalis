@@ -4,6 +4,10 @@ import { ingestDirectory } from "../src/index.js";
 import { countByDialect, countHoles, effectTagsSorted, walk } from "@chrysalis/webir";
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
+const DEDUPE_IDENTICAL_HANDLERS_FIXTURE = resolve(
+  __dirname,
+  "../../../fixtures/dedupe-identical-handlers",
+);
 
 describe("ingest: tiny-blog fixture", () => {
   test("produces 5 routes and no holes", async () => {
@@ -67,5 +71,13 @@ describe("ingest: tiny-blog fixture", () => {
     expect(d["web.request"]).toBe(10);
     expect((d.effect ?? 0) > 0).toBe(true);
     expect((d.data ?? 0) > 0).toBe(true);
+  });
+});
+
+describe("ingest: dedupe-identical-handlers fixture", () => {
+  test("produces two routes and no holes (byte-identical pages for D282 emit)", async () => {
+    const mod = await ingestDirectory(DEDUPE_IDENTICAL_HANDLERS_FIXTURE);
+    expect(mod.roots.length).toBe(2);
+    expect(countHoles(mod)).toBe(0);
   });
 });

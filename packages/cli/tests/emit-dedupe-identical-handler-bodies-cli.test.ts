@@ -77,4 +77,32 @@ describe("chrysalis emit --emit-dedupe-identical-handler-bodies", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("hono: dedupe with --emit-route-path-constants writes route paths + one deduped module", () => {
+    const out = mkdtempSync(join(tmpdir(), "chrysalis-emit-cli-dedupe-rpc-"));
+    try {
+      const r = spawnSync(
+        process.execPath,
+        [
+          BIN,
+          "emit",
+          FIXTURE,
+          "--out",
+          out,
+          "--target",
+          "hono",
+          "--emit-dedupe-identical-handler-bodies",
+          "--emit-route-path-constants",
+        ],
+        { encoding: "utf8", cwd: ROOT },
+      );
+      expect(r.status).toBe(0);
+      expect(existsSync(join(out, "src/chrysalis-route-paths.ts"))).toBe(true);
+      expect(readdirSync(join(out, "src/chrysalis-deduped")).length).toBe(1);
+      const server = readFileSync(join(out, "src/server.ts"), "utf8");
+      expect(server).toContain("ChrysalisRoutePaths");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });
