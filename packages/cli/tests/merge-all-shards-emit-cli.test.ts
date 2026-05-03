@@ -39,4 +39,36 @@ describe("chrysalis emit --merge-all-shards", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("merge-all-shards with --ingest-dedupe-structural-subgraphs completes", () => {
+    const out = mkdtempSync(join(tmpdir(), "chrysalis-merge-emit-dedupe-"));
+    try {
+      const r = spawnSync(
+        process.execPath,
+        [
+          BIN,
+          "emit",
+          FIXTURE,
+          "--out",
+          out,
+          "--target",
+          "hono",
+          "--merge-all-shards",
+          "--shard-count",
+          "2",
+          "--ingest-dedupe-structural-subgraphs",
+        ],
+        {
+          encoding: "utf8",
+          cwd: ROOT,
+        },
+      );
+      expect(r.status).toBe(0);
+      expect(r.stdout).toContain("merge-all-shards");
+      expect(r.stdout).toContain("structural subgraph dedupe");
+      expect(r.stdout).toContain("handlers:");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });

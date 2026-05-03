@@ -7,6 +7,7 @@ import {
   mergeWebIrModules,
   phpLocator,
   webRequest,
+  type Module,
 } from "../src/index.js";
 
 function oneGetRouteModule(
@@ -71,6 +72,17 @@ describe("mergeWebIrModules", () => {
   });
 });
 
+function sortedRouteKeys(m: Module): string[] {
+  return [...m.roots]
+    .map((id) => {
+      const n = m.nodes.get(id);
+      if (!n || n.dialect !== "web.request" || n.op !== "route") return "";
+      return `${String(n.attrs.method)} ${String(n.attrs.path)}`;
+    })
+    .filter(Boolean)
+    .sort();
+}
+
 describe("dedupeStructuralSubgraphsInModule", () => {
   test("collapses duplicate literals shared across routes in one module (same origin)", () => {
     const b = new ModuleBuilder({ sourceApp: "mono-dedupe", chrysalisVersion: "1.0.0" });
@@ -103,6 +115,9 @@ describe("dedupeStructuralSubgraphsInModule", () => {
     const after = dedupeStructuralSubgraphsInModule(before);
     expect(after.roots.length).toBe(2);
     expect(after.nodes.size).toBeLessThan(before.nodes.size);
+    expect(after.meta.sourceApp).toBe(before.meta.sourceApp);
+    expect(after.meta.chrysalisVersion).toBe(before.meta.chrysalisVersion);
+    expect(sortedRouteKeys(after)).toEqual(sortedRouteKeys(before));
   });
 
   test("second pass does not change node count (structural dedupe is stable)", () => {

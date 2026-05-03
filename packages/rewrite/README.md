@@ -202,6 +202,7 @@ chrysalis rewrite <php-project-dir>
   [--min-confidence 0.75]         # threshold; below → record as "skipped"
   [--passes <id,id,...>]          # restrict to named passes
   [--report <rewrite.json>]       # persist per-opportunity result
+  [--ingest-dedupe-structural-subgraphs]  # optional WebIR structural dedupe before insight (DESIGN D283)
   [--json]                        # machine-readable output on stdout
 ```
 

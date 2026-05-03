@@ -80,6 +80,16 @@ describe("ingest: dedupe-identical-handlers fixture", () => {
     expect(mod.roots.length).toBe(2);
     expect(countHoles(mod)).toBe(0);
   });
+
+  test("D283 structural dedupe does not increase node map or holes", async () => {
+    const base = await ingestDirectory(DEDUPE_IDENTICAL_HANDLERS_FIXTURE);
+    const deduped = await ingestDirectory(DEDUPE_IDENTICAL_HANDLERS_FIXTURE, {
+      dedupeStructuralSubgraphs: true,
+    });
+    expect(deduped.roots.length).toBe(base.roots.length);
+    expect(countHoles(deduped)).toBe(countHoles(base));
+    expect(deduped.nodes.size).toBeLessThanOrEqual(base.nodes.size);
+  });
 });
 
 describe("ingest: dedupeStructuralSubgraphs (D283)", () => {

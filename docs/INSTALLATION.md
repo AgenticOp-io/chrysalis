@@ -40,6 +40,8 @@ pnpm -r build
 
 The CLI entrypoint used by scripts and docs is **`node packages/cli/dist/bin.js`** after a successful build. For local iteration without rebuilding every time, package READMEs may reference `pnpm --filter @chrysalis/cli dev` where applicable.
 
+**Scale-out / operator CLI** (ingest route sharding, **`--merge-all-shards`**, **`--ingest-cache`**, **`--ingest-dedupe-structural-subgraphs`** for optional within-module WebIR dedupe — **DESIGN D283**, verify corpus sharding, emit layout flags, etc.): see **[`docs/OPERATIONS.md`](./OPERATIONS.md)** and run **`chrysalis --help`** after build (Vitest **`packages/cli/tests/cli-help-scaleout.test.ts`** pins key banner strings).
+
 ## Verify the install
 
 ```bash

@@ -89,6 +89,41 @@ describe("migration-debt --json-out", () => {
     }
   });
 
+  test("forwards --ingest-dedupe-structural-subgraphs to status", () => {
+    const outPath = join(tmpdir(), `chrysalis-migration-debt-dedupe-${Date.now()}.json`);
+    const r = spawnSync(
+      process.execPath,
+      [
+        SCRIPT,
+        "--project",
+        "fixtures/tiny-blog",
+        "--ingest-dedupe-structural-subgraphs",
+        "--json-out",
+        outPath,
+      ],
+      {
+        cwd: ROOT,
+        encoding: "utf8",
+      },
+    );
+    try {
+      expect(r.status).toBe(0);
+      const j = JSON.parse(readFileSync(outPath, "utf8")) as {
+        ingestSharding: { mode: string };
+        migration: { coverage: { nodes: number } | null };
+      };
+      expect(j.ingestSharding).toEqual({ mode: "monolithic" });
+      expect(j.migration.coverage).not.toBeNull();
+      expect(typeof j.migration.coverage!.nodes).toBe("number");
+    } finally {
+      try {
+        unlinkSync(outPath);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+
   test("forwards route shard flags and writes routeShard in JSON", () => {
     const outPath = join(tmpdir(), `chrysalis-migration-debt-rshard-${Date.now()}.json`);
     const r = spawnSync(

@@ -8,7 +8,9 @@ is applied with `@chrysalis/rewrite`'s `applyModuleEdits` and kept only if the
 **entire** trace corpus replays without divergence. The CLI can opt into an
 OpenAI-compatible **HTTP chat** proposer (`--llm` + `CHRYSALIS_REPAIR_LLM_*`;
 `--repair-verbose` or `CHRYSALIS_REPAIR_VERBOSE=1` for stderr diagnostics). It
-only proposes validated `replaceOperand` edits and never bypasses replay.
+only proposes validated `replaceOperand` edits and never bypasses replay. The
+**`chrysalis repair`** CLI forwards **`--ingest-dedupe-structural-subgraphs`**
+into the ingest step with **`--project`** (**DESIGN D283**), same as **`verify`**.
 
 ## Public API
 

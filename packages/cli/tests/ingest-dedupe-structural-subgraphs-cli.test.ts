@@ -16,6 +16,30 @@ function parseNodes(stdout: string): number | null {
 }
 
 describe("chrysalis ingest --ingest-dedupe-structural-subgraphs", () => {
+  test("single route shard (K=2) still logs D283 and completes", () => {
+    const r = spawnSync(
+      process.execPath,
+      [
+        BIN,
+        "ingest",
+        FIXTURE,
+        "--shard-index",
+        "0",
+        "--shard-count",
+        "2",
+        "--ingest-dedupe-structural-subgraphs",
+      ],
+      {
+        encoding: "utf8",
+        cwd: ROOT,
+      },
+    );
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain("shard 0/2");
+    expect(r.stdout).toContain("structural subgraph dedupe");
+    expect(r.stdout).toContain("routes:");
+  });
+
   test("logs D283 line and reports fewer or equal nodes vs default ingest", () => {
     const base = spawnSync(process.execPath, [BIN, "ingest", FIXTURE], {
       encoding: "utf8",
@@ -219,6 +243,19 @@ describe("chrysalis status --project --ingest-dedupe-structural-subgraphs", () =
     expect(dSummary.migration.coverage).not.toBeNull();
     expect(dSummary.migration.coverage!.nodes).toBe(baseNodes);
     expect(dSummary.migration.coverage!.holes).toBe(baseHoles);
+  });
+});
+
+describe("chrysalis rewrite --ingest-dedupe-structural-subgraphs", () => {
+  test("--json completes and preserves sourceApp on report", () => {
+    const r = spawnSync(
+      process.execPath,
+      [BIN, "rewrite", FIXTURE, "--json", "--ingest-dedupe-structural-subgraphs"],
+      { encoding: "utf8", cwd: ROOT },
+    );
+    expect(r.status).toBe(0);
+    const j = JSON.parse(r.stdout) as { report: { sourceApp: string } };
+    expect(j.report.sourceApp).toBe("tiny-blog");
   });
 });
 
