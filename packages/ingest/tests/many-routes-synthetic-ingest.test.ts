@@ -7,6 +7,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { dedupeStructuralSubgraphsInModule } from "@chrysalis/webir";
 import { filterRoutesForShard, ingestDirectory, loadRouteManifest } from "../src/index.js";
 
 const SYNTHETIC_ROUTE_COUNT = 12;
@@ -47,6 +48,11 @@ describe("many-route synthetic ingest (V2-M2 stress class)", () => {
       const t0 = Date.now();
       const full = await ingestDirectory(base);
       expect(full.roots.length).toBe(SYNTHETIC_ROUTE_COUNT);
+
+      const fullDedupedOpt = await ingestDirectory(base, { dedupeStructuralSubgraphs: true });
+      expect(fullDedupedOpt.roots.length).toBe(SYNTHETIC_ROUTE_COUNT);
+      expect(fullDedupedOpt.nodes.size).toBeLessThanOrEqual(full.nodes.size);
+      expect(dedupeStructuralSubgraphsInModule(full).nodes.size).toBe(fullDedupedOpt.nodes.size);
 
       for (let s = 0; s < SHARD_COUNT; s++) {
         const part = await ingestDirectory(base, { shardIndex: s, shardCount: SHARD_COUNT });

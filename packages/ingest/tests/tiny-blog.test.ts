@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { resolve } from "node:path";
 import { ingestDirectory } from "../src/index.js";
-import { countByDialect, countHoles, effectTagsSorted, walk } from "@chrysalis/webir";
+import { countByDialect, countHoles, effectTagsSorted, irCoverageStats, walk } from "@chrysalis/webir";
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
 const DEDUPE_IDENTICAL_HANDLERS_FIXTURE = resolve(
@@ -92,5 +92,9 @@ describe("ingest: dedupeStructuralSubgraphs (D283)", () => {
     // Shared lib/ IR is duplicated across routes in default monolithic ingest; D283
     // recovers the same node-count contract as mergeWebIrModules(K=2) on this fixture.
     expect(deduped.nodes.size).toBeLessThan(base.nodes.size);
+    // `Module.nodes` can include IDs not reachable from roots; `irCoverageStats` counts
+    // only the root-walk (same as status migration.coverage.nodes). Dedupe may shrink
+    // the map without changing reachable hole/coverage counts on this fixture.
+    expect(irCoverageStats(deduped).nodeCount).toBe(irCoverageStats(base).nodeCount);
   });
 });
