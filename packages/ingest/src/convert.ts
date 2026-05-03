@@ -220,7 +220,6 @@ type CallLowering =
   | { kind: "trim" }
   | { kind: "intval" }
   | { kind: "strlen" }
-  | { kind: "header.location" }
   | { kind: "http.status" }
   | { kind: "password_verify" }
   | { kind: "preg_match" }
@@ -252,7 +251,6 @@ const KNOWN_CALLS: Record<string, CallLowering> = {
   trim: { kind: "trim" },
   intval: { kind: "intval" },
   strlen: { kind: "strlen" },
-  header: { kind: "header.location" },
   http_response_code: { kind: "http.status" },
   password_verify: { kind: "password_verify" },
   preg_match: { kind: "preg_match" },
@@ -650,6 +648,25 @@ function convertCall(
   if (calleePath === "Laravel\\Fortify\\Fortify::probe" && e.args.length === 0) {
     return ctx.data.literal({ value: "fortify-probe-ok", type: T.string, origin: callOrigin });
   }
+  if (name === "header") {
+    const h0 = e.args[0];
+    if (h0?.kind === "Literal" && h0.literalKind === "string") {
+      const raw = String(h0.value);
+      if (/^\s*Content-Type:/i.test(raw)) {
+        return ctx.data.block({
+          statements: [],
+          type: { kind: "void" },
+          origin: loc(ctx, e.pos),
+          provenance: [prov("php-ast", loc(ctx, e.pos), "header(Content-Type): lowered to no-op; emit sets body MIME")],
+        });
+      }
+    }
+    const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
+    return ctx.effect.redirect({
+      location: args[0] ?? hole(ctx, "header: no value", e.pos, T.string),
+      origin: loc(ctx, e.pos),
+    });
+  }
   const lowering = KNOWN_CALLS[name];
   const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
 
@@ -940,11 +957,6 @@ function convertCall(
         origin: loc(ctx, e.pos),
       });
     }
-    case "header.location":
-      return ctx.effect.redirect({
-        location: args[0] ?? hole(ctx, "header: no location", e.pos, T.string),
-        origin: loc(ctx, e.pos),
-      });
     case "http.status":
       return ctx.effect.httpError({
         status:

@@ -20,7 +20,8 @@ export const SCHEMA_VERSION = "1.0.0" as const;
 export type RedactionKind =
   | "drop" // field is omitted entirely
   | "hash" // replaced with `sha256:<hex prefix>`
-  | "mask"; // replaced with a constant sentinel like "***REDACTED***"
+  | "mask" // replaced with a constant sentinel like "***REDACTED***"
+  | "verbatim"; // keep the captured value (fixture-only; see chrysalis.observe.json)
 
 export interface RedactionRecord {
   readonly path: string; // dotted path, e.g. "request.post.password"
@@ -301,7 +302,7 @@ export function parseEvent(raw: unknown): TraceEvent {
       const rules: RedactionRecord[] = rulesRaw.map((r, i) => {
         const ro = requireObject(r, `redaction.rules[${i}]`);
         const kind = requireString(ro["kind"], `redaction.rules[${i}].kind`);
-        if (kind !== "drop" && kind !== "hash" && kind !== "mask") {
+        if (kind !== "drop" && kind !== "hash" && kind !== "mask" && kind !== "verbatim") {
           throw new SchemaError(`redaction.rules[${i}].kind`, "invalid kind", kind);
         }
         return {

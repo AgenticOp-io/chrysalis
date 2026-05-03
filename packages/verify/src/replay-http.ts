@@ -25,8 +25,24 @@ export async function replayOne(
   const accept = req.headers["accept"];
   if (accept) headers["accept"] = accept;
 
-  if (!opts.disableCookieChain && cookieJar.size > 0) {
-    headers["cookie"] = [...cookieJar.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
+  // Jar chains Set-Cookie across traces; values on this trace win so the
+  // replayed Cookie header matches the oracle request when the trace recorded
+  // cookie names (including cleared or rotated session ids).
+  const mergedCookies = new Map<string, string>();
+  if (!opts.disableCookieChain) {
+    for (const [k, v] of cookieJar) mergedCookies.set(k, v);
+  }
+  // `chrysalis_sid` is environment-specific; oracle traces carry PHP's id but
+  // replay targets a fresh emitted server — chaining via the jar matches
+  // sequential in-process replay (e.g. second GET /session/visit).
+  for (const [k, v] of Object.entries(req.cookies)) {
+    if (k === "chrysalis_sid") continue;
+    if (v == null) continue;
+    const s = typeof v === "string" ? v : String(v);
+    if (s.length > 0) mergedCookies.set(k, s);
+  }
+  if (mergedCookies.size > 0) {
+    headers["cookie"] = [...mergedCookies.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
   }
 
   if (opts.recordedSqlReplay === true && canSqlReplayTrace(trace)) {

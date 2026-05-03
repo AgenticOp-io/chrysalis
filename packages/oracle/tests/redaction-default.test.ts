@@ -20,7 +20,7 @@ describe("DEFAULT_REDACTION", () => {
     expect(paths.has("sql.params[*:UPDATE users SET password].0")).toBe(true);
   });
 
-  it("uses only drop | hash | mask", () => {
+  it("uses only drop | hash | mask (defaults; verbatim is observe-override only)", () => {
     for (const r of DEFAULT_REDACTION.rules) {
       expect(["drop", "hash", "mask"]).toContain(r.kind);
     }

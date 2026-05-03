@@ -40,7 +40,11 @@ export const honoHttpProfile: HttpEmitProfile = {
   cookie: (name) => `getCookie(${c}, ${stringLit(name)})`,
   header: (name) => `${c}.req.header(${stringLit(name)})`,
   bodyPreamble: () =>
-    `const __body = await ${c}.req.parseBody().catch(() => ({} as Record<string, unknown>));`,
+    `const __ct = String(${c}.req.header("content-type") ?? "").toLowerCase();\n` +
+    `const __body =\n` +
+    `  __ct.includes("application/x-www-form-urlencoded") || __ct.includes("multipart/form-data")\n` +
+    `    ? await ${c}.req.parseBody().catch(() => ({} as Record<string, unknown>))\n` +
+    `    : ({} as Record<string, unknown>);`,
   redirectReturn: (locExpr) =>
     `return ${c}.redirect(String(${locExpr}).replace(/^\\s*Location:\\s*/i, ""));`,
   respondBuffered: () => `return __respond(${c}, __html, __status);`,
@@ -64,7 +68,14 @@ export const fastifyHttpProfile: HttpEmitProfile = {
     return `((${req}.headers as Record<string, string | string[] | undefined>)[${stringLit(k)}] ?? null)`;
   },
   bodyPreamble: () =>
-    `const __body = (typeof ${req}.body === "object" && ${req}.body !== null && !Array.isArray(${req}.body) ? ${req}.body : {}) as Record<string, unknown>;`,
+    `const __ct = String(((${req}.headers as Record<string, string | string[] | undefined>)["content-type"] ?? "")).toLowerCase();\n` +
+    `const __body =\n` +
+    `  (__ct.includes("application/x-www-form-urlencoded") || __ct.includes("multipart/form-data")) &&\n` +
+    `  typeof ${req}.body === "object" &&\n` +
+    `  ${req}.body !== null &&\n` +
+    `  !Array.isArray(${req}.body)\n` +
+    `    ? (${req}.body as Record<string, unknown>)\n` +
+    `    : ({} as Record<string, unknown>);`,
   redirectReturn: (locExpr) =>
     `return ${reply}.redirect(String(${locExpr}).replace(/^\\s*Location:\\s*/i, ""));`,
   respondBuffered: () => `return __respond(${reply}, __html, __status);`,

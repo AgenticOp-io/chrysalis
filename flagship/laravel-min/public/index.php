@@ -107,6 +107,11 @@ if ($method === 'GET' && $path === '/session/me') {
     exit;
 }
 
+if ($method === 'GET' && $path === '/gate-probe') {
+    require dirname(__DIR__) . '/app/Http/Handlers/gate_probe_show.php';
+    exit;
+}
+
 http_response_code(404);
 header('Content-Type: text/plain; charset=utf-8');
 echo 'Not Found';

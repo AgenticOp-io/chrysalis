@@ -22,6 +22,7 @@ export const PACKAGE_JSON = (
         fastify: "^5.2.0",
         "@fastify/cookie": "^11.0.0",
         "@fastify/formbody": "^8.0.0",
+        bcryptjs: "^3.0.2",
         redis: "^5.8.2",
         ...(opts.drizzle ? { "drizzle-orm": "^0.45.2" } : {}),
       },
@@ -465,6 +466,7 @@ export function getSession(req: FastifyRequest): Session {
 `;
 
 export const RUNTIME_TS = `import type { FastifyReply, FastifyRequest } from "fastify";
+import { compare as bcryptCompare } from "bcryptjs";
 import { queryOne } from "./db.js";
 import { getSession } from "./session.js";
 
@@ -631,9 +633,18 @@ export function pregMatch(pattern: unknown, subject: unknown): boolean {
 }
 
 export async function passwordVerify(plain: string, hash: string): Promise<boolean> {
-  // Milestone 1 shim: non-cryptographic pairing check so emitted handlers compile.
-  // Replace with bcrypt/argon2 verification or an injected verifier (DESIGN: no secrets in generated code).
-  return String(plain).length > 0 && String(hash).length > 0;
+  const p = String(plain);
+  let h = String(hash);
+  if (p.length === 0 || h.length === 0) return false;
+  if (!/^\\$2[aby]\\$/.test(h)) return false;
+  if (h.startsWith("$2y$")) {
+    h = "$2a$" + h.slice(4);
+  }
+  try {
+    return await bcryptCompare(p, h);
+  } catch {
+    return false;
+  }
 }
 
 export function __hole(name: string, payload: unknown): unknown {
@@ -678,11 +689,39 @@ export function phpDynamicNew(classExpr: unknown, ...args: unknown[]): unknown {
   return __hole("new:dynamic", { classExpr, args });
 }
 
+function __isLikelyWebAppManifestJson(v: unknown): boolean {
+  if (v === null || typeof v !== "object" || Array.isArray(v)) return false;
+  const o = v as Record<string, unknown>;
+  return (
+    typeof o.start_url === "string" &&
+    typeof o.display === "string" &&
+    (typeof o.name === "string" || typeof o.short_name === "string")
+  );
+}
+
 export function __respond(reply: FastifyReply, html: string, status: number): FastifyReply {
   if (html.length > 0) {
     const isHtml = /^\\s*<!?[a-z]/i.test(html);
     if (isHtml) {
       return reply.code(status).type("text/html; charset=utf-8").send(html);
+    }
+    const t = html.trimStart();
+    if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
+      try {
+        const parsed = JSON.parse(html) as unknown;
+        if (__isLikelyWebAppManifestJson(parsed)) {
+          return reply.code(status).type("application/manifest+json; charset=utf-8").send(html);
+        }
+        return reply.code(status).type("application/json; charset=utf-8").send(parsed);
+      } catch {
+        /* fall through */
+      }
+    }
+    if (t.startsWith("<?xml")) {
+      return reply.code(status).type("application/xml; charset=utf-8").send(html);
+    }
+    if (t.startsWith("/*") || t.startsWith("@")) {
+      return reply.code(status).type("text/css; charset=utf-8").send(html);
     }
     return reply.code(status).type("text/plain; charset=utf-8").send(html);
   }

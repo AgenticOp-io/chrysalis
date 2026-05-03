@@ -23,6 +23,7 @@ export const PACKAGE_JSON = (
       dependencies: {
         hono: "^4.6.0",
         "@hono/node-server": "^1.13.0",
+        bcryptjs: "^3.0.2",
         redis: "^5.8.2",
         ...(opts.drizzle ? { "drizzle-orm": "^0.45.2" } : {}),
       },
@@ -454,6 +455,7 @@ export function getSession(c: Context): Session {
 `;
 
 export const RUNTIME_TS = `import type { Context } from "hono";
+import { compare as bcryptCompare } from "bcryptjs";
 import { queryOne } from "./db.js";
 import { getSession } from "./session.js";
 
@@ -626,9 +628,18 @@ export function pregMatch(pattern: unknown, subject: unknown): boolean {
 }
 
 export async function passwordVerify(plain: string, hash: string): Promise<boolean> {
-  // Milestone 1 shim: non-cryptographic pairing check so emitted handlers compile.
-  // Replace with bcrypt/argon2 verification or an injected verifier (DESIGN: no secrets in generated code).
-  return String(plain).length > 0 && String(hash).length > 0;
+  const p = String(plain);
+  let h = String(hash);
+  if (p.length === 0 || h.length === 0) return false;
+  if (!/^\\$2[aby]\\$/.test(h)) return false;
+  if (h.startsWith("$2y$")) {
+    h = "$2a$" + h.slice(4);
+  }
+  try {
+    return await bcryptCompare(p, h);
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -683,6 +694,16 @@ export function phpDynamicNew(classExpr: unknown, ...args: unknown[]): unknown {
   return __hole("new:dynamic", { classExpr, args });
 }
 
+function __isLikelyWebAppManifestJson(v: unknown): boolean {
+  if (v === null || typeof v !== "object" || Array.isArray(v)) return false;
+  const o = v as Record<string, unknown>;
+  return (
+    typeof o.start_url === "string" &&
+    typeof o.display === "string" &&
+    (typeof o.name === "string" || typeof o.short_name === "string")
+  );
+}
+
 /**
  * Final-response helper. Mirrors the PHP "set status then echo then exit"
  * sequence: if there is buffered HTML, return it with the accumulated
@@ -694,7 +715,26 @@ export function __respond(c: Context, html: string, status: number): Response {
     // as plain text. This matches most legacy PHP \`echo\` patterns.
     const isHtml = /^\\s*<!?[a-z]/i.test(html);
     const s = status as Parameters<typeof c.text>[1];
-    return isHtml ? c.html(html, s) : c.text(html, s);
+    if (isHtml) return c.html(html, s);
+    const t = html.trimStart();
+    if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
+      try {
+        const parsed = JSON.parse(html) as unknown;
+        if (__isLikelyWebAppManifestJson(parsed)) {
+          return c.body(html, s, { "Content-Type": "application/manifest+json; charset=utf-8" });
+        }
+        return c.json(parsed as Parameters<typeof c.json>[0], s);
+      } catch {
+        /* fall through */
+      }
+    }
+    if (t.startsWith("<?xml")) {
+      return c.body(html, s, { "Content-Type": "application/xml; charset=utf-8" });
+    }
+    if (t.startsWith("/*") || t.startsWith("@")) {
+      return c.body(html, s, { "Content-Type": "text/css; charset=utf-8" });
+    }
+    return c.text(html, s);
   }
   return c.text("", status as Parameters<typeof c.text>[1]);
 }

@@ -27,6 +27,8 @@
  *     semantics for diffing without leaking the original value.
  *   - "mask" — replace with a literal sentinel. Loses equality information but
  *     guarantees the trace can never be used to recover anything.
+ *   - "verbatim" — keep the captured value (fixture-only `chrysalis.observe.json`
+ *     overrides; unsafe for shared corpora).
  *
  * The config is hashed into every trace header so we can refuse to compare
  * traces captured under different redaction policies.

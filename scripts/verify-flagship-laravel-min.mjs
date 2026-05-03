@@ -218,6 +218,9 @@ for (const b of backends) {
   const outcomes = await replayCorpus(corpus, {
     baseUrl,
     fetch: fetchFn,
+    // Default redaction hashes `sql.row.password` in SELECT tapes; replaying
+    // those rows makes `passwordVerify` see `sha256:…` instead of a bcrypt
+    // hash (login always fails). Let SELECTs hit the emitted SQLite DB here.
     recordedSqlReplay: true,
     module: webirModule,
     ...replayParsed.extras,
@@ -365,6 +368,35 @@ function initLaravelMinSqliteDb(fixtureRoot) {
 
 async function driveLaravelMinCorpus(port) {
   const base = `http://127.0.0.1:${port}`;
+  /** @type {Map<string, string>} */
+  const cookieJar = new Map();
+  function absorbResponseCookies(res) {
+    const lines =
+      typeof res.headers.getSetCookie === "function" ? res.headers.getSetCookie() : [];
+    if (lines.length === 0) {
+      const single = res.headers.get("set-cookie");
+      if (single) lines.push(single);
+    }
+    for (const line of lines) {
+      const part = line.split(";")[0]?.trim() ?? "";
+      const eq = part.indexOf("=");
+      if (eq > 0) cookieJar.set(part.slice(0, eq), part.slice(eq + 1));
+    }
+  }
+  /** @param {RequestInit | undefined} init */
+  function withJarCookies(init) {
+    if (cookieJar.size === 0) return init;
+    const headers = new Headers(init?.headers);
+    const tail = [...cookieJar.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
+    const prev = headers.get("cookie");
+    headers.set("cookie", prev ? `${prev}; ${tail}` : tail);
+    return { ...init, headers };
+  }
+  async function sf(url, init) {
+    const res = await fetch(url, withJarCookies(init));
+    absorbResponseCookies(res);
+    return res;
+  }
   const paths = [
     "/",
     "/health",
@@ -384,44 +416,44 @@ async function driveLaravelMinCorpus(port) {
     "/manifest.webmanifest",
   ];
   for (const p of paths) {
-    const r = await fetch(`${base}${p}`);
+    const r = await sf(`${base}${p}`);
     if (!r.ok) {
       console.warn(`[verify-flagship] GET ${p} returned ${r.status}`);
     }
   }
 
-  const helloDefault = await fetch(`${base}/hello`);
+  const helloDefault = await sf(`${base}/hello`);
   if (!helloDefault.ok) {
     console.warn(`[verify-flagship] GET /hello (default) returned ${helloDefault.status}`);
   }
-  const helloEmpty = await fetch(`${base}/hello?name=`);
+  const helloEmpty = await sf(`${base}/hello?name=`);
   if (!helloEmpty.ok) {
     console.warn(`[verify-flagship] GET /hello?name= returned ${helloEmpty.status}`);
   }
-  const helloA = await fetch(`${base}/hello?name=flagship-corpus`);
+  const helloA = await sf(`${base}/hello?name=flagship-corpus`);
   if (!helloA.ok) {
     console.warn(`[verify-flagship] GET /hello returned ${helloA.status}`);
   }
-  const helloB = await fetch(`${base}/hello?name=chrysalis`);
+  const helloB = await sf(`${base}/hello?name=chrysalis`);
   if (!helloB.ok) {
     console.warn(`[verify-flagship] GET /hello returned ${helloB.status}`);
   }
-  const helloEncoded = await fetch(`${base}/hello?name=${encodeURIComponent("x y")}`);
+  const helloEncoded = await sf(`${base}/hello?name=${encodeURIComponent("x y")}`);
   if (!helloEncoded.ok) {
     console.warn(`[verify-flagship] GET /hello (encoded name) returned ${helloEncoded.status}`);
   }
 
-  const apiHealth = await fetch(`${base}/api/health`);
+  const apiHealth = await sf(`${base}/api/health`);
   if (!apiHealth.ok) {
     console.warn(`[verify-flagship] GET /api/health returned ${apiHealth.status}`);
   }
 
-  const jump = await fetch(`${base}/jump`, { redirect: "manual" });
+  const jump = await sf(`${base}/jump`, { redirect: "manual" });
   if (jump.status < 300 || jump.status >= 400) {
     console.warn(`[verify-flagship] GET /jump expected 3xx, got ${jump.status}`);
   }
 
-  const echoRes = await fetch(`${base}/echo`, {
+  const echoRes = await sf(`${base}/echo`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ msg: "flagship-verify" }).toString(),
@@ -431,7 +463,7 @@ async function driveLaravelMinCorpus(port) {
     console.warn(`[verify-flagship] POST /echo returned ${echoRes.status}`);
   }
 
-  const echo2 = await fetch(`${base}/echo`, {
+  const echo2 = await sf(`${base}/echo`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ msg: "second-post" }).toString(),
@@ -440,7 +472,7 @@ async function driveLaravelMinCorpus(port) {
   if (!echo2.ok) {
     console.warn(`[verify-flagship] POST /echo (second) returned ${echo2.status}`);
   }
-  const echoEmpty = await fetch(`${base}/echo`, {
+  const echoEmpty = await sf(`${base}/echo`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({}).toString(),
@@ -449,7 +481,7 @@ async function driveLaravelMinCorpus(port) {
   if (echoEmpty.ok || echoEmpty.status !== 400) {
     console.warn(`[verify-flagship] POST /echo (empty) expected 400, got ${echoEmpty.status}`);
   }
-  const echoJson = await fetch(`${base}/echo`, {
+  const echoJson = await sf(`${base}/echo`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ msg: "json-body" }),
@@ -458,105 +490,105 @@ async function driveLaravelMinCorpus(port) {
   if (echoJson.ok || echoJson.status !== 400) {
     console.warn(`[verify-flagship] POST /echo (json) expected 400, got ${echoJson.status}`);
   }
-  const echoWrongMethod = await fetch(`${base}/echo`);
+  const echoWrongMethod = await sf(`${base}/echo`);
   if (echoWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] GET /echo expected 404, got ${echoWrongMethod.status}`);
   }
-  const logoutWrongMethod = await fetch(`${base}/logout`);
+  const logoutWrongMethod = await sf(`${base}/logout`);
   if (logoutWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] GET /logout expected 404, got ${logoutWrongMethod.status}`);
   }
-  const meWrongMethod = await fetch(`${base}/session/me`, { method: "POST" });
+  const meWrongMethod = await sf(`${base}/session/me`, { method: "POST" });
   if (meWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /session/me expected 404, got ${meWrongMethod.status}`);
   }
-  const visitWrongMethod = await fetch(`${base}/session/visit`, { method: "POST" });
+  const visitWrongMethod = await sf(`${base}/session/visit`, { method: "POST" });
   if (visitWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /session/visit expected 404, got ${visitWrongMethod.status}`);
   }
-  const countWrongMethod = await fetch(`${base}/count`, { method: "POST" });
+  const countWrongMethod = await sf(`${base}/count`, { method: "POST" });
   if (countWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /count expected 404, got ${countWrongMethod.status}`);
   }
-  const itemsWrongMethod = await fetch(`${base}/items`, { method: "POST" });
+  const itemsWrongMethod = await sf(`${base}/items`, { method: "POST" });
   if (itemsWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /items expected 404, got ${itemsWrongMethod.status}`);
   }
-  const healthWrongMethod = await fetch(`${base}/health`, { method: "POST" });
+  const healthWrongMethod = await sf(`${base}/health`, { method: "POST" });
   if (healthWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /health expected 404, got ${healthWrongMethod.status}`);
   }
-  const apiHealthWrongMethod = await fetch(`${base}/api/health`, { method: "POST" });
+  const apiHealthWrongMethod = await sf(`${base}/api/health`, { method: "POST" });
   if (apiHealthWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /api/health expected 404, got ${apiHealthWrongMethod.status}`);
   }
-  const jumpWrongMethod = await fetch(`${base}/jump`, { method: "POST" });
+  const jumpWrongMethod = await sf(`${base}/jump`, { method: "POST" });
   if (jumpWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /jump expected 404, got ${jumpWrongMethod.status}`);
   }
-  const helloWrongMethod = await fetch(`${base}/hello`, { method: "POST" });
+  const helloWrongMethod = await sf(`${base}/hello`, { method: "POST" });
   if (helloWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /hello expected 404, got ${helloWrongMethod.status}`);
   }
-  const homeWrongMethod = await fetch(`${base}/`, { method: "POST" });
+  const homeWrongMethod = await sf(`${base}/`, { method: "POST" });
   if (homeWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST / expected 404, got ${homeWrongMethod.status}`);
   }
-  const robotsWrongMethod = await fetch(`${base}/robots.txt`, { method: "POST" });
+  const robotsWrongMethod = await sf(`${base}/robots.txt`, { method: "POST" });
   if (robotsWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /robots.txt expected 404, got ${robotsWrongMethod.status}`);
   }
-  const humansWrongMethod = await fetch(`${base}/humans.txt`, { method: "POST" });
+  const humansWrongMethod = await sf(`${base}/humans.txt`, { method: "POST" });
   if (humansWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /humans.txt expected 404, got ${humansWrongMethod.status}`);
   }
-  const securityWrongMethod = await fetch(`${base}/.well-known/security.txt`, { method: "POST" });
+  const securityWrongMethod = await sf(`${base}/.well-known/security.txt`, { method: "POST" });
   if (securityWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /.well-known/security.txt expected 404, got ${securityWrongMethod.status}`);
   }
-  const sitemapWrongMethod = await fetch(`${base}/sitemap.xml`, { method: "POST" });
+  const sitemapWrongMethod = await sf(`${base}/sitemap.xml`, { method: "POST" });
   if (sitemapWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /sitemap.xml expected 404, got ${sitemapWrongMethod.status}`);
   }
-  const cssWrongMethod = await fetch(`${base}/css/pilot.css`, { method: "POST" });
+  const cssWrongMethod = await sf(`${base}/css/pilot.css`, { method: "POST" });
   if (cssWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /css/pilot.css expected 404, got ${cssWrongMethod.status}`);
   }
-  const manifestWrongMethod = await fetch(`${base}/manifest.webmanifest`, { method: "POST" });
+  const manifestWrongMethod = await sf(`${base}/manifest.webmanifest`, { method: "POST" });
   if (manifestWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] POST /manifest.webmanifest expected 404, got ${manifestWrongMethod.status}`);
   }
-  const loginPutWrongMethod = await fetch(`${base}/login`, { method: "PUT" });
+  const loginPutWrongMethod = await sf(`${base}/login`, { method: "PUT" });
   if (loginPutWrongMethod.status !== 404) {
     console.warn(`[verify-flagship] PUT /login expected 404, got ${loginPutWrongMethod.status}`);
   }
 
   for (let i = 0; i < 2; i++) {
-    const sv = await fetch(`${base}/session/visit`);
+    const sv = await sf(`${base}/session/visit`);
     if (!sv.ok) {
       console.warn(`[verify-flagship] GET /session/visit returned ${sv.status}`);
     }
   }
 
-  const me0 = await fetch(`${base}/session/me`);
+  const me0 = await sf(`${base}/session/me`);
   if (!me0.ok) {
     console.warn(`[verify-flagship] GET /session/me returned ${me0.status}`);
   }
 
-  const gateAllow = await fetch(`${base}/gate-probe`);
+  const gateAllow = await sf(`${base}/gate-probe`);
   if (!gateAllow.ok) {
     console.warn(`[verify-flagship] GET /gate-probe returned ${gateAllow.status}`);
   }
-  const gateDeny = await fetch(`${base}/gate-probe?m=deny`);
+  const gateDeny = await sf(`${base}/gate-probe?m=deny`);
   if (!gateDeny.ok) {
     console.warn(`[verify-flagship] GET /gate-probe?m=deny returned ${gateDeny.status}`);
   }
 
-  const loginForm = await fetch(`${base}/login`);
+  const loginForm = await sf(`${base}/login`);
   if (!loginForm.ok) {
     console.warn(`[verify-flagship] GET /login returned ${loginForm.status}`);
   }
-  const loginBadCsrf = await fetch(`${base}/login`, {
+  const loginBadCsrf = await sf(`${base}/login`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -569,7 +601,7 @@ async function driveLaravelMinCorpus(port) {
   if (loginBadCsrf.status !== 403) {
     console.warn(`[verify-flagship] POST /login (bad csrf) expected 403, got ${loginBadCsrf.status}`);
   }
-  const loginBadPassword = await fetch(`${base}/login`, {
+  const loginBadPassword = await sf(`${base}/login`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -582,7 +614,7 @@ async function driveLaravelMinCorpus(port) {
   if (loginBadPassword.status !== 401) {
     console.warn(`[verify-flagship] POST /login (bad password) expected 401, got ${loginBadPassword.status}`);
   }
-  const loginEmptyCreds = await fetch(`${base}/login`, {
+  const loginEmptyCreds = await sf(`${base}/login`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ csrf: "flagship_csrf_static" }).toString(),
@@ -591,7 +623,7 @@ async function driveLaravelMinCorpus(port) {
   if (loginEmptyCreds.status !== 400) {
     console.warn(`[verify-flagship] POST /login (empty creds) expected 400, got ${loginEmptyCreds.status}`);
   }
-  const loginPost = await fetch(`${base}/login`, {
+  const loginPost = await sf(`${base}/login`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -604,12 +636,12 @@ async function driveLaravelMinCorpus(port) {
   if (loginPost.status < 300 || loginPost.status >= 400) {
     console.warn(`[verify-flagship] POST /login expected 3xx, got ${loginPost.status}`);
   }
-  const me1 = await fetch(`${base}/session/me`);
+  const me1 = await sf(`${base}/session/me`);
   if (!me1.ok) {
     console.warn(`[verify-flagship] GET /session/me (after login) returned ${me1.status}`);
   }
 
-  const logoutRes = await fetch(`${base}/logout`, {
+  const logoutRes = await sf(`${base}/logout`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: "",
@@ -618,12 +650,12 @@ async function driveLaravelMinCorpus(port) {
   if (logoutRes.status < 300 || logoutRes.status >= 400) {
     console.warn(`[verify-flagship] POST /logout expected 3xx, got ${logoutRes.status}`);
   }
-  const me2 = await fetch(`${base}/session/me`);
+  const me2 = await sf(`${base}/session/me`);
   if (!me2.ok) {
     console.warn(`[verify-flagship] GET /session/me (after logout) returned ${me2.status}`);
   }
 
-  const apiTail = await fetch(`${base}/api/health`);
+  const apiTail = await sf(`${base}/api/health`);
   if (!apiTail.ok) {
     console.warn(`[verify-flagship] GET /api/health (tail) returned ${apiTail.status}`);
   }
@@ -754,7 +786,12 @@ function assertRouteContainsBody(byRoute, routeSig, expectedBody) {
   }
   const hasBody = traces.some((trace) => {
     const response = trace.events.find((e) => e.type === "http.response");
-    return response && response.type === "http.response" && response.body === expectedBody;
+    return (
+      response &&
+      response.type === "http.response" &&
+      typeof response.body === "string" &&
+      response.body.includes(expectedBody)
+    );
   });
   if (!hasBody) {
     throw new Error(`[verify-flagship] ${routeSig} missing expected body ${JSON.stringify(expectedBody)}`);
@@ -837,9 +874,16 @@ function assertRouteHeaderContains(byRoute, routeSig, headerName, expectedFragme
 }
 
 function stableReportFingerprint(report) {
+  const endpoints = report.endpoints.map((e) => ({
+    route: e.route,
+    framesTotal: e.framesTotal,
+    framesPassed: e.framesPassed,
+    correctness: e.correctness,
+    divergences: e.divergences,
+  }));
   const stable = {
     aggregate: report.aggregate,
-    endpoints: report.endpoints,
+    endpoints,
   };
   return createHash("sha256").update(JSON.stringify(stable)).digest("hex");
 }

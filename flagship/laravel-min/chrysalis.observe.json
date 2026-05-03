@@ -1,5 +1,9 @@
 {
   "redaction": {
-    "rules": [{ "path": "request.headers.cookie", "kind": "hash" }]
+    "rules": [
+      { "path": "request.headers.cookie", "kind": "hash" },
+      { "path": "request.post.password", "kind": "verbatim" },
+      { "path": "sql.row.password", "kind": "verbatim" }
+    ]
   }
 }

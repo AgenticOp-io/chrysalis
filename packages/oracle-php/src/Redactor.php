@@ -29,7 +29,7 @@ final class Redactor
         foreach ($rules as $r) {
             $path = (string)($r['path'] ?? '');
             $kind = (string)($r['kind'] ?? 'mask');
-            if ($path === '' || !in_array($kind, ['drop', 'hash', 'mask'], true)) {
+            if ($path === '' || !in_array($kind, ['drop', 'hash', 'mask', 'verbatim'], true)) {
                 continue;
             }
             $normalized[] = ['path' => $path, 'kind' => $kind];
@@ -301,6 +301,9 @@ final class Redactor
 
     private function applyKind(string $value, string $kind): string
     {
+        if ($kind === 'verbatim') {
+            return $value;
+        }
         if ($kind === 'mask') {
             return self::MASK;
         }

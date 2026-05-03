@@ -1,7 +1,9 @@
 /**
  * `observe()` — launches PHP's built-in server with the Chrysalis Oracle
  * prelude loaded via `auto_prepend_file`, configured to write NDJSON traces
- * into the provided directory.
+ * into the provided directory. When `index.php` exists under `phpRoot`, a small
+ * bundled router script is appended so extension paths (for example `/robots.txt`)
+ * reach the front controller instead of static 404s (PHP built-in server quirk).
  *
  * This is a *convenience* entrypoint for development and CI. In production, an
  * operator would arrange the same environment via `php.ini` or a docker
@@ -10,7 +12,8 @@
 
 import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   DEFAULT_REDACTION,
   canonicalJSON,
@@ -47,7 +50,7 @@ function parseObserveRedactionRules(parsedRoot: unknown, absConfigPath: string):
     }
     const rec = r as Record<string, unknown>;
     const kind = rec.kind;
-    if (kind !== "drop" && kind !== "hash" && kind !== "mask") continue;
+    if (kind !== "drop" && kind !== "hash" && kind !== "mask" && kind !== "verbatim") continue;
     const p = rec.path;
     if (typeof p !== "string" || p.trim() === "") {
       throw new Error(
@@ -96,14 +99,31 @@ export function startObserver(opts: ObserveOptions): ObserveHandle {
   };
 
   const phpBinary = opts.phpBinary ?? "php";
-  const args = [
-    "-d",
-    `auto_prepend_file=${resolve(opts.preludePath)}`,
-    "-S",
-    `${host}:${port}`,
-    "-t",
-    resolve(opts.phpRoot),
-  ];
+  const docRoot = resolve(opts.phpRoot);
+  const preludeAbs = resolve(opts.preludePath);
+  const indexInDocroot = join(docRoot, "index.php");
+  const bundledRouter = resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "..",
+    "oracle-php",
+    "src",
+    "builtin-server-router.php",
+  );
+
+  /** When the docroot has index.php, route via the bundled builtin-server-router.php script. */
+  const bind = `${host}:${port}`;
+  const args = existsSync(indexInDocroot)
+    ? ["-S", bind, "-t", docRoot, bundledRouter]
+    : ["-d", "auto_prepend_file=" + preludeAbs, "-S", bind, "-t", docRoot];
+
+  if (existsSync(indexInDocroot)) {
+    if (!existsSync(bundledRouter)) {
+      throw new Error(`Oracle PHP router missing at ${bundledRouter}`);
+    }
+    env.CHRYSALIS_BUILTIN_DOCROOT = docRoot;
+    env.CHRYSALIS_ORACLE_PRELUDE = preludeAbs;
+  }
 
   const child: ChildProcess = spawn(phpBinary, args, {
     env,
