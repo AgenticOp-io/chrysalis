@@ -105,4 +105,36 @@ describe("chrysalis emit --emit-dedupe-identical-handler-bodies", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("hono: dedupe with --emit-shared-runtime-imports wires SRI for thin handlers and deduped body", () => {
+    const out = mkdtempSync(join(tmpdir(), "chrysalis-emit-cli-dedupe-sri-"));
+    try {
+      const r = spawnSync(
+        process.execPath,
+        [
+          BIN,
+          "emit",
+          FIXTURE,
+          "--out",
+          out,
+          "--target",
+          "hono",
+          "--emit-dedupe-identical-handler-bodies",
+          "--emit-shared-runtime-imports",
+        ],
+        { encoding: "utf8", cwd: ROOT },
+      );
+      expect(r.status).toBe(0);
+      expect(existsSync(join(out, "src/chrysalis-runtime-imports.ts"))).toBe(true);
+      expect(readdirSync(join(out, "src/chrysalis-deduped")).length).toBe(1);
+      const aSrc = readFileSync(join(out, "src/handlers/twin_a.ts"), "utf8");
+      expect(aSrc).toContain("../chrysalis-runtime-imports.js");
+      const id = aSrc.match(/chrysalisBodyDedupe_[0-9a-f]+/)?.[0];
+      expect(id).toBeDefined();
+      const deduped = readFileSync(join(out, "src/chrysalis-deduped", `${id}.ts`), "utf8");
+      expect(deduped).toContain("../chrysalis-runtime-imports.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });

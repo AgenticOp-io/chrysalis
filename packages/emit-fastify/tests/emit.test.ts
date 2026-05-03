@@ -286,6 +286,59 @@ describe("emit-fastify: emitDedupeIdenticalHandlerBodies", () => {
       rmSync(out, { recursive: true, force: true });
     }
   });
+
+  test("dedupe with emitSharedRuntimeImports: thin handlers and shared body import chrysalis-runtime-imports", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-dedupe-sri-"));
+    try {
+      const mod = moduleTwoRoutesIdenticalProbeHoles();
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: {
+          emitDedupeIdenticalHandlerBodies: true,
+          emitSharedRuntimeImports: true,
+        },
+      });
+      expect(existsSync(resolve(out, "src/chrysalis-runtime-imports.ts"))).toBe(true);
+      const aSrc = readFileSync(resolve(out, "src/handlers/handler_a.ts"), "utf8");
+      expect(aSrc).toContain("../chrysalis-runtime-imports.js");
+      const id = aSrc.match(/chrysalisBodyDedupe_[0-9a-f]+/)?.[0];
+      expect(id).toBeDefined();
+      const shared = readFileSync(resolve(out, "src/chrysalis-deduped", `${id}.ts`), "utf8");
+      expect(shared).toContain("../chrysalis-runtime-imports.js");
+      expect(shared).not.toContain('from "../runtime.js"');
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  test("dedupe with emitSharedRuntimeImports and runtimeFacadeModule: SRI re-exports facade; deduped body uses SRI", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-dedupe-sri-facade-"));
+    try {
+      const mod = moduleTwoRoutesIdenticalProbeHoles();
+      await emit({
+        module: mod,
+        outDir: out,
+        provenanceRoot: FIXTURE,
+        emitStrategy: {
+          emitDedupeIdenticalHandlerBodies: true,
+          emitSharedRuntimeImports: true,
+          runtimeFacadeModule: true,
+        },
+      });
+      const sri = readFileSync(resolve(out, "src/chrysalis-runtime-imports.ts"), "utf8");
+      expect(sri).toContain('from "./chrysalis-runtime-facade.js"');
+      const id = readFileSync(resolve(out, "src/handlers/handler_a.ts"), "utf8").match(
+        /chrysalisBodyDedupe_[0-9a-f]+/,
+      )?.[0];
+      expect(id).toBeDefined();
+      const deduped = readFileSync(resolve(out, "src/chrysalis-deduped", `${id}.ts`), "utf8");
+      expect(deduped).toContain("../chrysalis-runtime-imports.js");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("emit-fastify: runtimeFacadeModule", () => {
