@@ -89,5 +89,8 @@ describe("ingest: dedupeStructuralSubgraphs (D283)", () => {
     expect(deduped.roots.length).toBe(base.roots.length);
     expect(countHoles(deduped)).toBe(countHoles(base));
     expect(deduped.nodes.size).toBeLessThanOrEqual(base.nodes.size);
+    // Shared lib/ IR is duplicated across routes in default monolithic ingest; D283
+    // recovers the same node-count contract as mergeWebIrModules(K=2) on this fixture.
+    expect(deduped.nodes.size).toBeLessThan(base.nodes.size);
   });
 });
