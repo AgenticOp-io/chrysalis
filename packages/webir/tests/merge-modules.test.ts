@@ -3,6 +3,7 @@ import {
   ModuleBuilder,
   T,
   dataDialect,
+  dedupeStructuralSubgraphsInModule,
   mergeWebIrModules,
   phpLocator,
   webRequest,
@@ -67,5 +68,49 @@ describe("mergeWebIrModules", () => {
     const a = oneGetRouteModule("/a", "one");
     const b = oneGetRouteModule("/b", "two");
     expect(() => mergeWebIrModules([a, b])).toThrow(/sourceApp mismatch/);
+  });
+});
+
+describe("dedupeStructuralSubgraphsInModule", () => {
+  test("collapses duplicate literals shared across routes in one module (same origin)", () => {
+    const b = new ModuleBuilder({ sourceApp: "mono-dedupe", chrysalisVersion: "1.0.0" });
+    const w = webRequest.builders(b);
+    const d = dataDialect.builders(b);
+    const o = phpLocator("pages/shared.php", 2, 0);
+    const mkRoute = (path: string, name: string) => {
+      const lit = d.literal({ value: 42, type: T.int, origin: o });
+      const resp = w.response({
+        attrs: { status: 200, kind: "html" },
+        value: lit,
+        origin: o,
+      });
+      const h = w.handler({
+        attrs: { name, input: T.record({}), output: T.void },
+        body: resp,
+        effects: [],
+        origin: o,
+      });
+      const route = w.route({
+        attrs: { method: "GET", path, pathParams: [] },
+        handler: h,
+        origin: o,
+      });
+      b.addRoot(route);
+    };
+    mkRoute("/a", "ha");
+    mkRoute("/b", "hb");
+    const before = b.finish();
+    const after = dedupeStructuralSubgraphsInModule(before);
+    expect(after.roots.length).toBe(2);
+    expect(after.nodes.size).toBeLessThan(before.nodes.size);
+  });
+
+  test("second pass does not change node count (structural dedupe is stable)", () => {
+    const m = oneGetRouteModule("/only", "idem");
+    const once = dedupeStructuralSubgraphsInModule(m);
+    const twice = dedupeStructuralSubgraphsInModule(once);
+    expect(twice.nodes.size).toBe(once.nodes.size);
+    // Rebuild uses a fresh IdGen each call; assert stability on counts, not NodeId strings.
+    expect(once.nodes.size).toBe(m.nodes.size);
   });
 });

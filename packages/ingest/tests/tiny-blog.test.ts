@@ -81,3 +81,13 @@ describe("ingest: dedupe-identical-handlers fixture", () => {
     expect(countHoles(mod)).toBe(0);
   });
 });
+
+describe("ingest: dedupeStructuralSubgraphs (D283)", () => {
+  test("tiny-blog with dedupeStructuralSubgraphs stays hole-free and route-stable", async () => {
+    const base = await ingestDirectory(FIXTURE);
+    const deduped = await ingestDirectory(FIXTURE, { dedupeStructuralSubgraphs: true });
+    expect(deduped.roots.length).toBe(base.roots.length);
+    expect(countHoles(deduped)).toBe(countHoles(base));
+    expect(deduped.nodes.size).toBeLessThanOrEqual(base.nodes.size);
+  });
+});

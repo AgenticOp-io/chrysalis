@@ -14,28 +14,29 @@ Subcommands (some are Milestone 1 stubs):
   **`chrysalis.observe.json`** in the PHP root **merges** onto built-in default redaction (same `path` overrides `kind`).
   Bad JSON or invalid rule shapes exit **2** with **`[observe]`** stderr (**D209**).
 - `chrysalis ingest` — PHP source → WebIR module on disk; prints auth-tagged
-  ingest hole count when non-zero (6A); optional **`--shard-index` / `--shard-count`** (V2-M2 route filter); optional **`--merge-all-shards --shard-count K`** (run **`mergeWebIrModules`** over every shard **`0..K-1`**); optional **`--ingest-cache <dir>`** (V2-M2 AST cache); optional **`--ingest-progress-file <path>`** (diagnostic **`chrysalis.ingest.progress`**, **D277**)
+  ingest hole count when non-zero (6A); optional **`--shard-index` / `--shard-count`** (V2-M2 route filter); optional **`--merge-all-shards --shard-count K`** (run **`mergeWebIrModules`** over every shard **`0..K-1`**); optional **`--ingest-cache <dir>`** (V2-M2 AST cache); optional **`--ingest-progress-file <path>`** (diagnostic **`chrysalis.ingest.progress`**, **D277**); optional **`--ingest-dedupe-structural-subgraphs`** (within-module WebIR structural dedupe, **D283**)
 - `chrysalis archaeology` — recover schema from DB + traces + optional PHP form scan (`--php-root <dir>`, repeatable)
-- `chrysalis insight <php-project-dir>` — N+1 / SQL / validation reports over ingested WebIR; optional **`--ingest-cache`**, **`--ingest-progress-file`** (**D280**), **`--parser-provider`**, **`--traces`**, **`--json`**
-- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--merge-all-shards --shard-count K`** (full merged module via **`mergeWebIrModules`**, **D247** cross-shard dedupe); optional **`--ingest-cache <dir>`**; optional **`--ingest-progress-file <path>`** (during ingest phase, **D277**); optional **`--emit-resume`** (skip completed handler writes via **`.chrysalis-emit-state.json`**, **D254**); optional **`--emit-handler-import-barrel`** (**`src/chrysalis-handler-imports.ts`**, **D256**); optional **`--emit-route-path-constants`** (**`src/chrysalis-route-paths.ts`**, **D258**); optional **`--emit-handler-fingerprints`** (**`chrysalis.emit-handler-fingerprints.json`**, **D259**); optional **`--emit-runtime-facade`** (**`src/chrysalis-runtime-facade.ts`**, **D272**); optional **`--emit-shared-runtime-imports`** (**`src/chrysalis-runtime-imports.ts`**, **D281**; mutually exclusive with **`--emit-handler-import-barrel`**); optional **`--emit-dedupe-identical-handler-bodies`** (**`src/chrysalis-deduped/`**, **D282**)
+- `chrysalis insight <php-project-dir>` — N+1 / SQL / validation reports over ingested WebIR; optional **`--ingest-cache`**, **`--ingest-progress-file`** (**D280**), **`--ingest-dedupe-structural-subgraphs`** (**D283**), **`--parser-provider`**, **`--traces`**, **`--json`**
+- `chrysalis emit --target=hono|fastify` — WebIR → generated project; optional **`--shard-index` / `--shard-count`** (partial route emit, V2-M2); optional **`--merge-all-shards --shard-count K`** (full merged module via **`mergeWebIrModules`**, **D247** cross-shard dedupe); optional **`--ingest-cache <dir>`**; optional **`--ingest-progress-file <path>`** (during ingest phase, **D277**); optional **`--ingest-dedupe-structural-subgraphs`** (**D283**); optional **`--emit-resume`** (skip completed handler writes via **`.chrysalis-emit-state.json`**, **D254**); optional **`--emit-handler-import-barrel`** (**`src/chrysalis-handler-imports.ts`**, **D256**); optional **`--emit-route-path-constants`** (**`src/chrysalis-route-paths.ts`**, **D258**); optional **`--emit-handler-fingerprints`** (**`chrysalis.emit-handler-fingerprints.json`**, **D259**); optional **`--emit-runtime-facade`** (**`src/chrysalis-runtime-facade.ts`**, **D272**); optional **`--emit-shared-runtime-imports`** (**`src/chrysalis-runtime-imports.ts`**, **D281**; mutually exclusive with **`--emit-handler-import-barrel`**); optional **`--emit-dedupe-identical-handler-bodies`** (**`src/chrysalis-deduped/`**, **D282**)
 - `chrysalis verify` — replay oracle traces against the generated code; optional
   **`--replay-concurrency N`** (requires **`--disable-cookie-chain`** or
   **`CHRYSALIS_VERIFY_DISABLE_COOKIE_CHAIN=1`**), **`--replay-timeout-ms`**,
   **`--replay-worker-threads`** (remote verify throughput; no **`--project`**),
   **`--shard-index i --shard-count K`** (V2-M1 deterministic corpus partition),
   **`--ingest-progress-file <path>`** when **`--project`** is set (ingest-phase diagnostic, **D280**),
+  **`--ingest-dedupe-structural-subgraphs`** with **`--project`** (**D283**),
   and env **`CHRYSALIS_VERIFY_*`** aliases (**`CHRYSALIS_VERIFY_WORKER_THREADS=1`**, D206).
   **`--json-summary`** prints a single JSON object on **stdout** (progress on **stderr**); includes **`schemaVersion`** (stable for **`jq`**) and **`toolVersion`** (repo root **`package.json`**); use for CI (**D222**, **D223**).
   On failures: divergence-kind counts, absolute **`summary.json`** path, and **`repair`** / **`--project`** hints (**D212**).
   **`--only-route "METHOD /path"`** and **`--only-trace-id <id>`** narrow replay for large corpora (**D213**)
 - `chrysalis verify-merge` — merge per-shard **`summary.json`** files; **`--json-out`** prints **`chrysalis.verify.summary.merged`** (V2-M1)
 - `chrysalis corpus-merge` — merge multiple **`traces/`**-shaped roots into **`--out`** (V2-M3); **`--on-duplicate error|skip`**, optional **`--dedupe-trace-id skip`**, **`--sample-modulo K --sample-remainder R`**, **`--dry-run`**, **`--json-out <file>`** (**`chrysalis.corpus-merge.summary`**)
-- `chrysalis rewrite` — IR rewrites; optional `--http-replay` and
+- `chrysalis rewrite` — IR rewrites; optional **`--ingest-cache`**, **`--ingest-dedupe-structural-subgraphs`** (**D283**); optional `--http-replay` and
   `--http-replay-backends=hono,fastify`
 - `chrysalis deploy --mode=legacy|shadow|canary|cutover` — chimera router
   (`--config` file **D253**, **`--config-url`** / **`CHRYSALIS_CHIMERA_CONFIG_URL`** **D256**, optional **HMAC** **D255** / multi-key **D257**, **operator-metrics-*** / **`CHRYSALIS_CHIMERA_INSTANCE_ID`** **D258**, **SIGHUP/SIGUSR2** reload **D256**, `--canary-percent`, stickiness cookie/header flags for canary)
 - `chrysalis status` — migration dashboard; **`--json`** prints a single JSON object on **stdout**; shard / merge-all-shards progress lines go to **stderr** (same machine contract as **`verify --json-summary`**). **`--json`** includes `migration`
-  and `oracleFootprint` (`routes[]` with `--project`) and **`ingestSharding`** (`monolithic` | **`routeShard`** | **`mergedShards`**) when **`--project`** ingest succeeds (**DESIGN D248**). With **`--project`**, optional **`--merge-all-shards --shard-count K`** ingests each shard and merges for full-route metrics (same **`mergeWebIrModules`** as **`ingest`**). With `--project`, also
+  and `oracleFootprint` (`routes[]` with `--project`) and **`ingestSharding`** (`monolithic` | **`routeShard`** | **`mergedShards`**) when **`--project`** ingest succeeds (**DESIGN D248**). With **`--project`**, optional **`--merge-all-shards --shard-count K`** ingests each shard and merges for full-route metrics (same **`mergeWebIrModules`** as **`ingest`**); optional **`--ingest-dedupe-structural-subgraphs`** (**D283**). With `--project`, also
   writes `reports/oracle-footprint.json`. Correctness from `--report`, optional
   `reports/migration/*.json` sidecars (`--migration-reports <dir>`); when
   `residual-legacy.json` includes 6A fields, `migration` also surfaces
@@ -49,7 +50,7 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis repair <traces-dir> --base-url <url> --project <php-root>` —
   verify-gated repair (`@chrysalis/repair`): same replay flags as **`verify`**
   (`--replay-concurrency`, `--disable-cookie-chain`, `--replay-timeout-ms`; worker threads
-  are disabled because repair always ingests **`--project`**); optional **`--ingest-progress-file <path>`** on ingest (**D280**); default stub proposer; optional
+  are disabled because repair always ingests **`--project`**); optional **`--ingest-progress-file <path>`** on ingest (**D280**); optional **`--ingest-dedupe-structural-subgraphs`** (**D283**); default stub proposer; optional
   `--llm` + `CHRYSALIS_REPAIR_LLM_API_KEY`; `--hole-patch <file.json>` for signed
   hole closure; `--repair-verbose` for HTTP chat diagnostics;   `--write-module
   <webir.json>` after a successful run to dump the accepted module snapshot

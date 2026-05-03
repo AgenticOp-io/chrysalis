@@ -138,6 +138,8 @@ Operators restart large ingests safely using:
 
 4. **CI stress guards (Vitest only):** **`packages/ingest/tests/many-routes-synthetic-ingest.test.ts`** optionally asserts **wall-clock** when **`CHRYSALIS_INGEST_BUDGET_MS`** is set and **process RSS** (`process.memoryUsage().rss`) when **`CHRYSALIS_INGEST_RSS_MAX_BYTES`** is set (**DESIGN D255**). These are **best-effort** regression rails on the **12-route** temp tree, not a guarantee about peak RSS for arbitrary estates. Production paths should still prefer **sharding** + **`--ingest-cache`** over one giant process (**DESIGN D276**).
 
+5. **Within-module structural dedupe (opt-in, D283):** **`--ingest-dedupe-structural-subgraphs`** on **`ingest`**, **`emit`**, **`status --project`**, **`verify --project`**, **`repair`**, **`insight`**, and **`rewrite`** runs **`dedupeStructuralSubgraphsInModule`** after lowering (same structural key as **`mergeWebIrModules`**, **D247**). Shrinks **`Module.nodes`** when routes share identical lowered subgraphs; default ingest leaves the graph unchanged.
+
 ## Oracle: observe and corpus
 
 1. Start observe (example port 8080):

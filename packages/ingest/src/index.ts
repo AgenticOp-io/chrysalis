@@ -10,7 +10,7 @@ import {
 } from "./ingest-progress.js";
 import { parseFile, type Provider } from "@chrysalis/parser-bridge";
 import { loadOrParsePhpAstWithCache } from "./parse-cache.js";
-import { ModuleBuilder, type Module } from "@chrysalis/webir";
+import { ModuleBuilder, dedupeStructuralSubgraphsInModule, type Module } from "@chrysalis/webir";
 import { ingestHandler } from "./convert.js";
 import { buildCallEffectMap } from "./library-effects.js";
 import { filterRoutesForShard } from "./route-shard.js";
@@ -54,6 +54,11 @@ export interface IngestOptions {
    * route root (crash-forensics / operator diagnostics only; does not skip ingest work).
    */
   readonly ingestProgressFile?: string;
+  /**
+   * When true, run {@link dedupeStructuralSubgraphsInModule} on the finished module
+   * (same structural key as cross-shard merge; **DESIGN D283**). Default: omit / false.
+   */
+  readonly dedupeStructuralSubgraphs?: boolean;
 }
 
 /** Options for {@link ingestFile} parity with {@link ingestDirectory} call widening. */
@@ -121,7 +126,11 @@ export async function ingestDirectory(
       });
     }
   }
-  return builder.finish();
+  let mod = builder.finish();
+  if (opts?.dedupeStructuralSubgraphs === true) {
+    mod = dedupeStructuralSubgraphsInModule(mod);
+  }
+  return mod;
 }
 
 export async function ingestFile(

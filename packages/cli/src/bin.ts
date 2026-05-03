@@ -112,7 +112,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file, verify|repair|insight --ingest-progress-file (verify needs --project); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file / --ingest-dedupe-structural-subgraphs (DESIGN D283), verify|repair|insight --ingest-progress-file (verify needs --project); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
@@ -226,12 +226,14 @@ async function ingestProjectWithShardMode(
     parserProvider?: ParserProvider;
     ingestCacheDir?: string;
     ingestProgressFile?: string;
+    dedupeStructuralSubgraphs?: boolean;
   },
 ): Promise<Module> {
   const base = {
     ...(extras.parserProvider ? { parserProvider: extras.parserProvider } : {}),
     ...(extras.ingestCacheDir !== undefined ? { ingestCacheDir: extras.ingestCacheDir } : {}),
     ...(extras.ingestProgressFile !== undefined ? { ingestProgressFile: extras.ingestProgressFile } : {}),
+    ...(extras.dedupeStructuralSubgraphs === true ? { dedupeStructuralSubgraphs: true as const } : {}),
   };
   if (mode.mode === "none") {
     return ingestDirectory(root, base);
@@ -335,7 +337,7 @@ async function cmdIngest(args: string[]): Promise<number> {
   const root = pos[0];
   if (!root) {
     console.error(
-      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>]",
+      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-dedupe-structural-subgraphs]",
     );
     return 2;
   }
@@ -371,11 +373,17 @@ async function cmdIngest(args: string[]): Promise<number> {
   if (progressOpts.ingestProgressFile !== undefined) {
     console.log(`[ingest] progress JSON: ${progressOpts.ingestProgressFile}`);
   }
+  if (flags["ingest-dedupe-structural-subgraphs"] === true) {
+    console.log("[ingest] structural subgraph dedupe: dedupeStructuralSubgraphsInModule (DESIGN D283)");
+  }
   const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
     ...(progressOpts.ingestProgressFile !== undefined
       ? { ingestProgressFile: progressOpts.ingestProgressFile }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs"] === true
+      ? { dedupeStructuralSubgraphs: true as const }
       : {}),
   });
   console.log(`routes:   ${mod.roots.length}`);
@@ -398,7 +406,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-dedupe-identical-handler-bodies] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-dedupe-identical-handler-bodies] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-dedupe-structural-subgraphs]",
     );
     return 2;
   }
@@ -434,6 +442,9 @@ async function cmdEmit(args: string[]): Promise<number> {
   if (progressOptsEmit.ingestProgressFile !== undefined) {
     console.log(`[emit] ingest progress JSON: ${progressOptsEmit.ingestProgressFile}`);
   }
+  if (flags["ingest-dedupe-structural-subgraphs"] === true) {
+    console.log("[emit] ingest structural subgraph dedupe: dedupeStructuralSubgraphsInModule (DESIGN D283)");
+  }
   if (target !== "hono" && target !== "fastify") {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
     return 2;
@@ -454,6 +465,9 @@ async function cmdEmit(args: string[]): Promise<number> {
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
     ...(progressOptsEmit.ingestProgressFile !== undefined
       ? { ingestProgressFile: progressOptsEmit.ingestProgressFile }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs"] === true
+      ? { dedupeStructuralSubgraphs: true as const }
       : {}),
   });
   const outAbs = resolve(outDir);
@@ -783,7 +797,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-dedupe-structural-subgraphs] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -821,6 +835,9 @@ async function cmdVerify(args: string[]): Promise<number> {
       ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
       ...(progressOptsVerify.ingestProgressFile !== undefined
         ? { ingestProgressFile: progressOptsVerify.ingestProgressFile }
+        : {}),
+      ...(flags["ingest-dedupe-structural-subgraphs"] === true
+        ? { dedupeStructuralSubgraphs: true as const }
         : {}),
     });
     vlog(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
@@ -1081,7 +1098,7 @@ async function cmdRepair(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (!corpusRoot || !baseUrl || !projectRoot) {
     console.error(
-      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-dedupe-structural-subgraphs] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -1133,6 +1150,9 @@ async function cmdRepair(args: string[]): Promise<number> {
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
     ...(progressOptsRepair.ingestProgressFile !== undefined
       ? { ingestProgressFile: progressOptsRepair.ingestProgressFile }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs"] === true
+      ? { dedupeStructuralSubgraphs: true as const }
       : {}),
   });
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
@@ -1714,6 +1734,7 @@ async function cmdInsight(args: string[]): Promise<number> {
         "                         [--only raw-sql-concat,unescaped-output,n-plus-one-queries,scattered-validation,string-dispatch]\n" +
         "                         [--ingest-cache <dir>]\n" +
         "                         [--ingest-progress-file <path>]\n" +
+        "                         [--ingest-dedupe-structural-subgraphs]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -1737,6 +1758,9 @@ async function cmdInsight(args: string[]): Promise<number> {
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
     ...(progressOptsInsight.ingestProgressFile !== undefined
       ? { ingestProgressFile: progressOptsInsight.ingestProgressFile }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs"] === true
+      ? { dedupeStructuralSubgraphs: true as const }
       : {}),
   });
 
@@ -1877,6 +1901,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
         "                         [--http-replay <traces-dir>] [--http-replay-backends=hono,fastify]\n" +
         "                         [--http-replay-skip-install]\n" +
         "                         [--ingest-cache <dir>]\n" +
+        "                         [--ingest-dedupe-structural-subgraphs]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -1901,6 +1926,9 @@ async function cmdRewrite(args: string[]): Promise<number> {
   const mod = await ingestDirectory(rootAbs, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs"] === true
+      ? { dedupeStructuralSubgraphs: true as const }
+      : {}),
   });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
@@ -2605,6 +2633,9 @@ async function cmdStatus(args: string[]): Promise<number> {
         ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
         ...(progressOptsStatus.ingestProgressFile !== undefined
           ? { ingestProgressFile: progressOptsStatus.ingestProgressFile }
+          : {}),
+        ...(flags["ingest-dedupe-structural-subgraphs"] === true
+          ? { dedupeStructuralSubgraphs: true as const }
           : {}),
       });
       ingestedMod = mod;
