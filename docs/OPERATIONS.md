@@ -179,7 +179,8 @@ Repository scripts wrap full loops (tiny-blog, flagship):
 
 - `pnpm run verify:e2e` — runs **`scripts/verify-tiny-blog.mjs`**: after PHP capture, splits NDJSON into two synthetic host trees under **`reports/ci/`**, **`mergeCorpusDirectories`** into **`reports/ci/traces-merged-multi-host`**, and replays that merged corpus against **Hono** at the same **`VERIFY_THRESHOLD`** as the monolithic corpus (V2-M3), using a **pristine sqlite copy** so the merged replay is not affected by earlier in-process replays on **`generated/tiny-blog/blog.sqlite`**.
 - `pnpm run verify:flagship`
-- `pnpm run verify:laravel-full` (when flagship worktree exists)
+- `pnpm run verify:laravel-full` — full Composer Laravel + Chrysalis templates under **`flagship/chrysalis-laravel-work/`** (gitignored). Requires **`composer`** on **`PATH`**, **`php`**, and a prior **`pnpm run scaffold:laravel-full`** (or **`pnpm run scaffold:laravel-full:breeze`** to mirror CI Breeze coexistence). Without **`vendor/autoload.php`** + **`public/index.php`**, the script exits **0** and skips capture.
+- `pnpm run verify:laravel-full:5nines` — runs **`verify:laravel-full`** with **baseline / empty / ten** seed variants, **3×** stress replay fingerprints, then **`ci-gates`** **`confidence-5nines`** and **`confidence-trend`** on **`reports/confidence/flagship-laravel-full.json`** (and optional history under **`reports/confidence/history/`**). Same prerequisites as **`verify:laravel-full`**; this is the operator “five nines” gate path (**`ROADMAP`**, **DESIGN D284**).
 
 See [`packages/verify/README.md`](../packages/verify/README.md) for fields in `summary.json` and JSON summary output.
 

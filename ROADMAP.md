@@ -936,6 +936,8 @@ This section is the **program roadmap to `v2.0.0`**. Milestones here are **numbe
 
 ### v2.0.0 tag criteria (proposal)
 
+**Documentation slice:** **`DESIGN.md`** Decision Log **D284** (2026-05-03) and **`CHANGELOG.md`** tie this checklist to versioned machine JSON / confidence artifacts operators must keep stable across releases.
+
 - V2-M1 **and** V2-M2 **closed** (verify sharding + ingest resume are non-negotiable for “any size”).
 - At least **one** of V2-M3 / V2-M4 **closed** (operators choose corpus-scale vs emit-scale priority).
 - V2-M5 **closed** or explicitly **deferred** with DESIGN Decision Log entry if release must slip.
