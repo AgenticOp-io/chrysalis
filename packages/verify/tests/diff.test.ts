@@ -40,6 +40,15 @@ describe("normalize", () => {
     expect(h).not.toHaveProperty("content-length");
     expect(h["set-cookie"]).toBe("PHPSESSID=<COOKIE_VALUE>; Path=/");
   });
+
+  it("maps Location absolute URLs to pathname+search for comparison", () => {
+    const h = normalizeHeaders({
+      location: "http://127.0.0.1:8080/foo?x=1",
+    });
+    expect(h.location).toBe("/foo?x=1");
+    const r = normalizeHeaders({ location: "/bar" });
+    expect(r.location).toBe("/bar");
+  });
 });
 
 describe("diffResponse", () => {
@@ -135,6 +144,56 @@ describe("diffResponse", () => {
       },
     );
     expect(r.divergences.some((d) => d.kind === "header-mismatch")).toBe(false);
+  });
+
+  it("does not report body-mismatch when 3xx bodies differ (redirect contract)", () => {
+    const r = diffResponse(
+      expected({
+        status: 302,
+        headers: { location: "/a", "content-type": "text/html" },
+        body: "<!DOCTYPE html><html><body>redirecting</body></html>",
+      }),
+      {
+        status: 302,
+        headers: { location: "/a" },
+        body: "",
+      },
+    );
+    expect(r.divergences).toHaveLength(0);
+    expect(r.bodySimilarity).toBe(1);
+  });
+
+  it("does not report Location mismatch when absolute URL matches path", () => {
+    const r = diffResponse(
+      expected({
+        status: 302,
+        headers: { location: "http://127.0.0.1:8080/posts?q=1" },
+        body: "",
+      }),
+      {
+        status: 302,
+        headers: { location: "/posts?q=1" },
+        body: "",
+      },
+    );
+    expect(r.divergences.some((d) => d.kind === "header-mismatch")).toBe(false);
+  });
+
+  it("405 wrong-method: skips body and enforces Allow when oracle sends it", () => {
+    const r = diffResponse(
+      expected({
+        status: 405,
+        headers: { allow: "POST", "content-type": "text/html; charset=utf-8" },
+        body: "<html>method not allowed</html>",
+      }),
+      {
+        status: 405,
+        headers: { allow: "POST" },
+        body: "",
+      },
+    );
+    expect(r.divergences).toHaveLength(0);
+    expect(r.bodySimilarity).toBe(1);
   });
 
   it("uses a looser body threshold for 4xx/5xx responses", () => {

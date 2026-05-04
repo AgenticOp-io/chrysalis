@@ -389,16 +389,53 @@ ${indent(fnBody, 2)}
 `;
 }
 
+function fastifyPathOfBinding(b: RouteBinding): string {
+  return b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
+}
+
+/**
+ * Laravel answers GET on POST-only routes with 405 + Allow. Fastify would
+ * fall through to 404 without an explicit GET handler; register one per path
+ * that lacks GET (same contract as `@chrysalis/emit-hono`).
+ */
+function methodNotAllowedGetStubs(bindings: RouteBinding[], useRoutePaths: boolean): string {
+  const pathToMethods = new Map<string, Set<string>>();
+  const pathToHandlerName = new Map<string, string>();
+  for (const b of bindings) {
+    const p = fastifyPathOfBinding(b);
+    let s = pathToMethods.get(p);
+    if (!s) {
+      s = new Set();
+      pathToMethods.set(p, s);
+    }
+    s.add(b.method.toUpperCase());
+    if (!pathToHandlerName.has(p)) pathToHandlerName.set(p, b.handlerName);
+  }
+  const lines: string[] = [];
+  for (const [p, methods] of pathToMethods) {
+    if (methods.has("GET") || methods.size === 0) continue;
+    const allow = [...methods].sort().join(", ");
+    const pathArg = useRoutePaths
+      ? `ChrysalisRoutePaths[${JSON.stringify(pathToHandlerName.get(p)!)}]`
+      : JSON.stringify(p);
+    lines.push(
+      `  app.get(${pathArg}, (_req, reply) => { void reply.header("Allow", ${JSON.stringify(allow)}).code(405).send(); });`,
+    );
+  }
+  return lines.join("\n");
+}
+
 function mountBlockFor(
   bindings: RouteBinding[],
   routeRegistration: "eager" | "lazy",
   useRoutePaths: boolean,
 ): { imports: string; registrations: string } {
+  const stubs = methodNotAllowedGetStubs(bindings, useRoutePaths);
   if (routeRegistration === "lazy") {
     const registrations = bindings
       .map((b) => {
         const method = b.method.toLowerCase();
-        const path = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
+        const path = fastifyPathOfBinding(b);
         const rel = `./handlers/${b.handlerName}.js`;
         const pathArg = useRoutePaths
           ? `ChrysalisRoutePaths[${JSON.stringify(b.handlerName)}]`
@@ -409,7 +446,8 @@ function mountBlockFor(
     const lazyImports = useRoutePaths
       ? `import { ChrysalisRoutePaths } from "./chrysalis-route-paths.js";\n`
       : "";
-    return { imports: lazyImports, registrations };
+    const withStubs = stubs ? `${registrations}\n${stubs}` : registrations;
+    return { imports: lazyImports, registrations: withStubs };
   }
   let imports = bindings
     .map((b) => `import { ${b.handlerName} } from "./handlers/${b.handlerName}.js";`)
@@ -420,14 +458,15 @@ function mountBlockFor(
   const registrations = bindings
     .map((b) => {
       const method = b.method.toLowerCase();
-      const path = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
+      const path = fastifyPathOfBinding(b);
       const pathArg = useRoutePaths
         ? `ChrysalisRoutePaths[${JSON.stringify(b.handlerName)}]`
         : JSON.stringify(path);
       return `  app.${method}(${pathArg}, ${b.handlerName});`;
     })
     .join("\n");
-  return { imports, registrations };
+  const withStubs = stubs ? `${registrations}\n${stubs}` : registrations;
+  return { imports, registrations: withStubs };
 }
 
 function indent(s: string, spaces: number): string {

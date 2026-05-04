@@ -22,6 +22,7 @@ import {
 } from "../runtime.js";
 
 /**
+ * @chrysalis-provenance "pages/posts_list.php"
  * @chrysalis-effects db.read:posts, db.read:users
  * @chrysalis-shape html
  * @chrysalis-holes 0

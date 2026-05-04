@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/emit-hono",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "private": true,
   "description": "WebIR → Hono + Drizzle project emitter. The default first backend.",
   "license": "MIT",

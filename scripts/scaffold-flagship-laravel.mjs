@@ -164,6 +164,91 @@ function installChrysalisTemplates(repoRoot, laravelRoot) {
   );
 }
 
+/**
+ * Default Laravel 13 `.env.example` uses `SESSION_DRIVER=database` without shipping a
+ * `sessions` table migration; Chrysalis oracle/verify need working sessions for
+ * `chrysalis-session/*` without an extra `session:table` step. File sessions are enough
+ * for the built-in PHP server used in `verify:laravel-full`.
+ *
+ * @param {string} laravelRoot
+ */
+function ensureOracleFriendlySessionDriver(laravelRoot) {
+  const envPath = join(laravelRoot, ".env");
+  if (!existsSync(envPath)) {
+    return;
+  }
+  let env = readFileSync(envPath, "utf8");
+  if (!env.includes("SESSION_DRIVER=database")) {
+    return;
+  }
+  env = env.replace(/SESSION_DRIVER=database/g, "SESSION_DRIVER=file");
+  writeFileSync(envPath, env);
+  console.log(
+    "[scaffold-flagship-laravel] .env: SESSION_DRIVER=file (database driver needs a sessions migration; oracle/verify use file for local PHP server).",
+  );
+}
+
+/**
+ * Chrysalis handlers use native PHP sessions (`session_name('chrysalis_sid')`). Laravel's
+ * `EncryptCookies` middleware must not encrypt that cookie, or replay/oracle traces lose
+ * session continuity. POST routes are exercised without CSRF tokens in oracle capture.
+ *
+ * @param {string} laravelRoot
+ */
+function ensureChrysalisLaravelWebCompat(laravelRoot) {
+  const appPhp = join(laravelRoot, "bootstrap", "app.php");
+  if (!existsSync(appPhp)) {
+    return;
+  }
+  let s = readFileSync(appPhp, "utf8");
+  if (s.includes("'chrysalis_sid'") && s.includes("encryptCookies")) {
+    return;
+  }
+  if (
+    s.includes("$middleware->preventRequestForgery(except:") &&
+    s.includes("'chrysalis-session/login'") &&
+    !s.includes("'chrysalis_sid'")
+  ) {
+    s = s.replace(
+      "        $middleware->preventRequestForgery(except:",
+      `        $middleware->encryptCookies(except: [
+            'chrysalis_sid',
+        ]);
+        $middleware->preventRequestForgery(except:`,
+    );
+    writeFileSync(appPhp, s);
+    console.log(
+      "[scaffold-flagship-laravel] bootstrap/app.php: encryptCookies except chrysalis_sid (native PHP session cookie).",
+    );
+    return;
+  }
+  const needle =
+    /->withMiddleware\(function \(Middleware \$middleware\): void \{\s*\/\/\s*\}\)/m;
+  if (!needle.test(s)) {
+    console.warn(
+      "[scaffold-flagship-laravel] bootstrap/app.php has no empty `withMiddleware` placeholder; skip Chrysalis web compat (edit manually if POST routes return 419 or session traces fail).",
+    );
+    return;
+  }
+  s = s.replace(
+    needle,
+    `->withMiddleware(function (Middleware $middleware): void {
+        $middleware->encryptCookies(except: [
+            'chrysalis_sid',
+        ]);
+        $middleware->preventRequestForgery(except: [
+            'chrysalis-session/login',
+            'chrysalis-session/logout',
+            'chrysalis-echo',
+        ]);
+    })`,
+  );
+  writeFileSync(appPhp, s);
+  console.log(
+    "[scaffold-flagship-laravel] bootstrap/app.php: encryptCookies except chrysalis_sid + CSRF exceptions for Chrysalis POST routes.",
+  );
+}
+
 try {
   execSync("composer --version", { stdio: "ignore" });
 } catch {
@@ -202,6 +287,8 @@ if (!laravelPresent) {
 ensureBreeze(outAbs, withBreeze);
 
 installChrysalisTemplates(repo, outAbs);
+ensureOracleFriendlySessionDriver(outAbs);
+ensureChrysalisLaravelWebCompat(outAbs);
 
 try {
   copyFileSync(emptyManifestExample, join(outAbs, "chrysalis.routes.example.json"));

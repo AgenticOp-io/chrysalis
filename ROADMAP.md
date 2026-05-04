@@ -5,6 +5,8 @@
 Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
+**v2.0.0 (2026-04-30)** source release: workspace semver **2.0.0** tags the **Chrysalis 2.0** scale-out milestones (**V2-M1–V2-M6**) completed on **`main`**; **`CHANGELOG.md`**, **`DESIGN.md` D285**, and **`pnpm run release:artifacts`** on **`v2.0.0`** produce **`chrysalis-2.0.0-source.{tar.gz,zip}`**. Optional **Remaining** / multi-lane **Next** backlog continues after the tag (see **Road to Chrysalis 2.0** and **Multi-lane program**).
+
 **v1.0.1 (2026-04-29)** patch release: **install-from-tarball** steps in **`docs/INSTALLATION.md`**, GitHub Project bootstrap (**`docs/GITHUB_PROJECT.md`**), and an **idempotent tag release workflow** (upload assets when the GitHub Release already exists). **v1.0.0** was the first tagged source release with the full **`docs/`** set, **`LICENSE`**, and **`pnpm run release:artifacts`**. **Program tracking:** **`docs/GITHUB_PROJECT.md`** + **`pnpm run github:project-bootstrap`**. Ongoing engineering continues on **`main`** per the lanes below.
 
 **Chrysalis 2.0** is chartered in **[Road to Chrysalis 2.0](#road-to-chrysalis-20--scale-out--warehouse-sized-codebases)** below: multi-server / massive-site **operations and performance** without relaxing **DESIGN.md** non-negotiables (behavioral oracle, WebIR, verify gates, holes, provenance).

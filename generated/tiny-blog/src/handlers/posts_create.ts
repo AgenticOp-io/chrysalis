@@ -23,12 +23,17 @@ import {
 } from "../runtime.js";
 
 /**
+ * @chrysalis-provenance "pages/posts_create.php"
  * @chrysalis-effects db.read:users, db.write:posts, session.read
  * @chrysalis-shape mixed
  * @chrysalis-holes 0
  */
 export async function posts_create(c: Context): Promise<Response> {
-  const __body = await c.req.parseBody().catch(() => ({} as Record<string, unknown>));
+  const __ct = String(c.req.header("content-type") ?? "").toLowerCase();
+  const __body =
+    __ct.includes("application/x-www-form-urlencoded") || __ct.includes("multipart/form-data")
+      ? await c.req.parseBody().catch(() => ({} as Record<string, unknown>))
+      : ({} as Record<string, unknown>);
   let __html = "";
   let __status = 200;
   let me = requireLogin(c);

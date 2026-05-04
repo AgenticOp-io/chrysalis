@@ -422,16 +422,52 @@ ${indent(fnBody, 2)}
 `;
 }
 
+function honoPathOfBinding(b: RouteBinding): string {
+  return b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
+}
+
+/**
+ * Laravel answers GET on POST-only routes with 405 + Allow. Hono would 404
+ * without an explicit GET handler; register one per path that lacks GET.
+ */
+function methodNotAllowedGetStubs(bindings: RouteBinding[], useRoutePaths: boolean): string {
+  const pathToMethods = new Map<string, Set<string>>();
+  const pathToHandlerName = new Map<string, string>();
+  for (const b of bindings) {
+    const p = honoPathOfBinding(b);
+    let s = pathToMethods.get(p);
+    if (!s) {
+      s = new Set();
+      pathToMethods.set(p, s);
+    }
+    s.add(b.method.toUpperCase());
+    if (!pathToHandlerName.has(p)) pathToHandlerName.set(p, b.handlerName);
+  }
+  const lines: string[] = [];
+  for (const [p, methods] of pathToMethods) {
+    if (methods.has("GET") || methods.size === 0) continue;
+    const allow = [...methods].sort().join(", ");
+    const pathArg = useRoutePaths
+      ? `ChrysalisRoutePaths[${JSON.stringify(pathToHandlerName.get(p)!)}]`
+      : JSON.stringify(p);
+    lines.push(
+      `  app.get(${pathArg}, (_c) => new Response(null, { status: 405, headers: { Allow: ${JSON.stringify(allow)} } }));`,
+    );
+  }
+  return lines.join("\n");
+}
+
 function mountBlockFor(
   bindings: RouteBinding[],
   routeRegistration: "eager" | "lazy",
   useRoutePaths: boolean,
 ): string {
+  const stubs = methodNotAllowedGetStubs(bindings, useRoutePaths);
   if (routeRegistration === "lazy") {
     const blocks = bindings
       .map((b) => {
         const method = b.method.toLowerCase();
-        const honoPath = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
+        const honoPath = honoPathOfBinding(b);
         const rel = `./handlers/${b.handlerName}.js`;
         const pathArg = useRoutePaths
           ? `ChrysalisRoutePaths[${JSON.stringify(b.handlerName)}]`
@@ -444,6 +480,7 @@ function mountBlockFor(
       : "";
     return `${head}async function registerRoutes(app: import("hono").Hono): Promise<void> {
 ${blocks}
+${stubs}
 }`;
   }
   const pathImport = useRoutePaths
@@ -456,7 +493,7 @@ ${blocks}
   const registrations = bindings
     .map((b) => {
       const method = b.method.toLowerCase();
-      const honoPath = b.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ":$1");
+      const honoPath = honoPathOfBinding(b);
       const pathArg = useRoutePaths
         ? `ChrysalisRoutePaths[${JSON.stringify(b.handlerName)}]`
         : JSON.stringify(honoPath);
@@ -468,6 +505,7 @@ ${blocks}
 
 function registerRoutes(app: import("hono").Hono): void {
 ${registrations}
+${stubs}
 }`;
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/webir",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "private": true,
   "description": "Chrysalis WebIR — multi-dialect, typed, effect-aware intermediate representation for web applications.",
   "license": "MIT",

@@ -7,7 +7,7 @@
     {
       "kind": "chrysalis.verify.summary",
       "schemaVersion": 1,
-      "toolVersion": "1.0.1",
+      "toolVersion": "2.0.0",
       "corpusRoot": "fixtures/tiny-blog/traces",
       "baseUrl": "http://127.0.0.1:3000",
       "reportDir": "reports/verify-a",
@@ -23,7 +23,7 @@
     {
       "kind": "chrysalis.verify.summary",
       "schemaVersion": 1,
-      "toolVersion": "1.0.1",
+      "toolVersion": "2.0.0",
       "corpusRoot": "fixtures/tiny-blog/traces",
       "baseUrl": "http://127.0.0.1:3001",
       "reportDir": "reports/verify-b",

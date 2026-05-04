@@ -22,6 +22,7 @@ import {
 } from "../runtime.js";
 
 /**
+ * @chrysalis-provenance "pages/posts_view.php"
  * @chrysalis-effects db.read:comments, db.read:posts, db.read:users, session.read
  * @chrysalis-shape html
  * @chrysalis-holes 0
@@ -51,13 +52,13 @@ export async function posts_view(c: Context): Promise<Response> {
     __html += String("    <p>No comments yet.</p>\r\n  ");
   } else {
     __html += String("    <ul>\r\n      ");
-    for (const c of (comments ?? []) as any[]) {
+    for (const cVar of (comments ?? []) as any[]) {
       __html += String("        <li>\r\n          <strong>");
-      __html += String(escapeHtml((c as any).author));
+      __html += String(escapeHtml((cVar as any).author));
       __html += String("</strong>\r\n          (");
-      __html += String(escapeHtml((c as any).created_at));
+      __html += String(escapeHtml((cVar as any).created_at));
       __html += String("):\r\n          ");
-      __html += String(escapeHtml((c as any).body));
+      __html += String(escapeHtml((cVar as any).body));
       __html += String("        </li>\r\n      ");
     }
     __html += String("    </ul>\r\n  ");

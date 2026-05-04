@@ -15,6 +15,8 @@ function registerRoutes(app: import("hono").Hono): void {
   app.post("/login", login);
   app.post("/posts", posts_create);
   app.post("/posts/:id/comments", comments_create);
+  app.get("/login", (_c) => new Response(null, { status: 405, headers: { Allow: "POST" } }));
+  app.get("/posts/:id/comments", (_c) => new Response(null, { status: 405, headers: { Allow: "POST" } }));
 }
 
 export const app = new Hono();

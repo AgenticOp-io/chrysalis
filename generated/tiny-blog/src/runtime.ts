@@ -1,4 +1,7 @@
 import type { Context } from "hono";
+import { HTTPException } from "hono/http-exception";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { compare as bcryptCompare } from "bcryptjs";
 import { queryOne } from "./db.js";
 import { getSession } from "./session.js";
 
@@ -26,11 +29,11 @@ export function currentUser(c: Context): { id: number; username: string } | null
   );
 }
 
-/** Guard used by handlers that require auth. Throws a 401 Response. */
+/** Guard for auth-required handlers. Uses HTTPException so Hono middleware compose (instanceof Error) forwards the 401 to the framework error handler. */
 export function requireLogin(c: Context): { id: number; username: string } {
   const u = currentUser(c);
   if (u === null) {
-    throw c.text("Login required", 401);
+    throw new HTTPException(401, { res: c.text("Login required", 401) });
   }
   return u;
 }
@@ -171,9 +174,18 @@ export function pregMatch(pattern: unknown, subject: unknown): boolean {
 }
 
 export async function passwordVerify(plain: string, hash: string): Promise<boolean> {
-  // Milestone 1 shim: non-cryptographic pairing check so emitted handlers compile.
-  // Replace with bcrypt/argon2 verification or an injected verifier (DESIGN: no secrets in generated code).
-  return String(plain).length > 0 && String(hash).length > 0;
+  const p = String(plain);
+  let h = String(hash);
+  if (p.length === 0 || h.length === 0) return false;
+  if (!/^\$2[aby]\$/.test(h)) return false;
+  if (h.startsWith("$2y$")) {
+    h = "$2a$" + h.slice(4);
+  }
+  try {
+    return await bcryptCompare(p, h);
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -228,20 +240,55 @@ export function phpDynamicNew(classExpr: unknown, ...args: unknown[]): unknown {
   return __hole("new:dynamic", { classExpr, args });
 }
 
+function __isLikelyWebAppManifestJson(v: unknown): boolean {
+  if (v === null || typeof v !== "object" || Array.isArray(v)) return false;
+  const o = v as Record<string, unknown>;
+  return (
+    typeof o.start_url === "string" &&
+    typeof o.display === "string" &&
+    (typeof o.name === "string" || typeof o.short_name === "string")
+  );
+}
+
 /**
  * Final-response helper. Mirrors the PHP "set status then echo then exit"
  * sequence: if there is buffered HTML, return it with the accumulated
  * status; otherwise return an empty text response with that status.
  */
 export function __respond(c: Context, html: string, status: number): Response {
+  // Hono overloads accept `ResponseOrInit` as the 2nd arg; avoid `Parameters<typeof c.text>[1]`
+  // (it unions status + init and breaks `c.body(..., status, headers)`).
+  const contentful = status as ContentfulStatusCode;
   if (html.length > 0) {
     // Heuristic: a leading `<` or `<!` marks this as HTML. Otherwise treat
     // as plain text. This matches most legacy PHP `echo` patterns.
     const isHtml = /^\s*<!?[a-z]/i.test(html);
-    const s = status as Parameters<typeof c.text>[1];
-    return isHtml ? c.html(html, s) : c.text(html, s);
+    if (isHtml) return c.html(html, contentful);
+    const t = html.trimStart();
+    if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
+      try {
+        const parsed = JSON.parse(html) as unknown;
+        if (__isLikelyWebAppManifestJson(parsed)) {
+          return c.body(html, contentful, {
+            "Content-Type": "application/manifest+json; charset=utf-8",
+          });
+        }
+        return c.body(JSON.stringify(parsed), contentful, {
+          "Content-Type": "application/json; charset=utf-8",
+        });
+      } catch {
+        /* fall through */
+      }
+    }
+    if (t.startsWith("<?xml")) {
+      return c.body(html, contentful, { "Content-Type": "application/xml; charset=utf-8" });
+    }
+    if (t.startsWith("/*") || t.startsWith("@")) {
+      return c.body(html, contentful, { "Content-Type": "text/css; charset=utf-8" });
+    }
+    return c.text(html, contentful);
   }
-  return c.text("", status as Parameters<typeof c.text>[1]);
+  return c.text("", contentful);
 }
 
 /**

@@ -373,7 +373,7 @@ jobs:
 
       - name: Verify composer-backed flagship slice
         env:
-          VERIFY_THRESHOLD: "0.99999"
+          VERIFY_THRESHOLD: "1"
           CONFIDENCE_5NINES: "0.99999"
           CONFIDENCE_STREAK_REQUIRED: "30"
         run: pnpm run verify:laravel-full:5nines

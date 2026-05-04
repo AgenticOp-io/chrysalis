@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/parser-bridge",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "private": true,
   "description": "Subprocess bridge to PHP's nikic/php-parser; emits canonical PHP AST JSON. Includes a pure-JS fallback via glayzzle's php-parser.",
   "license": "MIT",

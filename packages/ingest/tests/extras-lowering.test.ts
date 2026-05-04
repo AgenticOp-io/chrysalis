@@ -85,4 +85,96 @@ echo htmlspecialchars($a . $b . $c . $d . $e . ($f["path"] ?? "") . $j);
       rmSync(root, { recursive: true, force: true });
     }
   });
+
+  test("query_one folds static string concat to literal SQL", async () => {
+    const root = mkdtempSync(join(tmpdir(), "chrysalis-ingest-sqlfold-"));
+    try {
+      mkdirSync(join(root, "lib"), { recursive: true });
+      mkdirSync(join(root, "pages"), { recursive: true });
+      writeFileSync(
+        join(root, "lib/db.php"),
+        `<?php
+function query_one(string $sql, array $params = []): ?array {
+  return null;
+}
+`,
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "chrysalis.routes.json"),
+        JSON.stringify({
+          app: "sqlfold",
+          routes: [{ method: "GET", path: "/q", file: "pages/q.php", pathParams: [] }],
+        }),
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "pages/q.php"),
+        `<?php
+require __DIR__ . "/../lib/db.php";
+$row = query_one("SELECT " . "1 AS x", []);
+echo "ok";
+`,
+        "utf8",
+      );
+
+      const mod = await ingestDirectory(root);
+      const sqls: string[] = [];
+      for (const [, n] of mod.nodes) {
+        if (n.dialect === "effect" && n.op === "db.query") {
+          sqls.push(String((n.attrs as { sql?: string }).sql ?? ""));
+        }
+      }
+      expect(sqls.some((s) => s.includes("SELECT 1 AS x"))).toBe(true);
+      expect(sqls.some((s) => s === "<dynamic>")).toBe(false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("query_one folds left-associative multi-segment string concat for SQL", async () => {
+    const root = mkdtempSync(join(tmpdir(), "chrysalis-ingest-sqlfold3-"));
+    try {
+      mkdirSync(join(root, "lib"), { recursive: true });
+      mkdirSync(join(root, "pages"), { recursive: true });
+      writeFileSync(
+        join(root, "lib/db.php"),
+        `<?php
+function query_one(string $sql, array $params = []): ?array {
+  return null;
+}
+`,
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "chrysalis.routes.json"),
+        JSON.stringify({
+          app: "sqlfold3",
+          routes: [{ method: "GET", path: "/q", file: "pages/q.php", pathParams: [] }],
+        }),
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "pages/q.php"),
+        `<?php
+require __DIR__ . "/../lib/db.php";
+$row = query_one("WITH " . "t AS (SELECT 1) " . "SELECT * FROM t", []);
+echo "ok";
+`,
+        "utf8",
+      );
+
+      const mod = await ingestDirectory(root);
+      const sqls: string[] = [];
+      for (const [, n] of mod.nodes) {
+        if (n.dialect === "effect" && n.op === "db.query") {
+          sqls.push(String((n.attrs as { sql?: string }).sql ?? ""));
+        }
+      }
+      expect(sqls.some((s) => s.includes("WITH t AS (SELECT 1) SELECT * FROM t"))).toBe(true);
+      expect(sqls.some((s) => s === "<dynamic>")).toBe(false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
 });

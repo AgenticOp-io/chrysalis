@@ -86,8 +86,12 @@ function tryLowerDbFactoryQueryCall(
   const sqlArg = e.args[0];
   let sql: string;
   let sqlExpr: NodeId | undefined;
+  const foldedSql = tryFoldPhpStaticStringConcat(sqlArg);
   if (sqlArg?.kind === "Literal" && sqlArg.literalKind === "string") {
     sql = String(sqlArg.value);
+    sqlExpr = undefined;
+  } else if (foldedSql !== undefined) {
+    sql = foldedSql;
     sqlExpr = undefined;
   } else {
     sql = "<dynamic>";
@@ -116,6 +120,22 @@ function tryLowerDbFactoryQueryCall(
 /** Match `Class::name` regardless of leading `\\` from PHP name resolution. */
 function normalizeStaticCalleePath(name: string): string {
   return name.replace(/^\\+/, "");
+}
+
+/**
+ * Fold PHP string concatenation (`"a" . "b"`) when every leaf is a string
+ * literal. Used for SQL first arguments so `query_one("WITH …" . "SELECT …")`
+ * stays a literal in WebIR instead of `<dynamic>`.
+ */
+function tryFoldPhpStaticStringConcat(e: PhpExpr | undefined): string | undefined {
+  if (e == null) return undefined;
+  if (e.kind === "Literal" && e.literalKind === "string") return String(e.value);
+  if (e.kind === "BinOp" && e.operator === ".") {
+    const a = tryFoldPhpStaticStringConcat(e.left);
+    const b = tryFoldPhpStaticStringConcat(e.right);
+    if (a !== undefined && b !== undefined) return a + b;
+  }
+  return undefined;
 }
 
 /** Unqualified or FQN **`mysqli`** for `new mysqli(...)` connection tracking. */
@@ -233,6 +253,10 @@ type CallLowering =
   | { kind: "session_start" }
   /** PHP `session_name` / `session_set_cookie_params` — runtime only; emitted middleware owns cookies. */
   | { kind: "session_php_config_noop" }
+  /** `session_status()` before `session_start` — cold handler entry matches `PHP_SESSION_NONE`. */
+  | { kind: "session_status_int" }
+  /** `session_write_close()` — middleware owns the session store; no-op at emit time. */
+  | { kind: "session_write_close_noop" }
   | { kind: "isset_builtin" }
   | { kind: "empty_builtin" }
   | { kind: "time_builtin" }
@@ -265,6 +289,8 @@ const KNOWN_CALLS: Record<string, CallLowering> = {
   session_start: { kind: "session_start" },
   session_name: { kind: "session_php_config_noop" },
   session_set_cookie_params: { kind: "session_php_config_noop" },
+  session_status: { kind: "session_status_int" },
+  session_write_close: { kind: "session_write_close_noop" },
   time: { kind: "time_builtin" },
   rand: { kind: "php_rand" },
   mt_rand: { kind: "php_rand" },
@@ -523,13 +549,28 @@ function convertExpr(ctx: Ctx, e: PhpExpr, pathParams: RouteSpec["pathParams"]):
     case "Call": {
       return convertCall(ctx, e, pathParams);
     }
-    case "ConstFetch":
+    case "ConstFetch": {
+      const phpSessionConst: Record<string, number> = {
+        PHP_SESSION_DISABLED: 0,
+        PHP_SESSION_NONE: 1,
+        PHP_SESSION_ACTIVE: 2,
+      };
+      const constName = e.name.replace(/^\\+/, "");
+      const sv = phpSessionConst[constName];
+      if (sv !== undefined) {
+        return ctx.data.literal({
+          value: sv,
+          type: T.int,
+          origin: loc(ctx, e.pos),
+        });
+      }
       return ctx.data.call({
         callee: e.name,
         args: [],
         type: T.unknown,
         origin: loc(ctx, e.pos),
       });
+    }
     case "StaticFetch":
       return ctx.data.call({
         callee: `${e.className}::${e.name}`,
@@ -684,8 +725,12 @@ function convertCall(
       const sqlArg = e.args[0];
       let sql: string;
       let sqlExpr: NodeId | undefined;
+      const foldedSql = tryFoldPhpStaticStringConcat(sqlArg);
       if (sqlArg?.kind === "Literal" && sqlArg.literalKind === "string") {
         sql = String(sqlArg.value);
+        sqlExpr = undefined;
+      } else if (foldedSql !== undefined) {
+        sql = foldedSql;
         sqlExpr = undefined;
       } else {
         sql = "<dynamic>";
@@ -980,6 +1025,19 @@ function convertCall(
     case "session_php_config_noop":
       return ctx.data.call({
         callee: "session_start",
+        args: [],
+        type: T.void,
+        origin: loc(ctx, e.pos),
+      });
+    case "session_status_int":
+      return ctx.data.literal({
+        value: 1,
+        type: T.int,
+        origin: loc(ctx, e.pos),
+      });
+    case "session_write_close_noop":
+      return ctx.data.call({
+        callee: "session_write_close",
         args: [],
         type: T.void,
         origin: loc(ctx, e.pos),

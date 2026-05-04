@@ -70,7 +70,8 @@ export async function replayOne(
   const fetchInit: RequestInit = { ...init, signal: controller.signal };
   let actualResp: Response;
   try {
-    actualResp = await doFetch(url, fetchInit);
+    const raw = await doFetch(url, fetchInit);
+    actualResp = coerceFetchResultToResponse(raw, resp, url);
   } finally {
     clearTimeout(timer);
   }
@@ -101,6 +102,27 @@ export async function replayOne(
     ok,
     ...(attributedNodeIds ? { attributedNodeIds } : {}),
   };
+}
+
+/**
+ * Hono in-process `app.fetch` may resolve to a bare body value when a handler
+ * returns a string instead of a `Response`. Normalize so replay/diff always
+ * sees a Fetch `Response` (status/Content-Type aligned with the oracle frame).
+ */
+function coerceFetchResultToResponse(raw: unknown, oracleResp: HttpResponseEvent, url: string): Response {
+  if (raw instanceof globalThis.Response) return raw;
+  if (typeof raw === "string") {
+    const h = new Headers();
+    const ctKey = Object.keys(oracleResp.headers).find((k) => k.toLowerCase() === "content-type");
+    if (ctKey) {
+      const ct = String(oracleResp.headers[ctKey] ?? "");
+      if (ct) h.set("content-type", ct);
+    }
+    return new Response(raw, { status: oracleResp.status, headers: h });
+  }
+  throw new Error(
+    `replay-http: fetch for ${url} returned ${raw === null || raw === undefined ? String(raw) : typeof raw} (expected Response)`,
+  );
 }
 
 function buildUrl(baseUrl: string, req: HttpRequestEvent): string {

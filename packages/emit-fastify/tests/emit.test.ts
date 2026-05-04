@@ -436,6 +436,8 @@ describe("emit-fastify: tiny-blog output", () => {
       expect(server).toContain("app.inject");
       expect(server).toContain("chrysalisDeterminismOnRequest");
       expect(server).toContain("@fastify/formbody");
+      expect(server).toContain(".code(405)");
+      expect(server).toContain('header("Allow"');
 
       const ctx = readFileSync(resolve(out, "src/ctx.ts"), "utf8");
       expect(ctx).toContain("chrysalisNow");

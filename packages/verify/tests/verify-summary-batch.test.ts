@@ -14,7 +14,7 @@ const miniSummary = (baseUrl: string, reportDir: string) =>
   JSON.stringify({
     kind: VERIFY_SUMMARY_KIND,
     schemaVersion: 1,
-    toolVersion: "1.0.1",
+    toolVersion: "2.0.0",
     corpusRoot: "fixtures/tiny-blog/traces",
     baseUrl,
     reportDir,

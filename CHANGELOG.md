@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-04-30
+
+### Summary
+
+This tag marks the **Chrysalis 2.0** scale-out line on the main branch: **`ROADMAP.md`** milestones **V2-M1** through **V2-M6** are complete, with operator runbooks and versioned machine JSON summarized in **`DESIGN.md`** (**D284–D285**). Work that remains explicitly **optional** in the roadmap (for example IR-level helper lifting, full WebIR ingest checkpointing beyond AST cache and shards, automated corpus rotation, third-party dashboards, PHP `rediss://`) continues after **2.0.0** without relaxing **`DESIGN.md`** non-negotiables.
+
+### Changed
+
+- **Release:** root and every **`packages/*/package.json`** **`version`** is **2.0.0** (was **1.0.1**). **`fixtures/ci/*-smoke.json`** **`toolVersion`** fields that pinned **1.0.1** now read **2.0.0** so embedded summaries match the workspace semver.
+
 ### Documentation
 
 - **v2.0.0 tag criteria + five-nines operator path (DESIGN D284):** **`DESIGN.md`** Decision Log and **`docs/OPERATIONS.md`** (repository verify scripts) document the **`ROADMAP.md`** **v2.0.0 tag criteria (proposal)** checklist against shipped **`schemaVersion`** artifacts and the **`pnpm run verify:laravel-full:5nines`** prerequisite chain (**Composer** + **`pnpm run scaffold:laravel-full`** / optional **`:breeze`** for **`flagship/chrysalis-laravel-work/`**). **DESIGN §3:** docs only.
@@ -148,5 +158,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Milestone 4 v1 pilot** and scoped **Milestones 5–6 / 6A** are complete per `ROADMAP.md`; cross-cutting parser, oracle, verify depth, and optional repair follow-ons remain on the roadmap after v1.0.0.
 - This release is a **source distribution** (monorepo); it does not imply npm publication of `@chrysalis/*` packages to a registry unless separately documented.
 
+[2.0.0]: https://github.com/theorem6/chrysalis/releases/tag/v2.0.0
 [1.0.1]: https://github.com/theorem6/chrysalis/releases/tag/v1.0.1
 [1.0.0]: https://github.com/theorem6/chrysalis/releases/tag/v1.0.0

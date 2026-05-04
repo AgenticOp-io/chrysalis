@@ -21,7 +21,7 @@ It converts PHP to modern TypeScript, but that's only one of its three legs:
 
 ## Status
 
-**Latest tagged source release: v1.0.1** (see [`CHANGELOG.md`](./CHANGELOG.md) and [GitHub Releases](https://github.com/theorem6/chrysalis/releases)). Install from a tarball: [`docs/INSTALLATION.md`](./docs/INSTALLATION.md#installing-from-a-release-tarball). The repo remains a **fast-moving monorepo**: milestones through **6A** (scoped) are complete per [`ROADMAP.md`](./ROADMAP.md); cross-cutting parser, oracle, verify depth, and optional repair work continue on `main`.
+**Latest tagged source release: v2.0.0** (see [`CHANGELOG.md`](./CHANGELOG.md) and [GitHub Releases](https://github.com/theorem6/chrysalis/releases)). Install from a tarball: [`docs/INSTALLATION.md`](./docs/INSTALLATION.md#installing-from-a-release-tarball). The repo remains a **fast-moving monorepo**: milestones through **6A** (scoped) and **V2-M1–V2-M6** (scale-out) are complete per [`ROADMAP.md`](./ROADMAP.md); cross-cutting parser, oracle, verify depth, optional repair work, and roadmap **Remaining** slices continue on `main`.
 
 **Milestone 1 is closed** (tiny-blog vertical slice: ingest →
 WebIR → emit-hono, Oracle, verify, archaeology including optional PHP form scan,

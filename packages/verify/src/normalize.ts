@@ -93,6 +93,18 @@ export function normalizeSetCookie(raw: string): string {
  */
 const TRANSPORT_HEADERS = new Set(["date", "server", "content-length", "connection", "transfer-encoding", "keep-alive"]);
 
+/** Compare redirect targets by path (PHP may emit absolute URLs; Hono uses relative). */
+function normalizeLocationHeader(v: string): string {
+  const t = v.trim();
+  if (t === "") return t;
+  try {
+    const u = new URL(t, "http://chrysalis.verify.invalid");
+    return u.pathname + u.search;
+  } catch {
+    return t;
+  }
+}
+
 export function normalizeHeaders(headers: Readonly<Record<string, string>>): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(headers)) {
@@ -100,6 +112,8 @@ export function normalizeHeaders(headers: Readonly<Record<string, string>>): Rec
     if (TRANSPORT_HEADERS.has(key)) continue;
     if (key === "set-cookie") {
       out[key] = normalizeSetCookie(v);
+    } else if (key === "location") {
+      out[key] = normalizeLocationHeader(v);
     } else {
       out[key] = v.trim();
     }

@@ -455,6 +455,8 @@ export function getSession(c: Context): Session {
 `;
 
 export const RUNTIME_TS = `import type { Context } from "hono";
+import { HTTPException } from "hono/http-exception";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { compare as bcryptCompare } from "bcryptjs";
 import { queryOne } from "./db.js";
 import { getSession } from "./session.js";
@@ -483,11 +485,11 @@ export function currentUser(c: Context): { id: number; username: string } | null
   );
 }
 
-/** Guard used by handlers that require auth. Throws a 401 Response. */
+/** Guard for auth-required handlers. Uses HTTPException so Hono middleware compose (instanceof Error) forwards the 401 to the framework error handler. */
 export function requireLogin(c: Context): { id: number; username: string } {
   const u = currentUser(c);
   if (u === null) {
-    throw c.text("Login required", 401);
+    throw new HTTPException(401, { res: c.text("Login required", 401) });
   }
   return u;
 }
@@ -710,33 +712,39 @@ function __isLikelyWebAppManifestJson(v: unknown): boolean {
  * status; otherwise return an empty text response with that status.
  */
 export function __respond(c: Context, html: string, status: number): Response {
+  // Hono overloads accept \`ResponseOrInit\` as the 2nd arg; avoid \`Parameters<typeof c.text>[1]\`
+  // (it unions status + init and breaks \`c.body(..., status, headers)\`).
+  const contentful = status as ContentfulStatusCode;
   if (html.length > 0) {
     // Heuristic: a leading \`<\` or \`<!\` marks this as HTML. Otherwise treat
     // as plain text. This matches most legacy PHP \`echo\` patterns.
     const isHtml = /^\\s*<!?[a-z]/i.test(html);
-    const s = status as Parameters<typeof c.text>[1];
-    if (isHtml) return c.html(html, s);
+    if (isHtml) return c.html(html, contentful);
     const t = html.trimStart();
     if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
       try {
         const parsed = JSON.parse(html) as unknown;
         if (__isLikelyWebAppManifestJson(parsed)) {
-          return c.body(html, s, { "Content-Type": "application/manifest+json; charset=utf-8" });
+          return c.body(html, contentful, {
+            "Content-Type": "application/manifest+json; charset=utf-8",
+          });
         }
-        return c.json(parsed as Parameters<typeof c.json>[0], s);
+        return c.body(JSON.stringify(parsed), contentful, {
+          "Content-Type": "application/json; charset=utf-8",
+        });
       } catch {
         /* fall through */
       }
     }
     if (t.startsWith("<?xml")) {
-      return c.body(html, s, { "Content-Type": "application/xml; charset=utf-8" });
+      return c.body(html, contentful, { "Content-Type": "application/xml; charset=utf-8" });
     }
     if (t.startsWith("/*") || t.startsWith("@")) {
-      return c.body(html, s, { "Content-Type": "text/css; charset=utf-8" });
+      return c.body(html, contentful, { "Content-Type": "text/css; charset=utf-8" });
     }
-    return c.text(html, s);
+    return c.text(html, contentful);
   }
-  return c.text("", status as Parameters<typeof c.text>[1]);
+  return c.text("", contentful);
 }
 
 /**

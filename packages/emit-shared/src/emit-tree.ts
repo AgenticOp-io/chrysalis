@@ -79,6 +79,20 @@ interface EmitCtx {
   usesPhpDynamicNew: boolean;
 }
 
+/** TS identifier for a PHP `$name` binding; must not shadow the HTTP profile request/reply param. */
+function phpBindingIdent(ctx: EmitCtx, phpRawName: string): string {
+  const base = ident(phpRawName);
+  const forbidden = new Set([ctx.profile.requestVar, ctx.profile.replyVar]);
+  if (!forbidden.has(base)) return base;
+  let candidate = `${base}Var`;
+  let i = 1;
+  while (forbidden.has(candidate)) {
+    i += 1;
+    candidate = `${base}Var${i}`;
+  }
+  return candidate;
+}
+
 function get(ctx: EmitCtx, id: NodeId): NodeBase {
   const n = ctx.m.nodes.get(id);
   if (!n) throw new Error(`emit-shared: missing node ${String(id)}`);
@@ -214,8 +228,8 @@ function tryEmitForeachReduceWithPrev(ctx: EmitCtx, prev: NodeBase, fe: NodeBase
   const allowed = new Set([accName, valName]);
   if (!exprAllowedInReduce(ctx.m, rightId, allowed)) return null;
 
-  const accIdent = ident(accName);
-  const vIdent = ident(valName);
+  const accIdent = phpBindingIdent(ctx, accName);
+  const vIdent = phpBindingIdent(ctx, valName);
   const iterExpr = emitExpr(ctx, iterId);
   const initialExpr = emitExpr(ctx, pRhsId);
   const stepInner = emitExprSubst(ctx, rhsId, { [accName]: accIdent, [valName]: vIdent });
@@ -245,7 +259,7 @@ function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
       return "null";
     }
     case "param":
-      return ident(String(n.attrs.name));
+      return phpBindingIdent(ctx, String(n.attrs.name));
     case "request.field": {
       const src = String(n.attrs.source);
       const name = String(n.attrs.name);
@@ -454,6 +468,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `db()`;
     case "session_start":
       return `undefined /* session_start handled by middleware */`;
+    case "session_write_close":
+      return `undefined /* session_write_close noop; middleware owns session */`;
     case "parseUrlComponent":
       return `parseUrlComponent(${args[0]}, ${args[1]})`;
     case "parseUrlParts":
@@ -516,7 +532,7 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
           if (reduced) {
             const pLit = get(ctx, prev.operands[0]!);
             const accRaw = String((pLit.attrs as { value?: unknown }).value ?? "");
-            const accIdent = ident(accRaw);
+            const accIdent = phpBindingIdent(ctx, accRaw);
             lines.pop();
             ctx.bound.delete(accIdent);
             lines.push(reduced);
@@ -564,8 +580,8 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
     case "foreach": {
       const iter = emitExpr(ctx, n.operands[0]!);
       const body = emitStmt(ctx, n.operands[1]!);
-      const valName = ident(String(n.attrs.valueName));
-      const keyName = n.attrs.keyName ? ident(String(n.attrs.keyName)) : null;
+      const valName = phpBindingIdent(ctx, String(n.attrs.valueName));
+      const keyName = n.attrs.keyName ? phpBindingIdent(ctx, String(n.attrs.keyName)) : null;
       if (keyName) {
         return `for (const [${keyName}, ${valName}] of Object.entries(${iter} ?? {} as any)) {\n${indentBlock(body)}\n}`;
       }
@@ -577,14 +593,23 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
       if (callee === "__assign") {
         const raw = String((ctx.m.nodes.get(n.operands[0]!)?.attrs as { value?: unknown }).value ?? "x");
         const rhs = args[1] ?? "undefined";
-        const name = ident(raw);
+        const name = phpBindingIdent(ctx, raw);
         if (ctx.bound.has(name)) return `${name} = ${rhs};`;
         ctx.bound.add(name);
         return `let ${name} = ${rhs};`;
       }
       if (callee === "__return") {
         ctx.hasTerminalResponse = true;
-        if (args.length > 0) return `return ${args[0]};`;
+        if (args.length > 0) {
+          // Hono accepts a bare `return "json"` as a body; Fastify handlers must
+          // send via `__respond` (reply.send) — otherwise the epilogue is dead and
+          // responses are wrong under `app.inject` / verify replay.
+          if (p.id === "fastify") {
+            ctx.htmlBufferUsed = true;
+            return `__html = String(${args[0]});\n${p.respondBuffered()}`;
+          }
+          return `return ${args[0]};`;
+        }
         return p.respondBuffered();
       }
       if (callee === "__throw") {

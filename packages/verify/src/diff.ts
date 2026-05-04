@@ -75,18 +75,23 @@ export function diffResponse(
 
   const expH = normalizeHeaders(expected.headers);
   const actH = normalizeHeaders(actual.headers);
+  const both405 = expected.status === 405 && actual.status === 405;
+  const strictHeaderNames =
+    both405 && !strictHeaders.includes("allow") ? [...strictHeaders, "allow"] : strictHeaders;
   // Content-type is a runtime detail on responses where the status already
   // carries the contract:
   //   - 3xx: redirects are defined by Location. PHP doesn't set content-type;
   //          Hono's c.redirect / Express's res.redirect do.
+  //   - 405: wrong-method contract is status + Allow; Laravel sends an HTML
+  //          body while emitted stubs use an empty body (see emit-hono/fastify).
   //   - 4xx/5xx: generic framework error pages. PHP often sends text/html,
   //          Node servers often send text/plain by default. Body similarity
   //          catches any real format divergence (JSON vs HTML tokenizes very
   //          differently).
   // For 2xx we still compare content-type strictly, since that's where the
   // meaningful contract lives (is this still serving HTML? still JSON?).
-  const skipContentType = expected.status >= 300;
-  for (const name of strictHeaders) {
+  const skipContentType = expected.status >= 300 || both405;
+  for (const name of strictHeaderNames) {
     if (skipContentType && name === "content-type") continue;
     const e = expH[name];
     const a = actH[name];
@@ -114,22 +119,33 @@ export function diffResponse(
     }
   }
 
-  const nExp = normalizeBody(expected.body);
-  const nAct = normalizeBody(actual.body);
-  const similarity = jaccardTokenSimilarity(nExp.body, nAct.body);
-  if (similarity < threshold) {
-    divergences.push({
-      kind: "body-mismatch",
-      detail: `body similarity ${similarity.toFixed(3)} < ${threshold}`,
-      expected: truncate(nExp.body, 400),
-      actual: truncate(nAct.body, 400),
-    });
+  let bodySimilarity = 1;
+  const appliedTags: string[] = [];
+  if (expected.status >= 300 && expected.status < 400) {
+    // Redirect contract is status + Location; bodies differ (Laravel HTML vs
+    // empty body on `redirect: "manual"` fetch).
+  } else if (both405) {
+    // Method-not-allowed contract is status + Allow; bodies differ (framework
+    // HTML vs empty Response from emitted GET stubs).
+  } else {
+    const nExp = normalizeBody(expected.body);
+    const nAct = normalizeBody(actual.body);
+    appliedTags.push(...nExp.appliedTags, ...nAct.appliedTags);
+    bodySimilarity = jaccardTokenSimilarity(nExp.body, nAct.body);
+    if (bodySimilarity < threshold) {
+      divergences.push({
+        kind: "body-mismatch",
+        detail: `body similarity ${bodySimilarity.toFixed(3)} < ${threshold}`,
+        expected: truncate(nExp.body, 400),
+        actual: truncate(nAct.body, 400),
+      });
+    }
   }
 
   return {
     divergences,
-    bodySimilarity: similarity,
-    appliedTags: Array.from(new Set([...nExp.appliedTags, ...nAct.appliedTags])),
+    bodySimilarity,
+    appliedTags: Array.from(new Set(appliedTags)),
   };
 }
 

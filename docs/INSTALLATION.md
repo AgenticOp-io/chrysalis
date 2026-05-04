@@ -73,8 +73,8 @@ See the root [`README.md`](../README.md) Quick start for `seed-db`, serving the 
 Official **source archives** live on [GitHub Releases](https://github.com/theorem6/chrysalis/releases) (`chrysalis-<version>-source.tar.gz` / `.zip`). After download:
 
 ```bash
-tar -xzf chrysalis-1.0.1-source.tar.gz
-cd chrysalis-1.0.1
+tar -xzf chrysalis-2.0.0-source.tar.gz
+cd chrysalis-2.0.0
 pnpm install
 pnpm -r build
 pnpm test
