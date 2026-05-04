@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **GitHub canonical remote:** **`package.json`** `repository.url`, install and project docs, **`CHANGELOG.md`** release link footers, and **`scripts/bootstrap-github-project.mjs`** default owner fallback now use **`https://github.com/4GEngineer/chrysalis`** (organization home after transfer). **DESIGN D286.**
+
 ## [2.0.0] - 2026-04-30
 
 ### Summary
@@ -158,6 +162,6 @@ This tag marks the **Chrysalis 2.0** scale-out line on the main branch: **`ROADM
 - **Milestone 4 v1 pilot** and scoped **Milestones 5–6 / 6A** are complete per `ROADMAP.md`; cross-cutting parser, oracle, verify depth, and optional repair follow-ons remain on the roadmap after v1.0.0.
 - This release is a **source distribution** (monorepo); it does not imply npm publication of `@chrysalis/*` packages to a registry unless separately documented.
 
-[2.0.0]: https://github.com/theorem6/chrysalis/releases/tag/v2.0.0
-[1.0.1]: https://github.com/theorem6/chrysalis/releases/tag/v1.0.1
-[1.0.0]: https://github.com/theorem6/chrysalis/releases/tag/v1.0.0
+[2.0.0]: https://github.com/4GEngineer/chrysalis/releases/tag/v2.0.0
+[1.0.1]: https://github.com/4GEngineer/chrysalis/releases/tag/v1.0.1
+[1.0.0]: https://github.com/4GEngineer/chrysalis/releases/tag/v1.0.0
