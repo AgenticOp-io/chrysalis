@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Nothing yet.
+### Documentation
+
+- **`docs/RELEASE.md`** — examples and **`gh release create`** use **v2.0.1** / **`chrysalis-2.0.1-source.*`**; add **`git ls-remote --tags origin <tag>`** vs **`git rev-parse <tag>^{commit}`** / **`HEAD`** checks and safe tag repair (**delete remote tag → retag → push**) when a semver tag was created on the wrong commit.
+- **`.github/ISSUE_TEMPLATE/01-bug_report.yml`** — version hint **v2.0.1**.
 
 ## [2.0.1] - 2026-05-08
 

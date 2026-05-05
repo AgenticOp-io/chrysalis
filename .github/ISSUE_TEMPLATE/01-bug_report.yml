@@ -30,6 +30,6 @@ body:
     id: version
     attributes:
       label: Version or commit
-      description: e.g. v2.0.0 or git SHA
+      description: e.g. v2.0.1 or git SHA
     validations:
       required: false
