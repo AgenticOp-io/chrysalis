@@ -857,6 +857,10 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 
 **Wave 5 (2026-04-29):** **D228**–**D231** — machine-readable **`chrysalis.verify.summary.dual`** artifacts for tiny-blog + flagship verify jobs; CI **`verify-dual-summary`** gate + profile env; flagship summary row parity with contract fields; **`readJsonGateArtifact`** extended to **`tiny-n1-rewrite`**, **`migration-sidecar-floors`**, and **`status-migration`** stdin (**`JSON.parse`** errors); root **`pnpm run ci:*`** shims for common **`ci-gates`** entrypoints; **`ci-gates-json-artifacts.test.ts`** covers migration sidecar missing/invalid/skip, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, and invalid JSON across gates; **`README.md`**, **`AGENTS.md`**, **`packages/cli/README.md`** document **`ci:insight`** vs gate-only **`ci:tiny-n1-insight`**; committed **`.cursor/rules/chrysalis.mdc`** with local **`.cursor/*`** ignored elsewhere.
 
+### Commercial program (documentation + optional CLI gate)
+
+**Status:** In-tree scaffolding on **`main`** (**DESIGN D289**). **Not yet published** as a public commercial launch (no announced SKUs, pricing, or standalone **`@chrysalis/license`** npm product). **Purpose:** capture **revenue ordering** (services → support → licensed distribution → training → reference examples) in **`docs/COMMERCIAL.md`**, and ship **`@chrysalis/license`** + **`chrysalis license`** + **`CHRYSALIS_REQUIRE_LICENSE`** / **`CHRYSALIS_LICENSE_MIN_TIER`** for **future vendor** distributions. **Non-goals in-tree:** payment processors, activation servers, or metering.
+
 ---
 
 ## Road to Chrysalis 2.0 — scale-out + warehouse-sized codebases

@@ -1,0 +1,15 @@
+{
+  "name": "@chrysalis/license",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Optional Ed25519 license envelope verification for CLI gating (commercial distributions).",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  }
+}

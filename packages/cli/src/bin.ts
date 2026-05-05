@@ -73,6 +73,14 @@ import {
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { hostname } from "node:os";
 import { spawnSync } from "node:child_process";
+import {
+  LicenseVerificationError,
+  assertMinLicenseTier,
+  loadLicenseEnvelopeFromEnv,
+  loadPublicKeyPemFromEnv,
+  verifyLicenseEnvelope,
+  type LicenseTier,
+} from "@chrysalis/license";
 
 const SUBCOMMANDS = [
   ["init", "Mark a directory as a Chrysalis project"],
@@ -96,6 +104,7 @@ const SUBCOMMANDS = [
     "repair",
     "Verify-gated WebIR repair (optional --llm, --hole-patch, --write-module)",
   ],
+  ["license", "Verify local Ed25519 license envelope (optional commercial gate)"],
 ] as const;
 
 function printHelp(): void {
@@ -115,6 +124,102 @@ function printHelp(): void {
     "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file / --ingest-dedupe-structural-subgraphs (DESIGN D283), verify|repair|insight --ingest-progress-file (verify needs --project); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
+}
+
+function licenseEnforcementEnabled(): boolean {
+  const v = process.env.CHRYSALIS_REQUIRE_LICENSE;
+  return v === "1" || v === "true";
+}
+
+function parseMinTierEnv(): LicenseTier | null | "invalid" {
+  const raw = process.env.CHRYSALIS_LICENSE_MIN_TIER;
+  if (!raw || raw.trim() === "") return null;
+  const t = raw.trim().toLowerCase();
+  if (t === "dev" || t === "pro" || t === "enterprise") return t;
+  return "invalid";
+}
+
+/**
+ * When `CHRYSALIS_REQUIRE_LICENSE=1`, all commands except `license` require a valid
+ * local envelope + public key (no network). Optional `CHRYSALIS_LICENSE_MIN_TIER=dev|pro|enterprise`.
+ */
+function runLicenseGate(cmd: string): number | null {
+  if (cmd === "license") return null;
+  if (!licenseEnforcementEnabled()) return null;
+  const minTier = parseMinTierEnv();
+  if (minTier === "invalid") {
+    console.error(
+      "[chrysalis] CHRYSALIS_LICENSE_MIN_TIER must be one of: dev, pro, enterprise",
+    );
+    return 2;
+  }
+  try {
+    const envelope = loadLicenseEnvelopeFromEnv();
+    const pem = loadPublicKeyPemFromEnv();
+    const claims = verifyLicenseEnvelope(envelope, pem);
+    if (minTier) assertMinLicenseTier(claims, minTier);
+    return null;
+  } catch (e) {
+    const msg = e instanceof LicenseVerificationError ? e.message : String(e);
+    console.error(`[chrysalis] ${msg}`);
+    console.error(
+      "[chrysalis] license enforcement is on (CHRYSALIS_REQUIRE_LICENSE). See packages/license/README.md and docs/COMMERCIAL.md",
+    );
+    return 2;
+  }
+}
+
+async function cmdLicense(rest: string[]): Promise<number> {
+  const sub = rest[0] ?? "help";
+  if (sub === "--help" || sub === "-h" || sub === "help") {
+    console.log("chrysalis license — local Ed25519 envelope (no network)\n");
+    console.log("  check   Validate CHRYSALIS_LICENSE* + CHRYSALIS_LICENSE_PUBLIC_KEY*");
+    console.log("  print   check, then print claims (sub, tier, exp, …)\n");
+    console.log(
+      "Enforcement: CHRYSALIS_REQUIRE_LICENSE=1 gates other commands; optional CHRYSALIS_LICENSE_MIN_TIER=dev|pro|enterprise (DESIGN D289).",
+    );
+    console.log("Commercial SKUs: docs/COMMERCIAL.md\n");
+    return 0;
+  }
+  if (sub !== "check" && sub !== "print") {
+    console.error(`[chrysalis] unknown license subcommand: ${sub}`);
+    return 2;
+  }
+  const minTier = parseMinTierEnv();
+  if (minTier === "invalid") {
+    console.error(
+      "[chrysalis] CHRYSALIS_LICENSE_MIN_TIER must be one of: dev, pro, enterprise",
+    );
+    return 2;
+  }
+  try {
+    const envelope = loadLicenseEnvelopeFromEnv();
+    const pem = loadPublicKeyPemFromEnv();
+    const claims = verifyLicenseEnvelope(envelope, pem);
+    if (minTier) assertMinLicenseTier(claims, minTier);
+    if (sub === "print") {
+      console.log(
+        JSON.stringify(
+          {
+            sub: claims.sub,
+            tier: claims.tier,
+            exp: claims.exp,
+            iss: claims.iss,
+            features: claims.features,
+          },
+          null,
+          2,
+        ),
+      );
+    } else {
+      console.log("license ok.");
+    }
+    return 0;
+  } catch (e) {
+    const msg = e instanceof LicenseVerificationError ? e.message : String(e);
+    console.error(`[chrysalis] ${msg}`);
+    return 2;
+  }
 }
 
 function parseFlags(args: string[]): Record<string, string | boolean> {
@@ -2978,6 +3083,8 @@ async function main(): Promise<number> {
     console.error("run 'chrysalis --help' to see available commands.");
     return 2;
   }
+  const gate = runLicenseGate(cmd);
+  if (gate !== null) return gate;
   switch (cmd) {
     case "ingest":
       return await cmdIngest(rest);
@@ -3007,6 +3114,8 @@ async function main(): Promise<number> {
       return await cmdStatus(rest);
     case "repair":
       return await cmdRepair(rest);
+    case "license":
+      return await cmdLicense(rest);
     default:
       console.log(`[chrysalis] '${cmd}' is not implemented yet (Milestone 0 scaffold).`);
       console.log(`[chrysalis] args: ${JSON.stringify(rest)}`);

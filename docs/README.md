@@ -14,6 +14,8 @@ Start with the repository root [`README.md`](../README.md), then [`DESIGN.md`](.
 
 **Community:** [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md), and [`.github/pull_request_template.md`](../.github/pull_request_template.md) / [`.github/ISSUE_TEMPLATE/`](../.github/ISSUE_TEMPLATE/).
 
+**Commercial:** [`COMMERCIAL.md`](./COMMERCIAL.md) (services, support, licensed CLI distribution, **`@chrysalis/license`** — playbook + in-tree tooling; **not a public product launch yet**).
+
 ## Package references
 
 - CLI flags and JSON contracts: [`packages/cli/README.md`](../packages/cli/README.md)

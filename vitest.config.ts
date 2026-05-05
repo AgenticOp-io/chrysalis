@@ -27,6 +27,7 @@ export default defineConfig({
       "@chrysalis/insight": resolve(root, "packages/insight/src/index.ts"),
       "@chrysalis/rewrite": resolve(root, "packages/rewrite/src/index.ts"),
       "@chrysalis/repair": resolve(root, "packages/repair/src/index.ts"),
+      "@chrysalis/license": resolve(root, "packages/license/src/index.ts"),
     },
   },
   test: {

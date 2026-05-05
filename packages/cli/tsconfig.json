@@ -16,7 +16,8 @@
     { "path": "../runtime-chimera" },
     { "path": "../insight" },
     { "path": "../rewrite" },
-    { "path": "../repair" }
+    { "path": "../repair" },
+    { "path": "../license" }
   ],
   "include": ["src/**/*"]
 }

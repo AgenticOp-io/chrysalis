@@ -28,5 +28,6 @@ describe("chrysalis --help", () => {
     expect(r.stdout).toContain("test:oracle-php-session-redis");
     expect(r.stdout).toContain("aggregate-chimera-operator-snapshots.mjs");
     expect(r.stdout).toContain("aggregate-verify-summaries.mjs");
+    expect(r.stdout).toContain("license");
   });
 });

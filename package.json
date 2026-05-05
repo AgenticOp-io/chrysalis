@@ -50,6 +50,7 @@
     "ci:confidence-trend-ready": "node scripts/ci-gates.mjs confidence-trend-ready",
     "ci:migration-sidecar-floors": "node scripts/ci-gates.mjs migration-sidecar-floors",
     "ci:emit-layout-floors": "node scripts/ci-gates.mjs emit-layout-floors",
+    "license:sign": "node scripts/sign-license.mjs",
     "release:artifacts": "node scripts/make-release-artifacts.mjs",
     "fleet:export-status-uplink": "node scripts/export-fleet-status-uplink.mjs",
     "ci:chimera-lb-smoke": "vitest run packages/runtime-chimera/tests/proxy-lb-round-robin.test.ts",

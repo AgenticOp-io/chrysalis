@@ -10,6 +10,7 @@ delegating to other packages; contains no translation logic of its own.
 Subcommands (some are Milestone 1 stubs):
 
 - `chrysalis init <dir>` — mark a directory as a Chrysalis project
+- `chrysalis license check|print` — validate a local **Ed25519** license envelope (**`CHRYSALIS_LICENSE`** or **`CHRYSALIS_LICENSE_PATH`**) with **`CHRYSALIS_LICENSE_PUBLIC_KEY`** or **`CHRYSALIS_LICENSE_PUBLIC_KEY_PATH`**; **no network**. Optional gate: **`CHRYSALIS_REQUIRE_LICENSE=1`**; optional SKU floor **`CHRYSALIS_LICENSE_MIN_TIER=dev|pro|enterprise`** (**`@chrysalis/license`**, **DESIGN D289**). **Commercial packaging is not publicly launched yet**; see **`docs/COMMERCIAL.md`**.
 - `chrysalis observe` — run the oracle sidecar against a live PHP app; optional
   **`chrysalis.observe.json`** in the PHP root **merges** onto built-in default redaction (same `path` overrides `kind`).
   Bad JSON or invalid rule shapes exit **2** with **`[observe]`** stderr (**D209**).
@@ -124,7 +125,8 @@ Stdout is a single JSON object. Top-level keys: **`kind`**, **`schemaVersion`**,
   output alongside human-readable logs.
 - No network access by default. Oracle, observe, deploy, `verify` / `repair`
   (when pointed at a `--base-url`), and `repair --llm` may touch networks when
-  explicitly configured.
+  explicitly configured. Commercial **license** verification is **local-only**
+  (public key + signed envelope); it does not phone home (**D289**).
 
 ## Non-goals
 

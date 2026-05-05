@@ -60,6 +60,7 @@ To track post-v1 work in a **GitHub Project** linked to this repository, see [`G
 | Tag matches changelog version | Manual verify |
 | Tarballs excluded from git | `release/` in `.gitignore` |
 | SBOM / npm publish | Not part of default v1 source release |
+| Optional commercial CLI gate (**D289**) | **`docs/COMMERCIAL.md`** (playbook; **not a public product launch**); in-tree **`@chrysalis/license`**, **`chrysalis license`**, **`pnpm run license:sign`**. Source tarballs include these files; paid SKUs and keys stay **out of band**. |
 
 ## GitHub Actions release workflow (`.github/workflows/release.yml`)
 

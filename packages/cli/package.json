@@ -28,6 +28,7 @@
     "@chrysalis/runtime-chimera": "workspace:*",
     "@chrysalis/insight": "workspace:*",
     "@chrysalis/rewrite": "workspace:*",
-    "@chrysalis/repair": "workspace:*"
+    "@chrysalis/repair": "workspace:*",
+    "@chrysalis/license": "workspace:*"
   }
 }

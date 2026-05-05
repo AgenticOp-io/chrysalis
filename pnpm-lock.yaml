@@ -50,6 +50,9 @@ importers:
       '@chrysalis/insight':
         specifier: workspace:*
         version: link:../insight
+      '@chrysalis/license':
+        specifier: workspace:*
+        version: link:../license
       '@chrysalis/oracle':
         specifier: workspace:*
         version: link:../oracle
@@ -135,6 +138,8 @@ importers:
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir
+
+  packages/license: {}
 
   packages/oracle: {}
 

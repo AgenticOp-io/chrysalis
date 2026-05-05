@@ -4,7 +4,7 @@
 
 1. Read [`DESIGN.md`](./DESIGN.md) (architecture and non-negotiables) and [`AGENTS.md`](./AGENTS.md) (process, tests, and package rules).
 2. Read [`ROADMAP.md`](./ROADMAP.md) to see which milestone, lane, or post-2.0 option your change belongs to.
-3. Follow the [**Code of Conduct**](./CODE_OF_CONDUCT.md). Report security issues per [`SECURITY.md`](./SECURITY.md) (not public issues).
+3. Follow the [**Code of Conduct**](./CODE_OF_CONDUCT.md). Report security issues per [`SECURITY.md`](./SECURITY.md) (not public issues). Maintainer-facing commercial playbook (optional license gate; **not a public product launch yet**): [`docs/COMMERCIAL.md`](./docs/COMMERCIAL.md).
 
 ## Workflow
 

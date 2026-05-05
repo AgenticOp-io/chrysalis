@@ -76,6 +76,10 @@ If you find yourself doing any of these, stop:
 - **`pnpm run ci:migration-sidecar-floors`** no-ops (exit **0**, skip log) unless **`CHRYSALIS_IDIOMATICITY_MIN`** and/or **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set; coverage is in **`packages/cli/tests/ci-gates-json-artifacts.test.ts`**.
 - **`pnpm run ci:emit-layout-floors`** no-ops unless **`CHRYSALIS_EMIT_LAYOUT_MAX_HONO_*`** and/or **`CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_*`** are set (**`emit-layout-floors`**, **D251**); same Vitest file.
 
+### Commercial CLI license (**DESIGN D289**)
+
+Optional vendor gate: **`CHRYSALIS_REQUIRE_LICENSE`**, **`CHRYSALIS_LICENSE_MIN_TIER`**, **`chrysalis license`**. Package **`@chrysalis/license`** — after changing its **exported** API, **`pnpm --filter @chrysalis/license build`** (same rule as other packages). **`pnpm run license:sign`** runs **`scripts/sign-license.mjs`** against **built** **`packages/license/dist/`**. Playbook and **publication status**: **`docs/COMMERCIAL.md`**.
+
 ### Oracle-php redaction lockstep
 
 If you touch **`packages/oracle/src/redaction.ts`** (`DEFAULT_REDACTION`) or
