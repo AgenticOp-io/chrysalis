@@ -1,0 +1,29 @@
+name: Feature / roadmap item
+description: Propose work that should align with DESIGN.md and ROADMAP.md.
+labels: ["triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        New product direction may need a **Decision Log** entry in `DESIGN.md` first (see `AGENTS.md`).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What user or operator pain does this address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Sketch of behavior, package ownership, and acceptance criteria.
+    validations:
+      required: true
+  - type: textarea
+    id: roadmap
+    attributes:
+      label: Roadmap / lane
+      description: Link to ROADMAP milestone, post-2.0 option, or multi-lane table row if known.
+    validations:
+      required: false

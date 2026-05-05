@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Repository governance:** [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) (Contributor Covenant 2.1), [`.github/pull_request_template.md`](./.github/pull_request_template.md), [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/) (bug + feature forms; security/docs contact links), [`.github/dependabot.yml`](./.github/dependabot.yml) (npm + GitHub Actions), and expanded [`.gitattributes`](./.gitattributes) plus [`CONTRIBUTING.md`](./CONTRIBUTING.md) (branch naming, CoC, security reporting).
+
 ### Changed
 
 - **GitHub canonical remote:** **`package.json`** `repository.url`, install and project docs, **`CHANGELOG.md`** release link footers, and **`scripts/bootstrap-github-project.mjs`** default owner fallback now use **`https://github.com/4GEngineer/chrysalis`** (organization home after transfer). **DESIGN D286.**

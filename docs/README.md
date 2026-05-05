@@ -12,6 +12,8 @@ Start with the repository root [`README.md`](../README.md), then [`DESIGN.md`](.
 | [Release process](./RELEASE.md) | Maintainers | Version tags, tarballs, GitHub Releases, checklist |
 | [GitHub Project](./GITHUB_PROJECT.md) | Maintainers & PM | Bootstrap a GitHub Project (v2) linked to the repo, lanes, fields |
 
+**Community:** [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md), and [`.github/pull_request_template.md`](../.github/pull_request_template.md) / [`.github/ISSUE_TEMPLATE/`](../.github/ISSUE_TEMPLATE/).
+
 ## Package references
 
 - CLI flags and JSON contracts: [`packages/cli/README.md`](../packages/cli/README.md)

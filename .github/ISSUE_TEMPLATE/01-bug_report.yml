@@ -1,0 +1,35 @@
+name: Bug report
+description: Chrysalis tooling behaves incorrectly or crashes (not security-sensitive).
+labels: ["triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For **security** issues, use [Report a vulnerability](https://github.com/4GEngineer/chrysalis/security/advisories/new) instead of this form.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Commands, fixture path, or minimal steps. Include OS and Node version if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: e.g. v2.0.0 or git SHA
+    validations:
+      required: false

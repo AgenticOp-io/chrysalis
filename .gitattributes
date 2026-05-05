@@ -1,2 +1,19 @@
+# Normalize text files; keep golden fixtures LF-only on all platforms.
+* text=auto
+*.ts text eol=lf
+*.tsx text eol=lf
+*.mts text eol=lf
+*.cts text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.php text eol=lf
+*.sql text eol=lf
+
 # Golden snapshots must match JSON.stringify output (LF only) on all platforms.
 packages/ingest/tests/golden/*.json text eol=lf

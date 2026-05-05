@@ -140,7 +140,9 @@ See [`ROADMAP.md`](./ROADMAP.md).
   code. The project has strong anti-drift rules; please respect them.
 - **[`docs/`](./docs/)** — installation, day-to-day operations, administration, [release process](./docs/RELEASE.md), and [GitHub Project bootstrap](./docs/GITHUB_PROJECT.md).
 - [`CHANGELOG.md`](./CHANGELOG.md) — release notes.
-- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — short contributor entrypoint.
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — contributor workflow and quality bar.
+- [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) — community standards (Contributor Covenant 2.1).
+- [`SECURITY.md`](./SECURITY.md) — how to report vulnerabilities privately.
 - **Cursor:** project rule **`.cursor/rules/chrysalis.mdc`** loads with the agent;
   for Cursor-specific agent workflows see the
   [agent cookbook](https://cursor.com/docs/cookbook/agent-workflows) (optional;
@@ -278,4 +280,4 @@ See `DESIGN.md § 2` for the full argument.
 
 ## License
 
-MIT (planned).
+[MIT](./LICENSE).
