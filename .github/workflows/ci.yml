@@ -110,7 +110,7 @@ jobs:
         # Documents FQN `dbFactoryReturnCallees` (Illuminate DB facade shape, App\\Conn, Repo::db).
         run: node scripts/migration-debt.mjs --project fixtures/laravel-shaped-db-factory-probe --max-holes 0
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: migration-debt-json
           path: reports/ci/migration-debt.json
@@ -220,7 +220,7 @@ jobs:
 
       - name: Upload correctness report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verify-report
           path: |
@@ -286,7 +286,7 @@ jobs:
 
       - name: Upload flagship verify + migration JSON
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flagship-laravel-min-verify
           path: |
@@ -393,7 +393,7 @@ jobs:
 
       - name: Upload flagship laravel-full verify + migration JSON
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flagship-laravel-full-verify
           path: |
@@ -454,7 +454,7 @@ jobs:
 
       - name: Upload insight reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: insight-reports
           path: reports/insight
@@ -502,7 +502,7 @@ jobs:
 
       - name: Upload rewrite report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rewrite-report
           path: reports/rewrite
