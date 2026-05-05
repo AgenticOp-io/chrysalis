@@ -27,3 +27,5 @@ For Cursor, the project rule [`.cursor/rules/chrysalis.mdc`](./.cursor/rules/chr
 ## Pull requests
 
 Opening a PR loads [`.github/pull_request_template.md`](./.github/pull_request_template.md). Complete the checklist so reviewers can merge with confidence.
+
+[`.github/CODEOWNERS`](./.github/CODEOWNERS) requests review from **`@4GEngineer/4gengineer`** by default; branch protection may optionally require code-owner approval when the org enables it (**`docs/ADMINISTRATION.md`**).

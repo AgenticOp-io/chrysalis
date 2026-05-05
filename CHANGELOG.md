@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`.github/CODEOWNERS`** default review routing to **`@4GEngineer/4gengineer`** (requires team **write** access). **`docs/ADMINISTRATION.md`** — *GitHub repository (org settings)* documents API-applied settings (**Discussions**, **Dependabot security updates**) and the **private-plan** limitation for branch protection / rulesets / secret scanning, with CI check names to require after upgrade.
+
 - **Repository governance:** [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) (Contributor Covenant 2.1), [`.github/pull_request_template.md`](./.github/pull_request_template.md), [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/) (bug + feature forms; security/docs contact links), [`.github/dependabot.yml`](./.github/dependabot.yml) (npm + GitHub Actions), and expanded [`.gitattributes`](./.gitattributes) plus [`CONTRIBUTING.md`](./CONTRIBUTING.md) (branch naming, CoC, security reporting).
 
 ### Changed

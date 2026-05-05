@@ -1,0 +1,6 @@
+# Default review routing for pull requests. Requires the listed team to have
+# write access to this repository. Enable “Require code owner reviews” only when
+# branch protection is available (public repo or GitHub Team / Enterprise).
+#
+# Org team: https://github.com/orgs/4GEngineer/teams/4gengineer
+* @4GEngineer/4gengineer
