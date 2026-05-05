@@ -5,7 +5,7 @@
 Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
-**v2.0.0 (2026-04-30)** source release: workspace semver **2.0.0** tags the **Chrysalis 2.0** scale-out milestones (**V2-M1–V2-M6**) completed on **`main`**; **`CHANGELOG.md`**, **`DESIGN.md` D285**, and **`pnpm run release:artifacts`** on **`v2.0.0`** produce **`chrysalis-2.0.0-source.{tar.gz,zip}`**. Optional **Remaining** / multi-lane **Next** backlog continues after the tag (see **Road to Chrysalis 2.0** and **Multi-lane program**).
+**v2.0.0 (2026-04-30)** source release: workspace semver **2.0.0** tags the **Chrysalis 2.0** scale-out milestones (**V2-M1–V2-M6**) completed on **`main`**; **`CHANGELOG.md`**, **`DESIGN.md` D285**, and **`pnpm run release:artifacts`** on **`v2.0.0`** produce **`chrysalis-2.0.0-source.{tar.gz,zip}`**. Optional **Remaining** / multi-lane **Next** backlog continues after the tag (see **[Post-2.0 depth backlog (options)](#post-20-depth-backlog-options)**, **Road to Chrysalis 2.0**, and **Multi-lane program**).
 
 **v1.0.1 (2026-04-29)** patch release: **install-from-tarball** steps in **`docs/INSTALLATION.md`**, GitHub Project bootstrap (**`docs/GITHUB_PROJECT.md`**), and an **idempotent tag release workflow** (upload assets when the GitHub Release already exists). **v1.0.0** was the first tagged source release with the full **`docs/`** set, **`LICENSE`**, and **`pnpm run release:artifacts`**. **Program tracking:** **`docs/GITHUB_PROJECT.md`** + **`pnpm run github:project-bootstrap`**. Ongoing engineering continues on **`main`** per the lanes below.
 
@@ -20,6 +20,26 @@ follow-ups that remain intentionally open-ended (Composer vendor
 effects, `mysqli` oracle shim, bare inner N+1 without assign, corpus-only batch
 confidence) stay cross-cutting; repair-loop follow-ons (richer attribution,
 composite proposers) are optional and must not weaken the verify gate.
+
+## Post-2.0 depth backlog (options)
+
+The **v2.0.0** thesis and scale-out milestones are complete; the items below are **honest “still open” slices** called out elsewhere in this file. They are **not** blockers to oracle-backed verify, WebIR, or holes policy. Pick any as a thin vertical slice when depth should grow (tests + docs + optional CI).
+
+| Option | What | Where it lives today |
+| --- | --- | --- |
+| **A — Full ingest checkpoint** | Persist **partial WebIR** (or equivalent) so ingest can **resume** after crash beyond **AST parse cache** + **route shards** + merge. | **V2-M2** *Progress*: “**Still open:** optional future **full** ingest checkpoint …” |
+| **B — IR helper lifting** | **Lift shared helpers** when handler bodies are **not** structurally identical (different origins/attrs), going beyond **D283** within-module structural dedupe. | **V2-M4** *Remaining* / **D283** *Remaining* |
+| **C — Corpus rotation + multi-host ops** | **Automated rotation**, richer **multi-host** corpus workflows; today retention/sizing is **operator doc v0** with implementation backlog. | **V2-M3** *Retention / sizing*; **`docs/ADMINISTRATION.md`** |
+| **D — `rediss://` (PHP sessions)** | TLS Redis URL support in the **PHP** session bridge connector (tunnel/extension-point today). | **V2-M5** session row; **D273** |
+| **E — Fleet / chimera dashboards** | **Reference** Grafana panels, **Loki** queries, or a **small example repo** consuming **`chrysalis.chimera.*`** / **`chrysalis.verify.summary.*`** / fleet JSON — **operator-owned**, not a hosted Chrysalis product (**telemetry-free** stance unchanged). | **V2-M5** / **V2-M6** *Remaining*; **`docs/OPERATIONS.md`** |
+
+### Checkbox backlog (optional tracking)
+
+- [ ] **A** — Full ingest checkpoint (resume semantics beyond cache + shards)
+- [ ] **B** — IR-level helper lifting (non-identical bodies; **D283** follow-on)
+- [ ] **C** — Automated corpus rotation + richer multi-host corpus automation
+- [ ] **D** — **`rediss://`** for **`packages/oracle-php`** Redis session handler
+- [ ] **E** — Third-party dashboard **examples** (Grafana / sample repo) for chimera + fleet JSON
 
 ---
 
