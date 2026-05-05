@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/compat",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "description": "PHP standard-library compatibility shim for generated TypeScript output. Fallback only; lowering passes should prefer native TS idioms.",
   "license": "MIT",

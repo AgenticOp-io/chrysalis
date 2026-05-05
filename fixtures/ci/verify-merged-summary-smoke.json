@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.verify.summary.merged",
   "schemaVersion": 1,
-  "toolVersion": "2.0.0",
+  "toolVersion": "2.0.1",
   "shardCount": 2,
   "inputs": [
     {

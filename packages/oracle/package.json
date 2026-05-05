@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/oracle",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "description": "Oracle sidecar: records HTTP, SQL, and side effects of a running PHP app into a replayable TraceCorpus.",
   "license": "MIT",

@@ -5,7 +5,7 @@
 Milestones are intentionally thin vertical slices. Each milestone must produce a
 runnable demo and measurable numbers, not a pile of abstractions.
 
-**v2.0.0 (2026-04-30)** source release: workspace semver **2.0.0** tags the **Chrysalis 2.0** scale-out milestones (**V2-M1–V2-M6**) completed on **`main`**; **`CHANGELOG.md`**, **`DESIGN.md` D285**, and **`pnpm run release:artifacts`** on **`v2.0.0`** produce **`chrysalis-2.0.0-source.{tar.gz,zip}`**. Optional **Remaining** / multi-lane **Next** backlog continues after the tag (see **[Post-2.0 depth backlog (options)](#post-20-depth-backlog-options)**, **Road to Chrysalis 2.0**, and **Multi-lane program**).
+**v2.0.0 (2026-04-30)** source release: workspace semver **2.0.0** tags the **Chrysalis 2.0** scale-out milestones (**V2-M1–V2-M6**) completed on **`main`**; **`CHANGELOG.md`**, **`DESIGN.md` D285**, and **`pnpm run release:artifacts`** on **`v2.0.0`** produce **`chrysalis-2.0.0-source.{tar.gz,zip}`**. **v2.0.1 (2026-05-08)** patch: **`chrysalis init`** + **`chrysalis.project.json`** (**DESIGN D290**), commercial/license stack (**D289**), dev **`pnpm audit`** hygiene (**Vitest** / **Vite**), docs/install cross-links — see **`CHANGELOG.md` [2.0.1]**. Optional **Remaining** / multi-lane **Next** backlog continues after the tags (see **[Post-2.0 depth backlog (options)](#post-20-depth-backlog-options)**, **Road to Chrysalis 2.0**, and **Multi-lane program**).
 
 **v1.0.1 (2026-04-29)** patch release: **install-from-tarball** steps in **`docs/INSTALLATION.md`**, GitHub Project bootstrap (**`docs/GITHUB_PROJECT.md`**), and an **idempotent tag release workflow** (upload assets when the GitHub Release already exists). **v1.0.0** was the first tagged source release with the full **`docs/`** set, **`LICENSE`**, and **`pnpm run release:artifacts`**. **Program tracking:** **`docs/GITHUB_PROJECT.md`** + **`pnpm run github:project-bootstrap`**. Ongoing engineering continues on **`main`** per the lanes below.
 
@@ -48,7 +48,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the items below are
 **Goal:** repo exists, architecture is committed, nothing is hand-wavy.
 
 - [x] `DESIGN.md`, `ROADMAP.md`, `AGENTS.md`, `README.md` land
-- [x] pnpm monorepo scaffolded with all 10 package folders
+- [x] pnpm monorepo scaffolded under **`packages/*`** (TypeScript packages plus **`packages/oracle-php`** prelude; workspace membership grows with the roadmap — see **`pnpm-workspace.yaml`**)
 - [x] Each package has a `README.md` stating its single responsibility
 - [x] `fixtures/tiny-blog/` exists with 5 PHP endpoints and a minimal schema
 - [x] CI (GitHub Actions) typechecks every package
@@ -859,7 +859,7 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 
 ### Commercial program (documentation + optional CLI gate)
 
-**Status:** In-tree scaffolding on **`main`** (**DESIGN D289**). **Not yet published** as a public commercial launch (no announced SKUs, pricing, or standalone **`@chrysalis/license`** npm product). **Purpose:** capture **revenue ordering** (services → support → licensed distribution → training → reference examples) in **`docs/COMMERCIAL.md`**, and ship **`@chrysalis/license`** + **`chrysalis license`** + **`CHRYSALIS_REQUIRE_LICENSE`** / **`CHRYSALIS_LICENSE_MIN_TIER`** for **future vendor** distributions. **Non-goals in-tree:** payment processors, activation servers, or metering.
+**Status:** In-tree scaffolding on **`main`** (**DESIGN D289**). **`chrysalis init`** is **not** license-gated so vendor trees can be marked before keys are distributed (**D290**). **Not yet published** as a public commercial launch (no announced SKUs, pricing, or standalone **`@chrysalis/license`** npm product). **Purpose:** capture **revenue ordering** (services → support → licensed distribution → training → reference examples) in **`docs/COMMERCIAL.md`**, and ship **`@chrysalis/license`** + **`chrysalis license`** + **`CHRYSALIS_REQUIRE_LICENSE`** / **`CHRYSALIS_LICENSE_MIN_TIER`** for **future vendor** distributions. **Non-goals in-tree:** payment processors, activation servers, or metering.
 
 ---
 

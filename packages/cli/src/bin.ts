@@ -107,6 +107,10 @@ const SUBCOMMANDS = [
   ["license", "Verify local Ed25519 license envelope (optional commercial gate)"],
 ] as const;
 
+/** Written by `chrysalis init`; other tooling may use it to detect a Chrysalis PHP root. */
+const CHRYSALIS_PROJECT_FILENAME = "chrysalis.project.json";
+const CHRYSALIS_PROJECT_SCHEMA_VERSION = "1.0.0";
+
 function printHelp(): void {
   console.log("chrysalis — grow a modern framework inside a legacy PHP app\n");
   console.log("Usage: chrysalis <command> [...args]\n");
@@ -140,11 +144,11 @@ function parseMinTierEnv(): LicenseTier | null | "invalid" {
 }
 
 /**
- * When `CHRYSALIS_REQUIRE_LICENSE=1`, all commands except `license` require a valid
+ * When `CHRYSALIS_REQUIRE_LICENSE=1`, all commands except `license` and `init` require a valid
  * local envelope + public key (no network). Optional `CHRYSALIS_LICENSE_MIN_TIER=dev|pro|enterprise`.
  */
 function runLicenseGate(cmd: string): number | null {
-  if (cmd === "license") return null;
+  if (cmd === "license" || cmd === "init") return null;
   if (!licenseEnforcementEnabled()) return null;
   const minTier = parseMinTierEnv();
   if (minTier === "invalid") {
@@ -167,6 +171,49 @@ function runLicenseGate(cmd: string): number | null {
     );
     return 2;
   }
+}
+
+/**
+ * Create `chrysalis.project.json` so tooling can detect a Chrysalis-managed PHP tree.
+ * Idempotent when the marker already matches this schema. Excluded from `CHRYSALIS_REQUIRE_LICENSE`.
+ */
+async function cmdInit(rest: string[]): Promise<number> {
+  const pos = rest.filter((a) => !a.startsWith("-"));
+  const targetDir = resolve(pos[0] ?? process.cwd());
+  try {
+    mkdirSync(targetDir, { recursive: true });
+  } catch (e) {
+    console.error(`[init] cannot create directory ${targetDir}: ${e}`);
+    return 2;
+  }
+  const marker = join(targetDir, CHRYSALIS_PROJECT_FILENAME);
+  if (existsSync(marker)) {
+    try {
+      const j = JSON.parse(readFileSync(marker, "utf8")) as Record<string, unknown>;
+      if (
+        j.schemaVersion === CHRYSALIS_PROJECT_SCHEMA_VERSION &&
+        typeof j.initializedAt === "string"
+      ) {
+        console.log(`[chrysalis] project already initialized (${marker})`);
+        return 0;
+      }
+      console.error(
+        `[init] ${marker} exists but is not a recognized Chrysalis project file (refusing to overwrite).`,
+      );
+      return 2;
+    } catch {
+      console.error(`[init] ${marker} exists but is not valid JSON (refusing to overwrite).`);
+      return 2;
+    }
+  }
+  const payload = {
+    kind: "chrysalis.project",
+    schemaVersion: CHRYSALIS_PROJECT_SCHEMA_VERSION,
+    initializedAt: new Date().toISOString(),
+  };
+  writeFileSync(marker, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  console.log(`[chrysalis] initialized project: ${marker}`);
+  return 0;
 }
 
 async function cmdLicense(rest: string[]): Promise<number> {
@@ -3086,6 +3133,8 @@ async function main(): Promise<number> {
   const gate = runLicenseGate(cmd);
   if (gate !== null) return gate;
   switch (cmd) {
+    case "init":
+      return await cmdInit(rest);
     case "ingest":
       return await cmdIngest(rest);
     case "emit":

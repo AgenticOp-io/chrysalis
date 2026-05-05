@@ -67,7 +67,7 @@ Stdout is **`chrysalis.verify.summary.batch`** (**`schemaVersion`:** **1**). Fix
 4. **Update file** in your store (S3, Vault export, etc.); deploy nodes pick it up on **SIGHUP** / **SIGUSR2** or restart.
 5. **Roll clients:** align secrets with the new file; then **retire** the old key after all instances validate.
 
-**Not yet specified:** fleet-wide revision pins beyond operator discipline.
+**Fleet config revision discipline (v0 until first-class pins land):** treat **`chrysalis.chimera.config`** (or the env/flag equivalent your cells mount) like any other deploy artifact: record **digest or content hash + semver/toolVersion** in change tickets, post-deploy checks, and **`chrysalis.fleet.status-uplink`** / **`chrysalis.chimera.operator-snapshot`** payloads so multi-cell drift is visible. Automated **revision pins** in the engine remain backlog (see **`ROADMAP.md`** post-2.0 options).
 
 ### Multi-AZ cutover, stickiness, and shadow across nodes
 

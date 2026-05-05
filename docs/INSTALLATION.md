@@ -42,6 +42,14 @@ The CLI entrypoint used by scripts and docs is **`node packages/cli/dist/bin.js`
 
 **Scale-out / operator CLI** (ingest route sharding, **`--merge-all-shards`**, **`--ingest-cache`**, **`--ingest-dedupe-structural-subgraphs`** for optional within-module WebIR dedupe — **DESIGN D283**, verify corpus sharding, emit layout flags, etc.): see **[`docs/OPERATIONS.md`](./OPERATIONS.md)** and run **`chrysalis --help`** after build (Vitest **`packages/cli/tests/cli-help-scaleout.test.ts`** pins key banner strings).
 
+## Marking a PHP project (optional)
+
+After build, **`chrysalis init [<dir>]`** (default: current directory) writes **`chrysalis.project.json`** at the PHP application root so operators and scripts can detect a Chrysalis-managed tree (**DESIGN D290**). The file is **idempotent** when it already matches the supported schema.
+
+## Optional commercial CLI license (vendor builds)
+
+Some distributions set **`CHRYSALIS_REQUIRE_LICENSE=1`** and ship **Ed25519** keys plus a signed envelope; open-source clones default to **no** gate. Env vars, tiers, and **publication status**: **[`docs/COMMERCIAL.md`](./COMMERCIAL.md)**. Maintainer signing after **`pnpm --filter @chrysalis/license build`**: **`pnpm run license:sign`** (see **`scripts/sign-license.mjs`**).
+
 ## Verify the install
 
 ```bash
@@ -73,8 +81,8 @@ See the root [`README.md`](../README.md) Quick start for `seed-db`, serving the 
 Official **source archives** live on [GitHub Releases](https://github.com/4GEngineer/chrysalis/releases) (`chrysalis-<version>-source.tar.gz` / `.zip`). After download:
 
 ```bash
-tar -xzf chrysalis-2.0.0-source.tar.gz
-cd chrysalis-2.0.0
+tar -xzf chrysalis-<version>-source.tar.gz
+cd chrysalis-<version>
 pnpm install
 pnpm -r build
 pnpm test
@@ -104,3 +112,4 @@ node packages/cli/dist/bin.js --help
 | Vitest failures after pulling | Stale `dist/` vs source | `pnpm -r build` |
 | `php` not found | PHP not on `PATH` | Install PHP 8.x and re-open shell |
 | Windows path issues | Mixed slashes | Prefer `pnpm` and `node` from the repo root; use `/` in docs where shell-agnostic |
+| `git: 'credential-manager-core' is not a git command` (Windows) | Git Credential Manager executable not on **`PATH`** (rename to **`git-credential-manager.exe`** on some installs) | Install [Git for Windows](https://git-scm.com/download/win) current build; or run **`git config --global credential.helper manager`**; pushes may still succeed if another helper is configured |

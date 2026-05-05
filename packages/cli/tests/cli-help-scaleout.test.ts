@@ -29,5 +29,6 @@ describe("chrysalis --help", () => {
     expect(r.stdout).toContain("aggregate-chimera-operator-snapshots.mjs");
     expect(r.stdout).toContain("aggregate-verify-summaries.mjs");
     expect(r.stdout).toContain("license");
+    expect(r.stdout).toContain("Mark a directory as a Chrysalis project");
   });
 });

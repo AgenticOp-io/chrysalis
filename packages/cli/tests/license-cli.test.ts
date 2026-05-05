@@ -1,6 +1,6 @@
 import { generateKeyPairSync } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { writeFileSync, unlinkSync, mkdtempSync } from "node:fs";
+import { writeFileSync, unlinkSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
@@ -123,6 +123,24 @@ describe("chrysalis license gate", () => {
       expect(r.stdout).toContain("license ok.");
     } finally {
       unlinkSync(pubPath);
+    }
+  });
+
+  test("CHRYSALIS_REQUIRE_LICENSE=1 allows init without envelope (bootstrap)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-init-lic-"));
+    try {
+      const r = spawnSync(process.execPath, [BIN, "init", dir], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env: {
+          ...envWithoutLicenseVars(),
+          CHRYSALIS_REQUIRE_LICENSE: "1",
+        },
+      });
+      expect(r.status).toBe(0);
+      expect(r.stdout).toMatch(/initialized project/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
     }
   });
 });

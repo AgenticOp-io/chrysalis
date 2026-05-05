@@ -11,7 +11,7 @@
 - Prefer **small, reviewable PRs** with a clear summary and linked **issue** or **roadmap** reference when applicable.
 - Use **descriptive commit messages** (present tense, scoped by area when helpful, e.g. `fix(verify): …`, `docs(roadmap): …`).
 - **Branching:** work from an up-to-date **`main`**; use feature branches (`feat/…`, `fix/…`, `docs/…`) for PRs.
-- Install and build per [`docs/INSTALLATION.md`](./docs/INSTALLATION.md); run **`pnpm test`** before pushing substantive changes.
+- Install and build per [`docs/INSTALLATION.md`](./docs/INSTALLATION.md); run **`pnpm test`** before pushing substantive changes. On **Windows**, if Git prints **`credential-manager-core` is not a git command**, see **Troubleshooting** in **`docs/INSTALLATION.md`** (credential helper / **`PATH`**).
 
 ## Quality bar
 

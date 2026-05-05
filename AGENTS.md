@@ -78,7 +78,7 @@ If you find yourself doing any of these, stop:
 
 ### Commercial CLI license (**DESIGN D289**)
 
-Optional vendor gate: **`CHRYSALIS_REQUIRE_LICENSE`**, **`CHRYSALIS_LICENSE_MIN_TIER`**, **`chrysalis license`**. Package **`@chrysalis/license`** — after changing its **exported** API, **`pnpm --filter @chrysalis/license build`** (same rule as other packages). **`pnpm run license:sign`** runs **`scripts/sign-license.mjs`** against **built** **`packages/license/dist/`**. Playbook and **publication status**: **`docs/COMMERCIAL.md`**.
+Optional vendor gate: **`CHRYSALIS_REQUIRE_LICENSE`**, **`CHRYSALIS_LICENSE_MIN_TIER`**, **`chrysalis license`**. Commands **`license`** and **`init`** are **not** gated (bootstrap / key checks). Package **`@chrysalis/license`** — after changing its **exported** API, **`pnpm --filter @chrysalis/license build`** (same rule as other packages). **`pnpm run license:sign`** runs **`scripts/sign-license.mjs`** against **built** **`packages/license/dist/`**. Playbook and **publication status**: **`docs/COMMERCIAL.md`**.
 
 ### Oracle-php redaction lockstep
 

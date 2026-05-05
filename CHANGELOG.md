@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [2.0.1] - 2026-05-08
+
 ### Added
+
+- **`chrysalis init [<dir>]`** writes **`chrysalis.project.json`** (**`kind`:** **`chrysalis.project`**, **`schemaVersion`:** **`1.0.0`**, **`initializedAt`**) at the PHP project root; creates **`dir`** when missing; idempotent when the marker already matches. **`CHRYSALIS_REQUIRE_LICENSE`** does **not** gate **`init`** so vendor trees can be bootstrapped before keys ship (**DESIGN D290**). Vitest **`packages/cli/tests/init-cli.test.ts`**.
 
 - **Commercial monetization stack (DESIGN D289):** **`docs/COMMERCIAL.md`** (revenue ordered: services, support, licensed distribution, training, examples); **`@chrysalis/license`** (Ed25519 **`claims` + `sig`**, **`assertMinLicenseTier`**, **`CHRYSALIS_LICENSE_MIN_TIER`**); **`chrysalis license`**, **`CHRYSALIS_REQUIRE_LICENSE`**, **`scripts/sign-license.mjs`**, root **`pnpm run license:sign`**; Vitest **`packages/license/tests`**, **`packages/cli/tests/license-cli.test.ts`**. Default OSS behavior unchanged (gate off). **Not a public commercial product launch** (no published SKU line or standalone npm commercial offering yet; docs state **publication status**).
 
@@ -17,7 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Dev toolchain:** **`vitest`** **4.1.5** and explicit **`vite`** **6.4.2** at the repo root clear **`pnpm audit`** moderate findings on the historical **Vitest 1.x → Vite 5.4.x → esbuild** chain (development server / source-map handling advisories); **`pnpm test`** unchanged in scope.
+
 - **GitHub canonical remote:** **`package.json`** `repository.url`, install and project docs, **`CHANGELOG.md`** release link footers, and **`scripts/bootstrap-github-project.mjs`** default owner fallback now use **`https://github.com/4GEngineer/chrysalis`** (organization home after transfer). **DESIGN D286.**
+
+- **Semver:** root and **`packages/*/package.json`** **`version`** **2.0.0 → 2.0.1**; committed **`fixtures/ci/*-smoke.json`** **`toolVersion`** fields match **2.0.1**.
+
+### Documentation
+
+- **`docs/GITHUB_PROJECT.md`** — default release pin example points at **`v2.0.1`**.
+- **`docs/INSTALLATION.md`** — **`chrysalis init`** / **`chrysalis.project.json`**; optional **commercial license** env vars and **`pnpm run license:sign`**; **Windows Git** note when **`credential-manager-core`** is missing from **`PATH`**.
+- **`docs/OPERATIONS.md`** — **v0** fleet discipline: pin **`chrysalis.chimera.config`** (or equivalent) revision / digest in change tickets and uplinks until first-class revision pins land.
+- **`ROADMAP.md`** Milestone 0 — workspace package count wording (no stale **“10 packages”**).
+- **`AGENTS.md`**, **`docs/RELEASE.md`**, **`CONTRIBUTING.md`**, **`README.md`**, **`packages/cli/README.md`**, **`packages/license/README.md`** — commercial / **`init`** cross-links as applicable.
 
 ## [2.0.0] - 2026-04-30
 
@@ -170,6 +188,7 @@ This tag marks the **Chrysalis 2.0** scale-out line on the main branch: **`ROADM
 - **Milestone 4 v1 pilot** and scoped **Milestones 5–6 / 6A** are complete per `ROADMAP.md`; cross-cutting parser, oracle, verify depth, and optional repair follow-ons remain on the roadmap after v1.0.0.
 - This release is a **source distribution** (monorepo); it does not imply npm publication of `@chrysalis/*` packages to a registry unless separately documented.
 
+[2.0.1]: https://github.com/4GEngineer/chrysalis/releases/tag/v2.0.1
 [2.0.0]: https://github.com/4GEngineer/chrysalis/releases/tag/v2.0.0
 [1.0.1]: https://github.com/4GEngineer/chrysalis/releases/tag/v1.0.1
 [1.0.0]: https://github.com/4GEngineer/chrysalis/releases/tag/v1.0.0
