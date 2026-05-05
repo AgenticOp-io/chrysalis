@@ -7,10 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Documentation
-
-- **`docs/RELEASE.md`** — examples and **`gh release create`** use **v2.0.1** / **`chrysalis-2.0.1-source.*`**; add **`git ls-remote --tags origin <tag>`** vs **`git rev-parse <tag>^{commit}`** / **`HEAD`** checks and safe tag repair (**delete remote tag → retag → push**) when a semver tag was created on the wrong commit.
-- **`.github/ISSUE_TEMPLATE/01-bug_report.yml`** — version hint **v2.0.1**.
+Nothing yet.
 
 ## [2.0.1] - 2026-05-08
 
@@ -38,7 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`docs/INSTALLATION.md`** — **`chrysalis init`** / **`chrysalis.project.json`**; optional **commercial license** env vars and **`pnpm run license:sign`**; **Windows Git** note when **`credential-manager-core`** is missing from **`PATH`**.
 - **`docs/OPERATIONS.md`** — **v0** fleet discipline: pin **`chrysalis.chimera.config`** (or equivalent) revision / digest in change tickets and uplinks until first-class revision pins land.
 - **`ROADMAP.md`** Milestone 0 — workspace package count wording (no stale **“10 packages”**).
-- **`AGENTS.md`**, **`docs/RELEASE.md`**, **`CONTRIBUTING.md`**, **`README.md`**, **`packages/cli/README.md`**, **`packages/license/README.md`** — commercial / **`init`** cross-links as applicable.
+- **`AGENTS.md`**, **`CONTRIBUTING.md`**, **`README.md`**, **`packages/cli/README.md`**, **`packages/license/README.md`** — commercial / **`init`** cross-links as applicable.
+- **`docs/RELEASE.md`** — examples and **`gh release create`** use **v2.0.1** / **`chrysalis-2.0.1-source.*`**; **`git ls-remote --tags origin <tag>`** vs **`git rev-parse <tag>^{commit}`** / **`HEAD`** checks; safe tag repair (**delete remote tag → retag → push**) when a semver tag was created on the wrong commit.
+- **`.github/ISSUE_TEMPLATE/01-bug_report.yml`** — version hint **v2.0.1**.
+- **GitHub branches (`origin`)** — removed **`feat/commercial-license-toolchain`** (work landed on **`main`**) and **8** stale **`dependabot/**`** branch heads to reduce remote clutter (**Dependabot** can open fresh PRs when updates apply).
 
 ## [2.0.0] - 2026-04-30
 
