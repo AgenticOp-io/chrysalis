@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- **AgenticOp** outbound identity (**`https://agenticop.io`**): **`docs/AGENTICOP.md`**, **`branding/agenticop/`** SVG logos + READMEs, cross-links from **`README.md`**, **`docs/README.md`**, **`docs/COMMERCIAL.md`** (**DESIGN D292**).
+- **Firebase Hosting** for **`agenticop-site/`**: **`firebase.json`** target **`agenticop`** → site **`agenticops-production`** in project **`wisptools-production`**; committed **`.firebaserc`**; **`pnpm run deploy:agenticop-site`**.
+- **`agenticop-site/`** expanded landing (navigation, approach, engine, reference pilots table linking **`fixtures/tiny-blog`**, **`flagship/laravel-min`**, **`flagship/laravel-full`**, **`generated/tiny-blog`**, FAQ, CTAs).
+
+### Changed
+
+- **`CONTRIBUTING.md`** — **Proof-of-concept and pilot trees**: table of paths that must stay in git vs reproducible/ignored outputs; **`.gitignore`** comments aligned (**`.firebase/`** cache only).
 
 ## [2.0.1] - 2026-05-08
 

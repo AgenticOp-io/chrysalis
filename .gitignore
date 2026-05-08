@@ -6,7 +6,10 @@ build/
 .env
 .env.local
 .vscode/
-.idea/
+
+# Firebase CLI local cache (never commit)
+.firebase/
+
 # Cursor editor local state; shared rules live under .cursor/rules/
 .cursor/*
 !.cursor/rules/
@@ -33,7 +36,8 @@ release/
 # Local scratch emits (not CI fixtures)
 generated/tmp-*/
 
-# Generated artifacts (output of `chrysalis emit`, reproducible from the pipeline)
+# Emitted / reproducible tree (see CONTRIBUTING: proof-of-concept and pilot trees)
+# Tracked: generated/tiny-blog sources (reference). Not tracked: lockfiles, DBs, extra emit targets.
 generated/**/package-lock.json
 generated/**/*.sqlite
 generated/**/*.sqlite-journal

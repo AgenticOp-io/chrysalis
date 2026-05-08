@@ -1,0 +1,7 @@
+{
+  "hosting": {
+    "target": "agenticop",
+    "public": "agenticop-site",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+  }
+}

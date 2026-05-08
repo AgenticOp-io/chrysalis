@@ -11,10 +11,11 @@ Start with the repository root [`README.md`](../README.md), then [`DESIGN.md`](.
 | [Administration](./ADMINISTRATION.md) | SRE / platform / release owners | Reports layout, env vars, CI gates (**`verify-merged-summary`**, **`corpus-merge-summary`**, dual verify summaries, …), migration sidecars, redaction, upgrades, **GitHub org/repo** (Dependabot security updates, **CODEOWNERS**, branch-protection notes for public/Team) |
 | [Release process](./RELEASE.md) | Maintainers | Version tags, tarballs, GitHub Releases, checklist |
 | [GitHub Project](./GITHUB_PROJECT.md) | Maintainers & PM | Bootstrap a GitHub Project (v2) linked to the repo, lanes, fields |
+| [AgenticOp](./AGENTICOP.md) | Operators & services leads | **AgenticOp** at **`https://agenticop.io`**: practice positioning vs **Chrysalis** (MIT); links to logo assets |
 
 **Community:** [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md), and [`.github/pull_request_template.md`](../.github/pull_request_template.md) / [`.github/ISSUE_TEMPLATE/`](../.github/ISSUE_TEMPLATE/).
 
-**Commercial:** [`COMMERCIAL.md`](./COMMERCIAL.md) (services, support, licensed CLI distribution, **`@chrysalis/license`** — playbook + in-tree tooling; **not a public product launch yet**).
+**Commercial:** [`COMMERCIAL.md`](./COMMERCIAL.md) (services, support, licensed CLI distribution, **`@chrysalis/license`** — playbook + in-tree tooling; **not a public product launch yet**). Primary outbound practice site: **[AgenticOp](https://agenticop.io)** (details in [`AGENTICOP.md`](./AGENTICOP.md)).
 
 ## Package references
 

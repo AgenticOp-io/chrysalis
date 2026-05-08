@@ -20,6 +20,18 @@
 - **Changelog:** add an **Unreleased** bullet in [`CHANGELOG.md`](./CHANGELOG.md) for user-visible changes (maintainers fold into a version at release time).
 - **Oracle / redaction lockstep:** if you touch [`packages/oracle/src/redaction.ts`](./packages/oracle/src/redaction.ts) or [`packages/oracle-php/src/Redactor.php`](./packages/oracle-php/src/Redactor.php), run **`pnpm run test:oracle-php-redactor`** with PHP on `PATH`.
 
+## Proof-of-concept and pilot trees (version control)
+
+These paths are part of the product: **do not** leave them out of commits when you change fixtures, flags, or flagship apps. They are the shared ground truth for CI and contributors.
+
+| Area | Tracked in git | Intentionally not tracked (reproducible or huge) |
+| --- | --- | --- |
+| PHP fixtures | [`fixtures/`](./fixtures/) (e.g. **`fixtures/tiny-blog`**, probe fixtures under **`fixtures/*`**) | Local **`fixtures/tiny-blog/blog.sqlite`**, **`traces/`**, **`reports/`** |
+| Flagship pilots | [`flagship/laravel-min/`](./flagship/laravel-min/), [`flagship/laravel-full/`](./flagship/laravel-full/) (sources + **`chrysalis-templates/`**) | Composer scaffold output **`flagship/chrysalis-laravel-work/`** (see flagship README) |
+| Emitted snapshots | [`generated/tiny-blog/`](./generated/tiny-blog/) TypeScript reference emit | **`generated/**/package-lock.json`**, **`generated/**/*.sqlite`**, **`generated/tiny-blog-fastify/`**, **`generated/flagship-*`**, **`generated/tiny-n1/`** (regenerate via scripts / CI) |
+
+If you add a **new** fixture or flagship slice that should ship with the repo, include it in **`pnpm test`** or the documented smoke path in [`docs/INSTALLATION.md`](./docs/INSTALLATION.md) / package READMEs.
+
 ## AI-assisted editing
 
 For Cursor, the project rule [`.cursor/rules/chrysalis.mdc`](./.cursor/rules/chrysalis.mdc) loads automatically; it does not replace `AGENTS.md` / `DESIGN.md`.

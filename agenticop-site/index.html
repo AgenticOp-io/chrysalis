@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AgenticOp — verified modernization and operations</title>
+    <meta
+      name="description"
+      content="Agent-assisted delivery grounded in production behavior. Powered by open-source Chrysalis: oracle capture, WebIR, verify replay, chimera cutover."
+    />
+    <link rel="icon" href="/assets/logo-mark.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --ink: #0f172a;
+        --muted: #475569;
+        --teal: #0f766e;
+        --teal-mid: #0d9488;
+        --teal-light: #14b8a6;
+        --surface: #ffffff;
+        --surface-2: #f1f5f9;
+        --border: rgba(15, 118, 110, 0.14);
+        --shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+        --radius: 14px;
+        --max: 72rem;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          Ubuntu,
+          sans-serif;
+        color: var(--ink);
+        background: var(--surface-2);
+        line-height: 1.6;
+      }
+      .skip {
+        position: absolute;
+        left: -9999px;
+      }
+      .skip:focus {
+        left: 1rem;
+        top: 1rem;
+        z-index: 999;
+        padding: 0.5rem 1rem;
+        background: var(--surface);
+        border-radius: 8px;
+        outline: 2px solid var(--teal);
+      }
+      a {
+        color: var(--teal);
+        font-weight: 550;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+        color: var(--teal-mid);
+      }
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(248, 250, 252, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-inner {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 0.85rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .nav img {
+        height: 2.5rem;
+        width: auto;
+        display: block;
+      }
+      .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 1.1rem;
+        font-size: 0.9rem;
+      }
+      .nav-links a {
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .nav-links a:hover {
+        color: var(--teal);
+      }
+      .hero {
+        background: linear-gradient(145deg, #ecfeff 0%, #f0fdfa 45%, #f8fafc 100%);
+        border-bottom: 1px solid var(--border);
+      }
+      .hero-inner {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 3.5rem;
+      }
+      .hero-grid {
+        display: grid;
+        gap: 2rem;
+        align-items: start;
+      }
+      @media (min-width: 900px) {
+        .hero-grid {
+          grid-template-columns: 1.15fr 1fr;
+          gap: 3rem;
+        }
+      }
+      .eyebrow {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--teal);
+        margin: 0 0 0.75rem;
+      }
+      h1 {
+        font-size: clamp(1.85rem, 4vw, 2.45rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin: 0 0 1rem;
+      }
+      .lead {
+        font-size: 1.125rem;
+        color: var(--muted);
+        margin: 0 0 1.75rem;
+        max-width: 38rem;
+      }
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.65rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--teal-light), var(--teal));
+        color: #fff;
+        box-shadow: 0 2px 12px rgba(15, 118, 110, 0.35);
+      }
+      .btn-primary:hover {
+        filter: brightness(1.05);
+        text-decoration: none;
+      }
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--ink);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        border-color: var(--teal-mid);
+        text-decoration: none;
+      }
+      .hero-card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.35rem 1.5rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+      .hero-card h2 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--teal);
+        margin: 0 0 0.75rem;
+      }
+      .hero-card ul {
+        margin: 0;
+        padding-left: 1.15rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .hero-card li {
+        margin-bottom: 0.4rem;
+      }
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1.25rem;
+      }
+      .pill {
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        background: rgba(15, 118, 110, 0.1);
+        color: var(--teal);
+      }
+      section {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 3rem 1.25rem;
+      }
+      section.narrow {
+        max-width: 48rem;
+      }
+      h2.section-title {
+        font-size: clamp(1.35rem, 3vw, 1.65rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.5rem;
+      }
+      .section-desc {
+        color: var(--muted);
+        margin: 0 0 1.75rem;
+        max-width: 40rem;
+      }
+      .three {
+        display: grid;
+        gap: 1rem;
+      }
+      @media (min-width: 700px) {
+        .three {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .tile {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.35rem;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+      .tile h3 {
+        font-size: 1rem;
+        margin: 0 0 0.5rem;
+      }
+      .tile p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .steps {
+        counter-reset: step;
+        display: grid;
+        gap: 1rem;
+      }
+      @media (min-width: 800px) {
+        .steps {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .step {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.35rem 1.35rem 1.35rem 3.25rem;
+        border: 1px solid var(--border);
+        position: relative;
+      }
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        left: 1rem;
+        top: 1.15rem;
+        width: 1.65rem;
+        height: 1.65rem;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--teal-light), var(--teal));
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .step h3 {
+        font-size: 1.05rem;
+        margin: 0 0 0.4rem;
+      }
+      .step p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .engine-grid {
+        display: grid;
+        gap: 1rem;
+      }
+      @media (min-width: 640px) {
+        .engine-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .engine {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.35rem;
+        border: 1px solid var(--border);
+      }
+      .engine code {
+        font-size: 0.82rem;
+        background: var(--surface-2);
+        padding: 0.15rem 0.4rem;
+        border-radius: 6px;
+      }
+      .engine h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.05rem;
+      }
+      .engine p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .poc-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+        background: var(--surface);
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+      .poc-table th,
+      .poc-table td {
+        text-align: left;
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .poc-table th {
+        background: var(--surface-2);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+      }
+      .poc-table tr:last-child td {
+        border-bottom: none;
+      }
+      .offers {
+        display: grid;
+        gap: 1rem;
+      }
+      @media (min-width: 720px) {
+        .offers {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .offer {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+      }
+      .offer h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.05rem;
+      }
+      .offer p {
+        flex: 1;
+        margin: 0 0 1rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      details.faq {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        margin-bottom: 0.5rem;
+      }
+      details.faq summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+      details.faq p {
+        margin: 0.75rem 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .band {
+        background: linear-gradient(135deg, #134e4a, var(--teal));
+        color: #ecfdf5;
+        margin: 0;
+        max-width: none;
+        padding: 2.75rem 1.25rem;
+        text-align: center;
+      }
+      .band-inner {
+        max-width: 40rem;
+        margin: 0 auto;
+      }
+      .band h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1.35rem;
+      }
+      .band p {
+        margin: 0 0 1.25rem;
+        opacity: 0.92;
+        font-size: 1rem;
+      }
+      .band .btn-primary {
+        background: #fff;
+        color: var(--teal);
+        box-shadow: none;
+      }
+      .band .btn-primary:hover {
+        background: #ecfdf5;
+      }
+      footer {
+        background: #0f172a;
+        color: #94a3b8;
+        padding: 2.5rem 1.25rem;
+        font-size: 0.88rem;
+      }
+      .foot-inner {
+        max-width: var(--max);
+        margin: 0 auto;
+        display: grid;
+        gap: 1.5rem;
+      }
+      @media (min-width: 640px) {
+        .foot-inner {
+          grid-template-columns: 1fr auto;
+          align-items: start;
+        }
+      }
+      footer a {
+        color: #5eead4;
+        font-weight: 500;
+      }
+      .muted-small {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="nav" role="banner">
+      <div class="nav-inner">
+        <a href="/" aria-label="AgenticOp home">
+          <img src="/assets/logo-horizontal.svg" width="240" height="41" alt="AgenticOp" />
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#approach">Approach</a>
+          <a href="#engine">Engine</a>
+          <a href="#pilots">Proof in repo</a>
+          <a href="#work-with-us">Engage</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-grid">
+            <div>
+              <p class="eyebrow">Modernization you can prove</p>
+              <h1>Agents explore. Verification decides.</h1>
+              <p class="lead">
+                AgenticOp pairs disciplined agent-assisted delivery with replay-backed correctness: your running system is the
+                specification, not a slide deck. Built on the open-source <strong>Chrysalis</strong> stack (oracle, WebIR,
+                verify, chimera).
+              </p>
+              <div class="cta-row">
+                <a class="btn btn-primary" href="https://github.com/4GEngineer/chrysalis">Explore Chrysalis on GitHub</a>
+                <a class="btn btn-secondary" href="#pilots">See reference pilots</a>
+              </div>
+              <div class="pill-row" aria-label="Highlights">
+                <span class="pill">Oracle capture</span>
+                <span class="pill">Replay verify</span>
+                <span class="pill">Dual-stack cutover</span>
+                <span class="pill">Honest holes</span>
+              </div>
+            </div>
+            <aside class="hero-card" aria-labelledby="why-title">
+              <h2 id="why-title">Why this exists</h2>
+              <ul>
+                <li>Translators that only read source code still lie when behavior drifts from intent.</li>
+                <li>Agents accelerate exploration; they do not replace a corpus and a replay gate.</li>
+                <li>Production traffic, SQL, and sessions become the contract agents must satisfy.</li>
+              </ul>
+            </aside>
+          </div>
+        </div>
+      </div>
+
+      <section id="tension" class="narrow">
+        <h2 class="section-title">The tension</h2>
+        <p class="section-desc">
+          Teams want speed from AI-assisted refactors. Compliance and uptime demand evidence. AgenticOp holds both: humans own
+          scope and risk; automation expands surface area; <strong>Chrysalis verify</strong> scores every promoted route
+          against recorded reality.
+        </p>
+        <div class="three">
+          <div class="tile">
+            <h3>Specification from reality</h3>
+            <p>Design docs rot. Captured requests, responses, and queries do not.</p>
+          </div>
+          <div class="tile">
+            <h3>No silent wrong output</h3>
+            <p>Unsupported constructs become typed holes with provenance, not pretend-complete code.</p>
+          </div>
+          <div class="tile">
+            <h3>Cut over with control</h3>
+            <p>Shadow, canary, and cutover modes route traffic without fork-lifting the database.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="approach">
+        <h2 class="section-title">Approach</h2>
+        <p class="section-desc">
+          A typical engagement threads corpus design, CI gates, and staged routing. Exact scope follows your stack; the loop
+          stays the same.
+        </p>
+        <div class="steps">
+          <div class="step">
+            <h3>Observe and shape the corpus</h3>
+            <p>
+              Record representative traffic and side effects. Redact what policy requires; keep enough signal for replay to be
+              meaningful.
+            </p>
+          </div>
+          <div class="step">
+            <h3>Ingest and emit with provenance</h3>
+            <p>
+              PHP AST to WebIR, then to your chosen Node stack. Every emitted route carries lineage back to source so drift is
+              attributable.
+            </p>
+          </div>
+          <div class="step">
+            <h3>Verify before you celebrate</h3>
+            <p>
+              Replay the corpus against the modern app; score correctness and chase divergence where semantics matter.
+            </p>
+          </div>
+          <div class="step">
+            <h3>Deploy chimera, then narrow legacy</h3>
+            <p>
+              Route-by-route shadow and canary until cutover confidence clears your bar; session and schema bridges hold dual
+              stacks honest.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="engine">
+        <h2 class="section-title">Engine: Chrysalis</h2>
+        <p class="section-desc">
+          Chrysalis is MIT-licensed in public. AgenticOp brings programs on top: prioritization, gates, playbooks, and
+          operator discipline.
+        </p>
+        <div class="engine-grid">
+          <div class="engine">
+            <h3>Oracle</h3>
+            <p>Record HTTP, SQL, sessions, and headers into a versioned corpus with configurable redaction.</p>
+          </div>
+          <div class="engine">
+            <h3>WebIR + ingest</h3>
+            <p>Typed, effect-aware IR from PHP; holes are first-class when lowering is incomplete.</p>
+          </div>
+          <div class="engine">
+            <h3>Verify</h3>
+            <p>
+              Replay traces against the emitted app with <code>chrysalis verify</code>; machine-readable summaries for CI and
+              dashboards.
+            </p>
+          </div>
+          <div class="engine">
+            <h3>Chimera</h3>
+            <p>
+              <code>chrysalis deploy</code> modes for shadow, canary, and cutover between legacy PHP and the modern stack.
+            </p>
+          </div>
+        </div>
+        <p class="muted-small" style="margin-top: 1.25rem">
+          Architecture and non-negotiables:
+          <a href="https://github.com/4GEngineer/chrysalis/blob/main/DESIGN.md">DESIGN.md</a>
+          · Operator docs:
+          <a href="https://github.com/4GEngineer/chrysalis/tree/main/docs">docs/</a>
+        </p>
+      </section>
+
+      <section id="pilots">
+        <h2 class="section-title">Proof in the repository</h2>
+        <p class="section-desc">
+          Chrysalis ships end-to-end pilots you can clone and run: fixtures for ingest and emit, flagship Laravel-shaped apps
+          for regression and adoption templates. These trees belong in version control so CI and contributors share the same
+          ground truth.
+        </p>
+        <table class="poc-table">
+          <thead>
+            <tr>
+              <th>Pilot / fixture</th>
+              <th>Role</th>
+              <th>In-repo path</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>tiny-blog</strong></td>
+              <td>Milestone 1 vertical slice: ingest, emit, SQLite-backed routes, oracle + verify path.</td>
+              <td><code>fixtures/tiny-blog</code></td>
+            </tr>
+            <tr>
+              <td><strong>laravel-min</strong></td>
+              <td>Fast flagship regression: Composer autoload, bounded routes, migration/status gates.</td>
+              <td><code>flagship/laravel-min</code></td>
+            </tr>
+            <tr>
+              <td><strong>laravel-full</strong></td>
+              <td>Composer adoption templates and bounded template routes for deeper pilots.</td>
+              <td><code>flagship/laravel-full</code></td>
+            </tr>
+            <tr>
+              <td><strong>Generated reference (Hono)</strong></td>
+              <td>Emitted TypeScript snapshot from tiny-blog for compile/serve smoke (regenerated by scripts).</td>
+              <td><code>generated/tiny-blog</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="muted-small" style="margin-top: 1rem">
+          Large regenerated trees (Fastify twin, flagship emits, scaffold worktrees) stay out of git by policy; reproduce them
+          with the scripts in the repo README. See <strong>Contributing</strong> for the full list of tracked PoC paths.
+        </p>
+      </section>
+
+      <section id="work-with-us">
+        <h2 class="section-title">Engage</h2>
+        <p class="section-desc">
+          AgenticOp focuses on outcomes: corpus quality, verify thresholds in CI, and cutover readiness. Pick the depth that
+          matches your risk budget.
+        </p>
+        <div class="offers">
+          <div class="offer">
+            <h3>Pilot</h3>
+            <p>Time-boxed slice of your app: corpus, emit, verify gate, and a written cutover plan tied to Chrysalis artifacts.</p>
+            <a class="btn btn-secondary" href="https://github.com/4GEngineer/chrysalis/blob/main/docs/COMMERCIAL.md">Commercial playbook</a>
+          </div>
+          <div class="offer">
+            <h3>Run</h3>
+            <p>Ongoing corpus hygiene, regression on verify, chimera tuning, and release alignment as your stack evolves.</p>
+            <a class="btn btn-secondary" href="https://github.com/4GEngineer/chrysalis/blob/main/docs/OPERATIONS.md">Operations</a>
+          </div>
+          <div class="offer">
+            <h3>Enablement</h3>
+            <p>Workshops on oracle design, WebIR, verify reports, and status JSON for teams adopting Chrysalis in-house.</p>
+            <a class="btn btn-secondary" href="https://github.com/4GEngineer/chrysalis/blob/main/docs/AGENTICOP.md">AgenticOp + Chrysalis</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="narrow">
+        <h2 class="section-title">FAQ</h2>
+        <details class="faq">
+          <summary>Is AgenticOp a separate product from Chrysalis?</summary>
+          <p>
+            Chrysalis is the open-source engine. AgenticOp is the practice layer: how we run pilots and operators use the tool
+            chain without skipping verification.
+          </p>
+        </details>
+        <details class="faq">
+          <summary>Do agents write production code without review?</summary>
+          <p>
+            No. Agents may draft or refactor; promotion still passes your gates. Replay and holes reporting keep partial output
+            honest.
+          </p>
+        </details>
+        <details class="faq">
+          <summary>Where do commercial terms live?</summary>
+          <p>
+            Billing and contracts stay outside the repo. See the commercial playbook in Chrysalis
+            <a href="https://github.com/4GEngineer/chrysalis/blob/main/docs/COMMERCIAL.md">docs/COMMERCIAL.md</a>.
+          </p>
+        </details>
+      </section>
+
+      <section class="band" aria-labelledby="cta-band-title">
+        <div class="band-inner">
+          <h2 id="cta-band-title">Start from behavior, not hope</h2>
+          <p>Read the design, clone a fixture, and run verify. That loop is the spine of every AgenticOp engagement.</p>
+          <a class="btn btn-primary" href="https://github.com/4GEngineer/chrysalis">Open the Chrysalis repository</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="foot-inner">
+        <div>
+          <p style="font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0; letter-spacing: -0.02em">
+            Agentic<span style="color: #5eead4">Op</span><span style="color: #64748b; font-weight: 500; font-size: 0.95rem">.io</span>
+          </p>
+          <p style="margin: 1rem 0 0; max-width: 28rem">
+            AgenticOp. Chrysalis is MIT licensed.
+            <a href="https://github.com/4GEngineer/chrysalis">GitHub</a>
+            ·
+            <a href="https://github.com/4GEngineer/chrysalis/blob/main/docs/AGENTICOP.md">Docs</a>
+          </p>
+        </div>
+        <div>
+          <div style="margin-bottom: 0.35rem"><strong>Reference pilots</strong></div>
+          <a href="https://github.com/4GEngineer/chrysalis/tree/main/fixtures/tiny-blog">fixtures/tiny-blog</a><br />
+          <a href="https://github.com/4GEngineer/chrysalis/tree/main/flagship/laravel-min">flagship/laravel-min</a><br />
+          <a href="https://github.com/4GEngineer/chrysalis/tree/main/flagship/laravel-full">flagship/laravel-full</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

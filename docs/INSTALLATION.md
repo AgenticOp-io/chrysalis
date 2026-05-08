@@ -44,6 +44,8 @@ The CLI entrypoint used by scripts and docs is **`node packages/cli/dist/bin.js`
 
 ## Marking a PHP project (optional)
 
+The upstream **monorepo checkout** already includes **`chrysalis.project.json`** at the repository root (same schema as **`chrysalis init`**); **`chrysalis init`** from that directory is a no-op (**DESIGN D291**). Use **`chrysalis init`** on **your** PHP application tree when you adopt Chrysalis outside this workspace.
+
 After build, **`chrysalis init [<dir>]`** (default: current directory) writes **`chrysalis.project.json`** at the PHP application root so operators and scripts can detect a Chrysalis-managed tree (**DESIGN D290**). The file is **idempotent** when it already matches the supported schema.
 
 ## Optional commercial CLI license (vendor builds)

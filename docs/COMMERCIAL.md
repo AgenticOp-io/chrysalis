@@ -1,5 +1,7 @@
 # Commercial offerings (revenue order)
 
+**Outbound practice:** **[AgenticOp](https://agenticop.io)** — human-facing services and programs that pair agent-assisted delivery with **Chrysalis** oracle replay and **`chrysalis verify`**. Naming: **AgenticOp** (canonical); **`https://agenticop.io`**; avoid **AgenticOps** / **`agenticops.*`** in new materials. See **[`AGENTICOP.md`](./AGENTICOP.md)** and **`branding/agenticop/`** for logos.
+
 **Publication status:** This page is a **maintainer playbook** and describes **future** revenue levers. The **commercial program is not publicly launched**: there is no published SKU catalog, public pricing page, or **standalone npm** release of **`@chrysalis/license`** tied to a paid product yet. The monorepo may still ship **in-tree** license verification so vendor builds can opt in later; default OSS use stays **unchanged** (license gate off).
 
 Chrysalis is **open source (MIT)** in this repository. Revenue scales with **services and contracts**, then **distribution / SLA**, then **optional technical enforcement** for vendor builds. This page lists offerings **largest gain first**; implement billing and contracts **outside** the repo (Stripe, order forms, MSAs).

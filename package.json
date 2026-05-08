@@ -57,7 +57,8 @@
     "ci:chimera-operator-snapshot": "vitest run packages/runtime-chimera/tests/chimera-operator-snapshot.test.ts packages/runtime-chimera/tests/chimera-operator-snapshot-batch.test.ts packages/emit-shared/tests/chrysalis-route-paths.test.ts packages/emit-shared/tests/emit-handler-fingerprints.test.ts",
     "ci:verify-summary-batch": "vitest run packages/verify/tests/verify-summary-batch.test.ts",
     "github:project-bootstrap": "node scripts/bootstrap-github-project.mjs",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "deploy:agenticop-site": "firebase deploy --only hosting"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",
@@ -65,6 +66,7 @@
     "tsx": "^4.7.0",
     "typescript": "^5.6.0",
     "vite": "6.4.2",
+    "firebase-tools": "^13.29.1",
     "vitest": "^4.1.5"
   }
 }

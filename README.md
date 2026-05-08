@@ -144,6 +144,7 @@ See [`ROADMAP.md`](./ROADMAP.md).
 - [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) — community standards (Contributor Covenant 2.1).
 - [`SECURITY.md`](./SECURITY.md) — how to report vulnerabilities privately.
 - [`docs/COMMERCIAL.md`](./docs/COMMERCIAL.md) — commercial playbook and optional license gate (**largest revenue levers first**; **commercial program not publicly launched yet**).
+- **[AgenticOp](https://agenticop.io)** — verification-first modernization practice that uses Chrysalis; **[`docs/AGENTICOP.md`](./docs/AGENTICOP.md)** and **[`branding/agenticop/`](./branding/agenticop/README.md)** (logos + usage).
 - **Cursor:** project rule **`.cursor/rules/chrysalis.mdc`** loads with the agent;
   for Cursor-specific agent workflows see the
   [agent cookbook](https://cursor.com/docs/cookbook/agent-workflows) (optional;
