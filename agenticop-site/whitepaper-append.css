@@ -1,0 +1,130 @@
+/* Technical overview page: markdown body (loaded into #content.prose on whitepaper.html) */
+.nav-links a[aria-current="page"] {
+  color: var(--teal);
+  font-weight: 600;
+}
+section.whitepaper-section {
+  padding-top: 0;
+}
+.whitepaper-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.35rem 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+@media (min-width: 768px) {
+  .whitepaper-card {
+    padding: 2rem 2.25rem 2.5rem;
+  }
+}
+#content.prose h1 {
+  font-size: clamp(1.85rem, 4vw, 2.45rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0 0 1rem;
+}
+#content.prose h2 {
+  font-size: clamp(1.35rem, 3vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 2.25rem 0 0.65rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+#content.prose h3 {
+  font-size: 1.1rem;
+  margin: 1.5rem 0 0.5rem;
+}
+#content.prose h4 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.4rem;
+}
+#content.prose p {
+  margin: 0 0 1rem;
+  color: var(--ink);
+}
+#content.prose li {
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+}
+#content.prose ul,
+#content.prose ol {
+  margin: 0 0 1rem;
+  padding-left: 1.35rem;
+}
+#content.prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+#content.prose blockquote {
+  margin: 1rem 0;
+  padding: 0.5rem 0 0.5rem 1rem;
+  border-left: 4px solid var(--teal-mid);
+  background: var(--surface-2);
+  color: var(--muted);
+}
+#content.prose code {
+  font-size: 0.88em;
+  background: var(--surface-2);
+  padding: 0.12rem 0.35rem;
+  border-radius: 6px;
+}
+#content.prose pre:not(.mermaid) {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1rem 1.15rem;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+#content.prose pre:not(.mermaid) code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+#content.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: 1rem 0 1.5rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+#content.prose th,
+#content.prose td {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+#content.prose th {
+  background: var(--surface-2);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 600;
+}
+#content.prose tr:last-child td {
+  border-bottom: none;
+}
+#content.prose .mermaid {
+  margin: 1.25rem 0;
+  padding: 1rem;
+  background: var(--surface-2);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+.load-err {
+  color: #b91c1c;
+  padding: 1rem;
+  background: #fef2f2;
+  border-radius: 10px;
+}

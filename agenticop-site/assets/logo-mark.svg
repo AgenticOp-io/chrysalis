@@ -5,6 +5,7 @@
       <stop offset="100%" stop-color="#0f766e"/>
     </linearGradient>
   </defs>
+  <!-- Three-node ops graph: coordinated agents -->
   <circle cx="32" cy="15" r="9" fill="url(#ao-grad)"/>
   <circle cx="16" cy="47" r="9" fill="url(#ao-grad)"/>
   <circle cx="48" cy="47" r="9" fill="url(#ao-grad)"/>

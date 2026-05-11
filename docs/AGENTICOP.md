@@ -24,7 +24,9 @@ Commercial lever ordering (services, support, licensed builds): **[`COMMERCIAL.m
 
 ## Firebase Hosting (`agenticop.io`)
 
-The landing page source lives in **[`agenticop-site/`](../agenticop-site/)** (committed HTML + assets). **`firebase.json`** deploys that folder to the **Hosting** target **`agenticop`**, which maps to site **`agenticops-production`** inside Google Cloud / Firebase project **`wisptools-production`**.
+The landing page source lives in **[`agenticop-site/`](../agenticop-site/)** — **`index.html`** uses the same **inline** stylesheet as the original wisptools-era static page; **`site.css`** is **generated** for **`whitepaper.html`** only (from that inline block + **`whitepaper-append.css`** via **`scripts/rebuild-agenticop-site-css.mjs`**). **`assets/*.svg`** are kept in lockstep with **`branding/agenticop/`** by the same script. Also committed: **`whitepaper.html`**, **`whitepaper.md`** (byte copy of **`docs/WHITEPAPER.md`**). **`firebase.json`** deploys **`agenticop-site/`** to Hosting target **`agenticop`** → site **`agenticops-production`** in Firebase project **`wisptools-production`**. Technical overview: **https://agenticop.io/whitepaper.html**.
+
+After editing **`docs/WHITEPAPER.md`** or **`index.html`** styles, run **`pnpm run sync:agenticop-site`** (or **`pnpm run deploy:agenticop-site`**) so **`whitepaper.md`** and **`site.css`** / **`assets/`** stay aligned; **`pnpm test`** guards **`whitepaper.md`** vs **`docs/WHITEPAPER.md`** and **`assets/`** vs **`branding/agenticop/`**.
 
 - **Default web.app URL:** https://agenticops-production.web.app  
 - **Custom domain** **agenticop.io**: add in Firebase console → Hosting → **agenticops-production** → Add custom domain (DNS at your registrar).

@@ -58,7 +58,9 @@
     "ci:verify-summary-batch": "vitest run packages/verify/tests/verify-summary-batch.test.ts",
     "github:project-bootstrap": "node scripts/bootstrap-github-project.mjs",
     "clean": "pnpm -r clean",
-    "deploy:agenticop-site": "firebase deploy --only hosting"
+    "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",
+    "deploy:agenticop-site": "pnpm run sync:agenticop-site && firebase deploy --only hosting",
+    "advisor:package": "node scripts/make-advisor-package.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",

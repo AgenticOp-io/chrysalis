@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chrysalis technical overview — AgenticOp</title>
+    <meta
+      name="description"
+      content="Architecture summary: WebIR, oracle capture, verify replay, chimera dual-stack routing. Same scope as Chrysalis docs/WHITEPAPER.md."
+    />
+    <link rel="icon" href="/assets/logo-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/site.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="nav" role="banner">
+      <div class="nav-inner">
+        <a href="/" aria-label="AgenticOp home">
+          <img src="/assets/logo-horizontal.svg" width="240" height="41" alt="AgenticOp" />
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="/whitepaper.html" aria-current="page">Technical overview</a>
+          <a href="/#approach">Approach</a>
+          <a href="/#engine">Engine</a>
+          <a href="/#pilots">Proof in repo</a>
+          <a href="/#work-with-us">Engage</a>
+          <a href="/#faq">FAQ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="hero">
+        <div class="hero-inner">
+          <p class="eyebrow">Documentation</p>
+          <h1>Chrysalis technical overview</h1>
+          <p class="lead">
+            Architecture and process summary for the open-source stack AgenticOp engagements use: WebIR, oracle capture,
+            verify replay, chimera routing. Matches <strong>docs/WHITEPAPER.md</strong> in the Chrysalis repo.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-secondary" href="https://github.com/4GEngineer/chrysalis/blob/main/docs/WHITEPAPER.md"
+              >View on GitHub</a
+            >
+            <a class="btn btn-primary" href="/">Back to AgenticOp home</a>
+          </div>
+          <div class="pill-row" aria-label="Topics">
+            <span class="pill">WebIR</span>
+            <span class="pill">Oracle</span>
+            <span class="pill">Verify</span>
+            <span class="pill">Chimera</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="narrow whitepaper-section" aria-label="Article">
+        <div class="whitepaper-card">
+          <div id="content" class="prose">Loading document…</div>
+        </div>
+      </section>
+
+      <section class="band" aria-labelledby="cta-band-title">
+        <div class="band-inner">
+          <h2 id="cta-band-title">Start from behavior, not hope</h2>
+          <p>Read the design, clone a fixture, and run verify. That loop is the spine of every AgenticOp engagement.</p>
+          <a class="btn btn-primary" href="https://github.com/4GEngineer/chrysalis">Open the Chrysalis repository</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="foot-inner">
+        <div>
+          <p style="font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0; letter-spacing: -0.02em">
+            Agentic<span style="color: #5eead4">Op</span><span style="color: #64748b; font-weight: 500; font-size: 0.95rem">.io</span>
+          </p>
+          <p style="margin: 1rem 0 0; max-width: 28rem">
+            Technical overview source:
+            <a href="https://github.com/4GEngineer/chrysalis/blob/main/docs/WHITEPAPER.md">docs/WHITEPAPER.md</a>
+            (synced to this host on deploy). Chrysalis is MIT licensed.
+            <a href="https://github.com/4GEngineer/chrysalis">GitHub</a>
+            ·
+            <a href="https://github.com/4GEngineer/chrysalis/blob/main/docs/AGENTICOP.md">Docs</a>
+          </p>
+        </div>
+        <div>
+          <div style="margin-bottom: 0.35rem"><strong>Reference pilots</strong></div>
+          <a href="https://github.com/4GEngineer/chrysalis/tree/main/fixtures/tiny-blog">fixtures/tiny-blog</a><br />
+          <a href="https://github.com/4GEngineer/chrysalis/tree/main/flagship/laravel-min">flagship/laravel-min</a><br />
+          <a href="https://github.com/4GEngineer/chrysalis/tree/main/flagship/laravel-full">flagship/laravel-full</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script>
+      (function () {
+        function escapeHtml(s) {
+          return s
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "neutral",
+          securityLevel: "strict",
+          fontFamily:
+            'system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif',
+        });
+
+        fetch("whitepaper.md")
+          .then(function (r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            return r.text();
+          })
+          .then(function (text) {
+            var blocks = [];
+            var md = text.replace(/```mermaid\n([\s\S]*?)```/g, function (_, code) {
+              var i = blocks.length;
+              blocks.push(code.trim());
+              return "\n\n<!--MERMAID:" + i + "-->\n\n";
+            });
+
+            var html = marked.parse(md, { mangle: false, headerIds: true });
+            html = html.replace(/<!--MERMAID:(\d+)-->/g, function (_, i) {
+              return '<pre class="mermaid">' + escapeHtml(blocks[Number(i)]) + "</pre>";
+            });
+
+            document.getElementById("content").innerHTML = html;
+            return mermaid.run({ querySelector: "#content .mermaid" });
+          })
+          .catch(function (e) {
+            document.getElementById("content").innerHTML =
+              '<p class="load-err">Could not load whitepaper.md: ' + escapeHtml(String(e.message)) + "</p>";
+          });
+      })();
+    </script>
+  </body>
+</html>
