@@ -43,7 +43,7 @@ function repoMeta() {
   const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
   const url = pkg.repository?.url;
   const m = typeof url === "string" ? url.match(/github\.com\/([^/]+)\/([^/.]+)/) : null;
-  const owner = process.env.CHRYSALIS_GH_PROJECT_OWNER ?? (m ? m[1] : "4GEngineer");
+  const owner = process.env.CHRYSALIS_GH_PROJECT_OWNER ?? (m ? m[1] : "theorem6");
   const repoShort = m ? m[2] : "chrysalis";
   const repoFull = process.env.CHRYSALIS_GH_REPO ?? `${owner}/${repoShort}`;
   return { owner, repoFull };

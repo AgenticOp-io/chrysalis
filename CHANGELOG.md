@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Canonical public GitHub remote** is **`theorem6/chrysalis`** (clone URLs, **`package.json` `repository.url`**, issue templates, **`CODEOWNERS`**, **`CHANGELOG`** release link footers, **`scripts/bootstrap-github-project.mjs`** default owner, **`agenticop-site`**, **`ROADMAP`** backlog links). **DESIGN D293** (supersedes **D286** for forward-looking links).
+
 - **`CONTRIBUTING.md`** — **Proof-of-concept and pilot trees**: table of paths that must stay in git vs reproducible/ignored outputs; **`.gitignore`** comments aligned (**`.firebase/`** cache only).
 
 ## [2.0.1] - 2026-05-08
@@ -25,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Commercial monetization stack (DESIGN D289):** **`docs/COMMERCIAL.md`** (revenue ordered: services, support, licensed distribution, training, examples); **`@chrysalis/license`** (Ed25519 **`claims` + `sig`**, **`assertMinLicenseTier`**, **`CHRYSALIS_LICENSE_MIN_TIER`**); **`chrysalis license`**, **`CHRYSALIS_REQUIRE_LICENSE`**, **`scripts/sign-license.mjs`**, root **`pnpm run license:sign`**; Vitest **`packages/license/tests`**, **`packages/cli/tests/license-cli.test.ts`**. Default OSS behavior unchanged (gate off). **Not a public commercial product launch** (no published SKU line or standalone npm commercial offering yet; docs state **publication status**).
 
-- **`.github/CODEOWNERS`** default review routing to **`@4GEngineer/4gengineer`** (requires team **write** access). **`docs/ADMINISTRATION.md`** — *GitHub repository (org settings)* documents API-applied settings (**Discussions**, **Dependabot security updates**) and the **private-plan** limitation for branch protection / rulesets / secret scanning, with CI check names to require after upgrade.
+- **`.github/CODEOWNERS`** default review routing to **`@4GEngineer/4gengineer`** (requires team **write** access). Superseded post-**2.0.1** by **`@theorem6`** (**DESIGN D293**). **`docs/ADMINISTRATION.md`** — *GitHub repository (org settings)* documents API-applied settings (**Discussions**, **Dependabot security updates**) and the **private-plan** limitation for branch protection / rulesets / secret scanning, with CI check names to require after upgrade.
 
 - **Repository governance:** [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) (Contributor Covenant 2.1), [`.github/pull_request_template.md`](./.github/pull_request_template.md), [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/) (bug + feature forms; security/docs contact links), [`.github/dependabot.yml`](./.github/dependabot.yml) (npm + GitHub Actions), and expanded [`.gitattributes`](./.gitattributes) plus [`CONTRIBUTING.md`](./CONTRIBUTING.md) (branch naming, CoC, security reporting).
 
@@ -33,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Dev toolchain:** **`vitest`** **4.1.5** and explicit **`vite`** **6.4.2** at the repo root clear **`pnpm audit`** moderate findings on the historical **Vitest 1.x → Vite 5.4.x → esbuild** chain (development server / source-map handling advisories); **`pnpm test`** unchanged in scope.
 
-- **GitHub canonical remote:** **`package.json`** `repository.url`, install and project docs, **`CHANGELOG.md`** release link footers, and **`scripts/bootstrap-github-project.mjs`** default owner fallback now use **`https://github.com/4GEngineer/chrysalis`** (organization home after transfer). **DESIGN D286.**
+- **GitHub canonical remote:** **`package.json`** `repository.url`, install and project docs, **`CHANGELOG.md`** release link footers, and **`scripts/bootstrap-github-project.mjs`** default owner fallback now use **`https://github.com/theorem6/chrysalis`** (user namespace after consolidation). **DESIGN D286** (org transfer) then **D293** (canonical **`theorem6`** home).
 
 - **Semver:** root and **`packages/*/package.json`** **`version`** **2.0.0 → 2.0.1**; committed **`fixtures/ci/*-smoke.json`** **`toolVersion`** fields match **2.0.1**.
 
@@ -199,7 +201,7 @@ This tag marks the **Chrysalis 2.0** scale-out line on the main branch: **`ROADM
 - **Milestone 4 v1 pilot** and scoped **Milestones 5–6 / 6A** are complete per `ROADMAP.md`; cross-cutting parser, oracle, verify depth, and optional repair follow-ons remain on the roadmap after v1.0.0.
 - This release is a **source distribution** (monorepo); it does not imply npm publication of `@chrysalis/*` packages to a registry unless separately documented.
 
-[2.0.1]: https://github.com/4GEngineer/chrysalis/releases/tag/v2.0.1
-[2.0.0]: https://github.com/4GEngineer/chrysalis/releases/tag/v2.0.0
-[1.0.1]: https://github.com/4GEngineer/chrysalis/releases/tag/v1.0.1
-[1.0.0]: https://github.com/4GEngineer/chrysalis/releases/tag/v1.0.0
+[2.0.1]: https://github.com/theorem6/chrysalis/releases/tag/v2.0.1
+[2.0.0]: https://github.com/theorem6/chrysalis/releases/tag/v2.0.0
+[1.0.1]: https://github.com/theorem6/chrysalis/releases/tag/v1.0.1
+[1.0.0]: https://github.com/theorem6/chrysalis/releases/tag/v1.0.0

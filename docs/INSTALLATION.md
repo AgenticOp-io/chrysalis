@@ -17,7 +17,7 @@ Optional: **SQLite** client tools for inspecting fixture DBs; not required for t
 ## Clone and install
 
 ```bash
-git clone https://github.com/4GEngineer/chrysalis.git
+git clone https://github.com/theorem6/chrysalis.git
 cd chrysalis
 pnpm install
 ```
@@ -80,7 +80,7 @@ See the root [`README.md`](../README.md) Quick start for `seed-db`, serving the 
 
 ## Installing from a release tarball
 
-Official **source archives** live on [GitHub Releases](https://github.com/4GEngineer/chrysalis/releases) (`chrysalis-<version>-source.tar.gz` / `.zip`). After download:
+Official **source archives** live on [GitHub Releases](https://github.com/theorem6/chrysalis/releases) (`chrysalis-<version>-source.tar.gz` / `.zip`). After download:
 
 ```bash
 tar -xzf chrysalis-<version>-source.tar.gz

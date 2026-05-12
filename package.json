@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/4GEngineer/chrysalis.git"
+    "url": "https://github.com/theorem6/chrysalis.git"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

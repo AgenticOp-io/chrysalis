@@ -59,7 +59,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the **repository maintainers** (organization owners for
-**`4GEngineer/chrysalis`**) via GitHub. For sensitive reports, use available
+**`theorem6/chrysalis`**) via GitHub. For sensitive reports, use available
 private channels offered by GitHub or your organization.
 
 All community leaders will respect the privacy and security of the reporter of

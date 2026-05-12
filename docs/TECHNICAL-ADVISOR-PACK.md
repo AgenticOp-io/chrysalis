@@ -45,4 +45,4 @@ The bundle includes **`START-HERE.md`** at the top of the tree (same guidance as
 
 ## Repository
 
-**https://github.com/4GEngineer/chrysalis** (canonical public remote per `DESIGN.md` D286).
+**https://github.com/theorem6/chrysalis** (canonical public remote per `DESIGN.md` D286).

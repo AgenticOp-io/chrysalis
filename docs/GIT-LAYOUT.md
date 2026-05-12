@@ -5,7 +5,7 @@ This document explains **how Git is structured here** and why your IDE might lis
 ## Canonical repository
 
 - **One Git history:** the monorepo root (directory that contains this file’s parent `.git/`).
-- **Public remote:** `origin` → `https://github.com/4GEngineer/chrysalis.git` (see `DESIGN.md` D286).
+- **Public remote:** `origin` → `https://github.com/theorem6/chrysalis.git` (see `DESIGN.md` D293; D286 is the historical org-home record).
 - **Optional fork remote:** many contributors add `fork` (or `personal`) pointing at their GitHub fork; use `git remote -v` to see yours. Nothing in this doc requires renaming remotes.
 
 There are **no Git submodules** in this tree; `git submodule status` is empty by design.
@@ -16,8 +16,7 @@ These pages are **useful bookmarks** but they are **not** something Git stores i
 
 | URL | What it is |
 |-----|------------|
-| [github.com/theorem6?tab=repositories](https://github.com/theorem6?tab=repositories) | **User profile** repository list (GitHub UI). Visibility depends on account (public repos may be empty while private repos exist). |
-| [github.com/orgs/4GEngineer/repositories](https://github.com/orgs/4GEngineer/repositories) | **Organization** repository list (GitHub UI). Other org repos (e.g. tooling) are **separate clones** from this monorepo. |
+| [github.com/theorem6?tab=repositories](https://github.com/theorem6?tab=repositories) | **User profile** repository list (GitHub UI). Other **`theorem6`** repositories (e.g. tooling, pilots) are **separate clones** from this monorepo. |
 | [github.com/theorem6/fragility-discovery-engine](https://github.com/theorem6/fragility-discovery-engine) | A **different repository** from Chrysalis—not a folder inside this tree unless you intentionally add a submodule or subtree. |
 
 **Git only persists URLs you configure as [remotes](https://git-scm.com/docs/git-remote)**, in your local **`.git/config`** (or your global Git config). That file is **not committed** to Chrysalis. To “store” a second repo **next to** Chrysalis in Git’s sense, use a **second clone** on disk, or add an **optional remote** in this clone (see below).
@@ -32,8 +31,8 @@ git fetch fragility-discovery
 git branch -r
 ```
 
-- **Upstream / PR target:** keep **`origin`** → [`4GEngineer/chrysalis`](https://github.com/4GEngineer/chrysalis) per `DESIGN.md` D286 and root `package.json` `repository.url`.
-- **Your fork:** many people use **`fork`** → `https://github.com/theorem6/chrysalis.git` (same project, different owner). That is **local convention**, not enforced by the repo.
+- **Upstream / PR target:** keep **`origin`** → [`theorem6/chrysalis`](https://github.com/theorem6/chrysalis) per `DESIGN.md` D293 and root `package.json` `repository.url`.
+- **Your fork:** many people use **`fork`** → `https://github.com/<you>/chrysalis.git` (same project, different owner). That is **local convention**, not enforced by the repo.
 - **Other projects** (e.g. fragility-discovery-engine): optional extra remotes, or separate clone directories—both are valid; neither belongs inside `packages/` unless you deliberately integrate them.
 
 To list what this clone knows:

@@ -27,19 +27,19 @@ The **v2.0.0** thesis and scale-out milestones are complete; the items below are
 
 | Option | What | Where it lives today | Tracking |
 | --- | --- | --- | --- |
-| **A — Full ingest checkpoint** | Persist **partial WebIR** (or equivalent) so ingest can **resume** after crash beyond **AST parse cache** + **route shards** + merge. | **V2-M2** *Progress*: “**Still open:** optional future **full** ingest checkpoint …” | [#2](https://github.com/4GEngineer/chrysalis/issues/2) |
-| **B — IR helper lifting** | **Lift shared helpers** when handler bodies are **not** structurally identical (different origins/attrs), going beyond **D283** within-module structural dedupe. | **V2-M4** *Remaining* / **D283** *Remaining* | [#3](https://github.com/4GEngineer/chrysalis/issues/3) |
-| **C — Corpus rotation + multi-host ops** | **Automated rotation**, richer **multi-host** corpus workflows; today retention/sizing is **operator doc v0** with implementation backlog. | **V2-M3** *Retention / sizing*; **`docs/ADMINISTRATION.md`** | [#4](https://github.com/4GEngineer/chrysalis/issues/4) |
-| **D — `rediss://` (PHP sessions)** | TLS Redis URL support in the **PHP** session bridge connector (tunnel/extension-point today). | **V2-M5** session row; **D273** | [#5](https://github.com/4GEngineer/chrysalis/issues/5) |
-| **E — Fleet / chimera dashboards** | **Reference** Grafana panels, **Loki** queries, or a **small example repo** consuming **`chrysalis.chimera.*`** / **`chrysalis.verify.summary.*`** / fleet JSON — **operator-owned**, not a hosted Chrysalis product (**telemetry-free** stance unchanged). | **V2-M5** / **V2-M6** *Remaining*; **`docs/OPERATIONS.md`** | [#6](https://github.com/4GEngineer/chrysalis/issues/6) |
+| **A — Full ingest checkpoint** | Persist **partial WebIR** (or equivalent) so ingest can **resume** after crash beyond **AST parse cache** + **route shards** + merge. | **V2-M2** *Progress*: “**Still open:** optional future **full** ingest checkpoint …” | [#2](https://github.com/theorem6/chrysalis/issues/2) |
+| **B — IR helper lifting** | **Lift shared helpers** when handler bodies are **not** structurally identical (different origins/attrs), going beyond **D283** within-module structural dedupe. | **V2-M4** *Remaining* / **D283** *Remaining* | [#3](https://github.com/theorem6/chrysalis/issues/3) |
+| **C — Corpus rotation + multi-host ops** | **Automated rotation**, richer **multi-host** corpus workflows; today retention/sizing is **operator doc v0** with implementation backlog. | **V2-M3** *Retention / sizing*; **`docs/ADMINISTRATION.md`** | [#4](https://github.com/theorem6/chrysalis/issues/4) |
+| **D — `rediss://` (PHP sessions)** | TLS Redis URL support in the **PHP** session bridge connector (tunnel/extension-point today). | **V2-M5** session row; **D273** | [#5](https://github.com/theorem6/chrysalis/issues/5) |
+| **E — Fleet / chimera dashboards** | **Reference** Grafana panels, **Loki** queries, or a **small example repo** consuming **`chrysalis.chimera.*`** / **`chrysalis.verify.summary.*`** / fleet JSON — **operator-owned**, not a hosted Chrysalis product (**telemetry-free** stance unchanged). | **V2-M5** / **V2-M6** *Remaining*; **`docs/OPERATIONS.md`** | [#6](https://github.com/theorem6/chrysalis/issues/6) |
 
 ### Checkbox backlog (optional tracking)
 
-- [ ] **A** — Full ingest checkpoint (resume semantics beyond cache + shards) — [#2](https://github.com/4GEngineer/chrysalis/issues/2)
-- [ ] **B** — IR-level helper lifting (non-identical bodies; **D283** follow-on) — [#3](https://github.com/4GEngineer/chrysalis/issues/3)
-- [ ] **C** — Automated corpus rotation + richer multi-host corpus automation — [#4](https://github.com/4GEngineer/chrysalis/issues/4)
-- [ ] **D** — **`rediss://`** for **`packages/oracle-php`** Redis session handler — [#5](https://github.com/4GEngineer/chrysalis/issues/5)
-- [ ] **E** — Third-party dashboard **examples** (Grafana / sample repo) for chimera + fleet JSON — [#6](https://github.com/4GEngineer/chrysalis/issues/6)
+- [ ] **A** — Full ingest checkpoint (resume semantics beyond cache + shards) — [#2](https://github.com/theorem6/chrysalis/issues/2)
+- [ ] **B** — IR-level helper lifting (non-identical bodies; **D283** follow-on) — [#3](https://github.com/theorem6/chrysalis/issues/3)
+- [ ] **C** — Automated corpus rotation + richer multi-host corpus automation — [#4](https://github.com/theorem6/chrysalis/issues/4)
+- [ ] **D** — **`rediss://`** for **`packages/oracle-php`** Redis session handler — [#5](https://github.com/theorem6/chrysalis/issues/5)
+- [ ] **E** — Third-party dashboard **examples** (Grafana / sample repo) for chimera + fleet JSON — [#6](https://github.com/theorem6/chrysalis/issues/6)
 
 ---
 

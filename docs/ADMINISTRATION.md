@@ -88,9 +88,9 @@ Oracle traces are **append-only NDJSON** per request. Growth is roughly **linear
 
 **Already applied (maintainers, via GitHub API):**
 
-- **Issues** and **Discussions** enabled on **`4GEngineer/chrysalis`**.
+- **Issues** and **Discussions** enabled on **`theorem6/chrysalis`**.
 - **Dependabot security updates** enabled (automated vulnerability PRs; complements **`.github/dependabot.yml`** version updates).
-- **`.github/CODEOWNERS`** routes default review requests to **`@4GEngineer/4gengineer`** (team must have **write** access to the repo for assignments to work).
+- **`.github/CODEOWNERS`** routes default review requests to **`@theorem6`** (the account must have **write** access to the repo for assignments to work).
 
 **Not available on private repositories under the no-cost GitHub plan:** classic **branch protection**, **rulesets**, and **secret scanning** return HTTP **403/422** from the REST API until the repo is **public** or the org uses a **paid GitHub plan** with the feature. After upgrading, configure **`main`** in the UI (or API) to:
 
