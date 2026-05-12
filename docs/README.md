@@ -12,7 +12,7 @@ Start with the repository root [`README.md`](../README.md), then [`DESIGN.md`](.
 | [Release process](./RELEASE.md) | Maintainers | Version tags, tarballs, GitHub Releases, checklist |
 | [GitHub Project](./GITHUB_PROJECT.md) | Maintainers & PM | Bootstrap a GitHub Project (v2) linked to the repo, lanes, fields |
 | [AgenticOp](./AGENTICOP.md) | Operators & services leads | **AgenticOp** at **`https://agenticop.io`**: practice positioning vs **Chrysalis** (MIT); links to logo assets |
-| [Technical advisor pack](./TECHNICAL-ADVISOR-PACK.md) | External reviewers | Reading order + **`pnpm run advisor:package`** (doc-only **`.tar.gz`** in **`build/advisor-package/`**) |
+| [Git layout (nested repos, remotes, IDE)](./GIT-LAYOUT.md) | Contributors hitting “extra” repositories in the IDE | Explains ignored local `.git` trees, `origin` vs fork, worktrees, safe `fetch --prune` |
 
 **Community:** [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md), and [`.github/pull_request_template.md`](../.github/pull_request_template.md) / [`.github/ISSUE_TEMPLATE/`](../.github/ISSUE_TEMPLATE/).
 

@@ -11,6 +11,7 @@
 - Prefer **small, reviewable PRs** with a clear summary and linked **issue** or **roadmap** reference when applicable.
 - Use **descriptive commit messages** (present tense, scoped by area when helpful, e.g. `fix(verify): …`, `docs(roadmap): …`).
 - **Branching:** work from an up-to-date **`main`**; use feature branches (`feat/…`, `fix/…`, `docs/…`) for PRs.
+- **Git / IDE:** if your editor lists “extra” repositories under this tree, read [`docs/GIT-LAYOUT.md`](./docs/GIT-LAYOUT.md) (ignored nested `.git`, remotes). Prefer opening the **repo root** or **`chrysalis.code-workspace`**.
 - Install and build per [`docs/INSTALLATION.md`](./docs/INSTALLATION.md); run **`pnpm test`** before pushing substantive changes. On **Windows**, if Git prints **`credential-manager-core` is not a git command**, see **Troubleshooting** in **`docs/INSTALLATION.md`** (credential helper / **`PATH`**).
 
 ## Quality bar

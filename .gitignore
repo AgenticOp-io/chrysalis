@@ -5,7 +5,9 @@ build/
 .DS_Store
 .env
 .env.local
-.vscode/
+# Local editor state; shared team defaults live in .vscode/settings.json (tracked).
+.vscode/*
+!.vscode/settings.json
 
 # Firebase CLI local cache (never commit)
 .firebase/

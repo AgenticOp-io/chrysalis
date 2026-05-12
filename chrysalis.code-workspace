@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "name": "Chrysalis",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "git.autoRepositoryDetection": true,
+    "git.openRepositoryInParentFolders": "never",
+    "git.repositoryScanMaxDepth": 1
+  }
+}

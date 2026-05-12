@@ -40,6 +40,7 @@ const docFiles = [
   "docs/README.md",
   "docs/TECHNICAL-ADVISOR-PACK.md",
   "docs/REQUIREMENTS-AND-SPEC.md",
+  "docs/GIT-LAYOUT.md",
   "docs/WHITEPAPER.md",
   "docs/INSTALLATION.md",
   "docs/OPERATIONS.md",
