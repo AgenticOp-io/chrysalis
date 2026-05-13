@@ -53,6 +53,7 @@
     "license:sign": "node scripts/sign-license.mjs",
     "release:artifacts": "node scripts/make-release-artifacts.mjs",
     "fleet:export-status-uplink": "node scripts/export-fleet-status-uplink.mjs",
+    "corpus:rotate-archive": "node scripts/corpus-rotate-archive.mjs",
     "ci:chimera-lb-smoke": "vitest run packages/runtime-chimera/tests/proxy-lb-round-robin.test.ts",
     "ci:chimera-operator-snapshot": "vitest run packages/runtime-chimera/tests/chimera-operator-snapshot.test.ts packages/runtime-chimera/tests/chimera-operator-snapshot-batch.test.ts packages/emit-shared/tests/chrysalis-route-paths.test.ts packages/emit-shared/tests/emit-handler-fingerprints.test.ts",
     "ci:verify-summary-batch": "vitest run packages/verify/tests/verify-summary-batch.test.ts",
@@ -60,7 +61,8 @@
     "clean": "pnpm -r clean",
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",
     "deploy:agenticop-site": "pnpm run sync:agenticop-site && firebase deploy --only hosting",
-    "advisor:package": "node scripts/make-advisor-package.mjs"
+    "advisor:package": "node scripts/make-advisor-package.mjs",
+    "test:cli-shims": "node scripts/test-cli-shims.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",

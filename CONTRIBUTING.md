@@ -13,6 +13,7 @@
 - **Branching:** work from an up-to-date **`main`**; use feature branches (`feat/…`, `fix/…`, `docs/…`) for PRs.
 - **Git / IDE:** if your editor lists “extra” repositories under this tree, read [`docs/GIT-LAYOUT.md`](./docs/GIT-LAYOUT.md) (ignored nested `.git`, remotes). Prefer opening the **repo root** or **`chrysalis.code-workspace`**.
 - Install and build per [`docs/INSTALLATION.md`](./docs/INSTALLATION.md); run **`pnpm test`** before pushing substantive changes. On **Windows**, if Git prints **`credential-manager-core` is not a git command**, see **Troubleshooting** in **`docs/INSTALLATION.md`** (credential helper / **`PATH`**).
+- If you change **`go/shim/`** or **`python/chrysalis_shim/`**, run **`pnpm run test:cli-shims`** after **`pnpm --filter @chrysalis/cli build`** (or full **`pnpm -r build`**). CI **`typecheck-and-test`** runs the same script in **strict** mode (**`GITHUB_ACTIONS`**: both Go and Python must pass). Locally use **`CHRYSALIS_STRICT_CLI_SHIMS=1 pnpm run test:cli-shims`** to match that bar when Go and Python are installed.
 
 ## Quality bar
 

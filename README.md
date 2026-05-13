@@ -182,6 +182,8 @@ CHRYSALIS_PARSER_PROVIDER=nikic node packages/cli/dist/bin.js status --project f
 node packages/cli/dist/bin.js status --project fixtures/tiny-blog --merge-all-shards --shard-count 2
 ```
 
+Same commands via **Python** or **Go** shims (they forward to the Node CLI; **DESIGN D295**): see [`docs/INSTALLATION.md`](./docs/INSTALLATION.md#optional-python-and-go-entrypoints-same-cli). After `pnpm --filter @chrysalis/cli build`, optional smoke: `pnpm run test:cli-shims` (skips missing Go/Python locally; CI uses strict mode so both run).
+
 ### `scripts/ci-gates.mjs` locally
 
 Root **`package.json`** exposes **`pnpm run ci:*`** shims that forward to **`node scripts/ci-gates.mjs …`** (optional path after **`--`** where the gate accepts one). **`pnpm run ci:insight`** runs **`chrysalis insight`** for **`fixtures/tiny-n1`** then the **`tiny-n1-insight`** gate (requires a built CLI under **`packages/cli/dist/`**). Use **`pnpm run ci:tiny-n1-insight`** when **`reports/insight/tiny-n1.json`** already exists and you only want the gate. **`pnpm run ci:migration-sidecar-floors`** exits **0** with a skip log unless **`CHRYSALIS_IDIOMATICITY_MIN`** and/or **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set. **`pnpm run ci:emit-layout-floors`** skips unless **`CHRYSALIS_EMIT_LAYOUT_MAX_*`** env ceilings are set (**`emit-stats`** layout, **DESIGN D251**).

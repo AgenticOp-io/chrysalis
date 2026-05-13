@@ -5,6 +5,8 @@
 The `chrysalis` command-line entry point. Orchestrates the pipeline by
 delegating to other packages; contains no translation logic of its own.
 
+**Also in this repo (DESIGN D295):** thin **Python** (`python/chrysalis_shim/`, console script **`chrysalis-py`**) and **Go** (`go/shim/`) programs that **`exec` the same** **`packages/cli/dist/bin.js`** after `pnpm --filter @chrysalis/cli build`. Set **`CHRYSALIS_CLI_JS`** / **`CHRYSALIS_NODE`** when the auto-discovery of `bin.js` from `cwd` is not enough. Smoke: **`pnpm run test:cli-shims`** (skips missing Go/Python locally; **`GITHUB_ACTIONS`** or **`CHRYSALIS_STRICT_CLI_SHIMS=1`** requires both).
+
 ## Public API
 
 Subcommands (some are Milestone 1 stubs):

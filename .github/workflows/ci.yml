@@ -58,6 +58,13 @@ jobs:
       - name: Build
         run: pnpm -r build
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Python + Go CLI shims (forward to Node CLI, DESIGN D295)
+        run: pnpm run test:cli-shims
+
       - name: Oracle-php Redactor smoke (sql.row + sql.params)
         run: |
           php packages/oracle-php/tests/redactor_sql_rows_test.php

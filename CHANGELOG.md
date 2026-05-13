@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Multi-runtime CLI shims (DESIGN D295):** **`go/shim/`** Go entrypoint that **`exec`s** the built Node CLI; **`python/chrysalis_shim/`** Python package with **`chrysalis-py`** and **`python -m chrysalis_shim`**. Both honor **`CHRYSALIS_CLI_JS`** and **`CHRYSALIS_NODE`**. **`pnpm run test:cli-shims`** skips missing interpreters locally; on **`GITHUB_ACTIONS`** (or **`CHRYSALIS_STRICT_CLI_SHIMS=1`**) **both** shims must pass. **`typecheck-and-test`** in **`.github/workflows/ci.yml`** runs **`pnpm run test:cli-shims`** after **`pnpm -r build`** with **`actions/setup-go@v5` (Go 1.22)** so both shims stay covered in CI.
+
 - **AgenticOp** outbound identity (**`https://agenticop.io`**): **`docs/AGENTICOP.md`**, **`branding/agenticop/`** SVG logos + READMEs, cross-links from **`README.md`**, **`docs/README.md`**, **`docs/COMMERCIAL.md`** (**DESIGN D292**).
 - **Firebase Hosting** for **`agenticop-site/`**: **`firebase.json`** target **`agenticop`** → site **`agenticops-production`** in project **`wisptools-production`**; committed **`.firebaserc`**; **`pnpm run deploy:agenticop-site`**.
 - **`agenticop-site/`** expanded landing (navigation, approach, engine, reference pilots table linking **`fixtures/tiny-blog`**, **`flagship/laravel-min`**, **`flagship/laravel-full`**, **`generated/tiny-blog`**, FAQ, CTAs).

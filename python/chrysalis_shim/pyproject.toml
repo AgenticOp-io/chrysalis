@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chrysalis-shim"
+version = "0.0.0"
+description = "Python entrypoint that runs the canonical Node chrysalis CLI (packages/cli/dist/bin.js)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[project.scripts]
+chrysalis-py = "chrysalis_shim.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
