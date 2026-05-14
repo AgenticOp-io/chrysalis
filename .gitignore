@@ -24,6 +24,12 @@ pnpm-debug.log*
 
 # Chrysalis-specific
 .chrysalis/
+# Local GCP service account keys (never commit; see scripts/create-gcp-vm-service-account.ps1)
+.chrysalis-gcp-sa-key.json
+*-gcp-sa-key.json
+# Go CLI shim local build artifacts
+go/shim/chrysalis-go
+go/shim/chrysalis-go.exe
 # Local SQLite for tiny-blog (seed / oracle; DDL is schema.sql)
 fixtures/tiny-blog/blog.sqlite
 traces/

@@ -27,7 +27,7 @@ Optional environment:
 | `CHRYSALIS_GH_PROJECT_TITLE` | `Chrysalis` | Project title; reused if a project with this title already exists |
 | `CHRYSALIS_GH_REPO` | `<owner>/chrysalis` from `repository.url` | Repository to **link** |
 
-The script is **idempotent for fields**: it skips creating `Lane` or `Board status` if they already exist. It **reuses** an existing project with the same title instead of creating duplicates.
+The script **does not create** `Lane` or `Board status` again when those fields already exist. It **reuses** an existing project with the same title instead of creating duplicates.
 
 ## What gets created
 

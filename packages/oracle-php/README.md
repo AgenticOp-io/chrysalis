@@ -143,8 +143,7 @@ same URL as the Node process. Requires the **phpredis** extension (`ext-redis`).
 The handler sets `session.serialize_handler` to `php_serialize` so PHP session
 arrays round-trip as JSON next to Node.
 
-`rediss://` (TLS) URLs are not parsed by the PHP helper; use a local proxy or extend
-the connector for your environment.
+**`rediss://` (TLS):** supported with **phpredis** via a TLS client stream (default port **6379** when omitted). Optional query **`verify_peer=0`** or **`verify_peer=false`** disables certificate verification (use only when your platform requires it). **`RedisChrysalisSessionHandler::connectRedis($url)`** exposes the same connection rules for smoke tests (`packages/oracle-php/tests/redis_session_bridge_smoke.php`).
 
 ## Status
 

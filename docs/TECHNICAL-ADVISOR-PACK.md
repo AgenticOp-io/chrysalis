@@ -15,10 +15,10 @@ Chrysalis is a **verification-first** path from legacy **PHP** web apps to **Typ
 | 3 | **`ROADMAP.md`** | What is shipped vs deferred; milestone acceptance language. |
 | 4 | **`docs/WHITEPAPER.md`** | Narrative pipeline walkthrough (no code secrets). |
 | 5 | **`README.md`** (repo root) | Status, machine-JSON contracts table, quick links. |
-| 6 | **`AGENTS.md`** | How contributors must work (also signals engineering discipline). |
+| 6 | **`AGENTS.md`** | Repository rules: architecture alignment, tests, package boundaries. |
 | 7 | **Package READMEs** under `packages/*/README.md` | Per-surface API and invariants (parser-bridge, ingest, webir, emit-*, oracle, verify, runtime-chimera, cli). |
 
-Optional deeper ops: **`docs/OPERATIONS.md`**, **`docs/ADMINISTRATION.md`**, **`docs/INSTALLATION.md`**.
+Optional deeper ops: **`docs/DEPLOYMENT.md`**, **`docs/USER-GUIDE.md`**, **`docs/OPERATIONS.md`**, **`docs/ADMINISTRATION.md`**, **`docs/INSTALLATION.md`**.
 
 ## If they clone the repo next
 
@@ -45,4 +45,4 @@ The bundle includes **`START-HERE.md`** at the top of the tree (same guidance as
 
 ## Repository
 
-**https://github.com/theorem6/chrysalis** (canonical public remote per `DESIGN.md` D286).
+**https://github.com/theorem6/chrysalis** (**official** public remote per `DESIGN.md` D286).

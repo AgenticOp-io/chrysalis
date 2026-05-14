@@ -1,6 +1,6 @@
 # Commercial offerings (revenue order)
 
-**Outbound practice:** **[AgenticOp](https://agenticop.io)** — human-facing services and programs that pair agent-assisted delivery with **Chrysalis** oracle replay and **`chrysalis verify`**. Naming: **AgenticOp** (canonical); **`https://agenticop.io`**; avoid **AgenticOps** / **`agenticops.*`** in new materials. See **[`AGENTICOP.md`](./AGENTICOP.md)** and **`branding/agenticop/`** for logos.
+**Outbound practice:** **[AgenticOp](https://agenticop.io)** — human-facing services and programs that combine professional delivery with **Chrysalis** oracle replay and **`chrysalis verify`**. Naming: **AgenticOp** is the **official** spelling; use **`https://agenticop.io`**; avoid **AgenticOps** / **`agenticops.*`** in new materials. See **[`AGENTICOP.md`](./AGENTICOP.md)** and **`branding/agenticop/`** for logos.
 
 **Publication status:** This page is a **maintainer playbook** and describes **future** revenue levers. The **commercial program is not publicly launched**: there is no published SKU catalog, public pricing page, or **standalone npm** release of **`@chrysalis/license`** tied to a paid product yet. The monorepo may still ship **in-tree** license verification so vendor builds can opt in later; default OSS use stays **unchanged** (license gate off).
 
@@ -12,7 +12,7 @@ Chrysalis is **open source (MIT)** in this repository. Revenue scales with **ser
 
 **Why it monetizes:** Ties directly to production risk reduction; priced on outcomes and senior time, not on lines of OSS.
 
-**Deliverables:** SOW, weekly milestones, handoff docs referencing **`docs/OPERATIONS.md`** and **`docs/ADMINISTRATION.md`**.
+**Deliverables:** SOW, weekly milestones, handoff docs referencing **`docs/DEPLOYMENT.md`**, **`docs/USER-GUIDE.md`**, **`docs/OPERATIONS.md`**, and **`docs/ADMINISTRATION.md`**.
 
 ## 2. Enterprise support and SLA (recurring)
 
@@ -34,7 +34,7 @@ Chrysalis is **open source (MIT)** in this repository. Revenue scales with **ser
 - CLI **`chrysalis license check|print`** — validate materials.
 - **`scripts/sign-license.mjs`** — issue envelopes (**`pnpm run license:sign`** after **`pnpm --filter @chrysalis/license build`**).
 
-**Non-goals in-tree:** Stripe, activation servers, or usage telemetry. Your billing system emits **`claims.json`**; you sign with **`CHRYSALIS_LICENSE_PRIVATE_KEY_PATH`**.
+**Non-goals in-tree:** Stripe, activation servers, or **usage tracking** that phones home. Your billing system emits **`claims.json`**; you sign with **`CHRYSALIS_LICENSE_PRIVATE_KEY_PATH`**.
 
 ### Suggested tier mapping (example)
 
@@ -52,7 +52,7 @@ Chrysalis is **open source (MIT)** in this repository. Revenue scales with **ser
 
 ## 5. Reference dashboards and examples (low direct revenue, high credibility)
 
-**What:** Grafana/Loki panels or a small example repo consuming **`chrysalis.chimera.*`** / verify summary JSON (**operator-owned**, **telemetry-free** per **`ROADMAP.md`**).
+**What:** Grafana/Loki panels or a small example repo consuming **`chrysalis.chimera.*`** / verify summary JSON (**operator-owned**; **no built-in data collection to third parties** per **`ROADMAP.md`**).
 
 **Why it monetizes:** Supports upsell to services and support; rarely a standalone SKU.
 

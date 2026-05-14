@@ -64,6 +64,17 @@ final class RedisChrysalisSessionHandler implements \SessionHandlerInterface
         return true;
     }
 
+    /**
+     * Connect to Redis using the same rules as the session handler (redis:// or rediss://).
+     * Intended for smoke tests and operator diagnostics.
+     *
+     * @throws \InvalidArgumentException|\RuntimeException on invalid URL or connection failure
+     */
+    public static function connectRedis(string $url): \Redis
+    {
+        return self::doConnectRedis($url);
+    }
+
     public function close(): bool
     {
         if ($this->redis !== null) {
@@ -157,16 +168,42 @@ final class RedisChrysalisSessionHandler implements \SessionHandlerInterface
         return json_encode($arr, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
     }
 
-    private static function connectRedis(string $url): \Redis
+    private static function doConnectRedis(string $url): \Redis
     {
         $parts = parse_url($url);
-        if ($parts === false || !isset($parts['scheme']) || $parts['scheme'] !== 'redis') {
-            throw new \InvalidArgumentException('CHRYSALIS_SESSION_REDIS_URL must be a redis:// URL');
+        if ($parts === false || !isset($parts['scheme'])) {
+            throw new \InvalidArgumentException('CHRYSALIS_SESSION_REDIS_URL must be a redis:// or rediss:// URL');
         }
+        $scheme = strtolower((string) $parts['scheme']);
+        if ($scheme !== 'redis' && $scheme !== 'rediss') {
+            throw new \InvalidArgumentException('CHRYSALIS_SESSION_REDIS_URL must use scheme redis or rediss');
+        }
+        $useTls = $scheme === 'rediss';
         $host = $parts['host'] ?? '127.0.0.1';
         $port = isset($parts['port']) ? (int) $parts['port'] : 6379;
+        $query = [];
+        if (isset($parts['query']) && is_string($parts['query']) && $parts['query'] !== '') {
+            parse_str($parts['query'], $query);
+        }
+        $verifyPeer = true;
+        if (isset($query['verify_peer']) && ($query['verify_peer'] === '0' || $query['verify_peer'] === 'false')) {
+            $verifyPeer = false;
+        }
         $r = new \Redis();
-        if (!$r->connect($host, $port)) {
+        $connected = false;
+        if ($useTls) {
+            $stream = [
+                'crypto_type' => \STREAM_CRYPTO_METHOD_TLS_CLIENT,
+            ];
+            if ($verifyPeer === false) {
+                $stream['verify_peer'] = false;
+                $stream['verify_peer_name'] = false;
+            }
+            $connected = $r->connect($host, $port, 0.0, '', 0, 0.0, ['stream' => $stream]);
+        } else {
+            $connected = $r->connect($host, $port);
+        }
+        if (!$connected) {
             throw new \RuntimeException('Redis connect failed for session bridge');
         }
         if (isset($parts['pass']) && $parts['pass'] !== '') {

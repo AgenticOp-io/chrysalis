@@ -1,7 +1,11 @@
 import { describe, expect, test } from "vitest";
 import type { NodeBase, WebIRType } from "../src/index.js";
 import { nodeId } from "../src/index.js";
-import { canonicalWebIRType, mergeDedupeStructuralKey } from "../src/merge-dedupe-key.js";
+import {
+  canonicalWebIRType,
+  mergeDedupeStructuralKey,
+  mergeDedupeStructuralKeyIgnoringOrigin,
+} from "../src/merge-dedupe-key.js";
 
 function minimalNode(overrides: Partial<NodeBase>): NodeBase {
   return {
@@ -35,6 +39,16 @@ describe("mergeDedupeStructuralKey", () => {
       origin: { kind: "php", file: "b.php", line: 1, col: 0 },
     });
     expect(mergeDedupeStructuralKey(a, [])).not.toBe(mergeDedupeStructuralKey(b, []));
+  });
+
+  test("mergeDedupeStructuralKeyIgnoringOrigin ignores PHP file in origin", () => {
+    const a = minimalNode({
+      origin: { kind: "php", file: "a.php", line: 1, col: 0 },
+    });
+    const b = minimalNode({
+      origin: { kind: "php", file: "b.php", line: 1, col: 0 },
+    });
+    expect(mergeDedupeStructuralKeyIgnoringOrigin(a, [])).toBe(mergeDedupeStructuralKeyIgnoringOrigin(b, []));
   });
 
   test("operand subtree keys are order-sensitive", () => {

@@ -4,7 +4,10 @@
  */
 
 import { ModuleBuilder } from "./builder.js";
-import { mergeDedupeStructuralKey } from "./merge-dedupe-key.js";
+import {
+  mergeDedupeStructuralKey,
+  mergeDedupeStructuralKeyIgnoringOrigin,
+} from "./merge-dedupe-key.js";
 import type { Module, NodeBase, NodeId } from "./index.js";
 
 function postOrderReachable(m: Module): NodeId[] {
@@ -32,7 +35,11 @@ function postOrderReachable(m: Module): NodeId[] {
  * identical helpers across routes (**ROADMAP** V2-M4 *Remaining* slice). Default
  * ingest leaves the graph unchanged.
  */
-export function dedupeStructuralSubgraphsInModule(m: Module): Module {
+export function dedupeStructuralSubgraphsInModule(
+  m: Module,
+  opts?: { readonly ignoreOrigin?: boolean },
+): Module {
+  const keyFn = opts?.ignoreOrigin === true ? mergeDedupeStructuralKeyIgnoringOrigin : mergeDedupeStructuralKey;
   const builder = new ModuleBuilder({
     sourceApp: m.meta.sourceApp,
     chrysalisVersion: m.meta.chrysalisVersion,
@@ -53,7 +60,7 @@ export function dedupeStructuralSubgraphsInModule(m: Module): Module {
       }
       return k;
     });
-    const key = mergeDedupeStructuralKey(n, operandKeys);
+    const key = keyFn(n, operandKeys);
     const existing = keyToCanonicalNewId.get(key);
     if (existing !== undefined) {
       oldToNew.set(oldId, existing);

@@ -111,6 +111,7 @@ export const nodeId = (s: string): NodeId => s as NodeId;
 
 export {
   ModuleBuilder,
+  moduleBuilderResumeFromModule,
   NO_EFFECTS,
   T,
   mergeEffects,
@@ -134,7 +135,15 @@ export {
 export { isAuthBoundaryCallee, authTaggedHoleReason } from "./auth-boundary.js";
 export { computeOracleFootprint, type OracleFootprint, type RouteOracleFootprint } from "./oracle-footprint.js";
 export { moduleToGoldenSnapshot, type GoldenSnapshotOptions } from "./snapshot.js";
+export {
+  deserializeModuleCheckpoint,
+  MODULE_CHECKPOINT_KIND,
+  MODULE_CHECKPOINT_SCHEMA_VERSION,
+  serializeModuleCheckpoint,
+  type ModuleCheckpointV1,
+} from "./module-checkpoint.js";
 export { mergeWebIrModules } from "./merge-modules.js";
+export { mergeDedupeStructuralKey, mergeDedupeStructuralKeyIgnoringOrigin } from "./merge-dedupe-key.js";
 export { dedupeStructuralSubgraphsInModule } from "./dedupe-module-structural.js";
 export type { ModuleBuilderOpts } from "./builder.js";
 export * as webRequest from "./dialects/web-request.js";

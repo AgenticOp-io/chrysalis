@@ -2,7 +2,7 @@
 
 This document explains **how Git is structured here** and why your IDE might list **extra repositories** that never appear on GitHub under the main project.
 
-## Canonical repository
+## Main repository
 
 - **One Git history:** the monorepo root (directory that contains this file’s parent `.git/`).
 - **Public remote:** `origin` → `https://github.com/theorem6/chrysalis.git` (see `DESIGN.md` D293; D286 is the historical org-home record).

@@ -1,26 +1,90 @@
 # Chrysalis documentation
 
-Start with the repository root [`README.md`](../README.md), then [`DESIGN.md`](../DESIGN.md) (architecture and non-negotiables) and [`ROADMAP.md`](../ROADMAP.md) (milestones). Contributor rules live in [`AGENTS.md`](../AGENTS.md).
+Chrysalis is a Node.js toolchain for migrating a legacy PHP application to a modern TypeScript service while keeping evidence — not faith — that the new code matches the old one.
 
-## Guides
+If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the architecture story, then the [User guide](./USER-GUIDE.md) to learn the commands. If you would rather learn by following complete worked scenarios end-to-end, jump straight to the [How-to cookbook](./HOW-TO.md). If you are setting up CI or production hosts, read [Installation](./INSTALLATION.md), [Deployment](./DEPLOYMENT.md), and [Administration](./ADMINISTRATION.md) in that order.
+
+---
+
+## Guides by role
 
 | Guide | Audience | Contents |
 | --- | --- | --- |
-| [Installation](./INSTALLATION.md) | Developers and CI operators | Prerequisites, clone, install, build, optional PHP/Composer, smoke checks |
-| [Operations](./OPERATIONS.md) | Day-to-day users of the CLI | Ingest, emit (incl. **`--emit-runtime-facade`**, **D272**; **`--emit-shared-runtime-imports`**, **D281**; **`--emit-dedupe-identical-handler-bodies`**, **D282**), **V2-M2** ingest cache / shard / merge runbook (**DESIGN D275**), **`--ingest-progress-file`** + **`parseIngestProgressJson`** / **`readIngestProgressFile`** (**D277**, **D278**, **`verify`/`repair`/`insight`**: **D280**), **`--ingest-dedupe-structural-subgraphs`** (**D283**), synthetic ingest CI guards (**D255**, **D276**), observe, verify, status, repair, chimera deploy, operator-snapshot NDJSON batch merge (**`scripts/aggregate-chimera-operator-snapshots.mjs`**, **DESIGN D259**, **D260–D269**), verify-summary batch (**`scripts/aggregate-verify-summaries.mjs`**, **D271**), Redis session bridge (**`packages/oracle-php`**, **D273**), **V2-M6** fleet aggregation reference (**closed**, **DESIGN D274**), common scripts |
-| [Administration](./ADMINISTRATION.md) | SRE / platform / release owners | Reports layout, env vars, CI gates (**`verify-merged-summary`**, **`corpus-merge-summary`**, dual verify summaries, …), migration sidecars, redaction, upgrades, **GitHub org/repo** (Dependabot security updates, **CODEOWNERS**, branch-protection notes for public/Team) |
-| [Release process](./RELEASE.md) | Maintainers | Version tags, tarballs, GitHub Releases, checklist |
-| [GitHub Project](./GITHUB_PROJECT.md) | Maintainers & PM | Bootstrap a GitHub Project (v2) linked to the repo, lanes, fields |
-| [AgenticOp](./AGENTICOP.md) | Operators & services leads | **AgenticOp** at **`https://agenticop.io`**: practice positioning vs **Chrysalis** (MIT); links to logo assets |
-| [Git layout (nested repos, remotes, IDE)](./GIT-LAYOUT.md) | Contributors hitting “extra” repositories in the IDE | Explains ignored local `.git` trees, `origin` vs fork, worktrees, safe `fetch --prune` |
+| [Whitepaper](./WHITEPAPER.md) | Anyone evaluating or coming back to the project | The architecture in narrative form: why the system is split into translate / capture / replay, what each piece does, and how they compose. |
+| [Installation](./INSTALLATION.md) | First-time users, CI agents | Prerequisites, install, build, smoke checks. Optional **Python** / **Go** CLI shims that invoke the same Node `bin.js` (**DESIGN D295**). |
+| [User guide](./USER-GUIDE.md) | Engineers using the CLI | Plain-English explanation of every command with worked examples, exit codes, output conventions, and recipes. |
+| [How-to cookbook](./HOW-TO.md) | Anyone trying to do a specific thing | 24 end-to-end scenarios — from "first-time setup" to "GCE smoke VM" — each as a copy-pasteable, top-to-bottom walkthrough. |
+| [Operations](./OPERATIONS.md) | Day-to-day operators | Runbooks for ingest scale-out, capture, verify sharding, the dual-stack router, signed routing config, sessions across stacks, fleet rollups. |
+| [Deployment](./DEPLOYMENT.md) | Platform engineers, release engineers, SRE | Where each component runs in CI and production, the three deployment patterns, rollback playbooks. |
+| [Administration](./ADMINISTRATION.md) | SRE, platform, release owners | Environment variables, CI gates, the report tree, redaction policy, corpus retention, repository settings. |
 
-**Community:** [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md), and [`.github/pull_request_template.md`](../.github/pull_request_template.md) / [`.github/ISSUE_TEMPLATE/`](../.github/ISSUE_TEMPLATE/).
+---
 
-**Commercial:** [`COMMERCIAL.md`](./COMMERCIAL.md) (services, support, licensed CLI distribution, **`@chrysalis/license`** — playbook + in-tree tooling; **not a public product launch yet**). Primary outbound practice site: **[AgenticOp](https://agenticop.io)** (details in [`AGENTICOP.md`](./AGENTICOP.md)).
+## Architecture and contribution
 
-## Package references
+| Document | Audience | Purpose |
+| --- | --- | --- |
+| [`DESIGN.md`](../DESIGN.md) (root) | Contributors and integrators | The non-negotiable principles, the project vocabulary, and the decision log. The rules every change has to live within. |
+| [`ROADMAP.md`](../ROADMAP.md) (root) | Contributors | Milestones, what is done, and what is deferred. |
+| [`AGENTS.md`](../AGENTS.md) (root) | Contributors and automation | Repository contribution rules, pass naming, file layout discipline. |
+| [`README.md`](../README.md) (root) | Operators consuming machine output | Operator-facing tables for the JSON shapes Chrysalis emits (`schemaVersion`, `kind`, gate scripts). |
 
-- CLI flags and JSON contracts: [`packages/cli/README.md`](../packages/cli/README.md)
-- Optional **PHP** session bridge smoke (**`pnpm run test:oracle-php-session-redis`**, needs **phpredis** + **`CHRYSALIS_SESSION_REDIS_URL`**; **DESIGN D273**): [`packages/oracle-php/README.md`](../packages/oracle-php/README.md)
-- Verify / replay: [`packages/verify/README.md`](../packages/verify/README.md)
-- Flagship pilots: [`flagship/laravel-min/README.md`](../flagship/laravel-min/README.md), [`flagship/laravel-full/README.md`](../flagship/laravel-full/README.md)
+Per-package details live under `packages/<name>/README.md`. Each package README states purpose, public API, invariants, and non-goals.
+
+---
+
+## Other references
+
+| Document | Purpose |
+| --- | --- |
+| [Release process](./RELEASE.md) | Maintainer-facing: version tags, source archives, GitHub Releases checklist. |
+| [GitHub Project](./GITHUB_PROJECT.md) | How to bootstrap a GitHub Project (v2) board for milestone tracking. |
+| [Git layout](./GIT-LAYOUT.md) | Working with nested `.git` trees, remotes, worktrees. |
+| [Commercial offering](./COMMERCIAL.md) | Optional vendor build, license tiers, services posture. |
+| [AgenticOp site](./AGENTICOP.md) | The optional public practice site. Independent of running the toolchain. |
+
+Community: [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md), and the issue/PR templates under [`.github/`](../.github/).
+
+---
+
+## Reading order suggestions
+
+**"I want to translate one PHP app today."**
+
+1. [Installation](./INSTALLATION.md) — get the CLI built.
+2. [How-to cookbook](./HOW-TO.md), scenarios 1–2 — guided setup and your first translation.
+3. [User guide](./USER-GUIDE.md) — the command reference for the flags you'll need next.
+4. [Operations](./OPERATIONS.md) — the verify section when you reach it; the dual-stack router section if you plan to roll over gradually.
+
+**"I want to evaluate Chrysalis for a planned migration."**
+
+1. [Whitepaper](./WHITEPAPER.md) — the architecture story.
+2. [How-to cookbook](./HOW-TO.md), scenarios 13–16 — what the rollout actually looks like in production.
+3. [User guide](./USER-GUIDE.md) — the command reference for what is shipping today.
+4. [Deployment](./DEPLOYMENT.md) — the three deployment patterns to pick the one that fits.
+
+**"I am setting Chrysalis up in CI for a team."**
+
+1. [Installation](./INSTALLATION.md) — for the CI agent.
+2. [How-to cookbook](./HOW-TO.md), scenario 12 — a full GitHub Actions workflow you can paste in.
+3. [Administration](./ADMINISTRATION.md) — environment variables and the gate scripts.
+4. [Operations](./OPERATIONS.md) — for the rollback and rotation tooling.
+
+**"I am putting Chrysalis in front of production traffic."**
+
+1. [Deployment](./DEPLOYMENT.md) — Pattern C, end to end.
+2. [How-to cookbook](./HOW-TO.md), scenarios 13, 14, 16, 17 — shadow, canary, rollback, and shared sessions.
+3. [Operations](./OPERATIONS.md) — the dual-stack rollout, signed routing config, and Redis session sections.
+4. [Administration](./ADMINISTRATION.md) — the operator metrics, fleet rollups, and retention sections.
+
+**"Something is broken right now."**
+
+1. [How-to cookbook](./HOW-TO.md), scenario 7 — triage a verify failure in five minutes.
+2. [How-to cookbook](./HOW-TO.md), scenario 16 — roll back the canary in under a minute.
+3. [Operations](./OPERATIONS.md) — incident-time references for hot config reload, signed routing, and metrics.
+
+**"I only invoke Chrysalis from Python or Go."**
+
+1. [Installation](./INSTALLATION.md) — build the Node CLI, then the **Optional: Python and Go entrypoints** section.
+2. [How-to cookbook](./HOW-TO.md), scenario 23 — copy-paste examples and environment variables.
+3. After **`packages/cli/dist/bin.js` exists**, run **`pnpm run test:cli-shims`** (skips a missing Go or Python locally). Set **`CHRYSALIS_STRICT_CLI_SHIMS=1`** with both on **`PATH`** to match **`GITHUB_ACTIONS`** / CI (**DESIGN D295**).

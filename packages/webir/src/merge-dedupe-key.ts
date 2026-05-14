@@ -87,6 +87,27 @@ export function canonicalWebIRType(t: WebIRType): string {
   }
 }
 
+export function mergeDedupeStructuralKeyIgnoringOrigin(
+  n: NodeBase,
+  operandKeys: readonly string[],
+): string {
+  const parts = [
+    n.dialect,
+    n.op,
+    canonicalWebIRType(n.type),
+    canonicalEffects(n.effects),
+    stableJson(n.attrs),
+    canonicalProvenanceList(n.provenance),
+    ...operandKeys,
+  ];
+  const h = createHash("sha256");
+  for (const p of parts) {
+    h.update(p, "utf8");
+    h.update("\0", "utf8");
+  }
+  return h.digest("hex");
+}
+
 /**
  * Stable hash input for one node given precomputed operand subtree keys
  * (post-order within a shard module).

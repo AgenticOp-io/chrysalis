@@ -51,3 +51,25 @@ describe("ingest --ingest-progress-file", () => {
     expect(bad.stderr).toContain("cannot be used with --merge-all-shards");
   });
 });
+
+describe("ingest --ingest-checkpoint-file", () => {
+  test("rejects merge-all-shards combination", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-ingest-ckpt-"));
+    const bad = spawnSync(
+      process.execPath,
+      [
+        BIN,
+        "ingest",
+        FIXTURE,
+        "--merge-all-shards",
+        "--shard-count",
+        "2",
+        "--ingest-checkpoint-file",
+        join(dir, "ckpt.json"),
+      ],
+      { encoding: "utf8", cwd: ROOT },
+    );
+    expect(bad.status).toBe(2);
+    expect(bad.stderr).toContain("--ingest-checkpoint-file cannot be used with --merge-all-shards");
+  });
+});

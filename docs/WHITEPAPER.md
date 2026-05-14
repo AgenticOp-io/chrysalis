@@ -1,91 +1,100 @@
-# Chrysalis: Technical Overview
+# Chrysalis: a technical overview
 
-**Document type:** architecture and implementation summary  
-**Audience:** engineers evaluating or integrating the system  
-**Scope:** repository version aligned with root `package.json` (e.g. **2.0.x**); specifics refer to packages under `packages/`  
-**Figures:** Mermaid diagrams below render as vector graphics in GitHub, GitLab, and many Markdown preview tools.
+This is the architecture story behind Chrysalis: what each piece does, why it exists, and how the pieces compose into a system that translates a PHP application to TypeScript and proves the new code matches the old code's behavior.
 
-**Disclosure scope:** This paper explains **roles, data contracts, and integration boundaries** as reflected in public repository documentation (`DESIGN.md`, `README.md`, package `README.md` files). It does not enumerate every heuristic, scoring tweak, or internal optimization. Anything not stable across releases belongs in source and tests, not in a fixed narrative here.
+It is meant for engineers evaluating Chrysalis or coming back to maintain it. If you only need the commands, read the [User guide](./USER-GUIDE.md). If you need to set things up in CI or production, read [Operations](./OPERATIONS.md) and [Deployment](./DEPLOYMENT.md).
 
----
-
-## 1. Positioning (non-marketing)
-
-**Chrysalis** is a **monorepo** that implements:
-
-1. A **multi-dialect intermediate representation (IR)** for web applications (**WebIR**).
-2. A **behavioral capture** layer that persists HTTP/SQL/session/time observations as structured traces (**Oracle**).
-3. A **replay-based verifier** that executes emitted handlers against those traces (**Verify**).
-4. Optional **production routing** between a legacy PHP upstream and a generated Node/TypeScript upstream (**runtime-chimera**).
-
-The PHP-to-TypeScript path is one **frontend** (parse + ingest) and one family of **backends** (emitters). The IR and verification machinery are intended to outlive any single language pair.
-
-### 1.1 Four orthogonal processes (how they relate)
-
-These are **separate concerns** that compose:
-
-| Process | Question it answers | Typical when |
-|--------|---------------------|--------------|
-| **Parse + ingest** | What does the **source** say the program structure and intent are? | CI or developer machine; no PHP app traffic required beyond parsing. |
-| **Emit** | What **target-language project** implements that IR for a chosen framework? | After ingest; produces buildable TypeScript. |
-| **Oracle (record)** | What did the **running legacy app** actually do for real inputs? | Staging/production observation windows; exercises runtime + DB + extensions. |
-| **Verify (replay)** | Does the **emitted app** reproduce **observed** HTTP responses (under controlled nondeterminism rules)? | CI or release gates; needs corpus + running emitted server. |
-| **Chimera (optional)** | Which **upstream** serves this HTTP request in production, without splitting cookies or origin? | Dual-stack rollout; orthogonal to whether you ran verify in CI. |
-
-None of these replaces the others: static lowering can be sound yet incomplete; traces can cover behavior branches that static analysis never sees; replay checks **observable** agreement, not proof of total correctness.
+The figures use Mermaid; they render as diagrams in GitHub, GitLab, and most Markdown previewers.
 
 ---
 
-## 2. End-to-end lifecycle (conceptual)
+## 1. What problem this solves
 
-A common adoption shape:
+A PHP application that has run for ten years carries the truth of the business it supports. Its functions, its odd corners, the SELECT that has accidentally been the contract for three internal teams — all of that is encoded in code that no one wants to rewrite by hand and no one trusts a tool to rewrite by guess.
 
-1. **Establish routes and project roots** — manifests tell ingest which PHP entrypoints correspond to HTTP routes (see `chrysalis.routes.json` in operator docs).
-2. **Parse PHP** — syntax becomes AST JSON (no runtime execution at this stage).
-3. **Lower AST to WebIR** — structured graph with effects, types, provenance; gaps become **holes**, not silent omissions.
-4. **Emit TypeScript** — WebIR lowers to handler modules, wiring, and runtime adapters for the chosen stack (e.g. Hono or Fastify).
-5. **Record traces** — Oracle prelude captures requests/responses and side-effect streams from the **legacy** stack into NDJSON corpora.
-6. **Replay against emitted app** — Verify sends the same HTTP sequences (with determinism hooks), compares responses, and writes reports (aggregate correctness, per-route detail, divergence kinds).
-7. **Iterate** — holes shrink via ingest/emit improvements; divergences shrink via fixes or expanded traces; optional **repair** proposes IR edits that must pass verify again.
-8. **Route traffic (optional)** — Chimera proxies to legacy or modern per rule, including shadow and canary modes.
+Most "PHP to JavaScript" tools fall into two camps:
 
-Steps 2–4 are **compile-time translation**. Steps 5–6 are **behavioral conformance**. Step 8 is **operations**.
+- **Rule-based translators** that turn syntax into syntax. They produce code that compiles. Whether it does the same thing is up to you to find out.
+- **AI-assisted rewriters** that produce code that looks plausible. Whether it does the same thing is again up to you.
+
+Chrysalis takes a different position. It splits the problem into three independent pieces and only trusts an output when the pieces agree:
+
+1. **Translate the source** to TypeScript. When something cannot be translated safely, leave a typed placeholder ("hole") rather than guess.
+2. **Capture what the old app actually does** for real requests, into a corpus of recorded HTTP, SQL, session, and side-effect data.
+3. **Replay that corpus against the new code** with time and randomness pinned, and compare the responses.
+
+If translation is sound and replay agrees, you have evidence — not faith — that the new code behaves like the old code on the inputs you actually serve. If they disagree, the divergence list points you at the specific node in the translated graph that produced the wrong answer.
+
+That is the entire posture. Everything else in this document is mechanism that supports it.
 
 ---
 
-## 3. High-level data flow
+## 2. Four processes that compose
 
-Figure 1 shows the main artifacts and packages. Solid arrows are typical batch/CI flows; the Oracle records from a live or staged PHP process.
+Chrysalis is one CLI but five things conceptually. They are independent. None of them replaces another.
+
+| Process | What it answers | Where it runs |
+| --- | --- | --- |
+| **Parse and ingest** | What is the structure and intent of the PHP source? | CI or developer machine; no live PHP traffic needed. |
+| **Emit** | What does that structure look like as a buildable Node project? | After ingest. Produces TypeScript. |
+| **Capture** (the "Oracle") | What did the running PHP app actually do for real inputs? | Wherever the PHP app runs (staging, observe-mode hosts). |
+| **Verify** (replay) | Does the emitted app reproduce those captured responses? | CI gate or release check; needs a corpus and a running emitted server. |
+| **Dual-stack router** ("Chimera"), optional | Which stack serves this request in production? | Edge proxy or sidecar; independent of CI verify. |
+
+Static lowering can be sound and still incomplete. Captured traces cover real-world behavior that static analysis never sees. Replay checks what the wire shows — status, headers, body — not "every possible input is correct". Each process has its own honest limit; the value comes from combining them.
+
+---
+
+## 3. End-to-end lifecycle
+
+A typical adoption follows these steps:
+
+1. **Establish routes and project roots.** A small `chrysalis.routes.json` maps PHP entry points to HTTP method-and-path pairs.
+2. **Parse PHP** to AST JSON. No execution.
+3. **Lower the AST** to the internal graph (WebIR). Holes are inserted for things Chrysalis refuses to guess.
+4. **Emit a Node project.** Typed handlers, runtime helpers, server entry, optional schema files.
+5. **Record traces.** A small PHP file loaded ahead of the application captures each request and side effect into NDJSON files.
+6. **Replay the corpus** against the emitted app. The verifier sends the same requests, with time and randomness pinned to the values from the trace, and diffs each response.
+7. **Iterate.** Holes shrink as ingest and emit improve. Divergences shrink as you fix lowering bugs, expand traces, or accept the rewrite. The optional repair loop proposes IR edits gated on the same replay.
+8. **Roll traffic** through the dual-stack router (shadow first, then canary, then cutover) when you are ready to put the new code in front of users.
+
+Steps 2–4 are compile-time work. Steps 5–6 are behavioral conformance. Step 8 is operations.
+
+---
+
+## 4. The data flow
+
+The picture below shows the major files and packages and how data moves between them. Solid arrows are typical batch flows; the capture path is independent.
 
 ```mermaid
 flowchart LR
   subgraph sources["Inputs"]
     PHP["PHP source files"]
     DDL["SQL DDL / schema"]
-    HTML["HTML forms optional"]
-    TC["Trace corpus NDJSON"]
+    HTML["HTML form scans (optional)"]
+    TC["Trace corpus (NDJSON)"]
   end
 
-  subgraph parse["@chrysalis/parser-bridge"]
+  subgraph parse["Parser bridge"]
     AST["PHP AST JSON"]
   end
 
-  subgraph ingest_pkg["@chrysalis/ingest"]
-    WIR["WebIR Module"]
+  subgraph ingest_pkg["Ingest"]
+    WIR["WebIR module"]
   end
 
   subgraph emit["Emit backends"]
-    EH["@chrysalis/emit-hono"]
-    EF["@chrysalis/emit-fastify"]
-    TS["Generated TS project"]
+    EH["emit-hono"]
+    EF["emit-fastify"]
+    TS["Generated TypeScript project"]
   end
 
-  subgraph oracle_pkg["@chrysalis/oracle + oracle-php"]
-    REC["Record TraceFrame"]
+  subgraph oracle_pkg["Capture"]
+    REC["Trace frames"]
   end
 
-  subgraph verify_pkg["@chrysalis/verify"]
-    REP["CorrectnessReport summary.json"]
+  subgraph verify_pkg["Verify"]
+    REP["Correctness report (summary.json)"]
   end
 
   PHP --> AST
@@ -102,407 +111,358 @@ flowchart LR
   REC --> TC
 ```
 
-### 3.1 Terms
+The vocabulary used throughout the rest of the document:
 
-| Term | Definition |
-|------|------------|
-| **WebIR `Module`** | Typed graph of nodes spanning dialects (`web.request`, `effect`, `data`, `control`, `target.ts`, …). |
-| **`TraceFrame`** | One recorded unit of behavior (request/response slice plus ordered effects such as SQL, session, outbound HTTP). |
-| **`TraceCorpus`** | Deduplicated, append-only collection of frames on disk (typically NDJSON trees by date). |
-| **`CorrectnessReport`** | Aggregate and per-route scores plus divergence metadata after replay. |
-
-### 3.2 Narrative walkthrough of Figure 1
-
-- **PHP to AST:** Only lexical/syntactic structure; comments and formatting are largely irrelevant except where PHPDoc hooks exist. Output is JSON-shaped AST for consumption by TypeScript.
-- **AST to WebIR:** Semantic lowering **per route/project**: identifies calls that imply I/O, session, redirects, etc., and builds a graph amenable to codegen. External inputs (DDL, optional HTML/form scan) refine types or boundaries.
-- **WebIR to TS:** Pure codegen from IR plus emit strategy flags (how routes register, how imports dedupe, etc.). Changing PHP later requires re-ingest and re-emit; Chimera does not patch IR.
-- **PHP app to corpus:** Independent pipeline: runtime instrumentation observes **facts** about requests and effects. It does not parse WebIR.
-- **Corpus + emitted server to report:** Replay drives **black-box HTTP** comparison (plus optional SQL tape), attributing failures back to IR node ids when the CLI wires module metadata through.
+| Term | What it means |
+| --- | --- |
+| **WebIR module** | One typed graph for one PHP project, produced by ingest, consumed by emit. The internal representation. |
+| **Trace frame** | One captured request plus its ordered side effects (SQL queries, session changes, outbound HTTP, etc.). |
+| **Trace corpus** | A directory of trace files, normally arranged as `traces/YYYY-MM-DD/*.ndjson`. |
+| **Correctness report** | The output of replay: per-route and overall scores, plus a per-failure breakdown of what diverged. |
 
 ---
 
-## 4. WebIR (intermediate representation)
+## 5. WebIR, the internal graph
 
-### 4.1 Purpose
+### Why a separate IR
 
-WebIR is the **stable contract** between frontends (today: PHP via ingest) and backends (today: TS emitters). Framework-specific details (Hono vs Fastify) are pushed toward **`target.ts`** and emit packages so the core IR stays **framework-agnostic**.
+If Chrysalis translated PHP straight to TypeScript, every backend (Hono, Fastify, anything later) would need its own translator and every pass that wants to change the code would have to be implemented twice — once for each direction. WebIR is the contract between the PHP frontend and the TypeScript backends. Both ends evolve independently.
 
-It is modeled after **multi-level IR** ideas (cf. MLIR): separate **dialects** with explicit lowering order so high-level web routing concepts do not leak into low-level data ops prematurely.
+It is structured as a multi-level IR (in the spirit of MLIR): different *dialects* for different concerns, with a clear order of lowering so high-level concepts (like "this is an HTTP route") do not leak into low-level details (like "this is a SELECT") prematurely.
 
-### 4.2 Dialects (conceptual stack)
+### The dialects
 
-| Dialect | Role |
-|---------|------|
-| `web.request` | Routes, handlers, middleware-shaped boundaries, auth-adjacent tagging. |
-| `effect` | Side effects: database read/write, mail, cache, session mutation, clock, RNG, outbound HTTP, etc. |
-| `data` | SSA-style pure dataflow (scalars, aggregates). |
-| `control` | Structured control flow after extraction/lowering. |
-| `target.ts` | TypeScript-oriented ops for emission. |
+| Dialect | What it represents |
+| --- | --- |
+| `web.request` | Routes, handlers, request and response shapes, auth-adjacent tagging. |
+| `effect` | Side effects: database read/write, mail, cache, session reads/writes, time, randomness, outbound HTTP. |
+| `data` | Straight-line value flow between steps (scalars, records, arrays, sums). |
+| `control` | Loops and branches after extraction. |
+| `target.ts` | TypeScript-specific shapes used at the very end of lowering. |
 
-**How lowering is used (conceptually):** Higher dialects preserve **intent** (what the HTTP handler means to do). Lower dialects make that intent **executable** in codegen. Passes may rewrite nodes but are expected to preserve or refine **provenance** so audits remain possible.
+Higher dialects preserve **intent** — what the handler means to do. Lower dialects make that intent **executable** in code. Passes can rewrite nodes, but they must preserve provenance so the audit trail survives.
 
-### 4.3 Per-node metadata (invariant)
+### Every node carries metadata
 
-Documented invariants attach auditability to each node:
+Each node in the graph has the same five fields:
 
-- **`id`**: stable `NodeId` for reports and repair attribution.
-- **`type`**: static `WebIRType` (may be unknown or hole-shaped).
-- **`effects`**: `EffectSet` carried on signatures.
-- **`provenance`**: list of `{ source, locator, reason }` explaining derivation.
-- **`origin`**: locator back to PHP (file:line:col), DDL, form scan, or trace.
+- `id` — a stable identifier reused in reports and divergence attributions.
+- `type` — its static type (sometimes `unknown` or hole-shaped).
+- `effects` — the side effects its evaluation may have.
+- `provenance` — a list of `{ source, locator, reason }` records explaining how the node came to exist.
+- `origin` — a pointer back to the PHP file/line/column, the DDL line, the form input, or the trace that contributed it.
 
-This metadata is how verify can point engineers at **likely IR regions** when responses diverge, without claiming perfect blame assignment.
+That metadata is why verify can look at a failed replay and point at the smallest set of IR nodes that probably produced the bad response. It does not claim perfect blame assignment; it points the engineer at the right neighborhood.
 
-### 4.4 Holes (partial compilation)
+### Holes are first-class
 
-A **hole** is a **first-class IR node** for constructs not lowered yet (or deliberately delegated). Properties:
+When Chrysalis encounters PHP it cannot lower safely, it does not throw and does not silently elide. It inserts a *hole*: a node with a typed input and output contract and a stable reason string ("legacy:db-query-unknown-receiver", "auth:csrf-token-source", and so on).
 
-- **Typed boundary** — inputs/outputs are not arbitrary `unknown` blobs unless the IR truly cannot infer more.
-- **Named reason** — appears in migration dashboards and reports (`legacy:…`, `auth:…`, etc., where applicable).
-- **Non-fatal** — ingest continues; emit emits a delegating path compatible with dual-stack operation.
+Holes are the unit of progress. They appear in the migration dashboard. The emitted code keeps compiling because each hole becomes a small delegating stub. You can close them one at a time, schedule them in your backlog, or route their requests back to PHP via the dual-stack router.
 
-Holes are how the pipeline stays **honest**: “unknown” is explicit, measurable, and schedulable work— not silent omission.
+### Static "oracle footprint"
 
-### 4.5 Static oracle footprint (offline signal)
-
-Separate from recording traffic, WebIR can be analyzed to summarize **what replay would need to hydrate** per route (effects footprint). That analysis is **pure IR**— useful for estimating verify cost and catching surprises before spinning environments. See `DESIGN.md` and CLI `status` documentation for the artifact shape.
+Independent of capture, WebIR can be analyzed to summarize what kind of side effects each route would need at replay time: time reads, randomness reads, DB read/write tables, session use, outbound HTTP, holes. The `chrysalis status --project` command writes this analysis to `reports/oracle-footprint.json`. Useful for estimating verify cost before you start a long run.
 
 ---
 
-## 5. Parser bridge (`@chrysalis/parser-bridge`)
+## 6. The parser bridge
 
-### 5.1 Purpose
+PHP source has to become an AST that Node can read. This is the only place in the system that knows about PHP's parse syntax.
 
-Convert **PHP source text** into a **canonical, version-stamped AST JSON** consumable from Node/TypeScript.
+Two providers:
 
-**Boundary:** Parsing only. No type inference, no WebIR, no evaluation.
+- **Glayzzle** — a JavaScript port of `php-parser`. Default. Self-contained: no extra installation, no `php` binary required, no Composer.
+- **Nikic** — a subprocess that runs the canonical `nikic/php-parser`. Requires `php` on `PATH` and a Composer install of `packages/parser-bridge/vendor/`. Used when the default mis-parses something edge-case (deep namespaces, certain dynamic constructs).
 
-### 5.2 How it works (process)
+The bridge maps both providers into a single TypeScript-shaped AST type with a pinned schema. Golden tests guarantee the two providers produce equivalent shapes for the inputs Chrysalis cares about. This way ingest never has to branch on which parser ran.
 
-1. **Select provider** — `glayzzle` (default, self-contained) or `nikic` (subprocess + Composer vendor).
-2. **Run parser** — Produce PHP-parser-native structure.
-3. **Normalize** — Map into **`PhpAst`**, a TypeScript discriminated union with a pinned schema (golden tests detect drift).
-4. **Return** — AST to ingest; bridge remains stateless per invocation.
-
-### 5.3 Why two providers
-
-- **Default path** favors **zero external Composer** for basic CI and quickstarts.
-- **Nikic path** favors **parity-sensitive** syntax (namespaces, certain dynamic constructs, edge cases) where the default parser may differ.
-
-Switching providers changes AST detail; ingest must interpret either consistently. The repo documents shared normalization goals (e.g. qualified names, static method surfaces for call maps).
-
-### 5.4 Operational note
-
-`vendor/` for `nikic` is typically machine-local or CI-generated (Composer install scripts). That keeps the git tree small while still allowing reproducible installs.
+The bridge is stateless: each call is an isolated subprocess (for `nikic`) or a pure call (for `glayzzle`). No shared interpreter state between files.
 
 ---
 
-## 6. Ingest (`@chrysalis/ingest`)
+## 7. Ingest
 
-### 6.1 Purpose
+### Inputs
 
-Transform **`PhpAst` + project configuration** into a **`WebIR Module`** representing the routed PHP surface area.
+- The parsed AST for each PHP file.
+- A route manifest (`chrysalis.routes.json`) that ties files to HTTP method-and-path pairs.
+- Optionally, a list of declared DB factory callees (so receivers like `Factory::get()->query(...)` can be lowered without full type inference).
+- Optionally, a Composer-aware inspection of `vendor/` so calls into installed libraries get the right effect set.
 
-**Boundary:** Ingest interprets PHP **as modeled by Chrysalis**, not a full PHP semantics emulator. Unsupported constructs become holes or conservative effects.
+### What it does, conceptually
 
-### 6.2 Inputs
+1. **Anchor each route.** Establish handler boundaries, request shapes, response shapes.
+2. **Extract effects.** Recognize PHP builtins and framework calls and lower them to WebIR effect nodes (DB read/write, session change, redirect, time read, RNG read, outbound HTTP, mail).
+3. **Build dataflow.** Expressions and assignments become a straight-line sequence of `data` nodes.
+4. **Lower control.** Loops and branches become `control` representations that later passes can reason about.
+5. **Insert holes.** Anything outside the supported subset becomes a hole with a stable reason. Never deleted, never silently translated.
+6. **Tag auth-adjacent code.** Holes whose reasons mention authentication-shaped patterns (Gate, CSRF, Sanctum, etc.) are prefixed `auth:` so dashboards can separate "we did not lower this auth check" from generic legacy holes.
 
-- Parsed AST per file.
-- **Route manifest** — ties filesystem paths to HTTP methods/paths.
-- Optional **Composer-aware** widening for call effects (vendor/lib breadth policy is documented in package README).
-- Optional **declared DB factory callees** in manifest for receiver typing on query calls without full inference.
+The key invariant: ingest is deterministic. The same AST and the same options always produce the same IR shape (up to timestamps in metadata).
 
-### 6.3 Processing (conceptual stages)
+### Outputs
 
-1. **Route anchoring** — Establish handler boundaries and request/response shapes at the granularity Chrysalis supports.
-2. **Effect extraction** — Recognize builtins and framework-shaped calls mapped to WebIR effects (DB, session, time, redirect, etc.).
-3. **Dataflow construction** — Build SSA-style `data` nodes for expressions and assignments where modeled.
-4. **Control lowering** — Loops/branches become `control` dialect representations suitable for later passes.
-5. **Hole insertion** — Any construct outside the supported subset becomes an explicit hole with stable reason text (never silent deletion).
-6. **Auth-adjacent tagging** — Certain patterns receive prefixes/reasons so downstream dashboards separate security-adjacent residuals.
+- A `Module` graph with all of the above.
+- A small report consumed by `chrysalis status --project`: hole counts, dialect totals, route count.
 
-Exact ordering and pass names are implementation details; the **observable contract** is deterministic IR for a given AST + options.
+### Scaling to large repositories
 
-### 6.4 Outputs
+For repositories that are too big for one process, ingest exposes three handles:
 
-- **`Module`** graph plus metadata (timestamps may vary).
-- Reports consumed by CLI **`status`** / migration summaries (hole counts, dialect totals).
+- **Route sharding** — `--shard-index I --shard-count K` lowers only routes whose file falls in shard `I`. The shard assignment is deterministic across runs.
+- **Merging shards** — after K independent shard ingests, `mergeWebIrModules` combines them into one full graph. Cross-shard duplicate IR is collapsed so library code shared across many routes is not stored more than once. The CLI exposes this as `--merge-all-shards`.
+- **AST cache** — `--ingest-cache <dir>` stores parsed PHP ASTs keyed by file SHA-256, parser provider, and an internal cache version. Unchanged files are skipped on subsequent runs.
 
-### 6.5 Scale-out (how large repos are handled)
-
-- **Route sharding** — Only a subset of routes is lowered per invocation; shard index is deterministic from route file paths.
-- **Merge** — `mergeWebIrModules` combines shard outputs; structural dedupe reduces redundant subgraphs where safe.
-- **Optional AST cache** — Keyed by source hash + parser provider + cache version to skip repeated parsing when sources are unchanged.
-
-These mechanisms change **wall time and memory**, not the semantic goal: full-project IR when shards are merged.
+These change wall clock and memory; they do not change the result. A monolithic ingest and a `--merge-all-shards` ingest produce the same final graph for the same inputs.
 
 ---
 
-## 7. Emit layer
+## 8. Emit
 
-### 7.1 Purpose
+### What emitters do
 
-Turn **WebIR** into a **buildable TypeScript application** for a concrete HTTP framework and data access style.
+Each emitter (Hono, Fastify, …) takes a WebIR module and writes a buildable Node project. Inside that project:
 
-**Boundary:** Emitters trust IR types/effects; they should not re-parse PHP.
+- **One file per route** in `src/handlers/`. Handlers are async functions with framework adapters around Chrysalis-lowered bodies.
+- **A server entry** in `src/server.ts` that exports `app` (so verify can call it in-process) and a thin `src/index.ts` that listens on a port.
+- **A small runtime module** (`src/runtime.ts`) for DB access, session storage, time/randomness injection, and a few PHP-shaped helpers.
+- **Wiring** — route tables, middleware for cookies and SQL tape, headers for time/randomness when the server is being driven by a verify replay.
+- **`package.json`, `tsconfig.json`, optional `domain.ts` and `schema.ts`** when archaeology has typed your data.
 
-### 7.2 How emission is structured
+The handlers respect the effect set inferred during ingest. They include `@chrysalis-provenance` JSDoc comments so the audit trail survives all the way into the generated source.
 
-1. **Strategy selection** — CLI flags choose registration style (lazy vs eager), import barrels, deduplicated handler bodies, runtime facade modules, route path constants, fingerprints, etc. (`@chrysalis/emit-shared`).
-2. **Per-route codegen** — Handlers become async functions with framework adapters wrapping IR-lowering results.
-3. **Wiring** — Route tables, middleware for cookies/SQL tape/determinism headers as enabled.
-4. **Artifacts** — TypeScript sources, `package.json`, configs—whatever the template for that emitter requires.
+### Two backends, one IR
 
-### 7.3 Dual backends (why two)
+The presence of two backends (Hono and Fastify) is not redundancy. It is a soundness check. Every fixture that Chrysalis ships passes both backends in CI; if a backend disagrees, the disagreement is an emit bug, not a meaning change. This keeps the IR honest about which behaviors are core (and must work everywhere) and which are framework-shaped (and belong in a backend).
 
-**Hono** and **Fastify** stacks prove **IR portability**: the same module should typecheck and replay under both when fixtures claim parity. Divergence between backends indicates emitter bugs or unsupported framework assumptions—not “PHP semantics changed.”
+### Strategy flags
 
-### 7.4 Relationship to verify
+CLI flags reshape the output without changing behavior. They are documented in [Operations](./OPERATIONS.md). Examples:
 
-Emitted servers honor **determinism headers** used by verify (clock/RNG injection). Emit packages document middleware hooks (e.g. SQL tape) that make offline replay possible without a live database when traces include sufficient SQL payloads.
+- `--emit-handler-import-barrel` collects all per-handler imports into one shared module.
+- `--emit-shared-runtime-imports` does the same for runtime helpers.
+- `--emit-dedupe-identical-handler-bodies` writes one shared module for any handlers whose bodies are byte-identical and turns the duplicates into thin wrappers.
+- `--emit-route-path-constants` exports route path strings as named constants.
+- `--emit-handler-fingerprints` writes a SHA-256 per emitted handler so change detection is easy.
 
----
+These exist because real-world projects vary in size and shape; the same IR can produce a small flat tree or a bigger composed one depending on which is easier for your team to navigate.
 
-## 8. Oracle (`@chrysalis/oracle`, `packages/oracle-php`)
+### Holes in emitted code
 
-### 8.1 Purpose
+Each hole becomes a small `__hole(...)` call in the generated TypeScript. It compiles. At run time it delegates to a registered handler (often the dual-stack router pointed at PHP, or a hand-written closure your team supplies). The list of holes is also written to `chrysalis.holes.json` in the output project.
 
-Record **observable behavior** of the legacy PHP application into durable traces so replay can treat reality as the specification.
-
-**Boundary:** Observation, not translation. Oracle does not emit TypeScript.
-
-### 8.2 How recording fits in the request path
-
-At a high level:
-
-1. HTTP request enters the instrumented PHP stack (exact integration depends on deployment— prelude/bootstrap as documented).
-2. **Effects are intercepted** at supported boundaries: DB drivers, session APIs, selected outbound calls, time/RNG reads, etc.
-3. Each logical transaction emits **`TraceFrame`** slices into NDJSON streams organized by capture policy (e.g. date buckets).
-4. **Redaction runs before persistence** — secrets never reach disk in clear text under default rules.
-
-### 8.3 What gets captured (categories)
-
-- **HTTP** — Method, path, headers, bodies; response status/headers/body.
-- **SQL** — Query text, bind metadata where available; optional row payloads for SELECT replay.
-- **Session** — Mutations relevant to continuity across requests.
-- **Time/RNG** — Values needed so replay can inject the same decisions without mocking entire libc.
-
-### 8.4 Redaction model (why two implementations)
-
-TypeScript ships **`DEFAULT_REDACTION`** rules; PHP **`Redactor.php`** mirrors them at capture time. **Lockstep** prevents divergent privacy posture between documentation and runtime. Operators may extend rules via **`chrysalis.observe.json`** merges documented in package README.
-
-### 8.5 Corpus properties
-
-- **Append-only** — New observations extend history; deduplication avoids unbounded identical duplicates.
-- **Content-addressed dedupe** — Stable identity for frames where applicable.
-
-### 8.6 Session bridge (cross-stack continuity)
-
-For Redis-backed shared sessions, PHP registers a documented session handler; Node middleware reads/writes the same logical session. This is **infrastructure alignment**, not IR: both stacks must agree on serialization and cookie naming (`CHRYSALIS_SESSION_REDIS_URL` and related operator docs).
+For PHP class instantiations that Chrysalis cannot resolve statically, the runtime exposes `registerPhpFqnCtor(fqn, ctor)`. Register your project's known class constructors once during startup (typically in `src/index.ts`) and the emitted code will resolve them without ever hitting a hole.
 
 ---
 
-## 9. Verify (`@chrysalis/verify`)
+## 9. Capture (the "Oracle")
 
-### 9.1 Purpose
+### What it is
 
-Answer: **Does the emitted application reproduce legacy-observed HTTP behavior for captured traces**, modulo an explicit normalization policy?
+A small PHP file loaded ahead of your application via `auto_prepend_file`. When a request comes in, it captures everything Chrysalis needs to replay that request later:
 
-This is **regression testing against production-shaped inputs**, not formal verification.
+- The HTTP request itself (method, path, headers, body) and the response (status, headers, body).
+- Each SQL query, with bind parameters, and (for SELECT) optionally the row payload that the application read.
+- Each session read and write.
+- Each outbound HTTP call.
+- Each `time()` / `microtime()` / `rand()` / `mt_rand()` / `uniqid()` call.
 
-### 9.2 Preconditions
+Each captured request becomes one NDJSON file under a directory you choose, organized by date.
 
-- A **running base URL** for the emitted app.
-- A **corpus directory** readable by the verifier.
-- Optional: SQL row payloads in traces if SELECT replay via tape is desired.
+### Where it intercepts
 
-### 9.3 How replay executes (step-by-step)
+The capture works because PHP makes a few clean extension points available:
 
-1. **Load corpus** — Parse and validate trace files into memory structures.
-2. **Sort traces** — Deterministic order (typically capture timestamp) so reruns are comparable.
-3. **Iterate frames** — For each HTTP capture:
-   - Issue `fetch` (or injected HTTP client) against the emitted server path.
-   - Forward cookies along the chain when **cookie chaining** is enabled (simulates one browser/session continuity).
-   - Attach determinism headers derived from trace ids/metadata so server-side clock/RNG hooks align with recorded behavior.
-4. **Database behavior** — Either connect to a real DB provisioned for test, or enable **recorded SQL tape** middleware so SELECT-shaped queries consume captured rows in order (documented header channel).
-5. **Compare** — Pairwise diff of status, headers, body using **`diffResponse`**; body comparison may include **Jaccard similarity** scoring as documented in project README for fuzzy body comparison scenarios.
-6. **Normalize** — Allowlisted transforms mask known benign drift (timestamps, rotating session cookie values, UUIDs). Each applied rule is recorded on outcomes so masking cannot hide surprises silently.
-7. **Aggregate** — Produce **`CorrectnessReport`**: per-route stats, aggregate score, failure counts.
-8. **Attribute (optional)** — When WebIR module metadata is wired in, attach candidate **`NodeId`** lists to failing traces for developer navigation.
+- **PDO** is subclassed into `Chrysalis\Oracle\Db\PDO` so any application that asks for a PDO instance gets capture for free.
+- **mysqli** has analogous subclasses (`MySQLi`, `MySQLiStatement`) for the `query()` and prepared-statement paths.
+- **Stream wrappers** for `http://` and `https://` hook `fopen` / `file_get_contents` so URL fetches produce `http.outbound` events.
+- **Session functions** are intercepted by hand to record reads and writes.
+- **Mail** has no clean intercept point in PHP (the `mail()` function is global). For mail capture, the app calls `Chrysalis\Oracle\Mail::send(...)` instead.
 
-Figure 2 summarizes the interaction shape.
+### Redaction is non-negotiable
+
+Default rules already redact common sensitive data: Authorization and Cookie headers, common API key headers, well-known session cookies (`PHPSESSID`, `laravel_session`, …), CSRF/token-shaped POST fields, sensitive query parameters (`access_token`, `code`, `state`), `Set-Cookie` headers, and SQL row columns whose names look sensitive.
+
+Redaction runs **before persistence**. The trace files on disk are already safe to share at whatever level the configured rules specify.
+
+The same defaults are encoded twice — once in TypeScript (`packages/oracle/src/redaction.ts`) and once in PHP (`packages/oracle-php/src/Redactor.php`). Lockstep is enforced by CI smoke tests; drift is a build break, not a silent leak.
+
+To extend the rules per environment, drop a `chrysalis.observe.json` at the PHP root. The bootstrap merges its rules onto the defaults at startup.
+
+### Trace shape
+
+Each request produces frames. A frame names what happened:
+
+- `request` — the inbound HTTP.
+- `response` — the outbound HTTP.
+- `sql.query` — one SQL statement, its parameters, and (optionally) its rows.
+- `session.read` / `session.write`.
+- `http.outbound` — an outbound HTTP call.
+- `time.read` / `random.read` — a clock or RNG read.
+- `mail.send` — a mail dispatch (when the app uses `Chrysalis\Oracle\Mail::send`).
+
+The frame schema is pinned by `packages/oracle/src/trace-schema.ts` and version-checked from both sides.
+
+### Sessions across stacks
+
+For a real cutover you need users to keep their session even when their next request is served by the new stack. The capture package ships a Redis session handler (`RedisChrysalisSessionHandler`) that PHP registers before `session_start()`, while the emitted Node app uses Redis sessions as well. Both write the same JSON shape under the same cookie name, so a logged-in user can flip between stacks transparently.
+
+---
+
+## 10. Verify
+
+### What replay actually does
+
+Given a corpus and a running emitted server, the verifier:
+
+1. Loads the corpus and validates every trace.
+2. Sorts the traces (typically by capture timestamp) so each run walks the same sequence.
+3. For each captured request, sends an HTTP request to the emitted server with:
+   - The same method, path, headers (with cookies optionally chained from previous responses), and body.
+   - Two extra headers (`x-chrysalis-now-iso`, `x-chrysalis-random-seed`) that pin time and randomness to the values from the trace.
+4. Either talks to a real database, or — when the capture recorded SELECT row payloads — sends an `x-chrysalis-sql-tape` header that the emitted app's middleware consumes so SELECTs return the recorded rows in order.
+5. Diffs each response against the captured response with `diffResponse`. The diff covers status, headers, and body (with optional Jaccard similarity for fuzzy body comparison).
+6. Applies an allowlist of normalizations (timestamps, rotating session cookie values, UUIDs). Every applied rule is recorded on the outcome so a normalization can never silently mask a real divergence.
+7. Rolls everything up into a `CorrectnessReport` with per-route and overall scores, failure counts, and divergence kinds.
+8. Optionally — when the `--project` flag is set — attaches up to five candidate IR node ids to each failing trace, computed from a heuristic that walks the IR for the failing route. This is for human navigation, not blame assignment.
 
 ```mermaid
 sequenceDiagram
   participant V as verify
   participant S as emitted server
   participant DB as DB or SQL tape
-
-  V->>S: HTTP replay (ordered traces)
-  Note over V,S: Headers inject clock seed / PRNG seed from trace metadata
-  V->>DB: Live DB or x-chrysalis-sql-tape middleware
-  S-->>V: Response + effects surface
+  V->>S: HTTP request from trace
+  Note over V,S: Headers pin time and randomness from the trace
+  V->>DB: Live DB or x-chrysalis-sql-tape
+  S-->>V: Response
   V->>V: diffResponse + normalization allowlist
-  V->>V: CorrectnessReport per route + aggregate
+  V->>V: Per-route + overall correctness
 ```
 
-### 9.4 Partitioning and merging
+### Why this is honest
 
-Large corpora may shard replay by trace hash buckets (**shardCount** / **shardIndex**). Each shard writes its own report; **`mergeCorrectnessReports`** merges disjoint partitions. This is **operational parallelism**, not a different definition of correctness.
+Two design choices keep verify from giving you false comfort:
 
-### 9.5 Outputs
+- **Replay order is deterministic.** Same corpus, same fetch sequence. Tests that flake under replay are real findings.
+- **Normalization is allowlist-only.** Anything not on the list is compared strictly. You can see exactly which rules fired on every outcome.
 
-- Files under a report directory (`summary.json`, per-route files).
-- Optional single-line **`chrysalis.verify.summary`** JSON on stdout for CI ingestion (`schemaVersion: 1`).
+What verify checks is what the wire shows. It is regression testing against production-shaped inputs, not a proof that every possible input is correct.
 
-### 9.6 Relationship to Chimera shadow mode
+### Splitting verify across machines
 
-Shadow mode mirrors traffic to modern and diffs using the **same primitive comparators** as offline verify where possible, so production observation and CI replay share vocabulary— even though latency and failure handling policies differ (shadow must not affect client-visible responses).
+For very large corpora, you can fan out replay using `--shard-index I --shard-count K`. Each shard handles only the traces whose hash falls in its bucket. Combine the per-shard reports with `chrysalis verify-merge`. Aggregate correctness for the merged report matches monolithic verify when shards form a complete partition.
 
----
+### Outputs
 
-## 10. Chimera runtime (`@chrysalis/runtime-chimera`)
+- `<report-dir>/summary.json` — overall and per-route scores, failure counts, divergence kinds.
+- `<report-dir>/<route>.json` — per-route detail, one entry per trace.
+- Optionally, a single-line `chrysalis.verify.summary` JSON document on stdout for CI ingestion (`schemaVersion: 1`).
 
-### 10.1 Purpose
+### Relationship to shadow mode
 
-Provide **one origin** for clients while **two implementations** (PHP and Node) coexist behind the scenes— enabling incremental cutover without changing public URLs or splitting cookies at the browser.
-
-### 10.2 What the process does on each request
-
-1. Accept TCP HTTP at the proxy.
-2. **Match route rules** — First match wins; patterns are documented string forms (`/path`, `/prefix/*`, `METHOD /path`).
-3. **Select upstream** based on **mode** and rule target (`legacy` vs `modern`).
-4. **Forward** — Proxy the request to PHP or Node; attach observability response headers indicating which path served or mirrored.
-5. **Shadow-specific** — Respond only from legacy; schedule asynchronous mirror to modern; diff and append NDJSON records without affecting the client response path latency contract beyond fire-and-forget work.
-
-### 10.3 Modes (exact strings)
-
-| Mode | Client-visible behavior |
-|------|-------------------------|
-| `legacy` | All traffic to PHP upstream. |
-| `cutover` | Rule-matched paths to modern; others to PHP. |
-| `shadow` | Client always receives PHP response; modern receives a mirrored request; diffs logged (NDJSON compatible with verify primitives). |
-| `canary` | Like cutover but only a configured percentage of modern-eligible traffic hits modern; deterministic stickiness via cookie/header/IP salt. |
-
-### 10.4 Configuration and operations
-
-- **Versioned JSON** (`kind: chrysalis.chimera.config`, `schemaVersion: 1`) loads declaratively.
-- **Optional HMAC** — Detect tampering of config payloads in centralized distribution setups (documented env/flags).
-- **Remote config URL + signals** — Reload paths documented for operators who centralize rule rollout.
-
-Chimera **does not** interpret WebIR; it is pure HTTP routing and observability.
+When the dual-stack router runs in shadow mode, it mirrors live traffic to the new stack and diffs the responses using the **same** comparison rules verify uses. Latency and failure handling differ (shadow must not affect what the client sees), but the divergence vocabulary is identical, so production observation and CI replay produce comparable signals.
 
 ---
 
-## 11. Adjacent packages (what they add to the pipeline)
+## 11. The dual-stack router (Chimera)
 
-### 11.1 Archaeology (`@chrysalis/archaeology`)
+### What it does on each request
 
-**Purpose:** Improve **type honesty** for persisted data by intersecting **DDL** with **observed trace shapes**.
-
-**How:** Reads schema artifacts and trace summaries, emits domain types (often with **`@chrysalis-provenance`** comments) tying fields back to columns and observed value sets. This reduces guesswork compared to syntax-only translation.
-
-### 11.2 Insight (`@chrysalis/insight`)
-
-**Purpose:** Static reports on code shape (e.g. dispatch patterns) that inform **rewrite** or **emit** choices.
-
-**How:** Parses/analyzes PHP or IR-adjacent inputs per tool— outputs JSON consumed by CLI gates documented in root scripts.
-
-### 11.3 Rewrite (`@chrysalis/rewrite`)
-
-**Purpose:** Catalog of **intent-preserving** transforms (e.g. safer idioms) with provenance stamps.
-
-**How:** Rewrites are applied in controlled passes; they must preserve the audit story— not swap semantics silently.
-
-### 11.4 Repair (`@chrysalis/repair`)
-
-**Purpose:** Close the loop after verify failures by proposing **IR-level** fixes.
-
-**How:** Any automated proposal path is **verify-gated**: a repair is only “accepted” if replay improves under the same thresholds. Optional LLM involvement is scoped and non-authoritative by design.
-
-### 11.5 Compat (`@chrysalis/compat`)
-
-**Purpose:** Escape hatches and shims when idiomatic output is not yet available.
-
-**Boundary:** Explicitly **not** the default posture; compat exists so teams can integrate before coverage is complete.
-
-### 11.6 CLI (`@chrysalis/cli`)
-
-**Purpose:** Single **`chrysalis`** entrypoint orchestrating ingest, emit, verify, deploy, corpus merge, status, etc.
-
-**How:** Subcommands chain packages; many JSON artifacts are schema-versioned for CI (`--json-summary`, merge summaries, ingest progress, chimera operator snapshots— see root `README.md` tables).
-
-### 11.7 License (`@chrysalis/license`)
-
-**Purpose:** Optional **local** enforcement of commercial CLI tiers via environment variables documented in `docs/COMMERCIAL.md`.
-
-**Boundary:** Does not change IR semantics; gates command availability only where configured.
-
----
-
-## 12. CLI orchestration (how processes chain)
-
-Typical **project-scoped** flows:
-
-- **`ingest`** — Parse + lower to IR (optional shard merge).
-- **`emit`** — Often re-invokes ingest internally unless IR is cached— exact behavior documented in CLI README.
-- **`verify --project`** — Ensures ingest/emit paths align with manifests, then runs replay.
-- **`status --project`** — Aggregates corpus metrics, verify outcomes, hole counts, optional sidecars.
-
-This layering matters: **verify** is not a substitute for **status**, and **emit** is not a substitute for **oracle** recording— they answer different questions.
-
----
-
-## 13. Implementation stack
-
-- **Language:** TypeScript **strict** throughout.
-- **Runtime:** Node.js **>= 20**.
-- **Package manager:** **pnpm** workspaces (`pnpm -r build`, `pnpm test`).
-- **Tests:** **Vitest**; CLI integration tests often subprocess compiled `dist/` outputs.
-- **PHP:** Required for `nikic` provider tests and oracle-php smoke tests.
-
----
-
-## 14. Determinism and sandbox constraints
-
-**Design constraint:** Generated handlers and verify sandboxes avoid ambient nondeterminism (`Date.now()`, `Math.random()`, raw `process.env`, live network) where replay requires fidelity. Clock and RNG are injected via framework context; traces carry seeds for replay headers.
-
-This is an **engineering invariant** for stable regression testing. Production Chimera traffic remains subject to real clocks and concurrent load; offline verify isolates **semantic** drift from **ambient noise** using the normalization allowlist and determinism hooks.
-
----
-
-## 15. References in-repo
-
-- **`DESIGN.md`** — canonical principles, vocabulary, and decision log pointers.
-- **`ROADMAP.md`** — milestone acceptance and deferred work.
-- **`README.md`** — operator-facing tables for machine JSON artifact kinds.
-- Per-package **`README.md`** under `packages/*` — public API and invariants.
-
----
-
-## Figure 3: Chimera mode decision (simplified)
+1. Accepts the inbound HTTP request.
+2. Matches it against an ordered list of rules (`/path`, `/prefix/*`, or `METHOD /path`).
+3. Picks an upstream based on the mode and the matched rule:
+   - `legacy` — every request goes to PHP.
+   - `cutover` — rule-matched paths go to Node, everything else to PHP.
+   - `shadow` — every request goes to PHP and the response is returned to the client; the same request is mirrored to Node in the background and the two responses are diffed (NDJSON appended to the shadow log).
+   - `canary` — like cutover, but only a configured percentage of would-be-modern traffic actually hits Node, picked by a sticky hash of cookie / header / IP.
+4. Forwards the request to the chosen upstream and adds two debug headers to the response (`x-chrysalis-target`, `x-chrysalis-canary`) so operators can see what happened.
 
 ```mermaid
 flowchart TD
   REQ["Incoming HTTP request"]
-  REQ --> MATCH["compileRules: first match wins"]
+  REQ --> MATCH["Rule match (first wins)"]
   MATCH --> MODE{"deploy mode"}
-
-  MODE -->|legacy| L["Upstream: PHP only"]
-  MODE -->|cutover| C{"rule target modern?"}
-  C -->|yes| M["Upstream: Node"]
+  MODE -->|legacy| L["PHP only"]
+  MODE -->|cutover| C{"Rule target = modern?"}
+  C -->|yes| M["Node"]
   C -->|no| L
-
-  MODE -->|shadow| SL["Respond: PHP always"]
-  SL --> MIR["Async mirror to Node + diff log"]
-
-  MODE -->|canary| CAN{"modern-eligible?"}
+  MODE -->|shadow| SL["PHP serves; mirror Node async; diff log"]
+  MODE -->|canary| CAN{"Modern-eligible?"}
   CAN -->|no| L
-  CAN -->|yes| BUCKET{"stickiness hash in modern %?"}
+  CAN -->|yes| BUCKET{"Stickiness hash in modern %?"}
   BUCKET -->|yes| M
   BUCKET -->|no| L
 ```
 
+### Configuration
+
+The routing config is a JSON file (`kind: chrysalis.chimera.config`, `schemaVersion: 1`). The CLI loads it with `--config` or fetches it from `--config-url`. Optional HMAC over the payload allows you to ensure that only configs signed by your secrets are ever loaded; two layouts are supported — a single secret or a key id map for in-flight rotation.
+
+On Linux, `SIGHUP` or `SIGUSR2` reloads the config without a process restart. If the new config fails parse or HMAC, the previous listener stays running and the failure is on stderr.
+
+The router does not interpret WebIR. It is pure HTTP routing and observability.
+
 ---
 
-*This document describes observable architecture as implemented in the repository; behavior of unreleased branches may differ. For licensing and commercial options see `docs/COMMERCIAL.md`.*
+## 12. Adjacent packages
+
+A handful of smaller packages bring extra capability without changing the core:
+
+- **Archaeology** improves type accuracy for persisted data by intersecting your SQL DDL with the row shapes seen in traces and (optionally) the form fields seen in PHP files. The output is `domain.ts` plus a Drizzle `schema.ts`, with provenance comments tying every field back to its source. Conflicts (DDL says int, traces say string) are surfaced rather than resolved.
+- **Insight** is the static analyzer. It walks the IR for known legacy patterns: SQL string concatenation, N+1 reads, scattered validation guards on one field, `if/elseif` ladders that should be a switch on a normalized discriminant. Each finding has a confidence score that is capped at 0.8 from pure IR analysis and raised toward 1.0 when traces confirm the pattern.
+- **Rewrite** is the automated transformer. Each pass is gated by a confidence threshold and a per-pass invariant check (a pass that says "I only mutate `effect.echo` nodes" is rolled back if it touches anything else). A second post-rewrite check confirms the original finding is gone. An optional behavior-verify step runs the IR simulator before and after each pass and rolls back any change that alters the response shape in a way no pass declared. An optional HTTP replay step takes the rewritten module, emits TypeScript, and replays a corpus end-to-end through it.
+- **Repair** closes the loop after a verify failure. It runs replay; if anything fails, it asks a *proposer* for IR edits; it applies them; it replays the entire corpus again; it keeps the edits only if everything passes. Default proposer is a stub that abstains; an optional LLM proposer suggests `replaceOperand` edits via a chat endpoint. Hand-crafted hole closures can be supplied via `--hole-patch <file.json>`.
+- **Compat** is a small runtime shim. When a generated handler needs a PHP-shaped helper (`count`, `array_map`, the superglobals), it calls into compat. Usage is measured: handlers that lean heavily on compat score lower in the migration dashboard's "idiomaticity" metric, by design.
+- **License** is optional commercial enforcement. When `CHRYSALIS_REQUIRE_LICENSE=1`, every command except `init` and `license` requires a valid local Ed25519 envelope and public key. There is no network call.
+
+---
+
+## 13. The CLI as orchestrator
+
+The `chrysalis` CLI is intentionally thin. It parses flags, calls the right package APIs, and formats human-readable output for stderr while writing machine-readable JSON to stdout when asked. Every command corresponds to one of the layers above. Read the [User guide](./USER-GUIDE.md) for the detailed reference; the short version is:
+
+| Command | Layer |
+| --- | --- |
+| `init` | Marks a PHP root. |
+| `ingest`, `archaeology` | Compile-time analysis. |
+| `emit`, `convert` | Code generation. |
+| `observe`, `corpus`, `corpus-merge` | Capture. |
+| `verify`, `verify-merge` | Replay. |
+| `status` | Migration dashboard built from files on disk. |
+| `insight`, `rewrite`, `repair` | Improvement loops over the IR. |
+| `deploy` | Dual-stack router. |
+| `license` | Commercial license verification. |
+
+Most commands also support a `--json` or `--json-summary` mode that prints exactly one parseable document on stdout for CI consumption.
+
+The canonical **`chrysalis` implementation is the Node program** built at `packages/cli/dist/bin.js`. The repository also ships **thin Python and Go entrypoints** (`python/chrysalis_shim/`, `go/shim/`) that locate that file and run it with the same argv so teams can invoke the toolchain from Makefiles or static binaries without maintaining a fork of the pipeline (**DESIGN D295**). See [Installation](./INSTALLATION.md#optional-python-and-go-entrypoints-same-cli) and [How-to scenario 23](./HOW-TO.md#23-run-chrysalis-from-python-or-go-same-node-cli).
+
+---
+
+## 14. Replay-friendly time and randomness
+
+Generated handlers and the verify sandbox must not read the wall clock, the live PRNG, environment variables, or the live network on their own. They must read those values from the per-request context (`ctx.time`, `ctx.random`, `ctx.env` …) so the replay can pin them to the values from the trace.
+
+This is an engineering rule that makes regression testing tractable. Production traffic served by the dual-stack router still uses the real clock and concurrent load; offline verify separates meaningful drift from noise using the normalization allowlist plus the headers that pin time and randomness.
+
+---
+
+## 15. Implementation stack
+
+- **Language:** TypeScript with strict settings throughout.
+- **Runtime:** Node.js 20+.
+- **Package manager:** pnpm 9 workspaces. `pnpm -r build` for the workspace; `pnpm test` for the test suite.
+- **Tests:** Vitest. CLI integration tests subprocess the compiled `dist/` outputs so we exercise the real binary every time.
+- **PHP:** Required for the `nikic` parser provider, the PHP capture file, and the PHP-side smoke tests. Never required to compile or run the Node side.
+
+---
+
+## 16. Where to dig further
+
+- **`DESIGN.md`** at the repository root — the non-negotiable principles, the vocabulary, and the decision log.
+- **`ROADMAP.md`** — milestones, what is done, and what is deferred.
+- **`README.md`** at the repository root — operator-facing tables for the JSON shapes Chrysalis emits.
+- **`packages/<name>/README.md`** — per-package public API and invariants. The shape of the truth for each piece.
+
+For a self-paced introduction in this same docs tree, start with [User guide](./USER-GUIDE.md) and follow the links from there.

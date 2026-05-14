@@ -1,6 +1,6 @@
 # AgenticOp and Chrysalis
 
-**AgenticOp** is the public **practice** for agent-assisted modernization and operations that stays **grounded in production behavior**—not hand-waved rewrites.
+**AgenticOp** is the public **practice** for verification-led modernization and operations: delivery stays **grounded in production behavior** (oracle traces and replay), not speculative rewrites.
 
 - **Site / primary domain:** https://agenticop.io  
 - **Display name:** **AgenticOp** (not “AgenticOps”; avoid **`agenticops.*`** hostnames in new materials).
@@ -14,7 +14,7 @@
 - **`chrysalis verify`** replay and correctness reporting  
 - **Chimera** dual-stack **`chrysalis deploy`** modes  
 
-**AgenticOp** supplies the **program**: scoping, change management, CI gates, cutover, and optional retainers—always with room for **human** judgment while **verification** stays the authority on “did behavior match.”
+**AgenticOp** supplies the **program**: scoping, change management, CI gates, cutover, and optional retainers—engineering judgment stays in the loop while **verification** remains the authority on whether behavior matched.
 
 ## Assets
 

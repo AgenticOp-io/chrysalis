@@ -125,7 +125,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file / --ingest-dedupe-structural-subgraphs (DESIGN D283), verify|repair|insight --ingest-progress-file (verify needs --project); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file / --ingest-checkpoint-file / --ingest-resume-checkpoint / --ingest-dedupe-structural-subgraphs / --ingest-dedupe-structural-subgraphs-ignore-origin (DESIGN D283), verify|repair|insight|status --ingest-progress-file (verify|status need --project for progress+checkpoint); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
@@ -378,14 +378,22 @@ async function ingestProjectWithShardMode(
     parserProvider?: ParserProvider;
     ingestCacheDir?: string;
     ingestProgressFile?: string;
+    ingestCheckpointFile?: string;
+    ingestResumeFromCheckpoint?: boolean;
     dedupeStructuralSubgraphs?: boolean;
+    dedupeStructuralSubgraphsIgnoreOrigin?: boolean;
   },
 ): Promise<Module> {
   const base = {
     ...(extras.parserProvider ? { parserProvider: extras.parserProvider } : {}),
     ...(extras.ingestCacheDir !== undefined ? { ingestCacheDir: extras.ingestCacheDir } : {}),
     ...(extras.ingestProgressFile !== undefined ? { ingestProgressFile: extras.ingestProgressFile } : {}),
+    ...(extras.ingestCheckpointFile !== undefined ? { ingestCheckpointFile: extras.ingestCheckpointFile } : {}),
+    ...(extras.ingestResumeFromCheckpoint === true ? { ingestResumeFromCheckpoint: true as const } : {}),
     ...(extras.dedupeStructuralSubgraphs === true ? { dedupeStructuralSubgraphs: true as const } : {}),
+    ...(extras.dedupeStructuralSubgraphsIgnoreOrigin === true
+      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
+      : {}),
   };
   if (mode.mode === "none") {
     return ingestDirectory(root, base);
@@ -468,7 +476,41 @@ function ingestProgressFileFromFlags(
   return { ok: true, ingestProgressFile: resolve(raw) };
 }
 
-/** Collect `--php-root` / `--php-root=<dir>` for archaeology form scans. */
+function ingestCheckpointFileFromFlags(
+  flags: Record<string, string | boolean>,
+  shardMode: ShardIngestMode,
+): {
+  ok: true;
+  ingestCheckpointFile?: string;
+  ingestResumeFromCheckpoint?: boolean;
+} | { ok: false; message: string } {
+  const raw = flags["ingest-checkpoint-file"];
+  const resume = flags["ingest-resume-checkpoint"] === true;
+  if (raw === undefined) {
+    if (resume) {
+      return { ok: false, message: "error: --ingest-resume-checkpoint requires --ingest-checkpoint-file <path>" };
+    }
+    return { ok: true };
+  }
+  if (raw === true || raw === "") {
+    return { ok: false, message: "error: --ingest-checkpoint-file requires a path" };
+  }
+  if (typeof raw !== "string") {
+    return { ok: false, message: "error: --ingest-checkpoint-file requires a path" };
+  }
+  if (shardMode.mode === "mergeAll") {
+    return {
+      ok: false,
+      message:
+        "error: --ingest-checkpoint-file cannot be used with --merge-all-shards (use per-shard runs with distinct checkpoint paths instead)",
+    };
+  }
+  return {
+    ok: true,
+    ingestCheckpointFile: resolve(raw),
+    ...(resume ? { ingestResumeFromCheckpoint: true as const } : {}),
+  };
+}
 function collectPhpRootsFromArgs(args: string[]): string[] {
   const out: string[] = [];
   for (let i = 0; i < args.length; i++) {
@@ -489,7 +531,7 @@ async function cmdIngest(args: string[]): Promise<number> {
   const root = pos[0];
   if (!root) {
     console.error(
-      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-dedupe-structural-subgraphs]",
+      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin]",
     );
     return 2;
   }
@@ -510,6 +552,11 @@ async function cmdIngest(args: string[]): Promise<number> {
     console.error(progressOpts.message);
     return 2;
   }
+  const checkpointOpts = ingestCheckpointFileFromFlags(flags, shardMode.value);
+  if (!checkpointOpts.ok) {
+    console.error(checkpointOpts.message);
+    return 2;
+  }
   if (shardMode.value.mode === "mergeAll") {
     console.log(
       `[ingest] merge-all-shards: ${shardMode.value.shardCount} shard ingests -> mergeWebIrModules`,
@@ -525,8 +572,16 @@ async function cmdIngest(args: string[]): Promise<number> {
   if (progressOpts.ingestProgressFile !== undefined) {
     console.log(`[ingest] progress JSON: ${progressOpts.ingestProgressFile}`);
   }
+  if (checkpointOpts.ingestCheckpointFile !== undefined) {
+    console.log(
+      `[ingest] checkpoint: ${checkpointOpts.ingestCheckpointFile}${checkpointOpts.ingestResumeFromCheckpoint === true ? " (resume)" : ""}`,
+    );
+  }
   if (flags["ingest-dedupe-structural-subgraphs"] === true) {
     console.log("[ingest] structural subgraph dedupe: dedupeStructuralSubgraphsInModule (DESIGN D283)");
+  }
+  if (flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true) {
+    console.log("[ingest] structural dedupe uses origin-insensitive key (ROADMAP helper lifting)");
   }
   const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
@@ -534,8 +589,17 @@ async function cmdIngest(args: string[]): Promise<number> {
     ...(progressOpts.ingestProgressFile !== undefined
       ? { ingestProgressFile: progressOpts.ingestProgressFile }
       : {}),
+    ...(checkpointOpts.ingestCheckpointFile !== undefined
+      ? { ingestCheckpointFile: checkpointOpts.ingestCheckpointFile }
+      : {}),
+    ...(checkpointOpts.ingestResumeFromCheckpoint === true
+      ? { ingestResumeFromCheckpoint: true as const }
+      : {}),
     ...(flags["ingest-dedupe-structural-subgraphs"] === true
       ? { dedupeStructuralSubgraphs: true as const }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
+      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
   });
   console.log(`routes:   ${mod.roots.length}`);
@@ -558,7 +622,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-dedupe-identical-handler-bodies] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-dedupe-structural-subgraphs]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-dedupe-identical-handler-bodies] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin]",
     );
     return 2;
   }
@@ -579,6 +643,11 @@ async function cmdEmit(args: string[]): Promise<number> {
     console.error(progressOptsEmit.message);
     return 2;
   }
+  const checkpointOptsEmit = ingestCheckpointFileFromFlags(flags, shardMode.value);
+  if (!checkpointOptsEmit.ok) {
+    console.error(checkpointOptsEmit.message);
+    return 2;
+  }
   if (shardMode.value.mode === "mergeAll") {
     console.log(
       `[emit] merge-all-shards: ${shardMode.value.shardCount} shard ingests -> mergeWebIrModules`,
@@ -594,8 +663,16 @@ async function cmdEmit(args: string[]): Promise<number> {
   if (progressOptsEmit.ingestProgressFile !== undefined) {
     console.log(`[emit] ingest progress JSON: ${progressOptsEmit.ingestProgressFile}`);
   }
+  if (checkpointOptsEmit.ingestCheckpointFile !== undefined) {
+    console.log(
+      `[emit] ingest checkpoint: ${checkpointOptsEmit.ingestCheckpointFile}${checkpointOptsEmit.ingestResumeFromCheckpoint === true ? " (resume)" : ""}`,
+    );
+  }
   if (flags["ingest-dedupe-structural-subgraphs"] === true) {
     console.log("[emit] ingest structural subgraph dedupe: dedupeStructuralSubgraphsInModule (DESIGN D283)");
+  }
+  if (flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true) {
+    console.log("[emit] ingest structural dedupe uses origin-insensitive key (ROADMAP helper lifting)");
   }
   if (target !== "hono" && target !== "fastify") {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
@@ -618,8 +695,17 @@ async function cmdEmit(args: string[]): Promise<number> {
     ...(progressOptsEmit.ingestProgressFile !== undefined
       ? { ingestProgressFile: progressOptsEmit.ingestProgressFile }
       : {}),
+    ...(checkpointOptsEmit.ingestCheckpointFile !== undefined
+      ? { ingestCheckpointFile: checkpointOptsEmit.ingestCheckpointFile }
+      : {}),
+    ...(checkpointOptsEmit.ingestResumeFromCheckpoint === true
+      ? { ingestResumeFromCheckpoint: true as const }
+      : {}),
     ...(flags["ingest-dedupe-structural-subgraphs"] === true
       ? { dedupeStructuralSubgraphs: true as const }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
+      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
   });
   const outAbs = resolve(outDir);
@@ -949,7 +1035,7 @@ async function cmdVerify(args: string[]): Promise<number> {
   const baseUrl = typeof flags["base-url"] === "string" ? flags["base-url"] : null;
   if (!corpusRoot || !baseUrl) {
     console.error(
-      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-dedupe-structural-subgraphs] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis verify <traces-dir> --base-url <url> [--report <dir>] [--threshold 0.9] [--json-summary] [--no-recorded-sql] [--only-route \"METHOD /path\"] [--only-trace-id <id>] [--shard-index I --shard-count K] [--project <php-root>] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -968,8 +1054,17 @@ async function cmdVerify(args: string[]): Promise<number> {
     console.error(progressOptsVerify.message);
     return 2;
   }
+  const checkpointOptsVerify = ingestCheckpointFileFromFlags(flags, { mode: "none" });
+  if (!checkpointOptsVerify.ok) {
+    console.error(checkpointOptsVerify.message);
+    return 2;
+  }
   if (progressOptsVerify.ingestProgressFile !== undefined && !projectRoot) {
     console.error("error: --ingest-progress-file requires --project for verify");
+    return 2;
+  }
+  if (checkpointOptsVerify.ingestCheckpointFile !== undefined && !projectRoot) {
+    console.error("error: --ingest-checkpoint-file requires --project for verify");
     return 2;
   }
   const jsonSummary = flags["json-summary"] === true;
@@ -982,14 +1077,26 @@ async function cmdVerify(args: string[]): Promise<number> {
     if (progressOptsVerify.ingestProgressFile !== undefined) {
       vlog(`[verify] ingest progress JSON: ${progressOptsVerify.ingestProgressFile}`);
     }
+    if (checkpointOptsVerify.ingestCheckpointFile !== undefined) {
+      vlog(`[verify] ingest checkpoint: ${checkpointOptsVerify.ingestCheckpointFile}${checkpointOptsVerify.ingestResumeFromCheckpoint === true ? " (resume)" : ""}`);
+    }
     verifyModule = await ingestDirectory(projectRoot, {
       ...(parserProvider ? { parserProvider } : {}),
       ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
       ...(progressOptsVerify.ingestProgressFile !== undefined
         ? { ingestProgressFile: progressOptsVerify.ingestProgressFile }
         : {}),
+      ...(checkpointOptsVerify.ingestCheckpointFile !== undefined
+        ? { ingestCheckpointFile: checkpointOptsVerify.ingestCheckpointFile }
+        : {}),
+      ...(checkpointOptsVerify.ingestResumeFromCheckpoint === true
+        ? { ingestResumeFromCheckpoint: true as const }
+        : {}),
       ...(flags["ingest-dedupe-structural-subgraphs"] === true
         ? { dedupeStructuralSubgraphs: true as const }
+        : {}),
+      ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
+        ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
         : {}),
     });
     vlog(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
@@ -1250,7 +1357,7 @@ async function cmdRepair(args: string[]): Promise<number> {
   const projectRoot = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (!corpusRoot || !baseUrl || !projectRoot) {
     console.error(
-      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-dedupe-structural-subgraphs] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
+      "usage: chrysalis repair <traces-dir> --base-url <url> --project <php-root> [--llm] [--repair-verbose] [--hole-patch <file.json>] [--write-module <webir.json>] [--max-iter 5] [--endpoint \"METHOD /path\"] [--no-recorded-sql] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin] [--parser-provider glayzzle|nikic] [--replay-concurrency N] [--disable-cookie-chain] [--replay-timeout-ms MS] [--replay-worker-threads]",
     );
     return 2;
   }
@@ -1280,6 +1387,11 @@ async function cmdRepair(args: string[]): Promise<number> {
     console.error(progressOptsRepair.message);
     return 2;
   }
+  const checkpointOptsRepair = ingestCheckpointFileFromFlags(flags, { mode: "none" });
+  if (!checkpointOptsRepair.ok) {
+    console.error(checkpointOptsRepair.message);
+    return 2;
+  }
 
   const replayParsed = resolveVerifyReplayExtras(flags);
   if (!replayParsed.ok) {
@@ -1297,14 +1409,28 @@ async function cmdRepair(args: string[]): Promise<number> {
   if (progressOptsRepair.ingestProgressFile !== undefined) {
     console.log(`[repair] ingest progress JSON: ${progressOptsRepair.ingestProgressFile}`);
   }
+  if (checkpointOptsRepair.ingestCheckpointFile !== undefined) {
+    console.log(
+      `[repair] ingest checkpoint: ${checkpointOptsRepair.ingestCheckpointFile}${checkpointOptsRepair.ingestResumeFromCheckpoint === true ? " (resume)" : ""}`,
+    );
+  }
   const webirModule = await ingestDirectory(projectRoot, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
     ...(progressOptsRepair.ingestProgressFile !== undefined
       ? { ingestProgressFile: progressOptsRepair.ingestProgressFile }
       : {}),
+    ...(checkpointOptsRepair.ingestCheckpointFile !== undefined
+      ? { ingestCheckpointFile: checkpointOptsRepair.ingestCheckpointFile }
+      : {}),
+    ...(checkpointOptsRepair.ingestResumeFromCheckpoint === true
+      ? { ingestResumeFromCheckpoint: true as const }
+      : {}),
     ...(flags["ingest-dedupe-structural-subgraphs"] === true
       ? { dedupeStructuralSubgraphs: true as const }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
+      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
   });
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
@@ -1886,7 +2012,8 @@ async function cmdInsight(args: string[]): Promise<number> {
         "                         [--only raw-sql-concat,unescaped-output,n-plus-one-queries,scattered-validation,string-dispatch]\n" +
         "                         [--ingest-cache <dir>]\n" +
         "                         [--ingest-progress-file <path>]\n" +
-        "                         [--ingest-dedupe-structural-subgraphs]\n" +
+        "                         [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint]\n" +
+        "                         [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -1904,6 +2031,11 @@ async function cmdInsight(args: string[]): Promise<number> {
     console.error(progressOptsInsight.message);
     return 2;
   }
+  const checkpointOptsInsight = ingestCheckpointFileFromFlags(flags, { mode: "none" });
+  if (!checkpointOptsInsight.ok) {
+    console.error(checkpointOptsInsight.message);
+    return 2;
+  }
 
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
@@ -1911,8 +2043,17 @@ async function cmdInsight(args: string[]): Promise<number> {
     ...(progressOptsInsight.ingestProgressFile !== undefined
       ? { ingestProgressFile: progressOptsInsight.ingestProgressFile }
       : {}),
+    ...(checkpointOptsInsight.ingestCheckpointFile !== undefined
+      ? { ingestCheckpointFile: checkpointOptsInsight.ingestCheckpointFile }
+      : {}),
+    ...(checkpointOptsInsight.ingestResumeFromCheckpoint === true
+      ? { ingestResumeFromCheckpoint: true as const }
+      : {}),
     ...(flags["ingest-dedupe-structural-subgraphs"] === true
       ? { dedupeStructuralSubgraphs: true as const }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
+      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
   });
 
@@ -2053,7 +2194,8 @@ async function cmdRewrite(args: string[]): Promise<number> {
         "                         [--http-replay <traces-dir>] [--http-replay-backends=hono,fastify]\n" +
         "                         [--http-replay-skip-install]\n" +
         "                         [--ingest-cache <dir>]\n" +
-        "                         [--ingest-dedupe-structural-subgraphs]\n" +
+        "                         [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint]\n" +
+        "                         [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -2067,6 +2209,11 @@ async function cmdRewrite(args: string[]): Promise<number> {
     console.error(cacheOpts.message);
     return 2;
   }
+  const checkpointOptsRewrite = ingestCheckpointFileFromFlags(flags, { mode: "none" });
+  if (!checkpointOptsRewrite.ok) {
+    console.error(checkpointOptsRewrite.message);
+    return 2;
+  }
 
   const httpReplayRoot =
     typeof flags["http-replay"] === "string" ? resolve(flags["http-replay"]) : null;
@@ -2078,8 +2225,17 @@ async function cmdRewrite(args: string[]): Promise<number> {
   const mod = await ingestDirectory(rootAbs, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
+    ...(checkpointOptsRewrite.ingestCheckpointFile !== undefined
+      ? { ingestCheckpointFile: checkpointOptsRewrite.ingestCheckpointFile }
+      : {}),
+    ...(checkpointOptsRewrite.ingestResumeFromCheckpoint === true
+      ? { ingestResumeFromCheckpoint: true as const }
+      : {}),
     ...(flags["ingest-dedupe-structural-subgraphs"] === true
       ? { dedupeStructuralSubgraphs: true as const }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
+      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
   });
 
@@ -2662,9 +2818,18 @@ async function cmdStatus(args: string[]): Promise<number> {
     console.error(progressOptsStatus.message);
     return 2;
   }
+  const checkpointOptsStatus = ingestCheckpointFileFromFlags(flags, shardMode.value);
+  if (!checkpointOptsStatus.ok) {
+    console.error(checkpointOptsStatus.message);
+    return 2;
+  }
   const project = typeof flags.project === "string" ? resolve(flags.project) : null;
   if (progressOptsStatus.ingestProgressFile !== undefined && !project) {
     console.error("error: --ingest-progress-file requires --project for status");
+    return 2;
+  }
+  if (checkpointOptsStatus.ingestCheckpointFile !== undefined && !project) {
+    console.error("error: --ingest-checkpoint-file requires --project for status");
     return 2;
   }
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : "traces";
@@ -2786,8 +2951,17 @@ async function cmdStatus(args: string[]): Promise<number> {
         ...(progressOptsStatus.ingestProgressFile !== undefined
           ? { ingestProgressFile: progressOptsStatus.ingestProgressFile }
           : {}),
+        ...(checkpointOptsStatus.ingestCheckpointFile !== undefined
+          ? { ingestCheckpointFile: checkpointOptsStatus.ingestCheckpointFile }
+          : {}),
+        ...(checkpointOptsStatus.ingestResumeFromCheckpoint === true
+          ? { ingestResumeFromCheckpoint: true as const }
+          : {}),
         ...(flags["ingest-dedupe-structural-subgraphs"] === true
           ? { dedupeStructuralSubgraphs: true as const }
+          : {}),
+        ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
+          ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
           : {}),
       });
       ingestedMod = mod;

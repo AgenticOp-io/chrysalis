@@ -74,6 +74,25 @@ export class ModuleBuilder {
   }
 }
 
+/**
+ * Rebuild a mutable {@link ModuleBuilder} from a finished {@link Module} so new
+ * roots can be appended (ingest checkpoint resume).
+ */
+export function moduleBuilderResumeFromModule(mod: Module): ModuleBuilder {
+  const builder = new ModuleBuilder({
+    sourceApp: mod.meta.sourceApp,
+    chrysalisVersion: mod.meta.chrysalisVersion,
+  });
+  for (const n of mod.nodes.values()) {
+    builder.node(n);
+  }
+  for (const r of mod.roots) {
+    builder.addRoot(r);
+  }
+  builder.ids.seedAfterExistingNodeIds(mod.nodes.keys());
+  return builder;
+}
+
 export const NO_EFFECTS: EffectSet = Object.freeze([]);
 
 export function mergeEffects(...sets: EffectSet[]): EffectSet {

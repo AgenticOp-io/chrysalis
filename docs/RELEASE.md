@@ -1,6 +1,6 @@
 # Release process (maintainers)
 
-This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagged in Git; release artifacts are **source tarballs** produced with `git archive` (no `npm publish` of individual packages in this flow).
+This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagged in Git; **release bundles** are **source tarballs** produced with `git archive` (no `npm publish` of individual packages in this flow).
 
 ## Version policy
 
@@ -19,7 +19,7 @@ This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagge
    git tag -a v2.0.1 -m "Chrysalis v2.0.1"
    ```
 
-6. **Artifacts** — from repo root, after commit:
+6. **Build release archives** — from repo root, after commit:
 
    ```bash
    pnpm run release:artifacts

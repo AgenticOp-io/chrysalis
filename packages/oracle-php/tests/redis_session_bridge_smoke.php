@@ -23,29 +23,22 @@ if ($url === false || $url === '') {
     exit(0);
 }
 
+$parts = parse_url($url);
+if ($parts === false || !isset($parts['scheme'])) {
+    fwrite(STDERR, "error: invalid URL\n");
+    exit(1);
+}
+$scheme = strtolower((string) $parts['scheme']);
+if ($scheme !== 'redis' && $scheme !== 'rediss') {
+    fwrite(STDERR, "error: need redis:// or rediss:// URL\n");
+    exit(1);
+}
+
 // Collision-resistant id compatible with default session charset/length rules.
 $sid = session_create_id();
 $key = 'chrysalis:sess:' . $sid;
 
-$r = new Redis();
-$parts = parse_url($url);
-if ($parts === false || ($parts['scheme'] ?? '') !== 'redis') {
-    fwrite(STDERR, "error: need redis:// URL\n");
-    exit(1);
-}
-$host = $parts['host'] ?? '127.0.0.1';
-$port = isset($parts['port']) ? (int) $parts['port'] : 6379;
-if (!$r->connect($host, $port)) {
-    fwrite(STDERR, "error: redis connect failed\n");
-    exit(1);
-}
-if (isset($parts['pass']) && $parts['pass'] !== '') {
-    $r->auth($parts['pass']);
-}
-$db = (int) ltrim((string) ($parts['path'] ?? '/0'), '/');
-if ($db > 0) {
-    $r->select($db);
-}
+$r = RedisChrysalisSessionHandler::connectRedis($url);
 
 $r->del($key);
 

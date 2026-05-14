@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **GCE smoke VM:** **`scripts/gce-test-vm.ps1`** hardened for Windows PowerShell (**`Invoke-Gcloud`**, describe/SSH stderr under **`Stop`**, **`gcloud compute scp`** remote path without **`~/`**, optional **`-BillingAccountId`**, **`-DeployFromLocalGit`** via **`git archive`** + **`chrysalis-src.tgz`**). **`scripts/gce-test-vm-bootstrap.sh`** supports tarball extract, **`GIT_TERMINAL_PROMPT=0`**, **`python3`**, and non-strict **`pnpm run test:cli-shims`** on the VM. Documented in **`docs/DEPLOYMENT.md`** and [How-to scenario 24](./docs/HOW-TO.md#24-provision-a-cheap-gce-vm-and-smoke-test-the-repo).
+
 - **Multi-runtime CLI shims (DESIGN D295):** **`go/shim/`** Go entrypoint that **`exec`s** the built Node CLI; **`python/chrysalis_shim/`** Python package with **`chrysalis-py`** and **`python -m chrysalis_shim`**. Both honor **`CHRYSALIS_CLI_JS`** and **`CHRYSALIS_NODE`**. **`pnpm run test:cli-shims`** skips missing interpreters locally; on **`GITHUB_ACTIONS`** (or **`CHRYSALIS_STRICT_CLI_SHIMS=1`**) **both** shims must pass. **`typecheck-and-test`** in **`.github/workflows/ci.yml`** runs **`pnpm run test:cli-shims`** after **`pnpm -r build`** with **`actions/setup-go@v5` (Go 1.22)** so both shims stay covered in CI.
 
 - **AgenticOp** outbound identity (**`https://agenticop.io`**): **`docs/AGENTICOP.md`**, **`branding/agenticop/`** SVG logos + READMEs, cross-links from **`README.md`**, **`docs/README.md`**, **`docs/COMMERCIAL.md`** (**DESIGN D292**).
@@ -20,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Canonical public GitHub remote** is **`theorem6/chrysalis`** (clone URLs, **`package.json` `repository.url`**, issue templates, **`CODEOWNERS`**, **`CHANGELOG`** release link footers, **`scripts/bootstrap-github-project.mjs`** default owner, **`agenticop-site`**, **`ROADMAP`** backlog links). **DESIGN D293** (supersedes **D286** for forward-looking links).
 
 - **`CONTRIBUTING.md`** — **Proof-of-concept and pilot trees**: table of paths that must stay in git vs reproducible/ignored outputs; **`.gitignore`** comments aligned (**`.firebase/`** cache only).
+- **Docs:** **`docs/README.md`** (How-to count); **`docs/DEPLOYMENT.md`** (GCE **`gce-test-vm.ps1`**); **`docs/HOW-TO.md`** (scenario 24); **`CONTRIBUTING.md`** (full local verification commands). Regenerated **`agenticop-site/`** artifacts via **`pnpm run sync:agenticop-site`** after **`docs/WHITEPAPER.md`** alignment.
 
 ## [2.0.1] - 2026-05-08
 

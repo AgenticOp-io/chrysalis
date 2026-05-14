@@ -12,7 +12,7 @@
 - Use **descriptive commit messages** (present tense, scoped by area when helpful, e.g. `fix(verify): …`, `docs(roadmap): …`).
 - **Branching:** work from an up-to-date **`main`**; use feature branches (`feat/…`, `fix/…`, `docs/…`) for PRs.
 - **Git / IDE:** if your editor lists “extra” repositories under this tree, read [`docs/GIT-LAYOUT.md`](./docs/GIT-LAYOUT.md) (ignored nested `.git`, remotes). Prefer opening the **repo root** or **`chrysalis.code-workspace`**.
-- Install and build per [`docs/INSTALLATION.md`](./docs/INSTALLATION.md); run **`pnpm test`** before pushing substantive changes. On **Windows**, if Git prints **`credential-manager-core` is not a git command**, see **Troubleshooting** in **`docs/INSTALLATION.md`** (credential helper / **`PATH`**).
+- Install and build per [`docs/INSTALLATION.md`](./docs/INSTALLATION.md); run **`pnpm test`** before pushing substantive changes. For a **full local verification pass** before a release-style push, also run **`pnpm typecheck`**, **`pnpm run test:cli-shims`**, and (when PHP is on **`PATH`**) **`pnpm run test:oracle-php-redactor`** after **`pnpm -r build`**. **`pnpm test`** is the Vitest suite under **`packages/*/tests/**`** (every workspace package test file the config includes). On **Windows**, if Git prints **`credential-manager-core` is not a git command**, see **Troubleshooting** in **`docs/INSTALLATION.md`** (credential helper / **`PATH`**).
 - If you change **`go/shim/`** or **`python/chrysalis_shim/`**, run **`pnpm run test:cli-shims`** after **`pnpm --filter @chrysalis/cli build`** (or full **`pnpm -r build`**). CI **`typecheck-and-test`** runs the same script in **strict** mode (**`GITHUB_ACTIONS`**: both Go and Python must pass). Locally use **`CHRYSALIS_STRICT_CLI_SHIMS=1 pnpm run test:cli-shims`** to match that bar when Go and Python are installed.
 
 ## Quality bar
@@ -20,6 +20,7 @@
 - **TypeScript strict** everywhere; avoid `any` without a `// FIXME: …` note (see `AGENTS.md`).
 - **Tests:** new behavior needs fixtures or Vitest coverage; generated-code changes need trace-based verification where the project already does so.
 - **Changelog:** add an **Unreleased** bullet in [`CHANGELOG.md`](./CHANGELOG.md) for user-visible changes (maintainers fold into a version at release time).
+- **AgenticOp site:** after changing **`docs/WHITEPAPER.md`** or **`branding/agenticop/*.svg`**, run **`pnpm run sync:agenticop-site`** so **`agenticop-site/`** stays in sync; **`pnpm test`** includes Vitest guards for **`whitepaper.md`** and assets (**`packages/cli/tests/agenticop-site-*.test.ts`**).
 - **Oracle / redaction lockstep:** if you touch [`packages/oracle/src/redaction.ts`](./packages/oracle/src/redaction.ts) or [`packages/oracle-php/src/Redactor.php`](./packages/oracle-php/src/Redactor.php), run **`pnpm run test:oracle-php-redactor`** with PHP on `PATH`.
 
 ## Proof-of-concept and pilot trees (version control)

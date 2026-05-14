@@ -13,7 +13,7 @@
 
 ## Relationship to Chrysalis
 
-**Chrysalis** (this repo) is the **open-source** verification and migration engine. **AgenticOp** is the **practice** that pairs disciplined agent-assisted delivery with **Chrysalis** oracle replay, **`chrysalis verify`**, and chimera cutover—not generic “vibe migrations.”
+**Chrysalis** (this repo) is the **open-source** verification and migration engine. **AgenticOp** is the **practice** that pairs disciplined delivery with **Chrysalis** oracle replay, **`chrysalis verify`**, and chimera cutover—not undocumented big-bang rewrites.
 
 See **`docs/AGENTICOP.md`** and **`docs/COMMERCIAL.md`**.
 
