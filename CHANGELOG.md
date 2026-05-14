@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Canonical public GitHub remote** is **`theorem6/chrysalis`** (clone URLs, **`package.json` `repository.url`**, issue templates, **`CODEOWNERS`**, **`CHANGELOG`** release link footers, **`scripts/bootstrap-github-project.mjs`** default owner, **`agenticop-site`**, **`ROADMAP`** backlog links). **DESIGN D293** (supersedes **D286** for forward-looking links).
 
-- **`CONTRIBUTING.md`** — **Proof-of-concept and pilot trees**: table of paths that must stay in git vs reproducible/ignored outputs; **`.gitignore`** comments aligned (**`.firebase/`** cache only).
+- **`CONTRIBUTING.md`** — **Proof-of-concept and pilot trees**: table of paths that must stay in git vs reproducible/ignored outputs; **`.gitignore`** comments aligned (**`.firebase/`** cache only; **`tmp-corpus-rotate-*/`**, **`**/__pycache__/`** for corpus-rotate tests and Python bytecode).
 - **Docs:** **`docs/README.md`** (How-to count); **`docs/DEPLOYMENT.md`** (GCE **`gce-test-vm.ps1`**); **`docs/HOW-TO.md`** (scenario 24); **`CONTRIBUTING.md`** (full local verification commands). Regenerated **`agenticop-site/`** artifacts via **`pnpm run sync:agenticop-site`** after **`docs/WHITEPAPER.md`** alignment.
 
 ## [2.0.1] - 2026-05-08

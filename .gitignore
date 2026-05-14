@@ -37,6 +37,10 @@ reports/
 .holes/
 tmp/
 tmp-emit-out/
+# corpus-rotate-archive.mjs / CLI tests (ephemeral working dirs under repo root)
+tmp-corpus-rotate-*/
+# Python bytecode (e.g. chrysalis_shim local runs)
+**/__pycache__/
 
 # Local release tarballs (see pnpm run release:artifacts, docs/RELEASE.md)
 release/
