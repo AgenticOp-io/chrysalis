@@ -35,13 +35,14 @@ Per-package details live under `packages/<name>/README.md`. Each package README 
 
 ## Other references
 
-| Document | Purpose |
-| --- | --- |
-| [Release process](./RELEASE.md) | Maintainer-facing: version tags, source archives, GitHub Releases checklist. |
-| [GitHub Project](./GITHUB_PROJECT.md) | How to bootstrap a GitHub Project (v2) board for milestone tracking. |
-| [Git layout](./GIT-LAYOUT.md) | Working with nested `.git` trees, remotes, worktrees. |
-| [Commercial offering](./COMMERCIAL.md) | Optional vendor build, license tiers, services posture. |
-| [AgenticOp site](./AGENTICOP.md) | The optional public practice site. Independent of running the toolchain. |
+| Document | Audience | Purpose |
+| --- | --- | --- |
+| [Release process](./RELEASE.md) | Maintainers | Version tags, source archives, GitHub Releases checklist. |
+| [Master program](./MASTER-PROGRAM.md) | Sponsors, architecture board | Umbrella **Web Platform Translation Program**: charter, D0–D7 plan, repo topology, grades; **Chrysalis = D1**. GitHub preset: **`CHRYSALIS_GH_PROJECT_PRESET=master`**. |
+| [GitHub Project](./GITHUB_PROJECT.md) | Maintainers | Bootstrap a GitHub Project (**chrysalis** or **master** preset). |
+| [Git layout](./GIT-LAYOUT.md) | Contributors | Nested `.git` trees, remotes, worktrees. |
+| [Commercial offering](./COMMERCIAL.md) | Operators, vendors | Optional vendor build, license tiers, services posture. |
+| [AgenticOp site](./AGENTICOP.md) | Anyone | Optional public practice site; independent of the toolchain. |
 
 Community: [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md), and the issue/PR templates under [`.github/`](../.github/).
 

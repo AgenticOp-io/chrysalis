@@ -23,8 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`CONTRIBUTING.md`** — **Proof-of-concept and pilot trees**: table of paths that must stay in git vs reproducible/ignored outputs; **`.gitignore`** comments aligned (**`.firebase/`** cache only; **`tmp-corpus-rotate-*/`**, **`**/__pycache__/`** for corpus-rotate tests and Python bytecode).
 - **Docs:** **`docs/README.md`** (How-to count); **`docs/DEPLOYMENT.md`** (GCE **`gce-test-vm.ps1`**); **`docs/HOW-TO.md`** (scenario 24); **`CONTRIBUTING.md`** (full local verification commands). Regenerated **`agenticop-site/`** artifacts via **`pnpm run sync:agenticop-site`** after **`docs/WHITEPAPER.md`** alignment.
-
-## [2.0.1] - 2026-05-08
+- **Master program:** **`docs/MASTER-PROGRAM.md`** (Web Platform Translation Program charter + D0–D7 plan; Chrysalis as **D1**); **`docs/GITHUB_PROJECT.md`** + **`scripts/bootstrap-github-project.mjs`** — optional **`CHRYSALIS_GH_PROJECT_PRESET=master`** (program **Lane** values + **Workstream** field); **`master`** preset seeds **`docs/MASTER-PROGRAM.md`** section **12** draft project items unless **`CHRYSALIS_GH_PROJECT_SEED_ITEMS=0`**.
 
 ### Added
 
