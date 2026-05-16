@@ -58,6 +58,8 @@
     "ci:chimera-operator-snapshot": "vitest run packages/runtime-chimera/tests/chimera-operator-snapshot.test.ts packages/runtime-chimera/tests/chimera-operator-snapshot-batch.test.ts packages/emit-shared/tests/chrysalis-route-paths.test.ts packages/emit-shared/tests/emit-handler-fingerprints.test.ts",
     "ci:verify-summary-batch": "vitest run packages/verify/tests/verify-summary-batch.test.ts",
     "github:project-bootstrap": "node scripts/bootstrap-github-project.mjs",
+    "github:project-bootstrap:master": "node scripts/bootstrap-github-project.mjs --preset=master",
+    "export:webir-bundle": "node scripts/export-webir-bundle.mjs",
     "clean": "pnpm -r clean",
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",
     "deploy:agenticop-site": "pnpm run sync:agenticop-site && firebase deploy --only hosting",

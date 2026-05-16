@@ -22,8 +22,11 @@ node scripts/bootstrap-github-project.mjs
 **Master program** (umbrella charter; Chrysalis as **D1** deliverable):
 
 ```bash
-CHRYSALIS_GH_PROJECT_PRESET=master node scripts/bootstrap-github-project.mjs
+pnpm run github:project-bootstrap:master
+# or: node scripts/bootstrap-github-project.mjs --preset=master
 ```
+
+Without **`project`** / **`read:project`** scopes, the script still creates **repository issues** for [Master program](./MASTER-PROGRAM.md) section **12** (idempotent by title). Re-run after `gh auth refresh` to create the Project board and draft items.
 
 Optional environment:
 
@@ -34,6 +37,7 @@ Optional environment:
 | `CHRYSALIS_GH_REPO` | `<owner>/chrysalis` from `repository.url` | Repository to **link** |
 | `CHRYSALIS_GH_PROJECT_PRESET` | `chrysalis` | `master` = program lanes **D0–D7** + **Workstream** field (see [Master program](./MASTER-PROGRAM.md)) |
 | `CHRYSALIS_GH_PROJECT_SEED_ITEMS` | `1` when preset is **`master`**; ignored for **`chrysalis`** | `0` skips creating [Master program](./MASTER-PROGRAM.md) section **12** draft project items |
+| `CHRYSALIS_GH_SEED_ISSUES` | `1` when preset is **`master`** | `0` skips creating matching **repository issues** (repo scope only) |
 
 The script **does not create** `Lane` or `Board status` again when those fields already exist. It **reuses** an existing project with the same title instead of creating duplicates. **Lane option sets** are fixed at field creation time; to use different lanes, use a **new project title** or edit fields in the GitHub UI.
 

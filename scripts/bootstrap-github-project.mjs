@@ -70,6 +70,16 @@ const PRESET_CHRYSALIS = "chrysalis";
 const PRESET_MASTER = "master";
 
 function projectPreset() {
+  for (const arg of process.argv.slice(2)) {
+    const m = /^--preset=(.+)$/.exec(arg.trim());
+    if (m) {
+      const v = m[1].trim().toLowerCase();
+      if (v === PRESET_MASTER) return PRESET_MASTER;
+      if (v === PRESET_CHRYSALIS) return PRESET_CHRYSALIS;
+      process.stderr.write(`bootstrap-github-project: unknown --preset=${JSON.stringify(m[1])}\n`);
+      process.exit(1);
+    }
+  }
   const raw = (process.env.CHRYSALIS_GH_PROJECT_PRESET ?? PRESET_CHRYSALIS).trim().toLowerCase();
   if (raw === PRESET_MASTER) return PRESET_MASTER;
   return PRESET_CHRYSALIS;
@@ -173,6 +183,70 @@ function shouldSeedMasterDraftItems(preset) {
   if (preset !== PRESET_MASTER) return false;
   const v = (process.env.CHRYSALIS_GH_PROJECT_SEED_ITEMS ?? "1").trim().toLowerCase();
   return v !== "0" && v !== "false" && v !== "no";
+}
+
+function shouldSeedMasterGithubIssues(preset) {
+  if (preset !== PRESET_MASTER) return false;
+  const v = (process.env.CHRYSALIS_GH_SEED_ISSUES ?? "1").trim().toLowerCase();
+  return v !== "0" && v !== "false" && v !== "no";
+}
+
+/** @returns {Set<string>} */
+function existingRepoIssueTitles(repoFull) {
+  const r = gh(
+    ["issue", "list", "--repo", repoFull, "--state", "all", "-L", "300", "--json", "title"],
+    { allowFail: true },
+  );
+  if (r.status !== 0 || !r.stdout.trim()) return new Set();
+  let data;
+  try {
+    data = JSON.parse(r.stdout);
+  } catch {
+    return new Set();
+  }
+  const arr = Array.isArray(data) ? data : [];
+  const set = new Set();
+  for (const row of arr) {
+    if (typeof row?.title === "string") {
+      const s = row.title.trim();
+      if (s) set.add(s);
+    }
+  }
+  return set;
+}
+
+function seedMasterProgramGithubIssues(repoFull) {
+  const seen = existingRepoIssueTitles(repoFull);
+  let created = 0;
+  let skipped = 0;
+  for (const row of MASTER_PROGRAM_DRAFT_ISSUES) {
+    const title = row.title.trim();
+    if (seen.has(title)) {
+      skipped += 1;
+      continue;
+    }
+    const body =
+      `${row.body}\n\n---\n` +
+      `**Program:** Web Platform Translation Program\n` +
+      `**Lane:** ${row.lane}\n` +
+      `**Workstream:** ${row.workstream}\n` +
+      `**Board status:** ${row.boardStatus}\n` +
+      `Charter: \`docs/MASTER-PROGRAM.md\` in \`theorem6/chrysalis\`.`;
+    gh([
+      "issue",
+      "create",
+      "--repo",
+      repoFull,
+      "--title",
+      title,
+      "--body",
+      body,
+    ]);
+    seen.add(title);
+    created += 1;
+    console.log(`Created GitHub issue: ${title}`);
+  }
+  console.log(`\nMaster program GitHub issues: created ${created}, skipped (already present) ${skipped}.`);
 }
 
 /** @returns {Record<string, { id: string; options: Record<string, string> }>} */
@@ -347,13 +421,25 @@ function main() {
 
   console.log(`bootstrap-github-project: preset=${preset} title=${title}`);
 
+  if (shouldSeedMasterGithubIssues(preset)) {
+    seedMasterProgramGithubIssues(repoFull);
+  }
+
   const probe = gh(["project", "list", "--owner", owner, "-L", "1"], { allowFail: true });
   if (probe.status !== 0) {
     process.stderr.write(probe.stderr || probe.stdout);
     if (/read:project|missing required scopes/i.test(probe.stderr)) {
       process.stderr.write(
-        "\nGitHub CLI needs project scopes. Run:\n  gh auth refresh -s project,read:project\n",
+        "\nGitHub CLI needs project scopes to create the Project board. Run:\n" +
+          "  gh auth refresh -s project,read:project\n" +
+          "Then re-run:\n" +
+          "  pnpm run github:project-bootstrap:master\n",
       );
+      if (shouldSeedMasterGithubIssues(preset)) {
+        process.stderr.write(
+          "\nRepository issues for section 12 were created (or already existed) using repo scope.\n",
+        );
+      }
     }
     process.exit(probe.status || 1);
   }

@@ -4,7 +4,7 @@
 > **Governance:** Expanding the *Chrysalis product charter* (see root **`DESIGN.md`**) still requires that document’s Decision Log. This **master program** may spawn **forks and sibling repos** whose *own* `DESIGN.md` states wider scope. Do not silently conflate “Chrysalis the PHP migration framework” with “universal web translator” on `main` without a decision.
 
 ---
-n
+
 ## 1. Executive summary
 
 **Program name (working):** **Web Platform Translation Program (WPTP)**  
@@ -81,7 +81,7 @@ n
 | Repository | Purpose | When |
 | --- | --- | --- |
 | **`theorem6/chrysalis`** (this repo) | **D1** — PHP oracle, WebIR, emit-hono/fastify, verify, chimera, docs | **Now**; remains source of truth for PHP leg until board agrees migration of responsibilities. |
-| **`theorem6/wptp-ir`** (new) | IR schema, validators, fixtures, **import/export** from WebIR v1 | **D2** starts when D1 “baseline complete” criteria are met (§10). |
+| **[`theorem6/wptp-ir`](https://github.com/theorem6/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 in progress** (skeleton **2026-05-16**); see repo README |
 | **`theorem6/wptp-adapter-*`** (new, per family) | Source-specific lifting + capture | **D3+** per approved source profile. |
 | **`theorem6/wptp-emit-*`** (new, per target) | Emitters beyond current `emit-*` | **D4+** per target business case. |
 | **`theorem6/wptp-verify-*`** (new, optional) | Shared replay libraries | When duplication across emitters hurts. |
@@ -104,7 +104,8 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 
 - **Entry:** D0 complete.
 - **Exit:** Program board accepts **“Chrysalis baseline”** per agreed checklist (derive from **`ROADMAP.md`** closed milestones + any sponsor-specific gates): e.g. **tagged release**, **CI green**, **flagship verify** posture documented, **dual-stack** runbook accepted.
-- **Artifacts:** Releases on **`theorem6/chrysalis`**; machine JSON artifacts documented in root **`README.md`**.
+- **Artifacts:** Releases on **`theorem6/chrysalis`**; machine JSON artifacts documented in root **`README.md`**; engineering exit report **[`docs/WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md)** (sponsor sign-off still open).
+- **Status (2026-05-16):** Engineering criteria **met**; **sponsor sign-off** pending (§10).
 
 ### D2 — IR hub specification v0
 
@@ -177,9 +178,9 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 
 Use **`ROADMAP.md`** as the technical source of truth; the program adds **business** gates:
 
-- [ ] Latest **tagged release** (semver) published and linked from program Project.
-- [ ] **`pnpm test`** / **`typecheck`** / flagship verify jobs **documented** and **green** on `main`.
-- [ ] **Operator docs** (`docs/*`, root **`README.md`**) reviewed for **matrix** wording (no over-claim).
+- [x] Latest **tagged release** (semver) published and linked from program Project (**v2.0.1** / **v2.0.0** on `main`; link from Project readme when the board exists).
+- [x] **`pnpm test`** / **`typecheck`** / flagship verify jobs **documented** and **green** on `main` (see root **`README.md`**, **`.github/workflows/`**, **`docs/ADMINISTRATION.md`**).
+- [x] **Operator docs** (`docs/*`, root **`README.md`**) reviewed for **matrix** wording (no over-claim) — deployment, user, operations, and how-to guides in **`docs/`**.
 - [ ] **Sponsor sign-off** that PHP vertical is “reference sufficient” for D2 funding.
 
 *(Edit checkboxes when the board meets.)*
@@ -203,10 +204,11 @@ CHRYSALIS_GH_PROJECT_PRESET=master \
 CHRYSALIS_GH_PROJECT_TITLE="Web Platform Translation Program" \
 node scripts/bootstrap-github-project.mjs
 
-# Windows PowerShell
-$env:CHRYSALIS_GH_PROJECT_PRESET = "master"
-$env:CHRYSALIS_GH_PROJECT_TITLE = "Web Platform Translation Program"
-node scripts/bootstrap-github-project.mjs
+# Windows PowerShell (or from repo root)
+pnpm run github:project-bootstrap:master
+# Equivalent:
+# $env:CHRYSALIS_GH_PROJECT_PRESET = "master"
+# node scripts/bootstrap-github-project.mjs --preset=master
 ```
 
 **Optional:** set **`CHRYSALIS_GH_PROJECT_OWNER`** to your **org** user name if the project should live under an org.
