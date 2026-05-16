@@ -39,7 +39,7 @@ Per-package details live under `packages/<name>/README.md`. Each package README 
 | --- | --- | --- |
 | [Release process](./RELEASE.md) | Maintainers | Version tags, source archives, GitHub Releases checklist. |
 | [Master program](./MASTER-PROGRAM.md) | Sponsors, architecture board | Umbrella **Web Platform Translation Program**: charter, D0–D7 plan, repo topology, grades; **Chrysalis = D1**. GitHub preset: **`pnpm run github:project-bootstrap:master`**. |
-| [WPTP D1 exit report](./WPTP-D1-EXIT-REPORT.md) | Program board | Engineering evidence that Chrysalis D1 criteria are met (sponsor sign-off tracked separately). |
+| [WPTP D1 exit report](./WPTP-D1-EXIT-REPORT.md) | Program board | D1 **technical exit** recorded; **funding** is a future non-blocking lane (MASTER-PROGRAM §10.1). |
 | [wptp-ir](https://github.com/theorem6/wptp-ir) | IR hub (D2) | Neutral IR **v0**, WebIR bundle import, loss reports, conformance fixtures (sibling repo). |
 | [GitHub Project](./GITHUB_PROJECT.md) | Maintainers | Bootstrap a GitHub Project (**chrysalis** or **master** preset). |
 | [Git layout](./GIT-LAYOUT.md) | Contributors | Nested `.git` trees, remotes, worktrees. |

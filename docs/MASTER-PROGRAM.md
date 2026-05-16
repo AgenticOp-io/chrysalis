@@ -16,7 +16,9 @@
 - **Not** a single monolith that “understands all languages” by string transpilation; **verification and holes** remain central.
 - **Not** a replacement for **Chrysalis’** existing **oracle-first PHP** story; Chrysalis remains **in scope** as **Deliverable 1 (D1)** until the program archives it as “reference complete” and continues on sibling repos.
 
-**Chrysalis’ role:** **D1 — Reference implementation** for one **high-value vertical**: **legacy PHP** applications with **HTTP + SQL + session** oracle capture, **WebIR**, **emit** (Hono / Fastify today), **verify**, **dual-stack (Chimera)**. When Chrysalis milestones in **`ROADMAP.md`** are met for the chartered product, WPTP records **“Chrysalis baseline complete”** and funds **D2+** on neutral IR and additional legs.
+**Chrysalis’ role:** **D1 — Reference implementation** for one **high-value vertical**: **legacy PHP** applications with **HTTP + SQL + session** oracle capture, **WebIR**, **emit** (Hono / Fastify today), **verify**, **dual-stack (Chimera)**. When Chrysalis milestones in **`ROADMAP.md`** are met for the chartered product, WPTP records **“Chrysalis baseline complete”** and **continues engineering on D2+** (neutral IR and additional legs).
+
+**Execution policy (normative):** **Technical exit criteria** gate phase transitions. **Program sponsor / funding sign-off** is tracked as a **future** lane (§10) and does **not** block repository work, sibling repos, or the GitHub Project board. Use funding only for **external** claims (paid programs, marketing “fully funded” language) — not for day-to-day merges.
 
 ---
 
@@ -24,7 +26,7 @@
 
 | Role | Responsibility |
 | --- | --- |
-| **Program sponsor** | Funds phases, accepts matrix grades, owns legal posture for capture/scrape products. |
+| **Program sponsor** | **Future:** funds phases, accepts matrix grades, owns legal posture for capture/scrape products. Does not gate engineering merges. |
 | **Architecture board** | Approves IR schema major versions, verification grades, and public “supported edge” claims. |
 | **Chrysalis maintainers** | Own **`theorem6/chrysalis`** until fork/split; merge per **`AGENTS.md`**. |
 | **WPTP workstream leads** | Own sibling repos (IR hub, adapters, emitters, verify harnesses). |
@@ -96,22 +98,24 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 
 ### D0 — Program charter and GitHub Project (governance)
 
-- **Entry:** Sponsor sign-off on this charter (file revision or org wiki mirror).
-- **Exit:** GitHub Project **“Web Platform Translation Program”** created (see §12), **Workstream** field in use, initial draft issues filed (§13).
+- **Entry:** This charter published in-tree (or org wiki mirror when available).
+- **Exit:** GitHub Project **“Web Platform Translation Program”** created (see §12), **Workstream** field in use, initial draft issues filed (§12).
 - **Artifacts:** This file; **`docs/GITHUB_PROJECT.md`** updated; optional org-level README.
+- **Status:** **Complete** for engineering execution (Project #1 + §12 items). Formal sponsor charter vote: **future** (§10).
 
 ### D1 — Chrysalis reference leg (first engineering deliverable)
 
 - **Entry:** D0 complete.
-- **Exit:** Program board accepts **“Chrysalis baseline”** per agreed checklist (derive from **`ROADMAP.md`** closed milestones + any sponsor-specific gates): e.g. **tagged release**, **CI green**, **flagship verify** posture documented, **dual-stack** runbook accepted.
-- **Artifacts:** Releases on **`theorem6/chrysalis`**; machine JSON artifacts documented in root **`README.md`**; engineering exit report **[`docs/WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md)** (sponsor sign-off still open).
-- **Status (2026-05-16):** Engineering criteria **met**; **sponsor sign-off** pending (§10).
+- **Exit (technical):** **“Chrysalis baseline”** per §10 engineering checklist and **`ROADMAP.md`** closed milestones: **tagged release**, **CI green**, **operator docs**, **dual-stack** runbook accepted.
+- **Artifacts:** Releases on **`theorem6/chrysalis`**; machine JSON artifacts documented in root **`README.md`**; **[`docs/WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md)**.
+- **Status (2026-05-16):** **D1 exit met** for program execution. **D2+ proceeds** without waiting on funding (§10).
 
 ### D2 — IR hub specification v0
 
-- **Entry:** D1 exit.
-- **Exit:** **`wptp-ir`** public **schemaVersion 0** with: **round-trip loss report** from a **WebIR subset**; **10+ golden fixtures**; **RFC-style** versioning policy.
-- **Artifacts:** ADRs; conformance tests; **import tool** from Chrysalis export format (design TBD — may be JSON bundle or CLI `chrysalis export-ir` added behind Decision Log).
+- **Entry:** D1 technical exit (not contingent on sponsor funding).
+- **Exit:** **`wptp-ir`** public **schemaVersion 0** with: **loss report** from a **WebIR subset** (flagship: tiny-blog **zero losses**); **10+ golden fixtures**; **RFC-style** versioning policy.
+- **Artifacts:** [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir); conformance tests; **import** from **`chrysalis.webir.bundle@1.0.0`** (Chrysalis **`scripts/export-webir-bundle.mjs`**).
+- **Status (2026-05-16):** **In progress** — skeleton, import, tiny-blog flagship, tests green; semver tag and export CLI polish remain.
 
 ### D3 — Second **source** profile (non-PHP)
 
@@ -174,16 +178,24 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 
 ---
 
-## 10. Chrysalis “D1 complete” checklist (template for board vote)
+## 10. Chrysalis “D1 complete” checklist (technical — gates engineering)
 
-Use **`ROADMAP.md`** as the technical source of truth; the program adds **business** gates:
+Use **`ROADMAP.md`** as the technical source of truth. These items **gate** D1 exit and **D2 entry**. They are **not** blocked on sponsor funding.
 
 - [x] Latest **tagged release** (semver) published and linked from program Project (**v2.0.1** / **v2.0.0** on `main`; link from Project readme when the board exists).
 - [x] **`pnpm test`** / **`typecheck`** / flagship verify jobs **documented** and **green** on `main` (see root **`README.md`**, **`.github/workflows/`**, **`docs/ADMINISTRATION.md`**).
 - [x] **Operator docs** (`docs/*`, root **`README.md`**) reviewed for **matrix** wording (no over-claim) — deployment, user, operations, and how-to guides in **`docs/`**.
-- [ ] **Sponsor sign-off** that PHP vertical is “reference sufficient” for D2 funding.
 
-*(Edit checkboxes when the board meets.)*
+**D1 technical exit:** **recorded** — see **[`docs/WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md)**.
+
+### 10.1 Future — program funding (non-blocking)
+
+Tracked on the GitHub Project under **Legal and trust** / sponsor workstream. **Does not hold up** merges, sibling repos, or D2–D7 engineering.
+
+- [ ] **Sponsor / funding sign-off** for paid programs and external “fully funded phase” messaging.
+- [ ] **Budget** allocated for D3+ adapters and hosted matrix site (when prioritized).
+
+*(Check when a sponsor meeting happens; until then, proceed on technical milestones.)*
 
 ---
 
