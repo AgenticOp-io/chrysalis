@@ -11,8 +11,8 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 | --- | --- | --- |
 | **IR hub** | [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) | Neutral **IR v0**; import Chrysalis WebIR bundles; explicit losses |
 | **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) | Public **source × target × grade** claims with evidence hooks |
-| **Source adapters** | [theorem6/wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi) (first) | Lift **non-PHP** inputs into IR v0 |
-| **Emit targets** | `wptp-emit-*` (planned) | Additional stacks beyond Hono/Fastify |
+| **Source adapters** | [wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi), [wptp-adapter-browser](https://github.com/theorem6/wptp-adapter-browser) | OpenAPI 3 and HAR traces → IR v0 |
+| **Emit targets** | [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs) | Next.js App Router stubs from IR v0 (**bronze**) |
 | **Verify harnesses** | Chrysalis today; `wptp-verify-*` when shared | Proof for **Gold** matrix edges |
 
 ## Platform families (working names)
@@ -21,11 +21,11 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 | --- | --- | --- |
 | `php-legacy-web` | PHP app with HTTP + SQL + session | Chrysalis ingest + Oracle |
 | `openapi-contract` | OpenAPI 3 document | `wptp-adapter-openapi` |
-| `browser-trace` | Playwright/HAR-style capture | *planned* |
+| `browser-trace` | HAR / browser capture | `wptp-adapter-browser` |
 | `hono-typescript` | Hono on Node | Chrysalis `emit-hono` |
 | `fastify-typescript` | Fastify on Node | Chrysalis `emit-fastify` |
 | `chimera-dual-stack` | PHP + emitted TS routed together | Chrysalis `runtime-chimera` |
-| `nextjs-route-handlers` | Next.js App Router handlers | *planned* |
+| `nextjs-route-handlers` | Next.js App Router handlers | `wptp-emit-nextjs` |
 
 ## Grades (normative)
 
@@ -45,4 +45,6 @@ Expanding **Chrysalis** to “all web platforms” on `main` still requires a **
 
 - **Funding:** future, non-blocking (MASTER-PROGRAM §10.1).
 - **Tracking:** [GitHub Project #1](https://github.com/users/theorem6/projects/1), lanes D2–D7.
-- **Next build targets:** harden `wptp-ir` v0 tag, grow matrix edges with CI guards, deepen OpenAPI adapter, pick browser-trace or Next emit spike.
+- **Composer paths:** [wptp-matrix `composer-paths.v0.json`](https://github.com/theorem6/wptp-matrix/blob/main/data/composer-paths.v0.json) (e.g. OpenAPI → IR → Next.js).
+- **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) (local/static).
+- **Next:** harden `wptp-ir` v0 tag, verify harness for composed paths, IR→WebIR bridge for Chrysalis emit reuse.

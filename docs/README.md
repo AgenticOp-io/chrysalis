@@ -44,6 +44,8 @@ Per-package details live under `packages/<name>/README.md`. Each package README 
 | [wptp-ir](https://github.com/theorem6/wptp-ir) | IR hub (D2) | Neutral IR **v0**, WebIR bundle import, loss reports, conformance fixtures. |
 | [wptp-matrix](https://github.com/theorem6/wptp-matrix) | Matrix (D5) | Source × target × grade JSON with CI validation. |
 | [wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi) | Adapter (D3) | OpenAPI 3 → IR v0 (bronze). |
+| [wptp-adapter-browser](https://github.com/theorem6/wptp-adapter-browser) | Adapter (D3) | HAR browser trace → IR v0 (bronze). |
+| [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs) | Emit (D4) | IR v0 → Next.js App Router stubs (bronze). |
 | [GitHub Project](./GITHUB_PROJECT.md) | Maintainers | Bootstrap a GitHub Project (**chrysalis** or **master** preset). |
 | [Git layout](./GIT-LAYOUT.md) | Contributors | Nested `.git` trees, remotes, worktrees. |
 | [Commercial offering](./COMMERCIAL.md) | Operators, vendors | Optional vendor build, license tiers, services posture. |

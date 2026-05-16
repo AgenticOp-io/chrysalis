@@ -85,8 +85,10 @@
 | **`theorem6/chrysalis`** (this repo) | **D1** — PHP oracle, WebIR, emit-hono/fastify, verify, chimera, docs | **Now**; remains source of truth for PHP leg until board agrees migration of responsibilities. |
 | **[`theorem6/wptp-ir`](https://github.com/theorem6/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 in progress** (tiny-blog flagship **zero losses**) |
 | **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 starter** — **8** edges (**2026-05-16**) |
-| **[`theorem6/wptp-adapter-openapi`](https://github.com/theorem6/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3 started** |
-| **`theorem6/wptp-adapter-*`** (other families) | Source-specific lifting + capture | **planned** (browser trace, …) |
+| **[`theorem6/wptp-adapter-openapi`](https://github.com/theorem6/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3** — supported |
+| **[`theorem6/wptp-adapter-browser`](https://github.com/theorem6/wptp-adapter-browser)** | HAR → IR v0 routes (**bronze**) | **D3** — supported |
+| **[`theorem6/wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs)** | IR v0 → Next.js App Router stubs | **D4** — bronze starter |
+| **`theorem6/wptp-adapter-*`** (other families) | Additional sources | **planned** |
 | **`theorem6/wptp-emit-*`** (new, per target) | Emitters beyond current `emit-*` | **D4+** per target business case. |
 | **`theorem6/wptp-verify-*`** (new, optional) | Shared replay libraries | When duplication across emitters hurts. |
 
