@@ -9,11 +9,11 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 
 | Layer | Repository | Role |
 | --- | --- | --- |
-| **IR hub** | [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) | Neutral **IR v0**; import Chrysalis WebIR bundles; explicit losses |
-| **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) | Public **source × target × grade** claims with evidence hooks |
+| **IR hub** | [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) (`@wptp/ir@v0.1.0`) | Neutral **IR v0**; import Chrysalis WebIR bundles; **export** back to `chrysalis.webir.bundle@1.0.0` (silver) |
+| **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.0`) | Public **source × target × grade** claims; **compose** + **verify harness** CLIs |
 | **Source adapters** | [wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi), [wptp-adapter-browser](https://github.com/theorem6/wptp-adapter-browser) | OpenAPI 3 and HAR traces → IR v0 |
 | **Emit targets** | [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs) | Next.js App Router stubs from IR v0 (**bronze**) |
-| **Verify harnesses** | Chrysalis today; `wptp-verify-*` when shared | Proof for **Gold** matrix edges |
+| **Verify harnesses** | `wptp-matrix` (`wptp-verify-harness`, `npm run verify:harness`) | **Bronze** composed-path contracts; **Silver** WebIR import; **Gold** remains Chrysalis CI |
 
 ## Platform families (working names)
 
@@ -31,20 +31,50 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 
 See MASTER-PROGRAM §7. **Gold** requires automated replay or equivalent CI proof. **Bronze** = structural lift only. The matrix JSON must not mark **Gold** without `evidence` fields populated.
 
+| Grade | Where it runs | Example |
+| --- | --- | --- |
+| **Bronze** | `wptp-matrix` | `openapi-ir-nextjs`, `har-ir-nextjs` compose + contract verify |
+| **Silver** | `wptp-matrix` / `wptp-ir` | WebIR bundle import loss report; IR → WebIR export round-trip |
+| **Gold** | Chrysalis `.github/workflows/` | `php-legacy-to-hono-ts`, `webir-bundle-to-wptp-ir` (tiny-blog) |
+
 ## Chrysalis ↔ global boundary
 
 | In Chrysalis `main` | In WPTP global repos |
 | --- | --- |
 | WebIR, ingest, emit, verify, chimera | IR v0, matrix, non-PHP adapters |
-| `scripts/export-webir-bundle.mjs` | `wptp-ir` import |
+| `scripts/export-webir-bundle.mjs` | `wptp-ir` import + `exportIrToWebIrBundleV0` |
 | Flagship corpora (tiny-blog, …) | Matrix **evidence** pointers |
 
 Expanding **Chrysalis** to “all web platforms” on `main` still requires a **`DESIGN.md` Decision Log** entry. Expanding **WPTP** uses sibling repos and matrix rows.
+
+## Composer paths (live)
+
+Documented in [composer-paths.v0.json](https://github.com/theorem6/wptp-matrix/blob/main/data/composer-paths.v0.json):
+
+| Path ID | Steps | Grade |
+| --- | --- | --- |
+| `openapi-ir-nextjs` | OpenAPI → IR → Next.js | Bronze |
+| `har-ir-nextjs` | HAR → IR → Next.js | Bronze |
+| `php-webir-hono` | Chrysalis ingest + emit-hono + verify | Gold |
+| `webir-neutral-ir` | `export-webir-bundle` → `importWebIrBundleJson` | Gold (import); Silver (export bridge) |
+
+**CLI (local or CI):**
+
+```bash
+# OpenAPI → app/ route stubs
+npm run compose -- --path openapi-ir-nextjs --in fixtures/petstore-mini.openapi.json --out ./out --verify
+
+# HAR → app/ route stubs
+npm run compose -- --path har-ir-nextjs --in fixtures/mini.har.json --out ./out --verify
+
+# Bronze + silver harness (matrix repo)
+npm run verify:harness
+```
 
 ## Execution
 
 - **Funding:** future, non-blocking (MASTER-PROGRAM §10.1).
 - **Tracking:** [GitHub Project #1](https://github.com/users/theorem6/projects/1), lanes D2–D7.
-- **Composer paths:** [wptp-matrix `composer-paths.v0.json`](https://github.com/theorem6/wptp-matrix/blob/main/data/composer-paths.v0.json) (e.g. OpenAPI → IR → Next.js).
 - **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) (local/static).
-- **Next:** harden `wptp-ir` v0 tag, verify harness for composed paths, IR→WebIR bridge for Chrysalis emit reuse.
+- **D1 exit:** [`WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md).
+- **Next engineering:** wire **openapi → hono** via IR→WebIR export + Chrysalis emit (matrix row `openapi-to-hono-ts` remains **planned** until CI proves it).

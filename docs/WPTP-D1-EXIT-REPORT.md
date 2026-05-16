@@ -3,7 +3,7 @@
 **Program:** [Web Platform Translation Program](./MASTER-PROGRAM.md)  
 **Deliverable:** D1 — Chrysalis (`theorem6/chrysalis`)  
 **Date:** 2026-05-16  
-**Technical source of truth:** [`ROADMAP.md`](../ROADMAP.md)
+**Technical source of truth:** `[ROADMAP.md](../ROADMAP.md)`
 
 ## Summary
 
@@ -11,17 +11,21 @@ Chrysalis meets the **chartered engineering** bar for D1: Milestones 0–6 (incl
 
 ## Checklist (MASTER-PROGRAM §10 — technical gates)
 
-| Gate | Status | Evidence |
-| --- | --- | --- |
-| Tagged semver release | **Met** | [v2.0.1](https://github.com/theorem6/chrysalis/releases/tag/v2.0.1), [v2.0.0](https://github.com/theorem6/chrysalis/releases/tag/v2.0.0) |
-| CI / tests documented and green on `main` | **Met** | `.github/workflows/`, `pnpm test`, `docs/ADMINISTRATION.md` |
-| Operator docs reviewed (no matrix over-claim) | **Met** | `docs/DEPLOYMENT.md`, `docs/USER-GUIDE.md`, `docs/HOW-TO.md`, `docs/OPERATIONS.md` |
+
+| Gate                                          | Status  | Evidence                                                                                                                                 |
+| --------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Tagged semver release                         | **Met** | [v2.0.1](https://github.com/theorem6/chrysalis/releases/tag/v2.0.1), [v2.0.0](https://github.com/theorem6/chrysalis/releases/tag/v2.0.0) |
+| CI / tests documented and green on `main`     | **Met** | `.github/workflows/`, `pnpm test`, `docs/ADMINISTRATION.md`                                                                              |
+| Operator docs reviewed (no matrix over-claim) | **Met** | `docs/DEPLOYMENT.md`, `docs/USER-GUIDE.md`, `docs/HOW-TO.md`, `docs/OPERATIONS.md`                                                       |
+
 
 ## Future (non-blocking)
 
-| Item | Status | Notes |
-| --- | --- | --- |
+
+| Item                       | Status     | Notes                                                                                         |
+| -------------------------- | ---------- | --------------------------------------------------------------------------------------------- |
 | Sponsor / funding sign-off | **Future** | §10.1 — paid programs and external funding messaging only; **does not block** D2+ engineering |
+
 
 ## Artifacts
 
