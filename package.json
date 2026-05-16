@@ -60,6 +60,7 @@
     "github:project-bootstrap": "node scripts/bootstrap-github-project.mjs",
     "github:project-bootstrap:master": "node scripts/bootstrap-github-project.mjs --preset=master",
     "export:webir-bundle": "node scripts/export-webir-bundle.mjs",
+    "emit:webir-bundle-hono": "node scripts/emit-webir-bundle-hono.mjs",
     "clean": "pnpm -r clean",
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",
     "deploy:agenticop-site": "pnpm run sync:agenticop-site && firebase deploy --only hosting",

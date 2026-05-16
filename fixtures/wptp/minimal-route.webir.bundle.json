@@ -1,0 +1,65 @@
+{
+  "format": "chrysalis.webir.bundle",
+  "bundleVersion": "1.0.0",
+  "module": {
+    "meta": {
+      "sourceApp": "fixture-minimal-route",
+      "createdAt": "1970-01-01T00:00:00.000Z",
+      "chrysalisVersion": "test"
+    },
+    "roots": ["r0"],
+    "nodes": [
+      {
+        "id": "r0",
+        "dialect": "web.request",
+        "op": "route",
+        "type": { "kind": "void" },
+        "effects": [],
+        "operands": ["h0"],
+        "attrs": { "method": "GET", "path": "/health" },
+        "origin": { "kind": "php", "file": "pages/health.php", "line": 1, "col": 1 },
+        "provenance": [
+          {
+            "source": "php-ast",
+            "reason": "route",
+            "locator": { "kind": "php", "file": "pages/health.php", "line": 1, "col": 1 }
+          }
+        ]
+      },
+      {
+        "id": "h0",
+        "dialect": "web.request",
+        "op": "handler",
+        "type": { "kind": "named", "name": "Response" },
+        "effects": [],
+        "operands": ["b0"],
+        "attrs": { "name": "health" },
+        "origin": { "kind": "php", "file": "pages/health.php", "line": 2, "col": 1 },
+        "provenance": [
+          {
+            "source": "php-ast",
+            "reason": "handler",
+            "locator": { "kind": "php", "file": "pages/health.php", "line": 2, "col": 1 }
+          }
+        ]
+      },
+      {
+        "id": "b0",
+        "dialect": "data",
+        "op": "literal",
+        "type": { "kind": "string" },
+        "effects": [],
+        "operands": [],
+        "attrs": { "value": "ok" },
+        "origin": { "kind": "php", "file": "pages/health.php", "line": 3, "col": 1 },
+        "provenance": [
+          {
+            "source": "php-ast",
+            "reason": "literal body",
+            "locator": { "kind": "php", "file": "pages/health.php", "line": 3, "col": 1 }
+          }
+        ]
+      }
+    ]
+  }
+}

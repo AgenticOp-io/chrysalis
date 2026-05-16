@@ -55,6 +55,7 @@ Documented in [composer-paths.v0.json](https://github.com/theorem6/wptp-matrix/b
 | --- | --- | --- |
 | `openapi-ir-nextjs` | OpenAPI → IR → Next.js | Bronze |
 | `har-ir-nextjs` | HAR → IR → Next.js | Bronze |
+| `openapi-ir-hono` | OpenAPI → IR → WebIR → Chrysalis `emit-hono` | Bronze |
 | `php-webir-hono` | Chrysalis ingest + emit-hono + verify | Gold |
 | `webir-neutral-ir` | `export-webir-bundle` → `importWebIrBundleJson` | Gold (import); Silver (export bridge) |
 
@@ -77,4 +78,4 @@ npm run verify:harness
 - **Tracking:** [GitHub Project #1](https://github.com/users/theorem6/projects/1), lanes D2–D7.
 - **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) (local/static).
 - **D1 exit:** [`WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md).
-- **Next engineering:** wire **openapi → hono** via IR→WebIR export + Chrysalis emit (matrix row `openapi-to-hono-ts` remains **planned** until CI proves it).
+- **Next engineering:** Gold replay for composed OpenAPI/HAR paths; hosted matrix site; optional `wptp-emit-hono` sibling if emit should leave Chrysalis repo.

@@ -135,6 +135,7 @@ export {
 export { isAuthBoundaryCallee, authTaggedHoleReason } from "./auth-boundary.js";
 export { computeOracleFootprint, type OracleFootprint, type RouteOracleFootprint } from "./oracle-footprint.js";
 export { moduleToGoldenSnapshot, type GoldenSnapshotOptions } from "./snapshot.js";
+export { moduleFromGoldenSnapshot } from "./from-snapshot.js";
 export {
   deserializeModuleCheckpoint,
   MODULE_CHECKPOINT_KIND,
