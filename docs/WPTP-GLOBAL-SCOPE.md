@@ -80,6 +80,7 @@ npm run verify:harness
 
 - **Funding:** future, non-blocking (MASTER-PROGRAM §10.1).
 - **Tracking:** [GitHub Project #1](https://github.com/users/theorem6/projects/1), lanes D2–D7.
-- **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) (local/static).
+- **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) — all **12 edges**, composer paths, grade filters (local/static).
+- **Gold smoke (local):** `CHRYSALIS_ROOT=<chrysalis checkout> npm run verify:harness` in `wptp-matrix` runs `php-webir-hono` against tiny-blog when the CLI is built.
 - **D1 exit:** [`WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md).
 - **Next engineering:** Gold replay for composed OpenAPI/HAR paths; hosted matrix site; deepen `@wptp/emit-hono` toward Chrysalis lowering where contracts demand it.
