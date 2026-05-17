@@ -12,7 +12,7 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 | **IR hub** | [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) (`@wptp/ir@v0.1.0`) | Neutral **IR v0**; import Chrysalis WebIR bundles; **export** back to `chrysalis.webir.bundle@1.0.0` (silver) |
 | **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.0`) | Public **source × target × grade** claims; **compose** + **verify harness** CLIs |
 | **Source adapters** | [wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi), [wptp-adapter-browser](https://github.com/theorem6/wptp-adapter-browser) | OpenAPI 3 and HAR traces → IR v0 |
-| **Emit targets** | [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs), [wptp-emit-hono](https://github.com/theorem6/wptp-emit-hono) | Next.js / Hono stubs from IR v0 (**bronze**) |
+| **Emit targets** | [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs), [wptp-emit-hono](https://github.com/theorem6/wptp-emit-hono), [wptp-emit-fastify](https://github.com/theorem6/wptp-emit-fastify) | Next.js / Hono / Fastify stubs from IR v0 (**bronze**); **contract-replay gold** in matrix harness |
 | **Verify harnesses** | `wptp-matrix` (`wptp-verify-harness`, `npm run verify:harness`) | **Bronze** composed-path contracts; **Silver** WebIR import; **Gold** remains Chrysalis CI |
 
 ## Platform families (working names)
@@ -23,7 +23,7 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 | `openapi-contract` | OpenAPI 3 document | `wptp-adapter-openapi` |
 | `browser-trace` | HAR / browser capture | `wptp-adapter-browser` |
 | `hono-typescript` | Hono on Node | `@wptp/emit-hono` (bronze); Chrysalis `emit-hono` (gold, PHP-sourced) |
-| `fastify-typescript` | Fastify on Node | Chrysalis `emit-fastify` |
+| `fastify-typescript` | Fastify on Node | `@wptp/emit-fastify` (bronze); Chrysalis `emit-fastify` (gold, PHP-sourced) |
 | `chimera-dual-stack` | PHP + emitted TS routed together | Chrysalis `runtime-chimera` |
 | `nextjs-route-handlers` | Next.js App Router handlers | `wptp-emit-nextjs` |
 
@@ -80,7 +80,7 @@ npm run verify:harness
 
 - **Funding:** future, non-blocking (MASTER-PROGRAM §10.1).
 - **Tracking:** [GitHub Project #1](https://github.com/users/theorem6/projects/1), lanes D2–D7.
-- **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) — all **12 edges**, composer paths, grade filters (local/static).
+- **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) — **18 edges**, composer paths, grade filters; **GitHub Pages** via `pages.yml` on push to `main`.
 - **Gold smoke (local):** `CHRYSALIS_ROOT=<chrysalis checkout> npm run verify:harness` in `wptp-matrix` runs `php-webir-hono` against tiny-blog when the CLI is built.
 - **D1 exit:** [`WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md).
 - **Next engineering:** Gold replay for composed OpenAPI/HAR paths; hosted matrix site; deepen `@wptp/emit-hono` toward Chrysalis lowering where contracts demand it.
