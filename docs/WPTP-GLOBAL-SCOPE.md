@@ -33,7 +33,7 @@ See MASTER-PROGRAM §7. **Gold** requires automated replay or equivalent CI proo
 
 | Grade | Where it runs | Example |
 | --- | --- | --- |
-| **Bronze** | `wptp-matrix` | `openapi-ir-nextjs`, `har-ir-nextjs` compose + contract verify |
+| **Bronze** | `wptp-matrix` | `openapi-ir-nextjs`, `har-ir-nextjs`, `openapi-ir-hono`, `har-ir-hono` compose + contract/runtime verify |
 | **Silver** | `wptp-matrix` / `wptp-ir` | WebIR bundle import loss report; IR → WebIR export round-trip |
 | **Gold** | Chrysalis `.github/workflows/` | `php-legacy-to-hono-ts`, `webir-bundle-to-wptp-ir` (tiny-blog) |
 
