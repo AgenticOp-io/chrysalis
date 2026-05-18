@@ -40,6 +40,10 @@ if (-not $SkipServicesEnable) {
   }
 }
 
+# Prefer OpenSSH on Windows (plink does not accept -o ServerAlive* flags).
+if (-not $env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH) {
+  $env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"
+}
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
 
@@ -66,11 +70,11 @@ if ($instanceExists) {
 }
 
 if (-not $instanceExists) {
-  Write-Host "Creating preemptible e2-micro VM ..."
+  Write-Host "Creating e2-small VM (2 GiB RAM for npm ci + harness) ..."
   Invoke-Gcloud -GcloudArgs @(
     "compute", "instances", "create", $Name,
     "--project=$Project", "--zone=$Zone",
-    "--machine-type=e2-micro", "--preemptible",
+    "--machine-type=e2-small",
     "--boot-disk-size=30GB", "--boot-disk-type=pd-balanced",
     "--image-family=debian-12", "--image-project=debian-cloud",
     "--scopes=https://www.googleapis.com/auth/cloud-platform",
@@ -102,7 +106,7 @@ function BashSingleQuote([string] $s) { return "'" + ($s -replace "'", "'\''") +
 $qRepo = BashSingleQuote $MatrixRepo
 $qRef = BashSingleQuote $MatrixRef
 $remote = "chmod +x ~/gce-wptp-test-bootstrap.sh && export WPTP_MATRIX_REPO=$qRepo WPTP_MATRIX_REF=$qRef && ~/gce-wptp-test-bootstrap.sh"
-Write-Host "Running WPTP harness on VM (may take 15-30 min on e2-micro; clones 7 repos + harness npm installs) ..."
+Write-Host "Running WPTP harness on VM (npm ci + harness; often 15-25 min on e2-small) ..."
 $sshCmdArgs = @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command", $remote)
 Invoke-Gcloud -GcloudArgs $sshCmdArgs
 

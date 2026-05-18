@@ -4,6 +4,9 @@ set -euo pipefail
 export PYTHONUNBUFFERED=1
 export NPM_CONFIG_LOGLEVEL="${NPM_CONFIG_LOGLEVEL:-info}"
 export NPM_CONFIG_PROGRESS="${NPM_CONFIG_PROGRESS:-true}"
+export NPM_CONFIG_FETCH_RETRIES="${NPM_CONFIG_FETCH_RETRIES:-5}"
+export NPM_CONFIG_MAXSOCKETS="${NPM_CONFIG_MAXSOCKETS:-2}"
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=768}"
 
 log() {
   echo "[gce-wptp-test-bootstrap] $(date -u +%H:%M:%S) $*"
