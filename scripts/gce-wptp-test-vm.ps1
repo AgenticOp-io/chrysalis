@@ -109,4 +109,4 @@ Invoke-Gcloud -GcloudArgs $sshCmdArgs
 Write-Host ""
 Write-Host "Done. WPTP matrix passed on $Name."
 Write-Host "  gcloud compute ssh $Name --zone=$Zone --project=$Project $(if ($TunnelThroughIap) { '--tunnel-through-iap' })"
-Write-Host "  cd ~/wptp-test/matrix"
+Write-Host "  cd ~/wptp-src/wptp-matrix"

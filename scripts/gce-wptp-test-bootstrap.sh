@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # Run on Debian/Ubuntu GCE: install Node 20, install WPTP matrix from GitHub, validate + harness.
 set -euo pipefail
+export PYTHONUNBUFFERED=1
+export NPM_CONFIG_LOGLEVEL="${NPM_CONFIG_LOGLEVEL:-info}"
+export NPM_CONFIG_PROGRESS="${NPM_CONFIG_PROGRESS:-true}"
+
+log() {
+  echo "[gce-wptp-test-bootstrap] $(date -u +%H:%M:%S) $*"
+}
 
 MATRIX_REPO="${WPTP_MATRIX_REPO:-https://github.com/theorem6/wptp-matrix.git}"
 MATRIX_REF="${WPTP_MATRIX_REF:-v0.1.7}"
@@ -37,8 +44,10 @@ install_matrix_ci() {
     git -C "${MATRIX}" checkout "${MATRIX_REF}"
   fi
   cd "${MATRIX}"
-  echo "[gce-wptp-test-bootstrap] matrix ref: $(git rev-parse --short HEAD)"
+  log "matrix ref: $(git rev-parse --short HEAD) (tag ${MATRIX_REF})"
+  log "npm ci (git sibling deps; may take 20-40 min on e2-micro)..."
   npm ci
+  log "npm ci done"
 }
 
 install_matrix_siblings() {
@@ -56,7 +65,7 @@ install_matrix_siblings() {
 
   rm -rf "${ROOT}"
   mkdir -p "${ROOT}"
-  echo "[gce-wptp-test-bootstrap] fallback: cloning sibling repos..."
+  log "fallback: cloning sibling repos..."
   clone_tag wptp-ir v0.1.3
   clone_tag wptp-adapter-openapi v0.1.1
   clone_tag wptp-adapter-browser v0.1.1
@@ -66,7 +75,7 @@ install_matrix_siblings() {
   clone_tag wptp-matrix "${MATRIX_REF}"
 
   for pkg in wptp-ir wptp-adapter-openapi wptp-adapter-browser wptp-emit-nextjs wptp-emit-hono wptp-emit-fastify; do
-    echo "[gce-wptp-test-bootstrap] build ${pkg}..."
+    log "build ${pkg}..."
     (cd "${ROOT}/${pkg}" && npm install && npm run build)
   done
 
@@ -97,16 +106,21 @@ NODE
   npm install
 }
 
-if ! install_matrix_ci 2>/dev/null; then
-  echo "[gce-wptp-test-bootstrap] npm ci failed; using sibling file: install"
+if ! install_matrix_ci; then
+  log "npm ci failed; using sibling file: install"
   install_matrix_siblings
 fi
 
 cd "${MATRIX}"
+log "build..."
 npm run build
+log "validate matrix JSON..."
 npm run validate
+log "site:validate..."
 npm run site:validate
 export VITEST_POOL_THREADS=1
+log "vitest (unit + compose; excludes verify-harness.test.ts)..."
 npx vitest run --exclude tests/verify-harness.test.ts
+log "verify:harness (12 cases; may take several minutes)..."
 npm run verify:harness
-echo "[gce-wptp-test-bootstrap] OK: WPTP matrix validate + test + verify:harness passed."
+log "OK: WPTP matrix validate + test + verify:harness passed."
