@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: theorem6/wptp-matrix
-          ref: v0.1.8
+          ref: main
           path: wptp-matrix
 
       - uses: actions/setup-node@v4
@@ -53,8 +53,12 @@ jobs:
         working-directory: wptp-matrix
         run: npm ci && npm run build
 
+      - name: Verify tiny-blog (populate reports/verify for harness gold)
+        run: node scripts/verify-tiny-blog.mjs
+
       - name: verify:harness (php-webir-hono gold + silver Chrysalis compose)
         working-directory: wptp-matrix
         env:
           CHRYSALIS_ROOT: ${{ github.workspace }}
+          WPTP_PHP_WEBIR_MIN_CORRECTNESS_PCT: "60"
         run: npm run verify:harness
