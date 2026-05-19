@@ -1,6 +1,6 @@
 # GitHub Project (v2) for Chrysalis
 
-This repository ships a **bootstrap script** that creates a [GitHub Project](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects) (table/board), **links it to `theorem6/chrysalis`**, and adds **custom fields** that mirror either the **Multi-lane program** in [`ROADMAP.md`](../ROADMAP.md) (**preset `chrysalis`**) or the **Web Platform Translation Program** (**preset `master`**) in [Master program](./MASTER-PROGRAM.md).
+This repository ships a **bootstrap script** that creates a [GitHub Project](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects) (table/board), **links it to `AgenticOp-io/chrysalis`**, and adds **custom fields** that mirror either the **Multi-lane program** in [`ROADMAP.md`](../ROADMAP.md) (**preset `chrysalis`**) or the **Web Platform Translation Program** (**preset `master`**) in [Master program](./MASTER-PROGRAM.md).
 
 ## One-time: GitHub CLI scopes
 
@@ -64,7 +64,7 @@ GitHub also provides built-in fields (Title, Assignees, **Status** for linked is
 ## Manual alternative (no script)
 
 1. GitHub → **Projects** → **New project** → start from **Table** or **Board**.  
-2. **Link repository** → `theorem6/chrysalis`.  
+2. **Link repository** → `AgenticOp-io/chrysalis`.  
 3. **Settings** (project) → **Custom fields** → add **Lane** and **Board status** as above.  
 4. Invite collaborators and set **default repository**.
 

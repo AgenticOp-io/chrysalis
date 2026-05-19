@@ -1,6 +1,6 @@
 # Web Platform Translation Program — Master charter and execution plan
 
-> **This document defines a program *above* a single repository.** The **Chrysalis** codebase (`theorem6/chrysalis`) is the **first engineering deliverable** and remains the **reference leg** for **PHP → WebIR → verified TypeScript** until the program explicitly promotes a broader neutral IR or additional adapters.  
+> **This document defines a program *above* a single repository.** The **Chrysalis** codebase ([`AgenticOp-io/chrysalis`](https://github.com/AgenticOp-io/chrysalis)) is the **first engineering deliverable** and remains the **reference leg** for **PHP → WebIR → verified TypeScript** until the program explicitly promotes a broader neutral IR or additional adapters.  
 > **Governance:** Expanding the *Chrysalis product charter* (see root **`DESIGN.md`**) still requires that document’s Decision Log. This **master program** may spawn **forks and sibling repos** whose *own* `DESIGN.md` states wider scope. Do not silently conflate “Chrysalis the PHP migration framework” with “universal web translator” on `main` without a decision.
 
 ---
@@ -82,7 +82,7 @@
 
 | Repository | Purpose | When |
 | --- | --- | --- |
-| **`theorem6/chrysalis`** (this repo) | **D1** — PHP oracle, WebIR, emit-hono/fastify, verify, chimera, docs | **Now**; remains source of truth for PHP leg until board agrees migration of responsibilities. |
+| **`AgenticOp-io/chrysalis`** (this repo) | **D1** — PHP oracle, WebIR, emit-hono/fastify, verify, chimera, docs | **Now**; remains source of truth for PHP leg until board agrees migration of responsibilities. |
 | **[`theorem6/wptp-ir`](https://github.com/theorem6/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 exit met** — see [`docs/WPTP-D2-EXIT-REPORT.md`](./WPTP-D2-EXIT-REPORT.md) |
 | **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **20** edges, Pages, `verify:harness` (**2026-05-19**) |
 | **[`theorem6/wptp-adapter-openapi`](https://github.com/theorem6/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3** — supported |
@@ -126,6 +126,7 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 - **Entry:** D2 exit.
 - **Exit:** One **additional** source family (e.g. **OpenAPI + mock traces** or **Playwright trace import**) produces **IR v0** with **verify story** for **at least one** existing Chrysalis emit target (reuse Hono verify).
 - **Artifacts:** `wptp-adapter-*` repo; legal review for capture mode.
+- **Status (2026-05-19):** **D3 technical exit met** — OpenAPI + HAR adapters, silver compose paths, CI **`wptp-d3-harness`**. See [`docs/WPTP-D3-EXIT-REPORT.md`](./WPTP-D3-EXIT-REPORT.md).
 
 ### D4 — Second **emit** target family
 

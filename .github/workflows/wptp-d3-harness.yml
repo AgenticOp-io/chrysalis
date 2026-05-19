@@ -1,0 +1,58 @@
+# D3: non-PHP sources (OpenAPI, HAR) → IR v0 → Chrysalis emit-hono (silver harness).
+name: wptp-d3-harness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/wptp-d3-silver-harness.mjs"
+      - "scripts/emit-webir-bundle-hono.mjs"
+      - "scripts/export-webir-bundle.mjs"
+      - ".github/workflows/wptp-d3-harness.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/wptp-d3-silver-harness.mjs"
+      - "scripts/emit-webir-bundle-hono.mjs"
+      - "scripts/export-webir-bundle.mjs"
+      - ".github/workflows/wptp-d3-harness.yml"
+
+jobs:
+  silver-sources-chrysalis-emit:
+    name: OpenAPI + HAR silver → Chrysalis Hono
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Build Chrysalis
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm -r build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-matrix
+          ref: main
+          path: wptp-matrix
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install wptp-matrix
+        working-directory: wptp-matrix
+        run: npm ci && npm run build
+
+      - name: D3 silver harness (openapi-ir-hono-chrysalis, har-ir-hono-chrysalis)
+        env:
+          CHRYSALIS_ROOT: ${{ github.workspace }}
+          WPTP_MATRIX_ROOT: ${{ github.workspace }}/wptp-matrix
+        run: node --import tsx scripts/wptp-d3-silver-harness.mjs

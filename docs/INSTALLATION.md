@@ -37,13 +37,13 @@ If your project uses Redis-backed sessions and you intend to run both stacks at 
 ### Option A — Clone the public repository
 
 ```bash
-git clone https://github.com/theorem6/chrysalis.git
+git clone https://github.com/AgenticOp-io/chrysalis.git
 cd chrysalis
 ```
 
 ### Option B — Download a release archive
 
-Each tagged release publishes a source tarball and zip on the project's [Releases page](https://github.com/theorem6/chrysalis/releases) (`chrysalis-<version>-source.tar.gz` / `.zip`).
+Each tagged release publishes a source tarball and zip on the project's [Releases page](https://github.com/AgenticOp-io/chrysalis/releases) (`chrysalis-<version>-source.tar.gz` / `.zip`).
 
 ```bash
 tar -xzf chrysalis-2.0.1-source.tar.gz

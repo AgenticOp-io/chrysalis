@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Docs:** **`docs/README.md`** (How-to count); **`docs/DEPLOYMENT.md`** (GCE **`gce-test-vm.ps1`**); **`docs/HOW-TO.md`** (scenario 24); **`CONTRIBUTING.md`** (full local verification commands). Regenerated **`agenticop-site/`** artifacts via **`pnpm run sync:agenticop-site`** after **`docs/WHITEPAPER.md`** alignment.
 - **Master program:** **`docs/MASTER-PROGRAM.md`** (Web Platform Translation Program charter + D0–D7 plan; Chrysalis as **D1**); **`docs/GITHUB_PROJECT.md`** + **`scripts/bootstrap-github-project.mjs`** — optional **`CHRYSALIS_GH_PROJECT_PRESET=master`** (program **Lane** values + **Workstream** field); **`master`** preset seeds **`docs/MASTER-PROGRAM.md`** section **12** draft project items unless **`CHRYSALIS_GH_PROJECT_SEED_ITEMS=0`**.
 - **WPTP D2 closure:** **`docs/WPTP-D2-EXIT-REPORT.md`**; CI workflow **`webir-bundle-to-wptp-ir`** (tiny-blog export → **`@wptp/ir`** import, zero losses); **`scripts/verify-webir-bundle-wptp-ir.mjs`**; **`export-webir-bundle.mjs`** **`--help`**; Vitest **`export-webir-bundle-script.test.ts`**.
+- **WPTP D3 closure:** **`docs/WPTP-D3-EXIT-REPORT.md`**; **`scripts/wptp-d3-silver-harness.mjs`** + CI **`wptp-d3-harness`** (OpenAPI/HAR silver → Chrysalis **`emit-hono`**); **`pnpm run wptp:d3-silver-harness`** (needs **`CHRYSALIS_ROOT`** + sibling **`wptp-matrix`**).
+- **Canonical GitHub remote:** **`AgenticOp-io/chrysalis`** (**DESIGN D303**); **`package.json` `repository.url`**, install docs, bootstrap default owner. **`theorem6/chrysalis`** redirects.
+- **Tests:** **`migration-debt-gates`** uses pinned **`fixtures/ci/tiny-blog-verify-for-status`** so parallel Vitest runs do not read polluted **`reports/verify`**.
 
 ### Added
 

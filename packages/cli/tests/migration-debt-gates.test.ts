@@ -9,10 +9,12 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const SCRIPT = resolve(ROOT, "scripts/migration-debt.mjs");
 describe("migration-debt gates", () => {
   test("--min-correctness 1 passes when aggregate correctness is 1", () => {
-    const r = spawnSync(process.execPath, [SCRIPT, "--project", "fixtures/tiny-blog", "--min-correctness", "1"], {
-      cwd: ROOT,
-      encoding: "utf8",
-    });
+    const reportDir = join(ROOT, "fixtures/ci/tiny-blog-verify-for-status");
+    const r = spawnSync(
+      process.execPath,
+      [SCRIPT, "--project", "fixtures/tiny-blog", "--report", reportDir, "--min-correctness", "1"],
+      { cwd: ROOT, encoding: "utf8" },
+    );
     expect(r.status).toBe(0);
   });
 
