@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: theorem6/wptp-matrix
-          ref: main
+          ref: v0.1.8
           path: wptp-matrix
 
       - uses: actions/setup-node@v4
