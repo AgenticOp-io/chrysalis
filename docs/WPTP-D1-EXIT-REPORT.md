@@ -37,17 +37,19 @@ Chrysalis meets the **chartered engineering** bar for D1: Milestones 0–6 (incl
 
 ## WPTP sibling status (2026-05-19)
 
-| Repo | Tag | Notes |
-| --- | --- | --- |
-| wptp-ir | v0.1.3 | IR v0 + WebIR import/export |
-| wptp-adapter-openapi / browser | v0.1.1 | OpenAPI + HAR → IR |
-| wptp-emit-nextjs / hono / fastify | v0.1.1 / v0.1.1 / v0.1.0 | Bronze emit; matrix harness + contract-replay **gold** |
-| wptp-matrix | v0.1.7 | `npm ci` from `github:theorem6/*` tags; CI + Pages green |
+
+| Repo                              | Tag                      | Notes                                                    |
+| --------------------------------- | ------------------------ | -------------------------------------------------------- |
+| wptp-ir                           | v0.1.3                   | IR v0 + WebIR import/export                              |
+| wptp-adapter-openapi / browser    | v0.1.1                   | OpenAPI + HAR → IR                                       |
+| wptp-emit-nextjs / hono / fastify | v0.1.1 / v0.1.1 / v0.1.0 | Bronze emit; matrix harness + contract-replay **gold**   |
+| wptp-matrix                       | v0.1.7                   | `npm ci` from `github:theorem6/*` tags; CI + Pages green |
+
 
 ## Recommended next steps (engineering)
 
-1. **D5 matrix product** — Mark **exit met** on the program board (≥6 edges + composer + harness proof; site live). Update [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md) edge counts where still listed as **8**.
-2. **`php-webir-hono` gold smoke** — Wire optional Chrysalis path in CI or document `CHRYSALIS_ROOT` + tiny-blog **100%** correctness bar (`wptp-matrix` `verify-gold-chrysalis.ts`).
+1. **D5 matrix product** — Mark **exit met** on the program board (≥6 edges + composer + harness proof; site live). Update `[MASTER-PROGRAM.md](./MASTER-PROGRAM.md)` edge counts where still listed as **8**.
+2. **php-webir-hono gold smoke** — Wire optional Chrysalis path in CI or document `CHRYSALIS_ROOT` + tiny-blog **100%** correctness bar (`wptp-matrix` `verify-gold-chrysalis.ts`).
 3. **Silver depth** — OpenAPI/HAR → IR → WebIR export → Chrysalis `emit-hono` for routes that need lowering beyond bronze stubs (DESIGN D299–D300 follow-on).
 4. **Ops** — Add a **HOW-TO** scenario for `gce-wptp-test-vm.ps1` (parity with Chrysalis GCE smoke). Re-run GCE after bootstrap changes uses cached `node_modules` unless `WPTP_MATRIX_FORCE_CI=1`.
 5. **CI hygiene** — `wptp-matrix` / Chrysalis workflows: migrate Actions off Node 20 deprecation warning when convenient.
