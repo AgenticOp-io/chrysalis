@@ -6,7 +6,24 @@ export NPM_CONFIG_LOGLEVEL="${NPM_CONFIG_LOGLEVEL:-info}"
 export NPM_CONFIG_PROGRESS="${NPM_CONFIG_PROGRESS:-true}"
 export NPM_CONFIG_FETCH_RETRIES="${NPM_CONFIG_FETCH_RETRIES:-5}"
 export NPM_CONFIG_MAXSOCKETS="${NPM_CONFIG_MAXSOCKETS:-2}"
-export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=768}"
+# One install job at a time: avoids 4+ parallel `tsc` on 2 GiB RAM (looks hung).
+export NPM_CONFIG_JOBS="${NPM_CONFIG_JOBS:-1}"
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=1024}"
+
+run_npm_ci() {
+  log "npm ci starting (git deps compile via prepare; often 5-15 min on e2-small)..."
+  (
+    npm ci --no-audit --no-fund
+  ) &
+  local pid=$!
+  local n=0
+  while kill -0 "$pid" 2>/dev/null; do
+    n=$((n + 1))
+    log "npm ci still running (${n}m elapsed)..."
+    sleep 60
+  done
+  wait "$pid"
+}
 
 log() {
   echo "[gce-wptp-test-bootstrap] $(date -u +%H:%M:%S) $*"
@@ -38,19 +55,25 @@ if [[ ! -f /swapfile ]]; then
 fi
 
 install_matrix_ci() {
-  rm -rf "${MATRIX}"
+  local force="${WPTP_MATRIX_FORCE_CI:-0}"
   mkdir -p "${ROOT}"
-  if git clone --depth 1 --branch "${MATRIX_REF}" "${MATRIX_REPO}" "${MATRIX}" 2>/dev/null; then
-    :
-  else
-    git clone --depth 1 "${MATRIX_REPO}" "${MATRIX}"
-    git -C "${MATRIX}" checkout "${MATRIX_REF}"
+  if [[ "$force" == "1" ]] || [[ ! -d "${MATRIX}/.git" ]]; then
+    rm -rf "${MATRIX}"
+    if git clone --depth 1 --branch "${MATRIX_REF}" "${MATRIX_REPO}" "${MATRIX}" 2>/dev/null; then
+      :
+    else
+      git clone --depth 1 "${MATRIX_REPO}" "${MATRIX}"
+      git -C "${MATRIX}" checkout "${MATRIX_REF}"
+    fi
   fi
   cd "${MATRIX}"
   log "matrix ref: $(git rev-parse --short HEAD) (tag ${MATRIX_REF})"
-  log "npm ci (git sibling deps; may take 20-40 min on e2-micro)..."
-  npm ci
-  log "npm ci done"
+  if [[ -d node_modules ]] && [[ "$force" != "1" ]]; then
+    log "reusing node_modules (export WPTP_MATRIX_FORCE_CI=1 to reinstall)"
+  else
+    run_npm_ci
+    log "npm ci done"
+  fi
 }
 
 install_matrix_siblings() {
