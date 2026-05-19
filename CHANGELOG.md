@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Canonical GitHub remote:** **`AgenticOp-io/chrysalis`** (**DESIGN D303**); **`package.json` `repository.url`**, install docs, bootstrap default owner. **`theorem6/chrysalis`** redirects.
 - **Tests:** **`migration-debt-gates`** uses pinned **`fixtures/ci/tiny-blog-verify-for-status`** so parallel Vitest runs do not read polluted **`reports/verify`**.
 - **WPTP D4 closure:** **`docs/WPTP-D4-EXIT-REPORT.md`**; **`scripts/wptp-d4-nextjs-harness.mjs`** + CI **`wptp-d4-harness`** (`@wptp/emit-nextjs` package tests + Next.js bronze compose); **`pnpm run wptp:d4-nextjs-harness`**.
+- **WPTP D6 closure:** **`docs/WPTP-D6-ENTERPRISE-POLICY.md`**, **`docs/WPTP-D6-EXIT-REPORT.md`** (enterprise policy pack; aligns with **`docs/COMMERCIAL.md`**).
+- **WPTP D7 playbook:** **`docs/WPTP-D7-ONGOING.md`** (quarterly matrix audit, CI hygiene).
+- **WPTP silver Next.js (D306):** **`scripts/emit-webir-bundle-nextjs.mjs`**, **`scripts/wptp-silver-nextjs-harness.mjs`**, CI **`wptp-silver-nextjs-harness`**; **`pnpm run wptp:silver-nextjs-harness`** (Chrysalis WebIR bundle → **`@wptp/emit-nextjs`**; matrix paths **`openapi-ir-nextjs-chrysalis`**, **`har-ir-nextjs-chrysalis`**).
 
 ### Added
 

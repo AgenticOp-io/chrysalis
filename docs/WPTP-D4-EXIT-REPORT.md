@@ -20,6 +20,7 @@
 | --- | --- |
 | [`wptp-d4-harness.yml`](../.github/workflows/wptp-d4-harness.yml) | Bronze compose + contract verify; **`@wptp/emit-nextjs`** `npm test` |
 | [`wptp-harness-smoke.yml`](../.github/workflows/wptp-harness-smoke.yml) | Full matrix harness (includes Next.js bronze cases) |
+| [`wptp-silver-nextjs-harness.yml`](../.github/workflows/wptp-silver-nextjs-harness.yml) | Silver OpenAPI/HAR → WebIR → `@wptp/emit-nextjs` |
 
 ## Grades (honest)
 
@@ -27,7 +28,8 @@
 | --- | --- | --- |
 | `openapi-ir-nextjs`, `har-ir-nextjs` | **Bronze** | Structural App Router stubs; contract file checks |
 | `php-webir-hono` | **Gold** | Chrysalis PHP oracle path (unchanged) |
-| Next.js + Chrysalis WebIR | — | **Not claimed** — no `emit-nextjs` in Chrysalis `main` |
+| `openapi-ir-nextjs-chrysalis`, `har-ir-nextjs-chrysalis` | **Silver** | WebIR bundle bridge → `@wptp/emit-nextjs` (no `@chrysalis/emit-nextjs` on `main`) |
+| Next.js + Chrysalis PHP oracle | — | **Not claimed** — gold remains `php-webir-hono` |
 
 ## Local check
 
@@ -38,4 +40,4 @@ WPTP_MATRIX_ROOT=../wptp-matrix pnpm run wptp:d4-nextjs-harness
 
 ## Next program phase
 
-**D5** is already **exit met** (compatibility matrix). Ongoing: **D7** matrix hygiene and optional **silver** Next.js via WebIR export (future Decision Log if Chrysalis-owned).
+**D5**, **D6** (policy pack), and **silver Next.js** (**DESIGN D306**) are **met**. Ongoing: **D7** matrix hygiene — [`WPTP-D7-ONGOING.md`](./WPTP-D7-ONGOING.md).

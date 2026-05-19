@@ -84,10 +84,10 @@
 | --- | --- | --- |
 | **`AgenticOp-io/chrysalis`** (this repo) | **D1** — PHP oracle, WebIR, emit-hono/fastify, verify, chimera, docs | **Now**; remains source of truth for PHP leg until board agrees migration of responsibilities. |
 | **[`theorem6/wptp-ir`](https://github.com/theorem6/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 exit met** — see [`docs/WPTP-D2-EXIT-REPORT.md`](./WPTP-D2-EXIT-REPORT.md) |
-| **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **20** edges, Pages, `verify:harness` (**2026-05-19**) |
+| **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **22** edges, Pages, `verify:harness` (**2026-05-19**) |
 | **[`theorem6/wptp-adapter-openapi`](https://github.com/theorem6/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3** — supported |
 | **[`theorem6/wptp-adapter-browser`](https://github.com/theorem6/wptp-adapter-browser)** | HAR → IR v0 routes (**bronze**) | **D3** — supported |
-| **[`theorem6/wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs)** | IR v0 → Next.js App Router stubs | **D4 exit met** — bronze + CI **`wptp-d4-harness`** |
+| **[`theorem6/wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs)** | IR v0 → Next.js App Router stubs | **D4 exit met** — bronze **`wptp-d4-harness`**; silver WebIR bridge **`wptp-silver-nextjs-harness`** (**D306**) |
 | **`theorem6/wptp-adapter-*`** (other families) | Additional sources | **planned** |
 | **`theorem6/wptp-emit-*`** (new, per target) | Emitters beyond current `emit-*` | **D4+** per target business case. |
 | **`theorem6/wptp-verify-*`** (new, optional) | Shared replay libraries | When duplication across emitters hurts. |
@@ -133,7 +133,7 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 - **Entry:** D3 exit.
 - **Exit:** New emitter + **verify harness** + **one** golden app ported **IR → new target** with **graded** matrix entry (§8).
 - **Artifacts:** `wptp-emit-*` repo; docs for operator.
-- **Status (2026-05-19):** **D4 technical exit met** — [`wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs), matrix bronze paths, CI **`wptp-d4-harness`**. See [`docs/WPTP-D4-EXIT-REPORT.md`](./WPTP-D4-EXIT-REPORT.md).
+- **Status (2026-05-19):** **D4 technical exit met** — [`wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs), matrix bronze + **silver** Chrysalis WebIR paths, CI **`wptp-d4-harness`** + **`wptp-silver-nextjs-harness`**. See [`docs/WPTP-D4-EXIT-REPORT.md`](./WPTP-D4-EXIT-REPORT.md).
 
 ### D5 — Compatibility matrix product
 
@@ -146,11 +146,13 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 
 - **Entry:** Sponsor demand.
 - **Exit:** **Private** adapters policy (contracts, SSO, data residency); optional commercial packaging aligned with **`docs/COMMERCIAL.md`** patterns.
+- **Status (2026-05-19):** **D6 technical exit met** (in-tree policy pack). See [`docs/WPTP-D6-EXIT-REPORT.md`](./WPTP-D6-EXIT-REPORT.md), [`docs/WPTP-D6-ENTERPRISE-POLICY.md`](./WPTP-D6-ENTERPRISE-POLICY.md). Sponsor-funded SKUs remain in [`docs/WPTP-FUNDING-TRACKER.md`](./WPTP-FUNDING-TRACKER.md).
 
 ### D7 — Continuous expansion (ongoing)
 
 - **Entry:** D5 exit.
 - **Exit:** N/A (ongoing); **quarterly** board review of matrix claims vs harness coverage.
+- **Status:** Playbook in [`docs/WPTP-D7-ONGOING.md`](./WPTP-D7-ONGOING.md).
 
 ---
 

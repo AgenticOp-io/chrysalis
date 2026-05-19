@@ -4,6 +4,8 @@
 
 **Publication status:** This page is a **maintainer playbook** and describes **future** revenue levers. The **commercial program is not publicly launched**: there is no published SKU catalog, public pricing page, or **standalone npm** release of **`@chrysalis/license`** tied to a paid product yet. The monorepo may still ship **in-tree** license verification so vendor builds can opt in later; default OSS use stays **unchanged** (license gate off).
 
+**WPTP enterprise lane (D6):** Program policy for private adapters, SSO, and data residency is in **[`WPTP-D6-ENTERPRISE-POLICY.md`](./WPTP-D6-ENTERPRISE-POLICY.md)** ([exit report](./WPTP-D6-EXIT-REPORT.md)). Sponsor-funded connector SKUs remain in **[`WPTP-FUNDING-TRACKER.md`](./WPTP-FUNDING-TRACKER.md)**.
+
 Chrysalis is **open source (MIT)** in this repository. Revenue scales with **services and contracts**, then **distribution / SLA**, then **optional technical enforcement** for vendor builds. This page lists offerings **largest gain first**; implement billing and contracts **outside** the repo (Stripe, order forms, MSAs).
 
 ## 1. Professional services and migration programs (highest LTV)

@@ -1,0 +1,62 @@
+# Silver: OpenAPI/HAR → IR → WebIR bundle → @wptp/emit-nextjs (Chrysalis WebIR bridge; DESIGN D306).
+name: wptp-silver-nextjs-harness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/emit-webir-bundle-nextjs.mjs"
+      - "scripts/wptp-silver-nextjs-harness.mjs"
+      - ".github/workflows/wptp-silver-nextjs-harness.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/emit-webir-bundle-nextjs.mjs"
+      - "scripts/wptp-silver-nextjs-harness.mjs"
+      - ".github/workflows/wptp-silver-nextjs-harness.yml"
+
+jobs:
+  silver-nextjs:
+    name: WebIR bundle → Next.js (silver)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Build Chrysalis
+        run: pnpm install --frozen-lockfile && pnpm -r build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-matrix
+          ref: main
+          path: wptp-matrix
+
+      - uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-emit-nextjs
+          ref: main
+          path: wptp-emit-nextjs
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install wptp-matrix + wptp-emit-nextjs
+        run: |
+          cd wptp-matrix && npm ci && npm run build
+          cd ../wptp-emit-nextjs && npm ci && npm run build
+
+      - name: Silver Next.js harness
+        env:
+          CHRYSALIS_ROOT: ${{ github.workspace }}
+          WPTP_MATRIX_ROOT: ${{ github.workspace }}/wptp-matrix
+          WPTP_EMIT_NEXTJS_ROOT: ${{ github.workspace }}/wptp-emit-nextjs
+        run: node --import tsx scripts/wptp-silver-nextjs-harness.mjs

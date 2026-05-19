@@ -59,6 +59,8 @@ Documented in [composer-paths.v0.json](https://github.com/theorem6/wptp-matrix/b
 | `har-ir-hono` | HAR → IR → `@wptp/emit-hono` | Bronze |
 | `openapi-ir-hono-chrysalis` | OpenAPI → IR → WebIR → Chrysalis `emit-hono` | Silver |
 | `har-ir-hono-chrysalis` | HAR → IR → WebIR → Chrysalis `emit-hono` | Silver |
+| `openapi-ir-nextjs-chrysalis` | OpenAPI → IR → WebIR → `@wptp/emit-nextjs` | Silver |
+| `har-ir-nextjs-chrysalis` | HAR → IR → WebIR → `@wptp/emit-nextjs` | Silver |
 | `php-webir-hono` | Chrysalis ingest + `@chrysalis/emit-hono` + verify | Gold |
 | `webir-neutral-ir` | `export-webir-bundle` → `importWebIrBundleJson` | Gold (import); Silver (export bridge) |
 
@@ -82,8 +84,9 @@ npm run verify:harness
 
 - **Funding:** future, non-blocking (MASTER-PROGRAM §10.1).
 - **Tracking:** [GitHub Project #1](https://github.com/users/theorem6/projects/1), lanes D2–D7.
-- **Matrix UI:** [wptp-matrix on GitHub Pages](https://theorem6.github.io/wptp-matrix/) — **20 edges**, **10** composer paths, grade filters.
-- **Chrysalis smoke (local / CI):** `CHRYSALIS_ROOT=<chrysalis checkout> npm run verify:harness` in `wptp-matrix` — silver compose + `php-webir-hono` gold (`wptp-harness-smoke.yml` on Chrysalis `main`).
+- **Matrix UI:** [wptp-matrix on GitHub Pages](https://theorem6.github.io/wptp-matrix/) — **22 edges**, **12** composer paths, grade filters.
+- **Chrysalis smoke (local / CI):** `CHRYSALIS_ROOT=<chrysalis checkout> npm run verify:harness` in `wptp-matrix` — silver compose + `php-webir-hono` gold (`wptp-harness-smoke.yml` on Chrysalis `main`); silver Next.js: **`wptp-silver-nextjs-harness`** workflow + **`pnpm run wptp:silver-nextjs-harness`**.
+- **D6 policy:** [`WPTP-D6-ENTERPRISE-POLICY.md`](./WPTP-D6-ENTERPRISE-POLICY.md); ongoing: [`WPTP-D7-ONGOING.md`](./WPTP-D7-ONGOING.md).
 - **GCE matrix smoke:** [HOW-TO §25](./HOW-TO.md#25-smoke-test-wptp-matrix-on-gce) — `scripts/gce-wptp-test-vm.ps1`.
 - **D1 / D5 exit:** [`WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md).
 - **Funding (non-blocking):** [`WPTP-FUNDING-TRACKER.md`](./WPTP-FUNDING-TRACKER.md).
