@@ -83,7 +83,7 @@
 | Repository | Purpose | When |
 | --- | --- | --- |
 | **`theorem6/chrysalis`** (this repo) | **D1** — PHP oracle, WebIR, emit-hono/fastify, verify, chimera, docs | **Now**; remains source of truth for PHP leg until board agrees migration of responsibilities. |
-| **[`theorem6/wptp-ir`](https://github.com/theorem6/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 in progress** (tiny-blog flagship **zero losses**) |
+| **[`theorem6/wptp-ir`](https://github.com/theorem6/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 exit met** — see [`docs/WPTP-D2-EXIT-REPORT.md`](./WPTP-D2-EXIT-REPORT.md) |
 | **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **20** edges, Pages, `verify:harness` (**2026-05-19**) |
 | **[`theorem6/wptp-adapter-openapi`](https://github.com/theorem6/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3** — supported |
 | **[`theorem6/wptp-adapter-browser`](https://github.com/theorem6/wptp-adapter-browser)** | HAR → IR v0 routes (**bronze**) | **D3** — supported |
@@ -119,7 +119,7 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 - **Entry:** D1 technical exit (not contingent on sponsor funding).
 - **Exit:** **`wptp-ir`** public **schemaVersion 0** with: **loss report** from a **WebIR subset** (flagship: tiny-blog **zero losses**); **10+ golden fixtures**; **RFC-style** versioning policy.
 - **Artifacts:** [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir); conformance tests; **import** from **`chrysalis.webir.bundle@1.0.0`** (Chrysalis **`scripts/export-webir-bundle.mjs`**).
-- **Status (2026-05-16):** **In progress** — skeleton, import, tiny-blog flagship, tests green; semver tag and export CLI polish remain.
+- **Status (2026-05-19):** **D2 technical exit met** — `@wptp/ir@v0.1.3`, **12** IR goldens, tiny-blog **zero losses**, Chrysalis CI **`webir-bundle-to-wptp-ir`**. See [`docs/WPTP-D2-EXIT-REPORT.md`](./WPTP-D2-EXIT-REPORT.md).
 
 ### D3 — Second **source** profile (non-PHP)
 

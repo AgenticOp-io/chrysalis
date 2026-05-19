@@ -1,0 +1,62 @@
+# Gold path: Chrysalis tiny-blog WebIR golden → bundle export → @wptp/ir import (zero losses).
+name: webir-bundle-to-wptp-ir
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "packages/ingest/tests/golden/tiny-blog.webir.json"
+      - "scripts/export-webir-bundle.mjs"
+      - "scripts/verify-webir-bundle-wptp-ir.mjs"
+      - ".github/workflows/webir-bundle-to-wptp-ir.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/ingest/tests/golden/tiny-blog.webir.json"
+      - "scripts/export-webir-bundle.mjs"
+      - "scripts/verify-webir-bundle-wptp-ir.mjs"
+      - ".github/workflows/webir-bundle-to-wptp-ir.yml"
+
+jobs:
+  tiny-blog-import:
+    name: export bundle → wptp-ir import (zero losses)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Chrysalis (tsx for verify script)
+        run: pnpm install --frozen-lockfile
+
+      - name: Export tiny-blog WebIR bundle
+        run: |
+          node scripts/export-webir-bundle.mjs \
+            --in packages/ingest/tests/golden/tiny-blog.webir.json \
+            --out "${{ runner.temp }}/tiny-blog.webir.bundle.json"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-ir
+          ref: main
+          path: wptp-ir
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install wptp-ir
+        working-directory: wptp-ir
+        run: npm ci
+
+      - name: Assert import (325 nodes, zero losses)
+        env:
+          WPTP_IR_ROOT: ${{ github.workspace }}/wptp-ir
+          WEBIR_BUNDLE_PATH: ${{ runner.temp }}/tiny-blog.webir.bundle.json
+        run: node --import tsx scripts/verify-webir-bundle-wptp-ir.mjs

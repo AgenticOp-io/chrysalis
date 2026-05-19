@@ -5,21 +5,31 @@
  * Usage:
  *   node scripts/export-webir-bundle.mjs --in packages/ingest/tests/golden/tiny-blog.webir.json --out /tmp/tiny-blog.webir.bundle.json
  */
-import { readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 
-function usage() {
-  process.stderr.write(
-    "Usage: node scripts/export-webir-bundle.mjs --in <module.webir.json> --out <bundle.json>\n",
-  );
-  process.exit(1);
+function usage(code = 1) {
+  const text = `Wrap a Chrysalis WebIR module snapshot in chrysalis.webir.bundle@1.0.0 (WPTP D2).
+
+Usage:
+  node scripts/export-webir-bundle.mjs --in <module.webir.json> --out <bundle.json>
+
+Example:
+  node scripts/export-webir-bundle.mjs \\
+    --in packages/ingest/tests/golden/tiny-blog.webir.json \\
+    --out /tmp/tiny-blog.webir.bundle.json
+`;
+  if (code === 0) process.stdout.write(text);
+  else process.stderr.write(text);
+  process.exit(code);
 }
 
 function parseArgs(argv) {
   let input = null;
   let output = null;
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === "--in" && argv[i + 1]) input = argv[++i];
+    if (argv[i] === "-h" || argv[i] === "--help") usage(0);
+    else if (argv[i] === "--in" && argv[i + 1]) input = argv[++i];
     else if (argv[i] === "--out" && argv[i + 1]) output = argv[++i];
   }
   if (!input || !output) usage();
@@ -39,5 +49,6 @@ const bundle = {
   module,
 };
 
+mkdirSync(dirname(output), { recursive: true });
 writeFileSync(output, `${JSON.stringify(bundle, null, 2)}\n`);
 console.log(`Wrote ${output}`);
