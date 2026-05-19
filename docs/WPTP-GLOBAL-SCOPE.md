@@ -83,4 +83,4 @@ npm run verify:harness
 - **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) — **18 edges**, composer paths, grade filters; **GitHub Pages** via `pages.yml` on push to `main`.
 - **Gold smoke (local):** `CHRYSALIS_ROOT=<chrysalis checkout> npm run verify:harness` in `wptp-matrix` runs `php-webir-hono` against tiny-blog when the CLI is built.
 - **D1 exit:** [`WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md).
-- **Next engineering:** Gold replay for composed OpenAPI/HAR paths; hosted matrix site; deepen `@wptp/emit-hono` toward Chrysalis lowering where contracts demand it.
+- **Next engineering:** Chrysalis **`php-webir-hono`** gold in CI or documented local smoke; silver OpenAPI/HAR → WebIR → Chrysalis emit; HOW-TO for GCE matrix smoke (`scripts/gce-wptp-test-vm.ps1`).
