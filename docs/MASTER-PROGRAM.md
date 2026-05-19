@@ -87,7 +87,7 @@
 | **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **20** edges, Pages, `verify:harness` (**2026-05-19**) |
 | **[`theorem6/wptp-adapter-openapi`](https://github.com/theorem6/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3** — supported |
 | **[`theorem6/wptp-adapter-browser`](https://github.com/theorem6/wptp-adapter-browser)** | HAR → IR v0 routes (**bronze**) | **D3** — supported |
-| **[`theorem6/wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs)** | IR v0 → Next.js App Router stubs | **D4** — bronze starter |
+| **[`theorem6/wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs)** | IR v0 → Next.js App Router stubs | **D4 exit met** — bronze + CI **`wptp-d4-harness`** |
 | **`theorem6/wptp-adapter-*`** (other families) | Additional sources | **planned** |
 | **`theorem6/wptp-emit-*`** (new, per target) | Emitters beyond current `emit-*` | **D4+** per target business case. |
 | **`theorem6/wptp-verify-*`** (new, optional) | Shared replay libraries | When duplication across emitters hurts. |
@@ -133,6 +133,7 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 - **Entry:** D3 exit.
 - **Exit:** New emitter + **verify harness** + **one** golden app ported **IR → new target** with **graded** matrix entry (§8).
 - **Artifacts:** `wptp-emit-*` repo; docs for operator.
+- **Status (2026-05-19):** **D4 technical exit met** — [`wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs), matrix bronze paths, CI **`wptp-d4-harness`**. See [`docs/WPTP-D4-EXIT-REPORT.md`](./WPTP-D4-EXIT-REPORT.md).
 
 ### D5 — Compatibility matrix product
 

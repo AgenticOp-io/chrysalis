@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **WPTP D3 closure:** **`docs/WPTP-D3-EXIT-REPORT.md`**; **`scripts/wptp-d3-silver-harness.mjs`** + CI **`wptp-d3-harness`** (OpenAPI/HAR silver → Chrysalis **`emit-hono`**); **`pnpm run wptp:d3-silver-harness`** (needs **`CHRYSALIS_ROOT`** + sibling **`wptp-matrix`**).
 - **Canonical GitHub remote:** **`AgenticOp-io/chrysalis`** (**DESIGN D303**); **`package.json` `repository.url`**, install docs, bootstrap default owner. **`theorem6/chrysalis`** redirects.
 - **Tests:** **`migration-debt-gates`** uses pinned **`fixtures/ci/tiny-blog-verify-for-status`** so parallel Vitest runs do not read polluted **`reports/verify`**.
+- **WPTP D4 closure:** **`docs/WPTP-D4-EXIT-REPORT.md`**; **`scripts/wptp-d4-nextjs-harness.mjs`** + CI **`wptp-d4-harness`** (`@wptp/emit-nextjs` package tests + Next.js bronze compose); **`pnpm run wptp:d4-nextjs-harness`**.
 
 ### Added
 

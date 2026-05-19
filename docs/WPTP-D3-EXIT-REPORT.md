@@ -32,4 +32,4 @@
 
 ## Next program phase
 
-**D4** — second **emit** target family with graded matrix entry (Next.js path exists at bronze via `wptp-emit-nextjs`).
+**D4** — recorded in [`WPTP-D4-EXIT-REPORT.md`](./WPTP-D4-EXIT-REPORT.md) (**exit met**).

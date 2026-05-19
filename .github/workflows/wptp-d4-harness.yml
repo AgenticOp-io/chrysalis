@@ -1,0 +1,63 @@
+# D4: second emit target — @wptp/emit-nextjs (OpenAPI/HAR → IR → Next.js App Router, bronze).
+name: wptp-d4-harness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/wptp-d4-nextjs-harness.mjs"
+      - ".github/workflows/wptp-d4-harness.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/wptp-d4-nextjs-harness.mjs"
+      - ".github/workflows/wptp-d4-harness.yml"
+
+jobs:
+  emit-nextjs-bronze:
+    name: Next.js emit + contract verify (D4)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Chrysalis (tsx for harness script)
+        run: pnpm install --frozen-lockfile
+
+      - uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-matrix
+          ref: main
+          path: wptp-matrix
+
+      - name: Install wptp-matrix
+        working-directory: wptp-matrix
+        run: npm ci && npm run build
+
+      - name: D4 bronze harness (openapi-ir-nextjs, har-ir-nextjs)
+        env:
+          WPTP_MATRIX_ROOT: ${{ github.workspace }}/wptp-matrix
+        run: node --import tsx scripts/wptp-d4-nextjs-harness.mjs
+
+  emit-nextjs-package:
+    name: "@wptp/emit-nextjs unit tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-emit-nextjs
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test wptp-emit-nextjs
+        run: npm ci && npm test

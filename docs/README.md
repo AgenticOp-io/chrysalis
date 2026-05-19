@@ -42,6 +42,7 @@ Per-package details live under `packages/<name>/README.md`. Each package README 
 | [WPTP D1 exit report](./WPTP-D1-EXIT-REPORT.md) | Program board | D1 **technical exit** recorded; **funding** is a future non-blocking lane (MASTER-PROGRAM §10.1). |
 | [WPTP D2 exit report](./WPTP-D2-EXIT-REPORT.md) | Program board | D2 **IR hub v0** exit (`@wptp/ir`, CI **`webir-bundle-to-wptp-ir`**). |
 | [WPTP D3 exit report](./WPTP-D3-EXIT-REPORT.md) | Program board | D3 **OpenAPI + HAR** sources → Chrysalis Hono (CI **`wptp-d3-harness`**). |
+| [WPTP D4 exit report](./WPTP-D4-EXIT-REPORT.md) | Program board | D4 **Next.js** emit (`@wptp/emit-nextjs`, CI **`wptp-d4-harness`**). |
 | [WPTP global scope](./WPTP-GLOBAL-SCOPE.md) | Program / architects | Cross-platform repos, matrix, adapters — above Chrysalis D1. |
 | [wptp-ir](https://github.com/theorem6/wptp-ir) | IR hub (D2) | Neutral IR **v0**, WebIR bundle import, loss reports, conformance fixtures. |
 | [wptp-matrix](https://github.com/theorem6/wptp-matrix) | Matrix (D5) | Source × target × grade JSON with CI validation. |
