@@ -10,7 +10,7 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 | Layer | Repository | Role |
 | --- | --- | --- |
 | **IR hub** | [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) (`@wptp/ir@v0.1.3`) | Neutral **IR v0**; import Chrysalis WebIR bundles; **export** back to `chrysalis.webir.bundle@1.0.0` (silver) |
-| **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.7`) | Public **source × target × grade** claims; **compose** + **verify harness** CLIs |
+| **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.8`) | Public **source × target × grade** claims (**20** edges); **compose** + **verify harness** CLIs |
 | **Source adapters** | [wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi), [wptp-adapter-browser](https://github.com/theorem6/wptp-adapter-browser) | OpenAPI 3 and HAR traces → IR v0 |
 | **Emit targets** | [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs), [wptp-emit-hono](https://github.com/theorem6/wptp-emit-hono), [wptp-emit-fastify](https://github.com/theorem6/wptp-emit-fastify) | Next.js / Hono / Fastify stubs from IR v0 (**bronze**); **contract-replay gold** in matrix harness |
 | **Verify harnesses** | `wptp-matrix` (`wptp-verify-harness`, `npm run verify:harness`) | **Bronze** composed-path contracts; **Silver** WebIR import; **Gold** remains Chrysalis CI |
@@ -34,7 +34,7 @@ See MASTER-PROGRAM §7. **Gold** requires automated replay or equivalent CI proo
 | Grade | Where it runs | Example |
 | --- | --- | --- |
 | **Bronze** | `wptp-matrix` | `openapi-ir-nextjs`, `har-ir-nextjs`, `openapi-ir-hono`, `har-ir-hono` compose + contract/runtime verify |
-| **Silver** | `wptp-matrix` / `wptp-ir` | WebIR bundle import loss report; IR → WebIR export round-trip |
+| **Silver** | `wptp-matrix` / `wptp-ir` | WebIR import; IR → WebIR export; **`openapi-ir-hono-chrysalis`** / **`har-ir-hono-chrysalis`** with `CHRYSALIS_ROOT` |
 | **Gold** | Chrysalis `.github/workflows/` | `php-legacy-to-hono-ts`, `webir-bundle-to-wptp-ir` (tiny-blog) |
 
 ## Chrysalis ↔ global boundary
@@ -57,6 +57,8 @@ Documented in [composer-paths.v0.json](https://github.com/theorem6/wptp-matrix/b
 | `har-ir-nextjs` | HAR → IR → Next.js | Bronze |
 | `openapi-ir-hono` | OpenAPI → IR → `@wptp/emit-hono` (runtime JSON stubs) | Bronze |
 | `har-ir-hono` | HAR → IR → `@wptp/emit-hono` | Bronze |
+| `openapi-ir-hono-chrysalis` | OpenAPI → IR → WebIR → Chrysalis `emit-hono` | Silver |
+| `har-ir-hono-chrysalis` | HAR → IR → WebIR → Chrysalis `emit-hono` | Silver |
 | `php-webir-hono` | Chrysalis ingest + `@chrysalis/emit-hono` + verify | Gold |
 | `webir-neutral-ir` | `export-webir-bundle` → `importWebIrBundleJson` | Gold (import); Silver (export bridge) |
 
@@ -80,7 +82,8 @@ npm run verify:harness
 
 - **Funding:** future, non-blocking (MASTER-PROGRAM §10.1).
 - **Tracking:** [GitHub Project #1](https://github.com/users/theorem6/projects/1), lanes D2–D7.
-- **Matrix UI:** [wptp-matrix `site/index.html`](https://github.com/theorem6/wptp-matrix/blob/main/site/index.html) — **18 edges**, composer paths, grade filters; **GitHub Pages** via `pages.yml` on push to `main`.
-- **Gold smoke (local):** `CHRYSALIS_ROOT=<chrysalis checkout> npm run verify:harness` in `wptp-matrix` runs `php-webir-hono` against tiny-blog when the CLI is built.
-- **D1 exit:** [`WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md).
-- **Next engineering:** Chrysalis **`php-webir-hono`** gold in CI or documented local smoke; silver OpenAPI/HAR → WebIR → Chrysalis emit; HOW-TO for GCE matrix smoke (`scripts/gce-wptp-test-vm.ps1`).
+- **Matrix UI:** [wptp-matrix on GitHub Pages](https://theorem6.github.io/wptp-matrix/) — **20 edges**, **10** composer paths, grade filters.
+- **Chrysalis smoke (local / CI):** `CHRYSALIS_ROOT=<chrysalis checkout> npm run verify:harness` in `wptp-matrix` — silver compose + `php-webir-hono` gold (`wptp-harness-smoke.yml` on Chrysalis `main`).
+- **GCE matrix smoke:** [HOW-TO §25](./HOW-TO.md#25-smoke-test-wptp-matrix-on-gce) — `scripts/gce-wptp-test-vm.ps1`.
+- **D1 / D5 exit:** [`WPTP-D1-EXIT-REPORT.md`](./WPTP-D1-EXIT-REPORT.md).
+- **Funding (non-blocking):** [`WPTP-FUNDING-TRACKER.md`](./WPTP-FUNDING-TRACKER.md).

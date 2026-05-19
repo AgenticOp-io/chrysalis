@@ -1,0 +1,60 @@
+# Optional WPTP matrix harness with Chrysalis gold + silver paths (CHRYSALIS_ROOT).
+name: wptp-harness-smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "packages/**"
+      - "scripts/emit-webir-bundle-hono.mjs"
+      - "scripts/export-webir-bundle.mjs"
+      - "fixtures/tiny-blog/**"
+      - ".github/workflows/wptp-harness-smoke.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/**"
+      - "scripts/emit-webir-bundle-hono.mjs"
+      - "scripts/export-webir-bundle.mjs"
+      - "fixtures/tiny-blog/**"
+      - ".github/workflows/wptp-harness-smoke.yml"
+
+jobs:
+  matrix-verify:
+    name: wptp-matrix verify:harness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Build Chrysalis
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm -r build
+
+      - uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-matrix
+          ref: main
+          path: wptp-matrix
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install matrix
+        working-directory: wptp-matrix
+        run: npm ci && npm run build
+
+      - name: verify:harness (php-webir-hono gold + silver Chrysalis compose)
+        working-directory: wptp-matrix
+        env:
+          CHRYSALIS_ROOT: ${{ github.workspace }}
+        run: npm run verify:harness

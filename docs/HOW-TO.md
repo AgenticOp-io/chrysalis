@@ -40,6 +40,7 @@ In every example below, replace `chrysalis` with `node packages/cli/dist/bin.js`
 22. [Operate behind a strict commercial license](#22-operate-behind-a-strict-commercial-license)
 23. [Run Chrysalis from Python or Go (same Node CLI)](#23-run-chrysalis-from-python-or-go-same-node-cli)
 24. [Provision a cheap GCE VM and smoke-test the repo](#24-provision-a-cheap-gce-vm-and-smoke-test-the-repo)
+25. [Smoke-test WPTP matrix on GCE](#25-smoke-test-wptp-matrix-on-gce)
 
 ---
 
@@ -1280,6 +1281,47 @@ $ chrysalis corpus-merge /var/lib/chrysalis/traces \
 
 ---
 
+## 25. Smoke-test WPTP matrix on GCE
+
+**Goal.** Clone **`theorem6/wptp-matrix`** at a release tag on a small GCE VM, run **`npm ci`**, **`npm test`**, and **`npm run verify:harness`** (12+ harness cases; bronze/silver/gold contract paths).
+
+**You need.** **`gcloud`** CLI, **`gcloud auth login`**, a GCP project with Compute Engine enabled (for example **`chrysalis-dev-f5x6qv`**). The script creates **`chrysalis-test-vm`** as **`e2-small`** (2 GiB RAM) when missing.
+
+**Steps.**
+
+1. From the **Chrysalis repository root** (this repo):
+
+   ```powershell
+   powershell -NoProfile -File .\scripts\gce-wptp-test-vm.ps1 `
+     -Project chrysalis-dev-f5x6qv `
+     -UseExistingInstance `
+     -SkipServicesEnable `
+     -TunnelThroughIap
+   ```
+
+   Default matrix ref is **`v0.1.7`** (override with **`-MatrixRef main`** for latest).
+
+2. Wait for **`[gce-wptp-test-bootstrap] OK`**. First **`npm ci`** on a fresh VM often takes **5–15 minutes** (GitHub sibling deps compile via `prepare`). Re-runs reuse **`~/wptp-src/wptp-matrix/node_modules`** unless you set **`WPTP_MATRIX_FORCE_CI=1`** on the VM.
+
+3. SSH in when finished:
+
+   ```powershell
+   gcloud compute ssh chrysalis-test-vm --zone=us-central1-a --project=chrysalis-dev-f5x6qv --tunnel-through-iap
+   cd ~/wptp-src/wptp-matrix
+   ```
+
+**What to do if it does not work.**
+
+| Symptom | Fix |
+| --- | --- |
+| **`npm ci` appears stuck** | Normal while sibling `tsc` builds run; bootstrap logs **`npm ci still running (Nm elapsed)`** every minute. Check VM memory with `free -h`. |
+| **SSH hangs or drops** | **`gcloud compute instances reset chrysalis-test-vm ...`** then re-run; use **`-TunnelThroughIap`**. |
+| **`plink: unknown option -o`** | Use current **`gce-wptp-test-vm.ps1`** (sets **`CLOUDSDK_COMPUTE_SSH_USE_OPENSSH=True`**). |
+
+**Where to go next.** [WPTP global scope](./WPTP-GLOBAL-SCOPE.md); [matrix on GitHub Pages](https://theorem6.github.io/wptp-matrix/).
+
+---
+
 ## Where the rest of the documentation lives
 
 - Per-command reference with every flag: [USER-GUIDE.md](./USER-GUIDE.md).
@@ -1289,4 +1331,5 @@ $ chrysalis corpus-merge /var/lib/chrysalis/traces \
 - Installing Chrysalis and its prerequisites: [INSTALLATION.md](./INSTALLATION.md).
 - **Python / Go CLI shims** (same Node binary): [How-to scenario 23](./HOW-TO.md#23-run-chrysalis-from-python-or-go-same-node-cli).
 - **Cheap GCE dev VM** (bootstrap + shim smoke): [How-to scenario 24](./HOW-TO.md#24-provision-a-cheap-gce-vm-and-smoke-test-the-repo).
+- **WPTP matrix GCE smoke** (`wptp-matrix` harness): [How-to scenario 25](./HOW-TO.md#25-smoke-test-wptp-matrix-on-gce).
 - Commercial tiers and license envelopes: [COMMERCIAL.md](./COMMERCIAL.md).
