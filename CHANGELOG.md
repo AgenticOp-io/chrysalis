@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Deps:** **`firebase-tools@^14.11.0`**; **`pnpm.overrides`** **`tar@7.5.7`** (dev/deploy audit hygiene).
+- **Deps:** **`firebase-tools@^14.11.0`**; **`pnpm.overrides`** **`tar@7.5.15`** (dev/deploy audit hygiene).
 
 ### Added
 
