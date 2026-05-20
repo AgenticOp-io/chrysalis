@@ -70,7 +70,14 @@ import {
   runVerifiedRepairLoop,
   stubRepairProposer,
 } from "@chrysalis/repair";
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { hostname } from "node:os";
 import { spawnSync } from "node:child_process";
 import {
@@ -2757,6 +2764,29 @@ function correctnessFromVerifyReport(r: VerifyReportJson): Omit<
   };
 }
 
+function tryReadBackendVerifySummary(
+  reportDir: string,
+  backend: string,
+): VerifyReportJson | null {
+  const base = join(reportDir, backend);
+  const direct = tryReadJson<VerifyReportJson>(join(base, "summary.json"));
+  if (direct) return direct;
+  let best: { run: number; summary: VerifyReportJson } | null = null;
+  try {
+    for (const name of readdirSync(base)) {
+      const m = /^run-(\d+)$/.exec(name);
+      if (!m) continue;
+      const summary = tryReadJson<VerifyReportJson>(join(base, name, "summary.json"));
+      if (!summary) continue;
+      const run = Number(m[1]);
+      if (!best || run > best.run) best = { run, summary };
+    }
+  } catch {
+    return null;
+  }
+  return best?.summary ?? null;
+}
+
 /** `summary.json` from `writeReport`, optional legacy `correctness.json`, or D25 subdirs. */
 function readCorrectnessForStatus(reportDir: string): StatusSummary["correctness"] | null {
   const root = resolve(reportDir);
@@ -2776,7 +2806,7 @@ function readCorrectnessForStatus(reportDir: string): StatusSummary["correctness
   const subs = ["hono", "fastify"] as const;
   const backends: StatusCorrectnessBackend[] = [];
   for (const id of subs) {
-    const raw = tryReadJson<VerifyReportJson>(join(root, id, "summary.json"));
+    const raw = tryReadBackendVerifySummary(root, id);
     if (raw) backends.push({ label: id, ...correctnessFromVerifyReport(raw) });
   }
   if (backends.length === 0) return null;
