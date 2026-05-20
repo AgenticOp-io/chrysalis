@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chrysalis Translation Hub</title>
+  <style>
+    :root { --bg:#0a0e14; --panel:#151c28; --text:#e7ecf3; --muted:#8b9cb3; --accent:#3d8bfd; --accent2:#7c5cff; --ok:#3dd68c; --err:#f31260; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+    nav { display: flex; gap: 1rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid #2a3548; align-items: center; }
+    nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    nav .brand { font-weight: 700; color: var(--text); margin-right: auto; }
+    main { padding: 1.25rem; max-width: 56rem; margin: 0 auto; }
+    .hero { padding: 2rem 0 1.5rem; }
+    .hero h1 { font-size: 2rem; margin: 0 0 0.5rem; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { color: var(--muted); max-width: 40rem; line-height: 1.5; }
+    .card { background: var(--panel); border: 1px solid #2a3548; border-radius: 12px; padding: 1.1rem; margin-bottom: 1rem; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+    input, select, textarea { width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid #3a4a63; background: #0d1218; color: var(--text); margin-bottom: 0.65rem; }
+    .grid2 { display: grid; gap: 0.65rem; grid-template-columns: 1fr 1fr; }
+    button { cursor: pointer; border: none; border-radius: 6px; padding: 0.55rem 1rem; font-weight: 500; }
+    button.primary { background: var(--accent); color: #fff; }
+    button.secondary { background: #2a3548; color: var(--text); }
+    .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    #projectList { list-style: none; padding: 0; margin: 0; }
+    #projectList li { padding: 0.75rem 0; border-bottom: 1px solid #2a3548; }
+    .target-row { margin-bottom: 0.75rem; }
+    .bar-wrap { height: 10px; background: #0d1218; border-radius: 5px; overflow: hidden; margin: 0.75rem 0; }
+    .bar { height: 100%; background: linear-gradient(90deg, var(--accent), #6eb6ff); width: 0%; transition: width 0.35s ease; }
+    .pct { font-size: 1.5rem; font-weight: 600; }
+    #log { font-family: ui-monospace, monospace; font-size: 0.78rem; background: #0d1218; border-radius: 6px; padding: 0.65rem; height: 12rem; overflow-y: auto; white-space: pre-wrap; margin: 0; }
+    pre.json { font-size: 0.75rem; max-height: 10rem; overflow: auto; margin: 0; }
+    .badge { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem; background: #2a3548; }
+    .badge.run { background: #1e3a5f; color: #9ec5ff; }
+    .badge.ok { background: #1a3d2e; color: var(--ok); }
+    .badge.fail { background: #3d1a24; color: var(--err); }
+    #routeList { font-size: 0.85rem; color: var(--muted); max-height: 6rem; overflow-y: auto; }
+    #routeList li.done { color: var(--ok); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="brand">Chrysalis Translation Hub</span>
+    <a href="#/" id="navHome">Projects</a>
+    <a href="#/new" id="navNew">New project</a>
+  </nav>
+  <main>
+    <section id="viewHome" hidden>
+      <div class="hero">
+        <h1>Universal web code translation</h1>
+        <p>
+          Orchestrate legacy modernization from a central hub with SSH access to origin servers.
+          Chrysalis verifies PHP to TypeScript today; additional languages follow the WPTP hub matrix.
+        </p>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">Your projects</h2>
+        <ul id="projectList"></ul>
+        <p class="muted">Hub stores workspaces under <code>~/.chrysalis-hub/</code> on this server.</p>
+      </div>
+    </section>
+
+    <section id="viewNew" hidden>
+      <h1>New translation project</h1>
+      <p class="muted">Connect to an origin server over SSH, detect languages, choose targets, pull code to this hub.</p>
+      <div class="card">
+        <label for="projName">Project name</label>
+        <input id="projName" type="text" placeholder="Billing monolith" />
+        <label for="projDesc">Description</label>
+        <textarea id="projDesc" rows="2" placeholder="Optional"></textarea>
+        <h3>Origin server (SSH)</h3>
+        <div class="grid2">
+          <div><label for="sshHost">Host</label><input id="sshHost" type="text" placeholder="10.0.0.5" /></div>
+          <div><label for="sshPort">Port</label><input id="sshPort" type="text" value="22" /></div>
+        </div>
+        <div class="grid2">
+          <div><label for="sshUser">User</label><input id="sshUser" type="text" placeholder="deploy" /></div>
+          <div><label for="sshKey">SSH key path on hub (optional)</label><input id="sshKey" type="text" placeholder="/home/you/.ssh/id_ed25519" /></div>
+        </div>
+        <label for="sshPath">Remote project path</label>
+        <input id="sshPath" type="text" placeholder="/var/www/legacy-app" />
+        <div class="row">
+          <button type="button" class="secondary" id="btnScanSsh">Detect languages (SSH)</button>
+          <label><input type="checkbox" id="pullFromSsh" checked /> Pull code to hub on create</label>
+        </div>
+        <p id="scanStatus" class="muted"></p>
+      </div>
+      <div class="card">
+        <h3>Target language per detected stack</h3>
+        <div id="targetPickers"><p class="muted">Run SSH detect first.</p></div>
+        <div class="row">
+          <button type="button" class="primary" id="btnCreateProject">Create project</button>
+        </div>
+        <p id="createStatus" class="muted"></p>
+      </div>
+    </section>
+
+    <section id="viewConsole" hidden>
+      <h1 id="consoleTitle">Console</h1>
+      <div class="card">
+        <h3>Detected stacks</h3>
+        <ul id="consoleDetection" class="muted"></ul>
+        <label for="project">Local project path on hub</label>
+        <input id="project" type="text" />
+        <div class="row">
+          <button class="primary" id="btnIngest">Run ingest</button>
+          <button class="secondary" id="btnStatus">Run status</button>
+          <button class="secondary" id="btnRefresh">Refresh progress</button>
+          <span id="jobBadge" class="badge">idle</span>
+        </div>
+      </div>
+      <div class="card">
+        <label>Live ingest progress</label>
+        <div class="pct"><span id="pct">0</span>%</div>
+        <div class="bar-wrap"><div class="bar" id="bar"></div></div>
+        <p id="routeSummary" class="muted">0 / 0 routes</p>
+        <ul id="routeList"></ul>
+      </div>
+      <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="card"><label>Job log</label><pre id="log"></pre></div>
+        <div class="card"><label>Status JSON</label><pre class="json" id="statusJson">—</pre></div>
+      </div>
+    </section>
+  </main>
+  <script src="/ui.js"></script>
+</body>
+</html>

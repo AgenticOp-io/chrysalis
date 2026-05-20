@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Chrysalis operator web UI — live ingest progress (SSE) + CLI (ingest, status).
- * Port 19090 by default; does not bind :80 or :8765 (shared VM safe).
+ * Chrysalis Translation Hub — web UI (landing, SSH project wizard, live console).
+ * Default port 19090. Hub data: ~/.chrysalis-hub/
  */
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
@@ -9,20 +9,32 @@ import { readFile } from "node:fs/promises";
 import { watch } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  TARGET_MATRIX,
+  createHubProject,
+  getProject,
+  listProjects,
+  scanSshRemote,
+  updateProject,
+} from "./chrysalis-hub-store.mjs";
 
+const __dir = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.CHRYSALIS_OPERATOR_PORT ?? process.env.CHRYSALIS_STATUS_PORT ?? "19090");
 const bind = process.env.CHRYSALIS_OPERATOR_BIND ?? process.env.CHRYSALIS_STATUS_BIND ?? "0.0.0.0";
 const repo = process.env.CHRYSALIS_OPERATOR_REPO ?? process.env.CHRYSALIS_STATUS_REPO ?? join(homedir(), "chrysalis-test");
 const cliBin = process.env.CHRYSALIS_OPERATOR_CLI ?? join(repo, "packages/cli/dist/bin.js");
-const progressFile =
-  process.env.CHRYSALIS_OPERATOR_PROGRESS_FILE ??
-  join(repo, ".chrysalis", "ingest.progress");
 const authToken = process.env.CHRYSALIS_OPERATOR_TOKEN ?? "";
 const defaultProject = process.env.CHRYSALIS_OPERATOR_DEFAULT_PROJECT ?? "fixtures/tiny-blog";
+
+let indexHtml = "";
+let uiJs = "";
 
 const sseClients = new Set();
 let currentJob = null;
 let progressWatcher = null;
+let activeProgressFile =
+  process.env.CHRYSALIS_OPERATOR_PROGRESS_FILE ?? join(repo, ".chrysalis", "ingest.progress");
 
 function broadcast(type, payload) {
   const line = `event: ${type}\ndata: ${JSON.stringify(payload)}\n\n`;
@@ -37,7 +49,7 @@ function broadcast(type, payload) {
 
 async function readProgressState() {
   try {
-    const raw = await readFile(progressFile, "utf8");
+    const raw = await readFile(activeProgressFile, "utf8");
     const j = JSON.parse(raw);
     const completed = Array.isArray(j.completedRouteKeys) ? j.completedRouteKeys : [];
     let totalRoutes = completed.length;
@@ -52,7 +64,7 @@ async function readProgressState() {
     const pct = totalRoutes > 0 ? Math.min(100, Math.round((completed.length / totalRoutes) * 100)) : 0;
     return {
       ok: true,
-      path: progressFile,
+      path: activeProgressFile,
       raw: j,
       completedRouteKeys: completed,
       totalRoutes,
@@ -63,7 +75,7 @@ async function readProgressState() {
     const err = e instanceof Error ? e.message : String(e);
     return {
       ok: false,
-      path: progressFile,
+      path: activeProgressFile,
       state: err.includes("ENOENT") ? "idle" : "error",
       error: err,
       completedRouteKeys: [],
@@ -95,7 +107,7 @@ function stopProgressWatch() {
 
 function startProgressWatch() {
   stopProgressWatch();
-  const dir = dirname(progressFile);
+  const dir = dirname(activeProgressFile);
   const push = () => void readProgressState().then((p) => broadcast("progress", p));
   push();
   try {
@@ -154,13 +166,24 @@ function runCliJob(kind, projectDir, args) {
   return currentJob;
 }
 
+function runInit(projectDir) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [cliBin, "init", projectDir], {
+      cwd: repo,
+      env: { ...process.env, CHRYSALIS_SKIP_PARSER_VENDOR: "1" },
+    });
+    child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`init exit ${code}`))));
+    child.on("error", reject);
+  });
+}
+
 function runStatusJson(projectDir) {
   return new Promise((resolvePromise, reject) => {
     const out = [];
     const err = [];
     const child = spawn(process.execPath, [cliBin, "status", "--project", projectDir, "--json"], {
       cwd: repo,
-      env: { ...process.env, CHRYSALIS_SKIP_PARSER_VENDOR: process.env.CHRYSALIS_SKIP_PARSER_VENDOR ?? "1" },
+      env: { ...process.env, CHRYSALIS_SKIP_PARSER_VENDOR: "1" },
     });
     child.stdout.on("data", (c) => out.push(c));
     child.stderr.on("data", (c) => err.push(c));
@@ -191,101 +214,25 @@ function sendJson(res, code, body) {
   res.end(JSON.stringify(body, null, 2));
 }
 
-const UI_PAGE = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Chrysalis operator</title>
-<style>
-:root{--bg:#0f1419;--panel:#1a2332;--text:#e7ecf3;--muted:#8b9cb3;--accent:#3d8bfd;--ok:#3dd68c;--err:#f31260}
-body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:1rem 1.25rem 2rem}
-h1{font-size:1.35rem;margin:0 0 .25rem}.sub{color:var(--muted);font-size:.9rem;margin-bottom:1.25rem}
-.grid{display:grid;gap:1rem;max-width:56rem}
-@media(min-width:900px){.grid{grid-template-columns:1fr 1fr}.span2{grid-column:1/-1}}
-.card{background:var(--panel);border-radius:10px;padding:1rem;border:1px solid #2a3548}
-label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.35rem}
-input{width:100%;padding:.55rem;border-radius:6px;border:1px solid #3a4a63;background:#0d1218;color:var(--text)}
-.row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem;align-items:center}
-button{cursor:pointer;border:none;border-radius:6px;padding:.5rem .9rem;font-weight:500}
-button.primary{background:var(--accent);color:#fff}button.secondary{background:#2a3548;color:var(--text)}
-button:disabled{opacity:.45;cursor:not-allowed}
-.bar-wrap{height:10px;background:#0d1218;border-radius:5px;overflow:hidden;margin:.75rem 0}
-.bar{height:100%;background:linear-gradient(90deg,var(--accent),#6eb6ff);width:0%;transition:width .35s ease}
-.pct{font-size:1.5rem;font-weight:600}#routeList{font-size:.85rem;color:var(--muted);max-height:8rem;overflow-y:auto;padding-left:1.2rem}
-#routeList li.done{color:var(--ok)}#log{font-family:ui-monospace,monospace;font-size:.78rem;background:#0d1218;border-radius:6px;padding:.65rem;height:14rem;overflow-y:auto;white-space:pre-wrap;margin:0}
-.badge{padding:.15rem .45rem;border-radius:4px;font-size:.75rem;background:#2a3548}
-.badge.run{background:#1e3a5f;color:#9ec5ff}.badge.ok{background:#1a3d2e;color:var(--ok)}.badge.fail{background:#3d1a24;color:var(--err)}
-pre.json{font-size:.75rem;max-height:12rem;overflow:auto;margin:0}
-</style>
-</head>
-<body>
-<h1>Chrysalis operator</h1>
-<p class="sub">Live ingest progress and CLI control</p>
-<div class="grid">
-<div class="card span2">
-<label for="project">PHP project directory</label>
-<input id="project" type="text" placeholder="fixtures/tiny-blog"/>
-<div class="row">
-<button class="primary" id="btnIngest">Run ingest</button>
-<button class="secondary" id="btnStatus">Run status</button>
-<button class="secondary" id="btnRefresh">Refresh</button>
-<span id="jobBadge" class="badge">idle</span>
-</div>
-</div>
-<div class="card span2">
-<label>Ingest progress</label>
-<div class="pct"><span id="pct">0</span>%</div>
-<div class="bar-wrap"><div class="bar" id="bar"></div></div>
-<p id="routeSummary" style="color:var(--muted);font-size:.85rem">0 / 0 routes</p>
-<ul id="routeList"></ul>
-</div>
-<div class="card"><label>Job log</label><pre id="log"></pre></div>
-<div class="card"><label>Status JSON</label><pre class="json" id="statusJson">—</pre>
-</div>
-<script>
-const $=id=>document.getElementById(id);
-const pi=$("project");
-const v=localStorage.getItem("chrysalis.projectDir");
-if(v)pi.value=v;
-fetch("/api/config").then(r=>r.json()).then(c=>{if(!pi.value&&c.defaultProject)pi.value=c.defaultProject}).catch(()=>{});
-function setJob(j){
-const b=$("jobBadge");
-if(!j||j.state==="idle"){b.textContent="idle";b.className="badge";$("btnIngest").disabled=false;$("btnStatus").disabled=false;return;}
-b.textContent=j.kind+" · "+j.state;
-b.className="badge "+(j.state==="running"?"run":j.state==="succeeded"?"ok":"fail");
-$("btnIngest").disabled=j.state==="running";$("btnStatus").disabled=j.state==="running";
+function sendText(res, code, type, body) {
+  res.writeHead(code, { "content-type": type });
+  res.end(body);
 }
-function applyProgress(p){
-$("pct").textContent=String(p.percent??0);
-$("bar").style.width=(p.percent??0)+"%";
-$("routeSummary").textContent=(p.completedCount??0)+" / "+(p.totalRoutes??0)+" routes · "+(p.raw?.sourceApp??p.state??"—");
-const ul=$("routeList");ul.innerHTML="";
-for(const k of [...(p.completedRouteKeys??[])].sort()){const li=document.createElement("li");li.className="done";li.textContent=k;ul.appendChild(li);}
+
+async function prepareStatic() {
+  indexHtml = await readFile(join(__dir, "chrysalis-operator-index.html"), "utf8");
+  uiJs = await readFile(join(__dir, "chrysalis-operator-ui.js"), "utf8");
 }
-function logLine(t){const el=$("log");el.textContent+=t+"\\n";el.scrollTop=el.scrollHeight;}
-const es=new EventSource("/api/events");
-es.addEventListener("job",e=>setJob(JSON.parse(e.data)));
-es.addEventListener("progress",e=>applyProgress(JSON.parse(e.data)));
-es.addEventListener("log",e=>{const d=JSON.parse(e.data);logLine("["+d.stream+"] "+d.line);});
-es.addEventListener("statusResult",e=>{$("statusJson").textContent=JSON.stringify(JSON.parse(e.data),null,2);});
-async function post(path,body){
-const r=await fetch(path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
-const j=await r.json();if(!r.ok)throw new Error(j.error||r.statusText);return j;
-}
-$("btnIngest").onclick=async()=>{localStorage.setItem("chrysalis.projectDir",pi.value);$("log").textContent="";try{await post("/api/jobs/ingest",{projectDir:pi.value});}catch(e){logLine("ERROR: "+e.message);}};
-$("btnStatus").onclick=async()=>{localStorage.setItem("chrysalis.projectDir",pi.value);$("log").textContent="";try{await post("/api/jobs/status",{projectDir:pi.value});}catch(e){logLine("ERROR: "+e.message);}};
-$("btnRefresh").onclick=()=>fetch("/api/progress").then(r=>r.json()).then(applyProgress);
-fetch("/api/state").then(r=>r.json()).then(s=>{if(s.job)setJob(s.job);if(s.progress)applyProgress(s.progress);});
-</script>
-</body>
-</html>`;
 
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
 
   if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
-    res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    res.end(UI_PAGE);
+    sendText(res, 200, "text/html; charset=utf-8", indexHtml);
+    return;
+  }
+  if (req.method === "GET" && url.pathname === "/ui.js") {
+    sendText(res, 200, "application/javascript; charset=utf-8", uiJs);
     return;
   }
 
@@ -306,7 +253,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/api/config") {
-    sendJson(res, 200, { repo, cliBin, progressFile, defaultProject, port });
+    sendJson(res, 200, { repo, cliBin, progressFile: activeProgressFile, defaultProject, port });
     return;
   }
 
@@ -320,6 +267,27 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/projects") {
+    sendJson(res, 200, { projects: await listProjects() });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/target-matrix") {
+    sendJson(res, 200, { matrix: TARGET_MATRIX });
+    return;
+  }
+
+  const hubProjectMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)$/);
+  if (req.method === "GET" && hubProjectMatch) {
+    const p = await getProject(decodeURIComponent(hubProjectMatch[1]));
+    if (!p) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    sendJson(res, 200, p);
+    return;
+  }
+
   if (req.method === "POST") {
     if (!checkAuth(req)) {
       sendJson(res, 401, { error: "unauthorized" });
@@ -327,18 +295,49 @@ const server = createServer(async (req, res) => {
     }
     try {
       const body = await readBody(req);
+
+      if (url.pathname === "/api/hub/scan-ssh") {
+        const detection = await scanSshRemote(body.ssh);
+        sendJson(res, 200, { detection });
+        return;
+      }
+
+      if (url.pathname === "/api/hub/projects") {
+        const project = await createHubProject({
+          name: body.name,
+          description: body.description,
+          ssh: body.ssh,
+          pullFromSsh: body.pullFromSsh === true,
+          scanOnly: !body.pullFromSsh,
+          targets: body.targets ?? {},
+        });
+        try {
+          await runInit(project.localDir);
+          await updateProject(project.id, { chrysalisInitialized: true });
+          project.chrysalisInitialized = true;
+        } catch {
+          /* init optional if dir not ready */
+        }
+        sendJson(res, 201, { project });
+        return;
+      }
+
       if (url.pathname === "/api/jobs/ingest") {
         const projectDir = resolveProjectDir(body.projectDir ?? defaultProject);
         await statProject(projectDir);
-        runCliJob("ingest", projectDir, [
-          "ingest",
-          projectDir,
-          "--ingest-progress-file",
-          progressFile,
-        ]);
-        sendJson(res, 202, { accepted: true, job: currentJob });
+        if (body.hubProjectId) {
+          const hp = await getProject(body.hubProjectId);
+          if (hp?.localDir) {
+            activeProgressFile = join(hp.localDir, ".chrysalis", "ingest.progress");
+          }
+        } else {
+          activeProgressFile = join(projectDir, ".chrysalis", "ingest.progress");
+        }
+        runCliJob("ingest", projectDir, ["ingest", projectDir, "--ingest-progress-file", activeProgressFile]);
+        sendJson(res, 202, { accepted: true, job: currentJob, progressFile: activeProgressFile });
         return;
       }
+
       if (url.pathname === "/api/jobs/status") {
         const projectDir = resolveProjectDir(body.projectDir ?? defaultProject);
         if (currentJob?.state === "running") throw new Error("A job is already running");
@@ -355,7 +354,6 @@ const server = createServer(async (req, res) => {
           const msg = e instanceof Error ? e.message : String(e);
           currentJob = { ...currentJob, state: "failed", endedAt: new Date().toISOString(), error: msg };
           broadcast("job", { ...currentJob });
-          broadcast("log", { jobId: id, stream: "stderr", line: msg });
           sendJson(res, 500, { error: msg });
         }
         return;
@@ -373,6 +371,7 @@ async function statProject(projectDir) {
   await readFile(join(projectDir, "chrysalis.routes.json"), "utf8");
 }
 
+await prepareStatic();
 server.listen(port, bind, () => {
-  console.log(`[chrysalis-operator-web] http://${bind}:${port}/ repo=${repo}`);
+  console.log(`[chrysalis-operator-web] Translation Hub http://${bind}:${port}/`);
 });
