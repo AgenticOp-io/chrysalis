@@ -339,6 +339,68 @@ echo "ok";
     }
   });
 
+  test("collects vendor helpers via Composer autoload psr-4 directories", async () => {
+    const root = mkdtempSync(join(tmpdir(), "chrysalis-ingest-"));
+    try {
+      mkdirSync(join(root, "pages"), { recursive: true });
+      mkdirSync(join(root, "vendor", "acme", "pkg", "src"), { recursive: true });
+      writeFileSync(
+        join(root, "chrysalis.routes.json"),
+        JSON.stringify({
+          app: "test-app",
+          routes: [
+            {
+              method: "GET",
+              path: "/x",
+              file: "pages/x.php",
+              pathParams: [],
+            },
+          ],
+        }),
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "vendor/acme/pkg/composer.json"),
+        JSON.stringify({
+          name: "acme/pkg",
+          autoload: {
+            "psr-4": {
+              "Acme\\Pkg\\": "src/",
+            },
+          },
+        }),
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "vendor/acme/pkg/src/helpers.php"),
+        `<?php
+namespace Acme\\Pkg;
+
+function vendor_psr4_helper() {
+  return query_one("SELECT id FROM users WHERE id = 1", []);
+}
+`,
+        "utf8",
+      );
+      writeFileSync(
+        join(root, "pages/x.php"),
+        `<?php
+$r = \\Acme\\Pkg\\vendor_psr4_helper();
+echo "ok";
+`,
+        "utf8",
+      );
+
+      const mod = await ingestDirectory(root);
+      expect(mod.roots.length).toBe(1);
+      const route = mod.nodes.get(mod.roots[0]!)!;
+      const handler = mod.nodes.get(route.operands[0]!)!;
+      expect(effectTagsSorted(handler.effects)).toEqual(["db.read:users"]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("collects vendor helpers via Composer autoload.files even with non-php extension", async () => {
     const root = mkdtempSync(join(tmpdir(), "chrysalis-ingest-"));
     try {

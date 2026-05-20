@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/repair",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "description": "Milestone 3 verified repair loop: propose WebIR edits from verify failures, re-run oracle replay before accepting.",
   "license": "MIT",

@@ -70,6 +70,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`.github/ISSUE_TEMPLATE/01-bug_report.yml`** — version hint **v2.0.1**.
 - **GitHub branches (`origin`)** — removed **`feat/commercial-license-toolchain`** (work landed on **`main`**) and **8** stale **`dependabot/**`** branch heads to reduce remote clutter (**Dependabot** can open fresh PRs when updates apply).
 
+## [2.0.2] - 2026-05-19
+
+### Added
+
+- **Flagship PDO oracle lane (D309):** **`GET /chrysalis-pdo-count`** (`pdo_count_show.php`) exercises **`db_connect()->query()`** beside **`chrysalis-lib-count`** (`query_one`); flagship verify drive includes the route.
+- **Ingest:** Vitest coverage for Composer **`autoload.psr-4`** vendor helper effect widening.
+- **WPTP:** Second silver OpenAPI corpus **`echo-api.openapi.json`**; matrix edge **`echo-api-composed-nextjs-chrysalis-silver`**; harness **`echo-api-ir-nextjs-chrysalis`** (sibling **`wptp-matrix`** + **`wptp:silver-nextjs-harness`**).
+- **Parser Lane A (Wave 6):** **`fixtures/parser-parity-probe`** pages **`coalesce_assign.php`** (`??=`) and **`string_interpolation.php`**; nikic parity tests.
+- **WPTP D7:** **`pnpm run wptp:d7-audit`** — quarterly audit helper (**`scripts/wptp-d7-audit.mjs`**).
+
+### Changed
+
+- **Semver:** workspace **`2.0.2`**; committed **`fixtures/ci/*` `toolVersion`** fields match.
+- **DESIGN D310:** documents IR helper lifting backlog gate (post-**D283** dedupe).
+- **Verify replay (D308):** redacted form **`post`** fields replay from **`rawBody`**; SQL tape omitted when row values are redacted.
+- **Flagship laravel-full:** recursive-stress / first-item / last-item empty-seed fixes; Hono **`__return`** → **`__respond`**; **`status --json`** stress summary paths.
+- **Deps:** **`tsx@^4.22.3`**; **`pnpm.overrides`** **`protobufjs@7.6.0`**.
+
 ## [2.0.0] - 2026-04-30
 
 ### Summary

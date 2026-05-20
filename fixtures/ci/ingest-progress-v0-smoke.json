@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.ingest.progress",
   "schemaVersion": 0,
-  "toolVersion": "2.0.1",
+  "toolVersion": "2.0.2",
   "manifestRouteFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
   "sourceApp": "ci-smoke",
   "projectRoot": "/tmp/chrysalis-ingest-progress-smoke",

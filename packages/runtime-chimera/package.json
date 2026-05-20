@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/runtime-chimera",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "description": "Dual-stack runtime: traffic router, session bridge, schema lens. Lets PHP and the new stack coexist behind one origin.",
   "license": "MIT",

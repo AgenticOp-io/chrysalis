@@ -14,6 +14,7 @@
  * twice (**`flagship`** / **`composer`**) plus one percent-encoded **`x y`**, **`GET /chrysalis-count`** (twice), **`GET /chrysalis-first-item`** (twice),
  * **`GET /chrysalis-last-item`** (twice),
  * **`GET /chrysalis-items`** (twice), **`GET /chrysalis-lib-count`** (twice),
+ * **`GET /chrysalis-pdo-count`** (twice),
  * **`GET /chrysalis-sum-ids`** (twice), **`GET /chrysalis-min-id`** (twice),
  * **`GET /chrysalis-max-id`** (twice),
  * **`GET /chrysalis-avg-id`** (twice), **`GET /chrysalis-id-span`** (twice),
@@ -645,6 +646,12 @@ async function driveLaravelFullCorpus(port) {
     const r = await jfetch(`${base}/chrysalis-lib-count`);
     if (!r.ok) {
       console.warn(`[verify-flagship-laravel-full] GET /chrysalis-lib-count returned ${r.status}`);
+    }
+  }
+  for (let i = 0; i < 2; i++) {
+    const r = await jfetch(`${base}/chrysalis-pdo-count`);
+    if (!r.ok) {
+      console.warn(`[verify-flagship-laravel-full] GET /chrysalis-pdo-count returned ${r.status}`);
     }
   }
   for (let i = 0; i < 2; i++) {

@@ -81,6 +81,12 @@
     },
     {
       "method": "GET",
+      "path": "/chrysalis-pdo-count",
+      "file": "chrysalis/handlers/pdo_count_show.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
       "path": "/chrysalis-sum-ids",
       "file": "chrysalis/handlers/sum_ids_show.php",
       "pathParams": []

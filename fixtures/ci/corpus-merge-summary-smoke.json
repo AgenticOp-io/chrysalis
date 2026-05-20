@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.corpus-merge.summary",
   "schemaVersion": 1,
-  "toolVersion": "2.0.1",
+  "toolVersion": "2.0.2",
   "generatedAt": "2026-04-30T00:00:00.000Z",
   "options": {
     "outDir": "/tmp/chrysalis-ci/merged-traces",

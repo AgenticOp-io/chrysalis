@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/archaeology",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "description": "Schema recovery from DB introspection, form scans, and observed traces; emits unified types with provenance.",
   "license": "MIT",

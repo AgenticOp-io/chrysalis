@@ -1,6 +1,6 @@
 {
   "name": "@chrysalis/license",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "description": "Optional Ed25519 license envelope verification for CLI gating (commercial distributions).",
   "license": "MIT",

@@ -26,15 +26,19 @@ if (!existsSync(join(matrixRoot, "src", "verify-silver-chrysalis.ts"))) {
   process.exit(1);
 }
 
-const { runSilverOpenApiIrNextJsChrysalis, runSilverHarIrNextJsChrysalis } = await import(
-  pathToFileURL(join(matrixRoot, "src/verify-silver-chrysalis.ts")).href,
-);
+const {
+  runSilverOpenApiIrNextJsChrysalis,
+  runSilverEchoApiIrNextJsChrysalis,
+  runSilverHarIrNextJsChrysalis,
+} = await import(pathToFileURL(join(matrixRoot, "src/verify-silver-chrysalis.ts")).href);
 
 const openapi = join(matrixRoot, "fixtures", "petstore-mini.openapi.json");
+const echoApi = join(matrixRoot, "fixtures", "echo-api.openapi.json");
 const har = join(matrixRoot, "fixtures", "mini.har.json");
 
 const results = [
   runSilverOpenApiIrNextJsChrysalis(openapi, chrysalisRoot, emitNextJsRoot),
+  runSilverEchoApiIrNextJsChrysalis(echoApi, chrysalisRoot, emitNextJsRoot),
   runSilverHarIrNextJsChrysalis(har, chrysalisRoot, emitNextJsRoot),
 ];
 
