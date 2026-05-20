@@ -269,12 +269,26 @@ A single GCP project **may** still contain both Firebase APIs and GCE; Google al
 
 **Automated migration (snapshot + image + new VM).** After billing is on the target project, run **`scripts/gcp-migrate-gce-vm.ps1`** (see script header for parameters). It copies the boot disk into a new instance in **`agenticop-io`** (or another project you choose); then you delete the old VM in the Firebase project when satisfied.
 
+**Shared VM (Chrysalis + other projects).** On a host such as **`chrysalis-test-vm`**, another project may own **nginx :80** and its own status API (e.g. **fragility** on **`127.0.0.1:8765`**). Chrysalis bootstrap only replaces **`~/chrysalis-test`** (and uploads **`~/chrysalis-src.tgz`** / **`~/gce-test-vm-bootstrap.sh`**). It does **not** modify **`~/fragility-discovery-engine`**, nginx, or port **8765**. For refresh without **`apt-get`** / global Node churn, use **`scripts/gce-test-vm-refresh.ps1`** (**`CHRYSALIS_REFRESH_ONLY=1`**). **Chrysalis operator status UI** (read-only): **`scripts/gce-chrysalis-status.sh`** on port **`19090`** (default) — HTML + **`/api/status`**; shows **`chrysalis.ingest.progress`** when you run ingest with **`--ingest-progress-file ~/chrysalis-test/.chrysalis/ingest.progress`**. Open firewall **tcp:19090** or SSH-tunnel: **`ssh -L 19090:127.0.0.1:19090 …`**.
+
 **Cheap GCE dev VM + bootstrap (Chrysalis).** From a Windows machine with **`gcloud`** and **`git`** on **`PATH`**, after **`gcloud auth login`**:
 
 - **`powershell -ExecutionPolicy Bypass -File .\scripts\gce-test-vm.ps1 -Project <PROJECT_ID> -DeployFromLocalGit -Recreate`** — creates a preemptible **`e2-micro`** Debian 12 instance (default name **`chrysalis-test-vm`**, zone **`us-central1-a`**), enables Compute unless you pass **`-SkipServicesEnable`**, uploads **`scripts/gce-test-vm-bootstrap.sh`**, archives the current repo **`HEAD`** with **`git archive`** (so private GitHub remotes work without tokens on the VM), runs **`pnpm install`**, **`pnpm --filter @chrysalis/cli build`**, and **`pnpm run test:cli-shims`**. Optional **`-BillingAccountId <BILLING_ACCOUNT_ID>`** links billing when the project has none yet (from **`gcloud billing accounts list`**). Use **`-TunnelThroughIap`** when SSH must go through IAP. Omit **`-DeployFromLocalGit`** only when the VM can **`git clone`** your **`RepoUrl`** without credentials.
 - **`scripts/gce-test-vm-auto.ps1`** — tries each project you can list until one can enable Compute and run the VM script (interactive exploration only).
 
 **Labels.** The stock `gcloud projects update` in current Cloud SDK builds only supports **renaming** projects, not label keys. Set **project labels** in the Google Cloud Console (project picker, then **IAM & Admin** / project **Settings** / labels, depending on console version) or the Resource Manager API, for example `edge=firebase-https` vs `edge=gce`, so filters and org policy stay readable.
+
+**Console: VMs and billing (operator).** The **VM instances** page is **project-scoped only**. A URL such as `…/compute/instances?organizationId=…` shows *Page not viewable for organizations* — that is expected; pick a project or use Asset Inventory / billing instead.
+
+| Goal | Working link / action |
+| --- | --- |
+| VMs in the Chrysalis dev project | [Compute → VM instances (`chrysalis-dev-f5x6qv`)](https://console.cloud.google.com/compute/instances?project=chrysalis-dev-f5x6qv) |
+| VMs in another project | Replace `project=` in the URL above (e.g. `lte-pci-mapper-65450042-bbf71`). |
+| All projects in the org (picker, not VM list) | [Manage resources](https://console.cloud.google.com/cloud-resource-manager?organizationId=922377885623) |
+| Search instances org-wide (console) | [IAM → Asset Inventory](https://console.cloud.google.com/iam-admin/asset-inventory/) — set scope to org **`922377885623`**, **Resource** tab, filter type **`compute.googleapis.com/Instance`** (requires [Cloud Asset API](https://console.cloud.google.com/apis/library/cloudasset.googleapis.com) on a project you use for API calls). |
+| CLI inventory (all accessible projects) | `gcloud projects list --format="value(projectId)"` then `gcloud compute instances list --project=PROJECT_ID` per project with Compute enabled. |
+| VM-related spend (all projects on billing account) | [Billing reports](https://console.cloud.google.com/billing/01EA2A-7E22D6-7B7AAF/reports) — filter **Service = Compute Engine**; [cost table](https://console.cloud.google.com/billing/01EA2A-7E22D6-7B7AAF/reports/cost_table) for SKU lines (cores, disk, egress). |
+| Spend for Chrysalis dev only | [Billing reports (`chrysalis-dev-f5x6qv`)](https://console.cloud.google.com/billing/01EA2A-7E22D6-7B7AAF/reports?project=chrysalis-dev-f5x6qv) |
 
 ---
 

@@ -10,22 +10,27 @@ TARBALL="${HOME}/chrysalis-src.tgz"
 
 export DEBIAN_FRONTEND=noninteractive
 export GIT_TERMINAL_PROMPT=0
-sudo apt-get update -y
-sudo apt-get install -y ca-certificates curl git python3
 
-if ! command -v node >/dev/null 2>&1 || [[ "$(node -v 2>/dev/null || true)" != v20* ]]; then
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-  sudo apt-get install -y nodejs
-fi
+if [[ "${CHRYSALIS_REFRESH_ONLY:-}" == "1" ]]; then
+  echo "[gce-test-vm-bootstrap] CHRYSALIS_REFRESH_ONLY=1 — skip apt/node/swap (shared VM safe)"
+else
+  sudo apt-get update -y
+  sudo apt-get install -y ca-certificates curl git python3
 
-sudo corepack enable || true
-corepack prepare pnpm@9.0.0 --activate || npm install -g pnpm@9.0.0
+  if ! command -v node >/dev/null 2>&1 || [[ "$(node -v 2>/dev/null || true)" != v20* ]]; then
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+  fi
 
-if [[ ! -f /swapfile ]]; then
+  sudo corepack enable || true
+  corepack prepare pnpm@9.0.0 --activate || npm install -g pnpm@9.0.0
+
+  if [[ ! -f /swapfile ]]; then
   sudo fallocate -l 2G /swapfile 2>/dev/null || sudo dd if=/dev/zero of=/swapfile bs=1M count=2048 status=none
   sudo chmod 600 /swapfile
   sudo mkswap /swapfile
   sudo swapon /swapfile
+  fi
 fi
 
 rm -rf "${WORKDIR}"

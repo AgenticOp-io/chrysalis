@@ -45,7 +45,7 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | Phase | Deliverable |
 | --- | --- |
 | **B0 (done)** | D283 dedupe + ignore-origin CLI |
-| **B1** | Design + fixture that fails dedupe but passes effect signature (documents gap) |
+| **B1** | **Done:** **`fixtures/lift-helper-gap-probe/`** + **`fixtures/lift-helper-dedupe-control/`**; Vitest **`packages/ingest/tests/lift-helper-gap-probe.test.ts`** |
 | **B2** | Lift pass v0: identical structure only (strict superset of dedupe at function granularity) |
 | **B3** | Semantic key + effect-proof merge for near-duplicates (ROADMAP “future”) |
 
