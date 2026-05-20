@@ -27,6 +27,8 @@
     #projectList { list-style: none; padding: 0; margin: 0; }
     #projectList li { padding: 0.75rem 0; border-bottom: 1px solid #2a3548; }
     .target-row { margin-bottom: 0.75rem; }
+    .target-hint { font-size: 0.85rem; color: var(--muted); margin: 0.35rem 0 0.5rem; min-height: 1.2rem; }
+    select option.planned { color: #a8b8d0; }
     .bar-wrap { height: 10px; background: #0d1218; border-radius: 5px; overflow: hidden; margin: 0.75rem 0; }
     .bar { height: 100%; background: linear-gradient(90deg, var(--accent), #6eb6ff); width: 0%; transition: width 0.35s ease; }
     .pct { font-size: 1.5rem; font-weight: 600; }
@@ -90,6 +92,7 @@
       </div>
       <div class="card">
         <h3>Target language per detected stack</h3>
+        <p id="targetPlannerNote" class="target-hint"></p>
         <div id="targetPickers"><p class="muted">Run SSH detect first.</p></div>
         <div class="row">
           <button type="button" class="primary" id="btnCreateProject">Create project</button>
@@ -103,6 +106,7 @@
       <div class="card">
         <h3>Detected stacks</h3>
         <ul id="consoleDetection" class="muted"></ul>
+        <p id="consoleRoutePlan" class="target-hint"></p>
         <label for="project">Local project path on hub</label>
         <input id="project" type="text" />
         <div class="row">

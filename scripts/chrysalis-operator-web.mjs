@@ -12,11 +12,14 @@ import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   TARGET_MATRIX,
+  WPTP_CI_REFERENCES,
   createHubProject,
   getProject,
   listProjects,
+  planHubTranslation,
   scanSshRemote,
   updateProject,
+  writeHubReport,
 } from "./chrysalis-hub-store.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -273,7 +276,19 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/api/hub/target-matrix") {
-    sendJson(res, 200, { matrix: TARGET_MATRIX });
+    sendJson(res, 200, { matrix: TARGET_MATRIX, wptpCi: WPTP_CI_REFERENCES });
+    return;
+  }
+
+  const hubPlanMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/route-plan$/);
+  if (req.method === "GET" && hubPlanMatch) {
+    const p = await getProject(decodeURIComponent(hubPlanMatch[1]));
+    if (!p) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    const plan = planHubTranslation(p);
+    sendJson(res, 200, { projectId: p.id, plan });
     return;
   }
 
@@ -323,18 +338,53 @@ const server = createServer(async (req, res) => {
       }
 
       if (url.pathname === "/api/jobs/ingest") {
-        const projectDir = resolveProjectDir(body.projectDir ?? defaultProject);
-        await statProject(projectDir);
+        let projectDir = resolveProjectDir(body.projectDir ?? defaultProject);
+        let hubPlan = null;
         if (body.hubProjectId) {
           const hp = await getProject(body.hubProjectId);
-          if (hp?.localDir) {
+          if (!hp) {
+            sendJson(res, 404, { error: "hub-project-not-found" });
+            return;
+          }
+          hubPlan = planHubTranslation(hp);
+          if (hp.localDir) {
+            projectDir = hp.localDir;
             activeProgressFile = join(hp.localDir, ".chrysalis", "ingest.progress");
+            await writeHubReport(hp.localDir, { projectId: hp.id, ...hubPlan });
+          }
+          if (hubPlan.runnable.length === 0) {
+            sendJson(res, 422, {
+              error: "no-runnable-routes",
+              message:
+                hubPlan.errors[0]?.message ??
+                "No runnable translation routes. Choose PHP → TypeScript (Chrysalis) or adjust targets.",
+              plan: hubPlan,
+            });
+            return;
+          }
+          const nonIngest = hubPlan.runnable.filter((r) => r.action !== "chrysalis-ingest");
+          if (nonIngest.length > 0) {
+            sendJson(res, 422, {
+              error: "unsupported-runnable",
+              message: "Hub v1 only runs chrysalis ingest for PHP → typescript-chrysalis.",
+              plan: hubPlan,
+            });
+            return;
+          }
+          if (hubPlan.errors.length > 0) {
+            broadcast("hubPlan", { projectId: hp.id, plan: hubPlan });
           }
         } else {
           activeProgressFile = join(projectDir, ".chrysalis", "ingest.progress");
         }
+        await statProject(projectDir);
         runCliJob("ingest", projectDir, ["ingest", projectDir, "--ingest-progress-file", activeProgressFile]);
-        sendJson(res, 202, { accepted: true, job: currentJob, progressFile: activeProgressFile });
+        sendJson(res, 202, {
+          accepted: true,
+          job: currentJob,
+          progressFile: activeProgressFile,
+          plan: hubPlan,
+        });
         return;
       }
 

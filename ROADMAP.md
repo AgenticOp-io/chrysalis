@@ -43,6 +43,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **D** — **`rediss://`** for **`packages/oracle-php`** Redis session handler — [#5](https://github.com/theorem6/chrysalis/issues/5)
 - [x] **E** — Third-party dashboard **examples** (Grafana starter) — [#6](https://github.com/theorem6/chrysalis/issues/6)
 - [x] **F** — Python + Go CLI shims forwarding to Node (**DESIGN D295**); **`pnpm run test:cli-shims`**
+- [x] **G — Translation Hub v1 matrix + routing** — Full **`TARGET_MATRIX`** for every **`EXT_TO_LANGUAGE`** id (honest **`supported: false`** / WPTP CI references); hub ingest routes **PHP → typescript-chrysalis** only; structured **422** + **`hub.report.json`** holes for planned pairs; operator UI target hints; Vitest **`packages/cli/tests/chrysalis-hub-store.test.ts`**. (**DESIGN D312**, **D313**)
 
 ---
 

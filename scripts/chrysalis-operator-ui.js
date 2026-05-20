@@ -48,11 +48,45 @@
   }
 
   let targetMatrix = {};
+  let wptpCi = {};
   let lastScan = null;
 
   async function loadTargetMatrix() {
     const data = await api("/api/hub/target-matrix");
     targetMatrix = data.matrix;
+    wptpCi = data.wptpCi || {};
+  }
+
+  function describeTarget(lang, targetId) {
+    const opts = targetMatrix[lang] || [];
+    const t = opts.find((o) => o.id === targetId);
+    if (!t) return "Unknown target for " + lang + ".";
+    if (t.supported && targetId === "typescript-chrysalis") {
+      return "Gold path: Chrysalis ingest + oracle verify on this hub.";
+    }
+    if (t.id === "unchanged") return "No translation — source kept as-is.";
+    if (t.wptpCi) {
+      return (
+        (t.label || targetId) +
+        " Run WPTP CI in the Chrysalis repo: " +
+        t.wptpCi.script +
+        " (matrix: " +
+        (t.wptpCi.matrixPath || "see wptp-matrix") +
+        "). Not started from the hub UI in v1."
+      );
+    }
+    return (t.label || targetId) + " — planned; not runnable from Translation Hub v1.";
+  }
+
+  function updateTargetPlannerNote() {
+    const note = $("targetPlannerNote");
+    if (!note) return;
+    const sel = document.querySelector("#targetPickers select:focus") || document.querySelector("#targetPickers select");
+    if (!sel) {
+      note.textContent = "";
+      return;
+    }
+    note.textContent = describeTarget(sel.dataset.lang, sel.value);
   }
 
   function renderTargetPickers(languages) {
@@ -69,13 +103,18 @@
       for (const o of opts) {
         const opt = document.createElement("option");
         opt.value = o.id;
-        opt.textContent = o.label + (o.supported ? "" : " — planned");
+        const tag = o.grade === "gold" ? " — gold" : o.supported ? "" : o.wptpCi ? " — WPTP CI" : " — planned";
+        opt.textContent = o.label + tag;
+        if (!o.supported && o.id !== "unchanged") opt.className = "planned";
         sel.appendChild(opt);
       }
       if (lang === "php") sel.value = "typescript-chrysalis";
+      else if (!opts.some((o) => o.supported && o.id !== "unchanged")) sel.value = "unchanged";
+      sel.addEventListener("change", updateTargetPlannerNote);
       div.appendChild(sel);
       box.appendChild(div);
     }
+    updateTargetPlannerNote();
   }
 
   $("btnScanSsh").addEventListener("click", async () => {
@@ -147,6 +186,21 @@
         .map((l) => `<li>${esc(l.language)}: ${l.fileCount} files → ${esc((p.targets && p.targets[l.language]) || "?")}</li>`)
         .join("");
     } else det.innerHTML = "<li>Not scanned</li>";
+    const planEl = $("consoleRoutePlan");
+    if (planEl) {
+      try {
+        const { plan } = await api(`/api/hub/projects/${encodeURIComponent(id)}/route-plan`);
+        const run = plan.runnable.map((r) => r.sourceLang + "→" + r.targetId).join(", ");
+        const block = plan.errors.length
+          ? plan.errors.map((e) => e.sourceLang + ": " + e.message).join(" ")
+          : "";
+        planEl.textContent = run
+          ? "Runnable on hub: " + run + (block ? " | Blocked: " + block : "")
+          : block || "No runnable routes — set PHP → TypeScript (Chrysalis).";
+      } catch {
+        planEl.textContent = "";
+      }
+    }
   }
 
   function setJob(j) {
@@ -203,9 +257,20 @@
   $("btnIngest").addEventListener("click", async () => {
     $("log").textContent = "";
     try {
-      await post("/api/jobs/ingest", { projectDir: $("project").value, hubProjectId: consoleProjectId });
+      const r = await post("/api/jobs/ingest", { projectDir: $("project").value, hubProjectId: consoleProjectId });
+      if (r.plan?.errors?.length) {
+        for (const e of r.plan.errors) logLine("[hub] " + e.sourceLang + ": " + e.message);
+      }
     } catch (e) {
       logLine("ERROR: " + e.message);
+      if (consoleProjectId) {
+        try {
+          const { plan } = await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/route-plan`);
+          for (const err of plan.errors) logLine("[hub] " + err.sourceLang + ": " + err.message);
+        } catch {
+          /* ignore */
+        }
+      }
     }
   });
   $("btnStatus").addEventListener("click", async () => {
