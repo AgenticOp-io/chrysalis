@@ -21,8 +21,9 @@ Run at least once per quarter (or before any public **Gold** claim change):
 | Date | Auditor | Notes |
 | --- | --- | --- |
 | 2026-05-19 | Engineering | Initial D7 playbook; D0–D6 technical exits recorded. |
-| 2026-05-20 | Engineering | `pnpm run wptp:d7-audit`; parser-parity `??=` + string interpolation; CI green post flagship/emit fixes. |
 | 2026-05-19 | Engineering | **v2.0.2** tagged; echo-api silver Next.js + Hono matrix edges (24); `wptp:d3-silver-harness` petstore+echo+HAR OK locally. |
+| 2026-05-20 | Engineering | Wave 6: parser nullsafe parity, PDO oracle route (**D309**), ingest `db_connect` / `pdo_item_count_row`; Dependabot major PRs closed; **`docs/IR-HELPER-LIFTING.md`** (**D311**); Project issues **#38** / **#39** for sibling repos. |
+| 2026-05-20 | Engineering | **CI recovery:** Laravel **`chrysalis.stub.php`** registers **`/chrysalis-pdo-count`** (oracle 404 → verify **119/119**); **`ci-gates confidence-trend`** uses trailing pass streak; **`main`** green [run 26138669322](https://github.com/AgenticOp-io/chrysalis/actions/runs/26138669322). `pnpm run wptp:d7-audit` **5/5 OK**. |
 
 ## When to add a Decision Log entry
 
