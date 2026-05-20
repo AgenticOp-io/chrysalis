@@ -7,13 +7,12 @@
     for (const [k, el] of Object.entries(views)) {
       if (el) el.hidden = k !== view;
     }
-    location.hash = view === "home" ? "#/" : `#/${view}`;
   }
 
   function route() {
     const h = (location.hash || "#/").replace(/^#\/?/, "");
     const [page, query] = h.split("?");
-    if (page === "new") show("newProject");
+    if (page === "new" || page === "newProject") show("newProject");
     else if (page === "console") {
       show("console");
       const id = new URLSearchParams(query || "").get("id");
@@ -221,12 +220,14 @@
 
   $("navHome").addEventListener("click", (e) => {
     e.preventDefault();
-    show("home");
+    location.hash = "#/";
+    route();
     loadHome();
   });
   $("navNew").addEventListener("click", (e) => {
     e.preventDefault();
-    show("newProject");
+    location.hash = "#/new";
+    route();
   });
 
   window.addEventListener("hashchange", route);
