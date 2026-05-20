@@ -11,6 +11,7 @@ Every handler here contains a well-known legacy anti-pattern:
 | `GET /search` | reflected echo of `$_GET['q']` without `htmlspecialchars` | `unescaped-output` |
 | `GET /lookup` | `query_all("... " . $id)` — dynamic SQL + request input | `raw-sql-concat` |
 
-Unlike `tiny-blog`, this fixture is **not** expected to run end-to-end. It
-exists purely so `chrysalis insight <this-dir>` produces predictable,
-non-empty output for tests and CI.
+`index.php` + `lib/db.php` + `schema.sql` let `scripts/drive-tiny-n1.mjs` capture
+an oracle corpus for CI (`rewrite --traces traces/tiny-n1-ci`). The fixture is
+still **not** a full production app — it exists so `chrysalis insight` and
+`chrysalis rewrite` produce predictable, non-empty output for tests and CI.

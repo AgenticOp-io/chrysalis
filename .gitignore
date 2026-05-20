@@ -32,6 +32,7 @@ go/shim/chrysalis-go
 go/shim/chrysalis-go.exe
 # Local SQLite for tiny-blog (seed / oracle; DDL is schema.sql)
 fixtures/tiny-blog/blog.sqlite
+fixtures/tiny-n1/blog.sqlite
 traces/
 reports/
 .holes/

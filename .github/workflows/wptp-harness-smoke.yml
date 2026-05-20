@@ -8,6 +8,7 @@ on:
     paths:
       - "packages/**"
       - "scripts/emit-webir-bundle-hono.mjs"
+      - "scripts/emit-webir-bundle-nextjs.mjs"
       - "scripts/export-webir-bundle.mjs"
       - "fixtures/tiny-blog/**"
       - ".github/workflows/wptp-harness-smoke.yml"
@@ -16,6 +17,7 @@ on:
     paths:
       - "packages/**"
       - "scripts/emit-webir-bundle-hono.mjs"
+      - "scripts/emit-webir-bundle-nextjs.mjs"
       - "scripts/export-webir-bundle.mjs"
       - "fixtures/tiny-blog/**"
       - ".github/workflows/wptp-harness-smoke.yml"
@@ -45,13 +47,20 @@ jobs:
           ref: main
           path: wptp-matrix
 
+      - uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-emit-nextjs
+          ref: main
+          path: wptp-emit-nextjs
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install matrix
-        working-directory: wptp-matrix
-        run: npm ci && npm run build
+      - name: Install matrix + wptp-emit-nextjs
+        run: |
+          cd wptp-matrix && npm ci && npm run build
+          cd ../wptp-emit-nextjs && npm ci && npm run build
 
       - name: Verify tiny-blog (populate reports/verify for harness gold)
         run: node scripts/verify-tiny-blog.mjs
@@ -60,5 +69,6 @@ jobs:
         working-directory: wptp-matrix
         env:
           CHRYSALIS_ROOT: ${{ github.workspace }}
+          WPTP_EMIT_NEXTJS_ROOT: ${{ github.workspace }}/wptp-emit-nextjs
           WPTP_PHP_WEBIR_MIN_CORRECTNESS_PCT: "60"
         run: npm run verify:harness

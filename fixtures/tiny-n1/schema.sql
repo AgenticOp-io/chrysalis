@@ -1,0 +1,19 @@
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY,
+  username TEXT NOT NULL,
+  name TEXT NOT NULL
+);
+
+CREATE TABLE posts (
+  id INTEGER PRIMARY KEY,
+  author_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE comments (
+  id INTEGER PRIMARY KEY,
+  post_id INTEGER NOT NULL,
+  author_id INTEGER,
+  body TEXT
+);

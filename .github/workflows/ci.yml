@@ -483,6 +483,14 @@ jobs:
       - name: Build
         run: pnpm -r build
 
+      - name: Set up PHP (tiny-n1 oracle capture)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+
+      - name: Capture tiny-n1 corpus (rewrite trace gating)
+        run: node scripts/drive-tiny-n1.mjs
+
       - name: Rewrite — tiny-n1 sanitize-output must apply + emit clean
         # Run the rewrite engine over tiny-n1, emit the TS, then assert:
         #   (1) at least one sanitize-output opportunity was applied,
@@ -495,6 +503,7 @@ jobs:
         run: |
           mkdir -p reports/rewrite generated/tiny-n1
           node packages/cli/dist/bin.js rewrite fixtures/tiny-n1 \
+            --traces traces/tiny-n1-ci \
             --out generated/tiny-n1 \
             --report reports/rewrite/tiny-n1.json \
             --verify-behavior \

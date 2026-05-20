@@ -30,7 +30,11 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command(node, append([]string{js}, os.Args[1:]...)...)
+	args := os.Args[1:]
+	for len(args) > 0 && args[0] == "--" {
+		args = args[1:]
+	}
+	cmd := exec.Command(node, append([]string{js}, args...)...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
