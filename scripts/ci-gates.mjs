@@ -463,6 +463,7 @@ function assertConfidenceTrend(path) {
 
 function assertConfidenceTrendReady(path) {
   const required = Number.parseInt(process.env.CONFIDENCE_STREAK_REQUIRED ?? "30", 10);
+  const minConfidence = Number(process.env.CONFIDENCE_5NINES ?? "0.99999");
   const r = readJsonGateArtifact("confidence-trend-ready", path, {
     missingLabel: "history file missing",
     missingHint: ["Append history entries from flagship verify runs (see scripts/status-flagship-laravel-full.mjs)."],
@@ -470,11 +471,11 @@ function assertConfidenceTrendReady(path) {
   if (!r || !Array.isArray(r.entries)) {
     fail("confidence-trend-ready: invalid history payload");
   }
-  const count = r.entries.length;
-  if (count < required) {
-    fail(`confidence-trend-ready: insufficient history ${count}/${required}`);
+  const streak = trailingConfidenceTrendStreak(r.entries, minConfidence);
+  if (streak < required) {
+    fail(`confidence-trend-ready: trailing streak ${streak}/${required}`);
   }
-  console.log(`confidence-trend-ready: strict mode ready (${count}/${required})`);
+  console.log(`confidence-trend-ready: strict mode ready (trailing streak ${streak}/${required})`);
 }
 
 function assertVerifyDualSummary(path) {
