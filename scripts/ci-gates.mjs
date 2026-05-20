@@ -402,6 +402,33 @@ function assertConfidence5Nines(path) {
   );
 }
 
+function confidenceTrendEntryFails(e, minConfidence) {
+  if (e.exitCode !== 0) return `non-zero exitCode at ${e.timestamp}`;
+  if (e.semanticChecks !== "passed") return `semantic check failed at ${e.timestamp}`;
+  if (e.metamorphicChecks !== "passed") return `metamorphic check failed at ${e.timestamp}`;
+  if (e.driftDetected === true) return `drift detected at ${e.timestamp}`;
+  if (e.riskCovered !== true) return `risk coverage regressed at ${e.timestamp}`;
+  if (e.crossBackendParityOk === false) return `cross-backend parity failed at ${e.timestamp}`;
+  if (e.matrixCrossBackendParityOk === false) {
+    return `matrix cross-backend parity failed at ${e.timestamp}`;
+  }
+  if (Number(e.minCorrectness ?? 0) + 1e-9 < minConfidence) {
+    return `minCorrectness ${e.minCorrectness} < ${minConfidence} at ${e.timestamp}`;
+  }
+  return undefined;
+}
+
+/** Trailing consecutive passing entries (newest last), not “any failure in last N”. */
+function trailingConfidenceTrendStreak(entries, minConfidence) {
+  let streak = 0;
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const reason = confidenceTrendEntryFails(entries[i], minConfidence);
+    if (reason) break;
+    streak++;
+  }
+  return streak;
+}
+
 function assertConfidenceTrend(path) {
   const required = Number.parseInt(process.env.CONFIDENCE_STREAK_REQUIRED ?? "30", 10);
   const minConfidence = Number(process.env.CONFIDENCE_5NINES ?? "0.99999");
@@ -418,31 +445,20 @@ function assertConfidenceTrend(path) {
   if (!r || !Array.isArray(r.entries)) {
     fail("confidence-trend: invalid history payload");
   }
-  const recent = r.entries.slice(-required);
-  if (recent.length < required) {
+  const streak = trailingConfidenceTrendStreak(r.entries, minConfidence);
+  if (streak < required) {
     if (allowWarmup) {
-      console.log(`confidence-trend warmup: have ${recent.length}/${required} entries`);
+      console.log(`confidence-trend warmup: trailing streak ${streak}/${required}`);
       return;
     }
-    fail(`confidence-trend: insufficient history ${recent.length}/${required}`);
+    const latest = r.entries[r.entries.length - 1];
+    const latestFail =
+      latest && confidenceTrendEntryFails(latest, minConfidence)
+        ? confidenceTrendEntryFails(latest, minConfidence)
+        : "insufficient trailing streak";
+    fail(`confidence-trend: ${latestFail} (streak ${streak}/${required})`);
   }
-  for (const e of recent) {
-    if (e.exitCode !== 0) fail(`confidence-trend: non-zero exitCode at ${e.timestamp}`);
-    if (e.semanticChecks !== "passed") fail(`confidence-trend: semantic check failed at ${e.timestamp}`);
-    if (e.metamorphicChecks !== "passed") fail(`confidence-trend: metamorphic check failed at ${e.timestamp}`);
-    if (e.driftDetected === true) fail(`confidence-trend: drift detected at ${e.timestamp}`);
-    if (e.riskCovered !== true) fail(`confidence-trend: risk coverage regressed at ${e.timestamp}`);
-    if (e.crossBackendParityOk === false) {
-      fail(`confidence-trend: cross-backend parity failed at ${e.timestamp}`);
-    }
-    if (e.matrixCrossBackendParityOk === false) {
-      fail(`confidence-trend: matrix cross-backend parity failed at ${e.timestamp}`);
-    }
-    if (Number(e.minCorrectness ?? 0) + 1e-9 < minConfidence) {
-      fail(`confidence-trend: minCorrectness ${e.minCorrectness} < ${minConfidence} at ${e.timestamp}`);
-    }
-  }
-  console.log(`confidence-trend OK: streak=${required} minConfidence=${minConfidence}`);
+  console.log(`confidence-trend OK: streak=${streak}/${required} minConfidence=${minConfidence}`);
 }
 
 function assertConfidenceTrendReady(path) {

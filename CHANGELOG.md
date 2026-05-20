@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Flagship verify:** register **`GET /chrysalis-pdo-count`** in Laravel **`chrysalis.stub.php`** (oracle was 404; replay 117/119).
+- **`ci-gates confidence-trend`:** require a **trailing** consecutive pass streak (not “any failure in last N entries” from cached history).
 
 ### Added
 
