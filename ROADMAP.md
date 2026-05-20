@@ -860,7 +860,7 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 
 **Wave 5 (2026-04-29):** **D228**–**D231** — machine-readable **`chrysalis.verify.summary.dual`** artifacts for tiny-blog + flagship verify jobs; CI **`verify-dual-summary`** gate + profile env; flagship summary row parity with contract fields; **`readJsonGateArtifact`** extended to **`tiny-n1-rewrite`**, **`migration-sidecar-floors`**, and **`status-migration`** stdin (**`JSON.parse`** errors); root **`pnpm run ci:*`** shims for common **`ci-gates`** entrypoints; **`ci-gates-json-artifacts.test.ts`** covers migration sidecar missing/invalid/skip, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, and invalid JSON across gates; **`README.md`**, **`AGENTS.md`**, **`packages/cli/README.md`** document **`ci:insight`** vs gate-only **`ci:tiny-n1-insight`**; committed **`.cursor/rules/chrysalis.mdc`** with local **`.cursor/*`** ignored elsewhere.
 
-**Wave 6 (2026-05-20):** **Lane A** — parser parity probes + **`wptp:d7-audit`**; flagship PDO oracle route (**D309**), empty-seed + Hono **`__respond`** + CLI stress status; ingest **psr-4** vendor effects test; WPTP **echo-api** silver Next.js edge; semver **2.0.2** (**`CHANGELOG.md`**).
+**Wave 6 (2026-05-20):** **Lane A** — parser parity probes + **`wptp:d7-audit`**; flagship PDO oracle route (**D309**, **53** template routes), empty-seed + Hono **`__respond`** + CLI stress status; ingest **psr-4** vendor effects test; WPTP **echo-api** silver Next.js + Hono edges (**24** matrix rows); semver **2.0.2** (**`CHANGELOG.md`**).
 
 ### Commercial program (documentation + optional CLI gate)
 

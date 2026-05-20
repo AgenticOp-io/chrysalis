@@ -30,6 +30,18 @@ function query_one(string $sql): ?array
 }
 
 /**
+ * PDO `query` + `fetch` for flagship **`/chrysalis-pdo-count`** (D309).
+ *
+ * @return array<string, mixed>|null
+ */
+function pdo_item_count_row(): ?array
+{
+    $stmt = db_connect()->query("SELECT COUNT(*) AS c FROM items");
+    $row = $stmt->fetch();
+    return $row === false ? null : $row;
+}
+
+/**
  * @return array<int, array<string, mixed>>
  */
 function query_all(string $sql): array

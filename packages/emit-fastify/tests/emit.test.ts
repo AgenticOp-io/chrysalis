@@ -624,12 +624,12 @@ describe("emit-fastify: flagship laravel-min (Milestone 4 slice)", () => {
 });
 
 describe("emit-fastify: flagship laravel-full chrysalis-templates", () => {
-  test("emits fifty-two handlers and zero holes", async () => {
+  test("emits fifty-three handlers and zero holes", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-lf-"));
     try {
       const mod = await ingestDirectory(FLAGSHIP_LARAVEL_FULL_TEMPLATES);
       const res = await emit({ module: mod, outDir: out, provenanceRoot: FLAGSHIP_LARAVEL_FULL_TEMPLATES });
-      expect(res.handlerCount).toBe(52);
+      expect(res.handlerCount).toBe(53);
       expect(res.holes.length).toBe(0);
       expect(existsSync(resolve(out, "src/handlers/ping_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/health_txt_show.ts"))).toBe(true);

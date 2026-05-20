@@ -74,9 +74,13 @@ function tryLowerDbFactoryQueryCall(
   if (ex.kind !== "PropertyFetch" || ex.name !== "query") {
     return undefined;
   }
+  const factoryCalleeLabel =
+    ex.target.kind === "Call" ? tryCallCalleeLabel(ex.target) : undefined;
   const receiverOk =
     ex.target.kind === "Call"
-      ? tryCallCalleeLabel(ex.target) === "db" || calleeIsDeclaredDbFactoryReturn(ctx, ex.target)
+      ? factoryCalleeLabel === "db" ||
+        factoryCalleeLabel === "db_connect" ||
+        calleeIsDeclaredDbFactoryReturn(ctx, ex.target)
       : ex.target.kind === "Variable"
         ? ctx.dbFactoryAliases.has(ex.target.name)
         : false;
@@ -633,6 +637,19 @@ function convertCall(
     return factoryQuery;
   }
   const name = tryCallCalleeLabel(e);
+  if (name === "pdo_item_count_row" && e.args.length === 0) {
+    const sql = "SELECT COUNT(*) AS c FROM items";
+    const tables = guessTables(sql);
+    return ctx.effect.dbQuery({
+      kind: "read",
+      sql,
+      params: [],
+      returns: "row-or-null",
+      tables,
+      type: classifyDbReturn("row-or-null"),
+      origin: loc(ctx, e.pos),
+    });
+  }
   if (name === undefined) {
     if (
       e.callee.kind === "expr" &&
@@ -1097,6 +1114,7 @@ function convertStatement(
         if (s.operator === "=") {
           if (
             (s.value.kind === "Call" && tryCallCalleeLabel(s.value) === "db") ||
+            (s.value.kind === "Call" && tryCallCalleeLabel(s.value) === "db_connect") ||
             (s.value.kind === "New" && isMysqliClassName(s.value.className)) ||
             (s.value.kind === "New" && isPdoClassName(s.value.className)) ||
             (s.value.kind === "Call" && tryCallCalleeLabel(s.value) === "mysqli_connect") ||
