@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **WPTP D7 playbook:** **`docs/WPTP-D7-ONGOING.md`** (quarterly matrix audit, CI hygiene).
 - **WPTP silver Next.js (D306):** **`scripts/emit-webir-bundle-nextjs.mjs`**, **`scripts/wptp-silver-nextjs-harness.mjs`**, CI **`wptp-silver-nextjs-harness`**; **`pnpm run wptp:silver-nextjs-harness`** (Chrysalis WebIR bundle → **`@wptp/emit-nextjs`**; matrix paths **`openapi-ir-nextjs-chrysalis`**, **`har-ir-nextjs-chrysalis`**).
 - **Verify replay (D308):** redacted form **`post`** fields replay from **`rawBody`**; SQL tape omitted when row values are redacted placeholders — fixes **`verify-tiny-blog`** at **`VERIFY_THRESHOLD=0.95`** in CI.
+- **Flagship laravel-full:** recursive-stress SQL returns **`maxN=0`** when **`items`** is empty (fixes seed-matrix metamorphic gate in CI).
+- **Deps:** **`tsx`** **4.22.3**; **`pnpm.overrides`** **`protobufjs@7.6.0`** (Dependabot-aligned).
 
 ### Added
 
