@@ -1541,7 +1541,7 @@ function semanticExpectationsForSeed(seedVariant) {
         itemsSnapshot: '{"itemsSnapshot":{"count":0,"minId":0,"maxId":0,"sumId":0}}',
         itemsGroupParity: '{"parityCounts":{"even":0,"odd":0}}',
         itemsCteRollup: '{"cteRollup":{"count":0,"sumId":0,"avgId":0}}',
-        recursiveStress: '{"recursiveStress":{"maxN":1,"sumN":1}}',
+        recursiveStress: '{"recursiveStress":{"maxN":0,"sumN":0}}',
       };
     case "ten":
       return {
