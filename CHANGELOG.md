@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **WPTP:** **`echo-api-ir-hono-chrysalis`** harness + matrix edge **`echo-api-composed-hono-chrysalis-silver`**; **`wptp:d3-silver-harness`** runs petstore + echo + HAR.
+
+### Changed
+
+- **Deps:** **`firebase-tools@^14.11.0`**; **`pnpm.overrides`** **`tar@7.5.7`** (dev/deploy audit hygiene).
+
+### Added
+
 - **GCE smoke VM:** **`scripts/gce-test-vm.ps1`** hardened for Windows PowerShell (**`Invoke-Gcloud`**, describe/SSH stderr under **`Stop`**, **`gcloud compute scp`** remote path without **`~/`**, optional **`-BillingAccountId`**, **`-DeployFromLocalGit`** via **`git archive`** + **`chrysalis-src.tgz`**). **`scripts/gce-test-vm-bootstrap.sh`** supports tarball extract, **`GIT_TERMINAL_PROMPT=0`**, **`python3`**, and non-strict **`pnpm run test:cli-shims`** on the VM. Documented in **`docs/DEPLOYMENT.md`** and [How-to scenario 24](./docs/HOW-TO.md#24-provision-a-cheap-gce-vm-and-smoke-test-the-repo).
 
 - **Multi-runtime CLI shims (DESIGN D295):** **`go/shim/`** Go entrypoint that **`exec`s** the built Node CLI; **`python/chrysalis_shim/`** Python package with **`chrysalis-py`** and **`python -m chrysalis_shim`**. Both honor **`CHRYSALIS_CLI_JS`** and **`CHRYSALIS_NODE`**. **`pnpm run test:cli-shims`** skips missing interpreters locally; on **`GITHUB_ACTIONS`** (or **`CHRYSALIS_STRICT_CLI_SHIMS=1`**) **both** shims must pass. **`typecheck-and-test`** in **`.github/workflows/ci.yml`** runs **`pnpm run test:cli-shims`** after **`pnpm -r build`** with **`actions/setup-go@v5` (Go 1.22)** so both shims stay covered in CI.

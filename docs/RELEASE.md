@@ -4,7 +4,7 @@ This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagge
 
 ## Version policy
 
-- **Root** `package.json` `version` is the release identifier (e.g. `2.0.1`).
+- **Root** `package.json` `version` is the release identifier (e.g. `2.0.2`).
 - Workspace packages use the same semver for clarity; consumers still resolve via `workspace:*`.
 
 ## Steps to cut a release
@@ -12,11 +12,11 @@ This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagge
 1. **Freeze main** — merge all intended work; CI green.  
 2. **Update changelog** — edit root `CHANGELOG.md` with the new version section and date.  
 3. **Bump versions** — root and `packages/*/package.json` `version` fields.  
-4. **Commit** — e.g. `release: v2.0.1`.
+4. **Commit** — e.g. `release: v2.0.2`.
 5. **Tag** — annotated tag recommended (must point at the commit that already contains the version bump):
 
    ```bash
-   git tag -a v2.0.1 -m "Chrysalis v2.0.1"
+   git tag -a v2.0.2 -m "Chrysalis v2.0.2"
    ```
 
 6. **Build release archives** — from repo root, after commit:
@@ -31,20 +31,20 @@ This repository ships as a **source tree** (pnpm monorepo). The v1 line is tagge
 
    ```bash
    git push origin main
-   git push origin v2.0.1
+   git push origin v2.0.2
    ```
 
-   If a tag was pushed to the wrong commit by mistake, fix it **before** others depend on it: delete the remote tag (`git push origin :refs/tags/v2.0.1`), retag locally on the correct **`HEAD`**, then `git push origin v2.0.1` again (or `git push origin refs/tags/v2.0.1 --force` once you are sure).
+   If a tag was pushed to the wrong commit by mistake, fix it **before** others depend on it: delete the remote tag (`git push origin :refs/tags/v2.0.2`), retag locally on the correct **`HEAD`**, then `git push origin v2.0.2` again (or `git push origin refs/tags/v2.0.2 --force` once you are sure).
 
 8. **GitHub Release** — pushing a semver tag matching **`v*.*.*`** runs **`.github/workflows/release.yml`**, which builds the same archives and calls **`gh release create`** with **`GITHUB_TOKEN`**. If that job is disabled or fails, use the UI or CLI manually:
 
-   *Releases* → *Draft a new release* → choose tag `v2.0.1` → attach the two files under `release/` → publish.
+   *Releases* → *Draft a new release* → choose tag `v2.0.2` → attach the two files under `release/` → publish.
 
    ```bash
-   gh release create v2.0.1 release/chrysalis-2.0.1-source.tar.gz release/chrysalis-2.0.1-source.zip --title "Chrysalis v2.0.1" --notes-file CHANGELOG.md
+   gh release create v2.0.2 release/chrysalis-2.0.2-source.tar.gz release/chrysalis-2.0.2-source.zip --title "Chrysalis v2.0.2" --notes-file CHANGELOG.md
    ```
 
-   Adjust filenames to match the version you built. Confirm **`git ls-remote --tags origin v2.0.1`** matches **`git rev-parse HEAD`** on the release branch before relying on the GitHub Release page.
+   Adjust filenames to match the version you built. Confirm **`git ls-remote --tags origin v2.0.2`** matches **`git rev-parse HEAD`** on the release branch before relying on the GitHub Release page.
 
 ## Planning (GitHub Project)
 
