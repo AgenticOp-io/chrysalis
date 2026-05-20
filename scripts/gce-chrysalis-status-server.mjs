@@ -24,10 +24,20 @@ const progressFile =
 async function readProgress() {
   try {
     const raw = await readFile(progressFile, "utf8");
-    return { ok: true, path: progressFile, raw: JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    const completed = Array.isArray(parsed.completedRouteKeys)
+      ? parsed.completedRouteKeys.length
+      : 0;
+    return { ok: true, path: progressFile, raw: parsed, completedRouteCount: completed };
   } catch (e) {
     const err = e instanceof Error ? e.message : String(e);
-    return { ok: false, path: progressFile, error: err };
+    const idle = err.includes("ENOENT");
+    return {
+      ok: false,
+      path: progressFile,
+      error: err,
+      state: idle ? "idle" : "error",
+    };
   }
 }
 
@@ -35,9 +45,13 @@ function htmlPage(payload) {
   const p = payload.chrysalis.progress;
   const progressBlock =
     p.ok && p.raw
-      ? `<pre>${escapeHtml(JSON.stringify(p.raw, null, 2))}</pre>`
-      : `<p class="muted">No ingest progress file yet (<code>${escapeHtml(p.path)}</code>).</p>
-         <p>Start a long ingest with <code>--ingest-progress-file</code> to populate this view.</p>`;
+      ? `<p><strong>${p.completedRouteCount ?? 0}</strong> route(s) completed · <code>${escapeHtml(String(p.raw.sourceApp ?? ""))}</code></p>
+         <pre>${escapeHtml(JSON.stringify(p.raw, null, 2))}</pre>`
+      : `<p class="muted">State: <strong>${escapeHtml(String(p.state ?? "idle"))}</strong> — no progress file at <code>${escapeHtml(p.path)}</code>.</p>
+         <p>On the VM, run ingest with a progress path, for example:</p>
+         <pre>cd ~/chrysalis-test
+node packages/cli/dist/bin.js ingest &lt;php-project-dir&gt; \\
+  --ingest-progress-file .chrysalis/ingest.progress</pre>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -101,15 +115,17 @@ const server = createServer(async (req, res) => {
     return;
   }
   if (url.pathname === "/api/chrysalis/progress") {
-    if (payload.chrysalis.progress.ok) {
-      sendJson(res, 200, payload.chrysalis.progress.raw);
-    } else {
-      sendJson(res, 404, {
-        error: "progress-unavailable",
-        path: payload.chrysalis.progress.path,
-        detail: payload.chrysalis.progress.error,
-      });
+    const p = payload.chrysalis.progress;
+    if (p.ok && p.raw) {
+      sendJson(res, 200, p.raw);
+      return;
     }
+    sendJson(res, 200, {
+      state: p.state ?? "idle",
+      path: p.path,
+      hint: "Run chrysalis ingest <php-project-dir> --ingest-progress-file .chrysalis/ingest.progress",
+      detail: p.error,
+    });
     return;
   }
   if (url.pathname === "/" || url.pathname === "/index.html") {

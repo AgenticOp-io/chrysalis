@@ -6,7 +6,10 @@ set -euo pipefail
 PORT="${CHRYSALIS_STATUS_PORT:-19090}"
 BIND="${CHRYSALIS_STATUS_BIND:-0.0.0.0}"
 REPO="${CHRYSALIS_STATUS_REPO:-${HOME}/chrysalis-test}"
-SCRIPT="${REPO}/scripts/gce-chrysalis-status-server.mjs"
+SCRIPT="${REPO}/scripts/chrysalis-operator-web.mjs"
+if [[ ! -f "${SCRIPT}" ]]; then
+  SCRIPT="${REPO}/scripts/gce-chrysalis-status-server.mjs"
+fi
 PIDFILE="${HOME}/.chrysalis-status-server.pid"
 LOG="${HOME}/.chrysalis-status-server.log"
 
