@@ -12,6 +12,18 @@
       "path": "/nested-array",
       "file": "pages/nested_array.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/coalesce-assign",
+      "file": "pages/coalesce_assign.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/string-interpolation",
+      "file": "pages/string_interpolation.php",
+      "pathParams": []
     }
   ]
 }

@@ -64,6 +64,7 @@
     "wptp:d3-silver-harness": "node --import tsx scripts/wptp-d3-silver-harness.mjs",
     "wptp:d4-nextjs-harness": "node --import tsx scripts/wptp-d4-nextjs-harness.mjs",
     "wptp:silver-nextjs-harness": "node --import tsx scripts/wptp-silver-nextjs-harness.mjs",
+    "wptp:d7-audit": "node scripts/wptp-d7-audit.mjs",
     "emit:webir-bundle-hono": "node scripts/emit-webir-bundle-hono.mjs",
     "clean": "pnpm -r clean",
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",

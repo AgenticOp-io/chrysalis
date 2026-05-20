@@ -252,4 +252,20 @@ $maybe = null ?? "fallback";
     const nk = await parseSource(src, "nested_array.php", { provider: "nikic" });
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
+
+  run("matches glayzzle on parser-parity-probe coalesce_assign.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/coalesce_assign.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "coalesce_assign.php");
+    const nk = await parseSource(src, "coalesce_assign.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe string_interpolation.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/string_interpolation.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "string_interpolation.php");
+    const nk = await parseSource(src, "string_interpolation.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
 });

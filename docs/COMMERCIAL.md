@@ -69,3 +69,16 @@ Chrysalis is **open source (MIT)** in this repository. Revenue scales with **ser
 2. Define **tier → `claims.tier`** and optional **`claims.features`** for (3).  
 3. Run **`pnpm run license:sign`** from a **secure** machine holding the **private** key.  
 4. Document customer env vars: **`CHRYSALIS_REQUIRE_LICENSE`**, **`CHRYSALIS_LICENSE`**, **`CHRYSALIS_LICENSE_PUBLIC_KEY_PATH`**, optional **`CHRYSALIS_LICENSE_MIN_TIER`**.
+
+## Launch readiness (maintainer)
+
+Use before announcing a **commercial SKU** or **`@chrysalis/license`** distribution:
+
+| Gate | Command / artifact |
+| --- | --- |
+| OSS baseline | **`pnpm test`**, **`pnpm -r build`**, CI **`verify:laravel-full:5nines`** green on `main` |
+| Eval path | **`chrysalis init`**, flagship scaffold docs, **`docs/INSTALLATION.md`** |
+| License smoke | **`pnpm run license:sign`** + **`chrysalis license check`** with sample envelope |
+| Tier mapping | Table in §3 matches **`CHRYSALIS_LICENSE_MIN_TIER`** ordering (**dev < pro < enterprise**) |
+| Support intake | **`SECURITY.md`** + named support channel (outside repo) |
+| WPTP claims | Matrix grades honest per **`docs/WPTP-D7-ONGOING.md`**; no **Gold** without harness proof |

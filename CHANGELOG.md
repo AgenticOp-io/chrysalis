@@ -35,9 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Verify replay (D308):** redacted form **`post`** fields replay from **`rawBody`**; SQL tape omitted when row values are redacted placeholders — fixes **`verify-tiny-blog`** at **`VERIFY_THRESHOLD=0.95`** in CI.
 - **Flagship laravel-full:** recursive-stress SQL returns **`maxN=0`** when **`items`** is empty (fixes seed-matrix metamorphic gate in CI).
 - **Deps:** **`tsx`** **4.22.3**; **`pnpm.overrides`** **`protobufjs@7.6.0`** (Dependabot-aligned).
+- **Emit (Hono):** terminal PHP returns route through **`__respond`** so empty bodies no longer make **`app.fetch`** yield **`Context`** during verify replay; handler epilogue omitted only when the handler block ends with a provably terminal statement (**`packages/emit-shared`**).
+- **Flagship templates:** null-safe **`first_item_show`** / **`last_item_show`** when the items table is empty.
+- **CLI:** **`chrysalis status --json`** reads dual-backend verify summaries from **`hono/run-N`** / **`fastify/run-N`** stress directories.
 
 ### Added
 
+- **Parser Lane A (Wave 6):** **`fixtures/parser-parity-probe`** pages **`coalesce_assign.php`** (`??=`) and **`string_interpolation.php`**; nikic/glayzzle parity tests in **`packages/parser-bridge/tests/nikic.test.ts`**.
+- **WPTP D7:** **`pnpm run wptp:d7-audit`** — local quarterly audit helper (**`scripts/wptp-d7-audit.mjs`**).
 - **`chrysalis init [<dir>]`** writes **`chrysalis.project.json`** (**`kind`:** **`chrysalis.project`**, **`schemaVersion`:** **`1.0.0`**, **`initializedAt`**) at the PHP project root; creates **`dir`** when missing; idempotent when the marker already matches. **`CHRYSALIS_REQUIRE_LICENSE`** does **not** gate **`init`** so vendor trees can be bootstrapped before keys ship (**DESIGN D290**). Vitest **`packages/cli/tests/init-cli.test.ts`**.
 
 - **Commercial monetization stack (DESIGN D289):** **`docs/COMMERCIAL.md`** (revenue ordered: services, support, licensed distribution, training, examples); **`@chrysalis/license`** (Ed25519 **`claims` + `sig`**, **`assertMinLicenseTier`**, **`CHRYSALIS_LICENSE_MIN_TIER`**); **`chrysalis license`**, **`CHRYSALIS_REQUIRE_LICENSE`**, **`scripts/sign-license.mjs`**, root **`pnpm run license:sign`**; Vitest **`packages/license/tests`**, **`packages/cli/tests/license-cli.test.ts`**. Default OSS behavior unchanged (gate off). **Not a public commercial product launch** (no published SKU line or standalone npm commercial offering yet; docs state **publication status**).
