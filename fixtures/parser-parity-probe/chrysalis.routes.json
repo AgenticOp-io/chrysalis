@@ -24,6 +24,12 @@
       "path": "/string-interpolation",
       "file": "pages/string_interpolation.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/nullsafe",
+      "file": "pages/nullsafe_property.php",
+      "pathParams": []
     }
   ]
 }

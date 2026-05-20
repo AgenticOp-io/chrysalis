@@ -49,6 +49,10 @@ function normalizeParityShape(v: unknown): unknown {
     };
   }
 
+  if (o.kind === "UnknownExpr" && typeof o.detail === "string" && /nullsafe/i.test(o.detail)) {
+    return { kind: "UnknownExpr", detail: "unhandled expr: nullsafePropertyFetch" };
+  }
+
   // glayzzle maps __DIR__ in include paths to UnknownExpr (nikic maps to ConstFetch).
   if (o.kind === "ConstFetch" && o.name === "__DIR__") {
     return {
@@ -266,6 +270,14 @@ $maybe = null ?? "fallback";
     const src = readFileSync(p, "utf8");
     const gz = parseSourceWithGlayzzle(src, "string_interpolation.php");
     const nk = await parseSource(src, "string_interpolation.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe nullsafe_property.php (positions stripped)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/nullsafe_property.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "nullsafe_property.php");
+    const nk = await parseSource(src, "nullsafe_property.php", { provider: "nikic" });
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 });

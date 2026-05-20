@@ -49,7 +49,7 @@ function tryCallCalleeLabel(e: Extract<PhpExpr, { kind: "Call" }>): string | und
 }
 
 /**
- * `db()->query("…")` on the shared `db()` factory return (PDO or mysqli in `lib/`), plus
+ * `db()` / `db_connect()->query("…")` on shared lib factory returns (PDO or mysqli in `lib/`), plus
  * **`DeclaredFactory::getConnection()->query`** when listed in **`chrysalis.routes.json`** **`dbFactoryReturnCallees`**,
  * plus **`$m->query`** when **`$m`** was assigned **`db()`**, **`new mysqli`**, **`new PDO`**, **`mysqli_connect(...)`**, a
  * manifest-declared factory call, or copied from a tracked variable (**`$b = $a`** when **`$a`** is already tracked)

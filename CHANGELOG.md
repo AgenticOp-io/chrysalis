@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Parser Lane A:** **`nullsafe_property.php`** (`?->`) nikic/glayzzle parity normalization.
+- **Ingest:** **`db_connect()->query`** lowering test; **`pdo_item_count_row()`** fixed read for flagship PDO lane.
 - **WPTP:** **`echo-api-ir-hono-chrysalis`** harness + matrix edge **`echo-api-composed-hono-chrysalis-silver`**; **`wptp:d3-silver-harness`** runs petstore + echo + HAR.
 
 ### Changed
