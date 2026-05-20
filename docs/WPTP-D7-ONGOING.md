@@ -22,6 +22,7 @@ Run at least once per quarter (or before any public **Gold** claim change):
 | --- | --- | --- |
 | 2026-05-19 | Engineering | Initial D7 playbook; D0–D6 technical exits recorded. |
 | 2026-05-20 | Engineering | `pnpm run wptp:d7-audit`; parser-parity `??=` + string interpolation; CI green post flagship/emit fixes. |
+| 2026-05-19 | Engineering | **v2.0.2** tagged; echo-api silver Next.js + Hono matrix edges (24); `wptp:d3-silver-harness` petstore+echo+HAR OK locally. |
 
 ## When to add a Decision Log entry
 
