@@ -51,5 +51,4 @@ export async function login(c: Context): Promise<Response> {
   }
   getSession(c).set("user_id", intval((user as any).id));
   return c.redirect(String("Location: /posts").replace(/^\s*Location:\s*/i, ""));
-  return __respond(c, __html, __status);
 }

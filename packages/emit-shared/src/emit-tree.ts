@@ -677,6 +677,34 @@ function indentBlock(s: string): string {
     .join("\n");
 }
 
+/** True when control cannot fall through past `id` (handler epilogue not needed). */
+function nodeEndsWithTerminalReturn(m: Module, id: NodeId): boolean {
+  const n = m.nodes.get(id);
+  if (!n) return false;
+  if (n.dialect === "effect" && n.op === "redirect") return true;
+  if (n.dialect !== "data") return false;
+  switch (n.op) {
+    case "block": {
+      const ops = n.operands;
+      if (ops.length === 0) return false;
+      return nodeEndsWithTerminalReturn(m, ops[ops.length - 1]!);
+    }
+    case "call": {
+      const c = String(n.attrs.callee);
+      return c === "__return" || c === "__exit" || c === "__throw";
+    }
+    case "if": {
+      if (!n.attrs.hasElse) return false;
+      const thenId = n.operands[1]!;
+      const elseId = n.operands[2];
+      if (elseId == null) return false;
+      return nodeEndsWithTerminalReturn(m, thenId) && nodeEndsWithTerminalReturn(m, elseId);
+    }
+    default:
+      return false;
+  }
+}
+
 /**
  * Emit a full handler body given the route's `web.request.handler` node id.
  * The emitted body is the content of the handler function, not including
@@ -717,7 +745,9 @@ export function emitHandlerBody(
   }
   const main = emitStmt(ctx, body);
   const decls: string[] = [`let __html = "";`, `let __status = 200;`];
-  const epilogue: string[] = ctx.hasTerminalResponse ? [] : [profile.respondBuffered()];
+  const epilogue: string[] = nodeEndsWithTerminalReturn(m, body)
+    ? []
+    : [profile.respondBuffered()];
   const text = [...preamble, ...decls, main, ...epilogue]
     .filter((s): s is string => Boolean(s && s.trim()))
     .join("\n");
