@@ -371,6 +371,125 @@ describe("replayCorpus", () => {
     ]);
   });
 
+  it("replays form POST from rawBody when post fields are redacted", async () => {
+    let seenBody: string | undefined;
+    const injectedFetch: typeof fetch = async (input, init) => {
+      const r = new Request(input, init);
+      seenBody = await r.text();
+      return new Response("ok", { status: 200, headers: { "content-type": "text/html" } });
+    };
+    const trace: Trace = {
+      header: {
+        type: "header",
+        schemaVersion: SCHEMA_VERSION,
+        traceId: "t-redacted-post",
+        startedAt: "2026-04-22T00:00:00Z",
+        php: { version: "8.3.0", sapi: "cli-server" },
+        redaction: { configHash: "deadbeef", rules: [] },
+      },
+      events: [
+        {
+          type: "http.request",
+          method: "POST",
+          path: "/login",
+          query: {},
+          headers: { "content-type": "application/x-www-form-urlencoded" },
+          cookies: {},
+          post: { username: "alice", password: "***REDACTED***" },
+          rawBody: "username=alice&password=secret",
+          session: {},
+        },
+        {
+          type: "http.response",
+          status: 302,
+          headers: { location: "/posts" },
+          body: "",
+          bodyTruncated: false,
+          session: {},
+        },
+      ],
+      footer: {
+        type: "footer",
+        endedAt: "2026-04-22T00:00:01Z",
+        durationUs: 1000,
+        eventCount: 2,
+        exitStatus: 0,
+      },
+    };
+    await replayCorpus(corpusOf([trace]), {
+      baseUrl: "http://unused.test",
+      fetch: injectedFetch,
+    });
+    expect(seenBody).toBe("username=alice&password=secret");
+  });
+
+  it("omits sql tape when SELECT rows contain redacted placeholders", async () => {
+    let seenTape: string | null | undefined = "sentinel";
+    const injectedFetch: typeof fetch = async (input, init) => {
+      const r = new Request(input, init);
+      seenTape = r.headers.get("x-chrysalis-sql-tape");
+      return new Response("ok", { status: 200, headers: { "content-type": "text/html" } });
+    };
+    const trace: Trace = {
+      header: {
+        type: "header",
+        schemaVersion: SCHEMA_VERSION,
+        traceId: "t-redacted-sql",
+        startedAt: "2026-04-22T00:00:00Z",
+        php: { version: "8.3.0", sapi: "cli-server" },
+        redaction: { configHash: "deadbeef", rules: [] },
+      },
+      events: [
+        {
+          type: "http.request",
+          method: "POST",
+          path: "/login",
+          query: {},
+          headers: {},
+          cookies: {},
+          post: {},
+          rawBody: null,
+          session: {},
+        },
+        {
+          type: "sql.query",
+          driver: "sqlite",
+          sql: "SELECT id, password FROM users WHERE username = ?",
+          params: ["alice"],
+          rowCount: 1,
+          rowShape: [
+            { name: "id", typeTag: "integer" },
+            { name: "password", typeTag: "string" },
+          ],
+          rows: [{ id: 1, password: "sha256:32b951ebbb6d236b" }],
+          durationUs: 10,
+          origin: { file: "a.php", line: 2 },
+        },
+        {
+          type: "http.response",
+          status: 302,
+          headers: { location: "/posts" },
+          body: "",
+          bodyTruncated: false,
+          session: {},
+        },
+      ],
+      footer: {
+        type: "footer",
+        endedAt: "2026-04-22T00:00:01Z",
+        durationUs: 1000,
+        eventCount: 3,
+        exitStatus: 0,
+      },
+    };
+    await replayCorpus(corpusOf([trace]), {
+      baseUrl: "http://unused.test",
+      fetch: injectedFetch,
+      recordedSqlReplay: true,
+    });
+    expect(seenTape).toBeNull();
+  });
+
   it("omits sql tape when SELECT rows were not recorded", async () => {
     let seenTape: string | null | undefined = "sentinel";
     const injectedFetch: typeof fetch = async (input, init) => {

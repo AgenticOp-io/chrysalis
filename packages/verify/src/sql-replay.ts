@@ -15,6 +15,23 @@ export interface SqlReplayTape {
   }>;
 }
 
+/** Oracle redaction placeholders must not be replayed as live column values. */
+function rowValueIsRedactedPlaceholder(v: unknown): boolean {
+  if (typeof v !== "string") return false;
+  if (v.startsWith("sha256:")) return true;
+  if (v.includes("REDACTED")) return true;
+  return false;
+}
+
+function sqlRowsAreReplaySafe(rows: ReadonlyArray<Readonly<Record<string, unknown>>>): boolean {
+  for (const row of rows) {
+    for (const v of Object.values(row)) {
+      if (rowValueIsRedactedPlaceholder(v)) return false;
+    }
+  }
+  return true;
+}
+
 /** True when every SELECT-shaped sql.query has complete `rows` (no truncation). */
 export function canSqlReplayTrace(trace: Trace): boolean {
   for (const e of trace.events) {
@@ -23,6 +40,7 @@ export function canSqlReplayTrace(trace: Trace): boolean {
     if (q.rowShape.length === 0) continue;
     if (q.rows === undefined) return false;
     if (q.rowsTruncated === true) return false;
+    if (!sqlRowsAreReplaySafe(q.rows ?? [])) return false;
   }
   return true;
 }

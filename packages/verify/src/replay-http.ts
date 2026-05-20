@@ -133,10 +133,24 @@ function buildUrl(baseUrl: string, req: HttpRequestEvent): string {
   return `${base}${req.path}${qs}`;
 }
 
+function postFieldLooksRedacted(v: unknown): boolean {
+  if (typeof v !== "string") return false;
+  if (v.includes("REDACTED")) return true;
+  if (v.startsWith("sha256:")) return true;
+  return false;
+}
+
 function buildBody(req: HttpRequestEvent): { body?: string; contentType?: string } {
   const method = req.method.toUpperCase();
   if (method === "GET" || method === "HEAD") return {};
   if (req.post && Object.keys(req.post).length > 0) {
+    const redacted = Object.values(req.post).some(postFieldLooksRedacted);
+    if (redacted && req.rawBody != null) {
+      return {
+        body: req.rawBody,
+        contentType: req.headers["content-type"] ?? "application/x-www-form-urlencoded",
+      };
+    }
     const params = new URLSearchParams();
     for (const [k, v] of Object.entries(req.post)) {
       if (v == null) continue;
