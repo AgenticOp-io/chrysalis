@@ -79,6 +79,11 @@ Route::get("/chrysalis-lib-count", function () {
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
 });
 
+Route::get("/chrysalis-pdo-count", function () {
+    $body = require base_path("chrysalis/handlers/pdo_count_show.php");
+    return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);
+});
+
 Route::get("/chrysalis-sum-ids", function () {
     $body = require base_path("chrysalis/handlers/sum_ids_show.php");
     return response((string) $body, 200, ["Content-Type" => "application/json; charset=utf-8"]);

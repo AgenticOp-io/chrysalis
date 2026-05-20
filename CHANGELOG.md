@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Flagship verify:** register **`GET /chrysalis-pdo-count`** in Laravel **`chrysalis.stub.php`** (oracle was 404; replay 117/119).
+
 ### Added
 
 - **Parser Lane A:** **`nullsafe_property.php`** (`?->`) nikic/glayzzle parity normalization.

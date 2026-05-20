@@ -57,7 +57,7 @@ GitHub also provides built-in fields (Title, Assignees, **Status** for linked is
 
 1. **Views** — Add a *Table* view grouped by **Lane**; add a *Board* view if you prefer Kanban by **Board status**.  
 2. **Roadmap items** — Create **draft issues** or link existing issues for each open “Next” bullet in `ROADMAP.md` (parser, oracle, verify, holes). Set **Lane** on each item. For the **master** program, section **12** draft items are created by the bootstrap script unless **`CHRYSALIS_GH_PROJECT_SEED_ITEMS=0`**; add more items manually as needed.  
-3. **Releases** — Pin or link **[v2.0.1](https://github.com/theorem6/chrysalis/releases/tag/v2.0.1)** (or **[v2.0.0](https://github.com/theorem6/chrysalis/releases/tag/v2.0.0)** / **[v1.0.1](https://github.com/theorem6/chrysalis/releases/tag/v1.0.1)** / **[v1.0.0](https://github.com/theorem6/chrysalis/releases/tag/v1.0.0)**) in the project **Readme** field (if enabled) or a pinned draft issue titled “Released: v2.0.1”.  
+3. **Releases** — Pin or link **[v2.0.2](https://github.com/AgenticOp-io/chrysalis/releases/tag/v2.0.2)** (or **[v2.0.1](https://github.com/AgenticOp-io/chrysalis/releases/tag/v2.0.1)** / **[v2.0.0](https://github.com/AgenticOp-io/chrysalis/releases/tag/v2.0.0)**) in the project **Readme** field (if enabled) or a pinned draft issue titled “Released: v2.0.2”. Link sibling repos per **MASTER-PROGRAM** §12 (**`theorem6/wptp-matrix`**, **`theorem6/wptp-ir`**).  
 4. **Workflows** — Optionally add a repository **rule set** or **branch protection** that references the project (org feature).  
 5. **Org vs user** — For an **organization** project, set `CHRYSALIS_GH_PROJECT_OWNER` to the org name and ensure `gh` is authenticated with org access.
 

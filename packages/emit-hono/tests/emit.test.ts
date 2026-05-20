@@ -298,6 +298,7 @@ describe("emit-hono: flagship laravel-full chrysalis-templates", () => {
       expect(existsSync(resolve(out, "src/handlers/last_item_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/items_list_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/lib_count_show.ts"))).toBe(true);
+      expect(existsSync(resolve(out, "src/handlers/pdo_count_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/sum_ids_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/min_id_show.ts"))).toBe(true);
       expect(existsSync(resolve(out, "src/handlers/max_id_show.ts"))).toBe(true);

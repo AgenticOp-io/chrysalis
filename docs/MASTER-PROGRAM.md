@@ -251,14 +251,16 @@ The script **links** the project to **`repository.url`**’s repo (default **`th
 **Manual:** copy as draft issues; set **Lane** and **Workstream** on each.
 
 1. **D0 — Approve `docs/MASTER-PROGRAM.md` v1** (Legal + Architecture board).
-2. **D0 — Link sibling repos to Project** (placeholder until repos exist).
-3. **D1 — Confirm Chrysalis D1 exit checklist** (§10) against **`ROADMAP.md`**.
-4. **D2 — Publish IR hub repo skeleton** (`wptp-ir` or chosen name) with README: purpose, invariants, non-goals.
-5. **D2 — Define WebIR → IR v0 import mapping** (technical design issue; link DESIGN D decisions).
-6. **D3 — Select second source profile** (OpenAPI vs browser trace vs other) with legal review sub-issue.
-7. **D4 — Select second emit target** (business-driven) with verify harness spike.
-8. **D5 — Matrix schema + website** (public JSON + CI guard against false greens).
-9. **Standing — Quarterly matrix audit** (recurring).
+2. **D0 — Link sibling repos to Project** (`theorem6/wptp-matrix`, `theorem6/wptp-ir`, emit/adapters; see bootstrap seed bodies).
+3. **D5 — wptp-matrix linked + CI** (24 matrix edges; Chrysalis harnesses).
+4. **D2 — wptp-ir linked + WebIR import** (`webir-bundle-to-wptp-ir` CI).
+5. **D1 — Confirm Chrysalis D1 exit checklist** (§10) against **`ROADMAP.md`**.
+6. **D2 — Publish IR hub repo skeleton** (`wptp-ir` or chosen name) with README: purpose, invariants, non-goals.
+7. **D2 — Define WebIR → IR v0 import mapping** (technical design issue; link DESIGN D decisions).
+8. **D3 — Select second source profile** (OpenAPI vs browser trace vs other) with legal review sub-issue.
+9. **D4 — Select second emit target** (business-driven) with verify harness spike.
+10. **D5 — Matrix schema + website** (public JSON + CI guard against false greens).
+11. **Standing — Quarterly matrix audit** (recurring; **`docs/WPTP-D7-ONGOING.md`**).
 
 ---
 
