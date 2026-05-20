@@ -601,14 +601,10 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
       if (callee === "__return") {
         ctx.hasTerminalResponse = true;
         if (args.length > 0) {
-          // Hono accepts a bare `return "json"` as a body; Fastify handlers must
-          // send via `__respond` (reply.send) — otherwise the epilogue is dead and
-          // responses are wrong under `app.inject` / verify replay.
-          if (p.id === "fastify") {
-            ctx.htmlBufferUsed = true;
-            return `__html = String(${args[0]});\n${p.respondBuffered()}`;
-          }
-          return `return ${args[0]};`;
+          // Both backends must buffer then `__respond`: Fastify needs reply.send;
+          // Hono bare `return ""` makes `app.fetch` yield Context, not Response.
+          ctx.htmlBufferUsed = true;
+          return `__html = String(${args[0]});\n${p.respondBuffered()}`;
         }
         return p.respondBuffered();
       }
@@ -721,7 +717,7 @@ export function emitHandlerBody(
   }
   const main = emitStmt(ctx, body);
   const decls: string[] = [`let __html = "";`, `let __status = 200;`];
-  const epilogue: string[] = [profile.respondBuffered()];
+  const epilogue: string[] = ctx.hasTerminalResponse ? [] : [profile.respondBuffered()];
   const text = [...preamble, ...decls, main, ...epilogue]
     .filter((s): s is string => Boolean(s && s.trim()))
     .join("\n");

@@ -106,8 +106,9 @@ export async function replayOne(
 
 /**
  * Hono in-process `app.fetch` may resolve to a bare body value when a handler
- * returns a string instead of a `Response`. Normalize so replay/diff always
- * sees a Fetch `Response` (status/Content-Type aligned with the oracle frame).
+ * returns a non-empty string instead of a `Response`. Normalize so replay/diff
+ * always sees a Fetch `Response` (status/Content-Type aligned with the oracle frame).
+ * Emitted handlers route `__return` through `__respond` so empty bodies do too.
  */
 function coerceFetchResultToResponse(raw: unknown, oracleResp: HttpResponseEvent, url: string): Response {
   if (raw instanceof globalThis.Response) return raw;
