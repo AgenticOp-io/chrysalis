@@ -61,6 +61,6 @@ if ($ip) {
   Write-Host "Hub URL:    http://${ip}:${port}/"
   Write-Host "Demo guide: http://${ip}:${port}/#/guide"
 } else {
-  Write-Host "Hub port:   ${port} (no external IP — use IAP SSH tunnel)"
+  Write-Host "Hub port:   ${port} (no external IP - use IAP SSH tunnel)"
 }
 Write-Host "SSH:        gcloud compute ssh $Name --zone=$Zone --project=$Project"
