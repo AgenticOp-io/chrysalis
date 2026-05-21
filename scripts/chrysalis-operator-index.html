@@ -55,7 +55,8 @@
         <h1>Universal web code translation</h1>
         <p>
           Orchestrate legacy modernization from a central hub with SSH access to origin servers.
-          Chrysalis verifies PHP to TypeScript today; additional languages follow the WPTP hub matrix.
+          Every origin and output language in the web catalog is runnable here; Chrysalis oracle verification
+          remains strongest on PHP to TypeScript, while other pairs lift to WebIR and emit scaffold or framework targets.
         </p>
       </div>
       <div class="card">
@@ -67,7 +68,7 @@
 
     <section id="viewNew" hidden>
       <h1>New translation project</h1>
-      <p class="muted">Connect to an origin server over SSH, detect languages, choose targets, pull code to this hub.</p>
+      <p class="muted">Choose any origin and output from the full web language catalog. Optional SSH autodetect suggests the origin from file counts. PHP → TypeScript/Hono/Fastify/Next.js use Chrysalis ingest; all other pairs use the hub pipeline (lift, emit, or native project scaffold).</p>
       <div class="card">
         <label for="projName">Project name</label>
         <input id="projName" type="text" placeholder="Billing monolith" />
@@ -84,16 +85,30 @@
         </div>
         <label for="sshPath">Remote project path</label>
         <input id="sshPath" type="text" placeholder="/var/www/legacy-app" />
+        <label><input type="checkbox" id="enableDetect" /> Autodetect languages over SSH (install <code>chrysalis-origin-scan</code> on origin — <a href="/docs/hub-connectivity" target="_blank" rel="noopener">connectivity guide</a>)</label>
         <div class="row">
-          <button type="button" class="secondary" id="btnScanSsh">Detect languages (SSH)</button>
+          <button type="button" class="secondary" id="btnProbeConnectivity">Test hub + SSH connectivity</button>
+          <button type="button" class="secondary" id="btnScanSsh" disabled>Scan origin (SSH)</button>
           <label><input type="checkbox" id="pullFromSsh" checked /> Pull code to hub on create</label>
         </div>
+        <p id="probeStatus" class="muted"></p>
         <p id="scanStatus" class="muted"></p>
       </div>
       <div class="card">
-        <h3>Target language per detected stack</h3>
-        <p id="targetPlannerNote" class="target-hint"></p>
-        <div id="targetPickers"><p class="muted">Run SSH detect first.</p></div>
+        <h3>Translation</h3>
+        <div class="grid2">
+          <div>
+            <label for="originLanguage">Origin language</label>
+            <select id="originLanguage"></select>
+            <p class="muted" id="originHint">Set manually if autodetect is off or wrong.</p>
+          </div>
+          <div>
+            <label for="outputLanguage">Output language</label>
+            <select id="outputLanguage"></select>
+            <p class="muted" id="outputHint"></p>
+          </div>
+        </div>
+        <p id="routeStatus" class="target-hint"></p>
         <div class="row">
           <button type="button" class="primary" id="btnCreateProject">Create project</button>
         </div>
@@ -110,7 +125,7 @@
         <label for="project">Local project path on hub</label>
         <input id="project" type="text" />
         <div class="row">
-          <button class="primary" id="btnIngest">Run ingest</button>
+          <button class="primary" id="btnIngest">Run translation</button>
           <button class="secondary" id="btnStatus">Run status</button>
           <button class="secondary" id="btnRefresh">Refresh progress</button>
           <span id="jobBadge" class="badge">idle</span>

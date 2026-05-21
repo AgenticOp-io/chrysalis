@@ -6,6 +6,15 @@ import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, extname, join } from "node:path";
+import { buildRemoteScanShell, parseOriginAgentJson } from "./chrysalis-hub-connectivity.mjs";
+import {
+  hubOriginLanguages,
+  hubOutputLanguages,
+  LANGUAGE_LABELS,
+} from "./hub-ingest/language-catalog.mjs";
+
+/** Hub mission: every origin×output pair is runnable (oracle gold remains PHP→TS only). */
+export const HUB_MISSION_OPEN = true;
 
 export const HUB_KIND = "chrysalis.translation-hub.projects";
 export const HUB_SCHEMA_VERSION = 0;
@@ -41,6 +50,11 @@ export const EXT_TO_LANGUAGE = {
   ".html": "html",
   ".css": "css",
   ".scss": "scss",
+  ".json": "json",
+  ".yaml": "yaml",
+  ".yml": "yaml",
+  ".md": "markdown",
+  ".markdown": "markdown",
 };
 
 /** In-repo WPTP compose / CI scripts the hub documents (not auto-run in hub v1). */
@@ -71,114 +85,83 @@ export const WPTP_CI_REFERENCES = {
   },
 };
 
-const WPTP_PLANNED = "Planned — WPTP sibling repos (theorem6/wptp-matrix); not Chrysalis gold on main.";
+/** Hub input (origin) languages — manual dropdown + optional autodetect hints. */
+export const INPUT_LANGUAGES = hubOriginLanguages();
 
-function unchangedOption(label) {
-  return { id: "unchanged", label, supported: true, grade: "unchanged" };
+/** Single output menu — all web / framework targets. */
+export const OUTPUT_LANGUAGES = hubOutputLanguages();
+
+function hubRouteLabel(sourceLang, outputLang) {
+  const src = LANGUAGE_LABELS[sourceLang] ?? sourceLang;
+  const out = OUTPUT_LANGUAGES.find((o) => o.id === outputLang);
+  return `${src} → ${out?.label ?? outputLang}`;
 }
 
-function plannedOption(id, label, extra = {}) {
-  return { id, label, supported: false, grade: "planned", ...extra };
+function specForPair(sourceLang, outputLang) {
+  const label = hubRouteLabel(sourceLang, outputLang);
+  const emitTarget =
+    outputLang === "hono" || outputLang === "fastify" || outputLang === "nextjs"
+      ? outputLang
+      : outputLang === "typescript"
+        ? "hono"
+        : null;
+
+  if (sourceLang === "php") {
+    if (outputLang === "typescript") {
+      return {
+        status: "ready",
+        action: "chrysalis-ingest-emit",
+        emitTarget: "hono",
+        grade: "gold",
+        label: "PHP → TypeScript (Chrysalis ingest + emit)",
+      };
+    }
+    if (outputLang === "hono" || outputLang === "fastify") {
+      return { status: "ready", action: "chrysalis-ingest-emit", emitTarget: outputLang, grade: "gold", label };
+    }
+    if (outputLang === "nextjs") {
+      return { status: "ready", action: "chrysalis-ingest-emit", emitTarget: "nextjs", grade: "silver", label };
+    }
+    return { status: "ready", action: "hub-translate", emitTarget: null, grade: "open", label };
+  }
+
+  return {
+    status: "ready",
+    action: "hub-translate",
+    emitTarget,
+    grade: emitTarget ? "silver" : "open",
+    label,
+  };
 }
 
-/** Languages Chrysalis can verify today vs roadmap (honest grades; see DESIGN D312/D313). */
-export const TARGET_MATRIX = {
-  php: [
-    {
-      id: "typescript-chrysalis",
-      label: "TypeScript (Chrysalis ingest + oracle verify)",
-      supported: true,
-      grade: "gold",
-    },
-    unchangedOption("Keep PHP (no translation)"),
-    plannedOption("wptp-webir-export", "Export WebIR bundle (WPTP silver CI path)", {
-      wptpCi: WPTP_CI_REFERENCES.exportWebirBundle,
+function buildHubRoutes() {
+  const routes = {};
+  for (const src of INPUT_LANGUAGES) {
+    for (const out of OUTPUT_LANGUAGES) {
+      if (src.id === out.id) continue;
+      routes[`${src.id}:${out.id}`] = specForPair(src.id, out.id);
+    }
+  }
+  return routes;
+}
+
+export const HUB_ROUTES = buildHubRoutes();
+
+/** @deprecated Derived for legacy callers. */
+export const TARGET_MATRIX = Object.fromEntries(
+  INPUT_LANGUAGES.map((l) => [
+    l.id,
+    OUTPUT_LANGUAGES.map((o) => {
+      const r = HUB_ROUTES[`${l.id}:${o.id}`];
+      return {
+        id: o.id,
+        label: o.label,
+        supported: Boolean(r?.status === "ready"),
+        grade: r?.grade ?? "open",
+      };
     }),
-  ],
-  javascript: [
-    unchangedOption("Keep JavaScript"),
-    plannedOption("typescript", "TypeScript (emit-only — no JS ingest in hub v1)"),
-    plannedOption("wptp-openapi-hono", "Hono via OpenAPI/HAR (WPTP CI path)", {
-      grade: "silver",
-      wptpCi: WPTP_CI_REFERENCES.wptpD3Silver,
-    }),
-    plannedOption("wptp-openapi-nextjs", "Next.js via OpenAPI/HAR (WPTP CI path)", {
-      grade: "silver",
-      wptpCi: WPTP_CI_REFERENCES.wptpSilverNextjs,
-    }),
-  ],
-  typescript: [
-    unchangedOption("Keep TypeScript"),
-    plannedOption("typescript-chrysalis", "Re-ingest via Chrysalis (PHP routes only — not TS source ingest)"),
-    plannedOption("wptp-webir-export", "Export WebIR bundle (WPTP silver CI path)", {
-      wptpCi: WPTP_CI_REFERENCES.exportWebirBundle,
-    }),
-  ],
-  vue: [
-    unchangedOption("Keep Vue SFC"),
-    plannedOption("typescript", "TypeScript / Vue SFC (partial — not in hub v1)"),
-  ],
-  python: [
-    unchangedOption("Keep Python"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  java: [
-    unchangedOption("Keep Java"),
-    plannedOption("typescript-wptp", `TypeScript / Kotlin JVM (${WPTP_PLANNED})`),
-  ],
-  kotlin: [
-    unchangedOption("Keep Kotlin"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  go: [
-    unchangedOption("Keep Go"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  ruby: [
-    unchangedOption("Keep Ruby"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  csharp: [
-    unchangedOption("Keep C#"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  cpp: [
-    unchangedOption("Keep C++"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  c: [
-    unchangedOption("Keep C"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  rust: [
-    unchangedOption("Keep Rust"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  swift: [
-    unchangedOption("Keep Swift"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  scala: [
-    unchangedOption("Keep Scala"),
-    plannedOption("typescript-wptp", `TypeScript (${WPTP_PLANNED})`),
-  ],
-  sql: [
-    unchangedOption("Keep SQL (schema/data only)"),
-    plannedOption("typescript-wptp", `Typed data layer (${WPTP_PLANNED})`),
-  ],
-  html: [
-    unchangedOption("Keep HTML"),
-    plannedOption("typescript-wptp", `Component framework (${WPTP_PLANNED})`),
-  ],
-  css: [
-    unchangedOption("Keep CSS"),
-    plannedOption("typescript-wptp", `CSS-in-TS / design tokens (${WPTP_PLANNED})`),
-  ],
-  scss: [
-    unchangedOption("Keep SCSS"),
-    plannedOption("typescript-wptp", `CSS-in-TS / design tokens (${WPTP_PLANNED})`),
-  ],
-};
+  ]),
+);
 
 export const HUB_REPORT_KIND = "chrysalis.translation-hub.report";
 export const HUB_REPORT_SCHEMA_VERSION = 0;
@@ -190,7 +173,22 @@ export function extMapLanguageIds() {
 
 /** Language ids with explicit hub matrix rows. */
 export function matrixLanguageIds() {
-  return Object.keys(TARGET_MATRIX).sort();
+  return INPUT_LANGUAGES.map((l) => l.id).sort();
+}
+
+export function defaultOriginLanguage() {
+  return "php";
+}
+
+export function defaultOutputLanguage() {
+  return "typescript";
+}
+
+/** Pick origin from autodetect (highest file count) or manual default. */
+export function originFromDetection(detection) {
+  if (!detection?.languages?.length) return defaultOriginLanguage();
+  const sorted = [...detection.languages].sort((a, b) => b.fileCount - a.fileCount);
+  return sorted[0]?.language ?? defaultOriginLanguage();
 }
 
 /** Languages in {@link EXT_TO_LANGUAGE} missing from {@link TARGET_MATRIX}. */
@@ -209,114 +207,129 @@ export function getTargetOptions(languageId) {
   return TARGET_MATRIX[languageId] ?? [];
 }
 
+/** Translation targets only (excludes legacy "unchanged" if present in stored projects). */
+export function translationTargetOptions(languageId) {
+  return getTargetOptions(languageId).filter((o) => o.id !== "unchanged");
+}
+
+/** @deprecated Use originLanguage + outputLanguage on project. */
+export function defaultTargetIdForLanguage(_languageId) {
+  return defaultOutputLanguage();
+}
+
+/** @deprecated Use originLanguage + outputLanguage on project. */
+export function defaultTargetsMap() {
+  const o = defaultOutputLanguage();
+  const out = {};
+  for (const lang of matrixLanguageIds()) out[lang] = o;
+  return out;
+}
+
+/** All hub input languages; merge optional detection file counts. */
+export function allLanguagesAsInputRows(detection) {
+  const byLang = new Map();
+  for (const lang of matrixLanguageIds()) {
+    byLang.set(lang, { language: lang, fileCount: 0, sampleFiles: [] });
+  }
+  if (detection?.languages) {
+    for (const row of detection.languages) {
+      const cur = byLang.get(row.language);
+      if (cur) {
+        byLang.set(row.language, { ...cur, ...row });
+      } else {
+        byLang.set(row.language, row);
+      }
+    }
+  }
+  return [...byLang.values()].sort(
+    (a, b) => b.fileCount - a.fileCount || a.language.localeCompare(b.language),
+  );
+}
+
 /**
- * Resolve a single source→target pair for hub job routing (v1).
- * @returns {{ ok: boolean, kind: string, code?: string, message?: string, hole?: string, wptpCi?: object, target?: object }}
+ * Resolve origin → output for hub job routing.
+ * @returns {{ ok: boolean, status: string, action: string, grade?: string, label?: string, emitTarget?: string, code?: string, message?: string, hole?: string }}
  */
-export function resolveHubRoute(sourceLang, targetId) {
-  const options = TARGET_MATRIX[sourceLang];
-  if (!options) {
+export function resolveHubRoute(sourceLang, outputLang) {
+  if (outputLang === "unchanged" || outputLang === "typescript-chrysalis") {
+    outputLang = "typescript";
+  }
+  if (!matrixLanguageIds().includes(sourceLang)) {
     return {
       ok: false,
-      kind: "unsupported",
+      status: "unsupported",
       code: "unknown-source-language",
-      message: `No hub matrix entry for language "${sourceLang}".`,
+      message: `Unknown origin language "${sourceLang}".`,
       hole: `hub:unknown-source:${sourceLang}`,
     };
   }
-  const target = options.find((o) => o.id === targetId);
-  if (!target) {
+  if (!OUTPUT_LANGUAGES.some((o) => o.id === outputLang)) {
     return {
       ok: false,
-      kind: "unsupported",
-      code: "unknown-target",
-      message: `Target "${targetId}" is not defined for ${sourceLang}.`,
-      hole: `hub:unknown-target:${sourceLang}:${targetId}`,
+      status: "unsupported",
+      code: "unknown-output-language",
+      message: `Unknown output language "${outputLang}".`,
+      hole: `hub:unknown-output:${outputLang}`,
     };
   }
-  if (target.id === "unchanged") {
-    return { ok: true, kind: "unchanged", supported: true, target };
-  }
-  if (target.wptpCi && !target.supported) {
+  if (sourceLang === outputLang) {
     return {
       ok: false,
-      kind: "wptp-ci",
-      code: "wptp-ci-only",
-      message: `${target.label} — run in Chrysalis repo CI (${target.wptpCi.script}); not automated from Translation Hub v1.`,
-      hole: `hub:wptp-ci:${sourceLang}:${targetId}`,
-      wptpCi: target.wptpCi,
-      target,
+      status: "unsupported",
+      code: "same-language",
+      message: "Origin and output must differ.",
+      hole: `hub:same-language:${sourceLang}`,
     };
   }
-  if (!target.supported) {
+  const spec = HUB_ROUTES[`${sourceLang}:${outputLang}`];
+  if (!spec) {
     return {
       ok: false,
-      kind: "unsupported",
-      code: "target-planned",
-      message: `${target.label} — not available in Translation Hub v1.`,
-      hole: `hub:planned:${sourceLang}:${targetId}`,
-      target,
+      status: "unsupported",
+      code: "no-route",
+      message: `No route ${sourceLang} → ${outputLang}.`,
+      hole: `hub:no-route:${sourceLang}:${outputLang}`,
     };
-  }
-  if (sourceLang === "php" && targetId === "typescript-chrysalis") {
-    return { ok: true, kind: "chrysalis-ingest", supported: true, target };
   }
   return {
-    ok: false,
-    kind: "unsupported",
-    code: "no-hub-runner",
-    message: `${target.label} is listed as supported but has no Translation Hub runner on main.`,
-    hole: `hub:no-runner:${sourceLang}:${targetId}`,
-    target,
+    ok: spec.status === "ready",
+    status: spec.status,
+    action: spec.action,
+    grade: spec.grade,
+    label: spec.label,
+    emitTarget: spec.emitTarget ?? null,
+    message: spec.label,
   };
 }
 
 /**
- * Plan translation work for a hub project from `project.targets` and detection.
+ * Plan translation for one origin → one output (project settings).
  */
 export function planHubTranslation(project) {
-  const targets = project.targets ?? {};
-  const detected = project.detection?.languages?.map((l) => l.language) ?? [];
-  const langs = [...new Set([...detected, ...Object.keys(targets)])];
-
-  const routes = [];
+  const sourceLang = project.originLanguage ?? originFromDetection(project.detection);
+  const targetId = project.outputLanguage ?? defaultOutputLanguage();
+  const route = resolveHubRoute(sourceLang, targetId);
+  const routes = [{ sourceLang, targetId, route }];
   const holes = [];
   const errors = [];
   const skipped = [];
   const runnable = [];
 
-  for (const sourceLang of langs) {
-    const targetId = targets[sourceLang];
-    if (!targetId) continue;
-    const route = resolveHubRoute(sourceLang, targetId);
-    routes.push({ sourceLang, targetId, route });
-    if (route.kind === "unchanged") {
-      skipped.push({ sourceLang, targetId });
-      continue;
-    }
-    if (route.ok && route.kind === "chrysalis-ingest") {
-      runnable.push({ sourceLang, targetId, action: "chrysalis-ingest" });
-      continue;
-    }
-    if (route.hole) {
-      holes.push({
-        name: route.hole,
-        sourceLang,
-        targetId,
-        message: route.message,
-        wptpCi: route.wptpCi ?? null,
-      });
-    }
-    errors.push({
+  if (route.ok) {
+    runnable.push({
       sourceLang,
       targetId,
-      code: route.code,
-      message: route.message,
-      wptpCi: route.wptpCi ?? null,
+      action: route.action,
+      emitTarget: route.emitTarget ?? undefined,
+      grade: route.grade,
+      route,
     });
+  } else if (route.hole) {
+    holes.push({ name: route.hole, sourceLang, targetId, message: route.message });
+    errors.push({ sourceLang, targetId, code: route.code, message: route.message });
   }
 
-  return { routes, holes, errors, skipped, runnable };
+  return { routes, holes, errors, skipped, runnable, originLanguage: sourceLang, outputLanguage: targetId };
 }
 
 export async function writeHubReport(localDir, payload) {
@@ -412,22 +425,37 @@ function runProcess(cmd, args, opts = {}) {
 export async function scanSshRemote(ssh) {
   const host = `${ssh.user}@${ssh.host}`;
   const port = ssh.port ? String(ssh.port) : "22";
-  const remotePath = ssh.remotePath.replace(/'/g, "'\\''");
-  const findCmd = `find '${remotePath}' -type f 2>/dev/null | head -n 8000`;
+  const remotePath = ssh.remotePath || ".";
+  const remoteShell = buildRemoteScanShell(remotePath);
   const sshArgs = ["-p", port, "-o", "BatchMode=yes", "-o", "ConnectTimeout=15", "-o", "StrictHostKeyChecking=accept-new"];
   if (ssh.identityFile) sshArgs.push("-i", ssh.identityFile);
-  sshArgs.push(host, findCmd);
+  sshArgs.push(host, remoteShell);
   const r = await runProcess("ssh", sshArgs);
   if (r.code !== 0) {
     throw new Error(r.stderr.trim() || `ssh scan failed (exit ${r.code})`);
   }
-  const paths = r.stdout.split(/\r?\n/).filter(Boolean);
+  const out = r.stdout.trim();
+  if (out.startsWith("{")) {
+    const agent = parseOriginAgentJson(out);
+    return {
+      scannedAt: agent.scannedAt ?? new Date().toISOString(),
+      source: agent.source ?? "origin-agent",
+      pathCount: agent.pathCount ?? 0,
+      languages: agent.languages,
+      truncated: Boolean(agent.truncated),
+      services: agent.services ?? {},
+      agentVersion: agent.agentVersion ?? null,
+    };
+  }
+  const paths = out.split(/\r?\n/).filter(Boolean);
   return {
     scannedAt: new Date().toISOString(),
-    source: "ssh",
+    source: "ssh-find",
     pathCount: paths.length,
     languages: detectLanguagesFromFileList(paths),
     truncated: paths.length >= 8000,
+    services: {},
+    agentVersion: null,
   };
 }
 
@@ -490,22 +518,33 @@ export async function createHubProject(opts) {
     ssh: opts.ssh ?? null,
     localDir: opts.pullFromSsh ? ws : opts.localDir ?? ws,
     detection: null,
-    targets: opts.targets ?? {},
+    originLanguage: opts.originLanguage ?? defaultOriginLanguage(),
+    outputLanguage: opts.outputLanguage ?? defaultOutputLanguage(),
+    targets: {
+      [opts.originLanguage ?? defaultOriginLanguage()]: opts.outputLanguage ?? defaultOutputLanguage(),
+    },
     chrysalisInitialized: false,
   };
 
   if (opts.ssh && opts.pullFromSsh) {
     await pullFromSsh(opts.ssh, ws);
-    project.detection = await scanLocalDirectory(ws);
     project.localDir = ws;
-  } else if (opts.ssh) {
+    if (opts.detectLanguages) {
+      project.detection = await scanLocalDirectory(ws);
+    }
+  } else if (opts.detectLanguages && opts.ssh) {
     project.detection = await scanSshRemote(opts.ssh);
-  } else if (opts.localDir) {
+  } else if (opts.detectLanguages && opts.localDir) {
     const st = await stat(opts.localDir);
     if (!st.isDirectory()) throw new Error("localDir is not a directory");
     project.localDir = opts.localDir;
     project.detection = await scanLocalDirectory(opts.localDir);
   }
+
+  if (opts.detectLanguages && !opts.originLanguage && project.detection) {
+    project.originLanguage = originFromDetection(project.detection);
+  }
+  project.targets = { [project.originLanguage]: project.outputLanguage };
 
   reg.projects.push(project);
   await saveRegistry(reg);

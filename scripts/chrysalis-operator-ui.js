@@ -23,7 +23,7 @@
   async function api(path, opts) {
     const r = await fetch(path, opts);
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || r.statusText);
+    if (!r.ok) throw new Error(j.error || j.message || r.statusText);
     return j;
   }
 
@@ -32,9 +32,11 @@
     const ul = $("projectList");
     ul.innerHTML = "";
     for (const p of data.projects) {
+      const origin = p.originLanguage || "?";
+      const output = p.outputLanguage || "?";
       const li = document.createElement("li");
       li.innerHTML = `<strong>${esc(p.name)}</strong> <span class="muted">${esc(p.id)}</span>
-        <div class="muted">${p.detection ? p.detection.languages.map((l) => l.language).join(", ") : "not scanned"}</div>
+        <div class="muted">${esc(origin)} → ${esc(output)}</div>
         <a href="#/console?id=${encodeURIComponent(p.id)}">Open console</a>`;
       ul.appendChild(li);
     }
@@ -47,77 +49,105 @@
       .replace(/>/g, "&gt;");
   }
 
-  let targetMatrix = {};
-  let wptpCi = {};
+  let inputLanguages = [];
+  let outputLanguages = [];
+  let defaultOrigin = "php";
+  let defaultOutput = "typescript";
   let lastScan = null;
 
-  async function loadTargetMatrix() {
-    const data = await api("/api/hub/target-matrix");
-    targetMatrix = data.matrix;
-    wptpCi = data.wptpCi || {};
+  function fillSelect(sel, items, selectedId) {
+    sel.innerHTML = "";
+    for (const item of items) {
+      const opt = document.createElement("option");
+      opt.value = item.id;
+      opt.textContent = item.label + (item.fileCount != null && item.fileCount > 0 ? ` (${item.fileCount} files)` : "");
+      sel.appendChild(opt);
+    }
+    if (selectedId) sel.value = selectedId;
   }
 
-  function describeTarget(lang, targetId) {
-    const opts = targetMatrix[lang] || [];
-    const t = opts.find((o) => o.id === targetId);
-    if (!t) return "Unknown target for " + lang + ".";
-    if (t.supported && targetId === "typescript-chrysalis") {
-      return "Gold path: Chrysalis ingest + oracle verify on this hub.";
-    }
-    if (t.id === "unchanged") return "No translation — source kept as-is.";
-    if (t.wptpCi) {
-      return (
-        (t.label || targetId) +
-        " Run WPTP CI in the Chrysalis repo: " +
-        t.wptpCi.script +
-        " (matrix: " +
-        (t.wptpCi.matrixPath || "see wptp-matrix") +
-        "). Not started from the hub UI in v1."
+  async function refreshRouteStatus() {
+    const origin = $("originLanguage")?.value;
+    const output = $("outputLanguage")?.value;
+    const el = $("routeStatus");
+    if (!el || !origin || !output) return;
+    try {
+      const r = await api(
+        `/api/hub/route-preview?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
       );
+      const grade =
+        r.route?.grade === "gold"
+          ? "Gold"
+          : r.route?.grade === "silver"
+            ? "Silver"
+            : r.route?.grade === "open"
+              ? "Open"
+              : "Open";
+      el.textContent = r.route?.ok
+        ? `${grade}: ${r.route.label || origin + " → " + output} — runnable on hub.`
+        : `Not runnable: ${r.route?.message || "unknown route"}`;
+    } catch {
+      el.textContent = `${origin} → ${output}`;
     }
-    return (t.label || targetId) + " — planned; not runnable from Translation Hub v1.";
   }
 
-  function updateTargetPlannerNote() {
-    const note = $("targetPlannerNote");
-    if (!note) return;
-    const sel = document.querySelector("#targetPickers select:focus") || document.querySelector("#targetPickers select");
-    if (!sel) {
-      note.textContent = "";
-      return;
-    }
-    note.textContent = describeTarget(sel.dataset.lang, sel.value);
+  async function loadHubLanguages() {
+    const data = await api("/api/hub/target-matrix");
+    inputLanguages = data.inputLanguages || [];
+    outputLanguages = data.outputLanguages || [];
+    defaultOrigin = data.defaultOrigin || "php";
+    defaultOutput = data.defaultOutput || "typescript";
+    const counts = Object.fromEntries((data.inputLanguagesWithCounts || []).map((r) => [r.language, r.fileCount]));
+    const inputOpts = inputLanguages.map((l) => ({ ...l, fileCount: counts[l.id] ?? 0 }));
+    fillSelect($("originLanguage"), inputOpts, defaultOrigin);
+    fillSelect($("outputLanguage"), outputLanguages, defaultOutput);
+    $("originLanguage")?.addEventListener("change", refreshRouteStatus);
+    $("outputLanguage")?.addEventListener("change", refreshRouteStatus);
+    await refreshRouteStatus();
   }
 
-  function renderTargetPickers(languages) {
-    const box = $("targetPickers");
-    box.innerHTML = "";
-    for (const row of languages) {
-      const lang = row.language;
-      const opts = targetMatrix[lang] || [{ id: "unchanged", label: "No translator yet", supported: false }];
-      const div = document.createElement("div");
-      div.className = "target-row";
-      div.innerHTML = `<label><strong>${esc(lang)}</strong> (${row.fileCount} files)</label>`;
-      const sel = document.createElement("select");
-      sel.dataset.lang = lang;
-      for (const o of opts) {
-        const opt = document.createElement("option");
-        opt.value = o.id;
-        const tag = o.grade === "gold" ? " — gold" : o.supported ? "" : o.wptpCi ? " — WPTP CI" : " — planned";
-        opt.textContent = o.label + tag;
-        if (!o.supported && o.id !== "unchanged") opt.className = "planned";
-        sel.appendChild(opt);
+  function syncDetectUi() {
+    const on = $("enableDetect")?.checked;
+    if ($("btnScanSsh")) $("btnScanSsh").disabled = !on;
+  }
+
+  $("enableDetect")?.addEventListener("change", syncDetectUi);
+
+  $("btnProbeConnectivity")?.addEventListener("click", async () => {
+    $("probeStatus").textContent = "Probing…";
+    try {
+      const body = {
+        ssh: {
+          host: $("sshHost").value.trim(),
+          user: $("sshUser").value.trim(),
+          port: Number($("sshPort").value) || 22,
+          remotePath: $("sshPath").value.trim() || "/",
+          identityFile: $("sshKey").value.trim() || undefined,
+        },
+      };
+      const r = await api("/api/hub/probe-connectivity", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body.ssh.host && body.ssh.user ? { ssh: body.ssh } : {}),
+      });
+      const lines = [];
+      for (const c of r.hub?.checks ?? []) {
+        lines.push((c.ok ? "OK" : "FAIL") + " hub:" + c.id + " — " + c.detail);
       }
-      if (lang === "php") sel.value = "typescript-chrysalis";
-      else if (!opts.some((o) => o.supported && o.id !== "unchanged")) sel.value = "unchanged";
-      sel.addEventListener("change", updateTargetPlannerNote);
-      div.appendChild(sel);
-      box.appendChild(div);
+      for (const c of r.origin?.checks ?? []) {
+        lines.push((c.ok ? "OK" : "FAIL") + " origin:" + c.id + " — " + c.detail);
+      }
+      $("probeStatus").textContent = lines.join(" | ") || (r.ok ? "All checks passed." : "Some checks failed.");
+    } catch (e) {
+      $("probeStatus").textContent = "Probe error: " + e.message;
     }
-    updateTargetPlannerNote();
-  }
+  });
 
   $("btnScanSsh").addEventListener("click", async () => {
+    if (!$("enableDetect")?.checked) {
+      $("scanStatus").textContent = "Enable autodetect to scan the origin.";
+      return;
+    }
     $("scanStatus").textContent = "Scanning over SSH…";
     try {
       const body = {
@@ -131,8 +161,13 @@
       };
       const r = await api("/api/hub/scan-ssh", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       lastScan = r.detection;
-      renderTargetPickers(r.detection.languages);
-      $("scanStatus").textContent = `Found ${r.detection.pathCount} files, ${r.detection.languages.length} language(s).`;
+      const counts = Object.fromEntries(r.detection.languages.map((l) => [l.language, l.fileCount]));
+      const inputOpts = inputLanguages.map((l) => ({ ...l, fileCount: counts[l.id] ?? 0 }));
+      fillSelect($("originLanguage"), inputOpts, null);
+      const top = [...r.detection.languages].sort((a, b) => b.fileCount - a.fileCount)[0];
+      if (top) $("originLanguage").value = top.language;
+      $("scanStatus").textContent = `Scanned ${r.detection.pathCount} files. Suggested origin: ${top?.language ?? "php"}.`;
+      await refreshRouteStatus();
     } catch (e) {
       $("scanStatus").textContent = "Error: " + e.message;
     }
@@ -141,14 +176,13 @@
   $("btnCreateProject").addEventListener("click", async () => {
     $("createStatus").textContent = "Creating…";
     try {
-      const targets = {};
-      document.querySelectorAll("#targetPickers select").forEach((sel) => {
-        targets[sel.dataset.lang] = sel.value;
-      });
       const body = {
         name: $("projName").value.trim(),
         description: $("projDesc").value.trim(),
         pullFromSsh: $("pullFromSsh").checked,
+        detectLanguages: $("enableDetect").checked,
+        originLanguage: $("originLanguage").value,
+        outputLanguage: $("outputLanguage").value,
         ssh: {
           host: $("sshHost").value.trim(),
           user: $("sshUser").value.trim(),
@@ -156,7 +190,6 @@
           remotePath: $("sshPath").value.trim(),
           identityFile: $("sshKey").value.trim() || undefined,
         },
-        targets,
       };
       const r = await api("/api/hub/projects", {
         method: "POST",
@@ -181,22 +214,22 @@
     $("consoleTitle").textContent = p.name;
     $("project").value = p.localDir || "";
     const det = $("consoleDetection");
+    const origin = p.originLanguage || "?";
+    const output = p.outputLanguage || "?";
+    det.innerHTML = `<li><strong>${esc(origin)} → ${esc(output)}</strong></li>`;
     if (p.detection) {
-      det.innerHTML = p.detection.languages
-        .map((l) => `<li>${esc(l.language)}: ${l.fileCount} files → ${esc((p.targets && p.targets[l.language]) || "?")}</li>`)
-        .join("");
-    } else det.innerHTML = "<li>Not scanned</li>";
+      for (const l of p.detection.languages) {
+        const li = document.createElement("li");
+        li.textContent = `${l.language}: ${l.fileCount} files detected`;
+        det.appendChild(li);
+      }
+    }
     const planEl = $("consoleRoutePlan");
     if (planEl) {
       try {
         const { plan } = await api(`/api/hub/projects/${encodeURIComponent(id)}/route-plan`);
-        const run = plan.runnable.map((r) => r.sourceLang + "→" + r.targetId).join(", ");
-        const block = plan.errors.length
-          ? plan.errors.map((e) => e.sourceLang + ": " + e.message).join(" ")
-          : "";
-        planEl.textContent = run
-          ? "Runnable on hub: " + run + (block ? " | Blocked: " + block : "")
-          : block || "No runnable routes — set PHP → TypeScript (Chrysalis).";
+        const run = plan.runnable.map((r) => r.sourceLang + "→" + r.targetId + " (" + r.action + ")").join(", ");
+        planEl.textContent = run ? "Runnable: " + run : plan.errors[0]?.message || "No runnable route.";
       } catch {
         planEl.textContent = "";
       }
@@ -263,14 +296,6 @@
       }
     } catch (e) {
       logLine("ERROR: " + e.message);
-      if (consoleProjectId) {
-        try {
-          const { plan } = await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/route-plan`);
-          for (const err of plan.errors) logLine("[hub] " + err.sourceLang + ": " + err.message);
-        } catch {
-          /* ignore */
-        }
-      }
     }
   });
   $("btnStatus").addEventListener("click", async () => {
@@ -296,7 +321,8 @@
   });
 
   window.addEventListener("hashchange", route);
-  loadTargetMatrix().then(() => {
+  syncDetectUi();
+  loadHubLanguages().then(() => {
     route();
     loadHome().catch(() => {});
     api("/api/state").then((s) => {

@@ -16,6 +16,7 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | [How-to cookbook](./HOW-TO.md) | Anyone trying to do a specific thing | 24 end-to-end scenarios — from "first-time setup" to "GCE smoke VM" — each as a copy-pasteable, top-to-bottom walkthrough. |
 | [Operations](./OPERATIONS.md) | Day-to-day operators | Runbooks for ingest scale-out, capture, verify sharding, the dual-stack router, signed routing config, sessions across stacks, fleet rollups. |
 | [Deployment](./DEPLOYMENT.md) | Platform engineers, release engineers, SRE | Where each component runs in CI and production, the three deployment patterns, rollback playbooks. |
+| [Hub connectivity](./HUB-CONNECTIVITY.md) | Translation Hub operators | SSH/local access model, origin scan agent install, database and Redis reachability, connectivity probes. |
 | [Administration](./ADMINISTRATION.md) | SRE, platform, release owners | Environment variables, CI gates, the report tree, redaction policy, corpus retention, repository settings. |
 
 ---

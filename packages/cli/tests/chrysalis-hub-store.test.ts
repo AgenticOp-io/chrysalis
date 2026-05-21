@@ -26,49 +26,101 @@ test("hub store: detectLanguagesFromFileList groups by extension", async () => {
   expect(byLang.readme).toBeUndefined();
 });
 
-test("hub store: resolveHubRoute gold path for php → typescript-chrysalis", async () => {
+test("hub store: resolveHubRoute gold path for php → typescript", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
-  const route = resolveHubRoute("php", "typescript-chrysalis");
+  const route = resolveHubRoute("php", "typescript");
   expect(route.ok).toBe(true);
-  expect(route.kind).toBe("chrysalis-ingest");
+  expect(route.action).toBe("chrysalis-ingest-emit");
+  expect(route.grade).toBe("gold");
 });
 
-test("hub store: resolveHubRoute blocks planned python", async () => {
+test("hub store: resolveHubRoute hub-translate for python → java", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
-  const route = resolveHubRoute("python", "typescript-wptp");
-  expect(route.ok).toBe(false);
-  expect(route.code).toBe("target-planned");
-  expect(route.hole).toBe("hub:planned:python:typescript-wptp");
+  const route = resolveHubRoute("python", "java");
+  expect(route.ok).toBe(true);
+  expect(route.action).toBe("hub-translate");
+  expect(route.grade).toBe("open");
 });
 
-test("hub store: resolveHubRoute documents WPTP CI-only targets", async () => {
+test("hub store: resolveHubRoute php → java is open and runnable", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
-  const route = resolveHubRoute("javascript", "wptp-openapi-hono");
-  expect(route.ok).toBe(false);
-  expect(route.kind).toBe("wptp-ci");
-  expect(route.wptpCi?.script).toContain("wptp-d3-silver-harness");
+  const route = resolveHubRoute("php", "java");
+  expect(route.ok).toBe(true);
+  expect(route.action).toBe("hub-translate");
+  expect(route.grade).toBe("open");
 });
 
-test("hub store: planHubTranslation runnable only for php chrysalis", async () => {
+test("hub store: HUB_MISSION_OPEN and full route grid", async () => {
+  const { HUB_MISSION_OPEN, HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } = await import(HUB_STORE);
+  expect(HUB_MISSION_OPEN).toBe(true);
+  const expected = INPUT_LANGUAGES.length * OUTPUT_LANGUAGES.length - INPUT_LANGUAGES.length;
+  expect(Object.keys(HUB_ROUTES).length).toBe(expected);
+  for (const spec of Object.values(HUB_ROUTES)) {
+    expect(spec.status).toBe("ready");
+    expect(["gold", "silver", "open"]).toContain(spec.grade);
+  }
+});
+
+test("hub store: resolveHubRoute rejects same language", async () => {
+  const { resolveHubRoute } = await import(HUB_STORE);
+  const route = resolveHubRoute("php", "php");
+  expect(route.ok).toBe(false);
+  expect(route.code).toBe("same-language");
+});
+
+test("hub store: planHubTranslation single origin output pair", async () => {
   const { planHubTranslation } = await import(HUB_STORE);
   const plan = planHubTranslation({
     id: "p1",
-    targets: {
-      php: "typescript-chrysalis",
-      python: "typescript-wptp",
-      javascript: "unchanged",
-    },
-    detection: {
-      languages: [
-        { language: "php", fileCount: 10, sampleFiles: [] },
-        { language: "python", fileCount: 2, sampleFiles: [] },
-        { language: "javascript", fileCount: 1, sampleFiles: [] },
-      ],
-    },
+    originLanguage: "php",
+    outputLanguage: "typescript",
+    detection: { languages: [{ language: "php", fileCount: 10, sampleFiles: [] }] },
   });
-  expect(plan.runnable).toEqual([{ sourceLang: "php", targetId: "typescript-chrysalis", action: "chrysalis-ingest" }]);
-  expect(plan.skipped).toEqual([{ sourceLang: "javascript", targetId: "unchanged" }]);
-  expect(plan.errors).toHaveLength(1);
-  expect(plan.holes).toHaveLength(1);
-  expect(plan.holes[0]?.name).toBe("hub:planned:python:typescript-wptp");
+  expect(plan.runnable).toHaveLength(1);
+  expect(plan.runnable[0]?.action).toBe("chrysalis-ingest-emit");
+  expect(plan.routes).toHaveLength(1);
+  expect(plan.errors).toHaveLength(0);
+});
+
+test("hub store: OUTPUT_LANGUAGES is a single menu list", async () => {
+  const { OUTPUT_LANGUAGES } = await import(HUB_STORE);
+  expect(OUTPUT_LANGUAGES.length).toBeGreaterThan(10);
+  expect(OUTPUT_LANGUAGES.some((o) => o.id === "typescript")).toBe(true);
+  expect(OUTPUT_LANGUAGES.some((o) => o.id === "hono")).toBe(true);
+});
+
+test("hub connectivity: parseOriginAgentJson", async () => {
+  const { parseOriginAgentJson } = await import(
+    fileURLToPath(new URL("../../../scripts/chrysalis-hub-connectivity.mjs", import.meta.url)),
+  );
+  const j = parseOriginAgentJson(
+    JSON.stringify({
+      languages: [{ language: "php", fileCount: 2, sampleFiles: ["a.php"] }],
+      pathCount: 2,
+      source: "origin-agent",
+    }),
+  );
+  expect(j.languages[0].language).toBe("php");
+});
+
+test("hub runners: hub-translate step for python → typescript", async () => {
+  const { hubJobSteps } = await import(
+    fileURLToPath(new URL("../../../scripts/chrysalis-hub-runners.mjs", import.meta.url)),
+  );
+  const steps = hubJobSteps("/repo", "/repo/packages/cli/dist/bin.js", "/tmp/proj", {
+    sourceLang: "python",
+    targetId: "typescript",
+    action: "hub-translate",
+  });
+  expect(steps).toHaveLength(1);
+  expect(steps[0]?.kind).toBe("hub-translate");
+});
+
+test("hub connectivity: buildRemoteScanShell prefers agent", async () => {
+  const { buildRemoteScanShell } = await import(
+    fileURLToPath(new URL("../../../scripts/chrysalis-hub-connectivity.mjs", import.meta.url)),
+  );
+  const sh = buildRemoteScanShell("/var/www/app");
+  expect(sh).toContain("chrysalis-origin-scan");
+  expect(sh).toContain("find ");
 });

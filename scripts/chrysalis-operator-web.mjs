@@ -11,16 +11,23 @@ import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  TARGET_MATRIX,
+  INPUT_LANGUAGES,
+  OUTPUT_LANGUAGES,
+  defaultOriginLanguage,
+  defaultOutputLanguage,
+  allLanguagesAsInputRows,
   WPTP_CI_REFERENCES,
   createHubProject,
   getProject,
   listProjects,
   planHubTranslation,
+  resolveHubRoute,
   scanSshRemote,
   updateProject,
   writeHubReport,
 } from "./chrysalis-hub-store.mjs";
+import { probeHubConnectivity, probeOriginOverSsh } from "./chrysalis-hub-connectivity.mjs";
+import { hubJobSteps, runJobSteps } from "./chrysalis-hub-runners.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.CHRYSALIS_OPERATOR_PORT ?? process.env.CHRYSALIS_STATUS_PORT ?? "19090");
@@ -125,6 +132,30 @@ function startProgressWatch() {
     }, 400);
     progressWatcher = { close: () => clearInterval(t) };
   }
+}
+
+function runHubJobSteps(steps, projectDir, hubPlan) {
+  if (currentJob?.state === "running") throw new Error("A job is already running");
+  const id = `job-${Date.now()}`;
+  currentJob = { id, kind: "translate", state: "running", projectDir, startedAt: new Date().toISOString(), plan: hubPlan };
+  broadcast("job", { ...currentJob });
+  if (steps.some((s) => s.kind === "ingest" || s.kind === "hub-translate")) startProgressWatch();
+
+  runJobSteps(steps, repo, {
+    onStepStart(step) {
+      broadcast("log", { jobId: id, stream: "stdout", line: `[hub] step ${step.kind}` });
+    },
+    onLog(stream, line) {
+      broadcast("log", { jobId: id, stream, line });
+    },
+    onDone(code) {
+      stopProgressWatch();
+      if (currentJob?.id === id) {
+        currentJob = { ...currentJob, state: code === 0 ? "succeeded" : "failed", exitCode: code };
+        broadcast("job", { ...currentJob });
+      }
+    },
+  });
 }
 
 function runCliJob(kind, projectDir, args) {
@@ -238,6 +269,15 @@ const server = createServer(async (req, res) => {
     sendText(res, 200, "application/javascript; charset=utf-8", uiJs);
     return;
   }
+  if (req.method === "GET" && url.pathname === "/docs/hub-connectivity") {
+    try {
+      const md = await readFile(join(__dir, "..", "docs", "HUB-CONNECTIVITY.md"), "utf8");
+      sendText(res, 200, "text/plain; charset=utf-8", md);
+    } catch {
+      sendJson(res, 404, { error: "doc-not-found" });
+    }
+    return;
+  }
 
   if (req.method === "GET" && url.pathname === "/api/events") {
     res.writeHead(200, {
@@ -275,8 +315,23 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/route-preview") {
+    const origin = url.searchParams.get("origin") ?? defaultOriginLanguage();
+    const output = url.searchParams.get("output") ?? defaultOutputLanguage();
+    const route = resolveHubRoute(origin, output);
+    sendJson(res, 200, { origin, output, route });
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/target-matrix") {
-    sendJson(res, 200, { matrix: TARGET_MATRIX, wptpCi: WPTP_CI_REFERENCES });
+    sendJson(res, 200, {
+      inputLanguages: INPUT_LANGUAGES,
+      outputLanguages: OUTPUT_LANGUAGES,
+      defaultOrigin: defaultOriginLanguage(),
+      defaultOutput: defaultOutputLanguage(),
+      inputLanguagesWithCounts: allLanguagesAsInputRows(null),
+      wptpCi: WPTP_CI_REFERENCES,
+    });
     return;
   }
 
@@ -317,14 +372,25 @@ const server = createServer(async (req, res) => {
         return;
       }
 
+      if (url.pathname === "/api/hub/probe-connectivity") {
+        const hub = await probeHubConnectivity();
+        let origin = null;
+        if (body.ssh?.host && body.ssh?.user) {
+          origin = await probeOriginOverSsh(body.ssh);
+        }
+        sendJson(res, 200, { ok: hub.ok && (origin ? origin.ok : true), hub, origin });
+        return;
+      }
+
       if (url.pathname === "/api/hub/projects") {
         const project = await createHubProject({
           name: body.name,
           description: body.description,
           ssh: body.ssh,
           pullFromSsh: body.pullFromSsh === true,
-          scanOnly: !body.pullFromSsh,
-          targets: body.targets ?? {},
+          detectLanguages: body.detectLanguages === true,
+          originLanguage: body.originLanguage,
+          outputLanguage: body.outputLanguage,
         });
         try {
           await runInit(project.localDir);
@@ -357,16 +423,7 @@ const server = createServer(async (req, res) => {
               error: "no-runnable-routes",
               message:
                 hubPlan.errors[0]?.message ??
-                "No runnable translation routes. Choose PHP → TypeScript (Chrysalis) or adjust targets.",
-              plan: hubPlan,
-            });
-            return;
-          }
-          const nonIngest = hubPlan.runnable.filter((r) => r.action !== "chrysalis-ingest");
-          if (nonIngest.length > 0) {
-            sendJson(res, 422, {
-              error: "unsupported-runnable",
-              message: "Hub v1 only runs chrysalis ingest for PHP → typescript-chrysalis.",
+                "No runnable route for this origin and output pair.",
               plan: hubPlan,
             });
             return;
@@ -374,9 +431,18 @@ const server = createServer(async (req, res) => {
           if (hubPlan.errors.length > 0) {
             broadcast("hubPlan", { projectId: hp.id, plan: hubPlan });
           }
-        } else {
-          activeProgressFile = join(projectDir, ".chrysalis", "ingest.progress");
+          await statProject(projectDir);
+          const steps = hubJobSteps(repo, cliBin, projectDir, hubPlan.runnable[0]);
+          runHubJobSteps(steps, projectDir, hubPlan);
+          sendJson(res, 202, {
+            accepted: true,
+            job: currentJob,
+            progressFile: activeProgressFile,
+            plan: hubPlan,
+          });
+          return;
         }
+        activeProgressFile = join(projectDir, ".chrysalis", "ingest.progress");
         await statProject(projectDir);
         runCliJob("ingest", projectDir, ["ingest", projectDir, "--ingest-progress-file", activeProgressFile]);
         sendJson(res, 202, {
