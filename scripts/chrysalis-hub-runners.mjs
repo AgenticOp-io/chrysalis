@@ -89,7 +89,7 @@ export function runJobSteps(steps, repo, hooks) {
     hooks.onStepStart(step);
     const child = spawn(step.execPath, step.argv, {
       cwd: repo,
-      env: { ...process.env, CHRYSALIS_SKIP_PARSER_VENDOR: process.env.CHRYSALIS_SKIP_PARSER_VENDOR ?? "1", NO_COLOR: "1" },
+      env: { ...process.env, NO_COLOR: "1" },
     });
     const emit = (stream, chunk) => {
       for (const line of chunk.toString().split(/\r?\n/)) {

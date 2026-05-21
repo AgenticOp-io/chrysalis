@@ -166,7 +166,7 @@ function runCliJob(kind, projectDir, args) {
 
   const child = spawn(process.execPath, [cliBin, ...args], {
     cwd: repo,
-    env: { ...process.env, CHRYSALIS_SKIP_PARSER_VENDOR: process.env.CHRYSALIS_SKIP_PARSER_VENDOR ?? "1", NO_COLOR: "1" },
+    env: { ...process.env, NO_COLOR: "1" },
   });
   if (kind === "ingest") startProgressWatch();
 
@@ -204,7 +204,7 @@ function runInit(projectDir) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [cliBin, "init", projectDir], {
       cwd: repo,
-      env: { ...process.env, CHRYSALIS_SKIP_PARSER_VENDOR: "1" },
+      env: { ...process.env },
     });
     child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`init exit ${code}`))));
     child.on("error", reject);
@@ -217,7 +217,7 @@ function runStatusJson(projectDir) {
     const err = [];
     const child = spawn(process.execPath, [cliBin, "status", "--project", projectDir, "--json"], {
       cwd: repo,
-      env: { ...process.env, CHRYSALIS_SKIP_PARSER_VENDOR: "1" },
+      env: { ...process.env },
     });
     child.stdout.on("data", (c) => out.push(c));
     child.stderr.on("data", (c) => err.push(c));

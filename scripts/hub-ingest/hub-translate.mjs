@@ -45,7 +45,7 @@ function runCli(cliBin, args) {
   return new Promise((resolveP, reject) => {
     const child = spawn(process.execPath, [cliBin, ...args], {
       cwd: root,
-      env: { ...process.env, CHRYSALIS_SKIP_PARSER_VENDOR: process.env.CHRYSALIS_SKIP_PARSER_VENDOR ?? "1" },
+      env: { ...process.env },
     });
     child.stdout.on("data", (c) => process.stdout.write(c));
     child.stderr.on("data", (c) => process.stderr.write(c));
