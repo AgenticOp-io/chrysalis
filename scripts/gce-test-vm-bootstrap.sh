@@ -15,7 +15,7 @@ if [[ "${CHRYSALIS_REFRESH_ONLY:-}" == "1" ]]; then
   echo "[gce-test-vm-bootstrap] CHRYSALIS_REFRESH_ONLY=1 — skip apt/node/swap (shared VM safe)"
 else
   sudo apt-get update -y
-  sudo apt-get install -y ca-certificates curl git python3
+  sudo apt-get install -y ca-certificates curl git python3 php-cli composer || sudo apt-get install -y ca-certificates curl git python3 php-cli
 
   if ! command -v node >/dev/null 2>&1 || [[ "$(node -v 2>/dev/null || true)" != v20* ]]; then
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
@@ -51,8 +51,19 @@ else
 fi
 
 cd "${WORKDIR}"
-export CHRYSALIS_SKIP_PARSER_VENDOR="${CHRYSALIS_SKIP_PARSER_VENDOR:-1}"
 pnpm install
-pnpm --filter @chrysalis/cli build
+
+echo "[gce-test-vm-bootstrap] building full workspace (hub translate needs webir, ingest, emit)..."
+pnpm -r build
+
+if command -v php >/dev/null 2>&1; then
+  export CHRYSALIS_SKIP_PARSER_VENDOR=0
+  echo "[gce-test-vm-bootstrap] php on PATH — installing parser-bridge vendor for hub PHP ingest..."
+  pnpm run vendor:parser-bridge || echo "[gce-test-vm-bootstrap] WARN: parser-bridge vendor failed (PHP ingest may be limited)"
+else
+  export CHRYSALIS_SKIP_PARSER_VENDOR="${CHRYSALIS_SKIP_PARSER_VENDOR:-1}"
+  echo "[gce-test-vm-bootstrap] no php on PATH — CHRYSALIS_SKIP_PARSER_VENDOR=1 (PHP ingest uses stub parser path only)"
+fi
+
 pnpm run test:cli-shims
-echo "[gce-test-vm-bootstrap] OK: CLI built and shim smoke passed."
+echo "[gce-test-vm-bootstrap] OK: workspace built and shim smoke passed."
