@@ -85,11 +85,14 @@ From a machine with Node 20+ and SSH to origins:
 ```bash
 git clone https://github.com/AgenticOp-io/chrysalis.git
 cd chrysalis
-pnpm install && pnpm -r build
+pnpm install
+pnpm run build:hub-all
 export CHRYSALIS_STATUS_REPO="$(pwd)"
 export CHRYSALIS_STATUS_PORT=19090
 node scripts/chrysalis-operator-web.mjs
 ```
+
+`build:hub-all` runs `pnpm -r build`, parser-bridge vendor, and clones/builds **`wptp-emit-nextjs`** for Next.js hub output.
 
 See also `docs/DEPLOYMENT.md` and `docs/HUB-CONNECTIVITY.md`.
 
@@ -98,4 +101,4 @@ See also `docs/DEPLOYMENT.md` and `docs/HUB-CONNECTIVITY.md`.
 - **Route not runnable** — Origin and output must differ; output must be a web target from the menu.
 - **SSH scan failed** — Install `chrysalis-origin-scan` on the origin or disable autodetect and set origin manually.
 - **PHP ingest errors** — Hub needs `php` and `packages/parser-bridge/vendor` (demo VM bootstrap installs these).
-- **Next.js output** — Requires WebIR bundle scripts in the repo; use Hono/Fastify for the simplest demo.
+- **Next.js output** — Requires sibling **`wptp-emit-nextjs`** next to the repo (e.g. `~/wptp-emit-nextjs` on the demo VM). Bootstrap runs `node scripts/install-wptp-hub-deps.mjs` automatically; locally: `pnpm run build:hub-all`.

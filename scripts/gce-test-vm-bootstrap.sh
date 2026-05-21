@@ -65,5 +65,11 @@ else
   echo "[gce-test-vm-bootstrap] no php on PATH — CHRYSALIS_SKIP_PARSER_VENDOR=1 (PHP ingest uses stub parser path only)"
 fi
 
+if [[ "${CHRYSALIS_SKIP_WPTP_HUB_DEPS:-}" != "1" ]]; then
+  echo "[gce-test-vm-bootstrap] installing WPTP hub deps (wptp-emit-nextjs for Next.js output)..."
+  export WPTP_SIBLINGS_ROOT="${WPTP_SIBLINGS_ROOT:-${HOME}}"
+  node scripts/install-wptp-hub-deps.mjs || echo "[gce-test-vm-bootstrap] WARN: WPTP hub deps failed (Next.js hub routes need sibling)"
+fi
+
 pnpm run test:cli-shims
-echo "[gce-test-vm-bootstrap] OK: workspace built and shim smoke passed."
+echo "[gce-test-vm-bootstrap] OK: workspace built, WPTP hub deps attempted, shim smoke passed."

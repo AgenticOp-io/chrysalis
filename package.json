@@ -67,6 +67,8 @@
     "wptp:d7-audit": "node scripts/wptp-d7-audit.mjs",
     "hub:probe": "node scripts/agents/chrysalis-hub-probe.mjs",
     "hub:translate": "node scripts/hub-ingest/hub-translate.mjs",
+    "hub:install-wptp": "node scripts/install-wptp-hub-deps.mjs",
+    "build:hub-all": "pnpm -r build && pnpm run vendor:parser-bridge && pnpm run hub:install-wptp",
     "emit:webir-bundle-hono": "node scripts/emit-webir-bundle-hono.mjs",
     "clean": "pnpm -r clean",
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",
