@@ -35,16 +35,17 @@ if (-not $SkipLocalBuild) {
   }
 }
 
-$refreshArgs = @("-Project", $Project, "-Zone", $Zone, "-Name", $Name)
-if ($TunnelThroughIap) { $refreshArgs += "-TunnelThroughIap" }
-
 if ($SkipHubFinish) {
   $env:CHRYSALIS_SKIP_HUB_FINISH = "1"
 } else {
   Remove-Item Env:CHRYSALIS_SKIP_HUB_FINISH -ErrorAction SilentlyContinue
 }
 
-& $refresh @refreshArgs
+if ($TunnelThroughIap) {
+  & $refresh -Project $Project -Zone $Zone -Name $Name -TunnelThroughIap
+} else {
+  & $refresh -Project $Project -Zone $Zone -Name $Name
+}
 if ($LASTEXITCODE -ne 0) { throw "gce-test-vm-refresh failed" }
 
 $ipArgs = @(
