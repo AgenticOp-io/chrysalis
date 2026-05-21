@@ -278,6 +278,15 @@ const server = createServer(async (req, res) => {
     }
     return;
   }
+  if (req.method === "GET" && url.pathname === "/docs/hub-install") {
+    try {
+      const md = await readFile(join(__dir, "..", "docs", "HUB-DEMO-INSTALL.md"), "utf8");
+      sendText(res, 200, "text/plain; charset=utf-8", md);
+    } catch {
+      sendJson(res, 404, { error: "doc-not-found" });
+    }
+    return;
+  }
 
   if (req.method === "GET" && url.pathname === "/api/events") {
     res.writeHead(200, {

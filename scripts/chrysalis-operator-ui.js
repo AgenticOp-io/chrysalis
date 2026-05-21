@@ -1,7 +1,7 @@
 /* Chrysalis Translation Hub — browser UI (served by chrysalis-operator-web.mjs) */
 (function () {
   const $ = (id) => document.getElementById(id);
-  const views = { home: $("viewHome"), newProject: $("viewNew"), console: $("viewConsole") };
+  const views = { home: $("viewHome"), newProject: $("viewNew"), guide: $("viewGuide"), console: $("viewConsole") };
 
   function show(view) {
     for (const [k, el] of Object.entries(views)) {
@@ -13,7 +13,10 @@
     const h = (location.hash || "#/").replace(/^#\/?/, "");
     const [page, query] = h.split("?");
     if (page === "new" || page === "newProject") show("newProject");
-    else if (page === "console") {
+    else if (page === "guide" || page === "install") {
+      show("guide");
+      loadInstallGuide();
+    } else if (page === "console") {
       show("console");
       const id = new URLSearchParams(query || "").get("id");
       if (id) loadConsoleProject(id);
@@ -47,6 +50,82 @@
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
+  }
+
+  let installGuideLoaded = false;
+  async function loadInstallGuide() {
+    const el = $("installGuideBody");
+    if (!el || installGuideLoaded) return;
+    try {
+      const r = await fetch("/docs/hub-install");
+      const md = await r.text();
+      el.innerHTML = renderInstallMarkdown(md);
+      installGuideLoaded = true;
+    } catch (e) {
+      el.innerHTML = `<p class="muted">Could not load guide: ${esc(e.message)}. Try <a href="/docs/hub-install">plain text</a>.</p>`;
+    }
+  }
+
+  function renderInstallMarkdown(md) {
+    const lines = md.split(/\r?\n/);
+    const out = [];
+    let inTable = false;
+    let tableRows = [];
+    let inCode = false;
+    let codeBuf = [];
+
+    const flushTable = () => {
+      if (!tableRows.length) return;
+      const rows = tableRows.map((r) => r.split("|").slice(1, -1).map((c) => c.trim()));
+      const header = rows[0];
+      const body = rows.slice(2);
+      out.push("<table><thead><tr>" + header.map((c) => `<th>${inlineMd(c)}</th>`).join("") + "</tr></thead><tbody>");
+      for (const row of body) {
+        out.push("<tr>" + row.map((c) => `<td>${inlineMd(c)}</td>`).join("") + "</tr>");
+      }
+      out.push("</tbody></table>");
+      tableRows = [];
+      inTable = false;
+    };
+
+    const inlineMd = (s) => {
+      let t = esc(s);
+      t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+      t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+      return t;
+    };
+
+    for (const line of lines) {
+      if (line.startsWith("```")) {
+        if (inCode) {
+          out.push("<pre><code>" + esc(codeBuf.join("\n")) + "</code></pre>");
+          codeBuf = [];
+          inCode = false;
+        } else inCode = true;
+        continue;
+      }
+      if (inCode) {
+        codeBuf.push(line);
+        continue;
+      }
+      if (line.startsWith("|")) {
+        inTable = true;
+        tableRows.push(line);
+        continue;
+      }
+      if (inTable) flushTable();
+      if (line.startsWith("# ")) out.push("<h2>" + inlineMd(line.slice(2)) + "</h2>");
+      else if (line.startsWith("## ")) out.push("<h2>" + inlineMd(line.slice(3)) + "</h2>");
+      else if (line.startsWith("### ")) out.push("<h3>" + inlineMd(line.slice(4)) + "</h3>");
+      else if (/^\d+\.\s/.test(line)) out.push("<li>" + inlineMd(line.replace(/^\d+\.\s/, "")) + "</li>");
+      else if (line.startsWith("- ")) out.push("<li>" + inlineMd(line.slice(2)) + "</li>");
+      else if (line.trim() === "") out.push("");
+      else out.push("<p>" + inlineMd(line) + "</p>");
+    }
+    if (inTable) flushTable();
+    if (inCode && codeBuf.length) out.push("<pre><code>" + esc(codeBuf.join("\n")) + "</code></pre>");
+    return out.join("\n");
   }
 
   let inputLanguages = [];
@@ -317,6 +396,11 @@
   $("navNew").addEventListener("click", (e) => {
     e.preventDefault();
     location.hash = "#/new";
+    route();
+  });
+  $("navGuide")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    location.hash = "#/guide";
     route();
   });
 

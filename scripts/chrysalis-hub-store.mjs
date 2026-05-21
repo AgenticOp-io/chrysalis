@@ -10,6 +10,8 @@ import { buildRemoteScanShell, parseOriginAgentJson } from "./chrysalis-hub-conn
 import {
   hubOriginLanguages,
   hubOutputLanguages,
+  isHubWebOrigin,
+  isHubWebOutput,
   LANGUAGE_LABELS,
 } from "./hub-ingest/language-catalog.mjs";
 
@@ -188,18 +190,19 @@ export function defaultOutputLanguage() {
 export function originFromDetection(detection) {
   if (!detection?.languages?.length) return defaultOriginLanguage();
   const sorted = [...detection.languages].sort((a, b) => b.fileCount - a.fileCount);
-  return sorted[0]?.language ?? defaultOriginLanguage();
+  const web = sorted.find((row) => isHubWebOrigin(row.language));
+  return web?.language ?? defaultOriginLanguage();
 }
 
-/** Languages in {@link EXT_TO_LANGUAGE} missing from {@link TARGET_MATRIX}. */
+/** Hub web origin ids missing from {@link TARGET_MATRIX}. */
 export function matrixCoverageGaps() {
-  return extMapLanguageIds().filter((lang) => !TARGET_MATRIX[lang]);
+  return matrixLanguageIds().filter((lang) => !TARGET_MATRIX[lang]);
 }
 
-export function assertMatrixCoversExtLanguages() {
+export function assertMatrixCoversOriginLanguages() {
   const gaps = matrixCoverageGaps();
   if (gaps.length > 0) {
-    throw new Error(`TARGET_MATRIX missing languages: ${gaps.join(", ")}`);
+    throw new Error(`TARGET_MATRIX missing origin languages: ${gaps.join(", ")}`);
   }
 }
 
@@ -254,7 +257,7 @@ export function resolveHubRoute(sourceLang, outputLang) {
   if (outputLang === "unchanged" || outputLang === "typescript-chrysalis") {
     outputLang = "typescript";
   }
-  if (!matrixLanguageIds().includes(sourceLang)) {
+  if (!isHubWebOrigin(sourceLang)) {
     return {
       ok: false,
       status: "unsupported",
@@ -263,7 +266,7 @@ export function resolveHubRoute(sourceLang, outputLang) {
       hole: `hub:unknown-source:${sourceLang}`,
     };
   }
-  if (!OUTPUT_LANGUAGES.some((o) => o.id === outputLang)) {
+  if (!isHubWebOutput(outputLang)) {
     return {
       ok: false,
       status: "unsupported",

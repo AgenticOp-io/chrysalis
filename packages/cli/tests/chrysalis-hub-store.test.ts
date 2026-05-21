@@ -3,10 +3,10 @@ import { expect, test } from "vitest";
 
 const HUB_STORE = fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url));
 
-test("hub store: matrix covers every EXT_TO_LANGUAGE id", async () => {
+test("hub store: matrix covers every hub web origin", async () => {
   const hub = await import(HUB_STORE);
   expect(hub.matrixCoverageGaps()).toEqual([]);
-  hub.assertMatrixCoversExtLanguages();
+  hub.assertMatrixCoversOriginLanguages();
 });
 
 test("hub store: detectLanguagesFromFileList groups by extension", async () => {
@@ -82,11 +82,33 @@ test("hub store: planHubTranslation single origin output pair", async () => {
   expect(plan.errors).toHaveLength(0);
 });
 
-test("hub store: OUTPUT_LANGUAGES is a single menu list", async () => {
+test("hub store: OUTPUT_LANGUAGES is web-only", async () => {
   const { OUTPUT_LANGUAGES } = await import(HUB_STORE);
-  expect(OUTPUT_LANGUAGES.length).toBeGreaterThan(10);
-  expect(OUTPUT_LANGUAGES.some((o) => o.id === "typescript")).toBe(true);
-  expect(OUTPUT_LANGUAGES.some((o) => o.id === "hono")).toBe(true);
+  const ids = OUTPUT_LANGUAGES.map((o) => o.id);
+  expect(ids).toContain("typescript");
+  expect(ids).toContain("hono");
+  expect(ids).not.toContain("sql");
+  expect(ids).not.toContain("json");
+  expect(ids).not.toContain("markdown");
+  expect(ids).not.toContain("cpp");
+});
+
+test("hub store: resolveHubRoute rejects sql output", async () => {
+  const { resolveHubRoute } = await import(HUB_STORE);
+  const route = resolveHubRoute("php", "sql");
+  expect(route.ok).toBe(false);
+  expect(route.code).toBe("unknown-output-language");
+});
+
+test("hub store: originFromDetection prefers web language over sql", async () => {
+  const { originFromDetection } = await import(HUB_STORE);
+  const origin = originFromDetection({
+    languages: [
+      { language: "sql", fileCount: 100, sampleFiles: [] },
+      { language: "php", fileCount: 10, sampleFiles: [] },
+    ],
+  });
+  expect(origin).toBe("php");
 });
 
 test("hub connectivity: parseOriginAgentJson", async () => {

@@ -17,6 +17,7 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | [Operations](./OPERATIONS.md) | Day-to-day operators | Runbooks for ingest scale-out, capture, verify sharding, the dual-stack router, signed routing config, sessions across stacks, fleet rollups. |
 | [Deployment](./DEPLOYMENT.md) | Platform engineers, release engineers, SRE | Where each component runs in CI and production, the three deployment patterns, rollback playbooks. |
 | [Hub connectivity](./HUB-CONNECTIVITY.md) | Translation Hub operators | SSH/local access model, origin scan agent install, database and Redis reachability, connectivity probes. |
+| [Hub demo install](./HUB-DEMO-INSTALL.md) | Demo server visitors | Walkthrough for the public Translation Hub on port **19090** (URL, SSH, web-only output targets). |
 | [Administration](./ADMINISTRATION.md) | SRE, platform, release owners | Environment variables, CI gates, the report tree, redaction policy, corpus retention, repository settings. |
 
 ---

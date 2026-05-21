@@ -41,6 +41,16 @@
     #routeList { font-size: 0.85rem; color: var(--muted); max-height: 6rem; overflow-y: auto; }
     #routeList li.done { color: var(--ok); }
     [hidden] { display: none !important; }
+    .guide article { line-height: 1.55; color: var(--text); }
+    .guide article h2 { font-size: 1.15rem; margin: 1.25rem 0 0.5rem; color: var(--accent); }
+    .guide article h3 { font-size: 1rem; margin: 1rem 0 0.35rem; }
+    .guide article p, .guide article li { color: var(--muted); }
+    .guide article code { background: #0d1218; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.88em; }
+    .guide article table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.75rem 0; }
+    .guide article th, .guide article td { border: 1px solid #2a3548; padding: 0.45rem 0.6rem; text-align: left; }
+    .guide article th { color: var(--text); background: #0d1218; }
+    .guide article a { color: var(--accent); }
+    .guide article pre { background: #0d1218; padding: 0.65rem; border-radius: 6px; overflow-x: auto; font-size: 0.82rem; }
   </style>
 </head>
 <body>
@@ -48,6 +58,7 @@
     <span class="brand">Chrysalis Translation Hub</span>
     <a href="#/" id="navHome">Projects</a>
     <a href="#/new" id="navNew">New project</a>
+    <a href="#/guide" id="navGuide">Demo guide</a>
   </nav>
   <main>
     <section id="viewHome" hidden>
@@ -55,9 +66,10 @@
         <h1>Universal web code translation</h1>
         <p>
           Orchestrate legacy modernization from a central hub with SSH access to origin servers.
-          Every origin and output language in the web catalog is runnable here; Chrysalis oracle verification
-          remains strongest on PHP to TypeScript, while other pairs lift to WebIR and emit scaffold or framework targets.
+          Pick a web stack as origin and a modern web application target as output. Chrysalis oracle verification
+          is strongest on PHP to TypeScript; other pairs lift to WebIR and emit scaffolds or framework targets.
         </p>
+        <p class="muted"><a href="#/guide">Demo install guide</a> — URL, SSH setup, and a walkthrough on this server.</p>
       </div>
       <div class="card">
         <h2 style="margin-top:0">Your projects</h2>
@@ -68,7 +80,7 @@
 
     <section id="viewNew" hidden>
       <h1>New translation project</h1>
-      <p class="muted">Choose any origin and output from the full web language catalog. Optional SSH autodetect suggests the origin from file counts. PHP → TypeScript/Hono/Fastify/Next.js use Chrysalis ingest; all other pairs use the hub pipeline (lift, emit, or native project scaffold).</p>
+      <p class="muted">Choose a web origin and a web output (framework targets included). Output excludes SQL, JSON, and non-web languages. Optional SSH autodetect picks the top <strong>web</strong> language by file count. PHP → TypeScript/Hono/Fastify/Next.js use Chrysalis ingest; other pairs use the hub pipeline.</p>
       <div class="card">
         <label for="projName">Project name</label>
         <input id="projName" type="text" placeholder="Billing monolith" />
@@ -114,6 +126,12 @@
         </div>
         <p id="createStatus" class="muted"></p>
       </div>
+    </section>
+
+    <section id="viewGuide" class="guide" hidden>
+      <h1>Demo install guide</h1>
+      <p class="muted">How to use this Translation Hub on the demo server. <a href="/docs/hub-install" target="_blank" rel="noopener">Plain text</a></p>
+      <div class="card"><article id="installGuideBody"><p class="muted">Loading…</p></article></div>
     </section>
 
     <section id="viewConsole" hidden>
