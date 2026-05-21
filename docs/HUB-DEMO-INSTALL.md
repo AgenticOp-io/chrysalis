@@ -78,6 +78,28 @@ It does **not** include SQL, JSON, YAML, Markdown, C/C++, Swift, or other non-we
 | `~/chrysalis-test/` | Chrysalis toolchain used by jobs |
 | `~/.chrysalis-status-server.log` | Hub web server log |
 
+## One-command deploy (operators)
+
+From a Windows machine with `gcloud` auth and the repo checkout:
+
+```powershell
+pnpm run deploy:hub-demo
+```
+
+Or:
+
+```powershell
+.\scripts\gce-hub-deploy.ps1 -Project chrysalis-dev-f5x6qv
+```
+
+This runs local `build:hub-all`, uploads HEAD to **`chrysalis-test-vm`**, builds the full workspace, installs WPTP Next.js + parser vendor, runs **`hub-post-deploy-verify`**, restarts the hub on **:19090**, and prints the public URL.
+
+Refresh only (no local build):
+
+```powershell
+.\scripts\gce-test-vm-refresh.ps1 -Project chrysalis-dev-f5x6qv
+```
+
 ## Run your own hub (not the demo)
 
 From a machine with Node 20+ and SSH to origins:

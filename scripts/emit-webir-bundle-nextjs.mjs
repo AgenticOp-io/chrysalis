@@ -9,6 +9,7 @@
  * Requires: pnpm -r build (webir); wptp-emit-nextjs npm run build.
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { platform } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { fileURLToPath } from "node:url";
@@ -65,9 +66,19 @@ const { emitNextJsAppRouter } = await import(pathToFileURL(join(emitNextJsRoot, 
 const ir = importWebIrBundleJson(bundleObj);
 const emitted = emitNextJsAppRouter(ir);
 
+function safeDestPath(outDir, relativePath) {
+  const parts = relativePath.split(/[/\\]/).map((seg) => {
+    if (platform() === "win32" && /:/.test(seg) && !/^[a-zA-Z]:$/.test(seg)) {
+      return seg.replace(/:/g, "_");
+    }
+    return seg;
+  });
+  return join(outDir, ...parts);
+}
+
 mkdirSync(out, { recursive: true });
 for (const f of emitted.files) {
-  const dest = join(out, f.relativePath);
+  const dest = safeDestPath(out, f.relativePath);
   mkdirSync(dirname(dest), { recursive: true });
   writeFileSync(dest, f.contents, "utf8");
 }

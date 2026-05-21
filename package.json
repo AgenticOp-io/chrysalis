@@ -69,6 +69,8 @@
     "hub:translate": "node scripts/hub-ingest/hub-translate.mjs",
     "hub:install-wptp": "node scripts/install-wptp-hub-deps.mjs",
     "build:hub-all": "pnpm -r build && pnpm run vendor:parser-bridge && pnpm run hub:install-wptp",
+    "verify:hub-deploy": "node scripts/hub-post-deploy-verify.mjs",
+    "deploy:hub-demo": "powershell -ExecutionPolicy Bypass -File scripts/gce-hub-deploy.ps1 -Project chrysalis-dev-f5x6qv",
     "emit:webir-bundle-hono": "node scripts/emit-webir-bundle-hono.mjs",
     "clean": "pnpm -r clean",
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",

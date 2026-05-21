@@ -13,6 +13,12 @@ export GIT_TERMINAL_PROMPT=0
 
 if [[ "${CHRYSALIS_REFRESH_ONLY:-}" == "1" ]]; then
   echo "[gce-test-vm-bootstrap] CHRYSALIS_REFRESH_ONLY=1 — skip apt/node/swap (shared VM safe)"
+  if ! command -v php >/dev/null 2>&1; then
+    echo "[gce-test-vm-bootstrap] refresh: installing php-cli for hub PHP ingest..."
+    export DEBIAN_FRONTEND=noninteractive
+    sudo apt-get update -qq
+    sudo apt-get install -y php-cli php-xml unzip || true
+  fi
 else
   sudo apt-get update -y
   sudo apt-get install -y ca-certificates curl git python3 php-cli composer || sudo apt-get install -y ca-certificates curl git python3 php-cli
@@ -72,4 +78,12 @@ if [[ "${CHRYSALIS_SKIP_WPTP_HUB_DEPS:-}" != "1" ]]; then
 fi
 
 pnpm run test:cli-shims
-echo "[gce-test-vm-bootstrap] OK: workspace built, WPTP hub deps attempted, shim smoke passed."
+
+if [[ "${CHRYSALIS_SKIP_HUB_FINISH:-}" != "1" ]]; then
+  chmod +x scripts/gce-hub-finish-deploy.sh
+  export CHRYSALIS_AUTO_START_HUB="${CHRYSALIS_AUTO_START_HUB:-1}"
+  export CHRYSALIS_DEPLOY_STRICT="${CHRYSALIS_DEPLOY_STRICT:-1}"
+  bash scripts/gce-hub-finish-deploy.sh
+fi
+
+echo "[gce-test-vm-bootstrap] OK: workspace built, hub finish deploy complete."
