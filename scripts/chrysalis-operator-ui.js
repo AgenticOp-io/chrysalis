@@ -38,9 +38,10 @@
       const origin = p.originLanguage || "?";
       const output = p.outputLanguage || "?";
       const li = document.createElement("li");
+      const siteN = p.sites?.length ?? 0;
       li.innerHTML = `<strong>${esc(p.name)}</strong> <span class="muted">${esc(p.id)}</span>
-        <div class="muted">${esc(origin)} → ${esc(output)}</div>
-        <a href="#/console?id=${encodeURIComponent(p.id)}">Open console</a>`;
+        <div class="muted">${esc(origin)} → ${esc(output)} · ${siteN} site(s)</div>
+        <a href="#/console?id=${encodeURIComponent(p.id)}"><strong>Open console</strong> (add sites, run batch)</a>`;
       ul.appendChild(li);
     }
   }
@@ -296,9 +297,7 @@
     const output = p.outputLanguage || "?";
     for (const site of p.sites || []) {
       const row = document.createElement("div");
-      row.className = "card";
-      row.style.marginBottom = "0.5rem";
-      row.style.padding = "0.65rem";
+      row.className = "site-card";
       const pct = site._progressPct ?? 0;
       const done = site._progressDone ?? 0;
       const total = site._progressTotal ?? 0;
@@ -477,9 +476,9 @@
         ssh: {
           host: $("siteHost").value.trim(),
           user: $("siteUser").value.trim(),
-          port: 22,
+          port: Number($("sitePort")?.value) || 22,
           remotePath: $("sitePath").value.trim(),
-          identityFile: $("sshKey")?.value?.trim() || undefined,
+          identityFile: $("siteKey")?.value?.trim() || undefined,
         },
       });
       $("siteActionStatus").textContent = "Site added.";

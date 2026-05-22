@@ -362,15 +362,29 @@ async function prepareStatic() {
   uiJs = await readFile(join(__dir, "chrysalis-operator-ui.js"), "utf8");
 }
 
+async function loadStatic() {
+  if (process.env.CHRYSALIS_HUB_RELOAD_STATIC === "1" || process.env.NODE_ENV !== "production") {
+    await prepareStatic();
+  } else if (!indexHtml) {
+    await prepareStatic();
+  }
+}
+
+const noCache = { "cache-control": "no-cache, no-store, must-revalidate", pragma: "no-cache" };
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
 
   if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
-    sendText(res, 200, "text/html; charset=utf-8", indexHtml);
+    await loadStatic();
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", ...noCache });
+    res.end(indexHtml);
     return;
   }
-  if (req.method === "GET" && url.pathname === "/ui.js") {
-    sendText(res, 200, "application/javascript; charset=utf-8", uiJs);
+  if (req.method === "GET" && url.pathname.startsWith("/ui.js")) {
+    await loadStatic();
+    res.writeHead(200, { "content-type": "application/javascript; charset=utf-8", ...noCache });
+    res.end(uiJs);
     return;
   }
   if (req.method === "GET" && url.pathname === "/docs/hub-connectivity") {

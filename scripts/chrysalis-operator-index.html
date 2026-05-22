@@ -41,6 +41,9 @@
     #routeList { font-size: 0.85rem; color: var(--muted); max-height: 6rem; overflow-y: auto; }
     #routeList li.done { color: var(--ok); }
     [hidden] { display: none !important; }
+    .hub-banner { background: linear-gradient(90deg, #1e3a5f, #2a1e5f); padding: 0.5rem 1.25rem; font-size: 0.88rem; border-bottom: 1px solid #3d8bfd; }
+    .site-card { border: 1px solid #2a3548; border-radius: 8px; padding: 0.65rem; margin-bottom: 0.5rem; background: #0d1218; }
+    .site-card .bar-wrap { height: 6px; margin: 0.35rem 0; }
     .guide article { line-height: 1.55; color: var(--text); }
     .guide article h2 { font-size: 1.15rem; margin: 1.25rem 0 0.5rem; color: var(--accent); }
     .guide article h3 { font-size: 1rem; margin: 1rem 0 0.35rem; }
@@ -54,6 +57,7 @@
   </style>
 </head>
 <body>
+  <div class="hub-banner">Multi-site client/server hub — each project can attach many SSH origins; run translations in parallel with a progress meter per site.</div>
   <nav>
     <span class="brand">Chrysalis Translation Hub</span>
     <a href="#/" id="navHome">Projects</a>
@@ -63,11 +67,11 @@
   <main>
     <section id="viewHome" hidden>
       <div class="hero">
-        <h1>Universal web code translation</h1>
+        <h1>Multi-site web translation hub</h1>
         <p>
-          Orchestrate legacy modernization from a central hub with SSH access to origin servers.
-          Pick a web stack as origin and a modern web application target as output. Chrysalis oracle verification
-          is strongest on PHP to TypeScript; other pairs lift to WebIR and emit scaffolds or framework targets.
+          Professional converters run this <strong>server</strong>; your browser is the <strong>client</strong>.
+          Create a project, attach <strong>many legacy sites over SSH</strong>, pick one web output language, then
+          <strong>Run all sites</strong> with parallel jobs and per-site progress bars in the project Console.
         </p>
         <p class="muted"><a href="#/guide">Demo install guide</a> — URL, SSH setup, and a walkthrough on this server.</p>
       </div>
@@ -80,13 +84,13 @@
 
     <section id="viewNew" hidden>
       <h1>New translation project</h1>
-      <p class="muted">Choose a web origin and a web output (framework targets included). Output excludes SQL, JSON, and non-web languages. Optional SSH autodetect picks the top <strong>web</strong> language by file count. PHP → TypeScript/Hono/Fastify/Next.js use Chrysalis ingest; other pairs use the hub pipeline.</p>
+      <p class="muted">Defines the <strong>output language</strong> for all sites in this project. Add the first origin below; after create, open <strong>Console</strong> to add more SSH sites and run batch translation.</p>
       <div class="card">
         <label for="projName">Project name</label>
         <input id="projName" type="text" placeholder="Billing monolith" />
         <label for="projDesc">Description</label>
         <textarea id="projDesc" rows="2" placeholder="Optional"></textarea>
-        <h3>Origin server (SSH)</h3>
+        <h3>First origin site (SSH)</h3>
         <div class="grid2">
           <div><label for="sshHost">Host</label><input id="sshHost" type="text" placeholder="10.0.0.5" /></div>
           <div><label for="sshPort">Port</label><input id="sshPort" type="text" value="22" /></div>
@@ -147,8 +151,12 @@
           <div><label for="siteOrigin">Origin override</label><select id="siteOrigin"></select></div>
         </div>
         <div class="grid2">
-          <div><label for="siteHost">Host</label><input id="siteHost" type="text" /></div>
-          <div><label for="siteUser">User</label><input id="siteUser" type="text" /></div>
+          <div><label for="siteHost">Host</label><input id="siteHost" type="text" placeholder="10.0.0.5" /></div>
+          <div><label for="sitePort">Port</label><input id="sitePort" type="text" value="22" /></div>
+        </div>
+        <div class="grid2">
+          <div><label for="siteUser">User</label><input id="siteUser" type="text" placeholder="deploy" /></div>
+          <div><label for="siteKey">SSH key on hub</label><input id="siteKey" type="text" placeholder="~/.ssh/id_ed25519" /></div>
         </div>
         <label for="sitePath">Remote path</label>
         <input id="sitePath" type="text" placeholder="/var/www/app" />
@@ -173,6 +181,6 @@
       </div>
     </section>
   </main>
-  <script src="/ui.js"></script>
+  <script src="/ui.js?v=hub-multisite-1"></script>
 </body>
 </html>
