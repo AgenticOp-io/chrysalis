@@ -44,6 +44,8 @@
     .hub-banner { background: linear-gradient(90deg, #1e3a5f, #2a1e5f); padding: 0.5rem 1.25rem; font-size: 0.88rem; border-bottom: 1px solid #3d8bfd; }
     .site-card { border: 1px solid #2a3548; border-radius: 8px; padding: 0.65rem; margin-bottom: 0.5rem; background: #0d1218; }
     .site-card .bar-wrap { height: 6px; margin: 0.35rem 0; }
+    .steps { margin-bottom: 1rem; }
+    .steps .badge { margin-right: 0.25rem; }
     .guide article { line-height: 1.55; color: var(--text); }
     .guide article h2 { font-size: 1.15rem; margin: 1.25rem 0 0.5rem; color: var(--accent); }
     .guide article h3 { font-size: 1rem; margin: 1rem 0 0.35rem; }
@@ -84,13 +86,15 @@
 
     <section id="viewNew" hidden>
       <h1>New translation project</h1>
-      <p class="muted">Defines the <strong>output language</strong> for all sites in this project. Add the first origin below; after create, open <strong>Console</strong> to add more SSH sites and run batch translation.</p>
+      <p class="steps muted"><span class="badge ok">1</span> Project &amp; sites &nbsp;→&nbsp; <span class="badge">2</span> Console: run batch with per-site progress</p>
       <div class="card">
         <label for="projName">Project name</label>
         <input id="projName" type="text" placeholder="Billing monolith" />
         <label for="projDesc">Description</label>
         <textarea id="projDesc" rows="2" placeholder="Optional"></textarea>
-        <h3>First origin site (SSH)</h3>
+        <h3>Origin sites (SSH) — add as many as you need</h3>
+        <p class="muted">Fill one site below and click <strong>Add to project</strong>. Repeat for each legacy server. All sites share the same output language.</p>
+        <ul id="pendingSitesList" class="muted" style="list-style:none;padding:0;margin:0 0 0.75rem"></ul>
         <div class="grid2">
           <div><label for="sshHost">Host</label><input id="sshHost" type="text" placeholder="10.0.0.5" /></div>
           <div><label for="sshPort">Port</label><input id="sshPort" type="text" value="22" /></div>
@@ -109,9 +113,13 @@
         </div>
         <p id="probeStatus" class="muted"></p>
         <p id="scanStatus" class="muted"></p>
+        <div class="row">
+          <button type="button" class="secondary" id="btnAddPendingSite">Add to project</button>
+          <span id="pendingSiteCount" class="muted">0 sites queued</span>
+        </div>
       </div>
       <div class="card">
-        <h3>Translation</h3>
+        <h3>Output language (all sites)</h3>
         <div class="grid2">
           <div>
             <label for="originLanguage">Origin language</label>
@@ -126,9 +134,9 @@
         </div>
         <p id="routeStatus" class="target-hint"></p>
         <div class="row">
-          <button type="button" class="primary" id="btnCreateProject">Create project</button>
+          <button type="button" class="primary" id="btnCreateProject">Create project &amp; open Console</button>
         </div>
-        <p id="createStatus" class="muted"></p>
+        <p id="createStatus" class="muted">Requires at least one origin site in the list above (or fill host/user/path and click Add to project).</p>
       </div>
     </section>
 
@@ -181,6 +189,6 @@
       </div>
     </section>
   </main>
-  <script src="/ui.js?v=hub-multisite-1"></script>
+  <script src="/ui.js?v=hub-multisite-2"></script>
 </body>
 </html>

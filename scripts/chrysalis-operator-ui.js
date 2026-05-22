@@ -253,34 +253,89 @@
     }
   });
 
+  const pendingSites = [];
+
+  function readSiteFormFromNewPage() {
+    const host = $("sshHost").value.trim();
+    const user = $("sshUser").value.trim();
+    const path = $("sshPath").value.trim();
+    if (!host || !user || !path) return null;
+    return {
+      name: `Site ${pendingSites.length + 1} (${host})`,
+      originLanguage: $("originLanguage").value,
+      pullFromSsh: $("pullFromSsh").checked,
+      detectLanguages: $("enableDetect").checked,
+      ssh: {
+        host,
+        user,
+        port: Number($("sshPort").value) || 22,
+        remotePath: path,
+        identityFile: $("sshKey").value.trim() || undefined,
+      },
+    };
+  }
+
+  function renderPendingSites() {
+    const ul = $("pendingSitesList");
+    if (!ul) return;
+    ul.innerHTML = "";
+    for (let i = 0; i < pendingSites.length; i++) {
+      const s = pendingSites[i];
+      const li = document.createElement("li");
+      li.className = "site-card";
+      li.innerHTML = `<strong>${esc(s.name)}</strong> <span class="muted">${esc(s.ssh.user)}@${esc(s.ssh.host)}:${esc(s.ssh.remotePath)}</span>
+        <button type="button" class="secondary" data-i="${i}" style="margin-top:0.35rem">Remove</button>`;
+      li.querySelector("button").addEventListener("click", () => {
+        pendingSites.splice(i, 1);
+        renderPendingSites();
+      });
+      ul.appendChild(li);
+    }
+    if ($("pendingSiteCount")) {
+      $("pendingSiteCount").textContent =
+        pendingSites.length === 0 ? "0 sites queued" : `${pendingSites.length} site(s) queued`;
+    }
+  }
+
+  $("btnAddPendingSite")?.addEventListener("click", () => {
+    const s = readSiteFormFromNewPage();
+    if (!s) {
+      $("createStatus").textContent = "Enter host, user, and remote path first.";
+      return;
+    }
+    pendingSites.push(s);
+    renderPendingSites();
+    $("createStatus").textContent = `Added ${s.name}. Add more sites or create the project.`;
+  });
+
   $("btnCreateProject").addEventListener("click", async () => {
     $("createStatus").textContent = "Creating…";
     try {
+      if (pendingSites.length === 0) {
+        const one = readSiteFormFromNewPage();
+        if (one) pendingSites.push(one);
+      }
+      if (pendingSites.length === 0) {
+        $("createStatus").textContent = "Add at least one site (host, user, path) using Add to project.";
+        return;
+      }
       const body = {
         name: $("projName").value.trim(),
         description: $("projDesc").value.trim(),
-        pullFromSsh: $("pullFromSsh").checked,
-        detectLanguages: $("enableDetect").checked,
         originLanguage: $("originLanguage").value,
         outputLanguage: $("outputLanguage").value,
-        ssh: {
-          host: $("sshHost").value.trim(),
-          user: $("sshUser").value.trim(),
-          port: Number($("sshPort").value) || 22,
-          remotePath: $("sshPath").value.trim(),
-          identityFile: $("sshKey").value.trim() || undefined,
-        },
+        sites: pendingSites,
       };
       const r = await api("/api/hub/projects", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body),
       });
-      $("createStatus").textContent = "Created " + r.project.id;
-      setTimeout(() => {
-        location.hash = `#/console?id=${encodeURIComponent(r.project.id)}`;
-        route();
-      }, 500);
+      pendingSites.length = 0;
+      renderPendingSites();
+      $("createStatus").textContent = `Created ${r.project.id} with ${r.project.sites?.length ?? 0} site(s). Opening Console…`;
+      location.hash = `#/console?id=${encodeURIComponent(r.project.id)}`;
+      route();
     } catch (e) {
       $("createStatus").textContent = "Error: " + e.message;
     }
