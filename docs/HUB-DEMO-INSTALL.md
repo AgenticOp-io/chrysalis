@@ -102,9 +102,23 @@ Refresh only (no local build):
 
 ## Multi-site projects (professional use)
 
-In **Console**, add multiple **origin sites** (SSH) to one project. Use **Run all sites** to translate in parallel (default **3** at a time via `CHRYSALIS_HUB_MAX_PARALLEL`). Each site has its own progress bar on the hub server.
+In **Console**, add multiple **origin sites** (SSH) to one project. Use **Run full pipeline** (prep + pull + translate) or **Run all sites** for translate-only. Default **3** parallel jobs (`CHRYSALIS_HUB_MAX_PARALLEL`). Each site has its own progress bar.
 
 Server install: [HUB-SERVER-INSTALL.md](./HUB-SERVER-INSTALL.md).
+
+## End-to-end portal workflow (no CLI)
+
+1. **New project** — queue sites, **Create project & start setup** (or **Create & run full pipeline**).
+2. **Console** — watch setup/translate in **Job log** (SSE).
+3. **Observe on staging** — **Load observe guide**, run PHP oracle on staging, copy traces to hub.
+4. **Upload traces** — select site, choose `.ndjson` / `.zip`, **Upload traces for selected site**.
+5. **Start emitted app** — hub runs `generated/hono` (or Next.js); verify URL is filled automatically.
+6. **Verify** — **Verify all sites** or per-site **Verify** (oracle replay against emitted app).
+7. **WPTP compose** (optional) — if the site tree has OpenAPI/HAR/WebIR, **WPTP compose site** for silver emit.
+
+## Multi-tenant (optional)
+
+Set `CHRYSALIS_OPERATOR_TOKEN` on the hub. The portal prompts for a Bearer token. The configured token is **admin** (sees all projects); other tokens only see projects they created.
 
 ## Run your own hub (not the demo)
 

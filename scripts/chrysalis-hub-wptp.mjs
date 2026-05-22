@@ -61,3 +61,44 @@ export async function runWptpHubSmoke(repo, outputLanguage = "nextjs") {
     references: refs,
   };
 }
+
+/** Per-site WPTP compose from project-local OpenAPI/HAR/WebIR. */
+export async function runSiteWptpCompose(repo, site, outputLanguage) {
+  const script = join(repo, "scripts/hub-ingest/wptp-compose-site.mjs");
+  const out = [];
+  const err = [];
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      [script, site.localDir, "--output", outputLanguage === "hono" ? "hono" : "nextjs"],
+      {
+        cwd: repo,
+        env: {
+          ...process.env,
+          CHRYSALIS_ROOT: repo,
+          WPTP_MATRIX_ROOT: process.env.WPTP_MATRIX_ROOT ?? join(repo, "..", "wptp-matrix"),
+          WPTP_EMIT_NEXTJS_ROOT: process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(repo, "..", "wptp-emit-nextjs"),
+        },
+      },
+    );
+    child.stdout.on("data", (c) => out.push(c));
+    child.stderr.on("data", (c) => err.push(c));
+    child.on("close", (code) => {
+      const stdout = Buffer.concat(out).toString("utf8");
+      const stderr = Buffer.concat(err).toString("utf8");
+      let parsed = null;
+      for (const line of stdout.trim().split(/\r?\n/)) {
+        if (line.startsWith("{")) {
+          try {
+            parsed = JSON.parse(line);
+          } catch {
+            /* ignore */
+          }
+        }
+      }
+      if (code === 0) resolve({ ok: true, ...parsed, stdout, stderr });
+      else reject(new Error(stderr.trim() || stdout.trim() || `wptp-compose-site failed (${code})`));
+    });
+    child.on("error", reject);
+  });
+}

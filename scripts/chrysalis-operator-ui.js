@@ -31,6 +31,17 @@
     return h;
   }
 
+  async function apiUpload(path, formData) {
+    const r = await fetch(path, { method: "POST", headers: buildHeaders({}), body: formData });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401) {
+      $("authGate").hidden = false;
+      throw new Error("Unauthorized — enter hub token.");
+    }
+    if (!r.ok) throw new Error(j.message || j.error || r.statusText);
+    return j;
+  }
+
   async function api(path, opts = {}) {
     let body = opts.body;
     const headers = buildHeaders(opts);
@@ -425,12 +436,13 @@
       const vState = site.verifyState || "—";
       const vPct =
         site.verifyCorrectness != null ? `${Math.round(site.verifyCorrectness * 100)}%` : site.verifyState === "passed" ? "ok" : "";
+      const rt = site.runtime?.baseUrl ? ` · app ${site.runtime.baseUrl}` : "";
       row.innerHTML = `
         <div class="row" style="justify-content:space-between">
           <strong>${esc(site.name)}</strong>
           <span class="badge ${site.jobState === "succeeded" || site.verifyState === "passed" ? "ok" : site.jobState === "failed" || site.verifyState === "failed" ? "fail" : ""}">${esc(site.jobState || "idle")}</span>
         </div>
-        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)} · verify: ${esc(vState)} ${esc(vPct)}</div>
+        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)} · verify: ${esc(vState)} ${esc(vPct)}${esc(rt)}</div>
         <div class="bar-wrap" style="margin-top:0.4rem"><div class="bar" style="width:${pct}%"></div></div>
         <div class="muted">${done} / ${total} routes (${pct}%)</div>
         <div class="row" style="margin-top:0.35rem">
@@ -652,6 +664,11 @@
   es.addEventListener("siteVerify", () => {
     if (consoleProjectId) loadConsoleProject(consoleProjectId);
   });
+  es.addEventListener("siteRuntime", (e) => {
+    const d = JSON.parse(e.data);
+    if (d.runtime?.baseUrl && $("verifyBaseUrl")) $("verifyBaseUrl").value = d.runtime.baseUrl;
+    if (consoleProjectId) loadConsoleProject(consoleProjectId);
+  });
 
   async function post(path, body) {
     return api(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -819,6 +836,78 @@
     }
     try {
       await verifyOneSite(selectedSiteId);
+    } catch (e) {
+      $("verifyStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnUploadTraces")?.addEventListener("click", async () => {
+    if (!selectedSiteId) {
+      $("verifyStatus").textContent = "Select a site first.";
+      return;
+    }
+    const input = $("traceFileInput");
+    if (!input?.files?.length) {
+      $("verifyStatus").textContent = "Choose trace files or a .zip first.";
+      return;
+    }
+    const fd = new FormData();
+    for (const f of input.files) fd.append("traces", f);
+    try {
+      const r = await apiUpload(
+        `/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}/traces/upload`,
+        fd,
+      );
+      $("verifyStatus").textContent = `Uploaded ${r.saved} file(s) to ${r.tracesDir}`;
+    } catch (e) {
+      $("verifyStatus").textContent = "Upload error: " + e.message;
+    }
+  });
+
+  $("btnStartRuntime")?.addEventListener("click", async () => {
+    if (!selectedSiteId) {
+      $("verifyStatus").textContent = "Select a site first.";
+      return;
+    }
+    try {
+      const r = await post(
+        `/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}/runtime/start`,
+        {},
+      );
+      if ($("verifyBaseUrl")) $("verifyBaseUrl").value = r.runtime?.baseUrl ?? "";
+      $("verifyStatus").textContent = `Emitted app running at ${r.runtime?.baseUrl}`;
+      await loadConsoleProject(consoleProjectId);
+    } catch (e) {
+      $("verifyStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnStopRuntime")?.addEventListener("click", async () => {
+    if (!selectedSiteId) return;
+    try {
+      await post(
+        `/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}/runtime/stop`,
+        {},
+      );
+      $("verifyStatus").textContent = "Emitted app stopped.";
+    } catch (e) {
+      $("verifyStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnWptpCompose")?.addEventListener("click", async () => {
+    if (!selectedSiteId) {
+      $("verifyStatus").textContent = "Select a site first.";
+      return;
+    }
+    try {
+      const r = await post(
+        `/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}/wptp-compose`,
+        {},
+      );
+      $("verifyStatus").textContent = "WPTP compose OK: " + (r.path || "done");
+      logLine(JSON.stringify(r));
+      await loadConsoleProject(consoleProjectId);
     } catch (e) {
       $("verifyStatus").textContent = "Error: " + e.message;
     }

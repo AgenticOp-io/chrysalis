@@ -203,10 +203,18 @@
         </div>
         <label for="verifyTracesDir">Traces dir override (optional)</label>
         <input id="verifyTracesDir" type="text" placeholder="Leave empty for site/.chrysalis/traces" />
+        <label for="traceFileInput">Upload traces (.ndjson / .json, or .zip)</label>
+        <input id="traceFileInput" type="file" multiple accept=".ndjson,.json,.zip" />
+        <div class="row">
+          <button type="button" class="secondary" id="btnUploadTraces">Upload traces for selected site</button>
+          <button type="button" class="secondary" id="btnStartRuntime">Start emitted app</button>
+          <button type="button" class="secondary" id="btnStopRuntime">Stop emitted app</button>
+          <button type="button" class="secondary" id="btnWptpCompose">WPTP compose site</button>
+        </div>
         <div class="row">
           <button type="button" class="primary" id="btnVerifyAll">Verify all sites</button>
           <button type="button" class="secondary" id="btnVerifySelected">Verify selected site</button>
-          <button type="button" class="secondary" id="btnWptpSmoke">WPTP silver smoke (hub VM)</button>
+          <button type="button" class="secondary" id="btnWptpSmoke">WPTP matrix smoke</button>
         </div>
         <p id="verifyStatus" class="muted"></p>
       </div>
@@ -231,6 +239,6 @@
       <button type="button" class="primary" id="btnSaveToken">Continue</button>
     </div>
   </div>
-  <script src="/ui.js?v=hub-portal-2"></script>
+  <script src="/ui.js?v=hub-finish-1"></script>
 </body>
 </html>

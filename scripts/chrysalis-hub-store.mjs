@@ -2,6 +2,7 @@
  * Translation hub project registry + SSH scan helpers (operator server).
  * @see docs/MASTER-PROGRAM.md bounded universality
  */
+import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -707,6 +708,7 @@ export async function createHubProject(opts) {
     id,
     name: opts.name,
     description: opts.description ?? "",
+    owner: opts.owner ?? null,
     createdAt: new Date().toISOString(),
     ssh: opts.ssh ?? null,
     localDir: ws,
@@ -804,4 +806,40 @@ export async function listProjects() {
 
 export function hubRootPath() {
   return hubRoot;
+}
+
+/** Portal tenancy when CHRYSALIS_OPERATOR_TOKEN is set on the hub server. */
+export function hubActorFromRequest(req, configuredToken) {
+  if (!configuredToken) return { role: "open", id: null };
+  const raw = String(req.headers?.authorization ?? "").trim();
+  const token = raw.startsWith("Bearer ") ? raw.slice(7).trim() : raw;
+  if (!token) return { role: "anonymous", id: null };
+  if (token === configuredToken) return { role: "admin", id: "admin" };
+  return {
+    role: "tenant",
+    id: createHash("sha256").update(token).digest("hex").slice(0, 24),
+  };
+}
+
+export function canAccessProject(project, actor) {
+  if (!actor || actor.role === "open" || actor.role === "admin") return true;
+  if (!project.owner) return false;
+  return project.owner === actor.id;
+}
+
+export function ownerForNewProject(actor) {
+  if (!actor || actor.role === "open" || actor.role === "admin") return null;
+  if (actor.role === "tenant") return actor.id;
+  return null;
+}
+
+export async function listProjectsForActor(actor) {
+  const all = await listProjects();
+  return all.filter((p) => canAccessProject(p, actor));
+}
+
+export async function getProjectForActor(id, actor) {
+  const p = await getProject(id);
+  if (!p) return null;
+  return canAccessProject(p, actor) ? p : null;
 }

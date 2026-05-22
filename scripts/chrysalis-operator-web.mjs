@@ -20,6 +20,10 @@ import {
   addProjectSite,
   createHubProject,
   getProject,
+  getProjectForActor,
+  hubActorFromRequest,
+  listProjectsForActor,
+  ownerForNewProject,
   listProjects,
   planHubTranslation,
   planSiteTranslation,
@@ -44,7 +48,18 @@ import {
 import { runProjectSetup } from "./chrysalis-hub-setup.mjs";
 import { buildObserveAssist } from "./chrysalis-hub-observe-assist.mjs";
 import { readVerifySummary, runProjectVerify, runSiteVerify, defaultTracesDir } from "./chrysalis-hub-verify.mjs";
-import { runWptpHubSmoke } from "./chrysalis-hub-wptp.mjs";
+import { runWptpHubSmoke, runSiteWptpCompose } from "./chrysalis-hub-wptp.mjs";
+import {
+  readRawBody,
+  parseMultipartFiles,
+  saveTraceFiles,
+  saveZipTraces,
+} from "./chrysalis-hub-traces-upload.mjs";
+import {
+  detectEmittedTarget,
+  startSiteRuntime,
+  stopSiteRuntime,
+} from "./chrysalis-hub-runtime.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.CHRYSALIS_OPERATOR_PORT ?? process.env.CHRYSALIS_STATUS_PORT ?? "19090");
@@ -618,7 +633,8 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/api/hub/projects") {
-    sendJson(res, 200, { projects: await listProjects() });
+    const actor = hubActorFromRequest(req, authToken);
+    sendJson(res, 200, { projects: await listProjectsForActor(actor), actor: actor.role });
     return;
   }
 
@@ -656,7 +672,8 @@ const server = createServer(async (req, res) => {
 
   const hubProjectMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)$/);
   if (req.method === "GET" && hubProjectMatch) {
-    const p = await getProject(decodeURIComponent(hubProjectMatch[1]));
+    const actor = hubActorFromRequest(req, authToken);
+    const p = await getProjectForActor(decodeURIComponent(hubProjectMatch[1]), actor);
     if (!p) {
       sendJson(res, 404, { error: "not-found" });
       return;
@@ -690,6 +707,34 @@ const server = createServer(async (req, res) => {
       return;
     }
     try {
+      const actor = hubActorFromRequest(req, authToken);
+
+      const tracesUploadMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/traces\/upload$/);
+      if (tracesUploadMatch) {
+        const projectId = decodeURIComponent(tracesUploadMatch[1]);
+        const siteId = decodeURIComponent(tracesUploadMatch[2]);
+        const p = await getProjectForActor(projectId, actor);
+        const site = p?.sites?.find((s) => s.id === siteId);
+        if (!p || !site) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
+        const ct = String(req.headers["content-type"] ?? "");
+        const raw = await readRawBody(req);
+        let result;
+        if (ct.includes("multipart/form-data")) {
+          const files = parseMultipartFiles(raw, ct).filter((f) => f.field === "traces" || f.field === "file");
+          result = await saveTraceFiles(site.localDir, files);
+        } else if (ct.includes("application/zip") || ct.includes("application/octet-stream")) {
+          result = await saveZipTraces(site.localDir, raw);
+        } else {
+          sendJson(res, 415, { error: "unsupported-media", message: "Use multipart/form-data (field traces) or application/zip" });
+          return;
+        }
+        sendJson(res, 200, result);
+        return;
+      }
+
       const body = await readBody(req);
 
       if (url.pathname === "/api/hub/scan-ssh") {
@@ -713,6 +758,7 @@ const server = createServer(async (req, res) => {
         const project = await createHubProject({
           name: body.name,
           description: body.description,
+          owner: ownerForNewProject(actor),
           ssh: body.ssh,
           sites: body.sites,
           pullFromSsh: body.pullFromSsh === true,
@@ -747,6 +793,10 @@ const server = createServer(async (req, res) => {
       const addSiteMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites$/);
       if (req.method === "POST" && addSiteMatch) {
         const projectId = decodeURIComponent(addSiteMatch[1]);
+        if (!(await getProjectForActor(projectId, actor))) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
         const backgroundSetup = body.backgroundSetup !== false;
         const site = await addProjectSite(projectId, {
           name: body.name,
@@ -881,9 +931,68 @@ const server = createServer(async (req, res) => {
         return;
       }
 
+      const wptpComposeMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/wptp-compose$/);
+      if (req.method === "POST" && wptpComposeMatch) {
+        const projectId = decodeURIComponent(wptpComposeMatch[1]);
+        const siteId = decodeURIComponent(wptpComposeMatch[2]);
+        const hp = await getProjectForActor(projectId, actor);
+        const site = hp?.sites?.find((s) => s.id === siteId);
+        if (!hp || !site) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
+        try {
+          const r = await runSiteWptpCompose(repo, site, hp.outputLanguage ?? "nextjs");
+          sendJson(res, 200, r);
+        } catch (e) {
+          sendJson(res, 422, { error: "wptp-compose-failed", message: e instanceof Error ? e.message : String(e) });
+        }
+        return;
+      }
+
+      const runtimeStartMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/runtime\/start$/);
+      if (req.method === "POST" && runtimeStartMatch) {
+        const projectId = decodeURIComponent(runtimeStartMatch[1]);
+        const siteId = decodeURIComponent(runtimeStartMatch[2]);
+        const hp = await getProjectForActor(projectId, actor);
+        const site = hp?.sites?.find((s) => s.id === siteId);
+        if (!hp || !site) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
+        if (hubBusy()) {
+          sendJson(res, 409, { error: "job-busy" });
+          return;
+        }
+        const runtime = await startSiteRuntime(projectId, siteId, {
+          onLog(siteId, stream, line) {
+            broadcast("log", { stream, siteId, line });
+          },
+          onRuntime(siteId, rt) {
+            broadcast("siteRuntime", { projectId, siteId, runtime: rt });
+          },
+        });
+        sendJson(res, 200, { runtime, emitTarget: await detectEmittedTarget(site.localDir) });
+        return;
+      }
+
+      const runtimeStopMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/runtime\/stop$/);
+      if (req.method === "POST" && runtimeStopMatch) {
+        const projectId = decodeURIComponent(runtimeStopMatch[1]);
+        const siteId = decodeURIComponent(runtimeStopMatch[2]);
+        const hp = await getProjectForActor(projectId, actor);
+        if (!hp) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
+        await stopSiteRuntime(projectId, siteId);
+        sendJson(res, 200, { stopped: true });
+        return;
+      }
+
       const wptpSmokeMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/wptp-smoke$/);
       if (req.method === "POST" && wptpSmokeMatch) {
-        const hp = await getProject(decodeURIComponent(wptpSmokeMatch[1]));
+        const hp = await getProjectForActor(decodeURIComponent(wptpSmokeMatch[1]), actor);
         if (!hp) {
           sendJson(res, 404, { error: "hub-project-not-found" });
           return;
@@ -895,7 +1004,7 @@ const server = createServer(async (req, res) => {
 
       const runBatchMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/run-batch$/);
       if (req.method === "POST" && runBatchMatch) {
-        const hp = await getProject(decodeURIComponent(runBatchMatch[1]));
+        const hp = await getProjectForActor(decodeURIComponent(runBatchMatch[1]), actor);
         if (!hp) {
           sendJson(res, 404, { error: "hub-project-not-found" });
           return;
@@ -923,7 +1032,7 @@ const server = createServer(async (req, res) => {
 
       const runPipelineMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/run-pipeline$/);
       if (req.method === "POST" && runPipelineMatch) {
-        const hp = await getProject(decodeURIComponent(runPipelineMatch[1]));
+        const hp = await getProjectForActor(decodeURIComponent(runPipelineMatch[1]), actor);
         if (!hp) {
           sendJson(res, 404, { error: "hub-project-not-found" });
           return;

@@ -32,6 +32,30 @@ test("hub verify: defaultTracesDir under site workspace", async () => {
   expect(defaultTracesDir("/tmp/site")).toMatch(/\.chrysalis[\\/]traces$/);
 });
 
+test("hub tenancy: tenant actor isolation", async () => {
+  const { hubActorFromRequest, canAccessProject, ownerForNewProject } = await import(STORE);
+  const admin = hubActorFromRequest({ headers: { authorization: "Bearer secret" } }, "secret");
+  const tenant = hubActorFromRequest({ headers: { authorization: "Bearer user-a" } }, "secret");
+  expect(admin.role).toBe("admin");
+  expect(tenant.role).toBe("tenant");
+  expect(canAccessProject({ owner: "abc" }, tenant)).toBe(false);
+  expect(canAccessProject({ owner: "abc" }, admin)).toBe(true);
+  expect(ownerForNewProject(tenant)).toHaveLength(24);
+});
+
+test("hub traces upload: parseMultipartFiles", async () => {
+  const { parseMultipartFiles } = await import(
+    fileURLToPath(new URL("../../../scripts/chrysalis-hub-traces-upload.mjs", import.meta.url))
+  );
+  const boundary = "----boundary";
+  const body = Buffer.from(
+    `--${boundary}\r\nContent-Disposition: form-data; name="traces"; filename="t.ndjson"\r\n\r\n{"x":1}\r\n--${boundary}--\r\n`,
+  );
+  const files = parseMultipartFiles(body, `multipart/form-data; boundary=${boundary}`);
+  expect(files).toHaveLength(1);
+  expect(files[0].filename).toBe("t.ndjson");
+});
+
 test("hub store: updateProjectSite patches ssh and name", async () => {
   const prev = process.env.CHRYSALIS_HUB_ROOT;
   const root = await mkdtemp(join(tmpdir(), "chrysalis-hub-test-"));

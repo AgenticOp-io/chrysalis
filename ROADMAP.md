@@ -56,12 +56,17 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G8 — WPTP hub smoke (partial)** — **`POST …/wptp-smoke`** when **`wptp-matrix`** sibling exists; full per-site WPTP compose remains WPTP CI / future depth.
 - [x] **G9 — Hub auth (partial)** — Portal Bearer token when **`CHRYSALIS_OPERATOR_TOKEN`** set; multi-tenant ACLs still future.
 
-### Translation Hub — still open (honest limits)
+- [x] **G10 — Trace upload in browser** — **`POST …/traces/upload`** multipart or zip → **`site/.chrysalis/traces`**. (**D319**)
+- [x] **G11 — Emitted app launcher** — **`POST …/runtime/start|stop`**, auto-fills verify base URL. (**D319**)
+- [x] **G12 — Multi-tenant hub** — Project **`owner`** + Bearer token tenancy (**admin** vs **tenant**). (**D319**)
+- [x] **G13 — Per-site WPTP compose** — **`POST …/wptp-compose`**, **`wptp-compose-site.mjs`** (OpenAPI/HAR/WebIR on site tree). (**D319**)
 
-- [ ] **G10 — Trace upload in browser** — Multipart/tar upload of NDJSON traces (today: scp to hub path or operator copies files).
-- [ ] **G11 — Emitted app launcher** — Portal starts emitted Hono/Next on hub and fills verify base URL automatically.
-- [ ] **G12 — Multi-tenant hub** — Per-user project ACLs and org registry.
-- [ ] **G13 — Per-site WPTP compose** — Project-local OpenAPI/HAR → silver emit from portal (not matrix smoke only).
+**Translation Hub v1 is feature-complete** for the portal product slice (G1–G13). Further work is Chrysalis core depth (oracle, ingest, WPTP emitters), not hub UI plumbing.
+
+### Translation Hub — future (post-v1, optional)
+
+- Org registry UI, trace upload resume, emitted-app health probes in Console.
+- Full non-PHP native emit quality (WPTP **`wptp-emit-*`**, not hub scaffolds).
 
 ---
 
