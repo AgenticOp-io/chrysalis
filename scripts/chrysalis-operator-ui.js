@@ -287,31 +287,110 @@
 
   let consoleProjectId = null;
 
+  let selectedSiteId = null;
+
+  function renderSitesList(p) {
+    const el = $("sitesList");
+    if (!el) return;
+    el.innerHTML = "";
+    const output = p.outputLanguage || "?";
+    for (const site of p.sites || []) {
+      const row = document.createElement("div");
+      row.className = "card";
+      row.style.marginBottom = "0.5rem";
+      row.style.padding = "0.65rem";
+      const pct = site._progressPct ?? 0;
+      const done = site._progressDone ?? 0;
+      const total = site._progressTotal ?? 0;
+      row.innerHTML = `
+        <div class="row" style="justify-content:space-between">
+          <strong>${esc(site.name)}</strong>
+          <span class="badge">${esc(site.jobState || "idle")}</span>
+        </div>
+        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")}</div>
+        <div class="bar-wrap" style="margin-top:0.4rem"><div class="bar" style="width:${pct}%"></div></div>
+        <div class="muted">${done} / ${total} routes (${pct}%)</div>
+        <button type="button" class="secondary site-run-one" data-site-id="${esc(site.id)}">Run this site</button>
+      `;
+      el.appendChild(row);
+    }
+    el.querySelectorAll(".site-run-one").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        selectedSiteId = btn.getAttribute("data-site-id");
+        runSingleSite();
+      });
+    });
+    if ($("siteOrigin") && inputLanguages.length) {
+      fillSelect($("siteOrigin"), inputLanguages, p.originLanguage);
+    }
+    if ($("consoleSubtitle")) {
+      $("consoleSubtitle").textContent =
+        `Output: ${output} · ${p.sites?.length ?? 0} site(s) — run in parallel from this hub server.`;
+    }
+  }
+
   async function loadConsoleProject(id) {
     consoleProjectId = id;
     const p = await api(`/api/hub/projects/${encodeURIComponent(id)}`);
     $("consoleTitle").textContent = p.name;
-    $("project").value = p.localDir || "";
-    const det = $("consoleDetection");
-    const origin = p.originLanguage || "?";
-    const output = p.outputLanguage || "?";
-    det.innerHTML = `<li><strong>${esc(origin)} → ${esc(output)}</strong></li>`;
-    if (p.detection) {
-      for (const l of p.detection.languages) {
-        const li = document.createElement("li");
-        li.textContent = `${l.language}: ${l.fileCount} files detected`;
-        det.appendChild(li);
-      }
+    selectedSiteId = p.sites?.[0]?.id ?? null;
+    renderSitesList(p);
+    try {
+      const bp = await api(`/api/hub/projects/${encodeURIComponent(id)}/batch-progress`);
+      applyBatchProgress(bp);
+    } catch {
+      /* ignore */
     }
-    const planEl = $("consoleRoutePlan");
-    if (planEl) {
-      try {
-        const { plan } = await api(`/api/hub/projects/${encodeURIComponent(id)}/route-plan`);
-        const run = plan.runnable.map((r) => r.sourceLang + "→" + r.targetId + " (" + r.action + ")").join(", ");
-        planEl.textContent = run ? "Runnable: " + run : plan.errors[0]?.message || "No runnable route.";
-      } catch {
-        planEl.textContent = "";
-      }
+  }
+
+  function applyBatchProgress(bp) {
+    if (!bp?.sites) return;
+    $("pct").textContent = String(bp.overallPercent ?? 0);
+    $("bar").style.width = (bp.overallPercent ?? 0) + "%";
+    let done = 0;
+    let total = 0;
+    const ul = $("routeList");
+    ul.innerHTML = "";
+    for (const [id, s] of Object.entries(bp.sites)) {
+      done += s.completed ?? 0;
+      total += s.totalRoutes ?? 0;
+      const li = document.createElement("li");
+      li.className = (s.pct ?? 0) >= 100 ? "done" : "";
+      li.textContent = `${s.name || id}: ${s.completed ?? 0}/${s.totalRoutes ?? 0} (${s.pct ?? 0}%)`;
+      ul.appendChild(li);
+    }
+    $("routeSummary").textContent = `${done} / ${total} routes across ${Object.keys(bp.sites).length} site(s)`;
+    if ($("batchOverall")) {
+      $("batchOverall").textContent = bp.running
+        ? "Batch: running…"
+        : bp.batch?.state
+          ? `Batch: ${bp.batch.state}`
+          : "Batch: idle";
+    }
+    api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}`)
+      .then((p) => {
+        for (const site of p.sites || []) {
+          const st = bp.sites[site.id];
+          if (st) {
+            site._progressPct = st.pct ?? 0;
+            site._progressDone = st.completed ?? 0;
+            site._progressTotal = st.totalRoutes ?? 0;
+          }
+        }
+        renderSitesList(p);
+      })
+      .catch(() => {});
+  }
+
+  async function runSingleSite() {
+    $("log").textContent = "";
+    try {
+      await post("/api/jobs/ingest", {
+        hubProjectId: consoleProjectId,
+        siteId: selectedSiteId,
+      });
+    } catch (e) {
+      logLine("ERROR: " + e.message);
     }
   }
 
@@ -320,14 +399,15 @@
     if (!j || j.state === "idle") {
       b.textContent = "idle";
       b.className = "badge";
-      $("btnIngest").disabled = false;
-      $("btnStatus").disabled = false;
+      if ($("btnIngest")) $("btnIngest").disabled = false;
+      if ($("btnRunBatch")) $("btnRunBatch").disabled = false;
       return;
     }
     b.textContent = j.kind + " · " + j.state;
     b.className = "badge " + (j.state === "running" ? "run" : j.state === "succeeded" ? "ok" : "fail");
-    $("btnIngest").disabled = j.state === "running";
-    $("btnStatus").disabled = j.state === "running";
+    const busy = j.state === "running";
+    if ($("btnIngest")) $("btnIngest").disabled = busy;
+    if ($("btnRunBatch")) $("btnRunBatch").disabled = busy;
   }
 
   function applyProgress(p) {
@@ -361,31 +441,53 @@
   es.addEventListener("statusResult", (e) => {
     $("statusJson").textContent = JSON.stringify(JSON.parse(e.data), null, 2);
   });
+  es.addEventListener("batchProgress", (e) => applyBatchProgress(JSON.parse(e.data)));
+  es.addEventListener("batch", (e) => {
+    const b = JSON.parse(e.data);
+    if ($("batchOverall")) $("batchOverall").textContent = "Batch: " + (b.state || "idle");
+    if (b.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
+  });
 
   async function post(path, body) {
     return api(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   }
 
-  $("btnIngest").addEventListener("click", async () => {
+  $("btnIngest")?.addEventListener("click", () => runSingleSite());
+
+  $("btnRunBatch")?.addEventListener("click", async () => {
     $("log").textContent = "";
+    $("siteActionStatus").textContent = "Starting batch…";
     try {
-      const r = await post("/api/jobs/ingest", { projectDir: $("project").value, hubProjectId: consoleProjectId });
-      if (r.plan?.errors?.length) {
-        for (const e of r.plan.errors) logLine("[hub] " + e.sourceLang + ": " + e.message);
-      }
+      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/run-batch`, {});
+      $("siteActionStatus").textContent = "Batch started.";
     } catch (e) {
+      $("siteActionStatus").textContent = "Error: " + e.message;
       logLine("ERROR: " + e.message);
     }
   });
-  $("btnStatus").addEventListener("click", async () => {
-    $("log").textContent = "";
+
+  $("btnAddSite")?.addEventListener("click", async () => {
+    $("siteActionStatus").textContent = "Adding site…";
     try {
-      await post("/api/jobs/status", { projectDir: $("project").value });
+      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites`, {
+        name: $("siteName").value.trim() || "Site",
+        originLanguage: $("siteOrigin").value,
+        pullFromSsh: true,
+        detectLanguages: false,
+        ssh: {
+          host: $("siteHost").value.trim(),
+          user: $("siteUser").value.trim(),
+          port: 22,
+          remotePath: $("sitePath").value.trim(),
+          identityFile: $("sshKey")?.value?.trim() || undefined,
+        },
+      });
+      $("siteActionStatus").textContent = "Site added.";
+      await loadConsoleProject(consoleProjectId);
     } catch (e) {
-      logLine("ERROR: " + e.message);
+      $("siteActionStatus").textContent = "Error: " + e.message;
     }
   });
-  $("btnRefresh").addEventListener("click", () => api("/api/progress").then(applyProgress));
 
   $("navHome").addEventListener("click", (e) => {
     e.preventDefault();

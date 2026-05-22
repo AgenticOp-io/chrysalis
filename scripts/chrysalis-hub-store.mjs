@@ -354,6 +354,65 @@ export function workspaceDir(projectId) {
   return join(workspacesRoot, projectId);
 }
 
+export function siteWorkspaceDir(projectId, siteId) {
+  return join(workspacesRoot, projectId, "sites", siteId);
+}
+
+export function siteProgressPath(siteLocalDir) {
+  return join(siteLocalDir, ".chrysalis", "ingest.progress");
+}
+
+/** Normalize legacy single-ssh projects to multi-site shape. */
+export function normalizeProject(project) {
+  if (!project) return project;
+  const p = { ...project };
+  if (!Array.isArray(p.sites)) p.sites = [];
+  if (p.sites.length === 0 && p.ssh?.host && p.ssh?.user) {
+    const siteId = p.primarySiteId ?? "primary";
+    p.sites = [
+      {
+        id: siteId,
+        name: p.name ? `${p.name} (primary)` : "Primary site",
+        ssh: p.ssh,
+        localDir: p.localDir ?? siteWorkspaceDir(p.id, siteId),
+        originLanguage: p.originLanguage,
+        outputLanguage: p.outputLanguage,
+        detection: p.detection ?? null,
+        jobState: p.jobState ?? "idle",
+      },
+    ];
+  }
+  if (p.sites.length === 0) {
+    const siteId = "local";
+    p.sites = [
+      {
+        id: siteId,
+        name: "Local workspace",
+        ssh: null,
+        localDir: p.localDir ?? workspaceDir(p.id),
+        originLanguage: p.originLanguage,
+        detection: p.detection ?? null,
+        jobState: "idle",
+      },
+    ];
+  }
+  for (const site of p.sites) {
+    if (!site.localDir) site.localDir = siteWorkspaceDir(p.id, site.id);
+    if (!site.jobState) site.jobState = "idle";
+    if (!site.originLanguage) site.originLanguage = p.originLanguage ?? defaultOriginLanguage();
+  }
+  return p;
+}
+
+/** Plan translation for one site within a project. */
+export function planSiteTranslation(project, site) {
+  return planHubTranslation({
+    originLanguage: site.originLanguage ?? project.originLanguage,
+    outputLanguage: project.outputLanguage,
+    detection: site.detection ?? project.detection,
+  });
+}
+
 export async function ensureHubDirs() {
   await mkdir(workspacesRoot, { recursive: true });
 }
@@ -507,51 +566,139 @@ export async function pullFromSsh(ssh, localDir) {
   return { pulledAt: new Date().toISOString(), localDir };
 }
 
+export async function addProjectSite(projectId, opts) {
+  const reg = await loadRegistry();
+  const idx = reg.projects.findIndex((p) => p.id === projectId);
+  if (idx < 0) throw new Error("project not found");
+  const project = normalizeProject(reg.projects[idx]);
+  const siteId = slugId(opts.name || "site");
+  const localDir = siteWorkspaceDir(projectId, siteId);
+  await mkdir(localDir, { recursive: true });
+
+  const site = {
+    id: siteId,
+    name: opts.name || siteId,
+    ssh: opts.ssh ?? null,
+    localDir,
+    originLanguage: opts.originLanguage ?? project.originLanguage,
+    detection: null,
+    jobState: "idle",
+  };
+
+  if (opts.ssh && opts.pullFromSsh === true) {
+    await pullFromSsh(opts.ssh, localDir);
+    if (opts.detectLanguages) {
+      site.detection = await scanLocalDirectory(localDir);
+      if (!opts.originLanguage) {
+        site.originLanguage = originFromDetection(site.detection);
+      }
+    }
+  } else if (opts.detectLanguages && opts.ssh) {
+    site.detection = await scanSshRemote(opts.ssh);
+    if (!opts.originLanguage) {
+      site.originLanguage = originFromDetection(site.detection);
+    }
+  }
+
+  project.sites.push(site);
+  project.updatedAt = new Date().toISOString();
+  reg.projects[idx] = project;
+  await saveRegistry(reg);
+  return site;
+}
+
+export async function removeProjectSite(projectId, siteId) {
+  const reg = await loadRegistry();
+  const idx = reg.projects.findIndex((p) => p.id === projectId);
+  if (idx < 0) throw new Error("project not found");
+  const project = normalizeProject(reg.projects[idx]);
+  project.sites = project.sites.filter((s) => s.id !== siteId);
+  if (project.sites.length === 0) throw new Error("cannot remove last site");
+  reg.projects[idx] = project;
+  await saveRegistry(reg);
+  return project;
+}
+
 export async function createHubProject(opts) {
   const reg = await loadRegistry();
   const id = slugId(opts.name);
   const ws = workspaceDir(id);
   await mkdir(ws, { recursive: true });
 
-  const project = {
+  const originLanguage = opts.originLanguage ?? defaultOriginLanguage();
+  const outputLanguage = opts.outputLanguage ?? defaultOutputLanguage();
+
+  const project = normalizeProject({
     id,
     name: opts.name,
     description: opts.description ?? "",
     createdAt: new Date().toISOString(),
     ssh: opts.ssh ?? null,
-    localDir: opts.pullFromSsh ? ws : opts.localDir ?? ws,
+    localDir: ws,
     detection: null,
-    originLanguage: opts.originLanguage ?? defaultOriginLanguage(),
-    outputLanguage: opts.outputLanguage ?? defaultOutputLanguage(),
-    targets: {
-      [opts.originLanguage ?? defaultOriginLanguage()]: opts.outputLanguage ?? defaultOutputLanguage(),
-    },
+    originLanguage,
+    outputLanguage,
+    targets: { [originLanguage]: outputLanguage },
     chrysalisInitialized: false,
-  };
-
-  if (opts.ssh && opts.pullFromSsh) {
-    await pullFromSsh(opts.ssh, ws);
-    project.localDir = ws;
-    if (opts.detectLanguages) {
-      project.detection = await scanLocalDirectory(ws);
-    }
-  } else if (opts.detectLanguages && opts.ssh) {
-    project.detection = await scanSshRemote(opts.ssh);
-  } else if (opts.detectLanguages && opts.localDir) {
-    const st = await stat(opts.localDir);
-    if (!st.isDirectory()) throw new Error("localDir is not a directory");
-    project.localDir = opts.localDir;
-    project.detection = await scanLocalDirectory(opts.localDir);
-  }
-
-  if (opts.detectLanguages && !opts.originLanguage && project.detection) {
-    project.originLanguage = originFromDetection(project.detection);
-  }
-  project.targets = { [project.originLanguage]: project.outputLanguage };
+    sites: [],
+  });
 
   reg.projects.push(project);
   await saveRegistry(reg);
-  return project;
+
+  if (Array.isArray(opts.sites) && opts.sites.length > 0) {
+    for (const spec of opts.sites) {
+      await addProjectSite(id, {
+        name: spec.name,
+        ssh: spec.ssh,
+        originLanguage: spec.originLanguage ?? originLanguage,
+        pullFromSsh: spec.pullFromSsh ?? opts.pullFromSsh,
+        detectLanguages: spec.detectLanguages ?? opts.detectLanguages,
+      });
+    }
+    return (await getProject(id)) ?? project;
+  }
+
+  if (opts.ssh?.host && opts.ssh?.user) {
+    await addProjectSite(id, {
+      name: opts.siteName ?? "Primary site",
+      ssh: opts.ssh,
+      originLanguage,
+      pullFromSsh: opts.pullFromSsh === true,
+      detectLanguages: opts.detectLanguages === true,
+    });
+    return (await getProject(id)) ?? project;
+  }
+
+  const localDir = opts.localDir ?? ws;
+  if (opts.localDir) {
+    const st = await stat(localDir);
+    if (!st.isDirectory()) throw new Error("localDir is not a directory");
+  }
+  await mkdir(localDir, { recursive: true });
+  let detection = null;
+  if (opts.detectLanguages) {
+    detection = await scanLocalDirectory(localDir);
+  }
+  const siteOrigin = detection ? originFromDetection(detection) : originLanguage;
+  await updateProject(id, {
+    localDir,
+    detection,
+    originLanguage: siteOrigin,
+    targets: { [siteOrigin]: outputLanguage },
+    sites: [
+      {
+        id: "local",
+        name: "Local workspace",
+        ssh: null,
+        localDir,
+        originLanguage: siteOrigin,
+        detection,
+        jobState: "idle",
+      },
+    ],
+  });
+  return (await getProject(id)) ?? project;
 }
 
 export async function updateProject(id, patch) {
@@ -565,12 +712,13 @@ export async function updateProject(id, patch) {
 
 export async function getProject(id) {
   const reg = await loadRegistry();
-  return reg.projects.find((p) => p.id === id) ?? null;
+  const p = reg.projects.find((pr) => pr.id === id) ?? null;
+  return p ? normalizeProject(p) : null;
 }
 
 export async function listProjects() {
   const reg = await loadRegistry();
-  return reg.projects;
+  return reg.projects.map(normalizeProject);
 }
 
 export function hubRootPath() {

@@ -138,6 +138,19 @@ test("hub runners: hub-translate step for python → typescript", async () => {
   expect(steps[0]?.kind).toBe("hub-translate");
 });
 
+test("hub store: normalizeProject migrates legacy ssh to sites", async () => {
+  const { normalizeProject } = await import(HUB_STORE);
+  const p = normalizeProject({
+    id: "p1",
+    name: "Legacy",
+    ssh: { host: "10.0.0.1", user: "deploy", remotePath: "/var/www" },
+    originLanguage: "php",
+    outputLanguage: "typescript",
+  });
+  expect(p.sites.length).toBeGreaterThan(0);
+  expect(p.sites[0].ssh?.host).toBe("10.0.0.1");
+});
+
 test("hub connectivity: buildRemoteScanShell prefers agent", async () => {
   const { buildRemoteScanShell } = await import(
     fileURLToPath(new URL("../../../scripts/chrysalis-hub-connectivity.mjs", import.meta.url)),

@@ -100,6 +100,12 @@ Refresh only (no local build):
 .\scripts\gce-test-vm-refresh.ps1 -Project chrysalis-dev-f5x6qv
 ```
 
+## Multi-site projects (professional use)
+
+In **Console**, add multiple **origin sites** (SSH) to one project. Use **Run all sites** to translate in parallel (default **3** at a time via `CHRYSALIS_HUB_MAX_PARALLEL`). Each site has its own progress bar on the hub server.
+
+Server install: [HUB-SERVER-INSTALL.md](./HUB-SERVER-INSTALL.md).
+
 ## Run your own hub (not the demo)
 
 From a machine with Node 20+ and SSH to origins:

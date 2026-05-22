@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Chrysalis Translation Hub — web UI (landing, SSH project wizard, live console).
- * Default port 19090. Hub data: ~/.chrysalis-hub/
+ * Chrysalis Translation Hub — client/server operator (browser UI + REST/SSE API).
+ * Multi-site SSH projects, parallel translation, per-site progress. Port 19090. Data: ~/.chrysalis-hub/
  */
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
@@ -17,17 +17,27 @@ import {
   defaultOutputLanguage,
   allLanguagesAsInputRows,
   WPTP_CI_REFERENCES,
+  addProjectSite,
   createHubProject,
   getProject,
   listProjects,
   planHubTranslation,
+  planSiteTranslation,
+  removeProjectSite,
   resolveHubRoute,
   scanSshRemote,
+  siteProgressPath,
   updateProject,
   writeHubReport,
 } from "./chrysalis-hub-store.mjs";
 import { probeHubConnectivity, probeOriginOverSsh } from "./chrysalis-hub-connectivity.mjs";
 import { hubJobSteps, runJobSteps } from "./chrysalis-hub-runners.mjs";
+import {
+  defaultBatchConcurrency,
+  readSiteProgress,
+  runProjectBatch,
+  runSiteTranslation,
+} from "./chrysalis-hub-batch.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.CHRYSALIS_OPERATOR_PORT ?? process.env.CHRYSALIS_STATUS_PORT ?? "19090");
@@ -42,7 +52,9 @@ let uiJs = "";
 
 const sseClients = new Set();
 let currentJob = null;
+let currentBatch = null;
 let progressWatcher = null;
+let batchProgressTimer = null;
 let activeProgressFile =
   process.env.CHRYSALIS_OPERATOR_PROGRESS_FILE ?? join(repo, ".chrysalis", "ingest.progress");
 
@@ -108,11 +120,103 @@ function checkAuth(req) {
   return h === `Bearer ${authToken}` || h === authToken;
 }
 
+async function readBatchProgressState(project) {
+  const sites = {};
+  let sumPct = 0;
+  let n = 0;
+  for (const site of project.sites ?? []) {
+    const p = await readSiteProgress(site.localDir);
+    sites[site.id] = { siteId: site.id, name: site.name, jobState: site.jobState, ...p };
+    sumPct += p.pct ?? 0;
+    n += 1;
+  }
+  return {
+    ok: true,
+    projectId: project.id,
+    sites,
+    overallPercent: n > 0 ? Math.round(sumPct / n) : 0,
+    running: currentBatch?.state === "running",
+    batch: currentBatch,
+  };
+}
+
+function stopBatchProgressWatch() {
+  if (batchProgressTimer) {
+    clearInterval(batchProgressTimer);
+    batchProgressTimer = null;
+  }
+}
+
+function startBatchProgressWatch(project) {
+  stopBatchProgressWatch();
+  const push = () => void readBatchProgressState(project).then((b) => broadcast("batchProgress", b));
+  push();
+  batchProgressTimer = setInterval(() => {
+    if (currentBatch?.state !== "running") {
+      stopBatchProgressWatch();
+      return;
+    }
+    push();
+  }, 500);
+}
+
 function stopProgressWatch() {
+  stopBatchProgressWatch();
   if (progressWatcher) {
     progressWatcher.close();
     progressWatcher = null;
   }
+}
+
+async function startProjectBatch(project, { siteIds = null, concurrency = defaultBatchConcurrency() } = {}) {
+  if (currentBatch?.state === "running" || currentJob?.state === "running") {
+    throw new Error("A batch or job is already running");
+  }
+  const batchId = `batch-${Date.now()}`;
+  currentBatch = {
+    id: batchId,
+    projectId: project.id,
+    state: "running",
+    startedAt: new Date().toISOString(),
+    concurrency,
+    siteIds: siteIds ?? project.sites.map((s) => s.id),
+  };
+  broadcast("batch", { ...currentBatch });
+  startBatchProgressWatch(project);
+
+  void runProjectBatch({
+    repo,
+    cliBin,
+    project,
+    siteIds,
+    concurrency,
+    hooks: {
+      onBatchStart(id, ids) {
+        broadcast("log", { jobId: id, stream: "stdout", line: `[batch] starting ${ids.length} site(s), concurrency ${concurrency}` });
+      },
+      onSiteState(siteId, state, extra) {
+        broadcast("siteJob", { batchId, siteId, state, ...extra });
+      },
+      onLog(siteId, stream, line) {
+        broadcast("log", { jobId: batchId, siteId, stream, line });
+      },
+      onBatchDone(id, summary) {
+        stopBatchProgressWatch();
+        currentBatch = { ...currentBatch, state: summary.ok ? "succeeded" : "failed", endedAt: new Date().toISOString(), summary };
+        broadcast("batch", { ...currentBatch });
+        void readBatchProgressState(project).then((b) => broadcast("batchProgress", b));
+      },
+    },
+  }).catch((e) => {
+    stopBatchProgressWatch();
+    currentBatch = {
+      ...currentBatch,
+      state: "failed",
+      endedAt: new Date().toISOString(),
+      error: e instanceof Error ? e.message : String(e),
+    };
+    broadcast("batch", { ...currentBatch });
+  });
 }
 
 function startProgressWatch() {
@@ -310,7 +414,18 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/api/state") {
-    sendJson(res, 200, { job: currentJob, progress: await readProgressState() });
+    sendJson(res, 200, { job: currentJob, batch: currentBatch, progress: await readProgressState() });
+    return;
+  }
+
+  const batchProgressMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/batch-progress$/);
+  if (req.method === "GET" && batchProgressMatch) {
+    const p = await getProject(decodeURIComponent(batchProgressMatch[1]));
+    if (!p) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    sendJson(res, 200, await readBatchProgressState(p));
     return;
   }
 
@@ -412,6 +527,44 @@ const server = createServer(async (req, res) => {
         return;
       }
 
+      const addSiteMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites$/);
+      if (req.method === "POST" && addSiteMatch) {
+        const projectId = decodeURIComponent(addSiteMatch[1]);
+        const site = await addProjectSite(projectId, {
+          name: body.name,
+          ssh: body.ssh,
+          originLanguage: body.originLanguage,
+          pullFromSsh: body.pullFromSsh === true,
+          detectLanguages: body.detectLanguages === true,
+        });
+        sendJson(res, 201, { site, project: await getProject(projectId) });
+        return;
+      }
+
+      const delSiteMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)$/);
+      if (req.method === "DELETE" && delSiteMatch) {
+        const project = await removeProjectSite(decodeURIComponent(delSiteMatch[1]), decodeURIComponent(delSiteMatch[2]));
+        sendJson(res, 200, { project });
+        return;
+      }
+
+      const runBatchMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/run-batch$/);
+      if (req.method === "POST" && runBatchMatch) {
+        const hp = await getProject(decodeURIComponent(runBatchMatch[1]));
+        if (!hp) {
+          sendJson(res, 404, { error: "hub-project-not-found" });
+          return;
+        }
+        if (!hp.sites?.length) {
+          sendJson(res, 422, { error: "no-sites", message: "Add at least one origin site to the project." });
+          return;
+        }
+        const concurrency = Number(body.concurrency) || defaultBatchConcurrency();
+        await startProjectBatch(hp, { siteIds: body.siteIds ?? null, concurrency });
+        sendJson(res, 202, { accepted: true, batch: currentBatch });
+        return;
+      }
+
       if (url.pathname === "/api/jobs/ingest") {
         let projectDir = resolveProjectDir(body.projectDir ?? defaultProject);
         let hubPlan = null;
@@ -421,33 +574,79 @@ const server = createServer(async (req, res) => {
             sendJson(res, 404, { error: "hub-project-not-found" });
             return;
           }
-          hubPlan = planHubTranslation(hp);
-          if (hp.localDir) {
-            projectDir = hp.localDir;
-            activeProgressFile = join(hp.localDir, ".chrysalis", "ingest.progress");
-            await writeHubReport(hp.localDir, { projectId: hp.id, ...hubPlan });
+          const runAll = body.runBatch === true || (!body.siteId && (hp.sites?.length ?? 0) > 1);
+          if (runAll) {
+            const concurrency = Number(body.concurrency) || defaultBatchConcurrency();
+            await startProjectBatch(hp, { siteIds: body.siteIds ?? null, concurrency });
+            sendJson(res, 202, { accepted: true, batch: currentBatch, mode: "multi-site" });
+            return;
           }
+          const site = body.siteId ? hp.sites.find((s) => s.id === body.siteId) : hp.sites[0];
+          if (!site) {
+            sendJson(res, 422, { error: "no-site", message: "Site not found on project." });
+            return;
+          }
+          hubPlan = planSiteTranslation(hp, site);
+          projectDir = site.localDir;
+          activeProgressFile = siteProgressPath(site.localDir);
+          await writeHubReport(site.localDir, { projectId: hp.id, siteId: site.id, ...hubPlan });
           if (hubPlan.runnable.length === 0) {
             sendJson(res, 422, {
               error: "no-runnable-routes",
-              message:
-                hubPlan.errors[0]?.message ??
-                "No runnable route for this origin and output pair.",
+              message: hubPlan.errors[0]?.message ?? "No runnable route for this site.",
               plan: hubPlan,
             });
             return;
           }
-          if (hubPlan.errors.length > 0) {
-            broadcast("hubPlan", { projectId: hp.id, plan: hubPlan });
+          if (currentBatch?.state === "running" || currentJob?.state === "running") {
+            sendJson(res, 409, { error: "job-busy" });
+            return;
           }
-          await statProject(projectDir);
-          const steps = hubJobSteps(repo, cliBin, projectDir, hubPlan.runnable[0]);
-          runHubJobSteps(steps, projectDir, hubPlan);
+          const jobId = `job-${Date.now()}`;
+          currentJob = {
+            id: jobId,
+            kind: "translate-site",
+            state: "running",
+            projectDir,
+            siteId: site.id,
+            projectId: hp.id,
+            startedAt: new Date().toISOString(),
+            plan: hubPlan,
+          };
+          broadcast("job", { ...currentJob });
+          startProgressWatch();
+          void runSiteTranslation({
+            repo,
+            cliBin,
+            project: hp,
+            site,
+            hooks: {
+              onLog(sid, stream, line) {
+                broadcast("log", { jobId, siteId: sid, stream, line });
+              },
+            },
+          })
+            .then(() => {
+              stopProgressWatch();
+              currentJob = { ...currentJob, state: "succeeded", endedAt: new Date().toISOString(), exitCode: 0 };
+              broadcast("job", { ...currentJob });
+            })
+            .catch((e) => {
+              stopProgressWatch();
+              currentJob = {
+                ...currentJob,
+                state: "failed",
+                endedAt: new Date().toISOString(),
+                error: e instanceof Error ? e.message : String(e),
+              };
+              broadcast("job", { ...currentJob });
+            });
           sendJson(res, 202, {
             accepted: true,
             job: currentJob,
             progressFile: activeProgressFile,
             plan: hubPlan,
+            siteId: site.id,
           });
           return;
         }

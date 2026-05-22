@@ -136,24 +136,35 @@
 
     <section id="viewConsole" hidden>
       <h1 id="consoleTitle">Console</h1>
+      <p class="muted" id="consoleSubtitle">Client/server hub — add many SSH origin sites, run in parallel with per-site progress.</p>
       <div class="card">
-        <h3>Detected stacks</h3>
-        <ul id="consoleDetection" class="muted"></ul>
-        <p id="consoleRoutePlan" class="target-hint"></p>
-        <label for="project">Local project path on hub</label>
-        <input id="project" type="text" />
+        <h3>Origin sites</h3>
+        <div id="sitesList"></div>
+        <p class="muted" id="batchOverall">Batch: idle</p>
+        <h4>Add site (SSH)</h4>
+        <div class="grid2">
+          <div><label for="siteName">Site name</label><input id="siteName" type="text" placeholder="Production EU" /></div>
+          <div><label for="siteOrigin">Origin override</label><select id="siteOrigin"></select></div>
+        </div>
+        <div class="grid2">
+          <div><label for="siteHost">Host</label><input id="siteHost" type="text" /></div>
+          <div><label for="siteUser">User</label><input id="siteUser" type="text" /></div>
+        </div>
+        <label for="sitePath">Remote path</label>
+        <input id="sitePath" type="text" placeholder="/var/www/app" />
         <div class="row">
-          <button class="primary" id="btnIngest">Run translation</button>
-          <button class="secondary" id="btnStatus">Run status</button>
-          <button class="secondary" id="btnRefresh">Refresh progress</button>
+          <button type="button" class="secondary" id="btnAddSite">Add site + pull</button>
+          <button type="button" class="primary" id="btnRunBatch">Run all sites</button>
+          <button type="button" class="secondary" id="btnIngest">Run selected site</button>
           <span id="jobBadge" class="badge">idle</span>
         </div>
+        <p id="siteActionStatus" class="muted"></p>
       </div>
       <div class="card">
-        <label>Live ingest progress</label>
+        <label>Overall batch progress</label>
         <div class="pct"><span id="pct">0</span>%</div>
         <div class="bar-wrap"><div class="bar" id="bar"></div></div>
-        <p id="routeSummary" class="muted">0 / 0 routes</p>
+        <p id="routeSummary" class="muted">0 / 0 routes (aggregate)</p>
         <ul id="routeList"></ul>
       </div>
       <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
