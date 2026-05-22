@@ -7,6 +7,7 @@ import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promi
 import { homedir } from "node:os";
 import { basename, extname, join } from "node:path";
 import { buildRemoteScanShell, parseOriginAgentJson } from "./chrysalis-hub-connectivity.mjs";
+import { prepOriginOverSsh } from "./chrysalis-hub-prep-origin.mjs";
 import {
   hubOriginLanguages,
   hubOutputLanguages,
@@ -575,6 +576,8 @@ export async function addProjectSite(projectId, opts) {
   const localDir = siteWorkspaceDir(projectId, siteId);
   await mkdir(localDir, { recursive: true });
 
+  const backgroundSetup = opts.backgroundSetup === true;
+
   const site = {
     id: siteId,
     name: opts.name || siteId,
@@ -582,10 +585,24 @@ export async function addProjectSite(projectId, opts) {
     localDir,
     originLanguage: opts.originLanguage ?? project.originLanguage,
     detection: null,
-    jobState: "idle",
+    originPrep: null,
+    jobState: backgroundSetup ? "pending" : "idle",
   };
 
-  if (opts.ssh && opts.pullFromSsh === true) {
+  if (!backgroundSetup && opts.ssh && opts.prepOrigin !== false) {
+    try {
+      const r = await prepOriginOverSsh(opts.ssh);
+      site.originPrep = { ...r.prep, ok: true, preparedAt: new Date().toISOString() };
+    } catch (e) {
+      site.originPrep = {
+        ok: false,
+        error: e instanceof Error ? e.message : String(e),
+        preparedAt: new Date().toISOString(),
+      };
+    }
+  }
+
+  if (!backgroundSetup && opts.ssh && opts.pullFromSsh === true) {
     await pullFromSsh(opts.ssh, localDir);
     if (opts.detectLanguages) {
       site.detection = await scanLocalDirectory(localDir);
@@ -593,7 +610,7 @@ export async function addProjectSite(projectId, opts) {
         site.originLanguage = originFromDetection(site.detection);
       }
     }
-  } else if (opts.detectLanguages && opts.ssh) {
+  } else if (!backgroundSetup && opts.detectLanguages && opts.ssh) {
     site.detection = await scanSshRemote(opts.ssh);
     if (!opts.originLanguage) {
       site.originLanguage = originFromDetection(site.detection);
@@ -605,6 +622,44 @@ export async function addProjectSite(projectId, opts) {
   reg.projects[idx] = project;
   await saveRegistry(reg);
   return site;
+}
+
+export async function prepProjectSite(projectId, siteId) {
+  const reg = await loadRegistry();
+  const idx = reg.projects.findIndex((p) => p.id === projectId);
+  if (idx < 0) throw new Error("project not found");
+  const project = normalizeProject(reg.projects[idx]);
+  const site = project.sites.find((s) => s.id === siteId);
+  if (!site?.ssh?.host || !site.ssh?.user) throw new Error("site has no ssh config");
+  const result = await prepOriginOverSsh(site.ssh);
+  site.originPrep = { ...result.prep, ok: true, preparedAt: new Date().toISOString() };
+  project.updatedAt = new Date().toISOString();
+  reg.projects[idx] = project;
+  await saveRegistry(reg);
+  return { site, prep: result.prep };
+}
+
+/** Prepare every SSH site (install scan agent + capture instructions on origin). */
+export async function prepAllProjectSites(projectId, siteIds = null) {
+  const project = await getProject(projectId);
+  if (!project) throw new Error("project not found");
+  const targets = (siteIds?.length ? project.sites.filter((s) => siteIds.includes(s.id)) : project.sites).filter(
+    (s) => s.ssh?.host && s.ssh?.user,
+  );
+  const results = [];
+  for (const site of targets) {
+    try {
+      const r = await prepProjectSite(projectId, site.id);
+      results.push({ siteId: site.id, ok: true, prep: r.prep });
+    } catch (e) {
+      results.push({
+        siteId: site.id,
+        ok: false,
+        error: e instanceof Error ? e.message : String(e),
+      });
+    }
+  }
+  return { prepared: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).length, results };
 }
 
 export async function removeProjectSite(projectId, siteId) {
@@ -646,6 +701,8 @@ export async function createHubProject(opts) {
   reg.projects.push(project);
   await saveRegistry(reg);
 
+  const defaultBackground = opts.backgroundSetup !== false;
+
   if (Array.isArray(opts.sites) && opts.sites.length > 0) {
     for (const spec of opts.sites) {
       await addProjectSite(id, {
@@ -654,6 +711,8 @@ export async function createHubProject(opts) {
         originLanguage: spec.originLanguage ?? originLanguage,
         pullFromSsh: spec.pullFromSsh ?? opts.pullFromSsh,
         detectLanguages: spec.detectLanguages ?? opts.detectLanguages,
+        prepOrigin: spec.prepOrigin ?? opts.prepOrigin,
+        backgroundSetup: spec.backgroundSetup ?? opts.backgroundSetup ?? defaultBackground,
       });
     }
     return (await getProject(id)) ?? project;
@@ -666,6 +725,8 @@ export async function createHubProject(opts) {
       originLanguage,
       pullFromSsh: opts.pullFromSsh === true,
       detectLanguages: opts.detectLanguages === true,
+      prepOrigin: opts.prepOrigin,
+      backgroundSetup: opts.backgroundSetup,
     });
     return (await getProject(id)) ?? project;
   }

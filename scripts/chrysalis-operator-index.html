@@ -59,7 +59,7 @@
   </style>
 </head>
 <body>
-  <div class="hub-banner">Multi-site client/server hub — each project can attach many SSH origins; run translations in parallel with a progress meter per site.</div>
+  <div class="hub-banner">Everything runs from this web portal: create projects, SSH prep, pull code, and translate on the hub server — watch live progress below.</div>
   <nav>
     <span class="brand">Chrysalis Translation Hub</span>
     <a href="#/" id="navHome">Projects</a>
@@ -86,7 +86,7 @@
 
     <section id="viewNew" hidden>
       <h1>New translation project</h1>
-      <p class="steps muted"><span class="badge ok">1</span> Project &amp; sites &nbsp;→&nbsp; <span class="badge">2</span> Console: run batch with per-site progress</p>
+      <p class="steps muted"><span class="badge ok">1</span> Project &amp; sites &nbsp;→&nbsp; <span class="badge ok">2</span> Auto setup (SSH) &nbsp;→&nbsp; <span class="badge">3</span> Console: translate all sites</p>
       <div class="card">
         <label for="projName">Project name</label>
         <input id="projName" type="text" placeholder="Billing monolith" />
@@ -109,6 +109,7 @@
         <div class="row">
           <button type="button" class="secondary" id="btnProbeConnectivity">Test hub + SSH connectivity</button>
           <button type="button" class="secondary" id="btnScanSsh" disabled>Scan origin (SSH)</button>
+          <label><input type="checkbox" id="prepOrigin" checked /> Prepare origin on add (install scan agent + capture kit docs via SSH)</label>
           <label><input type="checkbox" id="pullFromSsh" checked /> Pull code to hub on create</label>
         </div>
         <p id="probeStatus" class="muted"></p>
@@ -134,9 +135,10 @@
         </div>
         <p id="routeStatus" class="target-hint"></p>
         <div class="row">
-          <button type="button" class="primary" id="btnCreateProject">Create project &amp; open Console</button>
+          <button type="button" class="primary" id="btnCreateProject">Create project &amp; start setup</button>
+          <button type="button" class="secondary" id="btnCreateAndRun">Create &amp; run full pipeline</button>
         </div>
-        <p id="createStatus" class="muted">Requires at least one origin site in the list above (or fill host/user/path and click Add to project).</p>
+        <p id="createStatus" class="muted">Requires at least one origin site in the list above (or fill host/user/path and click Add to project). Setup and translation run on the hub — no CLI required.</p>
       </div>
     </section>
 
@@ -168,13 +170,20 @@
         </div>
         <label for="sitePath">Remote path</label>
         <input id="sitePath" type="text" placeholder="/var/www/app" />
+        <label><input type="checkbox" id="sitePrepOrigin" checked /> Prepare origin (SSH agent + capture docs)</label>
+        <label><input type="checkbox" id="sitePullFromSsh" checked /> Pull code to hub when adding site</label>
         <div class="row">
-          <button type="button" class="secondary" id="btnAddSite">Add site + pull</button>
-          <button type="button" class="primary" id="btnRunBatch">Run all sites</button>
-          <button type="button" class="secondary" id="btnIngest">Run selected site</button>
+          <button type="button" class="secondary" id="btnProbeConsole">Test SSH</button>
+          <button type="button" class="secondary" id="btnAddSite">Add site (starts setup)</button>
+          <button type="button" class="secondary" id="btnSetupAllSites">Setup all sites</button>
+          <button type="button" class="secondary" id="btnPrepAllSites">Prepare origins only</button>
+          <button type="button" class="primary" id="btnRunPipeline">Run full pipeline</button>
+          <button type="button" class="secondary" id="btnRunBatch">Translate all (skip setup)</button>
+          <button type="button" class="secondary" id="btnIngest">Translate selected site</button>
           <span id="jobBadge" class="badge">idle</span>
         </div>
-        <p id="siteActionStatus" class="muted"></p>
+        <p id="consoleProbeStatus" class="muted"></p>
+        <p id="siteActionStatus" class="muted">Use <strong>Run full pipeline</strong> for prep + pull + translate in one click.</p>
       </div>
       <div class="card">
         <label>Overall batch progress</label>
@@ -189,6 +198,6 @@
       </div>
     </section>
   </main>
-  <script src="/ui.js?v=hub-multisite-2"></script>
+  <script src="/ui.js?v=hub-portal-1"></script>
 </body>
 </html>

@@ -23,6 +23,8 @@ import {
   listProjects,
   planHubTranslation,
   planSiteTranslation,
+  prepAllProjectSites,
+  prepProjectSite,
   removeProjectSite,
   resolveHubRoute,
   scanSshRemote,
@@ -38,6 +40,7 @@ import {
   runProjectBatch,
   runSiteTranslation,
 } from "./chrysalis-hub-batch.mjs";
+import { runProjectSetup } from "./chrysalis-hub-setup.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.CHRYSALIS_OPERATOR_PORT ?? process.env.CHRYSALIS_STATUS_PORT ?? "19090");
@@ -53,6 +56,7 @@ let uiJs = "";
 const sseClients = new Set();
 let currentJob = null;
 let currentBatch = null;
+let currentSetup = null;
 let progressWatcher = null;
 let batchProgressTimer = null;
 let activeProgressFile =
@@ -168,9 +172,97 @@ function stopProgressWatch() {
   }
 }
 
-async function startProjectBatch(project, { siteIds = null, concurrency = defaultBatchConcurrency() } = {}) {
-  if (currentBatch?.state === "running" || currentJob?.state === "running") {
-    throw new Error("A batch or job is already running");
+function hubBusy() {
+  return currentBatch?.state === "running" || currentJob?.state === "running" || currentSetup?.state === "running";
+}
+
+async function startProjectSetup(
+  projectId,
+  { siteIds = null, prep = true, pull = true, detect = false } = {},
+) {
+  if (hubBusy()) throw new Error("A setup, batch, or job is already running");
+  const setupId = `setup-${Date.now()}`;
+  currentSetup = {
+    id: setupId,
+    projectId,
+    state: "running",
+    startedAt: new Date().toISOString(),
+    siteIds: siteIds ?? null,
+  };
+  broadcast("setup", { ...currentSetup });
+
+  void runProjectSetup(
+    projectId,
+    { siteIds, prep, pull, detect },
+    {
+      onSetupStart(ids) {
+        broadcast("log", { stream: "stdout", line: `[setup] starting ${ids.length} site(s)` });
+      },
+      onLog(siteId, stream, line) {
+        broadcast("log", { jobId: setupId, siteId, stream, line });
+      },
+      onSiteState(siteId, state, extra) {
+        broadcast("siteSetup", { setupId, siteId, state, ...extra });
+      },
+      onSetupDone(summary) {
+        currentSetup = {
+          ...currentSetup,
+          state: summary.ok ? "succeeded" : "failed",
+          endedAt: new Date().toISOString(),
+          summary,
+        };
+        broadcast("setup", { ...currentSetup });
+      },
+    },
+  ).catch((e) => {
+    currentSetup = {
+      ...currentSetup,
+      state: "failed",
+      endedAt: new Date().toISOString(),
+      error: e instanceof Error ? e.message : String(e),
+    };
+    broadcast("setup", { ...currentSetup });
+  });
+
+  return currentSetup;
+}
+
+async function startProjectBatch(
+  project,
+  { siteIds = null, concurrency = defaultBatchConcurrency(), prepSites = false, setupFirst = false } = {},
+) {
+  if (hubBusy()) {
+    throw new Error("A setup, batch, or job is already running");
+  }
+  if (setupFirst) {
+    await new Promise((resolve, reject) => {
+      const setupId = `setup-${Date.now()}`;
+      currentSetup = { id: setupId, projectId: project.id, state: "running", startedAt: new Date().toISOString() };
+      broadcast("setup", { ...currentSetup });
+      void runProjectSetup(
+        project.id,
+        { siteIds, prep: true, pull: true, detect: false },
+        {
+          onLog(siteId, stream, line) {
+            broadcast("log", { jobId: setupId, siteId, stream, line });
+          },
+          onSiteState() {},
+          onSetupDone(summary) {
+            currentSetup = { ...currentSetup, state: summary.ok ? "succeeded" : "failed", endedAt: new Date().toISOString(), summary };
+            broadcast("setup", { ...currentSetup });
+            if (!summary.ok) reject(new Error("site setup failed"));
+            else resolve();
+          },
+        },
+      ).catch(reject);
+    });
+    const fresh = await getProject(project.id);
+    if (fresh) project = fresh;
+  } else if (prepSites) {
+    broadcast("log", { stream: "stdout", line: "[batch] preparing SSH origins (scan agent + capture kit)…" });
+    await prepAllProjectSites(project.id, siteIds);
+    const fresh = await getProject(project.id);
+    if (fresh) project = fresh;
   }
   const batchId = `batch-${Date.now()}`;
   currentBatch = {
@@ -428,7 +520,12 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/api/state") {
-    sendJson(res, 200, { job: currentJob, batch: currentBatch, progress: await readProgressState() });
+    sendJson(res, 200, {
+      job: currentJob,
+      batch: currentBatch,
+      setup: currentSetup,
+      progress: await readProgressState(),
+    });
     return;
   }
 
@@ -521,37 +618,110 @@ const server = createServer(async (req, res) => {
       }
 
       if (url.pathname === "/api/hub/projects") {
+        const backgroundSetup = body.backgroundSetup !== false;
         const project = await createHubProject({
           name: body.name,
           description: body.description,
           ssh: body.ssh,
+          sites: body.sites,
           pullFromSsh: body.pullFromSsh === true,
           detectLanguages: body.detectLanguages === true,
           originLanguage: body.originLanguage,
           outputLanguage: body.outputLanguage,
+          prepOrigin: body.prepOrigin !== false,
+          backgroundSetup,
         });
+        let full = (await getProject(project.id)) ?? project;
+        let setupStarted = false;
+        if (backgroundSetup && body.runSetup !== false && (full.sites?.length ?? 0) > 0) {
+          await startProjectSetup(full.id, {
+            prep: body.prepOrigin !== false,
+            pull: body.pullFromSsh !== false,
+            detect: body.detectLanguages === true,
+          });
+          setupStarted = true;
+        }
         try {
-          await runInit(project.localDir);
-          await updateProject(project.id, { chrysalisInitialized: true });
-          project.chrysalisInitialized = true;
+          await runInit(full.localDir);
+          await updateProject(full.id, { chrysalisInitialized: true });
+          full = (await getProject(full.id)) ?? full;
+          full.chrysalisInitialized = true;
         } catch {
           /* init optional if dir not ready */
         }
-        sendJson(res, 201, { project });
+        sendJson(res, 201, { project: full, setupStarted });
         return;
       }
 
       const addSiteMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites$/);
       if (req.method === "POST" && addSiteMatch) {
         const projectId = decodeURIComponent(addSiteMatch[1]);
+        const backgroundSetup = body.backgroundSetup !== false;
         const site = await addProjectSite(projectId, {
           name: body.name,
           ssh: body.ssh,
           originLanguage: body.originLanguage,
           pullFromSsh: body.pullFromSsh === true,
           detectLanguages: body.detectLanguages === true,
+          prepOrigin: body.prepOrigin !== false,
+          backgroundSetup,
         });
-        sendJson(res, 201, { site, project: await getProject(projectId) });
+        let setupStarted = false;
+        if (backgroundSetup && body.runSetup !== false && site.ssh) {
+          await startProjectSetup(projectId, {
+            siteIds: [site.id],
+            prep: body.prepOrigin !== false,
+            pull: body.pullFromSsh === true,
+            detect: body.detectLanguages === true,
+          });
+          setupStarted = true;
+        }
+        sendJson(res, 201, { site, setupStarted, project: await getProject(projectId) });
+        return;
+      }
+
+      const setupAllMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/setup-all-sites$/);
+      if (req.method === "POST" && setupAllMatch) {
+        const projectId = decodeURIComponent(setupAllMatch[1]);
+        const setup = await startProjectSetup(projectId, {
+          siteIds: body.siteIds ?? null,
+          prep: body.prep !== false,
+          pull: body.pull !== false,
+          detect: body.detect === true,
+        });
+        sendJson(res, 202, { accepted: true, setup });
+        return;
+      }
+
+      const prepSiteMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/prep$/);
+      if (req.method === "POST" && prepSiteMatch) {
+        const projectId = decodeURIComponent(prepSiteMatch[1]);
+        const siteId = decodeURIComponent(prepSiteMatch[2]);
+        if (body.async !== false) {
+          const setup = await startProjectSetup(projectId, { siteIds: [siteId], prep: true, pull: false, detect: false });
+          sendJson(res, 202, { accepted: true, setup });
+          return;
+        }
+        const r = await prepProjectSite(projectId, siteId);
+        sendJson(res, 200, r);
+        return;
+      }
+
+      const prepAllMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/prep-all-sites$/);
+      if (req.method === "POST" && prepAllMatch) {
+        const projectId = decodeURIComponent(prepAllMatch[1]);
+        if (body.async !== false) {
+          const setup = await startProjectSetup(projectId, {
+            siteIds: body.siteIds ?? null,
+            prep: true,
+            pull: false,
+            detect: false,
+          });
+          sendJson(res, 202, { accepted: true, setup });
+          return;
+        }
+        const r = await prepAllProjectSites(projectId, body.siteIds ?? null);
+        sendJson(res, 200, r);
         return;
       }
 
@@ -574,8 +744,46 @@ const server = createServer(async (req, res) => {
           return;
         }
         const concurrency = Number(body.concurrency) || defaultBatchConcurrency();
-        await startProjectBatch(hp, { siteIds: body.siteIds ?? null, concurrency });
+        try {
+          await startProjectBatch(hp, {
+            siteIds: body.siteIds ?? null,
+            concurrency,
+            prepSites: body.prepSites === true,
+            setupFirst: body.setupFirst === true,
+          });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          sendJson(res, 409, { error: "job-busy", message: msg });
+          return;
+        }
         sendJson(res, 202, { accepted: true, batch: currentBatch });
+        return;
+      }
+
+      const runPipelineMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/run-pipeline$/);
+      if (req.method === "POST" && runPipelineMatch) {
+        const hp = await getProject(decodeURIComponent(runPipelineMatch[1]));
+        if (!hp) {
+          sendJson(res, 404, { error: "hub-project-not-found" });
+          return;
+        }
+        if (!hp.sites?.length) {
+          sendJson(res, 422, { error: "no-sites", message: "Add at least one origin site." });
+          return;
+        }
+        const concurrency = Number(body.concurrency) || defaultBatchConcurrency();
+        try {
+          await startProjectBatch(hp, {
+            siteIds: body.siteIds ?? null,
+            concurrency,
+            setupFirst: true,
+          });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          sendJson(res, 409, { error: "job-busy", message: msg });
+          return;
+        }
+        sendJson(res, 202, { accepted: true, batch: currentBatch, pipeline: true });
         return;
       }
 
@@ -591,7 +799,11 @@ const server = createServer(async (req, res) => {
           const runAll = body.runBatch === true || (!body.siteId && (hp.sites?.length ?? 0) > 1);
           if (runAll) {
             const concurrency = Number(body.concurrency) || defaultBatchConcurrency();
-            await startProjectBatch(hp, { siteIds: body.siteIds ?? null, concurrency });
+            await startProjectBatch(hp, {
+              siteIds: body.siteIds ?? null,
+              concurrency,
+              prepSites: body.prepSites === true,
+            });
             sendJson(res, 202, { accepted: true, batch: currentBatch, mode: "multi-site" });
             return;
           }
@@ -612,7 +824,7 @@ const server = createServer(async (req, res) => {
             });
             return;
           }
-          if (currentBatch?.state === "running" || currentJob?.state === "running") {
+          if (hubBusy()) {
             sendJson(res, 409, { error: "job-busy" });
             return;
           }

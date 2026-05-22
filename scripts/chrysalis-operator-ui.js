@@ -26,7 +26,7 @@
   async function api(path, opts) {
     const r = await fetch(path, opts);
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || j.message || r.statusText);
+    if (!r.ok) throw new Error(j.message || j.error || r.statusText);
     return j;
   }
 
@@ -263,6 +263,7 @@
     return {
       name: `Site ${pendingSites.length + 1} (${host})`,
       originLanguage: $("originLanguage").value,
+      prepOrigin: $("prepOrigin")?.checked !== false,
       pullFromSsh: $("pullFromSsh").checked,
       detectLanguages: $("enableDetect").checked,
       ssh: {
@@ -308,37 +309,61 @@
     $("createStatus").textContent = `Added ${s.name}. Add more sites or create the project.`;
   });
 
-  $("btnCreateProject").addEventListener("click", async () => {
+  async function createProjectFromPortal(runPipelineAfter) {
     $("createStatus").textContent = "Creating…";
-    try {
-      if (pendingSites.length === 0) {
-        const one = readSiteFormFromNewPage();
-        if (one) pendingSites.push(one);
-      }
-      if (pendingSites.length === 0) {
-        $("createStatus").textContent = "Add at least one site (host, user, path) using Add to project.";
-        return;
-      }
-      const body = {
-        name: $("projName").value.trim(),
-        description: $("projDesc").value.trim(),
-        originLanguage: $("originLanguage").value,
-        outputLanguage: $("outputLanguage").value,
-        sites: pendingSites,
-      };
-      const r = await api("/api/hub/projects", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      pendingSites.length = 0;
-      renderPendingSites();
-      $("createStatus").textContent = `Created ${r.project.id} with ${r.project.sites?.length ?? 0} site(s). Opening Console…`;
-      location.hash = `#/console?id=${encodeURIComponent(r.project.id)}`;
-      route();
-    } catch (e) {
-      $("createStatus").textContent = "Error: " + e.message;
+    if (pendingSites.length === 0) {
+      const one = readSiteFormFromNewPage();
+      if (one) pendingSites.push(one);
     }
+    if (pendingSites.length === 0) {
+      $("createStatus").textContent = "Add at least one site (host, user, path) using Add to project.";
+      return;
+    }
+    const body = {
+      name: $("projName").value.trim(),
+      description: $("projDesc").value.trim(),
+      originLanguage: $("originLanguage").value,
+      outputLanguage: $("outputLanguage").value,
+      sites: pendingSites,
+      prepOrigin: $("prepOrigin")?.checked !== false,
+      pullFromSsh: $("pullFromSsh")?.checked !== false,
+      detectLanguages: $("enableDetect")?.checked === true,
+      backgroundSetup: true,
+      runSetup: !runPipelineAfter,
+    };
+    const r = await api("/api/hub/projects", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    pendingSites.length = 0;
+    renderPendingSites();
+    const id = r.project.id;
+    $("createStatus").textContent = `Created ${id} (${r.project.sites?.length ?? 0} sites). ${
+      r.setupStarted ? "SSH setup running on hub — open Console for live log." : ""
+    }`;
+    location.hash = `#/console?id=${encodeURIComponent(id)}`;
+    route();
+    if (runPipelineAfter) {
+      try {
+        await post(`/api/hub/projects/${encodeURIComponent(id)}/run-pipeline`, {});
+        if ($("siteActionStatus")) $("siteActionStatus").textContent = "Full pipeline started (setup + translate).";
+      } catch (e) {
+        $("createStatus").textContent += " Pipeline error: " + e.message;
+      }
+    }
+  }
+
+  $("btnCreateProject").addEventListener("click", () => {
+    createProjectFromPortal(false).catch((e) => {
+      $("createStatus").textContent = "Error: " + e.message;
+    });
+  });
+
+  $("btnCreateAndRun")?.addEventListener("click", () => {
+    createProjectFromPortal(true).catch((e) => {
+      $("createStatus").textContent = "Error: " + e.message;
+    });
   });
 
   let consoleProjectId = null;
@@ -356,15 +381,29 @@
       const pct = site._progressPct ?? 0;
       const done = site._progressDone ?? 0;
       const total = site._progressTotal ?? 0;
+      const prep = site.originPrep;
+      const prepLabel = prep?.ok
+        ? prep.scanAgentInstalled
+          ? "origin ready"
+          : "prep ok (no agent)"
+        : prep?.error
+          ? "prep failed"
+          : site.ssh
+            ? "not prepared"
+            : "local";
       row.innerHTML = `
         <div class="row" style="justify-content:space-between">
           <strong>${esc(site.name)}</strong>
-          <span class="badge">${esc(site.jobState || "idle")}</span>
+          <span class="badge ${prep?.ok ? "ok" : ""}">${esc(site.jobState || "idle")}</span>
         </div>
-        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")}</div>
+        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)}</div>
         <div class="bar-wrap" style="margin-top:0.4rem"><div class="bar" style="width:${pct}%"></div></div>
         <div class="muted">${done} / ${total} routes (${pct}%)</div>
-        <button type="button" class="secondary site-run-one" data-site-id="${esc(site.id)}">Run this site</button>
+        <div class="row" style="margin-top:0.35rem">
+          <button type="button" class="secondary site-prep-one" data-site-id="${esc(site.id)}">Prepare</button>
+          <button type="button" class="secondary site-setup-one" data-site-id="${esc(site.id)}">Setup</button>
+          <button type="button" class="secondary site-run-one" data-site-id="${esc(site.id)}">Translate</button>
+        </div>
       `;
       el.appendChild(row);
     }
@@ -373,6 +412,12 @@
         selectedSiteId = btn.getAttribute("data-site-id");
         runSingleSite();
       });
+    });
+    el.querySelectorAll(".site-prep-one").forEach((btn) => {
+      btn.addEventListener("click", () => prepOneSite(btn.getAttribute("data-site-id")));
+    });
+    el.querySelectorAll(".site-setup-one").forEach((btn) => {
+      btn.addEventListener("click", () => setupOneSite(btn.getAttribute("data-site-id")));
     });
     if ($("siteOrigin") && inputLanguages.length) {
       fillSelect($("siteOrigin"), inputLanguages, p.originLanguage);
@@ -448,20 +493,38 @@
     }
   }
 
-  function setJob(j) {
+  let hubSetupState = "idle";
+  let hubBatchState = "idle";
+
+  function setPortalBusy(busy, label) {
     const b = $("jobBadge");
-    if (!j || j.state === "idle") {
-      b.textContent = "idle";
+    if (busy) {
+      b.textContent = label || "working…";
+      b.className = "badge run";
+    } else {
+      b.textContent = hubBatchState === "running" ? "batch · running" : hubSetupState === "running" ? "setup · running" : "idle";
       b.className = "badge";
-      if ($("btnIngest")) $("btnIngest").disabled = false;
-      if ($("btnRunBatch")) $("btnRunBatch").disabled = false;
+    }
+    const ids = [
+      "btnIngest",
+      "btnRunBatch",
+      "btnRunPipeline",
+      "btnSetupAllSites",
+      "btnPrepAllSites",
+      "btnAddSite",
+      "btnProbeConsole",
+    ];
+    for (const id of ids) {
+      if ($(id)) $(id).disabled = busy;
+    }
+  }
+
+  function setJob(j) {
+    if (!j || j.state === "idle") {
+      if (hubSetupState !== "running" && hubBatchState !== "running") setPortalBusy(false);
       return;
     }
-    b.textContent = j.kind + " · " + j.state;
-    b.className = "badge " + (j.state === "running" ? "run" : j.state === "succeeded" ? "ok" : "fail");
-    const busy = j.state === "running";
-    if ($("btnIngest")) $("btnIngest").disabled = busy;
-    if ($("btnRunBatch")) $("btnRunBatch").disabled = busy;
+    setPortalBusy(j.state === "running", (j.kind || "job") + " · " + j.state);
   }
 
   function applyProgress(p) {
@@ -498,8 +561,20 @@
   es.addEventListener("batchProgress", (e) => applyBatchProgress(JSON.parse(e.data)));
   es.addEventListener("batch", (e) => {
     const b = JSON.parse(e.data);
+    hubBatchState = b.state || "idle";
     if ($("batchOverall")) $("batchOverall").textContent = "Batch: " + (b.state || "idle");
+    if (b.state !== "running") setPortalBusy(hubSetupState === "running", "setup · running");
     if (b.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
+  });
+  es.addEventListener("setup", (e) => {
+    const s = JSON.parse(e.data);
+    hubSetupState = s.state || "idle";
+    if ($("batchOverall")) $("batchOverall").textContent = "Setup: " + (s.state || "idle");
+    setPortalBusy(s.state === "running", "setup · running");
+    if (s.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
+  });
+  es.addEventListener("siteSetup", () => {
+    if (consoleProjectId) loadConsoleProject(consoleProjectId);
   });
 
   async function post(path, body) {
@@ -508,9 +583,37 @@
 
   $("btnIngest")?.addEventListener("click", () => runSingleSite());
 
+  async function prepOneSite(siteId) {
+    $("siteActionStatus").textContent = "Preparing site…";
+    await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(siteId)}/prep`, {});
+    $("siteActionStatus").textContent = "Origin prep started — see job log.";
+  }
+
+  async function setupOneSite(siteId) {
+    $("siteActionStatus").textContent = "Setting up site…";
+    await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/setup-all-sites`, {
+      siteIds: [siteId],
+      prep: $("sitePrepOrigin")?.checked !== false,
+      pull: $("sitePullFromSsh")?.checked !== false,
+    });
+    $("siteActionStatus").textContent = "Site setup started — see job log.";
+  }
+
+  $("btnRunPipeline")?.addEventListener("click", async () => {
+    $("log").textContent = "";
+    $("siteActionStatus").textContent = "Starting full pipeline (setup + translate)…";
+    try {
+      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/run-pipeline`, {});
+      $("siteActionStatus").textContent = "Pipeline started.";
+    } catch (e) {
+      $("siteActionStatus").textContent = "Error: " + e.message;
+      logLine("ERROR: " + e.message);
+    }
+  });
+
   $("btnRunBatch")?.addEventListener("click", async () => {
     $("log").textContent = "";
-    $("siteActionStatus").textContent = "Starting batch…";
+    $("siteActionStatus").textContent = "Starting translation batch…";
     try {
       await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/run-batch`, {});
       $("siteActionStatus").textContent = "Batch started.";
@@ -520,14 +623,64 @@
     }
   });
 
+  $("btnSetupAllSites")?.addEventListener("click", async () => {
+    $("siteActionStatus").textContent = "Setting up all sites on hub…";
+    try {
+      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/setup-all-sites`, {
+        prep: $("sitePrepOrigin")?.checked !== false,
+        pull: $("sitePullFromSsh")?.checked !== false,
+      });
+      $("siteActionStatus").textContent = "Setup started — see job log.";
+    } catch (e) {
+      $("siteActionStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnPrepAllSites")?.addEventListener("click", async () => {
+    $("siteActionStatus").textContent = "Preparing all origins…";
+    try {
+      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/prep-all-sites`, {});
+      $("siteActionStatus").textContent = "Origin prep started — see job log.";
+    } catch (e) {
+      $("siteActionStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnProbeConsole")?.addEventListener("click", async () => {
+    $("consoleProbeStatus").textContent = "Probing…";
+    try {
+      const ssh = {
+        host: $("siteHost").value.trim(),
+        user: $("siteUser").value.trim(),
+        port: Number($("sitePort")?.value) || 22,
+        remotePath: $("sitePath").value.trim() || "/",
+        identityFile: $("siteKey")?.value?.trim() || undefined,
+      };
+      const r = await api("/api/hub/probe-connectivity", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(ssh.host && ssh.user ? { ssh } : {}),
+      });
+      const lines = [];
+      for (const c of r.hub?.checks ?? []) lines.push((c.ok ? "OK" : "FAIL") + " hub:" + c.id);
+      for (const c of r.origin?.checks ?? []) lines.push((c.ok ? "OK" : "FAIL") + " origin:" + c.id);
+      $("consoleProbeStatus").textContent = lines.join(" · ") || (r.ok ? "All checks passed." : "Some checks failed.");
+    } catch (e) {
+      $("consoleProbeStatus").textContent = "Probe error: " + e.message;
+    }
+  });
+
   $("btnAddSite")?.addEventListener("click", async () => {
     $("siteActionStatus").textContent = "Adding site…";
     try {
-      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites`, {
+      const r = await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites`, {
         name: $("siteName").value.trim() || "Site",
         originLanguage: $("siteOrigin").value,
-        pullFromSsh: true,
+        prepOrigin: $("sitePrepOrigin")?.checked !== false,
+        pullFromSsh: $("sitePullFromSsh")?.checked !== false,
         detectLanguages: false,
+        backgroundSetup: true,
+        runSetup: true,
         ssh: {
           host: $("siteHost").value.trim(),
           user: $("siteUser").value.trim(),
@@ -536,7 +689,9 @@
           identityFile: $("siteKey")?.value?.trim() || undefined,
         },
       });
-      $("siteActionStatus").textContent = "Site added.";
+      $("siteActionStatus").textContent = r.setupStarted
+        ? "Site added — SSH setup running (see log)."
+        : "Site added.";
       await loadConsoleProject(consoleProjectId);
     } catch (e) {
       $("siteActionStatus").textContent = "Error: " + e.message;
@@ -567,6 +722,11 @@
     loadHome().catch(() => {});
     api("/api/state").then((s) => {
       if (s.job) setJob(s.job);
+      if (s.setup) {
+        hubSetupState = s.setup.state || "idle";
+        if (s.setup.state === "running") setPortalBusy(true, "setup · running");
+      }
+      if (s.batch) hubBatchState = s.batch.state || "idle";
       if (s.progress) applyProgress(s.progress);
     });
   });

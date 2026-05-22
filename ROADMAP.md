@@ -45,6 +45,16 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **F** — Python + Go CLI shims forwarding to Node (**DESIGN D295**); **`pnpm run test:cli-shims`**
 - [x] **G — Translation Hub v1 matrix + routing** — Full **`TARGET_MATRIX`** for every **`EXT_TO_LANGUAGE`** id (honest **`supported: false`** / WPTP CI references); hub ingest routes **PHP → typescript-chrysalis** only; structured **422** + **`hub.report.json`** holes for planned pairs; operator UI target hints; Vitest **`packages/cli/tests/chrysalis-hub-store.test.ts`**. (**DESIGN D312**, **D313**)
 - [x] **G2 — Translation Hub universal open matrix + pipeline** — **`language-catalog.mjs`**, **`hub-ingest/*`** (lift, emit, **`emit-target-project`**), connectivity agents, **`HUB_MISSION_OPEN`** / grade **open** for all origin×output pairs; VM bootstrap **`pnpm -r build`** + parser vendor when **php** on PATH; Vitest hub store grid. (**DESIGN D314**)
+- [x] **G3 — Translation Hub SSH origin prep** — **`chrysalis-hub-prep-origin.mjs`**, **`chrysalis-origin-bootstrap.sh`**, **`originPrep`** on sites, **`POST …/prep-all-sites`**, default prepare-on-add; docs **`HUB-CONNECTIVITY.md`**. (**DESIGN D316**)
+- [x] **G4 — Translation Hub portal-first ops** — Multi-site **`sites[]`** on create; **`chrysalis-hub-setup.mjs`** background prep/pull; **`POST …/setup-all-sites`**, **`POST …/run-pipeline`**; SSE **`setup`** / **`siteSetup`**; Console **Run full pipeline**, per-site Prepare/Setup/Translate. (**DESIGN D317**)
+
+### Translation Hub — remaining (product backlog)
+
+- [ ] **G5 — Portal verify leg** — Upload or point at oracle trace dirs from Console; **`chrysalis verify`** per site with SSE results (PHP→TS gold path).
+- [ ] **G6 — Portal observe assist** — Staging checklist + copy-paste **`chrysalis observe`** / bootstrap commands from **`originPrep`** (hub still does not run live PHP on customer prod).
+- [ ] **G7 — Site lifecycle in UI** — Remove site, re-pull/resync, edit SSH creds without re-creating project.
+- [ ] **G8 — Deep native emits** — WPTP **`wptp-emit-*`** wired into hub batch for non-PHP targets (today: **`emit-target-project`** scaffolds + honest holes).
+- [ ] **G9 — Hub auth & tenancy** — Optional **`CHRYSALIS_OPERATOR_TOKEN`** in UI; per-operator project ACLs if multi-tenant hub.
 
 ---
 

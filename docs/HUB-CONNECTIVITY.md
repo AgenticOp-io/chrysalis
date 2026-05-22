@@ -49,6 +49,26 @@ In the **New project** UI, use **Test hub + SSH connectivity** (same checks via 
 
 ---
 
+## Hub-driven origin prep (recommended) {#hub-origin-prep}
+
+When you **add a site** or click **Prepare all sites (SSH)** in the Console, the hub:
+
+1. **`scp`** copies `scripts/agents/` to a temp directory on the origin.
+2. Runs **`chrysalis-origin-bootstrap.sh`**, which installs **`chrysalis-origin-scan`** and writes **`~/.chrysalis/observe/CAPTURE-ON-ORIGIN.md`** (how to run **`packages/oracle-php`** with **`auto_prepend_file`** on staging).
+3. Optionally creates **`chrysalis.observe.json`** in the app root if missing.
+
+The hub does **not** install Node, Chrysalis, or change **`php.ini`** on customer servers. Conversion still runs on the **hub** after **`scp`** pull.
+
+CLI (from the hub host):
+
+```bash
+node scripts/chrysalis-hub-prep-origin.mjs --host deploy@10.0.0.5 --path /var/www/legacy-app
+```
+
+API: **`POST /api/hub/projects/:id/prep-all-sites`** or **`POST …/sites/:siteId/prep`**.
+
+---
+
 ## Origin host — install the scan agent {#origin-agent}
 
 Autodetect over SSH uses **`chrysalis-origin-scan`** on the origin when present. It only reads the filesystem (and `.env` keys for **hints**); it does not open database or Redis connections.
