@@ -30,6 +30,7 @@ import {
   scanSshRemote,
   siteProgressPath,
   updateProject,
+  updateProjectSite,
   writeHubReport,
 } from "./chrysalis-hub-store.mjs";
 import { probeHubConnectivity, probeOriginOverSsh } from "./chrysalis-hub-connectivity.mjs";
@@ -41,6 +42,9 @@ import {
   runSiteTranslation,
 } from "./chrysalis-hub-batch.mjs";
 import { runProjectSetup } from "./chrysalis-hub-setup.mjs";
+import { buildObserveAssist } from "./chrysalis-hub-observe-assist.mjs";
+import { readVerifySummary, runProjectVerify, runSiteVerify, defaultTracesDir } from "./chrysalis-hub-verify.mjs";
+import { runWptpHubSmoke } from "./chrysalis-hub-wptp.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.CHRYSALIS_OPERATOR_PORT ?? process.env.CHRYSALIS_STATUS_PORT ?? "19090");
@@ -57,6 +61,7 @@ const sseClients = new Set();
 let currentJob = null;
 let currentBatch = null;
 let currentSetup = null;
+let currentVerify = null;
 let progressWatcher = null;
 let batchProgressTimer = null;
 let activeProgressFile =
@@ -173,7 +178,65 @@ function stopProgressWatch() {
 }
 
 function hubBusy() {
-  return currentBatch?.state === "running" || currentJob?.state === "running" || currentSetup?.state === "running";
+  return (
+    currentBatch?.state === "running" ||
+    currentJob?.state === "running" ||
+    currentSetup?.state === "running" ||
+    currentVerify?.state === "running"
+  );
+}
+
+async function startProjectVerifyJob(projectId, opts = {}) {
+  if (hubBusy()) throw new Error("A verify, setup, batch, or job is already running");
+  const verifyId = `verify-${Date.now()}`;
+  currentVerify = {
+    id: verifyId,
+    projectId,
+    state: "running",
+    startedAt: new Date().toISOString(),
+    siteIds: opts.siteIds ?? null,
+  };
+  broadcast("verify", { ...currentVerify });
+
+  void runProjectVerify(
+    projectId,
+    {
+      repo,
+      cliBin,
+      siteIds: opts.siteIds ?? null,
+      tracesDir: opts.tracesDir ?? null,
+      baseUrl: opts.baseUrl,
+      threshold: opts.threshold ?? 0.9,
+    },
+    {
+      onLog(siteId, stream, line) {
+        broadcast("log", { jobId: verifyId, siteId, stream, line });
+      },
+      onSiteVerify(siteId, result) {
+        broadcast("siteVerify", { verifyId, siteId, ...result });
+      },
+    },
+  )
+    .then((summary) => {
+      currentVerify = {
+        ...currentVerify,
+        state: summary.ok ? "succeeded" : "failed",
+        endedAt: new Date().toISOString(),
+        summary,
+      };
+      broadcast("verify", { ...currentVerify });
+    })
+    .catch((e) => {
+      currentVerify = {
+        ...currentVerify,
+        state: "failed",
+        endedAt: new Date().toISOString(),
+        error: e instanceof Error ? e.message : String(e),
+      };
+      broadcast("verify", { ...currentVerify });
+    });
+
+  return currentVerify;
 }
 
 async function startProjectSetup(
@@ -515,7 +578,15 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/api/config") {
-    sendJson(res, 200, { repo, cliBin, progressFile: activeProgressFile, defaultProject, port });
+    sendJson(res, 200, {
+      repo,
+      cliBin,
+      progressFile: activeProgressFile,
+      defaultProject,
+      port,
+      authRequired: Boolean(authToken),
+      wptpReferences: WPTP_CI_REFERENCES,
+    });
     return;
   }
 
@@ -524,6 +595,7 @@ const server = createServer(async (req, res) => {
       job: currentJob,
       batch: currentBatch,
       setup: currentSetup,
+      verify: currentVerify,
       progress: await readProgressState(),
     });
     return;
@@ -589,7 +661,26 @@ const server = createServer(async (req, res) => {
       sendJson(res, 404, { error: "not-found" });
       return;
     }
-    sendJson(res, 200, p);
+    const sites = {};
+    for (const site of p.sites ?? []) {
+      sites[site.id] = {
+        defaultTracesDir: defaultTracesDir(site.localDir),
+        verifySummary: await readVerifySummary(site.localDir),
+      };
+    }
+    sendJson(res, 200, { ...p, siteMeta: sites });
+    return;
+  }
+
+  const observeAssistMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/observe-assist$/);
+  if (req.method === "GET" && observeAssistMatch) {
+    const p = await getProject(decodeURIComponent(observeAssistMatch[1]));
+    const site = p?.sites?.find((s) => s.id === decodeURIComponent(observeAssistMatch[2]));
+    if (!p || !site) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    sendJson(res, 200, buildObserveAssist(site, p, repo));
     return;
   }
 
@@ -725,10 +816,80 @@ const server = createServer(async (req, res) => {
         return;
       }
 
-      const delSiteMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)$/);
-      if (req.method === "DELETE" && delSiteMatch) {
-        const project = await removeProjectSite(decodeURIComponent(delSiteMatch[1]), decodeURIComponent(delSiteMatch[2]));
+      const siteItemMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)$/);
+      if (req.method === "PATCH" && siteItemMatch) {
+        const projectId = decodeURIComponent(siteItemMatch[1]);
+        const siteId = decodeURIComponent(siteItemMatch[2]);
+        const site = await updateProjectSite(projectId, siteId, {
+          name: body.name,
+          originLanguage: body.originLanguage,
+          ssh: body.ssh,
+        });
+        sendJson(res, 200, { site, project: await getProject(projectId) });
+        return;
+      }
+
+      if (req.method === "DELETE" && siteItemMatch) {
+        const project = await removeProjectSite(decodeURIComponent(siteItemMatch[1]), decodeURIComponent(siteItemMatch[2]));
         sendJson(res, 200, { project });
+        return;
+      }
+
+      const verifySiteMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/verify$/);
+      if (req.method === "POST" && verifySiteMatch) {
+        const projectId = decodeURIComponent(verifySiteMatch[1]);
+        const siteId = decodeURIComponent(verifySiteMatch[2]);
+        if (body.async !== false) {
+          const v = await startProjectVerifyJob(projectId, {
+            siteIds: [siteId],
+            tracesDir: body.tracesDir,
+            baseUrl: body.baseUrl,
+            threshold: body.threshold,
+          });
+          sendJson(res, 202, { accepted: true, verify: v });
+          return;
+        }
+        const p = await getProject(projectId);
+        const site = p?.sites?.find((s) => s.id === siteId);
+        if (!site) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
+        const r = await runSiteVerify({
+          repo,
+          cliBin,
+          projectId,
+          siteId,
+          tracesDir: body.tracesDir,
+          baseUrl: body.baseUrl,
+          threshold: body.threshold,
+        });
+        sendJson(res, 200, r);
+        return;
+      }
+
+      const verifyAllMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/verify-all-sites$/);
+      if (req.method === "POST" && verifyAllMatch) {
+        const projectId = decodeURIComponent(verifyAllMatch[1]);
+        const v = await startProjectVerifyJob(projectId, {
+          siteIds: body.siteIds ?? null,
+          tracesDir: body.tracesDir,
+          baseUrl: body.baseUrl,
+          threshold: body.threshold,
+        });
+        sendJson(res, 202, { accepted: true, verify: v });
+        return;
+      }
+
+      const wptpSmokeMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/wptp-smoke$/);
+      if (req.method === "POST" && wptpSmokeMatch) {
+        const hp = await getProject(decodeURIComponent(wptpSmokeMatch[1]));
+        if (!hp) {
+          sendJson(res, 404, { error: "hub-project-not-found" });
+          return;
+        }
+        const r = await runWptpHubSmoke(repo, hp.outputLanguage ?? "nextjs");
+        sendJson(res, 200, r);
         return;
       }
 

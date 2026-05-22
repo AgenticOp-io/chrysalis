@@ -662,6 +662,26 @@ export async function prepAllProjectSites(projectId, siteIds = null) {
   return { prepared: results.filter((r) => r.ok).length, failed: results.filter((r) => !r.ok).length, results };
 }
 
+export async function updateProjectSite(projectId, siteId, patch) {
+  const reg = await loadRegistry();
+  const idx = reg.projects.findIndex((p) => p.id === projectId);
+  if (idx < 0) throw new Error("project not found");
+  const project = normalizeProject(reg.projects[idx]);
+  const site = project.sites.find((s) => s.id === siteId);
+  if (!site) throw new Error("site not found");
+
+  if (patch.name != null) site.name = String(patch.name);
+  if (patch.originLanguage != null) site.originLanguage = patch.originLanguage;
+  if (patch.ssh) {
+    site.ssh = { ...(site.ssh ?? {}), ...patch.ssh };
+  }
+
+  project.updatedAt = new Date().toISOString();
+  reg.projects[idx] = project;
+  await saveRegistry(reg);
+  return site;
+}
+
 export async function removeProjectSite(projectId, siteId) {
   const reg = await loadRegistry();
   const idx = reg.projects.findIndex((p) => p.id === projectId);

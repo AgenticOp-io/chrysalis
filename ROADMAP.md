@@ -50,11 +50,18 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 ### Translation Hub — remaining (product backlog)
 
-- [ ] **G5 — Portal verify leg** — Upload or point at oracle trace dirs from Console; **`chrysalis verify`** per site with SSE results (PHP→TS gold path).
-- [ ] **G6 — Portal observe assist** — Staging checklist + copy-paste **`chrysalis observe`** / bootstrap commands from **`originPrep`** (hub still does not run live PHP on customer prod).
-- [ ] **G7 — Site lifecycle in UI** — Remove site, re-pull/resync, edit SSH creds without re-creating project.
-- [ ] **G8 — Deep native emits** — WPTP **`wptp-emit-*`** wired into hub batch for non-PHP targets (today: **`emit-target-project`** scaffolds + honest holes).
-- [ ] **G9 — Hub auth & tenancy** — Optional **`CHRYSALIS_OPERATOR_TOKEN`** in UI; per-operator project ACLs if multi-tenant hub.
+- [x] **G5 — Portal verify leg** — Console **Verify** + **`chrysalis-hub-verify.mjs`**; traces under **`site/.chrysalis/traces`**, **`POST …/verify`**, SSE **`verify`** / **`siteVerify`**. (**D318**)
+- [x] **G6 — Portal observe assist** — **`GET …/observe-assist`**, staging steps + CLI commands in Console. (**D318**)
+- [x] **G7 — Site lifecycle in UI** — Remove, re-pull, **Save site SSH edits** (`PATCH`), per-site actions. (**D318**)
+- [x] **G8 — WPTP hub smoke (partial)** — **`POST …/wptp-smoke`** when **`wptp-matrix`** sibling exists; full per-site WPTP compose remains WPTP CI / future depth.
+- [x] **G9 — Hub auth (partial)** — Portal Bearer token when **`CHRYSALIS_OPERATOR_TOKEN`** set; multi-tenant ACLs still future.
+
+### Translation Hub — still open (honest limits)
+
+- [ ] **G10 — Trace upload in browser** — Multipart/tar upload of NDJSON traces (today: scp to hub path or operator copies files).
+- [ ] **G11 — Emitted app launcher** — Portal starts emitted Hono/Next on hub and fills verify base URL automatically.
+- [ ] **G12 — Multi-tenant hub** — Per-user project ACLs and org registry.
+- [ ] **G13 — Per-site WPTP compose** — Project-local OpenAPI/HAR → silver emit from portal (not matrix smoke only).
 
 ---
 

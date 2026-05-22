@@ -174,6 +174,8 @@
         <label><input type="checkbox" id="sitePullFromSsh" checked /> Pull code to hub when adding site</label>
         <div class="row">
           <button type="button" class="secondary" id="btnProbeConsole">Test SSH</button>
+          <button type="button" class="secondary" id="btnScanConsole">Scan origin (SSH)</button>
+          <button type="button" class="secondary" id="btnSaveSiteEdits">Save site SSH edits</button>
           <button type="button" class="secondary" id="btnAddSite">Add site (starts setup)</button>
           <button type="button" class="secondary" id="btnSetupAllSites">Setup all sites</button>
           <button type="button" class="secondary" id="btnPrepAllSites">Prepare origins only</button>
@@ -192,12 +194,43 @@
         <p id="routeSummary" class="muted">0 / 0 routes (aggregate)</p>
         <ul id="routeList"></ul>
       </div>
+      <div class="card">
+        <h3>Oracle verify (staging traces)</h3>
+        <p class="muted">Copy traces into each site’s <code>.chrysalis/traces/</code> on this hub, start the emitted app, then verify.</p>
+        <div class="grid2">
+          <div><label for="verifyBaseUrl">Emitted app base URL</label><input id="verifyBaseUrl" type="text" placeholder="http://127.0.0.1:8787" /></div>
+          <div><label for="verifyThreshold">Pass threshold</label><input id="verifyThreshold" type="text" value="0.9" /></div>
+        </div>
+        <label for="verifyTracesDir">Traces dir override (optional)</label>
+        <input id="verifyTracesDir" type="text" placeholder="Leave empty for site/.chrysalis/traces" />
+        <div class="row">
+          <button type="button" class="primary" id="btnVerifyAll">Verify all sites</button>
+          <button type="button" class="secondary" id="btnVerifySelected">Verify selected site</button>
+          <button type="button" class="secondary" id="btnWptpSmoke">WPTP silver smoke (hub VM)</button>
+        </div>
+        <p id="verifyStatus" class="muted"></p>
+      </div>
+      <div class="card">
+        <h3>Observe on staging</h3>
+        <p class="muted" id="observeHint">Select a site and load capture instructions (PHP oracle on staging, not on prod).</p>
+        <button type="button" class="secondary" id="btnLoadObserve">Load observe guide for selected site</button>
+        <pre id="observeGuide" class="json" style="max-height:14rem;margin-top:0.5rem">—</pre>
+      </div>
       <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
         <div class="card"><label>Job log</label><pre id="log"></pre></div>
         <div class="card"><label>Status JSON</label><pre class="json" id="statusJson">—</pre></div>
       </div>
     </section>
   </main>
-  <script src="/ui.js?v=hub-portal-1"></script>
+  <div id="authGate" hidden style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:99">
+    <div class="card" style="max-width:24rem">
+      <h3 style="margin-top:0">Hub sign-in</h3>
+      <p class="muted">This server requires <code>CHRYSALIS_OPERATOR_TOKEN</code>.</p>
+      <label for="hubToken">Bearer token</label>
+      <input id="hubToken" type="password" autocomplete="off" />
+      <button type="button" class="primary" id="btnSaveToken">Continue</button>
+    </div>
+  </div>
+  <script src="/ui.js?v=hub-portal-2"></script>
 </body>
 </html>

@@ -23,12 +23,43 @@
     } else show("home");
   }
 
-  async function api(path, opts) {
-    const r = await fetch(path, opts);
+  let hubAuthToken = sessionStorage.getItem("chrysalis_hub_token") || "";
+
+  function buildHeaders(opts) {
+    const h = { ...(opts.headers || {}) };
+    if (hubAuthToken) h.Authorization = `Bearer ${hubAuthToken}`;
+    return h;
+  }
+
+  async function api(path, opts = {}) {
+    let body = opts.body;
+    const headers = buildHeaders(opts);
+    if (body != null && typeof body === "object" && !(body instanceof FormData)) {
+      body = JSON.stringify(body);
+      if (!headers["content-type"] && !headers["Content-Type"]) {
+        headers["content-type"] = "application/json";
+      }
+    }
+    const r = await fetch(path, {
+      ...opts,
+      headers,
+      body,
+    });
     const j = await r.json().catch(() => ({}));
+    if (r.status === 401) {
+      $("authGate").hidden = false;
+      throw new Error("Unauthorized — enter hub token.");
+    }
     if (!r.ok) throw new Error(j.message || j.error || r.statusText);
     return j;
   }
+
+  $("btnSaveToken")?.addEventListener("click", () => {
+    hubAuthToken = $("hubToken").value.trim();
+    sessionStorage.setItem("chrysalis_hub_token", hubAuthToken);
+    $("authGate").hidden = true;
+    loadHome().catch(() => {});
+  });
 
   async function loadHome() {
     const data = await api("/api/hub/projects");
@@ -391,18 +422,25 @@
           : site.ssh
             ? "not prepared"
             : "local";
+      const vState = site.verifyState || "—";
+      const vPct =
+        site.verifyCorrectness != null ? `${Math.round(site.verifyCorrectness * 100)}%` : site.verifyState === "passed" ? "ok" : "";
       row.innerHTML = `
         <div class="row" style="justify-content:space-between">
           <strong>${esc(site.name)}</strong>
-          <span class="badge ${prep?.ok ? "ok" : ""}">${esc(site.jobState || "idle")}</span>
+          <span class="badge ${site.jobState === "succeeded" || site.verifyState === "passed" ? "ok" : site.jobState === "failed" || site.verifyState === "failed" ? "fail" : ""}">${esc(site.jobState || "idle")}</span>
         </div>
-        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)}</div>
+        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)} · verify: ${esc(vState)} ${esc(vPct)}</div>
         <div class="bar-wrap" style="margin-top:0.4rem"><div class="bar" style="width:${pct}%"></div></div>
         <div class="muted">${done} / ${total} routes (${pct}%)</div>
         <div class="row" style="margin-top:0.35rem">
+          <button type="button" class="secondary site-select-one" data-site-id="${esc(site.id)}">Select</button>
           <button type="button" class="secondary site-prep-one" data-site-id="${esc(site.id)}">Prepare</button>
           <button type="button" class="secondary site-setup-one" data-site-id="${esc(site.id)}">Setup</button>
+          <button type="button" class="secondary site-resync-one" data-site-id="${esc(site.id)}">Re-pull</button>
           <button type="button" class="secondary site-run-one" data-site-id="${esc(site.id)}">Translate</button>
+          <button type="button" class="secondary site-verify-one" data-site-id="${esc(site.id)}">Verify</button>
+          <button type="button" class="secondary site-remove-one" data-site-id="${esc(site.id)}">Remove</button>
         </div>
       `;
       el.appendChild(row);
@@ -418,6 +456,21 @@
     });
     el.querySelectorAll(".site-setup-one").forEach((btn) => {
       btn.addEventListener("click", () => setupOneSite(btn.getAttribute("data-site-id")));
+    });
+    el.querySelectorAll(".site-resync-one").forEach((btn) => {
+      btn.addEventListener("click", () => resyncOneSite(btn.getAttribute("data-site-id")));
+    });
+    el.querySelectorAll(".site-select-one").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        selectedSiteId = btn.getAttribute("data-site-id");
+        $("siteActionStatus").textContent = `Selected site: ${selectedSiteId}`;
+      });
+    });
+    el.querySelectorAll(".site-verify-one").forEach((btn) => {
+      btn.addEventListener("click", () => verifyOneSite(btn.getAttribute("data-site-id")));
+    });
+    el.querySelectorAll(".site-remove-one").forEach((btn) => {
+      btn.addEventListener("click", () => removeOneSite(btn.getAttribute("data-site-id")));
     });
     if ($("siteOrigin") && inputLanguages.length) {
       fillSelect($("siteOrigin"), inputLanguages, p.originLanguage);
@@ -495,6 +548,7 @@
 
   let hubSetupState = "idle";
   let hubBatchState = "idle";
+  let hubVerifyState = "idle";
 
   function setPortalBusy(busy, label) {
     const b = $("jobBadge");
@@ -502,7 +556,14 @@
       b.textContent = label || "working…";
       b.className = "badge run";
     } else {
-      b.textContent = hubBatchState === "running" ? "batch · running" : hubSetupState === "running" ? "setup · running" : "idle";
+      b.textContent =
+        hubBatchState === "running"
+          ? "batch · running"
+          : hubSetupState === "running"
+            ? "setup · running"
+            : hubVerifyState === "running"
+              ? "verify · running"
+              : "idle";
       b.className = "badge";
     }
     const ids = [
@@ -513,6 +574,11 @@
       "btnPrepAllSites",
       "btnAddSite",
       "btnProbeConsole",
+      "btnVerifyAll",
+      "btnVerifySelected",
+      "btnWptpSmoke",
+      "btnLoadObserve",
+      "btnScanConsole",
     ];
     for (const id of ids) {
       if ($(id)) $(id).disabled = busy;
@@ -576,12 +642,77 @@
   es.addEventListener("siteSetup", () => {
     if (consoleProjectId) loadConsoleProject(consoleProjectId);
   });
+  es.addEventListener("verify", (e) => {
+    const v = JSON.parse(e.data);
+    hubVerifyState = v.state || "idle";
+    if ($("verifyStatus")) $("verifyStatus").textContent = "Verify: " + (v.state || "idle");
+    setPortalBusy(v.state === "running", "verify · running");
+    if (v.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
+  });
+  es.addEventListener("siteVerify", () => {
+    if (consoleProjectId) loadConsoleProject(consoleProjectId);
+  });
 
   async function post(path, body) {
     return api(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   }
 
   $("btnIngest")?.addEventListener("click", () => runSingleSite());
+
+  function verifyBody(siteId) {
+    return {
+      baseUrl: $("verifyBaseUrl")?.value?.trim(),
+      threshold: Number($("verifyThreshold")?.value) || 0.9,
+      tracesDir: $("verifyTracesDir")?.value?.trim() || undefined,
+      async: true,
+      siteIds: siteId ? [siteId] : undefined,
+    };
+  }
+
+  async function verifyOneSite(siteId) {
+    $("verifyStatus").textContent = "Starting verify…";
+    await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(siteId)}/verify`, verifyBody(siteId));
+    $("verifyStatus").textContent = "Verify started — see job log.";
+  }
+
+  async function removeOneSite(siteId) {
+    if (!confirm("Remove this site from the project?")) return;
+    await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(siteId)}`, {
+      method: "DELETE",
+    });
+    await loadConsoleProject(consoleProjectId);
+    $("siteActionStatus").textContent = "Site removed.";
+  }
+
+  async function resyncOneSite(siteId) {
+    await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/setup-all-sites`, {
+      siteIds: [siteId],
+      prep: false,
+      pull: true,
+    });
+    $("siteActionStatus").textContent = "Re-pull started.";
+  }
+
+  async function saveSiteEdits() {
+    if (!selectedSiteId) return;
+    await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: $("siteName").value.trim(),
+        originLanguage: $("siteOrigin").value,
+        ssh: {
+          host: $("siteHost").value.trim(),
+          user: $("siteUser").value.trim(),
+          port: Number($("sitePort")?.value) || 22,
+          remotePath: $("sitePath").value.trim(),
+          identityFile: $("siteKey")?.value?.trim() || undefined,
+        },
+      }),
+    });
+    $("siteActionStatus").textContent = "Site SSH settings saved.";
+    await loadConsoleProject(consoleProjectId);
+  }
 
   async function prepOneSite(siteId) {
     $("siteActionStatus").textContent = "Preparing site…";
@@ -670,6 +801,72 @@
     }
   });
 
+  $("btnSaveSiteEdits")?.addEventListener("click", () => saveSiteEdits().catch((e) => ($("siteActionStatus").textContent = "Error: " + e.message)));
+
+  $("btnVerifyAll")?.addEventListener("click", async () => {
+    try {
+      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/verify-all-sites`, verifyBody());
+      $("verifyStatus").textContent = "Verify all started.";
+    } catch (e) {
+      $("verifyStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnVerifySelected")?.addEventListener("click", async () => {
+    if (!selectedSiteId) {
+      $("verifyStatus").textContent = "Select a site first.";
+      return;
+    }
+    try {
+      await verifyOneSite(selectedSiteId);
+    } catch (e) {
+      $("verifyStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnWptpSmoke")?.addEventListener("click", async () => {
+    try {
+      const r = await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/wptp-smoke`, {});
+      $("verifyStatus").textContent = r.ok ? "WPTP smoke passed." : r.skipped ? "WPTP skipped: " + (r.reason || "") : "WPTP smoke failed.";
+      logLine(JSON.stringify(r, null, 2));
+    } catch (e) {
+      $("verifyStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnLoadObserve")?.addEventListener("click", async () => {
+    if (!selectedSiteId) {
+      $("observeGuide").textContent = "Select a site first.";
+      return;
+    }
+    try {
+      const g = await api(
+        `/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}/observe-assist`,
+      );
+      $("observeGuide").textContent = JSON.stringify(g, null, 2);
+    } catch (e) {
+      $("observeGuide").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnScanConsole")?.addEventListener("click", async () => {
+    $("consoleProbeStatus").textContent = "Scanning origin…";
+    try {
+      const r = await post("/api/hub/scan-ssh", {
+        ssh: {
+          host: $("siteHost").value.trim(),
+          user: $("siteUser").value.trim(),
+          port: Number($("sitePort")?.value) || 22,
+          remotePath: $("sitePath").value.trim(),
+          identityFile: $("siteKey")?.value?.trim() || undefined,
+        },
+      });
+      $("consoleProbeStatus").textContent = `Scanned ${r.detection.pathCount} files on origin.`;
+    } catch (e) {
+      $("consoleProbeStatus").textContent = "Scan error: " + e.message;
+    }
+  });
+
   $("btnAddSite")?.addEventListener("click", async () => {
     $("siteActionStatus").textContent = "Adding site…";
     try {
@@ -719,6 +916,11 @@
   syncDetectUi();
   loadHubLanguages().then(() => {
     route();
+    api("/api/config")
+      .then((c) => {
+        if (c.authRequired && !hubAuthToken) $("authGate").hidden = false;
+      })
+      .catch(() => {});
     loadHome().catch(() => {});
     api("/api/state").then((s) => {
       if (s.job) setJob(s.job);
@@ -727,6 +929,7 @@
         if (s.setup.state === "running") setPortalBusy(true, "setup · running");
       }
       if (s.batch) hubBatchState = s.batch.state || "idle";
+      if (s.verify) hubVerifyState = s.verify.state || "idle";
       if (s.progress) applyProgress(s.progress);
     });
   });
