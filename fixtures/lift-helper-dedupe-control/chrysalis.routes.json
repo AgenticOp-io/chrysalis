@@ -1,0 +1,11 @@
+{
+  "app": "lift-helper-dedupe-control",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/ok",
+      "file": "pages/route_ok.php",
+      "pathParams": []
+    }
+  ]
+}
