@@ -730,6 +730,18 @@ function assertHubCompletion(path) {
   if (s.goldVerify?.ok !== true) {
     fail(`${label}: goldVerify.ok must be true`);
   }
+  if (s.schemaVersion >= 6) {
+    const gExp = s.goldVerify?.expectedSuiteCount;
+    const gCnt = s.goldVerify?.suiteCount;
+    if (typeof gExp === "number" && typeof gCnt === "number" && gExp !== gCnt) {
+      fail(`${label}: goldVerify.suiteCount ${gCnt} != expectedSuiteCount ${gExp}`);
+    }
+    const tExp = s.traceReplay?.expectedSuiteCount;
+    const tCnt = s.traceReplay?.suiteCount;
+    if (typeof tExp === "number" && typeof tCnt === "number" && tExp !== tCnt) {
+      fail(`${label}: traceReplay.suiteCount ${tCnt} != expectedSuiteCount ${tExp}`);
+    }
+  }
   if (s.schemaVersion >= 1 && s.traceReplay?.ok !== true) {
     fail(`${label}: traceReplay.ok must be true (correctness=${s.traceReplay?.correctness})`);
   }

@@ -50,7 +50,33 @@ function runNode(args, opts = {}) {
   });
 }
 
+async function runHttpProbes(port) {
+  try {
+    const res = await fetch(`http://127.0.0.1:${port}/api/config`, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) fail("hub-http", `GET /api/config ${res.status}`);
+    else {
+      const j = await res.json();
+      if (j.repo && j.cliBin) pass("hub-http", `port ${port}`);
+      else fail("hub-http", "unexpected /api/config body");
+    }
+    const goldRes = await fetch(
+      `http://127.0.0.1:${port}/api/hub/gold-suites?origin=javascript&output=hono`,
+      { signal: AbortSignal.timeout(8000) },
+    );
+    if (!goldRes.ok) fail("hub-gold-suites", `GET ${goldRes.status}`);
+    else {
+      const gold = await goldRes.json();
+      if (gold.kind !== "chrysalis.hub.gold-suites" || !gold.pair?.suiteIds?.length) {
+        fail("hub-gold-suites", "missing pair.suiteIds");
+      } else pass("hub-gold-suites", `${gold.pair.suiteIds.length} suites`);
+    }
+  } catch (e) {
+    fail("hub-http", e.message);
+  }
+}
+
 async function main() {
+  const httpOnly = process.argv.includes("--http-probe-only");
   const cliBin = join(root, "packages/cli/dist/bin.js");
   const webirDist = join(root, "packages/webir/dist/index.js");
   const ingestDist = join(root, "packages/ingest/dist/index.js");
@@ -61,103 +87,81 @@ async function main() {
   const wptpNext = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(siblingsRoot, "wptp-emit-nextjs", "dist", "index.js"));
   const hubRoot = process.env.CHRYSALIS_HUB_ROOT ?? join(process.env.HOME ?? root, ".chrysalis-hub");
 
-  if (await exists(cliBin)) pass("cli-bin", cliBin);
-  else fail("cli-bin", `missing ${cliBin}`);
-
-  if (await exists(webirDist)) pass("webir-dist", webirDist);
-  else fail("webir-dist", `missing ${webirDist}`);
-
-  if (await exists(ingestDist)) pass("ingest-dist", ingestDist);
-  else fail("ingest-dist", `missing ${ingestDist}`);
-
-  if (await exists(honoDist)) pass("emit-hono-dist", honoDist);
-  else fail("emit-hono-dist", `missing ${honoDist}`);
-
-  if (await exists(operatorWeb)) pass("operator-web", operatorWeb);
-  else fail("operator-web", `missing ${operatorWeb}`);
-
-  if (await exists(parserVendor)) pass("parser-vendor", parserVendor);
-  else pass("parser-vendor", "skipped (no vendor — PHP gold ingest may fail)");
-
-  if (process.env.CHRYSALIS_SKIP_WPTP_HUB_DEPS === "1") {
-    pass("wptp-emit-nextjs", "skipped CHRYSALIS_SKIP_WPTP_HUB_DEPS=1");
-  } else if (await exists(wptpNext)) {
-    pass("wptp-emit-nextjs", wptpNext);
-  } else {
-    fail("wptp-emit-nextjs", `missing ${wptpNext}`);
-  }
-
-  await mkdir(hubRoot, { recursive: true });
-  await mkdir(join(hubRoot, "workspaces"), { recursive: true });
-  pass("hub-registry-dirs", hubRoot);
-
-  const fixture = join(root, "fixtures/tiny-blog");
-  if (!(await exists(fixture))) {
-    fail("fixture-tiny-blog", "missing fixtures/tiny-blog");
-  } else {
-    try {
-      const progress = join(root, ".chrysalis/hub-deploy-verify.progress");
-      await runNode([cliBin, "ingest", fixture, "--ingest-progress-file", progress]);
-      pass("smoke-php-ingest", "fixtures/tiny-blog");
-    } catch (e) {
-      fail("smoke-php-ingest", e.message);
-    }
-  }
-
-  if (process.env.CHRYSALIS_SKIP_WPTP_HUB_DEPS !== "1" && (await exists(wptpNext))) {
-    try {
-      const webirGolden = join(root, "packages/ingest/tests/golden/tiny-blog.webir.json");
-      const bundleOut = join(root, "reports/ci/hub-deploy-verify.bundle.json");
-      const nextOut = join(root, "generated/hub-deploy-verify-nextjs");
-      await mkdir(join(root, "reports/ci"), { recursive: true });
-      await runNode([
-        join(root, "scripts/export-webir-bundle.mjs"),
-        "--in",
-        webirGolden,
-        "--out",
-        bundleOut,
-      ]);
-      await runNode([
-        join(root, "scripts/emit-webir-bundle-nextjs.mjs"),
-        "--bundle",
-        bundleOut,
-        "--out",
-        nextOut,
-      ]);
-      pass("smoke-nextjs-emit", nextOut);
-    } catch (e) {
-      fail("smoke-nextjs-emit", e.message);
-    }
-  }
-
   const port = Number(process.env.CHRYSALIS_STATUS_PORT ?? "19090");
-  if (process.env.CHRYSALIS_SKIP_HUB_HTTP_PROBE !== "1") {
-    try {
-      const res = await fetch(`http://127.0.0.1:${port}/api/config`, { signal: AbortSignal.timeout(8000) });
-      if (!res.ok) fail("hub-http", `GET /api/config ${res.status}`);
-      else {
-        const j = await res.json();
-        if (j.repo && j.cliBin) pass("hub-http", `port ${port}`);
-        else fail("hub-http", "unexpected /api/config body");
-      }
-      try {
-        const goldRes = await fetch(
-          `http://127.0.0.1:${port}/api/hub/gold-suites?origin=javascript&output=hono`,
-          { signal: AbortSignal.timeout(8000) },
-        );
-        if (!goldRes.ok) fail("hub-gold-suites", `GET ${goldRes.status}`);
-        else {
-          const gold = await goldRes.json();
-          if (gold.kind !== "chrysalis.hub.gold-suites" || !gold.pair?.suiteIds?.length) {
-            fail("hub-gold-suites", "missing pair.suiteIds");
-          } else pass("hub-gold-suites", `${gold.pair.suiteIds.length} suites`);
-        }
-      } catch (e) {
-        fail("hub-gold-suites", e.message);
-      }
-    } catch (e) {
-      fail("hub-http", e.message);
+
+  if (!httpOnly) {
+    if (await exists(cliBin)) pass("cli-bin", cliBin);
+    else fail("cli-bin", `missing ${cliBin}`);
+
+    if (await exists(webirDist)) pass("webir-dist", webirDist);
+    else fail("webir-dist", `missing ${webirDist}`);
+
+    if (await exists(ingestDist)) pass("ingest-dist", ingestDist);
+    else fail("ingest-dist", `missing ${ingestDist}`);
+
+    if (await exists(honoDist)) pass("emit-hono-dist", honoDist);
+    else fail("emit-hono-dist", `missing ${honoDist}`);
+
+    if (await exists(operatorWeb)) pass("operator-web", operatorWeb);
+    else fail("operator-web", `missing ${operatorWeb}`);
+
+    if (await exists(parserVendor)) pass("parser-vendor", parserVendor);
+    else pass("parser-vendor", "skipped (no vendor — PHP gold ingest may fail)");
+
+    if (process.env.CHRYSALIS_SKIP_WPTP_HUB_DEPS === "1") {
+      pass("wptp-emit-nextjs", "skipped CHRYSALIS_SKIP_WPTP_HUB_DEPS=1");
+    } else if (await exists(wptpNext)) {
+      pass("wptp-emit-nextjs", wptpNext);
+    } else {
+      fail("wptp-emit-nextjs", `missing ${wptpNext}`);
     }
+
+    await mkdir(hubRoot, { recursive: true });
+    await mkdir(join(hubRoot, "workspaces"), { recursive: true });
+    pass("hub-registry-dirs", hubRoot);
+
+    const fixture = join(root, "fixtures/tiny-blog");
+    if (!(await exists(fixture))) {
+      fail("fixture-tiny-blog", "missing fixtures/tiny-blog");
+    } else {
+      try {
+        const progress = join(root, ".chrysalis/hub-deploy-verify.progress");
+        await runNode([cliBin, "ingest", fixture, "--ingest-progress-file", progress]);
+        pass("smoke-php-ingest", "fixtures/tiny-blog");
+      } catch (e) {
+        fail("smoke-php-ingest", e.message);
+      }
+    }
+
+    if (process.env.CHRYSALIS_SKIP_WPTP_HUB_DEPS !== "1" && (await exists(wptpNext))) {
+      try {
+        const webirGolden = join(root, "packages/ingest/tests/golden/tiny-blog.webir.json");
+        const bundleOut = join(root, "reports/ci/hub-deploy-verify.bundle.json");
+        const nextOut = join(root, "generated/hub-deploy-verify-nextjs");
+        await mkdir(join(root, "reports/ci"), { recursive: true });
+        await runNode([
+          join(root, "scripts/export-webir-bundle.mjs"),
+          "--in",
+          webirGolden,
+          "--out",
+          bundleOut,
+        ]);
+        await runNode([
+          join(root, "scripts/emit-webir-bundle-nextjs.mjs"),
+          "--bundle",
+          bundleOut,
+          "--out",
+          nextOut,
+        ]);
+        pass("smoke-nextjs-emit", nextOut);
+      } catch (e) {
+        fail("smoke-nextjs-emit", e.message);
+      }
+    }
+  }
+
+  if (httpOnly || process.env.CHRYSALIS_SKIP_HUB_HTTP_PROBE !== "1") {
+    await runHttpProbes(port);
   }
 
   const report = {

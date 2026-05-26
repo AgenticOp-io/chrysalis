@@ -327,8 +327,9 @@
       ]);
       const path = data.path || {};
       const grade = data.pair?.grade ?? path.grade ?? "?";
+      const routeGrade = gold.route?.grade ?? grade;
       if (summary) {
-        summary.textContent = `${origin} → ${output}: grade ${grade} · ingest ${path.ingest?.lane ?? "?"} · emit ${path.emit?.lane ?? "?"} · verify ${(path.verify?.lanes || []).join(", ") || "none"}`;
+        summary.textContent = `${origin} → ${output}: grade ${routeGrade} · ingest ${path.ingest?.lane ?? "?"} · emit ${path.emit?.lane ?? "?"} · verify ${(path.verify?.lanes || []).join(", ") || "none"}`;
       }
       renderPathGoldCoverage(gold.pair);
       renderPathLists({

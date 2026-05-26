@@ -61,12 +61,20 @@ The **Output** menu includes modern **web** stacks, for example:
 
 It does **not** include SQL, JSON, YAML, Markdown, C/C++, Swift, or other non-web targets.
 
+## Path explorer (575-pair matrix)
+
+Open **Path explorer** in the nav (`#/paths`) or:
+
+`http://34.61.255.147:19090/#/paths?origin=javascript&output=hono`
+
+The page auto-loads cross-language synthesis, lists all **17 gold pairs**, and shows per-pair ingest/emit lanes plus **CI gold suite** coverage (`GET /api/hub/gold-suites`).
+
 ## Grades shown in the UI
 
 | Grade | Meaning |
 |-------|---------|
-| **Gold** | PHP → TypeScript / Hono / Fastify via Chrysalis ingest + emit (oracle-grade path) |
-| **Silver** | Hub lift + TypeScript framework emit |
+| **Gold** | Proven paths (e.g. PHP → TypeScript / Hono / Fastify; JS/TS/Python/CWL hub literal or structured lifts) |
+| **Silver** | Hub lift + native or framework emit (scaffold depth varies) |
 | **Open** | Runnable scaffold / WebIR pipeline; deepen with WPTP emit adapters over time |
 
 ## Hub data locations (on the demo VM)

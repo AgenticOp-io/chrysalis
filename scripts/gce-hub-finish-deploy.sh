@@ -46,6 +46,17 @@ if [[ "${CHRYSALIS_AUTO_START_HUB:-1}" != "0" ]]; then
     exit 1
   fi
   log "hub HTTP OK on :${port}"
+  if ! curl -sf "http://127.0.0.1:${port}/api/hub/gold-suites?origin=javascript&output=hono" | grep -q '"suiteIds"'; then
+    echo "[gce-hub-finish-deploy] ERROR: GET /api/hub/gold-suites failed" >&2
+    exit 1
+  fi
+  log "hub gold-suites API OK"
+  export CHRYSALIS_SKIP_WPTP_HUB_DEPS=1
+  export CHRYSALIS_SKIP_HUB_HTTP_PROBE=0
+  node scripts/hub-post-deploy-verify.mjs --http-probe-only || {
+    echo "[gce-hub-finish-deploy] ERROR: hub HTTP probe failed" >&2
+    exit 1
+  }
 fi
 
 log "OK: hub deploy finish complete"
