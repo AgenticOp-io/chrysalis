@@ -292,6 +292,22 @@
     }
   }
 
+  function renderPathGoldCoverage(coverage) {
+    const el = $("pathGoldCoverage");
+    if (!el) return;
+    if (!coverage?.suiteCount) {
+      el.textContent = "CI gold suites: none for this emit target (matrix grade may still be gold via another lane).";
+      return;
+    }
+    const trace = coverage.traceReplaySuiteIds?.length
+      ? ` · trace replay: ${coverage.traceReplaySuiteIds.join(", ")}`
+      : "";
+    const roundTrip = coverage.roundTripSuiteIds?.length
+      ? ` · round-trip: ${coverage.roundTripSuiteIds.join(", ")}`
+      : "";
+    el.textContent = `CI gold suites (${coverage.suiteCount}): ${coverage.suiteIds.join(", ")}${trace}${roundTrip}`;
+  }
+
   async function loadPathPair() {
     const origin = $("pathOrigin")?.value;
     const output = $("pathOutput")?.value;
@@ -299,24 +315,34 @@
     const jsonEl = $("pathPairJson");
     if (!origin || !output) return;
     if (summary) summary.textContent = "Loading…";
+    if ($("pathGoldCoverage")) $("pathGoldCoverage").textContent = "";
     try {
-      const data = await api(
-        `/api/hub/path-knowledge?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
-      );
+      const [data, gold] = await Promise.all([
+        api(
+          `/api/hub/path-knowledge?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
+        ),
+        api(
+          `/api/hub/gold-suites?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
+        ),
+      ]);
       const path = data.path || {};
       const grade = data.pair?.grade ?? path.grade ?? "?";
       if (summary) {
         summary.textContent = `${origin} → ${output}: grade ${grade} · ingest ${path.ingest?.lane ?? "?"} · emit ${path.emit?.lane ?? "?"} · verify ${(path.verify?.lanes || []).join(", ") || "none"}`;
       }
+      renderPathGoldCoverage(gold.pair);
       renderPathLists({
         similarities: data.pair?.similarities,
         differences: data.pair?.differences,
         bestPractices: data.bestPractices,
       });
       syncPathExplorerHash();
-      if (jsonEl) jsonEl.textContent = JSON.stringify(data, null, 2);
+      if (jsonEl) {
+        jsonEl.textContent = JSON.stringify({ pathKnowledge: data, goldSuites: gold }, null, 2);
+      }
     } catch (e) {
       if (summary) summary.textContent = "Error: " + e.message;
+      renderPathGoldCoverage(null);
       renderPathLists(null);
       if (jsonEl) jsonEl.textContent = "—";
     }

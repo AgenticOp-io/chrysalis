@@ -69,11 +69,11 @@ describe("ci-gates hub-completion", () => {
           schemaVersion: 5,
           ok: true,
           matrixSmoke: { passed: 22, failed: 0, skipped: 0 },
-          goldVerify: { ok: true, suiteCount: 18, suiteIds: ["js-literal-hono"] },
+          goldVerify: { ok: true, suiteCount: 20, suiteIds: ["js-literal-hono"] },
           traceReplay: {
             ok: true,
             correctness: 1,
-            suiteCount: 12,
+            suiteCount: 14,
             suiteIds: ["js-literal-hono"],
             targets: ["hono", "fastify"],
           },

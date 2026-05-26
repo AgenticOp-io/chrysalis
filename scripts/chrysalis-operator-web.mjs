@@ -12,6 +12,12 @@ import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_POPULAR_WEB_FOCUS_IDS } from "./hub-ingest/language-catalog.mjs";
 import {
+  HUB_GOLD_SUITES,
+  buildHubGoldSuiteCoverage,
+  hubGoldStructuralSuiteIds,
+  hubGoldTraceReplaySuiteIds,
+} from "./hub-ingest/hub-gold-manifest.mjs";
+import {
   INPUT_LANGUAGES,
   OUTPUT_LANGUAGES,
   defaultOriginLanguage,
@@ -778,6 +784,35 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && url.pathname === "/api/hub/cross-language-synthesis") {
     sendJson(res, 200, buildCrossLanguageSynthesis());
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/gold-suites") {
+    const origin = url.searchParams.get("origin") ?? undefined;
+    const output = url.searchParams.get("output") ?? undefined;
+    if (origin && output) {
+      sendJson(res, 200, {
+        kind: "chrysalis.hub.gold-suites",
+        schemaVersion: 1,
+        pair: buildHubGoldSuiteCoverage(origin, output),
+        route: resolveHubRoute(origin, output),
+      });
+      return;
+    }
+    sendJson(res, 200, {
+      kind: "chrysalis.hub.gold-suites",
+      schemaVersion: 1,
+      structuralSuiteCount: hubGoldStructuralSuiteIds().length,
+      traceReplaySuiteCount: hubGoldTraceReplaySuiteIds().length,
+      suites: HUB_GOLD_SUITES.map((s) => ({
+        id: s.id,
+        origin: s.origin,
+        emitTarget: s.emitTarget,
+        structural: s.structural,
+        traceReplay: s.traceReplay,
+        roundTrip: s.roundTrip === true,
+      })),
+    });
     return;
   }
 

@@ -140,6 +140,21 @@ async function main() {
         if (j.repo && j.cliBin) pass("hub-http", `port ${port}`);
         else fail("hub-http", "unexpected /api/config body");
       }
+      try {
+        const goldRes = await fetch(
+          `http://127.0.0.1:${port}/api/hub/gold-suites?origin=javascript&output=hono`,
+          { signal: AbortSignal.timeout(8000) },
+        );
+        if (!goldRes.ok) fail("hub-gold-suites", `GET ${goldRes.status}`);
+        else {
+          const gold = await goldRes.json();
+          if (gold.kind !== "chrysalis.hub.gold-suites" || !gold.pair?.suiteIds?.length) {
+            fail("hub-gold-suites", "missing pair.suiteIds");
+          } else pass("hub-gold-suites", `${gold.pair.suiteIds.length} suites`);
+        }
+      } catch (e) {
+        fail("hub-gold-suites", e.message);
+      }
     } catch (e) {
       fail("hub-http", e.message);
     }

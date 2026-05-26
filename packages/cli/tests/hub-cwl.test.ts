@@ -101,3 +101,14 @@ test("hub gold verify: js structured to cwl (G36)", () => {
   });
   expect(r.status).toBe(0);
 }, 130_000);
+
+test("hub gold verify: middleware fastify and cwl fastify (G37)", () => {
+  for (const suite of ["js-middleware-fastify", "cwl-gold-fastify"]) {
+    const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    expect(r.status).toBe(0);
+  }
+}, 180_000);
