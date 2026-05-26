@@ -120,6 +120,10 @@ test("hub store: language readiness report is popularity-ordered", async () => {
   expect(report.pairs.length).toBeGreaterThan(0);
   const php = report.origins.find((o) => o.id === "php");
   expect(php?.ingestStatus).toBe("gold");
+  const js = report.origins.find((o) => o.id === "javascript");
+  expect(js?.ingestStatus).toBe("silver-ast-lift");
+  const py = report.origins.find((o) => o.id === "python");
+  expect(py?.ingestStatus).toBe("silver-ast-lift");
   const sqlOut = report.outputs.find((o) => o.id === "sql");
   expect(sqlOut?.emitStatus).toBe("open-scaffold");
 });

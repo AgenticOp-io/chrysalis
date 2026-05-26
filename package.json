@@ -82,6 +82,8 @@
     "test:cli-shims": "node scripts/test-cli-shims.mjs"
   },
   "devDependencies": {
+    "acorn": "^8.14.1",
+    "acorn-walk": "^8.3.4",
     "@types/node": "^20.19.41",
     "rimraf": "^5.0.5",
     "tsx": "^4.22.3",

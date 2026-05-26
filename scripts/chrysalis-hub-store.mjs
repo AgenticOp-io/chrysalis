@@ -22,6 +22,11 @@ import {
 /** Hub mission: every origin×output pair is runnable (oracle gold remains PHP→TS only). */
 export const HUB_MISSION_OPEN = true;
 
+/** Outputs that can use OpenAPI/HAR → WPTP silver compose regardless of origin language (G20). */
+export function outputSupportsContractSilver(outputLang) {
+  return outputLang === "hono" || outputLang === "nextjs";
+}
+
 export const HUB_KIND = "chrysalis.translation-hub.projects";
 export const HUB_SCHEMA_VERSION = 0;
 
@@ -374,13 +379,52 @@ function readinessForOrigin(languageId) {
       notDone: ["Direct native emitters for non-TS outputs still scaffold/open routes."],
     };
   }
+  if (languageId === "python") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      ingestStatus: "silver-ast-lift",
+      emitStatus: "open-scaffold-or-ts",
+      done: [
+        "CPython ast route lift (G22): Flask/FastAPI-style decorators when python3 is on PATH.",
+        "Literal returns lowered; dict/call bodies remain holes.",
+        "Contract-first WPTP compose when OpenAPI/HAR present (G20).",
+      ],
+      notDone: [
+        "Native @chrysalis/ingest package adapter and oracle verify are not implemented.",
+        "Native emitters for non-TS targets remain scaffolds.",
+      ],
+    };
+  }
+  if (languageId === "javascript" || languageId === "typescript") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      ingestStatus: "silver-ast-lift",
+      emitStatus: "open-scaffold-or-ts",
+      done: [
+        "Acorn-based AST lift (G21): Express-style routes + literal return lowering; calls/objects stay holes.",
+        "When the site tree has OpenAPI/Swagger or HAR, any origin can use contract-first WPTP compose to hono/nextjs (G20).",
+        "Runnable TS framework emit from lifted WebIR (hono/fastify/nextjs).",
+      ],
+      notDone: [
+        "Full semantic lowering (req/res, middleware, SQL effects) is not implemented.",
+        "Per-language oracle/verify parity suites are not implemented.",
+      ],
+    };
+  }
   return {
     id: languageId,
     label: LANGUAGE_LABELS[languageId] ?? languageId,
     popularityRank: popularityRank(languageId),
     ingestStatus: "silver-lift",
     emitStatus: "open-scaffold-or-ts",
-    done: ["Lift-to-WebIR path exists and emits runnable TS framework projects (silver/open)."],
+    done: [
+      "Lift-to-WebIR path exists and emits runnable TS framework projects (silver/open).",
+      "When the site tree has OpenAPI/Swagger or HAR, any origin can use contract-first WPTP compose to hono/nextjs (G20).",
+    ],
     notDone: [
       `Native ${languageId} parser+ingest adapter for semantic lowering is not implemented.`,
       "Per-language oracle/verify parity suites are not implemented.",
@@ -506,6 +550,12 @@ function tasksForWorkQueueItem(pair, originRow, outputRow) {
   if (action === "hub-translate" && grade === "open") {
     tasks.push(
       "Document hub-translate prerequisites (WPTP preference, scaffold holes) and close gaps toward silver.",
+    );
+  }
+
+  if (outputSupportsContractSilver(output)) {
+    tasks.push(
+      `When origin sites ship OpenAPI/Swagger or HAR, run contract-first compose (${origin}→${output} skips native ingest).`,
     );
   }
 

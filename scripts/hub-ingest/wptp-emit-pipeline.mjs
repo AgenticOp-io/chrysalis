@@ -6,6 +6,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
+import { discoverContractArtifacts } from "./discover-contract-artifacts.mjs";
 import { resolveEmitBackend } from "./shared.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -35,6 +36,9 @@ async function writeEmitNote(projectDir, note) {
 export async function runHubEmitPipeline(projectDir, origin, output) {
   const backend = resolveEmitBackend(output);
   const composeScript = join(root, "scripts/hub-ingest/wptp-compose-site.mjs");
+  const contracts = await discoverContractArtifacts(projectDir);
+  const contractFirst =
+    (output === "nextjs" || backend === "hono") && (contracts.openapi !== null || contracts.har !== null);
 
   if (existsSync(composeScript)) {
     try {
@@ -42,9 +46,19 @@ export async function runHubEmitPipeline(projectDir, origin, output) {
         WPTP_MATRIX_ROOT: process.env.WPTP_MATRIX_ROOT ?? join(root, "..", "wptp-matrix"),
         WPTP_EMIT_NEXTJS_ROOT: process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(root, "..", "wptp-emit-nextjs"),
       });
-      await writeEmitNote(projectDir, { path: "wptp-compose", origin, output });
+      await writeEmitNote(projectDir, {
+        path: "wptp-compose",
+        origin,
+        output,
+        contractFirst,
+        openapi: contracts.openapi,
+        har: contracts.har,
+      });
       return { ok: true, path: "wptp-compose" };
     } catch (e) {
+      if (contractFirst) {
+        return { ok: false, path: "wptp-compose", hole: "hub:contract-compose-failed", detail: String(e) };
+      }
       /* fall through */
     }
   }

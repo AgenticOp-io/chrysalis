@@ -77,6 +77,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 **The Translation Hub is the web product surface** for operators (`http://host:19090/`). Remaining depth is Chrysalis core (emit/oracle/WPTP), not portal plumbing.
 
 - [x] **G19 — Language readiness + work queue** — **`buildLanguageReadinessReport`**, **`buildLanguageWorkQueue`** (popularity-ordered origins/outputs, scoped backlog tasks); portal **Languages** tab; **`GET /api/hub/language-readiness`**, **`GET /api/hub/language-work-queue`**. (**DESIGN D322**)
+- [x] **G20 — Contract-first + JS route lift** — Recursive **`discoverContractArtifacts`**; WPTP compose for any origin when OpenAPI/HAR present; heuristic Express-style routes for **javascript**/**typescript** lift; Vitest **`hub-ingest-g20.test.ts`**. (**DESIGN D326**)
+- [x] **G21 — JavaScript/TypeScript AST hub ingest v0** — **`javascript-ast-ingest.mjs`** (acorn + TS strip); literal returns lowered; **`lift-to-webir`** prefers AST over heuristic; readiness **silver-ast-lift**. (**DESIGN D327**)
+- [x] **G22 — Python AST hub ingest v0** — **`python-ast-ingest.mjs`** (CPython **ast** when **python3** on PATH); Flask/FastAPI decorators; fixture **`hub-python-routes`**. (**DESIGN D328**)
 
 ---
 

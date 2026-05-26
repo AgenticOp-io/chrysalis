@@ -3,9 +3,15 @@
  * Lift a non-PHP source tree into WebIR (routes + holes per file).
  * Usage: node scripts/hub-ingest/lift-to-webir.mjs <projectDir> --language python
  */
-import { mkdir, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { EXT_BY_LANG, guessRoutePath, loadWebir } from "./shared.mjs";
+import {
+  canJavaScriptAstIngest,
+  detectHttpRoutesInSource,
+  liftJavaScriptFileToWebir,
+} from "./javascript-ast-ingest.mjs";
+import { canPythonAstIngest, liftPythonFileToWebir } from "./python-ast-ingest.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -48,8 +54,84 @@ async function main() {
   const paths = [];
   await walk(projectDir, exts, paths, 0);
 
-  for (const rel of paths) {
-    const file = rel.startsWith(projectDir) ? rel.slice(projectDir.length).replace(/^[/\\]/, "") : rel;
+  let heuristicRouteCount = 0;
+  let astRouteCount = 0;
+
+  for (const abs of paths) {
+    const file = abs.startsWith(projectDir) ? abs.slice(projectDir.length).replace(/^[/\\]/, "") : abs;
+    const source = await readFile(abs, "utf8").catch(() => "");
+    const ext = extname(file).toLowerCase();
+
+    if (canJavaScriptAstIngest(language, ext)) {
+      const astLift = liftJavaScriptFileToWebir({
+        webir,
+        builder,
+        wr,
+        source,
+        file,
+        language,
+      });
+      if (astLift.usedAst && astLift.routeCount > 0) {
+        astRouteCount += astLift.astRouteCount;
+        continue;
+      }
+    }
+
+    if (canPythonAstIngest(language, ext)) {
+      const pyLift = liftPythonFileToWebir({
+        webir,
+        builder,
+        wr,
+        source,
+        file,
+        language,
+      });
+      if (pyLift.usedAst && pyLift.routeCount > 0) {
+        astRouteCount += pyLift.astRouteCount;
+        continue;
+      }
+    }
+
+    const routes = canJavaScriptAstIngest(language, ext)
+      ? detectHttpRoutesInSource(source, file)
+      : [];
+
+    if (routes.length > 0) {
+      for (const r of routes) {
+        heuristicRouteCount += 1;
+        const origin = { file: r.file, line: 1, column: 1 };
+        const holeId = builder.node({
+          dialect: "legacy",
+          op: "hole",
+          type: { kind: "unknown" },
+          effects: [],
+          operands: [],
+          attrs: { reason: `hub-lift:${language}:handler-body`, method: r.method, path: r.path },
+          origin,
+          provenance: [webir.provenance("hub-ingest", `lift-heuristic:${language}`)],
+        });
+        const handlerId = wr.handler({
+          attrs: {
+            name: `${r.method}_${r.path.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+            input: { kind: "unknown" },
+            output: { kind: "unknown" },
+          },
+          body: holeId,
+          effects: [],
+          origin,
+          provenance: [webir.provenance("hub-ingest", `route-handler:${language}`)],
+        });
+        const routeId = wr.route({
+          attrs: { method: r.method, path: r.path, pathParams: [] },
+          handler: handlerId,
+          origin,
+          provenance: [webir.provenance("hub-ingest", `route:${language}`)],
+        });
+        builder.addRoot(routeId);
+      }
+      continue;
+    }
+
     const origin = { file, line: 1, column: 1 };
     const holeId = builder.node({
       dialect: "legacy",
@@ -86,6 +168,7 @@ async function main() {
   }
 
   const module = builder.finish();
+  const holes = webir.countHoles(module);
   const outDir = join(projectDir, ".chrysalis");
   await mkdir(outDir, { recursive: true });
   const outPath = join(outDir, `hub.${language}.webir.json`);
@@ -93,12 +176,14 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.lift",
-    schemaVersion: 0,
+    schemaVersion: 1,
     language,
     fileCount: paths.length,
+    astRouteCount,
+    heuristicRouteCount,
     routeCount: module.roots.length,
     webirPath: outPath,
-    holeCount: paths.length,
+    holeCount: holes,
     generatedAt: new Date().toISOString(),
   };
   await writeFile(join(outDir, `hub.${language}.lift.json`), `${JSON.stringify(report, null, 2)}\n`, "utf8");

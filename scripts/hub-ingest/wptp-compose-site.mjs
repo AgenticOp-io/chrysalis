@@ -4,10 +4,11 @@
  * Usage: node scripts/hub-ingest/wptp-compose-site.mjs <siteDir> --output nextjs|hono
  */
 import { existsSync } from "node:fs";
-import { mkdir, readdir } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
+import { discoverContractArtifacts } from "./discover-contract-artifacts.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -19,14 +20,6 @@ function parseArgs(argv) {
   }
   if (!siteDir) throw new Error("usage: wptp-compose-site.mjs <siteDir> --output nextjs|hono");
   return { siteDir: resolve(siteDir), output };
-}
-
-async function findFirst(dir, pattern) {
-  const names = await readdir(dir).catch(() => []);
-  for (const name of names) {
-    if (pattern.test(name)) return join(dir, name);
-  }
-  return null;
 }
 
 function runNode(script, args, env) {
@@ -69,10 +62,9 @@ async function main() {
     }
   }
 
-  const openapi =
-    (await findFirst(siteDir, /\.openapi\.(json|ya?ml)$/i)) ||
-    (await findFirst(siteDir, /^openapi\.(json|ya?ml)$/i));
-  const har = await findFirst(siteDir, /\.har\.json$/i);
+  const contracts = await discoverContractArtifacts(siteDir);
+  const openapi = contracts.openapi;
+  const har = contracts.har;
 
   if (!existsSync(join(matrixRoot, "src", "verify-silver-chrysalis.ts"))) {
     throw new Error(`wptp-matrix missing at ${matrixRoot}`);
