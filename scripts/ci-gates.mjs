@@ -731,9 +731,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 17 &&
     s.schemaVersion !== 18 &&
     s.schemaVersion !== 19 &&
-    s.schemaVersion !== 20
+    s.schemaVersion !== 20 &&
+    s.schemaVersion !== 21
   ) {
-    fail(`${label}: expected schemaVersion 0–20, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–21, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -920,6 +921,17 @@ function assertHubCompletion(path) {
     }
     if (s.multiLaneSmoke?.parserBridgeVendor !== true) {
       fail(`${label}: multiLaneSmoke.parserBridgeVendor must be true for schema v20`);
+    }
+  }
+  if (s.schemaVersion >= 21) {
+    const asset = s.assetVueNextjsGold?.suiteIds ?? [];
+    for (const id of ["sql-literal-nextjs", "html-literal-nextjs", "json-literal-nextjs", "vue-literal-nextjs"]) {
+      if (!asset.includes(id)) {
+        fail(`${label}: assetVueNextjsGold must list ${id} for schema v21`);
+      }
+    }
+    if (s.multiLaneSmoke?.migrationDebtOk !== true) {
+      fail(`${label}: multiLaneSmoke.migrationDebtOk must be true for schema v21`);
     }
   }
   const g = s.routeGrades;

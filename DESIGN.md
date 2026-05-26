@@ -2332,6 +2332,12 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-26 — D358** **Cross-framework CWL gold (G53).** Add **`java/go/csharp/ruby → cwl`** structural suites on existing literal fixtures so CWL emit stays hole-free beyond JS/TS/Python and middleware. **`hub-completion`** schema **v14**. **DESIGN §3** unchanged.
 
+- **2026-05-26 — D373** **Hub migration-debt smoke (G68).** **`hub-multi-lane-smoke`** v2 invokes **`migration-debt`** on **`fixtures/tiny-blog`** and records **`migrationDebtOk`** / hole count in **`hub-completion`** schema **v21**. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D372** **Vue SFC script AST lift (G67).** **`hub-lift-dispatch`** extracts **`<script>`** from **`.vue`** and lowers via **`javascript-ast-ingest`** before pattern-lift holes. Enables **`hub-gold-vue-literal`** structural gold. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D371** **Asset + Vue framework/Next.js gold (G66).** **`sql/html/json → hono/fastify/nextjs`** on **`hub-pattern-lift`** asset trees; **`vue-literal-*`** on **`hub-gold-vue-literal`**. **DESIGN §3** unchanged.
+
 - **2026-05-26 — D370** **Hub multi-lane nikic parity (G65).** **`hub-multi-lane-smoke`** schema **v1** runs Vitest **`nikic.test.ts`** when parser-bridge **`vendor/`** and **`php`** are available; records **`parserNikicParity`** in **`hub-completion`** schema **v20**. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D369** **CWL ↔ Next.js parity (G64).** Vitest **`hub-cwl-nextjs-parity`** asserts **`cwl-gold-nextjs`** handler count matches lifted route count alongside hono/fastify gold. **DESIGN §3** unchanged.

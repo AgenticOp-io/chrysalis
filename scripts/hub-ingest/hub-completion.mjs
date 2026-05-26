@@ -126,7 +126,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 20,
+    schemaVersion: 21,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -165,10 +165,14 @@ async function main() {
         "kotlin-literal-nextjs",
         "scala-literal-nextjs",
         "swift-literal-nextjs",
-        "rust-literal-nextjs",
-      ],
-    },
-    crossFrameworkNextjsGold: {
+      "rust-literal-nextjs",
+      "sql-literal-nextjs",
+      "html-literal-nextjs",
+      "json-literal-nextjs",
+      "vue-literal-nextjs",
+    ],
+  },
+  crossFrameworkNextjsGold: {
       suiteIds: [
         "ruby-literal-nextjs",
         "java-literal-nextjs",
@@ -284,7 +288,29 @@ async function main() {
       parserBridgeVendor: multiLane.parsed.parserBridgeVendor === true,
       parserNikicParity: multiLane.parsed.parserNikicParity === true,
       parserNikicSkipped: multiLane.parsed.parserNikicSkipped ?? null,
+      migrationDebtOk: multiLane.parsed.migrationDebtOk === true,
+      migrationDebtHoleCount: multiLane.parsed.migrationDebtHoleCount ?? null,
       phpAvailable: multiLane.parsed.phpAvailable === true,
+    },
+    assetVueNextjsGold: {
+      suiteIds: [
+        "sql-literal-nextjs",
+        "html-literal-nextjs",
+        "json-literal-nextjs",
+        "vue-literal-nextjs",
+      ],
+    },
+    assetFrameworkGold: {
+      suiteIds: [
+        "sql-literal-hono",
+        "sql-literal-fastify",
+        "html-literal-hono",
+        "html-literal-fastify",
+        "json-literal-hono",
+        "json-literal-fastify",
+        "vue-literal-hono",
+        "vue-literal-fastify",
+      ],
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

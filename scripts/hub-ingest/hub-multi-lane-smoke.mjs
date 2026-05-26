@@ -2,14 +2,17 @@
 /**
  * Hub ↔ core lane boundary smoke: oracle redactor lockstep + parser-bridge vendor + nikic parity.
  */
-import { existsSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const parserVendor = join(scriptRoot, "packages/parser-bridge/vendor/autoload.php");
 const nikicTest = join(scriptRoot, "packages/parser-bridge/tests/nikic.test.ts");
+const migrationDebtScript = join(scriptRoot, "scripts/migration-debt.mjs");
+const tinyBlogProject = join(scriptRoot, "fixtures/tiny-blog");
 const redactorTests = [
   join(scriptRoot, "packages/oracle-php/tests/redactor_sql_rows_test.php"),
   join(scriptRoot, "packages/oracle-php/tests/redactor_sql_params_test.php"),
@@ -41,23 +44,50 @@ function runParserNikicParity() {
   return { ran: true, ok: r.status === 0, exitCode: r.status ?? 1 };
 }
 
+function runMigrationDebtSmoke() {
+  if (!existsSync(migrationDebtScript) || !existsSync(tinyBlogProject)) {
+    return { ok: false, skip: "no-migration-debt-or-tiny-blog" };
+  }
+  const outDir = mkdtempSync(join(tmpdir(), "chrysalis-hub-migration-debt-"));
+  const out = join(outDir, "debt.json");
+  const r = spawnSync(
+    process.execPath,
+    ["--import", "tsx", migrationDebtScript, "--project", tinyBlogProject, "--json-out", out, "--max-holes", "500"],
+    { cwd: scriptRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
+  );
+  let holeCount = null;
+  try {
+    if (r.status === 0 && existsSync(out)) {
+      const j = JSON.parse(readFileSync(out, "utf8"));
+      holeCount = j.residualLegacy?.holeCount ?? null;
+    }
+  } finally {
+    rmSync(outDir, { recursive: true, force: true });
+  }
+  return { ok: r.status === 0, holeCount, skip: r.status !== 0 ? "migration-debt-exit" : null };
+}
+
 function main() {
   const php = phpOnPath();
   let oracleRedactor = false;
   const parserBridgeVendor = existsSync(parserVendor);
   const nikic = runParserNikicParity();
+  const migrationDebt = runMigrationDebtSmoke();
 
   if (php) {
     const r = spawnSync("php", redactorTests, { cwd: scriptRoot, encoding: "utf8" });
     oracleRedactor = r.status === 0;
   }
 
-  const ok = (!php || oracleRedactor) && (nikic.skip != null || nikic.ok);
+  const ok =
+    (!php || oracleRedactor) &&
+    (nikic.skip != null || nikic.ok) &&
+    (migrationDebt.skip != null || migrationDebt.ok);
   console.log(
     JSON.stringify(
       {
         kind: "chrysalis.hub.multi-lane-smoke",
-        schemaVersion: 1,
+        schemaVersion: 2,
         ok,
         phpAvailable: php,
         oracleRedactor,
@@ -65,6 +95,9 @@ function main() {
         parserNikicParity: nikic.ok,
         parserNikicSkipped: nikic.skip ?? null,
         parserNikicRan: nikic.ran,
+        migrationDebtOk: migrationDebt.ok,
+        migrationDebtSkipped: migrationDebt.skip ?? null,
+        migrationDebtHoleCount: migrationDebt.holeCount,
       },
       null,
       2,

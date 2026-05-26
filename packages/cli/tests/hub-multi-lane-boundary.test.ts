@@ -19,11 +19,15 @@ test("hub multi-lane smoke: parser vendor + oracle redactor when php available (
     oracleRedactor?: boolean;
   };
   expect(j.kind).toBe("chrysalis.hub.multi-lane-smoke");
+  expect(j.schemaVersion).toBe(2);
   expect(j.parserBridgeVendor).toBe(true);
   if (j.phpAvailable) {
     expect(j.oracleRedactor).toBe(true);
     if (j.parserNikicSkipped == null) {
       expect(j.parserNikicParity).toBe(true);
+    }
+    if (j.migrationDebtSkipped == null) {
+      expect(j.migrationDebtOk).toBe(true);
     }
     expect(j.ok).toBe(true);
     expect(r.status).toBe(0);

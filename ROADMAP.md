@@ -122,6 +122,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G63 — Pattern-lift origins → Next.js gold** — **`ruby/java/go/csharp/kotlin/scala/swift/rust-literal-nextjs`** structural + trace replay (completes framework Next.js coverage for pattern-lift origins). (**DESIGN D368**)
 - [x] **G64 — CWL ↔ Next.js parity** — Vitest **`hub-cwl-nextjs-parity`** (route-count parity vs hono/fastify; round-trip + nextjs on same fixture). (**DESIGN D369**)
 - [x] **G65 — Hub multi-lane nikic parity** — **`hub-multi-lane-smoke`** runs **`packages/parser-bridge/tests/nikic.test.ts`** when **`php`** + **`vendor/`** present; schema **v1** artifact fields. **`hub-completion`** schema **v20**. (**DESIGN D370**)
+- [x] **G66 — Asset + Vue → framework/Next.js gold** — **`sql/html/json/vue-literal-*`** suites (asset file-lift + **`hub-gold-vue-literal`**); **`hub-completion`** schema **v21**. (**DESIGN D371**)
+- [x] **G67 — Vue `<script>` AST lift** — **`hub-lift-dispatch`** runs **`javascript-ast-ingest`** on extracted Vue SFC script (literal routes hole-free). (**DESIGN D372**)
+- [x] **G68 — Hub migration-debt smoke** — **`hub-multi-lane-smoke`** schema **v2** runs **`migration-debt`** on **`fixtures/tiny-blog`** (hole economics lane boundary). (**DESIGN D373**)
 
 ---
 

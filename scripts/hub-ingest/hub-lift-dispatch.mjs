@@ -6,7 +6,28 @@ import { canPythonAstIngest, liftPythonFileToWebir } from "./python-ast-ingest.m
 import { canJavaAstIngest, liftJavaFileToWebir } from "./java-ast-ingest.mjs";
 import { canGoAstIngest, liftGoFileToWebir } from "./go-ast-ingest.mjs";
 import { canPatternRouteLift, liftPatternRoutesFile } from "./pattern-route-lift.mjs";
+import { extractVueScript } from "./pattern-route-parsers.mjs";
 import { canCwlIngest, liftCwlFileToWebir } from "./cwl-ingest.mjs";
+
+/**
+ * @param {string} language
+ * @param {string} ext
+ */
+function canVueScriptAstIngest(language, ext) {
+  return language === "vue" || ext.toLowerCase() === ".vue";
+}
+
+/**
+ * @param {object} opts
+ */
+function liftVueFileToWebir(opts) {
+  const script = extractVueScript(opts.source);
+  if (!script.trim()) {
+    return { usedAst: false, routeCount: 0, astRouteCount: 0 };
+  }
+  const jsFile = opts.file.replace(/\.vue$/i, ".js");
+  return liftJavaScriptFileToWebir({ ...opts, source: script, file: jsFile });
+}
 
 /**
  * @param {object} opts — webir, builder, wr, source, file, language, ext
@@ -16,6 +37,7 @@ export function trySpecializedHubLift(opts) {
   const lifters = [
     { can: canCwlIngest, lift: liftCwlFileToWebir },
     { can: canJavaScriptAstIngest, lift: liftJavaScriptFileToWebir },
+    { can: canVueScriptAstIngest, lift: liftVueFileToWebir },
     { can: canPythonAstIngest, lift: liftPythonFileToWebir },
     { can: canJavaAstIngest, lift: liftJavaFileToWebir },
     { can: canGoAstIngest, lift: liftGoFileToWebir },
