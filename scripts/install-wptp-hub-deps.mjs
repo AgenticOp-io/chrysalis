@@ -11,7 +11,7 @@
 import { spawn } from "node:child_process";
 import { access, constants, readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const chrysalisRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const siblingsRoot = resolve(process.env.WPTP_SIBLINGS_ROOT ?? join(chrysalisRoot, ".."));
@@ -71,9 +71,16 @@ async function main() {
 
   const distIndex = join(emitDir, "dist", "index.js");
   if (await exists(distIndex)) {
-    process.stdout.write(`[install-wptp-hub-deps] OK: ${distIndex} already built\n`);
-    process.stdout.write(`${JSON.stringify({ ok: true, emitNextJsRoot: emitDir, skipped: true })}\n`);
-    return;
+    try {
+      const mod = await import(pathToFileURL(distIndex).href);
+      if (typeof mod.emitNextJsAppRouter === "function") {
+        process.stdout.write(`[install-wptp-hub-deps] OK: ${distIndex} already built\n`);
+        process.stdout.write(`${JSON.stringify({ ok: true, emitNextJsRoot: emitDir, skipped: true })}\n`);
+        return;
+      }
+    } catch {
+      process.stdout.write(`[install-wptp-hub-deps] stale ${distIndex}; rebuilding\n`);
+    }
   }
 
   await cloneRepo(emitRepo, emitDir, emitNextJsTag).catch(async () => {

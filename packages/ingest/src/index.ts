@@ -10,7 +10,14 @@ import {
 } from "./ingest-progress.js";
 import { parseFile, type Provider } from "@chrysalis/parser-bridge";
 import { loadOrParsePhpAstWithCache } from "./parse-cache.js";
-import { ModuleBuilder, dedupeStructuralSubgraphsInModule, moduleBuilderResumeFromModule, type Module } from "@chrysalis/webir";
+import {
+  ModuleBuilder,
+  dedupeStructuralSubgraphsInModule,
+  mergeWebIrModules,
+  moduleBuilderResumeFromModule,
+  type Module,
+} from "@chrysalis/webir";
+import { buildLibraryHelpersWebIrModule } from "./library-effects.js";
 import { ingestHandler } from "./convert.js";
 import { readIngestCheckpointEnvelope, writeIngestCheckpointEnvelope } from "./ingest-checkpoint.js";
 import { buildCallEffectMap } from "./library-effects.js";
@@ -75,6 +82,11 @@ export interface IngestOptions {
    * PHP local variable names (**IR helper lifting B3**).
    */
   readonly liftSharedHelpersSemantic?: boolean;
+  /**
+   * When true with {@link dedupeStructuralSubgraphs}, merge lib/vendor helper bodies as
+   * extra module roots before structural dedupe (**IR helper lifting B4**).
+   */
+  readonly embedSharedHelperBodiesInModule?: boolean;
   /**
    * When set, atomically writes a versioned ingest checkpoint envelope after each route
    * (partial WebIR + completed route keys). Use with {@link ingestResumeFromCheckpoint} to skip
@@ -149,6 +161,11 @@ export async function ingestDirectory(
   if (opts?.liftSharedHelpersSemantic === true && opts?.liftSharedHelpers !== true) {
     throw new Error("ingestDirectory: liftSharedHelpersSemantic requires liftSharedHelpers");
   }
+  if (opts?.embedSharedHelperBodiesInModule === true && opts?.dedupeStructuralSubgraphs !== true) {
+    throw new Error(
+      "ingestDirectory: embedSharedHelperBodiesInModule requires dedupeStructuralSubgraphs",
+    );
+  }
   const routeFingerprint = fingerprintIngestRouteList(routes);
   const projectRootAbs = resolve(root);
   const shardFilter =
@@ -216,6 +233,14 @@ export async function ingestDirectory(
     }
   }
   let mod = builder.finish();
+  if (opts?.embedSharedHelperBodiesInModule === true) {
+    const helperMod = await buildLibraryHelpersWebIrModule(root, manifest.app, {
+      ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+    });
+    if (helperMod !== null) {
+      mod = mergeWebIrModules([mod, helperMod]);
+    }
+  }
   if (opts?.dedupeStructuralSubgraphs === true) {
     mod = dedupeStructuralSubgraphsInModule(mod, {
       ...(opts.dedupeStructuralSubgraphsIgnoreOrigin === true ? { ignoreOrigin: true as const } : {}),
@@ -275,7 +300,12 @@ export {
   type ReadIngestCheckpointResult,
 } from "./ingest-checkpoint.js";
 export { filterRoutesForShard, routeFileShardBucket } from "./route-shard.js";
-export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects.js";
+export {
+  buildCallEffectMap,
+  buildLibraryCallEffectMap,
+  buildLibraryHelpersWebIrModule,
+  collectLibraryFunctionBodies,
+} from "./library-effects.js";
 export {
   applyHelperLiftAliases,
   buildHelperLiftAliasMap,

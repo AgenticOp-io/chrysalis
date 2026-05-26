@@ -72,4 +72,17 @@ describe("ingest: lift-shared-helpers (B2)", () => {
     expect(countHoles(lifted)).toBe(0);
     expect(lifted.roots.length).toBe(2);
   });
+
+  it("lift-twin embed adds helper roots then dedupe keeps zero holes (B4)", async () => {
+    const embedded = await ingestDirectory(TWIN_FIXTURE, {
+      dedupeStructuralSubgraphs: true,
+      embedSharedHelperBodiesInModule: true,
+    });
+    expect(countHoles(embedded)).toBe(0);
+    expect(embedded.roots.length).toBeGreaterThan(2);
+    const dedupedOnly = await ingestDirectory(TWIN_FIXTURE, {
+      dedupeStructuralSubgraphs: true,
+    });
+    expect(embedded.nodes.size).toBeLessThanOrEqual(dedupedOnly.nodes.size + 80);
+  });
 });

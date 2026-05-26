@@ -1283,7 +1283,7 @@ $ chrysalis corpus-merge /var/lib/chrysalis/traces \
 
 ## 25. Smoke-test WPTP matrix on GCE
 
-**Goal.** Clone **`theorem6/wptp-matrix`** at a release tag on a small GCE VM, run **`npm ci`**, **`npm test`**, and **`npm run verify:harness`** (12+ harness cases; bronze/silver/gold contract paths).
+**Goal.** Clone **`theorem6/wptp-matrix`** at a release tag on a small GCE VM, run **`npm ci`**, **`npm test`**, and **`npm run verify:harness`**. By default the bootstrap also builds **Chrysalis** at **`~/chrysalis-test`**, **`wptp-emit-nextjs`**, runs **`verify-tiny-blog`**, and runs the **full** harness (php-webir-hono gold + silver Chrysalis compose). Pass **`-MatrixOnlyHarness`** on the PowerShell script to skip Chrysalis (matrix-only smoke).
 
 **You need.** **`gcloud`** CLI, **`gcloud auth login`**, a GCP project with Compute Engine enabled (for example **`chrysalis-dev-f5x6qv`**). The script creates **`chrysalis-test-vm`** as **`e2-small`** (2 GiB RAM) when missing.
 
@@ -1299,7 +1299,7 @@ $ chrysalis corpus-merge /var/lib/chrysalis/traces \
      -TunnelThroughIap
    ```
 
-   Default matrix ref is **`v0.1.7`** (override with **`-MatrixRef main`** for latest).
+   Default matrix ref is **`v0.1.10`** (override with **`-MatrixRef main`** for latest). Default Chrysalis clone is **`AgenticOp-io/chrysalis`** **`main`**; override with **`-ChrysalisRef`** / **`-ChrysalisRepo`**.
 
 2. Wait for **`[gce-wptp-test-bootstrap] OK`**. First **`npm ci`** on a fresh VM often takes **5–15 minutes** (GitHub sibling deps compile via `prepare`). Re-runs reuse **`~/wptp-src/wptp-matrix/node_modules`** unless you set **`WPTP_MATRIX_FORCE_CI=1`** on the VM.
 

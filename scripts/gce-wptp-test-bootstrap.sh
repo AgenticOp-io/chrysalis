@@ -37,10 +37,11 @@ MATRIX="${ROOT}/wptp-matrix"
 export DEBIAN_FRONTEND=noninteractive
 export GIT_TERMINAL_PROMPT=0
 sudo apt-get update -y
-sudo apt-get install -y ca-certificates curl git
+sudo apt-get install -y ca-certificates curl git php-cli php-xml unzip composer || sudo apt-get install -y ca-certificates curl git php-cli
 
-if ! command -v node >/dev/null 2>&1 || [[ "$(node -v 2>/dev/null || true)" != v20* ]]; then
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+# Chrysalis verify-tiny-blog uses node:sqlite (Node 22+); matrix vitest runs on 20+.
+if ! command -v node >/dev/null 2>&1 || [[ "$(node -v 2>/dev/null || true)" != v22* ]]; then
+  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
   sudo apt-get install -y nodejs
 fi
 
@@ -147,6 +148,93 @@ if ! install_matrix_ci; then
   install_matrix_siblings
 fi
 
+CHRYSALIS_GCE_FULL_HARNESS="${CHRYSALIS_GCE_FULL_HARNESS:-1}"
+CHRYSALIS_ROOT="${CHRYSALIS_ROOT:-${HOME}/chrysalis-test}"
+CHRYSALIS_REPO="${CHRYSALIS_REPO:-https://github.com/AgenticOp-io/chrysalis.git}"
+CHRYSALIS_REF="${CHRYSALIS_REF:-main}"
+WPTP_EMIT_NEXTJS_ROOT="${WPTP_EMIT_NEXTJS_ROOT:-${ROOT}/wptp-emit-nextjs}"
+WPTP_EMIT_NEXTJS_REF="${WPTP_EMIT_NEXTJS_REF:-v0.1.1}"
+
+ensure_chrysalis_for_harness() {
+  if [[ "${CHRYSALIS_GCE_FULL_HARNESS}" != "1" ]]; then
+    return 0
+  fi
+  local stamp="${CHRYSALIS_ROOT}/.chrysalis-gce-ref"
+  local prev_ref=""
+  if [[ -f "${stamp}" ]]; then
+    prev_ref="$(tr -d '\r\n' < "${stamp}")"
+  fi
+  if [[ -f "${CHRYSALIS_ROOT}/packages/cli/dist/bin.js" ]] \
+    && [[ -f "${CHRYSALIS_ROOT}/scripts/emit-webir-bundle-nextjs.mjs" ]] \
+    && [[ "${prev_ref}" == "${CHRYSALIS_REF}" ]] \
+    && [[ "${CHRYSALIS_GCE_FORCE_CHRYSALIS_BUILD:-0}" != "1" ]]; then
+    log "reuse Chrysalis at ${CHRYSALIS_ROOT} (ref ${CHRYSALIS_REF})"
+    return 0
+  fi
+  if [[ -d "${CHRYSALIS_ROOT}" ]] && [[ ! -f "${CHRYSALIS_ROOT}/scripts/emit-webir-bundle-nextjs.mjs" ]]; then
+    log "Chrysalis tree lacks WPTP emit scripts; recloning ${CHRYSALIS_REPO}"
+    rm -rf "${CHRYSALIS_ROOT}"
+  fi
+  if [[ "${prev_ref}" != "${CHRYSALIS_REF}" ]] && [[ -n "${prev_ref}" ]] && [[ -d "${CHRYSALIS_ROOT}/.git" ]]; then
+    log "chrysalis ref changed (${prev_ref} -> ${CHRYSALIS_REF}); recloning"
+    rm -rf "${CHRYSALIS_ROOT}"
+  fi
+  if [[ -d "${CHRYSALIS_ROOT}" ]] && [[ -f "${CHRYSALIS_ROOT}/package.json" ]] && [[ ! -d "${CHRYSALIS_ROOT}/.git" ]]; then
+    log "reuse existing Chrysalis tree at ${CHRYSALIS_ROOT} (hub or tarball; no git)"
+  elif [[ -d "${CHRYSALIS_ROOT}/.git" ]]; then
+    log "git pull Chrysalis ${CHRYSALIS_REF} at ${CHRYSALIS_ROOT}"
+    git -C "${CHRYSALIS_ROOT}" fetch --depth 1 origin "${CHRYSALIS_REF}" 2>/dev/null || true
+    git -C "${CHRYSALIS_ROOT}" checkout "${CHRYSALIS_REF}" 2>/dev/null || git -C "${CHRYSALIS_ROOT}" checkout -B "${CHRYSALIS_REF}" "origin/${CHRYSALIS_REF}" 2>/dev/null || true
+    git -C "${CHRYSALIS_ROOT}" pull --ff-only 2>/dev/null || true
+  elif [[ ! -d "${CHRYSALIS_ROOT}" ]]; then
+    log "clone Chrysalis ${CHRYSALIS_REF} -> ${CHRYSALIS_ROOT}"
+    mkdir -p "$(dirname "${CHRYSALIS_ROOT}")"
+    if git clone --depth 1 --branch "${CHRYSALIS_REF}" "${CHRYSALIS_REPO}" "${CHRYSALIS_ROOT}" 2>/dev/null; then
+      :
+    else
+      git clone --depth 1 "${CHRYSALIS_REPO}" "${CHRYSALIS_ROOT}"
+      git -C "${CHRYSALIS_ROOT}" checkout "${CHRYSALIS_REF}"
+    fi
+  else
+    log "WARN: ${CHRYSALIS_ROOT} exists but is not a Chrysalis tree; remove it and re-run"
+    return 1
+  fi
+  printf '%s' "${CHRYSALIS_REF}" > "${stamp}"
+  log "build Chrysalis workspace (pnpm -r build; often 10-20 min on e2-small)..."
+  (
+    cd "${CHRYSALIS_ROOT}"
+    pnpm install
+    pnpm -r build
+  )
+  if command -v php >/dev/null 2>&1; then
+    (cd "${CHRYSALIS_ROOT}" && pnpm run vendor:parser-bridge) || log "WARN: parser-bridge vendor failed"
+  else
+    log "WARN: php missing; gold php-webir-hono may be limited"
+  fi
+}
+
+ensure_wptp_emit_nextjs() {
+  if [[ "${CHRYSALIS_GCE_FULL_HARNESS}" != "1" ]]; then
+    return 0
+  fi
+  local install_script="${HOME}/install-wptp-hub-deps.mjs"
+  if [[ ! -f "${install_script}" ]]; then
+    install_script="${CHRYSALIS_ROOT}/scripts/install-wptp-hub-deps.mjs"
+  fi
+  if [[ ! -f "${install_script}" ]]; then
+    log "WARN: missing install-wptp-hub-deps.mjs; silver Next.js harness cases may skip"
+    return 0
+  fi
+  log "install wptp-emit-nextjs (${WPTP_EMIT_NEXTJS_REF})..."
+  WPTP_SIBLINGS_ROOT="${ROOT}" \
+    WPTP_EMIT_NEXTJS_ROOT="${WPTP_EMIT_NEXTJS_ROOT}" \
+    WPTP_EMIT_NEXTJS_REF="${WPTP_EMIT_NEXTJS_REF}" \
+    node "${install_script}"
+}
+
+ensure_chrysalis_for_harness
+ensure_wptp_emit_nextjs
+
 cd "${MATRIX}"
 log "build..."
 npm run build
@@ -157,6 +245,23 @@ npm run site:validate
 export VITEST_POOL_THREADS=1
 log "vitest (unit + compose; excludes verify-harness.test.ts)..."
 npx vitest run --exclude tests/verify-harness.test.ts
-log "verify:harness (12 cases; may take several minutes)..."
+
+export CHRYSALIS_ROOT
+export WPTP_EMIT_NEXTJS_ROOT
+export WPTP_PHP_WEBIR_MIN_CORRECTNESS_PCT="${WPTP_PHP_WEBIR_MIN_CORRECTNESS_PCT:-60}"
+
+if [[ "${CHRYSALIS_GCE_FULL_HARNESS}" == "1" ]] && [[ -f "${CHRYSALIS_ROOT}/scripts/verify-tiny-blog.mjs" ]]; then
+  log "verify-tiny-blog (oracle replay for php-webir-hono gold)..."
+  if ! (cd "${CHRYSALIS_ROOT}" && node scripts/verify-tiny-blog.mjs); then
+    log "ERROR: verify-tiny-blog failed (need Node 22+ and php on PATH)"
+    exit 1
+  fi
+fi
+
+log "verify:harness (full when CHRYSALIS_ROOT set; may take several minutes)..."
 npm run verify:harness
-log "OK: WPTP matrix validate + test + verify:harness passed."
+if [[ "${CHRYSALIS_GCE_FULL_HARNESS}" == "1" ]]; then
+  log "OK: WPTP matrix validate + test + full verify:harness (Chrysalis gold/silver) passed."
+else
+  log "OK: WPTP matrix validate + test + verify:harness passed."
+fi

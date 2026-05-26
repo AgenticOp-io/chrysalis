@@ -21,6 +21,7 @@ import {
   effectsReachableFrom,
   effectsReachableWithCallOverlay,
   type EffectSet,
+  type Module,
   type NodeId,
 } from "@chrysalis/webir";
 import { convertPhpStatementsToBlock } from "./convert.js";
@@ -191,17 +192,20 @@ function mergeBodies(
   }
 }
 
+export interface LibraryBodyCollectionOptions {
+  readonly parserProvider?: Provider;
+}
+
 /**
- * Parse `root/lib/**.php`, optional `root/vendor/**.php`, plus top-level
- * functions in each `routeSpecs` file, then fixpoint-merge nested
- * `data.call` effects.
+ * Lower `lib/**`, optional `vendor/**`, and route-file top-level functions into
+ * `builder`, returning a map of helper name → body root id.
  */
-export async function buildCallEffectMap(
+export async function collectLibraryFunctionBodies(
   root: string,
+  builder: ModuleBuilder,
   routeSpecs: ReadonlyArray<RouteFileRef> | undefined,
-  opts?: CallEffectMapOptions,
-): Promise<ReadonlyMap<string, EffectSet>> {
-  const builder = new ModuleBuilder({ sourceApp: `${root}:call-effects` });
+  opts?: LibraryBodyCollectionOptions,
+): Promise<Map<string, NodeId>> {
   const bodies = new Map<string, NodeId>();
 
   const libDir = join(root, "lib");
@@ -222,8 +226,6 @@ export async function buildCallEffectMap(
   const vendorDir = join(root, "vendor");
   try {
     await access(vendorDir, fsConstants.R_OK);
-    // Prefer Composer autoload metadata when available (autoload.files, psr-4).
-    // Keep a recursive vendor scan fallback so coverage remains sound.
     const composerIndexed = await collectComposerAutoloadFiles(vendorDir);
     const recursivePhp = await collectPhpFilesRecursive(vendorDir);
     const candidateFiles = new Set<string>([...composerIndexed, ...recursivePhp]);
@@ -232,7 +234,6 @@ export async function buildCallEffectMap(
         ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
       });
       const fromFile = collectFunctionBodies(ast, builder);
-      // Local library helpers keep precedence over vendor helpers.
       mergeBodies(bodies, fromFile);
     }
   } catch {
@@ -248,6 +249,48 @@ export async function buildCallEffectMap(
       mergeBodies(bodies, fromFile);
     }
   }
+
+  return bodies;
+}
+
+/**
+ * WebIR module whose roots are unique lib/vendor helper bodies (same `sourceApp`
+ * as route ingest). Pair with {@link dedupeStructuralSubgraphsInModule} (**B4**).
+ */
+export async function buildLibraryHelpersWebIrModule(
+  root: string,
+  sourceApp: string,
+  opts?: LibraryBodyCollectionOptions,
+): Promise<Module | null> {
+  const builder = new ModuleBuilder({ sourceApp });
+  const bodies = await collectLibraryFunctionBodies(root, builder, undefined, opts);
+  if (bodies.size === 0) {
+    return null;
+  }
+  const rootIds = new Set<NodeId>();
+  for (const id of bodies.values()) {
+    rootIds.add(id);
+  }
+  for (const id of rootIds) {
+    builder.addRoot(id);
+  }
+  return builder.finish();
+}
+
+/**
+ * Parse `root/lib/**.php`, optional `root/vendor/**.php`, plus top-level
+ * functions in each `routeSpecs` file, then fixpoint-merge nested
+ * `data.call` effects.
+ */
+export async function buildCallEffectMap(
+  root: string,
+  routeSpecs: ReadonlyArray<RouteFileRef> | undefined,
+  opts?: CallEffectMapOptions,
+): Promise<ReadonlyMap<string, EffectSet>> {
+  const builder = new ModuleBuilder({ sourceApp: `${root}:call-effects` });
+  const bodies = await collectLibraryFunctionBodies(root, builder, routeSpecs, {
+    ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+  });
 
   if (bodies.size === 0) {
     return new Map();

@@ -15,6 +15,10 @@ param(
   [string] $Name = "chrysalis-test-vm",
   [string] $MatrixRepo = "https://github.com/theorem6/wptp-matrix.git",
   [string] $MatrixRef = "v0.1.10",
+  [string] $ChrysalisRepo = "https://github.com/AgenticOp-io/chrysalis.git",
+  [string] $ChrysalisRef = "main",
+  [string] $EmitNextJsRef = "v0.1.1",
+  [switch] $MatrixOnlyHarness,
   [switch] $UseExistingInstance,
   [switch] $TunnelThroughIap,
   [switch] $Recreate,
@@ -99,13 +103,27 @@ $bootstrap = Join-Path $PSScriptRoot "gce-wptp-test-bootstrap.sh"
 if (-not (Test-Path $bootstrap)) { throw "Missing $bootstrap" }
 
 Write-Host "Uploading WPTP bootstrap ..."
-$scpArgs = @("compute", "scp", "--zone=$Zone", "--project=$Project") + $sshExtra + @($bootstrap, "${Name}:gce-wptp-test-bootstrap.sh")
-Invoke-Gcloud -GcloudArgs $scpArgs
+$installDeps = Join-Path $PSScriptRoot "install-wptp-hub-deps.mjs"
+$scpBase = @("compute", "scp", "--zone=$Zone", "--project=$Project") + $sshExtra
+Invoke-Gcloud -GcloudArgs ($scpBase + @($bootstrap, "${Name}:gce-wptp-test-bootstrap.sh"))
+if (Test-Path $installDeps) {
+  Invoke-Gcloud -GcloudArgs ($scpBase + @($installDeps, "${Name}:install-wptp-hub-deps.mjs"))
+}
 
 function BashSingleQuote([string] $s) { return "'" + ($s -replace "'", "'\''") + "'" }
 $qRepo = BashSingleQuote $MatrixRepo
 $qRef = BashSingleQuote $MatrixRef
-$remote = "chmod +x ~/gce-wptp-test-bootstrap.sh && export WPTP_MATRIX_REPO=$qRepo WPTP_MATRIX_REF=$qRef && ~/gce-wptp-test-bootstrap.sh"
+$qChRepo = BashSingleQuote $ChrysalisRepo
+$qChRef = BashSingleQuote $ChrysalisRef
+$qEmitRef = BashSingleQuote $EmitNextJsRef
+$fullHarness = if ($MatrixOnlyHarness) { "0" } else { "1" }
+$remote = @(
+  "chmod +x ~/gce-wptp-test-bootstrap.sh",
+  "export WPTP_MATRIX_REPO=$qRepo WPTP_MATRIX_REF=$qRef",
+  "export CHRYSALIS_GCE_FULL_HARNESS=$fullHarness CHRYSALIS_REPO=$qChRepo CHRYSALIS_REF=$qChRef",
+  "export WPTP_EMIT_NEXTJS_REF=$qEmitRef",
+  "~/gce-wptp-test-bootstrap.sh"
+) -join " && "
 Write-Host "Running WPTP harness on VM (npm ci + harness; often 15-25 min on e2-small) ..."
 $sshCmdArgs = @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command", $remote)
 Invoke-Gcloud -GcloudArgs $sshCmdArgs
