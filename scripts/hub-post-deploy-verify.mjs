@@ -70,6 +70,17 @@ async function runHttpProbes(port) {
         fail("hub-gold-suites", "missing pair.suiteIds");
       } else pass("hub-gold-suites", `${gold.pair.suiteIds.length} suites`);
     }
+    const covRes = await fetch(
+      `http://127.0.0.1:${port}/api/hub/gold-coverage?origin=javascript&output=hono`,
+      { signal: AbortSignal.timeout(8000) },
+    );
+    if (!covRes.ok) fail("hub-gold-coverage", `GET ${covRes.status}`);
+    else {
+      const cov = await covRes.json();
+      if (cov.kind !== "chrysalis.hub.gold-coverage" || cov.pair?.coverageGap === true) {
+        fail("hub-gold-coverage", "unexpected coverage gap for javascript→hono");
+      } else pass("hub-gold-coverage", `gaps ${cov.summary?.coverageGaps ?? "?"}`);
+    }
   } catch (e) {
     fail("hub-http", e.message);
   }
@@ -81,6 +92,7 @@ async function main() {
   const webirDist = join(root, "packages/webir/dist/index.js");
   const ingestDist = join(root, "packages/ingest/dist/index.js");
   const honoDist = join(root, "packages/emit-hono/dist/index.js");
+  const fastifyDist = join(root, "packages/emit-fastify/dist/index.js");
   const operatorWeb = join(root, "scripts/chrysalis-operator-web.mjs");
   const parserVendor = join(root, "packages/parser-bridge/vendor/autoload.php");
   const siblingsRoot = process.env.WPTP_SIBLINGS_ROOT ?? join(root, "..");
@@ -101,6 +113,9 @@ async function main() {
 
     if (await exists(honoDist)) pass("emit-hono-dist", honoDist);
     else fail("emit-hono-dist", `missing ${honoDist}`);
+
+    if (await exists(fastifyDist)) pass("emit-fastify-dist", fastifyDist);
+    else fail("emit-fastify-dist", `missing ${fastifyDist}`);
 
     if (await exists(operatorWeb)) pass("operator-web", operatorWeb);
     else fail("operator-web", `missing ${operatorWeb}`);

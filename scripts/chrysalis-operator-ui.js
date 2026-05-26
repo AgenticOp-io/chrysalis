@@ -295,6 +295,15 @@
   function renderPathGoldCoverage(coverage) {
     const el = $("pathGoldCoverage");
     if (!el) return;
+    if (coverage?.coverageGap) {
+      el.textContent =
+        "Coverage gap: matrix grade is gold but no hub structural suites and no Chrysalis ingest CI lane.";
+      return;
+    }
+    if (coverage?.chrysalisCiGold) {
+      el.textContent = "CI: Chrysalis ingest + emit (PHP oracle path); hub structural suites not required.";
+      return;
+    }
     if (!coverage?.suiteCount) {
       el.textContent = "CI gold suites: none for this emit target (matrix grade may still be gold via another lane).";
       return;

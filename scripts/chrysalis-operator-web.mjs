@@ -18,6 +18,11 @@ import {
   hubGoldTraceReplaySuiteIds,
 } from "./hub-ingest/hub-gold-manifest.mjs";
 import {
+  buildHubGoldCoverageReport,
+  describeHubGoldPairCoverage,
+  HUB_GOLD_COVERAGE_KIND,
+} from "./hub-ingest/hub-gold-coverage.mjs";
+import {
   INPUT_LANGUAGES,
   OUTPUT_LANGUAGES,
   defaultOriginLanguage,
@@ -787,14 +792,32 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/gold-coverage") {
+    const origin = url.searchParams.get("origin") ?? undefined;
+    const output = url.searchParams.get("output") ?? undefined;
+    const report = buildHubGoldCoverageReport();
+    if (origin && output) {
+      const pair = report.pairs.find((p) => p.origin === origin && p.output === output);
+      sendJson(res, 200, {
+        kind: HUB_GOLD_COVERAGE_KIND,
+        schemaVersion: 1,
+        pair: pair ?? describeHubGoldPairCoverage(origin, output),
+        summary: report.summary,
+      });
+      return;
+    }
+    sendJson(res, 200, report);
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/gold-suites") {
     const origin = url.searchParams.get("origin") ?? undefined;
     const output = url.searchParams.get("output") ?? undefined;
     if (origin && output) {
       sendJson(res, 200, {
         kind: "chrysalis.hub.gold-suites",
-        schemaVersion: 1,
-        pair: buildHubGoldSuiteCoverage(origin, output),
+        schemaVersion: 2,
+        pair: describeHubGoldPairCoverage(origin, output),
         route: resolveHubRoute(origin, output),
       });
       return;

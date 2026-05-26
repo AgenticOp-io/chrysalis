@@ -96,6 +96,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G37 — Gold suite coverage API + middleware/CWL Fastify** — **`js-middleware-fastify`**, **`cwl-gold-fastify`** structural/trace suites; **`GET /api/hub/gold-suites`** + **`hubGoldSuitesForPair`**; path explorer shows per-pair CI suite list; **`hub-post-deploy-verify`** probes gold-suites HTTP. (**DESIGN D342**)
 - [x] **G38 — TS structured gold + middleware shell metadata** — **`hub-gold-ts-structured`** fixture; **ts-structured** hono/fastify/cwl + **js-middleware-cwl** suites; lift report **`middlewareShell`** (schema **v2**); **`hub-completion`** schema **v6** gates expected suite counts. (**DESIGN D343**)
 - [x] **G39 — Deploy HTTP gold probe + CI v6 floors** — **`gce-hub-finish-deploy`** probes **`/api/hub/gold-suites`** after hub start; **`hub-post-deploy-verify --http-probe-only`**; **`ci-gates`** rejects v6 suite-count drift; demo doc path explorer section. (**DESIGN D344**)
+- [x] **G40 — Gold coverage matrix** — **`hub-gold-coverage.mjs`** maps **575** pairs to hub CI suites vs Chrysalis ingest gold; **`GET /api/hub/gold-coverage`**; **`hub-completion`** schema **v7**; path explorer shows Chrysalis vs hub CI lanes; deploy verify checks **emit-fastify** + gold-coverage HTTP. (**DESIGN D345**)
 
 ---
 

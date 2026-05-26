@@ -8,6 +8,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } from "../chrysalis-hub-store.mjs";
+import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 import { resolveHubPython } from "./shared.mjs";
 
@@ -104,6 +105,8 @@ async function main() {
     gold.parsed.ok === true && (gold.parsed.suiteCount ?? 0) === structuralSuiteIds.length;
   const traceSuiteCountOk =
     traceParsed.ok === true && (traceParsed.suiteCount ?? 0) === traceSuiteIds.length;
+  const goldCoverage = buildHubGoldCoverageReport();
+  const goldCoverageOk = goldCoverage.summary.coverageGaps === 0;
 
   const ok =
     matrix.status === 0 &&
@@ -114,11 +117,12 @@ async function main() {
     traceSuiteCountOk &&
     nativeEmit.status === 0 &&
     (nativeEmit.parsed.failed ?? 1) === 0 &&
-    synthesisOk;
+    synthesisOk &&
+    goldCoverageOk;
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 6,
+    schemaVersion: 7,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -153,6 +157,13 @@ async function main() {
       pairCount: synthesis.parsed.universe?.pairCount ?? 0,
       goldPairs: synthesis.parsed.gradeSummary?.gold ?? 0,
       originCount: synthesis.parsed.universe?.originCount ?? 0,
+    },
+    goldCoverage: {
+      ok: goldCoverageOk,
+      goldMatrix: goldCoverage.summary.goldMatrix,
+      hubCiStructuralPairs: goldCoverage.summary.hubCiStructuralPairs,
+      chrysalisCiGoldPairs: goldCoverage.summary.chrysalisCiGoldPairs,
+      coverageGaps: goldCoverage.summary.coverageGaps,
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

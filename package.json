@@ -74,6 +74,7 @@
     "hub:serve": "node scripts/chrysalis-operator-web.mjs",
     "hub:matrix-smoke": "node scripts/hub-ingest/hub-matrix-smoke.mjs",
     "hub:gold-verify": "node scripts/hub-ingest/hub-gold-verify.mjs",
+    "hub:gold-coverage": "node scripts/hub-ingest/hub-gold-coverage.mjs --json-out reports/ci/hub-gold-coverage.json",
     "hub:wptp-gold-smoke": "node scripts/hub-ingest/hub-wptp-gold-smoke.mjs",
     "hub:completion": "node scripts/hub-ingest/hub-completion.mjs",
     "hub:path-matrix": "node scripts/hub-ingest/hub-path-matrix.mjs",
