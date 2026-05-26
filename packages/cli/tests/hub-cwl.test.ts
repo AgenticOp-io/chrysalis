@@ -81,3 +81,23 @@ test("hub gold verify: js middleware fixture hole-free (G34 batch)", () => {
   });
   expect(r.status).toBe(0);
 }, 130_000);
+
+test("hub gold verify: python structured to cwl and fastify (G36)", () => {
+  for (const suite of ["python-structured-cwl", "python-structured-fastify"]) {
+    const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    expect(r.status).toBe(0);
+  }
+}, 180_000);
+
+test("hub gold verify: js structured to cwl (G36)", () => {
+  const r = spawnSync(process.execPath, [GOLD, "--suite", "js-structured-cwl"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  expect(r.status).toBe(0);
+}, 130_000);

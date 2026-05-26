@@ -152,9 +152,11 @@
       </div>
       <div class="card">
         <h2 style="margin-top:0">Synthesis overview</h2>
-        <p id="pathSynthesisSummary" class="muted">Load synthesis to see gold/silver/open counts and origin clusters.</p>
+        <p id="pathSynthesisSummary" class="muted">Loading synthesis…</p>
+        <h3>Gold pairs</h3>
+        <ul id="pathGoldPairs" class="muted"></ul>
         <div class="row">
-          <button type="button" class="secondary" id="btnLoadSynthesis">Load synthesis</button>
+          <button type="button" class="secondary" id="btnLoadSynthesis">Reload synthesis</button>
         </div>
         <pre class="json" id="pathSynthesisJson" style="max-height:12rem">—</pre>
       </div>
@@ -377,6 +379,6 @@
       <button type="button" class="primary" id="btnSaveToken">Continue</button>
     </div>
   </div>
-  <script src="/ui.js?v=hub-path-explorer-1"></script>
+  <script src="/ui.js?v=hub-path-explorer-2"></script>
 </body>
 </html>

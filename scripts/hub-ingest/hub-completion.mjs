@@ -8,6 +8,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } from "../chrysalis-hub-store.mjs";
+import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 import { resolveHubPython } from "./shared.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -108,9 +109,12 @@ async function main() {
     (nativeEmit.parsed.failed ?? 1) === 0 &&
     synthesisOk;
 
+  const structuralSuiteIds = hubGoldStructuralSuiteIds();
+  const traceSuiteIds = hubGoldTraceReplaySuiteIds();
+
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 4,
+    schemaVersion: 5,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -119,12 +123,14 @@ async function main() {
     },
     goldVerify: {
       ok: gold.parsed.ok === true,
-      suiteCount: gold.parsed.suiteCount ?? 1,
+      suiteCount: gold.parsed.suiteCount ?? structuralSuiteIds.length,
+      suiteIds: structuralSuiteIds,
     },
     traceReplay: {
       ok: traceParsed.ok === true,
       correctness: traceParsed.correctness ?? 0,
-      suiteCount: traceParsed.suiteCount ?? 1,
+      suiteCount: traceParsed.suiteCount ?? traceSuiteIds.length,
+      suiteIds: traceSuiteIds,
       targets: ["hono", "fastify"],
     },
     nativeEmitSmoke: {

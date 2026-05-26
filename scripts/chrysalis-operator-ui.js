@@ -176,29 +176,71 @@
 
   let pathCatalogLoaded = false;
 
+  function pathExplorerQuery() {
+    const h = location.hash || "#/";
+    const q = h.includes("?") ? h.slice(h.indexOf("?") + 1) : "";
+    return new URLSearchParams(q);
+  }
+
+  function syncPathExplorerHash() {
+    const origin = $("pathOrigin")?.value;
+    const output = $("pathOutput")?.value;
+    if (!origin || !output) return;
+    const next = `#/paths?${new URLSearchParams({ origin, output }).toString()}`;
+    if (location.hash !== next) history.replaceState(null, "", next);
+  }
+
+  function renderPathGoldPairs(goldPairs) {
+    const ul = $("pathGoldPairs");
+    if (!ul) return;
+    ul.innerHTML = "";
+    for (const p of goldPairs || []) {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = `#/paths?${new URLSearchParams({ origin: p.origin, output: p.output }).toString()}`;
+      a.textContent = `${p.origin} → ${p.output}`;
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        if ($("pathOrigin")) $("pathOrigin").value = p.origin;
+        if ($("pathOutput")) $("pathOutput").value = p.output;
+        syncPathExplorerHash();
+        loadPathPair().catch(() => {});
+      });
+      li.appendChild(a);
+      ul.appendChild(li);
+    }
+    if (!goldPairs?.length) ul.innerHTML = "<li class=\"muted\">No gold pairs in synthesis.</li>";
+  }
+
   async function initPathExplorer() {
-    if (pathCatalogLoaded) return;
     const matrix = await api("/api/hub/target-matrix");
     const originSel = $("pathOrigin");
     const outputSel = $("pathOutput");
     if (!originSel || !outputSel) return;
-    originSel.innerHTML = "";
-    outputSel.innerHTML = "";
-    for (const lang of matrix.inputLanguages || []) {
-      const opt = document.createElement("option");
-      opt.value = lang.id;
-      opt.textContent = lang.label || lang.id;
-      originSel.appendChild(opt);
+    if (!pathCatalogLoaded) {
+      originSel.innerHTML = "";
+      outputSel.innerHTML = "";
+      for (const lang of matrix.inputLanguages || []) {
+        const opt = document.createElement("option");
+        opt.value = lang.id;
+        opt.textContent = lang.label || lang.id;
+        originSel.appendChild(opt);
+      }
+      for (const lang of matrix.outputLanguages || []) {
+        const opt = document.createElement("option");
+        opt.value = lang.id;
+        opt.textContent = lang.label || lang.id;
+        outputSel.appendChild(opt);
+      }
+      if (matrix.defaultOrigin) originSel.value = matrix.defaultOrigin;
+      if (matrix.defaultOutput) outputSel.value = matrix.defaultOutput;
+      pathCatalogLoaded = true;
     }
-    for (const lang of matrix.outputLanguages || []) {
-      const opt = document.createElement("option");
-      opt.value = lang.id;
-      opt.textContent = lang.label || lang.id;
-      outputSel.appendChild(opt);
-    }
-    if (matrix.defaultOrigin) originSel.value = matrix.defaultOrigin;
-    if (matrix.defaultOutput) outputSel.value = matrix.defaultOutput;
-    pathCatalogLoaded = true;
+    const q = pathExplorerQuery();
+    if (q.get("origin")) originSel.value = q.get("origin");
+    if (q.get("output")) outputSel.value = q.get("output");
+    await loadPathSynthesis();
+    if (q.get("origin") && q.get("output")) await loadPathPair();
   }
 
   async function loadPathSynthesis() {
@@ -211,9 +253,11 @@
       if (summary) {
         summary.textContent = `${data.universe?.pairCount ?? 0} pairs · gold ${g.gold ?? 0} · silver ${g.silver ?? 0} · open ${g.open ?? 0} · ${data.goldPairs?.length ?? 0} gold pairs listed`;
       }
+      renderPathGoldPairs(data.goldPairs);
       if (jsonEl) jsonEl.textContent = JSON.stringify(data, null, 2);
     } catch (e) {
       if (summary) summary.textContent = "Error: " + e.message;
+      renderPathGoldPairs(null);
       if (jsonEl) jsonEl.textContent = "—";
     }
   }
@@ -269,6 +313,7 @@
         differences: data.pair?.differences,
         bestPractices: data.bestPractices,
       });
+      syncPathExplorerHash();
       if (jsonEl) jsonEl.textContent = JSON.stringify(data, null, 2);
     } catch (e) {
       if (summary) summary.textContent = "Error: " + e.message;
@@ -276,6 +321,13 @@
       if (jsonEl) jsonEl.textContent = "—";
     }
   }
+
+  $("pathOrigin")?.addEventListener("change", () => {
+    syncPathExplorerHash();
+  });
+  $("pathOutput")?.addEventListener("change", () => {
+    syncPathExplorerHash();
+  });
 
   async function loadPathMatrixFiltered() {
     const origin = $("pathOrigin")?.value;

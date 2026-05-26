@@ -92,6 +92,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G33 — Synthesis API + completion v3** — **`GET /api/hub/cross-language-synthesis`**; **`hub-completion`** schema **v3** gates synthesis (**575** pairs) + **CWL** native emit smoke; **`ci-gates`** accepts v3. (**DESIGN D338**)
 - [x] **G34 — Gold depth + path explorer UI** — Expanded **hub-gold-manifest** (structured JSON, **CWL round-trip**, **JS/TS/PY→CWL**); **`lift-to-webir`** skips **`generated/`**; operator **Path explorer** (`#/paths`); **`resolveHubPython`**; middleware gold fixture; **17** matrix gold pairs; full trace replay on hono gold suites. (**DESIGN D339**)
 - [x] **G35 — Fastify gold trace replay + lift metadata** — **Fastify** structural/trace suites mirror key **Hono** gold paths; **`hub-gold-trace-replay`** installs **fastify** or **hono** per target; lift reports **`middlewareUseCount`**; **`hub-completion`** schema **v4**. (**DESIGN D340**)
+- [x] **G36 — Structured gold parity + path explorer depth** — **Python structured** and **JS structured → CWL** gold verify; **TS literal → Fastify** trace replay; **`hub-completion`** schema **v5** lists structural/trace suite ids; operator path explorer auto-loads synthesis, gold-pair links, and **`#/paths?origin=&output=`** deep links. Matrix gold count unchanged (**17**). (**DESIGN D341**)
 
 ---
 

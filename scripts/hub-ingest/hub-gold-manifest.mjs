@@ -37,6 +37,14 @@ export const HUB_GOLD_SUITES = [
     traceReplay: true,
   },
   {
+    id: "ts-literal-fastify",
+    fixture: join(scriptRoot, "fixtures/hub-gold-ts-literal"),
+    origin: "typescript",
+    emitTarget: "fastify",
+    structural: true,
+    traceReplay: true,
+  },
+  {
     id: "js-structured-hono",
     fixture: join(scriptRoot, "fixtures/hub-gold-js-structured"),
     origin: "javascript",
@@ -51,6 +59,14 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "fastify",
     structural: true,
     traceReplay: true,
+  },
+  {
+    id: "js-structured-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-js-structured"),
+    origin: "javascript",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
   },
   {
     id: "js-middleware-hono",
@@ -83,6 +99,22 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "hono",
     structural: true,
     traceReplay: true,
+  },
+  {
+    id: "python-structured-fastify",
+    fixture: join(scriptRoot, "fixtures/hub-gold-python-structured"),
+    origin: "python",
+    emitTarget: "fastify",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "python-structured-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-python-structured"),
+    origin: "python",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
   },
   {
     id: "cwl-gold-hono",
@@ -136,4 +168,14 @@ export function resolveGoldSuites(id) {
   const found = HUB_GOLD_SUITES.filter((s) => s.id === id);
   if (found.length === 0) throw new Error(`unknown hub gold suite: ${id}`);
   return found;
+}
+
+/** @returns {string[]} */
+export function hubGoldStructuralSuiteIds() {
+  return HUB_GOLD_SUITES.filter((s) => s.structural).map((s) => s.id);
+}
+
+/** @returns {string[]} */
+export function hubGoldTraceReplaySuiteIds() {
+  return HUB_GOLD_SUITES.filter((s) => s.traceReplay).map((s) => s.id);
 }
