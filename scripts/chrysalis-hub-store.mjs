@@ -19,6 +19,22 @@ import {
   popularityRank,
 } from "./hub-ingest/language-catalog.mjs";
 import { PATTERN_LIFT_LANGUAGE_IDS } from "./hub-ingest/pattern-route-parsers.mjs";
+import { describeTranslationPath } from "./hub-ingest/hub-translation-paths.mjs";
+
+export {
+  buildHubTranslationPathMatrix,
+  describeTranslationPath,
+  HUB_PATH_MATRIX_KIND,
+  HUB_PATH_MATRIX_SCHEMA_VERSION,
+} from "./hub-ingest/hub-translation-paths.mjs";
+export {
+  buildHubPathKnowledgeBase,
+  queryPathKnowledge,
+  HUB_PATH_KNOWLEDGE_KIND,
+  HUB_PATH_KNOWLEDGE_SCHEMA_VERSION,
+  BEST_PRACTICES,
+  LANGUAGE_PROFILES,
+} from "./hub-ingest/hub-path-knowledge.mjs";
 
 /** Asset/config origins: one GET route per scanned file (no semantic parser). */
 const SILVER_FILE_LIFT_ORIGIN_IDS = new Set([
@@ -186,17 +202,46 @@ function specForPair(sourceLang, outputLang) {
   }
 
   if (
-    (outputLang === "ruby" || outputLang === "csharp" || outputLang === "rust") &&
+    (outputLang === "ruby" ||
+      outputLang === "csharp" ||
+      outputLang === "rust" ||
+      outputLang === "kotlin" ||
+      outputLang === "scala" ||
+      outputLang === "swift") &&
     sourceLang !== "php"
   ) {
     const stack =
-      outputLang === "ruby" ? "Sinatra" : outputLang === "csharp" ? "ASP.NET" : "actix-web";
+      outputLang === "ruby"
+        ? "Sinatra"
+        : outputLang === "csharp"
+          ? "ASP.NET"
+          : outputLang === "rust"
+            ? "actix-web"
+            : outputLang === "kotlin"
+              ? "Ktor"
+              : outputLang === "scala"
+                ? "Akka HTTP"
+                : "Vapor";
     return {
       status: "ready",
       action: "hub-translate",
       emitTarget: null,
       grade: "silver",
-      label: `${label} (hub WebIR → ${stack} emit, G28)`,
+      label: `${label} (hub WebIR → ${stack} emit, G30)`,
+    };
+  }
+
+  const hubLiteralGoldPy =
+    sourceLang === "python" &&
+    (outputLang === "typescript" || outputLang === "hono" || outputLang === "fastify");
+  if (hubLiteralGoldPy) {
+    const target = outputLang === "typescript" ? "hono" : outputLang;
+    return {
+      status: "ready",
+      action: "hub-translate",
+      emitTarget: target,
+      grade: "gold",
+      label: `${LANGUAGE_LABELS.python} → ${LANGUAGE_LABELS[target] ?? target} (hub literal lift + WebIR emit; G30)`,
     };
   }
 
@@ -462,7 +507,8 @@ function readinessForOrigin(languageId) {
       emitStatus: "open-scaffold-or-ts",
       done: [
         "CPython ast route lift (G22): Flask/FastAPI-style decorators when python3 is on PATH.",
-        "Literal returns lowered; dict/call bodies remain holes.",
+        "Literal and simple dict returns lowered; other bodies remain holes.",
+        "Literal python -> hono/fastify/typescript is gold when hub-gold-verify passes (G30).",
         "Contract-first WPTP compose when OpenAPI/HAR present (G20).",
       ],
       notDone: [
@@ -604,15 +650,32 @@ function readinessForOutput(languageId) {
       ],
     };
   }
-  if (languageId === "ruby" || languageId === "csharp" || languageId === "rust") {
+  if (
+    languageId === "ruby" ||
+    languageId === "csharp" ||
+    languageId === "rust" ||
+    languageId === "kotlin" ||
+    languageId === "scala" ||
+    languageId === "swift"
+  ) {
     const stack =
-      languageId === "ruby" ? "Sinatra" : languageId === "csharp" ? "ASP.NET" : "actix-web";
+      languageId === "ruby"
+        ? "Sinatra"
+        : languageId === "csharp"
+          ? "ASP.NET"
+          : languageId === "rust"
+            ? "actix-web"
+            : languageId === "kotlin"
+              ? "Ktor"
+              : languageId === "scala"
+                ? "Akka HTTP"
+                : "Vapor";
     return {
       id: languageId,
       label: LANGUAGE_LABELS[languageId] ?? languageId,
       popularityRank: popularityRank(languageId),
       emitStatus: "silver-hub-native",
-      done: [`Hub WebIR -> ${stack} emit (emit-${languageId}-from-hub.mjs, G28).`],
+      done: [`Hub WebIR -> ${stack} emit (emit-${languageId}-from-hub.mjs, G30).`],
       notDone: [
         `Native @chrysalis/ingest and oracle verify for ${languageId} are not implemented.`,
         "Non-literal handler bodies remain holes.",
@@ -638,6 +701,7 @@ function buildPairReadiness(origins, outputs) {
     for (const output of outputs) {
       if (origin.id === output.id) continue;
       const route = resolveHubRoute(origin.id, output.id);
+      const path = describeTranslationPath(origin.id, output.id);
       rows.push({
         origin: origin.id,
         output: output.id,
@@ -646,6 +710,9 @@ function buildPairReadiness(origins, outputs) {
         runnable: Boolean(route.ok),
         ingestStatus: origin.ingestStatus,
         emitStatus: output.emitStatus ?? origin.emitStatus ?? "open-scaffold",
+        ingestLane: path.ingest.lane,
+        emitLane: path.emit.lane,
+        verifyLanes: path.verify.lanes,
         next:
           origin.notDone?.[0] ??
           output.notDone?.[0] ??

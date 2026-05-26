@@ -34,6 +34,13 @@ test("hub store: resolveHubRoute gold path for php → typescript", async () => 
   expect(route.grade).toBe("gold");
 });
 
+test("hub store: resolveHubRoute gold for python → hono (G30)", async () => {
+  const { resolveHubRoute } = await import(HUB_STORE);
+  const route = resolveHubRoute("python", "hono");
+  expect(route.ok).toBe(true);
+  expect(route.grade).toBe("gold");
+});
+
 test("hub store: resolveHubRoute hub-translate for python → java", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
   const route = resolveHubRoute("python", "java");

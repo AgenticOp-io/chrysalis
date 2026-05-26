@@ -1,41 +1,52 @@
 #!/usr/bin/env node
 /**
- * Gold gate: hub literal-only JS/TS lift must be hole-free and emit Hono.
- * Usage: node scripts/hub-ingest/hub-gold-verify.mjs [--fixture fixtures/hub-gold-js-literal]
+ * Gold gate: hub literal-only lift must be hole-free and emit target framework.
+ * Usage:
+ *   node scripts/hub-ingest/hub-gold-verify.mjs
+ *   node scripts/hub-ingest/hub-gold-verify.mjs --suite js-literal-hono
  */
 import { spawnSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 const emitScript = join(scriptRoot, "scripts/hub-ingest/emit-from-hub.mjs");
 
 function parseArgs(argv) {
-  let fixture = join(scriptRoot, "fixtures/hub-gold-js-literal");
+  let suiteId = null;
+  let fixture = null;
   let origin = "javascript";
+  let emitTarget = "hono";
   for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === "--fixture" && argv[i + 1]) fixture = resolve(argv[++i]);
+    if (argv[i] === "--suite" && argv[i + 1]) suiteId = argv[++i];
+    else if (argv[i] === "--fixture" && argv[i + 1]) fixture = resolve(argv[++i]);
     else if (argv[i] === "--origin" && argv[i + 1]) origin = argv[++i];
+    else if (argv[i] === "--target" && argv[i + 1]) emitTarget = argv[++i];
   }
-  return { fixture, origin };
+  return { suiteId, fixture, origin, emitTarget };
 }
 
-async function main() {
-  const { fixture, origin } = parseArgs(process.argv);
+/**
+ * @param {{ fixture: string, origin: string, emitTarget: string, id?: string }} suite
+ */
+export async function runGoldVerifySuite(suite) {
+  const fixture = suite.fixture;
+  const origin = suite.origin;
+  const emitTarget = suite.emitTarget;
+
   const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", origin], {
     cwd: scriptRoot,
     encoding: "utf8",
   });
   if (lift.status !== 0) {
-    console.error(lift.stderr || lift.stdout);
-    process.exit(1);
+    return { ok: false, reason: "lift-failed", stderr: lift.stderr, stdout: lift.stdout };
   }
   const liftReport = JSON.parse(lift.stdout.trim().split("\n").pop() ?? "{}");
   if ((liftReport.holeCount ?? 1) !== 0) {
-    console.error(JSON.stringify({ ok: false, reason: "lift-holes", liftReport }, null, 2));
-    process.exit(1);
+    return { ok: false, reason: "lift-holes", liftReport };
   }
 
   const webir = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
@@ -43,32 +54,55 @@ async function main() {
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const footprint = webir.computeOracleFootprint(mod);
   if (footprint.totalHoleCount !== 0) {
-    console.error(JSON.stringify({ ok: false, reason: "footprint-holes", footprint }, null, 2));
-    process.exit(1);
+    return { ok: false, reason: "footprint-holes", footprint };
   }
 
-  const emit = spawnSync(process.execPath, [emitScript, fixture, "--origin", origin, "--target", "hono"], {
+  const emit = spawnSync(process.execPath, [emitScript, fixture, "--origin", origin, "--target", emitTarget], {
     cwd: scriptRoot,
     encoding: "utf8",
   });
   if (emit.status !== 0) {
-    console.error(emit.stderr || emit.stdout);
-    process.exit(1);
+    return { ok: false, reason: "emit-failed", stderr: emit.stderr, stdout: emit.stdout };
   }
   const emitReport = JSON.parse(emit.stdout.trim().split("\n").pop() ?? "{}");
+
+  return {
+    ok: true,
+    id: suite.id,
+    fixture,
+    origin,
+    output: emitTarget,
+    lift: liftReport,
+    footprint,
+    emit: emitReport,
+  };
+}
+
+async function main() {
+  const { suiteId, fixture, origin, emitTarget } = parseArgs(process.argv);
+  const suites = fixture
+    ? [{ id: "custom", fixture, origin, emitTarget, structural: true, traceReplay: false }]
+    : resolveGoldSuites(suiteId ?? undefined);
+
+  const results = [];
+  for (const suite of suites) {
+    if (!suite.structural) continue;
+    const r = await runGoldVerifySuite(suite);
+    results.push(r);
+    if (!r.ok) {
+      console.error(JSON.stringify({ kind: "chrysalis.hub.gold-verify", ok: false, results }, null, 2));
+      process.exit(1);
+    }
+  }
 
   console.log(
     JSON.stringify(
       {
         kind: "chrysalis.hub.gold-verify",
-        schemaVersion: 0,
-        fixture,
-        origin,
-        output: "hono",
-        lift: liftReport,
-        footprint,
-        emit: emitReport,
+        schemaVersion: 1,
         ok: true,
+        suiteCount: results.length,
+        results,
       },
       null,
       2,

@@ -149,6 +149,8 @@ On GCE, tag the hub VM and add `tcp:19090` (see `docs/DEPLOYMENT.md`).
 
 ## Hub translation pipeline (all origin → output pairs)
 
+For the **full origin×output path model** (ingest / WebIR / emit / verify lanes, grades, contract alternates), see **[HUB-TRANSLATION-PATHS.md](./HUB-TRANSLATION-PATHS.md)** and `pnpm run hub:path-matrix`.
+
 Scripts under `scripts/hub-ingest/` implement the full path:
 
 | Step | Script | When |
@@ -162,6 +164,7 @@ Scripts under `scripts/hub-ingest/` implement the full path:
 | Gold verify (literal JS/TS) | `hub-gold-verify.mjs` | `pnpm run hub:gold-verify` — zero-hole lift + Hono emit (**G26**) |
 | WPTP contract gold smoke | `hub-wptp-gold-smoke.mjs` | `pnpm run hub:wptp-gold-smoke` when **`wptp-matrix`** sibling exists |
 | Emit Java / Go | `emit-java-from-hub.mjs`, `emit-go-from-hub.mjs` | Output **java** / **go** from hub WebIR (**G27**) |
+| Path matrix export | `hub-path-matrix.mjs` | `pnpm run hub:path-matrix` — JSON for every pair (**G29**) |
 | Completion gate | `hub-completion.mjs` | `pnpm run ci:hub-completion` — matrix smoke + gold verify + trace replay (CI) |
 | Trace replay oracle | `hub-gold-trace-replay.mjs` | In-process **`@chrysalis/verify`** replay against emitted Hono (**G28**) |
 | Emit Ruby / C# / Rust | `emit-ruby-from-hub.mjs`, etc. | Output **ruby**, **csharp**, **rust** from hub WebIR (**G28**) |

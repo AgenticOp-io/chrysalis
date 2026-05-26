@@ -85,6 +85,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G26 — Hub native Python emit + second gold pair** — **`emit-python-from-hub.mjs`** (Flask from WebIR); **javascript/typescript → hono/fastify** promoted to **gold** when literal-only (**`hub-gold-verify`**, fixture **`hub-gold-js-literal`**); **`hub:wptp-gold-smoke`** for contract-first WPTP when **`wptp-matrix`** sibling present. (**DESIGN D331**)
 - [x] **G27 — Hub completion CI + Java/Go native emit** — **`emit-java-from-hub.mjs`**, **`emit-go-from-hub.mjs`**, **`hub-completion.mjs`**, **`ci:hub-completion`** gate in **`typecheck-and-test`**; **`hub-load-routes.mjs`**. (**DESIGN D332**)
 - [x] **G28 — Hub completion finish** — **`res.json`** / object literal JS lowering; **`hub-gold-trace-replay`** in-process verify oracle; native emit **ruby/csharp/rust**; **wptp-matrix** checkout + **`hub:wptp-gold-smoke`** in CI. (**DESIGN D333**)
+- [x] **G29 — Translation path matrix** — **`hub-translation-paths.mjs`** (ingest/IR/emit/verify lanes per origin×output); **`hub:path-matrix`**; **`GET /api/hub/translation-path-matrix`**; **`docs/HUB-TRANSLATION-PATHS.md`**. (**DESIGN D334**)
+- [x] **G30 — Hub comprehensive paths program** — Native emit **kotlin/scala/swift**; **python** literal→hono **gold** + dict lowering; **`hub-gold-manifest`** multi-suite verify/replay; **`oracle-python`** + **`oracle-node`** recorders; **`hub-oracle-record`**, **`hub-native-emit-smoke`**; **`hub-completion`** schema v2. (**DESIGN D335**)
+- [x] **G31 — Path knowledge base** — **`hub-path-knowledge.mjs`**: all **528** pairs with **similarities**, **differences**, **best practices**, language profiles, lane comparisons; **`pnpm run hub:path-knowledge`**; **`GET /api/hub/path-knowledge`**; **`docs/HUB-PATH-KNOWLEDGE.md`**. (**DESIGN D336**)
 
 ---
 

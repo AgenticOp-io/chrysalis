@@ -22,8 +22,10 @@ test("hub gold verify: literal javascript lift is hole-free and emits hono (G26)
   const report = JSON.parse(r.stdout);
   expect(report.kind).toBe("chrysalis.hub.gold-verify");
   expect(report.ok).toBe(true);
-  expect(report.footprint.totalHoleCount).toBe(0);
-}, 130_000);
+  expect(report.suiteCount).toBeGreaterThanOrEqual(1);
+  const js = report.results?.find((r: { id?: string }) => r.id === "js-literal-hono");
+  expect(js?.footprint?.totalHoleCount).toBe(0);
+}, 180_000);
 
 test("hub store: javascript to hono is gold (G26)", async () => {
   const hub = await import(fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url)));

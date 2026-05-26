@@ -132,6 +132,9 @@ export async function runHubEmitPipeline(projectDir, origin, output) {
     ruby: "emit-ruby-from-hub.mjs",
     csharp: "emit-csharp-from-hub.mjs",
     rust: "emit-rust-from-hub.mjs",
+    kotlin: "emit-kotlin-from-hub.mjs",
+    scala: "emit-scala-from-hub.mjs",
+    swift: "emit-swift-from-hub.mjs",
   };
   if (nativeEmitScripts[output]) {
     try {

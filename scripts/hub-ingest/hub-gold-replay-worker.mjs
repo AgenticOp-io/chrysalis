@@ -56,11 +56,24 @@ function mkTrace(o) {
   };
 }
 
+function parseArgs(argv) {
+  let fixture = join(scriptRoot, "fixtures/hub-gold-js-literal");
+  let origin = "javascript";
+  let target = "hono";
+  const positional = [];
+  for (let i = 2; i < argv.length; i++) {
+    if (argv[i] === "--origin" && argv[i + 1]) origin = argv[++i];
+    else if (argv[i] === "--target" && argv[i + 1]) target = argv[++i];
+    else if (!argv[i].startsWith("-")) positional.push(argv[i]);
+  }
+  if (positional[0]) fixture = resolve(positional[0]);
+  return { fixture, origin, target };
+}
+
 async function main() {
-  const fixture = resolve(process.argv[2] ?? join(scriptRoot, "fixtures/hub-gold-js-literal"));
-  const origin = "javascript";
+  const { fixture, origin, target } = parseArgs(process.argv);
   const webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
-  const serverPath = join(fixture, "generated/hono/src/server.ts");
+  const serverPath = join(fixture, "generated", target, "src/server.ts");
 
   const webirMod = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
   const raw = JSON.parse(await readFile(webirPath, "utf8"));
@@ -112,6 +125,8 @@ async function main() {
       kind: "chrysalis.hub.trace-replay",
       schemaVersion: 0,
       fixture,
+      origin,
+      emitTarget: target,
       routeCount: routes.length,
       traceCount: traces.length,
       correctness,

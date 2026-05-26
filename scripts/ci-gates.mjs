@@ -710,8 +710,8 @@ function assertHubCompletion(path) {
   if (s.kind !== "chrysalis.hub.completion") {
     fail(`${label}: expected kind chrysalis.hub.completion, got ${JSON.stringify(s.kind)}`);
   }
-  if (s.schemaVersion !== 0 && s.schemaVersion !== 1) {
-    fail(`${label}: expected schemaVersion 0 or 1, got ${JSON.stringify(s.schemaVersion)}`);
+  if (s.schemaVersion !== 0 && s.schemaVersion !== 1 && s.schemaVersion !== 2) {
+    fail(`${label}: expected schemaVersion 0–2, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -724,6 +724,9 @@ function assertHubCompletion(path) {
   }
   if (s.schemaVersion >= 1 && s.traceReplay?.ok !== true) {
     fail(`${label}: traceReplay.ok must be true (correctness=${s.traceReplay?.correctness})`);
+  }
+  if (s.schemaVersion >= 2 && s.nativeEmitSmoke?.ok !== true) {
+    fail(`${label}: nativeEmitSmoke.ok must be true (failed=${s.nativeEmitSmoke?.failed})`);
   }
   const g = s.routeGrades;
   if (!g || typeof g.gold !== "number" || typeof g.silver !== "number" || typeof g.open !== "number") {

@@ -30,6 +30,9 @@ import {
   planSiteTranslation,
   buildLanguageReadinessReport,
   buildLanguageWorkQueue,
+  buildHubTranslationPathMatrix,
+  buildHubPathKnowledgeBase,
+  queryPathKnowledge,
   prepAllProjectSites,
   prepProjectSite,
   removeProjectSite,
@@ -751,6 +754,24 @@ const server = createServer(async (req, res) => {
       .map((s) => s.trim().toLowerCase())
       .filter((g) => g === "gold" || g === "silver" || g === "open");
     sendJson(res, 200, buildLanguageWorkQueue({ scope, grades: grades.length ? grades : undefined }));
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/translation-path-matrix") {
+    const origin = url.searchParams.get("origin") ?? undefined;
+    const output = url.searchParams.get("output") ?? undefined;
+    sendJson(res, 200, buildHubTranslationPathMatrix({ origin, output }));
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/path-knowledge") {
+    const origin = url.searchParams.get("origin") ?? undefined;
+    const output = url.searchParams.get("output") ?? undefined;
+    if (origin && output) {
+      sendJson(res, 200, queryPathKnowledge(origin, output));
+    } else {
+      sendJson(res, 200, buildHubPathKnowledgeBase({ origin, output }));
+    }
     return;
   }
 

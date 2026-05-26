@@ -78,6 +78,16 @@ async function main() {
   } catch {
     traceParsed = {};
   }
+  const nativeEmit = runJson(join(scriptRoot, "scripts/hub-ingest/hub-native-emit-smoke.mjs"), []);
+  const oraclePy = spawnSync(process.env.CHRYSALIS_HUB_PYTHON ?? "python3", [
+    join(scriptRoot, "packages/oracle-python/record_smoke.py"),
+    join(scriptRoot, "reports/ci/hub-oracle-python-smoke.ndjson"),
+  ], { cwd: scriptRoot, encoding: "utf8" });
+  const oracleNode = spawnSync(process.execPath, [
+    join(scriptRoot, "packages/oracle-node/record-smoke.mjs"),
+    join(scriptRoot, "reports/ci/hub-oracle-node-smoke.ndjson"),
+  ], { cwd: scriptRoot, encoding: "utf8" });
+
   const routeGrades = summarizeRouteGrades();
   const ok =
     matrix.status === 0 &&
@@ -85,22 +95,36 @@ async function main() {
     gold.status === 0 &&
     gold.parsed.ok === true &&
     traceReplay.status === 0 &&
-    traceParsed.ok === true;
+    traceParsed.ok === true &&
+    nativeEmit.status === 0 &&
+    (nativeEmit.parsed.failed ?? 1) === 0;
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 1,
+    schemaVersion: 2,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
       failed: matrix.parsed.failed ?? 0,
       skipped: matrix.parsed.skipped ?? 0,
     },
-    goldVerify: { ok: gold.parsed.ok === true },
+    goldVerify: {
+      ok: gold.parsed.ok === true,
+      suiteCount: gold.parsed.suiteCount ?? 1,
+    },
     traceReplay: {
       ok: traceParsed.ok === true,
       correctness: traceParsed.correctness ?? 0,
-      routeCount: traceParsed.routeCount ?? 0,
+      suiteCount: traceParsed.suiteCount ?? 1,
+    },
+    nativeEmitSmoke: {
+      ok: nativeEmit.status === 0 && (nativeEmit.parsed.failed ?? 1) === 0,
+      passed: nativeEmit.parsed.passed ?? 0,
+      failed: nativeEmit.parsed.failed ?? 0,
+    },
+    oracleRecorders: {
+      python: oraclePy.status === 0,
+      node: oracleNode.status === 0,
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

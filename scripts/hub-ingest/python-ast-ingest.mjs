@@ -43,6 +43,24 @@ def const_val(node):
         return node.value
     return None
 
+def const_dict(node):
+    if not isinstance(node, ast.Dict):
+        return None
+    out = {}
+    for k, v in zip(node.keys, node.values):
+        if k is None:
+            return None
+        key = const_str(k) if not isinstance(k, ast.Constant) else (k.value if isinstance(k.value, str) else None)
+        if key is None and isinstance(k, ast.Constant) and isinstance(k.value, str):
+            key = k.value
+        if key is None:
+            return None
+        val = const_val(v)
+        if val is None:
+            return None
+        out[key] = val
+    return out
+
 def methods_from_keywords(kw):
     for k in kw:
         if k.arg == "methods" and isinstance(k.value, (ast.List, ast.Tuple)):
@@ -97,7 +115,11 @@ for node in tree.body:
                 last = node.body[-1]
                 if isinstance(last, ast.Return) and last.value is not None:
                     v = const_val(last.value)
-                    if v is not None and not isinstance(v, dict):
+                    d = const_dict(last.value) if isinstance(last.value, ast.Dict) else None
+                    if d is not None:
+                        routes[-1]["returnKind"] = "literal"
+                        routes[-1]["returnValue"] = d
+                    elif v is not None and not isinstance(v, dict):
                         routes[-1]["returnKind"] = "literal"
                         routes[-1]["returnValue"] = v
                     elif isinstance(last.value, ast.Dict):
@@ -160,23 +182,60 @@ export function liftPythonFileToWebir(opts) {
     let bodyId;
     if (r.returnKind === "literal" && r.returnValue !== undefined && r.returnValue !== null) {
       const v = r.returnValue;
-      const type =
-        typeof v === "string"
-          ? T.string
-          : typeof v === "boolean"
-            ? T.bool
-            : typeof v === "number"
-              ? T.int
-              : T.unknown;
+      let valId;
+      if (v !== null && typeof v === "object" && !Array.isArray(v)) {
+        const flat = [];
+        for (const [key, val] of Object.entries(v)) {
+          const t =
+            typeof val === "string"
+              ? T.string
+              : typeof val === "boolean"
+                ? T.bool
+                : typeof val === "number"
+                  ? T.int
+                  : T.unknown;
+          flat.push(
+            data.literal({
+              value: key,
+              type: T.string,
+              origin,
+              provenance: [webir.provenance("hub-ingest", "python-ast:object-key")],
+            }),
+          );
+          flat.push(
+            data.literal({
+              value: val,
+              type: t,
+              origin,
+              provenance: [webir.provenance("hub-ingest", "python-ast:object-val")],
+            }),
+          );
+        }
+        valId = data.call({
+          callee: "__object_literal",
+          args: flat,
+          type: T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "python-ast:dict")],
+        });
+      } else {
+        const type =
+          typeof v === "string"
+            ? T.string
+            : typeof v === "boolean"
+              ? T.bool
+              : typeof v === "number"
+                ? T.int
+                : T.unknown;
+        valId = data.literal({
+          value: v,
+          type,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "python-ast:literal")],
+        });
+      }
       bodyId = data.block({
-        statements: [
-          data.literal({
-            value: v,
-            type,
-            origin,
-            provenance: [webir.provenance("hub-ingest", "python-ast:literal")],
-          }),
-        ],
+        statements: [valId],
         type: T.unknown,
         origin,
         provenance: [webir.provenance("hub-ingest", "python-ast:return")],
