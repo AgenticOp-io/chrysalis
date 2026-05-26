@@ -6,6 +6,7 @@ import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral } from "./hub-lift-we
 
 const LITERAL_RETURN_RE =
   /return\s+(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|"""[\s\S]*?"""|`[^`]*`)\s*;/;
+const RUBY_BLOCK_LITERAL_RE = /\bdo\s+(true|false|-?\d+(?:\.\d+)?)\s+end\b/;
 
 /**
  * @param {string} raw
@@ -29,6 +30,21 @@ function parseLiteralToken(raw) {
 function literalReturnAfter(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 1200);
   const m = slice.match(LITERAL_RETURN_RE);
+  if (!m) return null;
+  const v = parseLiteralToken(m[1]);
+  if (v === null) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { value: v, line };
+}
+
+/**
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+function rubyBlockLiteralAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 200);
+  const m = slice.match(RUBY_BLOCK_LITERAL_RE);
   if (!m) return null;
   const v = parseLiteralToken(m[1]);
   if (v === null) return null;
@@ -62,7 +78,9 @@ export function liftPatternRoutesFile(opts) {
   const ctx = { data, webir };
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
-    const lit = literalReturnAfter(source, idx);
+    const lit =
+      literalReturnAfter(source, idx) ??
+      (language === "ruby" ? rubyBlockLiteralAfter(source, idx) : null);
     const bodyId =
       lit?.value !== undefined
         ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })

@@ -248,10 +248,17 @@
     const jsonEl = $("pathSynthesisJson");
     if (summary) summary.textContent = "Loading…";
     try {
-      const data = await api("/api/hub/cross-language-synthesis");
+      const [data, tiers] = await Promise.all([
+        api("/api/hub/cross-language-synthesis"),
+        api("/api/hub/verify-tiers").catch(() => null),
+      ]);
       const g = data.gradeSummary || {};
+      const tc = tiers?.tierCounts;
+      const tierLine = tc
+        ? ` · oracle ${tc.oracle ?? 0} · structural ${tc.structural ?? 0} · scaffold ${(tc["scaffold-framework"] ?? 0) + (tc["scaffold-native"] ?? 0) + (tc["scaffold-asset"] ?? 0)}`
+        : "";
       if (summary) {
-        summary.textContent = `${data.universe?.pairCount ?? 0} pairs · gold ${g.gold ?? 0} · silver ${g.silver ?? 0} · open ${g.open ?? 0} · ${data.goldPairs?.length ?? 0} gold pairs listed`;
+        summary.textContent = `${data.universe?.pairCount ?? 0} pairs · gold ${g.gold ?? 0}${tierLine} · ${data.goldPairs?.length ?? 0} gold pairs listed`;
       }
       renderPathGoldPairs(data.goldPairs);
       if (jsonEl) jsonEl.textContent = JSON.stringify(data, null, 2);
@@ -338,7 +345,8 @@
       const grade = data.pair?.grade ?? path.grade ?? "?";
       const routeGrade = gold.route?.grade ?? grade;
       if (summary) {
-        summary.textContent = `${origin} → ${output}: grade ${routeGrade} · ingest ${path.ingest?.lane ?? "?"} · emit ${path.emit?.lane ?? "?"} · verify ${(path.verify?.lanes || []).join(", ") || "none"}`;
+        const verifyTier = gold.route?.verifyTier ?? "?";
+        summary.textContent = `${origin} → ${output}: grade ${routeGrade} · verifyTier ${verifyTier} · ingest ${path.ingest?.lane ?? "?"} · emit ${path.emit?.lane ?? "?"} · verify ${(path.verify?.lanes || []).join(", ") || "none"}`;
       }
       renderPathGoldCoverage(gold.pair);
       renderPathLists({

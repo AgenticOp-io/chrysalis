@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-/** @typedef {"hono"|"fastify"|"cwl"} HubGoldEmitTarget */
+/** @typedef {"hono"|"fastify"|"cwl"|"python"|"java"|"go"|"ruby"|"csharp"|"rust"|"kotlin"|"scala"|"swift"} HubGoldEmitTarget */
 
 /**
  * @typedef {{ id: string, fixture: string, origin: string, emitTarget: HubGoldEmitTarget, structural: boolean, traceReplay: boolean, roundTrip?: boolean }} HubGoldSuite
@@ -207,6 +207,38 @@ export const HUB_GOLD_SUITES = [
     structural: true,
     traceReplay: false,
   },
+  {
+    id: "python-native-python",
+    fixture: join(scriptRoot, "fixtures/hub-gold-python-literal"),
+    origin: "python",
+    emitTarget: "python",
+    structural: true,
+    traceReplay: false,
+  },
+  {
+    id: "java-native-java",
+    fixture: join(scriptRoot, "fixtures/hub-gold-java-literal"),
+    origin: "java",
+    emitTarget: "java",
+    structural: true,
+    traceReplay: false,
+  },
+  {
+    id: "go-native-go",
+    fixture: join(scriptRoot, "fixtures/hub-gold-go-literal"),
+    origin: "go",
+    emitTarget: "go",
+    structural: true,
+    traceReplay: false,
+  },
+  {
+    id: "ruby-native-ruby",
+    fixture: join(scriptRoot, "fixtures/hub-gold-ruby-literal"),
+    origin: "ruby",
+    emitTarget: "ruby",
+    structural: true,
+    traceReplay: false,
+  },
 ];
 
 /**
@@ -238,6 +270,18 @@ export function hubGoldTraceReplaySuiteIds() {
 export function hubGoldEmitTargetForOutput(outputLang) {
   if (outputLang === "hono" || outputLang === "fastify" || outputLang === "cwl") return outputLang;
   if (outputLang === "typescript") return "hono";
+  const native = new Set([
+    "python",
+    "java",
+    "go",
+    "ruby",
+    "csharp",
+    "rust",
+    "kotlin",
+    "scala",
+    "swift",
+  ]);
+  if (native.has(outputLang)) return outputLang;
   return null;
 }
 

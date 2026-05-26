@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } from "../chrysalis-hub-store.mjs";
 import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
+import { hubNativeEmitTargetIds } from "./hub-gold-native-emit.mjs";
 import { resolveHubPython } from "./shared.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -122,7 +123,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 8,
+    schemaVersion: 9,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -166,6 +167,10 @@ async function main() {
       hubCiStructuralPairs: goldCoverage.summary.hubCiStructuralPairs,
       chrysalisCiGoldPairs: goldCoverage.summary.chrysalisCiGoldPairs,
       coverageGaps: goldCoverage.summary.coverageGaps,
+    },
+    nativeStructuralGold: {
+      targets: hubNativeEmitTargetIds(),
+      suiteIds: hubGoldStructuralSuiteIds().filter((id) => id.includes("-native-")),
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

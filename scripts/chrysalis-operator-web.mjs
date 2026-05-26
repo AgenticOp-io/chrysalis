@@ -22,6 +22,7 @@ import {
   describeHubGoldPairCoverage,
   HUB_GOLD_COVERAGE_KIND,
 } from "./hub-ingest/hub-gold-coverage.mjs";
+import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
   OUTPUT_LANGUAGES,
@@ -765,7 +766,20 @@ const server = createServer(async (req, res) => {
       .split(",")
       .map((s) => s.trim().toLowerCase())
       .filter((g) => g === "gold" || g === "silver" || g === "open");
-    sendJson(res, 200, buildLanguageWorkQueue({ scope, grades: grades.length ? grades : undefined }));
+    const tiersRaw = url.searchParams.get("verifyTiers") ?? "";
+    const verifyTiers = tiersRaw
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+    sendJson(
+      res,
+      200,
+      buildLanguageWorkQueue({
+        scope,
+        grades: grades.length ? grades : undefined,
+        verifyTiers: verifyTiers.length ? verifyTiers : undefined,
+      }),
+    );
     return;
   }
 
@@ -789,6 +803,23 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && url.pathname === "/api/hub/cross-language-synthesis") {
     sendJson(res, 200, buildCrossLanguageSynthesis());
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/verify-tiers") {
+    const tier = url.searchParams.get("tier") ?? undefined;
+    const report = buildHubVerifyTiersReport();
+    if (tier) {
+      sendJson(res, 200, {
+        kind: HUB_VERIFY_TIERS_KIND,
+        schemaVersion: 1,
+        tier,
+        pairs: report.pairs.filter((p) => p.verifyTier === tier),
+        tierCounts: report.tierCounts,
+      });
+      return;
+    }
+    sendJson(res, 200, report);
     return;
   }
 
@@ -816,7 +847,7 @@ const server = createServer(async (req, res) => {
     if (origin && output) {
       sendJson(res, 200, {
         kind: "chrysalis.hub.gold-suites",
-        schemaVersion: 2,
+        schemaVersion: 3,
         pair: describeHubGoldPairCoverage(origin, output),
         route: resolveHubRoute(origin, output),
       });

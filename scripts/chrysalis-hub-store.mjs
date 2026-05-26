@@ -792,6 +792,7 @@ function buildPairReadiness(origins, outputs) {
         origin: origin.id,
         output: output.id,
         grade: route.grade ?? "open",
+        verifyTier: route.verifyTier ?? "scaffold-asset",
         action: route.action ?? "hub-translate",
         runnable: Boolean(route.ok),
         ingestStatus: origin.ingestStatus,
@@ -921,6 +922,9 @@ export function buildLanguageWorkQueue(options = {}) {
   let grades = Array.isArray(options.grades) ? options.grades : ["open", "silver"];
   grades = grades.map((g) => String(g).toLowerCase()).filter((g) => VALID_WORK_QUEUE_GRADES.has(g));
   if (grades.length === 0) grades = ["open", "silver"];
+  const verifyTiers = Array.isArray(options.verifyTiers)
+    ? options.verifyTiers.map((t) => String(t).toLowerCase())
+    : null;
 
   const report = buildLanguageReadinessReport();
   const originById = Object.fromEntries(report.origins.map((o) => [o.id, o]));
@@ -932,6 +936,13 @@ export function buildLanguageWorkQueue(options = {}) {
     pairs = pairs.filter((p) => popular.has(p.origin) && popular.has(p.output));
   }
   pairs = pairs.filter((p) => grades.includes(p.grade));
+  if (verifyTiers && verifyTiers.length > 0) {
+    pairs = pairs.filter((p) => {
+      const spec = HUB_ROUTES[`${p.origin}:${p.output}`];
+      const tier = spec?.verifyTier ?? "scaffold-asset";
+      return verifyTiers.includes(tier);
+    });
+  }
 
   const items = pairs.map((pair) => {
     const oRow = originById[pair.origin];
@@ -943,6 +954,7 @@ export function buildLanguageWorkQueue(options = {}) {
       originLabel: LANGUAGE_LABELS[pair.origin] ?? pair.origin,
       outputLabel: LANGUAGE_LABELS[pair.output] ?? pair.output,
       grade: pair.grade,
+      verifyTier: HUB_ROUTES[`${pair.origin}:${pair.output}`]?.verifyTier ?? "scaffold-asset",
       action: pair.action,
       runnable: pair.runnable,
       next: pair.next,

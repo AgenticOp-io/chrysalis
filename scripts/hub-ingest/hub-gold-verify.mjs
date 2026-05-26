@@ -10,6 +10,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
+import { isHubNativeGoldEmitTarget, runNativeGoldEmit } from "./hub-gold-native-emit.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -41,6 +42,9 @@ function runEmit(fixture, origin, emitTarget) {
       cwd: scriptRoot,
       encoding: "utf8",
     });
+  }
+  if (isHubNativeGoldEmitTarget(emitTarget)) {
+    return runNativeGoldEmit(fixture, origin, emitTarget);
   }
   return spawnSync(process.execPath, [emitTsScript, fixture, "--origin", origin, "--target", emitTarget], {
     cwd: scriptRoot,

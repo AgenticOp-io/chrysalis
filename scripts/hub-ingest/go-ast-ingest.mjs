@@ -9,6 +9,7 @@ const GO_VERB_RE =
 const GO_HANDLE_FUNC_RE = /\bhttp\.HandleFunc\s*\(\s*"([^"]+)"/g;
 
 const LITERAL_RETURN_RE = /return\s+("([^"]*)"|'([^']*)'|true|false|-?\d+)\b/;
+const GIN_STRING_RE = /c\.String\s*\(\s*\d+\s*,\s*"([^"]*)"\s*\)/;
 
 /**
  * @param {string} language
@@ -40,6 +41,19 @@ function literalReturnAfter(source, fromIndex) {
   const lineOffset = slice.slice(0, m.index).split("\n").length - 1;
   const baseLine = source.slice(0, fromIndex).split("\n").length;
   return { value: parseGoLiteral(token), line: baseLine + lineOffset };
+}
+
+/**
+ * @param {string} source
+ * @param {number} fromIndex
+ */
+function ginStringLiteralAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 800);
+  const m = slice.match(GIN_STRING_RE);
+  if (!m) return null;
+  const lineOffset = slice.slice(0, m.index).split("\n").length - 1;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  return { value: m[1], line: baseLine + lineOffset };
 }
 
 /**
@@ -89,7 +103,7 @@ export function liftGoFileToWebir(opts) {
 
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
-    const lit = literalReturnAfter(source, idx);
+    const lit = literalReturnAfter(source, idx) ?? ginStringLiteralAfter(source, idx);
     const bodyId =
       lit?.value !== undefined
         ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })

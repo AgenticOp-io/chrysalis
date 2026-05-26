@@ -7,7 +7,7 @@ const MANIFEST = fileURLToPath(
 
 test("hub gold manifest: pair coverage and suite inventory (G37)", async () => {
   const m = await import(MANIFEST);
-  expect(m.hubGoldStructuralSuiteIds().length).toBeGreaterThanOrEqual(24);
+  expect(m.hubGoldStructuralSuiteIds().length).toBe(28);
   expect(m.hubGoldTraceReplaySuiteIds().length).toBeGreaterThanOrEqual(16);
   const jsHono = m.hubGoldSuitesForPair("javascript", "hono");
   expect(jsHono.map((s: { id: string }) => s.id)).toEqual(
@@ -22,4 +22,7 @@ test("hub gold manifest: pair coverage and suite inventory (G37)", async () => {
   );
   const phpTs = m.hubGoldSuitesForPair("php", "typescript");
   expect(phpTs.length).toBe(0);
+  const pyNative = m.hubGoldSuitesForPair("python", "python");
+  expect(pyNative.map((s: { id: string }) => s.id)).toContain("python-native-python");
+  expect(m.hubGoldEmitTargetForOutput("java")).toBe("java");
 });

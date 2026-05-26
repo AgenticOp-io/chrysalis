@@ -719,9 +719,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 5 &&
     s.schemaVersion !== 6 &&
     s.schemaVersion !== 7 &&
-    s.schemaVersion !== 8
+    s.schemaVersion !== 8 &&
+    s.schemaVersion !== 9
   ) {
-    fail(`${label}: expected schemaVersion 0–8, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–9, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -764,6 +765,12 @@ function assertHubCompletion(path) {
     }
     if (typeof s.goldCoverage?.structuralTier !== "number") {
       fail(`${label}: goldCoverage.structuralTier required for schema v8`);
+    }
+  }
+  if (s.schemaVersion >= 9) {
+    const native = s.nativeStructuralGold;
+    if (!native?.targets?.length || !native?.suiteIds?.length) {
+      fail(`${label}: nativeStructuralGold.targets and suiteIds required for schema v9`);
     }
   }
   const g = s.routeGrades;
