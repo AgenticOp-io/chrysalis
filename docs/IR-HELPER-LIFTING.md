@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** **B1** done; **B2 v0** (call-effect body canonicalization) on `main`. **B3** semantic merge remains backlog.  
+**Status:** **B1–B3 v0** on `main` (fixtures + Vitest). Further semantic widening needs architecture sign-off beyond local renames.  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem
@@ -47,7 +47,7 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | **B0 (done)** | D283 dedupe + ignore-origin CLI |
 | **B1** | **Done:** **`fixtures/lift-helper-gap-probe/`** + **`fixtures/lift-helper-dedupe-control/`**; Vitest **`packages/ingest/tests/lift-helper-gap-probe.test.ts`** |
 | **B2** | **Done (v0):** **`liftSharedHelpers`** / CLI **`--ingest-lift-shared-helpers`** (requires **`--ingest-dedupe-structural-subgraphs`**); fixture **`fixtures/lift-helper-lift-twin/`** |
-| **B3** | Semantic key + effect-proof merge for near-duplicates (ROADMAP “future”) |
+| **B3** | **Done (v0):** local-name slot normalization + **`--ingest-lift-shared-helpers-semantic`**; **`lift-helper-gap-probe`** aliases |
 
 ## Decision
 

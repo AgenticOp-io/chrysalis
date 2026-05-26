@@ -31,7 +31,7 @@ Chrysalis meets the **chartered engineering** bar for D1: Milestones 0–6 (incl
 
 - **WebIR export for D2:** `scripts/export-webir-bundle.mjs` → `chrysalis.webir.bundle@1.0.0`
 - **IR hub (D2):** [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) (`@wptp/ir@v0.1.3`)
-- **Compatibility matrix (D5):** [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.9`) — **24 edges**, compose + `verify:harness`, [GitHub Pages](https://theorem6.github.io/wptp-matrix/)
+- **Compatibility matrix (D5):** [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.10`) — **24 edges**, compose + `verify:harness`, [GitHub Pages](https://theorem6.github.io/wptp-matrix/)
 - **GCE smoke:** `scripts/gce-wptp-test-vm.ps1` + `gce-wptp-test-bootstrap.sh` (e2-small; [HOW-TO §25](./HOW-TO.md#25-smoke-test-wptp-matrix-on-gce))
 - **Chrysalis WPTP CI:** `.github/workflows/wptp-harness-smoke.yml` (`CHRYSALIS_ROOT` + matrix `verify:harness`)
 - **Program board:** [GitHub Project #1](https://github.com/users/theorem6/projects/1)
@@ -44,7 +44,7 @@ Chrysalis meets the **chartered engineering** bar for D1: Milestones 0–6 (incl
 | wptp-ir                           | v0.1.3                   | IR v0 + WebIR import/export                              |
 | wptp-adapter-openapi / browser    | v0.1.1                   | OpenAPI + HAR → IR                                       |
 | wptp-emit-nextjs / hono / fastify | v0.1.1 / v0.1.1 / v0.1.0 | Bronze emit; matrix harness + contract-replay **gold**   |
-| wptp-matrix                       | v0.1.9                   | `npm ci` from `github:theorem6/*` tags; CI + Pages green |
+| wptp-matrix                       | v0.1.10                  | `npm ci` from `github:theorem6/*` tags; CI + Pages green |
 
 
 ## Engineering priorities (2026-05-19) — delivered

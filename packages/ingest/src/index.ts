@@ -71,6 +71,11 @@ export interface IngestOptions {
    */
   readonly liftSharedHelpers?: boolean;
   /**
+   * When true with {@link liftSharedHelpers}, also merge helpers that differ only by
+   * PHP local variable names (**IR helper lifting B3**).
+   */
+  readonly liftSharedHelpersSemantic?: boolean;
+  /**
    * When set, atomically writes a versioned ingest checkpoint envelope after each route
    * (partial WebIR + completed route keys). Use with {@link ingestResumeFromCheckpoint} to skip
    * already-completed routes after a crash.
@@ -110,6 +115,7 @@ export async function ingestDirectory(
   const callEffects = await buildCallEffectMap(root, manifest.routes, {
     ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
     ...(opts?.liftSharedHelpers === true ? { liftSharedHelpers: true as const } : {}),
+    ...(opts?.liftSharedHelpersSemantic === true ? { liftSharedHelpersSemantic: true as const } : {}),
   });
   let routes = manifest.routes;
   if (opts?.shardCount !== undefined) {
@@ -139,6 +145,9 @@ export async function ingestDirectory(
   }
   if (opts?.liftSharedHelpers === true && opts?.dedupeStructuralSubgraphs !== true) {
     throw new Error("ingestDirectory: liftSharedHelpers requires dedupeStructuralSubgraphs");
+  }
+  if (opts?.liftSharedHelpersSemantic === true && opts?.liftSharedHelpers !== true) {
+    throw new Error("ingestDirectory: liftSharedHelpersSemantic requires liftSharedHelpers");
   }
   const routeFingerprint = fingerprintIngestRouteList(routes);
   const projectRootAbs = resolve(root);
@@ -270,6 +279,7 @@ export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects
 export {
   applyHelperLiftAliases,
   buildHelperLiftAliasMap,
+  buildHelperLiftLocalSlotMap,
   functionBodyStructuralKey,
 } from "./lift-shared-helpers.js";
 export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";

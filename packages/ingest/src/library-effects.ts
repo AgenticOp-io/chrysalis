@@ -172,6 +172,8 @@ export interface CallEffectMapOptions {
    * share one WebIR body root before the call-effect fixpoint (**IR helper lifting B2**).
    */
   readonly liftSharedHelpers?: boolean;
+  /** When true with {@link liftSharedHelpers}, merge helpers that differ only by local names (**B3**). */
+  readonly liftSharedHelpersSemantic?: boolean;
   /** Passed to structural key when {@link liftSharedHelpers} is true. Default: ignore origin. */
   readonly liftSharedHelpersIgnoreOrigin?: boolean;
 }
@@ -255,6 +257,7 @@ export async function buildCallEffectMap(
     const getNode = (id: NodeId) => builder.get(id);
     const aliases = buildHelperLiftAliasMap(bodies, getNode, {
       ignoreOrigin: opts.liftSharedHelpersIgnoreOrigin !== false,
+      ...(opts.liftSharedHelpersSemantic === true ? { semantic: true as const } : {}),
     });
     applyHelperLiftAliases(bodies, aliases);
   }
