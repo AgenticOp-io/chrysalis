@@ -2328,6 +2328,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-20 — D321** **Translation Hub portal product complete (G18).** Browser-only operator flows: local project create, project settings, per-site route plan, formatted observe assist, org join, batch tuning, Chrysalis status job, runtime health refresh, **`pnpm run hub:serve`**, optional **`docker-compose.hub.yml`**. Hub remains client/server; core translation quality is unchanged.
 
+- **2026-05-26 — D329** **Hub Java + Go route lift v0 (G23–G24).** Source-pattern ingest for **Spring/JAX-RS** (`java-ast-ingest.mjs`) and **Go** HTTP routers (`go-ast-ingest.mjs`); shared **`hub-lift-webir-route.mjs`**. Literal returns near registrations lower when obvious; other bodies stay **holes**. Not javac/go parser front-ends. **DESIGN §3** unchanged.
+
 - **2026-05-26 — D328** **Hub Python AST ingest v0 (G22).** **`python-ast-ingest.mjs`** invokes CPython **`ast`** ( **`python3`** on PATH, override **`CHRYSALIS_HUB_PYTHON`**) to discover Flask/FastAPI-style decorated routes and literal **`return`** values; **dict** / call bodies remain **holes**. Wired through **`lift-to-webir`**. Does not add **`@chrysalis/ingest`** PHP-style oracle ingest. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D327** **Hub JavaScript/TypeScript AST ingest v0 (G21).** **`javascript-ast-ingest.mjs`** parses **.js/.ts** (TypeScript via **`transpileModule`**) with **acorn**, lowers Express-style routes and simple **literal** returns into WebIR; **CallExpression** / **ObjectExpression** bodies remain **holes**. **`lift-to-webir`** prefers AST before regex heuristic. Does not replace **`@chrysalis/ingest`** PHP path or claim oracle parity. **DESIGN §3** unchanged.

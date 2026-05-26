@@ -397,6 +397,24 @@ function readinessForOrigin(languageId) {
       ],
     };
   }
+  if (languageId === "java" || languageId === "go") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      ingestStatus: "silver-ast-lift",
+      emitStatus: "open-scaffold-or-ts",
+      done: [
+        `Annotation/pattern route lift (G23/G24): Spring or ${languageId === "go" ? "net/http/gin/echo" : "JAX-RS"}-style paths from source scan.`,
+        "Simple literal returns lowered when found near route registration.",
+        "Contract-first WPTP compose when OpenAPI/HAR present (G20).",
+      ],
+      notDone: [
+        `Native ${languageId} parser ingest in @chrysalis/ingest and oracle verify are not implemented.`,
+        "Native emitters for non-TS targets remain scaffolds.",
+      ],
+    };
+  }
   if (languageId === "javascript" || languageId === "typescript") {
     return {
       id: languageId,

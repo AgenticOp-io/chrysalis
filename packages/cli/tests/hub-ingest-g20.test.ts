@@ -110,6 +110,57 @@ test("lift-to-webir python uses AST when python3 available", async () => {
   expect(report.astRouteCount).toBeGreaterThanOrEqual(2);
 });
 
+test("java AST finds Spring mappings", async () => {
+  const { parseJavaRoutes, liftJavaFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/java-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-java-routes/HealthController.java"), "utf8");
+  const routes = parseJavaRoutes(source, "HealthController.java");
+  expect(routes.length).toBeGreaterThanOrEqual(2);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-java" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "HealthController.java",
+    language: "java",
+  });
+  expect(r.usedAst).toBe(true);
+  const mod = builder.finish();
+  expect(mod.roots.length).toBeGreaterThanOrEqual(2);
+});
+
+test("go AST finds gin routes", async () => {
+  const { parseGoRoutes, liftGoFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/go-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-go-routes/main.go"), "utf8");
+  const routes = parseGoRoutes(source, "main.go");
+  expect(routes.map((r) => `${r.method} ${r.path}`).sort()).toEqual(["GET /health", "POST /items"]);
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test-go" });
+  const wr = webir.webRequest.builders(builder);
+  liftGoFileToWebir({ webir, builder, wr, source, file: "main.go", language: "go" });
+  expect(builder.finish().roots.length).toBe(2);
+});
+
+test("lift-to-webir java and go", async () => {
+  for (const [lang, fixture, file] of [
+    ["java", "fixtures/hub-java-routes", "HealthController.java"],
+    ["go", "fixtures/hub-go-routes", "main.go"],
+  ] as const) {
+    const dir = await mkdtemp(join(tmpdir(), `chrysalis-hub-${lang}-`));
+    await writeFile(join(dir, file), await readFile(resolve(ROOT, fixture, file), "utf8"));
+    const r = spawnSync(process.execPath, [LIFT, dir, "--language", lang], { cwd: ROOT, encoding: "utf8" });
+    expect(r.status).toBe(0);
+    const report = JSON.parse(r.stdout.trim().split("\n").pop() ?? "{}");
+    expect(report.astRouteCount).toBeGreaterThanOrEqual(2);
+  }
+});
+
 test("hub store: outputSupportsContractSilver", async () => {
   const hub = await import(fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url)));
   expect(hub.outputSupportsContractSilver("hono")).toBe(true);

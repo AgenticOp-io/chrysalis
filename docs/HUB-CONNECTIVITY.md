@@ -155,7 +155,7 @@ Scripts under `scripts/hub-ingest/` implement the full path:
 | --- | --- | --- |
 | Contract discovery | `discover-contract-artifacts.mjs` | Recursive OpenAPI/Swagger/HAR under site tree (**G20**) |
 | WPTP compose (any origin) | `wptp-compose-site.mjs` | When contracts exist → **hono** / **nextjs** silver (origin language irrelevant) |
-| Lift non-PHP sources | `lift-to-webir.mjs` | Every non-PHP origin; **javascript**/**typescript** use **acorn** AST ingest (G21) with heuristic fallback |
+| Lift non-PHP sources | `lift-to-webir.mjs` | **javascript**/**typescript** (acorn, G21), **python** (CPython ast, G22), **java** (Spring/JAX-RS scan, G23), **go** (router patterns, G24); others per-file holes |
 | Emit TypeScript stacks | `emit-from-hub.mjs` | Output `typescript`, `hono`, `fastify` |
 | Emit Next.js | `emit-nextjs-from-hub.mjs` | Output `nextjs` (needs `wptp-emit-nextjs` sibling) |
 | Other output languages | `emit-target-stub.mjs` | Output e.g. `python`, `java` (scaffold + README until WPTP emit) |

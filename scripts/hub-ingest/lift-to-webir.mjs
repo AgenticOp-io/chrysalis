@@ -12,6 +12,8 @@ import {
   liftJavaScriptFileToWebir,
 } from "./javascript-ast-ingest.mjs";
 import { canPythonAstIngest, liftPythonFileToWebir } from "./python-ast-ingest.mjs";
+import { canJavaAstIngest, liftJavaFileToWebir } from "./java-ast-ingest.mjs";
+import { canGoAstIngest, liftGoFileToWebir } from "./go-ast-ingest.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -88,6 +90,22 @@ async function main() {
       });
       if (pyLift.usedAst && pyLift.routeCount > 0) {
         astRouteCount += pyLift.astRouteCount;
+        continue;
+      }
+    }
+
+    if (canJavaAstIngest(language, ext)) {
+      const javaLift = liftJavaFileToWebir({ webir, builder, wr, source, file, language });
+      if (javaLift.usedAst && javaLift.routeCount > 0) {
+        astRouteCount += javaLift.astRouteCount;
+        continue;
+      }
+    }
+
+    if (canGoAstIngest(language, ext)) {
+      const goLift = liftGoFileToWebir({ webir, builder, wr, source, file, language });
+      if (goLift.usedAst && goLift.routeCount > 0) {
+        astRouteCount += goLift.astRouteCount;
         continue;
       }
     }
