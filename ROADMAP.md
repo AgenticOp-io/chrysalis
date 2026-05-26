@@ -104,6 +104,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G45 — Kotlin / Scala / Swift native structural gold** — Literal fixtures; **Ktor** / **Akka** / **Vapor** pattern lift; **`kotlin-native-kotlin`**, **`scala-native-scala`**, **`swift-native-swift`** suites. (**DESIGN D350**)
 - [x] **G46 — Python Flask middleware gold** — **`hub-flask-middleware.mjs`** synthetic **`express.json`** / **`urlencoded`** presets; **`jsonify`** → **`__return_json`**; **`python-middleware-hono`** / **`fastify`** + trace replay. (**DESIGN D351**)
 - [x] **G47 — Ruby → Hono/Fastify structural gold** — **`ruby-literal-hono`** / **`ruby-literal-fastify`** on **`hub-gold-ruby-literal`** with trace replay. (**DESIGN D352**)
+- [x] **G48 — Java → Hono/Fastify structural gold** — **`java-literal-hono`** / **`java-literal-fastify`** on **`hub-gold-java-literal`** with trace replay. (**DESIGN D353**)
 
 ---
 

@@ -129,15 +129,15 @@ describe("ci-gates hub-completion", () => {
         p,
         `${JSON.stringify({
           kind: "chrysalis.hub.completion",
-          schemaVersion: 11,
+          schemaVersion: 12,
           ok: true,
           matrixSmoke: { passed: 22, failed: 0, skipped: 0 },
-          goldVerify: { ok: true, suiteCount: 37, expectedSuiteCount: 37, suiteIds: [] },
+          goldVerify: { ok: true, suiteCount: 39, expectedSuiteCount: 39, suiteIds: [] },
           traceReplay: {
             ok: true,
             correctness: 1,
-            suiteCount: 20,
-            expectedSuiteCount: 20,
+            suiteCount: 22,
+            expectedSuiteCount: 22,
             suiteIds: [],
             targets: ["hono", "fastify"],
           },
@@ -146,14 +146,14 @@ describe("ci-gates hub-completion", () => {
           goldCoverage: {
             ok: true,
             goldMatrix: 575,
-            oracleTier: 3,
-            structuralTier: 14,
-            hubCiStructuralPairs: 14,
+            oracleTier: 4,
+            structuralTier: 20,
+            hubCiStructuralPairs: 20,
             chrysalisCiGoldPairs: 4,
             coverageGaps: 0,
           },
           nativeStructuralGold: {
-            targets: ["python", "java", "go", "ruby"],
+            targets: ["python", "java", "go", "ruby", "kotlin", "scala", "swift"],
             suiteIds: [
               "python-native-python",
               "java-native-java",
@@ -173,7 +173,12 @@ describe("ci-gates hub-completion", () => {
             ],
           },
           crossFrameworkStructuralGold: {
-            suiteIds: ["ruby-literal-hono", "ruby-literal-fastify"],
+            suiteIds: [
+              "ruby-literal-hono",
+              "ruby-literal-fastify",
+              "java-literal-hono",
+              "java-literal-fastify",
+            ],
           },
           routeGrades: { gold: 575, silver: 0, open: 0 },
         })}\n`,

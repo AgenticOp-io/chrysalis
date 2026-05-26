@@ -722,9 +722,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 8 &&
     s.schemaVersion !== 9 &&
     s.schemaVersion !== 10 &&
-    s.schemaVersion !== 11
+    s.schemaVersion !== 11 &&
+    s.schemaVersion !== 12
   ) {
-    fail(`${label}: expected schemaVersion 0–11, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–12, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -788,6 +789,12 @@ function assertHubCompletion(path) {
     const xf = s.crossFrameworkStructuralGold?.suiteIds ?? [];
     if (!xf.includes("ruby-literal-hono") || !xf.includes("ruby-literal-fastify")) {
       fail(`${label}: crossFrameworkStructuralGold must list ruby hono/fastify for schema v11`);
+    }
+  }
+  if (s.schemaVersion >= 12) {
+    const xf = s.crossFrameworkStructuralGold?.suiteIds ?? [];
+    if (!xf.includes("java-literal-hono") || !xf.includes("java-literal-fastify")) {
+      fail(`${label}: crossFrameworkStructuralGold must list java hono/fastify for schema v12`);
     }
   }
   const g = s.routeGrades;

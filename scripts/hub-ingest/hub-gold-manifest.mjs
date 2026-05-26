@@ -311,6 +311,22 @@ export const HUB_GOLD_SUITES = [
     structural: true,
     traceReplay: true,
   },
+  {
+    id: "java-literal-hono",
+    fixture: join(scriptRoot, "fixtures/hub-gold-java-literal"),
+    origin: "java",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "java-literal-fastify",
+    fixture: join(scriptRoot, "fixtures/hub-gold-java-literal"),
+    origin: "java",
+    emitTarget: "fastify",
+    structural: true,
+    traceReplay: true,
+  },
 ];
 
 /**

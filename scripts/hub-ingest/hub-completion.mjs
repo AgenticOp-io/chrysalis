@@ -123,7 +123,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 11,
+    schemaVersion: 12,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -183,7 +183,12 @@ async function main() {
       ],
     },
     crossFrameworkStructuralGold: {
-      suiteIds: ["ruby-literal-hono", "ruby-literal-fastify"],
+      suiteIds: [
+        "ruby-literal-hono",
+        "ruby-literal-fastify",
+        "java-literal-hono",
+        "java-literal-fastify",
+      ],
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

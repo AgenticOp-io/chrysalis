@@ -2328,6 +2328,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-20 — D321** **Translation Hub portal product complete (G18).** Browser-only operator flows: local project create, project settings, per-site route plan, formatted observe assist, org join, batch tuning, Chrysalis status job, runtime health refresh, **`pnpm run hub:serve`**, optional **`docker-compose.hub.yml`**. Hub remains client/server; core translation quality is unchanged.
 
+- **2026-05-26 — D353** **Java → Hono/Fastify structural gold (G48).** **`java-literal-hono`** / **`java-literal-fastify`** on **`hub-gold-java-literal`** (Spring literal returns) with trace replay. **`hub-completion`** schema **v12**. **DESIGN §3** unchanged.
+
 - **2026-05-26 — D352** **Ruby → Hono/Fastify structural gold (G47).** **`ruby-literal-hono`** / **`ruby-literal-fastify`** structural + trace replay on **`hub-gold-ruby-literal`** (Sinatra literals). Expands hub CI **`verifyTier: structural`** matrix coverage for **ruby** framework outputs. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D351** **Python Flask middleware gold (G46).** **`hub-flask-middleware.mjs`** records synthetic **`express.json`** / **`urlencoded`** presets for Flask apps (trace replay probe compatibility). **`python-ast-ingest`** lowers **`jsonify({...})`** to **`__return_json`**. Suites **`python-middleware-hono`** / **`python-middleware-fastify`**. **`hub-completion`** schema **v11**. **DESIGN §3** unchanged.
