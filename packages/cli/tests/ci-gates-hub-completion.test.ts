@@ -129,7 +129,7 @@ describe("ci-gates hub-completion", () => {
         p,
         `${JSON.stringify({
           kind: "chrysalis.hub.completion",
-          schemaVersion: 7,
+          schemaVersion: 8,
           ok: true,
           matrixSmoke: { passed: 22, failed: 0, skipped: 0 },
           goldVerify: { ok: true, suiteCount: 24, expectedSuiteCount: 24, suiteIds: [] },
@@ -142,15 +142,17 @@ describe("ci-gates hub-completion", () => {
             targets: ["hono", "fastify"],
           },
           nativeEmitSmoke: { ok: true, passed: 10, failed: 0 },
-          crossLanguageSynthesis: { ok: true, pairCount: 575, goldPairs: 17, originCount: 23 },
+          crossLanguageSynthesis: { ok: true, pairCount: 575, goldPairs: 575, originCount: 23 },
           goldCoverage: {
             ok: true,
-            goldMatrix: 17,
+            goldMatrix: 575,
+            oracleTier: 3,
+            structuralTier: 17,
             hubCiStructuralPairs: 14,
             chrysalisCiGoldPairs: 3,
             coverageGaps: 0,
           },
-          routeGrades: { gold: 17, silver: 276, open: 282 },
+          routeGrades: { gold: 575, silver: 0, open: 0 },
         })}\n`,
       );
       const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });

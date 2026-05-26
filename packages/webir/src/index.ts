@@ -26,6 +26,7 @@ export type Locator =
 export interface Provenance {
   source:
     | "php-ast"
+    | "hub-ingest"
     | "db-schema"
     | "form-scan"
     | "trace-corpus"

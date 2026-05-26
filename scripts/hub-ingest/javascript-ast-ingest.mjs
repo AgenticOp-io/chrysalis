@@ -6,6 +6,7 @@ import * as acorn from "acorn";
 import { simple as walkSimple } from "acorn-walk";
 import ts from "typescript";
 import { detectHttpRoutesInSource } from "./lift-routes-heuristic.mjs";
+import { liftExpressMiddlewareToWebir } from "./hub-express-middleware.mjs";
 
 const HTTP_METHODS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify"]);
@@ -319,8 +320,10 @@ export function liftJavaScriptFileToWebir(opts) {
     },
   });
 
-  if (routes.length === 0) {
-    return { routeCount: 0, astRouteCount: 0, usedAst: false };
+  const mw = liftExpressMiddlewareToWebir({ ast, file, builder, wr, webir });
+
+  if (routes.length === 0 && mw.middlewareRootCount === 0) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: false, middlewareUseCount: 0, middlewareRootCount: 0 };
   }
 
   for (const r of routes) {
@@ -348,8 +351,13 @@ export function liftJavaScriptFileToWebir(opts) {
     builder.addRoot(routeId);
   }
 
-  const middlewareUseCount = countExpressMiddlewareUses(source);
-  return { routeCount: routes.length, astRouteCount, usedAst: true, middlewareUseCount };
+  return {
+    routeCount: routes.length,
+    astRouteCount,
+    usedAst: true,
+    middlewareUseCount: mw.middlewareUseCount,
+    middlewareRootCount: mw.middlewareRootCount,
+  };
 }
 
 /**

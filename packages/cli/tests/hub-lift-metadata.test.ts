@@ -15,8 +15,8 @@ test("lift-to-webir: middleware fixture reports middlewareUseCount", () => {
   expect(r.status).toBe(0);
   const report = JSON.parse(r.stdout.trim().split("\n").pop() ?? "{}");
   expect(report.middlewareUseCount).toBeGreaterThanOrEqual(1);
-  expect(report.middlewareShell?.length).toBeGreaterThanOrEqual(1);
-  expect(report.middlewareShell?.[0]?.kind).toBe("legacy:express-use");
+  expect(report.middlewareLoweredCount).toBeGreaterThanOrEqual(1);
+  expect(report.middlewareShell?.length ?? 0).toBe(0);
   expect(report.holeCount).toBe(0);
 });
 

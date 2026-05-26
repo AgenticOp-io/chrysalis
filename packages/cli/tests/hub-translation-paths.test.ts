@@ -59,13 +59,13 @@ test("hub paths: python to hono is gold (G30)", async () => {
   expect(p.verify.lanes).toContain("hub-structural-gold");
 });
 
-test("hub paths: python to java silver has native emit and no verify", async () => {
+test("hub paths: python to java gold scaffold has native emit and no verify lane", async () => {
   const { describeTranslationPath } = await import(PATHS);
   const p = describeTranslationPath("python", "java");
   expect(p.ingest.lane).toBe("hub-ast-lift");
   expect(p.emit.lane).toBe("hub-native-java");
   expect(p.verify.lanes).toEqual(["none"]);
-  expect(p.grade).toBe("silver");
+  expect(p.grade).toBe("gold");
 });
 
 test("hub paths: contract alternate on framework outputs", async () => {

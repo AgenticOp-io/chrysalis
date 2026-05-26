@@ -749,7 +749,11 @@ export function parseZodEnumBodyFieldRaw(
 }
 `;
 
-export const SERVER_TS = (imports: string, routeRegistrations: string): string =>
+export const SERVER_TS = (
+  imports: string,
+  routeRegistrations: string,
+  hubMiddlewareRegistrations = "",
+): string =>
   `${imports}
 import Fastify, { type FastifyInstance } from "fastify";
 import formbody from "@fastify/formbody";
@@ -763,7 +767,7 @@ async function buildApp(): Promise<FastifyInstance> {
   app.addHook("onRequest", chrysalisDeterminismOnRequest);
   await registerSession(app);
   await app.register(formbody);
-  app.setErrorHandler((err, _req, reply) => {
+${hubMiddlewareRegistrations}  app.setErrorHandler((err, _req, reply) => {
     if (reply.sent) return;
     const msg = err instanceof Error ? err.message : String(err);
     if (msg === "unauthorized") return;

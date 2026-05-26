@@ -12,6 +12,7 @@ import {
   hubGoldStructuralSuiteIds,
   hubGoldTraceReplaySuiteIds,
 } from "./hub-gold-manifest.mjs";
+import { verifyTierForPair } from "./hub-route-grades.mjs";
 
 export const HUB_GOLD_COVERAGE_KIND = "chrysalis.hub.gold-coverage";
 export const HUB_GOLD_COVERAGE_SCHEMA_VERSION = 1;
@@ -26,13 +27,17 @@ export function describeHubGoldPairCoverage(origin, outputLang, route) {
   const coverage = buildHubGoldSuiteCoverage(origin, outputLang);
   const grade = r?.grade ?? "open";
   const action = r?.action ?? "hub-translate";
+  const verifyTier = r?.verifyTier ?? verifyTierForPair(origin, outputLang, { action, emitTarget: coverage.emitTarget });
   const hubCiStructural = coverage.suiteCount > 0;
-  const chrysalisCiGold = grade === "gold" && action === "chrysalis-ingest-emit";
-  const coverageGap = grade === "gold" && !hubCiStructural && !chrysalisCiGold;
+  const chrysalisCiGold = action === "chrysalis-ingest-emit";
+  const coverageGap =
+    (verifyTier === "oracle" && !chrysalisCiGold) ||
+    (verifyTier === "structural" && !hubCiStructural);
   return {
     ...coverage,
     grade,
     action,
+    verifyTier,
     hubCiStructural,
     chrysalisCiGold,
     coverageGap,
@@ -42,6 +47,8 @@ export function describeHubGoldPairCoverage(origin, outputLang, route) {
 export function buildHubGoldCoverageReport() {
   const pairs = [];
   let goldMatrix = 0;
+  let oracleTier = 0;
+  let structuralTier = 0;
   let hubCiStructuralPairs = 0;
   let chrysalisCiGoldPairs = 0;
   let coverageGaps = 0;
@@ -51,6 +58,8 @@ export function buildHubGoldCoverageReport() {
       if (src.id === out.id) continue;
       const row = describeHubGoldPairCoverage(src.id, out.id);
       if (row.grade === "gold") goldMatrix += 1;
+      if (row.verifyTier === "oracle") oracleTier += 1;
+      if (row.verifyTier === "structural") structuralTier += 1;
       if (row.hubCiStructural) hubCiStructuralPairs += 1;
       if (row.chrysalisCiGold) chrysalisCiGoldPairs += 1;
       if (row.coverageGap) coverageGaps += 1;
@@ -68,6 +77,8 @@ export function buildHubGoldCoverageReport() {
     summary: {
       pairCount: pairs.length,
       goldMatrix,
+      oracleTier,
+      structuralTier,
       hubCiStructuralPairs,
       chrysalisCiGoldPairs,
       coverageGaps,

@@ -718,9 +718,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 4 &&
     s.schemaVersion !== 5 &&
     s.schemaVersion !== 6 &&
-    s.schemaVersion !== 7
+    s.schemaVersion !== 7 &&
+    s.schemaVersion !== 8
   ) {
-    fail(`${label}: expected schemaVersion 0–7, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–8, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -756,6 +757,14 @@ function assertHubCompletion(path) {
   }
   if (s.schemaVersion >= 7 && s.goldCoverage?.ok !== true) {
     fail(`${label}: goldCoverage.ok must be true (gaps=${s.goldCoverage?.coverageGaps})`);
+  }
+  if (s.schemaVersion >= 8) {
+    if (typeof s.goldCoverage?.oracleTier !== "number") {
+      fail(`${label}: goldCoverage.oracleTier required for schema v8`);
+    }
+    if (typeof s.goldCoverage?.structuralTier !== "number") {
+      fail(`${label}: goldCoverage.structuralTier required for schema v8`);
+    }
   }
   const g = s.routeGrades;
   if (!g || typeof g.gold !== "number" || typeof g.silver !== "number" || typeof g.open !== "number") {

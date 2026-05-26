@@ -104,6 +104,26 @@ function paramsMatch(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): bool
   return true;
 }
 
+/** Lowered from Express \`express.json()\` (hub ingest). */
+export const chrysalisJsonBodyMiddleware: MiddlewareHandler = async (c, next) => {
+  const method = c.req.method;
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") {
+    await next();
+    return;
+  }
+  const ct = c.req.header("content-type") ?? "";
+  if (!ct.includes("application/json")) {
+    await next();
+    return;
+  }
+  try {
+    await c.req.json();
+  } catch {
+    // permissive empty body (Express json default)
+  }
+  await next();
+};
+
 /** Per-request middleware: decode tape from \`x-chrysalis-sql-tape\` (base64url). */
 export const sqlTapeMiddleware: MiddlewareHandler = async (c, next) => {
   const raw = c.req.header("x-chrysalis-sql-tape");
@@ -784,17 +804,21 @@ export function parseZodEnumBodyFieldRaw(
 export const SERVER_TS = (
   mountBlocks: string,
   routeRegistration: "eager" | "lazy",
+  hubMiddleware: { serverImports: string; beforeTapeLines: string } = {
+    serverImports: "",
+    beforeTapeLines: "",
+  },
 ): string => {
   const routeHook = routeRegistration === "lazy" ? "await registerRoutes(app);" : "registerRoutes(app);";
   return `import { Hono } from "hono";
 import { chrysalisDeterminismMiddleware } from "./ctx.js";
 import { sqlTapeMiddleware } from "./db.js";
 import { sessionMiddleware } from "./session.js";
-
+${hubMiddleware.serverImports}
 ${mountBlocks}
 
 export const app = new Hono();
-app.use("*", sqlTapeMiddleware);
+${hubMiddleware.beforeTapeLines}app.use("*", sqlTapeMiddleware);
 app.use("*", chrysalisDeterminismMiddleware());
 app.use("*", sessionMiddleware());
 

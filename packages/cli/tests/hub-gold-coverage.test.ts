@@ -11,10 +11,12 @@ test("hub gold coverage: zero gaps across 575 pairs (G40)", async () => {
   const report = m.buildHubGoldCoverageReport();
   expect(report.kind).toBe(m.HUB_GOLD_COVERAGE_KIND);
   expect(report.summary.pairCount).toBe(575);
-  expect(report.summary.goldMatrix).toBe(17);
+  expect(report.summary.goldMatrix).toBe(575);
+  expect(report.summary.oracleTier).toBe(4);
+  expect(report.summary.structuralTier).toBeGreaterThan(10);
   expect(report.summary.coverageGaps).toBe(0);
   expect(report.summary.hubCiStructuralPairs).toBeGreaterThan(10);
-  expect(report.summary.chrysalisCiGoldPairs).toBe(3);
+  expect(report.summary.chrysalisCiGoldPairs).toBe(4);
 
   const phpHono = report.pairs.find((p) => p.origin === "php" && p.output === "hono");
   expect(phpHono?.chrysalisCiGold).toBe(true);

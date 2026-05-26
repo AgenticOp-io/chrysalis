@@ -13,6 +13,7 @@ export {
   type EmitHandlerOptions,
 } from "./emit-tree.js";
 export { ident, stringLit, jsonLit, indent } from "./ts-util.js";
+export { planHubMiddlewareEmit, type HubMiddlewareEmitPlan } from "./hub-middleware-emit.js";
 export {
   summarizeEmittedTypeScriptLayout,
   type EmittedTsLayout,

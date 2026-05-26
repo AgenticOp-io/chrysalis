@@ -122,7 +122,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 7,
+    schemaVersion: 8,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -161,6 +161,8 @@ async function main() {
     goldCoverage: {
       ok: goldCoverageOk,
       goldMatrix: goldCoverage.summary.goldMatrix,
+      oracleTier: goldCoverage.summary.oracleTier,
+      structuralTier: goldCoverage.summary.structuralTier,
       hubCiStructuralPairs: goldCoverage.summary.hubCiStructuralPairs,
       chrysalisCiGoldPairs: goldCoverage.summary.chrysalisCiGoldPairs,
       coverageGaps: goldCoverage.summary.coverageGaps,

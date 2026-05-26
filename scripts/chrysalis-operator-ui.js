@@ -297,7 +297,7 @@
     if (!el) return;
     if (coverage?.coverageGap) {
       el.textContent =
-        "Coverage gap: matrix grade is gold but no hub structural suites and no Chrysalis ingest CI lane.";
+        "Coverage gap: verify tier requires hub structural suites or Chrysalis ingest CI but none are registered.";
       return;
     }
     if (coverage?.chrysalisCiGold) {

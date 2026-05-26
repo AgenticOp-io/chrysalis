@@ -28,7 +28,7 @@ export function trySpecializedHubLift(opts) {
   for (const { can, lift } of lifters) {
     if (!can(opts.language, opts.ext)) continue;
     const r = lift(opts);
-    if (r.usedAst && r.routeCount > 0) return r;
+    if (r.usedAst && (r.routeCount > 0 || (r.middlewareRootCount ?? 0) > 0)) return r;
   }
   return null;
 }

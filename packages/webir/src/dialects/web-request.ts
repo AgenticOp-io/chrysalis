@@ -31,6 +31,14 @@ export interface ResponseAttrs {
   readonly kind: "redirect" | "html" | "json" | "text" | "unknown";
 }
 
+export interface MiddlewareAttrs {
+  /** Lowered preset id, e.g. `express.json`, or `legacy:express-use`. */
+  readonly kind: string;
+  /** Mount path pattern (`*` when unspecified). */
+  readonly mount: string;
+  readonly order: number;
+}
+
 export interface Builders {
   route(opts: {
     attrs: RouteAttrs;
@@ -48,6 +56,12 @@ export interface Builders {
   response(opts: {
     attrs: ResponseAttrs;
     value?: NodeId;
+    origin: Locator;
+    provenance?: ReadonlyArray<Provenance>;
+  }): NodeId;
+  middleware(opts: {
+    attrs: MiddlewareAttrs;
+    body?: NodeId;
     origin: Locator;
     provenance?: ReadonlyArray<Provenance>;
   }): NodeId;
@@ -92,6 +106,19 @@ export function builders(m: ModuleBuilder): Builders {
         origin,
         provenance:
           prov ?? [provenance("php-ast", origin, `response ${attrs.status} ${attrs.kind}`)],
+      });
+    },
+    middleware({ attrs, body, origin, provenance: prov }) {
+      return m.node({
+        dialect: DIALECT,
+        op: "middleware",
+        type: { kind: "void" },
+        effects: [],
+        operands: body ? [body] : [],
+        attrs: attrs as unknown as Record<string, unknown>,
+        origin,
+        provenance:
+          prov ?? [provenance("hub-ingest", origin, `middleware ${attrs.kind} ${attrs.mount}`)],
       });
     },
   };

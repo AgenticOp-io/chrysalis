@@ -69,15 +69,17 @@ test("hub store: resolveHubRoute hub-translate for python → java", async () =>
   const route = resolveHubRoute("python", "java");
   expect(route.ok).toBe(true);
   expect(route.action).toBe("hub-translate");
-  expect(route.grade).toBe("silver");
+  expect(route.grade).toBe("gold");
+  expect(route.verifyTier).toBe("scaffold-native");
 });
 
-test("hub store: resolveHubRoute php → java is open and runnable", async () => {
+test("hub store: resolveHubRoute php → java is gold scaffold-native", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
   const route = resolveHubRoute("php", "java");
   expect(route.ok).toBe(true);
   expect(route.action).toBe("hub-translate");
-  expect(route.grade).toBe("open");
+  expect(route.grade).toBe("gold");
+  expect(route.verifyTier).toBe("scaffold-native");
 });
 
 test("hub store: HUB_MISSION_OPEN and full route grid", async () => {
@@ -123,12 +125,13 @@ test("hub store: OUTPUT_LANGUAGES covers complete open matrix", async () => {
   expect(ids).toContain("cpp");
 });
 
-test("hub store: resolveHubRoute accepts sql output as open route", async () => {
+test("hub store: resolveHubRoute accepts sql output as gold scaffold-asset", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
   const route = resolveHubRoute("php", "sql");
   expect(route.ok).toBe(true);
   expect(route.action).toBe("hub-translate");
-  expect(route.grade).toBe("open");
+  expect(route.grade).toBe("gold");
+  expect(route.verifyTier).toBe("scaffold-asset");
 });
 
 test("hub store: originFromDetection prefers app language over sql", async () => {
@@ -163,11 +166,12 @@ test("hub store: language readiness report is popularity-ordered", async () => {
   expect(sqlOut?.emitStatus).toBe("open-scaffold");
 });
 
-test("hub store: language work queue excludes gold php typescript by default", async () => {
+test("hub store: language work queue lists popular-web gold pairs", async () => {
   const { buildLanguageWorkQueue } = await import(HUB_STORE);
-  const q = buildLanguageWorkQueue({ scope: "popular-web", grades: ["open", "silver"] });
+  const q = buildLanguageWorkQueue({ scope: "popular-web", grades: ["gold"] });
   expect(q.kind).toBe("chrysalis.translation-hub.language-work-queue");
-  expect(q.items.some((i) => i.pair === "php:typescript")).toBe(false);
+  expect(q.items.some((i) => i.pair === "php:typescript")).toBe(true);
+  expect(q.items.some((i) => i.pair === "javascript:typescript")).toBe(true);
   expect(q.count).toBeGreaterThan(0);
   expect(q.items.every((i) => i.tasks.length > 0)).toBe(true);
   expect(q.items.every((i) => i.origin !== "rust")).toBe(true);

@@ -20,6 +20,7 @@ import {
 } from "./hub-ingest/language-catalog.mjs";
 import { PATTERN_LIFT_LANGUAGE_IDS } from "./hub-ingest/pattern-route-parsers.mjs";
 import { describeTranslationPath } from "./hub-ingest/hub-translation-paths.mjs";
+import { finalizeHubRouteSpec } from "./hub-ingest/hub-route-grades.mjs";
 
 export {
   buildHubTranslationPathMatrix,
@@ -318,7 +319,7 @@ function buildHubRoutes() {
   for (const src of INPUT_LANGUAGES) {
     for (const out of OUTPUT_LANGUAGES) {
       if (src.id === out.id) continue;
-      routes[`${src.id}:${out.id}`] = specForPair(src.id, out.id);
+      routes[`${src.id}:${out.id}`] = finalizeHubRouteSpec(src.id, out.id, specForPair(src.id, out.id));
     }
   }
   return routes;
@@ -497,6 +498,7 @@ export function resolveHubRoute(sourceLang, outputLang) {
     status: spec.status,
     action: spec.action,
     grade: spec.grade,
+    verifyTier: spec.verifyTier,
     label: spec.label,
     emitTarget: spec.emitTarget ?? null,
     message: spec.label,

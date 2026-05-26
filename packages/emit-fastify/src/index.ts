@@ -25,6 +25,7 @@ import {
   ident,
   loadEmitResumeCompletedHandlers,
   markEmitResumeHandlerComplete,
+  planHubMiddlewareEmit,
   sha256Utf8Hex,
   type ChrysalisEmitStrategyV1,
   type EmittedHandler,
@@ -276,7 +277,11 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     );
   }
   const { imports, registrations } = mountBlockFor(bindings, routeRegistration, routePathConstants);
-  await writeOne("src/server.ts", SERVER_TS(imports, registrations));
+  const hubMiddleware = planHubMiddlewareEmit(m);
+  await writeOne(
+    "src/server.ts",
+    SERVER_TS(imports, registrations, hubMiddleware.fastify.registrationLines),
+  );
   await writeOne("src/index.ts", INDEX_TS);
   await writeOne("chrysalis.holes.json", JSON.stringify(allHoles, null, 2));
   if (emitHandlerFingerprints && handlerFingerprintRows.length > 0) {

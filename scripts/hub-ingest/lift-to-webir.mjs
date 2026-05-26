@@ -11,6 +11,7 @@ import {
   countExpressMiddlewareUses,
   detectHttpRoutesInSource,
 } from "./javascript-ast-ingest.mjs";
+import { liftExpressMiddlewareFromSource } from "./hub-express-middleware.mjs";
 import { trySpecializedHubLift } from "./hub-lift-dispatch.mjs";
 
 function parseArgs(argv) {
@@ -65,6 +66,7 @@ async function main() {
   let heuristicRouteCount = 0;
   let astRouteCount = 0;
   let middlewareUseCount = 0;
+  let middlewareLoweredCount = 0;
   /** @type {{ kind: string, file: string, count: number }[]} */
   const middlewareShell = [];
 
@@ -90,15 +92,29 @@ async function main() {
           : canJavaScriptAstIngest(language, ext)
             ? countExpressMiddlewareUses(source)
             : 0;
-      if (fileMiddlewareCount > 0) {
-        middlewareUseCount += fileMiddlewareCount;
+      middlewareUseCount += fileMiddlewareCount;
+      if (typeof specialized.middlewareRootCount === "number") {
+        middlewareLoweredCount += specialized.middlewareRootCount;
+      }
+      const shellCount = fileMiddlewareCount - (specialized.middlewareRootCount ?? 0);
+      if (shellCount > 0) {
         middlewareShell.push({
           kind: "legacy:express-use",
           file,
-          count: fileMiddlewareCount,
+          count: shellCount,
         });
       }
       continue;
+    }
+
+    if (canJavaScriptAstIngest(language, ext)) {
+      const mw = liftExpressMiddlewareFromSource(source, file, webir, builder, wr);
+      middlewareUseCount += mw.middlewareUseCount;
+      middlewareLoweredCount += mw.middlewareRootCount;
+      const shellCount = mw.middlewareUseCount - mw.middlewareRootCount;
+      if (shellCount > 0) {
+        middlewareShell.push({ kind: "legacy:express-use", file, count: shellCount });
+      }
     }
 
     const routes = canJavaScriptAstIngest(language, ext)
@@ -194,6 +210,7 @@ async function main() {
     webirPath: outPath,
     holeCount: holes,
     middlewareUseCount,
+    middlewareLoweredCount,
     middlewareShell,
     generatedAt: new Date().toISOString(),
   };
