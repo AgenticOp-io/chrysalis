@@ -56,8 +56,16 @@ fi
 
 install_matrix_ci() {
   local force="${WPTP_MATRIX_FORCE_CI:-0}"
+  local stamp="${MATRIX}/.chrysalis-matrix-ref"
+  local prev_ref=""
+  if [[ -f "${stamp}" ]]; then
+    prev_ref="$(tr -d '\r\n' < "${stamp}")"
+  fi
   mkdir -p "${ROOT}"
-  if [[ "$force" == "1" ]] || [[ ! -d "${MATRIX}/.git" ]]; then
+  if [[ "$force" == "1" ]] || [[ ! -d "${MATRIX}/.git" ]] || [[ "${prev_ref}" != "${MATRIX_REF}" ]]; then
+    if [[ "${prev_ref}" != "${MATRIX_REF}" ]] && [[ -n "${prev_ref}" ]]; then
+      log "matrix ref changed (${prev_ref} -> ${MATRIX_REF}); recloning"
+    fi
     rm -rf "${MATRIX}"
     if git clone --depth 1 --branch "${MATRIX_REF}" "${MATRIX_REPO}" "${MATRIX}" 2>/dev/null; then
       :
@@ -65,6 +73,8 @@ install_matrix_ci() {
       git clone --depth 1 "${MATRIX_REPO}" "${MATRIX}"
       git -C "${MATRIX}" checkout "${MATRIX_REF}"
     fi
+    printf '%s' "${MATRIX_REF}" > "${stamp}"
+    force="1"
   fi
   cd "${MATRIX}"
   log "matrix ref: $(git rev-parse --short HEAD) (tag ${MATRIX_REF})"
