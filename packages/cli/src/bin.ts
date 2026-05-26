@@ -132,7 +132,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file / --ingest-checkpoint-file / --ingest-resume-checkpoint / --ingest-dedupe-structural-subgraphs / --ingest-dedupe-structural-subgraphs-ignore-origin (DESIGN D283), verify|repair|insight|status --ingest-progress-file (verify|status need --project for progress+checkpoint); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file / --ingest-checkpoint-file / --ingest-resume-checkpoint / --ingest-dedupe-structural-subgraphs / --ingest-dedupe-structural-subgraphs-ignore-origin (DESIGN D283) / --ingest-lift-shared-helpers (B2), verify|repair|insight|status --ingest-progress-file (verify|status need --project for progress+checkpoint); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
@@ -389,6 +389,7 @@ async function ingestProjectWithShardMode(
     ingestResumeFromCheckpoint?: boolean;
     dedupeStructuralSubgraphs?: boolean;
     dedupeStructuralSubgraphsIgnoreOrigin?: boolean;
+    liftSharedHelpers?: boolean;
   },
 ): Promise<Module> {
   const base = {
@@ -401,6 +402,7 @@ async function ingestProjectWithShardMode(
     ...(extras.dedupeStructuralSubgraphsIgnoreOrigin === true
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
+    ...(extras.liftSharedHelpers === true ? { liftSharedHelpers: true as const } : {}),
   };
   if (mode.mode === "none") {
     return ingestDirectory(root, base);
@@ -538,7 +540,7 @@ async function cmdIngest(args: string[]): Promise<number> {
   const root = pos[0];
   if (!root) {
     console.error(
-      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin]",
+      "usage: chrysalis ingest <php-project-dir> [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin] [--ingest-lift-shared-helpers]",
     );
     return 2;
   }
@@ -590,6 +592,13 @@ async function cmdIngest(args: string[]): Promise<number> {
   if (flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true) {
     console.log("[ingest] structural dedupe uses origin-insensitive key (ROADMAP helper lifting)");
   }
+  if (flags["ingest-lift-shared-helpers"] === true) {
+    if (flags["ingest-dedupe-structural-subgraphs"] !== true) {
+      console.error("error: --ingest-lift-shared-helpers requires --ingest-dedupe-structural-subgraphs");
+      return 1;
+    }
+    console.log("[ingest] lift shared helper bodies for call-effect widening (IR helper lifting B2)");
+  }
   const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
     ...(parserProvider ? { parserProvider } : {}),
     ...(cacheOpts.ingestCacheDir !== undefined ? { ingestCacheDir: cacheOpts.ingestCacheDir } : {}),
@@ -608,6 +617,7 @@ async function cmdIngest(args: string[]): Promise<number> {
     ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
+    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
   });
   console.log(`routes:   ${mod.roots.length}`);
   console.log(`nodes:    ${mod.nodes.size}`);
@@ -629,7 +639,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-dedupe-identical-handler-bodies] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-dedupe-identical-handler-bodies] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin] [--ingest-lift-shared-helpers]",
     );
     return 2;
   }
@@ -714,6 +724,7 @@ async function cmdEmit(args: string[]): Promise<number> {
     ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
+    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
   });
   const outAbs = resolve(outDir);
   const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
@@ -1105,6 +1116,7 @@ async function cmdVerify(args: string[]): Promise<number> {
       ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
         ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
         : {}),
+      ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
     });
     vlog(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
   }
@@ -1439,6 +1451,7 @@ async function cmdRepair(args: string[]): Promise<number> {
     ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
+    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
   });
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
 
@@ -2020,7 +2033,7 @@ async function cmdInsight(args: string[]): Promise<number> {
         "                         [--ingest-cache <dir>]\n" +
         "                         [--ingest-progress-file <path>]\n" +
         "                         [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint]\n" +
-        "                         [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin]\n" +
+        "                         [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin] [--ingest-lift-shared-helpers]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -2062,6 +2075,7 @@ async function cmdInsight(args: string[]): Promise<number> {
     ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
+    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
   });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
@@ -2202,7 +2216,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
         "                         [--http-replay-skip-install]\n" +
         "                         [--ingest-cache <dir>]\n" +
         "                         [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint]\n" +
-        "                         [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin]\n" +
+        "                         [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin] [--ingest-lift-shared-helpers]\n" +
         "                         [--parser-provider glayzzle|nikic]\n" +
         "                         [--json]",
     );
@@ -2244,6 +2258,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
     ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
+    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
   });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
@@ -2993,6 +3008,7 @@ async function cmdStatus(args: string[]): Promise<number> {
         ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
           ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
           : {}),
+        ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
       });
       ingestedMod = mod;
       const ingestSharding: NonNullable<StatusSummary["ingestSharding"]> =

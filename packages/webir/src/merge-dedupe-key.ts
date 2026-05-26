@@ -109,6 +109,31 @@ export function mergeDedupeStructuralKeyIgnoringOrigin(
 }
 
 /**
+ * Helper-lift equivalence (**IR helper lifting B2**): same as
+ * {@link mergeDedupeStructuralKeyIgnoringOrigin} but omits provenance so
+ * per-file PHP locators do not block merging identical lib bodies.
+ */
+export function mergeDedupeStructuralKeyForHelperLift(
+  n: NodeBase,
+  operandKeys: readonly string[],
+): string {
+  const parts = [
+    n.dialect,
+    n.op,
+    canonicalWebIRType(n.type),
+    canonicalEffects(n.effects),
+    stableJson(n.attrs),
+    ...operandKeys,
+  ];
+  const h = createHash("sha256");
+  for (const p of parts) {
+    h.update(p, "utf8");
+    h.update("\0", "utf8");
+  }
+  return h.digest("hex");
+}
+
+/**
  * Stable hash input for one node given precomputed operand subtree keys
  * (post-order within a shard module).
  */

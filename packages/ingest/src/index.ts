@@ -66,6 +66,11 @@ export interface IngestOptions {
    */
   readonly dedupeStructuralSubgraphsIgnoreOrigin?: boolean;
   /**
+   * When true with {@link dedupeStructuralSubgraphs}, canonicalize structurally identical
+   * lib/vendor helper bodies for call-effect widening (**IR helper lifting B2**).
+   */
+  readonly liftSharedHelpers?: boolean;
+  /**
    * When set, atomically writes a versioned ingest checkpoint envelope after each route
    * (partial WebIR + completed route keys). Use with {@link ingestResumeFromCheckpoint} to skip
    * already-completed routes after a crash.
@@ -104,6 +109,7 @@ export async function ingestDirectory(
   const dbFactoryReturns = dbFactoryReturnCalleeSet(manifest);
   const callEffects = await buildCallEffectMap(root, manifest.routes, {
     ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+    ...(opts?.liftSharedHelpers === true ? { liftSharedHelpers: true as const } : {}),
   });
   let routes = manifest.routes;
   if (opts?.shardCount !== undefined) {
@@ -130,6 +136,9 @@ export async function ingestDirectory(
     throw new Error(
       "ingestDirectory: dedupeStructuralSubgraphsIgnoreOrigin requires dedupeStructuralSubgraphs",
     );
+  }
+  if (opts?.liftSharedHelpers === true && opts?.dedupeStructuralSubgraphs !== true) {
+    throw new Error("ingestDirectory: liftSharedHelpers requires dedupeStructuralSubgraphs");
   }
   const routeFingerprint = fingerprintIngestRouteList(routes);
   const projectRootAbs = resolve(root);
@@ -258,5 +267,10 @@ export {
 } from "./ingest-checkpoint.js";
 export { filterRoutesForShard, routeFileShardBucket } from "./route-shard.js";
 export { buildCallEffectMap, buildLibraryCallEffectMap } from "./library-effects.js";
+export {
+  applyHelperLiftAliases,
+  buildHelperLiftAliasMap,
+  functionBodyStructuralKey,
+} from "./lift-shared-helpers.js";
 export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";
 export type { RouteManifest, RouteSpec };

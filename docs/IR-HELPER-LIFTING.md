@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** Backlog (scope gate **DESIGN D310**). Not implemented on `main`.  
+**Status:** **B1** done; **B2 v0** (call-effect body canonicalization) on `main`. **B3** semantic merge remains backlog.  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem
@@ -46,7 +46,7 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | --- | --- |
 | **B0 (done)** | D283 dedupe + ignore-origin CLI |
 | **B1** | **Done:** **`fixtures/lift-helper-gap-probe/`** + **`fixtures/lift-helper-dedupe-control/`**; Vitest **`packages/ingest/tests/lift-helper-gap-probe.test.ts`** |
-| **B2** | Lift pass v0: identical structure only (strict superset of dedupe at function granularity) |
+| **B2** | **Done (v0):** **`liftSharedHelpers`** / CLI **`--ingest-lift-shared-helpers`** (requires **`--ingest-dedupe-structural-subgraphs`**); fixture **`fixtures/lift-helper-lift-twin/`** |
 | **B3** | Semantic key + effect-proof merge for near-duplicates (ROADMAP “future”) |
 
 ## Decision

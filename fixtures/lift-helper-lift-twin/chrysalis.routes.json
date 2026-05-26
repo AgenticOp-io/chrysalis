@@ -1,0 +1,17 @@
+{
+  "app": "lift-helper-lift-twin",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/a",
+      "file": "pages/show_a.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/b",
+      "file": "pages/show_b.php",
+      "pathParams": []
+    }
+  ]
+}

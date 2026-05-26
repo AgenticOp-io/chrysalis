@@ -24,6 +24,7 @@ import {
   type NodeId,
 } from "@chrysalis/webir";
 import { convertPhpStatementsToBlock } from "./convert.js";
+import { applyHelperLiftAliases, buildHelperLiftAliasMap } from "./lift-shared-helpers.js";
 
 async function collectPhpFilesRecursive(dir: string): Promise<string[]> {
   const out: string[] = [];
@@ -166,6 +167,13 @@ export interface RouteFileRef {
 
 export interface CallEffectMapOptions {
   readonly parserProvider?: Provider;
+  /**
+   * When true, lib/vendor/route-local helpers with structurally identical lowered bodies
+   * share one WebIR body root before the call-effect fixpoint (**IR helper lifting B2**).
+   */
+  readonly liftSharedHelpers?: boolean;
+  /** Passed to structural key when {@link liftSharedHelpers} is true. Default: ignore origin. */
+  readonly liftSharedHelpersIgnoreOrigin?: boolean;
 }
 
 function mergeBodies(
@@ -241,6 +249,14 @@ export async function buildCallEffectMap(
 
   if (bodies.size === 0) {
     return new Map();
+  }
+
+  if (opts?.liftSharedHelpers === true) {
+    const getNode = (id: NodeId) => builder.get(id);
+    const aliases = buildHelperLiftAliasMap(bodies, getNode, {
+      ignoreOrigin: opts.liftSharedHelpersIgnoreOrigin !== false,
+    });
+    applyHelperLiftAliases(bodies, aliases);
   }
 
   return runCallEffectFixpoint(builder, bodies);

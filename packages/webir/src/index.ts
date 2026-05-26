@@ -144,7 +144,11 @@ export {
   type ModuleCheckpointV1,
 } from "./module-checkpoint.js";
 export { mergeWebIrModules } from "./merge-modules.js";
-export { mergeDedupeStructuralKey, mergeDedupeStructuralKeyIgnoringOrigin } from "./merge-dedupe-key.js";
+export {
+  mergeDedupeStructuralKey,
+  mergeDedupeStructuralKeyForHelperLift,
+  mergeDedupeStructuralKeyIgnoringOrigin,
+} from "./merge-dedupe-key.js";
 export { dedupeStructuralSubgraphsInModule } from "./dedupe-module-structural.js";
 export type { ModuleBuilderOpts } from "./builder.js";
 export * as webRequest from "./dialects/web-request.js";

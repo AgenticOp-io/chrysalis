@@ -4,6 +4,7 @@ import { nodeId } from "../src/index.js";
 import {
   canonicalWebIRType,
   mergeDedupeStructuralKey,
+  mergeDedupeStructuralKeyForHelperLift,
   mergeDedupeStructuralKeyIgnoringOrigin,
 } from "../src/merge-dedupe-key.js";
 
@@ -56,6 +57,17 @@ describe("mergeDedupeStructuralKey", () => {
     const k1 = mergeDedupeStructuralKey(base, ["aa", "bb"]);
     const k2 = mergeDedupeStructuralKey(base, ["bb", "aa"]);
     expect(k1).not.toBe(k2);
+  });
+
+  test("mergeDedupeStructuralKeyForHelperLift ignores provenance", () => {
+    const a = minimalNode({
+      provenance: [{ source: "php-ast", locator: { kind: "php", file: "a.php", line: 1, col: 0 }, reason: "a" }],
+    });
+    const b = minimalNode({
+      provenance: [{ source: "php-ast", locator: { kind: "php", file: "b.php", line: 9, col: 0 }, reason: "b" }],
+    });
+    expect(mergeDedupeStructuralKeyForHelperLift(a, [])).toBe(mergeDedupeStructuralKeyForHelperLift(b, []));
+    expect(mergeDedupeStructuralKeyIgnoringOrigin(a, [])).not.toBe(mergeDedupeStructuralKeyIgnoringOrigin(b, []));
   });
 });
 

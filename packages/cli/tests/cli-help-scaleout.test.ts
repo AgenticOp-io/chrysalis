@@ -22,6 +22,7 @@ describe("chrysalis --help", () => {
     expect(r.stdout).toContain("--ingest-resume-checkpoint");
     expect(r.stdout).toContain("--ingest-dedupe-structural-subgraphs");
     expect(r.stdout).toContain("--ingest-dedupe-structural-subgraphs-ignore-origin");
+    expect(r.stdout).toContain("--ingest-lift-shared-helpers");
     expect(r.stdout).toContain("--merge-all-shards");
     expect(r.stdout).toContain("--shard-count");
     expect(r.stdout).toContain("--emit-handler-fingerprints");
