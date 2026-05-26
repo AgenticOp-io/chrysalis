@@ -6,6 +6,7 @@ import { canPythonAstIngest, liftPythonFileToWebir } from "./python-ast-ingest.m
 import { canJavaAstIngest, liftJavaFileToWebir } from "./java-ast-ingest.mjs";
 import { canGoAstIngest, liftGoFileToWebir } from "./go-ast-ingest.mjs";
 import { canPatternRouteLift, liftPatternRoutesFile } from "./pattern-route-lift.mjs";
+import { canCwlIngest, liftCwlFileToWebir } from "./cwl-ingest.mjs";
 
 /**
  * @param {object} opts — webir, builder, wr, source, file, language, ext
@@ -13,6 +14,7 @@ import { canPatternRouteLift, liftPatternRoutesFile } from "./pattern-route-lift
  */
 export function trySpecializedHubLift(opts) {
   const lifters = [
+    { can: canCwlIngest, lift: liftCwlFileToWebir },
     { can: canJavaScriptAstIngest, lift: liftJavaScriptFileToWebir },
     { can: canPythonAstIngest, lift: liftPythonFileToWebir },
     { can: canJavaAstIngest, lift: liftJavaFileToWebir },

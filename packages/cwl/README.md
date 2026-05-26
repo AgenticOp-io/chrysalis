@@ -1,0 +1,23 @@
+# Chrysalis Web Language (CWL)
+
+## Purpose
+
+**CWL** is the WebIR-native authoring language for the Translation Hub: a single surface syntax that consolidates what is common across PHP, JavaScript, Python, Java, Go, and other web stacks after lowering to **WebIR**.
+
+## Public API
+
+- Grammar and semantics: **`docs/CWL.md`**
+- Ingest: **`scripts/hub-ingest/cwl-ingest.mjs`** (`.cwl` → WebIR)
+- Emit: **`scripts/hub-ingest/emit-cwl-from-hub.mjs`** (WebIR → `.cwl`)
+- Parser: **`scripts/hub-ingest/cwl-parser.mjs`**
+
+## Invariants
+
+- Every valid CWL route maps **directly** to WebIR without lossy regex lift.
+- Unsupported behavior uses explicit **`hole`** statements (same hole policy as DESIGN.md).
+- Generated targets still use **injected ctx** when emitting TypeScript frameworks.
+
+## Non-goals
+
+- Replacing PHP, TypeScript, or Python in legacy codebases.
+- A standalone runtime (CWL is IR-first; run via emit to Hono/Fastify/etc.).

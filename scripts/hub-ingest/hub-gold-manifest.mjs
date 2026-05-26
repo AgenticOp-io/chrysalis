@@ -26,6 +26,14 @@ export const HUB_GOLD_SUITES = [
     structural: true,
     traceReplay: true,
   },
+  {
+    id: "cwl-gold-hono",
+    fixture: join(scriptRoot, "fixtures/hub-gold-cwl"),
+    origin: "cwl",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
 ];
 
 /**

@@ -18,6 +18,7 @@ export const HUB_PATH_MATRIX_SCHEMA_VERSION = 1;
 /** Ingest lanes (how source code enters WebIR). */
 export const HUB_INGEST_LANES = [
   "chrysalis-ingest",
+  "hub-cwl-direct", // Chrysalis Web Language — direct WebIR (G32)
   "hub-ast-lift",
   "hub-pattern-lift",
   "hub-file-lift",
@@ -27,6 +28,7 @@ export const HUB_INGEST_LANES = [
 /** Emit lanes (how WebIR leaves the hub). */
 export const HUB_EMIT_LANES = [
   "chrysalis-emit",
+  "hub-cwl-emit",
   "hub-webir-typescript",
   "hub-native-python",
   "hub-native-java",
@@ -65,6 +67,7 @@ const FILE_LIFT_ORIGIN_IDS = new Set([
 const AST_LIFT_ORIGIN_IDS = new Set(["javascript", "typescript", "python", "java", "go"]);
 
 const NATIVE_EMIT_BY_OUTPUT = {
+  cwl: "hub-cwl-emit",
   python: "hub-native-python",
   java: "hub-native-java",
   go: "hub-native-go",
@@ -86,6 +89,7 @@ const NATIVE_EMIT_SCRIPT = {
   kotlin: "emit-kotlin-from-hub.mjs",
   scala: "emit-scala-from-hub.mjs",
   swift: "emit-swift-from-hub.mjs",
+  cwl: "emit-cwl-from-hub.mjs",
 };
 
 const AST_INGEST_SCRIPT = {
@@ -103,6 +107,7 @@ const FRAMEWORK_OUTPUTS = new Set(["hono", "fastify", "nextjs", "typescript"]);
  * @returns {string}
  */
 export function ingestLaneForOrigin(origin) {
+  if (origin === "cwl") return "hub-cwl-direct";
   if (origin === "php") return "chrysalis-ingest";
   if (AST_LIFT_ORIGIN_IDS.has(origin)) return "hub-ast-lift";
   if (PATTERN_LIFT_LANGUAGE_IDS.includes(origin)) return "hub-pattern-lift";
@@ -117,6 +122,7 @@ export function ingestLaneForOrigin(origin) {
  */
 export function emitLaneForOutput(output, route) {
   if (route.action === "chrysalis-ingest-emit") return "chrysalis-emit";
+  if (output === "cwl") return "hub-cwl-emit";
   if (NATIVE_EMIT_BY_OUTPUT[output]) return NATIVE_EMIT_BY_OUTPUT[output];
   if (FRAMEWORK_OUTPUTS.has(output)) return "hub-webir-typescript";
   return "hub-scaffold";
@@ -138,7 +144,10 @@ export function verifyLanesForPair(origin, output, grade) {
     lanes.push("legacy-oracle-php");
   }
   if (
-    (origin === "javascript" || origin === "typescript" || origin === "python") &&
+    (origin === "cwl" ||
+      origin === "javascript" ||
+      origin === "typescript" ||
+      origin === "python") &&
     grade === "gold" &&
     (output === "typescript" || output === "hono" || output === "fastify")
   ) {
@@ -175,7 +184,13 @@ function buildSteps(origin, output, route, ingestLane, emitLane) {
   const steps = [];
   const target = route.emitTarget ?? (output === "typescript" ? "hono" : output);
 
-  if (ingestLane === "chrysalis-ingest") {
+  if (ingestLane === "hub-cwl-direct") {
+    steps.push({
+      phase: "ingest",
+      id: "hub-cwl-direct",
+      script: "cwl-ingest.mjs",
+    });
+  } else if (ingestLane === "chrysalis-ingest") {
     steps.push({
       phase: "capture",
       id: "oracle-php-capture",
@@ -232,6 +247,12 @@ function buildSteps(origin, output, route, ingestLane, emitLane) {
       phase: "emit",
       id: "hub-webir-ts",
       script: `${emitScript} --target ${target === "typescript" ? "hono" : target}`,
+    });
+  } else if (emitLane === "hub-cwl-emit") {
+    steps.push({
+      phase: "emit",
+      id: "hub-cwl-emit",
+      script: "emit-cwl-from-hub.mjs",
     });
   } else if (NATIVE_EMIT_BY_OUTPUT[output]) {
     steps.push({
@@ -319,7 +340,9 @@ export function describeTranslationPath(origin, output) {
     ingest: {
       lane: ingestLane,
       primaryScript:
-        ingestLane === "chrysalis-ingest"
+        ingestLane === "hub-cwl-direct"
+          ? "cwl-ingest.mjs"
+          : ingestLane === "chrysalis-ingest"
           ? "@chrysalis/ingest via chrysalis CLI"
           : ingestLane === "hub-ast-lift"
             ? AST_INGEST_SCRIPT[origin] ?? "lift-to-webir.mjs"

@@ -27,6 +27,7 @@ export const LANGUAGE_LABELS = {
   json: "JSON",
   yaml: "YAML",
   markdown: "Markdown",
+  cwl: "Chrysalis Web Language (CWL)",
   hono: "TypeScript (Hono)",
   fastify: "TypeScript (Fastify)",
   nextjs: "TypeScript (Next.js)",
@@ -60,6 +61,7 @@ export const HUB_WEB_ORIGIN_LANGUAGE_IDS = [
   "json",
   "yaml",
   "markdown",
+  "cwl",
 ];
 
 /** Output dropdown: complete open matrix including native targets. */
@@ -89,6 +91,7 @@ export const HUB_WEB_OUTPUT_LANGUAGE_IDS = [
   "hono",
   "fastify",
   "nextjs",
+  "cwl",
 ];
 
 /** Framework outputs (subset of {@link HUB_WEB_OUTPUT_LANGUAGE_IDS}). */
@@ -168,4 +171,5 @@ export const HUB_POPULAR_WEB_FOCUS_IDS = [
   "go",
   "ruby",
   "csharp",
+  "cwl",
 ];

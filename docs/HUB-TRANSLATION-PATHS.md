@@ -128,7 +128,7 @@ This is an **alternate** path on the same pair row, not a different matrix cell.
 
 Grades live on `HUB_ROUTES` in `chrysalis-hub-store.mjs`. Paths explain **how** each grade is achieved today and **what to build** to promote (`promoteToGold` in path JSON).
 
-Approximate grid (22 origins × 25 outputs, minus identity): **~528** directed pairs — run `pnpm run hub:completion` for current gold/silver/open counts.
+Grid (23 origins × 26 outputs, minus identity): **575** directed pairs — run `pnpm run hub:completion` for current gold/silver/open counts.
 
 ---
 

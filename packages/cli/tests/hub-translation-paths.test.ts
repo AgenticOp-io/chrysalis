@@ -16,6 +16,7 @@ test("hub paths: matrix covers every HUB_ROUTES pair", async () => {
   expect(matrix.schemaVersion).toBe(1);
   expect(matrix.pairCount).toBe(expected);
   expect(matrix.pairs.length).toBe(expected);
+  expect(matrix.laneCatalog.ingest).toContain("hub-cwl-direct");
 
   for (const src of hub.INPUT_LANGUAGES) {
     for (const out of hub.OUTPUT_LANGUAGES) {

@@ -204,6 +204,24 @@ export const LANGUAGE_PROFILES = {
     routeStyle: "static",
     notes: "File lift only.",
   },
+  "origin:cwl": {
+    kind: "dynamic",
+    role: "origin",
+    family: "chrysalis-cwl",
+    typing: "structural",
+    typicalFrameworks: ["CWL"],
+    routeStyle: "@route + handler blocks",
+    notes: "Direct WebIR ingest; gold to TS stacks; canonical consolidation language (G32).",
+  },
+  "output:cwl": {
+    kind: "framework-output",
+    role: "output",
+    family: "chrysalis-cwl",
+    typing: "structural",
+    typicalFrameworks: ["CWL"],
+    routeStyle: "WebIR projection",
+    notes: "emit-cwl-from-hub.mjs round-trip authoring.",
+  },
   c: {
     kind: "static",
     role: "origin",
@@ -331,6 +349,12 @@ export const BEST_PRACTICES = [
     appliesTo: "origin:non-php",
     text: "Use hub trace upload + oracle-python/oracle-node recorders on legacy hosts; replay with @chrysalis/verify when promoting.",
   },
+  {
+    id: "bp-cwl-authoring",
+    title: "Prefer CWL for canonical routes",
+    appliesTo: "origin:cwl",
+    text: "Author new routes in CWL when defining cross-language semantics; legacy languages lift into WebIR first.",
+  },
 ];
 
 const LANE_COMPARISONS = {
@@ -341,6 +365,7 @@ const LANE_COMPARISONS = {
       "hub-ast-lift": "AST or runtime parser subprocess; best for JS/TS/Python/Java/Go route shapes.",
       "hub-pattern-lift": "Regex/framework patterns; route shell without deep body semantics.",
       "hub-file-lift": "One GET route per file; for assets and non-app sources.",
+      "hub-cwl-direct": "Parse .cwl modules directly to WebIR; no lossy lift (G32).",
     },
   },
   emit: {
@@ -359,6 +384,7 @@ const LANE_COMPARISONS = {
       "hub-native-swift": "Vapor from emit-swift-from-hub.mjs.",
       "hub-scaffold": "emit-target-project fallback with explicit hole.",
       "wptp-compose": "Contract IR compose; skips native ingest when OpenAPI/HAR present.",
+      "hub-cwl-emit": "Project WebIR to .cwl source (emit-cwl-from-hub.mjs).",
     },
   },
   verify: {
@@ -562,7 +588,7 @@ export function buildHubPathKnowledgeBase(opts = {}) {
     kind: HUB_PATH_KNOWLEDGE_KIND,
     schemaVersion: HUB_PATH_KNOWLEDGE_SCHEMA_VERSION,
     mission:
-      "Comprehensive map of all web language translation paths: 22 origins × 25 outputs (528 directed pairs), with similarities, differences, and best practices.",
+      "Comprehensive map of all web language translation paths: 23 origins × 26 outputs (575 directed pairs), with similarities, differences, and best practices.",
     languages,
     laneComparisons: LANE_COMPARISONS,
     bestPractices: BEST_PRACTICES,

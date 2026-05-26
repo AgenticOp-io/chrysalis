@@ -6,7 +6,7 @@ const KNOWLEDGE = fileURLToPath(
 );
 const HUB_STORE = fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url));
 
-test("path knowledge: full grid 528 pairs with similarities and practices", async () => {
+test("path knowledge: full grid 575 pairs with similarities and practices", async () => {
   const kb = await import(KNOWLEDGE);
   const hub = await import(HUB_STORE);
   const db = kb.buildHubPathKnowledgeBase();
@@ -16,6 +16,7 @@ test("path knowledge: full grid 528 pairs with similarities and practices", asyn
   expect(db.kind).toBe(kb.HUB_PATH_KNOWLEDGE_KIND);
   expect(db.pairCount).toBe(expected);
   expect(db.pairs.length).toBe(expected);
+  expect(db.languages.cwl).toBeDefined();
   expect(db.bestPractices.length).toBeGreaterThanOrEqual(8);
   expect(Object.keys(db.languages).length).toBeGreaterThanOrEqual(22);
 

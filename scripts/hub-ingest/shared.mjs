@@ -24,6 +24,7 @@ export const EXT_BY_LANG = {
   json: [".json"],
   yaml: [".yaml", ".yml"],
   markdown: [".md", ".markdown"],
+  cwl: [".cwl"],
 };
 
 /** Map hub output language id to emit backend (TypeScript stacks only). */

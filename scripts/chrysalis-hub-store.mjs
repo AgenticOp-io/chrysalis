@@ -97,6 +97,7 @@ export const EXT_TO_LANGUAGE = {
   ".yml": "yaml",
   ".md": "markdown",
   ".markdown": "markdown",
+  ".cwl": "cwl",
 };
 
 /** In-repo WPTP compose / CI scripts the hub documents (not auto-run in hub v1). */
@@ -147,6 +148,45 @@ function specForPair(sourceLang, outputLang) {
       : outputLang === "typescript"
         ? "hono"
         : null;
+
+  if (sourceLang === "cwl") {
+    if (outputLang === "cwl") {
+      return {
+        status: "ready",
+        action: "hub-translate",
+        emitTarget: null,
+        grade: "gold",
+        label: `${label} (CWL ↔ WebIR round-trip; G32)`,
+      };
+    }
+    if (outputLang === "typescript" || outputLang === "hono" || outputLang === "fastify") {
+      const target = outputLang === "typescript" ? "hono" : outputLang;
+      return {
+        status: "ready",
+        action: "hub-translate",
+        emitTarget: target,
+        grade: "gold",
+        label: `${label} (CWL direct ingest → WebIR emit; G32)`,
+      };
+    }
+    return {
+      status: "ready",
+      action: "hub-translate",
+      emitTarget,
+      grade: emitTarget ? "silver" : "open",
+      label,
+    };
+  }
+
+  if (outputLang === "cwl" && sourceLang !== "cwl") {
+    return {
+      status: "ready",
+      action: "hub-translate",
+      emitTarget: null,
+      grade: "silver",
+      label: `${label} (hub WebIR → CWL emit, G32)`,
+    };
+  }
 
   if (sourceLang === "php") {
     if (outputLang === "typescript") {
@@ -330,6 +370,7 @@ const PREFERRED_ORIGIN_LANGUAGES = new Set([
   "html",
   "css",
   "scss",
+  "cwl",
 ]);
 
 /** Pick origin from autodetect (highest file count) or manual default. */
@@ -484,6 +525,24 @@ export function planHubTranslation(project) {
 }
 
 function readinessForOrigin(languageId) {
+  if (languageId === "cwl") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      ingestStatus: "gold-cwl-direct",
+      emitStatus: "gold-cwl-roundtrip",
+      done: [
+        "Chrysalis Web Language (CWL): direct WebIR ingest — no lossy lift (G32).",
+        "CWL → hono/fastify/typescript gold when hub-gold-verify passes.",
+        "Any lifted WebIR → CWL via emit-cwl-from-hub.mjs.",
+      ],
+      notDone: [
+        "CWL effect typing beyond declared effects: list is metadata until WebIR effect pass lands.",
+        "Full semantic parity for non-CWL origins exporting to CWL still depends on lift quality.",
+      ],
+    };
+  }
   if (languageId === "php") {
     return {
       id: languageId,
@@ -606,6 +665,22 @@ function readinessForOrigin(languageId) {
 }
 
 function readinessForOutput(languageId) {
+  if (languageId === "cwl") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      emitStatus: "gold-cwl-projection",
+      done: [
+        "WebIR → CWL via emit-cwl-from-hub.mjs (round-trip authoring format, G32).",
+        "CWL is the canonical consolidation of cross-language WebIR primitives.",
+      ],
+      notDone: [
+        "Effects in CWL are declarative metadata until wired to WebIR effect edges.",
+        "Import from legacy languages to CWL still passes through lift holes.",
+      ],
+    };
+  }
   if (languageId === "hono" || languageId === "fastify" || languageId === "nextjs" || languageId === "typescript") {
     return {
       id: languageId,

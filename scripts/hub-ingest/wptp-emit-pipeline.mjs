@@ -128,6 +128,16 @@ export async function runHubEmitPipeline(projectDir, origin, output) {
     }
   }
 
+  if (output === "cwl") {
+    try {
+      await runNode(join(root, "scripts/hub-ingest/emit-cwl-from-hub.mjs"), [projectDir, "--origin", origin]);
+      await writeEmitNote(projectDir, { path: "hub-webir-cwl", origin, output: "cwl" });
+      return { ok: true, path: "hub-webir-cwl" };
+    } catch {
+      /* continue */
+    }
+  }
+
   const nativeEmitScripts = {
     ruby: "emit-ruby-from-hub.mjs",
     csharp: "emit-csharp-from-hub.mjs",

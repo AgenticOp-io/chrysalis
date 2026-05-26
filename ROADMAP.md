@@ -87,7 +87,8 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G28 — Hub completion finish** — **`res.json`** / object literal JS lowering; **`hub-gold-trace-replay`** in-process verify oracle; native emit **ruby/csharp/rust**; **wptp-matrix** checkout + **`hub:wptp-gold-smoke`** in CI. (**DESIGN D333**)
 - [x] **G29 — Translation path matrix** — **`hub-translation-paths.mjs`** (ingest/IR/emit/verify lanes per origin×output); **`hub:path-matrix`**; **`GET /api/hub/translation-path-matrix`**; **`docs/HUB-TRANSLATION-PATHS.md`**. (**DESIGN D334**)
 - [x] **G30 — Hub comprehensive paths program** — Native emit **kotlin/scala/swift**; **python** literal→hono **gold** + dict lowering; **`hub-gold-manifest`** multi-suite verify/replay; **`oracle-python`** + **`oracle-node`** recorders; **`hub-oracle-record`**, **`hub-native-emit-smoke`**; **`hub-completion`** schema v2. (**DESIGN D335**)
-- [x] **G31 — Path knowledge base** — **`hub-path-knowledge.mjs`**: all **528** pairs with **similarities**, **differences**, **best practices**, language profiles, lane comparisons; **`pnpm run hub:path-knowledge`**; **`GET /api/hub/path-knowledge`**; **`docs/HUB-PATH-KNOWLEDGE.md`**. (**DESIGN D336**)
+- [x] **G31 — Path knowledge base** — **`hub-path-knowledge.mjs`**: all **575** pairs with **similarities**, **differences**, **best practices**, language profiles, lane comparisons; **`pnpm run hub:path-knowledge`**; **`GET /api/hub/path-knowledge`**; **`docs/HUB-PATH-KNOWLEDGE.md`**. (**DESIGN D336**)
+- [x] **G32 — Chrysalis Web Language (CWL)** — WebIR-native **`.cwl`** syntax; direct ingest **`hub-cwl-direct`**; emit **`emit-cwl-from-hub.mjs`**; gold **`cwl-gold-hono`**; matrix **23×26** pairs; **`docs/CWL.md`**, **`docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`**, **`hub:cross-language-synthesis`**. (**DESIGN D337**)
 
 ---
 

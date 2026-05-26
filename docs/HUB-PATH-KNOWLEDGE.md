@@ -1,6 +1,6 @@
 # Translation Hub — path knowledge base
 
-The **path knowledge base** is the comprehensive database of how every web language maps to every other through Chrysalis: **similarities**, **differences**, and **best practices** for all **528** directed origin×output pairs.
+The **path knowledge base** is the comprehensive database of how every web language maps to every other through Chrysalis: **similarities**, **differences**, and **best practices** for all **575** directed origin×output pairs (23 origins × 26 outputs, minus identity).
 
 ## Export
 
@@ -33,6 +33,7 @@ node scripts/hub-ingest/hub-path-knowledge-cli.mjs --origin python --output java
 
 ## Related docs
 
+- [HUB-CROSS-LANGUAGE-SYNTHESIS.md](./HUB-CROSS-LANGUAGE-SYNTHESIS.md) — step-by-step consolidation of similarities, differences, and primitives across all languages
 - [HUB-TRANSLATION-PATHS.md](./HUB-TRANSLATION-PATHS.md) — lane model and examples
 - [HUB-CONNECTIVITY.md](./HUB-CONNECTIVITY.md) — SSH, capture, CI scripts
 
