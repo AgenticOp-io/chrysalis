@@ -108,6 +108,8 @@ async function main() {
     traceParsed.ok === true && (traceParsed.suiteCount ?? 0) === traceSuiteIds.length;
   const goldCoverage = buildHubGoldCoverageReport();
   const goldCoverageOk = goldCoverage.summary.coverageGaps === 0;
+  const multiLane = runJson(join(scriptRoot, "scripts/hub-ingest/hub-multi-lane-smoke.mjs"), []);
+  const multiLaneOk = multiLane.status === 0 && multiLane.parsed.ok === true;
 
   const ok =
     matrix.status === 0 &&
@@ -119,11 +121,12 @@ async function main() {
     nativeEmit.status === 0 &&
     (nativeEmit.parsed.failed ?? 1) === 0 &&
     synthesisOk &&
-    goldCoverageOk;
+    goldCoverageOk &&
+    multiLaneOk;
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 17,
+    schemaVersion: 18,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -142,7 +145,15 @@ async function main() {
       suiteCount: traceParsed.suiteCount ?? traceSuiteIds.length,
       expectedSuiteCount: traceSuiteIds.length,
       suiteIds: traceSuiteIds,
-      targets: ["hono", "fastify"],
+      targets: ["hono", "fastify", "nextjs"],
+    },
+    nextjsTraceReplay: {
+      suites: [
+        "js-literal-nextjs",
+        "ts-literal-nextjs",
+        "js-structured-nextjs",
+        "ts-structured-nextjs",
+      ],
     },
     nativeEmitSmoke: {
       ok: nativeEmit.status === 0 && (nativeEmit.parsed.failed ?? 1) === 0,
@@ -222,7 +233,21 @@ async function main() {
       ],
     },
     typescriptFamilyNextjsGold: {
-      suiteIds: ["js-literal-nextjs", "ts-literal-nextjs"],
+      suiteIds: [
+        "js-literal-nextjs",
+        "ts-literal-nextjs",
+        "js-structured-nextjs",
+        "ts-structured-nextjs",
+      ],
+    },
+    wptpContractGold: {
+      suiteIds: ["contract-first-hono", "contract-first-nextjs"],
+    },
+    multiLaneSmoke: {
+      ok: multiLaneOk,
+      oracleRedactor: multiLane.parsed.oracleRedactor === true,
+      parserBridgeVendor: multiLane.parsed.parserBridgeVendor === true,
+      phpAvailable: multiLane.parsed.phpAvailable === true,
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

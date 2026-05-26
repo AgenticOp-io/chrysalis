@@ -13,7 +13,7 @@ test("hub gold coverage: zero gaps across 575 pairs (G40)", async () => {
   expect(report.summary.pairCount).toBe(575);
   expect(report.summary.goldMatrix).toBe(575);
   expect(report.summary.oracleTier).toBe(4);
-  expect(report.summary.structuralTier).toBe(48);
+  expect(report.summary.structuralTier).toBe(49);
   expect(report.summary.coverageGaps).toBe(0);
   expect(report.summary.hubCiStructuralPairs).toBeGreaterThan(10);
   expect(report.summary.chrysalisCiGoldPairs).toBe(4);

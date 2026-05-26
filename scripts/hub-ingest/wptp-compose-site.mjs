@@ -66,12 +66,15 @@ async function main() {
   const openapi = contracts.openapi;
   const har = contracts.har;
 
-  if (!existsSync(join(matrixRoot, "src", "verify-silver-chrysalis.ts"))) {
-    throw new Error(`wptp-matrix missing at ${matrixRoot}`);
+  const silverDist = join(matrixRoot, "dist", "verify-silver-chrysalis.js");
+  const silverSrc = join(matrixRoot, "src", "verify-silver-chrysalis.ts");
+  const silverModule = existsSync(silverDist) ? silverDist : silverSrc;
+  if (!existsSync(silverModule)) {
+    throw new Error(`wptp-matrix missing verify-silver-chrysalis at ${matrixRoot} (run npm run build in wptp-matrix)`);
   }
 
   const { runSilverOpenApiIrNextJsChrysalis, runSilverHarIrNextJsChrysalis, runSilverOpenApiIrHonoChrysalis } =
-    await import(pathToFileURL(join(matrixRoot, "src", "verify-silver-chrysalis.ts")).href);
+    await import(pathToFileURL(silverModule).href);
 
   if (openapi && output === "nextjs") {
     const r = runSilverOpenApiIrNextJsChrysalis(openapi, chrysalisRoot, emitNextJsRoot);

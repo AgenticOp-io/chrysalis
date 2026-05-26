@@ -728,9 +728,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 14 &&
     s.schemaVersion !== 15 &&
     s.schemaVersion !== 16 &&
-    s.schemaVersion !== 17
+    s.schemaVersion !== 17 &&
+    s.schemaVersion !== 18
   ) {
-    fail(`${label}: expected schemaVersion 0–17, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–18, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -861,6 +862,25 @@ function assertHubCompletion(path) {
       if (!next.includes(id)) {
         fail(`${label}: typescriptFamilyNextjsGold must list ${id} for schema v17`);
       }
+    }
+  }
+  if (s.schemaVersion >= 18) {
+    const next = s.typescriptFamilyNextjsGold?.suiteIds ?? [];
+    for (const id of ["js-structured-nextjs", "ts-structured-nextjs"]) {
+      if (!next.includes(id)) {
+        fail(`${label}: typescriptFamilyNextjsGold must list ${id} for schema v18`);
+      }
+    }
+    const njs = s.nextjsTraceReplay?.suites ?? [];
+    if (!njs.includes("js-literal-nextjs") || !njs.includes("ts-structured-nextjs")) {
+      fail(`${label}: nextjsTraceReplay must list literal and structured nextjs suites for schema v18`);
+    }
+    const wptp = s.wptpContractGold?.suiteIds ?? [];
+    if (!wptp.includes("contract-first-hono") || !wptp.includes("contract-first-nextjs")) {
+      fail(`${label}: wptpContractGold must list contract-first hono and nextjs for schema v18`);
+    }
+    if (s.multiLaneSmoke?.ok !== true) {
+      fail(`${label}: multiLaneSmoke.ok must be true for schema v18`);
     }
   }
   const g = s.routeGrades;

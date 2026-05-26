@@ -11,6 +11,7 @@ import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 const emitScript = join(scriptRoot, "scripts/hub-ingest/emit-from-hub.mjs");
+const emitNextjsScript = join(scriptRoot, "scripts/hub-ingest/emit-nextjs-from-hub.mjs");
 const workerScript = join(scriptRoot, "scripts/hub-ingest/hub-gold-replay-worker.mjs");
 
 function parseArgs(argv) {
@@ -37,9 +38,13 @@ async function runTraceReplaySuite(suite) {
   const origin = suite.origin;
   const target = suite.emitTarget;
 
+  const emitArgs =
+    target === "nextjs"
+      ? [emitNextjsScript, [fixture, "--origin", origin]]
+      : [emitScript, [fixture, "--origin", origin, "--target", target]];
   for (const [script, args] of [
     [liftScript, [fixture, "--language", origin]],
-    [emitScript, [fixture, "--origin", origin, "--target", target]],
+    emitArgs,
   ]) {
     const r = spawnSync(process.execPath, [script, ...args], { cwd: scriptRoot, encoding: "utf8" });
     if (r.status !== 0) {
@@ -48,6 +53,19 @@ async function runTraceReplaySuite(suite) {
   }
 
   const outDir = join(fixture, "generated", target);
+  if (target === "nextjs") {
+    const replay = spawnSync(
+      process.execPath,
+      ["--import", "tsx", workerScript, fixture, "--origin", origin, "--target", target],
+      { cwd: scriptRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
+    );
+    if (replay.status !== 0) {
+      throw new Error(replay.stderr || replay.stdout || "trace replay failed");
+    }
+    const report = parseStdoutJson(replay.stdout);
+    return { ...report, suiteId: suite.id };
+  }
+
   const runtimePkg = target === "fastify" ? "fastify" : "hono";
   if (!existsSync(join(outDir, "node_modules", runtimePkg))) {
     const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";

@@ -9,7 +9,7 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 /** @typedef {"hono"|"fastify"|"nextjs"|"cwl"|"python"|"java"|"go"|"ruby"|"csharp"|"rust"|"kotlin"|"scala"|"swift"} HubGoldEmitTarget */
 
 /**
- * @typedef {{ id: string, fixture: string, origin: string, emitTarget: HubGoldEmitTarget, structural: boolean, traceReplay: boolean, roundTrip?: boolean }} HubGoldSuite
+ * @typedef {{ id: string, fixture: string, origin: string, emitTarget: HubGoldEmitTarget, structural: boolean, traceReplay: boolean, roundTrip?: boolean, wptpCompose?: boolean }} HubGoldSuite
  */
 
 /** @type {HubGoldSuite[]} */
@@ -52,7 +52,7 @@ export const HUB_GOLD_SUITES = [
     origin: "javascript",
     emitTarget: "nextjs",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "ts-literal-nextjs",
@@ -60,7 +60,7 @@ export const HUB_GOLD_SUITES = [
     origin: "typescript",
     emitTarget: "nextjs",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "ts-structured-hono",
@@ -109,6 +109,22 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+  },
+  {
+    id: "js-structured-nextjs",
+    fixture: join(scriptRoot, "fixtures/hub-gold-js-structured"),
+    origin: "javascript",
+    emitTarget: "nextjs",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "ts-structured-nextjs",
+    fixture: join(scriptRoot, "fixtures/hub-gold-ts-structured"),
+    origin: "typescript",
+    emitTarget: "nextjs",
+    structural: true,
+    traceReplay: true,
   },
   {
     id: "js-middleware-hono",
@@ -510,6 +526,24 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+  },
+  {
+    id: "contract-first-hono",
+    fixture: join(scriptRoot, "fixtures/hub-contract-first"),
+    origin: "python",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: false,
+    wptpCompose: true,
+  },
+  {
+    id: "contract-first-nextjs",
+    fixture: join(scriptRoot, "fixtures/hub-contract-first"),
+    origin: "python",
+    emitTarget: "nextjs",
+    structural: true,
+    traceReplay: false,
+    wptpCompose: true,
   },
 ];
 

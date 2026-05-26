@@ -106,7 +106,7 @@ jobs:
           path: wptp-matrix
 
       - name: Install wptp-matrix dependencies
-        run: npm ci --prefix wptp-matrix
+        run: npm ci --prefix wptp-matrix && npm run build --prefix wptp-matrix
 
       - name: Checkout wptp-emit-nextjs (hub Next.js structural gold)
         uses: actions/checkout@v4

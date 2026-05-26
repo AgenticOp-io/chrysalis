@@ -11,6 +11,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 import { isHubNativeGoldEmitTarget, runNativeGoldEmit } from "./hub-gold-native-emit.mjs";
+import { runHubWptpContractGoldSuite } from "./hub-wptp-contract-gold.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -66,6 +67,25 @@ export async function runGoldVerifySuite(suite) {
   const fixture = suite.fixture;
   const origin = suite.origin;
   const emitTarget = suite.emitTarget;
+
+  if (suite.wptpCompose) {
+    const target = emitTarget === "nextjs" ? "nextjs" : "hono";
+    const wptp = await runHubWptpContractGoldSuite(target);
+    if (wptp.skipped) {
+      return { ok: false, reason: "wptp-compose-skipped", id: suite.id, wptp };
+    }
+    if (!wptp.ok) {
+      return { ok: false, reason: wptp.reason ?? "wptp-compose-failed", id: suite.id, wptp };
+    }
+    return {
+      ok: true,
+      id: suite.id,
+      fixture,
+      origin,
+      output: emitTarget,
+      wptp,
+    };
+  }
 
   const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", origin], {
     cwd: scriptRoot,

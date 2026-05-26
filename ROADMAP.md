@@ -113,6 +113,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G54 — Kotlin/Scala/Swift → Hono/Fastify/CWL structural gold** — Add **`kotlin/scala/swift-literal-*`** suites on the native literal fixtures with trace replay for **Hono/Fastify**; `hub-completion` schema **v15**. (**DESIGN D359**)
 - [x] **G55 — Rust → Hono/Fastify/CWL structural gold** — **`rust-literal-hono`**, **`rust-literal-fastify`**, **`rust-literal-cwl`** on **`hub-gold-rust-literal`**; completes pattern-lift origin framework coverage. **`hub-completion`** schema **v16**. (**DESIGN D360**)
 - [x] **G56 — JS/TS → Next.js structural gold** — **`js-literal-nextjs`**, **`ts-literal-nextjs`** via **`emit-nextjs-from-hub`** / WPTP **`@wptp/emit-nextjs`**; CI checks out **`wptp-emit-nextjs`** before **`ci:hub-completion`**. **`hub-completion`** schema **v17**. (**DESIGN D361**)
+- [x] **G57 — JS/TS structured → Next.js + Next.js trace replay** — **`js/ts-structured-nextjs`**; **`hub-gold-nextjs-fetch`** in-process App Router replay; literal + structured Next.js trace suites. (**DESIGN D362**)
+- [x] **G58 — WPTP contract-first hub gold** — **`contract-first-hono`**, **`contract-first-nextjs`** on **`hub-contract-first`** via **`hub-wptp-contract-gold`**; **`wptp-matrix`** build in CI. (**DESIGN D363**)
+- [x] **G59 — Hub multi-lane boundary smoke** — **`hub-multi-lane-smoke`** (oracle redactor + parser-bridge vendor); Vitest **`hub-multi-lane-boundary`**; **`hub-completion`** schema **v18**. (**DESIGN D364**)
 
 ---
 

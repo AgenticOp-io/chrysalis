@@ -10,6 +10,7 @@ import { SCHEMA_VERSION } from "../../packages/oracle/dist/index.js";
 import { buildReport, replayCorpus } from "../../packages/verify/dist/index.js";
 import { listHubWebRoutes } from "./hub-webir-routes.mjs";
 import { hubGoldReplayFetchInit, hubMiddlewarePresetsFromModule } from "./hub-gold-replay-probe.mjs";
+import { createChrysalisNextjsInProcessFetch } from "./hub-gold-nextjs-fetch.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -74,7 +75,7 @@ function parseArgs(argv) {
 async function main() {
   const { fixture, origin, target } = parseArgs(process.argv);
   const webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
-  const serverPath = join(fixture, "generated", target, "src/server.ts");
+  const outDir = join(fixture, "generated", target);
 
   const webirMod = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
   const raw = JSON.parse(await readFile(webirPath, "utf8"));
@@ -82,10 +83,18 @@ async function main() {
   const routes = listHubWebRoutes(mod);
   const middlewarePresets = hubMiddlewarePresetsFromModule(mod);
 
-  const serverMod = await import(pathToFileURL(serverPath).href);
-  const inProcessFetch = serverMod.chrysalisInProcessFetch ?? serverMod.fetch;
-  if (typeof inProcessFetch !== "function") {
-    throw new Error(`hub-gold-replay: ${target} server has no chrysalisInProcessFetch or fetch export`);
+  /** @type {(url: string, init?: RequestInit) => Promise<Response>} */
+  let inProcessFetch;
+  if (target === "nextjs") {
+    inProcessFetch = await createChrysalisNextjsInProcessFetch(outDir);
+  } else {
+    const serverPath = join(outDir, "src/server.ts");
+    const serverMod = await import(pathToFileURL(serverPath).href);
+    const fetchFn = serverMod.chrysalisInProcessFetch ?? serverMod.fetch;
+    if (typeof fetchFn !== "function") {
+      throw new Error(`hub-gold-replay: ${target} server has no chrysalisInProcessFetch or fetch export`);
+    }
+    inProcessFetch = fetchFn.bind(serverMod);
   }
 
   const traces = [];

@@ -2332,6 +2332,12 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-26 — D358** **Cross-framework CWL gold (G53).** Add **`java/go/csharp/ruby → cwl`** structural suites on existing literal fixtures so CWL emit stays hole-free beyond JS/TS/Python and middleware. **`hub-completion`** schema **v14**. **DESIGN §3** unchanged.
 
+- **2026-05-26 — D364** **Hub multi-lane boundary smoke (G59).** **`hub-multi-lane-smoke`** runs oracle-php redactor tests when **`php`** is on PATH and records parser-bridge **`vendor/`** presence; wired into **`hub-completion`** schema **v18** so hub CI stays aligned with core parser/oracle lanes without duplicating full **`pnpm test`**. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D363** **WPTP contract-first hub gold (G58).** **`contract-first-hono`** / **`contract-first-nextjs`** structural suites on **`fixtures/hub-contract-first`** (OpenAPI → compose); **`hub-wptp-contract-gold.mjs`**; CI builds **`wptp-matrix`** before hub gates. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D362** **Next.js trace replay + structured Next.js gold (G57).** **`hub-gold-nextjs-fetch`** probes **`generated/nextjs/app/**/route.ts`** handlers in-process; trace replay for **`js/ts-literal-nextjs`** and **`js/ts-structured-nextjs`**. **DESIGN §3** unchanged.
+
 - **2026-05-26 — D361** **JS/TS → Next.js structural gold (G56).** **`js-literal-nextjs`**, **`ts-literal-nextjs`** on literal fixtures via **`emit-nextjs-from-hub`** and **`@wptp/emit-nextjs`**; structural only (no trace replay). **`typecheck-and-test`** checks out **`wptp-emit-nextjs`** before **`ci:hub-completion`**. **`hub-completion`** schema **v17**. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D360** **Rust framework structural gold (G55).** **`rust-literal-hono`**, **`rust-literal-fastify`**, **`rust-literal-cwl`** on **`hub-gold-rust-literal`** (actix string responders). Completes pattern-lift origin → framework/CWL structural CI for **ruby/java/go/csharp/rust/kotlin/scala/swift**. **`hub-completion`** schema **v16**. **DESIGN §3** unchanged.
