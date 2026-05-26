@@ -1,7 +1,13 @@
 /* Chrysalis Translation Hub — browser UI (served by chrysalis-operator-web.mjs) */
 (function () {
   const $ = (id) => document.getElementById(id);
-  const views = { home: $("viewHome"), newProject: $("viewNew"), guide: $("viewGuide"), console: $("viewConsole") };
+  const views = {
+    home: $("viewHome"),
+    newProject: $("viewNew"),
+    guide: $("viewGuide"),
+    paths: $("viewPaths"),
+    console: $("viewConsole"),
+  };
 
   function show(view) {
     for (const [k, el] of Object.entries(views)) {
@@ -19,6 +25,9 @@
     else if (page === "guide" || page === "install") {
       show("guide");
       loadGuideDoc("/docs/hub-install");
+    } else if (page === "paths" || page === "path-explorer") {
+      show("paths");
+      initPathExplorer().catch(() => {});
     } else if (page === "console") {
       show("console");
       const id = new URLSearchParams(query || "").get("id");
@@ -163,6 +172,137 @@
 
   $("btnLoadLanguageReadiness")?.addEventListener("click", () => {
     loadLanguageReadiness().catch(() => {});
+  });
+
+  let pathCatalogLoaded = false;
+
+  async function initPathExplorer() {
+    if (pathCatalogLoaded) return;
+    const matrix = await api("/api/hub/target-matrix");
+    const originSel = $("pathOrigin");
+    const outputSel = $("pathOutput");
+    if (!originSel || !outputSel) return;
+    originSel.innerHTML = "";
+    outputSel.innerHTML = "";
+    for (const lang of matrix.inputLanguages || []) {
+      const opt = document.createElement("option");
+      opt.value = lang.id;
+      opt.textContent = lang.label || lang.id;
+      originSel.appendChild(opt);
+    }
+    for (const lang of matrix.outputLanguages || []) {
+      const opt = document.createElement("option");
+      opt.value = lang.id;
+      opt.textContent = lang.label || lang.id;
+      outputSel.appendChild(opt);
+    }
+    if (matrix.defaultOrigin) originSel.value = matrix.defaultOrigin;
+    if (matrix.defaultOutput) outputSel.value = matrix.defaultOutput;
+    pathCatalogLoaded = true;
+  }
+
+  async function loadPathSynthesis() {
+    const summary = $("pathSynthesisSummary");
+    const jsonEl = $("pathSynthesisJson");
+    if (summary) summary.textContent = "Loading…";
+    try {
+      const data = await api("/api/hub/cross-language-synthesis");
+      const g = data.gradeSummary || {};
+      if (summary) {
+        summary.textContent = `${data.universe?.pairCount ?? 0} pairs · gold ${g.gold ?? 0} · silver ${g.silver ?? 0} · open ${g.open ?? 0} · ${data.goldPairs?.length ?? 0} gold pairs listed`;
+      }
+      if (jsonEl) jsonEl.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      if (summary) summary.textContent = "Error: " + e.message;
+      if (jsonEl) jsonEl.textContent = "—";
+    }
+  }
+
+  function renderPathLists(pair) {
+    const sim = $("pathSimilarities");
+    const diff = $("pathDifferences");
+    const bp = $("pathPractices");
+    if (sim) {
+      sim.innerHTML = "";
+      for (const s of pair?.similarities || []) {
+        const li = document.createElement("li");
+        li.textContent = `${s.kind}: ${s.text}`;
+        sim.appendChild(li);
+      }
+    }
+    if (diff) {
+      diff.innerHTML = "";
+      for (const d of pair?.differences || []) {
+        const li = document.createElement("li");
+        li.textContent = `${d.kind}: ${d.text}`;
+        diff.appendChild(li);
+      }
+    }
+    if (bp) {
+      bp.innerHTML = "";
+      for (const p of pair?.bestPractices || []) {
+        const li = document.createElement("li");
+        li.textContent = `${p.id}: ${p.title}`;
+        bp.appendChild(li);
+      }
+    }
+  }
+
+  async function loadPathPair() {
+    const origin = $("pathOrigin")?.value;
+    const output = $("pathOutput")?.value;
+    const summary = $("pathPairSummary");
+    const jsonEl = $("pathPairJson");
+    if (!origin || !output) return;
+    if (summary) summary.textContent = "Loading…";
+    try {
+      const data = await api(
+        `/api/hub/path-knowledge?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
+      );
+      const path = data.path || {};
+      const grade = data.pair?.grade ?? path.grade ?? "?";
+      if (summary) {
+        summary.textContent = `${origin} → ${output}: grade ${grade} · ingest ${path.ingest?.lane ?? "?"} · emit ${path.emit?.lane ?? "?"} · verify ${(path.verify?.lanes || []).join(", ") || "none"}`;
+      }
+      renderPathLists({
+        similarities: data.pair?.similarities,
+        differences: data.pair?.differences,
+        bestPractices: data.bestPractices,
+      });
+      if (jsonEl) jsonEl.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      if (summary) summary.textContent = "Error: " + e.message;
+      renderPathLists(null);
+      if (jsonEl) jsonEl.textContent = "—";
+    }
+  }
+
+  async function loadPathMatrixFiltered() {
+    const origin = $("pathOrigin")?.value;
+    const output = $("pathOutput")?.value;
+    const jsonEl = $("pathPairJson");
+    const summary = $("pathPairSummary");
+    if (summary) summary.textContent = "Loading matrix…";
+    try {
+      const params = new URLSearchParams();
+      if (origin) params.set("origin", origin);
+      if (output) params.set("output", output);
+      const data = await api(`/api/hub/translation-path-matrix?${params.toString()}`);
+      if (summary) summary.textContent = `Matrix: ${data.pairCount ?? data.pairs?.length ?? 0} pair(s)`;
+      if (jsonEl) jsonEl.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      if (summary) summary.textContent = "Error: " + e.message;
+    }
+  }
+
+  $("btnLoadSynthesis")?.addEventListener("click", () => {
+    loadPathSynthesis().catch(() => {});
+  });
+  $("btnLoadPathPair")?.addEventListener("click", () => {
+    loadPathPair().catch(() => {});
+  });
+  $("btnLoadPathMatrix")?.addEventListener("click", () => {
+    loadPathMatrixFiltered().catch(() => {});
   });
 
   async function exportLanguageWorkQueue() {

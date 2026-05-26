@@ -72,6 +72,7 @@
     <a href="#/" id="navHome">Projects</a>
     <a href="#/new" id="navNew">New project</a>
     <a href="#/guide" id="navGuide">Guides</a>
+    <a href="#/paths" id="navPaths">Path explorer</a>
   </nav>
   <main>
     <section id="viewHome" hidden>
@@ -139,6 +140,48 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <section id="viewPaths" hidden>
+      <div class="hero">
+        <h1>Translation path explorer</h1>
+        <p class="muted">
+          Browse the <strong>575-pair</strong> hub matrix: per-pair ingest/emit/verify lanes, similarities, differences, and consolidated cross-language synthesis.
+        </p>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">Synthesis overview</h2>
+        <p id="pathSynthesisSummary" class="muted">Load synthesis to see gold/silver/open counts and origin clusters.</p>
+        <div class="row">
+          <button type="button" class="secondary" id="btnLoadSynthesis">Load synthesis</button>
+        </div>
+        <pre class="json" id="pathSynthesisJson" style="max-height:12rem">—</pre>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">Pair detail</h2>
+        <div class="grid2">
+          <div>
+            <label for="pathOrigin">Origin</label>
+            <select id="pathOrigin"></select>
+          </div>
+          <div>
+            <label for="pathOutput">Output</label>
+            <select id="pathOutput"></select>
+          </div>
+        </div>
+        <div class="row">
+          <button type="button" class="primary" id="btnLoadPathPair">Load pair</button>
+          <button type="button" class="secondary" id="btnLoadPathMatrix">Load path matrix (filtered)</button>
+        </div>
+        <p id="pathPairSummary" class="muted"></p>
+        <h3>Similarities</h3>
+        <ul id="pathSimilarities" class="muted"></ul>
+        <h3>Differences</h3>
+        <ul id="pathDifferences" class="muted"></ul>
+        <h3>Best practices</h3>
+        <ul id="pathPractices" class="muted"></ul>
+        <pre class="json" id="pathPairJson" style="max-height:14rem">—</pre>
       </div>
     </section>
 
@@ -334,6 +377,6 @@
       <button type="button" class="primary" id="btnSaveToken">Continue</button>
     </div>
   </div>
-  <script src="/ui.js?v=hub-complete-3"></script>
+  <script src="/ui.js?v=hub-path-explorer-1"></script>
 </body>
 </html>

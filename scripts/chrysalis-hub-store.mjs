@@ -184,12 +184,15 @@ function specForPair(sourceLang, outputLang) {
   }
 
   if (outputLang === "cwl" && sourceLang !== "cwl") {
+    const hubLiteralGoldCwl = sourceLang === "javascript" || sourceLang === "typescript";
     return {
       status: "ready",
       action: "hub-translate",
       emitTarget: null,
-      grade: "silver",
-      label: `${label} (hub WebIR → CWL emit, G32)`,
+      grade: hubLiteralGoldCwl ? "gold" : "silver",
+      label: hubLiteralGoldCwl
+        ? `${label} (hub lift → CWL emit; structural gold; G34)`
+        : `${label} (hub WebIR → CWL emit, G32)`,
     };
   }
 

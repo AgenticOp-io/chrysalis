@@ -149,7 +149,7 @@ export function verifyLanesForPair(origin, output, grade) {
       origin === "typescript" ||
       origin === "python") &&
     grade === "gold" &&
-    (output === "typescript" || output === "hono" || output === "fastify")
+    (output === "typescript" || output === "hono" || output === "fastify" || output === "cwl")
   ) {
     lanes.push("hub-structural-gold");
     if (output === "hono" || output === "fastify") lanes.push("hub-trace-replay");

@@ -13,7 +13,8 @@ import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
-const emitScript = join(scriptRoot, "scripts/hub-ingest/emit-from-hub.mjs");
+const emitTsScript = join(scriptRoot, "scripts/hub-ingest/emit-from-hub.mjs");
+const emitCwlScript = join(scriptRoot, "scripts/hub-ingest/emit-cwl-from-hub.mjs");
 
 function parseArgs(argv) {
   let suiteId = null;
@@ -30,7 +31,25 @@ function parseArgs(argv) {
 }
 
 /**
- * @param {{ fixture: string, origin: string, emitTarget: string, id?: string }} suite
+ * @param {string} fixture
+ * @param {string} origin
+ * @param {import('./hub-gold-manifest.mjs').HubGoldEmitTarget} emitTarget
+ */
+function runEmit(fixture, origin, emitTarget) {
+  if (emitTarget === "cwl") {
+    return spawnSync(process.execPath, [emitCwlScript, fixture, "--origin", origin], {
+      cwd: scriptRoot,
+      encoding: "utf8",
+    });
+  }
+  return spawnSync(process.execPath, [emitTsScript, fixture, "--origin", origin, "--target", emitTarget], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+  });
+}
+
+/**
+ * @param {{ fixture: string, origin: string, emitTarget: import('./hub-gold-manifest.mjs').HubGoldEmitTarget, id?: string, roundTrip?: boolean }} suite
  */
 export async function runGoldVerifySuite(suite) {
   const fixture = suite.fixture;
@@ -57,14 +76,39 @@ export async function runGoldVerifySuite(suite) {
     return { ok: false, reason: "footprint-holes", footprint };
   }
 
-  const emit = spawnSync(process.execPath, [emitScript, fixture, "--origin", origin, "--target", emitTarget], {
-    cwd: scriptRoot,
-    encoding: "utf8",
-  });
+  const emit = runEmit(fixture, origin, emitTarget);
   if (emit.status !== 0) {
     return { ok: false, reason: "emit-failed", stderr: emit.stderr, stdout: emit.stdout };
   }
   const emitReport = JSON.parse(emit.stdout.trim().split("\n").pop() ?? "{}");
+  if ((emitReport.holeCount ?? 0) !== 0) {
+    return { ok: false, reason: "emit-holes", emitReport };
+  }
+
+  let roundTrip = null;
+  if (suite.roundTrip && emitTarget === "cwl") {
+    const roundDir = join(fixture, "generated", "cwl");
+    const lift2 = spawnSync(process.execPath, [liftScript, roundDir, "--language", "cwl"], {
+      cwd: scriptRoot,
+      encoding: "utf8",
+    });
+    if (lift2.status !== 0) {
+      return { ok: false, reason: "roundtrip-lift-failed", stderr: lift2.stderr };
+    }
+    const lift2Report = JSON.parse(lift2.stdout.trim().split("\n").pop() ?? "{}");
+    if ((lift2Report.holeCount ?? 1) !== 0) {
+      return { ok: false, reason: "roundtrip-lift-holes", lift2Report };
+    }
+    if ((lift2Report.routeCount ?? 0) !== (liftReport.routeCount ?? 0)) {
+      return {
+        ok: false,
+        reason: "roundtrip-route-mismatch",
+        before: liftReport.routeCount,
+        after: lift2Report.routeCount,
+      };
+    }
+    roundTrip = lift2Report;
+  }
 
   return {
     ok: true,
@@ -75,6 +119,7 @@ export async function runGoldVerifySuite(suite) {
     lift: liftReport,
     footprint,
     emit: emitReport,
+    roundTrip,
   };
 }
 

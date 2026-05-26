@@ -93,7 +93,8 @@ async function main() {
   const synthesisOk =
     synthesis.status === 0 &&
     synthesis.parsed.kind === "chrysalis.hub.cross-language-synthesis" &&
-    synthesis.parsed.universe?.pairCount === 575;
+    synthesis.parsed.universe?.pairCount === 575 &&
+    (synthesis.parsed.gradeSummary?.gold ?? 0) >= routeGrades.gold;
 
   const ok =
     matrix.status === 0 &&

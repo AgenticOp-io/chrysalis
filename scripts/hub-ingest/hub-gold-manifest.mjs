@@ -6,13 +6,31 @@ import { fileURLToPath } from "node:url";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-/** @typedef {{ id: string, fixture: string, origin: string, emitTarget: "hono"|"fastify", structural: boolean, traceReplay: boolean }} HubGoldSuite */
+/** @typedef {"hono"|"fastify"|"cwl"} HubGoldEmitTarget */
+
+/** @typedef {{ id: string, fixture: string, origin: string, emitTarget: HubGoldEmitTarget, structural: boolean, traceReplay: boolean, roundTrip?: boolean }} HubGoldSuite */
 
 /** @type {HubGoldSuite[]} */
 export const HUB_GOLD_SUITES = [
   {
     id: "js-literal-hono",
     fixture: join(scriptRoot, "fixtures/hub-gold-js-literal"),
+    origin: "javascript",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "ts-literal-hono",
+    fixture: join(scriptRoot, "fixtures/hub-gold-ts-literal"),
+    origin: "typescript",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "js-structured-hono",
+    fixture: join(scriptRoot, "fixtures/hub-gold-js-structured"),
     origin: "javascript",
     emitTarget: "hono",
     structural: true,
@@ -27,12 +45,45 @@ export const HUB_GOLD_SUITES = [
     traceReplay: true,
   },
   {
+    id: "python-structured-hono",
+    fixture: join(scriptRoot, "fixtures/hub-gold-python-structured"),
+    origin: "python",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
+  {
     id: "cwl-gold-hono",
     fixture: join(scriptRoot, "fixtures/hub-gold-cwl"),
     origin: "cwl",
     emitTarget: "hono",
     structural: true,
     traceReplay: true,
+  },
+  {
+    id: "cwl-gold-roundtrip",
+    fixture: join(scriptRoot, "fixtures/hub-gold-cwl"),
+    origin: "cwl",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
+    roundTrip: true,
+  },
+  {
+    id: "js-literal-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-js-literal"),
+    origin: "javascript",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
+  },
+  {
+    id: "ts-literal-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-ts-literal"),
+    origin: "typescript",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
   },
 ];
 

@@ -12,7 +12,7 @@ test("cross-language synthesis: primitives and 23 origins", async () => {
   expect(db.universe.pairCount).toBe(575);
   expect(db.consolidationPrimitives.length).toBeGreaterThanOrEqual(10);
   expect(db.origins).toHaveLength(23);
-  expect(db.goldPairs.length).toBeGreaterThanOrEqual(14);
+  expect(db.goldPairs.length).toBeGreaterThanOrEqual(16);
   expect(db.cwlSpec).toBe("docs/CWL.md");
   expect(db.featureMatrix.length).toBeGreaterThanOrEqual(6);
 });

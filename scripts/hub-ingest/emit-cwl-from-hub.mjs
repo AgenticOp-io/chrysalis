@@ -35,7 +35,7 @@ function renderCwl(routes, origin) {
     lines.push(`@route ${r.method} "${r.path}"`);
     lines.push(`handler ${r.handlerName} {`);
     lines.push("  effects: none;");
-    if (r.body.kind === "literal") {
+    if ((r.body.kind === "literal" || r.body.kind === "object") && r.body.value !== undefined) {
       lines.push(`  return ${cwlLiteral(r.body.value)};`);
     } else {
       holeCount += 1;

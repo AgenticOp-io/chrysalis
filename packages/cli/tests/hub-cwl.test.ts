@@ -43,3 +43,22 @@ test("hub store: cwl to hono is gold", async () => {
   const route = hub.resolveHubRoute("cwl", "hono");
   expect(route.grade).toBe("gold");
 });
+
+test("hub gold verify: cwl round-trip structural (G34)", () => {
+  const r = spawnSync(process.execPath, [GOLD, "--suite", "cwl-gold-roundtrip"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  expect(r.status).toBe(0);
+  const text = r.stdout.trim();
+  const report = JSON.parse(text.slice(text.indexOf("{")));
+  expect(report.ok).toBe(true);
+  expect(report.results?.[0]?.roundTrip?.routeCount).toBe(3);
+}, 130_000);
+
+test("hub store: javascript to cwl is gold (G34)", async () => {
+  const hub = await import(fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url)));
+  expect(hub.resolveHubRoute("javascript", "cwl").grade).toBe("gold");
+  expect(hub.resolveHubRoute("typescript", "cwl").grade).toBe("gold");
+});

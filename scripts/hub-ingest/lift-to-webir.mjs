@@ -28,7 +28,15 @@ async function walk(dir, exts, paths, depth) {
     return;
   }
   for (const ent of entries) {
-    if (ent.name === "node_modules" || ent.name === ".git" || ent.name === "vendor") continue;
+    if (
+      ent.name === "node_modules" ||
+      ent.name === ".git" ||
+      ent.name === "vendor" ||
+      ent.name === "generated" ||
+      ent.name === ".chrysalis"
+    ) {
+      continue;
+    }
     const p = join(dir, ent.name);
     if (ent.isDirectory()) await walk(p, exts, paths, depth + 1);
     else if (ent.isFile() && exts.has(extname(ent.name).toLowerCase())) {
