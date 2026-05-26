@@ -81,6 +81,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G21 — JavaScript/TypeScript AST hub ingest v0** — **`javascript-ast-ingest.mjs`** (acorn + TS strip); literal returns lowered; **`lift-to-webir`** prefers AST over heuristic; readiness **silver-ast-lift**. (**DESIGN D327**)
 - [x] **G22 — Python AST hub ingest v0** — **`python-ast-ingest.mjs`** (CPython **ast** when **python3** on PATH); Flask/FastAPI decorators; fixture **`hub-python-routes`**. (**DESIGN D328**)
 - [x] **G23–G24 — Java + Go hub route lift v0** — **`java-ast-ingest.mjs`** (Spring/JAX-RS annotations), **`go-ast-ingest.mjs`** (gin/net/http patterns); shared **`hub-lift-webir-route.mjs`**. (**DESIGN D329**)
+- [x] **G25 — Open-matrix pattern + file lift** — **`pattern-route-parsers.mjs`** / **`pattern-route-lift.mjs`** / **`hub-lift-dispatch.mjs`** for ruby/csharp/kotlin/rust/scala/swift/vue; per-file asset lift for sql/html/css/json/yaml/markdown/c/cpp; fixtures **`hub-pattern-lift`**; **`hub:matrix-smoke`**. (**DESIGN D330**)
 
 ---
 

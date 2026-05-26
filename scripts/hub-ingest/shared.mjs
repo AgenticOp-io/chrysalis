@@ -10,7 +10,7 @@ export const EXT_BY_LANG = {
   java: [".java"],
   kotlin: [".kt"],
   go: [".go"],
-  ruby: [".rb"],
+  ruby: [".rb", ".ru"],
   csharp: [".cs"],
   cpp: [".cpp"],
   c: [".c", ".h"],

@@ -167,3 +167,33 @@ test("hub store: outputSupportsContractSilver", async () => {
   expect(hub.outputSupportsContractSilver("nextjs")).toBe(true);
   expect(hub.outputSupportsContractSilver("java")).toBe(false);
 });
+
+test("pattern route parsers find ruby and rust routes (G25)", async () => {
+  const { parseRubyRoutes, parseRustRoutes } = await import(
+    resolve(ROOT, "scripts/hub-ingest/pattern-route-parsers.mjs")
+  );
+  const ruby = await readFile(resolve(ROOT, "fixtures/hub-pattern-lift/ruby/config.ru"), "utf8");
+  expect(parseRubyRoutes(ruby).map((r) => `${r.method} ${r.path}`).sort()).toEqual([
+    "GET /health",
+    "POST /items",
+  ]);
+  const rust = await readFile(resolve(ROOT, "fixtures/hub-pattern-lift/rust/main.rs"), "utf8");
+  expect(parseRustRoutes(rust).map((r) => `${r.method} ${r.path}`).sort()).toEqual([
+    "GET /health",
+    "POST /items",
+  ]);
+});
+
+test(
+  "hub matrix smoke passes for all hub-pattern-lift fixtures (G25)",
+  async () => {
+    const smoke = resolve(ROOT, "scripts/hub-ingest/hub-matrix-smoke.mjs");
+    const r = spawnSync(process.execPath, [smoke], { cwd: ROOT, encoding: "utf8", timeout: 120_000 });
+    expect(r.status).toBe(0);
+    const report = JSON.parse(r.stdout);
+    expect(report.kind).toBe("chrysalis.hub.matrix-smoke");
+    expect(report.failed).toBe(0);
+    expect(report.passed).toBeGreaterThanOrEqual(20);
+  },
+  130_000,
+);

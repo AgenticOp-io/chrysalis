@@ -18,6 +18,20 @@ import {
   LANGUAGE_LABELS,
   popularityRank,
 } from "./hub-ingest/language-catalog.mjs";
+import { PATTERN_LIFT_LANGUAGE_IDS } from "./hub-ingest/pattern-route-parsers.mjs";
+
+/** Asset/config origins: one GET route per scanned file (no semantic parser). */
+const SILVER_FILE_LIFT_ORIGIN_IDS = new Set([
+  "sql",
+  "html",
+  "css",
+  "scss",
+  "json",
+  "yaml",
+  "markdown",
+  "c",
+  "cpp",
+]);
 
 /** Hub mission: every origin×output pair is runnable (oracle gold remains PHP→TS only). */
 export const HUB_MISSION_OPEN = true;
@@ -50,6 +64,7 @@ export const EXT_TO_LANGUAGE = {
   ".kt": "kotlin",
   ".go": "go",
   ".rb": "ruby",
+  ".ru": "ruby",
   ".cs": "csharp",
   ".cpp": "cpp",
   ".c": "c",
@@ -430,6 +445,41 @@ function readinessForOrigin(languageId) {
       notDone: [
         "Full semantic lowering (req/res, middleware, SQL effects) is not implemented.",
         "Per-language oracle/verify parity suites are not implemented.",
+      ],
+    };
+  }
+  if (PATTERN_LIFT_LANGUAGE_IDS.includes(languageId)) {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      ingestStatus: "silver-ast-lift",
+      emitStatus: "open-scaffold-or-ts",
+      done: [
+        `Pattern route lift (G25): framework-specific HTTP registrations for ${languageId}.`,
+        "Literal returns near registrations lower when obvious; other bodies stay holes.",
+        "Contract-first WPTP compose when OpenAPI/HAR present (G20).",
+      ],
+      notDone: [
+        `Native ${languageId} parser ingest in @chrysalis/ingest and oracle verify are not implemented.`,
+        "Native emitters for non-TS targets remain scaffolds.",
+      ],
+    };
+  }
+  if (SILVER_FILE_LIFT_ORIGIN_IDS.has(languageId)) {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      ingestStatus: "silver-file-lift",
+      emitStatus: "open-scaffold-or-ts",
+      done: [
+        "Per-file GET route lift (G25): one WebIR route per scanned asset file.",
+        "Contract-first WPTP compose when OpenAPI/HAR present (G20).",
+      ],
+      notDone: [
+        `Semantic ${languageId} ingest and oracle verify are not implemented.`,
+        "Native emitters for non-TS targets remain scaffolds.",
       ],
     };
   }

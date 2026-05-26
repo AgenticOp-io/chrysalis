@@ -155,7 +155,8 @@ Scripts under `scripts/hub-ingest/` implement the full path:
 | --- | --- | --- |
 | Contract discovery | `discover-contract-artifacts.mjs` | Recursive OpenAPI/Swagger/HAR under site tree (**G20**) |
 | WPTP compose (any origin) | `wptp-compose-site.mjs` | When contracts exist → **hono** / **nextjs** silver (origin language irrelevant) |
-| Lift non-PHP sources | `lift-to-webir.mjs` | **javascript**/**typescript** (acorn, G21), **python** (CPython ast, G22), **java** (Spring/JAX-RS scan, G23), **go** (router patterns, G24); others per-file holes |
+| Lift non-PHP sources | `lift-to-webir.mjs` | **javascript**/**typescript** (G21), **python** (G22), **java**/**go** (G23–G24), **ruby**/**csharp**/**kotlin**/**rust**/**scala**/**swift**/**vue** (pattern lift, G25); **sql**/**html**/**css**/**json**/**yaml**/**markdown**/**c**/**cpp** (per-file GET, G25); handler bodies stay holes unless literal |
+| Matrix smoke | `hub-matrix-smoke.mjs` | `pnpm run hub:matrix-smoke` — one fixture tree per hub origin (**fixtures/hub-pattern-lift**) |
 | Emit TypeScript stacks | `emit-from-hub.mjs` | Output `typescript`, `hono`, `fastify` |
 | Emit Next.js | `emit-nextjs-from-hub.mjs` | Output `nextjs` (needs `wptp-emit-nextjs` sibling) |
 | Other output languages | `emit-target-stub.mjs` | Output e.g. `python`, `java` (scaffold + README until WPTP emit) |

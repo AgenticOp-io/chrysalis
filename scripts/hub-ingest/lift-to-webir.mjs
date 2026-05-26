@@ -6,14 +6,8 @@
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { EXT_BY_LANG, guessRoutePath, loadWebir } from "./shared.mjs";
-import {
-  canJavaScriptAstIngest,
-  detectHttpRoutesInSource,
-  liftJavaScriptFileToWebir,
-} from "./javascript-ast-ingest.mjs";
-import { canPythonAstIngest, liftPythonFileToWebir } from "./python-ast-ingest.mjs";
-import { canJavaAstIngest, liftJavaFileToWebir } from "./java-ast-ingest.mjs";
-import { canGoAstIngest, liftGoFileToWebir } from "./go-ast-ingest.mjs";
+import { canJavaScriptAstIngest, detectHttpRoutesInSource } from "./javascript-ast-ingest.mjs";
+import { trySpecializedHubLift } from "./hub-lift-dispatch.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -64,50 +58,18 @@ async function main() {
     const source = await readFile(abs, "utf8").catch(() => "");
     const ext = extname(file).toLowerCase();
 
-    if (canJavaScriptAstIngest(language, ext)) {
-      const astLift = liftJavaScriptFileToWebir({
-        webir,
-        builder,
-        wr,
-        source,
-        file,
-        language,
-      });
-      if (astLift.usedAst && astLift.routeCount > 0) {
-        astRouteCount += astLift.astRouteCount;
-        continue;
-      }
-    }
-
-    if (canPythonAstIngest(language, ext)) {
-      const pyLift = liftPythonFileToWebir({
-        webir,
-        builder,
-        wr,
-        source,
-        file,
-        language,
-      });
-      if (pyLift.usedAst && pyLift.routeCount > 0) {
-        astRouteCount += pyLift.astRouteCount;
-        continue;
-      }
-    }
-
-    if (canJavaAstIngest(language, ext)) {
-      const javaLift = liftJavaFileToWebir({ webir, builder, wr, source, file, language });
-      if (javaLift.usedAst && javaLift.routeCount > 0) {
-        astRouteCount += javaLift.astRouteCount;
-        continue;
-      }
-    }
-
-    if (canGoAstIngest(language, ext)) {
-      const goLift = liftGoFileToWebir({ webir, builder, wr, source, file, language });
-      if (goLift.usedAst && goLift.routeCount > 0) {
-        astRouteCount += goLift.astRouteCount;
-        continue;
-      }
+    const specialized = trySpecializedHubLift({
+      webir,
+      builder,
+      wr,
+      source,
+      file,
+      language,
+      ext,
+    });
+    if (specialized) {
+      astRouteCount += specialized.astRouteCount;
+      continue;
     }
 
     const routes = canJavaScriptAstIngest(language, ext)

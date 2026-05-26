@@ -126,6 +126,9 @@ test("hub store: language readiness report is popularity-ordered", async () => {
   expect(py?.ingestStatus).toBe("silver-ast-lift");
   expect(report.origins.find((o) => o.id === "java")?.ingestStatus).toBe("silver-ast-lift");
   expect(report.origins.find((o) => o.id === "go")?.ingestStatus).toBe("silver-ast-lift");
+  expect(report.origins.find((o) => o.id === "ruby")?.ingestStatus).toBe("silver-ast-lift");
+  expect(report.origins.find((o) => o.id === "csharp")?.ingestStatus).toBe("silver-ast-lift");
+  expect(report.origins.find((o) => o.id === "sql")?.ingestStatus).toBe("silver-file-lift");
   const sqlOut = report.outputs.find((o) => o.id === "sql");
   expect(sqlOut?.emitStatus).toBe("open-scaffold");
 });
