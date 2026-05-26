@@ -73,6 +73,8 @@
     "hub:install-server": "bash scripts/hub-install.sh",
     "hub:serve": "node scripts/chrysalis-operator-web.mjs",
     "hub:matrix-smoke": "node scripts/hub-ingest/hub-matrix-smoke.mjs",
+    "hub:gold-verify": "node scripts/hub-ingest/hub-gold-verify.mjs",
+    "hub:wptp-gold-smoke": "node scripts/hub-ingest/hub-wptp-gold-smoke.mjs",
     "verify:hub-deploy": "node scripts/hub-post-deploy-verify.mjs",
     "deploy:hub-demo": "powershell -ExecutionPolicy Bypass -File scripts/gce-hub-deploy.ps1 -Project chrysalis-dev-f5x6qv",
     "emit:webir-bundle-hono": "node scripts/emit-webir-bundle-hono.mjs",

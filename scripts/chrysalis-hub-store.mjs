@@ -151,6 +151,40 @@ function specForPair(sourceLang, outputLang) {
     return { status: "ready", action: "hub-translate", emitTarget: null, grade: "open", label };
   }
 
+  const hubLiteralGoldTs =
+    (sourceLang === "javascript" || sourceLang === "typescript") &&
+    (outputLang === "typescript" || outputLang === "hono" || outputLang === "fastify");
+  if (hubLiteralGoldTs) {
+    const target = outputLang === "typescript" ? "hono" : outputLang;
+    return {
+      status: "ready",
+      action: "hub-translate",
+      emitTarget: target,
+      grade: "gold",
+      label: `${LANGUAGE_LABELS[sourceLang] ?? sourceLang} → ${LANGUAGE_LABELS[target] ?? target} (hub literal lift + WebIR emit; G26)`,
+    };
+  }
+
+  if (outputLang === "python" && sourceLang !== "php") {
+    return {
+      status: "ready",
+      action: "hub-translate",
+      emitTarget: null,
+      grade: "silver",
+      label: `${label} (hub WebIR → Flask emit, G26)`,
+    };
+  }
+
+  if (outputLang === "nextjs" && emitTarget === "nextjs") {
+    return {
+      status: "ready",
+      action: "hub-translate",
+      emitTarget: "nextjs",
+      grade: "silver",
+      label: `${label} (contract-first WPTP when OpenAPI/HAR present)`,
+    };
+  }
+
   return {
     status: "ready",
     action: "hub-translate",
@@ -507,11 +541,27 @@ function readinessForOutput(languageId) {
       label: LANGUAGE_LABELS[languageId] ?? languageId,
       popularityRank: popularityRank(languageId),
       emitStatus: languageId === "nextjs" ? "silver-wptp" : "gold-or-silver",
-      done: ["WebIR -> TypeScript framework emit path exists in hub pipeline."],
+      done: [
+        "WebIR -> TypeScript framework emit path exists in hub pipeline.",
+        "javascript/typescript literal lift -> hono/fastify is gold when hub-gold-verify passes (G26).",
+      ],
       notDone:
         languageId === "nextjs"
           ? ["PHP->Next.js remains silver and depends on WPTP/webir bridge quality."]
-          : ["Non-PHP origins still rely on lift holes until native ingest adapters land."],
+          : ["Non-literal hub lifts still emit holes until semantic lowering lands."],
+    };
+  }
+  if (languageId === "python") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      emitStatus: "silver-hub-native",
+      done: ["Hub WebIR -> Flask emit (emit-python-from-hub.mjs) for lifted routes (G26)."],
+      notDone: [
+        "Full @chrysalis/ingest PHP-style oracle ingest for Python origins is not implemented.",
+        "Dict/call handler bodies remain holes unless literal.",
+      ],
     };
   }
   return {

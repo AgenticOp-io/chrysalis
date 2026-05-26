@@ -98,6 +98,16 @@ export async function runHubEmitPipeline(projectDir, origin, output) {
     }
   }
 
+  if (output === "python") {
+    try {
+      await runNode(join(root, "scripts/hub-ingest/emit-python-from-hub.mjs"), [projectDir, "--origin", origin]);
+      await writeEmitNote(projectDir, { path: "hub-webir-python", origin, output: "python" });
+      return { ok: true, path: "hub-webir-python" };
+    } catch {
+      /* continue */
+    }
+  }
+
   try {
     await runNode(join(root, "scripts/hub-ingest/emit-target-project.mjs"), [projectDir, "--origin", origin, "--output", output]);
     await writeEmitNote(projectDir, {

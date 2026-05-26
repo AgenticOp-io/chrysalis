@@ -158,6 +158,9 @@ Scripts under `scripts/hub-ingest/` implement the full path:
 | Lift non-PHP sources | `lift-to-webir.mjs` | **javascript**/**typescript** (G21), **python** (G22), **java**/**go** (G23–G24), **ruby**/**csharp**/**kotlin**/**rust**/**scala**/**swift**/**vue** (pattern lift, G25); **sql**/**html**/**css**/**json**/**yaml**/**markdown**/**c**/**cpp** (per-file GET, G25); handler bodies stay holes unless literal |
 | Matrix smoke | `hub-matrix-smoke.mjs` | `pnpm run hub:matrix-smoke` — one fixture tree per hub origin (**fixtures/hub-pattern-lift**) |
 | Emit TypeScript stacks | `emit-from-hub.mjs` | Output `typescript`, `hono`, `fastify` |
+| Emit Python (Flask) | `emit-python-from-hub.mjs` | Output `python` from hub WebIR (**G26**) |
+| Gold verify (literal JS/TS) | `hub-gold-verify.mjs` | `pnpm run hub:gold-verify` — zero-hole lift + Hono emit (**G26**) |
+| WPTP contract gold smoke | `hub-wptp-gold-smoke.mjs` | `pnpm run hub:wptp-gold-smoke` when **`wptp-matrix`** sibling exists |
 | Emit Next.js | `emit-nextjs-from-hub.mjs` | Output `nextjs` (needs `wptp-emit-nextjs` sibling) |
 | Other output languages | `emit-target-stub.mjs` | Output e.g. `python`, `java` (scaffold + README until WPTP emit) |
 | PHP gold path | `hub-translate.mjs` | Uses Chrysalis CLI ingest + emit, or export + Next.js |
