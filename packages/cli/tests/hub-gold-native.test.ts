@@ -7,7 +7,13 @@ const ROOT = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const GOLD = resolve(ROOT, "scripts/hub-ingest/hub-gold-verify.mjs");
 
 test("hub gold native: java go ruby literal suites pass structural gate (G42)", () => {
-  for (const suite of ["java-native-java", "go-native-go", "ruby-native-ruby"]) {
+  for (const suite of [
+    "java-native-java",
+    "go-native-go",
+    "ruby-native-ruby",
+    "csharp-native-csharp",
+    "rust-native-rust",
+  ]) {
     const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
       cwd: ROOT,
       encoding: "utf8",

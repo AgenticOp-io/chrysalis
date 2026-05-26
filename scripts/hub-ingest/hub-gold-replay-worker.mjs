@@ -9,6 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { SCHEMA_VERSION } from "../../packages/oracle/dist/index.js";
 import { buildReport, replayCorpus } from "../../packages/verify/dist/index.js";
 import { listHubWebRoutes } from "./hub-webir-routes.mjs";
+import { hubGoldReplayFetchInit, hubMiddlewarePresetsFromModule } from "./hub-gold-replay-probe.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -77,7 +78,9 @@ async function main() {
 
   const webirMod = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
   const raw = JSON.parse(await readFile(webirPath, "utf8"));
-  const routes = listHubWebRoutes(webirMod.moduleFromGoldenSnapshot(raw));
+  const mod = webirMod.moduleFromGoldenSnapshot(raw);
+  const routes = listHubWebRoutes(mod);
+  const middlewarePresets = hubMiddlewarePresetsFromModule(mod);
 
   const serverMod = await import(pathToFileURL(serverPath).href);
   const inProcessFetch = serverMod.chrysalisInProcessFetch ?? serverMod.fetch;
@@ -90,18 +93,34 @@ async function main() {
   let i = 0;
   for (const r of routes) {
     const url = `http://127.0.0.1${r.path}`;
-    const resp = await inProcessFetch(url, { method: r.method });
+    const init = hubGoldReplayFetchInit(r.method, middlewarePresets);
+    const resp = await inProcessFetch(url, init);
     const body = await resp.text();
     const headers = {};
     resp.headers.forEach((v, k) => {
       headers[k] = v;
     });
+    const reqHeaders = { ...(init.headers ?? {}) };
+    let post = {};
+    if (init.body && typeof init.body === "string") {
+      if (reqHeaders["content-type"]?.includes("application/json")) {
+        try {
+          post = JSON.parse(init.body);
+        } catch {
+          post = {};
+        }
+      } else if (reqHeaders["content-type"]?.includes("urlencoded")) {
+        post = Object.fromEntries(new URLSearchParams(init.body));
+      }
+    }
     traces.push(
       mkTrace({
         traceId: `hub-gold-${i++}`,
         startedAt,
         method: r.method,
         path: r.path,
+        reqHeaders,
+        post,
         expectedStatus: resp.status,
         expectedHeaders: headers,
         expectedBody: body,

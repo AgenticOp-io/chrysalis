@@ -81,6 +81,16 @@ async function runHttpProbes(port) {
         fail("hub-gold-coverage", "unexpected coverage gap for javascript→hono");
       } else pass("hub-gold-coverage", `gaps ${cov.summary?.coverageGaps ?? "?"}`);
     }
+    const tierRes = await fetch(`http://127.0.0.1:${port}/api/hub/verify-tiers`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!tierRes.ok) fail("hub-verify-tiers", `GET ${tierRes.status}`);
+    else {
+      const tiers = await tierRes.json();
+      if (tiers.kind !== "chrysalis.hub.verify-tiers" || typeof tiers.tierCounts?.oracle !== "number") {
+        fail("hub-verify-tiers", "missing tierCounts");
+      } else pass("hub-verify-tiers", `oracle ${tiers.tierCounts.oracle}`);
+    }
   } catch (e) {
     fail("hub-http", e.message);
   }

@@ -123,7 +123,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 9,
+    schemaVersion: 10,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -171,6 +171,10 @@ async function main() {
     nativeStructuralGold: {
       targets: hubNativeEmitTargetIds(),
       suiteIds: hubGoldStructuralSuiteIds().filter((id) => id.includes("-native-")),
+    },
+    middlewareTraceReplay: {
+      jsonPostProbe: true,
+      suites: ["js-middleware-hono"],
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

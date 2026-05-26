@@ -720,9 +720,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 6 &&
     s.schemaVersion !== 7 &&
     s.schemaVersion !== 8 &&
-    s.schemaVersion !== 9
+    s.schemaVersion !== 9 &&
+    s.schemaVersion !== 10
   ) {
-    fail(`${label}: expected schemaVersion 0–9, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–10, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -771,6 +772,11 @@ function assertHubCompletion(path) {
     const native = s.nativeStructuralGold;
     if (!native?.targets?.length || !native?.suiteIds?.length) {
       fail(`${label}: nativeStructuralGold.targets and suiteIds required for schema v9`);
+    }
+  }
+  if (s.schemaVersion >= 10) {
+    if (s.middlewareTraceReplay?.jsonPostProbe !== true) {
+      fail(`${label}: middlewareTraceReplay.jsonPostProbe must be true for schema v10`);
     }
   }
   const g = s.routeGrades;

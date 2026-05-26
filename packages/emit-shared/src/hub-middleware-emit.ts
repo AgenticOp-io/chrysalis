@@ -9,6 +9,7 @@ export interface HubMiddlewareEmitPlan {
     readonly registrationLines: string;
   };
   readonly hasJson: boolean;
+  readonly hasUrlencoded: boolean;
 }
 
 function middlewareNodes(m: Module): NodeBase[] {
@@ -45,6 +46,7 @@ export function planHubMiddlewareEmit(m: Module): HubMiddlewareEmitPlan {
   const honoLines: string[] = [];
   const fastifyLines: string[] = [];
   let hasJson = false;
+  let hasUrlencoded = false;
 
   for (const node of middlewareNodes(m)) {
     const kind = String((node.attrs as { kind?: string }).kind ?? "");
@@ -58,6 +60,8 @@ export function planHubMiddlewareEmit(m: Module): HubMiddlewareEmitPlan {
         "  // Chrysalis hub: express.json() — Fastify default JSON parser (no extra plugin).",
       );
     } else if (effective === "express.urlencoded") {
+      hasUrlencoded = true;
+      honoLines.push(`app.use(${mountLiteral(mount)}, chrysalisUrlencodedBodyMiddleware);`);
       fastifyLines.push(
         "  // Chrysalis hub: express.urlencoded() — covered by @fastify/formbody.",
       );
@@ -65,9 +69,13 @@ export function planHubMiddlewareEmit(m: Module): HubMiddlewareEmitPlan {
   }
 
   const beforeTapeLines = honoLines.length > 0 ? `${honoLines.join("\n")}\n` : "";
-  const serverImports = hasJson
-    ? `import { chrysalisJsonBodyMiddleware } from "./db.js";\n`
-    : "";
+  const importNames: string[] = [];
+  if (hasJson) importNames.push("chrysalisJsonBodyMiddleware");
+  if (hasUrlencoded) importNames.push("chrysalisUrlencodedBodyMiddleware");
+  const serverImports =
+    importNames.length > 0
+      ? `import { ${importNames.join(", ")} } from "./db.js";\n`
+      : "";
 
   return {
     hono: { serverImports, beforeTapeLines },
@@ -75,5 +83,6 @@ export function planHubMiddlewareEmit(m: Module): HubMiddlewareEmitPlan {
       registrationLines: fastifyLines.length > 0 ? `${fastifyLines.join("\n")}\n` : "",
     },
     hasJson,
+    hasUrlencoded,
   };
 }

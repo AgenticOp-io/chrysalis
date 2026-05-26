@@ -7,6 +7,8 @@ import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral } from "./hub-lift-we
 const LITERAL_RETURN_RE =
   /return\s+(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|"""[\s\S]*?"""|`[^`]*`)\s*;/;
 const RUBY_BLOCK_LITERAL_RE = /\bdo\s+(true|false|-?\d+(?:\.\d+)?)\s+end\b/;
+const CSHARP_MAP_LAMBDA_RE = /\(\)\s*=>\s*(true|false|-?\d+(?:\.\d+)?)/;
+const RUST_RESPONDER_STR_RE = /\{\s*"([^"]*)"\s*\}/;
 
 /**
  * @param {string} raw
@@ -42,6 +44,26 @@ function literalReturnAfter(source, fromIndex) {
  * @param {string} source
  * @param {number} fromIndex
  */
+function csharpMapLiteralAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 120);
+  const m = slice.match(CSHARP_MAP_LAMBDA_RE);
+  if (!m) return null;
+  const v = parseLiteralToken(m[1]);
+  if (v === null) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { value: v, line };
+}
+
+function rustResponderLiteralAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 600);
+  const m = slice.match(RUST_RESPONDER_STR_RE);
+  if (!m) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { value: m[1], line };
+}
+
 function rubyBlockLiteralAfter(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 200);
   const m = slice.match(RUBY_BLOCK_LITERAL_RE);
@@ -80,7 +102,13 @@ export function liftPatternRoutesFile(opts) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     const lit =
       literalReturnAfter(source, idx) ??
-      (language === "ruby" ? rubyBlockLiteralAfter(source, idx) : null);
+      (language === "ruby"
+        ? rubyBlockLiteralAfter(source, idx)
+        : language === "csharp"
+          ? csharpMapLiteralAfter(source, idx)
+          : language === "rust"
+            ? rustResponderLiteralAfter(source, idx)
+            : null);
     const bodyId =
       lit?.value !== undefined
         ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })

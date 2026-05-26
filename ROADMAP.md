@@ -99,6 +99,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G40 — Gold coverage matrix** — **`hub-gold-coverage.mjs`** maps **575** pairs to hub CI suites vs Chrysalis ingest gold; **`GET /api/hub/gold-coverage`**; **`hub-completion`** schema **v7**; path explorer shows Chrysalis vs hub CI lanes; deploy verify checks **emit-fastify** + gold-coverage HTTP. (**DESIGN D345**)
 - [x] **G41 — Middleware lowering + matrix verify tiers** — **`web.request.middleware`** IR; **`hub-express-middleware.mjs`** lowers **`express.json`** / **`express.urlencoded`** presets; **Hono**/**Fastify** emit via **`planHubMiddlewareEmit`**; all **575** matrix pairs **`grade: gold`** with **`verifyTier`** (**oracle** / **structural** / **scaffold-***); **`hub-completion`** schema **v8**. (**DESIGN D346**)
 - [x] **G42 — Native structural gold + verify-tier API** — **`hub-gold-native-emit`** + **python/java/go/ruby** native gold suites; **gin `c.String`** + **Sinatra block** literal lift; **`GET /api/hub/verify-tiers`**; work-queue **`verifyTiers`** filter; path explorer shows **verifyTier**; **`hub-completion`** schema **v9**. (**DESIGN D347**)
+- [x] **G43 — Middleware POST trace replay + native gold depth** — **`hub-gold-replay-probe`** JSON/urlencoded POST probes; **Hono `chrysalisUrlencodedBodyMiddleware`**; **csharp/rust** native structural gold + **MapGet** / **actix** literal lift; **`hub-completion`** schema **v10**. (**DESIGN D348**)
 
 ---
 

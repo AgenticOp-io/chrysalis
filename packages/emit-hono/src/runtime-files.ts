@@ -104,6 +104,29 @@ function paramsMatch(a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>): bool
   return true;
 }
 
+/** Lowered from Express \`express.urlencoded()\` (hub ingest). */
+export const chrysalisUrlencodedBodyMiddleware: MiddlewareHandler = async (c, next) => {
+  const method = c.req.method;
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") {
+    await next();
+    return;
+  }
+  const ct = c.req.header("content-type") ?? "";
+  if (!ct.includes("application/x-www-form-urlencoded")) {
+    await next();
+    return;
+  }
+  try {
+    const raw = await c.req.text();
+    if (raw) {
+      new URLSearchParams(raw);
+    }
+  } catch {
+    // permissive empty body
+  }
+  await next();
+};
+
 /** Lowered from Express \`express.json()\` (hub ingest). */
 export const chrysalisJsonBodyMiddleware: MiddlewareHandler = async (c, next) => {
   const method = c.req.method;
