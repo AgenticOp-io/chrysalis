@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/assets/logo-mark.svg" type="image/svg+xml" />
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/assets/agenticops.css" />
   <title>AgenticOp Translation Hub</title>
   <style>
-    :root { --bg:#f1f5f9; --panel:#ffffff; --text:#0f172a; --muted:#475569; --accent:#0f766e; --accent2:#14b8a6; --ok:#0f766e; --err:#b91c1c; --border:rgba(15,118,110,0.14); }
+    :root { --bg: var(--ao-bg, #010104); --panel: #0c1228; --text: var(--ao-text, #e8eefc); --muted: var(--ao-text-dim, #98a3b8); --accent: var(--ao-cyan, #06b6d4); --accent2: var(--ao-violet, #a78bfa); --ok:#10b981; --err:#ef4444; --border:rgba(148,163,184,0.22); }
     * { box-sizing: border-box; }
     body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
-    nav { display: flex; gap: 1rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); align-items: center; background: #ffffff; }
+    nav { display: flex; gap: 1rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); align-items: center; background: rgba(2,3,10,0.92); }
     nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
     nav .brand { font-weight: 700; color: var(--text); margin-right: auto; display:flex; align-items:center; }
     nav .brand img { height: 28px; width: auto; display: block; }
@@ -17,13 +18,13 @@
     .hero { padding: 2rem 0 1.5rem; }
     .hero h1 { font-size: 2rem; margin: 0 0 0.5rem; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .hero p { color: var(--muted); max-width: 40rem; line-height: 1.5; }
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,0.06); }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: 1rem; box-shadow: 0 10px 30px rgba(2,6,23,0.45); }
     label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
-    input, select, textarea { width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--text); margin-bottom: 0.65rem; }
+    input, select, textarea { width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid var(--border); background: #0b1022; color: var(--text); margin-bottom: 0.65rem; }
     .grid2 { display: grid; gap: 0.65rem; grid-template-columns: 1fr 1fr; }
     button { cursor: pointer; border: none; border-radius: 6px; padding: 0.55rem 1rem; font-weight: 500; }
     button.primary { background: var(--accent); color: #fff; }
-    button.secondary { background: #e2e8f0; color: var(--text); }
+    button.secondary { background: #0b1022; color: var(--text); border: 1px solid var(--border); }
     .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
     .muted { color: var(--muted); font-size: 0.9rem; }
     #projectList { list-style: none; padding: 0; margin: 0; }
@@ -36,15 +37,15 @@
     .pct { font-size: 1.5rem; font-weight: 600; }
     #log { font-family: ui-monospace, monospace; font-size: 0.78rem; background: #0d1218; border-radius: 6px; padding: 0.65rem; height: 12rem; overflow-y: auto; white-space: pre-wrap; margin: 0; }
     pre.json { font-size: 0.75rem; max-height: 10rem; overflow: auto; margin: 0; }
-    .badge { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem; background: #e2e8f0; }
-    .badge.run { background: #ccfbf1; color: #115e59; }
-    .badge.ok { background: #d1fae5; color: #065f46; }
-    .badge.fail { background: #fee2e2; color: var(--err); }
+    .badge { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem; background: #111827; }
+    .badge.run { background: #083344; color: #67e8f9; }
+    .badge.ok { background: #052e16; color: #6ee7b7; }
+    .badge.fail { background: #450a0a; color: #fca5a5; }
     #routeList { font-size: 0.85rem; color: var(--muted); max-height: 6rem; overflow-y: auto; }
     #routeList li.done { color: var(--ok); }
     [hidden] { display: none !important; }
-    .hub-banner { background: linear-gradient(90deg, #134e4a, #0f766e); color: #f0fdfa; padding: 0.5rem 1.25rem; font-size: 0.88rem; border-bottom: 1px solid var(--accent); }
-    .site-card { border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem; margin-bottom: 0.5rem; background: #fff; }
+    .hub-banner { background: linear-gradient(90deg, #164e63, #6d28d9); color: #e0f2fe; padding: 0.5rem 1.25rem; font-size: 0.88rem; border-bottom: 1px solid var(--accent); }
+    .site-card { border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem; margin-bottom: 0.5rem; background: #0b1022; }
     .site-card .bar-wrap { height: 6px; margin: 0.35rem 0; }
     .steps { margin-bottom: 1rem; }
     .steps .badge { margin-right: 0.25rem; }
@@ -52,18 +53,18 @@
     .guide article h2 { font-size: 1.15rem; margin: 1.25rem 0 0.5rem; color: var(--accent); }
     .guide article h3 { font-size: 1rem; margin: 1rem 0 0.35rem; }
     .guide article p, .guide article li { color: var(--muted); }
-    .guide article code { background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.88em; }
+    .guide article code { background: #111827; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.88em; }
     .guide article table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0.75rem 0; }
     .guide article th, .guide article td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; }
-    .guide article th { color: var(--text); background: #f8fafc; }
+    .guide article th { color: var(--text); background: #111827; }
     .guide article a { color: var(--accent); }
-    .guide article pre { background: #f8fafc; padding: 0.65rem; border-radius: 6px; overflow-x: auto; font-size: 0.82rem; }
+    .guide article pre { background: #111827; padding: 0.65rem; border-radius: 6px; overflow-x: auto; font-size: 0.82rem; }
   </style>
 </head>
 <body>
   <div class="hub-banner">AgenticOp Translation Hub: create projects, SSH prep, pull code, translate, and verify from this web portal.</div>
   <nav>
-    <span class="brand"><img src="/assets/logo-horizontal.svg" alt="AgenticOp" /></span>
+    <span class="brand"><img src="/assets/logo.svg" alt="AgenticOp" /></span>
     <a href="#/" id="navHome">Projects</a>
     <a href="#/new" id="navNew">New project</a>
     <a href="#/guide" id="navGuide">Guides</a>

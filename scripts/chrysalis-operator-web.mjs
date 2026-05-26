@@ -5,7 +5,7 @@
  */
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { watch } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
@@ -571,12 +571,20 @@ function sendText(res, code, type, body) {
 async function prepareStatic() {
   indexHtml = await readFile(join(__dir, "chrysalis-operator-index.html"), "utf8");
   uiJs = await readFile(join(__dir, "chrysalis-operator-ui.js"), "utf8");
-  const logoMark = await readFile(join(__dir, "hub-brand", "assets", "logo-mark.svg"));
-  const logoHorizontal = await readFile(join(__dir, "hub-brand", "assets", "logo-horizontal.svg"));
-  brandAssets = new Map([
-    ["/assets/logo-mark.svg", { body: logoMark, type: "image/svg+xml" }],
-    ["/assets/logo-horizontal.svg", { body: logoHorizontal, type: "image/svg+xml" }],
-  ]);
+  const assetsDir = join(__dir, "hub-brand", "assets");
+  const files = await readdir(assetsDir, { withFileTypes: true });
+  const nextMap = new Map();
+  for (const f of files) {
+    if (!f.isFile()) continue;
+    const body = await readFile(join(assetsDir, f.name));
+    const type = f.name.endsWith(".svg")
+      ? "image/svg+xml"
+      : f.name.endsWith(".css")
+        ? "text/css; charset=utf-8"
+        : "application/octet-stream";
+    nextMap.set(`/assets/${f.name}`, { body, type });
+  }
+  brandAssets = nextMap;
 }
 
 async function loadStatic() {
