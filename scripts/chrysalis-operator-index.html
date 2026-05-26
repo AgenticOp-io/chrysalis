@@ -99,6 +99,14 @@
         <ul id="projectList"></ul>
         <p class="muted">Hub stores workspaces under <code>~/.chrysalis-hub/</code> on this server.</p>
       </div>
+      <div class="card">
+        <h2 style="margin-top:0">Language completion tracker</h2>
+        <div class="row">
+          <button type="button" class="secondary" id="btnLoadLanguageReadiness">Load readiness</button>
+        </div>
+        <p id="languageReadinessSummary" class="muted">Prioritized by popularity; shows what remains per language.</p>
+        <pre id="languageReadinessTop" class="json">—</pre>
+      </div>
     </section>
 
     <section id="viewNew" hidden>

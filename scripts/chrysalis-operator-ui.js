@@ -130,6 +130,31 @@
     });
   }
 
+  async function loadLanguageReadiness() {
+    const summary = $("languageReadinessSummary");
+    const top = $("languageReadinessTop");
+    if (!summary || !top) return;
+    summary.textContent = "Loading language readiness…";
+    try {
+      const data = await api("/api/hub/language-readiness");
+      const topOrigins = (data.origins || []).slice(0, 10).map((row) => ({
+        rank: row.popularityRank,
+        language: row.id,
+        ingest: row.ingestStatus,
+        emit: row.emitStatus,
+        next: row.notDone?.[0] ?? "",
+      }));
+      summary.textContent = `${data.origins?.length ?? 0} origins, ${data.outputs?.length ?? 0} outputs. Priority list is popularity-first.`;
+      top.textContent = JSON.stringify(topOrigins, null, 2);
+    } catch (e) {
+      summary.textContent = "Readiness error: " + e.message;
+    }
+  }
+
+  $("btnLoadLanguageReadiness")?.addEventListener("click", () => {
+    loadLanguageReadiness().catch(() => {});
+  });
+
   async function deleteProjectFromHome(id) {
     if (!confirm(`Delete project ${id}? Workspace files remain on disk.`)) return;
     await api(`/api/hub/projects/${encodeURIComponent(id)}`, { method: "DELETE" });

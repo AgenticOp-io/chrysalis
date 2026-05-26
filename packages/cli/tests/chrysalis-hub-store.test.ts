@@ -112,6 +112,17 @@ test("hub store: originFromDetection prefers app language over sql", async () =>
   expect(origin).toBe("php");
 });
 
+test("hub store: language readiness report is popularity-ordered", async () => {
+  const { buildLanguageReadinessReport } = await import(HUB_STORE);
+  const report = buildLanguageReadinessReport();
+  expect(report.kind).toBe("chrysalis.translation-hub.language-readiness");
+  expect(report.origins[0]?.id).toBe("javascript");
+  const php = report.origins.find((o) => o.id === "php");
+  expect(php?.ingestStatus).toBe("gold");
+  const sqlOut = report.outputs.find((o) => o.id === "sql");
+  expect(sqlOut?.emitStatus).toBe("open-scaffold");
+});
+
 test("hub connectivity: parseOriginAgentJson", async () => {
   const { parseOriginAgentJson } = await import(
     fileURLToPath(new URL("../../../scripts/chrysalis-hub-connectivity.mjs", import.meta.url)),

@@ -94,6 +94,39 @@ export const HUB_WEB_OUTPUT_LANGUAGE_IDS = [
 /** Framework outputs (subset of {@link HUB_WEB_OUTPUT_LANGUAGE_IDS}). */
 export const HUB_FRAMEWORK_OUTPUT_IDS = ["hono", "fastify", "nextjs"];
 
+/**
+ * Popularity-weighted ordering for roadmap prioritization.
+ * This is a pragmatic product ranking (ecosystem usage + migration demand),
+ * not a strict benchmark dataset.
+ */
+export const LANGUAGE_POPULARITY_ORDER = [
+  "javascript",
+  "python",
+  "java",
+  "typescript",
+  "php",
+  "csharp",
+  "go",
+  "c",
+  "cpp",
+  "rust",
+  "kotlin",
+  "swift",
+  "ruby",
+  "scala",
+  "sql",
+  "html",
+  "css",
+  "scss",
+  "json",
+  "yaml",
+  "markdown",
+  "vue",
+  "hono",
+  "fastify",
+  "nextjs",
+];
+
 const webOriginSet = new Set(HUB_WEB_ORIGIN_LANGUAGE_IDS);
 const webOutputSet = new Set(HUB_WEB_OUTPUT_LANGUAGE_IDS);
 
@@ -115,4 +148,9 @@ export function hubOutputLanguages() {
 
 export function isFrameworkOutput(id) {
   return HUB_FRAMEWORK_OUTPUT_IDS.includes(id);
+}
+
+export function popularityRank(id) {
+  const idx = LANGUAGE_POPULARITY_ORDER.indexOf(id);
+  return idx < 0 ? 999 : idx + 1;
 }

@@ -27,6 +27,7 @@ import {
   listProjects,
   planHubTranslation,
   planSiteTranslation,
+  buildLanguageReadinessReport,
   prepAllProjectSites,
   prepProjectSite,
   removeProjectSite,
@@ -736,6 +737,11 @@ const server = createServer(async (req, res) => {
       inputLanguagesWithCounts: allLanguagesAsInputRows(null),
       wptpCi: WPTP_CI_REFERENCES,
     });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/language-readiness") {
+    sendJson(res, 200, buildLanguageReadinessReport());
     return;
   }
 

@@ -15,6 +15,7 @@ import {
   isHubWebOrigin,
   isHubWebOutput,
   LANGUAGE_LABELS,
+  popularityRank,
 } from "./hub-ingest/language-catalog.mjs";
 
 /** Hub mission: every origin×output pair is runnable (oracle gold remains PHP→TS only). */
@@ -355,6 +356,78 @@ export function planHubTranslation(project) {
   }
 
   return { routes, holes, errors, skipped, runnable, originLanguage: sourceLang, outputLanguage: targetId };
+}
+
+function readinessForOrigin(languageId) {
+  if (languageId === "php") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      ingestStatus: "gold",
+      emitStatus: "gold-via-ts",
+      done: [
+        "Native ingest via @chrysalis/ingest with parser bridge and oracle-backed verify path.",
+        "Gold routes for php -> typescript/hono/fastify.",
+      ],
+      notDone: ["Direct native emitters for non-TS outputs still scaffold/open routes."],
+    };
+  }
+  return {
+    id: languageId,
+    label: LANGUAGE_LABELS[languageId] ?? languageId,
+    popularityRank: popularityRank(languageId),
+    ingestStatus: "silver-lift",
+    emitStatus: "open-scaffold-or-ts",
+    done: ["Lift-to-WebIR path exists and emits runnable TS framework projects (silver/open)."],
+    notDone: [
+      `Native ${languageId} parser+ingest adapter for semantic lowering is not implemented.`,
+      "Per-language oracle/verify parity suites are not implemented.",
+    ],
+  };
+}
+
+function readinessForOutput(languageId) {
+  if (languageId === "hono" || languageId === "fastify" || languageId === "nextjs" || languageId === "typescript") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      emitStatus: languageId === "nextjs" ? "silver-wptp" : "gold-or-silver",
+      done: ["WebIR -> TypeScript framework emit path exists in hub pipeline."],
+      notDone:
+        languageId === "nextjs"
+          ? ["PHP->Next.js remains silver and depends on WPTP/webir bridge quality."]
+          : ["Non-PHP origins still rely on lift holes until native ingest adapters land."],
+    };
+  }
+  return {
+    id: languageId,
+    label: LANGUAGE_LABELS[languageId] ?? languageId,
+    popularityRank: popularityRank(languageId),
+    emitStatus: "open-scaffold",
+    done: ["Open-matrix route is runnable and generates explicit scaffold fallback."],
+    notDone: [
+      `Native emitter for ${languageId} is not implemented in Chrysalis hub.`,
+      "Promotion from open to silver/gold requires real emitter + verify gates.",
+    ],
+  };
+}
+
+export function buildLanguageReadinessReport() {
+  const origins = INPUT_LANGUAGES.map((l) => readinessForOrigin(l.id)).sort(
+    (a, b) => a.popularityRank - b.popularityRank || a.id.localeCompare(b.id),
+  );
+  const outputs = OUTPUT_LANGUAGES.map((l) => readinessForOutput(l.id)).sort(
+    (a, b) => a.popularityRank - b.popularityRank || a.id.localeCompare(b.id),
+  );
+  return {
+    kind: "chrysalis.translation-hub.language-readiness",
+    schemaVersion: 0,
+    origins,
+    outputs,
+    generatedAt: new Date().toISOString(),
+  };
 }
 
 export async function writeHubReport(localDir, payload) {
