@@ -54,12 +54,20 @@ import {
   parseMultipartFiles,
   saveTraceFiles,
   saveZipTraces,
+  startResumableUpload,
+  appendUploadChunk,
+  finishResumableUpload,
+  CHUNK_SIZE,
 } from "./chrysalis-hub-traces-upload.mjs";
 import {
   detectEmittedTarget,
   startSiteRuntime,
   stopSiteRuntime,
+  probeRuntimeHealth,
+  listRunningRuntimes,
+  getRunningRuntime,
 } from "./chrysalis-hub-runtime.mjs";
+import { createOrg, joinOrg, listOrgs, orgIdsForActorFromStore } from "./chrysalis-hub-org.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.CHRYSALIS_OPERATOR_PORT ?? process.env.CHRYSALIS_STATUS_PORT ?? "19090");
@@ -81,6 +89,37 @@ let progressWatcher = null;
 let batchProgressTimer = null;
 let activeProgressFile =
   process.env.CHRYSALIS_OPERATOR_PROGRESS_FILE ?? join(repo, ".chrysalis", "ingest.progress");
+let runtimeHealthTimer = null;
+
+async function pollRuntimeHealth() {
+  for (const rt of listRunningRuntimes()) {
+    if (!rt.baseUrl) continue;
+    const health = await probeRuntimeHealth(rt.baseUrl);
+    broadcast("runtimeHealth", { projectId: rt.projectId, siteId: rt.siteId, health, baseUrl: rt.baseUrl });
+    const p = await getProject(rt.projectId);
+    const site = p?.sites?.find((s) => s.id === rt.siteId);
+    if (site) {
+      await updateProject(rt.projectId, {
+        sites: p.sites.map((s) =>
+          s.id === rt.siteId ? { ...s, runtime: { ...(s.runtime ?? {}), ...rt, health } } : s,
+        ),
+      });
+    }
+  }
+}
+
+function startRuntimeHealthWatch() {
+  if (runtimeHealthTimer) return;
+  void pollRuntimeHealth();
+  runtimeHealthTimer = setInterval(() => void pollRuntimeHealth(), 8000);
+}
+
+function stopRuntimeHealthWatch() {
+  if (runtimeHealthTimer) {
+    clearInterval(runtimeHealthTimer);
+    runtimeHealthTimer = null;
+  }
+}
 
 function broadcast(type, payload) {
   const line = `event: ${type}\ndata: ${JSON.stringify(payload)}\n\n`;
@@ -632,6 +671,26 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/orgs") {
+    const actor = hubActorFromRequest(req, authToken);
+    const orgs = await listOrgs();
+    const ids = await orgIdsForActorFromStore(actor);
+    sendJson(res, 200, { orgs: orgs.filter((o) => ids.includes(o.id)), actor: actor.role });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/runtime-health") {
+    const out = [];
+    for (const rt of listRunningRuntimes()) {
+      out.push({
+        ...rt,
+        health: rt.baseUrl ? await probeRuntimeHealth(rt.baseUrl) : { ok: false, error: "no baseUrl" },
+      });
+    }
+    sendJson(res, 200, { runtimes: out });
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/projects") {
     const actor = hubActorFromRequest(req, authToken);
     sendJson(res, 200, { projects: await listProjectsForActor(actor), actor: actor.role });
@@ -690,8 +749,27 @@ const server = createServer(async (req, res) => {
   }
 
   const observeAssistMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/observe-assist$/);
+  const runtimeHealthMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/runtime\/health$/);
+  if (req.method === "GET" && runtimeHealthMatch) {
+    const actor = hubActorFromRequest(req, authToken);
+    const p = await getProjectForActor(decodeURIComponent(runtimeHealthMatch[1]), actor);
+    const site = p?.sites?.find((s) => s.id === decodeURIComponent(runtimeHealthMatch[2]));
+    if (!p || !site) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    const baseUrl = site.runtime?.baseUrl ?? getRunningRuntime(p.id, site.id)?.baseUrl;
+    if (!baseUrl) {
+      sendJson(res, 200, { ok: false, error: "runtime-not-started" });
+      return;
+    }
+    sendJson(res, 200, await probeRuntimeHealth(baseUrl));
+    return;
+  }
+
   if (req.method === "GET" && observeAssistMatch) {
-    const p = await getProject(decodeURIComponent(observeAssistMatch[1]));
+    const actor = hubActorFromRequest(req, authToken);
+    const p = await getProjectForActor(decodeURIComponent(observeAssistMatch[1]), actor);
     const site = p?.sites?.find((s) => s.id === decodeURIComponent(observeAssistMatch[2]));
     if (!p || !site) {
       sendJson(res, 404, { error: "not-found" });
@@ -710,6 +788,16 @@ const server = createServer(async (req, res) => {
       const actor = hubActorFromRequest(req, authToken);
 
       const tracesUploadMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/traces\/upload$/);
+      const traceChunkMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/traces\/upload\/([^/]+)\/chunk$/);
+      if (traceChunkMatch) {
+        const uploadId = decodeURIComponent(traceChunkMatch[3]);
+        const raw = await readRawBody(req);
+        const chunkIndex = Number(req.headers["x-chunk-index"] ?? "0");
+        const meta = await appendUploadChunk(uploadId, chunkIndex, raw);
+        sendJson(res, 200, meta);
+        return;
+      }
+
       if (tracesUploadMatch) {
         const projectId = decodeURIComponent(tracesUploadMatch[1]);
         const siteId = decodeURIComponent(tracesUploadMatch[2]);
@@ -737,6 +825,55 @@ const server = createServer(async (req, res) => {
 
       const body = await readBody(req);
 
+      if (url.pathname === "/api/hub/orgs") {
+        const org = await createOrg({ name: body.name || "Organization", actorId: actor.id ?? "admin" });
+        sendJson(res, 201, { org });
+        return;
+      }
+
+      const joinOrgMatch = url.pathname.match(/^\/api\/hub\/orgs\/([^/]+)\/join$/);
+      if (joinOrgMatch) {
+        const org = await joinOrg(decodeURIComponent(joinOrgMatch[1]), actor.id ?? "anonymous");
+        sendJson(res, 200, { org });
+        return;
+      }
+
+      const traceStartMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/traces\/upload\/start$/);
+      if (traceStartMatch) {
+        const projectId = decodeURIComponent(traceStartMatch[1]);
+        const siteId = decodeURIComponent(traceStartMatch[2]);
+        const p = await getProjectForActor(projectId, actor);
+        const site = p?.sites?.find((s) => s.id === siteId);
+        if (!p || !site) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
+        const meta = await startResumableUpload({
+          projectId,
+          siteId,
+          filename: body.filename || "traces.ndjson",
+          totalBytes: body.totalBytes,
+        });
+        sendJson(res, 201, { ...meta, chunkSize: CHUNK_SIZE });
+        return;
+      }
+
+      const traceFinishMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/traces\/upload\/([^/]+)\/finish$/);
+      if (traceFinishMatch) {
+        const projectId = decodeURIComponent(traceFinishMatch[1]);
+        const siteId = decodeURIComponent(traceFinishMatch[2]);
+        const uploadId = decodeURIComponent(traceFinishMatch[3]);
+        const p = await getProjectForActor(projectId, actor);
+        const site = p?.sites?.find((s) => s.id === siteId);
+        if (!p || !site) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
+        const result = await finishResumableUpload(uploadId, site.localDir);
+        sendJson(res, 200, result);
+        return;
+      }
+
       if (url.pathname === "/api/hub/scan-ssh") {
         const detection = await scanSshRemote(body.ssh);
         sendJson(res, 200, { detection });
@@ -759,6 +896,7 @@ const server = createServer(async (req, res) => {
           name: body.name,
           description: body.description,
           owner: ownerForNewProject(actor),
+          orgId: body.orgId ?? null,
           ssh: body.ssh,
           sites: body.sites,
           pullFromSsh: body.pullFromSsh === true,
@@ -972,6 +1110,7 @@ const server = createServer(async (req, res) => {
             broadcast("siteRuntime", { projectId, siteId, runtime: rt });
           },
         });
+        startRuntimeHealthWatch();
         sendJson(res, 200, { runtime, emitTarget: await detectEmittedTarget(site.localDir) });
         return;
       }

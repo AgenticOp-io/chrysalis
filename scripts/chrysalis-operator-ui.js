@@ -12,7 +12,10 @@
   function route() {
     const h = (location.hash || "#/").replace(/^#\/?/, "");
     const [page, query] = h.split("?");
-    if (page === "new" || page === "newProject") show("newProject");
+    if (page === "new" || page === "newProject") {
+      show("newProject");
+      loadOrgs($("newOrgId")).catch(() => {});
+    }
     else if (page === "guide" || page === "install") {
       show("guide");
       loadInstallGuide();
@@ -72,7 +75,39 @@
     loadHome().catch(() => {});
   });
 
+  async function loadOrgs(selectEl) {
+    try {
+      const data = await api("/api/hub/orgs");
+      if (selectEl) {
+        const cur = selectEl.value;
+        selectEl.innerHTML = '<option value="">Personal (no org)</option>';
+        for (const o of data.orgs || []) {
+          const opt = document.createElement("option");
+          opt.value = o.id;
+          opt.textContent = o.name;
+          selectEl.appendChild(opt);
+        }
+        if (cur) selectEl.value = cur;
+      }
+      const ul = $("orgList");
+      if (ul) {
+        ul.innerHTML = "";
+        for (const o of data.orgs || []) {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${esc(o.name)}</strong> <span class="muted">${esc(o.id)}</span>`;
+          ul.appendChild(li);
+        }
+        if (!data.orgs?.length) ul.innerHTML = "<li>No orgs yet — create one below.</li>";
+      }
+      return data.orgs || [];
+    } catch (e) {
+      if ($("orgStatus")) $("orgStatus").textContent = e.message;
+      return [];
+    }
+  }
+
   async function loadHome() {
+    await loadOrgs(null);
     const data = await api("/api/hub/projects");
     const ul = $("projectList");
     ul.innerHTML = "";
@@ -81,12 +116,30 @@
       const output = p.outputLanguage || "?";
       const li = document.createElement("li");
       const siteN = p.sites?.length ?? 0;
+      const org = p.orgId ? ` · org ${esc(p.orgId)}` : "";
       li.innerHTML = `<strong>${esc(p.name)}</strong> <span class="muted">${esc(p.id)}</span>
-        <div class="muted">${esc(origin)} → ${esc(output)} · ${siteN} site(s)</div>
+        <div class="muted">${esc(origin)} → ${esc(output)} · ${siteN} site(s)${org}</div>
         <a href="#/console?id=${encodeURIComponent(p.id)}"><strong>Open console</strong> (add sites, run batch)</a>`;
       ul.appendChild(li);
     }
   }
+
+  $("btnCreateOrg")?.addEventListener("click", async () => {
+    const name = $("newOrgName")?.value?.trim();
+    if (!name) {
+      $("orgStatus").textContent = "Enter a team name.";
+      return;
+    }
+    try {
+      await api("/api/hub/orgs", { method: "POST", body: { name } });
+      $("orgStatus").textContent = `Created org ${name}.`;
+      $("newOrgName").value = "";
+      await loadOrgs($("newOrgId"));
+      await loadHome();
+    } catch (e) {
+      $("orgStatus").textContent = "Error: " + e.message;
+    }
+  });
 
   function esc(s) {
     return String(s)
@@ -364,6 +417,7 @@
     const body = {
       name: $("projName").value.trim(),
       description: $("projDesc").value.trim(),
+      orgId: $("newOrgId")?.value?.trim() || null,
       originLanguage: $("originLanguage").value,
       outputLanguage: $("outputLanguage").value,
       sites: pendingSites,
@@ -437,12 +491,20 @@
       const vPct =
         site.verifyCorrectness != null ? `${Math.round(site.verifyCorrectness * 100)}%` : site.verifyState === "passed" ? "ok" : "";
       const rt = site.runtime?.baseUrl ? ` · app ${site.runtime.baseUrl}` : "";
+      const h = site.runtime?.health;
+      const healthBadge = h
+        ? h.ok
+          ? `<span class="badge ok">health ${h.latencyMs ?? "?"}ms</span>`
+          : `<span class="badge fail">health fail</span>`
+        : site.runtime?.state === "running"
+          ? `<span class="badge run">probing…</span>`
+          : "";
       row.innerHTML = `
         <div class="row" style="justify-content:space-between">
           <strong>${esc(site.name)}</strong>
           <span class="badge ${site.jobState === "succeeded" || site.verifyState === "passed" ? "ok" : site.jobState === "failed" || site.verifyState === "failed" ? "fail" : ""}">${esc(site.jobState || "idle")}</span>
         </div>
-        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)} · verify: ${esc(vState)} ${esc(vPct)}${esc(rt)}</div>
+        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)} · verify: ${esc(vState)} ${esc(vPct)}${esc(rt)} ${healthBadge}</div>
         <div class="bar-wrap" style="margin-top:0.4rem"><div class="bar" style="width:${pct}%"></div></div>
         <div class="muted">${done} / ${total} routes (${pct}%)</div>
         <div class="row" style="margin-top:0.35rem">
@@ -669,6 +731,42 @@
     if (d.runtime?.baseUrl && $("verifyBaseUrl")) $("verifyBaseUrl").value = d.runtime.baseUrl;
     if (consoleProjectId) loadConsoleProject(consoleProjectId);
   });
+  es.addEventListener("runtimeHealth", () => {
+    if (consoleProjectId) loadConsoleProject(consoleProjectId);
+  });
+
+  const CHUNK_SIZE = 2 * 1024 * 1024;
+
+  async function uploadTraceFile(projectId, siteId, file) {
+    const base = `/api/hub/projects/${encodeURIComponent(projectId)}/sites/${encodeURIComponent(siteId)}/traces`;
+    if (file.size > CHUNK_SIZE || file.name.endsWith(".zip")) {
+      const start = await post(`${base}/upload/start`, { filename: file.name, totalBytes: file.size });
+      const chunkSize = start.chunkSize || CHUNK_SIZE;
+      let offset = 0;
+      let idx = 0;
+      while (offset < file.size) {
+        const slice = file.slice(offset, Math.min(offset + chunkSize, file.size));
+        const headers = buildHeaders({
+          "content-type": "application/octet-stream",
+          "x-chunk-index": String(idx),
+        });
+        const r = await fetch(`${base}/upload/${encodeURIComponent(start.uploadId)}/chunk`, {
+          method: "POST",
+          headers,
+          body: slice,
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.message || j.error || r.statusText);
+        offset += slice.size;
+        idx += 1;
+        if ($("verifyStatus")) $("verifyStatus").textContent = `Uploading ${file.name}: ${Math.round((100 * offset) / file.size)}%`;
+      }
+      return post(`${base}/upload/${encodeURIComponent(start.uploadId)}/finish`, {});
+    }
+    const fd = new FormData();
+    fd.append("traces", file);
+    return apiUpload(`${base}/upload`, fd);
+  }
 
   async function post(path, body) {
     return api(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -851,14 +949,15 @@
       $("verifyStatus").textContent = "Choose trace files or a .zip first.";
       return;
     }
-    const fd = new FormData();
-    for (const f of input.files) fd.append("traces", f);
     try {
-      const r = await apiUpload(
-        `/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}/traces/upload`,
-        fd,
-      );
-      $("verifyStatus").textContent = `Uploaded ${r.saved} file(s) to ${r.tracesDir}`;
+      let saved = 0;
+      let tracesDir = "";
+      for (const f of input.files) {
+        const r = await uploadTraceFile(consoleProjectId, selectedSiteId, f);
+        saved += typeof r.saved === "number" ? r.saved : 1;
+        tracesDir = r.tracesDir || tracesDir;
+      }
+      $("verifyStatus").textContent = `Uploaded ${saved} file(s) to ${tracesDir}`;
     } catch (e) {
       $("verifyStatus").textContent = "Upload error: " + e.message;
     }
@@ -994,6 +1093,7 @@
     e.preventDefault();
     location.hash = "#/new";
     route();
+    loadOrgs($("newOrgId")).catch(() => {});
   });
   $("navGuide")?.addEventListener("click", (e) => {
     e.preventDefault();

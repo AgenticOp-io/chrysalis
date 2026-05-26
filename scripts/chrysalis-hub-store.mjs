@@ -709,6 +709,7 @@ export async function createHubProject(opts) {
     name: opts.name,
     description: opts.description ?? "",
     owner: opts.owner ?? null,
+    orgId: opts.orgId ?? null,
     createdAt: new Date().toISOString(),
     ssh: opts.ssh ?? null,
     localDir: ws,
@@ -821,10 +822,11 @@ export function hubActorFromRequest(req, configuredToken) {
   };
 }
 
-export function canAccessProject(project, actor) {
+export async function canAccessProject(project, actor) {
   if (!actor || actor.role === "open" || actor.role === "admin") return true;
-  if (!project.owner) return false;
-  return project.owner === actor.id;
+  const { orgIdsForActorFromStore, canAccessProjectWithOrgs } = await import("./chrysalis-hub-org.mjs");
+  const orgIds = await orgIdsForActorFromStore(actor);
+  return canAccessProjectWithOrgs(project, actor, orgIds);
 }
 
 export function ownerForNewProject(actor) {
@@ -835,11 +837,12 @@ export function ownerForNewProject(actor) {
 
 export async function listProjectsForActor(actor) {
   const all = await listProjects();
-  return all.filter((p) => canAccessProject(p, actor));
+  const checks = await Promise.all(all.map(async (p) => ((await canAccessProject(p, actor)) ? p : null)));
+  return checks.filter(Boolean);
 }
 
 export async function getProjectForActor(id, actor) {
   const p = await getProject(id);
   if (!p) return null;
-  return canAccessProject(p, actor) ? p : null;
+  return (await canAccessProject(p, actor)) ? p : null;
 }

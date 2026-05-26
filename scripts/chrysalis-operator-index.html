@@ -78,6 +78,16 @@
         <p class="muted"><a href="#/guide">Demo install guide</a> — URL, SSH setup, and a walkthrough on this server.</p>
       </div>
       <div class="card">
+        <h2 style="margin-top:0">Organizations</h2>
+        <p class="muted">Team projects share an org; members see org-scoped projects only.</p>
+        <ul id="orgList" class="muted" style="list-style:none;padding:0;margin:0 0 0.75rem"></ul>
+        <div class="row">
+          <input id="newOrgName" type="text" placeholder="Team name" style="flex:1;max-width:16rem;margin-bottom:0" />
+          <button type="button" class="secondary" id="btnCreateOrg">Create org</button>
+        </div>
+        <p id="orgStatus" class="muted"></p>
+      </div>
+      <div class="card">
         <h2 style="margin-top:0">Your projects</h2>
         <ul id="projectList"></ul>
         <p class="muted">Hub stores workspaces under <code>~/.chrysalis-hub/</code> on this server.</p>
@@ -92,6 +102,8 @@
         <input id="projName" type="text" placeholder="Billing monolith" />
         <label for="projDesc">Description</label>
         <textarea id="projDesc" rows="2" placeholder="Optional"></textarea>
+        <label for="newOrgId">Organization (optional)</label>
+        <select id="newOrgId"><option value="">Personal (no org)</option></select>
         <h3>Origin sites (SSH) — add as many as you need</h3>
         <p class="muted">Fill one site below and click <strong>Add to project</strong>. Repeat for each legacy server. All sites share the same output language.</p>
         <ul id="pendingSitesList" class="muted" style="list-style:none;padding:0;margin:0 0 0.75rem"></ul>
@@ -239,6 +251,6 @@
       <button type="button" class="primary" id="btnSaveToken">Continue</button>
     </div>
   </div>
-  <script src="/ui.js?v=hub-finish-1"></script>
+  <script src="/ui.js?v=hub-post-v1-1"></script>
 </body>
 </html>

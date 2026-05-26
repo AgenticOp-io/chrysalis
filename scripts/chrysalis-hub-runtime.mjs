@@ -144,3 +144,36 @@ async function patchRuntime(projectId, siteId, runtime) {
 export function getRunningRuntime(projectId, siteId) {
   return running.get(`${projectId}:${siteId}`)?.runtime ?? null;
 }
+
+export function listRunningRuntimes() {
+  return [...running.entries()].map(([key, entry]) => {
+    const [projectId, siteId] = key.split(":");
+    return { projectId, siteId, ...entry.runtime };
+  });
+}
+
+/** HTTP health probe for emitted app (portal runtime card). */
+export async function probeRuntimeHealth(baseUrl, timeoutMs = 5000) {
+  const url = baseUrl.replace(/\/$/, "") + "/";
+  const started = Date.now();
+  try {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), timeoutMs);
+    const r = await fetch(url, { method: "GET", signal: ac.signal });
+    clearTimeout(t);
+    return {
+      ok: r.ok,
+      status: r.status,
+      latencyMs: Date.now() - started,
+      checkedAt: new Date().toISOString(),
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      status: 0,
+      latencyMs: Date.now() - started,
+      error: e instanceof Error ? e.message : String(e),
+      checkedAt: new Date().toISOString(),
+    };
+  }
+}

@@ -38,8 +38,8 @@ test("hub tenancy: tenant actor isolation", async () => {
   const tenant = hubActorFromRequest({ headers: { authorization: "Bearer user-a" } }, "secret");
   expect(admin.role).toBe("admin");
   expect(tenant.role).toBe("tenant");
-  expect(canAccessProject({ owner: "abc" }, tenant)).toBe(false);
-  expect(canAccessProject({ owner: "abc" }, admin)).toBe(true);
+  expect(await canAccessProject({ owner: "abc" }, tenant)).toBe(false);
+  expect(await canAccessProject({ owner: "abc" }, admin)).toBe(true);
   expect(ownerForNewProject(tenant)).toHaveLength(24);
 });
 
@@ -54,6 +54,71 @@ test("hub traces upload: parseMultipartFiles", async () => {
   const files = parseMultipartFiles(body, `multipart/form-data; boundary=${boundary}`);
   expect(files).toHaveLength(1);
   expect(files[0].filename).toBe("t.ndjson");
+});
+
+test("hub org: create and org-scoped project access", async () => {
+  const prev = process.env.CHRYSALIS_HUB_ROOT;
+  const root = await mkdtemp(join(tmpdir(), "chrysalis-hub-org-"));
+  process.env.CHRYSALIS_HUB_ROOT = root;
+  const ORG = fileURLToPath(new URL("../../../scripts/chrysalis-hub-org.mjs", import.meta.url));
+  const STORE = fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url));
+  try {
+    const { createOrg, joinOrg } = await import(ORG);
+    const { createHubProject, canAccessProject, hubActorFromRequest } = await import(STORE);
+    const org = await createOrg({ name: "Team A", actorId: "alice" });
+    await joinOrg(org.id, "bob");
+    const p = await createHubProject({
+      name: "Org project",
+      orgId: org.id,
+      owner: "alice",
+      runSetup: false,
+      backgroundSetup: false,
+      sites: [],
+    });
+    const alice = hubActorFromRequest({ headers: { authorization: "Bearer x" } }, "secret");
+    alice.id = "alice";
+    alice.role = "tenant";
+    const bob = { ...alice, id: "bob" };
+    const eve = { ...alice, id: "eve" };
+    expect(await canAccessProject(p, alice)).toBe(true);
+    expect(await canAccessProject(p, bob)).toBe(true);
+    expect(await canAccessProject(p, eve)).toBe(false);
+  } finally {
+    process.env.CHRYSALIS_HUB_ROOT = prev;
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("hub traces: resumable upload round-trip", async () => {
+  const prev = process.env.CHRYSALIS_HUB_ROOT;
+  const root = await mkdtemp(join(tmpdir(), "chrysalis-hub-upload-"));
+  process.env.CHRYSALIS_HUB_ROOT = root;
+  const UP = fileURLToPath(new URL("../../../scripts/chrysalis-hub-traces-upload.mjs", import.meta.url));
+  const siteDir = join(root, "site-ws");
+  try {
+    const { startResumableUpload, appendUploadChunk, finishResumableUpload } = await import(UP);
+    const meta = await startResumableUpload({
+      projectId: "p1",
+      siteId: "s1",
+      filename: "trace.ndjson",
+      totalBytes: 10,
+    });
+    await appendUploadChunk(meta.uploadId, 0, Buffer.from('{"a":1}\n'));
+    const done = await finishResumableUpload(meta.uploadId, siteDir);
+    expect(done.saved).toBe(1);
+    expect(done.tracesDir).toMatch(/\.chrysalis[\\/]traces$/);
+  } finally {
+    process.env.CHRYSALIS_HUB_ROOT = prev;
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("hub runtime: probeRuntimeHealth rejects bad host", async () => {
+  const { probeRuntimeHealth } = await import(
+    fileURLToPath(new URL("../../../scripts/chrysalis-hub-runtime.mjs", import.meta.url))
+  );
+  const h = await probeRuntimeHealth("http://127.0.0.1:1");
+  expect(h.ok).toBe(false);
 });
 
 test("hub store: updateProjectSite patches ssh and name", async () => {

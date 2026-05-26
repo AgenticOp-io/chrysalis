@@ -2,9 +2,15 @@
  * Upload oracle trace files into a site workspace (portal multipart / zip).
  */
 import { spawn } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, rename, readdir, unlink } from "node:fs/promises";
+import { homedir } from "node:os";
 import { join, basename } from "node:path";
 import { defaultTracesDir } from "./chrysalis-hub-verify.mjs";
+
+const hubRoot = process.env.CHRYSALIS_HUB_ROOT ?? join(homedir(), ".chrysalis-hub");
+const uploadsRoot = join(hubRoot, "uploads");
+
+export const CHUNK_SIZE = 2 * 1024 * 1024;
 
 const MAX_UPLOAD_BYTES = Number(process.env.CHRYSALIS_HUB_MAX_UPLOAD_BYTES ?? String(100 * 1024 * 1024));
 
@@ -70,6 +76,59 @@ export async function saveTraceFiles(siteLocalDir, files) {
     saved += 1;
   }
   return { tracesDir: dir, saved };
+}
+
+export async function startResumableUpload({ projectId, siteId, filename, totalBytes }) {
+  await mkdir(uploadsRoot, { recursive: true });
+  const uploadId = `up-${Date.now().toString(36)}`;
+  const dir = join(uploadsRoot, uploadId);
+  await mkdir(dir, { recursive: true });
+  const meta = {
+    uploadId,
+    projectId,
+    siteId,
+    filename: safeTraceName(filename),
+    totalBytes: Number(totalBytes) || null,
+    receivedBytes: 0,
+    chunkSize: CHUNK_SIZE,
+    startedAt: new Date().toISOString(),
+  };
+  await writeFile(join(dir, "meta.json"), `${JSON.stringify(meta, null, 2)}\n`, "utf8");
+  return meta;
+}
+
+export async function appendUploadChunk(uploadId, chunkIndex, data) {
+  const dir = join(uploadsRoot, uploadId);
+  const meta = JSON.parse(await readFile(join(dir, "meta.json"), "utf8"));
+  const chunkPath = join(dir, `chunk-${String(chunkIndex).padStart(6, "0")}`);
+  await writeFile(chunkPath, data);
+  meta.receivedBytes = (meta.receivedBytes ?? 0) + data.length;
+  meta.lastChunkIndex = chunkIndex;
+  await writeFile(join(dir, "meta.json"), `${JSON.stringify(meta, null, 2)}\n`, "utf8");
+  return meta;
+}
+
+export async function finishResumableUpload(uploadId, siteLocalDir) {
+  const dir = join(uploadsRoot, uploadId);
+  const meta = JSON.parse(await readFile(join(dir, "meta.json"), "utf8"));
+  const tracesDir = defaultTracesDir(siteLocalDir);
+  await mkdir(tracesDir, { recursive: true });
+  const outPath = join(tracesDir, meta.filename);
+  const tmp = `${outPath}.partial`;
+  const names = (await readdir(dir)).filter((n) => n.startsWith("chunk-")).sort();
+  const { open, write, close } = await import("node:fs/promises");
+  const fh = await open(tmp, "w");
+  for (const name of names) {
+    const buf = await readFile(join(dir, name));
+    await fh.write(buf);
+  }
+  await fh.close();
+  await rename(tmp, outPath);
+  for (const name of names) {
+    await unlink(join(dir, name)).catch(() => {});
+  }
+  await unlink(join(dir, "meta.json")).catch(() => {});
+  return { tracesDir, saved: 1, filename: meta.filename, uploadId };
 }
 
 export async function saveZipTraces(siteLocalDir, zipBuffer) {

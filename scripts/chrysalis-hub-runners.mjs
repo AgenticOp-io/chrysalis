@@ -89,7 +89,7 @@ export function runJobSteps(steps, repo, hooks) {
     hooks.onStepStart(step);
     const child = spawn(step.execPath, step.argv, {
       cwd: repo,
-      env: { ...process.env, NO_COLOR: "1" },
+      env: { ...process.env, NO_COLOR: "1", CHRYSALIS_HUB_PREFER_WPTP: process.env.CHRYSALIS_HUB_PREFER_WPTP ?? "1" },
     });
     const emit = (stream, chunk) => {
       for (const line of chunk.toString().split(/\r?\n/)) {

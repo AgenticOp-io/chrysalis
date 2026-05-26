@@ -7,6 +7,7 @@ import { spawn } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveEmitBackend } from "./shared.mjs";
+import { runHubEmitPipeline } from "./wptp-emit-pipeline.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -94,6 +95,14 @@ async function main() {
       await runNode(join(hubIngest, "emit-target-project.mjs"), [projectDir, "--origin", origin, "--output", output]);
     }
     console.log(JSON.stringify({ ok: true, origin, output, path: "chrysalis-php" }));
+    return;
+  }
+
+  const preferWptp = process.env.CHRYSALIS_HUB_PREFER_WPTP !== "0";
+  if (preferWptp) {
+    const r = await runHubEmitPipeline(projectDir, origin, output);
+    console.log(JSON.stringify({ ok: r.ok, origin, output, path: r.path, hole: r.hole ?? null }));
+    if (!r.ok) process.exit(1);
     return;
   }
 

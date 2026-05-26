@@ -63,10 +63,12 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 **Translation Hub v1 is feature-complete** for the portal product slice (G1–G13). Further work is Chrysalis core depth (oracle, ingest, WPTP emitters), not hub UI plumbing.
 
-### Translation Hub — future (post-v1, optional)
+### Translation Hub — post-v1 (portal depth)
 
-- Org registry UI, trace upload resume, emitted-app health probes in Console.
-- Full non-PHP native emit quality (WPTP **`wptp-emit-*`**, not hub scaffolds).
+- [x] **G14 — Org registry UI** — **`chrysalis-hub-org.mjs`**, **`orgs.json`**, project **`orgId`**, **`GET/POST /api/hub/orgs`**, join, portal org list + create + new-project org picker. (**DESIGN D320**)
+- [x] **G15 — Resumable trace upload** — **`start` / `chunk` / `finish`** under **`~/.chrysalis-hub/uploads/`**; portal chunked upload for large files. (**D320**)
+- [x] **G16 — Emitted-app health probes** — **`probeRuntimeHealth`**, **`GET …/runtime/health`**, SSE **`runtimeHealth`**, Console health badges. (**D320**)
+- [x] **G17 — Hub WPTP emit pipeline (default on)** — **`wptp-emit-pipeline.mjs`**, **`CHRYSALIS_HUB_PREFER_WPTP=1`** in hub jobs; scaffold fallback hole **`hub:emit-scaffold-fallback`**. Core **`wptp-emit-*`** quality remains Chrysalis/WPTP CI depth.
 
 ---
 
