@@ -14,7 +14,7 @@ param(
   [string] $Zone = "us-central1-a",
   [string] $Name = "chrysalis-test-vm",
   [string] $MatrixRepo = "https://github.com/theorem6/wptp-matrix.git",
-  [string] $MatrixRef = "v0.1.9",
+  [string] $MatrixRef = "v0.1.10",
   [switch] $UseExistingInstance,
   [switch] $TunnelThroughIap,
   [switch] $Recreate,
