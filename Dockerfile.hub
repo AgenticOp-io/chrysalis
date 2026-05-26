@@ -1,0 +1,27 @@
+# Chrysalis Translation Hub — portal + API (port 19090).
+FROM node:22-bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git php-cli php-xml unzip ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages ./packages
+COPY scripts ./scripts
+COPY fixtures ./fixtures
+COPY docs ./docs
+COPY tsconfig.json vitest.config.ts ./
+
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate \
+    && pnpm install --frozen-lockfile \
+    && pnpm run build:hub-all
+
+ENV CHRYSALIS_OPERATOR_REPO=/app
+ENV CHRYSALIS_OPERATOR_PORT=19090
+ENV CHRYSALIS_OPERATOR_BIND=0.0.0.0
+ENV CHRYSALIS_HUB_ROOT=/data/.chrysalis-hub
+ENV NODE_ENV=production
+
+EXPOSE 19090
+CMD ["node", "scripts/chrysalis-operator-web.mjs"]

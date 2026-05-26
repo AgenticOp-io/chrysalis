@@ -70,6 +70,12 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G16 — Emitted-app health probes** — **`probeRuntimeHealth`**, **`GET …/runtime/health`**, SSE **`runtimeHealth`**, Console health badges. (**D320**)
 - [x] **G17 — Hub WPTP emit pipeline (default on)** — **`wptp-emit-pipeline.mjs`**, **`CHRYSALIS_HUB_PREFER_WPTP=1`** in hub jobs; scaffold fallback hole **`hub:emit-scaffold-fallback`**. Core **`wptp-emit-*`** quality remains Chrysalis/WPTP CI depth.
 
+### Translation Hub — portal product complete (web-only ops)
+
+- [x] **G18 — Portal product completeness** — Local workspace create; site form binding; formatted observe guide; org join; per-site route plan; batch concurrency; project PATCH/DELETE; status job + health refresh; **`pnpm run hub:serve`**; **`docker-compose.hub.yml`**. (**DESIGN D321**)
+
+**The Translation Hub is the web product surface** for operators (`http://host:19090/`). Remaining depth is Chrysalis core (emit/oracle/WPTP), not portal plumbing.
+
 ---
 
 ## Milestone 0 — Foundations (days, not weeks)

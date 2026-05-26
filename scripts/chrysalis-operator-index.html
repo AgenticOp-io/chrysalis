@@ -64,7 +64,7 @@
     <span class="brand">Chrysalis Translation Hub</span>
     <a href="#/" id="navHome">Projects</a>
     <a href="#/new" id="navNew">New project</a>
-    <a href="#/guide" id="navGuide">Demo guide</a>
+    <a href="#/guide" id="navGuide">Guides</a>
   </nav>
   <main>
     <section id="viewHome" hidden>
@@ -84,6 +84,10 @@
         <div class="row">
           <input id="newOrgName" type="text" placeholder="Team name" style="flex:1;max-width:16rem;margin-bottom:0" />
           <button type="button" class="secondary" id="btnCreateOrg">Create org</button>
+        </div>
+        <div class="row" style="margin-top:0.5rem">
+          <input id="joinOrgId" type="text" placeholder="Org id to join" style="flex:1;max-width:16rem;margin-bottom:0" />
+          <button type="button" class="secondary" id="btnJoinOrg">Join org</button>
         </div>
         <p id="orgStatus" class="muted"></p>
       </div>
@@ -149,24 +153,50 @@
         <div class="row">
           <button type="button" class="primary" id="btnCreateProject">Create project &amp; start setup</button>
           <button type="button" class="secondary" id="btnCreateAndRun">Create &amp; run full pipeline</button>
+          <button type="button" class="secondary" id="btnCreateLocalProject">Local workspace only</button>
         </div>
-        <p id="createStatus" class="muted">Requires at least one origin site in the list above (or fill host/user/path and click Add to project). Setup and translation run on the hub — no CLI required.</p>
+        <p id="createStatus" class="muted">SSH: add sites above, or use <strong>Local workspace only</strong> for code already on this hub. No CLI required.</p>
       </div>
     </section>
 
     <section id="viewGuide" class="guide" hidden>
-      <h1>Demo install guide</h1>
-      <p class="muted">How to use this Translation Hub on the demo server. <a href="/docs/hub-install" target="_blank" rel="noopener">Plain text</a></p>
-      <div class="card"><article id="installGuideBody"><p class="muted">Loading…</p></article></div>
+      <h1>Hub guides</h1>
+      <div class="row" style="margin-bottom:1rem">
+        <button type="button" class="secondary" id="btnGuideInstall">Install &amp; walkthrough</button>
+        <button type="button" class="secondary" id="btnGuideConnectivity">SSH &amp; connectivity</button>
+      </div>
+      <p class="muted"><a href="/docs/hub-install" target="_blank" rel="noopener">Install (text)</a> · <a href="/docs/hub-connectivity" target="_blank" rel="noopener">Connectivity (text)</a></p>
+      <div class="card"><article id="guideBody"><p class="muted">Loading…</p></article></div>
     </section>
 
     <section id="viewConsole" hidden>
       <h1 id="consoleTitle">Console</h1>
       <p class="muted" id="consoleSubtitle">Client/server hub — add many SSH origin sites, run in parallel with per-site progress.</p>
       <div class="card">
+        <h3 style="margin-top:0">Project settings</h3>
+        <div class="grid2">
+          <div><label for="consoleProjName">Name</label><input id="consoleProjName" type="text" /></div>
+          <div><label for="consoleProjOutput">Output language</label><select id="consoleProjOutput"></select></div>
+        </div>
+        <div class="row">
+          <button type="button" class="secondary" id="btnSaveProject">Save project</button>
+          <button type="button" class="secondary" id="btnDeleteProject">Delete project</button>
+        </div>
+        <p id="projectSettingsStatus" class="muted"></p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Translation route plan</h3>
+        <p id="routePlanSummary" class="muted">Loading plan…</p>
+        <ul id="routePlanList" class="muted" style="font-size:0.85rem;max-height:8rem;overflow-y:auto;padding-left:1.2rem"></ul>
+      </div>
+      <div class="card">
         <h3>Origin sites</h3>
         <div id="sitesList"></div>
         <p class="muted" id="batchOverall">Batch: idle</p>
+        <div class="grid2">
+          <div><label for="batchConcurrency">Parallel jobs</label><input id="batchConcurrency" type="number" min="1" max="16" value="2" /></div>
+          <div style="padding-top:1.4rem"><label><input type="checkbox" id="batchPrepSites" /> Prep origins before translate</label></div>
+        </div>
         <h4>Add site (SSH)</h4>
         <div class="grid2">
           <div><label for="siteName">Site name</label><input id="siteName" type="text" placeholder="Production EU" /></div>
@@ -233,12 +263,21 @@
       <div class="card">
         <h3>Observe on staging</h3>
         <p class="muted" id="observeHint">Select a site and load capture instructions (PHP oracle on staging, not on prod).</p>
-        <button type="button" class="secondary" id="btnLoadObserve">Load observe guide for selected site</button>
-        <pre id="observeGuide" class="json" style="max-height:14rem;margin-top:0.5rem">—</pre>
+        <div class="row">
+          <button type="button" class="secondary" id="btnLoadObserve">Load observe guide for selected site</button>
+          <button type="button" class="secondary" id="btnRefreshHealth">Refresh app health</button>
+        </div>
+        <article id="observeGuide" class="guide" style="max-height:14rem;overflow-y:auto;margin-top:0.5rem;font-size:0.9rem">—</article>
       </div>
       <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
         <div class="card"><label>Job log</label><pre id="log"></pre></div>
-        <div class="card"><label>Status JSON</label><pre class="json" id="statusJson">—</pre></div>
+        <div class="card">
+          <label>Chrysalis status (selected site workspace)</label>
+          <div class="row" style="margin-bottom:0.5rem">
+            <button type="button" class="secondary" id="btnRunStatus">Run status</button>
+          </div>
+          <pre class="json" id="statusJson">—</pre>
+        </div>
       </div>
     </section>
   </main>
@@ -251,6 +290,6 @@
       <button type="button" class="primary" id="btnSaveToken">Continue</button>
     </div>
   </div>
-  <script src="/ui.js?v=hub-post-v1-1"></script>
+  <script src="/ui.js?v=hub-complete-1"></script>
 </body>
 </html>

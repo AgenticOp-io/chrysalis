@@ -129,10 +129,14 @@ git clone https://github.com/AgenticOp-io/chrysalis.git
 cd chrysalis
 pnpm install
 pnpm run build:hub-all
-export CHRYSALIS_STATUS_REPO="$(pwd)"
-export CHRYSALIS_STATUS_PORT=19090
-node scripts/chrysalis-operator-web.mjs
+export CHRYSALIS_OPERATOR_REPO="$(pwd)"
+export CHRYSALIS_OPERATOR_PORT=19090
+pnpm run hub:serve
 ```
+
+Open **http://127.0.0.1:19090/** — create SSH or **local workspace** projects, run setup/translate/verify from the browser.
+
+**Docker (optional):** `docker compose -f docker-compose.hub.yml up --build` — same UI on port **19090**, data in volume `chrysalis-hub-data`.
 
 `build:hub-all` runs `pnpm -r build`, parser-bridge vendor, and clones/builds **`wptp-emit-nextjs`** for Next.js hub output.
 

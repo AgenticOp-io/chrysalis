@@ -35,6 +35,7 @@ import {
   siteProgressPath,
   updateProject,
   updateProjectSite,
+  deleteHubProject,
   writeHubReport,
 } from "./chrysalis-hub-store.mjs";
 import { probeHubConnectivity, probeOriginOverSsh } from "./chrysalis-hub-connectivity.mjs";
@@ -719,33 +720,76 @@ const server = createServer(async (req, res) => {
 
   const hubPlanMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/route-plan$/);
   if (req.method === "GET" && hubPlanMatch) {
-    const p = await getProject(decodeURIComponent(hubPlanMatch[1]));
+    const actor = hubActorFromRequest(req, authToken);
+    const p = await getProjectForActor(decodeURIComponent(hubPlanMatch[1]), actor);
     if (!p) {
       sendJson(res, 404, { error: "not-found" });
       return;
     }
     const plan = planHubTranslation(p);
-    sendJson(res, 200, { projectId: p.id, plan });
+    const sitePlans = (p.sites ?? []).map((site) => ({
+      siteId: site.id,
+      siteName: site.name,
+      origin: site.originLanguage ?? p.originLanguage,
+      output: p.outputLanguage,
+      plan: planSiteTranslation(site, p),
+    }));
+    sendJson(res, 200, { projectId: p.id, plan, sitePlans });
     return;
   }
 
   const hubProjectMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)$/);
-  if (req.method === "GET" && hubProjectMatch) {
+  if (hubProjectMatch) {
+    const projectId = decodeURIComponent(hubProjectMatch[1]);
     const actor = hubActorFromRequest(req, authToken);
-    const p = await getProjectForActor(decodeURIComponent(hubProjectMatch[1]), actor);
-    if (!p) {
-      sendJson(res, 404, { error: "not-found" });
+
+    if (req.method === "GET") {
+      const p = await getProjectForActor(projectId, actor);
+      if (!p) {
+        sendJson(res, 404, { error: "not-found" });
+        return;
+      }
+      const sites = {};
+      for (const site of p.sites ?? []) {
+        sites[site.id] = {
+          defaultTracesDir: defaultTracesDir(site.localDir),
+          verifySummary: await readVerifySummary(site.localDir),
+        };
+      }
+      sendJson(res, 200, { ...p, siteMeta: sites });
       return;
     }
-    const sites = {};
-    for (const site of p.sites ?? []) {
-      sites[site.id] = {
-        defaultTracesDir: defaultTracesDir(site.localDir),
-        verifySummary: await readVerifySummary(site.localDir),
-      };
+
+    if (req.method === "PATCH" || req.method === "DELETE") {
+      if (!checkAuth(req)) {
+        sendJson(res, 401, { error: "unauthorized" });
+        return;
+      }
+      const p = await getProjectForActor(projectId, actor);
+      if (!p) {
+        sendJson(res, 404, { error: "not-found" });
+        return;
+      }
+      try {
+        if (req.method === "DELETE") {
+          await deleteHubProject(projectId);
+          sendJson(res, 200, { ok: true, deleted: projectId });
+          return;
+        }
+        const body = await readBody(req);
+        const patch = {};
+        if (body.name != null) patch.name = String(body.name);
+        if (body.description != null) patch.description = String(body.description);
+        if (body.orgId !== undefined) patch.orgId = body.orgId || null;
+        if (body.outputLanguage != null) patch.outputLanguage = body.outputLanguage;
+        if (body.originLanguage != null) patch.originLanguage = body.originLanguage;
+        const updated = await updateProject(projectId, patch);
+        sendJson(res, 200, { project: updated });
+      } catch (e) {
+        sendJson(res, 400, { error: e instanceof Error ? e.message : String(e) });
+      }
+      return;
     }
-    sendJson(res, 200, { ...p, siteMeta: sites });
-    return;
   }
 
   const observeAssistMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/observe-assist$/);

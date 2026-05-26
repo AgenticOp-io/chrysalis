@@ -794,6 +794,15 @@ export async function updateProject(id, patch) {
   return reg.projects[idx];
 }
 
+export async function deleteHubProject(id) {
+  const reg = await loadRegistry();
+  const idx = reg.projects.findIndex((p) => p.id === id);
+  if (idx < 0) throw new Error("project not found");
+  reg.projects.splice(idx, 1);
+  await saveRegistry(reg);
+  return { deleted: id };
+}
+
 export async function getProject(id) {
   const reg = await loadRegistry();
   const p = reg.projects.find((pr) => pr.id === id) ?? null;

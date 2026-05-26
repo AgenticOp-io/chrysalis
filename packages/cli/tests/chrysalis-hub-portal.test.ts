@@ -121,6 +121,26 @@ test("hub runtime: probeRuntimeHealth rejects bad host", async () => {
   expect(h.ok).toBe(false);
 });
 
+test("hub store: deleteHubProject removes registry entry", async () => {
+  const prev = process.env.CHRYSALIS_HUB_ROOT;
+  const root = await mkdtemp(join(tmpdir(), "chrysalis-hub-del-"));
+  process.env.CHRYSALIS_HUB_ROOT = root;
+  try {
+    const { createHubProject, deleteHubProject, getProject } = await import(STORE);
+    const p = await createHubProject({
+      name: "To Delete",
+      runSetup: false,
+      backgroundSetup: false,
+      sites: [],
+    });
+    await deleteHubProject(p.id);
+    expect(await getProject(p.id)).toBeNull();
+  } finally {
+    process.env.CHRYSALIS_HUB_ROOT = prev;
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("hub store: updateProjectSite patches ssh and name", async () => {
   const prev = process.env.CHRYSALIS_HUB_ROOT;
   const root = await mkdtemp(join(tmpdir(), "chrysalis-hub-test-"));

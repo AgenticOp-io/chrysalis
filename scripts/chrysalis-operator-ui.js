@@ -18,7 +18,7 @@
     }
     else if (page === "guide" || page === "install") {
       show("guide");
-      loadInstallGuide();
+      loadGuideDoc("/docs/hub-install");
     } else if (page === "console") {
       show("console");
       const id = new URLSearchParams(query || "").get("id");
@@ -119,10 +119,38 @@
       const org = p.orgId ? ` · org ${esc(p.orgId)}` : "";
       li.innerHTML = `<strong>${esc(p.name)}</strong> <span class="muted">${esc(p.id)}</span>
         <div class="muted">${esc(origin)} → ${esc(output)} · ${siteN} site(s)${org}</div>
-        <a href="#/console?id=${encodeURIComponent(p.id)}"><strong>Open console</strong> (add sites, run batch)</a>`;
+        <div class="row" style="margin-top:0.35rem">
+          <a href="#/console?id=${encodeURIComponent(p.id)}"><strong>Open console</strong></a>
+          <button type="button" class="secondary home-delete-project" data-project-id="${esc(p.id)}">Delete</button>
+        </div>`;
       ul.appendChild(li);
     }
+    ul.querySelectorAll(".home-delete-project").forEach((btn) => {
+      btn.addEventListener("click", () => deleteProjectFromHome(btn.getAttribute("data-project-id")));
+    });
   }
+
+  async function deleteProjectFromHome(id) {
+    if (!confirm(`Delete project ${id}? Workspace files remain on disk.`)) return;
+    await api(`/api/hub/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
+    await loadHome();
+  }
+
+  $("btnJoinOrg")?.addEventListener("click", async () => {
+    const orgId = $("joinOrgId")?.value?.trim();
+    if (!orgId) {
+      $("orgStatus").textContent = "Enter an org id to join.";
+      return;
+    }
+    try {
+      await api(`/api/hub/orgs/${encodeURIComponent(orgId)}/join`, { method: "POST", body: {} });
+      $("orgStatus").textContent = `Joined org ${orgId}.`;
+      await loadOrgs($("newOrgId"));
+      await loadHome();
+    } catch (e) {
+      $("orgStatus").textContent = "Error: " + e.message;
+    }
+  });
 
   $("btnCreateOrg")?.addEventListener("click", async () => {
     const name = $("newOrgName")?.value?.trim();
@@ -148,19 +176,28 @@
       .replace(/>/g, "&gt;");
   }
 
-  let installGuideLoaded = false;
-  async function loadInstallGuide() {
-    const el = $("installGuideBody");
-    if (!el || installGuideLoaded) return;
+  const guideCache = new Map();
+  async function loadGuideDoc(path) {
+    const el = $("guideBody");
+    if (!el) return;
+    if (guideCache.has(path)) {
+      el.innerHTML = guideCache.get(path);
+      return;
+    }
+    el.innerHTML = "<p class=\"muted\">Loading…</p>";
     try {
-      const r = await fetch("/docs/hub-install");
+      const r = await fetch(path);
       const md = await r.text();
-      el.innerHTML = renderInstallMarkdown(md);
-      installGuideLoaded = true;
+      const html = renderInstallMarkdown(md);
+      guideCache.set(path, html);
+      el.innerHTML = html;
     } catch (e) {
-      el.innerHTML = `<p class="muted">Could not load guide: ${esc(e.message)}. Try <a href="/docs/hub-install">plain text</a>.</p>`;
+      el.innerHTML = `<p class="muted">Could not load guide: ${esc(e.message)}.</p>`;
     }
   }
+
+  $("btnGuideInstall")?.addEventListener("click", () => loadGuideDoc("/docs/hub-install"));
+  $("btnGuideConnectivity")?.addEventListener("click", () => loadGuideDoc("/docs/hub-connectivity"));
 
   function renderInstallMarkdown(md) {
     const lines = md.split(/\r?\n/);
@@ -276,9 +313,21 @@
     const inputOpts = inputLanguages.map((l) => ({ ...l, fileCount: counts[l.id] ?? 0 }));
     fillSelect($("originLanguage"), inputOpts, defaultOrigin);
     fillSelect($("outputLanguage"), outputLanguages, defaultOutput);
+    if ($("consoleProjOutput")) fillSelect($("consoleProjOutput"), outputLanguages, defaultOutput);
+    if ($("originHint")) $("originHint").textContent = `${inputLanguages.length} origin languages in catalog.`;
+    if ($("outputHint")) $("outputHint").textContent = `${outputLanguages.length} output targets.`;
     $("originLanguage")?.addEventListener("change", refreshRouteStatus);
     $("outputLanguage")?.addEventListener("change", refreshRouteStatus);
     await refreshRouteStatus();
+  }
+
+  function batchJobBody(extra = {}) {
+    const n = Number($("batchConcurrency")?.value);
+    return {
+      ...(Number.isFinite(n) && n > 0 ? { concurrency: n } : {}),
+      prepSites: $("batchPrepSites")?.checked === true,
+      ...extra,
+    };
   }
 
   function syncDetectUi() {
@@ -442,7 +491,7 @@
     route();
     if (runPipelineAfter) {
       try {
-        await post(`/api/hub/projects/${encodeURIComponent(id)}/run-pipeline`, {});
+        await post(`/api/hub/projects/${encodeURIComponent(id)}/run-pipeline`, batchJobBody());
         if ($("siteActionStatus")) $("siteActionStatus").textContent = "Full pipeline started (setup + translate).";
       } catch (e) {
         $("createStatus").textContent += " Pipeline error: " + e.message;
@@ -462,9 +511,115 @@
     });
   });
 
+  async function createLocalProject(runPipelineAfter) {
+    $("createStatus").textContent = "Creating local workspace…";
+    const name = $("projName").value.trim() || "Local project";
+    const body = {
+      name,
+      description: $("projDesc").value.trim(),
+      orgId: $("newOrgId")?.value?.trim() || null,
+      originLanguage: $("originLanguage").value,
+      outputLanguage: $("outputLanguage").value,
+      sites: [],
+      prepOrigin: false,
+      pullFromSsh: false,
+      detectLanguages: false,
+      backgroundSetup: false,
+      runSetup: false,
+    };
+    const r = await api("/api/hub/projects", { method: "POST", body });
+    const id = r.project.id;
+    $("createStatus").textContent = `Created ${id} with hub workspace (copy PHP tree into site folder in Console).`;
+    location.hash = `#/console?id=${encodeURIComponent(id)}`;
+    route();
+    if (runPipelineAfter) {
+      await post(`/api/hub/projects/${encodeURIComponent(id)}/run-pipeline`, batchJobBody());
+    }
+  }
+
+  $("btnCreateLocalProject")?.addEventListener("click", () => {
+    createLocalProject(false).catch((e) => {
+      $("createStatus").textContent = "Error: " + e.message;
+    });
+  });
+
   let consoleProjectId = null;
+  let consoleProject = null;
 
   let selectedSiteId = null;
+
+  function bindSiteToForm(site, meta) {
+    if (!site) return;
+    if ($("siteName")) $("siteName").value = site.name || "";
+    if ($("siteOrigin")) $("siteOrigin").value = site.originLanguage || $("siteOrigin").value;
+    if ($("siteHost")) $("siteHost").value = site.ssh?.host || "";
+    if ($("siteUser")) $("siteUser").value = site.ssh?.user || "";
+    if ($("sitePort")) $("sitePort").value = String(site.ssh?.port ?? 22);
+    if ($("sitePath")) $("sitePath").value = site.ssh?.remotePath || site.localDir || "";
+    if ($("siteKey")) $("siteKey").value = site.ssh?.identityFile || "";
+    if ($("verifyBaseUrl") && site.runtime?.baseUrl) $("verifyBaseUrl").value = site.runtime.baseUrl;
+    if ($("verifyTracesDir") && meta?.defaultTracesDir) {
+      $("verifyTracesDir").placeholder = meta.defaultTracesDir;
+      if (!$("verifyTracesDir").value) $("verifyTracesDir").value = "";
+    }
+    const vs = meta?.verifySummary;
+    if (vs && $("verifyStatus")) {
+      const pct = vs.correctness != null ? `${Math.round(vs.correctness * 100)}%` : vs.state || "—";
+      $("verifyStatus").textContent = `Last verify: ${pct} (${vs.passedRoutes ?? "?"}/${vs.totalRoutes ?? "?"} routes)`;
+    }
+  }
+
+  function renderObserveAssist(assist) {
+    const el = $("observeGuide");
+    if (!el) return;
+    const steps = (assist.stagingSteps || [])
+      .map((s, i) => `<li>${esc(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")}</li>`)
+      .join("");
+    const cmds = Object.entries(assist.commands || {})
+      .map(([k, v]) => `<li><strong>${esc(k)}</strong><pre style="margin:0.25rem 0">${esc(v)}</pre></li>`)
+      .join("");
+    el.innerHTML = `<p class="muted">${esc(assist.note || "")}</p>
+      <p><strong>Hub traces:</strong> <code>${esc(assist.hubTracesDir)}</code></p>
+      <ol>${steps}</ol>
+      <h4 style="margin:0.5rem 0 0.25rem">Commands</h4><ul style="padding-left:1.2rem">${cmds}</ul>`;
+  }
+
+  async function loadRoutePlan(projectId) {
+    const sum = $("routePlanSummary");
+    const ul = $("routePlanList");
+    if (!sum || !ul) return;
+    try {
+      const r = await api(`/api/hub/projects/${encodeURIComponent(projectId)}/route-plan`);
+      const rows = r.sitePlans || [];
+      const runnable = rows.filter((x) => (x.plan?.runnable?.length ?? 0) > 0).length;
+      const blocked = rows.length - runnable;
+      sum.textContent = `${rows.length} site(s): ${runnable} runnable on hub, ${blocked} with holes/scaffold path.`;
+      ul.innerHTML = "";
+      for (const row of rows) {
+        const li = document.createElement("li");
+        const run = row.plan?.runnable?.[0];
+        const hole = row.plan?.holes?.[0];
+        li.textContent = hole
+          ? `${row.siteName}: ${row.origin} → ${row.output} — hole: ${hole.name}`
+          : `${row.siteName}: ${row.origin} → ${row.output} — ${run?.grade || run?.action || "ok"}`;
+        ul.appendChild(li);
+      }
+      if (!rows.length && r.plan) {
+        const li = document.createElement("li");
+        li.textContent = `${r.plan.originLanguage} → ${r.plan.outputLanguage}: ${r.plan.runnable?.length ? "runnable" : r.plan.holes?.[0]?.name || "unknown"}`;
+        ul.appendChild(li);
+        sum.textContent = `Project route: ${r.plan.runnable?.length ? "runnable" : "holes — may use WPTP/scaffold"}.`;
+      }
+    } catch (e) {
+      sum.textContent = "Route plan: " + e.message;
+      ul.innerHTML = "";
+    }
+  }
+
+  function selectedSiteLocalDir() {
+    const site = consoleProject?.sites?.find((s) => s.id === selectedSiteId);
+    return site?.localDir || consoleProject?.localDir || null;
+  }
 
   function renderSitesList(p) {
     const el = $("sitesList");
@@ -472,6 +627,7 @@
     el.innerHTML = "";
     const output = p.outputLanguage || "?";
     for (const site of p.sites || []) {
+      const meta = p.siteMeta?.[site.id];
       const row = document.createElement("div");
       row.className = "site-card";
       const pct = site._progressPct ?? 0;
@@ -489,7 +645,14 @@
             : "local";
       const vState = site.verifyState || "—";
       const vPct =
-        site.verifyCorrectness != null ? `${Math.round(site.verifyCorrectness * 100)}%` : site.verifyState === "passed" ? "ok" : "";
+        site.verifyCorrectness != null
+          ? `${Math.round(site.verifyCorrectness * 100)}%`
+          : meta?.verifySummary?.correctness != null
+            ? `${Math.round(meta.verifySummary.correctness * 100)}%`
+            : site.verifyState === "passed"
+              ? "ok"
+              : "";
+      const tracesHint = meta?.defaultTracesDir ? ` · traces ready` : "";
       const rt = site.runtime?.baseUrl ? ` · app ${site.runtime.baseUrl}` : "";
       const h = site.runtime?.health;
       const healthBadge = h
@@ -504,7 +667,7 @@
           <strong>${esc(site.name)}</strong>
           <span class="badge ${site.jobState === "succeeded" || site.verifyState === "passed" ? "ok" : site.jobState === "failed" || site.verifyState === "failed" ? "fail" : ""}">${esc(site.jobState || "idle")}</span>
         </div>
-        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)} · verify: ${esc(vState)} ${esc(vPct)}${esc(rt)} ${healthBadge}</div>
+        <div class="muted">${esc(site.originLanguage || p.originLanguage)} → ${esc(output)} · ${esc(site.ssh?.host || "local")} · ${esc(prepLabel)} · verify: ${esc(vState)} ${esc(vPct)}${esc(tracesHint)}${esc(rt)} ${healthBadge}</div>
         <div class="bar-wrap" style="margin-top:0.4rem"><div class="bar" style="width:${pct}%"></div></div>
         <div class="muted">${done} / ${total} routes (${pct}%)</div>
         <div class="row" style="margin-top:0.35rem">
@@ -537,6 +700,8 @@
     el.querySelectorAll(".site-select-one").forEach((btn) => {
       btn.addEventListener("click", () => {
         selectedSiteId = btn.getAttribute("data-site-id");
+        const site = (p.sites || []).find((s) => s.id === selectedSiteId);
+        bindSiteToForm(site, p.siteMeta?.[selectedSiteId]);
         $("siteActionStatus").textContent = `Selected site: ${selectedSiteId}`;
       });
     });
@@ -558,9 +723,15 @@
   async function loadConsoleProject(id) {
     consoleProjectId = id;
     const p = await api(`/api/hub/projects/${encodeURIComponent(id)}`);
+    consoleProject = p;
     $("consoleTitle").textContent = p.name;
+    if ($("consoleProjName")) $("consoleProjName").value = p.name || "";
+    if ($("consoleProjOutput")) $("consoleProjOutput").value = p.outputLanguage || defaultOutput;
     selectedSiteId = p.sites?.[0]?.id ?? null;
     renderSitesList(p);
+    const first = p.sites?.find((s) => s.id === selectedSiteId);
+    bindSiteToForm(first, p.siteMeta?.[selectedSiteId]);
+    void loadRoutePlan(id);
     try {
       const bp = await api(`/api/hub/projects/${encodeURIComponent(id)}/batch-progress`);
       applyBatchProgress(bp);
@@ -849,7 +1020,7 @@
     $("log").textContent = "";
     $("siteActionStatus").textContent = "Starting full pipeline (setup + translate)…";
     try {
-      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/run-pipeline`, {});
+      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/run-pipeline`, batchJobBody());
       $("siteActionStatus").textContent = "Pipeline started.";
     } catch (e) {
       $("siteActionStatus").textContent = "Error: " + e.message;
@@ -861,7 +1032,7 @@
     $("log").textContent = "";
     $("siteActionStatus").textContent = "Starting translation batch…";
     try {
-      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/run-batch`, {});
+      await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/run-batch`, batchJobBody());
       $("siteActionStatus").textContent = "Batch started.";
     } catch (e) {
       $("siteActionStatus").textContent = "Error: " + e.message;
@@ -1031,7 +1202,7 @@
       const g = await api(
         `/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}/observe-assist`,
       );
-      $("observeGuide").textContent = JSON.stringify(g, null, 2);
+      renderObserveAssist(g);
     } catch (e) {
       $("observeGuide").textContent = "Error: " + e.message;
     }
@@ -1080,6 +1251,65 @@
       await loadConsoleProject(consoleProjectId);
     } catch (e) {
       $("siteActionStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnSaveProject")?.addEventListener("click", async () => {
+    if (!consoleProjectId) return;
+    try {
+      const r = await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}`, {
+        method: "PATCH",
+        body: {
+          name: $("consoleProjName")?.value?.trim(),
+          outputLanguage: $("consoleProjOutput")?.value,
+        },
+      });
+      $("projectSettingsStatus").textContent = "Project saved.";
+      await loadConsoleProject(consoleProjectId);
+      $("consoleTitle").textContent = r.project?.name || $("consoleProjName")?.value;
+    } catch (e) {
+      $("projectSettingsStatus").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnDeleteProject")?.addEventListener("click", async () => {
+    if (!consoleProjectId) return;
+    if (!confirm(`Delete project ${consoleProjectId}?`)) return;
+    await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}`, { method: "DELETE" });
+    location.hash = "#/";
+    route();
+    loadHome();
+  });
+
+  $("btnRunStatus")?.addEventListener("click", async () => {
+    const dir = selectedSiteLocalDir();
+    if (!dir) {
+      $("statusJson").textContent = "Select a site with a workspace first.";
+      return;
+    }
+    $("statusJson").textContent = "Running chrysalis status…";
+    try {
+      await post("/api/jobs/status", { projectDir: dir });
+    } catch (e) {
+      $("statusJson").textContent = "Error: " + e.message;
+    }
+  });
+
+  $("btnRefreshHealth")?.addEventListener("click", async () => {
+    if (!selectedSiteId || !consoleProjectId) {
+      $("observeGuide").textContent = "Select a site first.";
+      return;
+    }
+    try {
+      const h = await api(
+        `/api/hub/projects/${encodeURIComponent(consoleProjectId)}/sites/${encodeURIComponent(selectedSiteId)}/runtime/health`,
+      );
+      $("verifyStatus").textContent = h.ok
+        ? `Health OK (${h.status}, ${h.latencyMs}ms)`
+        : `Health fail: ${h.error || h.status}`;
+      await loadConsoleProject(consoleProjectId);
+    } catch (e) {
+      $("verifyStatus").textContent = "Health: " + e.message;
     }
   });
 

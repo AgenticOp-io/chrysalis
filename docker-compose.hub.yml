@@ -1,0 +1,24 @@
+# Translation Hub — local or server deploy (browser UI on :19090).
+# Usage:
+#   docker compose -f docker-compose.hub.yml up --build
+# Data persists in volume chrysalis-hub-data (~/.chrysalis-hub inside container).
+services:
+  translation-hub:
+    build:
+      context: .
+      dockerfile: Dockerfile.hub
+    ports:
+      - "19090:19090"
+    environment:
+      CHRYSALIS_OPERATOR_REPO: /app
+      CHRYSALIS_OPERATOR_PORT: "19090"
+      CHRYSALIS_OPERATOR_BIND: "0.0.0.0"
+      CHRYSALIS_HUB_ROOT: /data/.chrysalis-hub
+      CHRYSALIS_HUB_MAX_PARALLEL: "3"
+      CHRYSALIS_HUB_PREFER_WPTP: "1"
+    volumes:
+      - chrysalis-hub-data:/data/.chrysalis-hub
+    restart: unless-stopped
+
+volumes:
+  chrysalis-hub-data:
