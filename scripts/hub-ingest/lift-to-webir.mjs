@@ -65,6 +65,8 @@ async function main() {
   let heuristicRouteCount = 0;
   let astRouteCount = 0;
   let middlewareUseCount = 0;
+  /** @type {{ kind: string, file: string, count: number }[]} */
+  const middlewareShell = [];
 
   for (const abs of paths) {
     const file = abs.startsWith(projectDir) ? abs.slice(projectDir.length).replace(/^[/\\]/, "") : abs;
@@ -82,10 +84,19 @@ async function main() {
     });
     if (specialized) {
       astRouteCount += specialized.astRouteCount;
-      if (typeof specialized.middlewareUseCount === "number") {
-        middlewareUseCount += specialized.middlewareUseCount;
-      } else if (canJavaScriptAstIngest(language, ext)) {
-        middlewareUseCount += countExpressMiddlewareUses(source);
+      const fileMiddlewareCount =
+        typeof specialized.middlewareUseCount === "number"
+          ? specialized.middlewareUseCount
+          : canJavaScriptAstIngest(language, ext)
+            ? countExpressMiddlewareUses(source)
+            : 0;
+      if (fileMiddlewareCount > 0) {
+        middlewareUseCount += fileMiddlewareCount;
+        middlewareShell.push({
+          kind: "legacy:express-use",
+          file,
+          count: fileMiddlewareCount,
+        });
       }
       continue;
     }
@@ -174,7 +185,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.lift",
-    schemaVersion: 1,
+    schemaVersion: 2,
     language,
     fileCount: paths.length,
     astRouteCount,
@@ -183,6 +194,7 @@ async function main() {
     webirPath: outPath,
     holeCount: holes,
     middlewareUseCount,
+    middlewareShell,
     generatedAt: new Date().toISOString(),
   };
   await writeFile(join(outDir, `hub.${language}.lift.json`), `${JSON.stringify(report, null, 2)}\n`, "utf8");

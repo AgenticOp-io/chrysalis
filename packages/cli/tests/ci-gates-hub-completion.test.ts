@@ -58,6 +58,38 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
+  test("accepts schema v6 with expected suite counts", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v6-"));
+    const p = join(dir, "ok.json");
+    try {
+      writeFileSync(
+        p,
+        `${JSON.stringify({
+          kind: "chrysalis.hub.completion",
+          schemaVersion: 6,
+          ok: true,
+          matrixSmoke: { passed: 22, failed: 0, skipped: 0 },
+          goldVerify: { ok: true, suiteCount: 24, expectedSuiteCount: 24, suiteIds: ["js-literal-hono"] },
+          traceReplay: {
+            ok: true,
+            correctness: 1,
+            suiteCount: 16,
+            expectedSuiteCount: 16,
+            suiteIds: ["js-literal-hono"],
+            targets: ["hono", "fastify"],
+          },
+          nativeEmitSmoke: { ok: true, passed: 10, failed: 0 },
+          crossLanguageSynthesis: { ok: true, pairCount: 575, goldPairs: 17, originCount: 23 },
+          routeGrades: { gold: 17, silver: 276, open: 282 },
+        })}\n`,
+      );
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("accepts schema v5 with gold suite ids", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v5-"));
     const p = join(dir, "ok.json");

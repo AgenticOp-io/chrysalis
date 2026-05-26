@@ -94,6 +94,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G35 — Fastify gold trace replay + lift metadata** — **Fastify** structural/trace suites mirror key **Hono** gold paths; **`hub-gold-trace-replay`** installs **fastify** or **hono** per target; lift reports **`middlewareUseCount`**; **`hub-completion`** schema **v4**. (**DESIGN D340**)
 - [x] **G36 — Structured gold parity + path explorer depth** — **Python structured** and **JS structured → CWL** gold verify; **TS literal → Fastify** trace replay; **`hub-completion`** schema **v5** lists structural/trace suite ids; operator path explorer auto-loads synthesis, gold-pair links, and **`#/paths?origin=&output=`** deep links. Matrix gold count unchanged (**17**). (**DESIGN D341**)
 - [x] **G37 — Gold suite coverage API + middleware/CWL Fastify** — **`js-middleware-fastify`**, **`cwl-gold-fastify`** structural/trace suites; **`GET /api/hub/gold-suites`** + **`hubGoldSuitesForPair`**; path explorer shows per-pair CI suite list; **`hub-post-deploy-verify`** probes gold-suites HTTP. (**DESIGN D342**)
+- [x] **G38 — TS structured gold + middleware shell metadata** — **`hub-gold-ts-structured`** fixture; **ts-structured** hono/fastify/cwl + **js-middleware-cwl** suites; lift report **`middlewareShell`** (schema **v2**); **`hub-completion`** schema **v6** gates expected suite counts. (**DESIGN D343**)
 
 ---
 

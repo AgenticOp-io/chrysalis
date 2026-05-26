@@ -7,8 +7,8 @@ const MANIFEST = fileURLToPath(
 
 test("hub gold manifest: pair coverage and suite inventory (G37)", async () => {
   const m = await import(MANIFEST);
-  expect(m.hubGoldStructuralSuiteIds().length).toBeGreaterThanOrEqual(20);
-  expect(m.hubGoldTraceReplaySuiteIds().length).toBeGreaterThanOrEqual(14);
+  expect(m.hubGoldStructuralSuiteIds().length).toBeGreaterThanOrEqual(24);
+  expect(m.hubGoldTraceReplaySuiteIds().length).toBeGreaterThanOrEqual(16);
   const jsHono = m.hubGoldSuitesForPair("javascript", "hono");
   expect(jsHono.map((s: { id: string }) => s.id)).toEqual(
     expect.arrayContaining(["js-literal-hono", "js-structured-hono", "js-middleware-hono"]),
@@ -16,6 +16,10 @@ test("hub gold manifest: pair coverage and suite inventory (G37)", async () => {
   const coverage = m.buildHubGoldSuiteCoverage("cwl", "fastify");
   expect(coverage.suiteIds).toContain("cwl-gold-fastify");
   expect(coverage.emitTarget).toBe("fastify");
+  const tsHono = m.buildHubGoldSuiteCoverage("typescript", "hono");
+  expect(tsHono.suiteIds).toEqual(
+    expect.arrayContaining(["ts-literal-hono", "ts-structured-hono"]),
+  );
   const phpTs = m.hubGoldSuitesForPair("php", "typescript");
   expect(phpTs.length).toBe(0);
 });

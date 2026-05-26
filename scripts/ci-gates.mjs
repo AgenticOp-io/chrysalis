@@ -716,9 +716,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 2 &&
     s.schemaVersion !== 3 &&
     s.schemaVersion !== 4 &&
-    s.schemaVersion !== 5
+    s.schemaVersion !== 5 &&
+    s.schemaVersion !== 6
   ) {
-    fail(`${label}: expected schemaVersion 0–5, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–6, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);

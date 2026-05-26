@@ -98,23 +98,27 @@ async function main() {
     synthesis.parsed.universe?.pairCount === 575 &&
     (synthesis.parsed.gradeSummary?.gold ?? 0) >= routeGrades.gold;
 
+  const structuralSuiteIds = hubGoldStructuralSuiteIds();
+  const traceSuiteIds = hubGoldTraceReplaySuiteIds();
+  const goldSuiteCountOk =
+    gold.parsed.ok === true && (gold.parsed.suiteCount ?? 0) === structuralSuiteIds.length;
+  const traceSuiteCountOk =
+    traceParsed.ok === true && (traceParsed.suiteCount ?? 0) === traceSuiteIds.length;
+
   const ok =
     matrix.status === 0 &&
     (matrix.parsed.failed ?? 1) === 0 &&
     gold.status === 0 &&
-    gold.parsed.ok === true &&
+    goldSuiteCountOk &&
     traceReplay.status === 0 &&
-    traceParsed.ok === true &&
+    traceSuiteCountOk &&
     nativeEmit.status === 0 &&
     (nativeEmit.parsed.failed ?? 1) === 0 &&
     synthesisOk;
 
-  const structuralSuiteIds = hubGoldStructuralSuiteIds();
-  const traceSuiteIds = hubGoldTraceReplaySuiteIds();
-
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 5,
+    schemaVersion: 6,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -122,14 +126,16 @@ async function main() {
       skipped: matrix.parsed.skipped ?? 0,
     },
     goldVerify: {
-      ok: gold.parsed.ok === true,
+      ok: goldSuiteCountOk,
       suiteCount: gold.parsed.suiteCount ?? structuralSuiteIds.length,
+      expectedSuiteCount: structuralSuiteIds.length,
       suiteIds: structuralSuiteIds,
     },
     traceReplay: {
-      ok: traceParsed.ok === true,
+      ok: traceSuiteCountOk,
       correctness: traceParsed.correctness ?? 0,
       suiteCount: traceParsed.suiteCount ?? traceSuiteIds.length,
+      expectedSuiteCount: traceSuiteIds.length,
       suiteIds: traceSuiteIds,
       targets: ["hono", "fastify"],
     },
