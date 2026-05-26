@@ -262,11 +262,54 @@ function lowerExpression(ctx, expr) {
 }
 
 /**
+ * @param {import('estree').Function} fn
+ * @returns {import('estree').Expression | null}
+ */
+function resJsonPayloadExpression(fn) {
+  const expr = extractHandlerExpression(fn);
+  if (expr?.type === "CallExpression") {
+    const peeled = peelResJsonArgument(expr);
+    if (peeled) return peeled;
+  }
+  const body = fn.body;
+  if (body.type === "BlockStatement") {
+    for (const s of body.body) {
+      if (s.type === "ReturnStatement" && s.argument?.type === "CallExpression") {
+        const peeled = peelResJsonArgument(s.argument);
+        if (peeled) return peeled;
+      }
+      if (s.type === "ExpressionStatement" && s.expression?.type === "CallExpression") {
+        const peeled = peelResJsonArgument(s.expression);
+        if (peeled) return peeled;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * @param {object} ctx
  * @param {import('estree').Function} fn
  */
 function lowerHandlerBody(ctx, fn) {
   const { data, webir, file } = ctx;
+  const jsonPayload = resJsonPayloadExpression(fn);
+  if (jsonPayload) {
+    const valId = lowerExpression(ctx, jsonPayload);
+    const retId = data.call({
+      callee: "__return_json",
+      args: [valId],
+      type: T.unknown,
+      origin: jsonPayload.loc?.start ? originAt(jsonPayload.loc.start, file) : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:res-json")],
+    });
+    return data.block({
+      statements: [retId],
+      type: T.unknown,
+      origin: ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:handler-json")],
+    });
+  }
   const expr = extractHandlerExpression(fn);
   if (expr) {
     const valId = lowerExpression(ctx, expr);

@@ -174,7 +174,7 @@ async function main() {
     },
     middlewareTraceReplay: {
       jsonPostProbe: true,
-      suites: ["js-middleware-hono"],
+      suites: ["js-middleware-hono", "js-middleware-fastify"],
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

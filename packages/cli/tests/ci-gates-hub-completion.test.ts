@@ -136,8 +136,8 @@ describe("ci-gates hub-completion", () => {
           traceReplay: {
             ok: true,
             correctness: 1,
-            suiteCount: 15,
-            expectedSuiteCount: 15,
+            suiteCount: 16,
+            expectedSuiteCount: 16,
             suiteIds: [],
             targets: ["hono", "fastify"],
           },
@@ -165,7 +165,7 @@ describe("ci-gates hub-completion", () => {
           },
           middlewareTraceReplay: {
             jsonPostProbe: true,
-            suites: ["js-middleware-hono"],
+            suites: ["js-middleware-hono", "js-middleware-fastify"],
           },
           routeGrades: { gold: 575, silver: 0, open: 0 },
         })}\n`,

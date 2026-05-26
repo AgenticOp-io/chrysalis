@@ -100,6 +100,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G41 — Middleware lowering + matrix verify tiers** — **`web.request.middleware`** IR; **`hub-express-middleware.mjs`** lowers **`express.json`** / **`express.urlencoded`** presets; **Hono**/**Fastify** emit via **`planHubMiddlewareEmit`**; all **575** matrix pairs **`grade: gold`** with **`verifyTier`** (**oracle** / **structural** / **scaffold-***); **`hub-completion`** schema **v8**. (**DESIGN D346**)
 - [x] **G42 — Native structural gold + verify-tier API** — **`hub-gold-native-emit`** + **python/java/go/ruby** native gold suites; **gin `c.String`** + **Sinatra block** literal lift; **`GET /api/hub/verify-tiers`**; work-queue **`verifyTiers`** filter; path explorer shows **verifyTier**; **`hub-completion`** schema **v9**. (**DESIGN D347**)
 - [x] **G43 — Middleware POST trace replay + native gold depth** — **`hub-gold-replay-probe`** JSON/urlencoded POST probes; **Hono `chrysalisUrlencodedBodyMiddleware`**; **csharp/rust** native structural gold + **MapGet** / **actix** literal lift; **`hub-completion`** schema **v10**. (**DESIGN D348**)
+- [x] **G44 — Hub `res.json` response emit** — **`__return_json`** in **`emit-tree`** for **Hono/Fastify**; **`javascript-ast-ingest`** lowers **`res.json(...)`** handlers; **`js-middleware-fastify`** trace replay restored. (**DESIGN D349**)
 
 ---
 

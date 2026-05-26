@@ -108,7 +108,7 @@ export const HUB_GOLD_SUITES = [
     origin: "javascript",
     emitTarget: "fastify",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "js-middleware-cwl",

@@ -35,7 +35,7 @@ function mkTrace(o) {
         headers: o.reqHeaders ?? {},
         cookies: {},
         post: o.post ?? {},
-        rawBody: null,
+        rawBody: o.rawBody ?? null,
         session: {},
       },
       {
@@ -101,17 +101,18 @@ async function main() {
       headers[k] = v;
     });
     const reqHeaders = { ...(init.headers ?? {}) };
+    const rawBody = init.body && typeof init.body === "string" ? init.body : null;
+    const ct = reqHeaders["content-type"] ?? "";
+    const bodyIsSerialized = ct.includes("application/json") || ct.includes("urlencoded");
     let post = {};
-    if (init.body && typeof init.body === "string") {
-      if (reqHeaders["content-type"]?.includes("application/json")) {
-        try {
-          post = JSON.parse(init.body);
-        } catch {
-          post = {};
-        }
-      } else if (reqHeaders["content-type"]?.includes("urlencoded")) {
-        post = Object.fromEntries(new URLSearchParams(init.body));
+    if (rawBody && ct.includes("application/json")) {
+      try {
+        post = JSON.parse(rawBody);
+      } catch {
+        post = {};
       }
+    } else if (rawBody && ct.includes("urlencoded")) {
+      post = Object.fromEntries(new URLSearchParams(rawBody));
     }
     traces.push(
       mkTrace({
@@ -120,7 +121,8 @@ async function main() {
         method: r.method,
         path: r.path,
         reqHeaders,
-        post,
+        post: bodyIsSerialized ? {} : post,
+        rawBody,
         expectedStatus: resp.status,
         expectedHeaders: headers,
         expectedBody: body,

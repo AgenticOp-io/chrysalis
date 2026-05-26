@@ -431,9 +431,13 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
     case "__object_literal": {
       const parts: string[] = [];
       for (let i = 0; i < args.length; i += 2) {
-        const ke = args[i];
-        const ve = args[i + 1];
-        parts.push(`[${ke ?? "null"}]: ${ve ?? "null"}`);
+        const ke = args[i] ?? "null";
+        const ve = args[i + 1] ?? "null";
+        const keyMatch = /^"(.+)"$/.exec(ke.trim());
+        const keyName = keyMatch?.[1];
+        const keyPart =
+          keyName && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(keyName) ? keyName : `[${ke}]`;
+        parts.push(`${keyPart}: ${ve}`);
       }
       return `({ ${parts.join(", ")} })`;
     }
@@ -608,6 +612,16 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
         }
         return p.respondBuffered();
       }
+      if (callee === "__return_json") {
+        ctx.hasTerminalResponse = true;
+        if (args.length > 0) {
+          if (p.id === "hono") {
+            return `return ${p.requestVar}.json(${args[0]});`;
+          }
+          return `return ${p.replyVar}.code(__status).send(${args[0]});`;
+        }
+        return p.respondBuffered();
+      }
       if (callee === "__throw") {
         ctx.hasTerminalResponse = true;
         if (args.length > 0) return `throw ${args[0]};`;
@@ -691,7 +705,7 @@ function nodeEndsWithTerminalReturn(m: Module, id: NodeId): boolean {
     }
     case "call": {
       const c = String(n.attrs.callee);
-      return c === "__return" || c === "__exit" || c === "__throw";
+      return c === "__return" || c === "__return_json" || c === "__exit" || c === "__throw";
     }
     case "if": {
       if (!n.attrs.hasElse) return false;
