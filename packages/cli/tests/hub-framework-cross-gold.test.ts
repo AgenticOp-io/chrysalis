@@ -16,6 +16,8 @@ const CROSS_FRAMEWORK_SUITES = [
   "go-literal-fastify",
   "csharp-literal-hono",
   "csharp-literal-fastify",
+  "rust-literal-hono",
+  "rust-literal-fastify",
 ] as const;
 
 const CROSS_FRAMEWORK_CWL_SUITES = [
@@ -23,6 +25,19 @@ const CROSS_FRAMEWORK_CWL_SUITES = [
   "java-literal-cwl",
   "go-literal-cwl",
   "csharp-literal-cwl",
+  "rust-literal-cwl",
+] as const;
+
+const KSS_FRAMEWORK_SUITES = [
+  "kotlin-literal-hono",
+  "kotlin-literal-fastify",
+  "kotlin-literal-cwl",
+  "scala-literal-hono",
+  "scala-literal-fastify",
+  "scala-literal-cwl",
+  "swift-literal-hono",
+  "swift-literal-fastify",
+  "swift-literal-cwl",
 ] as const;
 
 test("hub gold: pattern-lift origins emit to hono and fastify (G49–G50)", () => {
@@ -38,6 +53,17 @@ test("hub gold: pattern-lift origins emit to hono and fastify (G49–G50)", () =
 
 test("hub gold: pattern-lift origins emit to CWL (G53)", () => {
   for (const suite of CROSS_FRAMEWORK_CWL_SUITES) {
+    const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    expect(r.status, r.stderr || r.stdout).toBe(0);
+  }
+}, 300_000);
+
+test("hub gold: kotlin/scala/swift emit to hono/fastify/cwl (G54)", () => {
+  for (const suite of KSS_FRAMEWORK_SUITES) {
     const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
       cwd: ROOT,
       encoding: "utf8",

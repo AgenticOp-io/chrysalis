@@ -2332,6 +2332,10 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-26 — D358** **Cross-framework CWL gold (G53).** Add **`java/go/csharp/ruby → cwl`** structural suites on existing literal fixtures so CWL emit stays hole-free beyond JS/TS/Python and middleware. **`hub-completion`** schema **v14**. **DESIGN §3** unchanged.
 
+- **2026-05-26 — D360** **Rust framework structural gold (G55).** **`rust-literal-hono`**, **`rust-literal-fastify`**, **`rust-literal-cwl`** on **`hub-gold-rust-literal`** (actix string responders). Completes pattern-lift origin → framework/CWL structural CI for **ruby/java/go/csharp/rust/kotlin/scala/swift**. **`hub-completion`** schema **v16**. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D359** **Kotlin/Scala/Swift framework structural gold (G54).** Add **`kotlin/scala/swift → hono/fastify/cwl`** structural suites on the native literal fixtures (pattern-lift origins) with trace replay for Hono/Fastify. **`hub-completion`** schema **v15**. **DESIGN §3** unchanged.
+
 - **2026-05-26 — D356** **Python Flask middleware → CWL (G51).** **`python-middleware-cwl`** structural suite on **`hub-gold-python-middleware`**. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D355** **C# → Hono/Fastify structural gold (G50).** **`csharp-literal-hono`** / **`csharp-literal-fastify`** with trace replay. **DESIGN §3** unchanged.

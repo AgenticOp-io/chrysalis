@@ -725,9 +725,11 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 11 &&
     s.schemaVersion !== 12 &&
     s.schemaVersion !== 13 &&
-    s.schemaVersion !== 14
+    s.schemaVersion !== 14 &&
+    s.schemaVersion !== 15 &&
+    s.schemaVersion !== 16
   ) {
-    fail(`${label}: expected schemaVersion 0–14, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–16, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -822,6 +824,34 @@ function assertHubCompletion(path) {
       if (!cwl.includes(id)) {
         fail(`${label}: crossFrameworkCwlGold must list ${id} for schema v14`);
       }
+    }
+  }
+  if (s.schemaVersion >= 15) {
+    const kss = s.kssFrameworkGold?.suiteIds ?? [];
+    for (const id of [
+      "kotlin-literal-hono",
+      "kotlin-literal-fastify",
+      "kotlin-literal-cwl",
+      "scala-literal-hono",
+      "scala-literal-fastify",
+      "scala-literal-cwl",
+      "swift-literal-hono",
+      "swift-literal-fastify",
+      "swift-literal-cwl",
+    ]) {
+      if (!kss.includes(id)) {
+        fail(`${label}: kssFrameworkGold must list ${id} for schema v15`);
+      }
+    }
+  }
+  if (s.schemaVersion >= 16) {
+    const xf = s.crossFrameworkStructuralGold?.suiteIds ?? [];
+    if (!xf.includes("rust-literal-hono") || !xf.includes("rust-literal-fastify")) {
+      fail(`${label}: crossFrameworkStructuralGold must list rust hono/fastify for schema v16`);
+    }
+    const cwl = s.crossFrameworkCwlGold?.suiteIds ?? [];
+    if (!cwl.includes("rust-literal-cwl")) {
+      fail(`${label}: crossFrameworkCwlGold must list rust-literal-cwl for schema v16`);
     }
   }
   const g = s.routeGrades;

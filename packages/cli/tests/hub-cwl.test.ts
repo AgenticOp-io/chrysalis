@@ -123,6 +123,10 @@ test("hub gold verify: middleware and structured cwl (G38/G51/G53)", () => {
     "go-literal-cwl",
     "csharp-literal-cwl",
     "ruby-literal-cwl",
+    "kotlin-literal-cwl",
+    "scala-literal-cwl",
+    "swift-literal-cwl",
+    "rust-literal-cwl",
   ]) {
     const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
       cwd: ROOT,

@@ -110,6 +110,8 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G51 — Python Flask middleware → CWL gold** — **`python-middleware-cwl`** on **`hub-gold-python-middleware`**. (**DESIGN D356**)
 - [x] **G52 — Hub / core lane boundary tests** — Vitest **`hub-framework-cross-gold`** (pattern-lift origins → hono/fastify) and **`hub-oracle-tier-boundary`** (exactly **4** Chrysalis oracle matrix pairs); **`hub-completion`** schema **v13**. (**DESIGN D357**)
 - [x] **G53 — Cross-framework CWL gold** — **`java/go/csharp/ruby → cwl`** structural suites (**`*-literal-cwl`**) on existing fixtures; extends CWL surface beyond JS/TS/Python and middleware. (**DESIGN D358**)
+- [x] **G54 — Kotlin/Scala/Swift → Hono/Fastify/CWL structural gold** — Add **`kotlin/scala/swift-literal-*`** suites on the native literal fixtures with trace replay for **Hono/Fastify**; `hub-completion` schema **v15**. (**DESIGN D359**)
+- [x] **G55 — Rust → Hono/Fastify/CWL structural gold** — **`rust-literal-hono`**, **`rust-literal-fastify`**, **`rust-literal-cwl`** on **`hub-gold-rust-literal`**; completes pattern-lift origin framework coverage. **`hub-completion`** schema **v16**. (**DESIGN D360**)
 
 ---
 

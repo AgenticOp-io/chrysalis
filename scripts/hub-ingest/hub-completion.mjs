@@ -123,7 +123,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 14,
+    schemaVersion: 16,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -192,13 +192,34 @@ async function main() {
         "go-literal-fastify",
         "csharp-literal-hono",
         "csharp-literal-fastify",
+        "rust-literal-hono",
+        "rust-literal-fastify",
       ],
     },
     middlewareCwlGold: {
       suiteIds: ["js-middleware-cwl", "python-middleware-cwl"],
     },
     crossFrameworkCwlGold: {
-      suiteIds: ["java-literal-cwl", "go-literal-cwl", "csharp-literal-cwl", "ruby-literal-cwl"],
+      suiteIds: [
+        "java-literal-cwl",
+        "go-literal-cwl",
+        "csharp-literal-cwl",
+        "ruby-literal-cwl",
+        "rust-literal-cwl",
+      ],
+    },
+    kssFrameworkGold: {
+      suiteIds: [
+        "kotlin-literal-hono",
+        "kotlin-literal-fastify",
+        "kotlin-literal-cwl",
+        "scala-literal-hono",
+        "scala-literal-fastify",
+        "scala-literal-cwl",
+        "swift-literal-hono",
+        "swift-literal-fastify",
+        "swift-literal-cwl",
+      ],
     },
     routeGrades,
     generatedAt: new Date().toISOString(),
