@@ -129,10 +129,10 @@ describe("ci-gates hub-completion", () => {
         p,
         `${JSON.stringify({
           kind: "chrysalis.hub.completion",
-          schemaVersion: 13,
+          schemaVersion: 14,
           ok: true,
           matrixSmoke: { passed: 22, failed: 0, skipped: 0 },
-          goldVerify: { ok: true, suiteCount: 44, expectedSuiteCount: 44, suiteIds: [] },
+          goldVerify: { ok: true, suiteCount: 48, expectedSuiteCount: 48, suiteIds: [] },
           traceReplay: {
             ok: true,
             correctness: 1,
@@ -147,8 +147,8 @@ describe("ci-gates hub-completion", () => {
             ok: true,
             goldMatrix: 575,
             oracleTier: 4,
-            structuralTier: 26,
-            hubCiStructuralPairs: 26,
+            structuralTier: 30,
+            hubCiStructuralPairs: 30,
             chrysalisCiGoldPairs: 4,
             coverageGaps: 0,
           },
@@ -186,6 +186,9 @@ describe("ci-gates hub-completion", () => {
           },
           middlewareCwlGold: {
             suiteIds: ["js-middleware-cwl", "python-middleware-cwl"],
+          },
+          crossFrameworkCwlGold: {
+            suiteIds: ["java-literal-cwl", "go-literal-cwl", "csharp-literal-cwl", "ruby-literal-cwl"],
           },
           routeGrades: { gold: 575, silver: 0, open: 0 },
         })}\n`,

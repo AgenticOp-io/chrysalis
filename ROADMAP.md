@@ -109,6 +109,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G50 — C# → Hono/Fastify structural gold** — **`csharp-literal-hono`** / **`csharp-literal-fastify`** on **`hub-gold-csharp-literal`** with trace replay. (**DESIGN D355**)
 - [x] **G51 — Python Flask middleware → CWL gold** — **`python-middleware-cwl`** on **`hub-gold-python-middleware`**. (**DESIGN D356**)
 - [x] **G52 — Hub / core lane boundary tests** — Vitest **`hub-framework-cross-gold`** (pattern-lift origins → hono/fastify) and **`hub-oracle-tier-boundary`** (exactly **4** Chrysalis oracle matrix pairs); **`hub-completion`** schema **v13**. (**DESIGN D357**)
+- [x] **G53 — Cross-framework CWL gold** — **`java/go/csharp/ruby → cwl`** structural suites (**`*-literal-cwl`**) on existing fixtures; extends CWL surface beyond JS/TS/Python and middleware. (**DESIGN D358**)
 
 ---
 

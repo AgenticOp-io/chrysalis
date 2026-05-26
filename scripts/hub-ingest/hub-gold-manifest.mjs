@@ -367,6 +367,38 @@ export const HUB_GOLD_SUITES = [
     structural: true,
     traceReplay: false,
   },
+  {
+    id: "java-literal-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-java-literal"),
+    origin: "java",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
+  },
+  {
+    id: "go-literal-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-go-literal"),
+    origin: "go",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
+  },
+  {
+    id: "csharp-literal-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-csharp-literal"),
+    origin: "csharp",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
+  },
+  {
+    id: "ruby-literal-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-ruby-literal"),
+    origin: "ruby",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
+  },
 ];
 
 /**

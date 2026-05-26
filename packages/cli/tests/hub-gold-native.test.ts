@@ -34,6 +34,6 @@ test("hub verify tiers report: native structural suites registered (G42)", async
   );
   const report = buildHubVerifyTiersReport();
   expect(report.kind).toBe("chrysalis.hub.verify-tiers");
-  expect(report.tierCounts.structural).toBe(26);
+  expect(report.tierCounts.structural).toBe(30);
   expect(hubGoldSuitesForPair("python", "python").map((s) => s.id)).toContain("python-native-python");
 });

@@ -123,7 +123,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 13,
+    schemaVersion: 14,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -196,6 +196,9 @@ async function main() {
     },
     middlewareCwlGold: {
       suiteIds: ["js-middleware-cwl", "python-middleware-cwl"],
+    },
+    crossFrameworkCwlGold: {
+      suiteIds: ["java-literal-cwl", "go-literal-cwl", "csharp-literal-cwl", "ruby-literal-cwl"],
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

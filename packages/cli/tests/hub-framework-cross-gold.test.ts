@@ -18,8 +18,26 @@ const CROSS_FRAMEWORK_SUITES = [
   "csharp-literal-fastify",
 ] as const;
 
+const CROSS_FRAMEWORK_CWL_SUITES = [
+  "ruby-literal-cwl",
+  "java-literal-cwl",
+  "go-literal-cwl",
+  "csharp-literal-cwl",
+] as const;
+
 test("hub gold: pattern-lift origins emit to hono and fastify (G49–G50)", () => {
   for (const suite of CROSS_FRAMEWORK_SUITES) {
+    const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    expect(r.status, r.stderr || r.stdout).toBe(0);
+  }
+}, 300_000);
+
+test("hub gold: pattern-lift origins emit to CWL (G53)", () => {
+  for (const suite of CROSS_FRAMEWORK_CWL_SUITES) {
     const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
       cwd: ROOT,
       encoding: "utf8",

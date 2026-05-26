@@ -724,9 +724,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 10 &&
     s.schemaVersion !== 11 &&
     s.schemaVersion !== 12 &&
-    s.schemaVersion !== 13
+    s.schemaVersion !== 13 &&
+    s.schemaVersion !== 14
   ) {
-    fail(`${label}: expected schemaVersion 0–13, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–14, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -813,6 +814,14 @@ function assertHubCompletion(path) {
     const cwl = s.middlewareCwlGold?.suiteIds ?? [];
     if (!cwl.includes("python-middleware-cwl")) {
       fail(`${label}: middlewareCwlGold must list python-middleware-cwl for schema v13`);
+    }
+  }
+  if (s.schemaVersion >= 14) {
+    const cwl = s.crossFrameworkCwlGold?.suiteIds ?? [];
+    for (const id of ["java-literal-cwl", "go-literal-cwl", "csharp-literal-cwl", "ruby-literal-cwl"]) {
+      if (!cwl.includes(id)) {
+        fail(`${label}: crossFrameworkCwlGold must list ${id} for schema v14`);
+      }
     }
   }
   const g = s.routeGrades;
