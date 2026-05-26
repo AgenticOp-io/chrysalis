@@ -12,6 +12,7 @@ import { prepOriginOverSsh } from "./chrysalis-hub-prep-origin.mjs";
 import {
   hubOriginLanguages,
   hubOutputLanguages,
+  HUB_POPULAR_WEB_FOCUS_IDS,
   isHubWebOrigin,
   isHubWebOutput,
   LANGUAGE_LABELS,
@@ -414,6 +415,30 @@ function readinessForOutput(languageId) {
   };
 }
 
+function buildPairReadiness(origins, outputs) {
+  const rows = [];
+  for (const origin of origins) {
+    for (const output of outputs) {
+      if (origin.id === output.id) continue;
+      const route = resolveHubRoute(origin.id, output.id);
+      rows.push({
+        origin: origin.id,
+        output: output.id,
+        grade: route.grade ?? "open",
+        action: route.action ?? "hub-translate",
+        runnable: Boolean(route.ok),
+        ingestStatus: origin.ingestStatus,
+        emitStatus: output.emitStatus ?? origin.emitStatus ?? "open-scaffold",
+        next:
+          origin.notDone?.[0] ??
+          output.notDone?.[0] ??
+          "Route exists; promote with native ingest/emitter + verify parity.",
+      });
+    }
+  }
+  return rows;
+}
+
 export function buildLanguageReadinessReport() {
   const origins = INPUT_LANGUAGES.map((l) => readinessForOrigin(l.id)).sort(
     (a, b) => a.popularityRank - b.popularityRank || a.id.localeCompare(b.id),
@@ -421,12 +446,146 @@ export function buildLanguageReadinessReport() {
   const outputs = OUTPUT_LANGUAGES.map((l) => readinessForOutput(l.id)).sort(
     (a, b) => a.popularityRank - b.popularityRank || a.id.localeCompare(b.id),
   );
+  const pairs = buildPairReadiness(origins, outputs);
   return {
     kind: "chrysalis.translation-hub.language-readiness",
     schemaVersion: 0,
     origins,
     outputs,
+    pairs,
     generatedAt: new Date().toISOString(),
+  };
+}
+
+const VALID_WORK_QUEUE_GRADES = new Set(["gold", "silver", "open"]);
+
+function pairWorkPriority(originId, outputId) {
+  return Math.min(popularityRank(originId), popularityRank(outputId));
+}
+
+function tasksForWorkQueueItem(pair, originRow, outputRow) {
+  const { origin, output, grade, action } = pair;
+  const tasks = [];
+  const framework = output === "hono" || output === "fastify" || output === "nextjs";
+
+  if (origin !== "php") {
+    tasks.push(
+      `Add native ${origin} ingest: parser to WebIR with provenance and explicit holes (no silent best-effort lowering).`,
+    );
+    tasks.push(
+      `Add trace-backed verify fixtures for ${origin}→${output} (oracle replay contract per DESIGN.md).`,
+    );
+  } else if (grade !== "gold") {
+    tasks.push(
+      `Raise PHP→${output} from ${grade} toward gold: close scaffold gaps, tighten emit or WPTP bridge, add CI verify gates.`,
+    );
+  }
+
+  if (framework) {
+    if (grade === "silver") {
+      tasks.push(
+        `Stabilize WebIR→${output} path; align with hub WPTP references (openapi-ir / harness scripts).`,
+      );
+    } else if (grade === "open") {
+      tasks.push(
+        `Replace open/scaffold tail for ${output}: real emits, runtime smoke, and hub hole reporting.`,
+      );
+    }
+  } else if (output === "typescript" || output === "javascript") {
+    if (grade !== "gold") {
+      tasks.push(
+        `Ensure emitted ${output} preserves effect types and injected ctx usage (no forbidden nondeterminism in handlers).`,
+      );
+    }
+  } else {
+    tasks.push(
+      `Implement WebIR→${output} emitter or a documented WPTP lane beyond hub-translate scaffold.`,
+    );
+  }
+
+  if (action === "hub-translate" && grade === "open") {
+    tasks.push(
+      "Document hub-translate prerequisites (WPTP preference, scaffold holes) and close gaps toward silver.",
+    );
+  }
+
+  const extra = [originRow?.notDone?.[0], outputRow?.notDone?.[0]].filter(Boolean);
+  for (const line of extra) {
+    if (!tasks.some((t) => t.includes(line.slice(0, 48)))) tasks.push(line);
+  }
+
+  return [...new Set(tasks)];
+}
+
+function acceptanceForWorkQueueItem(pair) {
+  const { origin, output, grade } = pair;
+  const lines = [
+    "Hub resolves route via resolveHubRoute; failures surface structured holes, not silent stubs.",
+    "Emitted or lifted artifacts include provenance; unsupported constructs remain typed holes.",
+  ];
+  if (origin === "php" && grade === "gold") {
+    lines.push("Representative corpus: chrysalis verify passes at the project threshold.");
+  } else if (origin === "php") {
+    lines.push("Promotion target: verified replay on flagship-style corpus for PHP→output.");
+  } else {
+    lines.push(`Oracle capture and replay viable for ${origin} traffic shape before declaring ${grade}+ for this pair.`);
+  }
+  if (output === "nextjs") {
+    lines.push("Next.js parity tracked against WPTP silver harness until promoted.");
+  }
+  return lines;
+}
+
+/**
+ * Ordered backlog rows for languages still below gold / full parity.
+ * @param {{ scope?: "popular-web"|"all", grades?: string[] }} options
+ */
+export function buildLanguageWorkQueue(options = {}) {
+  const scope = options.scope === "all" ? "all" : "popular-web";
+  let grades = Array.isArray(options.grades) ? options.grades : ["open", "silver"];
+  grades = grades.map((g) => String(g).toLowerCase()).filter((g) => VALID_WORK_QUEUE_GRADES.has(g));
+  if (grades.length === 0) grades = ["open", "silver"];
+
+  const report = buildLanguageReadinessReport();
+  const originById = Object.fromEntries(report.origins.map((o) => [o.id, o]));
+  const outputById = Object.fromEntries(report.outputs.map((o) => [o.id, o]));
+
+  let pairs = report.pairs;
+  if (scope === "popular-web") {
+    const popular = new Set(HUB_POPULAR_WEB_FOCUS_IDS);
+    pairs = pairs.filter((p) => popular.has(p.origin) && popular.has(p.output));
+  }
+  pairs = pairs.filter((p) => grades.includes(p.grade));
+
+  const items = pairs.map((pair) => {
+    const oRow = originById[pair.origin];
+    const outRow = outputById[pair.output];
+    return {
+      pair: `${pair.origin}:${pair.output}`,
+      origin: pair.origin,
+      output: pair.output,
+      originLabel: LANGUAGE_LABELS[pair.origin] ?? pair.origin,
+      outputLabel: LANGUAGE_LABELS[pair.output] ?? pair.output,
+      grade: pair.grade,
+      action: pair.action,
+      runnable: pair.runnable,
+      next: pair.next,
+      priority: pairWorkPriority(pair.origin, pair.output),
+      tasks: tasksForWorkQueueItem(pair, oRow, outRow),
+      acceptance: acceptanceForWorkQueueItem(pair),
+    };
+  });
+
+  items.sort((a, b) => a.priority - b.priority || a.pair.localeCompare(b.pair));
+
+  return {
+    kind: "chrysalis.translation-hub.language-work-queue",
+    schemaVersion: 0,
+    generatedAt: new Date().toISOString(),
+    scope,
+    grades,
+    count: items.length,
+    items,
   };
 }
 

@@ -47,5 +47,7 @@ API:
 - `POST /api/hub/projects/:id/sites` — add origin
 - `POST /api/hub/projects/:id/run-batch` — parallel translate
 - `GET /api/hub/projects/:id/batch-progress` — per-site meters
+- `GET /api/hub/language-readiness` — popularity-ordered ingest/emit status (`scope=popular-web`, `grade=open|silver|gold`, `limit=N`)
+- `GET /api/hub/language-work-queue` — scoped backlog rows (`scope=popular-web|all`, `grades=open,silver`)
 
 See also [HUB-DEMO-INSTALL.md](./HUB-DEMO-INSTALL.md) and [HUB-CONNECTIVITY.md](./HUB-CONNECTIVITY.md).

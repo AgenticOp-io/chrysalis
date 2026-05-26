@@ -10,6 +10,7 @@ import { watch } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { HUB_POPULAR_WEB_FOCUS_IDS } from "./hub-ingest/language-catalog.mjs";
 import {
   INPUT_LANGUAGES,
   OUTPUT_LANGUAGES,
@@ -28,6 +29,7 @@ import {
   planHubTranslation,
   planSiteTranslation,
   buildLanguageReadinessReport,
+  buildLanguageWorkQueue,
   prepAllProjectSites,
   prepProjectSite,
   removeProjectSite,
@@ -740,8 +742,35 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/language-work-queue") {
+    const scopeRaw = String(url.searchParams.get("scope") ?? "popular-web").toLowerCase();
+    const scope = scopeRaw === "all" ? "all" : "popular-web";
+    const gradesRaw = url.searchParams.get("grades") ?? "open,silver";
+    const grades = gradesRaw
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter((g) => g === "gold" || g === "silver" || g === "open");
+    sendJson(res, 200, buildLanguageWorkQueue({ scope, grades: grades.length ? grades : undefined }));
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/language-readiness") {
-    sendJson(res, 200, buildLanguageReadinessReport());
+    const report = buildLanguageReadinessReport();
+    const scope = String(url.searchParams.get("scope") ?? "").toLowerCase();
+    const grade = String(url.searchParams.get("grade") ?? "").toLowerCase();
+    const limit = Number(url.searchParams.get("limit") ?? "0");
+    let pairs = report.pairs;
+    if (scope === "popular-web") {
+      const popular = new Set(HUB_POPULAR_WEB_FOCUS_IDS);
+      pairs = pairs.filter((row) => popular.has(row.origin) && popular.has(row.output));
+    }
+    if (grade === "gold" || grade === "silver" || grade === "open") {
+      pairs = pairs.filter((row) => row.grade === grade);
+    }
+    if (Number.isFinite(limit) && limit > 0) {
+      pairs = pairs.slice(0, Math.trunc(limit));
+    }
+    sendJson(res, 200, { ...report, pairs });
     return;
   }
 
@@ -759,7 +788,7 @@ const server = createServer(async (req, res) => {
       siteName: site.name,
       origin: site.originLanguage ?? p.originLanguage,
       output: p.outputLanguage,
-      plan: planSiteTranslation(site, p),
+      plan: planSiteTranslation(p, site),
     }));
     sendJson(res, 200, { projectId: p.id, plan, sitePlans });
     return;

@@ -30,7 +30,7 @@ log() {
 }
 
 MATRIX_REPO="${WPTP_MATRIX_REPO:-https://github.com/theorem6/wptp-matrix.git}"
-MATRIX_REF="${WPTP_MATRIX_REF:-main}"
+MATRIX_REF="${WPTP_MATRIX_REF:-v0.1.9}"
 ROOT="${HOME}/wptp-src"
 MATRIX="${ROOT}/wptp-matrix"
 

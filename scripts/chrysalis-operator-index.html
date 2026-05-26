@@ -59,6 +59,10 @@
     .guide article th { color: var(--text); background: #111827; }
     .guide article a { color: var(--accent); }
     .guide article pre { background: #111827; padding: 0.65rem; border-radius: 6px; overflow-x: auto; font-size: 0.82rem; }
+    .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 8px; }
+    table.readiness { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    table.readiness th, table.readiness td { border-bottom: 1px solid var(--border); padding: 0.4rem 0.5rem; text-align: left; vertical-align: top; }
+    table.readiness th { position: sticky; top: 0; background: #0b1022; }
   </style>
 </head>
 <body>
@@ -101,11 +105,40 @@
       </div>
       <div class="card">
         <h2 style="margin-top:0">Language completion tracker</h2>
+        <div class="grid2">
+          <div>
+            <label for="readinessScope">Scope</label>
+            <select id="readinessScope">
+              <option value="popular-web">Popular web languages</option>
+              <option value="all">All catalog languages</option>
+            </select>
+          </div>
+          <div>
+            <label for="readinessGrade">Grade filter</label>
+            <select id="readinessGrade">
+              <option value="all">All</option>
+              <option value="gold">Gold</option>
+              <option value="silver">Silver</option>
+              <option value="open">Open</option>
+            </select>
+          </div>
+        </div>
         <div class="row">
           <button type="button" class="secondary" id="btnLoadLanguageReadiness">Load readiness</button>
+          <button type="button" class="secondary" id="btnExportWorkQueue">Download work queue (JSON)</button>
         </div>
         <p id="languageReadinessSummary" class="muted">Prioritized by popularity; shows what remains per language.</p>
-        <pre id="languageReadinessTop" class="json">—</pre>
+        <p id="workQueueExportStatus" class="muted"></p>
+        <div class="table-wrap">
+          <table class="readiness">
+            <thead>
+              <tr><th>Origin</th><th>Output</th><th>Grade</th><th>Path</th><th>Next action</th></tr>
+            </thead>
+            <tbody id="languageReadinessRows">
+              <tr><td colspan="5" class="muted">—</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -301,6 +334,6 @@
       <button type="button" class="primary" id="btnSaveToken">Continue</button>
     </div>
   </div>
-  <script src="/ui.js?v=hub-complete-1"></script>
+  <script src="/ui.js?v=hub-complete-3"></script>
 </body>
 </html>

@@ -117,10 +117,31 @@ test("hub store: language readiness report is popularity-ordered", async () => {
   const report = buildLanguageReadinessReport();
   expect(report.kind).toBe("chrysalis.translation-hub.language-readiness");
   expect(report.origins[0]?.id).toBe("javascript");
+  expect(report.pairs.length).toBeGreaterThan(0);
   const php = report.origins.find((o) => o.id === "php");
   expect(php?.ingestStatus).toBe("gold");
   const sqlOut = report.outputs.find((o) => o.id === "sql");
   expect(sqlOut?.emitStatus).toBe("open-scaffold");
+});
+
+test("hub store: language work queue excludes gold php typescript by default", async () => {
+  const { buildLanguageWorkQueue } = await import(HUB_STORE);
+  const q = buildLanguageWorkQueue({ scope: "popular-web", grades: ["open", "silver"] });
+  expect(q.kind).toBe("chrysalis.translation-hub.language-work-queue");
+  expect(q.items.some((i) => i.pair === "php:typescript")).toBe(false);
+  expect(q.count).toBeGreaterThan(0);
+  expect(q.items.every((i) => i.tasks.length > 0)).toBe(true);
+  expect(q.items.every((i) => i.origin !== "rust")).toBe(true);
+});
+
+test("hub store: planSiteTranslation uses project output language", async () => {
+  const { planSiteTranslation } = await import(HUB_STORE);
+  const plan = planSiteTranslation(
+    { originLanguage: "php", outputLanguage: "typescript" },
+    { originLanguage: "php" },
+  );
+  expect(plan.outputLanguage).toBe("typescript");
+  expect(plan.runnable[0]?.targetId).toBe("typescript");
 });
 
 test("hub connectivity: parseOriginAgentJson", async () => {

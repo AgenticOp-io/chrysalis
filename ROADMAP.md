@@ -76,6 +76,8 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 **The Translation Hub is the web product surface** for operators (`http://host:19090/`). Remaining depth is Chrysalis core (emit/oracle/WPTP), not portal plumbing.
 
+- [x] **G19 — Language readiness + work queue** — **`buildLanguageReadinessReport`**, **`buildLanguageWorkQueue`** (popularity-ordered origins/outputs, scoped backlog tasks); portal **Languages** tab; **`GET /api/hub/language-readiness`**, **`GET /api/hub/language-work-queue`**. (**DESIGN D322**)
+
 ---
 
 ## Milestone 0 — Foundations (days, not weeks)

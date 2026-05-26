@@ -132,27 +132,69 @@
 
   async function loadLanguageReadiness() {
     const summary = $("languageReadinessSummary");
-    const top = $("languageReadinessTop");
-    if (!summary || !top) return;
+    const rowsEl = $("languageReadinessRows");
+    if (!summary || !rowsEl) return;
     summary.textContent = "Loading language readiness…";
     try {
-      const data = await api("/api/hub/language-readiness");
-      const topOrigins = (data.origins || []).slice(0, 10).map((row) => ({
-        rank: row.popularityRank,
-        language: row.id,
-        ingest: row.ingestStatus,
-        emit: row.emitStatus,
-        next: row.notDone?.[0] ?? "",
-      }));
-      summary.textContent = `${data.origins?.length ?? 0} origins, ${data.outputs?.length ?? 0} outputs. Priority list is popularity-first.`;
-      top.textContent = JSON.stringify(topOrigins, null, 2);
+      const scope = $("readinessScope")?.value || "popular-web";
+      const grade = $("readinessGrade")?.value || "all";
+      const params = new URLSearchParams();
+      if (scope !== "all") params.set("scope", scope);
+      if (grade !== "all") params.set("grade", grade);
+      const data = await api(`/api/hub/language-readiness?${params.toString()}`);
+      const rows = data.pairs || [];
+      summary.textContent = `${rows.length} conversion pairs loaded (${scope.replace("-", " ")}, ${grade} filter).`;
+      rowsEl.innerHTML = "";
+      for (const row of rows) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${esc(row.origin)}</td><td>${esc(row.output)}</td><td>${esc(row.grade)}</td><td>${esc(
+          row.action,
+        )}</td><td>${esc(row.next || "")}</td>`;
+        rowsEl.appendChild(tr);
+      }
+      if (!rows.length) {
+        rowsEl.innerHTML = '<tr><td colspan="5" class="muted">No pairs match this filter.</td></tr>';
+      }
     } catch (e) {
       summary.textContent = "Readiness error: " + e.message;
+      rowsEl.innerHTML = '<tr><td colspan="5" class="muted">Unable to load readiness.</td></tr>';
     }
   }
 
   $("btnLoadLanguageReadiness")?.addEventListener("click", () => {
     loadLanguageReadiness().catch(() => {});
+  });
+
+  async function exportLanguageWorkQueue() {
+    const el = $("workQueueExportStatus");
+    const scope = $("readinessScope")?.value || "popular-web";
+    const gradeFilter = $("readinessGrade")?.value || "all";
+    let gradesParam = "open,silver";
+    if (gradeFilter === "gold" || gradeFilter === "silver" || gradeFilter === "open") {
+      gradesParam = gradeFilter;
+    }
+    const params = new URLSearchParams();
+    if (scope !== "all") params.set("scope", scope);
+    params.set("grades", gradesParam);
+    if (el) el.textContent = "Preparing work queue…";
+    try {
+      const r = await fetch(`/api/hub/language-work-queue?${params.toString()}`);
+      const j = await r.json().catch(() => null);
+      if (!r.ok) throw new Error((j && j.error) || r.statusText);
+      const blob = new Blob([JSON.stringify(j, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "chrysalis.language-work-queue.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      if (el) el.textContent = `Saved ${j.count ?? 0} item(s); grades=${gradesParam}, scope=${scope}.`;
+    } catch (e) {
+      if (el) el.textContent = "Export failed: " + e.message;
+    }
+  }
+
+  $("btnExportWorkQueue")?.addEventListener("click", () => {
+    exportLanguageWorkQueue().catch(() => {});
   });
 
   async function deleteProjectFromHome(id) {

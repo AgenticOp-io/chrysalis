@@ -154,3 +154,18 @@ export function popularityRank(id) {
   const idx = LANGUAGE_POPULARITY_ORDER.indexOf(id);
   return idx < 0 ? 999 : idx + 1;
 }
+
+/**
+ * Hub readiness / work-queue focus: high-demand web stacks for migration pairs.
+ * Kept in the catalog so API filters and JSON exports stay aligned.
+ */
+export const HUB_POPULAR_WEB_FOCUS_IDS = [
+  "php",
+  "javascript",
+  "typescript",
+  "python",
+  "java",
+  "go",
+  "ruby",
+  "csharp",
+];
