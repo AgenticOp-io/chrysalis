@@ -3,7 +3,7 @@
  * WPTP contract-first structural gold: OpenAPI → Hono / Next.js on hub-contract-first.
  * Usage: node scripts/hub-ingest/hub-wptp-contract-gold.mjs [--target hono|nextjs]
  */
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readdir } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
@@ -12,6 +12,25 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const fixture = join(scriptRoot, "fixtures/hub-contract-first");
 const openapiPath = join(fixture, "openapi.json");
+
+/**
+ * @param {string} [fixtureDir]
+ * @returns {{ method: string, path: string }[]}
+ */
+export function listOpenApiFixtureRoutes(fixtureDir = fixture) {
+  const specPath = join(fixtureDir, "openapi.json");
+  if (!existsSync(specPath)) return [];
+  const spec = JSON.parse(readFileSync(specPath, "utf8"));
+  const routes = [];
+  for (const [path, item] of Object.entries(spec.paths ?? {})) {
+    if (!item || typeof item !== "object") continue;
+    for (const key of Object.keys(item)) {
+      if (key === "parameters" || key === "servers" || key === "summary" || key === "description") continue;
+      routes.push({ method: key.toUpperCase(), path });
+    }
+  }
+  return routes;
+}
 
 function parseArgs(argv) {
   let target = "hono";

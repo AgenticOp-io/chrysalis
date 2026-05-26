@@ -30,3 +30,16 @@ test("hub gold: WPTP contract-first hono and nextjs (G58)", () => {
     expect(r.status, r.stderr || r.stdout).toBe(0);
   }
 }, 360_000);
+
+test("hub gold trace replay: contract-first nextjs (G62)", () => {
+  if (!existsSync(matrixRoot)) return;
+  if (!existsSync(resolve(emitNextJsRoot, "dist/index.js"))) return;
+  const TRACE = resolve(ROOT, "scripts/hub-ingest/hub-gold-trace-replay.mjs");
+  const r = spawnSync(process.execPath, [TRACE, "--suite", "contract-first-nextjs"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: 180_000,
+    env: { ...process.env, WPTP_MATRIX_ROOT: matrixRoot, WPTP_EMIT_NEXTJS_ROOT: emitNextJsRoot },
+  });
+  expect(r.status, r.stderr || r.stdout).toBe(0);
+}, 240_000);

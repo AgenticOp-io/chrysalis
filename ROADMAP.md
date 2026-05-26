@@ -116,6 +116,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G57 — JS/TS structured → Next.js + Next.js trace replay** — **`js/ts-structured-nextjs`**; **`hub-gold-nextjs-fetch`** in-process App Router replay; literal + structured Next.js trace suites. (**DESIGN D362**)
 - [x] **G58 — WPTP contract-first hub gold** — **`contract-first-hono`**, **`contract-first-nextjs`** on **`hub-contract-first`** via **`hub-wptp-contract-gold`**; **`wptp-matrix`** build in CI. (**DESIGN D363**)
 - [x] **G59 — Hub multi-lane boundary smoke** — **`hub-multi-lane-smoke`** (oracle redactor + parser-bridge vendor); Vitest **`hub-multi-lane-boundary`**; **`hub-completion`** schema **v18**. (**DESIGN D364**)
+- [x] **G60 — Middleware + CWL → Next.js gold** — **`js-middleware-nextjs`**, **`python-middleware-nextjs`**, **`cwl-gold-nextjs`** structural + trace replay. (**DESIGN D365**)
+- [x] **G61 — Python → Next.js lift gold** — **`python-literal-nextjs`** on **`hub-gold-python-literal`**. (**DESIGN D366**)
+- [x] **G62 — Contract-first trace replay** — OpenAPI route probes for **`contract-first-hono`** / **`contract-first-nextjs`**; **`listOpenApiFixtureRoutes`**. **`hub-completion`** schema **v19**. (**DESIGN D367**)
 
 ---
 

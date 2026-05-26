@@ -7,6 +7,7 @@ import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
+import { runHubWptpContractGoldSuite } from "./hub-wptp-contract-gold.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -37,6 +38,36 @@ async function runTraceReplaySuite(suite) {
   const fixture = suite.fixture;
   const origin = suite.origin;
   const target = suite.emitTarget;
+
+  if (suite.wptpCompose) {
+    const composeTarget = target === "nextjs" ? "nextjs" : "hono";
+    const wptp = await runHubWptpContractGoldSuite(composeTarget);
+    if (wptp.skipped) throw new Error(`wptp compose skipped: ${wptp.skip ?? "unknown"}`);
+    if (!wptp.ok) throw new Error(wptp.reason ?? "wptp compose failed");
+    const outDir = join(fixture, "generated", composeTarget);
+    if (composeTarget === "hono") {
+      const runtimePkg = "hono";
+      if (!existsSync(join(outDir, "node_modules", runtimePkg))) {
+        const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+        const inst = spawnSync(npmCmd, ["install", "--no-audit", "--no-fund", "--prefer-offline"], {
+          cwd: outDir,
+          encoding: "utf8",
+          shell: process.platform === "win32",
+        });
+        if (inst.status !== 0) throw new Error(inst.stderr || inst.stdout || "npm install failed");
+      }
+    }
+    const replay = spawnSync(
+      process.execPath,
+      ["--import", "tsx", workerScript, fixture, "--origin", origin, "--target", composeTarget],
+      { cwd: scriptRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
+    );
+    if (replay.status !== 0) {
+      throw new Error(replay.stderr || replay.stdout || "trace replay failed");
+    }
+    const report = parseStdoutJson(replay.stdout);
+    return { ...report, suiteId: suite.id };
+  }
 
   const emitArgs =
     target === "nextjs"

@@ -126,7 +126,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 18,
+    schemaVersion: 19,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -153,7 +153,21 @@ async function main() {
         "ts-literal-nextjs",
         "js-structured-nextjs",
         "ts-structured-nextjs",
+        "js-middleware-nextjs",
+        "python-middleware-nextjs",
+        "cwl-gold-nextjs",
+        "python-literal-nextjs",
+        "contract-first-nextjs",
       ],
+    },
+    middlewareNextjsGold: {
+      suiteIds: ["js-middleware-nextjs", "python-middleware-nextjs"],
+    },
+    cwlNextjsGold: {
+      suiteIds: ["cwl-gold-nextjs"],
+    },
+    pythonNextjsGold: {
+      suiteIds: ["python-literal-nextjs", "python-middleware-nextjs"],
     },
     nativeEmitSmoke: {
       ok: nativeEmit.status === 0 && (nativeEmit.parsed.failed ?? 1) === 0,
@@ -242,6 +256,7 @@ async function main() {
     },
     wptpContractGold: {
       suiteIds: ["contract-first-hono", "contract-first-nextjs"],
+      traceReplaySuiteIds: ["contract-first-hono", "contract-first-nextjs"],
     },
     multiLaneSmoke: {
       ok: multiLaneOk,

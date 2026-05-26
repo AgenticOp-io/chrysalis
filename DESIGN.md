@@ -2332,6 +2332,12 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-26 — D358** **Cross-framework CWL gold (G53).** Add **`java/go/csharp/ruby → cwl`** structural suites on existing literal fixtures so CWL emit stays hole-free beyond JS/TS/Python and middleware. **`hub-completion`** schema **v14**. **DESIGN §3** unchanged.
 
+- **2026-05-26 — D367** **Contract-first trace replay (G62).** **`listOpenApiFixtureRoutes`** drives replay probes for **`fixtures/hub-contract-first`**; **`hub-gold-trace-replay`** runs WPTP compose before replay for **`wptpCompose`** suites. **`hub-completion`** schema **v19**. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D366** **Python → Next.js hub gold (G61).** **`python-literal-nextjs`** structural + trace on **`hub-gold-python-literal`**. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D365** **Middleware + CWL → Next.js gold (G60).** **`js-middleware-nextjs`**, **`python-middleware-nextjs`**, **`cwl-gold-nextjs`** with Next.js trace replay (POST JSON probes where routes exist). **DESIGN §3** unchanged.
+
 - **2026-05-26 — D364** **Hub multi-lane boundary smoke (G59).** **`hub-multi-lane-smoke`** runs oracle-php redactor tests when **`php`** is on PATH and records parser-bridge **`vendor/`** presence; wired into **`hub-completion`** schema **v18** so hub CI stays aligned with core parser/oracle lanes without duplicating full **`pnpm test`**. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D363** **WPTP contract-first hub gold (G58).** **`contract-first-hono`** / **`contract-first-nextjs`** structural suites on **`fixtures/hub-contract-first`** (OpenAPI → compose); **`hub-wptp-contract-gold.mjs`**; CI builds **`wptp-matrix`** before hub gates. **DESIGN §3** unchanged.

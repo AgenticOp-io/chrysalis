@@ -3,6 +3,7 @@
  * Probe emitted Hono app and replay corpus in-process (hub trace oracle).
  * Usage: node --import tsx scripts/hub-ingest/hub-gold-replay-worker.mjs <fixtureDir>
  */
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -11,6 +12,7 @@ import { buildReport, replayCorpus } from "../../packages/verify/dist/index.js";
 import { listHubWebRoutes } from "./hub-webir-routes.mjs";
 import { hubGoldReplayFetchInit, hubMiddlewarePresetsFromModule } from "./hub-gold-replay-probe.mjs";
 import { createChrysalisNextjsInProcessFetch } from "./hub-gold-nextjs-fetch.mjs";
+import { listOpenApiFixtureRoutes } from "./hub-wptp-contract-gold.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -74,14 +76,21 @@ function parseArgs(argv) {
 
 async function main() {
   const { fixture, origin, target } = parseArgs(process.argv);
+  const openapiPath = join(fixture, "openapi.json");
+  const useOpenApiRoutes = existsSync(openapiPath);
   const webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
   const outDir = join(fixture, "generated", target);
 
   const webirMod = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
-  const raw = JSON.parse(await readFile(webirPath, "utf8"));
-  const mod = webirMod.moduleFromGoldenSnapshot(raw);
-  const routes = listHubWebRoutes(mod);
-  const middlewarePresets = hubMiddlewarePresetsFromModule(mod);
+  /** @type {import('@chrysalis/webir').Module | null} */
+  let mod = null;
+  let middlewarePresets = new Set();
+  if (!useOpenApiRoutes) {
+    const raw = JSON.parse(await readFile(webirPath, "utf8"));
+    mod = webirMod.moduleFromGoldenSnapshot(raw);
+    middlewarePresets = hubMiddlewarePresetsFromModule(mod);
+  }
+  const routes = useOpenApiRoutes ? listOpenApiFixtureRoutes(fixture) : listHubWebRoutes(mod);
 
   /** @type {(url: string, init?: RequestInit) => Promise<Response>} */
   let inProcessFetch;

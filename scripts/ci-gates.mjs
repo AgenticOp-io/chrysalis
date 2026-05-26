@@ -729,9 +729,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 15 &&
     s.schemaVersion !== 16 &&
     s.schemaVersion !== 17 &&
-    s.schemaVersion !== 18
+    s.schemaVersion !== 18 &&
+    s.schemaVersion !== 19
   ) {
-    fail(`${label}: expected schemaVersion 0–18, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–19, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -881,6 +882,23 @@ function assertHubCompletion(path) {
     }
     if (s.multiLaneSmoke?.ok !== true) {
       fail(`${label}: multiLaneSmoke.ok must be true for schema v18`);
+    }
+  }
+  if (s.schemaVersion >= 19) {
+    const mw = s.middlewareNextjsGold?.suiteIds ?? [];
+    if (!mw.includes("js-middleware-nextjs") || !mw.includes("python-middleware-nextjs")) {
+      fail(`${label}: middlewareNextjsGold must list js and python middleware nextjs for schema v19`);
+    }
+    if (!(s.cwlNextjsGold?.suiteIds ?? []).includes("cwl-gold-nextjs")) {
+      fail(`${label}: cwlNextjsGold must list cwl-gold-nextjs for schema v19`);
+    }
+    const py = s.pythonNextjsGold?.suiteIds ?? [];
+    if (!py.includes("python-literal-nextjs")) {
+      fail(`${label}: pythonNextjsGold must list python-literal-nextjs for schema v19`);
+    }
+    const wptpTr = s.wptpContractGold?.traceReplaySuiteIds ?? [];
+    if (!wptpTr.includes("contract-first-nextjs")) {
+      fail(`${label}: wptpContractGold.traceReplaySuiteIds must list contract-first-nextjs for schema v19`);
     }
   }
   const g = s.routeGrades;

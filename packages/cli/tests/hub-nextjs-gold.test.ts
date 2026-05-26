@@ -12,6 +12,10 @@ const NEXTJS_SUITES = [
   "ts-literal-nextjs",
   "js-structured-nextjs",
   "ts-structured-nextjs",
+  "js-middleware-nextjs",
+  "python-middleware-nextjs",
+  "cwl-gold-nextjs",
+  "python-literal-nextjs",
 ] as const;
 
 function parseLastJson(stdout: string) {
