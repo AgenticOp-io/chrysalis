@@ -76,6 +76,7 @@
     "hub:gold-verify": "node scripts/hub-ingest/hub-gold-verify.mjs",
     "hub:wptp-gold-smoke": "node scripts/hub-ingest/hub-wptp-gold-smoke.mjs",
     "hub:completion": "node scripts/hub-ingest/hub-completion.mjs",
+    "hub:gold-trace-replay": "node --import tsx scripts/hub-ingest/hub-gold-trace-replay.mjs",
     "ci:hub-completion": "node scripts/hub-ingest/hub-completion.mjs --json-out reports/ci/hub-completion.json && node scripts/ci-gates.mjs hub-completion reports/ci/hub-completion.json",
     "verify:hub-deploy": "node scripts/hub-post-deploy-verify.mjs",
     "deploy:hub-demo": "powershell -ExecutionPolicy Bypass -File scripts/gce-hub-deploy.ps1 -Project chrysalis-dev-f5x6qv",

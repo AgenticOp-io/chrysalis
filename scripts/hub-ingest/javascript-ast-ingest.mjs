@@ -101,6 +101,104 @@ function extractRouteFromCall(node) {
 }
 
 /**
+ * @param {import('estree').ObjectExpression} expr
+ */
+function lowerObjectExpression(ctx, expr, origin) {
+  const { data, webir } = ctx;
+  const props = expr.properties ?? [];
+  if (props.length === 0) {
+    return data.call({
+      callee: "__object_literal",
+      args: [],
+      type: T.unknown,
+      origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:object")],
+    });
+  }
+  const flat = [];
+  for (const p of props) {
+    if (p.type !== "Property" || p.computed) {
+      return data.hole({
+        reason: "hub-js:object-literal",
+        input: T.unknown,
+        output: T.unknown,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast")],
+      });
+    }
+    const key =
+      p.key?.type === "Identifier"
+        ? p.key.name
+        : p.key?.type === "Literal" && typeof p.key.value === "string"
+          ? p.key.value
+          : null;
+    if (!key) {
+      return data.hole({
+        reason: "hub-js:object-literal",
+        input: T.unknown,
+        output: T.unknown,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast")],
+      });
+    }
+    flat.push(
+      data.literal({
+        value: key,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:object-key")],
+      }),
+    );
+    flat.push(lowerExpression(ctx, p.value));
+  }
+  return data.call({
+    callee: "__object_literal",
+    args: flat,
+    type: T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "javascript-ast:object")],
+  });
+}
+
+/**
+ * @param {import('estree').Expression} expr
+ */
+function peelResJsonArgument(expr) {
+  if (expr.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (callee?.type === "MemberExpression" && !callee.computed && callee.property?.type === "Identifier") {
+    if (callee.property.name === "json") {
+      return expr.arguments[0] ?? null;
+    }
+  }
+  return null;
+}
+
+/**
+ * @param {import('estree').Function} fn
+ */
+function extractHandlerExpression(fn) {
+  const body = fn.body;
+  if (body.type === "BlockStatement") {
+    for (const s of body.body) {
+      if (s.type === "ReturnStatement") return s.argument ?? null;
+      if (s.type === "ExpressionStatement") return s.expression ?? null;
+    }
+    return null;
+  }
+  if (
+    body.type === "CallExpression" ||
+    body.type === "ObjectExpression" ||
+    body.type === "Literal" ||
+    body.type === "ArrowFunctionExpression" ||
+    body.type === "FunctionExpression"
+  ) {
+    return body;
+  }
+  return null;
+}
+
+/**
  * @param {object} ctx
  * @param {import('estree').Expression | null | undefined} expr
  */
@@ -138,15 +236,13 @@ function lowerExpression(ctx, expr) {
     });
   }
   if (expr.type === "ObjectExpression") {
-    return data.hole({
-      reason: "hub-js:object-literal",
-      input: T.unknown,
-      output: T.unknown,
-      origin,
-      provenance: [webir.provenance("hub-ingest", "javascript-ast")],
-    });
+    return lowerObjectExpression(ctx, expr, origin);
   }
   if (expr.type === "CallExpression") {
+    const jsonArg = peelResJsonArgument(expr);
+    if (jsonArg) {
+      return lowerExpression(ctx, jsonArg);
+    }
     return data.hole({
       reason: "hub-js:call-expression",
       input: T.unknown,
@@ -170,19 +266,17 @@ function lowerExpression(ctx, expr) {
  */
 function lowerHandlerBody(ctx, fn) {
   const { data, webir, file } = ctx;
-  const body = fn.body;
-  if (body.type === "BlockStatement") {
-    const ret = body.body.find((s) => s.type === "ReturnStatement");
-    if (ret?.type === "ReturnStatement") {
-      const valId = lowerExpression(ctx, ret.argument ?? null);
-      return data.block({
-        statements: [valId],
-        type: T.unknown,
-        origin: ret.loc?.start ? originAt(ret.loc.start, file) : ctx.origin,
-        provenance: [webir.provenance("hub-ingest", "javascript-ast:return")],
-      });
-    }
+  const expr = extractHandlerExpression(fn);
+  if (expr) {
+    const valId = lowerExpression(ctx, expr);
+    return data.block({
+      statements: [valId],
+      type: T.unknown,
+      origin: expr.loc?.start ? originAt(expr.loc.start, file) : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:handler-expr")],
+    });
   }
+  const body = fn.body;
   if (body.type === "CallExpression" || body.type === "ObjectExpression" || body.type === "Literal") {
     const valId = lowerExpression(ctx, body);
     return data.block({

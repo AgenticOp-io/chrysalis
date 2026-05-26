@@ -84,6 +84,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G25 — Open-matrix pattern + file lift** — **`pattern-route-parsers.mjs`** / **`pattern-route-lift.mjs`** / **`hub-lift-dispatch.mjs`** for ruby/csharp/kotlin/rust/scala/swift/vue; per-file asset lift for sql/html/css/json/yaml/markdown/c/cpp; fixtures **`hub-pattern-lift`**; **`hub:matrix-smoke`**. (**DESIGN D330**)
 - [x] **G26 — Hub native Python emit + second gold pair** — **`emit-python-from-hub.mjs`** (Flask from WebIR); **javascript/typescript → hono/fastify** promoted to **gold** when literal-only (**`hub-gold-verify`**, fixture **`hub-gold-js-literal`**); **`hub:wptp-gold-smoke`** for contract-first WPTP when **`wptp-matrix`** sibling present. (**DESIGN D331**)
 - [x] **G27 — Hub completion CI + Java/Go native emit** — **`emit-java-from-hub.mjs`**, **`emit-go-from-hub.mjs`**, **`hub-completion.mjs`**, **`ci:hub-completion`** gate in **`typecheck-and-test`**; **`hub-load-routes.mjs`**. (**DESIGN D332**)
+- [x] **G28 — Hub completion finish** — **`res.json`** / object literal JS lowering; **`hub-gold-trace-replay`** in-process verify oracle; native emit **ruby/csharp/rust**; **wptp-matrix** checkout + **`hub:wptp-gold-smoke`** in CI. (**DESIGN D333**)
 
 ---
 

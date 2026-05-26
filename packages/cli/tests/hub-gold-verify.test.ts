@@ -126,14 +126,86 @@ test("hub-translate javascript to hono end-to-end", async () => {
   expect(server).toContain('app.get("/health"');
 }, 60_000);
 
+test("javascript AST lowers res.json object literal (G28)", async () => {
+  const { liftJavaScriptFileToWebir } = await import(
+    resolve(ROOT, "scripts/hub-ingest/javascript-ast-ingest.mjs")
+  );
+  const source = await readFile(resolve(ROOT, "fixtures/hub-js-routes/src/app.js"), "utf8");
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const builder = new webir.ModuleBuilder({ sourceApp: "test" });
+  const wr = webir.webRequest.builders(builder);
+  const r = liftJavaScriptFileToWebir({
+    webir,
+    builder,
+    wr,
+    source,
+    file: "app.js",
+    language: "javascript",
+  });
+  expect(r.usedAst).toBe(true);
+  expect(r.astRouteCount).toBeGreaterThanOrEqual(2);
+  const mod = builder.finish();
+  expect(webir.countHoles(mod)).toBeLessThan(4);
+  const { listHubWebRoutes } = await import(resolve(ROOT, "scripts/hub-ingest/hub-webir-routes.mjs"));
+  const routes = listHubWebRoutes(mod);
+  const health = routes.find((x) => x.path === "/health");
+  expect(health?.body.kind).toBe("literal");
+  expect(health?.body.value).toEqual({ ok: true });
+});
+
+test("emit ruby csharp rust from hub webir (G28)", async () => {
+  const fixture = resolve(ROOT, "fixtures/hub-pattern-lift/ruby");
+  const lift = spawnSync(process.execPath, [LIFT, fixture, "--language", "ruby"], { cwd: ROOT, encoding: "utf8" });
+  expect(lift.status).toBe(0);
+  for (const script of [
+    "emit-ruby-from-hub.mjs",
+    "emit-csharp-from-hub.mjs",
+    "emit-rust-from-hub.mjs",
+  ]) {
+    const lang = script.replace("emit-", "").replace("-from-hub.mjs", "");
+    const dir =
+      lang === "ruby"
+        ? resolve(ROOT, "fixtures/hub-pattern-lift/ruby")
+        : lang === "csharp"
+          ? resolve(ROOT, "fixtures/hub-pattern-lift/csharp")
+          : resolve(ROOT, "fixtures/hub-pattern-lift/rust");
+    spawnSync(process.execPath, [LIFT, dir, "--language", lang], { cwd: ROOT });
+    const emit = spawnSync(process.execPath, [resolve(ROOT, "scripts/hub-ingest", script), dir, "--origin", lang], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    expect(emit.status).toBe(0);
+  }
+});
+
 test(
-  "hub completion report passes (G27)",
+  "hub gold trace replay in-process oracle (G28)",
   () => {
-    const r = spawnSync(process.execPath, [HUB_COMPLETION], { cwd: ROOT, encoding: "utf8", timeout: 180_000 });
+    const r = spawnSync(process.execPath, ["--import", "tsx", resolve(ROOT, "scripts/hub-ingest/hub-gold-trace-replay.mjs")], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
     expect(r.status).toBe(0);
-    const report = JSON.parse(r.stdout);
+    const text = r.stdout.trim();
+    const report = JSON.parse(text.slice(text.indexOf("{")));
+    expect(report.kind).toBe("chrysalis.hub.trace-replay");
+    expect(report.ok).toBe(true);
+    expect(report.correctness).toBeGreaterThanOrEqual(1);
+  },
+  130_000,
+);
+
+test(
+  "hub completion report passes (G27/G28)",
+  () => {
+    const r = spawnSync(process.execPath, [HUB_COMPLETION], { cwd: ROOT, encoding: "utf8", timeout: 240_000 });
+    expect(r.status).toBe(0);
+    const text = r.stdout.trim();
+    const report = JSON.parse(text.slice(text.indexOf("{")));
     expect(report.kind).toBe("chrysalis.hub.completion");
     expect(report.ok).toBe(true);
+    expect(report.traceReplay?.ok).toBe(true);
   },
-  200_000,
+  250_000,
 );

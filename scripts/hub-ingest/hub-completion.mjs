@@ -67,16 +67,29 @@ async function main() {
   const { jsonOut } = parseArgs(process.argv);
   const matrix = runJson(join(scriptRoot, "scripts/hub-ingest/hub-matrix-smoke.mjs"), []);
   const gold = runJson(join(scriptRoot, "scripts/hub-ingest/hub-gold-verify.mjs"), []);
+  const traceReplay = spawnSync(
+    process.execPath,
+    ["--import", "tsx", join(scriptRoot, "scripts/hub-ingest/hub-gold-trace-replay.mjs")],
+    { cwd: scriptRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
+  );
+  let traceParsed = {};
+  try {
+    traceParsed = parseStdoutJson(traceReplay.stdout);
+  } catch {
+    traceParsed = {};
+  }
   const routeGrades = summarizeRouteGrades();
   const ok =
     matrix.status === 0 &&
     (matrix.parsed.failed ?? 1) === 0 &&
     gold.status === 0 &&
-    gold.parsed.ok === true;
+    gold.parsed.ok === true &&
+    traceReplay.status === 0 &&
+    traceParsed.ok === true;
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 0,
+    schemaVersion: 1,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -84,6 +97,11 @@ async function main() {
       skipped: matrix.parsed.skipped ?? 0,
     },
     goldVerify: { ok: gold.parsed.ok === true },
+    traceReplay: {
+      ok: traceParsed.ok === true,
+      correctness: traceParsed.correctness ?? 0,
+      routeCount: traceParsed.routeCount ?? 0,
+    },
     routeGrades,
     generatedAt: new Date().toISOString(),
   };

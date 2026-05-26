@@ -98,7 +98,22 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Hub matrix completion (smoke + gold verify)
+      - name: Checkout wptp-matrix (hub contract-first oracle)
+        uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-matrix
+          ref: v0.1.10
+          path: wptp-matrix
+
+      - name: Install wptp-matrix dependencies
+        run: npm ci --prefix wptp-matrix
+
+      - name: Hub WPTP matrix gold smoke
+        env:
+          WPTP_MATRIX_ROOT: ${{ github.workspace }}/wptp-matrix
+        run: pnpm run hub:wptp-gold-smoke
+
+      - name: Hub matrix completion (smoke + gold + trace replay)
         run: pnpm run ci:hub-completion
 
       - name: Gate verify merged-summary JSON (fixture contract)

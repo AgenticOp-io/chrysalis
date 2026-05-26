@@ -162,7 +162,9 @@ Scripts under `scripts/hub-ingest/` implement the full path:
 | Gold verify (literal JS/TS) | `hub-gold-verify.mjs` | `pnpm run hub:gold-verify` — zero-hole lift + Hono emit (**G26**) |
 | WPTP contract gold smoke | `hub-wptp-gold-smoke.mjs` | `pnpm run hub:wptp-gold-smoke` when **`wptp-matrix`** sibling exists |
 | Emit Java / Go | `emit-java-from-hub.mjs`, `emit-go-from-hub.mjs` | Output **java** / **go** from hub WebIR (**G27**) |
-| Completion gate | `hub-completion.mjs` | `pnpm run ci:hub-completion` — matrix smoke + gold verify (CI) |
+| Completion gate | `hub-completion.mjs` | `pnpm run ci:hub-completion` — matrix smoke + gold verify + trace replay (CI) |
+| Trace replay oracle | `hub-gold-trace-replay.mjs` | In-process **`@chrysalis/verify`** replay against emitted Hono (**G28**) |
+| Emit Ruby / C# / Rust | `emit-ruby-from-hub.mjs`, etc. | Output **ruby**, **csharp**, **rust** from hub WebIR (**G28**) |
 | Emit Next.js | `emit-nextjs-from-hub.mjs` | Output `nextjs` (needs `wptp-emit-nextjs` sibling) |
 | Other output languages | `emit-target-stub.mjs` | Output e.g. `python`, `java` (scaffold + README until WPTP emit) |
 | PHP gold path | `hub-translate.mjs` | Uses Chrysalis CLI ingest + emit, or export + Next.js |

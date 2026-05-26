@@ -185,6 +185,21 @@ function specForPair(sourceLang, outputLang) {
     };
   }
 
+  if (
+    (outputLang === "ruby" || outputLang === "csharp" || outputLang === "rust") &&
+    sourceLang !== "php"
+  ) {
+    const stack =
+      outputLang === "ruby" ? "Sinatra" : outputLang === "csharp" ? "ASP.NET" : "actix-web";
+    return {
+      status: "ready",
+      action: "hub-translate",
+      emitTarget: null,
+      grade: "silver",
+      label: `${label} (hub WebIR → ${stack} emit, G28)`,
+    };
+  }
+
   if (outputLang === "nextjs" && emitTarget === "nextjs") {
     return {
       status: "ready",
@@ -583,6 +598,21 @@ function readinessForOutput(languageId) {
       done: [
         `Hub WebIR -> ${languageId === "java" ? "Spring" : "gin"} emit (emit-${languageId}-from-hub.mjs, G27).`,
       ],
+      notDone: [
+        `Native @chrysalis/ingest and oracle verify for ${languageId} are not implemented.`,
+        "Non-literal handler bodies remain holes.",
+      ],
+    };
+  }
+  if (languageId === "ruby" || languageId === "csharp" || languageId === "rust") {
+    const stack =
+      languageId === "ruby" ? "Sinatra" : languageId === "csharp" ? "ASP.NET" : "actix-web";
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      emitStatus: "silver-hub-native",
+      done: [`Hub WebIR -> ${stack} emit (emit-${languageId}-from-hub.mjs, G28).`],
       notDone: [
         `Native @chrysalis/ingest and oracle verify for ${languageId} are not implemented.`,
         "Non-literal handler bodies remain holes.",

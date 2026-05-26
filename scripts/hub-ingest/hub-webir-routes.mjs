@@ -24,6 +24,20 @@ export function classifyHubHandlerBody(get, bodyId) {
     if (n.dialect === "data" && n.op === "literal") {
       return { kind: "literal", value: n.attrs?.value };
     }
+    if (n.dialect === "data" && n.op === "call" && n.attrs?.callee === "__object_literal") {
+      const ops = n.operands ?? [];
+      const obj = {};
+      for (let i = 0; i + 1 < ops.length; i += 2) {
+        const keyNode = get(ops[i]);
+        const valNode = get(ops[i + 1]);
+        const key = keyNode?.attrs?.value;
+        if (typeof key !== "string" || valNode?.op !== "literal") {
+          return { kind: "hole", reason: "hub:complex-object-literal" };
+        }
+        obj[key] = valNode.attrs?.value;
+      }
+      return { kind: "literal", value: obj };
+    }
     return { kind: "hole", reason: `hub:unsupported-body:${n.dialect}:${n.op}` };
   };
   return unwrap(bodyId);

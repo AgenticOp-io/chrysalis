@@ -17,10 +17,11 @@ describe("ci-gates hub-completion", () => {
         p,
         `${JSON.stringify({
           kind: "chrysalis.hub.completion",
-          schemaVersion: 0,
+          schemaVersion: 1,
           ok: true,
           matrixSmoke: { passed: 21, failed: 0, skipped: 0 },
           goldVerify: { ok: true },
+          traceReplay: { ok: true, correctness: 1, routeCount: 2 },
           routeGrades: { gold: 10, silver: 50, open: 200 },
         })}\n`,
       );

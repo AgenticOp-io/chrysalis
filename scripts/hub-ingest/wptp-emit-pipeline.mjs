@@ -128,6 +128,21 @@ export async function runHubEmitPipeline(projectDir, origin, output) {
     }
   }
 
+  const nativeEmitScripts = {
+    ruby: "emit-ruby-from-hub.mjs",
+    csharp: "emit-csharp-from-hub.mjs",
+    rust: "emit-rust-from-hub.mjs",
+  };
+  if (nativeEmitScripts[output]) {
+    try {
+      await runNode(join(root, "scripts/hub-ingest", nativeEmitScripts[output]), [projectDir, "--origin", origin]);
+      await writeEmitNote(projectDir, { path: `hub-webir-${output}`, origin, output });
+      return { ok: true, path: `hub-webir-${output}` };
+    } catch {
+      /* continue */
+    }
+  }
+
   try {
     await runNode(join(root, "scripts/hub-ingest/emit-target-project.mjs"), [projectDir, "--origin", origin, "--output", output]);
     await writeEmitNote(projectDir, {
