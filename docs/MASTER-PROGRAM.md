@@ -84,7 +84,7 @@
 | --- | --- | --- |
 | **`AgenticOp-io/chrysalis`** (this repo) | **D1** — PHP oracle, WebIR, emit-hono/fastify, verify, chimera, docs | **Now**; remains source of truth for PHP leg until board agrees migration of responsibilities. |
 | **[`theorem6/wptp-ir`](https://github.com/theorem6/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 exit met** — see [`docs/WPTP-D2-EXIT-REPORT.md`](./WPTP-D2-EXIT-REPORT.md) |
-| **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **22** edges, Pages, `verify:harness` (**2026-05-19**) |
+| **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **24** edges, Pages, `verify:harness` (**2026-05-25**) |
 | **[`theorem6/wptp-adapter-openapi`](https://github.com/theorem6/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3** — supported |
 | **[`theorem6/wptp-adapter-browser`](https://github.com/theorem6/wptp-adapter-browser)** | HAR → IR v0 routes (**bronze**) | **D3** — supported |
 | **[`theorem6/wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs)** | IR v0 → Next.js App Router stubs | **D4 exit met** — bronze **`wptp-d4-harness`**; silver WebIR bridge **`wptp-silver-nextjs-harness`** (**D306**) |
@@ -139,7 +139,7 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 
 - **Entry:** D4 exit.
 - **Exit:** Public **matrix** (site or repo) with **≥6** supported **edges** (source,target,grade); **composer** CLI or docs for multi-hop; **no false “green”** without harness proof.
-- **Status (2026-05-19):** **Exit met** — [wptp-matrix](https://github.com/theorem6/wptp-matrix) **20** edges, **10** composer paths, GitHub Pages, `npm run verify:harness`; Chrysalis optional job **`wptp-harness-smoke.yml`** with `CHRYSALIS_ROOT`.
+- **Status (2026-05-25):** **Exit met** — [wptp-matrix](https://github.com/theorem6/wptp-matrix) **24** edges, **14** composer paths, GitHub Pages, `npm run verify:harness`; Chrysalis optional job **`wptp-harness-smoke.yml`** with `CHRYSALIS_ROOT`.
 - **Artifacts:** Matrix JSON schema; CI that fails if docs claim unsupported green; [WPTP funding tracker](./WPTP-FUNDING-TRACKER.md) (non-blocking).
 
 ### D6 — Enterprise connectors and policy packs

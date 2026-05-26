@@ -16,6 +16,9 @@ on:
       - "scripts/wptp-silver-nextjs-harness.mjs"
       - ".github/workflows/wptp-silver-nextjs-harness.yml"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   silver-nextjs:
     name: WebIR bundle → Next.js (silver)

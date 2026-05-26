@@ -18,6 +18,9 @@ on:
       - "scripts/export-webir-bundle.mjs"
       - ".github/workflows/wptp-d3-harness.yml"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   silver-sources-chrysalis-emit:
     name: OpenAPI + HAR silver → Chrysalis Hono

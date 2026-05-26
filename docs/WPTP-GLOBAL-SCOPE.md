@@ -10,7 +10,7 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 | Layer | Repository | Role |
 | --- | --- | --- |
 | **IR hub** | [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) (`@wptp/ir@v0.1.3`) | Neutral **IR v0**; import Chrysalis WebIR bundles; **export** back to `chrysalis.webir.bundle@1.0.0` (silver) |
-| **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.8`) | Public **source × target × grade** claims (**20** edges); **compose** + **verify harness** CLIs |
+| **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.9`) | Public **source × target × grade** claims (**24** edges); **compose** + **verify harness** CLIs |
 | **Source adapters** | [wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi), [wptp-adapter-browser](https://github.com/theorem6/wptp-adapter-browser) | OpenAPI 3 and HAR traces → IR v0 |
 | **Emit targets** | [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs), [wptp-emit-hono](https://github.com/theorem6/wptp-emit-hono), [wptp-emit-fastify](https://github.com/theorem6/wptp-emit-fastify) | Next.js / Hono / Fastify stubs from IR v0 (**bronze**); **contract-replay gold** in matrix harness |
 | **Verify harnesses** | `wptp-matrix` (`wptp-verify-harness`, `npm run verify:harness`) | **Bronze** composed-path contracts; **Silver** WebIR import; **Gold** remains Chrysalis CI |
@@ -84,7 +84,7 @@ npm run verify:harness
 
 - **Funding:** future, non-blocking (MASTER-PROGRAM §10.1).
 - **Tracking:** [GitHub Project #1](https://github.com/users/theorem6/projects/1), lanes D2–D7.
-- **Matrix UI:** [wptp-matrix on GitHub Pages](https://theorem6.github.io/wptp-matrix/) — **22 edges**, **12** composer paths, grade filters.
+- **Matrix UI:** [wptp-matrix on GitHub Pages](https://theorem6.github.io/wptp-matrix/) — **24 edges**, **14** composer paths, grade filters.
 - **Chrysalis smoke (local / CI):** `CHRYSALIS_ROOT=<chrysalis checkout> npm run verify:harness` in `wptp-matrix` — silver compose + `php-webir-hono` gold (`wptp-harness-smoke.yml` on Chrysalis `main`); silver Next.js: **`wptp-silver-nextjs-harness`** workflow + **`pnpm run wptp:silver-nextjs-harness`**.
 - **D6 policy:** [`WPTP-D6-ENTERPRISE-POLICY.md`](./WPTP-D6-ENTERPRISE-POLICY.md); ongoing: [`WPTP-D7-ONGOING.md`](./WPTP-D7-ONGOING.md).
 - **GCE matrix smoke:** [HOW-TO §25](./HOW-TO.md#25-smoke-test-wptp-matrix-on-gce) — `scripts/gce-wptp-test-vm.ps1`.

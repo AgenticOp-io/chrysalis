@@ -14,6 +14,9 @@ on:
       - "scripts/wptp-d4-nextjs-harness.mjs"
       - ".github/workflows/wptp-d4-harness.yml"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   emit-nextjs-bronze:
     name: Next.js emit + contract verify (D4)

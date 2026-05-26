@@ -18,6 +18,9 @@ on:
       - "scripts/verify-webir-bundle-wptp-ir.mjs"
       - ".github/workflows/webir-bundle-to-wptp-ir.yml"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   tiny-blog-import:
     name: export bundle → wptp-ir import (zero losses)
