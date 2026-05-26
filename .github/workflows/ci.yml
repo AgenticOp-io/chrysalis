@@ -98,6 +98,9 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Hub matrix completion (smoke + gold verify)
+        run: pnpm run ci:hub-completion
+
       - name: Gate verify merged-summary JSON (fixture contract)
         run: node scripts/ci-gates.mjs verify-merged-summary fixtures/ci/verify-merged-summary-smoke.json
 

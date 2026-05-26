@@ -175,6 +175,16 @@ function specForPair(sourceLang, outputLang) {
     };
   }
 
+  if ((outputLang === "java" || outputLang === "go") && sourceLang !== "php") {
+    return {
+      status: "ready",
+      action: "hub-translate",
+      emitTarget: null,
+      grade: "silver",
+      label: `${label} (hub WebIR → ${outputLang === "java" ? "Spring" : "gin"} emit, G27)`,
+    };
+  }
+
   if (outputLang === "nextjs" && emitTarget === "nextjs") {
     return {
       status: "ready",
@@ -561,6 +571,21 @@ function readinessForOutput(languageId) {
       notDone: [
         "Full @chrysalis/ingest PHP-style oracle ingest for Python origins is not implemented.",
         "Dict/call handler bodies remain holes unless literal.",
+      ],
+    };
+  }
+  if (languageId === "java" || languageId === "go") {
+    return {
+      id: languageId,
+      label: LANGUAGE_LABELS[languageId] ?? languageId,
+      popularityRank: popularityRank(languageId),
+      emitStatus: "silver-hub-native",
+      done: [
+        `Hub WebIR -> ${languageId === "java" ? "Spring" : "gin"} emit (emit-${languageId}-from-hub.mjs, G27).`,
+      ],
+      notDone: [
+        `Native @chrysalis/ingest and oracle verify for ${languageId} are not implemented.`,
+        "Non-literal handler bodies remain holes.",
       ],
     };
   }

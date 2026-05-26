@@ -39,7 +39,7 @@ test("hub store: resolveHubRoute hub-translate for python → java", async () =>
   const route = resolveHubRoute("python", "java");
   expect(route.ok).toBe(true);
   expect(route.action).toBe("hub-translate");
-  expect(route.grade).toBe("open");
+  expect(route.grade).toBe("silver");
 });
 
 test("hub store: resolveHubRoute php → java is open and runnable", async () => {

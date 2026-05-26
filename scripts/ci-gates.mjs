@@ -14,6 +14,7 @@
  *   node scripts/ci-gates.mjs verify-dual-summary [reports/ci/verify-e2e-summary.json]
  *   node scripts/ci-gates.mjs verify-merged-summary [reports/ci/verify-e2e-merged-summary.json]
  *   node scripts/ci-gates.mjs corpus-merge-summary [path/to/corpus-merge-summary.json]
+ *   node scripts/ci-gates.mjs hub-completion [reports/ci/hub-completion.json]
  * File-backed JSON gates resolve paths, print missing/invalid JSON hints via readJsonGateArtifact
  * (also tiny-n1-rewrite report JSON, migration-sidecar-floors sidecar JSON). status-migration validates stdin JSON.
  *   node scripts/ci-gates.mjs migration-sidecar-floors [reports/migration]
@@ -700,6 +701,34 @@ function assertCorpusMergeSummary(path) {
   );
 }
 
+function assertHubCompletion(path) {
+  const label = "hub-completion";
+  const s = readJsonGateArtifact(label, path, {
+    missingLabel: "report file missing",
+    missingHint: ["Run: pnpm run ci:hub-completion"],
+  });
+  if (s.kind !== "chrysalis.hub.completion") {
+    fail(`${label}: expected kind chrysalis.hub.completion, got ${JSON.stringify(s.kind)}`);
+  }
+  if (s.schemaVersion !== 0) {
+    fail(`${label}: expected schemaVersion 0, got ${JSON.stringify(s.schemaVersion)}`);
+  }
+  if (s.ok !== true) {
+    fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
+  }
+  if ((s.matrixSmoke?.failed ?? 1) !== 0) {
+    fail(`${label}: matrixSmoke.failed must be 0, got ${JSON.stringify(s.matrixSmoke?.failed)}`);
+  }
+  if (s.goldVerify?.ok !== true) {
+    fail(`${label}: goldVerify.ok must be true`);
+  }
+  const g = s.routeGrades;
+  if (!g || typeof g.gold !== "number" || typeof g.silver !== "number" || typeof g.open !== "number") {
+    fail(`${label}: missing routeGrades counts`);
+  }
+  console.log(`${label} OK: gold=${g.gold} silver=${g.silver} open=${g.open} matrixPassed=${s.matrixSmoke?.passed}`);
+}
+
 function parseOptionalEnvNumber(raw, label) {
   if (raw == null) return null;
   const s = String(raw).trim();
@@ -1002,10 +1031,13 @@ switch (cmd) {
   case "session-bridge-release":
     assertSessionBridgeRelease();
     break;
+  case "hub-completion":
+    assertHubCompletion(arg0 ?? "reports/ci/hub-completion.json");
+    break;
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|session-bridge-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|hub-completion|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|session-bridge-release> [path]",
     );
     process.exit(1);
 }

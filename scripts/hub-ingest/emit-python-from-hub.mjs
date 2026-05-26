@@ -3,10 +3,9 @@
  * Emit Flask routes from hub-lift WebIR (literal returns lowered; holes explicit).
  * Usage: node scripts/hub-ingest/emit-python-from-hub.mjs <projectDir> --origin python
  */
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { hubWebirPath, loadWebir } from "./shared.mjs";
-import { listHubWebRoutes } from "./hub-webir-routes.mjs";
+import { loadHubRoutes } from "./hub-load-routes.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -84,10 +83,7 @@ function renderFlaskApp(routes, origin) {
 
 async function main() {
   const { projectDir, origin } = parseArgs(process.argv);
-  const webir = await loadWebir();
-  const raw = JSON.parse(await readFile(hubWebirPath(projectDir, origin), "utf8"));
-  const mod = webir.moduleFromGoldenSnapshot(raw);
-  const routes = listHubWebRoutes(mod);
+  const { routes } = await loadHubRoutes(projectDir, origin);
   const { source, holeCount } = renderFlaskApp(routes, origin);
 
   const outDir = join(projectDir, "generated", "python");

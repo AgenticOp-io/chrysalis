@@ -47,6 +47,10 @@ tmp-export-webir-*/
 # Local release tarballs (see pnpm run release:artifacts, docs/RELEASE.md)
 release/
 
+# Hub fixture lift/emit artifacts (reproduced by hub:matrix-smoke / tests)
+fixtures/**/.chrysalis/
+fixtures/**/generated/
+
 # Local scratch emits (not CI fixtures)
 generated/tmp-*/
 
