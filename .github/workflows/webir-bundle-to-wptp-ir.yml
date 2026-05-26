@@ -56,7 +56,7 @@ jobs:
 
       - name: Install wptp-ir
         working-directory: wptp-ir
-        run: npm ci
+        run: npm install
 
       - name: Assert import (325 nodes, zero losses)
         env:
