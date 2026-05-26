@@ -41,6 +41,22 @@ test("hub store: resolveHubRoute gold for python → hono (G30)", async () => {
   expect(route.grade).toBe("gold");
 });
 
+test("hub store: resolveHubRoute gold for cwl → hono (G32)", async () => {
+  const { resolveHubRoute } = await import(HUB_STORE);
+  const route = resolveHubRoute("cwl", "hono");
+  expect(route.ok).toBe(true);
+  expect(route.grade).toBe("gold");
+  expect(route.action).toBe("hub-translate");
+});
+
+test("hub store: buildCrossLanguageSynthesis 575 pairs (G33)", async () => {
+  const { buildCrossLanguageSynthesis, HUB_CROSS_LANGUAGE_SYNTHESIS_KIND } = await import(HUB_STORE);
+  const db = buildCrossLanguageSynthesis();
+  expect(db.kind).toBe(HUB_CROSS_LANGUAGE_SYNTHESIS_KIND);
+  expect(db.universe.pairCount).toBe(575);
+  expect(db.origins.some((o) => o.id === "cwl")).toBe(true);
+});
+
 test("hub store: resolveHubRoute hub-translate for python → java", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
   const route = resolveHubRoute("python", "java");

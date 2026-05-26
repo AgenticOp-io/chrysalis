@@ -5,6 +5,8 @@ This guide consolidates **everything the Translation Hub knows** about how web l
 **CWL (Chrysalis Web Language)** is the WebIR-native consolidation language — see **`docs/CWL.md`**.
 
 **Machine-readable source:** `pnpm run hub:path-knowledge` → `reports/ci/hub-path-knowledge.json`  
+**Synthesis export:** `pnpm run hub:cross-language-synthesis` → `reports/ci/hub-cross-language-synthesis.json`  
+**Operator API:** `GET /api/hub/cross-language-synthesis`  
 **Per-pair detail:** `GET /api/hub/path-knowledge?origin=<lang>&output=<lang>`
 
 ---

@@ -32,4 +32,29 @@ describe("ci-gates hub-completion", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  test("accepts schema v3 with crossLanguageSynthesis", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v3-"));
+    const p = join(dir, "ok.json");
+    try {
+      writeFileSync(
+        p,
+        `${JSON.stringify({
+          kind: "chrysalis.hub.completion",
+          schemaVersion: 3,
+          ok: true,
+          matrixSmoke: { passed: 22, failed: 0, skipped: 0 },
+          goldVerify: { ok: true },
+          traceReplay: { ok: true, correctness: 1 },
+          nativeEmitSmoke: { ok: true, passed: 10, failed: 0 },
+          crossLanguageSynthesis: { ok: true, pairCount: 575, goldPairs: 14, originCount: 23 },
+          routeGrades: { gold: 14, silver: 279, open: 282 },
+        })}\n`,
+      );
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });

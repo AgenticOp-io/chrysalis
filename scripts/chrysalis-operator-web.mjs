@@ -33,6 +33,7 @@ import {
   buildHubTranslationPathMatrix,
   buildHubPathKnowledgeBase,
   queryPathKnowledge,
+  buildCrossLanguageSynthesis,
   prepAllProjectSites,
   prepProjectSite,
   removeProjectSite,
@@ -772,6 +773,11 @@ const server = createServer(async (req, res) => {
     } else {
       sendJson(res, 200, buildHubPathKnowledgeBase({ origin, output }));
     }
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/cross-language-synthesis") {
+    sendJson(res, 200, buildCrossLanguageSynthesis());
     return;
   }
 

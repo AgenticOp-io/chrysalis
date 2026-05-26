@@ -18,6 +18,7 @@ node scripts/hub-ingest/hub-path-knowledge-cli.mjs --origin python --output java
 | --- | --- |
 | `GET /api/hub/path-knowledge` | Full database (all pairs, languages, lane comparisons, best practices) |
 | `GET /api/hub/path-knowledge?origin=php&output=hono` | One pair: path + similarities + differences + practices |
+| `GET /api/hub/cross-language-synthesis` | Consolidated synthesis (feature matrix, origin clusters, gold pairs) |
 | `GET /api/hub/translation-path-matrix` | Raw path matrix (ingest/emit/verify lanes, steps) |
 
 ## Schema (`chrysalis.translation-hub.path-knowledge`)

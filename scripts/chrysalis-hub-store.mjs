@@ -35,6 +35,11 @@ export {
   BEST_PRACTICES,
   LANGUAGE_PROFILES,
 } from "./hub-ingest/hub-path-knowledge.mjs";
+export {
+  buildCrossLanguageSynthesis,
+  HUB_CROSS_LANGUAGE_SYNTHESIS_KIND,
+  HUB_CROSS_LANGUAGE_SYNTHESIS_SCHEMA_VERSION,
+} from "./hub-ingest/hub-cross-language-synthesis.mjs";
 
 /** Asset/config origins: one GET route per scanned file (no semantic parser). */
 const SILVER_FILE_LIFT_ORIGIN_IDS = new Set([

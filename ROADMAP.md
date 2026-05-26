@@ -89,6 +89,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G30 — Hub comprehensive paths program** — Native emit **kotlin/scala/swift**; **python** literal→hono **gold** + dict lowering; **`hub-gold-manifest`** multi-suite verify/replay; **`oracle-python`** + **`oracle-node`** recorders; **`hub-oracle-record`**, **`hub-native-emit-smoke`**; **`hub-completion`** schema v2. (**DESIGN D335**)
 - [x] **G31 — Path knowledge base** — **`hub-path-knowledge.mjs`**: all **575** pairs with **similarities**, **differences**, **best practices**, language profiles, lane comparisons; **`pnpm run hub:path-knowledge`**; **`GET /api/hub/path-knowledge`**; **`docs/HUB-PATH-KNOWLEDGE.md`**. (**DESIGN D336**)
 - [x] **G32 — Chrysalis Web Language (CWL)** — WebIR-native **`.cwl`** syntax; direct ingest **`hub-cwl-direct`**; emit **`emit-cwl-from-hub.mjs`**; gold **`cwl-gold-hono`**; matrix **23×26** pairs; **`docs/CWL.md`**, **`docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`**, **`hub:cross-language-synthesis`**. (**DESIGN D337**)
+- [x] **G33 — Synthesis API + completion v3** — **`GET /api/hub/cross-language-synthesis`**; **`hub-completion`** schema **v3** gates synthesis (**575** pairs) + **CWL** native emit smoke; **`ci-gates`** accepts v3. (**DESIGN D338**)
 
 ---
 

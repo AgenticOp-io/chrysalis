@@ -79,6 +79,7 @@ async function main() {
     traceParsed = {};
   }
   const nativeEmit = runJson(join(scriptRoot, "scripts/hub-ingest/hub-native-emit-smoke.mjs"), []);
+  const synthesis = runJson(join(scriptRoot, "scripts/hub-ingest/hub-cross-language-synthesis.mjs"), []);
   const oraclePy = spawnSync(process.env.CHRYSALIS_HUB_PYTHON ?? "python3", [
     join(scriptRoot, "packages/oracle-python/record_smoke.py"),
     join(scriptRoot, "reports/ci/hub-oracle-python-smoke.ndjson"),
@@ -89,6 +90,11 @@ async function main() {
   ], { cwd: scriptRoot, encoding: "utf8" });
 
   const routeGrades = summarizeRouteGrades();
+  const synthesisOk =
+    synthesis.status === 0 &&
+    synthesis.parsed.kind === "chrysalis.hub.cross-language-synthesis" &&
+    synthesis.parsed.universe?.pairCount === 575;
+
   const ok =
     matrix.status === 0 &&
     (matrix.parsed.failed ?? 1) === 0 &&
@@ -97,11 +103,12 @@ async function main() {
     traceReplay.status === 0 &&
     traceParsed.ok === true &&
     nativeEmit.status === 0 &&
-    (nativeEmit.parsed.failed ?? 1) === 0;
+    (nativeEmit.parsed.failed ?? 1) === 0 &&
+    synthesisOk;
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 2,
+    schemaVersion: 3,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -125,6 +132,12 @@ async function main() {
     oracleRecorders: {
       python: oraclePy.status === 0,
       node: oracleNode.status === 0,
+    },
+    crossLanguageSynthesis: {
+      ok: synthesisOk,
+      pairCount: synthesis.parsed.universe?.pairCount ?? 0,
+      goldPairs: synthesis.parsed.gradeSummary?.gold ?? 0,
+      originCount: synthesis.parsed.universe?.originCount ?? 0,
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

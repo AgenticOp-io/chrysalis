@@ -21,6 +21,12 @@ const NATIVE_EMITS = [
   { language: "kotlin", output: "kotlin", emit: "emit-kotlin-from-hub.mjs" },
   { language: "scala", output: "scala", emit: "emit-scala-from-hub.mjs" },
   { language: "swift", output: "swift", emit: "emit-swift-from-hub.mjs" },
+  {
+    language: "cwl",
+    output: "cwl",
+    emit: "emit-cwl-from-hub.mjs",
+    fixture: "hub-gold-cwl",
+  },
 ];
 
 async function existsDir(p) {
@@ -36,8 +42,8 @@ async function main() {
   const root = join(scriptRoot, "fixtures/hub-pattern-lift");
   const results = [];
 
-  for (const { language, output, emit } of NATIVE_EMITS) {
-    const dir = join(root, language);
+  for (const { language, output, emit, fixture } of NATIVE_EMITS) {
+    const dir = fixture ? join(scriptRoot, "fixtures", fixture) : join(root, language);
     if (!(await existsDir(dir))) {
       results.push({ language, output, ok: false, skip: "no fixture" });
       continue;
