@@ -2328,6 +2328,14 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-20 — D321** **Translation Hub portal product complete (G18).** Browser-only operator flows: local project create, project settings, per-site route plan, formatted observe assist, org join, batch tuning, Chrysalis status job, runtime health refresh, **`pnpm run hub:serve`**, optional **`docker-compose.hub.yml`**. Hub remains client/server; core translation quality is unchanged.
 
+- **2026-05-26 — D357** **Hub framework cross-emit batch + oracle boundary (G52).** Vitest locks **go/csharp/java/ruby → hono/fastify** gold suites and **4** oracle-tier PHP→framework pairs (core lane separation from hub structural CI). **`hub-completion`** schema **v13** lists cross-framework and middleware CWL suite ids. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D356** **Python Flask middleware → CWL (G51).** **`python-middleware-cwl`** structural suite on **`hub-gold-python-middleware`**. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D355** **C# → Hono/Fastify structural gold (G50).** **`csharp-literal-hono`** / **`csharp-literal-fastify`** with trace replay. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D354** **Go → Hono/Fastify structural gold (G49).** **`go-literal-hono`** / **`go-literal-fastify`** (gin string literals) with trace replay. **DESIGN §3** unchanged.
+
 - **2026-05-26 — D353** **Java → Hono/Fastify structural gold (G48).** **`java-literal-hono`** / **`java-literal-fastify`** on **`hub-gold-java-literal`** (Spring literal returns) with trace replay. **`hub-completion`** schema **v12**. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D352** **Ruby → Hono/Fastify structural gold (G47).** **`ruby-literal-hono`** / **`ruby-literal-fastify`** structural + trace replay on **`hub-gold-ruby-literal`** (Sinatra literals). Expands hub CI **`verifyTier: structural`** matrix coverage for **ruby** framework outputs. **DESIGN §3** unchanged.

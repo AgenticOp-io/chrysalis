@@ -327,6 +327,46 @@ export const HUB_GOLD_SUITES = [
     structural: true,
     traceReplay: true,
   },
+  {
+    id: "go-literal-hono",
+    fixture: join(scriptRoot, "fixtures/hub-gold-go-literal"),
+    origin: "go",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "go-literal-fastify",
+    fixture: join(scriptRoot, "fixtures/hub-gold-go-literal"),
+    origin: "go",
+    emitTarget: "fastify",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "csharp-literal-hono",
+    fixture: join(scriptRoot, "fixtures/hub-gold-csharp-literal"),
+    origin: "csharp",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "csharp-literal-fastify",
+    fixture: join(scriptRoot, "fixtures/hub-gold-csharp-literal"),
+    origin: "csharp",
+    emitTarget: "fastify",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "python-middleware-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-python-middleware"),
+    origin: "python",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
+  },
 ];
 
 /**

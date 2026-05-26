@@ -123,7 +123,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 12,
+    schemaVersion: 13,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -188,7 +188,14 @@ async function main() {
         "ruby-literal-fastify",
         "java-literal-hono",
         "java-literal-fastify",
+        "go-literal-hono",
+        "go-literal-fastify",
+        "csharp-literal-hono",
+        "csharp-literal-fastify",
       ],
+    },
+    middlewareCwlGold: {
+      suiteIds: ["js-middleware-cwl", "python-middleware-cwl"],
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

@@ -105,6 +105,10 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G46 — Python Flask middleware gold** — **`hub-flask-middleware.mjs`** synthetic **`express.json`** / **`urlencoded`** presets; **`jsonify`** → **`__return_json`**; **`python-middleware-hono`** / **`fastify`** + trace replay. (**DESIGN D351**)
 - [x] **G47 — Ruby → Hono/Fastify structural gold** — **`ruby-literal-hono`** / **`ruby-literal-fastify`** on **`hub-gold-ruby-literal`** with trace replay. (**DESIGN D352**)
 - [x] **G48 — Java → Hono/Fastify structural gold** — **`java-literal-hono`** / **`java-literal-fastify`** on **`hub-gold-java-literal`** with trace replay. (**DESIGN D353**)
+- [x] **G49 — Go → Hono/Fastify structural gold** — **`go-literal-hono`** / **`go-literal-fastify`** on **`hub-gold-go-literal`** (gin **`c.String`** literals) with trace replay. (**DESIGN D354**)
+- [x] **G50 — C# → Hono/Fastify structural gold** — **`csharp-literal-hono`** / **`csharp-literal-fastify`** on **`hub-gold-csharp-literal`** with trace replay. (**DESIGN D355**)
+- [x] **G51 — Python Flask middleware → CWL gold** — **`python-middleware-cwl`** on **`hub-gold-python-middleware`**. (**DESIGN D356**)
+- [x] **G52 — Hub / core lane boundary tests** — Vitest **`hub-framework-cross-gold`** (pattern-lift origins → hono/fastify) and **`hub-oracle-tier-boundary`** (exactly **4** Chrysalis oracle matrix pairs); **`hub-completion`** schema **v13**. (**DESIGN D357**)
 
 ---
 

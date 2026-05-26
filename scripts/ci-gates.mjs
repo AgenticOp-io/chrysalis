@@ -723,9 +723,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 9 &&
     s.schemaVersion !== 10 &&
     s.schemaVersion !== 11 &&
-    s.schemaVersion !== 12
+    s.schemaVersion !== 12 &&
+    s.schemaVersion !== 13
   ) {
-    fail(`${label}: expected schemaVersion 0–12, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–13, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -795,6 +796,23 @@ function assertHubCompletion(path) {
     const xf = s.crossFrameworkStructuralGold?.suiteIds ?? [];
     if (!xf.includes("java-literal-hono") || !xf.includes("java-literal-fastify")) {
       fail(`${label}: crossFrameworkStructuralGold must list java hono/fastify for schema v12`);
+    }
+  }
+  if (s.schemaVersion >= 13) {
+    const xf = s.crossFrameworkStructuralGold?.suiteIds ?? [];
+    for (const id of [
+      "go-literal-hono",
+      "go-literal-fastify",
+      "csharp-literal-hono",
+      "csharp-literal-fastify",
+    ]) {
+      if (!xf.includes(id)) {
+        fail(`${label}: crossFrameworkStructuralGold must list ${id} for schema v13`);
+      }
+    }
+    const cwl = s.middlewareCwlGold?.suiteIds ?? [];
+    if (!cwl.includes("python-middleware-cwl")) {
+      fail(`${label}: middlewareCwlGold must list python-middleware-cwl for schema v13`);
     }
   }
   const g = s.routeGrades;

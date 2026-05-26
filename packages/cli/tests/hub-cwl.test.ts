@@ -113,11 +113,12 @@ test("hub gold verify: middleware fastify and cwl fastify (G37)", () => {
   }
 }, 180_000);
 
-test("hub gold verify: ts structured and js middleware cwl (G38)", () => {
+test("hub gold verify: middleware and structured cwl (G38/G51)", () => {
   for (const suite of [
     "ts-structured-hono",
     "ts-structured-cwl",
     "js-middleware-cwl",
+    "python-middleware-cwl",
   ]) {
     const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
       cwd: ROOT,
