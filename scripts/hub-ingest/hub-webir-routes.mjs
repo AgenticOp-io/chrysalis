@@ -24,6 +24,11 @@ export function classifyHubHandlerBody(get, bodyId) {
     if (n.dialect === "data" && n.op === "literal") {
       return { kind: "literal", value: n.attrs?.value };
     }
+    if (n.dialect === "data" && n.op === "call" && n.attrs?.callee === "__return_json") {
+      const ops = n.operands ?? [];
+      if (ops.length !== 1) return { kind: "hole", reason: "hub:return-json-arity" };
+      return unwrap(ops[0]);
+    }
     if (n.dialect === "data" && n.op === "call" && n.attrs?.callee === "__object_literal") {
       const ops = n.operands ?? [];
       const obj = {};
