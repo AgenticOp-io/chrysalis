@@ -79,14 +79,18 @@ async function main() {
   const raw = JSON.parse(await readFile(webirPath, "utf8"));
   const routes = listHubWebRoutes(webirMod.moduleFromGoldenSnapshot(raw));
 
-  const { chrysalisInProcessFetch } = await import(pathToFileURL(serverPath).href);
+  const serverMod = await import(pathToFileURL(serverPath).href);
+  const inProcessFetch = serverMod.chrysalisInProcessFetch ?? serverMod.fetch;
+  if (typeof inProcessFetch !== "function") {
+    throw new Error(`hub-gold-replay: ${target} server has no chrysalisInProcessFetch or fetch export`);
+  }
 
   const traces = [];
   const startedAt = "2026-05-01T12:00:00.000Z";
   let i = 0;
   for (const r of routes) {
     const url = `http://127.0.0.1${r.path}`;
-    const resp = await chrysalisInProcessFetch(url, { method: r.method });
+    const resp = await inProcessFetch(url, { method: r.method });
     const body = await resp.text();
     const headers = {};
     resp.headers.forEach((v, k) => {
@@ -115,7 +119,7 @@ async function main() {
   const outcomes = await replayCorpus(corpus, {
     baseUrl: "http://127.0.0.1",
     injectDeterminismHeaders: true,
-    fetch: (url, init) => chrysalisInProcessFetch(url, init),
+    fetch: (url, init) => inProcessFetch(url, init),
   });
   const report = buildReport(outcomes);
   const correctness = report.aggregate?.correctness ?? 0;

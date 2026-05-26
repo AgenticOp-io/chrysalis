@@ -47,11 +47,12 @@ async function runTraceReplaySuite(suite) {
     }
   }
 
-  const honoDir = join(fixture, "generated", target);
-  if (!existsSync(join(honoDir, "node_modules", "hono"))) {
+  const outDir = join(fixture, "generated", target);
+  const runtimePkg = target === "fastify" ? "fastify" : "hono";
+  if (!existsSync(join(outDir, "node_modules", runtimePkg))) {
     const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
     const inst = spawnSync(npmCmd, ["install", "--no-audit", "--no-fund", "--prefer-offline"], {
-      cwd: honoDir,
+      cwd: outDir,
       encoding: "utf8",
       shell: process.platform === "win32",
     });

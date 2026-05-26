@@ -91,6 +91,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G32 — Chrysalis Web Language (CWL)** — WebIR-native **`.cwl`** syntax; direct ingest **`hub-cwl-direct`**; emit **`emit-cwl-from-hub.mjs`**; gold **`cwl-gold-hono`**; matrix **23×26** pairs; **`docs/CWL.md`**, **`docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`**, **`hub:cross-language-synthesis`**. (**DESIGN D337**)
 - [x] **G33 — Synthesis API + completion v3** — **`GET /api/hub/cross-language-synthesis`**; **`hub-completion`** schema **v3** gates synthesis (**575** pairs) + **CWL** native emit smoke; **`ci-gates`** accepts v3. (**DESIGN D338**)
 - [x] **G34 — Gold depth + path explorer UI** — Expanded **hub-gold-manifest** (structured JSON, **CWL round-trip**, **JS/TS/PY→CWL**); **`lift-to-webir`** skips **`generated/`**; operator **Path explorer** (`#/paths`); **`resolveHubPython`**; middleware gold fixture; **17** matrix gold pairs; full trace replay on hono gold suites. (**DESIGN D339**)
+- [x] **G35 — Fastify gold trace replay + lift metadata** — **Fastify** structural/trace suites mirror key **Hono** gold paths; **`hub-gold-trace-replay`** installs **fastify** or **hono** per target; lift reports **`middlewareUseCount`**; **`hub-completion`** schema **v4**. (**DESIGN D340**)
 
 ---
 

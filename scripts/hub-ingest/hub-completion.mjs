@@ -110,7 +110,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 3,
+    schemaVersion: 4,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -125,6 +125,7 @@ async function main() {
       ok: traceParsed.ok === true,
       correctness: traceParsed.correctness ?? 0,
       suiteCount: traceParsed.suiteCount ?? 1,
+      targets: ["hono", "fastify"],
     },
     nativeEmitSmoke: {
       ok: nativeEmit.status === 0 && (nativeEmit.parsed.failed ?? 1) === 0,

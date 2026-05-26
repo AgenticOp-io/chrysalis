@@ -710,8 +710,8 @@ function assertHubCompletion(path) {
   if (s.kind !== "chrysalis.hub.completion") {
     fail(`${label}: expected kind chrysalis.hub.completion, got ${JSON.stringify(s.kind)}`);
   }
-  if (s.schemaVersion !== 0 && s.schemaVersion !== 1 && s.schemaVersion !== 2 && s.schemaVersion !== 3) {
-    fail(`${label}: expected schemaVersion 0–3, got ${JSON.stringify(s.schemaVersion)}`);
+  if (s.schemaVersion !== 0 && s.schemaVersion !== 1 && s.schemaVersion !== 2 && s.schemaVersion !== 3 && s.schemaVersion !== 4) {
+    fail(`${label}: expected schemaVersion 0–4, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);

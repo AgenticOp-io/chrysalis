@@ -6,7 +6,11 @@
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { EXT_BY_LANG, guessRoutePath, loadWebir } from "./shared.mjs";
-import { canJavaScriptAstIngest, detectHttpRoutesInSource } from "./javascript-ast-ingest.mjs";
+import {
+  canJavaScriptAstIngest,
+  countExpressMiddlewareUses,
+  detectHttpRoutesInSource,
+} from "./javascript-ast-ingest.mjs";
 import { trySpecializedHubLift } from "./hub-lift-dispatch.mjs";
 
 function parseArgs(argv) {
@@ -60,6 +64,7 @@ async function main() {
 
   let heuristicRouteCount = 0;
   let astRouteCount = 0;
+  let middlewareUseCount = 0;
 
   for (const abs of paths) {
     const file = abs.startsWith(projectDir) ? abs.slice(projectDir.length).replace(/^[/\\]/, "") : abs;
@@ -77,6 +82,11 @@ async function main() {
     });
     if (specialized) {
       astRouteCount += specialized.astRouteCount;
+      if (typeof specialized.middlewareUseCount === "number") {
+        middlewareUseCount += specialized.middlewareUseCount;
+      } else if (canJavaScriptAstIngest(language, ext)) {
+        middlewareUseCount += countExpressMiddlewareUses(source);
+      }
       continue;
     }
 
@@ -172,6 +182,7 @@ async function main() {
     routeCount: module.roots.length,
     webirPath: outPath,
     holeCount: holes,
+    middlewareUseCount,
     generatedAt: new Date().toISOString(),
   };
   await writeFile(join(outDir, `hub.${language}.lift.json`), `${JSON.stringify(report, null, 2)}\n`, "utf8");

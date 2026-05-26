@@ -348,7 +348,8 @@ export function liftJavaScriptFileToWebir(opts) {
     builder.addRoot(routeId);
   }
 
-  return { routeCount: routes.length, astRouteCount, usedAst: true };
+  const middlewareUseCount = countExpressMiddlewareUses(source);
+  return { routeCount: routes.length, astRouteCount, usedAst: true, middlewareUseCount };
 }
 
 /**
