@@ -108,12 +108,24 @@ jobs:
       - name: Install wptp-matrix dependencies
         run: npm ci --prefix wptp-matrix
 
+      - name: Checkout wptp-emit-nextjs (hub Next.js structural gold)
+        uses: actions/checkout@v4
+        with:
+          repository: theorem6/wptp-emit-nextjs
+          ref: main
+          path: wptp-emit-nextjs
+
+      - name: Install wptp-emit-nextjs
+        run: npm ci --prefix wptp-emit-nextjs && npm run build --prefix wptp-emit-nextjs
+
       - name: Hub WPTP matrix gold smoke
         env:
           WPTP_MATRIX_ROOT: ${{ github.workspace }}/wptp-matrix
         run: pnpm run hub:wptp-gold-smoke
 
       - name: Hub matrix completion (smoke + gold + trace replay)
+        env:
+          WPTP_EMIT_NEXTJS_ROOT: ${{ github.workspace }}/wptp-emit-nextjs
         run: pnpm run ci:hub-completion
 
       - name: Gate verify merged-summary JSON (fixture contract)

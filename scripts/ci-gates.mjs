@@ -727,9 +727,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 13 &&
     s.schemaVersion !== 14 &&
     s.schemaVersion !== 15 &&
-    s.schemaVersion !== 16
+    s.schemaVersion !== 16 &&
+    s.schemaVersion !== 17
   ) {
-    fail(`${label}: expected schemaVersion 0–16, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–17, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -852,6 +853,14 @@ function assertHubCompletion(path) {
     const cwl = s.crossFrameworkCwlGold?.suiteIds ?? [];
     if (!cwl.includes("rust-literal-cwl")) {
       fail(`${label}: crossFrameworkCwlGold must list rust-literal-cwl for schema v16`);
+    }
+  }
+  if (s.schemaVersion >= 17) {
+    const next = s.typescriptFamilyNextjsGold?.suiteIds ?? [];
+    for (const id of ["js-literal-nextjs", "ts-literal-nextjs"]) {
+      if (!next.includes(id)) {
+        fail(`${label}: typescriptFamilyNextjsGold must list ${id} for schema v17`);
+      }
     }
   }
   const g = s.routeGrades;

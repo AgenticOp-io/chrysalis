@@ -42,7 +42,17 @@ async function main() {
     child.on("error", reject);
   });
 
-  console.log(JSON.stringify({ ok: true, outDir: out, bundlePath }));
+  const report = {
+    kind: "chrysalis.hub.emit",
+    schemaVersion: 0,
+    origin,
+    target: "nextjs",
+    outDir: out,
+    bundlePath,
+    holeCount: 0,
+    generatedAt: new Date().toISOString(),
+  };
+  console.log(JSON.stringify(report));
 }
 
 main().catch((e) => {

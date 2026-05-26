@@ -15,6 +15,7 @@ import { isHubNativeGoldEmitTarget, runNativeGoldEmit } from "./hub-gold-native-
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 const emitTsScript = join(scriptRoot, "scripts/hub-ingest/emit-from-hub.mjs");
+const emitNextjsScript = join(scriptRoot, "scripts/hub-ingest/emit-nextjs-from-hub.mjs");
 const emitCwlScript = join(scriptRoot, "scripts/hub-ingest/emit-cwl-from-hub.mjs");
 
 function parseArgs(argv) {
@@ -39,6 +40,12 @@ function parseArgs(argv) {
 function runEmit(fixture, origin, emitTarget) {
   if (emitTarget === "cwl") {
     return spawnSync(process.execPath, [emitCwlScript, fixture, "--origin", origin], {
+      cwd: scriptRoot,
+      encoding: "utf8",
+    });
+  }
+  if (emitTarget === "nextjs") {
+    return spawnSync(process.execPath, [emitNextjsScript, fixture, "--origin", origin], {
       cwd: scriptRoot,
       encoding: "utf8",
     });

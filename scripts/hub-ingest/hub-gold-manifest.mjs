@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-/** @typedef {"hono"|"fastify"|"cwl"|"python"|"java"|"go"|"ruby"|"csharp"|"rust"|"kotlin"|"scala"|"swift"} HubGoldEmitTarget */
+/** @typedef {"hono"|"fastify"|"nextjs"|"cwl"|"python"|"java"|"go"|"ruby"|"csharp"|"rust"|"kotlin"|"scala"|"swift"} HubGoldEmitTarget */
 
 /**
  * @typedef {{ id: string, fixture: string, origin: string, emitTarget: HubGoldEmitTarget, structural: boolean, traceReplay: boolean, roundTrip?: boolean }} HubGoldSuite
@@ -45,6 +45,22 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "fastify",
     structural: true,
     traceReplay: true,
+  },
+  {
+    id: "js-literal-nextjs",
+    fixture: join(scriptRoot, "fixtures/hub-gold-js-literal"),
+    origin: "javascript",
+    emitTarget: "nextjs",
+    structural: true,
+    traceReplay: false,
+  },
+  {
+    id: "ts-literal-nextjs",
+    fixture: join(scriptRoot, "fixtures/hub-gold-ts-literal"),
+    origin: "typescript",
+    emitTarget: "nextjs",
+    structural: true,
+    traceReplay: false,
   },
   {
     id: "ts-structured-hono",
@@ -524,7 +540,8 @@ export function hubGoldTraceReplaySuiteIds() {
  * @returns {HubGoldEmitTarget | null}
  */
 export function hubGoldEmitTargetForOutput(outputLang) {
-  if (outputLang === "hono" || outputLang === "fastify" || outputLang === "cwl") return outputLang;
+  if (outputLang === "hono" || outputLang === "fastify" || outputLang === "nextjs" || outputLang === "cwl")
+    return outputLang;
   if (outputLang === "typescript") return "hono";
   const native = new Set([
     "python",

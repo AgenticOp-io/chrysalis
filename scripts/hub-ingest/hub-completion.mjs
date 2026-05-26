@@ -123,7 +123,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 16,
+    schemaVersion: 17,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -220,6 +220,9 @@ async function main() {
         "swift-literal-fastify",
         "swift-literal-cwl",
       ],
+    },
+    typescriptFamilyNextjsGold: {
+      suiteIds: ["js-literal-nextjs", "ts-literal-nextjs"],
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

@@ -112,6 +112,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G53 — Cross-framework CWL gold** — **`java/go/csharp/ruby → cwl`** structural suites (**`*-literal-cwl`**) on existing fixtures; extends CWL surface beyond JS/TS/Python and middleware. (**DESIGN D358**)
 - [x] **G54 — Kotlin/Scala/Swift → Hono/Fastify/CWL structural gold** — Add **`kotlin/scala/swift-literal-*`** suites on the native literal fixtures with trace replay for **Hono/Fastify**; `hub-completion` schema **v15**. (**DESIGN D359**)
 - [x] **G55 — Rust → Hono/Fastify/CWL structural gold** — **`rust-literal-hono`**, **`rust-literal-fastify`**, **`rust-literal-cwl`** on **`hub-gold-rust-literal`**; completes pattern-lift origin framework coverage. **`hub-completion`** schema **v16**. (**DESIGN D360**)
+- [x] **G56 — JS/TS → Next.js structural gold** — **`js-literal-nextjs`**, **`ts-literal-nextjs`** via **`emit-nextjs-from-hub`** / WPTP **`@wptp/emit-nextjs`**; CI checks out **`wptp-emit-nextjs`** before **`ci:hub-completion`**. **`hub-completion`** schema **v17**. (**DESIGN D361**)
 
 ---
 
