@@ -44,6 +44,26 @@ def const_val(node):
         return node.value
     return None
 
+def jsonify_payload(node):
+    if not isinstance(node, ast.Call):
+        return None
+    if not isinstance(node.func, ast.Name) or node.func.id != "jsonify":
+        return None
+    if node.args and len(node.args) == 1:
+        if isinstance(node.args[0], ast.Dict):
+            return const_dict(node.args[0])
+        v = const_val(node.args[0])
+        return {"": v} if v is not None else None
+    out = {}
+    for kw in node.keywords:
+        if kw.arg is None:
+            return None
+        val = const_val(kw.value)
+        if val is None:
+            return None
+        out[kw.arg] = val
+    return out if out else None
+
 def const_dict(node):
     if not isinstance(node, ast.Dict):
         return None
@@ -115,18 +135,27 @@ for node in tree.body:
             if node.body:
                 last = node.body[-1]
                 if isinstance(last, ast.Return) and last.value is not None:
-                    v = const_val(last.value)
-                    d = const_dict(last.value) if isinstance(last.value, ast.Dict) else None
-                    if d is not None:
-                        routes[-1]["returnKind"] = "literal"
-                        routes[-1]["returnValue"] = d
-                    elif v is not None and not isinstance(v, dict):
-                        routes[-1]["returnKind"] = "literal"
-                        routes[-1]["returnValue"] = v
-                    elif isinstance(last.value, ast.Dict):
-                        routes[-1]["returnKind"] = "dict"
+                    ret = last.value
+                    if isinstance(ret, ast.Call) and isinstance(ret.func, ast.Name) and ret.func.id == "jsonify":
+                        d = jsonify_payload(ret)
+                        if d is not None:
+                            routes[-1]["returnKind"] = "json"
+                            routes[-1]["returnValue"] = d
+                        else:
+                            routes[-1]["returnKind"] = "jsonify"
                     else:
-                        routes[-1]["returnKind"] = type(last.value).__name__
+                        v = const_val(ret)
+                        d = const_dict(ret) if isinstance(ret, ast.Dict) else None
+                        if d is not None:
+                            routes[-1]["returnKind"] = "literal"
+                            routes[-1]["returnValue"] = d
+                        elif v is not None and not isinstance(v, dict):
+                            routes[-1]["returnKind"] = "literal"
+                            routes[-1]["returnValue"] = v
+                        elif isinstance(ret, ast.Dict):
+                            routes[-1]["returnKind"] = "dict"
+                        else:
+                            routes[-1]["returnKind"] = type(ret).__name__
             break
 
 print(json.dumps({"routes": routes}))
@@ -181,7 +210,12 @@ export function liftPythonFileToWebir(opts) {
   for (const r of routes) {
     const origin = originAt(r.line, file);
     let bodyId;
-    if (r.returnKind === "literal" && r.returnValue !== undefined && r.returnValue !== null) {
+    const isJsonReturn = r.returnKind === "json" || r.returnKind === "jsonify";
+    if (
+      (r.returnKind === "literal" || isJsonReturn) &&
+      r.returnValue !== undefined &&
+      r.returnValue !== null
+    ) {
       const v = r.returnValue;
       let valId;
       if (v !== null && typeof v === "object" && !Array.isArray(v)) {
@@ -235,11 +269,35 @@ export function liftPythonFileToWebir(opts) {
           provenance: [webir.provenance("hub-ingest", "python-ast:literal")],
         });
       }
-      bodyId = data.block({
-        statements: [valId],
-        type: T.unknown,
+      if (isJsonReturn) {
+        const retId = data.call({
+          callee: "__return_json",
+          args: [valId],
+          type: T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "python-ast:jsonify")],
+        });
+        bodyId = data.block({
+          statements: [retId],
+          type: T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "python-ast:return-json")],
+        });
+      } else {
+        bodyId = data.block({
+          statements: [valId],
+          type: T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "python-ast:return")],
+        });
+      }
+    } else if (r.returnKind === "jsonify") {
+      bodyId = data.hole({
+        reason: "hub-python:jsonify-complex",
+        input: T.unknown,
+        output: T.unknown,
         origin,
-        provenance: [webir.provenance("hub-ingest", "python-ast:return")],
+        provenance: [webir.provenance("hub-ingest", "python-ast")],
       });
     } else {
       bodyId = data.hole({

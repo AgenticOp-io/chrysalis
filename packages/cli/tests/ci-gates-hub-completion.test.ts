@@ -129,15 +129,15 @@ describe("ci-gates hub-completion", () => {
         p,
         `${JSON.stringify({
           kind: "chrysalis.hub.completion",
-          schemaVersion: 10,
+          schemaVersion: 11,
           ok: true,
           matrixSmoke: { passed: 22, failed: 0, skipped: 0 },
-          goldVerify: { ok: true, suiteCount: 30, expectedSuiteCount: 30, suiteIds: [] },
+          goldVerify: { ok: true, suiteCount: 37, expectedSuiteCount: 37, suiteIds: [] },
           traceReplay: {
             ok: true,
             correctness: 1,
-            suiteCount: 16,
-            expectedSuiteCount: 16,
+            suiteCount: 20,
+            expectedSuiteCount: 20,
             suiteIds: [],
             targets: ["hono", "fastify"],
           },
@@ -165,7 +165,15 @@ describe("ci-gates hub-completion", () => {
           },
           middlewareTraceReplay: {
             jsonPostProbe: true,
-            suites: ["js-middleware-hono", "js-middleware-fastify"],
+            suites: [
+              "js-middleware-hono",
+              "js-middleware-fastify",
+              "python-middleware-hono",
+              "python-middleware-fastify",
+            ],
+          },
+          crossFrameworkStructuralGold: {
+            suiteIds: ["ruby-literal-hono", "ruby-literal-fastify"],
           },
           routeGrades: { gold: 575, silver: 0, open: 0 },
         })}\n`,

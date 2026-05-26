@@ -9,6 +9,10 @@ const LITERAL_RETURN_RE =
 const RUBY_BLOCK_LITERAL_RE = /\bdo\s+(true|false|-?\d+(?:\.\d+)?)\s+end\b/;
 const CSHARP_MAP_LAMBDA_RE = /\(\)\s*=>\s*(true|false|-?\d+(?:\.\d+)?)/;
 const RUST_RESPONDER_STR_RE = /\{\s*"([^"]*)"\s*\}/;
+const KTOR_RESPOND_RE = /call\.respond(?:Text)?\s*\(\s*(true|false|-?\d+(?:\.\d+)?)/;
+const SCALA_COMPLETE_RE = /\bcomplete\s*\(\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*")\s*\)/;
+const KOTLIN_FUN_EXPR_RE = /=\s*(true|false|-?\d+(?:\.\d+)?)\s*$/m;
+const SWIFT_RETURN_RE = /\breturn\s+(true|false|-?\d+(?:\.\d+)?)\s*$/m;
 
 /**
  * @param {string} raw
@@ -64,6 +68,50 @@ function rustResponderLiteralAfter(source, fromIndex) {
   return { value: m[1], line };
 }
 
+function ktorRespondLiteralAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 400);
+  const m = slice.match(KTOR_RESPOND_RE);
+  if (!m) return null;
+  const v = parseLiteralToken(m[1]);
+  if (v === null) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { value: v, line };
+}
+
+function scalaCompleteLiteralAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 400);
+  const m = slice.match(SCALA_COMPLETE_RE);
+  if (!m) return null;
+  const v = parseLiteralToken(m[1]);
+  if (v === null) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { value: v, line };
+}
+
+function kotlinFunExprLiteralAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 400);
+  const m = slice.match(KOTLIN_FUN_EXPR_RE);
+  if (!m) return null;
+  const v = parseLiteralToken(m[1]);
+  if (v === null) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { value: v, line };
+}
+
+function swiftReturnLiteralAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 400);
+  const m = slice.match(SWIFT_RETURN_RE);
+  if (!m) return null;
+  const v = parseLiteralToken(m[1]);
+  if (v === null) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { value: v, line };
+}
+
 function rubyBlockLiteralAfter(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 200);
   const m = slice.match(RUBY_BLOCK_LITERAL_RE);
@@ -108,7 +156,13 @@ export function liftPatternRoutesFile(opts) {
           ? csharpMapLiteralAfter(source, idx)
           : language === "rust"
             ? rustResponderLiteralAfter(source, idx)
-            : null);
+            : language === "kotlin"
+              ? (ktorRespondLiteralAfter(source, idx) ?? kotlinFunExprLiteralAfter(source, idx))
+              : language === "scala"
+                ? scalaCompleteLiteralAfter(source, idx)
+                : language === "swift"
+                  ? swiftReturnLiteralAfter(source, idx)
+                  : null);
     const bodyId =
       lit?.value !== undefined
         ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })

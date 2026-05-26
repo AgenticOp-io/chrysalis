@@ -12,6 +12,8 @@ import {
   detectHttpRoutesInSource,
 } from "./javascript-ast-ingest.mjs";
 import { liftExpressMiddlewareFromSource } from "./hub-express-middleware.mjs";
+import { liftFlaskSyntheticMiddleware } from "./hub-flask-middleware.mjs";
+import { canPythonAstIngest } from "./python-ast-ingest.mjs";
 import { trySpecializedHubLift } from "./hub-lift-dispatch.mjs";
 
 function parseArgs(argv) {
@@ -104,6 +106,11 @@ async function main() {
           count: shellCount,
         });
       }
+      if (canPythonAstIngest(language, ext)) {
+        const flaskMw = liftFlaskSyntheticMiddleware(source, file, webir, builder, wr);
+        middlewareUseCount += flaskMw.middlewareUseCount;
+        middlewareLoweredCount += flaskMw.middlewareRootCount;
+      }
       continue;
     }
 
@@ -115,6 +122,12 @@ async function main() {
       if (shellCount > 0) {
         middlewareShell.push({ kind: "legacy:express-use", file, count: shellCount });
       }
+    }
+
+    if (canPythonAstIngest(language, ext)) {
+      const mw = liftFlaskSyntheticMiddleware(source, file, webir, builder, wr);
+      middlewareUseCount += mw.middlewareUseCount;
+      middlewareLoweredCount += mw.middlewareRootCount;
     }
 
     const routes = canJavaScriptAstIngest(language, ext)

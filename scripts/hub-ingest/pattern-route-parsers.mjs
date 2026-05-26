@@ -44,6 +44,9 @@ const RUST_ROUTE_RE =
 const RUST_MACRO_RE = /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]/g;
 const SCALA_PLAY_RE = /\(\s*"(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)"\s*,\s*"([^"]+)"\s*\)/g;
 const SCALA_SIRD_RE = /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s*\(\s*p"([^"]+)"\s*\)/gi;
+const SCALA_AKKA_ROUTE_RE =
+  /\b(get|post|put|patch|delete|head|options)\s*\(\s*path\s*\(\s*"([^"]+)"\s*\)\s*\)/gi;
+const KTOR_ROUTE_RE = /\b(get|post|put|patch|delete|head|options)\s*\(\s*"([^"]+)"\s*\)/gi;
 const SWIFT_VERB_RE = /\bapp\.(get|post|put|patch|delete|head)\s*\(\s*"([^"]+)"/gi;
 
 export function parseRubyRoutes(source) {
@@ -72,7 +75,16 @@ export function parseCsharpRoutes(source) {
   return routes;
 }
 
-export const parseKotlinRoutes = parseJavaRoutes;
+export function parseKotlinRoutes(source, file) {
+  const routes = parseJavaRoutes(source, file);
+  const seen = new Set(routes.map((r) => `${r.method}:${r.path}`));
+  let m;
+  KTOR_ROUTE_RE.lastIndex = 0;
+  while ((m = KTOR_ROUTE_RE.exec(source)) !== null) {
+    pushRoute(routes, source, m[1], m[2], m.index, seen);
+  }
+  return routes;
+}
 
 export function parseRustRoutes(source) {
   const routes = [];
@@ -100,6 +112,10 @@ export function parseScalaRoutes(source) {
   }
   SCALA_SIRD_RE.lastIndex = 0;
   while ((m = SCALA_SIRD_RE.exec(source)) !== null) {
+    pushRoute(routes, source, m[1], m[2], m.index, seen);
+  }
+  SCALA_AKKA_ROUTE_RE.lastIndex = 0;
+  while ((m = SCALA_AKKA_ROUTE_RE.exec(source)) !== null) {
     pushRoute(routes, source, m[1], m[2], m.index, seen);
   }
   return routes;

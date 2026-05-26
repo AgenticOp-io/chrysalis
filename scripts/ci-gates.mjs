@@ -721,9 +721,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 7 &&
     s.schemaVersion !== 8 &&
     s.schemaVersion !== 9 &&
-    s.schemaVersion !== 10
+    s.schemaVersion !== 10 &&
+    s.schemaVersion !== 11
   ) {
-    fail(`${label}: expected schemaVersion 0–10, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–11, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -777,6 +778,16 @@ function assertHubCompletion(path) {
   if (s.schemaVersion >= 10) {
     if (s.middlewareTraceReplay?.jsonPostProbe !== true) {
       fail(`${label}: middlewareTraceReplay.jsonPostProbe must be true for schema v10`);
+    }
+  }
+  if (s.schemaVersion >= 11) {
+    const mw = s.middlewareTraceReplay?.suites ?? [];
+    if (!mw.includes("python-middleware-hono") || !mw.includes("python-middleware-fastify")) {
+      fail(`${label}: middlewareTraceReplay must list python middleware suites for schema v11`);
+    }
+    const xf = s.crossFrameworkStructuralGold?.suiteIds ?? [];
+    if (!xf.includes("ruby-literal-hono") || !xf.includes("ruby-literal-fastify")) {
+      fail(`${label}: crossFrameworkStructuralGold must list ruby hono/fastify for schema v11`);
     }
   }
   const g = s.routeGrades;

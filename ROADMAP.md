@@ -101,6 +101,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G42 — Native structural gold + verify-tier API** — **`hub-gold-native-emit`** + **python/java/go/ruby** native gold suites; **gin `c.String`** + **Sinatra block** literal lift; **`GET /api/hub/verify-tiers`**; work-queue **`verifyTiers`** filter; path explorer shows **verifyTier**; **`hub-completion`** schema **v9**. (**DESIGN D347**)
 - [x] **G43 — Middleware POST trace replay + native gold depth** — **`hub-gold-replay-probe`** JSON/urlencoded POST probes; **Hono `chrysalisUrlencodedBodyMiddleware`**; **csharp/rust** native structural gold + **MapGet** / **actix** literal lift; **`hub-completion`** schema **v10**. (**DESIGN D348**)
 - [x] **G44 — Hub `res.json` response emit** — **`__return_json`** in **`emit-tree`** for **Hono/Fastify**; **`javascript-ast-ingest`** lowers **`res.json(...)`** handlers; **`js-middleware-fastify`** trace replay restored. (**DESIGN D349**)
+- [x] **G45 — Kotlin / Scala / Swift native structural gold** — Literal fixtures; **Ktor** / **Akka** / **Vapor** pattern lift; **`kotlin-native-kotlin`**, **`scala-native-scala`**, **`swift-native-swift`** suites. (**DESIGN D350**)
+- [x] **G46 — Python Flask middleware gold** — **`hub-flask-middleware.mjs`** synthetic **`express.json`** / **`urlencoded`** presets; **`jsonify`** → **`__return_json`**; **`python-middleware-hono`** / **`fastify`** + trace replay. (**DESIGN D351**)
+- [x] **G47 — Ruby → Hono/Fastify structural gold** — **`ruby-literal-hono`** / **`ruby-literal-fastify`** on **`hub-gold-ruby-literal`** with trace replay. (**DESIGN D352**)
 
 ---
 
