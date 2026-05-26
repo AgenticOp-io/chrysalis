@@ -90,7 +90,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G31 — Path knowledge base** — **`hub-path-knowledge.mjs`**: all **575** pairs with **similarities**, **differences**, **best practices**, language profiles, lane comparisons; **`pnpm run hub:path-knowledge`**; **`GET /api/hub/path-knowledge`**; **`docs/HUB-PATH-KNOWLEDGE.md`**. (**DESIGN D336**)
 - [x] **G32 — Chrysalis Web Language (CWL)** — WebIR-native **`.cwl`** syntax; direct ingest **`hub-cwl-direct`**; emit **`emit-cwl-from-hub.mjs`**; gold **`cwl-gold-hono`**; matrix **23×26** pairs; **`docs/CWL.md`**, **`docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`**, **`hub:cross-language-synthesis`**. (**DESIGN D337**)
 - [x] **G33 — Synthesis API + completion v3** — **`GET /api/hub/cross-language-synthesis`**; **`hub-completion`** schema **v3** gates synthesis (**575** pairs) + **CWL** native emit smoke; **`ci-gates`** accepts v3. (**DESIGN D338**)
-- [x] **G34 — Gold depth + path explorer UI** — Expanded **hub-gold-manifest** (structured JSON, **CWL round-trip**, **JS/TS→CWL**); **`lift-to-webir`** skips **`generated/`**; operator **Path explorer** (`#/paths`); **16** matrix gold pairs. (**DESIGN D339**)
+- [x] **G34 — Gold depth + path explorer UI** — Expanded **hub-gold-manifest** (structured JSON, **CWL round-trip**, **JS/TS/PY→CWL**); **`lift-to-webir`** skips **`generated/`**; operator **Path explorer** (`#/paths`); **`resolveHubPython`**; middleware gold fixture; **17** matrix gold pairs; full trace replay on hono gold suites. (**DESIGN D339**)
 
 ---
 

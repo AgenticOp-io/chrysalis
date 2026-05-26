@@ -1,5 +1,23 @@
+import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+
+let cachedHubPython = null;
+
+/** CPython for hub ast / oracle (python3 on Linux CI, python on Windows). */
+export function resolveHubPython() {
+  if (process.env.CHRYSALIS_HUB_PYTHON) return process.env.CHRYSALIS_HUB_PYTHON;
+  if (cachedHubPython) return cachedHubPython;
+  for (const cmd of ["python3", "python", "py"]) {
+    const r = spawnSync(cmd, ["-c", "import ast"], { encoding: "utf8" });
+    if (r.status === 0) {
+      cachedHubPython = cmd;
+      return cmd;
+    }
+  }
+  cachedHubPython = "python3";
+  return cachedHubPython;
+}
 
 export const EXT_BY_LANG = {
   php: [".php", ".phtml"],

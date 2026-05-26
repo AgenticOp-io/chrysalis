@@ -53,7 +53,7 @@ test("hub store: resolveHubRoute gold for javascript → cwl (G34)", async () =>
   const { resolveHubRoute } = await import(HUB_STORE);
   expect(resolveHubRoute("javascript", "cwl").grade).toBe("gold");
   expect(resolveHubRoute("typescript", "cwl").grade).toBe("gold");
-  expect(resolveHubRoute("python", "cwl").grade).toBe("silver");
+  expect(resolveHubRoute("python", "cwl").grade).toBe("gold");
 });
 
 test("hub store: buildCrossLanguageSynthesis 575 pairs (G33)", async () => {

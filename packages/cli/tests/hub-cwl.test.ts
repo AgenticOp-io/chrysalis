@@ -61,4 +61,23 @@ test("hub store: javascript to cwl is gold (G34)", async () => {
   const hub = await import(fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url)));
   expect(hub.resolveHubRoute("javascript", "cwl").grade).toBe("gold");
   expect(hub.resolveHubRoute("typescript", "cwl").grade).toBe("gold");
+  expect(hub.resolveHubRoute("python", "cwl").grade).toBe("gold");
 });
+
+test("hub gold verify: python literal to cwl (G34 batch)", () => {
+  const r = spawnSync(process.execPath, [GOLD, "--suite", "python-literal-cwl"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  expect(r.status).toBe(0);
+}, 130_000);
+
+test("hub gold verify: js middleware fixture hole-free (G34 batch)", () => {
+  const r = spawnSync(process.execPath, [GOLD, "--suite", "js-middleware-hono"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  expect(r.status).toBe(0);
+}, 130_000);

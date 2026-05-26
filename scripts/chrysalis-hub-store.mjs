@@ -184,7 +184,8 @@ function specForPair(sourceLang, outputLang) {
   }
 
   if (outputLang === "cwl" && sourceLang !== "cwl") {
-    const hubLiteralGoldCwl = sourceLang === "javascript" || sourceLang === "typescript";
+    const hubLiteralGoldCwl =
+      sourceLang === "javascript" || sourceLang === "typescript" || sourceLang === "python";
     return {
       status: "ready",
       action: "hub-translate",

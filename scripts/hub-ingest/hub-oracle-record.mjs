@@ -38,7 +38,8 @@ async function main() {
   }
 
   if (origin === "python") {
-    const py = process.env.CHRYSALIS_HUB_PYTHON ?? "python3";
+    const { resolveHubPython } = await import("./shared.mjs");
+    const py = resolveHubPython();
     const script = join(scriptRoot, "packages/oracle-python/record_smoke.py");
     const r = spawnSync(py, [script, out], { cwd: scriptRoot, encoding: "utf8" });
     if (r.status !== 0) {

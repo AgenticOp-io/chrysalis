@@ -105,9 +105,9 @@ What hub ingest **lowers today** vs **holes** (critical for cross-language seman
 | --- | --- | --- | --- | --- |
 | Literal return | Yes | Yes | Yes | Sometimes near registration |
 | Object/dict literal | Yes | Yes (`__object_literal`) | Yes (simple dict) | Rare |
-| `res.json()` / JSON response | Yes | Yes | N/A | Hole |
+| `res.json()` / JSON response | Yes | Yes | Yes (dict) | Hole |
 | Call expressions | Partial | Hole | Hole | Hole |
-| Middleware chain | Partial | Hole | Hole | Hole |
+| Middleware chain | Partial | Partial (`app.use` detected; routes still gold) | Hole | Hole |
 | SQL / ORM | Partial + effects | Hole | Hole | Hole |
 | Session/auth | Partial | Hole | Hole | Hole |
 
@@ -123,6 +123,7 @@ What hub ingest **lowers today** vs **holes** (critical for cross-language seman
 | --- | --- | --- |
 | chrysalis-emit | PHP → TS/Hono/Fastify | `@chrysalis/emit` gold |
 | hub-webir-typescript | Any origin → hono/fastify/nextjs/ts | Hono/Fastify/Next handlers |
+| hub-cwl-emit | Any origin → cwl | `.cwl` projection (JS/TS/Python literal gold) |
 | hub-native-python | → python | Flask |
 | hub-native-java | → java | Spring-style |
 | hub-native-go | → go | gin |

@@ -2,6 +2,7 @@
  * Python hub ingest v0 — uses CPython ast when python3 is on PATH (Flask/FastAPI-style decorators).
  */
 import { spawnSync } from "node:child_process";
+import { resolveHubPython } from "./shared.mjs";
 
 const T = {
   string: { kind: "string" },
@@ -144,7 +145,7 @@ export function canPythonAstIngest(language, ext) {
  * @returns {{ routes: Array<{ method: string, path: string, line: number, name: string, returnKind?: string }> }}
  */
 export function parsePythonRoutes(source) {
-  const py = process.env.CHRYSALIS_HUB_PYTHON ?? "python3";
+  const py = resolveHubPython();
   const r = spawnSync(py, ["-c", PARSE_ROUTES_PY], {
     input: source,
     encoding: "utf8",

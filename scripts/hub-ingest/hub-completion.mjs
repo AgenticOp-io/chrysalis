@@ -8,6 +8,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } from "../chrysalis-hub-store.mjs";
+import { resolveHubPython } from "./shared.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -80,7 +81,7 @@ async function main() {
   }
   const nativeEmit = runJson(join(scriptRoot, "scripts/hub-ingest/hub-native-emit-smoke.mjs"), []);
   const synthesis = runJson(join(scriptRoot, "scripts/hub-ingest/hub-cross-language-synthesis.mjs"), []);
-  const oraclePy = spawnSync(process.env.CHRYSALIS_HUB_PYTHON ?? "python3", [
+  const oraclePy = spawnSync(resolveHubPython(), [
     join(scriptRoot, "packages/oracle-python/record_smoke.py"),
     join(scriptRoot, "reports/ci/hub-oracle-python-smoke.ndjson"),
   ], { cwd: scriptRoot, encoding: "utf8" });

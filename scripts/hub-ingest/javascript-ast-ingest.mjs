@@ -352,6 +352,28 @@ export function liftJavaScriptFileToWebir(opts) {
 }
 
 /**
+ * Count Express-style `app.use(...)` middleware registrations (pipeline shell only).
+ * @param {string} source
+ */
+export function countExpressMiddlewareUses(source) {
+  let count = 0;
+  try {
+    const ast = parseJavaScriptSource(source, "scan.js");
+    walkSimple(ast, {
+      CallExpression(node) {
+        if (node.callee?.type !== "MemberExpression" || node.callee.computed) return;
+        if (node.callee.property?.type !== "Identifier" || node.callee.property.name !== "use") return;
+        const recv = node.callee.object;
+        if (recv?.type === "Identifier" && RECEIVER_NAMES.has(recv.name)) count += 1;
+      },
+    });
+  } catch {
+    return 0;
+  }
+  return count;
+}
+
+/**
  * Fallback when AST finds no routes: heuristic paths only.
  */
 export { detectHttpRoutesInSource };
