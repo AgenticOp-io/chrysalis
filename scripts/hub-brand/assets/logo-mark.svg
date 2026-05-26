@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AgenticOp">
+  <defs>
+    <linearGradient id="ao-grad" x1="12%" y1="8%" x2="88%" y2="92%">
+      <stop offset="0%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+  <!-- Three-node ops graph: coordinated agents -->
+  <circle cx="32" cy="15" r="9" fill="url(#ao-grad)"/>
+  <circle cx="16" cy="47" r="9" fill="url(#ao-grad)"/>
+  <circle cx="48" cy="47" r="9" fill="url(#ao-grad)"/>
+  <path
+    d="M32 24 L21 39 M32 24 L43 39 M24 47 L40 47"
+    fill="none"
+    stroke="#0d9488"
+    stroke-width="3.5"
+    stroke-linecap="round"
+  />
+</svg>

@@ -17,15 +17,26 @@ export const LANGUAGE_LABELS = {
   csharp: "C#",
   rust: "Rust",
   scala: "Scala",
+  cpp: "C++",
+  c: "C",
+  swift: "Swift",
+  sql: "SQL",
   html: "HTML",
   css: "CSS",
   scss: "SCSS",
+  json: "JSON",
+  yaml: "YAML",
+  markdown: "Markdown",
   hono: "TypeScript (Hono)",
   fastify: "TypeScript (Fastify)",
   nextjs: "TypeScript (Next.js)",
 };
 
-/** Manual origin dropdown + route sources (web application stacks). */
+/**
+ * Manual origin dropdown + route sources.
+ * Includes app stacks plus common non-web source formats so all detected
+ * languages can still be translated through open/scaffold routes.
+ */
 export const HUB_WEB_ORIGIN_LANGUAGE_IDS = [
   "php",
   "javascript",
@@ -39,12 +50,19 @@ export const HUB_WEB_ORIGIN_LANGUAGE_IDS = [
   "csharp",
   "rust",
   "scala",
+  "cpp",
+  "c",
+  "swift",
+  "sql",
   "html",
   "css",
   "scss",
+  "json",
+  "yaml",
+  "markdown",
 ];
 
-/** Output dropdown: web apps and TS framework stacks only (no SQL, JSON, native-only, etc.). */
+/** Output dropdown: complete open matrix including native targets. */
 export const HUB_WEB_OUTPUT_LANGUAGE_IDS = [
   "typescript",
   "javascript",
@@ -57,10 +75,17 @@ export const HUB_WEB_OUTPUT_LANGUAGE_IDS = [
   "csharp",
   "rust",
   "scala",
+  "cpp",
+  "c",
+  "swift",
+  "sql",
   "vue",
   "html",
   "css",
   "scss",
+  "json",
+  "yaml",
+  "markdown",
   "hono",
   "fastify",
   "nextjs",

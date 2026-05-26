@@ -67,6 +67,7 @@
     "wptp:d7-audit": "node scripts/wptp-d7-audit.mjs",
     "hub:probe": "node scripts/agents/chrysalis-hub-probe.mjs",
     "hub:translate": "node scripts/hub-ingest/hub-translate.mjs",
+    "hub:brand": "node scripts/rebuild-hub-brand.mjs",
     "hub:install-wptp": "node scripts/install-wptp-hub-deps.mjs",
     "build:hub-all": "pnpm -r build && pnpm run vendor:parser-bridge && pnpm run hub:install-wptp",
     "hub:install-server": "bash scripts/hub-install.sh",

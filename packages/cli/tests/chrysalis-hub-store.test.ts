@@ -82,25 +82,26 @@ test("hub store: planHubTranslation single origin output pair", async () => {
   expect(plan.errors).toHaveLength(0);
 });
 
-test("hub store: OUTPUT_LANGUAGES is web-only", async () => {
+test("hub store: OUTPUT_LANGUAGES covers complete open matrix", async () => {
   const { OUTPUT_LANGUAGES } = await import(HUB_STORE);
   const ids = OUTPUT_LANGUAGES.map((o) => o.id);
   expect(ids).toContain("typescript");
   expect(ids).toContain("hono");
-  expect(ids).not.toContain("sql");
-  expect(ids).not.toContain("json");
-  expect(ids).not.toContain("markdown");
-  expect(ids).not.toContain("cpp");
+  expect(ids).toContain("sql");
+  expect(ids).toContain("json");
+  expect(ids).toContain("markdown");
+  expect(ids).toContain("cpp");
 });
 
-test("hub store: resolveHubRoute rejects sql output", async () => {
+test("hub store: resolveHubRoute accepts sql output as open route", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
   const route = resolveHubRoute("php", "sql");
-  expect(route.ok).toBe(false);
-  expect(route.code).toBe("unknown-output-language");
+  expect(route.ok).toBe(true);
+  expect(route.action).toBe("hub-translate");
+  expect(route.grade).toBe("open");
 });
 
-test("hub store: originFromDetection prefers web language over sql", async () => {
+test("hub store: originFromDetection prefers app language over sql", async () => {
   const { originFromDetection } = await import(HUB_STORE);
   const origin = originFromDetection({
     languages: [

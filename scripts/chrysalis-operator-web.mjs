@@ -80,6 +80,7 @@ const defaultProject = process.env.CHRYSALIS_OPERATOR_DEFAULT_PROJECT ?? "fixtur
 
 let indexHtml = "";
 let uiJs = "";
+let brandAssets = new Map();
 
 const sseClients = new Set();
 let currentJob = null;
@@ -570,6 +571,12 @@ function sendText(res, code, type, body) {
 async function prepareStatic() {
   indexHtml = await readFile(join(__dir, "chrysalis-operator-index.html"), "utf8");
   uiJs = await readFile(join(__dir, "chrysalis-operator-ui.js"), "utf8");
+  const logoMark = await readFile(join(__dir, "hub-brand", "assets", "logo-mark.svg"));
+  const logoHorizontal = await readFile(join(__dir, "hub-brand", "assets", "logo-horizontal.svg"));
+  brandAssets = new Map([
+    ["/assets/logo-mark.svg", { body: logoMark, type: "image/svg+xml" }],
+    ["/assets/logo-horizontal.svg", { body: logoHorizontal, type: "image/svg+xml" }],
+  ]);
 }
 
 async function loadStatic() {
@@ -595,6 +602,12 @@ const server = createServer(async (req, res) => {
     await loadStatic();
     res.writeHead(200, { "content-type": "application/javascript; charset=utf-8", ...noCache });
     res.end(uiJs);
+    return;
+  }
+  if (req.method === "GET" && brandAssets.has(url.pathname)) {
+    const asset = brandAssets.get(url.pathname);
+    res.writeHead(200, { "content-type": asset.type, "cache-control": "public, max-age=86400" });
+    res.end(asset.body);
     return;
   }
   if (req.method === "GET" && url.pathname === "/docs/hub-connectivity") {

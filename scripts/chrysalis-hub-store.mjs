@@ -188,12 +188,32 @@ export function defaultOutputLanguage() {
   return "typescript";
 }
 
+const PREFERRED_ORIGIN_LANGUAGES = new Set([
+  "php",
+  "javascript",
+  "typescript",
+  "vue",
+  "python",
+  "java",
+  "kotlin",
+  "go",
+  "ruby",
+  "csharp",
+  "rust",
+  "scala",
+  "html",
+  "css",
+  "scss",
+]);
+
 /** Pick origin from autodetect (highest file count) or manual default. */
 export function originFromDetection(detection) {
   if (!detection?.languages?.length) return defaultOriginLanguage();
   const sorted = [...detection.languages].sort((a, b) => b.fileCount - a.fileCount);
-  const web = sorted.find((row) => isHubWebOrigin(row.language));
-  return web?.language ?? defaultOriginLanguage();
+  const preferred = sorted.find((row) => PREFERRED_ORIGIN_LANGUAGES.has(row.language));
+  if (preferred) return preferred.language;
+  const known = sorted.find((row) => isHubWebOrigin(row.language));
+  return known?.language ?? defaultOriginLanguage();
 }
 
 /** Hub web origin ids missing from {@link TARGET_MATRIX}. */
