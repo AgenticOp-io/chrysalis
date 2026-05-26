@@ -1,0 +1,10 @@
+{
+  "name": "@chrysalis/oracle-node",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Chrysalis HTTP trace recorder for Node.js origins",
+  "exports": {
+    "./recorder.js": "./src/recorder.mjs"
+  }
+}

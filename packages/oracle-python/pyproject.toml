@@ -1,0 +1,8 @@
+[project]
+name = "chrysalis-oracle-python"
+version = "0.1.0"
+description = "Chrysalis HTTP trace recorder for Python origins"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]
