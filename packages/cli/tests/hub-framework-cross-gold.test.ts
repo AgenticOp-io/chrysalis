@@ -6,6 +6,8 @@ import { expect, test } from "vitest";
 const ROOT = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const GOLD = resolve(ROOT, "scripts/hub-ingest/hub-gold-verify.mjs");
 const TRACE = resolve(ROOT, "scripts/hub-ingest/hub-gold-trace-replay.mjs");
+const emitNextJsRoot = process.env.WPTP_EMIT_NEXTJS_ROOT ?? resolve(ROOT, "..", "wptp-emit-nextjs");
+const nextjsEnv = { ...process.env, WPTP_EMIT_NEXTJS_ROOT: emitNextJsRoot };
 
 const CROSS_FRAMEWORK_SUITES = [
   "ruby-literal-hono",
@@ -26,6 +28,20 @@ const CROSS_FRAMEWORK_CWL_SUITES = [
   "go-literal-cwl",
   "csharp-literal-cwl",
   "rust-literal-cwl",
+] as const;
+
+const CROSS_FRAMEWORK_NEXTJS_SUITES = [
+  "ruby-literal-nextjs",
+  "java-literal-nextjs",
+  "go-literal-nextjs",
+  "csharp-literal-nextjs",
+  "rust-literal-nextjs",
+] as const;
+
+const KSS_FRAMEWORK_NEXTJS_SUITES = [
+  "kotlin-literal-nextjs",
+  "scala-literal-nextjs",
+  "swift-literal-nextjs",
 ] as const;
 
 const KSS_FRAMEWORK_SUITES = [
@@ -72,6 +88,18 @@ test("hub gold: kotlin/scala/swift emit to hono/fastify/cwl (G54)", () => {
     expect(r.status, r.stderr || r.stdout).toBe(0);
   }
 }, 300_000);
+
+test("hub gold: pattern-lift origins emit to nextjs (G63)", () => {
+  for (const suite of [...CROSS_FRAMEWORK_NEXTJS_SUITES, ...KSS_FRAMEWORK_NEXTJS_SUITES]) {
+    const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+      env: nextjsEnv,
+    });
+    expect(r.status, r.stderr || r.stdout).toBe(0);
+  }
+}, 360_000);
 
 test("hub gold trace replay: go and csharp hono (G49–G50)", () => {
   for (const suite of ["go-literal-hono", "csharp-literal-hono"] as const) {

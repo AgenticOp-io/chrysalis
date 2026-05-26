@@ -119,6 +119,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G60 — Middleware + CWL → Next.js gold** — **`js-middleware-nextjs`**, **`python-middleware-nextjs`**, **`cwl-gold-nextjs`** structural + trace replay. (**DESIGN D365**)
 - [x] **G61 — Python → Next.js lift gold** — **`python-literal-nextjs`** on **`hub-gold-python-literal`**. (**DESIGN D366**)
 - [x] **G62 — Contract-first trace replay** — OpenAPI route probes for **`contract-first-hono`** / **`contract-first-nextjs`**; **`listOpenApiFixtureRoutes`**. **`hub-completion`** schema **v19**. (**DESIGN D367**)
+- [x] **G63 — Pattern-lift origins → Next.js gold** — **`ruby/java/go/csharp/kotlin/scala/swift/rust-literal-nextjs`** structural + trace replay (completes framework Next.js coverage for pattern-lift origins). (**DESIGN D368**)
+- [x] **G64 — CWL ↔ Next.js parity** — Vitest **`hub-cwl-nextjs-parity`** (route-count parity vs hono/fastify; round-trip + nextjs on same fixture). (**DESIGN D369**)
+- [x] **G65 — Hub multi-lane nikic parity** — **`hub-multi-lane-smoke`** runs **`packages/parser-bridge/tests/nikic.test.ts`** when **`php`** + **`vendor/`** present; schema **v1** artifact fields. **`hub-completion`** schema **v20**. (**DESIGN D370**)
 
 ---
 

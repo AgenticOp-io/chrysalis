@@ -126,7 +126,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 19,
+    schemaVersion: 20,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -158,6 +158,26 @@ async function main() {
         "cwl-gold-nextjs",
         "python-literal-nextjs",
         "contract-first-nextjs",
+        "ruby-literal-nextjs",
+        "java-literal-nextjs",
+        "go-literal-nextjs",
+        "csharp-literal-nextjs",
+        "kotlin-literal-nextjs",
+        "scala-literal-nextjs",
+        "swift-literal-nextjs",
+        "rust-literal-nextjs",
+      ],
+    },
+    crossFrameworkNextjsGold: {
+      suiteIds: [
+        "ruby-literal-nextjs",
+        "java-literal-nextjs",
+        "go-literal-nextjs",
+        "csharp-literal-nextjs",
+        "kotlin-literal-nextjs",
+        "scala-literal-nextjs",
+        "swift-literal-nextjs",
+        "rust-literal-nextjs",
       ],
     },
     middlewareNextjsGold: {
@@ -262,6 +282,8 @@ async function main() {
       ok: multiLaneOk,
       oracleRedactor: multiLane.parsed.oracleRedactor === true,
       parserBridgeVendor: multiLane.parsed.parserBridgeVendor === true,
+      parserNikicParity: multiLane.parsed.parserNikicParity === true,
+      parserNikicSkipped: multiLane.parsed.parserNikicSkipped ?? null,
       phpAvailable: multiLane.parsed.phpAvailable === true,
     },
     routeGrades,

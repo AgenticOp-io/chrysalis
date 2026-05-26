@@ -2332,6 +2332,12 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-26 — D358** **Cross-framework CWL gold (G53).** Add **`java/go/csharp/ruby → cwl`** structural suites on existing literal fixtures so CWL emit stays hole-free beyond JS/TS/Python and middleware. **`hub-completion`** schema **v14**. **DESIGN §3** unchanged.
 
+- **2026-05-26 — D370** **Hub multi-lane nikic parity (G65).** **`hub-multi-lane-smoke`** schema **v1** runs Vitest **`nikic.test.ts`** when parser-bridge **`vendor/`** and **`php`** are available; records **`parserNikicParity`** in **`hub-completion`** schema **v20**. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D369** **CWL ↔ Next.js parity (G64).** Vitest **`hub-cwl-nextjs-parity`** asserts **`cwl-gold-nextjs`** handler count matches lifted route count alongside hono/fastify gold. **DESIGN §3** unchanged.
+
+- **2026-05-26 — D368** **Pattern-lift → Next.js gold (G63).** **`ruby/java/go/csharp/kotlin/scala/swift/rust → nextjs`** literal structural + trace suites; completes pattern-lift origin Next.js CI depth. **DESIGN §3** unchanged.
+
 - **2026-05-26 — D367** **Contract-first trace replay (G62).** **`listOpenApiFixtureRoutes`** drives replay probes for **`fixtures/hub-contract-first`**; **`hub-gold-trace-replay`** runs WPTP compose before replay for **`wptpCompose`** suites. **`hub-completion`** schema **v19**. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D366** **Python → Next.js hub gold (G61).** **`python-literal-nextjs`** structural + trace on **`hub-gold-python-literal`**. **DESIGN §3** unchanged.

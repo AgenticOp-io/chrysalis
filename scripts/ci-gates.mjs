@@ -730,9 +730,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 16 &&
     s.schemaVersion !== 17 &&
     s.schemaVersion !== 18 &&
-    s.schemaVersion !== 19
+    s.schemaVersion !== 19 &&
+    s.schemaVersion !== 20
   ) {
-    fail(`${label}: expected schemaVersion 0–19, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–20, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -899,6 +900,26 @@ function assertHubCompletion(path) {
     const wptpTr = s.wptpContractGold?.traceReplaySuiteIds ?? [];
     if (!wptpTr.includes("contract-first-nextjs")) {
       fail(`${label}: wptpContractGold.traceReplaySuiteIds must list contract-first-nextjs for schema v19`);
+    }
+  }
+  if (s.schemaVersion >= 20) {
+    const xf = s.crossFrameworkNextjsGold?.suiteIds ?? [];
+    for (const id of [
+      "ruby-literal-nextjs",
+      "java-literal-nextjs",
+      "go-literal-nextjs",
+      "csharp-literal-nextjs",
+      "kotlin-literal-nextjs",
+      "scala-literal-nextjs",
+      "swift-literal-nextjs",
+      "rust-literal-nextjs",
+    ]) {
+      if (!xf.includes(id)) {
+        fail(`${label}: crossFrameworkNextjsGold must list ${id} for schema v20`);
+      }
+    }
+    if (s.multiLaneSmoke?.parserBridgeVendor !== true) {
+      fail(`${label}: multiLaneSmoke.parserBridgeVendor must be true for schema v20`);
     }
   }
   const g = s.routeGrades;

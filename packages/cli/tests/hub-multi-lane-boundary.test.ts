@@ -22,6 +22,9 @@ test("hub multi-lane smoke: parser vendor + oracle redactor when php available (
   expect(j.parserBridgeVendor).toBe(true);
   if (j.phpAvailable) {
     expect(j.oracleRedactor).toBe(true);
+    if (j.parserNikicSkipped == null) {
+      expect(j.parserNikicParity).toBe(true);
+    }
     expect(j.ok).toBe(true);
     expect(r.status).toBe(0);
   }
