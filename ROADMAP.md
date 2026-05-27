@@ -140,6 +140,10 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G81 — CWL path/query → Next.js gold** — **`cwl-path-params-nextjs`**, **`cwl-query-params-nextjs`**. (**DESIGN D386**)
 - [x] **G82 — Origin database detection** — **`hub-detect-databases.mjs`** maps scan **`services`** to catalog ids; **`GET /api/hub/detect-databases`**. (**DESIGN D387**)
 - [x] **G83 — Migration planner + scan integration** — migration plan accepts site **`services`**; operator auto-fills databases from last scan. (**DESIGN D388**)
+- [x] **G84 — CWL RFC-0004 headers/cookies** — **`header`** / **`cookie`** bindings + **`cwl-request-context-*`** gold. (**DESIGN D389**)
+- [x] **G85 — PHP oracle Next.js emit smoke** — **`hub-php-oracle-smoke`** v4 optional **`emitNextjsOk`** when **`wptp-emit-nextjs`** present. (**DESIGN D390**)
+- [x] **G86 — Console migration plan panel** — per-project plan with aggregated site database detection. (**DESIGN D391**)
+- [x] **G87 — CI knowledge exports** — **`ci:hub-knowledge`** gates **`hub-path-knowledge.json`** + **`hub-web-databases.json`**. (**DESIGN D392**)
 
 ---
 

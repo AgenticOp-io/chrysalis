@@ -56,6 +56,30 @@ function lowerObjectEntriesBody(ctx, entries, loc) {
       );
       continue;
     }
+    if (value.kind === "headerParam" && value.name) {
+      flat.push(
+        data.requestField({
+          source: "header",
+          name: value.name,
+          type: HUB_T.string,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:header")],
+        }),
+      );
+      continue;
+    }
+    if (value.kind === "cookieParam" && value.name) {
+      flat.push(
+        data.requestField({
+          source: "cookie",
+          name: value.name,
+          type: HUB_T.string,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:cookie")],
+        }),
+      );
+      continue;
+    }
     const val = value.value;
     const t =
       typeof val === "string"

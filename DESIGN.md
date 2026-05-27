@@ -2354,6 +2354,14 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-26 — D388** **Migration planner scan wiring (G83).** Operator + **`/api/hub/migration-plan`** accept detected databases from scan **`services`**.
 
+- **2026-05-26 — D389** **CWL request context (G84).** **`header`** / **`cookie`** bindings lower to **`requestField`**.
+
+- **2026-05-26 — D390** **PHP oracle Next.js smoke (G85).** **`hub-php-oracle-smoke`** v4 emits Next.js via WebIR bundle when **`wptp-emit-nextjs`** is available.
+
+- **2026-05-26 — D391** **Console migration plan (G86).** Operator Console shows project migration steps with aggregated database detection.
+
+- **2026-05-26 — D392** **CI knowledge exports (G87).** **`ci:hub-knowledge`** persists and gates path knowledge + web database catalog JSON.
+
 - **2026-05-26 — D372** **Vue SFC script AST lift (G67).** **`hub-lift-dispatch`** extracts **`<script>`** from **`.vue`** and lowers via **`javascript-ast-ingest`** before pattern-lift holes. Enables **`hub-gold-vue-literal`** structural gold. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D371** **Asset + Vue framework/Next.js gold (G66).** **`sql/html/json → hono/fastify/nextjs`** on **`hub-pattern-lift`** asset trees; **`vue-literal-*`** on **`hub-gold-vue-literal`**. **DESIGN §3** unchanged.

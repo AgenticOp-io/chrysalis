@@ -65,6 +65,20 @@ handler search {
 }
 ```
 
+### Headers and cookies
+
+See **`docs/CWL-RFC-0004-request-context.md`**.
+
+```cwl
+@route GET "/auth"
+handler auth_check {
+  effects: none;
+  header Authorization;
+  cookie session_id;
+  return { auth: Authorization, sid: session_id };
+}
+```
+
 ---
 
 ## Route declaration

@@ -13,6 +13,8 @@ const HOLE_RE = /^hole\s+([a-zA-Z0-9_:.-]+)(?:\s+"([^"]*)")?\s*;/;
 const USE_PRESET_RE = /^use\s+(json|urlencoded)\s*;$/i;
 const PARAM_RE = /^param\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 const QUERY_RE = /^query\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const HEADER_RE = /^header\s+([A-Za-z][A-Za-z0-9_-]*)\s*;$/;
+const COOKIE_RE = /^cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 
 /**
  * @param {string} expr
@@ -39,14 +41,21 @@ export function parseCwlLiteral(expr) {
 
 /**
  * @param {string} expr
- * @param {{ path?: string[], query?: string[] }} bindings
+ * @param {{ path?: string[], query?: string[], header?: string[], cookie?: string[] }} bindings
  */
 export function parseCwlReturnValue(expr, bindings = {}) {
   const pathBindings = bindings.path ?? (Array.isArray(bindings) ? bindings : []);
   const queryBindings = bindings.query ?? [];
+  const headerBindings = bindings.header ?? [];
+  const cookieBindings = bindings.cookie ?? [];
   const t = expr.trim();
   if (t.startsWith("{") && t.endsWith("}")) {
-    const entries = parseCwlObjectEntries(t, { path: pathBindings, query: queryBindings });
+    const entries = parseCwlObjectEntries(t, {
+      path: pathBindings,
+      query: queryBindings,
+      header: headerBindings,
+      cookie: cookieBindings,
+    });
     if (!entries.ok) return { ok: false, error: entries.error };
     return { ok: true, body: { kind: "object", entries: entries.entries } };
   }
@@ -57,7 +66,7 @@ export function parseCwlReturnValue(expr, bindings = {}) {
 
 /**
  * @param {string} objectExpr
- * @param {{ path: string[], query: string[] }} bindings
+ * @param {{ path: string[], query: string[], header: string[], cookie: string[] }} bindings
  */
 function parseCwlObjectEntries(objectExpr, bindings) {
   const inner = objectExpr.slice(1, -1).trim();
@@ -72,6 +81,14 @@ function parseCwlObjectEntries(objectExpr, bindings) {
     const lit = parseCwlLiteral(rawVal);
     if (lit.ok) {
       entries.push({ key, value: { kind: "literal", value: lit.value } });
+      continue;
+    }
+    if (bindings.header.includes(rawVal)) {
+      entries.push({ key, value: { kind: "headerParam", name: rawVal } });
+      continue;
+    }
+    if (bindings.cookie.includes(rawVal)) {
+      entries.push({ key, value: { kind: "cookieParam", name: rawVal } });
       continue;
     }
     if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(rawVal)) {
@@ -108,7 +125,7 @@ export function parseCwlModule(source, file) {
   let moduleName = "main";
   /** @type {Array<"express.json"|"express.urlencoded">} */
   const moduleUses = [];
-  /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], body: { kind: string, value?: unknown, entries?: Array<{ key: string, value: { kind: string, value?: unknown, name?: string } }>, reason?: string } }>} */
+  /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], body: object }>} */
   const routes = [];
   let i = 0;
   while (i < lines.length) {
@@ -139,6 +156,8 @@ export function parseCwlModule(source, file) {
     const effects = [];
     const handlerPathParams = [];
     const handlerQueryParams = [];
+    const handlerHeaders = [];
+    const handlerCookies = [];
     let body = { kind: "hole", reason: "cwl:empty-handler" };
     while (i < lines.length) {
       const inner = lines[i].trim();
@@ -155,6 +174,16 @@ export function parseCwlModule(source, file) {
         if (!handlerQueryParams.includes(qm[1])) handlerQueryParams.push(qm[1]);
         continue;
       }
+      const hmHeader = HEADER_RE.exec(inner);
+      if (hmHeader) {
+        if (!handlerHeaders.includes(hmHeader[1])) handlerHeaders.push(hmHeader[1]);
+        continue;
+      }
+      const cm = COOKIE_RE.exec(inner);
+      if (cm) {
+        if (!handlerCookies.includes(cm[1])) handlerCookies.push(cm[1]);
+        continue;
+      }
       const em = EFFECTS_RE.exec(inner);
       if (em) {
         effects.push(...parseEffects(em[1]));
@@ -165,6 +194,8 @@ export function parseCwlModule(source, file) {
         const parsed = parseCwlReturnValue(ret[1], {
           path: handlerPathParams,
           query: handlerQueryParams,
+          header: handlerHeaders,
+          cookie: handlerCookies,
         });
         if (parsed.ok) {
           body = parsed.body;
@@ -195,6 +226,8 @@ export function parseCwlModule(source, file) {
       effects,
       handlerPathParams,
       handlerQueryParams,
+      handlerHeaders,
+      handlerCookies,
       body,
     });
   }

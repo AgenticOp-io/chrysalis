@@ -735,9 +735,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 22 &&
     s.schemaVersion !== 23 &&
     s.schemaVersion !== 24 &&
-    s.schemaVersion !== 25
+    s.schemaVersion !== 25 &&
+    s.schemaVersion !== 26
   ) {
-    fail(`${label}: expected schemaVersion 0–25, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–26, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1003,11 +1004,66 @@ function assertHubCompletion(path) {
       fail(`${label}: databaseDetectApi must be set for schema v25`);
     }
   }
+  if (s.schemaVersion >= 26) {
+    const ctx = s.cwlRequestContextGold?.suiteIds ?? [];
+    for (const id of ["cwl-request-context-hono", "cwl-request-context-fastify", "cwl-request-context-nextjs"]) {
+      if (!ctx.includes(id)) {
+        fail(`${label}: cwlRequestContextGold must list ${id} for schema v26`);
+      }
+    }
+    if (s.phpOracleSmoke?.wptpEmitNextjsAvailable === true && s.phpOracleSmoke?.emitNextjsOk !== true) {
+      fail(`${label}: phpOracleSmoke.emitNextjsOk must be true when wptp-emit-nextjs is available`);
+    }
+    if (!s.knowledgeExport?.pathKnowledge || !s.knowledgeExport?.webDatabases) {
+      fail(`${label}: knowledgeExport paths must be set for schema v26`);
+    }
+  }
   const g = s.routeGrades;
   if (!g || typeof g.gold !== "number" || typeof g.silver !== "number" || typeof g.open !== "number") {
     fail(`${label}: missing routeGrades counts`);
   }
   console.log(`${label} OK: gold=${g.gold} silver=${g.silver} open=${g.open} matrixPassed=${s.matrixSmoke?.passed}`);
+}
+
+/** @param {string} path */
+function assertHubPathKnowledge(path) {
+  const label = "hub-path-knowledge";
+  const s = readJsonGateArtifact(label, path, {
+    missingLabel: "report file missing",
+    missingHint: ["Run: pnpm run hub:path-knowledge"],
+  });
+  if (s.kind !== "chrysalis.translation-hub.path-knowledge") {
+    fail(`${label}: kind must be chrysalis.translation-hub.path-knowledge`);
+  }
+  if (s.schemaVersion !== 3) {
+    fail(`${label}: schemaVersion must be 3`);
+  }
+  if ((s.pairCount ?? 0) < 575) {
+    fail(`${label}: pairCount must be >= 575`);
+  }
+  if ((s.webDatabaseCatalog?.count ?? 0) < 20) {
+    fail(`${label}: webDatabaseCatalog.count must be >= 20`);
+  }
+  console.log(`${label} OK: pairs=${s.pairCount} databases=${s.webDatabaseCatalog?.count ?? 0}`);
+}
+
+/** @param {string} path */
+function assertHubWebDatabases(path) {
+  const label = "hub-web-databases";
+  const s = readJsonGateArtifact(label, path, {
+    missingLabel: "report file missing",
+    missingHint: ["Run: pnpm run hub:web-databases"],
+  });
+  if (s.kind !== "chrysalis.hub.web-databases") {
+    fail(`${label}: kind must be chrysalis.hub.web-databases`);
+  }
+  if ((s.count ?? 0) < 20) {
+    fail(`${label}: count must be >= 20`);
+  }
+  if ((s.tier1Count ?? 0) < 10) {
+    fail(`${label}: tier1Count must be >= 10`);
+  }
+  console.log(`${label} OK: count=${s.count} tier1=${s.tier1Count}`);
 }
 
 function parseOptionalEnvNumber(raw, label) {
@@ -1315,10 +1371,16 @@ switch (cmd) {
   case "hub-completion":
     assertHubCompletion(arg0 ?? "reports/ci/hub-completion.json");
     break;
+  case "hub-path-knowledge":
+    assertHubPathKnowledge(arg0 ?? "reports/ci/hub-path-knowledge.json");
+    break;
+  case "hub-web-databases":
+    assertHubWebDatabases(arg0 ?? "reports/ci/hub-web-databases.json");
+    break;
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|hub-completion|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|session-bridge-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|hub-completion|hub-path-knowledge|hub-web-databases|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|session-bridge-release> [path]",
     );
     process.exit(1);
 }

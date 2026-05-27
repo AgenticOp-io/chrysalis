@@ -133,7 +133,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 25,
+    schemaVersion: 26,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -165,6 +165,7 @@ async function main() {
         "cwl-gold-nextjs",
         "cwl-path-params-nextjs",
         "cwl-query-params-nextjs",
+        "cwl-request-context-nextjs",
         "python-literal-nextjs",
         "contract-first-nextjs",
         "ruby-literal-nextjs",
@@ -203,7 +204,12 @@ async function main() {
       suiteIds: ["js-middleware-nextjs", "python-middleware-nextjs"],
     },
     cwlNextjsGold: {
-      suiteIds: ["cwl-gold-nextjs", "cwl-path-params-nextjs", "cwl-query-params-nextjs"],
+      suiteIds: [
+        "cwl-gold-nextjs",
+        "cwl-path-params-nextjs",
+        "cwl-query-params-nextjs",
+        "cwl-request-context-nextjs",
+      ],
     },
     pythonNextjsGold: {
       suiteIds: ["python-literal-nextjs", "python-middleware-nextjs"],
@@ -270,6 +276,10 @@ async function main() {
     cwlQueryParamsGold: {
       suiteIds: ["cwl-query-params-hono", "cwl-query-params-fastify", "cwl-query-params-nextjs"],
       rfc: "CWL-RFC-0003",
+    },
+    cwlRequestContextGold: {
+      suiteIds: ["cwl-request-context-hono", "cwl-request-context-fastify", "cwl-request-context-nextjs"],
+      rfc: "CWL-RFC-0004",
     },
     crossFrameworkCwlGold: {
       suiteIds: [
@@ -343,6 +353,9 @@ async function main() {
       ingestOk: phpOracle.parsed.ingestOk === true,
       emitHonoOk: phpOracle.parsed.emitHonoOk === true,
       emitFastifyOk: phpOracle.parsed.emitFastifyOk === true,
+      emitNextjsOk: phpOracle.parsed.emitNextjsOk === true,
+      nextjsSkipped: phpOracle.parsed.nextjsSkipped ?? null,
+      wptpEmitNextjsAvailable: phpOracle.parsed.wptpEmitNextjsAvailable === true,
       emit: phpOracle.parsed.emit ?? {},
       verifyOk: phpOracle.parsed.verifyOk === true,
       routeCount: phpOracle.parsed.routeCount ?? null,
@@ -361,6 +374,11 @@ async function main() {
     languageCompareApi: "/api/hub/language-compare",
     migrationPlannerApi: "/api/hub/migration-plan",
     databaseDetectApi: "/api/hub/detect-databases",
+    knowledgeExport: {
+      pathKnowledge: "reports/ci/hub-path-knowledge.json",
+      webDatabases: "reports/ci/hub-web-databases.json",
+      script: "pnpm run ci:hub-knowledge",
+    },
     routeGrades,
     generatedAt: new Date().toISOString(),
   };

@@ -44,6 +44,17 @@ test("cwl parser: query params (RFC-0003 / G80)", async () => {
   expect(search?.handlerQueryParams).toEqual(["q"]);
 });
 
+test("cwl parser: header and cookie bindings (RFC-0004 / G84)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-request-context/routes.cwl");
+  const src = await readFile(FIX, "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  const auth = mod.routes.find((r) => r.path === "/auth");
+  expect(auth?.handlerHeaders).toEqual(["Authorization"]);
+  expect(auth?.handlerCookies).toEqual(["session_id"]);
+});
+
 test("cwl parser: module use json/urlencoded (RFC-0001 / G74)", async () => {
   const { parseCwlModule } = await import(PARSER);
   const src = `module api;
@@ -191,6 +202,15 @@ test("hub gold verify: cwl path params hono and fastify (G79)", () => {
 
 test("hub gold verify: cwl query params hono (G80)", () => {
   const r = spawnSync(process.execPath, [GOLD, "--suite", "cwl-query-params-hono"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  expect(r.status).toBe(0);
+}, 130_000);
+
+test("hub gold verify: cwl request context hono (G84)", () => {
+  const r = spawnSync(process.execPath, [GOLD, "--suite", "cwl-request-context-hono"], {
     cwd: ROOT,
     encoding: "utf8",
     timeout: 120_000,

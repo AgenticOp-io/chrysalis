@@ -1027,6 +1027,56 @@
       <h4 style="margin:0.5rem 0 0.25rem">Commands</h4><ul style="padding-left:1.2rem">${cmds}</ul>`;
   }
 
+  async function loadConsoleMigrationPlan() {
+    const summary = $("consoleMigrationSummary");
+    const stepsEl = $("consoleMigrationSteps");
+    if (!consoleProject) {
+      if (summary) summary.textContent = "No project loaded.";
+      return;
+    }
+    const origin = consoleProject.originLanguage || "php";
+    const output = consoleProject.outputLanguage || "typescript";
+    const detected = new Set();
+    for (const site of consoleProject.sites || []) {
+      const services = site.detection?.services;
+      if (!services) continue;
+      try {
+        const data = await api(
+          `/api/hub/detect-databases?services=${encodeURIComponent(JSON.stringify(services))}`,
+        );
+        for (const id of data.detectedIds ?? []) detected.add(id);
+      } catch {
+        /* ignore per-site detect errors */
+      }
+    }
+    const params = new URLSearchParams({ origin, outputs: output });
+    if (detected.size) params.set("databases", [...detected].join(","));
+    const mergedServices = {};
+    for (const site of consoleProject.sites || []) {
+      Object.assign(mergedServices, site.detection?.services ?? {});
+    }
+    if (Object.keys(mergedServices).length) {
+      params.set("services", JSON.stringify(mergedServices));
+    }
+    if (summary) summary.textContent = "Loading migration plan…";
+    if (stepsEl) stepsEl.innerHTML = "";
+    try {
+      const plan = await api(`/api/hub/migration-plan?${params.toString()}`);
+      if (summary) {
+        const db =
+          plan.databases?.detected?.length > 0
+            ? plan.databases.detected.map((d) => d.id).join(", ")
+            : "none detected";
+        summary.textContent = `${origin} → ${output}: recommended ${plan.recommendedOutput ?? "?"} · risk ${plan.pairSummary?.riskLevel ?? "?"} · databases: ${db}`;
+      }
+      if (stepsEl && Array.isArray(plan.steps)) {
+        stepsEl.innerHTML = plan.steps.map((s) => `<li>${s}</li>`).join("");
+      }
+    } catch (e) {
+      if (summary) summary.textContent = "Migration plan error: " + e.message;
+    }
+  }
+
   async function loadRoutePlan(projectId) {
     const sum = $("routePlanSummary");
     const ul = $("routePlanList");
@@ -1175,6 +1225,7 @@
     const first = p.sites?.find((s) => s.id === selectedSiteId);
     bindSiteToForm(first, p.siteMeta?.[selectedSiteId]);
     void loadRoutePlan(id);
+    void loadConsoleMigrationPlan();
     try {
       const bp = await api(`/api/hub/projects/${encodeURIComponent(id)}/batch-progress`);
       applyBatchProgress(bp);
@@ -1458,6 +1509,10 @@
     });
     $("siteActionStatus").textContent = "Site setup started — see job log.";
   }
+
+  $("btnLoadConsoleMigrationPlan")?.addEventListener("click", () => {
+    loadConsoleMigrationPlan().catch(() => {});
+  });
 
   $("btnRunPipeline")?.addEventListener("click", async () => {
     $("log").textContent = "";
