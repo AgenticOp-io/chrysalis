@@ -24,6 +24,21 @@ module my_app;
 
 Declares the module name stored in WebIR provenance.
 
+### Module middleware (`use` presets)
+
+See **`docs/CWL-RFC-0001-module-use-middleware.md`**.
+
+```cwl
+module api;
+use json;
+use urlencoded;
+```
+
+| Directive | WebIR preset |
+| --- | --- |
+| `use json;` | `express.json` body parser |
+| `use urlencoded;` | `express.urlencoded` form parser |
+
 ---
 
 ## Route declaration

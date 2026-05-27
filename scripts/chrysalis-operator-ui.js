@@ -331,7 +331,39 @@
       ) === true
         ? " · extended asset CI section"
         : "";
-    el.textContent = `CI gold suites (${coverage.suiteCount}): ${coverage.suiteIds.join(", ")}${trace}${roundTrip}${tier}${extended}`;
+    const pros =
+      coverage.pros?.length > 0
+        ? ` · pros: ${coverage.pros.slice(0, 2).map((p) => p.id).join(", ")}`
+        : "";
+    const cons =
+      coverage.cons?.length > 0
+        ? ` · cons: ${coverage.cons.slice(0, 2).map((c) => c.id).join(", ")}`
+        : "";
+    const risk = coverage.riskLevel ? ` · risk ${coverage.riskLevel}` : "";
+    el.textContent = `CI gold suites (${coverage.suiteCount}): ${coverage.suiteIds.join(", ")}${trace}${roundTrip}${tier}${extended}${risk}${pros}${cons}`;
+  }
+
+  async function loadLanguageCompare() {
+    const origin = $("pathOrigin")?.value;
+    const output = $("pathOutput")?.value;
+    const el = $("pathCompareSummary");
+    if (!origin || !output || !el) return;
+    const peers = ["hono", "fastify", "nextjs", "typescript", "java", "go", "python"].filter(
+      (o) => o !== origin && o !== output,
+    );
+    const outputs = [output, ...peers.slice(0, 4)];
+    try {
+      const data = await api(
+        `/api/hub/language-compare?origin=${encodeURIComponent(origin)}&outputs=${encodeURIComponent(outputs.join(","))}`,
+      );
+      const lines = data.candidates
+        .slice(0, 5)
+        .map((c) => `${c.output}: risk ${c.riskLevel}, idiom ${c.idiomLoss}`)
+        .join(" · ");
+      el.textContent = `Compare (${origin}): recommended ${data.recommended ?? "?"} — ${lines}`;
+    } catch (e) {
+      el.textContent = "Compare error: " + e.message;
+    }
   }
 
   async function loadPathPair() {
@@ -343,13 +375,16 @@
     if (summary) summary.textContent = "Loading…";
     if ($("pathGoldCoverage")) $("pathGoldCoverage").textContent = "";
     try {
-      const [data, gold, completionHints] = await Promise.all([
+      const [data, gold, goldCov, completionHints] = await Promise.all([
         api(
           `/api/hub/path-knowledge?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
         ),
         api(
           `/api/hub/gold-suites?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
         ),
+        api(
+          `/api/hub/gold-coverage?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
+        ).catch(() => null),
         api("/api/hub/completion-sections").catch(() => null),
       ]);
       const path = data.path || {};
@@ -359,7 +394,19 @@
         const verifyTier = gold.route?.verifyTier ?? "?";
         summary.textContent = `${origin} → ${output}: grade ${routeGrade} · verifyTier ${verifyTier} · ingest ${path.ingest?.lane ?? "?"} · emit ${path.emit?.lane ?? "?"} · verify ${(path.verify?.lanes || []).join(", ") || "none"}`;
       }
-      renderPathGoldCoverage(gold.pair, gold.route, completionHints);
+      const coverage = {
+        ...data.pair,
+        origin,
+        output,
+        emitTarget: goldCov?.pair?.emitTarget,
+        suiteIds: goldCov?.pair?.suiteIds ?? [],
+        suiteCount: goldCov?.pair?.suiteCount ?? 0,
+        traceReplaySuiteIds: goldCov?.pair?.traceReplaySuiteIds ?? [],
+        coverageGap: goldCov?.pair?.coverageGap,
+        chrysalisCiGold: goldCov?.pair?.chrysalisCiGold,
+      };
+      renderPathGoldCoverage(coverage, gold.route, completionHints);
+      loadLanguageCompare().catch(() => {});
       renderPathLists({
         similarities: data.pair?.similarities,
         differences: data.pair?.differences,

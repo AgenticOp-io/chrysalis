@@ -79,6 +79,7 @@
     "hub:completion": "node scripts/hub-ingest/hub-completion.mjs",
     "hub:path-matrix": "node scripts/hub-ingest/hub-path-matrix.mjs",
     "hub:path-knowledge": "node scripts/hub-ingest/hub-path-knowledge-cli.mjs --json-out reports/ci/hub-path-knowledge.json",
+    "hub:language-compare": "node scripts/hub-ingest/hub-language-compare.mjs",
     "hub:cross-language-synthesis": "node scripts/hub-ingest/hub-cross-language-synthesis.mjs --json-out reports/ci/hub-cross-language-synthesis.json",
     "hub:native-emit-smoke": "node scripts/hub-ingest/hub-native-emit-smoke.mjs",
     "hub:oracle-record": "node scripts/hub-ingest/hub-oracle-record.mjs",

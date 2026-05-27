@@ -3,6 +3,7 @@
  */
 import { emitHubRoute, hubHandlerBodyHole, HUB_T, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
 import { parseCwlModule } from "./cwl-parser.mjs";
+import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 
 /**
  * @param {string} language
@@ -69,8 +70,16 @@ export function liftCwlFileToWebir(opts) {
   const data = webir.dataDialect.builders(builder);
   const ctx = { data, webir, file };
   const parsed = parseCwlModule(source, file);
-  if (parsed.routes.length === 0) {
-    return { routeCount: 0, astRouteCount: 0, usedAst: false };
+  const wrBuilders = wr ?? webir.webRequest.builders(builder);
+  let middlewareUseCount = 0;
+  let middlewareRootCount = 0;
+  if (parsed.moduleUses?.length) {
+    const mw = liftCwlModuleMiddlewareToWebir(parsed.moduleUses, { file, builder, wr: wrBuilders, webir });
+    middlewareUseCount = mw.middlewareUseCount;
+    middlewareRootCount = mw.middlewareRootCount;
+  }
+  if (parsed.routes.length === 0 && middlewareUseCount === 0) {
+    return { routeCount: 0, astRouteCount: 0, usedAst: false, middlewareUseCount, middlewareRootCount };
   }
 
   for (const r of parsed.routes) {
@@ -86,7 +95,7 @@ export function liftCwlFileToWebir(opts) {
     emitHubRoute({
       webir,
       builder,
-      wr,
+      wr: wrBuilders,
       language,
       file,
       route: { method: r.method, path: r.path, name: r.name, line: r.line },
@@ -94,5 +103,11 @@ export function liftCwlFileToWebir(opts) {
     });
   }
 
-  return { routeCount: parsed.routes.length, astRouteCount: parsed.routes.length, usedAst: true };
+  return {
+    routeCount: parsed.routes.length,
+    astRouteCount: parsed.routes.length,
+    usedAst: true,
+    middlewareUseCount,
+    middlewareRootCount,
+  };
 }

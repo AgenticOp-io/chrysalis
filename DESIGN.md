@@ -2336,6 +2336,9 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-26 — D374** **Extended asset hub gold (G69).** Remaining scaffold-tier asset origins (**css**, **scss**, **markdown**, **yaml**, **c**, **cpp**) gain **`literal-hono/fastify/nextjs`** structural + trace suites when file-lift is hole-free; **`assetExtended*Gold`** sections in **`hub-completion`** schema **v22**.
 - **2026-05-26 — D375** **PHP oracle ingest smoke (G70).** Hub CI runs **`hub-php-oracle-smoke`** (`chrysalis ingest` on **`fixtures/tiny-blog`**) to prove the **core** PHP lane without duplicating full oracle verify in hub structural gold. Oracle tier stays **4** pairs only.
 - **2026-05-26 — D376** **Operator completion sections (G71).** **`hub-completion-sections.mjs`** is shared by **`hub-completion`** and **`GET /api/hub/completion-sections`** for path-explorer coverage context.
+- **2026-05-26 — D377** **Path knowledge v2 (G72).** Every hub pair exports evidence-backed **`pros`**, **`cons`**, **`riskLevel`**, **`idiomLoss`**, **`verifyExpectation`**, and **`canonicalWebIrPattern`**. **`compareHubLanguages`** + operator **`GET /api/hub/language-compare`** rank candidate outputs for migration planning.
+- **2026-05-26 — D378** **PHP oracle full smoke (G73).** **`hub-php-oracle-smoke`** v2 runs ingest, **hono** emit, and verify correctness gate on **`fixtures/tiny-blog`** — core lane boundary without hub structural PHP gold.
+- **2026-05-26 — D379** **CWL RFC-0001 (G74).** Module-level **`use json`** / **`use urlencoded`** lowers to **`web.request.middleware`** presets (Express/Flask synthesis). **`docs/CWL-RFC.md`** indexes accepted RFCs.
 
 - **2026-05-26 — D372** **Vue SFC script AST lift (G67).** **`hub-lift-dispatch`** extracts **`<script>`** from **`.vue`** and lowers via **`javascript-ast-ingest`** before pattern-lift holes. Enables **`hub-gold-vue-literal`** structural gold. **DESIGN §3** unchanged.
 

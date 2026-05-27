@@ -128,6 +128,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G69 — Extended asset origins → framework/Next.js gold** — **`css/scss/markdown/yaml/c/cpp-literal-*`** on **`fixtures/hub-pattern-lift/*`** (hole-free file-lift). (**DESIGN D374**)
 - [x] **G70 — PHP oracle ingest smoke** — **`hub-php-oracle-smoke`** runs **`chrysalis ingest`** on **`fixtures/tiny-blog`** (core lane boundary, not hub lift); **`phpOracleSmoke`** in **`hub-completion`** schema **v22**. (**DESIGN D375**)
 - [x] **G71 — Operator path explorer completion sections** — **`GET /api/hub/completion-sections`** + path explorer coverage hints for PHP oracle lane and extended asset suites. (**DESIGN D376**)
+- [x] **G72 — Path knowledge v2 + language compare** — **`hub-path-traits.mjs`** (`pros`/`cons`/`riskLevel`/`canonicalWebIrPattern`); **`GET /api/hub/language-compare`**; path knowledge schema **v2**. (**DESIGN D377**)
+- [x] **G73 — PHP oracle emit + verify smoke** — **`hub-php-oracle-smoke`** v2: ingest + **hono** emit + migration-debt verify on **`fixtures/tiny-blog`**; **`hub-completion`** schema **v23**. (**DESIGN D378**)
+- [x] **G74 — CWL RFC-0001 module `use` middleware** — **`use json`/`use urlencoded`**; **`docs/CWL-RFC.md`** index. (**DESIGN D379**)
 
 ---
 

@@ -18,6 +18,21 @@ test("cwl parser: routes and literals", async () => {
   expect(mod.routes.find((r) => r.path === "/meta")?.body.kind).toBe("object");
 });
 
+test("cwl parser: module use json/urlencoded (RFC-0001 / G74)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const src = `module api;
+use json;
+use urlencoded;
+@route GET "/ok"
+handler ok {
+  effects: none;
+  return true;
+}
+`;
+  const mod = parseCwlModule(src, "api.cwl");
+  expect(mod.moduleUses).toEqual(["express.json", "express.urlencoded"]);
+});
+
 test("lift-to-webir cwl is hole-free on gold fixture", () => {
   const r = spawnSync(process.execPath, [LIFT, FIXTURE, "--language", "cwl"], {
     cwd: ROOT,

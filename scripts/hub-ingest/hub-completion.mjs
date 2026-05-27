@@ -131,7 +131,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 22,
+    schemaVersion: 23,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -327,11 +327,19 @@ async function main() {
     assetExtendedFrameworkGold: completionSections.assetExtendedFrameworkGold,
     phpOracleSmoke: {
       ok: phpOracleOk,
+      schemaVersion: phpOracle.parsed.schemaVersion ?? 1,
       ingestOk: phpOracle.parsed.ingestOk === true,
+      emitHonoOk: phpOracle.parsed.emitHonoOk === true,
+      verifyOk: phpOracle.parsed.verifyOk === true,
       routeCount: phpOracle.parsed.routeCount ?? null,
       skipped: phpOracle.parsed.skip ?? null,
       phpAvailable: phpOracle.parsed.phpAvailable === true,
     },
+    pathKnowledgeV2: {
+      schemaVersion: 2,
+      exportScript: "pnpm run hub:path-knowledge",
+    },
+    languageCompareApi: "/api/hub/language-compare",
     routeGrades,
     generatedAt: new Date().toISOString(),
   };

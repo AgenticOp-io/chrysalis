@@ -16,9 +16,10 @@ import {
   describeTranslationPath,
   ingestLaneForOrigin,
 } from "./hub-translation-paths.mjs";
+import { buildPairTraits } from "./hub-path-traits.mjs";
 
 export const HUB_PATH_KNOWLEDGE_KIND = "chrysalis.translation-hub.path-knowledge";
-export const HUB_PATH_KNOWLEDGE_SCHEMA_VERSION = 1;
+export const HUB_PATH_KNOWLEDGE_SCHEMA_VERSION = 2;
 
 /** @typedef {'dynamic'|'static'|'markup'|'data'|'framework-output'} LanguageKind */
 
@@ -508,6 +509,7 @@ function buildPairKnowledge(path, ingestPeerCounts, emitPeerCounts) {
   }
 
   const practiceIds = BEST_PRACTICES.filter((bp) => bestPracticeMatches(bp.appliesTo, path)).map((bp) => bp.id);
+  const traits = buildPairTraits(path, originProfile, outputProfile);
 
   return {
     origin: path.origin,
@@ -524,6 +526,12 @@ function buildPairKnowledge(path, ingestPeerCounts, emitPeerCounts) {
     differences,
     bestPracticeIds: practiceIds,
     promoteToGold: path.promoteToGold,
+    riskLevel: traits.riskLevel,
+    idiomLoss: traits.idiomLoss,
+    verifyExpectation: traits.verifyExpectation,
+    canonicalWebIrPattern: traits.canonicalWebIrPattern,
+    pros: traits.pros,
+    cons: traits.cons,
   };
 }
 

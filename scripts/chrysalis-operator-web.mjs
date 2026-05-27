@@ -23,6 +23,7 @@ import {
   HUB_GOLD_COVERAGE_KIND,
 } from "./hub-ingest/hub-gold-coverage.mjs";
 import { buildHubCompletionSections } from "./hub-ingest/hub-completion-sections.mjs";
+import { compareHubLanguages } from "./hub-ingest/hub-language-compare.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
@@ -839,6 +840,18 @@ const server = createServer(async (req, res) => {
       return;
     }
     sendJson(res, 200, report);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/language-compare") {
+    const origin = url.searchParams.get("origin");
+    const outputsRaw = url.searchParams.get("outputs") ?? url.searchParams.get("output");
+    if (!origin || !outputsRaw) {
+      sendJson(res, 400, { error: "origin and outputs query params required" });
+      return;
+    }
+    const outputs = outputsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+    sendJson(res, 200, compareHubLanguages(origin, outputs));
     return;
   }
 

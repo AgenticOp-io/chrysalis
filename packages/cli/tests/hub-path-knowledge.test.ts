@@ -20,12 +20,18 @@ test("path knowledge: full grid 575 pairs with similarities and practices", asyn
   expect(db.bestPractices.length).toBeGreaterThanOrEqual(8);
   expect(Object.keys(db.languages).length).toBeGreaterThanOrEqual(22);
 
+  expect(db.schemaVersion).toBe(2);
+
   for (const pair of db.pairs) {
     expect(pair.similarities.length).toBeGreaterThanOrEqual(2);
     expect(pair.differences.length).toBeGreaterThanOrEqual(2);
     expect(pair.bestPracticeIds.length).toBeGreaterThanOrEqual(2);
     expect(pair.bestPracticeIds).toContain("bp-webir-spine");
     expect(pair.bestPracticeIds).toContain("bp-holes-not-guesses");
+    expect(pair.pros.length).toBeGreaterThanOrEqual(1);
+    expect(pair.cons.length).toBeGreaterThanOrEqual(1);
+    expect(["low", "medium", "high"]).toContain(pair.riskLevel);
+    expect(pair.canonicalWebIrPattern).toMatch(/^web\.request|^cwl:/);
   }
 });
 

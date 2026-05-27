@@ -9,6 +9,7 @@ const HANDLER_RE = /^handler\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
 const EFFECTS_RE = /^effects:\s*(.+);/;
 const RETURN_RE = /^return\s+(.+);/;
 const HOLE_RE = /^hole\s+([a-zA-Z0-9_:.-]+)(?:\s+"([^"]*)")?\s*;/;
+const USE_PRESET_RE = /^use\s+(json|urlencoded)\s*;$/i;
 
 /**
  * @param {string} expr
@@ -49,6 +50,8 @@ function parseEffects(effectsRaw) {
 export function parseCwlModule(source, file) {
   const lines = source.split(/\r?\n/);
   let moduleName = "main";
+  /** @type {Array<"express.json"|"express.urlencoded">} */
+  const moduleUses = [];
   /** @type {Array<{ method: string, path: string, name: string, line: number, effects: string[], body: { kind: string, value?: unknown, reason?: string } }>} */
   const routes = [];
   let i = 0;
@@ -60,6 +63,11 @@ export function parseCwlModule(source, file) {
     const mod = MODULE_RE.exec(line);
     if (mod) {
       moduleName = mod[1];
+      continue;
+    }
+    const useM = USE_PRESET_RE.exec(line);
+    if (useM) {
+      moduleUses.push(useM[1].toLowerCase() === "json" ? "express.json" : "express.urlencoded");
       continue;
     }
     const rm = ROUTE_RE.exec(line);
@@ -106,5 +114,5 @@ export function parseCwlModule(source, file) {
     }
     routes.push({ method, path, name, line: lineNo, effects, body });
   }
-  return { moduleName, file, routes };
+  return { moduleName, file, routes, moduleUses };
 }
