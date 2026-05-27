@@ -732,9 +732,9 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 18 &&
     s.schemaVersion !== 19 &&
     s.schemaVersion !== 20 &&
-    s.schemaVersion !== 21
+    s.schemaVersion !== 22
   ) {
-    fail(`${label}: expected schemaVersion 0–21, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–22, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -932,6 +932,24 @@ function assertHubCompletion(path) {
     }
     if (s.multiLaneSmoke?.migrationDebtOk !== true) {
       fail(`${label}: multiLaneSmoke.migrationDebtOk must be true for schema v21`);
+    }
+  }
+  if (s.schemaVersion >= 22) {
+    const ext = s.assetExtendedNextjsGold?.suiteIds ?? [];
+    for (const id of [
+      "css-literal-nextjs",
+      "scss-literal-nextjs",
+      "markdown-literal-nextjs",
+      "yaml-literal-nextjs",
+      "c-literal-nextjs",
+      "cpp-literal-nextjs",
+    ]) {
+      if (!ext.includes(id)) {
+        fail(`${label}: assetExtendedNextjsGold must list ${id} for schema v22`);
+      }
+    }
+    if (s.phpOracleSmoke?.ok !== true && s.phpOracleSmoke?.skipped == null) {
+      fail(`${label}: phpOracleSmoke.ok must be true (or skipped) for schema v22`);
     }
   }
   const g = s.routeGrades;

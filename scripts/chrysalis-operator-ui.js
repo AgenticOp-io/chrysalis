@@ -299,7 +299,7 @@
     }
   }
 
-  function renderPathGoldCoverage(coverage) {
+  function renderPathGoldCoverage(coverage, route, completionHints) {
     const el = $("pathGoldCoverage");
     if (!el) return;
     if (coverage?.coverageGap) {
@@ -308,9 +308,13 @@
       return;
     }
     if (coverage?.chrysalisCiGold) {
-      el.textContent = "CI: Chrysalis ingest + emit (PHP oracle path); hub structural suites not required.";
+      const lane = completionHints?.phpOracleLane
+        ? ` · ${completionHints.phpOracleLane.fixture} (${completionHints.phpOracleLane.completionField} in hub-completion)`
+        : "";
+      el.textContent = `CI: Chrysalis ingest + emit (PHP oracle path); hub structural suites not required.${lane}`;
       return;
     }
+    const tier = route?.verifyTier ? ` · verifyTier ${route.verifyTier}` : "";
     if (!coverage?.suiteCount) {
       el.textContent = "CI gold suites: none for this emit target (matrix grade may still be gold via another lane).";
       return;
@@ -321,7 +325,13 @@
     const roundTrip = coverage.roundTripSuiteIds?.length
       ? ` · round-trip: ${coverage.roundTripSuiteIds.join(", ")}`
       : "";
-    el.textContent = `CI gold suites (${coverage.suiteCount}): ${coverage.suiteIds.join(", ")}${trace}${roundTrip}`;
+    const extended =
+      completionHints?.assetExtendedNextjsGold?.suiteIds?.includes(
+        `${coverage.origin}-literal-${coverage.emitTarget ?? ""}`,
+      ) === true
+        ? " · extended asset CI section"
+        : "";
+    el.textContent = `CI gold suites (${coverage.suiteCount}): ${coverage.suiteIds.join(", ")}${trace}${roundTrip}${tier}${extended}`;
   }
 
   async function loadPathPair() {
@@ -333,13 +343,14 @@
     if (summary) summary.textContent = "Loading…";
     if ($("pathGoldCoverage")) $("pathGoldCoverage").textContent = "";
     try {
-      const [data, gold] = await Promise.all([
+      const [data, gold, completionHints] = await Promise.all([
         api(
           `/api/hub/path-knowledge?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
         ),
         api(
           `/api/hub/gold-suites?origin=${encodeURIComponent(origin)}&output=${encodeURIComponent(output)}`,
         ),
+        api("/api/hub/completion-sections").catch(() => null),
       ]);
       const path = data.path || {};
       const grade = data.pair?.grade ?? path.grade ?? "?";
@@ -348,7 +359,7 @@
         const verifyTier = gold.route?.verifyTier ?? "?";
         summary.textContent = `${origin} → ${output}: grade ${routeGrade} · verifyTier ${verifyTier} · ingest ${path.ingest?.lane ?? "?"} · emit ${path.emit?.lane ?? "?"} · verify ${(path.verify?.lanes || []).join(", ") || "none"}`;
       }
-      renderPathGoldCoverage(gold.pair);
+      renderPathGoldCoverage(gold.pair, gold.route, completionHints);
       renderPathLists({
         similarities: data.pair?.similarities,
         differences: data.pair?.differences,

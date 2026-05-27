@@ -9,6 +9,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } from "../chrysalis-hub-store.mjs";
 import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
+import { buildHubCompletionSections } from "./hub-completion-sections.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 import { hubNativeEmitTargetIds } from "./hub-gold-native-emit.mjs";
 import { resolveHubPython } from "./shared.mjs";
@@ -110,6 +111,9 @@ async function main() {
   const goldCoverageOk = goldCoverage.summary.coverageGaps === 0;
   const multiLane = runJson(join(scriptRoot, "scripts/hub-ingest/hub-multi-lane-smoke.mjs"), []);
   const multiLaneOk = multiLane.status === 0 && multiLane.parsed.ok === true;
+  const phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
+  const phpOracleOk = phpOracle.status === 0 && phpOracle.parsed.ok === true;
+  const completionSections = buildHubCompletionSections();
 
   const ok =
     matrix.status === 0 &&
@@ -122,11 +126,12 @@ async function main() {
     (nativeEmit.parsed.failed ?? 1) === 0 &&
     synthesisOk &&
     goldCoverageOk &&
-    multiLaneOk;
+    multiLaneOk &&
+    phpOracleOk;
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 21,
+    schemaVersion: 22,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -170,6 +175,12 @@ async function main() {
       "html-literal-nextjs",
       "json-literal-nextjs",
       "vue-literal-nextjs",
+      "css-literal-nextjs",
+      "scss-literal-nextjs",
+      "markdown-literal-nextjs",
+      "yaml-literal-nextjs",
+      "c-literal-nextjs",
+      "cpp-literal-nextjs",
     ],
   },
   crossFrameworkNextjsGold: {
@@ -311,6 +322,15 @@ async function main() {
         "vue-literal-hono",
         "vue-literal-fastify",
       ],
+    },
+    assetExtendedNextjsGold: completionSections.assetExtendedNextjsGold,
+    assetExtendedFrameworkGold: completionSections.assetExtendedFrameworkGold,
+    phpOracleSmoke: {
+      ok: phpOracleOk,
+      ingestOk: phpOracle.parsed.ingestOk === true,
+      routeCount: phpOracle.parsed.routeCount ?? null,
+      skipped: phpOracle.parsed.skip ?? null,
+      phpAvailable: phpOracle.parsed.phpAvailable === true,
     },
     routeGrades,
     generatedAt: new Date().toISOString(),

@@ -22,6 +22,7 @@ import {
   describeHubGoldPairCoverage,
   HUB_GOLD_COVERAGE_KIND,
 } from "./hub-ingest/hub-gold-coverage.mjs";
+import { buildHubCompletionSections } from "./hub-ingest/hub-completion-sections.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
@@ -838,6 +839,15 @@ const server = createServer(async (req, res) => {
       return;
     }
     sendJson(res, 200, report);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/completion-sections") {
+    sendJson(res, 200, {
+      kind: "chrysalis.hub.completion-sections",
+      schemaVersion: 1,
+      ...buildHubCompletionSections(),
+    });
     return;
   }
 

@@ -125,6 +125,9 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G66 — Asset + Vue → framework/Next.js gold** — **`sql/html/json/vue-literal-*`** suites (asset file-lift + **`hub-gold-vue-literal`**); **`hub-completion`** schema **v21**. (**DESIGN D371**)
 - [x] **G67 — Vue `<script>` AST lift** — **`hub-lift-dispatch`** runs **`javascript-ast-ingest`** on extracted Vue SFC script (literal routes hole-free). (**DESIGN D372**)
 - [x] **G68 — Hub migration-debt smoke** — **`hub-multi-lane-smoke`** schema **v2** runs **`migration-debt`** on **`fixtures/tiny-blog`** (hole economics lane boundary). (**DESIGN D373**)
+- [x] **G69 — Extended asset origins → framework/Next.js gold** — **`css/scss/markdown/yaml/c/cpp-literal-*`** on **`fixtures/hub-pattern-lift/*`** (hole-free file-lift). (**DESIGN D374**)
+- [x] **G70 — PHP oracle ingest smoke** — **`hub-php-oracle-smoke`** runs **`chrysalis ingest`** on **`fixtures/tiny-blog`** (core lane boundary, not hub lift); **`phpOracleSmoke`** in **`hub-completion`** schema **v22**. (**DESIGN D375**)
+- [x] **G71 — Operator path explorer completion sections** — **`GET /api/hub/completion-sections`** + path explorer coverage hints for PHP oracle lane and extended asset suites. (**DESIGN D376**)
 
 ---
 
