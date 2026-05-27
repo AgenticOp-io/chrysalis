@@ -2344,6 +2344,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-26 — D382** **PHP oracle dual emit (G77).** **`hub-php-oracle-smoke`** v3 verifies ingest + **hono** + **fastify** emit + correctness gate.
 - **2026-05-26 — D383** **Migration planner (G78).** **`hub-migration-planner.mjs`** combines language compare, pair risk, and detected databases into operator steps.
 
+- **2026-05-26 — D384** **CWL path parameters (G79).** **`hub-cwl-path-params.mjs`** extracts `:name` segments into WebIR `pathParams`; CWL **`param`** + object return refs lower to **`requestField` path**. Gold **`cwl-path-params-hono`** / **`cwl-path-params-fastify`**.
+
 - **2026-05-26 — D372** **Vue SFC script AST lift (G67).** **`hub-lift-dispatch`** extracts **`<script>`** from **`.vue`** and lowers via **`javascript-ast-ingest`** before pattern-lift holes. Enables **`hub-gold-vue-literal`** structural gold. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D371** **Asset + Vue framework/Next.js gold (G66).** **`sql/html/json → hono/fastify/nextjs`** on **`hub-pattern-lift`** asset trees; **`vue-literal-*`** on **`hub-gold-vue-literal`**. **DESIGN §3** unchanged.

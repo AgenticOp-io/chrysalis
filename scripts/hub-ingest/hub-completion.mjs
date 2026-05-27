@@ -261,6 +261,10 @@ async function main() {
     middlewareCwlGold: {
       suiteIds: ["js-middleware-cwl", "python-middleware-cwl"],
     },
+    cwlPathParamsGold: {
+      suiteIds: ["cwl-path-params-hono", "cwl-path-params-fastify"],
+      rfc: "CWL-RFC-0002",
+    },
     crossFrameworkCwlGold: {
       suiteIds: [
         "java-literal-cwl",

@@ -39,6 +39,19 @@ use urlencoded;
 | `use json;` | `express.json` body parser |
 | `use urlencoded;` | `express.urlencoded` form parser |
 
+### Path parameters
+
+See **`docs/CWL-RFC-0002-path-parameters.md`**.
+
+```cwl
+@route GET "/items/:id"
+handler item_show {
+  effects: none;
+  param id;
+  return { ok: true, id: id };
+}
+```
+
 ---
 
 ## Route declaration

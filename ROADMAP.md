@@ -135,7 +135,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G76 — CWL middleware gold suites** — **`cwl-middleware-hono/fastify`** on **`hub-gold-cwl-middleware`** (RFC-0001 POST replay). (**DESIGN D381**)
 - [x] **G77 — PHP oracle fastify emit** — **`hub-php-oracle-smoke`** v3 emits **hono + fastify**; **`hub-completion`** schema **v24**. (**DESIGN D382**)
 - [x] **G78 — Migration planner API** — **`buildMigrationPlan`** + **`GET /api/hub/migration-plan`**; **`pnpm run hub:migration-plan`**. (**DESIGN D383**)
-- [ ] **G79 — CWL RFC-0002 path parameters** — Draft **`docs/CWL-RFC-0002-path-parameters.md`**; implementation follows gold fixtures for `:id` routes.
+- [x] **G79 — CWL RFC-0002 path parameters** — **`param`** bindings + **`cwl-path-params-*`** gold; **`hub-cwl-path-params.mjs`**. (**DESIGN D384**)
 
 ---
 

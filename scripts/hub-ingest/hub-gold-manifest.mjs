@@ -239,6 +239,22 @@ export const HUB_GOLD_SUITES = [
     traceReplay: true,
   },
   {
+    id: "cwl-path-params-hono",
+    fixture: join(scriptRoot, "fixtures/hub-gold-cwl-path-params"),
+    origin: "cwl",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "cwl-path-params-fastify",
+    fixture: join(scriptRoot, "fixtures/hub-gold-cwl-path-params"),
+    origin: "cwl",
+    emitTarget: "fastify",
+    structural: true,
+    traceReplay: true,
+  },
+  {
     id: "cwl-gold-roundtrip",
     fixture: join(scriptRoot, "fixtures/hub-gold-cwl"),
     origin: "cwl",

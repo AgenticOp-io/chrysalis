@@ -4,6 +4,7 @@
 import { emitHubRoute, hubHandlerBodyHole, HUB_T, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
 import { parseCwlModule } from "./cwl-parser.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
+import { cwlPathParamsForWebir } from "./hub-cwl-path-params.mjs";
 
 /**
  * @param {string} language
@@ -14,21 +15,15 @@ export function canCwlIngest(language, ext) {
 }
 
 /**
- * Lower structured object to __object_literal call pattern.
+ * @param {object} ctx
+ * @param {Array<{ key: string, value: { kind: string, value?: unknown, name?: string } }>} entries
+ * @param {{ file: string, line?: number }} loc
  */
-function lowerObjectBody(ctx, obj, loc) {
+function lowerObjectEntriesBody(ctx, entries, loc) {
   const { data, webir, file } = ctx;
   const origin = { file, line: loc.line ?? 1, column: 1 };
   const flat = [];
-  for (const [key, val] of Object.entries(obj)) {
-    const t =
-      typeof val === "string"
-        ? HUB_T.string
-        : typeof val === "boolean"
-          ? HUB_T.bool
-          : typeof val === "number"
-            ? HUB_T.int
-            : HUB_T.unknown;
+  for (const { key, value } of entries) {
     flat.push(
       data.literal({
         value: key,
@@ -37,6 +32,27 @@ function lowerObjectBody(ctx, obj, loc) {
         provenance: [webir.provenance("hub-ingest", "cwl:object-key")],
       }),
     );
+    if (value.kind === "pathParam" && value.name) {
+      flat.push(
+        data.requestField({
+          source: "path",
+          name: value.name,
+          type: HUB_T.string,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:path-param")],
+        }),
+      );
+      continue;
+    }
+    const val = value.value;
+    const t =
+      typeof val === "string"
+        ? HUB_T.string
+        : typeof val === "boolean"
+          ? HUB_T.bool
+          : typeof val === "number"
+            ? HUB_T.int
+            : HUB_T.unknown;
     flat.push(
       data.literal({
         value: val,
@@ -60,6 +76,17 @@ function lowerObjectBody(ctx, obj, loc) {
     origin,
     provenance: [webir.provenance("hub-ingest", "cwl:return")],
   });
+}
+
+/**
+ * Lower structured object to __object_literal call pattern.
+ */
+function lowerObjectBody(ctx, obj, loc) {
+  const entries = Object.entries(obj).map(([key, val]) => ({
+    key,
+    value: { kind: "literal", value: val },
+  }));
+  return lowerObjectEntriesBody(ctx, entries, loc);
 }
 
 /**
@@ -87,6 +114,8 @@ export function liftCwlFileToWebir(opts) {
     const loc = { file, line: r.line };
     if (r.body.kind === "literal") {
       bodyId = lowerHubLiteral(ctx, r.body.value, loc);
+    } else if (r.body.kind === "object" && r.body.entries) {
+      bodyId = lowerObjectEntriesBody(ctx, r.body.entries, loc);
     } else if (r.body.kind === "object" && r.body.value) {
       bodyId = lowerObjectBody(ctx, r.body.value, loc);
     } else {
@@ -98,7 +127,13 @@ export function liftCwlFileToWebir(opts) {
       wr: wrBuilders,
       language,
       file,
-      route: { method: r.method, path: r.path, name: r.name, line: r.line },
+      route: {
+        method: r.method,
+        path: r.path,
+        name: r.name,
+        line: r.line,
+        pathParams: cwlPathParamsForWebir(r.path),
+      },
       bodyId,
     });
   }

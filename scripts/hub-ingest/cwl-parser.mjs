@@ -2,6 +2,7 @@
  * Chrysalis Web Language (CWL) parser — direct surface syntax for WebIR routes.
  * @see docs/CWL.md
  */
+import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 
 const ROUTE_RE = /^@route\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
 const MODULE_RE = /^module\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;/;
@@ -10,6 +11,7 @@ const EFFECTS_RE = /^effects:\s*(.+);/;
 const RETURN_RE = /^return\s+(.+);/;
 const HOLE_RE = /^hole\s+([a-zA-Z0-9_:.-]+)(?:\s+"([^"]*)")?\s*;/;
 const USE_PRESET_RE = /^use\s+(json|urlencoded)\s*;$/i;
+const PARAM_RE = /^param\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 
 /**
  * @param {string} expr
@@ -35,6 +37,51 @@ export function parseCwlLiteral(expr) {
 }
 
 /**
+ * @param {string} expr
+ * @param {string[]} declaredParams
+ */
+export function parseCwlReturnValue(expr, declaredParams = []) {
+  const t = expr.trim();
+  if (t.startsWith("{") && t.endsWith("}")) {
+    const entries = parseCwlObjectEntries(t, declaredParams);
+    if (!entries.ok) return { ok: false, error: entries.error };
+    return { ok: true, body: { kind: "object", entries: entries.entries } };
+  }
+  const lit = parseCwlLiteral(t);
+  if (lit.ok) return { ok: true, body: { kind: "literal", value: lit.value } };
+  return { ok: false, error: "unsupported-return" };
+}
+
+/**
+ * @param {string} objectExpr
+ * @param {string[]} declaredParams
+ */
+function parseCwlObjectEntries(objectExpr, declaredParams) {
+  const inner = objectExpr.slice(1, -1).trim();
+  if (!inner) return { ok: true, entries: [] };
+  /** @type {Array<{ key: string, value: { kind: string, value?: unknown, name?: string } }>} */
+  const entries = [];
+  const pairRe = /([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*([^,}]+)/g;
+  let m;
+  while ((m = pairRe.exec(inner)) !== null) {
+    const key = m[1];
+    const rawVal = m[2].trim();
+    const lit = parseCwlLiteral(rawVal);
+    if (lit.ok) {
+      entries.push({ key, value: { kind: "literal", value: lit.value } });
+      continue;
+    }
+    if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(rawVal) && declaredParams.includes(rawVal)) {
+      entries.push({ key, value: { kind: "pathParam", name: rawVal } });
+      continue;
+    }
+    return { ok: false, error: `invalid-object-field:${key}` };
+  }
+  if (entries.length === 0) return { ok: false, error: "empty-object-literal" };
+  return { ok: true, entries };
+}
+
+/**
  * @param {string} effectsRaw
  */
 function parseEffects(effectsRaw) {
@@ -52,7 +99,7 @@ export function parseCwlModule(source, file) {
   let moduleName = "main";
   /** @type {Array<"express.json"|"express.urlencoded">} */
   const moduleUses = [];
-  /** @type {Array<{ method: string, path: string, name: string, line: number, effects: string[], body: { kind: string, value?: unknown, reason?: string } }>} */
+  /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, effects: string[], handlerParams: string[], body: { kind: string, value?: unknown, entries?: Array<{ key: string, value: { kind: string, value?: unknown, name?: string } }>, reason?: string } }>} */
   const routes = [];
   let i = 0;
   while (i < lines.length) {
@@ -81,13 +128,18 @@ export function parseCwlModule(source, file) {
     const name = hm[1];
     i += 1;
     const effects = [];
+    const handlerParams = [];
     let body = { kind: "hole", reason: "cwl:empty-handler" };
     while (i < lines.length) {
       const inner = lines[i].trim();
-      const innerLine = i + 1;
       i += 1;
       if (inner === "}") break;
       if (!inner || inner.startsWith("#") || inner.startsWith("//")) continue;
+      const pm = PARAM_RE.exec(inner);
+      if (pm) {
+        if (!handlerParams.includes(pm[1])) handlerParams.push(pm[1]);
+        continue;
+      }
       const em = EFFECTS_RE.exec(inner);
       if (em) {
         effects.push(...parseEffects(em[1]));
@@ -95,13 +147,11 @@ export function parseCwlModule(source, file) {
       }
       const ret = RETURN_RE.exec(inner);
       if (ret) {
-        const lit = parseCwlLiteral(ret[1]);
-        if (lit.ok && lit.value !== null && typeof lit.value === "object") {
-          body = { kind: "object", value: lit.value };
-        } else if (lit.ok) {
-          body = { kind: "literal", value: lit.value };
+        const parsed = parseCwlReturnValue(ret[1], handlerParams);
+        if (parsed.ok) {
+          body = parsed.body;
         } else {
-          body = { kind: "hole", reason: `cwl:${lit.error}` };
+          body = { kind: "hole", reason: `cwl:${parsed.error}` };
         }
         continue;
       }
@@ -112,7 +162,13 @@ export function parseCwlModule(source, file) {
       }
       body = { kind: "hole", reason: "cwl:unknown-statement" };
     }
-    routes.push({ method, path, name, line: lineNo, effects, body });
+    const pathParams = extractPathParamsFromCwlPath(path);
+    for (const p of handlerParams) {
+      if (!pathParams.includes(p)) {
+        body = { kind: "hole", reason: `cwl:param-not-in-path:${p}` };
+      }
+    }
+    routes.push({ method, path, pathParams, name, line: lineNo, effects, handlerParams, body });
   }
   return { moduleName, file, routes, moduleUses };
 }

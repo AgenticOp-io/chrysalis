@@ -343,6 +343,53 @@
     el.textContent = `CI gold suites (${coverage.suiteCount}): ${coverage.suiteIds.join(", ")}${trace}${roundTrip}${tier}${extended}${risk}${pros}${cons}`;
   }
 
+  async function loadMigrationPlan() {
+    const origin = $("pathOrigin")?.value;
+    const output = $("pathOutput")?.value;
+    const summary = $("pathMigrationSummary");
+    const stepsEl = $("pathMigrationSteps");
+    if (!origin || !output) return;
+    const databases = ($("pathMigrationDatabases")?.value ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const params = new URLSearchParams({
+      origin,
+      outputs: output,
+    });
+    if (databases.length) params.set("databases", databases.join(","));
+    if (summary) summary.textContent = "Loading migration plan…";
+    if (stepsEl) stepsEl.innerHTML = "";
+    try {
+      const plan = await api(`/api/hub/migration-plan?${params.toString()}`);
+      if (summary) {
+        const db =
+          plan.databases?.detected?.length > 0
+            ? plan.databases.detected.map((d) => d.id).join(", ")
+            : "none detected";
+        summary.textContent = `Recommended ${plan.recommendedOutput ?? "?"} · pair risk ${plan.pairSummary?.riskLevel ?? "?"} · databases: ${db}`;
+      }
+      if (stepsEl && Array.isArray(plan.steps)) {
+        stepsEl.innerHTML = plan.steps.map((s) => `<li>${s}</li>`).join("");
+      }
+    } catch (e) {
+      if (summary) summary.textContent = "Migration plan error: " + e.message;
+    }
+  }
+
+  async function loadWebDatabasesTier1() {
+    const summary = $("pathMigrationSummary");
+    try {
+      const data = await api("/api/hub/web-databases?tier=tier1");
+      const ids = (data.databases ?? []).map((d) => d.id).join(",");
+      const input = $("pathMigrationDatabases");
+      if (input && ids) input.value = ids;
+      if (summary) summary.textContent = `Tier-1 catalog (${data.databases?.length ?? 0}): ${ids}`;
+    } catch (e) {
+      if (summary) summary.textContent = "Web databases error: " + e.message;
+    }
+  }
+
   async function loadLanguageCompare() {
     const origin = $("pathOrigin")?.value;
     const output = $("pathOutput")?.value;
@@ -407,6 +454,7 @@
       };
       renderPathGoldCoverage(coverage, gold.route, completionHints);
       loadLanguageCompare().catch(() => {});
+      loadMigrationPlan().catch(() => {});
       renderPathLists({
         similarities: data.pair?.similarities,
         differences: data.pair?.differences,
@@ -457,6 +505,12 @@
   });
   $("btnLoadPathMatrix")?.addEventListener("click", () => {
     loadPathMatrixFiltered().catch(() => {});
+  });
+  $("btnLoadMigrationPlan")?.addEventListener("click", () => {
+    loadMigrationPlan().catch(() => {});
+  });
+  $("btnLoadWebDatabases")?.addEventListener("click", () => {
+    loadWebDatabasesTier1().catch(() => {});
   });
 
   async function exportLanguageWorkQueue() {

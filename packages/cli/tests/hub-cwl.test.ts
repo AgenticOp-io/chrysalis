@@ -15,7 +15,23 @@ test("cwl parser: routes and literals", async () => {
   const src = await readFile(resolve(FIXTURE, "routes.cwl"), "utf8");
   const mod = parseCwlModule(src, "routes.cwl");
   expect(mod.routes.length).toBe(3);
-  expect(mod.routes.find((r) => r.path === "/meta")?.body.kind).toBe("object");
+  const meta = mod.routes.find((r) => r.path === "/meta");
+  expect(meta?.body.kind).toBe("object");
+  expect(meta?.body.entries?.length).toBeGreaterThan(0);
+});
+
+test("cwl parser: path params and param return (RFC-0002 / G79)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-path-params/routes.cwl");
+  const src = await readFile(FIX, "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  expect(mod.routes.length).toBe(2);
+  const item = mod.routes.find((r) => r.path === "/items/:id");
+  expect(item?.pathParams).toEqual(["id"]);
+  expect(item?.handlerParams).toEqual(["id"]);
+  const nested = mod.routes.find((r) => r.path.includes(":itemId"));
+  expect(nested?.pathParams).toEqual(["userId", "itemId"]);
 });
 
 test("cwl parser: module use json/urlencoded (RFC-0001 / G74)", async () => {
@@ -151,3 +167,14 @@ test("hub gold verify: middleware and structured cwl (G38/G51/G53)", () => {
     expect(r.status).toBe(0);
   }
 }, 200_000);
+
+test("hub gold verify: cwl path params hono and fastify (G79)", () => {
+  for (const suite of ["cwl-path-params-hono", "cwl-path-params-fastify"]) {
+    const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    expect(r.status).toBe(0);
+  }
+}, 180_000);

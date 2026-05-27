@@ -179,6 +179,16 @@
         <p id="pathPairSummary" class="muted"></p>
         <p id="pathGoldCoverage" class="muted"></p>
         <p id="pathCompareSummary" class="muted"></p>
+        <h3>Migration plan</h3>
+        <p class="muted">Combine language compare, pair risk, and detected datastores into operator steps.</p>
+        <label for="pathMigrationDatabases">Detected databases (comma-separated ids)</label>
+        <input id="pathMigrationDatabases" type="text" placeholder="postgresql,redis" />
+        <div class="row">
+          <button type="button" class="secondary" id="btnLoadMigrationPlan">Build migration plan</button>
+          <button type="button" class="secondary" id="btnLoadWebDatabases">List web databases (tier1)</button>
+        </div>
+        <p id="pathMigrationSummary" class="muted"></p>
+        <ul id="pathMigrationSteps" class="muted"></ul>
         <h3>Similarities</h3>
         <ul id="pathSimilarities" class="muted"></ul>
         <h3>Differences</h3>
