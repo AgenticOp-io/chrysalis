@@ -2339,6 +2339,10 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-26 — D377** **Path knowledge v2 (G72).** Every hub pair exports evidence-backed **`pros`**, **`cons`**, **`riskLevel`**, **`idiomLoss`**, **`verifyExpectation`**, and **`canonicalWebIrPattern`**. **`compareHubLanguages`** + operator **`GET /api/hub/language-compare`** rank candidate outputs for migration planning.
 - **2026-05-26 — D378** **PHP oracle full smoke (G73).** **`hub-php-oracle-smoke`** v2 runs ingest, **hono** emit, and verify correctness gate on **`fixtures/tiny-blog`** — core lane boundary without hub structural PHP gold.
 - **2026-05-26 — D379** **CWL RFC-0001 (G74).** Module-level **`use json`** / **`use urlencoded`** lowers to **`web.request.middleware`** presets (Express/Flask synthesis). **`docs/CWL-RFC.md`** indexes accepted RFCs.
+- **2026-05-26 — D380** **Web database catalog (G75).** **`hub-web-databases.mjs`** catalogs tier-1/2/3 datastores (Postgres, MySQL, MongoDB, Redis, DynamoDB, Elasticsearch, …) with pros/cons and Chrysalis notes; path knowledge **schema v3** embeds summary.
+- **2026-05-26 — D381** **CWL middleware gold (G76).** **`cwl-middleware-hono/fastify`** structural + trace suites on **`fixtures/hub-gold-cwl-middleware`**.
+- **2026-05-26 — D382** **PHP oracle dual emit (G77).** **`hub-php-oracle-smoke`** v3 verifies ingest + **hono** + **fastify** emit + correctness gate.
+- **2026-05-26 — D383** **Migration planner (G78).** **`hub-migration-planner.mjs`** combines language compare, pair risk, and detected databases into operator steps.
 
 - **2026-05-26 — D372** **Vue SFC script AST lift (G67).** **`hub-lift-dispatch`** extracts **`<script>`** from **`.vue`** and lowers via **`javascript-ast-ingest`** before pattern-lift holes. Enables **`hub-gold-vue-literal`** structural gold. **DESIGN §3** unchanged.
 

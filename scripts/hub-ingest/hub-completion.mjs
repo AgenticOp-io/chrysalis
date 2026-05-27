@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } from "../chrysalis-hub-store.mjs";
 import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { buildHubCompletionSections } from "./hub-completion-sections.mjs";
+import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 import { hubNativeEmitTargetIds } from "./hub-gold-native-emit.mjs";
 import { resolveHubPython } from "./shared.mjs";
@@ -114,6 +115,7 @@ async function main() {
   const phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
   const phpOracleOk = phpOracle.status === 0 && phpOracle.parsed.ok === true;
   const completionSections = buildHubCompletionSections();
+  const webDbCount = buildWebDatabaseCatalogReport().count;
 
   const ok =
     matrix.status === 0 &&
@@ -131,7 +133,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 23,
+    schemaVersion: 24,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -330,16 +332,24 @@ async function main() {
       schemaVersion: phpOracle.parsed.schemaVersion ?? 1,
       ingestOk: phpOracle.parsed.ingestOk === true,
       emitHonoOk: phpOracle.parsed.emitHonoOk === true,
+      emitFastifyOk: phpOracle.parsed.emitFastifyOk === true,
+      emit: phpOracle.parsed.emit ?? {},
       verifyOk: phpOracle.parsed.verifyOk === true,
       routeCount: phpOracle.parsed.routeCount ?? null,
       skipped: phpOracle.parsed.skip ?? null,
       phpAvailable: phpOracle.parsed.phpAvailable === true,
     },
-    pathKnowledgeV2: {
-      schemaVersion: 2,
+    pathKnowledge: {
+      schemaVersion: 3,
       exportScript: "pnpm run hub:path-knowledge",
+      webDatabaseCount: webDbCount,
+    },
+    webDatabaseCatalog: {
+      exportScript: "pnpm run hub:web-databases",
+      count: webDbCount,
     },
     languageCompareApi: "/api/hub/language-compare",
+    migrationPlannerApi: "/api/hub/migration-plan",
     routeGrades,
     generatedAt: new Date().toISOString(),
   };

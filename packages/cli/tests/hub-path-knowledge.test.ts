@@ -20,7 +20,8 @@ test("path knowledge: full grid 575 pairs with similarities and practices", asyn
   expect(db.bestPractices.length).toBeGreaterThanOrEqual(8);
   expect(Object.keys(db.languages).length).toBeGreaterThanOrEqual(22);
 
-  expect(db.schemaVersion).toBe(2);
+  expect(db.schemaVersion).toBe(3);
+  expect(db.webDatabaseCatalog.count).toBeGreaterThanOrEqual(20);
 
   for (const pair of db.pairs) {
     expect(pair.similarities.length).toBeGreaterThanOrEqual(2);

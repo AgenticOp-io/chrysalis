@@ -13,7 +13,7 @@ test("hub php oracle smoke: exits 0 when CLI missing or succeeds with ingest (G7
   expect(r.status).toBe(0);
   const j = JSON.parse(r.stdout);
   expect(j.kind).toBe("chrysalis.hub.php-oracle-smoke");
-  expect(j.schemaVersion).toBe(2);
+  expect(j.schemaVersion).toBe(3);
   if (!existsSync(CLI)) {
     expect(j.skip).toBe("no-cli-dist");
     return;
@@ -21,6 +21,7 @@ test("hub php oracle smoke: exits 0 when CLI missing or succeeds with ingest (G7
   if (j.skip === "no-php") return;
   expect(j.ingestOk).toBe(true);
   expect(j.emitHonoOk).toBe(true);
+  expect(j.emitFastifyOk).toBe(true);
   expect(j.verifyOk).toBe(true);
   expect(j.routeCount).toBeGreaterThan(0);
 });

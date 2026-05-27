@@ -733,9 +733,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 19 &&
     s.schemaVersion !== 20 &&
     s.schemaVersion !== 22 &&
-    s.schemaVersion !== 23
+    s.schemaVersion !== 23 &&
+    s.schemaVersion !== 24
   ) {
-    fail(`${label}: expected schemaVersion 0–23, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–24, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -962,6 +963,20 @@ function assertHubCompletion(path) {
     }
     if (!s.languageCompareApi) {
       fail(`${label}: languageCompareApi must be set for schema v23`);
+    }
+  }
+  if (s.schemaVersion >= 24) {
+    if ((s.webDatabaseCatalog?.count ?? 0) < 20) {
+      fail(`${label}: webDatabaseCatalog.count must be >= 20 for schema v24`);
+    }
+    if (s.pathKnowledge?.schemaVersion !== 3) {
+      fail(`${label}: pathKnowledge.schemaVersion must be 3 for schema v24`);
+    }
+    if (!s.migrationPlannerApi) {
+      fail(`${label}: migrationPlannerApi must be set for schema v24`);
+    }
+    if (s.phpOracleSmoke?.emitFastifyOk !== true && s.phpOracleSmoke?.skipped == null) {
+      fail(`${label}: phpOracleSmoke.emitFastifyOk must be true for schema v24 when not skipped`);
     }
   }
   const g = s.routeGrades;

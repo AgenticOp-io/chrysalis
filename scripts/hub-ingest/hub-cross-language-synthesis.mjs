@@ -128,6 +128,7 @@ function featureLevel(row, lang) {
 
 export function buildCrossLanguageSynthesis() {
   const knowledge = buildHubPathKnowledgeBase();
+  const webDatabases = knowledge.webDatabaseCatalog;
   const origins = HUB_WEB_ORIGIN_LANGUAGE_IDS.map((id) => ({
     id,
     label: LANGUAGE_LABELS[id] ?? id,
@@ -167,6 +168,7 @@ export function buildCrossLanguageSynthesis() {
     origins,
     outputs,
     originClusters: knowledge.originClusters,
+    webDatabaseCatalog: webDatabases,
     laneComparisons: knowledge.laneComparisons,
     bestPractices: BEST_PRACTICES,
     gradeSummary: knowledge.summary.byGrade,

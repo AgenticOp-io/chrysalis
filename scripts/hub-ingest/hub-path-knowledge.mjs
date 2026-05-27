@@ -17,9 +17,10 @@ import {
   ingestLaneForOrigin,
 } from "./hub-translation-paths.mjs";
 import { buildPairTraits } from "./hub-path-traits.mjs";
+import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
 
 export const HUB_PATH_KNOWLEDGE_KIND = "chrysalis.translation-hub.path-knowledge";
-export const HUB_PATH_KNOWLEDGE_SCHEMA_VERSION = 2;
+export const HUB_PATH_KNOWLEDGE_SCHEMA_VERSION = 3;
 
 /** @typedef {'dynamic'|'static'|'markup'|'data'|'framework-output'} LanguageKind */
 
@@ -592,11 +593,20 @@ export function buildHubPathKnowledgeBase(opts = {}) {
     ]),
   );
 
+  const webDatabaseCatalog = buildWebDatabaseCatalogReport();
+
   return {
     kind: HUB_PATH_KNOWLEDGE_KIND,
     schemaVersion: HUB_PATH_KNOWLEDGE_SCHEMA_VERSION,
     mission:
-      "Comprehensive map of all web language translation paths: 23 origins × 26 outputs (575 directed pairs), with similarities, differences, and best practices.",
+      "Comprehensive map of all web language translation paths: 23 origins × 26 outputs (575 directed pairs), with similarities, differences, best practices, and web database catalog.",
+    webDatabaseCatalog: {
+      kind: webDatabaseCatalog.kind,
+      schemaVersion: webDatabaseCatalog.schemaVersion,
+      count: webDatabaseCatalog.count,
+      tier1Count: webDatabaseCatalog.tier1Count,
+      databaseIds: webDatabaseCatalog.databases.map((d) => d.id),
+    },
     languages,
     laneComparisons: LANE_COMPARISONS,
     bestPractices: BEST_PRACTICES,

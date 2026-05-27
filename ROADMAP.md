@@ -131,6 +131,11 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G72 — Path knowledge v2 + language compare** — **`hub-path-traits.mjs`** (`pros`/`cons`/`riskLevel`/`canonicalWebIrPattern`); **`GET /api/hub/language-compare`**; path knowledge schema **v2**. (**DESIGN D377**)
 - [x] **G73 — PHP oracle emit + verify smoke** — **`hub-php-oracle-smoke`** v2: ingest + **hono** emit + migration-debt verify on **`fixtures/tiny-blog`**; **`hub-completion`** schema **v23**. (**DESIGN D378**)
 - [x] **G74 — CWL RFC-0001 module `use` middleware** — **`use json`/`use urlencoded`**; **`docs/CWL-RFC.md`** index. (**DESIGN D379**)
+- [x] **G75 — Web database catalog** — **`hub-web-databases.mjs`** (22+ tier-1/2/3 stores); embedded in path knowledge **schema v3**; **`GET /api/hub/web-databases`**. (**DESIGN D380**)
+- [x] **G76 — CWL middleware gold suites** — **`cwl-middleware-hono/fastify`** on **`hub-gold-cwl-middleware`** (RFC-0001 POST replay). (**DESIGN D381**)
+- [x] **G77 — PHP oracle fastify emit** — **`hub-php-oracle-smoke`** v3 emits **hono + fastify**; **`hub-completion`** schema **v24**. (**DESIGN D382**)
+- [x] **G78 — Migration planner API** — **`buildMigrationPlan`** + **`GET /api/hub/migration-plan`**; **`pnpm run hub:migration-plan`**. (**DESIGN D383**)
+- [ ] **G79 — CWL RFC-0002 path parameters** — Draft **`docs/CWL-RFC-0002-path-parameters.md`**; implementation follows gold fixtures for `:id` routes.
 
 ---
 

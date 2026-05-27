@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Hub ↔ core PHP oracle boundary: Chrysalis ingest + emit + verify status on tiny-blog.
+ * Hub ↔ core PHP oracle boundary: Chrysalis ingest + emit (hono/fastify) + verify on tiny-blog.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -12,7 +12,8 @@ const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
 const migrationDebtScript = join(scriptRoot, "scripts/migration-debt.mjs");
 const tinyBlog = join(scriptRoot, "fixtures/tiny-blog");
 const verifyReport = join(scriptRoot, "fixtures/ci/tiny-blog-verify-for-status");
-const honoOut = join(tinyBlog, "generated", "hono");
+
+const EMIT_TARGETS = ["hono", "fastify"];
 
 function phpOnPath() {
   const r = spawnSync("php", ["-v"], { encoding: "utf8" });
@@ -45,10 +46,10 @@ function runMigrationDebtVerify() {
 function main() {
   const base = {
     kind: "chrysalis.hub.php-oracle-smoke",
-    schemaVersion: 2,
+    schemaVersion: 3,
     fixture: "fixtures/tiny-blog",
     ingestOk: false,
-    emitHonoOk: false,
+    emit: {},
     verifyOk: false,
     routeCount: null,
     phpAvailable: phpOnPath(),
@@ -71,33 +72,42 @@ function main() {
   const ingest = spawnSync(
     process.execPath,
     [cliBin, "ingest", tinyBlog, "--ingest-progress-file", progress],
-    { cwd: scriptRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
+    { cwd: scriptRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 102644 },
   );
   const ingestOk = ingest.status === 0;
   const routeCount = ingestOk ? countFixtureRoutes(tinyBlog) : 0;
 
-  let emitHonoOk = false;
+  /** @type {Record<string, boolean>} */
+  const emit = {};
   if (ingestOk) {
-    const emit = spawnSync(
-      process.execPath,
-      [cliBin, "emit", tinyBlog, "--out", honoOut, "--target", "hono"],
-      { cwd: scriptRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
-    );
-    emitHonoOk = emit.status === 0 && existsSync(honoOut);
+    for (const target of EMIT_TARGETS) {
+      const out = join(tinyBlog, "generated", target);
+      const r = spawnSync(
+        process.execPath,
+        [cliBin, "emit", tinyBlog, "--out", out, "--target", target],
+        { cwd: scriptRoot, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 },
+      );
+      emit[target] = r.status === 0 && existsSync(out);
+    }
   }
 
-  const verify = ingestOk && emitHonoOk ? runMigrationDebtVerify() : { ok: false, skip: "skipped-before-verify" };
+  const emitHonoOk = emit.hono === true;
+  const emitFastifyOk = emit.fastify === true;
+  const verify =
+    ingestOk && emitHonoOk && emitFastifyOk ? runMigrationDebtVerify() : { ok: false, skip: "skipped-before-verify" };
   const verifyOk = verify.ok === true;
 
-  const ok = ingestOk && routeCount > 0 && emitHonoOk && verifyOk;
+  const ok = ingestOk && routeCount > 0 && emitHonoOk && emitFastifyOk && verifyOk;
   console.log(
     JSON.stringify(
       {
         ...base,
         ok,
-        skip: ok ? null : verify.skip ?? (ingestOk ? (emitHonoOk ? "verify-failed" : "emit-failed") : "ingest-failed"),
+        skip: ok ? null : verify.skip ?? (ingestOk ? "emit-or-verify-failed" : "ingest-failed"),
         ingestOk,
+        emit,
         emitHonoOk,
+        emitFastifyOk,
         verifyOk,
         routeCount,
         verifySkipped: verify.skip ?? null,
