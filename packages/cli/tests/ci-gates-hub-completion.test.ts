@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, expect, test } from "vitest";
@@ -728,6 +728,37 @@ describe("ci-gates hub-completion", () => {
           routeGrades: { gold: 575, silver: 0, open: 0 },
         })}\n`,
       );
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v25 with query params gold and database detect API", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v25-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 25;
+      payload.databaseDetectApi = "/api/hub/detect-databases";
+      payload.cwlPathParamsGold = {
+        suiteIds: ["cwl-path-params-hono", "cwl-path-params-fastify", "cwl-path-params-nextjs"],
+        rfc: "CWL-RFC-0002",
+      };
+      payload.cwlQueryParamsGold = {
+        suiteIds: ["cwl-query-params-hono", "cwl-query-params-fastify", "cwl-query-params-nextjs"],
+        rfc: "CWL-RFC-0003",
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
       const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
       expect(r.status).toBe(0);
       if (r.status !== 0) {

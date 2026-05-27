@@ -26,6 +26,7 @@ import { buildHubCompletionSections } from "./hub-ingest/hub-completion-sections
 import { compareHubLanguages } from "./hub-ingest/hub-language-compare.mjs";
 import { buildMigrationPlan } from "./hub-ingest/hub-migration-planner.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-ingest/hub-web-databases.mjs";
+import { buildDatabaseDetectionReport } from "./hub-ingest/hub-detect-databases.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
@@ -859,17 +860,42 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/detect-databases") {
+    const servicesRaw = url.searchParams.get("services");
+    if (!servicesRaw) {
+      sendJson(res, 400, { error: "services query param required (JSON object)" });
+      return;
+    }
+    try {
+      const services = JSON.parse(servicesRaw);
+      sendJson(res, 200, buildDatabaseDetectionReport(services));
+    } catch {
+      sendJson(res, 400, { error: "invalid services JSON" });
+    }
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/migration-plan") {
     const origin = url.searchParams.get("origin");
     const outputsRaw = url.searchParams.get("outputs");
     const dbRaw = url.searchParams.get("databases");
+    const servicesRaw = url.searchParams.get("services");
     if (!origin || !outputsRaw) {
       sendJson(res, 400, { error: "origin and outputs required" });
       return;
     }
     const outputs = outputsRaw.split(",").map((s) => s.trim()).filter(Boolean);
     const detectedDatabases = dbRaw ? dbRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
-    sendJson(res, 200, buildMigrationPlan({ origin, outputs, detectedDatabases }));
+    let originServices;
+    if (servicesRaw) {
+      try {
+        originServices = JSON.parse(servicesRaw);
+      } catch {
+        sendJson(res, 400, { error: "invalid services JSON" });
+        return;
+      }
+    }
+    sendJson(res, 200, buildMigrationPlan({ origin, outputs, detectedDatabases, originServices }));
     return;
   }
 

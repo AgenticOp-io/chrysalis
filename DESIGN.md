@@ -2346,6 +2346,14 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-26 — D384** **CWL path parameters (G79).** **`hub-cwl-path-params.mjs`** extracts `:name` segments into WebIR `pathParams`; CWL **`param`** + object return refs lower to **`requestField` path**. Gold **`cwl-path-params-hono`** / **`cwl-path-params-fastify`**.
 
+- **2026-05-26 — D385** **CWL query parameters (G80).** CWL **`query`** bindings lower to **`requestField` query**; gold **`cwl-query-params-*`**.
+
+- **2026-05-26 — D386** **CWL path/query Next.js gold (G81).** **`cwl-path-params-nextjs`**, **`cwl-query-params-nextjs`** structural + trace replay.
+
+- **2026-05-26 — D387** **Origin database detection (G82).** **`hub-detect-databases.mjs`** infers catalog ids from origin scan **`services`** env hints.
+
+- **2026-05-26 — D388** **Migration planner scan wiring (G83).** Operator + **`/api/hub/migration-plan`** accept detected databases from scan **`services`**.
+
 - **2026-05-26 — D372** **Vue SFC script AST lift (G67).** **`hub-lift-dispatch`** extracts **`<script>`** from **`.vue`** and lowers via **`javascript-ast-ingest`** before pattern-lift holes. Enables **`hub-gold-vue-literal`** structural gold. **DESIGN §3** unchanged.
 
 - **2026-05-26 — D371** **Asset + Vue framework/Next.js gold (G66).** **`sql/html/json → hono/fastify/nextjs`** on **`hub-pattern-lift`** asset trees; **`vue-literal-*`** on **`hub-gold-vue-literal`**. **DESIGN §3** unchanged.

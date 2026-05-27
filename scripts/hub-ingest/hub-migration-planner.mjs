@@ -7,6 +7,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compareHubLanguages } from "./hub-language-compare.mjs";
 import { buildWebDatabaseCatalogReport, databasesForMigrationContext } from "./hub-web-databases.mjs";
+import { detectDatabasesFromOriginServices } from "./hub-detect-databases.mjs";
 import { queryPathKnowledge } from "./hub-path-knowledge.mjs";
 
 export const HUB_MIGRATION_PLANNER_KIND = "chrysalis.hub.migration-plan";
@@ -17,13 +18,19 @@ export const HUB_MIGRATION_PLANNER_SCHEMA_VERSION = 1;
  * @param {string} opts.origin
  * @param {string[]} opts.outputs
  * @param {string[]} [opts.detectedDatabases]
+ * @param {Record<string, unknown>} [opts.originServices]
  */
 export function buildMigrationPlan(opts) {
-  const { origin, outputs, detectedDatabases = [] } = opts;
+  const { origin, outputs, detectedDatabases = [], originServices } = opts;
+  const fromServices = originServices ? detectDatabasesFromOriginServices(originServices) : [];
+  const mergedDbIds = [...detectedDatabases];
+  for (const id of fromServices) {
+    if (!mergedDbIds.includes(id)) mergedDbIds.push(id);
+  }
   const compare = compareHubLanguages(origin, outputs);
   const primary = outputs[0] ?? compare.recommended;
   const pair = primary ? queryPathKnowledge(origin, primary) : null;
-  const databases = databasesForMigrationContext(detectedDatabases);
+  const databases = databasesForMigrationContext(mergedDbIds);
 
   const steps = [
     "Capture oracle traces on staging (or upload traces to Translation Hub).",
@@ -44,6 +51,7 @@ export function buildMigrationPlan(opts) {
     schemaVersion: HUB_MIGRATION_PLANNER_SCHEMA_VERSION,
     origin,
     outputs,
+    detectedDatabaseIds: mergedDbIds,
     recommendedOutput: compare.recommended,
     compare,
     pairSummary: pair

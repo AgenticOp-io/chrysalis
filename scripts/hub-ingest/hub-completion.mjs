@@ -133,7 +133,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 24,
+    schemaVersion: 25,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -163,6 +163,8 @@ async function main() {
         "js-middleware-nextjs",
         "python-middleware-nextjs",
         "cwl-gold-nextjs",
+        "cwl-path-params-nextjs",
+        "cwl-query-params-nextjs",
         "python-literal-nextjs",
         "contract-first-nextjs",
         "ruby-literal-nextjs",
@@ -201,7 +203,7 @@ async function main() {
       suiteIds: ["js-middleware-nextjs", "python-middleware-nextjs"],
     },
     cwlNextjsGold: {
-      suiteIds: ["cwl-gold-nextjs"],
+      suiteIds: ["cwl-gold-nextjs", "cwl-path-params-nextjs", "cwl-query-params-nextjs"],
     },
     pythonNextjsGold: {
       suiteIds: ["python-literal-nextjs", "python-middleware-nextjs"],
@@ -262,8 +264,12 @@ async function main() {
       suiteIds: ["js-middleware-cwl", "python-middleware-cwl"],
     },
     cwlPathParamsGold: {
-      suiteIds: ["cwl-path-params-hono", "cwl-path-params-fastify"],
+      suiteIds: ["cwl-path-params-hono", "cwl-path-params-fastify", "cwl-path-params-nextjs"],
       rfc: "CWL-RFC-0002",
+    },
+    cwlQueryParamsGold: {
+      suiteIds: ["cwl-query-params-hono", "cwl-query-params-fastify", "cwl-query-params-nextjs"],
+      rfc: "CWL-RFC-0003",
     },
     crossFrameworkCwlGold: {
       suiteIds: [
@@ -354,6 +360,7 @@ async function main() {
     },
     languageCompareApi: "/api/hub/language-compare",
     migrationPlannerApi: "/api/hub/migration-plan",
+    databaseDetectApi: "/api/hub/detect-databases",
     routeGrades,
     generatedAt: new Date().toISOString(),
   };

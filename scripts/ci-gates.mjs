@@ -734,9 +734,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 20 &&
     s.schemaVersion !== 22 &&
     s.schemaVersion !== 23 &&
-    s.schemaVersion !== 24
+    s.schemaVersion !== 24 &&
+    s.schemaVersion !== 25
   ) {
-    fail(`${label}: expected schemaVersion 0–24, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–25, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -985,6 +986,21 @@ function assertHubCompletion(path) {
       if (!pathParams.includes(id)) {
         fail(`${label}: cwlPathParamsGold must list ${id} for schema v24`);
       }
+    }
+  }
+  if (s.schemaVersion >= 25) {
+    const pathParams = s.cwlPathParamsGold?.suiteIds ?? [];
+    if (!pathParams.includes("cwl-path-params-nextjs")) {
+      fail(`${label}: cwlPathParamsGold must list cwl-path-params-nextjs for schema v25`);
+    }
+    const queryParams = s.cwlQueryParamsGold?.suiteIds ?? [];
+    for (const id of ["cwl-query-params-hono", "cwl-query-params-fastify", "cwl-query-params-nextjs"]) {
+      if (!queryParams.includes(id)) {
+        fail(`${label}: cwlQueryParamsGold must list ${id} for schema v25`);
+      }
+    }
+    if (!s.databaseDetectApi) {
+      fail(`${label}: databaseDetectApi must be set for schema v25`);
     }
   }
   const g = s.routeGrades;

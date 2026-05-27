@@ -29,9 +29,19 @@ test("cwl parser: path params and param return (RFC-0002 / G79)", async () => {
   expect(mod.routes.length).toBe(2);
   const item = mod.routes.find((r) => r.path === "/items/:id");
   expect(item?.pathParams).toEqual(["id"]);
-  expect(item?.handlerParams).toEqual(["id"]);
+  expect(item?.handlerPathParams).toEqual(["id"]);
   const nested = mod.routes.find((r) => r.path.includes(":itemId"));
   expect(nested?.pathParams).toEqual(["userId", "itemId"]);
+});
+
+test("cwl parser: query params (RFC-0003 / G80)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-query-params/routes.cwl");
+  const src = await readFile(FIX, "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  const search = mod.routes.find((r) => r.path === "/search");
+  expect(search?.handlerQueryParams).toEqual(["q"]);
 });
 
 test("cwl parser: module use json/urlencoded (RFC-0001 / G74)", async () => {
@@ -178,3 +188,12 @@ test("hub gold verify: cwl path params hono and fastify (G79)", () => {
     expect(r.status).toBe(0);
   }
 }, 180_000);
+
+test("hub gold verify: cwl query params hono (G80)", () => {
+  const r = spawnSync(process.execPath, [GOLD, "--suite", "cwl-query-params-hono"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  expect(r.status).toBe(0);
+}, 130_000);

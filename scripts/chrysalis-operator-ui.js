@@ -358,6 +358,9 @@
       outputs: output,
     });
     if (databases.length) params.set("databases", databases.join(","));
+    if (lastScan?.services && Object.keys(lastScan.services).length > 0) {
+      params.set("services", JSON.stringify(lastScan.services));
+    }
     if (summary) summary.textContent = "Loading migration plan…";
     if (stepsEl) stepsEl.innerHTML = "";
     try {
@@ -374,6 +377,25 @@
       }
     } catch (e) {
       if (summary) summary.textContent = "Migration plan error: " + e.message;
+    }
+  }
+
+  async function detectDatabasesFromLastScan() {
+    const summary = $("pathMigrationSummary");
+    const input = $("pathMigrationDatabases");
+    if (!lastScan?.services || Object.keys(lastScan.services).length === 0) {
+      if (summary) summary.textContent = "No scan services available — run SSH scan on a site first.";
+      return;
+    }
+    try {
+      const data = await api(
+        `/api/hub/detect-databases?services=${encodeURIComponent(JSON.stringify(lastScan.services))}`,
+      );
+      const ids = (data.detectedIds ?? []).join(",");
+      if (input && ids) input.value = ids;
+      if (summary) summary.textContent = `Detected from scan: ${ids || "none"}`;
+    } catch (e) {
+      if (summary) summary.textContent = "Detect databases error: " + e.message;
     }
   }
 
@@ -508,6 +530,9 @@
   });
   $("btnLoadMigrationPlan")?.addEventListener("click", () => {
     loadMigrationPlan().catch(() => {});
+  });
+  $("btnDetectDatabasesFromScan")?.addEventListener("click", () => {
+    detectDatabasesFromLastScan().catch(() => {});
   });
   $("btnLoadWebDatabases")?.addEventListener("click", () => {
     loadWebDatabasesTier1().catch(() => {});
@@ -800,6 +825,9 @@
       };
       const r = await api("/api/hub/scan-ssh", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       lastScan = r.detection;
+      if (r.detection?.services && Object.keys(r.detection.services).length > 0) {
+        detectDatabasesFromLastScan().catch(() => {});
+      }
       const counts = Object.fromEntries(r.detection.languages.map((l) => [l.language, l.fileCount]));
       const inputOpts = inputLanguages.map((l) => ({ ...l, fileCount: counts[l.id] ?? 0 }));
       fillSelect($("originLanguage"), inputOpts, null);

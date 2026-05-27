@@ -44,6 +44,18 @@ function lowerObjectEntriesBody(ctx, entries, loc) {
       );
       continue;
     }
+    if (value.kind === "queryParam" && value.name) {
+      flat.push(
+        data.requestField({
+          source: "query",
+          name: value.name,
+          type: HUB_T.string,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:query-param")],
+        }),
+      );
+      continue;
+    }
     const val = value.value;
     const t =
       typeof val === "string"

@@ -6,6 +6,7 @@ CWL evolves by **RFC**: each proposal must cite cross-language evidence (path kn
 | --- | --- | --- |
 | [0001](CWL-RFC-0001-module-use-middleware.md) | Module `use json` / `use urlencoded` | accepted |
 | [0002](CWL-RFC-0002-path-parameters.md) | Path parameters (`:id` templates) | accepted |
+| [0003](CWL-RFC-0003-query-parameters.md) | Query parameters (`query name;`) | accepted |
 
 **Process**
 

@@ -136,6 +136,10 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G77 — PHP oracle fastify emit** — **`hub-php-oracle-smoke`** v3 emits **hono + fastify**; **`hub-completion`** schema **v24**. (**DESIGN D382**)
 - [x] **G78 — Migration planner API** — **`buildMigrationPlan`** + **`GET /api/hub/migration-plan`**; **`pnpm run hub:migration-plan`**. (**DESIGN D383**)
 - [x] **G79 — CWL RFC-0002 path parameters** — **`param`** bindings + **`cwl-path-params-*`** gold; **`hub-cwl-path-params.mjs`**. (**DESIGN D384**)
+- [x] **G80 — CWL RFC-0003 query parameters** — **`query`** bindings + **`cwl-query-params-*`** gold. (**DESIGN D385**)
+- [x] **G81 — CWL path/query → Next.js gold** — **`cwl-path-params-nextjs`**, **`cwl-query-params-nextjs`**. (**DESIGN D386**)
+- [x] **G82 — Origin database detection** — **`hub-detect-databases.mjs`** maps scan **`services`** to catalog ids; **`GET /api/hub/detect-databases`**. (**DESIGN D387**)
+- [x] **G83 — Migration planner + scan integration** — migration plan accepts site **`services`**; operator auto-fills databases from last scan. (**DESIGN D388**)
 
 ---
 

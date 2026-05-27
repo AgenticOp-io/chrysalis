@@ -52,6 +52,19 @@ handler item_show {
 }
 ```
 
+### Query parameters
+
+See **`docs/CWL-RFC-0003-query-parameters.md`**.
+
+```cwl
+@route GET "/search"
+handler search {
+  effects: none;
+  query q;
+  return { ok: true, q: q };
+}
+```
+
 ---
 
 ## Route declaration
