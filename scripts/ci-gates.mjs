@@ -958,11 +958,13 @@ function assertHubCompletion(path) {
     if (s.phpOracleSmoke?.ingestOk !== true && s.phpOracleSmoke?.skipped == null) {
       fail(`${label}: phpOracleSmoke.ingestOk must be true for schema v23 when not skipped`);
     }
-    if (s.pathKnowledgeV2?.schemaVersion !== 2) {
-      fail(`${label}: pathKnowledgeV2.schemaVersion must be 2 for schema v23`);
-    }
     if (!s.languageCompareApi) {
       fail(`${label}: languageCompareApi must be set for schema v23`);
+    }
+  }
+  if (s.schemaVersion === 23) {
+    if (s.pathKnowledgeV2?.schemaVersion !== 2) {
+      fail(`${label}: pathKnowledgeV2.schemaVersion must be 2 for schema v23`);
     }
   }
   if (s.schemaVersion >= 24) {
@@ -977,6 +979,12 @@ function assertHubCompletion(path) {
     }
     if (s.phpOracleSmoke?.emitFastifyOk !== true && s.phpOracleSmoke?.skipped == null) {
       fail(`${label}: phpOracleSmoke.emitFastifyOk must be true for schema v24 when not skipped`);
+    }
+    const pathParams = s.cwlPathParamsGold?.suiteIds ?? [];
+    for (const id of ["cwl-path-params-hono", "cwl-path-params-fastify"]) {
+      if (!pathParams.includes(id)) {
+        fail(`${label}: cwlPathParamsGold must list ${id} for schema v24`);
+      }
     }
   }
   const g = s.routeGrades;
