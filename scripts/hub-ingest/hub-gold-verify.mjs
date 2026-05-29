@@ -12,6 +12,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 import { isHubNativeGoldEmitTarget, runNativeGoldEmit } from "./hub-gold-native-emit.mjs";
 import { runHubWptpContractGoldSuite } from "./hub-wptp-contract-gold.mjs";
+import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -87,16 +88,34 @@ export async function runGoldVerifySuite(suite) {
     };
   }
 
-  const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", origin], {
-    cwd: scriptRoot,
-    encoding: "utf8",
-  });
-  if (lift.status !== 0) {
-    return { ok: false, reason: "lift-failed", stderr: lift.stderr, stdout: lift.stdout };
-  }
-  const liftReport = JSON.parse(lift.stdout.trim().split("\n").pop() ?? "{}");
-  if ((liftReport.holeCount ?? 1) !== 0) {
-    return { ok: false, reason: "lift-holes", liftReport };
+  /** @type {Record<string, unknown>} */
+  let liftReport;
+  if (origin === "php") {
+    const phpExport = await exportPhpHubWebir(fixture);
+    if (phpExport.skip) {
+      return { ok: false, reason: "php-export-skipped", phpExport };
+    }
+    if (!phpExport.ok) {
+      return { ok: false, reason: "php-export-holes", phpExport };
+    }
+    liftReport = {
+      routeCount: phpExport.routeCount,
+      holeCount: phpExport.holeCount,
+      astRouteCount: phpExport.routeCount,
+      usedPhpIngest: true,
+    };
+  } else {
+    const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", origin], {
+      cwd: scriptRoot,
+      encoding: "utf8",
+    });
+    if (lift.status !== 0) {
+      return { ok: false, reason: "lift-failed", stderr: lift.stderr, stdout: lift.stdout };
+    }
+    liftReport = JSON.parse(lift.stdout.trim().split("\n").pop() ?? "{}");
+    if ((liftReport.holeCount ?? 1) !== 0) {
+      return { ok: false, reason: "lift-holes", liftReport };
+    }
   }
 
   const webir = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);

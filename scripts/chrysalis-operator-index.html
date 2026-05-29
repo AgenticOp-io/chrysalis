@@ -300,6 +300,15 @@
         </div>
       </div>
       <div class="card">
+        <h3 style="margin-top:0">Evidence dashboard</h3>
+        <p id="consoleEvidenceSummary" class="muted">Verify correctness, holes, and blockers for the first site.</p>
+        <ul id="consoleEvidenceBlockers" class="muted" style="font-size:0.85rem;padding-left:1.2rem"></ul>
+        <pre id="consoleEvidenceJson" class="json" hidden></pre>
+        <div class="row">
+          <button type="button" class="secondary" id="btnLoadConsoleEvidence">Refresh evidence</button>
+        </div>
+      </div>
+      <div class="card">
         <h3>Origin sites</h3>
         <div id="sitesList"></div>
         <p class="muted" id="batchOverall">Batch: idle</p>

@@ -4,14 +4,29 @@
 
 ## 0. Before you do anything
 
-1. Read `DESIGN.md` in full. It is the north star.
-2. Read `ROADMAP.md` to know which milestone is active (file header; **Milestone 5** for flagship depth; Milestone 4 remains the closed v1 checklist). For cross-cutting parser/oracle/verify/hole work, see **“Multi-lane program”** near the end of `ROADMAP.md` (**DESIGN D211**).
-3. Read the `README.md` of the specific package you're about to touch.
-4. For **install / operations / administration / releases / GitHub Project planning**, see **`docs/`** (index: `docs/README.md`; GitHub Project: `docs/GITHUB_PROJECT.md`) in addition to the root `README.md`.
-5. If your plan contradicts `DESIGN.md`, do one of two things:
+1. Read `DESIGN.md` in full. It is the north star for architecture and invariants.
+2. Read **`docs/STRATEGIC-PLAN.md` in full. It is the **locked path** for what to build, in what order, and what to refuse. **Do not deviate** from it unless the user explicitly amends the plan (`DESIGN.md` Decision Log + edit `STRATEGIC-PLAN.md`).
+3. Read `ROADMAP.md` to know which milestone is active (file header; **Milestone 5** for flagship depth; Milestone 4 remains the closed v1 checklist). For cross-cutting parser/oracle/verify/hole work, see **“Multi-lane program”** near the end of `ROADMAP.md` (**DESIGN D211**). For phased delivery after hub G-track, see **“Strategic program (locked)”** in `ROADMAP.md`.
+4. Read the `README.md` of the specific package you're about to touch.
+5. For **install / operations / administration / releases / GitHub Project planning**, see **`docs/`** (index: `docs/README.md`; GitHub Project: `docs/GITHUB_PROJECT.md`) in addition to the root `README.md`.
+6. If your plan contradicts `DESIGN.md`, do one of two things:
    - **Change `DESIGN.md` first**, with a new entry in the Decision Log section, or
    - **Change your plan**.
    Never silently drift.
+7. If your plan contradicts **`docs/STRATEGIC-PLAN.md`**, treat that as drift unless the user is **explicitly** amending the strategic plan (not merely asking a question).
+
+### Strategic path (locked) — interaction rules
+
+The user may lock strategy in conversation. Unless they **explicitly** amend it:
+
+| They say | You do |
+| --- | --- |
+| “Build / implement / add / fix …” | Work that fits **`STRATEGIC-PLAN.md`** phases and priorities (still obey `DESIGN.md`) |
+| “What if …”, “Should we …”, “Can we …”, “Why …”, “Explain …” | **Clarify** against the strategic plan; map to phase/tier; **do not implement a fork** |
+| “Also …” without a build verb | Assume **clarification** unless they clearly command implementation |
+| “Ignore the plan and …” | Refuse off-plan implementation; offer to amend the plan formally if they want a new direction |
+
+**Default implementation queue** when build scope is unclear: `docs/STRATEGIC-PLAN.md` § “Next 90 days”.
 
 ## 1. The project is Chrysalis, not "a PHP-to-TS converter"
 

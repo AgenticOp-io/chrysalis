@@ -44,6 +44,42 @@ test("cwl parser: query params (RFC-0003 / G80)", async () => {
   expect(search?.handlerQueryParams).toEqual(["q"]);
 });
 
+test("cwl parser: body bindings (RFC-0005 / G99)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-request-body/routes.cwl");
+  const src = await readFile(FIX, "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  const create = mod.routes.find((r) => r.path === "/items");
+  expect(create?.handlerBodyParams).toEqual(["title", "qty"]);
+  expect(mod.moduleUses).toContain("express.json");
+});
+
+test("cwl parser: response content-type (RFC-0008 / G117)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-response-content-type/routes.cwl");
+  const src = await readFile(FIX, "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  const json = mod.routes.find((r) => r.path === "/json");
+  expect(json?.responseContentType).toBe("application/json");
+  const plain = mod.routes.find((r) => r.path === "/plain");
+  expect(plain?.responseContentType).toBe("text/plain; charset=utf-8");
+  const create = mod.routes.find((r) => r.path === "/items");
+  expect(create?.responseContentType).toBe("application/json");
+  expect(create?.responseStatus).toBe(201);
+});
+
+test("cwl parser: response status (RFC-0006 / G100)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-response-status/routes.cwl");
+  const src = await readFile(FIX, "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  const create = mod.routes.find((r) => r.path === "/items");
+  expect(create?.responseStatus).toBe(201);
+});
+
 test("cwl parser: header and cookie bindings (RFC-0004 / G84)", async () => {
   const { parseCwlModule } = await import(PARSER);
   const { readFile } = await import("node:fs/promises");
@@ -53,6 +89,17 @@ test("cwl parser: header and cookie bindings (RFC-0004 / G84)", async () => {
   const auth = mod.routes.find((r) => r.path === "/auth");
   expect(auth?.handlerHeaders).toEqual(["Authorization"]);
   expect(auth?.handlerCookies).toEqual(["session_id"]);
+});
+
+test("cwl parser: auth use and effects (RFC-0007 / G106)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-auth-effects/routes.cwl");
+  const src = await readFile(FIX, "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  expect(mod.moduleAuthUses).toEqual(["chrysalis.auth.session"]);
+  const me = mod.routes.find((r) => r.path === "/me");
+  expect(me?.effects).toContain("session.read");
 });
 
 test("cwl parser: module use json/urlencoded (RFC-0001 / G74)", async () => {

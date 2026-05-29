@@ -65,6 +65,48 @@ describe("emit-hono: foreach reduce chooser", () => {
     expect(emitted.body).not.toMatch(/for \(const row of/);
   });
 
+  test("emits c.json for web.request.response over CWL __object_literal block", () => {
+    const m = new ModuleBuilder({ sourceApp: "cwl-response-test" });
+    const data = dataDialect.builders(m);
+    const web = webRequest.builders(m);
+    let line = 1;
+    const loc = () => phpLocator("routes.cwl", line++, 1);
+
+    const obj = data.call({
+      callee: "__object_literal",
+      args: [
+        data.literal({ value: "ok", type: T.string, origin: loc() }),
+        data.literal({ value: true, type: T.bool, origin: loc() }),
+      ],
+      type: T.unknown,
+      origin: loc(),
+    });
+    const blk = data.block({ statements: [obj], origin: loc() });
+    const resp = web.response({
+      attrs: { status: 200, kind: "json", contentType: "application/json" },
+      value: blk,
+      origin: loc(),
+    });
+    const handler = web.handler({
+      attrs: { name: "json_ok", input: T.unknown, output: T.unknown },
+      body: resp,
+      effects: [],
+      origin: loc(),
+    });
+    const route = web.route({
+      attrs: { method: "GET", path: "/json", pathParams: [] },
+      handler,
+      origin: loc(),
+    });
+    m.addRoot(route);
+    const mod = m.finish();
+
+    const emitted = emitHandlerBody(mod, handler, undefined, honoHttpProfile);
+    expect(emitted.body).toContain("return c.json(({ ok: true })");
+    expect(emitted.body).not.toContain("__respond");
+    expect(emitted.body).not.toContain("unhandled data.block");
+  });
+
   test("emits phpDynamicNew for __new_dynamic calls", () => {
     const m = new ModuleBuilder({ sourceApp: "dynamic-new-test" });
     const data = dataDialect.builders(m);

@@ -1,0 +1,8 @@
+{
+  "name": "@chrysalis/fixture-hub-flagship-express",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

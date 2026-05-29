@@ -1,0 +1,11 @@
+# Class-prefix probe: yaml carries fully-resolved paths (Symfony combines
+# class #[Route] prefix with method route at runtime; the manifest + parity
+# verify the resolved surface).
+api_items_list:
+  path: /api/items
+  methods: GET
+  controller: App\Controller\ApiItemsListController
+api_items_show:
+  path: /api/items/{id}
+  methods: GET
+  controller: App\Controller\ApiItemsShowController

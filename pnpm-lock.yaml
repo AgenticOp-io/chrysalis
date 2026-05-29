@@ -161,6 +161,8 @@ importers:
 
   packages/oracle: {}
 
+  packages/oracle-node: {}
+
   packages/parser-bridge:
     dependencies:
       php-parser:

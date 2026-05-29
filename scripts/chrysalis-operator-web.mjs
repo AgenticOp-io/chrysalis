@@ -25,6 +25,12 @@ import {
 import { buildHubCompletionSections } from "./hub-ingest/hub-completion-sections.mjs";
 import { compareHubLanguages } from "./hub-ingest/hub-language-compare.mjs";
 import { buildMigrationPlan } from "./hub-ingest/hub-migration-planner.mjs";
+import { buildMigrationProgram } from "./hub-ingest/hub-migration-programs.mjs";
+import { buildHubCapabilityMatrixReport } from "./hub-ingest/hub-capability-matrix.mjs";
+import { buildHubEvidenceReport } from "./hub-ingest/hub-evidence.mjs";
+import { buildVerifyPlaybooksReport } from "./hub-ingest/hub-verify-playbooks.mjs";
+import { buildLaravelVerifyGapsReport } from "./hub-ingest/hub-laravel-verify-gaps.mjs";
+import { runNodeExpressOracleVerify } from "./hub-ingest/hub-node-express-oracle-verify.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-ingest/hub-web-databases.mjs";
 import { buildDatabaseDetectionReport } from "./hub-ingest/hub-detect-databases.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
@@ -875,6 +881,46 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/laravel-verify-gaps") {
+    sendJson(res, 200, buildLaravelVerifyGapsReport());
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/node-express-oracle-verify") {
+    const report = await runNodeExpressOracleVerify();
+    sendJson(res, 200, report);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/capability-matrix") {
+    sendJson(res, 200, buildHubCapabilityMatrixReport());
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/migration-program") {
+    const origin = url.searchParams.get("origin");
+    const outputsRaw = url.searchParams.get("outputs");
+    const programId = url.searchParams.get("program") ?? "api-slice";
+    const dbRaw = url.searchParams.get("databases");
+    if (!origin || !outputsRaw) {
+      sendJson(res, 400, { error: "origin and outputs required" });
+      return;
+    }
+    const outputs = outputsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+    const detectedDatabases = dbRaw ? dbRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
+    sendJson(res, 200, buildMigrationProgram({ origin, outputs, programId, detectedDatabases }));
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/verify-playbooks") {
+    const projectDir = url.searchParams.get("projectDir");
+    const summaryPath = projectDir
+      ? join(resolve(projectDir), "reports", "verify", "summary.json")
+      : null;
+    sendJson(res, 200, buildVerifyPlaybooksReport(summaryPath ?? undefined));
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/migration-plan") {
     const origin = url.searchParams.get("origin");
     const outputsRaw = url.searchParams.get("outputs");
@@ -966,6 +1012,23 @@ const server = createServer(async (req, res) => {
       pairs = pairs.slice(0, Math.trunc(limit));
     }
     sendJson(res, 200, { ...report, pairs });
+    return;
+  }
+
+  const hubEvidenceMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/evidence$/);
+  if (req.method === "GET" && hubEvidenceMatch) {
+    const actor = hubActorFromRequest(req, authToken);
+    const p = await getProjectForActor(decodeURIComponent(hubEvidenceMatch[1]), actor);
+    if (!p) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    const site = p.sites?.[0];
+    if (!site?.localDir) {
+      sendJson(res, 422, { error: "no-site-dir", message: "Add a site with pulled code first." });
+      return;
+    }
+    sendJson(res, 200, buildHubEvidenceReport(site.localDir));
     return;
   }
 

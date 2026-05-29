@@ -7,15 +7,20 @@ const MANIFEST = fileURLToPath(
 
 test("hub gold manifest: pair coverage and suite inventory (G37)", async () => {
   const m = await import(MANIFEST);
-  expect(m.hubGoldStructuralSuiteIds().length).toBe(119);
-  expect(m.hubGoldTraceReplaySuiteIds().length).toBe(93);
+  expect(m.hubGoldStructuralSuiteIds().length).toBe(141);
+  expect(m.hubGoldTraceReplaySuiteIds().length).toBe(112);
   const cssHono = m.hubGoldSuitesForPair("css", "hono");
   expect(cssHono.map((s: { id: string }) => s.id)).toContain("css-literal-hono");
   const jsNext = m.hubGoldSuitesForPair("javascript", "nextjs");
   expect(jsNext.map((s: { id: string }) => s.id)).toContain("js-literal-nextjs");
   const jsHono = m.hubGoldSuitesForPair("javascript", "hono");
   expect(jsHono.map((s: { id: string }) => s.id)).toEqual(
-    expect.arrayContaining(["js-literal-hono", "js-structured-hono", "js-middleware-hono"]),
+    expect.arrayContaining([
+      "js-literal-hono",
+      "js-structured-hono",
+      "js-middleware-hono",
+      "express-flagship-hono",
+    ]),
   );
   const coverage = m.buildHubGoldSuiteCoverage("cwl", "fastify");
   expect(coverage.suiteIds).toContain("cwl-gold-fastify");

@@ -2,6 +2,7 @@
  * Hub completion report sections (shared by hub-completion + operator UI).
  */
 import { hubGoldStructuralSuiteIds } from "./hub-gold-manifest.mjs";
+import { ORACLE_PRODUCT_PAIRS } from "./hub-capability-matrix.mjs";
 
 /** @returns {string[]} */
 export function hubGoldAssetExtendedOrigins() {
@@ -37,6 +38,11 @@ export function buildHubCompletionSections() {
       fixture: "fixtures/tiny-blog",
       pairs: ["php:hono", "php:fastify", "php:nextjs", "php:typescript"],
       completionField: "phpOracleSmoke",
+    },
+    capabilityTiers: {
+      oracleProductPairs: ORACLE_PRODUCT_PAIRS.map((p) => `${p.origin}:${p.output}`),
+      structuralSuiteCount: hubGoldStructuralSuiteIds().length,
+      doc: "docs/CAPABILITY-MATRIX.md",
     },
   };
 }

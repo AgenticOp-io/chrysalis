@@ -1,9 +1,11 @@
 /**
  * CWL → WebIR ingest (direct; no lossy lift).
  */
-import { emitHubRoute, hubHandlerBodyHole, HUB_T, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
+import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
 import { parseCwlModule } from "./cwl-parser.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
+import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
+import { cwlEffectsToWebir } from "./hub-cwl-effects.mjs";
 import { cwlPathParamsForWebir } from "./hub-cwl-path-params.mjs";
 
 /**
@@ -12,6 +14,35 @@ import { cwlPathParamsForWebir } from "./hub-cwl-path-params.mjs";
  */
 export function canCwlIngest(language, ext) {
   return language === "cwl" && ext.toLowerCase() === ".cwl";
+}
+
+/**
+ * Lower a path/query param reference to a WebIR request field, wrapping it in a
+ * `?? default` binop when the CWL declaration carried a default (`query q = "";`).
+ * @param {object} ctx
+ * @param {"path" | "query"} source
+ * @param {{ name?: string, default?: unknown }} value
+ * @param {{ file: string, line: number, column: number }} origin
+ */
+function lowerCwlParamField(ctx, source, value, origin) {
+  const { data, webir } = ctx;
+  const field = data.requestField({
+    source,
+    name: value.name,
+    type: HUB_T.string,
+    origin,
+    provenance: [webir.provenance("hub-ingest", `cwl:${source}-param`)],
+  });
+  if (!Object.prototype.hasOwnProperty.call(value, "default")) return field;
+  const fallback = lowerHubLiteral(ctx, value.default, { file: origin.file, line: origin.line });
+  return data.binOp({
+    operator: "??",
+    left: field,
+    right: fallback,
+    type: HUB_T.string,
+    origin,
+    provenance: [webir.provenance("hub-ingest", `cwl:${source}-param-default`)],
+  });
 }
 
 /**
@@ -33,27 +64,11 @@ function lowerObjectEntriesBody(ctx, entries, loc) {
       }),
     );
     if (value.kind === "pathParam" && value.name) {
-      flat.push(
-        data.requestField({
-          source: "path",
-          name: value.name,
-          type: HUB_T.string,
-          origin,
-          provenance: [webir.provenance("hub-ingest", "cwl:path-param")],
-        }),
-      );
+      flat.push(lowerCwlParamField(ctx, "path", value, origin));
       continue;
     }
     if (value.kind === "queryParam" && value.name) {
-      flat.push(
-        data.requestField({
-          source: "query",
-          name: value.name,
-          type: HUB_T.string,
-          origin,
-          provenance: [webir.provenance("hub-ingest", "cwl:query-param")],
-        }),
-      );
+      flat.push(lowerCwlParamField(ctx, "query", value, origin));
       continue;
     }
     if (value.kind === "headerParam" && value.name) {
@@ -76,6 +91,18 @@ function lowerObjectEntriesBody(ctx, entries, loc) {
           type: HUB_T.string,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:cookie")],
+        }),
+      );
+      continue;
+    }
+    if (value.kind === "bodyParam" && value.name) {
+      flat.push(
+        data.requestField({
+          source: "body",
+          name: value.name,
+          type: HUB_T.string,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:body")],
         }),
       );
       continue;
@@ -141,21 +168,51 @@ export function liftCwlFileToWebir(opts) {
     middlewareUseCount = mw.middlewareUseCount;
     middlewareRootCount = mw.middlewareRootCount;
   }
+  if (parsed.moduleAuthUses?.length) {
+    liftCwlAuthPresetsToWebir(parsed.moduleAuthUses, { file, builder, wr: wrBuilders, webir });
+  }
   if (parsed.routes.length === 0 && middlewareUseCount === 0) {
     return { routeCount: 0, astRouteCount: 0, usedAst: false, middlewareUseCount, middlewareRootCount };
   }
 
   for (const r of parsed.routes) {
-    let bodyId;
+    let valueId;
     const loc = { file, line: r.line };
     if (r.body.kind === "literal") {
-      bodyId = lowerHubLiteral(ctx, r.body.value, loc);
+      valueId = lowerHubLiteral(ctx, r.body.value, loc);
     } else if (r.body.kind === "object" && r.body.entries) {
-      bodyId = lowerObjectEntriesBody(ctx, r.body.entries, loc);
+      valueId = lowerObjectEntriesBody(ctx, r.body.entries, loc);
     } else if (r.body.kind === "object" && r.body.value) {
-      bodyId = lowerObjectBody(ctx, r.body.value, loc);
+      valueId = lowerObjectBody(ctx, r.body.value, loc);
+    } else if ((r.body.kind === "pathParam" || r.body.kind === "queryParam") && r.body.name) {
+      valueId = lowerCwlParamField(
+        ctx,
+        r.body.kind === "pathParam" ? "path" : "query",
+        r.body,
+        { file, line: r.line ?? 1, column: 1 },
+      );
     } else {
-      bodyId = hubHandlerBodyHole(ctx, r.body.reason ?? "cwl:hole", loc);
+      valueId = hubHandlerBodyHole(ctx, r.body.reason ?? "cwl:hole", loc);
+    }
+    const status = r.responseStatus ?? 200;
+    const contentType = r.responseContentType ?? undefined;
+    const kind = contentType?.includes("json")
+      ? "json"
+      : contentType?.includes("html")
+        ? "html"
+        : contentType
+          ? "text"
+          : "json";
+    let bodyId = valueId;
+    if (status !== 200 || contentType) {
+      bodyId = wrBuilders.response({
+        attrs: { status, kind, contentType },
+        value: valueId,
+        origin: hubOrigin(file, r.line ?? 1),
+        provenance: [
+          webir.provenance("hub-ingest", contentType ? "cwl:response-content-type" : "cwl:response-status"),
+        ],
+      });
     }
     emitHubRoute({
       webir,
@@ -171,6 +228,7 @@ export function liftCwlFileToWebir(opts) {
         pathParams: cwlPathParamsForWebir(r.path),
       },
       bodyId,
+      handlerEffects: cwlEffectsToWebir(r.effects),
     });
   }
 

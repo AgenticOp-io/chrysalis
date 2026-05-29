@@ -769,6 +769,992 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
+  test("accepts schema v37 with Symfony attribute method-list parity", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v37-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 37;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: {
+          ok: true,
+          yamlRouteCount: 20,
+          manifestRouteCount: 20,
+          script: "pnpm run hub:symfony-routes",
+        },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+        attributePrefixParity: { ok: true, routeCount: 2, fixture: "fixtures/hub-symfony-attr-prefix" },
+        attributeMethodsParity: { ok: true, routeCount: 3, fixture: "fixtures/hub-symfony-attr-methods" },
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+      };
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 20,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 7,
+      };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: [
+          "cwl-response-content-type-hono",
+          "cwl-response-content-type-fastify",
+          "cwl-response-content-type-nextjs",
+        ],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 141,
+        suiteCount: 141,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 112,
+        suiteCount: 112,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v39 with hole-free CWL projection coverage", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v39-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 39;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: { ok: true, yamlRouteCount: 20, manifestRouteCount: 20, script: "pnpm run hub:symfony-routes" },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+        routesNameParity: { ok: true, yamlNameCount: 20, attributeNameCount: 20 },
+        attributePrefixParity: { ok: true, routeCount: 2, fixture: "fixtures/hub-symfony-attr-prefix" },
+        attributeMethodsParity: { ok: true, routeCount: 3, fixture: "fixtures/hub-symfony-attr-methods" },
+        cwlProjection: { total: 20, holeFree: 20, withStatus: 0, withParams: 0, withParamDefaults: 0, withContentType: 20, objectBodies: 0, holeReasons: [] },
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+        cwlProjection: { total: 20, holeFree: 20, withStatus: 2, withParams: 5, withParamDefaults: 1, withContentType: 19, objectBodies: 10, holeReasons: [] },
+      };
+      payload.nodeExpressOracleVerify = { ok: true, correctness: 1, traceCount: 20, script: "pnpm run hub:node-express-oracle-verify" };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: ["express-flagship-hono", "express-flagship-fastify", "express-flagship-nextjs", "express-flagship-cwl"],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = { ...(payload.capabilityMatrix ?? {}), oracleProductPairCount: 7 };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: ["cwl-response-content-type-hono", "cwl-response-content-type-fastify", "cwl-response-content-type-nextjs"],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 141, suiteCount: 141, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 112, suiteCount: 112, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects schema v39 with a holey CWL projection", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v39-bad-"));
+    const p = join(dir, "bad.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 39;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: { ok: true, yamlRouteCount: 20, manifestRouteCount: 20, script: "pnpm run hub:symfony-routes" },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+        routesNameParity: { ok: true, yamlNameCount: 20, attributeNameCount: 20 },
+        attributePrefixParity: { ok: true, routeCount: 2, fixture: "fixtures/hub-symfony-attr-prefix" },
+        attributeMethodsParity: { ok: true, routeCount: 3, fixture: "fixtures/hub-symfony-attr-methods" },
+        cwlProjection: { total: 20, holeFree: 20, withStatus: 0, withParams: 0, withParamDefaults: 0, withContentType: 20, objectBodies: 0, holeReasons: [] },
+      };
+      // The only forced failure: plain-php CWL projection is no longer hole-free.
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+        cwlProjection: { total: 20, holeFree: 18, withStatus: 2, withParams: 5, withParamDefaults: 1, withContentType: 19, objectBodies: 10, holeReasons: ["hub:cwl:unsupported-body"] },
+      };
+      payload.nodeExpressOracleVerify = { ok: true, correctness: 1, traceCount: 20, script: "pnpm run hub:node-express-oracle-verify" };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: ["express-flagship-hono", "express-flagship-fastify", "express-flagship-nextjs", "express-flagship-cwl"],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = { ...(payload.capabilityMatrix ?? {}), oracleProductPairCount: 7 };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: ["cwl-response-content-type-hono", "cwl-response-content-type-fastify", "cwl-response-content-type-nextjs"],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 141, suiteCount: 141, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 112, suiteCount: 112, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/cwlProjection must be hole-free/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v40 with hole-free express CWL projection (G136)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v40-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 40;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: { ok: true, yamlRouteCount: 20, manifestRouteCount: 20, script: "pnpm run hub:symfony-routes" },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+        routesNameParity: { ok: true, yamlNameCount: 20, attributeNameCount: 20 },
+        attributePrefixParity: { ok: true, routeCount: 2, fixture: "fixtures/hub-symfony-attr-prefix" },
+        attributeMethodsParity: { ok: true, routeCount: 3, fixture: "fixtures/hub-symfony-attr-methods" },
+        cwlProjection: { total: 20, holeFree: 20, withStatus: 0, withParams: 0, withParamDefaults: 0, withContentType: 20, objectBodies: 0, holeReasons: [] },
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+        cwlProjection: { total: 20, holeFree: 20, withStatus: 2, withParams: 5, withParamDefaults: 1, withContentType: 19, objectBodies: 10, holeReasons: [] },
+      };
+      payload.nodeExpressOracleVerify = { ok: true, correctness: 1, traceCount: 20, script: "pnpm run hub:node-express-oracle-verify" };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: ["express-flagship-hono", "express-flagship-fastify", "express-flagship-nextjs", "express-flagship-cwl"],
+        script: "pnpm run hub:express-flagship",
+        cwlProjection: { total: 20, holeFree: 20, withStatus: 0, withParams: 0, withParamDefaults: 0, withContentType: 20, objectBodies: 3, holeReasons: [] },
+      };
+      payload.capabilityMatrix = { ...(payload.capabilityMatrix ?? {}), oracleProductPairCount: 7 };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: ["cwl-response-content-type-hono", "cwl-response-content-type-fastify", "cwl-response-content-type-nextjs"],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 141, suiteCount: 141, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 112, suiteCount: 112, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects schema v40 with a holey express CWL projection (G136)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v40-bad-"));
+    const p = join(dir, "bad.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 40;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: { ok: true, yamlRouteCount: 20, manifestRouteCount: 20, script: "pnpm run hub:symfony-routes" },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+        routesNameParity: { ok: true, yamlNameCount: 20, attributeNameCount: 20 },
+        attributePrefixParity: { ok: true, routeCount: 2, fixture: "fixtures/hub-symfony-attr-prefix" },
+        attributeMethodsParity: { ok: true, routeCount: 3, fixture: "fixtures/hub-symfony-attr-methods" },
+        cwlProjection: { total: 20, holeFree: 20, withStatus: 0, withParams: 0, withParamDefaults: 0, withContentType: 20, objectBodies: 0, holeReasons: [] },
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+        cwlProjection: { total: 20, holeFree: 20, withStatus: 2, withParams: 5, withParamDefaults: 1, withContentType: 19, objectBodies: 10, holeReasons: [] },
+      };
+      payload.nodeExpressOracleVerify = { ok: true, correctness: 1, traceCount: 20, script: "pnpm run hub:node-express-oracle-verify" };
+      // The only forced failure: the express CWL projection is no longer hole-free.
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: ["express-flagship-hono", "express-flagship-fastify", "express-flagship-nextjs", "express-flagship-cwl"],
+        script: "pnpm run hub:express-flagship",
+        cwlProjection: { total: 20, holeFree: 17, withStatus: 0, withParams: 0, withParamDefaults: 0, withContentType: 20, objectBodies: 3, holeReasons: ["hub:cwl:unsupported-body"] },
+      };
+      payload.capabilityMatrix = { ...(payload.capabilityMatrix ?? {}), oracleProductPairCount: 7 };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: ["cwl-response-content-type-hono", "cwl-response-content-type-fastify", "cwl-response-content-type-nextjs"],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 141, suiteCount: 141, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 112, suiteCount: 112, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/expressFlagshipGold\.cwlProjection must be hole-free/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v38 with Symfony route-name parity", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v38-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 38;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: {
+          ok: true,
+          yamlRouteCount: 20,
+          manifestRouteCount: 20,
+          script: "pnpm run hub:symfony-routes",
+        },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+        routesNameParity: { ok: true, yamlNameCount: 20, attributeNameCount: 20 },
+        attributePrefixParity: { ok: true, routeCount: 2, fixture: "fixtures/hub-symfony-attr-prefix" },
+        attributeMethodsParity: { ok: true, routeCount: 3, fixture: "fixtures/hub-symfony-attr-methods" },
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+      };
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 20,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 7,
+      };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: [
+          "cwl-response-content-type-hono",
+          "cwl-response-content-type-fastify",
+          "cwl-response-content-type-nextjs",
+        ],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 141,
+        suiteCount: 141,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 112,
+        suiteCount: 112,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v36 with Symfony class-prefix attribute parity", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v36-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 36;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: {
+          ok: true,
+          yamlRouteCount: 20,
+          manifestRouteCount: 20,
+          script: "pnpm run hub:symfony-routes",
+        },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+        attributePrefixParity: { ok: true, routeCount: 2, fixture: "fixtures/hub-symfony-attr-prefix" },
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+      };
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 20,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 7,
+      };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: [
+          "cwl-response-content-type-hono",
+          "cwl-response-content-type-fastify",
+          "cwl-response-content-type-nextjs",
+        ],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 141,
+        suiteCount: 141,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 112,
+        suiteCount: 112,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v35 with Symfony attribute route parity", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v35-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 35;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: {
+          ok: true,
+          yamlRouteCount: 20,
+          manifestRouteCount: 20,
+          script: "pnpm run hub:symfony-routes",
+        },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+      };
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 20,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 7,
+      };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: [
+          "cwl-response-content-type-hono",
+          "cwl-response-content-type-fastify",
+          "cwl-response-content-type-nextjs",
+        ],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 141,
+        suiteCount: 141,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 112,
+        suiteCount: 112,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v34 with Symfony routes.yaml parity", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v34-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 34;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+        routesYamlParity: {
+          ok: true,
+          yamlRouteCount: 20,
+          manifestRouteCount: 20,
+          script: "pnpm run hub:symfony-routes",
+        },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+      };
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 20,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 7,
+      };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: [
+          "cwl-response-content-type-hono",
+          "cwl-response-content-type-fastify",
+          "cwl-response-content-type-nextjs",
+        ],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 141,
+        suiteCount: 141,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 112,
+        suiteCount: 112,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v33 with Symfony flagship gold", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v33-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 33;
+      payload.symfonyFlagshipGold = {
+        ok: true,
+        routeCount: 10,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        script: "pnpm run hub:symfony-flagship",
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 10,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+      };
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 10,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 7,
+      };
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: [
+          "cwl-response-content-type-hono",
+          "cwl-response-content-type-fastify",
+          "cwl-response-content-type-nextjs",
+        ],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 141,
+        suiteCount: 141,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 112,
+        suiteCount: 112,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v32 with CWL response content-type gold", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v32-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 32;
+      payload.cwlResponseContentTypeGold = {
+        suiteIds: [
+          "cwl-response-content-type-hono",
+          "cwl-response-content-type-fastify",
+          "cwl-response-content-type-nextjs",
+        ],
+        rfc: "CWL-RFC-0008",
+      };
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 10,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+      };
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 10,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 6,
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 138,
+        suiteCount: 138,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 110,
+        suiteCount: 110,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v31 with plain PHP flagship gold", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v31-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 31;
+      payload.plainPhpFlagshipGold = {
+        ok: true,
+        routeCount: 10,
+        suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+        script: "pnpm run hub:plain-php-flagship",
+      };
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 10,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 6,
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 135,
+        suiteCount: 135,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 107,
+        suiteCount: 107,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v30 with node express oracle verify", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v30-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 30;
+      payload.nodeExpressOracleVerify = {
+        ok: true,
+        correctness: 1,
+        traceCount: 10,
+        script: "pnpm run hub:node-express-oracle-verify",
+      };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        oracleProductPairCount: 5,
+      };
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 132,
+        suiteCount: 132,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 105,
+        suiteCount: 105,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v29 with express flagship gold", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v29-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 29;
+      payload.expressFlagshipGold = {
+        ok: true,
+        suiteIds: [
+          "express-flagship-hono",
+          "express-flagship-fastify",
+          "express-flagship-nextjs",
+          "express-flagship-cwl",
+        ],
+        script: "pnpm run hub:express-flagship",
+      };
+      payload.goldVerify = {
+        ...(payload.goldVerify ?? {}),
+        expectedSuiteCount: 132,
+        suiteCount: 132,
+        ok: true,
+      };
+      payload.traceReplay = {
+        ...(payload.traceReplay ?? {}),
+        expectedSuiteCount: 105,
+        suiteCount: 105,
+        ok: true,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v28 with auth effects and php nextjs verify", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v28-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 28;
+      payload.cwlAuthEffectsGold = {
+        suiteIds: ["cwl-auth-effects-hono", "cwl-auth-effects-fastify", "cwl-auth-effects-nextjs"],
+      };
+      payload.laravelVerifyGaps = { exportScript: "pnpm run hub:laravel-verify-gaps" };
+      payload.phpNextjsVerify = { ok: true, skip: "no-wptp-emit-nextjs" };
+      payload.phpOracleSmoke = {
+        ...(payload.phpOracleSmoke ?? {}),
+        verifyNextjsOk: true,
+        wptpEmitNextjsAvailable: false,
+      };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v27 with CWL body/status and capability matrix", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v27-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 27;
+      payload.cwlRequestBodyGold = {
+        suiteIds: ["cwl-request-body-hono", "cwl-request-body-fastify", "cwl-request-body-nextjs"],
+        rfc: "CWL-RFC-0005",
+      };
+      payload.cwlResponseStatusGold = {
+        suiteIds: ["cwl-response-status-hono", "cwl-response-status-fastify", "cwl-response-status-nextjs"],
+        rfc: "CWL-RFC-0006",
+      };
+      payload.capabilityMatrix = {
+        schemaVersion: 1,
+        oracleProductPairCount: 4,
+        structuralSuiteCount: 125,
+        doc: "docs/CAPABILITY-MATRIX.md",
+      };
+      payload.migrationProgramsApi = "/api/hub/migration-program";
+      payload.evidenceApi = "/api/hub/projects/{id}/evidence";
+      payload.verifyPlaybooksApi = "/api/hub/verify-playbooks";
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+      if (r.status !== 0) {
+        throw new Error(r.stderr || r.stdout);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("accepts schema v4 with traceReplay targets", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v4-"));
     const p = join(dir, "ok.json");

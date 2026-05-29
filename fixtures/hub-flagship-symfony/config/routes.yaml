@@ -1,0 +1,81 @@
+# Symfony-style route map (documentation; hub ingest uses chrysalis.routes.json).
+health:
+  path: /health
+  methods: GET
+  controller: App\Controller\HealthController
+ping:
+  path: /ping
+  methods: GET
+  controller: App\Controller\PingController
+version:
+  path: /version
+  methods: GET
+  controller: App\Controller\VersionController
+ready:
+  path: /ready
+  methods: GET
+  controller: App\Controller\ReadyController
+count:
+  path: /count
+  methods: GET
+  controller: App\Controller\CountController
+flag:
+  path: /flag
+  methods: GET
+  controller: App\Controller\FlagController
+build:
+  path: /build
+  methods: GET
+  controller: App\Controller\BuildController
+tier:
+  path: /tier
+  methods: GET
+  controller: App\Controller\TierController
+meta:
+  path: /meta
+  methods: GET
+  controller: App\Controller\MetaController
+echo:
+  path: /echo
+  methods: POST
+  controller: App\Controller\EchoController
+items_list:
+  path: /items
+  methods: GET
+  controller: App\Controller\ItemsListController
+items_show:
+  path: /items/{id}
+  methods: GET
+  controller: App\Controller\ItemsShowController
+items_create:
+  path: /items
+  methods: POST
+  controller: App\Controller\ItemsCreateController
+search:
+  path: /search
+  methods: GET
+  controller: App\Controller\SearchController
+items_update:
+  path: /items/{id}
+  methods: PUT
+  controller: App\Controller\ItemsUpdateController
+items_delete:
+  path: /items/{id}
+  methods: DELETE
+  controller: App\Controller\ItemsDeleteController
+items_patch:
+  path: /items/{id}
+  methods: PATCH
+  controller: App\Controller\ItemsPatchController
+user_show:
+  path: /users/{userId}
+  methods: GET
+  controller: App\Controller\UserShowController
+stats:
+  path: /stats
+  methods: GET
+  controller: App\Controller\StatsController
+notify:
+  path: /notify
+  methods: POST
+  controller: App\Controller\NotifyController

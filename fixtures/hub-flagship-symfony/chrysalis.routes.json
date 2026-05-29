@@ -1,0 +1,50 @@
+{
+  "app": "hub-flagship-symfony",
+  "routes": [
+    { "method": "GET", "path": "/health", "file": "src/Controller/HealthController.php", "pathParams": [] },
+    { "method": "GET", "path": "/ping", "file": "src/Controller/PingController.php", "pathParams": [] },
+    { "method": "GET", "path": "/version", "file": "src/Controller/VersionController.php", "pathParams": [] },
+    { "method": "GET", "path": "/ready", "file": "src/Controller/ReadyController.php", "pathParams": [] },
+    { "method": "GET", "path": "/count", "file": "src/Controller/CountController.php", "pathParams": [] },
+    { "method": "GET", "path": "/flag", "file": "src/Controller/FlagController.php", "pathParams": [] },
+    { "method": "GET", "path": "/build", "file": "src/Controller/BuildController.php", "pathParams": [] },
+    { "method": "GET", "path": "/tier", "file": "src/Controller/TierController.php", "pathParams": [] },
+    { "method": "GET", "path": "/meta", "file": "src/Controller/MetaController.php", "pathParams": [] },
+    { "method": "POST", "path": "/echo", "file": "src/Controller/EchoController.php", "pathParams": [] },
+    { "method": "GET", "path": "/items", "file": "src/Controller/ItemsListController.php", "pathParams": [] },
+    {
+      "method": "GET",
+      "path": "/items/:id",
+      "file": "src/Controller/ItemsShowController.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    },
+    { "method": "POST", "path": "/items", "file": "src/Controller/ItemsCreateController.php", "pathParams": [] },
+    { "method": "GET", "path": "/search", "file": "src/Controller/SearchController.php", "pathParams": [] },
+    {
+      "method": "PUT",
+      "path": "/items/:id",
+      "file": "src/Controller/ItemsUpdateController.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    },
+    {
+      "method": "DELETE",
+      "path": "/items/:id",
+      "file": "src/Controller/ItemsDeleteController.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    },
+    {
+      "method": "PATCH",
+      "path": "/items/:id",
+      "file": "src/Controller/ItemsPatchController.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    },
+    {
+      "method": "GET",
+      "path": "/users/:userId",
+      "file": "src/Controller/UserShowController.php",
+      "pathParams": [{ "name": "userId", "type": "string", "phpVar": "userId" }]
+    },
+    { "method": "GET", "path": "/stats", "file": "src/Controller/StatsController.php", "pathParams": [] },
+    { "method": "POST", "path": "/notify", "file": "src/Controller/NotifyController.php", "pathParams": [] }
+  ]
+}

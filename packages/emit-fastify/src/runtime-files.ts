@@ -823,7 +823,9 @@ export async function fetch(input: RequestInfo | URL, init?: RequestInit): Promi
       out.set(k, String(v));
     }
   }
-  return new Response(inj.payload, { status: inj.statusCode, headers: out });
+  const nullBodyStatus =
+    inj.statusCode === 204 || inj.statusCode === 304 || (inj.statusCode >= 100 && inj.statusCode < 200);
+  return new Response(nullBodyStatus ? null : inj.payload, { status: inj.statusCode, headers: out });
 }
 `;
 

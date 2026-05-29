@@ -72,6 +72,18 @@ export function hubJobSteps(repo, cliBin, projectDir, runnable, progressFile) {
       execPath: process.execPath,
       argv: [cliBin, "emit", projectDir, "--out", out, "--target", target],
     });
+    if (process.env.CHRYSALIS_HUB_VERIFY_GATE !== "0") {
+      steps.push({
+        kind: "hub-evidence-gate",
+        execPath: process.execPath,
+        argv: [
+          join(repo, "scripts/hub-ingest/hub-evidence.mjs"),
+          "--project",
+          projectDir,
+          "--record-snapshot",
+        ],
+      });
+    }
     return steps;
   }
 

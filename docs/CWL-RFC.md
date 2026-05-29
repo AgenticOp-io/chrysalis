@@ -8,6 +8,10 @@ CWL evolves by **RFC**: each proposal must cite cross-language evidence (path kn
 | [0002](CWL-RFC-0002-path-parameters.md) | Path parameters (`:id` templates) | accepted |
 | [0003](CWL-RFC-0003-query-parameters.md) | Query parameters (`query name;`) | accepted |
 | [0004](CWL-RFC-0004-request-context.md) | Headers and cookies | accepted |
+| [0005](CWL-RFC-0005-request-body.md) | JSON request body fields | accepted |
+| [0006](CWL-RFC-0006-response-status.md) | Response status | accepted |
+| [0007](CWL-RFC-0007-auth-effects.md) | Auth presets and effects | accepted |
+| [0008](CWL-RFC-0008-response-content-type.md) | Response content-type | accepted |
 
 **Process**
 

@@ -40,8 +40,13 @@ async function walk(dir, exts, paths, depth) {
       ent.name === ".git" ||
       ent.name === "vendor" ||
       ent.name === "generated" ||
-      ent.name === ".chrysalis"
+      ent.name === ".chrysalis" ||
+      ent.name === "traces" ||
+      ent.name === "oracle"
     ) {
+      continue;
+    }
+    if (ent.isFile() && ent.name === "serve.mjs") {
       continue;
     }
     const p = join(dir, ent.name);

@@ -79,6 +79,63 @@ handler auth_check {
 }
 ```
 
+### JSON request body
+
+See **`docs/CWL-RFC-0005-request-body.md`**.
+
+```cwl
+module api;
+use json;
+
+@route POST "/items"
+handler items_create {
+  effects: none;
+  body title;
+  return { ok: true, title: title };
+}
+```
+
+### Response status
+
+See **`docs/CWL-RFC-0006-response-status.md`**.
+
+### Response content-type
+
+See **`docs/CWL-RFC-0008-response-content-type.md`**.
+
+```cwl
+@route GET "/json"
+handler json_ok {
+  effects: none;
+  content-type "application/json";
+  return { ok: true };
+}
+```
+
+### Auth presets and effects
+
+See **`docs/CWL-RFC-0007-auth-effects.md`**.
+
+```cwl
+module api;
+use auth session;
+
+@route GET "/me"
+handler me {
+  effects: session.read;
+  return { ok: true };
+}
+```
+
+```cwl
+@route POST "/items"
+handler items_create {
+  effects: none;
+  status 201;
+  return { ok: true };
+}
+```
+
 ---
 
 ## Route declaration

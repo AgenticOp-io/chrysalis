@@ -28,6 +28,7 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | Document | Audience | Purpose |
 | --- | --- | --- |
 | [`DESIGN.md`](../DESIGN.md) (root) | Contributors and integrators | The non-negotiable principles, the project vocabulary, and the decision log. The rules every change has to live within. |
+| [Strategic plan](./STRATEGIC-PLAN.md) | Product owners, contributors, agents | **Locked** build order: PHP oracle wedge, Hub migration OS, CWL interchange; what to refuse. |
 | [`ROADMAP.md`](../ROADMAP.md) (root) | Contributors | Milestones, what is done, and what is deferred. |
 | [`AGENTS.md`](../AGENTS.md) (root) | Contributors and automation | Repository contribution rules, pass naming, file layout discipline. |
 | [`README.md`](../README.md) (root) | Operators consuming machine output | Operator-facing tables for the JSON shapes Chrysalis emits (`schemaVersion`, `kind`, gate scripts). |

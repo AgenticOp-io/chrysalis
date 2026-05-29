@@ -280,4 +280,27 @@ $maybe = null ?? "fallback";
     const nk = await parseSource(src, "nullsafe_property.php", { provider: "nikic" });
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
+
+  run("matches glayzzle on parser-parity-probe invokable_controller.php (positions stripped) (G133)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/invokable_controller.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "invokable_controller.php");
+    const nk = await parseSource(src, "invokable_controller.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("both providers hoist __invoke + static helper but not other instance methods (G133)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/invokable_controller.php");
+    const src = readFileSync(p, "utf8");
+    const fnNames = (ast: { statements: ReadonlyArray<{ kind: string }> }) =>
+      ast.statements
+        .filter((s): s is typeof s & { name: string } => s.kind === "FunctionDecl")
+        .map((s) => s.name)
+        .sort();
+    const gz = parseSourceWithGlayzzle(src, "invokable_controller.php");
+    const nk = await parseSource(src, "invokable_controller.php", { provider: "nikic" });
+    const expected = ["App\\Controller\\ProbeController::__invoke", "App\\Controller\\ProbeController::helper"];
+    expect(fnNames(gz)).toEqual(expected);
+    expect(fnNames(nk)).toEqual(expected);
+  });
 });

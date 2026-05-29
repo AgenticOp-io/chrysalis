@@ -8,6 +8,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 import { runHubWptpContractGoldSuite } from "./hub-wptp-contract-gold.mjs";
+import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -73,14 +74,24 @@ async function runTraceReplaySuite(suite) {
     target === "nextjs"
       ? [emitNextjsScript, [fixture, "--origin", origin]]
       : [emitScript, [fixture, "--origin", origin, "--target", target]];
-  for (const [script, args] of [
-    [liftScript, [fixture, "--language", origin]],
-    emitArgs,
-  ]) {
-    const r = spawnSync(process.execPath, [script, ...args], { cwd: scriptRoot, encoding: "utf8" });
-    if (r.status !== 0) {
-      throw new Error(r.stderr || r.stdout || `${script} failed`);
+  if (origin === "php") {
+    const phpExport = await exportPhpHubWebir(fixture);
+    if (phpExport.skip || !phpExport.ok) {
+      throw new Error(phpExport.skip ?? `php-export-holes:${phpExport.holeCount}`);
     }
+  } else {
+    const lift = spawnSync(process.execPath, [liftScript, [fixture, "--language", origin]], {
+      cwd: scriptRoot,
+      encoding: "utf8",
+    });
+    if (lift.status !== 0) {
+      throw new Error(lift.stderr || lift.stdout || "lift failed");
+    }
+  }
+  const emitOnly = emitArgs;
+  const r = spawnSync(process.execPath, [emitOnly[0], ...emitOnly[1]], { cwd: scriptRoot, encoding: "utf8" });
+  if (r.status !== 0) {
+    throw new Error(r.stderr || r.stdout || `${emitOnly[0]} failed`);
   }
 
   const outDir = join(fixture, "generated", target);

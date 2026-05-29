@@ -137,6 +137,27 @@ class UserRepo {
     expect(names).toEqual(["Acme\\Repo\\UserRepo::row"]);
   });
 
+  test("non-static __invoke is hoisted to a qualified FunctionDecl (invokable controllers)", async () => {
+    const ast = await parseSource(`<?php
+namespace App\\Controller;
+
+final class HealthController {
+  public function __invoke(): void {
+    header("Content-Type: text/plain");
+  }
+  public function notInvoked() {
+    return 1;
+  }
+}
+`);
+    const fns = ast.statements.filter(
+      (s): s is Extract<typeof s, { kind: "FunctionDecl" }> => s.kind === "FunctionDecl",
+    );
+    // __invoke is hoisted; other instance methods stay excluded.
+    expect(fns.map((s) => s.name)).toEqual(["App\\Controller\\HealthController::__invoke"]);
+    expect(fns[0]?.body.length).toBeGreaterThan(0);
+  });
+
   test("throw statement wraps new Exception", async () => {
     const ast = await parseSource(`<?php
 throw new Exception("x");

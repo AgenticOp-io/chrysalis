@@ -8,6 +8,15 @@ import { domainTypesByTable, emitTypes, runArchaeology } from "@chrysalis/archae
 import { EMIT_RESUME_STATE_BASENAME } from "@chrysalis/emit-shared";
 import { ModuleBuilder, T, dataDialect, phpLocator, webRequest, type Module } from "@chrysalis/webir";
 import { emit } from "../src/index.js";
+import { SERVER_TS } from "../src/runtime-files.js";
+
+test("server fetch shim sends a null body for no-content statuses (G125)", () => {
+  const server = SERVER_TS("", "");
+  // 204/304/1xx must not pass a body to the Response constructor (undici throws).
+  expect(server).toContain("nullBodyStatus");
+  expect(server).toContain("inj.statusCode === 204");
+  expect(server).toContain("nullBodyStatus ? null : inj.payload");
+});
 
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
 const FIXTURE_SCHEMA = resolve(__dirname, "../../../fixtures/tiny-blog/schema.sql");

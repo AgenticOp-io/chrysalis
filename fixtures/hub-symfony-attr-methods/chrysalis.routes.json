@@ -1,0 +1,8 @@
+{
+  "app": "hub-symfony-attr-methods",
+  "routes": [
+    { "method": "POST", "path": "/submit", "file": "src/Controller/SubmitController.php", "pathParams": [] },
+    { "method": "GET", "path": "/resource", "file": "src/Controller/ResourceController.php", "pathParams": [] },
+    { "method": "POST", "path": "/resource", "file": "src/Controller/ResourceController.php", "pathParams": [] }
+  ]
+}

@@ -177,10 +177,12 @@ function convertTopLevelClassToFunctionDecls(
   for (const mb of body) {
     if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassMethod") continue;
     const flags = typeof mb.flags === "number" ? mb.flags : 0;
-    if ((flags & PHP_MODIFIER_STATIC) === 0) continue;
-
     const mname = identifierText(mb.name);
     if (!mname) continue;
+    // Static methods are hoisted for call-effect inference; the non-static
+    // `__invoke` is also hoisted so invokable controllers can lift the method
+    // body as the route handler (ingest `selectRouteHandlerStatements`).
+    if ((flags & PHP_MODIFIER_STATIC) === 0 && mname !== "__invoke") continue;
 
     const pst = Array.isArray(mb.stmts) ? convertBody(file, mb.stmts as unknown[], nsPrefix) : [];
     const params = (Array.isArray(mb.params) ? mb.params : []).map((p) =>

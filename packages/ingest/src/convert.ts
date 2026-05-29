@@ -37,6 +37,30 @@ export function stripTopLevelFunctionDecls(stmts: readonly PhpNode[]): PhpNode[]
   return stmts.filter((s) => s.kind !== "FunctionDecl");
 }
 
+/**
+ * Select the statements that form a route's handler body.
+ *
+ * Default: top-level executable statements (minus hoisted `function` decls).
+ * Fallback for invokable controllers: when a route file has no executable
+ * top-level statements but does declare an `__invoke` method (hoisted by the
+ * parser bridge to a `Class::__invoke` `FunctionDecl`), lift that method body.
+ * This keeps ingest generic — it keys off the PHP invokable convention, not any
+ * framework — so Symfony/`__invoke` controllers lift bodies like plain-php pages.
+ */
+export function selectRouteHandlerStatements(stmts: readonly PhpNode[]): PhpNode[] {
+  const topLevel = stripTopLevelFunctionDecls(stmts);
+  const hasExecutable = topLevel.some((s) => s.kind !== "Noop");
+  if (hasExecutable) return topLevel;
+
+  const invoke = stmts.find(
+    (s): s is Extract<PhpNode, { kind: "FunctionDecl" }> =>
+      s.kind === "FunctionDecl" && (s.name === "__invoke" || s.name.endsWith("::__invoke")),
+  );
+  if (invoke) return [...invoke.body];
+
+  return topLevel;
+}
+
 /** Bare function name or `Class::method` for static calls (parser `callee.kind === "expr"`). */
 function tryCallCalleeLabel(e: Extract<PhpExpr, { kind: "Call" }>): string | undefined {
   if (e.callee.kind === "name") {
@@ -1303,7 +1327,7 @@ export function ingestHandler(
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
 ): NodeId {
   const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees);
-  const body = convertStatements(ctx, stripTopLevelFunctionDecls(ast.statements), route.pathParams);
+  const body = convertStatements(ctx, selectRouteHandlerStatements(ast.statements), route.pathParams);
 
   const handlerName =
     route.file

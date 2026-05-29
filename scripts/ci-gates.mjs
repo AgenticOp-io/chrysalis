@@ -736,9 +736,23 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 23 &&
     s.schemaVersion !== 24 &&
     s.schemaVersion !== 25 &&
-    s.schemaVersion !== 26
+    s.schemaVersion !== 26 &&
+    s.schemaVersion !== 27 &&
+    s.schemaVersion !== 28 &&
+    s.schemaVersion !== 29 &&
+    s.schemaVersion !== 30 &&
+    s.schemaVersion !== 31 &&
+    s.schemaVersion !== 32 &&
+    s.schemaVersion !== 33 &&
+    s.schemaVersion !== 34 &&
+    s.schemaVersion !== 35 &&
+    s.schemaVersion !== 36 &&
+    s.schemaVersion !== 37 &&
+    s.schemaVersion !== 38 &&
+    s.schemaVersion !== 39 &&
+    s.schemaVersion !== 40
   ) {
-    fail(`${label}: expected schemaVersion 0–26, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–40, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1016,6 +1030,165 @@ function assertHubCompletion(path) {
     }
     if (!s.knowledgeExport?.pathKnowledge || !s.knowledgeExport?.webDatabases) {
       fail(`${label}: knowledgeExport paths must be set for schema v26`);
+    }
+  }
+  if (s.schemaVersion >= 27) {
+    const body = s.cwlRequestBodyGold?.suiteIds ?? [];
+    for (const id of ["cwl-request-body-hono", "cwl-request-body-fastify", "cwl-request-body-nextjs"]) {
+      if (!body.includes(id)) {
+        fail(`${label}: cwlRequestBodyGold must list ${id} for schema v27`);
+      }
+    }
+    const status = s.cwlResponseStatusGold?.suiteIds ?? [];
+    for (const id of ["cwl-response-status-hono", "cwl-response-status-fastify", "cwl-response-status-nextjs"]) {
+      if (!status.includes(id)) {
+        fail(`${label}: cwlResponseStatusGold must list ${id} for schema v27`);
+      }
+    }
+    if ((s.capabilityMatrix?.oracleProductPairCount ?? 0) < 4) {
+      fail(`${label}: capabilityMatrix.oracleProductPairCount must be >= 4 for schema v27`);
+    }
+    if (!s.migrationProgramsApi || !s.evidenceApi) {
+      fail(`${label}: migrationProgramsApi and evidenceApi must be set for schema v27`);
+    }
+  }
+  if (s.schemaVersion >= 28) {
+    const auth = s.cwlAuthEffectsGold?.suiteIds ?? [];
+    for (const id of ["cwl-auth-effects-hono", "cwl-auth-effects-fastify", "cwl-auth-effects-nextjs"]) {
+      if (!auth.includes(id)) {
+        fail(`${label}: cwlAuthEffectsGold must list ${id} for schema v28`);
+      }
+    }
+    if (!s.laravelVerifyGaps?.exportScript) {
+      fail(`${label}: laravelVerifyGaps.exportScript must be set for schema v28`);
+    }
+    if (s.phpNextjsVerify?.ok !== true && s.phpNextjsVerify?.skip !== "no-wptp-emit-nextjs") {
+      fail(`${label}: phpNextjsVerify.ok must be true for schema v28 when WPTP is available`);
+    }
+    if (s.phpOracleSmoke?.verifyNextjsOk !== true && s.phpOracleSmoke?.wptpEmitNextjsAvailable === true) {
+      fail(`${label}: phpOracleSmoke.verifyNextjsOk must be true when wptp available (schema v28)`);
+    }
+  }
+  if (s.schemaVersion >= 29) {
+    const exp = s.expressFlagshipGold?.suiteIds ?? [];
+    for (const id of [
+      "express-flagship-hono",
+      "express-flagship-fastify",
+      "express-flagship-nextjs",
+      "express-flagship-cwl",
+    ]) {
+      if (!exp.includes(id)) {
+        fail(`${label}: expressFlagshipGold must list ${id} for schema v29`);
+      }
+    }
+    if (s.expressFlagshipGold?.ok !== true) {
+      fail(`${label}: expressFlagshipGold.ok must be true for schema v29`);
+    }
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 132) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 132 for schema v29`);
+    }
+    if ((s.traceReplay?.expectedSuiteCount ?? 0) < 105) {
+      fail(`${label}: traceReplay.expectedSuiteCount must be >= 105 for schema v29`);
+    }
+  }
+  if (s.schemaVersion >= 30) {
+    if (s.nodeExpressOracleVerify?.ok !== true) {
+      fail(`${label}: nodeExpressOracleVerify.ok must be true for schema v30`);
+    }
+    if (typeof s.nodeExpressOracleVerify?.correctness !== "number") {
+      fail(`${label}: nodeExpressOracleVerify.correctness must be set for schema v30`);
+    }
+    if ((s.capabilityMatrix?.oracleProductPairCount ?? 0) < 5) {
+      fail(`${label}: capabilityMatrix.oracleProductPairCount must be >= 5 for schema v30 (Node pilot)`);
+    }
+  }
+  if (s.schemaVersion >= 31) {
+    if (s.plainPhpFlagshipGold?.ok !== true) {
+      fail(`${label}: plainPhpFlagshipGold.ok must be true for schema v31`);
+    }
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 135) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 135 for schema v31`);
+    }
+    if ((s.traceReplay?.expectedSuiteCount ?? 0) < 107) {
+      fail(`${label}: traceReplay.expectedSuiteCount must be >= 107 for schema v31`);
+    }
+    if ((s.capabilityMatrix?.oracleProductPairCount ?? 0) < 6) {
+      fail(`${label}: capabilityMatrix.oracleProductPairCount must be >= 6 for schema v31 (plain PHP pilot)`);
+    }
+  }
+  if (s.schemaVersion >= 32) {
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 138) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 138 for schema v32`);
+    }
+    if ((s.traceReplay?.expectedSuiteCount ?? 0) < 110) {
+      fail(`${label}: traceReplay.expectedSuiteCount must be >= 110 for schema v32`);
+    }
+    if (!Array.isArray(s.cwlResponseContentTypeGold?.suiteIds) || s.cwlResponseContentTypeGold.suiteIds.length < 3) {
+      fail(`${label}: cwlResponseContentTypeGold.suiteIds must list RFC-0008 suites for schema v32`);
+    }
+  }
+  if (s.schemaVersion >= 33) {
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 141) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 141 for schema v33`);
+    }
+    if ((s.traceReplay?.expectedSuiteCount ?? 0) < 112) {
+      fail(`${label}: traceReplay.expectedSuiteCount must be >= 112 for schema v33`);
+    }
+    if (s.symfonyFlagshipGold?.ok !== true) {
+      fail(`${label}: symfonyFlagshipGold.ok must be true for schema v33`);
+    }
+    if ((s.capabilityMatrix?.oracleProductPairCount ?? 0) < 7) {
+      fail(`${label}: capabilityMatrix.oracleProductPairCount must be >= 7 for schema v33 (Symfony pilot)`);
+    }
+  }
+  if (s.schemaVersion >= 34) {
+    if (s.symfonyFlagshipGold?.routesYamlParity?.ok !== true) {
+      fail(`${label}: symfonyFlagshipGold.routesYamlParity.ok must be true for schema v34`);
+    }
+  }
+  if (s.schemaVersion >= 35) {
+    if (s.symfonyFlagshipGold?.routesAttributeParity?.ok !== true) {
+      fail(`${label}: symfonyFlagshipGold.routesAttributeParity.ok must be true for schema v35`);
+    }
+  }
+  if (s.schemaVersion >= 36) {
+    if (s.symfonyFlagshipGold?.attributePrefixParity?.ok !== true) {
+      fail(`${label}: symfonyFlagshipGold.attributePrefixParity.ok must be true for schema v36`);
+    }
+  }
+  if (s.schemaVersion >= 37) {
+    if (s.symfonyFlagshipGold?.attributeMethodsParity?.ok !== true) {
+      fail(`${label}: symfonyFlagshipGold.attributeMethodsParity.ok must be true for schema v37`);
+    }
+  }
+  if (s.schemaVersion >= 38) {
+    if (s.symfonyFlagshipGold?.routesNameParity?.ok !== true) {
+      fail(`${label}: symfonyFlagshipGold.routesNameParity.ok must be true for schema v38`);
+    }
+  }
+  if (s.schemaVersion >= 39) {
+    for (const [name, block] of [
+      ["plainPhpFlagshipGold", s.plainPhpFlagshipGold],
+      ["symfonyFlagshipGold", s.symfonyFlagshipGold],
+    ]) {
+      const cp = block?.cwlProjection;
+      if (cp != null) {
+        if (typeof cp.total !== "number" || typeof cp.holeFree !== "number") {
+          fail(`${label}: ${name}.cwlProjection must carry numeric total/holeFree for schema v39`);
+        } else if (cp.holeFree !== cp.total) {
+          fail(`${label}: ${name}.cwlProjection must be hole-free (holeFree ${cp.holeFree} !== total ${cp.total}) for schema v39`);
+        }
+      }
+    }
+  }
+  if (s.schemaVersion >= 40) {
+    const cp = s.expressFlagshipGold?.cwlProjection;
+    if (cp != null) {
+      if (typeof cp.total !== "number" || typeof cp.holeFree !== "number") {
+        fail(`${label}: expressFlagshipGold.cwlProjection must carry numeric total/holeFree for schema v40`);
+      } else if (cp.holeFree !== cp.total) {
+        fail(`${label}: expressFlagshipGold.cwlProjection must be hole-free (holeFree ${cp.holeFree} !== total ${cp.total}) for schema v40`);
+      }
     }
   }
   const g = s.routeGrades;

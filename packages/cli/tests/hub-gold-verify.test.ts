@@ -72,6 +72,41 @@ test("listHubWebRoutes finds literal bodies in hub-gold webir", async () => {
   expect(routes.every((r) => r.body.kind === "literal")).toBe(true);
 });
 
+test("listCwlRoutes lowers PHP effect-blocks to hole-free CWL projections (G124)", async () => {
+  const { listCwlRoutes } = await import(resolve(ROOT, "scripts/hub-ingest/hub-webir-routes.mjs"));
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const fixture = resolve(ROOT, "fixtures/hub-flagship-plain-php");
+  const raw = JSON.parse(await readFile(join(fixture, ".chrysalis/hub.php.webir.json"), "utf8"));
+  const routes = listCwlRoutes(webir.moduleFromGoldenSnapshot(raw));
+
+  // The 20-route PHP flagship projects to CWL with no holes.
+  expect(routes.length).toBe(20);
+  expect(routes.every((r) => r.holeReason === null)).toBe(true);
+
+  const byName = (n: string) => routes.find((r) => r.handlerName === n);
+  // header + echo json_encode object -> object value, no hole.
+  expect(byName("meta")?.value?.t).toBe("obj");
+  // (int) $id path param -> param ref id.
+  const show = byName("items_show");
+  expect(show?.params).toEqual([{ source: "path", name: "id" }]);
+  expect(show?.value).toEqual({ t: "obj", entries: [{ key: "id", value: { source: "path", name: "id", t: "ref" } }] });
+  // http_response_code(204) with no body -> status carried, empty value.
+  expect(byName("items_delete")?.status).toBe(204);
+  expect(byName("items_delete")?.value).toBe(null);
+  // $_GET["q"] ?? "" -> query ref q with the default carried onto the declaration (G128).
+  expect(byName("search")?.params).toEqual([{ source: "query", name: "q", default: "" }]);
+  // echo (string) $userId -> bare path param ref.
+  expect(byName("user_show")?.value).toEqual({ t: "ref", source: "path", name: "userId" });
+
+  // G126: content-type inferred from body shape (json_encode/object vs plain text).
+  expect(byName("meta")?.contentType).toBe("application/json");
+  expect(byName("items_show")?.contentType).toBe("application/json");
+  expect(byName("user_show")?.contentType).toBe("text/plain; charset=utf-8");
+  expect(byName("health")?.contentType).toBe("text/plain; charset=utf-8");
+  // 204 no-content carries no content-type.
+  expect(byName("items_delete")?.contentType).toBe(null);
+});
+
 test("hub gold fixture lifts with zero holes", () => {
   const r = spawnSync(process.execPath, [LIFT, GOLD_FIXTURE, "--language", "javascript"], {
     cwd: ROOT,

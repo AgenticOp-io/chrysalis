@@ -95,7 +95,7 @@ Oracle here means **spec + replay**, not “another ingest package.”
 | **legacy-oracle-php** | PHP → TS/Hono/Fastify, grade **gold** | Capture on origin (`oracle-php`), `chrysalis verify`, flagship corpora |
 | **hub-structural-gold** | JS/TS/python literal → Hono/Fastify, grade **gold** | `hub-gold-verify.mjs` + `hub-gold-manifest.mjs` suites |
 | **hub-trace-replay** | Literal suites → Hono/Fastify, grade **gold** | `hub-gold-trace-replay.mjs` (`@chrysalis/verify` in-process) |
-| **oracle-python** / **oracle-node** | Capture on legacy Python/Node hosts | `packages/oracle-python`, `packages/oracle-node`, `hub-oracle-record.mjs` |
+| **oracle-python** / **oracle-node** | Capture on legacy Python/Node hosts | `packages/oracle-python`, `packages/oracle-node`, `hub-oracle-record.mjs` (`--base-url`, `--routes` for live Node/Express) |
 | **wptp-contract** | OpenAPI/Swagger/HAR in tree → framework outputs | `wptp-compose-site.mjs`, `hub:wptp-gold-smoke` (alternate path; any origin) |
 | **none** | Silver/open pairs | Holes documented; no trace parity claimed |
 

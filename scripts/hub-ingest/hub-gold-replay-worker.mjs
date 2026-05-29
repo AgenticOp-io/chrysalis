@@ -78,7 +78,11 @@ async function main() {
   const { fixture, origin, target } = parseArgs(process.argv);
   const openapiPath = join(fixture, "openapi.json");
   const useOpenApiRoutes = existsSync(openapiPath);
-  const webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
+  let webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
+  if (!existsSync(webirPath)) {
+    const ingested = join(fixture, ".chrysalis", "ingested.webir.json");
+    if (existsSync(ingested)) webirPath = ingested;
+  }
   const outDir = join(fixture, "generated", target);
 
   const webirMod = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);

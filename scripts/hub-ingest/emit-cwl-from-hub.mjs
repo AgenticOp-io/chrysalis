@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 /** Emit CWL source from hub WebIR (round-trip projection). */
-import { emitNativeFromHub } from "./hub-native-emit-shared.mjs";
+import { loadHubRoutes } from "./hub-load-routes.mjs";
+import { writeHubEmitReport } from "./hub-native-emit-shared.mjs";
+import { listCwlRoutes, renderCwlRoutes } from "./hub-webir-routes.mjs";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -12,47 +16,34 @@ function parseArgs(argv) {
   return { projectDir, origin };
 }
 
-function cwlLiteral(value) {
-  if (value === true) return "true";
-  if (value === false) return "false";
-  if (typeof value === "number") return String(value);
-  if (typeof value === "string") return JSON.stringify(value);
-  if (value !== null && typeof value === "object") {
-    const ent = Object.entries(value).map(([k, v]) => `${k}: ${cwlLiteral(v)}`);
-    return `{ ${ent.join(", ")} }`;
-  }
-  return "null";
-}
-
-function renderCwl(routes, origin) {
-  const lines = [
-    `# Chrysalis Web Language — hub emit from ${origin}`,
-    "module hub;",
-    "",
-  ];
-  let holeCount = 0;
-  for (const r of routes) {
-    lines.push(`@route ${r.method} "${r.path}"`);
-    lines.push(`handler ${r.handlerName} {`);
-    lines.push("  effects: none;");
-    if ((r.body.kind === "literal" || r.body.kind === "object") && r.body.value !== undefined) {
-      lines.push(`  return ${cwlLiteral(r.body.value)};`);
-    } else {
-      holeCount += 1;
-      lines.push(`  hole ${JSON.stringify(r.body.reason ?? "hub:cwl:unmapped")};`);
-    }
-    lines.push("}");
-    lines.push("");
-  }
-  return {
-    files: { "routes.cwl": `${lines.join("\n")}\n` },
-    holeCount,
-  };
-}
-
 async function main() {
   const { projectDir, origin } = parseArgs(process.argv);
-  const report = await emitNativeFromHub(projectDir, origin, "cwl", "hub-webir-cwl", renderCwl);
+  const { mod } = await loadHubRoutes(projectDir, origin);
+  const routes = listCwlRoutes(mod);
+  const { text, holeCount } = renderCwlRoutes(routes, {
+    header: `# Chrysalis Web Language — hub emit from ${origin}`,
+    moduleName: "hub",
+  });
+  const files = { "routes.cwl": text };
+  const outDir = join(projectDir, "generated", "cwl");
+  await mkdir(outDir, { recursive: true });
+  for (const [rel, content] of Object.entries(files)) {
+    const dest = join(outDir, rel);
+    await mkdir(dirname(dest), { recursive: true });
+    await writeFile(dest, content, "utf8");
+  }
+  const report = {
+    kind: "chrysalis.hub.emit",
+    schemaVersion: 1,
+    origin,
+    output: "cwl",
+    path: "hub-webir-cwl",
+    outDir,
+    routeCount: routes.length,
+    holeCount,
+    generatedAt: new Date().toISOString(),
+  };
+  await writeHubEmitReport(projectDir, origin, report);
   console.log(JSON.stringify(report));
 }
 

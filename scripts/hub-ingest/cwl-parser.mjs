@@ -11,10 +11,25 @@ const EFFECTS_RE = /^effects:\s*(.+);/;
 const RETURN_RE = /^return\s+(.+);/;
 const HOLE_RE = /^hole\s+([a-zA-Z0-9_:.-]+)(?:\s+"([^"]*)")?\s*;/;
 const USE_PRESET_RE = /^use\s+(json|urlencoded)\s*;$/i;
-const PARAM_RE = /^param\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
-const QUERY_RE = /^query\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const USE_AUTH_RE = /^use\s+auth\s+(session|bearer)\s*;$/i;
+const PARAM_RE = /^param\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*(.+?))?\s*;$/;
+const QUERY_RE = /^query\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*(.+?))?\s*;$/;
 const HEADER_RE = /^header\s+([A-Za-z][A-Za-z0-9_-]*)\s*;$/;
 const COOKIE_RE = /^cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const BODY_RE = /^body\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+const STATUS_RE = /^status\s+(\d{3})\s*;$/;
+const CONTENT_TYPE_RE = /^content-type\s+(.+?)\s*;$/i;
+
+/** @param {string} raw */
+export function normalizeCwlContentType(raw) {
+  let v = raw.trim();
+  if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+  const t = v.toLowerCase();
+  if (t === "json") return "application/json";
+  if (t === "text") return "text/plain; charset=utf-8";
+  if (t === "html") return "text/html; charset=utf-8";
+  return v;
+}
 
 /**
  * @param {string} expr
@@ -36,18 +51,29 @@ export function parseCwlLiteral(expr) {
       return { ok: false, error: "invalid-object-literal" };
     }
   }
+  if (t.startsWith("[") && t.endsWith("]")) {
+    try {
+      const normalized = t.replace(/([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '"$1":');
+      return { ok: true, value: JSON.parse(normalized) };
+    } catch {
+      return { ok: false, error: "invalid-array-literal" };
+    }
+  }
   return { ok: false, error: "unsupported-literal" };
 }
 
 /**
  * @param {string} expr
- * @param {{ path?: string[], query?: string[], header?: string[], cookie?: string[] }} bindings
+ * @param {{ path?: string[], query?: string[], header?: string[], cookie?: string[], body?: string[] }} bindings
  */
 export function parseCwlReturnValue(expr, bindings = {}) {
   const pathBindings = bindings.path ?? (Array.isArray(bindings) ? bindings : []);
   const queryBindings = bindings.query ?? [];
   const headerBindings = bindings.header ?? [];
   const cookieBindings = bindings.cookie ?? [];
+  const bodyBindings = bindings.body ?? [];
+  const pathDefaults = bindings.pathDefaults ?? {};
+  const queryDefaults = bindings.queryDefaults ?? {};
   const t = expr.trim();
   if (t.startsWith("{") && t.endsWith("}")) {
     const entries = parseCwlObjectEntries(t, {
@@ -55,18 +81,34 @@ export function parseCwlReturnValue(expr, bindings = {}) {
       query: queryBindings,
       header: headerBindings,
       cookie: cookieBindings,
+      body: bodyBindings,
+      pathDefaults,
+      queryDefaults,
     });
     if (!entries.ok) return { ok: false, error: entries.error };
     return { ok: true, body: { kind: "object", entries: entries.entries } };
   }
   const lit = parseCwlLiteral(t);
   if (lit.ok) return { ok: true, body: { kind: "literal", value: lit.value } };
+  // Bare scalar return of a declared path/query binding (e.g. `return userId;`).
+  if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(t)) {
+    if (pathBindings.includes(t)) {
+      const body = { kind: "pathParam", name: t };
+      if (Object.prototype.hasOwnProperty.call(pathDefaults, t)) body.default = pathDefaults[t];
+      return { ok: true, body };
+    }
+    if (queryBindings.includes(t)) {
+      const body = { kind: "queryParam", name: t };
+      if (Object.prototype.hasOwnProperty.call(queryDefaults, t)) body.default = queryDefaults[t];
+      return { ok: true, body };
+    }
+  }
   return { ok: false, error: "unsupported-return" };
 }
 
 /**
  * @param {string} objectExpr
- * @param {{ path: string[], query: string[], header: string[], cookie: string[] }} bindings
+ * @param {{ path: string[], query: string[], header: string[], cookie: string[], body: string[] }} bindings
  */
 function parseCwlObjectEntries(objectExpr, bindings) {
   const inner = objectExpr.slice(1, -1).trim();
@@ -91,13 +133,25 @@ function parseCwlObjectEntries(objectExpr, bindings) {
       entries.push({ key, value: { kind: "cookieParam", name: rawVal } });
       continue;
     }
+    if (bindings.body.includes(rawVal)) {
+      entries.push({ key, value: { kind: "bodyParam", name: rawVal } });
+      continue;
+    }
     if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(rawVal)) {
       if (bindings.path.includes(rawVal)) {
-        entries.push({ key, value: { kind: "pathParam", name: rawVal } });
+        const value = { kind: "pathParam", name: rawVal };
+        if (Object.prototype.hasOwnProperty.call(bindings.pathDefaults ?? {}, rawVal)) {
+          value.default = bindings.pathDefaults[rawVal];
+        }
+        entries.push({ key, value });
         continue;
       }
       if (bindings.query.includes(rawVal)) {
-        entries.push({ key, value: { kind: "queryParam", name: rawVal } });
+        const value = { kind: "queryParam", name: rawVal };
+        if (Object.prototype.hasOwnProperty.call(bindings.queryDefaults ?? {}, rawVal)) {
+          value.default = bindings.queryDefaults[rawVal];
+        }
+        entries.push({ key, value });
         continue;
       }
     }
@@ -125,7 +179,9 @@ export function parseCwlModule(source, file) {
   let moduleName = "main";
   /** @type {Array<"express.json"|"express.urlencoded">} */
   const moduleUses = [];
-  /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], body: object }>} */
+  /** @type {Array<"chrysalis.auth.session"|"chrysalis.auth.bearer">} */
+  const moduleAuthUses = [];
+  /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
   const routes = [];
   let i = 0;
   while (i < lines.length) {
@@ -143,6 +199,13 @@ export function parseCwlModule(source, file) {
       moduleUses.push(useM[1].toLowerCase() === "json" ? "express.json" : "express.urlencoded");
       continue;
     }
+    const authM = USE_AUTH_RE.exec(line);
+    if (authM) {
+      moduleAuthUses.push(
+        authM[1].toLowerCase() === "session" ? "chrysalis.auth.session" : "chrysalis.auth.bearer",
+      );
+      continue;
+    }
     const rm = ROUTE_RE.exec(line);
     if (!rm) continue;
     const method = rm[1].toUpperCase();
@@ -156,8 +219,15 @@ export function parseCwlModule(source, file) {
     const effects = [];
     const handlerPathParams = [];
     const handlerQueryParams = [];
+    /** @type {Record<string, unknown>} */
+    const handlerPathDefaults = {};
+    /** @type {Record<string, unknown>} */
+    const handlerQueryDefaults = {};
     const handlerHeaders = [];
     const handlerCookies = [];
+    const handlerBodyParams = [];
+    let responseStatus = null;
+    let responseContentType = null;
     let body = { kind: "hole", reason: "cwl:empty-handler" };
     while (i < lines.length) {
       const inner = lines[i].trim();
@@ -167,11 +237,19 @@ export function parseCwlModule(source, file) {
       const pm = PARAM_RE.exec(inner);
       if (pm) {
         if (!handlerPathParams.includes(pm[1])) handlerPathParams.push(pm[1]);
+        if (pm[2] !== undefined) {
+          const lit = parseCwlLiteral(pm[2]);
+          if (lit.ok) handlerPathDefaults[pm[1]] = lit.value;
+        }
         continue;
       }
       const qm = QUERY_RE.exec(inner);
       if (qm) {
         if (!handlerQueryParams.includes(qm[1])) handlerQueryParams.push(qm[1]);
+        if (qm[2] !== undefined) {
+          const lit = parseCwlLiteral(qm[2]);
+          if (lit.ok) handlerQueryDefaults[qm[1]] = lit.value;
+        }
         continue;
       }
       const hmHeader = HEADER_RE.exec(inner);
@@ -182,6 +260,21 @@ export function parseCwlModule(source, file) {
       const cm = COOKIE_RE.exec(inner);
       if (cm) {
         if (!handlerCookies.includes(cm[1])) handlerCookies.push(cm[1]);
+        continue;
+      }
+      const bm = BODY_RE.exec(inner);
+      if (bm) {
+        if (!handlerBodyParams.includes(bm[1])) handlerBodyParams.push(bm[1]);
+        continue;
+      }
+      const sm = STATUS_RE.exec(inner);
+      if (sm) {
+        responseStatus = Number(sm[1]);
+        continue;
+      }
+      const ctm = CONTENT_TYPE_RE.exec(inner);
+      if (ctm) {
+        responseContentType = normalizeCwlContentType(ctm[1] ?? "");
         continue;
       }
       const em = EFFECTS_RE.exec(inner);
@@ -196,6 +289,9 @@ export function parseCwlModule(source, file) {
           query: handlerQueryParams,
           header: handlerHeaders,
           cookie: handlerCookies,
+          body: handlerBodyParams,
+          pathDefaults: handlerPathDefaults,
+          queryDefaults: handlerQueryDefaults,
         });
         if (parsed.ok) {
           body = parsed.body;
@@ -228,8 +324,11 @@ export function parseCwlModule(source, file) {
       handlerQueryParams,
       handlerHeaders,
       handlerCookies,
+      handlerBodyParams,
+      responseStatus,
+      responseContentType,
       body,
     });
   }
-  return { moduleName, file, routes, moduleUses };
+  return { moduleName, file, routes, moduleUses, moduleAuthUses };
 }

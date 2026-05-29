@@ -10,6 +10,10 @@ import { fileURLToPath } from "node:url";
 import { HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } from "../chrysalis-hub-store.mjs";
 import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { buildHubCompletionSections } from "./hub-completion-sections.mjs";
+import { buildHubCapabilityMatrixReport } from "./hub-capability-matrix.mjs";
+import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
+import { runPhpNextjsVerify } from "./hub-php-nextjs-verify.mjs";
+import { runNodeExpressOracleVerify } from "./hub-node-express-oracle-verify.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 import { hubNativeEmitTargetIds } from "./hub-gold-native-emit.mjs";
@@ -114,7 +118,30 @@ async function main() {
   const multiLaneOk = multiLane.status === 0 && multiLane.parsed.ok === true;
   const phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
   const phpOracleOk = phpOracle.status === 0 && phpOracle.parsed.ok === true;
+  const laravelGaps = buildLaravelVerifyGapsReport();
+  const expressFlagship = runJson(join(scriptRoot, "scripts/hub-ingest/hub-express-flagship.mjs"), []);
+  const expressFlagshipOk = expressFlagship.status === 0 && expressFlagship.parsed.ok === true;
+  const plainPhpFlagship = runJson(join(scriptRoot, "scripts/hub-ingest/hub-plain-php-flagship.mjs"), []);
+  const plainPhpFlagshipOk = plainPhpFlagship.status === 0 && plainPhpFlagship.parsed.ok === true;
+  const symfonyFlagship = runJson(join(scriptRoot, "scripts/hub-ingest/hub-symfony-flagship.mjs"), []);
+  const symfonyFlagshipOk = symfonyFlagship.status === 0 && symfonyFlagship.parsed.ok === true;
+  let nodeExpressOracle = { ok: true, skip: "not-run-in-completion" };
+  try {
+    nodeExpressOracle = await runNodeExpressOracleVerify();
+  } catch {
+    nodeExpressOracle = { ok: false, skip: "node-express-oracle-threw" };
+  }
+  const nodeExpressOracleOk = nodeExpressOracle.ok === true;
+  let phpNextjsVerify = { ok: true, skip: "not-run-in-completion" };
+  try {
+    phpNextjsVerify = await runPhpNextjsVerify(join(scriptRoot, "fixtures/tiny-blog"));
+  } catch {
+    phpNextjsVerify = { ok: false, skip: "nextjs-verify-threw" };
+  }
+  const phpNextjsVerifyOk =
+    phpNextjsVerify.ok === true || phpNextjsVerify.skip === "no-wptp-emit-nextjs";
   const completionSections = buildHubCompletionSections();
+  const capabilityMatrix = buildHubCapabilityMatrixReport();
   const webDbCount = buildWebDatabaseCatalogReport().count;
 
   const ok =
@@ -129,11 +156,16 @@ async function main() {
     synthesisOk &&
     goldCoverageOk &&
     multiLaneOk &&
-    phpOracleOk;
+    phpOracleOk &&
+    phpNextjsVerifyOk &&
+    expressFlagshipOk &&
+    nodeExpressOracleOk &&
+    plainPhpFlagshipOk &&
+    symfonyFlagshipOk;
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 26,
+    schemaVersion: 40,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -157,6 +189,7 @@ async function main() {
     nextjsTraceReplay: {
       suites: [
         "js-literal-nextjs",
+        "express-flagship-nextjs",
         "ts-literal-nextjs",
         "js-structured-nextjs",
         "ts-structured-nextjs",
@@ -166,6 +199,9 @@ async function main() {
         "cwl-path-params-nextjs",
         "cwl-query-params-nextjs",
         "cwl-request-context-nextjs",
+        "cwl-request-body-nextjs",
+        "cwl-response-status-nextjs",
+        "cwl-auth-effects-nextjs",
         "python-literal-nextjs",
         "contract-first-nextjs",
         "ruby-literal-nextjs",
@@ -209,6 +245,8 @@ async function main() {
         "cwl-path-params-nextjs",
         "cwl-query-params-nextjs",
         "cwl-request-context-nextjs",
+        "cwl-request-body-nextjs",
+        "cwl-response-status-nextjs",
       ],
     },
     pythonNextjsGold: {
@@ -280,6 +318,102 @@ async function main() {
     cwlRequestContextGold: {
       suiteIds: ["cwl-request-context-hono", "cwl-request-context-fastify", "cwl-request-context-nextjs"],
       rfc: "CWL-RFC-0004",
+    },
+    cwlRequestBodyGold: {
+      suiteIds: ["cwl-request-body-hono", "cwl-request-body-fastify", "cwl-request-body-nextjs"],
+      rfc: "CWL-RFC-0005",
+    },
+    cwlResponseStatusGold: {
+      suiteIds: ["cwl-response-status-hono", "cwl-response-status-fastify", "cwl-response-status-nextjs"],
+      rfc: "CWL-RFC-0006",
+    },
+    cwlResponseContentTypeGold: {
+      suiteIds: [
+        "cwl-response-content-type-hono",
+        "cwl-response-content-type-fastify",
+        "cwl-response-content-type-nextjs",
+      ],
+      rfc: "CWL-RFC-0008",
+    },
+    cwlAuthEffectsGold: {
+      suiteIds: ["cwl-auth-effects-hono", "cwl-auth-effects-fastify", "cwl-auth-effects-nextjs"],
+      rfc: "CWL-RFC-0007",
+    },
+    laravelVerifyGaps: {
+      ok: laravelGaps.ok,
+      backlogItems: laravelGaps.backlog?.length ?? 0,
+      exportScript: "pnpm run hub:laravel-verify-gaps",
+    },
+    expressFlagshipGold: {
+      ok: expressFlagshipOk,
+      routeCount: expressFlagship.parsed.lift?.routeCount ?? null,
+      suiteIds: [
+        "express-flagship-hono",
+        "express-flagship-fastify",
+        "express-flagship-nextjs",
+        "express-flagship-cwl",
+      ],
+      script: "pnpm run hub:express-flagship",
+      cwlProjection: expressFlagship.parsed.cwlProjection ?? null,
+    },
+    nodeExpressOracleVerify: {
+      ok: nodeExpressOracleOk,
+      correctness: nodeExpressOracle.correctness ?? null,
+      traceCount: nodeExpressOracle.traceCount ?? null,
+      skip: nodeExpressOracle.skip ?? null,
+      script: "pnpm run hub:node-express-oracle-verify",
+    },
+    plainPhpFlagshipGold: {
+      ok: plainPhpFlagshipOk,
+      routeCount: plainPhpFlagship.parsed.ingest?.routeCount ?? null,
+      suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+      script: "pnpm run hub:plain-php-flagship",
+      cwlProjection: plainPhpFlagship.parsed.cwlProjection ?? null,
+    },
+    symfonyFlagshipGold: {
+      ok: symfonyFlagshipOk,
+      routeCount: symfonyFlagship.parsed.ingest?.routeCount ?? null,
+      suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+      script: "pnpm run hub:symfony-flagship",
+      routesYamlParity: {
+        ok: symfonyFlagship.parsed.routesParity?.ok ?? false,
+        yamlRouteCount: symfonyFlagship.parsed.routesParity?.yamlRouteCount ?? null,
+        manifestRouteCount: symfonyFlagship.parsed.routesParity?.manifestRouteCount ?? null,
+        script: "pnpm run hub:symfony-routes",
+      },
+      routesAttributeParity: {
+        ok: symfonyFlagship.parsed.routesParity?.attributes?.ok ?? false,
+        attributeRouteCount: symfonyFlagship.parsed.routesParity?.attributes?.attributeRouteCount ?? null,
+      },
+      routesNameParity: {
+        ok: symfonyFlagship.parsed.routesParity?.names?.ok ?? false,
+        yamlNameCount: symfonyFlagship.parsed.routesParity?.names?.yamlNameCount ?? null,
+        attributeNameCount: symfonyFlagship.parsed.routesParity?.names?.attributeNameCount ?? null,
+      },
+      attributePrefixParity: {
+        ok: symfonyFlagship.parsed.attributePrefixProbe?.ok ?? false,
+        routeCount: symfonyFlagship.parsed.attributePrefixProbe?.manifestRouteCount ?? null,
+        fixture: "fixtures/hub-symfony-attr-prefix",
+      },
+      attributeMethodsParity: {
+        ok: symfonyFlagship.parsed.attributeMethodsProbe?.ok ?? false,
+        routeCount: symfonyFlagship.parsed.attributeMethodsProbe?.manifestRouteCount ?? null,
+        fixture: "fixtures/hub-symfony-attr-methods",
+      },
+      cwlProjection: symfonyFlagship.parsed.cwlProjection ?? null,
+    },
+    phpNextjsVerify: {
+      ok: phpNextjsVerifyOk,
+      correctness: phpNextjsVerify.correctness ?? null,
+      skip: phpNextjsVerify.skip ?? null,
+      script: "pnpm run hub:php-nextjs-verify",
+    },
+    capabilityMatrix: {
+      schemaVersion: capabilityMatrix.schemaVersion,
+      oracleProductPairCount: capabilityMatrix.tiers.oracleProduct.pairCount,
+      structuralSuiteCount: capabilityMatrix.tiers.structuralPlumbing.structuralSuiteCount,
+      doc: "docs/CAPABILITY-MATRIX.md",
+      exportScript: "pnpm run hub:capability-matrix",
     },
     crossFrameworkCwlGold: {
       suiteIds: [
@@ -354,6 +488,8 @@ async function main() {
       emitHonoOk: phpOracle.parsed.emitHonoOk === true,
       emitFastifyOk: phpOracle.parsed.emitFastifyOk === true,
       emitNextjsOk: phpOracle.parsed.emitNextjsOk === true,
+      verifyNextjsOk: phpOracle.parsed.verifyNextjsOk === true,
+      verifyNextjsCorrectness: phpOracle.parsed.verifyNextjsCorrectness ?? null,
       nextjsSkipped: phpOracle.parsed.nextjsSkipped ?? null,
       wptpEmitNextjsAvailable: phpOracle.parsed.wptpEmitNextjsAvailable === true,
       emit: phpOracle.parsed.emit ?? {},
@@ -373,6 +509,9 @@ async function main() {
     },
     languageCompareApi: "/api/hub/language-compare",
     migrationPlannerApi: "/api/hub/migration-plan",
+    migrationProgramsApi: "/api/hub/migration-program",
+    evidenceApi: "/api/hub/projects/{id}/evidence",
+    verifyPlaybooksApi: "/api/hub/verify-playbooks",
     databaseDetectApi: "/api/hub/detect-databases",
     knowledgeExport: {
       pathKnowledge: "reports/ci/hub-path-knowledge.json",

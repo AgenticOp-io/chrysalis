@@ -6,6 +6,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runPhpNextjsVerify } from "./hub-php-nextjs-verify.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -82,10 +83,10 @@ function tryEmitNextjs(projectDir) {
   return { ok: emitR.status === 0 && existsSync(out), skip: emitR.status === 0 ? null : "nextjs-emit-failed" };
 }
 
-function main() {
+async function main() {
   const base = {
     kind: "chrysalis.hub.php-oracle-smoke",
-    schemaVersion: 4,
+    schemaVersion: 5,
     fixture: "fixtures/tiny-blog",
     ingestOk: false,
     emit: {},
@@ -137,11 +138,25 @@ function main() {
   const emitNextjsOk = nextjs.ok === true;
   emit.nextjs = emitNextjsOk;
 
+  let verifyNextjsOk = false;
+  let verifyNextjsSkipped = null;
+  let verifyNextjsCorrectness = null;
+  if (ingestOk && base.wptpEmitNextjsAvailable) {
+    const nj = await runPhpNextjsVerify(tinyBlog);
+    verifyNextjsOk = nj.ok === true;
+    verifyNextjsSkipped = nj.skip ?? null;
+    verifyNextjsCorrectness = nj.correctness ?? null;
+  } else if (!base.wptpEmitNextjsAvailable) {
+    verifyNextjsOk = true;
+    verifyNextjsSkipped = "no-wptp-emit-nextjs";
+  }
+
   const verify =
     ingestOk && emitHonoOk && emitFastifyOk ? runMigrationDebtVerify() : { ok: false, skip: "skipped-before-verify" };
   const verifyOk = verify.ok === true;
 
-  const ok = ingestOk && routeCount > 0 && emitHonoOk && emitFastifyOk && verifyOk;
+  const ok =
+    ingestOk && routeCount > 0 && emitHonoOk && emitFastifyOk && verifyOk && verifyNextjsOk;
   console.log(
     JSON.stringify(
       {
@@ -153,6 +168,9 @@ function main() {
         emitHonoOk,
         emitFastifyOk,
         emitNextjsOk,
+        verifyNextjsOk,
+        verifyNextjsCorrectness,
+        verifyNextjsSkipped,
         nextjsSkipped: nextjs.skip ?? null,
         verifyOk,
         routeCount,
@@ -165,4 +183,7 @@ function main() {
   if (!ok) process.exit(1);
 }
 
-main();
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

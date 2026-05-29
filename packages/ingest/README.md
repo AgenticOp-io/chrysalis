@@ -28,6 +28,13 @@ produces a WebIR `Module` populated across the `web.request`, `effect`,
 
 ## Invariants
 
+- The handler body is the route file's top-level executable statements
+  (`selectRouteHandlerStatements`). For invokable controllers (no top-level
+  statements but a non-static `__invoke` method, hoisted by the parser bridge to
+  a `Class::__invoke` `FunctionDecl`), the `__invoke` body is lifted instead.
+  This keys off the PHP invokable convention, not any framework. Other instance
+  methods are not dispatched (named-action controllers would need a manifest
+  method field — out of scope).
 - Every emitted WebIR node has a `Locator` pointing at the originating
   `file:line:col`.
 - Unsupported constructs never throw and never silently elide — they become

@@ -1226,6 +1226,7 @@
     bindSiteToForm(first, p.siteMeta?.[selectedSiteId]);
     void loadRoutePlan(id);
     void loadConsoleMigrationPlan();
+    void loadConsoleEvidence();
     try {
       const bp = await api(`/api/hub/projects/${encodeURIComponent(id)}/batch-progress`);
       applyBatchProgress(bp);
@@ -1512,6 +1513,52 @@
 
   $("btnLoadConsoleMigrationPlan")?.addEventListener("click", () => {
     loadConsoleMigrationPlan().catch(() => {});
+  });
+
+  async function loadConsoleEvidence() {
+    const summary = $("consoleEvidenceSummary");
+    const blockersEl = $("consoleEvidenceBlockers");
+    const jsonEl = $("consoleEvidenceJson");
+    if (!consoleProjectId) {
+      if (summary) summary.textContent = "No project loaded.";
+      return;
+    }
+    if (summary) summary.textContent = "Loading evidence…";
+    if (blockersEl) blockersEl.innerHTML = "";
+    try {
+      const ev = await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/evidence`);
+      const pct =
+        ev.verify?.correctness != null ? `${Math.round(ev.verify.correctness * 100)}%` : "n/a";
+      const holes = ev.holes?.count ?? "?";
+      const gate = ev.verifyGate?.pass ? "PASS" : ev.verify?.available ? "FAIL" : "pending";
+      let trendNote = "";
+      const dc = ev.trend?.deltaCorrectness;
+      if (dc != null && Number.isFinite(dc)) {
+        const sign = dc >= 0 ? "+" : "";
+        trendNote = ` · trend ${sign}${Math.round(dc * 100)}% correctness`;
+      } else if ((ev.trend?.points ?? 0) === 0) {
+        trendNote = " · trend (no history; run pipeline with verify gate)";
+      }
+      if (summary) {
+        summary.textContent = `Verify ${pct} · holes ${holes} · gate ${gate} · delivery ${(ev.deliveryScore ?? 0).toFixed(2)}${trendNote}`;
+      }
+      if (blockersEl && Array.isArray(ev.blockers)) {
+        blockersEl.innerHTML =
+          ev.blockers.length === 0
+            ? "<li>No blockers</li>"
+            : ev.blockers.map((b) => `<li>${esc(b.kind)}: ${esc(b.detail)}</li>`).join("");
+      }
+      if (jsonEl) {
+        jsonEl.hidden = false;
+        jsonEl.textContent = JSON.stringify(ev, null, 2);
+      }
+    } catch (e) {
+      if (summary) summary.textContent = "Evidence error: " + e.message;
+    }
+  }
+
+  $("btnLoadConsoleEvidence")?.addEventListener("click", () => {
+    loadConsoleEvidence().catch(() => {});
   });
 
   $("btnRunPipeline")?.addEventListener("click", async () => {

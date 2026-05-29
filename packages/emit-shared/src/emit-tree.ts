@@ -307,6 +307,22 @@ function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
       const idx = idxNode ? emitExpr(ctx, idxNode) : "0";
       return `(${obj} as any)[${idx}]`;
     }
+    case "block": {
+      const ops = n.operands;
+      if (ops.length === 1) {
+        return emitExpr(ctx, ops[0]!);
+      }
+      if (ops.length > 0) {
+        const last = get(ctx, ops[ops.length - 1]!);
+        if (last.op === "call") {
+          const callee = String(last.attrs.callee);
+          if (callee !== "__assign" && callee !== "__return") {
+            return emitExpr(ctx, ops[ops.length - 1]!);
+          }
+        }
+      }
+      return `/* unhandled data.block */ null`;
+    }
     case "call": {
       const callee = String(n.attrs.callee);
       if (callee === "__new" && n.operands.length >= 1) {
@@ -513,11 +529,64 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
   return `(__hole(${stringLit(`call:${callee}`)}, { args: [${args.join(", ")}] }) as any)`;
 }
 
+function emitWebRequestStmt(ctx: EmitCtx, n: NodeBase): string {
+  const p = ctx.profile;
+  if (n.op !== "response") return `/* unhandled web.request.${n.op} */`;
+  const attrs = n.attrs as { status?: number; kind?: string; contentType?: string };
+  const status = Number(attrs.status ?? 200);
+  const kind = String(attrs.kind ?? "json");
+  const contentType = attrs.contentType ? String(attrs.contentType) : undefined;
+  const valueId = n.operands[0];
+  ctx.hasTerminalResponse = true;
+
+  if (!valueId) {
+    if (p.id === "hono") {
+      if (contentType) {
+        return `return ${p.requestVar}.body("", ${status}, { "Content-Type": ${stringLit(contentType)} });`;
+      }
+      return `return ${p.requestVar}.text("", ${status});`;
+    }
+    if (contentType) {
+      return `return ${p.replyVar}.code(${status}).type(${stringLit(contentType)}).send("");`;
+    }
+    return `return ${p.replyVar}.code(${status}).send("");`;
+  }
+
+  const val = emitExpr(ctx, valueId);
+  const isJson = kind === "json" || Boolean(contentType?.includes("json"));
+  if (isJson) {
+    if (p.id === "hono") {
+      if (contentType && status === 200) {
+        return `return ${p.requestVar}.json(${val}, 200, { "Content-Type": ${stringLit(contentType)} });`;
+      }
+      return status === 200
+        ? `return ${p.requestVar}.json(${val});`
+        : `return ${p.requestVar}.json(${val}, ${status});`;
+    }
+    let chain = `${p.replyVar}.code(${status})`;
+    if (contentType) chain += `.type(${stringLit(contentType)})`;
+    return `return ${chain}.send(${val});`;
+  }
+
+  if (p.id === "hono") {
+    if (contentType) {
+      return `return ${p.requestVar}.body(String(${val}), ${status}, { "Content-Type": ${stringLit(contentType)} });`;
+    }
+    ctx.htmlBufferUsed = true;
+    ctx.statusVarUsed = status !== 200;
+    return `__html = String(${val});\n${p.respondBuffered()}`;
+  }
+  let chain = `${p.replyVar}.code(${status})`;
+  if (contentType) chain += `.type(${stringLit(contentType)})`;
+  return `return ${chain}.send(String(${val}));`;
+}
+
 /** Emit a WebIR node as one or more TS statements. Returns emitted text. */
 export function emitStmt(ctx: EmitCtx, id: NodeId): string {
   const n = get(ctx, id);
   if (n.dialect === "data") return emitDataStmt(ctx, n);
   if (n.dialect === "effect") return emitEffectStmt(ctx, n);
+  if (n.dialect === "web.request") return emitWebRequestStmt(ctx, n);
   return `/* unhandled ${n.dialect}.${n.op} */`;
 }
 
@@ -616,6 +685,15 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
         ctx.hasTerminalResponse = true;
         if (args.length > 0) {
           if (p.id === "hono") {
+            // When a preceding `http.error` effect set a non-200 `__status`
+            // (e.g. `res.status(201).json(...)`), apply it. `c.json(x, __status)`
+            // would force a `ContentfulStatusCode` cast/import, so buffer the JSON
+            // and respond via `__respond`, which sniffs JSON (`application/json`)
+            // and applies `__status` — matching the PHP echo+json_encode path.
+            if (ctx.statusVarUsed) {
+              ctx.htmlBufferUsed = true;
+              return `__html += JSON.stringify(${args[0]});\n${p.respondBuffered()}`;
+            }
             return `return ${p.requestVar}.json(${args[0]});`;
           }
           return `return ${p.replyVar}.code(__status).send(${args[0]});`;
@@ -759,9 +837,8 @@ export function emitHandlerBody(
   }
   const main = emitStmt(ctx, body);
   const decls: string[] = [`let __html = "";`, `let __status = 200;`];
-  const epilogue: string[] = nodeEndsWithTerminalReturn(m, body)
-    ? []
-    : [profile.respondBuffered()];
+  const epilogue: string[] =
+    ctx.hasTerminalResponse || nodeEndsWithTerminalReturn(m, body) ? [] : [profile.respondBuffered()];
   const text = [...preamble, ...decls, main, ...epilogue]
     .filter((s): s is string => Boolean(s && s.trim()))
     .join("\n");

@@ -63,7 +63,7 @@ export function hubHandlerBodyHole(ctx, reason, loc) {
  * @param {object} opts
  */
 export function emitHubRoute(opts) {
-  const { webir, builder, wr, language, file, route, bodyId } = opts;
+  const { webir, builder, wr, language, file, route, bodyId, handlerEffects = [] } = opts;
   const origin = hubOrigin(file, route.line ?? 1);
   const pathParams = route.pathParams?.length ? route.pathParams : [];
   const handlerId = wr.handler({
@@ -73,7 +73,7 @@ export function emitHubRoute(opts) {
       output: HUB_T.unknown,
     },
     body: bodyId,
-    effects: [],
+    effects: handlerEffects,
     origin,
     provenance: [webir.provenance("hub-ingest", `hub-lift:${language}`)],
   });

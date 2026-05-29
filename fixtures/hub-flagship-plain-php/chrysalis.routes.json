@@ -1,0 +1,50 @@
+{
+  "app": "hub-flagship-plain-php",
+  "routes": [
+    { "method": "GET", "path": "/health", "file": "pages/health.php", "pathParams": [] },
+    { "method": "GET", "path": "/ping", "file": "pages/ping.php", "pathParams": [] },
+    { "method": "GET", "path": "/version", "file": "pages/version.php", "pathParams": [] },
+    { "method": "GET", "path": "/ready", "file": "pages/ready.php", "pathParams": [] },
+    { "method": "GET", "path": "/count", "file": "pages/count.php", "pathParams": [] },
+    { "method": "GET", "path": "/flag", "file": "pages/flag.php", "pathParams": [] },
+    { "method": "GET", "path": "/build", "file": "pages/build.php", "pathParams": [] },
+    { "method": "GET", "path": "/tier", "file": "pages/tier.php", "pathParams": [] },
+    { "method": "GET", "path": "/meta", "file": "pages/meta.php", "pathParams": [] },
+    { "method": "POST", "path": "/echo", "file": "pages/echo.php", "pathParams": [] },
+    { "method": "GET", "path": "/items", "file": "pages/items_list.php", "pathParams": [] },
+    {
+      "method": "GET",
+      "path": "/items/:id",
+      "file": "pages/items_show.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    },
+    { "method": "POST", "path": "/items", "file": "pages/items_create.php", "pathParams": [] },
+    { "method": "GET", "path": "/search", "file": "pages/search.php", "pathParams": [] },
+    {
+      "method": "PUT",
+      "path": "/items/:id",
+      "file": "pages/items_update.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    },
+    {
+      "method": "DELETE",
+      "path": "/items/:id",
+      "file": "pages/items_delete.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    },
+    {
+      "method": "PATCH",
+      "path": "/items/:id",
+      "file": "pages/items_patch.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    },
+    {
+      "method": "GET",
+      "path": "/users/:userId",
+      "file": "pages/user_show.php",
+      "pathParams": [{ "name": "userId", "type": "string", "phpVar": "userId" }]
+    },
+    { "method": "GET", "path": "/stats", "file": "pages/stats.php", "pathParams": [] },
+    { "method": "POST", "path": "/notify", "file": "pages/notify.php", "pathParams": [] }
+  ]
+}

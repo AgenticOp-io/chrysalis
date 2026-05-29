@@ -1,0 +1,11 @@
+# Method-list probe: scalar string method (POST) and multi-method (GET|POST)
+# on a single controller. Verifies the manifest expands one declaration into
+# one route per HTTP method, in three-way parity with the #[Route] attributes.
+submit:
+  path: /submit
+  methods: POST
+  controller: App\Controller\SubmitController
+resource:
+  path: /resource
+  methods: [GET, POST]
+  controller: App\Controller\ResourceController

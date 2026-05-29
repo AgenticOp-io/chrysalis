@@ -115,7 +115,12 @@ function convertProgramStatements(file: string, nodes: AnyNode[], parentNs: stri
   return out;
 }
 
-/** Flatten top-level static class methods into `FunctionDecl` with `Class::method` names. */
+/**
+ * Flatten top-level class methods into `FunctionDecl` with `Class::method` names.
+ * Static methods are hoisted for call-effect inference; the non-static `__invoke`
+ * is also hoisted so manifest routes that point at an invokable controller can
+ * lift the method body as the handler (see ingest `selectRouteHandlerStatements`).
+ */
 function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, nsPrefix: string): PhpNode[] {
   const classShort = String((classNode.name as AnyNode | undefined)?.name ?? "");
   if (!classShort) {
@@ -126,9 +131,9 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
   const out: PhpNode[] = [];
   for (const member of members) {
     if (member.kind !== "method") continue;
-    if (!Boolean(member.isStatic)) continue;
     const methodName = String((member.name as AnyNode | undefined)?.name ?? "");
     if (!methodName) continue;
+    if (!Boolean(member.isStatic) && methodName !== "__invoke") continue;
     const args = Array.isArray(member.arguments) ? (member.arguments as AnyNode[]) : [];
     const body = member.body as AnyNode | undefined;
     out.push({

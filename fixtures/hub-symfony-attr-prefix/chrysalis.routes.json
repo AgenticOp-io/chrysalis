@@ -1,0 +1,12 @@
+{
+  "app": "hub-symfony-attr-prefix",
+  "routes": [
+    { "method": "GET", "path": "/api/items", "file": "src/Controller/ApiItemsListController.php", "pathParams": [] },
+    {
+      "method": "GET",
+      "path": "/api/items/:id",
+      "file": "src/Controller/ApiItemsShowController.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "id" }]
+    }
+  ]
+}

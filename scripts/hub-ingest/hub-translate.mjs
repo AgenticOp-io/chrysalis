@@ -8,6 +8,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveEmitBackend } from "./shared.mjs";
 import { runHubEmitPipeline } from "./wptp-emit-pipeline.mjs";
+import { exportProjectMigrationCwl } from "./hub-project-cwl-export.mjs";
+import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -94,7 +96,21 @@ async function main() {
       }
       await runNode(join(hubIngest, "emit-target-project.mjs"), [projectDir, "--origin", origin, "--output", output]);
     }
-    console.log(JSON.stringify({ ok: true, origin, output, path: "chrysalis-php" }));
+    let cwlExport = null;
+    let openapiExport = null;
+    try {
+      cwlExport = await exportProjectMigrationCwl(projectDir, { origin });
+    } catch {
+      cwlExport = { ok: false, reason: "cwl-export-failed" };
+    }
+    try {
+      openapiExport = await exportProjectOpenApi(projectDir, { origin });
+    } catch {
+      openapiExport = { ok: false, reason: "openapi-export-failed" };
+    }
+    console.log(
+      JSON.stringify({ ok: true, origin, output, path: "chrysalis-php", cwlExport, openapiExport }),
+    );
     return;
   }
 
