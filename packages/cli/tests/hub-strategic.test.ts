@@ -449,6 +449,46 @@ describe("strategic plan deliverables", () => {
     }
   });
 
+  test("migration assessment combines scan, path advice, and readiness tier (G144)", async () => {
+    const fixture = resolve(ROOT, "fixtures/hub-flagship-plain-php");
+    const { buildMigrationAssessment, writeMigrationAssessmentArtifacts } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-migration-assessment.mjs")
+    );
+    const report = await buildMigrationAssessment({ projectDir: fixture, origin: "php", output: "hono" });
+    expect(report.kind).toBe("chrysalis.hub.migration-assessment");
+    expect(report.origin).toBe("php");
+    expect(report.output).toBe("hono");
+    expect(report.siteIntelligence.routeEstimate.count).toBe(20);
+    expect(report.program.id).toBe("api-slice");
+    expect(["scan-only", "assess", "pilot-ready", "program-ready", "cutover-ready"]).toContain(report.readinessTier);
+
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-assessment-"));
+    try {
+      const artifacts = await writeMigrationAssessmentArtifacts(tmp, report);
+      expect(existsSync(artifacts.jsonPath)).toBe(true);
+      expect(existsSync(artifacts.mdPath)).toBe(true);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("apply path advice writes project path-advice.json (G145)", async () => {
+    const { writePathAdviceArtifacts } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-apply-path-advice.mjs")
+    );
+    const fixture = resolve(ROOT, "fixtures/hub-flagship-plain-php");
+    const { jsonPath, report } = await writePathAdviceArtifacts(fixture, {
+      origin: "php",
+      output: "hono",
+    });
+    expect(report.kind).toBe("chrysalis.hub.apply-path-advice");
+    expect(report.origin).toBe("php");
+    expect(report.output).toBe("hono");
+    expect(report.goldCoverage.suiteCount).toBeGreaterThan(0);
+    expect(report.migrationProgram.id).toBe("api-slice");
+    expect(existsSync(jsonPath)).toBe(true);
+  });
+
   test("hub-plain-php-flagship smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });

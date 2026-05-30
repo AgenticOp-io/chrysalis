@@ -35,6 +35,8 @@ import { buildWebDatabaseCatalogReport } from "./hub-ingest/hub-web-databases.mj
 import { buildDatabaseDetectionReport } from "./hub-ingest/hub-detect-databases.mjs";
 import { buildSiteIntelligenceReport } from "./hub-ingest/hub-site-intelligence.mjs";
 import { buildChimeraCutoverRunbook } from "./hub-ingest/hub-chimera-cutover.mjs";
+import { buildMigrationAssessment } from "./hub-ingest/hub-migration-assessment.mjs";
+import { writePathAdviceArtifacts } from "./hub-ingest/hub-apply-path-advice.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
@@ -924,6 +926,45 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/migration-assessment") {
+    const projectDir = url.searchParams.get("projectDir");
+    const origin = url.searchParams.get("origin") ?? undefined;
+    const output = url.searchParams.get("output") ?? undefined;
+    if (!projectDir) {
+      sendJson(res, 400, { error: "projectDir query param required" });
+      return;
+    }
+    try {
+      const report = await buildMigrationAssessment({
+        projectDir: resolve(projectDir),
+        origin,
+        output,
+      });
+      sendJson(res, 200, report);
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+    }
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/apply-path-advice") {
+    const projectDir = url.searchParams.get("projectDir");
+    const origin = url.searchParams.get("origin");
+    const output = url.searchParams.get("output");
+    const programId = url.searchParams.get("program") ?? undefined;
+    if (!projectDir || !origin || !output) {
+      sendJson(res, 400, { error: "projectDir, origin, and output query params required" });
+      return;
+    }
+    try {
+      const result = await writePathAdviceArtifacts(resolve(projectDir), { origin, output, programId });
+      sendJson(res, 200, result.report);
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+    }
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/laravel-verify-gaps") {
     sendJson(res, 200, buildLaravelVerifyGapsReport());
     return;
@@ -1072,6 +1113,72 @@ const server = createServer(async (req, res) => {
       return;
     }
     sendJson(res, 200, buildHubEvidenceReport(site.localDir));
+    return;
+  }
+
+  const hubAssessmentMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/migration-assessment$/);
+  if (req.method === "GET" && hubAssessmentMatch) {
+    const actor = hubActorFromRequest(req, authToken);
+    const p = await getProjectForActor(decodeURIComponent(hubAssessmentMatch[1]), actor);
+    if (!p) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    const site = p.sites?.[0];
+    if (!site?.localDir) {
+      sendJson(res, 422, { error: "no-site-dir", message: "Add a site with pulled code first." });
+      return;
+    }
+    try {
+      const report = await buildMigrationAssessment({
+        projectDir: site.localDir,
+        origin: site.originLanguage ?? p.originLanguage ?? undefined,
+        output: p.outputLanguage ?? undefined,
+      });
+      sendJson(res, 200, report);
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+    }
+    return;
+  }
+
+  const hubApplyPathMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/apply-path-advice$/);
+  if (req.method === "POST" && hubApplyPathMatch) {
+    const actor = hubActorFromRequest(req, authToken);
+    const p = await getProjectForActor(decodeURIComponent(hubApplyPathMatch[1]), actor);
+    if (!p) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    const site = p.sites?.[0];
+    if (!site?.localDir) {
+      sendJson(res, 422, { error: "no-site-dir", message: "Add a site with pulled code first." });
+      return;
+    }
+    let body = {};
+    try {
+      const raw = await readRawBody(req);
+      body = raw.length > 0 ? JSON.parse(raw.toString("utf8")) : {};
+    } catch {
+      sendJson(res, 400, { error: "invalid-json" });
+      return;
+    }
+    const origin = body.origin ?? site.originLanguage ?? p.originLanguage ?? defaultOriginLanguage();
+    const output = body.output ?? p.outputLanguage ?? defaultOutputLanguage();
+    if (!origin || !output) {
+      sendJson(res, 400, { error: "origin and output required" });
+      return;
+    }
+    try {
+      const result = await writePathAdviceArtifacts(site.localDir, {
+        origin,
+        output,
+        programId: body.programId,
+      });
+      sendJson(res, 200, { ...result.report, writtenPath: result.jsonPath, projectId: p.id, siteId: site.id });
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+    }
     return;
   }
 

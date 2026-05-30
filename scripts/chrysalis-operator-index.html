@@ -175,7 +175,9 @@
         <div class="row">
           <button type="button" class="primary" id="btnLoadPathPair">Load pair</button>
           <button type="button" class="secondary" id="btnLoadPathMatrix">Load path matrix (filtered)</button>
+          <button type="button" class="secondary" id="btnApplyPathToProject">Apply pair to project</button>
         </div>
+        <p id="pathApplySummary" class="muted"></p>
         <p id="pathPairSummary" class="muted"></p>
         <p id="pathGoldCoverage" class="muted"></p>
         <p id="pathCompareSummary" class="muted"></p>
@@ -303,9 +305,12 @@
         <h3 style="margin-top:0">Evidence dashboard</h3>
         <p id="consoleEvidenceSummary" class="muted">Verify correctness, holes, and blockers for the first site.</p>
         <ul id="consoleEvidenceBlockers" class="muted" style="font-size:0.85rem;padding-left:1.2rem"></ul>
+        <p id="consoleAssessmentSummary" class="muted"></p>
         <pre id="consoleEvidenceJson" class="json" hidden></pre>
         <div class="row">
           <button type="button" class="secondary" id="btnLoadConsoleEvidence">Refresh evidence</button>
+          <button type="button" class="secondary" id="btnLoadConsoleAssessment">Run assessment</button>
+        </div>
         </div>
       </div>
       <div class="card">

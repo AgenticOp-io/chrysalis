@@ -343,6 +343,32 @@
     el.textContent = `CI gold suites (${coverage.suiteCount}): ${coverage.suiteIds.join(", ")}${trace}${roundTrip}${tier}${extended}${risk}${pros}${cons}`;
   }
 
+  async function applyPathPairToProject() {
+    const origin = $("pathOrigin")?.value;
+    const output = $("pathOutput")?.value;
+    const summary = $("pathApplySummary");
+    if (!consoleProjectId) {
+      if (summary) summary.textContent = "Open Console and load a project first.";
+      return;
+    }
+    if (!origin || !output) {
+      if (summary) summary.textContent = "Select origin and output.";
+      return;
+    }
+    if (summary) summary.textContent = "Applying path advice…";
+    try {
+      const report = await post(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/apply-path-advice`, {
+        origin,
+        output,
+      });
+      if (summary) {
+        summary.textContent = `Applied ${origin} → ${output} · program ${report.migrationProgram?.id ?? "?"} · written ${report.writtenPath ?? report.artifactPath ?? "?"}`;
+      }
+    } catch (e) {
+      if (summary) summary.textContent = "Apply error: " + e.message;
+    }
+  }
+
   async function loadMigrationPlan() {
     const origin = $("pathOrigin")?.value;
     const output = $("pathOutput")?.value;
@@ -530,6 +556,9 @@
   });
   $("btnLoadMigrationPlan")?.addEventListener("click", () => {
     loadMigrationPlan().catch(() => {});
+  });
+  $("btnApplyPathToProject")?.addEventListener("click", () => {
+    applyPathPairToProject().catch(() => {});
   });
   $("btnDetectDatabasesFromScan")?.addEventListener("click", () => {
     detectDatabasesFromLastScan().catch(() => {});
@@ -1557,8 +1586,28 @@
     }
   }
 
+  async function loadConsoleAssessment() {
+    const summary = $("consoleAssessmentSummary");
+    if (!consoleProjectId) {
+      if (summary) summary.textContent = "No project loaded.";
+      return;
+    }
+    if (summary) summary.textContent = "Running assessment…";
+    try {
+      const report = await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/migration-assessment`);
+      if (summary) {
+        summary.textContent = `Readiness ${report.readinessTier} · ${report.origin} → ${report.output} · program ${report.program?.id ?? "?"} · routes ${report.siteIntelligence?.routeEstimate?.count ?? "?"}`;
+      }
+    } catch (e) {
+      if (summary) summary.textContent = "Assessment error: " + e.message;
+    }
+  }
+
   $("btnLoadConsoleEvidence")?.addEventListener("click", () => {
     loadConsoleEvidence().catch(() => {});
+  });
+  $("btnLoadConsoleAssessment")?.addEventListener("click", () => {
+    loadConsoleAssessment().catch(() => {});
   });
 
   $("btnRunPipeline")?.addEventListener("click", async () => {

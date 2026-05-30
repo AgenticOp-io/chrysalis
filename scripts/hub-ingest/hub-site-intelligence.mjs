@@ -361,13 +361,19 @@ export async function buildSiteIntelligenceReport(projectDir, opts = {}) {
   const routeEstimate = await estimateRouteCount(root);
   const primaryOrigin = inferPrimaryOrigin({ scan, frameworkHints });
 
-  const authPatterns = ["/login", "/logout", "/session", "/me", "/auth"];
+  const authRouteRes = [
+    /^\/login$/,
+    /^\/logout$/,
+    /^\/session(\/|$)/,
+    /^\/me(\/|$)/,
+    /^\/auth(\/|$)/,
+  ];
   let authSliceCandidate = false;
   if (existsSync(join(root, "chrysalis.routes.json"))) {
     try {
       const routes = JSON.parse(readFileSync(join(root, "chrysalis.routes.json"), "utf8")).routes ?? [];
       authSliceCandidate = routes.some((r) =>
-        authPatterns.some((p) => String(r.path ?? "").includes(p.replace(/\*/g, ""))),
+        authRouteRes.some((re) => re.test(String(r.path ?? ""))),
       );
     } catch {
       /* skip */
