@@ -12,6 +12,7 @@ import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { buildHubCompletionSections } from "./hub-completion-sections.mjs";
 import { buildHubCapabilityMatrixReport } from "./hub-capability-matrix.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
+import { buildHubLaravelMinSmokeReport } from "./hub-laravel-min-smoke.mjs";
 import { runPhpNextjsVerify } from "./hub-php-nextjs-verify.mjs";
 import { runNodeExpressOracleVerify } from "./hub-node-express-oracle-verify.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
@@ -120,6 +121,8 @@ async function main() {
   const phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
   const phpOracleOk = phpOracle.status === 0 && phpOracle.parsed.ok === true;
   const laravelGaps = buildLaravelVerifyGapsReport();
+  const laravelMinSmoke = buildHubLaravelMinSmokeReport();
+  const laravelMinSmokeOk = laravelMinSmoke.ok === true;
   const expressFlagship = runJson(join(scriptRoot, "scripts/hub-ingest/hub-express-flagship.mjs"), []);
   const expressFlagshipOk = expressFlagship.status === 0 && expressFlagship.parsed.ok === true;
   const plainPhpFlagship = runJson(join(scriptRoot, "scripts/hub-ingest/hub-plain-php-flagship.mjs"), []);
@@ -162,13 +165,14 @@ async function main() {
     expressFlagshipOk &&
     nodeExpressOracleOk &&
     plainPhpFlagshipOk &&
-    symfonyFlagshipOk;
+    symfonyFlagshipOk &&
+    laravelMinSmokeOk;
 
   const licenseStatus = await buildHubLicenseStatusReport();
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 40,
+    schemaVersion: 41,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -347,6 +351,13 @@ async function main() {
       backlogItems: laravelGaps.backlog?.length ?? 0,
       ingestNext: laravelGaps.ingestNext?.divergenceKind ?? null,
       exportScript: "pnpm run hub:laravel-verify-gaps",
+      actionScript: "pnpm run hub:laravel-verify-gaps-action",
+    },
+    laravelMinSmoke: {
+      ok: laravelMinSmokeOk,
+      routeCount: laravelMinSmoke.routeCount,
+      scaffold: laravelMinSmoke.scaffold,
+      script: "pnpm run hub:laravel-min-smoke",
     },
     expressFlagshipGold: {
       ok: expressFlagshipOk,

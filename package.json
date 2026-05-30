@@ -100,6 +100,8 @@
     "verify:gce:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-cross-platform-verify.ps1 -WindowsOnly",
     "verify:gce": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-cross-platform-verify.ps1",
     "hub:laravel-verify-gaps": "node scripts/hub-ingest/hub-laravel-verify-gaps.mjs --json-out reports/ci/hub-laravel-verify-gaps.json",
+    "hub:laravel-verify-gaps-action": "node scripts/hub-ingest/hub-laravel-verify-gaps-action.mjs --json-out reports/ci/hub-laravel-verify-gaps-action.json",
+    "hub:laravel-min-smoke": "node scripts/hub-ingest/hub-laravel-min-smoke.mjs --json-out reports/ci/hub-laravel-min-smoke.json",
     "hub:php-nextjs-verify": "node scripts/hub-ingest/hub-php-nextjs-verify.mjs",
     "hub:cross-language-synthesis": "node scripts/hub-ingest/hub-cross-language-synthesis.mjs --json-out reports/ci/hub-cross-language-synthesis.json",
     "hub:native-emit-smoke": "node scripts/hub-ingest/hub-native-emit-smoke.mjs",

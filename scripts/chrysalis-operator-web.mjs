@@ -30,6 +30,7 @@ import { buildHubCapabilityMatrixReport } from "./hub-ingest/hub-capability-matr
 import { buildHubEvidenceReport } from "./hub-ingest/hub-evidence.mjs";
 import { buildVerifyPlaybooksReport } from "./hub-ingest/hub-verify-playbooks.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-ingest/hub-laravel-verify-gaps.mjs";
+import { runLaravelVerifyGapsAction } from "./hub-ingest/hub-laravel-verify-gaps-action.mjs";
 import { runNodeExpressOracleVerify } from "./hub-ingest/hub-node-express-oracle-verify.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-ingest/hub-web-databases.mjs";
 import { buildDatabaseDetectionReport } from "./hub-ingest/hub-detect-databases.mjs";
@@ -282,6 +283,7 @@ function hubBusy() {
 
 async function startProjectVerifyJob(projectId, opts = {}) {
   if (hubBusy()) throw new Error("A verify, setup, batch, or job is already running");
+  await assertHubLicenseAllows("hub-verify-gate");
   const verifyId = `verify-${Date.now()}`;
   currentVerify = {
     id: verifyId,
@@ -1022,6 +1024,11 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/laravel-verify-gaps-action") {
+    sendJson(res, 200, runLaravelVerifyGapsAction());
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/node-express-oracle-verify") {
     const report = await runNodeExpressOracleVerify();
     sendJson(res, 200, report);
@@ -1153,6 +1160,13 @@ const server = createServer(async (req, res) => {
 
   const hubEvidenceMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/evidence$/);
   if (req.method === "GET" && hubEvidenceMatch) {
+    try {
+      await assertHubLicenseAllows("hub-verify-gate");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      sendJson(res, 403, { error: "license-gate", message: msg });
+      return;
+    }
     const actor = hubActorFromRequest(req, authToken);
     const p = await getProjectForActor(decodeURIComponent(hubEvidenceMatch[1]), actor);
     if (!p) {

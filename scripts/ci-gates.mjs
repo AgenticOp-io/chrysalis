@@ -750,9 +750,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 37 &&
     s.schemaVersion !== 38 &&
     s.schemaVersion !== 39 &&
-    s.schemaVersion !== 40
+    s.schemaVersion !== 40 &&
+    s.schemaVersion !== 41
   ) {
-    fail(`${label}: expected schemaVersion 0–40, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–41, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1189,6 +1190,27 @@ function assertHubCompletion(path) {
       } else if (cp.holeFree !== cp.total) {
         fail(`${label}: expressFlagshipGold.cwlProjection must be hole-free (holeFree ${cp.holeFree} !== total ${cp.total}) for schema v40`);
       }
+    }
+  }
+  if (s.schemaVersion >= 41) {
+    for (const [name, block] of [
+      ["plainPhpFlagshipGold", s.plainPhpFlagshipGold],
+      ["symfonyFlagshipGold", s.symfonyFlagshipGold],
+      ["expressFlagshipGold", s.expressFlagshipGold],
+    ]) {
+      const ep = block?.emitParity;
+      if (ep != null && ep.ok !== true) {
+        fail(`${label}: ${name}.emitParity.ok must be true for schema v41`);
+      }
+    }
+    if ((s.laravelVerifyGaps?.backlogItems ?? 0) > 0 && !s.laravelVerifyGaps?.ingestNext) {
+      fail(`${label}: laravelVerifyGaps.ingestNext must be set when backlogItems > 0 for schema v41`);
+    }
+    if (!s.laravelVerifyGaps?.actionScript) {
+      fail(`${label}: laravelVerifyGaps.actionScript must be set for schema v41`);
+    }
+    if (s.laravelMinSmoke?.ok !== true) {
+      fail(`${label}: laravelMinSmoke.ok must be true for schema v41`);
     }
   }
   const g = s.routeGrades;

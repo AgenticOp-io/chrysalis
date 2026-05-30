@@ -12,6 +12,7 @@ import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
 import { writeHubPostTranslateArtifacts } from "./hub-post-translate-artifacts.mjs";
 import { writeProjectVerifyGapsArtifacts } from "./hub-verify-gaps-ingest.mjs";
 import { writeVerifyGapsIngestActionArtifacts } from "./hub-verify-gaps-ingest-action.mjs";
+import { writeCwlPreviewArtifacts } from "./hub-cwl-preview.mjs";
 
 export const HUB_POST_INGEST_EMIT_KIND = "chrysalis.hub.post-ingest-emit";
 export const HUB_POST_INGEST_EMIT_SCHEMA_VERSION = 1;
@@ -67,6 +68,13 @@ export async function runHubPostIngestEmit(projectDir, opts) {
     verifyGapsIngestAction = null;
   }
 
+  let cwlPreview = null;
+  try {
+    cwlPreview = await writeCwlPreviewArtifacts(root, { probe: false });
+  } catch {
+    cwlPreview = null;
+  }
+
   return {
     kind: HUB_POST_INGEST_EMIT_KIND,
     schemaVersion: HUB_POST_INGEST_EMIT_SCHEMA_VERSION,
@@ -85,6 +93,13 @@ export async function runHubPostIngestEmit(projectDir, opts) {
           path: verifyGapsIngestAction.jsonPath,
           ok: verifyGapsIngestAction.report.ok,
           ingestNext: verifyGapsIngestAction.report.verifyGaps?.ingestNext?.divergenceKind ?? null,
+        }
+      : null,
+    cwlPreview: cwlPreview
+      ? {
+          path: cwlPreview.jsonPath,
+          ok: cwlPreview.report.ok === true,
+          routeCount: cwlPreview.report.routeCount ?? null,
         }
       : null,
     generatedAt: new Date().toISOString(),

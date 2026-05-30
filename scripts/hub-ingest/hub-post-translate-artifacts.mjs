@@ -11,6 +11,7 @@ import { buildChimeraCutoverRunbook, writeChimeraCutoverArtifacts } from "./hub-
 import { writeSiteIntelligenceArtifacts } from "./hub-site-intelligence.mjs";
 import { writeProjectVerifyGapsArtifacts } from "./hub-verify-gaps-ingest.mjs";
 import { writeVerifyGapsIngestActionArtifacts } from "./hub-verify-gaps-ingest-action.mjs";
+import { writeCwlPreviewArtifacts } from "./hub-cwl-preview.mjs";
 import { runHubPostTranslateVerify } from "./hub-post-translate-verify.mjs";
 import { appendEvidenceSnapshot, buildHubEvidenceReport } from "./hub-evidence.mjs";
 
@@ -95,6 +96,18 @@ export async function writeHubPostTranslateArtifacts(projectDir, opts) {
     };
   } catch (e) {
     written.verifyGapsIngestAction = { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+
+  try {
+    const preview = await writeCwlPreviewArtifacts(root, { probe: false });
+    written.cwlPreview = {
+      ok: preview.report.ok === true,
+      path: preview.jsonPath,
+      routeCount: preview.report.routeCount ?? null,
+      holeCount: preview.report.holeCount ?? null,
+    };
+  } catch (e) {
+    written.cwlPreview = { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
 
   let postTranslateVerify = null;

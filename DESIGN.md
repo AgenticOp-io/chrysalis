@@ -2444,6 +2444,16 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D461** **Hub verify license gate (G162).** G153 mapped `hub-verify-gate` to pro tier but operator verify endpoints were ungated. `POST …/sites/{id}/verify` and `POST …/verify-all-sites` now call `assertHubLicenseAllows("hub-verify-gate")` with **403 license-gate** on failure. `hub-cwl-preview` registered as dev-tier feature on the same map.
 
+- **2026-05-30 — D466** **Laravel-min hub smoke (G167).** `hub-laravel-min-smoke.mjs` checks `flagship/laravel-min` route manifest (≥15 routes) and links to merged Laravel verify-gaps backlog; surfaced under `laravelMinSmoke` in hub-completion schema v41.
+
+- **2026-05-30 — D465** **Verify license gate depth (G166).** G162 gated verify POST endpoints; G166 adds the same `hub-verify-gate` check inside `startProjectVerifyJob` (async verify jobs) and on `GET …/projects/{id}/evidence` so license enforcement cannot be bypassed via alternate entry points.
+
+- **2026-05-30 — D464** **Hub completion schema 41 + emit parity gates (G165).** Schema v41 CI requires `emitParity.ok` on plain-php, symfony, and express flagships; `laravelVerifyGaps.ingestNext` when backlog is non-empty; `laravelVerifyGaps.actionScript`; and `laravelMinSmoke.ok`.
+
+- **2026-05-30 — D463** **Persist CWL preview artifact (G164).** G156/G160 previewed CWL in memory and the delivery dashboard; G164 writes `.chrysalis/cwl-preview.json` via `writeCwlPreviewArtifacts` on post-translate and post-ingest-emit so operators and diff tools have a stable on-disk contract snapshot.
+
+- **2026-05-30 — D462** **Laravel verify-gaps global ingest action (G163).** G159 merged flagship verify failures into a global backlog; G163 closes the operator loop with `hub-laravel-verify-gaps-action.mjs` (`ingestRemediation`, suggested re-verify command) and operator API `GET /api/hub/laravel-verify-gaps-action`. Per-project remediation remains G149; this is repo-level P0 ingest prioritization owned by `packages/ingest`.
+
 - **2026-05-30 — D460** **Express flagship emit parity + oracle hook (G161).** Phase 4 Node/Express depth: `hub-express-flagship.mjs` v3 runs gold + trace replay on hono, fastify, and nextjs (matching PHP flagships G157); optional live oracle capture/replay via `CHRYSALIS_HUB_EXPRESS_ORACLE=1` (completion keeps separate `runNodeExpressOracleVerify`).
 
 - **2026-05-30 — D459** **CWL preview in delivery dashboard (G160).** Delivery dashboard schema v3 composes `cwlPreview` (route/hole/import counts from `hub-cwl-preview`) when `migration.cwl` exists; Console delivery panel shows CWL summary lines.

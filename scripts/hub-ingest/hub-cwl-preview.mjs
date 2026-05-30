@@ -6,6 +6,7 @@
  * the first GET route through the in-process CWL runtime simulator.
  */
 import { existsSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
@@ -79,6 +80,20 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
     probe,
     runtime: "@chrysalis/runtime-cwl",
   };
+}
+
+/**
+ * @param {string} projectDir
+ * @param {{ cwlPath?: string, probe?: boolean, repoRoot?: string }} [opts]
+ */
+export async function writeCwlPreviewArtifacts(projectDir, opts = {}) {
+  const root = resolve(projectDir);
+  const report = await buildCwlPreviewReport(root, opts);
+  const outDir = join(root, ".chrysalis");
+  await mkdir(outDir, { recursive: true });
+  const jsonPath = join(outDir, "cwl-preview.json");
+  await writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  return { jsonPath, report };
 }
 
 async function main() {

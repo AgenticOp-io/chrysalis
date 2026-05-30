@@ -1014,6 +1014,94 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
+  test("accepts schema v41 with emit parity and laravel min smoke (G165)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v41-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 41;
+      payload.plainPhpFlagshipGold = {
+        ...(payload.plainPhpFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.symfonyFlagshipGold = {
+        ...(payload.symfonyFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.expressFlagshipGold = {
+        ...(payload.expressFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.laravelVerifyGaps = {
+        ok: true,
+        backlogItems: 2,
+        ingestNext: "body-mismatch",
+        exportScript: "pnpm run hub:laravel-verify-gaps",
+        actionScript: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelMinSmoke = {
+        ok: true,
+        routeCount: 20,
+        scaffold: "flagship/laravel-min",
+        script: "pnpm run hub:laravel-min-smoke",
+      };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects schema v41 when emit parity fails (G165)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v41-bad-"));
+    const p = join(dir, "bad.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 41;
+      payload.plainPhpFlagshipGold = {
+        ...(payload.plainPhpFlagshipGold ?? {}),
+        emitParity: { ok: false, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.symfonyFlagshipGold = {
+        ...(payload.symfonyFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.expressFlagshipGold = {
+        ...(payload.expressFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.laravelVerifyGaps = {
+        ok: true,
+        backlogItems: 2,
+        ingestNext: "body-mismatch",
+        exportScript: "pnpm run hub:laravel-verify-gaps",
+        actionScript: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelMinSmoke = { ok: true, routeCount: 20 };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/plainPhpFlagshipGold\.emitParity\.ok must be true/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("rejects schema v40 with a holey express CWL projection (G136)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v40-bad-"));
     const p = join(dir, "bad.json");

@@ -739,6 +739,81 @@ describe("strategic plan deliverables", () => {
     expect(HUB_LICENSE_FEATURES["hub-cwl-preview"]?.minTier).toBe("dev");
   });
 
+  test("laravel verify gaps action surfaces global ingest remediation (G163)", async () => {
+    const { runLaravelVerifyGapsAction } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps-action.mjs")
+    );
+    const report = runLaravelVerifyGapsAction({
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps")],
+    });
+    expect(report.kind).toBe("chrysalis.hub.laravel-verify-gaps-action");
+    expect(report.ingestRemediation?.owner).toBe("packages/ingest");
+    expect(report.laravelVerifyGaps.backlogCount).toBeGreaterThanOrEqual(2);
+  });
+
+  test("post-translate writes cwl-preview.json when migration.cwl exists (G164)", async () => {
+    const { writeHubPostTranslateArtifacts } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-post-translate-artifacts.mjs")
+    );
+    const { mkdtempSync, mkdirSync, copyFileSync, rmSync, existsSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-cwl-artifact-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      copyFileSync(
+        resolve(ROOT, "fixtures/hub-gold-cwl-multi/routes.cwl"),
+        join(tmp, ".chrysalis", "migration.cwl"),
+      );
+      copyFileSync(
+        resolve(ROOT, "fixtures/hub-gold-cwl-multi/health.cwl"),
+        join(tmp, ".chrysalis", "health.cwl"),
+      );
+      copyFileSync(
+        resolve(ROOT, "fixtures/hub-gold-cwl-multi/meta.cwl"),
+        join(tmp, ".chrysalis", "meta.cwl"),
+      );
+      const report = await writeHubPostTranslateArtifacts(tmp, { origin: "cwl", output: "hono" });
+      expect(report.written.cwlPreview?.ok).toBe(true);
+      expect(existsSync(join(tmp, ".chrysalis", "cwl-preview.json"))).toBe(true);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub completion carries schema 41 sections (G165)", async () => {
+    const { buildHubLaravelMinSmokeReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-min-smoke.mjs")
+    );
+    const { buildLaravelVerifyGapsReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps.mjs")
+    );
+    const gaps = buildLaravelVerifyGapsReport();
+    const smoke = buildHubLaravelMinSmokeReport();
+    expect(gaps.ingestNext?.divergenceKind).toBeTruthy();
+    expect(gaps.backlog.length).toBeGreaterThan(0);
+    expect(smoke.ok).toBe(true);
+  });
+
+  test("verify license gate covers async job entry point (G166)", async () => {
+    const { HUB_LICENSE_FEATURES } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-license-status.mjs")
+    );
+    expect(HUB_LICENSE_FEATURES["hub-verify-gate"]?.minTier).toBe("pro");
+  });
+
+  test("laravel-min smoke links scaffold routes to verify gaps (G167)", async () => {
+    const { buildHubLaravelMinSmokeReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-min-smoke.mjs")
+    );
+    const report = buildHubLaravelMinSmokeReport({
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps")],
+    });
+    expect(report.kind).toBe("chrysalis.hub.laravel-min-smoke");
+    expect(report.routeCount).toBeGreaterThanOrEqual(15);
+    expect(report.laravelVerifyGaps.backlogCount).toBeGreaterThanOrEqual(2);
+  });
+
   test("hub license status maps tier to hub features (G153)", async () => {
     const { buildHubLicenseStatusReport, hubTierMeetsMinimum } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-license-status.mjs")
