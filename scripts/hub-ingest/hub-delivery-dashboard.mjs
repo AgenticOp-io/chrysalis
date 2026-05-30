@@ -32,7 +32,7 @@ const ARTIFACT_FILES = [
 
 /**
  * @param {string} projectDir
- * @param {{ origin?: string, output?: string, programId?: string }} [opts]
+ * @param {{ origin?: string, output?: string, programId?: string, laravelGapsReportDirs?: string[] }} [opts]
  */
 export async function buildDeliveryDashboard(projectDir, opts = {}) {
   const root = resolve(projectDir);
@@ -45,7 +45,12 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
 
   let assessment = null;
   try {
-    assessment = await buildMigrationAssessment({ projectDir: root, origin, output });
+    assessment = await buildMigrationAssessment({
+      projectDir: root,
+      origin,
+      output,
+      laravelGapsReportDirs: opts.laravelGapsReportDirs,
+    });
   } catch {
     assessment = null;
   }
@@ -102,8 +107,11 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
   }
 
   const isLaravel = frameworkHints.includes("laravel");
-  const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport() : null;
-  const laravelGlobalAction = isLaravel ? runLaravelVerifyGapsAction() : null;
+  const laravelGapsOpts = opts.laravelGapsReportDirs
+    ? { reportDirs: opts.laravelGapsReportDirs, merge: false }
+    : {};
+  const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport(laravelGapsOpts) : null;
+  const laravelGlobalAction = isLaravel ? runLaravelVerifyGapsAction(laravelGapsOpts) : null;
 
   return {
     kind: HUB_DELIVERY_DASHBOARD_KIND,

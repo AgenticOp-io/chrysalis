@@ -57,7 +57,7 @@ describe("strategic plan deliverables", () => {
       const trend = computeEvidenceTrend(history);
       expect(trend.deltaCorrectness).toBeCloseTo(0.2, 5);
       expect(trend.improving).toBe(true);
-      expect(r2.schemaVersion).toBe(2);
+      expect(r2.schemaVersion).toBe(4);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -99,12 +99,12 @@ describe("strategic plan deliverables", () => {
   });
 
   test("hub-laravel-verify-gaps produces backlog shape", async () => {
-    const {
-      buildLaravelVerifyGapsReport,
-      resolveFlagshipVerifySummaryPath,
-      routeLabelFromTraceFile,
-    } = await import(resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps.mjs"));
-    const report = buildLaravelVerifyGapsReport();
+    const { buildLaravelVerifyGapsReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps.mjs")
+    );
+    const report = buildLaravelVerifyGapsReport({
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
+    });
     expect(report.kind).toBe("chrysalis.hub.laravel-verify-gaps");
     expect(Array.isArray(report.backlog)).toBe(true);
     expect(report.backlog.length).toBeGreaterThan(0);
@@ -149,7 +149,7 @@ describe("strategic plan deliverables", () => {
     const end = text.lastIndexOf("}");
     const report = JSON.parse(text.slice(start, end + 1));
     expect(report.kind).toBe("chrysalis.hub.express-flagship");
-    expect(report.schemaVersion).toBe(2);
+    expect(report.schemaVersion).toBe(3);
     expect(report.lift?.routeCount).toBe(20);
     // G136: surfaces a hole-free CWL projection for the JavaScript-origin flagship.
     expect(report.cwlProjection.total).toBe(20);
@@ -593,14 +593,14 @@ describe("strategic plan deliverables", () => {
     );
   });
 
-  test("hub-translate runner is single step with bundled post-translate pipeline (G150)", async () => {
+  test("hub-translate runner bundles post-translate pipeline and evidence gate (G150/G174)", async () => {
     const { hubJobSteps } = await import(resolve(ROOT, "scripts/chrysalis-hub-runners.mjs"));
     const steps = hubJobSteps("/repo", "/repo/packages/cli/dist/bin.js", "/tmp/proj", {
       sourceLang: "php",
       targetId: "hono",
       action: "hub-translate",
     });
-    expect(steps.map((s: { kind: string }) => s.kind)).toEqual(["hub-translate"]);
+    expect(steps.map((s: { kind: string }) => s.kind)).toEqual(["hub-translate", "hub-evidence-gate"]);
   });
 
   test("post-translate artifacts bundle verify and evidence snapshot (G150)", async () => {
@@ -848,7 +848,11 @@ describe("strategic plan deliverables", () => {
         join(tmp, ".chrysalis", "cwl-preview.json"),
         `${JSON.stringify({ ok: true, routeCount: 5, holeCount: 0 })}\n`,
       );
-      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      const report = await buildDeliveryDashboard(tmp, {
+        origin: "php",
+        output: "hono",
+        laravelGapsReportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
+      });
       expect(report.schemaVersion).toBe(4);
       expect(report.cwlPreview?.routeCount).toBe(5);
       expect(report.laravelGlobalAction?.ingestRemediation?.owner).toBe("packages/ingest");
@@ -870,7 +874,12 @@ describe("strategic plan deliverables", () => {
         join(tmp, "composer.json"),
         `${JSON.stringify({ require: { "laravel/framework": "^11.0" } })}\n`,
       );
-      const report = await buildMigrationAssessment({ projectDir: tmp, origin: "php", output: "hono" });
+      const report = await buildMigrationAssessment({
+        projectDir: tmp,
+        origin: "php",
+        output: "hono",
+        laravelGapsReportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
+      });
       expect(report.laravelGlobalAction?.ingestRemediation?.divergenceKind).toBeTruthy();
     } finally {
       rmSync(tmp, { recursive: true, force: true });
@@ -893,8 +902,8 @@ describe("strategic plan deliverables", () => {
       );
       writeFileSync(join(tmp, ".chrysalis", "migration.cwl"), "module x;\nroute GET /health { return true; }\n");
       const report = buildHubEvidenceReport(tmp);
-      expect(report.schemaVersion).toBe(3);
-      expect(report.verifyGaps.laravelGlobal?.available).toBe(true);
+    expect(report.schemaVersion).toBe(4);
+    expect(report.verifyGaps.laravelGlobal?.available).toBe(true);
       expect(report.verifyGaps.project.backlogCount).toBe(0);
     } finally {
       rmSync(tmp, { recursive: true, force: true });
@@ -905,8 +914,55 @@ describe("strategic plan deliverables", () => {
     const { runLaravelVerifyGapsAction } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps-action.mjs")
     );
-    const action = runLaravelVerifyGapsAction();
+    const action = runLaravelVerifyGapsAction({
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
+    });
     expect(action.ingestRemediation?.divergenceKind).toBeTruthy();
+  });
+
+  test("laravel verify export reads live flagship summary (G173)", async () => {
+    const { exportHubLaravelVerifyLive } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-export.mjs")
+    );
+    const liveSummary = resolve(ROOT, "reports/verify-flagship-laravel-full/hono/summary.json");
+    const { existsSync } = await import("node:fs");
+    if (!existsSync(liveSummary)) {
+      expect(true).toBe(true);
+      return;
+    }
+    const report = exportHubLaravelVerifyLive();
+    expect(report.ok).toBe(true);
+    expect(report.aggregate?.correctness).toBeGreaterThanOrEqual(0);
+  });
+
+  test("hub evidence v4 includes migration plan and pipeline gate (G174)", async () => {
+    const { buildHubEvidenceReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-evidence.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-evidence-v4-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, ".chrysalis", "migration-assessment.json"),
+        `${JSON.stringify({
+          readinessTier: "pilot-ready",
+          origin: "php",
+          output: "hono",
+          program: { id: "api-slice" },
+          nextSteps: ["Run verify replay", "Clear residual holes"],
+        })}\n`,
+      );
+      writeFileSync(join(tmp, ".chrysalis", "migration.cwl"), "module x;\nroute GET /health { return true; }\n");
+      const report = buildHubEvidenceReport(tmp);
+      expect(report.schemaVersion).toBe(4);
+      expect(report.migrationPlan?.programId).toBe("api-slice");
+      expect(report.pipelineGate?.readinessTier).toBe("pilot-ready");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   test("hub license status maps tier to hub features (G153)", async () => {

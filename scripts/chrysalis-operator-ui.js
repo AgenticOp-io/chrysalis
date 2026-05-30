@@ -1569,7 +1569,14 @@
         trendNote = " · trend (no history; run pipeline with verify gate)";
       }
       if (summary) {
-        summary.textContent = `Verify ${pct} · holes ${holes} · gate ${gate} · delivery ${(ev.deliveryScore ?? 0).toFixed(2)}${trendNote}`;
+        const program = ev.pipelineGate?.programId ?? ev.migrationPlan?.programId;
+        const tier = ev.pipelineGate?.readinessTier ?? ev.migrationPlan?.readinessTier;
+        const planNote =
+          program || tier
+            ? ` · ${tier ?? "?"} / ${program ?? "?"}`
+            : "";
+        const next = ev.migrationPlan?.nextSteps?.[0];
+        summary.textContent = `Verify ${pct} · holes ${holes} · gate ${gate} · pipeline ${ev.pipelineGate?.pass ? "PASS" : "pending"} · delivery ${(ev.deliveryScore ?? 0).toFixed(2)}${trendNote}${planNote}${next ? ` · next: ${next.slice(0, 72)}${next.length > 72 ? "…" : ""}` : ""}`;
       }
       if (blockersEl && Array.isArray(ev.blockers)) {
         blockersEl.innerHTML =

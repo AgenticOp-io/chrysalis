@@ -479,6 +479,16 @@ writeFileSync(confidencePath, `${JSON.stringify(confidence, null, 2)}\n`);
 console.log(`[verify-flagship-laravel-full] wrote confidence artifact ${confidencePath}`);
 appendConfidenceHistory(confidence);
 
+try {
+  const { writeHubLaravelVerifyLiveArtifact } = await import("./hub-ingest/hub-laravel-verify-export.mjs");
+  const exported = await writeHubLaravelVerifyLiveArtifact();
+  console.log(`[verify-flagship-laravel-full] hub verify export: ${exported.jsonPath}`);
+} catch (e) {
+  console.warn(
+    `[verify-flagship-laravel-full] hub verify export skipped: ${e instanceof Error ? e.message : String(e)}`,
+  );
+}
+
 if (exitCode === 0) {
   if (STRESS_RUNS > 1) {
     console.log(

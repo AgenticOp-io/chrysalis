@@ -1138,7 +1138,60 @@ describe("ci-gates hub-completion", () => {
         script: "pnpm run hub:laravel-verify-gaps-action",
       };
       payload.laravelMinSmoke = { ok: true, routeCount: 20, script: "pnpm run hub:laravel-min-smoke" };
-      payload.hubEvidence = { schemaVersion: 3, failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS" };
+      payload.hubEvidence = { schemaVersion: 4, failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS", pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT" };
+      payload.laravelVerifyLive = { script: "pnpm run hub:laravel-verify-export" };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("accepts schema v43 with hub evidence v4 and laravel verify live (G175)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v43-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 43;
+      payload.plainPhpFlagshipGold = {
+        ...(payload.plainPhpFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.symfonyFlagshipGold = {
+        ...(payload.symfonyFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.expressFlagshipGold = {
+        ...(payload.expressFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.laravelVerifyGaps = {
+        ok: true,
+        backlogItems: 0,
+        ingestNext: null,
+        exportScript: "pnpm run hub:laravel-verify-gaps",
+        actionScript: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelVerifyGapsAction = {
+        ok: true,
+        ingestRemediation: null,
+        script: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelMinSmoke = { ok: true, routeCount: 20, script: "pnpm run hub:laravel-min-smoke" };
+      payload.hubEvidence = {
+        schemaVersion: 4,
+        failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
+        pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
+      };
+      payload.laravelVerifyLive = { script: "pnpm run hub:laravel-verify-export" };
       payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
       payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);

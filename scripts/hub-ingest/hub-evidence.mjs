@@ -11,7 +11,7 @@ import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
 
 export const HUB_EVIDENCE_KIND = "chrysalis.hub.evidence";
-export const HUB_EVIDENCE_SCHEMA_VERSION = 3;
+export const HUB_EVIDENCE_SCHEMA_VERSION = 4;
 
 const VERIFY_GATE_CORRECTNESS = 1;
 const EVIDENCE_HISTORY_FILE = ".chrysalis/evidence-history.jsonl";
@@ -45,7 +45,9 @@ export function evidenceSnapshotFromReport(report) {
     correctness: report.verify.correctness,
     holeCount: report.holes.count,
     gatePass: report.verifyGate.pass,
+    pipelineGatePass: report.pipelineGate?.pass ?? report.verifyGate.pass,
     deliveryScore: report.deliveryScore,
+    readinessTier: report.migrationPlan?.readinessTier ?? null,
   };
 }
 
@@ -101,6 +103,26 @@ export function computeEvidenceTrend(history) {
     lastAt: last.at,
     priorAt: prev.at,
   };
+}
+
+/**
+ * @param {string} projectDir
+ */
+function loadMigrationPlanFromArtifacts(projectDir) {
+  const assessmentPath = join(resolve(projectDir), ".chrysalis", "migration-assessment.json");
+  if (!existsSync(assessmentPath)) return null;
+  try {
+    const a = JSON.parse(readFileSync(assessmentPath, "utf8"));
+    return {
+      readinessTier: a.readinessTier ?? null,
+      programId: a.program?.id ?? null,
+      origin: a.origin ?? null,
+      output: a.output ?? null,
+      nextSteps: Array.isArray(a.nextSteps) ? a.nextSteps.slice(0, 5) : [],
+    };
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -214,6 +236,12 @@ export function buildHubEvidenceReport(projectDir) {
 
   const history = readEvidenceHistory(root);
   const trend = computeEvidenceTrend(history);
+  const migrationPlan = loadMigrationPlanFromArtifacts(root);
+  const strictPipeline = process.env.CHRYSALIS_HUB_PIPELINE_GATE_STRICT === "1";
+  const pipelineBlockers = blockers.filter(
+    (b) => !(b.kind === "contract" && (migrationPlan?.readinessTier === "scan-only" || migrationPlan?.readinessTier === "assess")),
+  );
+  const pipelineGatePass = verifyGatePass && (!strictPipeline || pipelineBlockers.length === 0);
 
   return {
     kind: HUB_EVIDENCE_KIND,
@@ -227,6 +255,15 @@ export function buildHubEvidenceReport(projectDir) {
       failOnIngestGaps,
       ingestGapBlocker,
     },
+    pipelineGate: {
+      pass: pipelineGatePass,
+      strict: strictPipeline,
+      readinessTier: migrationPlan?.readinessTier ?? null,
+      programId: migrationPlan?.programId ?? null,
+      blockerCount: blockers.length,
+      pipelineBlockerCount: pipelineBlockers.length,
+    },
+    migrationPlan,
     verifyGaps: {
       project: {
         available: verifyGaps.ok,
@@ -287,6 +324,7 @@ async function main() {
   console.log(JSON.stringify(report, null, 2));
   if (report.verify.available && !report.verifyGate.pass) process.exit(1);
   if (report.verifyGate.failOnIngestGaps && report.verifyGate.ingestGapBlocker) process.exit(1);
+  if (process.env.CHRYSALIS_HUB_PIPELINE_GATE_STRICT === "1" && !report.pipelineGate.pass) process.exit(1);
 }
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);

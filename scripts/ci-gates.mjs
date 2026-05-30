@@ -752,9 +752,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 39 &&
     s.schemaVersion !== 40 &&
     s.schemaVersion !== 41 &&
-    s.schemaVersion !== 42
+    s.schemaVersion !== 42 &&
+    s.schemaVersion !== 43
   ) {
-    fail(`${label}: expected schemaVersion 0–42, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–43, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1218,8 +1219,16 @@ function assertHubCompletion(path) {
     if (!s.laravelVerifyGapsAction?.script) {
       fail(`${label}: laravelVerifyGapsAction.script must be set for schema v42`);
     }
-    if (s.hubEvidence?.schemaVersion !== 3) {
-      fail(`${label}: hubEvidence.schemaVersion must be 3 for schema v42`);
+    if (s.hubEvidence?.schemaVersion !== 3 && s.hubEvidence?.schemaVersion !== 4) {
+      fail(`${label}: hubEvidence.schemaVersion must be 3 or 4 for schema v42+`);
+    }
+  }
+  if (s.schemaVersion >= 43) {
+    if (s.hubEvidence?.schemaVersion !== 4) {
+      fail(`${label}: hubEvidence.schemaVersion must be 4 for schema v43`);
+    }
+    if (!s.laravelVerifyLive?.script) {
+      fail(`${label}: laravelVerifyLive.script must be set for schema v43`);
     }
   }
   const g = s.routeGrades;

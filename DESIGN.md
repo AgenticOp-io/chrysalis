@@ -2464,6 +2464,12 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D471** **Laravel auth probe ingest closure (G172).** M6A static probe lowering (D190) already produced correct JSON for `chrysalis-auth-probe` and `chrysalis-socialite-fortify-probe`; G172 adds committed fixture `fixtures/laravel-auth-probe` + Vitest coverage and updates `fixtures/hub-laravel-verify-gaps` to resolved verify (correctness 1). Synthetic backlog moves to `fixtures/hub-laravel-verify-gaps-backlog` for hub operator/backlog UI tests only.
 
+- **2026-05-30 — D474** **Hub completion schema 43 (G175).** Completion carries `hubEvidence.schemaVersion: 4` and `laravelVerifyLive.exportScript`; CI v43 gates both.
+
+- **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
+
+- **2026-05-30 — D472** **Live Laravel verify export for hub (G173).** `hub-laravel-verify-export.mjs` surfaces `reports/verify-flagship-laravel-full/hono/summary.json` as `reports/ci/hub-laravel-verify-live.json`; `verify:laravel-full` invokes export after replay so hub merged verify-gaps reads live flagship results.
+
 - **2026-05-30 — D460** **Express flagship emit parity + oracle hook (G161).** Phase 4 Node/Express depth: `hub-express-flagship.mjs` v3 runs gold + trace replay on hono, fastify, and nextjs (matching PHP flagships G157); optional live oracle capture/replay via `CHRYSALIS_HUB_EXPRESS_ORACLE=1` (completion keeps separate `runNodeExpressOracleVerify`).
 
 - **2026-05-30 — D459** **CWL preview in delivery dashboard (G160).** Delivery dashboard schema v3 composes `cwlPreview` (route/hole/import counts from `hub-cwl-preview`) when `migration.cwl` exists; Console delivery panel shows CWL summary lines.

@@ -52,6 +52,7 @@ export function computeReadinessTier(input) {
  * @param {string} [opts.origin]
  * @param {string} [opts.output]
  * @param {string[]} [opts.compareOutputs]
+ * @param {string[]} [opts.laravelGapsReportDirs]
  */
 export async function buildMigrationAssessment(opts) {
   const root = resolve(opts.projectDir);
@@ -78,8 +79,11 @@ export async function buildMigrationAssessment(opts) {
   let cutoverReady = false;
   let verifyGaps = buildProjectVerifyGapsIngestReport(root);
   const isLaravel = siteIntel.frameworkHints.includes("laravel");
-  const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport() : null;
-  const laravelGlobalAction = isLaravel ? runLaravelVerifyGapsAction() : null;
+  const laravelGapsOpts = opts.laravelGapsReportDirs
+    ? { reportDirs: opts.laravelGapsReportDirs, merge: false }
+    : {};
+  const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport(laravelGapsOpts) : null;
+  const laravelGlobalAction = isLaravel ? runLaravelVerifyGapsAction(laravelGapsOpts) : null;
   if (!verifyGaps.ingestNext && laravelGlobalGaps?.ingestNext) {
     verifyGaps = {
       ...verifyGaps,

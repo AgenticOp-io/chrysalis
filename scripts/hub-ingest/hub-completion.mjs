@@ -174,7 +174,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 42,
+    schemaVersion: 43,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -361,8 +361,12 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 3,
+      schemaVersion: 4,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
+      pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
+    },
+    laravelVerifyLive: {
+      script: "pnpm run hub:laravel-verify-export",
     },
     laravelMinSmoke: {
       ok: laravelMinSmokeOk,
