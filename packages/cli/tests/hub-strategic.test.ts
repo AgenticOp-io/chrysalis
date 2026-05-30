@@ -669,7 +669,7 @@ describe("strategic plan deliverables", () => {
       output: "hono",
     });
     expect(report.kind).toBe("chrysalis.hub.delivery-dashboard");
-    expect(report.schemaVersion).toBe(3);
+    expect(report.schemaVersion).toBe(4);
     expect(report.evidence).toBeDefined();
     expect(report.license?.hubFeatures?.length).toBeGreaterThan(0);
     expect(Array.isArray(report.artifacts)).toBe(true);
@@ -812,6 +812,85 @@ describe("strategic plan deliverables", () => {
     expect(report.kind).toBe("chrysalis.hub.laravel-min-smoke");
     expect(report.routeCount).toBeGreaterThanOrEqual(15);
     expect(report.laravelVerifyGaps.backlogCount).toBeGreaterThanOrEqual(2);
+  });
+
+  test("delivery dashboard v4 surfaces laravel global action (G168)", async () => {
+    const { buildDeliveryDashboard } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v4-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, ".chrysalis", "site-intelligence.json"),
+        `${JSON.stringify({ frameworkHints: ["laravel"] })}\n`,
+      );
+      writeFileSync(
+        join(tmp, ".chrysalis", "cwl-preview.json"),
+        `${JSON.stringify({ ok: true, routeCount: 5, holeCount: 0 })}\n`,
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(report.schemaVersion).toBe(4);
+      expect(report.cwlPreview?.routeCount).toBe(5);
+      expect(report.laravelGlobalAction?.ingestRemediation?.owner).toBe("packages/ingest");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("migration assessment includes laravel global action (G169)", async () => {
+    const { buildMigrationAssessment } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-migration-assessment.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-assess-laravel-"));
+    try {
+      writeFileSync(
+        join(tmp, "composer.json"),
+        `${JSON.stringify({ require: { "laravel/framework": "^11.0" } })}\n`,
+      );
+      const report = await buildMigrationAssessment({ projectDir: tmp, origin: "php", output: "hono" });
+      expect(report.laravelGlobalAction?.ingestRemediation?.divergenceKind).toBeTruthy();
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub evidence v3 adds verify-gaps blockers for Laravel sites (G170)", async () => {
+    const { buildHubEvidenceReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-evidence.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-evidence-v3-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, ".chrysalis", "site-intelligence.json"),
+        `${JSON.stringify({ frameworkHints: ["laravel"] })}\n`,
+      );
+      writeFileSync(join(tmp, ".chrysalis", "migration.cwl"), "module x;\nroute GET /health { return true; }\n");
+      const report = buildHubEvidenceReport(tmp);
+      expect(report.schemaVersion).toBe(3);
+      expect(report.verifyGaps.laravelGlobal?.ingestNext).toBeTruthy();
+      expect(report.blockers.some((b: { kind: string }) => b.kind === "verify-gaps-ingest")).toBe(true);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub completion schema 42 sections present (G171)", async () => {
+    const { runLaravelVerifyGapsAction } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps-action.mjs")
+    );
+    const action = runLaravelVerifyGapsAction();
+    expect(action.ingestRemediation?.divergenceKind).toBeTruthy();
   });
 
   test("hub license status maps tier to hub features (G153)", async () => {

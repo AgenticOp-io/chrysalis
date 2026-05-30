@@ -1662,6 +1662,13 @@
       } else if (laravelEl) {
         laravelEl.textContent = "";
       }
+      const laravelActionEl = $("consoleLaravelActionSummary");
+      if (laravelActionEl && dash.laravelGlobalAction?.ingestRemediation) {
+        const rem = dash.laravelGlobalAction.ingestRemediation;
+        laravelActionEl.textContent = `Laravel ingest action: ${rem.divergenceKind} → ${rem.suggestedCommand ?? rem.owner ?? "packages/ingest"}`;
+      } else if (laravelActionEl) {
+        laravelActionEl.textContent = "";
+      }
     } catch (e) {
       if (gapsEl) gapsEl.textContent = "Delivery dashboard error: " + e.message;
     }

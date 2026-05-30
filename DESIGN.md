@@ -2454,6 +2454,14 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D462** **Laravel verify-gaps global ingest action (G163).** G159 merged flagship verify failures into a global backlog; G163 closes the operator loop with `hub-laravel-verify-gaps-action.mjs` (`ingestRemediation`, suggested re-verify command) and operator API `GET /api/hub/laravel-verify-gaps-action`. Per-project remediation remains G149; this is repo-level P0 ingest prioritization owned by `packages/ingest`.
 
+- **2026-05-30 — D470** **Hub completion schema 42 (G171).** Completion report carries `laravelVerifyGapsAction` and `hubEvidence.schemaVersion: 3`; CI v42 gates require both.
+
+- **2026-05-30 — D469** **Hub evidence verify-gaps pipeline gate (G170).** Evidence schema v3 composes per-project and Laravel-global verify-gaps into blockers; `CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS=1` extends the pipeline evidence gate to fail on ingest backlog (default off).
+
+- **2026-05-30 — D468** **Migration assessment Laravel global action (G169).** Assessment and Console delivery panel surface `laravelGlobalAction.ingestRemediation` with suggested re-verify command for Laravel-tagged sites.
+
+- **2026-05-30 — D467** **Delivery dashboard v4 + Laravel global action (G168).** Dashboard schema v4 adds `laravelGlobalAction`; reads persisted `.chrysalis/cwl-preview.json` when present before live preview build.
+
 - **2026-05-30 — D460** **Express flagship emit parity + oracle hook (G161).** Phase 4 Node/Express depth: `hub-express-flagship.mjs` v3 runs gold + trace replay on hono, fastify, and nextjs (matching PHP flagships G157); optional live oracle capture/replay via `CHRYSALIS_HUB_EXPRESS_ORACLE=1` (completion keeps separate `runNodeExpressOracleVerify`).
 
 - **2026-05-30 — D459** **CWL preview in delivery dashboard (G160).** Delivery dashboard schema v3 composes `cwlPreview` (route/hole/import counts from `hub-cwl-preview`) when `migration.cwl` exists; Console delivery panel shows CWL summary lines.

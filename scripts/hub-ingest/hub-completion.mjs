@@ -12,6 +12,7 @@ import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { buildHubCompletionSections } from "./hub-completion-sections.mjs";
 import { buildHubCapabilityMatrixReport } from "./hub-capability-matrix.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
+import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs";
 import { buildHubLaravelMinSmokeReport } from "./hub-laravel-min-smoke.mjs";
 import { runPhpNextjsVerify } from "./hub-php-nextjs-verify.mjs";
 import { runNodeExpressOracleVerify } from "./hub-node-express-oracle-verify.mjs";
@@ -121,6 +122,7 @@ async function main() {
   const phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
   const phpOracleOk = phpOracle.status === 0 && phpOracle.parsed.ok === true;
   const laravelGaps = buildLaravelVerifyGapsReport();
+  const laravelGapsAction = runLaravelVerifyGapsAction();
   const laravelMinSmoke = buildHubLaravelMinSmokeReport();
   const laravelMinSmokeOk = laravelMinSmoke.ok === true;
   const expressFlagship = runJson(join(scriptRoot, "scripts/hub-ingest/hub-express-flagship.mjs"), []);
@@ -172,7 +174,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 41,
+    schemaVersion: 42,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -352,6 +354,15 @@ async function main() {
       ingestNext: laravelGaps.ingestNext?.divergenceKind ?? null,
       exportScript: "pnpm run hub:laravel-verify-gaps",
       actionScript: "pnpm run hub:laravel-verify-gaps-action",
+    },
+    laravelVerifyGapsAction: {
+      ok: laravelGapsAction.ok,
+      ingestRemediation: laravelGapsAction.ingestRemediation?.divergenceKind ?? null,
+      script: "pnpm run hub:laravel-verify-gaps-action",
+    },
+    hubEvidence: {
+      schemaVersion: 3,
+      failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
     },
     laravelMinSmoke: {
       ok: laravelMinSmokeOk,

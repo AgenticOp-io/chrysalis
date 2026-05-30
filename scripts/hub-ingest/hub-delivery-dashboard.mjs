@@ -2,7 +2,7 @@
 /**
  * Console delivery dashboard aggregate (G152).
  */
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildHubEvidenceReport } from "./hub-evidence.mjs";
@@ -12,9 +12,10 @@ import { buildChimeraCutoverRunbook } from "./hub-chimera-cutover.mjs";
 import { buildHubLicenseStatusReport } from "./hub-license-status.mjs";
 import { buildCwlPreviewReport } from "./hub-cwl-preview.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
+import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 3;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 4;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -49,6 +50,18 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
     assessment = null;
   }
 
+  /** @type {string[]} */
+  let frameworkHints = assessment?.siteIntelligence?.frameworkHints ?? [];
+  const siteIntelArtifact = join(chrysalisDir, "site-intelligence.json");
+  if (frameworkHints.length === 0 && existsSync(siteIntelArtifact)) {
+    try {
+      const si = JSON.parse(readFileSync(siteIntelArtifact, "utf8"));
+      if (Array.isArray(si.frameworkHints)) frameworkHints = si.frameworkHints;
+    } catch {
+      /* ignore */
+    }
+  }
+
   let chimera = null;
   try {
     chimera = await buildChimeraCutoverRunbook({
@@ -73,7 +86,14 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
   const migrationCwl = join(chrysalisDir, "migration.cwl");
   const cwlPath = existsSync(migrationCwl) ? migrationCwl : existsSync(join(root, "migration.cwl")) ? join(root, "migration.cwl") : null;
   let cwlPreview = null;
-  if (cwlPath) {
+  const cwlPreviewArtifact = join(chrysalisDir, "cwl-preview.json");
+  if (existsSync(cwlPreviewArtifact)) {
+    try {
+      cwlPreview = JSON.parse(readFileSync(cwlPreviewArtifact, "utf8"));
+    } catch {
+      cwlPreview = { ok: false, error: "cwl-preview-artifact-invalid" };
+    }
+  } else if (cwlPath) {
     try {
       cwlPreview = await buildCwlPreviewReport(root, { cwlPath, probe: false });
     } catch {
@@ -81,8 +101,9 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
     }
   }
 
-  const isLaravel = assessment?.siteIntelligence?.frameworkHints?.includes("laravel") ?? false;
+  const isLaravel = frameworkHints.includes("laravel");
   const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport() : null;
+  const laravelGlobalAction = isLaravel ? runLaravelVerifyGapsAction() : null;
 
   return {
     kind: HUB_DELIVERY_DASHBOARD_KIND,
@@ -140,6 +161,13 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
           ok: laravelGlobalGaps.ok === true,
           backlogCount: laravelGlobalGaps.backlog?.length ?? 0,
           ingestNext: laravelGlobalGaps.ingestNext ?? null,
+        }
+      : null,
+    laravelGlobalAction: laravelGlobalAction
+      ? {
+          ok: laravelGlobalAction.ok === true,
+          ingestRemediation: laravelGlobalAction.ingestRemediation,
+          suggestedCommand: laravelGlobalAction.ingestRemediation?.suggestedCommand ?? null,
         }
       : null,
     artifacts,

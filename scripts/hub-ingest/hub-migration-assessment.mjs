@@ -14,6 +14,7 @@ import { buildSiteIntelligenceReport } from "./hub-site-intelligence.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
 import { buildChimeraCutoverRunbook } from "./hub-chimera-cutover.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
+import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs";
 
 export const HUB_MIGRATION_ASSESSMENT_KIND = "chrysalis.hub.migration-assessment";
 export const HUB_MIGRATION_ASSESSMENT_SCHEMA_VERSION = 1;
@@ -78,6 +79,7 @@ export async function buildMigrationAssessment(opts) {
   let verifyGaps = buildProjectVerifyGapsIngestReport(root);
   const isLaravel = siteIntel.frameworkHints.includes("laravel");
   const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport() : null;
+  const laravelGlobalAction = isLaravel ? runLaravelVerifyGapsAction() : null;
   if (!verifyGaps.ingestNext && laravelGlobalGaps?.ingestNext) {
     verifyGaps = {
       ...verifyGaps,
@@ -177,6 +179,12 @@ export async function buildMigrationAssessment(opts) {
           ok: laravelGlobalGaps.ok === true,
           backlogCount: laravelGlobalGaps.backlog.length,
           ingestNext: laravelGlobalGaps.ingestNext,
+        }
+      : null,
+    laravelGlobalAction: laravelGlobalAction
+      ? {
+          ok: laravelGlobalAction.ok === true,
+          ingestRemediation: laravelGlobalAction.ingestRemediation,
         }
       : null,
     nextSteps,

@@ -7,9 +7,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildVerifyPlaybooksReport, defaultVerifySummaryPath } from "./hub-verify-playbooks.mjs";
+import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
+import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
 
 export const HUB_EVIDENCE_KIND = "chrysalis.hub.evidence";
-export const HUB_EVIDENCE_SCHEMA_VERSION = 2;
+export const HUB_EVIDENCE_SCHEMA_VERSION = 3;
 
 const VERIFY_GATE_CORRECTNESS = 1;
 const EVIDENCE_HISTORY_FILE = ".chrysalis/evidence-history.jsonl";
@@ -157,6 +159,20 @@ export function buildHubEvidenceReport(projectDir) {
 
   const playbooks = buildVerifyPlaybooksReport(verify.available ? verifySummaryPath : undefined);
 
+  const verifyGaps = buildProjectVerifyGapsIngestReport(root);
+  let laravelGlobalGaps = null;
+  const siteIntelPath = join(root, ".chrysalis", "site-intelligence.json");
+  if (existsSync(siteIntelPath)) {
+    try {
+      const siteIntel = JSON.parse(readFileSync(siteIntelPath, "utf8"));
+      if (siteIntel.frameworkHints?.includes("laravel")) {
+        laravelGlobalGaps = buildLaravelVerifyGapsReport();
+      }
+    } catch {
+      laravelGlobalGaps = null;
+    }
+  }
+
   const blockers = [];
   if (holeCount !== null && holeCount > 0) {
     blockers.push({ kind: "holes", count: holeCount, detail: `${holeCount} residual legacy hole(s)` });
@@ -171,6 +187,19 @@ export function buildHubEvidenceReport(projectDir) {
   if (!existsSync(migrationCwlPath)) {
     blockers.push({ kind: "contract", count: 1, detail: "missing .chrysalis/migration.cwl (run translate)" });
   }
+  if (verifyGaps.ingestNext) {
+    blockers.push({
+      kind: "verify-gaps-ingest",
+      count: verifyGaps.ingestNext.failedTraceRows ?? 1,
+      detail: `${verifyGaps.ingestNext.divergenceKind}: ${verifyGaps.ingestNext.playbook?.title ?? "ingest backlog"}`,
+    });
+  } else if (laravelGlobalGaps?.ingestNext) {
+    blockers.push({
+      kind: "verify-gaps-ingest",
+      count: laravelGlobalGaps.ingestNext.failedTraceRows ?? 1,
+      detail: `[laravel-global] ${laravelGlobalGaps.ingestNext.divergenceKind}: ${laravelGlobalGaps.ingestNext.playbook?.title ?? "ingest backlog"}`,
+    });
+  }
 
   const deliveryScore =
     verify.available && verify.correctness !== null
@@ -178,6 +207,10 @@ export function buildHubEvidenceReport(projectDir) {
       : holeCount === 0
         ? 0.5
         : 0;
+
+  const ingestGapBlocker = blockers.some((b) => b.kind === "verify-gaps-ingest");
+  const failOnIngestGaps = process.env.CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS === "1";
+  const verifyGatePass = verify.gatePass && (!failOnIngestGaps || !ingestGapBlocker);
 
   const history = readEvidenceHistory(root);
   const trend = computeEvidenceTrend(history);
@@ -188,7 +221,26 @@ export function buildHubEvidenceReport(projectDir) {
     projectDir: root,
     holes: { count: holeCount, path: existsSync(holesPath) ? holesPath : null, sample: holes.slice(0, 8) },
     verify,
-    verifyGate: { minCorrectness: VERIFY_GATE_CORRECTNESS, pass: verify.gatePass },
+    verifyGate: {
+      minCorrectness: VERIFY_GATE_CORRECTNESS,
+      pass: verifyGatePass,
+      failOnIngestGaps,
+      ingestGapBlocker,
+    },
+    verifyGaps: {
+      project: {
+        available: verifyGaps.ok,
+        backlogCount: verifyGaps.backlog.length,
+        ingestNext: verifyGaps.ingestNext,
+      },
+      laravelGlobal: laravelGlobalGaps
+        ? {
+            available: laravelGlobalGaps.ok === true,
+            backlogCount: laravelGlobalGaps.backlog.length,
+            ingestNext: laravelGlobalGaps.ingestNext,
+          }
+        : null,
+    },
     playbooks: {
       observed: playbooks.observedDivergences,
       catalog: playbooks.playbooks.map((p) => ({ kind: p.kind, title: p.title })),
@@ -234,6 +286,7 @@ async function main() {
   }
   console.log(JSON.stringify(report, null, 2));
   if (report.verify.available && !report.verifyGate.pass) process.exit(1);
+  if (report.verifyGate.failOnIngestGaps && report.verifyGate.ingestGapBlocker) process.exit(1);
 }
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);

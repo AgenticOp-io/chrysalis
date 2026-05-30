@@ -1102,6 +1102,53 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
+  test("accepts schema v42 with laravel gaps action and hub evidence v3 (G171)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v42-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 42;
+      payload.plainPhpFlagshipGold = {
+        ...(payload.plainPhpFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.symfonyFlagshipGold = {
+        ...(payload.symfonyFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.expressFlagshipGold = {
+        ...(payload.expressFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.laravelVerifyGaps = {
+        ok: true,
+        backlogItems: 2,
+        ingestNext: "body-mismatch",
+        exportScript: "pnpm run hub:laravel-verify-gaps",
+        actionScript: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelVerifyGapsAction = {
+        ok: true,
+        ingestRemediation: "body-mismatch",
+        script: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelMinSmoke = { ok: true, routeCount: 20, script: "pnpm run hub:laravel-min-smoke" };
+      payload.hubEvidence = { schemaVersion: 3, failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS" };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("rejects schema v40 with a holey express CWL projection (G136)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v40-bad-"));
     const p = join(dir, "bad.json");
