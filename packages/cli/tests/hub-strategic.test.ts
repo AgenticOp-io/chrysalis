@@ -386,6 +386,69 @@ describe("strategic plan deliverables", () => {
     }
   });
 
+  test("site intelligence scan reports languages, routes, and risk (G142)", async () => {
+    const fixture = resolve(ROOT, "fixtures/hub-flagship-plain-php");
+    const { buildSiteIntelligenceReport, writeSiteIntelligenceArtifacts } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-site-intelligence.mjs")
+    );
+    const report = await buildSiteIntelligenceReport(fixture);
+    expect(report.kind).toBe("chrysalis.hub.site-intelligence");
+    expect(report.primaryOrigin).toBe("php");
+    expect(report.routeEstimate.count).toBe(20);
+    expect(report.routeEstimate.source).toBe("chrysalis.routes.json");
+    expect(report.frameworkHints).toContain("plain-php-manifest");
+    expect(report.risk.level).toMatch(/low|medium/);
+
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-site-intel-"));
+    try {
+      const artifacts = await writeSiteIntelligenceArtifacts(tmp, report);
+      expect(existsSync(artifacts.jsonPath)).toBe(true);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("chimera cutover runbook ties evidence gates to operator phases (G143)", async () => {
+    const {
+      buildChimeraCutoverRunbook,
+      renderChimeraCutoverMarkdown,
+      writeChimeraCutoverArtifacts,
+    } = await import(resolve(ROOT, "scripts/hub-ingest/hub-chimera-cutover.mjs"));
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-chimera-cutover-"));
+    try {
+      mkdirSync(join(tmp, "reports", "verify"), { recursive: true });
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "reports", "verify", "summary.json"),
+        readFileSync(resolve(ROOT, "fixtures/ci/tiny-blog-verify-for-status/summary.json"), "utf8"),
+      );
+      writeFileSync(join(tmp, "chrysalis.holes.json"), JSON.stringify({ holes: [] }, null, 2));
+      writeFileSync(join(tmp, ".chrysalis", "migration.cwl"), readFileSync(resolve(ROOT, "fixtures/hub-gold-cwl/routes.cwl"), "utf8"));
+
+      const report = await buildChimeraCutoverRunbook({
+        projectDir: tmp,
+        origin: "php",
+        outputs: ["hono"],
+        programId: "api-slice",
+      });
+      expect(report.kind).toBe("chrysalis.hub.chimera-cutover");
+      expect(report.readyForShadow).toBe(true);
+      expect(report.phases.map((p: { id: string }) => p.id)).toEqual(["prep", "shadow", "canary", "cutover"]);
+      expect(report.operatorMetrics.verifyGatePass).toBe(true);
+      expect(report.operatorMetrics.holeCount).toBe(0);
+
+      const md = renderChimeraCutoverMarkdown(report);
+      expect(md).toMatch(/Chimera cutover runbook/);
+      expect(md).toMatch(/verify-gate/);
+
+      const artifacts = await writeChimeraCutoverArtifacts(tmp, report);
+      expect(existsSync(artifacts.jsonPath)).toBe(true);
+      expect(existsSync(artifacts.mdPath)).toBe(true);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   test("hub-plain-php-flagship smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });

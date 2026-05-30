@@ -33,6 +33,8 @@ import { buildLaravelVerifyGapsReport } from "./hub-ingest/hub-laravel-verify-ga
 import { runNodeExpressOracleVerify } from "./hub-ingest/hub-node-express-oracle-verify.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-ingest/hub-web-databases.mjs";
 import { buildDatabaseDetectionReport } from "./hub-ingest/hub-detect-databases.mjs";
+import { buildSiteIntelligenceReport } from "./hub-ingest/hub-site-intelligence.mjs";
+import { buildChimeraCutoverRunbook } from "./hub-ingest/hub-chimera-cutover.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
@@ -877,6 +879,47 @@ const server = createServer(async (req, res) => {
       sendJson(res, 200, buildDatabaseDetectionReport(services));
     } catch {
       sendJson(res, 400, { error: "invalid services JSON" });
+    }
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/site-intelligence") {
+    const projectDir = url.searchParams.get("projectDir");
+    if (!projectDir) {
+      sendJson(res, 400, { error: "projectDir query param required" });
+      return;
+    }
+    try {
+      const report = await buildSiteIntelligenceReport(resolve(projectDir));
+      sendJson(res, 200, report);
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+    }
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/chimera-cutover") {
+    const projectDir = url.searchParams.get("projectDir");
+    const origin = url.searchParams.get("origin") ?? "php";
+    const outputsRaw = url.searchParams.get("outputs") ?? "hono";
+    const programId = url.searchParams.get("program") ?? "api-slice";
+    const snapshotPath = url.searchParams.get("snapshot") ?? undefined;
+    if (!projectDir) {
+      sendJson(res, 400, { error: "projectDir query param required" });
+      return;
+    }
+    const outputs = outputsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+    try {
+      const report = await buildChimeraCutoverRunbook({
+        projectDir: resolve(projectDir),
+        origin,
+        outputs,
+        programId,
+        snapshotPath,
+      });
+      sendJson(res, 200, report);
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
     }
     return;
   }
