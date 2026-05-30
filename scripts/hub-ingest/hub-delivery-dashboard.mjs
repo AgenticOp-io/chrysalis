@@ -9,9 +9,10 @@ import { buildHubEvidenceReport } from "./hub-evidence.mjs";
 import { buildMigrationAssessment } from "./hub-migration-assessment.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
 import { buildChimeraCutoverRunbook } from "./hub-chimera-cutover.mjs";
+import { buildHubLicenseStatusReport } from "./hub-license-status.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 1;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 2;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -64,6 +65,8 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
     return { name, path: existsSync(path) ? path : alt && existsSync(alt) ? alt : path, exists };
   });
 
+  const license = await buildHubLicenseStatusReport();
+
   return {
     kind: HUB_DELIVERY_DASHBOARD_KIND,
     schemaVersion: HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION,
@@ -99,6 +102,13 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
           phaseCount: chimera.phases?.length ?? null,
         }
       : null,
+    license: {
+      requireLicense: license.requireLicense,
+      gatePass: license.gatePass,
+      tier: license.tier,
+      configuredMinTier: license.configuredMinTier,
+      hubFeatures: license.hubFeatures,
+    },
     artifacts,
     generatedAt: new Date().toISOString(),
   };

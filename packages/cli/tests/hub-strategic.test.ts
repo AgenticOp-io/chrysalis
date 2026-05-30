@@ -591,18 +591,25 @@ describe("strategic plan deliverables", () => {
     );
   });
 
-  test("hub-translate runner includes post-translate verify and evidence gate (G150)", async () => {
+  test("hub-translate runner is single step with bundled post-translate pipeline (G150)", async () => {
     const { hubJobSteps } = await import(resolve(ROOT, "scripts/chrysalis-hub-runners.mjs"));
     const steps = hubJobSteps("/repo", "/repo/packages/cli/dist/bin.js", "/tmp/proj", {
       sourceLang: "php",
       targetId: "hono",
       action: "hub-translate",
     });
-    expect(steps.map((s: { kind: string }) => s.kind)).toEqual([
-      "hub-translate",
-      "hub-post-translate-verify",
-      "hub-evidence-gate",
-    ]);
+    expect(steps.map((s: { kind: string }) => s.kind)).toEqual(["hub-translate"]);
+  });
+
+  test("post-translate artifacts bundle verify and evidence snapshot (G150)", async () => {
+    const { writeHubPostTranslateArtifacts } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-post-translate-artifacts.mjs")
+    );
+    const fixture = resolve(ROOT, "fixtures/hub-flagship-plain-php");
+    const report = await writeHubPostTranslateArtifacts(fixture, { origin: "php", output: "hono" });
+    expect(report.written.verifyGapsIngest?.ok).toBe(true);
+    expect(report.written.verifyGapsIngestAction?.ok).toBe(true);
+    expect(report.written.evidenceSnapshot?.ok).toBe(true);
   });
 
   test("post-translate verify skips without traces (G150)", async () => {
@@ -642,8 +649,24 @@ describe("strategic plan deliverables", () => {
       output: "hono",
     });
     expect(report.kind).toBe("chrysalis.hub.delivery-dashboard");
+    expect(report.schemaVersion).toBe(2);
     expect(report.evidence).toBeDefined();
+    expect(report.license?.hubFeatures?.length).toBeGreaterThan(0);
     expect(Array.isArray(report.artifacts)).toBe(true);
+  });
+
+  test("hub license status maps tier to hub features (G153)", async () => {
+    const { buildHubLicenseStatusReport, hubTierMeetsMinimum } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-license-status.mjs")
+    );
+    const report = await buildHubLicenseStatusReport();
+    expect(report.kind).toBe("chrysalis.hub.license-status");
+    expect(report.requireLicense).toBe(false);
+    expect(report.gatePass).toBe(true);
+    expect(hubTierMeetsMinimum("pro", "dev")).toBe(true);
+    expect(hubTierMeetsMinimum("dev", "pro")).toBe(false);
+    const batch = report.hubFeatures.find((f: { id: string }) => f.id === "hub-batch");
+    expect(batch?.allowed).toBe(true);
   });
 
   test("hub-plain-php-flagship smoke", () => {

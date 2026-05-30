@@ -1607,6 +1607,7 @@
     const gapsEl = $("consoleVerifyGapsSummary");
     const chimeraEl = $("consoleChimeraSummary");
     const artifactsEl = $("consoleArtifactList");
+    const licenseEl = $("consoleLicenseSummary");
     if (!consoleProjectId) {
       if (gapsEl) gapsEl.textContent = "No project loaded.";
       return;
@@ -1617,6 +1618,12 @@
     try {
       const dash = await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/delivery-dashboard`);
       await loadConsoleEvidence();
+      if (licenseEl && dash.license) {
+        const lic = dash.license;
+        licenseEl.textContent = lic.requireLicense
+          ? `License ${lic.gatePass ? "OK" : "FAIL"} · tier ${lic.tier ?? "?"}${lic.configuredMinTier ? ` (min ${lic.configuredMinTier})` : ""}`
+          : "License gate off (OSS mode)";
+      }
       if ($("consoleAssessmentSummary") && dash.assessment) {
         $("consoleAssessmentSummary").textContent = `Readiness ${dash.assessment.readinessTier} · program ${dash.assessment.programId ?? "?"}`;
       }

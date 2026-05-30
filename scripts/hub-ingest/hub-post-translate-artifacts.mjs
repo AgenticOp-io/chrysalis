@@ -10,6 +10,9 @@ import { buildMigrationAssessment, writeMigrationAssessmentArtifacts } from "./h
 import { buildChimeraCutoverRunbook, writeChimeraCutoverArtifacts } from "./hub-chimera-cutover.mjs";
 import { writeSiteIntelligenceArtifacts } from "./hub-site-intelligence.mjs";
 import { writeProjectVerifyGapsArtifacts } from "./hub-verify-gaps-ingest.mjs";
+import { writeVerifyGapsIngestActionArtifacts } from "./hub-verify-gaps-ingest-action.mjs";
+import { runHubPostTranslateVerify } from "./hub-post-translate-verify.mjs";
+import { appendEvidenceSnapshot, buildHubEvidenceReport } from "./hub-evidence.mjs";
 
 export const HUB_POST_TRANSLATE_ARTIFACTS_KIND = "chrysalis.hub.post-translate-artifacts";
 export const HUB_POST_TRANSLATE_ARTIFACTS_SCHEMA_VERSION = 1;
@@ -81,6 +84,41 @@ export async function writeHubPostTranslateArtifacts(projectDir, opts) {
     };
   } catch (e) {
     written.verifyGapsIngest = { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+
+  try {
+    const action = await writeVerifyGapsIngestActionArtifacts(root);
+    written.verifyGapsIngestAction = {
+      ok: true,
+      path: action.jsonPath,
+      ingestNext: action.report.verifyGaps?.ingestNext?.divergenceKind ?? null,
+    };
+  } catch (e) {
+    written.verifyGapsIngestAction = { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+
+  let postTranslateVerify = null;
+  if (process.env.CHRYSALIS_HUB_POST_TRANSLATE_VERIFY !== "0") {
+    try {
+      postTranslateVerify = runHubPostTranslateVerify(root);
+      written.postTranslateVerify = {
+        ok: postTranslateVerify.ok,
+        skipped: postTranslateVerify.skipped,
+        gatePass: postTranslateVerify.verify?.gatePass ?? null,
+      };
+    } catch (e) {
+      written.postTranslateVerify = { ok: false, error: e instanceof Error ? e.message : String(e) };
+    }
+  }
+
+  if (process.env.CHRYSALIS_HUB_VERIFY_GATE !== "0") {
+    try {
+      const evidence = buildHubEvidenceReport(root);
+      appendEvidenceSnapshot(root, evidence);
+      written.evidenceSnapshot = { ok: true, gatePass: evidence.verifyGate.pass };
+    } catch (e) {
+      written.evidenceSnapshot = { ok: false, error: e instanceof Error ? e.message : String(e) };
+    }
   }
 
   return {

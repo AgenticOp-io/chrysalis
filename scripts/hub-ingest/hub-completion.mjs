@@ -18,6 +18,7 @@ import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 import { hubNativeEmitTargetIds } from "./hub-gold-native-emit.mjs";
 import { resolveHubPython } from "./shared.mjs";
+import { buildHubLicenseStatusReport } from "./hub-license-status.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -162,6 +163,8 @@ async function main() {
     nodeExpressOracleOk &&
     plainPhpFlagshipOk &&
     symfonyFlagshipOk;
+
+  const licenseStatus = await buildHubLicenseStatusReport();
 
   const report = {
     kind: "chrysalis.hub.completion",
@@ -521,6 +524,12 @@ async function main() {
       script: "pnpm run ci:hub-knowledge",
     },
     routeGrades,
+    licenseStatus: {
+      api: "/api/hub/license-status",
+      requireLicense: licenseStatus.requireLicense,
+      gatePass: licenseStatus.gatePass,
+      tier: licenseStatus.tier,
+    },
     generatedAt: new Date().toISOString(),
   };
 

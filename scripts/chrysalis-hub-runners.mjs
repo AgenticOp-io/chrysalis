@@ -30,31 +30,6 @@ export function hubJobSteps(repo, cliBin, projectDir, runnable, progressFile) {
         cliBin,
       ],
     });
-    if (process.env.CHRYSALIS_HUB_POST_TRANSLATE_VERIFY !== "0") {
-      steps.push({
-        kind: "hub-post-translate-verify",
-        execPath: process.execPath,
-        argv: [
-          join(repo, "scripts/hub-ingest/hub-post-translate-verify.mjs"),
-          "--project",
-          projectDir,
-          "--cli",
-          cliBin,
-        ],
-      });
-    }
-    if (process.env.CHRYSALIS_HUB_VERIFY_GATE !== "0") {
-      steps.push({
-        kind: "hub-evidence-gate",
-        execPath: process.execPath,
-        argv: [
-          join(repo, "scripts/hub-ingest/hub-evidence.mjs"),
-          "--project",
-          projectDir,
-          "--record-snapshot",
-        ],
-      });
-    }
     return steps;
   }
 

@@ -39,6 +39,7 @@ import { buildMigrationAssessment } from "./hub-ingest/hub-migration-assessment.
 import { writePathAdviceArtifacts } from "./hub-ingest/hub-apply-path-advice.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-ingest/hub-verify-gaps-ingest.mjs";
 import { buildDeliveryDashboard } from "./hub-ingest/hub-delivery-dashboard.mjs";
+import { assertHubLicenseAllows, buildHubLicenseStatusReport } from "./hub-ingest/hub-license-status.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
@@ -820,6 +821,15 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && url.pathname === "/api/hub/cross-language-synthesis") {
     sendJson(res, 200, buildCrossLanguageSynthesis());
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/license-status") {
+    try {
+      sendJson(res, 200, await buildHubLicenseStatusReport());
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+    }
     return;
   }
 
@@ -1699,6 +1709,7 @@ const server = createServer(async (req, res) => {
         }
         const concurrency = Number(body.concurrency) || defaultBatchConcurrency();
         try {
+          await assertHubLicenseAllows("hub-batch");
           await startProjectBatch(hp, {
             siteIds: body.siteIds ?? null,
             concurrency,
@@ -1707,6 +1718,10 @@ const server = createServer(async (req, res) => {
           });
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
+          if (msg.includes("license")) {
+            sendJson(res, 403, { error: "license-gate", message: msg });
+            return;
+          }
           sendJson(res, 409, { error: "job-busy", message: msg });
           return;
         }
@@ -1727,6 +1742,7 @@ const server = createServer(async (req, res) => {
         }
         const concurrency = Number(body.concurrency) || defaultBatchConcurrency();
         try {
+          await assertHubLicenseAllows("hub-pipeline");
           await startProjectBatch(hp, {
             siteIds: body.siteIds ?? null,
             concurrency,
@@ -1734,6 +1750,10 @@ const server = createServer(async (req, res) => {
           });
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
+          if (msg.includes("license")) {
+            sendJson(res, 403, { error: "license-gate", message: msg });
+            return;
+          }
           sendJson(res, 409, { error: "job-busy", message: msg });
           return;
         }
