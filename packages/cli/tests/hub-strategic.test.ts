@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { createServer } from "node:http";
@@ -227,6 +227,163 @@ describe("strategic plan deliverables", () => {
     const cwl = readFileSync(join(fixture, "generated/cwl/routes.cwl"), "utf8");
     expect(cwl).toMatch(/status 201;/);
     expect(cwl).toMatch(/query q = "";/);
+  });
+
+  test("OpenAPI -> CWL import is a rich migration contract that round-trips (G139)", async () => {
+    const fixture = resolve(ROOT, "fixtures/hub-gold-openapi-cwl");
+    const { importOpenApiFileToCwl, openApiDocToCwlRoutes } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-openapi-to-cwl.mjs")
+    );
+
+    // Pure conversion: route surface is captured faithfully from the contract.
+    const doc = JSON.parse(readFileSync(join(fixture, "openapi.json"), "utf8"));
+    const converted = openApiDocToCwlRoutes(doc);
+    expect(converted.length).toBe(7);
+    const post = converted.find((r: any) => r.method === "POST" && r.path === "/items");
+    expect(post?.status).toBe(201);
+    const del = converted.find((r: any) => r.method === "DELETE" && r.path === "/items/:id");
+    expect(del?.status).toBe(204);
+    expect(del?.params).toEqual([{ name: "id", source: "path" }]);
+    const search = converted.find((r: any) => r.method === "GET" && r.path === "/search");
+    expect(search?.params).toEqual([{ name: "q", source: "query", default: "" }]);
+    // No response example -> honest hole, never an invented body.
+    const raw = converted.find((r: any) => r.path === "/raw");
+    expect(raw?.holeReason).toBe("openapi:no-response-body");
+
+    // Importer writes parseable CWL with the OpenAPI path style converted to `:id`.
+    const report = await importOpenApiFileToCwl(join(fixture, "openapi.json"), {
+      moduleName: "items_mini",
+    });
+    expect(report.ok).toBe(true);
+    expect(report.routeCount).toBe(7);
+    expect(report.holeFree).toBe(6);
+    expect(report.withStatus).toBe(2);
+    expect(report.withParams).toBe(3);
+    const cwlText = readFileSync(report.cwlPath, "utf8");
+    expect(cwlText).toMatch(/@route DELETE "\/items\/:id"/);
+    expect(cwlText).toMatch(/status 201;/);
+    expect(cwlText).toMatch(/query q = "";/);
+    // Hole route keeps its known surface (content-type) alongside the body hole.
+    expect(cwlText).toMatch(/content-type "application\/json";\n {2}hole openapi:no-response-body;/);
+
+    // Round-trip: ingest the imported CWL back to WebIR, hole-free where the
+    // contract was concrete (only the unspecified-body route remains a hole).
+    const liftScript = resolve(ROOT, "scripts/hub-ingest/lift-to-webir.mjs");
+    const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", "cwl"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    expect(lift.status).toBe(0);
+    const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+    const { summarizeCwlProjection } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-webir-routes.mjs")
+    );
+    const mod = webir.moduleFromGoldenSnapshot(
+      JSON.parse(readFileSync(join(fixture, ".chrysalis/hub.cwl.webir.json"), "utf8")),
+    );
+    const proj = summarizeCwlProjection(mod);
+    expect(proj.total).toBe(7);
+    expect(proj.holeFree).toBe(6);
+    expect(proj.withStatus).toBe(2);
+    expect(proj.objectBodies).toBe(5);
+    expect(proj.holeReasons).toEqual(["openapi:no-response-body"]);
+  });
+
+  test("HAR -> CWL import captures observed traffic and round-trips (G140)", async () => {
+    const fixture = resolve(ROOT, "fixtures/hub-gold-har-cwl");
+    const { importHarFileToCwl, harDocToCwlRoutes } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-har-to-cwl.mjs")
+    );
+    const doc = JSON.parse(readFileSync(join(fixture, "mini.har.json"), "utf8"));
+    const converted = harDocToCwlRoutes(doc);
+    expect(converted.length).toBe(6);
+    expect(converted.find((r: any) => r.method === "POST" && r.path === "/items")?.status).toBe(201);
+    expect(converted.find((r: any) => r.method === "GET" && r.path === "/search")?.params).toEqual([
+      { name: "q", source: "query" },
+    ]);
+
+    const report = await importHarFileToCwl(join(fixture, "mini.har.json"), { moduleName: "items_capture" });
+    expect(report.ok).toBe(true);
+    expect(report.holeFree).toBe(6);
+    expect(report.withStatus).toBe(2);
+
+    const lift = spawnSync(process.execPath, [resolve(ROOT, "scripts/hub-ingest/lift-to-webir.mjs"), fixture, "--language", "cwl"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    expect(lift.status).toBe(0);
+    const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+    const { summarizeCwlProjection } = await import(resolve(ROOT, "scripts/hub-ingest/hub-webir-routes.mjs"));
+    const mod = webir.moduleFromGoldenSnapshot(
+      JSON.parse(readFileSync(join(fixture, ".chrysalis/hub.cwl.webir.json"), "utf8")),
+    );
+    const proj = summarizeCwlProjection(mod);
+    expect(proj.holeFree).toBe(6);
+    expect(proj.withStatus).toBe(2);
+    expect(proj.objectBodies).toBe(5);
+  });
+
+  test("hub-translate prefers OpenAPI import for migration.cwl (G140)", async () => {
+    const { exportProjectMigrationCwlFromContractOrWebir } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-contract-cwl-import.mjs")
+    );
+    const openapiFixture = resolve(ROOT, "fixtures/hub-gold-openapi-cwl");
+    const meta = await exportProjectMigrationCwlFromContractOrWebir(openapiFixture, { origin: "javascript" });
+    expect(meta.ok).toBe(true);
+    expect(meta.source).toBe("openapi-import");
+    expect(meta.routeCount).toBe(7);
+    expect(meta.holeCount).toBe(1);
+    const cwl = readFileSync(meta.cwlPath, "utf8");
+    expect(cwl).toContain("module migration;");
+    expect(cwl).toMatch(/status 201;/);
+
+    const harDir = mkdtempSync(join(tmpdir(), "chrysalis-har-contract-"));
+    try {
+      writeFileSync(join(harDir, "mini.har.json"), readFileSync(resolve(ROOT, "fixtures/hub-gold-har-cwl/mini.har.json"), "utf8"));
+      const harMeta = await exportProjectMigrationCwlFromContractOrWebir(harDir, { origin: "javascript" });
+      expect(harMeta.source).toBe("har-import");
+      expect(harMeta.holeCount).toBe(0);
+      expect(harMeta.routeCount).toBe(6);
+    } finally {
+      rmSync(harDir, { recursive: true, force: true });
+    }
+  });
+
+  test("CWL semantic diff for PR review (G141)", async () => {
+    const fixture = resolve(ROOT, "fixtures/hub-gold-cwl-diff");
+    const { diffCwlFiles, renderCwlDiffMarkdown, writeProjectCwlDiffArtifacts } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-diff.mjs")
+    );
+    const diff = diffCwlFiles(join(fixture, "base.cwl"), join(fixture, "head.cwl"));
+    expect(diff.summary.added).toBe(1);
+    expect(diff.summary.removed).toBe(1);
+    expect(diff.summary.changed).toBe(1);
+    expect(diff.summary.unchanged).toBe(1);
+    expect(diff.added[0]?.route).toBe("POST /items");
+    expect(diff.removed[0]?.route).toBe("GET /gone");
+    expect(diff.changed[0]?.route).toBe("GET /items");
+    expect(diff.changed[0]?.changes.some((c: any) => c.field === "body")).toBe(true);
+
+    const md = renderCwlDiffMarkdown(diff);
+    expect(md).toMatch(/## CWL migration contract diff/);
+    expect(md).toMatch(/POST \/items/);
+    expect(md).toMatch(/GET \/gone/);
+
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-cwl-diff-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(join(tmp, ".chrysalis", "migration.cwl"), readFileSync(join(fixture, "head.cwl"), "utf8"));
+      const artifacts = await writeProjectCwlDiffArtifacts(tmp, {
+        baseCwl: join(fixture, "base.cwl"),
+      });
+      expect(artifacts?.summary.added).toBe(1);
+      expect(existsSync(artifacts!.jsonPath)).toBe(true);
+      expect(existsSync(artifacts!.mdPath)).toBe(true);
+      const saved = JSON.parse(readFileSync(artifacts!.jsonPath, "utf8"));
+      expect(saved.kind).toBe("chrysalis.hub.cwl-diff");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   test("hub-plain-php-flagship smoke", () => {

@@ -177,6 +177,11 @@ export function walkCwlHandlerBody(get, bodyId) {
       return;
     }
     if (n.dialect === "web.request" && n.op === "response") {
+      // CWL-ingested routes carry the response status on the response node
+      // (the lift path uses an `http.error` effect instead); read it here so a
+      // round-tripped `status N;` projects as `withStatus`.
+      const s = Number(n.attrs?.status);
+      if (Number.isFinite(s) && s !== 200) status = s;
       for (const op of n.operands ?? []) visit(op);
       return;
     }
@@ -317,24 +322,38 @@ export function renderCwlRoutes(routes, opts = {}) {
     lines.push(`@route ${r.method} "${r.path}"`);
     lines.push(`handler ${r.handlerName} {`);
     lines.push("  effects: none;");
+    const renderSurface = () => {
+      if (typeof r.status === "number" && r.status !== 200) {
+        lines.push(`  status ${r.status};`);
+      }
+      if (r.contentType) {
+        lines.push(`  content-type ${JSON.stringify(r.contentType)};`);
+      }
+      for (const p of r.params ?? []) {
+        const kw = p.source === "query" ? "query" : "param";
+        const hasDefault = Object.prototype.hasOwnProperty.call(p, "default");
+        lines.push(hasDefault ? `  ${kw} ${p.name} = ${cwlRenderLiteral(p.default)};` : `  ${kw} ${p.name};`);
+      }
+    };
     if (r.holeReason) {
       holeCount += 1;
-      lines.push(`  hole ${JSON.stringify(r.holeReason)};`);
+      // Importers (OpenAPI -> CWL) keep the known route surface alongside an
+      // honest body hole; the default (round-trip emit) keeps the legacy
+      // hole-only shape so existing golden snapshots are byte-identical.
+      if (opts.surfaceOnHole) renderSurface();
+      // The CWL `hole` statement takes a bare token reason (`hole foo:bar;`);
+      // a free-text reason falls back to the `hole <name> "<message>";` form.
+      const reason = String(r.holeReason);
+      lines.push(
+        /^[A-Za-z0-9_:.-]+$/.test(reason)
+          ? `  hole ${reason};`
+          : `  hole legacy ${JSON.stringify(reason)};`,
+      );
       lines.push("}");
       lines.push("");
       continue;
     }
-    if (typeof r.status === "number" && r.status !== 200) {
-      lines.push(`  status ${r.status};`);
-    }
-    if (r.contentType) {
-      lines.push(`  content-type ${JSON.stringify(r.contentType)};`);
-    }
-    for (const p of r.params) {
-      const kw = p.source === "query" ? "query" : "param";
-      const hasDefault = Object.prototype.hasOwnProperty.call(p, "default");
-      lines.push(hasDefault ? `  ${kw} ${p.name} = ${cwlRenderLiteral(p.default)};` : `  ${kw} ${p.name};`);
-    }
+    renderSurface();
     lines.push(`  return ${cwlRenderValue(r.value)};`);
     lines.push("}");
     lines.push("");

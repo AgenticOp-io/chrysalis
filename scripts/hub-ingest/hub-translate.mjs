@@ -8,7 +8,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveEmitBackend } from "./shared.mjs";
 import { runHubEmitPipeline } from "./wptp-emit-pipeline.mjs";
-import { exportProjectMigrationCwl } from "./hub-project-cwl-export.mjs";
+import { exportProjectMigrationCwlFromContractOrWebir } from "./hub-contract-cwl-import.mjs";
+import { writeProjectCwlDiffArtifacts } from "./hub-cwl-diff.mjs";
 import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -99,7 +100,7 @@ async function main() {
     let cwlExport = null;
     let openapiExport = null;
     try {
-      cwlExport = await exportProjectMigrationCwl(projectDir, { origin });
+      cwlExport = await exportProjectMigrationCwlFromContractOrWebir(projectDir, { origin });
     } catch {
       cwlExport = { ok: false, reason: "cwl-export-failed" };
     }
@@ -108,8 +109,14 @@ async function main() {
     } catch {
       openapiExport = { ok: false, reason: "openapi-export-failed" };
     }
+    let cwlDiff = null;
+    try {
+      cwlDiff = await writeProjectCwlDiffArtifacts(projectDir, {});
+    } catch {
+      cwlDiff = null;
+    }
     console.log(
-      JSON.stringify({ ok: true, origin, output, path: "chrysalis-php", cwlExport, openapiExport }),
+      JSON.stringify({ ok: true, origin, output, path: "chrysalis-php", cwlExport, openapiExport, cwlDiff }),
     );
     return;
   }
@@ -117,7 +124,19 @@ async function main() {
   const preferWptp = process.env.CHRYSALIS_HUB_PREFER_WPTP !== "0";
   if (preferWptp) {
     const r = await runHubEmitPipeline(projectDir, origin, output);
-    console.log(JSON.stringify({ ok: r.ok, origin, output, path: r.path, hole: r.hole ?? null }));
+    let cwlExport = null;
+    try {
+      cwlExport = await exportProjectMigrationCwlFromContractOrWebir(projectDir, { origin });
+    } catch {
+      cwlExport = { ok: false, reason: "cwl-export-failed" };
+    }
+    let cwlDiff = null;
+    try {
+      cwlDiff = await writeProjectCwlDiffArtifacts(projectDir, {});
+    } catch {
+      cwlDiff = null;
+    }
+    console.log(JSON.stringify({ ok: r.ok, origin, output, path: r.path, hole: r.hole ?? null, cwlExport, cwlDiff }));
     if (!r.ok) process.exit(1);
     return;
   }
@@ -133,7 +152,20 @@ async function main() {
     await runNode(join(hubIngest, "emit-target-project.mjs"), [projectDir, "--origin", origin, "--output", output]);
   }
 
-  console.log(JSON.stringify({ ok: true, origin, output, path: "hub-lift-emit" }));
+  let cwlExport = null;
+  try {
+    cwlExport = await exportProjectMigrationCwlFromContractOrWebir(projectDir, { origin });
+  } catch {
+    cwlExport = { ok: false, reason: "cwl-export-failed" };
+  }
+  let cwlDiff = null;
+  try {
+    cwlDiff = await writeProjectCwlDiffArtifacts(projectDir, {});
+  } catch {
+    cwlDiff = null;
+  }
+
+  console.log(JSON.stringify({ ok: true, origin, output, path: "hub-lift-emit", cwlExport, cwlDiff }));
 }
 
 main().catch((e) => {

@@ -1,0 +1,223 @@
+#!/usr/bin/env node
+/**
+ * HTTP Archive (HAR) → CWL migration contract (Stage-B "Sink" sibling to OpenAPI import).
+ *
+ * Observed traffic becomes a reviewable CWL contract: each unique `(method, pathname)`
+ * pair is one route with the recorded status, content-type, query params, and a flat
+ * JSON/text response body when parseable. Non-flat or missing bodies become honest
+ * holes — never invented values (DESIGN non-negotiable #6).
+ */
+import { existsSync, readFileSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { renderCwlRoutes } from "./hub-webir-routes.mjs";
+import { attachContractResponseBody, isFlatRenderable, sanitizeHandlerName } from "./hub-contract-cwl-shared.mjs";
+
+export const HUB_HAR_CWL_KIND = "chrysalis.hub.har-to-cwl";
+export const HUB_HAR_CWL_SCHEMA_VERSION = 1;
+
+/**
+ * Parse a HAR request URL into pathname + query bindings.
+ * @param {object} request
+ * @returns {{ pathname: string, query: Array<{ name: string, value: string }> }}
+ */
+export function parseHarRequestUrl(request) {
+  const url = String(request?.url ?? "");
+  /** @type {Array<{ name: string, value: string }>} */
+  const query = [];
+  let pathname = "/";
+  try {
+    const u = new URL(url);
+    pathname = u.pathname || "/";
+    for (const [name, value] of u.searchParams.entries()) {
+      if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) query.push({ name, value });
+    }
+  } catch {
+    const qIdx = url.indexOf("?");
+    const pathPart = qIdx >= 0 ? url.slice(0, qIdx) : url;
+    pathname = pathPart.startsWith("/") ? pathPart : `/${pathPart}`;
+  }
+  if (Array.isArray(request?.queryString)) {
+    for (const q of request.queryString) {
+      const name = String(q?.name ?? "");
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) continue;
+      if (!query.some((x) => x.name === name)) {
+        query.push({ name, value: String(q?.value ?? "") });
+      }
+    }
+  }
+  return { pathname, query };
+}
+
+/**
+ * @param {object | null | undefined} content
+ * @param {number} status
+ */
+export function parseHarResponseBody(content, status) {
+  if (status === 204 || status === 304) return { body: "" };
+  const mime = String(content?.mimeType ?? "");
+  const text = content?.text;
+  if (text === undefined || text === null || text === "") {
+    if (Number(content?.size ?? 0) === 0 && (status === 204 || status === 304)) return { body: "" };
+    return { holeReason: "har:no-response-body" };
+  }
+  if (mime.includes("json")) {
+    try {
+      const parsed = JSON.parse(text);
+      if (isFlatRenderable(parsed)) return { body: parsed };
+      return { holeReason: "har:nested-response-body" };
+    } catch {
+      return { holeReason: "har:invalid-json-body" };
+    }
+  }
+  if (typeof text === "string") return { body: text };
+  return { holeReason: "har:no-response-body" };
+}
+
+/**
+ * Convert a HAR document into CWL route objects.
+ * @param {object} doc
+ */
+export function harDocToCwlRoutes(doc) {
+  const entries = doc?.log?.entries;
+  if (!Array.isArray(entries)) return [];
+  /** @type {Map<string, object>} */
+  const seen = new Map();
+
+  for (const entry of entries) {
+    const req = entry?.request;
+    const res = entry?.response;
+    if (!req?.method) continue;
+    const method = String(req.method).toUpperCase();
+    const { pathname, query } = parseHarRequestUrl(req);
+    const key = `${method} ${pathname}`;
+    if (seen.has(key)) continue;
+
+    const status = Number(res?.status ?? 200);
+    const content = res?.content;
+    const mime = String(content?.mimeType ?? "");
+    const contentType =
+      status === 204 || status === 304
+        ? undefined
+        : mime.includes("json")
+          ? "application/json"
+          : mime.includes("html")
+            ? "text/html; charset=utf-8"
+            : mime
+              ? mime
+              : "text/plain; charset=utf-8";
+
+    /** @type {object} */
+    const route = {
+      method,
+      path: pathname,
+      handlerName: sanitizeHandlerName(null, method, pathname),
+      status,
+      params: query.map((q) => ({ name: q.name, source: "query" })),
+    };
+
+    const parsed = parseHarResponseBody(content, status);
+    if (parsed.holeReason) {
+      attachContractResponseBody(route, status, contentType, undefined, parsed.holeReason, "har:nested-response-body");
+    } else {
+      attachContractResponseBody(route, status, contentType, parsed.body, "har:no-response-body", "har:nested-response-body");
+    }
+    seen.set(key, route);
+  }
+
+  return [...seen.values()].sort((a, b) => a.path.localeCompare(b.path) || a.method.localeCompare(b.method));
+}
+
+/**
+ * @param {object} doc
+ * @param {{ moduleName?: string, title?: string }} [opts]
+ */
+export function renderHarCwl(doc, opts = {}) {
+  const routes = harDocToCwlRoutes(doc);
+  const moduleName = (opts.moduleName ?? "imported").replace(/[^a-zA-Z0-9_]+/g, "_") || "imported";
+  const title = opts.title ?? "HAR capture";
+  const rendered = renderCwlRoutes(routes, {
+    header: `# Chrysalis migration contract — imported from HAR (${title})`,
+    moduleName,
+    surfaceOnHole: true,
+  });
+  return { ...rendered, routes };
+}
+
+/**
+ * @param {string} harPath
+ * @param {{ out?: string, moduleName?: string }} [opts]
+ */
+export async function importHarFileToCwl(harPath, opts = {}) {
+  const abs = resolve(harPath);
+  if (!existsSync(abs)) {
+    return { kind: HUB_HAR_CWL_KIND, schemaVersion: HUB_HAR_CWL_SCHEMA_VERSION, ok: false, reason: "no-har", harPath: abs };
+  }
+  let doc;
+  try {
+    doc = JSON.parse(readFileSync(abs, "utf8"));
+  } catch (e) {
+    return {
+      kind: HUB_HAR_CWL_KIND,
+      schemaVersion: HUB_HAR_CWL_SCHEMA_VERSION,
+      ok: false,
+      reason: "invalid-json",
+      harPath: abs,
+      error: String(e?.message ?? e),
+    };
+  }
+  const { text, holeCount, routeCount, routes } = renderHarCwl(doc, { moduleName: opts.moduleName });
+  const outPath = opts.out ? resolve(opts.out) : join(dirname(abs), "routes.cwl");
+  await mkdir(dirname(outPath), { recursive: true });
+  await writeFile(outPath, text, "utf8");
+  return {
+    kind: HUB_HAR_CWL_KIND,
+    schemaVersion: HUB_HAR_CWL_SCHEMA_VERSION,
+    ok: true,
+    harPath: abs,
+    cwlPath: outPath,
+    routeCount,
+    holeCount,
+    holeFree: routeCount - holeCount,
+    withStatus: routes.filter((r) => typeof r.status === "number" && r.status !== 200).length,
+    withParams: routes.filter((r) => Array.isArray(r.params) && r.params.length > 0).length,
+  };
+}
+
+function parseArgs(argv) {
+  let har = null;
+  let out = null;
+  let jsonOut = null;
+  let moduleName;
+  for (let i = 2; i < argv.length; i++) {
+    if (argv[i] === "--har" && argv[i + 1]) har = resolve(argv[++i]);
+    else if (argv[i] === "--out" && argv[i + 1]) out = resolve(argv[++i]);
+    else if (argv[i] === "--json-out" && argv[i + 1]) jsonOut = resolve(argv[++i]);
+    else if (argv[i] === "--module" && argv[i + 1]) moduleName = argv[++i];
+  }
+  return { har, out, jsonOut, moduleName };
+}
+
+async function main() {
+  const { har, out, jsonOut, moduleName } = parseArgs(process.argv);
+  if (!har) {
+    console.error("usage: hub-har-to-cwl.mjs --har <capture.har.json> [--out routes.cwl] [--module name] [--json-out path]");
+    process.exit(1);
+  }
+  const report = await importHarFileToCwl(har, { out, moduleName });
+  if (jsonOut) {
+    await mkdir(dirname(jsonOut), { recursive: true });
+    await writeFile(jsonOut, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  }
+  console.log(JSON.stringify(report, null, 2));
+  if (!report.ok) process.exit(1);
+}
+
+const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

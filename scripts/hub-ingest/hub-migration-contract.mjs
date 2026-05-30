@@ -6,15 +6,16 @@ import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { exportProjectMigrationCwl } from "./hub-project-cwl-export.mjs";
+import { exportProjectMigrationCwlFromContractOrWebir } from "./hub-contract-cwl-import.mjs";
 import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
+import { writeProjectCwlDiffArtifacts } from "./hub-cwl-diff.mjs";
 
 export const HUB_MIGRATION_CONTRACT_KIND = "chrysalis.hub.migration-contract";
-export const HUB_MIGRATION_CONTRACT_SCHEMA_VERSION = 1;
+export const HUB_MIGRATION_CONTRACT_SCHEMA_VERSION = 2;
 
 /**
  * @param {string} projectDir
- * @param {{ origin?: string, write?: boolean }} [opts]
+ * @param {{ origin?: string, write?: boolean, baseCwl?: string }} [opts]
  */
 export async function buildMigrationContractReport(projectDir, opts = {}) {
   const root = resolve(projectDir);
@@ -25,7 +26,7 @@ export async function buildMigrationContractReport(projectDir, opts = {}) {
   let openapiExport = null;
   if (write) {
     try {
-      cwlExport = await exportProjectMigrationCwl(root, { origin });
+      cwlExport = await exportProjectMigrationCwlFromContractOrWebir(root, { origin });
     } catch {
       cwlExport = { ok: false, reason: "cwl-export-failed" };
     }
@@ -57,7 +58,22 @@ export async function buildMigrationContractReport(projectDir, opts = {}) {
     openapi: existsSync(openapiPath) ? openapiPath : null,
     cwlExportMeta: existsSync(cwlMetaPath) ? cwlMetaPath : null,
     holes: existsSync(holesPath) ? holesPath : null,
+    cwlDiffJson: null,
+    cwlDiffMarkdown: null,
   };
+
+  let cwlDiff = null;
+  if (write && artifacts.cwl) {
+    try {
+      cwlDiff = await writeProjectCwlDiffArtifacts(root, { baseCwl: opts.baseCwl });
+      if (cwlDiff) {
+        artifacts.cwlDiffJson = cwlDiff.jsonPath;
+        artifacts.cwlDiffMarkdown = cwlDiff.mdPath;
+      }
+    } catch {
+      cwlDiff = null;
+    }
+  }
 
   const complete =
     artifacts.cwl !== null &&
@@ -72,6 +88,7 @@ export async function buildMigrationContractReport(projectDir, opts = {}) {
     origin,
     artifacts,
     exports: { cwl: cwlExport, openapi: openapiExport },
+    cwlDiff,
     holes: { count: holeCount },
     generatedAt: new Date().toISOString(),
   };
@@ -82,24 +99,26 @@ function parseArgs(argv) {
   let jsonOut = null;
   let origin = "php";
   let readOnly = false;
+  let baseCwl = null;
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === "--project" && argv[i + 1]) projectDir = resolve(argv[++i]);
     else if (argv[i] === "--json-out" && argv[i + 1]) jsonOut = resolve(argv[++i]);
     else if (argv[i] === "--origin" && argv[i + 1]) origin = argv[++i];
+    else if (argv[i] === "--base" && argv[i + 1]) baseCwl = resolve(argv[++i]);
     else if (argv[i] === "--read-only") readOnly = true;
   }
-  return { projectDir, jsonOut, origin, readOnly };
+  return { projectDir, jsonOut, origin, readOnly, baseCwl };
 }
 
 async function main() {
-  const { projectDir, jsonOut, origin, readOnly } = parseArgs(process.argv);
+  const { projectDir, jsonOut, origin, readOnly, baseCwl } = parseArgs(process.argv);
   if (!projectDir) {
     console.error(
-      "usage: hub-migration-contract.mjs --project <dir> [--origin php] [--json-out path] [--read-only]",
+      "usage: hub-migration-contract.mjs --project <dir> [--origin php] [--base base.cwl] [--json-out path] [--read-only]",
     );
     process.exit(1);
   }
-  const report = await buildMigrationContractReport(projectDir, { origin, write: !readOnly });
+  const report = await buildMigrationContractReport(projectDir, { origin, write: !readOnly, baseCwl });
   if (jsonOut) {
     await mkdir(dirname(jsonOut), { recursive: true });
     await writeFile(jsonOut, `${JSON.stringify(report, null, 2)}\n`, "utf8");
