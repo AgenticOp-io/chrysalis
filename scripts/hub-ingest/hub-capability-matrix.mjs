@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 4;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 6;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -95,6 +95,39 @@ export function buildHubCapabilityMatrixReport() {
     hubTranslateE2e: {
       fixture: "fixtures/hub-flagship-plain-php",
       script: "pnpm run hub:translate-e2e-smoke",
+    },
+    cwlRfcSmokes: [
+      "hub:cwl-request-context-smoke",
+      "hub:cwl-response-content-type-smoke",
+      "hub:cwl-auth-effects-smoke",
+      "hub:cwl-rfc-roundtrip-smoke",
+    ],
+    deliveryPipeline: {
+      script: "pnpm run hub:delivery-pipeline-smoke",
+    },
+    verifyPlaybooks: {
+      script: "pnpm run hub:verify-playbooks-smoke",
+    },
+    hubRunner: {
+      script: "pnpm run hub:runner-smoke",
+    },
+    migrationOs: {
+      script: "pnpm run hub:migration-os-smoke",
+      smokes: ["hub:migration-contract", "hub:migration-plan", "hub:migration-program"],
+    },
+    cwlInterchange: {
+      previewScript: "pnpm run hub:cwl-preview-smoke",
+      openapiScript: "pnpm run hub:cwl-openapi-smoke",
+      diffScript: "pnpm run hub:cwl-diff-smoke",
+      middlewareScript: "pnpm run hub:cwl-middleware-smoke",
+      allRfcRoundtripScript: "pnpm run hub:cwl-all-rfc-roundtrip-smoke",
+    },
+    migrationOsDelivery: {
+      pathAdviceScript: "pnpm run hub:path-advice-smoke",
+      detectDatabasesScript: "pnpm run hub:detect-databases-smoke",
+      postTranslateArtifactsScript: "pnpm run hub:post-translate-artifacts-smoke",
+      evidenceTrendScript: "pnpm run hub:evidence-trend-smoke",
+      verifyGapsIngestScript: "pnpm run hub:verify-gaps-ingest-smoke",
     },
     nodeOracleProduct: {
       spikeScript: "pnpm run hub:node-oracle-spike",

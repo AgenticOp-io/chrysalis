@@ -27,10 +27,36 @@ import { runCwlRequestBodySmoke } from "./hub-cwl-request-body-smoke.mjs";
 import { runProjectToCwlOracleGates } from "./hub-project-to-cwl-gates.mjs";
 import { exportHubLaravelVerifyLive } from "./hub-laravel-verify-export.mjs";
 import { runHubEvidenceSmoke } from "./hub-evidence-smoke.mjs";
-import { runHubEvidenceLive } from "./hub-evidence-live.mjs";
 import { runContractCwlSmoke } from "./hub-contract-cwl-smoke.mjs";
-import { runHubTranslateE2eSmoke } from "./hub-translate-e2e-smoke.mjs";
+import { runHubTranslateE2eSmoke, runHubTranslateE2eBatch } from "./hub-translate-e2e-smoke.mjs";
 import { runCwlBodyRoundtripSmoke } from "./hub-cwl-body-roundtrip-smoke.mjs";
+import { runCwlRequestContextSmoke } from "./hub-cwl-request-context-smoke.mjs";
+import { runCwlResponseContentTypeSmoke } from "./hub-cwl-response-content-type-smoke.mjs";
+import { runCwlAuthEffectsSmoke } from "./hub-cwl-auth-effects-smoke.mjs";
+import {
+  runCwlRequestContextRoundtripSmoke,
+  runCwlResponseContentTypeRoundtripSmoke,
+  runCwlAuthEffectsRoundtripSmoke,
+} from "./hub-cwl-rfc-roundtrip-smoke.mjs";
+import { runContractRoundtripSmoke } from "./hub-contract-roundtrip-smoke.mjs";
+import { runHubEvidenceLive, runHubEvidenceLiveBatch } from "./hub-evidence-live.mjs";
+import { runDeliveryPipelineSmoke, runDeliveryPipelineBatch } from "./hub-delivery-pipeline-smoke.mjs";
+import { runVerifyPlaybooksSmoke } from "./hub-verify-playbooks-smoke.mjs";
+import { runPostTranslateVerifySmoke } from "./hub-post-translate-verify-smoke.mjs";
+import { runHubRunnerSmoke } from "./hub-runner-smoke.mjs";
+import { runMigrationOsSmoke } from "./hub-migration-os-smoke.mjs";
+import { runCwlPreviewSmoke } from "./hub-cwl-preview-smoke.mjs";
+import { runCwlOpenapiSmoke } from "./hub-cwl-openapi-smoke.mjs";
+import { runPathAdviceSmoke } from "./hub-path-advice-smoke.mjs";
+import { runDetectDatabasesSmoke } from "./hub-detect-databases-smoke.mjs";
+import { runPostTranslateArtifactsSmoke } from "./hub-post-translate-artifacts-smoke.mjs";
+import { runCwlMiddlewareSmoke } from "./hub-cwl-middleware-smoke.mjs";
+import { runCwlDiffSmoke } from "./hub-cwl-diff-smoke.mjs";
+import { runCwlAllRfcRoundtripSmoke } from "./hub-cwl-all-rfc-roundtrip-smoke.mjs";
+import { runWptpGoldSmoke } from "./hub-wptp-gold-smoke.mjs";
+import { runMultiLaneSmoke } from "./hub-multi-lane-smoke.mjs";
+import { runEvidenceTrendSmoke } from "./hub-evidence-trend-smoke.mjs";
+import { runVerifyGapsIngestSmoke } from "./hub-verify-gaps-ingest-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -127,8 +153,8 @@ async function main() {
     traceParsed.ok === true && (traceParsed.suiteCount ?? 0) === traceSuiteIds.length;
   const goldCoverage = buildHubGoldCoverageReport();
   const goldCoverageOk = goldCoverage.summary.coverageGaps === 0;
-  const multiLane = runJson(join(scriptRoot, "scripts/hub-ingest/hub-multi-lane-smoke.mjs"), []);
-  const multiLaneOk = multiLane.status === 0 && multiLane.parsed.ok === true;
+  const multiLaneReport = runMultiLaneSmoke();
+  const multiLaneOk = multiLaneReport.ok === true;
   const phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
   const phpOracleOk = phpOracle.status === 0 && phpOracle.parsed.ok === true;
   const laravelGaps = buildLaravelVerifyGapsReport();
@@ -212,11 +238,14 @@ async function main() {
   const nodeOracleSpikeOk = nodeOracleSpike.status === 0 && nodeOracleSpike.parsed.ok === true;
   let hubTranslateE2e = { ok: false, skip: "not-run-in-completion" };
   try {
-    hubTranslateE2e = runHubTranslateE2eSmoke();
+    hubTranslateE2e = runHubTranslateE2eBatch(["plainPhp", "symfony", "tinyBlog", "express"]);
   } catch {
     hubTranslateE2e = { ok: false, skip: "translate-e2e-threw" };
   }
-  const hubTranslateE2eOk = hubTranslateE2e.ok === true || hubTranslateE2e.skip === "missing-cli-dist";
+  const hubTranslateE2eOk =
+    hubTranslateE2e.ok === true ||
+    (hubTranslateE2e.results?.plainPhp?.skip === "missing-cli-dist" &&
+      hubTranslateE2e.results?.symfony?.skip === "missing-cli-dist");
   let cwlBodyRoundtrip = { ok: false, skip: "not-run-in-completion" };
   try {
     cwlBodyRoundtrip = await runCwlBodyRoundtripSmoke();
@@ -224,13 +253,148 @@ async function main() {
     cwlBodyRoundtrip = { ok: false, skip: "cwl-body-roundtrip-threw" };
   }
   const cwlBodyRoundtripOk = cwlBodyRoundtrip.ok === true;
+  let cwlRequestContextRuntime = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlRequestContextRuntime = await runCwlRequestContextSmoke();
+  } catch {
+    cwlRequestContextRuntime = { ok: false, skip: "cwl-request-context-smoke-threw" };
+  }
+  const cwlRequestContextRuntimeOk = cwlRequestContextRuntime.ok === true;
+  let cwlResponseContentTypeRuntime = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlResponseContentTypeRuntime = await runCwlResponseContentTypeSmoke();
+  } catch {
+    cwlResponseContentTypeRuntime = { ok: false, skip: "cwl-content-type-smoke-threw" };
+  }
+  const cwlResponseContentTypeRuntimeOk = cwlResponseContentTypeRuntime.ok === true;
+  let cwlAuthEffectsRuntime = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlAuthEffectsRuntime = await runCwlAuthEffectsSmoke();
+  } catch {
+    cwlAuthEffectsRuntime = { ok: false, skip: "cwl-auth-effects-smoke-threw" };
+  }
+  const cwlAuthEffectsRuntimeOk = cwlAuthEffectsRuntime.ok === true;
+  let cwlRfcRoundtrip = { ok: false, skip: "not-run-in-completion" };
+  try {
+    const ctx = await runCwlRequestContextRoundtripSmoke();
+    const ct = await runCwlResponseContentTypeRoundtripSmoke();
+    const auth = await runCwlAuthEffectsRoundtripSmoke();
+    cwlRfcRoundtrip = { ok: ctx.ok && ct.ok && auth.ok, requestContext: ctx, contentType: ct, authEffects: auth };
+  } catch {
+    cwlRfcRoundtrip = { ok: false, skip: "cwl-rfc-roundtrip-threw" };
+  }
+  const cwlRfcRoundtripOk = cwlRfcRoundtrip.ok === true;
+  let contractRoundtrip = { ok: false, skip: "not-run-in-completion" };
+  try {
+    contractRoundtrip = await runContractRoundtripSmoke();
+  } catch {
+    contractRoundtrip = { ok: false, skip: "contract-roundtrip-threw" };
+  }
+  const contractRoundtripOk = contractRoundtrip.ok === true;
   let hubEvidenceLive = { ok: false, skip: "not-run-in-completion" };
   try {
-    hubEvidenceLive = await runHubEvidenceLive();
+    hubEvidenceLive = await runHubEvidenceLiveBatch(["plainPhp", "symfony", "tinyBlog", "express"]);
   } catch {
     hubEvidenceLive = { ok: false, skip: "evidence-live-threw" };
   }
   const hubEvidenceLiveOk = hubEvidenceLive.ok === true;
+  let deliveryPipelineSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    deliveryPipelineSmoke = await runDeliveryPipelineBatch(["plainPhp", "symfony", "express"]);
+  } catch {
+    deliveryPipelineSmoke = { ok: false, skip: "delivery-pipeline-threw" };
+  }
+  const deliveryPipelineSmokeOk = deliveryPipelineSmoke.ok === true;
+  const verifyPlaybooksSmoke = runVerifyPlaybooksSmoke();
+  const verifyPlaybooksSmokeOk = verifyPlaybooksSmoke.ok === true;
+  let postTranslateVerifySmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    postTranslateVerifySmoke = await runPostTranslateVerifySmoke();
+  } catch {
+    postTranslateVerifySmoke = { ok: false, skip: "post-translate-verify-threw" };
+  }
+  const postTranslateVerifySmokeOk = postTranslateVerifySmoke.ok === true;
+  const hubRunnerSmoke = runHubRunnerSmoke();
+  const hubRunnerSmokeOk = hubRunnerSmoke.ok === true;
+  let migrationOsSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    migrationOsSmoke = await runMigrationOsSmoke();
+  } catch {
+    migrationOsSmoke = { ok: false, skip: "migration-os-threw" };
+  }
+  const migrationOsSmokeOk = migrationOsSmoke.ok === true;
+  let cwlPreviewSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlPreviewSmoke = await runCwlPreviewSmoke();
+  } catch {
+    cwlPreviewSmoke = { ok: false, skip: "cwl-preview-threw" };
+  }
+  const cwlPreviewSmokeOk = cwlPreviewSmoke.ok === true;
+  let cwlOpenapiSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlOpenapiSmoke = await runCwlOpenapiSmoke();
+  } catch {
+    cwlOpenapiSmoke = { ok: false, skip: "cwl-openapi-threw" };
+  }
+  const cwlOpenapiSmokeOk = cwlOpenapiSmoke.ok === true;
+  let pathAdviceSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    pathAdviceSmoke = await runPathAdviceSmoke();
+  } catch {
+    pathAdviceSmoke = { ok: false, skip: "path-advice-threw" };
+  }
+  const pathAdviceSmokeOk = pathAdviceSmoke.ok === true;
+  let detectDatabasesSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    detectDatabasesSmoke = runDetectDatabasesSmoke();
+  } catch {
+    detectDatabasesSmoke = { ok: false, skip: "detect-databases-threw" };
+  }
+  const detectDatabasesSmokeOk = detectDatabasesSmoke.ok === true;
+  let postTranslateArtifactsSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    postTranslateArtifactsSmoke = await runPostTranslateArtifactsSmoke();
+  } catch {
+    postTranslateArtifactsSmoke = { ok: false, skip: "post-translate-artifacts-threw" };
+  }
+  const postTranslateArtifactsSmokeOk = postTranslateArtifactsSmoke.ok === true;
+  let cwlMiddlewareSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlMiddlewareSmoke = await runCwlMiddlewareSmoke();
+  } catch {
+    cwlMiddlewareSmoke = { ok: false, skip: "cwl-middleware-threw" };
+  }
+  const cwlMiddlewareSmokeOk = cwlMiddlewareSmoke.ok === true;
+  let cwlDiffSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlDiffSmoke = runCwlDiffSmoke();
+  } catch {
+    cwlDiffSmoke = { ok: false, skip: "cwl-diff-threw" };
+  }
+  const cwlDiffSmokeOk = cwlDiffSmoke.ok === true;
+  let cwlAllRfcRoundtrip = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlAllRfcRoundtrip = await runCwlAllRfcRoundtripSmoke();
+  } catch {
+    cwlAllRfcRoundtrip = { ok: false, skip: "cwl-all-rfc-roundtrip-threw" };
+  }
+  const cwlAllRfcRoundtripOk = cwlAllRfcRoundtrip.ok === true;
+  const wptpGoldSmoke = runWptpGoldSmoke();
+  const wptpGoldSmokeOk = wptpGoldSmoke.ok === true || wptpGoldSmoke.skip != null;
+  let evidenceTrendSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    evidenceTrendSmoke = runEvidenceTrendSmoke();
+  } catch {
+    evidenceTrendSmoke = { ok: false, skip: "evidence-trend-threw" };
+  }
+  const evidenceTrendSmokeOk = evidenceTrendSmoke.ok === true;
+  let verifyGapsIngestSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    verifyGapsIngestSmoke = runVerifyGapsIngestSmoke();
+  } catch {
+    verifyGapsIngestSmoke = { ok: false, skip: "verify-gaps-ingest-threw" };
+  }
+  const verifyGapsIngestSmokeOk = verifyGapsIngestSmoke.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -262,7 +426,28 @@ async function main() {
     nodeOracleSpikeOk &&
     hubTranslateE2eOk &&
     cwlBodyRoundtripOk &&
+    cwlRequestContextRuntimeOk &&
+    cwlResponseContentTypeRuntimeOk &&
+    cwlAuthEffectsRuntimeOk &&
+    cwlRfcRoundtripOk &&
+    contractRoundtripOk &&
     hubEvidenceLiveOk &&
+    deliveryPipelineSmokeOk &&
+    verifyPlaybooksSmokeOk &&
+    postTranslateVerifySmokeOk &&
+    hubRunnerSmokeOk &&
+    migrationOsSmokeOk &&
+    cwlPreviewSmokeOk &&
+    cwlOpenapiSmokeOk &&
+    pathAdviceSmokeOk &&
+    detectDatabasesSmokeOk &&
+    postTranslateArtifactsSmokeOk &&
+    cwlMiddlewareSmokeOk &&
+    cwlDiffSmokeOk &&
+    cwlAllRfcRoundtripOk &&
+    wptpGoldSmokeOk &&
+    evidenceTrendSmokeOk &&
+    verifyGapsIngestSmokeOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -274,7 +459,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 46,
+    schemaVersion: 48,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -461,10 +646,11 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 4,
+      schemaVersion: 5,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
+      requireMigrationOsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_MIGRATION_OS",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -495,10 +681,12 @@ async function main() {
     },
     projectToCwlExport: {
       ok: projectToCwlExportOk,
-      schemaVersion: projectToCwlExport.schemaVersion ?? 2,
+      schemaVersion: projectToCwlExport.schemaVersion ?? 3,
       plainPhp: projectToCwlExport.exports?.plainPhp ?? null,
       symfony: projectToCwlExport.exports?.symfony ?? null,
       express: projectToCwlExport.exports?.express ?? null,
+      laravelMin: projectToCwlExport.exports?.laravelMin ?? null,
+      tinyBlog: projectToCwlExport.exports?.tinyBlog ?? null,
       script: "pnpm run hub:project-to-cwl-gates",
     },
     phpNextjsFlagshipVerify: {
@@ -522,15 +710,111 @@ async function main() {
     },
     hubEvidenceLive: {
       ok: hubEvidenceLiveOk,
-      schemaVersion: hubEvidenceLive.schemaVersion ?? 1,
-      pipelineGatePass: hubEvidenceLive.evidence?.pipelineGatePass ?? null,
+      schemaVersion: 2,
+      profiles: hubEvidenceLive.results ?? null,
       script: "pnpm run hub:evidence-live",
     },
     hubTranslateE2e: {
       ok: hubTranslateE2eOk,
-      schemaVersion: hubTranslateE2e.schemaVersion ?? 1,
-      skip: hubTranslateE2e.skip ?? null,
+      schemaVersion: 2,
+      variants: hubTranslateE2e.results ?? null,
       script: "pnpm run hub:translate-e2e-smoke",
+    },
+    cwlRequestContextRuntime: {
+      ok: cwlRequestContextRuntimeOk,
+      rfc: "CWL-RFC-0004",
+      withHeaderParams: cwlRequestContextRuntime.cwlProjection?.withHeaderParams ?? null,
+      withCookieParams: cwlRequestContextRuntime.cwlProjection?.withCookieParams ?? null,
+      script: "pnpm run hub:cwl-request-context-smoke",
+    },
+    cwlResponseContentTypeRuntime: {
+      ok: cwlResponseContentTypeRuntimeOk,
+      rfc: "CWL-RFC-0008",
+      withContentType: cwlResponseContentTypeRuntime.cwlProjection?.withContentType ?? null,
+      script: "pnpm run hub:cwl-response-content-type-smoke",
+    },
+    cwlAuthEffectsRuntime: {
+      ok: cwlAuthEffectsRuntimeOk,
+      rfc: "CWL-RFC-0007",
+      script: "pnpm run hub:cwl-auth-effects-smoke",
+    },
+    cwlRfcRoundtrip: {
+      ok: cwlRfcRoundtripOk,
+      script: "pnpm run hub:cwl-rfc-roundtrip-smoke",
+    },
+    contractRoundtrip: {
+      ok: contractRoundtripOk,
+      script: "pnpm run hub:contract-roundtrip-smoke",
+    },
+    deliveryPipelineSmoke: {
+      ok: deliveryPipelineSmokeOk,
+      schemaVersion: 2,
+      profiles: deliveryPipelineSmoke.results ?? null,
+      script: "pnpm run hub:delivery-pipeline-smoke",
+    },
+    verifyPlaybooksSmoke: {
+      ok: verifyPlaybooksSmokeOk,
+      script: "pnpm run hub:verify-playbooks-smoke",
+    },
+    postTranslateVerifySmoke: {
+      ok: postTranslateVerifySmokeOk,
+      skip: postTranslateVerifySmoke.skip ?? null,
+      script: "pnpm run hub:post-translate-verify-smoke",
+    },
+    hubRunnerSmoke: {
+      ok: hubRunnerSmokeOk,
+      stepKinds: hubRunnerSmoke.stepKinds ?? [],
+      script: "pnpm run hub:runner-smoke",
+    },
+    migrationOsSmoke: {
+      ok: migrationOsSmokeOk,
+      script: "pnpm run hub:migration-os-smoke",
+    },
+    cwlPreviewSmoke: {
+      ok: cwlPreviewSmokeOk,
+      script: "pnpm run hub:cwl-preview-smoke",
+    },
+    cwlOpenapiSmoke: {
+      ok: cwlOpenapiSmokeOk,
+      script: "pnpm run hub:cwl-openapi-smoke",
+    },
+    pathAdviceSmoke: {
+      ok: pathAdviceSmokeOk,
+      script: "pnpm run hub:path-advice-smoke",
+    },
+    detectDatabasesSmoke: {
+      ok: detectDatabasesSmokeOk,
+      script: "pnpm run hub:detect-databases-smoke",
+    },
+    postTranslateArtifactsSmoke: {
+      ok: postTranslateArtifactsSmokeOk,
+      script: "pnpm run hub:post-translate-artifacts-smoke",
+    },
+    cwlMiddlewareSmoke: {
+      ok: cwlMiddlewareSmokeOk,
+      rfc: "CWL-RFC-0001",
+      script: "pnpm run hub:cwl-middleware-smoke",
+    },
+    cwlDiffSmoke: {
+      ok: cwlDiffSmokeOk,
+      script: "pnpm run hub:cwl-diff-smoke",
+    },
+    cwlAllRfcRoundtrip: {
+      ok: cwlAllRfcRoundtripOk,
+      script: "pnpm run hub:cwl-all-rfc-roundtrip-smoke",
+    },
+    wptpGoldSmoke: {
+      ok: wptpGoldSmokeOk,
+      skip: wptpGoldSmoke.skip ?? null,
+      script: "pnpm run hub:wptp-gold-smoke",
+    },
+    evidenceTrendSmoke: {
+      ok: evidenceTrendSmokeOk,
+      script: "pnpm run hub:evidence-trend-smoke",
+    },
+    verifyGapsIngestSmoke: {
+      ok: verifyGapsIngestSmokeOk,
+      script: "pnpm run hub:verify-gaps-ingest-smoke",
     },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,
@@ -666,13 +950,14 @@ async function main() {
     },
     multiLaneSmoke: {
       ok: multiLaneOk,
-      oracleRedactor: multiLane.parsed.oracleRedactor === true,
-      parserBridgeVendor: multiLane.parsed.parserBridgeVendor === true,
-      parserNikicParity: multiLane.parsed.parserNikicParity === true,
-      parserNikicSkipped: multiLane.parsed.parserNikicSkipped ?? null,
-      migrationDebtOk: multiLane.parsed.migrationDebtOk === true,
-      migrationDebtHoleCount: multiLane.parsed.migrationDebtHoleCount ?? null,
-      phpAvailable: multiLane.parsed.phpAvailable === true,
+      schemaVersion: multiLaneReport.schemaVersion ?? 2,
+      oracleRedactor: multiLaneReport.oracleRedactor === true,
+      parserBridgeVendor: multiLaneReport.parserBridgeVendor === true,
+      parserNikicParity: multiLaneReport.parserNikicParity === true,
+      parserNikicSkipped: multiLaneReport.parserNikicSkipped ?? null,
+      migrationDebtOk: multiLaneReport.migrationDebtOk === true,
+      migrationDebtHoleCount: multiLaneReport.migrationDebtHoleCount ?? null,
+      phpAvailable: multiLaneReport.phpAvailable === true,
     },
     assetVueNextjsGold: {
       suiteIds: [

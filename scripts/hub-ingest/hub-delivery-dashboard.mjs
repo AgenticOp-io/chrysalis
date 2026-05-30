@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 6;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 8;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -182,15 +182,40 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       : null,
     month3Program: {
       oracleMicro: { fixture: oracleMicro.fixture, routeCount: oracleMicro.routeCount },
-      cwlRfcSmokes: ["hub:cwl-response-status-smoke", "hub:cwl-request-body-smoke", "hub:cwl-body-roundtrip-smoke"],
+      cwlRfcSmokes: [
+        "hub:cwl-response-status-smoke",
+        "hub:cwl-request-body-smoke",
+        "hub:cwl-body-roundtrip-smoke",
+        "hub:cwl-request-context-smoke",
+        "hub:cwl-response-content-type-smoke",
+        "hub:cwl-auth-effects-smoke",
+        "hub:cwl-rfc-roundtrip-smoke",
+      ],
       projectToCwlGates: "hub:project-to-cwl-gates",
       contractCwlSmoke: "hub:contract-cwl-smoke",
+      contractRoundtrip: "hub:contract-roundtrip-smoke",
       phpNextjsFlagships: ["hub:php-nextjs-flagship-verify", "hub:php-nextjs-symfony-verify"],
       evidenceSmoke: "hub:evidence-smoke",
       evidenceLive: "hub:evidence-live",
       translateE2e: "hub:translate-e2e-smoke",
+      deliveryPipeline: "hub:delivery-pipeline-smoke",
+      verifyPlaybooks: "hub:verify-playbooks-smoke",
+      hubRunner: "hub:runner-smoke",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
+    },
+    month4Program: {
+      migrationOsSmoke: "hub:migration-os-smoke",
+      cwlPreviewSmoke: "hub:cwl-preview-smoke",
+      cwlOpenapiSmoke: "hub:cwl-openapi-smoke",
+      pathAdviceSmoke: "hub:path-advice-smoke",
+      detectDatabasesSmoke: "hub:detect-databases-smoke",
+      cwlMiddlewareSmoke: "hub:cwl-middleware-smoke",
+      cwlDiffSmoke: "hub:cwl-diff-smoke",
+      cwlAllRfcRoundtrip: "hub:cwl-all-rfc-roundtrip-smoke",
+      evidenceTrendSmoke: "hub:evidence-trend-smoke",
+      verifyGapsIngestSmoke: "hub:verify-gaps-ingest-smoke",
+      requireMigrationOsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_MIGRATION_OS",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

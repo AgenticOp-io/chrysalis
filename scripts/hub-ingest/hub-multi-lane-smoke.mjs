@@ -67,7 +67,7 @@ function runMigrationDebtSmoke() {
   return { ok: r.status === 0, holeCount, skip: r.status !== 0 ? "migration-debt-exit" : null };
 }
 
-function main() {
+export function runMultiLaneSmoke() {
   const php = phpOnPath();
   let oracleRedactor = false;
   const parserBridgeVendor = existsSync(parserVendor);
@@ -83,27 +83,28 @@ function main() {
     (!php || oracleRedactor) &&
     (nikic.skip != null || nikic.ok) &&
     (migrationDebt.skip != null || migrationDebt.ok);
-  console.log(
-    JSON.stringify(
-      {
-        kind: "chrysalis.hub.multi-lane-smoke",
-        schemaVersion: 2,
-        ok,
-        phpAvailable: php,
-        oracleRedactor,
-        parserBridgeVendor,
-        parserNikicParity: nikic.ok,
-        parserNikicSkipped: nikic.skip ?? null,
-        parserNikicRan: nikic.ran,
-        migrationDebtOk: migrationDebt.ok,
-        migrationDebtSkipped: migrationDebt.skip ?? null,
-        migrationDebtHoleCount: migrationDebt.holeCount,
-      },
-      null,
-      2,
-    ),
-  );
-  if (!ok) process.exit(1);
+
+  return {
+    kind: "chrysalis.hub.multi-lane-smoke",
+    schemaVersion: 2,
+    ok,
+    phpAvailable: php,
+    oracleRedactor,
+    parserBridgeVendor,
+    parserNikicParity: nikic.ok,
+    parserNikicSkipped: nikic.skip ?? null,
+    parserNikicRan: nikic.ran,
+    migrationDebtOk: migrationDebt.ok,
+    migrationDebtSkipped: migrationDebt.skip ?? null,
+    migrationDebtHoleCount: migrationDebt.holeCount,
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function main() {
+  const report = runMultiLaneSmoke();
+  console.log(JSON.stringify(report, null, 2));
+  if (!report.ok) process.exit(1);
 }
 
 try {

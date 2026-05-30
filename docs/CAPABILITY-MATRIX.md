@@ -61,8 +61,9 @@ All other **575×26** hub routes are **structural**, **scaffold**, or **asset** 
 | 3 | CWL RFC 0005–0007+, project-to-CWL on translate | **G99–G106** |
 | 4 | Second oracle (Node/Express flagship) | **G110–G112**, **G115** matrix |
 | 4+ | CWL body round-trip + hub-translate E2E on plain-php flagship | **G191–G200** (matrix schema v4) |
+| 4++ | CWL RFC 0004/7/8 runtime + roundtrip + delivery pipeline smokes | **G201–G230** (matrix schema v5, completion v47) |
 
-**Matrix schema v4** adds machine-readable pointers for CWL body round-trip (`hub:cwl-body-roundtrip-smoke`), hub-translate E2E (`hub:translate-e2e-smoke`), and node oracle product depth (spike v3 + express verify).
+**Matrix schema v5** adds RFC 0004 request-context, RFC 0007 auth-effects, RFC 0008 content-type runtime smokes, contract roundtrip, delivery pipeline bundle, verify playbooks, and hub runner metadata.
 
 ---
 

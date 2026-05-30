@@ -2468,6 +2468,68 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-30 — D559** **Hub completion schema 48 (G260).** Migration OS + CWL interchange smokes, delivery pipeline batch v2, evidence live express; CI gates v48.
+
+- **2026-05-30 — D529** **Hub completion schema 47 (G230).** RFC 0004/7/8 runtime + roundtrip, contract roundtrip, delivery pipeline, project-to-CWL v3; CI gates v47.
+
+- **2026-05-30 — D528** **Hub translate E2E batch (G229).** `hub-translate-e2e-smoke.mjs` schema v2 with plain-php/symfony/tiny-blog/express variants.
+
+- **2026-05-30 — D527** **Hub evidence live batch (G228).** `hub-evidence-live.mjs` schema v2 multi-profile batch.
+
+- **2026-05-30 — D526** **Delivery dashboard v7 (G227).** Extended `month3Program` with RFC 0004/7/8 smokes and delivery pipeline scripts.
+
+- **2026-05-30 — D525** **Capability matrix v5 (G226).** CWL RFC smokes, delivery pipeline, verify playbooks, hub runner metadata.
+
+- **2026-05-30 — D524** **WPTP Next.js CI env (G225).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS` documented in completion hubEvidence block.
+
+- **2026-05-30 — D523** **CWL generic roundtrip helper (G224).** `hub-cwl-roundtrip-smoke.mjs` shared ingest/project/render path.
+
+- **2026-05-30 — D522** **CWL gold runtime smoke helper (G223).** `hub-cwl-gold-runtime-smoke.mjs` for RFC trace replay smokes.
+
+- **2026-05-30 — D521** **Hub runner smoke (G222).** `hub-runner-smoke.mjs` validates translate + evidence gate steps.
+
+- **2026-05-30 — D520** **Project-to-CWL laravel-min + tiny-blog gates (G221).** Honest hole manifest exports (`requireHoleFree: false`).
+
+- **2026-05-30 — D519** **Verify playbooks smoke (G220).** `hub-verify-playbooks-smoke.mjs` in completion.
+
+- **2026-05-30 — D518** **Post-translate verify smoke (G219).** Honest skip without traces/base URL.
+
+- **2026-05-30 — D517** **Post-translate delivery bundle smoke (G218).** G146 artifacts via `hub-delivery-pipeline-smoke.mjs`.
+
+- **2026-05-30 — D516** **Chimera cutover smoke (G217).** Phased runbook gate in delivery pipeline smoke.
+
+- **2026-05-30 — D515** **Migration assessment smoke (G216).** Readiness tier in delivery pipeline smoke.
+
+- **2026-05-30 — D514** **Site intelligence smoke (G215).** Route estimate gate in delivery pipeline smoke.
+
+- **2026-05-30 — D513** **Hub evidence live tiny-blog (G214).** Evidence live batch profile.
+
+- **2026-05-30 — D512** **Hub evidence live symfony (G213).** Evidence live batch profile.
+
+- **2026-05-30 — D511** **HAR contract roundtrip smoke (G212).** `hub-contract-roundtrip-smoke.mjs`.
+
+- **2026-05-30 — D510** **OpenAPI contract roundtrip smoke (G211).** Import projection in contract roundtrip smoke.
+
+- **2026-05-30 — D509** **Hub-translate E2E tiny-blog (G210).** Oracle micro with honest hole manifest.
+
+- **2026-05-30 — D508** **Hub-translate E2E express (G209).** JavaScript lift-emit path.
+
+- **2026-05-30 — D507** **Hub-translate E2E symfony (G208).** Symfony flagship variant.
+
+- **2026-05-30 — D506** **CWL auth-effects roundtrip (G207).** RFC-0007 round-trip smoke.
+
+- **2026-05-30 — D505** **CWL auth-effects runtime smoke (G206).** `hub-cwl-auth-effects-smoke.mjs`.
+
+- **2026-05-30 — D504** **CWL content-type roundtrip (G205).** RFC-0008 round-trip smoke.
+
+- **2026-05-30 — D503** **CWL content-type runtime smoke (G204).** `hub-cwl-response-content-type-smoke.mjs`.
+
+- **2026-05-30 — D502** **CWL request-context roundtrip (G203).** RFC-0004 round-trip smoke.
+
+- **2026-05-30 — D501** **CWL request-context runtime smoke (G202).** `hub-cwl-request-context-smoke.mjs`.
+
+- **2026-05-30 — D500** **CWL header/cookie projection (G201).** RFC-0004 request context hole-free projection.
+
 - **2026-05-30 — D499** **Hub completion schema 46 (G200).** Body roundtrip, translate E2E, evidence live, node spike v3, matrix v4; CI gates v46.
 
 - **2026-05-30 — D498** **Node oracle product depth (G199).** `hub-node-oracle-spike` schema v3 cross-checks `hub-node-express-oracle-verify`.

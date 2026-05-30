@@ -97,7 +97,7 @@ export function cwlValueOf(get, id) {
   if (n.dialect === "data" && n.op === "request.field") {
     const source = String(n.attrs?.source ?? "path");
     const name = String(n.attrs?.name ?? "");
-    if (source !== "path" && source !== "query" && source !== "body") {
+    if (source !== "path" && source !== "query" && source !== "body" && source !== "header" && source !== "cookie") {
       return { t: "hole", reason: `hub:cwl:unsupported-field-source:${source}` };
     }
     return { t: "ref", source, name };
@@ -330,7 +330,16 @@ export function renderCwlRoutes(routes, opts = {}) {
         lines.push(`  content-type ${JSON.stringify(r.contentType)};`);
       }
       for (const p of r.params ?? []) {
-        const kw = p.source === "query" ? "query" : p.source === "body" ? "body" : "param";
+        const kw =
+          p.source === "query"
+            ? "query"
+            : p.source === "body"
+              ? "body"
+              : p.source === "header"
+                ? "header"
+                : p.source === "cookie"
+                  ? "cookie"
+                  : "param";
         const hasDefault = Object.prototype.hasOwnProperty.call(p, "default");
         lines.push(hasDefault ? `  ${kw} ${p.name} = ${cwlRenderLiteral(p.default)};` : `  ${kw} ${p.name};`);
       }
@@ -367,7 +376,7 @@ export function renderCwlRoutes(routes, opts = {}) {
  * defaults, content-type, structured object bodies). This turns the G124–G128
  * projection depth into a measurable evidence signal rather than a binary pass.
  * @param {import('@chrysalis/webir').Module} module
- * @returns {{ total: number, holeFree: number, withStatus: number, withParams: number, withBodyParams: number, withParamDefaults: number, withContentType: number, objectBodies: number, holeReasons: string[] }}
+ * @returns {{ total: number, holeFree: number, withStatus: number, withParams: number, withBodyParams: number, withHeaderParams: number, withCookieParams: number, withParamDefaults: number, withContentType: number, objectBodies: number, holeReasons: string[] }}
  */
 export function summarizeCwlProjection(module) {
   const routes = listCwlRoutes(module);
@@ -375,6 +384,8 @@ export function summarizeCwlProjection(module) {
   let withStatus = 0;
   let withParams = 0;
   let withBodyParams = 0;
+  let withHeaderParams = 0;
+  let withCookieParams = 0;
   let withParamDefaults = 0;
   let withContentType = 0;
   let objectBodies = 0;
@@ -386,6 +397,8 @@ export function summarizeCwlProjection(module) {
     const params = Array.isArray(r.params) ? r.params : [];
     if (params.length > 0) withParams++;
     if (params.some((p) => p.source === "body")) withBodyParams++;
+    if (params.some((p) => p.source === "header")) withHeaderParams++;
+    if (params.some((p) => p.source === "cookie")) withCookieParams++;
     if (params.some((p) => Object.prototype.hasOwnProperty.call(p, "default"))) withParamDefaults++;
     if (r.contentType) withContentType++;
     if (r.value && r.value.t === "obj") objectBodies++;
@@ -396,6 +409,8 @@ export function summarizeCwlProjection(module) {
     withStatus,
     withParams,
     withBodyParams,
+    withHeaderParams,
+    withCookieParams,
     withParamDefaults,
     withContentType,
     objectBodies,

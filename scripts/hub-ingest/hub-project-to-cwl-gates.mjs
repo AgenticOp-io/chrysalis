@@ -13,23 +13,21 @@ import { loadWebir } from "./shared.mjs";
 import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
 export const HUB_PROJECT_TO_CWL_GATES_KIND = "chrysalis.hub.project-to-cwl-gates";
-export const HUB_PROJECT_TO_CWL_GATES_SCHEMA_VERSION = 2;
+export const HUB_PROJECT_TO_CWL_GATES_SCHEMA_VERSION = 3;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
 
 /** @type {const} */
 const ORACLE_FIXTURES = [
-  { id: "plainPhp", rel: "fixtures/hub-flagship-plain-php", origin: "php" },
-  { id: "symfony", rel: "fixtures/hub-flagship-symfony", origin: "php" },
-  { id: "express", rel: "fixtures/hub-flagship-express", origin: "javascript" },
+  { id: "plainPhp", rel: "fixtures/hub-flagship-plain-php", origin: "php", requireHoleFree: true },
+  { id: "symfony", rel: "fixtures/hub-flagship-symfony", origin: "php", requireHoleFree: true },
+  { id: "express", rel: "fixtures/hub-flagship-express", origin: "javascript", requireHoleFree: true },
+  { id: "laravelMin", rel: "flagship/laravel-min", origin: "php", requireHoleFree: false, minHoleFree: 1 },
+  { id: "tinyBlog", rel: "fixtures/tiny-blog", origin: "php", requireHoleFree: false },
 ];
 
-/**
- * @param {string} projectDir
- * @param {string} origin
- */
-async function ensureWebir(projectDir, origin) {
+export async function ensureProjectWebir(projectDir, origin) {
   const hubWebir = join(projectDir, ".chrysalis", `hub.${origin}.webir.json`);
   if (existsSync(hubWebir)) return { ok: true };
   if (origin === "php") {
@@ -41,6 +39,10 @@ async function ensureWebir(projectDir, origin) {
     maxBuffer: 20 * 1024 * 1024,
   });
   return { ok: r.status === 0, skip: r.status === 0 ? null : "javascript-lift-failed" };
+}
+
+async function ensureWebir(projectDir, origin) {
+  return ensureProjectWebir(projectDir, origin);
 }
 
 /**
@@ -69,9 +71,15 @@ async function exportWithProjection(fixture) {
     cwlProjection = summarizeCwlProjection(webir.moduleFromGoldenSnapshot(raw));
   }
   return {
-    ok: meta.ok === true && meta.holeCount === 0,
+    ok:
+      meta.ok === true &&
+      (fixture.requireHoleFree === false
+        ? meta.holeCount != null
+        : meta.holeCount === 0) &&
+      (fixture.minHoleFree == null || (cwlProjection?.holeFree ?? 0) >= fixture.minHoleFree),
     fixture: fixture.rel,
     origin: fixture.origin,
+    requireHoleFree: fixture.requireHoleFree !== false,
     routeCount: meta.routeCount ?? null,
     holeCount: meta.holeCount ?? null,
     exportSchemaVersion: meta.schemaVersion ?? null,

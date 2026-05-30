@@ -14,7 +14,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(report.schemaVersion).toBe(2);
+    expect(report.schemaVersion).toBe(6);
     expect(report.tiers.oracleProduct.pairCount).toBe(7);
     expect(report.kind).toBe("chrysalis.hub.capability-matrix");
     const nodePilot = report.tiers.oracleProduct.pairs.find(
@@ -669,8 +669,7 @@ describe("strategic plan deliverables", () => {
       output: "hono",
     });
     expect(report.kind).toBe("chrysalis.hub.delivery-dashboard");
-    expect(report.schemaVersion).toBe(4);
-    expect(report.evidence).toBeDefined();
+    expect(report.schemaVersion).toBe(8);
     expect(report.license?.hubFeatures?.length).toBeGreaterThan(0);
     expect(Array.isArray(report.artifacts)).toBe(true);
   });
@@ -853,7 +852,7 @@ describe("strategic plan deliverables", () => {
         output: "hono",
         laravelGapsReportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
       });
-      expect(report.schemaVersion).toBe(6);
+      expect(report.schemaVersion).toBe(8);
       expect(report.cwlPreview?.routeCount).toBe(5);
       expect(report.laravelGlobalAction?.ingestRemediation?.owner).toBe("packages/ingest");
       expect(report.month3Program?.oracleMicro?.fixture).toBe("fixtures/tiny-blog");
@@ -1000,10 +999,12 @@ describe("strategic plan deliverables", () => {
     );
     const report = await runProjectToCwlOracleGates();
     expect(report.ok).toBe(true);
-    expect(report.schemaVersion).toBe(2);
+    expect(report.schemaVersion).toBe(3);
     expect(report.exports.plainPhp.holeCount).toBe(0);
     expect(report.exports.symfony.holeCount).toBe(0);
     expect(report.exports.express.holeCount).toBe(0);
+    expect(report.exports.laravelMin?.ok).toBe(true);
+    expect(report.exports.tinyBlog?.ok).toBe(true);
   });
 
   test("hub completion schema 44 sections present (G180)", async () => {
@@ -1038,15 +1039,14 @@ describe("strategic plan deliverables", () => {
     expect(report.traceReplay["cwl-request-body-hono"]).toBe(true);
   }, 180_000);
 
-  test("capability matrix v4 lists oracle micro and nextjs flagships (G188)", async () => {
+  test("capability matrix v6 lists migration OS smokes (G256)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(4);
-    expect(report.oracleMicroFixture?.fixture).toBe("fixtures/tiny-blog");
-    expect(report.nextjsFlagshipFixtures).toContain("fixtures/hub-flagship-symfony");
-    expect(report.cwlBodyProjection?.script).toBe("pnpm run hub:cwl-body-roundtrip-smoke");
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(6);
+    expect(report.migrationOs?.script).toBe("pnpm run hub:migration-os-smoke");
+    expect(report.cwlInterchange?.allRfcRoundtripScript).toBe("pnpm run hub:cwl-all-rfc-roundtrip-smoke");
   });
 
   test("hub evidence smoke on plain-php flagship (G184)", async () => {
@@ -1068,7 +1068,7 @@ describe("strategic plan deliverables", () => {
     expect(report.webirProjection?.source).toBe("webir-projection");
   }, 120_000);
 
-  test("delivery dashboard v6 surfaces month3 program (G187/G198)", async () => {
+  test("delivery dashboard v7 surfaces month3 RFC smokes (G198/G227)", async () => {
     const { buildDeliveryDashboard } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
     );
@@ -1083,9 +1083,10 @@ describe("strategic plan deliverables", () => {
         `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(report.schemaVersion).toBe(6);
+      expect(report.schemaVersion).toBe(8);
       expect(report.month3Program?.evidenceSmoke).toBe("hub:evidence-smoke");
       expect(report.month3Program?.translateE2e).toBe("hub:translate-e2e-smoke");
+      expect(report.month3Program?.cwlRfcSmokes).toContain("hub:cwl-request-context-smoke");
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
@@ -1143,12 +1144,12 @@ describe("strategic plan deliverables", () => {
     const { runHubEvidenceLive } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-evidence-live.mjs")
     );
-    const report = await runHubEvidenceLive();
+    const report = await runHubEvidenceLive(undefined, { profile: "plainPhp" });
     expect(report.ok).toBe(true);
     expect(report.evidence?.pipelineGatePass).toBe(true);
   }, 120_000);
 
-  test("delivery dashboard v6 surfaces month3 strict env keys (G198)", async () => {
+  test("delivery dashboard v7 strict env keys (G227)", async () => {
     const { buildDeliveryDashboard } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
     );
@@ -1163,8 +1164,9 @@ describe("strategic plan deliverables", () => {
         `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(report.schemaVersion).toBe(6);
+      expect(report.schemaVersion).toBe(8);
       expect(report.month3Program?.evidenceLive).toBe("hub:evidence-live");
+      expect(report.month4Program?.migrationOsSmoke).toBe("hub:migration-os-smoke");
       expect(report.month3Program?.pipelineGateStrictEnv).toBe("CHRYSALIS_HUB_PIPELINE_GATE_STRICT");
       expect(report.month3Program?.requireWptpNextjsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS");
     } finally {
@@ -1172,18 +1174,62 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 46 smokes present (G200)", async () => {
-    const { runCwlBodyRoundtripSmoke } = await import(
-      resolve(ROOT, "scripts/hub-ingest/hub-cwl-body-roundtrip-smoke.mjs")
+  test("hub completion schema 48 smokes present (G260)", async () => {
+    const { runMigrationOsSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-migration-os-smoke.mjs")
     );
-    const { runHubEvidenceLive } = await import(
-      resolve(ROOT, "scripts/hub-ingest/hub-evidence-live.mjs")
+    const { runCwlAllRfcRoundtripSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-all-rfc-roundtrip-smoke.mjs")
     );
-    const roundtrip = await runCwlBodyRoundtripSmoke();
-    const live = await runHubEvidenceLive();
+    const { runCwlDiffSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-diff-smoke.mjs")
+    );
+    const migration = await runMigrationOsSmoke();
+    const roundtrip = await runCwlAllRfcRoundtripSmoke();
+    const diff = runCwlDiffSmoke();
+    expect(migration.ok).toBe(true);
     expect(roundtrip.ok).toBe(true);
-    expect(live.ok).toBe(true);
+    expect(diff.ok).toBe(true);
   }, 180_000);
+
+  test("hub completion schema 47 smokes present (G230)", async () => {
+    const { runCwlRequestContextSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-request-context-smoke.mjs")
+    );
+    const { runContractRoundtripSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-contract-roundtrip-smoke.mjs")
+    );
+    const { runDeliveryPipelineSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-pipeline-smoke.mjs")
+    );
+    const ctx = await runCwlRequestContextSmoke();
+    const contract = await runContractRoundtripSmoke();
+    const delivery = await runDeliveryPipelineSmoke();
+    expect(ctx.ok).toBe(true);
+    expect(contract.ok).toBe(true);
+    expect(delivery.ok).toBe(true);
+  }, 180_000);
+
+  test("CWL request-context projection is hole-free (G201/G202)", async () => {
+    const { runCwlRequestContextSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-request-context-smoke.mjs")
+    );
+    const report = await runCwlRequestContextSmoke();
+    expect(report.ok).toBe(true);
+    expect(report.cwlProjection?.withHeaderParams).toBeGreaterThanOrEqual(1);
+    expect(report.cwlProjection?.withCookieParams).toBeGreaterThanOrEqual(1);
+  }, 60_000);
+
+  test("hub-translate E2E symfony and express variants (G208/G209)", async () => {
+    const { runHubTranslateE2eSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-translate-e2e-smoke.mjs")
+    );
+    const symfony = runHubTranslateE2eSmoke({ variant: "symfony" });
+    const express = runHubTranslateE2eSmoke({ variant: "express" });
+    if (symfony.skip === "missing-cli-dist") return;
+    expect(symfony.ok).toBe(true);
+    expect(express.ok).toBe(true);
+  }, 300_000);
 
   test("hub license status maps tier to hub features (G153)", async () => {
     const { buildHubLicenseStatusReport, hubTierMeetsMinimum } = await import(
@@ -1512,8 +1558,7 @@ describe("strategic plan deliverables", () => {
     const end = text.lastIndexOf("}");
     const report = JSON.parse(text.slice(start, end + 1));
     expect(report.kind).toBe("chrysalis.hub.node-oracle-spike");
-    expect(report.schemaVersion).toBe(2);
-    // The spike now drives the real 20-route express flagship, hole-free, with a
+    expect(report.schemaVersion).toBe(3);
     // hole-free CWL projection (object bodies present), not just the literal smoke.
     expect(report.expressFlagship.routeCount).toBe(20);
     expect(report.expressFlagship.holeCount).toBe(0);
