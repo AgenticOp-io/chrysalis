@@ -965,6 +965,57 @@ describe("strategic plan deliverables", () => {
     }
   });
 
+  test("oracle micro-fixture metadata points at tiny-blog (G176)", async () => {
+    const { buildOracleMicroFixtureReport, ORACLE_MICRO_FIXTURE } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-php-oracle-micro-fixture.mjs")
+    );
+    const report = buildOracleMicroFixtureReport();
+    expect(report.fixture).toBe(ORACLE_MICRO_FIXTURE);
+    expect(report.routeCount).toBeGreaterThan(0);
+    expect(report.exists).toBe(true);
+  });
+
+  test("CWL RFC-0006 runtime status smoke passes gold replay (G177)", async () => {
+    const { runCwlResponseStatusSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-response-status-smoke.mjs")
+    );
+    const report = await runCwlResponseStatusSmoke();
+    expect(report.ok).toBe(true);
+    expect(report.cwlProjection?.withStatus).toBeGreaterThanOrEqual(2);
+  }, 180_000);
+
+  test("PHP Next.js flagship verify skips or passes with WPTP (G178)", async () => {
+    const { runPhpNextjsFlagshipVerify } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-php-nextjs-verify.mjs")
+    );
+    const report = await runPhpNextjsFlagshipVerify();
+    expect(report.fixture).toBe("fixtures/hub-flagship-plain-php");
+    expect(report.ok === true || report.skip === "no-wptp-emit-nextjs").toBe(true);
+  }, 300_000);
+
+  test("project-to-CWL oracle gates export hole-free flagships (G179)", async () => {
+    const { runProjectToCwlOracleGates } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-project-to-cwl-gates.mjs")
+    );
+    const report = await runProjectToCwlOracleGates();
+    expect(report.ok).toBe(true);
+    expect(report.exports.plainPhp.holeCount).toBe(0);
+    expect(report.exports.symfony.holeCount).toBe(0);
+  });
+
+  test("hub completion schema 44 sections present (G180)", async () => {
+    const { exportHubLaravelVerifyLive } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-export.mjs")
+    );
+    const live = exportHubLaravelVerifyLive();
+    expect(live.ok === true || live.error === "missing-summary").toBe(true);
+    const { runCwlResponseStatusSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-response-status-smoke.mjs")
+    );
+    const statusSmoke = await runCwlResponseStatusSmoke();
+    expect(statusSmoke.ok).toBe(true);
+  }, 180_000);
+
   test("hub license status maps tier to hub features (G153)", async () => {
     const { buildHubLicenseStatusReport, hubTierMeetsMinimum } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-license-status.mjs")
@@ -1310,7 +1361,7 @@ describe("strategic plan deliverables", () => {
     for (const fixture of ["fixtures/hub-flagship-plain-php", "fixtures/hub-flagship-symfony"]) {
       const meta = await exportProjectMigrationCwl(resolve(ROOT, fixture), { origin: "php" });
       expect(meta.ok).toBe(true);
-      expect(meta.schemaVersion).toBe(2);
+      expect(meta.schemaVersion).toBe(3);
       expect(meta.routeCount).toBe(20);
       expect(meta.holeCount).toBe(0);
       const cwl = readFileSync(meta.cwlPath, "utf8");

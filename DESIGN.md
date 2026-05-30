@@ -2468,7 +2468,17 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
-- **2026-05-30 — D472** **Live Laravel verify export for hub (G173).** `hub-laravel-verify-export.mjs` surfaces `reports/verify-flagship-laravel-full/hono/summary.json` as `reports/ci/hub-laravel-verify-live.json`; `verify:laravel-full` invokes export after replay so hub merged verify-gaps reads live flagship results.
+- **2026-05-30 — D479** **Hub completion schema 44 (G180).** Completion executes live Laravel verify export, CWL RFC-0006 runtime smoke, project-to-CWL oracle gates, and plain-php Next.js WPTP verify; CI gates v44 require executable pass (with WPTP/Laravel skip paths documented).
+
+- **2026-05-30 — D478** **Project-to-CWL oracle fixture gates (G179).** `hub-project-to-cwl-gates.mjs` exports and gates hole-free `migration.cwl` on plain-php and symfony flagships; `cwl-export.json` schema v3 carries `cwlProjection`.
+
+- **2026-05-30 — D477** **PHP Next.js verify on plain-php flagship (G178).** Extends G105 WPTP pipeline beyond tiny-blog to `fixtures/hub-flagship-plain-php` via `--flagship`; completion surfaces `phpNextjsFlagshipVerify`.
+
+- **2026-05-30 — D476** **CWL RFC-0006 runtime status closure (G177).** Closes D400 deferral: `hub-cwl-response-status-smoke.mjs` proves `status N;` routes replay with correct HTTP status on hono/fastify/nextjs gold.
+
+- **2026-05-30 — D475** **PHP oracle micro-fixture (G176).** Formalizes `fixtures/tiny-blog` as the canonical oracle micro surface (`hub-php-oracle-micro-fixture.mjs`); `phpOracleSmoke` schema v6 references it; capability matrix documents the contract.
+
+- **2026-05-30 — D474** **Hub completion schema 43 (G175).** Completion carries hub evidence v4 metadata and `laravelVerifyLive` export script reference; CI gates v43.
 
 - **2026-05-30 — D460** **Express flagship emit parity + oracle hook (G161).** Phase 4 Node/Express depth: `hub-express-flagship.mjs` v3 runs gold + trace replay on hono, fastify, and nextjs (matching PHP flagships G157); optional live oracle capture/replay via `CHRYSALIS_HUB_EXPRESS_ORACLE=1` (completion keeps separate `runNodeExpressOracleVerify`).
 

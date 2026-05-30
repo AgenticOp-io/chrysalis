@@ -1202,6 +1202,87 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
+  test("accepts schema v44 with oracle micro, CWL status runtime, and project-to-CWL gates (G180)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v44-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 44;
+      payload.plainPhpFlagshipGold = {
+        ...(payload.plainPhpFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.symfonyFlagshipGold = {
+        ...(payload.symfonyFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.expressFlagshipGold = {
+        ...(payload.expressFlagshipGold ?? {}),
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.laravelVerifyGaps = {
+        ok: true,
+        backlogItems: 0,
+        ingestNext: null,
+        exportScript: "pnpm run hub:laravel-verify-gaps",
+        actionScript: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelVerifyGapsAction = {
+        ok: true,
+        ingestRemediation: null,
+        script: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelMinSmoke = { ok: true, routeCount: 20, script: "pnpm run hub:laravel-min-smoke" };
+      payload.hubEvidence = {
+        schemaVersion: 4,
+        failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
+        pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
+      };
+      payload.laravelVerifyLive = {
+        ok: true,
+        skip: null,
+        aggregate: { correctness: 1 },
+        script: "pnpm run hub:laravel-verify-export",
+      };
+      payload.phpOracleMicro = {
+        fixture: "fixtures/tiny-blog",
+        routeCount: 5,
+        doc: "docs/CAPABILITY-MATRIX.md",
+        script: "pnpm run hub:oracle-micro-fixture",
+      };
+      payload.cwlResponseStatusRuntime = {
+        ok: true,
+        rfc: "CWL-RFC-0006",
+        withStatus: 2,
+        script: "pnpm run hub:cwl-response-status-smoke",
+      };
+      payload.projectToCwlExport = {
+        ok: true,
+        plainPhp: { ok: true, holeCount: 0, routeCount: 20 },
+        symfony: { ok: true, holeCount: 0, routeCount: 20 },
+        script: "pnpm run hub:project-to-cwl-gates",
+      };
+      payload.phpNextjsFlagshipVerify = {
+        ok: true,
+        fixture: "fixtures/hub-flagship-plain-php",
+        skip: "no-wptp-emit-nextjs",
+        script: "pnpm run hub:php-nextjs-flagship-verify",
+      };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("rejects schema v40 with a holey express CWL projection (G136)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v40-bad-"));
     const p = join(dir, "bad.json");

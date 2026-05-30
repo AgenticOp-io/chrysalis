@@ -29,6 +29,7 @@ Default status is **200** when omitted.
 
 - **`cwl-response-status-hono`**, **`cwl-response-status-fastify`**, **`cwl-response-status-nextjs`**
 - Fixture: **`fixtures/hub-gold-cwl-response-status/routes.cwl`**
+- Runtime smoke: **`pnpm run hub:cwl-response-status-smoke`** (G177 — closes D400 deferral)
 
 ## Non-goals
 

@@ -10,12 +10,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWebir } from "./shared.mjs";
-import { listCwlRoutes, renderCwlRoutes } from "./hub-webir-routes.mjs";
+import { listCwlRoutes, renderCwlRoutes, summarizeCwlProjection } from "./hub-webir-routes.mjs";
 
 export const HUB_CWL_EXPORT_KIND = "chrysalis.hub.cwl-export";
-// v2: rich projection (status/params/`??` defaults/content-type/object bodies)
-// via `listCwlRoutes`, replacing the v0 literal-only projection.
-export const HUB_CWL_EXPORT_SCHEMA_VERSION = 2;
+// v3: export meta carries cwlProjection summary (G179).
+export const HUB_CWL_EXPORT_SCHEMA_VERSION = 3;
 
 /**
  * Project a WebIR module's routes to a CWL migration contract using the shared
@@ -60,6 +59,7 @@ export async function exportProjectMigrationCwl(projectDir, opts = {}) {
   const raw = JSON.parse(readFileSync(webirPath, "utf8"));
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const routes = listCwlRoutes(mod);
+  const cwlProjection = summarizeCwlProjection(mod);
   const { text, holeCount, routeCount } = renderMigrationCwl(routes, origin);
   const outDir = join(resolve(projectDir), ".chrysalis");
   const cwlName = opts.outBasename ?? "migration.cwl";
@@ -76,6 +76,7 @@ export async function exportProjectMigrationCwl(projectDir, opts = {}) {
     cwlPath,
     routeCount,
     holeCount,
+    cwlProjection,
     generatedAt: new Date().toISOString(),
   };
   await writeFile(join(outDir, "cwl-export.json"), `${JSON.stringify(meta, null, 2)}\n`, "utf8");

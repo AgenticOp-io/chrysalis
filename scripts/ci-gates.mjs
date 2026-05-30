@@ -753,9 +753,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 40 &&
     s.schemaVersion !== 41 &&
     s.schemaVersion !== 42 &&
-    s.schemaVersion !== 43
+    s.schemaVersion !== 43 &&
+    s.schemaVersion !== 44
   ) {
-    fail(`${label}: expected schemaVersion 0–43, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–44, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1229,6 +1230,26 @@ function assertHubCompletion(path) {
     }
     if (!s.laravelVerifyLive?.script) {
       fail(`${label}: laravelVerifyLive.script must be set for schema v43`);
+    }
+  }
+  if (s.schemaVersion >= 44) {
+    if (s.phpOracleMicro?.fixture !== "fixtures/tiny-blog") {
+      fail(`${label}: phpOracleMicro.fixture must be fixtures/tiny-blog for schema v44`);
+    }
+    if (s.cwlResponseStatusRuntime?.ok !== true) {
+      fail(`${label}: cwlResponseStatusRuntime.ok must be true for schema v44`);
+    }
+    if (s.projectToCwlExport?.ok !== true) {
+      fail(`${label}: projectToCwlExport.ok must be true for schema v44`);
+    }
+    if (s.laravelVerifyLive?.ok === false && s.laravelVerifyLive?.skip !== "missing-summary") {
+      fail(`${label}: laravelVerifyLive.ok must be true when live summary exists for schema v44`);
+    }
+    if (
+      s.phpNextjsFlagshipVerify?.ok !== true &&
+      s.phpNextjsFlagshipVerify?.skip !== "no-wptp-emit-nextjs"
+    ) {
+      fail(`${label}: phpNextjsFlagshipVerify must pass or skip with no-wptp-emit-nextjs for schema v44`);
     }
   }
   const g = s.routeGrades;

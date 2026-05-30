@@ -14,13 +14,17 @@ import { buildHubCapabilityMatrixReport } from "./hub-capability-matrix.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
 import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs";
 import { buildHubLaravelMinSmokeReport } from "./hub-laravel-min-smoke.mjs";
-import { runPhpNextjsVerify } from "./hub-php-nextjs-verify.mjs";
+import { runPhpNextjsVerify, runPhpNextjsFlagshipVerify } from "./hub-php-nextjs-verify.mjs";
 import { runNodeExpressOracleVerify } from "./hub-node-express-oracle-verify.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 import { hubNativeEmitTargetIds } from "./hub-gold-native-emit.mjs";
 import { resolveHubPython } from "./shared.mjs";
 import { buildHubLicenseStatusReport } from "./hub-license-status.mjs";
+import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
+import { runCwlResponseStatusSmoke } from "./hub-cwl-response-status-smoke.mjs";
+import { runProjectToCwlOracleGates } from "./hub-project-to-cwl-gates.mjs";
+import { exportHubLaravelVerifyLive } from "./hub-laravel-verify-export.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -146,6 +150,32 @@ async function main() {
   }
   const phpNextjsVerifyOk =
     phpNextjsVerify.ok === true || phpNextjsVerify.skip === "no-wptp-emit-nextjs";
+  let phpNextjsFlagshipVerify = { ok: true, skip: "not-run-in-completion" };
+  try {
+    phpNextjsFlagshipVerify = await runPhpNextjsFlagshipVerify();
+  } catch {
+    phpNextjsFlagshipVerify = { ok: false, skip: "nextjs-flagship-verify-threw" };
+  }
+  const phpNextjsFlagshipVerifyOk =
+    phpNextjsFlagshipVerify.ok === true || phpNextjsFlagshipVerify.skip === "no-wptp-emit-nextjs";
+  const oracleMicro = buildOracleMicroFixtureReport();
+  let cwlResponseStatusRuntime = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlResponseStatusRuntime = await runCwlResponseStatusSmoke();
+  } catch {
+    cwlResponseStatusRuntime = { ok: false, skip: "cwl-response-status-smoke-threw" };
+  }
+  const cwlResponseStatusRuntimeOk = cwlResponseStatusRuntime.ok === true;
+  let projectToCwlExport = { ok: false, skip: "not-run-in-completion" };
+  try {
+    projectToCwlExport = await runProjectToCwlOracleGates();
+  } catch {
+    projectToCwlExport = { ok: false, skip: "project-to-cwl-gates-threw" };
+  }
+  const projectToCwlExportOk = projectToCwlExport.ok === true;
+  const laravelVerifyLive = exportHubLaravelVerifyLive();
+  const laravelVerifyLiveOk =
+    laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
   const completionSections = buildHubCompletionSections();
   const capabilityMatrix = buildHubCapabilityMatrixReport();
   const webDbCount = buildWebDatabaseCatalogReport().count;
@@ -164,6 +194,10 @@ async function main() {
     multiLaneOk &&
     phpOracleOk &&
     phpNextjsVerifyOk &&
+    phpNextjsFlagshipVerifyOk &&
+    cwlResponseStatusRuntimeOk &&
+    projectToCwlExportOk &&
+    laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
     plainPhpFlagshipOk &&
@@ -174,7 +208,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 43,
+    schemaVersion: 44,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -366,7 +400,35 @@ async function main() {
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
     },
     laravelVerifyLive: {
+      ok: laravelVerifyLive.ok === true,
+      skip: laravelVerifyLive.error ?? null,
+      aggregate: laravelVerifyLive.aggregate ?? null,
       script: "pnpm run hub:laravel-verify-export",
+    },
+    phpOracleMicro: {
+      fixture: oracleMicro.fixture,
+      routeCount: oracleMicro.routeCount,
+      doc: oracleMicro.doc,
+      script: "pnpm run hub:oracle-micro-fixture",
+    },
+    cwlResponseStatusRuntime: {
+      ok: cwlResponseStatusRuntimeOk,
+      rfc: "CWL-RFC-0006",
+      withStatus: cwlResponseStatusRuntime.cwlProjection?.withStatus ?? null,
+      script: "pnpm run hub:cwl-response-status-smoke",
+    },
+    projectToCwlExport: {
+      ok: projectToCwlExportOk,
+      plainPhp: projectToCwlExport.exports?.plainPhp ?? null,
+      symfony: projectToCwlExport.exports?.symfony ?? null,
+      script: "pnpm run hub:project-to-cwl-gates",
+    },
+    phpNextjsFlagshipVerify: {
+      ok: phpNextjsFlagshipVerifyOk,
+      fixture: "fixtures/hub-flagship-plain-php",
+      correctness: phpNextjsFlagshipVerify.correctness ?? null,
+      skip: phpNextjsFlagshipVerify.skip ?? null,
+      script: "pnpm run hub:php-nextjs-flagship-verify",
     },
     laravelMinSmoke: {
       ok: laravelMinSmokeOk,
@@ -517,6 +579,7 @@ async function main() {
     phpOracleSmoke: {
       ok: phpOracleOk,
       schemaVersion: phpOracle.parsed.schemaVersion ?? 1,
+      oracleMicro: phpOracle.parsed.oracleMicro ?? oracleMicro,
       ingestOk: phpOracle.parsed.ingestOk === true,
       emitHonoOk: phpOracle.parsed.emitHonoOk === true,
       emitFastifyOk: phpOracle.parsed.emitFastifyOk === true,

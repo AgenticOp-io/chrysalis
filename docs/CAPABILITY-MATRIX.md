@@ -25,11 +25,15 @@ This matrix is how we **talk honestly** about what Chrysalis can do today versus
 | --- | --- | --- | --- |
 | PHP | Hono | `fixtures/tiny-blog`, flagship | `chrysalis verify` + hub `phpOracleSmoke` |
 | PHP | Fastify | same | same |
-| PHP | Next.js | same (when WPTP emit available) | emit smoke + trace path |
+| PHP | Next.js | same (when WPTP emit available) | emit smoke + trace replay (`hub-php-nextjs-verify`; flagship via `--flagship`) |
 | PHP | TypeScript | same | ingest/emit + status |
 | PHP | Hono | `fixtures/hub-flagship-plain-php` | `hub-plain-php-flagship` (plain procedural PHP) |
 | PHP | Hono | `fixtures/hub-flagship-symfony` | `hub-symfony-flagship` (Symfony layout pilot) |
 | JavaScript | Hono | `fixtures/hub-flagship-express` | `hub-node-express-oracle-verify` (live Express + replay) |
+
+### Oracle micro-fixture (G176)
+
+The canonical **oracle micro surface** is **`fixtures/tiny-blog`** (5 routes): ingest, hono/fastify/nextjs emit, migration-debt verify, and optional WPTP Next.js trace replay. Metadata: `pnpm run hub:oracle-micro-fixture`. Override path: `CHRYSALIS_ORACLE_MICRO_FIXTURE`.
 
 All other **575×26** hub routes are **structural**, **scaffold**, or **asset** tiers unless listed in `hub-capability-matrix.json`.
 

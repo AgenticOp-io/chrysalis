@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
 const tinyBlog = join(scriptRoot, "fixtures/tiny-blog");
+const plainPhpFlagship = join(scriptRoot, "fixtures/hub-flagship-plain-php");
 const worker = join(scriptRoot, "scripts/hub-ingest/hub-gold-replay-worker.mjs");
 const exportWebir = join(scriptRoot, "scripts/hub-ingest/export-project-webir.mjs");
 const exportBundle = join(scriptRoot, "scripts/export-webir-bundle.mjs");
@@ -34,12 +35,20 @@ function parseStdoutJson(stdout) {
 
 /**
  * @param {string} [projectDir]
+ * @param {{ label?: string }} [opts]
  */
-export async function runPhpNextjsVerify(projectDir = tinyBlog) {
+export async function runPhpNextjsVerify(projectDir = tinyBlog, opts = {}) {
+  const fixtureLabel =
+    opts.label ??
+    (projectDir === tinyBlog
+      ? "fixtures/tiny-blog"
+      : projectDir.includes("hub-flagship-plain-php")
+        ? "fixtures/hub-flagship-plain-php"
+        : projectDir);
   const base = {
     kind: HUB_PHP_NEXTJS_VERIFY_KIND,
     schemaVersion: HUB_PHP_NEXTJS_VERIFY_SCHEMA_VERSION,
-    fixture: projectDir === tinyBlog ? "fixtures/tiny-blog" : projectDir,
+    fixture: fixtureLabel,
     wptpEmitNextjsAvailable: wptpAvailable(),
     correctness: null,
     ok: false,
@@ -111,8 +120,21 @@ export async function runPhpNextjsVerify(projectDir = tinyBlog) {
   };
 }
 
+/** Plain PHP flagship WPTP Next.js verify (G178). */
+export async function runPhpNextjsFlagshipVerify() {
+  return runPhpNextjsVerify(plainPhpFlagship, { label: "fixtures/hub-flagship-plain-php" });
+}
+
 async function main() {
-  const report = await runPhpNextjsVerify();
+  let projectDir = tinyBlog;
+  for (let i = 2; i < process.argv.length; i++) {
+    if (process.argv[i] === "--project" && process.argv[i + 1]) {
+      projectDir = resolve(process.argv[++i]);
+    } else if (process.argv[i] === "--flagship") {
+      projectDir = plainPhpFlagship;
+    }
+  }
+  const report = await runPhpNextjsVerify(projectDir);
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok && report.skip !== "no-wptp-emit-nextjs") process.exit(1);
 }

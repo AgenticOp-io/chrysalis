@@ -7,6 +7,7 @@ import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPhpNextjsVerify } from "./hub-php-nextjs-verify.mjs";
+import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -14,7 +15,7 @@ const migrationDebtScript = join(scriptRoot, "scripts/migration-debt.mjs");
 const exportWebirScript = join(scriptRoot, "scripts/hub-ingest/export-project-webir.mjs");
 const exportBundleScript = join(scriptRoot, "scripts/export-webir-bundle.mjs");
 const emitNextjsScript = join(scriptRoot, "scripts/emit-webir-bundle-nextjs.mjs");
-const tinyBlog = join(scriptRoot, "fixtures/tiny-blog");
+const tinyBlog = join(scriptRoot, ORACLE_MICRO_FIXTURE);
 const verifyReport = join(scriptRoot, "fixtures/ci/tiny-blog-verify-for-status");
 
 const EMIT_TARGETS = ["hono", "fastify"];
@@ -86,8 +87,13 @@ function tryEmitNextjs(projectDir) {
 async function main() {
   const base = {
     kind: "chrysalis.hub.php-oracle-smoke",
-    schemaVersion: 5,
-    fixture: "fixtures/tiny-blog",
+    schemaVersion: 6,
+    fixture: ORACLE_MICRO_FIXTURE,
+    oracleMicro: {
+      fixture: ORACLE_MICRO_FIXTURE,
+      doc: "docs/CAPABILITY-MATRIX.md",
+      reportScript: "pnpm run hub:oracle-micro-fixture",
+    },
     ingestOk: false,
     emit: {},
     verifyOk: false,
