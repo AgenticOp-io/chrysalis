@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import {
   buildVerifyGapsBacklog,
   loadFirstAvailableVerifyReport,
+  loadMergedVerifyReports,
   loadVerifyReportsFromDir,
   resolveVerifySummaryPath,
   routeLabelFromTraceFile,
@@ -24,6 +25,7 @@ const DEFAULT_REPORT_DIRS = [
   join(scriptRoot, "reports/verify-flagship-laravel-full"),
   join(scriptRoot, "reports/verify"),
   join(scriptRoot, "fixtures/ci/tiny-blog-verify-for-status"),
+  join(scriptRoot, "fixtures/hub-laravel-verify-gaps"),
 ];
 
 export { routeLabelFromTraceFile, loadPerRouteTraceFailures, loadVerifyReportsFromDir };
@@ -38,7 +40,8 @@ export function resolveFlagshipVerifySummaryPath(reportDir) {
  */
 export function buildLaravelVerifyGapsReport(opts = {}) {
   const reportDirs = opts.reportDirs ?? DEFAULT_REPORT_DIRS;
-  const loaded = loadFirstAvailableVerifyReport(reportDirs);
+  const merge = opts.merge !== false;
+  const loaded = merge ? loadMergedVerifyReports(reportDirs) : loadFirstAvailableVerifyReport(reportDirs);
   const backlog = buildVerifyGapsBacklog(loaded?.failed ?? []);
 
   const templateRoutes = existsSync(join(scriptRoot, "flagship/laravel-full/chrysalis-templates/chrysalis.routes.json"))
@@ -65,6 +68,7 @@ export function buildLaravelVerifyGapsReport(opts = {}) {
       verifyScript: "pnpm run verify:laravel-full",
     },
     backlog,
+    ingestNext: backlog.length > 0 ? backlog[0] : null,
     generatedAt: new Date().toISOString(),
   };
 }

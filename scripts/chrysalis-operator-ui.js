@@ -1643,6 +1643,25 @@
           .map((a) => `<li>${a.exists ? "✓" : "○"} ${esc(a.name)}</li>`)
           .join("");
       }
+      const cwlEl = $("consoleCwlPreviewSummary");
+      if (cwlEl) {
+        if (dash.cwlPreview?.ok) {
+          cwlEl.textContent = `CWL preview: ${dash.cwlPreview.routeCount ?? 0} routes${dash.cwlPreview.holeCount ? ` (${dash.cwlPreview.holeCount} holes)` : ""}${dash.cwlPreview.imports?.length ? ` · ${dash.cwlPreview.imports.length} import(s)` : ""}`;
+        } else if (dash.cwlPreview === null) {
+          cwlEl.textContent = "CWL preview: no migration.cwl";
+        } else {
+          cwlEl.textContent = "CWL preview: unavailable";
+        }
+      }
+      const laravelEl = $("consoleLaravelGapsSummary");
+      if (laravelEl && dash.laravelGlobalGaps) {
+        const next = dash.laravelGlobalGaps.ingestNext;
+        laravelEl.textContent = next
+          ? `Laravel global gap: ${next.divergenceKind} — ${next.playbook?.title ?? "see backlog"}`
+          : `Laravel global gaps: ${dash.laravelGlobalGaps.backlogCount ?? 0} item(s)`;
+      } else if (laravelEl) {
+        laravelEl.textContent = "";
+      }
     } catch (e) {
       if (gapsEl) gapsEl.textContent = "Delivery dashboard error: " + e.message;
     }

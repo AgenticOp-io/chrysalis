@@ -922,10 +922,16 @@ const server = createServer(async (req, res) => {
       return;
     }
     try {
+      await assertHubLicenseAllows("hub-cwl-preview");
       const report = await buildCwlPreviewReport(resolve(projectDir), { cwlPath, probe });
       sendJson(res, report.ok ? 200 : 404, report);
     } catch (e) {
-      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("license")) {
+        sendJson(res, 403, { error: "license-gate", message: msg });
+        return;
+      }
+      sendJson(res, 500, { error: msg });
     }
     return;
   }
@@ -1606,6 +1612,13 @@ const server = createServer(async (req, res) => {
       if (req.method === "POST" && verifySiteMatch) {
         const projectId = decodeURIComponent(verifySiteMatch[1]);
         const siteId = decodeURIComponent(verifySiteMatch[2]);
+        try {
+          await assertHubLicenseAllows("hub-verify-gate");
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          sendJson(res, 403, { error: "license-gate", message: msg });
+          return;
+        }
         if (body.async !== false) {
           const v = await startProjectVerifyJob(projectId, {
             siteIds: [siteId],
@@ -1638,6 +1651,13 @@ const server = createServer(async (req, res) => {
       const verifyAllMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/verify-all-sites$/);
       if (req.method === "POST" && verifyAllMatch) {
         const projectId = decodeURIComponent(verifyAllMatch[1]);
+        try {
+          await assertHubLicenseAllows("hub-verify-gate");
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          sendJson(res, 403, { error: "license-gate", message: msg });
+          return;
+        }
         const v = await startProjectVerifyJob(projectId, {
           siteIds: body.siteIds ?? null,
           tracesDir: body.tracesDir,

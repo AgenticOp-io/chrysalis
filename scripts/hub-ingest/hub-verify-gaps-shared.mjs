@@ -164,3 +164,32 @@ export function loadFirstAvailableVerifyReport(reportDirs) {
   }
   return null;
 }
+
+/**
+ * Merge verify failures from every available report dir (repo-wide laravel backlog).
+ * @param {string[]} reportDirs
+ */
+export function loadMergedVerifyReports(reportDirs) {
+  /** @type {Array<{ route: string, kinds: string[], details: string[] }>} */
+  const failed = [];
+  /** @type {ReturnType<typeof loadVerifyReportsFromDir> | null} */
+  let primary = null;
+  const seen = new Set();
+  for (const dir of reportDirs) {
+    const r = loadVerifyReportsFromDir(dir);
+    if (!r.available) continue;
+    if (!primary || r.failed.length > 0) primary = r;
+    for (const row of r.failed) {
+      const key = `${row.route}::${row.kinds.join(",")}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      failed.push(row);
+    }
+  }
+  if (!primary) return null;
+  return {
+    ...primary,
+    failed,
+    source: failed.length > 0 ? "merged" : primary.source,
+  };
+}

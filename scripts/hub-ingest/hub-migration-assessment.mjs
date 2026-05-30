@@ -13,6 +13,7 @@ import { queryPathKnowledge } from "./hub-path-knowledge.mjs";
 import { buildSiteIntelligenceReport } from "./hub-site-intelligence.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
 import { buildChimeraCutoverRunbook } from "./hub-chimera-cutover.mjs";
+import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
 
 export const HUB_MIGRATION_ASSESSMENT_KIND = "chrysalis.hub.migration-assessment";
 export const HUB_MIGRATION_ASSESSMENT_SCHEMA_VERSION = 1;
@@ -75,6 +76,17 @@ export async function buildMigrationAssessment(opts) {
   let cutover = null;
   let cutoverReady = false;
   let verifyGaps = buildProjectVerifyGapsIngestReport(root);
+  const isLaravel = siteIntel.frameworkHints.includes("laravel");
+  const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport() : null;
+  if (!verifyGaps.ingestNext && laravelGlobalGaps?.ingestNext) {
+    verifyGaps = {
+      ...verifyGaps,
+      ingestNext: {
+        ...laravelGlobalGaps.ingestNext,
+        source: "laravel-global",
+      },
+    };
+  }
   if (evidence) {
     cutover = await buildChimeraCutoverRunbook({
       projectDir: root,
@@ -160,6 +172,13 @@ export async function buildMigrationAssessment(opts) {
       backlogCount: verifyGaps.backlog.length,
       ingestNext: verifyGaps.ingestNext,
     },
+    laravelGlobalGaps: laravelGlobalGaps
+      ? {
+          ok: laravelGlobalGaps.ok === true,
+          backlogCount: laravelGlobalGaps.backlog.length,
+          ingestNext: laravelGlobalGaps.ingestNext,
+        }
+      : null,
     nextSteps,
     generatedAt: new Date().toISOString(),
   };

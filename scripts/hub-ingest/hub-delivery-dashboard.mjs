@@ -10,9 +10,11 @@ import { buildMigrationAssessment } from "./hub-migration-assessment.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
 import { buildChimeraCutoverRunbook } from "./hub-chimera-cutover.mjs";
 import { buildHubLicenseStatusReport } from "./hub-license-status.mjs";
+import { buildCwlPreviewReport } from "./hub-cwl-preview.mjs";
+import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 2;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 3;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -21,6 +23,7 @@ const ARTIFACT_FILES = [
   "verify-gaps-ingest.json",
   "verify-gaps-ingest-action.json",
   "chimera-cutover.json",
+  "cwl-preview.json",
   "migration.cwl",
   "cwl-export.json",
   "evidence-history.jsonl",
@@ -67,6 +70,20 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
 
   const license = await buildHubLicenseStatusReport();
 
+  const migrationCwl = join(chrysalisDir, "migration.cwl");
+  const cwlPath = existsSync(migrationCwl) ? migrationCwl : existsSync(join(root, "migration.cwl")) ? join(root, "migration.cwl") : null;
+  let cwlPreview = null;
+  if (cwlPath) {
+    try {
+      cwlPreview = await buildCwlPreviewReport(root, { cwlPath, probe: false });
+    } catch {
+      cwlPreview = { ok: false, error: "cwl-preview-failed" };
+    }
+  }
+
+  const isLaravel = assessment?.siteIntelligence?.frameworkHints?.includes("laravel") ?? false;
+  const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport() : null;
+
   return {
     kind: HUB_DELIVERY_DASHBOARD_KIND,
     schemaVersion: HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION,
@@ -109,6 +126,22 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       configuredMinTier: license.configuredMinTier,
       hubFeatures: license.hubFeatures,
     },
+    cwlPreview: cwlPreview
+      ? {
+          ok: cwlPreview.ok === true,
+          routeCount: cwlPreview.routeCount ?? null,
+          holeCount: cwlPreview.holeCount ?? null,
+          imports: cwlPreview.imports ?? [],
+          moduleName: cwlPreview.moduleName ?? null,
+        }
+      : null,
+    laravelGlobalGaps: laravelGlobalGaps
+      ? {
+          ok: laravelGlobalGaps.ok === true,
+          backlogCount: laravelGlobalGaps.backlog?.length ?? 0,
+          ingestNext: laravelGlobalGaps.ingestNext ?? null,
+        }
+      : null,
     artifacts,
     generatedAt: new Date().toISOString(),
   };

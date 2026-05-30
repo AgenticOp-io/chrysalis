@@ -2442,6 +2442,14 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D447** **Post-ingest-emit delivery on hub runner (G148).** The `chrysalis-ingest-emit` hub action bypassed `hub-translate`, so G146 delivery artifacts never ran for the primary PHP oracle path. `hub-post-ingest-emit.mjs` runs CWL/OpenAPI export, CWL diff, post-translate delivery bundle, and verify-gaps ingest; `chrysalis-hub-runners.mjs` invokes it after emit (before evidence gate). Opt out with `CHRYSALIS_HUB_POST_INGEST_EMIT=0`. Rationale: both hub translate and ingest-emit must leave the same migration OS artifact set on disk.
 
+- **2026-05-30 — D461** **Hub verify license gate (G162).** G153 mapped `hub-verify-gate` to pro tier but operator verify endpoints were ungated. `POST …/sites/{id}/verify` and `POST …/verify-all-sites` now call `assertHubLicenseAllows("hub-verify-gate")` with **403 license-gate** on failure. `hub-cwl-preview` registered as dev-tier feature on the same map.
+
+- **2026-05-30 — D460** **Express flagship emit parity + oracle hook (G161).** Phase 4 Node/Express depth: `hub-express-flagship.mjs` v3 runs gold + trace replay on hono, fastify, and nextjs (matching PHP flagships G157); optional live oracle capture/replay via `CHRYSALIS_HUB_EXPRESS_ORACLE=1` (completion keeps separate `runNodeExpressOracleVerify`).
+
+- **2026-05-30 — D459** **CWL preview in delivery dashboard (G160).** Delivery dashboard schema v3 composes `cwlPreview` (route/hole/import counts from `hub-cwl-preview`) when `migration.cwl` exists; Console delivery panel shows CWL summary lines.
+
+- **2026-05-30 — D458** **Laravel verify-gaps merge + global backlog (G159).** P0 ingest-from-gaps: `loadMergedVerifyReports` unions failures across report dirs; committed fixture `fixtures/hub-laravel-verify-gaps` exercises auth/socialite probe divergences; `buildLaravelVerifyGapsReport` exposes `ingestNext`; migration assessment and delivery dashboard surface `laravelGlobalGaps` for Laravel-tagged sites.
+
 - **2026-05-29 — D457** **Chimera cutover license gate (G158).** G153 mapped `hub-chimera-cutover` to enterprise tier but the operator API was not gated. `GET /api/hub/chimera-cutover` now calls `assertHubLicenseAllows("hub-chimera-cutover")` and returns **403 license-gate** when enforcement is on and tier is insufficient (same pattern as batch/pipeline). OSS default remains gate-off.
 
 - **2026-05-29 — D456** **PHP flagship nextjs emit parity (G157).** Phase 1 requires hono = fastify = nextjs on the oracle slice; G151 proved hono=fastify for plain-php and symfony. Added gold suites `plain-php-flagship-nextjs` and `symfony-flagship-nextjs` (structural + trace replay, correctness 1); extended flagship smoke scripts' `emitParity` to `["hono", "fastify", "nextjs"]`. Gold inventory **144** structural / **115** trace-replay suites.

@@ -107,6 +107,8 @@ describe("strategic plan deliverables", () => {
     const report = buildLaravelVerifyGapsReport();
     expect(report.kind).toBe("chrysalis.hub.laravel-verify-gaps");
     expect(Array.isArray(report.backlog)).toBe(true);
+    expect(report.backlog.length).toBeGreaterThan(0);
+    expect(report.ingestNext?.divergenceKind).toBeTruthy();
   });
 
   test("hub-laravel-verify-gaps reads flagship hono summary", async () => {
@@ -667,10 +669,74 @@ describe("strategic plan deliverables", () => {
       output: "hono",
     });
     expect(report.kind).toBe("chrysalis.hub.delivery-dashboard");
-    expect(report.schemaVersion).toBe(2);
+    expect(report.schemaVersion).toBe(3);
     expect(report.evidence).toBeDefined();
     expect(report.license?.hubFeatures?.length).toBeGreaterThan(0);
     expect(Array.isArray(report.artifacts)).toBe(true);
+  });
+
+  test("delivery dashboard includes CWL preview when migration.cwl exists (G160)", async () => {
+    const { buildDeliveryDashboard } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, copyFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-cwl-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      copyFileSync(
+        resolve(ROOT, "fixtures/hub-gold-cwl-multi/routes.cwl"),
+        join(tmp, ".chrysalis", "migration.cwl"),
+      );
+      copyFileSync(
+        resolve(ROOT, "fixtures/hub-gold-cwl-multi/health.cwl"),
+        join(tmp, ".chrysalis", "health.cwl"),
+      );
+      copyFileSync(
+        resolve(ROOT, "fixtures/hub-gold-cwl-multi/meta.cwl"),
+        join(tmp, ".chrysalis", "meta.cwl"),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "cwl", output: "hono" });
+      expect(report.cwlPreview?.ok).toBe(true);
+      expect(report.cwlPreview?.routeCount).toBe(3);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("laravel merged verify gaps feed global ingest backlog (G159)", async () => {
+    const { buildLaravelVerifyGapsReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps.mjs")
+    );
+    const report = buildLaravelVerifyGapsReport({
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps")],
+    });
+    expect(report.backlog.length).toBeGreaterThanOrEqual(2);
+    expect(report.ingestNext?.ingestOwner).toBe("packages/ingest");
+  });
+
+  test("express flagship reports hono=fastify=nextjs emit parity (G161)", () => {
+    const script = resolve(ROOT, "scripts/hub-ingest/hub-express-flagship.mjs");
+    const r = spawnSync(process.execPath, [script], {
+      cwd: ROOT,
+      encoding: "utf8",
+      timeout: 300_000,
+      env: { ...process.env, CHRYSALIS_HUB_EXPRESS_ORACLE: "0" },
+    });
+    expect(r.status).toBe(0);
+    const text = r.stdout.trim();
+    const report = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
+    expect(report.emitParity?.ok).toBe(true);
+    expect(report.emitParity?.targets).toEqual(["hono", "fastify", "nextjs"]);
+  }, 360_000);
+
+  test("hub verify gate requires pro tier when license enforced (G162)", async () => {
+    const { HUB_LICENSE_FEATURES } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-license-status.mjs")
+    );
+    expect(HUB_LICENSE_FEATURES["hub-verify-gate"]?.minTier).toBe("pro");
+    expect(HUB_LICENSE_FEATURES["hub-cwl-preview"]?.minTier).toBe("dev");
   });
 
   test("hub license status maps tier to hub features (G153)", async () => {

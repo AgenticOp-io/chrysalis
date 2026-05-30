@@ -345,6 +345,7 @@ async function main() {
     laravelVerifyGaps: {
       ok: laravelGaps.ok,
       backlogItems: laravelGaps.backlog?.length ?? 0,
+      ingestNext: laravelGaps.ingestNext?.divergenceKind ?? null,
       exportScript: "pnpm run hub:laravel-verify-gaps",
     },
     expressFlagshipGold: {
@@ -358,6 +359,7 @@ async function main() {
       ],
       script: "pnpm run hub:express-flagship",
       cwlProjection: expressFlagship.parsed.cwlProjection ?? null,
+      emitParity: expressFlagship.parsed.emitParity ?? null,
     },
     nodeExpressOracleVerify: {
       ok: nodeExpressOracleOk,
@@ -369,7 +371,7 @@ async function main() {
     plainPhpFlagshipGold: {
       ok: plainPhpFlagshipOk,
       routeCount: plainPhpFlagship.parsed.ingest?.routeCount ?? null,
-      suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+      suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-nextjs", "plain-php-flagship-cwl"],
       emitParity: plainPhpFlagship.parsed.emitParity ?? null,
       script: "pnpm run hub:plain-php-flagship",
       cwlProjection: plainPhpFlagship.parsed.cwlProjection ?? null,
@@ -377,7 +379,7 @@ async function main() {
     symfonyFlagshipGold: {
       ok: symfonyFlagshipOk,
       routeCount: symfonyFlagship.parsed.ingest?.routeCount ?? null,
-      suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+      suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-nextjs", "symfony-flagship-cwl"],
       emitParity: symfonyFlagship.parsed.emitParity ?? null,
       script: "pnpm run hub:symfony-flagship",
       routesYamlParity: {

@@ -19,6 +19,7 @@ export const HUB_LICENSE_FEATURES = {
   "hub-verify-gate": { minTier: "pro", label: "Post-translate verify + evidence gate" },
   "hub-chimera-cutover": { minTier: "enterprise", label: "Chimera cutover runbooks" },
   "hub-delivery-dashboard": { minTier: "dev", label: "Delivery dashboard" },
+  "hub-cwl-preview": { minTier: "dev", label: "CWL migration contract preview" },
 };
 
 const TIER_RANK = { dev: 0, pro: 1, enterprise: 2 };
