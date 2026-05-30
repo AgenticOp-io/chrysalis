@@ -754,9 +754,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 41 &&
     s.schemaVersion !== 42 &&
     s.schemaVersion !== 43 &&
-    s.schemaVersion !== 44
+    s.schemaVersion !== 44 &&
+    s.schemaVersion !== 45
   ) {
-    fail(`${label}: expected schemaVersion 0–44, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–45, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1250,6 +1251,35 @@ function assertHubCompletion(path) {
       s.phpNextjsFlagshipVerify?.skip !== "no-wptp-emit-nextjs"
     ) {
       fail(`${label}: phpNextjsFlagshipVerify must pass or skip with no-wptp-emit-nextjs for schema v44`);
+    }
+  }
+  if (s.schemaVersion >= 45) {
+    if (s.cwlRequestBodyRuntime?.ok !== true) {
+      fail(`${label}: cwlRequestBodyRuntime.ok must be true for schema v45`);
+    }
+    if (s.hubEvidenceSmoke?.ok !== true) {
+      fail(`${label}: hubEvidenceSmoke.ok must be true for schema v45`);
+    }
+    if (s.contractCwlSmoke?.ok !== true) {
+      fail(`${label}: contractCwlSmoke.ok must be true for schema v45`);
+    }
+    if (s.nodeOracleSpike?.ok !== true) {
+      fail(`${label}: nodeOracleSpike.ok must be true for schema v45`);
+    }
+    if (s.projectToCwlExport?.express?.holeCount !== 0 && s.projectToCwlExport?.express != null) {
+      fail(`${label}: projectToCwlExport.express must be hole-free for schema v45`);
+    }
+    if (
+      s.phpNextjsSymfonyVerify?.ok !== true &&
+      s.phpNextjsSymfonyVerify?.skip !== "no-wptp-emit-nextjs"
+    ) {
+      fail(`${label}: phpNextjsSymfonyVerify must pass or skip with no-wptp-emit-nextjs for schema v45`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_LIVE === "1" && s.laravelVerifyLive?.ok !== true) {
+      fail(`${label}: laravelVerifyLive.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_LIVE=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 3) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 3 for schema v45`);
     }
   }
   const g = s.routeGrades;

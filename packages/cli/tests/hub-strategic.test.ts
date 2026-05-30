@@ -853,9 +853,10 @@ describe("strategic plan deliverables", () => {
         output: "hono",
         laravelGapsReportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
       });
-      expect(report.schemaVersion).toBe(4);
+      expect(report.schemaVersion).toBe(5);
       expect(report.cwlPreview?.routeCount).toBe(5);
       expect(report.laravelGlobalAction?.ingestRemediation?.owner).toBe("packages/ingest");
+      expect(report.month3Program?.oracleMicro?.fixture).toBe("fixtures/tiny-blog");
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
@@ -999,8 +1000,10 @@ describe("strategic plan deliverables", () => {
     );
     const report = await runProjectToCwlOracleGates();
     expect(report.ok).toBe(true);
+    expect(report.schemaVersion).toBe(2);
     expect(report.exports.plainPhp.holeCount).toBe(0);
     expect(report.exports.symfony.holeCount).toBe(0);
+    expect(report.exports.express.holeCount).toBe(0);
   });
 
   test("hub completion schema 44 sections present (G180)", async () => {
@@ -1014,6 +1017,89 @@ describe("strategic plan deliverables", () => {
     );
     const statusSmoke = await runCwlResponseStatusSmoke();
     expect(statusSmoke.ok).toBe(true);
+  }, 180_000);
+
+  test("PHP Next.js symfony flagship verify skips or passes with WPTP (G181)", async () => {
+    const { runPhpNextjsSymfonyFlagshipVerify } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-php-nextjs-verify.mjs")
+    );
+    const report = await runPhpNextjsSymfonyFlagshipVerify();
+    expect(report.fixture).toBe("fixtures/hub-flagship-symfony");
+    expect(report.ok === true || report.skip === "no-wptp-emit-nextjs").toBe(true);
+  }, 300_000);
+
+  test("CWL RFC-0005 request body runtime smoke passes (G182)", async () => {
+    const { runCwlRequestBodySmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-request-body-smoke.mjs")
+    );
+    const report = await runCwlRequestBodySmoke();
+    expect(report.ok).toBe(true);
+    expect(report.cwlProjection?.total).toBeGreaterThanOrEqual(2);
+    expect(report.traceReplay["cwl-request-body-hono"]).toBe(true);
+  }, 180_000);
+
+  test("capability matrix v3 lists oracle micro and nextjs flagships (G188)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(3);
+    expect(report.oracleMicroFixture?.fixture).toBe("fixtures/tiny-blog");
+    expect(report.nextjsFlagshipFixtures).toContain("fixtures/hub-flagship-symfony");
+  });
+
+  test("hub evidence smoke on plain-php flagship (G184)", async () => {
+    const { runHubEvidenceSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-evidence-smoke.mjs")
+    );
+    const report = await runHubEvidenceSmoke();
+    expect(report.ok).toBe(true);
+    expect(report.evidence?.schemaVersion).toBe(4);
+  }, 120_000);
+
+  test("contract CWL smoke covers OpenAPI import and WebIR projection (G186)", async () => {
+    const { runContractCwlSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-contract-cwl-smoke.mjs")
+    );
+    const report = await runContractCwlSmoke();
+    expect(report.ok).toBe(true);
+    expect(report.openapiImport?.source).toBe("openapi-import");
+    expect(report.webirProjection?.source).toBe("webir-projection");
+  }, 120_000);
+
+  test("delivery dashboard v5 surfaces month3 program (G187)", async () => {
+    const { buildDeliveryDashboard } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v5-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, ".chrysalis", "site-intelligence.json"),
+        `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(report.schemaVersion).toBe(5);
+      expect(report.month3Program?.evidenceSmoke).toBe("hub:evidence-smoke");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub completion schema 45 sections present (G190)", async () => {
+    const { runCwlRequestBodySmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-request-body-smoke.mjs")
+    );
+    const { runHubEvidenceSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-evidence-smoke.mjs")
+    );
+    const body = await runCwlRequestBodySmoke();
+    const evidence = await runHubEvidenceSmoke();
+    expect(body.ok).toBe(true);
+    expect(evidence.ok).toBe(true);
   }, 180_000);
 
   test("hub license status maps tier to hub features (G153)", async () => {

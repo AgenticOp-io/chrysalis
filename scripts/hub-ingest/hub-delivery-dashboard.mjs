@@ -13,9 +13,10 @@ import { buildHubLicenseStatusReport } from "./hub-license-status.mjs";
 import { buildCwlPreviewReport } from "./hub-cwl-preview.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
 import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs";
+import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 4;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 5;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -112,6 +113,7 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
     : {};
   const laravelGlobalGaps = isLaravel ? buildLaravelVerifyGapsReport(laravelGapsOpts) : null;
   const laravelGlobalAction = isLaravel ? runLaravelVerifyGapsAction(laravelGapsOpts) : null;
+  const oracleMicro = buildOracleMicroFixtureReport();
 
   return {
     kind: HUB_DELIVERY_DASHBOARD_KIND,
@@ -178,6 +180,14 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
           suggestedCommand: laravelGlobalAction.ingestRemediation?.suggestedCommand ?? null,
         }
       : null,
+    month3Program: {
+      oracleMicro: { fixture: oracleMicro.fixture, routeCount: oracleMicro.routeCount },
+      cwlRfcSmokes: ["hub:cwl-response-status-smoke", "hub:cwl-request-body-smoke"],
+      projectToCwlGates: "hub:project-to-cwl-gates",
+      contractCwlSmoke: "hub:contract-cwl-smoke",
+      phpNextjsFlagships: ["hub:php-nextjs-flagship-verify", "hub:php-nextjs-symfony-verify"],
+      evidenceSmoke: "hub:evidence-smoke",
+    },
     artifacts,
     generatedAt: new Date().toISOString(),
   };

@@ -8,8 +8,10 @@ import { fileURLToPath } from "node:url";
 import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 
+import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
+
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 2;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 3;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -76,6 +78,15 @@ export function buildHubCapabilityMatrixReport() {
       },
     },
     coverage: coverage.summary,
+    oracleMicroFixture: {
+      fixture: ORACLE_MICRO_FIXTURE,
+      script: "pnpm run hub:oracle-micro-fixture",
+    },
+    nextjsFlagshipFixtures: [
+      "fixtures/hub-flagship-plain-php",
+      "fixtures/hub-flagship-symfony",
+    ],
+    projectToCwlOrigins: ["php", "javascript"],
     externalCopy: {
       headline: "Verified PHP backend migration with oracle replay",
       avoid: ["575 languages production-ready", "convert any website without oracle"],

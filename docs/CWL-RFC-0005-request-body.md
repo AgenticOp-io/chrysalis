@@ -31,6 +31,7 @@ handler items_create {
 
 - **`cwl-request-body-hono`**, **`cwl-request-body-fastify`**, **`cwl-request-body-nextjs`**
 - Fixture: **`fixtures/hub-gold-cwl-request-body/routes.cwl`**
+- Runtime smoke: **`pnpm run hub:cwl-request-body-smoke`** (G182)
 
 ## Non-goals
 

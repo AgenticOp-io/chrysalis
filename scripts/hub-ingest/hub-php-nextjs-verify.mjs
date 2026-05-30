@@ -12,6 +12,7 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
 const tinyBlog = join(scriptRoot, "fixtures/tiny-blog");
 const plainPhpFlagship = join(scriptRoot, "fixtures/hub-flagship-plain-php");
+const symfonyFlagship = join(scriptRoot, "fixtures/hub-flagship-symfony");
 const worker = join(scriptRoot, "scripts/hub-ingest/hub-gold-replay-worker.mjs");
 const exportWebir = join(scriptRoot, "scripts/hub-ingest/export-project-webir.mjs");
 const exportBundle = join(scriptRoot, "scripts/export-webir-bundle.mjs");
@@ -44,7 +45,9 @@ export async function runPhpNextjsVerify(projectDir = tinyBlog, opts = {}) {
       ? "fixtures/tiny-blog"
       : projectDir.includes("hub-flagship-plain-php")
         ? "fixtures/hub-flagship-plain-php"
-        : projectDir);
+        : projectDir.includes("hub-flagship-symfony")
+          ? "fixtures/hub-flagship-symfony"
+          : projectDir);
   const base = {
     kind: HUB_PHP_NEXTJS_VERIFY_KIND,
     schemaVersion: HUB_PHP_NEXTJS_VERIFY_SCHEMA_VERSION,
@@ -125,6 +128,11 @@ export async function runPhpNextjsFlagshipVerify() {
   return runPhpNextjsVerify(plainPhpFlagship, { label: "fixtures/hub-flagship-plain-php" });
 }
 
+/** Symfony flagship WPTP Next.js verify (G181). */
+export async function runPhpNextjsSymfonyFlagshipVerify() {
+  return runPhpNextjsVerify(symfonyFlagship, { label: "fixtures/hub-flagship-symfony" });
+}
+
 async function main() {
   let projectDir = tinyBlog;
   for (let i = 2; i < process.argv.length; i++) {
@@ -132,6 +140,8 @@ async function main() {
       projectDir = resolve(process.argv[++i]);
     } else if (process.argv[i] === "--flagship") {
       projectDir = plainPhpFlagship;
+    } else if (process.argv[i] === "--symfony") {
+      projectDir = symfonyFlagship;
     }
   }
   const report = await runPhpNextjsVerify(projectDir);
