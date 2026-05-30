@@ -831,14 +831,14 @@ describe("ci-gates hub-completion", () => {
       };
       payload.goldVerify = {
         ...(payload.goldVerify ?? {}),
-        expectedSuiteCount: 142,
-        suiteCount: 142,
+        expectedSuiteCount: 144,
+        suiteCount: 144,
         ok: true,
       };
       payload.traceReplay = {
         ...(payload.traceReplay ?? {}),
-        expectedSuiteCount: 113,
-        suiteCount: 113,
+        expectedSuiteCount: 115,
+        suiteCount: 115,
         ok: true,
       };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
@@ -893,8 +893,8 @@ describe("ci-gates hub-completion", () => {
         suiteIds: ["cwl-response-content-type-hono", "cwl-response-content-type-fastify", "cwl-response-content-type-nextjs"],
         rfc: "CWL-RFC-0008",
       };
-      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 142, suiteCount: 142, ok: true };
-      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 113, suiteCount: 113, ok: true };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
       const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
       expect(r.status).toBe(0);
@@ -948,8 +948,8 @@ describe("ci-gates hub-completion", () => {
         suiteIds: ["cwl-response-content-type-hono", "cwl-response-content-type-fastify", "cwl-response-content-type-nextjs"],
         rfc: "CWL-RFC-0008",
       };
-      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 142, suiteCount: 142, ok: true };
-      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 113, suiteCount: 113, ok: true };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
       const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
       expect(r.status).not.toBe(0);
@@ -1001,8 +1001,8 @@ describe("ci-gates hub-completion", () => {
         suiteIds: ["cwl-response-content-type-hono", "cwl-response-content-type-fastify", "cwl-response-content-type-nextjs"],
         rfc: "CWL-RFC-0008",
       };
-      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 142, suiteCount: 142, ok: true };
-      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 113, suiteCount: 113, ok: true };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
       const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
       expect(r.status).toBe(0);
@@ -1057,8 +1057,8 @@ describe("ci-gates hub-completion", () => {
         suiteIds: ["cwl-response-content-type-hono", "cwl-response-content-type-fastify", "cwl-response-content-type-nextjs"],
         rfc: "CWL-RFC-0008",
       };
-      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 142, suiteCount: 142, ok: true };
-      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 113, suiteCount: 113, ok: true };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
       const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
       expect(r.status).not.toBe(0);
@@ -1131,14 +1131,14 @@ describe("ci-gates hub-completion", () => {
       };
       payload.goldVerify = {
         ...(payload.goldVerify ?? {}),
-        expectedSuiteCount: 142,
-        suiteCount: 142,
+        expectedSuiteCount: 144,
+        suiteCount: 144,
         ok: true,
       };
       payload.traceReplay = {
         ...(payload.traceReplay ?? {}),
-        expectedSuiteCount: 113,
-        suiteCount: 113,
+        expectedSuiteCount: 115,
+        suiteCount: 115,
         ok: true,
       };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
@@ -1213,14 +1213,14 @@ describe("ci-gates hub-completion", () => {
       };
       payload.goldVerify = {
         ...(payload.goldVerify ?? {}),
-        expectedSuiteCount: 142,
-        suiteCount: 142,
+        expectedSuiteCount: 144,
+        suiteCount: 144,
         ok: true,
       };
       payload.traceReplay = {
         ...(payload.traceReplay ?? {}),
-        expectedSuiteCount: 113,
-        suiteCount: 113,
+        expectedSuiteCount: 115,
+        suiteCount: 115,
         ok: true,
       };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
@@ -1294,14 +1294,14 @@ describe("ci-gates hub-completion", () => {
       };
       payload.goldVerify = {
         ...(payload.goldVerify ?? {}),
-        expectedSuiteCount: 142,
-        suiteCount: 142,
+        expectedSuiteCount: 144,
+        suiteCount: 144,
         ok: true,
       };
       payload.traceReplay = {
         ...(payload.traceReplay ?? {}),
-        expectedSuiteCount: 113,
-        suiteCount: 113,
+        expectedSuiteCount: 115,
+        suiteCount: 115,
         ok: true,
       };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
@@ -1375,14 +1375,14 @@ describe("ci-gates hub-completion", () => {
       };
       payload.goldVerify = {
         ...(payload.goldVerify ?? {}),
-        expectedSuiteCount: 142,
-        suiteCount: 142,
+        expectedSuiteCount: 144,
+        suiteCount: 144,
         ok: true,
       };
       payload.traceReplay = {
         ...(payload.traceReplay ?? {}),
-        expectedSuiteCount: 113,
-        suiteCount: 113,
+        expectedSuiteCount: 115,
+        suiteCount: 115,
         ok: true,
       };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);
@@ -1449,14 +1449,14 @@ describe("ci-gates hub-completion", () => {
       };
       payload.goldVerify = {
         ...(payload.goldVerify ?? {}),
-        expectedSuiteCount: 142,
-        suiteCount: 142,
+        expectedSuiteCount: 144,
+        suiteCount: 144,
         ok: true,
       };
       payload.traceReplay = {
         ...(payload.traceReplay ?? {}),
-        expectedSuiteCount: 113,
-        suiteCount: 113,
+        expectedSuiteCount: 115,
+        suiteCount: 115,
         ok: true,
       };
       writeFileSync(p, `${JSON.stringify(payload)}\n`);

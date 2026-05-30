@@ -942,6 +942,7 @@ const server = createServer(async (req, res) => {
     }
     const outputs = outputsRaw.split(",").map((s) => s.trim()).filter(Boolean);
     try {
+      await assertHubLicenseAllows("hub-chimera-cutover");
       const report = await buildChimeraCutoverRunbook({
         projectDir: resolve(projectDir),
         origin,
@@ -951,7 +952,12 @@ const server = createServer(async (req, res) => {
       });
       sendJson(res, 200, report);
     } catch (e) {
-      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("license")) {
+        sendJson(res, 403, { error: "license-gate", message: msg });
+        return;
+      }
+      sendJson(res, 500, { error: msg });
     }
     return;
   }

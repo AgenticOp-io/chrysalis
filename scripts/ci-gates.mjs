@@ -1128,11 +1128,11 @@ function assertHubCompletion(path) {
     }
   }
   if (s.schemaVersion >= 33) {
-    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 142) {
-      fail(`${label}: goldVerify.expectedSuiteCount must be >= 142 for schema v33`);
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 144) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 144 for schema v33`);
     }
-    if ((s.traceReplay?.expectedSuiteCount ?? 0) < 113) {
-      fail(`${label}: traceReplay.expectedSuiteCount must be >= 113 for schema v33`);
+    if ((s.traceReplay?.expectedSuiteCount ?? 0) < 115) {
+      fail(`${label}: traceReplay.expectedSuiteCount must be >= 115 for schema v33`);
     }
     if (s.symfonyFlagshipGold?.ok !== true) {
       fail(`${label}: symfonyFlagshipGold.ok must be true for schema v33`);

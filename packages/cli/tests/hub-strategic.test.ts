@@ -630,14 +630,32 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("plain-php flagship reports hono=fastify emit parity (G151)", () => {
+  test("plain-php flagship reports hono=fastify=nextjs emit parity (G151/G157)", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
     expect(r.status).toBe(0);
     const text = r.stdout.trim();
     const report = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
     expect(report.emitParity?.ok).toBe(true);
-    expect(report.emitParity?.targets).toEqual(["hono", "fastify"]);
+    expect(report.emitParity?.targets).toEqual(["hono", "fastify", "nextjs"]);
+  }, 360_000);
+
+  test("symfony flagship reports hono=fastify=nextjs emit parity (G157)", () => {
+    const script = resolve(ROOT, "scripts/hub-ingest/hub-symfony-flagship.mjs");
+    const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
+    expect(r.status).toBe(0);
+    const text = r.stdout.trim();
+    const report = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
+    expect(report.emitParity?.ok).toBe(true);
+    expect(report.emitParity?.targets).toEqual(["hono", "fastify", "nextjs"]);
+  }, 360_000);
+
+  test("chimera cutover API respects license tier map when enforced (G158)", async () => {
+    const { assertHubLicenseAllows, HUB_LICENSE_FEATURES } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-license-status.mjs")
+    );
+    expect(HUB_LICENSE_FEATURES["hub-chimera-cutover"]?.minTier).toBe("enterprise");
+    await expect(assertHubLicenseAllows("hub-chimera-cutover")).resolves.toBeTruthy();
   });
 
   test("delivery dashboard aggregates migration OS signals (G152)", async () => {

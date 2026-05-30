@@ -32,7 +32,7 @@ function runEmitParitySuites(suitePrefix) {
   /** @type {Record<string, boolean>} */
   const traceReplay = {};
   let emitParityOk = true;
-  for (const target of ["hono", "fastify"]) {
+  for (const target of ["hono", "fastify", "nextjs"]) {
     const suite = `${suitePrefix}-${target}`;
     const g = runJson(goldVerifyScript, ["--suite", suite]);
     const tr = runJson(traceReplayScript, ["--suite", suite]);
@@ -71,7 +71,7 @@ async function main() {
     cwlProjection: phpExport.cwlProjection ?? null,
     gold: emitParity.gold,
     traceReplay: emitParity.traceReplay,
-    emitParity: { ok: emitParity.emitParityOk, targets: ["hono", "fastify"] },
+    emitParity: { ok: emitParity.emitParityOk, targets: ["hono", "fastify", "nextjs"] },
     openapi: openapiExport,
     generatedAt: new Date().toISOString(),
   };
