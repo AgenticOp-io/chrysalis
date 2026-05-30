@@ -210,8 +210,12 @@ test("hub runners: hub-translate step for python → typescript", async () => {
     targetId: "typescript",
     action: "hub-translate",
   });
-  expect(steps).toHaveLength(1);
-  expect(steps[0]?.kind).toBe("hub-translate");
+  expect(steps).toHaveLength(3);
+  expect(steps.map((s) => s.kind)).toEqual([
+    "hub-translate",
+    "hub-post-translate-verify",
+    "hub-evidence-gate",
+  ]);
 });
 
 test("hub store: normalizeProject migrates legacy ssh to sites", async () => {

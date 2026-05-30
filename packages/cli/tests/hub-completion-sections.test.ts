@@ -12,6 +12,6 @@ describe("hub completion sections (G71)", () => {
     expect(s.assetExtendedNextjsGold.suiteIds).toContain("css-literal-nextjs");
     expect(s.assetExtendedFrameworkGold.suiteIds).toContain("cpp-literal-fastify");
     expect(s.phpOracleLane.pairs).toContain("php:hono");
-    expect(s.structuralSuiteCount).toBe(108);
+    expect(s.structuralSuiteCount).toBe(141);
   });
 });
