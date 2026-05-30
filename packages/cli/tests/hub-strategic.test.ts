@@ -504,6 +504,69 @@ describe("strategic plan deliverables", () => {
     expect(existsSync(join(fixture, ".chrysalis", "migration-assessment.json"))).toBe(true);
   });
 
+  test("verify gaps ingest ranks divergences into ingest backlog (G147)", async () => {
+    const { buildProjectVerifyGapsIngestReport, writeProjectVerifyGapsArtifacts } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-verify-gaps-ingest.mjs")
+    );
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-verify-gaps-"));
+    try {
+      mkdirSync(join(tmp, "reports", "verify"), { recursive: true });
+      writeFileSync(
+        join(tmp, "reports", "verify", "summary.json"),
+        JSON.stringify(
+          {
+            aggregate: { correctness: 0.5, framesTotal: 2, framesPassed: 1 },
+            endpoints: [
+              {
+                route: "GET /items",
+                divergences: [{ kinds: ["body-mismatch"], details: ["json shape differs"] }],
+              },
+            ],
+          },
+          null,
+          2,
+        ),
+      );
+      const report = buildProjectVerifyGapsIngestReport(tmp);
+      expect(report.kind).toBe("chrysalis.hub.verify-gaps-ingest");
+      expect(report.ok).toBe(true);
+      expect(report.backlog.length).toBe(1);
+      expect(report.backlog[0]?.divergenceKind).toBe("body-mismatch");
+      expect(report.ingestNext?.playbook?.title).toMatch(/body/i);
+
+      const artifacts = await writeProjectVerifyGapsArtifacts(tmp, report);
+      expect(existsSync(artifacts.jsonPath)).toBe(true);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("chrysalis-ingest-emit runner includes post-ingest-emit delivery step (G148)", async () => {
+    const { hubJobSteps } = await import(resolve(ROOT, "scripts/chrysalis-hub-runners.mjs"));
+    const steps = hubJobSteps("/repo", "/repo/packages/cli/dist/bin.js", "/tmp/proj", {
+      sourceLang: "php",
+      targetId: "hono",
+      action: "chrysalis-ingest-emit",
+    });
+    expect(steps.map((s: { kind: string }) => s.kind)).toEqual([
+      "ingest",
+      "emit",
+      "hub-post-ingest-emit",
+      "hub-evidence-gate",
+    ]);
+  });
+
+  test("post-ingest-emit exports contract and delivery artifacts (G148)", async () => {
+    const { runHubPostIngestEmit } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-post-ingest-emit.mjs")
+    );
+    const fixture = resolve(ROOT, "fixtures/hub-flagship-plain-php");
+    const report = await runHubPostIngestEmit(fixture, { origin: "php", output: "hono" });
+    expect(report.kind).toBe("chrysalis.hub.post-ingest-emit");
+    expect(report.cwlExport?.ok).toBe(true);
+    expect(report.deliveryArtifacts?.written?.pathAdvice?.ok).toBe(true);
+  });
+
   test("hub-plain-php-flagship smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });

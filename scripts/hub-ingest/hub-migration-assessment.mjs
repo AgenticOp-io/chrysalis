@@ -11,6 +11,7 @@ import { compareHubLanguages } from "./hub-language-compare.mjs";
 import { buildMigrationProgram } from "./hub-migration-programs.mjs";
 import { queryPathKnowledge } from "./hub-path-knowledge.mjs";
 import { buildSiteIntelligenceReport } from "./hub-site-intelligence.mjs";
+import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
 import { buildChimeraCutoverRunbook } from "./hub-chimera-cutover.mjs";
 
 export const HUB_MIGRATION_ASSESSMENT_KIND = "chrysalis.hub.migration-assessment";
@@ -73,6 +74,7 @@ export async function buildMigrationAssessment(opts) {
 
   let cutover = null;
   let cutoverReady = false;
+  let verifyGaps = buildProjectVerifyGapsIngestReport(root);
   if (evidence) {
     cutover = await buildChimeraCutoverRunbook({
       projectDir: root,
@@ -107,6 +109,11 @@ export async function buildMigrationAssessment(opts) {
   }
   if (readinessTier === "program-ready" || readinessTier === "cutover-ready") {
     nextSteps.push("Follow chimera cutover runbook: shadow → canary → cutover.");
+  }
+  if (verifyGaps.ingestNext) {
+    nextSteps.unshift(
+      `Address top verify gap: ${verifyGaps.ingestNext.divergenceKind} (${verifyGaps.ingestNext.failedTraceRows} row(s)) — ${verifyGaps.ingestNext.playbook?.title ?? "see verify-gaps-ingest"}.`,
+    );
   }
 
   return {
@@ -148,6 +155,11 @@ export async function buildMigrationAssessment(opts) {
       : null,
     cutoverReady,
     blockers,
+    verifyGaps: {
+      ok: verifyGaps.ok,
+      backlogCount: verifyGaps.backlog.length,
+      ingestNext: verifyGaps.ingestNext,
+    },
     nextSteps,
     generatedAt: new Date().toISOString(),
   };

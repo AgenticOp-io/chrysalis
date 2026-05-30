@@ -9,6 +9,7 @@ import { writePathAdviceArtifacts } from "./hub-apply-path-advice.mjs";
 import { buildMigrationAssessment, writeMigrationAssessmentArtifacts } from "./hub-migration-assessment.mjs";
 import { buildChimeraCutoverRunbook, writeChimeraCutoverArtifacts } from "./hub-chimera-cutover.mjs";
 import { writeSiteIntelligenceArtifacts } from "./hub-site-intelligence.mjs";
+import { writeProjectVerifyGapsArtifacts } from "./hub-verify-gaps-ingest.mjs";
 
 export const HUB_POST_TRANSLATE_ARTIFACTS_KIND = "chrysalis.hub.post-translate-artifacts";
 export const HUB_POST_TRANSLATE_ARTIFACTS_SCHEMA_VERSION = 1;
@@ -68,6 +69,18 @@ export async function writeHubPostTranslateArtifacts(projectDir, opts) {
     written.chimeraCutover = { ok: true, path: artifacts.jsonPath, readyForShadow: cutover.readyForShadow };
   } catch (e) {
     written.chimeraCutover = { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+
+  try {
+    const gaps = await writeProjectVerifyGapsArtifacts(root);
+    written.verifyGapsIngest = {
+      ok: true,
+      path: gaps.jsonPath,
+      backlogCount: gaps.report.backlog.length,
+      hasWork: gaps.report.backlog.length > 0,
+    };
+  } catch (e) {
+    written.verifyGapsIngest = { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
 
   return {

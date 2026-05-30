@@ -37,6 +37,7 @@ import { buildSiteIntelligenceReport } from "./hub-ingest/hub-site-intelligence.
 import { buildChimeraCutoverRunbook } from "./hub-ingest/hub-chimera-cutover.mjs";
 import { buildMigrationAssessment } from "./hub-ingest/hub-migration-assessment.mjs";
 import { writePathAdviceArtifacts } from "./hub-ingest/hub-apply-path-advice.mjs";
+import { buildProjectVerifyGapsIngestReport } from "./hub-ingest/hub-verify-gaps-ingest.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
@@ -944,6 +945,16 @@ const server = createServer(async (req, res) => {
     } catch (e) {
       sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
     }
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/verify-gaps-ingest") {
+    const projectDir = url.searchParams.get("projectDir");
+    if (!projectDir) {
+      sendJson(res, 400, { error: "projectDir query param required" });
+      return;
+    }
+    sendJson(res, 200, buildProjectVerifyGapsIngestReport(resolve(projectDir)));
     return;
   }
 

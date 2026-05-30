@@ -72,6 +72,21 @@ export function hubJobSteps(repo, cliBin, projectDir, runnable, progressFile) {
       execPath: process.execPath,
       argv: [cliBin, "emit", projectDir, "--out", out, "--target", target],
     });
+    if (process.env.CHRYSALIS_HUB_POST_INGEST_EMIT !== "0") {
+      steps.push({
+        kind: "hub-post-ingest-emit",
+        execPath: process.execPath,
+        argv: [
+          join(repo, "scripts/hub-ingest/hub-post-ingest-emit.mjs"),
+          "--project",
+          projectDir,
+          "--origin",
+          origin,
+          "--output",
+          output,
+        ],
+      });
+    }
     if (process.env.CHRYSALIS_HUB_VERIFY_GATE !== "0") {
       steps.push({
         kind: "hub-evidence-gate",
