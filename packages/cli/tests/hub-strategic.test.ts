@@ -710,10 +710,22 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps.mjs")
     );
     const report = buildLaravelVerifyGapsReport({
-      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps")],
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
     });
     expect(report.backlog.length).toBeGreaterThanOrEqual(2);
     expect(report.ingestNext?.ingestOwner).toBe("packages/ingest");
+  });
+
+  test("laravel verify gaps resolved fixture has no backlog (G172)", async () => {
+    const { buildLaravelVerifyGapsReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps.mjs")
+    );
+    const report = buildLaravelVerifyGapsReport({
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps")],
+    });
+    expect(report.backlog.length).toBe(0);
+    expect(report.ingestNext).toBeNull();
+    expect(report.verify?.correctness).toBe(1);
   });
 
   test("express flagship reports hono=fastify=nextjs emit parity (G161)", () => {
@@ -744,7 +756,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps-action.mjs")
     );
     const report = runLaravelVerifyGapsAction({
-      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps")],
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
     });
     expect(report.kind).toBe("chrysalis.hub.laravel-verify-gaps-action");
     expect(report.ingestRemediation?.owner).toBe("packages/ingest");
@@ -788,8 +800,12 @@ describe("strategic plan deliverables", () => {
     const { buildLaravelVerifyGapsReport } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps.mjs")
     );
-    const gaps = buildLaravelVerifyGapsReport();
-    const smoke = buildHubLaravelMinSmokeReport();
+    const gaps = buildLaravelVerifyGapsReport({
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
+    });
+    const smoke = buildHubLaravelMinSmokeReport({
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
+    });
     expect(gaps.ingestNext?.divergenceKind).toBeTruthy();
     expect(gaps.backlog.length).toBeGreaterThan(0);
     expect(smoke.ok).toBe(true);
@@ -807,7 +823,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-min-smoke.mjs")
     );
     const report = buildHubLaravelMinSmokeReport({
-      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps")],
+      reportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
     });
     expect(report.kind).toBe("chrysalis.hub.laravel-min-smoke");
     expect(report.routeCount).toBeGreaterThanOrEqual(15);
@@ -878,8 +894,8 @@ describe("strategic plan deliverables", () => {
       writeFileSync(join(tmp, ".chrysalis", "migration.cwl"), "module x;\nroute GET /health { return true; }\n");
       const report = buildHubEvidenceReport(tmp);
       expect(report.schemaVersion).toBe(3);
-      expect(report.verifyGaps.laravelGlobal?.ingestNext).toBeTruthy();
-      expect(report.blockers.some((b: { kind: string }) => b.kind === "verify-gaps-ingest")).toBe(true);
+      expect(report.verifyGaps.laravelGlobal?.available).toBe(true);
+      expect(report.verifyGaps.project.backlogCount).toBe(0);
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }

@@ -1,28 +1,20 @@
 {
-  "generatedAt": "2026-05-30T00:00:00.000Z",
+  "generatedAt": "2026-05-30T16:00:00.000Z",
   "aggregate": {
     "framesTotal": 4,
-    "framesPassed": 2,
-    "correctness": 0.5
+    "framesPassed": 4,
+    "correctness": 1
   },
   "endpoints": [
     {
       "route": "GET /chrysalis-auth-probe",
-      "divergences": [
-        {
-          "kinds": ["body-mismatch"],
-          "details": ["sanctum oauth probe JSON field missing in emitted handler"]
-        }
-      ]
+      "framesTotal": 2,
+      "framesPassed": 2
     },
     {
       "route": "GET /chrysalis-socialite-fortify-probe",
-      "divergences": [
-        {
-          "kinds": ["status-mismatch"],
-          "details": ["Fortify probe returned 200 instead of expected 401 when unauthenticated"]
-        }
-      ]
+      "framesTotal": 2,
+      "framesPassed": 2
     }
   ]
 }

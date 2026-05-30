@@ -2462,6 +2462,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D467** **Delivery dashboard v4 + Laravel global action (G168).** Dashboard schema v4 adds `laravelGlobalAction`; reads persisted `.chrysalis/cwl-preview.json` when present before live preview build.
 
+- **2026-05-30 — D471** **Laravel auth probe ingest closure (G172).** M6A static probe lowering (D190) already produced correct JSON for `chrysalis-auth-probe` and `chrysalis-socialite-fortify-probe`; G172 adds committed fixture `fixtures/laravel-auth-probe` + Vitest coverage and updates `fixtures/hub-laravel-verify-gaps` to resolved verify (correctness 1). Synthetic backlog moves to `fixtures/hub-laravel-verify-gaps-backlog` for hub operator/backlog UI tests only.
+
 - **2026-05-30 — D460** **Express flagship emit parity + oracle hook (G161).** Phase 4 Node/Express depth: `hub-express-flagship.mjs` v3 runs gold + trace replay on hono, fastify, and nextjs (matching PHP flagships G157); optional live oracle capture/replay via `CHRYSALIS_HUB_EXPRESS_ORACLE=1` (completion keeps separate `runNodeExpressOracleVerify`).
 
 - **2026-05-30 — D459** **CWL preview in delivery dashboard (G160).** Delivery dashboard schema v3 composes `cwlPreview` (route/hole/import counts from `hub-cwl-preview`) when `migration.cwl` exists; Console delivery panel shows CWL summary lines.
