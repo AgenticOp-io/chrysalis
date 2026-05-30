@@ -2468,6 +2468,26 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-30 — D499** **Hub completion schema 46 (G200).** Body roundtrip, translate E2E, evidence live, node spike v3, matrix v4; CI gates v46.
+
+- **2026-05-30 — D498** **Node oracle product depth (G199).** `hub-node-oracle-spike` schema v3 cross-checks `hub-node-express-oracle-verify`.
+
+- **2026-05-30 — D497** **Delivery dashboard v6 (G198).** `month3Program` surfaces evidence live, translate E2E, body roundtrip, strict env keys.
+
+- **2026-05-30 — D496** **CWL body round-trip smoke (G197).** `hub-cwl-body-roundtrip-smoke.mjs` proves ingest → project → render → re-ingest hole-free.
+
+- **2026-05-30 — D495** **WPTP Next.js mandatory completion gate (G196).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1` in ci-gates v46.
+
+- **2026-05-30 — D494** **Evidence pipeline strict CI (G195).** `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1` requires `hubEvidenceLive.pipelineGatePass` in ci-gates v46.
+
+- **2026-05-30 — D493** **Hub evidence live (G194).** `hub-evidence-live.mjs` runs full `buildHubEvidenceReport` with pipeline gate pass on plain-php flagship.
+
+- **2026-05-30 — D492** **CWL body smoke projection gate (G193).** G182 body smoke requires hole-free projection and `withBodyParams >= 2`.
+
+- **2026-05-30 — D491** **Hub-translate E2E smoke (G192).** `hub-translate-e2e-smoke.mjs` on plain-php flagship produces hole-free migration.cwl via chrysalis-php path.
+
+- **2026-05-30 — D490** **CWL body projection lowering (G191).** `cwlValueOf`/`renderCwlRoutes` project `request.field` body bindings; `summarizeCwlProjection.withBodyParams`.
+
 - **2026-05-30 — D489** **Hub completion schema 45 (G190).** Completion runs CWL body runtime smoke, evidence smoke, contract CWL smoke, symfony nextjs verify, node oracle spike; capability matrix v3; CI gates v45.
 
 - **2026-05-30 — D488** **Strict Laravel live completion gate (G189).** Optional `CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_LIVE=1` fails ci-gates when `laravelVerifyLive.ok` is false.

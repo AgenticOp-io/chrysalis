@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 3;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 4;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -87,6 +87,19 @@ export function buildHubCapabilityMatrixReport() {
       "fixtures/hub-flagship-symfony",
     ],
     projectToCwlOrigins: ["php", "javascript"],
+    cwlBodyProjection: {
+      rfc: "CWL-RFC-0005",
+      fixture: "fixtures/hub-gold-cwl-request-body",
+      script: "pnpm run hub:cwl-body-roundtrip-smoke",
+    },
+    hubTranslateE2e: {
+      fixture: "fixtures/hub-flagship-plain-php",
+      script: "pnpm run hub:translate-e2e-smoke",
+    },
+    nodeOracleProduct: {
+      spikeScript: "pnpm run hub:node-oracle-spike",
+      expressVerifyScript: "pnpm run hub:node-express-oracle-verify",
+    },
     externalCopy: {
       headline: "Verified PHP backend migration with oracle replay",
       avoid: ["575 languages production-ready", "convert any website without oracle"],

@@ -755,9 +755,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 42 &&
     s.schemaVersion !== 43 &&
     s.schemaVersion !== 44 &&
-    s.schemaVersion !== 45
+    s.schemaVersion !== 45 &&
+    s.schemaVersion !== 46
   ) {
-    fail(`${label}: expected schemaVersion 0–45, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–46, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1278,8 +1279,39 @@ function assertHubCompletion(path) {
     if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_LIVE === "1" && s.laravelVerifyLive?.ok !== true) {
       fail(`${label}: laravelVerifyLive.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_LIVE=1`);
     }
-    if (s.capabilityMatrix?.schemaVersion !== 3) {
+    if (s.schemaVersion < 46 && s.capabilityMatrix?.schemaVersion !== 3) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 3 for schema v45`);
+    }
+  }
+  if (s.schemaVersion >= 46) {
+    if (s.cwlRequestBodyRuntime?.projectionOk !== true) {
+      fail(`${label}: cwlRequestBodyRuntime.projectionOk must be true for schema v46`);
+    }
+    if (s.cwlBodyRoundtrip?.ok !== true) {
+      fail(`${label}: cwlBodyRoundtrip.ok must be true for schema v46`);
+    }
+    if (s.hubTranslateE2e?.ok !== true && s.hubTranslateE2e?.skip !== "missing-cli-dist") {
+      fail(`${label}: hubTranslateE2e must pass or skip with missing-cli-dist for schema v46`);
+    }
+    if (s.hubEvidenceLive?.ok !== true) {
+      fail(`${label}: hubEvidenceLive.ok must be true for schema v46`);
+    }
+    if (s.nodeOracleSpike?.schemaVersion !== 3) {
+      fail(`${label}: nodeOracleSpike.schemaVersion must be 3 for schema v46`);
+    }
+    if (process.env.CHRYSALIS_HUB_PIPELINE_GATE_STRICT === "1" && s.hubEvidenceLive?.pipelineGatePass !== true) {
+      fail(`${label}: hubEvidenceLive.pipelineGatePass must be true when CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS === "1") {
+      if (s.phpNextjsFlagshipVerify?.ok !== true) {
+        fail(`${label}: phpNextjsFlagshipVerify.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.phpNextjsSymfonyVerify?.ok !== true) {
+        fail(`${label}: phpNextjsSymfonyVerify.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 4) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 4 for schema v46`);
     }
   }
   const g = s.routeGrades;

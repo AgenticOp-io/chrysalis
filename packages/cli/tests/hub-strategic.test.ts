@@ -853,7 +853,7 @@ describe("strategic plan deliverables", () => {
         output: "hono",
         laravelGapsReportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
       });
-      expect(report.schemaVersion).toBe(5);
+      expect(report.schemaVersion).toBe(6);
       expect(report.cwlPreview?.routeCount).toBe(5);
       expect(report.laravelGlobalAction?.ingestRemediation?.owner).toBe("packages/ingest");
       expect(report.month3Program?.oracleMicro?.fixture).toBe("fixtures/tiny-blog");
@@ -1038,14 +1038,15 @@ describe("strategic plan deliverables", () => {
     expect(report.traceReplay["cwl-request-body-hono"]).toBe(true);
   }, 180_000);
 
-  test("capability matrix v3 lists oracle micro and nextjs flagships (G188)", async () => {
+  test("capability matrix v4 lists oracle micro and nextjs flagships (G188)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(3);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(4);
     expect(report.oracleMicroFixture?.fixture).toBe("fixtures/tiny-blog");
     expect(report.nextjsFlagshipFixtures).toContain("fixtures/hub-flagship-symfony");
+    expect(report.cwlBodyProjection?.script).toBe("pnpm run hub:cwl-body-roundtrip-smoke");
   });
 
   test("hub evidence smoke on plain-php flagship (G184)", async () => {
@@ -1067,7 +1068,7 @@ describe("strategic plan deliverables", () => {
     expect(report.webirProjection?.source).toBe("webir-projection");
   }, 120_000);
 
-  test("delivery dashboard v5 surfaces month3 program (G187)", async () => {
+  test("delivery dashboard v6 surfaces month3 program (G187/G198)", async () => {
     const { buildDeliveryDashboard } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
     );
@@ -1082,8 +1083,9 @@ describe("strategic plan deliverables", () => {
         `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(report.schemaVersion).toBe(5);
+      expect(report.schemaVersion).toBe(6);
       expect(report.month3Program?.evidenceSmoke).toBe("hub:evidence-smoke");
+      expect(report.month3Program?.translateE2e).toBe("hub:translate-e2e-smoke");
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
@@ -1100,6 +1102,87 @@ describe("strategic plan deliverables", () => {
     const evidence = await runHubEvidenceSmoke();
     expect(body.ok).toBe(true);
     expect(evidence.ok).toBe(true);
+  }, 180_000);
+
+  test("CWL body projection is hole-free with body params (G191)", async () => {
+    const { runCwlRequestBodySmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-request-body-smoke.mjs")
+    );
+    const report = await runCwlRequestBodySmoke();
+    expect(report.ok).toBe(true);
+    expect(report.projectionOk).toBe(true);
+    expect(report.cwlProjection?.holeFree).toBe(report.cwlProjection?.total);
+    expect(report.cwlProjection?.withBodyParams).toBeGreaterThanOrEqual(2);
+  }, 60_000);
+
+  test("hub-translate E2E on plain-php flagship (G192)", async () => {
+    const { runHubTranslateE2eSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-translate-e2e-smoke.mjs")
+    );
+    const report = runHubTranslateE2eSmoke();
+    if (report.skip === "missing-cli-dist") {
+      expect(report.skip).toBe("missing-cli-dist");
+      return;
+    }
+    expect(report.ok).toBe(true);
+    expect(report.cwlExport?.holeCount).toBe(0);
+    expect(report.migrationCwlExists).toBe(true);
+  }, 300_000);
+
+  test("CWL body round-trip smoke (G197)", async () => {
+    const { runCwlBodyRoundtripSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-body-roundtrip-smoke.mjs")
+    );
+    const report = await runCwlBodyRoundtripSmoke();
+    expect(report.ok).toBe(true);
+    expect(report.forwardProjection?.holeFree).toBe(report.forwardProjection?.total);
+    expect(report.roundProjection?.holeFree).toBe(report.roundProjection?.total);
+  }, 60_000);
+
+  test("hub evidence live with pipeline gate pass (G194)", async () => {
+    const { runHubEvidenceLive } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-evidence-live.mjs")
+    );
+    const report = await runHubEvidenceLive();
+    expect(report.ok).toBe(true);
+    expect(report.evidence?.pipelineGatePass).toBe(true);
+  }, 120_000);
+
+  test("delivery dashboard v6 surfaces month3 strict env keys (G198)", async () => {
+    const { buildDeliveryDashboard } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v6-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, ".chrysalis", "site-intelligence.json"),
+        `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(report.schemaVersion).toBe(6);
+      expect(report.month3Program?.evidenceLive).toBe("hub:evidence-live");
+      expect(report.month3Program?.pipelineGateStrictEnv).toBe("CHRYSALIS_HUB_PIPELINE_GATE_STRICT");
+      expect(report.month3Program?.requireWptpNextjsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub completion schema 46 smokes present (G200)", async () => {
+    const { runCwlBodyRoundtripSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-body-roundtrip-smoke.mjs")
+    );
+    const { runHubEvidenceLive } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-evidence-live.mjs")
+    );
+    const roundtrip = await runCwlBodyRoundtripSmoke();
+    const live = await runHubEvidenceLive();
+    expect(roundtrip.ok).toBe(true);
+    expect(live.ok).toBe(true);
   }, 180_000);
 
   test("hub license status maps tier to hub features (G153)", async () => {

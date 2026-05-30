@@ -27,7 +27,10 @@ import { runCwlRequestBodySmoke } from "./hub-cwl-request-body-smoke.mjs";
 import { runProjectToCwlOracleGates } from "./hub-project-to-cwl-gates.mjs";
 import { exportHubLaravelVerifyLive } from "./hub-laravel-verify-export.mjs";
 import { runHubEvidenceSmoke } from "./hub-evidence-smoke.mjs";
+import { runHubEvidenceLive } from "./hub-evidence-live.mjs";
 import { runContractCwlSmoke } from "./hub-contract-cwl-smoke.mjs";
+import { runHubTranslateE2eSmoke } from "./hub-translate-e2e-smoke.mjs";
+import { runCwlBodyRoundtripSmoke } from "./hub-cwl-body-roundtrip-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -207,6 +210,27 @@ async function main() {
   const contractCwlSmokeOk = contractCwlSmoke.ok === true;
   const nodeOracleSpike = runJson(join(scriptRoot, "scripts/hub-ingest/hub-node-oracle-spike.mjs"), []);
   const nodeOracleSpikeOk = nodeOracleSpike.status === 0 && nodeOracleSpike.parsed.ok === true;
+  let hubTranslateE2e = { ok: false, skip: "not-run-in-completion" };
+  try {
+    hubTranslateE2e = runHubTranslateE2eSmoke();
+  } catch {
+    hubTranslateE2e = { ok: false, skip: "translate-e2e-threw" };
+  }
+  const hubTranslateE2eOk = hubTranslateE2e.ok === true || hubTranslateE2e.skip === "missing-cli-dist";
+  let cwlBodyRoundtrip = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlBodyRoundtrip = await runCwlBodyRoundtripSmoke();
+  } catch {
+    cwlBodyRoundtrip = { ok: false, skip: "cwl-body-roundtrip-threw" };
+  }
+  const cwlBodyRoundtripOk = cwlBodyRoundtrip.ok === true;
+  let hubEvidenceLive = { ok: false, skip: "not-run-in-completion" };
+  try {
+    hubEvidenceLive = await runHubEvidenceLive();
+  } catch {
+    hubEvidenceLive = { ok: false, skip: "evidence-live-threw" };
+  }
+  const hubEvidenceLiveOk = hubEvidenceLive.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -236,6 +260,9 @@ async function main() {
     hubEvidenceSmokeOk &&
     contractCwlSmokeOk &&
     nodeOracleSpikeOk &&
+    hubTranslateE2eOk &&
+    cwlBodyRoundtripOk &&
+    hubEvidenceLiveOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -247,7 +274,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 45,
+    schemaVersion: 46,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -437,6 +464,7 @@ async function main() {
       schemaVersion: 4,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
+      requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -460,6 +488,9 @@ async function main() {
       ok: cwlRequestBodyRuntimeOk,
       rfc: "CWL-RFC-0005",
       routeCount: cwlRequestBodyRuntime.cwlProjection?.total ?? null,
+      holeFree: cwlRequestBodyRuntime.cwlProjection?.holeFree ?? null,
+      withBodyParams: cwlRequestBodyRuntime.cwlProjection?.withBodyParams ?? null,
+      projectionOk: cwlRequestBodyRuntime.projectionOk ?? null,
       script: "pnpm run hub:cwl-request-body-smoke",
     },
     projectToCwlExport: {
@@ -488,6 +519,25 @@ async function main() {
       ok: hubEvidenceSmokeOk,
       schemaVersion: hubEvidenceSmoke.schemaVersion ?? 1,
       script: "pnpm run hub:evidence-smoke",
+    },
+    hubEvidenceLive: {
+      ok: hubEvidenceLiveOk,
+      schemaVersion: hubEvidenceLive.schemaVersion ?? 1,
+      pipelineGatePass: hubEvidenceLive.evidence?.pipelineGatePass ?? null,
+      script: "pnpm run hub:evidence-live",
+    },
+    hubTranslateE2e: {
+      ok: hubTranslateE2eOk,
+      schemaVersion: hubTranslateE2e.schemaVersion ?? 1,
+      skip: hubTranslateE2e.skip ?? null,
+      script: "pnpm run hub:translate-e2e-smoke",
+    },
+    cwlBodyRoundtrip: {
+      ok: cwlBodyRoundtripOk,
+      rfc: "CWL-RFC-0005",
+      forwardHoleFree: cwlBodyRoundtrip.forwardProjection?.holeFree ?? null,
+      roundHoleFree: cwlBodyRoundtrip.roundProjection?.holeFree ?? null,
+      script: "pnpm run hub:cwl-body-roundtrip-smoke",
     },
     contractCwlSmoke: {
       ok: contractCwlSmokeOk,

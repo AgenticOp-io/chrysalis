@@ -60,6 +60,9 @@ All other **575×26** hub routes are **structural**, **scaffold**, or **asset** 
 | 2 | Evidence dashboard, migration programs, contract export | **G90–G98**, **G114** trend |
 | 3 | CWL RFC 0005–0007+, project-to-CWL on translate | **G99–G106** |
 | 4 | Second oracle (Node/Express flagship) | **G110–G112**, **G115** matrix |
+| 4+ | CWL body round-trip + hub-translate E2E on plain-php flagship | **G191–G200** (matrix schema v4) |
+
+**Matrix schema v4** adds machine-readable pointers for CWL body round-trip (`hub:cwl-body-roundtrip-smoke`), hub-translate E2E (`hub:translate-e2e-smoke`), and node oracle product depth (spike v3 + express verify).
 
 ---
 

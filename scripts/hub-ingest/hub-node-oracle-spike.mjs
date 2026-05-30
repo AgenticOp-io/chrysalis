@@ -13,10 +13,9 @@ const outNdjson = join(scriptRoot, "reports/ci/hub-oracle-node-spike.ndjson");
 const literalFixture = join(scriptRoot, "fixtures/hub-gold-js-literal");
 const flagshipFixture = join(scriptRoot, "fixtures/hub-flagship-express");
 
-// v2: also drives the 20-route express flagship lift + CWL projection coverage
-// (G135), not just the tiny literal smoke.
+// v3: express flagship verify replay cross-check (G199).
 export const HUB_NODE_ORACLE_SPIKE_KIND = "chrysalis.hub.node-oracle-spike";
-export const HUB_NODE_ORACLE_SPIKE_SCHEMA_VERSION = 2;
+export const HUB_NODE_ORACLE_SPIKE_SCHEMA_VERSION = 3;
 
 function runJson(script, args) {
   const r = spawnSync(process.execPath, [script, ...args], {
@@ -66,10 +65,19 @@ async function main() {
   const projectionOk =
     projection !== null && projection.total > 0 && projection.holeFree === projection.total;
 
+  let expressVerify = { ok: false, skip: "not-run" };
+  try {
+    const { runNodeExpressOracleVerify } = await import("./hub-node-express-oracle-verify.mjs");
+    expressVerify = await runNodeExpressOracleVerify();
+  } catch {
+    expressVerify = { ok: false, skip: "express-verify-threw" };
+  }
+  const expressVerifyOk = expressVerify.ok === true;
+
   const report = {
     kind: HUB_NODE_ORACLE_SPIKE_KIND,
     schemaVersion: HUB_NODE_ORACLE_SPIKE_SCHEMA_VERSION,
-    ok: recorderOk && literalLift.ok && flagshipLift.ok && projectionOk,
+    ok: recorderOk && literalLift.ok && flagshipLift.ok && projectionOk && expressVerifyOk,
     nodeRecorder: { ok: recorderOk, script: "packages/oracle-node/record-smoke.mjs", out: outNdjson },
     expressLiteralLift: {
       ok: literalLift.ok,
@@ -83,6 +91,12 @@ async function main() {
       routeCount: flagshipLift.routeCount,
       holeCount: flagshipLift.holeCount,
       cwlProjection: projection,
+    },
+    expressOracleVerify: {
+      ok: expressVerifyOk,
+      correctness: expressVerify.correctness ?? null,
+      skip: expressVerify.skip ?? null,
+      script: "pnpm run hub:node-express-oracle-verify",
     },
     generatedAt: new Date().toISOString(),
   };

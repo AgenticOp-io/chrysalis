@@ -65,14 +65,16 @@ export async function runCwlRequestBodySmoke(opts = {}) {
   }
 
   const bodyRoutesOk = (cwlProjection.total ?? 0) >= 2;
-  const ok = bodyRoutesOk && traceOk;
+  const projectionOk =
+    cwlProjection.holeFree === cwlProjection.total && (cwlProjection.withBodyParams ?? 0) >= 2;
+  const ok = bodyRoutesOk && projectionOk && traceOk;
 
   return {
     ...base,
     ok,
     cwlProjection,
     traceReplay,
-    note: "trace replay is authoritative; body bindings may remain projection holes until full body lowering",
+    projectionOk,
     generatedAt: new Date().toISOString(),
   };
 }
