@@ -489,6 +489,21 @@ describe("strategic plan deliverables", () => {
     expect(existsSync(jsonPath)).toBe(true);
   });
 
+  test("post-translate artifacts bundle site intel, path advice, assessment, cutover (G146)", async () => {
+    const { writeHubPostTranslateArtifacts } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-post-translate-artifacts.mjs")
+    );
+    const fixture = resolve(ROOT, "fixtures/hub-flagship-plain-php");
+    const report = await writeHubPostTranslateArtifacts(fixture, { origin: "php", output: "hono" });
+    expect(report.kind).toBe("chrysalis.hub.post-translate-artifacts");
+    expect(report.written.siteIntelligence.ok).toBe(true);
+    expect(report.written.pathAdvice.ok).toBe(true);
+    expect(report.written.migrationAssessment.ok).toBe(true);
+    expect(report.written.chimeraCutover.ok).toBe(true);
+    expect(existsSync(join(fixture, ".chrysalis", "path-advice.json"))).toBe(true);
+    expect(existsSync(join(fixture, ".chrysalis", "migration-assessment.json"))).toBe(true);
+  });
+
   test("hub-plain-php-flagship smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });

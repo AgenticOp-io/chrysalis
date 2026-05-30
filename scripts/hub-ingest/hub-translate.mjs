@@ -11,6 +11,7 @@ import { runHubEmitPipeline } from "./wptp-emit-pipeline.mjs";
 import { exportProjectMigrationCwlFromContractOrWebir } from "./hub-contract-cwl-import.mjs";
 import { writeProjectCwlDiffArtifacts } from "./hub-cwl-diff.mjs";
 import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
+import { writeHubPostTranslateArtifacts } from "./hub-post-translate-artifacts.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -59,6 +60,16 @@ function runCli(cliBin, args) {
     });
     child.on("error", reject);
   });
+}
+
+async function emitTranslateResult(projectDir, origin, output, payload) {
+  let deliveryArtifacts = null;
+  try {
+    deliveryArtifacts = await writeHubPostTranslateArtifacts(projectDir, { origin, output });
+  } catch {
+    deliveryArtifacts = null;
+  }
+  console.log(JSON.stringify({ ...payload, deliveryArtifacts }));
 }
 
 async function main() {
@@ -115,9 +126,15 @@ async function main() {
     } catch {
       cwlDiff = null;
     }
-    console.log(
-      JSON.stringify({ ok: true, origin, output, path: "chrysalis-php", cwlExport, openapiExport, cwlDiff }),
-    );
+    await emitTranslateResult(projectDir, origin, output, {
+      ok: true,
+      origin,
+      output,
+      path: "chrysalis-php",
+      cwlExport,
+      openapiExport,
+      cwlDiff,
+    });
     return;
   }
 
@@ -136,7 +153,15 @@ async function main() {
     } catch {
       cwlDiff = null;
     }
-    console.log(JSON.stringify({ ok: r.ok, origin, output, path: r.path, hole: r.hole ?? null, cwlExport, cwlDiff }));
+    await emitTranslateResult(projectDir, origin, output, {
+      ok: r.ok,
+      origin,
+      output,
+      path: r.path,
+      hole: r.hole ?? null,
+      cwlExport,
+      cwlDiff,
+    });
     if (!r.ok) process.exit(1);
     return;
   }
@@ -165,7 +190,14 @@ async function main() {
     cwlDiff = null;
   }
 
-  console.log(JSON.stringify({ ok: true, origin, output, path: "hub-lift-emit", cwlExport, cwlDiff }));
+  await emitTranslateResult(projectDir, origin, output, {
+    ok: true,
+    origin,
+    output,
+    path: "hub-lift-emit",
+    cwlExport,
+    cwlDiff,
+  });
 }
 
 main().catch((e) => {
