@@ -567,6 +567,85 @@ describe("strategic plan deliverables", () => {
     expect(report.deliveryArtifacts?.written?.pathAdvice?.ok).toBe(true);
   });
 
+  test("CWL runtime serves gold routes (G154)", async () => {
+    const { createCwlRuntime, loadModuleFromCwlFile } = await import("@chrysalis/runtime-cwl");
+    const cwl = resolve(ROOT, "fixtures/hub-gold-cwl/routes.cwl");
+    const module = loadModuleFromCwlFile(cwl, ROOT);
+    const runtime = createCwlRuntime({ module });
+    const health = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/health" });
+    expect(health.status).toBe(200);
+    expect(await health.text()).toBe("true");
+    const meta = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/meta" });
+    const body = JSON.parse(await meta.text());
+    expect(body.ok).toBe(true);
+  });
+
+  test("verify gaps ingest action surfaces remediation (G149)", async () => {
+    const { runVerifyGapsIngestAction } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-verify-gaps-ingest-action.mjs")
+    );
+    const report = runVerifyGapsIngestAction(resolve(ROOT, "fixtures/hub-flagship-plain-php"));
+    expect(report.kind).toBe("chrysalis.hub.verify-gaps-ingest-action");
+    expect(report.ingestRemediation === null || typeof report.ingestRemediation?.suggestedCommand === "string").toBe(
+      true,
+    );
+  });
+
+  test("hub-translate runner includes post-translate verify and evidence gate (G150)", async () => {
+    const { hubJobSteps } = await import(resolve(ROOT, "scripts/chrysalis-hub-runners.mjs"));
+    const steps = hubJobSteps("/repo", "/repo/packages/cli/dist/bin.js", "/tmp/proj", {
+      sourceLang: "php",
+      targetId: "hono",
+      action: "hub-translate",
+    });
+    expect(steps.map((s: { kind: string }) => s.kind)).toEqual([
+      "hub-translate",
+      "hub-post-translate-verify",
+      "hub-evidence-gate",
+    ]);
+  });
+
+  test("post-translate verify skips without traces (G150)", async () => {
+    const { runHubPostTranslateVerify } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-post-translate-verify.mjs")
+    );
+    const { mkdtempSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-hub-verify-"));
+    try {
+      const report = runHubPostTranslateVerify(tmp);
+      expect(report.kind).toBe("chrysalis.hub.post-translate-verify");
+      expect(report.ok).toBe(true);
+      expect(report.skipped).toBe("no-traces");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("plain-php flagship reports hono=fastify emit parity (G151)", () => {
+    const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
+    const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
+    expect(r.status).toBe(0);
+    const text = r.stdout.trim();
+    const report = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
+    expect(report.emitParity?.ok).toBe(true);
+    expect(report.emitParity?.targets).toEqual(["hono", "fastify"]);
+  });
+
+  test("delivery dashboard aggregates migration OS signals (G152)", async () => {
+    const { buildDeliveryDashboard } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const report = await buildDeliveryDashboard(resolve(ROOT, "fixtures/hub-flagship-plain-php"), {
+      origin: "php",
+      output: "hono",
+    });
+    expect(report.kind).toBe("chrysalis.hub.delivery-dashboard");
+    expect(report.evidence).toBeDefined();
+    expect(Array.isArray(report.artifacts)).toBe(true);
+  });
+
   test("hub-plain-php-flagship smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });

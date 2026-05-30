@@ -38,6 +38,7 @@ import { buildChimeraCutoverRunbook } from "./hub-ingest/hub-chimera-cutover.mjs
 import { buildMigrationAssessment } from "./hub-ingest/hub-migration-assessment.mjs";
 import { writePathAdviceArtifacts } from "./hub-ingest/hub-apply-path-advice.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-ingest/hub-verify-gaps-ingest.mjs";
+import { buildDeliveryDashboard } from "./hub-ingest/hub-delivery-dashboard.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
   INPUT_LANGUAGES,
@@ -1145,6 +1146,31 @@ const server = createServer(async (req, res) => {
         projectDir: site.localDir,
         origin: site.originLanguage ?? p.originLanguage ?? undefined,
         output: p.outputLanguage ?? undefined,
+      });
+      sendJson(res, 200, report);
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+    }
+    return;
+  }
+
+  const hubDeliveryMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/delivery-dashboard$/);
+  if (req.method === "GET" && hubDeliveryMatch) {
+    const actor = hubActorFromRequest(req, authToken);
+    const p = await getProjectForActor(decodeURIComponent(hubDeliveryMatch[1]), actor);
+    if (!p) {
+      sendJson(res, 404, { error: "not-found" });
+      return;
+    }
+    const site = p.sites?.[0];
+    if (!site?.localDir) {
+      sendJson(res, 422, { error: "no-site-dir", message: "Add a site with pulled code first." });
+      return;
+    }
+    try {
+      const report = await buildDeliveryDashboard(site.localDir, {
+        origin: site.originLanguage ?? p.originLanguage ?? "php",
+        output: p.outputLanguage ?? "hono",
       });
       sendJson(res, 200, report);
     } catch (e) {

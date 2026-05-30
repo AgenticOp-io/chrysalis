@@ -209,6 +209,15 @@ importers:
         specifier: workspace:*
         version: link:../verify
 
+  packages/runtime-cwl:
+    dependencies:
+      '@chrysalis/rewrite':
+        specifier: workspace:*
+        version: link:../rewrite
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
+
   packages/verify:
     dependencies:
       '@chrysalis/oracle':

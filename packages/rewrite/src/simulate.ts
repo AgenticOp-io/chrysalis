@@ -267,7 +267,14 @@ export function simulateHandler(
     const handler = handlerId ? m.nodes.get(handlerId) : undefined;
     const bodyId = handler?.operands[0];
     const body = bodyId ? m.nodes.get(bodyId) : undefined;
-    if (body) evalNode(ctx, body);
+    if (body) {
+      const result = evalNode(ctx, body);
+      if (ctx.echo.length === 0 && !ctx.redirectTo && result.kind !== "null") {
+        ctx.echo.push(
+          result.kind === "str" ? result.value : jsonEncodeSimValue(result),
+        );
+      }
+    }
   }
 
   return {

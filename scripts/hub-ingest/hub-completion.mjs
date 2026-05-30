@@ -367,6 +367,7 @@ async function main() {
       ok: plainPhpFlagshipOk,
       routeCount: plainPhpFlagship.parsed.ingest?.routeCount ?? null,
       suiteIds: ["plain-php-flagship-hono", "plain-php-flagship-fastify", "plain-php-flagship-cwl"],
+      emitParity: plainPhpFlagship.parsed.emitParity ?? null,
       script: "pnpm run hub:plain-php-flagship",
       cwlProjection: plainPhpFlagship.parsed.cwlProjection ?? null,
     },
@@ -374,6 +375,7 @@ async function main() {
       ok: symfonyFlagshipOk,
       routeCount: symfonyFlagship.parsed.ingest?.routeCount ?? null,
       suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+      emitParity: symfonyFlagship.parsed.emitParity ?? null,
       script: "pnpm run hub:symfony-flagship",
       routesYamlParity: {
         ok: symfonyFlagship.parsed.routesParity?.ok ?? false,

@@ -1603,11 +1603,52 @@
     }
   }
 
+  async function loadConsoleDeliveryDashboard() {
+    const gapsEl = $("consoleVerifyGapsSummary");
+    const chimeraEl = $("consoleChimeraSummary");
+    const artifactsEl = $("consoleArtifactList");
+    if (!consoleProjectId) {
+      if (gapsEl) gapsEl.textContent = "No project loaded.";
+      return;
+    }
+    if (gapsEl) gapsEl.textContent = "Loading delivery dashboard…";
+    if (chimeraEl) chimeraEl.textContent = "";
+    if (artifactsEl) artifactsEl.innerHTML = "";
+    try {
+      const dash = await api(`/api/hub/projects/${encodeURIComponent(consoleProjectId)}/delivery-dashboard`);
+      await loadConsoleEvidence();
+      if ($("consoleAssessmentSummary") && dash.assessment) {
+        $("consoleAssessmentSummary").textContent = `Readiness ${dash.assessment.readinessTier} · program ${dash.assessment.programId ?? "?"}`;
+      }
+      if (gapsEl) {
+        const next = dash.verifyGaps?.ingestNext;
+        gapsEl.textContent = next
+          ? `Top verify gap: ${next.divergenceKind} (${next.failedTraceRows} row(s)) — ${next.playbook?.title ?? "see backlog"}`
+          : dash.verifyGaps?.available
+            ? "Verify gaps: no backlog items"
+            : "Verify gaps: no verify report yet";
+      }
+      if (chimeraEl && dash.chimera) {
+        chimeraEl.textContent = `Chimera phase ${dash.chimera.currentPhase ?? "?"} · prep gates ${dash.chimera.prepGatesPass ? "PASS" : "pending"}`;
+      }
+      if (artifactsEl && Array.isArray(dash.artifacts)) {
+        artifactsEl.innerHTML = dash.artifacts
+          .map((a) => `<li>${a.exists ? "✓" : "○"} ${esc(a.name)}</li>`)
+          .join("");
+      }
+    } catch (e) {
+      if (gapsEl) gapsEl.textContent = "Delivery dashboard error: " + e.message;
+    }
+  }
+
   $("btnLoadConsoleEvidence")?.addEventListener("click", () => {
     loadConsoleEvidence().catch(() => {});
   });
   $("btnLoadConsoleAssessment")?.addEventListener("click", () => {
     loadConsoleAssessment().catch(() => {});
+  });
+  $("btnLoadConsoleDelivery")?.addEventListener("click", () => {
+    loadConsoleDeliveryDashboard().catch(() => {});
   });
 
   $("btnRunPipeline")?.addEventListener("click", async () => {

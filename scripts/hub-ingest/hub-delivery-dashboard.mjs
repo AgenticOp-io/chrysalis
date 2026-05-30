@@ -1,0 +1,134 @@
+#!/usr/bin/env node
+/**
+ * Console delivery dashboard aggregate (G152).
+ */
+import { existsSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { buildHubEvidenceReport } from "./hub-evidence.mjs";
+import { buildMigrationAssessment } from "./hub-migration-assessment.mjs";
+import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
+import { buildChimeraCutoverRunbook } from "./hub-chimera-cutover.mjs";
+
+export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 1;
+
+const ARTIFACT_FILES = [
+  "site-intelligence.json",
+  "path-advice.json",
+  "migration-assessment.json",
+  "verify-gaps-ingest.json",
+  "verify-gaps-ingest-action.json",
+  "chimera-cutover.json",
+  "migration.cwl",
+  "cwl-export.json",
+  "evidence-history.jsonl",
+];
+
+/**
+ * @param {string} projectDir
+ * @param {{ origin?: string, output?: string, programId?: string }} [opts]
+ */
+export async function buildDeliveryDashboard(projectDir, opts = {}) {
+  const root = resolve(projectDir);
+  const origin = opts.origin ?? "php";
+  const output = opts.output ?? "hono";
+  const chrysalisDir = join(root, ".chrysalis");
+
+  const evidence = buildHubEvidenceReport(root);
+  const verifyGaps = buildProjectVerifyGapsIngestReport(root);
+
+  let assessment = null;
+  try {
+    assessment = await buildMigrationAssessment({ projectDir: root, origin, output });
+  } catch {
+    assessment = null;
+  }
+
+  let chimera = null;
+  try {
+    chimera = await buildChimeraCutoverRunbook({
+      projectDir: root,
+      origin,
+      outputs: [output],
+      programId: opts.programId ?? assessment?.program?.id ?? "api-slice",
+    });
+  } catch {
+    chimera = null;
+  }
+
+  const artifacts = ARTIFACT_FILES.map((name) => {
+    const path = name === "migration.cwl" ? join(chrysalisDir, name) : join(chrysalisDir, name);
+    const alt = name === "migration.cwl" ? join(root, "migration.cwl") : null;
+    const exists = existsSync(path) || (alt ? existsSync(alt) : false);
+    return { name, path: existsSync(path) ? path : alt && existsSync(alt) ? alt : path, exists };
+  });
+
+  return {
+    kind: HUB_DELIVERY_DASHBOARD_KIND,
+    schemaVersion: HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION,
+    projectDir: root,
+    origin,
+    output,
+    evidence: {
+      verifyCorrectness: evidence.verify.correctness,
+      verifyGatePass: evidence.verifyGate.pass,
+      holeCount: evidence.holes.count,
+      deliveryScore: evidence.deliveryScore,
+      blockers: evidence.blockers,
+      trend: evidence.trend,
+    },
+    assessment: assessment
+      ? {
+          readinessTier: assessment.readinessTier,
+          nextSteps: assessment.nextSteps,
+          routeEstimate: assessment.siteIntelligence?.routeEstimate?.count ?? null,
+          programId: assessment.program?.id ?? null,
+        }
+      : null,
+    verifyGaps: {
+      available: verifyGaps.ok,
+      ingestNext: verifyGaps.ingestNext,
+      backlogCount: verifyGaps.backlog.length,
+      topBacklog: verifyGaps.backlog.slice(0, 5),
+    },
+    chimera: chimera
+      ? {
+          currentPhase: chimera.phases?.find((p) => p.ready === false)?.id ?? chimera.phases?.[chimera.phases.length - 1]?.id ?? null,
+          prepGatesPass: chimera.phases?.[0]?.gates?.every((g) => g.pass) ?? null,
+          phaseCount: chimera.phases?.length ?? null,
+        }
+      : null,
+    artifacts,
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function parseArgs(argv) {
+  let projectDir = null;
+  let origin = "php";
+  let output = "hono";
+  for (let i = 2; i < argv.length; i++) {
+    if (argv[i] === "--project" && argv[i + 1]) projectDir = resolve(argv[++i]);
+    else if (argv[i] === "--origin" && argv[i + 1]) origin = argv[++i];
+    else if (argv[i] === "--output" && argv[i + 1]) output = argv[++i];
+  }
+  if (!projectDir) {
+    throw new Error("usage: hub-delivery-dashboard.mjs --project <dir> [--origin php] [--output hono]");
+  }
+  return { projectDir, origin, output };
+}
+
+async function main() {
+  const { projectDir, origin, output } = parseArgs(process.argv);
+  const report = await buildDeliveryDashboard(projectDir, { origin, output });
+  console.log(JSON.stringify(report, null, 2));
+}
+
+const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

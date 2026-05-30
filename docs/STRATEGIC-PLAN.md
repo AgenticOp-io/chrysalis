@@ -153,9 +153,13 @@ Pick **one**: Node/Express (recommended first), or Python, or Java.
 
 - One **flagship** + oracle record + verify-tier before marketing second origin
 
-### Phase 5 — CWL runtime (24–48 mo) — **P3**
+### Phase 5 — CWL runtime (accelerated; G154) — **P2**
 
-Only after Stages A–B prove adoption. Do not block Phases 1–2.
+In-process CWL preview/runtime via `@chrysalis/runtime-cwl` (WebIR simulation). Does not replace emit + verify for production migrations.
+
+### Phase 5 (original) — CWL runtime at scale (24–48 mo) — **P3**
+
+Full production runtime parity (real SQL/session) only after Stages A–B prove adoption. Do not block Phases 1–2.
 
 ---
 
@@ -197,7 +201,7 @@ Path knowledge + web DB catalog + synthesis → **playbooks**:
 Without plan amendment, treat these as **out of scope**:
 
 - Chasing full **575×26 production** migration parity for marketing  
-- **CWL runtime** before CWL is normal export of migrations  
+- **CWL runtime at production scale** before CWL is normal export of migrations (preview runtime **G154** is in scope)  
 - **WordPress** before Laravel oracle path is boringly reliable  
 - Promising **any web app, any language** without a second oracle flagship  
 - LLM repair that bypasses verify  

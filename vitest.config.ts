@@ -24,6 +24,7 @@ export default defineConfig({
       "@chrysalis/verify": resolve(root, "packages/verify/src/index.ts"),
       "@chrysalis/archaeology": resolve(root, "packages/archaeology/src/index.ts"),
       "@chrysalis/runtime-chimera": resolve(root, "packages/runtime-chimera/src/index.ts"),
+      "@chrysalis/runtime-cwl": resolve(root, "packages/runtime-cwl/src/index.ts"),
       "@chrysalis/insight": resolve(root, "packages/insight/src/index.ts"),
       "@chrysalis/rewrite": resolve(root, "packages/rewrite/src/index.ts"),
       "@chrysalis/repair": resolve(root, "packages/repair/src/index.ts"),

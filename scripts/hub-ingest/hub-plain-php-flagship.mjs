@@ -26,14 +26,30 @@ function runJson(script, args) {
   return { status: r.status ?? 1, stdout: r.stdout, stderr: r.stderr };
 }
 
+function runEmitParitySuites(suitePrefix) {
+  /** @type {Record<string, boolean>} */
+  const gold = {};
+  /** @type {Record<string, boolean>} */
+  const traceReplay = {};
+  let emitParityOk = true;
+  for (const target of ["hono", "fastify"]) {
+    const suite = `${suitePrefix}-${target}`;
+    const g = runJson(goldVerifyScript, ["--suite", suite]);
+    const tr = runJson(traceReplayScript, ["--suite", suite]);
+    gold[target] = g.status === 0;
+    traceReplay[target] = tr.status === 0;
+    if (g.status !== 0 || tr.status !== 0) emitParityOk = false;
+  }
+  return { gold, traceReplay, emitParityOk };
+}
+
 async function main() {
   const phpExport = await exportPhpHubWebir(fixture);
   const ingestOk = phpExport.ok === true;
   const routeCount = phpExport.routeCount ?? null;
   const holeCount = phpExport.holeCount ?? null;
 
-  const honoGold = runJson(goldVerifyScript, ["--suite", "plain-php-flagship-hono"]);
-  const trace = runJson(traceReplayScript, ["--suite", "plain-php-flagship-hono"]);
+  const emitParity = runEmitParitySuites("plain-php-flagship");
 
   let openapiExport = null;
   try {
@@ -47,15 +63,15 @@ async function main() {
     schemaVersion: HUB_PLAIN_PHP_FLAGSHIP_SCHEMA_VERSION,
     ok:
       ingestOk &&
-      honoGold.status === 0 &&
-      trace.status === 0 &&
+      emitParity.emitParityOk &&
       openapiExport?.ok === true &&
       existsSync(openapiExport.openapiPath ?? ""),
     fixture: "fixtures/hub-flagship-plain-php",
     ingest: { ok: ingestOk, routeCount, holeCount },
     cwlProjection: phpExport.cwlProjection ?? null,
-    gold: { hono: honoGold.status === 0 },
-    traceReplay: { hono: trace.status === 0 },
+    gold: emitParity.gold,
+    traceReplay: emitParity.traceReplay,
+    emitParity: { ok: emitParity.emitParityOk, targets: ["hono", "fastify"] },
     openapi: openapiExport,
     generatedAt: new Date().toISOString(),
   };
