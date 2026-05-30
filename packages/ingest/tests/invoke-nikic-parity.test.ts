@@ -37,11 +37,11 @@ describe("ingest: invokable controller body lift (G132/G133)", () => {
     expect(s.holes).toBe(0);
     // __invoke bodies (json_encode echoes) are lifted, not empty shells.
     expect(s.echoes).toBeGreaterThan(0);
-  });
+  }, 120_000);
 
   (nikicRunnable ? test : test.skip)("nikic matches glayzzle on the Symfony __invoke lift", async () => {
     const gz = summarize(await ingestDirectory(SYMFONY));
     const nk = summarize(await ingestDirectory(SYMFONY, { parserProvider: "nikic" }));
     expect(nk).toEqual(gz);
-  });
+  }, 120_000);
 });

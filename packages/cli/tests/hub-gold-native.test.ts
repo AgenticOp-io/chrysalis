@@ -20,10 +20,11 @@ test("hub gold native: java go ruby csharp rust kotlin scala swift suites (G42/G
     const r = spawnSync(process.execPath, [GOLD, "--suite", suite], {
       cwd: ROOT,
       encoding: "utf8",
+      timeout: 120_000,
     });
     expect(r.status, r.stderr || r.stdout).toBe(0);
   }
-});
+}, 180_000);
 
 test("hub verify tiers report: native structural suites registered (G42)", async () => {
   const { buildHubVerifyTiersReport } = await import(

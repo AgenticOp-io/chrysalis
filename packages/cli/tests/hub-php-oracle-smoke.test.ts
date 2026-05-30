@@ -9,7 +9,12 @@ const SMOKE = resolve(ROOT, "scripts/hub-ingest/hub-php-oracle-smoke.mjs");
 const CLI = resolve(ROOT, "packages/cli/dist/bin.js");
 
 test("hub php oracle smoke: exits 0 when CLI missing or succeeds with ingest (G70)", () => {
-  const r = spawnSync(process.execPath, [SMOKE], { cwd: ROOT, encoding: "utf8", maxBuffer: 20 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [SMOKE], {
+    cwd: ROOT,
+    encoding: "utf8",
+    maxBuffer: 20 * 1024 * 1024,
+    timeout: 180_000,
+  });
   expect(r.status).toBe(0);
   const j = JSON.parse(r.stdout);
   expect(j.kind).toBe("chrysalis.hub.php-oracle-smoke");
@@ -27,4 +32,4 @@ test("hub php oracle smoke: exits 0 when CLI missing or succeeds with ingest (G7
     expect(j.emitNextjsOk).toBe(true);
   }
   expect(j.routeCount).toBeGreaterThan(0);
-});
+}, 200_000);

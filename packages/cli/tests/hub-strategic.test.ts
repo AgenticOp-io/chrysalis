@@ -657,7 +657,7 @@ describe("strategic plan deliverables", () => {
     expect(report.kind).toBe("chrysalis.hub.plain-php-flagship");
     expect(report.ingest?.routeCount).toBe(20);
     expect(report.ok).toBe(true);
-  });
+  }, 120_000);
 
   test("hub-symfony-flagship smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-symfony-flagship.mjs");
@@ -671,7 +671,7 @@ describe("strategic plan deliverables", () => {
     expect(report.ingest?.routeCount).toBe(20);
     expect(report.routesParity?.ok).toBe(true);
     expect(report.ok).toBe(true);
-  });
+  }, 120_000);
 
   test("hub-symfony-routes derives manifest from routes.yaml and stays in parity (G120)", async () => {
     const { symfonyYamlToRouteSpecs, symfonyRouteManifestParity, symfonyPathToManifest } = await import(

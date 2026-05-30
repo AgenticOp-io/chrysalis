@@ -35,6 +35,8 @@ export default defineConfig({
     include: ["packages/**/tests/**/*.test.ts"],
     globals: false,
     testTimeout: 15_000,
+    /** Hub gold/completion subprocesses contend on shared fixtures when files run in parallel. */
+    fileParallelism: false,
     passWithNoTests: true,
   },
 });

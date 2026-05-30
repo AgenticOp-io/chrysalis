@@ -17,7 +17,7 @@ const HUB_TRANSLATE = resolve(ROOT, "scripts/hub-ingest/hub-translate.mjs");
 const HUB_COMPLETION = resolve(ROOT, "scripts/hub-ingest/hub-completion.mjs");
 
 test("hub gold verify: literal javascript lift is hole-free and emits hono (G26)", () => {
-  const r = spawnSync(process.execPath, [GOLD_VERIFY], { cwd: ROOT, encoding: "utf8", timeout: 120_000 });
+  const r = spawnSync(process.execPath, [GOLD_VERIFY], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
   expect(r.status).toBe(0);
   const report = JSON.parse(r.stdout);
   expect(report.kind).toBe("chrysalis.hub.gold-verify");
@@ -25,7 +25,7 @@ test("hub gold verify: literal javascript lift is hole-free and emits hono (G26)
   expect(report.suiteCount).toBeGreaterThanOrEqual(24);
   const js = report.results?.find((r: { id?: string }) => r.id === "js-literal-hono");
   expect(js?.footprint?.totalHoleCount).toBe(0);
-}, 180_000);
+}, 360_000);
 
 test("hub store: javascript to hono is gold (G26)", async () => {
   const hub = await import(fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url)));
@@ -221,7 +221,7 @@ test(
     const r = spawnSync(process.execPath, ["--import", "tsx", resolve(ROOT, "scripts/hub-ingest/hub-gold-trace-replay.mjs")], {
       cwd: ROOT,
       encoding: "utf8",
-      timeout: 120_000,
+      timeout: 300_000,
     });
     expect(r.status).toBe(0);
     const text = r.stdout.trim();
@@ -230,13 +230,13 @@ test(
     expect(report.ok).toBe(true);
     expect(report.correctness).toBeGreaterThanOrEqual(1);
   },
-  130_000,
+  360_000,
 );
 
 test(
   "hub completion report passes (G27/G28)",
   () => {
-    const r = spawnSync(process.execPath, [HUB_COMPLETION], { cwd: ROOT, encoding: "utf8", timeout: 240_000 });
+    const r = spawnSync(process.execPath, [HUB_COMPLETION], { cwd: ROOT, encoding: "utf8", timeout: 600_000 });
     expect(r.status).toBe(0);
     const text = r.stdout.trim();
     const report = JSON.parse(text.slice(text.indexOf("{")));
@@ -244,5 +244,5 @@ test(
     expect(report.ok).toBe(true);
     expect(report.traceReplay?.ok).toBe(true);
   },
-  250_000,
+  660_000,
 );

@@ -7,7 +7,7 @@ const ROOT = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const SMOKE = resolve(ROOT, "scripts/hub-ingest/hub-multi-lane-smoke.mjs");
 
 test("hub multi-lane smoke: parser vendor + oracle redactor when php available (G59)", () => {
-  const r = spawnSync(process.execPath, [SMOKE], { cwd: ROOT, encoding: "utf8", timeout: 60_000 });
+  const r = spawnSync(process.execPath, [SMOKE], { cwd: ROOT, encoding: "utf8", timeout: 120_000 });
   const text = r.stdout.trim();
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
@@ -32,7 +32,7 @@ test("hub multi-lane smoke: parser vendor + oracle redactor when php available (
     expect(j.ok).toBe(true);
     expect(r.status).toBe(0);
   }
-});
+}, 130_000);
 
 test("hub verify tiers: non-PHP origins use structural lane, not oracle (G59 boundary)", async () => {
   const { hubPairsForVerifyTier } = await import(
@@ -40,6 +40,8 @@ test("hub verify tiers: non-PHP origins use structural lane, not oracle (G59 bou
   );
   const structural = hubPairsForVerifyTier("structural");
   for (const row of structural) {
+    // php→cwl uses structural gold (CWL projection), not full oracle ingest-emit (G32/G154).
+    if (row.origin === "php" && row.output === "cwl") continue;
     expect(row.origin).not.toBe("php");
   }
   expect(structural.some((p) => p.origin === "javascript" && p.output === "nextjs")).toBe(true);

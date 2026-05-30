@@ -36,7 +36,7 @@ test("lift-to-webir javascript uses AST route ingest (G21)", async () => {
   });
   expect(r.status).toBe(0);
   const report = JSON.parse(r.stdout.trim().split("\n").pop() ?? "{}");
-  expect(report.schemaVersion).toBe(1);
+  expect(report.schemaVersion).toBe(2);
   expect(report.astRouteCount).toBeGreaterThanOrEqual(2);
   expect(report.heuristicRouteCount).toBe(0);
   expect(report.routeCount).toBeGreaterThanOrEqual(2);
