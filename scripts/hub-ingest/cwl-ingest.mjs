@@ -2,7 +2,7 @@
  * CWL → WebIR ingest (direct; no lossy lift).
  */
 import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
-import { parseCwlModule } from "./cwl-parser.mjs";
+import { parseCwlModuleResolved, resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
 import { cwlEffectsToWebir } from "./hub-cwl-effects.mjs";
@@ -159,7 +159,9 @@ export function liftCwlFileToWebir(opts) {
   const { webir, builder, wr, source, file, language } = opts;
   const data = webir.dataDialect.builders(builder);
   const ctx = { data, webir, file };
-  const parsed = parseCwlModule(source, file);
+  const parsed = opts.entryPath
+    ? resolveCwlModuleFromPath(opts.entryPath)
+    : parseCwlModuleResolved(source, file, { baseDir: opts.baseDir });
   const wrBuilders = wr ?? webir.webRequest.builders(builder);
   let middlewareUseCount = 0;
   let middlewareRootCount = 0;

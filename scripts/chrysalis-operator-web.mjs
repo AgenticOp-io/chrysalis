@@ -39,6 +39,7 @@ import { buildMigrationAssessment } from "./hub-ingest/hub-migration-assessment.
 import { writePathAdviceArtifacts } from "./hub-ingest/hub-apply-path-advice.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-ingest/hub-verify-gaps-ingest.mjs";
 import { buildDeliveryDashboard } from "./hub-ingest/hub-delivery-dashboard.mjs";
+import { buildCwlPreviewReport } from "./hub-ingest/hub-cwl-preview.mjs";
 import { assertHubLicenseAllows, buildHubLicenseStatusReport } from "./hub-ingest/hub-license-status.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
@@ -906,6 +907,23 @@ const server = createServer(async (req, res) => {
     try {
       const report = await buildSiteIntelligenceReport(resolve(projectDir));
       sendJson(res, 200, report);
+    } catch (e) {
+      sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
+    }
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/cwl-preview") {
+    const projectDir = url.searchParams.get("projectDir");
+    const cwlPath = url.searchParams.get("cwlPath") ?? undefined;
+    const probe = url.searchParams.get("probe") !== "0";
+    if (!projectDir) {
+      sendJson(res, 400, { error: "projectDir query param required" });
+      return;
+    }
+    try {
+      const report = await buildCwlPreviewReport(resolve(projectDir), { cwlPath, probe });
+      sendJson(res, report.ok ? 200 : 404, report);
     } catch (e) {
       sendJson(res, 500, { error: e instanceof Error ? e.message : String(e) });
     }

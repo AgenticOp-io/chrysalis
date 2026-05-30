@@ -23,6 +23,7 @@ export async function exportCwlFileToWebirJson(cwlPath) {
     wr,
     source,
     file,
+    entryPath: file,
     language: "cwl",
   });
   const module = builder.finish();

@@ -669,6 +669,35 @@ describe("strategic plan deliverables", () => {
     expect(batch?.allowed).toBe(true);
   });
 
+  test("CWL multi-file import resolves route graph (G155)", async () => {
+    const { resolveCwlModuleFromPath } = await import(
+      resolve(ROOT, "scripts/hub-ingest/cwl-module-graph.mjs")
+    );
+    const entry = resolve(ROOT, "fixtures/hub-gold-cwl-multi/routes.cwl");
+    const mod = resolveCwlModuleFromPath(entry);
+    expect(mod.imports).toEqual(["health.cwl", "meta.cwl"]);
+    expect(mod.routes.map((r: { path: string }) => r.path).sort()).toEqual(["/health", "/meta", "/ping"]);
+    const { createCwlRuntime, loadModuleFromCwlFile } = await import("@chrysalis/runtime-cwl");
+    const runtime = createCwlRuntime({ module: loadModuleFromCwlFile(entry, ROOT) });
+    const ping = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/ping" });
+    expect(ping.status).toBe(200);
+    expect(await ping.text()).toBe("42");
+  });
+
+  test("hub CWL preview lists routes and probes runtime (G156)", async () => {
+    const { buildCwlPreviewReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-preview.mjs")
+    );
+    const report = await buildCwlPreviewReport(resolve(ROOT, "fixtures/hub-gold-cwl-multi"), {
+      cwlPath: resolve(ROOT, "fixtures/hub-gold-cwl-multi/routes.cwl"),
+    });
+    expect(report.kind).toBe("chrysalis.hub.cwl-preview");
+    expect(report.ok).toBe(true);
+    expect(report.routeCount).toBe(3);
+    expect(report.imports).toEqual(["health.cwl", "meta.cwl"]);
+    expect(report.probe?.status).toBe(200);
+  });
+
   test("hub-plain-php-flagship smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });

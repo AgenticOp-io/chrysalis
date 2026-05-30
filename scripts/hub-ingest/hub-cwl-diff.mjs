@@ -14,6 +14,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseCwlModule } from "./cwl-parser.mjs";
+import { resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 
 export const HUB_CWL_DIFF_KIND = "chrysalis.hub.cwl-diff";
 export const HUB_CWL_DIFF_SCHEMA_VERSION = 1;
@@ -94,6 +95,13 @@ export function parseCwlFile(source, file) {
 }
 
 /**
+ * @param {string} filePath
+ */
+export function parseCwlPath(filePath) {
+  return resolveCwlModuleFromPath(filePath);
+}
+
+/**
  * Build a route map keyed by `METHOD path`.
  * @param {ReturnType<typeof parseCwlModule>} parsed
  */
@@ -114,8 +122,12 @@ function routeMap(parsed) {
  * @param {{ baseFile?: string, headFile?: string }} [opts]
  */
 export function diffCwlSources(baseSource, headSource, opts = {}) {
-  const baseParsed = parseCwlFile(baseSource, opts.baseFile ?? "base.cwl");
-  const headParsed = parseCwlFile(headSource, opts.headFile ?? "head.cwl");
+  const baseFile = opts.baseFile ?? "base.cwl";
+  const headFile = opts.headFile ?? "head.cwl";
+  const baseParsed =
+    existsSync(resolve(baseFile)) ? parseCwlPath(resolve(baseFile)) : parseCwlFile(baseSource, baseFile);
+  const headParsed =
+    existsSync(resolve(headFile)) ? parseCwlPath(resolve(headFile)) : parseCwlFile(headSource, headFile);
   return diffCwlParsed(baseParsed, headParsed, opts);
 }
 

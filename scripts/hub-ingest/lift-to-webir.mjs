@@ -70,6 +70,13 @@ async function main() {
   const paths = [];
   await walk(projectDir, exts, paths, 0);
 
+  if (language === "cwl" && paths.length > 1) {
+    const entry = paths.find((p) => /(^|[/\\])routes\.cwl$/i.test(p));
+    if (entry) {
+      paths.splice(0, paths.length, entry);
+    }
+  }
+
   let heuristicRouteCount = 0;
   let astRouteCount = 0;
   let middlewareUseCount = 0;
@@ -88,6 +95,7 @@ async function main() {
       wr,
       source,
       file,
+      entryPath: abs,
       language,
       ext,
     });

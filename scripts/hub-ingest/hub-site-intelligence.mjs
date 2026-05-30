@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { detectLanguagesFromFileList } from "../chrysalis-hub-store.mjs";
 import { discoverContractArtifacts } from "./discover-contract-artifacts.mjs";
 import { buildDatabaseDetectionReport } from "./hub-detect-databases.mjs";
-import { parseCwlModule } from "./cwl-parser.mjs";
+import { resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 
 export const HUB_SITE_INTELLIGENCE_KIND = "chrysalis.hub.site-intelligence";
 export const HUB_SITE_INTELLIGENCE_SCHEMA_VERSION = 1;
@@ -198,15 +198,15 @@ function estimateRoutesFromManifest(root) {
   const migrationCwl = join(root, ".chrysalis", "migration.cwl");
   if (existsSync(migrationCwl)) {
     try {
-      const mod = parseCwlModule(readFileSync(migrationCwl, "utf8"));
-      const handlers = Array.isArray(mod.handlers) ? mod.handlers : [];
+      const mod = resolveCwlModuleFromPath(migrationCwl);
+      const routes = Array.isArray(mod.routes) ? mod.routes : [];
       let writeCount = 0;
-      for (const h of handlers) {
-        const m = String(h.route?.method ?? "GET").toUpperCase();
+      for (const r of routes) {
+        const m = String(r.method ?? "GET").toUpperCase();
         if (WRITE_METHODS.has(m)) writeCount += 1;
       }
       return {
-        count: handlers.length,
+        count: routes.length,
         source: "migration.cwl",
         confidence: "high",
         writeCount,

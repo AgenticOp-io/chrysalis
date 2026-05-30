@@ -6,6 +6,7 @@ import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 
 const ROUTE_RE = /^@route\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
 const MODULE_RE = /^module\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;/;
+const IMPORT_RE = /^import\s+"([^"]+)"\s*;/;
 const HANDLER_RE = /^handler\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
 const EFFECTS_RE = /^effects:\s*(.+);/;
 const RETURN_RE = /^return\s+(.+);/;
@@ -181,6 +182,8 @@ export function parseCwlModule(source, file) {
   const moduleUses = [];
   /** @type {Array<"chrysalis.auth.session"|"chrysalis.auth.bearer">} */
   const moduleAuthUses = [];
+  /** @type {string[]} */
+  const imports = [];
   /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
   const routes = [];
   let i = 0;
@@ -204,6 +207,11 @@ export function parseCwlModule(source, file) {
       moduleAuthUses.push(
         authM[1].toLowerCase() === "session" ? "chrysalis.auth.session" : "chrysalis.auth.bearer",
       );
+      continue;
+    }
+    const impM = IMPORT_RE.exec(line);
+    if (impM) {
+      imports.push(impM[1]);
       continue;
     }
     const rm = ROUTE_RE.exec(line);
@@ -330,5 +338,5 @@ export function parseCwlModule(source, file) {
       body,
     });
   }
-  return { moduleName, file, routes, moduleUses, moduleAuthUses };
+  return { moduleName, file, routes, moduleUses, moduleAuthUses, imports };
 }

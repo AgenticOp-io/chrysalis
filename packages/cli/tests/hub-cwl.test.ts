@@ -117,6 +117,16 @@ handler ok {
   expect(mod.moduleUses).toEqual(["express.json", "express.urlencoded"]);
 });
 
+test("cwl parser: multi-file import graph (RFC-0009 / G155)", async () => {
+  const { resolveCwlModuleFromPath } = await import(
+    resolve(ROOT, "scripts/hub-ingest/cwl-module-graph.mjs")
+  );
+  const entry = resolve(ROOT, "fixtures/hub-gold-cwl-multi/routes.cwl");
+  const mod = resolveCwlModuleFromPath(entry);
+  expect(mod.routes.length).toBe(3);
+  expect(mod.routes.find((r) => r.path === "/health")?.body.kind).toBe("literal");
+});
+
 test("lift-to-webir cwl is hole-free on gold fixture", () => {
   const r = spawnSync(process.execPath, [LIFT, FIXTURE, "--language", "cwl"], {
     cwd: ROOT,

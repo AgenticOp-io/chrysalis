@@ -12,6 +12,7 @@ CWL evolves by **RFC**: each proposal must cite cross-language evidence (path kn
 | [0006](CWL-RFC-0006-response-status.md) | Response status | accepted |
 | [0007](CWL-RFC-0007-auth-effects.md) | Auth presets and effects | accepted |
 | [0008](CWL-RFC-0008-response-content-type.md) | Response content-type | accepted |
+| [0009](CWL-RFC-0009-multi-file-modules.md) | Multi-file modules (`import`) | accepted |
 
 **Process**
 

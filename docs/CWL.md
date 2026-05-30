@@ -24,6 +24,18 @@ module my_app;
 
 Declares the module name stored in WebIR provenance.
 
+### Multi-file modules
+
+See **`docs/CWL-RFC-0009-multi-file-modules.md`**.
+
+```cwl
+module api;
+import "routes/health.cwl";
+import "routes/items.cwl";
+```
+
+Imported fragments merge routes and module `use` presets into the entry module. Lift ingests only `routes.cwl` when multiple `.cwl` files exist in a project tree.
+
 ### Module middleware (`use` presets)
 
 See **`docs/CWL-RFC-0001-module-use-middleware.md`**.
