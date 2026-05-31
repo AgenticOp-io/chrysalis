@@ -2468,6 +2468,66 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D739** **Hub completion schema 54 (G440).** Origin depth + chimera/verify ultra batches; CI gates v54.
+
+- **2026-05-31 — D738** **Verify product ultra in completion (G439).** Verify product ultra batch wired schema 54.
+
+- **2026-05-31 — D737** **Chimera assessment mega in completion (G438).** Chimera assessment mega batch wired.
+
+- **2026-05-31 — D736** **Origin depth ultra in completion (G437).** Origin depth ultra batch wired.
+
+- **2026-05-31 — D735** **Per-origin depth in completion (G436).** Plain/symfony/express/Laravel-min depth batches wired.
+
+- **2026-05-31 — D734** **Evidence standalone mega in completion (G435).** Evidence standalone mega batch wired.
+
+- **2026-05-31 — D733** **Contract standalone mega in completion (G434).** Contract standalone mega batch wired.
+
+- **2026-05-31 — D732** **Origin depth strict CI env (G433).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_ORIGIN_DEPTH` in ci-gates v54.
+
+- **2026-05-31 — D731** **Hub evidence schema v11 (G432).** `requireOriginDepthEnv` in completion hubEvidence block.
+
+- **2026-05-31 — D730** **Verify standalone mega in completion (G429).** Verify standalone mega batch wired.
+
+- **2026-05-31 — D729** **Artifacts origin in completion (G428).** Post-translate artifacts origin batch wired.
+
+- **2026-05-31 — D728** **Delivery dashboard v14 (G431).** `month10Program` origin depth scripts.
+
+- **2026-05-31 — D727** **Capability matrix v12 (G430).** Origin depth + chimera/verify ultra metadata.
+
+- **2026-05-31 — D726** **Verify gaps origin in completion (G427).** Verify gaps origin batch wired.
+
+- **2026-05-31 — D725** **Assessment origin in completion (G426).** Migration assessment origin batch wired.
+
+- **2026-05-31 — D724** **Chimera origin in completion (G425).** Chimera cutover origin batch wired schema 54.
+
+- **2026-05-31 — D723** **Verify product ultra batch (G424).** Verify gaps origin + verify standalone mega + laravel depth.
+
+- **2026-05-31 — D722** **Chimera assessment mega batch (G423).** Chimera + assessment origin batches.
+
+- **2026-05-31 — D721** **Origin depth ultra batch (G422).** Plain-php + symfony + express + tiny-blog depth.
+
+- **2026-05-31 — D720** **Laravel-min depth batch (G421).** Site intel + path advice + CWL + assessment + chimera.
+
+- **2026-05-31 — D719** **Express depth batch (G420).** Site intel + path advice + project-to-CWL express.
+
+- **2026-05-31 — D718** **Symfony depth batch (G419).** Site intel + path advice + project-to-CWL symfony.
+
+- **2026-05-31 — D717** **Plain-php depth batch (G418).** Site intel + path advice + project-to-CWL plain-php.
+
+- **2026-05-31 — D716** **Evidence standalone mega batch (G417).** Evidence + WPTP gold standalone.
+
+- **2026-05-31 — D715** **Contract standalone mega batch (G416).** Contract CWL + contract roundtrip.
+
+- **2026-05-31 — D714** **Verify standalone mega batch (G415).** Playbooks + post-translate verify + node express oracle.
+
+- **2026-05-31 — D713** **Post-translate artifacts origin batch (G414).** Symfony + express + Laravel-min artifacts.
+
+- **2026-05-31 — D712** **Verify gaps origin batch (G413).** Symfony + express + Laravel-min verify gaps.
+
+- **2026-05-31 — D711** **Migration assessment origin batch (G412).** All four origin assessments.
+
+- **2026-05-31 — D710** **Chimera cutover origin batch (G411).** Plain-php + symfony + express + Laravel-min chimera.
+
 - **2026-05-31 — D709** **Hub completion schema 53 (G410).** Ultra mega delivery + oracle batches; CI gates v53; pipeline runner v3.
 
 - **2026-05-31 — D708** **Delivery pipeline runner schema v3 (G409).** Completion + ci-gates enforce runner v3.

@@ -126,6 +126,20 @@ import { runSymfonyLaravelMinDeliveryBatchSmoke } from "./hub-symfony-laravel-mi
 import { runPostTranslateVerifyOriginBatchSmoke } from "./hub-post-translate-verify-origin-batch-smoke.mjs";
 import { runTinyBlogDepthBatchSmoke } from "./hub-tiny-blog-depth-batch-smoke.mjs";
 import { runContractVerifyStandaloneBatchSmoke } from "./hub-contract-verify-standalone-batch-smoke.mjs";
+import { runChimeraCutoverOriginBatchSmoke } from "./hub-chimera-cutover-origin-batch-smoke.mjs";
+import { runMigrationAssessmentOriginBatchSmoke } from "./hub-migration-assessment-origin-batch-smoke.mjs";
+import { runVerifyGapsOriginBatchSmoke } from "./hub-verify-gaps-origin-batch-smoke.mjs";
+import { runPostTranslateArtifactsOriginBatchSmoke } from "./hub-post-translate-artifacts-origin-batch-smoke.mjs";
+import { runVerifyStandaloneMegaBatchSmoke } from "./hub-verify-standalone-mega-batch-smoke.mjs";
+import { runContractStandaloneMegaBatchSmoke } from "./hub-contract-standalone-mega-batch-smoke.mjs";
+import { runEvidenceStandaloneMegaBatchSmoke } from "./hub-evidence-standalone-mega-batch-smoke.mjs";
+import { runPlainPhpDepthBatchSmoke } from "./hub-plain-php-depth-batch-smoke.mjs";
+import { runSymfonyDepthBatchSmoke } from "./hub-symfony-depth-batch-smoke.mjs";
+import { runExpressDepthBatchSmoke } from "./hub-express-depth-batch-smoke.mjs";
+import { runLaravelMinDepthBatchSmoke } from "./hub-laravel-min-depth-batch-smoke.mjs";
+import { runOriginDepthUltraBatchSmoke } from "./hub-origin-depth-ultra-batch-smoke.mjs";
+import { runChimeraAssessmentMegaBatchSmoke } from "./hub-chimera-assessment-mega-batch-smoke.mjs";
+import { runVerifyProductUltraBatchSmoke } from "./hub-verify-product-ultra-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -941,6 +955,104 @@ async function main() {
     contractVerifyStandaloneBatch = { ok: false, skip: "contract-verify-standalone-batch-threw" };
   }
   const contractVerifyStandaloneBatchOk = contractVerifyStandaloneBatch.ok === true;
+  let chimeraCutoverOriginBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    chimeraCutoverOriginBatch = await runChimeraCutoverOriginBatchSmoke();
+  } catch {
+    chimeraCutoverOriginBatch = { ok: false, skip: "chimera-cutover-origin-batch-threw" };
+  }
+  const chimeraCutoverOriginBatchOk = chimeraCutoverOriginBatch.ok === true;
+  let migrationAssessmentOriginBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    migrationAssessmentOriginBatch = await runMigrationAssessmentOriginBatchSmoke();
+  } catch {
+    migrationAssessmentOriginBatch = { ok: false, skip: "migration-assessment-origin-batch-threw" };
+  }
+  const migrationAssessmentOriginBatchOk = migrationAssessmentOriginBatch.ok === true;
+  let verifyGapsOriginBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    verifyGapsOriginBatch = runVerifyGapsOriginBatchSmoke();
+  } catch {
+    verifyGapsOriginBatch = { ok: false, skip: "verify-gaps-origin-batch-threw" };
+  }
+  const verifyGapsOriginBatchOk = verifyGapsOriginBatch.ok === true;
+  let postTranslateArtifactsOriginBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    postTranslateArtifactsOriginBatch = await runPostTranslateArtifactsOriginBatchSmoke();
+  } catch {
+    postTranslateArtifactsOriginBatch = { ok: false, skip: "post-translate-artifacts-origin-batch-threw" };
+  }
+  const postTranslateArtifactsOriginBatchOk = postTranslateArtifactsOriginBatch.ok === true;
+  let verifyStandaloneMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    verifyStandaloneMegaBatch = await runVerifyStandaloneMegaBatchSmoke();
+  } catch {
+    verifyStandaloneMegaBatch = { ok: false, skip: "verify-standalone-mega-batch-threw" };
+  }
+  const verifyStandaloneMegaBatchOk = verifyStandaloneMegaBatch.ok === true;
+  let contractStandaloneMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    contractStandaloneMegaBatch = await runContractStandaloneMegaBatchSmoke();
+  } catch {
+    contractStandaloneMegaBatch = { ok: false, skip: "contract-standalone-mega-batch-threw" };
+  }
+  const contractStandaloneMegaBatchOk = contractStandaloneMegaBatch.ok === true;
+  let evidenceStandaloneMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    evidenceStandaloneMegaBatch = await runEvidenceStandaloneMegaBatchSmoke();
+  } catch {
+    evidenceStandaloneMegaBatch = { ok: false, skip: "evidence-standalone-mega-batch-threw" };
+  }
+  const evidenceStandaloneMegaBatchOk = evidenceStandaloneMegaBatch.ok === true;
+  let plainPhpDepthBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    plainPhpDepthBatch = await runPlainPhpDepthBatchSmoke();
+  } catch {
+    plainPhpDepthBatch = { ok: false, skip: "plain-php-depth-batch-threw" };
+  }
+  const plainPhpDepthBatchOk = plainPhpDepthBatch.ok === true;
+  let symfonyDepthBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    symfonyDepthBatch = await runSymfonyDepthBatchSmoke();
+  } catch {
+    symfonyDepthBatch = { ok: false, skip: "symfony-depth-batch-threw" };
+  }
+  const symfonyDepthBatchOk = symfonyDepthBatch.ok === true;
+  let expressDepthBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    expressDepthBatch = await runExpressDepthBatchSmoke();
+  } catch {
+    expressDepthBatch = { ok: false, skip: "express-depth-batch-threw" };
+  }
+  const expressDepthBatchOk = expressDepthBatch.ok === true;
+  let laravelMinDepthBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelMinDepthBatch = await runLaravelMinDepthBatchSmoke();
+  } catch {
+    laravelMinDepthBatch = { ok: false, skip: "laravel-min-depth-batch-threw" };
+  }
+  const laravelMinDepthBatchOk = laravelMinDepthBatch.ok === true;
+  let originDepthUltraBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    originDepthUltraBatch = await runOriginDepthUltraBatchSmoke();
+  } catch {
+    originDepthUltraBatch = { ok: false, skip: "origin-depth-ultra-batch-threw" };
+  }
+  const originDepthUltraBatchOk = originDepthUltraBatch.ok === true;
+  let chimeraAssessmentMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    chimeraAssessmentMegaBatch = await runChimeraAssessmentMegaBatchSmoke();
+  } catch {
+    chimeraAssessmentMegaBatch = { ok: false, skip: "chimera-assessment-mega-batch-threw" };
+  }
+  const chimeraAssessmentMegaBatchOk = chimeraAssessmentMegaBatch.ok === true;
+  let verifyProductUltraBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    verifyProductUltraBatch = await runVerifyProductUltraBatchSmoke();
+  } catch {
+    verifyProductUltraBatch = { ok: false, skip: "verify-product-ultra-batch-threw" };
+  }
+  const verifyProductUltraBatchOk = verifyProductUltraBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1060,6 +1172,20 @@ async function main() {
     postTranslateVerifyOriginBatchOk &&
     tinyBlogDepthBatchOk &&
     contractVerifyStandaloneBatchOk &&
+    chimeraCutoverOriginBatchOk &&
+    migrationAssessmentOriginBatchOk &&
+    verifyGapsOriginBatchOk &&
+    postTranslateArtifactsOriginBatchOk &&
+    verifyStandaloneMegaBatchOk &&
+    contractStandaloneMegaBatchOk &&
+    evidenceStandaloneMegaBatchOk &&
+    plainPhpDepthBatchOk &&
+    symfonyDepthBatchOk &&
+    expressDepthBatchOk &&
+    laravelMinDepthBatchOk &&
+    originDepthUltraBatchOk &&
+    chimeraAssessmentMegaBatchOk &&
+    verifyProductUltraBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1071,7 +1197,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 53,
+    schemaVersion: 54,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1258,7 +1384,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 10,
+      schemaVersion: 11,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1268,6 +1394,7 @@ async function main() {
       requireLaravelMinEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN",
       requireFourOriginEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FOUR_ORIGIN",
       requireOracleUltraEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_ORACLE_ULTRA",
+      requireOriginDepthEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_ORIGIN_DEPTH",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1703,6 +1830,62 @@ async function main() {
     contractVerifyStandaloneBatch: {
       ok: contractVerifyStandaloneBatchOk,
       script: "pnpm run hub:contract-verify-standalone-batch-smoke",
+    },
+    chimeraCutoverOriginBatch: {
+      ok: chimeraCutoverOriginBatchOk,
+      script: "pnpm run hub:chimera-cutover-origin-batch-smoke",
+    },
+    migrationAssessmentOriginBatch: {
+      ok: migrationAssessmentOriginBatchOk,
+      script: "pnpm run hub:migration-assessment-origin-batch-smoke",
+    },
+    verifyGapsOriginBatch: {
+      ok: verifyGapsOriginBatchOk,
+      script: "pnpm run hub:verify-gaps-origin-batch-smoke",
+    },
+    postTranslateArtifactsOriginBatch: {
+      ok: postTranslateArtifactsOriginBatchOk,
+      script: "pnpm run hub:post-translate-artifacts-origin-batch-smoke",
+    },
+    verifyStandaloneMegaBatch: {
+      ok: verifyStandaloneMegaBatchOk,
+      script: "pnpm run hub:verify-standalone-mega-batch-smoke",
+    },
+    contractStandaloneMegaBatch: {
+      ok: contractStandaloneMegaBatchOk,
+      script: "pnpm run hub:contract-standalone-mega-batch-smoke",
+    },
+    evidenceStandaloneMegaBatch: {
+      ok: evidenceStandaloneMegaBatchOk,
+      script: "pnpm run hub:evidence-standalone-mega-batch-smoke",
+    },
+    plainPhpDepthBatch: {
+      ok: plainPhpDepthBatchOk,
+      script: "pnpm run hub:plain-php-depth-batch-smoke",
+    },
+    symfonyDepthBatch: {
+      ok: symfonyDepthBatchOk,
+      script: "pnpm run hub:symfony-depth-batch-smoke",
+    },
+    expressDepthBatch: {
+      ok: expressDepthBatchOk,
+      script: "pnpm run hub:express-depth-batch-smoke",
+    },
+    laravelMinDepthBatch: {
+      ok: laravelMinDepthBatchOk,
+      script: "pnpm run hub:laravel-min-depth-batch-smoke",
+    },
+    originDepthUltraBatch: {
+      ok: originDepthUltraBatchOk,
+      script: "pnpm run hub:origin-depth-ultra-batch-smoke",
+    },
+    chimeraAssessmentMegaBatch: {
+      ok: chimeraAssessmentMegaBatchOk,
+      script: "pnpm run hub:chimera-assessment-mega-batch-smoke",
+    },
+    verifyProductUltraBatch: {
+      ok: verifyProductUltraBatchOk,
+      script: "pnpm run hub:verify-product-ultra-batch-smoke",
     },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,

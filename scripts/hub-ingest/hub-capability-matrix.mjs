@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 11;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 12;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -244,6 +244,42 @@ export function buildHubCapabilityMatrixReport() {
     },
     contractVerifyStandalone: {
       batchScript: "pnpm run hub:contract-verify-standalone-batch-smoke",
+    },
+    chimeraCutoverOrigin: {
+      batchScript: "pnpm run hub:chimera-cutover-origin-batch-smoke",
+    },
+    migrationAssessmentOrigin: {
+      batchScript: "pnpm run hub:migration-assessment-origin-batch-smoke",
+    },
+    verifyGapsOrigin: {
+      batchScript: "pnpm run hub:verify-gaps-origin-batch-smoke",
+    },
+    postTranslateArtifactsOrigin: {
+      batchScript: "pnpm run hub:post-translate-artifacts-origin-batch-smoke",
+    },
+    verifyStandaloneMega: {
+      batchScript: "pnpm run hub:verify-standalone-mega-batch-smoke",
+    },
+    contractStandaloneMega: {
+      batchScript: "pnpm run hub:contract-standalone-mega-batch-smoke",
+    },
+    evidenceStandaloneMega: {
+      batchScript: "pnpm run hub:evidence-standalone-mega-batch-smoke",
+    },
+    originDepth: {
+      plainPhpBatchScript: "pnpm run hub:plain-php-depth-batch-smoke",
+      symfonyBatchScript: "pnpm run hub:symfony-depth-batch-smoke",
+      expressBatchScript: "pnpm run hub:express-depth-batch-smoke",
+      laravelMinBatchScript: "pnpm run hub:laravel-min-depth-batch-smoke",
+      ultraBatchScript: "pnpm run hub:origin-depth-ultra-batch-smoke",
+      projectToCwlPlainPhpScript: "pnpm run hub:project-to-cwl-plain-php-smoke",
+      projectToCwlSymfonyScript: "pnpm run hub:project-to-cwl-symfony-smoke",
+    },
+    chimeraAssessmentMega: {
+      batchScript: "pnpm run hub:chimera-assessment-mega-batch-smoke",
+    },
+    verifyProductUltra: {
+      batchScript: "pnpm run hub:verify-product-ultra-batch-smoke",
     },
     oracleStandaloneSmokes: {
       nodeExpressOracleScript: "pnpm run hub:node-express-oracle-standalone-smoke",

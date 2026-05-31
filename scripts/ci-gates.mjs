@@ -763,9 +763,9 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 50 &&
     s.schemaVersion !== 51 &&
     s.schemaVersion !== 52 &&
-    s.schemaVersion !== 53
+    s.schemaVersion !== 54
   ) {
-    fail(`${label}: expected schemaVersion 0–53, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–54, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1566,7 +1566,7 @@ function assertHubCompletion(path) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 10 for schema v52`);
     }
   }
-  if (s.schemaVersion >= 53) {
+  if (s.schemaVersion >= 53 && s.schemaVersion < 54) {
     if (s.allDeliveryUltraMegaBatch?.ok !== true) {
       fail(`${label}: allDeliveryUltraMegaBatch.ok must be true for schema v53`);
     }
@@ -1596,6 +1596,29 @@ function assertHubCompletion(path) {
     }
     if (s.capabilityMatrix?.schemaVersion !== 11) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 11 for schema v53`);
+    }
+  }
+  if (s.schemaVersion >= 54) {
+    if (s.originDepthUltraBatch?.ok !== true) {
+      fail(`${label}: originDepthUltraBatch.ok must be true for schema v54`);
+    }
+    if (s.chimeraAssessmentMegaBatch?.ok !== true) {
+      fail(`${label}: chimeraAssessmentMegaBatch.ok must be true for schema v54`);
+    }
+    if (s.verifyProductUltraBatch?.ok !== true) {
+      fail(`${label}: verifyProductUltraBatch.ok must be true for schema v54`);
+    }
+    if (s.chimeraCutoverOriginBatch?.ok !== true) {
+      fail(`${label}: chimeraCutoverOriginBatch.ok must be true for schema v54`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 11) {
+      fail(`${label}: hubEvidence.schemaVersion must be 11 for schema v54`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_ORIGIN_DEPTH === "1" && s.originDepthUltraBatch?.ok !== true) {
+      fail(`${label}: originDepthUltraBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_ORIGIN_DEPTH=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 12) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 12 for schema v54`);
     }
   }
   const g = s.routeGrades;

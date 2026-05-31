@@ -1372,6 +1372,62 @@ describe("strategic plan deliverables", () => {
     }
   });
 
+  test("hub completion schema 54 smokes present (G440)", async () => {
+    const { runOriginDepthUltraBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-origin-depth-ultra-batch-smoke.mjs")
+    );
+    const { runChimeraAssessmentMegaBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-chimera-assessment-mega-batch-smoke.mjs")
+    );
+    const { runVerifyProductUltraBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-verify-product-ultra-batch-smoke.mjs")
+    );
+    const { runChimeraCutoverOriginBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-chimera-cutover-origin-batch-smoke.mjs")
+    );
+    const originDepth = await runOriginDepthUltraBatchSmoke();
+    const chimeraAssessment = await runChimeraAssessmentMegaBatchSmoke();
+    const verifyProduct = await runVerifyProductUltraBatchSmoke();
+    const chimeraOrigin = await runChimeraCutoverOriginBatchSmoke();
+    expect(originDepth.ok).toBe(true);
+    expect(chimeraAssessment.ok).toBe(true);
+    expect(verifyProduct.ok).toBe(true);
+    expect(chimeraOrigin.ok).toBe(true);
+  }, 900_000);
+
+  test("capability matrix v12 lists origin depth batches (G430)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(12);
+    expect(report.originDepth?.ultraBatchScript).toBe("pnpm run hub:origin-depth-ultra-batch-smoke");
+    expect(report.chimeraAssessmentMega?.batchScript).toBe("pnpm run hub:chimera-assessment-mega-batch-smoke");
+  });
+
+  test("delivery dashboard v14 surfaces month10 origin depth batches (G431)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v14-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(14);
+      expect(report.month10Program?.originDepthUltraBatch).toBe("hub:origin-depth-ultra-batch-smoke");
+      expect(report.month10Program?.requireOriginDepthEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_ORIGIN_DEPTH");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   test("capability matrix v8 lists express delivery smokes (G313)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
