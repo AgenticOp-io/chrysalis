@@ -130,6 +130,7 @@ jobs:
           CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS: "1"
           CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_STRICT_BATCH: "1"
           CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH: "1"
+          CHRYSALIS_HUB_GAP_REINGEST_STRICT: "1"
         run: pnpm run ci:hub-completion
 
       - name: Gate verify merged-summary JSON (fixture contract)

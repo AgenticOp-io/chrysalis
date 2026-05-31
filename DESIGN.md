@@ -2574,6 +2574,23 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D944** **Strategic test G860 (G844).** Schema 68 gaps ingest strict smokes.
 - **2026-05-31 — D945** **ci-gates v68 test (G845).** Accepts schema v68 payloads.
 - **2026-05-31 — D960** **Hub completion schema 68 (G860).** Strict gaps ingest CI + live Laravel closure.
+- **2026-05-31 — D961** **hub-laravel-auth-probe-reingest-smoke (G861).** Laravel-auth-probe + backlog → strict reingest exit 0.
+- **2026-05-31 — D962** **hub-gap-reingest-batch-smoke v2 (G862).** Copies full laravel-auth-probe fixture tree.
+- **2026-05-31 — D963** **hub-gaps-ingest-strict-batch-smoke v2 (G863).** Includes auth-probe strict reingest.
+- **2026-05-31 — D964** **hub-php-wedge-batch-smoke v3 (G864).** Includes gaps ingest strict batch v2.
+- **2026-05-31 — D965** **Oracle product ultra batch v6 (G865).** Includes PHP wedge v3.
+- **2026-05-31 — D966** **Evidence standalone mega batch v4 (G866).** Includes gaps ingest strict v2.
+- **2026-05-31 — D967** **Verify product ultra batch v5 (G867).** Includes laravel-auth-probe reingest.
+- **2026-05-31 — D968** **Capability matrix v27 (G868).** Auth-probe reingest + batch v2/v3 metadata.
+- **2026-05-31 — D969** **Delivery dashboard v29 (G869).** month25Program auth-probe strict reingest.
+- **2026-05-31 — D970** **Hub evidence schema v26 (G870).** Hub completion evidence gate bump.
+- **2026-05-31 — D971** **CI typecheck-and-test (G871).** `CHRYSALIS_HUB_GAP_REINGEST_STRICT=1` on hub completion.
+- **2026-05-31 — D972** **ci-gates v69 (G872).** laravelAuthProbeReingest + mega batch v3/v4/v5/v6 gates.
+- **2026-05-31 — D973** **hub-gap-reingest-strict-smoke v2 (G873).** Exports gap reingest batch schema v2.
+- **2026-05-31 — D974** **package.json hub:* script (G874).** `hub:laravel-auth-probe-reingest-smoke`.
+- **2026-05-31 — D975** **Strategic test G890 (G875).** Schema 69 auth-probe strict reingest smokes.
+- **2026-05-31 — D976** **ci-gates v69 test (G876).** Accepts schema v69 payloads.
+- **2026-05-31 — D990** **Hub completion schema 69 (G890).** Auth-probe strict reingest CI closure.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 

@@ -1,27 +1,25 @@
 #!/usr/bin/env node
-/** Gap reingest batch: remediation probe + optional CHRYSALIS_HUB_GAP_REINGEST (G805). */
-import { copyFileSync, existsSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
+/** Gap reingest batch v2: laravel-auth-probe project + backlog summary (G862). */
+import { copyFileSync, cpSync, existsSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { runVerifyGapsIngestAction } from "./hub-verify-gaps-ingest-action.mjs";
 
 export const HUB_GAP_REINGEST_BATCH_KIND = "chrysalis.hub.gap-reingest-batch-smoke";
-export const HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION = 1;
+export const HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const backlogSummary = join(scriptRoot, "fixtures/hub-laravel-verify-gaps-backlog/summary.json");
+const authProbeFixture = join(scriptRoot, "fixtures/laravel-auth-probe");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
 
 function withBacklogProject(fn) {
   const tmp = mkdtempSync(join(tmpdir(), "chrysalis-gap-reingest-"));
   try {
+    cpSync(authProbeFixture, tmp, { recursive: true });
     mkdirSync(join(tmp, "reports", "verify"), { recursive: true });
     copyFileSync(backlogSummary, join(tmp, "reports", "verify/summary.json"));
-    copyFileSync(
-      join(scriptRoot, "fixtures/hub-flagship-plain-php/chrysalis.routes.json"),
-      join(tmp, "chrysalis.routes.json"),
-    );
     return fn(tmp);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
@@ -58,6 +56,8 @@ export function runGapReingestBatchSmoke() {
     kind: HUB_GAP_REINGEST_BATCH_KIND,
     schemaVersion: HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION,
     ok: remediationOk && reingest.ok === true,
+    fixture: "fixtures/laravel-auth-probe",
+    backlogFixture: "fixtures/hub-laravel-verify-gaps-backlog",
     remediation: {
       ok: remediationOk,
       divergenceKind: remediation.ingestRemediation?.divergenceKind ?? null,

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-/** Gap reingest strict smoke: remediation + optional strict reingest when env set (G837). */
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { runGapReingestBatchSmoke } from "./hub-gap-reingest-batch-smoke.mjs";
+import { runGapReingestBatchSmoke, HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION } from "./hub-gap-reingest-batch-smoke.mjs";
 
 export const HUB_GAP_REINGEST_STRICT_KIND = "chrysalis.hub.gap-reingest-strict-smoke";
-export const HUB_GAP_REINGEST_STRICT_SCHEMA_VERSION = 1;
+export const HUB_GAP_REINGEST_STRICT_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -34,6 +33,7 @@ export function runGapReingestStrictSmoke() {
       kind: HUB_GAP_REINGEST_STRICT_KIND,
       schemaVersion: HUB_GAP_REINGEST_STRICT_SCHEMA_VERSION,
       ok: report.remediation?.ok === true && strictOk,
+      batchSchemaVersion: HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION,
       strictReingest,
       cliAvailable,
       remediation: report.remediation,

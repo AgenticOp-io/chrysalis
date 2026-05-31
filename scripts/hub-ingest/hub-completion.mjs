@@ -160,6 +160,7 @@ import { runWptpStrictBatchSmoke } from "./hub-wptp-strict-batch-smoke.mjs";
 import { runFlagshipFullGapsBatchSmoke } from "./hub-flagship-full-gaps-batch-smoke.mjs";
 import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
+import { runLaravelAuthProbeReingestSmoke } from "./hub-laravel-auth-probe-reingest-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1216,6 +1217,13 @@ async function main() {
     gapsIngestStrictBatch = { ok: false, skip: "gaps-ingest-strict-batch-threw" };
   }
   const gapsIngestStrictBatchOk = gapsIngestStrictBatch.ok === true;
+  let laravelAuthProbeReingest = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelAuthProbeReingest = runLaravelAuthProbeReingestSmoke();
+  } catch {
+    laravelAuthProbeReingest = { ok: false, skip: "laravel-auth-probe-reingest-threw" };
+  }
+  const laravelAuthProbeReingestOk = laravelAuthProbeReingest.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1369,6 +1377,7 @@ async function main() {
     flagshipFullGapsBatchOk &&
     gapsIngestClosureBatchOk &&
     gapsIngestStrictBatchOk &&
+    laravelAuthProbeReingestOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1380,7 +1389,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 68,
+    schemaVersion: 69,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1567,7 +1576,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 25,
+      schemaVersion: 26,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -2010,7 +2019,7 @@ async function main() {
     },
     oracleProductUltraBatch: {
       ok: oracleProductUltraBatchOk,
-      schemaVersion: oracleProductUltraBatch.schemaVersion ?? 5,
+      schemaVersion: oracleProductUltraBatch.schemaVersion ?? 6,
       script: "pnpm run hub:oracle-product-ultra-batch-smoke",
     },
     expressLaravelMinDeliveryBatch: {
@@ -2059,7 +2068,7 @@ async function main() {
     },
     evidenceStandaloneMegaBatch: {
       ok: evidenceStandaloneMegaBatchOk,
-      schemaVersion: evidenceStandaloneMegaBatch.schemaVersion ?? 3,
+      schemaVersion: evidenceStandaloneMegaBatch.schemaVersion ?? 4,
       script: "pnpm run hub:evidence-standalone-mega-batch-smoke",
     },
     plainPhpDepthBatch: {
@@ -2088,7 +2097,7 @@ async function main() {
     },
     verifyProductUltraBatch: {
       ok: verifyProductUltraBatchOk,
-      schemaVersion: verifyProductUltraBatch.schemaVersion ?? 4,
+      schemaVersion: verifyProductUltraBatch.schemaVersion ?? 5,
       script: "pnpm run hub:verify-product-ultra-batch-smoke",
     },
     projectToCwlAllOrigins: {
@@ -2156,7 +2165,7 @@ async function main() {
     },
     phpWedgeBatch: {
       ok: phpWedgeBatchOk,
-      schemaVersion: phpWedgeBatch.schemaVersion ?? 2,
+      schemaVersion: phpWedgeBatch.schemaVersion ?? 3,
       script: "pnpm run hub:php-wedge-batch-smoke",
     },
     hubEvidenceMvpBatch: {
@@ -2188,8 +2197,16 @@ async function main() {
     },
     gapsIngestStrictBatch: {
       ok: gapsIngestStrictBatchOk,
+      schemaVersion: gapsIngestStrictBatch.schemaVersion ?? 2,
       laravelLiveBacklog: gapsIngestStrictBatch.laravelLiveClosure?.backlogCount ?? null,
+      authProbeReingestOk: gapsIngestStrictBatch.authProbeReingest?.ok === true,
       script: "pnpm run hub:gaps-ingest-strict-batch-smoke",
+    },
+    laravelAuthProbeReingest: {
+      ok: laravelAuthProbeReingestOk,
+      reingestExitCode: laravelAuthProbeReingest.reingest?.exitCode ?? null,
+      fixture: laravelAuthProbeReingest.fixture ?? "fixtures/laravel-auth-probe",
+      script: "pnpm run hub:laravel-auth-probe-reingest-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,
