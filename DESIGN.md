@@ -2468,6 +2468,66 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D709** **Hub completion schema 53 (G410).** Ultra mega delivery + oracle batches; CI gates v53; pipeline runner v3.
+
+- **2026-05-31 — D708** **Delivery pipeline runner schema v3 (G409).** Completion + ci-gates enforce runner v3.
+
+- **2026-05-31 — D707** **month9Program completion (G408).** Ultra mega + advisory batches in completion.
+
+- **2026-05-31 — D706** **Tiny-blog depth in completion (G407).** Tiny-blog depth batch wired.
+
+- **2026-05-31 — D705** **Post-translate verify origins in completion (G406).** Origin verify batch wired schema 53.
+
+- **2026-05-31 — D704** **Contract verify in completion (G405).** Contract verify standalone batch wired.
+
+- **2026-05-31 — D703** **Oracle ultra strict CI env (G404).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_ORACLE_ULTRA` in ci-gates v53.
+
+- **2026-05-31 — D702** **Hub evidence schema v10 (G403).** `requireOracleUltraEnv` in completion hubEvidence block.
+
+- **2026-05-31 — D701** **Delivery dashboard v13 (G402).** `month9Program` ultra batch scripts.
+
+- **2026-05-31 — D700** **Capability matrix v11 (G401).** Ultra mega batches + tiny-blog depth metadata.
+
+- **2026-05-31 — D699** **Express/symfony Laravel-min pairs in completion (G400).** Pair delivery batches wired.
+
+- **2026-05-31 — D698** **Delivery pipeline runner v3 (G399).** Four-profile pipeline + runner; schema v3.
+
+- **2026-05-31 — D697** **Contract verify standalone batch (G398).** Contract CWL + verify gaps action.
+
+- **2026-05-31 — D696** **Tiny-blog depth batch (G397).** Site intel + path advice + project-to-CWL.
+
+- **2026-05-31 — D695** **Path advice tiny-blog (G396).** Path advice smoke on tiny-blog.
+
+- **2026-05-31 — D694** **Site intelligence tiny-blog (G395).** Site intel smoke on tiny-blog.
+
+- **2026-05-31 — D693** **Project-to-CWL tiny-blog (G394).** Dedicated CWL export on tiny-blog.
+
+- **2026-05-31 — D692** **Post-translate verify origin batch (G393).** Symfony + express + Laravel-min verify batch.
+
+- **2026-05-31 — D691** **Post-translate verify express (G392).** Post-translate verify on express flagship.
+
+- **2026-05-31 — D690** **Post-translate verify symfony (G391).** Post-translate verify on symfony flagship.
+
+- **2026-05-31 — D689** **Oracle ultra in completion (G390).** Oracle product ultra batch wired.
+
+- **2026-05-31 — D688** **Migration OS mega in completion (G389).** Migration OS mega batch wired.
+
+- **2026-05-31 — D687** **Ultra delivery in completion (G388).** All delivery ultra mega batch wired.
+
+- **2026-05-31 — D686** **Advisory mega in completion (G387).** Advisory standalone mega batch wired schema 53.
+
+- **2026-05-31 — D685** **Oracle product ultra batch (G386).** Oracle standalone + Laravel-min + tiny-blog + evidence.
+
+- **2026-05-31 — D684** **Migration OS mega batch (G385).** Plain-php + symfony + Laravel-min migration OS.
+
+- **2026-05-31 — D683** **All delivery ultra mega batch (G384).** Full delivery + plain-php + express + tiny-blog.
+
+- **2026-05-31 — D682** **Symfony Laravel-min delivery pair (G383).** Symfony + Laravel-min delivery batches.
+
+- **2026-05-31 — D681** **Express Laravel-min delivery pair (G382).** Express + Laravel-min delivery batches.
+
+- **2026-05-31 — D680** **Advisory standalone mega batch (G381).** Evidence trend + detect databases + path knowledge.
+
 - **2026-05-31 — D679** **Hub completion schema 52 (G380).** Four-origin delivery + oracle mega batches; CI gates v52; runner batch v3.
 
 - **2026-05-31 — D678** **Laravel-min migration OS depth (G379).** Laravel-min migration OS + oracle batches in completion.

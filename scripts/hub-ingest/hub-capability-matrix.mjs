@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 10;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 11;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -147,6 +147,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     deliveryPipelineRunner: {
       script: "pnpm run hub:delivery-pipeline-runner-smoke",
+      schemaVersion: 3,
     },
     expressDelivery: {
       siteIntelligenceScript: "pnpm run hub:site-intelligence-express-smoke",
@@ -215,6 +216,34 @@ export function buildHubCapabilityMatrixReport() {
     laravelMinOracle: {
       batchScript: "pnpm run hub:laravel-min-oracle-batch-smoke",
       migrationOsBatchScript: "pnpm run hub:laravel-min-migration-os-batch-smoke",
+    },
+    advisoryStandaloneMega: {
+      batchScript: "pnpm run hub:advisory-standalone-mega-batch-smoke",
+    },
+    allDeliveryUltraMega: {
+      batchScript: "pnpm run hub:all-delivery-ultra-mega-batch-smoke",
+    },
+    migrationOsMega: {
+      batchScript: "pnpm run hub:migration-os-mega-batch-smoke",
+    },
+    oracleProductUltra: {
+      batchScript: "pnpm run hub:oracle-product-ultra-batch-smoke",
+    },
+    expressLaravelMinDelivery: {
+      batchScript: "pnpm run hub:express-laravel-min-delivery-batch-smoke",
+    },
+    symfonyLaravelMinDelivery: {
+      batchScript: "pnpm run hub:symfony-laravel-min-delivery-batch-smoke",
+    },
+    postTranslateVerifyOrigins: {
+      batchScript: "pnpm run hub:post-translate-verify-origin-batch-smoke",
+    },
+    tinyBlogDepth: {
+      batchScript: "pnpm run hub:tiny-blog-depth-batch-smoke",
+      projectToCwlScript: "pnpm run hub:project-to-cwl-tiny-blog-smoke",
+    },
+    contractVerifyStandalone: {
+      batchScript: "pnpm run hub:contract-verify-standalone-batch-smoke",
     },
     oracleStandaloneSmokes: {
       nodeExpressOracleScript: "pnpm run hub:node-express-oracle-standalone-smoke",

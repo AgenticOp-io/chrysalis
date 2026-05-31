@@ -1316,6 +1316,62 @@ describe("strategic plan deliverables", () => {
     }
   });
 
+  test("hub completion schema 53 smokes present (G410)", async () => {
+    const { runAllDeliveryUltraMegaBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-all-delivery-ultra-mega-batch-smoke.mjs")
+    );
+    const { runOracleProductUltraBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-oracle-product-ultra-batch-smoke.mjs")
+    );
+    const { runMigrationOsMegaBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-migration-os-mega-batch-smoke.mjs")
+    );
+    const { runTinyBlogDepthBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-tiny-blog-depth-batch-smoke.mjs")
+    );
+    const allDelivery = await runAllDeliveryUltraMegaBatchSmoke();
+    const oracle = await runOracleProductUltraBatchSmoke();
+    const migrationOs = await runMigrationOsMegaBatchSmoke();
+    const tinyBlog = await runTinyBlogDepthBatchSmoke();
+    expect(allDelivery.ok).toBe(true);
+    expect(oracle.ok).toBe(true);
+    expect(migrationOs.ok).toBe(true);
+    expect(tinyBlog.ok).toBe(true);
+  }, 900_000);
+
+  test("capability matrix v11 lists ultra mega batches (G401)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(11);
+    expect(report.allDeliveryUltraMega?.batchScript).toBe("pnpm run hub:all-delivery-ultra-mega-batch-smoke");
+    expect(report.deliveryPipelineRunner?.schemaVersion).toBe(3);
+  });
+
+  test("delivery dashboard v13 surfaces month9 ultra batches (G402)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v13-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(13);
+      expect(report.month9Program?.oracleProductUltraBatch).toBe("hub:oracle-product-ultra-batch-smoke");
+      expect(report.month9Program?.requireOracleUltraEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_ORACLE_ULTRA");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   test("capability matrix v8 lists express delivery smokes (G313)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")

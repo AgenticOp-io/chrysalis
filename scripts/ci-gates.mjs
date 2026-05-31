@@ -762,9 +762,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 49 &&
     s.schemaVersion !== 50 &&
     s.schemaVersion !== 51 &&
-    s.schemaVersion !== 52
+    s.schemaVersion !== 52 &&
+    s.schemaVersion !== 53
   ) {
-    fail(`${label}: expected schemaVersion 0–52, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–53, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1530,7 +1531,7 @@ function assertHubCompletion(path) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 9 for schema v51`);
     }
   }
-  if (s.schemaVersion >= 52) {
+  if (s.schemaVersion >= 52 && s.schemaVersion < 53) {
     if (s.fourOriginDeliveryBatch?.ok !== true) {
       fail(`${label}: fourOriginDeliveryBatch.ok must be true for schema v52`);
     }
@@ -1563,6 +1564,38 @@ function assertHubCompletion(path) {
     }
     if (s.capabilityMatrix?.schemaVersion !== 10) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 10 for schema v52`);
+    }
+  }
+  if (s.schemaVersion >= 53) {
+    if (s.allDeliveryUltraMegaBatch?.ok !== true) {
+      fail(`${label}: allDeliveryUltraMegaBatch.ok must be true for schema v53`);
+    }
+    if (s.migrationOsMegaBatch?.ok !== true) {
+      fail(`${label}: migrationOsMegaBatch.ok must be true for schema v53`);
+    }
+    if (s.oracleProductUltraBatch?.ok !== true) {
+      fail(`${label}: oracleProductUltraBatch.ok must be true for schema v53`);
+    }
+    if (s.advisoryStandaloneMegaBatch?.ok !== true) {
+      fail(`${label}: advisoryStandaloneMegaBatch.ok must be true for schema v53`);
+    }
+    if (s.postTranslateVerifyOriginBatch?.ok !== true) {
+      fail(`${label}: postTranslateVerifyOriginBatch.ok must be true for schema v53`);
+    }
+    if (s.tinyBlogDepthBatch?.ok !== true) {
+      fail(`${label}: tinyBlogDepthBatch.ok must be true for schema v53`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 10) {
+      fail(`${label}: hubEvidence.schemaVersion must be 10 for schema v53`);
+    }
+    if (s.deliveryPipelineRunnerSmoke?.schemaVersion !== 3) {
+      fail(`${label}: deliveryPipelineRunnerSmoke.schemaVersion must be 3 for schema v53`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_ORACLE_ULTRA === "1" && s.oracleProductUltraBatch?.ok !== true) {
+      fail(`${label}: oracleProductUltraBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_ORACLE_ULTRA=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 11) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 11 for schema v53`);
     }
   }
   const g = s.routeGrades;

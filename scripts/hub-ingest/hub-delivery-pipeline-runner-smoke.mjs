@@ -6,7 +6,7 @@ import { runDeliveryPipelineBatch } from "./hub-delivery-pipeline-smoke.mjs";
 import { runHubRunnerBatchSmoke } from "./hub-runner-batch-smoke.mjs";
 
 export const HUB_DELIVERY_PIPELINE_RUNNER_SMOKE_KIND = "chrysalis.hub.delivery-pipeline-runner-smoke";
-export const HUB_DELIVERY_PIPELINE_RUNNER_SMOKE_SCHEMA_VERSION = 2;
+export const HUB_DELIVERY_PIPELINE_RUNNER_SMOKE_SCHEMA_VERSION = 3;
 
 export async function runDeliveryPipelineRunnerSmoke() {
   const pipeline = await runDeliveryPipelineBatch(["plainPhp", "symfony", "express", "laravelMin"]);

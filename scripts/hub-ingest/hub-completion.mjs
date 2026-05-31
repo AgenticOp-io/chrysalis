@@ -117,6 +117,15 @@ import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-b
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
 import { runLaravelMinOracleBatchSmoke } from "./hub-laravel-min-oracle-batch-smoke.mjs";
+import { runAdvisoryStandaloneMegaBatchSmoke } from "./hub-advisory-standalone-mega-batch-smoke.mjs";
+import { runAllDeliveryUltraMegaBatchSmoke } from "./hub-all-delivery-ultra-mega-batch-smoke.mjs";
+import { runMigrationOsMegaBatchSmoke } from "./hub-migration-os-mega-batch-smoke.mjs";
+import { runOracleProductUltraBatchSmoke } from "./hub-oracle-product-ultra-batch-smoke.mjs";
+import { runExpressLaravelMinDeliveryBatchSmoke } from "./hub-express-laravel-min-delivery-batch-smoke.mjs";
+import { runSymfonyLaravelMinDeliveryBatchSmoke } from "./hub-symfony-laravel-min-delivery-batch-smoke.mjs";
+import { runPostTranslateVerifyOriginBatchSmoke } from "./hub-post-translate-verify-origin-batch-smoke.mjs";
+import { runTinyBlogDepthBatchSmoke } from "./hub-tiny-blog-depth-batch-smoke.mjs";
+import { runContractVerifyStandaloneBatchSmoke } from "./hub-contract-verify-standalone-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -869,6 +878,69 @@ async function main() {
     laravelMinOracleBatch = { ok: false, skip: "laravel-min-oracle-batch-threw" };
   }
   const laravelMinOracleBatchOk = laravelMinOracleBatch.ok === true;
+  let advisoryStandaloneMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    advisoryStandaloneMegaBatch = runAdvisoryStandaloneMegaBatchSmoke();
+  } catch {
+    advisoryStandaloneMegaBatch = { ok: false, skip: "advisory-standalone-mega-batch-threw" };
+  }
+  const advisoryStandaloneMegaBatchOk = advisoryStandaloneMegaBatch.ok === true;
+  let allDeliveryUltraMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    allDeliveryUltraMegaBatch = await runAllDeliveryUltraMegaBatchSmoke();
+  } catch {
+    allDeliveryUltraMegaBatch = { ok: false, skip: "all-delivery-ultra-mega-batch-threw" };
+  }
+  const allDeliveryUltraMegaBatchOk = allDeliveryUltraMegaBatch.ok === true;
+  let migrationOsMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    migrationOsMegaBatch = await runMigrationOsMegaBatchSmoke();
+  } catch {
+    migrationOsMegaBatch = { ok: false, skip: "migration-os-mega-batch-threw" };
+  }
+  const migrationOsMegaBatchOk = migrationOsMegaBatch.ok === true;
+  let oracleProductUltraBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    oracleProductUltraBatch = await runOracleProductUltraBatchSmoke();
+  } catch {
+    oracleProductUltraBatch = { ok: false, skip: "oracle-product-ultra-batch-threw" };
+  }
+  const oracleProductUltraBatchOk = oracleProductUltraBatch.ok === true;
+  let expressLaravelMinDeliveryBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    expressLaravelMinDeliveryBatch = await runExpressLaravelMinDeliveryBatchSmoke();
+  } catch {
+    expressLaravelMinDeliveryBatch = { ok: false, skip: "express-laravel-min-delivery-batch-threw" };
+  }
+  const expressLaravelMinDeliveryBatchOk = expressLaravelMinDeliveryBatch.ok === true;
+  let symfonyLaravelMinDeliveryBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    symfonyLaravelMinDeliveryBatch = await runSymfonyLaravelMinDeliveryBatchSmoke();
+  } catch {
+    symfonyLaravelMinDeliveryBatch = { ok: false, skip: "symfony-laravel-min-delivery-batch-threw" };
+  }
+  const symfonyLaravelMinDeliveryBatchOk = symfonyLaravelMinDeliveryBatch.ok === true;
+  let postTranslateVerifyOriginBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    postTranslateVerifyOriginBatch = await runPostTranslateVerifyOriginBatchSmoke();
+  } catch {
+    postTranslateVerifyOriginBatch = { ok: false, skip: "post-translate-verify-origin-batch-threw" };
+  }
+  const postTranslateVerifyOriginBatchOk = postTranslateVerifyOriginBatch.ok === true;
+  let tinyBlogDepthBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    tinyBlogDepthBatch = await runTinyBlogDepthBatchSmoke();
+  } catch {
+    tinyBlogDepthBatch = { ok: false, skip: "tiny-blog-depth-batch-threw" };
+  }
+  const tinyBlogDepthBatchOk = tinyBlogDepthBatch.ok === true;
+  let contractVerifyStandaloneBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    contractVerifyStandaloneBatch = await runContractVerifyStandaloneBatchSmoke();
+  } catch {
+    contractVerifyStandaloneBatch = { ok: false, skip: "contract-verify-standalone-batch-threw" };
+  }
+  const contractVerifyStandaloneBatchOk = contractVerifyStandaloneBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -979,6 +1051,15 @@ async function main() {
     tinyBlogDeliveryBatchOk &&
     deliveryPipelineStandaloneBatchOk &&
     laravelMinOracleBatchOk &&
+    advisoryStandaloneMegaBatchOk &&
+    allDeliveryUltraMegaBatchOk &&
+    migrationOsMegaBatchOk &&
+    oracleProductUltraBatchOk &&
+    expressLaravelMinDeliveryBatchOk &&
+    symfonyLaravelMinDeliveryBatchOk &&
+    postTranslateVerifyOriginBatchOk &&
+    tinyBlogDepthBatchOk &&
+    contractVerifyStandaloneBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -990,7 +1071,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 52,
+    schemaVersion: 53,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1177,7 +1258,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 9,
+      schemaVersion: 10,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1186,6 +1267,7 @@ async function main() {
       requireStandaloneDeliveryEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY",
       requireLaravelMinEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN",
       requireFourOriginEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FOUR_ORIGIN",
+      requireOracleUltraEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_ORACLE_ULTRA",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1415,6 +1497,7 @@ async function main() {
     },
     deliveryPipelineRunnerSmoke: {
       ok: deliveryPipelineRunnerSmokeOk,
+      schemaVersion: deliveryPipelineRunnerSmoke.schemaVersion ?? 3,
       script: "pnpm run hub:delivery-pipeline-runner-smoke",
     },
     pathAdviceSymfonySmoke: {
@@ -1584,6 +1667,42 @@ async function main() {
     laravelMinOracleBatch: {
       ok: laravelMinOracleBatchOk,
       script: "pnpm run hub:laravel-min-oracle-batch-smoke",
+    },
+    advisoryStandaloneMegaBatch: {
+      ok: advisoryStandaloneMegaBatchOk,
+      script: "pnpm run hub:advisory-standalone-mega-batch-smoke",
+    },
+    allDeliveryUltraMegaBatch: {
+      ok: allDeliveryUltraMegaBatchOk,
+      script: "pnpm run hub:all-delivery-ultra-mega-batch-smoke",
+    },
+    migrationOsMegaBatch: {
+      ok: migrationOsMegaBatchOk,
+      script: "pnpm run hub:migration-os-mega-batch-smoke",
+    },
+    oracleProductUltraBatch: {
+      ok: oracleProductUltraBatchOk,
+      script: "pnpm run hub:oracle-product-ultra-batch-smoke",
+    },
+    expressLaravelMinDeliveryBatch: {
+      ok: expressLaravelMinDeliveryBatchOk,
+      script: "pnpm run hub:express-laravel-min-delivery-batch-smoke",
+    },
+    symfonyLaravelMinDeliveryBatch: {
+      ok: symfonyLaravelMinDeliveryBatchOk,
+      script: "pnpm run hub:symfony-laravel-min-delivery-batch-smoke",
+    },
+    postTranslateVerifyOriginBatch: {
+      ok: postTranslateVerifyOriginBatchOk,
+      script: "pnpm run hub:post-translate-verify-origin-batch-smoke",
+    },
+    tinyBlogDepthBatch: {
+      ok: tinyBlogDepthBatchOk,
+      script: "pnpm run hub:tiny-blog-depth-batch-smoke",
+    },
+    contractVerifyStandaloneBatch: {
+      ok: contractVerifyStandaloneBatchOk,
+      script: "pnpm run hub:contract-verify-standalone-batch-smoke",
     },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,
