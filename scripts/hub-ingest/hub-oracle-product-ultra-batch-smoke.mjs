@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Oracle product ultra batch v2: v1 + PHP oracle micro verify (G622). */
+/** Oracle product ultra batch v3: v2 + PHP Next.js verify batch (G652). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runOracleStandaloneBatchSmoke } from "./hub-oracle-standalone-batch-smoke.mjs";
@@ -7,9 +7,10 @@ import { runLaravelMinOracleBatchSmoke } from "./hub-laravel-min-oracle-batch-sm
 import { runTinyBlogOracleBatchSmoke } from "./hub-tiny-blog-oracle-batch-smoke.mjs";
 import { runEvidenceStandaloneSmoke } from "./hub-evidence-standalone-smoke.mjs";
 import { runPhpOracleMicroVerifyBatchSmoke } from "./hub-php-oracle-micro-verify-batch-smoke.mjs";
+import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smoke.mjs";
 
 export const HUB_ORACLE_PRODUCT_ULTRA_BATCH_KIND = "chrysalis.hub.oracle-product-ultra-batch-smoke";
-export const HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 2;
+export const HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 3;
 
 export async function runOracleProductUltraBatchSmoke() {
   const oracleStandalone = await runOracleStandaloneBatchSmoke();
@@ -17,6 +18,7 @@ export async function runOracleProductUltraBatchSmoke() {
   const tinyBlogOracle = await runTinyBlogOracleBatchSmoke();
   const evidenceStandalone = await runEvidenceStandaloneSmoke();
   const phpOracleMicroVerify = await runPhpOracleMicroVerifyBatchSmoke();
+  const phpNextjsVerifyBatch = await runPhpNextjsVerifyBatchSmoke();
   return {
     kind: HUB_ORACLE_PRODUCT_ULTRA_BATCH_KIND,
     schemaVersion: HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
@@ -25,12 +27,14 @@ export async function runOracleProductUltraBatchSmoke() {
       laravelMinOracle.ok &&
       tinyBlogOracle.ok &&
       evidenceStandalone.ok &&
-      phpOracleMicroVerify.ok,
+      phpOracleMicroVerify.ok &&
+      phpNextjsVerifyBatch.ok,
     oracleStandalone,
     laravelMinOracle,
     tinyBlogOracle,
     evidenceStandalone,
     phpOracleMicroVerify,
+    phpNextjsVerifyBatch,
     generatedAt: new Date().toISOString(),
   };
 }

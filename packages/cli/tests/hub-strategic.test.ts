@@ -1645,31 +1645,89 @@ describe("strategic plan deliverables", () => {
     const { runOracleProductUltraBatchSmoke, HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-oracle-product-ultra-batch-smoke.mjs")
     );
-    expect(HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(2);
+    expect(HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBeGreaterThanOrEqual(2);
     const microVerify = await runPhpOracleMicroVerifyBatchSmoke();
     expect(microVerify.ok).toBe(true);
     expect(microVerify.micro?.routeCount).toBe(5);
     expect(microVerify.nextjs?.ok === true || microVerify.nextjs?.skip === "no-wptp-emit-nextjs").toBe(true);
     const oracleUltra = await runOracleProductUltraBatchSmoke();
     expect(oracleUltra.ok).toBe(true);
-    expect(oracleUltra.schemaVersion).toBe(2);
+    expect(oracleUltra.schemaVersion).toBeGreaterThanOrEqual(2);
     expect(oracleUltra.phpOracleMicroVerify?.ok).toBe(true);
   }, 600_000);
 
-  test("capability matrix v19 lists oracle micro verify batch (G623)", async () => {
+  test("hub completion schema 62 PHP Next.js verify batch (G680)", async () => {
+    const { runPhpNextjsVerifyBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-php-nextjs-verify-batch-smoke.mjs")
+    );
+    const { runOracleProductUltraBatchSmoke, HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-oracle-product-ultra-batch-smoke.mjs")
+    );
+    expect(HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(3);
+    const nextjsBatch = await runPhpNextjsVerifyBatchSmoke();
+    expect(nextjsBatch.ok).toBe(true);
+    expect(nextjsBatch.tinyBlog?.ok === true || nextjsBatch.tinyBlog?.skip === "no-wptp-emit-nextjs").toBe(true);
+    expect(nextjsBatch.plainPhpFlagship?.ok === true || nextjsBatch.plainPhpFlagship?.skip === "no-wptp-emit-nextjs").toBe(
+      true,
+    );
+    expect(nextjsBatch.symfonyFlagship?.ok === true || nextjsBatch.symfonyFlagship?.skip === "no-wptp-emit-nextjs").toBe(
+      true,
+    );
+    const oracleUltra = await runOracleProductUltraBatchSmoke();
+    expect(oracleUltra.ok).toBe(true);
+    expect(oracleUltra.schemaVersion).toBe(3);
+    expect(oracleUltra.phpNextjsVerifyBatch?.ok).toBe(true);
+  }, 600_000);
+
+  test("capability matrix v20 lists PHP Next.js verify batch (G653)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(19);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(20);
+    expect(report.phpNextjsVerifyBatch?.script).toBe("pnpm run hub:php-nextjs-verify-batch-smoke");
+    expect(report.phpNextjsVerifyBatch?.fixtures?.length).toBe(3);
+    expect(report.oracleProductUltra?.batchSchemaVersion).toBe(3);
+  });
+
+  test("delivery dashboard v22 surfaces month18 PHP Next.js verify batch (G654)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v22-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(22);
+      expect(report.month18Program?.phpNextjsVerifyBatch).toBe("hub:php-nextjs-verify-batch-smoke");
+      expect(report.month18Program?.requirePhpNextjsVerifyBatchEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("capability matrix v19 lists oracle micro verify batch (G623)", async () => {
+    const { buildHubCapabilityMatrixReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
     expect(report.oracleMicroFixture?.microVerifyBatchScript).toBe(
       "pnpm run hub:php-oracle-micro-verify-batch-smoke",
     );
-    expect(report.oracleProductUltra?.batchSchemaVersion).toBe(2);
+    expect((report.oracleProductUltra?.batchSchemaVersion ?? 0) >= 2).toBe(true);
   });
 
   test("delivery dashboard v21 surfaces month17 oracle micro verify (G624)", async () => {
-    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+    const { buildDeliveryDashboard } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
     );
     const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
@@ -1683,7 +1741,6 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(21);
       expect(report.month17Program?.phpOracleMicroVerify).toBe("hub:php-oracle-micro-verify-batch-smoke");
       expect(report.month17Program?.requirePhpOracleMicroVerifyEnv).toBe(
         "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY",

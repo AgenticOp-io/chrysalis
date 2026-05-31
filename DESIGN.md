@@ -2496,6 +2496,15 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D846** **Strategic test G650 (G627).** Schema 61 PHP oracle micro verify smokes.
 - **2026-05-31 — D847** **ci-gates v61 test (G628).** Accepts schema v61 payloads.
 - **2026-05-31 — D849** **Hub completion schema 61 (G650).** PHP oracle micro verify batch on tiny-blog.
+- **2026-05-31 — D850** **hub-php-nextjs-verify-batch-smoke (G651).** tiny-blog + plain-php + symfony Next.js trace verify.
+- **2026-05-31 — D851** **Oracle product ultra batch v3 (G652).** Includes PHP Next.js verify batch.
+- **2026-05-31 — D852** **Capability matrix v20 (G653).** PHP Next.js verify batch metadata.
+- **2026-05-31 — D853** **Delivery dashboard v22 (G654).** month18Program PHP Next.js verify batch.
+- **2026-05-31 — D854** **Hub evidence schema v19 (G655).** requirePhpNextjsVerifyBatchEnv.
+- **2026-05-31 — D855** **ci-gates v62 (G656).** PHP Next.js verify batch + oracle ultra v3 gates.
+- **2026-05-31 — D856** **Strategic test G680 (G657).** Schema 62 PHP Next.js verify smokes.
+- **2026-05-31 — D857** **ci-gates v62 test (G658).** Accepts schema v62 payloads.
+- **2026-05-31 — D859** **Hub completion schema 62 (G680).** PHP Next.js verify batch all PHP flagships.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 
