@@ -669,7 +669,7 @@ describe("strategic plan deliverables", () => {
       output: "hono",
     });
     expect(report.kind).toBe("chrysalis.hub.delivery-dashboard");
-    expect(report.schemaVersion).toBe(9);
+    expect(report.schemaVersion).toBe(10);
     expect(report.license?.hubFeatures?.length).toBeGreaterThan(0);
     expect(Array.isArray(report.artifacts)).toBe(true);
   });
@@ -852,7 +852,7 @@ describe("strategic plan deliverables", () => {
         output: "hono",
         laravelGapsReportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
       });
-      expect(report.schemaVersion).toBe(9);
+      expect(report.schemaVersion).toBe(10);
       expect(report.cwlPreview?.routeCount).toBe(5);
       expect(report.laravelGlobalAction?.ingestRemediation?.owner).toBe("packages/ingest");
       expect(report.month3Program?.oracleMicro?.fixture).toBe("fixtures/tiny-blog");
@@ -1044,7 +1044,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(7);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(8);
     expect(report.migrationOs?.script).toBe("pnpm run hub:migration-os-smoke");
     expect(report.cwlInterchange?.allRfcRoundtripScript).toBe("pnpm run hub:cwl-all-rfc-roundtrip-smoke");
   });
@@ -1083,7 +1083,7 @@ describe("strategic plan deliverables", () => {
         `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(report.schemaVersion).toBe(9);
+      expect(report.schemaVersion).toBe(10);
       expect(report.month3Program?.evidenceSmoke).toBe("hub:evidence-smoke");
       expect(report.month3Program?.translateE2e).toBe("hub:translate-e2e-smoke");
       expect(report.month3Program?.cwlRfcSmokes).toContain("hub:cwl-request-context-smoke");
@@ -1164,7 +1164,7 @@ describe("strategic plan deliverables", () => {
         `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(report.schemaVersion).toBe(9);
+      expect(report.schemaVersion).toBe(10);
       expect(report.month3Program?.evidenceLive).toBe("hub:evidence-live");
       expect(report.month4Program?.migrationOsSmoke).toBe("hub:migration-os-smoke");
       expect(report.month3Program?.pipelineGateStrictEnv).toBe("CHRYSALIS_HUB_PIPELINE_GATE_STRICT");
@@ -1179,11 +1179,64 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(7);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(8);
     expect(report.cwlInterchange?.pathParamsScript).toBe("pnpm run hub:cwl-path-params-smoke");
     expect(report.migrationOsStandalone?.standaloneBatchScript).toBe(
       "pnpm run hub:migration-os-standalone-batch-smoke",
     );
+  });
+
+  test("hub completion schema 50 smokes present (G320)", async () => {
+    const { runExpressDeliveryBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-express-delivery-batch-smoke.mjs")
+    );
+    const { runCwlInterchangeBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-interchange-batch-smoke.mjs")
+    );
+    const { runSymfonyMigrationOsBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-symfony-migration-os-batch-smoke.mjs")
+    );
+    const express = await runExpressDeliveryBatchSmoke();
+    const interchange = await runCwlInterchangeBatchSmoke();
+    const symfony = await runSymfonyMigrationOsBatchSmoke();
+    expect(express.ok).toBe(true);
+    expect(interchange.ok).toBe(true);
+    expect(symfony.ok).toBe(true);
+  }, 300_000);
+
+  test("capability matrix v8 lists express delivery smokes (G313)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(8);
+    expect(report.expressDelivery?.deliveryBatchScript).toBe("pnpm run hub:express-delivery-batch-smoke");
+    expect(report.cwlBatchSmokes?.interchangeBatchScript).toBe("pnpm run hub:cwl-interchange-batch-smoke");
+  });
+
+  test("delivery dashboard v10 surfaces month6 standalone batches (G314)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v10-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(10);
+      expect(report.month6Program?.expressDeliveryBatch).toBe("hub:express-delivery-batch-smoke");
+      expect(report.month6Program?.requireStandaloneDeliveryEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   test("hub completion schema 49 smokes present (G290)", async () => {
@@ -1219,7 +1272,7 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(9);
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(10);
       expect(report.month5Program?.cwlPathParamsSmoke).toBe("hub:cwl-path-params-smoke");
       expect(report.month5Program?.requireCwlParamsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS");
     } finally {
@@ -1346,6 +1399,16 @@ describe("strategic plan deliverables", () => {
       expect(report.kind).toBe("chrysalis.hub.symfony-flagship");
       expect(report.ingest?.routeCount).toBe(20);
       expect(report.routesParity?.ok).toBe(true);
+      expect(report.ok).toBe(true);
+    }, 300_000);
+
+    test("hub-express-flagship smoke", async () => {
+      const { runExpressFlagshipSmoke } = await import(
+        resolve(ROOT, "scripts/hub-ingest/hub-express-flagship.mjs")
+      );
+      const report = await runExpressFlagshipSmoke();
+      expect(report.kind).toBe("chrysalis.hub.express-flagship");
+      expect(report.lift?.routeCount).toBe(20);
       expect(report.ok).toBe(true);
     }, 300_000);
   });

@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 7;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 8;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -146,6 +146,30 @@ export function buildHubCapabilityMatrixReport() {
     },
     deliveryPipelineRunner: {
       script: "pnpm run hub:delivery-pipeline-runner-smoke",
+    },
+    expressDelivery: {
+      siteIntelligenceScript: "pnpm run hub:site-intelligence-express-smoke",
+      pathAdviceScript: "pnpm run hub:path-advice-express-smoke",
+      verifyGapsScript: "pnpm run hub:verify-gaps-express-smoke",
+      postTranslateArtifactsScript: "pnpm run hub:post-translate-artifacts-express-smoke",
+      migrationAssessmentScript: "pnpm run hub:migration-assessment-express-smoke",
+      chimeraCutoverScript: "pnpm run hub:chimera-cutover-express-smoke",
+      deliveryBatchScript: "pnpm run hub:express-delivery-batch-smoke",
+      projectToCwlScript: "pnpm run hub:project-to-cwl-express-smoke",
+    },
+    symfonyMigrationOsDelivery: {
+      assessmentScript: "pnpm run hub:migration-assessment-symfony-smoke",
+      chimeraScript: "pnpm run hub:chimera-cutover-symfony-smoke",
+      batchScript: "pnpm run hub:symfony-migration-os-batch-smoke",
+    },
+    cwlBatchSmokes: {
+      paramsRoundtripBatchScript: "pnpm run hub:cwl-params-roundtrip-batch-smoke",
+      multiBatchScript: "pnpm run hub:cwl-multi-batch-smoke",
+      interchangeBatchScript: "pnpm run hub:cwl-interchange-batch-smoke",
+    },
+    standaloneBatches: {
+      evidenceLiveScript: "pnpm run hub:evidence-live-standalone-batch-smoke",
+      translateE2eScript: "pnpm run hub:translate-e2e-standalone-batch-smoke",
     },
     migrationOsDelivery: {
       pathAdviceScript: "pnpm run hub:path-advice-smoke",

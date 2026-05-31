@@ -2468,6 +2468,66 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D619** **Hub completion schema 50 (G320).** Express/symfony standalone delivery + CWL batches; three-flagship in-process; CI gates v50.
+
+- **2026-05-31 — D618** **Three-flagship in-process parity (G319).** plain-php + symfony + express `inProcess: true` in completion.
+
+- **2026-05-31 — D617** **Standalone translate/evidence batches (G318).** Completion wiring for translate E2E + evidence live standalone batches.
+
+- **2026-05-31 — D616** **CWL batch smokes in completion (G317).** Params roundtrip + multi + interchange batch gates.
+
+- **2026-05-31 — D615** **Standalone delivery strict CI env (G316).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY` in ci-gates v50.
+
+- **2026-05-31 — D614** **Hub evidence schema v7 (G315).** `requireStandaloneDeliveryEnv` in completion hubEvidence block.
+
+- **2026-05-31 — D613** **Delivery dashboard v10 (G314).** `month6Program` express + symfony batch scripts.
+
+- **2026-05-31 — D612** **Capability matrix v8 (G313).** Express delivery + CWL batch + standalone batch metadata.
+
+- **2026-05-31 — D611** **Symfony migration delivery depth (G312).** Symfony assessment/chimera standalone in completion.
+
+- **2026-05-31 — D610** **Express delivery smokes in completion (G311).** Express standalone smokes wired schema 50.
+
+- **2026-05-31 — D609** **Project-to-CWL express dedicated (G310).** Hole-free CWL export on express flagship.
+
+- **2026-05-31 — D608** **Chimera cutover express (G309).** javascript-origin cutover smoke.
+
+- **2026-05-31 — D607** **Migration assessment express (G308).** javascript-origin assessment smoke.
+
+- **2026-05-31 — D606** **Symfony migration OS batch (G307).** migration OS + assessment + chimera symfony batch.
+
+- **2026-05-31 — D605** **Express delivery batch (G306).** Site + path + assessment + chimera express profiles.
+
+- **2026-05-31 — D604** **Translate E2E standalone batch (G305).** Four-variant translate batch gate.
+
+- **2026-05-31 — D603** **Evidence live standalone batch (G304).** Four-profile evidence live batch.
+
+- **2026-05-31 — D602** **CWL interchange batch (G303).** Preview + openapi + diff + middleware batch.
+
+- **2026-05-31 — D601** **CWL multi batch (G302).** Multi gold + multi roundtrip batch.
+
+- **2026-05-31 — D600** **CWL params roundtrip batch (G301).** Path + query roundtrip combined gate.
+
+- **2026-05-31 — D599** **Hub runner batch v2 (G300).** Adds express profile; schema v2.
+
+- **2026-05-31 — D598** **Chimera cutover symfony standalone (G299).** Phased runbook on symfony flagship.
+
+- **2026-05-31 — D597** **Migration assessment symfony standalone (G298).** Readiness tier on symfony flagship.
+
+- **2026-05-31 — D596** **Post-translate artifacts express (G297).** G146 bundle with javascript lift.
+
+- **2026-05-31 — D595** **Verify gaps express smoke (G296).** Honest skip when no verify report.
+
+- **2026-05-31 — D594** **Path advice express smoke (G295).** Pair grade on express flagship.
+
+- **2026-05-31 — D593** **Site intelligence express smoke (G294).** javascript-origin site scan.
+
+- **2026-05-31 — D592** **Express strategic test in-process (G293).** Direct import flagship runner.
+
+- **2026-05-31 — D591** **Express completion in-process (G292).** `expressFlagshipGold.inProcess` in completion.
+
+- **2026-05-31 — D590** **Express flagship in-process emit parity (G291).** `runExpressFlagshipSmoke` + shared emit parity helper.
+
 - **2026-05-30 — D589** **Hub completion schema 49 (G290).** CWL params/multi smokes, migration OS standalone batch, symfony delivery smokes, in-process flagship parity; CI gates v49.
 
 - **2026-05-30 — D588** **Evidence trend standalone markers (G289).** month5Program references evidence trend alongside CWL params smokes.

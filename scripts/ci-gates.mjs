@@ -759,9 +759,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 46 &&
     s.schemaVersion !== 47 &&
     s.schemaVersion !== 48 &&
-    s.schemaVersion !== 49
+    s.schemaVersion !== 49 &&
+    s.schemaVersion !== 50
   ) {
-    fail(`${label}: expected schemaVersion 0–49, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–50, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1410,7 +1411,7 @@ function assertHubCompletion(path) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 6 for schema v48`);
     }
   }
-  if (s.schemaVersion >= 49) {
+  if (s.schemaVersion >= 49 && s.schemaVersion < 50) {
     if (s.cwlPathParamsRuntime?.ok !== true) {
       fail(`${label}: cwlPathParamsRuntime.ok must be true for schema v49`);
     }
@@ -1452,6 +1453,47 @@ function assertHubCompletion(path) {
     }
     if (s.symfonyFlagshipGold?.inProcess !== true) {
       fail(`${label}: symfonyFlagshipGold.inProcess must be true for schema v49`);
+    }
+  }
+  if (s.schemaVersion >= 50) {
+    if (s.expressDeliveryBatch?.ok !== true) {
+      fail(`${label}: expressDeliveryBatch.ok must be true for schema v50`);
+    }
+    if (s.symfonyMigrationOsBatch?.ok !== true) {
+      fail(`${label}: symfonyMigrationOsBatch.ok must be true for schema v50`);
+    }
+    if (s.cwlInterchangeBatch?.ok !== true) {
+      fail(`${label}: cwlInterchangeBatch.ok must be true for schema v50`);
+    }
+    if (s.cwlParamsRoundtripBatch?.ok !== true) {
+      fail(`${label}: cwlParamsRoundtripBatch.ok must be true for schema v50`);
+    }
+    if (s.cwlMultiBatch?.ok !== true) {
+      fail(`${label}: cwlMultiBatch.ok must be true for schema v50`);
+    }
+    if (s.evidenceLiveStandaloneBatch?.ok !== true) {
+      fail(`${label}: evidenceLiveStandaloneBatch.ok must be true for schema v50`);
+    }
+    if (s.translateE2eStandaloneBatch?.ok !== true) {
+      fail(`${label}: translateE2eStandaloneBatch.ok must be true for schema v50`);
+    }
+    if (s.projectToCwlExpressSmoke?.ok !== true) {
+      fail(`${label}: projectToCwlExpressSmoke.ok must be true for schema v50`);
+    }
+    if (s.hubRunnerBatchSmoke?.schemaVersion !== 2) {
+      fail(`${label}: hubRunnerBatchSmoke.schemaVersion must be 2 for schema v50`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 7) {
+      fail(`${label}: hubEvidence.schemaVersion must be 7 for schema v50`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY === "1" && s.expressDeliveryBatch?.ok !== true) {
+      fail(`${label}: expressDeliveryBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 8) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 8 for schema v50`);
+    }
+    if (s.expressFlagshipGold?.inProcess !== true) {
+      fail(`${label}: expressFlagshipGold.inProcess must be true for schema v50`);
     }
   }
   const g = s.routeGrades;

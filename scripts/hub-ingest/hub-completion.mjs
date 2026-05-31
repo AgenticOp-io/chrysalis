@@ -77,6 +77,23 @@ import { runDeliveryPipelineRunnerSmoke } from "./hub-delivery-pipeline-runner-s
 import { runPathAdviceSymfonySmoke } from "./hub-path-advice-symfony-smoke.mjs";
 import { runSiteIntelligenceSymfonySmoke } from "./hub-site-intelligence-symfony-smoke.mjs";
 import { runPostTranslateArtifactsSymfonySmoke } from "./hub-post-translate-artifacts-symfony-smoke.mjs";
+import { runExpressFlagshipSmoke } from "./hub-express-flagship.mjs";
+import { runSiteIntelligenceExpressSmoke } from "./hub-site-intelligence-express-smoke.mjs";
+import { runPathAdviceExpressSmoke } from "./hub-path-advice-express-smoke.mjs";
+import { runVerifyGapsExpressSmoke } from "./hub-verify-gaps-express-smoke.mjs";
+import { runPostTranslateArtifactsExpressSmoke } from "./hub-post-translate-artifacts-express-smoke.mjs";
+import { runMigrationAssessmentSymfonySmoke } from "./hub-migration-assessment-symfony-smoke.mjs";
+import { runChimeraCutoverSymfonySmoke } from "./hub-chimera-cutover-symfony-smoke.mjs";
+import { runMigrationAssessmentExpressSmoke } from "./hub-migration-assessment-express-smoke.mjs";
+import { runChimeraCutoverExpressSmoke } from "./hub-chimera-cutover-express-smoke.mjs";
+import { runCwlParamsRoundtripBatchSmoke } from "./hub-cwl-params-roundtrip-batch-smoke.mjs";
+import { runCwlMultiBatchSmoke } from "./hub-cwl-multi-batch-smoke.mjs";
+import { runCwlInterchangeBatchSmoke } from "./hub-cwl-interchange-batch-smoke.mjs";
+import { runEvidenceLiveStandaloneBatchSmoke } from "./hub-evidence-live-standalone-batch-smoke.mjs";
+import { runTranslateE2eStandaloneBatchSmoke } from "./hub-translate-e2e-standalone-batch-smoke.mjs";
+import { runExpressDeliveryBatchSmoke } from "./hub-express-delivery-batch-smoke.mjs";
+import { runSymfonyMigrationOsBatchSmoke } from "./hub-symfony-migration-os-batch-smoke.mjs";
+import { runProjectToCwlExpressSmoke } from "./hub-project-to-cwl-express-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -181,8 +198,13 @@ async function main() {
   const laravelGapsAction = runLaravelVerifyGapsAction();
   const laravelMinSmoke = buildHubLaravelMinSmokeReport();
   const laravelMinSmokeOk = laravelMinSmoke.ok === true;
-  const expressFlagship = runJson(join(scriptRoot, "scripts/hub-ingest/hub-express-flagship.mjs"), []);
-  const expressFlagshipOk = expressFlagship.status === 0 && expressFlagship.parsed.ok === true;
+  let expressFlagshipReport = { ok: false, skip: "not-run-in-completion" };
+  try {
+    expressFlagshipReport = await runExpressFlagshipSmoke();
+  } catch {
+    expressFlagshipReport = { ok: false, skip: "express-flagship-threw" };
+  }
+  const expressFlagshipOk = expressFlagshipReport.ok === true;
   let plainPhpFlagshipReport = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpFlagshipReport = await runPlainPhpFlagshipSmoke();
@@ -551,6 +573,118 @@ async function main() {
     postTranslateArtifactsSymfonySmoke = { ok: false, skip: "post-translate-artifacts-symfony-threw" };
   }
   const postTranslateArtifactsSymfonySmokeOk = postTranslateArtifactsSymfonySmoke.ok === true;
+  let cwlParamsRoundtripBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlParamsRoundtripBatch = await runCwlParamsRoundtripBatchSmoke();
+  } catch {
+    cwlParamsRoundtripBatch = { ok: false, skip: "cwl-params-roundtrip-batch-threw" };
+  }
+  const cwlParamsRoundtripBatchOk = cwlParamsRoundtripBatch.ok === true;
+  let cwlMultiBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlMultiBatch = await runCwlMultiBatchSmoke();
+  } catch {
+    cwlMultiBatch = { ok: false, skip: "cwl-multi-batch-threw" };
+  }
+  const cwlMultiBatchOk = cwlMultiBatch.ok === true;
+  let cwlInterchangeBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlInterchangeBatch = await runCwlInterchangeBatchSmoke();
+  } catch {
+    cwlInterchangeBatch = { ok: false, skip: "cwl-interchange-batch-threw" };
+  }
+  const cwlInterchangeBatchOk = cwlInterchangeBatch.ok === true;
+  let evidenceLiveStandaloneBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    evidenceLiveStandaloneBatch = await runEvidenceLiveStandaloneBatchSmoke();
+  } catch {
+    evidenceLiveStandaloneBatch = { ok: false, skip: "evidence-live-standalone-batch-threw" };
+  }
+  const evidenceLiveStandaloneBatchOk = evidenceLiveStandaloneBatch.ok === true;
+  let translateE2eStandaloneBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    translateE2eStandaloneBatch = runTranslateE2eStandaloneBatchSmoke();
+  } catch {
+    translateE2eStandaloneBatch = { ok: false, skip: "translate-e2e-standalone-batch-threw" };
+  }
+  const translateE2eStandaloneBatchOk = translateE2eStandaloneBatch.ok === true;
+  let expressDeliveryBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    expressDeliveryBatch = await runExpressDeliveryBatchSmoke();
+  } catch {
+    expressDeliveryBatch = { ok: false, skip: "express-delivery-batch-threw" };
+  }
+  const expressDeliveryBatchOk = expressDeliveryBatch.ok === true;
+  let symfonyMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    symfonyMigrationOsBatch = await runSymfonyMigrationOsBatchSmoke();
+  } catch {
+    symfonyMigrationOsBatch = { ok: false, skip: "symfony-migration-os-batch-threw" };
+  }
+  const symfonyMigrationOsBatchOk = symfonyMigrationOsBatch.ok === true;
+  let projectToCwlExpressSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    projectToCwlExpressSmoke = await runProjectToCwlExpressSmoke();
+  } catch {
+    projectToCwlExpressSmoke = { ok: false, skip: "project-to-cwl-express-threw" };
+  }
+  const projectToCwlExpressSmokeOk = projectToCwlExpressSmoke.ok === true;
+  let siteIntelligenceExpressSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    siteIntelligenceExpressSmoke = await runSiteIntelligenceExpressSmoke();
+  } catch {
+    siteIntelligenceExpressSmoke = { ok: false, skip: "site-intelligence-express-threw" };
+  }
+  const siteIntelligenceExpressSmokeOk = siteIntelligenceExpressSmoke.ok === true;
+  let pathAdviceExpressSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    pathAdviceExpressSmoke = await runPathAdviceExpressSmoke();
+  } catch {
+    pathAdviceExpressSmoke = { ok: false, skip: "path-advice-express-threw" };
+  }
+  const pathAdviceExpressSmokeOk = pathAdviceExpressSmoke.ok === true;
+  let verifyGapsExpressSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    verifyGapsExpressSmoke = runVerifyGapsExpressSmoke();
+  } catch {
+    verifyGapsExpressSmoke = { ok: false, skip: "verify-gaps-express-threw" };
+  }
+  const verifyGapsExpressSmokeOk = verifyGapsExpressSmoke.ok === true;
+  let postTranslateArtifactsExpressSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    postTranslateArtifactsExpressSmoke = await runPostTranslateArtifactsExpressSmoke();
+  } catch {
+    postTranslateArtifactsExpressSmoke = { ok: false, skip: "post-translate-artifacts-express-threw" };
+  }
+  const postTranslateArtifactsExpressSmokeOk = postTranslateArtifactsExpressSmoke.ok === true;
+  let migrationAssessmentSymfonySmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    migrationAssessmentSymfonySmoke = await runMigrationAssessmentSymfonySmoke();
+  } catch {
+    migrationAssessmentSymfonySmoke = { ok: false, skip: "migration-assessment-symfony-threw" };
+  }
+  const migrationAssessmentSymfonySmokeOk = migrationAssessmentSymfonySmoke.ok === true;
+  let chimeraCutoverSymfonySmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    chimeraCutoverSymfonySmoke = await runChimeraCutoverSymfonySmoke();
+  } catch {
+    chimeraCutoverSymfonySmoke = { ok: false, skip: "chimera-cutover-symfony-threw" };
+  }
+  const chimeraCutoverSymfonySmokeOk = chimeraCutoverSymfonySmoke.ok === true;
+  let migrationAssessmentExpressSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    migrationAssessmentExpressSmoke = await runMigrationAssessmentExpressSmoke();
+  } catch {
+    migrationAssessmentExpressSmoke = { ok: false, skip: "migration-assessment-express-threw" };
+  }
+  const migrationAssessmentExpressSmokeOk = migrationAssessmentExpressSmoke.ok === true;
+  let chimeraCutoverExpressSmoke = { ok: false, skip: "not-run-in-completion" };
+  try {
+    chimeraCutoverExpressSmoke = await runChimeraCutoverExpressSmoke();
+  } catch {
+    chimeraCutoverExpressSmoke = { ok: false, skip: "chimera-cutover-express-threw" };
+  }
+  const chimeraCutoverExpressSmokeOk = chimeraCutoverExpressSmoke.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -622,6 +756,22 @@ async function main() {
     pathAdviceSymfonySmokeOk &&
     siteIntelligenceSymfonySmokeOk &&
     postTranslateArtifactsSymfonySmokeOk &&
+    cwlParamsRoundtripBatchOk &&
+    cwlMultiBatchOk &&
+    cwlInterchangeBatchOk &&
+    evidenceLiveStandaloneBatchOk &&
+    translateE2eStandaloneBatchOk &&
+    expressDeliveryBatchOk &&
+    symfonyMigrationOsBatchOk &&
+    projectToCwlExpressSmokeOk &&
+    siteIntelligenceExpressSmokeOk &&
+    pathAdviceExpressSmokeOk &&
+    verifyGapsExpressSmokeOk &&
+    postTranslateArtifactsExpressSmokeOk &&
+    migrationAssessmentSymfonySmokeOk &&
+    chimeraCutoverSymfonySmokeOk &&
+    migrationAssessmentExpressSmokeOk &&
+    chimeraCutoverExpressSmokeOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -633,7 +783,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 49,
+    schemaVersion: 50,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -820,12 +970,13 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 6,
+      schemaVersion: 7,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
       requireMigrationOsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_MIGRATION_OS",
       requireCwlParamsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS",
+      requireStandaloneDeliveryEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1050,6 +1201,7 @@ async function main() {
     },
     hubRunnerBatchSmoke: {
       ok: hubRunnerBatchSmokeOk,
+      schemaVersion: hubRunnerBatchSmoke.schemaVersion ?? 2,
       script: "pnpm run hub:runner-batch-smoke",
     },
     deliveryPipelineRunnerSmoke: {
@@ -1067,6 +1219,70 @@ async function main() {
     postTranslateArtifactsSymfonySmoke: {
       ok: postTranslateArtifactsSymfonySmokeOk,
       script: "pnpm run hub:post-translate-artifacts-symfony-smoke",
+    },
+    cwlParamsRoundtripBatch: {
+      ok: cwlParamsRoundtripBatchOk,
+      script: "pnpm run hub:cwl-params-roundtrip-batch-smoke",
+    },
+    cwlMultiBatch: {
+      ok: cwlMultiBatchOk,
+      script: "pnpm run hub:cwl-multi-batch-smoke",
+    },
+    cwlInterchangeBatch: {
+      ok: cwlInterchangeBatchOk,
+      script: "pnpm run hub:cwl-interchange-batch-smoke",
+    },
+    evidenceLiveStandaloneBatch: {
+      ok: evidenceLiveStandaloneBatchOk,
+      script: "pnpm run hub:evidence-live-standalone-batch-smoke",
+    },
+    translateE2eStandaloneBatch: {
+      ok: translateE2eStandaloneBatchOk,
+      script: "pnpm run hub:translate-e2e-standalone-batch-smoke",
+    },
+    expressDeliveryBatch: {
+      ok: expressDeliveryBatchOk,
+      script: "pnpm run hub:express-delivery-batch-smoke",
+    },
+    symfonyMigrationOsBatch: {
+      ok: symfonyMigrationOsBatchOk,
+      script: "pnpm run hub:symfony-migration-os-batch-smoke",
+    },
+    projectToCwlExpressSmoke: {
+      ok: projectToCwlExpressSmokeOk,
+      script: "pnpm run hub:project-to-cwl-express-smoke",
+    },
+    siteIntelligenceExpressSmoke: {
+      ok: siteIntelligenceExpressSmokeOk,
+      script: "pnpm run hub:site-intelligence-express-smoke",
+    },
+    pathAdviceExpressSmoke: {
+      ok: pathAdviceExpressSmokeOk,
+      script: "pnpm run hub:path-advice-express-smoke",
+    },
+    verifyGapsExpressSmoke: {
+      ok: verifyGapsExpressSmokeOk,
+      script: "pnpm run hub:verify-gaps-express-smoke",
+    },
+    postTranslateArtifactsExpressSmoke: {
+      ok: postTranslateArtifactsExpressSmokeOk,
+      script: "pnpm run hub:post-translate-artifacts-express-smoke",
+    },
+    migrationAssessmentSymfonySmoke: {
+      ok: migrationAssessmentSymfonySmokeOk,
+      script: "pnpm run hub:migration-assessment-symfony-smoke",
+    },
+    chimeraCutoverSymfonySmoke: {
+      ok: chimeraCutoverSymfonySmokeOk,
+      script: "pnpm run hub:chimera-cutover-symfony-smoke",
+    },
+    migrationAssessmentExpressSmoke: {
+      ok: migrationAssessmentExpressSmokeOk,
+      script: "pnpm run hub:migration-assessment-express-smoke",
+    },
+    chimeraCutoverExpressSmoke: {
+      ok: chimeraCutoverExpressSmokeOk,
+      script: "pnpm run hub:chimera-cutover-express-smoke",
     },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,
@@ -1092,7 +1308,7 @@ async function main() {
     },
     expressFlagshipGold: {
       ok: expressFlagshipOk,
-      routeCount: expressFlagship.parsed.lift?.routeCount ?? null,
+      routeCount: expressFlagshipReport.lift?.routeCount ?? null,
       suiteIds: [
         "express-flagship-hono",
         "express-flagship-fastify",
@@ -1100,8 +1316,9 @@ async function main() {
         "express-flagship-cwl",
       ],
       script: "pnpm run hub:express-flagship",
-      cwlProjection: expressFlagship.parsed.cwlProjection ?? null,
-      emitParity: expressFlagship.parsed.emitParity ?? null,
+      cwlProjection: expressFlagshipReport.cwlProjection ?? null,
+      emitParity: expressFlagshipReport.emitParity ?? null,
+      inProcess: true,
     },
     nodeExpressOracleVerify: {
       ok: nodeExpressOracleOk,

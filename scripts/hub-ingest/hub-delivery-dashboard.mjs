@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 9;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 10;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -233,6 +233,17 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       deliveryPipelineRunnerSmoke: "hub:delivery-pipeline-runner-smoke",
       evidenceTrendSmoke: "hub:evidence-trend-smoke",
       requireCwlParamsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS",
+    },
+    month6Program: {
+      expressDeliveryBatch: "hub:express-delivery-batch-smoke",
+      symfonyMigrationOsBatch: "hub:symfony-migration-os-batch-smoke",
+      cwlParamsRoundtripBatch: "hub:cwl-params-roundtrip-batch-smoke",
+      cwlMultiBatch: "hub:cwl-multi-batch-smoke",
+      cwlInterchangeBatch: "hub:cwl-interchange-batch-smoke",
+      evidenceLiveStandaloneBatch: "hub:evidence-live-standalone-batch-smoke",
+      translateE2eStandaloneBatch: "hub:translate-e2e-standalone-batch-smoke",
+      projectToCwlExpress: "hub:project-to-cwl-express-smoke",
+      requireStandaloneDeliveryEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

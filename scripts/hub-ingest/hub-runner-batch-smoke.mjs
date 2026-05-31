@@ -1,18 +1,18 @@
 #!/usr/bin/env node
-/** Hub runner batch: plain-php + symfony translate step shapes (G280). */
+/** Hub runner batch: plain-php + symfony + express translate step shapes (G280/G306). */
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { hubJobSteps } from "../chrysalis-hub-runners.mjs";
 
 export const HUB_RUNNER_BATCH_SMOKE_KIND = "chrysalis.hub.runner-batch-smoke";
-export const HUB_RUNNER_BATCH_SMOKE_SCHEMA_VERSION = 1;
+export const HUB_RUNNER_BATCH_SMOKE_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-function runnerShapeOk(projectDir, label) {
+function runnerShapeOk(projectDir, label, sourceLang) {
   const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
   const steps = hubJobSteps(scriptRoot, cliBin, projectDir, {
-    sourceLang: "php",
+    sourceLang,
     targetId: "hono",
     action: "hub-translate",
   });
@@ -28,13 +28,14 @@ function runnerShapeOk(projectDir, label) {
 }
 
 export function runHubRunnerBatchSmoke() {
-  const plainPhp = runnerShapeOk(join(scriptRoot, "fixtures/hub-flagship-plain-php"), "plainPhp");
-  const symfony = runnerShapeOk(join(scriptRoot, "fixtures/hub-flagship-symfony"), "symfony");
+  const plainPhp = runnerShapeOk(join(scriptRoot, "fixtures/hub-flagship-plain-php"), "plainPhp", "php");
+  const symfony = runnerShapeOk(join(scriptRoot, "fixtures/hub-flagship-symfony"), "symfony", "php");
+  const express = runnerShapeOk(join(scriptRoot, "fixtures/hub-flagship-express"), "express", "javascript");
   return {
     kind: HUB_RUNNER_BATCH_SMOKE_KIND,
     schemaVersion: HUB_RUNNER_BATCH_SMOKE_SCHEMA_VERSION,
-    ok: plainPhp.ok && symfony.ok,
-    profiles: { plainPhp, symfony },
+    ok: plainPhp.ok && symfony.ok && express.ok,
+    profiles: { plainPhp, symfony, express },
     generatedAt: new Date().toISOString(),
   };
 }
