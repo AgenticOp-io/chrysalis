@@ -266,6 +266,8 @@
     "hub:laravel-verify-live-gaps-closure-smoke": "node scripts/hub-ingest/hub-laravel-verify-live-gaps-closure-smoke.mjs",
     "hub:gap-reingest-strict-smoke": "node scripts/hub-ingest/hub-gap-reingest-strict-smoke.mjs",
     "hub:laravel-auth-probe-reingest-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs",
+    "hub:laravel-auth-probe-verify-seed": "node scripts/hub-ingest/hub-laravel-auth-probe-verify-seed.mjs",
+    "hub:laravel-auth-probe-reingest-verify-closure-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs",
     "hub:flagship-verify-gaps-standalone-smoke": "node scripts/hub-ingest/hub-flagship-verify-gaps-standalone-smoke.mjs",
     "hub:contract-cwl-smoke": "node scripts/hub-ingest/hub-contract-cwl-smoke.mjs",
     "hub:cross-language-synthesis": "node scripts/hub-ingest/hub-cross-language-synthesis.mjs --json-out reports/ci/hub-cross-language-synthesis.json",

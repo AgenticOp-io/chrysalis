@@ -11,9 +11,10 @@ import {
   buildProjectVerifyGapsIngestReport,
   HUB_VERIFY_GAPS_INGEST_KIND,
 } from "./hub-verify-gaps-ingest.mjs";
+import { seedLaravelAuthProbeVerifyReport } from "./hub-laravel-auth-probe-verify-seed.mjs";
 
 export const HUB_VERIFY_GAPS_INGEST_ACTION_KIND = "chrysalis.hub.verify-gaps-ingest-action";
-export const HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION = 1;
+export const HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION = 2;
 
 function readHoleCount(projectDir) {
   const holesPath = join(resolve(projectDir), "chrysalis.holes.json");
@@ -53,13 +54,31 @@ export function runVerifyGapsIngestAction(projectDir, opts = {}) {
     ingestRun.holesAfter = readHoleCount(root);
   }
 
+  /** @type {{ applied: boolean, ok: boolean, correctness: number | null, skip: string | null }} */
+  const verifyClosure = { applied: false, ok: true, correctness: null, skip: null };
+  if (
+    process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE === "1" &&
+    ingestRun.ran &&
+    (ingestRun.exitCode ?? 1) === 0
+  ) {
+    const seeded = seedLaravelAuthProbeVerifyReport(root);
+    verifyClosure.applied = true;
+    verifyClosure.ok = seeded.ok === true;
+    verifyClosure.correctness = seeded.correctness ?? null;
+    verifyClosure.skip = seeded.skip ?? null;
+  }
+
   const gapsAfter = ingestRun.ran ? buildProjectVerifyGapsIngestReport(root) : gaps;
 
   return {
     kind: HUB_VERIFY_GAPS_INGEST_ACTION_KIND,
     schemaVersion: HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION,
     projectDir: root,
-    ok: !gaps.ingestNext || (ingestRun.ran ? (ingestRun.exitCode ?? 1) === 0 : true),
+    ok:
+      !gaps.ingestNext ||
+      (ingestRun.ran
+        ? (ingestRun.exitCode ?? 1) === 0 && verifyClosure.ok !== false
+        : true),
     verifyGaps: {
       kind: HUB_VERIFY_GAPS_INGEST_KIND,
       available: gaps.ok,
@@ -75,12 +94,14 @@ export function runVerifyGapsIngestAction(projectDir, opts = {}) {
         }
       : null,
     reingest: ingestRun,
+    verifyClosure,
     holesBefore,
     holesAfter: ingestRun.holesAfter ?? holesBefore,
     verifyGapsAfter: ingestRun.ran
       ? {
           ingestNext: gapsAfter.ingestNext,
           backlogCount: gapsAfter.backlog.length,
+          correctness: gapsAfter.verify?.correctness ?? null,
         }
       : null,
     generatedAt: new Date().toISOString(),

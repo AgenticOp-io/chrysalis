@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** PHP wedge batch v3: v2 + gaps ingest strict batch v2 (G866). */
+/** PHP wedge batch v4: v3 + gaps ingest strict batch v3 (G897). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smoke.mjs";
@@ -10,7 +10,7 @@ import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
 
 export const HUB_PHP_WEDGE_BATCH_KIND = "chrysalis.hub.php-wedge-batch-smoke";
-export const HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION = 3;
+export const HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION = 4;
 
 export async function runPhpWedgeBatchSmoke() {
   const nextjsVerify = await runPhpNextjsVerifyBatchSmoke();

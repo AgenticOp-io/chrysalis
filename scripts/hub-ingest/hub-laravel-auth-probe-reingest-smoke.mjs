@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-/** Laravel auth-probe + backlog verify summary → strict reingest exit 0 (G861). */
+/** Laravel auth-probe + backlog → strict reingest + verify closure (G894). */
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runGapReingestBatchSmoke } from "./hub-gap-reingest-batch-smoke.mjs";
 
 export const HUB_LARAVEL_AUTH_PROBE_REINGEST_KIND = "chrysalis.hub.laravel-auth-probe-reingest-smoke";
-export const HUB_LARAVEL_AUTH_PROBE_REINGEST_SCHEMA_VERSION = 1;
+export const HUB_LARAVEL_AUTH_PROBE_REINGEST_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -24,14 +24,19 @@ export function runLaravelAuthProbeReingestSmoke() {
       report.reingest?.ran === true &&
       report.reingest?.ok === true &&
       (report.reingest?.exitCode ?? 1) === 0;
+    const verifyClosureOk =
+      report.verifyClosure?.applied === true &&
+      report.verifyClosure?.ok === true &&
+      (report.verifyClosure?.correctnessAfter ?? 0) >= 1;
     return {
       kind: HUB_LARAVEL_AUTH_PROBE_REINGEST_KIND,
       schemaVersion: HUB_LARAVEL_AUTH_PROBE_REINGEST_SCHEMA_VERSION,
-      ok: report.remediation?.ok === true && strictOk,
+      ok: report.remediation?.ok === true && strictOk && verifyClosureOk,
       cliAvailable,
       fixture: report.fixture ?? "fixtures/laravel-auth-probe",
       remediation: report.remediation,
       reingest: report.reingest,
+      verifyClosure: report.verifyClosure,
       generatedAt: new Date().toISOString(),
     };
   } finally {

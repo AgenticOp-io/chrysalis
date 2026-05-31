@@ -2591,6 +2591,26 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D975** **Strategic test G890 (G875).** Schema 69 auth-probe strict reingest smokes.
 - **2026-05-31 — D976** **ci-gates v69 test (G876).** Accepts schema v69 payloads.
 - **2026-05-31 — D990** **Hub completion schema 69 (G890).** Auth-probe strict reingest CI closure.
+- **2026-05-31 — D991** **hub-laravel-auth-probe-verify-seed (G891).** Resolved verify summary after auth-probe reingest.
+- **2026-05-31 — D992** **hub-laravel-auth-probe-reingest-verify-closure-smoke (G892).** Strict reingest + backlog 0 / correctness 1.
+- **2026-05-31 — D993** **hub-gap-reingest-batch-smoke v3 (G893).** Strict reingest + verify closure env wiring.
+- **2026-05-31 — D994** **hub-laravel-auth-probe-reingest-smoke v2 (G894).** Includes verify closure after strict reingest.
+- **2026-05-31 — D995** **hub-laravel-verify-live-gaps-closure-smoke v2 (G895).** Live backlog 0 + auth-probe verify closure.
+- **2026-05-31 — D996** **hub-gaps-ingest-strict-batch-smoke v3 (G896).** Includes auth-probe verify closure.
+- **2026-05-31 — D997** **hub-php-wedge-batch-smoke v4 (G897).** Includes gaps ingest strict batch v3.
+- **2026-05-31 — D998** **Oracle product ultra batch v7 (G898).** Includes PHP wedge v4.
+- **2026-05-31 — D999** **Evidence standalone mega batch v5 (G899).** Includes auth-probe verify closure.
+- **2026-05-31 — D1000** **Verify product ultra batch v6 (G900).** Includes auth-probe verify closure.
+- **2026-05-31 — D1001** **hub-verify-gaps-ingest-action v2 (G901).** Post-reingest verify closure seed.
+- **2026-05-31 — D1002** **Capability matrix v28 (G902).** Verify closure + batch v3/v4/v5/v6/v7 metadata.
+- **2026-05-31 — D1003** **Delivery dashboard v30 (G903).** month26Program verify closure.
+- **2026-05-31 — D1004** **Hub evidence schema v27 (G904).** requireGapReingestVerifyClosureEnv.
+- **2026-05-31 — D1005** **CI typecheck-and-test (G905).** `CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE=1` on hub completion.
+- **2026-05-31 — D1006** **ci-gates v70 (G906).** laravelAuthProbeVerifyClosure + mega batch v4/v5/v6/v7 gates.
+- **2026-05-31 — D1007** **package.json hub:* scripts (G907).** verify-seed + verify-closure smokes.
+- **2026-05-31 — D1008** **Strategic test G920 (G908).** Schema 70 auth-probe verify closure smokes.
+- **2026-05-31 — D1009** **ci-gates v70 test (G909).** Accepts schema v70 payloads.
+- **2026-05-31 — D1020** **Hub completion schema 70 (G920).** Auth-probe verify closure + live Laravel backlog zero.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 

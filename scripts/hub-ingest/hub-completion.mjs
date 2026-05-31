@@ -161,6 +161,7 @@ import { runFlagshipFullGapsBatchSmoke } from "./hub-flagship-full-gaps-batch-sm
 import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
 import { runLaravelAuthProbeReingestSmoke } from "./hub-laravel-auth-probe-reingest-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1224,6 +1225,13 @@ async function main() {
     laravelAuthProbeReingest = { ok: false, skip: "laravel-auth-probe-reingest-threw" };
   }
   const laravelAuthProbeReingestOk = laravelAuthProbeReingest.ok === true;
+  let laravelAuthProbeVerifyClosure = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelAuthProbeVerifyClosure = runLaravelAuthProbeReingestVerifyClosureSmoke();
+  } catch {
+    laravelAuthProbeVerifyClosure = { ok: false, skip: "laravel-auth-probe-verify-closure-threw" };
+  }
+  const laravelAuthProbeVerifyClosureOk = laravelAuthProbeVerifyClosure.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1378,6 +1386,7 @@ async function main() {
     gapsIngestClosureBatchOk &&
     gapsIngestStrictBatchOk &&
     laravelAuthProbeReingestOk &&
+    laravelAuthProbeVerifyClosureOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1389,7 +1398,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 69,
+    schemaVersion: 70,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1576,7 +1585,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 26,
+      schemaVersion: 27,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1605,6 +1614,7 @@ async function main() {
       requireGapsIngestClosureBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
       requireGapReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST",
       requireGapReingestStrictEnv: "CHRYSALIS_HUB_GAP_REINGEST_STRICT",
+      requireGapReingestVerifyClosureEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -2019,7 +2029,7 @@ async function main() {
     },
     oracleProductUltraBatch: {
       ok: oracleProductUltraBatchOk,
-      schemaVersion: oracleProductUltraBatch.schemaVersion ?? 6,
+      schemaVersion: oracleProductUltraBatch.schemaVersion ?? 7,
       script: "pnpm run hub:oracle-product-ultra-batch-smoke",
     },
     expressLaravelMinDeliveryBatch: {
@@ -2068,7 +2078,7 @@ async function main() {
     },
     evidenceStandaloneMegaBatch: {
       ok: evidenceStandaloneMegaBatchOk,
-      schemaVersion: evidenceStandaloneMegaBatch.schemaVersion ?? 4,
+      schemaVersion: evidenceStandaloneMegaBatch.schemaVersion ?? 5,
       script: "pnpm run hub:evidence-standalone-mega-batch-smoke",
     },
     plainPhpDepthBatch: {
@@ -2097,7 +2107,7 @@ async function main() {
     },
     verifyProductUltraBatch: {
       ok: verifyProductUltraBatchOk,
-      schemaVersion: verifyProductUltraBatch.schemaVersion ?? 5,
+      schemaVersion: verifyProductUltraBatch.schemaVersion ?? 6,
       script: "pnpm run hub:verify-product-ultra-batch-smoke",
     },
     projectToCwlAllOrigins: {
@@ -2165,7 +2175,7 @@ async function main() {
     },
     phpWedgeBatch: {
       ok: phpWedgeBatchOk,
-      schemaVersion: phpWedgeBatch.schemaVersion ?? 3,
+      schemaVersion: phpWedgeBatch.schemaVersion ?? 4,
       script: "pnpm run hub:php-wedge-batch-smoke",
     },
     hubEvidenceMvpBatch: {
@@ -2197,16 +2207,25 @@ async function main() {
     },
     gapsIngestStrictBatch: {
       ok: gapsIngestStrictBatchOk,
-      schemaVersion: gapsIngestStrictBatch.schemaVersion ?? 2,
+      schemaVersion: gapsIngestStrictBatch.schemaVersion ?? 3,
       laravelLiveBacklog: gapsIngestStrictBatch.laravelLiveClosure?.backlogCount ?? null,
       authProbeReingestOk: gapsIngestStrictBatch.authProbeReingest?.ok === true,
+      authProbeVerifyClosureOk: gapsIngestStrictBatch.authProbeVerifyClosure?.ok === true,
       script: "pnpm run hub:gaps-ingest-strict-batch-smoke",
     },
     laravelAuthProbeReingest: {
       ok: laravelAuthProbeReingestOk,
+      schemaVersion: laravelAuthProbeReingest.schemaVersion ?? 2,
       reingestExitCode: laravelAuthProbeReingest.reingest?.exitCode ?? null,
+      verifyClosureOk: laravelAuthProbeReingest.verifyClosure?.ok === true,
       fixture: laravelAuthProbeReingest.fixture ?? "fixtures/laravel-auth-probe",
       script: "pnpm run hub:laravel-auth-probe-reingest-smoke",
+    },
+    laravelAuthProbeVerifyClosure: {
+      ok: laravelAuthProbeVerifyClosureOk,
+      backlogAfter: laravelAuthProbeVerifyClosure.backlogAfter ?? null,
+      correctnessAfter: laravelAuthProbeVerifyClosure.correctnessAfter ?? null,
+      script: "pnpm run hub:laravel-auth-probe-reingest-verify-closure-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,

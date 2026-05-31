@@ -1,31 +1,36 @@
 #!/usr/bin/env node
-/** Evidence standalone mega batch v4: v3 + laravel-auth-probe strict reingest (G868). */
+/** Evidence standalone mega batch v5: v4 + auth-probe verify closure (G899). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runEvidenceStandaloneSmoke } from "./hub-evidence-standalone-smoke.mjs";
 import { runWptpGoldStandaloneSmoke } from "./hub-wptp-gold-standalone-smoke.mjs";
 import { runHubEvidenceMvpBatchSmoke } from "./hub-evidence-mvp-batch-smoke.mjs";
 import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
-import { runLaravelAuthProbeReingestSmoke } from "./hub-laravel-auth-probe-reingest-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs";
 
 export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_KIND = "chrysalis.hub.evidence-standalone-mega-batch-smoke";
-export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION = 4;
+export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION = 5;
 
 export async function runEvidenceStandaloneMegaBatchSmoke() {
   const evidence = await runEvidenceStandaloneSmoke();
   const wptpGold = runWptpGoldStandaloneSmoke();
   const evidenceMvp = await runHubEvidenceMvpBatchSmoke();
   const gapsIngestClosure = runGapsIngestClosureBatchSmoke();
-  const authProbeReingest = runLaravelAuthProbeReingestSmoke();
+  const authProbeVerifyClosure = runLaravelAuthProbeReingestVerifyClosureSmoke();
   return {
     kind: HUB_EVIDENCE_STANDALONE_MEGA_BATCH_KIND,
     schemaVersion: HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION,
-    ok: evidence.ok && wptpGold.ok && evidenceMvp.ok && gapsIngestClosure.ok && authProbeReingest.ok,
+    ok:
+      evidence.ok &&
+      wptpGold.ok &&
+      evidenceMvp.ok &&
+      gapsIngestClosure.ok &&
+      authProbeVerifyClosure.ok,
     evidence,
     wptpGold,
     evidenceMvp,
     gapsIngestClosure,
-    authProbeReingest,
+    authProbeVerifyClosure,
     generatedAt: new Date().toISOString(),
   };
 }

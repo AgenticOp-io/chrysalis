@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 29;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 30;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -357,8 +357,13 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
     },
     month25Program: {
       laravelAuthProbeReingest: "hub:laravel-auth-probe-reingest-smoke",
-      gapReingestBatchSchemaVersion: 2,
+      gapReingestBatchSchemaVersion: 3,
       requireGapReingestStrictEnv: "CHRYSALIS_HUB_GAP_REINGEST_STRICT",
+    },
+    month26Program: {
+      laravelAuthProbeVerifySeed: "hub:laravel-auth-probe-verify-seed",
+      laravelAuthProbeVerifyClosure: "hub:laravel-auth-probe-reingest-verify-closure-smoke",
+      requireGapReingestVerifyClosureEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

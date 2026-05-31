@@ -1913,6 +1913,57 @@ describe("strategic plan deliverables", () => {
     expect(closureBatch.gapReingest?.ok).toBe(true);
   }, 120_000);
 
+  test("hub completion schema 70 auth-probe verify closure (G920)", async () => {
+    const { runLaravelAuthProbeReingestVerifyClosureSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs")
+    );
+    const { runGapsIngestStrictBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-strict-batch-smoke.mjs")
+    );
+    const {
+      runVerifyProductUltraBatchSmoke,
+      HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
+    } = await import(resolve(ROOT, "scripts/hub-ingest/hub-verify-product-ultra-batch-smoke.mjs"));
+    const { HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-php-wedge-batch-smoke.mjs")
+    );
+    const { HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-gap-reingest-batch-smoke.mjs")
+    );
+    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(6);
+    expect(HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION).toBe(4);
+    expect(HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION).toBe(3);
+    const verifyClosure = runLaravelAuthProbeReingestVerifyClosureSmoke();
+    expect(verifyClosure.ok).toBe(true);
+    expect(verifyClosure.backlogAfter).toBe(0);
+    expect(verifyClosure.correctnessAfter).toBe(1);
+    const strictBatch = runGapsIngestStrictBatchSmoke();
+    expect(strictBatch.ok).toBe(true);
+    expect(strictBatch.authProbeVerifyClosure?.ok).toBe(true);
+    const verifyUltra = await runVerifyProductUltraBatchSmoke();
+    expect(verifyUltra.ok).toBe(true);
+    expect(verifyUltra.schemaVersion).toBe(6);
+    expect(verifyUltra.authProbeVerifyClosure?.ok).toBe(true);
+  }, 180_000);
+
+  test("capability matrix v28 lists verify closure + batch v4/v6 (G902)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(28);
+    expect(report.laravelAuthProbeReingest?.verifyClosureScript).toBe(
+      "pnpm run hub:laravel-auth-probe-reingest-verify-closure-smoke",
+    );
+    expect(report.gapsIngestStrictBatch?.authProbeVerifyClosureScript).toBe(
+      "pnpm run hub:laravel-auth-probe-reingest-verify-closure-smoke",
+    );
+    expect(report.phpWedgeBatch?.batchSchemaVersion).toBe(4);
+    expect(report.verifyProductUltra?.batchSchemaVersion).toBe(6);
+    expect(report.oracleProductUltra?.batchSchemaVersion).toBe(7);
+    expect(report.evidenceStandaloneMega?.batchSchemaVersion).toBe(5);
+  });
+
   test("hub completion schema 69 laravel auth-probe strict reingest (G890)", async () => {
     const { runLaravelAuthProbeReingestSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs")
@@ -1930,19 +1981,20 @@ describe("strategic plan deliverables", () => {
     const { HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-gap-reingest-batch-smoke.mjs")
     );
-    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(5);
-    expect(HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION).toBe(3);
-    expect(HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION).toBe(2);
+    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(6);
+    expect(HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION).toBe(4);
+    expect(HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION).toBe(3);
     const authProbe = runLaravelAuthProbeReingestSmoke();
     expect(authProbe.ok).toBe(true);
     expect(authProbe.reingest?.exitCode).toBe(0);
+    expect(authProbe.verifyClosure?.ok).toBe(true);
     const strictBatch = runGapsIngestStrictBatchSmoke();
     expect(strictBatch.ok).toBe(true);
     expect(strictBatch.authProbeReingest?.ok).toBe(true);
     const verifyUltra = await runVerifyProductUltraBatchSmoke();
     expect(verifyUltra.ok).toBe(true);
-    expect(verifyUltra.schemaVersion).toBe(5);
-    expect(verifyUltra.authProbeReingest?.ok).toBe(true);
+    expect(verifyUltra.schemaVersion).toBe(6);
+    expect(verifyUltra.authProbeVerifyClosure?.ok).toBe(true);
   }, 180_000);
 
   test("capability matrix v27 lists auth-probe reingest + batch v3/v5 (G868)", async () => {
@@ -2017,6 +2069,33 @@ describe("strategic plan deliverables", () => {
     expect(report.flagshipFullGapsBatch?.fixtures?.length).toBe(3);
   });
 
+  test("delivery dashboard v30 surfaces month26 verify closure (G903)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v30-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(30);
+      expect(report.month26Program?.laravelAuthProbeVerifyClosure).toBe(
+        "hub:laravel-auth-probe-reingest-verify-closure-smoke",
+      );
+      expect(report.month26Program?.requireGapReingestVerifyClosureEnv).toBe(
+        "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   test("delivery dashboard v29 surfaces month25 auth-probe reingest (G869)", async () => {
     const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
@@ -2032,9 +2111,9 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(29);
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBeGreaterThanOrEqual(29);
       expect(report.month25Program?.laravelAuthProbeReingest).toBe("hub:laravel-auth-probe-reingest-smoke");
-      expect(report.month25Program?.gapReingestBatchSchemaVersion).toBe(2);
+      expect(report.month25Program?.gapReingestBatchSchemaVersion).toBe(3);
       expect(report.month25Program?.requireGapReingestStrictEnv).toBe("CHRYSALIS_HUB_GAP_REINGEST_STRICT");
     } finally {
       rmSync(tmp, { recursive: true, force: true });

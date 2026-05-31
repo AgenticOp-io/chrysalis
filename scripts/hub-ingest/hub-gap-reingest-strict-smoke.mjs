@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { runGapReingestBatchSmoke, HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION } from "./hub-gap-reingest-batch-smoke.mjs";
 
 export const HUB_GAP_REINGEST_STRICT_KIND = "chrysalis.hub.gap-reingest-strict-smoke";
-export const HUB_GAP_REINGEST_STRICT_SCHEMA_VERSION = 2;
+export const HUB_GAP_REINGEST_STRICT_SCHEMA_VERSION = 3;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");

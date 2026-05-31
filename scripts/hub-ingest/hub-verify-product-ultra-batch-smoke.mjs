@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-/** Verify product ultra batch v5: v4 + laravel-auth-probe strict reingest (G869). */
-import { runLaravelAuthProbeReingestSmoke } from "./hub-laravel-auth-probe-reingest-smoke.mjs";
+/** Verify product ultra batch v6: v5 + auth-probe reingest verify closure (G900). */
+import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runVerifyGapsOriginBatchSmoke } from "./hub-verify-gaps-origin-batch-smoke.mjs";
@@ -11,7 +11,7 @@ import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
 
 export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_KIND = "chrysalis.hub.verify-product-ultra-batch-smoke";
-export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 5;
+export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 6;
 
 export async function runVerifyProductUltraBatchSmoke() {
   const verifyGapsOrigin = runVerifyGapsOriginBatchSmoke();
@@ -20,7 +20,7 @@ export async function runVerifyProductUltraBatchSmoke() {
   const flagshipFullGaps = runFlagshipFullGapsBatchSmoke();
   const gapsIngestClosure = runGapsIngestClosureBatchSmoke();
   const gapsIngestStrict = runGapsIngestStrictBatchSmoke();
-  const authProbeReingest = runLaravelAuthProbeReingestSmoke();
+  const authProbeVerifyClosure = runLaravelAuthProbeReingestVerifyClosureSmoke();
   return {
     kind: HUB_VERIFY_PRODUCT_ULTRA_BATCH_KIND,
     schemaVersion: HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
@@ -31,14 +31,14 @@ export async function runVerifyProductUltraBatchSmoke() {
       flagshipFullGaps.ok &&
       gapsIngestClosure.ok &&
       gapsIngestStrict.ok &&
-      authProbeReingest.ok,
+      authProbeVerifyClosure.ok,
     verifyGapsOrigin,
     verifyStandaloneMega,
     laravelDepth,
     flagshipFullGaps,
     gapsIngestClosure,
     gapsIngestStrict,
-    authProbeReingest,
+    authProbeVerifyClosure,
     generatedAt: new Date().toISOString(),
   };
 }
