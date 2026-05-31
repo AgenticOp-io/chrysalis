@@ -1884,35 +1884,89 @@ describe("strategic plan deliverables", () => {
   });
 
   test("hub completion schema 66 flagship-full gaps batch (G800)", async () => {
-    const { runFlagshipFullGapsBatchSmoke } = await import(
+    const {
+      runFlagshipFullGapsBatchSmoke,
+      HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION,
+    } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-flagship-full-gaps-batch-smoke.mjs")
+    );
+    expect(HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION).toBe(2);
+    const gapsBatch = runFlagshipFullGapsBatchSmoke();
+    expect(gapsBatch.ok).toBe(true);
+    expect(gapsBatch.expressSeed?.ok).toBe(true);
+    expect(gapsBatch.plainPhp?.ok).toBe(true);
+    expect(gapsBatch.symfony?.ok).toBe(true);
+    expect(gapsBatch.express?.ok).toBe(true);
+    expect(gapsBatch.express?.skipped).toBeNull();
+    expect(gapsBatch.backlogCount).toBe(0);
+  }, 120_000);
+
+  test("hub completion schema 67 gaps ingest closure batch (G830)", async () => {
+    const { runGapsIngestClosureBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-closure-batch-smoke.mjs")
     );
     const {
       runVerifyProductUltraBatchSmoke,
       HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
     } = await import(resolve(ROOT, "scripts/hub-ingest/hub-verify-product-ultra-batch-smoke.mjs"));
-    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(2);
-    const gapsBatch = runFlagshipFullGapsBatchSmoke();
-    expect(gapsBatch.ok).toBe(true);
-    expect(gapsBatch.plainPhp?.ok).toBe(true);
-    expect(gapsBatch.symfony?.ok).toBe(true);
-    expect(gapsBatch.express?.ok).toBe(true);
-    expect(gapsBatch.backlogCount).toBe(0);
+    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(3);
+    const closureBatch = runGapsIngestClosureBatchSmoke();
+    expect(closureBatch.ok).toBe(true);
+    expect(closureBatch.expressSeed?.ok).toBe(true);
+    expect(closureBatch.flagshipFullGaps?.ok).toBe(true);
+    expect(closureBatch.laravelClosure?.ok).toBe(true);
+    expect(closureBatch.gapReingest?.ok).toBe(true);
     const verifyUltra = await runVerifyProductUltraBatchSmoke();
     expect(verifyUltra.ok).toBe(true);
-    expect(verifyUltra.schemaVersion).toBe(2);
-    expect(verifyUltra.flagshipFullGaps?.ok).toBe(true);
+    expect(verifyUltra.schemaVersion).toBe(3);
+    expect(verifyUltra.gapsIngestClosure?.ok).toBe(true);
   }, 120_000);
+
+  test("capability matrix v25 lists gaps ingest closure batch (G808)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(25);
+    expect(report.gapsIngestClosureBatch?.script).toBe("pnpm run hub:gaps-ingest-closure-batch-smoke");
+    expect(report.flagshipFullGapsBatch?.batchSchemaVersion).toBe(2);
+    expect(report.verifyProductUltra?.batchSchemaVersion).toBe(3);
+  });
 
   test("capability matrix v24 lists flagship-full gaps batch (G774)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(24);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(24);
     expect(report.flagshipFullGapsBatch?.script).toBe("pnpm run hub:flagship-full-gaps-batch-smoke");
     expect(report.flagshipFullGapsBatch?.fixtures?.length).toBe(3);
-    expect(report.verifyProductUltra?.batchSchemaVersion).toBe(2);
+  });
+
+  test("delivery dashboard v27 surfaces month23 gaps ingest closure (G809)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v27-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(27);
+      expect(report.month23Program?.gapsIngestClosureBatch).toBe("hub:gaps-ingest-closure-batch-smoke");
+      expect(report.month23Program?.requireGapsIngestClosureBatchEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
+      );
+      expect(report.month23Program?.requireGapReingestEnv).toBe("CHRYSALIS_HUB_GAP_REINGEST");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   test("delivery dashboard v26 surfaces month22 flagship-full gaps (G775)", async () => {
@@ -1930,7 +1984,7 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(26);
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBeGreaterThanOrEqual(26);
       expect(report.month22Program?.flagshipFullGapsBatch).toBe("hub:flagship-full-gaps-batch-smoke");
       expect(report.month22Program?.requireFlagshipFullGapsBatchEnv).toBe(
         "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH",

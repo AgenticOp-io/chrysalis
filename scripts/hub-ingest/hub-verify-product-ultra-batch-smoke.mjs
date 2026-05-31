@@ -1,28 +1,36 @@
 #!/usr/bin/env node
-/** Verify product ultra batch v2: v1 + flagship-full gaps batch (G773). */
+/** Verify product ultra batch v3: v2 + gaps ingest closure batch (G807). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runVerifyGapsOriginBatchSmoke } from "./hub-verify-gaps-origin-batch-smoke.mjs";
 import { runVerifyStandaloneMegaBatchSmoke } from "./hub-verify-standalone-mega-batch-smoke.mjs";
 import { runLaravelDepthBatchSmoke } from "./hub-laravel-depth-batch-smoke.mjs";
 import { runFlagshipFullGapsBatchSmoke } from "./hub-flagship-full-gaps-batch-smoke.mjs";
+import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
 
 export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_KIND = "chrysalis.hub.verify-product-ultra-batch-smoke";
-export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 2;
+export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 3;
 
 export async function runVerifyProductUltraBatchSmoke() {
   const verifyGapsOrigin = runVerifyGapsOriginBatchSmoke();
   const verifyStandaloneMega = await runVerifyStandaloneMegaBatchSmoke();
   const laravelDepth = runLaravelDepthBatchSmoke();
   const flagshipFullGaps = runFlagshipFullGapsBatchSmoke();
+  const gapsIngestClosure = runGapsIngestClosureBatchSmoke();
   return {
     kind: HUB_VERIFY_PRODUCT_ULTRA_BATCH_KIND,
     schemaVersion: HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
-    ok: verifyGapsOrigin.ok && verifyStandaloneMega.ok && laravelDepth.ok && flagshipFullGaps.ok,
+    ok:
+      verifyGapsOrigin.ok &&
+      verifyStandaloneMega.ok &&
+      laravelDepth.ok &&
+      flagshipFullGaps.ok &&
+      gapsIngestClosure.ok,
     verifyGapsOrigin,
     verifyStandaloneMega,
     laravelDepth,
     flagshipFullGaps,
+    gapsIngestClosure,
     generatedAt: new Date().toISOString(),
   };
 }

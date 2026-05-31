@@ -2543,6 +2543,21 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D898** **Strategic test G800 (G778).** Schema 66 flagship-full gaps smokes.
 - **2026-05-31 — D899** **ci-gates v66 test (G779).** Accepts schema v66 payloads.
 - **2026-05-31 — D900** **Hub completion schema 66 (G800).** Flagship-full gaps → ingest depth.
+- **2026-05-31 — D901** **fixtures/ci/hub-flagship-express-verify-for-status (G801).** Committed express verify seed for gaps/status.
+- **2026-05-31 — D902** **hub-express-flagship-verify-seed (G802).** Copy CI seed into express flagship reports.
+- **2026-05-31 — D903** **hub-flagship-full-gaps-batch-smoke v2 (G803).** Express verify seed before gaps export.
+- **2026-05-31 — D904** **hub-laravel-verify-gaps-ingest-closure-smoke (G804).** Backlog fixture → ingest remediation.
+- **2026-05-31 — D905** **hub-gap-reingest-batch-smoke (G805).** Remediation probe + optional `CHRYSALIS_HUB_GAP_REINGEST`.
+- **2026-05-31 — D906** **hub-gaps-ingest-closure-batch-smoke (G806).** Express seed + flagship gaps v2 + Laravel closure + reingest.
+- **2026-05-31 — D907** **Verify product ultra batch v3 (G807).** Includes gaps ingest closure batch.
+- **2026-05-31 — D908** **Capability matrix v25 (G808).** Gaps ingest closure batch metadata.
+- **2026-05-31 — D909** **Delivery dashboard v27 (G809).** month23Program gaps ingest closure.
+- **2026-05-31 — D910** **Hub evidence schema v24 (G810).** requireGapsIngestClosureBatchEnv + requireGapReingestEnv.
+- **2026-05-31 — D911** **ci-gates v67 (G811).** Gaps ingest closure + verify product ultra v3 gates.
+- **2026-05-31 — D912** **package.json hub:* scripts (G812).** Express seed, Laravel closure, gap reingest, gaps closure batch.
+- **2026-05-31 — D913** **Strategic test G830 (G813).** Schema 67 gaps ingest closure smokes.
+- **2026-05-31 — D914** **ci-gates v67 test (G814).** Accepts schema v67 payloads.
+- **2026-05-31 — D930** **Hub completion schema 67 (G830).** Gaps ingest closure tranche.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 

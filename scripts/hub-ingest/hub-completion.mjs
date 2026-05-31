@@ -158,6 +158,7 @@ import { runPhpWedgeBatchSmoke } from "./hub-php-wedge-batch-smoke.mjs";
 import { runHubEvidenceMvpBatchSmoke } from "./hub-evidence-mvp-batch-smoke.mjs";
 import { runWptpStrictBatchSmoke } from "./hub-wptp-strict-batch-smoke.mjs";
 import { runFlagshipFullGapsBatchSmoke } from "./hub-flagship-full-gaps-batch-smoke.mjs";
+import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1200,6 +1201,13 @@ async function main() {
     flagshipFullGapsBatch = { ok: false, skip: "flagship-full-gaps-batch-threw" };
   }
   const flagshipFullGapsBatchOk = flagshipFullGapsBatch.ok === true;
+  let gapsIngestClosureBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    gapsIngestClosureBatch = runGapsIngestClosureBatchSmoke();
+  } catch {
+    gapsIngestClosureBatch = { ok: false, skip: "gaps-ingest-closure-batch-threw" };
+  }
+  const gapsIngestClosureBatchOk = gapsIngestClosureBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1351,6 +1359,7 @@ async function main() {
     hubEvidenceMvpBatchOk &&
     wptpStrictBatchOk &&
     flagshipFullGapsBatchOk &&
+    gapsIngestClosureBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1362,7 +1371,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 66,
+    schemaVersion: 67,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1549,7 +1558,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 23,
+      schemaVersion: 24,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1575,6 +1584,8 @@ async function main() {
       requireHubEvidenceMvpBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_HUB_EVIDENCE_MVP_BATCH",
       requireWptpStrictBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_STRICT_BATCH",
       requireFlagshipFullGapsBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH",
+      requireGapsIngestClosureBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
+      requireGapReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -2067,7 +2078,7 @@ async function main() {
     },
     verifyProductUltraBatch: {
       ok: verifyProductUltraBatchOk,
-      schemaVersion: verifyProductUltraBatch.schemaVersion ?? 2,
+      schemaVersion: verifyProductUltraBatch.schemaVersion ?? 3,
       script: "pnpm run hub:verify-product-ultra-batch-smoke",
     },
     projectToCwlAllOrigins: {
@@ -2153,9 +2164,16 @@ async function main() {
     },
     flagshipFullGapsBatch: {
       ok: flagshipFullGapsBatchOk,
+      schemaVersion: flagshipFullGapsBatch.schemaVersion ?? 2,
       backlogCount: flagshipFullGapsBatch.backlogCount ?? null,
       ingestNext: flagshipFullGapsBatch.ingestNext ?? null,
       script: "pnpm run hub:flagship-full-gaps-batch-smoke",
+    },
+    gapsIngestClosureBatch: {
+      ok: gapsIngestClosureBatchOk,
+      laravelIngestNext: gapsIngestClosureBatch.laravelClosure?.ingestNext ?? null,
+      expressSeeded: gapsIngestClosureBatch.expressSeed?.ok === true,
+      script: "pnpm run hub:gaps-ingest-closure-batch-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,

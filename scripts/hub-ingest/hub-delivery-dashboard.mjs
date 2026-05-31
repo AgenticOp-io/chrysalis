@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 26;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 27;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -339,6 +339,14 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
     month22Program: {
       flagshipFullGapsBatch: "hub:flagship-full-gaps-batch-smoke",
       requireFlagshipFullGapsBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH",
+    },
+    month23Program: {
+      gapsIngestClosureBatch: "hub:gaps-ingest-closure-batch-smoke",
+      expressVerifySeed: "hub:express-flagship-verify-seed",
+      laravelVerifyGapsIngestClosure: "hub:laravel-verify-gaps-ingest-closure-smoke",
+      gapReingestBatch: "hub:gap-reingest-batch-smoke",
+      requireGapsIngestClosureBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
+      requireGapReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

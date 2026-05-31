@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 24;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 25;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -106,9 +106,18 @@ export function buildHubCapabilityMatrixReport() {
     },
     flagshipFullGapsBatch: {
       script: "pnpm run hub:flagship-full-gaps-batch-smoke",
+      batchSchemaVersion: 2,
+      expressVerifySeedScript: "pnpm run hub:express-flagship-verify-seed",
       requireEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH",
       standaloneScript: "pnpm run hub:flagship-verify-gaps-standalone-smoke",
       fixtures: ["fixtures/hub-flagship-plain-php", "fixtures/hub-flagship-symfony", "fixtures/hub-flagship-express"],
+    },
+    gapsIngestClosureBatch: {
+      script: "pnpm run hub:gaps-ingest-closure-batch-smoke",
+      laravelClosureScript: "pnpm run hub:laravel-verify-gaps-ingest-closure-smoke",
+      gapReingestScript: "pnpm run hub:gap-reingest-batch-smoke",
+      requireEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
+      requireGapReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST",
     },
     nextjsFlagshipFixtures: [
       "fixtures/hub-flagship-plain-php",
@@ -310,7 +319,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     verifyProductUltra: {
       batchScript: "pnpm run hub:verify-product-ultra-batch-smoke",
-      batchSchemaVersion: 2,
+      batchSchemaVersion: 3,
     },
     cwlAllOrigins: {
       allOriginsScript: "pnpm run hub:project-to-cwl-all-origins",

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-/** Flagship-full gaps batch: plain-php + symfony + express verify gaps → ingest (G771). */
+/** Flagship-full gaps batch v2: express verify seed + plain-php/symfony/express gaps (G803). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureExpressFlagshipVerifyReport } from "./hub-express-flagship-verify-seed.mjs";
 import { runFlagshipVerifyGapsStandaloneSmoke } from "./hub-flagship-verify-gaps-standalone-smoke.mjs";
 
 export const HUB_FLAGSHIP_FULL_GAPS_BATCH_KIND = "chrysalis.hub.flagship-full-gaps-batch-smoke";
-export const HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION = 1;
+export const HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION = 2;
 
 export function runFlagshipFullGapsBatchSmoke() {
+  const expressSeed = ensureExpressFlagshipVerifyReport();
   const plainPhp = runFlagshipVerifyGapsStandaloneSmoke(undefined, { profile: "plainPhp" });
   const symfony = runFlagshipVerifyGapsStandaloneSmoke(undefined, { profile: "symfony" });
   const express = runFlagshipVerifyGapsStandaloneSmoke(undefined, { profile: "express" });
@@ -17,7 +19,8 @@ export function runFlagshipFullGapsBatchSmoke() {
   return {
     kind: HUB_FLAGSHIP_FULL_GAPS_BATCH_KIND,
     schemaVersion: HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION,
-    ok: plainPhp.ok === true && symfony.ok === true && express.ok === true,
+    ok: expressSeed.ok === true && plainPhp.ok === true && symfony.ok === true && express.ok === true && express.skipped == null,
+    expressSeed,
     plainPhp,
     symfony,
     express,
