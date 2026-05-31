@@ -2468,6 +2468,46 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D789** **Hub completion schema 56 (G500).** Pattern-literal CWL gold + translate CWL coverage; CI gates v56.
+
+- **2026-05-31 — D788** **ci-gates v56 test (G489).** Accepts schema v56 pattern-literal CWL payloads.
+
+- **2026-05-31 — D787** **Strategic test G500 (G488).** Schema 56 pattern-literal CWL smokes.
+
+- **2026-05-31 — D786** **ci-gates v56 (G487).** Pattern literal CWL + translate CWL gates.
+
+- **2026-05-31 — D785** **Hub evidence schema v13 (G486).** `requirePatternLiteralCwlEnv` + `requireTranslateCwlEnv`.
+
+- **2026-05-31 — D784** **Delivery dashboard v16 (G485).** `month12Program` pattern-literal CWL.
+
+- **2026-05-31 — D783** **Capability matrix v14 (G484).** patternLiteralCwl + translateCwl scripts.
+
+- **2026-05-31 — D782** **cwlPatternLiteralGold completion (G483).** vue + asset CWL suite ids.
+
+- **2026-05-31 — D781** **crossFrameworkCwlGold extended (G482).** kotlin/scala/swift metadata.
+
+- **2026-05-31 — D780** **hub-translate-cwl-coverage-smoke (G481).** Translate path exports migration.cwl.
+
+- **2026-05-31 — D779** **hub-cwl-pattern-literal-cwl-batch-smoke (G480).** 18-suite CWL gold batch.
+
+- **2026-05-31 — D778** **Structural suite count 154 (G479).** +10 pattern-lift/asset CWL gold suites.
+
+- **2026-05-31 — D777** **c/cpp literal-cwl gold (G478).** Native asset CWL suites.
+
+- **2026-05-31 — D776** **css/scss/markdown/yaml literal-cwl gold (G477).** Asset CWL suites.
+
+- **2026-05-31 — D775** **json-literal-cwl gold (G476).** json silver file-lift CWL suite.
+
+- **2026-05-31 — D774** **html-literal-cwl gold (G475).** html silver file-lift CWL suite.
+
+- **2026-05-31 — D773** **sql-literal-cwl gold (G474).** sql silver file-lift CWL suite.
+
+- **2026-05-31 — D772** **vue-literal-cwl gold (G473).** vue pattern-lift CWL structural suite.
+
+- **2026-05-31 — D771** **ensureProjectWebir on translate CWL path (G472).** Contract import lifts before export.
+
+- **2026-05-31 — D770** **Silver file-lift literal CWL bodies (G471).** Asset origins hole-free on CWL emit.
+
 - **2026-05-31 — D769** **Hub completion schema 55 (G470).** All 23 origins export CWL; CI gates v55.
 
 - **2026-05-31 — D768** **ci-gates v55 test (G469).** Accepts schema v55 universal CWL payloads.

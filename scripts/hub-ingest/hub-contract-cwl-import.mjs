@@ -11,6 +11,7 @@ import {
   HUB_CWL_EXPORT_KIND,
   HUB_CWL_EXPORT_SCHEMA_VERSION,
 } from "./hub-project-cwl-export.mjs";
+import { ensureProjectWebir } from "./hub-project-to-cwl-gates.mjs";
 import { renderOpenApiCwl } from "./hub-openapi-to-cwl.mjs";
 import { renderHarCwl } from "./hub-har-to-cwl.mjs";
 
@@ -56,6 +57,10 @@ export async function exportProjectMigrationCwlFromContractOrWebir(projectDir, o
     }
   }
 
+  const webirReady = await ensureProjectWebir(root, origin);
+  if (!webirReady.ok) {
+    return { ok: false, reason: webirReady.skip ?? "webir-not-ready", origin, source: "webir-projection" };
+  }
   const webirMeta = await exportProjectMigrationCwl(root, { origin });
   if (webirMeta.ok) {
     webirMeta.source = "webir-projection";
@@ -92,11 +97,11 @@ async function writeImportedMigrationCwl(opts) {
  * Resolve which contract source would be used (for evidence / operator UI).
  * @param {string} projectDir
  */
-export async function resolveMigrationCwlSource(projectDir) {
+export async function resolveMigrationCwlSource(projectDir, origin = "php") {
   const contracts = await discoverContractArtifacts(resolve(projectDir));
   if (contracts.openapi) return { source: "openapi-import", contractPath: contracts.openapi };
   if (contracts.har) return { source: "har-import", contractPath: contracts.har };
-  const webirPath = join(resolve(projectDir), ".chrysalis", `hub.${"php"}.webir.json`);
+  const webirPath = join(resolve(projectDir), ".chrysalis", `hub.${origin}.webir.json`);
   if (existsSync(webirPath) || existsSync(join(resolve(projectDir), ".chrysalis", "ingested.webir.json"))) {
     return { source: "webir-projection", contractPath: null };
   }

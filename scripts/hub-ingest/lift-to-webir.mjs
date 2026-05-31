@@ -15,6 +15,10 @@ import { liftExpressMiddlewareFromSource } from "./hub-express-middleware.mjs";
 import { liftFlaskSyntheticMiddleware } from "./hub-flask-middleware.mjs";
 import { canPythonAstIngest } from "./python-ast-ingest.mjs";
 import { trySpecializedHubLift } from "./hub-lift-dispatch.mjs";
+import { HUB_SILVER_FILE_LIFT_ORIGIN_IDS } from "./language-catalog.mjs";
+import { lowerHubLiteral } from "./hub-lift-webir-route.mjs";
+
+const silverFileLiftOrigins = new Set(HUB_SILVER_FILE_LIFT_ORIGIN_IDS);
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -66,6 +70,8 @@ async function main() {
   const webir = await loadWebir();
   const builder = new webir.ModuleBuilder({ sourceApp: `hub-lift:${language}` });
   const wr = webir.webRequest.builders(builder);
+  const data = webir.dataDialect.builders(builder);
+  const literalCtx = { data, webir };
 
   const paths = [];
   await walk(projectDir, exts, paths, 0);
@@ -184,23 +190,25 @@ async function main() {
     }
 
     const origin = { file, line: 1, column: 1 };
-    const holeId = builder.node({
-      dialect: "legacy",
-      op: "hole",
-      type: { kind: "unknown" },
-      effects: [],
-      operands: [],
-      attrs: { reason: `hub-lift:${language}`, file },
-      origin,
-      provenance: [webir.provenance("hub-ingest", `lift-to-webir:${language}`)],
-    });
+    const bodyId = silverFileLiftOrigins.has(language)
+      ? lowerHubLiteral(literalCtx, true, { file, line: 1 })
+      : builder.node({
+          dialect: "legacy",
+          op: "hole",
+          type: { kind: "unknown" },
+          effects: [],
+          operands: [],
+          attrs: { reason: `hub-lift:${language}`, file },
+          origin,
+          provenance: [webir.provenance("hub-ingest", `lift-to-webir:${language}`)],
+        });
     const handlerId = wr.handler({
       attrs: {
         name: file.replace(/[/\\]/g, "_"),
         input: { kind: "unknown" },
         output: { kind: "unknown" },
       },
-      body: holeId,
+      body: bodyId,
       effects: [],
       origin,
       provenance: [webir.provenance("hub-ingest", `route-handler:${language}`)],

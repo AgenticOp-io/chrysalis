@@ -173,3 +173,16 @@ export const HUB_POPULAR_WEB_FOCUS_IDS = [
   "csharp",
   "cwl",
 ];
+
+/** Asset/config origins: one GET route per file with literal scaffold body (silver file-lift). */
+export const HUB_SILVER_FILE_LIFT_ORIGIN_IDS = [
+  "sql",
+  "html",
+  "css",
+  "scss",
+  "json",
+  "yaml",
+  "markdown",
+  "c",
+  "cpp",
+];

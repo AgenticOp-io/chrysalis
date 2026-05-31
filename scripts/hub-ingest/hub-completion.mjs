@@ -145,6 +145,8 @@ import { runCwlAllOriginsBatchSmoke } from "./hub-cwl-all-origins-batch-smoke.mj
 import { runCwlUniversalMegaBatchSmoke } from "./hub-cwl-universal-mega-batch-smoke.mjs";
 import { runCwlAppStackOriginsBatchSmoke } from "./hub-cwl-app-stack-origins-batch-smoke.mjs";
 import { runCwlAssetOriginsBatchSmoke } from "./hub-cwl-asset-origins-batch-smoke.mjs";
+import { runCwlPatternLiteralCwlBatchSmoke } from "./hub-cwl-pattern-literal-cwl-batch-smoke.mjs";
+import { runHubTranslateCwlCoverageSmoke } from "./hub-translate-cwl-coverage-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1093,6 +1095,20 @@ async function main() {
     cwlAssetOriginsBatch = { ok: false, skip: "cwl-asset-origins-batch-threw" };
   }
   const cwlAssetOriginsBatchOk = cwlAssetOriginsBatch.ok === true;
+  let cwlPatternLiteralCwlBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlPatternLiteralCwlBatch = runCwlPatternLiteralCwlBatchSmoke();
+  } catch {
+    cwlPatternLiteralCwlBatch = { ok: false, skip: "cwl-pattern-literal-cwl-batch-threw" };
+  }
+  const cwlPatternLiteralCwlBatchOk = cwlPatternLiteralCwlBatch.ok === true;
+  let hubTranslateCwlCoverage = { ok: false, skip: "not-run-in-completion" };
+  try {
+    hubTranslateCwlCoverage = runHubTranslateCwlCoverageSmoke();
+  } catch {
+    hubTranslateCwlCoverage = { ok: false, skip: "hub-translate-cwl-coverage-threw" };
+  }
+  const hubTranslateCwlCoverageOk = hubTranslateCwlCoverage.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1231,6 +1247,8 @@ async function main() {
     cwlUniversalMegaBatchOk &&
     cwlAppStackOriginsBatchOk &&
     cwlAssetOriginsBatchOk &&
+    cwlPatternLiteralCwlBatchOk &&
+    hubTranslateCwlCoverageOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1242,7 +1260,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 55,
+    schemaVersion: 56,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1429,7 +1447,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 12,
+      schemaVersion: 13,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1441,6 +1459,8 @@ async function main() {
       requireOracleUltraEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_ORACLE_ULTRA",
       requireOriginDepthEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_ORIGIN_DEPTH",
       requireUniversalCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL",
+      requirePatternLiteralCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PATTERN_LITERAL_CWL",
+      requireTranslateCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1954,6 +1974,15 @@ async function main() {
       ok: cwlAssetOriginsBatchOk,
       script: "pnpm run hub:cwl-asset-origins-batch-smoke",
     },
+    cwlPatternLiteralCwlBatch: {
+      ok: cwlPatternLiteralCwlBatchOk,
+      suiteCount: cwlPatternLiteralCwlBatch.suiteCount ?? null,
+      script: "pnpm run hub:cwl-pattern-literal-cwl-batch-smoke",
+    },
+    hubTranslateCwlCoverage: {
+      ok: hubTranslateCwlCoverageOk,
+      script: "pnpm run hub:translate-cwl-coverage-smoke",
+    },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,
       rfc: "CWL-RFC-0005",
@@ -2062,6 +2091,23 @@ async function main() {
         "csharp-literal-cwl",
         "ruby-literal-cwl",
         "rust-literal-cwl",
+        "kotlin-literal-cwl",
+        "scala-literal-cwl",
+        "swift-literal-cwl",
+      ],
+    },
+    cwlPatternLiteralGold: {
+      suiteIds: [
+        "vue-literal-cwl",
+        "sql-literal-cwl",
+        "html-literal-cwl",
+        "json-literal-cwl",
+        "css-literal-cwl",
+        "scss-literal-cwl",
+        "markdown-literal-cwl",
+        "yaml-literal-cwl",
+        "c-literal-cwl",
+        "cpp-literal-cwl",
       ],
     },
     kssFrameworkGold: {

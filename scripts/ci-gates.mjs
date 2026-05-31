@@ -763,9 +763,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 50 &&
     s.schemaVersion !== 51 &&
     s.schemaVersion !== 52 &&
-    s.schemaVersion !== 55
+    s.schemaVersion !== 55 &&
+    s.schemaVersion !== 56
   ) {
-    fail(`${label}: expected schemaVersion 0–55, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–56, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1621,7 +1622,7 @@ function assertHubCompletion(path) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 12 for schema v54`);
     }
   }
-  if (s.schemaVersion >= 55) {
+  if (s.schemaVersion >= 55 && s.schemaVersion < 56) {
     if (s.projectToCwlAllOrigins?.ok !== true) {
       fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v55`);
     }
@@ -1642,6 +1643,47 @@ function assertHubCompletion(path) {
     }
     if (s.capabilityMatrix?.schemaVersion !== 13) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 13 for schema v55`);
+    }
+  }
+  if (s.schemaVersion >= 56) {
+    if (s.projectToCwlAllOrigins?.ok !== true) {
+      fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v56`);
+    }
+    if (s.cwlAllOriginsBatch?.ok !== true) {
+      fail(`${label}: cwlAllOriginsBatch.ok must be true for schema v56`);
+    }
+    if (s.cwlUniversalMegaBatch?.ok !== true) {
+      fail(`${label}: cwlUniversalMegaBatch.ok must be true for schema v56`);
+    }
+    if ((s.projectToCwlAllOrigins?.originCount ?? 0) < 23) {
+      fail(`${label}: projectToCwlAllOrigins.originCount must be >= 23 for schema v56`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL === "1" && s.cwlUniversalMegaBatch?.ok !== true) {
+      fail(`${label}: cwlUniversalMegaBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL=1`);
+    }
+    if (s.cwlPatternLiteralCwlBatch?.ok !== true) {
+      fail(`${label}: cwlPatternLiteralCwlBatch.ok must be true for schema v56`);
+    }
+    if (s.hubTranslateCwlCoverage?.ok !== true) {
+      fail(`${label}: hubTranslateCwlCoverage.ok must be true for schema v56`);
+    }
+    if ((s.cwlPatternLiteralCwlBatch?.suiteCount ?? 0) < 18) {
+      fail(`${label}: cwlPatternLiteralCwlBatch.suiteCount must be >= 18 for schema v56`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 13) {
+      fail(`${label}: hubEvidence.schemaVersion must be 13 for schema v56`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PATTERN_LITERAL_CWL === "1" && s.cwlPatternLiteralCwlBatch?.ok !== true) {
+      fail(`${label}: cwlPatternLiteralCwlBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PATTERN_LITERAL_CWL=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL === "1" && s.hubTranslateCwlCoverage?.ok !== true) {
+      fail(`${label}: hubTranslateCwlCoverage.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 14) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 14 for schema v56`);
+    }
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v56`);
     }
   }
   const g = s.routeGrades;
