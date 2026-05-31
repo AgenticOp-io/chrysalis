@@ -2478,6 +2478,15 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D827** **Strategic test G590 (G567).** Schema 59 project roundtrip smokes.
 - **2026-05-31 — D828** **ci-gates v59 test (G568).** Accepts schema v59 payloads.
 - **2026-05-31 — D829** **Hub completion schema 59 (G590).** Project-to-CWL roundtrip all origins.
+- **2026-05-31 — D830** **hub-contract-import-cwl-roundtrip-smoke (G591).** OpenAPI + HAR import migration.cwl route-surface re-lift.
+- **2026-05-31 — D831** **CWL universal mega batch v4 (G592).** Includes contract import CWL roundtrip.
+- **2026-05-31 — D832** **Capability matrix v18 (G593).** Contract import roundtrip script metadata.
+- **2026-05-31 — D833** **Delivery dashboard v20 (G594).** month16Program contract import roundtrip env gate.
+- **2026-05-31 — D834** **Hub evidence schema v17 (G595).** requireContractImportCwlRoundtripEnv.
+- **2026-05-31 — D835** **ci-gates v60 (G596).** Contract import CWL roundtrip + universal mega v4 gates.
+- **2026-05-31 — D836** **Strategic test G620 (G597).** Schema 60 contract import roundtrip smokes.
+- **2026-05-31 — D837** **ci-gates v60 test (G598).** Accepts schema v60 payloads.
+- **2026-05-31 — D839** **Hub completion schema 60 (G620).** Contract import CWL roundtrip OpenAPI + HAR.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 

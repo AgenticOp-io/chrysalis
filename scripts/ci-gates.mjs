@@ -767,9 +767,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 56 &&
     s.schemaVersion !== 57 &&
     s.schemaVersion !== 58 &&
-    s.schemaVersion !== 59
+    s.schemaVersion !== 59 &&
+    s.schemaVersion !== 60
   ) {
-    fail(`${label}: expected schemaVersion 0–59, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–60, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1777,7 +1778,7 @@ function assertHubCompletion(path) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v58`);
     }
   }
-  if (s.schemaVersion >= 59) {
+  if (s.schemaVersion >= 59 && s.schemaVersion < 60) {
     if (s.projectToCwlAllOrigins?.ok !== true) {
       fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v59`);
     }
@@ -1825,6 +1826,62 @@ function assertHubCompletion(path) {
     }
     if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v59`);
+    }
+  }
+  if (s.schemaVersion >= 60) {
+    if (s.projectToCwlAllOrigins?.ok !== true) {
+      fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v60`);
+    }
+    if (s.cwlUniversalMegaBatch?.ok !== true) {
+      fail(`${label}: cwlUniversalMegaBatch.ok must be true for schema v60`);
+    }
+    if ((s.cwlUniversalMegaBatch?.schemaVersion ?? 0) < 4) {
+      fail(`${label}: cwlUniversalMegaBatch.schemaVersion must be >= 4 for schema v60`);
+    }
+    if (s.cwlPatternLiteralRoundtripBatch?.ok !== true) {
+      fail(`${label}: cwlPatternLiteralRoundtripBatch.ok must be true for schema v60`);
+    }
+    if (s.cwlFlagshipRoundtripBatch?.ok !== true) {
+      fail(`${label}: cwlFlagshipRoundtripBatch.ok must be true for schema v60`);
+    }
+    if (s.hubTranslateCwlRoundtrip?.ok !== true) {
+      fail(`${label}: hubTranslateCwlRoundtrip.ok must be true for schema v60`);
+    }
+    if (s.projectToCwlRoundtrip?.ok !== true) {
+      fail(`${label}: projectToCwlRoundtrip.ok must be true for schema v60`);
+    }
+    if (s.contractImportCwlRoundtrip?.ok !== true) {
+      fail(`${label}: contractImportCwlRoundtrip.ok must be true for schema v60`);
+    }
+    if ((s.projectToCwlRoundtrip?.originCount ?? 0) < 23) {
+      fail(`${label}: projectToCwlRoundtrip.originCount must be >= 23 for schema v60`);
+    }
+    if ((s.hubTranslateCwlRoundtrip?.originCount ?? 0) < 23) {
+      fail(`${label}: hubTranslateCwlRoundtrip.originCount must be >= 23 for schema v60`);
+    }
+    if ((s.cwlFlagshipRoundtripBatch?.suiteCount ?? 0) < 3) {
+      fail(`${label}: cwlFlagshipRoundtripBatch.suiteCount must be >= 3 for schema v60`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 17) {
+      fail(`${label}: hubEvidence.schemaVersion must be 17 for schema v60`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_CONTRACT_IMPORT_CWL_ROUNDTRIP === "1" && s.contractImportCwlRoundtrip?.ok !== true) {
+      fail(`${label}: contractImportCwlRoundtrip.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_CONTRACT_IMPORT_CWL_ROUNDTRIP=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PROJECT_TO_CWL_ROUNDTRIP === "1" && s.projectToCwlRoundtrip?.ok !== true) {
+      fail(`${label}: projectToCwlRoundtrip.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PROJECT_TO_CWL_ROUNDTRIP=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ROUNDTRIP === "1" && s.hubTranslateCwlRoundtrip?.ok !== true) {
+      fail(`${label}: hubTranslateCwlRoundtrip.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ROUNDTRIP=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_CWL_ROUNDTRIP === "1" && s.cwlFlagshipRoundtripBatch?.ok !== true) {
+      fail(`${label}: cwlFlagshipRoundtripBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_CWL_ROUNDTRIP=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 18) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 18 for schema v60`);
+    }
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v60`);
     }
   }
   const g = s.routeGrades;

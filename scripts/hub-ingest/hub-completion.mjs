@@ -151,6 +151,7 @@ import { runCwlPatternLiteralRoundtripBatchSmoke } from "./hub-cwl-pattern-liter
 import { runCwlFlagshipRoundtripBatchSmoke } from "./hub-cwl-flagship-roundtrip-batch-smoke.mjs";
 import { runHubTranslateCwlRoundtripSmoke } from "./hub-translate-cwl-roundtrip-smoke.mjs";
 import { runProjectToCwlRoundtripSmoke } from "./hub-project-to-cwl-roundtrip-smoke.mjs";
+import { runContractImportCwlRoundtripSmoke } from "./hub-contract-import-cwl-roundtrip-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1141,6 +1142,13 @@ async function main() {
     projectToCwlRoundtrip = { ok: false, skip: "project-to-cwl-roundtrip-threw" };
   }
   const projectToCwlRoundtripOk = projectToCwlRoundtrip.ok === true;
+  let contractImportCwlRoundtrip = { ok: false, skip: "not-run-in-completion" };
+  try {
+    contractImportCwlRoundtrip = await runContractImportCwlRoundtripSmoke();
+  } catch {
+    contractImportCwlRoundtrip = { ok: false, skip: "contract-import-cwl-roundtrip-threw" };
+  }
+  const contractImportCwlRoundtripOk = contractImportCwlRoundtrip.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1285,6 +1293,7 @@ async function main() {
     cwlFlagshipRoundtripBatchOk &&
     hubTranslateCwlRoundtripOk &&
     projectToCwlRoundtripOk &&
+    contractImportCwlRoundtripOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1296,7 +1305,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 59,
+    schemaVersion: 60,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1483,7 +1492,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 16,
+      schemaVersion: 17,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1502,6 +1511,7 @@ async function main() {
       requireTranslateCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ROUNDTRIP",
       requireFlagshipCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_CWL_ROUNDTRIP",
       requireProjectToCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PROJECT_TO_CWL_ROUNDTRIP",
+      requireContractImportCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CONTRACT_IMPORT_CWL_ROUNDTRIP",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -2042,9 +2052,13 @@ async function main() {
       originCount: projectToCwlRoundtrip.originCount ?? null,
       script: "pnpm run hub:project-to-cwl-roundtrip-smoke",
     },
+    contractImportCwlRoundtrip: {
+      ok: contractImportCwlRoundtripOk,
+      script: "pnpm run hub:contract-import-cwl-roundtrip-smoke",
+    },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,
-      schemaVersion: cwlUniversalMegaBatch.schemaVersion ?? 3,
+      schemaVersion: cwlUniversalMegaBatch.schemaVersion ?? 4,
       script: "pnpm run hub:cwl-universal-mega-batch-smoke",
     },
     cwlBodyRoundtrip: {

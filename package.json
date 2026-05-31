@@ -250,6 +250,7 @@
     "hub:cwl-flagship-roundtrip-batch-smoke": "node scripts/hub-ingest/hub-cwl-flagship-roundtrip-batch-smoke.mjs",
     "hub:translate-cwl-roundtrip-smoke": "node scripts/hub-ingest/hub-translate-cwl-roundtrip-smoke.mjs",
     "hub:project-to-cwl-roundtrip-smoke": "node scripts/hub-ingest/hub-project-to-cwl-roundtrip-smoke.mjs",
+    "hub:contract-import-cwl-roundtrip-smoke": "node scripts/hub-ingest/hub-contract-import-cwl-roundtrip-smoke.mjs",
     "hub:contract-cwl-smoke": "node scripts/hub-ingest/hub-contract-cwl-smoke.mjs",
     "hub:cross-language-synthesis": "node scripts/hub-ingest/hub-cross-language-synthesis.mjs --json-out reports/ci/hub-cross-language-synthesis.json",
     "hub:native-emit-smoke": "node scripts/hub-ingest/hub-native-emit-smoke.mjs",

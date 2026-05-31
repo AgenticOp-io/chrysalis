@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** CWL universal mega batch v3: all origins + CWL mega + oracle + roundtrip + translate + project roundtrip (G562). */
+/** CWL universal mega batch v4: v3 + contract import CWL roundtrip (G592). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlAllOriginsBatchSmoke } from "./hub-cwl-all-origins-batch-smoke.mjs";
@@ -9,9 +9,10 @@ import { runCwlPatternLiteralRoundtripBatchSmoke } from "./hub-cwl-pattern-liter
 import { runHubTranslateCwlCoverageSmoke } from "./hub-translate-cwl-coverage-smoke.mjs";
 import { runHubTranslateCwlRoundtripSmoke } from "./hub-translate-cwl-roundtrip-smoke.mjs";
 import { runProjectToCwlRoundtripSmoke } from "./hub-project-to-cwl-roundtrip-smoke.mjs";
+import { runContractImportCwlRoundtripSmoke } from "./hub-contract-import-cwl-roundtrip-smoke.mjs";
 
 export const HUB_CWL_UNIVERSAL_MEGA_BATCH_KIND = "chrysalis.hub.cwl-universal-mega-batch-smoke";
-export const HUB_CWL_UNIVERSAL_MEGA_BATCH_SCHEMA_VERSION = 3;
+export const HUB_CWL_UNIVERSAL_MEGA_BATCH_SCHEMA_VERSION = 4;
 
 export async function runCwlUniversalMegaBatchSmoke() {
   const allOrigins = await runCwlAllOriginsBatchSmoke();
@@ -21,6 +22,7 @@ export async function runCwlUniversalMegaBatchSmoke() {
   const translateCwlCoverage = runHubTranslateCwlCoverageSmoke();
   const translateCwlRoundtrip = runHubTranslateCwlRoundtripSmoke();
   const projectToCwlRoundtrip = await runProjectToCwlRoundtripSmoke();
+  const contractImportCwlRoundtrip = await runContractImportCwlRoundtripSmoke();
   const ok =
     allOrigins.ok &&
     cwlMega.ok &&
@@ -28,7 +30,8 @@ export async function runCwlUniversalMegaBatchSmoke() {
     patternLiteralRoundtrip.ok &&
     translateCwlCoverage.ok &&
     translateCwlRoundtrip.ok &&
-    projectToCwlRoundtrip.ok;
+    projectToCwlRoundtrip.ok &&
+    contractImportCwlRoundtrip.ok;
   return {
     kind: HUB_CWL_UNIVERSAL_MEGA_BATCH_KIND,
     schemaVersion: HUB_CWL_UNIVERSAL_MEGA_BATCH_SCHEMA_VERSION,
@@ -40,6 +43,7 @@ export async function runCwlUniversalMegaBatchSmoke() {
     translateCwlCoverage,
     translateCwlRoundtrip,
     projectToCwlRoundtrip,
+    contractImportCwlRoundtrip,
     generatedAt: new Date().toISOString(),
   };
 }

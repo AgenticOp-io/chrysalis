@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 17;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 18;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -293,7 +293,8 @@ export function buildHubCapabilityMatrixReport() {
       translateCwlCoverageScript: "pnpm run hub:translate-cwl-coverage-smoke",
       translateCwlRoundtripScript: "pnpm run hub:translate-cwl-roundtrip-smoke",
       projectToCwlRoundtripScript: "pnpm run hub:project-to-cwl-roundtrip-smoke",
-      universalMegaBatchSchemaVersion: 3,
+      contractImportCwlRoundtripScript: "pnpm run hub:contract-import-cwl-roundtrip-smoke",
+      universalMegaBatchSchemaVersion: 4,
       originCount: 23,
       patternLiteralCwlSuiteCount: 18,
       patternLiteralRoundtripSuiteCount: 21,
