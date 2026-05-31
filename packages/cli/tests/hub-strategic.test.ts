@@ -1801,7 +1801,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(22);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(22);
     expect(report.hubEvidenceMvpBatch?.script).toBe("pnpm run hub:evidence-mvp-batch-smoke");
     expect(report.hubEvidenceMvpBatch?.trendScript).toBe("pnpm run hub:evidence-trend-smoke");
     expect(report.evidenceStandaloneMega?.batchSchemaVersion).toBe(2);
@@ -1822,10 +1822,61 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(24);
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBeGreaterThanOrEqual(24);
       expect(report.month20Program?.hubEvidenceMvpBatch).toBe("hub:evidence-mvp-batch-smoke");
       expect(report.month20Program?.requireHubEvidenceMvpBatchEnv).toBe(
         "CHRYSALIS_HUB_COMPLETION_REQUIRE_HUB_EVIDENCE_MVP_BATCH",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub completion schema 65 WPTP strict batch (G770)", async () => {
+    const { runWptpStrictBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-wptp-strict-batch-smoke.mjs")
+    );
+    const strictBatch = await runWptpStrictBatchSmoke();
+    expect(strictBatch.ok === true || strictBatch.skip === "no-wptp-emit-nextjs" || strictBatch.skip === "no-wptp-matrix").toBe(
+      true,
+    );
+    if (strictBatch.wptpEmitNextjsAvailable === true && strictBatch.wptpMatrixAvailable === true) {
+      expect(strictBatch.skip).toBeNull();
+      expect(strictBatch.nextjsBatch?.ok).toBe(true);
+      expect(strictBatch.wptpGold?.ok).toBe(true);
+    }
+  }, 600_000);
+
+  test("capability matrix v23 lists WPTP strict batch (G742)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(23);
+    expect(report.wptpStrictBatch?.script).toBe("pnpm run hub:wptp-strict-batch-smoke");
+    expect(report.wptpStrictBatch?.requireWptpNextjsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS");
+  });
+
+  test("delivery dashboard v25 surfaces month21 WPTP strict batch (G743)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v25-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(25);
+      expect(report.month21Program?.wptpStrictBatch).toBe("hub:wptp-strict-batch-smoke");
+      expect(report.month21Program?.requireWptpNextjsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS");
+      expect(report.month21Program?.requireWptpStrictBatchEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_STRICT_BATCH",
       );
     } finally {
       rmSync(tmp, { recursive: true, force: true });

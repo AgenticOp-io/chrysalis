@@ -638,6 +638,15 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G717 — Strategic test G740** — schema 64 hub evidence MVP smokes. (**DESIGN D877**)
 - [x] **G718 — ci-gates v64 test** — accepts schema v64 payloads. (**DESIGN D878**)
 - [x] **G740 — Hub completion schema 64** — hub evidence MVP migration-OS readout. (**DESIGN D880**)
+- [x] **G741 — hub-wptp-strict-batch-smoke** — strict Next.js verify + WPTP matrix gold when siblings present. (**DESIGN D881**)
+- [x] **G742 — Capability matrix v23** — WPTP strict batch metadata. (**DESIGN D882**)
+- [x] **G743 — Delivery dashboard v25** — month21Program WPTP strict batch. (**DESIGN D883**)
+- [x] **G744 — Hub evidence schema v22** — requireWptpStrictBatchEnv. (**DESIGN D884**)
+- [x] **G745 — ci-gates v65** — WPTP strict batch + REQUIRE_WPTP_NEXTJS no-skip gates. (**DESIGN D885**)
+- [x] **G746 — CI typecheck-and-test** — `CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1` on hub completion. (**DESIGN D886**)
+- [x] **G747 — Strategic test G770** — schema 65 WPTP strict smokes. (**DESIGN D887**)
+- [x] **G748 — ci-gates v65 test** — accepts schema v65 payloads. (**DESIGN D888**)
+- [x] **G770 — Hub completion schema 65** — strict WPTP CI wiring. (**DESIGN D890**)
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
 **Paused by policy (do not open without plan amendment):** matrix gold for marketing; WordPress before Laravel boring; “any language production-ready” claims.

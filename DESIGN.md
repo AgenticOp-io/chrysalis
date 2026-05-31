@@ -2524,6 +2524,15 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D877** **Strategic test G740 (G717).** Schema 64 hub evidence MVP smokes.
 - **2026-05-31 — D878** **ci-gates v64 test (G718).** Accepts schema v64 payloads.
 - **2026-05-31 — D880** **Hub completion schema 64 (G740).** Hub evidence MVP migration-OS readout.
+- **2026-05-31 — D881** **hub-wptp-strict-batch-smoke (G741).** Strict Next.js verify + WPTP matrix gold.
+- **2026-05-31 — D882** **Capability matrix v23 (G742).** WPTP strict batch metadata.
+- **2026-05-31 — D883** **Delivery dashboard v25 (G743).** month21Program WPTP strict batch.
+- **2026-05-31 — D884** **Hub evidence schema v22 (G744).** requireWptpStrictBatchEnv.
+- **2026-05-31 — D885** **ci-gates v65 (G745).** WPTP strict batch + REQUIRE_WPTP_NEXTJS no-skip gates.
+- **2026-05-31 — D886** **CI typecheck-and-test (G746).** REQUIRE_WPTP_NEXTJS on hub completion job.
+- **2026-05-31 — D887** **Strategic test G770 (G747).** Schema 65 WPTP strict smokes.
+- **2026-05-31 — D888** **ci-gates v65 test (G748).** Accepts schema v65 payloads.
+- **2026-05-31 — D890** **Hub completion schema 65 (G770).** Strict WPTP CI wiring.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 
