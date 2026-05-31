@@ -1,27 +1,32 @@
 #!/usr/bin/env node
-/** Laravel live verify gaps closure v3: live backlog 0 + auth-probe verify closure/replay (G945). */
+/** Laravel live verify gaps closure v4: live backlog 0 + auth-probe verify closure/replay/http (G971). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
 import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs";
 import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyReplaySmoke } from "./hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyHttpSmoke } from "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs";
 
 export const HUB_LARAVEL_VERIFY_LIVE_GAPS_CLOSURE_KIND = "chrysalis.hub.laravel-verify-live-gaps-closure-smoke";
-export const HUB_LARAVEL_VERIFY_LIVE_GAPS_CLOSURE_SCHEMA_VERSION = 3;
+export const HUB_LARAVEL_VERIFY_LIVE_GAPS_CLOSURE_SCHEMA_VERSION = 4;
 
 export async function runLaravelVerifyLiveGapsClosureSmoke() {
   const gaps = buildLaravelVerifyGapsReport();
   const action = runLaravelVerifyGapsAction();
   const authProbeVerifyClosure = await runLaravelAuthProbeReingestVerifyClosureSmoke();
   const authProbeVerifyReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
+  const authProbeVerifyHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
   const backlogCount = gaps.backlog?.length ?? 0;
   const liveOk =
     gaps.ok === true &&
     gaps.skipped == null &&
     backlogCount === 0 &&
     (gaps.verify?.correctness ?? 0) >= 1;
-  const postVerifyOk = authProbeVerifyClosure.ok === true || authProbeVerifyReplay.ok === true;
+  const postVerifyOk =
+    authProbeVerifyClosure.ok === true ||
+    authProbeVerifyReplay.ok === true ||
+    authProbeVerifyHttp.ok === true;
   const ok =
     liveOk &&
     postVerifyOk &&
@@ -43,6 +48,11 @@ export async function runLaravelVerifyLiveGapsClosureSmoke() {
       ok: authProbeVerifyReplay.ok === true,
       backlogAfter: authProbeVerifyReplay.backlogAfter ?? null,
       correctnessAfter: authProbeVerifyReplay.correctnessAfter ?? null,
+    },
+    authProbeVerifyHttp: {
+      ok: authProbeVerifyHttp.ok === true,
+      backlogAfter: authProbeVerifyHttp.backlogAfter ?? null,
+      correctnessAfter: authProbeVerifyHttp.correctnessAfter ?? null,
     },
     generatedAt: new Date().toISOString(),
   };

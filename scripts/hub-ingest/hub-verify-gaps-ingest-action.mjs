@@ -13,9 +13,10 @@ import {
 } from "./hub-verify-gaps-ingest.mjs";
 import { seedLaravelAuthProbeVerifyReport } from "./hub-laravel-auth-probe-verify-seed.mjs";
 import { runProjectVerifyReplay } from "./hub-verify-replay.mjs";
+import { runProjectVerifyHttp } from "./hub-verify-http.mjs";
 
 export const HUB_VERIFY_GAPS_INGEST_ACTION_KIND = "chrysalis.hub.verify-gaps-ingest-action";
-export const HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION = 3;
+export const HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION = 4;
 
 function readHoleCount(projectDir) {
   const holesPath = join(resolve(projectDir), "chrysalis.holes.json");
@@ -59,10 +60,18 @@ export async function runVerifyGapsIngestAction(projectDir, opts = {}) {
   const verifyClosure = { applied: false, ok: true, correctness: null, skip: null };
   /** @type {{ applied: boolean, ok: boolean, correctness: number | null, skip: string | null }} */
   const verifyReplay = { applied: false, ok: true, correctness: null, skip: null };
+  /** @type {{ applied: boolean, ok: boolean, correctness: number | null, skip: string | null }} */
+  const verifyHttp = { applied: false, ok: true, correctness: null, skip: null };
 
   const reingestSucceeded = ingestRun.ran && (ingestRun.exitCode ?? 1) === 0;
 
-  if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY === "1" && reingestSucceeded) {
+  if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP === "1" && reingestSucceeded) {
+    const httpVerified = await runProjectVerifyHttp(root);
+    verifyHttp.applied = true;
+    verifyHttp.ok = httpVerified.ok === true;
+    verifyHttp.correctness = httpVerified.correctness ?? null;
+    verifyHttp.skip = httpVerified.skip ?? null;
+  } else if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY === "1" && reingestSucceeded) {
     const replayed = await runProjectVerifyReplay(root);
     verifyReplay.applied = true;
     verifyReplay.ok = replayed.ok === true;
@@ -79,8 +88,13 @@ export async function runVerifyGapsIngestAction(projectDir, opts = {}) {
     verifyClosure.skip = seeded.skip ?? null;
   }
 
-  const postVerifyOk =
-    verifyReplay.applied ? verifyReplay.ok !== false : verifyClosure.applied ? verifyClosure.ok !== false : true;
+  const postVerifyOk = verifyHttp.applied
+    ? verifyHttp.ok !== false
+    : verifyReplay.applied
+      ? verifyReplay.ok !== false
+      : verifyClosure.applied
+        ? verifyClosure.ok !== false
+        : true;
 
   const gapsAfter = ingestRun.ran ? buildProjectVerifyGapsIngestReport(root) : gaps;
 
@@ -108,6 +122,7 @@ export async function runVerifyGapsIngestAction(projectDir, opts = {}) {
     reingest: ingestRun,
     verifyClosure,
     verifyReplay,
+    verifyHttp,
     holesBefore,
     holesAfter: ingestRun.holesAfter ?? holesBefore,
     verifyGapsAfter: ingestRun.ran

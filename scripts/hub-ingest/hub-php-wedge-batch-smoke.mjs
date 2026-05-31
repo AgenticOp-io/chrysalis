@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** PHP wedge batch v5: v4 + gaps ingest strict batch v4 + IR helper lifting (G938). */
+/** PHP wedge batch v6: v5 + IR helper semantic lifting (G965). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smoke.mjs";
@@ -9,9 +9,10 @@ import { runNodeExpressOracleStandaloneSmoke } from "./hub-node-express-oracle-s
 import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
 import { runIrHelperLiftingSmoke } from "./hub-ir-helper-lifting-smoke.mjs";
+import { runIrHelperLiftingSemanticSmoke } from "./hub-ir-helper-lifting-semantic-smoke.mjs";
 
 export const HUB_PHP_WEDGE_BATCH_KIND = "chrysalis.hub.php-wedge-batch-smoke";
-export const HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION = 5;
+export const HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION = 6;
 
 export async function runPhpWedgeBatchSmoke() {
   const nextjsVerify = await runPhpNextjsVerifyBatchSmoke();
@@ -21,6 +22,7 @@ export async function runPhpWedgeBatchSmoke() {
   const gapsIngestClosure = await runGapsIngestClosureBatchSmoke();
   const gapsIngestStrict = await runGapsIngestStrictBatchSmoke();
   const irHelperLifting = runIrHelperLiftingSmoke();
+  const irHelperLiftingSemantic = runIrHelperLiftingSemanticSmoke();
   const ok =
     nextjsVerify.ok === true &&
     oracleMicro.ok === true &&
@@ -28,7 +30,8 @@ export async function runPhpWedgeBatchSmoke() {
     nodeExpressOracle.ok === true &&
     gapsIngestClosure.ok === true &&
     gapsIngestStrict.ok === true &&
-    irHelperLifting.ok === true;
+    irHelperLifting.ok === true &&
+    irHelperLiftingSemantic.ok === true;
   return {
     kind: HUB_PHP_WEDGE_BATCH_KIND,
     schemaVersion: HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION,
@@ -40,6 +43,7 @@ export async function runPhpWedgeBatchSmoke() {
     gapsIngestClosure,
     gapsIngestStrict,
     irHelperLifting,
+    irHelperLiftingSemantic,
     generatedAt: new Date().toISOString(),
   };
 }

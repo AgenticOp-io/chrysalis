@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-/** Verify product ultra batch v7: v6 + auth-probe verify replay + flagship replay (G941). */
+/** Verify product ultra batch v8: v7 + HTTP oracle verify smokes (G968). */
+import { runLaravelAuthProbeReingestVerifyHttpSmoke } from "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs";
+import { runFlagshipVerifyHttpBatchSmoke } from "./hub-flagship-verify-http-batch-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyReplaySmoke } from "./hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs";
 import { runFlagshipVerifyReplayBatchSmoke } from "./hub-flagship-verify-replay-batch-smoke.mjs";
@@ -13,7 +15,7 @@ import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
 
 export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_KIND = "chrysalis.hub.verify-product-ultra-batch-smoke";
-export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 7;
+export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 8;
 
 export async function runVerifyProductUltraBatchSmoke() {
   const verifyGapsOrigin = await runVerifyGapsOriginBatchSmoke();
@@ -24,7 +26,9 @@ export async function runVerifyProductUltraBatchSmoke() {
   const gapsIngestStrict = await runGapsIngestStrictBatchSmoke();
   const authProbeVerifyClosure = await runLaravelAuthProbeReingestVerifyClosureSmoke();
   const authProbeVerifyReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
+  const authProbeVerifyHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
   const flagshipVerifyReplay = await runFlagshipVerifyReplayBatchSmoke();
+  const flagshipVerifyHttp = await runFlagshipVerifyHttpBatchSmoke();
   return {
     kind: HUB_VERIFY_PRODUCT_ULTRA_BATCH_KIND,
     schemaVersion: HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
@@ -37,7 +41,9 @@ export async function runVerifyProductUltraBatchSmoke() {
       gapsIngestStrict.ok &&
       authProbeVerifyClosure.ok &&
       authProbeVerifyReplay.ok &&
-      flagshipVerifyReplay.ok,
+      authProbeVerifyHttp.ok &&
+      flagshipVerifyReplay.ok &&
+      flagshipVerifyHttp.ok,
     verifyGapsOrigin,
     verifyStandaloneMega,
     laravelDepth,
@@ -46,7 +52,9 @@ export async function runVerifyProductUltraBatchSmoke() {
     gapsIngestStrict,
     authProbeVerifyClosure,
     authProbeVerifyReplay,
+    authProbeVerifyHttp,
     flagshipVerifyReplay,
+    flagshipVerifyHttp,
     generatedAt: new Date().toISOString(),
   };
 }

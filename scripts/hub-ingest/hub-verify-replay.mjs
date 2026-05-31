@@ -11,6 +11,7 @@ import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
 
 export const HUB_VERIFY_REPLAY_KIND = "chrysalis.hub.verify-replay";
 export const HUB_VERIFY_REPLAY_SCHEMA_VERSION = 1;
+export const HUB_VERIFY_PREPARE_KIND = "chrysalis.hub.verify-prepare";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -42,7 +43,7 @@ export function inferHubProjectOrigin(projectDir) {
  * @param {string} projectDir
  * @param {{ origin?: string, target?: string, repoRoot?: string }} [opts]
  */
-export async function runProjectVerifyReplay(projectDir, opts = {}) {
+export async function prepareProjectVerifyEmit(projectDir, opts = {}) {
   const root = resolve(projectDir);
   const origin = opts.origin ?? inferHubProjectOrigin(root);
   const target = opts.target ?? "hono";
@@ -52,14 +53,13 @@ export async function runProjectVerifyReplay(projectDir, opts = {}) {
     const phpExport = await exportPhpHubWebir(root);
     if (phpExport.skip || !phpExport.ok) {
       return {
-        kind: HUB_VERIFY_REPLAY_KIND,
-        schemaVersion: HUB_VERIFY_REPLAY_SCHEMA_VERSION,
-        projectDir: root,
+        kind: HUB_VERIFY_PREPARE_KIND,
         ok: false,
         skip: phpExport.skip ?? "php-export-failed",
+        projectDir: root,
         origin,
         target,
-        generatedAt: new Date().toISOString(),
+        outDir: null,
       };
     }
   } else {
@@ -70,15 +70,14 @@ export async function runProjectVerifyReplay(projectDir, opts = {}) {
     });
     if (lift.status !== 0) {
       return {
-        kind: HUB_VERIFY_REPLAY_KIND,
-        schemaVersion: HUB_VERIFY_REPLAY_SCHEMA_VERSION,
-        projectDir: root,
+        kind: HUB_VERIFY_PREPARE_KIND,
         ok: false,
         skip: "lift-failed",
         detail: (lift.stderr || lift.stdout)?.slice(0, 400) ?? null,
+        projectDir: root,
         origin,
         target,
-        generatedAt: new Date().toISOString(),
+        outDir: null,
       };
     }
   }
@@ -90,15 +89,14 @@ export async function runProjectVerifyReplay(projectDir, opts = {}) {
   });
   if (emit.status !== 0) {
     return {
-      kind: HUB_VERIFY_REPLAY_KIND,
-      schemaVersion: HUB_VERIFY_REPLAY_SCHEMA_VERSION,
-      projectDir: root,
+      kind: HUB_VERIFY_PREPARE_KIND,
       ok: false,
       skip: "emit-failed",
       detail: (emit.stderr || emit.stdout)?.slice(0, 400) ?? null,
+      projectDir: root,
       origin,
       target,
-      generatedAt: new Date().toISOString(),
+      outDir: null,
     };
   }
 
@@ -114,18 +112,54 @@ export async function runProjectVerifyReplay(projectDir, opts = {}) {
       });
       if (inst.status !== 0) {
         return {
-          kind: HUB_VERIFY_REPLAY_KIND,
-          schemaVersion: HUB_VERIFY_REPLAY_SCHEMA_VERSION,
-          projectDir: root,
+          kind: HUB_VERIFY_PREPARE_KIND,
           ok: false,
           skip: "npm-install-failed",
           detail: (inst.stderr || inst.stdout)?.slice(0, 400) ?? null,
+          projectDir: root,
           origin,
           target,
-          generatedAt: new Date().toISOString(),
+          outDir: null,
         };
       }
     }
+  }
+
+  return {
+    kind: HUB_VERIFY_PREPARE_KIND,
+    ok: true,
+    skip: null,
+    projectDir: root,
+    origin,
+    target,
+    outDir,
+    repoRoot,
+  };
+}
+
+/**
+ * @param {string} projectDir
+ * @param {{ origin?: string, target?: string, repoRoot?: string }} [opts]
+ */
+export async function runProjectVerifyReplay(projectDir, opts = {}) {
+  const root = resolve(projectDir);
+  const origin = opts.origin ?? inferHubProjectOrigin(root);
+  const target = opts.target ?? "hono";
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+
+  const prepared = await prepareProjectVerifyEmit(root, { origin, target, repoRoot });
+  if (!prepared.ok) {
+    return {
+      kind: HUB_VERIFY_REPLAY_KIND,
+      schemaVersion: HUB_VERIFY_REPLAY_SCHEMA_VERSION,
+      projectDir: root,
+      ok: false,
+      skip: prepared.skip ?? "prepare-failed",
+      detail: prepared.detail ?? null,
+      origin,
+      target,
+      generatedAt: new Date().toISOString(),
+    };
   }
 
   const replay = spawnSync(

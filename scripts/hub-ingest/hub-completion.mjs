@@ -165,6 +165,9 @@ import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-aut
 import { runLaravelAuthProbeReingestVerifyReplaySmoke } from "./hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs";
 import { runFlagshipVerifyReplayBatchSmoke } from "./hub-flagship-verify-replay-batch-smoke.mjs";
 import { runIrHelperLiftingSmoke } from "./hub-ir-helper-lifting-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyHttpSmoke } from "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs";
+import { runFlagshipVerifyHttpBatchSmoke } from "./hub-flagship-verify-http-batch-smoke.mjs";
+import { runIrHelperLiftingSemanticSmoke } from "./hub-ir-helper-lifting-semantic-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1256,6 +1259,27 @@ async function main() {
     irHelperLifting = { ok: false, skip: "ir-helper-lifting-threw" };
   }
   const irHelperLiftingOk = irHelperLifting.ok === true;
+  let laravelAuthProbeVerifyHttp = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelAuthProbeVerifyHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
+  } catch {
+    laravelAuthProbeVerifyHttp = { ok: false, skip: "laravel-auth-probe-verify-http-threw" };
+  }
+  const laravelAuthProbeVerifyHttpOk = laravelAuthProbeVerifyHttp.ok === true;
+  let flagshipVerifyHttp = { ok: false, skip: "not-run-in-completion" };
+  try {
+    flagshipVerifyHttp = await runFlagshipVerifyHttpBatchSmoke();
+  } catch {
+    flagshipVerifyHttp = { ok: false, skip: "flagship-verify-http-threw" };
+  }
+  const flagshipVerifyHttpOk = flagshipVerifyHttp.ok === true;
+  let irHelperLiftingSemantic = { ok: false, skip: "not-run-in-completion" };
+  try {
+    irHelperLiftingSemantic = runIrHelperLiftingSemanticSmoke();
+  } catch {
+    irHelperLiftingSemantic = { ok: false, skip: "ir-helper-lifting-semantic-threw" };
+  }
+  const irHelperLiftingSemanticOk = irHelperLiftingSemantic.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1414,6 +1438,9 @@ async function main() {
     laravelAuthProbeVerifyReplayOk &&
     flagshipVerifyReplayOk &&
     irHelperLiftingOk &&
+    laravelAuthProbeVerifyHttpOk &&
+    flagshipVerifyHttpOk &&
+    irHelperLiftingSemanticOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1425,7 +1452,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 71,
+    schemaVersion: 72,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1612,7 +1639,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 28,
+      schemaVersion: 29,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1643,6 +1670,7 @@ async function main() {
       requireGapReingestStrictEnv: "CHRYSALIS_HUB_GAP_REINGEST_STRICT",
       requireGapReingestVerifyClosureEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
       requireGapReingestVerifyReplayEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
+      requireGapReingestVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -2240,7 +2268,9 @@ async function main() {
       authProbeReingestOk: gapsIngestStrictBatch.authProbeReingest?.ok === true,
       authProbeVerifyClosureOk: gapsIngestStrictBatch.authProbeVerifyClosure?.ok === true,
       authProbeVerifyReplayOk: gapsIngestStrictBatch.authProbeVerifyReplay?.ok === true,
+      authProbeVerifyHttpOk: gapsIngestStrictBatch.authProbeVerifyHttp?.ok === true,
       flagshipVerifyReplayOk: gapsIngestStrictBatch.flagshipVerifyReplay?.ok === true,
+      flagshipVerifyHttpOk: gapsIngestStrictBatch.flagshipVerifyHttp?.ok === true,
       script: "pnpm run hub:gaps-ingest-strict-batch-smoke",
     },
     laravelAuthProbeReingest: {
@@ -2249,6 +2279,7 @@ async function main() {
       reingestExitCode: laravelAuthProbeReingest.reingest?.exitCode ?? null,
       verifyClosureOk: laravelAuthProbeReingest.verifyClosure?.ok === true,
       verifyReplayOk: laravelAuthProbeReingest.verifyReplay?.ok === true,
+      verifyHttpOk: laravelAuthProbeReingest.verifyHttp?.ok === true,
       fixture: laravelAuthProbeReingest.fixture ?? "fixtures/laravel-auth-probe",
       script: "pnpm run hub:laravel-auth-probe-reingest-smoke",
     },
@@ -2264,15 +2295,31 @@ async function main() {
       correctnessAfter: laravelAuthProbeVerifyReplay.correctnessAfter ?? null,
       script: "pnpm run hub:laravel-auth-probe-reingest-verify-replay-smoke",
     },
+    laravelAuthProbeVerifyHttp: {
+      ok: laravelAuthProbeVerifyHttpOk,
+      backlogAfter: laravelAuthProbeVerifyHttp.backlogAfter ?? null,
+      correctnessAfter: laravelAuthProbeVerifyHttp.correctnessAfter ?? null,
+      script: "pnpm run hub:laravel-auth-probe-reingest-verify-http-smoke",
+    },
     flagshipVerifyReplay: {
       ok: flagshipVerifyReplayOk,
       schemaVersion: flagshipVerifyReplay.schemaVersion ?? 1,
       script: "pnpm run hub:flagship-verify-replay-batch-smoke",
     },
+    flagshipVerifyHttp: {
+      ok: flagshipVerifyHttpOk,
+      schemaVersion: flagshipVerifyHttp.schemaVersion ?? 1,
+      script: "pnpm run hub:flagship-verify-http-batch-smoke",
+    },
     irHelperLifting: {
       ok: irHelperLiftingOk,
       fixture: irHelperLifting.fixture ?? "fixtures/lift-helper-lift-twin",
       script: "pnpm run hub:ir-helper-lifting-smoke",
+    },
+    irHelperLiftingSemantic: {
+      ok: irHelperLiftingSemanticOk,
+      fixture: irHelperLiftingSemantic.fixture ?? "fixtures/lift-helper-gap-probe",
+      script: "pnpm run hub:ir-helper-lifting-semantic-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,

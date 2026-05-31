@@ -16,9 +16,12 @@ export async function runLaravelAuthProbeReingestSmoke() {
   const prevReingest = process.env.CHRYSALIS_HUB_GAP_REINGEST;
   const prevVerifyReplay = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY;
   const prevVerifyClosure = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE;
+  const prevVerifyHttp = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP;
   process.env.CHRYSALIS_HUB_GAP_REINGEST_STRICT = "1";
   process.env.CHRYSALIS_HUB_GAP_REINGEST = "1";
-  if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY !== "1") {
+  if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP === "1") {
+    process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP = "1";
+  } else if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY !== "1") {
     process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE = "1";
   }
   try {
@@ -33,11 +36,15 @@ export async function runLaravelAuthProbeReingestSmoke() {
       report.verifyReplay?.applied === true &&
       report.verifyReplay?.ok === true &&
       (report.verifyReplay?.correctnessAfter ?? 0) >= 1;
+    const verifyHttpOk =
+      report.verifyHttp?.applied === true &&
+      report.verifyHttp?.ok === true &&
+      (report.verifyHttp?.correctnessAfter ?? 0) >= 1;
     const verifyClosureOk =
       report.verifyClosure?.applied === true &&
       report.verifyClosure?.ok === true &&
       (report.verifyClosure?.correctnessAfter ?? 0) >= 1;
-    const postVerifyOk = verifyReplayOk || verifyClosureOk;
+    const postVerifyOk = verifyHttpOk || verifyReplayOk || verifyClosureOk;
     return {
       kind: HUB_LARAVEL_AUTH_PROBE_REINGEST_KIND,
       schemaVersion: HUB_LARAVEL_AUTH_PROBE_REINGEST_SCHEMA_VERSION,
@@ -48,6 +55,7 @@ export async function runLaravelAuthProbeReingestSmoke() {
       reingest: report.reingest,
       verifyClosure: report.verifyClosure,
       verifyReplay: report.verifyReplay,
+      verifyHttp: report.verifyHttp,
       generatedAt: new Date().toISOString(),
     };
   } finally {
@@ -59,6 +67,8 @@ export async function runLaravelAuthProbeReingestSmoke() {
     else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY = prevVerifyReplay;
     if (prevVerifyClosure === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE;
     else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE = prevVerifyClosure;
+    if (prevVerifyHttp === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP;
+    else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP = prevVerifyHttp;
   }
 }
 

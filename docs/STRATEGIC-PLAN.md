@@ -228,8 +228,9 @@ When the user says “build” without specifying, prefer this queue:
 | --- | --- |
 | 26 | Auth-probe verify seed closure after strict reingest (schema 70) |
 | 27 | **Real verify replay** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY`); multi-flagship replay; IR helper lifting hub smoke (schema 71) |
+| 28 | **HTTP oracle verify** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP`); multi-flagship HTTP verify; IR helper semantic lifting (schema 72) |
 
-Replay runs ingest+emit+in-process trace oracle — no fixture summary copy. Seed closure remains for offline/fast probes.
+HTTP verify runs emit + live server + `chrysalis verify --base-url` — stronger than in-process replay. Replay and seed closure remain for faster probes.
 
 ---
 

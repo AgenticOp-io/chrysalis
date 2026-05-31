@@ -787,6 +787,9 @@ export function __respond(c: Context, html: string, status: number): Response {
     }
     return c.text(html, contentful);
   }
+  if (status === 204 || status === 304) {
+    return c.body(null, contentful);
+  }
   return c.text("", contentful);
 }
 

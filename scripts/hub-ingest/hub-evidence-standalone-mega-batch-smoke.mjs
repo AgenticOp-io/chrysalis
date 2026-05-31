@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Evidence standalone mega batch v6: v5 + auth-probe verify replay (G940). */
+/** Evidence standalone mega batch v7: v6 + auth-probe HTTP verify (G966). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runEvidenceStandaloneSmoke } from "./hub-evidence-standalone-smoke.mjs";
@@ -8,9 +8,10 @@ import { runHubEvidenceMvpBatchSmoke } from "./hub-evidence-mvp-batch-smoke.mjs"
 import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyReplaySmoke } from "./hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyHttpSmoke } from "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs";
 
 export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_KIND = "chrysalis.hub.evidence-standalone-mega-batch-smoke";
-export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION = 6;
+export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION = 7;
 
 export async function runEvidenceStandaloneMegaBatchSmoke() {
   const evidence = await runEvidenceStandaloneSmoke();
@@ -19,6 +20,7 @@ export async function runEvidenceStandaloneMegaBatchSmoke() {
   const gapsIngestClosure = await runGapsIngestClosureBatchSmoke();
   const authProbeVerifyClosure = await runLaravelAuthProbeReingestVerifyClosureSmoke();
   const authProbeVerifyReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
+  const authProbeVerifyHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
   return {
     kind: HUB_EVIDENCE_STANDALONE_MEGA_BATCH_KIND,
     schemaVersion: HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION,
@@ -28,13 +30,15 @@ export async function runEvidenceStandaloneMegaBatchSmoke() {
       evidenceMvp.ok &&
       gapsIngestClosure.ok &&
       authProbeVerifyClosure.ok &&
-      authProbeVerifyReplay.ok,
+      authProbeVerifyReplay.ok &&
+      authProbeVerifyHttp.ok,
     evidence,
     wptpGold,
     evidenceMvp,
     gapsIngestClosure,
     authProbeVerifyClosure,
     authProbeVerifyReplay,
+    authProbeVerifyHttp,
     generatedAt: new Date().toISOString(),
   };
 }

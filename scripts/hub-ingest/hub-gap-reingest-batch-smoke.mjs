@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Gap reingest batch v4: v3 + real trace replay verify when strict (G933). */
+/** Gap reingest batch v5: v4 + HTTP oracle verify when strict (G962). */
 import { copyFileSync, cpSync, existsSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { runVerifyGapsIngestAction } from "./hub-verify-gaps-ingest-action.mjs";
 
 export const HUB_GAP_REINGEST_BATCH_KIND = "chrysalis.hub.gap-reingest-batch-smoke";
-export const HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION = 4;
+export const HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION = 5;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const backlogSummary = join(scriptRoot, "fixtures/hub-laravel-verify-gaps-backlog/summary.json");
@@ -39,14 +39,19 @@ export async function runGapReingestBatchSmoke() {
   let verifyClosure = { ok: true, skip: "verify-closure-not-requested", applied: false, backlogAfter: null, correctnessAfter: null };
   let verifyReplay = { ok: true, skip: "verify-replay-not-requested", applied: false, backlogAfter: null, correctnessAfter: null };
 
+  let verifyHttp = { ok: true, skip: "verify-http-not-requested", applied: false, backlogAfter: null, correctnessAfter: null };
+
   if (process.env.CHRYSALIS_HUB_GAP_REINGEST === "1") {
     if (!existsSync(cliBin)) {
       reingest = { ok: true, skip: "no-cli-bin", ran: false };
     } else {
       const prevVerifyClosure = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE;
       const prevVerifyReplay = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY;
+      const prevVerifyHttp = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP;
       if (process.env.CHRYSALIS_HUB_GAP_REINGEST_STRICT === "1") {
-        if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY === "1") {
+        if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP === "1") {
+          process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP = "1";
+        } else if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY === "1") {
           process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY = "1";
         } else {
           process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE = "1";
@@ -61,6 +66,18 @@ export async function runGapReingestBatchSmoke() {
           ran: action.reingest?.ran === true,
           exitCode: action.reingest?.exitCode ?? null,
         };
+        if (action.verifyHttp?.applied === true) {
+          verifyHttp = {
+            ok:
+              action.verifyHttp.ok === true &&
+              (action.verifyGapsAfter?.backlogCount ?? 1) === 0 &&
+              (action.verifyGapsAfter?.correctness ?? 0) >= 1,
+            skip: null,
+            applied: true,
+            backlogAfter: action.verifyGapsAfter?.backlogCount ?? null,
+            correctnessAfter: action.verifyGapsAfter?.correctness ?? null,
+          };
+        }
         if (action.verifyReplay?.applied === true) {
           verifyReplay = {
             ok:
@@ -89,6 +106,8 @@ export async function runGapReingestBatchSmoke() {
         rmSync(tmp, { recursive: true, force: true });
         if (prevVerifyClosure === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE;
         else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE = prevVerifyClosure;
+        if (prevVerifyHttp === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP;
+        else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP = prevVerifyHttp;
         if (prevVerifyReplay === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY;
         else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY = prevVerifyReplay;
       }
@@ -96,11 +115,13 @@ export async function runGapReingestBatchSmoke() {
   }
 
   const postVerifyOk =
-    verifyReplay.applied === true
-      ? verifyReplay.ok === true
-      : verifyClosure.applied === true
-        ? verifyClosure.ok === true
-        : true;
+    verifyHttp.applied === true
+      ? verifyHttp.ok === true
+      : verifyReplay.applied === true
+        ? verifyReplay.ok === true
+        : verifyClosure.applied === true
+          ? verifyClosure.ok === true
+          : true;
 
   return {
     kind: HUB_GAP_REINGEST_BATCH_KIND,
@@ -116,6 +137,8 @@ export async function runGapReingestBatchSmoke() {
     reingest,
     verifyClosure,
     verifyReplay,
+    verifyHttp,
+    requireVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
     requireVerifyReplayEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
     requireVerifyClosureEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
     generatedAt: new Date().toISOString(),

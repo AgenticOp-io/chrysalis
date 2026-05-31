@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-/** Flagship-full gaps batch v3: v2 + flagship trace replay verify (G937). */
+/** Flagship-full gaps batch v4: v3 + flagship HTTP oracle verify (G964). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ensureExpressFlagshipVerifyReport } from "./hub-express-flagship-verify-seed.mjs";
 import { runFlagshipVerifyGapsStandaloneSmoke } from "./hub-flagship-verify-gaps-standalone-smoke.mjs";
 import { runFlagshipVerifyReplayBatchSmoke } from "./hub-flagship-verify-replay-batch-smoke.mjs";
+import { runFlagshipVerifyHttpBatchSmoke } from "./hub-flagship-verify-http-batch-smoke.mjs";
 
 export const HUB_FLAGSHIP_FULL_GAPS_BATCH_KIND = "chrysalis.hub.flagship-full-gaps-batch-smoke";
-export const HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION = 3;
+export const HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION = 4;
 
 export async function runFlagshipFullGapsBatchSmoke() {
   const expressSeed = ensureExpressFlagshipVerifyReport();
@@ -15,6 +16,7 @@ export async function runFlagshipFullGapsBatchSmoke() {
   const symfony = await runFlagshipVerifyGapsStandaloneSmoke(undefined, { profile: "symfony" });
   const express = await runFlagshipVerifyGapsStandaloneSmoke(undefined, { profile: "express" });
   const verifyReplay = await runFlagshipVerifyReplayBatchSmoke();
+  const verifyHttp = await runFlagshipVerifyHttpBatchSmoke();
   const backlogCount = (plainPhp.backlogCount ?? 0) + (symfony.backlogCount ?? 0) + (express.backlogCount ?? 0);
   const ingestNext =
     plainPhp.ingestNext ?? symfony.ingestNext ?? express.ingestNext ?? null;
@@ -27,12 +29,14 @@ export async function runFlagshipFullGapsBatchSmoke() {
       symfony.ok === true &&
       express.ok === true &&
       express.skipped == null &&
-      verifyReplay.ok === true,
+      verifyReplay.ok === true &&
+      verifyHttp.ok === true,
     expressSeed,
     plainPhp,
     symfony,
     express,
     verifyReplay,
+    verifyHttp,
     backlogCount,
     ingestNext,
     generatedAt: new Date().toISOString(),

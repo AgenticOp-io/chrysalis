@@ -3,62 +3,12 @@
  * Probe emitted Hono app and replay corpus in-process (hub trace oracle).
  * Usage: node --import tsx scripts/hub-ingest/hub-gold-replay-worker.mjs <fixtureDir>
  */
-import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import { SCHEMA_VERSION } from "../../packages/oracle/dist/index.js";
+import { fileURLToPath } from "node:url";
 import { buildReport, replayCorpus } from "../../packages/verify/dist/index.js";
-import { listHubWebRoutes } from "./hub-webir-routes.mjs";
-import { hubGoldReplayFetchInit, hubMiddlewarePresetsFromModule } from "./hub-gold-replay-probe.mjs";
-import { createChrysalisNextjsInProcessFetch } from "./hub-gold-nextjs-fetch.mjs";
-import { listOpenApiFixtureRoutes } from "./hub-wptp-contract-gold.mjs";
+import { loadHubProbeContext, probeHubGoldCorpus } from "./hub-verify-probe-corpus.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-
-/**
- * @param {object} o
- */
-function mkTrace(o) {
-  return {
-    header: {
-      type: "header",
-      schemaVersion: SCHEMA_VERSION,
-      traceId: o.traceId,
-      startedAt: o.startedAt,
-      php: { version: "8.3.0", sapi: "hub-gold" },
-      redaction: { configHash: "hub-gold", rules: [] },
-    },
-    events: [
-      {
-        type: "http.request",
-        method: o.method,
-        path: o.path,
-        query: {},
-        headers: o.reqHeaders ?? {},
-        cookies: {},
-        post: o.post ?? {},
-        rawBody: o.rawBody ?? null,
-        session: {},
-      },
-      {
-        type: "http.response",
-        status: o.expectedStatus,
-        headers: o.expectedHeaders ?? { "content-type": "text/html; charset=UTF-8" },
-        body: o.expectedBody,
-        bodyTruncated: false,
-        session: {},
-      },
-    ],
-    footer: {
-      type: "footer",
-      endedAt: o.startedAt,
-      durationUs: 1000,
-      eventCount: 2,
-      exitStatus: 0,
-    },
-  };
-}
 
 function parseArgs(argv) {
   let fixture = join(scriptRoot, "fixtures/hub-gold-js-literal");
@@ -76,93 +26,19 @@ function parseArgs(argv) {
 
 async function main() {
   const { fixture, origin, target } = parseArgs(process.argv);
-  const openapiPath = join(fixture, "openapi.json");
-  const useOpenApiRoutes = existsSync(openapiPath);
-  let webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
-  if (!existsSync(webirPath)) {
-    const ingested = join(fixture, ".chrysalis", "ingested.webir.json");
-    if (existsSync(ingested)) webirPath = ingested;
-  }
-  const outDir = join(fixture, "generated", target);
-
-  const webirMod = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
-  /** @type {import('@chrysalis/webir').Module | null} */
-  let mod = null;
-  let middlewarePresets = new Set();
-  if (!useOpenApiRoutes) {
-    const raw = JSON.parse(await readFile(webirPath, "utf8"));
-    mod = webirMod.moduleFromGoldenSnapshot(raw);
-    middlewarePresets = hubMiddlewarePresetsFromModule(mod);
-  }
-  const routes = useOpenApiRoutes ? listOpenApiFixtureRoutes(fixture) : listHubWebRoutes(mod);
-
-  /** @type {(url: string, init?: RequestInit) => Promise<Response>} */
-  let inProcessFetch;
-  if (target === "nextjs") {
-    inProcessFetch = await createChrysalisNextjsInProcessFetch(outDir);
-  } else {
-    const serverPath = join(outDir, "src/server.ts");
-    const serverMod = await import(pathToFileURL(serverPath).href);
-    const fetchFn = serverMod.chrysalisInProcessFetch ?? serverMod.fetch;
-    if (typeof fetchFn !== "function") {
-      throw new Error(`hub-gold-replay: ${target} server has no chrysalisInProcessFetch or fetch export`);
-    }
-    inProcessFetch = fetchFn.bind(serverMod);
-  }
-
-  const traces = [];
-  const startedAt = "2026-05-01T12:00:00.000Z";
-  let i = 0;
-  for (const r of routes) {
-    const url = `http://127.0.0.1${r.path}`;
-    const init = hubGoldReplayFetchInit(r.method, middlewarePresets);
-    const resp = await inProcessFetch(url, init);
-    const body = await resp.text();
-    const headers = {};
-    resp.headers.forEach((v, k) => {
-      headers[k] = v;
-    });
-    const reqHeaders = { ...(init.headers ?? {}) };
-    const rawBody = init.body && typeof init.body === "string" ? init.body : null;
-    const ct = reqHeaders["content-type"] ?? "";
-    const bodyIsSerialized = ct.includes("application/json") || ct.includes("urlencoded");
-    let post = {};
-    if (rawBody && ct.includes("application/json")) {
-      try {
-        post = JSON.parse(rawBody);
-      } catch {
-        post = {};
-      }
-    } else if (rawBody && ct.includes("urlencoded")) {
-      post = Object.fromEntries(new URLSearchParams(rawBody));
-    }
-    traces.push(
-      mkTrace({
-        traceId: `hub-gold-${i++}`,
-        startedAt,
-        method: r.method,
-        path: r.path,
-        reqHeaders,
-        post: bodyIsSerialized ? {} : post,
-        rawBody,
-        expectedStatus: resp.status,
-        expectedHeaders: headers,
-        expectedBody: body,
-      }),
-    );
-  }
-
-  const corpus = {
-    id: "hub-gold-probe",
-    createdAt: startedAt,
-    root: fixture,
-    traces,
-  };
+  const ctx = await loadHubProbeContext(fixture, origin, target, scriptRoot);
+  const corpus = await probeHubGoldCorpus({
+    routes: ctx.routes,
+    middlewarePresets: ctx.middlewarePresets,
+    inProcessFetch: ctx.inProcessFetch,
+    fixture: ctx.fixture,
+    corpusId: "hub-gold-probe",
+  });
 
   const outcomes = await replayCorpus(corpus, {
     baseUrl: "http://127.0.0.1",
     injectDeterminismHeaders: true,
-    fetch: (url, init) => inProcessFetch(url, init),
+    fetch: (url, init) => ctx.inProcessFetch(url, init),
   });
   const report = buildReport(outcomes);
   const correctness = report.aggregate?.correctness ?? 0;
@@ -174,8 +50,8 @@ async function main() {
       fixture,
       origin,
       emitTarget: target,
-      routeCount: routes.length,
-      traceCount: traces.length,
+      routeCount: ctx.routes.length,
+      traceCount: corpus.traces.length,
       correctness,
       ok: correctness >= 1,
       report,

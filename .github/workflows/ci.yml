@@ -133,6 +133,7 @@ jobs:
           CHRYSALIS_HUB_GAP_REINGEST_STRICT: "1"
           CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE: "1"
           CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY: "1"
+          CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP: "1"
         run: pnpm run ci:hub-completion
 
       - name: Gate verify merged-summary JSON (fixture contract)
