@@ -162,6 +162,9 @@ import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
 import { runLaravelAuthProbeReingestSmoke } from "./hub-laravel-auth-probe-reingest-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyReplaySmoke } from "./hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs";
+import { runFlagshipVerifyReplayBatchSmoke } from "./hub-flagship-verify-replay-batch-smoke.mjs";
+import { runIrHelperLiftingSmoke } from "./hub-ir-helper-lifting-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1199,39 +1202,60 @@ async function main() {
     wptpStrictBatch.skip === "no-wptp-matrix";
   let flagshipFullGapsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
-    flagshipFullGapsBatch = runFlagshipFullGapsBatchSmoke();
+    flagshipFullGapsBatch = await runFlagshipFullGapsBatchSmoke();
   } catch {
     flagshipFullGapsBatch = { ok: false, skip: "flagship-full-gaps-batch-threw" };
   }
   const flagshipFullGapsBatchOk = flagshipFullGapsBatch.ok === true;
   let gapsIngestClosureBatch = { ok: false, skip: "not-run-in-completion" };
   try {
-    gapsIngestClosureBatch = runGapsIngestClosureBatchSmoke();
+    gapsIngestClosureBatch = await runGapsIngestClosureBatchSmoke();
   } catch {
     gapsIngestClosureBatch = { ok: false, skip: "gaps-ingest-closure-batch-threw" };
   }
   const gapsIngestClosureBatchOk = gapsIngestClosureBatch.ok === true;
   let gapsIngestStrictBatch = { ok: false, skip: "not-run-in-completion" };
   try {
-    gapsIngestStrictBatch = runGapsIngestStrictBatchSmoke();
+    gapsIngestStrictBatch = await runGapsIngestStrictBatchSmoke();
   } catch {
     gapsIngestStrictBatch = { ok: false, skip: "gaps-ingest-strict-batch-threw" };
   }
   const gapsIngestStrictBatchOk = gapsIngestStrictBatch.ok === true;
   let laravelAuthProbeReingest = { ok: false, skip: "not-run-in-completion" };
   try {
-    laravelAuthProbeReingest = runLaravelAuthProbeReingestSmoke();
+    laravelAuthProbeReingest = await runLaravelAuthProbeReingestSmoke();
   } catch {
     laravelAuthProbeReingest = { ok: false, skip: "laravel-auth-probe-reingest-threw" };
   }
   const laravelAuthProbeReingestOk = laravelAuthProbeReingest.ok === true;
   let laravelAuthProbeVerifyClosure = { ok: false, skip: "not-run-in-completion" };
   try {
-    laravelAuthProbeVerifyClosure = runLaravelAuthProbeReingestVerifyClosureSmoke();
+    laravelAuthProbeVerifyClosure = await runLaravelAuthProbeReingestVerifyClosureSmoke();
   } catch {
     laravelAuthProbeVerifyClosure = { ok: false, skip: "laravel-auth-probe-verify-closure-threw" };
   }
   const laravelAuthProbeVerifyClosureOk = laravelAuthProbeVerifyClosure.ok === true;
+  let laravelAuthProbeVerifyReplay = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelAuthProbeVerifyReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
+  } catch {
+    laravelAuthProbeVerifyReplay = { ok: false, skip: "laravel-auth-probe-verify-replay-threw" };
+  }
+  const laravelAuthProbeVerifyReplayOk = laravelAuthProbeVerifyReplay.ok === true;
+  let flagshipVerifyReplay = { ok: false, skip: "not-run-in-completion" };
+  try {
+    flagshipVerifyReplay = await runFlagshipVerifyReplayBatchSmoke();
+  } catch {
+    flagshipVerifyReplay = { ok: false, skip: "flagship-verify-replay-threw" };
+  }
+  const flagshipVerifyReplayOk = flagshipVerifyReplay.ok === true;
+  let irHelperLifting = { ok: false, skip: "not-run-in-completion" };
+  try {
+    irHelperLifting = runIrHelperLiftingSmoke();
+  } catch {
+    irHelperLifting = { ok: false, skip: "ir-helper-lifting-threw" };
+  }
+  const irHelperLiftingOk = irHelperLifting.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1387,6 +1411,9 @@ async function main() {
     gapsIngestStrictBatchOk &&
     laravelAuthProbeReingestOk &&
     laravelAuthProbeVerifyClosureOk &&
+    laravelAuthProbeVerifyReplayOk &&
+    flagshipVerifyReplayOk &&
+    irHelperLiftingOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1398,7 +1425,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 70,
+    schemaVersion: 71,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1585,7 +1612,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 27,
+      schemaVersion: 28,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1615,6 +1642,7 @@ async function main() {
       requireGapReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST",
       requireGapReingestStrictEnv: "CHRYSALIS_HUB_GAP_REINGEST_STRICT",
       requireGapReingestVerifyClosureEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
+      requireGapReingestVerifyReplayEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -2194,7 +2222,7 @@ async function main() {
     },
     flagshipFullGapsBatch: {
       ok: flagshipFullGapsBatchOk,
-      schemaVersion: flagshipFullGapsBatch.schemaVersion ?? 2,
+      schemaVersion: flagshipFullGapsBatch.schemaVersion ?? 3,
       backlogCount: flagshipFullGapsBatch.backlogCount ?? null,
       ingestNext: flagshipFullGapsBatch.ingestNext ?? null,
       script: "pnpm run hub:flagship-full-gaps-batch-smoke",
@@ -2207,17 +2235,20 @@ async function main() {
     },
     gapsIngestStrictBatch: {
       ok: gapsIngestStrictBatchOk,
-      schemaVersion: gapsIngestStrictBatch.schemaVersion ?? 3,
+      schemaVersion: gapsIngestStrictBatch.schemaVersion ?? 4,
       laravelLiveBacklog: gapsIngestStrictBatch.laravelLiveClosure?.backlogCount ?? null,
       authProbeReingestOk: gapsIngestStrictBatch.authProbeReingest?.ok === true,
       authProbeVerifyClosureOk: gapsIngestStrictBatch.authProbeVerifyClosure?.ok === true,
+      authProbeVerifyReplayOk: gapsIngestStrictBatch.authProbeVerifyReplay?.ok === true,
+      flagshipVerifyReplayOk: gapsIngestStrictBatch.flagshipVerifyReplay?.ok === true,
       script: "pnpm run hub:gaps-ingest-strict-batch-smoke",
     },
     laravelAuthProbeReingest: {
       ok: laravelAuthProbeReingestOk,
-      schemaVersion: laravelAuthProbeReingest.schemaVersion ?? 2,
+      schemaVersion: laravelAuthProbeReingest.schemaVersion ?? 3,
       reingestExitCode: laravelAuthProbeReingest.reingest?.exitCode ?? null,
       verifyClosureOk: laravelAuthProbeReingest.verifyClosure?.ok === true,
+      verifyReplayOk: laravelAuthProbeReingest.verifyReplay?.ok === true,
       fixture: laravelAuthProbeReingest.fixture ?? "fixtures/laravel-auth-probe",
       script: "pnpm run hub:laravel-auth-probe-reingest-smoke",
     },
@@ -2226,6 +2257,22 @@ async function main() {
       backlogAfter: laravelAuthProbeVerifyClosure.backlogAfter ?? null,
       correctnessAfter: laravelAuthProbeVerifyClosure.correctnessAfter ?? null,
       script: "pnpm run hub:laravel-auth-probe-reingest-verify-closure-smoke",
+    },
+    laravelAuthProbeVerifyReplay: {
+      ok: laravelAuthProbeVerifyReplayOk,
+      backlogAfter: laravelAuthProbeVerifyReplay.backlogAfter ?? null,
+      correctnessAfter: laravelAuthProbeVerifyReplay.correctnessAfter ?? null,
+      script: "pnpm run hub:laravel-auth-probe-reingest-verify-replay-smoke",
+    },
+    flagshipVerifyReplay: {
+      ok: flagshipVerifyReplayOk,
+      schemaVersion: flagshipVerifyReplay.schemaVersion ?? 1,
+      script: "pnpm run hub:flagship-verify-replay-batch-smoke",
+    },
+    irHelperLifting: {
+      ok: irHelperLiftingOk,
+      fixture: irHelperLifting.fixture ?? "fixtures/lift-helper-lift-twin",
+      script: "pnpm run hub:ir-helper-lifting-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,

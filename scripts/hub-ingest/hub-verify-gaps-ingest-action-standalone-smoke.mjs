@@ -10,8 +10,8 @@ export const HUB_VERIFY_GAPS_INGEST_ACTION_STANDALONE_SCHEMA_VERSION = 1;
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const plainPhpFixture = join(scriptRoot, "fixtures/hub-flagship-plain-php");
 
-export function runVerifyGapsIngestActionStandaloneSmoke(projectDir = plainPhpFixture) {
-  const action = runVerifyGapsIngestAction(projectDir, { reingest: false });
+export async function runVerifyGapsIngestActionStandaloneSmoke(projectDir = plainPhpFixture) {
+  const action = await runVerifyGapsIngestAction(projectDir, { reingest: false });
   return {
     kind: HUB_VERIFY_GAPS_INGEST_ACTION_STANDALONE_KIND,
     schemaVersion: HUB_VERIFY_GAPS_INGEST_ACTION_STANDALONE_SCHEMA_VERSION,
@@ -22,10 +22,15 @@ export function runVerifyGapsIngestActionStandaloneSmoke(projectDir = plainPhpFi
 }
 
 async function main() {
-  const report = runVerifyGapsIngestActionStandaloneSmoke();
+  const report = await runVerifyGapsIngestActionStandaloneSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exit(1);
 }
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isCli) main();
+if (isCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

@@ -21,12 +21,12 @@ export const FLAGSHIP_VERIFY_GAPS_FIXTURES = {
  * @param {string} [projectDir]
  * @param {{ profile?: keyof typeof FLAGSHIP_VERIFY_GAPS_FIXTURES }} [opts]
  */
-export function runFlagshipVerifyGapsStandaloneSmoke(projectDir, opts = {}) {
+export async function runFlagshipVerifyGapsStandaloneSmoke(projectDir, opts = {}) {
   const profile = opts.profile ?? "plainPhp";
   const fixture = FLAGSHIP_VERIFY_GAPS_FIXTURES[profile] ?? FLAGSHIP_VERIFY_GAPS_FIXTURES.plainPhp;
   const root = resolve(projectDir ?? join(scriptRoot, fixture.rel));
   const gaps = buildProjectVerifyGapsIngestReport(root);
-  const action = runVerifyGapsIngestAction(root, { reingest: false });
+  const action = await runVerifyGapsIngestAction(root, { reingest: false });
   const gapsOk = gaps.ok === true || gaps.skipped === "no-verify-report";
   return {
     kind: HUB_FLAGSHIP_VERIFY_GAPS_STANDALONE_KIND,
@@ -43,10 +43,15 @@ export function runFlagshipVerifyGapsStandaloneSmoke(projectDir, opts = {}) {
 }
 
 async function main() {
-  const report = runFlagshipVerifyGapsStandaloneSmoke();
+  const report = await runFlagshipVerifyGapsStandaloneSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exit(1);
 }
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isCli) main();
+if (isCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

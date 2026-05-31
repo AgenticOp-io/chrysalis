@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Gaps ingest closure batch: express seed + flagship gaps v2 + Laravel closure + reingest (G806). */
+/** Gaps ingest closure batch: express seed + flagship gaps v3 + Laravel closure + reingest (G806). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ensureExpressFlagshipVerifyReport } from "./hub-express-flagship-verify-seed.mjs";
@@ -10,15 +10,15 @@ import { runGapReingestBatchSmoke } from "./hub-gap-reingest-batch-smoke.mjs";
 export const HUB_GAPS_INGEST_CLOSURE_BATCH_KIND = "chrysalis.hub.gaps-ingest-closure-batch-smoke";
 export const HUB_GAPS_INGEST_CLOSURE_BATCH_SCHEMA_VERSION = 1;
 
-export function runGapsIngestClosureBatchSmoke() {
+export async function runGapsIngestClosureBatchSmoke() {
   const expressSeed = ensureExpressFlagshipVerifyReport();
-  const flagshipFullGaps = runFlagshipFullGapsBatchSmoke();
+  const flagshipFullGaps = await runFlagshipFullGapsBatchSmoke();
   const laravelClosure = runLaravelVerifyGapsIngestClosureSmoke();
   const prevReingest = process.env.CHRYSALIS_HUB_GAP_REINGEST;
   delete process.env.CHRYSALIS_HUB_GAP_REINGEST;
   let gapReingest;
   try {
-    gapReingest = runGapReingestBatchSmoke();
+    gapReingest = await runGapReingestBatchSmoke();
   } finally {
     if (prevReingest === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST;
     else process.env.CHRYSALIS_HUB_GAP_REINGEST = prevReingest;
@@ -39,10 +39,15 @@ export function runGapsIngestClosureBatchSmoke() {
 }
 
 async function main() {
-  const report = runGapsIngestClosureBatchSmoke();
+  const report = await runGapsIngestClosureBatchSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exit(1);
 }
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isCli) main();
+if (isCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

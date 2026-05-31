@@ -778,9 +778,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 67 &&
     s.schemaVersion !== 68 &&
     s.schemaVersion !== 69 &&
-    s.schemaVersion !== 70
+    s.schemaVersion !== 70 &&
+    s.schemaVersion !== 71
   ) {
-    fail(`${label}: expected schemaVersion 0–70, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–71, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -2642,7 +2643,7 @@ function assertHubCompletion(path) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v69`);
     }
   }
-  if (s.schemaVersion >= 70) {
+  if (s.schemaVersion >= 70 && s.schemaVersion < 71) {
     if (s.projectToCwlAllOrigins?.ok !== true) {
       fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v70`);
     }
@@ -2770,6 +2771,148 @@ function assertHubCompletion(path) {
     }
     if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v70`);
+    }
+  }
+  if (s.schemaVersion >= 71) {
+    if (s.projectToCwlAllOrigins?.ok !== true) {
+      fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v71`);
+    }
+    if (s.cwlUniversalMegaBatch?.ok !== true) {
+      fail(`${label}: cwlUniversalMegaBatch.ok must be true for schema v71`);
+    }
+    if ((s.cwlUniversalMegaBatch?.schemaVersion ?? 0) < 4) {
+      fail(`${label}: cwlUniversalMegaBatch.schemaVersion must be >= 4 for schema v71`);
+    }
+    if (s.contractImportCwlRoundtrip?.ok !== true) {
+      fail(`${label}: contractImportCwlRoundtrip.ok must be true for schema v71`);
+    }
+    if (s.phpOracleMicroVerifyBatch?.ok !== true) {
+      fail(`${label}: phpOracleMicroVerifyBatch.ok must be true for schema v71`);
+    }
+    if (s.phpNextjsVerifyBatch?.ok !== true) {
+      fail(`${label}: phpNextjsVerifyBatch.ok must be true for schema v71`);
+    }
+    if (s.phpWedgeBatch?.ok !== true) {
+      fail(`${label}: phpWedgeBatch.ok must be true for schema v71`);
+    }
+    if ((s.phpWedgeBatch?.schemaVersion ?? 0) < 5) {
+      fail(`${label}: phpWedgeBatch.schemaVersion must be >= 5 for schema v71`);
+    }
+    if (s.hubEvidenceMvpBatch?.ok !== true) {
+      fail(`${label}: hubEvidenceMvpBatch.ok must be true for schema v71`);
+    }
+    if (s.wptpStrictBatch?.ok !== true) {
+      fail(`${label}: wptpStrictBatch.ok must be true for schema v71`);
+    }
+    if (s.flagshipFullGapsBatch?.ok !== true) {
+      fail(`${label}: flagshipFullGapsBatch.ok must be true for schema v71`);
+    }
+    if ((s.flagshipFullGapsBatch?.schemaVersion ?? 0) < 3) {
+      fail(`${label}: flagshipFullGapsBatch.schemaVersion must be >= 3 for schema v71`);
+    }
+    if (s.gapsIngestClosureBatch?.ok !== true) {
+      fail(`${label}: gapsIngestClosureBatch.ok must be true for schema v71`);
+    }
+    if (s.gapsIngestStrictBatch?.ok !== true) {
+      fail(`${label}: gapsIngestStrictBatch.ok must be true for schema v71`);
+    }
+    if ((s.gapsIngestStrictBatch?.schemaVersion ?? 0) < 4) {
+      fail(`${label}: gapsIngestStrictBatch.schemaVersion must be >= 4 for schema v71`);
+    }
+    if (s.laravelAuthProbeReingest?.ok !== true) {
+      fail(`${label}: laravelAuthProbeReingest.ok must be true for schema v71`);
+    }
+    if (s.laravelAuthProbeVerifyClosure?.ok !== true) {
+      fail(`${label}: laravelAuthProbeVerifyClosure.ok must be true for schema v71`);
+    }
+    if (s.laravelAuthProbeVerifyReplay?.ok !== true) {
+      fail(`${label}: laravelAuthProbeVerifyReplay.ok must be true for schema v71`);
+    }
+    if (s.flagshipVerifyReplay?.ok !== true) {
+      fail(`${label}: flagshipVerifyReplay.ok must be true for schema v71`);
+    }
+    if (s.irHelperLifting?.ok !== true) {
+      fail(`${label}: irHelperLifting.ok must be true for schema v71`);
+    }
+    if ((s.oracleProductUltraBatch?.schemaVersion ?? 0) < 8) {
+      fail(`${label}: oracleProductUltraBatch.schemaVersion must be >= 8 for schema v71`);
+    }
+    if (s.oracleProductUltraBatch?.ok !== true) {
+      fail(`${label}: oracleProductUltraBatch.ok must be true for schema v71`);
+    }
+    if ((s.evidenceStandaloneMegaBatch?.schemaVersion ?? 0) < 6) {
+      fail(`${label}: evidenceStandaloneMegaBatch.schemaVersion must be >= 6 for schema v71`);
+    }
+    if (s.evidenceStandaloneMegaBatch?.ok !== true) {
+      fail(`${label}: evidenceStandaloneMegaBatch.ok must be true for schema v71`);
+    }
+    if ((s.verifyProductUltraBatch?.schemaVersion ?? 0) < 7) {
+      fail(`${label}: verifyProductUltraBatch.schemaVersion must be >= 7 for schema v71`);
+    }
+    if (s.verifyProductUltraBatch?.ok !== true) {
+      fail(`${label}: verifyProductUltraBatch.ok must be true for schema v71`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 28) {
+      fail(`${label}: hubEvidence.schemaVersion must be 28 for schema v71`);
+    }
+    if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY === "1" && s.laravelAuthProbeVerifyReplay?.ok !== true) {
+      fail(`${label}: laravelAuthProbeVerifyReplay.ok must be true when CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE === "1" && s.laravelAuthProbeVerifyClosure?.ok !== true) {
+      fail(`${label}: laravelAuthProbeVerifyClosure.ok must be true when CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_GAP_REINGEST_STRICT === "1" && s.laravelAuthProbeReingest?.ok !== true) {
+      fail(`${label}: laravelAuthProbeReingest.ok must be true when CHRYSALIS_HUB_GAP_REINGEST_STRICT=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH === "1" && s.gapsIngestStrictBatch?.ok !== true) {
+      fail(`${label}: gapsIngestStrictBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH === "1" && s.flagshipFullGapsBatch?.ok !== true) {
+      fail(`${label}: flagshipFullGapsBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH === "1" && s.gapsIngestClosureBatch?.ok !== true) {
+      fail(`${label}: gapsIngestClosureBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_STRICT_BATCH === "1" && s.wptpStrictBatch?.ok !== true) {
+      fail(`${label}: wptpStrictBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_STRICT_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_HUB_EVIDENCE_MVP_BATCH === "1" && s.hubEvidenceMvpBatch?.ok !== true) {
+      fail(`${label}: hubEvidenceMvpBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_HUB_EVIDENCE_MVP_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH === "1" && s.phpWedgeBatch?.ok !== true) {
+      fail(`${label}: phpWedgeBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH === "1" && s.phpNextjsVerifyBatch?.ok !== true) {
+      fail(`${label}: phpNextjsVerifyBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS === "1") {
+      if (s.wptpStrictBatch?.skip != null) {
+        fail(`${label}: wptpStrictBatch.skip must be null when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.wptpStrictBatch?.wptpEmitNextjsAvailable !== true) {
+        fail(`${label}: wptpStrictBatch.wptpEmitNextjsAvailable must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.wptpStrictBatch?.ok !== true) {
+        fail(`${label}: wptpStrictBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.phpNextjsVerifyBatch?.ok !== true) {
+        fail(`${label}: phpNextjsVerifyBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.phpNextjsFlagshipVerify?.ok !== true) {
+        fail(`${label}: phpNextjsFlagshipVerify.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.phpNextjsSymfonyVerify?.ok !== true) {
+        fail(`${label}: phpNextjsSymfonyVerify.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY === "1" && s.phpOracleMicroVerifyBatch?.ok !== true) {
+      fail(`${label}: phpOracleMicroVerifyBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 29) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 29 for schema v71`);
+    }
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v71`);
     }
   }
   const g = s.routeGrades;

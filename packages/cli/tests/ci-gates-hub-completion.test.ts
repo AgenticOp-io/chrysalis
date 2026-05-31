@@ -4629,7 +4629,7 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
-  test("accepts schema v69/v70 with auth-probe reingest + verify closure (G890/G920)", () => {
+  test("accepts schema v69/v70/v71 with auth-probe reingest + verify closure/replay (G890/G920/G950)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v69-"));
     const p = join(dir, "ok.json");
     const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
@@ -4829,6 +4829,70 @@ describe("ci-gates hub-completion", () => {
         },
       });
       expect(r70.status).toBe(0);
+
+      payload.schemaVersion = 71;
+      payload.hubEvidence = {
+        ...payload.hubEvidence,
+        schemaVersion: 28,
+        requireGapReingestVerifyReplayEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
+      };
+      payload.phpWedgeBatch = { ...(payload.phpWedgeBatch ?? {}), ok: true, schemaVersion: 5, script: "pnpm run hub:php-wedge-batch-smoke" };
+      payload.gapsIngestStrictBatch = {
+        ...(payload.gapsIngestStrictBatch ?? {}),
+        ok: true,
+        schemaVersion: 4,
+        authProbeVerifyReplayOk: true,
+        flagshipVerifyReplayOk: true,
+        script: "pnpm run hub:gaps-ingest-strict-batch-smoke",
+      };
+      payload.laravelAuthProbeReingest = {
+        ok: true,
+        schemaVersion: 3,
+        reingestExitCode: 0,
+        verifyReplayOk: true,
+        fixture: "fixtures/laravel-auth-probe",
+        script: "pnpm run hub:laravel-auth-probe-reingest-smoke",
+      };
+      payload.laravelAuthProbeVerifyReplay = {
+        ok: true,
+        backlogAfter: 0,
+        correctnessAfter: 1,
+        script: "pnpm run hub:laravel-auth-probe-reingest-verify-replay-smoke",
+      };
+      payload.flagshipVerifyReplay = {
+        ok: true,
+        schemaVersion: 1,
+        script: "pnpm run hub:flagship-verify-replay-batch-smoke",
+      };
+      payload.irHelperLifting = {
+        ok: true,
+        fixture: "fixtures/lift-helper-lift-twin",
+        script: "pnpm run hub:ir-helper-lifting-smoke",
+      };
+      payload.flagshipFullGapsBatch = {
+        ...(payload.flagshipFullGapsBatch ?? {}),
+        ok: true,
+        schemaVersion: 3,
+        script: "pnpm run hub:flagship-full-gaps-batch-smoke",
+      };
+      payload.oracleProductUltraBatch = { ok: true, schemaVersion: 8, script: "pnpm run hub:oracle-product-ultra-batch-smoke" };
+      payload.evidenceStandaloneMegaBatch = { ok: true, schemaVersion: 6, script: "pnpm run hub:evidence-standalone-mega-batch-smoke" };
+      payload.verifyProductUltraBatch = { ok: true, schemaVersion: 7, script: "pnpm run hub:verify-product-ultra-batch-smoke" };
+      payload.capabilityMatrix = { ...(payload.capabilityMatrix ?? {}), schemaVersion: 29 };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r71 = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY: "1",
+          CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE: "1",
+          CHRYSALIS_HUB_GAP_REINGEST_STRICT: "1",
+          CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS: "1",
+          CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH: "1",
+        },
+      });
+      expect(r71.status).toBe(0);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

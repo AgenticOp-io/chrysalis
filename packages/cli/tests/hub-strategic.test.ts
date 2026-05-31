@@ -586,7 +586,7 @@ describe("strategic plan deliverables", () => {
     const { runVerifyGapsIngestAction } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-verify-gaps-ingest-action.mjs")
     );
-    const report = runVerifyGapsIngestAction(resolve(ROOT, "fixtures/hub-flagship-plain-php"));
+    const report = await runVerifyGapsIngestAction(resolve(ROOT, "fixtures/hub-flagship-plain-php"));
     expect(report.kind).toBe("chrysalis.hub.verify-gaps-ingest-action");
     expect(report.ingestRemediation === null || typeof report.ingestRemediation?.suggestedCommand === "string").toBe(
       true,
@@ -1890,8 +1890,8 @@ describe("strategic plan deliverables", () => {
     } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-flagship-full-gaps-batch-smoke.mjs")
     );
-    expect(HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION).toBe(2);
-    const gapsBatch = runFlagshipFullGapsBatchSmoke();
+    expect(HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION).toBe(3);
+    const gapsBatch = await runFlagshipFullGapsBatchSmoke();
     expect(gapsBatch.ok).toBe(true);
     expect(gapsBatch.expressSeed?.ok).toBe(true);
     expect(gapsBatch.plainPhp?.ok).toBe(true);
@@ -1905,7 +1905,7 @@ describe("strategic plan deliverables", () => {
     const { runGapsIngestClosureBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-closure-batch-smoke.mjs")
     );
-    const closureBatch = runGapsIngestClosureBatchSmoke();
+    const closureBatch = await runGapsIngestClosureBatchSmoke();
     expect(closureBatch.ok).toBe(true);
     expect(closureBatch.expressSeed?.ok).toBe(true);
     expect(closureBatch.flagshipFullGaps?.ok).toBe(true);
@@ -1916,6 +1916,19 @@ describe("strategic plan deliverables", () => {
   test("hub completion schema 70 auth-probe verify closure (G920)", async () => {
     const { runLaravelAuthProbeReingestVerifyClosureSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs")
+    );
+    const verifyClosure = await runLaravelAuthProbeReingestVerifyClosureSmoke();
+    expect(verifyClosure.ok).toBe(true);
+    expect(verifyClosure.backlogAfter).toBe(0);
+    expect(verifyClosure.correctnessAfter).toBe(1);
+  }, 180_000);
+
+  test("hub completion schema 71 verify replay + flagship replay (G950)", async () => {
+    const { runLaravelAuthProbeReingestVerifyReplaySmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs")
+    );
+    const { runFlagshipVerifyReplayBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-flagship-verify-replay-batch-smoke.mjs")
     );
     const { runGapsIngestStrictBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-strict-batch-smoke.mjs")
@@ -1930,21 +1943,52 @@ describe("strategic plan deliverables", () => {
     const { HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-gap-reingest-batch-smoke.mjs")
     );
-    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(6);
-    expect(HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION).toBe(4);
-    expect(HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION).toBe(3);
-    const verifyClosure = runLaravelAuthProbeReingestVerifyClosureSmoke();
-    expect(verifyClosure.ok).toBe(true);
-    expect(verifyClosure.backlogAfter).toBe(0);
-    expect(verifyClosure.correctnessAfter).toBe(1);
-    const strictBatch = runGapsIngestStrictBatchSmoke();
+    const { runIrHelperLiftingSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-ir-helper-lifting-smoke.mjs")
+    );
+    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(7);
+    expect(HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION).toBe(5);
+    expect(HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION).toBe(4);
+    const verifyReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
+    expect(verifyReplay.ok).toBe(true);
+    expect(verifyReplay.backlogAfter).toBe(0);
+    expect(verifyReplay.correctnessAfter).toBe(1);
+    const flagshipReplay = await runFlagshipVerifyReplayBatchSmoke();
+    expect(flagshipReplay.ok).toBe(true);
+    const irHelper = runIrHelperLiftingSmoke();
+    expect(irHelper.ok).toBe(true);
+    const strictBatch = await runGapsIngestStrictBatchSmoke();
     expect(strictBatch.ok).toBe(true);
-    expect(strictBatch.authProbeVerifyClosure?.ok).toBe(true);
+    expect(strictBatch.authProbeVerifyReplay?.ok).toBe(true);
+    expect(strictBatch.flagshipVerifyReplay?.ok).toBe(true);
     const verifyUltra = await runVerifyProductUltraBatchSmoke();
     expect(verifyUltra.ok).toBe(true);
-    expect(verifyUltra.schemaVersion).toBe(6);
-    expect(verifyUltra.authProbeVerifyClosure?.ok).toBe(true);
-  }, 180_000);
+    expect(verifyUltra.schemaVersion).toBe(7);
+    expect(verifyUltra.authProbeVerifyReplay?.ok).toBe(true);
+    expect(verifyUltra.flagshipVerifyReplay?.ok).toBe(true);
+  }, 300_000);
+
+  test("capability matrix v29 lists verify replay + batch v5/v7 (G935)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(29);
+    expect(report.laravelAuthProbeReingest?.verifyReplayScript).toBe(
+      "pnpm run hub:laravel-auth-probe-reingest-verify-replay-smoke",
+    );
+    expect(report.gapsIngestStrictBatch?.authProbeVerifyReplayScript).toBe(
+      "pnpm run hub:laravel-auth-probe-reingest-verify-replay-smoke",
+    );
+    expect(report.gapsIngestStrictBatch?.requireVerifyReplayEnv).toBe(
+      "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
+    );
+    expect(report.irHelperLifting?.script).toBe("pnpm run hub:ir-helper-lifting-smoke");
+    expect(report.phpWedgeBatch?.batchSchemaVersion).toBe(5);
+    expect(report.verifyProductUltra?.batchSchemaVersion).toBe(7);
+    expect(report.oracleProductUltra?.batchSchemaVersion).toBe(8);
+    expect(report.evidenceStandaloneMega?.batchSchemaVersion).toBe(6);
+  });
 
   test("capability matrix v28 lists verify closure + batch v4/v6 (G902)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
@@ -1971,30 +2015,19 @@ describe("strategic plan deliverables", () => {
     const { runGapsIngestStrictBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-strict-batch-smoke.mjs")
     );
-    const {
-      runVerifyProductUltraBatchSmoke,
-      HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
-    } = await import(resolve(ROOT, "scripts/hub-ingest/hub-verify-product-ultra-batch-smoke.mjs"));
-    const { HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION } = await import(
-      resolve(ROOT, "scripts/hub-ingest/hub-php-wedge-batch-smoke.mjs")
+    const { runVerifyProductUltraBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-verify-product-ultra-batch-smoke.mjs")
     );
-    const { HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION } = await import(
-      resolve(ROOT, "scripts/hub-ingest/hub-gap-reingest-batch-smoke.mjs")
-    );
-    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(6);
-    expect(HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION).toBe(4);
-    expect(HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION).toBe(3);
-    const authProbe = runLaravelAuthProbeReingestSmoke();
+    const authProbe = await runLaravelAuthProbeReingestSmoke();
     expect(authProbe.ok).toBe(true);
     expect(authProbe.reingest?.exitCode).toBe(0);
-    expect(authProbe.verifyClosure?.ok).toBe(true);
-    const strictBatch = runGapsIngestStrictBatchSmoke();
+    expect(authProbe.verifyClosure?.ok === true || authProbe.verifyReplay?.ok === true).toBe(true);
+    const strictBatch = await runGapsIngestStrictBatchSmoke();
     expect(strictBatch.ok).toBe(true);
     expect(strictBatch.authProbeReingest?.ok).toBe(true);
     const verifyUltra = await runVerifyProductUltraBatchSmoke();
     expect(verifyUltra.ok).toBe(true);
-    expect(verifyUltra.schemaVersion).toBe(6);
-    expect(verifyUltra.authProbeVerifyClosure?.ok).toBe(true);
+    expect(verifyUltra.authProbeVerifyClosure?.ok === true || verifyUltra.authProbeVerifyReplay?.ok === true).toBe(true);
   }, 180_000);
 
   test("capability matrix v27 lists auth-probe reingest + batch v3/v5 (G868)", async () => {
@@ -2026,7 +2059,7 @@ describe("strategic plan deliverables", () => {
     );
     expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(4);
     expect(HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION).toBe(2);
-    const strictBatch = runGapsIngestStrictBatchSmoke();
+    const strictBatch = await runGapsIngestStrictBatchSmoke();
     expect(strictBatch.ok).toBe(true);
     expect(strictBatch.laravelLiveClosure?.ok).toBe(true);
     expect(strictBatch.gapReingestStrict?.ok).toBe(true);

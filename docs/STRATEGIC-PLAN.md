@@ -222,7 +222,17 @@ When the user says “build” without specifying, prefer this queue:
 | 4 | Project-to-CWL v0 on hub translate |
 | 4 | Node oracle spike (choose flagship; 10-route pilot) |
 
+### Hub verify-gaps program (post–Next 90 days)
+
+| Month | Focus |
+| --- | --- |
+| 26 | Auth-probe verify seed closure after strict reingest (schema 70) |
+| 27 | **Real verify replay** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY`); multi-flagship replay; IR helper lifting hub smoke (schema 71) |
+
+Replay runs ingest+emit+in-process trace oracle — no fixture summary copy. Seed closure remains for offline/fast probes.
+
 ---
+
 
 ## 13. Amending this plan
 

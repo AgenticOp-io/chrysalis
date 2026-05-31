@@ -2611,6 +2611,7 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D1008** **Strategic test G920 (G908).** Schema 70 auth-probe verify closure smokes.
 - **2026-05-31 — D1009** **ci-gates v70 test (G909).** Accepts schema v70 payloads.
 - **2026-05-31 — D1020** **Hub completion schema 70 (G920).** Auth-probe verify closure + live Laravel backlog zero.
+- **2026-05-31 — D1021–D1050** **Hub completion schema 71 (G921–G950).** Real post-reingest verify replay (`hub-verify-replay.mjs`, `CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY`); multi-flagship trace replay batch; IR helper lifting smoke (post-2.0 option B); ci-gates v71; plan amendment month27Program in `docs/STRATEGIC-PLAN.md`. Seed-based verify closure (schema 70) remains for fast pipeline probes; replay is the stronger correctness gate in CI.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 

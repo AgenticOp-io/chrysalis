@@ -5,12 +5,12 @@ import { fileURLToPath } from "node:url";
 import { runGapReingestBatchSmoke, HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION } from "./hub-gap-reingest-batch-smoke.mjs";
 
 export const HUB_GAP_REINGEST_STRICT_KIND = "chrysalis.hub.gap-reingest-strict-smoke";
-export const HUB_GAP_REINGEST_STRICT_SCHEMA_VERSION = 3;
+export const HUB_GAP_REINGEST_STRICT_SCHEMA_VERSION = 4;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
 
-export function runGapReingestStrictSmoke() {
+export async function runGapReingestStrictSmoke() {
   const strictReingest = process.env.CHRYSALIS_HUB_GAP_REINGEST_STRICT === "1";
   const prev = process.env.CHRYSALIS_HUB_GAP_REINGEST;
   if (strictReingest) {
@@ -19,7 +19,7 @@ export function runGapReingestStrictSmoke() {
     delete process.env.CHRYSALIS_HUB_GAP_REINGEST;
   }
   try {
-    const report = runGapReingestBatchSmoke();
+    const report = await runGapReingestBatchSmoke();
     const cliAvailable = existsSync(cliBin);
     let strictOk = true;
     if (strictReingest) {
@@ -49,7 +49,7 @@ export function runGapReingestStrictSmoke() {
 }
 
 async function main() {
-  const report = runGapReingestStrictSmoke();
+  const report = await runGapReingestStrictSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exit(1);
 }

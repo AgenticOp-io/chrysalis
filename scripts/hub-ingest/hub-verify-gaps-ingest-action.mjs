@@ -12,9 +12,10 @@ import {
   HUB_VERIFY_GAPS_INGEST_KIND,
 } from "./hub-verify-gaps-ingest.mjs";
 import { seedLaravelAuthProbeVerifyReport } from "./hub-laravel-auth-probe-verify-seed.mjs";
+import { runProjectVerifyReplay } from "./hub-verify-replay.mjs";
 
 export const HUB_VERIFY_GAPS_INGEST_ACTION_KIND = "chrysalis.hub.verify-gaps-ingest-action";
-export const HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION = 2;
+export const HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION = 3;
 
 function readHoleCount(projectDir) {
   const holesPath = join(resolve(projectDir), "chrysalis.holes.json");
@@ -32,7 +33,7 @@ function readHoleCount(projectDir) {
  * @param {string} projectDir
  * @param {{ cliBin?: string, reingest?: boolean }} [opts]
  */
-export function runVerifyGapsIngestAction(projectDir, opts = {}) {
+export async function runVerifyGapsIngestAction(projectDir, opts = {}) {
   const root = resolve(projectDir);
   const cliBin = opts.cliBin ?? join(resolve(dirname(fileURLToPath(import.meta.url)), "..", ".."), "packages/cli/dist/bin.js");
   const reingest = opts.reingest ?? process.env.CHRYSALIS_HUB_GAP_REINGEST === "1";
@@ -56,10 +57,20 @@ export function runVerifyGapsIngestAction(projectDir, opts = {}) {
 
   /** @type {{ applied: boolean, ok: boolean, correctness: number | null, skip: string | null }} */
   const verifyClosure = { applied: false, ok: true, correctness: null, skip: null };
-  if (
+  /** @type {{ applied: boolean, ok: boolean, correctness: number | null, skip: string | null }} */
+  const verifyReplay = { applied: false, ok: true, correctness: null, skip: null };
+
+  const reingestSucceeded = ingestRun.ran && (ingestRun.exitCode ?? 1) === 0;
+
+  if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY === "1" && reingestSucceeded) {
+    const replayed = await runProjectVerifyReplay(root);
+    verifyReplay.applied = true;
+    verifyReplay.ok = replayed.ok === true;
+    verifyReplay.correctness = replayed.correctness ?? null;
+    verifyReplay.skip = replayed.skip ?? null;
+  } else if (
     process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE === "1" &&
-    ingestRun.ran &&
-    (ingestRun.exitCode ?? 1) === 0
+    reingestSucceeded
   ) {
     const seeded = seedLaravelAuthProbeVerifyReport(root);
     verifyClosure.applied = true;
@@ -67,6 +78,9 @@ export function runVerifyGapsIngestAction(projectDir, opts = {}) {
     verifyClosure.correctness = seeded.correctness ?? null;
     verifyClosure.skip = seeded.skip ?? null;
   }
+
+  const postVerifyOk =
+    verifyReplay.applied ? verifyReplay.ok !== false : verifyClosure.applied ? verifyClosure.ok !== false : true;
 
   const gapsAfter = ingestRun.ran ? buildProjectVerifyGapsIngestReport(root) : gaps;
 
@@ -76,9 +90,7 @@ export function runVerifyGapsIngestAction(projectDir, opts = {}) {
     projectDir: root,
     ok:
       !gaps.ingestNext ||
-      (ingestRun.ran
-        ? (ingestRun.exitCode ?? 1) === 0 && verifyClosure.ok !== false
-        : true),
+      (ingestRun.ran ? (ingestRun.exitCode ?? 1) === 0 && postVerifyOk : true),
     verifyGaps: {
       kind: HUB_VERIFY_GAPS_INGEST_KIND,
       available: gaps.ok,
@@ -95,6 +107,7 @@ export function runVerifyGapsIngestAction(projectDir, opts = {}) {
       : null,
     reingest: ingestRun,
     verifyClosure,
+    verifyReplay,
     holesBefore,
     holesAfter: ingestRun.holesAfter ?? holesBefore,
     verifyGapsAfter: ingestRun.ran
@@ -110,11 +123,11 @@ export function runVerifyGapsIngestAction(projectDir, opts = {}) {
 
 /**
  * @param {string} projectDir
- * @param {ReturnType<typeof runVerifyGapsIngestAction>} [report]
+ * @param {Awaited<ReturnType<typeof runVerifyGapsIngestAction>>} [report]
  */
 export async function writeVerifyGapsIngestActionArtifacts(projectDir, report) {
   const root = resolve(projectDir);
-  const payload = report ?? runVerifyGapsIngestAction(root);
+  const payload = report ?? (await runVerifyGapsIngestAction(root));
   const outDir = join(root, ".chrysalis");
   await mkdir(outDir, { recursive: true });
   const jsonPath = join(outDir, "verify-gaps-ingest-action.json");
@@ -139,7 +152,7 @@ async function main() {
   const { projectDir, reingest } = parseArgs(process.argv);
   const { report, jsonPath } = await writeVerifyGapsIngestActionArtifacts(
     projectDir,
-    runVerifyGapsIngestAction(projectDir, { reingest }),
+    await runVerifyGapsIngestAction(projectDir, { reingest }),
   );
   console.log(JSON.stringify({ ...report, artifactPath: jsonPath }, null, 2));
   if (!report.ok) process.exit(1);

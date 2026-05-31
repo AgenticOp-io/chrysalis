@@ -11,9 +11,9 @@ import { ensureExpressFlagshipVerifyReport } from "./hub-express-flagship-verify
 export const HUB_VERIFY_GAPS_ORIGIN_BATCH_KIND = "chrysalis.hub.verify-gaps-origin-batch-smoke";
 export const HUB_VERIFY_GAPS_ORIGIN_BATCH_SCHEMA_VERSION = 2;
 
-export function runVerifyGapsOriginBatchSmoke() {
+export async function runVerifyGapsOriginBatchSmoke() {
   ensureExpressFlagshipVerifyReport();
-  const plainPhp = runFlagshipVerifyGapsStandaloneSmoke(undefined, { profile: "plainPhp" });
+  const plainPhp = await runFlagshipVerifyGapsStandaloneSmoke(undefined, { profile: "plainPhp" });
   const symfony = runVerifyGapsSymfonySmoke();
   const express = runVerifyGapsExpressSmoke();
   const laravelMin = runVerifyGapsLaravelMinSmoke();
@@ -30,10 +30,15 @@ export function runVerifyGapsOriginBatchSmoke() {
 }
 
 async function main() {
-  const report = runVerifyGapsOriginBatchSmoke();
+  const report = await runVerifyGapsOriginBatchSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exit(1);
 }
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isCli) main();
+if (isCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
