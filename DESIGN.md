@@ -2468,6 +2468,66 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D649** **Hub completion schema 51 (G350).** Laravel-min delivery + three-origin + CWL full batches; CI gates v51.
+
+- **2026-05-31 — D648** **month7Program completion (G349).** Three-origin + CWL full + Laravel depth batches wired in completion schema 51.
+
+- **2026-05-31 — D647** **Laravel-min delivery in completion (G348).** Laravel-min standalone smokes wired schema 51.
+
+- **2026-05-31 — D646** **Laravel-min strict CI env (G347).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN` in ci-gates v51.
+
+- **2026-05-31 — D645** **Hub evidence schema v8 (G346).** `requireLaravelMinEnv` in completion hubEvidence block.
+
+- **2026-05-31 — D644** **Delivery dashboard v11 (G345).** `month7Program` Laravel-min + delivery batch scripts.
+
+- **2026-05-31 — D643** **Capability matrix v9 (G344).** Laravel-min delivery + three-origin + oracle standalone metadata.
+
+- **2026-05-31 — D642** **Laravel depth batch (G343).** Gaps + action + live + min smoke batch.
+
+- **2026-05-31 — D641** **Tiny-blog oracle batch (G342).** Evidence live + translate E2E on tiny-blog.
+
+- **2026-05-31 — D640** **Verify gaps Laravel-min (G341).** Verify gaps ingest on Laravel-min scaffold.
+
+- **2026-05-31 — D639** **Plain-php migration OS batch (G340).** Migration OS + assessment + chimera plain-php batch.
+
+- **2026-05-31 — D638** **CWL full batch (G339).** Params + roundtrip + multi + interchange mega batch.
+
+- **2026-05-31 — D637** **Post-translate verify standalone (G338).** Post-translate verify standalone wrapper.
+
+- **2026-05-31 — D636** **Verify playbooks standalone (G337).** Playbooks standalone wrapper.
+
+- **2026-05-31 — D635** **Contract roundtrip standalone (G336).** OpenAPI/HAR roundtrip standalone wrapper.
+
+- **2026-05-31 — D634** **WPTP gold standalone (G335).** WPTP gold smoke with honest skip wrapper.
+
+- **2026-05-31 — D633** **Node express oracle standalone (G334).** Honest-skip oracle verify standalone wrapper.
+
+- **2026-05-31 — D632** **Laravel verify live standalone (G333).** Live export standalone smoke wrapper.
+
+- **2026-05-31 — D631** **Laravel verify gaps action standalone (G332).** Action standalone smoke wrapper.
+
+- **2026-05-31 — D630** **Laravel verify gaps standalone (G331).** Gaps report standalone smoke wrapper.
+
+- **2026-05-31 — D629** **Three-origin delivery batch (G330).** Plain-php + express + symfony delivery batches.
+
+- **2026-05-31 — D628** **Tiny-blog delivery batch (G329).** Evidence + translate + assessment on tiny-blog.
+
+- **2026-05-31 — D627** **Plain-php delivery batch (G328).** Plain-php standalone delivery mega smoke.
+
+- **2026-05-31 — D626** **Laravel-min delivery batch (G327).** Site intel + path advice + assessment + chimera batch.
+
+- **2026-05-31 — D625** **Project-to-CWL Laravel-min (G326).** Dedicated CWL export smoke on Laravel-min.
+
+- **2026-05-31 — D624** **Post-translate artifacts Laravel-min (G325).** Artifact bundle smoke on Laravel-min.
+
+- **2026-05-31 — D623** **Chimera cutover Laravel-min (G324).** Cutover runbook smoke on Laravel-min.
+
+- **2026-05-31 — D622** **Migration assessment Laravel-min (G323).** Assessment smoke on Laravel-min.
+
+- **2026-05-31 — D621** **Path advice Laravel-min (G322).** Path advice smoke on Laravel-min scaffold.
+
+- **2026-05-31 — D620** **Site intelligence Laravel-min (G321).** Standalone site intel on `flagship/laravel-min`.
+
 - **2026-05-31 — D619** **Hub completion schema 50 (G320).** Express/symfony standalone delivery + CWL batches; three-flagship in-process; CI gates v50.
 
 - **2026-05-31 — D618** **Three-flagship in-process parity (G319).** plain-php + symfony + express `inProcess: true` in completion.

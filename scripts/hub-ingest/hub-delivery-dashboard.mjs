@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 10;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 11;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -244,6 +244,16 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       translateE2eStandaloneBatch: "hub:translate-e2e-standalone-batch-smoke",
       projectToCwlExpress: "hub:project-to-cwl-express-smoke",
       requireStandaloneDeliveryEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY",
+    },
+    month7Program: {
+      laravelMinDeliveryBatch: "hub:laravel-min-delivery-batch-smoke",
+      plainPhpDeliveryBatch: "hub:plain-php-delivery-batch-smoke",
+      threeOriginDeliveryBatch: "hub:three-origin-delivery-batch-smoke",
+      laravelDepthBatch: "hub:laravel-depth-batch-smoke",
+      cwlFullBatch: "hub:cwl-full-batch-smoke",
+      tinyBlogOracleBatch: "hub:tiny-blog-oracle-batch-smoke",
+      projectToCwlLaravelMin: "hub:project-to-cwl-laravel-min-smoke",
+      requireLaravelMinEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

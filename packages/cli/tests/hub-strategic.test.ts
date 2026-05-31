@@ -1204,6 +1204,62 @@ describe("strategic plan deliverables", () => {
     expect(symfony.ok).toBe(true);
   }, 300_000);
 
+  test("hub completion schema 51 smokes present (G350)", async () => {
+    const { runLaravelMinDeliveryBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-min-delivery-batch-smoke.mjs")
+    );
+    const { runThreeOriginDeliveryBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-three-origin-delivery-batch-smoke.mjs")
+    );
+    const { runLaravelDepthBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-laravel-depth-batch-smoke.mjs")
+    );
+    const { runCwlFullBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-full-batch-smoke.mjs")
+    );
+    const laravelMin = await runLaravelMinDeliveryBatchSmoke();
+    const threeOrigin = await runThreeOriginDeliveryBatchSmoke();
+    const laravelDepth = runLaravelDepthBatchSmoke();
+    const cwlFull = await runCwlFullBatchSmoke();
+    expect(laravelMin.ok).toBe(true);
+    expect(threeOrigin.ok).toBe(true);
+    expect(laravelDepth.ok).toBe(true);
+    expect(cwlFull.ok).toBe(true);
+  }, 600_000);
+
+  test("capability matrix v9 lists Laravel-min delivery smokes (G344)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(9);
+    expect(report.laravelMinDelivery?.deliveryBatchScript).toBe("pnpm run hub:laravel-min-delivery-batch-smoke");
+    expect(report.threeOriginDelivery?.batchScript).toBe("pnpm run hub:three-origin-delivery-batch-smoke");
+  });
+
+  test("delivery dashboard v11 surfaces month7 Laravel-min batches (G345)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v11-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(11);
+      expect(report.month7Program?.laravelMinDeliveryBatch).toBe("hub:laravel-min-delivery-batch-smoke");
+      expect(report.month7Program?.requireLaravelMinEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   test("capability matrix v8 lists express delivery smokes (G313)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")

@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 8;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 9;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -170,6 +170,34 @@ export function buildHubCapabilityMatrixReport() {
     standaloneBatches: {
       evidenceLiveScript: "pnpm run hub:evidence-live-standalone-batch-smoke",
       translateE2eScript: "pnpm run hub:translate-e2e-standalone-batch-smoke",
+      tinyBlogOracleScript: "pnpm run hub:tiny-blog-oracle-batch-smoke",
+      cwlFullBatchScript: "pnpm run hub:cwl-full-batch-smoke",
+    },
+    laravelMinDelivery: {
+      siteIntelligenceScript: "pnpm run hub:site-intelligence-laravel-min-smoke",
+      pathAdviceScript: "pnpm run hub:path-advice-laravel-min-smoke",
+      verifyGapsScript: "pnpm run hub:verify-gaps-laravel-min-smoke",
+      postTranslateArtifactsScript: "pnpm run hub:post-translate-artifacts-laravel-min-smoke",
+      migrationAssessmentScript: "pnpm run hub:migration-assessment-laravel-min-smoke",
+      chimeraCutoverScript: "pnpm run hub:chimera-cutover-laravel-min-smoke",
+      deliveryBatchScript: "pnpm run hub:laravel-min-delivery-batch-smoke",
+      projectToCwlScript: "pnpm run hub:project-to-cwl-laravel-min-smoke",
+      depthBatchScript: "pnpm run hub:laravel-depth-batch-smoke",
+      scaffold: "flagship/laravel-min",
+    },
+    plainPhpDelivery: {
+      deliveryBatchScript: "pnpm run hub:plain-php-delivery-batch-smoke",
+      migrationOsBatchScript: "pnpm run hub:plain-php-migration-os-batch-smoke",
+    },
+    threeOriginDelivery: {
+      batchScript: "pnpm run hub:three-origin-delivery-batch-smoke",
+    },
+    oracleStandaloneSmokes: {
+      nodeExpressOracleScript: "pnpm run hub:node-express-oracle-standalone-smoke",
+      wptpGoldScript: "pnpm run hub:wptp-gold-standalone-smoke",
+      contractRoundtripScript: "pnpm run hub:contract-roundtrip-standalone-smoke",
+      verifyPlaybooksScript: "pnpm run hub:verify-playbooks-standalone-smoke",
+      postTranslateVerifyScript: "pnpm run hub:post-translate-verify-standalone-smoke",
     },
     migrationOsDelivery: {
       pathAdviceScript: "pnpm run hub:path-advice-smoke",

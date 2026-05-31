@@ -760,9 +760,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 47 &&
     s.schemaVersion !== 48 &&
     s.schemaVersion !== 49 &&
-    s.schemaVersion !== 50
+    s.schemaVersion !== 50 &&
+    s.schemaVersion !== 51
   ) {
-    fail(`${label}: expected schemaVersion 0–50, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–51, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1455,7 +1456,7 @@ function assertHubCompletion(path) {
       fail(`${label}: symfonyFlagshipGold.inProcess must be true for schema v49`);
     }
   }
-  if (s.schemaVersion >= 50) {
+  if (s.schemaVersion >= 50 && s.schemaVersion < 51) {
     if (s.expressDeliveryBatch?.ok !== true) {
       fail(`${label}: expressDeliveryBatch.ok must be true for schema v50`);
     }
@@ -1494,6 +1495,38 @@ function assertHubCompletion(path) {
     }
     if (s.expressFlagshipGold?.inProcess !== true) {
       fail(`${label}: expressFlagshipGold.inProcess must be true for schema v50`);
+    }
+  }
+  if (s.schemaVersion >= 51) {
+    if (s.laravelMinDeliveryBatch?.ok !== true) {
+      fail(`${label}: laravelMinDeliveryBatch.ok must be true for schema v51`);
+    }
+    if (s.plainPhpDeliveryBatch?.ok !== true) {
+      fail(`${label}: plainPhpDeliveryBatch.ok must be true for schema v51`);
+    }
+    if (s.threeOriginDeliveryBatch?.ok !== true) {
+      fail(`${label}: threeOriginDeliveryBatch.ok must be true for schema v51`);
+    }
+    if (s.laravelDepthBatch?.ok !== true) {
+      fail(`${label}: laravelDepthBatch.ok must be true for schema v51`);
+    }
+    if (s.cwlFullBatch?.ok !== true) {
+      fail(`${label}: cwlFullBatch.ok must be true for schema v51`);
+    }
+    if (s.projectToCwlLaravelMinSmoke?.ok !== true) {
+      fail(`${label}: projectToCwlLaravelMinSmoke.ok must be true for schema v51`);
+    }
+    if (s.tinyBlogOracleBatch?.ok !== true) {
+      fail(`${label}: tinyBlogOracleBatch.ok must be true for schema v51`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 8) {
+      fail(`${label}: hubEvidence.schemaVersion must be 8 for schema v51`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN === "1" && s.laravelMinDeliveryBatch?.ok !== true) {
+      fail(`${label}: laravelMinDeliveryBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 9) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 9 for schema v51`);
     }
   }
   const g = s.routeGrades;
