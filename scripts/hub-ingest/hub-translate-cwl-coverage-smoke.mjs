@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** hub-translate CWL coverage: lift path exports migration.cwl for sample origins (G484). */
+/** hub-translate CWL coverage: lift path exports migration.cwl for all 23 origins (G524). */
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, cpSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -8,12 +8,10 @@ import { fileURLToPath } from "node:url";
 import { CWL_ORIGIN_FIXTURES, resolveCwlOriginFixturePath, CWL_ORIGIN_FIXTURES_ROOT } from "./hub-cwl-origin-fixtures.mjs";
 
 export const HUB_TRANSLATE_CWL_COVERAGE_KIND = "chrysalis.hub.translate-cwl-coverage-smoke";
-export const HUB_TRANSLATE_CWL_COVERAGE_SCHEMA_VERSION = 1;
+export const HUB_TRANSLATE_CWL_COVERAGE_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const translateScript = join(scriptRoot, "scripts/hub-ingest/hub-translate.mjs");
-
-const SAMPLE_ORIGINS = ["python", "ruby", "vue", "sql", "typescript"];
 
 function parseTranslateJson(stdout) {
   const lines = stdout.trim().split("\n");
@@ -31,13 +29,8 @@ function parseTranslateJson(stdout) {
 export function runHubTranslateCwlCoverageSmoke() {
   const results = [];
   let ok = true;
-  for (const origin of SAMPLE_ORIGINS) {
-    const fixture = CWL_ORIGIN_FIXTURES.find((f) => f.id === origin);
-    if (!fixture) {
-      results.push({ origin, ok: false, skip: "no-fixture" });
-      ok = false;
-      continue;
-    }
+  for (const fixture of CWL_ORIGIN_FIXTURES) {
+    const origin = fixture.id;
     const src = resolveCwlOriginFixturePath(fixture, CWL_ORIGIN_FIXTURES_ROOT);
     const tmp = mkdtempSync(join(tmpdir(), `chrysalis-translate-cwl-${origin}-`));
     try {
@@ -69,6 +62,7 @@ export function runHubTranslateCwlCoverageSmoke() {
     kind: HUB_TRANSLATE_CWL_COVERAGE_KIND,
     schemaVersion: HUB_TRANSLATE_CWL_COVERAGE_SCHEMA_VERSION,
     ok,
+    originCount: CWL_ORIGIN_FIXTURES.length,
     results,
     generatedAt: new Date().toISOString(),
   };

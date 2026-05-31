@@ -149,11 +149,12 @@ export async function runGoldVerifySuite(suite) {
     if ((lift2Report.holeCount ?? 1) !== 0) {
       return { ok: false, reason: "roundtrip-lift-holes", lift2Report };
     }
-    if ((lift2Report.routeCount ?? 0) !== (liftReport.routeCount ?? 0)) {
+    const exportedRouteCount = emitReport.routeCount ?? liftReport.routeCount ?? 0;
+    if ((lift2Report.routeCount ?? 0) !== exportedRouteCount) {
       return {
         ok: false,
         reason: "roundtrip-route-mismatch",
-        before: liftReport.routeCount,
+        before: exportedRouteCount,
         after: lift2Report.routeCount,
       };
     }

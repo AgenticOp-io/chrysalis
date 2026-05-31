@@ -561,6 +561,17 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G488 — Strategic test G500** — schema 56 pattern-literal CWL smokes. (**DESIGN D787**)
 - [x] **G489 — ci-gates v56 test** — accepts schema v56 payloads. (**DESIGN D788**)
 - [x] **G500 — Hub completion schema 56** — hole-free pattern-literal CWL gold + translate CWL coverage. (**DESIGN D789**)
+- [x] **G501 — CWL roundtrip route parity** — compare exported CWL route count on re-lift. (**DESIGN D790**)
+- [x] **G502 — roundTrip on 21 literal-cwl suites** — pattern-lift + asset CWL roundtrip gold. (**DESIGN D791**)
+- [x] **G503 — hub-cwl-pattern-literal-roundtrip-batch-smoke** — 21-suite CWL roundtrip batch. (**DESIGN D792**)
+- [x] **G504 — translate-cwl all 23 origins** — hub-translate exports migration.cwl per origin. (**DESIGN D793**)
+- [x] **G505 — Capability matrix v15** — roundtrip + translate-all metadata. (**DESIGN D794**)
+- [x] **G506 — Delivery dashboard v17** — month13Program roundtrip + translate-all. (**DESIGN D795**)
+- [x] **G507 — Hub evidence schema v14** — requirePatternLiteralRoundtripEnv + requireTranslateCwlAllOriginsEnv. (**DESIGN D796**)
+- [x] **G508 — ci-gates v57** — roundtrip batch + translate 23-origin gates. (**DESIGN D797**)
+- [x] **G509 — Strategic test G530** — schema 57 roundtrip + translate-all smokes. (**DESIGN D798**)
+- [x] **G510 — ci-gates v57 test** — accepts schema v57 payloads. (**DESIGN D799**)
+- [x] **G530 — Hub completion schema 57** — CWL literal roundtrip gold + translate CWL all origins. (**DESIGN D800**)
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
 **Paused by policy (do not open without plan amendment):** matrix gold for marketing; WordPress before Laravel boring; “any language production-ready” claims.

@@ -526,6 +526,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "ts-literal-cwl",
@@ -534,6 +535,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "python-literal-cwl",
@@ -542,6 +544,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "python-native-python",
@@ -758,6 +761,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "go-literal-cwl",
@@ -766,6 +770,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "csharp-literal-cwl",
@@ -774,6 +779,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "ruby-literal-cwl",
@@ -782,6 +788,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "kotlin-literal-hono",
@@ -806,6 +813,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "kotlin-literal-nextjs",
@@ -838,6 +846,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "scala-literal-nextjs",
@@ -870,6 +879,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "swift-literal-nextjs",
@@ -902,6 +912,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "rust-literal-nextjs",
@@ -1158,6 +1169,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "sql-literal-cwl",
@@ -1166,6 +1178,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "html-literal-cwl",
@@ -1174,6 +1187,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "json-literal-cwl",
@@ -1182,6 +1196,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "css-literal-cwl",
@@ -1190,6 +1205,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "scss-literal-cwl",
@@ -1198,6 +1214,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "markdown-literal-cwl",
@@ -1206,6 +1223,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "yaml-literal-cwl",
@@ -1214,6 +1232,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "c-literal-cwl",
@@ -1222,6 +1241,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "cpp-literal-cwl",
@@ -1230,6 +1250,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "contract-first-hono",

@@ -147,6 +147,7 @@ import { runCwlAppStackOriginsBatchSmoke } from "./hub-cwl-app-stack-origins-bat
 import { runCwlAssetOriginsBatchSmoke } from "./hub-cwl-asset-origins-batch-smoke.mjs";
 import { runCwlPatternLiteralCwlBatchSmoke } from "./hub-cwl-pattern-literal-cwl-batch-smoke.mjs";
 import { runHubTranslateCwlCoverageSmoke } from "./hub-translate-cwl-coverage-smoke.mjs";
+import { runCwlPatternLiteralRoundtripBatchSmoke } from "./hub-cwl-pattern-literal-roundtrip-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1109,6 +1110,13 @@ async function main() {
     hubTranslateCwlCoverage = { ok: false, skip: "hub-translate-cwl-coverage-threw" };
   }
   const hubTranslateCwlCoverageOk = hubTranslateCwlCoverage.ok === true;
+  let cwlPatternLiteralRoundtripBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlPatternLiteralRoundtripBatch = runCwlPatternLiteralRoundtripBatchSmoke();
+  } catch {
+    cwlPatternLiteralRoundtripBatch = { ok: false, skip: "cwl-pattern-literal-roundtrip-batch-threw" };
+  }
+  const cwlPatternLiteralRoundtripBatchOk = cwlPatternLiteralRoundtripBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1249,6 +1257,7 @@ async function main() {
     cwlAssetOriginsBatchOk &&
     cwlPatternLiteralCwlBatchOk &&
     hubTranslateCwlCoverageOk &&
+    cwlPatternLiteralRoundtripBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1260,7 +1269,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 56,
+    schemaVersion: 57,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1447,7 +1456,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 13,
+      schemaVersion: 14,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1461,6 +1470,8 @@ async function main() {
       requireUniversalCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL",
       requirePatternLiteralCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PATTERN_LITERAL_CWL",
       requireTranslateCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL",
+      requirePatternLiteralRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PATTERN_LITERAL_ROUNDTRIP",
+      requireTranslateCwlAllOriginsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ALL_ORIGINS",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1981,7 +1992,14 @@ async function main() {
     },
     hubTranslateCwlCoverage: {
       ok: hubTranslateCwlCoverageOk,
+      schemaVersion: hubTranslateCwlCoverage.schemaVersion ?? 2,
+      originCount: hubTranslateCwlCoverage.originCount ?? null,
       script: "pnpm run hub:translate-cwl-coverage-smoke",
+    },
+    cwlPatternLiteralRoundtripBatch: {
+      ok: cwlPatternLiteralRoundtripBatchOk,
+      suiteCount: cwlPatternLiteralRoundtripBatch.suiteCount ?? null,
+      script: "pnpm run hub:cwl-pattern-literal-roundtrip-batch-smoke",
     },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,
@@ -2108,6 +2126,29 @@ async function main() {
         "yaml-literal-cwl",
         "c-literal-cwl",
         "cpp-literal-cwl",
+      ],
+      roundTripSuiteIds: [
+        "js-literal-cwl",
+        "ts-literal-cwl",
+        "python-literal-cwl",
+        "vue-literal-cwl",
+        "sql-literal-cwl",
+        "html-literal-cwl",
+        "json-literal-cwl",
+        "css-literal-cwl",
+        "scss-literal-cwl",
+        "markdown-literal-cwl",
+        "yaml-literal-cwl",
+        "c-literal-cwl",
+        "cpp-literal-cwl",
+        "java-literal-cwl",
+        "go-literal-cwl",
+        "csharp-literal-cwl",
+        "ruby-literal-cwl",
+        "kotlin-literal-cwl",
+        "scala-literal-cwl",
+        "swift-literal-cwl",
+        "rust-literal-cwl",
       ],
     },
     kssFrameworkGold: {

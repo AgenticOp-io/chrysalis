@@ -2468,6 +2468,28 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D800** **Hub completion schema 57 (G530).** CWL literal roundtrip gold + translate CWL all origins; CI gates v57.
+
+- **2026-05-31 — D799** **ci-gates v57 test (G510).** Accepts schema v57 roundtrip + translate-all payloads.
+
+- **2026-05-31 — D798** **Strategic test G530 (G509).** Schema 57 roundtrip + translate-all smokes.
+
+- **2026-05-31 — D797** **ci-gates v57 (G508).** Roundtrip batch + translate 23-origin gates.
+
+- **2026-05-31 — D796** **Hub evidence schema v14 (G507).** `requirePatternLiteralRoundtripEnv` + `requireTranslateCwlAllOriginsEnv`.
+
+- **2026-05-31 — D795** **Delivery dashboard v17 (G506).** `month13Program` roundtrip + translate-all.
+
+- **2026-05-31 — D794** **Capability matrix v15 (G505).** Roundtrip + translate-all metadata.
+
+- **2026-05-31 — D793** **translate-cwl all 23 origins (G504).** hub-translate exports migration.cwl per origin.
+
+- **2026-05-31 — D792** **hub-cwl-pattern-literal-roundtrip-batch-smoke (G503).** 21-suite CWL roundtrip batch.
+
+- **2026-05-31 — D791** **roundTrip on 21 literal-cwl suites (G502).** Pattern-lift + asset CWL roundtrip gold.
+
+- **2026-05-31 — D790** **CWL roundtrip route parity (G501).** Compare exported CWL route count on re-lift.
+
 - **2026-05-31 — D789** **Hub completion schema 56 (G500).** Pattern-literal CWL gold + translate CWL coverage; CI gates v56.
 
 - **2026-05-31 — D788** **ci-gates v56 test (G489).** Accepts schema v56 pattern-literal CWL payloads.
