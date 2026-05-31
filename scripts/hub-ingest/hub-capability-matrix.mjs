@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 15;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 17;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -289,10 +289,15 @@ export function buildHubCapabilityMatrixReport() {
       assetBatchScript: "pnpm run hub:cwl-asset-origins-batch-smoke",
       patternLiteralCwlBatchScript: "pnpm run hub:cwl-pattern-literal-cwl-batch-smoke",
       patternLiteralRoundtripBatchScript: "pnpm run hub:cwl-pattern-literal-roundtrip-batch-smoke",
+      flagshipRoundtripBatchScript: "pnpm run hub:cwl-flagship-roundtrip-batch-smoke",
       translateCwlCoverageScript: "pnpm run hub:translate-cwl-coverage-smoke",
+      translateCwlRoundtripScript: "pnpm run hub:translate-cwl-roundtrip-smoke",
+      projectToCwlRoundtripScript: "pnpm run hub:project-to-cwl-roundtrip-smoke",
+      universalMegaBatchSchemaVersion: 3,
       originCount: 23,
       patternLiteralCwlSuiteCount: 18,
       patternLiteralRoundtripSuiteCount: 21,
+      flagshipRoundtripSuiteCount: 3,
       translateCwlOriginCount: 23,
     },
     oracleStandaloneSmokes: {

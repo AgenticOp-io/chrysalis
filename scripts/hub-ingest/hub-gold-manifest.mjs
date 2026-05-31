@@ -85,6 +85,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "plain-php-flagship-hono",
@@ -117,6 +118,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "symfony-flagship-hono",
@@ -149,6 +151,7 @@ export const HUB_GOLD_SUITES = [
     emitTarget: "cwl",
     structural: true,
     traceReplay: false,
+    roundTrip: true,
   },
   {
     id: "cwl-response-content-type-hono",

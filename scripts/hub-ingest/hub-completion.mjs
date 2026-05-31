@@ -148,6 +148,9 @@ import { runCwlAssetOriginsBatchSmoke } from "./hub-cwl-asset-origins-batch-smok
 import { runCwlPatternLiteralCwlBatchSmoke } from "./hub-cwl-pattern-literal-cwl-batch-smoke.mjs";
 import { runHubTranslateCwlCoverageSmoke } from "./hub-translate-cwl-coverage-smoke.mjs";
 import { runCwlPatternLiteralRoundtripBatchSmoke } from "./hub-cwl-pattern-literal-roundtrip-batch-smoke.mjs";
+import { runCwlFlagshipRoundtripBatchSmoke } from "./hub-cwl-flagship-roundtrip-batch-smoke.mjs";
+import { runHubTranslateCwlRoundtripSmoke } from "./hub-translate-cwl-roundtrip-smoke.mjs";
+import { runProjectToCwlRoundtripSmoke } from "./hub-project-to-cwl-roundtrip-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1117,6 +1120,27 @@ async function main() {
     cwlPatternLiteralRoundtripBatch = { ok: false, skip: "cwl-pattern-literal-roundtrip-batch-threw" };
   }
   const cwlPatternLiteralRoundtripBatchOk = cwlPatternLiteralRoundtripBatch.ok === true;
+  let cwlFlagshipRoundtripBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlFlagshipRoundtripBatch = runCwlFlagshipRoundtripBatchSmoke();
+  } catch {
+    cwlFlagshipRoundtripBatch = { ok: false, skip: "cwl-flagship-roundtrip-batch-threw" };
+  }
+  const cwlFlagshipRoundtripBatchOk = cwlFlagshipRoundtripBatch.ok === true;
+  let hubTranslateCwlRoundtrip = { ok: false, skip: "not-run-in-completion" };
+  try {
+    hubTranslateCwlRoundtrip = runHubTranslateCwlRoundtripSmoke();
+  } catch {
+    hubTranslateCwlRoundtrip = { ok: false, skip: "hub-translate-cwl-roundtrip-threw" };
+  }
+  const hubTranslateCwlRoundtripOk = hubTranslateCwlRoundtrip.ok === true;
+  let projectToCwlRoundtrip = { ok: false, skip: "not-run-in-completion" };
+  try {
+    projectToCwlRoundtrip = await runProjectToCwlRoundtripSmoke();
+  } catch {
+    projectToCwlRoundtrip = { ok: false, skip: "project-to-cwl-roundtrip-threw" };
+  }
+  const projectToCwlRoundtripOk = projectToCwlRoundtrip.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1258,6 +1282,9 @@ async function main() {
     cwlPatternLiteralCwlBatchOk &&
     hubTranslateCwlCoverageOk &&
     cwlPatternLiteralRoundtripBatchOk &&
+    cwlFlagshipRoundtripBatchOk &&
+    hubTranslateCwlRoundtripOk &&
+    projectToCwlRoundtripOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1269,7 +1296,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 57,
+    schemaVersion: 59,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1456,7 +1483,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 14,
+      schemaVersion: 16,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1472,6 +1499,9 @@ async function main() {
       requireTranslateCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL",
       requirePatternLiteralRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PATTERN_LITERAL_ROUNDTRIP",
       requireTranslateCwlAllOriginsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ALL_ORIGINS",
+      requireTranslateCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ROUNDTRIP",
+      requireFlagshipCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_CWL_ROUNDTRIP",
+      requireProjectToCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PROJECT_TO_CWL_ROUNDTRIP",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1973,10 +2003,6 @@ async function main() {
       ok: cwlAllOriginsBatchOk,
       script: "pnpm run hub:cwl-all-origins-batch-smoke",
     },
-    cwlUniversalMegaBatch: {
-      ok: cwlUniversalMegaBatchOk,
-      script: "pnpm run hub:cwl-universal-mega-batch-smoke",
-    },
     cwlAppStackOriginsBatch: {
       ok: cwlAppStackOriginsBatchOk,
       script: "pnpm run hub:cwl-app-stack-origins-batch-smoke",
@@ -2000,6 +2026,26 @@ async function main() {
       ok: cwlPatternLiteralRoundtripBatchOk,
       suiteCount: cwlPatternLiteralRoundtripBatch.suiteCount ?? null,
       script: "pnpm run hub:cwl-pattern-literal-roundtrip-batch-smoke",
+    },
+    cwlFlagshipRoundtripBatch: {
+      ok: cwlFlagshipRoundtripBatchOk,
+      suiteCount: cwlFlagshipRoundtripBatch.suiteCount ?? null,
+      script: "pnpm run hub:cwl-flagship-roundtrip-batch-smoke",
+    },
+    hubTranslateCwlRoundtrip: {
+      ok: hubTranslateCwlRoundtripOk,
+      originCount: hubTranslateCwlRoundtrip.originCount ?? null,
+      script: "pnpm run hub:translate-cwl-roundtrip-smoke",
+    },
+    projectToCwlRoundtrip: {
+      ok: projectToCwlRoundtripOk,
+      originCount: projectToCwlRoundtrip.originCount ?? null,
+      script: "pnpm run hub:project-to-cwl-roundtrip-smoke",
+    },
+    cwlUniversalMegaBatch: {
+      ok: cwlUniversalMegaBatchOk,
+      schemaVersion: cwlUniversalMegaBatch.schemaVersion ?? 3,
+      script: "pnpm run hub:cwl-universal-mega-batch-smoke",
     },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,
@@ -2150,6 +2196,9 @@ async function main() {
         "swift-literal-cwl",
         "rust-literal-cwl",
       ],
+    },
+    flagshipCwlRoundtripGold: {
+      suiteIds: ["plain-php-flagship-cwl", "symfony-flagship-cwl", "express-flagship-cwl"],
     },
     kssFrameworkGold: {
       suiteIds: [

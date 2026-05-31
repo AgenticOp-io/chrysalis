@@ -1447,11 +1447,10 @@ describe("strategic plan deliverables", () => {
   }, 600_000);
 
   test("capability matrix v14 lists pattern-literal CWL (G484)", async () => {
-    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+    const { buildHubCapabilityMatrixReport } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(14);
     expect(report.cwlAllOrigins?.originCount).toBe(23);
     expect(report.cwlAllOrigins?.patternLiteralCwlBatchScript).toBe("pnpm run hub:cwl-pattern-literal-cwl-batch-smoke");
     expect(report.cwlAllOrigins?.patternLiteralCwlSuiteCount).toBe(18);
@@ -1467,7 +1466,7 @@ describe("strategic plan deliverables", () => {
   });
 
   test("delivery dashboard v16 surfaces month12 pattern-literal CWL (G485)", async () => {
-    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+    const { buildDeliveryDashboard } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
     );
     const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
@@ -1481,7 +1480,6 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(16);
       expect(report.month12Program?.cwlPatternLiteralCwlBatch).toBe("hub:cwl-pattern-literal-cwl-batch-smoke");
       expect(report.month12Program?.requirePatternLiteralCwlEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_PATTERN_LITERAL_CWL");
     } finally {
@@ -1547,17 +1545,16 @@ describe("strategic plan deliverables", () => {
   }, 900_000);
 
   test("capability matrix v15 lists CWL roundtrip + translate-all (G505)", async () => {
-    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+    const { buildHubCapabilityMatrixReport } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(15);
     expect(report.cwlAllOrigins?.patternLiteralRoundtripSuiteCount).toBe(21);
     expect(report.cwlAllOrigins?.translateCwlOriginCount).toBe(23);
   });
 
   test("delivery dashboard v17 surfaces month13 roundtrip (G506)", async () => {
-    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+    const { buildDeliveryDashboard } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
     );
     const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
@@ -1571,12 +1568,121 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(17);
       expect(report.month13Program?.cwlPatternLiteralRoundtripBatch).toBe(
         "hub:cwl-pattern-literal-roundtrip-batch-smoke",
       );
       expect(report.month13Program?.requireTranslateCwlAllOriginsEnv).toBe(
         "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ALL_ORIGINS",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub completion schema 58 CWL universe roundtrip (G560)", async () => {
+    const { runCwlFlagshipRoundtripBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-flagship-roundtrip-batch-smoke.mjs")
+    );
+    const { runHubTranslateCwlRoundtripSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-translate-cwl-roundtrip-smoke.mjs")
+    );
+    const { runCwlUniversalMegaBatchSmoke, HUB_CWL_UNIVERSAL_MEGA_BATCH_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-universal-mega-batch-smoke.mjs")
+    );
+    expect(HUB_CWL_UNIVERSAL_MEGA_BATCH_SCHEMA_VERSION).toBeGreaterThanOrEqual(2);
+    const flagship = runCwlFlagshipRoundtripBatchSmoke();
+    expect(flagship.ok).toBe(true);
+    expect(flagship.suiteCount).toBe(3);
+    const translateRoundtrip = runHubTranslateCwlRoundtripSmoke();
+    expect(translateRoundtrip.ok).toBe(true);
+    expect(translateRoundtrip.originCount).toBe(23);
+    const universal = await runCwlUniversalMegaBatchSmoke();
+    expect(universal.ok).toBe(true);
+    expect(universal.schemaVersion).toBeGreaterThanOrEqual(2);
+    expect(universal.translateCwlRoundtrip?.ok).toBe(true);
+    expect(universal.patternLiteralRoundtrip?.ok).toBe(true);
+  }, 1_200_000);
+
+  test("hub completion schema 59 project-to-CWL roundtrip (G590)", async () => {
+    const { runProjectToCwlRoundtripSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-project-to-cwl-roundtrip-smoke.mjs")
+    );
+    const { runCwlUniversalMegaBatchSmoke, HUB_CWL_UNIVERSAL_MEGA_BATCH_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-universal-mega-batch-smoke.mjs")
+    );
+    expect(HUB_CWL_UNIVERSAL_MEGA_BATCH_SCHEMA_VERSION).toBe(3);
+    const projectRoundtrip = await runProjectToCwlRoundtripSmoke();
+    expect(projectRoundtrip.ok).toBe(true);
+    expect(projectRoundtrip.originCount).toBe(23);
+    const universal = await runCwlUniversalMegaBatchSmoke();
+    expect(universal.ok).toBe(true);
+    expect(universal.schemaVersion).toBe(3);
+    expect(universal.projectToCwlRoundtrip?.ok).toBe(true);
+  }, 1_800_000);
+
+  test("capability matrix v17 lists project-to-CWL roundtrip (G563)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(17);
+    expect(report.cwlAllOrigins?.projectToCwlRoundtripScript).toBe("pnpm run hub:project-to-cwl-roundtrip-smoke");
+    expect(report.cwlAllOrigins?.universalMegaBatchSchemaVersion).toBe(3);
+  });
+
+  test("delivery dashboard v19 surfaces month15 project roundtrip (G564)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v19-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(19);
+      expect(report.month15Program?.projectToCwlRoundtrip).toBe("hub:project-to-cwl-roundtrip-smoke");
+      expect(report.month15Program?.requireProjectToCwlRoundtripEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_PROJECT_TO_CWL_ROUNDTRIP",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("capability matrix v16 lists translate roundtrip (G535)", async () => {
+    const { buildHubCapabilityMatrixReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(report.cwlAllOrigins?.flagshipRoundtripSuiteCount).toBe(3);
+    expect(report.cwlAllOrigins?.translateCwlRoundtripScript).toBe("pnpm run hub:translate-cwl-roundtrip-smoke");
+    expect((report.cwlAllOrigins?.universalMegaBatchSchemaVersion ?? 0) >= 2).toBe(true);
+  });
+
+  test("delivery dashboard v18 surfaces month14 translate roundtrip (G536)", async () => {
+    const { buildDeliveryDashboard } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v18-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(report.month14Program?.translateCwlRoundtrip).toBe("hub:translate-cwl-roundtrip-smoke");
+      expect(report.month14Program?.requireFlagshipCwlRoundtripEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_CWL_ROUNDTRIP",
       );
     } finally {
       rmSync(tmp, { recursive: true, force: true });

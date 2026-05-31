@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 17;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 19;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -297,6 +297,17 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       cwlPatternLiteralRoundtripBatch: "hub:cwl-pattern-literal-roundtrip-batch-smoke",
       requirePatternLiteralRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PATTERN_LITERAL_ROUNDTRIP",
       requireTranslateCwlAllOriginsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ALL_ORIGINS",
+    },
+    month14Program: {
+      translateCwlRoundtrip: "hub:translate-cwl-roundtrip-smoke",
+      cwlFlagshipRoundtripBatch: "hub:cwl-flagship-roundtrip-batch-smoke",
+      cwlUniversalMegaBatch: "hub:cwl-universal-mega-batch-smoke",
+      requireTranslateCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_TRANSLATE_CWL_ROUNDTRIP",
+      requireFlagshipCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_CWL_ROUNDTRIP",
+    },
+    month15Program: {
+      projectToCwlRoundtrip: "hub:project-to-cwl-roundtrip-smoke",
+      requireProjectToCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PROJECT_TO_CWL_ROUNDTRIP",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

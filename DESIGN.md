@@ -2468,6 +2468,37 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D820** **Hub completion schema 58 (G560).** Translate CWL roundtrip all origins + flagship CWL roundtrip; CI gates v58.
+- **2026-05-31 — D821** **hub-project-to-cwl-roundtrip-smoke (G561).** Project export migration.cwl route-surface re-lift all 23 origins.
+- **2026-05-31 — D822** **CWL universal mega batch v3 (G562).** Includes project-to-CWL roundtrip smoke.
+- **2026-05-31 — D823** **Capability matrix v17 (G563).** Project-to-CWL roundtrip script metadata.
+- **2026-05-31 — D824** **Delivery dashboard v19 (G564).** month15Program project roundtrip env gate.
+- **2026-05-31 — D825** **Hub evidence schema v16 (G565).** requireProjectToCwlRoundtripEnv.
+- **2026-05-31 — D826** **ci-gates v59 (G566).** Project-to-CWL roundtrip + universal mega v3 gates.
+- **2026-05-31 — D827** **Strategic test G590 (G567).** Schema 59 project roundtrip smokes.
+- **2026-05-31 — D828** **ci-gates v59 test (G568).** Accepts schema v59 payloads.
+- **2026-05-31 — D829** **Hub completion schema 59 (G590).** Project-to-CWL roundtrip all origins.
+
+- **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
+
+- **2026-05-31 — D809** **Strategic test G560 (G539).** Schema 58 complete CWL universe smokes.
+
+- **2026-05-31 — D808** **ci-gates v58 (G538).** Flagship + translate CWL roundtrip gates.
+
+- **2026-05-31 — D807** **Hub evidence schema v15 (G537).** `requireTranslateCwlRoundtripEnv` + `requireFlagshipCwlRoundtripEnv`.
+
+- **2026-05-31 — D806** **Delivery dashboard v18 (G536).** `month14Program` translate/flagship roundtrip.
+
+- **2026-05-31 — D805** **Capability matrix v16 (G535).** Flagship + translate roundtrip metadata.
+
+- **2026-05-31 — D804** **CWL universal mega batch v2 (G534).** Includes roundtrip + translate coverage + translate roundtrip.
+
+- **2026-05-31 — D803** **hub-translate-cwl-roundtrip-smoke (G533).** Translate migration.cwl route-surface re-lift all 23 origins.
+
+- **2026-05-31 — D802** **hub-cwl-flagship-roundtrip-batch-smoke (G532).** 3-suite flagship CWL roundtrip batch.
+
+- **2026-05-31 — D801** **Flagship CWL roundTrip gold (G531).** plain-php/symfony/express flagship CWL re-lift.
+
 - **2026-05-31 — D800** **Hub completion schema 57 (G530).** CWL literal roundtrip gold + translate CWL all origins; CI gates v57.
 
 - **2026-05-31 — D799** **ci-gates v57 test (G510).** Accepts schema v57 roundtrip + translate-all payloads.
