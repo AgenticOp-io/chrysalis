@@ -33,12 +33,24 @@ export async function ensureProjectWebir(projectDir, origin) {
   if (origin === "php") {
     return exportPhpHubWebir(projectDir);
   }
-  const r = spawnSync(process.execPath, [liftScript, projectDir, "--language", "javascript"], {
+  const r = spawnSync(process.execPath, [liftScript, projectDir, "--language", origin], {
     cwd: scriptRoot,
     encoding: "utf8",
     maxBuffer: 20 * 1024 * 1024,
   });
-  return { ok: r.status === 0, skip: r.status === 0 ? null : "javascript-lift-failed" };
+  let report = {};
+  try {
+    const lines = (r.stdout ?? "").trim().split("\n");
+    report = JSON.parse(lines[lines.length - 1] ?? "{}");
+  } catch {
+    report = {};
+  }
+  const routeCount = report.routeCount ?? 0;
+  return {
+    ok: r.status === 0 && routeCount > 0,
+    skip: r.status === 0 && routeCount > 0 ? null : `${origin}-lift-failed`,
+    routeCount,
+  };
 }
 
 async function ensureWebir(projectDir, origin) {

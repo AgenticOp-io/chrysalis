@@ -763,9 +763,9 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 50 &&
     s.schemaVersion !== 51 &&
     s.schemaVersion !== 52 &&
-    s.schemaVersion !== 54
+    s.schemaVersion !== 55
   ) {
-    fail(`${label}: expected schemaVersion 0–54, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–55, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1598,7 +1598,7 @@ function assertHubCompletion(path) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 11 for schema v53`);
     }
   }
-  if (s.schemaVersion >= 54) {
+  if (s.schemaVersion >= 54 && s.schemaVersion < 55) {
     if (s.originDepthUltraBatch?.ok !== true) {
       fail(`${label}: originDepthUltraBatch.ok must be true for schema v54`);
     }
@@ -1619,6 +1619,29 @@ function assertHubCompletion(path) {
     }
     if (s.capabilityMatrix?.schemaVersion !== 12) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 12 for schema v54`);
+    }
+  }
+  if (s.schemaVersion >= 55) {
+    if (s.projectToCwlAllOrigins?.ok !== true) {
+      fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v55`);
+    }
+    if (s.cwlAllOriginsBatch?.ok !== true) {
+      fail(`${label}: cwlAllOriginsBatch.ok must be true for schema v55`);
+    }
+    if (s.cwlUniversalMegaBatch?.ok !== true) {
+      fail(`${label}: cwlUniversalMegaBatch.ok must be true for schema v55`);
+    }
+    if ((s.projectToCwlAllOrigins?.originCount ?? 0) < 23) {
+      fail(`${label}: projectToCwlAllOrigins.originCount must be >= 23 for schema v55`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 12) {
+      fail(`${label}: hubEvidence.schemaVersion must be 12 for schema v55`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL === "1" && s.cwlUniversalMegaBatch?.ok !== true) {
+      fail(`${label}: cwlUniversalMegaBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 13) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 13 for schema v55`);
     }
   }
   const g = s.routeGrades;

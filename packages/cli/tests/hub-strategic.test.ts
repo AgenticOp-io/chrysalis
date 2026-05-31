@@ -1428,6 +1428,57 @@ describe("strategic plan deliverables", () => {
     }
   });
 
+  test("hub completion schema 55 universal CWL all origins (G470)", async () => {
+    const { runProjectToCwlAllOrigins } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-project-to-cwl-all-origins.mjs")
+    );
+    const { runCwlUniversalMegaBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-universal-mega-batch-smoke.mjs")
+    );
+    const { CWL_ORIGIN_FIXTURES } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-origin-fixtures.mjs")
+    );
+    expect(CWL_ORIGIN_FIXTURES.length).toBe(23);
+    const allOrigins = await runProjectToCwlAllOrigins();
+    const universal = await runCwlUniversalMegaBatchSmoke();
+    expect(allOrigins.ok).toBe(true);
+    expect(allOrigins.originCount).toBe(23);
+    expect(universal.ok).toBe(true);
+  }, 600_000);
+
+  test("capability matrix v13 lists universal CWL all origins (G450)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(13);
+    expect(report.cwlAllOrigins?.originCount).toBe(23);
+    expect(report.cwlAllOrigins?.batchScript).toBe("pnpm run hub:cwl-all-origins-batch-smoke");
+  });
+
+  test("delivery dashboard v15 surfaces month11 universal CWL (G451)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v15-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(15);
+      expect(report.month11Program?.cwlAllOriginsBatch).toBe("hub:cwl-all-origins-batch-smoke");
+      expect(report.month11Program?.requireUniversalCwlEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   test("capability matrix v8 lists express delivery smokes (G313)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")

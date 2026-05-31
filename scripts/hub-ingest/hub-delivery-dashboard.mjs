@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 14;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 15;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -280,6 +280,12 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       verifyProductUltraBatch: "hub:verify-product-ultra-batch-smoke",
       chimeraCutoverOriginBatch: "hub:chimera-cutover-origin-batch-smoke",
       requireOriginDepthEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_ORIGIN_DEPTH",
+    },
+    month11Program: {
+      cwlAllOriginsBatch: "hub:cwl-all-origins-batch-smoke",
+      cwlUniversalMegaBatch: "hub:cwl-universal-mega-batch-smoke",
+      projectToCwlAllOrigins: "hub:project-to-cwl-all-origins",
+      requireUniversalCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

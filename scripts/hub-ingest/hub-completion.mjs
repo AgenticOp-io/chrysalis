@@ -140,6 +140,11 @@ import { runLaravelMinDepthBatchSmoke } from "./hub-laravel-min-depth-batch-smok
 import { runOriginDepthUltraBatchSmoke } from "./hub-origin-depth-ultra-batch-smoke.mjs";
 import { runChimeraAssessmentMegaBatchSmoke } from "./hub-chimera-assessment-mega-batch-smoke.mjs";
 import { runVerifyProductUltraBatchSmoke } from "./hub-verify-product-ultra-batch-smoke.mjs";
+import { runProjectToCwlAllOrigins } from "./hub-project-to-cwl-all-origins.mjs";
+import { runCwlAllOriginsBatchSmoke } from "./hub-cwl-all-origins-batch-smoke.mjs";
+import { runCwlUniversalMegaBatchSmoke } from "./hub-cwl-universal-mega-batch-smoke.mjs";
+import { runCwlAppStackOriginsBatchSmoke } from "./hub-cwl-app-stack-origins-batch-smoke.mjs";
+import { runCwlAssetOriginsBatchSmoke } from "./hub-cwl-asset-origins-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1053,6 +1058,41 @@ async function main() {
     verifyProductUltraBatch = { ok: false, skip: "verify-product-ultra-batch-threw" };
   }
   const verifyProductUltraBatchOk = verifyProductUltraBatch.ok === true;
+  let projectToCwlAllOrigins = { ok: false, skip: "not-run-in-completion" };
+  try {
+    projectToCwlAllOrigins = await runProjectToCwlAllOrigins();
+  } catch {
+    projectToCwlAllOrigins = { ok: false, skip: "project-to-cwl-all-origins-threw" };
+  }
+  const projectToCwlAllOriginsOk = projectToCwlAllOrigins.ok === true;
+  let cwlAllOriginsBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlAllOriginsBatch = await runCwlAllOriginsBatchSmoke();
+  } catch {
+    cwlAllOriginsBatch = { ok: false, skip: "cwl-all-origins-batch-threw" };
+  }
+  const cwlAllOriginsBatchOk = cwlAllOriginsBatch.ok === true;
+  let cwlUniversalMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlUniversalMegaBatch = await runCwlUniversalMegaBatchSmoke();
+  } catch {
+    cwlUniversalMegaBatch = { ok: false, skip: "cwl-universal-mega-batch-threw" };
+  }
+  const cwlUniversalMegaBatchOk = cwlUniversalMegaBatch.ok === true;
+  let cwlAppStackOriginsBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlAppStackOriginsBatch = await runCwlAppStackOriginsBatchSmoke();
+  } catch {
+    cwlAppStackOriginsBatch = { ok: false, skip: "cwl-app-stack-origins-batch-threw" };
+  }
+  const cwlAppStackOriginsBatchOk = cwlAppStackOriginsBatch.ok === true;
+  let cwlAssetOriginsBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlAssetOriginsBatch = await runCwlAssetOriginsBatchSmoke();
+  } catch {
+    cwlAssetOriginsBatch = { ok: false, skip: "cwl-asset-origins-batch-threw" };
+  }
+  const cwlAssetOriginsBatchOk = cwlAssetOriginsBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1186,6 +1226,11 @@ async function main() {
     originDepthUltraBatchOk &&
     chimeraAssessmentMegaBatchOk &&
     verifyProductUltraBatchOk &&
+    projectToCwlAllOriginsOk &&
+    cwlAllOriginsBatchOk &&
+    cwlUniversalMegaBatchOk &&
+    cwlAppStackOriginsBatchOk &&
+    cwlAssetOriginsBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1197,7 +1242,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 54,
+    schemaVersion: 55,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1384,7 +1429,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 11,
+      schemaVersion: 12,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1395,6 +1440,7 @@ async function main() {
       requireFourOriginEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FOUR_ORIGIN",
       requireOracleUltraEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_ORACLE_ULTRA",
       requireOriginDepthEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_ORIGIN_DEPTH",
+      requireUniversalCwlEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1886,6 +1932,27 @@ async function main() {
     verifyProductUltraBatch: {
       ok: verifyProductUltraBatchOk,
       script: "pnpm run hub:verify-product-ultra-batch-smoke",
+    },
+    projectToCwlAllOrigins: {
+      ok: projectToCwlAllOriginsOk,
+      originCount: projectToCwlAllOrigins.originCount ?? null,
+      script: "pnpm run hub:project-to-cwl-all-origins",
+    },
+    cwlAllOriginsBatch: {
+      ok: cwlAllOriginsBatchOk,
+      script: "pnpm run hub:cwl-all-origins-batch-smoke",
+    },
+    cwlUniversalMegaBatch: {
+      ok: cwlUniversalMegaBatchOk,
+      script: "pnpm run hub:cwl-universal-mega-batch-smoke",
+    },
+    cwlAppStackOriginsBatch: {
+      ok: cwlAppStackOriginsBatchOk,
+      script: "pnpm run hub:cwl-app-stack-origins-batch-smoke",
+    },
+    cwlAssetOriginsBatch: {
+      ok: cwlAssetOriginsBatchOk,
+      script: "pnpm run hub:cwl-asset-origins-batch-smoke",
     },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,

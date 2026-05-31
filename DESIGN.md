@@ -2468,6 +2468,66 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D769** **Hub completion schema 55 (G470).** All 23 origins export CWL; CI gates v55.
+
+- **2026-05-31 — D768** **ci-gates v55 test (G469).** Accepts schema v55 universal CWL payloads.
+
+- **2026-05-31 — D767** **Strategic test G470 (G468).** Schema 55 universal CWL smokes.
+
+- **2026-05-31 — D766** **month11Program completion (G467).** Universal CWL batches in completion report.
+
+- **2026-05-31 — D765** **Oracle gates + universal CWL (G466).** Mega batch includes oracle fixture gates.
+
+- **2026-05-31 — D764** **CWL projection on all origins (G465).** summarizeCwlProjection per origin export.
+
+- **2026-05-31 — D763** **ensureWebir routeCount check (G464).** Lift must produce routes before CWL export.
+
+- **2026-05-31 — D762** **CWL universal mega CLI (G463).** `pnpm run hub:cwl-universal-mega-batch-smoke`.
+
+- **2026-05-31 — D761** **CWL all-origins CLI (G462).** `pnpm run hub:project-to-cwl-all-origins`.
+
+- **2026-05-31 — D760** **Universal CWL mega in completion (G461).** cwlUniversalMegaBatch wired schema 55.
+
+- **2026-05-31 — D759** **CWL origin count gate (G460).** ci-gates v55 requires originCount >= 23.
+
+- **2026-05-31 — D758** **PHP tiny-blog CWL probe (G459).** php origin in universal registry uses tiny-blog.
+
+- **2026-05-31 — D757** **Asset silver CWL coverage (G458).** File-lift origins export route-shell CWL.
+
+- **2026-05-31 — D756** **Asset batch in completion (G455).** cwlAssetOriginsBatch wired.
+
+- **2026-05-31 — D755** **Pattern-lift CWL coverage (G457).** ruby/csharp/kotlin/rust/scala/swift/vue export CWL.
+
+- **2026-05-31 — D754** **CWL Stage-B sink for all origins (G456).** lift → WebIR → CWL on every origin probe.
+
+- **2026-05-31 — D753** **App-stack batch in completion (G454).** cwlAppStackOriginsBatch wired.
+
+- **2026-05-31 — D752** **Universal CWL strict CI env (G453).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_UNIVERSAL_CWL` in ci-gates v55.
+
+- **2026-05-31 — D751** **Hub evidence schema v12 (G452).** `requireUniversalCwlEnv` metadata.
+
+- **2026-05-31 — D750** **Delivery dashboard v15 (G451).** `month11Program` universal CWL scripts.
+
+- **2026-05-31 — D749** **Capability matrix v13 (G450).** cwlAllOrigins metadata (23 origins).
+
+- **2026-05-31 — D748** **CWL batches in completion (G449).** all-origins + universal mega batches wired.
+
+- **2026-05-31 — D747** **Universal CWL in completion (G448).** projectToCwlAllOrigins wired schema 55.
+
+- **2026-05-31 — D746** **Asset-format CWL origins batch (G447).** sql/html/css/json/yaml/markdown/c/cpp/cwl.
+
+- **2026-05-31 — D745** **App-stack CWL origins batch (G446).** php/js/ts/py/java/go + pattern-lift stacks.
+
+- **2026-05-31 — D744** **CWL universal mega batch (G445).** all origins + CWL mega + oracle gates.
+
+- **2026-05-31 — D743** **CWL all-origins batch (G444).** batch smoke over universal CWL export.
+
+- **2026-05-31 — D742** **Project-to-CWL all origins (G443).** export migration.cwl for 23/23 hub origins.
+
+- **2026-05-31 — D741** **ensureProjectWebir all origins (G442).** generalized lift for every origin language.
+
+- **2026-05-31 — D740** **CWL origin fixtures registry (G441).** canonical probe map for all 23 hub origins.
+
 - **2026-05-31 — D739** **Hub completion schema 54 (G440).** Origin depth + chimera/verify ultra batches; CI gates v54.
 
 - **2026-05-31 — D738** **Verify product ultra in completion (G439).** Verify product ultra batch wired schema 54.
