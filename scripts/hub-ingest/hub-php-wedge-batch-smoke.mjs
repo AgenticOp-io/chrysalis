@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** PHP wedge batch v6: v5 + IR helper semantic lifting (G965). */
+/** PHP wedge batch v7: v6 + IR helper embed lifting (G985). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smoke.mjs";
@@ -23,6 +23,7 @@ export async function runPhpWedgeBatchSmoke() {
   const gapsIngestStrict = await runGapsIngestStrictBatchSmoke();
   const irHelperLifting = runIrHelperLiftingSmoke();
   const irHelperLiftingSemantic = runIrHelperLiftingSemanticSmoke();
+  const irHelperLiftingEmbed = runIrHelperLiftingEmbedSmoke();
   const ok =
     nextjsVerify.ok === true &&
     oracleMicro.ok === true &&
@@ -31,7 +32,8 @@ export async function runPhpWedgeBatchSmoke() {
     gapsIngestClosure.ok === true &&
     gapsIngestStrict.ok === true &&
     irHelperLifting.ok === true &&
-    irHelperLiftingSemantic.ok === true;
+    irHelperLiftingSemantic.ok === true &&
+    irHelperLiftingEmbed.ok === true;
   return {
     kind: HUB_PHP_WEDGE_BATCH_KIND,
     schemaVersion: HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION,
@@ -44,6 +46,7 @@ export async function runPhpWedgeBatchSmoke() {
     gapsIngestStrict,
     irHelperLifting,
     irHelperLiftingSemantic,
+    irHelperLiftingEmbed,
     generatedAt: new Date().toISOString(),
   };
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Gaps ingest strict batch v5: v4 + HTTP oracle verify + flagship HTTP (G963). */
+/** Gaps ingest strict batch v6: v5 + Fastify HTTP oracle verify (G983). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
@@ -24,6 +24,8 @@ export async function runGapsIngestStrictBatchSmoke() {
   const authProbeVerifyReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
   const authProbeVerifyHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
   const flagshipVerifyHttp = await runFlagshipVerifyHttpBatchSmoke();
+  const authProbeVerifyHttpFastify = await runLaravelAuthProbeVerifyHttpFastify();
+  const flagshipVerifyHttpFastify = await runFlagshipVerifyHttpFastifyBatchSmoke();
   const flagshipVerifyReplay = await runFlagshipVerifyReplayBatchSmoke();
   return {
     kind: HUB_GAPS_INGEST_STRICT_BATCH_KIND,
@@ -36,8 +38,10 @@ export async function runGapsIngestStrictBatchSmoke() {
       authProbeVerifyClosure.ok === true &&
       authProbeVerifyReplay.ok === true &&
       authProbeVerifyHttp.ok === true &&
+      authProbeVerifyHttpFastify.ok === true &&
       flagshipVerifyReplay.ok === true &&
-      flagshipVerifyHttp.ok === true,
+      flagshipVerifyHttp.ok === true &&
+      flagshipVerifyHttpFastify.ok === true,
     gapsIngestClosure,
     laravelLiveClosure,
     gapReingestStrict,
@@ -45,8 +49,10 @@ export async function runGapsIngestStrictBatchSmoke() {
     authProbeVerifyClosure,
     authProbeVerifyReplay,
     authProbeVerifyHttp,
+    authProbeVerifyHttpFastify,
     flagshipVerifyReplay,
     flagshipVerifyHttp,
+    flagshipVerifyHttpFastify,
     requireVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
     requireEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
     requireStrictReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST_STRICT",

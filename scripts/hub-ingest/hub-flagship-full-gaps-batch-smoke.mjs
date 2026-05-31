@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-/** Flagship-full gaps batch v4: v3 + flagship HTTP oracle verify (G964). */
+/** Flagship-full gaps batch v5: v4 + Fastify HTTP oracle verify (G984). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ensureExpressFlagshipVerifyReport } from "./hub-express-flagship-verify-seed.mjs";
 import { runFlagshipVerifyGapsStandaloneSmoke } from "./hub-flagship-verify-gaps-standalone-smoke.mjs";
 import { runFlagshipVerifyReplayBatchSmoke } from "./hub-flagship-verify-replay-batch-smoke.mjs";
 import { runFlagshipVerifyHttpBatchSmoke } from "./hub-flagship-verify-http-batch-smoke.mjs";
+import { runFlagshipVerifyHttpFastifyBatchSmoke } from "./hub-flagship-verify-http-fastify-batch-smoke.mjs";
 
 export const HUB_FLAGSHIP_FULL_GAPS_BATCH_KIND = "chrysalis.hub.flagship-full-gaps-batch-smoke";
-export const HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION = 4;
+export const HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION = 5;
 
 export async function runFlagshipFullGapsBatchSmoke() {
   const expressSeed = ensureExpressFlagshipVerifyReport();
@@ -17,6 +18,7 @@ export async function runFlagshipFullGapsBatchSmoke() {
   const express = await runFlagshipVerifyGapsStandaloneSmoke(undefined, { profile: "express" });
   const verifyReplay = await runFlagshipVerifyReplayBatchSmoke();
   const verifyHttp = await runFlagshipVerifyHttpBatchSmoke();
+  const verifyHttpFastify = await runFlagshipVerifyHttpFastifyBatchSmoke();
   const backlogCount = (plainPhp.backlogCount ?? 0) + (symfony.backlogCount ?? 0) + (express.backlogCount ?? 0);
   const ingestNext =
     plainPhp.ingestNext ?? symfony.ingestNext ?? express.ingestNext ?? null;
@@ -30,13 +32,15 @@ export async function runFlagshipFullGapsBatchSmoke() {
       express.ok === true &&
       express.skipped == null &&
       verifyReplay.ok === true &&
-      verifyHttp.ok === true,
+      verifyHttp.ok === true &&
+      verifyHttpFastify.ok === true,
     expressSeed,
     plainPhp,
     symfony,
     express,
     verifyReplay,
     verifyHttp,
+    verifyHttpFastify,
     backlogCount,
     ingestNext,
     generatedAt: new Date().toISOString(),

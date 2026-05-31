@@ -168,6 +168,9 @@ import { runIrHelperLiftingSmoke } from "./hub-ir-helper-lifting-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyHttpSmoke } from "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs";
 import { runFlagshipVerifyHttpBatchSmoke } from "./hub-flagship-verify-http-batch-smoke.mjs";
 import { runIrHelperLiftingSemanticSmoke } from "./hub-ir-helper-lifting-semantic-smoke.mjs";
+import { runIrHelperLiftingEmbedSmoke } from "./hub-ir-helper-lifting-embed-smoke.mjs";
+import { runLaravelAuthProbeVerifyHttpFastify } from "./hub-laravel-auth-probe-verify-http-fastify.mjs";
+import { runFlagshipVerifyHttpFastifyBatchSmoke } from "./hub-flagship-verify-http-fastify-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1280,6 +1283,27 @@ async function main() {
     irHelperLiftingSemantic = { ok: false, skip: "ir-helper-lifting-semantic-threw" };
   }
   const irHelperLiftingSemanticOk = irHelperLiftingSemantic.ok === true;
+  let irHelperLiftingEmbed = { ok: false, skip: "not-run-in-completion" };
+  try {
+    irHelperLiftingEmbed = runIrHelperLiftingEmbedSmoke();
+  } catch {
+    irHelperLiftingEmbed = { ok: false, skip: "ir-helper-lifting-embed-threw" };
+  }
+  const irHelperLiftingEmbedOk = irHelperLiftingEmbed.ok === true;
+  let laravelAuthProbeVerifyHttpFastify = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelAuthProbeVerifyHttpFastify = await runLaravelAuthProbeVerifyHttpFastify();
+  } catch {
+    laravelAuthProbeVerifyHttpFastify = { ok: false, skip: "laravel-auth-probe-verify-http-fastify-threw" };
+  }
+  const laravelAuthProbeVerifyHttpFastifyOk = laravelAuthProbeVerifyHttpFastify.ok === true;
+  let flagshipVerifyHttpFastify = { ok: false, skip: "not-run-in-completion" };
+  try {
+    flagshipVerifyHttpFastify = await runFlagshipVerifyHttpFastifyBatchSmoke();
+  } catch {
+    flagshipVerifyHttpFastify = { ok: false, skip: "flagship-verify-http-fastify-threw" };
+  }
+  const flagshipVerifyHttpFastifyOk = flagshipVerifyHttpFastify.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1441,6 +1465,9 @@ async function main() {
     laravelAuthProbeVerifyHttpOk &&
     flagshipVerifyHttpOk &&
     irHelperLiftingSemanticOk &&
+    irHelperLiftingEmbedOk &&
+    laravelAuthProbeVerifyHttpFastifyOk &&
+    flagshipVerifyHttpFastifyOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1452,7 +1479,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 72,
+    schemaVersion: 73,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1639,7 +1666,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 29,
+      schemaVersion: 30,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -2320,6 +2347,23 @@ async function main() {
       ok: irHelperLiftingSemanticOk,
       fixture: irHelperLiftingSemantic.fixture ?? "fixtures/lift-helper-gap-probe",
       script: "pnpm run hub:ir-helper-lifting-semantic-smoke",
+    },
+    irHelperLiftingEmbed: {
+      ok: irHelperLiftingEmbedOk,
+      fixture: irHelperLiftingEmbed.fixture ?? "fixtures/lift-helper-lift-twin",
+      script: "pnpm run hub:ir-helper-lifting-embed-smoke",
+    },
+    laravelAuthProbeVerifyHttpFastify: {
+      ok: laravelAuthProbeVerifyHttpFastifyOk,
+      target: laravelAuthProbeVerifyHttpFastify.target ?? "fastify",
+      correctness: laravelAuthProbeVerifyHttpFastify.correctness ?? null,
+      script: "pnpm run hub:laravel-auth-probe-verify-http-fastify",
+    },
+    flagshipVerifyHttpFastify: {
+      ok: flagshipVerifyHttpFastifyOk,
+      schemaVersion: flagshipVerifyHttpFastify.schemaVersion ?? 1,
+      target: flagshipVerifyHttpFastify.target ?? "fastify",
+      script: "pnpm run hub:flagship-verify-http-fastify-batch-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,
