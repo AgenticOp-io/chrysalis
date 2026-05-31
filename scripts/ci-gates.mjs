@@ -775,9 +775,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 64 &&
     s.schemaVersion !== 65 &&
     s.schemaVersion !== 66 &&
-    s.schemaVersion !== 67
+    s.schemaVersion !== 67 &&
+    s.schemaVersion !== 68
   ) {
-    fail(`${label}: expected schemaVersion 0–67, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–68, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -2294,7 +2295,7 @@ function assertHubCompletion(path) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v66`);
     }
   }
-  if (s.schemaVersion >= 67) {
+  if (s.schemaVersion >= 67 && s.schemaVersion < 68) {
     if (s.projectToCwlAllOrigins?.ok !== true) {
       fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v67`);
     }
@@ -2398,6 +2399,121 @@ function assertHubCompletion(path) {
     }
     if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v67`);
+    }
+  }
+  if (s.schemaVersion >= 68) {
+    if (s.projectToCwlAllOrigins?.ok !== true) {
+      fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v68`);
+    }
+    if (s.cwlUniversalMegaBatch?.ok !== true) {
+      fail(`${label}: cwlUniversalMegaBatch.ok must be true for schema v68`);
+    }
+    if ((s.cwlUniversalMegaBatch?.schemaVersion ?? 0) < 4) {
+      fail(`${label}: cwlUniversalMegaBatch.schemaVersion must be >= 4 for schema v68`);
+    }
+    if (s.contractImportCwlRoundtrip?.ok !== true) {
+      fail(`${label}: contractImportCwlRoundtrip.ok must be true for schema v68`);
+    }
+    if (s.phpOracleMicroVerifyBatch?.ok !== true) {
+      fail(`${label}: phpOracleMicroVerifyBatch.ok must be true for schema v68`);
+    }
+    if (s.phpNextjsVerifyBatch?.ok !== true) {
+      fail(`${label}: phpNextjsVerifyBatch.ok must be true for schema v68`);
+    }
+    if (s.phpWedgeBatch?.ok !== true) {
+      fail(`${label}: phpWedgeBatch.ok must be true for schema v68`);
+    }
+    if ((s.phpWedgeBatch?.schemaVersion ?? 0) < 2) {
+      fail(`${label}: phpWedgeBatch.schemaVersion must be >= 2 for schema v68`);
+    }
+    if (s.hubEvidenceMvpBatch?.ok !== true) {
+      fail(`${label}: hubEvidenceMvpBatch.ok must be true for schema v68`);
+    }
+    if (s.wptpStrictBatch?.ok !== true) {
+      fail(`${label}: wptpStrictBatch.ok must be true for schema v68`);
+    }
+    if (s.flagshipFullGapsBatch?.ok !== true) {
+      fail(`${label}: flagshipFullGapsBatch.ok must be true for schema v68`);
+    }
+    if ((s.flagshipFullGapsBatch?.schemaVersion ?? 0) < 2) {
+      fail(`${label}: flagshipFullGapsBatch.schemaVersion must be >= 2 for schema v68`);
+    }
+    if (s.gapsIngestClosureBatch?.ok !== true) {
+      fail(`${label}: gapsIngestClosureBatch.ok must be true for schema v68`);
+    }
+    if (s.gapsIngestStrictBatch?.ok !== true) {
+      fail(`${label}: gapsIngestStrictBatch.ok must be true for schema v68`);
+    }
+    if ((s.oracleProductUltraBatch?.schemaVersion ?? 0) < 5) {
+      fail(`${label}: oracleProductUltraBatch.schemaVersion must be >= 5 for schema v68`);
+    }
+    if (s.oracleProductUltraBatch?.ok !== true) {
+      fail(`${label}: oracleProductUltraBatch.ok must be true for schema v68`);
+    }
+    if ((s.evidenceStandaloneMegaBatch?.schemaVersion ?? 0) < 3) {
+      fail(`${label}: evidenceStandaloneMegaBatch.schemaVersion must be >= 3 for schema v68`);
+    }
+    if (s.evidenceStandaloneMegaBatch?.ok !== true) {
+      fail(`${label}: evidenceStandaloneMegaBatch.ok must be true for schema v68`);
+    }
+    if ((s.verifyProductUltraBatch?.schemaVersion ?? 0) < 4) {
+      fail(`${label}: verifyProductUltraBatch.schemaVersion must be >= 4 for schema v68`);
+    }
+    if (s.verifyProductUltraBatch?.ok !== true) {
+      fail(`${label}: verifyProductUltraBatch.ok must be true for schema v68`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 25) {
+      fail(`${label}: hubEvidence.schemaVersion must be 25 for schema v68`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH === "1" && s.gapsIngestStrictBatch?.ok !== true) {
+      fail(`${label}: gapsIngestStrictBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH === "1" && s.flagshipFullGapsBatch?.ok !== true) {
+      fail(`${label}: flagshipFullGapsBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH === "1" && s.gapsIngestClosureBatch?.ok !== true) {
+      fail(`${label}: gapsIngestClosureBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_STRICT_BATCH === "1" && s.wptpStrictBatch?.ok !== true) {
+      fail(`${label}: wptpStrictBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_STRICT_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_HUB_EVIDENCE_MVP_BATCH === "1" && s.hubEvidenceMvpBatch?.ok !== true) {
+      fail(`${label}: hubEvidenceMvpBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_HUB_EVIDENCE_MVP_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH === "1" && s.phpWedgeBatch?.ok !== true) {
+      fail(`${label}: phpWedgeBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH === "1" && s.phpNextjsVerifyBatch?.ok !== true) {
+      fail(`${label}: phpNextjsVerifyBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS === "1") {
+      if (s.wptpStrictBatch?.skip != null) {
+        fail(`${label}: wptpStrictBatch.skip must be null when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.wptpStrictBatch?.wptpEmitNextjsAvailable !== true) {
+        fail(`${label}: wptpStrictBatch.wptpEmitNextjsAvailable must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.wptpStrictBatch?.ok !== true) {
+        fail(`${label}: wptpStrictBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.phpNextjsVerifyBatch?.ok !== true) {
+        fail(`${label}: phpNextjsVerifyBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.phpNextjsFlagshipVerify?.ok !== true) {
+        fail(`${label}: phpNextjsFlagshipVerify.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+      if (s.phpNextjsSymfonyVerify?.ok !== true) {
+        fail(`${label}: phpNextjsSymfonyVerify.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS=1`);
+      }
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY === "1" && s.phpOracleMicroVerifyBatch?.ok !== true) {
+      fail(`${label}: phpOracleMicroVerifyBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 26) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 26 for schema v68`);
+    }
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v68`);
     }
   }
   const g = s.routeGrades;

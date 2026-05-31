@@ -1905,29 +1905,55 @@ describe("strategic plan deliverables", () => {
     const { runGapsIngestClosureBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-closure-batch-smoke.mjs")
     );
-    const {
-      runVerifyProductUltraBatchSmoke,
-      HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
-    } = await import(resolve(ROOT, "scripts/hub-ingest/hub-verify-product-ultra-batch-smoke.mjs"));
-    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(3);
     const closureBatch = runGapsIngestClosureBatchSmoke();
     expect(closureBatch.ok).toBe(true);
     expect(closureBatch.expressSeed?.ok).toBe(true);
     expect(closureBatch.flagshipFullGaps?.ok).toBe(true);
     expect(closureBatch.laravelClosure?.ok).toBe(true);
     expect(closureBatch.gapReingest?.ok).toBe(true);
+  }, 120_000);
+
+  test("hub completion schema 68 gaps ingest strict batch (G860)", async () => {
+    const { runGapsIngestStrictBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-strict-batch-smoke.mjs")
+    );
+    const {
+      runVerifyProductUltraBatchSmoke,
+      HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
+    } = await import(resolve(ROOT, "scripts/hub-ingest/hub-verify-product-ultra-batch-smoke.mjs"));
+    const { HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-php-wedge-batch-smoke.mjs")
+    );
+    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(4);
+    expect(HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION).toBe(2);
+    const strictBatch = runGapsIngestStrictBatchSmoke();
+    expect(strictBatch.ok).toBe(true);
+    expect(strictBatch.laravelLiveClosure?.ok).toBe(true);
+    expect(strictBatch.gapReingestStrict?.ok).toBe(true);
     const verifyUltra = await runVerifyProductUltraBatchSmoke();
     expect(verifyUltra.ok).toBe(true);
-    expect(verifyUltra.schemaVersion).toBe(3);
-    expect(verifyUltra.gapsIngestClosure?.ok).toBe(true);
-  }, 120_000);
+    expect(verifyUltra.schemaVersion).toBe(4);
+    expect(verifyUltra.gapsIngestStrict?.ok).toBe(true);
+  }, 180_000);
+
+  test("capability matrix v26 lists gaps ingest strict batch (G839)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(26);
+    expect(report.gapsIngestStrictBatch?.script).toBe("pnpm run hub:gaps-ingest-strict-batch-smoke");
+    expect(report.phpWedgeBatch?.batchSchemaVersion).toBe(2);
+    expect(report.verifyProductUltra?.batchSchemaVersion).toBe(4);
+    expect(report.oracleProductUltra?.batchSchemaVersion).toBe(5);
+  });
 
   test("capability matrix v25 lists gaps ingest closure batch (G808)", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(25);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(25);
     expect(report.gapsIngestClosureBatch?.script).toBe("pnpm run hub:gaps-ingest-closure-batch-smoke");
     expect(report.flagshipFullGapsBatch?.batchSchemaVersion).toBe(2);
     expect(report.verifyProductUltra?.batchSchemaVersion).toBe(3);
@@ -1941,6 +1967,29 @@ describe("strategic plan deliverables", () => {
     expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(24);
     expect(report.flagshipFullGapsBatch?.script).toBe("pnpm run hub:flagship-full-gaps-batch-smoke");
     expect(report.flagshipFullGapsBatch?.fixtures?.length).toBe(3);
+  });
+
+  test("delivery dashboard v28 surfaces month24 gaps ingest strict (G840)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v28-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(28);
+      expect(report.month24Program?.gapsIngestStrictBatch).toBe("hub:gaps-ingest-strict-batch-smoke");
+      expect(report.month24Program?.requireGapReingestStrictEnv).toBe("CHRYSALIS_HUB_GAP_REINGEST_STRICT");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   test("delivery dashboard v27 surfaces month23 gaps ingest closure (G809)", async () => {
@@ -1958,7 +2007,7 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(27);
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBeGreaterThanOrEqual(27);
       expect(report.month23Program?.gapsIngestClosureBatch).toBe("hub:gaps-ingest-closure-batch-smoke");
       expect(report.month23Program?.requireGapsIngestClosureBatchEnv).toBe(
         "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",

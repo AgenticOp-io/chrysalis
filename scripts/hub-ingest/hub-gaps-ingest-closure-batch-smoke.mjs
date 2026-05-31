@@ -14,7 +14,15 @@ export function runGapsIngestClosureBatchSmoke() {
   const expressSeed = ensureExpressFlagshipVerifyReport();
   const flagshipFullGaps = runFlagshipFullGapsBatchSmoke();
   const laravelClosure = runLaravelVerifyGapsIngestClosureSmoke();
-  const gapReingest = runGapReingestBatchSmoke();
+  const prevReingest = process.env.CHRYSALIS_HUB_GAP_REINGEST;
+  delete process.env.CHRYSALIS_HUB_GAP_REINGEST;
+  let gapReingest;
+  try {
+    gapReingest = runGapReingestBatchSmoke();
+  } finally {
+    if (prevReingest === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST;
+    else process.env.CHRYSALIS_HUB_GAP_REINGEST = prevReingest;
+  }
   const expressStrict =
     flagshipFullGaps.express?.ok === true && flagshipFullGaps.express?.skipped == null;
   return {

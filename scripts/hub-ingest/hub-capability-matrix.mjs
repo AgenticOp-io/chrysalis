@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 25;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 26;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -89,6 +89,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     phpWedgeBatch: {
       script: "pnpm run hub:php-wedge-batch-smoke",
+      batchSchemaVersion: 2,
       laravelVerifyGapsBatchScript: "pnpm run hub:laravel-verify-gaps-batch-smoke",
       nodeExpressOracleScript: "pnpm run hub:node-express-oracle-standalone-smoke",
     },
@@ -118,6 +119,13 @@ export function buildHubCapabilityMatrixReport() {
       gapReingestScript: "pnpm run hub:gap-reingest-batch-smoke",
       requireEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
       requireGapReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST",
+    },
+    gapsIngestStrictBatch: {
+      script: "pnpm run hub:gaps-ingest-strict-batch-smoke",
+      laravelLiveClosureScript: "pnpm run hub:laravel-verify-live-gaps-closure-smoke",
+      gapReingestStrictScript: "pnpm run hub:gap-reingest-strict-smoke",
+      requireEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
+      requireStrictReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST_STRICT",
     },
     nextjsFlagshipFixtures: [
       "fixtures/hub-flagship-plain-php",
@@ -265,7 +273,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     oracleProductUltra: {
       batchScript: "pnpm run hub:oracle-product-ultra-batch-smoke",
-      batchSchemaVersion: 4,
+      batchSchemaVersion: 5,
     },
     expressLaravelMinDelivery: {
       batchScript: "pnpm run hub:express-laravel-min-delivery-batch-smoke",
@@ -291,6 +299,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     verifyGapsOrigin: {
       batchScript: "pnpm run hub:verify-gaps-origin-batch-smoke",
+      batchSchemaVersion: 2,
     },
     postTranslateArtifactsOrigin: {
       batchScript: "pnpm run hub:post-translate-artifacts-origin-batch-smoke",
@@ -303,7 +312,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     evidenceStandaloneMega: {
       batchScript: "pnpm run hub:evidence-standalone-mega-batch-smoke",
-      batchSchemaVersion: 2,
+      batchSchemaVersion: 3,
     },
     originDepth: {
       plainPhpBatchScript: "pnpm run hub:plain-php-depth-batch-smoke",
@@ -319,7 +328,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     verifyProductUltra: {
       batchScript: "pnpm run hub:verify-product-ultra-batch-smoke",
-      batchSchemaVersion: 3,
+      batchSchemaVersion: 4,
     },
     cwlAllOrigins: {
       allOriginsScript: "pnpm run hub:project-to-cwl-all-origins",
