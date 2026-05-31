@@ -2468,6 +2468,66 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-31 — D679** **Hub completion schema 52 (G380).** Four-origin delivery + oracle mega batches; CI gates v52; runner batch v3.
+
+- **2026-05-31 — D678** **Laravel-min migration OS depth (G379).** Laravel-min migration OS + oracle batches in completion.
+
+- **2026-05-31 — D677** **month8 completion wiring (G378).** Symfony delivery + CWL mega + pipeline standalone in completion.
+
+- **2026-05-31 — D676** **Four-origin strict CI env (G377).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_FOUR_ORIGIN` in ci-gates v52.
+
+- **2026-05-31 — D675** **Hub evidence schema v9 (G376).** `requireFourOriginEnv` in completion hubEvidence block.
+
+- **2026-05-31 — D674** **Delivery dashboard v12 (G375).** `month8Program` four-origin + mega batch scripts.
+
+- **2026-05-31 — D673** **Capability matrix v10 (G374).** Four-origin + symfony delivery + CWL mega metadata.
+
+- **2026-05-31 — D672** **Four-origin in completion (G373).** Four-origin + full delivery mega batches wired.
+
+- **2026-05-31 — D671** **Oracle standalone in completion (G372).** Oracle standalone mega batch wired schema 52.
+
+- **2026-05-31 — D670** **Laravel-min oracle batch (G371).** Project-to-CWL + verify gaps + post-translate verify.
+
+- **2026-05-31 — D669** **Delivery pipeline standalone batch (G370).** Four-profile delivery pipeline batch smoke.
+
+- **2026-05-31 — D668** **Delivery pipeline runner v2 (G369).** Four-profile pipeline + runner batch.
+
+- **2026-05-31 — D667** **Evidence standalone (G368).** Hub evidence standalone wrapper smoke.
+
+- **2026-05-31 — D666** **Contract CWL standalone (G367).** Contract CWL standalone wrapper smoke.
+
+- **2026-05-31 — D665** **Post-translate verify Laravel-min (G366).** Post-translate verify on Laravel-min scaffold.
+
+- **2026-05-31 — D664** **CWL mega batch (G365).** All RFC roundtrip + CWL full batch.
+
+- **2026-05-31 — D663** **Full delivery mega batch (G364).** Four-origin + symfony delivery batches.
+
+- **2026-05-31 — D662** **Delivery pipeline Laravel-min profile (G363).** Four-profile delivery pipeline fixtures.
+
+- **2026-05-31 — D661** **Hub runner batch v3 (G362).** Laravel-min profile in runner batch smoke.
+
+- **2026-05-31 — D660** **Verify gaps ingest action standalone (G361).** Gaps ingest action standalone smoke.
+
+- **2026-05-31 — D659** **Path knowledge standalone batch (G360).** Path knowledge + language compare batch.
+
+- **2026-05-31 — D658** **Detect databases standalone (G359).** Detect databases standalone wrapper smoke.
+
+- **2026-05-31 — D657** **Evidence trend standalone (G358).** Evidence trend standalone wrapper smoke.
+
+- **2026-05-31 — D656** **Tiny-blog delivery in completion (G357).** Tiny-blog delivery batch wired schema 52.
+
+- **2026-05-31 — D655** **Plain-php migration OS in completion (G356).** Plain-php migration OS batch wired schema 52.
+
+- **2026-05-31 — D654** **Migration OS Laravel-min (G355).** Dedicated migration OS smoke on Laravel-min scaffold.
+
+- **2026-05-31 — D653** **Oracle standalone mega batch (G354).** Node express + WPTP + contract + playbooks + post-translate verify.
+
+- **2026-05-31 — D652** **Laravel-min migration OS batch (G353).** Migration OS + assessment + chimera on Laravel-min.
+
+- **2026-05-31 — D651** **Symfony delivery batch (G352).** Symfony standalone delivery mega smoke.
+
+- **2026-05-31 — D650** **Four-origin delivery batch (G351).** Three-origin + Laravel-min delivery batches.
+
 - **2026-05-31 — D649** **Hub completion schema 51 (G350).** Laravel-min delivery + three-origin + CWL full batches; CI gates v51.
 
 - **2026-05-31 — D648** **month7Program completion (G349).** Three-origin + CWL full + Laravel depth batches wired in completion schema 51.

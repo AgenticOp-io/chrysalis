@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 9;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 10;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -143,6 +143,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     hubRunnerBatch: {
       script: "pnpm run hub:runner-batch-smoke",
+      schemaVersion: 3,
     },
     deliveryPipelineRunner: {
       script: "pnpm run hub:delivery-pipeline-runner-smoke",
@@ -191,6 +192,29 @@ export function buildHubCapabilityMatrixReport() {
     },
     threeOriginDelivery: {
       batchScript: "pnpm run hub:three-origin-delivery-batch-smoke",
+    },
+    fourOriginDelivery: {
+      batchScript: "pnpm run hub:four-origin-delivery-batch-smoke",
+    },
+    symfonyDelivery: {
+      deliveryBatchScript: "pnpm run hub:symfony-delivery-batch-smoke",
+    },
+    fullDeliveryMega: {
+      batchScript: "pnpm run hub:full-delivery-mega-batch-smoke",
+    },
+    cwlMega: {
+      batchScript: "pnpm run hub:cwl-mega-batch-smoke",
+    },
+    oracleStandaloneBatch: {
+      batchScript: "pnpm run hub:oracle-standalone-batch-smoke",
+    },
+    deliveryPipelineStandalone: {
+      batchScript: "pnpm run hub:delivery-pipeline-standalone-batch-smoke",
+      laravelMinProfile: "flagship/laravel-min",
+    },
+    laravelMinOracle: {
+      batchScript: "pnpm run hub:laravel-min-oracle-batch-smoke",
+      migrationOsBatchScript: "pnpm run hub:laravel-min-migration-os-batch-smoke",
     },
     oracleStandaloneSmokes: {
       nodeExpressOracleScript: "pnpm run hub:node-express-oracle-standalone-smoke",

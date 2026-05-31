@@ -20,6 +20,7 @@ export const DELIVERY_PIPELINE_FIXTURES = {
   plainPhp: { rel: "fixtures/hub-flagship-plain-php", origin: "php", minRoutes: 20 },
   symfony: { rel: "fixtures/hub-flagship-symfony", origin: "php", minRoutes: 20 },
   express: { rel: "fixtures/hub-flagship-express", origin: "javascript", minRoutes: 20 },
+  laravelMin: { rel: "flagship/laravel-min", origin: "php", minRoutes: 15 },
 };
 
 const defaultFixture = join(scriptRoot, DELIVERY_PIPELINE_FIXTURES.plainPhp.rel);
@@ -144,6 +145,7 @@ async function main() {
   for (let i = 2; i < process.argv.length; i++) {
     if (process.argv[i] === "--symfony") profile = "symfony";
     else if (process.argv[i] === "--express") profile = "express";
+    else if (process.argv[i] === "--laravel-min") profile = "laravelMin";
     else if (process.argv[i] === "--project" && process.argv[i + 1]) projectDir = resolve(process.argv[++i]);
   }
   const fixture = DELIVERY_PIPELINE_FIXTURES[profile]?.rel;

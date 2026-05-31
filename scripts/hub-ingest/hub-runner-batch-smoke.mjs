@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { hubJobSteps } from "../chrysalis-hub-runners.mjs";
 
 export const HUB_RUNNER_BATCH_SMOKE_KIND = "chrysalis.hub.runner-batch-smoke";
-export const HUB_RUNNER_BATCH_SMOKE_SCHEMA_VERSION = 2;
+export const HUB_RUNNER_BATCH_SMOKE_SCHEMA_VERSION = 3;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -31,11 +31,12 @@ export function runHubRunnerBatchSmoke() {
   const plainPhp = runnerShapeOk(join(scriptRoot, "fixtures/hub-flagship-plain-php"), "plainPhp", "php");
   const symfony = runnerShapeOk(join(scriptRoot, "fixtures/hub-flagship-symfony"), "symfony", "php");
   const express = runnerShapeOk(join(scriptRoot, "fixtures/hub-flagship-express"), "express", "javascript");
+  const laravelMin = runnerShapeOk(join(scriptRoot, "flagship/laravel-min"), "laravelMin", "php");
   return {
     kind: HUB_RUNNER_BATCH_SMOKE_KIND,
     schemaVersion: HUB_RUNNER_BATCH_SMOKE_SCHEMA_VERSION,
-    ok: plainPhp.ok && symfony.ok && express.ok,
-    profiles: { plainPhp, symfony, express },
+    ok: plainPhp.ok && symfony.ok && express.ok && laravelMin.ok,
+    profiles: { plainPhp, symfony, express, laravelMin },
     generatedAt: new Date().toISOString(),
   };
 }

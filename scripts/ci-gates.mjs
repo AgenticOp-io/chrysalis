@@ -761,9 +761,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 48 &&
     s.schemaVersion !== 49 &&
     s.schemaVersion !== 50 &&
-    s.schemaVersion !== 51
+    s.schemaVersion !== 51 &&
+    s.schemaVersion !== 52
   ) {
-    fail(`${label}: expected schemaVersion 0–51, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–52, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1497,7 +1498,7 @@ function assertHubCompletion(path) {
       fail(`${label}: expressFlagshipGold.inProcess must be true for schema v50`);
     }
   }
-  if (s.schemaVersion >= 51) {
+  if (s.schemaVersion >= 51 && s.schemaVersion < 52) {
     if (s.laravelMinDeliveryBatch?.ok !== true) {
       fail(`${label}: laravelMinDeliveryBatch.ok must be true for schema v51`);
     }
@@ -1527,6 +1528,41 @@ function assertHubCompletion(path) {
     }
     if (s.capabilityMatrix?.schemaVersion !== 9) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 9 for schema v51`);
+    }
+  }
+  if (s.schemaVersion >= 52) {
+    if (s.fourOriginDeliveryBatch?.ok !== true) {
+      fail(`${label}: fourOriginDeliveryBatch.ok must be true for schema v52`);
+    }
+    if (s.symfonyDeliveryBatch?.ok !== true) {
+      fail(`${label}: symfonyDeliveryBatch.ok must be true for schema v52`);
+    }
+    if (s.fullDeliveryMegaBatch?.ok !== true) {
+      fail(`${label}: fullDeliveryMegaBatch.ok must be true for schema v52`);
+    }
+    if (s.cwlMegaBatch?.ok !== true) {
+      fail(`${label}: cwlMegaBatch.ok must be true for schema v52`);
+    }
+    if (s.oracleStandaloneBatch?.ok !== true) {
+      fail(`${label}: oracleStandaloneBatch.ok must be true for schema v52`);
+    }
+    if (s.laravelMinMigrationOsBatch?.ok !== true) {
+      fail(`${label}: laravelMinMigrationOsBatch.ok must be true for schema v52`);
+    }
+    if (s.deliveryPipelineStandaloneBatch?.ok !== true) {
+      fail(`${label}: deliveryPipelineStandaloneBatch.ok must be true for schema v52`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 9) {
+      fail(`${label}: hubEvidence.schemaVersion must be 9 for schema v52`);
+    }
+    if (s.hubRunnerBatchSmoke?.schemaVersion !== 3) {
+      fail(`${label}: hubRunnerBatchSmoke.schemaVersion must be 3 for schema v52`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_FOUR_ORIGIN === "1" && s.fourOriginDeliveryBatch?.ok !== true) {
+      fail(`${label}: fourOriginDeliveryBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_FOUR_ORIGIN=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 10) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 10 for schema v52`);
     }
   }
   const g = s.routeGrades;

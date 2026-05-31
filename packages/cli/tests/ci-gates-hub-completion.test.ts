@@ -2352,6 +2352,150 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
+  test("accepts schema v52 with four-origin delivery and oracle mega batch smokes (G380)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v52-"));
+    const p = join(dir, "ok.json");
+    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
+    try {
+      if (!existsSync(artifactPath)) {
+        expect(true).toBe(true);
+        return;
+      }
+      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
+      payload.schemaVersion = 52;
+      payload.plainPhpFlagshipGold = {
+        ...(payload.plainPhpFlagshipGold ?? {}),
+        inProcess: true,
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.symfonyFlagshipGold = {
+        ...(payload.symfonyFlagshipGold ?? {}),
+        inProcess: true,
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.expressFlagshipGold = {
+        ...(payload.expressFlagshipGold ?? {}),
+        inProcess: true,
+        emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+      };
+      payload.laravelVerifyGaps = {
+        ok: true,
+        backlogItems: 0,
+        ingestNext: null,
+        exportScript: "pnpm run hub:laravel-verify-gaps",
+        actionScript: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelVerifyGapsAction = {
+        ok: true,
+        ingestRemediation: null,
+        script: "pnpm run hub:laravel-verify-gaps-action",
+      };
+      payload.laravelMinSmoke = { ok: true, routeCount: 20, script: "pnpm run hub:laravel-min-smoke" };
+      payload.hubEvidence = {
+        schemaVersion: 9,
+        failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
+        pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
+        requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
+        requireMigrationOsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_MIGRATION_OS",
+        requireCwlParamsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS",
+        requireStandaloneDeliveryEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY",
+        requireLaravelMinEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN",
+        requireFourOriginEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FOUR_ORIGIN",
+      };
+      payload.laravelVerifyLive = {
+        ok: true,
+        skip: null,
+        aggregate: { correctness: 1 },
+        script: "pnpm run hub:laravel-verify-export",
+      };
+      payload.phpOracleMicro = {
+        fixture: "fixtures/tiny-blog",
+        routeCount: 5,
+        doc: "docs/CAPABILITY-MATRIX.md",
+        script: "pnpm run hub:oracle-micro-fixture",
+      };
+      payload.cwlResponseStatusRuntime = { ok: true, rfc: "CWL-RFC-0006", withStatus: 2, script: "pnpm run hub:cwl-response-status-smoke" };
+      payload.cwlRequestBodyRuntime = { ok: true, rfc: "CWL-RFC-0005", routeCount: 2, holeFree: 2, withBodyParams: 2, projectionOk: true, script: "pnpm run hub:cwl-request-body-smoke" };
+      payload.cwlBodyRoundtrip = { ok: true, rfc: "CWL-RFC-0005", forwardHoleFree: 2, roundHoleFree: 2, script: "pnpm run hub:cwl-body-roundtrip-smoke" };
+      payload.hubTranslateE2e = { ok: true, schemaVersion: 2, skip: null, variants: { plainPhp: { ok: true }, symfony: { ok: true }, tinyBlog: { ok: true }, express: { ok: true } }, script: "pnpm run hub:translate-e2e-smoke" };
+      payload.hubEvidenceLive = { ok: true, schemaVersion: 2, profiles: { plainPhp: { ok: true, evidence: { pipelineGatePass: true } } }, script: "pnpm run hub:evidence-live" };
+      payload.projectToCwlExport = { ok: true, schemaVersion: 3, plainPhp: { ok: true, holeCount: 0, routeCount: 20 }, symfony: { ok: true, holeCount: 0, routeCount: 20 }, express: { ok: true, holeCount: 0, routeCount: 20 }, laravelMin: { ok: true, holeCount: 11, requireHoleFree: false }, tinyBlog: { ok: true, holeCount: 5, requireHoleFree: false }, script: "pnpm run hub:project-to-cwl-gates" };
+      payload.phpNextjsFlagshipVerify = { ok: true, skip: "no-wptp-emit-nextjs", script: "pnpm run hub:php-nextjs-flagship-verify" };
+      payload.phpNextjsSymfonyVerify = { ok: true, skip: "no-wptp-emit-nextjs", script: "pnpm run hub:php-nextjs-symfony-verify" };
+      payload.hubEvidenceSmoke = { ok: true, schemaVersion: 1, script: "pnpm run hub:evidence-smoke" };
+      payload.contractCwlSmoke = { ok: true, script: "pnpm run hub:contract-cwl-smoke" };
+      payload.nodeOracleSpike = { ok: true, schemaVersion: 3, script: "pnpm run hub:node-oracle-spike" };
+      payload.cwlRequestContextRuntime = { ok: true, rfc: "CWL-RFC-0004", script: "pnpm run hub:cwl-request-context-smoke" };
+      payload.cwlResponseContentTypeRuntime = { ok: true, rfc: "CWL-RFC-0008", script: "pnpm run hub:cwl-response-content-type-smoke" };
+      payload.cwlAuthEffectsRuntime = { ok: true, rfc: "CWL-RFC-0007", script: "pnpm run hub:cwl-auth-effects-smoke" };
+      payload.cwlRfcRoundtrip = { ok: true, script: "pnpm run hub:cwl-rfc-roundtrip-smoke" };
+      payload.contractRoundtrip = { ok: true, script: "pnpm run hub:contract-roundtrip-smoke" };
+      payload.verifyPlaybooksSmoke = { ok: true, script: "pnpm run hub:verify-playbooks-smoke" };
+      payload.hubRunnerSmoke = { ok: true, stepKinds: ["hub-translate", "hub-evidence-gate"], script: "pnpm run hub:runner-smoke" };
+      payload.postTranslateVerifySmoke = { ok: true, skip: "no-verify-base-url", script: "pnpm run hub:post-translate-verify-smoke" };
+      payload.migrationOsSmoke = { ok: true, script: "pnpm run hub:migration-os-smoke" };
+      payload.cwlPreviewSmoke = { ok: true, script: "pnpm run hub:cwl-preview-smoke" };
+      payload.cwlOpenapiSmoke = { ok: true, script: "pnpm run hub:cwl-openapi-smoke" };
+      payload.pathAdviceSmoke = { ok: true, script: "pnpm run hub:path-advice-smoke" };
+      payload.detectDatabasesSmoke = { ok: true, script: "pnpm run hub:detect-databases-smoke" };
+      payload.postTranslateArtifactsSmoke = { ok: true, script: "pnpm run hub:post-translate-artifacts-smoke" };
+      payload.cwlMiddlewareSmoke = { ok: true, rfc: "CWL-RFC-0001", script: "pnpm run hub:cwl-middleware-smoke" };
+      payload.cwlDiffSmoke = { ok: true, script: "pnpm run hub:cwl-diff-smoke" };
+      payload.cwlAllRfcRoundtrip = { ok: true, schemaVersion: 2, script: "pnpm run hub:cwl-all-rfc-roundtrip-smoke" };
+      payload.evidenceTrendSmoke = { ok: true, script: "pnpm run hub:evidence-trend-smoke" };
+      payload.verifyGapsIngestSmoke = { ok: true, script: "pnpm run hub:verify-gaps-ingest-smoke" };
+      payload.wptpGoldSmoke = { ok: true, skip: "no-wptp-matrix", script: "pnpm run hub:wptp-gold-smoke" };
+      payload.deliveryPipelineSmoke = { ok: true, schemaVersion: 2, profiles: { plainPhp: { ok: true }, symfony: { ok: true }, express: { ok: true } }, script: "pnpm run hub:delivery-pipeline-smoke" };
+      payload.cwlPathParamsRuntime = { ok: true, rfc: "CWL-RFC-0002", script: "pnpm run hub:cwl-path-params-smoke" };
+      payload.cwlQueryParamsRuntime = { ok: true, rfc: "CWL-RFC-0003", script: "pnpm run hub:cwl-query-params-smoke" };
+      payload.cwlMultiGoldRuntime = { ok: true, rfc: "CWL-RFC-0009", script: "pnpm run hub:cwl-multi-gold-smoke" };
+      payload.cwlParamsBatch = { ok: true, script: "pnpm run hub:cwl-params-batch-smoke" };
+      payload.migrationOsStandaloneBatch = { ok: true, script: "pnpm run hub:migration-os-standalone-batch-smoke" };
+      payload.migrationOsSymfony = { ok: true, script: "pnpm run hub:migration-os-symfony-smoke" };
+      payload.hubRunnerBatchSmoke = { ok: true, schemaVersion: 3, script: "pnpm run hub:runner-batch-smoke" };
+      payload.deliveryPipelineRunnerSmoke = { ok: true, schemaVersion: 2, script: "pnpm run hub:delivery-pipeline-runner-smoke" };
+      payload.cwlParamsRoundtripBatch = { ok: true, script: "pnpm run hub:cwl-params-roundtrip-batch-smoke" };
+      payload.cwlMultiBatch = { ok: true, script: "pnpm run hub:cwl-multi-batch-smoke" };
+      payload.cwlInterchangeBatch = { ok: true, script: "pnpm run hub:cwl-interchange-batch-smoke" };
+      payload.evidenceLiveStandaloneBatch = { ok: true, script: "pnpm run hub:evidence-live-standalone-batch-smoke" };
+      payload.translateE2eStandaloneBatch = { ok: true, script: "pnpm run hub:translate-e2e-standalone-batch-smoke" };
+      payload.expressDeliveryBatch = { ok: true, script: "pnpm run hub:express-delivery-batch-smoke" };
+      payload.symfonyMigrationOsBatch = { ok: true, script: "pnpm run hub:symfony-migration-os-batch-smoke" };
+      payload.projectToCwlExpressSmoke = { ok: true, script: "pnpm run hub:project-to-cwl-express-smoke" };
+      payload.laravelMinDeliveryBatch = { ok: true, script: "pnpm run hub:laravel-min-delivery-batch-smoke" };
+      payload.plainPhpDeliveryBatch = { ok: true, script: "pnpm run hub:plain-php-delivery-batch-smoke" };
+      payload.threeOriginDeliveryBatch = { ok: true, script: "pnpm run hub:three-origin-delivery-batch-smoke" };
+      payload.laravelDepthBatch = { ok: true, script: "pnpm run hub:laravel-depth-batch-smoke" };
+      payload.cwlFullBatch = { ok: true, script: "pnpm run hub:cwl-full-batch-smoke" };
+      payload.projectToCwlLaravelMinSmoke = { ok: true, script: "pnpm run hub:project-to-cwl-laravel-min-smoke" };
+      payload.tinyBlogOracleBatch = { ok: true, script: "pnpm run hub:tiny-blog-oracle-batch-smoke" };
+      payload.fourOriginDeliveryBatch = { ok: true, script: "pnpm run hub:four-origin-delivery-batch-smoke" };
+      payload.symfonyDeliveryBatch = { ok: true, script: "pnpm run hub:symfony-delivery-batch-smoke" };
+      payload.laravelMinMigrationOsBatch = { ok: true, script: "pnpm run hub:laravel-min-migration-os-batch-smoke" };
+      payload.oracleStandaloneBatch = { ok: true, script: "pnpm run hub:oracle-standalone-batch-smoke" };
+      payload.fullDeliveryMegaBatch = { ok: true, script: "pnpm run hub:full-delivery-mega-batch-smoke" };
+      payload.cwlMegaBatch = { ok: true, script: "pnpm run hub:cwl-mega-batch-smoke" };
+      payload.plainPhpMigrationOsBatch = { ok: true, script: "pnpm run hub:plain-php-migration-os-batch-smoke" };
+      payload.tinyBlogDeliveryBatch = { ok: true, script: "pnpm run hub:tiny-blog-delivery-batch-smoke" };
+      payload.deliveryPipelineStandaloneBatch = { ok: true, script: "pnpm run hub:delivery-pipeline-standalone-batch-smoke" };
+      payload.laravelMinOracleBatch = { ok: true, script: "pnpm run hub:laravel-min-oracle-batch-smoke" };
+      payload.capabilityMatrix = {
+        ...(payload.capabilityMatrix ?? {}),
+        schemaVersion: 10,
+        oracleMicroFixture: "fixtures/tiny-blog",
+        nextjsFlagshipFixtures: ["fixtures/hub-flagship-plain-php", "fixtures/hub-flagship-symfony"],
+        oracleProductPairCount: payload.capabilityMatrix?.oracleProductPairCount ?? 7,
+      };
+      payload.goldVerify = { ...(payload.goldVerify ?? {}), expectedSuiteCount: 144, suiteCount: 144, ok: true };
+      payload.traceReplay = { ...(payload.traceReplay ?? {}), expectedSuiteCount: 115, suiteCount: 115, ok: true };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], { cwd: ROOT, encoding: "utf8" });
+      expect(r.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("rejects schema v40 with a holey express CWL projection (G136)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v40-bad-"));
     const p = join(dir, "bad.json");

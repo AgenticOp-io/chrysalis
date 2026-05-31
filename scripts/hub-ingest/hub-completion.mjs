@@ -107,6 +107,16 @@ import { runLaravelDepthBatchSmoke } from "./hub-laravel-depth-batch-smoke.mjs";
 import { runCwlFullBatchSmoke } from "./hub-cwl-full-batch-smoke.mjs";
 import { runVerifyGapsLaravelMinSmoke } from "./hub-verify-gaps-laravel-min-smoke.mjs";
 import { runTinyBlogOracleBatchSmoke } from "./hub-tiny-blog-oracle-batch-smoke.mjs";
+import { runFourOriginDeliveryBatchSmoke } from "./hub-four-origin-delivery-batch-smoke.mjs";
+import { runSymfonyDeliveryBatchSmoke } from "./hub-symfony-delivery-batch-smoke.mjs";
+import { runLaravelMinMigrationOsBatchSmoke } from "./hub-laravel-min-migration-os-batch-smoke.mjs";
+import { runOracleStandaloneBatchSmoke } from "./hub-oracle-standalone-batch-smoke.mjs";
+import { runFullDeliveryMegaBatchSmoke } from "./hub-full-delivery-mega-batch-smoke.mjs";
+import { runCwlMegaBatchSmoke } from "./hub-cwl-mega-batch-smoke.mjs";
+import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
+import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
+import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
+import { runLaravelMinOracleBatchSmoke } from "./hub-laravel-min-oracle-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -789,6 +799,76 @@ async function main() {
     tinyBlogOracleBatch = { ok: false, skip: "tiny-blog-oracle-batch-threw" };
   }
   const tinyBlogOracleBatchOk = tinyBlogOracleBatch.ok === true;
+  let fourOriginDeliveryBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fourOriginDeliveryBatch = await runFourOriginDeliveryBatchSmoke();
+  } catch {
+    fourOriginDeliveryBatch = { ok: false, skip: "four-origin-delivery-batch-threw" };
+  }
+  const fourOriginDeliveryBatchOk = fourOriginDeliveryBatch.ok === true;
+  let symfonyDeliveryBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    symfonyDeliveryBatch = await runSymfonyDeliveryBatchSmoke();
+  } catch {
+    symfonyDeliveryBatch = { ok: false, skip: "symfony-delivery-batch-threw" };
+  }
+  const symfonyDeliveryBatchOk = symfonyDeliveryBatch.ok === true;
+  let laravelMinMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelMinMigrationOsBatch = await runLaravelMinMigrationOsBatchSmoke();
+  } catch {
+    laravelMinMigrationOsBatch = { ok: false, skip: "laravel-min-migration-os-batch-threw" };
+  }
+  const laravelMinMigrationOsBatchOk = laravelMinMigrationOsBatch.ok === true;
+  let oracleStandaloneBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    oracleStandaloneBatch = await runOracleStandaloneBatchSmoke();
+  } catch {
+    oracleStandaloneBatch = { ok: false, skip: "oracle-standalone-batch-threw" };
+  }
+  const oracleStandaloneBatchOk = oracleStandaloneBatch.ok === true;
+  let fullDeliveryMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullDeliveryMegaBatch = await runFullDeliveryMegaBatchSmoke();
+  } catch {
+    fullDeliveryMegaBatch = { ok: false, skip: "full-delivery-mega-batch-threw" };
+  }
+  const fullDeliveryMegaBatchOk = fullDeliveryMegaBatch.ok === true;
+  let cwlMegaBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    cwlMegaBatch = await runCwlMegaBatchSmoke();
+  } catch {
+    cwlMegaBatch = { ok: false, skip: "cwl-mega-batch-threw" };
+  }
+  const cwlMegaBatchOk = cwlMegaBatch.ok === true;
+  let plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
+  } catch {
+    plainPhpMigrationOsBatch = { ok: false, skip: "plain-php-migration-os-batch-threw" };
+  }
+  const plainPhpMigrationOsBatchOk = plainPhpMigrationOsBatch.ok === true;
+  let tinyBlogDeliveryBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    tinyBlogDeliveryBatch = await runTinyBlogDeliveryBatchSmoke();
+  } catch {
+    tinyBlogDeliveryBatch = { ok: false, skip: "tiny-blog-delivery-batch-threw" };
+  }
+  const tinyBlogDeliveryBatchOk = tinyBlogDeliveryBatch.ok === true;
+  let deliveryPipelineStandaloneBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    deliveryPipelineStandaloneBatch = await runDeliveryPipelineStandaloneBatchSmoke();
+  } catch {
+    deliveryPipelineStandaloneBatch = { ok: false, skip: "delivery-pipeline-standalone-batch-threw" };
+  }
+  const deliveryPipelineStandaloneBatchOk = deliveryPipelineStandaloneBatch.ok === true;
+  let laravelMinOracleBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelMinOracleBatch = await runLaravelMinOracleBatchSmoke();
+  } catch {
+    laravelMinOracleBatch = { ok: false, skip: "laravel-min-oracle-batch-threw" };
+  }
+  const laravelMinOracleBatchOk = laravelMinOracleBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -889,6 +969,16 @@ async function main() {
     laravelDepthBatchOk &&
     cwlFullBatchOk &&
     tinyBlogOracleBatchOk &&
+    fourOriginDeliveryBatchOk &&
+    symfonyDeliveryBatchOk &&
+    laravelMinMigrationOsBatchOk &&
+    oracleStandaloneBatchOk &&
+    fullDeliveryMegaBatchOk &&
+    cwlMegaBatchOk &&
+    plainPhpMigrationOsBatchOk &&
+    tinyBlogDeliveryBatchOk &&
+    deliveryPipelineStandaloneBatchOk &&
+    laravelMinOracleBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -900,7 +990,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 51,
+    schemaVersion: 52,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1087,7 +1177,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 8,
+      schemaVersion: 9,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1095,6 +1185,7 @@ async function main() {
       requireCwlParamsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS",
       requireStandaloneDeliveryEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_STANDALONE_DELIVERY",
       requireLaravelMinEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_LARAVEL_MIN",
+      requireFourOriginEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FOUR_ORIGIN",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1453,6 +1544,46 @@ async function main() {
     tinyBlogOracleBatch: {
       ok: tinyBlogOracleBatchOk,
       script: "pnpm run hub:tiny-blog-oracle-batch-smoke",
+    },
+    fourOriginDeliveryBatch: {
+      ok: fourOriginDeliveryBatchOk,
+      script: "pnpm run hub:four-origin-delivery-batch-smoke",
+    },
+    symfonyDeliveryBatch: {
+      ok: symfonyDeliveryBatchOk,
+      script: "pnpm run hub:symfony-delivery-batch-smoke",
+    },
+    laravelMinMigrationOsBatch: {
+      ok: laravelMinMigrationOsBatchOk,
+      script: "pnpm run hub:laravel-min-migration-os-batch-smoke",
+    },
+    oracleStandaloneBatch: {
+      ok: oracleStandaloneBatchOk,
+      script: "pnpm run hub:oracle-standalone-batch-smoke",
+    },
+    fullDeliveryMegaBatch: {
+      ok: fullDeliveryMegaBatchOk,
+      script: "pnpm run hub:full-delivery-mega-batch-smoke",
+    },
+    cwlMegaBatch: {
+      ok: cwlMegaBatchOk,
+      script: "pnpm run hub:cwl-mega-batch-smoke",
+    },
+    plainPhpMigrationOsBatch: {
+      ok: plainPhpMigrationOsBatchOk,
+      script: "pnpm run hub:plain-php-migration-os-batch-smoke",
+    },
+    tinyBlogDeliveryBatch: {
+      ok: tinyBlogDeliveryBatchOk,
+      script: "pnpm run hub:tiny-blog-delivery-batch-smoke",
+    },
+    deliveryPipelineStandaloneBatch: {
+      ok: deliveryPipelineStandaloneBatchOk,
+      script: "pnpm run hub:delivery-pipeline-standalone-batch-smoke",
+    },
+    laravelMinOracleBatch: {
+      ok: laravelMinOracleBatchOk,
+      script: "pnpm run hub:laravel-min-oracle-batch-smoke",
     },
     cwlBodyRoundtrip: {
       ok: cwlBodyRoundtripOk,
