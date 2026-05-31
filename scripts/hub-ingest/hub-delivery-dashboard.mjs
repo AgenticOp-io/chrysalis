@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 8;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 9;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -216,6 +216,23 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       evidenceTrendSmoke: "hub:evidence-trend-smoke",
       verifyGapsIngestSmoke: "hub:verify-gaps-ingest-smoke",
       requireMigrationOsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_MIGRATION_OS",
+    },
+    month5Program: {
+      cwlPathParamsSmoke: "hub:cwl-path-params-smoke",
+      cwlQueryParamsSmoke: "hub:cwl-query-params-smoke",
+      cwlMultiGoldSmoke: "hub:cwl-multi-gold-smoke",
+      cwlParamsBatchSmoke: "hub:cwl-params-batch-smoke",
+      siteIntelligenceSmoke: "hub:site-intelligence-smoke",
+      migrationAssessmentSmoke: "hub:migration-assessment-smoke",
+      chimeraCutoverSmoke: "hub:chimera-cutover-smoke",
+      pathKnowledgeSmoke: "hub:path-knowledge-smoke",
+      languageCompareSmoke: "hub:language-compare-smoke",
+      migrationOsStandaloneBatch: "hub:migration-os-standalone-batch-smoke",
+      migrationOsSymfonySmoke: "hub:migration-os-symfony-smoke",
+      runnerBatchSmoke: "hub:runner-batch-smoke",
+      deliveryPipelineRunnerSmoke: "hub:delivery-pipeline-runner-smoke",
+      evidenceTrendSmoke: "hub:evidence-trend-smoke",
+      requireCwlParamsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

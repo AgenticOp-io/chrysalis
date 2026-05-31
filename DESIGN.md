@@ -2468,6 +2468,66 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-05-30 — D473** **Hub evidence v4 plan → pipeline gate (G174).** Evidence schema v4 composes `migrationPlan` from `.chrysalis/migration-assessment.json` and exposes `pipelineGate` (verify + blockers, contract waiver for scan-only/assess tiers). Hub-translate runner appends evidence gate step; optional strict fail via `CHRYSALIS_HUB_PIPELINE_GATE_STRICT=1`. Console evidence panel shows program/tier and top next step.
 
+- **2026-05-30 — D589** **Hub completion schema 49 (G290).** CWL params/multi smokes, migration OS standalone batch, symfony delivery smokes, in-process flagship parity; CI gates v49.
+
+- **2026-05-30 — D588** **Evidence trend standalone markers (G289).** month5Program references evidence trend alongside CWL params smokes.
+
+- **2026-05-30 — D587** **Post-translate artifacts symfony smoke (G288).** G146 bundle smoke on symfony flagship.
+
+- **2026-05-30 — D586** **Path advice symfony smoke (G287).** Pair grade gate on symfony flagship fixture.
+
+- **2026-05-30 — D585** **Delivery pipeline runner smoke (G286).** Combined delivery batch v2 + hub runner batch gate.
+
+- **2026-05-30 — D584** **Site intelligence symfony smoke (G285).** Standalone site scan on symfony flagship.
+
+- **2026-05-30 — D583** **CWL params strict CI env (G284).** `CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS` in ci-gates v49.
+
+- **2026-05-30 — D582** **Hub evidence schema v6 (G283).** Completion `hubEvidence.schemaVersion: 6` with `requireCwlParamsEnv`.
+
+- **2026-05-30 — D581** **Delivery dashboard v9 (G282).** `month5Program` CWL params + migration OS standalone scripts.
+
+- **2026-05-30 — D580** **Capability matrix v7 (G281).** CWL params/multi + migration OS standalone + symfony delivery metadata.
+
+- **2026-05-30 — D579** **Hub runner batch smoke (G280).** plain-php + symfony translate step shape validation.
+
+- **2026-05-30 — D578** **Verify gaps symfony smoke (G279).** Verify gaps ingest on symfony flagship.
+
+- **2026-05-30 — D577** **Flagship completion in-process (G278).** Completion uses exported flagship runners with `inProcess: true`.
+
+- **2026-05-30 — D576** **Migration OS standalone batch in completion (G277).** Batch smoke wired into schema 49 ok chain.
+
+- **2026-05-30 — D575** **CWL all-RFC roundtrip v2 (G276).** Path/query/multi roundtrips added to all-RFC batch.
+
+- **2026-05-30 — D574** **CWL params batch smoke (G275).** Path + query runtime combined gate.
+
+- **2026-05-30 — D573** **CWL query params roundtrip (G274).** RFC-0003 dedicated roundtrip smoke.
+
+- **2026-05-30 — D572** **CWL path params roundtrip (G273).** RFC-0002 dedicated roundtrip smoke.
+
+- **2026-05-30 — D571** **Migration OS standalone batch (G272).** Site intel + assessment + chimera + path knowledge + language compare.
+
+- **2026-05-30 — D570** **Migration OS symfony smoke (G271).** Contract/planner/programs on symfony flagship.
+
+- **2026-05-30 — D569** **Language compare smoke (G270).** Recommended hono output with 3+ targets.
+
+- **2026-05-30 — D568** **Path knowledge smoke (G269).** Pair count + php→hono grade gate.
+
+- **2026-05-30 — D567** **Chimera cutover standalone smoke (G268).** Phased runbook gate outside delivery pipeline.
+
+- **2026-05-30 — D566** **Migration assessment standalone smoke (G267).** Readiness tier + program id gate.
+
+- **2026-05-30 — D565** **Site intelligence standalone smoke (G266).** Primary origin + route count on plain-php flagship.
+
+- **2026-05-30 — D564** **CWL multi-file roundtrip (G265).** RFC-0009 module graph roundtrip.
+
+- **2026-05-30 — D563** **CWL multi-file gold runtime (G264).** RFC-0009 gold replay on multi module fixture.
+
+- **2026-05-30 — D562** **CWL query params runtime (G263).** RFC-0003 gold replay smoke.
+
+- **2026-05-30 — D561** **CWL path params runtime (G262).** RFC-0002 gold replay smoke.
+
+- **2026-05-30 — D560** **Flagship in-process emit parity (G261).** Shared `hub-flagship-emit-parity.mjs`; exported flagship runners; strategic tests import in-process.
+
 - **2026-05-30 — D559** **Hub completion schema 48 (G260).** Migration OS + CWL interchange smokes, delivery pipeline batch v2, evidence live express; CI gates v48.
 
 - **2026-05-30 — D529** **Hub completion schema 47 (G230).** RFC 0004/7/8 runtime + roundtrip, contract roundtrip, delivery pipeline, project-to-CWL v3; CI gates v47.

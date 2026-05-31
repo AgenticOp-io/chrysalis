@@ -758,9 +758,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 45 &&
     s.schemaVersion !== 46 &&
     s.schemaVersion !== 47 &&
-    s.schemaVersion !== 48
+    s.schemaVersion !== 48 &&
+    s.schemaVersion !== 49
   ) {
-    fail(`${label}: expected schemaVersion 0–48, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–49, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1399,14 +1400,58 @@ function assertHubCompletion(path) {
     if (s.deliveryPipelineSmoke?.profiles?.symfony?.ok !== true) {
       fail(`${label}: deliveryPipelineSmoke symfony profile must pass for schema v48`);
     }
-    if (s.hubEvidence?.schemaVersion !== 5) {
+    if (s.schemaVersion < 49 && s.hubEvidence?.schemaVersion !== 5) {
       fail(`${label}: hubEvidence.schemaVersion must be 5 for schema v48`);
     }
     if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_MIGRATION_OS === "1" && s.migrationOsSmoke?.ok !== true) {
       fail(`${label}: migrationOsSmoke.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_MIGRATION_OS=1`);
     }
-    if (s.capabilityMatrix?.schemaVersion !== 6) {
+    if (s.schemaVersion < 49 && s.capabilityMatrix?.schemaVersion !== 6) {
       fail(`${label}: capabilityMatrix.schemaVersion must be 6 for schema v48`);
+    }
+  }
+  if (s.schemaVersion >= 49) {
+    if (s.cwlPathParamsRuntime?.ok !== true) {
+      fail(`${label}: cwlPathParamsRuntime.ok must be true for schema v49`);
+    }
+    if (s.cwlQueryParamsRuntime?.ok !== true) {
+      fail(`${label}: cwlQueryParamsRuntime.ok must be true for schema v49`);
+    }
+    if (s.cwlMultiGoldRuntime?.ok !== true) {
+      fail(`${label}: cwlMultiGoldRuntime.ok must be true for schema v49`);
+    }
+    if (s.cwlParamsBatch?.ok !== true) {
+      fail(`${label}: cwlParamsBatch.ok must be true for schema v49`);
+    }
+    if (s.migrationOsStandaloneBatch?.ok !== true) {
+      fail(`${label}: migrationOsStandaloneBatch.ok must be true for schema v49`);
+    }
+    if (s.migrationOsSymfony?.ok !== true) {
+      fail(`${label}: migrationOsSymfony.ok must be true for schema v49`);
+    }
+    if (s.hubRunnerBatchSmoke?.ok !== true) {
+      fail(`${label}: hubRunnerBatchSmoke.ok must be true for schema v49`);
+    }
+    if (s.deliveryPipelineRunnerSmoke?.ok !== true) {
+      fail(`${label}: deliveryPipelineRunnerSmoke.ok must be true for schema v49`);
+    }
+    if (s.cwlAllRfcRoundtrip?.schemaVersion !== 2) {
+      fail(`${label}: cwlAllRfcRoundtrip.schemaVersion must be 2 for schema v49`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 6) {
+      fail(`${label}: hubEvidence.schemaVersion must be 6 for schema v49`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS === "1" && s.cwlParamsBatch?.ok !== true) {
+      fail(`${label}: cwlParamsBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 7) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 7 for schema v49`);
+    }
+    if (s.plainPhpFlagshipGold?.inProcess !== true) {
+      fail(`${label}: plainPhpFlagshipGold.inProcess must be true for schema v49`);
+    }
+    if (s.symfonyFlagshipGold?.inProcess !== true) {
+      fail(`${label}: symfonyFlagshipGold.inProcess must be true for schema v49`);
     }
   }
   const g = s.routeGrades;

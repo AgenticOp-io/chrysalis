@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** All CWL RFC round-trip batch including body + status (G243/G244). */
+/** All CWL RFC round-trip batch including body + status + params + multi (G243/G276). */
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -8,9 +8,12 @@ import {
   runCwlAuthEffectsRoundtripSmoke,
 } from "./hub-cwl-rfc-roundtrip-smoke.mjs";
 import { runCwlRoundtripSmoke } from "./hub-cwl-roundtrip-smoke.mjs";
+import { runCwlPathParamsRoundtripSmoke } from "./hub-cwl-path-params-roundtrip-smoke.mjs";
+import { runCwlQueryParamsRoundtripSmoke } from "./hub-cwl-query-params-roundtrip-smoke.mjs";
+import { runCwlMultiRoundtripSmoke } from "./hub-cwl-multi-roundtrip-smoke.mjs";
 
 export const HUB_CWL_ALL_RFC_ROUNDTRIP_SMOKE_KIND = "chrysalis.hub.cwl-all-rfc-roundtrip-smoke";
-export const HUB_CWL_ALL_RFC_ROUNDTRIP_SMOKE_SCHEMA_VERSION = 1;
+export const HUB_CWL_ALL_RFC_ROUNDTRIP_SMOKE_SCHEMA_VERSION = 2;
 
 export async function runCwlStatusRoundtripSmoke() {
   return runCwlRoundtripSmoke({
@@ -39,6 +42,9 @@ export async function runCwlAllRfcRoundtripSmoke() {
     authEffects: await runCwlAuthEffectsRoundtripSmoke(),
     requestBody: await runCwlBodyRoundtripDedicatedSmoke(),
     responseStatus: await runCwlStatusRoundtripSmoke(),
+    pathParams: await runCwlPathParamsRoundtripSmoke(),
+    queryParams: await runCwlQueryParamsRoundtripSmoke(),
+    multiModule: await runCwlMultiRoundtripSmoke(),
   };
   const ok = Object.values(reports).every((r) => r.ok === true);
   return {

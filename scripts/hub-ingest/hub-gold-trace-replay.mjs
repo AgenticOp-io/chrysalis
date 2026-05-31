@@ -35,7 +35,7 @@ function parseStdoutJson(stdout) {
 /**
  * @param {import('./hub-gold-manifest.mjs').HUB_GOLD_SUITES[number]} suite
  */
-async function runTraceReplaySuite(suite) {
+export async function runTraceReplaySuite(suite) {
   const fixture = suite.fixture;
   const origin = suite.origin;
   const target = suite.emitTarget;
@@ -160,7 +160,10 @@ async function main() {
   if (!aggOk) process.exit(1);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isCli) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

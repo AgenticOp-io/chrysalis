@@ -669,7 +669,7 @@ describe("strategic plan deliverables", () => {
       output: "hono",
     });
     expect(report.kind).toBe("chrysalis.hub.delivery-dashboard");
-    expect(report.schemaVersion).toBe(8);
+    expect(report.schemaVersion).toBe(9);
     expect(report.license?.hubFeatures?.length).toBeGreaterThan(0);
     expect(Array.isArray(report.artifacts)).toBe(true);
   });
@@ -852,7 +852,7 @@ describe("strategic plan deliverables", () => {
         output: "hono",
         laravelGapsReportDirs: [resolve(ROOT, "fixtures/hub-laravel-verify-gaps-backlog")],
       });
-      expect(report.schemaVersion).toBe(8);
+      expect(report.schemaVersion).toBe(9);
       expect(report.cwlPreview?.routeCount).toBe(5);
       expect(report.laravelGlobalAction?.ingestRemediation?.owner).toBe("packages/ingest");
       expect(report.month3Program?.oracleMicro?.fixture).toBe("fixtures/tiny-blog");
@@ -1044,7 +1044,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(6);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(7);
     expect(report.migrationOs?.script).toBe("pnpm run hub:migration-os-smoke");
     expect(report.cwlInterchange?.allRfcRoundtripScript).toBe("pnpm run hub:cwl-all-rfc-roundtrip-smoke");
   });
@@ -1083,7 +1083,7 @@ describe("strategic plan deliverables", () => {
         `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(report.schemaVersion).toBe(8);
+      expect(report.schemaVersion).toBe(9);
       expect(report.month3Program?.evidenceSmoke).toBe("hub:evidence-smoke");
       expect(report.month3Program?.translateE2e).toBe("hub:translate-e2e-smoke");
       expect(report.month3Program?.cwlRfcSmokes).toContain("hub:cwl-request-context-smoke");
@@ -1164,11 +1164,64 @@ describe("strategic plan deliverables", () => {
         `${JSON.stringify({ frameworkHints: ["plain-php"] })}\n`,
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(report.schemaVersion).toBe(8);
+      expect(report.schemaVersion).toBe(9);
       expect(report.month3Program?.evidenceLive).toBe("hub:evidence-live");
       expect(report.month4Program?.migrationOsSmoke).toBe("hub:migration-os-smoke");
       expect(report.month3Program?.pipelineGateStrictEnv).toBe("CHRYSALIS_HUB_PIPELINE_GATE_STRICT");
       expect(report.month3Program?.requireWptpNextjsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("capability matrix v7 lists CWL params and migration OS standalone smokes (G281)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(7);
+    expect(report.cwlInterchange?.pathParamsScript).toBe("pnpm run hub:cwl-path-params-smoke");
+    expect(report.migrationOsStandalone?.standaloneBatchScript).toBe(
+      "pnpm run hub:migration-os-standalone-batch-smoke",
+    );
+  });
+
+  test("hub completion schema 49 smokes present (G290)", async () => {
+    const { runCwlParamsBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-params-batch-smoke.mjs")
+    );
+    const { runMigrationOsStandaloneBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-migration-os-standalone-batch-smoke.mjs")
+    );
+    const { runCwlMultiGoldSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-multi-gold-smoke.mjs")
+    );
+    const params = await runCwlParamsBatchSmoke();
+    const migrationOs = await runMigrationOsStandaloneBatchSmoke();
+    const multi = await runCwlMultiGoldSmoke();
+    expect(params.ok).toBe(true);
+    expect(migrationOs.ok).toBe(true);
+    expect(multi.ok).toBe(true);
+  }, 300_000);
+
+  test("delivery dashboard v9 surfaces month5 CWL params smokes (G282)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v9-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(9);
+      expect(report.month5Program?.cwlPathParamsSmoke).toBe("hub:cwl-path-params-smoke");
+      expect(report.month5Program?.requireCwlParamsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_CWL_PARAMS");
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
@@ -1274,32 +1327,28 @@ describe("strategic plan deliverables", () => {
     expect(report.probe?.status).toBe(200);
   });
 
-  test("hub-plain-php-flagship smoke", () => {
-    const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
-    const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
-    expect(r.status).toBe(0);
-    const text = r.stdout.trim();
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
-    const report = JSON.parse(text.slice(start, end + 1));
-    expect(report.kind).toBe("chrysalis.hub.plain-php-flagship");
-    expect(report.ingest?.routeCount).toBe(20);
-    expect(report.ok).toBe(true);
-  }, 120_000);
+  describe.sequential("flagship smokes", () => {
+    test("hub-plain-php-flagship smoke", async () => {
+      const { runPlainPhpFlagshipSmoke } = await import(
+        resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs")
+      );
+      const report = await runPlainPhpFlagshipSmoke();
+      expect(report.kind).toBe("chrysalis.hub.plain-php-flagship");
+      expect(report.ingest?.routeCount).toBe(20);
+      expect(report.ok).toBe(true);
+    }, 300_000);
 
-  test("hub-symfony-flagship smoke", () => {
-    const script = resolve(ROOT, "scripts/hub-ingest/hub-symfony-flagship.mjs");
-    const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
-    expect(r.status).toBe(0);
-    const text = r.stdout.trim();
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
-    const report = JSON.parse(text.slice(start, end + 1));
-    expect(report.kind).toBe("chrysalis.hub.symfony-flagship");
-    expect(report.ingest?.routeCount).toBe(20);
-    expect(report.routesParity?.ok).toBe(true);
-    expect(report.ok).toBe(true);
-  }, 120_000);
+    test("hub-symfony-flagship smoke", async () => {
+      const { runSymfonyFlagshipSmoke } = await import(
+        resolve(ROOT, "scripts/hub-ingest/hub-symfony-flagship.mjs")
+      );
+      const report = await runSymfonyFlagshipSmoke();
+      expect(report.kind).toBe("chrysalis.hub.symfony-flagship");
+      expect(report.ingest?.routeCount).toBe(20);
+      expect(report.routesParity?.ok).toBe(true);
+      expect(report.ok).toBe(true);
+    }, 300_000);
+  });
 
   test("hub-symfony-routes derives manifest from routes.yaml and stays in parity (G120)", async () => {
     const { symfonyYamlToRouteSpecs, symfonyRouteManifestParity, symfonyPathToManifest } = await import(

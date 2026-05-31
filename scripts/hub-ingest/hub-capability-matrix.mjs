@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 6;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 7;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -121,6 +121,31 @@ export function buildHubCapabilityMatrixReport() {
       diffScript: "pnpm run hub:cwl-diff-smoke",
       middlewareScript: "pnpm run hub:cwl-middleware-smoke",
       allRfcRoundtripScript: "pnpm run hub:cwl-all-rfc-roundtrip-smoke",
+      pathParamsScript: "pnpm run hub:cwl-path-params-smoke",
+      queryParamsScript: "pnpm run hub:cwl-query-params-smoke",
+      multiGoldScript: "pnpm run hub:cwl-multi-gold-smoke",
+      paramsBatchScript: "pnpm run hub:cwl-params-batch-smoke",
+    },
+    migrationOsStandalone: {
+      siteIntelligenceScript: "pnpm run hub:site-intelligence-smoke",
+      migrationAssessmentScript: "pnpm run hub:migration-assessment-smoke",
+      chimeraCutoverScript: "pnpm run hub:chimera-cutover-smoke",
+      pathKnowledgeScript: "pnpm run hub:path-knowledge-smoke",
+      languageCompareScript: "pnpm run hub:language-compare-smoke",
+      standaloneBatchScript: "pnpm run hub:migration-os-standalone-batch-smoke",
+      symfonyScript: "pnpm run hub:migration-os-symfony-smoke",
+    },
+    symfonyDeliverySmokes: {
+      siteIntelligenceScript: "pnpm run hub:site-intelligence-symfony-smoke",
+      pathAdviceScript: "pnpm run hub:path-advice-symfony-smoke",
+      verifyGapsScript: "pnpm run hub:verify-gaps-symfony-smoke",
+      postTranslateArtifactsScript: "pnpm run hub:post-translate-artifacts-symfony-smoke",
+    },
+    hubRunnerBatch: {
+      script: "pnpm run hub:runner-batch-smoke",
+    },
+    deliveryPipelineRunner: {
+      script: "pnpm run hub:delivery-pipeline-runner-smoke",
     },
     migrationOsDelivery: {
       pathAdviceScript: "pnpm run hub:path-advice-smoke",
