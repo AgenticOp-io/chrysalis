@@ -768,9 +768,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 57 &&
     s.schemaVersion !== 58 &&
     s.schemaVersion !== 59 &&
-    s.schemaVersion !== 60
+    s.schemaVersion !== 60 &&
+    s.schemaVersion !== 61
   ) {
-    fail(`${label}: expected schemaVersion 0–60, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–61, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -1828,7 +1829,7 @@ function assertHubCompletion(path) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v59`);
     }
   }
-  if (s.schemaVersion >= 60) {
+  if (s.schemaVersion >= 60 && s.schemaVersion < 61) {
     if (s.projectToCwlAllOrigins?.ok !== true) {
       fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v60`);
     }
@@ -1882,6 +1883,44 @@ function assertHubCompletion(path) {
     }
     if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v60`);
+    }
+  }
+  if (s.schemaVersion >= 61) {
+    if (s.projectToCwlAllOrigins?.ok !== true) {
+      fail(`${label}: projectToCwlAllOrigins.ok must be true for schema v61`);
+    }
+    if (s.cwlUniversalMegaBatch?.ok !== true) {
+      fail(`${label}: cwlUniversalMegaBatch.ok must be true for schema v61`);
+    }
+    if ((s.cwlUniversalMegaBatch?.schemaVersion ?? 0) < 4) {
+      fail(`${label}: cwlUniversalMegaBatch.schemaVersion must be >= 4 for schema v61`);
+    }
+    if (s.contractImportCwlRoundtrip?.ok !== true) {
+      fail(`${label}: contractImportCwlRoundtrip.ok must be true for schema v61`);
+    }
+    if (s.phpOracleMicroVerifyBatch?.ok !== true) {
+      fail(`${label}: phpOracleMicroVerifyBatch.ok must be true for schema v61`);
+    }
+    if ((s.oracleProductUltraBatch?.schemaVersion ?? 0) < 2) {
+      fail(`${label}: oracleProductUltraBatch.schemaVersion must be >= 2 for schema v61`);
+    }
+    if (s.oracleProductUltraBatch?.ok !== true) {
+      fail(`${label}: oracleProductUltraBatch.ok must be true for schema v61`);
+    }
+    if (s.hubEvidence?.schemaVersion !== 18) {
+      fail(`${label}: hubEvidence.schemaVersion must be 18 for schema v61`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY === "1" && s.phpOracleMicroVerifyBatch?.ok !== true) {
+      fail(`${label}: phpOracleMicroVerifyBatch.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY=1`);
+    }
+    if (process.env.CHRYSALIS_HUB_COMPLETION_REQUIRE_CONTRACT_IMPORT_CWL_ROUNDTRIP === "1" && s.contractImportCwlRoundtrip?.ok !== true) {
+      fail(`${label}: contractImportCwlRoundtrip.ok must be true when CHRYSALIS_HUB_COMPLETION_REQUIRE_CONTRACT_IMPORT_CWL_ROUNDTRIP=1`);
+    }
+    if (s.capabilityMatrix?.schemaVersion !== 19) {
+      fail(`${label}: capabilityMatrix.schemaVersion must be 19 for schema v61`);
+    }
+    if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
+      fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v61`);
     }
   }
   const g = s.routeGrades;

@@ -2487,6 +2487,15 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D836** **Strategic test G620 (G597).** Schema 60 contract import roundtrip smokes.
 - **2026-05-31 — D837** **ci-gates v60 test (G598).** Accepts schema v60 payloads.
 - **2026-05-31 — D839** **Hub completion schema 60 (G620).** Contract import CWL roundtrip OpenAPI + HAR.
+- **2026-05-31 — D840** **hub-php-oracle-micro-verify-batch-smoke (G621).** tiny-blog oracle micro + Next.js trace verify.
+- **2026-05-31 — D841** **Oracle product ultra batch v2 (G622).** Includes PHP oracle micro verify.
+- **2026-05-31 — D842** **Capability matrix v19 (G623).** Oracle micro verify batch metadata.
+- **2026-05-31 — D843** **Delivery dashboard v21 (G624).** month17Program PHP oracle micro verify.
+- **2026-05-31 — D844** **Hub evidence schema v18 (G625).** requirePhpOracleMicroVerifyEnv.
+- **2026-05-31 — D845** **ci-gates v61 (G626).** PHP oracle micro verify + oracle ultra v2 gates.
+- **2026-05-31 — D846** **Strategic test G650 (G627).** Schema 61 PHP oracle micro verify smokes.
+- **2026-05-31 — D847** **ci-gates v61 test (G628).** Accepts schema v61 payloads.
+- **2026-05-31 — D849** **Hub completion schema 61 (G650).** PHP oracle micro verify batch on tiny-blog.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 

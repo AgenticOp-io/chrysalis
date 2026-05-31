@@ -152,6 +152,7 @@ import { runCwlFlagshipRoundtripBatchSmoke } from "./hub-cwl-flagship-roundtrip-
 import { runHubTranslateCwlRoundtripSmoke } from "./hub-translate-cwl-roundtrip-smoke.mjs";
 import { runProjectToCwlRoundtripSmoke } from "./hub-project-to-cwl-roundtrip-smoke.mjs";
 import { runContractImportCwlRoundtripSmoke } from "./hub-contract-import-cwl-roundtrip-smoke.mjs";
+import { runPhpOracleMicroVerifyBatchSmoke } from "./hub-php-oracle-micro-verify-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1149,6 +1150,13 @@ async function main() {
     contractImportCwlRoundtrip = { ok: false, skip: "contract-import-cwl-roundtrip-threw" };
   }
   const contractImportCwlRoundtripOk = contractImportCwlRoundtrip.ok === true;
+  let phpOracleMicroVerifyBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    phpOracleMicroVerifyBatch = await runPhpOracleMicroVerifyBatchSmoke();
+  } catch {
+    phpOracleMicroVerifyBatch = { ok: false, skip: "php-oracle-micro-verify-batch-threw" };
+  }
+  const phpOracleMicroVerifyBatchOk = phpOracleMicroVerifyBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1294,6 +1302,7 @@ async function main() {
     hubTranslateCwlRoundtripOk &&
     projectToCwlRoundtripOk &&
     contractImportCwlRoundtripOk &&
+    phpOracleMicroVerifyBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1305,7 +1314,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 60,
+    schemaVersion: 61,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1492,7 +1501,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 17,
+      schemaVersion: 18,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1512,6 +1521,7 @@ async function main() {
       requireFlagshipCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_CWL_ROUNDTRIP",
       requireProjectToCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PROJECT_TO_CWL_ROUNDTRIP",
       requireContractImportCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CONTRACT_IMPORT_CWL_ROUNDTRIP",
+      requirePhpOracleMicroVerifyEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1926,6 +1936,7 @@ async function main() {
     },
     oracleProductUltraBatch: {
       ok: oracleProductUltraBatchOk,
+      schemaVersion: oracleProductUltraBatch.schemaVersion ?? 2,
       script: "pnpm run hub:oracle-product-ultra-batch-smoke",
     },
     expressLaravelMinDeliveryBatch: {
@@ -2055,6 +2066,12 @@ async function main() {
     contractImportCwlRoundtrip: {
       ok: contractImportCwlRoundtripOk,
       script: "pnpm run hub:contract-import-cwl-roundtrip-smoke",
+    },
+    phpOracleMicroVerifyBatch: {
+      ok: phpOracleMicroVerifyBatchOk,
+      routeCount: phpOracleMicroVerifyBatch.micro?.routeCount ?? null,
+      nextjsCorrectness: phpOracleMicroVerifyBatch.nextjs?.correctness ?? null,
+      script: "pnpm run hub:php-oracle-micro-verify-batch-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,

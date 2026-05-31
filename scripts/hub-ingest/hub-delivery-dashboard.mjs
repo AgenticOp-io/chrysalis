@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 20;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 21;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -312,6 +312,10 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
     month16Program: {
       contractImportCwlRoundtrip: "hub:contract-import-cwl-roundtrip-smoke",
       requireContractImportCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CONTRACT_IMPORT_CWL_ROUNDTRIP",
+    },
+    month17Program: {
+      phpOracleMicroVerify: "hub:php-oracle-micro-verify-batch-smoke",
+      requirePhpOracleMicroVerifyEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY",
     },
     artifacts,
     generatedAt: new Date().toISOString(),
