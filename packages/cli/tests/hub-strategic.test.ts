@@ -1852,7 +1852,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(23);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(23);
     expect(report.wptpStrictBatch?.script).toBe("pnpm run hub:wptp-strict-batch-smoke");
     expect(report.wptpStrictBatch?.requireWptpNextjsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS");
   });
@@ -1872,11 +1872,68 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(25);
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBeGreaterThanOrEqual(25);
       expect(report.month21Program?.wptpStrictBatch).toBe("hub:wptp-strict-batch-smoke");
       expect(report.month21Program?.requireWptpNextjsEnv).toBe("CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS");
       expect(report.month21Program?.requireWptpStrictBatchEnv).toBe(
         "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_STRICT_BATCH",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub completion schema 66 flagship-full gaps batch (G800)", async () => {
+    const { runFlagshipFullGapsBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-flagship-full-gaps-batch-smoke.mjs")
+    );
+    const {
+      runVerifyProductUltraBatchSmoke,
+      HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION,
+    } = await import(resolve(ROOT, "scripts/hub-ingest/hub-verify-product-ultra-batch-smoke.mjs"));
+    expect(HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(2);
+    const gapsBatch = runFlagshipFullGapsBatchSmoke();
+    expect(gapsBatch.ok).toBe(true);
+    expect(gapsBatch.plainPhp?.ok).toBe(true);
+    expect(gapsBatch.symfony?.ok).toBe(true);
+    expect(gapsBatch.express?.ok).toBe(true);
+    expect(gapsBatch.backlogCount).toBe(0);
+    const verifyUltra = await runVerifyProductUltraBatchSmoke();
+    expect(verifyUltra.ok).toBe(true);
+    expect(verifyUltra.schemaVersion).toBe(2);
+    expect(verifyUltra.flagshipFullGaps?.ok).toBe(true);
+  }, 120_000);
+
+  test("capability matrix v24 lists flagship-full gaps batch (G774)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(24);
+    expect(report.flagshipFullGapsBatch?.script).toBe("pnpm run hub:flagship-full-gaps-batch-smoke");
+    expect(report.flagshipFullGapsBatch?.fixtures?.length).toBe(3);
+    expect(report.verifyProductUltra?.batchSchemaVersion).toBe(2);
+  });
+
+  test("delivery dashboard v26 surfaces month22 flagship-full gaps (G775)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v26-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(26);
+      expect(report.month22Program?.flagshipFullGapsBatch).toBe("hub:flagship-full-gaps-batch-smoke");
+      expect(report.month22Program?.requireFlagshipFullGapsBatchEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH",
       );
     } finally {
       rmSync(tmp, { recursive: true, force: true });

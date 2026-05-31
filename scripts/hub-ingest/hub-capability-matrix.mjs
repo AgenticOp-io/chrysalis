@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 23;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 24;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -103,6 +103,12 @@ export function buildHubCapabilityMatrixReport() {
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
       nextjsVerifyBatchScript: "pnpm run hub:php-nextjs-verify-batch-smoke",
       wptpGoldScript: "pnpm run hub:wptp-gold-smoke",
+    },
+    flagshipFullGapsBatch: {
+      script: "pnpm run hub:flagship-full-gaps-batch-smoke",
+      requireEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_FLAGSHIP_FULL_GAPS_BATCH",
+      standaloneScript: "pnpm run hub:flagship-verify-gaps-standalone-smoke",
+      fixtures: ["fixtures/hub-flagship-plain-php", "fixtures/hub-flagship-symfony", "fixtures/hub-flagship-express"],
     },
     nextjsFlagshipFixtures: [
       "fixtures/hub-flagship-plain-php",
@@ -304,6 +310,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     verifyProductUltra: {
       batchScript: "pnpm run hub:verify-product-ultra-batch-smoke",
+      batchSchemaVersion: 2,
     },
     cwlAllOrigins: {
       allOriginsScript: "pnpm run hub:project-to-cwl-all-origins",

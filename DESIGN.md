@@ -2533,6 +2533,16 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D887** **Strategic test G770 (G747).** Schema 65 WPTP strict smokes.
 - **2026-05-31 — D888** **ci-gates v65 test (G748).** Accepts schema v65 payloads.
 - **2026-05-31 — D890** **Hub completion schema 65 (G770).** Strict WPTP CI wiring.
+- **2026-05-31 — D891** **hub-flagship-full-gaps-batch-smoke (G771).** Plain-php + symfony + express verify gaps → ingest.
+- **2026-05-31 — D892** **hub-flagship-verify-gaps-standalone-smoke (G772).** Per-flagship gaps export + ingest action.
+- **2026-05-31 — D893** **Verify product ultra batch v2 (G773).** Includes flagship-full gaps batch.
+- **2026-05-31 — D894** **Capability matrix v24 (G774).** Flagship-full gaps batch metadata.
+- **2026-05-31 — D895** **Delivery dashboard v26 (G775).** month22Program flagship-full gaps.
+- **2026-05-31 — D896** **Hub evidence schema v23 (G776).** requireFlagshipFullGapsBatchEnv.
+- **2026-05-31 — D897** **ci-gates v66 (G777).** Flagship-full gaps + verify product ultra v2 gates.
+- **2026-05-31 — D898** **Strategic test G800 (G778).** Schema 66 flagship-full gaps smokes.
+- **2026-05-31 — D899** **ci-gates v66 test (G779).** Accepts schema v66 payloads.
+- **2026-05-31 — D900** **Hub completion schema 66 (G800).** Flagship-full gaps → ingest depth.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 
