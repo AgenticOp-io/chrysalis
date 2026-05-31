@@ -2505,6 +2505,16 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D856** **Strategic test G680 (G657).** Schema 62 PHP Next.js verify smokes.
 - **2026-05-31 — D857** **ci-gates v62 test (G658).** Accepts schema v62 payloads.
 - **2026-05-31 — D859** **Hub completion schema 62 (G680).** PHP Next.js verify batch all PHP flagships.
+- **2026-05-31 — D860** **hub-laravel-verify-gaps-batch-smoke (G681).** Verify gaps export + ingest action batch.
+- **2026-05-31 — D861** **hub-php-wedge-batch-smoke (G682).** Next.js verify + oracle micro + Laravel gaps + Node express oracle.
+- **2026-05-31 — D862** **Oracle product ultra batch v4 (G683).** Includes PHP wedge batch.
+- **2026-05-31 — D863** **Capability matrix v21 (G684).** PHP wedge batch metadata.
+- **2026-05-31 — D864** **Delivery dashboard v23 (G685).** month19Program PHP wedge batch.
+- **2026-05-31 — D865** **Hub evidence schema v20 (G686).** requirePhpWedgeBatchEnv.
+- **2026-05-31 — D866** **ci-gates v63 (G687).** PHP wedge batch + oracle ultra v4 gates.
+- **2026-05-31 — D867** **Strategic test G710 (G688).** Schema 63 PHP wedge smokes.
+- **2026-05-31 — D868** **ci-gates v63 test (G689).** Accepts schema v63 payloads.
+- **2026-05-31 — D870** **Hub completion schema 63 (G710).** PHP wedge batch oracle product depth.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 

@@ -16,7 +16,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 22;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 23;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -321,6 +321,11 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       phpNextjsVerifyBatch: "hub:php-nextjs-verify-batch-smoke",
       requirePhpNextjsVerifyBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
+    },
+    month19Program: {
+      phpWedgeBatch: "hub:php-wedge-batch-smoke",
+      laravelVerifyGapsBatch: "hub:laravel-verify-gaps-batch-smoke",
+      requirePhpWedgeBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

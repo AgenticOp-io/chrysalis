@@ -1663,7 +1663,7 @@ describe("strategic plan deliverables", () => {
     const { runOracleProductUltraBatchSmoke, HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-oracle-product-ultra-batch-smoke.mjs")
     );
-    expect(HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(3);
+    expect(HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBeGreaterThanOrEqual(3);
     const nextjsBatch = await runPhpNextjsVerifyBatchSmoke();
     expect(nextjsBatch.ok).toBe(true);
     expect(nextjsBatch.tinyBlog?.ok === true || nextjsBatch.tinyBlog?.skip === "no-wptp-emit-nextjs").toBe(true);
@@ -1675,8 +1675,28 @@ describe("strategic plan deliverables", () => {
     );
     const oracleUltra = await runOracleProductUltraBatchSmoke();
     expect(oracleUltra.ok).toBe(true);
-    expect(oracleUltra.schemaVersion).toBe(3);
+    expect(oracleUltra.schemaVersion).toBeGreaterThanOrEqual(3);
     expect(oracleUltra.phpNextjsVerifyBatch?.ok).toBe(true);
+  }, 600_000);
+
+  test("hub completion schema 63 PHP wedge batch (G710)", async () => {
+    const { runPhpWedgeBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-php-wedge-batch-smoke.mjs")
+    );
+    const { runOracleProductUltraBatchSmoke, HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-oracle-product-ultra-batch-smoke.mjs")
+    );
+    expect(HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION).toBe(4);
+    const wedgeBatch = await runPhpWedgeBatchSmoke();
+    expect(wedgeBatch.ok).toBe(true);
+    expect(wedgeBatch.nextjsVerify?.ok).toBe(true);
+    expect(wedgeBatch.oracleMicro?.ok).toBe(true);
+    expect(wedgeBatch.laravelGaps?.ok).toBe(true);
+    expect(wedgeBatch.nodeExpressOracle?.ok).toBe(true);
+    const oracleUltra = await runOracleProductUltraBatchSmoke();
+    expect(oracleUltra.ok).toBe(true);
+    expect(oracleUltra.schemaVersion).toBe(4);
+    expect(oracleUltra.phpWedgeBatch?.ok).toBe(true);
   }, 600_000);
 
   test("capability matrix v20 lists PHP Next.js verify batch (G653)", async () => {
@@ -1687,7 +1707,20 @@ describe("strategic plan deliverables", () => {
     expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(20);
     expect(report.phpNextjsVerifyBatch?.script).toBe("pnpm run hub:php-nextjs-verify-batch-smoke");
     expect(report.phpNextjsVerifyBatch?.fixtures?.length).toBe(3);
-    expect(report.oracleProductUltra?.batchSchemaVersion).toBe(3);
+    expect((report.oracleProductUltra?.batchSchemaVersion ?? 0) >= 3).toBe(true);
+  });
+
+  test("capability matrix v21 lists PHP wedge batch (G684)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(21);
+    expect(report.phpWedgeBatch?.script).toBe("pnpm run hub:php-wedge-batch-smoke");
+    expect(report.phpWedgeBatch?.laravelVerifyGapsBatchScript).toBe(
+      "pnpm run hub:laravel-verify-gaps-batch-smoke",
+    );
+    expect(report.oracleProductUltra?.batchSchemaVersion).toBe(4);
   });
 
   test("delivery dashboard v22 surfaces month18 PHP Next.js verify batch (G654)", async () => {
@@ -1709,6 +1742,32 @@ describe("strategic plan deliverables", () => {
       expect(report.month18Program?.phpNextjsVerifyBatch).toBe("hub:php-nextjs-verify-batch-smoke");
       expect(report.month18Program?.requirePhpNextjsVerifyBatchEnv).toBe(
         "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("delivery dashboard v23 surfaces month19 PHP wedge batch (G685)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v23-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(23);
+      expect(report.month19Program?.phpWedgeBatch).toBe("hub:php-wedge-batch-smoke");
+      expect(report.month19Program?.laravelVerifyGapsBatch).toBe("hub:laravel-verify-gaps-batch-smoke");
+      expect(report.month19Program?.requirePhpWedgeBatchEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH",
       );
     } finally {
       rmSync(tmp, { recursive: true, force: true });

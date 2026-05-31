@@ -154,6 +154,7 @@ import { runProjectToCwlRoundtripSmoke } from "./hub-project-to-cwl-roundtrip-sm
 import { runContractImportCwlRoundtripSmoke } from "./hub-contract-import-cwl-roundtrip-smoke.mjs";
 import { runPhpOracleMicroVerifyBatchSmoke } from "./hub-php-oracle-micro-verify-batch-smoke.mjs";
 import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smoke.mjs";
+import { runPhpWedgeBatchSmoke } from "./hub-php-wedge-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1165,6 +1166,13 @@ async function main() {
     phpNextjsVerifyBatch = { ok: false, skip: "php-nextjs-verify-batch-threw" };
   }
   const phpNextjsVerifyBatchOk = phpNextjsVerifyBatch.ok === true;
+  let phpWedgeBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    phpWedgeBatch = await runPhpWedgeBatchSmoke();
+  } catch {
+    phpWedgeBatch = { ok: false, skip: "php-wedge-batch-threw" };
+  }
+  const phpWedgeBatchOk = phpWedgeBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1312,6 +1320,7 @@ async function main() {
     contractImportCwlRoundtripOk &&
     phpOracleMicroVerifyBatchOk &&
     phpNextjsVerifyBatchOk &&
+    phpWedgeBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1323,7 +1332,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 62,
+    schemaVersion: 63,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1510,7 +1519,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 19,
+      schemaVersion: 20,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1532,6 +1541,7 @@ async function main() {
       requireContractImportCwlRoundtripEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_CONTRACT_IMPORT_CWL_ROUNDTRIP",
       requirePhpOracleMicroVerifyEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY",
       requirePhpNextjsVerifyBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH",
+      requirePhpWedgeBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -1946,7 +1956,7 @@ async function main() {
     },
     oracleProductUltraBatch: {
       ok: oracleProductUltraBatchOk,
-      schemaVersion: oracleProductUltraBatch.schemaVersion ?? 3,
+      schemaVersion: oracleProductUltraBatch.schemaVersion ?? 4,
       script: "pnpm run hub:oracle-product-ultra-batch-smoke",
     },
     expressLaravelMinDeliveryBatch: {
@@ -2087,6 +2097,10 @@ async function main() {
       ok: phpNextjsVerifyBatchOk,
       wptpEmitNextjsAvailable: phpNextjsVerifyBatch.wptpEmitNextjsAvailable ?? null,
       script: "pnpm run hub:php-nextjs-verify-batch-smoke",
+    },
+    phpWedgeBatch: {
+      ok: phpWedgeBatchOk,
+      script: "pnpm run hub:php-wedge-batch-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,

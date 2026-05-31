@@ -253,6 +253,8 @@
     "hub:contract-import-cwl-roundtrip-smoke": "node scripts/hub-ingest/hub-contract-import-cwl-roundtrip-smoke.mjs",
     "hub:php-oracle-micro-verify-batch-smoke": "node scripts/hub-ingest/hub-php-oracle-micro-verify-batch-smoke.mjs",
     "hub:php-nextjs-verify-batch-smoke": "node scripts/hub-ingest/hub-php-nextjs-verify-batch-smoke.mjs",
+    "hub:laravel-verify-gaps-batch-smoke": "node scripts/hub-ingest/hub-laravel-verify-gaps-batch-smoke.mjs",
+    "hub:php-wedge-batch-smoke": "node scripts/hub-ingest/hub-php-wedge-batch-smoke.mjs",
     "hub:contract-cwl-smoke": "node scripts/hub-ingest/hub-contract-cwl-smoke.mjs",
     "hub:cross-language-synthesis": "node scripts/hub-ingest/hub-cross-language-synthesis.mjs --json-out reports/ci/hub-cross-language-synthesis.json",
     "hub:native-emit-smoke": "node scripts/hub-ingest/hub-native-emit-smoke.mjs",
