@@ -155,6 +155,7 @@ import { runContractImportCwlRoundtripSmoke } from "./hub-contract-import-cwl-ro
 import { runPhpOracleMicroVerifyBatchSmoke } from "./hub-php-oracle-micro-verify-batch-smoke.mjs";
 import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smoke.mjs";
 import { runPhpWedgeBatchSmoke } from "./hub-php-wedge-batch-smoke.mjs";
+import { runHubEvidenceMvpBatchSmoke } from "./hub-evidence-mvp-batch-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1173,6 +1174,13 @@ async function main() {
     phpWedgeBatch = { ok: false, skip: "php-wedge-batch-threw" };
   }
   const phpWedgeBatchOk = phpWedgeBatch.ok === true;
+  let hubEvidenceMvpBatch = { ok: false, skip: "not-run-in-completion" };
+  try {
+    hubEvidenceMvpBatch = await runHubEvidenceMvpBatchSmoke();
+  } catch {
+    hubEvidenceMvpBatch = { ok: false, skip: "hub-evidence-mvp-batch-threw" };
+  }
+  const hubEvidenceMvpBatchOk = hubEvidenceMvpBatch.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1321,6 +1329,7 @@ async function main() {
     phpOracleMicroVerifyBatchOk &&
     phpNextjsVerifyBatchOk &&
     phpWedgeBatchOk &&
+    hubEvidenceMvpBatchOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1332,7 +1341,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 63,
+    schemaVersion: 64,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1519,7 +1528,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 20,
+      schemaVersion: 21,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1542,6 +1551,7 @@ async function main() {
       requirePhpOracleMicroVerifyEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_ORACLE_MICRO_VERIFY",
       requirePhpNextjsVerifyBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_NEXTJS_VERIFY_BATCH",
       requirePhpWedgeBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH",
+      requireHubEvidenceMvpBatchEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_HUB_EVIDENCE_MVP_BATCH",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -2005,6 +2015,7 @@ async function main() {
     },
     evidenceStandaloneMegaBatch: {
       ok: evidenceStandaloneMegaBatchOk,
+      schemaVersion: evidenceStandaloneMegaBatch.schemaVersion ?? 2,
       script: "pnpm run hub:evidence-standalone-mega-batch-smoke",
     },
     plainPhpDepthBatch: {
@@ -2101,6 +2112,13 @@ async function main() {
     phpWedgeBatch: {
       ok: phpWedgeBatchOk,
       script: "pnpm run hub:php-wedge-batch-smoke",
+    },
+    hubEvidenceMvpBatch: {
+      ok: hubEvidenceMvpBatchOk,
+      trendPoints: hubEvidenceMvpBatch.trend?.trendPoints ?? null,
+      holeCount: hubEvidenceMvpBatch.evidence?.holeCount ?? null,
+      pipelineGatePass: hubEvidenceMvpBatch.evidence?.pipelineGatePass ?? null,
+      script: "pnpm run hub:evidence-mvp-batch-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,

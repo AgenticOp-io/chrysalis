@@ -2515,6 +2515,15 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-05-31 — D867** **Strategic test G710 (G688).** Schema 63 PHP wedge smokes.
 - **2026-05-31 — D868** **ci-gates v63 test (G689).** Accepts schema v63 payloads.
 - **2026-05-31 — D870** **Hub completion schema 63 (G710).** PHP wedge batch oracle product depth.
+- **2026-05-31 — D871** **hub-evidence-mvp-batch-smoke (G711).** Verify trend + holes + plan → pipeline gate.
+- **2026-05-31 — D872** **Evidence standalone mega batch v2 (G712).** Includes hub evidence MVP batch.
+- **2026-05-31 — D873** **Capability matrix v22 (G713).** Hub evidence MVP batch metadata.
+- **2026-05-31 — D874** **Delivery dashboard v24 (G714).** month20Program hub evidence MVP.
+- **2026-05-31 — D875** **Hub evidence schema v21 (G715).** requireHubEvidenceMvpBatchEnv.
+- **2026-05-31 — D876** **ci-gates v64 (G716).** Hub evidence MVP + evidence mega v2 gates.
+- **2026-05-31 — D877** **Strategic test G740 (G717).** Schema 64 hub evidence MVP smokes.
+- **2026-05-31 — D878** **ci-gates v64 test (G718).** Accepts schema v64 payloads.
+- **2026-05-31 — D880** **Hub completion schema 64 (G740).** Hub evidence MVP migration-OS readout.
 
 - **2026-05-31 — D810** **ci-gates v58 test (G540).** Accepts schema v58 complete CWL universe payloads.
 

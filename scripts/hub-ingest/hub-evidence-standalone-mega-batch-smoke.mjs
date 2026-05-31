@@ -1,22 +1,25 @@
 #!/usr/bin/env node
-/** Evidence standalone mega batch: evidence + WPTP gold standalone (G417). */
+/** Evidence standalone mega batch v2: v1 + hub evidence MVP batch (G712). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runEvidenceStandaloneSmoke } from "./hub-evidence-standalone-smoke.mjs";
 import { runWptpGoldStandaloneSmoke } from "./hub-wptp-gold-standalone-smoke.mjs";
+import { runHubEvidenceMvpBatchSmoke } from "./hub-evidence-mvp-batch-smoke.mjs";
 
 export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_KIND = "chrysalis.hub.evidence-standalone-mega-batch-smoke";
-export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION = 1;
+export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION = 2;
 
 export async function runEvidenceStandaloneMegaBatchSmoke() {
   const evidence = await runEvidenceStandaloneSmoke();
   const wptpGold = runWptpGoldStandaloneSmoke();
+  const evidenceMvp = await runHubEvidenceMvpBatchSmoke();
   return {
     kind: HUB_EVIDENCE_STANDALONE_MEGA_BATCH_KIND,
     schemaVersion: HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION,
-    ok: evidence.ok && wptpGold.ok,
+    ok: evidence.ok && wptpGold.ok && evidenceMvp.ok,
     evidence,
     wptpGold,
+    evidenceMvp,
     generatedAt: new Date().toISOString(),
   };
 }

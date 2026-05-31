@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 21;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 22;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -91,6 +91,11 @@ export function buildHubCapabilityMatrixReport() {
       script: "pnpm run hub:php-wedge-batch-smoke",
       laravelVerifyGapsBatchScript: "pnpm run hub:laravel-verify-gaps-batch-smoke",
       nodeExpressOracleScript: "pnpm run hub:node-express-oracle-standalone-smoke",
+    },
+    hubEvidenceMvpBatch: {
+      script: "pnpm run hub:evidence-mvp-batch-smoke",
+      trendScript: "pnpm run hub:evidence-trend-smoke",
+      evidenceSmokeScript: "pnpm run hub:evidence-smoke",
     },
     nextjsFlagshipFixtures: [
       "fixtures/hub-flagship-plain-php",
@@ -276,6 +281,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     evidenceStandaloneMega: {
       batchScript: "pnpm run hub:evidence-standalone-mega-batch-smoke",
+      batchSchemaVersion: 2,
     },
     originDepth: {
       plainPhpBatchScript: "pnpm run hub:plain-php-depth-batch-smoke",

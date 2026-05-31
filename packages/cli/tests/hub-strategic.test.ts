@@ -1704,7 +1704,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(20);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(20);
     expect(report.phpNextjsVerifyBatch?.script).toBe("pnpm run hub:php-nextjs-verify-batch-smoke");
     expect(report.phpNextjsVerifyBatch?.fixtures?.length).toBe(3);
     expect((report.oracleProductUltra?.batchSchemaVersion ?? 0) >= 3).toBe(true);
@@ -1715,7 +1715,7 @@ describe("strategic plan deliverables", () => {
       resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
     );
     const report = buildHubCapabilityMatrixReport();
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(21);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(21);
     expect(report.phpWedgeBatch?.script).toBe("pnpm run hub:php-wedge-batch-smoke");
     expect(report.phpWedgeBatch?.laravelVerifyGapsBatchScript).toBe(
       "pnpm run hub:laravel-verify-gaps-batch-smoke",
@@ -1763,11 +1763,69 @@ describe("strategic plan deliverables", () => {
         JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
       );
       const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
-      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(23);
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBeGreaterThanOrEqual(23);
       expect(report.month19Program?.phpWedgeBatch).toBe("hub:php-wedge-batch-smoke");
       expect(report.month19Program?.laravelVerifyGapsBatch).toBe("hub:laravel-verify-gaps-batch-smoke");
       expect(report.month19Program?.requirePhpWedgeBatchEnv).toBe(
         "CHRYSALIS_HUB_COMPLETION_REQUIRE_PHP_WEDGE_BATCH",
+      );
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("hub completion schema 64 hub evidence MVP batch (G740)", async () => {
+    const { runHubEvidenceMvpBatchSmoke } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-evidence-mvp-batch-smoke.mjs")
+    );
+    const {
+      runEvidenceStandaloneMegaBatchSmoke,
+      HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION,
+    } = await import(resolve(ROOT, "scripts/hub-ingest/hub-evidence-standalone-mega-batch-smoke.mjs"));
+    expect(HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION).toBe(2);
+    const mvpBatch = await runHubEvidenceMvpBatchSmoke();
+    expect(mvpBatch.ok).toBe(true);
+    expect(mvpBatch.trend?.ok).toBe(true);
+    expect(mvpBatch.trend?.trendPoints).toBeGreaterThanOrEqual(2);
+    expect(mvpBatch.evidence?.verifyGatePass).toBe(true);
+    expect(mvpBatch.evidence?.pipelineGatePass).toBe(true);
+    expect(mvpBatch.evidence?.programId).toBe("api-slice");
+    const megaBatch = await runEvidenceStandaloneMegaBatchSmoke();
+    expect(megaBatch.ok).toBe(true);
+    expect(megaBatch.schemaVersion).toBe(2);
+    expect(megaBatch.evidenceMvp?.ok).toBe(true);
+  }, 120_000);
+
+  test("capability matrix v22 lists hub evidence MVP batch (G713)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBe(22);
+    expect(report.hubEvidenceMvpBatch?.script).toBe("pnpm run hub:evidence-mvp-batch-smoke");
+    expect(report.hubEvidenceMvpBatch?.trendScript).toBe("pnpm run hub:evidence-trend-smoke");
+    expect(report.evidenceStandaloneMega?.batchSchemaVersion).toBe(2);
+  });
+
+  test("delivery dashboard v24 surfaces month20 hub evidence MVP (G714)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-v24-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBe(24);
+      expect(report.month20Program?.hubEvidenceMvpBatch).toBe("hub:evidence-mvp-batch-smoke");
+      expect(report.month20Program?.requireHubEvidenceMvpBatchEnv).toBe(
+        "CHRYSALIS_HUB_COMPLETION_REQUIRE_HUB_EVIDENCE_MVP_BATCH",
       );
     } finally {
       rmSync(tmp, { recursive: true, force: true });
