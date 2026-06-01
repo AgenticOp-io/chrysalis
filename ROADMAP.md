@@ -1127,7 +1127,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1366 — Strategic plan queue 21** — default build queue updated. (**DESIGN D1366**)
 - [x] **G1367 — ROADMAP lock queue 21** — G1359–G1368 tracked. (**DESIGN D1367**)
 - [x] **G1368 — Master index queues 21–30** — `docs/CWL-FULLSTACK-QUEUES-21-30.md`. (**DESIGN D1368**)
-### Full-stack CWL — queue 22 (G1359–G1368)
+### Full-stack CWL — queue 22 (G1369–G1378)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-22.md`.
 
@@ -1247,20 +1247,20 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1437 — Mega gate parallel** — (**DESIGN D1437**)
 - [x] **G1438 — Queue 29 lock** — (**DESIGN D1438**)
 
-### Full-stack CWL — queue 30 (G1439–G1448)
+### Full-stack CWL — queue 30 (G1449–G1458)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-30.md`.
 
-- [x] **G1439 — runProductionGraduationGate** — (**DESIGN D1439**)
-- [x] **G1440 — Phase 6 graduation composite** — (**DESIGN D1440**)
-- [x] **G1441 — Authoring batch v30** — (**DESIGN D1441**)
-- [x] **G1442 — hub-completion schema 103** — (**DESIGN D1442**)
-- [x] **G1443 — Vitest batch v30 graduation** — (**DESIGN D1443**)
-- [x] **G1444 — Strategic plan queues 21-30** — (**DESIGN D1444**)
-- [x] **G1445 — ROADMAP lock queue 30** — (**DESIGN D1445**)
-- [x] **G1446 — DESIGN D1449-D1458** — (**DESIGN D1446**)
-- [x] **G1447 — Evidence batch v30** — (**DESIGN D1447**)
-- [x] **G1448 — Production readiness lock** — (**DESIGN D1448**)
+- [x] **G1449 — runProductionGraduationGate** — (**DESIGN D1449**)
+- [x] **G1450 — Phase 6 graduation composite** — (**DESIGN D1450**)
+- [x] **G1451 — Authoring batch v30** — (**DESIGN D1451**)
+- [x] **G1452 — hub-completion schema 103** — (**DESIGN D1452**)
+- [x] **G1453 — Vitest batch v30 graduation** — (**DESIGN D1453**)
+- [x] **G1454 — Strategic plan queues 21-30 complete** — (**DESIGN D1454**)
+- [x] **G1455 — ROADMAP lock queue 30** — (**DESIGN D1455**)
+- [x] **G1456 — Evidence batch v30** — (**DESIGN D1456**)
+- [x] **G1457 — Full-stack hole budget v30** — (**DESIGN D1457**)
+- [x] **G1458 — Production readiness lock** — (**DESIGN D1458**)
 
 
 
