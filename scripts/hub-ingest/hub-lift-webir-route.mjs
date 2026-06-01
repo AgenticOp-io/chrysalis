@@ -1,4 +1,5 @@
 /** Shared WebIR route emission for hub AST/heuristic lifts. */
+import { lowerCwlHtmlTemplateBody } from "./cwl-html-template.mjs";
 
 export const HUB_T = {
   string: { kind: "string" },
@@ -53,7 +54,10 @@ export function lowerHubLiteral(ctx, value, loc) {
  * @param {{ file: string, line?: number }} loc
  * @param {object} wr — web.request builders
  */
-export function lowerHubHtmlPageBody(ctx, html, loc, wr) {
+export function lowerHubHtmlPageBody(ctx, html, loc, wr, bindings = null) {
+  if (bindings && (bindings.path?.length || bindings.query?.length || bindings.load?.length)) {
+    return lowerCwlHtmlTemplateBody(ctx, html, loc, wr, bindings);
+  }
   const { data, webir } = ctx;
   const origin = hubOrigin(loc.file, loc.line ?? 1);
   const litId = data.literal({
@@ -78,7 +82,7 @@ export function lowerHubHtmlPageBody(ctx, html, loc, wr) {
  * @param {{ file: string, line?: number }} loc
  * @param {object} wr
  */
-export function lowerHubPageWithLoadBody(ctx, loadValueId, html, loc, wr) {
+export function lowerHubPageWithLoadBody(ctx, loadValueId, html, loc, wr, bindings = null) {
   const { data, webir } = ctx;
   const origin = hubOrigin(loc.file, loc.line ?? 1);
   const loadId = data.call({
@@ -88,7 +92,7 @@ export function lowerHubPageWithLoadBody(ctx, loadValueId, html, loc, wr) {
     origin,
     provenance: [webir.provenance("hub-ingest", "cwl-page-load")],
   });
-  const responseId = lowerHubHtmlPageBody(ctx, html, loc, wr);
+  const responseId = lowerHubHtmlPageBody(ctx, html, loc, wr, bindings);
   return data.block({
     statements: [loadId, responseId],
     type: HUB_T.unknown,

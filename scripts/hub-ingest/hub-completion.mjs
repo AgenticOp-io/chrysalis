@@ -115,6 +115,7 @@ import { runFullDeliveryMegaBatchSmoke } from "./hub-full-delivery-mega-batch-sm
 import { runCwlMegaBatchSmoke } from "./hub-cwl-mega-batch-smoke.mjs";
 import { runCwlAuthoringBatchV2Smoke } from "./hub-cwl-authoring-batch-v2-smoke.mjs";
 import { runCwlAuthoringBatchV3Smoke } from "./hub-cwl-authoring-batch-v3-smoke.mjs";
+import { runCwlAuthoringBatchV4Smoke } from "./hub-cwl-authoring-batch-v4-smoke.mjs";
 import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
@@ -913,6 +914,13 @@ async function main() {
     fullstackAuthoringBatchV3 = { ok: false, skip: "fullstack-authoring-batch-v3-threw" };
   }
   const fullstackAuthoringBatchV3Ok = fullstackAuthoringBatchV3.ok === true;
+  let fullstackAuthoringBatchV4 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV4 = await runCwlAuthoringBatchV4Smoke();
+  } catch {
+    fullstackAuthoringBatchV4 = { ok: false, skip: "fullstack-authoring-batch-v4-threw" };
+  }
+  const fullstackAuthoringBatchV4Ok = fullstackAuthoringBatchV4.ok === true;
   let plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
@@ -1444,6 +1452,7 @@ async function main() {
     cwlMegaBatchOk &&
     fullstackAuthoringBatchV2Ok &&
     fullstackAuthoringBatchV3Ok &&
+    fullstackAuthoringBatchV4Ok &&
     plainPhpMigrationOsBatchOk &&
     tinyBlogDeliveryBatchOk &&
     deliveryPipelineStandaloneBatchOk &&
@@ -1515,7 +1524,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 76,
+    schemaVersion: 77,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -2128,6 +2137,11 @@ async function main() {
       ok: fullstackAuthoringBatchV3Ok,
       script: "pnpm run hub:cwl-authoring-batch-v3-smoke",
       schemaVersion: fullstackAuthoringBatchV3.schemaVersion ?? 1,
+    },
+    fullstackAuthoringBatchV4: {
+      ok: fullstackAuthoringBatchV4Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v4-smoke",
+      schemaVersion: fullstackAuthoringBatchV4.schemaVersion ?? 1,
     },
     plainPhpMigrationOsBatch: {
       ok: plainPhpMigrationOsBatchOk,

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * runtime-cwl page-load parity on flagship blog route (G1185).
+ * CWL HTML param interpolation smoke (G1189): flagship blog + docs routes.
  */
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-export const HUB_CWL_PAGE_LOAD_PARITY_KIND = "chrysalis.hub.cwl-page-load-parity";
-export const HUB_CWL_PAGE_LOAD_PARITY_SCHEMA_VERSION = 1;
+export const HUB_CWL_HTML_INTERPOLATION_KIND = "chrysalis.hub.cwl-html-interpolation";
+export const HUB_CWL_HTML_INTERPOLATION_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const flagshipDir = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack");
@@ -19,36 +19,38 @@ async function loadRuntime(repoRoot) {
   }
 }
 
-export async function runCwlPageLoadParitySmoke(opts = {}) {
+export async function runCwlHtmlInterpolationSmoke(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const base = {
-    kind: HUB_CWL_PAGE_LOAD_PARITY_KIND,
-    schemaVersion: HUB_CWL_PAGE_LOAD_PARITY_SCHEMA_VERSION,
+    kind: HUB_CWL_HTML_INTERPOLATION_KIND,
+    schemaVersion: HUB_CWL_HTML_INTERPOLATION_SCHEMA_VERSION,
     ok: false,
   };
   const { createCwlRuntime, loadModuleFromCwlFile } = await loadRuntime(repoRoot);
   const runtime = createCwlRuntime({
     module: loadModuleFromCwlFile(join(flagshipDir, "routes.cwl"), repoRoot),
   });
-  const res = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/blog/hello" });
-  const body = await res.text();
+  const blog = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/blog/world" });
+  const docs = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/docs/world" });
+  const blogBody = await blog.text();
+  const docsBody = await docs.text();
   const ok =
-    res.status === 200 &&
-    body.includes("cwl-page-load") &&
-    body.includes('"slug":"hello"') &&
-    body.includes("<h1>Blog</h1>") &&
-    body.includes("hello");
+    blog.status === 200 &&
+    docs.status === 200 &&
+    blogBody.includes("world") &&
+    docsBody.includes("world") &&
+    blogBody.includes("cwl-page-load");
   return {
     ...base,
     ok,
-    status: res.status,
-    hasSidecar: body.includes("cwl-page-load"),
+    blog: { status: blog.status, hasSlug: blogBody.includes("world") },
+    docs: { status: docs.status, hasSlug: docsBody.includes("world") },
     generatedAt: new Date().toISOString(),
   };
 }
 
 async function main() {
-  const report = await runCwlPageLoadParitySmoke();
+  const report = await runCwlHtmlInterpolationSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exit(1);
 }

@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1188** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1198** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -858,6 +858,21 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1186 — Authoring batch v3** — `hub:cwl-authoring-batch-v3-smoke`. (**DESIGN D1186**)
 - [x] **G1187 — hub-completion schema 76** — queue-3 full-stack gates. (**DESIGN D1187**)
 - [x] **G1188 — Delivery dashboard page-load metric** — `pageLoadRouteCount` on budget check. (**DESIGN D1188**)
+
+### Full-stack CWL — queue 4 (G1189–G1198)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-4.md`.
+
+- [x] **G1189 — CWL HTML interpolation** — `html.template` for path/query/load fields in page HTML. (**DESIGN D1189**)
+- [x] **G1190 — Load env binding** — `__page_load` populates handler env for load-field HTML refs. (**DESIGN D1190**)
+- [x] **G1191 — Svelte field refs** — `{field}` → bare refs when load declares fields. (**DESIGN D1191**)
+- [x] **G1192 — Next.js JSX ternary fold** — const bool ternary + shop `page.server.ts`. (**DESIGN D1192**)
+- [x] **G1193 — HTML interpolation probes** — flagship blog/docs slug in runtime body. (**DESIGN D1193**)
+- [x] **G1194 — html.template round-trip** — `cwlValueOf` / `renderCwlRoutes` preserve bare refs. (**DESIGN D1194**)
+- [x] **G1195 — Next.js deep shop lift** — `/shop` lifted; `/complex` hole. (**DESIGN D1195**)
+- [x] **G1196 — Authoring batch v4** — `hub:cwl-authoring-batch-v4-smoke`. (**DESIGN D1196**)
+- [x] **G1197 — hub-completion schema 77** — queue-4 full-stack gates. (**DESIGN D1197**)
+- [x] **G1198 — Vitest HTML interpolation** — runtime + CLI smokes. (**DESIGN D1198**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 

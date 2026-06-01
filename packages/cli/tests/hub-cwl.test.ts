@@ -118,6 +118,23 @@ test("authoring batch v2 smoke (G1175)", async () => {
   expect(report.ok).toBe(true);
 }, 120_000);
 
+test("authoring batch v4 smoke (G1196)", async () => {
+  const { runCwlAuthoringBatchV4Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v4-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV4Smoke();
+  expect(report.ok).toBe(true);
+  expect(report.htmlInterpolation?.ok).toBe(true);
+}, 240_000);
+
+test("cwl html interpolation smoke (G1189)", async () => {
+  const { runCwlHtmlInterpolationSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-html-interpolation-smoke.mjs"),
+  );
+  const report = await runCwlHtmlInterpolationSmoke();
+  expect(report.ok).toBe(true);
+});
+
 test("authoring batch v3 smoke (G1186)", async () => {
   const { runCwlAuthoringBatchV3Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v3-smoke.mjs"),

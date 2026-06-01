@@ -2,6 +2,7 @@
  * CWL → WebIR ingest (direct; no lossy lift).
  */
 import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral, lowerHubPageWithLoadBody } from "./hub-lift-webir-route.mjs";
+import { lowerCwlHtmlTemplateBody } from "./cwl-html-template.mjs";
 import { parseCwlModuleResolved, resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
@@ -180,9 +181,17 @@ export function liftCwlFileToWebir(opts) {
   for (const r of parsed.routes) {
     let valueId;
     const loc = { file, line: r.line };
+    const htmlBindings = {
+      path: r.handlerPathParams ?? [],
+      query: r.handlerQueryParams ?? [],
+      load:
+        r.loadBody?.kind === "object" && r.loadBody.entries
+          ? r.loadBody.entries.map((e) => e.key)
+          : [],
+    };
     if (r.loadBody && r.body.kind === "html" && r.loadBody.kind === "object" && r.loadBody.entries) {
       const loadValueId = lowerObjectEntriesBody(ctx, r.loadBody.entries, loc);
-      valueId = lowerHubPageWithLoadBody(ctx, loadValueId, r.body.value, loc, wrBuilders);
+      valueId = lowerHubPageWithLoadBody(ctx, loadValueId, r.body.value, loc, wrBuilders, htmlBindings);
     } else if (r.body.kind === "literal") {
       valueId = lowerHubLiteral(ctx, r.body.value, loc);
     } else if (r.body.kind === "object" && r.body.entries) {
@@ -197,7 +206,7 @@ export function liftCwlFileToWebir(opts) {
         { file, line: r.line ?? 1, column: 1 },
       );
     } else if (r.body.kind === "html") {
-      valueId = lowerHubLiteral(ctx, r.body.value, loc);
+      valueId = lowerCwlHtmlTemplateBody(ctx, r.body.value, loc, wrBuilders, htmlBindings);
     } else {
       valueId = hubHandlerBodyHole(ctx, r.body.reason ?? "cwl:hole", loc);
     }

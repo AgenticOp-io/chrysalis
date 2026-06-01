@@ -67,7 +67,7 @@ const CWL_TRANSPARENT_CALLS = new Set([
   "boolval",
 ]);
 
-/** Strip a leading UTF-8 BOM from PHP InlineHtml echoes. */
+import { cwlHtmlTemplateToLit } from "./cwl-html-template.mjs";
 function stripBom(s) {
   return typeof s === "string" ? s.replace(/^\uFEFF/, "") : s;
 }
@@ -91,6 +91,9 @@ function isCwlJsonCall(get, id) {
 export function cwlValueOf(get, id) {
   const n = get(id);
   if (!n) return { t: "hole", reason: "hub:cwl:missing-value" };
+  if (n.dialect === "data" && n.op === "html.template") {
+    return cwlHtmlTemplateToLit(get, n);
+  }
   if (n.dialect === "data" && n.op === "literal") {
     return { t: "lit", value: stripBom(n.attrs?.value) };
   }
@@ -227,7 +230,7 @@ export function walkCwlHandlerBody(get, bodyId) {
       value = v;
       return;
     }
-    if (n.dialect === "data" && (n.op === "literal" || n.op === "call" || n.op === "request.field")) {
+    if (n.dialect === "data" && (n.op === "literal" || n.op === "call" || n.op === "request.field" || n.op === "html.template")) {
       const jsonCall = isCwlJsonCall(get, id);
       const v = cwlValueOf(get, id);
       if (v.t === "hole") {

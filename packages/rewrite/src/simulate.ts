@@ -562,6 +562,17 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
     case "__page_load": {
       const data = args[0] ?? { kind: "null" };
       ctx.pageLoad = data;
+      if (data.kind === "array") {
+        for (const entry of data.entries) {
+          const key =
+            typeof entry.key === "string"
+              ? entry.key
+              : typeof entry.key === "number"
+                ? String(entry.key)
+                : stringify(entry.key);
+          ctx.env.set(key, entry.value);
+        }
+      }
       return data;
     }
     case "json_encode":
@@ -732,7 +743,8 @@ function evalHtmlTemplate(ctx: SimCtx, n: NodeBase): SimValue {
     if (p.kind === "literal") {
       out += p.text;
     } else {
-      const v = operand(ctx, n, p.operandIndex);
+      const exprPart = p as { kind: "expr"; operandIndex?: number; idx?: number; escape: boolean };
+      const v = operand(ctx, n, exprPart.operandIndex ?? exprPart.idx ?? 0);
       const s = stringify(v);
       out += p.escape ? htmlEscape(s) : s;
     }

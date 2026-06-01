@@ -42,6 +42,16 @@ describe("@chrysalis/runtime-cwl", () => {
     expect(res.headers.get("content-type")).toMatch(/text\/html/);
   });
 
+  it("interpolates path params in page HTML (G1189)", async () => {
+    const fullstack = resolve(ROOT, "fixtures/hub-flagship-cwl-fullstack/routes.cwl");
+    const module = loadModuleFromCwlFile(fullstack, ROOT);
+    const runtime = createCwlRuntime({ module });
+    const res = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/docs/intro" });
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("intro");
+  });
+
   it("page load sidecar in HTML (G1169)", async () => {
     const pageLoadGold = resolve(ROOT, "fixtures/hub-gold-cwl-page-load/routes.cwl");
     const module = loadModuleFromCwlFile(pageLoadGold, ROOT);

@@ -52,6 +52,7 @@ export async function runNextjsDeepSmoke(opts = {}) {
   const hasBlockHole = holeReasons.includes("hub-next:page-component");
   const hasLoadHole = holeReasons.includes("hub-next:load-function");
   const loadRouteLifted = routes.some((r) => r.path.includes("/blog/") && !r.holeReason && r.loadData);
+  const shopLifted = routes.some((r) => r.path === "/shop" && !r.holeReason);
 
   const ok =
     budgetCheck.ok &&
@@ -59,6 +60,7 @@ export async function runNextjsDeepSmoke(opts = {}) {
     hasBlockHole &&
     !hasLoadHole &&
     loadRouteLifted &&
+    shopLifted &&
     holeReasons.every((r) => isCataloguedFullstackHole(r));
 
   return {
@@ -70,6 +72,7 @@ export async function runNextjsDeepSmoke(opts = {}) {
     hasBlockHole,
     hasLoadHole,
     loadRouteLifted,
+    shopLifted,
     generatedAt: new Date().toISOString(),
   };
 }

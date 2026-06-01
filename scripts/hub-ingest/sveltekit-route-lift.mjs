@@ -6,6 +6,7 @@ import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
 import { CWL_FULLSTACK_HOLE_CATALOG } from "./cwl-fullstack-holes.mjs";
+import { applyBareFieldRefsToHtml } from "./cwl-html-template.mjs";
 import {
   extractLoadLiteralBools,
   liftSvelteKitPageLoadFunction,
@@ -251,9 +252,14 @@ export async function liftSvelteKitProjectToWebir(opts) {
             : { ok: false, reason: "missing-page-server" };
         const serverSource = serverFile != null ? await readFile(serverFile, "utf8") : "";
         const loadBools = serverFile != null ? extractLoadLiteralBools(serverSource, serverFile) : {};
-        const html = liftStaticSveltePageHtml(source, loadBools);
+        let html = liftStaticSveltePageHtml(source, loadBools);
         if (loaded.ok && html) {
-          const bodyId = lowerHubPageWithLoadBody(ctx, loaded.loadValueId, html, loc, wrBuilders);
+          const htmlBindings = {
+            path: pathParams,
+            load: loaded.loadFieldNames ?? [],
+          };
+          html = applyBareFieldRefsToHtml(html, [...pathParams, ...(loaded.loadFieldNames ?? [])]);
+          const bodyId = lowerHubPageWithLoadBody(ctx, loaded.loadValueId, html, loc, wrBuilders, htmlBindings);
           emitHubRoute({
             webir,
             builder,

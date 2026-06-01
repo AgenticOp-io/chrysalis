@@ -633,8 +633,15 @@ export function liftSvelteKitPageLoadFunction(opts) {
   if (!expr || expr.type !== "ObjectExpression") {
     return { ok: false, reason: "unsupported-load-return" };
   }
+  /** @type {string[]} */
+  const loadFieldNames = [];
+  for (const prop of expr.properties) {
+    if (prop.type === "Property" && prop.key?.type === "Identifier") {
+      loadFieldNames.push(prop.key.name);
+    }
+  }
   const loadValueId = lowerExpression(ctx, expr);
-  return { ok: true, loadValueId };
+  return { ok: true, loadValueId, loadFieldNames };
 }
 
 /**

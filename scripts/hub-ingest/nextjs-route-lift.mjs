@@ -9,6 +9,7 @@ import {
   liftNextAppRouteHandlerBodies,
   liftSvelteKitPageLoadFunction,
 } from "./javascript-ast-ingest.mjs";
+import { applyBareFieldRefsToHtml } from "./cwl-html-template.mjs";
 import {
   emitHubRoute,
   hubHandlerBodyHole,
@@ -146,13 +147,31 @@ export async function discoverNextAppRouteFiles(projectDir) {
 /**
  * @param {string} source
  */
-export function liftStaticJsxPageHtml(source) {
+export function extractJsxConstBools(source) {
+  /** @type {Record<string, boolean>} */
+  const out = {};
+  const re = /const\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(true|false)\s*;/g;
+  let m;
+  while ((m = re.exec(source)) !== null) out[m[1]] = m[2] === "true";
+  return out;
+}
+
+/**
+ * @param {string} source
+ * @param {Record<string, boolean>} [constBools]
+ */
+export function liftStaticJsxPageHtml(source, constBools = {}) {
+  const bools = { ...extractJsxConstBools(source), ...constBools };
   let s = source.replace(/^import[\s\S]*?;\s*/gm, "");
   const ret = /return\s*\(\s*([\s\S]*?)\s*\)\s*;?\s*\}/.exec(s);
   if (ret) s = ret[1];
   else {
     s = s.replace(/^export\s+default\s+function[\s\S]*?\{([\s\S]*)\}\s*$/m, "$1");
   }
+  s = s.replace(
+    /\{([a-zA-Z_][a-zA-Z0-9_]*)\s*\?\s*([\s\S]*?)\s*:\s*([\s\S]*?)\}/g,
+    (m, name, t, f) => (Object.prototype.hasOwnProperty.call(bools, name) ? (bools[name] ? t : f) : m),
+  );
   if (/\{/.test(s)) return null;
   s = s.replace(/\/>/g, ">").trim();
   if (!s || !/<[a-z]/i.test(s)) return null;
@@ -231,9 +250,14 @@ export async function liftNextAppProjectToWebir(opts) {
                 builder,
               })
             : { ok: false, reason: "missing-page-server" };
-        const html = liftStaticJsxPageHtml(source);
+        const htmlBindings = {
+          path: pathParams,
+          load: loaded.loadFieldNames ?? [],
+        };
+        let html = liftStaticJsxPageHtml(source);
         if (loaded.ok && html) {
-          const bodyId = lowerHubPageWithLoadBody(ctx, loaded.loadValueId, html, loc, wrBuilders);
+          html = applyBareFieldRefsToHtml(html, [...pathParams, ...(loaded.loadFieldNames ?? [])]);
+          const bodyId = lowerHubPageWithLoadBody(ctx, loaded.loadValueId, html, loc, wrBuilders, htmlBindings);
           emitHubRoute({
             webir,
             builder,
