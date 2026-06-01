@@ -1,0 +1,44 @@
+# CWL RFC-0013 — Page load / SSR data (draft)
+
+**Status:** draft (2026-06-01)  
+**Tracking:** G1159, DESIGN D1159 (queue)  
+**Depends on:** RFC-0010 (`@page`), RFC-0012 (hole catalog)
+
+## Summary
+
+Lower simple SvelteKit **`+page.server.ts`** load functions into WebIR page data semantics, then project to CWL **`@page`** surfaces with honest param/body refs — replacing **`hub-svelte:load-function`** holes where safe.
+
+## Motivation
+
+G1158 catalogues load as a hole. Real full-stack apps need SSR/page data on the critical path. v1 targets **literal returns** and **`params.*`** only (same bar as API `json()` lift).
+
+## Proposed syntax (sketch)
+
+```cwl
+@page GET "/blog/:slug"
+page blog_show {
+  effects: none;
+  param slug;
+  load { slug: slug, source: "page-server" };
+  return html "<h1>Blog</h1>";
+}
+```
+
+Exact `load { … }` block syntax is **TBD** in G1159; must round-trip through `renderCwlRoutes` and `@chrysalis/runtime-cwl`.
+
+## WebIR mapping (TBD)
+
+- Attach load payload as structured data nodes on the handler body (not a second IR).
+- Unsupported load shapes → **`hub-svelte:load-function`** hole (RFC-0012).
+
+## Verify plan (G1159)
+
+- `fixtures/hub-gold-svelte-kit-deep` — load route hole-free after implementation
+- `hub:sveltekit-deep-smoke` — budget updated
+- G1160 — emit merge + round-trip
+
+## Non-goals (v1)
+
+- Streaming, dependencies, invalidation, form actions
+- Client-side hydration contract
+- Automatic merge of arbitrary Svelte components

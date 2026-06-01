@@ -230,6 +230,10 @@ When the user says “build” without specifying, prefer this queue:
 | 3 | Keep project-to-CWL + CWL diff mandatory on translate paths |
 | 3–4 | Full-stack flagship pilot with explicit hole budget and evidence gate |
 
+### Full-stack CWL — next 10 steps (after G1158)
+
+When the user says **“build”** without specifying and G1158 is complete, prefer **`docs/CWL-FULLSTACK-NEXT-10.md`** (**G1159–G1168**): load-function lowering → page/load emit → flagship HTTP verify → Hub template/evidence → Svelte template depth → CWL fmt → Next.js origin → runtime-cwl production gates.
+
 ### Hub verify-gaps program (post–Next 90 days)
 
 | Month | Focus |

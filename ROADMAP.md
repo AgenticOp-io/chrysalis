@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | future G-track |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1168** (next 10) |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -813,6 +813,22 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1156 — Hub CWL diagnose API** — `GET /api/hub/cwl-diagnose`; Console preview includes lint summary. (**DESIGN D1156**)
 - [x] **G1157 — CWL full-stack flagship pilot** — `fixtures/hub-flagship-cwl-fullstack` + hole budget manifest; `hub:cwl-fullstack-flagship-smoke`; gold **`cwl-fullstack-flagship-{hono,fastify}`**. (**DESIGN D1157**)
 - [x] **G1158 — SvelteKit deep lift** — POST `+server`, `+page.server` load holes, `{#if}` blocks; `hub-gold-svelte-kit-deep`; `hub:sveltekit-deep-smoke`. (**DESIGN D1158**)
+
+### Full-stack CWL — next 10 steps (locked queue)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10.md`. Default build order after G1158. Amend via Decision Log + that doc.
+
+- [ ] **G1159 — RFC-0013 load-function lowering v1** — Simple `+page.server.ts` load → WebIR; RFC doc; deep-fixture gold/smoke. (**DESIGN D1159** queue)
+- [ ] **G1160 — Page + load CWL emit merge** — Single `@page` with data + HTML; round-trip smoke on deep fixture. (**DESIGN D1160** queue)
+- [ ] **G1161 — Full-stack flagship HTTP verify** — Live HTTP verify on `hub-flagship-cwl-fullstack` (hono + fastify). (**DESIGN D1161** queue)
+- [ ] **G1162 — Flagship migration contract export** — Project-to-CWL + hole-budget sidecar for flagship template. (**DESIGN D1162** queue)
+- [ ] **G1163 — Svelte template partial lift** — `{@html}` / trivial `{#each}`; extended RFC-0012 catalog. (**DESIGN D1163** queue)
+- [ ] **G1164 — CWL formatter v1** — `chrysalis cwl fmt` + tests. (**DESIGN D1164** queue)
+- [ ] **G1165 — Hub bootstrap → flagship template** — Portal seeds flagship module + budget. (**DESIGN D1165** queue)
+- [ ] **G1166 — Hole budget on delivery dashboard** — Console pass/fail vs `chrysalis.fullstack-hole-budget.json`. (**DESIGN D1166** queue)
+- [ ] **G1167 — Next.js App Router origin v0** — File-route lift + gold/deep fixtures. (**DESIGN D1167** queue)
+- [ ] **G1168 — runtime-cwl production readiness gates** — Multi-scenario parity smoke; no production SQL/session claims. (**DESIGN D1168** queue)
+
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
 **Paused by policy (do not open without plan amendment):** matrix gold for marketing; WordPress before Laravel boring; “any language production-ready” claims.
