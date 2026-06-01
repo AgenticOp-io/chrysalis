@@ -1724,6 +1724,46 @@
     loadConsoleDeliveryDashboard().catch(() => {});
   });
 
+  async function runConsoleCwlPreview() {
+    const summary = $("consoleCwlPreviewSummary");
+    const probeEl = $("consoleCwlPreviewProbe");
+    const dir = selectedSiteLocalDir();
+    if (!dir) {
+      if (summary) summary.textContent = "CWL preview: no project directory";
+      return;
+    }
+    if (summary) summary.textContent = "Running CWL runtime preview…";
+    if (probeEl) {
+      probeEl.style.display = "none";
+      probeEl.textContent = "";
+    }
+    try {
+      const report = await post("/api/hub/cwl-preview", { projectDir: dir, probe: true });
+      if (summary) {
+        const probe = report.probe;
+        const probeLine =
+          probe && typeof probe.status === "number"
+            ? ` · probe ${probe.route ?? "GET"} → ${probe.status}`
+            : probe?.skipped
+              ? ` · probe skipped (${probe.skipped})`
+              : probe?.error
+                ? ` · probe error`
+                : "";
+        summary.textContent = `CWL preview: ${report.routeCount ?? 0} route(s)${report.holeCount ? ` (${report.holeCount} holes)` : ""}${probeLine}`;
+      }
+      if (probeEl && report.probe) {
+        probeEl.style.display = "block";
+        probeEl.textContent = JSON.stringify(report.probe, null, 2);
+      }
+    } catch (e) {
+      if (summary) summary.textContent = "CWL preview error: " + e.message;
+    }
+  }
+
+  $("btnRunCwlPreview")?.addEventListener("click", () => {
+    runConsoleCwlPreview().catch(() => {});
+  });
+
   $("btnRunPipeline")?.addEventListener("click", async () => {
     $("log").textContent = "";
     $("siteActionStatus").textContent = "Starting full pipeline (setup + translate)…";

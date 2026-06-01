@@ -322,12 +322,33 @@ async function cmdCwlPreview(rest: string[]): Promise<number> {
   return report.ok === true ? 0 : 1;
 }
 
+async function cmdCwlLint(rest: string[]): Promise<number> {
+  const pos = rest.filter((a) => !a.startsWith("-"));
+  const targetDir = resolve(pos[0] ?? process.cwd());
+  const cwlPath = join(targetDir, ".chrysalis", "migration.cwl");
+  if (!existsSync(cwlPath)) {
+    console.error(`[cwl lint] missing ${cwlPath} (run cwl init first)`);
+    return 1;
+  }
+  const mod = await import(
+    resolve(resolveRepoRoot(), "scripts/hub-ingest/cwl-diagnose.mjs") as string
+  );
+  const report = await mod.diagnoseCwlFile(cwlPath);
+  process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+  for (const d of (report.diagnostics as Array<{ severity: string; message: string }>) ?? []) {
+    if (d.severity === "error") console.error(`[cwl lint] error: ${d.message}`);
+    else if (d.severity === "warn") console.warn(`[cwl lint] warn: ${d.message}`);
+  }
+  return report.ok === true ? 0 : 1;
+}
+
 async function cmdCwl(rest: string[]): Promise<number> {
   const sub = rest[0];
   if (!sub || sub === "--help" || sub === "-h" || sub === "help") {
     console.log("chrysalis cwl — CWL authoring shortcuts\n");
     console.log("  init [<dir>]       Bootstrap .chrysalis/migration.cwl starter module");
     console.log("  preview [<dir>]    List routes and probe runtime-cwl (JSON on stdout)");
+    console.log("  lint [<dir>]       Parse migration.cwl and report diagnostics (JSON on stdout)");
     console.log("\nFlags:");
     console.log("  --no-probe         Skip runtime-cwl HTTP probe");
     console.log("  --bootstrap        (preview) create starter CWL when missing");
@@ -338,6 +359,9 @@ async function cmdCwl(rest: string[]): Promise<number> {
   }
   if (sub === "preview") {
     return cmdCwlPreview(rest.slice(1));
+  }
+  if (sub === "lint") {
+    return cmdCwlLint(rest.slice(1));
   }
   console.error(`[cwl] unknown subcommand: ${sub}`);
   console.error("run 'chrysalis cwl help' for usage.");

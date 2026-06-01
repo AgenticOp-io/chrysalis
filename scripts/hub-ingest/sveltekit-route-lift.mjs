@@ -4,8 +4,15 @@
  */
 import { readFile, readdir } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
+import { CWL_FULLSTACK_HOLE_CATALOG } from "./cwl-fullstack-holes.mjs";
 import { liftJavaScriptFileToWebir } from "./javascript-ast-ingest.mjs";
 import { emitHubRoute, hubHandlerBodyHole } from "./hub-lift-webir-route.mjs";
+
+const HOLE_PAGE = "hub-svelte:page-component";
+const HOLE_SERVER = "hub-svelte:server-handler";
+if (!CWL_FULLSTACK_HOLE_CATALOG[HOLE_PAGE] || !CWL_FULLSTACK_HOLE_CATALOG[HOLE_SERVER]) {
+  throw new Error("sveltekit-route-lift: RFC-0012 hole catalog missing svelte entries");
+}
 
 const ROUTE_FILES = new Set(["+server.ts", "+server.js", "+page.server.ts", "+page.server.js"]);
 const PAGE_FILES = new Set(["+page.svelte"]);
@@ -145,7 +152,7 @@ export async function liftSvelteKitProjectToWebir(opts) {
     const data = webir.dataDialect.builders(builder);
     const ctx = { data, webir, file: spec.file };
     const loc = { file: spec.file, line: 1 };
-    const reason = spec.kind === "page" ? "hub-svelte:page-component" : "hub-svelte:server-handler";
+    const reason = spec.kind === "page" ? HOLE_PAGE : HOLE_SERVER;
     const bodyId = hubHandlerBodyHole(ctx, reason, loc);
     emitHubRoute({
       webir,

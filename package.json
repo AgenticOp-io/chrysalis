@@ -113,6 +113,8 @@
     "hub:cwl-fullstack-roundtrip-smoke": "node scripts/hub-ingest/hub-cwl-fullstack-roundtrip-smoke.mjs",
     "hub:cwl-layout-smoke": "node scripts/hub-ingest/hub-cwl-layout-smoke.mjs",
     "hub:sveltekit-smoke": "node scripts/hub-ingest/hub-sveltekit-smoke.mjs",
+    "hub:sveltekit-cwl-export-smoke": "node scripts/hub-ingest/hub-sveltekit-cwl-export-smoke.mjs",
+    "hub:cwl-runtime-parity-smoke": "node scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs",
     "hub:project-to-cwl-gates": "node scripts/hub-ingest/hub-project-to-cwl-gates.mjs",
     "hub:evidence-smoke": "node scripts/hub-ingest/hub-evidence-smoke.mjs",
     "hub:evidence-live": "node scripts/hub-ingest/hub-evidence-live.mjs",

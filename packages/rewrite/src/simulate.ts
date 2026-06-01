@@ -347,6 +347,19 @@ function evalNode(ctx: SimCtx, n: NodeBase): SimValue {
       return evalSessionRead(ctx, n);
     case "effect.session.write":
       return evalSessionWrite(ctx, n);
+
+    case "web.request.response": {
+      const status = (n.attrs as { status?: number }).status;
+      if (typeof status === "number") ctx.status = status;
+      const val = n.operands[0] ? operand(ctx, n, 0) : { kind: "null" as const };
+      if (val.kind === "str") {
+        ctx.echo.push(val.value);
+      } else if (val.kind !== "null") {
+        ctx.echo.push(jsonEncodeSimValue(val));
+      }
+      return val;
+    }
+
     case "effect.time.now": {
       const fmt = n.attrs.format;
       if (fmt === "unix" || fmt === "epoch_ms" || fmt === "epoch_float") {

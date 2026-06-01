@@ -938,6 +938,37 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "POST" && url.pathname === "/api/hub/cwl-preview") {
+    let body = {};
+    try {
+      const raw = await readRawBody(req);
+      body = raw.length > 0 ? JSON.parse(raw.toString("utf8")) : {};
+    } catch {
+      sendJson(res, 400, { error: "invalid-json" });
+      return;
+    }
+    const projectDir = body?.projectDir;
+    const cwlPath = body?.cwlPath ?? undefined;
+    const probe = body?.probe !== false;
+    if (!projectDir || typeof projectDir !== "string") {
+      sendJson(res, 400, { error: "projectDir required in JSON body" });
+      return;
+    }
+    try {
+      await assertHubLicenseAllows("hub-cwl-preview");
+      const { jsonPath, report } = await writeCwlPreviewArtifacts(resolve(projectDir), { cwlPath, probe });
+      sendJson(res, report.ok ? 200 : 404, { ...report, jsonPath });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("license")) {
+        sendJson(res, 403, { error: "license-gate", message: msg });
+        return;
+      }
+      sendJson(res, 500, { error: msg });
+    }
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/chimera-cutover") {
     const projectDir = url.searchParams.get("projectDir");
     const origin = url.searchParams.get("origin") ?? "php";

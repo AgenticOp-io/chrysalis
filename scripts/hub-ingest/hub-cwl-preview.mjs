@@ -8,13 +8,28 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 
 export const HUB_CWL_PREVIEW_KIND = "chrysalis.hub.cwl-preview";
 export const HUB_CWL_PREVIEW_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+/**
+ * @param {string} [repoRoot]
+ */
+async function loadCwlRuntimeModule(repoRoot = scriptRoot) {
+  try {
+    return await import("@chrysalis/runtime-cwl");
+  } catch {
+    const dist = join(repoRoot, "packages/runtime-cwl/dist/index.js");
+    if (!existsSync(dist)) {
+      throw new Error("missing @chrysalis/runtime-cwl build (run pnpm --filter @chrysalis/runtime-cwl build)");
+    }
+    return import(pathToFileURL(dist).href);
+  }
+}
 
 /**
  * @param {string} projectDir
@@ -54,7 +69,7 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
   if (opts.probe !== false) {
     try {
       const repoRoot = opts.repoRoot ?? scriptRoot;
-      const { createCwlRuntime, loadModuleFromCwlFile } = await import("@chrysalis/runtime-cwl");
+      const { createCwlRuntime, loadModuleFromCwlFile } = await loadCwlRuntimeModule(repoRoot);
       const module = loadModuleFromCwlFile(cwlPath, repoRoot);
       const runtime = createCwlRuntime({ module });
       const first = routes.find((r) => r.method === "GET" && !r.hole);

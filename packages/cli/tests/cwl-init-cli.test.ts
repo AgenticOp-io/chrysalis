@@ -34,3 +34,24 @@ describe("chrysalis cwl init", () => {
     }
   });
 });
+
+describe("chrysalis cwl lint", () => {
+  test("reports diagnostics on bootstrapped migration.cwl (G1152)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "chrysalis-cwl-lint-"));
+    try {
+      const init = spawnSync(process.execPath, [BIN, "cwl", "init", dir, "--no-probe"], {
+        cwd: ROOT,
+        encoding: "utf8",
+      });
+      expect(init.status).toBe(0);
+      const lint = spawnSync(process.execPath, [BIN, "cwl", "lint", dir], {
+        cwd: ROOT,
+        encoding: "utf8",
+      });
+      expect(lint.status).toBe(0);
+      expect(lint.stdout).toMatch(/"kind": "chrysalis.cwl.diagnose"/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});

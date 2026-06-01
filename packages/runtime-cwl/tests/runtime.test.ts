@@ -30,4 +30,15 @@ describe("@chrysalis/runtime-cwl", () => {
     expect(body.ok).toBe(true);
     expect(body.version).toBe(1);
   });
+
+  it("GET / on full-stack gold returns HTML (G1151)", async () => {
+    const fullstack = resolve(ROOT, "fixtures/hub-gold-cwl-fullstack/routes.cwl");
+    const module = loadModuleFromCwlFile(fullstack, ROOT);
+    const runtime = createCwlRuntime({ module });
+    const res = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/" });
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("<h1>Home</h1>");
+    expect(res.headers.get("content-type")).toMatch(/text\/html/);
+  });
 });

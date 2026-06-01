@@ -15,6 +15,7 @@ CWL evolves by **RFC**: each proposal must cite cross-language evidence (path kn
 | [0009](CWL-RFC-0009-multi-file-modules.md) | Multi-file modules (`import`) | accepted |
 | [0010](CWL-RFC-0010-full-stack-pages.md) | Full-stack page surface (`@page`, `return html`) | accepted |
 | [0011](CWL-RFC-0011-full-stack-layouts.md) | Layout imports + page params | accepted |
+| [0012](CWL-RFC-0012-full-stack-components.md) | Full-stack component holes (SvelteKit) | accepted |
 
 **Process**
 

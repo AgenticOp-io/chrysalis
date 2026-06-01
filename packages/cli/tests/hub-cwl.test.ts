@@ -36,6 +36,36 @@ test("sveltekit route lift discovers file routes (G1144)", async () => {
   expect(report.discovered?.blogPath).toBe("/blog/:slug");
 });
 
+test("sveltekit exports CWL projection with catalogued holes (G1148)", async () => {
+  const { runSveltekitCwlExportSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-sveltekit-cwl-export-smoke.mjs"),
+  );
+  const report = await runSveltekitCwlExportSmoke();
+  expect(report.ok).toBe(true);
+  expect(report.catalogued).toBe(true);
+});
+
+test("runtime-cwl full-stack parity smoke (G1151)", async () => {
+  const { runCwlRuntimeParitySmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs"),
+  );
+  const report = await runCwlRuntimeParitySmoke();
+  expect(report.ok).toBe(true);
+});
+
+test("cwl diagnose catalogs svelte holes (G1149 / G1152)", async () => {
+  const { runSveltekitCwlExportSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-sveltekit-cwl-export-smoke.mjs"),
+  );
+  await runSveltekitCwlExportSmoke();
+  const { diagnoseCwlFile } = await import(resolve(ROOT, "scripts/hub-ingest/cwl-diagnose.mjs"));
+  const report = await diagnoseCwlFile(
+    resolve(ROOT, "fixtures/hub-gold-svelte-kit/generated/cwl/routes.cwl"),
+  );
+  expect(report.ok).toBe(true);
+  expect(report.diagnostics.some((d: { code: string }) => d.code === "catalogued-hole")).toBe(true);
+});
+
 test("cwl parser: full-stack page surface (RFC-0010 / G1143)", async () => {
   const { parseCwlModule } = await import(PARSER);
   const { readFile } = await import("node:fs/promises");

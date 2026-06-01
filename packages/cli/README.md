@@ -14,6 +14,7 @@ Subcommands (some are Milestone 1 stubs):
 - `chrysalis init [<dir>]` — write **`chrysalis.project.json`** (**`kind`:** **`chrysalis.project`**, **`schemaVersion`:** **`1.0.0`**) at the PHP root; creates **`dir`** if missing; no-op when already initialized (**DESIGN D290**). Not gated by **`CHRYSALIS_REQUIRE_LICENSE`**.
 - `chrysalis cwl init [<dir>]` — bootstrap **`.chrysalis/migration.cwl`** starter module + **`cwl-preview.json`** via **`@chrysalis/runtime-cwl`** probe (**G1142**); idempotent when contract exists. Not license-gated.
 - `chrysalis cwl preview [<dir>]` — JSON preview report (routes, holes, runtime probe); optional **`--bootstrap`**, **`--no-probe`**.
+- `chrysalis cwl lint [<dir>]` — parse **`.chrysalis/migration.cwl`** diagnostics (RFC-0012 hole catalog, duplicates); JSON on stdout (**G1152**).
 - `chrysalis license check|print` — validate a local **Ed25519** license envelope (**`CHRYSALIS_LICENSE`** or **`CHRYSALIS_LICENSE_PATH`**) with **`CHRYSALIS_LICENSE_PUBLIC_KEY`** or **`CHRYSALIS_LICENSE_PUBLIC_KEY_PATH`**; **no network**. Optional gate: **`CHRYSALIS_REQUIRE_LICENSE=1`**; optional SKU floor **`CHRYSALIS_LICENSE_MIN_TIER=dev|pro|enterprise`** (**`@chrysalis/license`**, **DESIGN D289**). **Commercial packaging is not publicly launched yet**; see **`docs/COMMERCIAL.md`**.
 - `chrysalis observe` — run the oracle sidecar against a live PHP app; optional
   **`chrysalis.observe.json`** in the PHP root **merges** onto built-in default redaction (same `path` overrides `kind`).
