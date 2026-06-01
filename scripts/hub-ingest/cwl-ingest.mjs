@@ -126,19 +126,12 @@ function lowerObjectEntriesBody(ctx, entries, loc) {
       }),
     );
   }
-  return data.block({
-    statements: [
-      data.call({
-        callee: "__object_literal",
-        args: flat,
-        type: HUB_T.unknown,
-        origin,
-        provenance: [webir.provenance("hub-ingest", "cwl:object")],
-      }),
-    ],
+  return data.call({
+    callee: "__object_literal",
+    args: flat,
     type: HUB_T.unknown,
     origin,
-    provenance: [webir.provenance("hub-ingest", "cwl:return")],
+    provenance: [webir.provenance("hub-ingest", "cwl:object")],
   });
 }
 

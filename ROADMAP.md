@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1198** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1208** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -873,6 +873,21 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1196 — Authoring batch v4** — `hub:cwl-authoring-batch-v4-smoke`. (**DESIGN D1196**)
 - [x] **G1197 — hub-completion schema 77** — queue-4 full-stack gates. (**DESIGN D1197**)
 - [x] **G1198 — Vitest HTML interpolation** — runtime + CLI smokes. (**DESIGN D1198**)
+
+### Full-stack CWL — queue 5 (G1199–G1208)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-5.md`.
+
+- [x] **G1199 — RFC-0014 HTML interpolation** — `docs/CWL-RFC-0014-html-interpolation.md`. (**DESIGN D1199**)
+- [x] **G1200 — Svelte blog slug field ref** — `{slug}` in deep fixture page template. (**DESIGN D1200**)
+- [x] **G1201 — Deep export slug interpolation** — Svelte deep CWL export smoke in batch v5. (**DESIGN D1201**)
+- [x] **G1202 — HTML round-trip smoke** — `hub:cwl-html-roundtrip-smoke`. (**DESIGN D1202**)
+- [x] **G1203 — Flagship HTTP verify in batch v5** — hono/fastify live verify gate. (**DESIGN D1203**)
+- [x] **G1204 — Authoring batch v5** — `hub:cwl-authoring-batch-v5-smoke`. (**DESIGN D1204**)
+- [x] **G1205 — hub-completion schema 78** — queue-5 gates. (**DESIGN D1205**)
+- [x] **G1206 — Vitest batch v5** — CLI smoke coverage. (**DESIGN D1206**)
+- [x] **G1207 — Strategic plan queue 5** — default build queue updated. (**DESIGN D1207**)
+- [x] **G1208 — ROADMAP lock queue 5** — G1199–G1208 tracked. (**DESIGN D1208**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 

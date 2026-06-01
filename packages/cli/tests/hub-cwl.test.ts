@@ -118,6 +118,23 @@ test("authoring batch v2 smoke (G1175)", async () => {
   expect(report.ok).toBe(true);
 }, 120_000);
 
+test("authoring batch v5 smoke (G1204)", async () => {
+  const { runCwlAuthoringBatchV5Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v5-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV5Smoke();
+  expect(report.ok).toBe(true);
+  expect(report.htmlRoundtrip?.ok).toBe(true);
+}, 300_000);
+
+test("cwl html roundtrip smoke (G1202)", async () => {
+  const { runCwlHtmlRoundtripSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-html-roundtrip-smoke.mjs"),
+  );
+  const report = await runCwlHtmlRoundtripSmoke();
+  expect(report.ok).toBe(true);
+});
+
 test("authoring batch v4 smoke (G1196)", async () => {
   const { runCwlAuthoringBatchV4Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v4-smoke.mjs"),
