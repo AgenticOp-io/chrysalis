@@ -181,6 +181,19 @@ export async function runMegaOriginGate() {
   return { ok: svelte.ok && next.ok && flagship.ok === true, svelte, next, flagship };
 }
 
+export async function runProductionSearchGate(opts = {}) {
+  const { runCwlRuntimeProductionSmoke } = await import("./hub-cwl-runtime-production-smoke.mjs");
+  const report = await runCwlRuntimeProductionSmoke(opts);
+  const probeKey = "GET /search?q=prod21";
+  const probe = report.probes?.[probeKey];
+  return {
+    ok: report.ok === true && probe?.ok === true,
+    probeKey,
+    status: probe?.status ?? null,
+    productionOk: report.ok === true,
+  };
+}
+
 export async function runGraduationGate(opts = {}) {
   const gates = await Promise.all([
     runQueryHtmlGate(opts),

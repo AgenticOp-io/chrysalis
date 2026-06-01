@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1358** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1458** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -1112,6 +1112,21 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1356 — Vitest batch v20 graduation** — (**DESIGN D1356**)
 - [x] **G1357 — Strategic plan queues 6–20 complete** — (**DESIGN D1357**)
 - [x] **G1358 — ROADMAP + DESIGN lock queues 6–20** — (**DESIGN D1358**)
+
+### Full-stack CWL — queue 21 (G1359–G1368)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-21.md`; program index **`docs/CWL-FULLSTACK-QUEUES-21-30.md`**.
+
+- [x] **G1359 — Production smoke `/search?q=` probe** — RFC-0015 runtime probe on flagship. (**DESIGN D1359**)
+- [x] **G1360 — Runtime query HTML assertion** — `expectQuery` in production smoke. (**DESIGN D1360**)
+- [x] **G1361 — RFC-0015 production-readiness doc** — `docs/CWL-RFC-0015-production-readiness-probes.md`. (**DESIGN D1361**)
+- [x] **G1362 — runProductionSearchGate** — `hub-cwl-fullstack-gates.mjs`. (**DESIGN D1362**)
+- [x] **G1363 — Authoring batch v21** — `hub:cwl-authoring-batch-v21-smoke`. (**DESIGN D1363**)
+- [x] **G1364 — hub-completion schema 94** — queue-21 gate. (**DESIGN D1364**)
+- [x] **G1365 — Vitest batch v21** — CLI smoke coverage. (**DESIGN D1365**)
+- [x] **G1366 — Strategic plan queue 21** — default build queue updated. (**DESIGN D1366**)
+- [x] **G1367 — ROADMAP lock queue 21** — G1359–G1368 tracked. (**DESIGN D1367**)
+- [x] **G1368 — Master index queues 21–30** — `docs/CWL-FULLSTACK-QUEUES-21-30.md`. (**DESIGN D1368**)
 
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)

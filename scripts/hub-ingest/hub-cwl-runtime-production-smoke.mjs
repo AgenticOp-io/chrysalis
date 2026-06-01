@@ -18,6 +18,7 @@ const PROBES = [
   { method: "GET", path: "/docs/intro", expectStatus: 200, expectHtml: true },
   { method: "GET", path: "/about", expectStatus: 200, expectHtml: true },
   { method: "GET", path: "/blog/hello", expectStatus: 200, expectHtml: true, expectPageLoad: true, expectSlug: "hello" },
+  { method: "GET", path: "/search?q=prod21", expectStatus: 200, expectHtml: true, expectQuery: "prod21" },
   { method: "GET", path: "/api/health", expectStatus: 200, expectJson: true },
   { method: "POST", path: "/api/notify", expectStatus: 200, expectJson: true },
 ];
@@ -69,7 +70,8 @@ export async function runCwlRuntimeProductionSmoke(opts = {}) {
       (!probe.expectHtml || body.includes("<")) &&
       (!probe.expectJson || body.trimStart().startsWith("{")) &&
       (!probe.expectPageLoad || body.includes("cwl-page-load")) &&
-      (!probe.expectSlug || body.includes(probe.expectSlug));
+      (!probe.expectSlug || body.includes(probe.expectSlug)) &&
+      (!probe.expectQuery || body.includes(probe.expectQuery));
     probes[`${probe.method} ${probe.path}`] = { ok: caseOk, status: res.status };
     if (!caseOk) ok = false;
   }

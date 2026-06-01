@@ -146,6 +146,7 @@
     "hub:cwl-authoring-batch-v18-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v18-smoke.mjs",
     "hub:cwl-authoring-batch-v19-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v19-smoke.mjs",
     "hub:cwl-authoring-batch-v20-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v20-smoke.mjs",
+    "hub:cwl-authoring-batch-v21-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v21-smoke.mjs",
     "hub:cwl-page-load-parity-smoke": "node scripts/hub-ingest/hub-cwl-page-load-parity-smoke.mjs",
     "hub:nextjs-deep-cwl-export-smoke": "node scripts/hub-ingest/hub-nextjs-deep-cwl-export-smoke.mjs",
     "hub:project-to-cwl-gates": "node scripts/hub-ingest/hub-project-to-cwl-gates.mjs",

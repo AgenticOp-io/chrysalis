@@ -132,6 +132,7 @@ import { runCwlAuthoringBatchV17Smoke } from "./hub-cwl-authoring-batch-v17-smok
 import { runCwlAuthoringBatchV18Smoke } from "./hub-cwl-authoring-batch-v18-smoke.mjs";
 import { runCwlAuthoringBatchV19Smoke } from "./hub-cwl-authoring-batch-v19-smoke.mjs";
 import { runCwlAuthoringBatchV20Smoke } from "./hub-cwl-authoring-batch-v20-smoke.mjs";
+import { runCwlAuthoringBatchV21Smoke } from "./hub-cwl-authoring-batch-v21-smoke.mjs";
 import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
@@ -1049,6 +1050,13 @@ async function main() {
     fullstackAuthoringBatchV20 = { ok: false, skip: "fullstack-authoring-batch-v20-threw" };
   }
   const fullstackAuthoringBatchV20Ok = fullstackAuthoringBatchV20.ok === true;
+  let fullstackAuthoringBatchV21 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV21 = await runCwlAuthoringBatchV21Smoke();
+  } catch {
+    fullstackAuthoringBatchV21 = { ok: false, skip: "fullstack-authoring-batch-v21-threw" };
+  }
+  const fullstackAuthoringBatchV21Ok = fullstackAuthoringBatchV21.ok === true;
   let plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
@@ -1597,6 +1605,7 @@ async function main() {
     fullstackAuthoringBatchV18Ok &&
     fullstackAuthoringBatchV19Ok &&
     fullstackAuthoringBatchV20Ok &&
+    fullstackAuthoringBatchV21Ok &&
     plainPhpMigrationOsBatchOk &&
     tinyBlogDeliveryBatchOk &&
     deliveryPipelineStandaloneBatchOk &&
@@ -1668,7 +1677,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 93,
+    schemaVersion: 94,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -2366,6 +2375,11 @@ async function main() {
       ok: fullstackAuthoringBatchV20Ok,
       script: "pnpm run hub:cwl-authoring-batch-v20-smoke",
       schemaVersion: fullstackAuthoringBatchV20.schemaVersion ?? 1,
+    },
+    fullstackAuthoringBatchV21: {
+      ok: fullstackAuthoringBatchV21Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v21-smoke",
+      schemaVersion: fullstackAuthoringBatchV21.schemaVersion ?? 1,
     },
     plainPhpMigrationOsBatch: {
       ok: plainPhpMigrationOsBatchOk,
