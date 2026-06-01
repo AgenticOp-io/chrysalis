@@ -112,6 +112,30 @@ export function parseCwlReturnValue(expr, bindings = {}) {
 }
 
 /**
+ * Split comma-separated object fields respecting nested `{` `[` brackets.
+ * @param {string} inner
+ */
+function splitTopLevelObjectPairs(inner) {
+  /** @type {string[]} */
+  const pairs = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < inner.length; i++) {
+    const c = inner[i];
+    if (c === "{" || c === "[") depth += 1;
+    else if (c === "}" || c === "]") depth -= 1;
+    else if (c === "," && depth === 0) {
+      const part = inner.slice(start, i).trim();
+      if (part) pairs.push(part);
+      start = i + 1;
+    }
+  }
+  const tail = inner.slice(start).trim();
+  if (tail) pairs.push(tail);
+  return pairs;
+}
+
+/**
  * @param {string} objectExpr
  * @param {{ path: string[], query: string[], header: string[], cookie: string[], body: string[] }} bindings
  */
@@ -120,11 +144,11 @@ function parseCwlObjectEntries(objectExpr, bindings) {
   if (!inner) return { ok: true, entries: [] };
   /** @type {Array<{ key: string, value: { kind: string, value?: unknown, name?: string } }>} */
   const entries = [];
-  const pairRe = /([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*([^,}]+)/g;
-  let m;
-  while ((m = pairRe.exec(inner)) !== null) {
-    const key = m[1];
-    const rawVal = m[2].trim();
+  for (const pair of splitTopLevelObjectPairs(inner)) {
+    const colon = pair.indexOf(":");
+    if (colon < 0) return { ok: false, error: "invalid-object-pair" };
+    const key = pair.slice(0, colon).trim();
+    const rawVal = pair.slice(colon + 1).trim();
     const lit = parseCwlLiteral(rawVal);
     if (lit.ok) {
       entries.push({ key, value: { kind: "literal", value: lit.value } });

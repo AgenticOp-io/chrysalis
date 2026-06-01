@@ -41,7 +41,8 @@ export async function runCwlHtmlRoundtripSmoke(opts = {}) {
   const text = rendered.text;
   const ok =
     text.includes('return html "<html><body><h1>Doc</h1><p>slug: slug</p></body></html>"') &&
-    text.includes('load { slug: slug, source: "flagship" }') &&
+    text.includes('load { slug: slug, source: "flagship", tags: ["news", "featured"] }') &&
+    text.includes('return html "<html><body><h1>Search</h1><p>q: q</p></body></html>"') &&
     rendered.holeCount === 0;
   return {
     ...base,

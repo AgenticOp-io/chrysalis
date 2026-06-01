@@ -38,7 +38,15 @@ async function loadCwlRuntimeModule(repoRoot = scriptRoot) {
  */
 export async function buildCwlPreviewReport(projectDir, opts = {}) {
   const root = resolve(projectDir);
-  const cwlPath = resolve(opts.cwlPath ?? join(root, ".chrysalis", "migration.cwl"));
+  const routesAtRoot = join(root, "routes.cwl");
+  const cwlPath = resolve(
+    opts.cwlPath ??
+      (existsSync(join(root, ".chrysalis", "migration.cwl"))
+        ? join(root, ".chrysalis", "migration.cwl")
+        : existsSync(routesAtRoot)
+          ? routesAtRoot
+          : join(root, ".chrysalis", "migration.cwl")),
+  );
   let bootstrapped = false;
   if (opts.bootstrap && !existsSync(cwlPath)) {
     await mkdir(dirname(cwlPath), { recursive: true });
@@ -81,6 +89,13 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
     hasLoad: Boolean(r.loadBody && r.body?.kind !== "hole"),
   }));
   const pageLoadRouteCount = routes.filter((r) => r.hasLoad).length;
+  let interpolationRouteCount = 0;
+  for (const r of parsed.routes ?? []) {
+    if (r.body?.kind !== "html" || typeof r.body.value !== "string") continue;
+    const html = r.body.value;
+    const names = [...(r.handlerPathParams ?? []), ...(r.handlerQueryParams ?? [])];
+    if (names.some((name) => new RegExp(`\\b${name}\\b`).test(html))) interpolationRouteCount += 1;
+  }
 
   /** @type {Record<string, unknown> | null} */
   let probe = null;
@@ -116,6 +131,7 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
     imports: parsed.imports ?? [],
     routeCount: routes.length,
     pageLoadRouteCount,
+    interpolationRouteCount,
     holeCount: routes.filter((r) => r.hole).length,
     routes,
     probe,
@@ -154,10 +170,10 @@ async function main() {
 /**
  * @param {string} projectDir
  */
-function starterCwlModule(projectDir) {
+export function starterCwlModule(projectDir) {
   const moduleName = sanitizeModuleName(projectDir);
   return [
-    "# CWL full-stack flagship template (G1165)",
+    "# CWL full-stack flagship template v2 (G1279)",
     `module ${moduleName};`,
     "",
     'import "layouts/shell.cwl";',
@@ -173,6 +189,21 @@ function starterCwlModule(projectDir) {
     "  effects: none;",
     "  param slug;",
     '  return html "<html><body><h1>Doc</h1><p>slug: slug</p></body></html>";',
+    "}",
+    "",
+    '@page GET "/search"',
+    "page search {",
+    "  effects: none;",
+    "  query q;",
+    '  return html "<html><body><h1>Search</h1><p>q: q</p></body></html>";',
+    "}",
+    "",
+    '@page GET "/blog/:slug"',
+    "page blog_show {",
+    "  effects: none;",
+    "  param slug;",
+    '  load { slug: slug, source: "flagship", tags: ["news", "featured"] };',
+    '  return html "<html><body><h1>Blog</h1><p>slug: slug</p></body></html>";',
     "}",
     "",
     '@route GET "/api/health"',

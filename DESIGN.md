@@ -2627,6 +2627,7 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-01 — D1189–D1198** **Full-stack CWL queue 4 (G1189–G1198).** CWL HTML `html.template` interpolation; load env binding; Svelte/Next.js template depth; interpolation smokes; authoring batch v4; hub-completion schema **77**. **DESIGN §3** unchanged.
 
 - **2026-06-01 — D1199–D1208** **Full-stack CWL queue 5 (G1199–G1208).** RFC-0014 HTML interpolation; Svelte blog slug template; HTML round-trip; HTTP verify in batch v5; hub-completion schema **78**. **DESIGN §3** unchanged.
+- **2026-06-01 — D1209–D1358** **Full-stack CWL queues 6–20 (G1209–G1358).** Query/load/layout/diagnose gates; OpenAPI page surfaces; bootstrap v2; delivery interpolation metric; hono emit probe; Next/Svelte search origins; hole budget v2; mega-origin + graduation batch v20; hub-completion schema **93**. **DESIGN §3** unchanged.
 
 - **2026-06-01 — D1169–D1177** **Full-stack CWL queue 2 (G1169–G1177).** runtime-cwl `__page_load`, bootstrap `layouts/shell.cwl`, deep Svelte/Next.js export smokes, hono parity, production `/about` probe, static `{#if true|false}` Svelte lift, page-load HTML sidecar. **DESIGN §3** unchanged.
 

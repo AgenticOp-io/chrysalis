@@ -1,11 +1,12 @@
 {
   "kind": "chrysalis.cwl.fullstack-hole-budget",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "fixture": "fixtures/hub-flagship-cwl-fullstack",
   "maxHoles": 0,
-  "minRoutes": 7,
-  "minPageRoutes": 3,
+  "minRoutes": 8,
+  "minPageRoutes": 4,
   "minPageLoadRoutes": 1,
+  "minInterpolationRoutes": 3,
   "minApiRoutes": 3,
-  "evidenceGates": ["cwl-preview", "runtime-parity", "cwl-diagnose", "gold-verify"]
+  "evidenceGates": ["cwl-preview", "runtime-parity", "cwl-diagnose", "gold-verify", "authoring-batch-v20"]
 }

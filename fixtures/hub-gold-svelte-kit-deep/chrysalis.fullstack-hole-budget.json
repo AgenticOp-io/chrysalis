@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "fixture": "fixtures/hub-gold-svelte-kit-deep",
   "maxHoles": 1,
-  "minRoutes": 6,
+  "minRoutes": 7,
   "minLiftedRoutes": 5,
   "cataloguedHolesOnly": true,
   "expectedHoleReasons": ["hub-svelte:page-component"]

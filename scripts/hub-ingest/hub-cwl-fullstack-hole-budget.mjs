@@ -44,5 +44,8 @@ export function checkFullstackHoleBudget(budget, stats) {
   if (typeof budget.minPageLoadRoutes === "number" && (stats.pageLoadCount ?? 0) < budget.minPageLoadRoutes) {
     violations.push(`page-load routes ${stats.pageLoadCount ?? 0} < min ${budget.minPageLoadRoutes}`);
   }
+  if (typeof budget.minInterpolationRoutes === "number" && (stats.interpolationCount ?? 0) < budget.minInterpolationRoutes) {
+    violations.push(`interpolation routes ${stats.interpolationCount ?? 0} < min ${budget.minInterpolationRoutes}`);
+  }
   return { ok: violations.length === 0, violations };
 }

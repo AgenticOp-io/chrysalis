@@ -60,6 +60,8 @@ export async function runCwlFullstackFlagshipSmoke(opts = {}) {
     routeCount: preview.routeCount ?? 0,
     pageCount: pageRoutes.length,
     apiCount: apiRoutes.length,
+    pageLoadCount: preview.pageLoadRouteCount ?? diagnose.loadRouteCount ?? 0,
+    interpolationCount: preview.interpolationRouteCount ?? diagnose.interpolationRouteCount ?? 0,
   });
 
   /** @type {Record<string, boolean>} */

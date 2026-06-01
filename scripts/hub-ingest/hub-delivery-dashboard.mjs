@@ -91,10 +91,21 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
   const license = await buildHubLicenseStatusReport();
 
   const migrationCwl = join(chrysalisDir, "migration.cwl");
-  const cwlPath = existsSync(migrationCwl) ? migrationCwl : existsSync(join(root, "migration.cwl")) ? join(root, "migration.cwl") : null;
+  const routesCwl = join(root, "routes.cwl");
+  const preferRoutesCwl =
+    existsSync(routesCwl) && existsSync(join(root, "chrysalis.fullstack-hole-budget.json"));
+  const cwlPath = preferRoutesCwl
+    ? routesCwl
+    : existsSync(migrationCwl)
+      ? migrationCwl
+      : existsSync(join(root, "migration.cwl"))
+        ? join(root, "migration.cwl")
+        : existsSync(routesCwl)
+          ? routesCwl
+          : null;
   let cwlPreview = null;
   const cwlPreviewArtifact = join(chrysalisDir, "cwl-preview.json");
-  if (existsSync(cwlPreviewArtifact)) {
+  if (existsSync(cwlPreviewArtifact) && !preferRoutesCwl) {
     try {
       cwlPreview = JSON.parse(readFileSync(cwlPreviewArtifact, "utf8"));
     } catch {
@@ -119,15 +130,22 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
   const budgetRead = await readFullstackHoleBudget(root);
   let fullstackHoleBudget = null;
   if (budgetRead.ok) {
+    const pageCount = cwlPreview?.routes?.filter((r) => r.surfaceKind === "page").length ?? null;
+    const apiCount =
+      cwlPreview?.routes?.filter((r) => (r.surfaceKind ?? "api") === "api" && !r.hole).length ?? null;
     fullstackHoleBudget = {
       budget: budgetRead.budget,
       liveHoleCount: cwlPreview?.holeCount ?? evidence.holes?.count ?? null,
       check: checkFullstackHoleBudget(budgetRead.budget, {
         holeCount: cwlPreview?.holeCount ?? evidence.holes?.count ?? 0,
         routeCount: cwlPreview?.routeCount ?? 0,
+        pageCount: pageCount ?? undefined,
+        apiCount: apiCount ?? undefined,
         pageLoadCount: cwlPreview?.pageLoadRouteCount ?? 0,
+        interpolationCount: cwlPreview?.interpolationRouteCount ?? 0,
       }),
       pageLoadRouteCount: cwlPreview?.pageLoadRouteCount ?? null,
+      interpolationRouteCount: cwlPreview?.interpolationRouteCount ?? null,
     };
   }
 
@@ -177,6 +195,8 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       ? {
           ok: cwlPreview.ok === true,
           routeCount: cwlPreview.routeCount ?? null,
+          pageLoadRouteCount: cwlPreview.pageLoadRouteCount ?? null,
+          interpolationRouteCount: cwlPreview.interpolationRouteCount ?? null,
           holeCount: cwlPreview.holeCount ?? null,
           imports: cwlPreview.imports ?? [],
           moduleName: cwlPreview.moduleName ?? null,

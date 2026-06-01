@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1208** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1358** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -888,6 +888,231 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1206 — Vitest batch v5** — CLI smoke coverage. (**DESIGN D1206**)
 - [x] **G1207 — Strategic plan queue 5** — default build queue updated. (**DESIGN D1207**)
 - [x] **G1208 — ROADMAP lock queue 5** — G1199–G1208 tracked. (**DESIGN D1208**)
+### Full-stack CWL — queue 6 (G1209–G1218)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-6.md`.
+
+- [x] **G1209 — Flagship `/search` query route** — (**DESIGN D1209**)
+- [x] **G1210 — Runtime query HTML interpolation probe** — (**DESIGN D1210**)
+- [x] **G1211 — RFC-0014 query binding note** — (**DESIGN D1211**)
+- [x] **G1212 — CWL diagnose interpolationRouteCount** — (**DESIGN D1212**)
+- [x] **G1213 — runQueryHtmlGate** — (**DESIGN D1213**)
+- [x] **G1214 — Authoring batch v6** — (**DESIGN D1214**)
+- [x] **G1215 — hub-completion schema 79** — (**DESIGN D1215**)
+- [x] **G1216 — Vitest batch v6** — (**DESIGN D1216**)
+- [x] **G1217 — Strategic plan queue 6** — (**DESIGN D1217**)
+- [x] **G1218 — ROADMAP lock queue 6** — (**DESIGN D1218**)
+
+### Full-stack CWL — queue 7 (G1219–G1228)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-7.md`.
+
+- [x] **G1219 — Blog load tags array** — (**DESIGN D1219**)
+- [x] **G1220 — Runtime load array sidecar** — (**DESIGN D1220**)
+- [x] **G1221 — runLoadArrayGate** — (**DESIGN D1221**)
+- [x] **G1222 — Load array in page-load JSON** — (**DESIGN D1222**)
+- [x] **G1223 — Hole budget minPageLoadRoutes** — (**DESIGN D1223**)
+- [x] **G1224 — Authoring batch v7** — (**DESIGN D1224**)
+- [x] **G1225 — hub-completion schema 80** — (**DESIGN D1225**)
+- [x] **G1226 — Vitest load array gate** — (**DESIGN D1226**)
+- [x] **G1227 — Queue doc lock** — (**DESIGN D1227**)
+- [x] **G1228 — ROADMAP lock queue 7** — (**DESIGN D1228**)
+
+### Full-stack CWL — queue 8 (G1229–G1238)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-8.md`.
+
+- [x] **G1229 — layouts/shell.cwl import** — (**DESIGN D1229**)
+- [x] **G1230 — Layout route in preview** — (**DESIGN D1230**)
+- [x] **G1231 — runLayoutSearchGate** — (**DESIGN D1231**)
+- [x] **G1232 — Multi-file module graph** — (**DESIGN D1232**)
+- [x] **G1233 — Bootstrap copies shell.cwl** — (**DESIGN D1233**)
+- [x] **G1234 — Authoring batch v8** — (**DESIGN D1234**)
+- [x] **G1235 — hub-completion schema 81** — (**DESIGN D1235**)
+- [x] **G1236 — Vitest layout gate** — (**DESIGN D1236**)
+- [x] **G1237 — Queue doc lock** — (**DESIGN D1237**)
+- [x] **G1238 — ROADMAP lock queue 8** — (**DESIGN D1238**)
+
+### Full-stack CWL — queue 9 (G1239–G1248)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-9.md`.
+
+- [x] **G1239 — RFC-0012 form-action holes** — (**DESIGN D1239**)
+- [x] **G1240 — hub-svelte:form-action catalogued** — (**DESIGN D1240**)
+- [x] **G1241 — hub-next:page-component catalogued** — (**DESIGN D1241**)
+- [x] **G1242 — runFormHoleCatalogGate** — (**DESIGN D1242**)
+- [x] **G1243 — Deep smokes cataloguedHolesOnly** — (**DESIGN D1243**)
+- [x] **G1244 — Authoring batch v9** — (**DESIGN D1244**)
+- [x] **G1245 — hub-completion schema 82** — (**DESIGN D1245**)
+- [x] **G1246 — Vitest catalog gate** — (**DESIGN D1246**)
+- [x] **G1247 — Queue doc lock** — (**DESIGN D1247**)
+- [x] **G1248 — ROADMAP lock queue 9** — (**DESIGN D1248**)
+
+### Full-stack CWL — queue 10 (G1249–G1258)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-10.md`.
+
+- [x] **G1249 — cwl-diagnose pageRouteCount** — (**DESIGN D1249**)
+- [x] **G1250 — cwl-diagnose loadRouteCount** — (**DESIGN D1250**)
+- [x] **G1251 — cwl-diagnose interpolationRouteCount** — (**DESIGN D1251**)
+- [x] **G1252 — runDiagnoseFullstackGate** — (**DESIGN D1252**)
+- [x] **G1253 — Preview + dashboard wire counts** — (**DESIGN D1253**)
+- [x] **G1254 — Authoring batch v10** — (**DESIGN D1254**)
+- [x] **G1255 — hub-completion schema 83** — (**DESIGN D1255**)
+- [x] **G1256 — Vitest diagnose gate** — (**DESIGN D1256**)
+- [x] **G1257 — Queue doc lock** — (**DESIGN D1257**)
+- [x] **G1258 — ROADMAP lock queue 10** — (**DESIGN D1258**)
+
+### Full-stack CWL — queue 11 (G1259–G1268)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-11.md`.
+
+- [x] **G1259 — OpenAPI export CWL origin** — (**DESIGN D1259**)
+- [x] **G1260 — Page routes in exported paths** — (**DESIGN D1260**)
+- [x] **G1261 — runOpenapiPageGate** — (**DESIGN D1261**)
+- [x] **G1262 — Flagship webir sidecar path** — (**DESIGN D1262**)
+- [x] **G1263 — Search route in OpenAPI count** — (**DESIGN D1263**)
+- [x] **G1264 — Authoring batch v11** — (**DESIGN D1264**)
+- [x] **G1265 — hub-completion schema 84** — (**DESIGN D1265**)
+- [x] **G1266 — Vitest openapi page gate** — (**DESIGN D1266**)
+- [x] **G1267 — Queue doc lock** — (**DESIGN D1267**)
+- [x] **G1268 — ROADMAP lock queue 11** — (**DESIGN D1268**)
+
+### Full-stack CWL — queue 12 (G1269–G1278)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-12.md`.
+
+- [x] **G1269 — Gold cwl-fullstack-flagship-hono suite** — (**DESIGN D1269**)
+- [x] **G1270 — Gold suite in batch v12** — (**DESIGN D1270**)
+- [x] **G1271 — runGoldFlagshipGate** — (**DESIGN D1271**)
+- [x] **G1272 — Flagship hono trace replay** — (**DESIGN D1272**)
+- [x] **G1273 — Evidence gate alignment** — (**DESIGN D1273**)
+- [x] **G1274 — Authoring batch v12** — (**DESIGN D1274**)
+- [x] **G1275 — hub-completion schema 85** — (**DESIGN D1275**)
+- [x] **G1276 — Vitest gold gate** — (**DESIGN D1276**)
+- [x] **G1277 — Queue doc lock** — (**DESIGN D1277**)
+- [x] **G1278 — ROADMAP lock queue 12** — (**DESIGN D1278**)
+
+### Full-stack CWL — queue 13 (G1279–G1288)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-13.md`.
+
+- [x] **G1279 — starterCwlModule search route** — (**DESIGN D1279**)
+- [x] **G1280 — starterCwlModule blog load route** — (**DESIGN D1280**)
+- [x] **G1281 — Bootstrap v2 template** — (**DESIGN D1281**)
+- [x] **G1282 — runBootstrapV2Gate** — (**DESIGN D1282**)
+- [x] **G1283 — Preview bootstrap budget v2** — (**DESIGN D1283**)
+- [x] **G1284 — Authoring batch v13** — (**DESIGN D1284**)
+- [x] **G1285 — hub-completion schema 86** — (**DESIGN D1285**)
+- [x] **G1286 — Vitest bootstrap v2 gate** — (**DESIGN D1286**)
+- [x] **G1287 — Queue doc lock** — (**DESIGN D1287**)
+- [x] **G1288 — ROADMAP lock queue 13** — (**DESIGN D1288**)
+
+### Full-stack CWL — queue 14 (G1289–G1298)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-14.md`.
+
+- [x] **G1289 — hub-cwl-preview interpolationRouteCount** — (**DESIGN D1289**)
+- [x] **G1290 — Delivery dashboard interpolationCount** — (**DESIGN D1290**)
+- [x] **G1291 — Hole budget minInterpolationRoutes** — (**DESIGN D1291**)
+- [x] **G1292 — runDeliveryInterpolationGate** — (**DESIGN D1292**)
+- [x] **G1293 — Flagship budget schemaVersion 2** — (**DESIGN D1293**)
+- [x] **G1294 — Authoring batch v14** — (**DESIGN D1294**)
+- [x] **G1295 — hub-completion schema 87** — (**DESIGN D1295**)
+- [x] **G1296 — Vitest delivery interpolation** — (**DESIGN D1296**)
+- [x] **G1297 — Queue doc lock** — (**DESIGN D1297**)
+- [x] **G1298 — ROADMAP lock queue 14** — (**DESIGN D1298**)
+
+### Full-stack CWL — queue 15 (G1299–G1308)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-15.md`.
+
+- [x] **G1299 — hub-verify-http hono CWL origin** — (**DESIGN D1299**)
+- [x] **G1300 — Emit page HTML search probe** — (**DESIGN D1300**)
+- [x] **G1301 — runEmitPageProbeGate** — (**DESIGN D1301**)
+- [x] **G1302 — Runtime vs emit query HTML** — (**DESIGN D1302**)
+- [x] **G1303 — Threshold 1 verify gate** — (**DESIGN D1303**)
+- [x] **G1304 — Authoring batch v15** — (**DESIGN D1304**)
+- [x] **G1305 — hub-completion schema 88** — (**DESIGN D1305**)
+- [x] **G1306 — Vitest emit page probe** — (**DESIGN D1306**)
+- [x] **G1307 — Queue doc lock** — (**DESIGN D1307**)
+- [x] **G1308 — ROADMAP lock queue 15** — (**DESIGN D1308**)
+
+### Full-stack CWL — queue 16 (G1309–G1318)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-16.md`.
+
+- [x] **G1309 — Next.js deep app/search/page.tsx** — (**DESIGN D1309**)
+- [x] **G1310 — Next deep lift /search** — (**DESIGN D1310**)
+- [x] **G1311 — runNextjsSearchGate** — (**DESIGN D1311**)
+- [x] **G1312 — Deep budget minRoutes bump** — (**DESIGN D1312**)
+- [x] **G1313 — Next.js deep smoke green** — (**DESIGN D1313**)
+- [x] **G1314 — Authoring batch v16** — (**DESIGN D1314**)
+- [x] **G1315 — hub-completion schema 89** — (**DESIGN D1315**)
+- [x] **G1316 — Vitest nextjs search gate** — (**DESIGN D1316**)
+- [x] **G1317 — Queue doc lock** — (**DESIGN D1317**)
+- [x] **G1318 — ROADMAP lock queue 16** — (**DESIGN D1318**)
+
+### Full-stack CWL — queue 17 (G1319–G1328)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-17.md`.
+
+- [x] **G1319 — SvelteKit deep search +page.svelte** — (**DESIGN D1319**)
+- [x] **G1320 — Svelte deep lift /search** — (**DESIGN D1320**)
+- [x] **G1321 — runSvelteSearchGate** — (**DESIGN D1321**)
+- [x] **G1322 — Deep budget minRoutes bump** — (**DESIGN D1322**)
+- [x] **G1323 — SvelteKit deep smoke green** — (**DESIGN D1323**)
+- [x] **G1324 — Authoring batch v17** — (**DESIGN D1324**)
+- [x] **G1325 — hub-completion schema 90** — (**DESIGN D1325**)
+- [x] **G1326 — Vitest svelte search gate** — (**DESIGN D1326**)
+- [x] **G1327 — Queue doc lock** — (**DESIGN D1327**)
+- [x] **G1328 — ROADMAP lock queue 17** — (**DESIGN D1328**)
+
+### Full-stack CWL — queue 18 (G1329–G1338)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-18.md`.
+
+- [x] **G1329 — Hole budget schemaVersion 2** — (**DESIGN D1329**)
+- [x] **G1330 — minInterpolationRoutes field** — (**DESIGN D1330**)
+- [x] **G1331 — checkFullstackHoleBudget interpolationCount** — (**DESIGN D1331**)
+- [x] **G1332 — runHoleBudgetV2Gate** — (**DESIGN D1332**)
+- [x] **G1333 — Flagship evidenceGates batch v20** — (**DESIGN D1333**)
+- [x] **G1334 — Authoring batch v18** — (**DESIGN D1334**)
+- [x] **G1335 — hub-completion schema 91** — (**DESIGN D1335**)
+- [x] **G1336 — Vitest hole budget v2** — (**DESIGN D1336**)
+- [x] **G1337 — Queue doc lock** — (**DESIGN D1337**)
+- [x] **G1338 — ROADMAP lock queue 18** — (**DESIGN D1338**)
+
+### Full-stack CWL — queue 19 (G1339–G1348)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-19.md`.
+
+- [x] **G1339 — runMegaOriginGate parallel smokes** — (**DESIGN D1339**)
+- [x] **G1340 — Svelte + Next + flagship CWL** — (**DESIGN D1340**)
+- [x] **G1341 — Mega batch error surfacing** — (**DESIGN D1341**)
+- [x] **G1342 — Cross-origin hole policy** — (**DESIGN D1342**)
+- [x] **G1343 — Deep + flagship budget alignment** — (**DESIGN D1343**)
+- [x] **G1344 — Authoring batch v19** — (**DESIGN D1344**)
+- [x] **G1345 — hub-completion schema 92** — (**DESIGN D1345**)
+- [x] **G1346 — Vitest mega origin gate** — (**DESIGN D1346**)
+- [x] **G1347 — Queue doc lock** — (**DESIGN D1347**)
+- [x] **G1348 — ROADMAP lock queue 19** — (**DESIGN D1348**)
+
+### Full-stack CWL — queue 20 (G1349–G1358)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-20.md`.
+
+- [x] **G1349 — runGraduationGate composite** — (**DESIGN D1349**)
+- [x] **G1350 — Query + load + layout + diagnose** — (**DESIGN D1350**)
+- [x] **G1351 — OpenAPI + bootstrap + mega origin** — (**DESIGN D1351**)
+- [x] **G1352 — Graduation without hydration scope** — (**DESIGN D1352**)
+- [x] **G1353 — hub-cwl-fullstack-gates export** — (**DESIGN D1353**)
+- [x] **G1354 — Authoring batch v20** — (**DESIGN D1354**)
+- [x] **G1355 — hub-completion schema 93** — (**DESIGN D1355**)
+- [x] **G1356 — Vitest batch v20 graduation** — (**DESIGN D1356**)
+- [x] **G1357 — Strategic plan queues 6–20 complete** — (**DESIGN D1357**)
+- [x] **G1358 — ROADMAP + DESIGN lock queues 6–20** — (**DESIGN D1358**)
+
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 

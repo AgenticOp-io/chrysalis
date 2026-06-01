@@ -66,12 +66,28 @@ export function diagnoseCwlSource(source, file = "input.cwl") {
     }
   }
 
+  let pageRouteCount = 0;
+  let loadRouteCount = 0;
+  let interpolationRouteCount = 0;
+  for (const r of mod.routes ?? []) {
+    if (r.surfaceKind === "page") pageRouteCount += 1;
+    if (r.loadBody) loadRouteCount += 1;
+    if (r.body?.kind === "html" && typeof r.body.value === "string") {
+      const html = r.body.value;
+      const names = [...(r.handlerPathParams ?? []), ...(r.handlerQueryParams ?? [])];
+      if (names.some((name) => new RegExp(`\\b${name}\\b`).test(html))) interpolationRouteCount += 1;
+    }
+  }
+
   const errors = diagnostics.filter((d) => d.severity === "error").length;
   return {
     kind: CWL_DIAGNOSE_KIND,
     schemaVersion: CWL_DIAGNOSE_SCHEMA_VERSION,
     ok: errors === 0,
     routeCount: mod.routes?.length ?? 0,
+    pageRouteCount,
+    loadRouteCount,
+    interpolationRouteCount,
     diagnostics,
   };
 }

@@ -109,6 +109,33 @@ function lowerObjectEntriesBody(ctx, entries, loc) {
       continue;
     }
     const val = value.value;
+    if (Array.isArray(val)) {
+      const arrayArgs = val.map((item) =>
+        data.literal({
+          value: item,
+          type:
+            typeof item === "string"
+              ? HUB_T.string
+              : typeof item === "boolean"
+                ? HUB_T.bool
+                : typeof item === "number"
+                  ? HUB_T.int
+                  : HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:array-val")],
+        }),
+      );
+      flat.push(
+        data.call({
+          callee: "__array_literal",
+          args: arrayArgs,
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:array")],
+        }),
+      );
+      continue;
+    }
     const t =
       typeof val === "string"
         ? HUB_T.string
