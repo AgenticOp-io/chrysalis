@@ -65,11 +65,11 @@ export async function runSveltekitCwlExportSmoke(opts = {}) {
   const ok =
     (liftReport.routeCount ?? 0) >= 3 &&
     (emitReport.routeCount ?? 0) >= 3 &&
-    (emitReport.holeCount ?? 0) >= 1 &&
-    holeReasons.length >= 1 &&
-    catalogued &&
-    migration.ok === true &&
-    cwlText.includes("@route");
+    (emitReport.holeCount ?? 0) === 0 &&
+    (liftReport.holeCount ?? 0) === 0 &&
+    cwlText.includes("@page") &&
+    cwlText.includes("@route") &&
+    migration.ok === true;
 
   return {
     ...base,

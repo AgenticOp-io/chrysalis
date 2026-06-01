@@ -178,6 +178,9 @@ function requestFieldOf(expr) {
         : null;
   if (!name) return null;
   const owner = expr.object;
+  if (owner?.type === "Identifier" && owner.name === "params") {
+    return { source: "path", name };
+  }
   if (owner?.type !== "MemberExpression" || owner.computed) return null;
   if (owner.property?.type !== "Identifier") return null;
   const bucket = owner.property.name;
@@ -190,15 +193,22 @@ function requestFieldOf(expr) {
 /**
  * @param {import('estree').Expression} expr
  */
-function peelResJsonArgument(expr) {
+function peelJsonCallArgument(expr) {
   if (expr.type !== "CallExpression") return null;
   const callee = expr.callee;
+  if (callee?.type === "Identifier" && callee.name === "json") {
+    return expr.arguments[0] ?? null;
+  }
   if (callee?.type === "MemberExpression" && !callee.computed && callee.property?.type === "Identifier") {
     if (callee.property.name === "json") {
       return expr.arguments[0] ?? null;
     }
   }
   return null;
+}
+
+function peelResJsonArgument(expr) {
+  return peelJsonCallArgument(expr);
 }
 
 /**
@@ -299,7 +309,7 @@ function lowerExpression(ctx, expr) {
     });
   }
   if (expr.type === "CallExpression") {
-    const jsonArg = peelResJsonArgument(expr);
+    const jsonArg = peelJsonCallArgument(expr);
     if (jsonArg) {
       return lowerExpression(ctx, jsonArg);
     }
@@ -511,6 +521,56 @@ export function liftJavaScriptFileToWebir(opts) {
  * Count Express-style `app.use(...)` middleware registrations (pipeline shell only).
  * @param {string} source
  */
+/**
+ * Lower a SvelteKit `export function GET(...) { return json(...); }` handler body.
+ * @param {object} opts
+ * @returns {{ ok: boolean, bodyId?: string, method?: string, reason?: string }}
+ */
+export function liftSvelteKitServerHandlerBody(opts) {
+  const { source, file, webir, builder, wr, method = "GET" } = opts;
+  const data = webir.dataDialect.builders(builder);
+  const effect = webir.effectDialect.builders(builder);
+  let ast;
+  try {
+    ast = parseJavaScriptSource(source, file);
+  } catch {
+    return { ok: false, reason: "parse-failed" };
+  }
+  const want = method.toUpperCase();
+  /** @type {import('estree').Function | null} */
+  let fn = null;
+  /** @type {string | null} */
+  let foundMethod = null;
+  walkSimple(ast, {
+    ExportNamedDeclaration(node) {
+      if (fn) return;
+      if (node.declaration?.type === "FunctionDeclaration" && node.declaration.id?.type === "Identifier") {
+        const name = node.declaration.id.name.toUpperCase();
+        if (name === want) {
+          fn = node.declaration;
+          foundMethod = name;
+        }
+      }
+    },
+    ExportDefaultDeclaration(node) {
+      if (fn) return;
+      const d = node.declaration;
+      if (d?.type === "FunctionDeclaration" && d.id?.type === "Identifier") {
+        const name = d.id.name.toUpperCase();
+        if (name === want) {
+          fn = d;
+          foundMethod = name;
+        }
+      }
+    },
+  });
+  if (!fn) return { ok: false, reason: "missing-export-handler" };
+  const origin = originAt(fn.loc?.start ?? { line: 1, column: 0 }, file);
+  const ctx = { data, effect, webir, file, origin };
+  const bodyId = lowerHandlerBody(ctx, fn);
+  return { ok: true, bodyId, method: foundMethod ?? want };
+}
+
 export function countExpressMiddlewareUses(source) {
   let count = 0;
   try {

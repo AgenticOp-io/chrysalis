@@ -41,6 +41,7 @@ import { writePathAdviceArtifacts } from "./hub-ingest/hub-apply-path-advice.mjs
 import { buildProjectVerifyGapsIngestReport } from "./hub-ingest/hub-verify-gaps-ingest.mjs";
 import { buildDeliveryDashboard } from "./hub-ingest/hub-delivery-dashboard.mjs";
 import { buildCwlPreviewReport, writeCwlPreviewArtifacts } from "./hub-ingest/hub-cwl-preview.mjs";
+import { diagnoseCwlFile } from "./hub-ingest/cwl-diagnose.mjs";
 import { assertHubLicenseAllows, buildHubLicenseStatusReport } from "./hub-ingest/hub-license-status.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
@@ -915,6 +916,29 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url.pathname === "/api/hub/cwl-diagnose") {
+    const projectDir = url.searchParams.get("projectDir");
+    const cwlPath = url.searchParams.get("cwlPath") ?? undefined;
+    if (!projectDir) {
+      sendJson(res, 400, { error: "projectDir query param required" });
+      return;
+    }
+    try {
+      await assertHubLicenseAllows("hub-cwl-preview");
+      const target = cwlPath ? resolve(cwlPath) : join(resolve(projectDir), ".chrysalis", "migration.cwl");
+      const report = await diagnoseCwlFile(target);
+      sendJson(res, report.ok ? 200 : 422, report);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("license")) {
+        sendJson(res, 403, { error: "license-gate", message: msg });
+        return;
+      }
+      sendJson(res, 500, { error: msg });
+    }
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/hub/cwl-preview") {
     const projectDir = url.searchParams.get("projectDir");
     const cwlPath = url.searchParams.get("cwlPath") ?? undefined;
@@ -957,7 +981,14 @@ const server = createServer(async (req, res) => {
     try {
       await assertHubLicenseAllows("hub-cwl-preview");
       const { jsonPath, report } = await writeCwlPreviewArtifacts(resolve(projectDir), { cwlPath, probe });
-      sendJson(res, report.ok ? 200 : 404, { ...report, jsonPath });
+      let diagnose = null;
+      try {
+        const diagPath = cwlPath ? resolve(cwlPath) : join(resolve(projectDir), ".chrysalis", "migration.cwl");
+        diagnose = await diagnoseCwlFile(diagPath);
+      } catch {
+        diagnose = null;
+      }
+      sendJson(res, report.ok ? 200 : 404, { ...report, jsonPath, diagnose });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("license")) {

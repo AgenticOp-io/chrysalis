@@ -1741,6 +1741,10 @@
       const report = await post("/api/hub/cwl-preview", { projectDir: dir, probe: true });
       if (summary) {
         const probe = report.probe;
+        const diag = report.diagnose;
+        const diagLine = diag
+          ? ` · lint ${diag.diagnostics?.filter((d) => d.severity === "warn").length ?? 0} warn`
+          : "";
         const probeLine =
           probe && typeof probe.status === "number"
             ? ` · probe ${probe.route ?? "GET"} → ${probe.status}`
@@ -1749,7 +1753,7 @@
               : probe?.error
                 ? ` · probe error`
                 : "";
-        summary.textContent = `CWL preview: ${report.routeCount ?? 0} route(s)${report.holeCount ? ` (${report.holeCount} holes)` : ""}${probeLine}`;
+        summary.textContent = `CWL preview: ${report.routeCount ?? 0} route(s)${report.holeCount ? ` (${report.holeCount} holes)` : ""}${probeLine}${diagLine}`;
       }
       if (probeEl && report.probe) {
         probeEl.style.display = "block";

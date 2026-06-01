@@ -5,8 +5,8 @@
 import { readFile, readdir } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
 import { CWL_FULLSTACK_HOLE_CATALOG } from "./cwl-fullstack-holes.mjs";
-import { liftJavaScriptFileToWebir } from "./javascript-ast-ingest.mjs";
-import { emitHubRoute, hubHandlerBodyHole } from "./hub-lift-webir-route.mjs";
+import { liftSvelteKitServerHandlerBody } from "./javascript-ast-ingest.mjs";
+import { emitHubRoute, hubHandlerBodyHole, lowerHubHtmlPageBody } from "./hub-lift-webir-route.mjs";
 
 const HOLE_PAGE = "hub-svelte:page-component";
 const HOLE_SERVER = "hub-svelte:server-handler";
@@ -120,6 +120,18 @@ export async function discoverSvelteKitRouteFiles(projectDir) {
 }
 
 /**
+ * Extract static markup from a simple +page.svelte (no `{#...}` blocks).
+ * @param {string} source
+ */
+export function liftStaticSveltePageHtml(source) {
+  let s = source.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
+  if (/\{[#/@]/.test(s)) return null;
+  s = s.trim();
+  if (!s || !/<[a-z]/i.test(s)) return null;
+  return s;
+}
+
+/**
  * @param {object} opts
  */
 export async function liftSvelteKitProjectToWebir(opts) {
@@ -131,27 +143,75 @@ export async function liftSvelteKitProjectToWebir(opts) {
   }
 
   let routeCount = 0;
+  let astLiftCount = 0;
   for (const spec of files) {
-    if (spec.kind === "api") {
-      const source = await readFile(spec.file, "utf8");
-      const ext = spec.file.endsWith(".js") ? ".js" : ".ts";
-      const partial = liftJavaScriptFileToWebir({
-        webir,
-        builder,
-        wr: wrBuilders,
-        source,
-        file: spec.file,
-        language: "typescript",
-        ext,
-      });
-      if (partial.routeCount > 0) {
-        routeCount += partial.routeCount;
-        continue;
-      }
-    }
     const data = webir.dataDialect.builders(builder);
     const ctx = { data, webir, file: spec.file };
     const loc = { file: spec.file, line: 1 };
+    const pathParams = spec.path.includes(":")
+      ? (spec.path.match(/:([a-zA-Z_][a-zA-Z0-9_]*)/g) ?? []).map((p) => p.slice(1))
+      : [];
+
+    if (spec.kind === "api") {
+      const source = await readFile(spec.file, "utf8");
+      const lifted = liftSvelteKitServerHandlerBody({
+        source,
+        file: spec.file,
+        webir,
+        builder,
+        wr: wrBuilders,
+        method: "GET",
+      });
+      if (lifted.ok && lifted.bodyId) {
+        emitHubRoute({
+          webir,
+          builder,
+          wr: wrBuilders,
+          language,
+          file: spec.file,
+          route: {
+            method: "GET",
+            path: spec.path,
+            name: spec.name,
+            line: 1,
+            pathParams,
+          },
+          bodyId: lifted.bodyId,
+          handlerEffects: [],
+        });
+        routeCount += 1;
+        astLiftCount += 1;
+        continue;
+      }
+    }
+
+    if (spec.kind === "page") {
+      const source = await readFile(spec.file, "utf8");
+      const html = liftStaticSveltePageHtml(source);
+      if (html) {
+        const bodyId = lowerHubHtmlPageBody(ctx, html, loc, wrBuilders);
+        emitHubRoute({
+          webir,
+          builder,
+          wr: wrBuilders,
+          language,
+          file: spec.file,
+          route: {
+            method: "GET",
+            path: spec.path,
+            name: spec.name,
+            line: 1,
+            pathParams,
+          },
+          bodyId,
+          handlerEffects: [],
+        });
+        routeCount += 1;
+        astLiftCount += 1;
+        continue;
+      }
+    }
+
     const reason = spec.kind === "page" ? HOLE_PAGE : HOLE_SERVER;
     const bodyId = hubHandlerBodyHole(ctx, reason, loc);
     emitHubRoute({
@@ -165,9 +225,7 @@ export async function liftSvelteKitProjectToWebir(opts) {
         path: spec.path,
         name: spec.name,
         line: 1,
-        pathParams: spec.path.includes(":")
-          ? (spec.path.match(/:([a-zA-Z_][a-zA-Z0-9_]*)/g) ?? []).map((p) => p.slice(1))
-          : [],
+        pathParams,
       },
       bodyId,
       handlerEffects: [],
@@ -178,7 +236,8 @@ export async function liftSvelteKitProjectToWebir(opts) {
   return {
     routeCount,
     astRouteCount: routeCount,
-    usedAst: routeCount > 0,
+    astLiftCount,
+    usedAst: astLiftCount > 0,
     routesRoot,
     fileCount: files.length,
   };

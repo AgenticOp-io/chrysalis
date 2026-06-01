@@ -42,8 +42,24 @@ test("sveltekit exports CWL projection with catalogued holes (G1148)", async () 
   );
   const report = await runSveltekitCwlExportSmoke();
   expect(report.ok).toBe(true);
-  expect(report.catalogued).toBe(true);
+  expect(report.emit?.holeCount).toBe(0);
 });
+
+test("sveltekit lift is hole-free on gold fixture (G1153)", async () => {
+  const { runSvelteKitSmoke } = await import(resolve(ROOT, "scripts/hub-ingest/hub-sveltekit-smoke.mjs"));
+  const report = await runSvelteKitSmoke();
+  expect(report.ok).toBe(true);
+  expect(report.holeCount).toBe(0);
+});
+
+test("hub gold verify: svelte to cwl structural (G1154)", () => {
+  const r = spawnSync(process.execPath, [GOLD, "--suite", "svelte-literal-cwl"], {
+    cwd: ROOT,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  expect(r.status).toBe(0);
+}, 130_000);
 
 test("runtime-cwl full-stack parity smoke (G1151)", async () => {
   const { runCwlRuntimeParitySmoke } = await import(
@@ -53,7 +69,15 @@ test("runtime-cwl full-stack parity smoke (G1151)", async () => {
   expect(report.ok).toBe(true);
 });
 
-test("cwl diagnose catalogs svelte holes (G1149 / G1152)", async () => {
+test("cwl authoring batch smoke (G1155)", async () => {
+  const { runCwlAuthoringBatchSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchSmoke();
+  expect(report.ok).toBe(true);
+});
+
+test("cwl diagnose on svelte export routes (G1156)", async () => {
   const { runSveltekitCwlExportSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-sveltekit-cwl-export-smoke.mjs"),
   );
@@ -63,7 +87,7 @@ test("cwl diagnose catalogs svelte holes (G1149 / G1152)", async () => {
     resolve(ROOT, "fixtures/hub-gold-svelte-kit/generated/cwl/routes.cwl"),
   );
   expect(report.ok).toBe(true);
-  expect(report.diagnostics.some((d: { code: string }) => d.code === "catalogued-hole")).toBe(true);
+  expect(report.routeCount).toBeGreaterThanOrEqual(3);
 });
 
 test("cwl parser: full-stack page surface (RFC-0010 / G1143)", async () => {

@@ -47,6 +47,29 @@ export function lowerHubLiteral(ctx, value, loc) {
  * @param {string} reason
  * @param {{ file: string, line?: number }} loc
  */
+/**
+ * @param {object} ctx — { data, webir, file }
+ * @param {string} html
+ * @param {{ file: string, line?: number }} loc
+ * @param {object} wr — web.request builders
+ */
+export function lowerHubHtmlPageBody(ctx, html, loc, wr) {
+  const { data, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const litId = data.literal({
+    value: html,
+    type: HUB_T.string,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "svelte-page-html")],
+  });
+  return wr.response({
+    attrs: { status: 200, kind: "html", contentType: "text/html; charset=utf-8" },
+    value: litId,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "svelte-page-response")],
+  });
+}
+
 export function hubHandlerBodyHole(ctx, reason, loc) {
   const { data, webir } = ctx;
   const origin = hubOrigin(loc.file, loc.line ?? 1);

@@ -362,6 +362,14 @@ export const HUB_GOLD_SUITES = [
     traceReplay: true,
   },
   {
+    id: "svelte-literal-cwl",
+    fixture: join(scriptRoot, "fixtures/hub-gold-svelte-kit"),
+    origin: "svelte",
+    emitTarget: "cwl",
+    structural: true,
+    traceReplay: false,
+  },
+  {
     id: "cwl-multi-gold-hono",
     fixture: join(scriptRoot, "fixtures/hub-gold-cwl-multi"),
     origin: "cwl",

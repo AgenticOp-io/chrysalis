@@ -48,8 +48,9 @@ export async function runSvelteKitSmoke(opts = {}) {
   const ok =
     discovered.files.length >= 2 &&
     blogPath === "/blog/:slug" &&
-    lifted.routeCount >= 2 &&
-    module.roots.length >= 2;
+    lifted.routeCount >= 3 &&
+    module.roots.length >= 3 &&
+    holes === 0;
 
   return {
     ...base,
