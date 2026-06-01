@@ -9,6 +9,21 @@ const GOLD = resolve(ROOT, "scripts/hub-ingest/hub-gold-verify.mjs");
 const PARSER = resolve(ROOT, "scripts/hub-ingest/cwl-parser.mjs");
 const FIXTURE = resolve(ROOT, "fixtures/hub-gold-cwl");
 
+test("cwl parser: full-stack page surface (RFC-0010 / G1143)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-fullstack/routes.cwl");
+  const src = await readFile(FIX, "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  expect(mod.routes.length).toBe(2);
+  const home = mod.routes.find((r) => r.path === "/");
+  expect(home?.surfaceKind).toBe("page");
+  expect(home?.body.kind).toBe("html");
+  expect(home?.responseContentType).toBe("text/html; charset=utf-8");
+  const health = mod.routes.find((r) => r.path === "/api/health");
+  expect(health?.surfaceKind).toBe("api");
+});
+
 test("cwl parser: routes and literals", async () => {
   const { parseCwlModule } = await import(PARSER);
   const { readFile } = await import("node:fs/promises");

@@ -170,6 +170,8 @@ handler items_create {
 
 ## Route declaration
 
+### API routes
+
 ```cwl
 @route GET "/health"
 handler health {
@@ -177,6 +179,18 @@ handler health {
   return true;
 }
 ```
+
+### Page routes (full-stack, RFC-0010)
+
+```cwl
+@page GET "/"
+page home {
+  effects: none;
+  return html "<h1>Welcome</h1>";
+}
+```
+
+Page routes default to `text/html; charset=utf-8` when using `return html`.
 
 | Part | Meaning |
 | --- | --- |

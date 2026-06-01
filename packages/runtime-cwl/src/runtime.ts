@@ -58,6 +58,8 @@ function simToResponse(sim: ReturnType<typeof simulateHandler>): Response {
   const trimmed = body.trim();
   if (trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed === "true" || trimmed === "false") {
     headers.set("content-type", "application/json; charset=utf-8");
+  } else if (trimmed.startsWith("<")) {
+    headers.set("content-type", "text/html; charset=utf-8");
   } else if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
     headers.set("content-type", "application/json; charset=utf-8");
   }

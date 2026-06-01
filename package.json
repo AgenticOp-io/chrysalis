@@ -109,6 +109,7 @@
     "hub:oracle-micro-fixture": "node scripts/hub-ingest/hub-php-oracle-micro-fixture.mjs",
     "hub:cwl-response-status-smoke": "node scripts/hub-ingest/hub-cwl-response-status-smoke.mjs",
     "hub:cwl-request-body-smoke": "node scripts/hub-ingest/hub-cwl-request-body-smoke.mjs",
+    "hub:cwl-fullstack-smoke": "node scripts/hub-ingest/hub-cwl-fullstack-smoke.mjs",
     "hub:project-to-cwl-gates": "node scripts/hub-ingest/hub-project-to-cwl-gates.mjs",
     "hub:evidence-smoke": "node scripts/hub-ingest/hub-evidence-smoke.mjs",
     "hub:evidence-live": "node scripts/hub-ingest/hub-evidence-live.mjs",

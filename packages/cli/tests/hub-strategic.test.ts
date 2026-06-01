@@ -2550,8 +2550,9 @@ describe("strategic plan deliverables", () => {
       const report = await buildCwlPreviewReport(tmp, { cwlPath, bootstrap: true, probe: false });
       expect(report.ok).toBe(true);
       expect(report.bootstrapped).toBe(true);
-      expect(report.routeCount).toBe(1);
+      expect(report.routeCount).toBe(2);
       expect(existsSync(cwlPath)).toBe(true);
+      expect(readFileSync(cwlPath, "utf8")).toContain('@page GET "/"');
       expect(readFileSync(cwlPath, "utf8")).toContain("@route GET \"/health\"");
     } finally {
       rmSync(tmp, { recursive: true, force: true });

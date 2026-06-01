@@ -5,6 +5,9 @@
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 
 const ROUTE_RE = /^@route\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
+const PAGE_RE = /^@page\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
+const PAGE_BLOCK_RE = /^page\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
+const HTML_RETURN_RE = /^return\s+html\s+(.+);$/i;
 const MODULE_RE = /^module\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;/;
 const IMPORT_RE = /^import\s+"([^"]+)"\s*;/;
 const HANDLER_RE = /^handler\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
@@ -214,13 +217,20 @@ export function parseCwlModule(source, file) {
       imports.push(impM[1]);
       continue;
     }
-    const rm = ROUTE_RE.exec(line);
+    /** @type {"api"|"page"} */
+    let surfaceKind = "api";
+    let rm = ROUTE_RE.exec(line);
+    if (!rm) {
+      rm = PAGE_RE.exec(line);
+      if (rm) surfaceKind = "page";
+    }
     if (!rm) continue;
     const method = rm[1].toUpperCase();
     const path = rm[2];
     if (i >= lines.length) break;
     const hline = lines[i].trim();
-    const hm = HANDLER_RE.exec(hline);
+    const blockRe = surfaceKind === "page" ? PAGE_BLOCK_RE : HANDLER_RE;
+    const hm = blockRe.exec(hline);
     if (!hm) continue;
     const name = hm[1];
     i += 1;
@@ -290,6 +300,17 @@ export function parseCwlModule(source, file) {
         effects.push(...parseEffects(em[1]));
         continue;
       }
+      const htmlRet = HTML_RETURN_RE.exec(inner);
+      if (htmlRet) {
+        const lit = parseCwlLiteral(htmlRet[1].trim());
+        if (lit.ok && typeof lit.value === "string") {
+          body = { kind: "html", value: lit.value };
+          if (!responseContentType) responseContentType = "text/html; charset=utf-8";
+        } else {
+          body = { kind: "hole", reason: "cwl:invalid-html-return" };
+        }
+        continue;
+      }
       const ret = RETURN_RE.exec(inner);
       if (ret) {
         const parsed = parseCwlReturnValue(ret[1], {
@@ -327,6 +348,7 @@ export function parseCwlModule(source, file) {
       pathParams,
       name,
       line: lineNo,
+      surfaceKind,
       effects,
       handlerPathParams,
       handlerQueryParams,

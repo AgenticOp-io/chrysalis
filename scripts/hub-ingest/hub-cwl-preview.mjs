@@ -44,6 +44,7 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
     method: r.method,
     path: r.path,
     handler: r.name,
+    surfaceKind: r.surfaceKind ?? "api",
     hole: r.body?.kind === "hole",
     holeReason: r.body?.kind === "hole" ? String(r.body.reason ?? "hole") : null,
   }));
@@ -123,6 +124,12 @@ function starterCwlModule(projectDir) {
   const moduleName = sanitizeModuleName(projectDir);
   return [
     `module ${moduleName};`,
+    "",
+    '@page GET "/"',
+    "page home {",
+    "  effects: none;",
+    '  return html "<h1>Chrysalis CWL</h1><p>Full-stack authoring bootstrap.</p>";',
+    "}",
     "",
     '@route GET "/health"',
     "handler health {",

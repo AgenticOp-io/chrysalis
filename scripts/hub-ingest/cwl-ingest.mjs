@@ -193,11 +193,15 @@ export function liftCwlFileToWebir(opts) {
         r.body,
         { file, line: r.line ?? 1, column: 1 },
       );
+    } else if (r.body.kind === "html") {
+      valueId = lowerHubLiteral(ctx, r.body.value, loc);
     } else {
       valueId = hubHandlerBodyHole(ctx, r.body.reason ?? "cwl:hole", loc);
     }
     const status = r.responseStatus ?? 200;
-    const contentType = r.responseContentType ?? undefined;
+    const contentType =
+      r.responseContentType ??
+      (r.surfaceKind === "page" || r.body.kind === "html" ? "text/html; charset=utf-8" : undefined);
     const kind = contentType?.includes("json")
       ? "json"
       : contentType?.includes("html")
