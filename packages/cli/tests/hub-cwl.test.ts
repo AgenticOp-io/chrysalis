@@ -90,6 +90,25 @@ test("cwl diagnose on svelte export routes (G1156)", async () => {
   expect(report.routeCount).toBeGreaterThanOrEqual(3);
 });
 
+test("cwl full-stack flagship pilot smoke (G1157)", async () => {
+  const { runCwlFullstackFlagshipSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-flagship-smoke.mjs"),
+  );
+  const report = await runCwlFullstackFlagshipSmoke();
+  expect(report.ok).toBe(true);
+  expect(report.holeCount).toBe(0);
+}, 180_000);
+
+test("sveltekit deep lift smoke (G1158)", async () => {
+  const { runSveltekitDeepSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-sveltekit-deep-smoke.mjs"),
+  );
+  const report = await runSveltekitDeepSmoke();
+  expect(report.ok).toBe(true);
+  expect(report.hasPost).toBe(true);
+  expect(report.hasLoadHole).toBe(true);
+});
+
 test("cwl parser: full-stack page surface (RFC-0010 / G1143)", async () => {
   const { parseCwlModule } = await import(PARSER);
   const { readFile } = await import("node:fs/promises");

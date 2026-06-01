@@ -34,8 +34,10 @@ When HTML body semantics exist, emit uses `@page` + `return html` (RFC-0010).
 
 ## Verify plan
 
-- `hub:sveltekit-smoke` — file-route discovery
-- `hub:sveltekit-cwl-export-smoke` — lift → emit CWL with expected hole reasons
+- `hub:sveltekit-smoke` — file-route discovery (hole-free gold)
+- `hub:sveltekit-deep-smoke` — POST handlers, load holes, Svelte blocks (`hub-gold-svelte-kit-deep`)
+- `hub:sveltekit-cwl-export-smoke` — lift → emit CWL
+- `hub:cwl-fullstack-flagship-smoke` — CWL-authored flagship + hole budget (G1157)
 - `cwl diagnose` — warns on uncatalogued `hole` tokens
 
 ## Non-goals (this RFC)

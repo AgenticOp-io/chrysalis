@@ -370,6 +370,22 @@ export const HUB_GOLD_SUITES = [
     traceReplay: false,
   },
   {
+    id: "cwl-fullstack-flagship-hono",
+    fixture: join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack"),
+    origin: "cwl",
+    emitTarget: "hono",
+    structural: true,
+    traceReplay: true,
+  },
+  {
+    id: "cwl-fullstack-flagship-fastify",
+    fixture: join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack"),
+    origin: "cwl",
+    emitTarget: "fastify",
+    structural: true,
+    traceReplay: true,
+  },
+  {
     id: "cwl-multi-gold-hono",
     fixture: join(scriptRoot, "fixtures/hub-gold-cwl-multi"),
     origin: "cwl",

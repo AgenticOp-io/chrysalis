@@ -2,20 +2,23 @@
  * SvelteKit file-based route lift (G1144): +server.ts / +page.server.ts API routes,
  * +page.svelte page shells (explicit holes until component semantics land).
  */
+import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
 import { CWL_FULLSTACK_HOLE_CATALOG } from "./cwl-fullstack-holes.mjs";
-import { liftSvelteKitServerHandlerBody } from "./javascript-ast-ingest.mjs";
+import { liftSvelteKitServerHandlerBodies } from "./javascript-ast-ingest.mjs";
 import { emitHubRoute, hubHandlerBodyHole, lowerHubHtmlPageBody } from "./hub-lift-webir-route.mjs";
 
 const HOLE_PAGE = "hub-svelte:page-component";
 const HOLE_SERVER = "hub-svelte:server-handler";
+const HOLE_LOAD = "hub-svelte:load-function";
 if (!CWL_FULLSTACK_HOLE_CATALOG[HOLE_PAGE] || !CWL_FULLSTACK_HOLE_CATALOG[HOLE_SERVER]) {
   throw new Error("sveltekit-route-lift: RFC-0012 hole catalog missing svelte entries");
 }
 
-const ROUTE_FILES = new Set(["+server.ts", "+server.js", "+page.server.ts", "+page.server.js"]);
+const ROUTE_FILES = new Set(["+server.ts", "+server.js"]);
 const PAGE_FILES = new Set(["+page.svelte"]);
+const PAGE_SERVER_FILES = new Set(["+page.server.ts", "+page.server.js"]);
 
 /**
  * @param {string} segment
@@ -63,7 +66,7 @@ export async function findSvelteKitRoutesRoot(projectDir) {
       if (ent.name === "node_modules" || ent.name === ".git" || ent.name === "generated") continue;
       const p = join(dir, ent.name);
       if (ent.isDirectory()) await walk(p, depth + 1);
-      else if (ROUTE_FILES.has(ent.name) || PAGE_FILES.has(ent.name)) {
+      else if (ROUTE_FILES.has(ent.name) || PAGE_FILES.has(ent.name) || PAGE_SERVER_FILES.has(ent.name)) {
         let cur = dirname(p);
         while (basename(cur) !== "routes" && cur !== projectDir && cur !== dirname(cur)) {
           cur = dirname(cur);
@@ -83,8 +86,10 @@ export async function findSvelteKitRoutesRoot(projectDir) {
 export async function discoverSvelteKitRouteFiles(projectDir) {
   const routesRoot = await findSvelteKitRoutesRoot(projectDir);
   if (!routesRoot) return { routesRoot: null, files: [] };
-  /** @type {Array<{ file: string, kind: "api" | "page", path: string, name: string }>} */
+  /** @type {Array<{ file: string, kind: "api" | "page", path: string, name: string, hasPageServer?: boolean }>} */
   const files = [];
+  /** @type {Set<string>} */
+  const pageServerDirs = new Set();
   async function walk(dir, depth) {
     if (depth > 12) return;
     let entries;
@@ -96,6 +101,23 @@ export async function discoverSvelteKitRouteFiles(projectDir) {
     for (const ent of entries) {
       const p = join(dir, ent.name);
       if (ent.isDirectory()) await walk(p, depth + 1);
+      else if (PAGE_SERVER_FILES.has(ent.name)) {
+        pageServerDirs.add(dirname(p));
+      }
+    }
+  }
+  await walk(routesRoot, 0);
+  async function walkRoutes(dir, depth) {
+    if (depth > 12) return;
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      const p = join(dir, ent.name);
+      if (ent.isDirectory()) await walkRoutes(p, depth + 1);
       else if (ROUTE_FILES.has(ent.name)) {
         const httpPath = svelteKitFileToHttpPath(routesRoot, p);
         files.push({
@@ -111,11 +133,12 @@ export async function discoverSvelteKitRouteFiles(projectDir) {
           kind: "page",
           path: httpPath,
           name: `${httpPath.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+/, "") || "root"}_page`,
+          hasPageServer: pageServerDirs.has(dirname(p)),
         });
       }
     }
   }
-  await walk(routesRoot, 0);
+  await walkRoutes(routesRoot, 0);
   return { routesRoot, files };
 }
 
@@ -154,15 +177,43 @@ export async function liftSvelteKitProjectToWebir(opts) {
 
     if (spec.kind === "api") {
       const source = await readFile(spec.file, "utf8");
-      const lifted = liftSvelteKitServerHandlerBody({
+      const lifted = liftSvelteKitServerHandlerBodies({
         source,
         file: spec.file,
         webir,
         builder,
         wr: wrBuilders,
-        method: "GET",
       });
-      if (lifted.ok && lifted.bodyId) {
+      if (lifted.ok) {
+        for (const h of lifted.handlers) {
+          const suffix = h.method === "GET" ? "api" : `${h.method.toLowerCase()}_api`;
+          emitHubRoute({
+            webir,
+            builder,
+            wr: wrBuilders,
+            language,
+            file: spec.file,
+            route: {
+              method: h.method,
+              path: spec.path,
+              name: `${spec.name.replace(/_api$/, "")}_${suffix}`.replace(/__+/g, "_"),
+              line: 1,
+              pathParams,
+            },
+            bodyId: h.bodyId,
+            handlerEffects: [],
+          });
+          routeCount += 1;
+          astLiftCount += 1;
+        }
+        continue;
+      }
+    }
+
+    if (spec.kind === "page") {
+      const source = await readFile(spec.file, "utf8");
+      if (spec.hasPageServer) {
+        const bodyId = hubHandlerBodyHole(ctx, HOLE_LOAD, loc);
         emitHubRoute({
           webir,
           builder,
@@ -176,17 +227,12 @@ export async function liftSvelteKitProjectToWebir(opts) {
             line: 1,
             pathParams,
           },
-          bodyId: lifted.bodyId,
+          bodyId,
           handlerEffects: [],
         });
         routeCount += 1;
-        astLiftCount += 1;
         continue;
       }
-    }
-
-    if (spec.kind === "page") {
-      const source = await readFile(spec.file, "utf8");
       const html = liftStaticSveltePageHtml(source);
       if (html) {
         const bodyId = lowerHubHtmlPageBody(ctx, html, loc, wrBuilders);
