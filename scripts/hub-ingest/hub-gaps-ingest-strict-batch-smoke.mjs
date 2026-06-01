@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Gaps ingest strict batch v6: v5 + Fastify HTTP oracle verify (G983). */
+/** Gaps ingest strict batch v7: v6 + reingest Fastify HTTP smoke (G1016). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-smoke.mjs";
@@ -11,9 +11,12 @@ import { runLaravelAuthProbeReingestVerifyReplaySmoke } from "./hub-laravel-auth
 import { runFlagshipVerifyReplayBatchSmoke } from "./hub-flagship-verify-replay-batch-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyHttpSmoke } from "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs";
 import { runFlagshipVerifyHttpBatchSmoke } from "./hub-flagship-verify-http-batch-smoke.mjs";
+import { runLaravelAuthProbeVerifyHttpFastify } from "./hub-laravel-auth-probe-verify-http-fastify.mjs";
+import { runFlagshipVerifyHttpFastifyBatchSmoke } from "./hub-flagship-verify-http-fastify-batch-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } from "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs";
 
 export const HUB_GAPS_INGEST_STRICT_BATCH_KIND = "chrysalis.hub.gaps-ingest-strict-batch-smoke";
-export const HUB_GAPS_INGEST_STRICT_BATCH_SCHEMA_VERSION = 5;
+export const HUB_GAPS_INGEST_STRICT_BATCH_SCHEMA_VERSION = 7;
 
 export async function runGapsIngestStrictBatchSmoke() {
   const gapsIngestClosure = await runGapsIngestClosureBatchSmoke();
@@ -25,6 +28,7 @@ export async function runGapsIngestStrictBatchSmoke() {
   const authProbeVerifyHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
   const flagshipVerifyHttp = await runFlagshipVerifyHttpBatchSmoke();
   const authProbeVerifyHttpFastify = await runLaravelAuthProbeVerifyHttpFastify();
+  const authProbeReingestVerifyHttpFastify = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
   const flagshipVerifyHttpFastify = await runFlagshipVerifyHttpFastifyBatchSmoke();
   const flagshipVerifyReplay = await runFlagshipVerifyReplayBatchSmoke();
   return {
@@ -39,6 +43,7 @@ export async function runGapsIngestStrictBatchSmoke() {
       authProbeVerifyReplay.ok === true &&
       authProbeVerifyHttp.ok === true &&
       authProbeVerifyHttpFastify.ok === true &&
+      authProbeReingestVerifyHttpFastify.ok === true &&
       flagshipVerifyReplay.ok === true &&
       flagshipVerifyHttp.ok === true &&
       flagshipVerifyHttpFastify.ok === true,
@@ -50,6 +55,7 @@ export async function runGapsIngestStrictBatchSmoke() {
     authProbeVerifyReplay,
     authProbeVerifyHttp,
     authProbeVerifyHttpFastify,
+    authProbeReingestVerifyHttpFastify,
     flagshipVerifyReplay,
     flagshipVerifyHttp,
     flagshipVerifyHttpFastify,

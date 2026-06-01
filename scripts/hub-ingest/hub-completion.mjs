@@ -171,6 +171,8 @@ import { runIrHelperLiftingSemanticSmoke } from "./hub-ir-helper-lifting-semanti
 import { runIrHelperLiftingEmbedSmoke } from "./hub-ir-helper-lifting-embed-smoke.mjs";
 import { runLaravelAuthProbeVerifyHttpFastify } from "./hub-laravel-auth-probe-verify-http-fastify.mjs";
 import { runFlagshipVerifyHttpFastifyBatchSmoke } from "./hub-flagship-verify-http-fastify-batch-smoke.mjs";
+import { runIrHelperLiftingFullPathSmoke } from "./hub-ir-helper-lifting-full-path-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } from "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1304,6 +1306,20 @@ async function main() {
     flagshipVerifyHttpFastify = { ok: false, skip: "flagship-verify-http-fastify-threw" };
   }
   const flagshipVerifyHttpFastifyOk = flagshipVerifyHttpFastify.ok === true;
+  let laravelAuthProbeReingestVerifyHttpFastify = { ok: false, skip: "not-run-in-completion" };
+  try {
+    laravelAuthProbeReingestVerifyHttpFastify = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
+  } catch {
+    laravelAuthProbeReingestVerifyHttpFastify = { ok: false, skip: "laravel-auth-probe-reingest-verify-http-fastify-threw" };
+  }
+  const laravelAuthProbeReingestVerifyHttpFastifyOk = laravelAuthProbeReingestVerifyHttpFastify.ok === true;
+  let irHelperLiftingFullPath = { ok: false, skip: "not-run-in-completion" };
+  try {
+    irHelperLiftingFullPath = runIrHelperLiftingFullPathSmoke();
+  } catch {
+    irHelperLiftingFullPath = { ok: false, skip: "ir-helper-lifting-full-path-threw" };
+  }
+  const irHelperLiftingFullPathOk = irHelperLiftingFullPath.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
     laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
@@ -1468,6 +1484,8 @@ async function main() {
     irHelperLiftingEmbedOk &&
     laravelAuthProbeVerifyHttpFastifyOk &&
     flagshipVerifyHttpFastifyOk &&
+    laravelAuthProbeReingestVerifyHttpFastifyOk &&
+    irHelperLiftingFullPathOk &&
     laravelVerifyLiveOk &&
     expressFlagshipOk &&
     nodeExpressOracleOk &&
@@ -1479,7 +1497,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 73,
+    schemaVersion: 74,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -1666,7 +1684,7 @@ async function main() {
       script: "pnpm run hub:laravel-verify-gaps-action",
     },
     hubEvidence: {
-      schemaVersion: 30,
+      schemaVersion: 31,
       failOnIngestGapsEnv: "CHRYSALIS_HUB_EVIDENCE_FAIL_ON_INGEST_GAPS",
       pipelineGateStrictEnv: "CHRYSALIS_HUB_PIPELINE_GATE_STRICT",
       requireWptpNextjsEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS",
@@ -1698,6 +1716,7 @@ async function main() {
       requireGapReingestVerifyClosureEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
       requireGapReingestVerifyReplayEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
       requireGapReingestVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
+      requireGapReingestVerifyHttpTargetEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET",
     },
     laravelVerifyLive: {
       ok: laravelVerifyLive.ok === true,
@@ -2364,6 +2383,18 @@ async function main() {
       schemaVersion: flagshipVerifyHttpFastify.schemaVersion ?? 1,
       target: flagshipVerifyHttpFastify.target ?? "fastify",
       script: "pnpm run hub:flagship-verify-http-fastify-batch-smoke",
+    },
+    laravelAuthProbeReingestVerifyHttpFastify: {
+      ok: laravelAuthProbeReingestVerifyHttpFastifyOk,
+      target: "fastify",
+      backlogAfter: laravelAuthProbeReingestVerifyHttpFastify.backlogAfter ?? null,
+      correctnessAfter: laravelAuthProbeReingestVerifyHttpFastify.correctnessAfter ?? null,
+      script: "pnpm run hub:laravel-auth-probe-reingest-verify-http-fastify-smoke",
+    },
+    irHelperLiftingFullPath: {
+      ok: irHelperLiftingFullPathOk,
+      fixture: irHelperLiftingFullPath.fixture ?? "fixtures/lift-helper-lift-twin",
+      script: "pnpm run hub:ir-helper-lifting-full-path-smoke",
     },
     cwlUniversalMegaBatch: {
       ok: cwlUniversalMegaBatchOk,

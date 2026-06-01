@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Evidence standalone mega batch v8: v7 + IR helper embed (G986). */
+/** Evidence standalone mega batch v9: v8 + reingest Fastify HTTP (G1017). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runEvidenceStandaloneSmoke } from "./hub-evidence-standalone-smoke.mjs";
@@ -10,9 +10,10 @@ import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-aut
 import { runLaravelAuthProbeReingestVerifyReplaySmoke } from "./hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyHttpSmoke } from "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs";
 import { runIrHelperLiftingEmbedSmoke } from "./hub-ir-helper-lifting-embed-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } from "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs";
 
 export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_KIND = "chrysalis.hub.evidence-standalone-mega-batch-smoke";
-export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION = 8;
+export const HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION = 9;
 
 export async function runEvidenceStandaloneMegaBatchSmoke() {
   const evidence = await runEvidenceStandaloneSmoke();
@@ -23,6 +24,7 @@ export async function runEvidenceStandaloneMegaBatchSmoke() {
   const authProbeVerifyReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
   const authProbeVerifyHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
   const irHelperLiftingEmbed = runIrHelperLiftingEmbedSmoke();
+  const authProbeReingestVerifyHttpFastify = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
   return {
     kind: HUB_EVIDENCE_STANDALONE_MEGA_BATCH_KIND,
     schemaVersion: HUB_EVIDENCE_STANDALONE_MEGA_BATCH_SCHEMA_VERSION,
@@ -34,7 +36,8 @@ export async function runEvidenceStandaloneMegaBatchSmoke() {
       authProbeVerifyClosure.ok &&
       authProbeVerifyReplay.ok &&
       authProbeVerifyHttp.ok &&
-      irHelperLiftingEmbed.ok,
+      irHelperLiftingEmbed.ok &&
+      authProbeReingestVerifyHttpFastify.ok,
     evidence,
     wptpGold,
     evidenceMvp,
@@ -43,6 +46,7 @@ export async function runEvidenceStandaloneMegaBatchSmoke() {
     authProbeVerifyReplay,
     authProbeVerifyHttp,
     irHelperLiftingEmbed,
+    authProbeReingestVerifyHttpFastify,
     generatedAt: new Date().toISOString(),
   };
 }

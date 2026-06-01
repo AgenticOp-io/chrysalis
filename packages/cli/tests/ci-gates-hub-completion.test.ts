@@ -4629,7 +4629,7 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
-  test("accepts schema v69/v70/v71/v72/v73 with auth-probe reingest + verify closure/replay/http (G890/G920/G950/G980/G1010)", () => {
+  test("accepts schema v69/v70/v71/v72/v73/v74 with auth-probe reingest + verify closure/replay/http (G890/G920/G950/G980/G1010/G1040)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v69-"));
     const p = join(dir, "ok.json");
     const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
@@ -5007,6 +5007,52 @@ describe("ci-gates hub-completion", () => {
         },
       });
       expect(r73.status).toBe(0);
+
+      payload.schemaVersion = 74;
+      payload.hubEvidence = {
+        ...payload.hubEvidence,
+        schemaVersion: 31,
+        requireGapReingestVerifyHttpTargetEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET",
+      };
+      payload.phpWedgeBatch = { ...(payload.phpWedgeBatch ?? {}), ok: true, schemaVersion: 8, script: "pnpm run hub:php-wedge-batch-smoke" };
+      payload.gapsIngestStrictBatch = {
+        ...(payload.gapsIngestStrictBatch ?? {}),
+        ok: true,
+        schemaVersion: 7,
+        authProbeReingestVerifyHttpFastifyOk: true,
+        script: "pnpm run hub:gaps-ingest-strict-batch-smoke",
+      };
+      payload.laravelAuthProbeReingestVerifyHttpFastify = {
+        ok: true,
+        target: "fastify",
+        backlogAfter: 0,
+        correctnessAfter: 1,
+        script: "pnpm run hub:laravel-auth-probe-reingest-verify-http-fastify-smoke",
+      };
+      payload.irHelperLiftingFullPath = {
+        ok: true,
+        fixture: "fixtures/lift-helper-lift-twin",
+        script: "pnpm run hub:ir-helper-lifting-full-path-smoke",
+      };
+      payload.oracleProductUltraBatch = { ok: true, schemaVersion: 11, script: "pnpm run hub:oracle-product-ultra-batch-smoke" };
+      payload.evidenceStandaloneMegaBatch = { ok: true, schemaVersion: 9, script: "pnpm run hub:evidence-standalone-mega-batch-smoke" };
+      payload.verifyProductUltraBatch = { ok: true, schemaVersion: 10, script: "pnpm run hub:verify-product-ultra-batch-smoke" };
+      payload.capabilityMatrix = { ...(payload.capabilityMatrix ?? {}), schemaVersion: 32 };
+      writeFileSync(p, `${JSON.stringify(payload)}\n`);
+      const r74 = spawnSync(process.execPath, [CI_GATES, "hub-completion", p], {
+        cwd: ROOT,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP: "1",
+          CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY: "1",
+          CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE: "1",
+          CHRYSALIS_HUB_GAP_REINGEST_STRICT: "1",
+          CHRYSALIS_HUB_COMPLETION_REQUIRE_WPTP_NEXTJS: "1",
+          CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH: "1",
+        },
+      });
+      expect(r74.status).toBe(0);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

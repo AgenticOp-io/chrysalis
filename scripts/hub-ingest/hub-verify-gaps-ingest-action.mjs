@@ -16,7 +16,7 @@ import { runProjectVerifyReplay } from "./hub-verify-replay.mjs";
 import { runProjectVerifyHttp } from "./hub-verify-http.mjs";
 
 export const HUB_VERIFY_GAPS_INGEST_ACTION_KIND = "chrysalis.hub.verify-gaps-ingest-action";
-export const HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION = 4;
+export const HUB_VERIFY_GAPS_INGEST_ACTION_SCHEMA_VERSION = 5;
 
 function readHoleCount(projectDir) {
   const holesPath = join(resolve(projectDir), "chrysalis.holes.json");
@@ -66,7 +66,8 @@ export async function runVerifyGapsIngestAction(projectDir, opts = {}) {
   const reingestSucceeded = ingestRun.ran && (ingestRun.exitCode ?? 1) === 0;
 
   if (process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP === "1" && reingestSucceeded) {
-    const httpVerified = await runProjectVerifyHttp(root);
+    const httpTarget = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET?.trim() || "hono";
+    const httpVerified = await runProjectVerifyHttp(root, { target: httpTarget });
     verifyHttp.applied = true;
     verifyHttp.ok = httpVerified.ok === true;
     verifyHttp.correctness = httpVerified.correctness ?? null;

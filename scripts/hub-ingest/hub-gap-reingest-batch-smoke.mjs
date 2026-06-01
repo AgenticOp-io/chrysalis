@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Gap reingest batch v5: v4 + HTTP oracle verify when strict (G962). */
+/** Gap reingest batch v6: v5 + Fastify HTTP target env (G1014). */
 import { copyFileSync, cpSync, existsSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { runVerifyGapsIngestAction } from "./hub-verify-gaps-ingest-action.mjs";
 
 export const HUB_GAP_REINGEST_BATCH_KIND = "chrysalis.hub.gap-reingest-batch-smoke";
-export const HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION = 5;
+export const HUB_GAP_REINGEST_BATCH_SCHEMA_VERSION = 6;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const backlogSummary = join(scriptRoot, "fixtures/hub-laravel-verify-gaps-backlog/summary.json");
@@ -139,6 +139,7 @@ export async function runGapReingestBatchSmoke() {
     verifyReplay,
     verifyHttp,
     requireVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
+    requireVerifyHttpTargetEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET",
     requireVerifyReplayEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
     requireVerifyClosureEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
     generatedAt: new Date().toISOString(),

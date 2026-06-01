@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 31;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 32;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -89,7 +89,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     phpWedgeBatch: {
       script: "pnpm run hub:php-wedge-batch-smoke",
-      batchSchemaVersion: 7,
+      batchSchemaVersion: 8,
       laravelVerifyGapsBatchScript: "pnpm run hub:laravel-verify-gaps-batch-smoke",
       nodeExpressOracleScript: "pnpm run hub:node-express-oracle-standalone-smoke",
     },
@@ -120,13 +120,13 @@ export function buildHubCapabilityMatrixReport() {
       script: "pnpm run hub:gaps-ingest-closure-batch-smoke",
       laravelClosureScript: "pnpm run hub:laravel-verify-gaps-ingest-closure-smoke",
       gapReingestScript: "pnpm run hub:gap-reingest-batch-smoke",
-      gapReingestBatchSchemaVersion: 5,
+      gapReingestBatchSchemaVersion: 6,
       requireEnv: "CHRYSALIS_HUB_COMPLETION_REQUIRE_GAPS_INGEST_CLOSURE_BATCH",
       requireGapReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST",
     },
     gapsIngestStrictBatch: {
       script: "pnpm run hub:gaps-ingest-strict-batch-smoke",
-      batchSchemaVersion: 6,
+      batchSchemaVersion: 7,
       laravelLiveClosureScript: "pnpm run hub:laravel-verify-live-gaps-closure-smoke",
       gapReingestStrictScript: "pnpm run hub:gap-reingest-strict-smoke",
       authProbeReingestScript: "pnpm run hub:laravel-auth-probe-reingest-smoke",
@@ -145,6 +145,7 @@ export function buildHubCapabilityMatrixReport() {
       requireVerifyClosureEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE",
       requireVerifyReplayEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
       requireVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
+      requireVerifyHttpTargetEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET",
     },
     laravelAuthProbeReingest: {
       script: "pnpm run hub:laravel-auth-probe-reingest-smoke",
@@ -170,6 +171,19 @@ export function buildHubCapabilityMatrixReport() {
       script: "pnpm run hub:ir-helper-lifting-embed-smoke",
       fixture: "fixtures/lift-helper-lift-twin",
       flag: "--ingest-embed-shared-helper-bodies",
+    },
+    irHelperLiftingFullPath: {
+      script: "pnpm run hub:ir-helper-lifting-full-path-smoke",
+      fixture: "fixtures/lift-helper-lift-twin",
+      flags: [
+        "--ingest-lift-shared-helpers",
+        "--ingest-lift-shared-helpers-semantic",
+        "--ingest-embed-shared-helper-bodies",
+      ],
+    },
+    laravelAuthProbeReingestVerifyHttpFastify: {
+      script: "pnpm run hub:laravel-auth-probe-reingest-verify-http-fastify-smoke",
+      fixture: "fixtures/laravel-auth-probe",
     },
     nextjsFlagshipFixtures: [
       "fixtures/hub-flagship-plain-php",
@@ -317,7 +331,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     oracleProductUltra: {
       batchScript: "pnpm run hub:oracle-product-ultra-batch-smoke",
-      batchSchemaVersion: 10,
+      batchSchemaVersion: 11,
     },
     expressLaravelMinDelivery: {
       batchScript: "pnpm run hub:express-laravel-min-delivery-batch-smoke",
@@ -356,7 +370,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     evidenceStandaloneMega: {
       batchScript: "pnpm run hub:evidence-standalone-mega-batch-smoke",
-      batchSchemaVersion: 8,
+      batchSchemaVersion: 9,
     },
     originDepth: {
       plainPhpBatchScript: "pnpm run hub:plain-php-depth-batch-smoke",
@@ -372,7 +386,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     verifyProductUltra: {
       batchScript: "pnpm run hub:verify-product-ultra-batch-smoke",
-      batchSchemaVersion: 9,
+      batchSchemaVersion: 10,
     },
     cwlAllOrigins: {
       allOriginsScript: "pnpm run hub:project-to-cwl-all-origins",

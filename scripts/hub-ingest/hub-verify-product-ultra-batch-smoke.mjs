@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-/** Verify product ultra batch v9: v8 + Fastify HTTP verify smokes (G988). */
+/** Verify product ultra batch v10: v9 + reingest Fastify HTTP (G1018). */
 import { runLaravelAuthProbeReingestVerifyHttpSmoke } from "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs";
 import { runFlagshipVerifyHttpBatchSmoke } from "./hub-flagship-verify-http-batch-smoke.mjs";
 import { runLaravelAuthProbeVerifyHttpFastify } from "./hub-laravel-auth-probe-verify-http-fastify.mjs";
 import { runFlagshipVerifyHttpFastifyBatchSmoke } from "./hub-flagship-verify-http-fastify-batch-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } from "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyClosureSmoke } from "./hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyReplaySmoke } from "./hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs";
 import { runFlagshipVerifyReplayBatchSmoke } from "./hub-flagship-verify-replay-batch-smoke.mjs";
@@ -17,7 +18,7 @@ import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
 
 export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_KIND = "chrysalis.hub.verify-product-ultra-batch-smoke";
-export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 9;
+export const HUB_VERIFY_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 10;
 
 export async function runVerifyProductUltraBatchSmoke() {
   const verifyGapsOrigin = await runVerifyGapsOriginBatchSmoke();
@@ -32,6 +33,7 @@ export async function runVerifyProductUltraBatchSmoke() {
   const flagshipVerifyReplay = await runFlagshipVerifyReplayBatchSmoke();
   const flagshipVerifyHttp = await runFlagshipVerifyHttpBatchSmoke();
   const authProbeVerifyHttpFastify = await runLaravelAuthProbeVerifyHttpFastify();
+  const authProbeReingestVerifyHttpFastify = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
   const flagshipVerifyHttpFastify = await runFlagshipVerifyHttpFastifyBatchSmoke();
   return {
     kind: HUB_VERIFY_PRODUCT_ULTRA_BATCH_KIND,
@@ -49,6 +51,7 @@ export async function runVerifyProductUltraBatchSmoke() {
       flagshipVerifyReplay.ok &&
       flagshipVerifyHttp.ok &&
       authProbeVerifyHttpFastify.ok === true &&
+      authProbeReingestVerifyHttpFastify.ok === true &&
       flagshipVerifyHttpFastify.ok,
     verifyGapsOrigin,
     verifyStandaloneMega,
@@ -62,6 +65,7 @@ export async function runVerifyProductUltraBatchSmoke() {
     flagshipVerifyReplay,
     flagshipVerifyHttp,
     authProbeVerifyHttpFastify,
+    authProbeReingestVerifyHttpFastify,
     flagshipVerifyHttpFastify,
     generatedAt: new Date().toISOString(),
   };

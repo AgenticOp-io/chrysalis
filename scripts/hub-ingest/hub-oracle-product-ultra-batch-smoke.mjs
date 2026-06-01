@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Oracle product ultra batch v10: v9 + PHP wedge v7 (G987). */
+/** Oracle product ultra batch v11: v10 + PHP wedge v8 (G1019). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runOracleStandaloneBatchSmoke } from "./hub-oracle-standalone-batch-smoke.mjs";
@@ -11,7 +11,7 @@ import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smok
 import { runPhpWedgeBatchSmoke } from "./hub-php-wedge-batch-smoke.mjs";
 
 export const HUB_ORACLE_PRODUCT_ULTRA_BATCH_KIND = "chrysalis.hub.oracle-product-ultra-batch-smoke";
-export const HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 10;
+export const HUB_ORACLE_PRODUCT_ULTRA_BATCH_SCHEMA_VERSION = 11;
 
 export async function runOracleProductUltraBatchSmoke() {
   const oracleStandalone = await runOracleStandaloneBatchSmoke();

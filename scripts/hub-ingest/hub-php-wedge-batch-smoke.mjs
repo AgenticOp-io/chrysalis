@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** PHP wedge batch v7: v6 + IR helper embed lifting (G985). */
+/** PHP wedge batch v8: v7 + IR helper full path + reingest Fastify HTTP (G1015). */
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPhpNextjsVerifyBatchSmoke } from "./hub-php-nextjs-verify-batch-smoke.mjs";
@@ -10,9 +10,12 @@ import { runGapsIngestClosureBatchSmoke } from "./hub-gaps-ingest-closure-batch-
 import { runGapsIngestStrictBatchSmoke } from "./hub-gaps-ingest-strict-batch-smoke.mjs";
 import { runIrHelperLiftingSmoke } from "./hub-ir-helper-lifting-smoke.mjs";
 import { runIrHelperLiftingSemanticSmoke } from "./hub-ir-helper-lifting-semantic-smoke.mjs";
+import { runIrHelperLiftingEmbedSmoke } from "./hub-ir-helper-lifting-embed-smoke.mjs";
+import { runIrHelperLiftingFullPathSmoke } from "./hub-ir-helper-lifting-full-path-smoke.mjs";
+import { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } from "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs";
 
 export const HUB_PHP_WEDGE_BATCH_KIND = "chrysalis.hub.php-wedge-batch-smoke";
-export const HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION = 6;
+export const HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION = 8;
 
 export async function runPhpWedgeBatchSmoke() {
   const nextjsVerify = await runPhpNextjsVerifyBatchSmoke();
@@ -24,6 +27,8 @@ export async function runPhpWedgeBatchSmoke() {
   const irHelperLifting = runIrHelperLiftingSmoke();
   const irHelperLiftingSemantic = runIrHelperLiftingSemanticSmoke();
   const irHelperLiftingEmbed = runIrHelperLiftingEmbedSmoke();
+  const irHelperLiftingFullPath = runIrHelperLiftingFullPathSmoke();
+  const authProbeReingestVerifyHttpFastify = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
   const ok =
     nextjsVerify.ok === true &&
     oracleMicro.ok === true &&
@@ -33,7 +38,9 @@ export async function runPhpWedgeBatchSmoke() {
     gapsIngestStrict.ok === true &&
     irHelperLifting.ok === true &&
     irHelperLiftingSemantic.ok === true &&
-    irHelperLiftingEmbed.ok === true;
+    irHelperLiftingEmbed.ok === true &&
+    irHelperLiftingFullPath.ok === true &&
+    authProbeReingestVerifyHttpFastify.ok === true;
   return {
     kind: HUB_PHP_WEDGE_BATCH_KIND,
     schemaVersion: HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION,
@@ -47,6 +54,8 @@ export async function runPhpWedgeBatchSmoke() {
     irHelperLifting,
     irHelperLiftingSemantic,
     irHelperLiftingEmbed,
+    irHelperLiftingFullPath,
+    authProbeReingestVerifyHttpFastify,
     generatedAt: new Date().toISOString(),
   };
 }

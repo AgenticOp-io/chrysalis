@@ -230,8 +230,9 @@ When the user says “build” without specifying, prefer this queue:
 | 27 | **Real verify replay** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY`); multi-flagship replay; IR helper lifting hub smoke (schema 71) |
 | 28 | **HTTP oracle verify** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP`); multi-flagship HTTP verify; IR helper semantic lifting (schema 72) |
 | 29 | **Fastify HTTP oracle verify** + IR helper embed lifting B4 (`--ingest-embed-shared-helper-bodies`); multi-flagship Fastify HTTP batch (schema 73) |
+| 30 | **Hub verify-gaps graduation** — reingest + Fastify HTTP (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET`); IR helper B1–B4 full path; dual-backend HTTP verify loop complete (schema 74) |
 
-HTTP verify runs emit + live server + `chrysalis verify --base-url` — stronger than in-process replay. Replay and seed closure remain for faster probes. Fastify HTTP verify proves the second emit backend on live HTTP.
+HTTP verify runs emit + live server + `chrysalis verify --base-url` — stronger than in-process replay. Replay and seed closure remain for faster probes. Fastify HTTP verify proves the second emit backend on live HTTP. Schema 74 closes the locked hub verify-gaps program (months 26–30).
 
 ---
 

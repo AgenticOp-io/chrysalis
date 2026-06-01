@@ -88,8 +88,25 @@ function startEmittedServer(emitDir, port) {
 /**
  * @param {import("node:child_process").ChildProcess | null} child
  */
-function stopEmittedServer(child) {
-  if (child && !child.killed) child.kill("SIGTERM");
+async function stopEmittedServer(child) {
+  if (!child || child.killed) return;
+  await new Promise((resolveStop) => {
+    child.on("exit", () => resolveStop());
+    try {
+      child.kill();
+    } catch {
+      resolveStop();
+      return;
+    }
+    setTimeout(() => {
+      try {
+        if (!child.killed) child.kill("SIGKILL");
+      } catch {
+        /* ignore */
+      }
+      resolveStop();
+    }, 3000);
+  });
 }
 
 /**
@@ -219,7 +236,7 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
       generatedAt: new Date().toISOString(),
     };
   } finally {
-    stopEmittedServer(serverChild);
+    await stopEmittedServer(serverChild);
   }
 }
 
