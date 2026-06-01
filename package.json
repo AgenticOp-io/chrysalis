@@ -337,7 +337,16 @@
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",
     "deploy:agenticop-site": "pnpm run sync:agenticop-site && firebase deploy --only hosting",
     "advisor:package": "node scripts/make-advisor-package.mjs",
-    "test:cli-shims": "node scripts/test-cli-shims.mjs"
+    "test:cli-shims": "node scripts/test-cli-shims.mjs",
+    "hub:cwl-authoring-batch-v22-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v22-smoke.mjs",
+    "hub:cwl-authoring-batch-v23-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v23-smoke.mjs",
+    "hub:cwl-authoring-batch-v24-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v24-smoke.mjs",
+    "hub:cwl-authoring-batch-v25-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v25-smoke.mjs",
+    "hub:cwl-authoring-batch-v26-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v26-smoke.mjs",
+    "hub:cwl-authoring-batch-v27-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v27-smoke.mjs",
+    "hub:cwl-authoring-batch-v28-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v28-smoke.mjs",
+    "hub:cwl-authoring-batch-v29-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v29-smoke.mjs",
+    "hub:cwl-authoring-batch-v30-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v30-smoke.mjs"
   },
   "devDependencies": {
     "acorn": "^8.14.1",

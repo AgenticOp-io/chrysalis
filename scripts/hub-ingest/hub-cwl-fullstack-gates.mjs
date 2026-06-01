@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v20 (G1209–G1358).
+ * Full-stack CWL gate runners for authoring batches v6–v30 (G1209–G1458).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
@@ -192,6 +192,93 @@ export async function runProductionSearchGate(opts = {}) {
     status: probe?.status ?? null,
     productionOk: report.ok === true,
   };
+}
+
+export async function runFastifyEmitSearchGate(opts = {}) {
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const report = await runProjectVerifyHttp(flagshipDir, {
+    origin: "cwl",
+    target: "fastify",
+    repoRoot,
+    threshold: 1,
+  });
+  const verifyFile = join(flagshipDir, "reports/verify/GET_search.json");
+  return {
+    ok: report.ok === true && existsSync(verifyFile),
+    verifyOk: report.ok === true,
+    hasSearchArtifact: existsSync(verifyFile),
+  };
+}
+
+export async function runNextjsSearchParamsExportGate() {
+  const { runNextjsDeepCwlExportSmoke } = await import("./hub-nextjs-deep-cwl-export-smoke.mjs");
+  const exported = await runNextjsDeepCwlExportSmoke();
+  return { ok: exported.ok === true && exported.hasSearch === true, exported };
+}
+
+export async function runSvelteSearchQueryExportGate() {
+  const { runSveltekitDeepCwlExportSmoke } = await import("./hub-sveltekit-deep-cwl-export-smoke.mjs");
+  const exported = await runSveltekitDeepCwlExportSmoke();
+  return { ok: exported.ok === true && exported.hasSearch === true, exported };
+}
+
+export function runFormActionProbeGate() {
+  const ok =
+    Boolean(CWL_FULLSTACK_HOLE_CATALOG["hub-svelte:form-action"]) &&
+    existsSync(join(scriptRoot, "docs/CWL-RFC-0016-form-action-probe.md"));
+  return { ok, catalogued: Boolean(CWL_FULLSTACK_HOLE_CATALOG["hub-svelte:form-action"]) };
+}
+
+export async function runSessionStubGate(opts = {}) {
+  const { runCwlSessionStubSmoke } = await import("./hub-cwl-session-stub-smoke.mjs");
+  const report = await runCwlSessionStubSmoke(opts);
+  return { ok: report.ok === true, status: report.status ?? null };
+}
+
+export async function runExpressDepthGate() {
+  const { runExpressFlagshipSmoke } = await import("./hub-express-flagship.mjs");
+  const report = await runExpressFlagshipSmoke();
+  return { ok: report.ok === true, liftOk: report.lift?.ok === true };
+}
+
+export async function runDiagnoseV2Gate() {
+  const report = await diagnoseCwlFile(flagshipCwl);
+  return {
+    ok:
+      report.ok === true &&
+      report.schemaVersion === 2 &&
+      (report.effectNoneRouteCount ?? 0) >= 4 &&
+      typeof report.effectRouteCount === "number",
+    schemaVersion: report.schemaVersion ?? 1,
+    effectNoneRouteCount: report.effectNoneRouteCount ?? 0,
+    effectRouteCount: report.effectRouteCount ?? 0,
+  };
+}
+
+export async function runEmitVerifyMegaGate(opts = {}) {
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });
+  const fastify = await runProjectVerifyHttp(flagshipDir, {
+    origin: "cwl",
+    target: "fastify",
+    repoRoot,
+    threshold: 1,
+  });
+  return {
+    ok: hono.ok === true && fastify.ok === true,
+    honoOk: hono.ok === true,
+    fastifyOk: fastify.ok === true,
+  };
+}
+
+export async function runProductionGraduationGate(opts = {}) {
+  const search = await runProductionSearchGate(opts);
+  const fastify = await runFastifyEmitSearchGate(opts);
+  const session = await runSessionStubGate(opts);
+  const diagnose = await runDiagnoseV2Gate();
+  const mega = await runEmitVerifyMegaGate(opts);
+  const gates = [search, fastify, session, diagnose, mega];
+  return { ok: gates.every((g) => g.ok === true), gateCount: gates.length, passed: gates.filter((g) => g.ok).length };
 }
 
 export async function runGraduationGate(opts = {}) {

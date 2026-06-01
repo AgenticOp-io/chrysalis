@@ -19,6 +19,6 @@ Each queue has a detail doc `docs/CWL-FULLSTACK-NEXT-10-N.md` (N = 21..30).
 | 29 | G1439–G1448 | Cross-backend emit verify mega batch | v29 | 102 |
 | 30 | G1449–G1458 | Phase 6 production-readiness graduation | v30 | 103 |
 
-**Default build queue** after G1358: queue 21, then 22, … in order.
+**Default build queue:** G1209–G1458 (queues 6–30) is **complete** as of 2026-06-01. Next work: extend with a post-30 program when locked in `STRATEGIC-PLAN.md` / `ROADMAP.md`, or Phase 6–7 follow-on per hub verify-gaps.
 
 **Non-goals (unchanged):** hydration, client stores, production SQL/session claims without parity evidence.

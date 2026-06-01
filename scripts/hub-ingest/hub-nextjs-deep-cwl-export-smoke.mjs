@@ -52,12 +52,14 @@ export async function runNextjsDeepCwlExportSmoke(opts = {}) {
   const cwlText = readFileSync(cwlPath, "utf8");
   const hasLoad = /load\s+\{/.test(cwlText) && cwlText.includes("page-server");
   const hasBlog = cwlText.includes("/blog/:slug");
+  const hasSearch = cwlText.includes('/search') && (cwlText.includes("query q") || cwlText.includes("q: q"));
 
   return {
     ...base,
-    ok: hasLoad && hasBlog,
+    ok: hasLoad && hasBlog && hasSearch,
     hasLoad,
     hasBlog,
+    hasSearch,
     generatedAt: new Date().toISOString(),
   };
 }

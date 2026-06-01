@@ -160,6 +160,49 @@ export function extractJsxConstBools(source) {
  * @param {string} source
  * @param {Record<string, boolean>} [constBools]
  */
+/**
+ * @param {string} source
+ */
+export function extractNextPageQueryParams(source) {
+  /** @type {string[]} */
+  const params = [];
+  if (/searchParams/.test(source)) {
+    const fromOptional = /searchParams\??\.([a-zA-Z_][a-zA-Z0-9_]*)/g;
+    let m;
+    while ((m = fromOptional.exec(source)) !== null) {
+      if (!params.includes(m[1])) params.push(m[1]);
+    }
+    const destructure = /searchParams\s*:\s*\{([^}]+)\}/.exec(source);
+    if (destructure) {
+      for (const part of destructure[1].split(",")) {
+        const name = part.trim().split(/\s+/)[0]?.replace(/\?$/, "");
+        if (name && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name) && !params.includes(name)) params.push(name);
+      }
+    }
+    const constBind = /const\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*searchParams/.exec(source);
+    if (constBind && !params.includes(constBind[1])) params.push(constBind[1]);
+  }
+  return params;
+}
+
+/**
+ * @param {string} source
+ * @param {string[]} refNames
+ */
+export function liftJsxPageHtmlWithBareRefs(source, refNames) {
+  let s = source.replace(/^import[\s\S]*?;\s*/gm, "");
+  s = s.replace(/const\s+[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*searchParams[^;]+;/g, "");
+  const ret = /return\s*\(\s*([\s\S]*?)\s*\)\s*;?\s*\}/.exec(s);
+  let inner = ret ? ret[1] : s.replace(/^export\s+default\s+function[\s\S]*?\{([\s\S]*)\}\s*$/m, "$1");
+  inner = inner
+    .replace(/className=/g, "class=")
+    .replace(/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g, (m, name) => (refNames.includes(name) ? name : m));
+  if (/\{/.test(inner)) return null;
+  inner = inner.replace(/\/>/g, ">").trim();
+  if (!inner || !/<[a-z]/i.test(inner)) return null;
+  return inner;
+}
+
 export function liftStaticJsxPageHtml(source, constBools = {}) {
   const bools = { ...extractJsxConstBools(source), ...constBools };
   let s = source.replace(/^import[\s\S]*?;\s*/gm, "");
@@ -298,9 +341,17 @@ export async function liftNextAppProjectToWebir(opts) {
         routeCount += 1;
         continue;
       }
-      const html = liftStaticJsxPageHtml(source);
+      const queryParams = extractNextPageQueryParams(source);
+      let html = liftStaticJsxPageHtml(source);
+      if (!html && queryParams.length > 0) {
+        html = liftJsxPageHtmlWithBareRefs(source, queryParams);
+      }
       if (html) {
-        const bodyId = lowerHubHtmlPageBody(ctx, html, loc, wrBuilders);
+        const htmlBindings = { path: pathParams, query: queryParams, load: [] };
+        if (queryParams.length > 0) {
+          html = applyBareFieldRefsToHtml(html, [...pathParams, ...queryParams]);
+        }
+        const bodyId = lowerHubHtmlPageBody(ctx, html, loc, wrBuilders, htmlBindings);
         emitHubRoute({
           webir,
           builder,

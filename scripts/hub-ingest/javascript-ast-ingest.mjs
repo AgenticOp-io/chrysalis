@@ -191,6 +191,32 @@ function requestFieldOf(expr) {
 }
 
 /**
+ * SvelteKit / Next load: `url.searchParams.get("q")`.
+ * @param {import('estree').CallExpression} expr
+ */
+function urlSearchParamsGetFieldOf(expr) {
+  if (expr.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (callee?.type !== "MemberExpression" || callee.computed || callee.property?.type !== "Identifier") {
+    return null;
+  }
+  if (callee.property.name !== "get") return null;
+  const searchParams = callee.object;
+  if (
+    searchParams?.type !== "MemberExpression" ||
+    searchParams.computed ||
+    searchParams.property?.type !== "Identifier" ||
+    searchParams.property.name !== "searchParams"
+  ) {
+    return null;
+  }
+  if (searchParams.object?.type !== "Identifier" || searchParams.object.name !== "url") return null;
+  const arg = expr.arguments[0];
+  if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
+  return { name: arg.value };
+}
+
+/**
  * @param {import('estree').Expression} expr
  */
 function peelJsonCallArgument(expr) {
@@ -309,6 +335,16 @@ function lowerExpression(ctx, expr) {
     });
   }
   if (expr.type === "CallExpression") {
+    const urlQuery = urlSearchParamsGetFieldOf(expr);
+    if (urlQuery) {
+      return data.requestField({
+        source: "query",
+        name: urlQuery.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:url-search-params")],
+      });
+    }
     const jsonArg = peelJsonCallArgument(expr);
     if (jsonArg) {
       return lowerExpression(ctx, jsonArg);

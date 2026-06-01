@@ -52,13 +52,15 @@ export async function runSveltekitDeepCwlExportSmoke(opts = {}) {
   const cwlText = readFileSync(cwlPath, "utf8");
   const hasLoad = /load\s+\{/.test(cwlText) && cwlText.includes("page-server");
   const hasPage = cwlText.includes("@page");
-  const ok = hasLoad && hasPage && cwlText.includes("/blog/");
+  const hasSearch = cwlText.includes("/search") && (cwlText.includes("q:") || cwlText.includes("query q"));
+  const ok = hasLoad && hasPage && cwlText.includes("/blog/") && hasSearch;
 
   return {
     ...base,
     ok,
     hasLoad,
     hasPage,
+    hasSearch,
     generatedAt: new Date().toISOString(),
   };
 }

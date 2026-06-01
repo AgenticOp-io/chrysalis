@@ -1,8 +1,13 @@
-export default function SearchPage() {
+export default function SearchPage({
+  searchParams,
+}: {
+  searchParams: { q?: string };
+}) {
+  const q = searchParams?.q ?? "";
   return (
     <main>
       <h1>Search</h1>
-      <p>Next.js search query page origin.</p>
+      <p>q: {q}</p>
     </main>
   );
 }

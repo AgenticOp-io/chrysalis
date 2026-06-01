@@ -232,7 +232,7 @@ When the user says “build” without specifying, prefer this queue:
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
-When the user says **“build”** without specifying and G1358 is complete, prefer **`docs/CWL-FULLSTACK-QUEUES-21-30.md`** and the active queue doc **`docs/CWL-FULLSTACK-NEXT-10-N.md`** (**G1359–G1458**, queues 21–30).
+When the user says **“build”** without specifying and G1458 is complete, prefer **`docs/CWL-FULLSTACK-QUEUES-21-30.md`** (extend with post-30 program when locked). Active queue: **`docs/CWL-FULLSTACK-NEXT-10-N.md`** (**G1359–G1458**, queues 21–30).
 
 ### Hub verify-gaps program (post–Next 90 days)
 

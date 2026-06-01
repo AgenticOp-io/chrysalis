@@ -145,6 +145,15 @@ test("authoring batch v21 production search smoke (G1363)", async () => {
   expect(report.gate21?.ok).toBe(true);
 }, 600_000);
 
+test("authoring batch v30 production graduation smoke (G1453)", async () => {
+  const { runCwlAuthoringBatchV30Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v30-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV30Smoke();
+  expect(report.ok).toBe(true);
+  expect(report.gate30?.ok).toBe(true);
+}, 900_000);
+
 test("cwl html roundtrip smoke (G1202)", async () => {
   const { runCwlHtmlRoundtripSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-html-roundtrip-smoke.mjs"),

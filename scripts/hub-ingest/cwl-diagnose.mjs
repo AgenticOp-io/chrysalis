@@ -9,7 +9,7 @@ import { isCataloguedFullstackHole, lookupFullstackHole } from "./cwl-fullstack-
 import { parseCwlModule } from "./cwl-parser.mjs";
 
 export const CWL_DIAGNOSE_KIND = "chrysalis.cwl.diagnose";
-export const CWL_DIAGNOSE_SCHEMA_VERSION = 1;
+export const CWL_DIAGNOSE_SCHEMA_VERSION = 2;
 
 /**
  * @param {string} source
@@ -69,9 +69,14 @@ export function diagnoseCwlSource(source, file = "input.cwl") {
   let pageRouteCount = 0;
   let loadRouteCount = 0;
   let interpolationRouteCount = 0;
+  let effectNoneRouteCount = 0;
+  let effectRouteCount = 0;
   for (const r of mod.routes ?? []) {
     if (r.surfaceKind === "page") pageRouteCount += 1;
     if (r.loadBody) loadRouteCount += 1;
+    const effects = r.effects ?? [];
+    if (effects.length === 0) effectNoneRouteCount += 1;
+    else effectRouteCount += 1;
     if (r.body?.kind === "html" && typeof r.body.value === "string") {
       const html = r.body.value;
       const names = [...(r.handlerPathParams ?? []), ...(r.handlerQueryParams ?? [])];
@@ -88,6 +93,8 @@ export function diagnoseCwlSource(source, file = "input.cwl") {
     pageRouteCount,
     loadRouteCount,
     interpolationRouteCount,
+    effectNoneRouteCount,
+    effectRouteCount,
     diagnostics,
   };
 }

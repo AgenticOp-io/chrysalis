@@ -8,5 +8,5 @@
   "minPageLoadRoutes": 1,
   "minInterpolationRoutes": 3,
   "minApiRoutes": 3,
-  "evidenceGates": ["cwl-preview", "runtime-parity", "cwl-diagnose", "gold-verify", "authoring-batch-v20"]
+  "evidenceGates": ["cwl-preview", "runtime-parity", "cwl-diagnose", "gold-verify", "authoring-batch-v30"]
 }
