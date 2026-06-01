@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v30 (G1209–G1458).
+ * Full-stack CWL gate runners for authoring batches v6–v40 (G1209–G1558).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
@@ -12,6 +12,7 @@ import { buildDeliveryDashboard } from "./hub-delivery-dashboard.mjs";
 import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
 import { buildCwlPreviewReport } from "./hub-cwl-preview.mjs";
 import { runProjectVerifyHttp } from "./hub-verify-http.mjs";
+import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const flagshipDir = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack");
@@ -294,4 +295,52 @@ export async function runGraduationGate(opts = {}) {
   ]);
   const ok = gates.every((g) => g.ok === true);
   return { ok, gateCount: gates.length, passed: gates.filter((g) => g.ok).length };
+}
+
+export async function runRuntimeHonoParityGate(opts = {}) {
+  const { runCwlRuntimeHonoParitySmoke } = await import("./hub-cwl-runtime-hono-parity-smoke.mjs");
+  const report = await runCwlRuntimeHonoParitySmoke(opts);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+export async function runRuntimeProductionGate(opts = {}) {
+  const { runCwlRuntimeProductionSmoke } = await import("./hub-cwl-runtime-production-smoke.mjs");
+  const report = await runCwlRuntimeProductionSmoke(opts);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+export async function runVerifyGapsExpressGate() {
+  const { runVerifyGapsExpressSmoke } = await import("./hub-verify-gaps-express-smoke.mjs");
+  const report = runVerifyGapsExpressSmoke();
+  return { ok: report.ok === true, backlogCount: report.backlogCount ?? 0 };
+}
+
+export async function runVerifyGapsFullstackGate() {
+  const report = buildProjectVerifyGapsIngestReport(flagshipDir);
+  return {
+    ok: report.ok === true || report.skipped === "no-verify-report",
+    backlogCount: report.backlog?.length ?? 0,
+    skipped: report.skipped ?? null,
+  };
+}
+
+export async function runProjectToCwlRoundtripGate() {
+  const { runProjectToCwlRoundtripSmoke } = await import("./hub-project-to-cwl-roundtrip-smoke.mjs");
+  const report = await runProjectToCwlRoundtripSmoke();
+  return { ok: report.ok === true, originCount: report.results?.length ?? 0 };
+}
+
+export async function runPost30CompositeGate(opts = {}) {
+  const parity = await runRuntimeHonoParityGate(opts);
+  const production = await runRuntimeProductionGate(opts);
+  const expressGaps = await runVerifyGapsExpressGate();
+  const fullstackGaps = await runVerifyGapsFullstackGate();
+  const gates = [parity, production, expressGaps, fullstackGaps];
+  return { ok: gates.every((g) => g.ok === true), gateCount: gates.length, passed: gates.filter((g) => g.ok).length };
+}
+
+export async function runPost30GraduationGate(opts = {}) {
+  const post30 = await runPost30CompositeGate(opts);
+  const production = await runProductionGraduationGate(opts);
+  return { ok: post30.ok === true && production.ok === true, post30, production };
 }

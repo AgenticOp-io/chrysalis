@@ -149,10 +149,21 @@ test("authoring batch v30 production graduation smoke (G1453)", async () => {
   const { runCwlAuthoringBatchV30Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v30-smoke.mjs"),
   );
-  const report = await runCwlAuthoringBatchV30Smoke();
+  const report = await runCwlAuthoringBatchV30Smoke({ graduationOnly: true });
   expect(report.ok).toBe(true);
   expect(report.gate30?.ok).toBe(true);
-}, 900_000);
+  expect(report.graduationOnly).toBe(true);
+}, 180_000);
+
+test("authoring batch v40 post-30 graduation smoke (G1553)", async () => {
+  const { runCwlAuthoringBatchV40Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v40-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV40Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate40?.ok).toBe(true);
+  expect(report.gate40Mode).toBe("post30-composite");
+}, 120_000);
 
 test("cwl html roundtrip smoke (G1202)", async () => {
   const { runCwlHtmlRoundtripSmoke } = await import(

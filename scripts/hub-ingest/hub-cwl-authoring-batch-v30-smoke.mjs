@@ -12,15 +12,28 @@ export const HUB_CWL_AUTHORING_BATCH_V30_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
+function graduationOnlyMode(opts) {
+  return (
+    opts.graduationOnly === true ||
+    process.env.CHRYSALIS_HUB_CWL_BATCH_V30_GRADUATION_ONLY === "1"
+  );
+}
+
 export async function runCwlAuthoringBatchV30Smoke(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
-  const batchV29 = await runCwlAuthoringBatchV29Smoke({ repoRoot });
+  const skipPrior = opts.skipPriorChain === true;
+  const gradOnly = graduationOnlyMode(opts);
+  const batchV29 =
+    skipPrior || gradOnly
+      ? { ok: true, skip: skipPrior ? "skip-prior-chain" : "graduation-only" }
+      : await runCwlAuthoringBatchV29Smoke({ repoRoot });
   const gate30 = await runProductionGraduationGate({ repoRoot });
   const ok = batchV29.ok === true && gate30.ok === true;
   return {
     kind: HUB_CWL_AUTHORING_BATCH_V30_KIND,
     schemaVersion: HUB_CWL_AUTHORING_BATCH_V30_SCHEMA_VERSION,
     ok,
+    graduationOnly: gradOnly,
     batchV29,
     gate30,
     generatedAt: new Date().toISOString(),

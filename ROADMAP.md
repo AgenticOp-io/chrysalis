@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1458** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1558** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -1131,31 +1131,31 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-22.md`.
 
-- [x] **G1359 — Fastify emit verify search** — (**DESIGN D1359**)
-- [x] **G1360 — GET_search.json artifact** — (**DESIGN D1360**)
-- [x] **G1361 — runFastifyEmitSearchGate** — (**DESIGN D1361**)
-- [x] **G1362 — Authoring batch v22** — (**DESIGN D1362**)
-- [x] **G1363 — hub-completion schema 95** — (**DESIGN D1363**)
-- [x] **G1364 — Vitest batch v22** — (**DESIGN D1364**)
-- [x] **G1365 — Strategic plan queue 22** — (**DESIGN D1365**)
-- [x] **G1366 — ROADMAP lock queue 22** — (**DESIGN D1366**)
-- [x] **G1367 — Queues 21-30 index** — (**DESIGN D1367**)
-- [x] **G1368 — Phase 6 emit parity** — (**DESIGN D1368**)
+- [x] **G1369 — Fastify emit verify search** — (**DESIGN D1369**)
+- [x] **G1370 — GET_search.json artifact** — (**DESIGN D1370**)
+- [x] **G1371 — runFastifyEmitSearchGate** — (**DESIGN D1371**)
+- [x] **G1372 — Authoring batch v22** — (**DESIGN D1372**)
+- [x] **G1373 — hub-completion schema 95** — (**DESIGN D1373**)
+- [x] **G1374 — Vitest batch v22** — (**DESIGN D1374**)
+- [x] **G1375 — Strategic plan queue 22** — (**DESIGN D1375**)
+- [x] **G1376 — ROADMAP lock queue 22** — (**DESIGN D1376**)
+- [x] **G1377 — Queues 21-30 index** — (**DESIGN D1377**)
+- [x] **G1378 — Phase 6 emit parity** — (**DESIGN D1378**)
 
-### Full-stack CWL — queue 23 (G1369–G1378)
+### Full-stack CWL — queue 23 (G1379–G1388)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-23.md`.
 
-- [x] **G1369 — Next searchParams page** — (**DESIGN D1369**)
-- [x] **G1370 — liftJsxPageHtmlWithBareRefs** — (**DESIGN D1370**)
-- [x] **G1371 — Next deep CWL export search** — (**DESIGN D1371**)
-- [x] **G1372 — runNextjsSearchParamsExportGate** — (**DESIGN D1372**)
-- [x] **G1373 — Authoring batch v23** — (**DESIGN D1373**)
-- [x] **G1374 — hub-completion schema 96** — (**DESIGN D1374**)
-- [x] **G1375 — Vitest batch v23** — (**DESIGN D1375**)
-- [x] **G1376 — ROADMAP lock queue 23** — (**DESIGN D1376**)
-- [x] **G1377 — url.searchParams.get lift** — (**DESIGN D1377**)
-- [x] **G1378 — Export smoke hasSearch** — (**DESIGN D1378**)
+- [x] **G1379 — Next searchParams page** — (**DESIGN D1379**)
+- [x] **G1380 — liftJsxPageHtmlWithBareRefs** — (**DESIGN D1380**)
+- [x] **G1381 — Next deep CWL export search** — (**DESIGN D1381**)
+- [x] **G1382 — runNextjsSearchParamsExportGate** — (**DESIGN D1382**)
+- [x] **G1383 — Authoring batch v23** — (**DESIGN D1383**)
+- [x] **G1384 — hub-completion schema 96** — (**DESIGN D1384**)
+- [x] **G1385 — Vitest batch v23** — (**DESIGN D1385**)
+- [x] **G1386 — ROADMAP lock queue 23** — (**DESIGN D1386**)
+- [x] **G1387 — url.searchParams.get lift** — (**DESIGN D1387**)
+- [x] **G1388 — Export smoke hasSearch** — (**DESIGN D1388**)
 
 ### Full-stack CWL — queue 24 (G1379–G1388)
 
@@ -1262,7 +1262,41 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1457 — Full-stack hole budget v30** — (**DESIGN D1457**)
 - [x] **G1458 — Production readiness lock** — (**DESIGN D1458**)
 
+### Full-stack CWL — queue 31 (G1459–G1468)
 
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-31.md`; program index **`docs/CWL-FULLSTACK-QUEUES-31-40.md`**.
+
+- [x] **G1459 — runtime-cwl hono parity gate** — (**DESIGN D1459**)
+- [x] **G1460 — runRuntimeHonoParityGate** — (**DESIGN D1460**)
+- [x] **G1461 — Authoring batch v31** — (**DESIGN D1461**)
+- [x] **G1462 — hub-completion schema 104** — (**DESIGN D1462**)
+- [x] **G1463 — Vitest batch v31** — (**DESIGN D1463**)
+- [x] **G1464 — ROADMAP lock queue 31** — (**DESIGN D1464**)
+- [x] **G1465 — runtime parity evidence** — (**DESIGN D1465**)
+- [x] **G1466 — Post-30 program index** — (**DESIGN D1466**)
+- [x] **G1467 — Strategic plan queues 31-40** — (**DESIGN D1467**)
+- [x] **G1468 — Queue 31 lock** — (**DESIGN D1468**)
+
+### Full-stack CWL — queues 32–39 (G1469–G1548)
+
+> **Authority:** `docs/CWL-FULLSTACK-QUEUES-31-40.md` (queues 32–39 detail docs).
+
+- [x] **G1469–G1548** — runtime production, verify-gaps express/fullstack, project-to-CWL roundtrip, graduation replay, mega origin, post-30 composite, emit mega, batches v32–v39. (**DESIGN D1469–D1548**)
+
+### Full-stack CWL — queue 40 (G1549–G1558)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-40.md`.
+
+- [x] **G1549 — runPost30GraduationGate** — (**DESIGN D1549**)
+- [x] **G1550 — Post-30 + Phase 6 composite** — (**DESIGN D1550**)
+- [x] **G1551 — Authoring batch v40** — (**DESIGN D1551**)
+- [x] **G1552 — hub-completion schema 113** — (**DESIGN D1552**)
+- [x] **G1553 — Vitest batch v40** — (**DESIGN D1553**)
+- [x] **G1554 — v30 graduation-only CI mode** — (**DESIGN D1554**)
+- [x] **G1555 — ROADMAP lock queue 40** — (**DESIGN D1555**)
+- [x] **G1556 — Hole budget v40 evidence** — (**DESIGN D1556**)
+- [x] **G1557 — Hub-completion skipPrior v40** — (**DESIGN D1557**)
+- [x] **G1558 — Post-30 production lock** — (**DESIGN D1558**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
