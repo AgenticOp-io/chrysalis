@@ -113,6 +113,8 @@ import { runLaravelMinMigrationOsBatchSmoke } from "./hub-laravel-min-migration-
 import { runOracleStandaloneBatchSmoke } from "./hub-oracle-standalone-batch-smoke.mjs";
 import { runFullDeliveryMegaBatchSmoke } from "./hub-full-delivery-mega-batch-smoke.mjs";
 import { runCwlMegaBatchSmoke } from "./hub-cwl-mega-batch-smoke.mjs";
+import { runCwlAuthoringBatchV2Smoke } from "./hub-cwl-authoring-batch-v2-smoke.mjs";
+import { runCwlAuthoringBatchV3Smoke } from "./hub-cwl-authoring-batch-v3-smoke.mjs";
 import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
@@ -897,6 +899,20 @@ async function main() {
     cwlMegaBatch = { ok: false, skip: "cwl-mega-batch-threw" };
   }
   const cwlMegaBatchOk = cwlMegaBatch.ok === true;
+  let fullstackAuthoringBatchV2 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV2 = await runCwlAuthoringBatchV2Smoke();
+  } catch {
+    fullstackAuthoringBatchV2 = { ok: false, skip: "fullstack-authoring-batch-v2-threw" };
+  }
+  const fullstackAuthoringBatchV2Ok = fullstackAuthoringBatchV2.ok === true;
+  let fullstackAuthoringBatchV3 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV3 = await runCwlAuthoringBatchV3Smoke();
+  } catch {
+    fullstackAuthoringBatchV3 = { ok: false, skip: "fullstack-authoring-batch-v3-threw" };
+  }
+  const fullstackAuthoringBatchV3Ok = fullstackAuthoringBatchV3.ok === true;
   let plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
@@ -1426,6 +1442,8 @@ async function main() {
     oracleStandaloneBatchOk &&
     fullDeliveryMegaBatchOk &&
     cwlMegaBatchOk &&
+    fullstackAuthoringBatchV2Ok &&
+    fullstackAuthoringBatchV3Ok &&
     plainPhpMigrationOsBatchOk &&
     tinyBlogDeliveryBatchOk &&
     deliveryPipelineStandaloneBatchOk &&
@@ -1497,7 +1515,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 74,
+    schemaVersion: 76,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -2100,6 +2118,16 @@ async function main() {
     cwlMegaBatch: {
       ok: cwlMegaBatchOk,
       script: "pnpm run hub:cwl-mega-batch-smoke",
+    },
+    fullstackAuthoringBatchV2: {
+      ok: fullstackAuthoringBatchV2Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v2-smoke",
+      schemaVersion: fullstackAuthoringBatchV2.schemaVersion ?? 1,
+    },
+    fullstackAuthoringBatchV3: {
+      ok: fullstackAuthoringBatchV3Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v3-smoke",
+      schemaVersion: fullstackAuthoringBatchV3.schemaVersion ?? 1,
     },
     plainPhpMigrationOsBatch: {
       ok: plainPhpMigrationOsBatchOk,

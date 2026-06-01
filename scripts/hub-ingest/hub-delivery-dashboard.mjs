@@ -125,7 +125,9 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       check: checkFullstackHoleBudget(budgetRead.budget, {
         holeCount: cwlPreview?.holeCount ?? evidence.holes?.count ?? 0,
         routeCount: cwlPreview?.routeCount ?? 0,
+        pageLoadCount: cwlPreview?.pageLoadRouteCount ?? 0,
       }),
+      pageLoadRouteCount: cwlPreview?.pageLoadRouteCount ?? null,
     };
   }
 

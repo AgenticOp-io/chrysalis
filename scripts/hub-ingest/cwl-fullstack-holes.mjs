@@ -43,6 +43,12 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     surface: "api",
     summary: "Next.js app route.ts handler body not lowered.",
   },
+  "hub-next:load-function": {
+    rfc: "0013",
+    origin: "nextjs",
+    surface: "data",
+    summary: "Next.js page.server.ts load not lowered (complex shapes); simple literal+param loads use RFC-0013.",
+  },
 };
 
 /**

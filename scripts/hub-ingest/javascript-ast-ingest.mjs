@@ -571,6 +571,42 @@ export function liftSvelteKitServerHandlerBody(opts) {
  * @param {object} opts
  * @returns {{ ok: boolean, loadValueId?: string, reason?: string }}
  */
+/**
+ * Literal boolean fields from a simple `load() { return { visible: true, ... } }`.
+ * @param {string} source
+ * @param {string} file
+ * @returns {Record<string, boolean>}
+ */
+export function extractLoadLiteralBools(source, file) {
+  let ast;
+  try {
+    ast = parseJavaScriptSource(source, file);
+  } catch {
+    return {};
+  }
+  /** @type {import('estree').FunctionDeclaration | null} */
+  let loadFn = null;
+  walkSimple(ast, {
+    ExportNamedDeclaration(node) {
+      if (node.declaration?.type === "FunctionDeclaration" && node.declaration.id?.name === "load") {
+        loadFn = node.declaration;
+      }
+    },
+  });
+  if (!loadFn) return {};
+  const expr = extractHandlerExpression(loadFn);
+  if (!expr || expr.type !== "ObjectExpression") return {};
+  /** @type {Record<string, boolean>} */
+  const out = {};
+  for (const prop of expr.properties) {
+    if (prop.type !== "Property" || prop.key?.type !== "Identifier") continue;
+    if (prop.value?.type === "Literal" && typeof prop.value.value === "boolean") {
+      out[prop.key.name] = prop.value.value;
+    }
+  }
+  return out;
+}
+
 export function liftSvelteKitPageLoadFunction(opts) {
   const { source, file, webir, builder } = opts;
   const data = webir.dataDialect.builders(builder);

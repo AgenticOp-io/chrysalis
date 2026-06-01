@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1168** (next 10) |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1188** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -828,6 +828,36 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1166 — Hole budget on delivery dashboard** — Console pass/fail vs `chrysalis.fullstack-hole-budget.json`. (**DESIGN D1166**)
 - [x] **G1167 — Next.js App Router origin v0** — File-route lift + gold/deep fixtures. (**DESIGN D1167**)
 - [x] **G1168 — runtime-cwl production readiness gates** — Multi-scenario parity smoke; no production SQL/session claims. (**DESIGN D1168**)
+
+### Full-stack CWL — queue 2 (G1169–G1178)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-2.md`.
+
+- [x] **G1169 — runtime-cwl load execution** — `__page_load` in simulate; page-load JSON sidecar in HTML. (**DESIGN D1169**)
+- [x] **G1170 — Bootstrap layout module** — `layouts/shell.cwl` on `cwl init` / portal bootstrap. (**DESIGN D1170**)
+- [x] **G1171 — SvelteKit deep CWL export** — `load { }` preserved on deep fixture export smoke. (**DESIGN D1171**)
+- [x] **G1172 — Next.js App Router deep fixture** — POST + page component hole; `hub:nextjs-deep-smoke`. (**DESIGN D1172**)
+- [x] **G1173 — runtime-cwl vs hono parity** — Flagship API routes status/body match. (**DESIGN D1173**)
+- [x] **G1174 — Production smoke layout + load** — `/about` layout route in production probes. (**DESIGN D1174**)
+- [x] **G1175 — Authoring batch v2** — `hub:cwl-authoring-batch-v2-smoke`. (**DESIGN D1175**)
+- [x] **G1176 — Page-load HTML sidecar** — `#cwl-page-load` script JSON (RFC-0013 runtime). (**DESIGN D1176**)
+- [x] **G1177 — Static Svelte `{#if true\|false}` lift** — Constant branch folding in page HTML lift. (**DESIGN D1177**)
+- [x] **G1178 — hub-completion full-stack depth gates** — schema **75** batch v2 gate. (**DESIGN D1178**)
+
+### Full-stack CWL — queue 3 (G1179–G1188)
+
+> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-3.md`.
+
+- [x] **G1179 — Flagship page load route** — `@page GET "/blog/:slug"` with `load { }` on flagship pilot. (**DESIGN D1179**)
+- [x] **G1180 — Production page-load probe** — runtime-cwl sidecar check on `/blog/hello`. (**DESIGN D1180**)
+- [x] **G1181 — Svelte load-bound `{#if field}`** — literal bool from `+page.server.ts` folds static branches. (**DESIGN D1181**)
+- [x] **G1182 — Deep fixture hole policy** — `/shop` lifts; `/complex` keeps catalogued page hole. (**DESIGN D1182**)
+- [x] **G1183 — Next.js page.server load v0** — `page.server.ts` + static JSX page merge. (**DESIGN D1183**)
+- [x] **G1184 — Next.js deep CWL export** — `hub:nextjs-deep-cwl-export-smoke`. (**DESIGN D1184**)
+- [x] **G1185 — Page-load parity smoke** — flagship blog route status/body/sidecar. (**DESIGN D1185**)
+- [x] **G1186 — Authoring batch v3** — `hub:cwl-authoring-batch-v3-smoke`. (**DESIGN D1186**)
+- [x] **G1187 — hub-completion schema 76** — queue-3 full-stack gates. (**DESIGN D1187**)
+- [x] **G1188 — Delivery dashboard page-load metric** — `pageLoadRouteCount` on budget check. (**DESIGN D1188**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * SvelteKit deep fixture smoke (G1158): POST handlers, +page.server load holes, Svelte blocks.
+ * Next.js App Router deep smoke (G1172): POST + page component hole.
  */
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -10,26 +10,26 @@ import {
   checkFullstackHoleBudget,
   readFullstackHoleBudget,
 } from "./hub-cwl-fullstack-hole-budget.mjs";
-import { discoverSvelteKitRouteFiles, liftSvelteKitProjectToWebir } from "./sveltekit-route-lift.mjs";
+import { liftNextAppProjectToWebir } from "./nextjs-route-lift.mjs";
 import { loadWebir } from "./shared.mjs";
 import { listCwlRoutes } from "./hub-webir-routes.mjs";
 
-export const HUB_SVELTEKIT_DEEP_SMOKE_KIND = "chrysalis.hub.sveltekit-deep-smoke";
-export const HUB_SVELTEKIT_DEEP_SMOKE_SCHEMA_VERSION = 1;
+export const HUB_NEXTJS_DEEP_SMOKE_KIND = "chrysalis.hub.nextjs-deep-smoke";
+export const HUB_NEXTJS_DEEP_SMOKE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const goldFixture = join(scriptRoot, "fixtures/hub-gold-svelte-kit-deep");
+const goldFixture = join(scriptRoot, "fixtures/hub-gold-nextjs-app-deep");
 
-export async function runSveltekitDeepSmoke(opts = {}) {
+export async function runNextjsDeepSmoke(opts = {}) {
   const fixture = resolve(opts.fixture ?? goldFixture);
   const base = {
-    kind: HUB_SVELTEKIT_DEEP_SMOKE_KIND,
-    schemaVersion: HUB_SVELTEKIT_DEEP_SMOKE_SCHEMA_VERSION,
-    fixture: "fixtures/hub-gold-svelte-kit-deep",
+    kind: HUB_NEXTJS_DEEP_SMOKE_KIND,
+    schemaVersion: HUB_NEXTJS_DEEP_SMOKE_SCHEMA_VERSION,
+    fixture: "fixtures/hub-gold-nextjs-app-deep",
     ok: false,
   };
-  if (!existsSync(join(fixture, "src/routes"))) {
-    return { ...base, skip: "missing-routes-dir" };
+  if (!existsSync(join(fixture, "app"))) {
+    return { ...base, skip: "missing-app-dir" };
   }
 
   const budgetRead = await readFullstackHoleBudget(fixture);
@@ -37,63 +37,45 @@ export async function runSveltekitDeepSmoke(opts = {}) {
     return { ...base, skip: budgetRead.reason };
   }
 
-  const discovered = await discoverSvelteKitRouteFiles(fixture);
   const webir = await loadWebir();
-  const builder = new webir.ModuleBuilder({ sourceApp: "hub-sveltekit-deep-smoke" });
+  const builder = new webir.ModuleBuilder({ sourceApp: "hub-nextjs-deep-smoke" });
   const wr = webir.webRequest.builders(builder);
-  const lifted = await liftSvelteKitProjectToWebir({
-    projectDir: fixture,
-    webir,
-    builder,
-    wr,
-    language: "svelte",
-  });
+  await liftNextAppProjectToWebir({ projectDir: fixture, webir, builder, wr, language: "nextjs" });
   const module = builder.finish();
-  const holes = webir.countHoles(module);
   const routes = listCwlRoutes(module);
   const holeReasons = routes.filter((r) => r.holeReason).map((r) => String(r.holeReason));
-  const liftedRoutes = routes.filter((r) => !r.holeReason).length;
-  const cataloguedOnly = holeReasons.every((r) => isCataloguedFullstackHole(r));
   const budgetCheck = checkFullstackHoleBudget(budgetRead.budget, {
-    holeCount: holes,
+    holeCount: webir.countHoles(module),
     routeCount: module.roots.length,
   });
   const hasPost = routes.some((r) => r.method === "POST" && !r.holeReason);
-  const hasLoadHole = holeReasons.includes("hub-svelte:load-function");
-  const hasBlockHole = holeReasons.includes("hub-svelte:page-component");
+  const hasBlockHole = holeReasons.includes("hub-next:page-component");
+  const hasLoadHole = holeReasons.includes("hub-next:load-function");
   const loadRouteLifted = routes.some((r) => r.path.includes("/blog/") && !r.holeReason && r.loadData);
-  const shopLifted = routes.some((r) => r.path === "/shop" && !r.holeReason);
 
   const ok =
     budgetCheck.ok &&
-    cataloguedOnly &&
     hasPost &&
+    hasBlockHole &&
     !hasLoadHole &&
     loadRouteLifted &&
-    shopLifted &&
-    hasBlockHole &&
-    liftedRoutes >= (budgetRead.budget.minLiftedRoutes ?? 3);
+    holeReasons.every((r) => isCataloguedFullstackHole(r));
 
   return {
     ...base,
     ok,
     budgetCheck,
-    discovered: { fileCount: discovered.files.length, pageServerDirs: discovered.files.filter((f) => f.hasPageServer).length },
-    lifted,
-    holeCount: holes,
-    liftedRoutes,
     holeReasons,
     hasPost,
+    hasBlockHole,
     hasLoadHole,
     loadRouteLifted,
-    shopLifted,
-    hasBlockHole,
     generatedAt: new Date().toISOString(),
   };
 }
 
 async function main() {
-  const report = await runSveltekitDeepSmoke();
+  const report = await runNextjsDeepSmoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok && !report.skip) process.exit(1);
 }

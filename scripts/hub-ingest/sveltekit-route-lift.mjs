@@ -6,7 +6,11 @@ import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
 import { CWL_FULLSTACK_HOLE_CATALOG } from "./cwl-fullstack-holes.mjs";
-import { liftSvelteKitPageLoadFunction, liftSvelteKitServerHandlerBodies } from "./javascript-ast-ingest.mjs";
+import {
+  extractLoadLiteralBools,
+  liftSvelteKitPageLoadFunction,
+  liftSvelteKitServerHandlerBodies,
+} from "./javascript-ast-ingest.mjs";
 import { emitHubRoute, hubHandlerBodyHole, lowerHubHtmlPageBody, lowerHubPageWithLoadBody } from "./hub-lift-webir-route.mjs";
 
 const HOLE_PAGE = "hub-svelte:page-component";
@@ -146,8 +150,9 @@ export async function discoverSvelteKitRouteFiles(projectDir) {
  * Extract static markup from a simple +page.svelte (RFC-0012/0013 partial lift).
  * Supports static `{@html "..."}` and trivial `{#each ['a','b'] as x}...{/each}`.
  * @param {string} source
+ * @param {Record<string, boolean>} [loadBools]
  */
-export function liftStaticSveltePageHtml(source) {
+export function liftStaticSveltePageHtml(source, loadBools = {}) {
   let s = source.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
   s = s.replace(/\{@html\s+"([^"]*)"\s*\}/g, "$1");
   const eachRe = /\{#each\s+\[([^\]]+)\]\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}([\s\S]*?)\{\/each\}/g;
@@ -157,6 +162,15 @@ export function liftStaticSveltePageHtml(source) {
       .map((item) => inner.replace(new RegExp(`\\{${itemName}\\}`, "g"), item))
       .join("");
   });
+  s = s.replace(/\{#if\s+true\s*\}([\s\S]*?)\{:else\}([\s\S]*?)\{\/if\}/gi, (_m, t, f) => t);
+  s = s.replace(/\{#if\s+false\s*\}([\s\S]*?)\{:else\}([\s\S]*?)\{\/if\}/gi, (_m, t, f) => f);
+  s = s.replace(
+    /\{#if\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\}([\s\S]*?)\{:else\}([\s\S]*?)\{\/if\}/gi,
+    (m, name, t, f) => (Object.prototype.hasOwnProperty.call(loadBools, name) ? (loadBools[name] ? t : f) : m),
+  );
+  s = s.replace(/\{#if\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\}([\s\S]*?)\{\/if\}/gi, (m, name, body) =>
+    Object.prototype.hasOwnProperty.call(loadBools, name) ? (loadBools[name] ? body : "") : m,
+  );
   if (/\{[#/@]/.test(s)) return null;
   s = s.trim();
   if (!s || !/<[a-z]/i.test(s)) return null;
@@ -235,7 +249,9 @@ export async function liftSvelteKitProjectToWebir(opts) {
                 builder,
               })
             : { ok: false, reason: "missing-page-server" };
-        const html = liftStaticSveltePageHtml(source);
+        const serverSource = serverFile != null ? await readFile(serverFile, "utf8") : "";
+        const loadBools = serverFile != null ? extractLoadLiteralBools(serverSource, serverFile) : {};
+        const html = liftStaticSveltePageHtml(source, loadBools);
         if (loaded.ok && html) {
           const bodyId = lowerHubPageWithLoadBody(ctx, loaded.loadValueId, html, loc, wrBuilders);
           emitHubRoute({

@@ -1,0 +1,10 @@
+{
+  "kind": "chrysalis.cwl.fullstack-hole-budget",
+  "schemaVersion": 1,
+  "fixture": "fixtures/hub-gold-nextjs-app-deep",
+  "maxHoles": 1,
+  "minRoutes": 4,
+  "minLiftedRoutes": 4,
+  "cataloguedHolesOnly": true,
+  "expectedHoleReasons": ["hub-next:page-component"]
+}

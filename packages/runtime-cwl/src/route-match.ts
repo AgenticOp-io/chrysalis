@@ -22,7 +22,7 @@ function compilePattern(pathPattern: string): { regex: RegExp; paramNames: strin
   for (const part of parts) {
     if (part.startsWith(":")) {
       paramNames.push(part.slice(1));
-      regex += "[^/]+/";
+      regex += "([^/]+)/";
     } else {
       regex += `${part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/`;
     }

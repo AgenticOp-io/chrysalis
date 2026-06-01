@@ -16,6 +16,14 @@ page doc_show {
   return html "<html><body><h1>Doc</h1><p>slug: slug</p></body></html>";
 }
 
+@page GET "/blog/:slug"
+page blog_show {
+  effects: none;
+  param slug;
+  load { slug: slug, source: "flagship" };
+  return html "<html><body><h1>Blog</h1><p>slug: slug</p></body></html>";
+}
+
 @route GET "/api/health"
 handler health {
   effects: none;

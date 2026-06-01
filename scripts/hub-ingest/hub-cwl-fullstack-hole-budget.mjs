@@ -25,7 +25,7 @@ export async function readFullstackHoleBudget(fixtureDir) {
 
 /**
  * @param {object} budget
- * @param {{ holeCount: number, routeCount: number, pageCount?: number, apiCount?: number }} stats
+ * @param {{ holeCount: number, routeCount: number, pageCount?: number, apiCount?: number, pageLoadCount?: number }} stats
  */
 export function checkFullstackHoleBudget(budget, stats) {
   const violations = [];
@@ -40,6 +40,9 @@ export function checkFullstackHoleBudget(budget, stats) {
   }
   if (typeof budget.minApiRoutes === "number" && (stats.apiCount ?? 0) < budget.minApiRoutes) {
     violations.push(`api routes ${stats.apiCount ?? 0} < min ${budget.minApiRoutes}`);
+  }
+  if (typeof budget.minPageLoadRoutes === "number" && (stats.pageLoadCount ?? 0) < budget.minPageLoadRoutes) {
+    violations.push(`page-load routes ${stats.pageLoadCount ?? 0} < min ${budget.minPageLoadRoutes}`);
   }
   return { ok: violations.length === 0, violations };
 }

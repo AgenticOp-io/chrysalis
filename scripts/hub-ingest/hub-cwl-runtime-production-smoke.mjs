@@ -16,6 +16,8 @@ const flagshipDir = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack");
 const PROBES = [
   { method: "GET", path: "/", expectStatus: 200, expectHtml: true },
   { method: "GET", path: "/docs/intro", expectStatus: 200, expectHtml: true },
+  { method: "GET", path: "/about", expectStatus: 200, expectHtml: true },
+  { method: "GET", path: "/blog/hello", expectStatus: 200, expectHtml: true, expectPageLoad: true },
   { method: "GET", path: "/api/health", expectStatus: 200, expectJson: true },
   { method: "POST", path: "/api/notify", expectStatus: 200, expectJson: true },
 ];
@@ -65,7 +67,8 @@ export async function runCwlRuntimeProductionSmoke(opts = {}) {
     const caseOk =
       res.status === probe.expectStatus &&
       (!probe.expectHtml || body.includes("<")) &&
-      (!probe.expectJson || body.trimStart().startsWith("{"));
+      (!probe.expectJson || body.trimStart().startsWith("{")) &&
+      (!probe.expectPageLoad || body.includes("cwl-page-load"));
     probes[`${probe.method} ${probe.path}`] = { ok: caseOk, status: res.status };
     if (!caseOk) ok = false;
   }
@@ -77,6 +80,7 @@ export async function runCwlRuntimeProductionSmoke(opts = {}) {
     ok: ok && preview.ok === true && (preview.holeCount ?? 0) === 0,
     probes,
     routeCount: preview.routeCount ?? 0,
+    pageLoadRouteCount: preview.pageLoadRouteCount ?? 0,
     holeCount: preview.holeCount ?? 0,
     generatedAt: new Date().toISOString(),
   };

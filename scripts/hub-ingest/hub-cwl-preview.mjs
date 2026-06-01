@@ -6,7 +6,7 @@
  * the first GET route through the in-process CWL runtime simulator.
  */
 import { existsSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
@@ -51,6 +51,13 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
         "utf8",
       );
     }
+    const layoutDir = join(root, "layouts");
+    await mkdir(layoutDir, { recursive: true });
+    const layoutSrc = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack/layouts/shell.cwl");
+    const layoutBody = existsSync(layoutSrc)
+      ? await readFile(layoutSrc, "utf8")
+      : starterLayoutCwl();
+    await writeFile(join(layoutDir, "shell.cwl"), layoutBody, "utf8");
     bootstrapped = true;
   }
   if (!existsSync(cwlPath)) {
@@ -71,7 +78,9 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
     surfaceKind: r.surfaceKind ?? "api",
     hole: r.body?.kind === "hole",
     holeReason: r.body?.kind === "hole" ? String(r.body.reason ?? "hole") : null,
+    hasLoad: Boolean(r.loadBody && r.body?.kind !== "hole"),
   }));
+  const pageLoadRouteCount = routes.filter((r) => r.hasLoad).length;
 
   /** @type {Record<string, unknown> | null} */
   let probe = null;
@@ -106,6 +115,7 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
     moduleName: parsed.moduleName,
     imports: parsed.imports ?? [],
     routeCount: routes.length,
+    pageLoadRouteCount,
     holeCount: routes.filter((r) => r.hole).length,
     routes,
     probe,
@@ -182,6 +192,19 @@ function starterCwlModule(projectDir) {
     "handler notify {",
     "  effects: none;",
     "  return { ok: true, channel: \"flagship\" };",
+    "}",
+  ].join("\n");
+}
+
+function starterLayoutCwl() {
+  return [
+    "# Shared layout routes (RFC-0011)",
+    "use json;",
+    "",
+    '@page GET "/about"',
+    "page about {",
+    "  effects: none;",
+    '  return html "<html><body><h1>About</h1><p>Full-stack flagship layout.</p></body></html>";',
     "}",
   ].join("\n");
 }

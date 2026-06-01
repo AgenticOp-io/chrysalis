@@ -2620,6 +2620,12 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-01 — D1145** **CWL RFC-0011 layouts + page params (G1145).** Layout fragments via RFC-0009 `import`; parametric `@page` routes; gold `fixtures/hub-gold-cwl-layout`; `hub:cwl-layout-smoke`. **DESIGN §3** unchanged.
 - **2026-06-01 — D1146** **CWL @page emit round-trip (G1146).** `renderCwlRoutes` emits `@page`/`return html` for HTML surfaces; `walkCwlHandlerBody` detects page kind from response attrs/body; `hub:cwl-fullstack-roundtrip-smoke`. **DESIGN §3** unchanged.
 - **2026-06-01 — D1144** **SvelteKit hub origin v0 (G1144).** `svelte` origin in language catalog; `sveltekit-route-lift.mjs` for `+server.ts` / `+page.svelte` file routes; gold fixture `hub-gold-svelte-kit`; `hub:sveltekit-smoke`. Page components remain explicit holes. **DESIGN §3** unchanged.
+- **2026-06-01 — D1178** **hub-completion full-stack depth gates (G1178).** Schema **75** adds `hub:cwl-authoring-batch-v2-smoke` gate. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1179–D1188** **Full-stack CWL queue 3 (G1179–G1188).** Flagship page-load route; production sidecar probe; Svelte load-bound `{#if}`; Next.js `page.server.ts` load; deep export smokes; page-load parity; authoring batch v3; hub-completion schema **76**; delivery dashboard `pageLoadRouteCount`. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1169–D1177** **Full-stack CWL queue 2 (G1169–G1177).** runtime-cwl `__page_load`, bootstrap `layouts/shell.cwl`, deep Svelte/Next.js export smokes, hono parity, production `/about` probe, static `{#if true|false}` Svelte lift, page-load HTML sidecar. **DESIGN §3** unchanged.
+
 - **2026-06-01 — D1168** **runtime-cwl production readiness gates (G1168).** Multi-route flagship probes (GET pages, GET/POST API) via `@chrysalis/runtime-cwl`; `hub:cwl-runtime-production-smoke`. No SQL/session production claims. **DESIGN §3** unchanged.
 
 - **2026-06-01 — D1167** **Next.js App Router origin v0 (G1167).** `nextjs-route-lift.mjs` for `app/**/route.ts` + static JSX pages; `fixtures/hub-gold-nextjs-app`; `hub:nextjs-app-smoke`; RFC-0012 `hub-next:*` holes. **DESIGN §3** unchanged.

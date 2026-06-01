@@ -3,8 +3,9 @@
   "schemaVersion": 1,
   "fixture": "fixtures/hub-flagship-cwl-fullstack",
   "maxHoles": 0,
-  "minRoutes": 6,
-  "minPageRoutes": 2,
+  "minRoutes": 7,
+  "minPageRoutes": 3,
+  "minPageLoadRoutes": 1,
   "minApiRoutes": 3,
   "evidenceGates": ["cwl-preview", "runtime-parity", "cwl-diagnose", "gold-verify"]
 }

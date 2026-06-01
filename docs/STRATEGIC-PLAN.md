@@ -232,7 +232,7 @@ When the user says “build” without specifying, prefer this queue:
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
-When the user says **“build”** without specifying and G1158 is complete, prefer **`docs/CWL-FULLSTACK-NEXT-10.md`** (**G1159–G1168**): load-function lowering → page/load emit → flagship HTTP verify → Hub template/evidence → Svelte template depth → CWL fmt → Next.js origin → runtime-cwl production gates.
+When the user says **“build”** without specifying and G1178 is complete, prefer **`docs/CWL-FULLSTACK-NEXT-10-3.md`** (**G1179–G1188**).
 
 ### Hub verify-gaps program (post–Next 90 days)
 

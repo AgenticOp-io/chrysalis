@@ -110,6 +110,23 @@ test("sveltekit deep lift smoke (G1158 / G1159 load)", async () => {
   expect(report.loadRouteLifted).toBe(true);
 });
 
+test("authoring batch v2 smoke (G1175)", async () => {
+  const { runCwlAuthoringBatchV2Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v2-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV2Smoke();
+  expect(report.ok).toBe(true);
+}, 120_000);
+
+test("authoring batch v3 smoke (G1186)", async () => {
+  const { runCwlAuthoringBatchV3Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v3-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV3Smoke();
+  expect(report.ok).toBe(true);
+  expect(report.svelteDeep?.shopLifted).toBe(true);
+}, 180_000);
+
 test("cwl parser: page load statement (RFC-0013 / G1159)", async () => {
   const { parseCwlModule } = await import(PARSER);
   const src = `@page GET "/blog/:slug"

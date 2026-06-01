@@ -226,6 +226,7 @@ interface SimCtx {
   readonly sessionWrites: SessionWriteEvent[];
   readonly sessionScratch: Map<string, SimValue>;
   readonly errors: SimError[];
+  pageLoad: SimValue | null;
   status: number;
   redirectTo: string | null;
   halted: boolean;
@@ -254,6 +255,7 @@ export function simulateHandler(
     sessionWrites: [],
     sessionScratch: new Map(Object.entries(input.session)),
     errors: [],
+    pageLoad: null,
     status: 200,
     redirectTo: null,
     halted: false,
@@ -353,7 +355,11 @@ function evalNode(ctx: SimCtx, n: NodeBase): SimValue {
       if (typeof status === "number") ctx.status = status;
       const val = n.operands[0] ? operand(ctx, n, 0) : { kind: "null" as const };
       if (val.kind === "str") {
-        ctx.echo.push(val.value);
+        let body = val.value;
+        if (ctx.pageLoad && ctx.pageLoad.kind !== "null") {
+          body += `\n<script type="application/json" id="cwl-page-load">${jsonEncodeSimValue(ctx.pageLoad)}</script>`;
+        }
+        ctx.echo.push(body);
       } else if (val.kind !== "null") {
         ctx.echo.push(jsonEncodeSimValue(val));
       }
@@ -552,6 +558,11 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
         entries.push({ key: keyStr, value: valSim });
       }
       return { kind: "array", entries };
+    }
+    case "__page_load": {
+      const data = args[0] ?? { kind: "null" };
+      ctx.pageLoad = data;
+      return data;
     }
     case "json_encode":
       return { kind: "str", value: jsonEncodeSimValue(args[0] ?? { kind: "null" }) };

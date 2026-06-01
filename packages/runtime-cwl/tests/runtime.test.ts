@@ -41,4 +41,15 @@ describe("@chrysalis/runtime-cwl", () => {
     expect(body).toContain("<h1>Home</h1>");
     expect(res.headers.get("content-type")).toMatch(/text\/html/);
   });
+
+  it("page load sidecar in HTML (G1169)", async () => {
+    const pageLoadGold = resolve(ROOT, "fixtures/hub-gold-cwl-page-load/routes.cwl");
+    const module = loadModuleFromCwlFile(pageLoadGold, ROOT);
+    const runtime = createCwlRuntime({ module });
+    const res = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/blog/hello" });
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("cwl-page-load");
+    expect(body).toContain('"slug":"hello"');
+  });
 });
