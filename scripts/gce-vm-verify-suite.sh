@@ -7,11 +7,15 @@ cd "${REPO}"
 
 log() { echo "[gce-vm-verify] $*"; }
 
-log "pnpm install"
-pnpm install
+if [[ "${CHRYSALIS_GCE_SKIP_PNPM_INSTALL:-}" != "1" ]]; then
+  log "pnpm install"
+  pnpm install
+fi
 
-log "pnpm -r build"
-pnpm -r build
+if [[ "${CHRYSALIS_GCE_SKIP_BUILD:-}" != "1" ]]; then
+  log "pnpm -r build"
+  pnpm -r build
+fi
 
 if command -v php >/dev/null 2>&1; then
   export CHRYSALIS_SKIP_PARSER_VENDOR=0

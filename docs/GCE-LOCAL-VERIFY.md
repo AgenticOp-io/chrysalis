@@ -1,57 +1,78 @@
-# Local + GCE verification (no GitHub Actions required)
+# GCE test runner (default)
 
-Use your machine and optional GCE VMs instead of CI for hub/strategic gates.
+**Run Chrysalis tests on `chrysalis-test-vm` (Linux), not on a laptop that may sleep.**
 
-## On your workstation
+Prerequisites: `gcloud auth login`, project **`chrysalis-dev-f5x6qv`** (or set **`CHRYSALIS_GCE_PROJECT`**).
 
-```bash
-pnpm -r build
-pnpm exec vitest run packages/cli/tests/hub-strategic.test.ts packages/cli/tests/hub-gold-manifest.test.ts
-pnpm run ci:hub-completion
-pnpm run hub:express-flagship
-```
+## One command (recommended)
 
-PowerShell (same repo):
+Uploads local **`git HEAD`**, copies runner scripts from your workspace (so uncommitted runner changes still apply), starts the full suite **detached** on the VM, and returns immediately:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/gce-vm-verify-suite.ps1
+pnpm run test:gce
 ```
 
-## Linux GCE VM (Debian)
-
-Requires `gcloud` auth and project billing.
+Check progress (any machine with gcloud):
 
 ```powershell
-.\scripts\gce-test-vm-refresh.ps1 -Project chrysalis-dev-f5x6qv
-gcloud compute ssh chrysalis-test-vm --zone=us-central1-a --project=chrysalis-dev-f5x6qv --command="CHRYSALIS_STATUS_REPO=~/chrysalis-test bash ~/chrysalis-test/scripts/gce-vm-verify-suite.sh"
+pnpm run test:gce:status
 ```
 
-Or:
+When **`STATUS: OK`** appears, pull artifacts:
 
 ```powershell
-pnpm run verify:gce:linux -- -Project chrysalis-dev-f5x6qv
+pnpm run test:gce:fetch
 ```
 
-## Windows GCE VM
+Foreground run (SSH stays open until done; auto-fetches reports):
 
 ```powershell
-.\scripts\gce-test-vm-windows.ps1 -Project chrysalis-dev-f5x6qv -DeployFromLocalGit
+pnpm run test:gce:foreground
 ```
 
-Or:
+## What runs on the VM
+
+Script: `scripts/gce-run-all-tests.sh`
+
+| Phase | Content |
+| --- | --- |
+| Build | `pnpm install`, `pnpm -r build`, parser-bridge vendor (if `php` on VM) |
+| Shims | `pnpm run test:cli-shims` |
+| Hub suite | `scripts/gce-vm-verify-suite.sh` (strategic vitest, flagships, node oracle) |
+| CWL | `packages/cli/tests/hub-cwl.test.ts` |
+| Completion | `pnpm run ci:hub-completion` |
+| CWL HTTP | `hub-cwl-fullstack-verify-http-smoke` |
+| CWL batches | fast v40 + v60 composite |
+
+Optional full workspace Vitest (slow):
 
 ```powershell
-pnpm run verify:gce:windows -- -Project chrysalis-dev-f5x6qv
+.\scripts\gce-run-all-tests.ps1 -Project chrysalis-dev-f5x6qv -Detach -FullVitest
 ```
 
-## Both platforms (orchestrator)
+Logs: `~/chrysalis-test/reports/ci/gce-all-tests.log`  
+Success marker: `~/chrysalis-test/reports/ci/gce-all-tests.ok`
 
-Uploads current `git HEAD`, runs the same verify suite on Linux + Windows, writes `reports/ci/gce-cross-platform-verify.json`:
+Env on VM: **`NODE_OPTIONS=--disable-warning=ExperimentalWarning`**, **`CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN=1`**.
+
+## Refresh code only
+
+```powershell
+.\scripts\gce-test-vm-refresh.ps1 -Project chrysalis-dev-f5x6qv -SkipHubFinish
+```
+
+## Cross-platform verify (Linux + Windows VMs)
 
 ```powershell
 pnpm run verify:gce -- -Project chrysalis-dev-f5x6qv
 ```
 
-Optional: `-TunnelThroughIap` when SSH must use IAP.
+## Local workstation (fallback)
 
-Hub operator deploy (separate from verify suite): `pnpm run deploy:hub-demo`
+Use only for quick edits; long jobs belong on GCE:
+
+```powershell
+pnpm run run:cwl-batch-v40-fast
+```
+
+Hub operator deploy: `pnpm run deploy:hub-demo`

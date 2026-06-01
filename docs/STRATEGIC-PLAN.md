@@ -236,6 +236,8 @@ When the user says “build” without specifying, prefer this queue:
 
 **Fast batch proof:** set **`CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN=1`** so v31+ chains use v30 graduation-only (skips re-running batches v2–v29).
 
+**Default test execution (2026-06-01):** run the full suite on Linux GCE, not on a sleeping laptop — **`pnpm run test:gce`** (see **`docs/GCE-LOCAL-VERIFY.md`**).
+
 ### Hub verify-gaps program (post–Next 90 days)
 
 | Month | Focus |
