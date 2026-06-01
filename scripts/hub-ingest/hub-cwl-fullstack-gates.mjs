@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v40 (G1209–G1558).
+ * Full-stack CWL gate runners for authoring batches v6–v60 (G1209–G1758).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
@@ -384,4 +384,40 @@ export async function runPost40GraduationGate(opts = {}) {
   const post40 = await runPost40CompositeGate(opts);
   const post30 = await runPost30GraduationGate(opts);
   return { ok: post40.ok === true && post30.ok === true, post40, post30 };
+}
+
+export async function runCwlFullstackVerifyHttpGate(opts = {}) {
+  const { runCwlFullstackVerifyHttpSmoke } = await import("./hub-cwl-fullstack-verify-http-smoke.mjs");
+  const report = await runCwlFullstackVerifyHttpSmoke(opts);
+  return {
+    ok: report.ok === true,
+    honoOk: report.hono?.ok === true,
+    fastifyOk: report.fastify?.ok === true,
+    skipped: report.hono?.skip ?? report.fastify?.skip ?? null,
+  };
+}
+
+export async function runVerifyGapsFullstackActionGate() {
+  const { runVerifyGapsIngestAction } = await import("./hub-verify-gaps-ingest-action.mjs");
+  const action = await runVerifyGapsIngestAction(flagshipDir, { reingest: false });
+  return {
+    ok: action.ok === true,
+    ingestRemediation: action.ingestRemediation?.divergenceKind ?? null,
+    skipped: action.skipped ?? null,
+  };
+}
+
+export async function runPost50CompositeGate(opts = {}) {
+  const http = await runCwlFullstackVerifyHttpGate(opts);
+  const gaps = await runVerifyGapsFullstackGate();
+  const gapsAction = await runVerifyGapsFullstackActionGate();
+  const post40 = await runPost40CompositeGate(opts);
+  const gates = [http, gaps, gapsAction, post40];
+  return { ok: gates.every((g) => g.ok === true), gateCount: gates.length, passed: gates.filter((g) => g.ok).length };
+}
+
+export async function runPost50GraduationGate(opts = {}) {
+  const post50 = await runPost50CompositeGate(opts);
+  const post40 = await runPost40GraduationGate(opts);
+  return { ok: post50.ok === true && post40.ok === true, post50, post40 };
 }

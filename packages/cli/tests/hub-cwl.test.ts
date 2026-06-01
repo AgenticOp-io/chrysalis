@@ -175,6 +175,26 @@ test("authoring batch v50 post-40 graduation smoke (G1653)", async () => {
   expect(report.gate50Mode).toBe("post40-composite");
 }, 120_000);
 
+test("authoring batch v60 verify-gaps graduation smoke (G1753)", async () => {
+  const { runCwlAuthoringBatchV60Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v60-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV60Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate60?.ok).toBe(true);
+  expect(report.gate60Mode).toBe("post50-composite");
+}, 180_000);
+
+test("cwl fullstack HTTP verify smoke (G1660)", async () => {
+  const { runCwlFullstackVerifyHttpSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs"),
+  );
+  const report = await runCwlFullstackVerifyHttpSmoke();
+  expect(report.ok).toBe(true);
+  expect(report.hono?.ok).toBe(true);
+  expect(report.fastify?.ok).toBe(true);
+}, 180_000);
+
 test("cwl html roundtrip smoke (G1202)", async () => {
   const { runCwlHtmlRoundtripSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-html-roundtrip-smoke.mjs"),

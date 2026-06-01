@@ -5,6 +5,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlAuthoringBatchV29Smoke } from "./hub-cwl-authoring-batch-v29-smoke.mjs";
+import { isFastChain } from "./hub-cwl-batch-opts.mjs";
 import { runProductionGraduationGate } from "./hub-cwl-fullstack-gates.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V30_KIND = "chrysalis.hub.cwl-authoring-batch-v30";
@@ -15,7 +16,8 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 function graduationOnlyMode(opts) {
   return (
     opts.graduationOnly === true ||
-    process.env.CHRYSALIS_HUB_CWL_BATCH_V30_GRADUATION_ONLY === "1"
+    process.env.CHRYSALIS_HUB_CWL_BATCH_V30_GRADUATION_ONLY === "1" ||
+    isFastChain(opts)
   );
 }
 
@@ -26,7 +28,7 @@ export async function runCwlAuthoringBatchV30Smoke(opts = {}) {
   const batchV29 =
     skipPrior || gradOnly
       ? { ok: true, skip: skipPrior ? "skip-prior-chain" : "graduation-only" }
-      : await runCwlAuthoringBatchV29Smoke({ repoRoot });
+      : await runCwlAuthoringBatchV29Smoke({ repoRoot, fastChain: isFastChain(opts) ? true : undefined });
   const gate30 = await runProductionGraduationGate({ repoRoot });
   const ok = batchV29.ok === true && gate30.ok === true;
   return {

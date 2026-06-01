@@ -232,7 +232,9 @@ When the user says “build” without specifying, prefer this queue:
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
-**Active full-stack queue (2026-06-01):** **`docs/CWL-FULLSTACK-QUEUES-41-50.md`** (**G1559–G1658**, queues 41–50). Prerequisites **G1209–G1458** (queues 6–30) and **G1459–G1558** (queues 31–40) are complete. When the user says **“build”** without specifying and **G1658** is complete, prefer **`docs/STRATEGIC-PLAN.md` §12** and the locked **hub verify-gaps** program (months 26–30), or amend the plan for post-50 work.
+**Active full-stack queue (2026-06-01):** **`docs/CWL-FULLSTACK-QUEUES-51-60.md`** (**G1659–G1758**, CWL × verify-gaps bridge). **G1209–G1658** (queues 6–50) is complete. When the user says **“build”** without specifying and **G1758** is complete, prefer **`docs/STRATEGIC-PLAN.md` §12** and cross-cutting hub verify-gaps / ingest depth, or amend the plan for post-60 work.
+
+**Fast batch proof:** set **`CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN=1`** so v31+ chains use v30 graduation-only (skips re-running batches v2–v29).
 
 ### Hub verify-gaps program (post–Next 90 days)
 

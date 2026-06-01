@@ -15,6 +15,8 @@
     "gold-verify",
     "authoring-batch-v30",
     "authoring-batch-v40",
-    "authoring-batch-v50"
+    "authoring-batch-v50",
+    "authoring-batch-v60",
+    "cwl-fullstack-verify-http"
   ]
 }

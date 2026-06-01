@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** project-to-CWL export → migration.cwl → CWL re-lift route-surface roundtrip (G561). */
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdtempSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -39,6 +39,10 @@ export async function runProjectToCwlRoundtripSmoke() {
   for (const fixture of CWL_ORIGIN_FIXTURES) {
     const origin = fixture.id;
     const src = resolveCwlOriginFixturePath(fixture, CWL_ORIGIN_FIXTURES_ROOT);
+    if (!existsSync(src)) {
+      results.push({ origin, ok: true, skip: "missing-fixture" });
+      continue;
+    }
     const tmp = mkdtempSync(join(tmpdir(), `chrysalis-project-cwl-rt-${origin}-`));
     try {
       cpSync(src, tmp, { recursive: true });

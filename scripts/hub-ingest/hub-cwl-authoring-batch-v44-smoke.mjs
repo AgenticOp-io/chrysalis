@@ -5,6 +5,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlAuthoringBatchV43Smoke } from "./hub-cwl-authoring-batch-v43-smoke.mjs";
+import { resolvePriorBatchOpts } from "./hub-cwl-batch-opts.mjs";
 import { runVerifyGapsIngestActionGate } from "./hub-cwl-fullstack-gates.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V44_KIND = "chrysalis.hub.cwl-authoring-batch-v44";
@@ -17,7 +18,7 @@ export async function runCwlAuthoringBatchV44Smoke(opts = {}) {
   const skipPrior = opts.skipPriorChain === true;
   const batchV43 = skipPrior
     ? { ok: true, skip: "skip-prior-chain" }
-    : await runCwlAuthoringBatchV43Smoke({ ...opts, repoRoot });
+    : await runCwlAuthoringBatchV43Smoke(resolvePriorBatchOpts(opts, 43));
   const gate44 = await runVerifyGapsIngestActionGate({ repoRoot });
   const ok = batchV43.ok === true && gate44.ok === true;
   return {

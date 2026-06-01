@@ -19,6 +19,6 @@ Each queue has a detail doc `docs/CWL-FULLSTACK-NEXT-10-N.md` (N = 41..50).
 | 49 | G1639–G1648 | Dual-backend HTTP emit verify mega | v49 | 122 |
 | 50 | G1649–G1658 | Post-40 full-stack graduation lock | v50 | 123 |
 
-**Default build queue:** G1559–G1658 (queues 41–50) after G1558 post-30 lock.
+**Status:** **complete** (2026-06-01). Successor: **`docs/CWL-FULLSTACK-QUEUES-51-60.md`** (G1659–G1758 verify-gaps bridge).
 
 **Non-goals (unchanged):** hydration, client stores, production SQL/session claims without parity evidence.

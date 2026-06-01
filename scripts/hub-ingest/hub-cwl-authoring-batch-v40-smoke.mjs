@@ -5,6 +5,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlAuthoringBatchV39Smoke } from "./hub-cwl-authoring-batch-v39-smoke.mjs";
+import { resolvePriorBatchOpts } from "./hub-cwl-batch-opts.mjs";
 import { runPost30CompositeGate, runPost30GraduationGate } from "./hub-cwl-fullstack-gates.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V40_KIND = "chrysalis.hub.cwl-authoring-batch-v40";
@@ -17,10 +18,7 @@ export async function runCwlAuthoringBatchV40Smoke(opts = {}) {
   const skipPrior = opts.skipPriorChain === true;
   const batchV39 = skipPrior
     ? { ok: true, skip: "skip-prior-chain" }
-    : await runCwlAuthoringBatchV39Smoke({
-        ...opts,
-        
-      });
+    : await runCwlAuthoringBatchV39Smoke(resolvePriorBatchOpts(opts, 39));
   const gate40 = skipPrior
     ? await runPost30CompositeGate({ repoRoot })
     : await runPost30GraduationGate({ repoRoot });

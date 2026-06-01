@@ -1,40 +1,40 @@
 #!/usr/bin/env node
 /**
- * Full-stack authoring batch v49 (G1641): v48 + Dual-backend HTTP emit verify mega.
+ * Full-stack authoring batch v59 (G1741): v58 + Dual-backend emit verify mega (CWL flagship).
  */
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { runCwlAuthoringBatchV48Smoke } from "./hub-cwl-authoring-batch-v48-smoke.mjs";
+import { runCwlAuthoringBatchV58Smoke } from "./hub-cwl-authoring-batch-v58-smoke.mjs";
 import { resolvePriorBatchOpts } from "./hub-cwl-batch-opts.mjs";
 import { runEmitVerifyMegaGate } from "./hub-cwl-fullstack-gates.mjs";
 
-export const HUB_CWL_AUTHORING_BATCH_V49_KIND = "chrysalis.hub.cwl-authoring-batch-v49";
-export const HUB_CWL_AUTHORING_BATCH_V49_SCHEMA_VERSION = 1;
+export const HUB_CWL_AUTHORING_BATCH_V59_KIND = "chrysalis.hub.cwl-authoring-batch-v59";
+export const HUB_CWL_AUTHORING_BATCH_V59_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-export async function runCwlAuthoringBatchV49Smoke(opts = {}) {
+export async function runCwlAuthoringBatchV59Smoke(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const skipPrior = opts.skipPriorChain === true;
-  const batchV48 = skipPrior
+  const batchV58 = skipPrior
     ? { ok: true, skip: "skip-prior-chain" }
-    : await runCwlAuthoringBatchV48Smoke(resolvePriorBatchOpts(opts, 48));
-  const gate49 = await runEmitVerifyMegaGate({ repoRoot });
-  const ok = batchV48.ok === true && gate49.ok === true;
+    : await runCwlAuthoringBatchV58Smoke(resolvePriorBatchOpts(opts, 58));
+  const gate59 = await runEmitVerifyMegaGate({ repoRoot });
+  const ok = batchV58.ok === true && gate59.ok === true;
   return {
-    kind: HUB_CWL_AUTHORING_BATCH_V49_KIND,
-    schemaVersion: HUB_CWL_AUTHORING_BATCH_V49_SCHEMA_VERSION,
+    kind: HUB_CWL_AUTHORING_BATCH_V59_KIND,
+    schemaVersion: HUB_CWL_AUTHORING_BATCH_V59_SCHEMA_VERSION,
     ok,
     skipPriorChain: skipPrior,
     
-    batchV48,
-    gate49,
+    batchV58,
+    gate59,
     generatedAt: new Date().toISOString(),
   };
 }
 
 async function main() {
-  const report = await runCwlAuthoringBatchV49Smoke();
+  const report = await runCwlAuthoringBatchV59Smoke();
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exit(1);
 }
