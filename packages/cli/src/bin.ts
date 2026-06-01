@@ -322,6 +322,21 @@ async function cmdCwlPreview(rest: string[]): Promise<number> {
   return report.ok === true ? 0 : 1;
 }
 
+async function cmdCwlFmt(rest: string[]): Promise<number> {
+  const pos = rest.filter((a) => !a.startsWith("-"));
+  const target = resolve(pos[0] ?? join(process.cwd(), ".chrysalis", "migration.cwl"));
+  const mod = await import(resolve(resolveRepoRoot(), "scripts/hub-ingest/cwl-fmt.mjs") as string);
+  const write = !rest.includes("--check");
+  const report = await mod.formatCwlFile(target, { write });
+  process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+  if (report.changed && rest.includes("--check")) {
+    console.error("[cwl fmt] file would change (run without --check to write)");
+    return 1;
+  }
+  console.log(`[cwl fmt] ${report.changed ? "formatted" : "unchanged"} ${target}`);
+  return 0;
+}
+
 async function cmdCwlLint(rest: string[]): Promise<number> {
   const pos = rest.filter((a) => !a.startsWith("-"));
   const targetDir = resolve(pos[0] ?? process.cwd());
@@ -349,9 +364,11 @@ async function cmdCwl(rest: string[]): Promise<number> {
     console.log("  init [<dir>]       Bootstrap .chrysalis/migration.cwl starter module");
     console.log("  preview [<dir>]    List routes and probe runtime-cwl (JSON on stdout)");
     console.log("  lint [<dir>]       Parse migration.cwl and report diagnostics (JSON on stdout)");
+    console.log("  fmt [<file>]       Format CWL via WebIR round-trip (default: .chrysalis/migration.cwl)");
     console.log("\nFlags:");
     console.log("  --no-probe         Skip runtime-cwl HTTP probe");
     console.log("  --bootstrap        (preview) create starter CWL when missing");
+    console.log("  --check            (fmt) exit 1 if file would change");
     return 0;
   }
   if (sub === "init") {
@@ -362,6 +379,9 @@ async function cmdCwl(rest: string[]): Promise<number> {
   }
   if (sub === "lint") {
     return cmdCwlLint(rest.slice(1));
+  }
+  if (sub === "fmt") {
+    return cmdCwlFmt(rest.slice(1));
   }
   console.error(`[cwl] unknown subcommand: ${sub}`);
   console.error("run 'chrysalis cwl help' for usage.");

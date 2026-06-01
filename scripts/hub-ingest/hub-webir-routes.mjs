@@ -162,6 +162,8 @@ export function walkCwlHandlerBody(get, bodyId) {
   let status = null;
   /** @type {object | null} */
   let value = null;
+  /** @type {object | null} */
+  let loadData = null;
   let holeReason = null;
   let json = false;
   let responseContentType = null;
@@ -176,6 +178,18 @@ export function walkCwlHandlerBody(get, bodyId) {
     }
     if ((n.dialect === "legacy" || n.dialect === "data") && n.op === "hole") {
       holeReason = String(n.attrs?.reason ?? "hub:cwl:hole");
+      return;
+    }
+    if (n.dialect === "data" && n.op === "call" && n.attrs?.callee === "__page_load") {
+      const ops = n.operands ?? [];
+      if (ops.length === 1) {
+        const v = cwlValueOf(get, ops[0]);
+        if (v.t === "hole") {
+          holeReason = v.reason;
+          return;
+        }
+        loadData = v;
+      }
       return;
     }
     if (n.dialect === "web.request" && n.op === "response") {
@@ -270,6 +284,7 @@ export function walkCwlHandlerBody(get, bodyId) {
     status,
     params,
     value,
+    loadData,
     holeReason,
     contentType: noContent ? null : contentType,
     surfaceKind: isPage ? "page" : "api",
@@ -389,6 +404,9 @@ export function renderCwlRoutes(routes, opts = {}) {
       continue;
     }
     renderSurface();
+    if (r.loadData && !r.holeReason) {
+      lines.push(`  load ${cwlRenderValue(r.loadData)};`);
+    }
     if (
       isPage &&
       r.value?.t === "lit" &&

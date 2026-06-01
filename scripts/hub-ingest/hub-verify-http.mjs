@@ -10,6 +10,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { prepareProjectVerifyEmit, inferHubProjectOrigin } from "./hub-verify-replay.mjs";
 import { loadHubProbeContext, probeHubGoldCorpus } from "./hub-verify-probe-corpus.mjs";
+import { listHubWebRoutes } from "./hub-webir-routes.mjs";
+import { loadWebir } from "./shared.mjs";
 
 export const HUB_VERIFY_HTTP_KIND = "chrysalis.hub.verify-http";
 export const HUB_VERIFY_HTTP_SCHEMA_VERSION = 1;
@@ -110,6 +112,42 @@ async function stopEmittedServer(child) {
 }
 
 /**
+ * Verify CLI expects `chrysalis.routes.json`; synthesize from CWL WebIR (G1161).
+ * @param {string} projectDir
+ * @param {string} origin
+ */
+async function ensureCwlRouteManifest(projectDir, origin) {
+  const root = resolve(projectDir);
+  const manifestPath = join(root, "chrysalis.routes.json");
+  if (existsSync(manifestPath)) return manifestPath;
+  const webirPath = join(root, ".chrysalis", `hub.${origin}.webir.json`);
+  if (!existsSync(webirPath)) return null;
+  const webir = await loadWebir();
+  const mod = webir.moduleFromGoldenSnapshot(JSON.parse(readFileSync(webirPath, "utf8")));
+  const get = (id) => mod.nodes.get(id);
+  /** @type {Array<{ method: string, path: string, file: string, pathParams: object[] }>} */
+  const routes = [];
+  for (const rid of mod.roots) {
+    const routeNode = get(rid);
+    if (!routeNode || routeNode.dialect !== "web.request" || routeNode.op !== "route") continue;
+    const attrs = routeNode.attrs ?? {};
+    const method = String(attrs.method ?? "GET").toUpperCase();
+    const path = String(attrs.path ?? "/");
+    const names = Array.isArray(attrs.pathParams) ? attrs.pathParams : [];
+    routes.push({
+      method,
+      path,
+      file: existsSync(join(root, "routes.cwl")) ? "routes.cwl" : ".chrysalis/migration.cwl",
+      pathParams: names.map((name) => ({ name: String(name), type: "string", phpVar: String(name) })),
+    });
+  }
+  routes.sort((a, b) => a.path.localeCompare(b.path) || a.method.localeCompare(b.method));
+  const manifest = { app: root.split(/[/\\]/).pop() ?? "cwl-app", routes };
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  return manifestPath;
+}
+
+/**
  * @param {string} projectDir
  * @param {{ origin?: string, target?: string, repoRoot?: string, threshold?: number }} [opts]
  */
@@ -146,6 +184,22 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
       target,
       generatedAt: new Date().toISOString(),
     };
+  }
+
+  if (origin === "cwl") {
+    const manifestPath = await ensureCwlRouteManifest(root, origin);
+    if (!manifestPath) {
+      return {
+        kind: HUB_VERIFY_HTTP_KIND,
+        schemaVersion: HUB_VERIFY_HTTP_SCHEMA_VERSION,
+        projectDir: root,
+        ok: false,
+        skip: "missing-cwl-webir",
+        origin,
+        target,
+        generatedAt: new Date().toISOString(),
+      };
+    }
   }
 
   /** @type {import("node:child_process").ChildProcess | null} */

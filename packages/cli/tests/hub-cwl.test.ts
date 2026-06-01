@@ -99,15 +99,46 @@ test("cwl full-stack flagship pilot smoke (G1157)", async () => {
   expect(report.holeCount).toBe(0);
 }, 180_000);
 
-test("sveltekit deep lift smoke (G1158)", async () => {
+test("sveltekit deep lift smoke (G1158 / G1159 load)", async () => {
   const { runSveltekitDeepSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-sveltekit-deep-smoke.mjs"),
   );
   const report = await runSveltekitDeepSmoke();
   expect(report.ok).toBe(true);
   expect(report.hasPost).toBe(true);
-  expect(report.hasLoadHole).toBe(true);
+  expect(report.hasLoadHole).toBe(false);
+  expect(report.loadRouteLifted).toBe(true);
 });
+
+test("cwl parser: page load statement (RFC-0013 / G1159)", async () => {
+  const { parseCwlModule } = await import(PARSER);
+  const src = `@page GET "/blog/:slug"
+page blog_show {
+  effects: none;
+  param slug;
+  load { slug: slug, source: "page-server" };
+  return html "<h1>Blog</h1>";
+}
+`;
+  const mod = parseCwlModule(src, "routes.cwl");
+  const route = mod.routes[0];
+  expect(route.loadBody?.kind).toBe("object");
+  expect(route.body.kind).toBe("html");
+});
+
+test("nextjs app origin smoke (G1167)", async () => {
+  const { runNextjsAppSmoke } = await import(resolve(ROOT, "scripts/hub-ingest/hub-nextjs-app-smoke.mjs"));
+  const report = await runNextjsAppSmoke();
+  expect(report.ok).toBe(true);
+});
+
+test("cwl runtime production gates (G1168)", async () => {
+  const { runCwlRuntimeProductionSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-runtime-production-smoke.mjs"),
+  );
+  const report = await runCwlRuntimeProductionSmoke();
+  expect(report.ok).toBe(true);
+}, 60_000);
 
 test("cwl parser: full-stack page surface (RFC-0010 / G1143)", async () => {
   const { parseCwlModule } = await import(PARSER);

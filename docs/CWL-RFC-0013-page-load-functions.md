@@ -1,6 +1,6 @@
 # CWL RFC-0013 — Page load / SSR data (draft)
 
-**Status:** draft (2026-06-01)  
+**Status:** accepted (2026-06-01)  
 **Tracking:** G1159, DESIGN D1159 (queue)  
 **Depends on:** RFC-0010 (`@page`), RFC-0012 (hole catalog)
 

@@ -2620,7 +2620,27 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-01 — D1145** **CWL RFC-0011 layouts + page params (G1145).** Layout fragments via RFC-0009 `import`; parametric `@page` routes; gold `fixtures/hub-gold-cwl-layout`; `hub:cwl-layout-smoke`. **DESIGN §3** unchanged.
 - **2026-06-01 — D1146** **CWL @page emit round-trip (G1146).** `renderCwlRoutes` emits `@page`/`return html` for HTML surfaces; `walkCwlHandlerBody` detects page kind from response attrs/body; `hub:cwl-fullstack-roundtrip-smoke`. **DESIGN §3** unchanged.
 - **2026-06-01 — D1144** **SvelteKit hub origin v0 (G1144).** `svelte` origin in language catalog; `sveltekit-route-lift.mjs` for `+server.ts` / `+page.svelte` file routes; gold fixture `hub-gold-svelte-kit`; `hub:sveltekit-smoke`. Page components remain explicit holes. **DESIGN §3** unchanged.
-- **2026-06-01 — D1159** **Full-stack CWL next-10 queue (planning).** Locked implementation order **G1159–G1168** in `docs/CWL-FULLSTACK-NEXT-10.md`, `ROADMAP.md`, and `STRATEGIC-PLAN.md` §12. Covers load-function RFC, page/load emit, flagship HTTP verify, Hub template/evidence, Svelte template depth, CWL fmt, Next.js origin, runtime-cwl production gates. **No code in this entry** — queue authority only. **DESIGN §3** unchanged.
+- **2026-06-01 — D1168** **runtime-cwl production readiness gates (G1168).** Multi-route flagship probes (GET pages, GET/POST API) via `@chrysalis/runtime-cwl`; `hub:cwl-runtime-production-smoke`. No SQL/session production claims. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1167** **Next.js App Router origin v0 (G1167).** `nextjs-route-lift.mjs` for `app/**/route.ts` + static JSX pages; `fixtures/hub-gold-nextjs-app`; `hub:nextjs-app-smoke`; RFC-0012 `hub-next:*` holes. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1166** **Hole budget on delivery dashboard (G1166).** `buildDeliveryDashboard` exposes `fullstackHoleBudget` check vs live CWL hole count; Console summary PASS/FAIL. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1165** **Hub bootstrap → flagship template (G1165).** `chrysalis cwl init` / portal bootstrap seeds flagship routes + `chrysalis.fullstack-hole-budget.json` sidecar. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1164** **CWL formatter v1 (G1164).** `chrysalis cwl fmt` + `cwl-fmt.mjs` WebIR round-trip normalize. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1163** **Svelte template partial lift (G1163).** Static `{@html "..."}` and literal-array `{#each}` in `liftStaticSveltePageHtml`. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1162** **Flagship migration contract export (G1162).** `exportProjectMigrationCwl` attaches `fullstackHoleBudget` + check to `cwl-export.json`; smoke. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1161** **Full-stack flagship HTTP verify (G1161).** CWL origin synthesizes `chrysalis.routes.json` for verify CLI; live hono/fastify `--base-url` smoke. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1160** **Page + load CWL emit merge (G1160).** `load { … };` in parser/emit/ingest; `__page_load` WebIR marker; merged `@page` surfaces. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1159** **RFC-0013 load-function lowering v1 (G1159).** Simple SvelteKit `+page.server.ts` load lowers to WebIR + CWL; deep fixture smoke load hole-free. **DESIGN §3** unchanged.
+
+- **2026-06-01 — D1159-plan** **Full-stack CWL next-10 queue (planning).** Locked implementation order **G1159–G1168** in `docs/CWL-FULLSTACK-NEXT-10.md`, `ROADMAP.md`, and `STRATEGIC-PLAN.md` §12. Covers load-function RFC, page/load emit, flagship HTTP verify, Hub template/evidence, Svelte template depth, CWL fmt, Next.js origin, runtime-cwl production gates. **No code in this entry** — queue authority only. **DESIGN §3** unchanged.
 
 - **2026-06-01 — D1158** **SvelteKit deep lift (G1158).** Multi-method `+server` exports (POST); `+page.server.ts` → catalogued **`hub-svelte:load-function`** hole on page route; `{#if}` blocks stay **`hub-svelte:page-component`**; deep fixture + budget smoke. **DESIGN §3** unchanged.
 - **2026-06-01 — D1157** **CWL full-stack flagship pilot (G1157).** **`fixtures/hub-flagship-cwl-fullstack`** with **`chrysalis.fullstack-hole-budget.json`** (0 holes); preview/diagnose/gold evidence gate. **DESIGN §3** unchanged.

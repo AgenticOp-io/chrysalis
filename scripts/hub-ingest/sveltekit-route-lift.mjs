@@ -6,8 +6,8 @@ import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import { basename, dirname, join, relative } from "node:path";
 import { CWL_FULLSTACK_HOLE_CATALOG } from "./cwl-fullstack-holes.mjs";
-import { liftSvelteKitServerHandlerBodies } from "./javascript-ast-ingest.mjs";
-import { emitHubRoute, hubHandlerBodyHole, lowerHubHtmlPageBody } from "./hub-lift-webir-route.mjs";
+import { liftSvelteKitPageLoadFunction, liftSvelteKitServerHandlerBodies } from "./javascript-ast-ingest.mjs";
+import { emitHubRoute, hubHandlerBodyHole, lowerHubHtmlPageBody, lowerHubPageWithLoadBody } from "./hub-lift-webir-route.mjs";
 
 const HOLE_PAGE = "hub-svelte:page-component";
 const HOLE_SERVER = "hub-svelte:server-handler";
@@ -143,11 +143,20 @@ export async function discoverSvelteKitRouteFiles(projectDir) {
 }
 
 /**
- * Extract static markup from a simple +page.svelte (no `{#...}` blocks).
+ * Extract static markup from a simple +page.svelte (RFC-0012/0013 partial lift).
+ * Supports static `{@html "..."}` and trivial `{#each ['a','b'] as x}...{/each}`.
  * @param {string} source
  */
 export function liftStaticSveltePageHtml(source) {
   let s = source.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
+  s = s.replace(/\{@html\s+"([^"]*)"\s*\}/g, "$1");
+  const eachRe = /\{#each\s+\[([^\]]+)\]\s+as\s+([a-zA-Z_][a-zA-Z0-9_]*)\}([\s\S]*?)\{\/each\}/g;
+  s = s.replace(eachRe, (_m, itemsRaw, itemName, inner) => {
+    const items = itemsRaw.split(",").map((x) => x.trim().replace(/^['"]|['"]$/g, ""));
+    return items
+      .map((item) => inner.replace(new RegExp(`\\{${itemName}\\}`, "g"), item))
+      .join("");
+  });
   if (/\{[#/@]/.test(s)) return null;
   s = s.trim();
   if (!s || !/<[a-z]/i.test(s)) return null;
@@ -213,6 +222,42 @@ export async function liftSvelteKitProjectToWebir(opts) {
     if (spec.kind === "page") {
       const source = await readFile(spec.file, "utf8");
       if (spec.hasPageServer) {
+        const dir = dirname(spec.file);
+        const serverTs = join(dir, "+page.server.ts");
+        const serverJs = join(dir, "+page.server.js");
+        const serverFile = existsSync(serverTs) ? serverTs : existsSync(serverJs) ? serverJs : null;
+        const loaded =
+          serverFile != null
+            ? liftSvelteKitPageLoadFunction({
+                source: await readFile(serverFile, "utf8"),
+                file: serverFile,
+                webir,
+                builder,
+              })
+            : { ok: false, reason: "missing-page-server" };
+        const html = liftStaticSveltePageHtml(source);
+        if (loaded.ok && html) {
+          const bodyId = lowerHubPageWithLoadBody(ctx, loaded.loadValueId, html, loc, wrBuilders);
+          emitHubRoute({
+            webir,
+            builder,
+            wr: wrBuilders,
+            language,
+            file: spec.file,
+            route: {
+              method: "GET",
+              path: spec.path,
+              name: spec.name,
+              line: 1,
+              pathParams,
+            },
+            bodyId,
+            handlerEffects: [],
+          });
+          routeCount += 1;
+          astLiftCount += 1;
+          continue;
+        }
         const bodyId = hubHandlerBodyHole(ctx, HOLE_LOAD, loc);
         emitHubRoute({
           webir,

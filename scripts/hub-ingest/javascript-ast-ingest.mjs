@@ -566,6 +566,49 @@ export function liftSvelteKitServerHandlerBody(opts) {
   return { ok: true, bodyId: first.bodyId, method: first.method };
 }
 
+/**
+ * Lower a SvelteKit `export function load(...) { return { ... }; }` body (RFC-0013 v1).
+ * @param {object} opts
+ * @returns {{ ok: boolean, loadValueId?: string, reason?: string }}
+ */
+export function liftSvelteKitPageLoadFunction(opts) {
+  const { source, file, webir, builder } = opts;
+  const data = webir.dataDialect.builders(builder);
+  const effect = webir.effectDialect.builders(builder);
+  let ast;
+  try {
+    ast = parseJavaScriptSource(source, file);
+  } catch {
+    return { ok: false, reason: "parse-failed" };
+  }
+  /** @type {import('estree').FunctionDeclaration | null} */
+  let loadFn = null;
+  walkSimple(ast, {
+    ExportNamedDeclaration(node) {
+      if (node.declaration?.type === "FunctionDeclaration" && node.declaration.id?.name === "load") {
+        loadFn = node.declaration;
+      }
+    },
+  });
+  if (!loadFn) return { ok: false, reason: "missing-load-export" };
+  const origin = originAt(loadFn.loc?.start ?? { line: 1, column: 0 }, file);
+  const ctx = { data, effect, webir, file, origin };
+  const expr = extractHandlerExpression(loadFn);
+  if (!expr || expr.type !== "ObjectExpression") {
+    return { ok: false, reason: "unsupported-load-return" };
+  }
+  const loadValueId = lowerExpression(ctx, expr);
+  return { ok: true, loadValueId };
+}
+
+/**
+ * Lower Next.js App Router `route.ts` exported HTTP handlers (G1167).
+ * @param {object} opts
+ */
+export function liftNextAppRouteHandlerBodies(opts) {
+  return liftSvelteKitServerHandlerBodies(opts);
+}
+
 export function countExpressMiddlewareUses(source) {
   let count = 0;
   try {

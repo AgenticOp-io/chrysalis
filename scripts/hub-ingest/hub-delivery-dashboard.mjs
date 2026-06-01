@@ -11,12 +11,13 @@ import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs
 import { buildChimeraCutoverRunbook } from "./hub-chimera-cutover.mjs";
 import { buildHubLicenseStatusReport } from "./hub-license-status.mjs";
 import { buildCwlPreviewReport } from "./hub-cwl-preview.mjs";
+import { checkFullstackHoleBudget, readFullstackHoleBudget } from "./hub-cwl-fullstack-hole-budget.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-laravel-verify-gaps.mjs";
 import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs";
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 34;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 35;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -115,6 +116,19 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
   const laravelGlobalAction = isLaravel ? runLaravelVerifyGapsAction(laravelGapsOpts) : null;
   const oracleMicro = buildOracleMicroFixtureReport();
 
+  const budgetRead = await readFullstackHoleBudget(root);
+  let fullstackHoleBudget = null;
+  if (budgetRead.ok) {
+    fullstackHoleBudget = {
+      budget: budgetRead.budget,
+      liveHoleCount: cwlPreview?.holeCount ?? evidence.holes?.count ?? null,
+      check: checkFullstackHoleBudget(budgetRead.budget, {
+        holeCount: cwlPreview?.holeCount ?? evidence.holes?.count ?? 0,
+        routeCount: cwlPreview?.routeCount ?? 0,
+      }),
+    };
+  }
+
   return {
     kind: HUB_DELIVERY_DASHBOARD_KIND,
     schemaVersion: HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION,
@@ -166,6 +180,7 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
           moduleName: cwlPreview.moduleName ?? null,
         }
       : null,
+    fullstackHoleBudget,
     laravelGlobalGaps: laravelGlobalGaps
       ? {
           ok: laravelGlobalGaps.ok === true,

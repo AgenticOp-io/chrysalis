@@ -1,0 +1,53 @@
+{
+  "app": "hub-flagship-cwl-fullstack",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "file": "routes.cwl",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/about",
+      "file": "routes.cwl",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/docs/:slug",
+      "file": "routes.cwl",
+      "pathParams": [
+        {
+          "name": "[object Object]",
+          "type": "string",
+          "phpVar": "[object Object]"
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "file": "routes.cwl",
+      "pathParams": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/notify",
+      "file": "routes.cwl",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/docs/:slug",
+      "file": "routes.cwl",
+      "pathParams": [
+        {
+          "name": "[object Object]",
+          "type": "string",
+          "phpVar": "[object Object]"
+        }
+      ]
+    }
+  ]
+}

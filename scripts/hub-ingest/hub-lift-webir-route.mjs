@@ -70,6 +70,33 @@ export function lowerHubHtmlPageBody(ctx, html, loc, wr) {
   });
 }
 
+/**
+ * Page handler with RFC-0013 load payload + HTML response (G1159–G1160).
+ * @param {object} ctx
+ * @param {string} loadValueId
+ * @param {string} html
+ * @param {{ file: string, line?: number }} loc
+ * @param {object} wr
+ */
+export function lowerHubPageWithLoadBody(ctx, loadValueId, html, loc, wr) {
+  const { data, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const loadId = data.call({
+    callee: "__page_load",
+    args: [loadValueId],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "cwl-page-load")],
+  });
+  const responseId = lowerHubHtmlPageBody(ctx, html, loc, wr);
+  return data.block({
+    statements: [loadId, responseId],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "cwl-page-load-html")],
+  });
+}
+
 export function hubHandlerBodyHole(ctx, reason, loc) {
   const { data, webir } = ctx;
   const origin = hubOrigin(loc.file, loc.line ?? 1);

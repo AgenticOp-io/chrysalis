@@ -2,9 +2,9 @@
   "kind": "chrysalis.cwl.fullstack-hole-budget",
   "schemaVersion": 1,
   "fixture": "fixtures/hub-gold-svelte-kit-deep",
-  "maxHoles": 2,
+  "maxHoles": 1,
   "minRoutes": 5,
-  "minLiftedRoutes": 3,
+  "minLiftedRoutes": 4,
   "cataloguedHolesOnly": true,
-  "expectedHoleReasons": ["hub-svelte:load-function", "hub-svelte:page-component"]
+  "expectedHoleReasons": ["hub-svelte:page-component"]
 }

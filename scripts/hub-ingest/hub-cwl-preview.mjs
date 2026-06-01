@@ -10,6 +10,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
+import { readFullstackHoleBudget } from "./hub-cwl-fullstack-hole-budget.mjs";
 
 export const HUB_CWL_PREVIEW_KIND = "chrysalis.hub.cwl-preview";
 export const HUB_CWL_PREVIEW_SCHEMA_VERSION = 1;
@@ -42,6 +43,14 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
   if (opts.bootstrap && !existsSync(cwlPath)) {
     await mkdir(dirname(cwlPath), { recursive: true });
     await writeFile(cwlPath, `${starterCwlModule(root)}\n`, "utf8");
+    const budgetRead = await readFullstackHoleBudget(join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack"));
+    if (budgetRead.ok) {
+      await writeFile(
+        join(root, "chrysalis.fullstack-hole-budget.json"),
+        `${JSON.stringify({ ...budgetRead.budget, fixture: undefined }, null, 2)}\n`,
+        "utf8",
+      );
+    }
     bootstrapped = true;
   }
   if (!existsSync(cwlPath)) {
@@ -138,18 +147,41 @@ async function main() {
 function starterCwlModule(projectDir) {
   const moduleName = sanitizeModuleName(projectDir);
   return [
+    "# CWL full-stack flagship template (G1165)",
     `module ${moduleName};`,
+    "",
+    'import "layouts/shell.cwl";',
     "",
     '@page GET "/"',
     "page home {",
     "  effects: none;",
-    '  return html "<h1>Chrysalis CWL</h1><p>Full-stack authoring bootstrap.</p>";',
+    '  return html "<!doctype html><html><body><h1>Chrysalis full-stack</h1></body></html>";',
     "}",
     "",
-    '@route GET "/health"',
+    '@page GET "/docs/:slug"',
+    "page doc_show {",
+    "  effects: none;",
+    "  param slug;",
+    '  return html "<html><body><h1>Doc</h1><p>slug: slug</p></body></html>";',
+    "}",
+    "",
+    '@route GET "/api/health"',
     "handler health {",
     "  effects: none;",
-    "  return { ok: true, module: \"" + moduleName + "\" };",
+    "  return { ok: true, pilot: \"fullstack\" };",
+    "}",
+    "",
+    '@route GET "/api/docs/:slug"',
+    "handler doc_api {",
+    "  effects: none;",
+    "  param slug;",
+    "  return { ok: true, slug: slug };",
+    "}",
+    "",
+    '@route POST "/api/notify"',
+    "handler notify {",
+    "  effects: none;",
+    "  return { ok: true, channel: \"flagship\" };",
     "}",
   ].join("\n");
 }

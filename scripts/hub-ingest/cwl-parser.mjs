@@ -8,6 +8,7 @@ const ROUTE_RE = /^@route\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"
 const PAGE_RE = /^@page\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
 const PAGE_BLOCK_RE = /^page\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
 const HTML_RETURN_RE = /^return\s+html\s+(.+);$/i;
+const LOAD_RE = /^load\s+(.+);$/i;
 const MODULE_RE = /^module\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;/;
 const IMPORT_RE = /^import\s+"([^"]+)"\s*;/;
 const HANDLER_RE = /^handler\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
@@ -246,6 +247,8 @@ export function parseCwlModule(source, file) {
     const handlerBodyParams = [];
     let responseStatus = null;
     let responseContentType = null;
+    /** @type {object | null} */
+    let loadBody = null;
     let body = { kind: "hole", reason: "cwl:empty-handler" };
     while (i < lines.length) {
       const inner = lines[i].trim();
@@ -311,6 +314,21 @@ export function parseCwlModule(source, file) {
         }
         continue;
       }
+      const loadM = LOAD_RE.exec(inner);
+      if (loadM) {
+        const parsed = parseCwlReturnValue(loadM[1], {
+          path: handlerPathParams,
+          query: handlerQueryParams,
+          header: handlerHeaders,
+          cookie: handlerCookies,
+          body: handlerBodyParams,
+          pathDefaults: handlerPathDefaults,
+          queryDefaults: handlerQueryDefaults,
+        });
+        if (parsed.ok) loadBody = parsed.body;
+        else loadBody = { kind: "hole", reason: `cwl:${parsed.error}` };
+        continue;
+      }
       const ret = RETURN_RE.exec(inner);
       if (ret) {
         const parsed = parseCwlReturnValue(ret[1], {
@@ -357,6 +375,7 @@ export function parseCwlModule(source, file) {
       handlerBodyParams,
       responseStatus,
       responseContentType,
+      loadBody,
       body,
     });
   }

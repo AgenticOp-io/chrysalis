@@ -1,7 +1,7 @@
 /**
  * CWL → WebIR ingest (direct; no lossy lift).
  */
-import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
+import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral, lowerHubPageWithLoadBody } from "./hub-lift-webir-route.mjs";
 import { parseCwlModuleResolved, resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
@@ -180,7 +180,10 @@ export function liftCwlFileToWebir(opts) {
   for (const r of parsed.routes) {
     let valueId;
     const loc = { file, line: r.line };
-    if (r.body.kind === "literal") {
+    if (r.loadBody && r.body.kind === "html" && r.loadBody.kind === "object" && r.loadBody.entries) {
+      const loadValueId = lowerObjectEntriesBody(ctx, r.loadBody.entries, loc);
+      valueId = lowerHubPageWithLoadBody(ctx, loadValueId, r.body.value, loc, wrBuilders);
+    } else if (r.body.kind === "literal") {
       valueId = lowerHubLiteral(ctx, r.body.value, loc);
     } else if (r.body.kind === "object" && r.body.entries) {
       valueId = lowerObjectEntriesBody(ctx, r.body.entries, loc);
@@ -210,7 +213,8 @@ export function liftCwlFileToWebir(opts) {
           ? "text"
           : "json";
     let bodyId = valueId;
-    if (status !== 200 || contentType) {
+    const pageLoadHtml = Boolean(r.loadBody && r.body.kind === "html");
+    if (!pageLoadHtml && (status !== 200 || contentType)) {
       bodyId = wrBuilders.response({
         attrs: { status, kind, contentType },
         value: valueId,

@@ -1037,7 +1037,7 @@
       body: JSON.stringify(body),
     });
     const id = r.project.id;
-    $("createStatus").textContent = `Created CWL project ${id} with .chrysalis/migration.cwl (home page + API health). Open Console to preview or translate.`;
+    $("createStatus").textContent = `Created CWL project ${id} with flagship .chrysalis/migration.cwl + hole budget. Open Console to preview or translate.`;
     location.hash = `#/console?id=${encodeURIComponent(id)}`;
     route();
   }
@@ -1686,7 +1686,11 @@
       const cwlEl = $("consoleCwlPreviewSummary");
       if (cwlEl) {
         if (dash.cwlPreview?.ok) {
-          cwlEl.textContent = `CWL preview: ${dash.cwlPreview.routeCount ?? 0} routes${dash.cwlPreview.holeCount ? ` (${dash.cwlPreview.holeCount} holes)` : ""}${dash.cwlPreview.imports?.length ? ` · ${dash.cwlPreview.imports.length} import(s)` : ""}`;
+          const budget = dash.fullstackHoleBudget;
+          const budgetText = budget
+            ? ` · hole budget ${budget.check?.ok ? "PASS" : "FAIL"} (${budget.liveHoleCount ?? "?"} / max ${budget.budget?.maxHoles ?? "?"})`
+            : "";
+          cwlEl.textContent = `CWL preview: ${dash.cwlPreview.routeCount ?? 0} routes${dash.cwlPreview.holeCount ? ` (${dash.cwlPreview.holeCount} holes)` : ""}${budgetText}${dash.cwlPreview.imports?.length ? ` · ${dash.cwlPreview.imports.length} import(s)` : ""}`;
         } else if (dash.cwlPreview === null) {
           cwlEl.textContent = "CWL preview: no migration.cwl";
         } else {

@@ -84,6 +84,11 @@ async function main() {
     const lifted = await liftSvelteKitProjectToWebir({ projectDir, webir, builder, wr, language: "svelte" });
     astRouteCount = lifted.astRouteCount ?? 0;
     fileCount = lifted.fileCount ?? 0;
+  } else if (language === "nextjs") {
+    const { liftNextAppProjectToWebir } = await import("./nextjs-route-lift.mjs");
+    const lifted = await liftNextAppProjectToWebir({ projectDir, webir, builder, wr, language: "nextjs" });
+    astRouteCount = lifted.astRouteCount ?? 0;
+    fileCount = lifted.fileCount ?? 0;
   } else {
     const exts = new Set(EXT_BY_LANG[language] ?? []);
     if (exts.size === 0) throw new Error(`unsupported language: ${language}`);

@@ -11,6 +11,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWebir } from "./shared.mjs";
 import { listCwlRoutes, renderCwlRoutes, summarizeCwlProjection } from "./hub-webir-routes.mjs";
+import { checkFullstackHoleBudget, readFullstackHoleBudget } from "./hub-cwl-fullstack-hole-budget.mjs";
 
 export const HUB_CWL_EXPORT_KIND = "chrysalis.hub.cwl-export";
 // v3: export meta carries cwlProjection summary (G179).
@@ -60,12 +61,19 @@ export async function exportProjectMigrationCwl(projectDir, opts = {}) {
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const routes = listCwlRoutes(mod);
   const cwlProjection = summarizeCwlProjection(mod);
+  const pageCount = routes.filter((r) => r.surfaceKind === "page").length;
+  const apiCount = routes.filter((r) => (r.surfaceKind ?? "api") === "api").length;
   const { text, holeCount, routeCount } = renderMigrationCwl(routes, origin);
   const outDir = join(resolve(projectDir), ".chrysalis");
   const cwlName = opts.outBasename ?? "migration.cwl";
   const cwlPath = join(outDir, cwlName);
   await mkdir(outDir, { recursive: true });
   await writeFile(cwlPath, text, "utf8");
+
+  const budgetRead = await readFullstackHoleBudget(resolve(projectDir));
+  const budgetCheck = budgetRead.ok
+    ? checkFullstackHoleBudget(budgetRead.budget, { holeCount, routeCount, pageCount, apiCount })
+    : null;
 
   const meta = {
     kind: HUB_CWL_EXPORT_KIND,
@@ -77,6 +85,8 @@ export async function exportProjectMigrationCwl(projectDir, opts = {}) {
     routeCount,
     holeCount,
     cwlProjection,
+    fullstackHoleBudget: budgetRead.ok ? budgetRead.budget : null,
+    fullstackHoleBudgetCheck: budgetCheck,
     generatedAt: new Date().toISOString(),
   };
   await writeFile(join(outDir, "cwl-export.json"), `${JSON.stringify(meta, null, 2)}\n`, "utf8");
