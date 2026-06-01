@@ -344,3 +344,44 @@ export async function runPost30GraduationGate(opts = {}) {
   const production = await runProductionGraduationGate(opts);
   return { ok: post30.ok === true && production.ok === true, post30, production };
 }
+
+export async function runCwlFullstackFlagshipGate(opts = {}) {
+  const { runCwlFullstackFlagshipSmoke } = await import("./hub-cwl-fullstack-flagship-smoke.mjs");
+  const report = await runCwlFullstackFlagshipSmoke(opts);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+export async function runChimeraCutoverGate() {
+  const { runChimeraCutoverSmoke } = await import("./hub-chimera-cutover-smoke.mjs");
+  const report = await runChimeraCutoverSmoke();
+  return { ok: report.ok === true, phaseCount: report.phaseCount ?? 0 };
+}
+
+export async function runVerifyGapsIngestActionGate() {
+  const { runVerifyGapsIngestActionStandaloneSmoke } = await import(
+    "./hub-verify-gaps-ingest-action-standalone-smoke.mjs",
+  );
+  const report = await runVerifyGapsIngestActionStandaloneSmoke();
+  return { ok: report.ok === true, ingestRemediation: report.ingestRemediation ?? null };
+}
+
+export async function runCwlPreviewFlagshipGate(opts = {}) {
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const report = await buildCwlPreviewReport(flagshipDir, { repoRoot });
+  return { ok: report.ok === true, routeCount: report.routeCount ?? 0 };
+}
+
+export async function runPost40CompositeGate(opts = {}) {
+  const flagship = await runCwlFullstackFlagshipGate(opts);
+  const delivery = await runDeliveryInterpolationGate();
+  const chimera = await runChimeraCutoverGate();
+  const gapsAction = await runVerifyGapsIngestActionGate();
+  const gates = [flagship, delivery, chimera, gapsAction];
+  return { ok: gates.every((g) => g.ok === true), gateCount: gates.length, passed: gates.filter((g) => g.ok).length };
+}
+
+export async function runPost40GraduationGate(opts = {}) {
+  const post40 = await runPost40CompositeGate(opts);
+  const post30 = await runPost30GraduationGate(opts);
+  return { ok: post40.ok === true && post30.ok === true, post40, post30 };
+}

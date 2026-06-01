@@ -165,6 +165,16 @@ test("authoring batch v40 post-30 graduation smoke (G1553)", async () => {
   expect(report.gate40Mode).toBe("post30-composite");
 }, 120_000);
 
+test("authoring batch v50 post-40 graduation smoke (G1653)", async () => {
+  const { runCwlAuthoringBatchV50Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v50-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV50Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate50?.ok).toBe(true);
+  expect(report.gate50Mode).toBe("post40-composite");
+}, 120_000);
+
 test("cwl html roundtrip smoke (G1202)", async () => {
   const { runCwlHtmlRoundtripSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-html-roundtrip-smoke.mjs"),

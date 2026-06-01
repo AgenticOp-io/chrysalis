@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1558** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1658** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -1157,95 +1157,95 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1387 — url.searchParams.get lift** — (**DESIGN D1387**)
 - [x] **G1388 — Export smoke hasSearch** — (**DESIGN D1388**)
 
-### Full-stack CWL — queue 24 (G1379–G1388)
+### Full-stack CWL — queue 24 (G1389–G1398)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-24.md`.
 
-- [x] **G1379 — Svelte search +page.server.ts** — (**DESIGN D1379**)
-- [x] **G1380 — url.searchParams load lift** — (**DESIGN D1380**)
-- [x] **G1381 — Svelte deep CWL export search** — (**DESIGN D1381**)
-- [x] **G1382 — runSvelteSearchQueryExportGate** — (**DESIGN D1382**)
-- [x] **G1383 — Authoring batch v24** — (**DESIGN D1383**)
-- [x] **G1384 — hub-completion schema 97** — (**DESIGN D1384**)
-- [x] **G1385 — Vitest batch v24** — (**DESIGN D1385**)
-- [x] **G1386 — ROADMAP lock queue 24** — (**DESIGN D1386**)
-- [x] **G1387 — Search query in CWL** — (**DESIGN D1387**)
-- [x] **G1388 — Deep smoke green** — (**DESIGN D1388**)
+- [x] **G1389 — Svelte search +page.server.ts** — (**DESIGN D1389**)
+- [x] **G1390 — url.searchParams load lift** — (**DESIGN D1390**)
+- [x] **G1391 — Svelte deep CWL export search** — (**DESIGN D1391**)
+- [x] **G1392 — runSvelteSearchQueryExportGate** — (**DESIGN D1392**)
+- [x] **G1393 — Authoring batch v24** — (**DESIGN D1393**)
+- [x] **G1394 — hub-completion schema 97** — (**DESIGN D1394**)
+- [x] **G1395 — Vitest batch v24** — (**DESIGN D1395**)
+- [x] **G1396 — ROADMAP lock queue 24** — (**DESIGN D1396**)
+- [x] **G1397 — Search query in CWL** — (**DESIGN D1397**)
+- [x] **G1398 — Deep smoke green** — (**DESIGN D1398**)
 
-### Full-stack CWL — queue 25 (G1389–G1398)
+### Full-stack CWL — queue 25 (G1399–G1408)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-25.md`.
 
-- [x] **G1389 — RFC-0016 form-action probe** — (**DESIGN D1389**)
-- [x] **G1390 — Catalog hub-svelte:form-action** — (**DESIGN D1390**)
-- [x] **G1391 — runFormActionProbeGate** — (**DESIGN D1391**)
-- [x] **G1392 — Authoring batch v25** — (**DESIGN D1392**)
-- [x] **G1393 — hub-completion schema 98** — (**DESIGN D1393**)
-- [x] **G1394 — Vitest batch v25** — (**DESIGN D1394**)
-- [x] **G1395 — ROADMAP lock queue 25** — (**DESIGN D1395**)
-- [x] **G1396 — Form-action non-goals doc** — (**DESIGN D1396**)
-- [x] **G1397 — Deep catalogued holes** — (**DESIGN D1397**)
-- [x] **G1398 — Queue 25 lock** — (**DESIGN D1398**)
+- [x] **G1399 — RFC-0016 form-action probe** — (**DESIGN D1399**)
+- [x] **G1400 — Catalog hub-svelte:form-action** — (**DESIGN D1400**)
+- [x] **G1401 — runFormActionProbeGate** — (**DESIGN D1401**)
+- [x] **G1402 — Authoring batch v25** — (**DESIGN D1402**)
+- [x] **G1403 — hub-completion schema 98** — (**DESIGN D1403**)
+- [x] **G1404 — Vitest batch v25** — (**DESIGN D1404**)
+- [x] **G1405 — ROADMAP lock queue 25** — (**DESIGN D1405**)
+- [x] **G1406 — Form-action non-goals doc** — (**DESIGN D1406**)
+- [x] **G1407 — Deep catalogued holes** — (**DESIGN D1407**)
+- [x] **G1408 — Queue 25 lock** — (**DESIGN D1408**)
 
-### Full-stack CWL — queue 26 (G1399–G1408)
+### Full-stack CWL — queue 26 (G1409–G1418)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-26.md`.
 
-- [x] **G1399 — hub-cwl-session-stub-smoke** — (**DESIGN D1399**)
-- [x] **G1400 — Session cookie on health** — (**DESIGN D1400**)
-- [x] **G1401 — runSessionStubGate** — (**DESIGN D1401**)
-- [x] **G1402 — Authoring batch v26** — (**DESIGN D1402**)
-- [x] **G1403 — hub-completion schema 99** — (**DESIGN D1403**)
-- [x] **G1404 — Vitest batch v26** — (**DESIGN D1404**)
-- [x] **G1405 — ROADMAP lock queue 26** — (**DESIGN D1405**)
-- [x] **G1406 — Injected session stub** — (**DESIGN D1406**)
-- [x] **G1407 — No production Redis** — (**DESIGN D1407**)
-- [x] **G1408 — Queue 26 lock** — (**DESIGN D1408**)
+- [x] **G1409 — hub-cwl-session-stub-smoke** — (**DESIGN D1409**)
+- [x] **G1410 — Session cookie on health** — (**DESIGN D1410**)
+- [x] **G1411 — runSessionStubGate** — (**DESIGN D1411**)
+- [x] **G1412 — Authoring batch v26** — (**DESIGN D1412**)
+- [x] **G1413 — hub-completion schema 99** — (**DESIGN D1413**)
+- [x] **G1414 — Vitest batch v26** — (**DESIGN D1414**)
+- [x] **G1415 — ROADMAP lock queue 26** — (**DESIGN D1415**)
+- [x] **G1416 — Injected session stub** — (**DESIGN D1416**)
+- [x] **G1417 — No production Redis** — (**DESIGN D1417**)
+- [x] **G1418 — Queue 26 lock** — (**DESIGN D1418**)
 
-### Full-stack CWL — queue 27 (G1409–G1418)
+### Full-stack CWL — queue 27 (G1419–G1428)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-27.md`.
 
-- [x] **G1409 — Express flagship depth** — (**DESIGN D1409**)
-- [x] **G1410 — runExpressDepthGate** — (**DESIGN D1410**)
-- [x] **G1411 — 20-route lift gate** — (**DESIGN D1411**)
-- [x] **G1412 — Authoring batch v27** — (**DESIGN D1412**)
-- [x] **G1413 — hub-completion schema 100** — (**DESIGN D1413**)
-- [x] **G1414 — Vitest batch v27** — (**DESIGN D1414**)
-- [x] **G1415 — ROADMAP lock queue 27** — (**DESIGN D1415**)
-- [x] **G1416 — Second oracle slice** — (**DESIGN D1416**)
-- [x] **G1417 — Express smoke ok** — (**DESIGN D1417**)
-- [x] **G1418 — Queue 27 lock** — (**DESIGN D1418**)
+- [x] **G1419 — Express flagship depth** — (**DESIGN D1419**)
+- [x] **G1420 — runExpressDepthGate** — (**DESIGN D1420**)
+- [x] **G1421 — 20-route lift gate** — (**DESIGN D1421**)
+- [x] **G1422 — Authoring batch v27** — (**DESIGN D1422**)
+- [x] **G1423 — hub-completion schema 100** — (**DESIGN D1423**)
+- [x] **G1424 — Vitest batch v27** — (**DESIGN D1424**)
+- [x] **G1425 — ROADMAP lock queue 27** — (**DESIGN D1425**)
+- [x] **G1426 — Second oracle slice** — (**DESIGN D1426**)
+- [x] **G1427 — Express smoke ok** — (**DESIGN D1427**)
+- [x] **G1428 — Queue 27 lock** — (**DESIGN D1428**)
 
-### Full-stack CWL — queue 28 (G1419–G1428)
+### Full-stack CWL — queue 28 (G1429–G1438)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-28.md`.
 
-- [x] **G1419 — cwl-diagnose schema 2** — (**DESIGN D1419**)
-- [x] **G1420 — effectNoneRouteCount** — (**DESIGN D1420**)
-- [x] **G1421 — runDiagnoseV2Gate** — (**DESIGN D1421**)
-- [x] **G1422 — Authoring batch v28** — (**DESIGN D1422**)
-- [x] **G1423 — hub-completion schema 101** — (**DESIGN D1423**)
-- [x] **G1424 — Vitest batch v28** — (**DESIGN D1424**)
-- [x] **G1425 — ROADMAP lock queue 28** — (**DESIGN D1425**)
-- [x] **G1426 — Effect summary metrics** — (**DESIGN D1426**)
-- [x] **G1427 — Flagship diagnose v2** — (**DESIGN D1427**)
-- [x] **G1428 — Queue 28 lock** — (**DESIGN D1428**)
+- [x] **G1429 — cwl-diagnose schema 2** — (**DESIGN D1429**)
+- [x] **G1430 — effectNoneRouteCount** — (**DESIGN D1430**)
+- [x] **G1431 — runDiagnoseV2Gate** — (**DESIGN D1431**)
+- [x] **G1432 — Authoring batch v28** — (**DESIGN D1432**)
+- [x] **G1433 — hub-completion schema 101** — (**DESIGN D1433**)
+- [x] **G1434 — Vitest batch v28** — (**DESIGN D1434**)
+- [x] **G1435 — ROADMAP lock queue 28** — (**DESIGN D1435**)
+- [x] **G1436 — Effect summary metrics** — (**DESIGN D1436**)
+- [x] **G1437 — Flagship diagnose v2** — (**DESIGN D1437**)
+- [x] **G1438 — Queue 28 lock** — (**DESIGN D1438**)
 
-### Full-stack CWL — queue 29 (G1429–G1438)
+### Full-stack CWL — queue 29 (G1439–G1448)
 
 > **Authority:** `docs/CWL-FULLSTACK-NEXT-10-29.md`.
 
-- [x] **G1429 — Hono + fastify verify mega** — (**DESIGN D1429**)
-- [x] **G1430 — runEmitVerifyMegaGate** — (**DESIGN D1430**)
-- [x] **G1431 — Dual-backend HTTP verify** — (**DESIGN D1431**)
-- [x] **G1432 — Authoring batch v29** — (**DESIGN D1432**)
-- [x] **G1433 — hub-completion schema 102** — (**DESIGN D1433**)
-- [x] **G1434 — Vitest batch v29** — (**DESIGN D1434**)
-- [x] **G1435 — ROADMAP lock queue 29** — (**DESIGN D1435**)
-- [x] **G1436 — Cross-backend emit batch** — (**DESIGN D1436**)
-- [x] **G1437 — Mega gate parallel** — (**DESIGN D1437**)
-- [x] **G1438 — Queue 29 lock** — (**DESIGN D1438**)
+- [x] **G1439 — Hono + fastify verify mega** — (**DESIGN D1439**)
+- [x] **G1440 — runEmitVerifyMegaGate** — (**DESIGN D1440**)
+- [x] **G1441 — Dual-backend HTTP verify** — (**DESIGN D1441**)
+- [x] **G1442 — Authoring batch v29** — (**DESIGN D1442**)
+- [x] **G1443 — hub-completion schema 102** — (**DESIGN D1443**)
+- [x] **G1444 — Vitest batch v29** — (**DESIGN D1444**)
+- [x] **G1445 — ROADMAP lock queue 29** — (**DESIGN D1445**)
+- [x] **G1446 — Cross-backend emit batch** — (**DESIGN D1446**)
+- [x] **G1447 — Mega gate sequential** — (**DESIGN D1447**)
+- [x] **G1448 — Queue 29 lock** — (**DESIGN D1448**)
 
 ### Full-stack CWL — queue 30 (G1449–G1458)
 
@@ -1297,6 +1297,24 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1556 — Hole budget v40 evidence** — (**DESIGN D1556**)
 - [x] **G1557 — Hub-completion skipPrior v40** — (**DESIGN D1557**)
 - [x] **G1558 — Post-30 production lock** — (**DESIGN D1558**)
+
+### Full-stack CWL — queues 41–50 (G1559–G1658)
+
+> **Authority:** `docs/CWL-FULLSTACK-QUEUES-41-50.md` (detail docs `docs/CWL-FULLSTACK-NEXT-10-41.md` … `-50.md`).
+
+- [x] **G1559–G1598** — flagship pilot, delivery interpolation, chimera cutover, verify-gaps ingest action, CWL preview; batches v41–v45. (**DESIGN D1559–D1598**)
+- [x] **G1599–G1638** — OpenAPI pages, post-30/post-40 composites; batches v46–v48. (**DESIGN D1599–D1638**)
+- [x] **G1639–G1648** — emit verify mega batch v49. (**DESIGN D1639–D1648**)
+- [x] **G1649 — runPost40GraduationGate** — (**DESIGN D1649**)
+- [x] **G1650 — Post-40 + post-30 graduation composite** — (**DESIGN D1650**)
+- [x] **G1651 — Authoring batch v50** — (**DESIGN D1651**)
+- [x] **G1652 — hub-completion schema 123** — (**DESIGN D1652**)
+- [x] **G1653 — Vitest batch v50** — (**DESIGN D1653**)
+- [x] **G1654 — ROADMAP G-id alignment queues 24–29** — (**DESIGN D1654**)
+- [x] **G1655 — v40/v50 skipPrior CI modes** — (**DESIGN D1655**)
+- [x] **G1656 — Hole budget v50 evidence** — (**DESIGN D1656**)
+- [x] **G1657 — Hub verify-gaps bridge** — (**DESIGN D1657**)
+- [x] **G1658 — Post-40 production lock** — (**DESIGN D1658**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
