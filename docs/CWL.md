@@ -14,6 +14,24 @@ Use CWL when you want:
 
 `.cwl` — typically `routes.cwl` or `src/routes.cwl`.
 
+### Authoring bootstrap
+
+For a brand-new project, scaffold a starter CWL module and preview it immediately:
+
+```bash
+chrysalis cwl init .
+chrysalis cwl preview . --no-probe
+pnpm exec chrysalis-cwl-serve --cwl .chrysalis/migration.cwl --port 8787
+```
+
+Hub script equivalent:
+
+```bash
+node scripts/hub-ingest/hub-cwl-preview.mjs . --bootstrap --no-probe
+```
+
+If you want a custom path instead of `.chrysalis/migration.cwl`, pass `cwlPath` through `buildCwlPreviewReport(...)` in script code.
+
 ---
 
 ## Module

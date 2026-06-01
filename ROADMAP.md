@@ -154,9 +154,10 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **0** | Packaging | Capability matrix; honest tiers | **G88** |
 | **1** | PHP wedge | Verify playbooks, emit parity notes, Hub verify gate | **G89–G94** |
 | **2** | Migration OS | Evidence dashboard, programs, contract export | **G95–G98** |
-| **3** | CWL interchange | RFC 0005–0006, project-to-CWL | **G99–G102** |
+| **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
-| **5** | CWL runtime | Optional; only after interchange wins | G106+ |
+| **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | future G-track |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)

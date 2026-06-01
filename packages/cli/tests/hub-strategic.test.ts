@@ -2540,6 +2540,24 @@ describe("strategic plan deliverables", () => {
     expect(report.probe?.status).toBe(200);
   });
 
+  test("hub CWL preview bootstraps starter module when missing (G1141)", async () => {
+    const { buildCwlPreviewReport } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-cwl-preview.mjs")
+    );
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-cwl-bootstrap-"));
+    try {
+      const cwlPath = join(tmp, ".chrysalis", "starter.cwl");
+      const report = await buildCwlPreviewReport(tmp, { cwlPath, bootstrap: true, probe: false });
+      expect(report.ok).toBe(true);
+      expect(report.bootstrapped).toBe(true);
+      expect(report.routeCount).toBe(1);
+      expect(existsSync(cwlPath)).toBe(true);
+      expect(readFileSync(cwlPath, "utf8")).toContain("@route GET \"/health\"");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
   describe.sequential("flagship smokes", () => {
     test("hub-plain-php-flagship smoke", async () => {
       const { runPlainPhpFlagshipSmoke } = await import(

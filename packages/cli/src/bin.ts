@@ -112,6 +112,7 @@ const SUBCOMMANDS = [
     "Verify-gated WebIR repair (optional --llm, --hole-patch, --write-module)",
   ],
   ["license", "Verify local Ed25519 license envelope (optional commercial gate)"],
+  ["cwl", "CWL authoring: init starter contract, preview via runtime-cwl"],
 ] as const;
 
 /** Written by `chrysalis init`; other tooling may use it to detect a Chrysalis PHP root. */
@@ -151,11 +152,11 @@ function parseMinTierEnv(): LicenseTier | null | "invalid" {
 }
 
 /**
- * When `CHRYSALIS_REQUIRE_LICENSE=1`, all commands except `license` and `init` require a valid
+ * When `CHRYSALIS_REQUIRE_LICENSE=1`, all commands except `license`, `init`, and `cwl` require a valid
  * local envelope + public key (no network). Optional `CHRYSALIS_LICENSE_MIN_TIER=dev|pro|enterprise`.
  */
 function runLicenseGate(cmd: string): number | null {
-  if (cmd === "license" || cmd === "init") return null;
+  if (cmd === "license" || cmd === "init" || cmd === "cwl") return null;
   if (!licenseEnforcementEnabled()) return null;
   const minTier = parseMinTierEnv();
   if (minTier === "invalid") {
@@ -221,6 +222,126 @@ async function cmdInit(rest: string[]): Promise<number> {
   writeFileSync(marker, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   console.log(`[chrysalis] initialized project: ${marker}`);
   return 0;
+}
+
+function resolveRepoRoot(): string {
+  return resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+}
+
+async function loadHubCwlPreview(): Promise<{
+  buildCwlPreviewReport: (
+    projectDir: string,
+    opts?: {
+      cwlPath?: string;
+      probe?: boolean;
+      repoRoot?: string;
+      bootstrap?: boolean;
+    },
+  ) => Promise<Record<string, unknown>>;
+  writeCwlPreviewArtifacts: (
+    projectDir: string,
+    opts?: {
+      cwlPath?: string;
+      probe?: boolean;
+      repoRoot?: string;
+      bootstrap?: boolean;
+    },
+  ) => Promise<{ jsonPath: string; report: Record<string, unknown> }>;
+}> {
+  const hubScript = join(resolveRepoRoot(), "scripts/hub-ingest/hub-cwl-preview.mjs");
+  return import(pathToFileURL(hubScript).href) as Promise<{
+    buildCwlPreviewReport: (
+      projectDir: string,
+      opts?: {
+        cwlPath?: string;
+        probe?: boolean;
+        repoRoot?: string;
+        bootstrap?: boolean;
+      },
+    ) => Promise<Record<string, unknown>>;
+    writeCwlPreviewArtifacts: (
+      projectDir: string,
+      opts?: {
+        cwlPath?: string;
+        probe?: boolean;
+        repoRoot?: string;
+        bootstrap?: boolean;
+      },
+    ) => Promise<{ jsonPath: string; report: Record<string, unknown> }>;
+  }>;
+}
+
+async function cmdCwlInit(rest: string[]): Promise<number> {
+  const pos = rest.filter((a) => !a.startsWith("-"));
+  const targetDir = resolve(pos[0] ?? process.cwd());
+  try {
+    mkdirSync(targetDir, { recursive: true });
+  } catch (e) {
+    console.error(`[cwl init] cannot create directory ${targetDir}: ${e}`);
+    return 2;
+  }
+  const cwlPath = join(targetDir, ".chrysalis", "migration.cwl");
+  if (existsSync(cwlPath)) {
+    console.log(`[cwl init] CWL contract already exists (${cwlPath})`);
+    return 0;
+  }
+  const probe = !rest.includes("--no-probe");
+  const { writeCwlPreviewArtifacts } = await loadHubCwlPreview();
+  const { jsonPath, report } = await writeCwlPreviewArtifacts(targetDir, {
+    bootstrap: true,
+    probe,
+    repoRoot: resolveRepoRoot(),
+  });
+  if (report.ok !== true) {
+    console.error(`[cwl init] failed: ${String(report.error ?? "unknown")}`);
+    return 1;
+  }
+  console.log(
+    `[cwl init] wrote ${cwlPath} (${String(report.routeCount ?? 0)} route(s), module ${String(report.moduleName ?? "?")})`,
+  );
+  console.log(`[cwl init] preview artifact: ${jsonPath}`);
+  const probeResult = report.probe as Record<string, unknown> | null | undefined;
+  if (probeResult && typeof probeResult.status === "number") {
+    console.log(`[cwl init] runtime probe: ${String(probeResult.route ?? "GET")} -> ${probeResult.status}`);
+  }
+  return 0;
+}
+
+async function cmdCwlPreview(rest: string[]): Promise<number> {
+  const pos = rest.filter((a) => !a.startsWith("-"));
+  const targetDir = resolve(pos[0] ?? process.cwd());
+  const bootstrap = rest.includes("--bootstrap");
+  const probe = !rest.includes("--no-probe");
+  const { buildCwlPreviewReport } = await loadHubCwlPreview();
+  const report = await buildCwlPreviewReport(targetDir, {
+    bootstrap,
+    probe,
+    repoRoot: resolveRepoRoot(),
+  });
+  process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+  return report.ok === true ? 0 : 1;
+}
+
+async function cmdCwl(rest: string[]): Promise<number> {
+  const sub = rest[0];
+  if (!sub || sub === "--help" || sub === "-h" || sub === "help") {
+    console.log("chrysalis cwl — CWL authoring shortcuts\n");
+    console.log("  init [<dir>]       Bootstrap .chrysalis/migration.cwl starter module");
+    console.log("  preview [<dir>]    List routes and probe runtime-cwl (JSON on stdout)");
+    console.log("\nFlags:");
+    console.log("  --no-probe         Skip runtime-cwl HTTP probe");
+    console.log("  --bootstrap        (preview) create starter CWL when missing");
+    return 0;
+  }
+  if (sub === "init") {
+    return cmdCwlInit(rest.slice(1));
+  }
+  if (sub === "preview") {
+    return cmdCwlPreview(rest.slice(1));
+  }
+  console.error(`[cwl] unknown subcommand: ${sub}`);
+  console.error("run 'chrysalis cwl help' for usage.");
+  return 2;
 }
 
 async function cmdLicense(rest: string[]): Promise<number> {
@@ -3447,6 +3568,8 @@ async function main(): Promise<number> {
       return await cmdRepair(rest);
     case "license":
       return await cmdLicense(rest);
+    case "cwl":
+      return await cmdCwl(rest);
     default:
       console.log(`[chrysalis] '${cmd}' is not implemented yet (Milestone 0 scaffold).`);
       console.log(`[chrysalis] args: ${JSON.stringify(rest)}`);

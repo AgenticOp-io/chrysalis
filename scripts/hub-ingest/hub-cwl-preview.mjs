@@ -18,11 +18,17 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /**
  * @param {string} projectDir
- * @param {{ cwlPath?: string, probe?: boolean, repoRoot?: string }} [opts]
+ * @param {{ cwlPath?: string, probe?: boolean, repoRoot?: string, bootstrap?: boolean }} [opts]
  */
 export async function buildCwlPreviewReport(projectDir, opts = {}) {
   const root = resolve(projectDir);
   const cwlPath = resolve(opts.cwlPath ?? join(root, ".chrysalis", "migration.cwl"));
+  let bootstrapped = false;
+  if (opts.bootstrap && !existsSync(cwlPath)) {
+    await mkdir(dirname(cwlPath), { recursive: true });
+    await writeFile(cwlPath, `${starterCwlModule(root)}\n`, "utf8");
+    bootstrapped = true;
+  }
   if (!existsSync(cwlPath)) {
     return {
       kind: HUB_CWL_PREVIEW_KIND,
@@ -79,6 +85,7 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
     routes,
     probe,
     runtime: "@chrysalis/runtime-cwl",
+    bootstrapped,
   };
 }
 
@@ -99,13 +106,39 @@ export async function writeCwlPreviewArtifacts(projectDir, opts = {}) {
 async function main() {
   const projectDir = process.argv[2];
   if (!projectDir) {
-    console.error("usage: hub-cwl-preview.mjs <projectDir> [--no-probe]");
+    console.error("usage: hub-cwl-preview.mjs <projectDir> [--no-probe] [--bootstrap]");
     process.exit(1);
   }
   const probe = !process.argv.includes("--no-probe");
-  const report = await buildCwlPreviewReport(projectDir, { probe });
+  const bootstrap = process.argv.includes("--bootstrap");
+  const report = await buildCwlPreviewReport(projectDir, { probe, bootstrap });
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   process.exit(report.ok ? 0 : 1);
+}
+
+/**
+ * @param {string} projectDir
+ */
+function starterCwlModule(projectDir) {
+  const moduleName = sanitizeModuleName(projectDir);
+  return [
+    `module ${moduleName};`,
+    "",
+    '@route GET "/health"',
+    "handler health {",
+    "  effects: none;",
+    "  return { ok: true, module: \"" + moduleName + "\" };",
+    "}",
+  ].join("\n");
+}
+
+/**
+ * @param {string} input
+ */
+function sanitizeModuleName(input) {
+  const base = input.split(/[\\/]/).filter(Boolean).pop() ?? "app";
+  const normalized = base.toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "");
+  return /^[a-z_]/.test(normalized) ? normalized : `app_${normalized || "module"}`;
 }
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);

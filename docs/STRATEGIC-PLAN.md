@@ -29,7 +29,7 @@
 
 ## 1. One-sentence strategy
 
-**Win verified PHP backend migration with oracle and Hub operations; grow CWL into the universal, reviewable contract for WebIR; absorb proven patterns from corpora; own the semantic layer of the web—not by replacing JavaScript, but by making credible verified migration depend on WebIR + oracle + CWL-shaped contracts.**
+**Win verified migration with oracle and Hub operations while promoting CWL from interchange contract to a full-stack authoring language + runtime surface: own the semantic layer of the web by making credible delivery depend on WebIR + oracle + CWL contracts and, where mature, CWL-authored applications.**
 
 ---
 
@@ -93,11 +93,11 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 - Interchange between hub, CLI, OpenAPI/HAR/WPTP
 - Accumulator of cross-language patterns (RFC process with gold + synthesis)
 
-**CWL is not (yet):**
+**CWL is not:**
 
-- A general-purpose language competing with TypeScript for app dev
 - A substitute for verify or oracle
 - Validated by matrix pair count
+- A shortcut to skip evidence gates
 
 **Stages:**
 
@@ -105,8 +105,8 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 | --- | --- | --- |
 | **A — Spec** | Now → 12 mo | Reviewable migration contracts |
 | **B — Sink** | 12–24 mo | Every lift exports CWL projection; OpenAPI/HAR → CWL |
-| **C — Authoring** | 24–36 mo | Greenfield endpoints authored in CWL |
-| **D — Runtime** | 36+ mo optional | Deployable CWL (or always lower to TS) |
+| **C — Authoring** | start now; accelerate | Greenfield services authored in CWL as soon as ergonomics are viable |
+| **D — Runtime** | start now; phase-gated | Deployable CWL runtime is a first-class target, with emit+verify parity gates |
 
 **Dominance metric:** % of migrated routes with a signed **CWL contract** (+ hole manifest), not GitHub stars.
 
@@ -141,11 +141,12 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 **Deliverable:** Export **migration contract** per project (`routes.cwl` + hole manifest).
 
-### Phase 3 — CWL interchange (months 9–24) — **P1**
+### Phase 3 — CWL interchange + authoring bootstrap (months 9–24) — **P1**
 
-- RFC track: body, response, effects, auth presets, multi-file modules (0005+)
+- RFC track: body, response, effects, auth presets, multi-file modules (0005+), and authoring ergonomics
 - **Project-to-CWL** on every hub translate
 - CWL diff in PRs; optional CWL → OpenAPI export
+- CWL authoring toolkit minimum: formatter/linting diagnostics, starter templates, preview loop
 
 ### Phase 4 — Second oracle origin (months 12–24) — **P2**
 
@@ -153,13 +154,19 @@ Pick **one**: Node/Express (recommended first), or Python, or Java.
 
 - One **flagship** + oracle record + verify-tier before marketing second origin
 
-### Phase 5 — CWL runtime (accelerated; G154) — **P2**
+### Phase 5 — CWL runtime (accelerated) — **P1**
 
-In-process CWL preview/runtime via `@chrysalis/runtime-cwl` (WebIR simulation). Does not replace emit + verify for production migrations.
+In-process CWL preview/runtime via `@chrysalis/runtime-cwl` (WebIR simulation) is the base. Expand toward production-grade runtime capability while preserving emit + verify parity checks.
 
-### Phase 5 (original) — CWL runtime at scale (24–48 mo) — **P3**
+### Phase 6 — CWL runtime at scale (24–48 mo) — **P2**
 
-Full production runtime parity (real SQL/session) only after Stages A–B prove adoption. Do not block Phases 1–2.
+Full production runtime parity (real SQL/session) remains phase-gated on evidence, but is an explicit product objective.
+
+### Phase 7 — Full-stack CWL surface (parallel track) — **P1**
+
+- Define and implement CWL coverage for frontend/SSR/UI-associated semantics, not only backend route handlers
+- Add full-stack flagships with hole budgets and replay/contract evidence gates
+- Keep unsupported full-stack constructs explicit via holes until verified lowering exists
 
 ---
 
@@ -169,10 +176,11 @@ Full production runtime parity (real SQL/session) only after Stages A–B prove 
 | --- | --- | --- |
 | **P0** | PHP oracle E2E, verify playbooks, Hub evidence UI | Random matrix pairs |
 | **P0** | Laravel/plain PHP ingest from verify gaps | CWL RFC without replay |
-| **P1** | CWL HTTP surface (body, response, effects) | “All languages production-ready” |
+| **P1** | CWL HTTP + full-stack surface (body, response, effects, authoring/runtime UX) | “All languages production-ready” without evidence |
 | **P1** | Project-to-CWL export | Hub UI without delivery metrics |
+| **P1** | CWL runtime acceleration with parity gates | Runtime claims without verify parity |
 | **P2** | Second oracle origin | Rust/Kotlin oracle before Node/Python flagship |
-| **P3** | WordPress vertical | Many literal-only gold suites |
+| **P2** | WordPress vertical | Many literal-only gold suites |
 
 ---
 
@@ -201,11 +209,11 @@ Path knowledge + web DB catalog + synthesis → **playbooks**:
 Without plan amendment, treat these as **out of scope**:
 
 - Chasing full **575×26 production** migration parity for marketing  
-- **CWL runtime at production scale** before CWL is normal export of migrations (preview runtime **G154** is in scope)  
+- Claiming production-ready CWL runtime without parity evidence (verify + contract coverage)  
 - **WordPress** before Laravel oracle path is boringly reliable  
 - Promising **any web app, any language** without a second oracle flagship  
 - LLM repair that bypasses verify  
-- Competing with TypeScript as “a better JS”
+- Rebranding structural-only matrix depth as full-stack oracle parity
 
 ---
 
@@ -215,12 +223,12 @@ When the user says “build” without specifying, prefer this queue:
 
 | Month | Focus |
 | --- | --- |
-| 1 | Capability matrix; flagship-full gaps → ingest |
-| 2 | Hub evidence MVP (verify trend, holes, plan → pipeline gate) |
-| 3 | CWL RFC 0005–0006; PHP oracle micro-fixture |
-| 3–4 | PHP nextjs verify (not smoke-only) where WPTP allows |
-| 4 | Project-to-CWL v0 on hub translate |
-| 4 | Node oracle spike (choose flagship; 10-route pilot) |
+| 1 | CWL authoring bootstrap: templates, diagnostics, preview/dev loop hardening |
+| 1–2 | Runtime-cwl parity plan + first production-readiness gates |
+| 2 | Full-stack CWL scope RFC (backend + frontend/SSR boundaries, holes policy) |
+| 2–3 | Second oracle origin flagship depth (Node/Express first) |
+| 3 | Keep project-to-CWL + CWL diff mandatory on translate paths |
+| 3–4 | Full-stack flagship pilot with explicit hole budget and evidence gate |
 
 ### Hub verify-gaps program (post–Next 90 days)
 
