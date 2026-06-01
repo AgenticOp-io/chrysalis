@@ -1015,6 +1015,39 @@
     });
   });
 
+  async function createCwlFullstackProject() {
+    $("createStatus").textContent = "Creating CWL full-stack workspace…";
+    const body = {
+      name: $("projName").value.trim() || "CWL full-stack app",
+      description: $("projDesc").value.trim(),
+      orgId: $("newOrgId")?.value?.trim() || null,
+      originLanguage: "cwl",
+      outputLanguage: "cwl",
+      sites: [],
+      prepOrigin: false,
+      pullFromSsh: false,
+      detectLanguages: false,
+      backgroundSetup: false,
+      runSetup: false,
+      cwlBootstrap: true,
+    };
+    const r = await api("/api/hub/projects", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const id = r.project.id;
+    $("createStatus").textContent = `Created CWL project ${id} with .chrysalis/migration.cwl (home page + API health). Open Console to preview or translate.`;
+    location.hash = `#/console?id=${encodeURIComponent(id)}`;
+    route();
+  }
+
+  $("btnCreateCwlFullstack")?.addEventListener("click", () => {
+    createCwlFullstackProject().catch((e) => {
+      $("createStatus").textContent = "Error: " + e.message;
+    });
+  });
+
   let consoleProjectId = null;
   let consoleProject = null;
 

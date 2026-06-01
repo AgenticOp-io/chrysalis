@@ -9,6 +9,33 @@ const GOLD = resolve(ROOT, "scripts/hub-ingest/hub-gold-verify.mjs");
 const PARSER = resolve(ROOT, "scripts/hub-ingest/cwl-parser.mjs");
 const FIXTURE = resolve(ROOT, "fixtures/hub-gold-cwl");
 
+test("cwl parser: layout imports and page params (RFC-0011 / G1145)", async () => {
+  const { parseCwlModuleResolved } = await import(resolve(ROOT, "scripts/hub-ingest/cwl-module-graph.mjs"));
+  const { readFile } = await import("node:fs/promises");
+  const FIX = resolve(ROOT, "fixtures/hub-gold-cwl-layout");
+  const src = await readFile(resolve(FIX, "routes.cwl"), "utf8");
+  const mod = parseCwlModuleResolved(src, "routes.cwl", { baseDir: FIX });
+  expect(mod.imports).toContain("layouts/shell.cwl");
+  expect(mod.routes.length).toBeGreaterThanOrEqual(3);
+  const doc = mod.routes.find((r) => r.path === "/docs/:slug" && r.surfaceKind === "page");
+  expect(doc?.handlerPathParams).toEqual(["slug"]);
+});
+
+test("cwl emit round-trip preserves @page surface (G1146)", async () => {
+  const { runCwlFullstackRoundtripSmoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-roundtrip-smoke.mjs")
+  );
+  const report = await runCwlFullstackRoundtripSmoke();
+  expect(report.ok).toBe(true);
+});
+
+test("sveltekit route lift discovers file routes (G1144)", async () => {
+  const { runSvelteKitSmoke } = await import(resolve(ROOT, "scripts/hub-ingest/hub-sveltekit-smoke.mjs"));
+  const report = await runSvelteKitSmoke();
+  expect(report.ok).toBe(true);
+  expect(report.discovered?.blogPath).toBe("/blog/:slug");
+});
+
 test("cwl parser: full-stack page surface (RFC-0010 / G1143)", async () => {
   const { parseCwlModule } = await import(PARSER);
   const { readFile } = await import("node:fs/promises");

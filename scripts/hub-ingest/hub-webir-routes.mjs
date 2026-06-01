@@ -164,6 +164,8 @@ export function walkCwlHandlerBody(get, bodyId) {
   let value = null;
   let holeReason = null;
   let json = false;
+  let responseContentType = null;
+  let responseKind = null;
 
   const visit = (id) => {
     if (holeReason) return;
@@ -177,6 +179,8 @@ export function walkCwlHandlerBody(get, bodyId) {
       return;
     }
     if (n.dialect === "web.request" && n.op === "response") {
+      if (n.attrs?.contentType) responseContentType = String(n.attrs.contentType);
+      if (n.attrs?.kind) responseKind = String(n.attrs.kind);
       // CWL-ingested routes carry the response status on the response node
       // (the lift path uses an `http.error` effect instead); read it here so a
       // round-tripped `status N;` projects as `withStatus`.
@@ -248,9 +252,28 @@ export function walkCwlHandlerBody(get, bodyId) {
   const isJson =
     json || value?.t === "obj" || (value?.t === "lit" && Array.isArray(value.value));
   const noContent = status === 204 || status === 304;
-  const contentType = noContent ? null : isJson ? CWL_JSON_CONTENT_TYPE : CWL_TEXT_CONTENT_TYPE;
+  let contentType = responseContentType;
+  if (!contentType && !noContent) {
+    contentType = isJson ? CWL_JSON_CONTENT_TYPE : CWL_TEXT_CONTENT_TYPE;
+  }
+  const isPage =
+    responseKind === "html" ||
+    (contentType && contentType.includes("html")) ||
+    (value?.t === "lit" &&
+      typeof value.value === "string" &&
+      value.value.trimStart().startsWith("<"));
+  if (isPage && !noContent && !contentType?.includes("html")) {
+    contentType = "text/html; charset=utf-8";
+  }
 
-  return { status, params, value, holeReason, contentType };
+  return {
+    status,
+    params,
+    value,
+    holeReason,
+    contentType: noContent ? null : contentType,
+    surfaceKind: isPage ? "page" : "api",
+  };
 }
 
 /**
@@ -319,8 +342,11 @@ export function renderCwlRoutes(routes, opts = {}) {
   const lines = [header, `module ${moduleName};`, ""];
   let holeCount = 0;
   for (const r of routes) {
-    lines.push(`@route ${r.method} "${r.path}"`);
-    lines.push(`handler ${r.handlerName} {`);
+    const isPage =
+      r.surfaceKind === "page" ||
+      (r.contentType && String(r.contentType).includes("html"));
+    lines.push(isPage ? `@page ${r.method} "${r.path}"` : `@route ${r.method} "${r.path}"`);
+    lines.push(isPage ? `page ${r.handlerName} {` : `handler ${r.handlerName} {`);
     lines.push("  effects: none;");
     const renderSurface = () => {
       if (typeof r.status === "number" && r.status !== 200) {
@@ -363,7 +389,16 @@ export function renderCwlRoutes(routes, opts = {}) {
       continue;
     }
     renderSurface();
-    lines.push(`  return ${cwlRenderValue(r.value)};`);
+    if (
+      isPage &&
+      r.value?.t === "lit" &&
+      typeof r.value.value === "string" &&
+      !r.holeReason
+    ) {
+      lines.push(`  return html ${JSON.stringify(r.value.value)};`);
+    } else {
+      lines.push(`  return ${cwlRenderValue(r.value)};`);
+    }
     lines.push("}");
     lines.push("");
   }

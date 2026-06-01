@@ -40,7 +40,7 @@ import { buildMigrationAssessment } from "./hub-ingest/hub-migration-assessment.
 import { writePathAdviceArtifacts } from "./hub-ingest/hub-apply-path-advice.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-ingest/hub-verify-gaps-ingest.mjs";
 import { buildDeliveryDashboard } from "./hub-ingest/hub-delivery-dashboard.mjs";
-import { buildCwlPreviewReport } from "./hub-ingest/hub-cwl-preview.mjs";
+import { buildCwlPreviewReport, writeCwlPreviewArtifacts } from "./hub-ingest/hub-cwl-preview.mjs";
 import { assertHubLicenseAllows, buildHubLicenseStatusReport } from "./hub-ingest/hub-license-status.mjs";
 import { buildHubVerifyTiersReport, HUB_VERIFY_TIERS_KIND } from "./hub-ingest/hub-verify-tiers.mjs";
 import {
@@ -1522,6 +1522,15 @@ const server = createServer(async (req, res) => {
           full.chrysalisInitialized = true;
         } catch {
           /* init optional if dir not ready */
+        }
+        if (body.cwlBootstrap === true) {
+          const repoRoot = resolve(__dir, "..");
+          await writeCwlPreviewArtifacts(full.localDir, {
+            bootstrap: true,
+            probe: false,
+            repoRoot,
+          });
+          full = (await getProject(full.id)) ?? full;
         }
         sendJson(res, 201, { project: full, setupStarted });
         return;

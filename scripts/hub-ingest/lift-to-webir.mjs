@@ -64,9 +64,6 @@ async function walk(dir, exts, paths, depth) {
 
 async function main() {
   const { projectDir, language } = parseArgs(process.argv);
-  const exts = new Set(EXT_BY_LANG[language] ?? []);
-  if (exts.size === 0) throw new Error(`unsupported language: ${language}`);
-
   const webir = await loadWebir();
   const builder = new webir.ModuleBuilder({ sourceApp: `hub-lift:${language}` });
   const wr = webir.webRequest.builders(builder);
@@ -74,23 +71,33 @@ async function main() {
   const literalCtx = { data, webir };
 
   const paths = [];
-  await walk(projectDir, exts, paths, 0);
-
-  if (language === "cwl" && paths.length > 1) {
-    const entry = paths.find((p) => /(^|[/\\])routes\.cwl$/i.test(p));
-    if (entry) {
-      paths.splice(0, paths.length, entry);
-    }
-  }
-
   let heuristicRouteCount = 0;
   let astRouteCount = 0;
   let middlewareUseCount = 0;
   let middlewareLoweredCount = 0;
   /** @type {{ kind: string, file: string, count: number }[]} */
   const middlewareShell = [];
+  let fileCount = 0;
 
-  for (const abs of paths) {
+  if (language === "svelte") {
+    const { liftSvelteKitProjectToWebir } = await import("./sveltekit-route-lift.mjs");
+    const lifted = await liftSvelteKitProjectToWebir({ projectDir, webir, builder, wr, language: "svelte" });
+    astRouteCount = lifted.astRouteCount ?? 0;
+    fileCount = lifted.fileCount ?? 0;
+  } else {
+    const exts = new Set(EXT_BY_LANG[language] ?? []);
+    if (exts.size === 0) throw new Error(`unsupported language: ${language}`);
+    await walk(projectDir, exts, paths, 0);
+    fileCount = paths.length;
+
+    if (language === "cwl" && paths.length > 1) {
+      const entry = paths.find((p) => /(^|[/\\])routes\.cwl$/i.test(p));
+      if (entry) {
+        paths.splice(0, paths.length, entry);
+      }
+    }
+
+    for (const abs of paths) {
     const file = abs.startsWith(projectDir) ? abs.slice(projectDir.length).replace(/^[/\\]/, "") : abs;
     const source = await readFile(abs, "utf8").catch(() => "");
     const ext = extname(file).toLowerCase();
@@ -224,6 +231,7 @@ async function main() {
       provenance: [webir.provenance("hub-ingest", `route:${language}`)],
     });
     builder.addRoot(routeId);
+    }
   }
 
   const module = builder.finish();
@@ -237,7 +245,7 @@ async function main() {
     kind: "chrysalis.hub.lift",
     schemaVersion: 2,
     language,
-    fileCount: paths.length,
+    fileCount,
     astRouteCount,
     heuristicRouteCount,
     routeCount: module.roots.length,
