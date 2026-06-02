@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v90 (G1209–G2058).
+ * Full-stack CWL gate runners for authoring batches v6–v110 (G1209–G2258).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -1119,3 +1119,411 @@ export async function runPost89GraduationGate(opts = {}) {
   const post88 = await runPost88GraduationGate(opts);
   return { ok: post89.ok === true && post88.ok === true, post89, post88 };
 }
+/** Queues 91–110 — hub verify-gaps × CWL bridge (G2059–G2258). */
+export async function runVerifyGapsExpressFlagshipGate() {
+  const { runVerifyGapsExpressSmoke } = await import("./hub-verify-gaps-express-smoke.mjs");
+  const report = runVerifyGapsExpressSmoke();
+  return { ok: report.ok === true, backlogCount: report.backlogCount ?? 0 };
+}
+
+export async function runVerifyGapsSymfonyFlagshipGate() {
+  const { runVerifyGapsSymfonySmoke } = await import("./hub-verify-gaps-symfony-smoke.mjs");
+  const report = runVerifyGapsSymfonySmoke();
+  return { ok: report.ok === true, backlogCount: report.backlogCount ?? 0 };
+}
+
+export async function runVerifyGapsLaravelMinFlagshipGate() {
+  const { runVerifyGapsLaravelMinSmoke } = await import("./hub-verify-gaps-laravel-min-smoke.mjs");
+  const report = runVerifyGapsLaravelMinSmoke();
+  return { ok: report.ok === true, backlogCount: report.backlogCount ?? 0 };
+}
+
+export async function runVerifyGapsIngestStandaloneGate() {
+  const { runVerifyGapsIngestActionStandaloneSmoke } = await import(
+    "./hub-verify-gaps-ingest-action-standalone-smoke.mjs",
+  );
+  const report = await runVerifyGapsIngestActionStandaloneSmoke();
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+export async function runLaravelVerifyGapsClosureGate() {
+  const { runLaravelVerifyGapsIngestClosureSmoke } = await import(
+    "./hub-laravel-verify-gaps-ingest-closure-smoke.mjs",
+  );
+  const report = runLaravelVerifyGapsIngestClosureSmoke();
+  return { ok: report.ok === true };
+}
+
+export async function runLaravelAuthProbeReingestHttpGate() {
+  const { runLaravelAuthProbeReingestVerifyHttpSmoke } = await import(
+    "./hub-laravel-auth-probe-reingest-verify-http-smoke.mjs",
+  );
+  const report = await runLaravelAuthProbeReingestVerifyHttpSmoke();
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+export async function runLaravelAuthProbeReingestFastifyGate() {
+  const { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } = await import(
+    "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs",
+  );
+  const report = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+export async function runPostTranslateVerifyOriginGate() {
+  const { runPostTranslateVerifyOriginBatchSmoke } = await import(
+    "./hub-post-translate-verify-origin-batch-smoke.mjs",
+  );
+  const report = await runPostTranslateVerifyOriginBatchSmoke();
+  return { ok: report.ok === true };
+}
+
+export async function runIrHelperLiftingGate() {
+  const { runIrHelperLiftingSmoke } = await import("./hub-ir-helper-lifting-smoke.mjs");
+  const report = runIrHelperLiftingSmoke();
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+export async function runIrHelperSemanticLiftingGate() {
+  const { runIrHelperLiftingSemanticSmoke } = await import("./hub-ir-helper-lifting-semantic-smoke.mjs");
+  const report = runIrHelperLiftingSemanticSmoke();
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+export async function runSessionStubFullstackGate(opts = {}) {
+  return runSessionStubGate(opts);
+}
+
+export async function runRuntimeProductionV2Gate(opts = {}) {
+  return runRuntimeProductionGate(opts);
+}
+
+export async function runEmitPageProbeFullstackGate(opts = {}) {
+  return runEmitPageProbeGate(opts);
+}
+
+export async function runEvidenceTrendStandaloneGate() {
+  const { runEvidenceTrendStandaloneSmoke } = await import("./hub-evidence-trend-standalone-smoke.mjs");
+  const report = runEvidenceTrendStandaloneSmoke();
+  return { ok: report.ok === true };
+}
+
+export async function runMigrationOsMegaGate() {
+  const { runMigrationOsMegaBatchSmoke } = await import("./hub-migration-os-mega-batch-smoke.mjs");
+  const report = await runMigrationOsMegaBatchSmoke();
+  return { ok: report.ok === true };
+}
+
+export async function runOracleProductUltraGate() {
+  const { runOracleProductUltraBatchSmoke } = await import("./hub-oracle-product-ultra-batch-smoke.mjs");
+  const report = await runOracleProductUltraBatchSmoke();
+  return { ok: report.ok === true };
+}
+
+export async function runVerifyStandaloneMegaGate() {
+  const { runVerifyStandaloneMegaBatchSmoke } = await import("./hub-verify-standalone-mega-batch-smoke.mjs");
+  const report = await runVerifyStandaloneMegaBatchSmoke();
+  return { ok: report.ok === true };
+}
+
+export async function runPost90VerifyGapsCompositeGate() {
+  const express = await runVerifyGapsExpressFlagshipGate();
+  const symfony = await runVerifyGapsSymfonyFlagshipGate();
+  const laravel = await runVerifyGapsLaravelMinFlagshipGate();
+  const http = await runLaravelAuthProbeReingestHttpGate();
+  const ok = express.ok === true && symfony.ok === true && laravel.ok === true && http.ok === true;
+  return { ok, express, symfony, laravel, http };
+}
+
+export async function runPost100HubOpsMegaGate() {
+  const migration = await runMigrationOsMegaGate();
+  const oracle = await runOracleProductUltraGate();
+  const verify = await runVerifyStandaloneMegaGate();
+  const ok = migration.ok === true && oracle.ok === true && verify.ok === true;
+  return { ok, migration, oracle, verify };
+}
+
+export async function runPost90HubGraduationLockGate(opts = {}) {
+  const express = await runVerifyGapsExpressFlagshipGate();
+  const symfony = await runVerifyGapsSymfonyFlagshipGate();
+  const laravel = await runVerifyGapsLaravelMinFlagshipGate();
+  const ingest = await runVerifyGapsIngestStandaloneGate();
+  const closure = await runLaravelVerifyGapsClosureGate();
+  const http = await runLaravelAuthProbeReingestHttpGate();
+  const fastify = await runLaravelAuthProbeReingestFastifyGate();
+  const origin = await runPostTranslateVerifyOriginGate();
+  const ir = await runIrHelperLiftingGate();
+  const irSem = await runIrHelperSemanticLiftingGate();
+  const session = await runSessionStubFullstackGate(opts);
+  const production = await runRuntimeProductionV2Gate(opts);
+  const pageProbe = await runEmitPageProbeFullstackGate(opts);
+  const evidence = await runEvidenceTrendStandaloneGate();
+  const migration = await runMigrationOsMegaGate();
+  const oracle = await runOracleProductUltraGate();
+  const verify = await runVerifyStandaloneMegaGate();
+  const ok =
+    express.ok === true &&
+    symfony.ok === true &&
+    laravel.ok === true &&
+    ingest.ok === true &&
+    closure.ok === true &&
+    http.ok === true &&
+    fastify.ok === true &&
+    origin.ok === true &&
+    ir.ok === true &&
+    irSem.ok === true &&
+    session.ok === true &&
+    production.ok === true &&
+    pageProbe.ok === true &&
+    evidence.ok === true &&
+    migration.ok === true &&
+    oracle.ok === true &&
+    verify.ok === true;
+  return { ok, expressOk: express.ok === true, httpOk: http.ok === true, verifyOk: verify.ok === true };
+}
+
+export async function runPost90HubGraduationGate(opts = {}) {
+  const post109 = await runPost109GraduationGate(opts);
+  return { ok: post109.ok === true, post109 };
+}
+
+export async function runPost90CompositeGate(opts = {}) {
+  const slice = await runVerifyGapsExpressFlagshipGate();
+  const post89 = await runPost89CompositeGate(opts);
+  return { ok: slice.ok === true && post89.ok === true, slice, post89 };
+}
+
+export async function runPost90GraduationGate(opts = {}) {
+  const post90 = await runPost90CompositeGate(opts);
+  const post89 = await runPost89GraduationGate(opts);
+  return { ok: post90.ok === true && post89.ok === true, post90, post89 };
+}
+
+export async function runPost91CompositeGate(opts = {}) {
+  const slice = await runVerifyGapsSymfonyFlagshipGate();
+  const post90 = await runPost90CompositeGate(opts);
+  return { ok: slice.ok === true && post90.ok === true, slice, post90 };
+}
+
+export async function runPost91GraduationGate(opts = {}) {
+  const post91 = await runPost91CompositeGate(opts);
+  const post90 = await runPost90GraduationGate(opts);
+  return { ok: post91.ok === true && post90.ok === true, post91, post90 };
+}
+
+export async function runPost92CompositeGate(opts = {}) {
+  const slice = await runVerifyGapsLaravelMinFlagshipGate();
+  const post91 = await runPost91CompositeGate(opts);
+  return { ok: slice.ok === true && post91.ok === true, slice, post91 };
+}
+
+export async function runPost92GraduationGate(opts = {}) {
+  const post92 = await runPost92CompositeGate(opts);
+  const post91 = await runPost91GraduationGate(opts);
+  return { ok: post92.ok === true && post91.ok === true, post92, post91 };
+}
+
+export async function runPost93CompositeGate(opts = {}) {
+  const slice = await runVerifyGapsIngestStandaloneGate();
+  const post92 = await runPost92CompositeGate(opts);
+  return { ok: slice.ok === true && post92.ok === true, slice, post92 };
+}
+
+export async function runPost93GraduationGate(opts = {}) {
+  const post93 = await runPost93CompositeGate(opts);
+  const post92 = await runPost92GraduationGate(opts);
+  return { ok: post93.ok === true && post92.ok === true, post93, post92 };
+}
+
+export async function runPost94CompositeGate(opts = {}) {
+  const slice = await runLaravelVerifyGapsClosureGate();
+  const post93 = await runPost93CompositeGate(opts);
+  return { ok: slice.ok === true && post93.ok === true, slice, post93 };
+}
+
+export async function runPost94GraduationGate(opts = {}) {
+  const post94 = await runPost94CompositeGate(opts);
+  const post93 = await runPost93GraduationGate(opts);
+  return { ok: post94.ok === true && post93.ok === true, post94, post93 };
+}
+
+export async function runPost95CompositeGate(opts = {}) {
+  const slice = await runLaravelAuthProbeReingestHttpGate();
+  const post94 = await runPost94CompositeGate(opts);
+  return { ok: slice.ok === true && post94.ok === true, slice, post94 };
+}
+
+export async function runPost95GraduationGate(opts = {}) {
+  const post95 = await runPost95CompositeGate(opts);
+  const post94 = await runPost94GraduationGate(opts);
+  return { ok: post95.ok === true && post94.ok === true, post95, post94 };
+}
+
+export async function runPost96CompositeGate(opts = {}) {
+  const slice = await runLaravelAuthProbeReingestFastifyGate();
+  const post95 = await runPost95CompositeGate(opts);
+  return { ok: slice.ok === true && post95.ok === true, slice, post95 };
+}
+
+export async function runPost96GraduationGate(opts = {}) {
+  const post96 = await runPost96CompositeGate(opts);
+  const post95 = await runPost95GraduationGate(opts);
+  return { ok: post96.ok === true && post95.ok === true, post96, post95 };
+}
+
+export async function runPost97CompositeGate(opts = {}) {
+  const slice = await runPostTranslateVerifyOriginGate();
+  const post96 = await runPost96CompositeGate(opts);
+  return { ok: slice.ok === true && post96.ok === true, slice, post96 };
+}
+
+export async function runPost97GraduationGate(opts = {}) {
+  const post97 = await runPost97CompositeGate(opts);
+  const post96 = await runPost96GraduationGate(opts);
+  return { ok: post97.ok === true && post96.ok === true, post97, post96 };
+}
+
+export async function runPost98CompositeGate(opts = {}) {
+  const slice = await runIrHelperLiftingGate();
+  const post97 = await runPost97CompositeGate(opts);
+  return { ok: slice.ok === true && post97.ok === true, slice, post97 };
+}
+
+export async function runPost98GraduationGate(opts = {}) {
+  const post98 = await runPost98CompositeGate(opts);
+  const post97 = await runPost97GraduationGate(opts);
+  return { ok: post98.ok === true && post97.ok === true, post98, post97 };
+}
+
+export async function runPost99CompositeGate(opts = {}) {
+  const slice = await runIrHelperSemanticLiftingGate();
+  const post98 = await runPost98CompositeGate(opts);
+  return { ok: slice.ok === true && post98.ok === true, slice, post98 };
+}
+
+export async function runPost99GraduationGate(opts = {}) {
+  const post99 = await runPost99CompositeGate(opts);
+  const post98 = await runPost98GraduationGate(opts);
+  return { ok: post99.ok === true && post98.ok === true, post99, post98 };
+}
+
+export async function runPost100CompositeGate(opts = {}) {
+  const slice = await runSessionStubFullstackGate(opts);
+  const post99 = await runPost99CompositeGate(opts);
+  return { ok: slice.ok === true && post99.ok === true, slice, post99 };
+}
+
+export async function runPost100GraduationGate(opts = {}) {
+  const post100 = await runPost100CompositeGate(opts);
+  const post99 = await runPost99GraduationGate(opts);
+  return { ok: post100.ok === true && post99.ok === true, post100, post99 };
+}
+
+export async function runPost101CompositeGate(opts = {}) {
+  const slice = await runRuntimeProductionV2Gate(opts);
+  const post100 = await runPost100CompositeGate(opts);
+  return { ok: slice.ok === true && post100.ok === true, slice, post100 };
+}
+
+export async function runPost101GraduationGate(opts = {}) {
+  const post101 = await runPost101CompositeGate(opts);
+  const post100 = await runPost100GraduationGate(opts);
+  return { ok: post101.ok === true && post100.ok === true, post101, post100 };
+}
+
+export async function runPost102CompositeGate(opts = {}) {
+  const slice = await runEmitPageProbeFullstackGate(opts);
+  const post101 = await runPost101CompositeGate(opts);
+  return { ok: slice.ok === true && post101.ok === true, slice, post101 };
+}
+
+export async function runPost102GraduationGate(opts = {}) {
+  const post102 = await runPost102CompositeGate(opts);
+  const post101 = await runPost101GraduationGate(opts);
+  return { ok: post102.ok === true && post101.ok === true, post102, post101 };
+}
+
+export async function runPost103CompositeGate(opts = {}) {
+  const slice = await runEvidenceTrendStandaloneGate();
+  const post102 = await runPost102CompositeGate(opts);
+  return { ok: slice.ok === true && post102.ok === true, slice, post102 };
+}
+
+export async function runPost103GraduationGate(opts = {}) {
+  const post103 = await runPost103CompositeGate(opts);
+  const post102 = await runPost102GraduationGate(opts);
+  return { ok: post103.ok === true && post102.ok === true, post103, post102 };
+}
+
+export async function runPost104CompositeGate(opts = {}) {
+  const slice = await runMigrationOsMegaGate();
+  const post103 = await runPost103CompositeGate(opts);
+  return { ok: slice.ok === true && post103.ok === true, slice, post103 };
+}
+
+export async function runPost104GraduationGate(opts = {}) {
+  const post104 = await runPost104CompositeGate(opts);
+  const post103 = await runPost103GraduationGate(opts);
+  return { ok: post104.ok === true && post103.ok === true, post104, post103 };
+}
+
+export async function runPost105CompositeGate(opts = {}) {
+  const slice = await runOracleProductUltraGate();
+  const post104 = await runPost104CompositeGate(opts);
+  return { ok: slice.ok === true && post104.ok === true, slice, post104 };
+}
+
+export async function runPost105GraduationGate(opts = {}) {
+  const post105 = await runPost105CompositeGate(opts);
+  const post104 = await runPost104GraduationGate(opts);
+  return { ok: post105.ok === true && post104.ok === true, post105, post104 };
+}
+
+export async function runPost106CompositeGate(opts = {}) {
+  const slice = await runVerifyStandaloneMegaGate();
+  const post105 = await runPost105CompositeGate(opts);
+  return { ok: slice.ok === true && post105.ok === true, slice, post105 };
+}
+
+export async function runPost106GraduationGate(opts = {}) {
+  const post106 = await runPost106CompositeGate(opts);
+  const post105 = await runPost105GraduationGate(opts);
+  return { ok: post106.ok === true && post105.ok === true, post106, post105 };
+}
+
+export async function runPost107CompositeGate(opts = {}) {
+  const slice = await runPost90VerifyGapsCompositeGate();
+  const post106 = await runPost106CompositeGate(opts);
+  return { ok: slice.ok === true && post106.ok === true, slice, post106 };
+}
+
+export async function runPost107GraduationGate(opts = {}) {
+  const post107 = await runPost107CompositeGate(opts);
+  const post106 = await runPost106GraduationGate(opts);
+  return { ok: post107.ok === true && post106.ok === true, post107, post106 };
+}
+
+export async function runPost108CompositeGate(opts = {}) {
+  const slice = await runPost100HubOpsMegaGate();
+  const post107 = await runPost107CompositeGate(opts);
+  return { ok: slice.ok === true && post107.ok === true, slice, post107 };
+}
+
+export async function runPost108GraduationGate(opts = {}) {
+  const post108 = await runPost108CompositeGate(opts);
+  const post107 = await runPost107GraduationGate(opts);
+  return { ok: post108.ok === true && post107.ok === true, post108, post107 };
+}
+
+export async function runPost109CompositeGate(opts = {}) {
+  const slice = await runPost90HubGraduationLockGate();
+  const post108 = await runPost108CompositeGate(opts);
+  return { ok: slice.ok === true && post108.ok === true, slice, post108 };
+}
+
+export async function runPost109GraduationGate(opts = {}) {
+  const post109 = await runPost109CompositeGate(opts);
+  const post108 = await runPost108GraduationGate(opts);
+  return { ok: post109.ok === true && post108.ok === true, post109, post108 };
+}
+

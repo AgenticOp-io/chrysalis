@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G2058** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G2258** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -1401,6 +1401,33 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G2049 — Month 2–3 graduation lock gate** — `runMonth23GraduationLockGate`. (**DESIGN D2049**)
 - [x] **G2051 — Authoring batch v90** — schema 163 graduation lock. (**DESIGN D2051**)
 - [x] **G2053 — Vitest v90** — Month 2–3 graduation smoke. (**DESIGN D2053**)
+
+### Full-stack CWL — queues 91–110 (G2059–G2258)
+
+> **Authority:** `docs/CWL-FULLSTACK-QUEUES-91-110.md` (hub verify-gaps bridge).
+
+- [x] **G2059 — verify-gaps express flagship gate** — (**DESIGN D2059**)
+- [x] **G2069 — verify-gaps symfony gate** — (**DESIGN D2069**)
+- [x] **G2079 — verify-gaps laravel-min gate** — (**DESIGN D2079**)
+- [x] **G2089 — verify-gaps ingest standalone gate** — (**DESIGN D2089**)
+- [x] **G2099 — laravel verify-gaps closure gate** — (**DESIGN D2099**)
+- [x] **G2109 — laravel auth-probe reingest HTTP gate** — (**DESIGN D2109**)
+- [x] **G2119 — laravel auth-probe reingest Fastify gate** — (**DESIGN D2119**)
+- [x] **G2129 — post-translate verify origin gate** — (**DESIGN D2129**)
+- [x] **G2139 — IR helper lifting gate** — (**DESIGN D2139**)
+- [x] **G2149 — IR helper semantic lifting gate** — (**DESIGN D2149**)
+- [x] **G2159 — session stub fullstack gate** — (**DESIGN D2159**)
+- [x] **G2169 — runtime production v2 gate** — (**DESIGN D2169**)
+- [x] **G2179 — emit page probe gate** — (**DESIGN D2179**)
+- [x] **G2189 — evidence trend gate** — (**DESIGN D2189**)
+- [x] **G2199 — migration OS mega gate** — (**DESIGN D2199**)
+- [x] **G2209 — oracle product ultra gate** — (**DESIGN D2209**)
+- [x] **G2219 — verify standalone mega gate** — (**DESIGN D2219**)
+- [x] **G2229 — post-90 verify-gaps composite gate** — (**DESIGN D2229**)
+- [x] **G2239 — post-100 hub ops mega gate** — (**DESIGN D2239**)
+- [x] **G2249 — post-90 hub graduation lock gate** — (**DESIGN D2249**)
+- [x] **G2251 — Authoring batch v110** — schema 183. (**DESIGN D2251**)
+- [x] **G2253 — Vitest v91–v110** — dedicated batch test file. (**DESIGN D2253**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 

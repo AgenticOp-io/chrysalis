@@ -93,12 +93,12 @@ if (!r.ok) { console.error(r); process.exit(1); }
 console.log('v60 ok', r.gate60Mode);
 "
 
-log "phase: cwl batch v90 (Month 2–3 graduation lock)"
-run_phase cwl-batch-v90 node --input-type=module -e "
-import { runCwlAuthoringBatchV90Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v90-smoke.mjs';
-const r = await runCwlAuthoringBatchV90Smoke({ skipPriorChain: true });
+log "phase: cwl batch v110 (hub verify-gaps graduation lock)"
+run_phase cwl-batch-v110 node --input-type=module -e "
+import { runCwlAuthoringBatchV110Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v110-smoke.mjs';
+const r = await runCwlAuthoringBatchV110Smoke({ skipPriorChain: true });
 if (!r.ok) { console.error(r); process.exit(1); }
-console.log('v90 ok', r.gate90Mode);
+console.log('v110 ok', r.gate110Mode);
 "
 
 date -Is >"${OK_FILE}"
