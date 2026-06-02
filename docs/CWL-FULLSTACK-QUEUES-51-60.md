@@ -21,4 +21,6 @@ Each queue has `docs/CWL-FULLSTACK-NEXT-10-N.md` (N = 51..60).
 
 **Default build queue:** G1659–G1758 after G1658 post-40 lock.
 
+**Status:** **complete** (2026-06-01). Successor: **`docs/CWL-FULLSTACK-QUEUES-61-70.md`** (G1759–G1858 authoring bootstrap).
+
 **Non-goals (unchanged):** hydration, client stores, production SQL/session claims without parity evidence.

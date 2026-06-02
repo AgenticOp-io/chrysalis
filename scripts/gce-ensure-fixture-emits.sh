@@ -37,5 +37,7 @@ ensure_cwl_trace_targets() {
 
 ensure_js_hono "fixtures/hub-flagship-express"
 ensure_cwl_trace_targets "fixtures/hub-gold-cwl-request-context"
+ensure_cwl_trace_targets "fixtures/hub-gold-cwl-request-body"
+ensure_cwl_trace_targets "fixtures/hub-gold-cwl-response-status"
 
 log "OK"

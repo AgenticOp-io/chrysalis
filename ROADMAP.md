@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1758** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1858** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -1333,6 +1333,25 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1756 — Hole budget v60 evidence** — (**DESIGN D1756**)
 - [x] **G1757 — ROADMAP G-id alignment queue 24–29** — (**DESIGN D1757**)
 - [x] **G1758 — CWL verify-gaps graduation lock** — (**DESIGN D1758**)
+
+### Full-stack CWL — queues 61–70 (G1759–G1858)
+
+> **Authority:** `docs/CWL-FULLSTACK-QUEUES-61-70.md` (authoring bootstrap; **`docs/STRATEGIC-PLAN.md` §12** Month 1–2).
+
+- [ ] **G1759 — CWL authoring templates gate** — shell bootstrap + starter templates. (**DESIGN D1759**)
+- [ ] **G1760–G1768** — queue 61 steps + batch v61 + schema 134. (**DESIGN D1760–D1768**)
+- [ ] **G1769–G1778** — preview/dev loop + diagnostics; batch v62. (**DESIGN D1769–D1778**)
+- [ ] **G1779–G1788** — runtime-cwl parity gates v1; batch v63. (**DESIGN D1779–D1788**)
+- [ ] **G1789–G1798** — CWL formatter/lint diagnostic batch v64. (**DESIGN D1789–D1798**)
+- [ ] **G1799–G1808** — project-to-CWL mandatory translate checks; batch v65. (**DESIGN D1799–D1808**)
+- [ ] **G1809–G1818** — full-stack CWL scope RFC backend slice; batch v66. (**DESIGN D1809–D1818**)
+- [ ] **G1819–G1828** — Node/Express oracle origin flagship depth; batch v67. (**DESIGN D1819–D1828**)
+- [ ] **G1829–G1838** — post-60 authoring composite replay; batch v68. (**DESIGN D1829–D1838**)
+- [ ] **G1839–G1848** — dual-backend emit verify mega (authoring gold); batch v69. (**DESIGN D1839–D1848**)
+- [ ] **G1849 — runPost60GraduationGate** — (**DESIGN D1849**)
+- [ ] **G1850 — hub-completion schema 143** — (**DESIGN D1850**)
+- [ ] **G1851 — Vitest v70 + authoring smoke** — (**DESIGN D1851**)
+- [ ] **G1852–G1858** — post-60 authoring graduation lock; batch v70. (**DESIGN D1852–D1858**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
