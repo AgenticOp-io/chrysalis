@@ -782,9 +782,11 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 71 &&
     s.schemaVersion !== 72 &&
     s.schemaVersion !== 73 &&
-    s.schemaVersion !== 74
+    s.schemaVersion !== 74 &&
+    s.schemaVersion !== 133 &&
+    s.schemaVersion !== 134
   ) {
-    fail(`${label}: expected schemaVersion 0–74, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–74 or 133–134, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -3261,6 +3263,19 @@ function assertHubCompletion(path) {
     }
     if ((s.goldVerify?.expectedSuiteCount ?? 0) < 154) {
       fail(`${label}: goldVerify.expectedSuiteCount must be >= 154 for schema v74`);
+    }
+  }
+  if (s.schemaVersion >= 133) {
+    if (s.fullstackAuthoringBatchV60?.ok !== true) {
+      fail(`${label}: fullstackAuthoringBatchV60.ok must be true for schema v133`);
+    }
+  }
+  if (s.schemaVersion >= 134) {
+    if (s.fullstackAuthoringBatchV61?.ok !== true) {
+      fail(`${label}: fullstackAuthoringBatchV61.ok must be true for schema v134`);
+    }
+    if (!s.fullstackAuthoringBatchV61?.script) {
+      fail(`${label}: fullstackAuthoringBatchV61.script must be set for schema v134`);
     }
   }
   const g = s.routeGrades;

@@ -7,7 +7,7 @@
 | Step | ROADMAP | Focus |
 | --- | --- | --- |
 | 1 | **G1759** | runCwlAuthoringTemplatesGate |
-| 2 | **G1760** | Queue 61 step 2 |
+| 2 | **G1760** | runPost60CompositeGate |
 | 3 | **G1761** | Batch v61 |
 | 4 | **G1762** | Schema 134 |
 | 5 | **G1763** | Vitest v61 |

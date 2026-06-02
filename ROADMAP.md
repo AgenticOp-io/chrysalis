@@ -1338,8 +1338,12 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 > **Authority:** `docs/CWL-FULLSTACK-QUEUES-61-70.md` (authoring bootstrap; **`docs/STRATEGIC-PLAN.md` §12** Month 1–2).
 
-- [ ] **G1759 — CWL authoring templates gate** — shell bootstrap + starter templates. (**DESIGN D1759**)
-- [ ] **G1760–G1768** — queue 61 steps + batch v61 + schema 134. (**DESIGN D1760–D1768**)
+- [x] **G1759 — CWL authoring templates gate** — `runCwlAuthoringTemplatesGate`, bootstrap `layouts/shell.cwl` beside CWL path. (**DESIGN D1759**)
+- [x] **G1760 — Post-60 composite gate** — templates + post-50 composite. (**DESIGN D1760**)
+- [x] **G1761 — Authoring batch v61** — `hub-cwl-authoring-batch-v61-smoke.mjs`. (**DESIGN D1761**)
+- [x] **G1762 — hub-completion schema 134** — `fullstackAuthoringBatchV61` section. (**DESIGN D1762**)
+- [x] **G1763 — Vitest v61** — `hub-cwl.test.ts` batch v61 smoke. (**DESIGN D1763**)
+- [ ] **G1764–G1768** — queue 61 steps 6–10. (**DESIGN D1764–D1768**)
 - [ ] **G1769–G1778** — preview/dev loop + diagnostics; batch v62. (**DESIGN D1769–D1778**)
 - [ ] **G1779–G1788** — runtime-cwl parity gates v1; batch v63. (**DESIGN D1779–D1788**)
 - [ ] **G1789–G1798** — CWL formatter/lint diagnostic batch v64. (**DESIGN D1789–D1798**)

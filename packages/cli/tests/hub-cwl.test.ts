@@ -185,6 +185,23 @@ test("authoring batch v60 verify-gaps graduation smoke (G1753)", async () => {
   expect(report.gate60Mode).toBe("post50-composite");
 }, 180_000);
 
+test("authoring batch v61 templates gate smoke (G1763)", async () => {
+  const { runCwlAuthoringBatchV61Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v61-smoke.mjs"),
+  );
+  const { runCwlAuthoringTemplatesGate } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs"),
+  );
+  const gate = await runCwlAuthoringTemplatesGate();
+  expect(gate.ok).toBe(true);
+  expect(gate.shellOk).toBe(true);
+  expect(gate.layoutImportOk).toBe(true);
+  const report = await runCwlAuthoringBatchV61Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate61?.ok).toBe(true);
+  expect(report.gate61Mode).toBe("post60-composite");
+}, 180_000);
+
 test("cwl fullstack HTTP verify smoke (G1660)", async () => {
   const { runCwlFullstackVerifyHttpSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs"),

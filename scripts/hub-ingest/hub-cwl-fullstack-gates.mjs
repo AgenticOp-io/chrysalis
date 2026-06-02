@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v60 (G1209–G1758).
+ * Full-stack CWL gate runners for authoring batches v6–v61 (G1209–G1768).
  */
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { CWL_FULLSTACK_HOLE_CATALOG } from "./cwl-fullstack-holes.mjs";
@@ -420,4 +421,54 @@ export async function runPost50GraduationGate(opts = {}) {
   const post50 = await runPost50CompositeGate(opts);
   const post40 = await runPost40GraduationGate(opts);
   return { ok: post50.ok === true && post40.ok === true, post50, post40 };
+}
+
+/**
+ * G1759 — CWL authoring templates + shell bootstrap hardening.
+ * @param {object} [opts]
+ */
+export async function runCwlAuthoringTemplatesGate(opts = {}) {
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const { buildCwlPreviewReport, starterCwlModule } = await import("./hub-cwl-preview.mjs");
+  const tmp = mkdtempSync(join(tmpdir(), "chrysalis-authoring-templates-"));
+  try {
+    const cwlPath = join(tmp, ".chrysalis", "migration.cwl");
+    const report = await buildCwlPreviewReport(tmp, { cwlPath, bootstrap: true, probe: false, repoRoot });
+    const shellPath = join(tmp, ".chrysalis", "layouts", "shell.cwl");
+    const layoutSrc = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack/layouts/shell.cwl");
+    const cwlText = existsSync(cwlPath) ? readFileSync(cwlPath, "utf8") : "";
+    const starter = starterCwlModule(tmp);
+    const shellOk = existsSync(shellPath);
+    const layoutImportOk = cwlText.includes('import "layouts/shell.cwl"');
+    const starterParityOk =
+      starter.includes("/search") && starter.includes("/blog/:slug") && starter.includes("load {");
+    const bootstrapOk = report.bootstrapped === true && report.ok === true;
+    const routeOk = (report.routeCount ?? 0) >= 7;
+    const referenceLayoutOk = existsSync(layoutSrc);
+    const ok = shellOk && layoutImportOk && starterParityOk && bootstrapOk && routeOk && referenceLayoutOk;
+    return {
+      ok,
+      shellOk,
+      layoutImportOk,
+      starterParityOk,
+      bootstrapOk,
+      routeOk,
+      routeCount: report.routeCount ?? 0,
+      referenceLayoutOk,
+    };
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+export async function runPost60CompositeGate(opts = {}) {
+  const templates = await runCwlAuthoringTemplatesGate(opts);
+  const post50 = await runPost50CompositeGate(opts);
+  return { ok: templates.ok === true && post50.ok === true, templates, post50 };
+}
+
+export async function runPost60GraduationGate(opts = {}) {
+  const post60 = await runPost60CompositeGate(opts);
+  const post50 = await runPost50GraduationGate(opts);
+  return { ok: post60.ok === true && post50.ok === true, post60, post50 };
 }
