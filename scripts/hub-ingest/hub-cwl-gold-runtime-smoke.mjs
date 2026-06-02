@@ -35,6 +35,7 @@ export function runGoldTraceReplay(suiteIds) {
       cwd: scriptRoot,
       encoding: "utf8",
       maxBuffer: 20 * 1024 * 1024,
+      timeout: process.env.CHRYSALIS_GCE_ALL_TESTS === "1" ? 600_000 : undefined,
     });
     traceReplay[suite] = r.status === 0;
     if (r.status !== 0) traceOk = false;

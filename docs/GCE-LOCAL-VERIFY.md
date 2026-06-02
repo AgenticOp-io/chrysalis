@@ -54,7 +54,7 @@ Logs: `~/chrysalis-test/reports/ci/gce-all-tests.log`
 Per-phase logs: `reports/ci/gce-phase-*.log` (line-buffered; tail these when the main log looks stuck)  
 Success marker: `~/chrysalis-test/reports/ci/gce-all-tests.ok`
 
-**hub-strategic on GCE:** batch smokes and flagship subprocess tests are **skipped** in vitest (`CHRYSALIS_GCE_SLIM_HUB_STRATEGIC=1`); the same work runs via dedicated `hub:*` scripts and `ci:hub-completion`. Full file: `CHRYSALIS_GCE_RUN_HUB_STRATEGIC=1`.
+**hub-strategic on GCE:** batch smokes and flagship subprocess tests are **skipped** in vitest (`CHRYSALIS_GCE_SLIM_HUB_STRATEGIC=1`); the same work runs via dedicated `hub:*` scripts and `ci:hub-completion`. **`scripts/gce-ensure-fixture-emits.sh`** materializes gitignored `fixtures/**/generated/` before vitest. Full file: `CHRYSALIS_GCE_RUN_HUB_STRATEGIC=1`.
 
 Env on VM: **`NODE_OPTIONS=--disable-warning=ExperimentalWarning`**, **`CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN=1`**.
 

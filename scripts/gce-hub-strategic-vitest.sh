@@ -17,6 +17,9 @@ VITEST_COMMON=(
 
 log() { echo "[gce-hub-strategic] $(date -Is) $*"; }
 
+log "ensure gitignored fixture emits"
+bash scripts/gce-ensure-fixture-emits.sh
+
 log "hub-gold-manifest"
 pnpm exec vitest run packages/cli/tests/hub-gold-manifest.test.ts "${VITEST_COMMON[@]}"
 

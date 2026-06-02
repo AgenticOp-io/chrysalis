@@ -43,6 +43,7 @@ function Sync-GceRunnerScripts {
     "gce-run-all-tests.sh",
     "gce-run-phase.sh",
     "gce-hub-strategic-vitest.sh",
+    "gce-ensure-fixture-emits.sh",
     "gce-vm-verify-suite.sh",
     "gce-cwl-batch-v40-fast.sh"
   )
@@ -57,7 +58,7 @@ function Sync-GceRunnerScripts {
     if ($LASTEXITCODE -ne 0) { throw "scp failed for $name" }
   }
   $chmodArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @(
-    "--command=chmod +x ~/chrysalis-test/scripts/gce-run-all-tests.sh ~/chrysalis-test/scripts/gce-run-phase.sh ~/chrysalis-test/scripts/gce-hub-strategic-vitest.sh ~/chrysalis-test/scripts/gce-vm-verify-suite.sh ~/chrysalis-test/scripts/gce-cwl-batch-v40-fast.sh"
+    "--command=chmod +x ~/chrysalis-test/scripts/gce-run-all-tests.sh ~/chrysalis-test/scripts/gce-run-phase.sh ~/chrysalis-test/scripts/gce-hub-strategic-vitest.sh ~/chrysalis-test/scripts/gce-ensure-fixture-emits.sh ~/chrysalis-test/scripts/gce-vm-verify-suite.sh ~/chrysalis-test/scripts/gce-cwl-batch-v40-fast.sh"
   )
   Invoke-Gcloud -GcloudArgs $chmodArgs
 }
