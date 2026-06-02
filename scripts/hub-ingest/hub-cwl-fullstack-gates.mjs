@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v70 (G1209–G1858).
+ * Full-stack CWL gate runners for authoring batches v6–v90 (G1209–G2058).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -737,4 +737,385 @@ export async function runPost69GraduationGate(opts = {}) {
   const post69 = await runPost69CompositeGate(opts);
   const post68 = await runPost68GraduationGate(opts);
   return { ok: post69.ok === true && post68.ok === true, post69, post68 };
+}
+
+/** G1869 — page-load parity on flagship blog route. */
+export async function runPageLoadParityGate(opts = {}) {
+  const { runCwlPageLoadParitySmoke } = await import("./hub-cwl-page-load-parity-smoke.mjs");
+  const report = await runCwlPageLoadParitySmoke(opts);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G1879 — gold runtime trace replay on fullstack flagship. */
+export async function runGoldRuntimeFullstackGate(opts = {}) {
+  const { runCwlGoldRuntimeSmoke } = await import("./hub-cwl-gold-runtime-smoke.mjs");
+  const report = await runCwlGoldRuntimeSmoke({
+    kind: "chrysalis.hub.cwl-gold-runtime-fullstack",
+    schemaVersion: 1,
+    fixtureRel: "fixtures/hub-flagship-cwl-fullstack",
+    rfc: "CWL-RFC-0012",
+    suiteIds: ["cwl-fullstack-flagship-hono", "cwl-fullstack-flagship-fastify"],
+    projectionOk: (p) => (p.total ?? 0) >= 7 && (p.holeFree ?? 0) >= 7,
+    ...opts,
+  });
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G1939 — SvelteKit deep CWL export. */
+export async function runSvelteDeepCwlExportGate(opts = {}) {
+  const { runSveltekitDeepCwlExportSmoke } = await import("./hub-sveltekit-deep-cwl-export-smoke.mjs");
+  const report = await runSveltekitDeepCwlExportSmoke(opts);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G1949 — Next.js deep CWL export. */
+export async function runNextjsDeepCwlExportGate(opts = {}) {
+  const { runNextjsDeepCwlExportSmoke } = await import("./hub-nextjs-deep-cwl-export-smoke.mjs");
+  const report = await runNextjsDeepCwlExportSmoke(opts);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G1959 — HTML param interpolation on flagship routes. */
+export async function runCwlHtmlInterpolationGate(opts = {}) {
+  const { runCwlHtmlInterpolationSmoke } = await import("./hub-cwl-html-interpolation-smoke.mjs");
+  const report = await runCwlHtmlInterpolationSmoke(opts);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G1999 — translate e2e plain-PHP slice. */
+export async function runTranslateE2eFullstackGate(opts = {}) {
+  const { runHubTranslateE2eSmoke } = await import("./hub-translate-e2e-smoke.mjs");
+  const report = runHubTranslateE2eSmoke({ variant: opts.variant ?? "plainPhp" });
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G2009 — contract roundtrip (OpenAPI + HAR). */
+export async function runContractRoundtripFullstackGate() {
+  const { runContractRoundtripSmoke } = await import("./hub-contract-roundtrip-smoke.mjs");
+  const report = await runContractRoundtripSmoke();
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G2019 — post-translate verify on express flagship. */
+export async function runPostTranslateVerifyExpressGate(opts = {}) {
+  const { runPostTranslateVerifyExpressSmoke } = await import("./hub-post-translate-verify-express-smoke.mjs");
+  const report = await runPostTranslateVerifyExpressSmoke(opts.projectDir);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G2029 — CWL fullstack roundtrip smoke. */
+export async function runCwlFullstackRoundtripGate(opts = {}) {
+  const { runCwlFullstackRoundtripSmoke } = await import("./hub-cwl-fullstack-roundtrip-smoke.mjs");
+  const report = await runCwlFullstackRoundtripSmoke(opts);
+  return { ok: report.ok === true, skipped: report.skip ?? null };
+}
+
+/** G2039 — post-70 Month 2 composite (parity + pilot). */
+export async function runPost70Month2CompositeGate(opts = {}) {
+  const hono = await runRuntimeHonoParityGate(opts);
+  const pageLoad = await runPageLoadParityGate(opts);
+  const flagship = await runCwlFullstackFlagshipGate(opts);
+  const ok = hono.ok === true && pageLoad.ok === true && flagship.ok === true;
+  return { ok, hono, pageLoad, flagship };
+}
+
+/** G2049 — post-80 Month 2 mega (HTTP + deep framework exports). */
+export async function runPost80Month2MegaGate(opts = {}) {
+  const http = await runCwlFullstackVerifyHttpGate(opts);
+  const svelte = await runSvelteDeepCwlExportGate(opts);
+  const nextjs = await runNextjsDeepCwlExportGate(opts);
+  const ok = http.ok === true && svelte.ok === true && nextjs.ok === true;
+  return { ok, http, svelte, nextjs };
+}
+
+/** G2059 — Month 2–3 graduation lock (queues 71–89 checklist). */
+export async function runMonth23GraduationLockGate(opts = {}) {
+  const hono = await runRuntimeHonoParityGate(opts);
+  const pageLoad = await runPageLoadParityGate(opts);
+  const gold = await runGoldRuntimeFullstackGate(opts);
+  const flagship = await runCwlFullstackFlagshipGate(opts);
+  const http = await runCwlFullstackVerifyHttpGate(opts);
+  const express = await runExpressDepthGate();
+  const nextjs = await runNextjsSearchParamsExportGate();
+  const svelte = await runSvelteSearchQueryExportGate();
+  const svelteDeep = await runSvelteDeepCwlExportGate(opts);
+  const nextjsDeep = await runNextjsDeepCwlExportGate(opts);
+  const html = await runCwlHtmlInterpolationGate(opts);
+  const chimera = await runChimeraCutoverGate();
+  const gaps = await runVerifyGapsFullstackActionGate();
+  const translate = await runTranslateE2eFullstackGate(opts);
+  const contract = await runContractRoundtripFullstackGate();
+  const postTranslate = await runPostTranslateVerifyExpressGate(opts);
+  const roundtrip = await runCwlFullstackRoundtripGate(opts);
+  const ok =
+    hono.ok === true &&
+    pageLoad.ok === true &&
+    gold.ok === true &&
+    flagship.ok === true &&
+    http.ok === true &&
+    express.ok === true &&
+    nextjs.ok === true &&
+    svelte.ok === true &&
+    svelteDeep.ok === true &&
+    nextjsDeep.ok === true &&
+    html.ok === true &&
+    chimera.ok === true &&
+    gaps.ok === true &&
+    translate.ok === true &&
+    contract.ok === true &&
+    postTranslate.ok === true &&
+    roundtrip.ok === true;
+  return {
+    ok,
+    honoOk: hono.ok === true,
+    pageLoadOk: pageLoad.ok === true,
+    goldOk: gold.ok === true,
+    flagshipOk: flagship.ok === true,
+    httpOk: http.ok === true,
+  };
+}
+
+export async function runMonth23GraduationGate(opts = {}) {
+  const post90 = await runPost89GraduationGate(opts);
+  return { ok: post90.ok === true, post90 };
+}
+
+export async function runPost70CompositeGate(opts = {}) {
+  const slice = await runRuntimeHonoParityGate(opts);
+  const post69 = await runPost69CompositeGate(opts);
+  return { ok: slice.ok === true && post69.ok === true, slice, post69 };
+}
+
+export async function runPost70GraduationGate(opts = {}) {
+  const post70 = await runPost70CompositeGate(opts);
+  const post69 = await runPost69GraduationGate(opts);
+  return { ok: post70.ok === true && post69.ok === true, post70, post69 };
+}
+
+export async function runPost71CompositeGate(opts = {}) {
+  const slice = await runPageLoadParityGate(opts);
+  const post70 = await runPost70CompositeGate(opts);
+  return { ok: slice.ok === true && post70.ok === true, slice, post70 };
+}
+
+export async function runPost71GraduationGate(opts = {}) {
+  const post71 = await runPost71CompositeGate(opts);
+  const post70 = await runPost70GraduationGate(opts);
+  return { ok: post71.ok === true && post70.ok === true, post71, post70 };
+}
+
+export async function runPost72CompositeGate(opts = {}) {
+  const slice = await runGoldRuntimeFullstackGate(opts);
+  const post71 = await runPost71CompositeGate(opts);
+  return { ok: slice.ok === true && post71.ok === true, slice, post71 };
+}
+
+export async function runPost72GraduationGate(opts = {}) {
+  const post72 = await runPost72CompositeGate(opts);
+  const post71 = await runPost71GraduationGate(opts);
+  return { ok: post72.ok === true && post71.ok === true, post72, post71 };
+}
+
+export async function runPost73CompositeGate(opts = {}) {
+  const slice = await runCwlFullstackFlagshipGate(opts);
+  const post72 = await runPost72CompositeGate(opts);
+  return { ok: slice.ok === true && post72.ok === true, slice, post72 };
+}
+
+export async function runPost73GraduationGate(opts = {}) {
+  const post73 = await runPost73CompositeGate(opts);
+  const post72 = await runPost72GraduationGate(opts);
+  return { ok: post73.ok === true && post72.ok === true, post73, post72 };
+}
+
+export async function runPost74CompositeGate(opts = {}) {
+  const slice = await runCwlFullstackVerifyHttpGate(opts);
+  const post73 = await runPost73CompositeGate(opts);
+  return { ok: slice.ok === true && post73.ok === true, slice, post73 };
+}
+
+export async function runPost74GraduationGate(opts = {}) {
+  const post74 = await runPost74CompositeGate(opts);
+  const post73 = await runPost73GraduationGate(opts);
+  return { ok: post74.ok === true && post73.ok === true, post74, post73 };
+}
+
+export async function runPost75CompositeGate(opts = {}) {
+  const slice = await runExpressDepthGate();
+  const post74 = await runPost74CompositeGate(opts);
+  return { ok: slice.ok === true && post74.ok === true, slice, post74 };
+}
+
+export async function runPost75GraduationGate(opts = {}) {
+  const post75 = await runPost75CompositeGate(opts);
+  const post74 = await runPost74GraduationGate(opts);
+  return { ok: post75.ok === true && post74.ok === true, post75, post74 };
+}
+
+export async function runPost76CompositeGate(opts = {}) {
+  const slice = await runNextjsSearchParamsExportGate();
+  const post75 = await runPost75CompositeGate(opts);
+  return { ok: slice.ok === true && post75.ok === true, slice, post75 };
+}
+
+export async function runPost76GraduationGate(opts = {}) {
+  const post76 = await runPost76CompositeGate(opts);
+  const post75 = await runPost75GraduationGate(opts);
+  return { ok: post76.ok === true && post75.ok === true, post76, post75 };
+}
+
+export async function runPost77CompositeGate(opts = {}) {
+  const slice = await runSvelteSearchQueryExportGate();
+  const post76 = await runPost76CompositeGate(opts);
+  return { ok: slice.ok === true && post76.ok === true, slice, post76 };
+}
+
+export async function runPost77GraduationGate(opts = {}) {
+  const post77 = await runPost77CompositeGate(opts);
+  const post76 = await runPost76GraduationGate(opts);
+  return { ok: post77.ok === true && post76.ok === true, post77, post76 };
+}
+
+export async function runPost78CompositeGate(opts = {}) {
+  const slice = await runSvelteDeepCwlExportGate(opts);
+  const post77 = await runPost77CompositeGate(opts);
+  return { ok: slice.ok === true && post77.ok === true, slice, post77 };
+}
+
+export async function runPost78GraduationGate(opts = {}) {
+  const post78 = await runPost78CompositeGate(opts);
+  const post77 = await runPost77GraduationGate(opts);
+  return { ok: post78.ok === true && post77.ok === true, post78, post77 };
+}
+
+export async function runPost79CompositeGate(opts = {}) {
+  const slice = await runNextjsDeepCwlExportGate(opts);
+  const post78 = await runPost78CompositeGate(opts);
+  return { ok: slice.ok === true && post78.ok === true, slice, post78 };
+}
+
+export async function runPost79GraduationGate(opts = {}) {
+  const post79 = await runPost79CompositeGate(opts);
+  const post78 = await runPost78GraduationGate(opts);
+  return { ok: post79.ok === true && post78.ok === true, post79, post78 };
+}
+
+export async function runPost80CompositeGate(opts = {}) {
+  const slice = await runCwlHtmlInterpolationGate(opts);
+  const post79 = await runPost79CompositeGate(opts);
+  return { ok: slice.ok === true && post79.ok === true, slice, post79 };
+}
+
+export async function runPost80GraduationGate(opts = {}) {
+  const post80 = await runPost80CompositeGate(opts);
+  const post79 = await runPost79GraduationGate(opts);
+  return { ok: post80.ok === true && post79.ok === true, post80, post79 };
+}
+
+export async function runPost81CompositeGate(opts = {}) {
+  const slice = await runChimeraCutoverGate();
+  const post80 = await runPost80CompositeGate(opts);
+  return { ok: slice.ok === true && post80.ok === true, slice, post80 };
+}
+
+export async function runPost81GraduationGate(opts = {}) {
+  const post81 = await runPost81CompositeGate(opts);
+  const post80 = await runPost80GraduationGate(opts);
+  return { ok: post81.ok === true && post80.ok === true, post81, post80 };
+}
+
+export async function runPost82CompositeGate(opts = {}) {
+  const slice = await runVerifyGapsFullstackActionGate(opts);
+  const post81 = await runPost81CompositeGate(opts);
+  return { ok: slice.ok === true && post81.ok === true, slice, post81 };
+}
+
+export async function runPost82GraduationGate(opts = {}) {
+  const post82 = await runPost82CompositeGate(opts);
+  const post81 = await runPost81GraduationGate(opts);
+  return { ok: post82.ok === true && post81.ok === true, post82, post81 };
+}
+
+export async function runPost83CompositeGate(opts = {}) {
+  const slice = await runTranslateE2eFullstackGate(opts);
+  const post82 = await runPost82CompositeGate(opts);
+  return { ok: slice.ok === true && post82.ok === true, slice, post82 };
+}
+
+export async function runPost83GraduationGate(opts = {}) {
+  const post83 = await runPost83CompositeGate(opts);
+  const post82 = await runPost82GraduationGate(opts);
+  return { ok: post83.ok === true && post82.ok === true, post83, post82 };
+}
+
+export async function runPost84CompositeGate(opts = {}) {
+  const slice = await runContractRoundtripFullstackGate();
+  const post83 = await runPost83CompositeGate(opts);
+  return { ok: slice.ok === true && post83.ok === true, slice, post83 };
+}
+
+export async function runPost84GraduationGate(opts = {}) {
+  const post84 = await runPost84CompositeGate(opts);
+  const post83 = await runPost83GraduationGate(opts);
+  return { ok: post84.ok === true && post83.ok === true, post84, post83 };
+}
+
+export async function runPost85CompositeGate(opts = {}) {
+  const slice = await runPostTranslateVerifyExpressGate(opts);
+  const post84 = await runPost84CompositeGate(opts);
+  return { ok: slice.ok === true && post84.ok === true, slice, post84 };
+}
+
+export async function runPost85GraduationGate(opts = {}) {
+  const post85 = await runPost85CompositeGate(opts);
+  const post84 = await runPost84GraduationGate(opts);
+  return { ok: post85.ok === true && post84.ok === true, post85, post84 };
+}
+
+export async function runPost86CompositeGate(opts = {}) {
+  const slice = await runCwlFullstackRoundtripGate(opts);
+  const post85 = await runPost85CompositeGate(opts);
+  return { ok: slice.ok === true && post85.ok === true, slice, post85 };
+}
+
+export async function runPost86GraduationGate(opts = {}) {
+  const post86 = await runPost86CompositeGate(opts);
+  const post85 = await runPost85GraduationGate(opts);
+  return { ok: post86.ok === true && post85.ok === true, post86, post85 };
+}
+
+export async function runPost87CompositeGate(opts = {}) {
+  const slice = await runPost70Month2CompositeGate(opts);
+  const post86 = await runPost86CompositeGate(opts);
+  return { ok: slice.ok === true && post86.ok === true, slice, post86 };
+}
+
+export async function runPost87GraduationGate(opts = {}) {
+  const post87 = await runPost87CompositeGate(opts);
+  const post86 = await runPost86GraduationGate(opts);
+  return { ok: post87.ok === true && post86.ok === true, post87, post86 };
+}
+
+export async function runPost88CompositeGate(opts = {}) {
+  const slice = await runPost80Month2MegaGate(opts);
+  const post87 = await runPost87CompositeGate(opts);
+  return { ok: slice.ok === true && post87.ok === true, slice, post87 };
+}
+
+export async function runPost88GraduationGate(opts = {}) {
+  const post88 = await runPost88CompositeGate(opts);
+  const post87 = await runPost87GraduationGate(opts);
+  return { ok: post88.ok === true && post87.ok === true, post88, post87 };
+}
+
+export async function runPost89CompositeGate(opts = {}) {
+  const slice = await runMonth23GraduationLockGate(opts);
+  const post88 = await runPost88CompositeGate(opts);
+  return { ok: slice.ok === true && post88.ok === true, slice, post88 };
+}
+
+export async function runPost89GraduationGate(opts = {}) {
+  const post89 = await runPost89CompositeGate(opts);
+  const post88 = await runPost88GraduationGate(opts);
+  return { ok: post89.ok === true && post88.ok === true, post89, post88 };
 }

@@ -308,6 +308,26 @@ test("authoring batch v70 graduation lock smoke (G1853)", async () => {
   expect(report.gate70Mode).toBe("authoring-graduation-lock");
 }, 600_000);
 
+test("authoring batch v72 page-load parity smoke (G1863)", async () => {
+  const { runCwlAuthoringBatchV72Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v72-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV72Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate72?.ok).toBe(true);
+  expect(report.gate72Mode).toBe("page-load-parity");
+}, 60_000);
+
+test("authoring batch v90 Month 2–3 graduation lock smoke (G2053)", async () => {
+  const { runCwlAuthoringBatchV90Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v90-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV90Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate90?.ok).toBe(true);
+  expect(report.gate90Mode).toBe("month23-graduation-lock");
+}, 600_000);
+
 test("cwl fullstack HTTP verify smoke (G1660)", async () => {
   const { runCwlFullstackVerifyHttpSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs"),

@@ -157,7 +157,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **3** | CWL interchange + authoring bootstrap | RFC track + project-to-CWL + authoring ergonomics | **G99–G102** |
 | **4** | Second oracle | Node spike | **G103** |
 | **5** | CWL runtime acceleration | First-class runtime objective with parity gates | G106+ |
-| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G1858** |
+| **6** | Full-stack CWL surface | Backend + frontend/SSR semantics under holes-first policy | **G1159–G2058** |
 
 - [x] **G88 — Capability matrix** — `docs/CAPABILITY-MATRIX.md`, `hub-capability-matrix.mjs`, completion schema **v27**. (**DESIGN D394**)
 - [x] **G89 — Verify playbooks** — `hub-verify-playbooks.mjs` + `/api/hub/verify-playbooks`. (**DESIGN D395**)
@@ -1374,16 +1374,33 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G1849 — authoring graduation lock gate** — queues 61–69 checklist. (**DESIGN D1849**)
 - [x] **G1851 — Authoring batch v70** — schema 143 graduation lock. (**DESIGN D1851**)
 - [x] **G1853 — Vitest v70** — authoring graduation lock smoke. (**DESIGN D1853**)
-- [ ] **G1789–G1798** — CWL formatter/lint diagnostic batch v64. (**DESIGN D1789–D1798**)
-- [ ] **G1799–G1808** — project-to-CWL mandatory translate checks; batch v65. (**DESIGN D1799–D1808**)
-- [ ] **G1809–G1818** — full-stack CWL scope RFC backend slice; batch v66. (**DESIGN D1809–D1818**)
-- [ ] **G1819–G1828** — Node/Express oracle origin flagship depth; batch v67. (**DESIGN D1819–D1828**)
-- [ ] **G1829–G1838** — post-60 authoring composite replay; batch v68. (**DESIGN D1829–D1838**)
-- [ ] **G1839–G1848** — dual-backend emit verify mega (authoring gold); batch v69. (**DESIGN D1839–D1848**)
-- [ ] **G1849 — runPost60GraduationGate** — (**DESIGN D1849**)
-- [ ] **G1850 — hub-completion schema 143** — (**DESIGN D1850**)
-- [ ] **G1851 — Vitest v70 + authoring smoke** — (**DESIGN D1851**)
-- [ ] **G1852–G1858** — post-60 authoring graduation lock; batch v70. (**DESIGN D1852–D1858**)
+
+### Full-stack CWL — queues 71–90 (G1859–G2058)
+
+> **Authority:** `docs/CWL-FULLSTACK-QUEUES-71-90.md` (Month 2–3 depth; **`docs/STRATEGIC-PLAN.md` §12**).
+
+- [x] **G1859 — runtime hono parity gate** — `runRuntimeHonoParityGate`. (**DESIGN D1859**)
+- [x] **G1869 — page-load parity gate** — `runPageLoadParityGate`. (**DESIGN D1869**)
+- [x] **G1879 — gold runtime fullstack gate** — `runGoldRuntimeFullstackGate`. (**DESIGN D1879**)
+- [x] **G1889 — fullstack flagship pilot gate** — `runCwlFullstackFlagshipGate`. (**DESIGN D1889**)
+- [x] **G1899 — fullstack flagship HTTP gate** — `runCwlFullstackVerifyHttpGate`. (**DESIGN D1899**)
+- [x] **G1909 — express depth gate** — `runExpressDepthGate`. (**DESIGN D1909**)
+- [x] **G1919 — Next.js search export gate** — `runNextjsSearchParamsExportGate`. (**DESIGN D1919**)
+- [x] **G1929 — Svelte search export gate** — `runSvelteSearchQueryExportGate`. (**DESIGN D1929**)
+- [x] **G1939 — Svelte deep CWL export gate** — `runSvelteDeepCwlExportGate`. (**DESIGN D1939**)
+- [x] **G1949 — Next.js deep CWL export gate** — `runNextjsDeepCwlExportGate`. (**DESIGN D1949**)
+- [x] **G1959 — HTML interpolation gate** — `runCwlHtmlInterpolationGate`. (**DESIGN D1959**)
+- [x] **G1969 — chimera cutover gate** — `runChimeraCutoverGate`. (**DESIGN D1969**)
+- [x] **G1979 — verify-gaps fullstack action gate** — `runVerifyGapsFullstackActionGate`. (**DESIGN D1979**)
+- [x] **G1989 — translate e2e gate** — `runTranslateE2eFullstackGate`. (**DESIGN D1989**)
+- [x] **G1999 — contract roundtrip gate** — `runContractRoundtripFullstackGate`. (**DESIGN D1999**)
+- [x] **G2009 — post-translate verify express gate** — `runPostTranslateVerifyExpressGate`. (**DESIGN D2009**)
+- [x] **G2019 — fullstack roundtrip gate** — `runCwlFullstackRoundtripGate`. (**DESIGN D2019**)
+- [x] **G2029 — post-70 Month 2 composite gate** — `runPost70Month2CompositeGate`. (**DESIGN D2029**)
+- [x] **G2039 — post-80 Month 2 mega gate** — `runPost80Month2MegaGate`. (**DESIGN D2039**)
+- [x] **G2049 — Month 2–3 graduation lock gate** — `runMonth23GraduationLockGate`. (**DESIGN D2049**)
+- [x] **G2051 — Authoring batch v90** — schema 163 graduation lock. (**DESIGN D2051**)
+- [x] **G2053 — Vitest v90** — Month 2–3 graduation smoke. (**DESIGN D2053**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
