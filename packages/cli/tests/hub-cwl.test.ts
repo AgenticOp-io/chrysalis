@@ -202,6 +202,24 @@ test("authoring batch v61 templates gate smoke (G1763)", async () => {
   expect(report.gate61Mode).toBe("post60-composite");
 }, 180_000);
 
+test("authoring batch v62 preview dev loop smoke (G1773)", async () => {
+  const { runCwlAuthoringBatchV62Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v62-smoke.mjs"),
+  );
+  const { runCwlPreviewDevLoopGate } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs"),
+  );
+  const gate = await runCwlPreviewDevLoopGate();
+  expect(gate.ok).toBe(true);
+  expect(gate.probeOk).toBe(true);
+  expect(gate.previewJsonOk).toBe(true);
+  expect(gate.diagnoseOk).toBe(true);
+  const report = await runCwlAuthoringBatchV62Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate62?.ok).toBe(true);
+  expect(report.gate62Mode).toBe("post61-composite");
+}, 180_000);
+
 test("cwl fullstack HTTP verify smoke (G1660)", async () => {
   const { runCwlFullstackVerifyHttpSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs"),

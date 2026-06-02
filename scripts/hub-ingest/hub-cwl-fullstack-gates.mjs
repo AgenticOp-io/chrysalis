@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v61 (G1209–G1768).
+ * Full-stack CWL gate runners for authoring batches v6–v62 (G1209–G1778).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -471,4 +471,62 @@ export async function runPost60GraduationGate(opts = {}) {
   const post60 = await runPost60CompositeGate(opts);
   const post50 = await runPost50GraduationGate(opts);
   return { ok: post60.ok === true && post50.ok === true, post60, post50 };
+}
+
+/**
+ * G1769 — CWL preview/dev loop: bootstrap, runtime probe, diagnostics artifact, flagship preview.
+ * @param {object} [opts]
+ */
+export async function runCwlPreviewDevLoopGate(opts = {}) {
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const { writeCwlPreviewArtifacts } = await import("./hub-cwl-preview.mjs");
+  const { diagnoseCwlFile } = await import("./cwl-diagnose.mjs");
+  const tmp = mkdtempSync(join(tmpdir(), "chrysalis-preview-dev-loop-"));
+  try {
+    const cwlPath = join(tmp, ".chrysalis", "migration.cwl");
+    const { jsonPath, report } = await writeCwlPreviewArtifacts(tmp, {
+      cwlPath,
+      bootstrap: true,
+      probe: true,
+      repoRoot,
+    });
+    const previewJsonOk = existsSync(jsonPath);
+    const bootstrapOk = report.bootstrapped === true && report.ok === true;
+    const probeStatus = report.probe?.status;
+    const probeOk = typeof probeStatus === "number" && probeStatus === 200;
+    const routeOk = (report.routeCount ?? 0) >= 7;
+    let diagnoseOk = false;
+    if (existsSync(cwlPath)) {
+      const dx = await diagnoseCwlFile(cwlPath);
+      diagnoseOk = dx.ok === true;
+    }
+    const flagshipPreview = await runCwlPreviewFlagshipGate(opts);
+    const flagshipOk = flagshipPreview.ok === true;
+    const ok = previewJsonOk && bootstrapOk && probeOk && routeOk && diagnoseOk && flagshipOk;
+    return {
+      ok,
+      previewJsonOk,
+      bootstrapOk,
+      probeOk,
+      probeStatus: probeStatus ?? null,
+      routeCount: report.routeCount ?? 0,
+      diagnoseOk,
+      flagshipOk,
+      flagshipRouteCount: flagshipPreview.routeCount ?? 0,
+    };
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+export async function runPost61CompositeGate(opts = {}) {
+  const previewDev = await runCwlPreviewDevLoopGate(opts);
+  const post60 = await runPost60CompositeGate(opts);
+  return { ok: previewDev.ok === true && post60.ok === true, previewDev, post60 };
+}
+
+export async function runPost61GraduationGate(opts = {}) {
+  const post61 = await runPost61CompositeGate(opts);
+  const post60 = await runPost60GraduationGate(opts);
+  return { ok: post61.ok === true && post60.ok === true, post61, post60 };
 }

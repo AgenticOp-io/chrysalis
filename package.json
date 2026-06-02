@@ -384,7 +384,8 @@
     "hub:cwl-authoring-batch-v58-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v58-smoke.mjs",
     "hub:cwl-authoring-batch-v59-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v59-smoke.mjs",
     "hub:cwl-authoring-batch-v60-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v60-smoke.mjs",
-    "hub:cwl-authoring-batch-v61-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v61-smoke.mjs"
+    "hub:cwl-authoring-batch-v61-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v61-smoke.mjs",
+    "hub:cwl-authoring-batch-v62-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v62-smoke.mjs"
   },
   "devDependencies": {
     "acorn": "^8.14.1",

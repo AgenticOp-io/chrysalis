@@ -7,7 +7,7 @@
 | Step | ROADMAP | Focus |
 | --- | --- | --- |
 | 1 | **G1769** | runCwlPreviewDevLoopGate |
-| 2 | **G1770** | Queue 62 step 2 |
+| 2 | **G1770** | runPost61CompositeGate |
 | 3 | **G1771** | Batch v62 |
 | 4 | **G1772** | Schema 135 |
 | 5 | **G1773** | Vitest v62 |

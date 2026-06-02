@@ -101,5 +101,13 @@ if (!r.ok) { console.error(r); process.exit(1); }
 console.log('v61 ok', r.gate61Mode);
 "
 
+log "phase: cwl batch v62 (preview dev loop)"
+run_phase cwl-batch-v62 node --input-type=module -e "
+import { runCwlAuthoringBatchV62Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v62-smoke.mjs';
+const r = await runCwlAuthoringBatchV62Smoke({ skipPriorChain: true });
+if (!r.ok) { console.error(r); process.exit(1); }
+console.log('v62 ok', r.gate62Mode);
+"
+
 date -Is >"${OK_FILE}"
 log "ALL OK — marker ${OK_FILE}"
