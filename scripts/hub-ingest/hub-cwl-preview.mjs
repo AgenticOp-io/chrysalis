@@ -59,7 +59,7 @@ export async function buildCwlPreviewReport(projectDir, opts = {}) {
         "utf8",
       );
     }
-    const layoutDir = join(root, "layouts");
+    const layoutDir = join(dirname(cwlPath), "layouts");
     await mkdir(layoutDir, { recursive: true });
     const layoutSrc = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack/layouts/shell.cwl");
     const layoutBody = existsSync(layoutSrc)
