@@ -622,14 +622,16 @@ export async function runAuthoringEmitVerifyMegaGate(opts = {}) {
 
 /** G1849 — post-60 authoring graduation lock (queues 61–69 checklist). */
 export async function runAuthoringGraduationLockGate(opts = {}) {
-  const templates = await runCwlAuthoringTemplatesGate(opts);
-  const preview = await runCwlPreviewDevLoopGate(opts);
-  const runtime = await runRuntimeCwlParityGate(opts);
-  const fmt = await runCwlFormatterLintGate();
-  const projectToCwl = await runProjectToCwlMandatoryGate(opts);
-  const scope = await runFullstackCwlScopeRfcGate();
-  const nodeExpress = await runNodeExpressOracleFlagshipGate();
-  const emitMega = await runAuthoringEmitVerifyMegaGate(opts);
+  const [templates, preview, runtime, fmt, projectToCwl, scope, nodeExpress, emitMega] = await Promise.all([
+    runCwlAuthoringTemplatesGate(opts),
+    runCwlPreviewDevLoopGate(opts),
+    runRuntimeCwlParityGate(opts),
+    runCwlFormatterLintGate(),
+    runProjectToCwlMandatoryGate(opts),
+    runFullstackCwlScopeRfcGate(),
+    runNodeExpressOracleFlagshipGate(),
+    runAuthoringEmitVerifyMegaGate(opts),
+  ]);
   const ok =
     templates.ok === true &&
     preview.ok === true &&
@@ -830,23 +832,43 @@ export async function runPost80Month2MegaGate(opts = {}) {
 
 /** G2059 — Month 2–3 graduation lock (queues 71–89 checklist). */
 export async function runMonth23GraduationLockGate(opts = {}) {
-  const hono = await runRuntimeHonoParityGate(opts);
-  const pageLoad = await runPageLoadParityGate(opts);
-  const gold = await runGoldRuntimeFullstackGate(opts);
-  const flagship = await runCwlFullstackFlagshipGate(opts);
-  const http = await runCwlFullstackVerifyHttpGate(opts);
-  const express = await runExpressDepthGate();
-  const nextjs = await runNextjsSearchParamsExportGate();
-  const svelte = await runSvelteSearchQueryExportGate();
-  const svelteDeep = await runSvelteDeepCwlExportGate(opts);
-  const nextjsDeep = await runNextjsDeepCwlExportGate(opts);
-  const html = await runCwlHtmlInterpolationGate(opts);
-  const chimera = await runChimeraCutoverGate();
-  const gaps = await runVerifyGapsFullstackActionGate();
-  const translate = await runTranslateE2eFullstackGate(opts);
-  const contract = await runContractRoundtripFullstackGate();
-  const postTranslate = await runPostTranslateVerifyExpressGate(opts);
-  const roundtrip = await runCwlFullstackRoundtripGate(opts);
+  const [
+    hono,
+    pageLoad,
+    gold,
+    flagship,
+    http,
+    express,
+    nextjs,
+    svelte,
+    svelteDeep,
+    nextjsDeep,
+    html,
+    chimera,
+    gaps,
+    translate,
+    contract,
+    postTranslate,
+    roundtrip,
+  ] = await Promise.all([
+    runRuntimeHonoParityGate(opts),
+    runPageLoadParityGate(opts),
+    runGoldRuntimeFullstackGate(opts),
+    runCwlFullstackFlagshipGate(opts),
+    runCwlFullstackVerifyHttpGate(opts),
+    runExpressDepthGate(),
+    runNextjsSearchParamsExportGate(),
+    runSvelteSearchQueryExportGate(),
+    runSvelteDeepCwlExportGate(opts),
+    runNextjsDeepCwlExportGate(opts),
+    runCwlHtmlInterpolationGate(opts),
+    runChimeraCutoverGate(),
+    runVerifyGapsFullstackActionGate(),
+    runTranslateE2eFullstackGate(opts),
+    runContractRoundtripFullstackGate(),
+    runPostTranslateVerifyExpressGate(opts),
+    runCwlFullstackRoundtripGate(opts),
+  ]);
   const ok =
     hono.ok === true &&
     pageLoad.ok === true &&
@@ -1244,23 +1266,43 @@ export async function runPost100HubOpsMegaGate() {
 }
 
 export async function runPost90HubGraduationLockGate(opts = {}) {
-  const express = await runVerifyGapsExpressFlagshipGate();
-  const symfony = await runVerifyGapsSymfonyFlagshipGate();
-  const laravel = await runVerifyGapsLaravelMinFlagshipGate();
-  const ingest = await runVerifyGapsIngestStandaloneGate();
-  const closure = await runLaravelVerifyGapsClosureGate();
-  const http = await runLaravelAuthProbeReingestHttpGate();
-  const fastify = await runLaravelAuthProbeReingestFastifyGate();
-  const origin = await runPostTranslateVerifyOriginGate();
-  const ir = await runIrHelperLiftingGate();
-  const irSem = await runIrHelperSemanticLiftingGate();
-  const session = await runSessionStubFullstackGate(opts);
-  const production = await runRuntimeProductionV2Gate(opts);
-  const pageProbe = await runEmitPageProbeFullstackGate(opts);
-  const evidence = await runEvidenceTrendStandaloneGate();
-  const migration = await runMigrationOsMegaGate();
-  const oracle = await runOracleProductUltraGate();
-  const verify = await runVerifyStandaloneMegaGate();
+  const [
+    express,
+    symfony,
+    laravel,
+    ingest,
+    closure,
+    http,
+    fastify,
+    origin,
+    ir,
+    irSem,
+    session,
+    production,
+    pageProbe,
+    evidence,
+    migration,
+    oracle,
+    verify,
+  ] = await Promise.all([
+    runVerifyGapsExpressFlagshipGate(),
+    runVerifyGapsSymfonyFlagshipGate(),
+    runVerifyGapsLaravelMinFlagshipGate(),
+    runVerifyGapsIngestStandaloneGate(),
+    runLaravelVerifyGapsClosureGate(),
+    runLaravelAuthProbeReingestHttpGate(),
+    runLaravelAuthProbeReingestFastifyGate(),
+    runPostTranslateVerifyOriginGate(),
+    runIrHelperLiftingGate(),
+    runIrHelperSemanticLiftingGate(),
+    runSessionStubFullstackGate(opts),
+    runRuntimeProductionV2Gate(opts),
+    runEmitPageProbeFullstackGate(opts),
+    runEvidenceTrendStandaloneGate(),
+    runMigrationOsMegaGate(),
+    runOracleProductUltraGate(),
+    runVerifyStandaloneMegaGate(),
+  ]);
   const ok =
     express.ok === true &&
     symfony.ok === true &&

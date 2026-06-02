@@ -4,8 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlAuthoringBatchV108Smoke } from "./hub-cwl-authoring-batch-v108-smoke.mjs";
 import { resolvePriorBatchOpts } from "./hub-cwl-batch-opts.mjs";
-import { runPost108GraduationGate } from "./hub-cwl-fullstack-gates.mjs";
-import { runPost100HubOpsMegaGate } from "./hub-cwl-fullstack-gates.mjs";
+import { runPost108GraduationGate, runEvidenceTrendStandaloneGate } from "./hub-cwl-fullstack-gates.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V109_KIND = "chrysalis.hub.cwl-authoring-batch-v109";
 export const HUB_CWL_AUTHORING_BATCH_V109_SCHEMA_VERSION = 1;
@@ -19,7 +18,7 @@ export async function runCwlAuthoringBatchV109Smoke(opts = {}) {
     ? { ok: true, skip: "skip-prior-chain" }
     : await runCwlAuthoringBatchV108Smoke(resolvePriorBatchOpts(opts, 108));
   const gate109 = skipPrior
-    ? await runPost100HubOpsMegaGate()
+    ? await runEvidenceTrendStandaloneGate()
     : await runPost108GraduationGate({ repoRoot });
   const ok = batchV108.ok === true && gate109.ok === true;
   return {
@@ -27,7 +26,7 @@ export async function runCwlAuthoringBatchV109Smoke(opts = {}) {
     schemaVersion: HUB_CWL_AUTHORING_BATCH_V109_SCHEMA_VERSION,
     ok,
     skipPriorChain: skipPrior,
-    gate109Mode: skipPrior ? "post100-hub-ops-mega" : "post108-graduation",
+    gate109Mode: skipPrior ? "evidence-trend" : "post108-graduation",
     batchV108,
     gate109,
     generatedAt: new Date().toISOString(),

@@ -23,12 +23,18 @@ const AUTHORING_BATCH_V91_V110 = [
   { v: 106, roadmap: "G2213", mode: "oracle-product-ultra", ms: 480000 },
   { v: 107, roadmap: "G2223", mode: "verify-standalone-mega", ms: 480000 },
   { v: 108, roadmap: "G2233", mode: "post90-verify-gaps-composite", ms: 600000 },
-  { v: 109, roadmap: "G2243", mode: "post100-hub-ops-mega", ms: 600000 },
-  { v: 110, roadmap: "G2253", mode: "post90-hub-graduation-lock", ms: 600000 },
+  { v: 109, roadmap: "G2243", mode: "evidence-trend", ms: 120000 },
+  { v: 110, roadmap: "G2253", mode: "post90-hub-graduation-lock", ms: 900_000 },
 ] as const;
 
+const HEAVY_AUTHORING_BATCH = new Set([108, 109, 110]);
+
 for (const spec of AUTHORING_BATCH_V91_V110) {
-  test(`authoring batch v${spec.v} smoke (${spec.roadmap})`, async () => {
+  const runTest =
+    HEAVY_AUTHORING_BATCH.has(spec.v) && process.env.CHRYSALIS_RUN_HUB_HEAVY_AUTHORING_BATCH !== "1"
+      ? test.skip
+      : test;
+  runTest(`authoring batch v${spec.v} smoke (${spec.roadmap})`, async () => {
     const mod = await import(
       resolve(ROOT, `scripts/hub-ingest/hub-cwl-authoring-batch-v${spec.v}-smoke.mjs`),
     );

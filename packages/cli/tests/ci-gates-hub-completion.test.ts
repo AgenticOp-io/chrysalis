@@ -5957,6 +5957,13 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
+  test("ci-gates hub-completion enforces fullstack authoring batches through schema v183 (G2253)", () => {
+    const src = readFileSync(CI_GATES, "utf8");
+    expect(src).toContain("schemaVersion !== 183");
+    expect(src).toContain("fullstackAuthoringBatchV110");
+    expect(src).toMatch(/\[183,\s*"fullstackAuthoringBatchV110"\]/);
+  });
+
   test("accepts schema v4 with traceReplay targets", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v4-"));
     const p = join(dir, "ok.json");

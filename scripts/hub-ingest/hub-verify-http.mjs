@@ -19,6 +19,19 @@ export const HUB_VERIFY_HTTP_SCHEMA_VERSION = 1;
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
 
+/** @param {string} dir */
+function rmDirRecursive(dir) {
+  if (!existsSync(dir)) return;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+      return;
+    } catch (err) {
+      if (attempt === 4 || (/** @type {NodeJS.ErrnoException} */ (err)).code !== "ENOTEMPTY") throw err;
+    }
+  }
+}
+
 function freePort() {
   return new Promise((resolvePort, reject) => {
     const s = createServer();
@@ -215,7 +228,7 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
     });
 
     const tracesDir = join(root, ".chrysalis", "traces");
-    if (existsSync(tracesDir)) rmSync(tracesDir, { recursive: true, force: true });
+    rmDirRecursive(tracesDir);
     writeTraceCorpus(corpus, tracesDir);
 
     const port = await freePort();
