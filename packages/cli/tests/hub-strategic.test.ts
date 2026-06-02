@@ -8,6 +8,13 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
+/** GCE slim runs skip inline batch/flagship smokes (see scripts/gce-hub-strategic-vitest.sh). */
+const gceSlimHubStrategic =
+  process.env.CHRYSALIS_GCE_SLIM_HUB_STRATEGIC === "1" ||
+  process.env.CHRYSALIS_GCE_ALL_TESTS === "1";
+
+const SPAWN_TIMEOUT_MS = 300_000;
+
 describe("strategic plan deliverables", () => {
   test("hub-capability-matrix lists oracle product pairs including Node pilot", async () => {
     const { buildHubCapabilityMatrixReport } = await import(
@@ -140,7 +147,7 @@ describe("strategic plan deliverables", () => {
     expect(doc.paths["/items"]?.get?.operationId).toBe("items_list");
   });
 
-  test("hub-express-flagship smoke", () => {
+  test.skipIf(gceSlimHubStrategic)("hub-express-flagship smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-express-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
     expect(r.status).toBe(0);
@@ -187,6 +194,7 @@ describe("strategic plan deliverables", () => {
     const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", "javascript"], {
       cwd: ROOT,
       encoding: "utf8",
+      timeout: SPAWN_TIMEOUT_MS,
     });
     expect(lift.status).toBe(0);
     const liftReport = JSON.parse(lift.stdout.trim().split("\n").pop() ?? "{}");
@@ -222,6 +230,7 @@ describe("strategic plan deliverables", () => {
     const emit = spawnSync(process.execPath, [emitCwl, fixture, "--origin", "javascript"], {
       cwd: ROOT,
       encoding: "utf8",
+      timeout: SPAWN_TIMEOUT_MS,
     });
     expect(emit.status).toBe(0);
     const emitReport = JSON.parse(emit.stdout.trim().split("\n").pop() ?? "{}");
@@ -274,6 +283,7 @@ describe("strategic plan deliverables", () => {
     const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", "cwl"], {
       cwd: ROOT,
       encoding: "utf8",
+      timeout: SPAWN_TIMEOUT_MS,
     });
     expect(lift.status).toBe(0);
     const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
@@ -312,6 +322,7 @@ describe("strategic plan deliverables", () => {
     const lift = spawnSync(process.execPath, [resolve(ROOT, "scripts/hub-ingest/lift-to-webir.mjs"), fixture, "--language", "cwl"], {
       cwd: ROOT,
       encoding: "utf8",
+      timeout: SPAWN_TIMEOUT_MS,
     });
     expect(lift.status).toBe(0);
     const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
@@ -632,7 +643,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("plain-php flagship reports hono=fastify=nextjs emit parity (G151/G157)", () => {
+  test.skipIf(gceSlimHubStrategic)("plain-php flagship reports hono=fastify=nextjs emit parity (G151/G157)", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-plain-php-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
     expect(r.status).toBe(0);
@@ -642,7 +653,7 @@ describe("strategic plan deliverables", () => {
     expect(report.emitParity?.targets).toEqual(["hono", "fastify", "nextjs"]);
   }, 360_000);
 
-  test("symfony flagship reports hono=fastify=nextjs emit parity (G157)", () => {
+  test.skipIf(gceSlimHubStrategic)("symfony flagship reports hono=fastify=nextjs emit parity (G157)", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-symfony-flagship.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
     expect(r.status).toBe(0);
@@ -727,7 +738,7 @@ describe("strategic plan deliverables", () => {
     expect(report.verify?.correctness).toBe(1);
   });
 
-  test("express flagship reports hono=fastify=nextjs emit parity (G161)", () => {
+  test.skipIf(gceSlimHubStrategic)("express flagship reports hono=fastify=nextjs emit parity (G161)", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-express-flagship.mjs");
     const r = spawnSync(process.execPath, [script], {
       cwd: ROOT,
@@ -910,7 +921,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 42 sections present (G171)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 42 sections present (G171)", async () => {
     const { runLaravelVerifyGapsAction } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-gaps-action.mjs")
     );
@@ -1007,7 +1018,7 @@ describe("strategic plan deliverables", () => {
     expect(report.exports.tinyBlog?.ok).toBe(true);
   });
 
-  test("hub completion schema 44 sections present (G180)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 44 sections present (G180)", async () => {
     const { exportHubLaravelVerifyLive } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-verify-export.mjs")
     );
@@ -1092,7 +1103,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 45 sections present (G190)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 45 sections present (G190)", async () => {
     const { runCwlRequestBodySmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-cwl-request-body-smoke.mjs")
     );
@@ -1116,7 +1127,7 @@ describe("strategic plan deliverables", () => {
     expect(report.cwlProjection?.withBodyParams).toBeGreaterThanOrEqual(2);
   }, 60_000);
 
-  test("hub-translate E2E on plain-php flagship (G192)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub-translate E2E on plain-php flagship (G192)", async () => {
     const { runHubTranslateE2eSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-translate-e2e-smoke.mjs")
     );
@@ -1186,7 +1197,7 @@ describe("strategic plan deliverables", () => {
     );
   });
 
-  test("hub completion schema 50 smokes present (G320)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 50 smokes present (G320)", async () => {
     const { runExpressDeliveryBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-express-delivery-batch-smoke.mjs")
     );
@@ -1204,7 +1215,7 @@ describe("strategic plan deliverables", () => {
     expect(symfony.ok).toBe(true);
   }, 300_000);
 
-  test("hub completion schema 51 smokes present (G350)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 51 smokes present (G350)", async () => {
     const { runLaravelMinDeliveryBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-min-delivery-batch-smoke.mjs")
     );
@@ -1260,7 +1271,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 52 smokes present (G380)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 52 smokes present (G380)", async () => {
     const { runFourOriginDeliveryBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-four-origin-delivery-batch-smoke.mjs")
     );
@@ -1316,7 +1327,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 53 smokes present (G410)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 53 smokes present (G410)", async () => {
     const { runAllDeliveryUltraMegaBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-all-delivery-ultra-mega-batch-smoke.mjs")
     );
@@ -1372,7 +1383,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 54 smokes present (G440)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 54 smokes present (G440)", async () => {
     const { runOriginDepthUltraBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-origin-depth-ultra-batch-smoke.mjs")
     );
@@ -1428,7 +1439,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 55 universal CWL all origins (G470)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 55 universal CWL all origins (G470)", async () => {
     const { runProjectToCwlAllOrigins } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-project-to-cwl-all-origins.mjs")
     );
@@ -1509,7 +1520,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 56 pattern-literal CWL (G500)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 56 pattern-literal CWL (G500)", async () => {
     const { runCwlPatternLiteralCwlBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-cwl-pattern-literal-cwl-batch-smoke.mjs")
     );
@@ -1528,7 +1539,7 @@ describe("strategic plan deliverables", () => {
     expect(translateCwl.originCount).toBe(23);
   }, 600_000);
 
-  test("hub completion schema 57 CWL roundtrip + translate all origins (G530)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 57 CWL roundtrip + translate all origins (G530)", async () => {
     const { runCwlPatternLiteralRoundtripBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-cwl-pattern-literal-roundtrip-batch-smoke.mjs")
     );
@@ -1579,7 +1590,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 58 CWL universe roundtrip (G560)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 58 CWL universe roundtrip (G560)", async () => {
     const { runCwlFlagshipRoundtripBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-cwl-flagship-roundtrip-batch-smoke.mjs")
     );
@@ -1603,7 +1614,7 @@ describe("strategic plan deliverables", () => {
     expect(universal.patternLiteralRoundtrip?.ok).toBe(true);
   }, 1_200_000);
 
-  test("hub completion schema 59 project-to-CWL roundtrip (G590)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 59 project-to-CWL roundtrip (G590)", async () => {
     const { runProjectToCwlRoundtripSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-project-to-cwl-roundtrip-smoke.mjs")
     );
@@ -1620,7 +1631,7 @@ describe("strategic plan deliverables", () => {
     expect(universal.projectToCwlRoundtrip?.ok).toBe(true);
   }, 1_800_000);
 
-  test("hub completion schema 60 contract import CWL roundtrip (G620)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 60 contract import CWL roundtrip (G620)", async () => {
     const { runContractImportCwlRoundtripSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-contract-import-cwl-roundtrip-smoke.mjs")
     );
@@ -1638,7 +1649,7 @@ describe("strategic plan deliverables", () => {
     expect(universal.contractImportCwlRoundtrip?.ok).toBe(true);
   }, 1_800_000);
 
-  test("hub completion schema 61 PHP oracle micro verify (G650)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 61 PHP oracle micro verify (G650)", async () => {
     const { runPhpOracleMicroVerifyBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-php-oracle-micro-verify-batch-smoke.mjs")
     );
@@ -1656,7 +1667,7 @@ describe("strategic plan deliverables", () => {
     expect(oracleUltra.phpOracleMicroVerify?.ok).toBe(true);
   }, 600_000);
 
-  test("hub completion schema 62 PHP Next.js verify batch (G680)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 62 PHP Next.js verify batch (G680)", async () => {
     const { runPhpNextjsVerifyBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-php-nextjs-verify-batch-smoke.mjs")
     );
@@ -1679,7 +1690,7 @@ describe("strategic plan deliverables", () => {
     expect(oracleUltra.phpNextjsVerifyBatch?.ok).toBe(true);
   }, 600_000);
 
-  test("hub completion schema 63 PHP wedge batch (G710)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 63 PHP wedge batch (G710)", async () => {
     const { runPhpWedgeBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-php-wedge-batch-smoke.mjs")
     );
@@ -1774,7 +1785,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 64 hub evidence MVP batch (G740)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 64 hub evidence MVP batch (G740)", async () => {
     const { runHubEvidenceMvpBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-evidence-mvp-batch-smoke.mjs")
     );
@@ -1832,7 +1843,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 65 WPTP strict batch (G770)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 65 WPTP strict batch (G770)", async () => {
     const { runWptpStrictBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-wptp-strict-batch-smoke.mjs")
     );
@@ -1883,7 +1894,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 66 flagship-full gaps batch (G800)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 66 flagship-full gaps batch (G800)", async () => {
     const {
       runFlagshipFullGapsBatchSmoke,
       HUB_FLAGSHIP_FULL_GAPS_BATCH_SCHEMA_VERSION,
@@ -1901,7 +1912,7 @@ describe("strategic plan deliverables", () => {
     expect(gapsBatch.backlogCount).toBe(0);
   }, 120_000);
 
-  test("hub completion schema 67 gaps ingest closure batch (G830)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 67 gaps ingest closure batch (G830)", async () => {
     const { runGapsIngestClosureBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-closure-batch-smoke.mjs")
     );
@@ -1913,7 +1924,7 @@ describe("strategic plan deliverables", () => {
     expect(closureBatch.gapReingest?.ok).toBe(true);
   }, 120_000);
 
-  test("hub completion schema 70 auth-probe verify closure (G920)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 70 auth-probe verify closure (G920)", async () => {
     const { runLaravelAuthProbeReingestVerifyClosureSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs")
     );
@@ -1923,7 +1934,7 @@ describe("strategic plan deliverables", () => {
     expect(verifyClosure.correctnessAfter).toBe(1);
   }, 180_000);
 
-  test("hub completion schema 71 verify replay + flagship replay (G950)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 71 verify replay + flagship replay (G950)", async () => {
     const { runLaravelAuthProbeReingestVerifyReplaySmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs")
     );
@@ -2008,7 +2019,7 @@ describe("strategic plan deliverables", () => {
     expect(report.evidenceStandaloneMega?.batchSchemaVersion).toBe(5);
   });
 
-  test("hub completion schema 69 laravel auth-probe strict reingest (G890)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 69 laravel auth-probe strict reingest (G890)", async () => {
     const { runLaravelAuthProbeReingestSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs")
     );
@@ -2046,7 +2057,7 @@ describe("strategic plan deliverables", () => {
     expect(report.evidenceStandaloneMega?.batchSchemaVersion).toBe(4);
   });
 
-  test("hub completion schema 68 gaps ingest strict batch (G860)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 68 gaps ingest strict batch (G860)", async () => {
     const { runGapsIngestStrictBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-gaps-ingest-strict-batch-smoke.mjs")
     );
@@ -2399,7 +2410,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 49 smokes present (G290)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 49 smokes present (G290)", async () => {
     const { runCwlParamsBatchSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-cwl-params-batch-smoke.mjs")
     );
@@ -2440,7 +2451,7 @@ describe("strategic plan deliverables", () => {
     }
   });
 
-  test("hub completion schema 48 smokes present (G260)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 48 smokes present (G260)", async () => {
     const { runMigrationOsSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-migration-os-smoke.mjs")
     );
@@ -2458,7 +2469,7 @@ describe("strategic plan deliverables", () => {
     expect(diff.ok).toBe(true);
   }, 180_000);
 
-  test("hub completion schema 47 smokes present (G230)", async () => {
+  test.skipIf(gceSlimHubStrategic)("hub completion schema 47 smokes present (G230)", async () => {
     const { runCwlRequestContextSmoke } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-cwl-request-context-smoke.mjs")
     );
@@ -2826,7 +2837,7 @@ describe("strategic plan deliverables", () => {
     expect(probe.attributes.onlyInAttributes).toEqual([]);
   });
 
-  test("hub-node-express-oracle-verify smoke", () => {
+  test.skipIf(gceSlimHubStrategic)("hub-node-express-oracle-verify smoke", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-node-express-oracle-verify.mjs");
     const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: 300_000 });
     expect(r.status).toBe(0);
@@ -2840,9 +2851,9 @@ describe("strategic plan deliverables", () => {
     expect(report.traceCount).toBe(20);
   });
 
-  test("hub-node-oracle-spike runs and projects the express flagship (G135)", () => {
+  test.skipIf(gceSlimHubStrategic)("hub-node-oracle-spike runs and projects the express flagship (G135)", () => {
     const script = resolve(ROOT, "scripts/hub-ingest/hub-node-oracle-spike.mjs");
-    const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8" });
+    const r = spawnSync(process.execPath, [script], { cwd: ROOT, encoding: "utf8", timeout: SPAWN_TIMEOUT_MS });
     expect(r.status).toBe(0);
     const text = r.stdout.trim();
     const start = text.indexOf("{");
@@ -2912,9 +2923,15 @@ describe("strategic plan deliverables", () => {
       let stderr = "";
       child.stdout.on("data", (b) => (stdout += String(b)));
       child.stderr.on("data", (b) => (stderr += String(b)));
-      const code = await new Promise<number>((resolveExit) =>
-        child.on("exit", (c) => resolveExit(c ?? 1)),
-      );
+      const code = await Promise.race<number>([
+        new Promise<number>((resolveExit) => child.on("exit", (c) => resolveExit(c ?? 1))),
+        new Promise<number>((_, reject) =>
+          setTimeout(() => {
+            child.kill("SIGKILL");
+            reject(new Error(`hub-oracle-record timed out after ${SPAWN_TIMEOUT_MS}ms`));
+          }, SPAWN_TIMEOUT_MS),
+        ),
+      ]);
       expect({ code, stderr }).toEqual({ code: 0, stderr: "" });
       const text = stdout.trim();
       const start = text.indexOf("{");

@@ -8,11 +8,18 @@ mkdir -p reports/ci
 
 export NODE_OPTIONS="${NODE_OPTIONS:---disable-warning=ExperimentalWarning}"
 export CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN="${CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN:-1}"
+export CHRYSALIS_GCE_ALL_TESTS=1
+export CHRYSALIS_GCE_SLIM_HUB_STRATEGIC="${CHRYSALIS_GCE_SLIM_HUB_STRATEGIC:-1}"
 
 LOG="${CHRYSALIS_GCE_ALL_TESTS_LOG:-reports/ci/gce-all-tests.log}"
 PID_FILE="${HOME}/.chrysalis-gce-test.pid"
 OK_FILE="reports/ci/gce-all-tests.ok"
 LOCK_FILE="${HOME}/.chrysalis-gce-test.lock"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+run_phase() {
+  bash "${SCRIPT_DIR}/gce-run-phase.sh" "$@"
+}
 
 log() { echo "[gce-all-tests] $(date -Is) $*"; }
 
@@ -52,34 +59,34 @@ else
 fi
 
 log "phase: cli shims"
-pnpm run test:cli-shims
+run_phase cli-shims pnpm run test:cli-shims
 
 export CHRYSALIS_GCE_SKIP_PNPM_INSTALL=1
 export CHRYSALIS_GCE_SKIP_BUILD=1
 log "phase: hub vm verify suite"
-bash scripts/gce-vm-verify-suite.sh
+run_phase hub-vm-verify bash scripts/gce-vm-verify-suite.sh
 
 log "phase: hub-cwl vitest"
-pnpm exec vitest run packages/cli/tests/hub-cwl.test.ts
+run_phase hub-cwl pnpm exec vitest run packages/cli/tests/hub-cwl.test.ts --reporter=verbose --pool=forks --maxWorkers=1
 
 if [[ "${CHRYSALIS_GCE_FULL_VITEST:-}" == "1" ]]; then
   log "phase: full workspace vitest (pnpm test)"
-  pnpm test
+  run_phase full-vitest pnpm test
 else
   log "phase: skip full vitest (set CHRYSALIS_GCE_FULL_VITEST=1 to enable)"
 fi
 
 log "phase: hub completion ci gate"
-pnpm run ci:hub-completion
+run_phase hub-completion pnpm run ci:hub-completion
 
 log "phase: cwl fullstack HTTP verify"
-node scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs
+run_phase cwl-http-verify node scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs
 
 log "phase: cwl fast batch v40"
-bash scripts/gce-cwl-batch-v40-fast.sh
+run_phase cwl-batch-v40 bash scripts/gce-cwl-batch-v40-fast.sh
 
 log "phase: cwl batch v60 (post50 composite)"
-node --input-type=module -e "
+run_phase cwl-batch-v60 node --input-type=module -e "
 import { runCwlAuthoringBatchV60Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v60-smoke.mjs';
 const r = await runCwlAuthoringBatchV60Smoke({ skipPriorChain: true });
 if (!r.ok) { console.error(r); process.exit(1); }

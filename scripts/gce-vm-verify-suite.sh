@@ -4,8 +4,13 @@ set -euo pipefail
 
 REPO="${CHRYSALIS_STATUS_REPO:-$(cd "$(dirname "$0")/.." && pwd)}"
 cd "${REPO}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-log() { echo "[gce-vm-verify] $*"; }
+log() { echo "[gce-vm-verify] $(date -Is) $*"; }
+
+run_phase() {
+  bash "${SCRIPT_DIR}/gce-run-phase.sh" "$@"
+}
 
 if [[ "${CHRYSALIS_GCE_SKIP_PNPM_INSTALL:-}" != "1" ]]; then
   log "pnpm install"
@@ -24,21 +29,16 @@ else
   export CHRYSALIS_SKIP_PARSER_VENDOR=1
 fi
 
-log "hub-strategic tests"
-pnpm exec vitest run packages/cli/tests/hub-strategic.test.ts packages/cli/tests/hub-gold-manifest.test.ts
+run_phase hub-strategic-vitest bash scripts/gce-hub-strategic-vitest.sh
 
-log "hub:express-flagship"
-pnpm run hub:express-flagship
+run_phase hub-express-flagship pnpm run hub:express-flagship
 
-log "hub:plain-php-flagship"
-pnpm run hub:plain-php-flagship
-log "hub:symfony-flagship"
-pnpm run hub:symfony-flagship
+run_phase hub-plain-php-flagship pnpm run hub:plain-php-flagship
 
-log "hub:node-express-oracle-verify"
-pnpm run hub:node-express-oracle-verify
+run_phase hub-symfony-flagship pnpm run hub:symfony-flagship
 
-log "hub:node-oracle-spike"
-pnpm run hub:node-oracle-spike
+run_phase hub-node-express-oracle-verify pnpm run hub:node-express-oracle-verify
+
+run_phase hub-node-oracle-spike pnpm run hub:node-oracle-spike
 
 log "OK (Linux suite)"
