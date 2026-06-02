@@ -21,6 +21,8 @@ Each queue has `docs/CWL-FULLSTACK-NEXT-10-N.md` (N = 61..70).
 
 **Default build queue:** G1759–G1858 after G1758 verify-gaps graduation lock.
 
-**Status:** **complete** (2026-06-02). Successor: **`docs/STRATEGIC-PLAN.md` §12** Month 2–3 (runtime-cwl parity plan, full-stack RFC, second oracle origin).
+**Status:** **complete** (2026-06-02). Successor: **`docs/CWL-FULLSTACK-QUEUES-71-90.md`** (G1859–G2058).
+
+**Vitest:** `packages/cli/tests/hub-cwl-authoring-batch-v64-v70.test.ts` (one test per queue, gate-only `skipPriorChain`).
 
 **Non-goals (unchanged):** hydration, client stores, production SQL/session claims without parity evidence.

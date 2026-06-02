@@ -32,3 +32,5 @@ Each queue has `docs/CWL-FULLSTACK-NEXT-10-N.md` (N = 71..90).
 **Default build queue:** G1859–G2058 after G1858 authoring graduation lock.
 
 **Non-goals (unchanged):** hydration, client stores, production SQL/session claims without parity evidence.
+
+**Vitest:** one independent test per queue in `packages/cli/tests/hub-cwl-authoring-batch-v71-v90.test.ts` (run e.g. `pnpm exec vitest run packages/cli/tests/hub-cwl-authoring-batch-v71-v90.test.ts -t "v72"`).
