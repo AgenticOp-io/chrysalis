@@ -7,7 +7,7 @@
 | Step | ROADMAP | Focus |
 | --- | --- | --- |
 | 1 | **G1779** | runRuntimeCwlParityGate |
-| 2 | **G1780** | Queue 63 step 2 |
+| 2 | **G1780** | runPost62CompositeGate |
 | 3 | **G1781** | Batch v63 |
 | 4 | **G1782** | Schema 136 |
 | 5 | **G1783** | Vitest v63 |

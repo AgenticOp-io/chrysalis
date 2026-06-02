@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v62 (G1209–G1778).
+ * Full-stack CWL gate runners for authoring batches v6–v63 (G1209–G1788).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -529,4 +529,39 @@ export async function runPost61GraduationGate(opts = {}) {
   const post61 = await runPost61CompositeGate(opts);
   const post60 = await runPost60GraduationGate(opts);
   return { ok: post61.ok === true && post60.ok === true, post61, post60 };
+}
+
+/**
+ * G1779 — runtime-cwl production-readiness parity v1 (gold + hono + production probes).
+ * @param {object} [opts]
+ */
+export async function runRuntimeCwlParityGate(opts = {}) {
+  const { runCwlRuntimeParitySmoke } = await import("./hub-cwl-runtime-parity-smoke.mjs");
+  const gold = await runCwlRuntimeParitySmoke(opts);
+  const hono = await runRuntimeHonoParityGate(opts);
+  const production = await runRuntimeProductionGate(opts);
+  const query = await runQueryHtmlGate(opts);
+  const load = await runLoadArrayGate(opts);
+  const ok =
+    gold.ok === true && hono.ok === true && production.ok === true && query.ok === true && load.ok === true;
+  return {
+    ok,
+    goldParityOk: gold.ok === true,
+    honoParityOk: hono.ok === true,
+    productionOk: production.ok === true,
+    queryHtmlOk: query.ok === true,
+    loadArrayOk: load.ok === true,
+  };
+}
+
+export async function runPost62CompositeGate(opts = {}) {
+  const runtimeParity = await runRuntimeCwlParityGate(opts);
+  const post61 = await runPost61CompositeGate(opts);
+  return { ok: runtimeParity.ok === true && post61.ok === true, runtimeParity, post61 };
+}
+
+export async function runPost62GraduationGate(opts = {}) {
+  const post62 = await runPost62CompositeGate(opts);
+  const post61 = await runPost61GraduationGate(opts);
+  return { ok: post62.ok === true && post61.ok === true, post62, post61 };
 }

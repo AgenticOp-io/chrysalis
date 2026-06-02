@@ -147,6 +147,7 @@ import { runCwlAuthoringBatchV50Smoke } from "./hub-cwl-authoring-batch-v50-smok
 import { runCwlAuthoringBatchV60Smoke } from "./hub-cwl-authoring-batch-v60-smoke.mjs";
 import { runCwlAuthoringBatchV61Smoke } from "./hub-cwl-authoring-batch-v61-smoke.mjs";
 import { runCwlAuthoringBatchV62Smoke } from "./hub-cwl-authoring-batch-v62-smoke.mjs";
+import { runCwlAuthoringBatchV63Smoke } from "./hub-cwl-authoring-batch-v63-smoke.mjs";
 import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
@@ -1169,6 +1170,13 @@ async function main() {
     fullstackAuthoringBatchV62 = { ok: false, skip: "fullstack-authoring-batch-v62-threw" };
   }
   const fullstackAuthoringBatchV62Ok = fullstackAuthoringBatchV62.ok === true;
+  let fullstackAuthoringBatchV63 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV63 = await runCwlAuthoringBatchV63Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV63 = { ok: false, skip: "fullstack-authoring-batch-v63-threw" };
+  }
+  const fullstackAuthoringBatchV63Ok = fullstackAuthoringBatchV63.ok === true;
   let plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
@@ -1732,6 +1740,7 @@ async function main() {
     fullstackAuthoringBatchV60Ok &&
     fullstackAuthoringBatchV61Ok &&
     fullstackAuthoringBatchV62Ok &&
+    fullstackAuthoringBatchV63Ok &&
     plainPhpMigrationOsBatchOk &&
     tinyBlogDeliveryBatchOk &&
     deliveryPipelineStandaloneBatchOk &&
@@ -1803,7 +1812,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 135,
+    schemaVersion: 136,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -2586,6 +2595,13 @@ async function main() {
       schemaVersion: fullstackAuthoringBatchV62.schemaVersion ?? 1,
       skipPriorChain: true,
       gate62Mode: fullstackAuthoringBatchV62.gate62Mode ?? null,
+    },
+    fullstackAuthoringBatchV63: {
+      ok: fullstackAuthoringBatchV63Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v63-smoke",
+      schemaVersion: fullstackAuthoringBatchV63.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate63Mode: fullstackAuthoringBatchV63.gate63Mode ?? null,
     },
     plainPhpMigrationOsBatch: {
       ok: plainPhpMigrationOsBatchOk,

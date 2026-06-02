@@ -785,9 +785,10 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 74 &&
     s.schemaVersion !== 133 &&
     s.schemaVersion !== 134 &&
-    s.schemaVersion !== 135
+    s.schemaVersion !== 135 &&
+    s.schemaVersion !== 136
   ) {
-    fail(`${label}: expected schemaVersion 0–74 or 133–135, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–74 or 133–136, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -3285,6 +3286,14 @@ function assertHubCompletion(path) {
     }
     if (!s.fullstackAuthoringBatchV62?.script) {
       fail(`${label}: fullstackAuthoringBatchV62.script must be set for schema v135`);
+    }
+  }
+  if (s.schemaVersion >= 136) {
+    if (s.fullstackAuthoringBatchV63?.ok !== true) {
+      fail(`${label}: fullstackAuthoringBatchV63.ok must be true for schema v136`);
+    }
+    if (!s.fullstackAuthoringBatchV63?.script) {
+      fail(`${label}: fullstackAuthoringBatchV63.script must be set for schema v136`);
     }
   }
   const g = s.routeGrades;
