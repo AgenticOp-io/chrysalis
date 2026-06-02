@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Full-stack CWL gate runners for authoring batches v6–v63 (G1209–G1788).
+ * Full-stack CWL gate runners for authoring batches v6–v70 (G1209–G1858).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -564,4 +564,177 @@ export async function runPost62GraduationGate(opts = {}) {
   const post62 = await runPost62CompositeGate(opts);
   const post61 = await runPost61GraduationGate(opts);
   return { ok: post62.ok === true && post61.ok === true, post62, post61 };
+}
+
+/** G1789 — CWL formatter + diagnose lint on flagship contract. */
+export async function runCwlFormatterLintGate() {
+  const { formatCwlFile } = await import("./cwl-fmt.mjs");
+  const fmt = await formatCwlFile(flagshipCwl, { write: false });
+  const diagnose = await runDiagnoseFullstackGate();
+  const diagnoseV2 = await runDiagnoseV2Gate();
+  const ok = fmt.ok === true && diagnose.ok === true && diagnoseV2.ok === true;
+  return { ok, fmtOk: fmt.ok === true, diagnoseOk: diagnose.ok === true, diagnoseV2Ok: diagnoseV2.ok === true };
+}
+
+/** G1799 — mandatory project-to-CWL oracle + roundtrip gates. */
+export async function runProjectToCwlMandatoryGate(opts = {}) {
+  const { runProjectToCwlOracleGates } = await import("./hub-project-to-cwl-gates.mjs");
+  const oracle = await runProjectToCwlOracleGates(opts);
+  const roundtrip = await runProjectToCwlRoundtripGate();
+  const ok = oracle.ok === true && roundtrip.ok === true;
+  return { ok, oracleOk: oracle.ok === true, roundtripOk: roundtrip.ok === true };
+}
+
+/** G1809 — full-stack CWL scope RFC backend boundary slice. */
+export async function runFullstackCwlScopeRfcGate() {
+  const holes = runFormHoleCatalogGate();
+  const openapi = await runOpenapiPageGate();
+  const layout = await runLayoutSearchGate();
+  const ok = holes.ok === true && openapi.ok === true && layout.ok === true;
+  return {
+    ok,
+    holeCatalogOk: holes.ok === true,
+    openapiOk: openapi.ok === true,
+    layoutOk: layout.ok === true,
+  };
+}
+
+/** G1819 — Node/Express oracle verify on express flagship. */
+export async function runNodeExpressOracleFlagshipGate() {
+  const { runNodeExpressOracleVerify } = await import("./hub-node-express-oracle-verify.mjs");
+  const report = await runNodeExpressOracleVerify();
+  return { ok: report.ok === true, skip: report.skip ?? null, correctness: report.correctness ?? null };
+}
+
+/** G1829 — post-60 authoring composite (templates + preview + runtime parity). */
+export async function runPost60AuthoringCompositeGate(opts = {}) {
+  const templates = await runCwlAuthoringTemplatesGate(opts);
+  const preview = await runCwlPreviewDevLoopGate(opts);
+  const runtime = await runRuntimeCwlParityGate(opts);
+  const ok = templates.ok === true && preview.ok === true && runtime.ok === true;
+  return { ok, templates, preview, runtime };
+}
+
+/** G1839 — dual-backend HTTP emit verify on CWL flagship. */
+export async function runAuthoringEmitVerifyMegaGate(opts = {}) {
+  return runEmitVerifyMegaGate(opts);
+}
+
+/** G1849 — post-60 authoring graduation lock (queues 61–69 checklist). */
+export async function runAuthoringGraduationLockGate(opts = {}) {
+  const templates = await runCwlAuthoringTemplatesGate(opts);
+  const preview = await runCwlPreviewDevLoopGate(opts);
+  const runtime = await runRuntimeCwlParityGate(opts);
+  const fmt = await runCwlFormatterLintGate();
+  const projectToCwl = await runProjectToCwlMandatoryGate(opts);
+  const scope = await runFullstackCwlScopeRfcGate();
+  const nodeExpress = await runNodeExpressOracleFlagshipGate();
+  const emitMega = await runAuthoringEmitVerifyMegaGate(opts);
+  const ok =
+    templates.ok === true &&
+    preview.ok === true &&
+    runtime.ok === true &&
+    fmt.ok === true &&
+    projectToCwl.ok === true &&
+    scope.ok === true &&
+    nodeExpress.ok === true &&
+    emitMega.ok === true;
+  return {
+    ok,
+    templatesOk: templates.ok === true,
+    previewOk: preview.ok === true,
+    runtimeOk: runtime.ok === true,
+    fmtOk: fmt.ok === true,
+    projectToCwlOk: projectToCwl.ok === true,
+    scopeOk: scope.ok === true,
+    nodeExpressOk: nodeExpress.ok === true,
+    emitMegaOk: emitMega.ok === true,
+  };
+}
+
+export async function runAuthoringGraduationGate(opts = {}) {
+  const post69 = await runPost69GraduationGate(opts);
+  return { ok: post69.ok === true, post69 };
+}
+
+export async function runPost63CompositeGate(opts = {}) {
+  const fmt = await runCwlFormatterLintGate();
+  const post62 = await runPost62CompositeGate(opts);
+  return { ok: fmt.ok === true && post62.ok === true, fmt, post62 };
+}
+
+export async function runPost63GraduationGate(opts = {}) {
+  const post63 = await runPost63CompositeGate(opts);
+  const post62 = await runPost62GraduationGate(opts);
+  return { ok: post63.ok === true && post62.ok === true, post63, post62 };
+}
+
+export async function runPost64CompositeGate(opts = {}) {
+  const projectToCwl = await runProjectToCwlMandatoryGate(opts);
+  const post63 = await runPost63CompositeGate(opts);
+  return { ok: projectToCwl.ok === true && post63.ok === true, projectToCwl, post63 };
+}
+
+export async function runPost64GraduationGate(opts = {}) {
+  const post64 = await runPost64CompositeGate(opts);
+  const post63 = await runPost63GraduationGate(opts);
+  return { ok: post64.ok === true && post63.ok === true, post64, post63 };
+}
+
+export async function runPost65CompositeGate(opts = {}) {
+  const scope = await runFullstackCwlScopeRfcGate();
+  const post64 = await runPost64CompositeGate(opts);
+  return { ok: scope.ok === true && post64.ok === true, scope, post64 };
+}
+
+export async function runPost65GraduationGate(opts = {}) {
+  const post65 = await runPost65CompositeGate(opts);
+  const post64 = await runPost64GraduationGate(opts);
+  return { ok: post65.ok === true && post64.ok === true, post65, post64 };
+}
+
+export async function runPost66CompositeGate(opts = {}) {
+  const nodeExpress = await runNodeExpressOracleFlagshipGate();
+  const post65 = await runPost65CompositeGate(opts);
+  return { ok: nodeExpress.ok === true && post65.ok === true, nodeExpress, post65 };
+}
+
+export async function runPost66GraduationGate(opts = {}) {
+  const post66 = await runPost66CompositeGate(opts);
+  const post65 = await runPost65GraduationGate(opts);
+  return { ok: post66.ok === true && post65.ok === true, post66, post65 };
+}
+
+export async function runPost67CompositeGate(opts = {}) {
+  const authoring = await runPost60AuthoringCompositeGate(opts);
+  const post66 = await runPost66CompositeGate(opts);
+  return { ok: authoring.ok === true && post66.ok === true, authoring, post66 };
+}
+
+export async function runPost67GraduationGate(opts = {}) {
+  const post67 = await runPost67CompositeGate(opts);
+  const post66 = await runPost66GraduationGate(opts);
+  return { ok: post67.ok === true && post66.ok === true, post67, post66 };
+}
+
+export async function runPost68CompositeGate(opts = {}) {
+  const emitMega = await runAuthoringEmitVerifyMegaGate(opts);
+  const post67 = await runPost67CompositeGate(opts);
+  return { ok: emitMega.ok === true && post67.ok === true, emitMega, post67 };
+}
+
+export async function runPost68GraduationGate(opts = {}) {
+  const post68 = await runPost68CompositeGate(opts);
+  const post67 = await runPost67GraduationGate(opts);
+  return { ok: post68.ok === true && post67.ok === true, post68, post67 };
+}
+
+export async function runPost69CompositeGate(opts = {}) {
+  return runAuthoringGraduationLockGate(opts);
+}
+
+export async function runPost69GraduationGate(opts = {}) {
+  const post69 = await runPost69CompositeGate(opts);
+  const post68 = await runPost68GraduationGate(opts);
+  return { ok: post69.ok === true && post68.ok === true, post69, post68 };
 }

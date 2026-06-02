@@ -238,6 +238,76 @@ test("authoring batch v63 runtime-cwl parity smoke (G1783)", async () => {
   expect(report.gate63Mode).toBe("post62-composite");
 }, 180_000);
 
+test("authoring batch v64 formatter lint smoke (G1793)", async () => {
+  const { runCwlAuthoringBatchV64Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v64-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV64Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate64?.ok).toBe(true);
+  expect(report.gate64Mode).toBe("formatter-lint");
+}, 60_000);
+
+test("authoring batch v65 project-to-CWL mandatory smoke (G1803)", async () => {
+  const { runCwlAuthoringBatchV65Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v65-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV65Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate65?.ok).toBe(true);
+  expect(report.gate65Mode).toBe("project-to-cwl-mandatory");
+}, 120_000);
+
+test("authoring batch v66 fullstack scope RFC smoke (G1813)", async () => {
+  const { runCwlAuthoringBatchV66Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v66-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV66Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate66?.ok).toBe(true);
+  expect(report.gate66Mode).toBe("fullstack-scope-rfc");
+}, 60_000);
+
+test("authoring batch v67 node express oracle smoke (G1823)", async () => {
+  const { runCwlAuthoringBatchV67Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v67-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV67Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate67?.ok).toBe(true);
+  expect(report.gate67Mode).toBe("node-express-oracle");
+}, 300_000);
+
+test("authoring batch v68 post-60 authoring composite smoke (G1833)", async () => {
+  const { runCwlAuthoringBatchV68Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v68-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV68Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate68?.ok).toBe(true);
+  expect(report.gate68Mode).toBe("post60-authoring-composite");
+}, 180_000);
+
+test("authoring batch v69 emit verify mega smoke (G1843)", async () => {
+  const { runCwlAuthoringBatchV69Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v69-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV69Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate69?.ok).toBe(true);
+  expect(report.gate69Mode).toBe("emit-verify-mega");
+}, 480_000);
+
+test("authoring batch v70 graduation lock smoke (G1853)", async () => {
+  const { runCwlAuthoringBatchV70Smoke } = await import(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v70-smoke.mjs"),
+  );
+  const report = await runCwlAuthoringBatchV70Smoke({ skipPriorChain: true });
+  expect(report.ok).toBe(true);
+  expect(report.gate70?.ok).toBe(true);
+  expect(report.gate70Mode).toBe("authoring-graduation-lock");
+}, 600_000);
+
 test("cwl fullstack HTTP verify smoke (G1660)", async () => {
   const { runCwlFullstackVerifyHttpSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs"),

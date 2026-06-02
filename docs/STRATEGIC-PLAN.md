@@ -232,7 +232,7 @@ When the user says “build” without specifying, prefer this queue:
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
-**Active full-stack queue (2026-06-02):** **`docs/CWL-FULLSTACK-QUEUES-61-70.md`** (**G1759–G1858**, CWL authoring bootstrap). **G1209–G1758** (queues 6–60) is complete. When the user says **“build”** without specifying, prefer queue **61** (`G1759`) or **`docs/STRATEGIC-PLAN.md` §12** Month 1 items.
+**Active full-stack queue (2026-06-02):** **`docs/CWL-FULLSTACK-QUEUES-61-70.md`** (**G1759–G1858**) is **complete**. When the user says **“build”** without specifying, prefer **`docs/STRATEGIC-PLAN.md` §12** Month 2–3 (runtime-cwl parity plan, full-stack RFC, Node/Express oracle depth).
 
 **Fast batch proof:** set **`CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN=1`** so v31+ chains use v30 graduation-only (skips re-running batches v2–v29).
 

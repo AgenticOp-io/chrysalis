@@ -93,28 +93,12 @@ if (!r.ok) { console.error(r); process.exit(1); }
 console.log('v60 ok', r.gate60Mode);
 "
 
-log "phase: cwl batch v61 (authoring templates)"
-run_phase cwl-batch-v61 node --input-type=module -e "
-import { runCwlAuthoringBatchV61Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v61-smoke.mjs';
-const r = await runCwlAuthoringBatchV61Smoke({ skipPriorChain: true });
+log "phase: cwl batch v70 (authoring graduation lock)"
+run_phase cwl-batch-v70 node --input-type=module -e "
+import { runCwlAuthoringBatchV70Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v70-smoke.mjs';
+const r = await runCwlAuthoringBatchV70Smoke({ skipPriorChain: true });
 if (!r.ok) { console.error(r); process.exit(1); }
-console.log('v61 ok', r.gate61Mode);
-"
-
-log "phase: cwl batch v62 (preview dev loop)"
-run_phase cwl-batch-v62 node --input-type=module -e "
-import { runCwlAuthoringBatchV62Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v62-smoke.mjs';
-const r = await runCwlAuthoringBatchV62Smoke({ skipPriorChain: true });
-if (!r.ok) { console.error(r); process.exit(1); }
-console.log('v62 ok', r.gate62Mode);
-"
-
-log "phase: cwl batch v63 (runtime-cwl parity)"
-run_phase cwl-batch-v63 node --input-type=module -e "
-import { runCwlAuthoringBatchV63Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v63-smoke.mjs';
-const r = await runCwlAuthoringBatchV63Smoke({ skipPriorChain: true });
-if (!r.ok) { console.error(r); process.exit(1); }
-console.log('v63 ok', r.gate63Mode);
+console.log('v70 ok', r.gate70Mode);
 "
 
 date -Is >"${OK_FILE}"

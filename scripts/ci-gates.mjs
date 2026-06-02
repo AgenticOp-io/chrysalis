@@ -786,9 +786,16 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 133 &&
     s.schemaVersion !== 134 &&
     s.schemaVersion !== 135 &&
-    s.schemaVersion !== 136
+    s.schemaVersion !== 136 &&
+    s.schemaVersion !== 137 &&
+    s.schemaVersion !== 138 &&
+    s.schemaVersion !== 139 &&
+    s.schemaVersion !== 140 &&
+    s.schemaVersion !== 141 &&
+    s.schemaVersion !== 142 &&
+    s.schemaVersion !== 143
   ) {
-    fail(`${label}: expected schemaVersion 0–74 or 133–136, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–74 or 133–143, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -3294,6 +3301,24 @@ function assertHubCompletion(path) {
     }
     if (!s.fullstackAuthoringBatchV63?.script) {
       fail(`${label}: fullstackAuthoringBatchV63.script must be set for schema v136`);
+    }
+  }
+  for (const [ver, key] of [
+    [137, "fullstackAuthoringBatchV64"],
+    [138, "fullstackAuthoringBatchV65"],
+    [139, "fullstackAuthoringBatchV66"],
+    [140, "fullstackAuthoringBatchV67"],
+    [141, "fullstackAuthoringBatchV68"],
+    [142, "fullstackAuthoringBatchV69"],
+    [143, "fullstackAuthoringBatchV70"],
+  ]) {
+    if (s.schemaVersion >= ver) {
+      if (s[key]?.ok !== true) {
+        fail(`${label}: ${key}.ok must be true for schema v${ver}`);
+      }
+      if (!s[key]?.script) {
+        fail(`${label}: ${key}.script must be set for schema v${ver}`);
+      }
     }
   }
   const g = s.routeGrades;

@@ -148,6 +148,13 @@ import { runCwlAuthoringBatchV60Smoke } from "./hub-cwl-authoring-batch-v60-smok
 import { runCwlAuthoringBatchV61Smoke } from "./hub-cwl-authoring-batch-v61-smoke.mjs";
 import { runCwlAuthoringBatchV62Smoke } from "./hub-cwl-authoring-batch-v62-smoke.mjs";
 import { runCwlAuthoringBatchV63Smoke } from "./hub-cwl-authoring-batch-v63-smoke.mjs";
+import { runCwlAuthoringBatchV64Smoke } from "./hub-cwl-authoring-batch-v64-smoke.mjs";
+import { runCwlAuthoringBatchV65Smoke } from "./hub-cwl-authoring-batch-v65-smoke.mjs";
+import { runCwlAuthoringBatchV66Smoke } from "./hub-cwl-authoring-batch-v66-smoke.mjs";
+import { runCwlAuthoringBatchV67Smoke } from "./hub-cwl-authoring-batch-v67-smoke.mjs";
+import { runCwlAuthoringBatchV68Smoke } from "./hub-cwl-authoring-batch-v68-smoke.mjs";
+import { runCwlAuthoringBatchV69Smoke } from "./hub-cwl-authoring-batch-v69-smoke.mjs";
+import { runCwlAuthoringBatchV70Smoke } from "./hub-cwl-authoring-batch-v70-smoke.mjs";
 import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
@@ -1177,6 +1184,55 @@ async function main() {
     fullstackAuthoringBatchV63 = { ok: false, skip: "fullstack-authoring-batch-v63-threw" };
   }
   const fullstackAuthoringBatchV63Ok = fullstackAuthoringBatchV63.ok === true;
+  let fullstackAuthoringBatchV64 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV64 = await runCwlAuthoringBatchV64Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV64 = { ok: false, skip: "fullstack-authoring-batch-v64-threw" };
+  }
+  const fullstackAuthoringBatchV64Ok = fullstackAuthoringBatchV64.ok === true;
+  let fullstackAuthoringBatchV65 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV65 = await runCwlAuthoringBatchV65Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV65 = { ok: false, skip: "fullstack-authoring-batch-v65-threw" };
+  }
+  const fullstackAuthoringBatchV65Ok = fullstackAuthoringBatchV65.ok === true;
+  let fullstackAuthoringBatchV66 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV66 = await runCwlAuthoringBatchV66Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV66 = { ok: false, skip: "fullstack-authoring-batch-v66-threw" };
+  }
+  const fullstackAuthoringBatchV66Ok = fullstackAuthoringBatchV66.ok === true;
+  let fullstackAuthoringBatchV67 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV67 = await runCwlAuthoringBatchV67Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV67 = { ok: false, skip: "fullstack-authoring-batch-v67-threw" };
+  }
+  const fullstackAuthoringBatchV67Ok = fullstackAuthoringBatchV67.ok === true;
+  let fullstackAuthoringBatchV68 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV68 = await runCwlAuthoringBatchV68Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV68 = { ok: false, skip: "fullstack-authoring-batch-v68-threw" };
+  }
+  const fullstackAuthoringBatchV68Ok = fullstackAuthoringBatchV68.ok === true;
+  let fullstackAuthoringBatchV69 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV69 = await runCwlAuthoringBatchV69Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV69 = { ok: false, skip: "fullstack-authoring-batch-v69-threw" };
+  }
+  const fullstackAuthoringBatchV69Ok = fullstackAuthoringBatchV69.ok === true;
+  let fullstackAuthoringBatchV70 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV70 = await runCwlAuthoringBatchV70Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV70 = { ok: false, skip: "fullstack-authoring-batch-v70-threw" };
+  }
+  const fullstackAuthoringBatchV70Ok = fullstackAuthoringBatchV70.ok === true;
   let plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
@@ -1741,6 +1797,13 @@ async function main() {
     fullstackAuthoringBatchV61Ok &&
     fullstackAuthoringBatchV62Ok &&
     fullstackAuthoringBatchV63Ok &&
+    fullstackAuthoringBatchV64Ok &&
+    fullstackAuthoringBatchV65Ok &&
+    fullstackAuthoringBatchV66Ok &&
+    fullstackAuthoringBatchV67Ok &&
+    fullstackAuthoringBatchV68Ok &&
+    fullstackAuthoringBatchV69Ok &&
+    fullstackAuthoringBatchV70Ok &&
     plainPhpMigrationOsBatchOk &&
     tinyBlogDeliveryBatchOk &&
     deliveryPipelineStandaloneBatchOk &&
@@ -1812,7 +1875,7 @@ async function main() {
 
   const report = {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 136,
+    schemaVersion: 143,
     ok,
     matrixSmoke: {
       passed: matrix.parsed.passed ?? 0,
@@ -2602,6 +2665,55 @@ async function main() {
       schemaVersion: fullstackAuthoringBatchV63.schemaVersion ?? 1,
       skipPriorChain: true,
       gate63Mode: fullstackAuthoringBatchV63.gate63Mode ?? null,
+    },
+    fullstackAuthoringBatchV64: {
+      ok: fullstackAuthoringBatchV64Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v64-smoke",
+      schemaVersion: fullstackAuthoringBatchV64.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate64Mode: fullstackAuthoringBatchV64.gate64Mode ?? null,
+    },
+    fullstackAuthoringBatchV65: {
+      ok: fullstackAuthoringBatchV65Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v65-smoke",
+      schemaVersion: fullstackAuthoringBatchV65.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate65Mode: fullstackAuthoringBatchV65.gate65Mode ?? null,
+    },
+    fullstackAuthoringBatchV66: {
+      ok: fullstackAuthoringBatchV66Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v66-smoke",
+      schemaVersion: fullstackAuthoringBatchV66.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate66Mode: fullstackAuthoringBatchV66.gate66Mode ?? null,
+    },
+    fullstackAuthoringBatchV67: {
+      ok: fullstackAuthoringBatchV67Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v67-smoke",
+      schemaVersion: fullstackAuthoringBatchV67.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate67Mode: fullstackAuthoringBatchV67.gate67Mode ?? null,
+    },
+    fullstackAuthoringBatchV68: {
+      ok: fullstackAuthoringBatchV68Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v68-smoke",
+      schemaVersion: fullstackAuthoringBatchV68.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate68Mode: fullstackAuthoringBatchV68.gate68Mode ?? null,
+    },
+    fullstackAuthoringBatchV69: {
+      ok: fullstackAuthoringBatchV69Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v69-smoke",
+      schemaVersion: fullstackAuthoringBatchV69.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate69Mode: fullstackAuthoringBatchV69.gate69Mode ?? null,
+    },
+    fullstackAuthoringBatchV70: {
+      ok: fullstackAuthoringBatchV70Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v70-smoke",
+      schemaVersion: fullstackAuthoringBatchV70.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate70Mode: fullstackAuthoringBatchV70.gate70Mode ?? null,
     },
     plainPhpMigrationOsBatch: {
       ok: plainPhpMigrationOsBatchOk,
