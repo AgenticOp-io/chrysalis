@@ -240,7 +240,7 @@ batchTest("authoring batch v63 runtime-cwl parity smoke (G1783)", async () => {
   const report = await runCwlAuthoringBatchV63Smoke({ skipPriorChain: true });
   expect(report.ok).toBe(true);
   expect(report.gate63?.ok).toBe(true);
-  expect(report.gate63Mode).toBe("post62-composite");
+  expect(report.gate63Mode).toBe("runtime-cwl-parity");
 }, 180_000);
 
 test("cwl fullstack HTTP verify smoke (G1660)", async () => {

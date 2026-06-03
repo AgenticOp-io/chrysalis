@@ -6,7 +6,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlAuthoringBatchV62Smoke } from "./hub-cwl-authoring-batch-v62-smoke.mjs";
 import { resolvePriorBatchOpts } from "./hub-cwl-batch-opts.mjs";
-import { runPost62CompositeGate, runPost62GraduationGate } from "./hub-cwl-fullstack-gates.mjs";
+import { runPost62GraduationGate, runRuntimeCwlParityGate } from "./hub-cwl-fullstack-gates.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V63_KIND = "chrysalis.hub.cwl-authoring-batch-v63";
 export const HUB_CWL_AUTHORING_BATCH_V63_SCHEMA_VERSION = 1;
@@ -20,7 +20,7 @@ export async function runCwlAuthoringBatchV63Smoke(opts = {}) {
     ? { ok: true, skip: "skip-prior-chain" }
     : await runCwlAuthoringBatchV62Smoke(resolvePriorBatchOpts(opts, 62));
   const gate63 = skipPrior
-    ? await runPost62CompositeGate({ repoRoot })
+    ? await runRuntimeCwlParityGate({ repoRoot })
     : await runPost62GraduationGate({ repoRoot });
   const ok = batchV62.ok === true && gate63.ok === true;
   return {
@@ -28,7 +28,7 @@ export async function runCwlAuthoringBatchV63Smoke(opts = {}) {
     schemaVersion: HUB_CWL_AUTHORING_BATCH_V63_SCHEMA_VERSION,
     ok,
     skipPriorChain: skipPrior,
-    gate63Mode: skipPrior ? "post62-composite" : "post62-graduation",
+    gate63Mode: skipPrior ? "runtime-cwl-parity" : "post62-graduation",
     batchV62,
     gate63,
     generatedAt: new Date().toISOString(),
