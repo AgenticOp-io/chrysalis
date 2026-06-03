@@ -20,7 +20,7 @@ const AUTHORING_BATCH_V91_V110 = [
   { v: 103, roadmap: "G2183", mode: "emit-page-probe", ms: 300000 },
   { v: 104, roadmap: "G2193", mode: "evidence-trend", ms: 300000 },
   { v: 105, roadmap: "G2203", mode: "migration-os-mega", ms: 300000 },
-  { v: 106, roadmap: "G2213", mode: "oracle-product-ultra", ms: 2_400_000 },
+  { v: 106, roadmap: "G2213", mode: "evidence-trend", ms: 120_000 },
   { v: 107, roadmap: "G2223", mode: "verify-standalone-mega", ms: 480_000 },
   { v: 108, roadmap: "G2233", mode: "evidence-trend", ms: 120_000 },
   { v: 109, roadmap: "G2243", mode: "evidence-trend", ms: 120000 },

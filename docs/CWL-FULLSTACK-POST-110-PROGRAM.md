@@ -14,8 +14,8 @@ When the user says **build** without specifying after queue 110, prefer this pro
 | --- | --- | --- |
 | A1 | **Linux GCE green** | `pnpm run test:gce` → `STATUS: OK`; `reports/ci/gce-all-tests.ok` fetched |
 | A2 | **Slim hub-cwl** | `gce-hub-cwl-vitest.sh` passes (RFC/parser smokes; batch smokes skipped) |
-| A3 | **Authoring v61–110** | `gce-hub-authoring-batch-vitest.sh` passes on GCE (mega gates v106–v110 included) |
-| A4 | **v110 graduation lock** | `gate110Mode: post90-hub-graduation-lock` ok in GCE phase log |
+| A3 | **Authoring v61–110** | `gce-hub-authoring-batch-vitest.sh` passes on GCE (gate-only v106–v110 in vitest; mega gates in dedicated phases) |
+| A4 | **v106 + v110 graduation locks** | `gate106Mode: oracle-product-ultra` and `gate110Mode: post90-hub-graduation-lock` ok in GCE phase logs |
 
 **Windows:** gate-only vitest locally; full proof on GCE (`docs/WINDOWS-COMPAT.md`).
 

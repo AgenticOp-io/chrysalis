@@ -97,6 +97,14 @@ if (!r.ok) { console.error(r); process.exit(1); }
 console.log('v60 ok', r.gate60Mode);
 "
 
+log "phase: cwl batch v106 (oracle product ultra)"
+run_phase cwl-batch-v106 env CHRYSALIS_RUN_ORACLE_PRODUCT_ULTRA=1 node --input-type=module -e "
+import { runCwlAuthoringBatchV106Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v106-smoke.mjs';
+const r = await runCwlAuthoringBatchV106Smoke({ skipPriorChain: true });
+if (!r.ok) { console.error(r); process.exit(1); }
+console.log('v106 ok', r.gate106Mode);
+"
+
 log "phase: cwl batch v110 (hub verify-gaps graduation lock)"
 run_phase cwl-batch-v110 env CHRYSALIS_RUN_FULL_GRADUATION_LOCK=1 node --input-type=module -e "
 import { runCwlAuthoringBatchV110Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v110-smoke.mjs';

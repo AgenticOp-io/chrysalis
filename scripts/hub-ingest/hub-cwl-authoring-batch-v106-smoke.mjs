@@ -4,8 +4,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlAuthoringBatchV105Smoke } from "./hub-cwl-authoring-batch-v105-smoke.mjs";
 import { resolvePriorBatchOpts } from "./hub-cwl-batch-opts.mjs";
-import { runPost105GraduationGate } from "./hub-cwl-fullstack-gates.mjs";
-import { runOracleProductUltraGate } from "./hub-cwl-fullstack-gates.mjs";
+import {
+  runEvidenceTrendStandaloneGate,
+  runOracleProductUltraGate,
+  runPost105GraduationGate,
+} from "./hub-cwl-fullstack-gates.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V106_KIND = "chrysalis.hub.cwl-authoring-batch-v106";
 export const HUB_CWL_AUTHORING_BATCH_V106_SCHEMA_VERSION = 1;
@@ -18,8 +21,11 @@ export async function runCwlAuthoringBatchV106Smoke(opts = {}) {
   const batchV105 = skipPrior
     ? { ok: true, skip: "skip-prior-chain" }
     : await runCwlAuthoringBatchV105Smoke(resolvePriorBatchOpts(opts, 105));
+  const runOracleProductUltra = process.env.CHRYSALIS_RUN_ORACLE_PRODUCT_ULTRA === "1";
   const gate106 = skipPrior
-    ? await runOracleProductUltraGate()
+    ? runOracleProductUltra
+      ? await runOracleProductUltraGate()
+      : await runEvidenceTrendStandaloneGate()
     : await runPost105GraduationGate({ repoRoot });
   const ok = batchV105.ok === true && gate106.ok === true;
   return {
@@ -27,7 +33,11 @@ export async function runCwlAuthoringBatchV106Smoke(opts = {}) {
     schemaVersion: HUB_CWL_AUTHORING_BATCH_V106_SCHEMA_VERSION,
     ok,
     skipPriorChain: skipPrior,
-    gate106Mode: skipPrior ? "oracle-product-ultra" : "post105-graduation",
+    gate106Mode: skipPrior
+      ? runOracleProductUltra
+        ? "oracle-product-ultra"
+        : "evidence-trend"
+      : "post105-graduation",
     batchV105,
     gate106,
     generatedAt: new Date().toISOString(),
