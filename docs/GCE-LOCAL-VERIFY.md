@@ -17,7 +17,11 @@ Check progress (any machine with gcloud):
 ```powershell
 pnpm run test:gce:status
 pnpm run test:gce:wait     # poll until OK (auto-fetch) or failure
+pnpm run test:gce:watch:detach   # log every 10s to reports/ci/gce-watch.log (non-blocking)
+pnpm run test:gce:log            # tail the watch log; use test:gce:log:follow to stream
 ```
+
+**Watch log (recommended):** `test:gce:watch:detach` SSH-probes the VM every **10s** and appends one line per poll (`status=RUNNING|OK|FAILED`, pid, phase, fail path). Failures include a tail excerpt in the log — no need to block for hours. Set **`CHRYSALIS_GCE_WATCH_INTERVAL_SEC`** to change the interval.
 
 When **`STATUS: OK`** appears, pull artifacts:
 
