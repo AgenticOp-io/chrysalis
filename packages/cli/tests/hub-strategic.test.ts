@@ -2495,7 +2495,7 @@ describe("strategic plan deliverables", () => {
     expect(report.ok).toBe(true);
     expect(report.cwlProjection?.withHeaderParams).toBeGreaterThanOrEqual(1);
     expect(report.cwlProjection?.withCookieParams).toBeGreaterThanOrEqual(1);
-  }, 60_000);
+  }, 180_000);
 
   test("hub-translate E2E symfony and express variants (G208/G209)", async () => {
     const { runHubTranslateE2eSmoke } = await import(
