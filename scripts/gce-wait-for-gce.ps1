@@ -42,7 +42,11 @@ if test -f ~/.chrysalis-gce-test.pid && kill -0 $(cat ~/.chrysalis-gce-test.pid)
 }
 
 Write-Host "Polling GCE every ${IntervalSec}s (Ctrl+C to stop)..."
+$poll = 0
 while ($true) {
+  $poll++
+  $stamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+  Write-Host "`n=== poll ${poll} @ ${stamp} ==="
   & $statusScript -Project $Project -Zone $Zone -Name $Name @SshExtra
   $state = Get-RemoteGceState -Extra $SshExtra
   if ($state.OkMarker) {
@@ -60,5 +64,10 @@ while ($true) {
     }
     exit 1
   }
-  Start-Sleep -Seconds $IntervalSec
+  for ($sec = $IntervalSec; $sec -gt 0; $sec--) {
+    $next = (Get-Date).AddSeconds($sec).ToString("HH:mm:ss")
+    Write-Host ("`rNext recheck in {0,2}s (at {1})..." -f $sec, $next) -NoNewline
+    Start-Sleep -Seconds 1
+  }
+  Write-Host ""
 }

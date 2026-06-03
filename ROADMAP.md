@@ -1429,6 +1429,10 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G2251 — Authoring batch v110** — schema 183. (**DESIGN D2251**)
 - [x] **G2253 — Vitest v91–v110** — dedicated batch test file. (**DESIGN D2253**)
 
+### Post–queue 110 — Phase B reinforcement (G2259)
+
+- [x] **G2259 — verify-gaps-post110-reinforcement-smoke** — env-gated B1–B5 composite; GCE phase after v110; delivery dashboard v36 + capability matrix v33. (**DESIGN D2259**)
+
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
 **Paused by policy (do not open without plan amendment):** matrix gold for marketing; WordPress before Laravel boring; “any language production-ready” claims.

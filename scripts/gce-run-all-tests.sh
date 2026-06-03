@@ -104,5 +104,12 @@ if (!r.ok) { console.error(r); process.exit(1); }
 console.log('v110 ok', r.gate110Mode);
 "
 
+if [[ "${CHRYSALIS_GCE_POST110_PHASE_B:-1}" == "1" ]]; then
+  log "phase: post-110 verify-gaps reinforcement (B1-B5)"
+  run_phase post110-verify-gaps pnpm run hub:verify-gaps-post110-reinforcement-smoke
+else
+  log "phase: skip post-110 Phase B (set CHRYSALIS_GCE_POST110_PHASE_B=1 to enable)"
+fi
+
 date -Is >"${OK_FILE}"
 log "ALL OK — marker ${OK_FILE}"

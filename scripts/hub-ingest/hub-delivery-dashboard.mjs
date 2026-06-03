@@ -17,7 +17,7 @@ import { runLaravelVerifyGapsAction } from "./hub-laravel-verify-gaps-action.mjs
 import { buildOracleMicroFixtureReport } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_DELIVERY_DASHBOARD_KIND = "chrysalis.hub.delivery-dashboard";
-export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 35;
+export const HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION = 36;
 
 const ARTIFACT_FILES = [
   "site-intelligence.json",
@@ -424,6 +424,18 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       irHelperLiftingFullPath: "hub:ir-helper-lifting-full-path-smoke",
       verifyGapsIngestActionSchemaVersion: 5,
       requireVerifyHttpTargetEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET",
+    },
+    post110Program: {
+      verifyGapsReinforcement: "hub:verify-gaps-post110-reinforcement-smoke",
+      authority: "docs/CWL-FULLSTACK-POST-110-PROGRAM.md",
+      phaseB: {
+        b1: "CHRYSALIS_HUB_GAP_REINGEST_STRICT",
+        b2: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY",
+        b3: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
+        b4: "hub:ir-helper-lifting-embed-smoke",
+        b5: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET",
+      },
+      gcePhaseEnv: "CHRYSALIS_GCE_POST110_PHASE_B",
     },
     artifacts,
     generatedAt: new Date().toISOString(),

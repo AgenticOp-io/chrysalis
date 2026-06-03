@@ -2113,6 +2113,44 @@ describe("strategic plan deliverables", () => {
     expect(report.flagshipFullGapsBatch?.fixtures?.length).toBe(3);
   });
 
+  test("delivery dashboard v36 surfaces post-110 Phase B program (G2259)", async () => {
+    const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")
+    );
+    const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const tmp = mkdtempSync(join(tmpdir(), "chrysalis-dash-post110-"));
+    try {
+      mkdirSync(join(tmp, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        join(tmp, "chrysalis.routes.json"),
+        JSON.stringify({ routes: [{ method: "GET", path: "/health" }] }),
+      );
+      const report = await buildDeliveryDashboard(tmp, { origin: "php", output: "hono" });
+      expect(HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION).toBeGreaterThanOrEqual(36);
+      expect(report.post110Program?.verifyGapsReinforcement).toBe(
+        "hub:verify-gaps-post110-reinforcement-smoke",
+      );
+      expect(report.post110Program?.authority).toBe("docs/CWL-FULLSTACK-POST-110-PROGRAM.md");
+      expect(report.post110Program?.phaseB?.b1).toBe("CHRYSALIS_HUB_GAP_REINGEST_STRICT");
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  test("capability matrix v33 lists post-110 verify-gaps reinforcement (G2259)", async () => {
+    const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+      resolve(ROOT, "scripts/hub-ingest/hub-capability-matrix.mjs")
+    );
+    const report = buildHubCapabilityMatrixReport();
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(33);
+    expect(report.verifyGapsPost110Reinforcement?.script).toBe(
+      "pnpm run hub:verify-gaps-post110-reinforcement-smoke",
+    );
+    expect(report.verifyGapsPost110Reinforcement?.gcePhaseEnv).toBe("CHRYSALIS_GCE_POST110_PHASE_B");
+  });
+
   test("delivery dashboard v30 surfaces month26 verify closure (G903)", async () => {
     const { buildDeliveryDashboard, HUB_DELIVERY_DASHBOARD_SCHEMA_VERSION } = await import(
       resolve(ROOT, "scripts/hub-ingest/hub-delivery-dashboard.mjs")

@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 32;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 33;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -180,6 +180,14 @@ export function buildHubCapabilityMatrixReport() {
         "--ingest-lift-shared-helpers-semantic",
         "--ingest-embed-shared-helper-bodies",
       ],
+    },
+    verifyGapsPost110Reinforcement: {
+      script: "pnpm run hub:verify-gaps-post110-reinforcement-smoke",
+      batchSchemaVersion: 1,
+      authority: "docs/CWL-FULLSTACK-POST-110-PROGRAM.md",
+      gcePhaseEnv: "CHRYSALIS_GCE_POST110_PHASE_B",
+      requireStrictReingestEnv: "CHRYSALIS_HUB_GAP_REINGEST_STRICT",
+      requireVerifyHttpTargetEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET",
     },
     laravelAuthProbeReingestVerifyHttpFastify: {
       script: "pnpm run hub:laravel-auth-probe-reingest-verify-http-fastify-smoke",

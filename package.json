@@ -309,6 +309,7 @@
     "hub:gap-reingest-batch-smoke": "node scripts/hub-ingest/hub-gap-reingest-batch-smoke.mjs",
     "hub:gaps-ingest-closure-batch-smoke": "node scripts/hub-ingest/hub-gaps-ingest-closure-batch-smoke.mjs",
     "hub:gaps-ingest-strict-batch-smoke": "node scripts/hub-ingest/hub-gaps-ingest-strict-batch-smoke.mjs",
+    "hub:verify-gaps-post110-reinforcement-smoke": "node scripts/hub-ingest/hub-verify-gaps-post110-reinforcement-smoke.mjs",
     "hub:laravel-verify-live-gaps-closure-smoke": "node scripts/hub-ingest/hub-laravel-verify-live-gaps-closure-smoke.mjs",
     "hub:gap-reingest-strict-smoke": "node scripts/hub-ingest/hub-gap-reingest-strict-smoke.mjs",
     "hub:laravel-auth-probe-reingest-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs",

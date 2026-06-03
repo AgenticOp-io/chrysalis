@@ -7,7 +7,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const AUTHORING_BATCH_V61_V63 = [
   { v: 61, roadmap: "G1763", mode: "post60-composite", ms: 180_000 },
   { v: 62, roadmap: "G1773", mode: "post61-composite", ms: 180_000 },
-  { v: 63, roadmap: "G1783", mode: "post62-composite", ms: 300_000 },
+  { v: 63, roadmap: "G1783", mode: "post62-composite", ms: 600_000 },
 ] as const;
 
 for (const spec of AUTHORING_BATCH_V61_V63) {

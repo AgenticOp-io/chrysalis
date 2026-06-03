@@ -33,6 +33,8 @@ Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated
 | B4 | Month 29 | Fastify HTTP + IR helper embed (`--ingest-embed-shared-helper-bodies`) batch |
 | B5 | Month 30 | Graduation: dual-backend HTTP loop + IR helper B1–B4 full path |
 
+**Script:** `pnpm run hub:verify-gaps-post110-reinforcement-smoke` (GCE phase after v110 when `CHRYSALIS_GCE_POST110_PHASE_B=1`, default on full GCE run).
+
 ---
 
 ## Phase C — Paused unless plan amended
