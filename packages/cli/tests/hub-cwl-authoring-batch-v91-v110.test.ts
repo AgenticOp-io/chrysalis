@@ -27,13 +27,15 @@ const AUTHORING_BATCH_V91_V110 = [
   { v: 110, roadmap: "G2253", mode: "post90-hub-graduation-lock", ms: 900_000 },
 ] as const;
 
+const runHeavyAuthoringBatch =
+  process.env.CHRYSALIS_RUN_HUB_HEAVY_AUTHORING_BATCH === "1" ||
+  process.env.CHRYSALIS_GCE_ALL_TESTS === "1";
+
 const HEAVY_AUTHORING_BATCH = new Set([106, 107, 108, 109, 110]);
 
 for (const spec of AUTHORING_BATCH_V91_V110) {
   const runTest =
-    HEAVY_AUTHORING_BATCH.has(spec.v) && process.env.CHRYSALIS_RUN_HUB_HEAVY_AUTHORING_BATCH !== "1"
-      ? test.skip
-      : test;
+    HEAVY_AUTHORING_BATCH.has(spec.v) && !runHeavyAuthoringBatch ? test.skip : test;
   runTest(`authoring batch v${spec.v} smoke (${spec.roadmap})`, async () => {
     const mod = await import(
       resolve(ROOT, `scripts/hub-ingest/hub-cwl-authoring-batch-v${spec.v}-smoke.mjs`),

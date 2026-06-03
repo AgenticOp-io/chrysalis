@@ -69,6 +69,9 @@ run_phase hub-vm-verify bash scripts/gce-vm-verify-suite.sh
 log "phase: hub-cwl vitest"
 run_phase hub-cwl pnpm exec vitest run packages/cli/tests/hub-cwl.test.ts --reporter=verbose --pool=forks --maxWorkers=1
 
+log "phase: hub CWL authoring batch vitest (v64-v110)"
+run_phase hub-cwl-authoring-batches bash scripts/gce-hub-authoring-batch-vitest.sh
+
 if [[ "${CHRYSALIS_GCE_FULL_VITEST:-}" == "1" ]]; then
   log "phase: full workspace vitest (pnpm test)"
   run_phase full-vitest pnpm test

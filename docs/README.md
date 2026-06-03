@@ -21,6 +21,7 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | [Hub server install](./HUB-SERVER-INSTALL.md) | Hub operators | Client/server install, multi-site SSH batch, automated deploy scripts. |
 | [Administration](./ADMINISTRATION.md) | SRE, platform, release owners | Environment variables, CI gates, the report tree, redaction policy, corpus retention, repository settings. |
 | [GCE test runner](./GCE-LOCAL-VERIFY.md) | Anyone running CI-scale tests | **Default:** `pnpm run test:gce` on `chrysalis-test-vm` (detached; laptop can sleep). |
+| [Windows vs Linux tests](./WINDOWS-COMPAT.md) | Windows developers | What runs locally vs on GCE; env flags and known platform gaps. |
 
 ---
 
