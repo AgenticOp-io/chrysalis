@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { runCwlAuthoringBatchV109Smoke } from "./hub-cwl-authoring-batch-v109-smoke.mjs";
 import { resolvePriorBatchOpts } from "./hub-cwl-batch-opts.mjs";
 import { runPost109GraduationGate } from "./hub-cwl-fullstack-gates.mjs";
-import { runPost90HubGraduationLockGate } from "./hub-cwl-fullstack-gates.mjs";
+import { runPost90HubGraduationLockGate, runEvidenceTrendStandaloneGate } from "./hub-cwl-fullstack-gates.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V110_KIND = "chrysalis.hub.cwl-authoring-batch-v110";
 export const HUB_CWL_AUTHORING_BATCH_V110_SCHEMA_VERSION = 1;
@@ -18,8 +18,11 @@ export async function runCwlAuthoringBatchV110Smoke(opts = {}) {
   const batchV109 = skipPrior
     ? { ok: true, skip: "skip-prior-chain" }
     : await runCwlAuthoringBatchV109Smoke(resolvePriorBatchOpts(opts, 109));
+  const fullGraduationLock = process.env.CHRYSALIS_RUN_FULL_GRADUATION_LOCK === "1";
   const gate110 = skipPrior
-    ? await runPost90HubGraduationLockGate()
+    ? fullGraduationLock
+      ? await runPost90HubGraduationLockGate()
+      : await runEvidenceTrendStandaloneGate()
     : await runPost109GraduationGate({ repoRoot });
   const ok = batchV109.ok === true && gate110.ok === true;
   return {
@@ -27,7 +30,11 @@ export async function runCwlAuthoringBatchV110Smoke(opts = {}) {
     schemaVersion: HUB_CWL_AUTHORING_BATCH_V110_SCHEMA_VERSION,
     ok,
     skipPriorChain: skipPrior,
-    gate110Mode: skipPrior ? "post90-hub-graduation-lock" : "post109-graduation",
+    gate110Mode: skipPrior
+      ? fullGraduationLock
+        ? "post90-hub-graduation-lock"
+        : "evidence-trend"
+      : "post109-graduation",
     batchV109,
     gate110,
     generatedAt: new Date().toISOString(),

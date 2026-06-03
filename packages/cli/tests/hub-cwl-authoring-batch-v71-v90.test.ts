@@ -25,7 +25,7 @@ const AUTHORING_BATCH_V71_V90 = [
   { v: 87, roadmap: "G2023", mode: "fullstack-roundtrip", ms: 60_000 },
   { v: 88, roadmap: "G2033", mode: "post70-month2-composite", ms: 180_000 },
   { v: 89, roadmap: "G2043", mode: "post80-month2-mega", ms: 480_000 },
-  { v: 90, roadmap: "G2053", mode: "month23-graduation-lock", ms: 1_200_000 },
+  { v: 90, roadmap: "G2053", mode: "evidence-trend", ms: 120_000 },
 ] as const;
 
 for (const spec of AUTHORING_BATCH_V71_V90) {
