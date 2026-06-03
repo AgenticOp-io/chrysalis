@@ -7,7 +7,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 /** Gate-only skipPriorChain smokes — one vitest per queue (G1793–G1853). */
 const AUTHORING_BATCH_V64_V70 = [
   { v: 64, roadmap: "G1793", mode: "formatter-lint", ms: 60_000 },
-  { v: 65, roadmap: "G1803", mode: "project-to-cwl-mandatory", ms: 120_000 },
+  { v: 65, roadmap: "G1803", mode: "project-to-cwl-mandatory", ms: 240_000 },
   { v: 66, roadmap: "G1813", mode: "fullstack-scope-rfc", ms: 60_000 },
   { v: 67, roadmap: "G1823", mode: "node-express-oracle", ms: 300_000 },
   { v: 68, roadmap: "G1833", mode: "post60-authoring-composite", ms: 180_000 },

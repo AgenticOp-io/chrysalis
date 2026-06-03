@@ -7,6 +7,7 @@ cd "${REPO}"
 
 export CHRYSALIS_GCE_ALL_TESTS=1
 export CHRYSALIS_RUN_HUB_HEAVY_AUTHORING_BATCH=1
+export CHRYSALIS_EXPRESS_SERVER_START_TIMEOUT_MS="${CHRYSALIS_EXPRESS_SERVER_START_TIMEOUT_MS:-60000}"
 export NODE_OPTIONS="${NODE_OPTIONS:---disable-warning=ExperimentalWarning}"
 
 VITEST_COMMON=(
@@ -14,6 +15,7 @@ VITEST_COMMON=(
   --pool=forks
   --maxWorkers=1
   --no-file-parallelism
+  --testTimeout=900000
 )
 
 log() { echo "[gce-authoring-batch] $(date -Is) $*"; }

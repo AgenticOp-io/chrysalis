@@ -50,10 +50,19 @@ function ensureHonoDeps(outDir) {
   return inst.status === 0;
 }
 
+function expressServerStartTimeoutMs() {
+  const raw = process.env.CHRYSALIS_EXPRESS_SERVER_START_TIMEOUT_MS;
+  if (raw != null && raw !== "") {
+    const n = Number(raw);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return 15000;
+}
+
 /**
- * @param {number} timeoutMs
+ * @param {number} [timeoutMs]
  */
-function startExpressServer(timeoutMs = 15000) {
+function startExpressServer(timeoutMs = expressServerStartTimeoutMs()) {
   return new Promise((resolveP, reject) => {
     const child = spawn(process.execPath, [serveScript], {
       cwd: join(fixture, "src"),
