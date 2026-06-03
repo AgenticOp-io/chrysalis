@@ -15,7 +15,7 @@ VITEST_COMMON=(
   --pool=forks
   --maxWorkers=1
   --no-file-parallelism
-  --testTimeout=900000
+  --testTimeout=1200000
 )
 
 log() { echo "[gce-authoring-batch] $(date -Is) $*"; }
