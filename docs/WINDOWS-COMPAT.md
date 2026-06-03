@@ -11,6 +11,7 @@ Authority: **`docs/GCE-LOCAL-VERIFY.md`**, **`docs/STRATEGIC-PLAN.md`** §12 (de
 | Area | Linux (GCE / bash) | Windows (local PowerShell) | Mitigation |
 | --- | --- | --- | --- |
 | **Full authoring batches v64–v110** | All queues run (`gce-hub-authoring-batch-vitest.sh`; mega gates enabled) | v91–v105 gate-only vitest; **v106–v110 skipped** by default | `pnpm run test:gce` or `$env:CHRYSALIS_RUN_HUB_HEAVY_AUTHORING_BATCH='1'` |
+| **hub-cwl.test.ts on GCE** | Slim RFC/parser smokes only (`gce-hub-cwl-vitest.sh`; batch smokes skipped) | Full file including slow v20/v21 graduation chains | GCE only for batch smokes |
 | **v110 graduation lock** | `gce-run-all-tests.sh` phase + full vitest on GCE | Skipped locally (17 parallel gates + HTTP verify; 10–60+ min) | GCE only |
 | **v106 oracle-product-ultra** | ~8–15 min on GCE | Often **>480s** timeout in vitest | Skip locally; run on GCE |
 | **v107 verify-standalone-mega** | Runs on GCE | Same timeout risk as v106 | Skip locally; run on GCE |

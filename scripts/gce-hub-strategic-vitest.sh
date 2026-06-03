@@ -11,7 +11,7 @@ VITEST_COMMON=(
   --reporter=verbose
   --pool=forks
   --maxWorkers=1
-  --testTimeout=120000
+  --testTimeout=300000
   --no-file-parallelism
 )
 

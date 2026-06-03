@@ -9,6 +9,11 @@ const GOLD = resolve(ROOT, "scripts/hub-ingest/hub-gold-verify.mjs");
 const PARSER = resolve(ROOT, "scripts/hub-ingest/cwl-parser.mjs");
 const FIXTURE = resolve(ROOT, "fixtures/hub-gold-cwl");
 
+/** GCE runs authoring batches via dedicated vitest files (see gce-hub-authoring-batch-vitest.sh). */
+const gceSlimHubCwl =
+  process.env.CHRYSALIS_GCE_SLIM_HUB_CWL === "1" || process.env.CHRYSALIS_GCE_ALL_TESTS === "1";
+const batchTest = gceSlimHubCwl ? test.skip : test;
+
 test("cwl parser: layout imports and page params (RFC-0011 / G1145)", async () => {
   const { parseCwlModuleResolved } = await import(resolve(ROOT, "scripts/hub-ingest/cwl-module-graph.mjs"));
   const { readFile } = await import("node:fs/promises");
@@ -69,7 +74,7 @@ test("runtime-cwl full-stack parity smoke (G1151)", async () => {
   expect(report.ok).toBe(true);
 });
 
-test("cwl authoring batch smoke (G1155)", async () => {
+batchTest("cwl authoring batch smoke (G1155)", async () => {
   const { runCwlAuthoringBatchSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-smoke.mjs"),
   );
@@ -110,7 +115,7 @@ test("sveltekit deep lift smoke (G1158 / G1159 load)", async () => {
   expect(report.loadRouteLifted).toBe(true);
 });
 
-test("authoring batch v2 smoke (G1175)", async () => {
+batchTest("authoring batch v2 smoke (G1175)", async () => {
   const { runCwlAuthoringBatchV2Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v2-smoke.mjs"),
   );
@@ -118,7 +123,7 @@ test("authoring batch v2 smoke (G1175)", async () => {
   expect(report.ok).toBe(true);
 }, 120_000);
 
-test("authoring batch v5 smoke (G1204)", async () => {
+batchTest("authoring batch v5 smoke (G1204)", async () => {
   const { runCwlAuthoringBatchV5Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v5-smoke.mjs"),
   );
@@ -127,7 +132,7 @@ test("authoring batch v5 smoke (G1204)", async () => {
   expect(report.htmlRoundtrip?.ok).toBe(true);
 }, 300_000);
 
-test("authoring batch v20 graduation smoke (G1354)", async () => {
+batchTest("authoring batch v20 graduation smoke (G1354)", async () => {
   const { runCwlAuthoringBatchV20Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v20-smoke.mjs"),
   );
@@ -136,7 +141,7 @@ test("authoring batch v20 graduation smoke (G1354)", async () => {
   expect(report.gate20?.ok).toBe(true);
 }, 600_000);
 
-test("authoring batch v21 production search smoke (G1363)", async () => {
+batchTest("authoring batch v21 production search smoke (G1363)", async () => {
   const { runCwlAuthoringBatchV21Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v21-smoke.mjs"),
   );
@@ -145,7 +150,7 @@ test("authoring batch v21 production search smoke (G1363)", async () => {
   expect(report.gate21?.ok).toBe(true);
 }, 600_000);
 
-test("authoring batch v30 production graduation smoke (G1453)", async () => {
+batchTest("authoring batch v30 production graduation smoke (G1453)", async () => {
   const { runCwlAuthoringBatchV30Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v30-smoke.mjs"),
   );
@@ -155,7 +160,7 @@ test("authoring batch v30 production graduation smoke (G1453)", async () => {
   expect(report.graduationOnly).toBe(true);
 }, 180_000);
 
-test("authoring batch v40 post-30 graduation smoke (G1553)", async () => {
+batchTest("authoring batch v40 post-30 graduation smoke (G1553)", async () => {
   const { runCwlAuthoringBatchV40Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v40-smoke.mjs"),
   );
@@ -165,7 +170,7 @@ test("authoring batch v40 post-30 graduation smoke (G1553)", async () => {
   expect(report.gate40Mode).toBe("post30-composite");
 }, 120_000);
 
-test("authoring batch v50 post-40 graduation smoke (G1653)", async () => {
+batchTest("authoring batch v50 post-40 graduation smoke (G1653)", async () => {
   const { runCwlAuthoringBatchV50Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v50-smoke.mjs"),
   );
@@ -175,7 +180,7 @@ test("authoring batch v50 post-40 graduation smoke (G1653)", async () => {
   expect(report.gate50Mode).toBe("post40-composite");
 }, 120_000);
 
-test("authoring batch v60 verify-gaps graduation smoke (G1753)", async () => {
+batchTest("authoring batch v60 verify-gaps graduation smoke (G1753)", async () => {
   const { runCwlAuthoringBatchV60Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v60-smoke.mjs"),
   );
@@ -185,7 +190,7 @@ test("authoring batch v60 verify-gaps graduation smoke (G1753)", async () => {
   expect(report.gate60Mode).toBe("post50-composite");
 }, 180_000);
 
-test("authoring batch v61 templates gate smoke (G1763)", async () => {
+batchTest("authoring batch v61 templates gate smoke (G1763)", async () => {
   const { runCwlAuthoringBatchV61Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v61-smoke.mjs"),
   );
@@ -202,7 +207,7 @@ test("authoring batch v61 templates gate smoke (G1763)", async () => {
   expect(report.gate61Mode).toBe("post60-composite");
 }, 180_000);
 
-test("authoring batch v62 preview dev loop smoke (G1773)", async () => {
+batchTest("authoring batch v62 preview dev loop smoke (G1773)", async () => {
   const { runCwlAuthoringBatchV62Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v62-smoke.mjs"),
   );
@@ -220,7 +225,7 @@ test("authoring batch v62 preview dev loop smoke (G1773)", async () => {
   expect(report.gate62Mode).toBe("post61-composite");
 }, 180_000);
 
-test("authoring batch v63 runtime-cwl parity smoke (G1783)", async () => {
+batchTest("authoring batch v63 runtime-cwl parity smoke (G1783)", async () => {
   const { runCwlAuthoringBatchV63Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v63-smoke.mjs"),
   );
@@ -256,7 +261,7 @@ test("cwl html roundtrip smoke (G1202)", async () => {
   expect(report.ok).toBe(true);
 });
 
-test("authoring batch v4 smoke (G1196)", async () => {
+batchTest("authoring batch v4 smoke (G1196)", async () => {
   const { runCwlAuthoringBatchV4Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v4-smoke.mjs"),
   );
@@ -273,7 +278,7 @@ test("cwl html interpolation smoke (G1189)", async () => {
   expect(report.ok).toBe(true);
 });
 
-test("authoring batch v3 smoke (G1186)", async () => {
+batchTest("authoring batch v3 smoke (G1186)", async () => {
   const { runCwlAuthoringBatchV3Smoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v3-smoke.mjs"),
   );

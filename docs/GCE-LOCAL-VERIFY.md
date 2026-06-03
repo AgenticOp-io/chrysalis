@@ -40,8 +40,8 @@ Script: `scripts/gce-run-all-tests.sh`
 | Build | `pnpm install`, `pnpm -r build`, parser-bridge vendor (if `php` on VM) |
 | Shims | `pnpm run test:cli-shims` |
 | Hub suite | `scripts/gce-vm-verify-suite.sh` (strategic vitest, flagships, node oracle) |
-| CWL | `packages/cli/tests/hub-cwl.test.ts` |
-| Authoring batches | `scripts/gce-hub-authoring-batch-vitest.sh` (v64–v110; mega gates v106–v110) |
+| CWL | `scripts/gce-hub-cwl-vitest.sh` (RFC/parser smokes; batch smokes skipped) |
+| Authoring batches | `scripts/gce-hub-authoring-batch-vitest.sh` (v61–v110; mega gates v106–v110) |
 | Completion | `pnpm run ci:hub-completion` |
 | CWL HTTP | `hub-cwl-fullstack-verify-http-smoke` |
 | CWL batches | fast v40 + v60 composite |

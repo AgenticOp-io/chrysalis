@@ -67,7 +67,7 @@ log "phase: hub vm verify suite"
 run_phase hub-vm-verify bash scripts/gce-vm-verify-suite.sh
 
 log "phase: hub-cwl vitest"
-run_phase hub-cwl pnpm exec vitest run packages/cli/tests/hub-cwl.test.ts --reporter=verbose --pool=forks --maxWorkers=1
+run_phase hub-cwl bash scripts/gce-hub-cwl-vitest.sh
 
 log "phase: hub CWL authoring batch vitest (v64-v110)"
 run_phase hub-cwl-authoring-batches bash scripts/gce-hub-authoring-batch-vitest.sh

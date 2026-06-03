@@ -21,6 +21,9 @@ log() { echo "[gce-authoring-batch] $(date -Is) $*"; }
 log "ensure gitignored fixture emits"
 bash scripts/gce-ensure-fixture-emits.sh
 
+log "authoring batches v61-v63"
+pnpm exec vitest run packages/cli/tests/hub-cwl-authoring-batch-v61-v63.test.ts "${VITEST_COMMON[@]}"
+
 log "authoring batches v64-v70"
 pnpm exec vitest run packages/cli/tests/hub-cwl-authoring-batch-v64-v70.test.ts "${VITEST_COMMON[@]}"
 

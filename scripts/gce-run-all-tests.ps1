@@ -46,7 +46,8 @@ function Sync-GceRunnerScripts {
     "gce-ensure-fixture-emits.sh",
     "gce-vm-verify-suite.sh",
     "gce-cwl-batch-v40-fast.sh",
-    "gce-hub-authoring-batch-vitest.sh"
+    "gce-hub-authoring-batch-vitest.sh",
+    "gce-hub-cwl-vitest.sh"
   )
   Write-Host "=== Sync runner scripts to VM (local workspace; may differ from git HEAD) ==="
   foreach ($name in $runnerNames) {
@@ -59,7 +60,7 @@ function Sync-GceRunnerScripts {
     if ($LASTEXITCODE -ne 0) { throw "scp failed for $name" }
   }
   $chmodArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @(
-    "--command=chmod +x ~/chrysalis-test/scripts/gce-run-all-tests.sh ~/chrysalis-test/scripts/gce-run-phase.sh ~/chrysalis-test/scripts/gce-hub-strategic-vitest.sh ~/chrysalis-test/scripts/gce-ensure-fixture-emits.sh ~/chrysalis-test/scripts/gce-vm-verify-suite.sh ~/chrysalis-test/scripts/gce-cwl-batch-v40-fast.sh ~/chrysalis-test/scripts/gce-hub-authoring-batch-vitest.sh"
+    "--command=chmod +x ~/chrysalis-test/scripts/gce-run-all-tests.sh ~/chrysalis-test/scripts/gce-run-phase.sh ~/chrysalis-test/scripts/gce-hub-strategic-vitest.sh ~/chrysalis-test/scripts/gce-ensure-fixture-emits.sh ~/chrysalis-test/scripts/gce-vm-verify-suite.sh ~/chrysalis-test/scripts/gce-cwl-batch-v40-fast.sh ~/chrysalis-test/scripts/gce-hub-authoring-batch-vitest.sh ~/chrysalis-test/scripts/gce-hub-cwl-vitest.sh"
   )
   Invoke-Gcloud -GcloudArgs $chmodArgs
 }
