@@ -27,7 +27,7 @@ const AUTHORING_BATCH_V91_V110 = [
   { v: 110, roadmap: "G2253", mode: "post90-hub-graduation-lock", ms: 900_000 },
 ] as const;
 
-const HEAVY_AUTHORING_BATCH = new Set([108, 109, 110]);
+const HEAVY_AUTHORING_BATCH = new Set([106, 107, 108, 109, 110]);
 
 for (const spec of AUTHORING_BATCH_V91_V110) {
   const runTest =

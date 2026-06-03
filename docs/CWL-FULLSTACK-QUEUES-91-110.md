@@ -27,7 +27,7 @@
 | 109 | G2239–G2248 | Post-100 hub ops mega | v109 | 182 |
 | 110 | G2249–G2258 | Post-90 hub graduation lock | v110 | 183 |
 
-**Vitest:** `packages/cli/tests/hub-cwl-authoring-batch-v91-v110.test.ts` (v91–v107 always; v108–v110 when `CHRYSALIS_RUN_HUB_HEAVY_AUTHORING_BATCH=1` or on GCE).
+**Vitest:** `packages/cli/tests/hub-cwl-authoring-batch-v91-v110.test.ts` (v91–v105 always; v106–v110 when `CHRYSALIS_RUN_HUB_HEAVY_AUTHORING_BATCH=1` or on GCE).
 
 **GCE:** `v60 + v110` skip-prior smokes.
 
