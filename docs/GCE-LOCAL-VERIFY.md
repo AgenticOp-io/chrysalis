@@ -16,6 +16,7 @@ Check progress (any machine with gcloud):
 
 ```powershell
 pnpm run test:gce:status
+pnpm run test:gce:wait     # poll until OK (auto-fetch) or failure
 ```
 
 When **`STATUS: OK`** appears, pull artifacts:

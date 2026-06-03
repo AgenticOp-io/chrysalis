@@ -103,6 +103,7 @@
     "test:gce:foreground": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-run-all-tests.ps1",
     "test:gce:sync": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-run-all-tests.ps1 -SkipRefresh -Status",
     "test:gce:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-test-status.ps1",
+    "test:gce:wait": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-wait-for-gce.ps1",
     "test:gce:fetch": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-fetch-reports.ps1",
     "hub:laravel-verify-gaps": "node scripts/hub-ingest/hub-laravel-verify-gaps.mjs --json-out reports/ci/hub-laravel-verify-gaps.json",
     "hub:laravel-verify-gaps-action": "node scripts/hub-ingest/hub-laravel-verify-gaps-action.mjs --json-out reports/ci/hub-laravel-verify-gaps-action.json",
