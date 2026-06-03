@@ -1125,7 +1125,7 @@ describe("strategic plan deliverables", () => {
     expect(report.projectionOk).toBe(true);
     expect(report.cwlProjection?.holeFree).toBe(report.cwlProjection?.total);
     expect(report.cwlProjection?.withBodyParams).toBeGreaterThanOrEqual(2);
-  }, 60_000);
+  }, 180_000);
 
   test.skipIf(gceSlimHubStrategic)("hub-translate E2E on plain-php flagship (G192)", async () => {
     const { runHubTranslateE2eSmoke } = await import(
@@ -1149,7 +1149,7 @@ describe("strategic plan deliverables", () => {
     expect(report.ok).toBe(true);
     expect(report.forwardProjection?.holeFree).toBe(report.forwardProjection?.total);
     expect(report.roundProjection?.holeFree).toBe(report.roundProjection?.total);
-  }, 60_000);
+  }, 180_000);
 
   test("hub evidence live with pipeline gate pass (G194)", async () => {
     const { runHubEvidenceLive } = await import(

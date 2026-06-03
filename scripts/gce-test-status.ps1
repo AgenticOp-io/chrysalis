@@ -18,7 +18,7 @@ grep -E '^\[gce-all-tests\].*phase:' ~/chrysalis-test/reports/ci/gce-all-tests.l
 echo '--- active phase logs ---'
 ls -lt ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 3 || echo '(none)'
 echo '--- failed phase (if any) ---'
-grep -lE 'END exit=[1-9][0-9]*' ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 1 | xargs -r tail -n 8 || echo '(none)'
+grep -lE 'Failed Tests|END exit=[1-9][0-9]*' ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 1 | xargs -r tail -n 12 || echo '(none)'
 echo '--- tail log ---'
 tail -n 25 ~/chrysalis-test/reports/ci/gce-all-tests.log 2>/dev/null || tail -n 25 ~/gce-all-tests.nohup.log 2>/dev/null || echo '(no log yet)'
 '@

@@ -11,7 +11,7 @@ param(
   [string] $Project = $(if ($env:CHRYSALIS_GCE_PROJECT) { $env:CHRYSALIS_GCE_PROJECT } else { "chrysalis-dev-f5x6qv" }),
   [string] $Zone = "us-central1-a",
   [string] $Name = "chrysalis-test-vm",
-  [int] $IntervalSec = 90,
+  [int] $IntervalSec = 30,
   [ValidateSet("none", "fetch", "relaunch")]
   [string] $OnSuccess = "fetch",
   [ValidateSet("none", "relaunch")]
