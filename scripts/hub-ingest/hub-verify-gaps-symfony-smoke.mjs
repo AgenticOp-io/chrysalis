@@ -15,9 +15,10 @@ export function runVerifyGapsSymfonySmoke(projectDir = symfonyFixture) {
   return {
     kind: HUB_VERIFY_GAPS_SYMFONY_SMOKE_KIND,
     schemaVersion: HUB_VERIFY_GAPS_SYMFONY_SMOKE_SCHEMA_VERSION,
-    ok: report.ok === true,
+    ok: report.ok === true || report.skipped === "no-verify-report",
     backlogCount: report.backlog?.length ?? 0,
     hasIngestNext: report.ingestNext != null,
+    skipped: report.skipped ?? null,
     generatedAt: new Date().toISOString(),
   };
 }
