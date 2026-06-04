@@ -1281,9 +1281,6 @@ export async function runPost90HubGraduationLockGate(opts = {}) {
     production,
     pageProbe,
     evidence,
-    migration,
-    oracle,
-    verify,
   ] = await Promise.all([
     runVerifyGapsExpressFlagshipGate(),
     runVerifyGapsSymfonyFlagshipGate(),
@@ -1299,10 +1296,10 @@ export async function runPost90HubGraduationLockGate(opts = {}) {
     runRuntimeProductionV2Gate(opts),
     runEmitPageProbeFullstackGate(opts),
     runEvidenceTrendStandaloneGate(),
-    runMigrationOsMegaGate(),
-    runOracleProductUltraGate(),
-    runVerifyStandaloneMegaGate(),
   ]);
+  const migration = await runMigrationOsMegaGate();
+  const oracle = await runOracleProductUltraGate();
+  const verify = await runVerifyStandaloneMegaGate();
   const ok =
     express.ok === true &&
     symfony.ok === true &&

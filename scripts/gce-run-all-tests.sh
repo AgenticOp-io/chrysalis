@@ -105,6 +105,14 @@ if (!r.ok) { console.error(r); process.exit(1); }
 console.log('v106 ok', r.gate106Mode);
 "
 
+log "phase: cwl batch v107 (verify standalone mega)"
+run_phase cwl-batch-v107 env CHRYSALIS_RUN_VERIFY_STANDALONE_MEGA=1 node --input-type=module -e "
+import { runCwlAuthoringBatchV107Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v107-smoke.mjs';
+const r = await runCwlAuthoringBatchV107Smoke({ skipPriorChain: true });
+if (!r.ok) { console.error(r); process.exit(1); }
+console.log('v107 ok', r.gate107Mode);
+"
+
 log "phase: cwl batch v110 (hub verify-gaps graduation lock)"
 run_phase cwl-batch-v110 env CHRYSALIS_RUN_FULL_GRADUATION_LOCK=1 node --input-type=module -e "
 import { runCwlAuthoringBatchV110Smoke } from './scripts/hub-ingest/hub-cwl-authoring-batch-v110-smoke.mjs';
@@ -115,7 +123,13 @@ console.log('v110 ok', r.gate110Mode);
 
 if [[ "${CHRYSALIS_GCE_POST110_PHASE_B:-1}" == "1" ]]; then
   log "phase: post-110 verify-gaps reinforcement (B1-B5)"
-  run_phase post110-verify-gaps pnpm run hub:verify-gaps-post110-reinforcement-smoke
+  run_phase post110-verify-gaps env \
+    CHRYSALIS_HUB_GAP_REINGEST_STRICT=1 \
+    CHRYSALIS_HUB_GAP_REINGEST=1 \
+    CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE=1 \
+    CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY=1 \
+    CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP=1 \
+    pnpm run hub:verify-gaps-post110-reinforcement-smoke
 else
   log "phase: skip post-110 Phase B (set CHRYSALIS_GCE_POST110_PHASE_B=1 to enable)"
 fi

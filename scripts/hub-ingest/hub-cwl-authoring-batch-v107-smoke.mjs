@@ -4,8 +4,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCwlAuthoringBatchV106Smoke } from "./hub-cwl-authoring-batch-v106-smoke.mjs";
 import { resolvePriorBatchOpts } from "./hub-cwl-batch-opts.mjs";
-import { runPost106GraduationGate } from "./hub-cwl-fullstack-gates.mjs";
-import { runVerifyStandaloneMegaGate } from "./hub-cwl-fullstack-gates.mjs";
+import {
+  runEvidenceTrendStandaloneGate,
+  runPost106GraduationGate,
+  runVerifyStandaloneMegaGate,
+} from "./hub-cwl-fullstack-gates.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V107_KIND = "chrysalis.hub.cwl-authoring-batch-v107";
 export const HUB_CWL_AUTHORING_BATCH_V107_SCHEMA_VERSION = 1;
@@ -18,8 +21,11 @@ export async function runCwlAuthoringBatchV107Smoke(opts = {}) {
   const batchV106 = skipPrior
     ? { ok: true, skip: "skip-prior-chain" }
     : await runCwlAuthoringBatchV106Smoke(resolvePriorBatchOpts(opts, 106));
+  const runVerifyStandaloneMega = process.env.CHRYSALIS_RUN_VERIFY_STANDALONE_MEGA === "1";
   const gate107 = skipPrior
-    ? await runVerifyStandaloneMegaGate()
+    ? runVerifyStandaloneMega
+      ? await runVerifyStandaloneMegaGate()
+      : await runEvidenceTrendStandaloneGate()
     : await runPost106GraduationGate({ repoRoot });
   const ok = batchV106.ok === true && gate107.ok === true;
   return {
@@ -27,7 +33,11 @@ export async function runCwlAuthoringBatchV107Smoke(opts = {}) {
     schemaVersion: HUB_CWL_AUTHORING_BATCH_V107_SCHEMA_VERSION,
     ok,
     skipPriorChain: skipPrior,
-    gate107Mode: skipPrior ? "verify-standalone-mega" : "post106-graduation",
+    gate107Mode: skipPrior
+      ? runVerifyStandaloneMega
+        ? "verify-standalone-mega"
+        : "evidence-trend"
+      : "post106-graduation",
     batchV106,
     gate107,
     generatedAt: new Date().toISOString(),
