@@ -22,9 +22,10 @@ ls -lt ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 3 || ec
 echo '--- failed phase (if any) ---'
 grep -lE 'Failed Tests|END exit=[1-9][0-9]*' ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 1 | xargs -r tail -n 12 || echo '(none)'
 echo '--- tail log (latest phase) ---'
-latest_phase="$(ls -t ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 1)"
-if test -n "${latest_phase}"; then tail -n 25 "${latest_phase}"; else tail -n 25 ~/chrysalis-test/reports/ci/gce-all-tests.log 2>/dev/null || tail -n 25 ~/gce-all-tests.nohup.log 2>/dev/null || echo '(no log yet)'; fi
+LATEST=$(ls -t ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 1)
+if test -n "$LATEST"; then tail -n 25 "$LATEST"; else tail -n 25 ~/chrysalis-test/reports/ci/gce-all-tests.log 2>/dev/null || tail -n 25 ~/gce-all-tests.nohup.log 2>/dev/null || echo '(no log yet)'; fi
 '@
 
-& gcloud compute ssh $Name --zone=$Zone --project=$Project @SshExtra --command=$remote
+$gcloudArgs = @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + $SshExtra + @("--command", $remote)
+& gcloud @gcloudArgs
 exit $LASTEXITCODE
