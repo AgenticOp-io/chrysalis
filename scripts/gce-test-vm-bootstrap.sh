@@ -39,7 +39,15 @@ else
   fi
 fi
 
-rm -rf "${WORKDIR}"
+# Shared VMs may leave root-owned or busy paths under packages/; force-clear before extract.
+if [[ -d "${WORKDIR}" ]]; then
+  chmod -R u+w "${WORKDIR}" 2>/dev/null || true
+  rm -rf "${WORKDIR}" 2>/dev/null || sudo rm -rf "${WORKDIR}" || {
+    echo "[gce-test-vm-bootstrap] WARN: rm -rf ${WORKDIR} failed; retrying find+rm" >&2
+    find "${WORKDIR}" -mindepth 1 -delete 2>/dev/null || sudo find "${WORKDIR}" -mindepth 1 -delete
+    rmdir "${WORKDIR}" 2>/dev/null || sudo rmdir "${WORKDIR}" 2>/dev/null || true
+  }
+fi
 if [[ "${CHRYSALIS_TEST_USE_TARBALL:-}" == "1" ]]; then
   if [[ ! -f "${TARBALL}" ]]; then
     echo "[gce-test-vm-bootstrap] CHRYSALIS_TEST_USE_TARBALL=1 but missing ${TARBALL}" >&2
