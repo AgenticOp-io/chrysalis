@@ -13,14 +13,17 @@ param(
 $remote = @'
 if test -f ~/chrysalis-test/reports/ci/gce-all-tests.ok; then echo 'STATUS: OK (gce-all-tests.ok present)'; else echo 'STATUS: running or failed (no ok marker)'; fi
 if test -f ~/.chrysalis-gce-test.pid; then echo -n 'PID: '; cat ~/.chrysalis-gce-test.pid; if kill -0 $(cat ~/.chrysalis-gce-test.pid) 2>/dev/null; then echo ' (alive)'; else echo ' (not running)'; fi; fi
+echo '--- gce-progress.json ---'
+if test -f ~/chrysalis-test/reports/ci/gce-progress.json; then cat ~/chrysalis-test/reports/ci/gce-progress.json; else echo '(no progress file yet)'; fi
 echo '--- current phase ---'
 grep -E '^\[gce-all-tests\].*phase:' ~/chrysalis-test/reports/ci/gce-all-tests.log 2>/dev/null | tail -n 1 || echo '(no phase line yet)'
 echo '--- active phase logs ---'
 ls -lt ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 3 || echo '(none)'
 echo '--- failed phase (if any) ---'
 grep -lE 'Failed Tests|END exit=[1-9][0-9]*' ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 1 | xargs -r tail -n 12 || echo '(none)'
-echo '--- tail log ---'
-tail -n 25 ~/chrysalis-test/reports/ci/gce-all-tests.log 2>/dev/null || tail -n 25 ~/gce-all-tests.nohup.log 2>/dev/null || echo '(no log yet)'
+echo '--- tail log (latest phase) ---'
+latest_phase="$(ls -t ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n 1)"
+if test -n "${latest_phase}"; then tail -n 25 "${latest_phase}"; else tail -n 25 ~/chrysalis-test/reports/ci/gce-all-tests.log 2>/dev/null || tail -n 25 ~/gce-all-tests.nohup.log 2>/dev/null || echo '(no log yet)'; fi
 '@
 
 & gcloud compute ssh $Name --zone=$Zone --project=$Project @SshExtra --command=$remote

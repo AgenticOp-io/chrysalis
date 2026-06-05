@@ -7,6 +7,28 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const CI_GATES = resolve(ROOT, "scripts/ci-gates.mjs");
+const CI_GATES_HUB_COMPLETION = resolve(ROOT, "scripts/ci-gates-hub-completion.mjs");
+const HUB_COMPLETION_ARTIFACT = join(ROOT, "reports/ci/hub-completion.json");
+
+/** Base artifact for schema fixture tests; strips GCE fast markers so ci-gates runs full checks. */
+function hubCompletionStrictBase(): Record<string, unknown> | null {
+  if (!existsSync(HUB_COMPLETION_ARTIFACT)) return null;
+  const payload = JSON.parse(readFileSync(HUB_COMPLETION_ARTIFACT, "utf8")) as Record<string, unknown>;
+  delete payload.gceHubCompletionFast;
+  return payload;
+}
+
+/** For reject-path tests: avoid GCE deferred early-return in ci-gates. */
+function hubCompletionRejectBase(): Record<string, unknown> | null {
+  const payload = hubCompletionStrictBase();
+  if (!payload) return null;
+  const neo = payload.nodeExpressOracleVerify;
+  if (neo && typeof neo === "object" && (neo as { skip?: string }).skip === "gce-deferred-hub-completion-fast") {
+    const { skip: _skip, ...rest } = neo as { skip?: string };
+    payload.nodeExpressOracleVerify = { ...rest, ok: true, correctness: 1, traceCount: 20 };
+  }
+  return payload;
+}
 
 describe("ci-gates hub-completion", () => {
   test("accepts valid completion JSON", () => {
@@ -741,13 +763,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v25 with query params gold and database detect API", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v25-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 25;
       payload.databaseDetectApi = "/api/hub/detect-databases";
       payload.cwlPathParamsGold = {
@@ -772,13 +793,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v37 with Symfony attribute method-list parity", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v37-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 37;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -855,13 +875,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v39 with hole-free CWL projection coverage", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v39-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 39;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -909,13 +928,12 @@ describe("ci-gates hub-completion", () => {
   test("rejects schema v39 with a holey CWL projection", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v39-bad-"));
     const p = join(dir, "bad.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionRejectBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 39;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -962,13 +980,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v40 with hole-free express CWL projection (G136)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v40-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 40;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -1017,13 +1034,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v41 with emit parity and laravel min smoke (G165)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v41-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 41;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1063,13 +1079,12 @@ describe("ci-gates hub-completion", () => {
   test("rejects schema v41 when emit parity fails (G165)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v41-bad-"));
     const p = join(dir, "bad.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionRejectBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 41;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1077,11 +1092,21 @@ describe("ci-gates hub-completion", () => {
       };
       payload.symfonyFlagshipGold = {
         ...(payload.symfonyFlagshipGold ?? {}),
+        ok: true,
+        routeCount: 20,
+        suiteIds: ["symfony-flagship-hono", "symfony-flagship-fastify", "symfony-flagship-cwl"],
+        routesYamlParity: { ok: true, yamlRouteCount: 20, manifestRouteCount: 20 },
+        routesAttributeParity: { ok: true, attributeRouteCount: 20 },
+        routesNameParity: { ok: true, yamlNameCount: 20, attributeNameCount: 20 },
+        attributePrefixParity: { ok: true, routeCount: 2 },
+        attributeMethodsParity: { ok: true, routeCount: 3 },
+        cwlProjection: { total: 20, holeFree: 20 },
         emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
       };
       payload.expressFlagshipGold = {
         ...(payload.expressFlagshipGold ?? {}),
         emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] },
+        cwlProjection: { total: 20, holeFree: 20 },
       };
       payload.laravelVerifyGaps = {
         ok: true,
@@ -1105,13 +1130,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v42 with laravel gaps action and hub evidence v3 (G171)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v42-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 42;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1153,13 +1177,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v43 with hub evidence v4 and laravel verify live (G175)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v43-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 43;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1205,13 +1228,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v44 with oracle micro, CWL status runtime, and project-to-CWL gates (G180)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v44-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 44;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1286,13 +1308,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v45 with CWL body runtime, evidence smoke, and node spike (G190)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v45-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 45;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1388,13 +1409,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v46 with body roundtrip, translate E2E, and evidence live (G200)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v46-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 46;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1514,13 +1534,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v47 with CWL RFC smokes and delivery pipeline (G230)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v47-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 47;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1652,13 +1671,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v48 with migration OS and CWL interchange smokes (G260)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v48-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 48;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1808,13 +1826,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v49 with CWL params and migration OS standalone smokes (G290)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v49-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 49;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -1979,13 +1996,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v50 with express delivery and CWL batch smokes (G320)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v50-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 50;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -2160,13 +2176,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v51 with Laravel-min delivery and CWL full batch smokes (G350)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v51-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 51;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -2355,13 +2370,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v52 with four-origin delivery and oracle mega batch smokes (G380)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v52-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 52;
       payload.plainPhpFlagshipGold = {
         ...(payload.plainPhpFlagshipGold ?? {}),
@@ -2499,13 +2513,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v53 with ultra mega delivery and oracle batches (G410)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v53-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 53;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -2615,13 +2628,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v54 with origin depth and chimera verify ultra batches (G440)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v54-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 54;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -2746,13 +2758,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v55 with universal CWL all origins (G470)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v55-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 55;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -2883,13 +2894,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v56 with pattern-literal CWL gold (G500)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v56-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 56;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -3024,13 +3034,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v57 with CWL roundtrip + translate all origins (G530)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v57-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 57;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -3168,13 +3177,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v58 with translate CWL roundtrip + flagship roundtrip (G560)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v58-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 58;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -3304,13 +3312,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v59 with project-to-CWL roundtrip + universal mega v3 (G590)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v59-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 59;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -3442,13 +3449,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v60 with contract import CWL roundtrip + universal mega v4 (G620)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v60-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 60;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -3582,13 +3588,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v61 with PHP oracle micro verify + oracle ultra v2 (G650)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v61-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 61;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -3725,13 +3730,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v62 with PHP Next.js verify batch + oracle ultra v3 (G680)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v62-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 62;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -3870,13 +3874,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v63 with PHP wedge batch + oracle ultra v4 (G710)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v63-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 63;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -4017,13 +4020,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v64 with hub evidence MVP + evidence mega v2 (G740)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v64-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 64;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -4166,13 +4168,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v65 with WPTP strict batch + evidence mega v2 (G770)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v65-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 65;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -4319,13 +4320,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v66 with flagship-full gaps + verify product ultra v2 (G800)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v66-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 66;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -4474,13 +4474,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v67 with gaps ingest closure + verify product ultra v3 (G830)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v67-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 67;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
       payload.symfonyFlagshipGold = { ...(payload.symfonyFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -4632,13 +4631,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v69/v70/v71/v72/v73/v74 with auth-probe reingest + verify closure/replay/http (G890/G920/G950/G980/G1010/G1040)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v69-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.ok = true;
       payload.schemaVersion = 69;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -5061,13 +5059,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v68 with gaps ingest strict + verify product ultra v4 (G860)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v68-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.ok = true;
       payload.schemaVersion = 68;
       payload.plainPhpFlagshipGold = { ...(payload.plainPhpFlagshipGold ?? {}), inProcess: true, emitParity: { ok: true, targets: ["hono", "fastify", "nextjs"] } };
@@ -5219,13 +5216,12 @@ describe("ci-gates hub-completion", () => {
   test("rejects schema v40 with a holey express CWL projection (G136)", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v40-bad-"));
     const p = join(dir, "bad.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionRejectBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 40;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -5273,13 +5269,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v38 with Symfony route-name parity", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v38-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 38;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -5357,13 +5352,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v36 with Symfony class-prefix attribute parity", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v36-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 36;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -5439,13 +5433,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v35 with Symfony attribute route parity", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v35-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 35;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -5520,13 +5513,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v34 with Symfony routes.yaml parity", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v34-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 34;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -5601,13 +5593,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v33 with Symfony flagship gold", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v33-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 33;
       payload.symfonyFlagshipGold = {
         ok: true,
@@ -5675,13 +5666,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v32 with CWL response content-type gold", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v32-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 32;
       payload.cwlResponseContentTypeGold = {
         suiteIds: [
@@ -5743,13 +5733,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v31 with plain PHP flagship gold", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v31-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 31;
       payload.plainPhpFlagshipGold = {
         ok: true,
@@ -5800,13 +5789,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v30 with node express oracle verify", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v30-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 30;
       payload.nodeExpressOracleVerify = {
         ok: true,
@@ -5851,13 +5839,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v29 with express flagship gold", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v29-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 29;
       payload.expressFlagshipGold = {
         ok: true,
@@ -5892,13 +5879,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v28 with auth effects and php nextjs verify", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v28-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 28;
       payload.cwlAuthEffectsGold = {
         suiteIds: ["cwl-auth-effects-hono", "cwl-auth-effects-fastify", "cwl-auth-effects-nextjs"],
@@ -5921,13 +5907,12 @@ describe("ci-gates hub-completion", () => {
   test("accepts schema v27 with CWL body/status and capability matrix", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v27-"));
     const p = join(dir, "ok.json");
-    const artifactPath = join(ROOT, "reports/ci/hub-completion.json");
     try {
-      if (!existsSync(artifactPath)) {
+      const payload = hubCompletionStrictBase();
+      if (!payload) {
         expect(true).toBe(true);
         return;
       }
-      const payload = JSON.parse(readFileSync(artifactPath, "utf8"));
       payload.schemaVersion = 27;
       payload.cwlRequestBodyGold = {
         suiteIds: ["cwl-request-body-hono", "cwl-request-body-fastify", "cwl-request-body-nextjs"],
@@ -5958,10 +5943,11 @@ describe("ci-gates hub-completion", () => {
   });
 
   test("ci-gates hub-completion enforces fullstack authoring batches through schema v183 (G2253)", () => {
-    const src = readFileSync(CI_GATES, "utf8");
+    const src = readFileSync(CI_GATES_HUB_COMPLETION, "utf8");
     expect(src).toContain("schemaVersion !== 183");
     expect(src).toContain("fullstackAuthoringBatchV110");
     expect(src).toMatch(/\[183,\s*"fullstackAuthoringBatchV110"\]/);
+    expect(src).toContain("isGceHubCompletionDeferred");
   });
 
   test("accepts schema v4 with traceReplay targets", () => {

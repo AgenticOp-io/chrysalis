@@ -46,6 +46,8 @@ Script: `scripts/gce-run-all-tests.sh`
 | Hub suite | `scripts/gce-vm-verify-suite.sh` (strategic vitest, flagships, node oracle) |
 | CWL | `scripts/gce-hub-cwl-vitest.sh` (RFC/parser smokes; batch smokes skipped) |
 | Authoring batches | `scripts/gce-hub-authoring-batch-vitest.sh` (v61–v110; mega gates v106–v110) |
+| WPTP siblings | `scripts/gce-ensure-wptp-matrix.sh` (`~/wptp-matrix`, `~/wptp-emit-nextjs`; skip with `CHRYSALIS_SKIP_WPTP_MATRIX=1`) |
+| Gold gates | `scripts/gce-hub-gold-gates.sh` (structural gold + trace replay; artifacts reused by hub-completion) |
 | Completion | `pnpm run ci:hub-completion` |
 | CWL HTTP | `hub-cwl-fullstack-verify-http-smoke` |
 | CWL batches | fast v40 + v60 composite |
@@ -58,9 +60,23 @@ Optional full workspace Vitest (slow):
 
 Logs: `~/chrysalis-test/reports/ci/gce-all-tests.log`  
 Per-phase logs: `reports/ci/gce-phase-*.log` (line-buffered; tail these when the main log looks stuck)  
+Progress JSON: `reports/ci/gce-progress.json` (updated at each phase start/end; shown by `test:gce:status`)  
 Success marker: `~/chrysalis-test/reports/ci/gce-all-tests.ok`
 
-**hub-strategic on GCE:** batch smokes and flagship subprocess tests are **skipped** in vitest (`CHRYSALIS_GCE_SLIM_HUB_STRATEGIC=1`); the same work runs via dedicated `hub:*` scripts and `ci:hub-completion`. **`scripts/gce-ensure-fixture-emits.sh`** materializes gitignored `fixtures/**/generated/` before vitest. Full file: `CHRYSALIS_GCE_RUN_HUB_STRATEGIC=1`.
+**Resume partial runs** (when earlier phases already passed on the VM):
+
+```bash
+bash scripts/gce-resume-from-gold-gates.sh      # gold gates onward
+bash scripts/gce-resume-from-hub-completion.sh  # hub-completion onward
+```
+
+**Windows local gold artifacts:** capture subprocess stdout with Node (`writeFileSync` / `spawnSync`), not PowerShell `Tee-Object` or `>` — those write UTF-16 and break `require()` of JSON. On Linux/GCE, `scripts/gce-hub-gold-gates.sh` is fine.
+
+**Hub-completion troubleshooting:** `node scripts/hub-ingest/hub-completion.mjs --list-smokes` lists deferred smoke ids; phase logs go to stderr as `[hub-completion] phase: …`.
+
+**hub-strategic on GCE:** batch smokes and flagship subprocess tests are **skipped** in vitest (`CHRYSALIS_GCE_SLIM_HUB_STRATEGIC=1`); the same work runs via dedicated `hub:*` scripts and later GCE phases. **`scripts/gce-ensure-fixture-emits.sh`** materializes gitignored `fixtures/**/generated/` before vitest. Full file: `CHRYSALIS_GCE_RUN_HUB_STRATEGIC=1`.
+
+**hub-completion on GCE:** after authoring vitest, **`gce-hub-gold-gates.sh`** runs structural gold + trace replay once; **`ci:hub-completion`** reuses those artifacts under the fast path (`CHRYSALIS_GCE_HUB_COMPLETION_FAST=1`, default with **`CHRYSALIS_GCE_ALL_TESTS`**) and defers duplicate batches with **`gce-deferred-hub-completion-fast`**. Megas run in dedicated **`cwl-batch-v106` / `v107` / `v110`** phases (**DESIGN D2269**, **D2270**).
 
 Env on VM: **`NODE_OPTIONS=--disable-warning=ExperimentalWarning`**, **`CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN=1`**.
 

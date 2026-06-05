@@ -44,10 +44,18 @@ function Sync-GceRunnerScripts {
     "gce-run-phase.sh",
     "gce-hub-strategic-vitest.sh",
     "gce-ensure-fixture-emits.sh",
+    "gce-ensure-wptp-matrix.sh",
+    "gce-resume-from-gold-gates.sh",
+    "gce-resume-from-hub-completion.sh",
     "gce-vm-verify-suite.sh",
     "gce-cwl-batch-v40-fast.sh",
     "gce-hub-authoring-batch-vitest.sh",
-    "gce-hub-cwl-vitest.sh"
+    "gce-hub-cwl-vitest.sh",
+    "gce-hub-gold-gates.sh"
+  )
+  $hubIngestNames = @(
+    "hub-completion.mjs",
+    "hub-completion-gce-fast.mjs"
   )
   Write-Host "=== Sync runner scripts to VM (local workspace; may differ from git HEAD) ==="
   foreach ($name in $runnerNames) {
@@ -59,8 +67,17 @@ function Sync-GceRunnerScripts {
     & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$local" $remote
     if ($LASTEXITCODE -ne 0) { throw "scp failed for $name" }
   }
+  foreach ($name in $hubIngestNames) {
+    $local = Join-Path $PSScriptRoot "hub-ingest\$name"
+    if (-not (Test-Path -LiteralPath $local)) {
+      throw "Missing hub-ingest script: $local"
+    }
+    $remote = "${VmName}:chrysalis-test/scripts/hub-ingest/${name}"
+    & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$local" $remote
+    if ($LASTEXITCODE -ne 0) { throw "scp failed for hub-ingest/$name" }
+  }
   $chmodArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @(
-    "--command=chmod +x ~/chrysalis-test/scripts/gce-run-all-tests.sh ~/chrysalis-test/scripts/gce-run-phase.sh ~/chrysalis-test/scripts/gce-hub-strategic-vitest.sh ~/chrysalis-test/scripts/gce-ensure-fixture-emits.sh ~/chrysalis-test/scripts/gce-vm-verify-suite.sh ~/chrysalis-test/scripts/gce-cwl-batch-v40-fast.sh ~/chrysalis-test/scripts/gce-hub-authoring-batch-vitest.sh ~/chrysalis-test/scripts/gce-hub-cwl-vitest.sh"
+    "--command=chmod +x ~/chrysalis-test/scripts/gce-run-all-tests.sh ~/chrysalis-test/scripts/gce-run-phase.sh ~/chrysalis-test/scripts/gce-hub-strategic-vitest.sh ~/chrysalis-test/scripts/gce-ensure-fixture-emits.sh ~/chrysalis-test/scripts/gce-ensure-wptp-matrix.sh ~/chrysalis-test/scripts/gce-vm-verify-suite.sh ~/chrysalis-test/scripts/gce-cwl-batch-v40-fast.sh ~/chrysalis-test/scripts/gce-hub-authoring-batch-vitest.sh ~/chrysalis-test/scripts/gce-hub-cwl-vitest.sh ~/chrysalis-test/scripts/gce-hub-gold-gates.sh"
   )
   Invoke-Gcloud -GcloudArgs $chmodArgs
 }
@@ -90,7 +107,7 @@ if (-not $SkipRefresh) {
 Sync-GceRunnerScripts
 
 $gceFullVitest = if ($FullVitest.IsPresent) { "1" } else { "0" }
-$remoteEnv = "export CHRYSALIS_STATUS_REPO=~/chrysalis-test CHRYSALIS_GCE_FULL_VITEST=${gceFullVitest} CHRYSALIS_GCE_ALL_TESTS=1 CHRYSALIS_GCE_SLIM_HUB_STRATEGIC=1"
+$remoteEnv = "export CHRYSALIS_STATUS_REPO=~/chrysalis-test CHRYSALIS_GCE_FULL_VITEST=${gceFullVitest} CHRYSALIS_GCE_ALL_TESTS=1 CHRYSALIS_GCE_HUB_COMPLETION_FAST=1 CHRYSALIS_GCE_SLIM_HUB_STRATEGIC=1"
 
 if ($Detach) {
   Write-Host "=== Start detached test run on ${VmName} ==="

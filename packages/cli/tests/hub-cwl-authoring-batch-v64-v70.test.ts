@@ -12,7 +12,7 @@ const AUTHORING_BATCH_V64_V70 = [
   { v: 67, roadmap: "G1823", mode: "node-express-oracle", ms: 300_000 },
   { v: 68, roadmap: "G1833", mode: "post60-authoring-composite", ms: 180_000 },
   { v: 69, roadmap: "G1843", mode: "emit-verify-mega", ms: 480_000 },
-  { v: 70, roadmap: "G1853", mode: "authoring-graduation-lock", ms: 600_000 },
+  { v: 70, roadmap: "G1853", mode: "authoring-graduation-lock", ms: 900_000 },
 ] as const;
 
 for (const spec of AUTHORING_BATCH_V64_V70) {

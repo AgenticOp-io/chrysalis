@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Canonical Chrysalis test suite on Linux GCE (detached-safe; laptop can disconnect).
+# Resume GCE suite from hub-completion (gold gates already passed).
 set -euo pipefail
 
 REPO="${CHRYSALIS_STATUS_REPO:-$(cd "$(dirname "$0")/.." && pwd)}"
@@ -10,8 +10,13 @@ export NODE_OPTIONS="${NODE_OPTIONS:---disable-warning=ExperimentalWarning}"
 export CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN="${CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN:-1}"
 export CHRYSALIS_GCE_ALL_TESTS=1
 export CHRYSALIS_GCE_HUB_COMPLETION_FAST="${CHRYSALIS_GCE_HUB_COMPLETION_FAST:-1}"
-export CHRYSALIS_GCE_SLIM_HUB_STRATEGIC="${CHRYSALIS_GCE_SLIM_HUB_STRATEGIC:-1}"
+export CHRYSALIS_GCE_SKIP_PNPM_INSTALL=1
+export CHRYSALIS_GCE_SKIP_BUILD=1
 export CHRYSALIS_EXPRESS_SERVER_START_TIMEOUT_MS="${CHRYSALIS_EXPRESS_SERVER_START_TIMEOUT_MS:-60000}"
+
+SIBLINGS_ROOT="$(dirname "${REPO}")"
+export WPTP_MATRIX_ROOT="${WPTP_MATRIX_ROOT:-${SIBLINGS_ROOT}/wptp-matrix}"
+export WPTP_EMIT_NEXTJS_ROOT="${WPTP_EMIT_NEXTJS_ROOT:-${SIBLINGS_ROOT}/wptp-emit-nextjs}"
 
 LOG="${CHRYSALIS_GCE_ALL_TESTS_LOG:-reports/ci/gce-all-tests.log}"
 PID_FILE="${HOME}/.chrysalis-gce-test.pid"
@@ -23,7 +28,7 @@ run_phase() {
   bash "${SCRIPT_DIR}/gce-run-phase.sh" "$@"
 }
 
-log() { echo "[gce-all-tests] $(date -Is) $*"; }
+log() { echo "[gce-all-tests] $(date -Is) $*" >>"${LOG}"; echo "[gce-all-tests] $(date -Is) $*"; }
 
 if [[ -f "${LOCK_FILE}" ]]; then
   old_pid="$(cat "${PID_FILE}" 2>/dev/null || true)"
@@ -39,54 +44,7 @@ touch "${LOCK_FILE}"
 rm -f "${OK_FILE}"
 trap 'rm -f "${LOCK_FILE}"' EXIT
 
-log "repo=${REPO} full_vitest=${CHRYSALIS_GCE_FULL_VITEST:-0}"
-
-if [[ "${CHRYSALIS_GCE_SKIP_PNPM_INSTALL:-}" != "1" ]]; then
-  log "phase: pnpm install"
-  pnpm install
-fi
-
-if [[ "${CHRYSALIS_GCE_SKIP_BUILD:-}" != "1" ]]; then
-  log "phase: pnpm -r build"
-  pnpm -r build
-fi
-
-if command -v php >/dev/null 2>&1; then
-  export CHRYSALIS_SKIP_PARSER_VENDOR=0
-  pnpm run vendor:parser-bridge || log "WARN: parser-bridge vendor failed"
-else
-  export CHRYSALIS_SKIP_PARSER_VENDOR=1
-fi
-
-log "phase: cli shims"
-run_phase cli-shims pnpm run test:cli-shims
-
-export CHRYSALIS_GCE_SKIP_PNPM_INSTALL=1
-export CHRYSALIS_GCE_SKIP_BUILD=1
-log "phase: hub vm verify suite"
-run_phase hub-vm-verify bash scripts/gce-vm-verify-suite.sh
-
-log "phase: hub-cwl vitest"
-run_phase hub-cwl bash scripts/gce-hub-cwl-vitest.sh
-
-log "phase: hub CWL authoring batch vitest (v64-v110)"
-run_phase hub-cwl-authoring-batches bash scripts/gce-hub-authoring-batch-vitest.sh
-
-log "phase: ensure wptp-matrix (contract-first gold)"
-run_phase wptp-matrix bash scripts/gce-ensure-wptp-matrix.sh
-SIBLINGS_ROOT="$(dirname "${REPO}")"
-export WPTP_MATRIX_ROOT="${WPTP_MATRIX_ROOT:-${SIBLINGS_ROOT}/wptp-matrix}"
-export WPTP_EMIT_NEXTJS_ROOT="${WPTP_EMIT_NEXTJS_ROOT:-${SIBLINGS_ROOT}/wptp-emit-nextjs}"
-
-log "phase: hub gold gates (structural + trace replay)"
-run_phase hub-gold-gates bash scripts/gce-hub-gold-gates.sh
-
-if [[ "${CHRYSALIS_GCE_FULL_VITEST:-}" == "1" ]]; then
-  log "phase: full workspace vitest (pnpm test)"
-  run_phase full-vitest pnpm test
-else
-  log "phase: skip full vitest (set CHRYSALIS_GCE_FULL_VITEST=1 to enable)"
-fi
+log "RESUME from hub-completion (repo=${REPO})"
 
 log "phase: hub completion ci gate"
 run_phase hub-completion pnpm run ci:hub-completion
