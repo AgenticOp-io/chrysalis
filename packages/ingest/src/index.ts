@@ -83,6 +83,11 @@ export interface IngestOptions {
    */
   readonly liftSharedHelpersSemantic?: boolean;
   /**
+   * When true with {@link liftSharedHelpers}, allow helper-lift structural keys to ignore
+   * origin metadata (default). Set false to require identical origin when lifting.
+   */
+  readonly liftSharedHelpersIgnoreOrigin?: boolean;
+  /**
    * When true with {@link dedupeStructuralSubgraphs}, merge lib/vendor helper bodies as
    * extra module roots before structural dedupe (**IR helper lifting B4**).
    */
@@ -128,6 +133,9 @@ export async function ingestDirectory(
     ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
     ...(opts?.liftSharedHelpers === true ? { liftSharedHelpers: true as const } : {}),
     ...(opts?.liftSharedHelpersSemantic === true ? { liftSharedHelpersSemantic: true as const } : {}),
+    ...(opts?.liftSharedHelpersIgnoreOrigin === false
+      ? { liftSharedHelpersIgnoreOrigin: false as const }
+      : {}),
   });
   let routes = manifest.routes;
   if (opts?.shardCount !== undefined) {

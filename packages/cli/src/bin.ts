@@ -556,6 +556,7 @@ async function ingestProjectWithShardMode(
     dedupeStructuralSubgraphsIgnoreOrigin?: boolean;
     liftSharedHelpers?: boolean;
     liftSharedHelpersSemantic?: boolean;
+    liftSharedHelpersIgnoreOrigin?: boolean;
     embedSharedHelperBodiesInModule?: boolean;
   },
 ): Promise<Module> {
@@ -571,6 +572,9 @@ async function ingestProjectWithShardMode(
       : {}),
     ...(extras.liftSharedHelpers === true ? { liftSharedHelpers: true as const } : {}),
     ...(extras.liftSharedHelpersSemantic === true ? { liftSharedHelpersSemantic: true as const } : {}),
+    ...(extras.liftSharedHelpersIgnoreOrigin === false
+      ? { liftSharedHelpersIgnoreOrigin: false as const }
+      : {}),
     ...(extras.embedSharedHelperBodiesInModule === true
       ? { embedSharedHelperBodiesInModule: true as const }
       : {}),
@@ -770,6 +774,15 @@ async function cmdIngest(args: string[]): Promise<number> {
     }
     console.log("[ingest] lift shared helper bodies for call-effect widening (IR helper lifting B2)");
   }
+  if (flags["ingest-lift-shared-helpers-respect-origin"] === true) {
+    if (flags["ingest-lift-shared-helpers"] !== true) {
+      console.error(
+        "error: --ingest-lift-shared-helpers-respect-origin requires --ingest-lift-shared-helpers",
+      );
+      return 1;
+    }
+    console.log("[ingest] lift shared helpers: require origin match");
+  }
   if (flags["ingest-lift-shared-helpers-semantic"] === true) {
     if (flags["ingest-lift-shared-helpers"] !== true) {
       console.error("error: --ingest-lift-shared-helpers-semantic requires --ingest-lift-shared-helpers");
@@ -803,6 +816,9 @@ async function cmdIngest(args: string[]): Promise<number> {
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
     ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
+    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
+      ? { liftSharedHelpersIgnoreOrigin: false as const }
+      : {}),
     ...(flags["ingest-lift-shared-helpers-semantic"] === true
       ? { liftSharedHelpersSemantic: true as const }
       : {}),
@@ -916,6 +932,9 @@ async function cmdEmit(args: string[]): Promise<number> {
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
     ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
+    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
+      ? { liftSharedHelpersIgnoreOrigin: false as const }
+      : {}),
     ...(flags["ingest-lift-shared-helpers-semantic"] === true
       ? { liftSharedHelpersSemantic: true as const }
       : {}),

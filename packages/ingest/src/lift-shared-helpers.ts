@@ -132,7 +132,9 @@ export function functionBodyStructuralKey(
   const useSemantic = opts?.forHelperLiftSemantic === true;
   const useLift = opts?.forHelperLift === true || useSemantic;
   const keyFn = useLift
-    ? mergeDedupeStructuralKeyForHelperLift
+    ? opts?.ignoreOrigin === false
+      ? mergeDedupeStructuralKey
+      : mergeDedupeStructuralKeyForHelperLift
     : opts?.ignoreOrigin === true
       ? mergeDedupeStructuralKeyIgnoringOrigin
       : mergeDedupeStructuralKey;
@@ -186,6 +188,7 @@ export function buildHelperLiftAliasMap(
     if (!rootId) continue;
     const key = functionBodyStructuralKey(getNode, rootId, {
       forHelperLift: true,
+      ...(opts?.ignoreOrigin === false ? { ignoreOrigin: false as const } : {}),
       ...(opts?.semantic === true ? { forHelperLiftSemantic: true as const } : {}),
     });
     const canon = keyToCanonical.get(key);

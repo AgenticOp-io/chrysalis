@@ -31,6 +31,21 @@ describe("ingest: lift-shared-helpers (B2)", () => {
     expect(aliases.has("chrysalis_twin_a")).toBe(false);
   });
 
+  it("buildHelperLiftAliasMap does not alias twins when origin must match", async () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const bodies = new Map<string, import("@chrysalis/webir").NodeId>();
+    for (const file of ["twin_a.php", "twin_b.php"] as const) {
+      const ast = await parseFile(resolve(TWIN_FIXTURE, "lib", file));
+      for (const stmt of ast.statements) {
+        if (stmt.kind !== "FunctionDecl") continue;
+        const rootId = convertPhpStatementsToBlock(builder, ast.file, stmt.body);
+        bodies.set(stmt.name, rootId);
+      }
+    }
+    const aliases = buildHelperLiftAliasMap(bodies, (id) => builder.get(id), { ignoreOrigin: false });
+    expect(aliases.size).toBe(0);
+  });
+
   it("gap-probe alpha/beta alias with semantic lift (B3)", async () => {
     const builder = new ModuleBuilder({ sourceApp: "gap", chrysalisVersion: "1.0.0" });
     const bodies = new Map<string, import("@chrysalis/webir").NodeId>();
