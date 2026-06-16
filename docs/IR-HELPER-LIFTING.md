@@ -47,6 +47,7 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | **B0 (done)** | D283 dedupe + ignore-origin CLI |
 | **B1** | **Done:** **`fixtures/lift-helper-gap-probe/`** + **`fixtures/lift-helper-dedupe-control/`**; Vitest **`packages/ingest/tests/lift-helper-gap-probe.test.ts`** |
 | **B2** | **Done (v0):** **`liftSharedHelpers`** / CLI **`--ingest-lift-shared-helpers`** (requires **`--ingest-dedupe-structural-subgraphs`**); fixture **`fixtures/lift-helper-lift-twin/`** |
+| **B2.5** | **Done (v0):** origin-sensitive helper lift — **`liftSharedHelpersIgnoreOrigin: false`** / CLI **`--ingest-lift-shared-helpers-respect-origin`** (requires lift); twins in different files are not aliased (**`lift-shared-helpers.test.ts`**, **`ingest-lift-shared-helpers-cli.test.ts`**) |
 | **B3** | **Done (v0):** local-name slot normalization + **`--ingest-lift-shared-helpers-semantic`**; **`lift-helper-gap-probe`** aliases |
 | **B4** | **Done (v0):** **`embedSharedHelperBodiesInModule`** / CLI **`--ingest-embed-shared-helper-bodies`** (requires structural dedupe) — merges lib/vendor helper bodies as extra module roots via **`mergeWebIrModules`**, then **`dedupeStructuralSubgraphsInModule`**. Pair emit-time **`--emit-dedupe-identical-handler-bodies`** (**D282**) for handler TS shrink. |
 

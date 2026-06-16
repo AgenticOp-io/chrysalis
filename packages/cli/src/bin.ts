@@ -695,6 +695,84 @@ function ingestCheckpointFileFromFlags(
     ...(resume ? { ingestResumeFromCheckpoint: true as const } : {}),
   };
 }
+
+type IngestLiftCliOptions = {
+  dedupeStructuralSubgraphs?: true;
+  dedupeStructuralSubgraphsIgnoreOrigin?: true;
+  liftSharedHelpers?: true;
+  liftSharedHelpersIgnoreOrigin?: false;
+  liftSharedHelpersSemantic?: true;
+  embedSharedHelperBodiesInModule?: true;
+};
+
+function ingestLiftOptionsFromFlags(flags: Record<string, string | boolean>): IngestLiftCliOptions {
+  return {
+    ...(flags["ingest-dedupe-structural-subgraphs"] === true
+      ? { dedupeStructuralSubgraphs: true as const }
+      : {}),
+    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
+      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
+      : {}),
+    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
+    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
+      ? { liftSharedHelpersIgnoreOrigin: false as const }
+      : {}),
+    ...(flags["ingest-lift-shared-helpers-semantic"] === true
+      ? { liftSharedHelpersSemantic: true as const }
+      : {}),
+    ...(flags["ingest-embed-shared-helper-bodies"] === true
+      ? { embedSharedHelperBodiesInModule: true as const }
+      : {}),
+  };
+}
+
+function validateIngestLiftFlagsFromCli(
+  flags: Record<string, string | boolean>,
+): { ok: true } | { ok: false; message: string } {
+  if (
+    flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true &&
+    flags["ingest-dedupe-structural-subgraphs"] !== true
+  ) {
+    return {
+      ok: false,
+      message:
+        "error: --ingest-dedupe-structural-subgraphs-ignore-origin requires --ingest-dedupe-structural-subgraphs",
+    };
+  }
+  if (flags["ingest-lift-shared-helpers"] === true && flags["ingest-dedupe-structural-subgraphs"] !== true) {
+    return {
+      ok: false,
+      message: "error: --ingest-lift-shared-helpers requires --ingest-dedupe-structural-subgraphs",
+    };
+  }
+  if (
+    flags["ingest-lift-shared-helpers-respect-origin"] === true &&
+    flags["ingest-lift-shared-helpers"] !== true
+  ) {
+    return {
+      ok: false,
+      message:
+        "error: --ingest-lift-shared-helpers-respect-origin requires --ingest-lift-shared-helpers",
+    };
+  }
+  if (flags["ingest-lift-shared-helpers-semantic"] === true && flags["ingest-lift-shared-helpers"] !== true) {
+    return {
+      ok: false,
+      message: "error: --ingest-lift-shared-helpers-semantic requires --ingest-lift-shared-helpers",
+    };
+  }
+  if (
+    flags["ingest-embed-shared-helper-bodies"] === true &&
+    flags["ingest-dedupe-structural-subgraphs"] !== true
+  ) {
+    return {
+      ok: false,
+      message: "error: --ingest-embed-shared-helper-bodies requires --ingest-dedupe-structural-subgraphs",
+    };
+  }
+  return { ok: true };
+}
+
 function collectPhpRootsFromArgs(args: string[]): string[] {
   const out: string[] = [];
   for (let i = 0; i < args.length; i++) {
@@ -767,34 +845,21 @@ async function cmdIngest(args: string[]): Promise<number> {
   if (flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true) {
     console.log("[ingest] structural dedupe uses origin-insensitive key (ROADMAP helper lifting)");
   }
+  const liftFlagCheck = validateIngestLiftFlagsFromCli(flags);
+  if (!liftFlagCheck.ok) {
+    console.error(liftFlagCheck.message);
+    return 1;
+  }
   if (flags["ingest-lift-shared-helpers"] === true) {
-    if (flags["ingest-dedupe-structural-subgraphs"] !== true) {
-      console.error("error: --ingest-lift-shared-helpers requires --ingest-dedupe-structural-subgraphs");
-      return 1;
-    }
     console.log("[ingest] lift shared helper bodies for call-effect widening (IR helper lifting B2)");
   }
   if (flags["ingest-lift-shared-helpers-respect-origin"] === true) {
-    if (flags["ingest-lift-shared-helpers"] !== true) {
-      console.error(
-        "error: --ingest-lift-shared-helpers-respect-origin requires --ingest-lift-shared-helpers",
-      );
-      return 1;
-    }
     console.log("[ingest] lift shared helpers: require origin match");
   }
   if (flags["ingest-lift-shared-helpers-semantic"] === true) {
-    if (flags["ingest-lift-shared-helpers"] !== true) {
-      console.error("error: --ingest-lift-shared-helpers-semantic requires --ingest-lift-shared-helpers");
-      return 1;
-    }
     console.log("[ingest] lift shared helpers: semantic local-name equivalence (IR helper lifting B3)");
   }
   if (flags["ingest-embed-shared-helper-bodies"] === true) {
-    if (flags["ingest-dedupe-structural-subgraphs"] !== true) {
-      console.error("error: --ingest-embed-shared-helper-bodies requires --ingest-dedupe-structural-subgraphs");
-      return 1;
-    }
     console.log("[ingest] embed lib/vendor helper bodies as module roots before dedupe (IR helper lifting B4)");
   }
   const mod = await ingestProjectWithShardMode(resolve(root), shardMode.value, {
@@ -809,22 +874,7 @@ async function cmdIngest(args: string[]): Promise<number> {
     ...(checkpointOpts.ingestResumeFromCheckpoint === true
       ? { ingestResumeFromCheckpoint: true as const }
       : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs"] === true
-      ? { dedupeStructuralSubgraphs: true as const }
-      : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
-      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
-    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
-      ? { liftSharedHelpersIgnoreOrigin: false as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers-semantic"] === true
-      ? { liftSharedHelpersSemantic: true as const }
-      : {}),
-    ...(flags["ingest-embed-shared-helper-bodies"] === true
-      ? { embedSharedHelperBodiesInModule: true as const }
-      : {}),
+    ...ingestLiftOptionsFromFlags(flags),
   });
   console.log(`routes:   ${mod.roots.length}`);
   console.log(`nodes:    ${mod.nodes.size}`);
@@ -898,6 +948,11 @@ async function cmdEmit(args: string[]): Promise<number> {
   if (flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true) {
     console.log("[emit] ingest structural dedupe uses origin-insensitive key (ROADMAP helper lifting)");
   }
+  const liftFlagCheckEmit = validateIngestLiftFlagsFromCli(flags);
+  if (!liftFlagCheckEmit.ok) {
+    console.error(liftFlagCheckEmit.message);
+    return 1;
+  }
   if (target !== "hono" && target !== "fastify") {
     console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
     return 2;
@@ -925,22 +980,7 @@ async function cmdEmit(args: string[]): Promise<number> {
     ...(checkpointOptsEmit.ingestResumeFromCheckpoint === true
       ? { ingestResumeFromCheckpoint: true as const }
       : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs"] === true
-      ? { dedupeStructuralSubgraphs: true as const }
-      : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
-      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
-    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
-      ? { liftSharedHelpersIgnoreOrigin: false as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers-semantic"] === true
-      ? { liftSharedHelpersSemantic: true as const }
-      : {}),
-    ...(flags["ingest-embed-shared-helper-bodies"] === true
-      ? { embedSharedHelperBodiesInModule: true as const }
-      : {}),
+    ...ingestLiftOptionsFromFlags(flags),
   });
   const outAbs = resolve(outDir);
   const schemaPath = typeof flags.schema === "string" ? resolve(flags.schema) : null;
@@ -1301,6 +1341,11 @@ async function cmdVerify(args: string[]): Promise<number> {
     console.error("error: --ingest-checkpoint-file requires --project for verify");
     return 2;
   }
+  const liftFlagCheckVerify = validateIngestLiftFlagsFromCli(flags);
+  if (!liftFlagCheckVerify.ok) {
+    console.error(liftFlagCheckVerify.message);
+    return 1;
+  }
   const jsonSummary = flags["json-summary"] === true;
   const vlog = jsonSummary ? (m: string) => console.error(m) : (m: string) => console.log(m);
 
@@ -1326,22 +1371,7 @@ async function cmdVerify(args: string[]): Promise<number> {
       ...(checkpointOptsVerify.ingestResumeFromCheckpoint === true
         ? { ingestResumeFromCheckpoint: true as const }
         : {}),
-      ...(flags["ingest-dedupe-structural-subgraphs"] === true
-        ? { dedupeStructuralSubgraphs: true as const }
-        : {}),
-      ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
-        ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
-        : {}),
-      ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
-      ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
-        ? { liftSharedHelpersIgnoreOrigin: false as const }
-        : {}),
-      ...(flags["ingest-lift-shared-helpers-semantic"] === true
-        ? { liftSharedHelpersSemantic: true as const }
-        : {}),
-      ...(flags["ingest-embed-shared-helper-bodies"] === true
-        ? { embedSharedHelperBodiesInModule: true as const }
-        : {}),
+      ...ingestLiftOptionsFromFlags(flags),
     });
     vlog(`[verify] IR divergence attribution enabled (--project ${projectRoot})`);
   }
@@ -1636,6 +1666,11 @@ async function cmdRepair(args: string[]): Promise<number> {
     console.error(checkpointOptsRepair.message);
     return 2;
   }
+  const liftFlagCheckRepair = validateIngestLiftFlagsFromCli(flags);
+  if (!liftFlagCheckRepair.ok) {
+    console.error(liftFlagCheckRepair.message);
+    return 1;
+  }
 
   const replayParsed = resolveVerifyReplayExtras(flags);
   if (!replayParsed.ok) {
@@ -1670,22 +1705,7 @@ async function cmdRepair(args: string[]): Promise<number> {
     ...(checkpointOptsRepair.ingestResumeFromCheckpoint === true
       ? { ingestResumeFromCheckpoint: true as const }
       : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs"] === true
-      ? { dedupeStructuralSubgraphs: true as const }
-      : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
-      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
-    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
-      ? { liftSharedHelpersIgnoreOrigin: false as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers-semantic"] === true
-      ? { liftSharedHelpersSemantic: true as const }
-      : {}),
-    ...(flags["ingest-embed-shared-helper-bodies"] === true
-      ? { embedSharedHelperBodiesInModule: true as const }
-      : {}),
+    ...ingestLiftOptionsFromFlags(flags),
   });
   console.log(`[repair] corpus ${corpus.traces.length} traces; IR from ${projectRoot}`);
 
@@ -2290,6 +2310,11 @@ async function cmdInsight(args: string[]): Promise<number> {
     console.error(checkpointOptsInsight.message);
     return 2;
   }
+  const liftFlagCheckInsight = validateIngestLiftFlagsFromCli(flags);
+  if (!liftFlagCheckInsight.ok) {
+    console.error(liftFlagCheckInsight.message);
+    return 1;
+  }
 
   const mod = await ingestDirectory(resolve(root), {
     ...(parserProvider ? { parserProvider } : {}),
@@ -2303,22 +2328,7 @@ async function cmdInsight(args: string[]): Promise<number> {
     ...(checkpointOptsInsight.ingestResumeFromCheckpoint === true
       ? { ingestResumeFromCheckpoint: true as const }
       : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs"] === true
-      ? { dedupeStructuralSubgraphs: true as const }
-      : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
-      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
-    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
-      ? { liftSharedHelpersIgnoreOrigin: false as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers-semantic"] === true
-      ? { liftSharedHelpersSemantic: true as const }
-      : {}),
-    ...(flags["ingest-embed-shared-helper-bodies"] === true
-      ? { embedSharedHelperBodiesInModule: true as const }
-      : {}),
+    ...ingestLiftOptionsFromFlags(flags),
   });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
@@ -2478,6 +2488,11 @@ async function cmdRewrite(args: string[]): Promise<number> {
     console.error(checkpointOptsRewrite.message);
     return 2;
   }
+  const liftFlagCheckRewrite = validateIngestLiftFlagsFromCli(flags);
+  if (!liftFlagCheckRewrite.ok) {
+    console.error(liftFlagCheckRewrite.message);
+    return 1;
+  }
 
   const httpReplayRoot =
     typeof flags["http-replay"] === "string" ? resolve(flags["http-replay"]) : null;
@@ -2495,22 +2510,7 @@ async function cmdRewrite(args: string[]): Promise<number> {
     ...(checkpointOptsRewrite.ingestResumeFromCheckpoint === true
       ? { ingestResumeFromCheckpoint: true as const }
       : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs"] === true
-      ? { dedupeStructuralSubgraphs: true as const }
-      : {}),
-    ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
-      ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
-    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
-      ? { liftSharedHelpersIgnoreOrigin: false as const }
-      : {}),
-    ...(flags["ingest-lift-shared-helpers-semantic"] === true
-      ? { liftSharedHelpersSemantic: true as const }
-      : {}),
-    ...(flags["ingest-embed-shared-helper-bodies"] === true
-      ? { embedSharedHelperBodiesInModule: true as const }
-      : {}),
+    ...ingestLiftOptionsFromFlags(flags),
   });
 
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : null;
@@ -3129,6 +3129,11 @@ async function cmdStatus(args: string[]): Promise<number> {
     console.error("error: --ingest-checkpoint-file requires --project for status");
     return 2;
   }
+  const liftFlagCheckStatus = validateIngestLiftFlagsFromCli(flags);
+  if (!liftFlagCheckStatus.ok) {
+    console.error(liftFlagCheckStatus.message);
+    return 1;
+  }
   const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : "traces";
   const reportDir = typeof flags.report === "string" ? resolve(flags.report) : "reports/verify";
   const shadowDir = typeof flags.shadow === "string" ? resolve(flags.shadow) : "reports/shadow";
@@ -3254,22 +3259,7 @@ async function cmdStatus(args: string[]): Promise<number> {
         ...(checkpointOptsStatus.ingestResumeFromCheckpoint === true
           ? { ingestResumeFromCheckpoint: true as const }
           : {}),
-        ...(flags["ingest-dedupe-structural-subgraphs"] === true
-          ? { dedupeStructuralSubgraphs: true as const }
-          : {}),
-        ...(flags["ingest-dedupe-structural-subgraphs-ignore-origin"] === true
-          ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
-          : {}),
-        ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
-        ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
-          ? { liftSharedHelpersIgnoreOrigin: false as const }
-          : {}),
-        ...(flags["ingest-lift-shared-helpers-semantic"] === true
-          ? { liftSharedHelpersSemantic: true as const }
-          : {}),
-        ...(flags["ingest-embed-shared-helper-bodies"] === true
-          ? { embedSharedHelperBodiesInModule: true as const }
-          : {}),
+        ...ingestLiftOptionsFromFlags(flags),
       });
       ingestedMod = mod;
       const ingestSharding: NonNullable<StatusSummary["ingestSharding"]> =

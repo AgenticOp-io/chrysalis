@@ -169,6 +169,9 @@ export async function ingestDirectory(
   if (opts?.liftSharedHelpersSemantic === true && opts?.liftSharedHelpers !== true) {
     throw new Error("ingestDirectory: liftSharedHelpersSemantic requires liftSharedHelpers");
   }
+  if (opts?.liftSharedHelpersIgnoreOrigin === false && opts?.liftSharedHelpers !== true) {
+    throw new Error("ingestDirectory: liftSharedHelpersIgnoreOrigin false requires liftSharedHelpers");
+  }
   if (opts?.embedSharedHelperBodiesInModule === true && opts?.dedupeStructuralSubgraphs !== true) {
     throw new Error(
       "ingestDirectory: embedSharedHelperBodiesInModule requires dedupeStructuralSubgraphs",

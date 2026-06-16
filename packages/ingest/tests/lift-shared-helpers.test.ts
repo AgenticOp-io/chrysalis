@@ -88,6 +88,15 @@ describe("ingest: lift-shared-helpers (B2)", () => {
     expect(lifted.roots.length).toBe(2);
   });
 
+  it("ingestDirectory rejects respect-origin without lift", async () => {
+    await expect(
+      ingestDirectory(TWIN_FIXTURE, {
+        dedupeStructuralSubgraphs: true,
+        liftSharedHelpersIgnoreOrigin: false,
+      }),
+    ).rejects.toThrow(/liftSharedHelpersIgnoreOrigin false requires liftSharedHelpers/);
+  });
+
   it("lift-twin embed adds helper roots then dedupe keeps zero holes (B4)", async () => {
     const embedded = await ingestDirectory(TWIN_FIXTURE, {
       dedupeStructuralSubgraphs: true,
