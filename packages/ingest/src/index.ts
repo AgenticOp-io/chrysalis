@@ -322,6 +322,11 @@ export {
   buildHelperLiftAliasMap,
   buildHelperLiftLocalSlotMap,
   functionBodyStructuralKey,
+  normalizeSqlLiteralForHelperLift,
 } from "./lift-shared-helpers.js";
+export {
+  collectFunctionAttributes,
+  type PhpAttributeMeta,
+} from "./convert.js";
 export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";
 export type { RouteManifest, RouteSpec };

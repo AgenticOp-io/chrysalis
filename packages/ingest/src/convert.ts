@@ -7,6 +7,7 @@
 
 import type {
   PhpAst,
+  PhpAttribute,
   PhpExpr,
   PhpNode,
   Pos as PhpPos,
@@ -76,6 +77,58 @@ function phpCallArgNames(
   e: Extract<PhpExpr, { kind: "Call" }>,
 ): { argNames?: ReadonlyArray<string | null> } {
   return e.argNames !== undefined ? { argNames: e.argNames } : {};
+}
+
+/** Serializable PHP 8 attribute metadata for WebIR `data.call` attrs. */
+export type PhpAttributeMeta = {
+  readonly name: string;
+  readonly args: ReadonlyArray<string | number | boolean | null>;
+};
+
+function serializePhpAttribute(a: PhpAttribute): PhpAttributeMeta {
+  const args: (string | number | boolean | null)[] = [];
+  for (const arg of a.args) {
+    if (arg.kind === "Literal") {
+      args.push(arg.value as string | number | boolean | null);
+    } else {
+      args.push(null);
+    }
+  }
+  return { name: a.name, args };
+}
+
+/** Index top-level (and nested) `FunctionDecl` attributes by PHP name. */
+export function collectFunctionAttributes(stmts: readonly PhpNode[]): Map<string, PhpAttributeMeta[]> {
+  const out = new Map<string, PhpAttributeMeta[]>();
+  const walk = (nodes: readonly PhpNode[]) => {
+    for (const s of nodes) {
+      if (s.kind !== "FunctionDecl") continue;
+      if (s.attributes && s.attributes.length > 0) {
+        out.set(s.name, s.attributes.map(serializePhpAttribute));
+      }
+      walk(s.body);
+    }
+  };
+  walk(stmts);
+  return out;
+}
+
+function resolveFunctionAttributes(
+  map: ReadonlyMap<string, readonly PhpAttributeMeta[]>,
+  callee: string,
+): readonly PhpAttributeMeta[] | undefined {
+  const direct = map.get(callee);
+  if (direct !== undefined) return direct;
+  const tail = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
+  return map.get(tail);
+}
+
+function phpCallAttributes(
+  ctx: Ctx,
+  callee: string,
+): { phpAttributes?: ReadonlyArray<PhpAttributeMeta> } {
+  const attrs = resolveFunctionAttributes(ctx.functionAttributes, callee);
+  return attrs !== undefined && attrs.length > 0 ? { phpAttributes: attrs } : {};
 }
 
 /**
@@ -205,12 +258,15 @@ interface Ctx {
    * branches for over-approximate widening).
    */
   dbFactoryAliases: Set<string>;
+  /** PHP attributes on known callees (route-local + lib index). */
+  readonly functionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]>;
 }
 
 function makeCtx(
   builder: ModuleBuilder,
   file: string,
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
+  functionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]> = new Map(),
 ): Ctx {
   return {
     m: builder,
@@ -222,6 +278,7 @@ function makeCtx(
     effectObjs: [],
     dbFactoryReturnCallees,
     dbFactoryAliases: new Set(),
+    functionAttributes,
   };
 }
 
@@ -764,6 +821,7 @@ function convertCall(
         type: T.unknown,
         origin: callOrigin,
         ...phpCallArgNames(e),
+        ...phpCallAttributes(ctx, e.callee.name),
       });
     }
     if (
@@ -849,6 +907,7 @@ function convertCall(
       type: T.unknown,
       origin: loc(ctx, e.pos),
       ...phpCallArgNames(e),
+      ...phpCallAttributes(ctx, name),
     });
   }
 
@@ -934,6 +993,7 @@ function convertCall(
         type: T.int,
         origin: loc(ctx, e.pos),
         ...phpCallArgNames(e),
+        ...phpCallAttributes(ctx, "strlen"),
       });
     case "json_encode": {
       if (e.args.length !== 1) {
@@ -1421,7 +1481,7 @@ export function ingestHandler(
   libCallEffects: ReadonlyMap<string, EffectSet> = new Map(),
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
 ): NodeId {
-  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees);
+  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees, collectFunctionAttributes(ast.statements));
   const body = convertStatements(ctx, selectRouteHandlerStatements(ast.statements), route.pathParams);
 
   const handlerName =

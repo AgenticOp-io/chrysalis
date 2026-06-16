@@ -3,7 +3,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { countHoles, ModuleBuilder } from "@chrysalis/webir";
 import { parseFile } from "@chrysalis/parser-bridge";
-import { convertPhpStatementsToBlock } from "../src/convert.js";
+import { convertPhpStatementsToBlock, ingestHandler } from "../src/convert.js";
+import { loadRouteManifest } from "../src/routes.js";
 
 const FIXTURE = resolve(dirname(fileURLToPath(import.meta.url)), "../../../fixtures/parser-parity-probe");
 
@@ -45,5 +46,23 @@ describe("ingest: parser-parity-probe arrow/match lowering (G2280)", () => {
     expect((strlenCalls[0]!.attrs as { argNames?: ReadonlyArray<string | null> }).argNames).toEqual([
       "string",
     ]);
+  });
+
+  it("preserves PHP attributes on tagged call (G2284)", async () => {
+    const ast = await parseFile(resolve(FIXTURE, "pages", "attributes.php"));
+    const builder = new ModuleBuilder({ sourceApp: "parity", chrysalisVersion: "1.0.0" });
+    const body = ast.statements.filter((s) => s.kind !== "FunctionDecl");
+    const manifest = await loadRouteManifest(FIXTURE);
+    const route = manifest.routes.find((r) => r.path === "/attributes")!;
+    ingestHandler(builder, ast, route);
+    const mod = builder.finish();
+    const taggedCalls = [...mod.nodes.values()].filter(
+      (n) => n.dialect === "data" && n.op === "call" && String(n.attrs.callee) === "tagged",
+    );
+    expect(taggedCalls.length).toBeGreaterThan(0);
+    const phpAttributes = (taggedCalls[0]!.attrs as {
+      phpAttributes?: ReadonlyArray<{ name: string; args: ReadonlyArray<unknown> }>;
+    }).phpAttributes;
+    expect(phpAttributes).toEqual([{ name: "\\Chrysalis\\Probe", args: ["parity"] }]);
   });
 });

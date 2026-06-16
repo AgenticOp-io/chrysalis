@@ -55,6 +55,8 @@ export interface Builders {
     args: ReadonlyArray<NodeId>;
     /** Parallel to `args` when any PHP argument was named; `null` = positional. */
     argNames?: ReadonlyArray<string | null>;
+    /** PHP 8 attributes from the resolved callee `FunctionDecl`. */
+    phpAttributes?: ReadonlyArray<{ readonly name: string; readonly args: ReadonlyArray<unknown> }>;
     type: WebIRType;
     origin: Locator;
     provenance?: ReadonlyArray<Provenance>;
@@ -176,9 +178,14 @@ export function builders(m: ModuleBuilder): Builders {
         provenance: prov ?? [provenance("php-ast", origin, `member ${String(key)}`)],
       });
     },
-    call({ callee, args, argNames, type, origin, provenance: prov }) {
-      const attrs: { callee: string; argNames?: ReadonlyArray<string | null> } = { callee };
+    call({ callee, args, argNames, phpAttributes, type, origin, provenance: prov }) {
+      const attrs: {
+        callee: string;
+        argNames?: ReadonlyArray<string | null>;
+        phpAttributes?: ReadonlyArray<{ readonly name: string; readonly args: ReadonlyArray<unknown> }>;
+      } = { callee };
       if (argNames !== undefined) attrs.argNames = argNames;
+      if (phpAttributes !== undefined) attrs.phpAttributes = phpAttributes;
       return m.node({
         dialect: DIALECT,
         op: "call",

@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** **B1–B5.3 v2** on `main` (fixtures + Vitest). Oracle-backed SQL literal merge remains **out of scope** for ingest-only lift.  
+**Status:** **B1–B5.3 v3** on `main` (fixtures + Vitest). Oracle-backed cross-route SQL merge remains **verify-gated**; ingest-only whitespace SQL canonicalization is in scope.  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem
@@ -60,7 +60,7 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | **B5 v0** | Register **`data.param`** reads as order-based slots (extends B3 assign-target slots). Aliases bodies whose lowered IR differs only by formal parameter **names** on direct returns. | **Done** — **`registerParamRead`** in **`lift-shared-helpers.ts`**. |
 | **B5.1** | Extend slot map to param reads inside nested expressions when no assign introduces a local (same order walk). | Deferred — v0 walk already visits all operands. |
 | **B5.2** | Arithmetic / structural equivalence (constant folding, commutative reorder) with identical effect signatures. | **Done (v1–v2)** — scale-by-2 + commutative `+`/`*`; broader folding deferred. |
-| **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | **Done (v1 gate + v2 fixture)** — **`bodyHasIrEffects`** disables arithmetic widening on effectful bodies; **`fixtures/lift-helper-sql-twin/`** proves SQL literal twins do not semantic-alias; full oracle merge still verify-gated per route. |
+| **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | **Done (v1–v3)** — **`bodyHasIrEffects`** disables arithmetic widening; **`fixtures/lift-helper-sql-twin/`** negative control; **`normalizeSqlLiteralForHelperLift`** aliases whitespace-only SQL twins (**`sql-ws-twin`**, **`sql-same-twin`**); full oracle merge still verify-gated per route. |
 
 ## Decision
 

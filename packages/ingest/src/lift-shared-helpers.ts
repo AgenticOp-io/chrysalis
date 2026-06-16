@@ -168,11 +168,24 @@ export function buildHelperLiftLocalSlotMap(
   return slots;
 }
 
+/** B5.3 v3: collapse SQL whitespace for effectful helper semantic keys. */
+export function normalizeSqlLiteralForHelperLift(sql: string): string {
+  return sql.trim().replace(/\s+/g, " ");
+}
+
 function normalizeNodeForHelperLiftSemantic(
   n: NodeBase,
   localSlots: ReadonlyMap<string, string>,
 ): NodeBase {
-  if (localSlots.size === 0) return n;
+  let out = n;
+  if (out.dialect === "effect" && out.op === "db.query" && typeof out.attrs.sql === "string") {
+    const sql = String(out.attrs.sql);
+    if (sql && sql !== "<dynamic>") {
+      out = { ...out, attrs: { ...out.attrs, sql: normalizeSqlLiteralForHelperLift(sql) } };
+    }
+  }
+  if (localSlots.size === 0) return out;
+  n = out;
   if (n.op === "literal") {
     const v = literalStringValue(n);
     if (v !== undefined) {
