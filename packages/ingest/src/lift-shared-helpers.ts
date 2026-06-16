@@ -47,6 +47,48 @@ function literalStringValue(n: NodeBase): string | undefined {
   return typeof v === "string" ? v : undefined;
 }
 
+function literalNumericValue(n: NodeBase): number | undefined {
+  if (n.dialect !== "data" || n.op !== "literal") return undefined;
+  const t = n.type as WebIRType;
+  if (t.kind === "int" || t.kind === "float") {
+    const v = n.attrs.value;
+    return typeof v === "number" && Number.isFinite(v) ? v : undefined;
+  }
+  if (t.kind === "literal") {
+    const v = t.value;
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === "string" && v !== "") {
+      const p = Number(v);
+      if (!Number.isNaN(p)) return p;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * B5.2 v1: `P * 2` ≡ `P + P` when P is the same lowered subtree (param slot after B3/B5).
+ * Returns a canonical structural fragment key or undefined when the rule does not apply.
+ */
+function helperLiftArithmeticCanonicalKey(
+  n: NodeBase,
+  operandKeys: readonly string[],
+  getNode: (id: NodeId) => NodeBase | undefined,
+): string | undefined {
+  if (n.dialect !== "data" || n.op !== "binop" || operandKeys.length !== 2) return undefined;
+  const op = n.attrs.operator;
+  if (op === "*" && n.operands.length === 2) {
+    const right = getNode(n.operands[1]!);
+    const lit = right ? literalNumericValue(right) : undefined;
+    if (lit === 2) {
+      return `lift-scale2:${operandKeys[0]}`;
+    }
+  }
+  if (op === "+" && operandKeys[0] === operandKeys[1]) {
+    return `lift-scale2:${operandKeys[0]}`;
+  }
+  return undefined;
+}
+
 function isAssignCall(getNode: (id: NodeId) => NodeBase | undefined, n: NodeBase): boolean {
   return n.dialect === "data" && n.op === "call" && n.attrs.callee === "__assign";
 }
@@ -173,7 +215,8 @@ export function functionBodyStructuralKey(
       }
       return k;
     });
-    structuralMemo.set(id, keyFn(n, operandKeys));
+    const arithKey = useSemantic ? helperLiftArithmeticCanonicalKey(n, operandKeys, getNode) : undefined;
+    structuralMemo.set(id, arithKey ?? keyFn(n, operandKeys));
   }
   const rootKey = structuralMemo.get(rootId);
   if (!rootKey) {

@@ -59,6 +59,8 @@ export type PhpExpr =
   | PhpPropertyFetch
   | PhpNew
   | PhpNewDynamic
+  | PhpArrowFunction
+  | PhpMatch
   | PhpExprUnknown;
 
 export interface PhpInlineHtml {
@@ -262,6 +264,29 @@ export interface PhpPropertyFetch {
   readonly kind: "PropertyFetch";
   readonly target: PhpExpr;
   readonly name: string;
+  readonly pos: Pos;
+}
+
+/** PHP 7.4+ arrow function `fn($x) => expr`. */
+export interface PhpArrowFunction {
+  readonly kind: "ArrowFunction";
+  readonly params: ReadonlyArray<{ name: string; hint: string | null; default: PhpExpr | null }>;
+  readonly returnHint: string | null;
+  readonly body: PhpExpr;
+  readonly pos: Pos;
+}
+
+export interface PhpMatchArm {
+  readonly conditions: ReadonlyArray<PhpExpr>;
+  readonly isDefault: boolean;
+  readonly body: PhpExpr;
+}
+
+/** PHP 8.0+ `match` expression. */
+export interface PhpMatch {
+  readonly kind: "Match";
+  readonly subject: PhpExpr;
+  readonly arms: ReadonlyArray<PhpMatchArm>;
   readonly pos: Pos;
 }
 

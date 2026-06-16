@@ -993,6 +993,42 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
     case "Expr_Clone":
       return unknownExpr(file, raw, "Expr_Clone");
 
+    case "Expr_ArrowFunction": {
+      const params = (Array.isArray(raw.params) ? raw.params : []).map((p) => convertParam(file, p));
+      return {
+        kind: "ArrowFunction",
+        params,
+        returnHint: typeHint(raw.returnType as unknown),
+        body: mustExpr(file, raw.expr as unknown),
+        pos,
+      };
+    }
+
+    case "Expr_Match": {
+      const armsRaw = Array.isArray(raw.arms) ? raw.arms : [];
+      const arms = armsRaw.map((arm) => {
+        if (!isNikicDict(arm) || arm.nodeType !== "MatchArm") {
+          return { conditions: [] as PhpExpr[], isDefault: true, body: unknownExpr(file, null, "MatchArm") };
+        }
+        const condsRaw = arm.conds;
+        const isDefault = condsRaw === null || condsRaw === undefined;
+        const conditions = isDefault
+          ? []
+          : (Array.isArray(condsRaw) ? condsRaw : [condsRaw]).map((c) => mustExpr(file, c));
+        return {
+          conditions,
+          isDefault,
+          body: mustExpr(file, arm.body as unknown),
+        };
+      });
+      return {
+        kind: "Match",
+        subject: mustExpr(file, raw.cond as unknown),
+        arms,
+        pos,
+      };
+    }
+
     default:
       return unknownExpr(file, raw, `unhandled expr: ${nt}`);
   }

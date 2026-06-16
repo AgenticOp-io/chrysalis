@@ -347,6 +347,37 @@ function typeNameFromHint(hint: AnyNode | null): string | null {
   return null;
 }
 
+function paramsFromGlayzzleArguments(file: string, args: AnyNode[]): Array<{
+  name: string;
+  hint: string | null;
+  default: PhpExpr | null;
+}> {
+  return args.map((a) => ({
+    name: String((a.name as AnyNode)?.name ?? ""),
+    hint: typeNameFromHint(a.type as AnyNode | null),
+    default: a.value ? convertExpression(file, a.value as AnyNode) : null,
+  }));
+}
+
+function convertGlayzzleMatchArms(file: string, arms: AnyNode[]): Array<{
+  conditions: PhpExpr[];
+  isDefault: boolean;
+  body: PhpExpr;
+}> {
+  return arms.map((arm) => {
+    const condsRaw = arm.conds;
+    const isDefault = condsRaw === null || condsRaw === undefined;
+    const conditions = isDefault
+      ? []
+      : (Array.isArray(condsRaw) ? condsRaw : [condsRaw]).map((c) => convertExpression(file, c as AnyNode));
+    return {
+      conditions,
+      isDefault,
+      body: convertExpression(file, arm.body as AnyNode),
+    };
+  });
+}
+
 function convertExpression(file: string, node: AnyNode | null | undefined): PhpExpr {
   if (!node) return { kind: "UnknownExpr", detail: "null-expr", pos: { file, line: 0, col: 0 } };
   switch (node.kind) {
@@ -601,6 +632,25 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
         kind: "New",
         className,
         args: callArgs.map((a) => convertExpression(file, a)),
+        pos: pos(file, node),
+      };
+    }
+    case "arrowfunc": {
+      const args = Array.isArray(node.arguments) ? (node.arguments as AnyNode[]) : [];
+      return {
+        kind: "ArrowFunction",
+        params: paramsFromGlayzzleArguments(file, args),
+        returnHint: typeNameFromHint(node.type as AnyNode | null),
+        body: convertExpression(file, node.body as AnyNode),
+        pos: pos(file, node),
+      };
+    }
+    case "match": {
+      const arms = Array.isArray(node.arms) ? (node.arms as AnyNode[]) : [];
+      return {
+        kind: "Match",
+        subject: convertExpression(file, node.cond as AnyNode),
+        arms: convertGlayzzleMatchArms(file, arms),
         pos: pos(file, node),
       };
     }

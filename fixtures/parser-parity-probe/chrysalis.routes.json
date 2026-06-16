@@ -30,6 +30,18 @@
       "path": "/nullsafe",
       "file": "pages/nullsafe_property.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/arrow-fn",
+      "file": "pages/arrow_fn.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/match",
+      "file": "pages/match_expr.php",
+      "pathParams": []
     }
   ]
 }

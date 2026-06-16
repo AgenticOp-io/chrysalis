@@ -41,7 +41,7 @@ describe("ingest: lift-helper-param-twin (IR helper lifting B5 v0)", () => {
     expect(aliases.get("chrysalis_direct_beta")).toBe("chrysalis_direct_alpha");
   });
 
-  it("semantic lift does not alias arithmetic-form twins (B5.2 deferred)", async () => {
+  it("semantic lift aliases arithmetic scale-by-2 twins (B5.2)", async () => {
     const builder = new ModuleBuilder({ sourceApp: "param-twin", chrysalisVersion: "1.0.0" });
     const bodies = new Map<string, import("@chrysalis/webir").NodeId>();
     for (const file of ["arith_alpha.php", "arith_beta.php"] as const) {
@@ -52,10 +52,24 @@ describe("ingest: lift-helper-param-twin (IR helper lifting B5 v0)", () => {
       }
     }
     const aliases = buildHelperLiftAliasMap(bodies, (id) => builder.get(id), { semantic: true });
+    expect(aliases.get("chrysalis_arith_beta")).toBe("chrysalis_arith_alpha");
+  });
+
+  it("semantic lift does not alias non-equivalent arithmetic twins (B5.2 guard)", async () => {
+    const builder = new ModuleBuilder({ sourceApp: "param-twin", chrysalisVersion: "1.0.0" });
+    const bodies = new Map<string, import("@chrysalis/webir").NodeId>();
+    for (const file of ["arith_gamma.php", "arith_beta.php"] as const) {
+      const ast = await parseFile(resolve(FIXTURE, "lib", file));
+      for (const stmt of ast.statements) {
+        if (stmt.kind !== "FunctionDecl") continue;
+        bodies.set(stmt.name, convertPhpStatementsToBlock(builder, ast.file, stmt.body));
+      }
+    }
+    const aliases = buildHelperLiftAliasMap(bodies, (id) => builder.get(id), { semantic: true });
     expect(aliases.size).toBe(0);
   });
 
-  it("liftSharedHelpersSemantic widens call-effect map for direct-return twins", async () => {
+  it("liftSharedHelpersSemantic widens call-effect map for arithmetic twins", async () => {
     const base = await buildCallEffectMap(FIXTURE, undefined, { liftSharedHelpers: true });
     const semantic = await buildCallEffectMap(FIXTURE, undefined, {
       liftSharedHelpers: true,
@@ -67,6 +81,9 @@ describe("ingest: lift-helper-param-twin (IR helper lifting B5 v0)", () => {
     expect(semantic.get("chrysalis_direct_beta")).toBeDefined();
     expect(effectTagsSorted(semantic.get("chrysalis_direct_alpha") ?? [])).toEqual(
       effectTagsSorted(semantic.get("chrysalis_direct_beta") ?? []),
+    );
+    expect(effectTagsSorted(semantic.get("chrysalis_arith_alpha") ?? [])).toEqual(
+      effectTagsSorted(semantic.get("chrysalis_arith_beta") ?? []),
     );
   });
 });

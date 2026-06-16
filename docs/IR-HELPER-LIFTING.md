@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** **B1–B5 v0** on `main` (fixtures + Vitest). **B5.2+** (arithmetic/structural equivalence) needs explicit Decision Log rules — do not best-guess merge.  
+**Status:** **B1–B5.2 v1** on `main` (fixtures + Vitest). **B5.3+** (SQL literal / side-effect twins) needs oracle-backed proof — verify gate required per route.  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem
@@ -50,7 +50,8 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | **B2.5** | **Done (v0):** origin-sensitive helper lift — **`liftSharedHelpersIgnoreOrigin: false`** / CLI **`--ingest-lift-shared-helpers-respect-origin`** (requires lift); twins in different files are not aliased (**`lift-shared-helpers.test.ts`**, **`ingest-lift-shared-helpers-cli.test.ts`**) |
 | **B3** | **Done (v0):** local-name slot normalization + **`--ingest-lift-shared-helpers-semantic`**; **`lift-helper-gap-probe`** aliases |
 | **B4** | **Done (v0):** **`embedSharedHelperBodiesInModule`** / CLI **`--ingest-embed-shared-helper-bodies`** (requires structural dedupe) — merges lib/vendor helper bodies as extra module roots via **`mergeWebIrModules`**, then **`dedupeStructuralSubgraphsInModule`**. Pair emit-time **`--emit-dedupe-identical-handler-bodies`** (**D282**) for handler TS shrink. |
-| **B5** | **Done (v0):** formal-parameter read slots in **`buildHelperLiftLocalSlotMap`** — twins that differ only by param names on a **direct return** (no intermediate locals) alias under **`--ingest-lift-shared-helpers-semantic`**. Fixture **`fixtures/lift-helper-param-twin/`**; Vitest **`lift-helper-param-twin.test.ts`**. **B5.2** (e.g. `$n * 2` vs `$n + $n`) deferred — same effects, different IR shape. |
+| **B5** | **Done (v0):** formal-parameter read slots in **`buildHelperLiftLocalSlotMap`** — twins that differ only by param names on a **direct return** (no intermediate locals) alias under **`--ingest-lift-shared-helpers-semantic`**. Fixture **`fixtures/lift-helper-param-twin/`**; Vitest **`lift-helper-param-twin.test.ts`**. |
+| **B5.2** | **Done (v1):** scale-by-2 arithmetic equivalence — `P * 2` ≡ `P + P` in semantic structural keys; negative control **`arith_gamma`** (`$n * 3`). |
 
 ## B5 semantic widening tiers
 
@@ -58,7 +59,7 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | --- | --- | --- |
 | **B5 v0** | Register **`data.param`** reads as order-based slots (extends B3 assign-target slots). Aliases bodies whose lowered IR differs only by formal parameter **names** on direct returns. | **Done** — **`registerParamRead`** in **`lift-shared-helpers.ts`**. |
 | **B5.1** | Extend slot map to param reads inside nested expressions when no assign introduces a local (same order walk). | Deferred — v0 walk already visits all operands. |
-| **B5.2** | Arithmetic / structural equivalence (constant folding, commutative reorder) with identical effect signatures. | **Deferred** — requires Decision Log equivalence rules; negative control **`arith_alpha` / `arith_beta`** in param-twin fixture. |
+| **B5.2** | Arithmetic / structural equivalence (constant folding, commutative reorder) with identical effect signatures. | **Done (v1)** — **`helperLiftArithmeticCanonicalKey`**: `binOp("*", P, 2)` ≡ `binOp("+", P, P)`; broader rules deferred. |
 | **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | Out of scope for ingest-only lift — verify gate required per route. |
 
 ## Decision
