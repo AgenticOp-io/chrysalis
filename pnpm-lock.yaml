@@ -166,8 +166,8 @@ importers:
   packages/parser-bridge:
     dependencies:
       php-parser:
-        specifier: ^3.2.2
-        version: 3.5.1
+        specifier: ^3.7.0
+        version: 3.7.0
 
   packages/repair:
     dependencies:
@@ -2774,8 +2774,8 @@ packages:
   pgpass@1.0.5:
     resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
 
-  php-parser@3.5.1:
-    resolution: {integrity: sha512-0By/iMXxBM9nIapBXOdFGHlD2os9t/3Pk1aIavUzCH7jKFPjq1WYeOVOv/iXhELCjlL4ZlzKwK1keyxLQjll8g==}
+  php-parser@3.7.0:
+    resolution: {integrity: sha512-JRc1t78GZAEa+MuzVC5A5RJS1NDFTS4UnprUEu/NnsN9cyHbGZLUqghO9IQZUSCay62HYQiWd3PxyWAEF45zmA==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -6048,7 +6048,7 @@ snapshots:
     dependencies:
       split2: 4.2.0
 
-  php-parser@3.5.1: {}
+  php-parser@3.7.0: {}
 
   picocolors@1.1.1: {}
 
