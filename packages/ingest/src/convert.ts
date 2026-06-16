@@ -72,6 +72,12 @@ function tryCallCalleeLabel(e: Extract<PhpExpr, { kind: "Call" }>): string | und
   return undefined;
 }
 
+function phpCallArgNames(
+  e: Extract<PhpExpr, { kind: "Call" }>,
+): { argNames?: ReadonlyArray<string | null> } {
+  return e.argNames !== undefined ? { argNames: e.argNames } : {};
+}
+
 /**
  * `db()` / `db_connect()->query("…")` on shared lib factory returns (PDO or mysqli in `lib/`), plus
  * **`DeclaredFactory::getConnection()->query`** when listed in **`chrysalis.routes.json`** **`dbFactoryReturnCallees`**,
@@ -757,6 +763,7 @@ function convertCall(
         args,
         type: T.unknown,
         origin: callOrigin,
+        ...phpCallArgNames(e),
       });
     }
     if (
@@ -841,6 +848,7 @@ function convertCall(
       args,
       type: T.unknown,
       origin: loc(ctx, e.pos),
+      ...phpCallArgNames(e),
     });
   }
 
@@ -925,6 +933,7 @@ function convertCall(
         args,
         type: T.int,
         origin: loc(ctx, e.pos),
+        ...phpCallArgNames(e),
       });
     case "json_encode": {
       if (e.args.length !== 1) {

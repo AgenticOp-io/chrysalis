@@ -32,4 +32,18 @@ describe("ingest: parser-parity-probe arrow/match lowering (G2280)", () => {
     });
   }
 
+  it("preserves named arg metadata on strlen call (G2283)", async () => {
+    const ast = await parseFile(resolve(FIXTURE, "pages", "named_args.php"));
+    const builder = new ModuleBuilder({ sourceApp: "parity", chrysalisVersion: "1.0.0" });
+    const body = ast.statements.filter((s) => s.kind !== "FunctionDecl");
+    convertPhpStatementsToBlock(builder, ast.file, body);
+    const mod = builder.finish();
+    const strlenCalls = [...mod.nodes.values()].filter(
+      (n) => n.dialect === "data" && n.op === "call" && String(n.attrs.callee) === "strlen",
+    );
+    expect(strlenCalls.length).toBeGreaterThan(0);
+    expect((strlenCalls[0]!.attrs as { argNames?: ReadonlyArray<string | null> }).argNames).toEqual([
+      "string",
+    ]);
+  });
 });
