@@ -125,6 +125,7 @@ export interface PhpFunctionDecl {
   readonly params: ReadonlyArray<{ name: string; hint: string | null; default: PhpExpr | null }>;
   readonly returnHint: string | null;
   readonly body: ReadonlyArray<PhpNode>;
+  readonly attributes?: ReadonlyArray<PhpAttribute>;
   readonly pos: Pos;
 }
 
@@ -231,6 +232,8 @@ export interface PhpCall {
     | { kind: "variable"; name: string }
     | { kind: "expr"; expr: PhpExpr };
   readonly args: ReadonlyArray<PhpExpr>;
+  /** Parallel to `args` when any argument is named; `null` = positional. Omitted when all positional. */
+  readonly argNames?: ReadonlyArray<string | null>;
   readonly pos: Pos;
 }
 
@@ -264,6 +267,14 @@ export interface PhpPropertyFetch {
   readonly kind: "PropertyFetch";
   readonly target: PhpExpr;
   readonly name: string;
+  readonly pos: Pos;
+}
+
+/** PHP 8.0+ attribute `#[Name(args…)]`. */
+export interface PhpAttribute {
+  readonly kind: "Attribute";
+  readonly name: string;
+  readonly args: ReadonlyArray<PhpExpr>;
   readonly pos: Pos;
 }
 

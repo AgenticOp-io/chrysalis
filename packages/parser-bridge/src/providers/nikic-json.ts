@@ -6,6 +6,7 @@
 import {
   SCHEMA_VERSION,
   type PhpAst,
+  type PhpAttribute,
   type PhpExpr,
   type PhpNode,
   type Pos,
@@ -278,12 +279,14 @@ function convertStatement(file: string, node: NikicDict, nsPrefix: string): PhpN
         convertParam(file, p),
       );
 
+      const fnAttributes = convertNikicAttributes(file, node.attrGroups);
       return {
         kind: "FunctionDecl",
         name,
         params,
         returnHint: typeHint(node.returnType as unknown),
         body: convertBody(file, bodyStmts, nsPrefix),
+        ...(fnAttributes.length > 0 ? { attributes: fnAttributes } : {}),
         pos: stmtPos(file, node),
       };
     }
@@ -622,19 +625,66 @@ function foldConcatDot(parts: PhpExpr[], pos: Pos): PhpExpr {
   return acc;
 }
 
-function argsFromNikic(file: string, raw: unknown[]): PhpExpr[] {
-  const out: PhpExpr[] = [];
+function argsFromNikic(
+  file: string,
+  raw: unknown[],
+): { values: PhpExpr[]; names?: (string | null)[] } {
+  const values: PhpExpr[] = [];
+  const names: (string | null)[] = [];
+  let anyNamed = false;
   for (const rawArg of raw) {
     if (!isNikicDict(rawArg)) continue;
     if (rawArg.nodeType === "VariadicPlaceholder") {
-      out.push(unknownExpr(file, rawArg, "variadic placeholder argument"));
+      values.push(unknownExpr(file, rawArg, "variadic placeholder argument"));
+      names.push(null);
       continue;
     }
     if (rawArg.nodeType !== "Arg") continue;
+    const argName = rawArg.name;
+    const label =
+      isNikicDict(argName) && argName.nodeType === "Identifier"
+        ? identifierText(argName) ?? null
+        : null;
+    if (label !== null) anyNamed = true;
+    names.push(label);
     const v = rawArg.value as unknown;
-    if (isNikicDict(v)) out.push(convertExpression(file, v));
+    if (isNikicDict(v)) values.push(convertExpression(file, v));
+  }
+  return anyNamed ? { values, names } : { values };
+}
+
+function convertNikicAttributes(file: string, groups: unknown): PhpAttribute[] {
+  if (!Array.isArray(groups) || groups.length === 0) return [];
+  const out: PhpAttribute[] = [];
+  for (const g of groups) {
+    if (!isNikicDict(g) || g.nodeType !== "AttributeGroup") continue;
+    const attrs = Array.isArray(g.attrs) ? g.attrs : [];
+    for (const a of attrs) {
+      if (!isNikicDict(a) || a.nodeType !== "Attribute") continue;
+      const nameNode = a.name;
+      let name = "";
+      if (isNikicDict(nameNode)) {
+        if (nameNode.nodeType.startsWith("Name")) {
+          name = nameFromNameNode(nameNode);
+        } else if (nameNode.nodeType === "Identifier") {
+          name = identifierText(nameNode) ?? "";
+        }
+      }
+      const fqn = name.startsWith("\\") ? name : `\\${name.replace(/^\\+/, "")}`;
+      const argPack = argsFromNikic(file, Array.isArray(a.args) ? a.args : []);
+      out.push({
+        kind: "Attribute",
+        name: fqn,
+        args: argPack.values,
+        pos: stmtPos(file, a),
+      });
+    }
   }
   return out;
+}
+
+function argsFromNikicValuesOnly(file: string, raw: unknown[]): PhpExpr[] {
+  return argsFromNikic(file, raw).values;
 }
 
 function convertInterpolatedString(file: string, raw: NikicDict): PhpExpr {
@@ -895,7 +945,7 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
         if (ct === "Stmt_Class") {
           return unknownExpr(file, raw, "Expr_New anonymous class");
         }
-        const args = argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []);
+        const args = argsFromNikicValuesOnly(file, Array.isArray(raw.args) ? raw.args : []);
         return {
           kind: "NewDynamic",
           classExpr: convertExpression(file, clazzUnknown),
@@ -904,7 +954,7 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
         };
       }
       const className = nameFromNameNode(clazzUnknown).replace(/^\\+/, "") || "?";
-      const args = argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []);
+      const args = argsFromNikicValuesOnly(file, Array.isArray(raw.args) ? raw.args : []);
       return { kind: "New", className, args, pos };
     }
 
@@ -923,8 +973,14 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
 
     case "Expr_FuncCall": {
       const callee = convertFuncCallee(file, raw.name as unknown);
-      const args = argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []);
-      return { kind: "Call", callee, args, pos };
+      const argPack = argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []);
+      return {
+        kind: "Call",
+        callee,
+        args: argPack.values,
+        ...(argPack.names ? { argNames: argPack.names } : {}),
+        pos,
+      };
     }
 
     case "Expr_MethodCall": {
@@ -933,6 +989,7 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
       if (!isNikicDict(v) || method === undefined) {
         return unknownExpr(file, raw, "Expr_MethodCall");
       }
+      const argPack = argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []);
       return {
         kind: "Call",
         callee: {
@@ -944,7 +1001,8 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
             pos,
           },
         },
-        args: argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []),
+        args: argPack.values,
+        ...(argPack.names ? { argNames: argPack.names } : {}),
         pos,
       };
     }
@@ -964,10 +1022,12 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
                 method === undefined ? "Expr_StaticCall: dynamic method" : "Expr_StaticCall: non-name class",
               ),
             };
+      const argPack = argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []);
       return {
         kind: "Call",
         callee,
-        args: argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []),
+        args: argPack.values,
+        ...(argPack.names ? { argNames: argPack.names } : {}),
         pos,
       };
     }

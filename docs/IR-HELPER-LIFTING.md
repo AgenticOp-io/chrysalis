@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** **B1–B5.2 v1** on `main` (fixtures + Vitest). **B5.3+** (SQL literal / side-effect twins) needs oracle-backed proof — verify gate required per route.  
+**Status:** **B1–B5.3 v1** on `main` (fixtures + Vitest). Oracle-backed SQL literal merge remains **out of scope** for ingest-only lift.  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem
@@ -51,7 +51,7 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | **B3** | **Done (v0):** local-name slot normalization + **`--ingest-lift-shared-helpers-semantic`**; **`lift-helper-gap-probe`** aliases |
 | **B4** | **Done (v0):** **`embedSharedHelperBodiesInModule`** / CLI **`--ingest-embed-shared-helper-bodies`** (requires structural dedupe) — merges lib/vendor helper bodies as extra module roots via **`mergeWebIrModules`**, then **`dedupeStructuralSubgraphsInModule`**. Pair emit-time **`--emit-dedupe-identical-handler-bodies`** (**D282**) for handler TS shrink. |
 | **B5** | **Done (v0):** formal-parameter read slots in **`buildHelperLiftLocalSlotMap`** — twins that differ only by param names on a **direct return** (no intermediate locals) alias under **`--ingest-lift-shared-helpers-semantic`**. Fixture **`fixtures/lift-helper-param-twin/`**; Vitest **`lift-helper-param-twin.test.ts`**. |
-| **B5.2** | **Done (v1):** scale-by-2 arithmetic equivalence — `P * 2` ≡ `P + P` in semantic structural keys; negative control **`arith_gamma`** (`$n * 3`). |
+| **B5.2** | **Done (v1–v2):** scale-by-2 (`P * 2` ≡ `P + P`) and commutative `+`/`*` reorder in semantic keys; guards **`arith_gamma`**, **`comm_*`** twins. |
 
 ## B5 semantic widening tiers
 
@@ -59,8 +59,8 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | --- | --- | --- |
 | **B5 v0** | Register **`data.param`** reads as order-based slots (extends B3 assign-target slots). Aliases bodies whose lowered IR differs only by formal parameter **names** on direct returns. | **Done** — **`registerParamRead`** in **`lift-shared-helpers.ts`**. |
 | **B5.1** | Extend slot map to param reads inside nested expressions when no assign introduces a local (same order walk). | Deferred — v0 walk already visits all operands. |
-| **B5.2** | Arithmetic / structural equivalence (constant folding, commutative reorder) with identical effect signatures. | **Done (v1)** — **`helperLiftArithmeticCanonicalKey`**: `binOp("*", P, 2)` ≡ `binOp("+", P, P)`; broader rules deferred. |
-| **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | Out of scope for ingest-only lift — verify gate required per route. |
+| **B5.2** | Arithmetic / structural equivalence (constant folding, commutative reorder) with identical effect signatures. | **Done (v1–v2)** — scale-by-2 + commutative `+`/`*`; broader folding deferred. |
+| **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | **Done (v1 gate)** — **`bodyHasIrEffects`** disables arithmetic widening on effectful bodies; full oracle merge still verify-gated per route. |
 
 ## Decision
 

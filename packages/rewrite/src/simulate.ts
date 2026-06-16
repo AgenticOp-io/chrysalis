@@ -531,6 +531,34 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       return asBool(args[0] ?? { kind: "null" })
         ? (args[1] ?? { kind: "null" })
         : (args[2] ?? { kind: "null" });
+    case "__arrow_fn": {
+      const body = args[args.length - 1] ?? { kind: "null" };
+      return body;
+    }
+    case "__match": {
+      const subject = args[0] ?? { kind: "null" };
+      const armCount = asNum(args[1] ?? { kind: "null" });
+      let i = 2;
+      let defaultBody: SimValue | undefined;
+      for (let a = 0; a < armCount; a++) {
+        const isDefault = asNum(args[i++] ?? { kind: "null" }) === 1;
+        const condCount = asNum(args[i++] ?? { kind: "null" });
+        const conds: SimValue[] = [];
+        for (let c = 0; c < condCount; c++) {
+          conds.push(args[i++] ?? { kind: "null" });
+        }
+        const body = args[i++] ?? { kind: "null" };
+        if (isDefault) {
+          defaultBody = body;
+          continue;
+        }
+        for (const cond of conds) {
+          if (simValueEquals(subject, cond)) return body;
+        }
+      }
+      if (defaultBody !== undefined) return defaultBody;
+      return { kind: "null" };
+    }
     case "__cast_int":
       return { kind: "num", value: Math.trunc(asNum(args[0] ?? { kind: "null" })) };
     case "__cast_float":

@@ -69,6 +69,20 @@ describe("ingest: lift-helper-param-twin (IR helper lifting B5 v0)", () => {
     expect(aliases.size).toBe(0);
   });
 
+  it("semantic lift aliases commutative add twins (B5.2 v2)", async () => {
+    const builder = new ModuleBuilder({ sourceApp: "param-twin", chrysalisVersion: "1.0.0" });
+    const bodies = new Map<string, import("@chrysalis/webir").NodeId>();
+    for (const file of ["comm_alpha.php", "comm_beta.php"] as const) {
+      const ast = await parseFile(resolve(FIXTURE, "lib", file));
+      for (const stmt of ast.statements) {
+        if (stmt.kind !== "FunctionDecl") continue;
+        bodies.set(stmt.name, convertPhpStatementsToBlock(builder, ast.file, stmt.body));
+      }
+    }
+    const aliases = buildHelperLiftAliasMap(bodies, (id) => builder.get(id), { semantic: true });
+    expect(aliases.get("chrysalis_comm_beta")).toBe("chrysalis_comm_alpha");
+  });
+
   it("liftSharedHelpersSemantic widens call-effect map for arithmetic twins", async () => {
     const base = await buildCallEffectMap(FIXTURE, undefined, { liftSharedHelpers: true });
     const semantic = await buildCallEffectMap(FIXTURE, undefined, {

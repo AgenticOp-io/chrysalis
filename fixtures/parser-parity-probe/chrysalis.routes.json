@@ -42,6 +42,18 @@
       "path": "/match",
       "file": "pages/match_expr.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/named-args",
+      "file": "pages/named_args.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/attributes",
+      "file": "pages/attributes.php",
+      "pathParams": []
     }
   ]
 }

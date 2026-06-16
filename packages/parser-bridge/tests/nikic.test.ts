@@ -297,6 +297,22 @@ $maybe = null ?? "fallback";
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe named_args.php (positions stripped) (G2280)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/named_args.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "named_args.php");
+    const nk = await parseSource(src, "named_args.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe attributes.php (positions stripped) (G2280)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/attributes.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "attributes.php");
+    const nk = await parseSource(src, "attributes.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("matches glayzzle on parser-parity-probe invokable_controller.php (positions stripped) (G133)", async () => {
     const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/invokable_controller.php");
     const src = readFileSync(p, "utf8");

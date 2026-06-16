@@ -67,13 +67,16 @@ function literalNumericValue(n: NodeBase): number | undefined {
 
 /**
  * B5.2 v1: `P * 2` ≡ `P + P` when P is the same lowered subtree (param slot after B3/B5).
- * Returns a canonical structural fragment key or undefined when the rule does not apply.
+ * B5.2 v2: commutative `+` / `*` reorder when operand keys differ.
+ * B5.3: skipped when `allowArithmetic` is false (body has IR effects).
  */
 function helperLiftArithmeticCanonicalKey(
   n: NodeBase,
   operandKeys: readonly string[],
   getNode: (id: NodeId) => NodeBase | undefined,
+  allowArithmetic: boolean,
 ): string | undefined {
+  if (!allowArithmetic) return undefined;
   if (n.dialect !== "data" || n.op !== "binop" || operandKeys.length !== 2) return undefined;
   const op = n.attrs.operator;
   if (op === "*" && n.operands.length === 2) {
@@ -86,7 +89,31 @@ function helperLiftArithmeticCanonicalKey(
   if (op === "+" && operandKeys[0] === operandKeys[1]) {
     return `lift-scale2:${operandKeys[0]}`;
   }
+  if ((op === "+" || op === "*") && operandKeys[0] !== operandKeys[1]) {
+    const sorted = [...operandKeys].sort();
+    return `lift-commutative:${op}:${sorted[0]}:${sorted[1]}`;
+  }
   return undefined;
+}
+
+/** True when the lowered body contains any node with non-empty effects (**B5.3** gate). */
+export function bodyHasIrEffects(
+  getNode: (id: NodeId) => NodeBase | undefined,
+  rootId: NodeId,
+): boolean {
+  const seen = new Set<NodeId>();
+  const walk = (id: NodeId): boolean => {
+    if (seen.has(id)) return false;
+    seen.add(id);
+    const n = getNode(id);
+    if (!n) return false;
+    if (n.effects.length > 0) return true;
+    for (const o of n.operands) {
+      if (walk(o)) return true;
+    }
+    return false;
+  };
+  return walk(rootId);
 }
 
 function isAssignCall(getNode: (id: NodeId) => NodeBase | undefined, n: NodeBase): boolean {
@@ -191,6 +218,7 @@ export function functionBodyStructuralKey(
       ? mergeDedupeStructuralKeyIgnoringOrigin
       : mergeDedupeStructuralKey;
   const localSlots = useSemantic ? buildHelperLiftLocalSlotMap(getNode, rootId) : new Map<string, string>();
+  const allowArithmetic = useSemantic && !bodyHasIrEffects(getNode, rootId);
   const structuralMemo = new Map<NodeId, string>();
   const order: NodeId[] = [];
   const seen = new Set<NodeId>();
@@ -215,7 +243,9 @@ export function functionBodyStructuralKey(
       }
       return k;
     });
-    const arithKey = useSemantic ? helperLiftArithmeticCanonicalKey(n, operandKeys, getNode) : undefined;
+    const arithKey = useSemantic
+      ? helperLiftArithmeticCanonicalKey(n, operandKeys, getNode, allowArithmetic)
+      : undefined;
     structuralMemo.set(id, arithKey ?? keyFn(n, operandKeys));
   }
   const rootKey = structuralMemo.get(rootId);

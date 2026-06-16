@@ -1,13 +1,13 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { countHoles } from "@chrysalis/webir";
+import { countHoles, dataDialect, effectDialect, ModuleBuilder, phpLocator, T } from "@chrysalis/webir";
 import {
   buildCallEffectMap,
   buildHelperLiftAliasMap,
   ingestDirectory,
 } from "../src/index.js";
-import { ModuleBuilder } from "@chrysalis/webir";
+import { bodyHasIrEffects } from "../src/lift-shared-helpers.js";
 import { convertPhpStatementsToBlock } from "../src/convert.js";
 import { parseFile } from "@chrysalis/parser-bridge";
 
@@ -108,5 +108,26 @@ describe("ingest: lift-shared-helpers (B2)", () => {
       dedupeStructuralSubgraphs: true,
     });
     expect(embedded.nodes.size).toBeLessThanOrEqual(dedupedOnly.nodes.size + 80);
+  });
+
+  it("bodyHasIrEffects is true when body contains effect nodes (B5.3 gate)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "fx", chrysalisVersion: "1.0.0" });
+    const effect = effectDialect.builders(builder);
+    const data = dataDialect.builders(builder);
+    const origin = phpLocator("x.php", 1, 0);
+    const q = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT 1",
+      tables: ["items"],
+      params: [],
+      returns: "rows",
+      type: T.array(T.record({})),
+      origin,
+    });
+    const block = data.block({ statements: [q], origin });
+    expect(bodyHasIrEffects((id) => builder.get(id), block)).toBe(true);
+    const lit = data.literal({ value: 1, type: T.int, origin });
+    const pure = data.block({ statements: [lit], origin });
+    expect(bodyHasIrEffects((id) => builder.get(id), pure)).toBe(false);
   });
 });

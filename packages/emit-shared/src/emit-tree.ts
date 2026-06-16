@@ -432,6 +432,44 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
   switch (callee) {
     case "__ternary":
       return `((${args[0]}) ? (${args[1]}) : (${args[2]}))`;
+    case "__arrow_fn": {
+      const body = args[args.length - 1] ?? "null";
+      const paramParts: string[] = [];
+      for (let i = 0; i + 1 < args.length - 1; i += 2) {
+        const nameExpr = args[i] ?? '""';
+        const defExpr = args[i + 1] ?? "undefined";
+        const nameMatch = /^"(.+)"$/.exec(nameExpr.trim());
+        const paramName = nameMatch?.[1] ?? nameExpr;
+        paramParts.push(defExpr === "null" ? paramName : `${paramName} = ${defExpr}`);
+      }
+      return `((${paramParts.join(", ")}) => (${body}))`;
+    }
+    case "__match": {
+      const subject = args[0] ?? "null";
+      const armCount = Number(args[1] ?? "0");
+      let i = 2;
+      const lines: string[] = [`const __matchSubject = ${subject};`];
+      let defaultBody: string | undefined;
+      for (let a = 0; a < armCount; a++) {
+        const isDefault = (args[i++] ?? "0") === "1";
+        const condCount = Number(args[i++] ?? "0");
+        const conds: string[] = [];
+        for (let c = 0; c < condCount; c++) {
+          conds.push(`__matchSubject === (${args[i++] ?? "null"})`);
+        }
+        const body = args[i++] ?? "null";
+        if (isDefault) {
+          defaultBody = body;
+        } else {
+          lines.push(`if (${conds.join(" || ")}) return ${body};`);
+        }
+      }
+      if (defaultBody !== undefined) {
+        lines.push(`return ${defaultBody};`);
+      }
+      lines.push(`throw new Error("unhandled match");`);
+      return `(() => { ${lines.join(" ")} })()`;
+    }
     case "__cast_int":
       return `intval(${args[0]})`;
     case "__cast_float":

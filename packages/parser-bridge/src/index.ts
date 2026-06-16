@@ -42,6 +42,7 @@ export type {
   PhpThrow,
   PhpNew,
   PhpNewDynamic,
+  PhpAttribute,
   PhpArrowFunction,
   PhpMatch,
   PhpMatchArm,

@@ -646,6 +646,66 @@ function convertExpr(ctx: Ctx, e: PhpExpr, pathParams: RouteSpec["pathParams"]):
         origin: loc(ctx, e.pos),
       });
     }
+    case "ArrowFunction": {
+      const fnArgs: NodeId[] = [];
+      for (const p of e.params) {
+        fnArgs.push(
+          ctx.data.literal({
+            value: p.name,
+            type: T.string,
+            origin: loc(ctx, e.pos),
+          }),
+        );
+        fnArgs.push(
+          p.default
+            ? convertExpr(ctx, p.default, pathParams)
+            : ctx.data.literal({ value: null, type: T.null, origin: loc(ctx, e.pos) }),
+        );
+      }
+      fnArgs.push(convertExpr(ctx, e.body, pathParams));
+      return ctx.data.call({
+        callee: "__arrow_fn",
+        args: fnArgs,
+        type: T.unknown,
+        origin: loc(ctx, e.pos),
+      });
+    }
+    case "Match": {
+      const matchArgs: NodeId[] = [convertExpr(ctx, e.subject, pathParams)];
+      matchArgs.push(
+        ctx.data.literal({
+          value: e.arms.length,
+          type: T.int,
+          origin: loc(ctx, e.pos),
+        }),
+      );
+      for (const arm of e.arms) {
+        matchArgs.push(
+          ctx.data.literal({
+            value: arm.isDefault ? 1 : 0,
+            type: T.int,
+            origin: loc(ctx, e.pos),
+          }),
+        );
+        matchArgs.push(
+          ctx.data.literal({
+            value: arm.conditions.length,
+            type: T.int,
+            origin: loc(ctx, e.pos),
+          }),
+        );
+        for (const cond of arm.conditions) {
+          matchArgs.push(convertExpr(ctx, cond, pathParams));
+        }
+        matchArgs.push(convertExpr(ctx, arm.body, pathParams));
+      }
+      return ctx.data.call({
+        callee: "__match",
+        args: matchArgs,
+        type: T.unknown,
+        origin: loc(ctx, e.pos),
+      });
+    }
     default:
       return hole(ctx, `expr:${(e as PhpExpr).kind}`, (e as PhpExpr).pos);
   }

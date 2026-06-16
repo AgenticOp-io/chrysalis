@@ -9,6 +9,7 @@ import * as phpParser from "php-parser";
 import {
   SCHEMA_VERSION,
   type PhpAst,
+  type PhpAttribute,
   type PhpExpr,
   type PhpNode,
   type Pos,
@@ -269,6 +270,7 @@ function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNod
       const shortName = String((node.name as AnyNode)?.name ?? "<anonymous>");
       const declName =
         shortName !== "<anonymous>" && nsPrefix !== "" ? `${nsPrefix}\\${shortName}` : shortName;
+      const fnAttributes = convertGlayzzleAttributes(file, node.attrGroups as AnyNode[] | undefined);
       return {
         kind: "FunctionDecl",
         name: declName,
@@ -279,6 +281,7 @@ function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNod
         })),
         returnHint: typeNameFromHint(node.type as AnyNode | null),
         body: body?.kind === "block" ? convertBody(file, body.children, nsPrefix) : [],
+        ...(fnAttributes.length > 0 ? { attributes: fnAttributes } : {}),
         pos: pos(file, node),
       };
     }
@@ -376,6 +379,46 @@ function convertGlayzzleMatchArms(file: string, arms: AnyNode[]): Array<{
       body: convertExpression(file, arm.body as AnyNode),
     };
   });
+}
+
+function convertGlayzzleAttributes(file: string, groups: AnyNode[] | undefined): PhpAttribute[] {
+  if (!Array.isArray(groups) || groups.length === 0) return [];
+  const out: PhpAttribute[] = [];
+  for (const g of groups) {
+    const attrs = Array.isArray(g.attrs) ? (g.attrs as AnyNode[]) : [];
+    for (const a of attrs) {
+      const rawName = String(a.name ?? "");
+      const name = rawName.startsWith("\\") ? rawName : `\\${rawName.replace(/^\\+/, "")}`;
+      const rawArgs = Array.isArray(a.args) ? (a.args as AnyNode[]) : [];
+      out.push({
+        kind: "Attribute",
+        name,
+        args: rawArgs.map((arg) => convertExpression(file, arg)),
+        pos: pos(file, a),
+      });
+    }
+  }
+  return out;
+}
+
+function convertGlayzzleCallArgs(
+  file: string,
+  args: AnyNode[],
+): { values: PhpExpr[]; names?: (string | null)[] } {
+  let anyNamed = false;
+  const values: PhpExpr[] = [];
+  const names: (string | null)[] = [];
+  for (const a of args) {
+    if (a.kind === "namedargument") {
+      anyNamed = true;
+      names.push(String(a.name ?? ""));
+      values.push(convertExpression(file, a.value as AnyNode));
+    } else {
+      names.push(null);
+      values.push(convertExpression(file, a));
+    }
+  }
+  return anyNamed ? { values, names } : { values };
 }
 
 function convertExpression(file: string, node: AnyNode | null | undefined): PhpExpr {
@@ -492,10 +535,12 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
       } else {
         callee = { kind: "expr", expr: convertExpression(file, what) };
       }
+      const callArgs = convertGlayzzleCallArgs(file, args);
       return {
         kind: "Call",
         callee,
-        args: args.map((a) => convertExpression(file, a)),
+        args: callArgs.values,
+        ...(callArgs.names ? { argNames: callArgs.names } : {}),
         pos: pos(file, node),
       };
     }
