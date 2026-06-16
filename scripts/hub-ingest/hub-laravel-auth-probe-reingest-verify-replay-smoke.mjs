@@ -29,10 +29,12 @@ export async function runLaravelAuthProbeReingestVerifyReplaySmoke() {
   const prevReingest = process.env.CHRYSALIS_HUB_GAP_REINGEST;
   const prevVerifyReplay = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY;
   const prevVerifyClosure = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE;
+  const prevVerifyHttp = process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP;
   process.env.CHRYSALIS_HUB_GAP_REINGEST_STRICT = "1";
   process.env.CHRYSALIS_HUB_GAP_REINGEST = "1";
   process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY = "1";
   delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE;
+  delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP;
   try {
     if (!existsSync(cliBin)) {
       return {
@@ -93,6 +95,8 @@ export async function runLaravelAuthProbeReingestVerifyReplaySmoke() {
     else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY = prevVerifyReplay;
     if (prevVerifyClosure === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE;
     else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_CLOSURE = prevVerifyClosure;
+    if (prevVerifyHttp === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP;
+    else process.env.CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP = prevVerifyHttp;
   }
 }
 

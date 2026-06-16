@@ -1266,20 +1266,103 @@ export async function runPost100HubOpsMegaGate() {
 }
 
 export async function runPost90HubGraduationLockGate(opts = {}) {
+  const skipRepeatMegas =
+    opts.skipRepeatMegas === true || process.env.CHRYSALIS_GCE_V110_SKIP_REPEAT_MEGAS === "1";
+  const onlySlice = opts.onlySlice ?? process.env.CHRYSALIS_V110_GRADUATION_SLICE ?? null;
+
+  if (onlySlice === "verify-gaps-parallel") {
+    return runPost90HubGraduationLockVerifyGapsParallelSlice(opts);
+  }
+  if (onlySlice === "migration-mega") {
+    return runPost90HubGraduationLockMigrationMegaSlice();
+  }
+
+  console.error("[post90-hub-graduation-lock] verify-gaps-parallel start");
+  const parallel = await runPost90HubGraduationLockVerifyGapsParallelSlice(opts);
+  console.error(
+    `[post90-hub-graduation-lock] verify-gaps-parallel ${parallel.ok === true ? "ok" : "FAIL"}`,
+  );
+
+  console.error("[post90-hub-graduation-lock] migration-mega start");
+  const migration = await runPost90HubGraduationLockMigrationMegaSlice();
+  console.error(
+    `[post90-hub-graduation-lock] migration-mega ${migration.ok === true ? "ok" : "FAIL"}`,
+  );
+
+  /** @type {{ ok?: boolean } | { ok: boolean, skip: string }} */
+  let oracle = { ok: true, skip: "gce-deferred-repeat-megas" };
+  /** @type {{ ok?: boolean } | { ok: boolean, skip: string }} */
+  let verify = { ok: true, skip: "gce-deferred-repeat-megas" };
+
+  if (!skipRepeatMegas) {
+    console.error("[post90-hub-graduation-lock] oracle-product-ultra start");
+    oracle = await runOracleProductUltraGate();
+    console.error(
+      `[post90-hub-graduation-lock] oracle-product-ultra ${oracle.ok === true ? "ok" : "FAIL"}`,
+    );
+    console.error("[post90-hub-graduation-lock] verify-standalone-mega start");
+    verify = await runVerifyStandaloneMegaGate();
+    console.error(
+      `[post90-hub-graduation-lock] verify-standalone-mega ${verify.ok === true ? "ok" : "FAIL"}`,
+    );
+  } else {
+    console.error("[post90-hub-graduation-lock] skip repeat oracle/verify megas (v106/v107 GCE slices)");
+  }
+
+  const ok =
+    parallel.ok === true &&
+    migration.ok === true &&
+    oracle.ok === true &&
+    verify.ok === true;
+  return {
+    ok,
+    skipRepeatMegas,
+    parallelOk: parallel.ok === true,
+    migrationOk: migration.ok === true,
+    oracleOk: oracle.ok === true,
+    verifyOk: verify.ok === true,
+    expressOk: parallel.expressOk === true,
+    httpOk: parallel.httpOk === true,
+  };
+}
+
+export async function runPost90HubGraduationLockVerifyGapsParallelSlice(opts = {}) {
+  console.error("[post90-hub-graduation-lock:verify-gaps-parallel] start");
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const { prepareProjectVerifyEmit } = await import("./hub-verify-replay.mjs");
+  const honoReady = await prepareProjectVerifyEmit(flagshipDir, {
+    origin: "cwl",
+    target: "hono",
+    repoRoot,
+  });
+  if (!honoReady.ok) {
+    console.error(
+      `[post90-hub-graduation-lock:verify-gaps-parallel] FAIL fullstack hono prepare: ${honoReady.skip ?? "unknown"}`,
+    );
+    return { ok: false, expressOk: false, httpOk: false, prepareSkip: honoReady.skip ?? null };
+  }
+  const fastifyReady = await prepareProjectVerifyEmit(flagshipDir, {
+    origin: "cwl",
+    target: "fastify",
+    repoRoot,
+  });
+  if (!fastifyReady.ok) {
+    console.error(
+      `[post90-hub-graduation-lock:verify-gaps-parallel] FAIL fullstack fastify prepare: ${fastifyReady.skip ?? "unknown"}`,
+    );
+    return { ok: false, expressOk: false, httpOk: false, prepareSkip: fastifyReady.skip ?? null };
+  }
   const [
     express,
     symfony,
     laravel,
     ingest,
     closure,
-    http,
-    fastify,
     origin,
     ir,
     irSem,
     session,
     production,
-    pageProbe,
     evidence,
   ] = await Promise.all([
     runVerifyGapsExpressFlagshipGate(),
@@ -1287,19 +1370,17 @@ export async function runPost90HubGraduationLockGate(opts = {}) {
     runVerifyGapsLaravelMinFlagshipGate(),
     runVerifyGapsIngestStandaloneGate(),
     runLaravelVerifyGapsClosureGate(),
-    runLaravelAuthProbeReingestHttpGate(),
-    runLaravelAuthProbeReingestFastifyGate(),
     runPostTranslateVerifyOriginGate(),
     runIrHelperLiftingGate(),
     runIrHelperSemanticLiftingGate(),
     runSessionStubFullstackGate(opts),
     runRuntimeProductionV2Gate(opts),
-    runEmitPageProbeFullstackGate(opts),
     runEvidenceTrendStandaloneGate(),
   ]);
-  const migration = await runMigrationOsMegaGate();
-  const oracle = await runOracleProductUltraGate();
-  const verify = await runVerifyStandaloneMegaGate();
+  // HTTP oracle probes use tsImport(server.ts); parallel tsx loads race (ctx.js / TS syntax errors on GCE).
+  const http = await runLaravelAuthProbeReingestHttpGate();
+  const fastify = await runLaravelAuthProbeReingestFastifyGate();
+  const pageProbe = await runEmitPageProbeFullstackGate(opts);
   const ok =
     express.ok === true &&
     symfony.ok === true &&
@@ -1314,11 +1395,17 @@ export async function runPost90HubGraduationLockGate(opts = {}) {
     session.ok === true &&
     production.ok === true &&
     pageProbe.ok === true &&
-    evidence.ok === true &&
-    migration.ok === true &&
-    oracle.ok === true &&
-    verify.ok === true;
-  return { ok, expressOk: express.ok === true, httpOk: http.ok === true, verifyOk: verify.ok === true };
+    evidence.ok === true;
+  console.error(`[post90-hub-graduation-lock:verify-gaps-parallel] ${ok ? "ok" : "FAIL"}`);
+  return { ok, expressOk: express.ok === true, httpOk: http.ok === true };
+}
+
+export async function runPost90HubGraduationLockMigrationMegaSlice() {
+  console.error("[post90-hub-graduation-lock:migration-mega] start");
+  const migration = await runMigrationOsMegaGate();
+  const ok = migration.ok === true;
+  console.error(`[post90-hub-graduation-lock:migration-mega] ${ok ? "ok" : "FAIL"}`);
+  return { ok, migration };
 }
 
 export async function runPost90HubGraduationGate(opts = {}) {

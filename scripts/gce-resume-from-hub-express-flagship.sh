@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Canonical Chrysalis test suite on Linux GCE (detached-safe; laptop can disconnect).
-# Each step is a separate gce-run-phase for progress/resume granularity (no monolithic sub-suites).
+# Resume GCE suite from hub-express-flagship (phases 1-5 already passed on VM).
 set -euo pipefail
 
 REPO="${CHRYSALIS_STATUS_REPO:-$(cd "$(dirname "$0")/.." && pwd)}"
@@ -12,9 +11,9 @@ export CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN="${CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN:
 export CHRYSALIS_GCE_ALL_TESTS=1
 export CHRYSALIS_GCE_HUB_COMPLETION_FAST="${CHRYSALIS_GCE_HUB_COMPLETION_FAST:-1}"
 export CHRYSALIS_GCE_SLIM_HUB_STRATEGIC="${CHRYSALIS_GCE_SLIM_HUB_STRATEGIC:-1}"
+export CHRYSALIS_GCE_SKIP_PNPM_INSTALL=1
+export CHRYSALIS_GCE_SKIP_BUILD=1
 export CHRYSALIS_GCE_V110_SKIP_REPEAT_MEGAS="${CHRYSALIS_GCE_V110_SKIP_REPEAT_MEGAS:-1}"
-export CHRYSALIS_GCE_MEGA_DEDUPE="${CHRYSALIS_GCE_MEGA_DEDUPE:-1}"
-export CHRYSALIS_HUB_SMOKE_PROGRESS="${CHRYSALIS_HUB_SMOKE_PROGRESS:-1}"
 export CHRYSALIS_EXPRESS_SERVER_START_TIMEOUT_MS="${CHRYSALIS_EXPRESS_SERVER_START_TIMEOUT_MS:-60000}"
 
 LOG="${CHRYSALIS_GCE_ALL_TESTS_LOG:-reports/ci/gce-all-tests.log}"
@@ -22,48 +21,13 @@ PID_FILE="${HOME}/.chrysalis-gce-test.pid"
 OK_FILE="reports/ci/gce-all-tests.ok"
 LOCK_FILE="${HOME}/.chrysalis-gce-test.lock"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+GCE_PHASE_LIST="$(node "${SCRIPT_DIR}/gce-phase-list.mjs" csv)"
 
 run_phase() {
   bash "${SCRIPT_DIR}/gce-run-phase.sh" "$@"
 }
 
-GCE_PROGRESS="${SCRIPT_DIR}/gce-progress.mjs"
-
 log() { echo "[gce-all-tests] $(date -Is) $*"; }
-
-init_progress_manifest() {
-  local list
-  list="$(node "${SCRIPT_DIR}/gce-phase-list.mjs" csv)"
-  log "progress manifest: $(node "${SCRIPT_DIR}/gce-phase-list.mjs" count) phases"
-  CHRYSALIS_GCE_PHASE_LIST="${list}" node "${GCE_PROGRESS}" init "${list}"
-}
-
-skip_phase() {
-  node "${GCE_PROGRESS}" skip "$1"
-}
-
-if [[ "${CHRYSALIS_GCE_LIST_PHASES:-}" == "1" ]]; then
-  cat <<'EOF'
-gce-all-tests phases (each writes reports/ci/gce-phase-<name>.log; see reports/ci/gce-progress.json):
-  build-install, build-compile, parser-bridge-vendor
-  cli-shims
-  hub-strategic-vitest, hub-express-flagship, hub-plain-php-flagship, hub-symfony-flagship
-  hub-node-express-oracle-verify, hub-node-oracle-spike
-  hub-cwl, hub-fixture-emits
-  hub-cwl-authoring-v61-v63, hub-cwl-authoring-v64-v70, hub-cwl-authoring-v71-v90, hub-cwl-authoring-v91-v110
-  wptp-matrix
-  hub-gold-verify, hub-gold-trace-replay
-  full-vitest (optional)
-  hub-completion-json, hub-completion-gate, hub-knowledge
-  cwl-http-verify, cwl-batch-v40, cwl-batch-v60
-  cwl-v106-* (7 oracle ultra slices), cwl-v107-* (3 verify mega slices)
-  cwl-v110-verify-gaps-parallel, cwl-v110-migration-mega
-  post110-verify-gaps (optional)
-  Full list: node scripts/gce-phase-list.mjs csv
-Progress summary: node scripts/gce-progress.mjs summary
-EOF
-  exit 0
-fi
 
 if [[ -f "${LOCK_FILE}" ]]; then
   old_pid="$(cat "${PID_FILE}" 2>/dev/null || true)"
@@ -79,45 +43,9 @@ touch "${LOCK_FILE}"
 rm -f "${OK_FILE}"
 trap 'rm -f "${LOCK_FILE}"' EXIT
 
-log "repo=${REPO} full_vitest=${CHRYSALIS_GCE_FULL_VITEST:-0}"
-
-bash "${SCRIPT_DIR}/gce-cleanup-vm-temp.sh" || log "WARN: gce-cleanup-vm-temp failed (continuing)"
-
-init_progress_manifest
-
-if [[ "${CHRYSALIS_GCE_SKIP_PNPM_INSTALL:-}" != "1" ]]; then
-  log "phase: build-install"
-  run_phase build-install pnpm install
-else
-  skip_phase build-install
-fi
-
-if [[ "${CHRYSALIS_GCE_SKIP_BUILD:-}" != "1" ]]; then
-  log "phase: build-compile"
-  run_phase build-compile pnpm -r build
-else
-  skip_phase build-compile
-fi
-
-log "phase: parser-bridge-vendor"
-if command -v php >/dev/null 2>&1; then
-  export CHRYSALIS_SKIP_PARSER_VENDOR=0
-  if ! run_phase parser-bridge-vendor pnpm run vendor:parser-bridge; then
-    log "WARN: parser-bridge vendor failed (continuing)"
-  fi
-else
-  export CHRYSALIS_SKIP_PARSER_VENDOR=1
-  skip_phase parser-bridge-vendor
-fi
-
-export CHRYSALIS_GCE_SKIP_PNPM_INSTALL=1
-export CHRYSALIS_GCE_SKIP_BUILD=1
-
-log "phase: cli shims"
-run_phase cli-shims pnpm run test:cli-shims
-
-log "phase: hub strategic vitest"
-run_phase hub-strategic-vitest bash scripts/gce-hub-strategic-vitest.sh
+log "RESUME from hub-express-flagship (repo=${REPO})"
+GCE_PROGRESS="${SCRIPT_DIR}/gce-progress.mjs"
+node "${GCE_PROGRESS}" bootstrap "${GCE_PHASE_LIST}" || log "WARN: progress bootstrap failed"
 
 log "phase: hub express flagship"
 run_phase hub-express-flagship pnpm run hub:express-flagship
@@ -167,9 +95,6 @@ run_phase hub-gold-trace-replay bash scripts/gce-hub-gold-trace-replay.sh
 if [[ "${CHRYSALIS_GCE_FULL_VITEST:-}" == "1" ]]; then
   log "phase: full workspace vitest (pnpm test)"
   run_phase full-vitest pnpm test
-else
-  log "phase: skip full vitest (set CHRYSALIS_GCE_FULL_VITEST=1 to enable)"
-  skip_phase full-vitest
 fi
 
 log "phase: hub completion json artifact"
@@ -203,9 +128,6 @@ if [[ "${CHRYSALIS_GCE_POST110_PHASE_B:-1}" == "1" ]]; then
     CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY=1 \
     CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP=1 \
     pnpm run hub:verify-gaps-post110-reinforcement-smoke
-else
-  log "phase: skip post-110 Phase B (set CHRYSALIS_GCE_POST110_PHASE_B=1 to enable)"
-  skip_phase post110-verify-gaps
 fi
 
 date -Is >"${OK_FILE}"

@@ -12,6 +12,46 @@ import { createChrysalisNextjsInProcessFetch } from "./hub-gold-nextjs-fetch.mjs
 import { listOpenApiFixtureRoutes } from "./hub-wptp-contract-gold.mjs";
 import { listHubWebRoutes } from "./hub-webir-routes.mjs";
 
+/** @type {Map<string, Promise<void>>} */
+const tsImportGateTail = new Map();
+/** @type {Promise<void>} */
+let globalTsImportTail = Promise.resolve();
+
+/**
+ * Serialize tsx/esm server imports (per outDir + global) — avoids concurrent compile CPU hangs on GCE.
+ * @param {string} outDir
+ * @param {(parentURL: string) => Promise<unknown>} load
+ */
+async function withTsImportLock(outDir, load) {
+  const key = resolve(outDir);
+  const prevLocal = tsImportGateTail.get(key) ?? Promise.resolve();
+  const prevGlobal = globalTsImportTail;
+  /** @type {(v?: void) => void} */
+  let releaseLocal;
+  /** @type {(v?: void) => void} */
+  let releaseGlobal;
+  const gateLocal = new Promise((r) => {
+    releaseLocal = r;
+  });
+  const gateGlobal = new Promise((r) => {
+    releaseGlobal = r;
+  });
+  const tailLocal = prevLocal.then(() => gateLocal);
+  const tailGlobal = Promise.all([prevGlobal, prevLocal]).then(() => gateGlobal);
+  tsImportGateTail.set(key, tailLocal);
+  globalTsImportTail = tailGlobal;
+  await Promise.all([prevLocal, prevGlobal]);
+  try {
+    const parentURL = pathToFileURL(join(key, "package.json")).href;
+    return await load(parentURL);
+  } finally {
+    releaseLocal();
+    releaseGlobal();
+    if (tsImportGateTail.get(key) === tailLocal) tsImportGateTail.delete(key);
+    if (globalTsImportTail === tailGlobal) globalTsImportTail = Promise.resolve();
+  }
+}
+
 /**
  * @param {object} o
  */
@@ -89,9 +129,10 @@ export async function loadHubProbeContext(fixtureDir, origin, target, scriptRoot
   if (target === "nextjs") {
     inProcessFetch = await createChrysalisNextjsInProcessFetch(outDir);
   } else {
-    const { tsImport } = await import("tsx/esm/api");
-    const parentURL = pathToFileURL(join(outDir, "package.json")).href;
-    const serverMod = await tsImport("./src/server.ts", parentURL);
+    const serverMod = await withTsImportLock(outDir, async (parentURL) => {
+      const { tsImport } = await import("tsx/esm/api");
+      return tsImport("./src/server.ts", parentURL);
+    });
     const fetchFn = serverMod.chrysalisInProcessFetch ?? serverMod.fetch;
     if (typeof fetchFn !== "function") {
       throw new Error(`hub-probe-corpus: ${target} server has no chrysalisInProcessFetch or fetch export`);

@@ -20,6 +20,7 @@ param(
   [switch] $SkipRefresh,
   [switch] $Status,
   [switch] $FetchReports,
+  [switch] $SyncOnly,
   [switch] $FullVitest,
   [switch] $TunnelThroughIap
 )
@@ -40,22 +41,65 @@ function Invoke-Gcloud {
 
 function Sync-GceRunnerScripts {
   $runnerNames = @(
+    "gce-cleanup-vm-temp.sh",
     "gce-run-all-tests.sh",
     "gce-run-phase.sh",
+    "gce-progress.mjs",
     "gce-hub-strategic-vitest.sh",
     "gce-ensure-fixture-emits.sh",
     "gce-ensure-wptp-matrix.sh",
+    "gce-hub-authoring-vitest-one.sh",
+    "gce-hub-gold-verify.sh",
+    "gce-hub-gold-trace-replay.sh",
+    "gce-hub-gold-gates.sh",
+    "gce-cwl-batch-v40-fast.sh",
+    "gce-cwl-batch-v60.sh",
+    "gce-phase-list.mjs",
+    "gce-run-mega-slice.sh",
+    "gce-run-mega-phases.sh",
+    "gce-cwl-batch-v106.sh",
+    "gce-cwl-batch-v107.sh",
+    "gce-cwl-batch-v110.sh",
+    "gce-resume-from-mega-phases.sh",
+    "gce-restart-megas-only.sh",
+    "gce-finish-post110-only.sh",
+    "gce-restart-post110-only.sh",
+    "gce-post110-progress.sh",
     "gce-resume-from-gold-gates.sh",
     "gce-resume-from-hub-completion.sh",
+    "gce-resume-from-cwl-batch-v40.sh",
+    "gce-resume-from-hub-express-flagship.sh",
+    "gce-resume-from-gold-trace-replay.sh",
+    "gce-resume-from-hub-cwl.sh",
     "gce-vm-verify-suite.sh",
-    "gce-cwl-batch-v40-fast.sh",
     "gce-hub-authoring-batch-vitest.sh",
-    "gce-hub-cwl-vitest.sh",
-    "gce-hub-gold-gates.sh"
+    "gce-hub-cwl-vitest.sh"
   )
   $hubIngestNames = @(
     "hub-completion.mjs",
-    "hub-completion-gce-fast.mjs"
+    "hub-completion-gce-fast.mjs",
+    "hub-gce-mega-dedupe.mjs",
+    "hub-smoke-progress.mjs",
+    "hub-php-wedge-batch-smoke.mjs",
+    "hub-oracle-product-ultra-batch-smoke.mjs",
+    "hub-verify-standalone-mega-batch-smoke.mjs",
+    "hub-php-nextjs-verify.mjs",
+    "hub-node-express-oracle-verify.mjs",
+    "hub-gaps-ingest-strict-batch-smoke.mjs",
+    "hub-gaps-ingest-closure-batch-smoke.mjs",
+    "hub-oracle-standalone-batch-smoke.mjs",
+    "hub-php-nextjs-verify-batch-smoke.mjs",
+    "hub-cwl-authoring-batch-v106-smoke.mjs",
+    "hub-cwl-fullstack-gates.mjs",
+    "hub-verify-replay.mjs",
+    "hub-verify-http.mjs",
+    "hub-verify-http-probe-worker.mjs",
+    "hub-verify-probe-corpus.mjs",
+    "hub-verify-gaps-post110-reinforcement-smoke.mjs",
+    "hub-flagship-verify-http-batch-smoke.mjs",
+    "hub-flagship-verify-http-fastify-batch-smoke.mjs",
+    "hub-laravel-auth-probe-reingest-verify-closure-smoke.mjs",
+    "hub-laravel-auth-probe-reingest-verify-replay-smoke.mjs"
   )
   Write-Host "=== Sync runner scripts to VM (local workspace; may differ from git HEAD) ==="
   foreach ($name in $runnerNames) {
@@ -77,7 +121,7 @@ function Sync-GceRunnerScripts {
     if ($LASTEXITCODE -ne 0) { throw "scp failed for hub-ingest/$name" }
   }
   $chmodArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @(
-    "--command=chmod +x ~/chrysalis-test/scripts/gce-run-all-tests.sh ~/chrysalis-test/scripts/gce-run-phase.sh ~/chrysalis-test/scripts/gce-hub-strategic-vitest.sh ~/chrysalis-test/scripts/gce-ensure-fixture-emits.sh ~/chrysalis-test/scripts/gce-ensure-wptp-matrix.sh ~/chrysalis-test/scripts/gce-vm-verify-suite.sh ~/chrysalis-test/scripts/gce-cwl-batch-v40-fast.sh ~/chrysalis-test/scripts/gce-hub-authoring-batch-vitest.sh ~/chrysalis-test/scripts/gce-hub-cwl-vitest.sh ~/chrysalis-test/scripts/gce-hub-gold-gates.sh"
+    "--command=sed -i 's/\r$//' ~/chrysalis-test/scripts/gce-*.sh && chmod +x ~/chrysalis-test/scripts/gce-*.sh"
   )
   Invoke-Gcloud -GcloudArgs $chmodArgs
 }
@@ -90,6 +134,11 @@ if ($Status) {
 if ($FetchReports) {
   & "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $VmName @sshExtra
   exit $LASTEXITCODE
+}
+
+if ($SyncOnly) {
+  Sync-GceRunnerScripts
+  exit 0
 }
 
 if (-not $SkipRefresh) {
@@ -117,8 +166,8 @@ cd ~/chrysalis-test
 mkdir -p reports/ci
 ${remoteEnv}
 nohup bash scripts/gce-run-all-tests.sh </dev/null >>reports/ci/gce-all-tests.log 2>&1 &
-echo `$! > ~/.chrysalis-gce-test.pid
-echo started pid=`$(cat ~/.chrysalis-gce-test.pid)
+sleep 1
+if test -f ~/.chrysalis-gce-test.pid; then echo started pid=`$(cat ~/.chrysalis-gce-test.pid); else echo 'WARN: pid file missing (check gce-all-tests.log)'; fi
 "@
   $gcloudArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command=$start")
   Invoke-Gcloud -GcloudArgs $gcloudArgs

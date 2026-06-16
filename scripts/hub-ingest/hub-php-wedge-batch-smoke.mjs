@@ -13,22 +13,61 @@ import { runIrHelperLiftingSemanticSmoke } from "./hub-ir-helper-lifting-semanti
 import { runIrHelperLiftingEmbedSmoke } from "./hub-ir-helper-lifting-embed-smoke.mjs";
 import { runIrHelperLiftingFullPathSmoke } from "./hub-ir-helper-lifting-full-path-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } from "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs";
+import {
+  gceDeferredMegaDedupe,
+  isGceMegaDedupeEnabled,
+  PHP_WEDGE_GCE_DEFERRED,
+} from "./hub-gce-mega-dedupe.mjs";
+import { createSmokeProgress, runSmokeStep, runSmokeStepSync } from "./hub-smoke-progress.mjs";
 
 export const HUB_PHP_WEDGE_BATCH_KIND = "chrysalis.hub.php-wedge-batch-smoke";
 export const HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION = 8;
 
+const SCOPE = "php-wedge";
+
+/**
+ * @param {string} label
+ * @param {string} coveredBy
+ */
+function deferredStep(label, coveredBy) {
+  createSmokeProgress(SCOPE).defer(label, coveredBy);
+  return gceDeferredMegaDedupe(coveredBy);
+}
+
 export async function runPhpWedgeBatchSmoke() {
-  const nextjsVerify = await runPhpNextjsVerifyBatchSmoke();
-  const oracleMicro = await runPhpOracleMicroVerifyBatchSmoke();
-  const laravelGaps = runLaravelVerifyGapsBatchSmoke();
-  const nodeExpressOracle = await runNodeExpressOracleStandaloneSmoke();
-  const gapsIngestClosure = await runGapsIngestClosureBatchSmoke();
-  const gapsIngestStrict = await runGapsIngestStrictBatchSmoke();
-  const irHelperLifting = runIrHelperLiftingSmoke();
-  const irHelperLiftingSemantic = runIrHelperLiftingSemanticSmoke();
-  const irHelperLiftingEmbed = runIrHelperLiftingEmbedSmoke();
-  const irHelperLiftingFullPath = runIrHelperLiftingFullPathSmoke();
-  const authProbeReingestVerifyHttpFastify = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
+  const gceMegaDedupe = isGceMegaDedupeEnabled();
+  createSmokeProgress(SCOPE).info(gceMegaDedupe ? "batch start (GCE dedupe on)" : "batch start");
+
+  const nextjsVerify = gceMegaDedupe
+    ? deferredStep("nextjsVerify", PHP_WEDGE_GCE_DEFERRED.nextjsVerify)
+    : await runSmokeStep(SCOPE, "nextjsVerify", () => runPhpNextjsVerifyBatchSmoke());
+  const oracleMicro = gceMegaDedupe
+    ? deferredStep("oracleMicro", PHP_WEDGE_GCE_DEFERRED.oracleMicro)
+    : await runSmokeStep(SCOPE, "oracleMicro", () => runPhpOracleMicroVerifyBatchSmoke());
+  const laravelGaps = runSmokeStepSync(SCOPE, "laravelGaps", () => runLaravelVerifyGapsBatchSmoke());
+  const nodeExpressOracle = gceMegaDedupe
+    ? deferredStep("nodeExpressOracle", PHP_WEDGE_GCE_DEFERRED.nodeExpressOracle)
+    : await runSmokeStep(SCOPE, "nodeExpressOracle", () => runNodeExpressOracleStandaloneSmoke());
+  const gapsIngestClosure = gceMegaDedupe
+    ? deferredStep("gapsIngestClosure", PHP_WEDGE_GCE_DEFERRED.gapsIngestClosure)
+    : await runSmokeStep(SCOPE, "gapsIngestClosure", () => runGapsIngestClosureBatchSmoke());
+  const gapsIngestStrict = gceMegaDedupe
+    ? deferredStep("gapsIngestStrict", PHP_WEDGE_GCE_DEFERRED.gapsIngestStrict)
+    : await runSmokeStep(SCOPE, "gapsIngestStrict", () => runGapsIngestStrictBatchSmoke());
+  const irHelperLifting = runSmokeStepSync(SCOPE, "irHelperLifting", () => runIrHelperLiftingSmoke());
+  const irHelperLiftingSemantic = runSmokeStepSync(SCOPE, "irHelperLiftingSemantic", () =>
+    runIrHelperLiftingSemanticSmoke(),
+  );
+  const irHelperLiftingEmbed = runSmokeStepSync(SCOPE, "irHelperLiftingEmbed", () => runIrHelperLiftingEmbedSmoke());
+  const irHelperLiftingFullPath = runSmokeStepSync(SCOPE, "irHelperLiftingFullPath", () =>
+    runIrHelperLiftingFullPathSmoke(),
+  );
+  const authProbeReingestVerifyHttpFastify = await runSmokeStep(
+    SCOPE,
+    "authProbeReingestVerifyHttpFastify",
+    () => runLaravelAuthProbeReingestVerifyHttpFastifySmoke(),
+  );
+
   const ok =
     nextjsVerify.ok === true &&
     oracleMicro.ok === true &&
@@ -41,10 +80,14 @@ export async function runPhpWedgeBatchSmoke() {
     irHelperLiftingEmbed.ok === true &&
     irHelperLiftingFullPath.ok === true &&
     authProbeReingestVerifyHttpFastify.ok === true;
+
+  createSmokeProgress(SCOPE).info(ok ? "batch ok" : "batch FAIL");
+
   return {
     kind: HUB_PHP_WEDGE_BATCH_KIND,
     schemaVersion: HUB_PHP_WEDGE_BATCH_SCHEMA_VERSION,
     ok,
+    gceMegaDedupe,
     nextjsVerify,
     oracleMicro,
     laravelGaps,

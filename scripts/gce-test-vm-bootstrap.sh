@@ -55,6 +55,7 @@ if [[ "${CHRYSALIS_TEST_USE_TARBALL:-}" == "1" ]]; then
   fi
   mkdir -p "${WORKDIR}"
   tar -xzf "${TARBALL}" -C "${WORKDIR}"
+  rm -f "${TARBALL}"
 else
   if git clone --depth 1 --branch "${BRANCH}" "${REPO_URL}" "${WORKDIR}" 2>/dev/null; then
     :

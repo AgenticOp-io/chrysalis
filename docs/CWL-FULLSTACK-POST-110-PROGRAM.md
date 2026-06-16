@@ -1,6 +1,6 @@
 # Post–queue 110 program (locked default build)
 
-> **Status:** active (2026-06-03)  
+> **Status:** Phase A+B **complete** (2026-06-16 — GCE green + post110 B1–B5); Phase C **paused**  
 > **Prerequisite:** **G1159–G2258 complete** (CWL full-stack queues 6–110, hub-completion schema **183**)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §12; hub verify-gaps months **26–30** (schema **74** baseline)
 
@@ -12,7 +12,7 @@ When the user says **build** without specifying after queue 110, prefer this pro
 
 | Step | Focus | Done when |
 | --- | --- | --- |
-| A1 | **Linux GCE green** | `pnpm run test:gce` → `STATUS: OK`; `reports/ci/gce-all-tests.ok` fetched |
+| A1 | **Linux GCE green** | `pnpm run test:gce` → `STATUS: OK`; `reports/ci/gce-all-tests.ok` fetched — **done 2026-06-16** |
 | A2 | **Slim hub-cwl** | `gce-hub-cwl-vitest.sh` passes (RFC/parser smokes; batch smokes skipped) |
 | A3 | **Authoring v61–110** | `gce-hub-authoring-batch-vitest.sh` passes on GCE (gate-only v106–v110 in vitest; mega gates in dedicated phases) |
 | A4 | **v106–v110 graduation locks** | `gate106Mode: oracle-product-ultra`, `gate107Mode: verify-standalone-mega`, and `gate110Mode: post90-hub-graduation-lock` ok in GCE phase logs |
@@ -33,7 +33,7 @@ Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated
 | B4 | Month 29 | Fastify HTTP + IR helper embed (`--ingest-embed-shared-helper-bodies`) batch |
 | B5 | Month 30 | Graduation: dual-backend HTTP loop + IR helper B1–B4 full path |
 
-**Script:** `pnpm run hub:verify-gaps-post110-reinforcement-smoke` (GCE phase after v110 when `CHRYSALIS_GCE_POST110_PHASE_B=1`, default on full GCE run).
+**Script:** `pnpm run hub:verify-gaps-post110-reinforcement-smoke` (GCE phase after v110 when `CHRYSALIS_GCE_POST110_PHASE_B=1`, default on full GCE run). **GCE green 2026-06-16** (~3 min post110 with subprocess HTTP probe — **G2272**).
 
 ---
 

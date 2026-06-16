@@ -9,6 +9,7 @@ import {
   runOracleProductUltraGate,
   runPost105GraduationGate,
 } from "./hub-cwl-fullstack-gates.mjs";
+import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
 export const HUB_CWL_AUTHORING_BATCH_V106_KIND = "chrysalis.hub.cwl-authoring-batch-v106";
 export const HUB_CWL_AUTHORING_BATCH_V106_SCHEMA_VERSION = 1;
@@ -22,11 +23,18 @@ export async function runCwlAuthoringBatchV106Smoke(opts = {}) {
     ? { ok: true, skip: "skip-prior-chain" }
     : await runCwlAuthoringBatchV105Smoke(resolvePriorBatchOpts(opts, 105));
   const runOracleProductUltra = process.env.CHRYSALIS_RUN_ORACLE_PRODUCT_ULTRA === "1";
+  const gate106Mode = skipPrior
+    ? runOracleProductUltra
+      ? "oracle-product-ultra"
+      : "evidence-trend"
+    : "post105-graduation";
+  createSmokeProgress("cwl-v106").info(`gate106 start mode=${gate106Mode}`);
   const gate106 = skipPrior
     ? runOracleProductUltra
       ? await runOracleProductUltraGate()
       : await runEvidenceTrendStandaloneGate()
     : await runPost105GraduationGate({ repoRoot });
+  createSmokeProgress("cwl-v106").info(`gate106 ${gate106.ok === true ? "ok" : "FAIL"} mode=${gate106Mode}`);
   const ok = batchV105.ok === true && gate106.ok === true;
   return {
     kind: HUB_CWL_AUTHORING_BATCH_V106_KIND,

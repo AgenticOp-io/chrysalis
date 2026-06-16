@@ -3,7 +3,7 @@
  * In-process trace replay verify for a hub project (G921).
  * Lift/export + emit + hub-gold-replay-worker; writes reports/verify/summary.json.
  */
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -41,6 +41,65 @@ export function inferHubProjectOrigin(projectDir) {
 
 /**
  * @param {string} projectDir
+ * @param {string} target
+ */
+export function isVerifyEmitComplete(projectDir, target) {
+  const outDir = join(resolve(projectDir), "generated", target);
+  const handlersDir = join(outDir, "src", "handlers");
+  if (!existsSync(join(outDir, "src", "ctx.ts"))) return false;
+  if (!existsSync(join(outDir, "src", "server.ts"))) return false;
+  if (!existsSync(handlersDir)) return false;
+  try {
+    return readdirSync(handlersDir).some((f) => f.endsWith(".ts"));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * @param {string} projectDir
+ * @param {string} origin
+ */
+export function isHubWebirReady(projectDir, origin) {
+  const root = resolve(projectDir);
+  if (existsSync(join(root, ".chrysalis", `hub.${origin}.webir.json`))) return true;
+  return existsSync(join(root, ".chrysalis", "ingested.webir.json"));
+}
+
+/**
+ * @param {string} projectDir
+ * @param {string} target
+ * @param {string} repoRoot
+ */
+async function ensureVerifyEmitNpmInstall(projectDir, target, repoRoot) {
+  const root = resolve(projectDir);
+  const outDir = join(root, "generated", target);
+  if (target === "nextjs") {
+    return { ok: true, outDir, skip: null, detail: null };
+  }
+  const runtimePkg = target === "fastify" ? "fastify" : "hono";
+  if (existsSync(join(outDir, "node_modules", runtimePkg))) {
+    return { ok: true, outDir, skip: null, detail: null };
+  }
+  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+  const inst = spawnSync(npmCmd, ["install", "--no-audit", "--no-fund", "--prefer-offline"], {
+    cwd: outDir,
+    encoding: "utf8",
+    shell: process.platform === "win32",
+  });
+  if (inst.status !== 0) {
+    return {
+      ok: false,
+      outDir: null,
+      skip: "npm-install-failed",
+      detail: (inst.stderr || inst.stdout)?.slice(0, 400) ?? null,
+    };
+  }
+  return { ok: true, outDir, skip: null, detail: null };
+}
+
+/**
+ * @param {string} projectDir
  * @param {{ origin?: string, target?: string, repoRoot?: string }} [opts]
  */
 export async function prepareProjectVerifyEmit(projectDir, opts = {}) {
@@ -48,6 +107,42 @@ export async function prepareProjectVerifyEmit(projectDir, opts = {}) {
   const origin = opts.origin ?? inferHubProjectOrigin(root);
   const target = opts.target ?? "hono";
   const repoRoot = opts.repoRoot ?? scriptRoot;
+  const forceReemit =
+    opts.forceReemit === true || process.env.CHRYSALIS_HUB_VERIFY_FORCE_REEMIT === "1";
+  const skipReemitIfComplete =
+    !forceReemit &&
+    opts.skipReemitIfComplete !== false &&
+    process.env.CHRYSALIS_HUB_VERIFY_SKIP_REEMIT !== "0";
+
+  if (
+    skipReemitIfComplete &&
+    isVerifyEmitComplete(root, target) &&
+    isHubWebirReady(root, origin)
+  ) {
+    const npm = await ensureVerifyEmitNpmInstall(root, target, repoRoot);
+    if (!npm.ok) {
+      return {
+        kind: HUB_VERIFY_PREPARE_KIND,
+        ok: false,
+        skip: npm.skip ?? "npm-install-failed",
+        detail: npm.detail ?? null,
+        projectDir: root,
+        origin,
+        target,
+        outDir: null,
+      };
+    }
+    return {
+      kind: HUB_VERIFY_PREPARE_KIND,
+      ok: true,
+      skip: "emit-already-complete",
+      projectDir: root,
+      origin,
+      target,
+      outDir: npm.outDir,
+      repoRoot,
+    };
+  }
 
   if (origin === "php") {
     const phpExport = await exportPhpHubWebir(root);
@@ -100,29 +195,18 @@ export async function prepareProjectVerifyEmit(projectDir, opts = {}) {
     };
   }
 
-  const outDir = join(root, "generated", target);
-  if (target !== "nextjs") {
-    const runtimePkg = target === "fastify" ? "fastify" : "hono";
-    if (!existsSync(join(outDir, "node_modules", runtimePkg))) {
-      const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-      const inst = spawnSync(npmCmd, ["install", "--no-audit", "--no-fund", "--prefer-offline"], {
-        cwd: outDir,
-        encoding: "utf8",
-        shell: process.platform === "win32",
-      });
-      if (inst.status !== 0) {
-        return {
-          kind: HUB_VERIFY_PREPARE_KIND,
-          ok: false,
-          skip: "npm-install-failed",
-          detail: (inst.stderr || inst.stdout)?.slice(0, 400) ?? null,
-          projectDir: root,
-          origin,
-          target,
-          outDir: null,
-        };
-      }
-    }
+  const npm = await ensureVerifyEmitNpmInstall(root, target, repoRoot);
+  if (!npm.ok) {
+    return {
+      kind: HUB_VERIFY_PREPARE_KIND,
+      ok: false,
+      skip: npm.skip ?? "npm-install-failed",
+      detail: npm.detail ?? null,
+      projectDir: root,
+      origin,
+      target,
+      outDir: null,
+    };
   }
 
   return {
@@ -132,9 +216,42 @@ export async function prepareProjectVerifyEmit(projectDir, opts = {}) {
     projectDir: root,
     origin,
     target,
-    outDir,
+    outDir: npm.outDir,
     repoRoot,
   };
+}
+
+/**
+ * Pre-warm hono+fastify verify emits for flagship fixtures (GCE post110 / hub HTTP verify).
+ * @param {{ profiles?: string[], targets?: string[], progress?: { start: (label: string) => number, end: (label: string, ok: boolean, t0: number) => void }, repoRoot?: string }} [opts]
+ */
+export async function prewarmFlagshipVerifyEmits(opts = {}) {
+  const { FLAGSHIP_VERIFY_GAPS_FIXTURES } = await import("./hub-flagship-verify-gaps-standalone-smoke.mjs");
+  const { createSmokeProgress } = await import("./hub-smoke-progress.mjs");
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const profiles = opts.profiles ?? ["plainPhp", "symfony", "express"];
+  const targets = opts.targets ?? ["hono", "fastify"];
+  const progress = opts.progress ?? createSmokeProgress("flagship-verify-prewarm");
+  /** @type {Record<string, Record<string, Awaited<ReturnType<typeof prepareProjectVerifyEmit>>>>} */
+  const results = {};
+  for (const profile of profiles) {
+    const rel = FLAGSHIP_VERIFY_GAPS_FIXTURES[profile]?.rel;
+    if (!rel) continue;
+    const root = join(repoRoot, rel);
+    const origin = inferHubProjectOrigin(root);
+    results[profile] = {};
+    for (const target of targets) {
+      const label = `${profile}/${target}`;
+      const t0 = progress.start(label);
+      const prepared = await prepareProjectVerifyEmit(root, { origin, target, repoRoot });
+      progress.end(label, prepared.ok === true, t0);
+      results[profile][target] = prepared;
+    }
+  }
+  const ok = Object.values(results).every((byTarget) =>
+    Object.values(byTarget).every((r) => r.ok === true),
+  );
+  return { ok, results, generatedAt: new Date().toISOString() };
 }
 
 /**

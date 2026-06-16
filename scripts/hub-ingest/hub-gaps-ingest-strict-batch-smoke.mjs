@@ -14,23 +14,42 @@ import { runFlagshipVerifyHttpBatchSmoke } from "./hub-flagship-verify-http-batc
 import { runLaravelAuthProbeVerifyHttpFastify } from "./hub-laravel-auth-probe-verify-http-fastify.mjs";
 import { runFlagshipVerifyHttpFastifyBatchSmoke } from "./hub-flagship-verify-http-fastify-batch-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } from "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs";
+import { createSmokeProgress, runSmokeSteps } from "./hub-smoke-progress.mjs";
 
 export const HUB_GAPS_INGEST_STRICT_BATCH_KIND = "chrysalis.hub.gaps-ingest-strict-batch-smoke";
 export const HUB_GAPS_INGEST_STRICT_BATCH_SCHEMA_VERSION = 7;
 
 export async function runGapsIngestStrictBatchSmoke() {
-  const gapsIngestClosure = await runGapsIngestClosureBatchSmoke();
-  const laravelLiveClosure = await runLaravelVerifyLiveGapsClosureSmoke();
-  const gapReingestStrict = await runGapReingestStrictSmoke();
-  const authProbeReingest = await runLaravelAuthProbeReingestSmoke();
-  const authProbeVerifyClosure = await runLaravelAuthProbeReingestVerifyClosureSmoke();
-  const authProbeVerifyReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
-  const authProbeVerifyHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
-  const flagshipVerifyHttp = await runFlagshipVerifyHttpBatchSmoke();
-  const authProbeVerifyHttpFastify = await runLaravelAuthProbeVerifyHttpFastify();
-  const authProbeReingestVerifyHttpFastify = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
-  const flagshipVerifyHttpFastify = await runFlagshipVerifyHttpFastifyBatchSmoke();
-  const flagshipVerifyReplay = await runFlagshipVerifyReplayBatchSmoke();
+  createSmokeProgress("gaps-ingest-strict").info("batch start (12 steps)");
+  const parts = await runSmokeSteps("gaps-ingest-strict", [
+    { id: "gapsIngestClosure", run: () => runGapsIngestClosureBatchSmoke() },
+    { id: "laravelLiveClosure", run: () => runLaravelVerifyLiveGapsClosureSmoke() },
+    { id: "gapReingestStrict", run: () => runGapReingestStrictSmoke() },
+    { id: "authProbeReingest", run: () => runLaravelAuthProbeReingestSmoke() },
+    { id: "authProbeVerifyClosure", run: () => runLaravelAuthProbeReingestVerifyClosureSmoke() },
+    { id: "authProbeVerifyReplay", run: () => runLaravelAuthProbeReingestVerifyReplaySmoke() },
+    { id: "authProbeVerifyHttp", run: () => runLaravelAuthProbeReingestVerifyHttpSmoke() },
+    { id: "flagshipVerifyHttp", run: () => runFlagshipVerifyHttpBatchSmoke() },
+    { id: "authProbeVerifyHttpFastify", run: () => runLaravelAuthProbeVerifyHttpFastify() },
+    { id: "authProbeReingestVerifyHttpFastify", run: () => runLaravelAuthProbeReingestVerifyHttpFastifySmoke() },
+    { id: "flagshipVerifyHttpFastify", run: () => runFlagshipVerifyHttpFastifyBatchSmoke() },
+    { id: "flagshipVerifyReplay", run: () => runFlagshipVerifyReplayBatchSmoke() },
+  ]);
+  createSmokeProgress("gaps-ingest-strict").info("batch complete");
+
+  const gapsIngestClosure = parts.gapsIngestClosure;
+  const laravelLiveClosure = parts.laravelLiveClosure;
+  const gapReingestStrict = parts.gapReingestStrict;
+  const authProbeReingest = parts.authProbeReingest;
+  const authProbeVerifyClosure = parts.authProbeVerifyClosure;
+  const authProbeVerifyReplay = parts.authProbeVerifyReplay;
+  const authProbeVerifyHttp = parts.authProbeVerifyHttp;
+  const flagshipVerifyHttp = parts.flagshipVerifyHttp;
+  const authProbeVerifyHttpFastify = parts.authProbeVerifyHttpFastify;
+  const authProbeReingestVerifyHttpFastify = parts.authProbeReingestVerifyHttpFastify;
+  const flagshipVerifyHttpFastify = parts.flagshipVerifyHttpFastify;
+  const flagshipVerifyReplay = parts.flagshipVerifyReplay;
+
   return {
     kind: HUB_GAPS_INGEST_STRICT_BATCH_KIND,
     schemaVersion: HUB_GAPS_INGEST_STRICT_BATCH_SCHEMA_VERSION,

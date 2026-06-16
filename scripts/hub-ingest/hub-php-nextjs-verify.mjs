@@ -7,6 +7,7 @@ import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -64,12 +65,17 @@ export async function runPhpNextjsVerify(projectDir = tinyBlog, opts = {}) {
     return { ...base, skip: "no-wptp-emit-nextjs", ok: true };
   }
 
+  const scope = `php-nextjs-verify/${fixtureLabel}`;
+  const p = createSmokeProgress(scope);
   const progress = join(projectDir, ".chrysalis", "ingest.progress");
+
+  p.start("ingest");
   const ingest = spawnSync(process.execPath, [cliBin, "ingest", projectDir, "--ingest-progress-file", progress], {
     cwd: scriptRoot,
     encoding: "utf8",
     maxBuffer: 20 * 1024 * 1024,
   });
+  p.end("ingest", ingest.status === 0);
   if (ingest.status !== 0) {
     return { ...base, skip: "ingest-failed" };
   }
@@ -78,16 +84,18 @@ export async function runPhpNextjsVerify(projectDir = tinyBlog, opts = {}) {
   const bundleOut = join(projectDir, ".chrysalis", "ingested.webir.bundle.json");
   const out = join(projectDir, "generated", "nextjs");
 
-  for (const [script, args] of [
-    [exportWebir, [projectDir, "--out", webirOut]],
-    [exportBundle, ["--in", webirOut, "--out", bundleOut]],
-    [emitNextjs, ["--bundle", bundleOut, "--out", out]],
+  for (const [script, args, stepId] of [
+    [exportWebir, [projectDir, "--out", webirOut], "export-webir"],
+    [exportBundle, ["--in", webirOut, "--out", bundleOut], "export-bundle"],
+    [emitNextjs, ["--bundle", bundleOut, "--out", out], "emit-nextjs"],
   ]) {
+    p.start(stepId);
     const r = spawnSync(process.execPath, [script, ...args], {
       cwd: scriptRoot,
       encoding: "utf8",
       maxBuffer: 20 * 1024 * 1024,
     });
+    p.end(stepId, r.status === 0);
     if (r.status !== 0) {
       return { ...base, skip: `pipeline-failed:${script}` };
     }
@@ -98,6 +106,7 @@ export async function runPhpNextjsVerify(projectDir = tinyBlog, opts = {}) {
     await copyFile(webirOut, hubWebir);
   }
 
+  p.start("replay");
   const replay = spawnSync(
     process.execPath,
     ["--import", "tsx", worker, projectDir, "--origin", "php", "--target", "nextjs"],
@@ -106,6 +115,7 @@ export async function runPhpNextjsVerify(projectDir = tinyBlog, opts = {}) {
       maxBuffer: 20 * 1024 * 1024,
     },
   );
+  p.end("replay", replay.status === 0);
   if (replay.status !== 0) {
     return { ...base, skip: "replay-failed", stderr: replay.stderr?.slice(0, 500) };
   }

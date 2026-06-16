@@ -9,15 +9,122 @@ import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { prepareProjectVerifyEmit, inferHubProjectOrigin } from "./hub-verify-replay.mjs";
-import { loadHubProbeContext, probeHubGoldCorpus } from "./hub-verify-probe-corpus.mjs";
-import { listHubWebRoutes } from "./hub-webir-routes.mjs";
 import { loadWebir } from "./shared.mjs";
+import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
 export const HUB_VERIFY_HTTP_KIND = "chrysalis.hub.verify-http";
 export const HUB_VERIFY_HTTP_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
+const probeWorkerScript = join(scriptRoot, "scripts/hub-ingest/hub-verify-http-probe-worker.mjs");
+
+/** @param {string} stdout */
+function parseStdoutJson(stdout) {
+  const text = stdout.trim();
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  try {
+    return JSON.parse(text.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+}
+
+function probeTimeoutMs() {
+  const raw = process.env.CHRYSALIS_HUB_VERIFY_PROBE_TIMEOUT_MS;
+  const n = raw ? Number(raw) : 300_000;
+  return Number.isFinite(n) && n > 0 ? n : 300_000;
+}
+
+/** @param {string} root */
+function httpVerifyProgressScope(root, target) {
+  const base = root.split(/[/\\]/).pop() ?? "project";
+  return `http-verify-${base}-${target}`;
+}
+
+/**
+ * @param {string} root
+ * @param {string} origin
+ * @param {string} target
+ * @param {string} repoRoot
+ * @param {ReturnType<typeof createSmokeProgress>} progress
+ */
+function buildHttpProbeCorpusSubprocess(root, origin, target, repoRoot, progress) {
+  const useInProcess = process.env.CHRYSALIS_HUB_VERIFY_HTTP_INPROCESS_PROBE === "1";
+  if (useInProcess) {
+    return buildHttpProbeCorpusInProcess(root, origin, target, repoRoot, progress);
+  }
+
+  const t0 = progress.start("probe-subprocess");
+  const probe = spawnSync(
+    process.execPath,
+    ["--import", "tsx", probeWorkerScript, root, "--origin", origin, "--target", target],
+    { cwd: repoRoot, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: probeTimeoutMs() },
+  );
+  const subprocessOk = probe.status === 0;
+  progress.end("probe-subprocess", subprocessOk, t0);
+  if (!subprocessOk) {
+    return {
+      ok: false,
+      skip: probe.error?.code === "ETIMEDOUT" || probe.signal === "SIGTERM" ? "probe-timeout" : "probe-worker-failed",
+      detail: (probe.stderr || probe.stdout)?.slice(0, 400) ?? null,
+      routes: /** @type {Array<{ method: string, path: string }>} */ ([]),
+      corpus: null,
+    };
+  }
+  const parsed = parseStdoutJson(probe.stdout ?? "");
+  if (!parsed?.corpus || !Array.isArray(parsed.routes)) {
+    return {
+      ok: false,
+      skip: "probe-worker-bad-json",
+      detail: (probe.stdout ?? "").slice(0, 200) || null,
+      routes: [],
+      corpus: null,
+    };
+  }
+  return {
+    ok: true,
+    skip: null,
+    detail: null,
+    routes: parsed.routes,
+    corpus: parsed.corpus,
+  };
+}
+
+/**
+ * @param {string} root
+ * @param {string} origin
+ * @param {string} target
+ * @param {string} repoRoot
+ * @param {ReturnType<typeof createSmokeProgress>} progress
+ */
+async function buildHttpProbeCorpusInProcess(root, origin, target, repoRoot, progress) {
+  const { loadHubProbeContext, probeHubGoldCorpus } = await import("./hub-verify-probe-corpus.mjs");
+  const t0 = progress.start("probe-inprocess");
+  try {
+    const ctx = await loadHubProbeContext(root, origin, target, repoRoot);
+    const corpus = await probeHubGoldCorpus({
+      routes: ctx.routes,
+      middlewarePresets: ctx.middlewarePresets,
+      inProcessFetch: ctx.inProcessFetch,
+      fixture: ctx.fixture,
+      corpusId: "hub-http-probe",
+    });
+    progress.end("probe-inprocess", true, t0);
+    return { ok: true, skip: null, detail: null, routes: ctx.routes, corpus };
+  } catch (err) {
+    progress.end("probe-inprocess", false, t0);
+    return {
+      ok: false,
+      skip: "probe-inprocess-failed",
+      detail: err instanceof Error ? err.message.slice(0, 400) : String(err).slice(0, 400),
+      routes: [],
+      corpus: null,
+    };
+  }
+}
 
 /** @param {string} dir */
 function rmDirRecursive(dir) {
@@ -162,7 +269,7 @@ async function ensureCwlRouteManifest(projectDir, origin) {
 
 /**
  * @param {string} projectDir
- * @param {{ origin?: string, target?: string, repoRoot?: string, threshold?: number }} [opts]
+ * @param {{ origin?: string, target?: string, repoRoot?: string, threshold?: number, progress?: ReturnType<typeof createSmokeProgress> }} [opts]
  */
 export async function runProjectVerifyHttp(projectDir, opts = {}) {
   const root = resolve(projectDir);
@@ -170,6 +277,7 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
   const target = opts.target ?? "hono";
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const threshold = opts.threshold ?? 1;
+  const progress = opts.progress ?? createSmokeProgress(httpVerifyProgressScope(root, target));
 
   if (!existsSync(cliBin)) {
     return {
@@ -184,7 +292,9 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
     };
   }
 
+  let t0 = progress.start("prepare");
   const prepared = await prepareProjectVerifyEmit(root, { origin, target, repoRoot });
+  progress.end("prepare", prepared.ok === true, t0);
   if (!prepared.ok) {
     return {
       kind: HUB_VERIFY_HTTP_KIND,
@@ -215,26 +325,41 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
     }
   }
 
+  const probeResult =
+    process.env.CHRYSALIS_HUB_VERIFY_HTTP_INPROCESS_PROBE === "1"
+      ? await buildHttpProbeCorpusInProcess(root, origin, target, repoRoot, progress)
+      : buildHttpProbeCorpusSubprocess(root, origin, target, repoRoot, progress);
+  if (!probeResult.ok || !probeResult.corpus) {
+    return {
+      kind: HUB_VERIFY_HTTP_KIND,
+      schemaVersion: HUB_VERIFY_HTTP_SCHEMA_VERSION,
+      projectDir: root,
+      ok: false,
+      skip: probeResult.skip ?? "probe-failed",
+      detail: probeResult.detail ?? null,
+      origin,
+      target,
+      generatedAt: new Date().toISOString(),
+    };
+  }
+  const routes = probeResult.routes;
+  const corpus = probeResult.corpus;
+
   /** @type {import("node:child_process").ChildProcess | null} */
   let serverChild = null;
   try {
-    const ctx = await loadHubProbeContext(root, origin, target, repoRoot);
-    const corpus = await probeHubGoldCorpus({
-      routes: ctx.routes,
-      middlewarePresets: ctx.middlewarePresets,
-      inProcessFetch: ctx.inProcessFetch,
-      fixture: ctx.fixture,
-      corpusId: "hub-http-probe",
-    });
-
+    t0 = progress.start("write-traces");
     const tracesDir = join(root, ".chrysalis", "traces");
     rmDirRecursive(tracesDir);
     writeTraceCorpus(corpus, tracesDir);
+    progress.end("write-traces", true, t0);
 
     const port = await freePort();
     const baseUrl = `http://127.0.0.1:${port}`;
+    t0 = progress.start("server-up");
     serverChild = startEmittedServer(prepared.outDir, port);
-    const up = await waitForHttpServer(baseUrl, ctx.routes);
+    const up = await waitForHttpServer(baseUrl, routes);
+    progress.end("server-up", up, t0);
     if (!up) {
       return {
         kind: HUB_VERIFY_HTTP_KIND,
@@ -245,7 +370,7 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
         baseUrl,
         origin,
         target,
-        routeCount: ctx.routes.length,
+        routeCount: routes.length,
         traceCount: corpus.traces.length,
         generatedAt: new Date().toISOString(),
       };
@@ -253,6 +378,7 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
 
     const reportDir = join(root, "reports", "verify");
     mkdirSync(reportDir, { recursive: true });
+    t0 = progress.start("cli-verify");
     const verify = spawnSync(
       process.execPath,
       [
@@ -285,6 +411,7 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
     const correctness = summary?.aggregate?.correctness ?? null;
     const gatePass = correctness !== null && correctness >= threshold;
     const ok = gatePass;
+    progress.end("cli-verify", ok, t0);
 
     return {
       kind: HUB_VERIFY_HTTP_KIND,
@@ -297,7 +424,7 @@ export async function runProjectVerifyHttp(projectDir, opts = {}) {
       baseUrl,
       summaryPath: existsSync(summaryPath) ? summaryPath : null,
       correctness,
-      routeCount: ctx.routes.length,
+      routeCount: routes.length,
       traceCount: corpus.traces.length,
       exitCode: verify.status ?? 1,
       generatedAt: new Date().toISOString(),

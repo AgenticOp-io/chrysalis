@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Resume GCE suite from hub-completion (gold gates already passed).
+# Resume GCE suite from hub-gold-trace-replay (structural gold verify already passed).
 set -euo pipefail
 
 REPO="${CHRYSALIS_STATUS_REPO:-$(cd "$(dirname "$0")/.." && pwd)}"
@@ -24,6 +24,7 @@ PID_FILE="${HOME}/.chrysalis-gce-test.pid"
 OK_FILE="reports/ci/gce-all-tests.ok"
 LOCK_FILE="${HOME}/.chrysalis-gce-test.lock"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+GCE_PHASE_LIST="$(node "${SCRIPT_DIR}/gce-phase-list.mjs" csv)"
 
 run_phase() {
   bash "${SCRIPT_DIR}/gce-run-phase.sh" "$@"
@@ -45,11 +46,13 @@ touch "${LOCK_FILE}"
 rm -f "${OK_FILE}"
 trap 'rm -f "${LOCK_FILE}"' EXIT
 
-log "RESUME from hub-completion (repo=${REPO})"
-GCE_PHASE_LIST="$(node "${SCRIPT_DIR}/gce-phase-list.mjs" csv)"
-node "${SCRIPT_DIR}/gce-progress.mjs" bootstrap "${CHRYSALIS_GCE_PHASE_LIST:-${GCE_PHASE_LIST}}" || log "WARN: progress bootstrap failed"
+log "RESUME from hub-gold-trace-replay (repo=${REPO})"
+node "${SCRIPT_DIR}/gce-progress.mjs" bootstrap "${GCE_PHASE_LIST}" || log "WARN: progress bootstrap failed"
 
 bash "${SCRIPT_DIR}/gce-cleanup-vm-temp.sh" || log "WARN: gce-cleanup-vm-temp failed (continuing)"
+
+log "phase: hub gold trace replay"
+run_phase hub-gold-trace-replay bash scripts/gce-hub-gold-trace-replay.sh
 
 log "phase: hub completion json artifact"
 run_phase hub-completion-json node scripts/hub-ingest/hub-completion.mjs --json-out reports/ci/hub-completion.json
@@ -82,8 +85,6 @@ if [[ "${CHRYSALIS_GCE_POST110_PHASE_B:-1}" == "1" ]]; then
     CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY=1 \
     CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP=1 \
     pnpm run hub:verify-gaps-post110-reinforcement-smoke
-else
-  log "phase: skip post-110 Phase B (set CHRYSALIS_GCE_POST110_PHASE_B=1 to enable)"
 fi
 
 date -Is >"${OK_FILE}"

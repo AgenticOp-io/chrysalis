@@ -7,16 +7,28 @@ import { runWptpGoldStandaloneSmoke } from "./hub-wptp-gold-standalone-smoke.mjs
 import { runContractRoundtripStandaloneSmoke } from "./hub-contract-roundtrip-standalone-smoke.mjs";
 import { runVerifyPlaybooksStandaloneSmoke } from "./hub-verify-playbooks-standalone-smoke.mjs";
 import { runPostTranslateVerifyStandaloneSmoke } from "./hub-post-translate-verify-standalone-smoke.mjs";
+import { createSmokeProgress, runSmokeSteps } from "./hub-smoke-progress.mjs";
 
 export const HUB_ORACLE_STANDALONE_BATCH_KIND = "chrysalis.hub.oracle-standalone-batch-smoke";
 export const HUB_ORACLE_STANDALONE_BATCH_SCHEMA_VERSION = 1;
 
 export async function runOracleStandaloneBatchSmoke() {
-  const nodeExpressOracle = await runNodeExpressOracleStandaloneSmoke();
-  const wptpGold = runWptpGoldStandaloneSmoke();
-  const contractRoundtrip = await runContractRoundtripStandaloneSmoke();
-  const verifyPlaybooks = runVerifyPlaybooksStandaloneSmoke();
-  const postTranslateVerify = await runPostTranslateVerifyStandaloneSmoke();
+  createSmokeProgress("oracle-standalone").info("batch start");
+  const parts = await runSmokeSteps("oracle-standalone", [
+    { id: "nodeExpressOracle", run: () => runNodeExpressOracleStandaloneSmoke() },
+    { id: "wptpGold", run: () => runWptpGoldStandaloneSmoke() },
+    { id: "contractRoundtrip", run: () => runContractRoundtripStandaloneSmoke() },
+    { id: "verifyPlaybooks", run: () => runVerifyPlaybooksStandaloneSmoke() },
+    { id: "postTranslateVerify", run: () => runPostTranslateVerifyStandaloneSmoke() },
+  ]);
+  createSmokeProgress("oracle-standalone").info("batch complete");
+
+  const nodeExpressOracle = parts.nodeExpressOracle;
+  const wptpGold = parts.wptpGold;
+  const contractRoundtrip = parts.contractRoundtrip;
+  const verifyPlaybooks = parts.verifyPlaybooks;
+  const postTranslateVerify = parts.postTranslateVerify;
+
   return {
     kind: HUB_ORACLE_STANDALONE_BATCH_KIND,
     schemaVersion: HUB_ORACLE_STANDALONE_BATCH_SCHEMA_VERSION,

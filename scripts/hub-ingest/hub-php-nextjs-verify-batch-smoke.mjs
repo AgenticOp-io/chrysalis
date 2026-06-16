@@ -7,6 +7,7 @@ import {
   runPhpNextjsFlagshipVerify,
   runPhpNextjsSymfonyFlagshipVerify,
 } from "./hub-php-nextjs-verify.mjs";
+import { createSmokeProgress, runSmokeStep } from "./hub-smoke-progress.mjs";
 
 export const HUB_PHP_NEXTJS_VERIFY_BATCH_KIND = "chrysalis.hub.php-nextjs-verify-batch-smoke";
 export const HUB_PHP_NEXTJS_VERIFY_BATCH_SCHEMA_VERSION = 1;
@@ -19,9 +20,18 @@ function nextjsOk(report) {
 }
 
 export async function runPhpNextjsVerifyBatchSmoke() {
-  const tinyBlog = await runPhpNextjsVerify(tinyBlogDir, { label: "fixtures/tiny-blog" });
-  const plainPhpFlagship = await runPhpNextjsFlagshipVerify();
-  const symfonyFlagship = await runPhpNextjsSymfonyFlagshipVerify();
+  createSmokeProgress("php-nextjs-verify-batch").info("batch start (3 fixtures)");
+  const tinyBlog = await runSmokeStep("php-nextjs-verify-batch", "tiny-blog", () =>
+    runPhpNextjsVerify(tinyBlogDir, { label: "fixtures/tiny-blog" }),
+  );
+  const plainPhpFlagship = await runSmokeStep("php-nextjs-verify-batch", "plain-php-flagship", () =>
+    runPhpNextjsFlagshipVerify(),
+  );
+  const symfonyFlagship = await runSmokeStep("php-nextjs-verify-batch", "symfony-flagship", () =>
+    runPhpNextjsSymfonyFlagshipVerify(),
+  );
+  createSmokeProgress("php-nextjs-verify-batch").info("batch complete");
+
   const ok = nextjsOk(tinyBlog) && nextjsOk(plainPhpFlagship) && nextjsOk(symfonyFlagship);
   return {
     kind: HUB_PHP_NEXTJS_VERIFY_BATCH_KIND,

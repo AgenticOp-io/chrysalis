@@ -30,7 +30,11 @@ function Get-RemoteGceState {
   param([string[]] $Extra)
   $remote = @'
 if test -f ~/chrysalis-test/reports/ci/gce-all-tests.ok; then echo OK; else echo PENDING; fi
-if test -f ~/.chrysalis-gce-test.pid && kill -0 $(cat ~/.chrysalis-gce-test.pid) 2>/dev/null; then echo ALIVE; else echo DEAD; fi
+ALIVE=0
+if test -f ~/.chrysalis-gce-test.pid && kill -0 $(cat ~/.chrysalis-gce-test.pid) 2>/dev/null; then ALIVE=1; fi
+WORKER_PID=$(pgrep -f 'bash scripts/gce-run-all-tests.sh|bash scripts/gce-resume-from-' 2>/dev/null | head -1 || true)
+if [ -n "$WORKER_PID" ] && kill -0 "$WORKER_PID" 2>/dev/null; then ALIVE=1; fi
+if [ "$ALIVE" -eq 1 ]; then echo ALIVE; else echo DEAD; fi
 '@
   $out = & gcloud compute ssh $Name --zone=$Zone --project=$Project @Extra --command=$remote 2>&1
   if ($LASTEXITCODE -ne 0) { throw "gcloud ssh failed: $out" }

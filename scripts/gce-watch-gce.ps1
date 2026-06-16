@@ -42,13 +42,21 @@ function Get-GceWatchSnapshot {
 OK=0; ALIVE=0
 test -f ~/chrysalis-test/reports/ci/gce-all-tests.ok && OK=1
 PID=$(cat ~/.chrysalis-gce-test.pid 2>/dev/null || echo -)
+WORKER_PID=$(pgrep -f 'bash scripts/gce-run-all-tests.sh|bash scripts/gce-resume-from-' 2>/dev/null | head -1 || true)
 if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null; then ALIVE=1; fi
+if [ -n "$WORKER_PID" ] && kill -0 "$WORKER_PID" 2>/dev/null; then ALIVE=1; PID="$WORKER_PID"; fi
 PHASE=$(grep -E '^\[gce-all-tests\].*phase:' ~/chrysalis-test/reports/ci/gce-all-tests.log 2>/dev/null | tail -1 | sed 's/.*phase: //' | tr -d '\r')
+if [ -z "$PHASE" ] && [ -f ~/chrysalis-test/reports/ci/gce-progress.json ]; then
+  PHASE=$(grep -o '"currentPhase": "[^"]*"' ~/chrysalis-test/reports/ci/gce-progress.json 2>/dev/null | head -1 | sed 's/"currentPhase": "//;s/"$//' | tr -d '\r')
+  if [ "$PHASE" = "null" ]; then PHASE=""; fi
+fi
+PROG=$(cd ~/chrysalis-test 2>/dev/null && node ~/chrysalis-test/scripts/gce-progress.mjs summary 2>/dev/null | head -1 | sed 's/^PROGRESS: //' | tr -d '\r')
 FAILLOG=$(grep -lE 'Failed Tests|END exit=[1-9][0-9]*' ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -1)
 echo "OK=$OK"
 echo "ALIVE=$ALIVE"
 echo "PID=$PID"
 echo "PHASE=$PHASE"
+echo "PROG=$PROG"
 echo "FAILLOG=${FAILLOG:-}"
 if [ -n "$FAILLOG" ]; then echo '---FAIL---'; tail -15 "$FAILLOG" | tr -d '\r'; fi
 '@
@@ -80,6 +88,7 @@ if [ -n "$FAILLOG" ]; then echo '---FAIL---'; tail -15 "$FAILLOG" | tr -d '\r'; 
     Alive    = ($kv["ALIVE"] -eq "1")
     Pid      = if ($kv["PID"]) { $kv["PID"] } else { "-" }
     Phase    = if ($kv["PHASE"]) { $kv["PHASE"] } else { "(none)" }
+    Prog     = if ($kv["PROG"]) { $kv["PROG"] } else { "" }
     FailLog  = if ($kv["FAILLOG"]) { $kv["FAILLOG"] } else { $null }
     FailTail = $failTail
     SshError = $false
@@ -99,7 +108,9 @@ function Invoke-WatchLoop {
       elseif ($snap.OkMarker) { "OK" }
       elseif (-not $snap.Alive) { "FAILED" }
       else { "RUNNING" }
-    $line = "$stamp | poll=$poll | status=$status | pid=$($snap.Pid) | phase=$($snap.Phase)"
+    $line = "$stamp | poll=$poll | status=$status | pid=$($snap.Pid)"
+    if ($snap.Prog) { $line += " | $($snap.Prog)" }
+    if ($snap.Phase) { $line += " | phase=$($snap.Phase)" }
     if ($snap.FailLog) { $line += " | fail=$($snap.FailLog)" }
     Write-WatchLog $line
     if ($status -ne $lastStatus) {

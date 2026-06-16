@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Resume GCE suite from hub-completion (gold gates already passed).
+# Resume GCE suite from cwl-batch-v40 (hub-completion + gold gates already passed).
 set -euo pipefail
 
 REPO="${CHRYSALIS_STATUS_REPO:-$(cd "$(dirname "$0")/.." && pwd)}"
@@ -45,20 +45,11 @@ touch "${LOCK_FILE}"
 rm -f "${OK_FILE}"
 trap 'rm -f "${LOCK_FILE}"' EXIT
 
-log "RESUME from hub-completion (repo=${REPO})"
+log "RESUME from cwl-batch-v40 (repo=${REPO})"
 GCE_PHASE_LIST="$(node "${SCRIPT_DIR}/gce-phase-list.mjs" csv)"
 node "${SCRIPT_DIR}/gce-progress.mjs" bootstrap "${CHRYSALIS_GCE_PHASE_LIST:-${GCE_PHASE_LIST}}" || log "WARN: progress bootstrap failed"
 
 bash "${SCRIPT_DIR}/gce-cleanup-vm-temp.sh" || log "WARN: gce-cleanup-vm-temp failed (continuing)"
-
-log "phase: hub completion json artifact"
-run_phase hub-completion-json node scripts/hub-ingest/hub-completion.mjs --json-out reports/ci/hub-completion.json
-
-log "phase: hub completion ci gate"
-run_phase hub-completion-gate node scripts/ci-gates.mjs hub-completion reports/ci/hub-completion.json
-
-log "phase: hub knowledge ci gates"
-run_phase hub-knowledge pnpm run ci:hub-knowledge
 
 log "phase: cwl fullstack HTTP verify"
 run_phase cwl-http-verify node scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs

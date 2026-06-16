@@ -8,6 +8,7 @@ import { mkdir, rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expressFlagshipRoutesArg } from "./hub-express-flagship-routes.mjs";
+import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
 export const HUB_NODE_EXPRESS_ORACLE_VERIFY_KIND = "chrysalis.hub.node-express-oracle-verify";
 export const HUB_NODE_EXPRESS_ORACLE_VERIFY_SCHEMA_VERSION = 1;
@@ -146,20 +147,27 @@ export async function runNodeExpressOracleVerify() {
     return { ...base, skip: "missing-serve-script" };
   }
 
+  const scope = "node-express-oracle-verify";
+  const p = createSmokeProgress(scope);
+
   const expressPkg = join(fixture, "node_modules", "express");
   if (!existsSync(expressPkg)) {
+    p.start("express-npm-install");
     const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
     const inst = spawnSync(npmCmd, ["install", "--no-audit", "--no-fund"], {
       cwd: fixture,
       encoding: "utf8",
       shell: process.platform === "win32",
     });
+    p.end("express-npm-install", inst.status === 0);
     if (inst.status !== 0) {
       return { ...base, skip: "express-npm-install-failed", detail: inst.stderr?.slice(0, 300) };
     }
   }
 
+  p.start("lift");
   const lift = runStep(liftScript, [fixture, "--language", "javascript"]);
+  p.end("lift", lift.ok);
   if (!lift.ok) {
     return { ...base, skip: "lift-failed", detail: lift.stderr?.slice(0, 300) };
   }
@@ -168,7 +176,9 @@ export async function runNodeExpressOracleVerify() {
     return { ...base, skip: "lift-holes", holeCount: liftReport.holeCount };
   }
 
+  p.start("emit");
   const emit = runStep(emitScript, [fixture, "--origin", "javascript", "--target", "hono"]);
+  p.end("emit", emit.ok);
   if (!emit.ok) {
     return { ...base, skip: "emit-failed", detail: emit.stderr?.slice(0, 300) };
   }
@@ -178,8 +188,11 @@ export async function runNodeExpressOracleVerify() {
 
   let server = null;
   try {
+    p.start("express-server");
     server = await startExpressServer();
+    p.end("express-server", true);
     const baseUrl = `http://${server.host}:${server.port}`;
+    p.start("record-traces");
     const record = runStep(recordScript, [
       "--base-url",
       baseUrl,
@@ -188,6 +201,7 @@ export async function runNodeExpressOracleVerify() {
       "--routes",
       expressFlagshipRoutesArg(),
     ]);
+    p.end("record-traces", record.ok);
     if (!record.ok) {
       return { ...base, skip: "record-failed", detail: record.stderr?.slice(0, 300) };
     }
@@ -195,10 +209,15 @@ export async function runNodeExpressOracleVerify() {
     base.traceCount = recordReport.traceCount ?? null;
 
     const outDir = join(fixture, "generated", "hono");
-    if (!ensureHonoDeps(outDir)) {
+    p.start("hono-npm-install");
+    const honoOk = ensureHonoDeps(outDir);
+    p.end("hono-npm-install", honoOk);
+    if (!honoOk) {
       return { ...base, skip: "hono-npm-install-failed" };
     }
+    p.start("replay");
     const replay = runStep(replayWorker, [fixture, tracesRoot], ["--import", "tsx"]);
+    p.end("replay", replay.ok);
     if (!replay.ok) {
       return { ...base, skip: "replay-failed", detail: replay.stderr?.slice(0, 400) };
     }

@@ -6,25 +6,32 @@ import { ensureExpressFlagshipVerifyReport } from "./hub-express-flagship-verify
 import { runFlagshipFullGapsBatchSmoke } from "./hub-flagship-full-gaps-batch-smoke.mjs";
 import { runLaravelVerifyGapsIngestClosureSmoke } from "./hub-laravel-verify-gaps-ingest-closure-smoke.mjs";
 import { runGapReingestBatchSmoke } from "./hub-gap-reingest-batch-smoke.mjs";
+import { createSmokeProgress, runSmokeStep, runSmokeStepSync } from "./hub-smoke-progress.mjs";
 
 export const HUB_GAPS_INGEST_CLOSURE_BATCH_KIND = "chrysalis.hub.gaps-ingest-closure-batch-smoke";
 export const HUB_GAPS_INGEST_CLOSURE_BATCH_SCHEMA_VERSION = 1;
 
 export async function runGapsIngestClosureBatchSmoke() {
-  const expressSeed = ensureExpressFlagshipVerifyReport();
-  const flagshipFullGaps = await runFlagshipFullGapsBatchSmoke();
-  const laravelClosure = runLaravelVerifyGapsIngestClosureSmoke();
+  const SCOPE = "gaps-ingest-closure";
+  createSmokeProgress(SCOPE).info("batch start");
+
+  const expressSeed = runSmokeStepSync(SCOPE, "expressSeed", () => ensureExpressFlagshipVerifyReport());
+  const flagshipFullGaps = await runSmokeStep(SCOPE, "flagshipFullGaps", () => runFlagshipFullGapsBatchSmoke());
+  const laravelClosure = runSmokeStepSync(SCOPE, "laravelClosure", () => runLaravelVerifyGapsIngestClosureSmoke());
   const prevReingest = process.env.CHRYSALIS_HUB_GAP_REINGEST;
   delete process.env.CHRYSALIS_HUB_GAP_REINGEST;
   let gapReingest;
   try {
-    gapReingest = await runGapReingestBatchSmoke();
+    gapReingest = await runSmokeStep(SCOPE, "gapReingest", () => runGapReingestBatchSmoke());
   } finally {
     if (prevReingest === undefined) delete process.env.CHRYSALIS_HUB_GAP_REINGEST;
     else process.env.CHRYSALIS_HUB_GAP_REINGEST = prevReingest;
   }
   const expressStrict =
     flagshipFullGaps.express?.ok === true && flagshipFullGaps.express?.skipped == null;
+
+  createSmokeProgress(SCOPE).info("batch complete");
+
   return {
     kind: HUB_GAPS_INGEST_CLOSURE_BATCH_KIND,
     schemaVersion: HUB_GAPS_INGEST_CLOSURE_BATCH_SCHEMA_VERSION,

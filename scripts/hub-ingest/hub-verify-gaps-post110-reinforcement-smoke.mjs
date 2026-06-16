@@ -16,6 +16,8 @@ import { runFlagshipVerifyHttpFastifyBatchSmoke } from "./hub-flagship-verify-ht
 import { runIrHelperLiftingEmbedSmoke } from "./hub-ir-helper-lifting-embed-smoke.mjs";
 import { runLaravelAuthProbeReingestVerifyHttpFastifySmoke } from "./hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs";
 import { runIrHelperLiftingFullPathSmoke } from "./hub-ir-helper-lifting-full-path-smoke.mjs";
+import { createSmokeProgress } from "./hub-smoke-progress.mjs";
+import { prewarmFlagshipVerifyEmits } from "./hub-verify-replay.mjs";
 
 export const HUB_VERIFY_GAPS_POST110_REINFORCEMENT_KIND =
   "chrysalis.hub.verify-gaps-post110-reinforcement-smoke";
@@ -24,41 +26,76 @@ export const HUB_VERIFY_GAPS_POST110_REINFORCEMENT_SCHEMA_VERSION = 1;
 /** @param {{ skipHttp?: boolean }} [opts] */
 export async function runVerifyGapsPost110ReinforcementSmoke(opts = {}) {
   const skipHttp = opts.skipHttp === true || process.env.CHRYSALIS_POST110_SKIP_HTTP === "1";
+  const progress = createSmokeProgress("post110-reinforcement");
 
   // B1 — auth-probe strict reingest + verify seed closure
+  let t0 = progress.start("B1 auth-probe reingest");
   const b1AuthProbeReingest = await runLaravelAuthProbeReingestSmoke();
+  progress.end("B1 auth-probe reingest", b1AuthProbeReingest.ok === true, t0);
+  t0 = progress.start("B1 verify closure");
   const b1VerifyClosure = await runLaravelAuthProbeReingestVerifyClosureSmoke();
+  progress.end("B1 verify closure", b1VerifyClosure.ok === true, t0);
 
   // B2 — replay after reingest across flagships
-  const b2AuthProbeReplay = skipHttp
-    ? { ok: true, skip: "http-skipped" }
-    : await runLaravelAuthProbeReingestVerifyReplaySmoke();
-  const b2FlagshipReplay = skipHttp
-    ? { ok: true, skip: "http-skipped" }
-    : await runFlagshipVerifyReplayBatchSmoke();
+  let b2AuthProbeReplay = { ok: true, skip: "http-skipped" };
+  let b2FlagshipReplay = { ok: true, skip: "http-skipped" };
+  if (!skipHttp) {
+    t0 = progress.start("B2 auth-probe replay");
+    b2AuthProbeReplay = await runLaravelAuthProbeReingestVerifyReplaySmoke();
+    progress.end("B2 auth-probe replay", b2AuthProbeReplay.ok === true, t0);
+    t0 = progress.start("B2 flagship replay batch");
+    b2FlagshipReplay = await runFlagshipVerifyReplayBatchSmoke();
+    progress.end("B2 flagship replay batch", b2FlagshipReplay.ok === true, t0);
+  } else {
+    progress.defer("B2 replay", "skipHttp");
+  }
 
   // B3 — HTTP oracle verify (hono) + multi-flagship
-  const b3AuthProbeHttp = skipHttp
-    ? { ok: true, skip: "http-skipped" }
-    : await runLaravelAuthProbeReingestVerifyHttpSmoke();
-  const b3FlagshipHttp = skipHttp
-    ? { ok: true, skip: "http-skipped" }
-    : await runFlagshipVerifyHttpBatchSmoke();
+  let b3AuthProbeHttp = { ok: true, skip: "http-skipped" };
+  let b3FlagshipHttp = { ok: true, skip: "http-skipped" };
+  if (!skipHttp) {
+    t0 = progress.start("prewarm flagship verify emits");
+    const prewarm = await prewarmFlagshipVerifyEmits({ progress });
+    progress.end("prewarm flagship verify emits", prewarm.ok === true, t0);
+    t0 = progress.start("B3 auth-probe HTTP hono");
+    b3AuthProbeHttp = await runLaravelAuthProbeReingestVerifyHttpSmoke();
+    progress.end("B3 auth-probe HTTP hono", b3AuthProbeHttp.ok === true, t0);
+    t0 = progress.start("B3 flagship HTTP hono batch");
+    b3FlagshipHttp = await runFlagshipVerifyHttpBatchSmoke();
+    progress.end("B3 flagship HTTP hono batch", b3FlagshipHttp.ok === true, t0);
+  } else {
+    progress.defer("B3 HTTP hono", "skipHttp");
+  }
 
   // B4 — Fastify HTTP + IR helper embed (B4 depth)
-  const b4AuthProbeFastify = skipHttp
-    ? { ok: true, skip: "http-skipped" }
-    : await runLaravelAuthProbeVerifyHttpFastify();
-  const b4FlagshipFastify = skipHttp
-    ? { ok: true, skip: "http-skipped" }
-    : await runFlagshipVerifyHttpFastifyBatchSmoke();
+  let b4AuthProbeFastify = { ok: true, skip: "http-skipped" };
+  let b4FlagshipFastify = { ok: true, skip: "http-skipped" };
+  if (!skipHttp) {
+    t0 = progress.start("B4 auth-probe HTTP fastify");
+    b4AuthProbeFastify = await runLaravelAuthProbeVerifyHttpFastify();
+    progress.end("B4 auth-probe HTTP fastify", b4AuthProbeFastify.ok === true, t0);
+    t0 = progress.start("B4 flagship HTTP fastify batch");
+    b4FlagshipFastify = await runFlagshipVerifyHttpFastifyBatchSmoke();
+    progress.end("B4 flagship HTTP fastify batch", b4FlagshipFastify.ok === true, t0);
+  } else {
+    progress.defer("B4 HTTP fastify", "skipHttp");
+  }
+  t0 = progress.start("B4 IR helper embed");
   const b4IrHelperEmbed = runIrHelperLiftingEmbedSmoke();
+  progress.end("B4 IR helper embed", b4IrHelperEmbed.ok === true, t0);
 
   // B5 — graduation: dual-backend reingest HTTP + IR helper B1–B4 full path
-  const b5AuthProbeReingestFastify = skipHttp
-    ? { ok: true, skip: "http-skipped" }
-    : await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
+  let b5AuthProbeReingestFastify = { ok: true, skip: "http-skipped" };
+  if (!skipHttp) {
+    t0 = progress.start("B5 auth-probe reingest fastify HTTP");
+    b5AuthProbeReingestFastify = await runLaravelAuthProbeReingestVerifyHttpFastifySmoke();
+    progress.end("B5 auth-probe reingest fastify HTTP", b5AuthProbeReingestFastify.ok === true, t0);
+  } else {
+    progress.defer("B5 reingest fastify HTTP", "skipHttp");
+  }
+  t0 = progress.start("B5 IR helper full path");
   const b5IrHelperFullPath = runIrHelperLiftingFullPathSmoke();
+  progress.end("B5 IR helper full path", b5IrHelperFullPath.ok === true, t0);
 
   const ok =
     b1AuthProbeReingest.ok === true &&
