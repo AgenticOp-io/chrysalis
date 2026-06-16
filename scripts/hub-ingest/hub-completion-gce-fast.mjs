@@ -278,6 +278,7 @@ export function buildGceFastHeavySmokeState() {
   state.laravelAuthProbeVerifyHttp = d();
   state.flagshipVerifyHttp = d();
   state.irHelperLiftingSemantic = d();
+  state.irHelperLiftingAttr = d();
   state.irHelperLiftingEmbed = d();
   state.laravelAuthProbeVerifyHttpFastify = d();
   state.flagshipVerifyHttpFastify = d();

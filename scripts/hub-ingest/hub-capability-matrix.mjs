@@ -167,6 +167,10 @@ export function buildHubCapabilityMatrixReport() {
       fixture: "fixtures/lift-helper-gap-probe",
       flags: ["--ingest-lift-shared-helpers", "--ingest-lift-shared-helpers-semantic"],
     },
+    irHelperLiftingAttr: {
+      script: "pnpm run hub:ir-helper-lifting-attr-smoke",
+      fixture: "fixtures/lift-helper-attr-lib",
+    },
     irHelperLiftingEmbed: {
       script: "pnpm run hub:ir-helper-lifting-embed-smoke",
       fixture: "fixtures/lift-helper-lift-twin",

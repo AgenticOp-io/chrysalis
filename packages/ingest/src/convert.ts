@@ -119,6 +119,13 @@ function resolveFunctionAttributes(
 ): readonly PhpAttributeMeta[] | undefined {
   const direct = map.get(callee);
   if (direct !== undefined) return direct;
+  if (callee.includes("::")) {
+    for (const [key, attrs] of map) {
+      if (key === callee || key.endsWith("\\" + callee)) {
+        return attrs;
+      }
+    }
+  }
   const tail = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
   return map.get(tail);
 }

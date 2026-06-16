@@ -265,6 +265,7 @@ export function buildHubCompletionReport(ctx) {
     laravelAuthProbeVerifyHttp,
     flagshipVerifyHttp,
     irHelperLiftingSemantic,
+    irHelperLiftingAttr,
     irHelperLiftingEmbed,
     laravelAuthProbeVerifyHttpFastify,
     flagshipVerifyHttpFastify,
@@ -1661,6 +1662,11 @@ export function buildHubCompletionReport(ctx) {
       ok: okFlags.irHelperLiftingSemanticOk,
       fixture: irHelperLiftingSemantic.fixture ?? "fixtures/lift-helper-gap-probe",
       script: "pnpm run hub:ir-helper-lifting-semantic-smoke",
+    },
+    irHelperLiftingAttr: {
+      ok: okFlags.irHelperLiftingAttrOk,
+      fixture: irHelperLiftingAttr.fixture ?? "fixtures/lift-helper-attr-lib",
+      script: "pnpm run hub:ir-helper-lifting-attr-smoke",
     },
     irHelperLiftingEmbed: {
       ok: okFlags.irHelperLiftingEmbedOk,

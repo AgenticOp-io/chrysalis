@@ -412,6 +412,7 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       laravelAuthProbeVerifyHttp: "hub:laravel-auth-probe-reingest-verify-http-smoke",
       flagshipVerifyHttp: "hub:flagship-verify-http-batch-smoke",
       irHelperLiftingSemantic: "hub:ir-helper-lifting-semantic-smoke",
+      irHelperLiftingAttr: "hub:ir-helper-lifting-attr-smoke",
       requireGapReingestVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
     },
     month29Program: {

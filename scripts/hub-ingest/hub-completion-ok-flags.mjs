@@ -238,6 +238,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     laravelAuthProbeVerifyHttp,
     flagshipVerifyHttp,
     irHelperLiftingSemantic,
+    irHelperLiftingAttr,
     irHelperLiftingEmbed,
     laravelAuthProbeVerifyHttpFastify,
     flagshipVerifyHttpFastify,
@@ -493,6 +494,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
   const laravelAuthProbeVerifyHttpOk = laravelAuthProbeVerifyHttp.ok === true;
   const flagshipVerifyHttpOk = flagshipVerifyHttp.ok === true;
   const irHelperLiftingSemanticOk = irHelperLiftingSemantic.ok === true;
+  const irHelperLiftingAttrOk = irHelperLiftingAttr.ok === true;
   const irHelperLiftingEmbedOk = irHelperLiftingEmbed.ok === true;
   const laravelAuthProbeVerifyHttpFastifyOk = laravelAuthProbeVerifyHttpFastify.ok === true;
   const flagshipVerifyHttpFastifyOk = flagshipVerifyHttpFastify.ok === true;
@@ -741,6 +743,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     laravelAuthProbeVerifyHttpOk &&
     flagshipVerifyHttpOk &&
     irHelperLiftingSemanticOk &&
+    irHelperLiftingAttrOk &&
     irHelperLiftingEmbedOk &&
     laravelAuthProbeVerifyHttpFastifyOk &&
     flagshipVerifyHttpFastifyOk &&
@@ -982,6 +985,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     laravelAuthProbeVerifyHttpOk,
     flagshipVerifyHttpOk,
     irHelperLiftingSemanticOk,
+    irHelperLiftingAttrOk,
     irHelperLiftingEmbedOk,
     laravelAuthProbeVerifyHttpFastifyOk,
     flagshipVerifyHttpFastifyOk,

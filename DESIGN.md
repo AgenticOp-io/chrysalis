@@ -3515,6 +3515,7 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-16 — D2286** **Lib PHP attributes on WebIR calls (G2286).** **`collectLibraryFunctionAttributes`** indexes lib/vendor/route helpers; **`ingestHandler`** merges with route-local attrs; fixture **`lift-helper-attr-lib`**. **DESIGN §3** unchanged.
 - **2026-06-16 — D2287** **Emit phpAttrs suffix + hub semantic smoke v3 (G2287).** Emit appends `/* phpAttrs:… */` on **`data.call`** for traceability; hub semantic smoke schema **v3** adds **`sql-ws-twin`** and **`sql-same-twin`**. **DESIGN §3** unchanged.
 - **2026-06-16 — D2288** **Class method attributes + simulate/footprint metadata (G2288).** Parser bridge forwards **`attrGroups`** on hoisted class methods; simulate records **`phpAttributedCalls`**; oracle footprint counts attributed calls; hub attr smoke + B5.3 v4 simulate twin equivalence. **DESIGN §3** unchanged.
+- **2026-06-16 — D2289** **Class static attributes on WebIR calls + hub completion (G2289).** Ingest **`resolveFunctionAttributes`** matches hoisted **`Class::method`** keys; fixture **`lift-helper-attr-class`**; hub completion **`irHelperLiftingAttr`** gate. **DESIGN §3** unchanged.
 
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 
