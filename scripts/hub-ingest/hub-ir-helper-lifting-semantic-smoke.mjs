@@ -1,16 +1,50 @@
 #!/usr/bin/env node
-/** IR helper semantic lifting smoke on lift-helper-gap-probe (B3 depth, G957). */
+/** IR helper semantic lifting smoke — gap-probe (B3) + param-twin (B5 v0). */
 import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const HUB_IR_HELPER_LIFTING_SEMANTIC_KIND = "chrysalis.hub.ir-helper-lifting-semantic-smoke";
-export const HUB_IR_HELPER_LIFTING_SEMANTIC_SCHEMA_VERSION = 1;
+export const HUB_IR_HELPER_LIFTING_SEMANTIC_SCHEMA_VERSION = 2;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const fixture = join(scriptRoot, "fixtures/lift-helper-gap-probe");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
+
+const SEMANTIC_LIFT_FLAGS = [
+  "--ingest-lift-shared-helpers",
+  "--ingest-lift-shared-helpers-semantic",
+  "--ingest-dedupe-structural-subgraphs",
+];
+
+function fixtureRel(absPath) {
+  const root = scriptRoot.endsWith("\\") || scriptRoot.endsWith("/") ? scriptRoot : scriptRoot + "/";
+  const normalized = absPath.replace(/\\/g, "/");
+  const rootNorm = root.replace(/\\/g, "/");
+  if (normalized.startsWith(rootNorm)) {
+    return normalized.slice(rootNorm.length);
+  }
+  return normalized;
+}
+
+const FIXTURES = [
+  { id: "gap-probe", path: join(scriptRoot, "fixtures/lift-helper-gap-probe") },
+  { id: "param-twin", path: join(scriptRoot, "fixtures/lift-helper-param-twin") },
+];
+
+function ingestFixture(fixturePath) {
+  const r = spawnSync(process.execPath, [cliBin, "ingest", fixturePath, ...SEMANTIC_LIFT_FLAGS], {
+    encoding: "utf8",
+    maxBuffer: 32 * 1024 * 1024,
+  });
+  const holesMatch = (r.stdout ?? "").match(/^holes:\s+(\d+)/m);
+  const holesAfter = holesMatch ? Number(holesMatch[1]) : null;
+  return {
+    ok: (r.status ?? 1) === 0 && holesAfter === 0,
+    exitCode: r.status ?? 1,
+    holesAfter,
+  };
+}
 
 export function runIrHelperLiftingSemanticSmoke() {
   if (!existsSync(cliBin)) {
@@ -20,30 +54,27 @@ export function runIrHelperLiftingSemanticSmoke() {
       ok: false,
       skip: "no-cli-bin",
       fixture: "fixtures/lift-helper-gap-probe",
+      fixtures: FIXTURES.map((f) => ({ id: f.id, fixture: fixtureRel(f.path), ok: false, skip: "no-cli-bin" })),
       generatedAt: new Date().toISOString(),
     };
   }
-  const r = spawnSync(
-    process.execPath,
-    [
-      cliBin,
-      "ingest",
-      fixture,
-      "--ingest-lift-shared-helpers",
-      "--ingest-lift-shared-helpers-semantic",
-      "--ingest-dedupe-structural-subgraphs",
-    ],
-    { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 },
-  );
-  const holesMatch = (r.stdout ?? "").match(/^holes:\s+(\d+)/m);
-  const holesAfter = holesMatch ? Number(holesMatch[1]) : null;
+  const results = FIXTURES.map((f) => {
+    const run = ingestFixture(f.path);
+    return {
+      id: f.id,
+      fixture: fixtureRel(f.path),
+      ...run,
+    };
+  });
+  const ok = results.every((r) => r.ok);
   return {
     kind: HUB_IR_HELPER_LIFTING_SEMANTIC_KIND,
     schemaVersion: HUB_IR_HELPER_LIFTING_SEMANTIC_SCHEMA_VERSION,
-    ok: (r.status ?? 1) === 0 && holesAfter === 0,
+    ok,
     fixture: "fixtures/lift-helper-gap-probe",
-    exitCode: r.status ?? 1,
-    holesAfter,
+    fixtures: results,
+    exitCode: ok ? 0 : (results.find((r) => !r.ok)?.exitCode ?? 1),
+    holesAfter: results.find((r) => r.id === "gap-probe")?.holesAfter ?? null,
     flags: ["--ingest-lift-shared-helpers", "--ingest-lift-shared-helpers-semantic"],
     generatedAt: new Date().toISOString(),
   };

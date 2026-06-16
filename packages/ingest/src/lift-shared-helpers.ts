@@ -69,11 +69,21 @@ export function buildHelperLiftLocalSlotMap(
     if (name) localSlotForName(slots, name);
   };
 
+  const registerParamRead = (id: NodeId): void => {
+    const n = getNode(id);
+    if (!n || n.dialect !== "data" || n.op !== "param") return;
+    const name = n.attrs.name;
+    if (typeof name === "string" && name.length > 0) {
+      localSlotForName(slots, name);
+    }
+  };
+
   const walkBlock = (id: NodeId): void => {
     if (seen.has(id)) return;
     seen.add(id);
     const n = getNode(id);
     if (!n) return;
+    registerParamRead(id);
     if (n.dialect === "data" && n.op === "block") {
       for (const stmtId of n.operands) {
         registerAssignTarget(stmtId);
