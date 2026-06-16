@@ -7,7 +7,7 @@
  * regenerating golden fixtures.
  */
 
-export const SCHEMA_VERSION = "0.1.5";
+export const SCHEMA_VERSION = "0.1.6";
 
 export type Pos = {
   readonly file: string;
@@ -31,6 +31,7 @@ export type PhpNode =
   | PhpReturn
   | PhpRequire
   | PhpFunctionDecl
+  | PhpEnumDecl
   | PhpExit
   | PhpThrow
   | PhpNoop
@@ -127,6 +128,21 @@ export interface PhpFunctionDecl {
   readonly returnHint: string | null;
   readonly body: ReadonlyArray<PhpNode>;
   readonly attributes?: ReadonlyArray<PhpAttribute>;
+  readonly pos: Pos;
+}
+
+export interface PhpEnumCase {
+  readonly name: string;
+  readonly value: PhpExpr | null;
+}
+
+/** PHP 8.1+ `enum` declaration (backed or unit). */
+export interface PhpEnumDecl {
+  readonly kind: "EnumDecl";
+  readonly name: string;
+  /** Backing scalar type when present; `null` for pure unit enums. */
+  readonly scalarType: "string" | "int" | null;
+  readonly cases: ReadonlyArray<PhpEnumCase>;
   readonly pos: Pos;
 }
 

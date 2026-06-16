@@ -313,6 +313,28 @@ function convertStatement(file: string, node: NikicDict, nsPrefix: string): PhpN
     case "Stmt_Declare":
       return { kind: "Noop", pos: stmtPos(file, node) };
 
+    case "Stmt_Enum": {
+      const short = identifierText(node.name) ?? "";
+      const name = short !== "" && nsPrefix !== "" ? `${nsPrefix}\\${short}` : short;
+      const st = typeHint(node.scalarType as unknown);
+      const scalarType = st === "string" || st === "int" ? st : null;
+      const stmts = Array.isArray(node.stmts) ? node.stmts : [];
+      const cases: { name: string; value: PhpExpr | null }[] = [];
+      for (const rawCase of stmts) {
+        if (!isNikicDict(rawCase) || rawCase.nodeType !== "Stmt_EnumCase") continue;
+        const cname = identifierText(rawCase.name) ?? "";
+        const expr = rawCase.expr as unknown;
+        cases.push({
+          name: cname,
+          value:
+            expr !== undefined && expr !== null && isNikicDict(expr)
+              ? convertExpression(file, expr)
+              : null,
+        });
+      }
+      return { kind: "EnumDecl", name, scalarType, cases, pos: stmtPos(file, node) };
+    }
+
     case "Stmt_Static":
       return convertStaticDirective(file, node);
 

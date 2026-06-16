@@ -288,6 +288,25 @@ function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNod
     case "usegroup":
       // Import side effects are out of scope for the canonical AST; keep position only.
       return { kind: "Noop", pos: pos(file, node) };
+    case "enum": {
+      const shortName = String((node.name as AnyNode)?.name ?? "");
+      const declName =
+        shortName !== "" && nsPrefix !== "" ? `${nsPrefix}\\${shortName}` : shortName;
+      const valueType = node.valueType as AnyNode | null | undefined;
+      let scalarType: "string" | "int" | null = null;
+      if (valueType?.kind === "name" || valueType?.kind === "identifier") {
+        const vn = String(valueType.name ?? "");
+        if (vn === "string" || vn === "int") scalarType = vn;
+      }
+      const body = Array.isArray(node.body) ? (node.body as AnyNode[]) : [];
+      const cases = body
+        .filter((c) => c.kind === "enumcase")
+        .map((c) => ({
+          name: String((c.name as AnyNode)?.name ?? ""),
+          value: c.value ? convertExpression(file, c.value as AnyNode) : null,
+        }));
+      return { kind: "EnumDecl", name: declName, scalarType, cases, pos: pos(file, node) };
+    }
     case "throw": {
       const w = node.what as AnyNode | undefined;
       if (!w) {
@@ -347,6 +366,7 @@ function typeNameFromHint(hint: AnyNode | null): string | null {
   if (!hint) return null;
   if (hint.kind === "identifier") return String((hint as AnyNode).name ?? "");
   if (hint.kind === "typereference") return String((hint as AnyNode).name ?? "");
+  if (hint.kind === "name") return String((hint as AnyNode).name ?? "");
   return null;
 }
 

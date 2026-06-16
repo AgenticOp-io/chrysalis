@@ -1390,6 +1390,9 @@ function convertStatement(
       // has no modern equivalent); emit drops them.
       return null;
     }
+    case "EnumDecl":
+      // Enum declarations are type-level; runtime lowering deferred.
+      return null;
     case "FunctionDecl":
       // Library functions inside a handler body are not yet hoisted; treat as
       // a hole with descriptive reason. Top-level library files are handled

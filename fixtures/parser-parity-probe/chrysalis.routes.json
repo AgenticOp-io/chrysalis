@@ -60,6 +60,12 @@
       "path": "/first-class-callable",
       "file": "pages/first_class_callable.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/enum",
+      "file": "pages/enum_decl.php",
+      "pathParams": []
     }
   ]
 }
