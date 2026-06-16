@@ -17,7 +17,7 @@ import {
   moduleBuilderResumeFromModule,
   type Module,
 } from "@chrysalis/webir";
-import { buildLibraryHelpersWebIrModule } from "./library-effects.js";
+import { buildLibraryHelpersWebIrModule, collectLibraryFunctionAttributes } from "./library-effects.js";
 import { ingestHandler } from "./convert.js";
 import { readIngestCheckpointEnvelope, writeIngestCheckpointEnvelope } from "./ingest-checkpoint.js";
 import { buildCallEffectMap } from "./library-effects.js";
@@ -137,6 +137,9 @@ export async function ingestDirectory(
       ? { liftSharedHelpersIgnoreOrigin: false as const }
       : {}),
   });
+  const libFunctionAttributes = await collectLibraryFunctionAttributes(root, manifest.routes, {
+    ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+  });
   let routes = manifest.routes;
   if (opts?.shardCount !== undefined) {
     const idx = opts.shardIndex ?? 0;
@@ -220,7 +223,7 @@ export async function ingestDirectory(
         : await parseFile(abs, {
             ...(provider ? { provider } : {}),
           });
-    const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns);
+    const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns, libFunctionAttributes);
     builder.addRoot(routeNode);
     completedSet.add(rk);
     completedKeys.push(rk);
@@ -275,6 +278,12 @@ export async function ingestFile(
           ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
         })
       : new Map();
+  const libFunctionAttributes =
+    root !== ""
+      ? await collectLibraryFunctionAttributes(root, [route], {
+          ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+        })
+      : new Map();
   let dbFactoryReturns: ReadonlySet<string> = new Set();
   if (root !== "") {
     try {
@@ -284,7 +293,7 @@ export async function ingestFile(
     }
   }
   const builder = new ModuleBuilder({ sourceApp: await sourceAppFromProjectRoot(root) });
-  const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns);
+  const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns, libFunctionAttributes);
   builder.addRoot(routeNode);
   return builder.finish();
 }
@@ -315,6 +324,7 @@ export {
   buildCallEffectMap,
   buildLibraryCallEffectMap,
   buildLibraryHelpersWebIrModule,
+  collectLibraryFunctionAttributes,
   collectLibraryFunctionBodies,
 } from "./library-effects.js";
 export {

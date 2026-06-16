@@ -1,0 +1,11 @@
+{
+  "app": "lift-helper-attr-lib",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/show",
+      "file": "pages/show.php",
+      "pathParams": []
+    }
+  ]
+}

@@ -24,7 +24,7 @@ import {
   type Module,
   type NodeId,
 } from "@chrysalis/webir";
-import { convertPhpStatementsToBlock } from "./convert.js";
+import { convertPhpStatementsToBlock, collectFunctionAttributes, type PhpAttributeMeta } from "./convert.js";
 import { applyHelperLiftAliases, buildHelperLiftAliasMap } from "./lift-shared-helpers.js";
 
 async function collectPhpFilesRecursive(dir: string): Promise<string[]> {
@@ -192,6 +192,23 @@ function mergeBodies(
   }
 }
 
+function mergeFunctionAttributes(
+  target: Map<string, PhpAttributeMeta[]>,
+  incoming: ReadonlyMap<string, readonly PhpAttributeMeta[]>,
+  opts?: { readonly overwrite?: boolean },
+): void {
+  const overwrite = opts?.overwrite ?? false;
+  for (const [name, attrs] of incoming) {
+    if (overwrite || !target.has(name)) {
+      target.set(name, [...attrs]);
+    }
+  }
+}
+
+function attributesFromAst(ast: PhpAst): Map<string, PhpAttributeMeta[]> {
+  return collectFunctionAttributes(ast.statements);
+}
+
 export interface LibraryBodyCollectionOptions {
   readonly parserProvider?: Provider;
 }
@@ -251,6 +268,60 @@ export async function collectLibraryFunctionBodies(
   }
 
   return bodies;
+}
+
+/**
+ * Index `FunctionDecl` attributes from `lib/**`, optional `vendor/**`, and route files.
+ * Precedence matches {@link collectLibraryFunctionBodies}: lib overwrites vendor;
+ * route-local merges without overwriting lib.
+ */
+export async function collectLibraryFunctionAttributes(
+  root: string,
+  routeSpecs: ReadonlyArray<RouteFileRef> | undefined,
+  opts?: LibraryBodyCollectionOptions,
+): Promise<Map<string, PhpAttributeMeta[]>> {
+  const attrs = new Map<string, PhpAttributeMeta[]>();
+
+  const libDir = join(root, "lib");
+  try {
+    await access(libDir, fsConstants.R_OK);
+    const phpFiles = await collectPhpFilesRecursive(libDir);
+    for (const filePath of phpFiles) {
+      const ast = await parseFile(filePath, {
+        ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
+      });
+      mergeFunctionAttributes(attrs, attributesFromAst(ast), { overwrite: true });
+    }
+  } catch {
+    /* no readable lib */
+  }
+
+  const vendorDir = join(root, "vendor");
+  try {
+    await access(vendorDir, fsConstants.R_OK);
+    const composerIndexed = await collectComposerAutoloadFiles(vendorDir);
+    const recursivePhp = await collectPhpFilesRecursive(vendorDir);
+    const candidateFiles = new Set<string>([...composerIndexed, ...recursivePhp]);
+    for (const filePath of candidateFiles) {
+      const ast = await parseFile(filePath, {
+        ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
+      });
+      mergeFunctionAttributes(attrs, attributesFromAst(ast));
+    }
+  } catch {
+    /* no readable vendor */
+  }
+
+  if (routeSpecs) {
+    for (const spec of routeSpecs) {
+      const ast = await parseFile(resolve(root, spec.file), {
+        ...(opts?.parserProvider ? { provider: opts.parserProvider } : {}),
+      });
+      mergeFunctionAttributes(attrs, attributesFromAst(ast));
+    }
+  }
+
+  return attrs;
 }
 
 /**

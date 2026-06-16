@@ -7,7 +7,7 @@ import {
   buildHelperLiftAliasMap,
   ingestDirectory,
 } from "../src/index.js";
-import { bodyHasIrEffects } from "../src/lift-shared-helpers.js";
+import { bodyHasIrEffects, normalizeSqlLiteralForHelperLift } from "../src/lift-shared-helpers.js";
 import { convertPhpStatementsToBlock } from "../src/convert.js";
 import { parseFile } from "@chrysalis/parser-bridge";
 
@@ -129,5 +129,9 @@ describe("ingest: lift-shared-helpers (B2)", () => {
     const lit = data.literal({ value: 1, type: T.int, origin });
     const pure = data.block({ statements: [lit], origin });
     expect(bodyHasIrEffects((id) => builder.get(id), pure)).toBe(false);
+  });
+
+  it("normalizeSqlLiteralForHelperLift collapses whitespace (B5.3 v3)", () => {
+    expect(normalizeSqlLiteralForHelperLift("SELECT  id  FROM items")).toBe("SELECT id FROM items");
   });
 });

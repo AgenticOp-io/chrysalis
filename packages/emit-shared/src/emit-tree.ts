@@ -12,6 +12,16 @@ import type { HttpEmitProfile } from "./http-profile.js";
 import { honoHttpProfile } from "./http-profile.js";
 import { ident, stringLit } from "./ts-util.js";
 
+function emitPhpAttributesSuffix(n: NodeBase): string {
+  const pa = (
+    n.attrs as {
+      phpAttributes?: ReadonlyArray<{ readonly name: string; readonly args: ReadonlyArray<unknown> }>;
+    }
+  ).phpAttributes;
+  if (!pa?.length) return "";
+  return ` /* phpAttrs:${JSON.stringify(pa)} */`;
+}
+
 export interface EmittedHandler {
   readonly body: string;
   readonly holes: ReadonlyArray<{ name: string; line: number; reason: string }>;
@@ -347,7 +357,7 @@ function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
         return rest.length > 0 ? `phpDynamicNew(${classExpr}, ${rest.join(", ")})` : `phpDynamicNew(${classExpr})`;
       }
       const args = n.operands.map((o) => emitExpr(ctx, o));
-      return emitKnownCall(ctx, callee, args);
+      return emitKnownCall(ctx, callee, args) + emitPhpAttributesSuffix(n);
     }
     case "concat": {
       const parts = n.operands.map((o) => `String(${emitExpr(ctx, o)})`);
@@ -759,7 +769,7 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
         ctx.hasTerminalResponse = true;
         return p.respondBuffered();
       }
-      return `${emitKnownCall(ctx, callee, args)};`;
+      return `${emitKnownCall(ctx, callee, args)}${emitPhpAttributesSuffix(n)};`;
     }
     case "literal":
     case "param":

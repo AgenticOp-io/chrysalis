@@ -1480,8 +1480,14 @@ export function ingestHandler(
   route: RouteSpec,
   libCallEffects: ReadonlyMap<string, EffectSet> = new Map(),
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
+  libFunctionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]> = new Map(),
 ): NodeId {
-  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees, collectFunctionAttributes(ast.statements));
+  const routeAttrs = collectFunctionAttributes(ast.statements);
+  const mergedAttrs = new Map(libFunctionAttributes);
+  for (const [name, attrs] of routeAttrs) {
+    mergedAttrs.set(name, attrs);
+  }
+  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees, mergedAttrs);
   const body = convertStatements(ctx, selectRouteHandlerStatements(ast.statements), route.pathParams);
 
   const handlerName =

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-/** IR helper semantic lifting smoke — gap-probe (B3) + param-twin (B5 v0) + sql-twin (B5.3 v2). */
+/** IR helper semantic lifting smoke — gap-probe, param-twin, sql twins (B3–B5.3 v3). */
 import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const HUB_IR_HELPER_LIFTING_SEMANTIC_KIND = "chrysalis.hub.ir-helper-lifting-semantic-smoke";
-export const HUB_IR_HELPER_LIFTING_SEMANTIC_SCHEMA_VERSION = 2;
+export const HUB_IR_HELPER_LIFTING_SEMANTIC_SCHEMA_VERSION = 3;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -31,6 +31,8 @@ const FIXTURES = [
   { id: "gap-probe", path: join(scriptRoot, "fixtures/lift-helper-gap-probe") },
   { id: "param-twin", path: join(scriptRoot, "fixtures/lift-helper-param-twin") },
   { id: "sql-twin", path: join(scriptRoot, "fixtures/lift-helper-sql-twin") },
+  { id: "sql-ws-twin", path: join(scriptRoot, "fixtures/lift-helper-sql-ws-twin") },
+  { id: "sql-same-twin", path: join(scriptRoot, "fixtures/lift-helper-sql-same-twin") },
 ];
 
 function ingestFixture(fixturePath) {
