@@ -137,6 +137,7 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
     if (!Boolean(member.isStatic) && methodName !== "__invoke") continue;
     const args = Array.isArray(member.arguments) ? (member.arguments as AnyNode[]) : [];
     const body = member.body as AnyNode | undefined;
+    const methodAttributes = convertGlayzzleAttributes(file, member.attrGroups as AnyNode[] | undefined);
     out.push({
       kind: "FunctionDecl",
       name: `${classFqn}::${methodName}`,
@@ -147,6 +148,7 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
       })),
       returnHint: typeNameFromHint(member.type as AnyNode | null),
       body: body?.kind === "block" ? convertBody(file, body.children, nsPrefix) : [],
+      ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
       pos: pos(file, member),
     });
   }

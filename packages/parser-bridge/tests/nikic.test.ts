@@ -351,4 +351,25 @@ $maybe = null ?? "fallback";
     expect(fnNames(gz)).toEqual(expected);
     expect(fnNames(nk)).toEqual(expected);
   });
+
+  run("hoists class static method attributes on FunctionDecl (G2288)", async () => {
+    const src = `<?php
+namespace App;
+class Probe {
+  #[\\Chrysalis\\Probe('method')]
+  public static function helper(): int { return 1; }
+}
+`;
+    const gz = parseSourceWithGlayzzle(src, "class_method_attributes.php");
+    const nk = await parseSource(src, "class_method_attributes.php", { provider: "nikic" });
+    const pick = (ast: typeof gz) =>
+      ast.statements.find(
+        (s): s is typeof s & { kind: "FunctionDecl"; name: string; attributes?: ReadonlyArray<{ name: string; args: ReadonlyArray<unknown> }> } =>
+          s.kind === "FunctionDecl" && s.name === "App\\Probe::helper",
+      );
+    expect(stripPos(pick(gz))).toEqual(stripPos(pick(nk)));
+    const attrs = pick(gz)?.attributes;
+    expect(attrs?.length).toBe(1);
+    expect(attrs?.[0]?.name).toBe("\\Chrysalis\\Probe");
+  });
 });

@@ -27,6 +27,8 @@ export interface RouteOracleFootprint {
   readonly filesystem: boolean;
   /** Sites lowered from PHP `new $class(...)` as `data.call` with callee `__new_dynamic`. */
   readonly dynamicNewCount: number;
+  /** `data.call` nodes with non-empty `phpAttributes` in the handler body. */
+  readonly phpAttributedCallCount: number;
 }
 
 export interface OracleFootprint {
@@ -37,6 +39,8 @@ export interface OracleFootprint {
   readonly writeTablesHint: readonly string[];
   /** Sum of per-route {@link RouteOracleFootprint.holeCount}. */
   readonly totalHoleCount: number;
+  /** Sum of per-route {@link RouteOracleFootprint.phpAttributedCallCount}. */
+  readonly totalPhpAttributedCallCount: number;
   /** 0..100 rough score: higher ⇒ more oracle dimensions to hydrate. */
   readonly hydrationIndex: number;
 }
@@ -80,6 +84,16 @@ function countDynamicNewInSubtree(get: (id: NodeId) => NodeBase | undefined, roo
     if (node.dialect !== "data" || node.op !== "call") return;
     const callee = String((node.attrs as { callee?: string }).callee ?? "");
     if (callee === "__new_dynamic") n += 1;
+  });
+  return n;
+}
+
+function countPhpAttributedCallsInSubtree(get: (id: NodeId) => NodeBase | undefined, root: NodeId): number {
+  let n = 0;
+  walkOperands(get, root, (node) => {
+    if (node.dialect !== "data" || node.op !== "call") return;
+    const pa = (node.attrs as { phpAttributes?: ReadonlyArray<unknown> }).phpAttributes;
+    if (Array.isArray(pa) && pa.length > 0) n += 1;
   });
   return n;
 }
@@ -186,17 +200,19 @@ export function computeOracleFootprint(m: Module): OracleFootprint {
       cache: sum.cache,
       filesystem: sum.filesystem,
       dynamicNewCount: countDynamicNewInSubtree(get, bodyId),
+      phpAttributedCallCount: countPhpAttributedCallsInSubtree(get, bodyId),
     });
   }
 
   const tapeTablesHint = [...allReadTables].sort();
   const writeTablesHint = [...allWriteTables].sort();
   const totalHoleCount = routes.reduce((a, r) => a + r.holeCount, 0);
+  const totalPhpAttributedCallCount = routes.reduce((a, r) => a + r.phpAttributedCallCount, 0);
   const rawHydration = routes.reduce((a, r) => a + routeHydrationScore(r), 0);
   /** Normalize against ~60 points per route as a "heavy but normal" handler. */
   const denom = routes.length * 60;
   const hydrationIndex =
     routes.length === 0 ? 0 : Math.min(100, Math.round((100 * rawHydration) / denom));
 
-  return { routes, tapeTablesHint, writeTablesHint, totalHoleCount, hydrationIndex };
+  return { routes, tapeTablesHint, writeTablesHint, totalHoleCount, totalPhpAttributedCallCount, hydrationIndex };
 }

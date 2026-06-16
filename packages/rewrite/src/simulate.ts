@@ -82,6 +82,11 @@ export interface SimResponse {
    * record it so the signal isn't lost.
    */
   readonly errors: ReadonlyArray<SimError>;
+  /** Calls that carried PHP 8 attribute metadata from ingest (`data.call.phpAttributes`). */
+  readonly phpAttributedCalls: ReadonlyArray<{
+    readonly callee: string;
+    readonly phpAttributes: ReadonlyArray<{ readonly name: string; readonly args: ReadonlyArray<unknown> }>;
+  }>;
 }
 
 export interface StubDb {
@@ -226,6 +231,10 @@ interface SimCtx {
   readonly sessionWrites: SessionWriteEvent[];
   readonly sessionScratch: Map<string, SimValue>;
   readonly errors: SimError[];
+  readonly phpAttributedCalls: {
+    callee: string;
+    phpAttributes: ReadonlyArray<{ readonly name: string; readonly args: ReadonlyArray<unknown> }>;
+  }[];
   pageLoad: SimValue | null;
   status: number;
   redirectTo: string | null;
@@ -255,6 +264,7 @@ export function simulateHandler(
     sessionWrites: [],
     sessionScratch: new Map(Object.entries(input.session)),
     errors: [],
+    phpAttributedCalls: [],
     pageLoad: null,
     status: 200,
     redirectTo: null,
@@ -287,6 +297,7 @@ export function simulateHandler(
     dbWrites: ctx.dbWrites,
     sessionWrites: ctx.sessionWrites,
     errors: ctx.errors,
+    phpAttributedCalls: ctx.phpAttributedCalls,
   };
 }
 
@@ -517,6 +528,14 @@ function evalMember(ctx: SimCtx, n: NodeBase): SimValue {
 
 function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
   const callee = (n.attrs as { callee?: string }).callee ?? "";
+  const phpAttributes = (
+    n.attrs as {
+      phpAttributes?: ReadonlyArray<{ readonly name: string; readonly args: ReadonlyArray<unknown> }>;
+    }
+  ).phpAttributes;
+  if (phpAttributes !== undefined && phpAttributes.length > 0) {
+    ctx.phpAttributedCalls.push({ callee, phpAttributes: [...phpAttributes] });
+  }
   // Special: __assign(name, value) → env mutation.
   if (callee === "__assign") {
     const nameV = operand(ctx, n, 0);
@@ -527,6 +546,9 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
   // Evaluate all args once.
   const args = n.operands.map((_, i) => operand(ctx, n, i));
   switch (callee) {
+    case "__return":
+      ctx.halted = true;
+      return args[0] ?? { kind: "null" };
     case "__ternary":
       return asBool(args[0] ?? { kind: "null" })
         ? (args[1] ?? { kind: "null" })

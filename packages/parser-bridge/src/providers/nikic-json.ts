@@ -190,12 +190,15 @@ function convertTopLevelClassToFunctionDecls(
       convertParam(file, p),
     );
 
+    const methodAttributes = convertNikicAttributes(file, mb.attrGroups);
+
     out.push({
       kind: "FunctionDecl",
       name: `${fqn}::${mname}`,
       params,
       returnHint: typeHint(mb.returnType as unknown),
       body: pst,
+      ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
       pos: stmtPos(file, mb),
     });
   }

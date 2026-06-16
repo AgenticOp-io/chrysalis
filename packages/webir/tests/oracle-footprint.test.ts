@@ -25,6 +25,7 @@ describe("computeOracleFootprint", () => {
     expect(fp.tapeTablesHint).toEqual([]);
     expect(fp.writeTablesHint).toEqual([]);
     expect(fp.totalHoleCount).toBe(0);
+    expect(fp.totalPhpAttributedCallCount).toBe(0);
     expect(fp.hydrationIndex).toBe(0);
   });
 
@@ -205,5 +206,36 @@ describe("computeOracleFootprint", () => {
     expect(fp.routes).toHaveLength(1);
     expect(fp.routes[0]!.dynamicNewCount).toBe(1);
     expect(fp.hydrationIndex).toBeGreaterThan(0);
+  });
+
+  test("counts data.call nodes with phpAttributes", () => {
+    const b = new ModuleBuilder({ sourceApp: "demo" });
+    const d = dataDialect.builders(b);
+    const r = webRequest.builders(b);
+    const origin = phpLocator("a.php", 1, 0);
+    const call = d.call({
+      callee: "tagged",
+      args: [],
+      phpAttributes: [{ name: "\\Chrysalis\\Probe", args: ["lib"] }],
+      type: T.int,
+      origin,
+    });
+    const body = d.block({ statements: [call], origin });
+    const handler = r.handler({
+      attrs: { name: "h", input: T.record({}), output: T.string },
+      body,
+      effects: [],
+      origin,
+    });
+    const route = r.route({
+      attrs: { method: "GET", path: "/tagged", pathParams: [] },
+      handler,
+      origin,
+    });
+    b.addRoot(route);
+    const fp = computeOracleFootprint(b.finish());
+    expect(fp.routes).toHaveLength(1);
+    expect(fp.routes[0]!.phpAttributedCallCount).toBe(1);
+    expect(fp.totalPhpAttributedCallCount).toBe(1);
   });
 });
