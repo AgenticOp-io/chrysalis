@@ -133,7 +133,7 @@ function printHelp(): void {
     "Optional default: CHRYSALIS_PARSER_PROVIDER=glayzzle|nikic (flag still wins)\n",
   );
   console.log(
-    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file / --ingest-checkpoint-file / --ingest-resume-checkpoint / --ingest-dedupe-structural-subgraphs / --ingest-dedupe-structural-subgraphs-ignore-origin (DESIGN D283) / --ingest-lift-shared-helpers (B2) / --ingest-lift-shared-helpers-semantic (B3) / --ingest-embed-shared-helper-bodies (B4), verify|repair|insight|status --ingest-progress-file (verify|status need --project for progress+checkpoint); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
+    "Scale-out (V2): verify --shard-index/--shard-count, verify-merge, corpus-merge, ingest|emit --shard-* / --merge-all-shards / --ingest-cache / --ingest-progress-file / --ingest-checkpoint-file / --ingest-resume-checkpoint / --ingest-dedupe-structural-subgraphs / --ingest-dedupe-structural-subgraphs-ignore-origin (DESIGN D283) / --ingest-lift-shared-helpers (B2) / --ingest-lift-shared-helpers-respect-origin (B2) / --ingest-lift-shared-helpers-semantic (B3) / --ingest-embed-shared-helper-bodies (B4), verify|repair|insight|status --ingest-progress-file (verify|status need --project for progress+checkpoint); emit --emit-handler-fingerprints, --emit-runtime-facade, --emit-shared-runtime-imports (not with --emit-handler-import-barrel), --emit-dedupe-identical-handler-bodies (DESIGN D282); PHP Redis session smoke: pnpm run test:oracle-php-session-redis; fleet: scripts/aggregate-chimera-operator-snapshots.mjs, scripts/aggregate-verify-summaries.mjs\n",
   );
   console.log("\nRead DESIGN.md before contributing.");
 }
@@ -1333,6 +1333,9 @@ async function cmdVerify(args: string[]): Promise<number> {
         ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
         : {}),
       ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
+      ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
+        ? { liftSharedHelpersIgnoreOrigin: false as const }
+        : {}),
       ...(flags["ingest-lift-shared-helpers-semantic"] === true
         ? { liftSharedHelpersSemantic: true as const }
         : {}),
@@ -1674,6 +1677,9 @@ async function cmdRepair(args: string[]): Promise<number> {
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
     ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
+    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
+      ? { liftSharedHelpersIgnoreOrigin: false as const }
+      : {}),
     ...(flags["ingest-lift-shared-helpers-semantic"] === true
       ? { liftSharedHelpersSemantic: true as const }
       : {}),
@@ -2304,6 +2310,9 @@ async function cmdInsight(args: string[]): Promise<number> {
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
     ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
+    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
+      ? { liftSharedHelpersIgnoreOrigin: false as const }
+      : {}),
     ...(flags["ingest-lift-shared-helpers-semantic"] === true
       ? { liftSharedHelpersSemantic: true as const }
       : {}),
@@ -2493,6 +2502,9 @@ async function cmdRewrite(args: string[]): Promise<number> {
       ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
       : {}),
     ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
+    ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
+      ? { liftSharedHelpersIgnoreOrigin: false as const }
+      : {}),
     ...(flags["ingest-lift-shared-helpers-semantic"] === true
       ? { liftSharedHelpersSemantic: true as const }
       : {}),
@@ -3249,6 +3261,9 @@ async function cmdStatus(args: string[]): Promise<number> {
           ? { dedupeStructuralSubgraphsIgnoreOrigin: true as const }
           : {}),
         ...(flags["ingest-lift-shared-helpers"] === true ? { liftSharedHelpers: true as const } : {}),
+        ...(flags["ingest-lift-shared-helpers-respect-origin"] === true
+          ? { liftSharedHelpersIgnoreOrigin: false as const }
+          : {}),
         ...(flags["ingest-lift-shared-helpers-semantic"] === true
           ? { liftSharedHelpersSemantic: true as const }
           : {}),

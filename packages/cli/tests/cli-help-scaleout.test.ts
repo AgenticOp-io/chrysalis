@@ -23,6 +23,7 @@ describe("chrysalis --help", () => {
     expect(r.stdout).toContain("--ingest-dedupe-structural-subgraphs");
     expect(r.stdout).toContain("--ingest-dedupe-structural-subgraphs-ignore-origin");
     expect(r.stdout).toContain("--ingest-lift-shared-helpers");
+    expect(r.stdout).toContain("--ingest-lift-shared-helpers-respect-origin");
     expect(r.stdout).toContain("--ingest-lift-shared-helpers-semantic");
     expect(r.stdout).toContain("--ingest-embed-shared-helper-bodies");
     expect(r.stdout).toContain("--merge-all-shards");
