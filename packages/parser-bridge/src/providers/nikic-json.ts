@@ -635,7 +635,7 @@ function argsFromNikic(
   for (const rawArg of raw) {
     if (!isNikicDict(rawArg)) continue;
     if (rawArg.nodeType === "VariadicPlaceholder") {
-      values.push(unknownExpr(file, rawArg, "variadic placeholder argument"));
+      values.push({ kind: "VariadicPlaceholder", pos: stmtPos(file, rawArg) });
       names.push(null);
       continue;
     }

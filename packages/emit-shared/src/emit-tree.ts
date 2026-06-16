@@ -444,6 +444,15 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       }
       return `((${paramParts.join(", ")}) => (${body}))`;
     }
+    case "__first_class_callable": {
+      const nameExpr = args[0] ?? '""';
+      const nameMatch = /^"(.+)"$/.exec(nameExpr.trim());
+      const fn = nameMatch?.[1] ?? nameExpr;
+      if (fn === "strlen") {
+        return `(($__chrysalisArg: unknown) => strlen(String($__chrysalisArg)))`;
+      }
+      return `((__hole(${stringLit(`first-class-callable:${fn}`)}) as any)`;
+    }
     case "__match": {
       const subject = args[0] ?? "null";
       const armCount = Number(args[1] ?? "0");
@@ -556,6 +565,9 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
         ? `phpDynamicNew(${args[0]}, ${rest.join(", ")})`
         : `phpDynamicNew(${args[0]})`;
     }
+  }
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(callee)) {
+    return `${callee}(${args.join(", ")})`;
   }
   const baseReason = `unresolved call: ${callee}`;
   const reason = isAuthBoundaryCallee(callee) ? `auth:${baseReason}` : baseReason;

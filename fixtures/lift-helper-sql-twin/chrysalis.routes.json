@@ -1,0 +1,17 @@
+{
+  "app": "lift-helper-sql-twin",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/alpha",
+      "file": "pages/show_alpha.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/beta",
+      "file": "pages/show_beta.php",
+      "pathParams": []
+    }
+  ]
+}

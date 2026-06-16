@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** IR helper semantic lifting smoke — gap-probe (B3) + param-twin (B5 v0). */
+/** IR helper semantic lifting smoke — gap-probe (B3) + param-twin (B5 v0) + sql-twin (B5.3 v2). */
 import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
@@ -30,6 +30,7 @@ function fixtureRel(absPath) {
 const FIXTURES = [
   { id: "gap-probe", path: join(scriptRoot, "fixtures/lift-helper-gap-probe") },
   { id: "param-twin", path: join(scriptRoot, "fixtures/lift-helper-param-twin") },
+  { id: "sql-twin", path: join(scriptRoot, "fixtures/lift-helper-sql-twin") },
 ];
 
 function ingestFixture(fixturePath) {

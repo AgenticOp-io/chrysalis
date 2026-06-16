@@ -720,7 +720,22 @@ function convertCall(
   if (factoryQuery !== undefined) {
     return factoryQuery;
   }
+  const callOrigin = loc(ctx, e.pos);
   const name = tryCallCalleeLabel(e);
+  if (
+    name !== undefined &&
+    e.args.length === 1 &&
+    e.args[0]?.kind === "VariadicPlaceholder"
+  ) {
+    return ctx.data.call({
+      callee: "__first_class_callable",
+      args: [
+        ctx.data.literal({ value: name, type: T.string, origin: callOrigin }),
+      ],
+      type: T.unknown,
+      origin: callOrigin,
+    });
+  }
   if (name === "pdo_item_count_row" && e.args.length === 0) {
     const sql = "SELECT COUNT(*) AS c FROM items";
     const tables = guessTables(sql);
@@ -735,6 +750,15 @@ function convertCall(
     });
   }
   if (name === undefined) {
+    if (e.callee.kind === "variable") {
+      const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
+      return ctx.data.call({
+        callee: e.callee.name,
+        args,
+        type: T.unknown,
+        origin: callOrigin,
+      });
+    }
     if (
       e.callee.kind === "expr" &&
       e.callee.expr.kind === "PropertyFetch" &&
@@ -745,7 +769,6 @@ function convertCall(
     return hole(ctx, `call:${e.callee.kind}`, e.pos);
   }
   const calleePath = normalizeStaticCalleePath(name);
-  const callOrigin = loc(ctx, e.pos);
   // Flagship `laravel-min` / `laravel-full` probe stubs (D190): deterministic
   // lowering so emit does not treat these as unresolved auth-boundary calls.
   if (calleePath === "Illuminate\\Support\\Facades\\Gate::allows" && e.args.length >= 1) {

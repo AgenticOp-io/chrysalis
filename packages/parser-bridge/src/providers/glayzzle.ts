@@ -524,6 +524,8 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
         right: convertExpression(file, node.right as AnyNode),
         pos: pos(file, node),
       };
+    case "variadicplaceholder":
+      return { kind: "VariadicPlaceholder", pos: pos(file, node) };
     case "call": {
       const what = node.what as AnyNode;
       const args = Array.isArray(node.arguments) ? (node.arguments as AnyNode[]) : [];

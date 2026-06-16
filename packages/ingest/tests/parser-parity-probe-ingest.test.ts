@@ -8,7 +8,13 @@ import { convertPhpStatementsToBlock } from "../src/convert.js";
 const FIXTURE = resolve(dirname(fileURLToPath(import.meta.url)), "../../../fixtures/parser-parity-probe");
 
 describe("ingest: parser-parity-probe arrow/match lowering (G2280)", () => {
-  for (const page of ["arrow_fn.php", "match_expr.php", "named_args.php", "attributes.php"] as const) {
+  for (const page of [
+    "arrow_fn.php",
+    "match_expr.php",
+    "named_args.php",
+    "attributes.php",
+    "first_class_callable.php",
+  ] as const) {
     it(`lowers ${page} without expr holes`, async () => {
       const ast = await parseFile(resolve(FIXTURE, "pages", page));
       const builder = new ModuleBuilder({ sourceApp: "parity", chrysalisVersion: "1.0.0" });

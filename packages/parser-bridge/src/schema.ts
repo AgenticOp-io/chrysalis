@@ -7,7 +7,7 @@
  * regenerating golden fixtures.
  */
 
-export const SCHEMA_VERSION = "0.1.4";
+export const SCHEMA_VERSION = "0.1.5";
 
 export type Pos = {
   readonly file: string;
@@ -61,6 +61,7 @@ export type PhpExpr =
   | PhpNewDynamic
   | PhpArrowFunction
   | PhpMatch
+  | PhpVariadicPlaceholder
   | PhpExprUnknown;
 
 export interface PhpInlineHtml {
@@ -298,6 +299,12 @@ export interface PhpMatch {
   readonly kind: "Match";
   readonly subject: PhpExpr;
   readonly arms: ReadonlyArray<PhpMatchArm>;
+  readonly pos: Pos;
+}
+
+/** PHP 8.1+ first-class callable `strlen(...)`. */
+export interface PhpVariadicPlaceholder {
+  readonly kind: "VariadicPlaceholder";
   readonly pos: Pos;
 }
 

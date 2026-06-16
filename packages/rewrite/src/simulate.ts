@@ -535,6 +535,10 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       const body = args[args.length - 1] ?? { kind: "null" };
       return body;
     }
+    case "__first_class_callable": {
+      const fnName = stringify(args[0] ?? { kind: "null" });
+      return { kind: "symbol", tag: `callable:${fnName}` };
+    }
     case "__match": {
       const subject = args[0] ?? { kind: "null" };
       const armCount = asNum(args[1] ?? { kind: "null" });
@@ -746,11 +750,17 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       if (allowed.length === 0) return { kind: "str", value: "" };
       return allowed.includes(rawS) ? { kind: "str", value: rawS } : { kind: "str", value: "" };
     }
-    default:
+    default: {
+      const bound = ctx.env.get(callee);
+      if (bound?.kind === "symbol" && bound.tag.startsWith("callable:")) {
+        const inner = bound.tag.slice("callable:".length);
+        return evalCall(ctx, { ...n, attrs: { ...n.attrs, callee: inner } } as NodeBase);
+      }
       // Unknown call — record the opaque result so downstream diffs
       // don't silently succeed.
       ctx.errors.push({ reason: `unsupported call ${callee}`, nodeId: n.id, op: "data.call" });
       return { kind: "symbol", tag: `call:${callee}` };
+    }
   }
 }
 

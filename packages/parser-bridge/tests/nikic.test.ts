@@ -313,6 +313,14 @@ $maybe = null ?? "fallback";
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe first_class_callable.php (positions stripped) (G2281)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/first_class_callable.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "first_class_callable.php");
+    const nk = await parseSource(src, "first_class_callable.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("matches glayzzle on parser-parity-probe invokable_controller.php (positions stripped) (G133)", async () => {
     const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/invokable_controller.php");
     const src = readFileSync(p, "utf8");

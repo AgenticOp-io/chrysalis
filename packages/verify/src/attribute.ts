@@ -72,6 +72,7 @@ function nodeMatchesDivergenceKind(n: NodeBase, kind: DivergenceKind): boolean {
           c !== "__ternary" &&
           c !== "__arrow_fn" &&
           c !== "__match" &&
+          c !== "__first_class_callable" &&
           !c.startsWith("__cast_") &&
           !c.startsWith("__array") &&
           !c.startsWith("__return") &&

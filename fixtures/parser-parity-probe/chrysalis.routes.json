@@ -54,6 +54,12 @@
       "path": "/attributes",
       "file": "pages/attributes.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/first-class-callable",
+      "file": "pages/first_class_callable.php",
+      "pathParams": []
     }
   ]
 }
