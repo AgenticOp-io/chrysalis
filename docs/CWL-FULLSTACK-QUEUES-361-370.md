@@ -1,6 +1,6 @@
 # Full-stack CWL — queues 361–370 (Phase R–U replay)
 
-> **Status:** queues **366–370** complete (2026-06-17)  
+> **Status:** queues **361–370** complete (2026-06-17); ladder continues in **`docs/CWL-FULLSTACK-QUEUES-371-380.md`**  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §12; **`ROADMAP.md` G4957+**  
 > **Prerequisite:** queue 360 complete (schema **433**)
 

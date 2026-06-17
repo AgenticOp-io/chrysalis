@@ -14,7 +14,7 @@ demo and measurable numbers, not a pile of abstractions.
   milestones (`V2-M1`-`V2-M6`) are complete; see `CHANGELOG.md` and
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
-- **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" and **Hub depth** (`docs/CWL-FULLSTACK-POST-110-PROGRAM.md`).
+- **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" (post-110 authoring replay program **closed** at queue **437** / schema **510**).
 - **Recently shipped:** **G4957–G5671** — queues **366–437** Phase R–U post-294..365 replay closes full-stack ladder (schema **510**). **G4757–G4951** queues **346–365**. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
