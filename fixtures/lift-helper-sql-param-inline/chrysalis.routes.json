@@ -78,6 +78,12 @@
       "path": "/omicron",
       "file": "pages/show_omicron.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/pi",
+      "file": "pages/show_pi.php",
+      "pathParams": []
     }
   ]
 }

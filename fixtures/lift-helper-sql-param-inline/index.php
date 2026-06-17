@@ -14,6 +14,7 @@ require_once __DIR__ . '/lib/sql_param_strval.php';
 require_once __DIR__ . '/lib/sql_param_cast_string.php';
 require_once __DIR__ . '/lib/sql_param_bool.php';
 require_once __DIR__ . '/lib/sql_param_float.php';
+require_once __DIR__ . '/lib/sql_param_trim.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -68,6 +69,10 @@ if ($method === 'GET' && $path === '/xi') {
 }
 if ($method === 'GET' && $path === '/omicron') {
     require __DIR__ . '/pages/show_omicron.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/pi') {
+    require __DIR__ . '/pages/show_pi.php';
     exit;
 }
 

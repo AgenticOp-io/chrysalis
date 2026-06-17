@@ -645,6 +645,38 @@ $maybe = null ?? "fallback";
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe foreach_key.php (positions stripped) (G2372)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/foreach_key.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "foreach_key.php");
+    const nk = await parseSource(src, "foreach_key.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe arrow_typed.php (positions stripped) (G2373)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/arrow_typed.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "arrow_typed.php");
+    const nk = await parseSource(src, "arrow_typed.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe spaceship.php (positions stripped) (G2374)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/spaceship.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "spaceship.php");
+    const nk = await parseSource(src, "spaceship.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe pow_expr.php (positions stripped) (G2375)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/pow_expr.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "pow_expr.php");
+    const nk = await parseSource(src, "pow_expr.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("maps glayzzle nullable parameter flag to pipe-null hints (G2350)", () => {
     const src = `<?php
 function accept_null(?int $value): ?int { return $value; }
