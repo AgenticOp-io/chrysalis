@@ -9,6 +9,7 @@ require_once __DIR__ . '/lib/sql_param_prelude.php';
 require_once __DIR__ . '/lib/sql_param_sideeffect.php';
 require_once __DIR__ . '/lib/sql_param_literal.php';
 require_once __DIR__ . '/lib/sql_param_cast.php';
+require_once __DIR__ . '/lib/sql_param_coalesce.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -43,6 +44,10 @@ if ($method === 'GET' && $path === '/iota') {
 }
 if ($method === 'GET' && $path === '/kappa') {
     require __DIR__ . '/pages/show_kappa.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/lambda') {
+    require __DIR__ . '/pages/show_lambda.php';
     exit;
 }
 

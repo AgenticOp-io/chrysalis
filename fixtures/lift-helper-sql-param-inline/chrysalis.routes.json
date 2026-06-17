@@ -48,6 +48,12 @@
       "path": "/kappa",
       "file": "pages/show_kappa.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/lambda",
+      "file": "pages/show_lambda.php",
+      "pathParams": []
     }
   ]
 }

@@ -505,6 +505,28 @@ $maybe = null ?? "fallback";
     const gz = parseSourceWithGlayzzle(src, "class_const.php");
     const nk = await parseSource(src, "class_const.php", { provider: "nikic" });
     expect(stripPos(nk)).toEqual(stripPos(gz));
+    const classDecl = nk.statements.find(
+      (s): s is Extract<(typeof nk.statements)[number], { kind: "ClassDecl" }> =>
+        s.kind === "ClassDecl" && s.name === "Box",
+    );
+    expect(classDecl?.constants?.map((c) => c.name)).toEqual(["TAG"]);
+    expect(classDecl?.constants?.[0]?.value?.kind).toBe("Literal");
+  });
+
+  run("matches glayzzle on parser-parity-probe clone_expr.php (positions stripped) (G2346)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/clone_expr.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "clone_expr.php");
+    const nk = await parseSource(src, "clone_expr.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe coalesce_return.php (positions stripped) (G2347)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/coalesce_return.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "coalesce_return.php");
+    const nk = await parseSource(src, "coalesce_return.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
   run("maps nikic union type hints to pipe syntax (G2301)", async () => {

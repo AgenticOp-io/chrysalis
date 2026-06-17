@@ -3573,6 +3573,12 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-17 — D2343** **Lane A class const + static method parity page (G2343).** **`class_const.php`**. **DESIGN §3** unchanged.
 - **2026-06-17 — D2344** **B5.5 v9 cast-formal lib helper inlining (G2344).** **`resolveInlineAssignRhs`** unwraps **`__cast_int`** / **`intval`** on formal assign; **`sql_param_cast.php`** + **`/kappa`**. **DESIGN §3** unchanged.
 
+- **2026-06-17 — D2345** **Lane A ClassDecl.constants metadata (G2345).** **`PhpClassConstant`** on **`ClassDecl`**; glayzzle + nikic mappers; **`class_const.php`** asserts **`TAG`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2346** **Lane A clone expression parity (G2346).** nikic **`Expr_Clone`** → **`unhandled expr: clone`**; **`clone_expr.php`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2347** **Lane A coalesce return parity page (G2347).** **`coalesce_return.php`** (nikic **`Coalesce`** normalized in parity tests). **DESIGN §3** unchanged.
+- **2026-06-17 — D2348** **B5.5 v10 coalesce formal ?? literal inlining (G2348).** **`localToCoalesce`** in **`tryExtractInlineQuery`**; **`sql_param_coalesce.php`** + **`/lambda`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2349** **B5.5 param-inline replay corpus expansion (G2349).** Oracle drive + replay verify through **`/iota`**, **`/kappa`**, **`/lambda`** (9 handlers). **DESIGN §3** unchanged.
+
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 
 - **2026-06-02 — D1789** **CWL authoring bootstrap queues 64–70 (G1789–G1858).** Gates **`runCwlFormatterLintGate`**, **`runProjectToCwlMandatoryGate`**, **`runFullstackCwlScopeRfcGate`**, **`runNodeExpressOracleFlagshipGate`**, **`runPost60AuthoringCompositeGate`**, **`runAuthoringEmitVerifyMegaGate`**, **`runAuthoringGraduationLockGate`**; batches **v64–v70**; hub-completion **schema 143**. **`skipPriorChain`** on v64–v69 runs **gate-only** (not deep post-composites) for fast CI; v70 runs graduation lock. Svelte origin roundtrip uses **`fixtures/hub-gold-svelte-kit`**. GCE runs **v60 + v70** skip-prior smokes. **DESIGN §3:** verify-gated; no production SQL/session claims.

@@ -137,6 +137,20 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
   const members = Array.isArray(classNode.body) ? (classNode.body as AnyNode[]) : [];
   const out: PhpNode[] = [];
   const properties: import("../schema.js").PhpClassProperty[] = [];
+  const constants: import("../schema.js").PhpClassConstant[] = [];
+
+  for (const member of members) {
+    if (member.kind !== "classconstant") continue;
+    const constantsRaw = Array.isArray(member.constants) ? (member.constants as AnyNode[]) : [];
+    for (const c of constantsRaw) {
+      const cname = String((c.name as AnyNode | undefined)?.name ?? c.name ?? "");
+      if (!cname) continue;
+      constants.push({
+        name: cname,
+        value: c.value ? convertExpression(file, c.value as AnyNode) : null,
+      });
+    }
+  }
 
   for (const member of members) {
     if (member.kind !== "propertystatement" && member.kind !== "property") continue;
@@ -168,7 +182,7 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
     }
   }
 
-  if (properties.length > 0) {
+  if (properties.length > 0 || constants.length > 0) {
     const classMeta = {
       ...(Boolean(classNode.isReadonly) ? { readonly: true as const } : {}),
       ...(Boolean(classNode.isAbstract) ? { abstract: true as const } : {}),
@@ -178,6 +192,7 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
       kind: "ClassDecl",
       name: classFqn,
       properties,
+      ...(constants.length > 0 ? { constants } : {}),
       ...classMeta,
       pos: pos(file, classNode),
     });
@@ -192,6 +207,7 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
         kind: "ClassDecl",
         name: classFqn,
         properties,
+        ...(constants.length > 0 ? { constants } : {}),
         ...classMeta,
         pos: pos(file, classNode),
       });

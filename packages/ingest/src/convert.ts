@@ -329,7 +329,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | undefined {
   const valueNode = ctx.m.get(valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -341,6 +341,20 @@ function resolveInlineAssignRhs(
       localToFormal.get(srcName);
     if (formal === undefined) return undefined;
     return { kind: "formal", formal };
+  }
+  if (valueNode.op === "binop" && String(valueNode.attrs.operator) === "??" && valueNode.operands.length === 2) {
+    const left = ctx.m.get(valueNode.operands[0]!);
+    const literalId = valueNode.operands[1]!;
+    const right = ctx.m.get(literalId);
+    if (left?.op === "param" && right?.op === "literal") {
+      const srcName = String(left.attrs.name ?? "");
+      const formal =
+        matchFormalParam(srcName, paramNames) ??
+        localToFormal.get(phpVarKey(srcName)) ??
+        localToFormal.get(srcName);
+      if (formal === undefined) return undefined;
+      return { kind: "coalesce", formal, literalId };
+    }
   }
   if (valueNode.op === "call") {
     const callee = String(valueNode.attrs.callee ?? "");
@@ -359,6 +373,7 @@ function tryExtractInlineQuery(
   queryId: NodeId;
   localToArg: ReadonlyMap<string, string>;
   localToLiteral: ReadonlyMap<string, NodeId>;
+  localToCoalesce: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId }>;
 } | undefined {
   const body = ctx.m.get(bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
@@ -367,10 +382,11 @@ function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(ctx, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToArg: new Map(), localToLiteral: new Map() };
+    return { queryId, localToArg: new Map(), localToLiteral: new Map(), localToCoalesce: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
+  const localToCoalesce = new Map<string, { formal: string; literalId: NodeId }>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = ctx.m.get(stmtId);
@@ -386,6 +402,10 @@ function tryExtractInlineQuery(
         localToLiteral.set(localName, resolved.id);
         continue;
       }
+      if (resolved.kind === "coalesce") {
+        localToCoalesce.set(localName, { formal: resolved.formal, literalId: resolved.literalId });
+        continue;
+      }
       localToFormal.set(localName, resolved.formal);
       continue;
     }
@@ -394,7 +414,7 @@ function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(ctx, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToArg: localToFormal, localToLiteral };
+  return { queryId, localToArg: localToFormal, localToLiteral, localToCoalesce };
 }
 
 function walkSubgraphNodeIds(ctx: Ctx, rootId: NodeId, visit: (id: NodeId) => void, seen = new Set<NodeId>()): void {
@@ -441,6 +461,7 @@ function buildQueryParamReplacements(
   argNodeIds: readonly NodeId[],
   localToFormal: ReadonlyMap<string, string>,
   localToLiteral: ReadonlyMap<string, NodeId>,
+  localToCoalesce: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId }>,
 ): ReadonlyMap<NodeId, NodeId> | undefined {
   const formalToArg = new Map<string, NodeId>();
   for (let i = 0; i < paramNames.length; i++) {
@@ -460,6 +481,20 @@ function buildQueryParamReplacements(
   for (const [local, literalId] of localToLiteral) {
     nameToArg.set(local, literalId);
     nameToArg.set(phpVarKey(local), literalId);
+  }
+  for (const [local, { formal, literalId }] of localToCoalesce) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const coalesceId = ctx.data.binOp({
+      operator: "??",
+      left: argId,
+      right: literalId,
+      type: T.unknown,
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, coalesceId);
+    nameToArg.set(phpVarKey(local), coalesceId);
   }
   const replacements = new Map<NodeId, NodeId>();
   walkSubgraphNodeIds(ctx, queryId, (id) => {
@@ -495,6 +530,7 @@ function tryInlineLibHelperCall(
     argNodeIds,
     extracted.localToArg,
     extracted.localToLiteral,
+    extracted.localToCoalesce,
   );
   if (replacements === undefined) return undefined;
   return cloneSubgraphWithReplacements(ctx, extracted.queryId, replacements);

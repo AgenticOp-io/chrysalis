@@ -62,7 +62,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | undefined {
   const valueNode = getNode(m, valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -74,6 +74,20 @@ function resolveInlineAssignRhs(
       localToFormal.get(srcName);
     if (formal === undefined) return undefined;
     return { kind: "formal", formal };
+  }
+  if (valueNode.op === "binop" && String(valueNode.attrs.operator) === "??" && valueNode.operands.length === 2) {
+    const left = getNode(m, valueNode.operands[0]!);
+    const literalId = valueNode.operands[1]!;
+    const right = getNode(m, literalId);
+    if (left?.op === "param" && right?.op === "literal") {
+      const srcName = String(left.attrs.name ?? "");
+      const formal =
+        matchFormalParam(srcName, paramNames) ??
+        localToFormal.get(phpVarKey(srcName)) ??
+        localToFormal.get(srcName);
+      if (formal === undefined) return undefined;
+      return { kind: "coalesce", formal, literalId };
+    }
   }
   if (valueNode.op === "call") {
     const callee = String(valueNode.attrs.callee ?? "");
@@ -92,6 +106,7 @@ export function tryExtractInlineQuery(
   queryId: NodeId;
   localToFormal: ReadonlyMap<string, string>;
   localToLiteral: ReadonlyMap<string, NodeId>;
+  localToCoalesce: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId }>;
 } | undefined {
   const body = getNode(m, bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
@@ -100,10 +115,11 @@ export function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(m, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToFormal: new Map(), localToLiteral: new Map() };
+    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
+  const localToCoalesce = new Map<string, { formal: string; literalId: NodeId }>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = getNode(m, stmtId);
@@ -119,6 +135,10 @@ export function tryExtractInlineQuery(
         localToLiteral.set(localName, resolved.id);
         continue;
       }
+      if (resolved.kind === "coalesce") {
+        localToCoalesce.set(localName, { formal: resolved.formal, literalId: resolved.literalId });
+        continue;
+      }
       localToFormal.set(localName, resolved.formal);
       continue;
     }
@@ -127,7 +147,7 @@ export function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(m, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToFormal, localToLiteral };
+  return { queryId, localToFormal, localToLiteral, localToCoalesce };
 }
 
 export function resolveHelperBodyEntry(
@@ -219,6 +239,16 @@ export function tryEmitInlineLibHelperCall(
     if (expr === undefined) return undefined;
     subst[local] = expr;
     subst[phpVarKey(local)] = expr;
+  }
+  for (const [local, { formal, literalId }] of extracted.localToCoalesce) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    const lit = getNode(ctx.m, literalId);
+    if (formalExpr === undefined || !lit) return undefined;
+    const litExpr = literalToTsExpr(lit);
+    if (litExpr === undefined) return undefined;
+    const coalesced = `(${formalExpr} ?? ${litExpr})`;
+    subst[local] = coalesced;
+    subst[phpVarKey(local)] = coalesced;
   }
   const q = getNode(ctx.m, extracted.queryId);
   if (!q || q.op !== "db.query") return undefined;

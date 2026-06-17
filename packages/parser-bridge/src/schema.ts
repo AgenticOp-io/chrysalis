@@ -140,11 +140,18 @@ export interface PhpClassProperty {
   readonly static?: boolean;
 }
 
+/** PHP class constant (`public const TAG = 'x';`). */
+export interface PhpClassConstant {
+  readonly name: string;
+  readonly value: PhpExpr | null;
+}
+
 /** PHP class metadata for Lane A parity (methods still hoist to FunctionDecl). */
 export interface PhpClassDecl {
   readonly kind: "ClassDecl";
   readonly name: string;
   readonly properties: ReadonlyArray<PhpClassProperty>;
+  readonly constants?: ReadonlyArray<PhpClassConstant>;
   /** PHP 8.2+ `readonly class` modifier. */
   readonly readonly?: boolean;
   /** PHP `abstract class` modifier. */

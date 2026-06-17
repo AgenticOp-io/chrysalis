@@ -216,6 +216,21 @@ function convertTopLevelClassToFunctionDecls(
   const body = Array.isArray(classNode.stmts) ? (classNode.stmts as unknown[]) : [];
   const out: PhpNode[] = [];
   const properties: import("../schema.js").PhpClassProperty[] = [];
+  const constants: import("../schema.js").PhpClassConstant[] = [];
+
+  for (const mb of body) {
+    if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassConst") continue;
+    const constsRaw = Array.isArray(mb.consts) ? mb.consts : [];
+    for (const c of constsRaw) {
+      if (!isNikicDict(c) || c.nodeType !== "Const") continue;
+      const cname = identifierText(c.name) ?? "";
+      if (!cname) continue;
+      constants.push({
+        name: cname,
+        value: c.value !== undefined && c.value !== null ? mustExpr(file, c.value as unknown) : null,
+      });
+    }
+  }
 
   for (const mb of body) {
     if (!isNikicDict(mb) || mb.nodeType !== "Stmt_Property") continue;
@@ -258,11 +273,12 @@ function convertTopLevelClassToFunctionDecls(
     ...((classFlags & PHP_CLASS_FINAL) !== 0 ? { final: true as const } : {}),
     ...((classFlags & PHP_CLASS_ABSTRACT) !== 0 ? { abstract: true as const } : {}),
   };
-  if (properties.length > 0 || Object.keys(classMeta).length > 0) {
+  if (properties.length > 0 || constants.length > 0 || Object.keys(classMeta).length > 0) {
     out.push({
       kind: "ClassDecl",
       name: fqn,
       properties,
+      ...(constants.length > 0 ? { constants } : {}),
       ...classMeta,
       pos: stmtPos(file, classNode),
     });
@@ -1296,7 +1312,7 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
     }
 
     case "Expr_Clone":
-      return unknownExpr(file, raw, "Expr_Clone");
+      return unknownExpr(file, raw, "unhandled expr: clone");
 
     case "Expr_List":
       return unknownExpr(file, raw, "unhandled expr: list");
