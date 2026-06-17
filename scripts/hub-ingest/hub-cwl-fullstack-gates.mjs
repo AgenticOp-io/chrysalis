@@ -1713,3 +1713,29 @@ export async function runPost112GraduationGate(opts = {}) {
   return { ok: post112.ok === true && post111.ok === true, post112, post111 };
 }
 
+/** G2427 - post-112 runtime production search + dual-origin CWL export depth. */
+export async function runPost113CompositeGate(opts = {}) {
+  const productionSearch = await runProductionSearchGate(opts);
+  const nextjsExport = await runNextjsSearchParamsExportGate();
+  const svelteExport = await runSvelteSearchQueryExportGate();
+  const svelteDeep = await runSvelteDeepCwlExportGate(opts);
+  const nextjsDeep = await runNextjsDeepCwlExportGate(opts);
+  const gates = [productionSearch, nextjsExport, svelteExport, svelteDeep, nextjsDeep];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    productionSearch,
+    nextjsExport,
+    svelteExport,
+    svelteDeep,
+    nextjsDeep,
+  };
+}
+
+export async function runPost113GraduationGate(opts = {}) {
+  const post113 = await runPost113CompositeGate(opts);
+  const post112 = await runPost112GraduationGate(opts);
+  return { ok: post113.ok === true && post112.ok === true, post113, post112 };
+}
+

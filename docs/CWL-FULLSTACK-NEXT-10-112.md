@@ -13,7 +13,9 @@
 | 5 | **G2421** | Vitest + `ci-gates-hub-completion` v112 |
 | 6 | **G2422** | `hub:cwl-authoring-batch-v112-smoke` script |
 | 7 | **G2423** | ROADMAP + DESIGN lock queue 112 |
-| 8–10 | **G2424–G2426** | Reserved — queue 113 (runtime production search reinforcement, CWL export depth) |
+| 8–10 | **G2424–G2426** | Moved to queue **113** |
+
+Queue **113** — see **`docs/CWL-FULLSTACK-NEXT-10-113.md`**.
 
 **Batch:** `hub:cwl-authoring-batch-v112-smoke` · **schema:** 185
 
