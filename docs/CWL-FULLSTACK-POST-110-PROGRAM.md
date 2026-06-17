@@ -1,6 +1,6 @@
 # Post–queue 110 program (locked default build)
 
-> **Status:** **Phase C active (2026-06-17)** — queue **111** chartered; Phase A+B **complete**  
+> **Status:** **Closed (2026-06-17)** — queues **111–437** complete (schema **510**); Phase A+B+C **complete**  
 > **Prerequisite:** **G1159–G2258 complete** (CWL full-stack queues 6–110, hub-completion schema **183**)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §12; hub verify-gaps months **26–30** (**closed**, schema **74**)
 
@@ -37,7 +37,7 @@ Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated
 
 ---
 
-## Phase C — Queue 111+ (active 2026-06-17)
+## Phase C — Queue 111–437 (**closed 2026-06-17**)
 
 | Lane | Policy |
 | --- | --- |
@@ -52,7 +52,10 @@ Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated
 | Queue **325** | Phase O lock — **`docs/CWL-FULLSTACK-NEXT-10-325.md`** |
 | Queue **345** | Phase P lock — **`docs/CWL-FULLSTACK-NEXT-10-345.md`** |
 | Queue **365** | Phase Q lock — **`docs/CWL-FULLSTACK-NEXT-10-365.md`** |
-| Queue **366+** | Requires charter in **`docs/CWL-FULLSTACK-QUEUES-361-370.md`** |
+| Queue **385** | Phase R lock — **`docs/CWL-FULLSTACK-NEXT-10-385.md`** |
+| Queue **405** | Phase S lock — **`docs/CWL-FULLSTACK-NEXT-10-405.md`** |
+| Queue **425** | Phase T lock — **`docs/CWL-FULLSTACK-NEXT-10-425.md`** |
+| Queue **437** | Full-stack ladder complete — **`docs/CWL-FULLSTACK-NEXT-10-437.md`** |
 | Laravel boring reliability | **Paused** until plan amendment |
 | Matrix gold for marketing | **Paused** |
 

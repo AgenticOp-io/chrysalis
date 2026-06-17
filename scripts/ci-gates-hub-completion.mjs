@@ -394,9 +394,81 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 435 &&
     s.schemaVersion !== 436 &&
     s.schemaVersion !== 437 &&
-    s.schemaVersion !== 438
+    s.schemaVersion !== 438 &&
+    s.schemaVersion !== 439 &&
+    s.schemaVersion !== 440 &&
+    s.schemaVersion !== 441 &&
+    s.schemaVersion !== 442 &&
+    s.schemaVersion !== 443 &&
+    s.schemaVersion !== 444 &&
+    s.schemaVersion !== 445 &&
+    s.schemaVersion !== 446 &&
+    s.schemaVersion !== 447 &&
+    s.schemaVersion !== 448 &&
+    s.schemaVersion !== 449 &&
+    s.schemaVersion !== 450 &&
+    s.schemaVersion !== 451 &&
+    s.schemaVersion !== 452 &&
+    s.schemaVersion !== 453 &&
+    s.schemaVersion !== 454 &&
+    s.schemaVersion !== 455 &&
+    s.schemaVersion !== 456 &&
+    s.schemaVersion !== 457 &&
+    s.schemaVersion !== 458 &&
+    s.schemaVersion !== 459 &&
+    s.schemaVersion !== 460 &&
+    s.schemaVersion !== 461 &&
+    s.schemaVersion !== 462 &&
+    s.schemaVersion !== 463 &&
+    s.schemaVersion !== 464 &&
+    s.schemaVersion !== 465 &&
+    s.schemaVersion !== 466 &&
+    s.schemaVersion !== 467 &&
+    s.schemaVersion !== 468 &&
+    s.schemaVersion !== 469 &&
+    s.schemaVersion !== 470 &&
+    s.schemaVersion !== 471 &&
+    s.schemaVersion !== 472 &&
+    s.schemaVersion !== 473 &&
+    s.schemaVersion !== 474 &&
+    s.schemaVersion !== 475 &&
+    s.schemaVersion !== 476 &&
+    s.schemaVersion !== 477 &&
+    s.schemaVersion !== 478 &&
+    s.schemaVersion !== 479 &&
+    s.schemaVersion !== 480 &&
+    s.schemaVersion !== 481 &&
+    s.schemaVersion !== 482 &&
+    s.schemaVersion !== 483 &&
+    s.schemaVersion !== 484 &&
+    s.schemaVersion !== 485 &&
+    s.schemaVersion !== 486 &&
+    s.schemaVersion !== 487 &&
+    s.schemaVersion !== 488 &&
+    s.schemaVersion !== 489 &&
+    s.schemaVersion !== 490 &&
+    s.schemaVersion !== 491 &&
+    s.schemaVersion !== 492 &&
+    s.schemaVersion !== 493 &&
+    s.schemaVersion !== 494 &&
+    s.schemaVersion !== 495 &&
+    s.schemaVersion !== 496 &&
+    s.schemaVersion !== 497 &&
+    s.schemaVersion !== 498 &&
+    s.schemaVersion !== 499 &&
+    s.schemaVersion !== 500 &&
+    s.schemaVersion !== 501 &&
+    s.schemaVersion !== 502 &&
+    s.schemaVersion !== 503 &&
+    s.schemaVersion !== 504 &&
+    s.schemaVersion !== 505 &&
+    s.schemaVersion !== 506 &&
+    s.schemaVersion !== 507 &&
+    s.schemaVersion !== 508 &&
+    s.schemaVersion !== 509 &&
+    s.schemaVersion !== 510
   ) {
-    fail(`${label}: expected schemaVersion 0–74 or 133–438, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–74 or 133–510, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -3225,6 +3297,78 @@ function assertHubCompletion(path) {
     [436, "fullstackAuthoringBatchV363"],
     [437, "fullstackAuthoringBatchV364"],
     [438, "fullstackAuthoringBatchV365"],
+    [439, "fullstackAuthoringBatchV366"],
+    [440, "fullstackAuthoringBatchV367"],
+    [441, "fullstackAuthoringBatchV368"],
+    [442, "fullstackAuthoringBatchV369"],
+    [443, "fullstackAuthoringBatchV370"],
+    [444, "fullstackAuthoringBatchV371"],
+    [445, "fullstackAuthoringBatchV372"],
+    [446, "fullstackAuthoringBatchV373"],
+    [447, "fullstackAuthoringBatchV374"],
+    [448, "fullstackAuthoringBatchV375"],
+    [449, "fullstackAuthoringBatchV376"],
+    [450, "fullstackAuthoringBatchV377"],
+    [451, "fullstackAuthoringBatchV378"],
+    [452, "fullstackAuthoringBatchV379"],
+    [453, "fullstackAuthoringBatchV380"],
+    [454, "fullstackAuthoringBatchV381"],
+    [455, "fullstackAuthoringBatchV382"],
+    [456, "fullstackAuthoringBatchV383"],
+    [457, "fullstackAuthoringBatchV384"],
+    [458, "fullstackAuthoringBatchV385"],
+    [459, "fullstackAuthoringBatchV386"],
+    [460, "fullstackAuthoringBatchV387"],
+    [461, "fullstackAuthoringBatchV388"],
+    [462, "fullstackAuthoringBatchV389"],
+    [463, "fullstackAuthoringBatchV390"],
+    [464, "fullstackAuthoringBatchV391"],
+    [465, "fullstackAuthoringBatchV392"],
+    [466, "fullstackAuthoringBatchV393"],
+    [467, "fullstackAuthoringBatchV394"],
+    [468, "fullstackAuthoringBatchV395"],
+    [469, "fullstackAuthoringBatchV396"],
+    [470, "fullstackAuthoringBatchV397"],
+    [471, "fullstackAuthoringBatchV398"],
+    [472, "fullstackAuthoringBatchV399"],
+    [473, "fullstackAuthoringBatchV400"],
+    [474, "fullstackAuthoringBatchV401"],
+    [475, "fullstackAuthoringBatchV402"],
+    [476, "fullstackAuthoringBatchV403"],
+    [477, "fullstackAuthoringBatchV404"],
+    [478, "fullstackAuthoringBatchV405"],
+    [479, "fullstackAuthoringBatchV406"],
+    [480, "fullstackAuthoringBatchV407"],
+    [481, "fullstackAuthoringBatchV408"],
+    [482, "fullstackAuthoringBatchV409"],
+    [483, "fullstackAuthoringBatchV410"],
+    [484, "fullstackAuthoringBatchV411"],
+    [485, "fullstackAuthoringBatchV412"],
+    [486, "fullstackAuthoringBatchV413"],
+    [487, "fullstackAuthoringBatchV414"],
+    [488, "fullstackAuthoringBatchV415"],
+    [489, "fullstackAuthoringBatchV416"],
+    [490, "fullstackAuthoringBatchV417"],
+    [491, "fullstackAuthoringBatchV418"],
+    [492, "fullstackAuthoringBatchV419"],
+    [493, "fullstackAuthoringBatchV420"],
+    [494, "fullstackAuthoringBatchV421"],
+    [495, "fullstackAuthoringBatchV422"],
+    [496, "fullstackAuthoringBatchV423"],
+    [497, "fullstackAuthoringBatchV424"],
+    [498, "fullstackAuthoringBatchV425"],
+    [499, "fullstackAuthoringBatchV426"],
+    [500, "fullstackAuthoringBatchV427"],
+    [501, "fullstackAuthoringBatchV428"],
+    [502, "fullstackAuthoringBatchV429"],
+    [503, "fullstackAuthoringBatchV430"],
+    [504, "fullstackAuthoringBatchV431"],
+    [505, "fullstackAuthoringBatchV432"],
+    [506, "fullstackAuthoringBatchV433"],
+    [507, "fullstackAuthoringBatchV434"],
+    [508, "fullstackAuthoringBatchV435"],
+    [509, "fullstackAuthoringBatchV436"],
+    [510, "fullstackAuthoringBatchV437"],
   ]) {
     if (s.schemaVersion >= ver) {
       if (s[key]?.ok !== true) {
