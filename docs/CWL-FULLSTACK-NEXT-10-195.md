@@ -12,7 +12,9 @@
 | 4 | **G3250** | Vitest + `ci-gates-hub-completion` v195 |
 | 5 | **G3251** | `hub:cwl-authoring-batch-v195-smoke` script |
 | 6 | **G3252** | ROADMAP + DESIGN lock queue 195 |
-| 7–10 | **G3253–G3256** | Phase G Phase C replay **complete** (queue 195) |
+| 7–10 | **G3253–G3256** | Moved to queue **196** |
+
+Queue **196** — see **`docs/CWL-FULLSTACK-NEXT-10-196.md`**.
 
 **Batch:** `hub:cwl-authoring-batch-v195-smoke` · **schema:** 268
 

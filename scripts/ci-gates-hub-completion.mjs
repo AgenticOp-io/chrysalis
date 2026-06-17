@@ -224,9 +224,19 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 265 &&
     s.schemaVersion !== 266 &&
     s.schemaVersion !== 267 &&
-    s.schemaVersion !== 268
+    s.schemaVersion !== 268 &&
+    s.schemaVersion !== 269 &&
+    s.schemaVersion !== 270 &&
+    s.schemaVersion !== 271 &&
+    s.schemaVersion !== 272 &&
+    s.schemaVersion !== 273 &&
+    s.schemaVersion !== 274 &&
+    s.schemaVersion !== 275 &&
+    s.schemaVersion !== 276 &&
+    s.schemaVersion !== 277 &&
+    s.schemaVersion !== 278
   ) {
-    fail(`${label}: expected schemaVersion 0–74 or 133–268, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–74 or 133–278, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -2885,6 +2895,16 @@ function assertHubCompletion(path) {
     [266, "fullstackAuthoringBatchV193"],
     [267, "fullstackAuthoringBatchV194"],
     [268, "fullstackAuthoringBatchV195"],
+    [269, "fullstackAuthoringBatchV196"],
+    [270, "fullstackAuthoringBatchV197"],
+    [271, "fullstackAuthoringBatchV198"],
+    [272, "fullstackAuthoringBatchV199"],
+    [273, "fullstackAuthoringBatchV200"],
+    [274, "fullstackAuthoringBatchV201"],
+    [275, "fullstackAuthoringBatchV202"],
+    [276, "fullstackAuthoringBatchV203"],
+    [277, "fullstackAuthoringBatchV204"],
+    [278, "fullstackAuthoringBatchV205"],
   ]) {
     if (s.schemaVersion >= ver) {
       if (s[key]?.ok !== true) {
