@@ -5942,11 +5942,11 @@ describe("ci-gates hub-completion", () => {
     }
   });
 
-  test("ci-gates hub-completion enforces fullstack authoring batches through schema v188 (G2451)", () => {
+  test("ci-gates hub-completion enforces fullstack authoring batches through schema v198 (G2551)", () => {
     const src = readFileSync(CI_GATES_HUB_COMPLETION, "utf8");
-    expect(src).toContain("schemaVersion !== 188");
-    expect(src).toContain("fullstackAuthoringBatchV115");
-    expect(src).toMatch(/\[188,\s*"fullstackAuthoringBatchV115"\]/);
+    expect(src).toContain("schemaVersion !== 198");
+    expect(src).toContain("fullstackAuthoringBatchV125");
+    expect(src).toMatch(/\[198,\s*"fullstackAuthoringBatchV125"\]/);
     expect(src).toContain("isGceHubCompletionDeferred");
   });
 

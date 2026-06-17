@@ -13,7 +13,9 @@
 | 5 | **G2451** | Vitest + `ci-gates-hub-completion` v115 |
 | 6 | **G2452** | `hub:cwl-authoring-batch-v115-smoke` script |
 | 7 | **G2453** | ROADMAP + DESIGN lock queue 115 |
-| 8–10 | **G2454–G2456** | Reserved — queue 116 (verify-gaps fullstack, chimera cutover, translate E2E) |
+| 8–10 | **G2454–G2456** | Moved to queue **116** |
+
+Queue **116** — see **`docs/CWL-FULLSTACK-NEXT-10-116.md`**.
 
 **Batch:** `hub:cwl-authoring-batch-v115-smoke` · **schema:** 188
 

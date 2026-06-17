@@ -1787,3 +1787,232 @@ export async function runPost115GraduationGate(opts = {}) {
   return { ok: post115.ok === true && post114.ok === true, post115, post114 };
 }
 
+
+/** G2457 - post-115 Verify-gaps fullstack + chimera + translate E2E. */
+export async function runPost116CompositeGate(opts = {}) {
+  const fullstackGaps = await runVerifyGapsFullstackGate();
+  const chimera = await runChimeraCutoverGate();
+  const translate = await runTranslateE2eFullstackGate(opts);
+  const gates = [fullstackGaps, chimera, translate];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    fullstackGaps,
+    chimera,
+    translate,
+  };
+}
+
+export async function runPost116GraduationGate(opts = {}) {
+  const post116 = await runPost116CompositeGate(opts);
+  const post115 = await runPost115GraduationGate(opts);
+  return { ok: post116.ok === true && post115.ok === true, post116, post115 };
+}
+
+
+/** G2467 - post-116 Contract + CWL roundtrip depth. */
+export async function runPost117CompositeGate(opts = {}) {
+  const contract = await runContractRoundtripFullstackGate();
+  const roundtrip = await runCwlFullstackRoundtripGate(opts);
+  const projectCwl = await runProjectToCwlRoundtripGate();
+  const gates = [contract, roundtrip, projectCwl];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    contract,
+    roundtrip,
+    projectCwl,
+  };
+}
+
+export async function runPost117GraduationGate(opts = {}) {
+  const post117 = await runPost117CompositeGate(opts);
+  const post116 = await runPost116GraduationGate(opts);
+  return { ok: post117.ok === true && post116.ok === true, post117, post116 };
+}
+
+
+/** G2477 - post-117 Verify-gaps action + post-translate express. */
+export async function runPost118CompositeGate(opts = {}) {
+  const gapsAction = await runVerifyGapsFullstackActionGate();
+  const expressGaps = await runVerifyGapsExpressGate();
+  const postTranslate = await runPostTranslateVerifyExpressGate(opts);
+  const gates = [gapsAction, expressGaps, postTranslate];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    gapsAction,
+    expressGaps,
+    postTranslate,
+  };
+}
+
+export async function runPost118GraduationGate(opts = {}) {
+  const post118 = await runPost118CompositeGate(opts);
+  const post117 = await runPost117GraduationGate(opts);
+  return { ok: post118.ok === true && post117.ok === true, post118, post117 };
+}
+
+
+/** G2487 - post-118 Gold runtime + page-load + CWL parity. */
+export async function runPost119CompositeGate(opts = {}) {
+  const goldRuntime = await runGoldRuntimeFullstackGate(opts);
+  const pageLoad = await runPageLoadParityGate(opts);
+  const cwlParity = await runRuntimeCwlParityGate(opts);
+  const gates = [goldRuntime, pageLoad, cwlParity];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    goldRuntime,
+    pageLoad,
+    cwlParity,
+  };
+}
+
+export async function runPost119GraduationGate(opts = {}) {
+  const post119 = await runPost119CompositeGate(opts);
+  const post118 = await runPost118GraduationGate(opts);
+  return { ok: post119.ok === true && post118.ok === true, post119, post118 };
+}
+
+
+/** G2497 - post-119 HTTP verify + express oracle depth. */
+export async function runPost120CompositeGate(opts = {}) {
+  const http = await runCwlFullstackVerifyHttpGate(opts);
+  const nodeExpress = await runNodeExpressOracleFlagshipGate();
+  const expressDepth = await runExpressDepthGate();
+  const gates = [http, nodeExpress, expressDepth];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    http,
+    nodeExpress,
+    expressDepth,
+  };
+}
+
+export async function runPost120GraduationGate(opts = {}) {
+  const post120 = await runPost120CompositeGate(opts);
+  const post119 = await runPost119GraduationGate(opts);
+  return { ok: post120.ok === true && post119.ok === true, post120, post119 };
+}
+
+
+/** G2507 - post-120 CWL preview + OpenAPI page. */
+export async function runPost121CompositeGate(opts = {}) {
+  const preview = await runCwlPreviewFlagshipGate(opts);
+  const devLoop = await runCwlPreviewDevLoopGate(opts);
+  const openapi = await runOpenapiPageGate();
+  const gates = [preview, devLoop, openapi];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    preview,
+    devLoop,
+    openapi,
+  };
+}
+
+export async function runPost121GraduationGate(opts = {}) {
+  const post121 = await runPost121CompositeGate(opts);
+  const post120 = await runPost120GraduationGate(opts);
+  return { ok: post121.ok === true && post120.ok === true, post121, post120 };
+}
+
+
+/** G2517 - post-121 Diagnose + scope RFC + formatter lint. */
+export async function runPost122CompositeGate(opts = {}) {
+  const diagnose = await runDiagnoseFullstackGate();
+  const scope = await runFullstackCwlScopeRfcGate();
+  const fmt = await runCwlFormatterLintGate();
+  const gates = [diagnose, scope, fmt];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    diagnose,
+    scope,
+    fmt,
+  };
+}
+
+export async function runPost122GraduationGate(opts = {}) {
+  const post122 = await runPost122CompositeGate(opts);
+  const post121 = await runPost121GraduationGate(opts);
+  return { ok: post122.ok === true && post121.ok === true, post122, post121 };
+}
+
+
+/** G2527 - post-122 Query HTML + load array + layout search. */
+export async function runPost123CompositeGate(opts = {}) {
+  const queryHtml = await runQueryHtmlGate(opts);
+  const loadArray = await runLoadArrayGate(opts);
+  const layoutSearch = await runLayoutSearchGate();
+  const gates = [queryHtml, loadArray, layoutSearch];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    queryHtml,
+    loadArray,
+    layoutSearch,
+  };
+}
+
+export async function runPost123GraduationGate(opts = {}) {
+  const post123 = await runPost123CompositeGate(opts);
+  const post122 = await runPost122GraduationGate(opts);
+  return { ok: post123.ok === true && post122.ok === true, post123, post122 };
+}
+
+
+/** G2537 - post-123 Bootstrap v2 + mega origin + production graduation. */
+export async function runPost124CompositeGate(opts = {}) {
+  const bootstrap = await runBootstrapV2Gate();
+  const megaOrigin = await runMegaOriginGate();
+  const productionGrad = await runProductionGraduationGate(opts);
+  const gates = [bootstrap, megaOrigin, productionGrad];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    bootstrap,
+    megaOrigin,
+    productionGrad,
+  };
+}
+
+export async function runPost124GraduationGate(opts = {}) {
+  const post124 = await runPost124CompositeGate(opts);
+  const post123 = await runPost123GraduationGate(opts);
+  return { ok: post124.ok === true && post123.ok === true, post124, post123 };
+}
+
+
+/** G2547 - post-124 Phase C graduation lock (post-115 hub lock). */
+export async function runPost125CompositeGate(opts = {}) {
+  const hubGradLock = await runPost90HubGraduationLockGate(opts);
+  const authoringGradLock = await runAuthoringGraduationLockGate(opts);
+  const evidence = await runEvidenceTrendStandaloneGate();
+  const gates = [hubGradLock, authoringGradLock, evidence];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    hubGradLock,
+    authoringGradLock,
+    evidence,
+  };
+}
+
+export async function runPost125GraduationGate(opts = {}) {
+  const post125 = await runPost125CompositeGate(opts);
+  const post124 = await runPost124GraduationGate(opts);
+  return { ok: post125.ok === true && post124.ok === true, post125, post124 };
+}

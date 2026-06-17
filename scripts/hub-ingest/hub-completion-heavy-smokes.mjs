@@ -195,6 +195,16 @@ import { runCwlAuthoringBatchV112Smoke } from "./hub-cwl-authoring-batch-v112-sm
 import { runCwlAuthoringBatchV113Smoke } from "./hub-cwl-authoring-batch-v113-smoke.mjs";
 import { runCwlAuthoringBatchV114Smoke } from "./hub-cwl-authoring-batch-v114-smoke.mjs";
 import { runCwlAuthoringBatchV115Smoke } from "./hub-cwl-authoring-batch-v115-smoke.mjs";
+import { runCwlAuthoringBatchV116Smoke } from "./hub-cwl-authoring-batch-v116-smoke.mjs";
+import { runCwlAuthoringBatchV117Smoke } from "./hub-cwl-authoring-batch-v117-smoke.mjs";
+import { runCwlAuthoringBatchV118Smoke } from "./hub-cwl-authoring-batch-v118-smoke.mjs";
+import { runCwlAuthoringBatchV119Smoke } from "./hub-cwl-authoring-batch-v119-smoke.mjs";
+import { runCwlAuthoringBatchV120Smoke } from "./hub-cwl-authoring-batch-v120-smoke.mjs";
+import { runCwlAuthoringBatchV121Smoke } from "./hub-cwl-authoring-batch-v121-smoke.mjs";
+import { runCwlAuthoringBatchV122Smoke } from "./hub-cwl-authoring-batch-v122-smoke.mjs";
+import { runCwlAuthoringBatchV123Smoke } from "./hub-cwl-authoring-batch-v123-smoke.mjs";
+import { runCwlAuthoringBatchV124Smoke } from "./hub-cwl-authoring-batch-v124-smoke.mjs";
+import { runCwlAuthoringBatchV125Smoke } from "./hub-cwl-authoring-batch-v125-smoke.mjs";
 import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
@@ -263,7 +273,7 @@ import { runJson, scriptRoot } from "./hub-completion-utils.mjs";
 
 /** @param {boolean} gceHubCompletionFast */
 export async function runHubCompletionHeavySmokes(gceHubCompletionFast) {
-  let phpOracle, laravelGaps, laravelGapsAction, laravelMinSmoke, nodeOracleSpike, verifyPlaybooksSmoke, hubRunnerSmoke, wptpGoldSmoke, oracleMicro, expressFlagshipReport, plainPhpFlagshipReport, symfonyFlagshipReport, nodeExpressOracle, phpNextjsVerify, phpNextjsFlagshipVerify, phpNextjsSymfonyVerify, cwlResponseStatusRuntime, cwlRequestBodyRuntime, projectToCwlExport, hubEvidenceSmoke, contractCwlSmoke, hubTranslateE2e, cwlBodyRoundtrip, cwlRequestContextRuntime, cwlResponseContentTypeRuntime, cwlAuthEffectsRuntime, cwlRfcRoundtrip, contractRoundtrip, hubEvidenceLive, deliveryPipelineSmoke, postTranslateVerifySmoke, migrationOsSmoke, cwlPreviewSmoke, cwlOpenapiSmoke, pathAdviceSmoke, detectDatabasesSmoke, postTranslateArtifactsSmoke, cwlMiddlewareSmoke, cwlDiffSmoke, cwlAllRfcRoundtrip, evidenceTrendSmoke, verifyGapsIngestSmoke, cwlPathParamsRuntime, cwlQueryParamsRuntime, cwlMultiGoldRuntime, cwlParamsBatch, cwlMultiRoundtrip, siteIntelligenceStandalone, migrationAssessmentStandalone, chimeraCutoverStandalone, pathKnowledgeSmoke, languageCompareSmoke, migrationOsSymfony, migrationOsStandaloneBatch, verifyGapsSymfonySmoke, hubRunnerBatchSmoke, deliveryPipelineRunnerSmoke, pathAdviceSymfonySmoke, siteIntelligenceSymfonySmoke, postTranslateArtifactsSymfonySmoke, cwlParamsRoundtripBatch, cwlMultiBatch, cwlInterchangeBatch, evidenceLiveStandaloneBatch, translateE2eStandaloneBatch, expressDeliveryBatch, symfonyMigrationOsBatch, projectToCwlExpressSmoke, siteIntelligenceExpressSmoke, pathAdviceExpressSmoke, verifyGapsExpressSmoke, postTranslateArtifactsExpressSmoke, migrationAssessmentSymfonySmoke, chimeraCutoverSymfonySmoke, migrationAssessmentExpressSmoke, chimeraCutoverExpressSmoke, siteIntelligenceLaravelMinSmoke, pathAdviceLaravelMinSmoke, migrationAssessmentLaravelMinSmoke, chimeraCutoverLaravelMinSmoke, postTranslateArtifactsLaravelMinSmoke, projectToCwlLaravelMinSmoke, verifyGapsLaravelMinSmoke, laravelMinDeliveryBatch, plainPhpDeliveryBatch, threeOriginDeliveryBatch, laravelDepthBatch, cwlFullBatch, tinyBlogOracleBatch, fourOriginDeliveryBatch, symfonyDeliveryBatch, laravelMinMigrationOsBatch, oracleStandaloneBatch, fullDeliveryMegaBatch, cwlMegaBatch, fullstackAuthoringBatchV2, fullstackAuthoringBatchV3, fullstackAuthoringBatchV4, fullstackAuthoringBatchV5, fullstackAuthoringBatchV6, fullstackAuthoringBatchV7, fullstackAuthoringBatchV8, fullstackAuthoringBatchV9, fullstackAuthoringBatchV10, fullstackAuthoringBatchV11, fullstackAuthoringBatchV12, fullstackAuthoringBatchV13, fullstackAuthoringBatchV14, fullstackAuthoringBatchV15, fullstackAuthoringBatchV16, fullstackAuthoringBatchV17, fullstackAuthoringBatchV18, fullstackAuthoringBatchV19, fullstackAuthoringBatchV20, fullstackAuthoringBatchV21, fullstackAuthoringBatchV22, fullstackAuthoringBatchV23, fullstackAuthoringBatchV24, fullstackAuthoringBatchV25, fullstackAuthoringBatchV26, fullstackAuthoringBatchV27, fullstackAuthoringBatchV28, fullstackAuthoringBatchV29, fullstackAuthoringBatchV30, fullstackAuthoringBatchV40, fullstackAuthoringBatchV50, fullstackAuthoringBatchV60, fullstackAuthoringBatchV61, fullstackAuthoringBatchV62, fullstackAuthoringBatchV63, fullstackAuthoringBatchV64, fullstackAuthoringBatchV65, fullstackAuthoringBatchV66, fullstackAuthoringBatchV67, fullstackAuthoringBatchV68, fullstackAuthoringBatchV69, fullstackAuthoringBatchV70, fullstackAuthoringBatchV71, fullstackAuthoringBatchV72, fullstackAuthoringBatchV73, fullstackAuthoringBatchV74, fullstackAuthoringBatchV75, fullstackAuthoringBatchV76, fullstackAuthoringBatchV77, fullstackAuthoringBatchV78, fullstackAuthoringBatchV79, fullstackAuthoringBatchV80, fullstackAuthoringBatchV81, fullstackAuthoringBatchV82, fullstackAuthoringBatchV83, fullstackAuthoringBatchV84, fullstackAuthoringBatchV85, fullstackAuthoringBatchV86, fullstackAuthoringBatchV87, fullstackAuthoringBatchV88, fullstackAuthoringBatchV89, fullstackAuthoringBatchV90, fullstackAuthoringBatchV91, fullstackAuthoringBatchV92, fullstackAuthoringBatchV93, fullstackAuthoringBatchV94, fullstackAuthoringBatchV95, fullstackAuthoringBatchV96, fullstackAuthoringBatchV97, fullstackAuthoringBatchV98, fullstackAuthoringBatchV99, fullstackAuthoringBatchV100, fullstackAuthoringBatchV101, fullstackAuthoringBatchV102, fullstackAuthoringBatchV103, fullstackAuthoringBatchV104, fullstackAuthoringBatchV105, fullstackAuthoringBatchV106, fullstackAuthoringBatchV107, fullstackAuthoringBatchV108, fullstackAuthoringBatchV109, fullstackAuthoringBatchV110, fullstackAuthoringBatchV111, fullstackAuthoringBatchV112, fullstackAuthoringBatchV113, fullstackAuthoringBatchV114, fullstackAuthoringBatchV115, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, deliveryPipelineStandaloneBatch, laravelMinOracleBatch, advisoryStandaloneMegaBatch, allDeliveryUltraMegaBatch, migrationOsMegaBatch, oracleProductUltraBatch, expressLaravelMinDeliveryBatch, symfonyLaravelMinDeliveryBatch, postTranslateVerifyOriginBatch, tinyBlogDepthBatch, contractVerifyStandaloneBatch, chimeraCutoverOriginBatch, migrationAssessmentOriginBatch, verifyGapsOriginBatch, postTranslateArtifactsOriginBatch, verifyStandaloneMegaBatch, contractStandaloneMegaBatch, evidenceStandaloneMegaBatch, plainPhpDepthBatch, symfonyDepthBatch, expressDepthBatch, laravelMinDepthBatch, originDepthUltraBatch, chimeraAssessmentMegaBatch, verifyProductUltraBatch, projectToCwlAllOrigins, cwlAllOriginsBatch, cwlUniversalMegaBatch, cwlAppStackOriginsBatch, cwlAssetOriginsBatch, cwlPatternLiteralCwlBatch, hubTranslateCwlCoverage, cwlPatternLiteralRoundtripBatch, cwlFlagshipRoundtripBatch, hubTranslateCwlRoundtrip, projectToCwlRoundtrip, contractImportCwlRoundtrip, phpOracleMicroVerifyBatch, phpNextjsVerifyBatch, phpWedgeBatch, hubEvidenceMvpBatch, wptpStrictBatch, flagshipFullGapsBatch, gapsIngestClosureBatch, gapsIngestStrictBatch, laravelAuthProbeReingest, laravelAuthProbeVerifyClosure, laravelAuthProbeVerifyReplay, flagshipVerifyReplay, irHelperLifting, laravelAuthProbeVerifyHttp, flagshipVerifyHttp, irHelperLiftingSemantic, irHelperLiftingAttr, irHelperLiftingOracleTwin, irHelperLiftingReplayTwin, irHelperLiftingEmbed, laravelAuthProbeVerifyHttpFastify, flagshipVerifyHttpFastify, laravelAuthProbeReingestVerifyHttpFastify, irHelperLiftingFullPath;
+  let phpOracle, laravelGaps, laravelGapsAction, laravelMinSmoke, nodeOracleSpike, verifyPlaybooksSmoke, hubRunnerSmoke, wptpGoldSmoke, oracleMicro, expressFlagshipReport, plainPhpFlagshipReport, symfonyFlagshipReport, nodeExpressOracle, phpNextjsVerify, phpNextjsFlagshipVerify, phpNextjsSymfonyVerify, cwlResponseStatusRuntime, cwlRequestBodyRuntime, projectToCwlExport, hubEvidenceSmoke, contractCwlSmoke, hubTranslateE2e, cwlBodyRoundtrip, cwlRequestContextRuntime, cwlResponseContentTypeRuntime, cwlAuthEffectsRuntime, cwlRfcRoundtrip, contractRoundtrip, hubEvidenceLive, deliveryPipelineSmoke, postTranslateVerifySmoke, migrationOsSmoke, cwlPreviewSmoke, cwlOpenapiSmoke, pathAdviceSmoke, detectDatabasesSmoke, postTranslateArtifactsSmoke, cwlMiddlewareSmoke, cwlDiffSmoke, cwlAllRfcRoundtrip, evidenceTrendSmoke, verifyGapsIngestSmoke, cwlPathParamsRuntime, cwlQueryParamsRuntime, cwlMultiGoldRuntime, cwlParamsBatch, cwlMultiRoundtrip, siteIntelligenceStandalone, migrationAssessmentStandalone, chimeraCutoverStandalone, pathKnowledgeSmoke, languageCompareSmoke, migrationOsSymfony, migrationOsStandaloneBatch, verifyGapsSymfonySmoke, hubRunnerBatchSmoke, deliveryPipelineRunnerSmoke, pathAdviceSymfonySmoke, siteIntelligenceSymfonySmoke, postTranslateArtifactsSymfonySmoke, cwlParamsRoundtripBatch, cwlMultiBatch, cwlInterchangeBatch, evidenceLiveStandaloneBatch, translateE2eStandaloneBatch, expressDeliveryBatch, symfonyMigrationOsBatch, projectToCwlExpressSmoke, siteIntelligenceExpressSmoke, pathAdviceExpressSmoke, verifyGapsExpressSmoke, postTranslateArtifactsExpressSmoke, migrationAssessmentSymfonySmoke, chimeraCutoverSymfonySmoke, migrationAssessmentExpressSmoke, chimeraCutoverExpressSmoke, siteIntelligenceLaravelMinSmoke, pathAdviceLaravelMinSmoke, migrationAssessmentLaravelMinSmoke, chimeraCutoverLaravelMinSmoke, postTranslateArtifactsLaravelMinSmoke, projectToCwlLaravelMinSmoke, verifyGapsLaravelMinSmoke, laravelMinDeliveryBatch, plainPhpDeliveryBatch, threeOriginDeliveryBatch, laravelDepthBatch, cwlFullBatch, tinyBlogOracleBatch, fourOriginDeliveryBatch, symfonyDeliveryBatch, laravelMinMigrationOsBatch, oracleStandaloneBatch, fullDeliveryMegaBatch, cwlMegaBatch, fullstackAuthoringBatchV2, fullstackAuthoringBatchV3, fullstackAuthoringBatchV4, fullstackAuthoringBatchV5, fullstackAuthoringBatchV6, fullstackAuthoringBatchV7, fullstackAuthoringBatchV8, fullstackAuthoringBatchV9, fullstackAuthoringBatchV10, fullstackAuthoringBatchV11, fullstackAuthoringBatchV12, fullstackAuthoringBatchV13, fullstackAuthoringBatchV14, fullstackAuthoringBatchV15, fullstackAuthoringBatchV16, fullstackAuthoringBatchV17, fullstackAuthoringBatchV18, fullstackAuthoringBatchV19, fullstackAuthoringBatchV20, fullstackAuthoringBatchV21, fullstackAuthoringBatchV22, fullstackAuthoringBatchV23, fullstackAuthoringBatchV24, fullstackAuthoringBatchV25, fullstackAuthoringBatchV26, fullstackAuthoringBatchV27, fullstackAuthoringBatchV28, fullstackAuthoringBatchV29, fullstackAuthoringBatchV30, fullstackAuthoringBatchV40, fullstackAuthoringBatchV50, fullstackAuthoringBatchV60, fullstackAuthoringBatchV61, fullstackAuthoringBatchV62, fullstackAuthoringBatchV63, fullstackAuthoringBatchV64, fullstackAuthoringBatchV65, fullstackAuthoringBatchV66, fullstackAuthoringBatchV67, fullstackAuthoringBatchV68, fullstackAuthoringBatchV69, fullstackAuthoringBatchV70, fullstackAuthoringBatchV71, fullstackAuthoringBatchV72, fullstackAuthoringBatchV73, fullstackAuthoringBatchV74, fullstackAuthoringBatchV75, fullstackAuthoringBatchV76, fullstackAuthoringBatchV77, fullstackAuthoringBatchV78, fullstackAuthoringBatchV79, fullstackAuthoringBatchV80, fullstackAuthoringBatchV81, fullstackAuthoringBatchV82, fullstackAuthoringBatchV83, fullstackAuthoringBatchV84, fullstackAuthoringBatchV85, fullstackAuthoringBatchV86, fullstackAuthoringBatchV87, fullstackAuthoringBatchV88, fullstackAuthoringBatchV89, fullstackAuthoringBatchV90, fullstackAuthoringBatchV91, fullstackAuthoringBatchV92, fullstackAuthoringBatchV93, fullstackAuthoringBatchV94, fullstackAuthoringBatchV95, fullstackAuthoringBatchV96, fullstackAuthoringBatchV97, fullstackAuthoringBatchV98, fullstackAuthoringBatchV99, fullstackAuthoringBatchV100, fullstackAuthoringBatchV101, fullstackAuthoringBatchV102, fullstackAuthoringBatchV103, fullstackAuthoringBatchV104, fullstackAuthoringBatchV105, fullstackAuthoringBatchV106, fullstackAuthoringBatchV107, fullstackAuthoringBatchV108, fullstackAuthoringBatchV109, fullstackAuthoringBatchV110, fullstackAuthoringBatchV111, fullstackAuthoringBatchV112, fullstackAuthoringBatchV113, fullstackAuthoringBatchV114, fullstackAuthoringBatchV116,fullstackAuthoringBatchV117,fullstackAuthoringBatchV118,fullstackAuthoringBatchV119,fullstackAuthoringBatchV120,fullstackAuthoringBatchV121,fullstackAuthoringBatchV122,fullstackAuthoringBatchV123,fullstackAuthoringBatchV124,fullstackAuthoringBatchV125, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, deliveryPipelineStandaloneBatch, laravelMinOracleBatch, advisoryStandaloneMegaBatch, allDeliveryUltraMegaBatch, migrationOsMegaBatch, oracleProductUltraBatch, expressLaravelMinDeliveryBatch, symfonyLaravelMinDeliveryBatch, postTranslateVerifyOriginBatch, tinyBlogDepthBatch, contractVerifyStandaloneBatch, chimeraCutoverOriginBatch, migrationAssessmentOriginBatch, verifyGapsOriginBatch, postTranslateArtifactsOriginBatch, verifyStandaloneMegaBatch, contractStandaloneMegaBatch, evidenceStandaloneMegaBatch, plainPhpDepthBatch, symfonyDepthBatch, expressDepthBatch, laravelMinDepthBatch, originDepthUltraBatch, chimeraAssessmentMegaBatch, verifyProductUltraBatch, projectToCwlAllOrigins, cwlAllOriginsBatch, cwlUniversalMegaBatch, cwlAppStackOriginsBatch, cwlAssetOriginsBatch, cwlPatternLiteralCwlBatch, hubTranslateCwlCoverage, cwlPatternLiteralRoundtripBatch, cwlFlagshipRoundtripBatch, hubTranslateCwlRoundtrip, projectToCwlRoundtrip, contractImportCwlRoundtrip, phpOracleMicroVerifyBatch, phpNextjsVerifyBatch, phpWedgeBatch, hubEvidenceMvpBatch, wptpStrictBatch, flagshipFullGapsBatch, gapsIngestClosureBatch, gapsIngestStrictBatch, laravelAuthProbeReingest, laravelAuthProbeVerifyClosure, laravelAuthProbeVerifyReplay, flagshipVerifyReplay, irHelperLifting, laravelAuthProbeVerifyHttp, flagshipVerifyHttp, irHelperLiftingSemantic, irHelperLiftingAttr, irHelperLiftingOracleTwin, irHelperLiftingReplayTwin, irHelperLiftingEmbed, laravelAuthProbeVerifyHttpFastify, flagshipVerifyHttpFastify, laravelAuthProbeReingestVerifyHttpFastify, irHelperLiftingFullPath;
   if (!gceHubCompletionFast) {
   phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
   laravelGaps = buildLaravelVerifyGapsReport();
@@ -1315,6 +1325,66 @@ export async function runHubCompletionHeavySmokes(gceHubCompletionFast) {
   } catch {
     fullstackAuthoringBatchV115 = { ok: false, skip: "fullstack-authoring-batch-v115-threw" };
   }
+  fullstackAuthoringBatchV116 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV116 = await runCwlAuthoringBatchV116Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV116 = { ok: false, skip: "fullstack-authoring-batch-v116-threw" };
+  }
+  fullstackAuthoringBatchV117 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV117 = await runCwlAuthoringBatchV117Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV117 = { ok: false, skip: "fullstack-authoring-batch-v117-threw" };
+  }
+  fullstackAuthoringBatchV118 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV118 = await runCwlAuthoringBatchV118Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV118 = { ok: false, skip: "fullstack-authoring-batch-v118-threw" };
+  }
+  fullstackAuthoringBatchV119 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV119 = await runCwlAuthoringBatchV119Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV119 = { ok: false, skip: "fullstack-authoring-batch-v119-threw" };
+  }
+  fullstackAuthoringBatchV120 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV120 = await runCwlAuthoringBatchV120Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV120 = { ok: false, skip: "fullstack-authoring-batch-v120-threw" };
+  }
+  fullstackAuthoringBatchV121 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV121 = await runCwlAuthoringBatchV121Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV121 = { ok: false, skip: "fullstack-authoring-batch-v121-threw" };
+  }
+  fullstackAuthoringBatchV122 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV122 = await runCwlAuthoringBatchV122Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV122 = { ok: false, skip: "fullstack-authoring-batch-v122-threw" };
+  }
+  fullstackAuthoringBatchV123 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV123 = await runCwlAuthoringBatchV123Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV123 = { ok: false, skip: "fullstack-authoring-batch-v123-threw" };
+  }
+  fullstackAuthoringBatchV124 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV124 = await runCwlAuthoringBatchV124Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV124 = { ok: false, skip: "fullstack-authoring-batch-v124-threw" };
+  }
+  fullstackAuthoringBatchV125 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV125 = await runCwlAuthoringBatchV125Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV125 = { ok: false, skip: "fullstack-authoring-batch-v125-threw" };
+  }
   plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
@@ -1878,6 +1948,16 @@ export async function runHubCompletionHeavySmokes(gceHubCompletionFast) {
       fullstackAuthoringBatchV113,
       fullstackAuthoringBatchV114,
       fullstackAuthoringBatchV115,
+      fullstackAuthoringBatchV116,
+      fullstackAuthoringBatchV117,
+      fullstackAuthoringBatchV118,
+      fullstackAuthoringBatchV119,
+      fullstackAuthoringBatchV120,
+      fullstackAuthoringBatchV121,
+      fullstackAuthoringBatchV122,
+      fullstackAuthoringBatchV123,
+      fullstackAuthoringBatchV124,
+      fullstackAuthoringBatchV125,
       plainPhpMigrationOsBatch,
       tinyBlogDeliveryBatch,
       deliveryPipelineStandaloneBatch,
@@ -2126,6 +2206,16 @@ export async function runHubCompletionHeavySmokes(gceHubCompletionFast) {
     fullstackAuthoringBatchV113,
     fullstackAuthoringBatchV114,
     fullstackAuthoringBatchV115,
+    fullstackAuthoringBatchV116,
+    fullstackAuthoringBatchV117,
+    fullstackAuthoringBatchV118,
+    fullstackAuthoringBatchV119,
+    fullstackAuthoringBatchV120,
+    fullstackAuthoringBatchV121,
+    fullstackAuthoringBatchV122,
+    fullstackAuthoringBatchV123,
+    fullstackAuthoringBatchV124,
+    fullstackAuthoringBatchV125,
     plainPhpMigrationOsBatch,
     tinyBlogDeliveryBatch,
     deliveryPipelineStandaloneBatch,

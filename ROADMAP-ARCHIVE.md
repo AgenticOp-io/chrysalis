@@ -1511,6 +1511,16 @@
 - [x] **G2427–G2431 — Queue 113 production search + CWL export** — **`runPost113CompositeGate`**; batch **v113**; schema **186**. (**DESIGN D2427**)
 - [x] **G2437–G2441 — Queue 114 Fastify search + runtime parity** — **`runPost114CompositeGate`**; batch **v114**; schema **187**. (**DESIGN D2437**)
 - [x] **G2447–G2451 — Queue 115 emit verify mega + session/diagnose** — **`runPost115CompositeGate`**; batch **v115**; schema **188**. (**DESIGN D2447**)
+- [x] **G2457–G2461 — Queue 116 verify-gaps + chimera + translate** — **`runPost116CompositeGate`**; batch **v116**; schema **189**. (**DESIGN D2457**)
+- [x] **G2467–G2471 — Queue 117 contract + CWL roundtrip** — **`runPost117CompositeGate`**; batch **v117**; schema **190**. (**DESIGN D2467**)
+- [x] **G2477–G2481 — Queue 118 verify-gaps action + post-translate** — **`runPost118CompositeGate`**; batch **v118**; schema **191**. (**DESIGN D2477**)
+- [x] **G2487–G2491 — Queue 119 gold runtime + parity** — **`runPost119CompositeGate`**; batch **v119**; schema **192**. (**DESIGN D2487**)
+- [x] **G2497–G2501 — Queue 120 HTTP verify + express oracle** — **`runPost120CompositeGate`**; batch **v120**; schema **193**. (**DESIGN D2497**)
+- [x] **G2507–G2511 — Queue 121 CWL preview + OpenAPI** — **`runPost121CompositeGate`**; batch **v121**; schema **194**. (**DESIGN D2507**)
+- [x] **G2517–G2521 — Queue 122 diagnose + scope + formatter** — **`runPost122CompositeGate`**; batch **v122**; schema **195**. (**DESIGN D2517**)
+- [x] **G2527–G2531 — Queue 123 query HTML + layout search** — **`runPost123CompositeGate`**; batch **v123**; schema **196**. (**DESIGN D2527**)
+- [x] **G2537–G2541 — Queue 124 bootstrap + mega origin** — **`runPost124CompositeGate`**; batch **v124**; schema **197**. (**DESIGN D2537**)
+- [x] **G2547–G2551 — Queue 125 Phase C graduation lock** — **`runPost125CompositeGate`**; batch **v125**; schema **198**. (**DESIGN D2547**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
