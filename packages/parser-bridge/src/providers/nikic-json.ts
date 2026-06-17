@@ -1298,6 +1298,9 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
     case "Expr_Clone":
       return unknownExpr(file, raw, "Expr_Clone");
 
+    case "Expr_List":
+      return unknownExpr(file, raw, "unhandled expr: list");
+
     case "Expr_Throw":
       return unknownExpr(file, raw, "unhandled expr: throw");
 

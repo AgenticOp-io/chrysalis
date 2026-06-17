@@ -42,6 +42,12 @@
       "path": "/iota",
       "file": "pages/show_iota.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/kappa",
+      "file": "pages/show_kappa.php",
+      "pathParams": []
     }
   ]
 }

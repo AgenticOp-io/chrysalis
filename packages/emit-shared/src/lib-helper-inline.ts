@@ -57,6 +57,33 @@ function literalToTsExpr(n: NodeBase): string | undefined {
   return undefined;
 }
 
+function resolveInlineAssignRhs(
+  m: Module,
+  valueId: NodeId,
+  paramNames: readonly string[],
+  localToFormal: ReadonlyMap<string, string>,
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | undefined {
+  const valueNode = getNode(m, valueId);
+  if (!valueNode) return undefined;
+  if (valueNode.op === "literal") return { kind: "literal", id: valueId };
+  if (valueNode.op === "param") {
+    const srcName = String(valueNode.attrs.name ?? "");
+    const formal =
+      matchFormalParam(srcName, paramNames) ??
+      localToFormal.get(phpVarKey(srcName)) ??
+      localToFormal.get(srcName);
+    if (formal === undefined) return undefined;
+    return { kind: "formal", formal };
+  }
+  if (valueNode.op === "call") {
+    const callee = String(valueNode.attrs.callee ?? "");
+    if ((callee === "__cast_int" || callee === "intval") && valueNode.operands.length === 1) {
+      return resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+    }
+  }
+  return undefined;
+}
+
 export function tryExtractInlineQuery(
   m: Module,
   bodyId: NodeId,
@@ -86,20 +113,13 @@ export function tryExtractInlineQuery(
       const valueId = stmt.operands[1]!;
       if (!targetLit || targetLit.op !== "literal") return undefined;
       const localName = phpVarKey(String(targetLit.attrs.value ?? ""));
-      const valueNode = getNode(m, valueId);
-      if (!valueNode) return undefined;
-      if (valueNode.op === "literal") {
-        localToLiteral.set(localName, valueId);
+      const resolved = resolveInlineAssignRhs(m, valueId, paramNames, localToFormal);
+      if (resolved === undefined) return undefined;
+      if (resolved.kind === "literal") {
+        localToLiteral.set(localName, resolved.id);
         continue;
       }
-      if (valueNode.op !== "param") return undefined;
-      const srcName = String(valueNode.attrs.name ?? "");
-      const formal =
-        matchFormalParam(srcName, paramNames) ??
-        localToFormal.get(phpVarKey(srcName)) ??
-        localToFormal.get(srcName);
-      if (formal === undefined) return undefined;
-      localToFormal.set(localName, formal);
+      localToFormal.set(localName, resolved.formal);
       continue;
     }
     if (stmt.op === "hole") return undefined;

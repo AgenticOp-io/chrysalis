@@ -467,6 +467,46 @@ $maybe = null ?? "fallback";
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe void_return.php (positions stripped) (G2339)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/void_return.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "void_return.php");
+    const nk = await parseSource(src, "void_return.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe callable_hint.php (positions stripped) (G2340)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/callable_hint.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "callable_hint.php");
+    const nk = await parseSource(src, "callable_hint.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe list_destruct.php (positions stripped) (G2341)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/list_destruct.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "list_destruct.php");
+    const nk = await parseSource(src, "list_destruct.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe spread_array.php (positions stripped) (G2342)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/spread_array.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "spread_array.php");
+    const nk = await parseSource(src, "spread_array.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe class_const.php (positions stripped) (G2343)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/class_const.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "class_const.php");
+    const nk = await parseSource(src, "class_const.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("maps nikic union type hints to pipe syntax (G2301)", async () => {
     const src = `<?php
 function union_hint(string|int $value): string|int|null { return $value; }

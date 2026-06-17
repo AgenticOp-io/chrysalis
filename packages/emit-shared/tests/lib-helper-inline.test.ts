@@ -73,4 +73,43 @@ describe("tryExtractInlineQuery (G2334)", () => {
 
     expect(tryExtractInlineQuery(mod, body, ["active"])).toBeUndefined();
   });
+
+  it("accepts __cast_int wrapper on formal assign (G2344)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+
+    const active = data.param({ name: "active", type: T.int, origin });
+    const assignFlag = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "flag", type: T.string, origin }),
+        data.call({
+          callee: "__cast_int",
+          args: [active],
+          type: T.int,
+          origin,
+        }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE active = ?",
+      params: [data.param({ name: "flag", type: T.int, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignFlag, ret], origin });
+    const mod = builder.finish();
+
+    const extracted = tryExtractInlineQuery(mod, body, ["active"]);
+    expect(extracted).toBeDefined();
+    expect(extracted!.localToFormal.get("$flag")).toBe("active");
+  });
 });

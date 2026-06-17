@@ -749,10 +749,18 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
       const items = Array.isArray(node.items) ? (node.items as AnyNode[]) : [];
       return {
         kind: "Array",
-        items: items.map((it) => ({
-          key: it.key ? convertExpression(file, it.key as AnyNode) : null,
-          value: convertExpression(file, it.value as AnyNode),
-        })),
+        items: items.map((it) => {
+          if (it.unpack === true) {
+            return {
+              key: null,
+              value: unknownExpr(file, it, "array unpack"),
+            };
+          }
+          return {
+            key: it.key ? convertExpression(file, it.key as AnyNode) : null,
+            value: convertExpression(file, it.value as AnyNode),
+          };
+        }),
         pos: pos(file, node),
       };
     }
