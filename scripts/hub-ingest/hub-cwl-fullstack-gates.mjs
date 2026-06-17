@@ -1739,3 +1739,27 @@ export async function runPost113GraduationGate(opts = {}) {
   return { ok: post113.ok === true && post112.ok === true, post113, post112 };
 }
 
+/** G2437 - post-113 Fastify search emit verify + runtime hono/production parity. */
+export async function runPost114CompositeGate(opts = {}) {
+  const fastifySearch = await runFastifyEmitSearchGate(opts);
+  const honoParity = await runRuntimeHonoParityGate(opts);
+  const productionRuntime = await runRuntimeProductionGate(opts);
+  const emitSearch = await runEmitPageProbeGate(opts);
+  const gates = [fastifySearch, honoParity, productionRuntime, emitSearch];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    fastifySearch,
+    honoParity,
+    productionRuntime,
+    emitSearch,
+  };
+}
+
+export async function runPost114GraduationGate(opts = {}) {
+  const post114 = await runPost114CompositeGate(opts);
+  const post113 = await runPost113GraduationGate(opts);
+  return { ok: post114.ok === true && post113.ok === true, post114, post113 };
+}
+

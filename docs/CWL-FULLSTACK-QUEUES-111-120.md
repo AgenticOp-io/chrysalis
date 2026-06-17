@@ -9,8 +9,9 @@
 | 111 | G2407–G2416 | Post-110 full-stack pilot depth | v111 | 184 |
 | 112 | G2417–G2426 | Template/budget depth (each, form-action, hole-budget v2) | v112 | 185 |
 | 113 | G2427–G2436 | Production search + CWL export depth | v113 | 186 |
-| 114–120 | — | *Not chartered* | — | — |
+| 114 | G2437–G2446 | Fastify search emit + runtime hono parity | v114 | 187 |
+| 115–120 | — | *Not chartered* | — | — |
 
-**Vitest:** `packages/cli/tests/hub-cwl-authoring-batch-v111.test.ts`, `hub-cwl-authoring-batch-v112.test.ts`, `hub-cwl-authoring-batch-v113.test.ts`
+**Vitest:** `hub-cwl-authoring-batch-v111.test.ts` through `v114.test.ts`
 
 **Non-goals (unchanged):** production SQL/session without parity evidence; hydration.
