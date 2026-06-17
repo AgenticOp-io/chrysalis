@@ -3555,6 +3555,14 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-17 — D2326** **`/zeta` emit replay twin (G2326).** Oracle drive includes **`/zeta`**; lib-helper sideeffect path replays at 100%. **DESIGN §3** unchanged.
 - **2026-06-17 — D2327** **Lane A unit enum parity (G2327).** **`unit_enum.php`** — **`scalarType: null`**, case values null. **DESIGN §3** unchanged.
 - **2026-06-17 — D2328** **Lane A trait method hoisting (G2328).** Top-level traits hoist methods as **`Trait::method`** **`FunctionDecl`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2329** **Lane A interface method hoisting (G2329).** Top-level interfaces hoist methods as **`Interface::method`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2330** **Lane A int-backed enum parity (G2330).** **`int_enum.php`** — **`scalarType: int`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2331** **Lane A static class property metadata (G2331).** **`PhpClassProperty.static`** on **`ClassDecl`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2332** **Lane A heredoc/nowdoc parity (G2332).** **`heredoc.php`** glayzzle ≡ nikic. **DESIGN §3** unchanged.
+- **2026-06-17 — D2334** **B5.5 tryExtractInlineQuery Vitest (G2334).** emit-shared unit tests for literal-RHS accept vs binop reject. **DESIGN §3** unchanged.
+- **2026-06-17 — D2335** **Lane A abstract class metadata (G2335).** **`ClassDecl.abstract`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2336** **Lane A final class metadata (G2336).** **`ClassDecl.final`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2337** **Lane A throw expression parity (G2337).** **`throw_expr.php`** arrow **`throw`**. **DESIGN §3** unchanged.
 
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 

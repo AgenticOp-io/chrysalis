@@ -113,6 +113,8 @@ function convertProgramStatements(file: string, nodes: AnyNode[], parentNs: stri
       out.push(...convertTopLevelEnumToFunctionDecls(file, node, parentNs));
     } else if (node.kind === "trait") {
       out.push(...convertTopLevelTraitToFunctionDecls(file, node, parentNs));
+    } else if (node.kind === "interface") {
+      out.push(...convertTopLevelInterfaceToFunctionDecls(file, node, parentNs));
     } else {
       out.push(convertStatement(file, node, parentNs));
     }
@@ -145,7 +147,8 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
       if (!propName) continue;
       const typeHint = typeNameFromHint((prop.type ?? member.type) as AnyNode | null);
       const readonly = Boolean(prop.readonly ?? member.readonly);
-      properties.push({ name: propName, typeHint, readonly });
+      const isStatic = Boolean(member.isStatic ?? prop.isStatic);
+      properties.push({ name: propName, typeHint, readonly, ...(isStatic ? { static: true as const } : {}) });
     }
   }
 
@@ -166,13 +169,33 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
   }
 
   if (properties.length > 0) {
+    const classMeta = {
+      ...(Boolean(classNode.isReadonly) ? { readonly: true as const } : {}),
+      ...(Boolean(classNode.isAbstract) ? { abstract: true as const } : {}),
+      ...(Boolean(classNode.isFinal) ? { final: true as const } : {}),
+    };
     out.push({
       kind: "ClassDecl",
       name: classFqn,
       properties,
-      ...(Boolean(classNode.isReadonly) ? { readonly: true as const } : {}),
+      ...classMeta,
       pos: pos(file, classNode),
     });
+  } else {
+    const classMeta = {
+      ...(Boolean(classNode.isReadonly) ? { readonly: true as const } : {}),
+      ...(Boolean(classNode.isAbstract) ? { abstract: true as const } : {}),
+      ...(Boolean(classNode.isFinal) ? { final: true as const } : {}),
+    };
+    if (Object.keys(classMeta).length > 0) {
+      out.push({
+        kind: "ClassDecl",
+        name: classFqn,
+        properties,
+        ...classMeta,
+        pos: pos(file, classNode),
+      });
+    }
   }
 
   for (const member of members) {
@@ -217,6 +240,35 @@ function convertTopLevelEnumToFunctionDecls(file: string, enumNode: AnyNode, nsP
       value: c.value ? convertExpression(file, c.value as AnyNode) : null,
     }));
   const out: PhpNode[] = [{ kind: "EnumDecl", name: declName, scalarType, cases, pos: pos(file, enumNode) }];
+  for (const member of body) {
+    if (member.kind !== "method") continue;
+    const methodName = String((member.name as AnyNode | undefined)?.name ?? "");
+    if (!methodName) continue;
+    const args = Array.isArray(member.arguments) ? (member.arguments as AnyNode[]) : [];
+    const methodBody = member.body as AnyNode | undefined;
+    const methodAttributes = convertGlayzzleAttributes(file, member.attrGroups as AnyNode[] | undefined);
+    out.push({
+      kind: "FunctionDecl",
+      name: `${declName}::${methodName}`,
+      params: args.map((a) => ({
+        name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
+        hint: typeNameFromHint(a.type as AnyNode | null),
+        default: a.value ? convertExpression(file, a.value as AnyNode) : null,
+      })),
+      returnHint: typeNameFromHint(member.type as AnyNode | null),
+      body: methodBody?.kind === "block" ? convertBody(file, methodBody.children, nsPrefix) : [],
+      ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
+      pos: pos(file, member),
+    });
+  }
+  return out;
+}
+
+function convertTopLevelInterfaceToFunctionDecls(file: string, ifaceNode: AnyNode, nsPrefix: string): PhpNode[] {
+  const shortName = String((ifaceNode.name as AnyNode)?.name ?? "");
+  const declName = shortName !== "" && nsPrefix !== "" ? `${nsPrefix}\\${shortName}` : shortName;
+  const body = Array.isArray(ifaceNode.body) ? (ifaceNode.body as AnyNode[]) : [];
+  const out: PhpNode[] = [];
   for (const member of body) {
     if (member.kind !== "method") continue;
     const methodName = String((member.name as AnyNode | undefined)?.name ?? "");
@@ -579,6 +631,17 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
         pos: pos(file, node),
       };
     }
+    case "nowdoc":
+    case "heredoc": {
+      const text = String(node.value ?? "");
+      return {
+        kind: "Literal",
+        literalKind: "string",
+        value: text,
+        raw: text,
+        pos: pos(file, node),
+      };
+    }
     case "boolean":
       return {
         kind: "Literal",
@@ -837,6 +900,8 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
         pos: pos(file, node),
       };
     }
+    case "throw":
+      return unknownExpr(file, node, "unhandled expr: throw");
     default:
       return unknownExpr(file, node, `unhandled expr: ${node.kind}`);
   }

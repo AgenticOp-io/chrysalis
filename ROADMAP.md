@@ -1501,6 +1501,14 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 - [x] **G2326 — B5.5 `/zeta` emit replay twin** — oracle drive + replay verify for lib-helper sideeffect path. (**DESIGN D2326**)
 - [x] **G2327 — Lane A unit enum parity** — **`unit_enum.php`** (no backing scalar). (**DESIGN D2327**)
 - [x] **G2328 — Lane A trait method hoisting** — **`trait_methods.php`**; **`Greeter::hello`** / **`Greeter::tag`**. (**DESIGN D2328**)
+- [x] **G2329 — Lane A interface method hoisting** — **`interface_methods.php`**; **`Labelled::label`** / **`Labelled::kind`**. (**DESIGN D2329**)
+- [x] **G2330 — Lane A int-backed enum parity** — **`int_enum.php`**. (**DESIGN D2330**)
+- [x] **G2331 — Lane A static class property metadata** — **`ClassDecl.properties[].static`**; **`static_property.php`**. (**DESIGN D2331**)
+- [x] **G2332 — Lane A heredoc/nowdoc parity** — **`heredoc.php`**. (**DESIGN D2332**)
+- [x] **G2334 — B5.5 tryExtractInlineQuery unit tests** — emit-shared Vitest for literal-RHS vs binop reject. (**DESIGN D2334**)
+- [x] **G2335 — Lane A abstract class metadata** — **`ClassDecl.abstract`**; **`abstract_class.php`**. (**DESIGN D2335**)
+- [x] **G2336 — Lane A final class metadata** — **`ClassDecl.final`**; **`final_class.php`**. (**DESIGN D2336**)
+- [x] **G2337 — Lane A throw expression parity** — arrow fn with **`throw`**; **`throw_expr.php`**. (**DESIGN D2337**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 

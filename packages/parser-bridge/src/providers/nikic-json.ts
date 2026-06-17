@@ -34,6 +34,8 @@ const PHP_MODIFIER_PUBLIC = 1;
 const PHP_MODIFIER_PROTECTED = 2;
 const PHP_MODIFIER_PRIVATE = 4;
 const PHP_MODIFIER_READONLY = 64;
+const PHP_CLASS_FINAL = 32;
+const PHP_CLASS_ABSTRACT = 16;
 const INCLUDE_ONCE = 2;
 const REQUIRE_ONCE = 4;
 
@@ -145,6 +147,8 @@ function convertProgramStatements(file: string, nodes: unknown[], parentNs: stri
       out.push(...convertTopLevelEnumToFunctionDecls(file, node, parentNs));
     } else if (nt === "Stmt_Trait") {
       out.push(...convertTopLevelTraitToFunctionDecls(file, node, parentNs));
+    } else if (nt === "Stmt_Interface") {
+      out.push(...convertTopLevelInterfaceToFunctionDecls(file, node, parentNs));
     } else {
       out.push(convertStatement(file, node, parentNs));
     }
@@ -217,6 +221,7 @@ function convertTopLevelClassToFunctionDecls(
     if (!isNikicDict(mb) || mb.nodeType !== "Stmt_Property") continue;
     const flags = typeof mb.flags === "number" ? mb.flags : 0;
     const readonly = (flags & PHP_MODIFIER_READONLY) !== 0;
+    const isStatic = (flags & PHP_MODIFIER_STATIC) !== 0;
     const typeHintText = typeHint(mb.type as unknown);
     const props = Array.isArray(mb.props) ? mb.props : [];
     for (const prop of props) {
@@ -227,7 +232,12 @@ function convertTopLevelClassToFunctionDecls(
           ? identifierText(propNameNode) ?? ""
           : "";
       if (!propName) continue;
-      properties.push({ name: propName, typeHint: typeHintText, readonly });
+      properties.push({
+        name: propName,
+        typeHint: typeHintText,
+        readonly,
+        ...(isStatic ? { static: true as const } : {}),
+      });
     }
   }
 
@@ -242,13 +252,18 @@ function convertTopLevelClassToFunctionDecls(
     );
   }
 
-  if (properties.length > 0) {
-    const classFlags = typeof classNode.flags === "number" ? classNode.flags : 0;
+  const classFlags = typeof classNode.flags === "number" ? classNode.flags : 0;
+  const classMeta = {
+    ...((classFlags & PHP_MODIFIER_READONLY) !== 0 ? { readonly: true as const } : {}),
+    ...((classFlags & PHP_CLASS_FINAL) !== 0 ? { final: true as const } : {}),
+    ...((classFlags & PHP_CLASS_ABSTRACT) !== 0 ? { abstract: true as const } : {}),
+  };
+  if (properties.length > 0 || Object.keys(classMeta).length > 0) {
     out.push({
       kind: "ClassDecl",
       name: fqn,
       properties,
-      ...((classFlags & PHP_MODIFIER_READONLY) !== 0 ? { readonly: true as const } : {}),
+      ...classMeta,
       pos: stmtPos(file, classNode),
     });
   }
@@ -335,6 +350,35 @@ function convertTopLevelTraitToFunctionDecls(
   const short = identifierText(traitNode.name) ?? "";
   const name = short !== "" && nsPrefix !== "" ? `${nsPrefix}\\${short}` : short;
   const stmts = Array.isArray(traitNode.stmts) ? traitNode.stmts : [];
+  const out: PhpNode[] = [];
+  for (const mb of stmts) {
+    if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassMethod") continue;
+    const mname = identifierText(mb.name);
+    if (!mname) continue;
+    const pst = Array.isArray(mb.stmts) ? convertBody(file, mb.stmts as unknown[], nsPrefix) : [];
+    const params = (Array.isArray(mb.params) ? mb.params : []).map((p) => convertParam(file, p));
+    const methodAttributes = convertNikicAttributes(file, mb.attrGroups);
+    out.push({
+      kind: "FunctionDecl",
+      name: `${name}::${mname}`,
+      params,
+      returnHint: typeHint(mb.returnType as unknown),
+      body: pst,
+      ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
+      pos: stmtPos(file, mb),
+    });
+  }
+  return out;
+}
+
+function convertTopLevelInterfaceToFunctionDecls(
+  file: string,
+  ifaceNode: NikicDict,
+  nsPrefix: string,
+): PhpNode[] {
+  const short = identifierText(ifaceNode.name) ?? "";
+  const name = short !== "" && nsPrefix !== "" ? `${nsPrefix}\\${short}` : short;
+  const stmts = Array.isArray(ifaceNode.stmts) ? ifaceNode.stmts : [];
   const out: PhpNode[] = [];
   for (const mb of stmts) {
     if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassMethod") continue;
@@ -769,7 +813,8 @@ function convertFuncCallee(file: string, nameNode: unknown): PhpCallCallee {
 function propertyLikeName(nm: unknown): string | undefined {
   if (typeof nm === "string") return nm;
   if (!isNikicDict(nm)) return undefined;
-  if (nm.nodeType === "Identifier") return identifierText(nm);
+  if (nm.nodeType === "Identifier") return identifierText(nm) ?? undefined;
+  if (nm.nodeType === "VarLikeIdentifier") return identifierText(nm) ?? undefined;
   return undefined;
 }
 
@@ -949,6 +994,15 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
     };
   }
 
+  if (nt === "Expr_PostInc" || nt === "Expr_PreInc") {
+    return {
+      kind: "UnaryOp",
+      operator: "+",
+      operand: mustExpr(file, raw.var as unknown),
+      pos,
+    };
+  }
+
   switch (nt) {
     case "Scalar_String": {
       const v = typeof raw.value === "string" ? raw.value : "";
@@ -1038,6 +1092,20 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
         return unknownExpr(file, raw, "Expr_ClassConstFetch: non-name class");
       }
       return { kind: "StaticFetch", className: cn, name: constName, pos };
+    }
+
+    case "Expr_StaticPropertyFetch": {
+      const c = raw.class as unknown;
+      const n = raw.name as unknown;
+      const propName = propertyLikeName(n);
+      if (!isNikicDict(c) || !propName) {
+        return unknownExpr(file, raw, "Expr_StaticPropertyFetch");
+      }
+      const cn = classFqnForStaticLike(c);
+      if (cn === undefined) {
+        return unknownExpr(file, raw, "Expr_StaticPropertyFetch: non-name class");
+      }
+      return { kind: "StaticFetch", className: cn, name: propName, pos };
     }
 
     case "Expr_ConstFetch": {
@@ -1229,6 +1297,9 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
 
     case "Expr_Clone":
       return unknownExpr(file, raw, "Expr_Clone");
+
+    case "Expr_Throw":
+      return unknownExpr(file, raw, "unhandled expr: throw");
 
     case "Expr_ArrowFunction": {
       const params = (Array.isArray(raw.params) ? raw.params : []).map((p) => convertParam(file, p));

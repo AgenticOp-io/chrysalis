@@ -126,6 +126,48 @@
       "path": "/trait-methods",
       "file": "pages/trait_methods.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/int-enum",
+      "file": "pages/int_enum.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/interface-methods",
+      "file": "pages/interface_methods.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/static-property",
+      "file": "pages/static_property.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/heredoc",
+      "file": "pages/heredoc.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/abstract-class",
+      "file": "pages/abstract_class.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/final-class",
+      "file": "pages/final_class.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/throw-expr",
+      "file": "pages/throw_expr.php",
+      "pathParams": []
     }
   ]
 }

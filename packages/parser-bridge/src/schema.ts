@@ -136,6 +136,8 @@ export interface PhpClassProperty {
   readonly name: string;
   readonly typeHint: string | null;
   readonly readonly: boolean;
+  /** Instance vs static property (PHP `static` modifier). */
+  readonly static?: boolean;
 }
 
 /** PHP class metadata for Lane A parity (methods still hoist to FunctionDecl). */
@@ -145,6 +147,10 @@ export interface PhpClassDecl {
   readonly properties: ReadonlyArray<PhpClassProperty>;
   /** PHP 8.2+ `readonly class` modifier. */
   readonly readonly?: boolean;
+  /** PHP `abstract class` modifier. */
+  readonly abstract?: boolean;
+  /** PHP `final class` modifier. */
+  readonly final?: boolean;
   readonly pos: Pos;
 }
 

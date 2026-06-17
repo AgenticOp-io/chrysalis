@@ -388,6 +388,85 @@ $maybe = null ?? "fallback";
     expect(methods.map((m) => m.name).sort()).toEqual(["Greeter::hello", "Greeter::tag"]);
   });
 
+  run("matches glayzzle on parser-parity-probe int_enum.php (positions stripped) (G2330)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/int_enum.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "int_enum.php");
+    const nk = await parseSource(src, "int_enum.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+    const enumDecl = nk.statements.find(
+      (s): s is Extract<(typeof nk.statements)[number], { kind: "EnumDecl" }> => s.kind === "EnumDecl",
+    );
+    expect(enumDecl?.scalarType).toBe("int");
+  });
+
+  run("hoists interface methods on parser-parity-probe interface_methods.php (G2329)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/interface_methods.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "interface_methods.php");
+    const nk = await parseSource(src, "interface_methods.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+    const methods = nk.statements.filter(
+      (s): s is Extract<(typeof nk.statements)[number], { kind: "FunctionDecl" }> =>
+        s.kind === "FunctionDecl" && s.name.startsWith("Labelled::"),
+    );
+    expect(methods.map((m) => m.name).sort()).toEqual(["Labelled::kind", "Labelled::label"]);
+  });
+
+  run("matches glayzzle on parser-parity-probe static_property.php (positions stripped) (G2331)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/static_property.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "static_property.php");
+    const nk = await parseSource(src, "static_property.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+    const classDecl = nk.statements.find(
+      (s): s is Extract<(typeof nk.statements)[number], { kind: "ClassDecl" }> => s.kind === "ClassDecl",
+    );
+    expect(classDecl?.properties.some((p) => p.name === "n" && p.static === true)).toBe(true);
+  });
+
+  run("matches glayzzle on parser-parity-probe heredoc.php (positions stripped) (G2332)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/heredoc.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "heredoc.php");
+    const nk = await parseSource(src, "heredoc.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe abstract_class.php (positions stripped) (G2335)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/abstract_class.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "abstract_class.php");
+    const nk = await parseSource(src, "abstract_class.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+    const base = nk.statements.find(
+      (s): s is Extract<(typeof nk.statements)[number], { kind: "ClassDecl" }> =>
+        s.kind === "ClassDecl" && s.name === "Base",
+    );
+    expect(base?.abstract).toBe(true);
+  });
+
+  run("matches glayzzle on parser-parity-probe final_class.php (positions stripped) (G2336)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/final_class.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "final_class.php");
+    const nk = await parseSource(src, "final_class.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+    const sealed = nk.statements.find(
+      (s): s is Extract<(typeof nk.statements)[number], { kind: "ClassDecl" }> =>
+        s.kind === "ClassDecl" && s.name === "Sealed",
+    );
+    expect(sealed?.final).toBe(true);
+  });
+
+  run("matches glayzzle on parser-parity-probe throw_expr.php (positions stripped) (G2337)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/throw_expr.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "throw_expr.php");
+    const nk = await parseSource(src, "throw_expr.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("maps nikic union type hints to pipe syntax (G2301)", async () => {
     const src = `<?php
 function union_hint(string|int $value): string|int|null { return $value; }
