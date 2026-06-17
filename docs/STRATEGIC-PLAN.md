@@ -122,11 +122,11 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 ## 7. Phased delivery (authoritative backlog)
 
-### Phase 0 — Truth in packaging (weeks)
+### Phase 0 — Truth in packaging (weeks) — **Closed (2026-06-17)**
 
-- Capability matrix doc (`docs/CAPABILITY-MATRIX.md` when written)
-- External copy: **PHP oracle migration**, not “575 languages”
-- Split **plumbing OK** vs **oracle product OK** in completion/hub reports where applicable
+- [x] Capability matrix doc — **`docs/CAPABILITY-MATRIX.md`** + **`pnpm run hub:capability-matrix`**
+- [x] External copy: **PHP oracle migration**, not “575 languages”
+- [x] Split **plumbing OK** vs **oracle product OK** in completion/hub reports (**hub-completion** schema + **`docs/CAPABILITY-MATRIX.md`**)
 
 ### Phase 1 — PHP wedge depth (months 1–9) — **P0**
 
@@ -250,19 +250,21 @@ When the user says “build” without specifying, prefer this queue:
 
 **Default test execution (2026-06-01):** run the full suite on Linux GCE, not on a sleeping laptop — `**pnpm run test:gce`** (see `**docs/GCE-LOCAL-VERIFY.md**`).
 
-### Hub verify-gaps program (post–Next 90 days)
+### Hub verify-gaps program (post–Next 90 days) — **Closed (2026-06-16)**
+
+**Status:** months **26–30** shipped (**hub-completion schema 74** baseline); **Phase B** reinforcement complete on GCE (**G2272**, **`pnpm run hub:verify-gaps-post110-reinforcement-smoke`**). Maintenance only — no new schema fork unless hub-completion bumps.
 
 
-| Month | Focus                                                                                                                                                                                     |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 26    | Auth-probe verify seed closure after strict reingest (schema 70)                                                                                                                          |
-| 27    | **Real verify replay** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY`); multi-flagship replay; IR helper lifting hub smoke (schema 71)                                        |
-| 28    | **HTTP oracle verify** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP`); multi-flagship HTTP verify; IR helper semantic lifting (schema 72)                                      |
-| 29    | **Fastify HTTP oracle verify** + IR helper embed lifting B4 (`--ingest-embed-shared-helper-bodies`); multi-flagship Fastify HTTP batch (schema 73)                                        |
-| 30    | **Hub verify-gaps graduation** — reingest + Fastify HTTP (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET`); IR helper B1–B4 full path; dual-backend HTTP verify loop complete (schema 74) |
+| Month | Focus | Status |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| 26 | Auth-probe verify seed closure after strict reingest (schema 70) | **Closed** |
+| 27 | **Real verify replay** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_REPLAY`); multi-flagship replay; IR helper lifting hub smoke (schema 71) | **Closed** |
+| 28 | **HTTP oracle verify** after reingest (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP`); multi-flagship HTTP verify; IR helper semantic lifting (schema 72) | **Closed** |
+| 29 | **Fastify HTTP oracle verify** + IR helper embed lifting B4 (`--ingest-embed-shared-helper-bodies`); multi-flagship Fastify HTTP batch (schema 73) | **Closed** |
+| 30 | **Hub verify-gaps graduation** — reingest + Fastify HTTP (`CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP_TARGET`); IR helper B1–B4 full path; dual-backend HTTP verify loop complete (schema 74) | **Closed** |
 
 
-HTTP verify runs emit + live server + `chrysalis verify --base-url` — stronger than in-process replay. Replay and seed closure remain for faster probes. Fastify HTTP verify proves the second emit backend on live HTTP. Schema 74 closes the locked hub verify-gaps program (months 26–30).
+HTTP verify runs emit + live server + `chrysalis verify --base-url` — stronger than in-process replay. Replay and seed closure remain for faster probes. Fastify HTTP verify proves the second emit backend on live HTTP.
 
 ---
 

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { countHoles, ModuleBuilder } from "@chrysalis/webir";
 import { parseFile } from "@chrysalis/parser-bridge";
 import { convertPhpStatementsToBlock, ingestHandler } from "../src/convert.js";
-import { loadRouteManifest } from "../src/routes.js";
+import { ingestDirectory, loadRouteManifest } from "../src/index.js";
 
 const FIXTURE = resolve(dirname(fileURLToPath(import.meta.url)), "../../../fixtures/parser-parity-probe");
 
@@ -122,5 +122,11 @@ describe("ingest: parser-parity-probe arrow/match lowering (G2280)", () => {
       phpAttributes?: ReadonlyArray<{ name: string; args: ReadonlyArray<unknown> }>;
     }).phpAttributes;
     expect(phpAttributes).toEqual([{ name: "\\Chrysalis\\Probe", args: ["parity"] }]);
+  });
+
+  /** Full manifest ingest includes class/trait bodies; per-page tests above exclude `FunctionDecl`. */
+  it("full fixture ingest pins contested-syntax hole budget (G2401)", async () => {
+    const mod = await ingestDirectory(FIXTURE);
+    expect(countHoles(mod)).toBe(5);
   });
 });

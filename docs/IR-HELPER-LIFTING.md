@@ -75,4 +75,4 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 ## Decision
 
-Track implementation under **ROADMAP** row **B** and GitHub issue **#3**. Land only after **B2** has verify-backed fixtures; **B3** needs Architecture board sign-off on equivalence rules.
+**Closed (2026-06-17).** **B0–B5.5 v16** shipped with hub semantic + replay twin gates (**G2303–G2304**). Track maintenance under **ROADMAP** post-2.0 row **B** (GitHub **#3**). Non-structural cross-file lift beyond B5 tiers requires a new design pass + plan amendment.

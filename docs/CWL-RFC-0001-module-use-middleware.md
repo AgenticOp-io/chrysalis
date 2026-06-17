@@ -51,7 +51,7 @@ Evidence: hub gold suites **`js-middleware-*`**, **`python-middleware-*`**, **`h
 ## Verification
 
 - Structural: existing **`cwl-gold-hono`** / **`cwl-gold-fastify`** (no regression)
-- Next: optional **`cwl-middleware-hono`** fixture with POST route + trace replay (follow-up)
+- Optional follow-up (**deferred**): **`cwl-middleware-hono`** fixture with POST route + trace replay — not required for RFC closure
 
 ## Non-goals
 

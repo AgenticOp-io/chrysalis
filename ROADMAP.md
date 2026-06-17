@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" and **Hub depth** (`docs/CWL-FULLSTACK-POST-110-PROGRAM.md`).
-- **Recently shipped:** **G2399–G2400** — multi-lane baseline closure (Lane D **`parser-parity-probe`** migration-debt ceiling, B5.1 nested param-read twins, ROADMAP/archive/docs). Prior slices through **G2398** in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G2401–G2404** — hub verify-gaps + post-110 program closure, Phase 0 packaging, parser-parity full-fixture hole budget test. Prior slices through **G2400** in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -23,6 +23,8 @@ marketing; WordPress before Laravel boring; "any language production-ready" clai
 ---
 
 ## Post-2.0 depth backlog (options)
+
+**Status:** **closed (2026-06-17)** — all rows shipped or baselined; table kept for issue links and artifact pointers.
 
 The **v2.0.0** thesis and scale-out milestones are complete; the rows below track **post-2.0 depth** work. **A, C, D, E** are **closed** in-tree; **B** ships **B0–B5.5 v16** (structural dedupe, semantic lift tiers, SQL twin oracle gates, lib-helper param inlining) — see `docs/IR-HELPER-LIFTING.md`. Broader **non-structural** helper lifting for bodies that differ beyond the B5 equivalence rules remains **maintenance / hub program** backlog (see **V2-M4** *Remaining* in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md)).
 
@@ -34,7 +36,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **D — `rediss://` (PHP sessions)** | TLS Redis URL support in the **PHP** session bridge. | **`RedisChrysalisSessionHandler`** **`doConnectRedis`**; smoke **`packages/oracle-php/tests/redis_session_bridge_smoke.php`**. | [#5](https://github.com/theorem6/chrysalis/issues/5) | **Closed** |
 | **E — Fleet / chimera dashboards** | **Reference** Grafana starter dashboard (**operator-owned** datasource). | **`examples/grafana/README.md`**, **`examples/grafana/dashboards/chrysalis-operator-overview.json`**. | [#6](https://github.com/theorem6/chrysalis/issues/6) | **Closed** |
 
-**Multi-runtime CLI (DESIGN D295):** **`go/shim/`** (Go **`exec`**) and **`python/chrysalis_shim/`** (**`subprocess`**) invoke the same built Node CLI (**`packages/cli/dist/bin.js`**). **`CHRYSALIS_CLI_JS`** / **`CHRYSALIS_NODE`** override discovery. Optional **`pnpm run test:cli-shims`** after **`pnpm --filter @chrysalis/cli build`**.
+**Multi-runtime CLI (DESIGN D295):** **Closed** — **`go/shim/`** and **`python/chrysalis_shim/`** invoke built **`packages/cli/dist/bin.js`**; CI **`pnpm run test:cli-shims`** after **`pnpm -r build`**. **`CHRYSALIS_CLI_JS`** / **`CHRYSALIS_NODE`** override discovery.
 
 
 ---
@@ -93,7 +95,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 ### Commercial program (documentation + optional CLI gate)
 
-**Status:** In-tree scaffolding on **`main`** (**DESIGN D289**). **`chrysalis init`** is **not** license-gated so vendor trees can be marked before keys are distributed (**D290**). **Not yet published** as a public commercial launch (no announced SKUs, pricing, or standalone **`@chrysalis/license`** npm product). **Purpose:** capture **revenue ordering** (services → support → licensed distribution → training → reference examples) in **`docs/COMMERCIAL.md`**, and ship **`@chrysalis/license`** + **`chrysalis license`** + **`CHRYSALIS_REQUIRE_LICENSE`** / **`CHRYSALIS_LICENSE_MIN_TIER`** for **future vendor** distributions. **Non-goals in-tree:** payment processors, activation servers, or metering.
+**Status:** **Baseline closed (2026-06-17)** — in-tree scaffolding on **`main`** (**DESIGN D289**). **`chrysalis init`** is **not** license-gated (**D290**). **Not yet published** as a public commercial launch (no SKUs/pricing). **Purpose:** **`docs/COMMERCIAL.md`** revenue ordering + **`@chrysalis/license`** / **`chrysalis license`** / **`CHRYSALIS_REQUIRE_LICENSE`** for future vendor distributions. **Non-goals in-tree:** payment processors, activation servers, metering.
 
 
 ---
@@ -101,11 +103,11 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 ## What's next (active backlog)
 
 The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § "Next 90 days"
-(see `AGENTS.md`). Current build focus:
+(see `AGENTS.md`). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**. Current build focus:
 
-- **Hub / CWL full-stack program:** `docs/CWL-FULLSTACK-POST-110-PROGRAM.md` (post-lane baseline).
-- **Parser maintenance:** new contested-syntax pages in **`fixtures/parser-parity-probe`** when glayzzle/nikic mapper gaps appear (Lane A maintenance).
-- **IR helper lifting maintenance:** new B5.x inlining patterns only when hub gates or fixtures require them (`docs/IR-HELPER-LIFTING.md`).
+- **CWL / full-stack (when plan amended):** Phase C paused; queue **111+** requires **`DESIGN.md`** Decision Log entry.
+- **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`**; lower **`--max-holes 5`** when ingest closes the five pinned routes.
+- **IR helper lifting maintenance:** hub-gated B5.x patterns only (`docs/IR-HELPER-LIFTING.md`).
 
 Everything already shipped is logged in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 

@@ -1,10 +1,10 @@
 # Post–queue 110 program (locked default build)
 
-> **Status:** Phase A+B **complete** (2026-06-16 — GCE green + post110 B1–B5); Phase C **paused**  
+> **Status:** **Closed (2026-06-17)** — Phase A+B **complete**; Phase C **paused**  
 > **Prerequisite:** **G1159–G2258 complete** (CWL full-stack queues 6–110, hub-completion schema **183**)  
-> **Authority:** `docs/STRATEGIC-PLAN.md` §12; hub verify-gaps months **26–30** (schema **74** baseline)
+> **Authority:** `docs/STRATEGIC-PLAN.md` §12; hub verify-gaps months **26–30** (**closed**, schema **74**)
 
-When the user says **build** without specifying after queue 110, prefer this program **in order**.
+When the user says **build** without specifying after queue 110, **do not** resume this program unless **`docs/STRATEGIC-PLAN.md`** is amended (Phase C / queue **111+** not chartered).
 
 ---
 
@@ -21,7 +21,7 @@ When the user says **build** without specifying after queue 110, prefer this pro
 
 ---
 
-## Phase B — Hub verify-gaps depth (months 26–30 reinforcement)
+## Phase B — Hub verify-gaps depth (months 26–30 reinforcement) — **Closed (2026-06-16)**
 
 Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated CI** (no new schema fork unless hub-completion bumps):
 
