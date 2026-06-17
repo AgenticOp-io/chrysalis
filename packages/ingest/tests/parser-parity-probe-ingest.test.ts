@@ -124,9 +124,9 @@ describe("ingest: parser-parity-probe arrow/match lowering (G2280)", () => {
     expect(phpAttributes).toEqual([{ name: "\\Chrysalis\\Probe", args: ["parity"] }]);
   });
 
-  /** Full manifest ingest includes class/trait bodies; per-page tests above exclude `FunctionDecl`. */
-  it("full fixture ingest pins contested-syntax hole budget (G2401)", async () => {
+  /** Full manifest ingest includes class/trait bodies; per-page tests exclude `FunctionDecl`. */
+  it("full fixture ingest is hole-free (G2405)", async () => {
     const mod = await ingestDirectory(FIXTURE);
-    expect(countHoles(mod)).toBe(5);
+    expect(countHoles(mod)).toBe(0);
   });
 });

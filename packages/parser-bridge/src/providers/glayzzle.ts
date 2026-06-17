@@ -878,6 +878,25 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
         name: String((node.offset as AnyNode)?.name ?? ""),
         pos: pos(file, node),
       };
+    case "nullsafepropertylookup":
+      return {
+        kind: "NullsafePropertyFetch",
+        target: convertExpression(file, node.what as AnyNode),
+        name: String((node.offset as AnyNode)?.name ?? ""),
+        pos: pos(file, node),
+      };
+    case "nullsafemethodlookup": {
+      const args = Array.isArray(node.arguments) ? (node.arguments as AnyNode[]) : [];
+      const callArgs = convertGlayzzleCallArgs(file, args);
+      return {
+        kind: "NullsafeMethodCall",
+        target: convertExpression(file, node.what as AnyNode),
+        name: String((node.offset as AnyNode)?.name ?? ""),
+        args: callArgs.values,
+        ...(callArgs.names ? { argNames: callArgs.names } : {}),
+        pos: pos(file, node),
+      };
+    }
     case "encapsed": {
       // Double-quoted string with interpolations. Flatten into Concat via BinOp tree.
       const parts = Array.isArray(node.value) ? (node.value as AnyNode[]) : [];
@@ -949,8 +968,17 @@ function convertExpression(file: string, node: AnyNode | null | undefined): PhpE
         pos: pos(file, node),
       };
     }
-    case "throw":
-      return unknownExpr(file, node, "unhandled expr: throw");
+    case "throw": {
+      const w = (node.what ?? node.expr) as AnyNode | undefined;
+      if (!w) {
+        return unknownExpr(file, node, "throw: missing value");
+      }
+      return {
+        kind: "ThrowExpr",
+        expr: convertExpression(file, w),
+        pos: pos(file, node),
+      };
+    }
     default:
       return unknownExpr(file, node, `unhandled expr: ${node.kind}`);
   }

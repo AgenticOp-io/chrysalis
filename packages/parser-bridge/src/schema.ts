@@ -59,6 +59,9 @@ export type PhpExpr =
   | PhpConstFetch
   | PhpStaticFetch
   | PhpPropertyFetch
+  | PhpNullsafePropertyFetch
+  | PhpNullsafeMethodCall
+  | PhpThrowExpr
   | PhpNew
   | PhpNewDynamic
   | PhpArrowFunction
@@ -314,6 +317,31 @@ export interface PhpPropertyFetch {
   readonly kind: "PropertyFetch";
   readonly target: PhpExpr;
   readonly name: string;
+  readonly pos: Pos;
+}
+
+/** PHP 8.0+ nullsafe property `$obj?->prop`. */
+export interface PhpNullsafePropertyFetch {
+  readonly kind: "NullsafePropertyFetch";
+  readonly target: PhpExpr;
+  readonly name: string;
+  readonly pos: Pos;
+}
+
+/** PHP 8.0+ nullsafe method `$obj?->method(...)`. */
+export interface PhpNullsafeMethodCall {
+  readonly kind: "NullsafeMethodCall";
+  readonly target: PhpExpr;
+  readonly name: string;
+  readonly args: ReadonlyArray<PhpExpr>;
+  readonly argNames?: ReadonlyArray<string | null>;
+  readonly pos: Pos;
+}
+
+/** PHP 8.0+ `throw` as an expression (e.g. arrow fn body). */
+export interface PhpThrowExpr {
+  readonly kind: "ThrowExpr";
+  readonly expr: PhpExpr;
   readonly pos: Pos;
 }
 

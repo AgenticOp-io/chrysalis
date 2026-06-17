@@ -16,7 +16,7 @@
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "migration-debt": "node scripts/migration-debt.mjs",
-    "migration-debt:gate:ingest": "node scripts/migration-debt.mjs --project fixtures/tiny-blog --max-holes 0 && node scripts/migration-debt.mjs --project fixtures/mysqli-probe --max-holes 5 && node scripts/migration-debt.mjs --project fixtures/db-query-unknown-receiver-probe --max-holes 1 && node scripts/migration-debt.mjs --project fixtures/laravel-shaped-db-factory-probe --max-holes 0 && node scripts/migration-debt.mjs --project fixtures/parser-parity-probe --max-holes 5",
+    "migration-debt:gate:ingest": "node scripts/migration-debt.mjs --project fixtures/tiny-blog --max-holes 0 && node scripts/migration-debt.mjs --project fixtures/mysqli-probe --max-holes 5 && node scripts/migration-debt.mjs --project fixtures/db-query-unknown-receiver-probe --max-holes 1 && node scripts/migration-debt.mjs --project fixtures/laravel-shaped-db-factory-probe --max-holes 0 && node scripts/migration-debt.mjs --project fixtures/parser-parity-probe --max-holes 0",
     "migration-debt:gate:post-verify": "node scripts/migration-debt.mjs --project fixtures/tiny-blog --traces traces --report reports/verify --max-holes 0 --min-correctness 1",
     "vendor:parser-bridge": "node scripts/parser-bridge-composer-install.mjs",
     "pretest": "node scripts/ensure-parser-bridge-vendor.mjs",

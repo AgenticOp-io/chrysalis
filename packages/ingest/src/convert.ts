@@ -1052,6 +1052,37 @@ function convertExpr(ctx: Ctx, e: PhpExpr, pathParams: RouteSpec["pathParams"]):
         type: T.unknown,
         origin: loc(ctx, e.pos),
       });
+    case "NullsafePropertyFetch":
+      return ctx.data.call({
+        callee: "__nullsafe_property_fetch",
+        args: [
+          convertExpr(ctx, e.target, pathParams),
+          ctx.data.literal({ value: e.name, type: T.string, origin: loc(ctx, e.pos) }),
+        ],
+        type: T.unknown,
+        origin: loc(ctx, e.pos),
+      });
+    case "NullsafeMethodCall": {
+      const nsArgs: NodeId[] = [
+        convertExpr(ctx, e.target, pathParams),
+        ctx.data.literal({ value: e.name, type: T.string, origin: loc(ctx, e.pos) }),
+        ...e.args.map((a) => convertExpr(ctx, a, pathParams)),
+      ];
+      return ctx.data.call({
+        callee: "__nullsafe_method_call",
+        args: nsArgs,
+        type: T.unknown,
+        origin: loc(ctx, e.pos),
+        ...(e.argNames !== undefined ? { argNames: e.argNames } : {}),
+      });
+    }
+    case "ThrowExpr":
+      return ctx.data.call({
+        callee: "__throw_expr",
+        args: [convertExpr(ctx, e.expr, pathParams)],
+        type: T.unknown,
+        origin: loc(ctx, e.pos),
+      });
     case "New": {
       const segs = e.className.replace(/^\\+/, "").split("\\").filter((s) => s.length > 0);
       if (segs.length === 0) {
@@ -1188,7 +1219,7 @@ function convertCall(
       origin: loc(ctx, e.pos),
     });
   }
-  if (name === undefined) {
+    if (name === undefined) {
     if (e.callee.kind === "variable") {
       const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
       return ctx.data.call({
@@ -1200,12 +1231,23 @@ function convertCall(
         ...phpCallAttributes(ctx, e.callee.name),
       });
     }
-    if (
-      e.callee.kind === "expr" &&
-      e.callee.expr.kind === "PropertyFetch" &&
-      e.callee.expr.name === "query"
-    ) {
-      return hole(ctx, "legacy:db-query-unknown-receiver", e.pos);
+    if (e.callee.kind === "expr" && e.callee.expr.kind === "PropertyFetch") {
+      const pf = e.callee.expr;
+      if (pf.name === "query") {
+        return hole(ctx, "legacy:db-query-unknown-receiver", e.pos);
+      }
+      const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
+      return ctx.data.call({
+        callee: "__method_call",
+        args: [
+          convertExpr(ctx, pf.target, pathParams),
+          ctx.data.literal({ value: pf.name, type: T.string, origin: callOrigin }),
+          ...args,
+        ],
+        type: T.unknown,
+        origin: callOrigin,
+        ...phpCallArgNames(e),
+      });
     }
     return hole(ctx, `call:${e.callee.kind}`, e.pos);
   }

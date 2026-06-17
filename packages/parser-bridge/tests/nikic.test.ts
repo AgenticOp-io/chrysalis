@@ -49,10 +49,6 @@ function normalizeParityShape(v: unknown): unknown {
     };
   }
 
-  if (o.kind === "UnknownExpr" && typeof o.detail === "string" && /nullsafe/i.test(o.detail)) {
-    return { kind: "UnknownExpr", detail: "unhandled expr: nullsafePropertyFetch" };
-  }
-
   if (o.kind === "Unknown" && typeof o.detail === "string" && /try/i.test(o.detail)) {
     return { kind: "Unknown", detail: "unhandled stmt: try" };
   }

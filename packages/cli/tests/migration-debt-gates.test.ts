@@ -70,10 +70,10 @@ describe("migration-debt gates", () => {
     expect(r.status).toBe(0);
   });
 
-  test("--max-holes 5 passes for parser-parity-probe (pinned contested-syntax ceiling)", () => {
+  test("--max-holes 0 passes for parser-parity-probe", () => {
     const r = spawnSync(
       process.execPath,
-      [SCRIPT, "--project", "fixtures/parser-parity-probe", "--max-holes", "5"],
+      [SCRIPT, "--project", "fixtures/parser-parity-probe", "--max-holes", "0"],
       { cwd: ROOT, encoding: "utf8" },
     );
     expect(r.status).toBe(0);

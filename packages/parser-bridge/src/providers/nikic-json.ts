@@ -1110,6 +1110,38 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
       };
     }
 
+    case "Expr_NullsafePropertyFetch": {
+      const vn = raw.var as unknown;
+      const prop = raw.name as unknown;
+      const pstr = propertyLikeName(prop);
+      if (!isNikicDict(vn) || pstr === undefined) {
+        return unknownExpr(file, raw, "Expr_NullsafePropertyFetch (dynamic)");
+      }
+      return {
+        kind: "NullsafePropertyFetch",
+        target: convertExpression(file, vn),
+        name: pstr,
+        pos,
+      };
+    }
+
+    case "Expr_NullsafeMethodCall": {
+      const vn = raw.var as unknown;
+      const method = propertyLikeName(raw.name as unknown);
+      if (!isNikicDict(vn) || method === undefined) {
+        return unknownExpr(file, raw, "Expr_NullsafeMethodCall");
+      }
+      const argPack = argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []);
+      return {
+        kind: "NullsafeMethodCall",
+        target: convertExpression(file, vn),
+        name: method,
+        args: argPack.values,
+        ...(argPack.names ? { argNames: argPack.names } : {}),
+        pos,
+      };
+    }
+
     case "Expr_ClassConstFetch": {
       const c = raw.class as unknown;
       const n = raw.name as unknown;
@@ -1358,7 +1390,11 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
       return unknownExpr(file, raw, "unhandled expr: list");
 
     case "Expr_Throw":
-      return unknownExpr(file, raw, "unhandled expr: throw");
+      return {
+        kind: "ThrowExpr",
+        expr: mustExpr(file, raw.expr as unknown),
+        pos,
+      };
 
     case "Expr_ArrowFunction": {
       const params = (Array.isArray(raw.params) ? raw.params : []).map((p) => convertParam(file, p));
