@@ -30,6 +30,9 @@ const SUPERGLOBAL_NAMES = new Set([
 ]);
 
 const PHP_MODIFIER_STATIC = 8;
+const PHP_MODIFIER_PUBLIC = 1;
+const PHP_MODIFIER_PROTECTED = 2;
+const PHP_MODIFIER_PRIVATE = 4;
 const PHP_MODIFIER_READONLY = 64;
 const INCLUDE_ONCE = 2;
 const REQUIRE_ONCE = 4;
@@ -167,6 +170,32 @@ function identifierText(raw: unknown): string | undefined {
   return undefined;
 }
 
+function isPromotedConstructorParam(flags: number): boolean {
+  return (flags & (PHP_MODIFIER_PUBLIC | PHP_MODIFIER_PROTECTED | PHP_MODIFIER_PRIVATE)) !== 0;
+}
+
+function promotedPropertiesFromConstructorParams(
+  file: string,
+  params: unknown[],
+): import("../schema.js").PhpClassProperty[] {
+  const out: import("../schema.js").PhpClassProperty[] = [];
+  for (const raw of params) {
+    if (!isNikicDict(raw) || raw.nodeType !== "Param") continue;
+    const flags = typeof raw.flags === "number" ? raw.flags : 0;
+    if (!isPromotedConstructorParam(flags)) continue;
+    const v = raw.var;
+    if (!isNikicDict(v) || v.nodeType !== "Expr_Variable") continue;
+    const propName = exprVariableBareName(file, v);
+    if (!propName) continue;
+    out.push({
+      name: propName,
+      typeHint: typeHint(raw.type as unknown),
+      readonly: (flags & PHP_MODIFIER_READONLY) !== 0,
+    });
+  }
+  return out;
+}
+
 function convertTopLevelClassToFunctionDecls(
   file: string,
   classNode: NikicDict,
@@ -196,6 +225,17 @@ function convertTopLevelClassToFunctionDecls(
       if (!propName) continue;
       properties.push({ name: propName, typeHint: typeHintText, readonly });
     }
+  }
+
+  for (const mb of body) {
+    if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassMethod") continue;
+    if (identifierText(mb.name) !== "__construct") continue;
+    properties.push(
+      ...promotedPropertiesFromConstructorParams(
+        file,
+        Array.isArray(mb.params) ? mb.params : [],
+      ),
+    );
   }
 
   if (properties.length > 0) {

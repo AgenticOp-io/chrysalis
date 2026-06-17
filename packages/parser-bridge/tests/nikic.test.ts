@@ -354,6 +354,14 @@ function union_hint(string|int $value): string|int|null { return $value; }
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe constructor_promotion.php (positions stripped) (G2309)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/constructor_promotion.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "constructor_promotion.php");
+    const nk = await parseSource(src, "constructor_promotion.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("matches glayzzle on parser-parity-probe invokable_controller.php (positions stripped) (G133)", async () => {
     const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/invokable_controller.php");
     const src = readFileSync(p, "utf8");

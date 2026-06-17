@@ -72,6 +72,12 @@
       "path": "/readonly-class",
       "file": "pages/readonly_class.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/constructor-promotion",
+      "file": "pages/constructor_promotion.php",
+      "pathParams": []
     }
   ]
 }

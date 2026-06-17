@@ -145,6 +145,22 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
     }
   }
 
+  for (const member of members) {
+    if (member.kind !== "method") continue;
+    const methodName = String((member.name as AnyNode | undefined)?.name ?? "");
+    if (methodName !== "__construct") continue;
+    const args = Array.isArray(member.arguments) ? (member.arguments as AnyNode[]) : [];
+    for (const arg of args) {
+      const flags = typeof arg.flags === "number" ? arg.flags : 0;
+      if ((flags & (1 | 2 | 4)) === 0) continue;
+      const propName = String((arg.name as AnyNode | undefined)?.name ?? arg.name ?? "");
+      if (!propName) continue;
+      const typeHint = typeNameFromHint(arg.type as AnyNode | null);
+      const readonly = Boolean(arg.readonly) || (flags & 64) !== 0;
+      properties.push({ name: propName, typeHint, readonly });
+    }
+  }
+
   if (properties.length > 0) {
     out.push({
       kind: "ClassDecl",
