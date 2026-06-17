@@ -17,8 +17,8 @@
 | 339 | G4687–G4696 | Post-267 Post-124 bootstrap + production graduation replay | v339 | 412 |
 | 340 | G4697–G4706 | Post-268 Post-125 Phase C graduation lock replay | v340 | 413 |
 
-Queues **341–345** — see **`docs/CWL-FULLSTACK-QUEUES-341-350.md`**.
+Queues **341–350** — see **`docs/CWL-FULLSTACK-QUEUES-341-350.md`**.
 
-**Vitest:** `hub-cwl-authoring-batch-v331.test.ts` through `v340.test.ts`
+**Vitest:** `hub-cwl-authoring-batch-v331.test.ts` through `v350.test.ts`
 
 **Non-goals (unchanged):** production SQL/session without parity evidence; hydration.
