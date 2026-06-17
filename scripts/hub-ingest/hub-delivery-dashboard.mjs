@@ -414,6 +414,7 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       irHelperLiftingSemantic: "hub:ir-helper-lifting-semantic-smoke",
       irHelperLiftingAttr: "hub:ir-helper-lifting-attr-smoke",
       irHelperLiftingOracleTwin: "hub:ir-helper-lifting-oracle-twin-smoke",
+      irHelperLiftingReplayTwin: "hub:ir-helper-lifting-replay-twin-smoke",
       requireGapReingestVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
     },
     month29Program: {

@@ -331,6 +331,7 @@
     "hub:ir-helper-lifting-semantic-smoke": "node scripts/hub-ingest/hub-ir-helper-lifting-semantic-smoke.mjs",
     "hub:ir-helper-lifting-attr-smoke": "node scripts/hub-ingest/hub-ir-helper-lifting-attr-smoke.mjs",
     "hub:ir-helper-lifting-oracle-twin-smoke": "node scripts/hub-ingest/hub-ir-helper-lifting-oracle-twin-smoke.mjs",
+    "hub:ir-helper-lifting-replay-twin-smoke": "node scripts/hub-ingest/hub-ir-helper-lifting-replay-twin-smoke.mjs",
     "verify:lift-helper-sql-same-twin-oracle": "node scripts/verify-lift-helper-sql-same-twin-oracle.mjs",
     "verify:lift-helper-sql-case-twin-oracle": "node scripts/verify-lift-helper-sql-case-twin-oracle.mjs",
     "verify:lift-helper-sql-same-twin-replay": "node scripts/verify-lift-helper-sql-same-twin-replay.mjs",

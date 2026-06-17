@@ -3529,6 +3529,9 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-16 — D2300** **sql-case-twin emit replay (G2300).** Shared **`lift-helper-sql-twin-replay-core.mjs`** + case-twin verify script. **DESIGN §3** unchanged.
 - **2026-06-16 — D2301** **Lane A nikic union type hints (G2301).** **`typeHint`** serializes **`UnionType`** / **`NullableType`** as **`A|B|null`**. Glayzzle union syntax remains unsupported on bundled php-parser 3.x. **DESIGN §3** unchanged.
 - **2026-06-16 — D2302** **Lane A readonly class properties (G2302).** Canonical **`ClassDecl`** + **`PhpClassProperty`**; glayzzle + nikic emit class metadata alongside hoisted methods. **DESIGN §3** unchanged.
+- **2026-06-16 — D2303** **Hub emit replay twin completion gate (G2303).** **`hub-ir-helper-lifting-replay-twin-smoke.mjs`** runs sql-same/case emit replay verify in hub completion; **`irHelperLiftingReplayTwinOk`** passes on **`no-php`** skip. **DESIGN §3** unchanged.
+- **2026-06-16 — D2304** **Hub semantic smoke v5 (G2304).** Semantic lift batch adds **`lift-helper-sql-param-inline`** fixture. **DESIGN §3** unchanged.
+- **2026-06-16 — D2305** **Parser parity ingest readonly class (G2305).** **`readonly_class.php`** ingests hole-free under parser-parity-probe Vitest. **DESIGN §3** unchanged.
 
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 

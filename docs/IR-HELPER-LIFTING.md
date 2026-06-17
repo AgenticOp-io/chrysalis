@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** **B1–B5.5 v3** on `main` (fixtures + Vitest + simulate + oracle/replay gates + parametric lib-helper inlining). Ingest normalizes SQL whitespace, keyword case (quote-aware), and inlines lib query helpers at call sites.  
+**Status:** **B1–B5.5 v3** on `main` (fixtures + Vitest + simulate + oracle/replay gates + parametric lib-helper inlining). Ingest normalizes SQL whitespace, keyword case (quote-aware), and inlines lib query helpers at call sites. Hub: **semantic smoke v5** (`sql-param-inline`) and **emit replay twin gate** (sql-same + sql-case twins) in completion batch (**G2303–G2304**).  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem
@@ -63,6 +63,15 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | **Done (v1–v5)** — **`bodyHasIrEffects`** disables arithmetic widening; **`fixtures/lift-helper-sql-twin/`** negative control; **`normalizeSqlLiteralForHelperLift`** aliases whitespace-only SQL twins (**`sql-ws-twin`**, **`sql-same-twin`**); **v4:** **`simulateHandler`** proves alpha/beta twins match under semantic lift; **v5:** oracle capture + twin body/SQL parity gate (**`verify-lift-helper-sql-same-twin-oracle.mjs`**). |
 | **B5.4** | SQL keyword case normalization for effectful semantic lift keys. | **Done (v1–v3)** — keyword uppercasing after whitespace collapse; **v2:** oracle twin verify; **v3:** quote-aware literal handling in **`normalizeSqlLiteralForHelperLift`**. |
 | **B5.5** | Ingest inlining of lib helpers whose body is **`return <effect.db.query>`** (zero-arg, parametric, or assign-then-return). | **Done (v1–v3)** — **`tryInlineLibHelperCall`** + **`HelperBodyEntry`**; **v2:** emit replay for sql-same-twin; **v3:** parametric + local-assign bodies + sql-case-twin replay + fixture **`lift-helper-sql-param-inline`**. |
+
+## Hub gates (G2303–G2304)
+
+| Script | Role |
+| --- | --- |
+| **`hub-ir-helper-lifting-semantic-smoke.mjs`** | Schema **v5** — ingest lift batch over gap-probe, param/sql twins, and **`lift-helper-sql-param-inline`**; expects zero holes. |
+| **`hub-ir-helper-lifting-replay-twin-smoke.mjs`** | Runs **`verify-lift-helper-sql-same-twin-replay`** + **`verify-lift-helper-sql-case-twin-replay`**; wired as **`irHelperLiftingReplayTwin`** in hub completion (**`irHelperLiftingReplayTwinOk`** passes on **`no-php`** skip). |
+
+Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the capability matrix / delivery dashboard.
 
 ## Decision
 

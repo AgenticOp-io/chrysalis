@@ -6,7 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const HUB_IR_HELPER_LIFTING_SEMANTIC_KIND = "chrysalis.hub.ir-helper-lifting-semantic-smoke";
-export const HUB_IR_HELPER_LIFTING_SEMANTIC_SCHEMA_VERSION = 4;
+export const HUB_IR_HELPER_LIFTING_SEMANTIC_SCHEMA_VERSION = 5;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
@@ -34,6 +34,7 @@ const FIXTURES = [
   { id: "sql-ws-twin", path: join(scriptRoot, "fixtures/lift-helper-sql-ws-twin") },
   { id: "sql-same-twin", path: join(scriptRoot, "fixtures/lift-helper-sql-same-twin") },
   { id: "sql-case-twin", path: join(scriptRoot, "fixtures/lift-helper-sql-case-twin") },
+  { id: "sql-param-inline", path: join(scriptRoot, "fixtures/lift-helper-sql-param-inline") },
 ];
 
 function ingestFixture(fixturePath) {

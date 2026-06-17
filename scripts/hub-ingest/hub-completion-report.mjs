@@ -267,6 +267,7 @@ export function buildHubCompletionReport(ctx) {
     irHelperLiftingSemantic,
     irHelperLiftingAttr,
     irHelperLiftingOracleTwin,
+    irHelperLiftingReplayTwin,
     irHelperLiftingEmbed,
     laravelAuthProbeVerifyHttpFastify,
     flagshipVerifyHttpFastify,
@@ -1673,6 +1674,11 @@ export function buildHubCompletionReport(ctx) {
       ok: okFlags.irHelperLiftingOracleTwinOk,
       fixtures: ["fixtures/lift-helper-sql-same-twin", "fixtures/lift-helper-sql-case-twin"],
       script: "pnpm run hub:ir-helper-lifting-oracle-twin-smoke",
+    },
+    irHelperLiftingReplayTwin: {
+      ok: okFlags.irHelperLiftingReplayTwinOk,
+      fixtures: ["fixtures/lift-helper-sql-same-twin", "fixtures/lift-helper-sql-case-twin"],
+      script: "pnpm run hub:ir-helper-lifting-replay-twin-smoke",
     },
     irHelperLiftingEmbed: {
       ok: okFlags.irHelperLiftingEmbedOk,

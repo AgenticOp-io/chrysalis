@@ -280,6 +280,7 @@ export function buildGceFastHeavySmokeState() {
   state.irHelperLiftingSemantic = d();
   state.irHelperLiftingAttr = d();
   state.irHelperLiftingOracleTwin = d();
+  state.irHelperLiftingReplayTwin = d();
   state.irHelperLiftingEmbed = d();
   state.laravelAuthProbeVerifyHttpFastify = d();
   state.flagshipVerifyHttpFastify = d();

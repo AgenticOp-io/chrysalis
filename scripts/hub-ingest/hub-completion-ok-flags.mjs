@@ -240,6 +240,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     irHelperLiftingSemantic,
     irHelperLiftingAttr,
     irHelperLiftingOracleTwin,
+    irHelperLiftingReplayTwin,
     irHelperLiftingEmbed,
     laravelAuthProbeVerifyHttpFastify,
     flagshipVerifyHttpFastify,
@@ -498,6 +499,8 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
   const irHelperLiftingAttrOk = irHelperLiftingAttr.ok === true;
   const irHelperLiftingOracleTwinOk =
     irHelperLiftingOracleTwin.ok === true || irHelperLiftingOracleTwin.skip === "no-php";
+  const irHelperLiftingReplayTwinOk =
+    irHelperLiftingReplayTwin.ok === true || irHelperLiftingReplayTwin.skip === "no-php";
   const irHelperLiftingEmbedOk = irHelperLiftingEmbed.ok === true;
   const laravelAuthProbeVerifyHttpFastifyOk = laravelAuthProbeVerifyHttpFastify.ok === true;
   const flagshipVerifyHttpFastifyOk = flagshipVerifyHttpFastify.ok === true;
@@ -748,6 +751,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     irHelperLiftingSemanticOk &&
     irHelperLiftingAttrOk &&
     irHelperLiftingOracleTwinOk &&
+    irHelperLiftingReplayTwinOk &&
     irHelperLiftingEmbedOk &&
     laravelAuthProbeVerifyHttpFastifyOk &&
     flagshipVerifyHttpFastifyOk &&
@@ -991,6 +995,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     irHelperLiftingSemanticOk,
     irHelperLiftingAttrOk,
     irHelperLiftingOracleTwinOk,
+    irHelperLiftingReplayTwinOk,
     irHelperLiftingEmbedOk,
     laravelAuthProbeVerifyHttpFastifyOk,
     flagshipVerifyHttpFastifyOk,
