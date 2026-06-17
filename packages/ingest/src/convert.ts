@@ -301,6 +301,19 @@ function queryFromReturnStmt(ctx: Ctx, stmtId: NodeId): NodeId | undefined {
   return retStmt.operands[0]!;
 }
 
+/** Normalize PHP variable names for helper-inline slot maps (`active` ≡ `$active`). */
+function phpVarKey(name: string): string {
+  return name.startsWith("$") ? name : `$${name}`;
+}
+
+function matchFormalParam(name: string, paramNames: readonly string[]): string | undefined {
+  const key = phpVarKey(name);
+  for (const p of paramNames) {
+    if (phpVarKey(p) === key) return p;
+  }
+  return undefined;
+}
+
 function tryExtractInlineQuery(
   ctx: Ctx,
   bodyId: NodeId,
@@ -309,26 +322,31 @@ function tryExtractInlineQuery(
   const body = ctx.m.get(bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
   const stmts = body.operands;
+  if (stmts.length === 0) return undefined;
+  const queryId = queryFromReturnStmt(ctx, stmts[stmts.length - 1]!);
+  if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    const queryId = queryFromReturnStmt(ctx, stmts[0]!);
-    return queryId !== undefined ? { queryId, localToArg: new Map() } : undefined;
+    return { queryId, localToArg: new Map() };
   }
-  if (stmts.length === 2) {
-    const assign = ctx.m.get(stmts[0]!);
+  const localToFormal = new Map<string, string>();
+  for (let i = 0; i < stmts.length - 1; i++) {
+    const assign = ctx.m.get(stmts[i]!);
     if (!assign || assign.op !== "call" || assign.attrs.callee !== "__assign") return undefined;
     const targetLit = ctx.m.get(assign.operands[0]!);
     const valueId = assign.operands[1]!;
     if (!targetLit || targetLit.op !== "literal") return undefined;
-    const localName = String(targetLit.attrs.value ?? "");
+    const localName = phpVarKey(String(targetLit.attrs.value ?? ""));
     const valueNode = ctx.m.get(valueId);
     if (!valueNode || valueNode.op !== "param") return undefined;
-    const formalName = String(valueNode.attrs.name ?? "");
-    if (!paramNames.includes(formalName)) return undefined;
-    const queryId = queryFromReturnStmt(ctx, stmts[1]!);
-    if (queryId === undefined) return undefined;
-    return { queryId, localToArg: new Map([[localName, formalName]]) };
+    const srcName = String(valueNode.attrs.name ?? "");
+    const formal =
+      matchFormalParam(srcName, paramNames) ??
+      localToFormal.get(phpVarKey(srcName)) ??
+      localToFormal.get(srcName);
+    if (formal === undefined) return undefined;
+    localToFormal.set(localName, formal);
   }
-  return undefined;
+  return { queryId, localToArg: localToFormal };
 }
 
 function walkSubgraphNodeIds(ctx: Ctx, rootId: NodeId, visit: (id: NodeId) => void, seen = new Set<NodeId>()): void {
@@ -378,21 +396,25 @@ function buildQueryParamReplacements(
   const formalToArg = new Map<string, NodeId>();
   for (let i = 0; i < paramNames.length; i++) {
     formalToArg.set(paramNames[i]!, argNodeIds[i]!);
+    formalToArg.set(phpVarKey(paramNames[i]!), argNodeIds[i]!);
   }
   const nameToArg = new Map<string, NodeId>();
   for (const [formal, argId] of formalToArg) {
     nameToArg.set(formal, argId);
   }
   for (const [local, formal] of localToFormal) {
-    const argId = formalToArg.get(formal);
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
     if (argId === undefined) return undefined;
     nameToArg.set(local, argId);
+    nameToArg.set(phpVarKey(local), argId);
   }
   const replacements = new Map<NodeId, NodeId>();
   walkSubgraphNodeIds(ctx, queryId, (id) => {
     const n = ctx.m.get(id);
     if (n?.op !== "param" || typeof n.attrs.name !== "string") return;
-    const rep = nameToArg.get(n.attrs.name);
+    const rep =
+      nameToArg.get(n.attrs.name) ??
+      nameToArg.get(phpVarKey(n.attrs.name));
     if (rep !== undefined) replacements.set(id, rep);
   });
   return replacements;

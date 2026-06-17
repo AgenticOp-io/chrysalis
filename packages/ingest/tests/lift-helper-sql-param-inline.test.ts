@@ -13,10 +13,11 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3)", () => {
         n.dialect === "data" &&
         n.op === "call" &&
         (String(n.attrs.callee).startsWith("chrysalis_sql_param") ||
-          String(n.attrs.callee).startsWith("chrysalis_sql_param_local")),
+          String(n.attrs.callee).startsWith("chrysalis_sql_param_local") ||
+          String(n.attrs.callee).startsWith("chrysalis_sql_param_chain")),
     );
     expect(helperCalls).toEqual([]);
     const dbQueries = [...mod.nodes.values()].filter((n) => n.dialect === "effect" && n.op === "db.query");
-    expect(dbQueries.length).toBeGreaterThanOrEqual(2);
+    expect(dbQueries.length).toBeGreaterThanOrEqual(3);
   });
 });

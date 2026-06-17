@@ -58,7 +58,8 @@ try {
   const base = `http://127.0.0.1:${port}`;
   await fetch(`${base}/alpha`);
   await fetch(`${base}/beta`);
-  console.log("[drive-lift-helper-sql-param-inline] exercised /alpha and /beta");
+  await fetch(`${base}/gamma`);
+  console.log("[drive-lift-helper-sql-param-inline] exercised /alpha, /beta, and /gamma");
 } finally {
   await handle.stop();
 }

@@ -12,6 +12,12 @@
       "path": "/beta",
       "file": "pages/show_beta.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/gamma",
+      "file": "pages/show_gamma.php",
+      "pathParams": []
     }
   ]
 }
