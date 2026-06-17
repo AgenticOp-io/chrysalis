@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" and **Hub depth** (`docs/CWL-FULLSTACK-POST-110-PROGRAM.md`).
-- **Recently shipped:** **G3457–G3551** — queues **216–225** Phase J post-144..153 replay (schema **298**). **G3357–G3451** queues **206–215**. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G3557–G3751** — queues **226–245** Phase K post-154..173 replay (schema **318**). **G3457–G3551** queues **216–225**. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.

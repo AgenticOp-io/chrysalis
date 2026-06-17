@@ -1,0 +1,27 @@
+import { spawnSync } from "node:child_process";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { dirname, resolve } from "node:path";
+import { expect, test } from "vitest";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+test("authoring batch v241 smoke (G3711) gate-only", () => {
+  const batchUrl = pathToFileURL(
+    resolve(ROOT, "scripts/hub-ingest/hub-cwl-authoring-batch-v241-smoke.mjs"),
+  ).href;
+  const r = spawnSync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      `import { runCwlAuthoringBatchV241Smoke } from ${JSON.stringify(batchUrl)};
+const report = await runCwlAuthoringBatchV241Smoke({ skipPriorChain: true });
+if (!report.ok || report.gate241?.ok !== true || report.gate241Mode !== "evidence-trend") process.exit(1);`,
+    ],
+    { cwd: ROOT, encoding: "utf8" },
+  );
+  if (r.status !== 0) {
+    throw new Error(r.stderr || r.stdout || `exit ${r.status}`);
+  }
+  expect(r.status).toBe(0);
+}, 120_000);

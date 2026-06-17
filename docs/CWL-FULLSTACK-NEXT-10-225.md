@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 1 | **G3547** | `runPost225CompositeGate` — Post-70 composite replay depth (Phase J lock) |
 | 2–6 | **G3548–G3552** | Batch **v225**, schema **298**, Vitest, script, docs |
-| 7–10 | **G3550–G3556** | Phase J post-144..153 replay **complete** (queue 225) |
+| 7–10 | **G3553–G3556** | Phase J post-144..153 replay **complete** (queue 225); queue **226** — `docs/CWL-FULLSTACK-NEXT-10-226.md` |
 
 **Batch:** `hub:cwl-authoring-batch-v225-smoke` · **schema:** 298
 
