@@ -709,6 +709,71 @@ $maybe = null ?? "fallback";
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe ternary_expr.php (positions stripped) (G2389)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/ternary_expr.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "ternary_expr.php");
+    const nk = await parseSource(src, "ternary_expr.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe compound_assign.php (positions stripped) (G2390)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/compound_assign.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "compound_assign.php");
+    const nk = await parseSource(src, "compound_assign.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe bitwise_or.php (positions stripped) (G2391)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/bitwise_or.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "bitwise_or.php");
+    const nk = await parseSource(src, "bitwise_or.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe nullsafe_call.php (positions stripped) (G2392)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/nullsafe_call.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "nullsafe_call.php");
+    const nk = await parseSource(src, "nullsafe_call.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("maps glayzzle nullable property flag to pipe-null hints (G2392)", () => {
+    const src = `<?php
+class Box { public ?Node $next = null; }
+`;
+    const gz = parseSourceWithGlayzzle(src, "nullable_prop.php");
+    const cls = gz.statements.find((s): s is Extract<(typeof gz.statements)[number], { kind: "ClassDecl" }> => s.kind === "ClassDecl");
+    expect(cls?.properties?.[0]?.typeHint).toBe("Node|null");
+  });
+
+  run("matches glayzzle on parser-parity-probe bitwise_not.php (positions stripped) (G2393)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/bitwise_not.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "bitwise_not.php");
+    const nk = await parseSource(src, "bitwise_not.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe bitwise_and.php (positions stripped) (G2394)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/bitwise_and.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "bitwise_and.php");
+    const nk = await parseSource(src, "bitwise_and.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe concat_expr.php (positions stripped) (G2395)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/concat_expr.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "concat_expr.php");
+    const nk = await parseSource(src, "concat_expr.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("maps glayzzle nullable parameter flag to pipe-null hints (G2350)", () => {
     const src = `<?php
 function accept_null(?int $value): ?int { return $value; }

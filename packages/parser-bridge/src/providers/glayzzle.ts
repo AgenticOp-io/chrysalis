@@ -159,7 +159,7 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
     for (const prop of props) {
       const propName = String((prop.name as AnyNode | undefined)?.name ?? prop.name ?? "");
       if (!propName) continue;
-      const typeHint = typeNameFromHint((prop.type ?? member.type) as AnyNode | null);
+      const typeHint = hintFromGlayzzleProperty(prop, member);
       const readonly = Boolean(prop.readonly ?? member.readonly);
       const isStatic = Boolean(member.isStatic ?? prop.isStatic);
       properties.push({ name: propName, typeHint, readonly, ...(isStatic ? { static: true as const } : {}) });
@@ -176,7 +176,7 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
       if ((flags & (1 | 2 | 4)) === 0) continue;
       const propName = String((arg.name as AnyNode | undefined)?.name ?? arg.name ?? "");
       if (!propName) continue;
-      const typeHint = typeNameFromHint(arg.type as AnyNode | null);
+      const typeHint = hintFromGlayzzleParam(arg);
       const readonly = Boolean(arg.readonly) || (flags & 64) !== 0;
       properties.push({ name: propName, typeHint, readonly });
     }
@@ -557,6 +557,15 @@ function typeNameFromHint(hint: AnyNode | null): string | null {
 function hintFromGlayzzleParam(param: AnyNode): string | null {
   const base = typeNameFromHint(param.type as AnyNode | null);
   if (param.nullable === true) {
+    return base ? `${base}|null` : "null";
+  }
+  return base;
+}
+
+function hintFromGlayzzleProperty(prop: AnyNode, member?: AnyNode): string | null {
+  const typeNode = (prop.type as AnyNode | null) ?? (member?.type as AnyNode | null) ?? null;
+  const base = typeNameFromHint(typeNode);
+  if (prop.nullable === true || member?.nullable === true) {
     return base ? `${base}|null` : "null";
   }
   return base;

@@ -90,6 +90,18 @@
       "path": "/rho",
       "file": "pages/show_rho.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/sigma",
+      "file": "pages/show_sigma.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/tau",
+      "file": "pages/show_tau.php",
+      "pathParams": []
     }
   ]
 }

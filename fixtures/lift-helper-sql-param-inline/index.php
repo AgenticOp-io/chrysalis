@@ -16,6 +16,8 @@ require_once __DIR__ . '/lib/sql_param_bool.php';
 require_once __DIR__ . '/lib/sql_param_float.php';
 require_once __DIR__ . '/lib/sql_param_trim.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
+require_once __DIR__ . '/lib/sql_param_cast_bool.php';
+require_once __DIR__ . '/lib/sql_param_cast_int.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -78,6 +80,14 @@ if ($method === 'GET' && $path === '/pi') {
 }
 if ($method === 'GET' && $path === '/rho') {
     require __DIR__ . '/pages/show_rho.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/sigma') {
+    require __DIR__ . '/pages/show_sigma.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/tau') {
+    require __DIR__ . '/pages/show_tau.php';
     exit;
 }
 

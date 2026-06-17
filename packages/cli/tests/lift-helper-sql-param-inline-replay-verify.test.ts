@@ -11,7 +11,7 @@ function phpOnPath(): boolean {
   }
 }
 
-describe("lift-helper-sql-param-inline emit replay verify (B5.5 v8)", () => {
+describe("lift-helper-sql-param-inline emit replay verify (B5.5 v9)", () => {
   it.runIf(phpOnPath())(
     "ingest inlines parametric helpers, emits hono, and replays oracle corpus at 100%",
     async () => {
@@ -22,7 +22,7 @@ describe("lift-helper-sql-param-inline emit replay verify (B5.5 v8)", () => {
       expect(report.emitHoles).toBe(0);
       expect(report.correctness).toBe(1);
       expect(report.framesPassed).toBe(report.framesTotal);
-      expect(report.handlerCount).toBe(15);
+      expect(report.handlerCount).toBe(17);
     },
     120_000,
   );

@@ -66,6 +66,14 @@ describe("ingest: parser-parity-probe arrow/match lowering (G2280)", () => {
     "class_name.php",
     "shift_left.php",
     "logical_and.php",
+    "ternary_expr.php",
+    "compound_assign.php",
+    "bitwise_or.php",
+    "nullsafe_call.php",
+    "bitwise_not.php",
+    "bitwise_and.php",
+    "concat_expr.php",
+    "invokable_controller.php",
   ] as const) {
     it(`lowers ${page} without expr holes`, async () => {
       const ast = await parseFile(resolve(FIXTURE, "pages", page));
