@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** **B1–B5.3 v4** on `main` (fixtures + Vitest + simulate). Oracle-backed cross-route SQL merge remains **verify-gated**; ingest-only whitespace SQL canonicalization is in scope.  
+**Status:** **B1–B5.3 v5** on `main` (fixtures + Vitest + simulate + oracle twin gate). Emit HTTP replay for opaque lib helper calls remains a follow-on; ingest-only whitespace SQL canonicalization is in scope.  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem
@@ -60,7 +60,7 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | **B5 v0** | Register **`data.param`** reads as order-based slots (extends B3 assign-target slots). Aliases bodies whose lowered IR differs only by formal parameter **names** on direct returns. | **Done** — **`registerParamRead`** in **`lift-shared-helpers.ts`**. |
 | **B5.1** | Extend slot map to param reads inside nested expressions when no assign introduces a local (same order walk). | Deferred — v0 walk already visits all operands. |
 | **B5.2** | Arithmetic / structural equivalence (constant folding, commutative reorder) with identical effect signatures. | **Done (v1–v2)** — scale-by-2 + commutative `+`/`*`; broader folding deferred. |
-| **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | **Done (v1–v4)** — **`bodyHasIrEffects`** disables arithmetic widening; **`fixtures/lift-helper-sql-twin/`** negative control; **`normalizeSqlLiteralForHelperLift`** aliases whitespace-only SQL twins (**`sql-ws-twin`**, **`sql-same-twin`**); **v4:** **`simulateHandler`** proves alpha/beta twins match under semantic lift; full oracle merge still verify-gated per route. |
+| **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | **Done (v1–v5)** — **`bodyHasIrEffects`** disables arithmetic widening; **`fixtures/lift-helper-sql-twin/`** negative control; **`normalizeSqlLiteralForHelperLift`** aliases whitespace-only SQL twins (**`sql-ws-twin`**, **`sql-same-twin`**); **v4:** **`simulateHandler`** proves alpha/beta twins match under semantic lift; **v5:** oracle capture + twin body/SQL parity gate (**`verify-lift-helper-sql-same-twin-oracle.mjs`**). Full emit HTTP replay for lib helper calls remains a separate emit follow-on. |
 
 ## Decision
 

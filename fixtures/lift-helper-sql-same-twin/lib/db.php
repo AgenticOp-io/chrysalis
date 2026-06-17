@@ -1,10 +1,11 @@
 <?php
+// Minimal PDO helpers for sql-same-twin effect probes (file-backed for oracle capture).
 
 function db(): PDO
 {
     static $pdo = null;
     if ($pdo === null) {
-        $dsn = 'sqlite::memory:';
+        $dsn = 'sqlite:' . __DIR__ . '/../probe.sqlite';
         $pdo = class_exists('\\Chrysalis\\Oracle\\Db\\PDO')
             ? new \Chrysalis\Oracle\Db\PDO($dsn)
             : new PDO($dsn);
