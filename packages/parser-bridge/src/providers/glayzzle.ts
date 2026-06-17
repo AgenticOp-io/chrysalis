@@ -166,6 +166,7 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
       kind: "ClassDecl",
       name: classFqn,
       properties,
+      ...(Boolean(classNode.isReadonly) ? { readonly: true as const } : {}),
       pos: pos(file, classNode),
     });
   }
@@ -411,6 +412,16 @@ function typeNameFromHint(hint: AnyNode | null): string | null {
       .map((part) => typeNameFromHint(part))
       .filter((part): part is string => part !== null);
     return parts.length > 0 ? parts.join("|") : null;
+  }
+  if (hint.kind === "intersectiontype" && Array.isArray(hint.types)) {
+    const parts = (hint.types as AnyNode[])
+      .map((part) => typeNameFromHint(part))
+      .filter((part): part is string => part !== null);
+    return parts.length > 0 ? parts.join("&") : null;
+  }
+  if (hint.kind === "nullabletype") {
+    const inner = typeNameFromHint(hint.type as AnyNode | null);
+    return inner ? `${inner}|null` : "null";
   }
   if (hint.kind === "identifier") return String((hint as AnyNode).name ?? "");
   if (hint.kind === "typereference") return String((hint as AnyNode).name ?? "");

@@ -143,6 +143,8 @@ export interface PhpClassDecl {
   readonly kind: "ClassDecl";
   readonly name: string;
   readonly properties: ReadonlyArray<PhpClassProperty>;
+  /** PHP 8.2+ `readonly class` modifier. */
+  readonly readonly?: boolean;
   readonly pos: Pos;
 }
 

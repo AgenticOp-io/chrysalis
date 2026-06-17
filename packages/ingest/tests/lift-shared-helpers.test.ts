@@ -164,4 +164,10 @@ describe("ingest: lift-shared-helpers (B2)", () => {
       'SELECT id FROM items WHERE note = "say \\"select\\""',
     );
   });
+
+  it("normalizeSqlLiteralForHelperLift leaves keywords inside backtick identifiers (B5.4 v5)", () => {
+    expect(normalizeSqlLiteralForHelperLift("SELECT id FROM `select` WHERE active = 1")).toBe(
+      "SELECT id FROM `select` WHERE active = 1",
+    );
+  });
 });

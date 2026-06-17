@@ -362,6 +362,30 @@ function union_hint(string|int $value): string|int|null { return $value; }
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe union_type.php (positions stripped) (G2310)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/union_type.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "union_type.php");
+    const nk = await parseSource(src, "union_type.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe intersection_type.php (positions stripped) (G2311)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/intersection_type.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "intersection_type.php");
+    const nk = await parseSource(src, "intersection_type.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe readonly_class_keyword.php (positions stripped) (G2313)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/readonly_class_keyword.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "readonly_class_keyword.php");
+    const nk = await parseSource(src, "readonly_class_keyword.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("matches glayzzle on parser-parity-probe invokable_controller.php (positions stripped) (G133)", async () => {
     const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/invokable_controller.php");
     const src = readFileSync(p, "utf8");

@@ -8,15 +8,22 @@ const FIXTURE = resolve(dirname(fileURLToPath(import.meta.url)), "../../../fixtu
 describe("ingest: lift-helper-sql-param-inline (B5.5 v3)", () => {
   it("inlines one-arg lib db.read helpers at route call sites", async () => {
     const mod = await ingestDirectory(FIXTURE);
+    const inlineCallees = new Set([
+      "chrysalis_sql_param",
+      "chrysalis_sql_param_local",
+      "chrysalis_sql_param_chain",
+    ]);
     const helperCalls = [...mod.nodes.values()].filter(
+      (n) => n.dialect === "data" && n.op === "call" && inlineCallees.has(String(n.attrs.callee)),
+    );
+    expect(helperCalls).toEqual([]);
+    const noinlineCalls = [...mod.nodes.values()].filter(
       (n) =>
         n.dialect === "data" &&
         n.op === "call" &&
-        (String(n.attrs.callee).startsWith("chrysalis_sql_param") ||
-          String(n.attrs.callee).startsWith("chrysalis_sql_param_local") ||
-          String(n.attrs.callee).startsWith("chrysalis_sql_param_chain")),
+        String(n.attrs.callee).startsWith("chrysalis_sql_param_noinline"),
     );
-    expect(helperCalls).toEqual([]);
+    expect(noinlineCalls.length).toBe(1);
     const dbQueries = [...mod.nodes.values()].filter((n) => n.dialect === "effect" && n.op === "db.query");
     expect(dbQueries.length).toBeGreaterThanOrEqual(3);
   });

@@ -18,6 +18,12 @@
       "path": "/gamma",
       "file": "pages/show_gamma.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/delta",
+      "file": "pages/show_delta.php",
+      "pathParams": []
     }
   ]
 }

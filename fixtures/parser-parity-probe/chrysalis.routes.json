@@ -78,6 +78,24 @@
       "path": "/constructor-promotion",
       "file": "pages/constructor_promotion.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/union-type",
+      "file": "pages/union_type.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/intersection-type",
+      "file": "pages/intersection_type.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/readonly-class-keyword",
+      "file": "pages/readonly_class_keyword.php",
+      "pathParams": []
     }
   ]
 }

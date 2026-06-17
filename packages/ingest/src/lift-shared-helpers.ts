@@ -212,6 +212,20 @@ export function normalizeSqlLiteralForHelperLift(sql: string): string {
   let i = 0;
   while (i < collapsed.length) {
     const ch = collapsed[i]!;
+    if (ch === "`") {
+      out += ch;
+      i++;
+      while (i < collapsed.length) {
+        const c = collapsed[i]!;
+        out += c;
+        if (c === "`") {
+          i++;
+          break;
+        }
+        i++;
+      }
+      continue;
+    }
     if (ch === "'" || ch === '"') {
       const quote = ch;
       out += quote;

@@ -239,10 +239,12 @@ function convertTopLevelClassToFunctionDecls(
   }
 
   if (properties.length > 0) {
+    const classFlags = typeof classNode.flags === "number" ? classNode.flags : 0;
     out.push({
       kind: "ClassDecl",
       name: fqn,
       properties,
+      ...((classFlags & PHP_MODIFIER_READONLY) !== 0 ? { readonly: true as const } : {}),
       pos: stmtPos(file, classNode),
     });
   }
@@ -317,6 +319,11 @@ function typeHint(t: unknown): string | null {
   if (t.nodeType === "NullableType") {
     const inner = typeHint(t.type);
     return inner ? `${inner}|null` : "null";
+  }
+  if (t.nodeType === "IntersectionType") {
+    const types = Array.isArray(t.types) ? t.types : [];
+    const parts = types.map((part) => typeHint(part)).filter((part): part is string => part !== null);
+    return parts.length > 0 ? parts.join("&") : null;
   }
   if (t.nodeType === "Name" || t.nodeType === "Name_FullyQualified" || t.nodeType === "Name_Relative") {
     const s = nameFromNameNode(t);
