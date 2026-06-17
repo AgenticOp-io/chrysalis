@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** **B1–B5.4 v1** on `main` (fixtures + Vitest + simulate + oracle twin hub gate + ingest lib-helper inlining). Full emit HTTP replay for remaining opaque lib calls remains a follow-on; ingest normalizes SQL whitespace and keyword case for semantic lift keys.  
+**Status:** **B1–B5.5 v2** on `main` (fixtures + Vitest + simulate + oracle twin hub gate + ingest lib-helper inlining + emit HTTP replay for sql-same-twin). Ingest normalizes SQL whitespace and keyword case for semantic lift keys.  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem
@@ -61,8 +61,8 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 | **B5.1** | Extend slot map to param reads inside nested expressions when no assign introduces a local (same order walk). | Deferred — v0 walk already visits all operands. |
 | **B5.2** | Arithmetic / structural equivalence (constant folding, commutative reorder) with identical effect signatures. | **Done (v1–v2)** — scale-by-2 + commutative `+`/`*`; broader folding deferred. |
 | **B5.3** | Oracle-backed proof for SQL literal or side-effect twins. | **Done (v1–v5)** — **`bodyHasIrEffects`** disables arithmetic widening; **`fixtures/lift-helper-sql-twin/`** negative control; **`normalizeSqlLiteralForHelperLift`** aliases whitespace-only SQL twins (**`sql-ws-twin`**, **`sql-same-twin`**); **v4:** **`simulateHandler`** proves alpha/beta twins match under semantic lift; **v5:** oracle capture + twin body/SQL parity gate (**`verify-lift-helper-sql-same-twin-oracle.mjs`**). |
-| **B5.4** | SQL keyword case normalization for effectful semantic lift keys. | **Done (v1)** — **`normalizeSqlLiteralForHelperLift`** uppercases a fixed keyword set after whitespace collapse; fixture **`fixtures/lift-helper-sql-case-twin/`**; hub semantic smoke **v4** includes **`sql-case-twin`**. Quote-aware literal handling deferred. |
-| **B5.5** | Ingest inlining of zero-arg lib helpers whose body is exactly **`return <effect.db.query>`**. | **Done (v1)** — **`collectLibraryFunctionBodies`** + **`tryInlineLibHelperCall`** in **`convert.ts`**; fixture **`lift-helper-sql-same-twin-inline`** Vitest. Parametric / multi-statement helpers deferred. |
+| **B5.4** | SQL keyword case normalization for effectful semantic lift keys. | **Done (v1–v2)** — **`normalizeSqlLiteralForHelperLift`** uppercases a fixed keyword set after whitespace collapse; fixture **`fixtures/lift-helper-sql-case-twin/`**; hub semantic smoke **v4**; **v2:** oracle capture + twin body/SQL parity gate (**`verify-lift-helper-sql-case-twin-oracle.mjs`**). Quote-aware literal handling deferred. |
+| **B5.5** | Ingest inlining of zero-arg lib helpers whose body is exactly **`return <effect.db.query>`**. | **Done (v1–v2)** — **`collectLibraryFunctionBodies`** + **`tryInlineLibHelperCall`** in **`convert.ts`**; Vitest **`lift-helper-sql-same-twin-inline`**; **v2:** emit Hono + **`replayCorpus`** gate (**`verify-lift-helper-sql-same-twin-replay.mjs`**). Parametric / multi-statement helpers deferred. |
 
 ## Decision
 

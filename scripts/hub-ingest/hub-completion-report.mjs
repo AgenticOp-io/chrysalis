@@ -1671,7 +1671,7 @@ export function buildHubCompletionReport(ctx) {
     },
     irHelperLiftingOracleTwin: {
       ok: okFlags.irHelperLiftingOracleTwinOk,
-      fixture: "fixtures/lift-helper-sql-same-twin",
+      fixtures: ["fixtures/lift-helper-sql-same-twin", "fixtures/lift-helper-sql-case-twin"],
       script: "pnpm run hub:ir-helper-lifting-oracle-twin-smoke",
     },
     irHelperLiftingEmbed: {

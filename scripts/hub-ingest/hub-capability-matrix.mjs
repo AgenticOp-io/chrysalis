@@ -173,7 +173,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     irHelperLiftingOracleTwin: {
       script: "pnpm run hub:ir-helper-lifting-oracle-twin-smoke",
-      fixture: "fixtures/lift-helper-sql-same-twin",
+      fixtures: ["fixtures/lift-helper-sql-same-twin", "fixtures/lift-helper-sql-case-twin"],
     },
     irHelperLiftingEmbed: {
       script: "pnpm run hub:ir-helper-lifting-embed-smoke",
