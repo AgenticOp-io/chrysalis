@@ -336,6 +336,23 @@ $maybe = null ?? "fallback";
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("hoists enum methods as FunctionDecl on parser-parity-probe enum_methods.php (G2320)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/enum_methods.php");
+    const src = readFileSync(p, "utf8");
+    const nk = await parseSource(src, "enum_methods.php", { provider: "nikic" });
+    const methods = nk.statements.filter(
+      (s): s is Extract<(typeof nk.statements)[number], { kind: "FunctionDecl" }> =>
+        s.kind === "FunctionDecl" && s.name.includes("::"),
+    );
+    expect(methods.map((m) => m.name).sort()).toEqual(["Color::default", "Color::label"]);
+    const gz = parseSourceWithGlayzzle(src, "enum_methods.php");
+    const gzMethods = gz.statements.filter(
+      (s): s is Extract<(typeof gz.statements)[number], { kind: "FunctionDecl" }> =>
+        s.kind === "FunctionDecl" && s.name.includes("::"),
+    );
+    expect(gzMethods.map((m) => m.name).sort()).toEqual(["Color::default", "Color::label"]);
+  });
+
   run("maps nikic union type hints to pipe syntax (G2301)", async () => {
     const src = `<?php
 function union_hint(string|int $value): string|int|null { return $value; }

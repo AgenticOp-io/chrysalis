@@ -5,9 +5,10 @@ import { ingestDirectory } from "../src/index.js";
 
 const FIXTURE = resolve(dirname(fileURLToPath(import.meta.url)), "../../../fixtures/lift-helper-sql-param-inline");
 
-describe("ingest: lift-helper-sql-param-inline (B5.5 v3)", () => {
+describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
   it("inlines one-arg lib db.read helpers at route call sites", async () => {
     const mod = await ingestDirectory(FIXTURE);
+    expect(mod.meta.helperBodies?.chrysalis_sql_param_noinline).toBeDefined();
     const inlineCallees = new Set([
       "chrysalis_sql_param",
       "chrysalis_sql_param_local",
@@ -25,6 +26,13 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3)", () => {
         String(n.attrs.callee).startsWith("chrysalis_sql_param_noinline"),
     );
     expect(noinlineCalls.length).toBe(1);
+    const sideeffectCalls = [...mod.nodes.values()].filter(
+      (n) =>
+        n.dialect === "data" &&
+        n.op === "call" &&
+        String(n.attrs.callee).startsWith("chrysalis_sql_param_sideeffect"),
+    );
+    expect(sideeffectCalls.length).toBe(1);
     const dbQueries = [...mod.nodes.values()].filter((n) => n.dialect === "effect" && n.op === "db.query");
     expect(dbQueries.length).toBeGreaterThanOrEqual(4);
   });

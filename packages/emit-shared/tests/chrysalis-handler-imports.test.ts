@@ -20,6 +20,7 @@ describe("chrysalis-handler-imports barrel", () => {
         usesZod: false,
         usesPhpFqnNew: false,
         usesPhpDynamicNew: false,
+        libHelperImports: [],
       },
     ]);
     const src = buildHonoChrysalisHandlerImportsSource(agg);
@@ -41,6 +42,7 @@ describe("chrysalis-handler-imports barrel", () => {
         usesZod: false,
         usesPhpFqnNew: false,
         usesPhpDynamicNew: false,
+        libHelperImports: [],
       },
     ]);
     const src = buildHonoChrysalisHandlerImportsSource(agg, { runtimeFacadeModule: true });
@@ -61,6 +63,7 @@ describe("chrysalis-handler-imports barrel", () => {
         usesZod: false,
         usesPhpFqnNew: false,
         usesPhpDynamicNew: false,
+        libHelperImports: [],
       },
     ]);
     const src = buildFastifyChrysalisHandlerImportsSource(agg);
@@ -81,6 +84,7 @@ describe("chrysalis-handler-imports barrel", () => {
         usesZod: false,
         usesPhpFqnNew: false,
         usesPhpDynamicNew: false,
+        libHelperImports: [],
       },
     ]);
     const src = buildFastifyChrysalisHandlerImportsSource(agg, { runtimeFacadeModule: true });
@@ -102,6 +106,7 @@ describe("buildChrysalisRuntimeSharedImportsModuleSource", () => {
         usesZod: false,
         usesPhpFqnNew: false,
         usesPhpDynamicNew: false,
+        libHelperImports: [],
       },
     ]);
     const src = buildChrysalisRuntimeSharedImportsModuleSource("./runtime.js", agg);
@@ -123,6 +128,7 @@ describe("buildChrysalisRuntimeSharedImportsModuleSource", () => {
         usesZod: true,
         usesPhpFqnNew: false,
         usesPhpDynamicNew: false,
+        libHelperImports: [],
       },
     ]);
     const src = buildChrysalisRuntimeSharedImportsModuleSource("./runtime.js", agg);
@@ -142,6 +148,7 @@ describe("buildChrysalisRuntimeSharedImportsModuleSource", () => {
         usesZod: false,
         usesPhpFqnNew: false,
         usesPhpDynamicNew: false,
+        libHelperImports: [],
       },
     ]);
     const src = buildChrysalisRuntimeSharedImportsModuleSource("./chrysalis-runtime-facade.js", agg);

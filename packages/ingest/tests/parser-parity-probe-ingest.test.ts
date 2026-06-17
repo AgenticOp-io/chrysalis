@@ -22,6 +22,7 @@ describe("ingest: parser-parity-probe arrow/match lowering (G2280)", () => {
     "intersection_type.php",
     "readonly_class_keyword.php",
     "never_type.php",
+    "enum_methods.php",
   ] as const) {
     it(`lowers ${page} without expr holes`, async () => {
       const ast = await parseFile(resolve(FIXTURE, "pages", page));

@@ -30,6 +30,12 @@
       "path": "/epsilon",
       "file": "pages/show_epsilon.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/zeta",
+      "file": "pages/show_zeta.php",
+      "pathParams": []
     }
   ]
 }

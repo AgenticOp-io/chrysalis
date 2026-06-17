@@ -141,6 +141,8 @@ function convertProgramStatements(file: string, nodes: unknown[], parentNs: stri
       out.push(...convertProgramStatements(file, stm as unknown[], innerNs));
     } else if (nt === "Stmt_Class") {
       out.push(...convertTopLevelClassToFunctionDecls(file, node, parentNs));
+    } else if (nt === "Stmt_Enum") {
+      out.push(...convertTopLevelEnumToFunctionDecls(file, node, parentNs));
     } else {
       out.push(convertStatement(file, node, parentNs));
     }
@@ -279,6 +281,50 @@ function convertTopLevelClassToFunctionDecls(
   return out;
 }
 
+function convertTopLevelEnumToFunctionDecls(
+  file: string,
+  enumNode: NikicDict,
+  nsPrefix: string,
+): PhpNode[] {
+  const short = identifierText(enumNode.name) ?? "";
+  const name = short !== "" && nsPrefix !== "" ? `${nsPrefix}\\${short}` : short;
+  const st = typeHint(enumNode.scalarType as unknown);
+  const scalarType = st === "string" || st === "int" ? st : null;
+  const stmts = Array.isArray(enumNode.stmts) ? enumNode.stmts : [];
+  const cases: { name: string; value: PhpExpr | null }[] = [];
+  for (const rawCase of stmts) {
+    if (!isNikicDict(rawCase) || rawCase.nodeType !== "Stmt_EnumCase") continue;
+    const cname = identifierText(rawCase.name) ?? "";
+    const expr = rawCase.expr as unknown;
+    cases.push({
+      name: cname,
+      value:
+        expr !== undefined && expr !== null && isNikicDict(expr)
+          ? convertExpression(file, expr)
+          : null,
+    });
+  }
+  const out: PhpNode[] = [{ kind: "EnumDecl", name, scalarType, cases, pos: stmtPos(file, enumNode) }];
+  for (const mb of stmts) {
+    if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassMethod") continue;
+    const mname = identifierText(mb.name);
+    if (!mname) continue;
+    const pst = Array.isArray(mb.stmts) ? convertBody(file, mb.stmts as unknown[], nsPrefix) : [];
+    const params = (Array.isArray(mb.params) ? mb.params : []).map((p) => convertParam(file, p));
+    const methodAttributes = convertNikicAttributes(file, mb.attrGroups);
+    out.push({
+      kind: "FunctionDecl",
+      name: `${name}::${mname}`,
+      params,
+      returnHint: typeHint(mb.returnType as unknown),
+      body: pst,
+      ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
+      pos: stmtPos(file, mb),
+    });
+  }
+  return out;
+}
+
 interface DeclParam {
   readonly name: string;
   readonly hint: string | null;
@@ -404,27 +450,8 @@ function convertStatement(file: string, node: NikicDict, nsPrefix: string): PhpN
     case "Stmt_Declare":
       return { kind: "Noop", pos: stmtPos(file, node) };
 
-    case "Stmt_Enum": {
-      const short = identifierText(node.name) ?? "";
-      const name = short !== "" && nsPrefix !== "" ? `${nsPrefix}\\${short}` : short;
-      const st = typeHint(node.scalarType as unknown);
-      const scalarType = st === "string" || st === "int" ? st : null;
-      const stmts = Array.isArray(node.stmts) ? node.stmts : [];
-      const cases: { name: string; value: PhpExpr | null }[] = [];
-      for (const rawCase of stmts) {
-        if (!isNikicDict(rawCase) || rawCase.nodeType !== "Stmt_EnumCase") continue;
-        const cname = identifierText(rawCase.name) ?? "";
-        const expr = rawCase.expr as unknown;
-        cases.push({
-          name: cname,
-          value:
-            expr !== undefined && expr !== null && isNikicDict(expr)
-              ? convertExpression(file, expr)
-              : null,
-        });
-      }
-      return { kind: "EnumDecl", name, scalarType, cases, pos: stmtPos(file, node) };
-    }
+    case "Stmt_Enum":
+      return unknownStmt(file, node, "nested enum not supported");
 
     case "Stmt_Static":
       return convertStaticDirective(file, node);

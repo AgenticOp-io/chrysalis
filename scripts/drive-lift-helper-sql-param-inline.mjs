@@ -60,7 +60,8 @@ try {
   await fetch(`${base}/beta`);
   await fetch(`${base}/gamma`);
   await fetch(`${base}/epsilon`);
-  console.log("[drive-lift-helper-sql-param-inline] exercised /alpha, /beta, /gamma, and /epsilon");
+  await fetch(`${base}/delta`);
+  console.log("[drive-lift-helper-sql-param-inline] exercised /alpha, /beta, /gamma, /epsilon, and /delta");
 } finally {
   await handle.stop();
 }

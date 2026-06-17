@@ -16,6 +16,7 @@ import {
   mergeWebIrModules,
   moduleBuilderResumeFromModule,
   type Module,
+  type NodeId,
 } from "@chrysalis/webir";
 import { buildLibraryHelpersWebIrModule, collectLibraryFunctionAttributes, collectLibraryFunctionBodies } from "./library-effects.js";
 import { ingestHandler } from "./convert.js";
@@ -259,6 +260,13 @@ export async function ingestDirectory(
     }
   }
   let mod = builder.finish();
+  if (helperBodies.size > 0) {
+    const helperBodiesMeta: Record<string, { bodyId: NodeId; paramNames: readonly string[] }> = {};
+    for (const [name, entry] of helperBodies) {
+      helperBodiesMeta[name] = { bodyId: entry.bodyId, paramNames: entry.paramNames };
+    }
+    mod = { ...mod, meta: { ...mod.meta, helperBodies: helperBodiesMeta } };
+  }
   if (opts?.embedSharedHelperBodiesInModule === true) {
     const helperMod = await buildLibraryHelpersWebIrModule(root, manifest.app, {
       ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
@@ -321,7 +329,15 @@ export async function ingestFile(
     helperBodies,
   );
   builder.addRoot(routeNode);
-  return builder.finish();
+  let mod = builder.finish();
+  if (helperBodies.size > 0) {
+    const helperBodiesMeta: Record<string, { bodyId: NodeId; paramNames: readonly string[] }> = {};
+    for (const [name, entry] of helperBodies) {
+      helperBodiesMeta[name] = { bodyId: entry.bodyId, paramNames: entry.paramNames };
+    }
+    mod = { ...mod, meta: { ...mod.meta, helperBodies: helperBodiesMeta } };
+  }
+  return mod;
 }
 
 export { INGEST_AST_CACHE_VERSION } from "./parse-cache.js";

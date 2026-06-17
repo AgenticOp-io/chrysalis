@@ -109,6 +109,8 @@ function convertProgramStatements(file: string, nodes: AnyNode[], parentNs: stri
       out.push(...convertProgramStatements(file, inner, innerNs));
     } else if (node.kind === "class") {
       out.push(...convertTopLevelClassToFunctionDecls(file, node, parentNs));
+    } else if (node.kind === "enum") {
+      out.push(...convertTopLevelEnumToFunctionDecls(file, node, parentNs));
     } else {
       out.push(convertStatement(file, node, parentNs));
     }
@@ -189,6 +191,47 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
       })),
       returnHint: typeNameFromHint(member.type as AnyNode | null),
       body: body?.kind === "block" ? convertBody(file, body.children, nsPrefix) : [],
+      ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
+      pos: pos(file, member),
+    });
+  }
+  return out;
+}
+
+function convertTopLevelEnumToFunctionDecls(file: string, enumNode: AnyNode, nsPrefix: string): PhpNode[] {
+  const shortName = String((enumNode.name as AnyNode)?.name ?? "");
+  const declName = shortName !== "" && nsPrefix !== "" ? `${nsPrefix}\\${shortName}` : shortName;
+  const valueType = enumNode.valueType as AnyNode | null | undefined;
+  let scalarType: "string" | "int" | null = null;
+  if (valueType?.kind === "name" || valueType?.kind === "identifier") {
+    const vn = String(valueType.name ?? "");
+    if (vn === "string" || vn === "int") scalarType = vn;
+  }
+  const body = Array.isArray(enumNode.body) ? (enumNode.body as AnyNode[]) : [];
+  const cases = body
+    .filter((c) => c.kind === "enumcase")
+    .map((c) => ({
+      name: String((c.name as AnyNode)?.name ?? ""),
+      value: c.value ? convertExpression(file, c.value as AnyNode) : null,
+    }));
+  const out: PhpNode[] = [{ kind: "EnumDecl", name: declName, scalarType, cases, pos: pos(file, enumNode) }];
+  for (const member of body) {
+    if (member.kind !== "method") continue;
+    const methodName = String((member.name as AnyNode | undefined)?.name ?? "");
+    if (!methodName) continue;
+    const args = Array.isArray(member.arguments) ? (member.arguments as AnyNode[]) : [];
+    const methodBody = member.body as AnyNode | undefined;
+    const methodAttributes = convertGlayzzleAttributes(file, member.attrGroups as AnyNode[] | undefined);
+    out.push({
+      kind: "FunctionDecl",
+      name: `${declName}::${methodName}`,
+      params: args.map((a) => ({
+        name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
+        hint: typeNameFromHint(a.type as AnyNode | null),
+        default: a.value ? convertExpression(file, a.value as AnyNode) : null,
+      })),
+      returnHint: typeNameFromHint(member.type as AnyNode | null),
+      body: methodBody?.kind === "block" ? convertBody(file, methodBody.children, nsPrefix) : [],
       ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
       pos: pos(file, member),
     });
@@ -331,25 +374,8 @@ function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNod
     case "usegroup":
       // Import side effects are out of scope for the canonical AST; keep position only.
       return { kind: "Noop", pos: pos(file, node) };
-    case "enum": {
-      const shortName = String((node.name as AnyNode)?.name ?? "");
-      const declName =
-        shortName !== "" && nsPrefix !== "" ? `${nsPrefix}\\${shortName}` : shortName;
-      const valueType = node.valueType as AnyNode | null | undefined;
-      let scalarType: "string" | "int" | null = null;
-      if (valueType?.kind === "name" || valueType?.kind === "identifier") {
-        const vn = String(valueType.name ?? "");
-        if (vn === "string" || vn === "int") scalarType = vn;
-      }
-      const body = Array.isArray(node.body) ? (node.body as AnyNode[]) : [];
-      const cases = body
-        .filter((c) => c.kind === "enumcase")
-        .map((c) => ({
-          name: String((c.name as AnyNode)?.name ?? ""),
-          value: c.value ? convertExpression(file, c.value as AnyNode) : null,
-        }));
-      return { kind: "EnumDecl", name: declName, scalarType, cases, pos: pos(file, node) };
-    }
+    case "enum":
+      return unknownStmt(file, node, "nested enum not supported");
     case "throw": {
       const w = node.what as AnyNode | undefined;
       if (!w) {

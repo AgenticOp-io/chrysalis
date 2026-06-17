@@ -56,3 +56,13 @@ export {
   chrysalisBodyDedupeExportId,
   computeEmittedHandlerDedupeKey,
 } from "./emit-handler-body-dedupe.js";
+export {
+  emitLibHelpersModuleSource,
+  type EmittedLibHelpersModule,
+} from "./emit-lib-helpers.js";
+export {
+  libHelpersNeedingEmitModule,
+  resolveHelperBodyEntry,
+  tryEmitInlineLibHelperCall,
+  tryExtractInlineQuery,
+} from "./lib-helper-inline.js";

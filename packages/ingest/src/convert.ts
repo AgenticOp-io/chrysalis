@@ -24,6 +24,7 @@ import {
   webRequest,
   type EffectSet,
   type Locator,
+  type NodeBase,
   type NodeId,
   type WebIRType,
 } from "@chrysalis/webir";
@@ -314,6 +315,15 @@ function matchFormalParam(name: string, paramNames: readonly string[]): string |
   return undefined;
 }
 
+function isSkippablePreludeExprStmt(ctx: Ctx, stmt: NodeBase): boolean {
+  if (stmt.op !== "call") return false;
+  const callee = String(stmt.attrs.callee);
+  if (callee === "strlen" || callee === "intval" || callee === "trim" || callee === "empty" || callee === "isset") {
+    return stmt.effects.length === 0;
+  }
+  return false;
+}
+
 function tryExtractInlineQuery(
   ctx: Ctx,
   bodyId: NodeId,
@@ -349,7 +359,10 @@ function tryExtractInlineQuery(
       localToFormal.set(localName, formal);
       continue;
     }
+    if (stmt.op === "hole") return undefined;
     if (stmt.effects.length > 0) return undefined;
+    if (isSkippablePreludeExprStmt(ctx, stmt)) continue;
+    return undefined;
   }
   return { queryId, localToArg: localToFormal };
 }

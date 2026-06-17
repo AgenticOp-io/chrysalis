@@ -104,6 +104,10 @@ export interface Module {
     readonly sourceApp: string;
     readonly createdAt: string;
     readonly chrysalisVersion: string;
+    /** Lib/vendor helper bodies collected during ingest for emit-time db.read inlining. */
+    readonly helperBodies?: Readonly<
+      Record<string, { readonly bodyId: NodeId; readonly paramNames: readonly string[] }>
+    >;
   };
 }
 

@@ -16,6 +16,7 @@ const minimalEmitted = (body: string) =>
     usesZod: false,
     usesPhpFqnNew: false,
     usesPhpDynamicNew: false,
+    libHelperImports: [],
   }) as const;
 
 describe("emit-handler-body-dedupe", () => {

@@ -10,6 +10,11 @@ import { effectTag, effectTagsSorted, isAuthBoundaryCallee } from "@chrysalis/we
 import { matchStringDispatchChain } from "@chrysalis/insight";
 import type { HttpEmitProfile } from "./http-profile.js";
 import { honoHttpProfile } from "./http-profile.js";
+import {
+  resolveHelperBodyEntry,
+  tryEmitInlineLibHelperCall,
+  type EmitInlineCtx,
+} from "./lib-helper-inline.js";
 import { ident, stringLit } from "./ts-util.js";
 
 function emitPhpAttributesSuffix(n: NodeBase): string {
@@ -39,6 +44,8 @@ export interface EmittedHandler {
   readonly usesPhpFqnNew: boolean;
   /** Handler uses `phpDynamicNew` for dynamic class construction (`new $x`). */
   readonly usesPhpDynamicNew: boolean;
+  /** Lib helper calls that require `lib-helpers.ts` (non-inlinable at emit). */
+  readonly libHelperImports: ReadonlyArray<string>;
 }
 
 /**
@@ -87,6 +94,35 @@ interface EmitCtx {
   usesZod: boolean;
   usesPhpFqnNew: boolean;
   usesPhpDynamicNew: boolean;
+  /** When `function`, `__return` lowers to TS `return` (lib helper bodies). */
+  returnMode: "handler" | "function";
+  libHelperCalls: Set<string>;
+}
+
+function emitInlineCtx(ctx: EmitCtx): EmitInlineCtx {
+  return {
+    m: ctx.m,
+    ...(ctx.domainTypesByTable !== undefined ? { domainTypesByTable: ctx.domainTypesByTable } : {}),
+    domainTypeImports: ctx.domainTypeImports,
+    effectNames: ctx.effectNames,
+    emitParamExpr: (id, subst) => emitExprSubst(ctx, id, subst),
+  };
+}
+
+function tryEmitLibHelperCallExpr(ctx: EmitCtx, callee: string, argExprs: readonly string[]): string | undefined {
+  return tryEmitInlineLibHelperCall(emitInlineCtx(ctx), callee, argExprs);
+}
+
+function recordLibHelperCallIfNeeded(ctx: EmitCtx, callee: string, argExprs: readonly string[]): string | undefined {
+  const bodies = ctx.m.meta.helperBodies;
+  if (!bodies) return undefined;
+  const entry = resolveHelperBodyEntry(bodies, callee);
+  if (entry === undefined) return undefined;
+  const inline = tryEmitLibHelperCallExpr(ctx, callee, argExprs);
+  if (inline !== undefined) return inline;
+  const exportName = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
+  ctx.libHelperCalls.add(exportName);
+  return `${exportName}(${argExprs.join(", ")})`;
 }
 
 /** TS identifier for a PHP `$name` binding; must not shadow the HTTP profile request/reply param. */
@@ -195,6 +231,8 @@ function emitExprSubst(
   if (n.op === "call") {
     const callee = String(n.attrs.callee);
     const args = n.operands.map((o) => emitExprSubst(ctx, o, subst));
+    const lib = recordLibHelperCallIfNeeded(ctx, callee, args);
+    if (lib !== undefined) return lib;
     return emitKnownCall(ctx, callee, args);
   }
   if (n.op === "unaryop") {
@@ -357,6 +395,8 @@ function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
         return rest.length > 0 ? `phpDynamicNew(${classExpr}, ${rest.join(", ")})` : `phpDynamicNew(${classExpr})`;
       }
       const args = n.operands.map((o) => emitExpr(ctx, o));
+      const lib = recordLibHelperCallIfNeeded(ctx, callee, args);
+      if (lib !== undefined) return lib + emitPhpAttributesSuffix(n);
       return emitKnownCall(ctx, callee, args) + emitPhpAttributesSuffix(n);
     }
     case "concat": {
@@ -734,11 +774,15 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
       if (callee === "__return") {
         ctx.hasTerminalResponse = true;
         if (args.length > 0) {
+          if (ctx.returnMode === "function") {
+            return `return ${args[0]};`;
+          }
           // Both backends must buffer then `__respond`: Fastify needs reply.send;
           // Hono bare `return ""` makes `app.fetch` yield Context, not Response.
           ctx.htmlBufferUsed = true;
           return `__html = String(${args[0]});\n${p.respondBuffered()}`;
         }
+        if (ctx.returnMode === "function") return "return;";
         return p.respondBuffered();
       }
       if (callee === "__return_json") {
@@ -886,6 +930,8 @@ export function emitHandlerBody(
     usesZod: false,
     usesPhpFqnNew: false,
     usesPhpDynamicNew: false,
+    returnMode: "handler",
+    libHelperCalls: new Set<string>(),
   };
   const handler = m.nodes.get(handlerId);
   if (!handler) throw new Error(`emit-shared: handler not found ${String(handlerId)}`);
@@ -913,6 +959,49 @@ export function emitHandlerBody(
     usesZod: ctx.usesZod,
     usesPhpFqnNew: ctx.usesPhpFqnNew,
     usesPhpDynamicNew: ctx.usesPhpDynamicNew,
+    libHelperImports: [...ctx.libHelperCalls].sort(),
+  };
+}
+
+/** Emit a lib helper function body (assign chain + return db.read). */
+export function emitLibHelperFunctionBody(
+  m: Module,
+  bodyId: NodeId,
+  _paramNames: readonly string[],
+  opts?: EmitHandlerOptions,
+  profile: HttpEmitProfile = honoHttpProfile,
+): { body: string; holes: EmittedHandler["holes"]; domainTypeImports: string[]; usesDb: boolean } {
+  const ctx: EmitCtx = {
+    m,
+    profile,
+    bound: new Set<string>(),
+    holes: [],
+    effectNames: new Set<string>(),
+    domainTypesByTable: opts?.domainTypesByTable,
+    domainTypeImports: new Set<string>(),
+    htmlBufferUsed: false,
+    statusVarUsed: false,
+    hasTerminalResponse: false,
+    shape: null,
+    tmpCounter: 0,
+    usesQueryAllWhereIn: false,
+    usesChrysalisBatchHelpers: false,
+    usesZod: false,
+    usesPhpFqnNew: false,
+    usesPhpDynamicNew: false,
+    returnMode: "function",
+    libHelperCalls: new Set<string>(),
+  };
+  const main = emitStmt(ctx, bodyId);
+  let usesDb = false;
+  for (const e of ctx.effectNames) {
+    if (e.startsWith("db.")) usesDb = true;
+  }
+  return {
+    body: main,
+    holes: ctx.holes,
+    domainTypeImports: [...ctx.domainTypeImports].sort(),
+    usesDb,
   };
 }
 
