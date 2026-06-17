@@ -310,6 +310,34 @@ export async function runRuntimeCwlParityPlanGate(opts = {}) {
   };
 }
 
+/** G5690 — STRATEGIC-PLAN Month 1–2 runtime-cwl parity + production-readiness reinforcement. */
+export async function runStrategicPlanMonth12RuntimeParityGate(opts = {}) {
+  const skipEmitHttp =
+    opts.skipEmitHttp === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP === "1";
+  const [plan, parity] = await Promise.all([
+    runRuntimeCwlParityPlanGate(opts),
+    runRuntimeCwlParityGate(opts),
+  ]);
+  let fastifySearch = { ok: true, skip: "emit-http-skipped" };
+  if (!skipEmitHttp) {
+    fastifySearch = await runFastifyEmitSearchGate(opts);
+  }
+  const ok =
+    plan.ok === true && parity.ok === true && fastifySearch.ok === true;
+  return {
+    ok,
+    planOk: plan.ok === true,
+    parityOk: parity.ok === true,
+    fastifySearchOk: fastifySearch.ok === true,
+    skipEmitHttp,
+    goldParityOk: parity.goldParityOk === true,
+    honoParityOk: parity.honoParityOk === true,
+    productionOk: parity.productionOk === true,
+    queryHtmlOk: parity.queryHtmlOk === true,
+    loadArrayOk: parity.loadArrayOk === true,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

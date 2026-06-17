@@ -17,13 +17,14 @@ Make **in-process CWL preview/runtime** a credible authoring surface without cla
 
 Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullstack-gates.mjs`.
 
-## Phase B — Emit backend parity (in progress)
+## Phase B — Emit backend parity (reinforced)
 
 | Gate | Scope | Status |
 | --- | --- | --- |
 | `runEmitVerifyMegaGate` | hono + fastify HTTP verify on CWL flagship | Shipped (G1839) |
 | `runFastifyEmitSearchGate` | `/search` verify artifact | Shipped |
 | `runProductionSearchGate` | runtime-cwl `/search?q=` probe | Shipped (RFC-0015) |
+| `runStrategicPlanMonth12RuntimeParityGate` | plan doc + full `runRuntimeCwlParityGate` + optional Fastify search verify | Shipped (G5690) |
 
 **Non-goal:** marketing "production-ready runtime" without verify evidence.
 
@@ -41,8 +42,11 @@ Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullst
 
 ```bash
 pnpm run hub:strategic-plan-month1-hardening-smoke
+pnpm run hub:strategic-plan-month12-runtime-parity-smoke
 pnpm run hub:cwl-authoring-batch-v63-smoke   # full runRuntimeCwlParityGate chain
 ```
+
+Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP=1` for in-process-only parity (Vitest default).
 
 ## Invariants (DESIGN §3)
 

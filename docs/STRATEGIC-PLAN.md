@@ -243,6 +243,8 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 1 reinforcement (2026-06-17):** **G5680–G5683** — `runCwlAuthoringBootstrapHardeningGate`, diagnose schema **v3**, `docs/RUNTIME-CWL-PARITY-PLAN.md`, `pnpm run hub:strategic-plan-month1-hardening-smoke`.
 
+**Month 1–2 reinforcement (2026-06-17):** **G5690–G5693** — `runStrategicPlanMonth12RuntimeParityGate`, `pnpm run hub:strategic-plan-month12-runtime-parity-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP=1` for in-process-only).
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
