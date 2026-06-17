@@ -212,6 +212,28 @@ export function normalizeSqlLiteralForHelperLift(sql: string): string {
   let i = 0;
   while (i < collapsed.length) {
     const ch = collapsed[i]!;
+    if (ch === "-" && collapsed[i + 1] === "-") {
+      out += "--";
+      i += 2;
+      while (i < collapsed.length) {
+        out += collapsed[i]!;
+        i++;
+      }
+      continue;
+    }
+    if (ch === "/" && collapsed[i + 1] === "*") {
+      out += "/*";
+      i += 2;
+      while (i < collapsed.length - 1 && !(collapsed[i] === "*" && collapsed[i + 1] === "/")) {
+        out += collapsed[i]!;
+        i++;
+      }
+      if (i < collapsed.length - 1) {
+        out += "*/";
+        i += 2;
+      }
+      continue;
+    }
     if (ch === "`") {
       out += ch;
       i++;

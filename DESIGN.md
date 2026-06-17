@@ -3541,6 +3541,9 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-17 — D2312** **B5.5 inline negative control (G2312).** Non-chain assign body does not inline at call site. **DESIGN §3** unchanged.
 - **2026-06-17 — D2313** **Lane A readonly class modifier (G2313).** **`ClassDecl.readonly`** from class flags. **DESIGN §3** unchanged.
 - **2026-06-17 — D2314** **B5.4 v5 backtick SQL identifiers (G2314).** Quote-aware normalization skips backtick-quoted names. **DESIGN §3** unchanged.
+- **2026-06-17 — D2315** **B5.4 v6 SQL comment quoting (G2315).** **`--`** / **`/* */`** regions skip keyword uppercasing. **DESIGN §3** unchanged.
+- **2026-06-17 — D2316** **B5.5 v6 prelude stmt skip inline (G2316).** Effect-free non-assign preludes before assign→return query bodies. **DESIGN §3** unchanged.
+- **2026-06-17 — D2317** **Lane A never return type parity (G2317).** **`never_type.php`** fixture + ingest. **DESIGN §3** unchanged.
 
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 

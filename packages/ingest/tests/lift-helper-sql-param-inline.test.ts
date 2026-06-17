@@ -12,6 +12,7 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3)", () => {
       "chrysalis_sql_param",
       "chrysalis_sql_param_local",
       "chrysalis_sql_param_chain",
+      "chrysalis_sql_param_prelude",
     ]);
     const helperCalls = [...mod.nodes.values()].filter(
       (n) => n.dialect === "data" && n.op === "call" && inlineCallees.has(String(n.attrs.callee)),
@@ -25,6 +26,6 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3)", () => {
     );
     expect(noinlineCalls.length).toBe(1);
     const dbQueries = [...mod.nodes.values()].filter((n) => n.dialect === "effect" && n.op === "db.query");
-    expect(dbQueries.length).toBeGreaterThanOrEqual(3);
+    expect(dbQueries.length).toBeGreaterThanOrEqual(4);
   });
 });

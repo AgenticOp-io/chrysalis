@@ -170,4 +170,16 @@ describe("ingest: lift-shared-helpers (B2)", () => {
       "SELECT id FROM `select` WHERE active = 1",
     );
   });
+
+  it("normalizeSqlLiteralForHelperLift leaves keywords inside line comments (B5.4 v6)", () => {
+    expect(normalizeSqlLiteralForHelperLift("SELECT id FROM items -- where select from")).toBe(
+      "SELECT id FROM items -- where select from",
+    );
+  });
+
+  it("normalizeSqlLiteralForHelperLift leaves keywords inside block comments (B5.4 v6)", () => {
+    expect(normalizeSqlLiteralForHelperLift("SELECT id FROM items /* select from */ WHERE active = 1")).toBe(
+      "SELECT id FROM items /* select from */ WHERE active = 1",
+    );
+  });
 });

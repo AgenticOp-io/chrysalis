@@ -24,6 +24,12 @@
       "path": "/delta",
       "file": "pages/show_delta.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/epsilon",
+      "file": "pages/show_epsilon.php",
+      "pathParams": []
     }
   ]
 }

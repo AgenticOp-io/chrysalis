@@ -96,6 +96,12 @@
       "path": "/readonly-class-keyword",
       "file": "pages/readonly_class_keyword.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/never-type",
+      "file": "pages/never_type.php",
+      "pathParams": []
     }
   ]
 }

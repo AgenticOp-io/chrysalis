@@ -22,7 +22,7 @@ describe("lift-helper-sql-param-inline emit replay verify (B5.5 v4)", () => {
       expect(report.emitHoles).toBe(0);
       expect(report.correctness).toBe(1);
       expect(report.framesPassed).toBe(report.framesTotal);
-      expect(report.handlerCount).toBe(3);
+      expect(report.handlerCount).toBe(5);
     },
     120_000,
   );

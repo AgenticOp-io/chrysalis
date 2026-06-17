@@ -5,6 +5,7 @@ require_once __DIR__ . '/lib/sql_param.php';
 require_once __DIR__ . '/lib/sql_param_local.php';
 require_once __DIR__ . '/lib/sql_param_chain.php';
 require_once __DIR__ . '/lib/sql_param_noinline.php';
+require_once __DIR__ . '/lib/sql_param_prelude.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -23,6 +24,10 @@ if ($method === 'GET' && $path === '/gamma') {
 }
 if ($method === 'GET' && $path === '/delta') {
     require __DIR__ . '/pages/show_delta.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/epsilon') {
+    require __DIR__ . '/pages/show_epsilon.php';
     exit;
 }
 

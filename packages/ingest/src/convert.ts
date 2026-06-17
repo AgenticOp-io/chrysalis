@@ -330,21 +330,26 @@ function tryExtractInlineQuery(
   }
   const localToFormal = new Map<string, string>();
   for (let i = 0; i < stmts.length - 1; i++) {
-    const assign = ctx.m.get(stmts[i]!);
-    if (!assign || assign.op !== "call" || assign.attrs.callee !== "__assign") return undefined;
-    const targetLit = ctx.m.get(assign.operands[0]!);
-    const valueId = assign.operands[1]!;
-    if (!targetLit || targetLit.op !== "literal") return undefined;
-    const localName = phpVarKey(String(targetLit.attrs.value ?? ""));
-    const valueNode = ctx.m.get(valueId);
-    if (!valueNode || valueNode.op !== "param") return undefined;
-    const srcName = String(valueNode.attrs.name ?? "");
-    const formal =
-      matchFormalParam(srcName, paramNames) ??
-      localToFormal.get(phpVarKey(srcName)) ??
-      localToFormal.get(srcName);
-    if (formal === undefined) return undefined;
-    localToFormal.set(localName, formal);
+    const stmtId = stmts[i]!;
+    const stmt = ctx.m.get(stmtId);
+    if (!stmt) return undefined;
+    if (stmt.op === "call" && stmt.attrs.callee === "__assign") {
+      const targetLit = ctx.m.get(stmt.operands[0]!);
+      const valueId = stmt.operands[1]!;
+      if (!targetLit || targetLit.op !== "literal") return undefined;
+      const localName = phpVarKey(String(targetLit.attrs.value ?? ""));
+      const valueNode = ctx.m.get(valueId);
+      if (!valueNode || valueNode.op !== "param") return undefined;
+      const srcName = String(valueNode.attrs.name ?? "");
+      const formal =
+        matchFormalParam(srcName, paramNames) ??
+        localToFormal.get(phpVarKey(srcName)) ??
+        localToFormal.get(srcName);
+      if (formal === undefined) return undefined;
+      localToFormal.set(localName, formal);
+      continue;
+    }
+    if (stmt.effects.length > 0) return undefined;
   }
   return { queryId, localToArg: localToFormal };
 }
