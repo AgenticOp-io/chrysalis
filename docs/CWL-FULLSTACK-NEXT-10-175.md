@@ -12,9 +12,9 @@
 | 4 | **G3050** | Vitest + `ci-gates-hub-completion` v175 |
 | 5 | **G3051** | `hub:cwl-authoring-batch-v175-smoke` script |
 | 6 | **G3052** | ROADMAP + DESIGN lock queue 175 |
-| 7–10 | **G3053–G3056** | Reserved — queue **176** |
+| 7–10 | **G3053–G3056** | Moved to queue **176** |
 
-Queue **176+** requires charter in **`docs/CWL-FULLSTACK-QUEUES-171-180.md`**.
+Queue **176** — see **`docs/CWL-FULLSTACK-NEXT-10-176.md`**.
 
 **Batch:** `hub:cwl-authoring-batch-v175-smoke` · **schema:** 248
 

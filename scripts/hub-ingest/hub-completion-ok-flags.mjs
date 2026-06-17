@@ -248,6 +248,16 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     fullstackAuthoringBatchV173,
     fullstackAuthoringBatchV174,
     fullstackAuthoringBatchV175,
+    fullstackAuthoringBatchV176,
+    fullstackAuthoringBatchV177,
+    fullstackAuthoringBatchV178,
+    fullstackAuthoringBatchV179,
+    fullstackAuthoringBatchV180,
+    fullstackAuthoringBatchV181,
+    fullstackAuthoringBatchV182,
+    fullstackAuthoringBatchV183,
+    fullstackAuthoringBatchV184,
+    fullstackAuthoringBatchV185,
     plainPhpMigrationOsBatch,
     tinyBlogDeliveryBatch,
     deliveryPipelineStandaloneBatch,
@@ -568,6 +578,16 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
   const fullstackAuthoringBatchV173Ok = fullstackAuthoringBatchV173.ok === true;
   const fullstackAuthoringBatchV174Ok = fullstackAuthoringBatchV174.ok === true;
   const fullstackAuthoringBatchV175Ok = fullstackAuthoringBatchV175.ok === true;
+  const fullstackAuthoringBatchV176Ok = fullstackAuthoringBatchV176.ok === true;
+  const fullstackAuthoringBatchV177Ok = fullstackAuthoringBatchV177.ok === true;
+  const fullstackAuthoringBatchV178Ok = fullstackAuthoringBatchV178.ok === true;
+  const fullstackAuthoringBatchV179Ok = fullstackAuthoringBatchV179.ok === true;
+  const fullstackAuthoringBatchV180Ok = fullstackAuthoringBatchV180.ok === true;
+  const fullstackAuthoringBatchV181Ok = fullstackAuthoringBatchV181.ok === true;
+  const fullstackAuthoringBatchV182Ok = fullstackAuthoringBatchV182.ok === true;
+  const fullstackAuthoringBatchV183Ok = fullstackAuthoringBatchV183.ok === true;
+  const fullstackAuthoringBatchV184Ok = fullstackAuthoringBatchV184.ok === true;
+  const fullstackAuthoringBatchV185Ok = fullstackAuthoringBatchV185.ok === true;
   const plainPhpMigrationOsBatchOk = plainPhpMigrationOsBatch.ok === true;
   const tinyBlogDeliveryBatchOk = tinyBlogDeliveryBatch.ok === true;
   const deliveryPipelineStandaloneBatchOk = deliveryPipelineStandaloneBatch.ok === true;
@@ -889,6 +909,16 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     fullstackAuthoringBatchV173Ok &&
     fullstackAuthoringBatchV174Ok &&
     fullstackAuthoringBatchV175Ok &&
+    fullstackAuthoringBatchV176Ok &&
+    fullstackAuthoringBatchV177Ok &&
+    fullstackAuthoringBatchV178Ok &&
+    fullstackAuthoringBatchV179Ok &&
+    fullstackAuthoringBatchV180Ok &&
+    fullstackAuthoringBatchV181Ok &&
+    fullstackAuthoringBatchV182Ok &&
+    fullstackAuthoringBatchV183Ok &&
+    fullstackAuthoringBatchV184Ok &&
+    fullstackAuthoringBatchV185Ok &&
     plainPhpMigrationOsBatchOk &&
     tinyBlogDeliveryBatchOk &&
     deliveryPipelineStandaloneBatchOk &&
@@ -1198,6 +1228,16 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     fullstackAuthoringBatchV173Ok,
     fullstackAuthoringBatchV174Ok,
     fullstackAuthoringBatchV175Ok,
+    fullstackAuthoringBatchV176Ok,
+    fullstackAuthoringBatchV177Ok,
+    fullstackAuthoringBatchV178Ok,
+    fullstackAuthoringBatchV179Ok,
+    fullstackAuthoringBatchV180Ok,
+    fullstackAuthoringBatchV181Ok,
+    fullstackAuthoringBatchV182Ok,
+    fullstackAuthoringBatchV183Ok,
+    fullstackAuthoringBatchV184Ok,
+    fullstackAuthoringBatchV185Ok,
     plainPhpMigrationOsBatchOk,
     tinyBlogDeliveryBatchOk,
     deliveryPipelineStandaloneBatchOk,

@@ -42,8 +42,8 @@ Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated
 | Lane | Policy |
 | --- | --- |
 | Queue **111** | Post-110 full-stack pilot depth — **`docs/CWL-FULLSTACK-NEXT-10-111.md`** |
-| Queue **175** | Phase E lock — **`docs/CWL-FULLSTACK-NEXT-10-175.md`** |
-| Queue **176+** | Requires charter in **`docs/CWL-FULLSTACK-QUEUES-171-180.md`** |
+| Queue **185** | Phase F lock — **`docs/CWL-FULLSTACK-NEXT-10-185.md`** |
+| Queue **186+** | Requires charter in **`docs/CWL-FULLSTACK-QUEUES-181-190.md`** |
 | Laravel boring reliability | **Paused** until plan amendment |
 | Matrix gold for marketing | **Paused** |
 

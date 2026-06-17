@@ -516,7 +516,17 @@
     "hub:cwl-authoring-batch-v172-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v172-smoke.mjs",
     "hub:cwl-authoring-batch-v173-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v173-smoke.mjs",
     "hub:cwl-authoring-batch-v174-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v174-smoke.mjs",
-    "hub:cwl-authoring-batch-v175-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v175-smoke.mjs"
+    "hub:cwl-authoring-batch-v175-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v175-smoke.mjs",
+    "hub:cwl-authoring-batch-v176-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v176-smoke.mjs",
+    "hub:cwl-authoring-batch-v177-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v177-smoke.mjs",
+    "hub:cwl-authoring-batch-v178-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v178-smoke.mjs",
+    "hub:cwl-authoring-batch-v179-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v179-smoke.mjs",
+    "hub:cwl-authoring-batch-v180-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v180-smoke.mjs",
+    "hub:cwl-authoring-batch-v181-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v181-smoke.mjs",
+    "hub:cwl-authoring-batch-v182-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v182-smoke.mjs",
+    "hub:cwl-authoring-batch-v183-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v183-smoke.mjs",
+    "hub:cwl-authoring-batch-v184-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v184-smoke.mjs",
+    "hub:cwl-authoring-batch-v185-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v185-smoke.mjs"
   },
   "devDependencies": {
     "acorn": "^8.14.1",

@@ -255,6 +255,16 @@ import { runCwlAuthoringBatchV172Smoke } from "./hub-cwl-authoring-batch-v172-sm
 import { runCwlAuthoringBatchV173Smoke } from "./hub-cwl-authoring-batch-v173-smoke.mjs";
 import { runCwlAuthoringBatchV174Smoke } from "./hub-cwl-authoring-batch-v174-smoke.mjs";
 import { runCwlAuthoringBatchV175Smoke } from "./hub-cwl-authoring-batch-v175-smoke.mjs";
+import { runCwlAuthoringBatchV176Smoke } from "./hub-cwl-authoring-batch-v176-smoke.mjs";
+import { runCwlAuthoringBatchV177Smoke } from "./hub-cwl-authoring-batch-v177-smoke.mjs";
+import { runCwlAuthoringBatchV178Smoke } from "./hub-cwl-authoring-batch-v178-smoke.mjs";
+import { runCwlAuthoringBatchV179Smoke } from "./hub-cwl-authoring-batch-v179-smoke.mjs";
+import { runCwlAuthoringBatchV180Smoke } from "./hub-cwl-authoring-batch-v180-smoke.mjs";
+import { runCwlAuthoringBatchV181Smoke } from "./hub-cwl-authoring-batch-v181-smoke.mjs";
+import { runCwlAuthoringBatchV182Smoke } from "./hub-cwl-authoring-batch-v182-smoke.mjs";
+import { runCwlAuthoringBatchV183Smoke } from "./hub-cwl-authoring-batch-v183-smoke.mjs";
+import { runCwlAuthoringBatchV184Smoke } from "./hub-cwl-authoring-batch-v184-smoke.mjs";
+import { runCwlAuthoringBatchV185Smoke } from "./hub-cwl-authoring-batch-v185-smoke.mjs";
 import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
@@ -370,7 +380,16 @@ fullstackAuthoringBatchV171,
 fullstackAuthoringBatchV172,
 fullstackAuthoringBatchV173,
 fullstackAuthoringBatchV174,
-fullstackAuthoringBatchV175, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, deliveryPipelineStandaloneBatch, laravelMinOracleBatch, advisoryStandaloneMegaBatch, allDeliveryUltraMegaBatch, migrationOsMegaBatch, oracleProductUltraBatch, expressLaravelMinDeliveryBatch, symfonyLaravelMinDeliveryBatch, postTranslateVerifyOriginBatch, tinyBlogDepthBatch, contractVerifyStandaloneBatch, chimeraCutoverOriginBatch, migrationAssessmentOriginBatch, verifyGapsOriginBatch, postTranslateArtifactsOriginBatch, verifyStandaloneMegaBatch, contractStandaloneMegaBatch, evidenceStandaloneMegaBatch, plainPhpDepthBatch, symfonyDepthBatch, expressDepthBatch, laravelMinDepthBatch, originDepthUltraBatch, chimeraAssessmentMegaBatch, verifyProductUltraBatch, projectToCwlAllOrigins, cwlAllOriginsBatch, cwlUniversalMegaBatch, cwlAppStackOriginsBatch, cwlAssetOriginsBatch, cwlPatternLiteralCwlBatch, hubTranslateCwlCoverage, cwlPatternLiteralRoundtripBatch, cwlFlagshipRoundtripBatch, hubTranslateCwlRoundtrip, projectToCwlRoundtrip, contractImportCwlRoundtrip, phpOracleMicroVerifyBatch, phpNextjsVerifyBatch, phpWedgeBatch, hubEvidenceMvpBatch, wptpStrictBatch, flagshipFullGapsBatch, gapsIngestClosureBatch, gapsIngestStrictBatch, laravelAuthProbeReingest, laravelAuthProbeVerifyClosure, laravelAuthProbeVerifyReplay, flagshipVerifyReplay, irHelperLifting, laravelAuthProbeVerifyHttp, flagshipVerifyHttp, irHelperLiftingSemantic, irHelperLiftingAttr, irHelperLiftingOracleTwin, irHelperLiftingReplayTwin, irHelperLiftingEmbed, laravelAuthProbeVerifyHttpFastify, flagshipVerifyHttpFastify, laravelAuthProbeReingestVerifyHttpFastify, irHelperLiftingFullPath;
+fullstackAuthoringBatchV176,
+fullstackAuthoringBatchV177,
+fullstackAuthoringBatchV178,
+fullstackAuthoringBatchV179,
+fullstackAuthoringBatchV180,
+fullstackAuthoringBatchV181,
+fullstackAuthoringBatchV182,
+fullstackAuthoringBatchV183,
+fullstackAuthoringBatchV184,
+fullstackAuthoringBatchV185, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, deliveryPipelineStandaloneBatch, laravelMinOracleBatch, advisoryStandaloneMegaBatch, allDeliveryUltraMegaBatch, migrationOsMegaBatch, oracleProductUltraBatch, expressLaravelMinDeliveryBatch, symfonyLaravelMinDeliveryBatch, postTranslateVerifyOriginBatch, tinyBlogDepthBatch, contractVerifyStandaloneBatch, chimeraCutoverOriginBatch, migrationAssessmentOriginBatch, verifyGapsOriginBatch, postTranslateArtifactsOriginBatch, verifyStandaloneMegaBatch, contractStandaloneMegaBatch, evidenceStandaloneMegaBatch, plainPhpDepthBatch, symfonyDepthBatch, expressDepthBatch, laravelMinDepthBatch, originDepthUltraBatch, chimeraAssessmentMegaBatch, verifyProductUltraBatch, projectToCwlAllOrigins, cwlAllOriginsBatch, cwlUniversalMegaBatch, cwlAppStackOriginsBatch, cwlAssetOriginsBatch, cwlPatternLiteralCwlBatch, hubTranslateCwlCoverage, cwlPatternLiteralRoundtripBatch, cwlFlagshipRoundtripBatch, hubTranslateCwlRoundtrip, projectToCwlRoundtrip, contractImportCwlRoundtrip, phpOracleMicroVerifyBatch, phpNextjsVerifyBatch, phpWedgeBatch, hubEvidenceMvpBatch, wptpStrictBatch, flagshipFullGapsBatch, gapsIngestClosureBatch, gapsIngestStrictBatch, laravelAuthProbeReingest, laravelAuthProbeVerifyClosure, laravelAuthProbeVerifyReplay, flagshipVerifyReplay, irHelperLifting, laravelAuthProbeVerifyHttp, flagshipVerifyHttp, irHelperLiftingSemantic, irHelperLiftingAttr, irHelperLiftingOracleTwin, irHelperLiftingReplayTwin, irHelperLiftingEmbed, laravelAuthProbeVerifyHttpFastify, flagshipVerifyHttpFastify, laravelAuthProbeReingestVerifyHttpFastify, irHelperLiftingFullPath;
   if (!gceHubCompletionFast) {
   phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
   laravelGaps = buildLaravelVerifyGapsReport();
@@ -1782,6 +1801,66 @@ fullstackAuthoringBatchV175, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, de
   } catch {
     fullstackAuthoringBatchV175 = { ok: false, skip: "fullstack-authoring-batch-v175-threw" };
   }
+  fullstackAuthoringBatchV176 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV176 = await runCwlAuthoringBatchV176Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV176 = { ok: false, skip: "fullstack-authoring-batch-v176-threw" };
+  }
+  fullstackAuthoringBatchV177 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV177 = await runCwlAuthoringBatchV177Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV177 = { ok: false, skip: "fullstack-authoring-batch-v177-threw" };
+  }
+  fullstackAuthoringBatchV178 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV178 = await runCwlAuthoringBatchV178Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV178 = { ok: false, skip: "fullstack-authoring-batch-v178-threw" };
+  }
+  fullstackAuthoringBatchV179 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV179 = await runCwlAuthoringBatchV179Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV179 = { ok: false, skip: "fullstack-authoring-batch-v179-threw" };
+  }
+  fullstackAuthoringBatchV180 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV180 = await runCwlAuthoringBatchV180Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV180 = { ok: false, skip: "fullstack-authoring-batch-v180-threw" };
+  }
+  fullstackAuthoringBatchV181 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV181 = await runCwlAuthoringBatchV181Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV181 = { ok: false, skip: "fullstack-authoring-batch-v181-threw" };
+  }
+  fullstackAuthoringBatchV182 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV182 = await runCwlAuthoringBatchV182Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV182 = { ok: false, skip: "fullstack-authoring-batch-v182-threw" };
+  }
+  fullstackAuthoringBatchV183 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV183 = await runCwlAuthoringBatchV183Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV183 = { ok: false, skip: "fullstack-authoring-batch-v183-threw" };
+  }
+  fullstackAuthoringBatchV184 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV184 = await runCwlAuthoringBatchV184Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV184 = { ok: false, skip: "fullstack-authoring-batch-v184-threw" };
+  }
+  fullstackAuthoringBatchV185 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV185 = await runCwlAuthoringBatchV185Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV185 = { ok: false, skip: "fullstack-authoring-batch-v185-threw" };
+  }
   plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
@@ -2405,6 +2484,16 @@ fullstackAuthoringBatchV175, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, de
       fullstackAuthoringBatchV173,
       fullstackAuthoringBatchV174,
       fullstackAuthoringBatchV175,
+      fullstackAuthoringBatchV176,
+      fullstackAuthoringBatchV177,
+      fullstackAuthoringBatchV178,
+      fullstackAuthoringBatchV179,
+      fullstackAuthoringBatchV180,
+      fullstackAuthoringBatchV181,
+      fullstackAuthoringBatchV182,
+      fullstackAuthoringBatchV183,
+      fullstackAuthoringBatchV184,
+      fullstackAuthoringBatchV185,
       plainPhpMigrationOsBatch,
       tinyBlogDeliveryBatch,
       deliveryPipelineStandaloneBatch,
@@ -2713,6 +2802,16 @@ fullstackAuthoringBatchV175, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, de
     fullstackAuthoringBatchV173,
     fullstackAuthoringBatchV174,
     fullstackAuthoringBatchV175,
+    fullstackAuthoringBatchV176,
+    fullstackAuthoringBatchV177,
+    fullstackAuthoringBatchV178,
+    fullstackAuthoringBatchV179,
+    fullstackAuthoringBatchV180,
+    fullstackAuthoringBatchV181,
+    fullstackAuthoringBatchV182,
+    fullstackAuthoringBatchV183,
+    fullstackAuthoringBatchV184,
+    fullstackAuthoringBatchV185,
     plainPhpMigrationOsBatch,
     tinyBlogDeliveryBatch,
     deliveryPipelineStandaloneBatch,
