@@ -12,7 +12,9 @@
 | 4 | **G2550** | Vitest + `ci-gates-hub-completion` v125 |
 | 5 | **G2551** | `hub:cwl-authoring-batch-v125-smoke` script |
 | 6 | **G2552** | ROADMAP + DESIGN lock queue 125 |
-| 7–10 | **G2553–G2556** | Phase C queue 111–125 **complete** |
+| 7–10 | **G2553–G2556** | Moved to queue **126** |
+
+Queue **126** — see **`docs/CWL-FULLSTACK-NEXT-10-126.md`**.
 
 **Batch:** `hub:cwl-authoring-batch-v125-smoke` · **schema:** 198
 
