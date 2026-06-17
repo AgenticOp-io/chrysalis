@@ -267,6 +267,45 @@ interface Ctx {
   dbFactoryAliases: Set<string>;
   /** PHP attributes on known callees (route-local + lib index). */
   readonly functionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]>;
+  /** Lowered lib/vendor helper bodies for zero-arg db.read inlining at call sites (G2294). */
+  readonly helperBodies: ReadonlyMap<string, NodeId>;
+}
+
+function resolveHelperBodyId(
+  bodies: ReadonlyMap<string, NodeId>,
+  callee: string,
+): NodeId | undefined {
+  const direct = bodies.get(callee);
+  if (direct !== undefined) return direct;
+  if (callee.includes("::")) {
+    for (const [key, id] of bodies) {
+      if (key === callee || key.endsWith("\\" + callee)) return id;
+    }
+  }
+  const tail = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
+  return bodies.get(tail);
+}
+
+/** Inline zero-arg lib helpers whose body is `return <effect.db.query>` (G2294). */
+function tryInlineLibHelperCall(
+  ctx: Ctx,
+  callee: string,
+  argNodeIds: readonly NodeId[],
+): NodeId | undefined {
+  if (ctx.helperBodies.size === 0 || argNodeIds.length > 0) return undefined;
+  const bodyId = resolveHelperBodyId(ctx.helperBodies, callee);
+  if (bodyId === undefined) return undefined;
+  const get = (id: NodeId) => ctx.m.get(id);
+  const body = get(bodyId);
+  if (!body || body.dialect !== "data" || body.op !== "block" || body.operands.length !== 1) {
+    return undefined;
+  }
+  const retStmt = get(body.operands[0]!);
+  if (!retStmt || retStmt.op !== "call" || retStmt.attrs.callee !== "__return") return undefined;
+  if (retStmt.operands.length !== 1) return undefined;
+  const inner = get(retStmt.operands[0]!);
+  if (!inner || inner.dialect !== "effect" || inner.op !== "db.query") return undefined;
+  return retStmt.operands[0]!;
 }
 
 function makeCtx(
@@ -274,6 +313,7 @@ function makeCtx(
   file: string,
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
   functionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]> = new Map(),
+  helperBodies: ReadonlyMap<string, NodeId> = new Map(),
 ): Ctx {
   return {
     m: builder,
@@ -286,6 +326,7 @@ function makeCtx(
     dbFactoryReturnCallees,
     dbFactoryAliases: new Set(),
     functionAttributes,
+    helperBodies,
   };
 }
 
@@ -908,6 +949,10 @@ function convertCall(
   const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
 
   if (!lowering) {
+    const inlined = tryInlineLibHelperCall(ctx, name, args);
+    if (inlined !== undefined) {
+      return inlined;
+    }
     return ctx.data.call({
       callee: name,
       args,
@@ -1488,13 +1533,14 @@ export function ingestHandler(
   libCallEffects: ReadonlyMap<string, EffectSet> = new Map(),
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
   libFunctionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]> = new Map(),
+  helperBodies: ReadonlyMap<string, NodeId> = new Map(),
 ): NodeId {
   const routeAttrs = collectFunctionAttributes(ast.statements);
   const mergedAttrs = new Map(libFunctionAttributes);
   for (const [name, attrs] of routeAttrs) {
     mergedAttrs.set(name, attrs);
   }
-  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees, mergedAttrs);
+  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees, mergedAttrs, helperBodies);
   const body = convertStatements(ctx, selectRouteHandlerStatements(ast.statements), route.pathParams);
 
   const handlerName =

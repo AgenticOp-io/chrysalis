@@ -134,4 +134,10 @@ describe("ingest: lift-shared-helpers (B2)", () => {
   it("normalizeSqlLiteralForHelperLift collapses whitespace (B5.3 v3)", () => {
     expect(normalizeSqlLiteralForHelperLift("SELECT  id  FROM items")).toBe("SELECT id FROM items");
   });
+
+  it("normalizeSqlLiteralForHelperLift uppercases SQL keywords (B5.4)", () => {
+    expect(normalizeSqlLiteralForHelperLift("select id from items where active = 1")).toBe(
+      "SELECT id FROM items WHERE active = 1",
+    );
+  });
 });

@@ -168,9 +168,45 @@ export function buildHelperLiftLocalSlotMap(
   return slots;
 }
 
-/** B5.3 v3: collapse SQL whitespace for effectful helper semantic keys. */
+/** B5.3 v3: collapse SQL whitespace for effectful helper semantic keys. B5.4: uppercase SQL keywords. */
+const SQL_KEYWORDS_FOR_HELPER_LIFT = new Set([
+  "select",
+  "from",
+  "where",
+  "and",
+  "or",
+  "insert",
+  "into",
+  "update",
+  "set",
+  "delete",
+  "join",
+  "inner",
+  "left",
+  "right",
+  "outer",
+  "on",
+  "order",
+  "by",
+  "group",
+  "having",
+  "limit",
+  "offset",
+  "distinct",
+  "as",
+  "in",
+  "is",
+  "null",
+  "not",
+  "values",
+]);
+
 export function normalizeSqlLiteralForHelperLift(sql: string): string {
-  return sql.trim().replace(/\s+/g, " ");
+  const collapsed = sql.trim().replace(/\s+/g, " ");
+  return collapsed.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\b/g, (word) => {
+    const lower = word.toLowerCase();
+    return SQL_KEYWORDS_FOR_HELPER_LIFT.has(lower) ? lower.toUpperCase() : word;
+  });
 }
 
 function normalizeNodeForHelperLiftSemantic(

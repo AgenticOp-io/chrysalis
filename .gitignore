@@ -34,6 +34,7 @@ go/shim/chrysalis-go.exe
 fixtures/tiny-blog/blog.sqlite
 fixtures/tiny-n1/blog.sqlite
 fixtures/lift-helper-sql-same-twin/probe.sqlite
+fixtures/lift-helper-sql-case-twin/probe.sqlite
 traces/
 reports/
 .holes/

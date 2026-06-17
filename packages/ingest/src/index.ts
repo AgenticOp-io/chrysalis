@@ -17,7 +17,7 @@ import {
   moduleBuilderResumeFromModule,
   type Module,
 } from "@chrysalis/webir";
-import { buildLibraryHelpersWebIrModule, collectLibraryFunctionAttributes } from "./library-effects.js";
+import { buildLibraryHelpersWebIrModule, collectLibraryFunctionAttributes, collectLibraryFunctionBodies } from "./library-effects.js";
 import { ingestHandler } from "./convert.js";
 import { readIngestCheckpointEnvelope, writeIngestCheckpointEnvelope } from "./ingest-checkpoint.js";
 import { buildCallEffectMap } from "./library-effects.js";
@@ -209,6 +209,10 @@ export async function ingestDirectory(
     builder = new ModuleBuilder({ sourceApp: manifest.app });
   }
 
+  const helperBodies = await collectLibraryFunctionBodies(root, builder, manifest.routes, {
+    ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+  });
+
   const completedSet = new Set(completedKeys);
 
   for (const route of routes) {
@@ -223,7 +227,15 @@ export async function ingestDirectory(
         : await parseFile(abs, {
             ...(provider ? { provider } : {}),
           });
-    const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns, libFunctionAttributes);
+    const routeNode = ingestHandler(
+      builder,
+      ast,
+      route,
+      callEffects,
+      dbFactoryReturns,
+      libFunctionAttributes,
+      helperBodies,
+    );
     builder.addRoot(routeNode);
     completedSet.add(rk);
     completedKeys.push(rk);
@@ -293,7 +305,21 @@ export async function ingestFile(
     }
   }
   const builder = new ModuleBuilder({ sourceApp: await sourceAppFromProjectRoot(root) });
-  const routeNode = ingestHandler(builder, ast, route, callEffects, dbFactoryReturns, libFunctionAttributes);
+  const helperBodies =
+    root !== ""
+      ? await collectLibraryFunctionBodies(root, builder, [route], {
+          ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
+        })
+      : new Map<string, import("@chrysalis/webir").NodeId>();
+  const routeNode = ingestHandler(
+    builder,
+    ast,
+    route,
+    callEffects,
+    dbFactoryReturns,
+    libFunctionAttributes,
+    helperBodies,
+  );
   builder.addRoot(routeNode);
   return builder.finish();
 }

@@ -413,6 +413,7 @@ export async function buildDeliveryDashboard(projectDir, opts = {}) {
       flagshipVerifyHttp: "hub:flagship-verify-http-batch-smoke",
       irHelperLiftingSemantic: "hub:ir-helper-lifting-semantic-smoke",
       irHelperLiftingAttr: "hub:ir-helper-lifting-attr-smoke",
+      irHelperLiftingOracleTwin: "hub:ir-helper-lifting-oracle-twin-smoke",
       requireGapReingestVerifyHttpEnv: "CHRYSALIS_HUB_GAP_REINGEST_VERIFY_HTTP",
     },
     month29Program: {
