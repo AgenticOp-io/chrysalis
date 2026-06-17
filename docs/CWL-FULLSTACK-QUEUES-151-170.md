@@ -1,6 +1,6 @@
 # Full-stack CWL — queues 151–170 (Phase D post-composite replay)
 
-> **Status:** queues **151–165** complete (2026-06-17); **166–170** not chartered  
+> **Status:** queues **151–170** complete (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §12; **`ROADMAP.md` G2807+**  
 > **Prerequisite:** queue 150 complete (schema **223**)
 
@@ -20,9 +20,15 @@
 | 162 | G2917–G2926 | Post-79 composite replay | v162 | 235 |
 | 163 | G2927–G2936 | Post-80 composite replay | v163 | 236 |
 | 164 | G2937–G2946 | Post-81 composite replay | v164 | 237 |
-| 165 | G2947–G2956 | Post-82 composite replay (Phase D lock) | v165 | 238 |
-| 166–170 | — | *Not chartered* | — | — |
+| 165 | G2947–G2956 | Post-82 composite replay | v165 | 238 |
+| 166 | G2957–G2966 | Post-83 translate E2E replay | v166 | 239 |
+| 167 | G2967–G2976 | Post-84 contract roundtrip replay | v167 | 240 |
+| 168 | G2977–G2986 | Post-85 post-translate express replay | v168 | 241 |
+| 169 | G2987–G2996 | Post-86 CWL roundtrip replay | v169 | 242 |
+| 170 | G2997–G3006 | Post-87 month-2 pilot replay | v170 | 243 |
 
-**Vitest:** `hub-cwl-authoring-batch-v151.test.ts` through `v165.test.ts`
+Queues **171–175** — see **`docs/CWL-FULLSTACK-QUEUES-171-180.md`**.
+
+**Vitest:** `hub-cwl-authoring-batch-v151.test.ts` through `v175.test.ts`
 
 **Non-goals (unchanged):** production SQL/session without parity evidence; hydration.

@@ -8,6 +8,8 @@
 | --- | --- | --- |
 | 1 | **G2947** | `runPost165CompositeGate` — Post-82 composite replay depth |
 | 2–6 | **G2948–G2952** | Batch **v165**, schema **238**, Vitest, script, docs |
-| 7–10 | **G2953–G2956** | Phase D post-63 replay **complete** (queue 165) |
+| 7–10 | **G2953–G2956** | Moved to queue **166** |
+
+Queue **166** — see **`docs/CWL-FULLSTACK-NEXT-10-166.md`**.
 
 **Batch:** `hub:cwl-authoring-batch-v165-smoke` · **schema:** 238
