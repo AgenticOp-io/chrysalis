@@ -16,7 +16,7 @@ demo and measurable numbers, not a pile of abstractions.
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** (parser / oracle / verify / holes)
   and the **Post-2.0 depth backlog** below remain open and mergeable on `main`.
-- **Recently shipped:** through **G2361** (nullable/parent/instanceof parser parity, B5.5 v11 string-cast inlining + 11-handler replay corpus). The full slice log lives in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** through **G2371** (self/static/foreach/float parser parity, B5.5 v12 bool/float cast inlining + 13-handler replay corpus). The full slice log lives in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.

@@ -20,6 +20,8 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
       "chrysalis_sql_param_coalesce",
       "chrysalis_sql_param_strval",
       "chrysalis_sql_param_cast_string",
+      "chrysalis_sql_param_bool",
+      "chrysalis_sql_param_float",
     ]);
     const helperCalls = [...mod.nodes.values()].filter(
       (n) => n.dialect === "data" && n.op === "call" && inlineCallees.has(String(n.attrs.callee)),
@@ -40,7 +42,7 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     );
     expect(sideeffectCalls.length).toBe(1);
     const dbQueries = [...mod.nodes.values()].filter((n) => n.dialect === "effect" && n.op === "db.query");
-    expect(dbQueries.length).toBeGreaterThanOrEqual(8);
+    expect(dbQueries.length).toBeGreaterThanOrEqual(10);
   });
 
   it("prelude guard allows strlen skip but blocks sideeffect pre-return query", async () => {
@@ -58,6 +60,10 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     expect(tryExtractInlineQuery(mod, strval.bodyId, strval.paramNames)).toBeDefined();
     const castString = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_cast_string")!;
     expect(tryExtractInlineQuery(mod, castString.bodyId, castString.paramNames)).toBeDefined();
+    const boolHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_bool")!;
+    expect(tryExtractInlineQuery(mod, boolHelper.bodyId, boolHelper.paramNames)).toBeDefined();
+    const floatHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_float")!;
+    expect(tryExtractInlineQuery(mod, floatHelper.bodyId, floatHelper.paramNames)).toBeDefined();
     const sideeffect = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_sideeffect")!;
     expect(tryExtractInlineQuery(mod, sideeffect.bodyId, sideeffect.paramNames)).toBeUndefined();
   });

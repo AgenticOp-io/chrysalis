@@ -66,6 +66,18 @@
       "path": "/nu",
       "file": "pages/show_nu.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/xi",
+      "file": "pages/show_xi.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/omicron",
+      "file": "pages/show_omicron.php",
+      "pathParams": []
     }
   ]
 }

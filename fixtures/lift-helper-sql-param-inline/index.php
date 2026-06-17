@@ -12,6 +12,8 @@ require_once __DIR__ . '/lib/sql_param_cast.php';
 require_once __DIR__ . '/lib/sql_param_coalesce.php';
 require_once __DIR__ . '/lib/sql_param_strval.php';
 require_once __DIR__ . '/lib/sql_param_cast_string.php';
+require_once __DIR__ . '/lib/sql_param_bool.php';
+require_once __DIR__ . '/lib/sql_param_float.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -58,6 +60,14 @@ if ($method === 'GET' && $path === '/mu') {
 }
 if ($method === 'GET' && $path === '/nu') {
     require __DIR__ . '/pages/show_nu.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/xi') {
+    require __DIR__ . '/pages/show_xi.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/omicron') {
+    require __DIR__ . '/pages/show_omicron.php';
     exit;
 }
 

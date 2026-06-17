@@ -53,6 +53,10 @@ function normalizeParityShape(v: unknown): unknown {
     return { kind: "UnknownExpr", detail: "unhandled expr: nullsafePropertyFetch" };
   }
 
+  if (o.kind === "Unknown" && typeof o.detail === "string" && /try/i.test(o.detail)) {
+    return { kind: "Unknown", detail: "unhandled stmt: try" };
+  }
+
   // glayzzle maps __DIR__ in include paths to UnknownExpr (nikic maps to ConstFetch).
   if (o.kind === "ConstFetch" && o.name === "__DIR__") {
     return {
@@ -590,6 +594,54 @@ $maybe = null ?? "fallback";
     const src = readFileSync(p, "utf8");
     const gz = parseSourceWithGlayzzle(src, "variadic_call.php");
     const nk = await parseSource(src, "variadic_call.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe self_call.php (positions stripped) (G2362)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/self_call.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "self_call.php");
+    const nk = await parseSource(src, "self_call.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe static_call.php (positions stripped) (G2363)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/static_call.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "static_call.php");
+    const nk = await parseSource(src, "static_call.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe foreach_simple.php (positions stripped) (G2364)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/foreach_simple.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "foreach_simple.php");
+    const nk = await parseSource(src, "foreach_simple.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe try_catch.php (positions stripped) (G2365)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/try_catch.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "try_catch.php");
+    const nk = await parseSource(src, "try_catch.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe float_type.php (positions stripped) (G2366)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/float_type.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "float_type.php");
+    const nk = await parseSource(src, "float_type.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe promoted_default.php (positions stripped) (G2367)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/promoted_default.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "promoted_default.php");
+    const nk = await parseSource(src, "promoted_default.php", { provider: "nikic" });
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 

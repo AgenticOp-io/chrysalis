@@ -62,7 +62,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | undefined {
   const valueNode = getNode(m, valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -98,6 +98,14 @@ function resolveInlineAssignRhs(
       const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "stringCast", formal: inner.formal };
     }
+    if ((callee === "__cast_float" || callee === "floatval") && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "floatCast", formal: inner.formal };
+    }
+    if ((callee === "__cast_bool" || callee === "boolval") && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "boolCast", formal: inner.formal };
+    }
   }
   return undefined;
 }
@@ -112,6 +120,8 @@ export function tryExtractInlineQuery(
   localToLiteral: ReadonlyMap<string, NodeId>;
   localToCoalesce: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId }>;
   localToStringCast: ReadonlyMap<string, string>;
+  localToFloatCast: ReadonlyMap<string, string>;
+  localToBoolCast: ReadonlyMap<string, string>;
 } | undefined {
   const body = getNode(m, bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
@@ -120,12 +130,14 @@ export function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(m, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map() };
+    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
   const localToCoalesce = new Map<string, { formal: string; literalId: NodeId }>();
   const localToStringCast = new Map<string, string>();
+  const localToFloatCast = new Map<string, string>();
+  const localToBoolCast = new Map<string, string>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = getNode(m, stmtId);
@@ -149,6 +161,14 @@ export function tryExtractInlineQuery(
         localToStringCast.set(localName, resolved.formal);
         continue;
       }
+      if (resolved.kind === "floatCast") {
+        localToFloatCast.set(localName, resolved.formal);
+        continue;
+      }
+      if (resolved.kind === "boolCast") {
+        localToBoolCast.set(localName, resolved.formal);
+        continue;
+      }
       localToFormal.set(localName, resolved.formal);
       continue;
     }
@@ -157,7 +177,7 @@ export function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(m, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToStringCast };
+  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast };
 }
 
 export function resolveHelperBodyEntry(
@@ -264,6 +284,20 @@ export function tryEmitInlineLibHelperCall(
     const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
     if (formalExpr === undefined) return undefined;
     const casted = `String(${formalExpr})`;
+    subst[local] = casted;
+    subst[phpVarKey(local)] = casted;
+  }
+  for (const [local, formal] of extracted.localToFloatCast) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    if (formalExpr === undefined) return undefined;
+    const casted = `Number(${formalExpr})`;
+    subst[local] = casted;
+    subst[phpVarKey(local)] = casted;
+  }
+  for (const [local, formal] of extracted.localToBoolCast) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    if (formalExpr === undefined) return undefined;
+    const casted = `Boolean(${formalExpr})`;
     subst[local] = casted;
     subst[phpVarKey(local)] = casted;
   }
