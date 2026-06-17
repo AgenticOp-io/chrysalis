@@ -2,7 +2,7 @@
 
 Chrysalis is a Node.js toolchain for migrating a legacy PHP application to a modern TypeScript service while keeping evidence — not faith — that the new code matches the old one.
 
-If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the architecture story, then the [User guide](./USER-GUIDE.md) to learn the commands. If you would rather learn by following complete worked scenarios end-to-end, jump straight to the [How-to cookbook](./HOW-TO.md). If you are setting up CI or production hosts, read [Installation](./INSTALLATION.md), [Deployment](./DEPLOYMENT.md), and [Administration](./ADMINISTRATION.md) in that order.
+If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the architecture story, then the [User guide](./USER-GUIDE.md) to learn the commands. If you know *what* you want to do but not *how*, start at the goal-indexed [Use cases](./USE-CASES.md) map. If you would rather learn by following complete worked scenarios end-to-end, jump straight to the [How-to cookbook](./HOW-TO.md). If you are setting up CI or production hosts, read [Installation](./INSTALLATION.md), [Deployment](./DEPLOYMENT.md), and [Administration](./ADMINISTRATION.md) in that order.
 
 ---
 
@@ -11,6 +11,7 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | Guide | Audience | Contents |
 | --- | --- | --- |
 | [Whitepaper](./WHITEPAPER.md) | Anyone evaluating or coming back to the project | The architecture in narrative form: why the system is split into translate / capture / replay, what each piece does, and how they compose. |
+| [Use cases](./USE-CASES.md) | Anyone with a concrete goal | Goal-indexed catalog: map a task (evaluate, translate, capture, verify, dual-stack, scale, hub, multi-repo, commercial) to the exact command(s) and the deep-dive doc. |
 | [Installation](./INSTALLATION.md) | First-time users, CI agents | Prerequisites, install, build, smoke checks. Optional **Python** / **Go** CLI shims that invoke the same Node `bin.js` (**DESIGN D295**). |
 | [User guide](./USER-GUIDE.md) | Engineers using the CLI | Plain-English explanation of every command with worked examples, exit codes, output conventions, and recipes. |
 | [How-to cookbook](./HOW-TO.md) | Anyone trying to do a specific thing | 24 end-to-end scenarios — from "first-time setup" to "GCE smoke VM" — each as a copy-pasteable, top-to-bottom walkthrough. |
@@ -32,7 +33,8 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | --- | --- | --- |
 | [`DESIGN.md`](../DESIGN.md) (root) | Contributors and integrators | The non-negotiable principles, the project vocabulary, and the decision log. The rules every change has to live within. |
 | [Strategic plan](./STRATEGIC-PLAN.md) | Product owners, contributors, agents | **Locked** build order: PHP oracle wedge, Hub migration OS, CWL interchange; what to refuse. |
-| [`ROADMAP.md`](../ROADMAP.md) (root) | Contributors | Milestones, what is done, and what is deferred. |
+| [`ROADMAP.md`](../ROADMAP.md) (root) | Contributors | The **active** plan: status, post-2.0 depth options, multi-lane program, and what's next. |
+| [`ROADMAP-ARCHIVE.md`](../ROADMAP-ARCHIVE.md) (root) | Contributors | Completed history: shipped G-series slices, Milestones 0–6A, and the Road to Chrysalis 2.0 program. |
 | [`AGENTS.md`](../AGENTS.md) (root) | Contributors and automation | Repository contribution rules, pass naming, file layout discipline. |
 | [`README.md`](../README.md) (root) | Operators consuming machine output | Operator-facing tables for the JSON shapes Chrysalis emits (`schemaVersion`, `kind`, gate scripts). |
 
@@ -62,6 +64,7 @@ Per-package details live under `packages/<name>/README.md`. Each package README 
 | [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs) | Emit (D4) | IR v0 → Next.js App Router stubs (bronze). |
 | [GitHub Project](./GITHUB_PROJECT.md) | Maintainers | Bootstrap a GitHub Project (**chrysalis** or **master** preset). |
 | [Git layout](./GIT-LAYOUT.md) | Contributors | Nested `.git` trees, remotes, worktrees. |
+| [Multi-repo workspace](./MULTI-REPO-WORKSPACE.md) | Contributors working across program repos | Recommended multi-root workspace (`chrysalis-program.code-workspace`) + IDE hygiene so siblings don't surface as phantom repos; use cases per deliverable. |
 | [Commercial offering](./COMMERCIAL.md) | Operators, vendors | Optional vendor build, license tiers, services posture. |
 | [AgenticOp site](./AGENTICOP.md) | Anyone | Optional public practice site; independent of the toolchain. |
 

@@ -1,5 +1,25 @@
 {
   "git.autoRepositoryDetection": true,
   "git.openRepositoryInParentFolders": "never",
-  "git.repositoryScanMaxDepth": 1
+  "git.repositoryScanMaxDepth": 1,
+  "git.detectSubmodules": false,
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/vendor/**": true,
+    "**/generated/**": true,
+    "**/traces/**": true,
+    "**/reports/**": true,
+    "**/.chrysalis/**": true,
+    "**/flagship/chrysalis-laravel-work/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/vendor": true,
+    "**/generated": true,
+    "**/traces": true,
+    "**/reports": true,
+    "**/coverage": true
+  }
 }

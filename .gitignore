@@ -81,3 +81,12 @@ flagship/chrysalis-laravel-work/
 packages/parser-bridge/vendor/
 packages/parser-bridge/composer.phar
 packages/parser-bridge/composer-setup.php
+
+# Local scratch probes and hub-emitted controllers (reproduced by hub/probe scripts; not fixtures)
+scripts/_probe-*
+generated/_probe-*/
+generated/_hub-smoke-*/
+/*Controller.php
+
+# Multi-repo program workspace: keep the tracked template, ignore personal copies
+*.code-workspace.local

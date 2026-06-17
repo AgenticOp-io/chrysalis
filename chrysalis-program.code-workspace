@@ -1,0 +1,57 @@
+{
+  // Web Platform Translation Program (WPTP) multi-root workspace.
+  //
+  // This is the RECOMMENDED way to work on Chrysalis (D1) alongside its sibling
+  // WPTP repos (D2-D5) in one window WITHOUT the IDE inventing phantom
+  // repositories from nested .git trees (Composer vendor/, flagship worktrees).
+  //
+  // Layout assumed (siblings checked out next to this clone):
+  //   <parent>/
+  //     chrysalis/            <- this repo (D1, reference leg)
+  //     wptp-ir/              <- theorem6/wptp-ir          (D2 IR hub)
+  //     wptp-matrix/          <- theorem6/wptp-matrix      (D5 matrix)
+  //     wptp-adapter-openapi/ <- theorem6/wptp-adapter-openapi (D3)
+  //     wptp-adapter-browser/ <- theorem6/wptp-adapter-browser (D3)
+  //     wptp-emit-nextjs/     <- theorem6/wptp-emit-nextjs (D4)
+  //
+  // Open with: File > Open Workspace from File... > chrysalis-program.code-workspace
+  // Folders that are not cloned locally are simply skipped (no error).
+  // See docs/MULTI-REPO-WORKSPACE.md for the full guide and clone commands.
+  "folders": [
+    { "name": "Chrysalis (D1)", "path": "." },
+    { "name": "wptp-ir (D2)", "path": "../wptp-ir" },
+    { "name": "wptp-matrix (D5)", "path": "../wptp-matrix" },
+    { "name": "wptp-adapter-openapi (D3)", "path": "../wptp-adapter-openapi" },
+    { "name": "wptp-adapter-browser (D3)", "path": "../wptp-adapter-browser" },
+    { "name": "wptp-emit-nextjs (D4)", "path": "../wptp-emit-nextjs" }
+  ],
+  "settings": {
+    // Each top-level folder above IS its own git repo. Keep the IDE from
+    // walking into parent folders or nested vendor/.git trees.
+    "git.autoRepositoryDetection": true,
+    "git.openRepositoryInParentFolders": "never",
+    "git.repositoryScanMaxDepth": 1,
+    "git.detectSubmodules": false,
+    // Hide reproducible/ignored trees so the explorer and search stay fast and
+    // do not surface nested .git roots from vendor/ or generated/.
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/dist/**": true,
+      "**/vendor/**": true,
+      "**/generated/**": true,
+      "**/traces/**": true,
+      "**/reports/**": true,
+      "**/.chrysalis/**": true,
+      "**/flagship/chrysalis-laravel-work/**": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/vendor": true,
+      "**/generated": true,
+      "**/traces": true,
+      "**/reports": true,
+      "**/coverage": true
+    }
+  }
+}

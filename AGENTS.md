@@ -6,7 +6,7 @@
 
 1. Read `DESIGN.md` in full. It is the north star for architecture and invariants.
 2. Read **`docs/STRATEGIC-PLAN.md` in full. It is the **locked path** for what to build, in what order, and what to refuse. **Do not deviate** from it unless the user explicitly amends the plan (`DESIGN.md` Decision Log + edit `STRATEGIC-PLAN.md`).
-3. Read `ROADMAP.md` to know which milestone is active (file header; **Milestone 5** for flagship depth; Milestone 4 remains the closed v1 checklist). For cross-cutting parser/oracle/verify/hole work, see **“Multi-lane program”** near the end of `ROADMAP.md` (**DESIGN D211**). For phased delivery after hub G-track, see **“Strategic program (locked)”** in `ROADMAP.md`.
+3. Read `ROADMAP.md` for the **active** plan: the **Status** header, **Post-2.0 depth backlog (options)**, the **“Multi-lane program”** lanes (**DESIGN D211**), and **“What's next”**. Completed history — the shipped **G-series**, **Milestones 0–6A** (incl. flagship-depth **Milestone 5** and the closed v1 **Milestone 4** checklist), and the **Road to Chrysalis 2.0** program — is archived in **`ROADMAP-ARCHIVE.md`**. For phased product delivery (the locked path), follow **`docs/STRATEGIC-PLAN.md`**.
 4. Read the `README.md` of the specific package you're about to touch.
 5. For **install / operations / administration / releases / GitHub Project planning**, see **`docs/`** (index: `docs/README.md`; GitHub Project: `docs/GITHUB_PROJECT.md`) in addition to the root `README.md`.
 6. If your plan contradicts `DESIGN.md`, do one of two things:
