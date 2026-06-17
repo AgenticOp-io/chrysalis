@@ -677,6 +677,38 @@ $maybe = null ?? "fallback";
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe null_coalesce_param.php (positions stripped) (G2381)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/null_coalesce_param.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "null_coalesce_param.php");
+    const nk = await parseSource(src, "null_coalesce_param.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe class_name.php (positions stripped) (G2382)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/class_name.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "class_name.php");
+    const nk = await parseSource(src, "class_name.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe shift_left.php (positions stripped) (G2383)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/shift_left.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "shift_left.php");
+    const nk = await parseSource(src, "shift_left.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe logical_and.php (positions stripped) (G2384)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/logical_and.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "logical_and.php");
+    const nk = await parseSource(src, "logical_and.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
   run("maps glayzzle nullable parameter flag to pipe-null hints (G2350)", () => {
     const src = `<?php
 function accept_null(?int $value): ?int { return $value; }

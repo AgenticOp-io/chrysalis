@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Oracle capture for lift-helper-sql-param-inline (B5.5 v7). */
+/** Oracle capture for lift-helper-sql-param-inline (B5.5 v8). */
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -70,7 +70,8 @@ try {
   await fetch(`${base}/xi`);
   await fetch(`${base}/omicron`);
   await fetch(`${base}/pi`);
-  console.log("[drive-lift-helper-sql-param-inline] exercised /alpha, /beta, /gamma, /epsilon, /delta, /zeta, /iota, /kappa, /lambda, /mu, /nu, /xi, /omicron, and /pi");
+  await fetch(`${base}/rho`);
+  console.log("[drive-lift-helper-sql-param-inline] exercised /alpha, /beta, /gamma, /epsilon, /delta, /zeta, /iota, /kappa, /lambda, /mu, /nu, /xi, /omicron, /pi, and /rho");
 } finally {
   await handle.stop();
 }

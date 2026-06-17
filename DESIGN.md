@@ -3588,6 +3588,9 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-17 — D2368–D2371** **B5.5 v12 bool/float cast lib helper inlining (G2368–G2371).** **`boolval`/`__cast_bool`** and **`floatval`/`__cast_float`** formal assign; **`/xi`/`/omicron`** routes; replay corpus **13 handlers**; ingest parity pages for coalesce/nested/nullsafe. **DESIGN §3** unchanged.
 - **2026-06-17 — D2372–D2375** **Parser parity probe widening (G2372–G2375).** Fixtures + tests for **`foreach_key`**, **`arrow_typed`**, **`spaceship`**, **`pow_expr`**. **DESIGN §3** unchanged.
 - **2026-06-17 — D2376–D2380** **B5.5 v13 trim lib helper inlining (G2376–G2380).** **`trim()`** formal assign in **`resolveInlineAssignRhs`**; **`/pi`** route; replay corpus **14 handlers**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2381–D2384** **Parser parity probe widening (G2381–G2384).** Fixtures + tests for **`null_coalesce_param`**, **`shift_left`**, **`logical_and`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2382** **Nikic `$var::class` parity (G2382).** **`Expr_ClassConstFetch`** with variable receiver maps to glayzzle-compatible **`StaticFetch`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2385–D2388** **B5.5 v14 `(float)` cast lib helper inlining (G2385–G2388).** **`(float)`** formal assign via existing **`floatCast`** path; **`/rho`** route; replay corpus **15 handlers**. **DESIGN §3** unchanged.
 
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 

@@ -1118,10 +1118,13 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
         return unknownExpr(file, raw, "Expr_ClassConstFetch");
       }
       const cn = classFqnForStaticLike(c);
-      if (cn === undefined) {
-        return unknownExpr(file, raw, "Expr_ClassConstFetch: non-name class");
+      if (cn !== undefined) {
+        return { kind: "StaticFetch", className: cn, name: constName, pos };
       }
-      return { kind: "StaticFetch", className: cn, name: constName, pos };
+      if (c.nodeType === "Expr_Variable" && constName === "class") {
+        return { kind: "StaticFetch", className: exprVariableBareName(file, c), name: "class", pos };
+      }
+      return unknownExpr(file, raw, "Expr_ClassConstFetch: non-name class");
     }
 
     case "Expr_StaticPropertyFetch": {
