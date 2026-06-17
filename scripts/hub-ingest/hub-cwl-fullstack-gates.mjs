@@ -3232,3 +3232,192 @@ export async function runPost185GraduationGate(opts = {}) {
   const post184 = await runPost184GraduationGate(opts);
   return { ok: post185.ok === true && post184.ok === true, post185, post184 };
 }
+
+/** G3157 - post-185 Post-114 Fastify search + runtime parity replay. */
+export async function runPost186CompositeGate(opts = {}) {
+  const post114 = await runPost114CompositeGate(opts);
+  const gates = [post114];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post114,
+  };
+}
+
+export async function runPost186GraduationGate(opts = {}) {
+  const post186 = await runPost186CompositeGate(opts);
+  const post185 = await runPost185GraduationGate(opts);
+  return { ok: post186.ok === true && post185.ok === true, post186, post185 };
+}
+
+
+/** G3167 - post-186 Post-115 emit verify mega + session replay. */
+export async function runPost187CompositeGate(opts = {}) {
+  const post115 = await runPost115CompositeGate(opts);
+  const gates = [post115];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post115,
+  };
+}
+
+export async function runPost187GraduationGate(opts = {}) {
+  const post187 = await runPost187CompositeGate(opts);
+  const post186 = await runPost186GraduationGate(opts);
+  return { ok: post187.ok === true && post186.ok === true, post187, post186 };
+}
+
+
+/** G3177 - post-187 Post-116 verify-gaps + chimera + translate replay. */
+export async function runPost188CompositeGate(opts = {}) {
+  const post116 = await runPost116CompositeGate(opts);
+  const gates = [post116];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post116,
+  };
+}
+
+export async function runPost188GraduationGate(opts = {}) {
+  const post188 = await runPost188CompositeGate(opts);
+  const post187 = await runPost187GraduationGate(opts);
+  return { ok: post188.ok === true && post187.ok === true, post188, post187 };
+}
+
+
+/** G3187 - post-188 Post-117 contract + CWL roundtrip replay. */
+export async function runPost189CompositeGate(opts = {}) {
+  const post117 = await runPost117CompositeGate(opts);
+  const gates = [post117];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post117,
+  };
+}
+
+export async function runPost189GraduationGate(opts = {}) {
+  const post189 = await runPost189CompositeGate(opts);
+  const post188 = await runPost188GraduationGate(opts);
+  return { ok: post189.ok === true && post188.ok === true, post189, post188 };
+}
+
+
+/** G3197 - post-189 Post-118 verify-gaps action replay. */
+export async function runPost190CompositeGate(opts = {}) {
+  const post118 = await runPost118CompositeGate(opts);
+  const gates = [post118];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post118,
+  };
+}
+
+export async function runPost190GraduationGate(opts = {}) {
+  const post190 = await runPost190CompositeGate(opts);
+  const post189 = await runPost189GraduationGate(opts);
+  return { ok: post190.ok === true && post189.ok === true, post190, post189 };
+}
+
+
+/** G3207 - post-190 Post-119 gold runtime + parity replay. */
+export async function runPost191CompositeGate(opts = {}) {
+  const post119 = await runPost119CompositeGate(opts);
+  const gates = [post119];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post119,
+  };
+}
+
+export async function runPost191GraduationGate(opts = {}) {
+  const post191 = await runPost191CompositeGate(opts);
+  const post190 = await runPost190GraduationGate(opts);
+  return { ok: post191.ok === true && post190.ok === true, post191, post190 };
+}
+
+
+/** G3217 - post-191 Post-120 HTTP verify + express oracle replay. */
+export async function runPost192CompositeGate(opts = {}) {
+  const post120 = await runPost120CompositeGate(opts);
+  const gates = [post120];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post120,
+  };
+}
+
+export async function runPost192GraduationGate(opts = {}) {
+  const post192 = await runPost192CompositeGate(opts);
+  const post191 = await runPost191GraduationGate(opts);
+  return { ok: post192.ok === true && post191.ok === true, post192, post191 };
+}
+
+
+/** G3227 - post-192 Post-121 CWL preview + OpenAPI replay. */
+export async function runPost193CompositeGate(opts = {}) {
+  const post121 = await runPost121CompositeGate(opts);
+  const gates = [post121];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post121,
+  };
+}
+
+export async function runPost193GraduationGate(opts = {}) {
+  const post193 = await runPost193CompositeGate(opts);
+  const post192 = await runPost192GraduationGate(opts);
+  return { ok: post193.ok === true && post192.ok === true, post193, post192 };
+}
+
+
+/** G3237 - post-193 Post-122 diagnose + scope + formatter replay. */
+export async function runPost194CompositeGate(opts = {}) {
+  const post122 = await runPost122CompositeGate(opts);
+  const gates = [post122];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post122,
+  };
+}
+
+export async function runPost194GraduationGate(opts = {}) {
+  const post194 = await runPost194CompositeGate(opts);
+  const post193 = await runPost193GraduationGate(opts);
+  return { ok: post194.ok === true && post193.ok === true, post194, post193 };
+}
+
+
+/** G3247 - post-194 Post-123 query HTML + layout search replay (Phase G lock). */
+export async function runPost195CompositeGate(opts = {}) {
+  const post123 = await runPost123CompositeGate(opts);
+  const gates = [post123];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post123,
+  };
+}
+
+export async function runPost195GraduationGate(opts = {}) {
+  const post195 = await runPost195CompositeGate(opts);
+  const post194 = await runPost194GraduationGate(opts);
+  return { ok: post195.ok === true && post194.ok === true, post195, post194 };
+}

@@ -12,7 +12,9 @@
 | 4 | **G3150** | Vitest + `ci-gates-hub-completion` v185 |
 | 5 | **G3151** | `hub:cwl-authoring-batch-v185-smoke` script |
 | 6 | **G3152** | ROADMAP + DESIGN lock queue 185 |
-| 7–10 | **G3153–G3156** | Phase F hub-bridge replay **complete** (queue 185) |
+| 7–10 | **G3153–G3156** | Moved to queue **186** |
+
+Queue **186** — see **`docs/CWL-FULLSTACK-NEXT-10-186.md`**.
 
 **Batch:** `hub:cwl-authoring-batch-v185-smoke` · **schema:** 258
 
