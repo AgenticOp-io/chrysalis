@@ -241,6 +241,8 @@ When the user says “build” without specifying, prefer this queue:
 | 3     | Keep project-to-CWL + CWL diff mandatory on translate paths                 |
 | 3–4   | Full-stack flagship pilot with explicit hole budget and evidence gate       |
 
+**Month 1 reinforcement (2026-06-17):** **G5680–G5683** — `runCwlAuthoringBootstrapHardeningGate`, diagnose schema **v3**, `docs/RUNTIME-CWL-PARITY-PLAN.md`, `pnpm run hub:strategic-plan-month1-hardening-smoke`.
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 

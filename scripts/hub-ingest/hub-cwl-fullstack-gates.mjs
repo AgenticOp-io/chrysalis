@@ -248,12 +248,65 @@ export async function runDiagnoseV2Gate() {
   return {
     ok:
       report.ok === true &&
-      report.schemaVersion === 2 &&
+      (report.schemaVersion ?? 0) >= 2 &&
       (report.effectNoneRouteCount ?? 0) >= 4 &&
       typeof report.effectRouteCount === "number",
     schemaVersion: report.schemaVersion ?? 1,
     effectNoneRouteCount: report.effectNoneRouteCount ?? 0,
     effectRouteCount: report.effectRouteCount ?? 0,
+  };
+}
+
+/** G5682 — CWL diagnose v3 (layout imports, surface mismatch, param-unused). */
+export async function runDiagnoseV3Gate() {
+  const report = await diagnoseCwlFile(flagshipCwl);
+  return {
+    ok:
+      report.ok === true &&
+      report.schemaVersion === 3 &&
+      (report.warnCount ?? 0) === 0 &&
+      (report.layoutImportCount ?? 0) >= 1 &&
+      (report.interpolationRouteCount ?? 0) >= 3 &&
+      (report.holeRouteCount ?? 0) === 0,
+    schemaVersion: report.schemaVersion ?? 1,
+    warnCount: report.warnCount ?? 0,
+    layoutImportCount: report.layoutImportCount ?? 0,
+    interpolationRouteCount: report.interpolationRouteCount ?? 0,
+    holeRouteCount: report.holeRouteCount ?? 0,
+  };
+}
+
+/** G5680 — STRATEGIC-PLAN Month 1 authoring bootstrap hardening composite. */
+export async function runCwlAuthoringBootstrapHardeningGate(opts = {}) {
+  const [templates, preview, diagnose] = await Promise.all([
+    runCwlAuthoringTemplatesGate(opts),
+    runCwlPreviewDevLoopGate(opts),
+    runDiagnoseV3Gate(),
+  ]);
+  const ok = templates.ok === true && preview.ok === true && diagnose.ok === true;
+  return {
+    ok,
+    templatesOk: templates.ok === true,
+    previewOk: preview.ok === true,
+    diagnoseOk: diagnose.ok === true,
+  };
+}
+
+/** G5681 — runtime-cwl parity plan doc + gold smoke (Month 1–2 entry). */
+export async function runRuntimeCwlParityPlanGate(opts = {}) {
+  const planPath = join(scriptRoot, "docs/RUNTIME-CWL-PARITY-PLAN.md");
+  if (!existsSync(planPath)) return { ok: false, skip: "missing-parity-plan-doc" };
+  const text = readFileSync(planPath, "utf8");
+  const docOk =
+    text.includes("Phase A") &&
+    text.includes("runRuntimeCwlParityGate") &&
+    text.includes("@chrysalis/runtime-cwl");
+  const { runCwlRuntimeParitySmoke } = await import("./hub-cwl-runtime-parity-smoke.mjs");
+  const gold = await runCwlRuntimeParitySmoke(opts);
+  return {
+    ok: docOk && gold.ok === true,
+    docOk,
+    goldParityOk: gold.ok === true,
   };
 }
 

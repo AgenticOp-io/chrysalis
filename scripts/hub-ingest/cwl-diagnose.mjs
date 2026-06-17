@@ -9,7 +9,7 @@ import { isCataloguedFullstackHole, lookupFullstackHole } from "./cwl-fullstack-
 import { parseCwlModule } from "./cwl-parser.mjs";
 
 export const CWL_DIAGNOSE_KIND = "chrysalis.cwl.diagnose";
-export const CWL_DIAGNOSE_SCHEMA_VERSION = 2;
+export const CWL_DIAGNOSE_SCHEMA_VERSION = 3;
 
 /**
  * @param {string} source
@@ -71,20 +71,68 @@ export function diagnoseCwlSource(source, file = "input.cwl") {
   let interpolationRouteCount = 0;
   let effectNoneRouteCount = 0;
   let effectRouteCount = 0;
+  let holeRouteCount = 0;
+  const layoutImports = (mod.imports ?? []).filter((imp) => /layout/i.test(imp));
   for (const r of mod.routes ?? []) {
     if (r.surfaceKind === "page") pageRouteCount += 1;
     if (r.loadBody) loadRouteCount += 1;
     const effects = r.effects ?? [];
     if (effects.length === 0) effectNoneRouteCount += 1;
     else effectRouteCount += 1;
+    if (r.body?.kind === "hole") holeRouteCount += 1;
+
+    const bodyKind = r.body?.kind;
+    if (r.surfaceKind === "page" && (bodyKind === "object" || bodyKind === "literal")) {
+      diagnostics.push({
+        severity: "warn",
+        code: "surface-mismatch",
+        message: `page route ${r.name} returns non-HTML body (${bodyKind})`,
+        line: r.line,
+      });
+    }
+    if (r.surfaceKind === "api" && bodyKind === "html") {
+      diagnostics.push({
+        severity: "warn",
+        code: "surface-mismatch",
+        message: `api route ${r.name} returns HTML body`,
+        line: r.line,
+      });
+    }
+
     if (r.body?.kind === "html" && typeof r.body.value === "string") {
       const html = r.body.value;
       const names = [...(r.handlerPathParams ?? []), ...(r.handlerQueryParams ?? [])];
       if (names.some((name) => new RegExp(`\\b${name}\\b`).test(html))) interpolationRouteCount += 1;
+      for (const name of names) {
+        if (!new RegExp(`\\b${name}\\b`).test(html)) {
+          diagnostics.push({
+            severity: "warn",
+            code: "param-unused",
+            message: `route ${r.name} declares param ${name} but HTML does not reference it`,
+            line: r.line,
+          });
+        }
+      }
     }
   }
 
+  if (layoutImports.length > 0 && pageRouteCount === 0) {
+    diagnostics.push({
+      severity: "warn",
+      code: "layout-import-unused",
+      message: `layout import(s) ${layoutImports.join(", ")} but no @page routes`,
+    });
+  } else if (layoutImports.length > 0) {
+    diagnostics.push({
+      severity: "info",
+      code: "layout-import",
+      message: `layout module(s): ${layoutImports.join(", ")}`,
+    });
+  }
+
   const errors = diagnostics.filter((d) => d.severity === "error").length;
+  const warnCount = diagnostics.filter((d) => d.severity === "warn").length;
+  const infoCount = diagnostics.filter((d) => d.severity === "info").length;
   return {
     kind: CWL_DIAGNOSE_KIND,
     schemaVersion: CWL_DIAGNOSE_SCHEMA_VERSION,
@@ -95,6 +143,10 @@ export function diagnoseCwlSource(source, file = "input.cwl") {
     interpolationRouteCount,
     effectNoneRouteCount,
     effectRouteCount,
+    holeRouteCount,
+    layoutImportCount: layoutImports.length,
+    warnCount,
+    infoCount,
     diagnostics,
   };
 }

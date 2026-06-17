@@ -82,6 +82,18 @@ batchTest("cwl authoring batch smoke (G1155)", async () => {
   expect(report.ok).toBe(true);
 });
 
+test("cwl diagnose v3 on full-stack flagship (G5682)", async () => {
+  const { diagnoseCwlFile } = await import(resolve(ROOT, "scripts/hub-ingest/cwl-diagnose.mjs"));
+  const report = await diagnoseCwlFile(
+    resolve(ROOT, "fixtures/hub-flagship-cwl-fullstack/routes.cwl"),
+  );
+  expect(report.ok).toBe(true);
+  expect(report.schemaVersion).toBe(3);
+  expect(report.warnCount).toBe(0);
+  expect(report.layoutImportCount).toBeGreaterThanOrEqual(1);
+  expect(report.holeRouteCount).toBe(0);
+});
+
 test("cwl diagnose on svelte export routes (G1156)", async () => {
   const { runSveltekitCwlExportSmoke } = await import(
     resolve(ROOT, "scripts/hub-ingest/hub-sveltekit-cwl-export-smoke.mjs"),
