@@ -9,6 +9,7 @@ import { EMIT_RESUME_STATE_BASENAME, summarizeEmittedTypeScriptLayout } from "@c
 import { ModuleBuilder, T, dataDialect, phpLocator, webRequest, type Module } from "@chrysalis/webir";
 import { emit } from "../src/index.js";
 
+const FIXTURE_PARAM_INLINE = resolve(__dirname, "../../../fixtures/lift-helper-sql-param-inline");
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
 const FIXTURE_SCHEMA = resolve(__dirname, "../../../fixtures/tiny-blog/schema.sql");
 const FIXTURE_N1 = resolve(__dirname, "../../../fixtures/tiny-n1");
@@ -947,6 +948,25 @@ describe("emit-hono: string-dispatch switch (tiny-n1 /action)", () => {
       expect(src).toMatch(/case ['"]update['"]/);
       expect(src).toMatch(/case ['"]delete['"]/);
       expect(src).toMatch(/case ['"]archive['"]/);
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-hono: lib-helpers module (G2318/G2321)", () => {
+  test("emits src/lib-helpers.ts and imports in show_delta handler", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-h-lib-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE_PARAM_INLINE);
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_PARAM_INLINE });
+      expect(res.holes.length).toBe(0);
+      expect(existsSync(resolve(out, "src/lib-helpers.ts"))).toBe(true);
+      const lib = readFileSync(resolve(out, "src/lib-helpers.ts"), "utf8");
+      expect(lib).toContain("export function chrysalis_sql_param_noinline");
+      const delta = readFileSync(resolve(out, "src/handlers/show_delta.ts"), "utf8");
+      expect(delta).toContain('../lib-helpers.js');
+      expect(delta).toContain("chrysalis_sql_param_noinline");
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

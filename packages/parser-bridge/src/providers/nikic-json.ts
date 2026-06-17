@@ -743,12 +743,18 @@ function propertyLikeName(nm: unknown): string | undefined {
 }
 
 function classFqnForStaticLike(classPart: NikicDict): string | undefined {
+  if (classPart.nodeType === "Identifier") {
+    const s = identifierText(classPart);
+    if (s === "self" || s === "static" || s === "parent") return "";
+    return s;
+  }
   if (
     classPart.nodeType === "Name" ||
     classPart.nodeType === "Name_FullyQualified" ||
     classPart.nodeType === "Name_Relative"
   ) {
     const s = nameFromNameNode(classPart);
+    if (s === "self" || s === "static" || s === "parent") return "";
     return s || undefined;
   }
   return undefined;
@@ -997,7 +1003,7 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
         return unknownExpr(file, raw, "Expr_ClassConstFetch");
       }
       const cn = classFqnForStaticLike(c);
-      if (!cn) {
+      if (cn === undefined) {
         return unknownExpr(file, raw, "Expr_ClassConstFetch: non-name class");
       }
       return { kind: "StaticFetch", className: cn, name: constName, pos };

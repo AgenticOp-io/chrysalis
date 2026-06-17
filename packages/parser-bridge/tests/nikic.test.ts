@@ -339,18 +339,27 @@ $maybe = null ?? "fallback";
   run("hoists enum methods as FunctionDecl on parser-parity-probe enum_methods.php (G2320)", async () => {
     const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/enum_methods.php");
     const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "enum_methods.php");
     const nk = await parseSource(src, "enum_methods.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
     const methods = nk.statements.filter(
       (s): s is Extract<(typeof nk.statements)[number], { kind: "FunctionDecl" }> =>
         s.kind === "FunctionDecl" && s.name.includes("::"),
     );
     expect(methods.map((m) => m.name).sort()).toEqual(["Color::default", "Color::label"]);
-    const gz = parseSourceWithGlayzzle(src, "enum_methods.php");
-    const gzMethods = gz.statements.filter(
-      (s): s is Extract<(typeof gz.statements)[number], { kind: "FunctionDecl" }> =>
-        s.kind === "FunctionDecl" && s.name.includes("::"),
+  });
+
+  run("matches glayzzle on parser-parity-probe mixed_type.php (positions stripped) (G2323)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/mixed_type.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "mixed_type.php");
+    const nk = await parseSource(src, "mixed_type.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+    const fn = nk.statements.find(
+      (s): s is Extract<(typeof nk.statements)[number], { kind: "FunctionDecl" }> => s.kind === "FunctionDecl",
     );
-    expect(gzMethods.map((m) => m.name).sort()).toEqual(["Color::default", "Color::label"]);
+    expect(fn?.params[0]?.hint).toBe("mixed");
+    expect(fn?.returnHint).toBe("mixed");
   });
 
   run("maps nikic union type hints to pipe syntax (G2301)", async () => {

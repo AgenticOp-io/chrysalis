@@ -18,11 +18,13 @@ import {
   clearEmitResumeState,
   computeEmittedHandlerDedupeKey,
   emitHandlerBody,
+  emitLibHelpersModuleSource,
   fastifyBarrelValueImportClause,
   formatEmitProvenanceDisplay,
   fastifyHttpProfile,
   handlerEffectAnnotationTags,
   ident,
+  libHelpersNeedingEmitModule,
   loadEmitResumeCompletedHandlers,
   markEmitResumeHandlerComplete,
   planHubMiddlewareEmit,
@@ -239,6 +241,23 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   }
 
   const handlerFingerprintRows: Array<{ name: string; sourceSha256: string }> = [];
+
+  const allLibHelperCalls = new Set<string>();
+  for (const job of routeJobs) {
+    for (const h of job.emitted.libHelperImports) allLibHelperCalls.add(h);
+  }
+  const libHelperNames = libHelpersNeedingEmitModule(m, allLibHelperCalls);
+  const libHelpersEmitted =
+    libHelperNames.length > 0
+      ? emitLibHelpersModuleSource(m, libHelperNames, domainTypesByTable ? { domainTypesByTable } : undefined)
+      : null;
+  if (libHelpersEmitted?.source) {
+    await writeOne("src/lib-helpers.ts", libHelpersEmitted.source);
+    for (const h of libHelpersEmitted.holes) {
+      allHoles.push({ name: h.name, file: "lib-helpers", line: h.line, reason: h.reason });
+    }
+  }
+
   for (const job of routeJobs) {
     const dedupeId = jobRelToDedupeExportId.get(job.handlerRel);
     const handlerSrc = handlerFileText(
@@ -360,8 +379,12 @@ ${indent(fnBody, 2)}
   const ctxImport = usesChrysalisTimeOrRandom(emitted)
     ? `import { chrysalisNow, chrysalisRandom } from "../ctx.js";\n`
     : "";
+  const libHelperImport =
+    emitted.libHelperImports.length > 0
+      ? `import { ${emitted.libHelperImports.join(", ")} } from "../lib-helpers.js";\n`
+      : "";
   return `import type { FastifyReply, FastifyRequest } from "fastify";
-${dedupeImportLine}${domainImport}${ctxImport}import { ${dbImportNames} } from "../db.js";
+${dedupeImportLine}${domainImport}${ctxImport}${libHelperImport}import { ${dbImportNames} } from "../db.js";
 import { getSession } from "../session.js";
 import {
   escapeHtml,

@@ -102,6 +102,18 @@
       "path": "/never-type",
       "file": "pages/never_type.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/enum-methods",
+      "file": "pages/enum_methods.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/mixed-type",
+      "file": "pages/mixed_type.php",
+      "pathParams": []
     }
   ]
 }

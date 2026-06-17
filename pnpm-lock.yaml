@@ -147,6 +147,10 @@ importers:
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir
+    devDependencies:
+      '@chrysalis/emit-shared':
+        specifier: workspace:*
+        version: link:../emit-shared
 
   packages/insight:
     dependencies:

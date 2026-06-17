@@ -1,6 +1,6 @@
 # IR helper lifting (design pass)
 
-**Status:** **B1–B5.5 v3** on `main` (fixtures + Vitest + simulate + oracle/replay gates + parametric lib-helper inlining). Ingest normalizes SQL whitespace, keyword case (quote-aware), and inlines lib query helpers at call sites. Hub: **semantic smoke v5** (`sql-param-inline`) and **emit replay twin gate** (sql-same + sql-case twins) in completion batch (**G2303–G2304**).  
+**Status:** **B1–B5.5 v7** on `main` (fixtures + Vitest + simulate + oracle/replay gates + parametric lib-helper inlining + emit **`lib-helpers.ts`** on Hono/Fastify). Ingest normalizes SQL whitespace, keyword case (quote-aware), and inlines lib query helpers at call sites. Hub: **semantic smoke v5** (`sql-param-inline`) and **emit replay twin gate** (sql-same + sql-case + param-inline twins) in completion batch (**G2303–G2304**).  
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
 ## Problem

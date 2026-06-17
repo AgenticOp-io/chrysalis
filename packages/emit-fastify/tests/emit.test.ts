@@ -18,6 +18,7 @@ test("server fetch shim sends a null body for no-content statuses (G125)", () =>
   expect(server).toContain("nullBodyStatus ? null : inj.payload");
 });
 
+const FIXTURE_PARAM_INLINE = resolve(__dirname, "../../../fixtures/lift-helper-sql-param-inline");
 const FIXTURE = resolve(__dirname, "../../../fixtures/tiny-blog");
 const FIXTURE_SCHEMA = resolve(__dirname, "../../../fixtures/tiny-blog/schema.sql");
 const FIXTURE_N1 = resolve(__dirname, "../../../fixtures/tiny-n1");
@@ -766,6 +767,25 @@ describe("emit-fastify: string-dispatch (tiny-n1)", () => {
       await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_N1 });
       const src = readFileSync(resolve(out, "src/handlers/action.ts"), "utf8");
       expect(src).toContain("switch (");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("emit-fastify: lib-helpers module (G2321)", () => {
+  test("emits src/lib-helpers.ts and imports in show_delta handler", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-f-lib-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE_PARAM_INLINE);
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_PARAM_INLINE });
+      expect(res.holes.length).toBe(0);
+      expect(existsSync(resolve(out, "src/lib-helpers.ts"))).toBe(true);
+      const lib = readFileSync(resolve(out, "src/lib-helpers.ts"), "utf8");
+      expect(lib).toContain("export function chrysalis_sql_param_noinline");
+      const delta = readFileSync(resolve(out, "src/handlers/show_delta.ts"), "utf8");
+      expect(delta).toContain("../lib-helpers.js");
+      expect(delta).toContain("chrysalis_sql_param_noinline");
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

@@ -3547,6 +3547,10 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-17 — D2318** **Emit lib-helper module (G2318).** Ingest stores **`meta.helperBodies`**; emit writes **`src/lib-helpers.ts`** for referenced helpers that fail emit-time inline (same **`tryExtractInlineQuery`** shape as ingest). **`/delta`** replay twin. **DESIGN §3** unchanged.
 - **2026-06-17 — D2319** **Effectful prelude negative control (G2319).** **`sql_param_sideeffect`** + **`/zeta`** — effectful stmt before return stays a call at ingest; prelude guard rejects holes and non-pure stmts. Route is ingest-tested only (not oracle replay twin). **DESIGN §3** unchanged.
 - **2026-06-17 — D2320** **Lane A enum method hoisting (G2320).** Top-level enums hoist instance/static methods as **`Enum::method`** **`FunctionDecl`** (glayzzle + nikic); **`enum_methods.php`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2321** **Emit lib-helpers on Fastify (G2321).** **`emit-fastify`** mirrors Hono **`lib-helpers.ts`** emission + handler imports. **DESIGN §3** unchanged.
+- **2026-06-17 — D2322** **Lane A nikic `self::` StaticFetch parity (G2322).** **`classFqnForStaticLike`** empty **`className`** for **`self`/`static`/`parent`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2323** **Lane A mixed type parity (G2323).** **`mixed_type.php`** fixture + ingest. **DESIGN §3** unchanged.
+- **2026-06-17 — D2324** **B5.5 prelude inline guard tests (G2324).** Vitest on **`tryExtractInlineQuery`** prelude skip vs effectful block. **DESIGN §3** unchanged.
 
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 
