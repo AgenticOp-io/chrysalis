@@ -227,10 +227,10 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
       name: `${classFqn}::${methodName}`,
       params: args.map((a) => ({
         name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
-        hint: typeNameFromHint(a.type as AnyNode | null),
+        hint: hintFromGlayzzleParam(a),
         default: a.value ? convertExpression(file, a.value as AnyNode) : null,
       })),
-      returnHint: typeNameFromHint(member.type as AnyNode | null),
+      returnHint: returnHintFromGlayzzleFunction(member),
       body: body?.kind === "block" ? convertBody(file, body.children, nsPrefix) : [],
       ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
       pos: pos(file, member),
@@ -268,10 +268,10 @@ function convertTopLevelEnumToFunctionDecls(file: string, enumNode: AnyNode, nsP
       name: `${declName}::${methodName}`,
       params: args.map((a) => ({
         name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
-        hint: typeNameFromHint(a.type as AnyNode | null),
+        hint: hintFromGlayzzleParam(a),
         default: a.value ? convertExpression(file, a.value as AnyNode) : null,
       })),
-      returnHint: typeNameFromHint(member.type as AnyNode | null),
+      returnHint: returnHintFromGlayzzleFunction(member),
       body: methodBody?.kind === "block" ? convertBody(file, methodBody.children, nsPrefix) : [],
       ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
       pos: pos(file, member),
@@ -297,10 +297,10 @@ function convertTopLevelInterfaceToFunctionDecls(file: string, ifaceNode: AnyNod
       name: `${declName}::${methodName}`,
       params: args.map((a) => ({
         name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
-        hint: typeNameFromHint(a.type as AnyNode | null),
+        hint: hintFromGlayzzleParam(a),
         default: a.value ? convertExpression(file, a.value as AnyNode) : null,
       })),
-      returnHint: typeNameFromHint(member.type as AnyNode | null),
+      returnHint: returnHintFromGlayzzleFunction(member),
       body: methodBody?.kind === "block" ? convertBody(file, methodBody.children, nsPrefix) : [],
       ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
       pos: pos(file, member),
@@ -326,10 +326,10 @@ function convertTopLevelTraitToFunctionDecls(file: string, traitNode: AnyNode, n
       name: `${declName}::${methodName}`,
       params: args.map((a) => ({
         name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
-        hint: typeNameFromHint(a.type as AnyNode | null),
+        hint: hintFromGlayzzleParam(a),
         default: a.value ? convertExpression(file, a.value as AnyNode) : null,
       })),
-      returnHint: typeNameFromHint(member.type as AnyNode | null),
+      returnHint: returnHintFromGlayzzleFunction(member),
       body: methodBody?.kind === "block" ? convertBody(file, methodBody.children, nsPrefix) : [],
       ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
       pos: pos(file, member),
@@ -461,10 +461,10 @@ function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNod
         name: declName,
         params: args.map((a) => ({
           name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
-          hint: typeNameFromHint(a.type as AnyNode | null),
+          hint: hintFromGlayzzleParam(a),
           default: a.value ? convertExpression(file, a.value as AnyNode) : null,
         })),
-        returnHint: typeNameFromHint(node.type as AnyNode | null),
+        returnHint: returnHintFromGlayzzleFunction(node),
         body: body?.kind === "block" ? convertBody(file, body.children, nsPrefix) : [],
         ...(fnAttributes.length > 0 ? { attributes: fnAttributes } : {}),
         pos: pos(file, node),
@@ -554,6 +554,22 @@ function typeNameFromHint(hint: AnyNode | null): string | null {
   return null;
 }
 
+function hintFromGlayzzleParam(param: AnyNode): string | null {
+  const base = typeNameFromHint(param.type as AnyNode | null);
+  if (param.nullable === true) {
+    return base ? `${base}|null` : "null";
+  }
+  return base;
+}
+
+function returnHintFromGlayzzleFunction(node: AnyNode): string | null {
+  const base = typeNameFromHint(node.type as AnyNode | null);
+  if (node.nullable === true) {
+    return base ? `${base}|null` : "null";
+  }
+  return base;
+}
+
 function paramsFromGlayzzleArguments(file: string, args: AnyNode[]): Array<{
   name: string;
   hint: string | null;
@@ -561,7 +577,7 @@ function paramsFromGlayzzleArguments(file: string, args: AnyNode[]): Array<{
 }> {
   return args.map((a) => ({
     name: String((a.name as AnyNode)?.name ?? ""),
-    hint: typeNameFromHint(a.type as AnyNode | null),
+    hint: hintFromGlayzzleParam(a),
     default: a.value ? convertExpression(file, a.value as AnyNode) : null,
   }));
 }

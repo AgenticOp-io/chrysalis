@@ -852,6 +852,20 @@ function classFqnForStaticLike(classPart: NikicDict): string | undefined {
   return undefined;
 }
 
+function instanceofRightExpr(file: string, classRaw: unknown, pos: Pos): PhpExpr {
+  if (!isNikicDict(classRaw)) {
+    return unknownExpr(file, classRaw as NikicDict, "Expr_Instanceof.class");
+  }
+  if (
+    classRaw.nodeType === "Name" ||
+    classRaw.nodeType === "Name_FullyQualified" ||
+    classRaw.nodeType === "Name_Relative"
+  ) {
+    return { kind: "ConstFetch", name: nameFromNameNode(classRaw), pos };
+  }
+  return convertExpression(file, classRaw);
+}
+
 function foldConcatDot(parts: PhpExpr[], pos: Pos): PhpExpr {
   if (parts.length === 0) {
     return { kind: "Literal", literalKind: "string", value: "", raw: '""', pos };
@@ -1272,18 +1286,31 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
       const cls = raw.class as unknown;
       const method = propertyLikeName(raw.name as unknown);
       const fq = isNikicDict(cls) ? classFqnForStaticLike(cls) : undefined;
-      const callee: PhpCallCallee =
-        fq !== undefined && method !== undefined
-          ? { kind: "name", name: `${fq}::${method}` }
-          : {
-              kind: "expr",
-              expr: unknownExpr(
-                file,
-                raw,
-                method === undefined ? "Expr_StaticCall: dynamic method" : "Expr_StaticCall: non-name class",
-              ),
-            };
       const argPack = argsFromNikic(file, Array.isArray(raw.args) ? raw.args : []);
+      if (fq !== undefined && method !== undefined) {
+        const callee: PhpCallCallee =
+          fq === ""
+            ? {
+                kind: "expr",
+                expr: { kind: "StaticFetch", className: "", name: method, pos },
+              }
+            : { kind: "name", name: `${fq}::${method}` };
+        return {
+          kind: "Call",
+          callee,
+          args: argPack.values,
+          ...(argPack.names ? { argNames: argPack.names } : {}),
+          pos,
+        };
+      }
+      const callee: PhpCallCallee = {
+        kind: "expr",
+        expr: unknownExpr(
+          file,
+          raw,
+          method === undefined ? "Expr_StaticCall: dynamic method" : "Expr_StaticCall: non-name class",
+        ),
+      };
       return {
         kind: "Call",
         callee,
@@ -1313,6 +1340,16 @@ function convertExpression(file: string, raw: NikicDict): PhpExpr {
 
     case "Expr_Clone":
       return unknownExpr(file, raw, "unhandled expr: clone");
+
+    case "Expr_Instanceof": {
+      return {
+        kind: "BinOp",
+        operator: "instanceof",
+        left: mustExpr(file, raw.expr as unknown),
+        right: instanceofRightExpr(file, raw.class, pos),
+        pos,
+      };
+    }
 
     case "Expr_List":
       return unknownExpr(file, raw, "unhandled expr: list");

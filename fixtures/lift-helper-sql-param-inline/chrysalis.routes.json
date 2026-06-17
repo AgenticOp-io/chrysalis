@@ -54,6 +54,18 @@
       "path": "/lambda",
       "file": "pages/show_lambda.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/mu",
+      "file": "pages/show_mu.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/nu",
+      "file": "pages/show_nu.php",
+      "pathParams": []
     }
   ]
 }

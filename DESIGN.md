@@ -3578,6 +3578,12 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-17 — D2347** **Lane A coalesce return parity page (G2347).** **`coalesce_return.php`** (nikic **`Coalesce`** normalized in parity tests). **DESIGN §3** unchanged.
 - **2026-06-17 — D2348** **B5.5 v10 coalesce formal ?? literal inlining (G2348).** **`localToCoalesce`** in **`tryExtractInlineQuery`**; **`sql_param_coalesce.php`** + **`/lambda`**. **DESIGN §3** unchanged.
 - **2026-06-17 — D2349** **B5.5 param-inline replay corpus expansion (G2349).** Oracle drive + replay verify through **`/iota`**, **`/kappa`**, **`/lambda`** (9 handlers). **DESIGN §3** unchanged.
+- **2026-06-17 — D2350** **Glayzzle nullable parameter/return hints (G2350).** Honor **`parameter.nullable`** / function **`nullable`** flag in **`hintFromGlayzzleParam`** / **`returnHintFromGlayzzleFunction`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2351–D2354** **Parser parity probe widening (G2351–G2354).** Fixtures + nikic/glayzzle tests for **`bool_type`**, **`nullable_type`**, **`visibility_methods`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2352** **Nikic parent static call parity (G2352).** **`Expr_StaticCall`** with empty FQN emits **`StaticFetch`** callee expr (not **`::method`** name). **DESIGN §3** unchanged.
+- **2026-06-17 — D2353** **Nikic instanceof parity (G2353).** **`Expr_Instanceof`** → canonical **`BinOp`** **`instanceof`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2356–D2358** **Parser parity probe widening (G2356–G2358).** Fixtures + tests for **`static_return`**, **`variadic_param`**, **`variadic_call`**. **DESIGN §3** unchanged.
+- **2026-06-17 — D2359–D2361** **B5.5 v11 string-cast lib helper inlining (G2359–G2361).** **`strval`** / **`__cast_string`** formal assign in **`resolveInlineAssignRhs`**; **`/mu`/`/nu`** routes; replay corpus **11 handlers**. **DESIGN §3** unchanged.
 
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 

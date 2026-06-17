@@ -529,6 +529,80 @@ $maybe = null ?? "fallback";
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 
+  run("matches glayzzle on parser-parity-probe nullable_type.php (positions stripped) (G2350)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/nullable_type.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "nullable_type.php");
+    const nk = await parseSource(src, "nullable_type.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe parent_call.php (positions stripped) (G2352)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/parent_call.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "parent_call.php");
+    const nk = await parseSource(src, "parent_call.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe instanceof_expr.php (positions stripped) (G2353)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/instanceof_expr.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "instanceof_expr.php");
+    const nk = await parseSource(src, "instanceof_expr.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe bool_type.php (positions stripped) (G2351)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/bool_type.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "bool_type.php");
+    const nk = await parseSource(src, "bool_type.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe visibility_methods.php (positions stripped) (G2354)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/visibility_methods.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "visibility_methods.php");
+    const nk = await parseSource(src, "visibility_methods.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe static_return.php (positions stripped) (G2356)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/static_return.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "static_return.php");
+    const nk = await parseSource(src, "static_return.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe variadic_param.php (positions stripped) (G2357)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/variadic_param.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "variadic_param.php");
+    const nk = await parseSource(src, "variadic_param.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("matches glayzzle on parser-parity-probe variadic_call.php (positions stripped) (G2358)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/variadic_call.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "variadic_call.php");
+    const nk = await parseSource(src, "variadic_call.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("maps glayzzle nullable parameter flag to pipe-null hints (G2350)", () => {
+    const src = `<?php
+function accept_null(?int $value): ?int { return $value; }
+`;
+    const gz = parseSourceWithGlayzzle(src, "nullable.php");
+    const fn = gz.statements.find((s): s is Extract<(typeof gz.statements)[number], { kind: "FunctionDecl" }> => s.kind === "FunctionDecl");
+    expect(fn?.params[0]?.hint).toBe("int|null");
+    expect(fn?.returnHint).toBe("int|null");
+  });
+
   run("maps nikic union type hints to pipe syntax (G2301)", async () => {
     const src = `<?php
 function union_hint(string|int $value): string|int|null { return $value; }
