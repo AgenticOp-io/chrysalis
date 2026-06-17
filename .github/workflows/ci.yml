@@ -158,6 +158,10 @@ jobs:
         # Documents FQN `dbFactoryReturnCallees` (Illuminate DB facade shape, App\\Conn, Repo::db).
         run: node scripts/migration-debt.mjs --project fixtures/laravel-shaped-db-factory-probe --max-holes 0
 
+      - name: Migration debt — parser-parity-probe hole ceiling
+        # Parser contract fixture: pinned ceiling for expected contested-syntax ingest holes (first-class callable, clone, list, etc.).
+        run: node scripts/migration-debt.mjs --project fixtures/parser-parity-probe --max-holes 5
+
       - uses: actions/upload-artifact@v4
         with:
           name: migration-debt-json

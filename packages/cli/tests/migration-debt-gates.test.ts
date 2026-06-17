@@ -70,6 +70,15 @@ describe("migration-debt gates", () => {
     expect(r.status).toBe(0);
   });
 
+  test("--max-holes 5 passes for parser-parity-probe (pinned contested-syntax ceiling)", () => {
+    const r = spawnSync(
+      process.execPath,
+      [SCRIPT, "--project", "fixtures/parser-parity-probe", "--max-holes", "5"],
+      { cwd: ROOT, encoding: "utf8" },
+    );
+    expect(r.status).toBe(0);
+  });
+
   test("--min-correctness exits 4 when status has no correctness aggregate", () => {
     const emptyCwd = mkdtempSync(join(tmpdir(), "chrysalis-mig-debt-"));
     const reportDir = join(emptyCwd, "reports", "verify");

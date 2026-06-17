@@ -1,7 +1,7 @@
 # Chrysalis - Roadmap
 
 > Read `DESIGN.md` first. This file is the **active** execution plan.
-> Completed history - shipped G-series slices (through G2337), Milestones 0-6A,
+> Completed history - shipped G-series slices (through G2398), Milestones 0-6A,
 > and the Road to Chrysalis 2.0 program - is archived in
 > [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
@@ -14,9 +14,8 @@ demo and measurable numbers, not a pile of abstractions.
   milestones (`V2-M1`-`V2-M6`) are complete; see `CHANGELOG.md` and
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
-- **Active lanes:** the **Multi-lane program** (parser / oracle / verify / holes)
-  and the **Post-2.0 depth backlog** below remain open and mergeable on `main`.
-- **Recently shipped:** through **G2398** (ternary/bitwise parser parity, glayzzle nullable properties, B5.5 v15–v16 `(bool)`/`(int)` cast routes, 17-handler replay). The full slice log lives in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" and **Hub depth** (`docs/CWL-FULLSTACK-POST-110-PROGRAM.md`).
+- **Recently shipped:** **G2399–G2400** — multi-lane baseline closure (Lane D **`parser-parity-probe`** migration-debt ceiling, B5.1 nested param-read twins, ROADMAP/archive/docs). Prior slices through **G2398** in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -25,15 +24,15 @@ marketing; WordPress before Laravel boring; "any language production-ready" clai
 
 ## Post-2.0 depth backlog (options)
 
-The **v2.0.0** thesis and scale-out milestones are complete; the rows below track **post-2.0 depth** work that landed after the tags. **A, C, D, E** are implemented in-tree; **B** ships the **origin-insensitive structural dedupe** slice (**`mergeDedupeStructuralKeyIgnoringOrigin`**, CLI **`--ingest-dedupe-structural-subgraphs-ignore-origin`**); broader **IR helper lifting** for non-structurally-identical bodies remains future work (see **V2-M4** *Remaining* in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md) and `docs/IR-HELPER-LIFTING.md`).
+The **v2.0.0** thesis and scale-out milestones are complete; the rows below track **post-2.0 depth** work. **A, C, D, E** are **closed** in-tree; **B** ships **B0–B5.5 v16** (structural dedupe, semantic lift tiers, SQL twin oracle gates, lib-helper param inlining) — see `docs/IR-HELPER-LIFTING.md`. Broader **non-structural** helper lifting for bodies that differ beyond the B5 equivalence rules remains **maintenance / hub program** backlog (see **V2-M4** *Remaining* in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md)).
 
-| Option | What | Where it lives today | Tracking |
-| --- | --- | --- | --- |
-| **A — Full ingest checkpoint** | Persist **partial WebIR** so ingest can **resume** after crash beyond **AST parse cache** + **route shards** + merge. | **`@chrysalis/webir`** **`module-checkpoint.ts`**, **`moduleBuilderResumeFromModule`**; **`@chrysalis/ingest`** **`ingest-checkpoint.ts`** + **`ingestDirectory`** options; CLI **`--ingest-checkpoint-file`**, **`--ingest-resume-checkpoint`** (rejected with **`--merge-all-shards`**). | [#2](https://github.com/theorem6/chrysalis/issues/2) |
-| **B — IR helper lifting** | **B1–B4 v0:** fixtures + **`liftSharedHelpers`** / **`liftSharedHelpersSemantic`** / **`embedSharedHelperBodiesInModule`** (CLI **`--ingest-lift-shared-helpers`**, **`--ingest-lift-shared-helpers-semantic`**, **`--ingest-embed-shared-helper-bodies`**; structural dedupe required). Call-effect canonicalization + helper roots merged into route module before dedupe. Design: **`docs/IR-HELPER-LIFTING.md`** (**D311**, **D323–D325**). | **`lift-shared-helpers.ts`**, **`library-effects.ts`**, **`merge-dedupe-key.ts`**, fixtures **`lift-helper-*`**. | [#3](https://github.com/theorem6/chrysalis/issues/3) |
-| **C — Corpus rotation + multi-host ops** | **Day-bucket** archive mover for trace roots; multi-host merge discipline unchanged (**`corpus-merge`**). | **`scripts/corpus-rotate-archive.mjs`**, **`pnpm run corpus:rotate-archive`**; **`docs/ADMINISTRATION.md`** (Corpus volume and retention). Vitest **`packages/cli/tests/corpus-rotate-archive-script.test.ts`**. | [#4](https://github.com/theorem6/chrysalis/issues/4) |
-| **D — `rediss://` (PHP sessions)** | TLS Redis URL support in the **PHP** session bridge. | **`RedisChrysalisSessionHandler`** **`doConnectRedis`**; smoke **`packages/oracle-php/tests/redis_session_bridge_smoke.php`**. | [#5](https://github.com/theorem6/chrysalis/issues/5) |
-| **E — Fleet / chimera dashboards** | **Reference** Grafana starter dashboard (**operator-owned** datasource). | **`examples/grafana/README.md`**, **`examples/grafana/dashboards/chrysalis-operator-overview.json`**. | [#6](https://github.com/theorem6/chrysalis/issues/6) |
+| Option | What | Where it lives today | Tracking | Status |
+| --- | --- | --- | --- | --- |
+| **A — Full ingest checkpoint** | Persist **partial WebIR** so ingest can **resume** after crash beyond **AST parse cache** + **route shards** + merge. | **`@chrysalis/webir`** **`module-checkpoint.ts`**, **`moduleBuilderResumeFromModule`**; **`@chrysalis/ingest`** **`ingest-checkpoint.ts`** + **`ingestDirectory`** options; CLI **`--ingest-checkpoint-file`**, **`--ingest-resume-checkpoint`** (rejected with **`--merge-all-shards`**). | [#2](https://github.com/theorem6/chrysalis/issues/2) | **Closed** |
+| **B — IR helper lifting** | **B1–B5.5 v16:** fixtures + **`liftSharedHelpers`** / semantic / embed / SQL twin / param-inline inlining (CLI flags; structural dedupe required). Design: **`docs/IR-HELPER-LIFTING.md`** (**D311**, **D323–D325**). | **`lift-shared-helpers.ts`**, **`library-effects.ts`**, **`merge-dedupe-key.ts`**, fixtures **`lift-helper-*`**. | [#3](https://github.com/theorem6/chrysalis/issues/3) | **Baseline closed** |
+| **C — Corpus rotation + multi-host ops** | **Day-bucket** archive mover for trace roots; multi-host merge discipline unchanged (**`corpus-merge`**). | **`scripts/corpus-rotate-archive.mjs`**, **`pnpm run corpus:rotate-archive`**; **`docs/ADMINISTRATION.md`** (Corpus volume and retention). Vitest **`packages/cli/tests/corpus-rotate-archive-script.test.ts`**. | [#4](https://github.com/theorem6/chrysalis/issues/4) | **Closed** |
+| **D — `rediss://` (PHP sessions)** | TLS Redis URL support in the **PHP** session bridge. | **`RedisChrysalisSessionHandler`** **`doConnectRedis`**; smoke **`packages/oracle-php/tests/redis_session_bridge_smoke.php`**. | [#5](https://github.com/theorem6/chrysalis/issues/5) | **Closed** |
+| **E — Fleet / chimera dashboards** | **Reference** Grafana starter dashboard (**operator-owned** datasource). | **`examples/grafana/README.md`**, **`examples/grafana/dashboards/chrysalis-operator-overview.json`**. | [#6](https://github.com/theorem6/chrysalis/issues/6) | **Closed** |
 
 **Multi-runtime CLI (DESIGN D295):** **`go/shim/`** (Go **`exec`**) and **`python/chrysalis_shim/`** (**`subprocess`**) invoke the same built Node CLI (**`packages/cli/dist/bin.js`**). **`CHRYSALIS_CLI_JS`** / **`CHRYSALIS_NODE`** override discovery. Optional **`pnpm run test:cli-shims`** after **`pnpm --filter @chrysalis/cli build`**.
 
@@ -81,37 +80,16 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 ## Multi-lane program (parser, oracle, verify, holes)
 
-**Status:** active (DESIGN **D211**, 2026-04). We are intentionally running **four tracks** in parallel —
-not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optional CLI/CI touch) so
-`main` stays mergeable.
+**Status:** **baseline closed (2026-06-17)** (DESIGN **D211**, **D2399**). Waves **0–6** shipped the parser contract, oracle probes, verify UX, and hole-economics gates. **Maintenance:** add contested-syntax pages to **`fixtures/parser-parity-probe`** when mapper gaps appear; bump **`--max-holes`** ceilings only when debt grows intentionally.
 
-| Lane | North star | Depends on | First thin slices (examples) |
-| ---- | ---------- | ---------- | ---------------------------- |
-| **A — Parser contract** | Same repo, same CI: glayzzle default, **nikic** opt-in with **honest** skips when `vendor/` or `php` is missing; parity tests stay the oracle for shape drift. **`pretest`** installs **`vendor/`** via **`composer`** or **`scripts/parser-bridge-composer-install.mjs`** (**D270**) when **`php`** + network are available without global Composer. | `packages/parser-bridge`, Vitest, Composer pretest | **D213**–**D225:** CI nikic step; **nikic** strip-pos on **`fixtures/mysqli-probe`**, **`db-query-unknown-receiver-probe`**, **`fixtures/laravel-shaped-db-factory-probe`**, **`fixtures/parser-parity-probe`**. Next: widen contested-syntax pages as mapper gaps appear. |
-| **B — Oracle depth** | Traces remain the spec: wider real stacks (**mysqli**, vendor autoload, edge drivers) **without** breaking redaction rules or SQL tape semantics. | oracle-php prelude, `Redactor.php` lockstep with `redaction.ts` | **D214**–**D225:** **`mysqli-probe`** + **`laravel-shaped-db-factory-probe`** (FQN **`Illuminate\...\DB::connection`**, **`App\...\Conn::make`**, **`Repo::db`**); **`D218`** negative (**`SQLite3`**). Next: optional body-proven widening (strict) or copy manifest lines into **`flagship/`** pilots when needed. |
-| **C — Verify UX** | Operators can **act** on failure: which trace, which route, which divergence class, what to run next. | `replayCorpus`, report JSON, CLI | **D212**–**D223:** **`chrysalis verify --json-summary`** (machine **stdout**); **`schemaVersion`** + **`toolVersion`**; stderr failure diagnostics + per-trace divergences in human mode; **repair** pointers. **`migration-debt --json-out`** uses the same versioning pattern (**D226**, Lane **D**). **D228**–**D230:** dual-backend verify summary JSON in CI + **`ci-gates.mjs verify-dual-summary`** + **`pnpm run ci:verify-dual-summary`**. **D231:** **`readJsonGateArtifact`** for consistent JSON gate errors. |
-| **D — Hole economics** | One place answers “where is debt?” — ingest vs emit vs auth vs dynamic **`new`**, trendable across commits. | `chrysalis status --json`, sidecars, `oracleFootprint` | **D213**–**D226:** **`migration-debt`** + **`--json-out`** (**`kind`**, **`schemaVersion`**, **`toolVersion`** — **D226**); CI **`migration-debt-json`** artifact; **`--max-holes`** / **`--min-correctness`** exit **4** gates. CI: **`typecheck-and-test`** enforces **`--max-holes`** on **tiny-blog**, **mysqli-probe**, **`db-query-unknown-receiver-probe`**, and **`laravel-shaped-db-factory-probe`**; **`verify-e2e`** enforces **`--max-holes 0`** + **`--min-correctness 1`** on **tiny-blog** after verify. Next: more fixtures if debt surfaces. |
+| Lane | North star | Baseline closure |
+| ---- | ---------- | ---------------- |
+| **A — Parser contract** | glayzzle default + **nikic** opt-in; strip-pos parity on **`fixtures/parser-parity-probe`** (~68 pages); CI nikic step + ingest parity Vitest. | **Closed** — **G2338–G2398** widening + **D270** pretest vendor. New syntax → new probe page + parity test. |
+| **B — Oracle depth** | Traces as spec: **mysqli**, **laravel-shaped-db-factory**, FQN callees, redaction lockstep. | **Closed** — CI oracle smokes + **`hub-multi-lane-smoke`**. Optional strict body-proven widening deferred to hub program. |
+| **C — Verify UX** | Operators act on failure: **`verify --json-summary`**, dual-backend CI gates, repair pointers, versioned JSON contracts. | **Closed** — Waves **1–5** (**D212–D231**). |
+| **D — Hole economics** | One screen for debt: **`migration-debt`**, **`--json-out`**, **`--max-holes`** / **`--min-correctness`** CI gates. | **Closed** — ingest gates on **tiny-blog**, **mysqli-probe**, **db-query-unknown-receiver-probe**, **laravel-shaped-db-factory-probe**, **parser-parity-probe** (ceiling **5**). |
 
-**Sequencing rules**
-
-1. **Oracle and redaction** win over convenience: no capture shortcut that breaks verify or leaks secrets.
-2. **Parser parity** before widening ingest on contested syntax (nikic/glayzzle disagree → fix mapper or document hole).
-3. **Verify UX** may land early; it mostly consumes existing reports.
-4. **Hole economics** composes existing artifacts first; new fields need provenance in `DESIGN.md`.
-
-**Wave 0 (done / in flight):** observe merge + validation (**D208–D210**), replay worker resolution (**D207**), parser-bridge nikic subprocess + pretest vendor, sql row/params redaction smoke in CI.
-
-**Wave 1 (closed 2026-04-28):** **D213–D215** shipped verify narrowing, nikic CI honesty, **`migration-debt`** (+ **`--json-out`**), mysqli oracle CI smoke, **`fixtures/mysqli-probe`**, verify replay env consolidation, and parser parity on the mysqli route page.
-
-**Wave 2 (closed 2026-04-28):** **D216** + **D217** ship **`db()->query`** and **`$db = db(); $db->query`** ingest lowering + mysqli-probe routes, **nikic** parity on route pages + **`lib/db.php`**, **`migration-debt`** JSON **CI artifact**, **`--max-holes` / `--min-correctness`** gates, **verify** stdout/stderr split for divergences, and **repair** stderr replay hints. Remaining “Next” bullets in the lane table above stay backlog (not Wave 2).
-
-**Wave 3 (closed 2026-04-28):** **D221** adds **`new PDO`** **`->query`** tracking, **`fixtures/parser-parity-probe`** + expanded **nikic** surface, and **verify** stderr diagnostics (histogram + next steps off stdout).
-
-**Wave 4 (closed 2026-04-28):** **D222**–**D226** — **`verify --json-summary`**; **`migration-debt --json-out`** versioned JSON (**D226**); ingest gates + **`dbFactoryReturnCallees`** (**D224**–**D225**). Next wave: deeper oracle stacks / contested-syntax parser pages as gaps appear / optional factory body proof (strict).
-
-**Wave 5 (2026-04-29):** **D228**–**D231** — machine-readable **`chrysalis.verify.summary.dual`** artifacts for tiny-blog + flagship verify jobs; CI **`verify-dual-summary`** gate + profile env; flagship summary row parity with contract fields; **`readJsonGateArtifact`** extended to **`tiny-n1-rewrite`**, **`migration-sidecar-floors`**, and **`status-migration`** stdin (**`JSON.parse`** errors); root **`pnpm run ci:*`** shims for common **`ci-gates`** entrypoints; **`ci-gates-json-artifacts.test.ts`** covers migration sidecar missing/invalid/skip, **`confidence-trend`** warmup, **`tiny-n1-rewrite`** missing report, and invalid JSON across gates; **`README.md`**, **`AGENTS.md`**, **`packages/cli/README.md`** document **`ci:insight`** vs gate-only **`ci:tiny-n1-insight`**; committed **`.cursor/rules/chrysalis.mdc`** with local **`.cursor/*`** ignored elsewhere.
-
-**Wave 6 (2026-05-20):** **Lane A** — parser parity probes + **`wptp:d7-audit`**; flagship PDO oracle route (**D309**, **53** template routes), empty-seed + Hono **`__respond`** + CLI stress status; ingest **psr-4** vendor effects test; WPTP **echo-api** silver Next.js + Hono edges (**24** matrix rows); semver **2.0.2** (**`CHANGELOG.md`**).
+**Wave log (archived):** Wave **0** observe/redaction; **1–2** mysqli + migration-debt; **3** PDO + parser-parity-probe; **4** verify JSON + factory callees; **5** dual-summary CI; **6** WPTP/hub smokes (**D309**). Full lane table history in git before **G2399** trim; slice IDs **G213–G2398** in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 ### Commercial program (documentation + optional CLI gate)
 
@@ -122,16 +100,12 @@ not one mega-PR. Each wave ships a **thin vertical slice** (tests + docs + optio
 
 ## What's next (active backlog)
 
-The default implementation queue is `docs/STRATEGIC-PLAN.md` § "Next 90 days"
+The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § "Next 90 days"
 (see `AGENTS.md`). Current build focus:
 
-- **Lane A - parser contract:** widen contested-syntax parity pages
-  (`fixtures/parser-parity-probe`) as glayzzle/nikic mapper gaps appear.
-- **IR helper lifting (B5.x):** deepen shared-helper inlining/lifting per
-  `docs/IR-HELPER-LIFTING.md` (gated by structural dedupe; DESIGN D310/D311).
-- **Post-2.0 depth options A-E:** tracked in the table above (issues #2-#6).
-- **Hub depth:** the post-queue program in
-  `docs/CWL-FULLSTACK-POST-110-PROGRAM.md`.
+- **Hub / CWL full-stack program:** `docs/CWL-FULLSTACK-POST-110-PROGRAM.md` (post-lane baseline).
+- **Parser maintenance:** new contested-syntax pages in **`fixtures/parser-parity-probe`** when glayzzle/nikic mapper gaps appear (Lane A maintenance).
+- **IR helper lifting maintenance:** new B5.x inlining patterns only when hub gates or fixtures require them (`docs/IR-HELPER-LIFTING.md`).
 
 Everything already shipped is logged in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 

@@ -7,7 +7,7 @@
 > [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md).
 >
 > Contents:
-> 1. Shipped slice backlog (checkbox A-G + the full **G-series**, through G2337).
+> 1. Shipped slice backlog (checkbox A-G + the full **G-series**, through G2400).
 > 2. **Milestones 0-6A** (the closed v1 checklist, incl. flagship-depth Milestone 5).
 > 3. **Road to Chrysalis 2.0** (program milestones V2-M1 through V2-M6).
 
@@ -1489,6 +1489,17 @@
 - [x] **G2335 — Lane A abstract class metadata** — **`ClassDecl.abstract`**; **`abstract_class.php`**. (**DESIGN D2335**)
 - [x] **G2336 — Lane A final class metadata** — **`ClassDecl.final`**; **`final_class.php`**. (**DESIGN D2336**)
 - [x] **G2337 — Lane A throw expression parity** — arrow fn with **`throw`**; **`throw_expr.php`**. (**DESIGN D2337**)
+- [x] **G2338 — Docs hygiene** — multi-root workspace, **`ROADMAP-ARCHIVE.md`** split, **`docs/USE-CASES.md`**. (**DESIGN D2338**)
+- [x] **G2339–G2343 — Lane A parser parity widening** — **`void_return`**, **`callable_hint`**, **`list_destruct`**, **`spread_array`**, **`class_const`**. (**DESIGN D2339–D2343**)
+- [x] **G2344–G2349 — B5.5 v9–v10 + replay** — **`__cast_int`** / **`intval`** + **`??` literal** formal assign; replay through **`/iota`/`/kappa`/`/lambda`**. (**DESIGN D2344–D2349**)
+- [x] **G2350–G2358 — Lane A nullable + static/instanceof** — glayzzle nullable hints; nikic **`parent::`**, **`instanceof`**, type pages. (**DESIGN D2350–D2358**)
+- [x] **G2359–G2361 — B5.5 v11 string-cast inlining** — **`strval`/`__cast_string`**; replay **11 handlers**. (**DESIGN D2359–D2361**)
+- [x] **G2362–G2371 — Lane A self/static/foreach + B5.5 v12** — **`self_call`**, **`static_call`**, **`foreach_*`**, bool/float cast inlining; replay **13 handlers**. (**DESIGN D2362–D2371**)
+- [x] **G2372–G2380 — Lane A ternary/bitwise + B5.5 v13 trim** — **`ternary_expr`**, **`bitwise_*`**, **`trim()`** inlining; replay **14 handlers**. (**DESIGN D2372–D2380**)
+- [x] **G2381–G2388 — Lane A `$var::class` + B5.5 v14 `(float)`** — nikic variable class const fetch; **`/rho`** route; replay **15 handlers**. (**DESIGN D2381–D2388**)
+- [x] **G2389–G2398 — Lane A nullable props + B5.5 v15–v16** — glayzzle nullable properties; **`(bool)`/`(int)`** cast inlining; replay **17 handlers**. (**DESIGN D2389–D2398**)
+- [x] **G2399 — Multi-lane baseline closure** — Lanes **A–D** closed in **`ROADMAP.md`**; **`parser-parity-probe`** migration-debt ceiling in CI. (**DESIGN D2399**)
+- [x] **G2400 — B5.1 nested param-read semantic lift** — **`nested_call_*`** twins; **`lift-helper-param-twin.test.ts`**. (**DESIGN D2400**)
 
 - [x] **G138 — JS runtime emit returns real bodies + applies response status** — the follow-on to G137. The hono `__return_json` emit ignored `__status`, so `res.status(n).json(...)` produced a `200` body; bare concise-arrow returns were discarded. The emit now, when a preceding `effect.http.error` set a non-200 `__status`, buffers the JSON body (`__html += JSON.stringify(...)`) and responds via `__respond` (which sniffs JSON → `application/json` and applies `__status`) — matching the proven PHP echo+json_encode path and avoiding a `ContentfulStatusCode` cast; default-200 routes keep the direct `c.json(...)` path (no regression). The express flagship `src/app.js` rich routes were rewritten to real Express (`res.json({...})`, `res.status(201|202).json({...})`) and `oracle/app-live.js` was re-recorded to mirror the emitted runtime exactly. Flagship projection now reports **`withStatus: 2`** (was 0), `withParams: 5`, `objectBodies: 8`, still hole-free; gold + hono/fastify/nextjs trace replay all green (0 divergences across 112 suites); strategic suite 26/26; `ci-gates hub-completion` green (schema 40). Trivial literal routes (`/items`, `/stats`, `DELETE /items/:id`) stay empty to match discarded bare returns. (**DESIGN D437**)
 
