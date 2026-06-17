@@ -328,6 +328,16 @@ export function buildGceFastHeavySmokeState() {
   state.fullstackAuthoringBatchV213 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate213Mode: "gce-deferred" };
   state.fullstackAuthoringBatchV214 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate214Mode: "gce-deferred" };
   state.fullstackAuthoringBatchV215 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate215Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV216 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate216Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV217 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate217Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV218 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate218Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV219 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate219Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV220 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate220Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV221 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate221Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV222 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate222Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV223 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate223Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV224 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate224Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV225 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate225Mode: "gce-deferred" };
   state.plainPhpMigrationOsBatch = d();
   state.tinyBlogDeliveryBatch = d();
   state.deliveryPipelineStandaloneBatch = d();
