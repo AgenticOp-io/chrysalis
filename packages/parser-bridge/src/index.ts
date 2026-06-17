@@ -38,6 +38,8 @@ export type {
   PhpExpressionStatement,
   PhpRequire,
   PhpFunctionDecl,
+  PhpClassDecl,
+  PhpClassProperty,
   PhpExit,
   PhpThrow,
   PhpNew,

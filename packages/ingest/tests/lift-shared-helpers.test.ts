@@ -140,4 +140,10 @@ describe("ingest: lift-shared-helpers (B2)", () => {
       "SELECT id FROM items WHERE active = 1",
     );
   });
+
+  it("normalizeSqlLiteralForHelperLift leaves keywords inside string literals (B5.4 v3)", () => {
+    expect(normalizeSqlLiteralForHelperLift("SELECT id FROM items WHERE slug = 'select from'")).toBe(
+      "SELECT id FROM items WHERE slug = 'select from'",
+    );
+  });
 });

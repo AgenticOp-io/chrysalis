@@ -310,7 +310,7 @@ export async function ingestFile(
       ? await collectLibraryFunctionBodies(root, builder, [route], {
           ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
         })
-      : new Map<string, import("@chrysalis/webir").NodeId>();
+      : new Map<string, import("./convert.js").HelperBodyEntry>();
   const routeNode = ingestHandler(
     builder,
     ast,
@@ -362,6 +362,7 @@ export {
 } from "./lift-shared-helpers.js";
 export {
   collectFunctionAttributes,
+  type HelperBodyEntry,
   type PhpAttributeMeta,
 } from "./convert.js";
 export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";

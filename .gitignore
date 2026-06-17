@@ -37,6 +37,8 @@ fixtures/lift-helper-sql-same-twin/probe.sqlite
 fixtures/lift-helper-sql-case-twin/probe.sqlite
 traces/lift-helper-sql-case-twin-ci/
 generated/lift-helper-sql-same-twin-replay/
+generated/lift-helper-sql-case-twin-replay/
+fixtures/lift-helper-sql-param-inline/probe.sqlite
 traces/
 reports/
 .holes/

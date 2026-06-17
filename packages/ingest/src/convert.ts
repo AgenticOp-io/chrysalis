@@ -85,6 +85,12 @@ export type PhpAttributeMeta = {
   readonly args: ReadonlyArray<string | number | boolean | null>;
 };
 
+/** Lib helper body root + formal parameter names for call-site inlining (G2294/G2298). */
+export interface HelperBodyEntry {
+  readonly bodyId: NodeId;
+  readonly paramNames: readonly string[];
+}
+
 function serializePhpAttribute(a: PhpAttribute): PhpAttributeMeta {
   const args: (string | number | boolean | null)[] = [];
   for (const arg of a.args) {
@@ -268,44 +274,154 @@ interface Ctx {
   /** PHP attributes on known callees (route-local + lib index). */
   readonly functionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]>;
   /** Lowered lib/vendor helper bodies for zero-arg db.read inlining at call sites (G2294). */
-  readonly helperBodies: ReadonlyMap<string, NodeId>;
+  readonly helperBodies: ReadonlyMap<string, HelperBodyEntry>;
 }
 
-function resolveHelperBodyId(
-  bodies: ReadonlyMap<string, NodeId>,
+function resolveHelperBodyEntry(
+  bodies: ReadonlyMap<string, HelperBodyEntry>,
   callee: string,
-): NodeId | undefined {
+): HelperBodyEntry | undefined {
   const direct = bodies.get(callee);
   if (direct !== undefined) return direct;
   if (callee.includes("::")) {
-    for (const [key, id] of bodies) {
-      if (key === callee || key.endsWith("\\" + callee)) return id;
+    for (const [key, entry] of bodies) {
+      if (key === callee || key.endsWith("\\" + callee)) return entry;
     }
   }
   const tail = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
   return bodies.get(tail);
 }
 
-/** Inline zero-arg lib helpers whose body is `return <effect.db.query>` (G2294). */
+function queryFromReturnStmt(ctx: Ctx, stmtId: NodeId): NodeId | undefined {
+  const retStmt = ctx.m.get(stmtId);
+  if (!retStmt || retStmt.op !== "call" || retStmt.attrs.callee !== "__return") return undefined;
+  if (retStmt.operands.length !== 1) return undefined;
+  const inner = ctx.m.get(retStmt.operands[0]!);
+  if (!inner || inner.dialect !== "effect" || inner.op !== "db.query") return undefined;
+  return retStmt.operands[0]!;
+}
+
+function tryExtractInlineQuery(
+  ctx: Ctx,
+  bodyId: NodeId,
+  paramNames: readonly string[],
+): { queryId: NodeId; localToArg: ReadonlyMap<string, string> } | undefined {
+  const body = ctx.m.get(bodyId);
+  if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
+  const stmts = body.operands;
+  if (stmts.length === 1) {
+    const queryId = queryFromReturnStmt(ctx, stmts[0]!);
+    return queryId !== undefined ? { queryId, localToArg: new Map() } : undefined;
+  }
+  if (stmts.length === 2) {
+    const assign = ctx.m.get(stmts[0]!);
+    if (!assign || assign.op !== "call" || assign.attrs.callee !== "__assign") return undefined;
+    const targetLit = ctx.m.get(assign.operands[0]!);
+    const valueId = assign.operands[1]!;
+    if (!targetLit || targetLit.op !== "literal") return undefined;
+    const localName = String(targetLit.attrs.value ?? "");
+    const valueNode = ctx.m.get(valueId);
+    if (!valueNode || valueNode.op !== "param") return undefined;
+    const formalName = String(valueNode.attrs.name ?? "");
+    if (!paramNames.includes(formalName)) return undefined;
+    const queryId = queryFromReturnStmt(ctx, stmts[1]!);
+    if (queryId === undefined) return undefined;
+    return { queryId, localToArg: new Map([[localName, formalName]]) };
+  }
+  return undefined;
+}
+
+function walkSubgraphNodeIds(ctx: Ctx, rootId: NodeId, visit: (id: NodeId) => void, seen = new Set<NodeId>()): void {
+  if (seen.has(rootId)) return;
+  seen.add(rootId);
+  visit(rootId);
+  const n = ctx.m.get(rootId);
+  if (!n) return;
+  for (const op of n.operands) {
+    walkSubgraphNodeIds(ctx, op, visit, seen);
+  }
+}
+
+function cloneSubgraphWithReplacements(
+  ctx: Ctx,
+  rootId: NodeId,
+  replacements: ReadonlyMap<NodeId, NodeId>,
+  memo = new Map<NodeId, NodeId>(),
+): NodeId {
+  const replaced = replacements.get(rootId);
+  if (replaced !== undefined) return replaced;
+  if (memo.has(rootId)) return memo.get(rootId)!;
+  const n = ctx.m.get(rootId);
+  if (!n) return rootId;
+  const clonedOperands = n.operands.map((op) => cloneSubgraphWithReplacements(ctx, op, replacements, memo));
+  const newId = ctx.m.node({
+    dialect: n.dialect,
+    op: n.op,
+    type: n.type,
+    effects: n.effects,
+    operands: clonedOperands,
+    attrs: n.attrs,
+    origin: n.origin,
+    provenance: n.provenance,
+  });
+  memo.set(rootId, newId);
+  return newId;
+}
+
+function buildQueryParamReplacements(
+  ctx: Ctx,
+  queryId: NodeId,
+  paramNames: readonly string[],
+  argNodeIds: readonly NodeId[],
+  localToFormal: ReadonlyMap<string, string>,
+): ReadonlyMap<NodeId, NodeId> | undefined {
+  const formalToArg = new Map<string, NodeId>();
+  for (let i = 0; i < paramNames.length; i++) {
+    formalToArg.set(paramNames[i]!, argNodeIds[i]!);
+  }
+  const nameToArg = new Map<string, NodeId>();
+  for (const [formal, argId] of formalToArg) {
+    nameToArg.set(formal, argId);
+  }
+  for (const [local, formal] of localToFormal) {
+    const argId = formalToArg.get(formal);
+    if (argId === undefined) return undefined;
+    nameToArg.set(local, argId);
+  }
+  const replacements = new Map<NodeId, NodeId>();
+  walkSubgraphNodeIds(ctx, queryId, (id) => {
+    const n = ctx.m.get(id);
+    if (n?.op !== "param" || typeof n.attrs.name !== "string") return;
+    const rep = nameToArg.get(n.attrs.name);
+    if (rep !== undefined) replacements.set(id, rep);
+  });
+  return replacements;
+}
+
+/** Inline lib helpers whose body is `return <effect.db.query>` (G2294/G2298). */
 function tryInlineLibHelperCall(
   ctx: Ctx,
   callee: string,
   argNodeIds: readonly NodeId[],
 ): NodeId | undefined {
-  if (ctx.helperBodies.size === 0 || argNodeIds.length > 0) return undefined;
-  const bodyId = resolveHelperBodyId(ctx.helperBodies, callee);
-  if (bodyId === undefined) return undefined;
-  const get = (id: NodeId) => ctx.m.get(id);
-  const body = get(bodyId);
-  if (!body || body.dialect !== "data" || body.op !== "block" || body.operands.length !== 1) {
-    return undefined;
+  if (ctx.helperBodies.size === 0) return undefined;
+  const entry = resolveHelperBodyEntry(ctx.helperBodies, callee);
+  if (entry === undefined) return undefined;
+  if (argNodeIds.length !== entry.paramNames.length) return undefined;
+  const extracted = tryExtractInlineQuery(ctx, entry.bodyId, entry.paramNames);
+  if (extracted === undefined) return undefined;
+  if (entry.paramNames.length === 0) {
+    return extracted.queryId;
   }
-  const retStmt = get(body.operands[0]!);
-  if (!retStmt || retStmt.op !== "call" || retStmt.attrs.callee !== "__return") return undefined;
-  if (retStmt.operands.length !== 1) return undefined;
-  const inner = get(retStmt.operands[0]!);
-  if (!inner || inner.dialect !== "effect" || inner.op !== "db.query") return undefined;
-  return retStmt.operands[0]!;
+  const replacements = buildQueryParamReplacements(
+    ctx,
+    extracted.queryId,
+    entry.paramNames,
+    argNodeIds,
+    extracted.localToArg,
+  );
+  if (replacements === undefined) return undefined;
+  return cloneSubgraphWithReplacements(ctx, extracted.queryId, replacements);
 }
 
 function makeCtx(
@@ -313,7 +429,7 @@ function makeCtx(
   file: string,
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
   functionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]> = new Map(),
-  helperBodies: ReadonlyMap<string, NodeId> = new Map(),
+  helperBodies: ReadonlyMap<string, HelperBodyEntry> = new Map(),
 ): Ctx {
   return {
     m: builder,
@@ -1514,6 +1630,9 @@ function convertStatement(
     case "EnumDecl":
       // Enum declarations are type-level; runtime lowering deferred.
       return null;
+    case "ClassDecl":
+      // Class metadata is type-level; methods hoist separately.
+      return null;
     case "FunctionDecl":
       // Library functions inside a handler body are not yet hoisted; treat as
       // a hole with descriptive reason. Top-level library files are handled
@@ -1533,7 +1652,7 @@ export function ingestHandler(
   libCallEffects: ReadonlyMap<string, EffectSet> = new Map(),
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
   libFunctionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]> = new Map(),
-  helperBodies: ReadonlyMap<string, NodeId> = new Map(),
+  helperBodies: ReadonlyMap<string, HelperBodyEntry> = new Map(),
 ): NodeId {
   const routeAttrs = collectFunctionAttributes(ast.statements);
   const mergedAttrs = new Map(libFunctionAttributes);

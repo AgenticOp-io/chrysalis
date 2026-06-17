@@ -130,6 +130,30 @@ function convertTopLevelClassToFunctionDecls(file: string, classNode: AnyNode, n
   const classFqn = nsPrefix ? `${nsPrefix}\\${classShort}` : classShort;
   const members = Array.isArray(classNode.body) ? (classNode.body as AnyNode[]) : [];
   const out: PhpNode[] = [];
+  const properties: import("../schema.js").PhpClassProperty[] = [];
+
+  for (const member of members) {
+    if (member.kind !== "propertystatement" && member.kind !== "property") continue;
+    const propsRaw = member.properties ?? (member.kind === "property" ? [member] : undefined);
+    const props = Array.isArray(propsRaw) ? (propsRaw as AnyNode[]) : [];
+    for (const prop of props) {
+      const propName = String((prop.name as AnyNode | undefined)?.name ?? prop.name ?? "");
+      if (!propName) continue;
+      const typeHint = typeNameFromHint((prop.type ?? member.type) as AnyNode | null);
+      const readonly = Boolean(prop.readonly ?? member.readonly);
+      properties.push({ name: propName, typeHint, readonly });
+    }
+  }
+
+  if (properties.length > 0) {
+    out.push({
+      kind: "ClassDecl",
+      name: classFqn,
+      properties,
+      pos: pos(file, classNode),
+    });
+  }
+
   for (const member of members) {
     if (member.kind !== "method") continue;
     const methodName = String((member.name as AnyNode | undefined)?.name ?? "");
@@ -366,6 +390,12 @@ function convertStatement(file: string, node: AnyNode, nsPrefix: string): PhpNod
 
 function typeNameFromHint(hint: AnyNode | null): string | null {
   if (!hint) return null;
+  if (hint.kind === "uniontype" && Array.isArray(hint.types)) {
+    const parts = (hint.types as AnyNode[])
+      .map((part) => typeNameFromHint(part))
+      .filter((part): part is string => part !== null);
+    return parts.length > 0 ? parts.join("|") : null;
+  }
   if (hint.kind === "identifier") return String((hint as AnyNode).name ?? "");
   if (hint.kind === "typereference") return String((hint as AnyNode).name ?? "");
   if (hint.kind === "name") return String((hint as AnyNode).name ?? "");

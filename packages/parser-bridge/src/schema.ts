@@ -31,6 +31,7 @@ export type PhpNode =
   | PhpReturn
   | PhpRequire
   | PhpFunctionDecl
+  | PhpClassDecl
   | PhpEnumDecl
   | PhpExit
   | PhpThrow
@@ -128,6 +129,20 @@ export interface PhpFunctionDecl {
   readonly returnHint: string | null;
   readonly body: ReadonlyArray<PhpNode>;
   readonly attributes?: ReadonlyArray<PhpAttribute>;
+  readonly pos: Pos;
+}
+
+export interface PhpClassProperty {
+  readonly name: string;
+  readonly typeHint: string | null;
+  readonly readonly: boolean;
+}
+
+/** PHP class metadata for Lane A parity (methods still hoist to FunctionDecl). */
+export interface PhpClassDecl {
+  readonly kind: "ClassDecl";
+  readonly name: string;
+  readonly properties: ReadonlyArray<PhpClassProperty>;
   readonly pos: Pos;
 }
 

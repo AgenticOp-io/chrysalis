@@ -66,6 +66,12 @@
       "path": "/enum",
       "file": "pages/enum_decl.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/readonly-class",
+      "file": "pages/readonly_class.php",
+      "pathParams": []
     }
   ]
 }

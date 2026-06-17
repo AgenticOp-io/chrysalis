@@ -30,6 +30,7 @@ const SUPERGLOBAL_NAMES = new Set([
 ]);
 
 const PHP_MODIFIER_STATIC = 8;
+const PHP_MODIFIER_READONLY = 64;
 const INCLUDE_ONCE = 2;
 const REQUIRE_ONCE = 4;
 
@@ -158,9 +159,12 @@ function nameFromNameNode(raw: NikicDict): string {
 }
 
 function identifierText(raw: unknown): string | undefined {
-  if (!isNikicDict(raw) || raw.nodeType !== "Identifier") return undefined;
-  const nm = raw.name;
-  return typeof nm === "string" ? nm : undefined;
+  if (!isNikicDict(raw)) return undefined;
+  if (raw.nodeType === "Identifier" || raw.nodeType === "VarLikeIdentifier") {
+    const nm = raw.name;
+    return typeof nm === "string" ? nm : undefined;
+  }
+  return undefined;
 }
 
 function convertTopLevelClassToFunctionDecls(
@@ -174,6 +178,34 @@ function convertTopLevelClassToFunctionDecls(
   const fqn = nsPrefix ? `${nsPrefix}\\${classShort}` : classShort;
   const body = Array.isArray(classNode.stmts) ? (classNode.stmts as unknown[]) : [];
   const out: PhpNode[] = [];
+  const properties: import("../schema.js").PhpClassProperty[] = [];
+
+  for (const mb of body) {
+    if (!isNikicDict(mb) || mb.nodeType !== "Stmt_Property") continue;
+    const flags = typeof mb.flags === "number" ? mb.flags : 0;
+    const readonly = (flags & PHP_MODIFIER_READONLY) !== 0;
+    const typeHintText = typeHint(mb.type as unknown);
+    const props = Array.isArray(mb.props) ? mb.props : [];
+    for (const prop of props) {
+      if (!isNikicDict(prop) || prop.nodeType !== "PropertyItem") continue;
+      const propNameNode = prop.name;
+      const propName =
+        isNikicDict(propNameNode) && propNameNode.nodeType === "VarLikeIdentifier"
+          ? identifierText(propNameNode) ?? ""
+          : "";
+      if (!propName) continue;
+      properties.push({ name: propName, typeHint: typeHintText, readonly });
+    }
+  }
+
+  if (properties.length > 0) {
+    out.push({
+      kind: "ClassDecl",
+      name: fqn,
+      properties,
+      pos: stmtPos(file, classNode),
+    });
+  }
 
   for (const mb of body) {
     if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassMethod") continue;
@@ -237,6 +269,15 @@ function convertParam(file: string, raw: unknown): DeclParam {
 function typeHint(t: unknown): string | null {
   if (!t || !isNikicDict(t)) return null;
   if (t.nodeType === "Identifier") return identifierText(t) ?? null;
+  if (t.nodeType === "UnionType") {
+    const types = Array.isArray(t.types) ? t.types : [];
+    const parts = types.map((part) => typeHint(part)).filter((part): part is string => part !== null);
+    return parts.length > 0 ? parts.join("|") : null;
+  }
+  if (t.nodeType === "NullableType") {
+    const inner = typeHint(t.type);
+    return inner ? `${inner}|null` : "null";
+  }
   if (t.nodeType === "Name" || t.nodeType === "Name_FullyQualified" || t.nodeType === "Name_Relative") {
     const s = nameFromNameNode(t);
     return s || null;

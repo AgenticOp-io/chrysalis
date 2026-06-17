@@ -24,7 +24,7 @@ import {
   type Module,
   type NodeId,
 } from "@chrysalis/webir";
-import { convertPhpStatementsToBlock, collectFunctionAttributes, type PhpAttributeMeta } from "./convert.js";
+import { convertPhpStatementsToBlock, collectFunctionAttributes, type HelperBodyEntry, type PhpAttributeMeta } from "./convert.js";
 import { applyHelperLiftAliases, buildHelperLiftAliasMap } from "./lift-shared-helpers.js";
 
 async function collectPhpFilesRecursive(dir: string): Promise<string[]> {
@@ -115,13 +115,16 @@ function effectSetKey(e: EffectSet): string {
   return effectTagsSorted(e).join("\0");
 }
 
-function collectFunctionBodies(ast: PhpAst, builder: ModuleBuilder): Map<string, NodeId> {
-  const bodies = new Map<string, NodeId>();
+function collectFunctionBodies(ast: PhpAst, builder: ModuleBuilder): Map<string, HelperBodyEntry> {
+  const bodies = new Map<string, HelperBodyEntry>();
   const walk = (stmts: readonly PhpNode[]) => {
     for (const stmt of stmts) {
       if (stmt.kind !== "FunctionDecl") continue;
       const rootId = convertPhpStatementsToBlock(builder, ast.file, stmt.body);
-      bodies.set(stmt.name, rootId);
+      bodies.set(stmt.name, {
+        bodyId: rootId,
+        paramNames: stmt.params.map((p) => p.name),
+      });
       walk(stmt.body);
     }
   };
@@ -131,19 +134,19 @@ function collectFunctionBodies(ast: PhpAst, builder: ModuleBuilder): Map<string,
 
 function runCallEffectFixpoint(
   builder: ModuleBuilder,
-  bodies: Map<string, NodeId>,
+  bodies: Map<string, HelperBodyEntry>,
 ): ReadonlyMap<string, EffectSet> {
   const getNode = (id: NodeId) => builder.get(id);
   const sig = new Map<string, EffectSet>();
-  for (const [name, rootId] of bodies) {
-    sig.set(name, effectsReachableFrom(getNode, rootId));
+  for (const [name, entry] of bodies) {
+    sig.set(name, effectsReachableFrom(getNode, entry.bodyId));
   }
 
   let changed = true;
   while (changed) {
     changed = false;
-    for (const [name, rootId] of bodies) {
-      const next = effectsReachableWithCallOverlay(getNode, rootId, sig);
+    for (const [name, entry] of bodies) {
+      const next = effectsReachableWithCallOverlay(getNode, entry.bodyId, sig);
       const prev = sig.get(name);
       if (!prev || effectSetKey(next) !== effectSetKey(prev)) {
         sig.set(name, next);
@@ -180,8 +183,8 @@ export interface CallEffectMapOptions {
 }
 
 function mergeBodies(
-  target: Map<string, NodeId>,
-  incoming: ReadonlyMap<string, NodeId>,
+  target: Map<string, HelperBodyEntry>,
+  incoming: ReadonlyMap<string, HelperBodyEntry>,
   opts?: { readonly overwrite?: boolean },
 ): void {
   const overwrite = opts?.overwrite ?? false;
@@ -222,8 +225,8 @@ export async function collectLibraryFunctionBodies(
   builder: ModuleBuilder,
   routeSpecs: ReadonlyArray<RouteFileRef> | undefined,
   opts?: LibraryBodyCollectionOptions,
-): Promise<Map<string, NodeId>> {
-  const bodies = new Map<string, NodeId>();
+): Promise<Map<string, HelperBodyEntry>> {
+  const bodies = new Map<string, HelperBodyEntry>();
 
   const libDir = join(root, "lib");
   try {
@@ -339,8 +342,8 @@ export async function buildLibraryHelpersWebIrModule(
     return null;
   }
   const rootIds = new Set<NodeId>();
-  for (const id of bodies.values()) {
-    rootIds.add(id);
+  for (const entry of bodies.values()) {
+    rootIds.add(entry.bodyId);
   }
   for (const id of rootIds) {
     builder.addRoot(id);

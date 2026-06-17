@@ -3524,6 +3524,11 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-16 — D2295** **B5.4 v2 oracle twin verify (G2295).** **`verify-lift-helper-sql-case-twin-oracle.mjs`** captures case-only SQL keyword twins and gates on body/SQL parity plus semantic alias. **DESIGN §3** unchanged.
 - **2026-06-16 — D2296** **Hub oracle twin smoke v2 (G2296).** Hub completion oracle twin gate runs **sql-same-twin** and **sql-case-twin** verifies (schema **v2**). **DESIGN §3** unchanged.
 - **2026-06-16 — D2297** **B5.5 v2 emit HTTP replay (G2297).** **`verify-lift-helper-sql-same-twin-replay.mjs`** ingests with inlined helpers, emits Hono, and **`replayCorpus`** at threshold **1.0**. **DESIGN §3** unchanged — trace-backed verify, no oracle shortcuts.
+- **2026-06-16 — D2298** **B5.4 v3 quote-aware SQL normalization (G2298).** **`normalizeSqlLiteralForHelperLift`** uppercases keywords only outside quoted string literals. **DESIGN §3** unchanged.
+- **2026-06-16 — D2299** **B5.5 v3 parametric lib helper inlining (G2299).** **`HelperBodyEntry`** + param clone/substitute for direct-return and assign-then-return query helpers. **DESIGN §3** unchanged.
+- **2026-06-16 — D2300** **sql-case-twin emit replay (G2300).** Shared **`lift-helper-sql-twin-replay-core.mjs`** + case-twin verify script. **DESIGN §3** unchanged.
+- **2026-06-16 — D2301** **Lane A nikic union type hints (G2301).** **`typeHint`** serializes **`UnionType`** / **`NullableType`** as **`A|B|null`**. Glayzzle union syntax remains unsupported on bundled php-parser 3.x. **DESIGN §3** unchanged.
+- **2026-06-16 — D2302** **Lane A readonly class properties (G2302).** Canonical **`ClassDecl`** + **`PhpClassProperty`**; glayzzle + nikic emit class metadata alongside hoisted methods. **DESIGN §3** unchanged.
 
 - **2026-06-02 — D1859** **CWL Month 2–3 queues 71–90 (G1859–G2058).** Runtime parity depth, flagship pilot, framework deep exports, translate/contract roundtrip, **`runMonth23GraduationLockGate`**; batches **v71–v90**; hub-completion **schema 163**; gate-only **`skipPriorChain`**. GCE runs **v60 + v90** skip-prior smokes. **DESIGN §3:** verify-gated; holes-first.
 

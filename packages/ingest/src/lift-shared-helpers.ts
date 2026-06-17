@@ -10,6 +10,11 @@ import {
   type NodeId,
   type WebIRType,
 } from "@chrysalis/webir";
+import type { HelperBodyEntry } from "./convert.js";
+
+function helperLiftBodyId(ref: NodeId | HelperBodyEntry): NodeId {
+  return typeof ref === "object" && ref !== null && "bodyId" in ref ? ref.bodyId : ref;
+}
 
 function subgraphHasHole(getNode: (id: NodeId) => NodeBase | undefined, rootId: NodeId): boolean {
   const seen = new Set<NodeId>();
@@ -203,10 +208,47 @@ const SQL_KEYWORDS_FOR_HELPER_LIFT = new Set([
 
 export function normalizeSqlLiteralForHelperLift(sql: string): string {
   const collapsed = sql.trim().replace(/\s+/g, " ");
-  return collapsed.replace(/\b([A-Za-z_][A-Za-z0-9_]*)\b/g, (word) => {
-    const lower = word.toLowerCase();
-    return SQL_KEYWORDS_FOR_HELPER_LIFT.has(lower) ? lower.toUpperCase() : word;
-  });
+  let out = "";
+  let i = 0;
+  while (i < collapsed.length) {
+    const ch = collapsed[i]!;
+    if (ch === "'" || ch === '"') {
+      const quote = ch;
+      out += quote;
+      i++;
+      while (i < collapsed.length) {
+        const c = collapsed[i]!;
+        out += c;
+        if (c === "\\" && quote === '"' && i + 1 < collapsed.length) {
+          out += collapsed[i + 1]!;
+          i += 2;
+          continue;
+        }
+        if (c === quote) {
+          if (quote === "'" && collapsed[i + 1] === "'") {
+            out += collapsed[i + 1]!;
+            i += 2;
+            continue;
+          }
+          i++;
+          break;
+        }
+        i++;
+      }
+      continue;
+    }
+    const wordMatch = /^[A-Za-z_][A-Za-z0-9_]*/.exec(collapsed.slice(i));
+    if (wordMatch) {
+      const word = wordMatch[0];
+      const lower = word.toLowerCase();
+      out += SQL_KEYWORDS_FOR_HELPER_LIFT.has(lower) ? lower.toUpperCase() : word;
+      i += word.length;
+      continue;
+    }
+    out += ch;
+    i++;
+  }
+  return out;
 }
 
 function normalizeNodeForHelperLiftSemantic(
@@ -308,7 +350,7 @@ export function functionBodyStructuralKey(
  * Map alias function name → canonical name (lexicographically first per equivalence class).
  */
 export function buildHelperLiftAliasMap(
-  bodies: ReadonlyMap<string, NodeId>,
+  bodies: ReadonlyMap<string, NodeId | HelperBodyEntry>,
   getNode: (id: NodeId) => NodeBase | undefined,
   opts?: { readonly ignoreOrigin?: boolean; readonly semantic?: boolean },
 ): ReadonlyMap<string, string> {
@@ -316,8 +358,9 @@ export function buildHelperLiftAliasMap(
   const keyToCanonical = new Map<string, string>();
   const names = [...bodies.keys()].sort((a, b) => a.localeCompare(b));
   for (const name of names) {
-    const rootId = bodies.get(name);
-    if (!rootId) continue;
+    const rootRef = bodies.get(name);
+    if (rootRef === undefined) continue;
+    const rootId = helperLiftBodyId(rootRef);
     const key = functionBodyStructuralKey(getNode, rootId, {
       forHelperLift: true,
       ...(opts?.ignoreOrigin === false ? { ignoreOrigin: false as const } : {}),
@@ -337,14 +380,18 @@ export function buildHelperLiftAliasMap(
 
 /** Point alias names at the canonical function body root in the bodies map. */
 export function applyHelperLiftAliases(
-  bodies: Map<string, NodeId>,
+  bodies: Map<string, HelperBodyEntry>,
   aliases: ReadonlyMap<string, string>,
 ): void {
   for (const [alias, canon] of aliases) {
-    const canonId = bodies.get(canon);
-    if (!canonId) {
+    const canonEntry = bodies.get(canon);
+    if (!canonEntry) {
       throw new Error(`applyHelperLiftAliases: canonical ${canon} missing for alias ${alias}`);
     }
-    bodies.set(alias, canonId);
+    const aliasEntry = bodies.get(alias);
+    bodies.set(alias, {
+      bodyId: canonEntry.bodyId,
+      paramNames: aliasEntry?.paramNames ?? canonEntry.paramNames,
+    });
   }
 }

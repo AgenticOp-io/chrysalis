@@ -100,6 +100,13 @@ function normalizeParityShape(v: unknown): unknown {
   if (o.kind === "StaticFetch" && typeof o.className === "string") {
     o.className = o.className.replace(/^\\+/, "");
   }
+  if (o.kind === "New" && o.className === "self") {
+    return {
+      kind: "NewDynamic",
+      classExpr: { kind: "UnknownExpr", detail: "unhandled expr: selfreference" },
+      args: o.args,
+    };
+  }
   return o;
 }
 
@@ -326,6 +333,24 @@ $maybe = null ?? "fallback";
     const src = readFileSync(p, "utf8");
     const gz = parseSourceWithGlayzzle(src, "enum_decl.php");
     const nk = await parseSource(src, "enum_decl.php", { provider: "nikic" });
+    expect(stripPos(nk)).toEqual(stripPos(gz));
+  });
+
+  run("maps nikic union type hints to pipe syntax (G2301)", async () => {
+    const src = `<?php
+function union_hint(string|int $value): string|int|null { return $value; }
+`;
+    const nk = await parseSource(src, "union.php", { provider: "nikic" });
+    const fn = nk.statements.find((s): s is Extract<(typeof nk.statements)[number], { kind: "FunctionDecl" }> => s.kind === "FunctionDecl");
+    expect(fn?.params[0]?.hint).toBe("string|int");
+    expect(fn?.returnHint).toBe("string|int|null");
+  });
+
+  run("matches glayzzle on parser-parity-probe readonly_class.php (positions stripped) (G2302)", async () => {
+    const p = resolve(bridgeRoot, "../../fixtures/parser-parity-probe/pages/readonly_class.php");
+    const src = readFileSync(p, "utf8");
+    const gz = parseSourceWithGlayzzle(src, "readonly_class.php");
+    const nk = await parseSource(src, "readonly_class.php", { provider: "nikic" });
     expect(stripPos(nk)).toEqual(stripPos(gz));
   });
 

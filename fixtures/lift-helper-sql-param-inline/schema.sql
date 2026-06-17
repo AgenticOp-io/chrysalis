@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS items (
+  id INTEGER PRIMARY KEY,
+  active INTEGER NOT NULL DEFAULT 1
+);
+
+INSERT INTO items (id, active) VALUES (1, 1);
