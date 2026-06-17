@@ -781,7 +781,7 @@
     "hub:cwl-authoring-batch-v437-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v437-smoke.mjs"
   },
   "devDependencies": {
-    "acorn": "^8.14.1",
+    "acorn": "^8.17.0",
     "acorn-walk": "^8.3.4",
     "@types/node": "^20.19.41",
     "rimraf": "^5.0.5",
