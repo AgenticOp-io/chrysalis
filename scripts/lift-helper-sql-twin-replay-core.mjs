@@ -37,6 +37,15 @@ export const LIFT_HELPER_SQL_CASE_TWIN_REPLAY_CONFIG = {
   generatedDir: "generated/lift-helper-sql-case-twin-replay",
 };
 
+export const LIFT_HELPER_SQL_PARAM_INLINE_REPLAY_CONFIG = {
+  kind: "chrysalis.lift-helper-sql-param-inline-replay",
+  schemaVersion: 1,
+  fixture: "fixtures/lift-helper-sql-param-inline",
+  traceDir: "traces/lift-helper-sql-param-inline-ci",
+  driveScript: "drive-lift-helper-sql-param-inline.mjs",
+  generatedDir: "generated/lift-helper-sql-param-inline-replay",
+};
+
 const THRESHOLD = 1;
 
 function phpAvailable() {

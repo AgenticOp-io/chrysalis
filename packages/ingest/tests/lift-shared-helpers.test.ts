@@ -146,4 +146,22 @@ describe("ingest: lift-shared-helpers (B2)", () => {
       "SELECT id FROM items WHERE slug = 'select from'",
     );
   });
+
+  it("normalizeSqlLiteralForHelperLift leaves keywords inside double-quoted literals (B5.4 v4)", () => {
+    expect(normalizeSqlLiteralForHelperLift('SELECT id FROM items WHERE slug = "select from"')).toBe(
+      'SELECT id FROM items WHERE slug = "select from"',
+    );
+  });
+
+  it("normalizeSqlLiteralForHelperLift preserves escaped single quotes inside literals (B5.4 v4)", () => {
+    expect(normalizeSqlLiteralForHelperLift("SELECT id FROM items WHERE note = 'it''s select'")).toBe(
+      "SELECT id FROM items WHERE note = 'it''s select'",
+    );
+  });
+
+  it("normalizeSqlLiteralForHelperLift preserves escaped double quotes inside literals (B5.4 v4)", () => {
+    expect(normalizeSqlLiteralForHelperLift('SELECT id FROM items WHERE note = "say \\"select\\""')).toBe(
+      'SELECT id FROM items WHERE note = "say \\"select\\""',
+    );
+  });
 });
