@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 1 | **G4147** | `runPost285CompositeGate` — Post-141 flagship HTTP express replay (Phase M lock) replay |
 | 2–6 | **G4148–G4152** | Batch **v285**, schema **358**, Vitest, script, docs |
-| 7–10 | **G4150–G4156** | Phase M post-194..213 replay **complete** (queue 285) |
+| 7–10 | **G4153–G4156** | Phase M post-194..213 replay **complete** (queue 285); queue **286** — `docs/CWL-FULLSTACK-NEXT-10-286.md` |
 
 **Batch:** `hub:cwl-authoring-batch-v285-smoke` · **schema:** 358
 

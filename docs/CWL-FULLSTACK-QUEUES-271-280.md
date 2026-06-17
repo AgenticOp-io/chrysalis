@@ -17,8 +17,8 @@
 | 279 | G4087–G4096 | Post-207 Post-135 flagship + chimera + delivery replay | v279 | 352 |
 | 280 | G4097–G4106 | Post-208 Post-136 runtime + verify-gaps parity replay | v280 | 353 |
 
-Queues **281–285** — see **`docs/CWL-FULLSTACK-QUEUES-281-290.md`**.
+Queues **281–290** — see **`docs/CWL-FULLSTACK-QUEUES-281-290.md`**.
 
-**Vitest:** `hub-cwl-authoring-batch-v271.test.ts` through `v285.test.ts`
+**Vitest:** `hub-cwl-authoring-batch-v271.test.ts` through `v290.test.ts`
 
 **Non-goals (unchanged):** production SQL/session without parity evidence; hydration.

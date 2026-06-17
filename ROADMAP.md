@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" and **Hub depth** (`docs/CWL-FULLSTACK-POST-110-PROGRAM.md`).
-- **Recently shipped:** **G3957–G4151** — queues **266–285** Phase M post-194..213 replay (schema **358**). **G3757–G3951** queues **246–265**. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G4157–G4351** — queues **286–305** Phase N post-214..233 replay (schema **378**). **G3957–G4151** queues **266–285**. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -105,7 +105,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § "Next 90 days"
 (see `AGENTS.md`). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**. Current build focus:
 
-- **CWL / full-stack:** queues **111–205 complete** (schema **278**); queue **206+** requires charter amendment.
+- **CWL / full-stack:** queues **111–305 complete** (schema **378**); queue **306+** requires charter in **`docs/CWL-FULLSTACK-QUEUES-301-310.md`**.
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.
 - **Hole economics maintenance:** **`db-query-unknown-receiver-probe`** remains the intentional **1-hole** negative probe; add new tracked DB receivers via **mysqli-probe** routes when widening **`->query`** lowering.
 - **IR helper lifting maintenance:** hub-gated B5.x patterns only (`docs/IR-HELPER-LIFTING.md`).
