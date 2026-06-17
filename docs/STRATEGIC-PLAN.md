@@ -244,7 +244,7 @@ When the user says “build” without specifying, prefer this queue:
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
-**Active full-stack queue (2026-06-17):** **Queues 111–325 complete** (schema **398**); queue **326+** — **`docs/CWL-FULLSTACK-QUEUES-321-330.md`**.
+**Active full-stack queue (2026-06-17):** **Queues 111–345 complete** (schema **418**); queue **346+** — **`docs/CWL-FULLSTACK-QUEUES-341-350.md`**.
 
 **Fast batch proof:** set `**CHRYSALIS_HUB_CWL_BATCH_FAST_CHAIN=1`** so v31+ chains use v30 graduation-only (skips re-running batches v2–v29).
 

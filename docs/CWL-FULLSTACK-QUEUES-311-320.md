@@ -17,8 +17,8 @@
 | 319 | G4487–G4496 | Post-247 Post-102 emit probe replay | v319 | 392 |
 | 320 | G4497–G4506 | Post-248 Post-103 evidence trend replay | v320 | 393 |
 
-Queues **321–325** — see **`docs/CWL-FULLSTACK-QUEUES-321-330.md`**.
+Queues **321–330** — see **`docs/CWL-FULLSTACK-QUEUES-321-330.md`**.
 
-**Vitest:** `hub-cwl-authoring-batch-v311.test.ts` through `v320.test.ts`
+**Vitest:** `hub-cwl-authoring-batch-v311.test.ts` through `v330.test.ts`
 
 **Non-goals (unchanged):** production SQL/session without parity evidence; hydration.
