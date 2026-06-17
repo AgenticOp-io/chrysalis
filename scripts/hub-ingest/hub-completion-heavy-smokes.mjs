@@ -385,6 +385,26 @@ import { runCwlAuthoringBatchV302Smoke } from "./hub-cwl-authoring-batch-v302-sm
 import { runCwlAuthoringBatchV303Smoke } from "./hub-cwl-authoring-batch-v303-smoke.mjs";
 import { runCwlAuthoringBatchV304Smoke } from "./hub-cwl-authoring-batch-v304-smoke.mjs";
 import { runCwlAuthoringBatchV305Smoke } from "./hub-cwl-authoring-batch-v305-smoke.mjs";
+import { runCwlAuthoringBatchV306Smoke } from "./hub-cwl-authoring-batch-v306-smoke.mjs";
+import { runCwlAuthoringBatchV307Smoke } from "./hub-cwl-authoring-batch-v307-smoke.mjs";
+import { runCwlAuthoringBatchV308Smoke } from "./hub-cwl-authoring-batch-v308-smoke.mjs";
+import { runCwlAuthoringBatchV309Smoke } from "./hub-cwl-authoring-batch-v309-smoke.mjs";
+import { runCwlAuthoringBatchV310Smoke } from "./hub-cwl-authoring-batch-v310-smoke.mjs";
+import { runCwlAuthoringBatchV311Smoke } from "./hub-cwl-authoring-batch-v311-smoke.mjs";
+import { runCwlAuthoringBatchV312Smoke } from "./hub-cwl-authoring-batch-v312-smoke.mjs";
+import { runCwlAuthoringBatchV313Smoke } from "./hub-cwl-authoring-batch-v313-smoke.mjs";
+import { runCwlAuthoringBatchV314Smoke } from "./hub-cwl-authoring-batch-v314-smoke.mjs";
+import { runCwlAuthoringBatchV315Smoke } from "./hub-cwl-authoring-batch-v315-smoke.mjs";
+import { runCwlAuthoringBatchV316Smoke } from "./hub-cwl-authoring-batch-v316-smoke.mjs";
+import { runCwlAuthoringBatchV317Smoke } from "./hub-cwl-authoring-batch-v317-smoke.mjs";
+import { runCwlAuthoringBatchV318Smoke } from "./hub-cwl-authoring-batch-v318-smoke.mjs";
+import { runCwlAuthoringBatchV319Smoke } from "./hub-cwl-authoring-batch-v319-smoke.mjs";
+import { runCwlAuthoringBatchV320Smoke } from "./hub-cwl-authoring-batch-v320-smoke.mjs";
+import { runCwlAuthoringBatchV321Smoke } from "./hub-cwl-authoring-batch-v321-smoke.mjs";
+import { runCwlAuthoringBatchV322Smoke } from "./hub-cwl-authoring-batch-v322-smoke.mjs";
+import { runCwlAuthoringBatchV323Smoke } from "./hub-cwl-authoring-batch-v323-smoke.mjs";
+import { runCwlAuthoringBatchV324Smoke } from "./hub-cwl-authoring-batch-v324-smoke.mjs";
+import { runCwlAuthoringBatchV325Smoke } from "./hub-cwl-authoring-batch-v325-smoke.mjs";
 import { runPlainPhpMigrationOsBatchSmoke } from "./hub-plain-php-migration-os-batch-smoke.mjs";
 import { runTinyBlogDeliveryBatchSmoke } from "./hub-tiny-blog-delivery-batch-smoke.mjs";
 import { runDeliveryPipelineStandaloneBatchSmoke } from "./hub-delivery-pipeline-standalone-batch-smoke.mjs";
@@ -527,7 +547,7 @@ fullstackAuthoringBatchV201,
 fullstackAuthoringBatchV202,
 fullstackAuthoringBatchV203,
 fullstackAuthoringBatchV204,
-fullstackAuthoringBatchV205, fullstackAuthoringBatchV206, fullstackAuthoringBatchV207, fullstackAuthoringBatchV208, fullstackAuthoringBatchV209, fullstackAuthoringBatchV210, fullstackAuthoringBatchV211, fullstackAuthoringBatchV212, fullstackAuthoringBatchV213, fullstackAuthoringBatchV214, fullstackAuthoringBatchV215, fullstackAuthoringBatchV216, fullstackAuthoringBatchV217, fullstackAuthoringBatchV218, fullstackAuthoringBatchV219, fullstackAuthoringBatchV220, fullstackAuthoringBatchV221, fullstackAuthoringBatchV222, fullstackAuthoringBatchV223, fullstackAuthoringBatchV224, fullstackAuthoringBatchV225, fullstackAuthoringBatchV226, fullstackAuthoringBatchV227, fullstackAuthoringBatchV228, fullstackAuthoringBatchV229, fullstackAuthoringBatchV230, fullstackAuthoringBatchV231, fullstackAuthoringBatchV232, fullstackAuthoringBatchV233, fullstackAuthoringBatchV234, fullstackAuthoringBatchV235, fullstackAuthoringBatchV236, fullstackAuthoringBatchV237, fullstackAuthoringBatchV238, fullstackAuthoringBatchV239, fullstackAuthoringBatchV240, fullstackAuthoringBatchV241, fullstackAuthoringBatchV242, fullstackAuthoringBatchV243, fullstackAuthoringBatchV244, fullstackAuthoringBatchV245, fullstackAuthoringBatchV246, fullstackAuthoringBatchV247, fullstackAuthoringBatchV248, fullstackAuthoringBatchV249, fullstackAuthoringBatchV250, fullstackAuthoringBatchV251, fullstackAuthoringBatchV252, fullstackAuthoringBatchV253, fullstackAuthoringBatchV254, fullstackAuthoringBatchV255, fullstackAuthoringBatchV256, fullstackAuthoringBatchV257, fullstackAuthoringBatchV258, fullstackAuthoringBatchV259, fullstackAuthoringBatchV260, fullstackAuthoringBatchV261, fullstackAuthoringBatchV262, fullstackAuthoringBatchV263, fullstackAuthoringBatchV264, fullstackAuthoringBatchV265, fullstackAuthoringBatchV266, fullstackAuthoringBatchV267, fullstackAuthoringBatchV268, fullstackAuthoringBatchV269, fullstackAuthoringBatchV270, fullstackAuthoringBatchV271, fullstackAuthoringBatchV272, fullstackAuthoringBatchV273, fullstackAuthoringBatchV274, fullstackAuthoringBatchV275, fullstackAuthoringBatchV276, fullstackAuthoringBatchV277, fullstackAuthoringBatchV278, fullstackAuthoringBatchV279, fullstackAuthoringBatchV280, fullstackAuthoringBatchV281, fullstackAuthoringBatchV282, fullstackAuthoringBatchV283, fullstackAuthoringBatchV284, fullstackAuthoringBatchV285, fullstackAuthoringBatchV286, fullstackAuthoringBatchV287, fullstackAuthoringBatchV288, fullstackAuthoringBatchV289, fullstackAuthoringBatchV290, fullstackAuthoringBatchV291, fullstackAuthoringBatchV292, fullstackAuthoringBatchV293, fullstackAuthoringBatchV294, fullstackAuthoringBatchV295, fullstackAuthoringBatchV296, fullstackAuthoringBatchV297, fullstackAuthoringBatchV298, fullstackAuthoringBatchV299, fullstackAuthoringBatchV300, fullstackAuthoringBatchV301, fullstackAuthoringBatchV302, fullstackAuthoringBatchV303, fullstackAuthoringBatchV304, fullstackAuthoringBatchV305, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, deliveryPipelineStandaloneBatch, laravelMinOracleBatch, advisoryStandaloneMegaBatch, allDeliveryUltraMegaBatch, migrationOsMegaBatch, oracleProductUltraBatch, expressLaravelMinDeliveryBatch, symfonyLaravelMinDeliveryBatch, postTranslateVerifyOriginBatch, tinyBlogDepthBatch, contractVerifyStandaloneBatch, chimeraCutoverOriginBatch, migrationAssessmentOriginBatch, verifyGapsOriginBatch, postTranslateArtifactsOriginBatch, verifyStandaloneMegaBatch, contractStandaloneMegaBatch, evidenceStandaloneMegaBatch, plainPhpDepthBatch, symfonyDepthBatch, expressDepthBatch, laravelMinDepthBatch, originDepthUltraBatch, chimeraAssessmentMegaBatch, verifyProductUltraBatch, projectToCwlAllOrigins, cwlAllOriginsBatch, cwlUniversalMegaBatch, cwlAppStackOriginsBatch, cwlAssetOriginsBatch, cwlPatternLiteralCwlBatch, hubTranslateCwlCoverage, cwlPatternLiteralRoundtripBatch, cwlFlagshipRoundtripBatch, hubTranslateCwlRoundtrip, projectToCwlRoundtrip, contractImportCwlRoundtrip, phpOracleMicroVerifyBatch, phpNextjsVerifyBatch, phpWedgeBatch, hubEvidenceMvpBatch, wptpStrictBatch, flagshipFullGapsBatch, gapsIngestClosureBatch, gapsIngestStrictBatch, laravelAuthProbeReingest, laravelAuthProbeVerifyClosure, laravelAuthProbeVerifyReplay, flagshipVerifyReplay, irHelperLifting, laravelAuthProbeVerifyHttp, flagshipVerifyHttp, irHelperLiftingSemantic, irHelperLiftingAttr, irHelperLiftingOracleTwin, irHelperLiftingReplayTwin, irHelperLiftingEmbed, laravelAuthProbeVerifyHttpFastify, flagshipVerifyHttpFastify, laravelAuthProbeReingestVerifyHttpFastify, irHelperLiftingFullPath;
+fullstackAuthoringBatchV205, fullstackAuthoringBatchV206, fullstackAuthoringBatchV207, fullstackAuthoringBatchV208, fullstackAuthoringBatchV209, fullstackAuthoringBatchV210, fullstackAuthoringBatchV211, fullstackAuthoringBatchV212, fullstackAuthoringBatchV213, fullstackAuthoringBatchV214, fullstackAuthoringBatchV215, fullstackAuthoringBatchV216, fullstackAuthoringBatchV217, fullstackAuthoringBatchV218, fullstackAuthoringBatchV219, fullstackAuthoringBatchV220, fullstackAuthoringBatchV221, fullstackAuthoringBatchV222, fullstackAuthoringBatchV223, fullstackAuthoringBatchV224, fullstackAuthoringBatchV225, fullstackAuthoringBatchV226, fullstackAuthoringBatchV227, fullstackAuthoringBatchV228, fullstackAuthoringBatchV229, fullstackAuthoringBatchV230, fullstackAuthoringBatchV231, fullstackAuthoringBatchV232, fullstackAuthoringBatchV233, fullstackAuthoringBatchV234, fullstackAuthoringBatchV235, fullstackAuthoringBatchV236, fullstackAuthoringBatchV237, fullstackAuthoringBatchV238, fullstackAuthoringBatchV239, fullstackAuthoringBatchV240, fullstackAuthoringBatchV241, fullstackAuthoringBatchV242, fullstackAuthoringBatchV243, fullstackAuthoringBatchV244, fullstackAuthoringBatchV245, fullstackAuthoringBatchV246, fullstackAuthoringBatchV247, fullstackAuthoringBatchV248, fullstackAuthoringBatchV249, fullstackAuthoringBatchV250, fullstackAuthoringBatchV251, fullstackAuthoringBatchV252, fullstackAuthoringBatchV253, fullstackAuthoringBatchV254, fullstackAuthoringBatchV255, fullstackAuthoringBatchV256, fullstackAuthoringBatchV257, fullstackAuthoringBatchV258, fullstackAuthoringBatchV259, fullstackAuthoringBatchV260, fullstackAuthoringBatchV261, fullstackAuthoringBatchV262, fullstackAuthoringBatchV263, fullstackAuthoringBatchV264, fullstackAuthoringBatchV265, fullstackAuthoringBatchV266, fullstackAuthoringBatchV267, fullstackAuthoringBatchV268, fullstackAuthoringBatchV269, fullstackAuthoringBatchV270, fullstackAuthoringBatchV271, fullstackAuthoringBatchV272, fullstackAuthoringBatchV273, fullstackAuthoringBatchV274, fullstackAuthoringBatchV275, fullstackAuthoringBatchV276, fullstackAuthoringBatchV277, fullstackAuthoringBatchV278, fullstackAuthoringBatchV279, fullstackAuthoringBatchV280, fullstackAuthoringBatchV281, fullstackAuthoringBatchV282, fullstackAuthoringBatchV283, fullstackAuthoringBatchV284, fullstackAuthoringBatchV285, fullstackAuthoringBatchV286, fullstackAuthoringBatchV287, fullstackAuthoringBatchV288, fullstackAuthoringBatchV289, fullstackAuthoringBatchV290, fullstackAuthoringBatchV291, fullstackAuthoringBatchV292, fullstackAuthoringBatchV293, fullstackAuthoringBatchV294, fullstackAuthoringBatchV295, fullstackAuthoringBatchV296, fullstackAuthoringBatchV297, fullstackAuthoringBatchV298, fullstackAuthoringBatchV299, fullstackAuthoringBatchV300, fullstackAuthoringBatchV301, fullstackAuthoringBatchV302, fullstackAuthoringBatchV303, fullstackAuthoringBatchV304, fullstackAuthoringBatchV305, fullstackAuthoringBatchV306, fullstackAuthoringBatchV307, fullstackAuthoringBatchV308, fullstackAuthoringBatchV309, fullstackAuthoringBatchV310, fullstackAuthoringBatchV311, fullstackAuthoringBatchV312, fullstackAuthoringBatchV313, fullstackAuthoringBatchV314, fullstackAuthoringBatchV315, fullstackAuthoringBatchV316, fullstackAuthoringBatchV317, fullstackAuthoringBatchV318, fullstackAuthoringBatchV319, fullstackAuthoringBatchV320, fullstackAuthoringBatchV321, fullstackAuthoringBatchV322, fullstackAuthoringBatchV323, fullstackAuthoringBatchV324, fullstackAuthoringBatchV325, plainPhpMigrationOsBatch, tinyBlogDeliveryBatch, deliveryPipelineStandaloneBatch, laravelMinOracleBatch, advisoryStandaloneMegaBatch, allDeliveryUltraMegaBatch, migrationOsMegaBatch, oracleProductUltraBatch, expressLaravelMinDeliveryBatch, symfonyLaravelMinDeliveryBatch, postTranslateVerifyOriginBatch, tinyBlogDepthBatch, contractVerifyStandaloneBatch, chimeraCutoverOriginBatch, migrationAssessmentOriginBatch, verifyGapsOriginBatch, postTranslateArtifactsOriginBatch, verifyStandaloneMegaBatch, contractStandaloneMegaBatch, evidenceStandaloneMegaBatch, plainPhpDepthBatch, symfonyDepthBatch, expressDepthBatch, laravelMinDepthBatch, originDepthUltraBatch, chimeraAssessmentMegaBatch, verifyProductUltraBatch, projectToCwlAllOrigins, cwlAllOriginsBatch, cwlUniversalMegaBatch, cwlAppStackOriginsBatch, cwlAssetOriginsBatch, cwlPatternLiteralCwlBatch, hubTranslateCwlCoverage, cwlPatternLiteralRoundtripBatch, cwlFlagshipRoundtripBatch, hubTranslateCwlRoundtrip, projectToCwlRoundtrip, contractImportCwlRoundtrip, phpOracleMicroVerifyBatch, phpNextjsVerifyBatch, phpWedgeBatch, hubEvidenceMvpBatch, wptpStrictBatch, flagshipFullGapsBatch, gapsIngestClosureBatch, gapsIngestStrictBatch, laravelAuthProbeReingest, laravelAuthProbeVerifyClosure, laravelAuthProbeVerifyReplay, flagshipVerifyReplay, irHelperLifting, laravelAuthProbeVerifyHttp, flagshipVerifyHttp, irHelperLiftingSemantic, irHelperLiftingAttr, irHelperLiftingOracleTwin, irHelperLiftingReplayTwin, irHelperLiftingEmbed, laravelAuthProbeVerifyHttpFastify, flagshipVerifyHttpFastify, laravelAuthProbeReingestVerifyHttpFastify, irHelperLiftingFullPath;
   if (!gceHubCompletionFast) {
   phpOracle = runJson(join(scriptRoot, "scripts/hub-ingest/hub-php-oracle-smoke.mjs"), []);
   laravelGaps = buildLaravelVerifyGapsReport();
@@ -2719,6 +2739,126 @@ fullstackAuthoringBatchV205, fullstackAuthoringBatchV206, fullstackAuthoringBatc
   } catch {
     fullstackAuthoringBatchV305 = { ok: false, skip: "fullstack-authoring-batch-v305-threw" };
   }
+  fullstackAuthoringBatchV306 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV306 = await runCwlAuthoringBatchV306Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV306 = { ok: false, skip: "fullstack-authoring-batch-v306-threw" };
+  }
+  fullstackAuthoringBatchV307 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV307 = await runCwlAuthoringBatchV307Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV307 = { ok: false, skip: "fullstack-authoring-batch-v307-threw" };
+  }
+  fullstackAuthoringBatchV308 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV308 = await runCwlAuthoringBatchV308Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV308 = { ok: false, skip: "fullstack-authoring-batch-v308-threw" };
+  }
+  fullstackAuthoringBatchV309 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV309 = await runCwlAuthoringBatchV309Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV309 = { ok: false, skip: "fullstack-authoring-batch-v309-threw" };
+  }
+  fullstackAuthoringBatchV310 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV310 = await runCwlAuthoringBatchV310Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV310 = { ok: false, skip: "fullstack-authoring-batch-v310-threw" };
+  }
+  fullstackAuthoringBatchV311 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV311 = await runCwlAuthoringBatchV311Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV311 = { ok: false, skip: "fullstack-authoring-batch-v311-threw" };
+  }
+  fullstackAuthoringBatchV312 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV312 = await runCwlAuthoringBatchV312Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV312 = { ok: false, skip: "fullstack-authoring-batch-v312-threw" };
+  }
+  fullstackAuthoringBatchV313 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV313 = await runCwlAuthoringBatchV313Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV313 = { ok: false, skip: "fullstack-authoring-batch-v313-threw" };
+  }
+  fullstackAuthoringBatchV314 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV314 = await runCwlAuthoringBatchV314Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV314 = { ok: false, skip: "fullstack-authoring-batch-v314-threw" };
+  }
+  fullstackAuthoringBatchV315 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV315 = await runCwlAuthoringBatchV315Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV315 = { ok: false, skip: "fullstack-authoring-batch-v315-threw" };
+  }
+  fullstackAuthoringBatchV316 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV316 = await runCwlAuthoringBatchV316Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV316 = { ok: false, skip: "fullstack-authoring-batch-v316-threw" };
+  }
+  fullstackAuthoringBatchV317 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV317 = await runCwlAuthoringBatchV317Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV317 = { ok: false, skip: "fullstack-authoring-batch-v317-threw" };
+  }
+  fullstackAuthoringBatchV318 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV318 = await runCwlAuthoringBatchV318Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV318 = { ok: false, skip: "fullstack-authoring-batch-v318-threw" };
+  }
+  fullstackAuthoringBatchV319 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV319 = await runCwlAuthoringBatchV319Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV319 = { ok: false, skip: "fullstack-authoring-batch-v319-threw" };
+  }
+  fullstackAuthoringBatchV320 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV320 = await runCwlAuthoringBatchV320Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV320 = { ok: false, skip: "fullstack-authoring-batch-v320-threw" };
+  }
+  fullstackAuthoringBatchV321 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV321 = await runCwlAuthoringBatchV321Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV321 = { ok: false, skip: "fullstack-authoring-batch-v321-threw" };
+  }
+  fullstackAuthoringBatchV322 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV322 = await runCwlAuthoringBatchV322Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV322 = { ok: false, skip: "fullstack-authoring-batch-v322-threw" };
+  }
+  fullstackAuthoringBatchV323 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV323 = await runCwlAuthoringBatchV323Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV323 = { ok: false, skip: "fullstack-authoring-batch-v323-threw" };
+  }
+  fullstackAuthoringBatchV324 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV324 = await runCwlAuthoringBatchV324Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV324 = { ok: false, skip: "fullstack-authoring-batch-v324-threw" };
+  }
+  fullstackAuthoringBatchV325 = { ok: false, skip: "not-run-in-completion" };
+  try {
+    fullstackAuthoringBatchV325 = await runCwlAuthoringBatchV325Smoke({ skipPriorChain: true });
+  } catch {
+    fullstackAuthoringBatchV325 = { ok: false, skip: "fullstack-authoring-batch-v325-threw" };
+  }
   plainPhpMigrationOsBatch = { ok: false, skip: "not-run-in-completion" };
   try {
     plainPhpMigrationOsBatch = await runPlainPhpMigrationOsBatchSmoke();
@@ -3472,6 +3612,26 @@ fullstackAuthoringBatchV205, fullstackAuthoringBatchV206, fullstackAuthoringBatc
       fullstackAuthoringBatchV303,
       fullstackAuthoringBatchV304,
       fullstackAuthoringBatchV305,
+      fullstackAuthoringBatchV306,
+      fullstackAuthoringBatchV307,
+      fullstackAuthoringBatchV308,
+      fullstackAuthoringBatchV309,
+      fullstackAuthoringBatchV310,
+      fullstackAuthoringBatchV311,
+      fullstackAuthoringBatchV312,
+      fullstackAuthoringBatchV313,
+      fullstackAuthoringBatchV314,
+      fullstackAuthoringBatchV315,
+      fullstackAuthoringBatchV316,
+      fullstackAuthoringBatchV317,
+      fullstackAuthoringBatchV318,
+      fullstackAuthoringBatchV319,
+      fullstackAuthoringBatchV320,
+      fullstackAuthoringBatchV321,
+      fullstackAuthoringBatchV322,
+      fullstackAuthoringBatchV323,
+      fullstackAuthoringBatchV324,
+      fullstackAuthoringBatchV325,
       plainPhpMigrationOsBatch,
       tinyBlogDeliveryBatch,
       deliveryPipelineStandaloneBatch,
@@ -3910,6 +4070,26 @@ fullstackAuthoringBatchV205, fullstackAuthoringBatchV206, fullstackAuthoringBatc
     fullstackAuthoringBatchV303,
     fullstackAuthoringBatchV304,
     fullstackAuthoringBatchV305,
+    fullstackAuthoringBatchV306,
+    fullstackAuthoringBatchV307,
+    fullstackAuthoringBatchV308,
+    fullstackAuthoringBatchV309,
+    fullstackAuthoringBatchV310,
+    fullstackAuthoringBatchV311,
+    fullstackAuthoringBatchV312,
+    fullstackAuthoringBatchV313,
+    fullstackAuthoringBatchV314,
+    fullstackAuthoringBatchV315,
+    fullstackAuthoringBatchV316,
+    fullstackAuthoringBatchV317,
+    fullstackAuthoringBatchV318,
+    fullstackAuthoringBatchV319,
+    fullstackAuthoringBatchV320,
+    fullstackAuthoringBatchV321,
+    fullstackAuthoringBatchV322,
+    fullstackAuthoringBatchV323,
+    fullstackAuthoringBatchV324,
+    fullstackAuthoringBatchV325,
     plainPhpMigrationOsBatch,
     tinyBlogDeliveryBatch,
     deliveryPipelineStandaloneBatch,

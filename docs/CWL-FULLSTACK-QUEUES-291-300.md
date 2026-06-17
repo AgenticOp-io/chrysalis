@@ -17,8 +17,8 @@
 | 299 | G4287–G4296 | Post-227 Post-72 composite replay depth | v299 | 372 |
 | 300 | G4297–G4306 | Post-228 Post-73 composite replay depth | v300 | 373 |
 
-Queues **301–305** — see **`docs/CWL-FULLSTACK-QUEUES-301-310.md`**.
+Queues **301–310** — see **`docs/CWL-FULLSTACK-QUEUES-301-310.md`**.
 
-**Vitest:** `hub-cwl-authoring-batch-v291.test.ts` through `v300.test.ts`
+**Vitest:** `hub-cwl-authoring-batch-v291.test.ts` through `v310.test.ts`
 
 **Non-goals (unchanged):** production SQL/session without parity evidence; hydration.

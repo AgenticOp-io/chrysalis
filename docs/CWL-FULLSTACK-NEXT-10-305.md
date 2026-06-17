@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 1 | **G4347** | `runPost305CompositeGate` — Post-78 composite replay depth (Phase N lock) |
 | 2–6 | **G4348–G4352** | Batch **v305**, schema **378**, Vitest, script, docs |
-| 7–10 | **G4353–G4356** | Phase N post-214..233 replay **complete** (queue 305); queue **306** — `docs/CWL-FULLSTACK-QUEUES-301-310.md` |
+| 7–10 | **G4353–G4356** | Phase N post-214..233 replay **complete** (queue 305); queue **306** — `docs/CWL-FULLSTACK-NEXT-10-306.md` |
 
 **Batch:** `hub:cwl-authoring-batch-v305-smoke` · **schema:** 378
 

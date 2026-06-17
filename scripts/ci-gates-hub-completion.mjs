@@ -334,9 +334,29 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 375 &&
     s.schemaVersion !== 376 &&
     s.schemaVersion !== 377 &&
-    s.schemaVersion !== 378
+    s.schemaVersion !== 378 &&
+    s.schemaVersion !== 379 &&
+    s.schemaVersion !== 380 &&
+    s.schemaVersion !== 381 &&
+    s.schemaVersion !== 382 &&
+    s.schemaVersion !== 383 &&
+    s.schemaVersion !== 384 &&
+    s.schemaVersion !== 385 &&
+    s.schemaVersion !== 386 &&
+    s.schemaVersion !== 387 &&
+    s.schemaVersion !== 388 &&
+    s.schemaVersion !== 389 &&
+    s.schemaVersion !== 390 &&
+    s.schemaVersion !== 391 &&
+    s.schemaVersion !== 392 &&
+    s.schemaVersion !== 393 &&
+    s.schemaVersion !== 394 &&
+    s.schemaVersion !== 395 &&
+    s.schemaVersion !== 396 &&
+    s.schemaVersion !== 397 &&
+    s.schemaVersion !== 398
   ) {
-    fail(`${label}: expected schemaVersion 0–74 or 133–378, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–74 or 133–398, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -3105,6 +3125,26 @@ function assertHubCompletion(path) {
     [376, "fullstackAuthoringBatchV303"],
     [377, "fullstackAuthoringBatchV304"],
     [378, "fullstackAuthoringBatchV305"],
+    [379, "fullstackAuthoringBatchV306"],
+    [380, "fullstackAuthoringBatchV307"],
+    [381, "fullstackAuthoringBatchV308"],
+    [382, "fullstackAuthoringBatchV309"],
+    [383, "fullstackAuthoringBatchV310"],
+    [384, "fullstackAuthoringBatchV311"],
+    [385, "fullstackAuthoringBatchV312"],
+    [386, "fullstackAuthoringBatchV313"],
+    [387, "fullstackAuthoringBatchV314"],
+    [388, "fullstackAuthoringBatchV315"],
+    [389, "fullstackAuthoringBatchV316"],
+    [390, "fullstackAuthoringBatchV317"],
+    [391, "fullstackAuthoringBatchV318"],
+    [392, "fullstackAuthoringBatchV319"],
+    [393, "fullstackAuthoringBatchV320"],
+    [394, "fullstackAuthoringBatchV321"],
+    [395, "fullstackAuthoringBatchV322"],
+    [396, "fullstackAuthoringBatchV323"],
+    [397, "fullstackAuthoringBatchV324"],
+    [398, "fullstackAuthoringBatchV325"],
   ]) {
     if (s.schemaVersion >= ver) {
       if (s[key]?.ok !== true) {

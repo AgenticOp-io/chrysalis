@@ -49,7 +49,8 @@ Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated
 | Queue **265** | Phase L lock — **`docs/CWL-FULLSTACK-NEXT-10-265.md`** |
 | Queue **285** | Phase M lock — **`docs/CWL-FULLSTACK-NEXT-10-285.md`** |
 | Queue **305** | Phase N lock — **`docs/CWL-FULLSTACK-NEXT-10-305.md`** |
-| Queue **306+** | Requires charter in **`docs/CWL-FULLSTACK-QUEUES-301-310.md`** |
+| Queue **325** | Phase O lock — **`docs/CWL-FULLSTACK-NEXT-10-325.md`** |
+| Queue **326+** | Requires charter in **`docs/CWL-FULLSTACK-QUEUES-321-330.md`** |
 | Laravel boring reliability | **Paused** until plan amendment |
 | Matrix gold for marketing | **Paused** |
 
