@@ -46,11 +46,26 @@ function isSkippablePreludeExprStmt(m: Module, stmt: NodeBase): boolean {
   return false;
 }
 
+function literalToTsExpr(n: NodeBase): string | undefined {
+  if (n.op !== "literal") return undefined;
+  const v = n.attrs.value;
+  const kind = n.type?.kind;
+  if (kind === "int" || kind === "float") return String(v);
+  if (kind === "bool") return v ? "true" : "false";
+  if (kind === "null") return "null";
+  if (kind === "string") return stringLit(String(v ?? ""));
+  return undefined;
+}
+
 export function tryExtractInlineQuery(
   m: Module,
   bodyId: NodeId,
   paramNames: readonly string[],
-): { queryId: NodeId; localToFormal: ReadonlyMap<string, string> } | undefined {
+): {
+  queryId: NodeId;
+  localToFormal: ReadonlyMap<string, string>;
+  localToLiteral: ReadonlyMap<string, NodeId>;
+} | undefined {
   const body = getNode(m, bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
   const stmts = body.operands;
@@ -58,9 +73,10 @@ export function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(m, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToFormal: new Map() };
+    return { queryId, localToFormal: new Map(), localToLiteral: new Map() };
   }
   const localToFormal = new Map<string, string>();
+  const localToLiteral = new Map<string, NodeId>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = getNode(m, stmtId);
@@ -71,7 +87,12 @@ export function tryExtractInlineQuery(
       if (!targetLit || targetLit.op !== "literal") return undefined;
       const localName = phpVarKey(String(targetLit.attrs.value ?? ""));
       const valueNode = getNode(m, valueId);
-      if (!valueNode || valueNode.op !== "param") return undefined;
+      if (!valueNode) return undefined;
+      if (valueNode.op === "literal") {
+        localToLiteral.set(localName, valueId);
+        continue;
+      }
+      if (valueNode.op !== "param") return undefined;
       const srcName = String(valueNode.attrs.name ?? "");
       const formal =
         matchFormalParam(srcName, paramNames) ??
@@ -86,7 +107,7 @@ export function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(m, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToFormal };
+  return { queryId, localToFormal, localToLiteral };
 }
 
 export function resolveHelperBodyEntry(
@@ -167,6 +188,14 @@ export function tryEmitInlineLibHelperCall(
   }
   for (const [local, formal] of extracted.localToFormal) {
     const expr = subst[formal] ?? subst[phpVarKey(formal)];
+    if (expr === undefined) return undefined;
+    subst[local] = expr;
+    subst[phpVarKey(local)] = expr;
+  }
+  for (const [local, literalId] of extracted.localToLiteral) {
+    const lit = getNode(ctx.m, literalId);
+    if (!lit) return undefined;
+    const expr = literalToTsExpr(lit);
     if (expr === undefined) return undefined;
     subst[local] = expr;
     subst[phpVarKey(local)] = expr;

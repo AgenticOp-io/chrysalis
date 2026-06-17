@@ -20,3 +20,11 @@ function query_all(string $sql, array $params = []): array
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+function query_one(string $sql, array $params = []): ?array
+{
+    $stmt = db()->prepare($sql);
+    $stmt->execute($params);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row === false ? null : $row;
+}

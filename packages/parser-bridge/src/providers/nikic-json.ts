@@ -143,6 +143,8 @@ function convertProgramStatements(file: string, nodes: unknown[], parentNs: stri
       out.push(...convertTopLevelClassToFunctionDecls(file, node, parentNs));
     } else if (nt === "Stmt_Enum") {
       out.push(...convertTopLevelEnumToFunctionDecls(file, node, parentNs));
+    } else if (nt === "Stmt_Trait") {
+      out.push(...convertTopLevelTraitToFunctionDecls(file, node, parentNs));
     } else {
       out.push(convertStatement(file, node, parentNs));
     }
@@ -305,6 +307,35 @@ function convertTopLevelEnumToFunctionDecls(
     });
   }
   const out: PhpNode[] = [{ kind: "EnumDecl", name, scalarType, cases, pos: stmtPos(file, enumNode) }];
+  for (const mb of stmts) {
+    if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassMethod") continue;
+    const mname = identifierText(mb.name);
+    if (!mname) continue;
+    const pst = Array.isArray(mb.stmts) ? convertBody(file, mb.stmts as unknown[], nsPrefix) : [];
+    const params = (Array.isArray(mb.params) ? mb.params : []).map((p) => convertParam(file, p));
+    const methodAttributes = convertNikicAttributes(file, mb.attrGroups);
+    out.push({
+      kind: "FunctionDecl",
+      name: `${name}::${mname}`,
+      params,
+      returnHint: typeHint(mb.returnType as unknown),
+      body: pst,
+      ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
+      pos: stmtPos(file, mb),
+    });
+  }
+  return out;
+}
+
+function convertTopLevelTraitToFunctionDecls(
+  file: string,
+  traitNode: NikicDict,
+  nsPrefix: string,
+): PhpNode[] {
+  const short = identifierText(traitNode.name) ?? "";
+  const name = short !== "" && nsPrefix !== "" ? `${nsPrefix}\\${short}` : short;
+  const stmts = Array.isArray(traitNode.stmts) ? traitNode.stmts : [];
+  const out: PhpNode[] = [];
   for (const mb of stmts) {
     if (!isNikicDict(mb) || mb.nodeType !== "Stmt_ClassMethod") continue;
     const mname = identifierText(mb.name);

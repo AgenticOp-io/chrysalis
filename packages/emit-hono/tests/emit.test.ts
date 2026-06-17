@@ -954,8 +954,8 @@ describe("emit-hono: string-dispatch switch (tiny-n1 /action)", () => {
   });
 });
 
-describe("emit-hono: lib-helpers module (G2318/G2321)", () => {
-  test("emits src/lib-helpers.ts and imports in show_delta handler", async () => {
+describe("emit-hono: lib-helpers module (G2318/G2321/G2326)", () => {
+  test("emits src/lib-helpers.ts and imports in show_delta and show_zeta handlers", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-h-lib-"));
     try {
       const mod = await ingestDirectory(FIXTURE_PARAM_INLINE);
@@ -964,9 +964,13 @@ describe("emit-hono: lib-helpers module (G2318/G2321)", () => {
       expect(existsSync(resolve(out, "src/lib-helpers.ts"))).toBe(true);
       const lib = readFileSync(resolve(out, "src/lib-helpers.ts"), "utf8");
       expect(lib).toContain("export function chrysalis_sql_param_noinline");
+      expect(lib).toContain("export function chrysalis_sql_param_sideeffect");
       const delta = readFileSync(resolve(out, "src/handlers/show_delta.ts"), "utf8");
-      expect(delta).toContain('../lib-helpers.js');
+      expect(delta).toContain("../lib-helpers.js");
       expect(delta).toContain("chrysalis_sql_param_noinline");
+      const zeta = readFileSync(resolve(out, "src/handlers/show_zeta.ts"), "utf8");
+      expect(zeta).toContain("../lib-helpers.js");
+      expect(zeta).toContain("chrysalis_sql_param_sideeffect");
     } finally {
       rmSync(out, { recursive: true, force: true });
     }

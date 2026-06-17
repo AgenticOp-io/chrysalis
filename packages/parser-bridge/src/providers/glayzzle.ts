@@ -111,6 +111,8 @@ function convertProgramStatements(file: string, nodes: AnyNode[], parentNs: stri
       out.push(...convertTopLevelClassToFunctionDecls(file, node, parentNs));
     } else if (node.kind === "enum") {
       out.push(...convertTopLevelEnumToFunctionDecls(file, node, parentNs));
+    } else if (node.kind === "trait") {
+      out.push(...convertTopLevelTraitToFunctionDecls(file, node, parentNs));
     } else {
       out.push(convertStatement(file, node, parentNs));
     }
@@ -215,6 +217,35 @@ function convertTopLevelEnumToFunctionDecls(file: string, enumNode: AnyNode, nsP
       value: c.value ? convertExpression(file, c.value as AnyNode) : null,
     }));
   const out: PhpNode[] = [{ kind: "EnumDecl", name: declName, scalarType, cases, pos: pos(file, enumNode) }];
+  for (const member of body) {
+    if (member.kind !== "method") continue;
+    const methodName = String((member.name as AnyNode | undefined)?.name ?? "");
+    if (!methodName) continue;
+    const args = Array.isArray(member.arguments) ? (member.arguments as AnyNode[]) : [];
+    const methodBody = member.body as AnyNode | undefined;
+    const methodAttributes = convertGlayzzleAttributes(file, member.attrGroups as AnyNode[] | undefined);
+    out.push({
+      kind: "FunctionDecl",
+      name: `${declName}::${methodName}`,
+      params: args.map((a) => ({
+        name: String((a.name as AnyNode | string) instanceof Object ? (a.name as AnyNode).name : a.name ?? ""),
+        hint: typeNameFromHint(a.type as AnyNode | null),
+        default: a.value ? convertExpression(file, a.value as AnyNode) : null,
+      })),
+      returnHint: typeNameFromHint(member.type as AnyNode | null),
+      body: methodBody?.kind === "block" ? convertBody(file, methodBody.children, nsPrefix) : [],
+      ...(methodAttributes.length > 0 ? { attributes: methodAttributes } : {}),
+      pos: pos(file, member),
+    });
+  }
+  return out;
+}
+
+function convertTopLevelTraitToFunctionDecls(file: string, traitNode: AnyNode, nsPrefix: string): PhpNode[] {
+  const shortName = String((traitNode.name as AnyNode)?.name ?? "");
+  const declName = shortName !== "" && nsPrefix !== "" ? `${nsPrefix}\\${shortName}` : shortName;
+  const body = Array.isArray(traitNode.body) ? (traitNode.body as AnyNode[]) : [];
+  const out: PhpNode[] = [];
   for (const member of body) {
     if (member.kind !== "method") continue;
     const methodName = String((member.name as AnyNode | undefined)?.name ?? "");

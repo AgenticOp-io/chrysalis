@@ -15,6 +15,7 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
       "chrysalis_sql_param_local",
       "chrysalis_sql_param_chain",
       "chrysalis_sql_param_prelude",
+      "chrysalis_sql_param_literal",
     ]);
     const helperCalls = [...mod.nodes.values()].filter(
       (n) => n.dialect === "data" && n.op === "call" && inlineCallees.has(String(n.attrs.callee)),
@@ -43,6 +44,8 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     const bodies = mod.meta.helperBodies!;
     const prelude = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_prelude")!;
     expect(tryExtractInlineQuery(mod, prelude.bodyId, prelude.paramNames)).toBeDefined();
+    const literal = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_literal")!;
+    expect(tryExtractInlineQuery(mod, literal.bodyId, literal.paramNames)).toBeDefined();
     const sideeffect = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_sideeffect")!;
     expect(tryExtractInlineQuery(mod, sideeffect.bodyId, sideeffect.paramNames)).toBeUndefined();
   });

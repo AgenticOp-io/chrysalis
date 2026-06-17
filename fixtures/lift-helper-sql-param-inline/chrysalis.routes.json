@@ -36,6 +36,12 @@
       "path": "/zeta",
       "file": "pages/show_zeta.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/iota",
+      "file": "pages/show_iota.php",
+      "pathParams": []
     }
   ]
 }

@@ -328,7 +328,11 @@ function tryExtractInlineQuery(
   ctx: Ctx,
   bodyId: NodeId,
   paramNames: readonly string[],
-): { queryId: NodeId; localToArg: ReadonlyMap<string, string> } | undefined {
+): {
+  queryId: NodeId;
+  localToArg: ReadonlyMap<string, string>;
+  localToLiteral: ReadonlyMap<string, NodeId>;
+} | undefined {
   const body = ctx.m.get(bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
   const stmts = body.operands;
@@ -336,9 +340,10 @@ function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(ctx, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToArg: new Map() };
+    return { queryId, localToArg: new Map(), localToLiteral: new Map() };
   }
   const localToFormal = new Map<string, string>();
+  const localToLiteral = new Map<string, NodeId>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = ctx.m.get(stmtId);
@@ -349,7 +354,12 @@ function tryExtractInlineQuery(
       if (!targetLit || targetLit.op !== "literal") return undefined;
       const localName = phpVarKey(String(targetLit.attrs.value ?? ""));
       const valueNode = ctx.m.get(valueId);
-      if (!valueNode || valueNode.op !== "param") return undefined;
+      if (!valueNode) return undefined;
+      if (valueNode.op === "literal") {
+        localToLiteral.set(localName, valueId);
+        continue;
+      }
+      if (valueNode.op !== "param") return undefined;
       const srcName = String(valueNode.attrs.name ?? "");
       const formal =
         matchFormalParam(srcName, paramNames) ??
@@ -364,7 +374,7 @@ function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(ctx, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToArg: localToFormal };
+  return { queryId, localToArg: localToFormal, localToLiteral };
 }
 
 function walkSubgraphNodeIds(ctx: Ctx, rootId: NodeId, visit: (id: NodeId) => void, seen = new Set<NodeId>()): void {
@@ -410,6 +420,7 @@ function buildQueryParamReplacements(
   paramNames: readonly string[],
   argNodeIds: readonly NodeId[],
   localToFormal: ReadonlyMap<string, string>,
+  localToLiteral: ReadonlyMap<string, NodeId>,
 ): ReadonlyMap<NodeId, NodeId> | undefined {
   const formalToArg = new Map<string, NodeId>();
   for (let i = 0; i < paramNames.length; i++) {
@@ -425,6 +436,10 @@ function buildQueryParamReplacements(
     if (argId === undefined) return undefined;
     nameToArg.set(local, argId);
     nameToArg.set(phpVarKey(local), argId);
+  }
+  for (const [local, literalId] of localToLiteral) {
+    nameToArg.set(local, literalId);
+    nameToArg.set(phpVarKey(local), literalId);
   }
   const replacements = new Map<NodeId, NodeId>();
   walkSubgraphNodeIds(ctx, queryId, (id) => {
@@ -459,6 +474,7 @@ function tryInlineLibHelperCall(
     entry.paramNames,
     argNodeIds,
     extracted.localToArg,
+    extracted.localToLiteral,
   );
   if (replacements === undefined) return undefined;
   return cloneSubgraphWithReplacements(ctx, extracted.queryId, replacements);

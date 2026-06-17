@@ -114,6 +114,18 @@
       "path": "/mixed-type",
       "file": "pages/mixed_type.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/unit-enum",
+      "file": "pages/unit_enum.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/trait-methods",
+      "file": "pages/trait_methods.php",
+      "pathParams": []
     }
   ]
 }
