@@ -148,7 +148,7 @@ jobs:
 
       - name: Migration debt — mysqli-probe hole ceiling
         # Ceiling tracks known residual ingest holes (see `chrysalis status --json`); raise only when debt grows.
-        run: node scripts/migration-debt.mjs --project fixtures/mysqli-probe --max-holes 5
+        run: node scripts/migration-debt.mjs --project fixtures/mysqli-probe --max-holes 0
 
       - name: Migration debt — db-query-unknown-receiver-probe hole ceiling
         # Negative probe: one expected `legacy:db-query-unknown-receiver` hole (SQLite3).

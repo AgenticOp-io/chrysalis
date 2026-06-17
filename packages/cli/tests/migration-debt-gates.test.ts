@@ -79,6 +79,14 @@ describe("migration-debt gates", () => {
     expect(r.status).toBe(0);
   });
 
+  test("--max-holes 0 passes for mysqli-probe", () => {
+    const r = spawnSync(process.execPath, [SCRIPT, "--project", "fixtures/mysqli-probe", "--max-holes", "0"], {
+      cwd: ROOT,
+      encoding: "utf8" },
+    );
+    expect(r.status).toBe(0);
+  });
+
   test("--min-correctness exits 4 when status has no correctness aggregate", () => {
     const emptyCwd = mkdtempSync(join(tmpdir(), "chrysalis-mig-debt-"));
     const reportDir = join(emptyCwd, "reports", "verify");

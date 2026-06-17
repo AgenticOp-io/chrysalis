@@ -7,8 +7,7 @@ at call sites; only the runtime DB driver differs.
 
 - **Ingest tests:** `packages/ingest/tests/mysqli-probe.test.ts`
 - **Manifest factory list:** `chrysalis.routes.json` **`dbFactoryReturnCallees`** lists **`DbFactory::getConnection`** so assignments and **`DbFactory::getConnection()->query(...)`** lower like **`db()->query`** (**D224**). No entry means **`legacy:db-query-unknown-receiver`** for that callee shape.
-- **CI:** `.github/workflows/ci.yml` enforces **`--max-holes 5`** on ingest for this fixture (ceiling). If you
-  legitimately **reduce** holes, lower that number in the workflow so CI stays honest.
+- **CI:** `.github/workflows/ci.yml` enforces **`--max-holes 0`** on ingest for this fixture (hole-free after **G2406**).
 - **Parser parity:** `packages/parser-bridge/tests/nikic.test.ts` includes this page
 - **Oracle:** optional `Chrysalis\Oracle\Db\MySQLi` when the prelude is present (same pattern as tiny-blog PDO)
 
@@ -31,10 +30,12 @@ is lowered like **`$a->query`**.
 
 **`GET /widgets/pdo-query`** (`pages/pdo_query.php`) uses **`$pdo = new PDO(...); $pdo->query(...)`** on **`widgets`**.
 
+**`GET /widgets/sqlite3-query`** (`pages/sqlite3_query.php`) uses **`$db = new SQLite3(...); $db->query(...)`** on **`widgets`** (**G2406**).
+
 **`GET /widgets/factory-query`** (`pages/factory_query.php`) assigns **`DbFactory::getConnection()`** then **`->query`** on **`widgets`** (same SQL shape as other probe routes).
 
 **`GET /widgets/factory-query-chain`** (`pages/factory_query_chain.php`) calls **`DbFactory::getConnection()->query(...)`** directly.
 
-Receivers must be **`db()`**, a variable assigned **`db()`** / **`new mysqli`** / **`new PDO`** / **`mysqli_connect(...)`**, a **manifest-listed** static factory return, copied
+Receivers must be **`db()`**, a variable assigned **`db()`** / **`new mysqli`** / **`new PDO`** / **`new SQLite3`** / **`mysqli_connect(...)`**, a **manifest-listed** static factory return, copied
 from a tracked variable (**`$b = $a`**), or a direct **`db()->query`** / listed **`Factory::method()->query`**; other **`$x->query`** shapes stay
 **`legacy:db-query-unknown-receiver`** (see **`fixtures/db-query-unknown-receiver-probe`**).

@@ -6,9 +6,9 @@ import { countHoles, effectTagsSorted, walk } from "@chrysalis/webir";
 const FIXTURE = resolve(__dirname, "../../../fixtures/mysqli-probe");
 
 describe("ingest: mysqli-probe fixture", () => {
-  test("eight routes, no holes; manifest dbFactoryReturnCallees + mysqli/PDO/copy aliases", async () => {
+  test("nine routes, no holes; manifest dbFactoryReturnCallees + mysqli/PDO/SQLite3/copy aliases", async () => {
     const mod = await ingestDirectory(FIXTURE);
-    expect(mod.roots.length).toBe(8);
+    expect(mod.roots.length).toBe(9);
     expect(countHoles(mod)).toBe(0);
 
     const byName: Record<string, readonly string[]> = {};
@@ -27,6 +27,7 @@ describe("ingest: mysqli-probe fixture", () => {
     expect(byName.pdo_query).toEqual(["db.read:widgets"]);
     expect(byName.factory_query).toEqual(["db.read:widgets"]);
     expect(byName.factory_query_chain).toEqual(["db.read:widgets"]);
+    expect(byName.sqlite3_query).toEqual(["db.read:widgets"]);
   });
 
   test("every node has a php-source locator", async () => {

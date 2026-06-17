@@ -51,6 +51,12 @@
       "path": "/widgets/factory-query-chain",
       "file": "pages/factory_query_chain.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/widgets/sqlite3-query",
+      "file": "pages/sqlite3_query.php",
+      "pathParams": []
     }
   ]
 }

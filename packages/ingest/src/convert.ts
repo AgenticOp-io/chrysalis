@@ -148,7 +148,7 @@ function phpCallAttributes(
 /**
  * `db()` / `db_connect()->query("…")` on shared lib factory returns (PDO or mysqli in `lib/`), plus
  * **`DeclaredFactory::getConnection()->query`** when listed in **`chrysalis.routes.json`** **`dbFactoryReturnCallees`**,
- * plus **`$m->query`** when **`$m`** was assigned **`db()`**, **`new mysqli`**, **`new PDO`**, **`mysqli_connect(...)`**, a
+ * plus **`$m->query`** when **`$m`** was assigned **`db()`**, **`new mysqli`**, **`new PDO`**, **`new SQLite3`**, **`mysqli_connect(...)`**, a
  * manifest-declared factory call, or copied from a tracked variable (**`$b = $a`** when **`$a`** is already tracked)
  * (same conservative **`if` / `foreach`** alias merge as **`$db = db()`**). Other **`$x->query`**
  * stays a **`legacy:db-query-unknown-receiver`** hole so we do not guess SQL receivers.
@@ -251,6 +251,12 @@ function isPdoClassName(raw: string): boolean {
   return n === "PDO" || n.endsWith("\\PDO");
 }
 
+/** Unqualified or FQN **`SQLite3`** for `new SQLite3(...)` connection tracking. */
+function isSqlite3ClassName(raw: string): boolean {
+  const n = normalizeStaticCalleePath(raw);
+  return n === "SQLite3" || n.endsWith("\\SQLite3");
+}
+
 interface Ctx {
   readonly m: ModuleBuilder;
   readonly data: ReturnType<typeof dataDialect.builders>;
@@ -267,7 +273,7 @@ interface Ctx {
   readonly dbFactoryReturnCallees: ReadonlySet<string>;
   /**
    * PHP variables whose **`->query`** calls may be lowered to **`effect.db.query`**: assigned
-   * from **`db()`**, **`new mysqli`**, **`new PDO`**, **`mysqli_connect(...)`**, a **manifest-declared** factory
+   * from **`db()`**, **`new mysqli`**, **`new PDO`**, **`new SQLite3`**, **`mysqli_connect(...)`**, a **manifest-declared** factory
    * call, or copied from another tracked variable (**`$b = $a`**) (sequential + merged across `if`/`foreach`
    * branches for over-approximate widening).
    */
@@ -1715,6 +1721,7 @@ function convertStatement(
             (s.value.kind === "Call" && tryCallCalleeLabel(s.value) === "db_connect") ||
             (s.value.kind === "New" && isMysqliClassName(s.value.className)) ||
             (s.value.kind === "New" && isPdoClassName(s.value.className)) ||
+            (s.value.kind === "New" && isSqlite3ClassName(s.value.className)) ||
             (s.value.kind === "Call" && tryCallCalleeLabel(s.value) === "mysqli_connect") ||
             (s.value.kind === "Call" && calleeIsDeclaredDbFactoryReturn(ctx, s.value))
           ) {

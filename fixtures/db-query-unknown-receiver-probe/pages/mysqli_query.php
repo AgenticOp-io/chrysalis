@@ -1,4 +1,4 @@
 <?php
-// SQLite3 extension — not tracked like PDO / mysqli / db().
-$db = new SQLite3(":memory:");
-$db->query("SELECT 1");
+// Intentionally untracked receiver — not db(), mysqli, PDO, SQLite3, or manifest factory.
+$obj = new stdClass();
+$obj->query("SELECT 1");

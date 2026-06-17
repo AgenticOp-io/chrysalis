@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" and **Hub depth** (`docs/CWL-FULLSTACK-POST-110-PROGRAM.md`).
-- **Recently shipped:** **G2405** — parser-parity-probe zero-hole manifest ingest (nullsafe, instance method call, throw-expr lowering). **G2401–G2404** hub verify-gaps + post-110 program closure, Phase 0 packaging. Prior slices through **G2400** in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G2406** — **`new SQLite3`** receiver tracking + mysqli-probe zero-hole CI ceiling. **G2405** parser-parity zero-hole manifest ingest. Prior slices through **G2400** in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -89,7 +89,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 | **A — Parser contract** | glayzzle default + **nikic** opt-in; strip-pos parity on **`fixtures/parser-parity-probe`** (~68 pages); CI nikic step + ingest parity Vitest. | **Closed** — **G2338–G2398** widening + **D270** pretest vendor. New syntax → new probe page + parity test. |
 | **B — Oracle depth** | Traces as spec: **mysqli**, **laravel-shaped-db-factory**, FQN callees, redaction lockstep. | **Closed** — CI oracle smokes + **`hub-multi-lane-smoke`**. Optional strict body-proven widening deferred to hub program. |
 | **C — Verify UX** | Operators act on failure: **`verify --json-summary`**, dual-backend CI gates, repair pointers, versioned JSON contracts. | **Closed** — Waves **1–5** (**D212–D231**). |
-| **D — Hole economics** | One screen for debt: **`migration-debt`**, **`--json-out`**, **`--max-holes`** / **`--min-correctness`** CI gates. | **Closed** — ingest gates on **tiny-blog**, **mysqli-probe**, **db-query-unknown-receiver-probe**, **laravel-shaped-db-factory-probe**, **parser-parity-probe** (ceiling **0**). |
+| **D — Hole economics** | One screen for debt: **`migration-debt`**, **`--json-out`**, **`--max-holes`** / **`--min-correctness`** CI gates. | **Closed** — ingest gates on **tiny-blog**, **mysqli-probe**, **laravel-shaped-db-factory-probe**, **parser-parity-probe** (ceiling **0**); **db-query-unknown-receiver-probe** (ceiling **1**, intentional negative). |
 
 **Wave log (archived):** Wave **0** observe/redaction; **1–2** mysqli + migration-debt; **3** PDO + parser-parity-probe; **4** verify JSON + factory callees; **5** dual-summary CI; **6** WPTP/hub smokes (**D309**). Full lane table history in git before **G2399** trim; slice IDs **G213–G2398** in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
@@ -107,7 +107,7 @@ The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § "Next 90 day
 
 - **CWL / full-stack (when plan amended):** Phase C paused; queue **111+** requires **`DESIGN.md`** Decision Log entry.
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.
-- **Hole economics maintenance:** lower **`--max-holes`** on **mysqli-probe** (5) and **db-query-unknown-receiver-probe** (1) when ingest closes pinned routes.
+- **Hole economics maintenance:** **`db-query-unknown-receiver-probe`** remains the intentional **1-hole** negative probe; add new tracked DB receivers via **mysqli-probe** routes when widening **`->query`** lowering.
 - **IR helper lifting maintenance:** hub-gated B5.x patterns only (`docs/IR-HELPER-LIFTING.md`).
 
 Everything already shipped is logged in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
