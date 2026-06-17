@@ -42,8 +42,8 @@ Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated
 | Lane | Policy |
 | --- | --- |
 | Queue **111** | Post-110 full-stack pilot depth — **`docs/CWL-FULLSTACK-NEXT-10-111.md`** |
-| Queue **114** | Fastify search emit + runtime parity — **`docs/CWL-FULLSTACK-NEXT-10-114.md`** |
-| Queue **115+** | Requires charter in **`docs/CWL-FULLSTACK-QUEUES-111-120.md`** |
+| Queue **115** | Emit verify mega + session/diagnose — **`docs/CWL-FULLSTACK-NEXT-10-115.md`** |
+| Queue **116+** | Requires charter in **`docs/CWL-FULLSTACK-QUEUES-111-120.md`** |
 | Laravel boring reliability | **Paused** until plan amendment |
 | Matrix gold for marketing | **Paused** |
 

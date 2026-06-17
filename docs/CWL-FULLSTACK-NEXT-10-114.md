@@ -13,7 +13,9 @@
 | 5 | **G2441** | Vitest + `ci-gates-hub-completion` v114 |
 | 6 | **G2442** | `hub:cwl-authoring-batch-v114-smoke` script |
 | 7 | **G2443** | ROADMAP + DESIGN lock queue 114 |
-| 8–10 | **G2444–G2446** | Reserved — queue 115 (emit verify mega, session stub, diagnose v2) |
+| 8–10 | **G2444–G2446** | Moved to queue **115** |
+
+Queue **115** — see **`docs/CWL-FULLSTACK-NEXT-10-115.md`**.
 
 **Batch:** `hub:cwl-authoring-batch-v114-smoke` · **schema:** 187
 

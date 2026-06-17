@@ -1763,3 +1763,27 @@ export async function runPost114GraduationGate(opts = {}) {
   return { ok: post114.ok === true && post113.ok === true, post114, post113 };
 }
 
+/** G2447 - post-114 emit verify mega + session stub + diagnose v2 + HTML interpolation. */
+export async function runPost115CompositeGate(opts = {}) {
+  const emitVerify = await runEmitVerifyMegaGate(opts);
+  const sessionStub = await runSessionStubGate(opts);
+  const diagnose = await runDiagnoseV2Gate();
+  const htmlInterp = await runCwlHtmlInterpolationGate(opts);
+  const gates = [emitVerify, sessionStub, diagnose, htmlInterp];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    emitVerify,
+    sessionStub,
+    diagnose,
+    htmlInterp,
+  };
+}
+
+export async function runPost115GraduationGate(opts = {}) {
+  const post115 = await runPost115CompositeGate(opts);
+  const post114 = await runPost114GraduationGate(opts);
+  return { ok: post115.ok === true && post114.ok === true, post115, post114 };
+}
+

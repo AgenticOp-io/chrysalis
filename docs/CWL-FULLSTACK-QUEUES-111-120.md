@@ -10,8 +10,9 @@
 | 112 | G2417–G2426 | Template/budget depth (each, form-action, hole-budget v2) | v112 | 185 |
 | 113 | G2427–G2436 | Production search + CWL export depth | v113 | 186 |
 | 114 | G2437–G2446 | Fastify search emit + runtime hono parity | v114 | 187 |
-| 115–120 | — | *Not chartered* | — | — |
+| 115 | G2447–G2456 | Emit verify mega + session stub + diagnose v2 | v115 | 188 |
+| 116–120 | — | *Not chartered* | — | — |
 
-**Vitest:** `hub-cwl-authoring-batch-v111.test.ts` through `v114.test.ts`
+**Vitest:** `hub-cwl-authoring-batch-v111.test.ts` through `v115.test.ts`
 
 **Non-goals (unchanged):** production SQL/session without parity evidence; hydration.
