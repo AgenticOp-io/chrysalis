@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" and **Hub depth** (`docs/CWL-FULLSTACK-POST-110-PROGRAM.md`).
-- **Recently shipped:** **G2406** — **`new SQLite3`** receiver tracking + mysqli-probe zero-hole CI ceiling. **G2405** parser-parity zero-hole manifest ingest. Prior slices through **G2400** in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G2417–G2421** — queue **112** template/budget depth (Svelte `{#each}` gate, form-action probe, hole-budget v2). **G2407–G2411** queue **111** Phase C resume. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -105,7 +105,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § "Next 90 days"
 (see `AGENTS.md`). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**. Current build focus:
 
-- **CWL / full-stack (when plan amended):** Phase C paused; queue **111+** requires **`DESIGN.md`** Decision Log entry.
+- **CWL / full-stack:** queues **111–112** active — **`docs/CWL-FULLSTACK-QUEUES-111-120.md`**; queue **113+** requires charter amendment.
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.
 - **Hole economics maintenance:** **`db-query-unknown-receiver-probe`** remains the intentional **1-hole** negative probe; add new tracked DB receivers via **mysqli-probe** routes when widening **`->query`** lowering.
 - **IR helper lifting maintenance:** hub-gated B5.x patterns only (`docs/IR-HELPER-LIFTING.md`).

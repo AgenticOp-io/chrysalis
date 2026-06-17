@@ -23,7 +23,7 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | [Administration](./ADMINISTRATION.md) | SRE, platform, release owners | Environment variables, CI gates, the report tree, redaction policy, corpus retention, repository settings. |
 | [GCE test runner](./GCE-LOCAL-VERIFY.md) | Anyone running CI-scale tests | **Default:** `pnpm run test:gce` on `chrysalis-test-vm` (detached; laptop can sleep). |
 | [Windows vs Linux tests](./WINDOWS-COMPAT.md) | Windows developers | What runs locally vs on GCE; env flags and known platform gaps. |
-| [Post–queue 110 program](./CWL-FULLSTACK-POST-110-PROGRAM.md) | Contributors after G2258 | Default build queue: GCE green gate, then hub verify-gaps depth. |
+| [Post–queue 110 program](./CWL-FULLSTACK-POST-110-PROGRAM.md) | Contributors after G2258 | Phase C queue **111+** — see [queues 111–120](./CWL-FULLSTACK-QUEUES-111-120.md). |
 
 ---
 

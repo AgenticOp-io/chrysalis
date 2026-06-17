@@ -1,10 +1,10 @@
 # Post–queue 110 program (locked default build)
 
-> **Status:** **Closed (2026-06-17)** — Phase A+B **complete**; Phase C **paused**  
+> **Status:** **Phase C active (2026-06-17)** — queue **111** chartered; Phase A+B **complete**  
 > **Prerequisite:** **G1159–G2258 complete** (CWL full-stack queues 6–110, hub-completion schema **183**)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §12; hub verify-gaps months **26–30** (**closed**, schema **74**)
 
-When the user says **build** without specifying after queue 110, **do not** resume this program unless **`docs/STRATEGIC-PLAN.md`** is amended (Phase C / queue **111+** not chartered).
+Default **build** when unspecified: **queue 111+** per **`docs/CWL-FULLSTACK-QUEUES-111-120.md`**.
 
 ---
 
@@ -37,13 +37,15 @@ Reinforce locked hub verify-gaps program with **multi-flagship** and **env-gated
 
 ---
 
-## Phase C — Paused unless plan amended
+## Phase C — Queue 111+ (active 2026-06-17)
 
 | Lane | Policy |
 | --- | --- |
-| Laravel boring reliability | **Paused** (`ROADMAP.md` — WordPress/Laravel boring before plan amendment) |
+| Queue **111** | Post-110 full-stack pilot depth — **`docs/CWL-FULLSTACK-NEXT-10-111.md`** |
+| Queue **112** | Template/budget depth — **`docs/CWL-FULLSTACK-NEXT-10-112.md`** |
+| Queue **113+** | Requires charter in **`docs/CWL-FULLSTACK-QUEUES-111-120.md`** |
+| Laravel boring reliability | **Paused** until plan amendment |
 | Matrix gold for marketing | **Paused** |
-| Queue 111+ CWL authoring | **Requires** `DESIGN.md` Decision Log + `STRATEGIC-PLAN.md` amendment |
 
 ---
 

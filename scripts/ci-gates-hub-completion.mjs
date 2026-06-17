@@ -139,9 +139,11 @@ function assertHubCompletion(path) {
     s.schemaVersion !== 180 &&
     s.schemaVersion !== 181 &&
     s.schemaVersion !== 182 &&
-    s.schemaVersion !== 183
+    s.schemaVersion !== 183 &&
+    s.schemaVersion !== 184 &&
+    s.schemaVersion !== 185
   ) {
-    fail(`${label}: expected schemaVersion 0–74 or 133–183, got ${JSON.stringify(s.schemaVersion)}`);
+    fail(`${label}: expected schemaVersion 0–74 or 133–185, got ${JSON.stringify(s.schemaVersion)}`);
   }
   if (s.ok !== true) {
     fail(`${label}: ok must be true (matrix failed=${s.matrixSmoke?.failed}, gold=${s.goldVerify?.ok})`);
@@ -2715,6 +2717,8 @@ function assertHubCompletion(path) {
     [181, "fullstackAuthoringBatchV108"],
     [182, "fullstackAuthoringBatchV109"],
     [183, "fullstackAuthoringBatchV110"],
+    [184, "fullstackAuthoringBatchV111"],
+    [185, "fullstackAuthoringBatchV112"],
   ]) {
     if (s.schemaVersion >= ver) {
       if (s[key]?.ok !== true) {

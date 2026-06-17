@@ -1653,3 +1653,63 @@ export async function runPost109GraduationGate(opts = {}) {
   return { ok: post109.ok === true && post108.ok === true, post109, post108 };
 }
 
+/** G2408 - post-110 full-stack pilot depth: flagship HTTP verify + dual-origin search + mandatory project-to-CWL. */
+export async function runPost111CompositeGate(opts = {}) {
+  const http = await runCwlFullstackVerifyHttpGate(opts);
+  const svelte = await runSvelteSearchGate();
+  const nextjs = await runNextjsSearchGate();
+  const projectCwl = await runProjectToCwlMandatoryGate(opts);
+  const gates = [http, svelte, nextjs, projectCwl];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    http,
+    svelte,
+    nextjs,
+    projectCwl,
+  };
+}
+
+export async function runPost111GraduationGate(opts = {}) {
+  const post111 = await runPost111CompositeGate(opts);
+  const post110 = await runPost109GraduationGate(opts);
+  return { ok: post111.ok === true && post110.ok === true, post111, post110 };
+}
+
+/** G2417 - verify RFC-0012 trivial `{#each}` partial lift helper. */
+export async function runSvelteEachPartialLiftGate() {
+  const { liftStaticSveltePageHtml } = await import("./sveltekit-route-lift.mjs");
+  const eachHtml = liftStaticSveltePageHtml(
+    "<ul>{#each ['alpha','beta'] as tag}<li>{tag}</li>{/each}</ul>",
+  );
+  const htmlHtml = liftStaticSveltePageHtml('<main>{@html "<p>ok</p>"}</main>');
+  const ok =
+    eachHtml === "<ul><li>alpha</li><li>beta</li></ul>" && htmlHtml === "<main><p>ok</p></main>";
+  return { ok, eachHtml: eachHtml ?? null, htmlHtml: htmlHtml ?? null };
+}
+
+/** G2418 - post-111 template/budget depth: each lift, form-action probe, hole-budget v2, interpolation. */
+export async function runPost112CompositeGate(opts = {}) {
+  const eachLift = await runSvelteEachPartialLiftGate();
+  const formAction = runFormActionProbeGate();
+  const holeBudget = runHoleBudgetV2Gate();
+  const interpolation = await runDeliveryInterpolationGate();
+  const gates = [eachLift, formAction, holeBudget, interpolation];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    eachLift,
+    formAction,
+    holeBudget,
+    interpolation,
+  };
+}
+
+export async function runPost112GraduationGate(opts = {}) {
+  const post112 = await runPost112CompositeGate(opts);
+  const post111 = await runPost111GraduationGate(opts);
+  return { ok: post112.ok === true && post111.ok === true, post112, post111 };
+}
+

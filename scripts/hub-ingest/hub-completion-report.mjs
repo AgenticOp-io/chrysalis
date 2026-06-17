@@ -210,6 +210,8 @@ export function buildHubCompletionReport(ctx) {
     fullstackAuthoringBatchV108,
     fullstackAuthoringBatchV109,
     fullstackAuthoringBatchV110,
+    fullstackAuthoringBatchV111,
+    fullstackAuthoringBatchV112,
     plainPhpMigrationOsBatch,
     tinyBlogDeliveryBatch,
     deliveryPipelineStandaloneBatch,
@@ -276,7 +278,7 @@ export function buildHubCompletionReport(ctx) {
   } = smokes;
   return {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 183,
+    schemaVersion: 185,
     ok,
     gceHubCompletionFast: gceHubCompletionFast || undefined,
     matrixSmoke: {
@@ -1398,6 +1400,20 @@ export function buildHubCompletionReport(ctx) {
       schemaVersion: fullstackAuthoringBatchV110.schemaVersion ?? 1,
       skipPriorChain: true,
       gate110Mode: fullstackAuthoringBatchV110.gate110Mode ?? null,
+    },
+    fullstackAuthoringBatchV111: {
+      ok: okFlags.fullstackAuthoringBatchV111Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v111-smoke",
+      schemaVersion: fullstackAuthoringBatchV111.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate111Mode: fullstackAuthoringBatchV111.gate111Mode ?? null,
+    },
+    fullstackAuthoringBatchV112: {
+      ok: okFlags.fullstackAuthoringBatchV112Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v112-smoke",
+      schemaVersion: fullstackAuthoringBatchV112.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate112Mode: fullstackAuthoringBatchV112.gate112Mode ?? null,
     },
     plainPhpMigrationOsBatch: {
       ok: okFlags.plainPhpMigrationOsBatchOk,
