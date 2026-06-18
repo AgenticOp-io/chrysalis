@@ -76,13 +76,7 @@ function Sync-Phase8RunnerScripts {
 }
 
 if ($Status) {
-  $remote = @'
-if test -f ~/chrysalis-test/reports/ci/gce-phase8-strict.ok; then echo 'STATUS: OK (gce-phase8-strict.ok)'; else echo 'STATUS: running or failed (no ok marker)'; fi
-WORKER=$(pgrep -f 'gce-phase8-strict-only.sh|gce-strategic-plan-phase8-strict.sh' 2>/dev/null | head -1 || true)
-if [ -n "$WORKER" ]; then echo "PID: $WORKER (phase8 strict alive)"; fi
-echo '--- phase log tail ---'
-tail -n 30 ~/chrysalis-test/reports/ci/gce-phase-strategic-plan-phase8-strict.log 2>/dev/null || tail -n 30 ~/chrysalis-test/reports/ci/gce-phase8-strict-run.log 2>/dev/null || echo '(no log yet)'
-'@
+  $remote = 'if test -f ~/chrysalis-test/reports/ci/gce-phase8-strict.ok; then echo STATUS_OK; else echo STATUS_RUNNING; fi; pgrep -af gce-phase8-strict 2>/dev/null | head -3 || true; tail -n 25 ~/chrysalis-test/reports/ci/gce-phase-strategic-plan-phase8-strict.log 2>/dev/null || tail -n 25 ~/chrysalis-test/reports/ci/gce-phase8-strict-run.log 2>/dev/null || echo no_log'
   $gcloudArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command", $remote)
   & gcloud @gcloudArgs
   exit $LASTEXITCODE

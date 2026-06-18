@@ -12,6 +12,8 @@ rm -f "${OK_MARKER}"
 export CHRYSALIS_STRICT_STRATEGIC_PLAN=1
 export CHRYSALIS_STATUS_REPO="${REPO}"
 
+node scripts/gce-progress.mjs init strategic-plan-phase8-strict
+
 bash scripts/gce-run-phase.sh strategic-plan-phase8-strict bash scripts/gce-strategic-plan-phase8-strict.sh
 
 date -Is >"${OK_MARKER}"
