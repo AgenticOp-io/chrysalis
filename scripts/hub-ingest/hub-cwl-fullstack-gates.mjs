@@ -576,6 +576,68 @@ export async function runStrategicPlanPhase1PhpWedgeGate(opts = {}) {
   };
 }
 
+/** G5751 — Laravel verify gaps ingest depth plan doc. */
+export function runLaravelIngestDepthDocGate() {
+  const path = join(scriptRoot, "docs/LARAVEL-VERIFY-GAPS-INGEST-DEPTH.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-laravel-ingest-depth-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runLaravelVerifyGapsIngestClosureSmoke") &&
+    text.includes("fixtures/hub-laravel-verify-gaps-backlog") &&
+    text.includes("verify:laravel-full") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5752 — resolved Laravel verify gaps fixture (zero backlog). */
+export async function runLaravelVerifyGapsResolvedFixtureGate() {
+  const { buildLaravelVerifyGapsReport } = await import("./hub-laravel-verify-gaps.mjs");
+  const resolvedDir = join(scriptRoot, "fixtures/hub-laravel-verify-gaps");
+  const report = buildLaravelVerifyGapsReport({ reportDirs: [resolvedDir], merge: false });
+  const backlogCount = report.backlog?.length ?? 0;
+  const correctness = report.verify?.correctness ?? 0;
+  return {
+    ok: report.ok === true && backlogCount === 0 && correctness >= 1,
+    backlogCount,
+    correctness,
+  };
+}
+
+/** G5750 — Phase 1 Laravel ingest depth from verify gaps. */
+export async function runStrategicPlanPhase1LaravelIngestDepthGate(opts = {}) {
+  const skipLive =
+    opts.skipLive === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_LARAVEL_LIVE_GAPS === "1";
+  const doc = runLaravelIngestDepthDocGate();
+  const { runLaravelVerifyGapsIngestClosureSmoke } = await import(
+    "./hub-laravel-verify-gaps-ingest-closure-smoke.mjs",
+  );
+  const [closure, resolved] = await Promise.all([
+    Promise.resolve(runLaravelVerifyGapsIngestClosureSmoke()),
+    runLaravelVerifyGapsResolvedFixtureGate(),
+  ]);
+  let live = { ok: true, skip: "live-gaps-skipped" };
+  if (!skipLive) {
+    const { runLaravelVerifyLiveGapsClosureSmoke } = await import(
+      "./hub-laravel-verify-live-gaps-closure-smoke.mjs",
+    );
+    live = await runLaravelVerifyLiveGapsClosureSmoke();
+  }
+  const ok =
+    doc.ok === true && closure.ok === true && resolved.ok === true && live.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    closureOk: closure.ok === true,
+    resolvedOk: resolved.ok === true,
+    liveOk: live.ok === true,
+    skipLive,
+    backlogCount: closure.backlogCount ?? null,
+    ingestNext: closure.ingestNext ?? null,
+    resolvedBacklogCount: resolved.backlogCount ?? 0,
+    resolvedCorrectness: resolved.correctness ?? null,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

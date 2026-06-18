@@ -323,6 +323,7 @@
     "hub:strategic-plan-month3-project-to-cwl-smoke": "node scripts/hub-ingest/hub-strategic-plan-month3-project-to-cwl-smoke.mjs",
     "hub:strategic-plan-month34-fullstack-pilot-smoke": "node scripts/hub-ingest/hub-strategic-plan-month34-fullstack-pilot-smoke.mjs",
     "hub:strategic-plan-phase1-php-wedge-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase1-php-wedge-smoke.mjs",
+    "hub:strategic-plan-phase1-laravel-ingest-depth-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase1-laravel-ingest-depth-smoke.mjs",
     "hub:laravel-verify-live-gaps-closure-smoke": "node scripts/hub-ingest/hub-laravel-verify-live-gaps-closure-smoke.mjs",
     "hub:gap-reingest-strict-smoke": "node scripts/hub-ingest/hub-gap-reingest-strict-smoke.mjs",
     "hub:laravel-auth-probe-reingest-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs",

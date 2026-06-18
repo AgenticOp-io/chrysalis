@@ -40,9 +40,24 @@ Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks onl
 
 ## In progress (Phase 1 backlog)
 
-- Laravel ingest depth from live verify gaps (flagship-full north star)
 - PHP emit parity: hono = fastify = nextjs on oracle slice (verify, not smoke-only)
 - Chimera cutover runbooks + operator metrics
+
+## Phase D — Laravel ingest depth from verify gaps (shipped)
+
+| Gate | Scope | Done when |
+| --- | --- | --- |
+| `runLaravelVerifyGapsIngestClosureSmoke` | Backlog fixture → ingest remediation | G804 |
+| `runLaravelVerifyGapsResolvedFixtureGate` | Resolved fixture has zero backlog | correctness ≥ 1 |
+| `runStrategicPlanPhase1LaravelIngestDepthGate` | doc + closure + resolved (+ optional live) | G5750 |
+
+Registry: `docs/LARAVEL-VERIFY-GAPS-INGEST-DEPTH.md`, `fixtures/hub-laravel-verify-gaps-backlog`, `fixtures/hub-laravel-verify-gaps`.
+
+```bash
+pnpm run hub:strategic-plan-phase1-laravel-ingest-depth-smoke
+```
+
+Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_LARAVEL_LIVE_GAPS=1` to skip live flagship verify (Vitest default).
 
 ## Non-goals
 

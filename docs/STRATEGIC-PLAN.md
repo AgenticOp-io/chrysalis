@@ -257,6 +257,8 @@ When the user says “build” without specifying, prefer this queue:
 
 **Phase 1 reinforcement (2026-06-17):** **G5740–G5743** — `docs/PHP-WEDGE-PHASE-1.md`, `runStrategicPlanPhase1PhpWedgeGate`, `pnpm run hub:strategic-plan-phase1-php-wedge-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks only).
 
+**Phase 1 Laravel ingest depth (2026-06-17):** **G5750–G5753** — `docs/LARAVEL-VERIFY-GAPS-INGEST-DEPTH.md`, `runStrategicPlanPhase1LaravelIngestDepthGate`, `pnpm run hub:strategic-plan-phase1-laravel-ingest-depth-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_LARAVEL_LIVE_GAPS=1`).
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
