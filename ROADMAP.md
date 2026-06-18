@@ -14,8 +14,8 @@ demo and measurable numbers, not a pile of abstractions.
   milestones (`V2-M1`-`V2-M6`) are complete; see `CHANGELOG.md` and
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
-- **Active lanes:** **Strategic plan phases 0–7 closed** (**G5680–G6043**). Default queue → **maintenance** per `docs/STRATEGIC-PLAN.md` unless amended.
-- **Recently shipped:** **G6040–G6043** — Phase 7 full-stack close. **G6000–G6023** — Phase 6 runtime at scale. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Active lanes:** **Strategic plan phases 0–8 closed** (**G5680–G6113**). Default queue → **maintenance** per `docs/STRATEGIC-PLAN.md` unless amended.
+- **Recently shipped:** **G6110–G6113** — Phase 8 product proof close (strict path). **G6040–G6043** — Phase 7 full-stack close. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -102,9 +102,10 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 ## What's next (active backlog)
 
-The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § **Phase 1 — PHP wedge depth** (Next 90 days program **closed** at **G5733**). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**, Next 90 days **G5680–G5733**. Current build focus:
+The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § **Phase 8 — Product proof** (strict reinforcement **closed** at **G6113**). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**, Next 90 days **G5680–G5733**, strategic plan phases **0–8** (**G5680–G6113**). Current build focus:
 
 - **CWL / full-stack:** queues **111–437 complete** (schema **510**) — maintenance only.
+- **Product proof (Phase 8):** **G6050–G6113** — **complete**; strict path on GCE via `CHRYSALIS_STRICT_STRATEGIC_PLAN=1`.
 - **Next 90 days:** **G5680–G5733** — **complete** (Months 1–4 reinforcement).
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.
 - **Hole economics maintenance:** **`db-query-unknown-receiver-probe`** remains the intentional **1-hole** negative probe; add new tracked DB receivers via **mysqli-probe** routes when widening **`->query`** lowering.

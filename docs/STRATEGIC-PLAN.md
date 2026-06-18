@@ -160,7 +160,13 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 - Reinforcement queue **G6010–G6043** complete — see `docs/CWL-FULLSTACK-PHASE-7.md`
 
-**Strategic plan phases 0–7:** all reinforcement queues **closed** (**G5680–G6043**). Default build → **maintenance** unless plan amended.
+### Phase 8 — Product proof (strict reinforcement) — **Closed (2026-06-17)**
+
+- Reinforcement queue **G6050–G6113** complete — see `docs/PRODUCT-PROOF-PHASE-8.md`
+- **Strict path:** `CHRYSALIS_STRICT_STRATEGIC_PLAN=1 pnpm run hub:strategic-plan-phase8-product-proof-close-smoke` (GCE / CI)
+- **Local fast path:** same smokes with `CHRYSALIS_STRATEGIC_PLAN_SKIP_*=1` (Vitest default)
+
+**Strategic plan phases 0–8:** all reinforcement queues **closed** (**G5680–G6113**). Default build → **maintenance** unless plan amended.
 
 ---
 
@@ -239,7 +245,7 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 3–4 reinforcement (2026-06-17):** **G5730–G5733** — `docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`, `runStrategicPlanMonth34FullstackPilotGate`, `pnpm run hub:strategic-plan-month34-fullstack-pilot-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1` for preview/budget without gold verify).
 
-**Next 90 days program:** **closed (2026-06-17)**. **Phases 0–7** reinforcement **closed** (**G5680–G6043**). Default build queue: **maintenance** unless plan amended (§13).
+**Next 90 days program:** **closed (2026-06-17)**. **Phases 0–8** reinforcement **closed** (**G5680–G6113**). Default build queue: **maintenance** unless plan amended (§13).
 
 **Phase 1 reinforcement (2026-06-17):** **G5740–G5743** — `docs/PHP-WEDGE-PHASE-1.md`, `runStrategicPlanPhase1PhpWedgeGate`, `pnpm run hub:strategic-plan-phase1-php-wedge-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks only).
 
@@ -299,7 +305,21 @@ When the user says “build” without specifying, prefer this queue:
 
 **Phase 7 hole budget (2026-06-17):** **G6020–G6023** — `docs/CWL-FULLSTACK-HOLE-BUDGET-PHASE-7.md`, `runStrategicPlanPhase7HoleBudgetGate`.
 
-**Phase 7 program close (2026-06-17):** **G6040–G6043** — `runStrategicPlanPhase7FullstackCloseGate`, `pnpm run hub:strategic-plan-phase7-fullstack-close-smoke`. Phase 7 **closed**. **All strategic phases complete.**
+**Phase 7 program close (2026-06-17):** **G6040–G6043** — `runStrategicPlanPhase7FullstackCloseGate`, `pnpm run hub:strategic-plan-phase7-fullstack-close-smoke`. Phase 7 **closed**.
+
+**Phase 8 product proof entry (2026-06-17):** **G6050–G6053** — `docs/PRODUCT-PROOF-PHASE-8.md`, `resolveStrategicPlanSkips`, `runStrategicPlanPhase8ProductProofEntryGate`, `pnpm run hub:strategic-plan-phase8-product-proof-entry-smoke`.
+
+**Phase 8 oracle proof (2026-06-17):** **G6060–G6063** — `runStrategicPlanPhase8OracleProofGate`, `pnpm run hub:strategic-plan-phase8-oracle-proof-smoke`.
+
+**Phase 8 HTTP emit proof (2026-06-17):** **G6070–G6073** — `runStrategicPlanPhase8HttpEmitProofGate`, `pnpm run hub:strategic-plan-phase8-http-emit-proof-smoke`.
+
+**Phase 8 CWL interchange proof (2026-06-17):** **G6080–G6083** — `runStrategicPlanPhase8CwlInterchangeProofGate`, `pnpm run hub:strategic-plan-phase8-cwl-interchange-proof-smoke`.
+
+**Phase 8 Hub operator proof (2026-06-17):** **G6090–G6093** — `runHubEvidenceUiProofGate`, `runStrategicPlanPhase8HubOperatorProofGate`, `pnpm run hub:strategic-plan-phase8-hub-operator-proof-smoke`.
+
+**Phase 8 cutover proof (2026-06-17):** **G6100–G6103** — `runRuntimeSessionSqlHonestyGate`, `runStrategicPlanPhase8CutoverProofGate`, `pnpm run hub:strategic-plan-phase8-cutover-proof-smoke`.
+
+**Phase 8 program close (2026-06-17):** **G6110–G6113** — `runStrategicPlanPhase8ProductProofCloseGate`, `pnpm run hub:strategic-plan-phase8-product-proof-close-smoke`. **Strict:** `CHRYSALIS_STRICT_STRATEGIC_PLAN=1`. Phase 8 **closed**. **All strategic phases complete.**
 
 
 ### Full-stack CWL — next 10 steps (after G1158)

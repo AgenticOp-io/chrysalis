@@ -14,6 +14,10 @@ import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
 import { buildCwlPreviewReport } from "./hub-cwl-preview.mjs";
 import { runProjectVerifyHttp } from "./hub-verify-http.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
+import {
+  resolveStrategicPlanSkips,
+  strategicPlanSkipsToGateOpts,
+} from "./strategic-plan-skips.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const flagshipDir = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack");
@@ -1602,6 +1606,305 @@ export async function runStrategicPlanPhase7FullstackCloseGate(opts = {}) {
     entryOk: entry.ok === true,
     holeBudgetOk: holeBudget.ok === true,
     skipGoldVerify,
+  };
+}
+
+/** G6051 — Product proof Phase 8 plan doc. */
+export function runProductProofPhase8DocGate() {
+  const path = join(scriptRoot, "docs/PRODUCT-PROOF-PHASE-8.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-product-proof-phase8-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("resolveStrategicPlanSkips") &&
+    text.includes("runStrategicPlanPhase8ProductProofCloseGate") &&
+    text.includes("CHRYSALIS_STRICT_STRATEGIC_PLAN") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G6050 — Phase 8 product proof entry gate. */
+export async function runStrategicPlanPhase8ProductProofEntryGate(opts = {}) {
+  const skips = resolveStrategicPlanSkips(opts);
+  const doc = runProductProofPhase8DocGate();
+  const phase7Close = await runStrategicPlanPhase7FullstackCloseGate(
+    strategicPlanSkipsToGateOpts(skips),
+  );
+  const ok = doc.ok === true && phase7Close.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    phase7CloseOk: phase7Close.ok === true,
+    strict: skips.strict,
+  };
+}
+
+/** G6061 — Oracle proof Phase 8 plan doc section. */
+export function runProductProofOraclePhase8DocGate() {
+  const path = join(scriptRoot, "docs/PRODUCT-PROOF-PHASE-8.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-product-proof-phase8-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanPhase8OracleProofGate") &&
+    text.includes("runStrategicPlanMonth23ExpressOracleGate") &&
+    text.includes("runStrategicPlanPhase1LaravelIngestDepthGate") &&
+    text.includes("Phase B");
+  return { ok: docOk, docOk };
+}
+
+/** G6060 — Phase 8 oracle / PHP wedge strict proof. */
+export async function runStrategicPlanPhase8OracleProofGate(opts = {}) {
+  const skips = resolveStrategicPlanSkips(opts);
+  const gateOpts = strategicPlanSkipsToGateOpts(skips);
+  const doc = runProductProofOraclePhase8DocGate();
+  const [express, laravel, phpWedge, emitParity] = await Promise.all([
+    runStrategicPlanMonth23ExpressOracleGate(gateOpts),
+    runStrategicPlanPhase1LaravelIngestDepthGate(gateOpts),
+    runStrategicPlanPhase1PhpWedgeGate(gateOpts),
+    runStrategicPlanPhase1PhpEmitParityGate({
+      skipFlagships: gateOpts.skipEmitParityFlagships,
+    }),
+  ]);
+  const ok =
+    doc.ok === true &&
+    express.ok === true &&
+    laravel.ok === true &&
+    phpWedge.ok === true &&
+    emitParity.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    expressOk: express.ok === true,
+    laravelOk: laravel.ok === true,
+    phpWedgeOk: phpWedge.ok === true,
+    emitParityOk: emitParity.ok === true,
+    strict: skips.strict,
+    skipOracleVerify: skips.skipOracleVerify,
+    skipLaravelLiveGaps: skips.skipLaravelLiveGaps,
+    skipPhpWedgeFlagships: skips.skipPhpWedgeFlagships,
+    skipEmitParityFlagships: skips.skipEmitParityFlagships,
+  };
+}
+
+/** G6071 — HTTP / emit proof Phase 8 plan doc section. */
+export function runProductProofHttpEmitPhase8DocGate() {
+  const path = join(scriptRoot, "docs/PRODUCT-PROOF-PHASE-8.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-product-proof-phase8-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanPhase8HttpEmitProofGate") &&
+    text.includes("runStrategicPlanPhase6EmitVerifyMegaGate") &&
+    text.includes("runStrategicPlanMonth12RuntimeParityGate") &&
+    text.includes("Phase C");
+  return { ok: docOk, docOk };
+}
+
+/** G6070 — Phase 8 HTTP emit + flagship gold strict proof. */
+export async function runStrategicPlanPhase8HttpEmitProofGate(opts = {}) {
+  const skips = resolveStrategicPlanSkips(opts);
+  const gateOpts = strategicPlanSkipsToGateOpts(skips);
+  const doc = runProductProofHttpEmitPhase8DocGate();
+  const [runtimeParity, emitMega, graduation, fullstackEntry] = await Promise.all([
+    runStrategicPlanMonth12RuntimeParityGate(gateOpts),
+    runStrategicPlanPhase6EmitVerifyMegaGate(gateOpts),
+    runStrategicPlanPhase6ProductionGraduationGate(gateOpts),
+    runStrategicPlanPhase7FullstackEntryGate(gateOpts),
+  ]);
+  const ok =
+    doc.ok === true &&
+    runtimeParity.ok === true &&
+    emitMega.ok === true &&
+    graduation.ok === true &&
+    fullstackEntry.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    runtimeParityOk: runtimeParity.ok === true,
+    emitMegaOk: emitMega.ok === true,
+    graduationOk: graduation.ok === true,
+    fullstackEntryOk: fullstackEntry.ok === true,
+    strict: skips.strict,
+    skipEmitHttp: skips.skipEmitHttp,
+    skipGoldVerify: skips.skipGoldVerify,
+  };
+}
+
+/** G6081 — CWL interchange proof Phase 8 plan doc section. */
+export function runProductProofCwlInterchangePhase8DocGate() {
+  const path = join(scriptRoot, "docs/PRODUCT-PROOF-PHASE-8.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-product-proof-phase8-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanPhase8CwlInterchangeProofGate") &&
+    text.includes("runStrategicPlanMonth3ProjectToCwlGate") &&
+    text.includes("runStrategicPlanPhase3CwlRfcGate") &&
+    text.includes("Phase D");
+  return { ok: docOk, docOk };
+}
+
+/** G6080 — Phase 8 CWL interchange strict proof (roundtrips). */
+export async function runStrategicPlanPhase8CwlInterchangeProofGate(opts = {}) {
+  const skips = resolveStrategicPlanSkips(opts);
+  const gateOpts = strategicPlanSkipsToGateOpts(skips);
+  const doc = runProductProofCwlInterchangePhase8DocGate();
+  const [projectToCwl, rfc] = await Promise.all([
+    runStrategicPlanMonth3ProjectToCwlGate(gateOpts),
+    runStrategicPlanPhase3CwlRfcGate({ skipRoundtrip: gateOpts.skipRfcRoundtrip }),
+  ]);
+  const ok = doc.ok === true && projectToCwl.ok === true && rfc.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    projectToCwlOk: projectToCwl.ok === true,
+    rfcOk: rfc.ok === true,
+    strict: skips.strict,
+    skipProjectCwlRoundtrip: skips.skipProjectCwlRoundtrip,
+    skipCwlRfcRoundtrip: skips.skipCwlRfcRoundtrip,
+  };
+}
+
+/** G6092 — Hub evidence UI + completion report wiring. */
+export function runHubEvidenceUiProofGate() {
+  const uiPath = join(scriptRoot, "scripts/chrysalis-operator-ui.js");
+  const webPath = join(scriptRoot, "scripts/chrysalis-operator-web.mjs");
+  const completionPath = join(scriptRoot, "scripts/hub-ingest/hub-completion-report.mjs");
+  if (!existsSync(uiPath) || !existsSync(webPath) || !existsSync(completionPath)) {
+    return { ok: false, skip: "missing-hub-evidence-ui-artifacts" };
+  }
+  const ui = readFileSync(uiPath, "utf8");
+  const web = readFileSync(webPath, "utf8");
+  const completion = readFileSync(completionPath, "utf8");
+  const uiOk = ui.includes("/evidence") && ui.includes("loadConsoleEvidence");
+  const apiOk =
+    web.includes("hubEvidenceMatch") &&
+    web.includes("evidence") &&
+    web.includes("buildHubEvidenceReport");
+  const reportOk = completion.includes('evidenceApi: "/api/hub/projects/{id}/evidence"');
+  const ok = uiOk && apiOk && reportOk;
+  return { ok, uiOk, apiOk, reportOk };
+}
+
+/** G6091 — Hub operator proof Phase 8 plan doc section. */
+export function runProductProofHubOperatorPhase8DocGate() {
+  const path = join(scriptRoot, "docs/PRODUCT-PROOF-PHASE-8.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-product-proof-phase8-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanPhase8HubOperatorProofGate") &&
+    text.includes("runHubEvidenceUiProofGate") &&
+    text.includes("runHubEvidenceMvpBatchSmoke") &&
+    text.includes("Phase E");
+  return { ok: docOk, docOk };
+}
+
+/** G6090 — Phase 8 Hub operator + evidence strict proof. */
+export async function runStrategicPlanPhase8HubOperatorProofGate(opts = {}) {
+  const skips = resolveStrategicPlanSkips(opts);
+  const gateOpts = strategicPlanSkipsToGateOpts(skips);
+  const doc = runProductProofHubOperatorPhase8DocGate();
+  const ui = runHubEvidenceUiProofGate();
+  const { runHubEvidenceMvpBatchSmoke } = await import("./hub-evidence-mvp-batch-smoke.mjs");
+  const [migrationOsClose, evidenceMvp] = await Promise.all([
+    runStrategicPlanPhase2MigrationOsCloseGate(gateOpts),
+    runHubEvidenceMvpBatchSmoke(),
+  ]);
+  const ok =
+    doc.ok === true &&
+    ui.ok === true &&
+    migrationOsClose.ok === true &&
+    evidenceMvp.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    uiOk: ui.ok === true,
+    migrationOsCloseOk: migrationOsClose.ok === true,
+    evidenceMvpOk: evidenceMvp.ok === true,
+    strict: skips.strict,
+    skipMigrationOsMegaBatch: skips.skipMigrationOsMegaBatch,
+    skipMigrationOsStandaloneBatch: skips.skipMigrationOsStandaloneBatch,
+  };
+}
+
+/** G6102 — Runtime session/SQL honesty (Phase C paused). */
+export function runRuntimeSessionSqlHonestyGate() {
+  const path = join(scriptRoot, "docs/RUNTIME-CWL-PARITY-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-runtime-cwl-parity-plan" };
+  const text = readFileSync(path, "utf8");
+  const honestyOk =
+    text.includes("Phase C") &&
+    text.includes("paused") &&
+    text.includes("stub DB");
+  return { ok: honestyOk, honestyOk };
+}
+
+/** G6101 — Cutover proof Phase 8 plan doc section. */
+export function runProductProofCutoverPhase8DocGate() {
+  const path = join(scriptRoot, "docs/PRODUCT-PROOF-PHASE-8.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-product-proof-phase8-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanPhase8CutoverProofGate") &&
+    text.includes("runRuntimeSessionSqlHonestyGate") &&
+    text.includes("runStrategicPlanPhase1ChimeraCutoverGate") &&
+    text.includes("Phase F");
+  return { ok: docOk, docOk };
+}
+
+/** G6100 — Phase 8 cutover + runtime honesty strict proof. */
+export async function runStrategicPlanPhase8CutoverProofGate(opts = {}) {
+  const skips = resolveStrategicPlanSkips(opts);
+  const gateOpts = strategicPlanSkipsToGateOpts(skips);
+  const doc = runProductProofCutoverPhase8DocGate();
+  const honesty = runRuntimeSessionSqlHonestyGate();
+  const [chimera, sessionStub, productionSearch] = await Promise.all([
+    runStrategicPlanPhase1ChimeraCutoverGate(gateOpts),
+    runStrategicPlanPhase5SessionStubGate(gateOpts),
+    runStrategicPlanPhase5ProductionSearchGate(gateOpts),
+  ]);
+  const ok =
+    doc.ok === true &&
+    honesty.ok === true &&
+    chimera.ok === true &&
+    sessionStub.ok === true &&
+    productionSearch.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    honestyOk: honesty.ok === true,
+    chimeraOk: chimera.ok === true,
+    sessionStubOk: sessionStub.ok === true,
+    productionSearchOk: productionSearch.ok === true,
+    strict: skips.strict,
+    skipChimeraOriginBatch: skips.skipChimeraOriginBatch,
+  };
+}
+
+/** G6110 — Phase 8 product proof program close gate. */
+export async function runStrategicPlanPhase8ProductProofCloseGate(opts = {}) {
+  const skips = resolveStrategicPlanSkips(opts);
+  const [entry, oracle, httpEmit, cwl, hub, cutover] = await Promise.all([
+    runStrategicPlanPhase8ProductProofEntryGate(skips),
+    runStrategicPlanPhase8OracleProofGate(skips),
+    runStrategicPlanPhase8HttpEmitProofGate(skips),
+    runStrategicPlanPhase8CwlInterchangeProofGate(skips),
+    runStrategicPlanPhase8HubOperatorProofGate(skips),
+    runStrategicPlanPhase8CutoverProofGate(skips),
+  ]);
+  const ok =
+    entry.ok === true &&
+    oracle.ok === true &&
+    httpEmit.ok === true &&
+    cwl.ok === true &&
+    hub.ok === true &&
+    cutover.ok === true;
+  return {
+    ok,
+    strict: skips.strict,
+    entryOk: entry.ok === true,
+    oracleOk: oracle.ok === true,
+    httpEmitOk: httpEmit.ok === true,
+    cwlOk: cwl.ok === true,
+    hubOk: hub.ok === true,
+    cutoverOk: cutover.ok === true,
   };
 }
 

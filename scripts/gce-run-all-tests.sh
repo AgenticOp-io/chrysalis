@@ -119,6 +119,14 @@ run_phase cli-shims pnpm run test:cli-shims
 log "phase: hub strategic vitest"
 run_phase hub-strategic-vitest bash scripts/gce-hub-strategic-vitest.sh
 
+if [[ "${CHRYSALIS_GCE_PHASE8_STRICT:-1}" == "1" ]]; then
+  log "phase: strategic plan phase8 strict product proof"
+  run_phase strategic-plan-phase8-strict bash scripts/gce-strategic-plan-phase8-strict.sh
+else
+  log "phase: skip phase8 strict (set CHRYSALIS_GCE_PHASE8_STRICT=1 to enable)"
+  skip_phase strategic-plan-phase8-strict
+fi
+
 log "phase: hub express flagship"
 run_phase hub-express-flagship pnpm run hub:express-flagship
 
