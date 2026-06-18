@@ -40,8 +40,23 @@ Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks onl
 
 ## In progress (Phase 1 backlog)
 
-- PHP emit parity: hono = fastify = nextjs on oracle slice (verify, not smoke-only)
 - Chimera cutover runbooks + operator metrics
+
+## Phase E — PHP emit parity on oracle slice (shipped)
+
+| Gate | Scope | Done when |
+| --- | --- | --- |
+| `runPhpOracleMicroTripleEmitVerifyGate` | tiny-blog hono/fastify CI verify + nextjs replay | correctness ≥ 1 |
+| `runFlagshipEmitParity` | plain-php + symfony tri-target gold + trace replay | G151/G157 |
+| `runStrategicPlanPhase1PhpEmitParityGate` | doc + micro + optional flagships | G5760 |
+
+Registry: `docs/PHP-EMIT-PARITY-ORACLE-SLICE.md`, `fixtures/tiny-blog`, `fixtures/ci/tiny-blog-verify-for-status`.
+
+```bash
+pnpm run hub:strategic-plan-phase1-php-emit-parity-smoke
+```
+
+Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_PARITY_FLAGSHIPS=1` for oracle-micro only (Vitest default).
 
 ## Phase D — Laravel ingest depth from verify gaps (shipped)
 

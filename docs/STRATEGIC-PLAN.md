@@ -259,6 +259,8 @@ When the user says “build” without specifying, prefer this queue:
 
 **Phase 1 Laravel ingest depth (2026-06-17):** **G5750–G5753** — `docs/LARAVEL-VERIFY-GAPS-INGEST-DEPTH.md`, `runStrategicPlanPhase1LaravelIngestDepthGate`, `pnpm run hub:strategic-plan-phase1-laravel-ingest-depth-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_LARAVEL_LIVE_GAPS=1`).
 
+**Phase 1 PHP emit parity (2026-06-17):** **G5760–G5763** — `docs/PHP-EMIT-PARITY-ORACLE-SLICE.md`, `runStrategicPlanPhase1PhpEmitParityGate`, `pnpm run hub:strategic-plan-phase1-php-emit-parity-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_PARITY_FLAGSHIPS=1`).
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 

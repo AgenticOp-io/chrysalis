@@ -638,6 +638,94 @@ export async function runStrategicPlanPhase1LaravelIngestDepthGate(opts = {}) {
   };
 }
 
+/** G5761 — PHP emit parity oracle slice plan doc. */
+export function runPhpEmitParityOracleSliceDocGate() {
+  const path = join(scriptRoot, "docs/PHP-EMIT-PARITY-ORACLE-SLICE.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-php-emit-parity-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("fixtures/tiny-blog") &&
+    text.includes("runFlagshipEmitParity") &&
+    text.includes("runPhpNextjsVerify") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5762 — oracle micro triple-emit verify (tiny-blog). */
+export async function runPhpOracleMicroTripleEmitVerifyGate() {
+  const { buildOracleMicroFixtureReport, ORACLE_MICRO_FIXTURE } = await import(
+    "./hub-php-oracle-micro-fixture.mjs",
+  );
+  const { runPhpNextjsVerify } = await import("./hub-php-nextjs-verify.mjs");
+  const micro = buildOracleMicroFixtureReport();
+  const emitTargets = micro.verifyContract?.emit ?? [];
+  const tripleEmit =
+    emitTargets.includes("hono") &&
+    emitTargets.includes("fastify") &&
+    emitTargets.includes("nextjs");
+  const summaryPath = join(scriptRoot, "fixtures/ci/tiny-blog-verify-for-status/summary.json");
+  let honoFastifyCorrectness = 0;
+  if (existsSync(summaryPath)) {
+    try {
+      const j = JSON.parse(readFileSync(summaryPath, "utf8"));
+      honoFastifyCorrectness = j.aggregate?.correctness ?? 0;
+    } catch {
+      honoFastifyCorrectness = 0;
+    }
+  }
+  const microDir = join(scriptRoot, ORACLE_MICRO_FIXTURE);
+  const nextjs = await runPhpNextjsVerify(microDir, { label: ORACLE_MICRO_FIXTURE });
+  const nextjsOk = nextjs.ok === true || nextjs.skip === "no-wptp-emit-nextjs";
+  return {
+    ok:
+      micro.exists === true &&
+      (micro.routeCount ?? 0) >= 5 &&
+      tripleEmit === true &&
+      honoFastifyCorrectness >= 1 &&
+      nextjsOk,
+    routeCount: micro.routeCount ?? 0,
+    tripleEmit,
+    honoFastifyCorrectness,
+    nextjsOk,
+    nextjsSkip: nextjs.skip ?? null,
+    nextjsCorrectness: nextjs.correctness ?? null,
+  };
+}
+
+/** G5760 — Phase 1 PHP emit parity on oracle slice. */
+export async function runStrategicPlanPhase1PhpEmitParityGate(opts = {}) {
+  const skipFlagships =
+    opts.skipFlagships === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_PARITY_FLAGSHIPS === "1";
+  const doc = runPhpEmitParityOracleSliceDocGate();
+  const micro = await runPhpOracleMicroTripleEmitVerifyGate();
+  let plainPhp = { emitParityOk: true, skip: "flagships-skipped" };
+  let symfony = { emitParityOk: true, skip: "flagships-skipped" };
+  if (!skipFlagships) {
+    const { runFlagshipEmitParity } = await import("./hub-flagship-emit-parity.mjs");
+    [plainPhp, symfony] = await Promise.all([
+      runFlagshipEmitParity("plain-php-flagship"),
+      runFlagshipEmitParity("symfony-flagship"),
+    ]);
+  }
+  const ok =
+    doc.ok === true &&
+    micro.ok === true &&
+    plainPhp.emitParityOk === true &&
+    symfony.emitParityOk === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    microOk: micro.ok === true,
+    plainPhpEmitParityOk: plainPhp.emitParityOk === true,
+    symfonyEmitParityOk: symfony.emitParityOk === true,
+    skipFlagships,
+    routeCount: micro.routeCount ?? null,
+    honoFastifyCorrectness: micro.honoFastifyCorrectness ?? null,
+    nextjsOk: micro.nextjsOk === true,
+    nextjsSkip: micro.nextjsSkip ?? null,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });
