@@ -726,6 +726,65 @@ export async function runStrategicPlanPhase1PhpEmitParityGate(opts = {}) {
   };
 }
 
+/** G5771 — Chimera cutover Phase 1 plan doc. */
+export function runChimeraCutoverPhase1DocGate() {
+  const path = join(scriptRoot, "docs/CHIMERA-CUTOVER-PHASE-1.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-chimera-cutover-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("buildChimeraCutoverRunbook") &&
+    text.includes("runChimeraCutoverSmoke") &&
+    text.includes("chrysalis.chimera.operator-snapshot") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5772 — chimera operator snapshot fixture contract. */
+export function runChimeraOperatorSnapshotFixtureGate() {
+  const path = join(scriptRoot, "fixtures/ci/chimera-operator-snapshot-v1-smoke.json");
+  if (!existsSync(path)) return { ok: false, skip: "missing-operator-snapshot-fixture" };
+  try {
+    const row = JSON.parse(readFileSync(path, "utf8"));
+    const ok =
+      row.kind === "chrysalis.chimera.operator-snapshot" &&
+      row.schemaVersion === 1 &&
+      typeof row.stats === "object" &&
+      row.stats !== null;
+    return { ok, schemaVersion: row.schemaVersion ?? null };
+  } catch {
+    return { ok: false, skip: "invalid-operator-snapshot-fixture" };
+  }
+}
+
+/** G5770 — Phase 1 Chimera cutover runbooks + operator metrics. */
+export async function runStrategicPlanPhase1ChimeraCutoverGate(opts = {}) {
+  const skipOriginBatch =
+    opts.skipOriginBatch === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_CHIMERA_ORIGIN_BATCH === "1";
+  const doc = runChimeraCutoverPhase1DocGate();
+  const operatorFixture = runChimeraOperatorSnapshotFixtureGate();
+  const cutover = await runChimeraCutoverGate();
+  let originBatch = { ok: true, skip: "origin-batch-skipped" };
+  if (!skipOriginBatch) {
+    const { runChimeraCutoverOriginBatchSmoke } = await import("./hub-chimera-cutover-origin-batch-smoke.mjs");
+    originBatch = await runChimeraCutoverOriginBatchSmoke();
+  }
+  const ok =
+    doc.ok === true &&
+    operatorFixture.ok === true &&
+    cutover.ok === true &&
+    originBatch.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    operatorFixtureOk: operatorFixture.ok === true,
+    cutoverOk: cutover.ok === true,
+    originBatchOk: originBatch.ok === true,
+    skipOriginBatch,
+    phaseCount: cutover.phaseCount ?? null,
+    operatorSchemaVersion: operatorFixture.schemaVersion ?? null,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

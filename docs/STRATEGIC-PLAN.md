@@ -261,6 +261,8 @@ When the user says “build” without specifying, prefer this queue:
 
 **Phase 1 PHP emit parity (2026-06-17):** **G5760–G5763** — `docs/PHP-EMIT-PARITY-ORACLE-SLICE.md`, `runStrategicPlanPhase1PhpEmitParityGate`, `pnpm run hub:strategic-plan-phase1-php-emit-parity-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_PARITY_FLAGSHIPS=1`).
 
+**Phase 1 Chimera cutover (2026-06-17):** **G5770–G5773** — `docs/CHIMERA-CUTOVER-PHASE-1.md`, `runStrategicPlanPhase1ChimeraCutoverGate`, `pnpm run hub:strategic-plan-phase1-chimera-cutover-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_CHIMERA_ORIGIN_BATCH=1`).
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 

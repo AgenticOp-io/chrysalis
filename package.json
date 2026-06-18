@@ -325,6 +325,7 @@
     "hub:strategic-plan-phase1-php-wedge-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase1-php-wedge-smoke.mjs",
     "hub:strategic-plan-phase1-laravel-ingest-depth-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase1-laravel-ingest-depth-smoke.mjs",
     "hub:strategic-plan-phase1-php-emit-parity-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase1-php-emit-parity-smoke.mjs",
+    "hub:strategic-plan-phase1-chimera-cutover-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase1-chimera-cutover-smoke.mjs",
     "hub:laravel-verify-live-gaps-closure-smoke": "node scripts/hub-ingest/hub-laravel-verify-live-gaps-closure-smoke.mjs",
     "hub:gap-reingest-strict-smoke": "node scripts/hub-ingest/hub-gap-reingest-strict-smoke.mjs",
     "hub:laravel-auth-probe-reingest-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs",

@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" (post-110 authoring replay program **closed** at queue **437** / schema **510**).
-- **Recently shipped:** **G5760–G5763** — Phase 1 PHP emit parity on oracle slice. **G5750–G5753** — Laravel verify gaps ingest depth. **G5740–G5743** — Phase 1 PHP wedge entry. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G5770–G5773** — Phase 1 Chimera cutover reinforcement. **G5760–G5763** — PHP emit parity oracle slice. **G5750–G5753** — Laravel ingest depth. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -104,7 +104,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § **Phase 1 — PHP wedge depth** (Next 90 days program **closed** at **G5733**). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**, Next 90 days **G5680–G5733**. Current build focus:
 
-- **PHP wedge (Phase 1, active):** **G5760–G5763** — PHP emit parity oracle slice (`runStrategicPlanPhase1PhpEmitParityGate`, `docs/PHP-EMIT-PARITY-ORACLE-SLICE.md`, `hub:strategic-plan-phase1-php-emit-parity-smoke`). **G5750–G5753** — Laravel ingest depth **complete**. **G5740–G5743** — wedge entry **complete**.
+- **PHP wedge (Phase 1):** **G5770–G5773** — Chimera cutover reinforcement **complete** (Phase 1 reinforcement queue closed). Default build queue → **Phase 2 Migration OS** per `docs/STRATEGIC-PLAN.md` unless amended.
 - **CWL / full-stack:** queues **111–437 complete** (schema **510**) — maintenance only.
 - **Next 90 days:** **G5680–G5733** — **complete** (Months 1–4 reinforcement).
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.

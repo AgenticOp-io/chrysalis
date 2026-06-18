@@ -40,7 +40,23 @@ Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks onl
 
 ## In progress (Phase 1 backlog)
 
-- Chimera cutover runbooks + operator metrics
+_(none — Phase 1 PHP wedge reinforcement queue complete at G5773; next work follows STRATEGIC-PLAN Phase 2 unless amended.)_
+
+## Phase F — Chimera cutover runbooks + operator metrics (shipped)
+
+| Gate | Scope | Done when |
+| --- | --- | --- |
+| `runChimeraCutoverGate` | Plain-PHP phased runbook | ≥3 phases |
+| `runChimeraOperatorSnapshotFixtureGate` | Operator snapshot schema v1 fixture | kind + stats |
+| `runStrategicPlanPhase1ChimeraCutoverGate` | doc + cutover + operator (+ optional origin batch) | G5770 |
+
+Registry: `docs/CHIMERA-CUTOVER-PHASE-1.md`, `hub-chimera-cutover.mjs`.
+
+```bash
+pnpm run hub:strategic-plan-phase1-chimera-cutover-smoke
+```
+
+Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_CHIMERA_ORIGIN_BATCH=1` for plain-php cutover only (Vitest default).
 
 ## Phase E — PHP emit parity on oracle slice (shipped)
 
