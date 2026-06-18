@@ -119,7 +119,18 @@ export async function runGoldVerifySuite(suite) {
   }
 
   const webir = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
-  const raw = JSON.parse(await readFile(join(fixture, ".chrysalis", `hub.${origin}.webir.json`), "utf8"));
+  const webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
+  let raw;
+  try {
+    raw = JSON.parse(await readFile(webirPath, "utf8"));
+  } catch (e) {
+    return {
+      ok: false,
+      reason: "webir-json-invalid",
+      path: webirPath,
+      error: e instanceof Error ? e.message : String(e),
+    };
+  }
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const footprint = webir.computeOracleFootprint(mod);
   if (footprint.totalHoleCount !== 0) {

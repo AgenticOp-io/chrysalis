@@ -559,7 +559,8 @@ export async function runStrategicPlanPhase1PhpWedgeGate(opts = {}) {
   if (!skipFlagships) {
     const { runPlainPhpFlagshipSmoke } = await import("./hub-plain-php-flagship.mjs");
     const { runSymfonyFlagshipSmoke } = await import("./hub-symfony-flagship.mjs");
-    [plainPhp, symfony] = await Promise.all([runPlainPhpFlagshipSmoke(), runSymfonyFlagshipSmoke()]);
+    plainPhp = await runPlainPhpFlagshipSmoke();
+    symfony = await runSymfonyFlagshipSmoke();
   }
   const ok =
     doc.ok === true &&
@@ -706,10 +707,8 @@ export async function runStrategicPlanPhase1PhpEmitParityGate(opts = {}) {
   let symfony = { emitParityOk: true, skip: "flagships-skipped" };
   if (!skipFlagships) {
     const { runFlagshipEmitParity } = await import("./hub-flagship-emit-parity.mjs");
-    [plainPhp, symfony] = await Promise.all([
-      runFlagshipEmitParity("plain-php-flagship"),
-      runFlagshipEmitParity("symfony-flagship"),
-    ]);
+    plainPhp = await runFlagshipEmitParity("plain-php-flagship");
+    symfony = await runFlagshipEmitParity("symfony-flagship");
   }
   const ok =
     doc.ok === true &&
@@ -1656,14 +1655,12 @@ export async function runStrategicPlanPhase8OracleProofGate(opts = {}) {
   const skips = resolveStrategicPlanSkips(opts);
   const gateOpts = strategicPlanSkipsToGateOpts(skips);
   const doc = runProductProofOraclePhase8DocGate();
-  const [express, laravel, phpWedge, emitParity] = await Promise.all([
-    runStrategicPlanMonth23ExpressOracleGate(gateOpts),
-    runStrategicPlanPhase1LaravelIngestDepthGate(gateOpts),
-    runStrategicPlanPhase1PhpWedgeGate(gateOpts),
-    runStrategicPlanPhase1PhpEmitParityGate({
-      skipFlagships: gateOpts.skipEmitParityFlagships,
-    }),
-  ]);
+  const express = await runStrategicPlanMonth23ExpressOracleGate(gateOpts);
+  const laravel = await runStrategicPlanPhase1LaravelIngestDepthGate(gateOpts);
+  const phpWedge = await runStrategicPlanPhase1PhpWedgeGate(gateOpts);
+  const emitParity = await runStrategicPlanPhase1PhpEmitParityGate({
+    skipFlagships: gateOpts.skipEmitParityFlagships,
+  });
   const ok =
     doc.ok === true &&
     express.ok === true &&
@@ -1703,12 +1700,10 @@ export async function runStrategicPlanPhase8HttpEmitProofGate(opts = {}) {
   const skips = resolveStrategicPlanSkips(opts);
   const gateOpts = strategicPlanSkipsToGateOpts(skips);
   const doc = runProductProofHttpEmitPhase8DocGate();
-  const [runtimeParity, emitMega, graduation, fullstackEntry] = await Promise.all([
-    runStrategicPlanMonth12RuntimeParityGate(gateOpts),
-    runStrategicPlanPhase6EmitVerifyMegaGate(gateOpts),
-    runStrategicPlanPhase6ProductionGraduationGate(gateOpts),
-    runStrategicPlanPhase7FullstackEntryGate(gateOpts),
-  ]);
+  const runtimeParity = await runStrategicPlanMonth12RuntimeParityGate(gateOpts);
+  const emitMega = await runStrategicPlanPhase6EmitVerifyMegaGate(gateOpts);
+  const graduation = await runStrategicPlanPhase6ProductionGraduationGate(gateOpts);
+  const fullstackEntry = await runStrategicPlanPhase7FullstackEntryGate(gateOpts);
   const ok =
     doc.ok === true &&
     runtimeParity.ok === true &&
