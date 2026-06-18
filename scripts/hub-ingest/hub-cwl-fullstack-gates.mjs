@@ -338,6 +338,66 @@ export async function runStrategicPlanMonth12RuntimeParityGate(opts = {}) {
   };
 }
 
+/** G5701 — full-stack CWL scope RFC doc presence (Month 2). */
+export function runFullstackCwlScopeRfcDocGate() {
+  const path = join(scriptRoot, "docs/CWL-FULLSTACK-SCOPE-RFC.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-scope-rfc-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("Backend boundary") &&
+    text.includes("Frontend / SSR boundary") &&
+    text.includes("Holes policy") &&
+    text.includes("CWL-RFC-0012");
+  return { ok: docOk, docOk };
+}
+
+/** G5702 — RFC-0012 hole catalog completeness for svelte + nextjs origins. */
+export function runFullstackCwlScopeCatalogGate() {
+  const required = [
+    "hub-svelte:page-component",
+    "hub-svelte:server-handler",
+    "hub-svelte:load-function",
+    "hub-svelte:form-action",
+    "hub-next:page-component",
+    "hub-next:route-handler",
+    "hub-next:load-function",
+  ];
+  const missing = required.filter((reason) => !CWL_FULLSTACK_HOLE_CATALOG[reason]);
+  return {
+    ok: missing.length === 0,
+    catalogSize: Object.keys(CWL_FULLSTACK_HOLE_CATALOG).length,
+    missing,
+  };
+}
+
+/** G5700 — STRATEGIC-PLAN Month 2 full-stack CWL scope RFC reinforcement. */
+export async function runStrategicPlanMonth2FullstackScopeGate() {
+  const [doc, scope, catalog, budget, diagnose] = await Promise.all([
+    Promise.resolve(runFullstackCwlScopeRfcDocGate()),
+    runFullstackCwlScopeRfcGate(),
+    Promise.resolve(runFullstackCwlScopeCatalogGate()),
+    Promise.resolve(runHoleBudgetV2Gate()),
+    runDiagnoseV3Gate(),
+  ]);
+  const ok =
+    doc.ok === true &&
+    scope.ok === true &&
+    catalog.ok === true &&
+    budget.ok === true &&
+    diagnose.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    scopeOk: scope.ok === true,
+    catalogOk: catalog.ok === true,
+    budgetOk: budget.ok === true,
+    diagnoseOk: diagnose.ok === true,
+    holeCatalogOk: scope.holeCatalogOk === true,
+    openapiOk: scope.openapiOk === true,
+    layoutOk: scope.layoutOk === true,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

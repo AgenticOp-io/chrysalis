@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" (post-110 authoring replay program **closed** at queue **437** / schema **510**).
-- **Recently shipped:** **G5690–G5693** — STRATEGIC-PLAN Month 1–2 runtime-cwl parity reinforcement. **G5680–G5683** — Month 1 authoring bootstrap hardening. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G5700–G5703** — STRATEGIC-PLAN Month 2 full-stack scope RFC. **G5690–G5693** — Month 1–2 runtime-cwl parity. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -106,7 +106,8 @@ The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § "Next 90 day
 (see `AGENTS.md`). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**. Current build focus:
 
 - **CWL / full-stack:** queues **111–437 complete** (schema **510**) — **post-110 authoring replay program closed**; maintenance only.
-- **STRATEGIC-PLAN Month 1–2 (active):** **G5690–G5693** — runtime-cwl parity + production-readiness (`runStrategicPlanMonth12RuntimeParityGate`, `hub:strategic-plan-month12-runtime-parity-smoke`).
+- **STRATEGIC-PLAN Month 2 (active):** **G5700–G5703** — full-stack CWL scope RFC (`runStrategicPlanMonth2FullstackScopeGate`, `docs/CWL-FULLSTACK-SCOPE-RFC.md`, `hub:strategic-plan-month2-fullstack-scope-smoke`).
+- **STRATEGIC-PLAN Month 1–2:** **G5690–G5693** — **complete** (runtime-cwl parity reinforcement).
 - **STRATEGIC-PLAN Month 1:** **G5680–G5683** — **complete** (authoring bootstrap hardening).
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.
 - **Hole economics maintenance:** **`db-query-unknown-receiver-probe`** remains the intentional **1-hole** negative probe; add new tracked DB receivers via **mysqli-probe** routes when widening **`->query`** lowering.

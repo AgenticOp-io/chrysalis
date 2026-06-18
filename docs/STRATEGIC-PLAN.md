@@ -245,6 +245,8 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 1–2 reinforcement (2026-06-17):** **G5690–G5693** — `runStrategicPlanMonth12RuntimeParityGate`, `pnpm run hub:strategic-plan-month12-runtime-parity-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP=1` for in-process-only).
 
+**Month 2 reinforcement (2026-06-17):** **G5700–G5703** — `docs/CWL-FULLSTACK-SCOPE-RFC.md`, `runStrategicPlanMonth2FullstackScopeGate`, `pnpm run hub:strategic-plan-month2-fullstack-scope-smoke`.
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
