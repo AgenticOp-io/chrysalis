@@ -23,6 +23,7 @@ The **CWL full-stack authoring program** ran as numbered **queues 6–437** (ROA
 | [`docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`](./CWL-FULLSTACK-FLAGSHIP-PILOT.md) | Flagship pilot with hole budget |
 | [`docs/RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) | In-process runtime parity gates |
 | [`docs/archive/CWL-FULLSTACK-BUILD-LOG.md`](./archive/CWL-FULLSTACK-BUILD-LOG.md) | **Archived** per-queue build log (compiled) |
+| [`docs/CWL-FULLSTACK-PHASE-7.md`](./CWL-FULLSTACK-PHASE-7.md) | Closed Phase 7 full-stack reinforcement summary |
 
 ## Operator smokes (representative)
 

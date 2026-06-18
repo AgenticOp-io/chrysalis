@@ -152,15 +152,15 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 - Reinforcement queue **G5930–G5963** complete — see `docs/CWL-RUNTIME-PHASE-5.md`
 
-### Phase 6 — CWL runtime at scale (24–48 mo) — **P2** (active)
+### Phase 6 — CWL runtime at scale (24–48 mo) — **Closed (2026-06-17)**
 
-Full production runtime parity (real SQL/session) remains phase-gated on evidence, but is an explicit product objective.
+- Reinforcement queue **G5970–G6003** complete — see `docs/CWL-RUNTIME-SCALE-PHASE-6.md`
 
-### Phase 7 — Full-stack CWL surface (parallel track) — **P1**
+### Phase 7 — Full-stack CWL surface (parallel track) — **Closed (2026-06-17)**
 
-- Define and implement CWL coverage for frontend/SSR/UI-associated semantics, not only backend route handlers
-- Add full-stack flagships with hole budgets and replay/contract evidence gates
-- Keep unsupported full-stack constructs explicit via holes until verified lowering exists
+- Reinforcement queue **G6010–G6043** complete — see `docs/CWL-FULLSTACK-PHASE-7.md`
+
+**Strategic plan phases 0–7:** all reinforcement queues **closed** (**G5680–G6043**). Default build → **maintenance** unless plan amended.
 
 ---
 
@@ -239,7 +239,7 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 3–4 reinforcement (2026-06-17):** **G5730–G5733** — `docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`, `runStrategicPlanMonth34FullstackPilotGate`, `pnpm run hub:strategic-plan-month34-fullstack-pilot-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1` for preview/budget without gold verify).
 
-**Next 90 days program:** **closed (2026-06-17)**. **Phase 1–5** reinforcement **closed** (**G5740–G5963**). Default build queue: **Phase 6 CWL runtime at scale** (§7).
+**Next 90 days program:** **closed (2026-06-17)**. **Phases 0–7** reinforcement **closed** (**G5680–G6043**). Default build queue: **maintenance** unless plan amended (§13).
 
 **Phase 1 reinforcement (2026-06-17):** **G5740–G5743** — `docs/PHP-WEDGE-PHASE-1.md`, `runStrategicPlanPhase1PhpWedgeGate`, `pnpm run hub:strategic-plan-phase1-php-wedge-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks only).
 
@@ -286,6 +286,20 @@ When the user says “build” without specifying, prefer this queue:
 **Phase 5 session stub honesty (2026-06-17):** **G5950–G5953** — `docs/CWL-RUNTIME-SESSION-STUB-PHASE-5.md`, `runStrategicPlanPhase5SessionStubGate`.
 
 **Phase 5 program close (2026-06-17):** **G5960–G5963** — `runStrategicPlanPhase5CwlRuntimeCloseGate`, `pnpm run hub:strategic-plan-phase5-cwl-runtime-close-smoke`. Phase 5 **closed**.
+
+**Phase 6 runtime at scale entry (2026-06-17):** **G5970–G5973** — `docs/CWL-RUNTIME-SCALE-PHASE-6.md`, `runStrategicPlanPhase6RuntimeScaleEntryGate`.
+
+**Phase 6 emit verify mega (2026-06-17):** **G5980–G5983** — `docs/CWL-RUNTIME-EMIT-VERIFY-PHASE-6.md`, `runStrategicPlanPhase6EmitVerifyMegaGate`.
+
+**Phase 6 production graduation (2026-06-17):** **G5990–G5993** — `docs/CWL-RUNTIME-PRODUCTION-GRADUATION-PHASE-6.md`, `runStrategicPlanPhase6ProductionGraduationGate`.
+
+**Phase 6 program close (2026-06-17):** **G6000–G6003** — `runStrategicPlanPhase6RuntimeScaleCloseGate`, `pnpm run hub:strategic-plan-phase6-runtime-scale-close-smoke`. Phase 6 **closed**.
+
+**Phase 7 full-stack entry (2026-06-17):** **G6010–G6013** — `docs/CWL-FULLSTACK-PHASE-7.md`, `runStrategicPlanPhase7FullstackEntryGate` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1`).
+
+**Phase 7 hole budget (2026-06-17):** **G6020–G6023** — `docs/CWL-FULLSTACK-HOLE-BUDGET-PHASE-7.md`, `runStrategicPlanPhase7HoleBudgetGate`.
+
+**Phase 7 program close (2026-06-17):** **G6040–G6043** — `runStrategicPlanPhase7FullstackCloseGate`, `pnpm run hub:strategic-plan-phase7-fullstack-close-smoke`. Phase 7 **closed**. **All strategic phases complete.**
 
 
 ### Full-stack CWL — next 10 steps (after G1158)

@@ -43,6 +43,8 @@ Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullst
 | Program | Status |
 | --- | --- |
 | Phase 5 entry | `runStrategicPlanPhase5CwlRuntimeEntryGate` (G5930) |
+| Phase 6 entry | `runStrategicPlanPhase6RuntimeScaleEntryGate` (G5970) |
+| Phase 7 entry | `runStrategicPlanPhase7FullstackEntryGate` (G6010) |
 | Production search | `runStrategicPlanPhase5ProductionSearchGate` (G5940) |
 | Session stub honesty | `runStrategicPlanPhase5SessionStubGate` (G5950) |
 

@@ -1399,6 +1399,212 @@ export async function runStrategicPlanPhase5CwlRuntimeCloseGate(opts = {}) {
   };
 }
 
+/** G5971 — CWL runtime at scale Phase 6 plan doc. */
+export function runCwlRuntimeScalePhase6DocGate() {
+  const path = join(scriptRoot, "docs/CWL-RUNTIME-SCALE-PHASE-6.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-runtime-scale-phase6-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanPhase5CwlRuntimeCloseGate") &&
+    text.includes("runProductionGraduationGate") &&
+    text.includes("runEmitVerifyMegaGate") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5981 — emit verify mega Phase 6 plan doc. */
+export function runCwlRuntimeEmitVerifyPhase6DocGate() {
+  const path = join(scriptRoot, "docs/CWL-RUNTIME-EMIT-VERIFY-PHASE-6.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-emit-verify-phase6-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runEmitVerifyMegaGate") &&
+    text.includes("runStrategicPlanPhase6EmitVerifyMegaGate") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5980 — Phase 6 emit verify mega reinforcement. */
+export async function runStrategicPlanPhase6EmitVerifyMegaGate(opts = {}) {
+  const skipEmitHttp =
+    opts.skipEmitHttp === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP === "1";
+  const doc = runCwlRuntimeEmitVerifyPhase6DocGate();
+  let mega = { ok: true, skip: "emit-http-skipped", honoOk: true, fastifyOk: true };
+  if (!skipEmitHttp) {
+    mega = await runEmitVerifyMegaGate(opts);
+  }
+  const ok = doc.ok === true && mega.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    megaOk: mega.ok === true,
+    skipEmitHttp,
+    honoOk: mega.honoOk === true,
+    fastifyOk: mega.fastifyOk === true,
+  };
+}
+
+/** G5991 — production graduation Phase 6 plan doc. */
+export function runCwlRuntimeProductionGraduationPhase6DocGate() {
+  const path = join(scriptRoot, "docs/CWL-RUNTIME-PRODUCTION-GRADUATION-PHASE-6.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-production-graduation-phase6-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runProductionGraduationGate") &&
+    text.includes("runFastifyEmitSearchGate") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5990 — Phase 6 production graduation reinforcement. */
+export async function runStrategicPlanPhase6ProductionGraduationGate(opts = {}) {
+  const skipEmitHttp =
+    opts.skipEmitHttp === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP === "1";
+  const doc = runCwlRuntimeProductionGraduationPhase6DocGate();
+  const search = await runProductionSearchGate(opts);
+  const session = await runSessionStubGate(opts);
+  const diagnose = await runDiagnoseV2Gate();
+  let fastify = { ok: true, skip: "emit-http-skipped" };
+  let mega = { ok: true, skip: "emit-http-skipped" };
+  if (!skipEmitHttp) {
+    fastify = await runFastifyEmitSearchGate(opts);
+    mega = await runEmitVerifyMegaGate(opts);
+  }
+  const ok =
+    doc.ok === true &&
+    search.ok === true &&
+    session.ok === true &&
+    diagnose.ok === true &&
+    fastify.ok === true &&
+    mega.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    searchOk: search.ok === true,
+    sessionOk: session.ok === true,
+    diagnoseOk: diagnose.ok === true,
+    fastifyOk: fastify.ok === true,
+    megaOk: mega.ok === true,
+    skipEmitHttp,
+    gateCount: 5,
+  };
+}
+
+/** G5970 — Phase 6 runtime at scale entry gate. */
+export async function runStrategicPlanPhase6RuntimeScaleEntryGate(opts = {}) {
+  const skipEmitHttp =
+    opts.skipEmitHttp === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP === "1";
+  const doc = runCwlRuntimeScalePhase6DocGate();
+  const [phase5Close, graduation] = await Promise.all([
+    runStrategicPlanPhase5CwlRuntimeCloseGate({ ...opts, skipEmitHttp }),
+    runStrategicPlanPhase6ProductionGraduationGate({ ...opts, skipEmitHttp }),
+  ]);
+  const ok = doc.ok === true && phase5Close.ok === true && graduation.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    phase5CloseOk: phase5Close.ok === true,
+    graduationOk: graduation.ok === true,
+    skipEmitHttp,
+  };
+}
+
+/** G6000 — Phase 6 runtime at scale program close gate. */
+export async function runStrategicPlanPhase6RuntimeScaleCloseGate(opts = {}) {
+  const skipEmitHttp =
+    opts.skipEmitHttp === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP === "1";
+  const [entry, emitMega, graduation] = await Promise.all([
+    runStrategicPlanPhase6RuntimeScaleEntryGate({ ...opts, skipEmitHttp }),
+    runStrategicPlanPhase6EmitVerifyMegaGate({ skipEmitHttp }),
+    runStrategicPlanPhase6ProductionGraduationGate({ skipEmitHttp }),
+  ]);
+  const ok = entry.ok === true && emitMega.ok === true && graduation.ok === true;
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    emitMegaOk: emitMega.ok === true,
+    graduationOk: graduation.ok === true,
+    skipEmitHttp,
+  };
+}
+
+/** G6011 — full-stack CWL Phase 7 plan doc. */
+export function runCwlFullstackPhase7DocGate() {
+  const path = join(scriptRoot, "docs/CWL-FULLSTACK-PHASE-7.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-fullstack-phase7-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanMonth2FullstackScopeGate") &&
+    text.includes("runStrategicPlanMonth34FullstackPilotGate") &&
+    text.includes("CWL-FULLSTACK-SCOPE-RFC") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G6010 — Phase 7 full-stack CWL entry gate. */
+export async function runStrategicPlanPhase7FullstackEntryGate(opts = {}) {
+  const skipGoldVerify =
+    opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
+  const doc = runCwlFullstackPhase7DocGate();
+  const [scope, pilot] = await Promise.all([
+    runStrategicPlanMonth2FullstackScopeGate(opts),
+    runStrategicPlanMonth34FullstackPilotGate({ ...opts, skipGoldVerify }),
+  ]);
+  const ok = doc.ok === true && scope.ok === true && pilot.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    scopeOk: scope.ok === true,
+    pilotOk: pilot.ok === true,
+    skipGoldVerify,
+    holeCount: pilot.holeCount ?? null,
+    budgetCheckOk: pilot.budgetCheckOk === true,
+  };
+}
+
+/** G6021 — hole budget Phase 7 plan doc. */
+export function runCwlFullstackHoleBudgetPhase7DocGate() {
+  const path = join(scriptRoot, "docs/CWL-FULLSTACK-HOLE-BUDGET-PHASE-7.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-hole-budget-phase7-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runHoleBudgetV2Gate") &&
+    text.includes("runDeliveryInterpolationGate") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G6020 — Phase 7 hole budget reinforcement. */
+export async function runStrategicPlanPhase7HoleBudgetGate(opts = {}) {
+  const doc = runCwlFullstackHoleBudgetPhase7DocGate();
+  const budget = runHoleBudgetV2Gate();
+  const interpolation = await runDeliveryInterpolationGate(opts);
+  const ok = doc.ok === true && budget.ok === true && interpolation.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    budgetOk: budget.ok === true,
+    interpolationOk: interpolation.ok === true,
+  };
+}
+
+/** G6040 — Phase 7 full-stack CWL program close gate. */
+export async function runStrategicPlanPhase7FullstackCloseGate(opts = {}) {
+  const skipGoldVerify =
+    opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
+  const [entry, holeBudget] = await Promise.all([
+    runStrategicPlanPhase7FullstackEntryGate({ ...opts, skipGoldVerify }),
+    runStrategicPlanPhase7HoleBudgetGate(opts),
+  ]);
+  const ok = entry.ok === true && holeBudget.ok === true;
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    holeBudgetOk: holeBudget.ok === true,
+    skipGoldVerify,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });
