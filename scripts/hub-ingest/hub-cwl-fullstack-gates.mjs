@@ -1133,6 +1133,166 @@ export async function runStrategicPlanPhase3CwlInterchangeCloseGate(opts = {}) {
   };
 }
 
+/** G5881 — Second oracle origin Phase 4 plan doc. */
+export function runSecondOracleOriginPhase4DocGate() {
+  const path = join(scriptRoot, "docs/SECOND-ORACLE-ORIGIN-PHASE-4.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-second-oracle-phase4-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanMonth23ExpressOracleGate") &&
+    text.includes("runSecondOracleOriginCapabilityGate") &&
+    text.includes("fixtures/hub-flagship-express") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5882 — capability matrix oracle-product row for javascript→hono. */
+export async function runSecondOracleOriginCapabilityGate() {
+  const { buildHubCapabilityMatrixReport } = await import("./hub-capability-matrix.mjs");
+  const report = buildHubCapabilityMatrixReport();
+  const pair = report.tiers?.oracleProduct?.pairs?.find(
+    (p) => p.origin === "javascript" && p.fixture === "fixtures/hub-flagship-express",
+  );
+  const ok = pair != null && pair.tier === "oracle-product" && pair.verifyTier === "oracle";
+  return {
+    ok,
+    pairCount: report.tiers?.oracleProduct?.pairCount ?? null,
+    javascriptHonoOk: pair != null,
+    program: pair?.program ?? null,
+  };
+}
+
+/** G5880 — Phase 4 second oracle origin entry gate. */
+export async function runStrategicPlanPhase4SecondOracleOriginEntryGate(opts = {}) {
+  const skipOracleVerify =
+    opts.skipOracleVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_ORACLE_VERIFY === "1";
+  const doc = runSecondOracleOriginPhase4DocGate();
+  const [capability, expressOracle] = await Promise.all([
+    runSecondOracleOriginCapabilityGate(),
+    runStrategicPlanMonth23ExpressOracleGate({ ...opts, skipOracleVerify }),
+  ]);
+  const ok = doc.ok === true && capability.ok === true && expressOracle.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    capabilityOk: capability.ok === true,
+    expressOracleOk: expressOracle.ok === true,
+    expressDepthOk: expressOracle.expressDepthOk === true,
+    liftOk: expressOracle.liftOk === true,
+    skipOracleVerify,
+    pairCount: capability.pairCount ?? null,
+    program: capability.program ?? null,
+    correctness: expressOracle.correctness ?? null,
+  };
+}
+
+/** G5891 — live oracle verify Phase 4 plan doc. */
+export function runSecondOracleLiveVerifyPhase4DocGate() {
+  const path = join(scriptRoot, "docs/SECOND-ORACLE-LIVE-VERIFY-PHASE-4.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-live-verify-phase4-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runNodeExpressOracleFlagshipGate") &&
+    text.includes("hub-node-express-oracle-verify") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5890 — Phase 4 live oracle verify reinforcement. */
+export async function runStrategicPlanPhase4LiveOracleVerifyGate(opts = {}) {
+  const skipOracleVerify =
+    opts.skipOracleVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_ORACLE_VERIFY === "1";
+  const doc = runSecondOracleLiveVerifyPhase4DocGate();
+  let oracle = { ok: true, skip: "oracle-verify-skipped" };
+  if (!skipOracleVerify) {
+    oracle = await runNodeExpressOracleFlagshipGate();
+  }
+  const ok = doc.ok === true && oracle.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    oracleOk: oracle.ok === true,
+    skipOracleVerify,
+    correctness: oracle.correctness ?? null,
+  };
+}
+
+/** G5901 — Express depth batch Phase 4 plan doc. */
+export function runExpressDepthBatchPhase4DocGate() {
+  const path = join(scriptRoot, "docs/EXPRESS-DEPTH-BATCH-PHASE-4.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-express-depth-batch-phase4-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runExpressDepthBatchSmoke") &&
+    text.includes("runProjectToCwlExpressSmoke") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5900 — Phase 4 Express depth batch reinforcement. */
+export async function runStrategicPlanPhase4ExpressDepthBatchGate() {
+  const doc = runExpressDepthBatchPhase4DocGate();
+  const { runExpressDepthBatchSmoke } = await import("./hub-express-depth-batch-smoke.mjs");
+  const depth = await runExpressDepthBatchSmoke();
+  const ok = doc.ok === true && depth.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    depthOk: depth.ok === true,
+    routeCount: depth.siteIntelligence?.routeCount ?? null,
+    programId: depth.pathAdvice?.programId ?? null,
+    holeFree: depth.projectToCwl?.holeFree ?? null,
+  };
+}
+
+/** G5911 — Express delivery batch Phase 4 plan doc. */
+export function runExpressDeliveryBatchPhase4DocGate() {
+  const path = join(scriptRoot, "docs/EXPRESS-DELIVERY-BATCH-PHASE-4.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-express-delivery-batch-phase4-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runExpressDeliveryBatchSmoke") &&
+    text.includes("runChimeraCutoverExpressSmoke") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5910 — Phase 4 Express delivery batch reinforcement. */
+export async function runStrategicPlanPhase4ExpressDeliveryBatchGate() {
+  const doc = runExpressDeliveryBatchPhase4DocGate();
+  const { runExpressDeliveryBatchSmoke } = await import("./hub-express-delivery-batch-smoke.mjs");
+  const delivery = await runExpressDeliveryBatchSmoke();
+  const ok = doc.ok === true && delivery.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    deliveryOk: delivery.ok === true,
+    readinessTier: delivery.migrationAssessment?.readinessTier ?? null,
+    phaseCount: delivery.chimeraCutover?.phaseCount ?? null,
+  };
+}
+
+/** G5920 — Phase 4 second oracle origin program close gate. */
+export async function runStrategicPlanPhase4SecondOracleOriginCloseGate(opts = {}) {
+  const skipOracleVerify =
+    opts.skipOracleVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_ORACLE_VERIFY === "1";
+  const [entry, liveVerify, depth, delivery] = await Promise.all([
+    runStrategicPlanPhase4SecondOracleOriginEntryGate({ ...opts, skipOracleVerify }),
+    runStrategicPlanPhase4LiveOracleVerifyGate({ skipOracleVerify }),
+    runStrategicPlanPhase4ExpressDepthBatchGate(),
+    runStrategicPlanPhase4ExpressDeliveryBatchGate(),
+  ]);
+  const ok = entry.ok === true && liveVerify.ok === true && depth.ok === true && delivery.ok === true;
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    liveVerifyOk: liveVerify.ok === true,
+    depthOk: depth.ok === true,
+    deliveryOk: delivery.ok === true,
+    skipOracleVerify,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

@@ -14,9 +14,9 @@ demo and measurable numbers, not a pile of abstractions.
   milestones (`V2-M1`-`V2-M6`) are complete; see `CHANGELOG.md` and
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
-- **Active lanes:** **Phase 3 CWL interchange closed** (**G5830–G5873**). Default queue → **Phase 4 second oracle origin** per `docs/STRATEGIC-PLAN.md`.
-- **Recently shipped:** **G5870–G5873** — Phase 3 program close. **G5840–G5863** — RFC, OpenAPI, full-stack alignment. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
-- **Second oracle origin (Phase 4, active):** Express flagship depth per `docs/NODE-EXPRESS-ORACLE-ORIGIN-PLAN.md` (**G5710** baseline).
+- **Active lanes:** **Phase 4 second oracle origin closed** (**G5880–G5923**). Default queue → **Phase 5 CWL runtime** per `docs/STRATEGIC-PLAN.md`.
+- **Recently shipped:** **G5920–G5923** — Phase 4 program close. **G5880–G5913** — entry, live verify, Express depth/delivery batches. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **CWL runtime (Phase 5, active):** `@chrysalis/runtime-cwl` parity acceleration per `docs/RUNTIME-CWL-PARITY-PLAN.md` (**G5690** baseline).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.

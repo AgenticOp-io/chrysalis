@@ -28,13 +28,14 @@ Establish **JavaScript → Hono** as the first **second oracle origin** with liv
 
 Registry: `scripts/hub-ingest/hub-node-express-oracle-verify.mjs`.
 
-## Phase C — Program integration (in progress)
+## Phase C — Program integration (shipped)
 
 | Program | Status |
 | --- | --- |
 | Capability matrix row | Shipped (javascript→hono) |
 | Hub completion heavy smoke | Optional env-gated |
 | STRATEGIC-PLAN reinforcement | `runStrategicPlanMonth23ExpressOracleGate` (G5710) |
+| Phase 4 entry | `runStrategicPlanPhase4SecondOracleOriginEntryGate` (G5880) |
 
 ## Operator entry points
 

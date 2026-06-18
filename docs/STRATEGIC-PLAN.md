@@ -144,13 +144,11 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 - Reinforcement queue **G5830–G5873** complete — see `docs/CWL-INTERCHANGE-PHASE-3.md`
 
-### Phase 4 — Second oracle origin (months 12–24) — **P2** (active)
+### Phase 4 — Second oracle origin (months 12–24) — **Closed (2026-06-17)**
 
-Pick **one**: Node/Express (recommended first), or Python, or Java.
+- Reinforcement queue **G5880–G5923** complete — see `docs/SECOND-ORACLE-ORIGIN-PHASE-4.md`
 
-- One **flagship** + oracle record + verify-tier before marketing second origin
-
-### Phase 5 — CWL runtime (accelerated) — **P1**
+### Phase 5 — CWL runtime (accelerated) — **P1** (active)
 
 In-process CWL preview/runtime via `@chrysalis/runtime-cwl` (WebIR simulation) is the base. Expand toward production-grade runtime capability while preserving emit + verify parity checks.
 
@@ -241,7 +239,7 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 3–4 reinforcement (2026-06-17):** **G5730–G5733** — `docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`, `runStrategicPlanMonth34FullstackPilotGate`, `pnpm run hub:strategic-plan-month34-fullstack-pilot-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1` for preview/budget without gold verify).
 
-**Next 90 days program:** **closed (2026-06-17)**. **Phase 1–3** reinforcement **closed** (**G5740–G5873**). Default build queue: **Phase 4 second oracle origin** (§7).
+**Next 90 days program:** **closed (2026-06-17)**. **Phase 1–4** reinforcement **closed** (**G5740–G5923**). Default build queue: **Phase 5 CWL runtime** (§7).
 
 **Phase 1 reinforcement (2026-06-17):** **G5740–G5743** — `docs/PHP-WEDGE-PHASE-1.md`, `runStrategicPlanPhase1PhpWedgeGate`, `pnpm run hub:strategic-plan-phase1-php-wedge-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks only).
 
@@ -270,6 +268,16 @@ When the user says “build” without specifying, prefer this queue:
 **Phase 3 full-stack alignment (2026-06-17):** **G5860–G5863** — `docs/CWL-FULLSTACK-PHASE-3-ALIGNMENT.md`, `runStrategicPlanPhase3FullstackAlignmentGate`.
 
 **Phase 3 program close (2026-06-17):** **G5870–G5873** — `runStrategicPlanPhase3CwlInterchangeCloseGate`, `pnpm run hub:strategic-plan-phase3-cwl-interchange-close-smoke`. Phase 3 **closed**.
+
+**Phase 4 second oracle origin entry (2026-06-17):** **G5880–G5883** — `docs/SECOND-ORACLE-ORIGIN-PHASE-4.md`, `runStrategicPlanPhase4SecondOracleOriginEntryGate`, `pnpm run hub:strategic-plan-phase4-second-oracle-origin-entry-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_ORACLE_VERIFY=1` for lift depth only).
+
+**Phase 4 live oracle verify (2026-06-17):** **G5890–G5893** — `docs/SECOND-ORACLE-LIVE-VERIFY-PHASE-4.md`, `runStrategicPlanPhase4LiveOracleVerifyGate`.
+
+**Phase 4 Express depth batch (2026-06-17):** **G5900–G5903** — `docs/EXPRESS-DEPTH-BATCH-PHASE-4.md`, `runStrategicPlanPhase4ExpressDepthBatchGate`.
+
+**Phase 4 Express delivery batch (2026-06-17):** **G5910–G5913** — `docs/EXPRESS-DELIVERY-BATCH-PHASE-4.md`, `runStrategicPlanPhase4ExpressDeliveryBatchGate`.
+
+**Phase 4 program close (2026-06-17):** **G5920–G5923** — `runStrategicPlanPhase4SecondOracleOriginCloseGate`, `pnpm run hub:strategic-plan-phase4-second-oracle-origin-close-smoke`. Phase 4 **closed**.
 
 
 ### Full-stack CWL — next 10 steps (after G1158)
