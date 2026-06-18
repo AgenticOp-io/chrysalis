@@ -433,6 +433,101 @@ export async function runStrategicPlanMonth23ExpressOracleGate(opts = {}) {
   };
 }
 
+/** G5721 — project-to-CWL + CWL diff translate-path plan doc (Month 3). */
+export function runProjectToCwlTranslatePathDocGate() {
+  const path = join(scriptRoot, "docs/PROJECT-TO-CWL-TRANSLATE-PATH.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-translate-path-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("hub-translate") &&
+    text.includes("writeProjectCwlDiffArtifacts") &&
+    text.includes("runProjectToCwlMandatoryGate") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5722 — CWL semantic diff mandatory gate (gold fixture). */
+export async function runCwlDiffMandatoryGate() {
+  const { runCwlDiffSmoke } = await import("./hub-cwl-diff-smoke.mjs");
+  const report = runCwlDiffSmoke();
+  return {
+    ok: report.ok === true,
+    changedRoutes: report.changedRoutes ?? 0,
+    added: report.added ?? 0,
+    removed: report.removed ?? 0,
+  };
+}
+
+/** G5720 — STRATEGIC-PLAN Month 3 project-to-CWL + CWL diff on translate paths. */
+export async function runStrategicPlanMonth3ProjectToCwlGate(opts = {}) {
+  const skipRoundtrip =
+    opts.skipRoundtrip === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_PROJECT_CWL_ROUNDTRIP === "1";
+  const fastFixtures = [
+    { id: "plainPhp", rel: "fixtures/hub-flagship-plain-php", origin: "php", requireHoleFree: true },
+    { id: "symfony", rel: "fixtures/hub-flagship-symfony", origin: "php", requireHoleFree: true },
+  ];
+  const { runProjectToCwlOracleGates } = await import("./hub-project-to-cwl-gates.mjs");
+  const [doc, diff, oracle] = await Promise.all([
+    Promise.resolve(runProjectToCwlTranslatePathDocGate()),
+    runCwlDiffMandatoryGate(),
+    runProjectToCwlOracleGates(skipRoundtrip ? { fixtures: fastFixtures } : opts),
+  ]);
+  let roundtrip = { ok: true, skip: "roundtrip-skipped" };
+  if (!skipRoundtrip) {
+    roundtrip = await runProjectToCwlRoundtripGate();
+  }
+  const ok =
+    doc.ok === true && diff.ok === true && oracle.ok === true && roundtrip.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    diffOk: diff.ok === true,
+    oracleOk: oracle.ok === true,
+    roundtripOk: roundtrip.ok === true,
+    skipRoundtrip,
+    changedRoutes: diff.changedRoutes ?? 0,
+  };
+}
+
+/** G5731 — full-stack flagship pilot plan doc (Month 3–4). */
+export function runFullstackFlagshipPilotDocGate() {
+  const path = join(scriptRoot, "docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-flagship-pilot-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("chrysalis.fullstack-hole-budget.json") &&
+    text.includes("runCwlFullstackFlagshipSmoke") &&
+    text.includes("evidenceGates") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5730 — STRATEGIC-PLAN Month 3–4 full-stack flagship pilot + hole budget evidence. */
+export async function runStrategicPlanMonth34FullstackPilotGate(opts = {}) {
+  const skipGoldVerify =
+    opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
+  const doc = runFullstackFlagshipPilotDocGate();
+  const budget = runHoleBudgetV2Gate();
+  const interpolation = await runDeliveryInterpolationGate(opts);
+  const { runCwlFullstackFlagshipSmoke } = await import("./hub-cwl-fullstack-flagship-smoke.mjs");
+  const pilot = await runCwlFullstackFlagshipSmoke({ ...opts, skipGoldVerify });
+  const ok =
+    doc.ok === true &&
+    budget.ok === true &&
+    interpolation.ok === true &&
+    pilot.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    budgetOk: budget.ok === true,
+    interpolationOk: interpolation.ok === true,
+    pilotOk: pilot.ok === true,
+    skipGoldVerify,
+    holeCount: pilot.holeCount ?? null,
+    budgetCheckOk: pilot.budgetCheck?.ok === true,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

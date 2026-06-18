@@ -249,6 +249,10 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 2–3 reinforcement (2026-06-17):** **G5710–G5713** — `docs/NODE-EXPRESS-ORACLE-ORIGIN-PLAN.md`, `runStrategicPlanMonth23ExpressOracleGate`, `pnpm run hub:strategic-plan-month23-express-oracle-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_ORACLE_VERIFY=1` for lift depth only).
 
+**Month 3 reinforcement (2026-06-17):** **G5720–G5723** — `docs/PROJECT-TO-CWL-TRANSLATE-PATH.md`, `runStrategicPlanMonth3ProjectToCwlGate`, `pnpm run hub:strategic-plan-month3-project-to-cwl-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PROJECT_CWL_ROUNDTRIP=1` for fast oracle slice).
+
+**Month 3–4 reinforcement (2026-06-17):** **G5730–G5733** — `docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`, `runStrategicPlanMonth34FullstackPilotGate`, `pnpm run hub:strategic-plan-month34-fullstack-pilot-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1` for preview/budget without gold verify).
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 

@@ -67,14 +67,20 @@ export async function runCwlFullstackFlagshipSmoke(opts = {}) {
   /** @type {Record<string, boolean>} */
   const goldVerify = {};
   let goldOk = true;
-  for (const suite of SUITE_IDS) {
-    const gv = spawnSync(process.execPath, [goldVerifyScript, "--suite", suite], {
-      cwd: scriptRoot,
-      encoding: "utf8",
-      maxBuffer: 20 * 1024 * 1024,
-    });
-    goldVerify[suite] = gv.status === 0;
-    if (gv.status !== 0) goldOk = false;
+  const skipGoldVerify =
+    opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
+  if (!skipGoldVerify) {
+    for (const suite of SUITE_IDS) {
+      const gv = spawnSync(process.execPath, [goldVerifyScript, "--suite", suite], {
+        cwd: scriptRoot,
+        encoding: "utf8",
+        maxBuffer: 20 * 1024 * 1024,
+      });
+      goldVerify[suite] = gv.status === 0;
+      if (gv.status !== 0) goldOk = false;
+    }
+  } else {
+    goldVerify.skipped = true;
   }
 
   const ok =
@@ -100,6 +106,7 @@ export async function runCwlFullstackFlagshipSmoke(opts = {}) {
     },
     diagnose: { ok: diagnose.ok, diagnostics: diagnose.diagnostics?.length ?? 0 },
     goldVerify,
+    skipGoldVerify,
     generatedAt: new Date().toISOString(),
   };
 }
