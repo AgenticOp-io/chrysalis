@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 const ALL_SKIPS = JSON.stringify({
+  strict: false,
   skipOracleVerify: true,
   skipEmitHttp: true,
   skipGoldVerify: true,

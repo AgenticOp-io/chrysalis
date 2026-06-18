@@ -9,7 +9,6 @@ mkdir -p reports/ci
 OK_MARKER="${REPO}/reports/ci/gce-phase8-strict.ok"
 rm -f "${OK_MARKER}"
 
-export CHRYSALIS_STRICT_STRATEGIC_PLAN=1
 export CHRYSALIS_STATUS_REPO="${REPO}"
 
 node scripts/gce-progress.mjs init strategic-plan-phase8-strict

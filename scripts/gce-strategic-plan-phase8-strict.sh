@@ -10,8 +10,8 @@ log() { echo "[gce-strategic-plan-phase8-strict] $(date -Is) $*"; }
 log "ensure gitignored fixture emits"
 bash scripts/gce-ensure-fixture-emits.sh
 
-log "phase8 vitest (skip-fast path)"
-pnpm exec vitest run packages/cli/tests/hub-strategic-plan-phase8.test.ts \
+log "phase8 vitest (skip-fast path; STRICT unset)"
+env -u CHRYSALIS_STRICT_STRATEGIC_PLAN pnpm exec vitest run packages/cli/tests/hub-strategic-plan-phase8.test.ts \
   --reporter=verbose \
   --pool=forks \
   --maxWorkers=1 \

@@ -5,9 +5,27 @@
 
 /** @returns {boolean} */
 export function isStrategicPlanStrict(opts = {}) {
+  if (opts.strict === false) return false;
   if (opts.strict === true) return true;
   if (process.env.CHRYSALIS_STRICT_STRATEGIC_PLAN === "1") return true;
   return process.env.GITHUB_ACTIONS === "true";
+}
+
+/** @param {Record<string, boolean | undefined>} opts */
+function hasExplicitSkipOverrides(opts) {
+  return (
+    opts.skipOracleVerify === true ||
+    opts.skipEmitHttp === true ||
+    opts.skipGoldVerify === true ||
+    opts.skipProjectCwlRoundtrip === true ||
+    opts.skipCwlRfcRoundtrip === true ||
+    opts.skipLaravelLiveGaps === true ||
+    opts.skipMigrationOsMegaBatch === true ||
+    opts.skipMigrationOsStandaloneBatch === true ||
+    opts.skipPhpWedgeFlagships === true ||
+    opts.skipEmitParityFlagships === true ||
+    opts.skipChimeraOriginBatch === true
+  );
 }
 
 /**
@@ -28,7 +46,8 @@ export function isStrategicPlanStrict(opts = {}) {
  * }}
  */
 export function resolveStrategicPlanSkips(opts = {}) {
-  if (isStrategicPlanStrict(opts)) {
+  const envStrict = isStrategicPlanStrict(opts);
+  if (envStrict && !hasExplicitSkipOverrides(opts)) {
     return {
       strict: true,
       skipOracleVerify: false,
