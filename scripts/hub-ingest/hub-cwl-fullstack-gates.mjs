@@ -876,6 +876,151 @@ export async function runStrategicPlanPhase2LicenseTierGate() {
   };
 }
 
+/** G5801 — Migration OS multi-origin batch plan doc. */
+export function runMigrationOsMultiOriginDocGate() {
+  const path = join(scriptRoot, "docs/MIGRATION-OS-MULTI-ORIGIN-BATCH.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-multi-origin-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runMigrationOsMegaBatchSmoke") &&
+    text.includes("runPlainPhpMigrationOsBatchSmoke") &&
+    text.includes("runSymfonyMigrationOsBatchSmoke") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5800 — Phase 2 multi-origin Migration OS mega batch. */
+export async function runStrategicPlanPhase2MigrationOsMultiOriginGate(opts = {}) {
+  const skipMegaBatch =
+    opts.skipMegaBatch === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_MEGA_BATCH === "1";
+  const doc = runMigrationOsMultiOriginDocGate();
+  let megaBatch = { ok: true, skip: "mega-batch-skipped" };
+  if (!skipMegaBatch) {
+    const { runMigrationOsMegaBatchSmoke } = await import("./hub-migration-os-mega-batch-smoke.mjs");
+    megaBatch = await runMigrationOsMegaBatchSmoke();
+  }
+  const ok = doc.ok === true && megaBatch.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    megaBatchOk: megaBatch.ok === true,
+    skipMegaBatch,
+    plainPhpOk: megaBatch.plainPhp?.ok ?? null,
+    symfonyOk: megaBatch.symfony?.ok ?? null,
+    laravelMinOk: megaBatch.laravelMin?.ok ?? null,
+  };
+}
+
+/** G5811 — delivery dashboard + hub-completion plan doc. */
+export function runMigrationOsDeliveryDashboardDocGate() {
+  const path = join(scriptRoot, "docs/MIGRATION-OS-DELIVERY-DASHBOARD-COMPLETION.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-delivery-dashboard-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runDeliveryDashboardSmoke") &&
+    text.includes("phase2MigrationOs") &&
+    text.includes("hub-completion-phase2-migration-os") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5812 — hub-completion Phase 2 section shape gate. */
+export async function runHubCompletionPhase2SectionGate() {
+  const mod = await import("./hub-completion-phase2-migration-os.mjs");
+  const section = mod.buildHubCompletionPhase2MigrationOsSection({
+    deliveryDashboardSmoke: { ok: true },
+    migrationOsMegaBatch: { ok: true },
+    strategicPlanPhase2Entry: { ok: true },
+    strategicPlanPhase2LicenseTier: { ok: true },
+  });
+  const ok = mod.validateHubCompletionPhase2MigrationOsSection(section) && section.ok === true;
+  return { ok, schemaVersion: section.schemaVersion ?? null };
+}
+
+/** G5810 — Phase 2 delivery dashboard + hub-completion wiring. */
+export async function runStrategicPlanPhase2DeliveryDashboardGate() {
+  const doc = runMigrationOsDeliveryDashboardDocGate();
+  const { runDeliveryDashboardSmoke } = await import("./hub-delivery-dashboard-smoke.mjs");
+  const [dashboard, sectionGate] = await Promise.all([
+    runDeliveryDashboardSmoke(),
+    runHubCompletionPhase2SectionGate(),
+  ]);
+  const ok = doc.ok === true && dashboard.ok === true && sectionGate.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    dashboardOk: dashboard.ok === true,
+    sectionGateOk: sectionGate.ok === true,
+    artifactCount: dashboard.artifactCount ?? null,
+    sectionSchemaVersion: sectionGate.schemaVersion ?? null,
+  };
+}
+
+/** G5820 — Phase 2 Migration OS program close gate. */
+export async function runStrategicPlanPhase2MigrationOsCloseGate(opts = {}) {
+  const skipMegaBatch =
+    opts.skipMegaBatch === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_MEGA_BATCH === "1";
+  const skipStandaloneBatch =
+    opts.skipStandaloneBatch === true ||
+    process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_STANDALONE_BATCH === "1";
+  const [entry, licenseTier, multiOrigin, deliveryDashboard] = await Promise.all([
+    runStrategicPlanPhase2MigrationOsEntryGate({ skipStandaloneBatch }),
+    runStrategicPlanPhase2LicenseTierGate(),
+    runStrategicPlanPhase2MigrationOsMultiOriginGate({ skipMegaBatch }),
+    runStrategicPlanPhase2DeliveryDashboardGate(),
+  ]);
+  const ok =
+    entry.ok === true &&
+    licenseTier.ok === true &&
+    multiOrigin.ok === true &&
+    deliveryDashboard.ok === true;
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    licenseTierOk: licenseTier.ok === true,
+    multiOriginOk: multiOrigin.ok === true,
+    deliveryDashboardOk: deliveryDashboard.ok === true,
+    skipMegaBatch,
+    skipStandaloneBatch,
+  };
+}
+
+/** G5831 — CWL interchange Phase 3 plan doc. */
+export function runCwlInterchangePhase3DocGate() {
+  const path = join(scriptRoot, "docs/CWL-INTERCHANGE-PHASE-3.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-cwl-interchange-phase3-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanMonth3ProjectToCwlGate") &&
+    text.includes("runCwlAuthoringBootstrapHardeningGate") &&
+    text.includes("migration.cwl") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5830 — Phase 3 CWL interchange entry gate. */
+export async function runStrategicPlanPhase3CwlInterchangeEntryGate(opts = {}) {
+  const skipRoundtrip =
+    opts.skipRoundtrip === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_PROJECT_CWL_ROUNDTRIP === "1";
+  const doc = runCwlInterchangePhase3DocGate();
+  const [projectToCwl, authoringBootstrap] = await Promise.all([
+    runStrategicPlanMonth3ProjectToCwlGate({ ...opts, skipRoundtrip }),
+    runCwlAuthoringBootstrapHardeningGate(opts),
+  ]);
+  const ok = doc.ok === true && projectToCwl.ok === true && authoringBootstrap.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    projectToCwlOk: projectToCwl.ok === true,
+    authoringBootstrapOk: authoringBootstrap.ok === true,
+    skipRoundtrip,
+    diffOk: projectToCwl.diffOk === true,
+    templatesOk: authoringBootstrap.templatesOk === true,
+    previewOk: authoringBootstrap.previewOk === true,
+    diagnoseOk: authoringBootstrap.diagnoseOk === true,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

@@ -56,8 +56,7 @@ Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_STANDALONE_BATCH=1` for core pil
 
 ## In progress (Phase 2 backlog)
 
-- Multi-origin Migration OS batch on GCE
-- Delivery dashboard wiring in hub-completion Phase 2 section
+_(none — Phase 2 reinforcement queue complete at G5823; default queue follows STRATEGIC-PLAN Phase 3 unless amended.)_
 
 ## Phase F — License tier alignment (shipped)
 
@@ -71,6 +70,45 @@ Registry: `docs/MIGRATION-OS-LICENSE-TIER-ALIGNMENT.md`, `hub-license-status.mjs
 ```bash
 pnpm run hub:strategic-plan-phase2-license-tier-smoke
 ```
+
+## Phase G — Multi-origin batch (shipped)
+
+| Gate | Scope |
+| --- | --- |
+| `runStrategicPlanPhase2MigrationOsMultiOriginGate` | doc + mega batch |
+
+Registry: `docs/MIGRATION-OS-MULTI-ORIGIN-BATCH.md`.
+
+```bash
+pnpm run hub:strategic-plan-phase2-migration-os-multi-origin-smoke
+```
+
+Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_MEGA_BATCH=1` for doc-only (Vitest default).
+
+## Phase H — Delivery dashboard + hub-completion (shipped)
+
+| Gate | Scope |
+| --- | --- |
+| `runStrategicPlanPhase2DeliveryDashboardGate` | doc + dashboard smoke + section validator |
+| `phase2MigrationOs` | hub-completion schema **511** |
+
+Registry: `docs/MIGRATION-OS-DELIVERY-DASHBOARD-COMPLETION.md`, `hub-completion-phase2-migration-os.mjs`.
+
+```bash
+pnpm run hub:strategic-plan-phase2-delivery-dashboard-smoke
+```
+
+## Phase I — Phase 2 program close (shipped)
+
+| Gate | Scope |
+| --- | --- |
+| `runStrategicPlanPhase2MigrationOsCloseGate` | entry + license + multi-origin + delivery |
+
+```bash
+pnpm run hub:strategic-plan-phase2-migration-os-close-smoke
+```
+
+Skip heavy batches: `CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_MEGA_BATCH=1` and `CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_STANDALONE_BATCH=1`.
 
 ## Operator entry points
 

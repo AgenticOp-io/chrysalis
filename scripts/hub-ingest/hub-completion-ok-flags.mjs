@@ -1,5 +1,6 @@
 import { buildHubCapabilityMatrixReport } from "./hub-capability-matrix.mjs";
 import { buildHubCompletionSections } from "./hub-completion-sections.mjs";
+import { buildHubCompletionPhase2MigrationOsSection } from "./hub-completion-phase2-migration-os.mjs";
 import { exportHubLaravelVerifyLive } from "./hub-laravel-verify-export.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
 
@@ -517,6 +518,9 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     advisoryStandaloneMegaBatch,
     allDeliveryUltraMegaBatch,
     migrationOsMegaBatch,
+    deliveryDashboardSmoke,
+    strategicPlanPhase2Entry,
+    strategicPlanPhase2LicenseTier,
     oracleProductUltraBatch,
     expressLaravelMinDeliveryBatch,
     symfonyLaravelMinDeliveryBatch,
@@ -1099,6 +1103,16 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
   const advisoryStandaloneMegaBatchOk = advisoryStandaloneMegaBatch.ok === true;
   const allDeliveryUltraMegaBatchOk = allDeliveryUltraMegaBatch.ok === true;
   const migrationOsMegaBatchOk = migrationOsMegaBatch.ok === true;
+  const deliveryDashboardSmokeOk = deliveryDashboardSmoke.ok === true;
+  const strategicPlanPhase2EntryOk = strategicPlanPhase2Entry.ok === true;
+  const strategicPlanPhase2LicenseTierOk = strategicPlanPhase2LicenseTier.ok === true;
+  const phase2MigrationOs = buildHubCompletionPhase2MigrationOsSection({
+    deliveryDashboardSmoke,
+    migrationOsMegaBatch,
+    strategicPlanPhase2Entry,
+    strategicPlanPhase2LicenseTier,
+  });
+  const phase2MigrationOsOk = phase2MigrationOs.ok === true;
   const oracleProductUltraBatchOk = oracleProductUltraBatch.ok === true;
   const expressLaravelMinDeliveryBatchOk = expressLaravelMinDeliveryBatch.ok === true;
   const symfonyLaravelMinDeliveryBatchOk = symfonyLaravelMinDeliveryBatch.ok === true;
@@ -1682,6 +1696,10 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     advisoryStandaloneMegaBatchOk &&
     allDeliveryUltraMegaBatchOk &&
     migrationOsMegaBatchOk &&
+    deliveryDashboardSmokeOk &&
+    strategicPlanPhase2EntryOk &&
+    strategicPlanPhase2LicenseTierOk &&
+    phase2MigrationOsOk &&
     oracleProductUltraBatchOk &&
     expressLaravelMinDeliveryBatchOk &&
     symfonyLaravelMinDeliveryBatchOk &&
@@ -2253,6 +2271,10 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     advisoryStandaloneMegaBatchOk,
     allDeliveryUltraMegaBatchOk,
     migrationOsMegaBatchOk,
+    deliveryDashboardSmokeOk,
+    strategicPlanPhase2EntryOk,
+    strategicPlanPhase2LicenseTierOk,
+    phase2MigrationOsOk,
     oracleProductUltraBatchOk,
     expressLaravelMinDeliveryBatchOk,
     symfonyLaravelMinDeliveryBatchOk,

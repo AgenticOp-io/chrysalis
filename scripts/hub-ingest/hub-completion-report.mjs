@@ -1,5 +1,6 @@
 import { hubGoldStructuralSuiteIds } from "./hub-gold-manifest.mjs";
 import { hubNativeEmitTargetIds } from "./hub-gold-native-emit.mjs";
+import { buildHubCompletionPhase2MigrationOsSection } from "./hub-completion-phase2-migration-os.mjs";
 
 /** @param {Record<string, unknown>} ctx */
 export function buildHubCompletionReport(ctx) {
@@ -544,6 +545,9 @@ export function buildHubCompletionReport(ctx) {
     advisoryStandaloneMegaBatch,
     allDeliveryUltraMegaBatch,
     migrationOsMegaBatch,
+    deliveryDashboardSmoke,
+    strategicPlanPhase2Entry,
+    strategicPlanPhase2LicenseTier,
     oracleProductUltraBatch,
     expressLaravelMinDeliveryBatch,
     symfonyLaravelMinDeliveryBatch,
@@ -603,7 +607,7 @@ export function buildHubCompletionReport(ctx) {
   } = smokes;
   return {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 510,
+    schemaVersion: 511,
     ok,
     gceHubCompletionFast: gceHubCompletionFast || undefined,
     matrixSmoke: {
@@ -4043,6 +4047,24 @@ export function buildHubCompletionReport(ctx) {
       ok: okFlags.migrationOsMegaBatchOk,
       script: "pnpm run hub:migration-os-mega-batch-smoke",
     },
+    deliveryDashboardSmoke: {
+      ok: okFlags.deliveryDashboardSmokeOk,
+      script: "pnpm run hub:delivery-dashboard-smoke",
+    },
+    strategicPlanPhase2Entry: {
+      ok: okFlags.strategicPlanPhase2EntryOk,
+      script: "pnpm run hub:strategic-plan-phase2-migration-os-entry-smoke",
+    },
+    strategicPlanPhase2LicenseTier: {
+      ok: okFlags.strategicPlanPhase2LicenseTierOk,
+      script: "pnpm run hub:strategic-plan-phase2-license-tier-smoke",
+    },
+    phase2MigrationOs: buildHubCompletionPhase2MigrationOsSection({
+      deliveryDashboardSmoke,
+      migrationOsMegaBatch,
+      strategicPlanPhase2Entry,
+      strategicPlanPhase2LicenseTier,
+    }),
     oracleProductUltraBatch: {
       ok: okFlags.oracleProductUltraBatchOk,
       schemaVersion: oracleProductUltraBatch.schemaVersion ?? 7,

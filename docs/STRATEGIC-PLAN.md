@@ -134,17 +134,13 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 **Freeze:** New pattern-lift matrix gold unless tied to a **real customer route** or flagship fixture.
 
-### Phase 2 — Migration OS (months 6–15) — **P1** (active)
+### Phase 2 — Migration OS (months 6–15) — **Closed (2026-06-17)**
 
-- Site intelligence (scan → languages, DBs, route estimate, risk)
-- Migration **programs** (templates: API slice, auth slice, public read-only)
-- Per-site **evidence dashboard** (verify %, corpus, blockers)
-- Path explorer → “apply to this project”
-- Commercial alignment with license tiers (D289)
+- Reinforcement queue **G5780–G5823** complete — see `docs/MIGRATION-OS-PHASE-2.md`
 
 **Deliverable:** Export **migration contract** per project (`routes.cwl` + hole manifest).
 
-### Phase 3 — CWL interchange + authoring bootstrap (months 9–24) — **P1**
+### Phase 3 — CWL interchange + authoring bootstrap (months 9–24) — **P1** (active)
 
 - RFC track: body, response, effects, auth presets, multi-file modules (0005+), and authoring ergonomics
 - **Project-to-CWL** on every hub translate
@@ -248,7 +244,7 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 3–4 reinforcement (2026-06-17):** **G5730–G5733** — `docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`, `runStrategicPlanMonth34FullstackPilotGate`, `pnpm run hub:strategic-plan-month34-fullstack-pilot-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1` for preview/budget without gold verify).
 
-**Next 90 days program:** **closed (2026-06-17)** — Months **1–4** reinforcement complete (**G5680–G5733**). **Phase 1 PHP wedge** reinforcement **closed** (**G5740–G5773**). Default build queue: **Phase 2 Migration OS** (§7).
+**Next 90 days program:** **closed (2026-06-17)**. **Phase 1** reinforcement **closed** (**G5740–G5773**). **Phase 2** reinforcement **closed** (**G5780–G5823**). Default build queue: **Phase 3 CWL interchange** (§7).
 
 **Phase 1 reinforcement (2026-06-17):** **G5740–G5743** — `docs/PHP-WEDGE-PHASE-1.md`, `runStrategicPlanPhase1PhpWedgeGate`, `pnpm run hub:strategic-plan-phase1-php-wedge-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks only).
 
@@ -261,6 +257,14 @@ When the user says “build” without specifying, prefer this queue:
 **Phase 2 Migration OS entry (2026-06-17):** **G5780–G5783** — `docs/MIGRATION-OS-PHASE-2.md`, `runStrategicPlanPhase2MigrationOsEntryGate`, `pnpm run hub:strategic-plan-phase2-migration-os-entry-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_STANDALONE_BATCH=1`).
 
 **Phase 2 license tier alignment (2026-06-17):** **G5790–G5793** — `docs/MIGRATION-OS-LICENSE-TIER-ALIGNMENT.md`, `runStrategicPlanPhase2LicenseTierGate`, `pnpm run hub:strategic-plan-phase2-license-tier-smoke`.
+
+**Phase 2 multi-origin batch (2026-06-17):** **G5800–G5803** — `docs/MIGRATION-OS-MULTI-ORIGIN-BATCH.md`, `runStrategicPlanPhase2MigrationOsMultiOriginGate`, `pnpm run hub:strategic-plan-phase2-migration-os-multi-origin-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_MEGA_BATCH=1`).
+
+**Phase 2 delivery dashboard (2026-06-17):** **G5810–G5813** — hub-completion schema **511** + `phase2MigrationOs`, `runStrategicPlanPhase2DeliveryDashboardGate`, `pnpm run hub:strategic-plan-phase2-delivery-dashboard-smoke`.
+
+**Phase 2 program close (2026-06-17):** **G5820–G5823** — `runStrategicPlanPhase2MigrationOsCloseGate`, `pnpm run hub:strategic-plan-phase2-migration-os-close-smoke`. Phase 2 reinforcement **closed**.
+
+**Phase 3 CWL interchange entry (2026-06-17):** **G5830–G5833** — `docs/CWL-INTERCHANGE-PHASE-3.md`, `runStrategicPlanPhase3CwlInterchangeEntryGate`, `pnpm run hub:strategic-plan-phase3-cwl-interchange-entry-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PROJECT_CWL_ROUNDTRIP=1`).
 
 
 ### Full-stack CWL — next 10 steps (after G1158)

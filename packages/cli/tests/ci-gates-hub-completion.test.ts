@@ -5950,6 +5950,12 @@ describe("ci-gates hub-completion", () => {
     expect(src).toContain("isGceHubCompletionDeferred");
   });
 
+  test("ci-gates hub-completion enforces phase2MigrationOs at schema v511 (G5813)", () => {
+    const src = readFileSync(CI_GATES_HUB_COMPLETION, "utf8");
+    expect(src).toContain("schemaVersion !== 511");
+    expect(src).toMatch(/\[511,\s*"phase2MigrationOs"\]/);
+  });
+
   test("accepts schema v4 with traceReplay targets", () => {
     const dir = mkdtempSync(join(tmpdir(), "chrysalis-hub-completion-v4-"));
     const p = join(dir, "ok.json");
