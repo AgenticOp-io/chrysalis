@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" (post-110 authoring replay program **closed** at queue **437** / schema **510**).
-- **Recently shipped:** **G5730–G5733** — STRATEGIC-PLAN Month 3–4 full-stack flagship pilot. **G5720–G5723** — Month 3 project-to-CWL. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G5740–G5743** — STRATEGIC-PLAN Phase 1 PHP wedge entry. **G5680–G5733** — Next 90 days program **closed**. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -102,16 +102,11 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 ## What's next (active backlog)
 
-The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § "Next 90 days"
-(see `AGENTS.md`). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**. Current build focus:
+The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § **Phase 1 — PHP wedge depth** (Next 90 days program **closed** at **G5733**). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**, Next 90 days **G5680–G5733**. Current build focus:
 
-- **CWL / full-stack:** queues **111–437 complete** (schema **510**) — **post-110 authoring replay program closed**; maintenance only.
-- **STRATEGIC-PLAN Month 3–4 (active):** **G5730–G5733** — full-stack flagship pilot + hole budget (`runStrategicPlanMonth34FullstackPilotGate`, `docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`, `hub:strategic-plan-month34-fullstack-pilot-smoke`).
-- **STRATEGIC-PLAN Month 3:** **G5720–G5723** — **complete** (project-to-CWL + CWL diff translate path).
-- **STRATEGIC-PLAN Month 2–3:** **G5710–G5713** — **complete** (Express oracle origin depth).
-- **STRATEGIC-PLAN Month 2:** **G5700–G5703** — **complete** (full-stack CWL scope RFC).
-- **STRATEGIC-PLAN Month 1–2:** **G5690–G5693** — **complete** (runtime-cwl parity reinforcement).
-- **STRATEGIC-PLAN Month 1:** **G5680–G5683** — **complete** (authoring bootstrap hardening).
+- **PHP wedge (Phase 1, active):** **G5740–G5743** — Laravel verify gaps + playbooks + plain-php/symfony flagships (`runStrategicPlanPhase1PhpWedgeGate`, `docs/PHP-WEDGE-PHASE-1.md`, `hub:strategic-plan-phase1-php-wedge-smoke`).
+- **CWL / full-stack:** queues **111–437 complete** (schema **510**) — maintenance only.
+- **Next 90 days:** **G5680–G5733** — **complete** (Months 1–4 reinforcement).
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.
 - **Hole economics maintenance:** **`db-query-unknown-receiver-probe`** remains the intentional **1-hole** negative probe; add new tracked DB receivers via **mysqli-probe** routes when widening **`->query`** lowering.
 - **IR helper lifting maintenance:** hub-gated B5.x patterns only (`docs/IR-HELPER-LIFTING.md`).

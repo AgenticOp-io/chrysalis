@@ -128,7 +128,7 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 - [x] External copy: **PHP oracle migration**, not “575 languages”
 - [x] Split **plumbing OK** vs **oracle product OK** in completion/hub reports (**hub-completion** schema + **`docs/CAPABILITY-MATRIX.md`**)
 
-### Phase 1 — PHP wedge depth (months 1–9) — **P0**
+### Phase 1 — PHP wedge depth (months 1–9) — **P0** (active)
 
 - **Laravel** ingest depth driven by verify gaps (flagship-full north star)
 - **Plain PHP / Symfony** second vertical
@@ -252,6 +252,10 @@ When the user says “build” without specifying, prefer this queue:
 **Month 3 reinforcement (2026-06-17):** **G5720–G5723** — `docs/PROJECT-TO-CWL-TRANSLATE-PATH.md`, `runStrategicPlanMonth3ProjectToCwlGate`, `pnpm run hub:strategic-plan-month3-project-to-cwl-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PROJECT_CWL_ROUNDTRIP=1` for fast oracle slice).
 
 **Month 3–4 reinforcement (2026-06-17):** **G5730–G5733** — `docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`, `runStrategicPlanMonth34FullstackPilotGate`, `pnpm run hub:strategic-plan-month34-fullstack-pilot-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1` for preview/budget without gold verify).
+
+**Next 90 days program:** **closed (2026-06-17)** — Months **1–4** reinforcement complete (**G5680–G5733**). Default build queue: **Phase 1 PHP wedge depth** (§7).
+
+**Phase 1 reinforcement (2026-06-17):** **G5740–G5743** — `docs/PHP-WEDGE-PHASE-1.md`, `runStrategicPlanPhase1PhpWedgeGate`, `pnpm run hub:strategic-plan-phase1-php-wedge-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks only).
 
 
 ### Full-stack CWL — next 10 steps (after G1158)

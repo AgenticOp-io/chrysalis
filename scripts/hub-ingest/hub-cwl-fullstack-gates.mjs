@@ -528,6 +528,54 @@ export async function runStrategicPlanMonth34FullstackPilotGate(opts = {}) {
   };
 }
 
+/** G5741 — PHP wedge Phase 1 plan doc. */
+export function runPhpWedgePhase1DocGate() {
+  const path = join(scriptRoot, "docs/PHP-WEDGE-PHASE-1.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-php-wedge-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runLaravelVerifyGapsBatchSmoke") &&
+    text.includes("runVerifyPlaybooksSmoke") &&
+    text.includes("fixtures/hub-flagship-plain-php") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5740 — STRATEGIC-PLAN Phase 1 PHP wedge depth entry gate. */
+export async function runStrategicPlanPhase1PhpWedgeGate(opts = {}) {
+  const skipFlagships =
+    opts.skipFlagships === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS === "1";
+  const doc = runPhpWedgePhase1DocGate();
+  const { runLaravelVerifyGapsBatchSmoke } = await import("./hub-laravel-verify-gaps-batch-smoke.mjs");
+  const { runVerifyPlaybooksSmoke } = await import("./hub-verify-playbooks-smoke.mjs");
+  const laravelGaps = runLaravelVerifyGapsBatchSmoke();
+  const playbooks = runVerifyPlaybooksSmoke();
+  let plainPhp = { ok: true, skip: "flagships-skipped" };
+  let symfony = { ok: true, skip: "flagships-skipped" };
+  if (!skipFlagships) {
+    const { runPlainPhpFlagshipSmoke } = await import("./hub-plain-php-flagship.mjs");
+    const { runSymfonyFlagshipSmoke } = await import("./hub-symfony-flagship.mjs");
+    [plainPhp, symfony] = await Promise.all([runPlainPhpFlagshipSmoke(), runSymfonyFlagshipSmoke()]);
+  }
+  const ok =
+    doc.ok === true &&
+    laravelGaps.ok === true &&
+    playbooks.ok === true &&
+    plainPhp.ok === true &&
+    symfony.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    laravelGapsOk: laravelGaps.ok === true,
+    playbooksOk: playbooks.ok === true,
+    plainPhpOk: plainPhp.ok === true,
+    symfonyOk: symfony.ok === true,
+    skipFlagships,
+    backlogCount: laravelGaps.backlogCount ?? null,
+    playbookCount: playbooks.playbookCount ?? null,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });
