@@ -247,6 +247,8 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 2 reinforcement (2026-06-17):** **G5700–G5703** — `docs/CWL-FULLSTACK-SCOPE-RFC.md`, `runStrategicPlanMonth2FullstackScopeGate`, `pnpm run hub:strategic-plan-month2-fullstack-scope-smoke`.
 
+**Month 2–3 reinforcement (2026-06-17):** **G5710–G5713** — `docs/NODE-EXPRESS-ORACLE-ORIGIN-PLAN.md`, `runStrategicPlanMonth23ExpressOracleGate`, `pnpm run hub:strategic-plan-month23-express-oracle-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_ORACLE_VERIFY=1` for lift depth only).
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 

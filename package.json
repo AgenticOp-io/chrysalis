@@ -319,6 +319,7 @@
     "hub:strategic-plan-month1-hardening-smoke": "node scripts/hub-ingest/hub-strategic-plan-month1-hardening-smoke.mjs",
     "hub:strategic-plan-month12-runtime-parity-smoke": "node scripts/hub-ingest/hub-strategic-plan-month12-runtime-parity-smoke.mjs",
     "hub:strategic-plan-month2-fullstack-scope-smoke": "node scripts/hub-ingest/hub-strategic-plan-month2-fullstack-scope-smoke.mjs",
+    "hub:strategic-plan-month23-express-oracle-smoke": "node scripts/hub-ingest/hub-strategic-plan-month23-express-oracle-smoke.mjs",
     "hub:laravel-verify-live-gaps-closure-smoke": "node scripts/hub-ingest/hub-laravel-verify-live-gaps-closure-smoke.mjs",
     "hub:gap-reingest-strict-smoke": "node scripts/hub-ingest/hub-gap-reingest-strict-smoke.mjs",
     "hub:laravel-auth-probe-reingest-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs",

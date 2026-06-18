@@ -398,6 +398,41 @@ export async function runStrategicPlanMonth2FullstackScopeGate() {
   };
 }
 
+/** G5711 — Node/Express second oracle origin plan doc (Month 2–3). */
+export function runNodeExpressOracleOriginDocGate() {
+  const path = join(scriptRoot, "docs/NODE-EXPRESS-ORACLE-ORIGIN-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-express-oracle-plan-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("fixtures/hub-flagship-express") &&
+    text.includes("runNodeExpressOracleFlagshipGate") &&
+    text.includes("Oracle product") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5710 — STRATEGIC-PLAN Month 2–3 Express oracle origin flagship depth. */
+export async function runStrategicPlanMonth23ExpressOracleGate(opts = {}) {
+  const skipOracleVerify =
+    opts.skipOracleVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_ORACLE_VERIFY === "1";
+  const doc = runNodeExpressOracleOriginDocGate();
+  const depth = await runExpressDepthGate();
+  let oracle = { ok: true, skip: "oracle-verify-skipped" };
+  if (!skipOracleVerify) {
+    oracle = await runNodeExpressOracleFlagshipGate();
+  }
+  const ok = doc.ok === true && depth.ok === true && oracle.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    expressDepthOk: depth.ok === true,
+    liftOk: depth.liftOk === true,
+    oracleOk: oracle.ok === true,
+    skipOracleVerify,
+    correctness: oracle.correctness ?? null,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

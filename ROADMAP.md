@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only (new parser pages, hole-ceiling bumps). Default build queue: **`docs/STRATEGIC-PLAN.md`** § "Next 90 days" (post-110 authoring replay program **closed** at queue **437** / schema **510**).
-- **Recently shipped:** **G5700–G5703** — STRATEGIC-PLAN Month 2 full-stack scope RFC. **G5690–G5693** — Month 1–2 runtime-cwl parity. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G5710–G5713** — STRATEGIC-PLAN Month 2–3 Express oracle origin. **G5700–G5703** — Month 2 scope RFC. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -106,7 +106,8 @@ The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § "Next 90 day
 (see `AGENTS.md`). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**. Current build focus:
 
 - **CWL / full-stack:** queues **111–437 complete** (schema **510**) — **post-110 authoring replay program closed**; maintenance only.
-- **STRATEGIC-PLAN Month 2 (active):** **G5700–G5703** — full-stack CWL scope RFC (`runStrategicPlanMonth2FullstackScopeGate`, `docs/CWL-FULLSTACK-SCOPE-RFC.md`, `hub:strategic-plan-month2-fullstack-scope-smoke`).
+- **STRATEGIC-PLAN Month 2–3 (active):** **G5710–G5713** — Node/Express oracle origin (`runStrategicPlanMonth23ExpressOracleGate`, `docs/NODE-EXPRESS-ORACLE-ORIGIN-PLAN.md`, `hub:strategic-plan-month23-express-oracle-smoke`).
+- **STRATEGIC-PLAN Month 2:** **G5700–G5703** — **complete** (full-stack CWL scope RFC).
 - **STRATEGIC-PLAN Month 1–2:** **G5690–G5693** — **complete** (runtime-cwl parity reinforcement).
 - **STRATEGIC-PLAN Month 1:** **G5680–G5683** — **complete** (authoring bootstrap hardening).
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.
