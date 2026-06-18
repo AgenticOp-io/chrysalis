@@ -73,7 +73,7 @@ Smoke: `pnpm run hub:strategic-plan-phase8-cutover-proof-smoke`
 | --- | --- | --- |
 | G6110 | `runStrategicPlanPhase8ProductProofCloseGate` | `pnpm run hub:strategic-plan-phase8-product-proof-close-smoke` |
 
-**Strict path (GCE):** `CHRYSALIS_STRICT_STRATEGIC_PLAN=1 pnpm run hub:strategic-plan-phase8-product-proof-close-smoke`
+**Strict path (GCE only):** `pnpm run test:gce:phase8-strict` — refreshes **`chrysalis-test-vm`**, sets **`CHRYSALIS_STRICT_STRATEGIC_PLAN=1`**, runs close smoke detached. Status: `pnpm run test:gce:phase8-strict:status`. Do **not** run strict close on Windows (fixture lock contention); local CLI exits **2** unless **`CHRYSALIS_ALLOW_STRICT_LOCAL=1`**.
 
 ## Skip env reference (local fast path)
 

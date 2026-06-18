@@ -12,6 +12,7 @@ const CORE_PHASES = [
   "parser-bridge-vendor",
   "cli-shims",
   "hub-strategic-vitest",
+  "strategic-plan-phase8-strict",
   "hub-express-flagship",
   "hub-plain-php-flagship",
   "hub-symfony-flagship",

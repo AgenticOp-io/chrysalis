@@ -73,7 +73,9 @@ function Sync-GceRunnerScripts {
     "gce-resume-from-hub-cwl.sh",
     "gce-vm-verify-suite.sh",
     "gce-hub-authoring-batch-vitest.sh",
-    "gce-hub-cwl-vitest.sh"
+    "gce-hub-cwl-vitest.sh",
+    "gce-strategic-plan-phase8-strict.sh",
+    "gce-phase8-strict-only.sh"
   )
   $hubIngestNames = @(
     "hub-completion.mjs",

@@ -1881,14 +1881,13 @@ export async function runStrategicPlanPhase8CutoverProofGate(opts = {}) {
 /** G6110 — Phase 8 product proof program close gate. */
 export async function runStrategicPlanPhase8ProductProofCloseGate(opts = {}) {
   const skips = resolveStrategicPlanSkips(opts);
-  const [entry, oracle, httpEmit, cwl, hub, cutover] = await Promise.all([
-    runStrategicPlanPhase8ProductProofEntryGate(skips),
-    runStrategicPlanPhase8OracleProofGate(skips),
-    runStrategicPlanPhase8HttpEmitProofGate(skips),
-    runStrategicPlanPhase8CwlInterchangeProofGate(skips),
-    runStrategicPlanPhase8HubOperatorProofGate(skips),
-    runStrategicPlanPhase8CutoverProofGate(skips),
-  ]);
+  // Sequential: parallel pillars contend on shared fixture .chrysalis artifacts (Windows EBUSY).
+  const entry = await runStrategicPlanPhase8ProductProofEntryGate(skips);
+  const oracle = await runStrategicPlanPhase8OracleProofGate(skips);
+  const httpEmit = await runStrategicPlanPhase8HttpEmitProofGate(skips);
+  const cwl = await runStrategicPlanPhase8CwlInterchangeProofGate(skips);
+  const hub = await runStrategicPlanPhase8HubOperatorProofGate(skips);
+  const cutover = await runStrategicPlanPhase8CutoverProofGate(skips);
   const ok =
     entry.ok === true &&
     oracle.ok === true &&

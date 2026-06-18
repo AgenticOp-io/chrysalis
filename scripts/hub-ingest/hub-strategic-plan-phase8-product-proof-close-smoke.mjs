@@ -29,6 +29,16 @@ export async function runStrategicPlanPhase8ProductProofCloseSmoke(opts = {}) {
 
 const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isCli) {
+  if (
+    isStrategicPlanStrict() &&
+    process.platform === "win32" &&
+    process.env.CHRYSALIS_ALLOW_STRICT_LOCAL !== "1"
+  ) {
+    console.error(
+      "Strict Phase 8 product proof must run on GCE (Linux). Use: pnpm run test:gce:phase8-strict",
+    );
+    process.exit(2);
+  }
   runStrategicPlanPhase8ProductProofCloseSmoke()
     .then((report) => {
       process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

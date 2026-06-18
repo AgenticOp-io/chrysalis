@@ -35,6 +35,18 @@ Foreground run (SSH stays open until done; auto-fetches reports):
 pnpm run test:gce:foreground
 ```
 
+## Phase 8 strict product proof (GCE only)
+
+Strict close smoke (`CHRYSALIS_STRICT_STRATEGIC_PLAN=1`) must run on **`chrysalis-test-vm`**, not on Windows (shared fixture locks). Do **not** run `hub:strategic-plan-phase8-product-proof-close-smoke` with strict env locally.
+
+```powershell
+pnpm run test:gce:phase8-strict          # refresh VM + detached run
+pnpm run test:gce:phase8-strict:status   # OK marker + log tail
+pnpm run test:gce:phase8-strict:foreground   # block until done
+```
+
+Log: `reports/ci/gce-phase-strategic-plan-phase8-strict.log` on the VM. OK marker: `reports/ci/gce-phase8-strict.ok`.
+
 ## What runs on the VM
 
 Script: `scripts/gce-run-all-tests.sh` — each row is a separate **`gce-run-phase`** (own log + progress entry). List all phase ids: `CHRYSALIS_GCE_LIST_PHASES=1 bash scripts/gce-run-all-tests.sh`.
@@ -44,6 +56,7 @@ Script: `scripts/gce-run-all-tests.sh` — each row is a separate **`gce-run-pha
 | Build | `pnpm install`, `pnpm -r build`, parser-bridge vendor (if `php` on VM) |
 | `cli-shims` | `pnpm run test:cli-shims` |
 | `hub-strategic-vitest` … `hub-node-oracle-spike` | Six hub verify chunks (was monolithic `gce-vm-verify-suite.sh`) |
+| `strategic-plan-phase8-strict` | Phase 8 product proof without `SKIP_*` (also: `pnpm run test:gce:phase8-strict`) |
 | `hub-cwl` | `scripts/gce-hub-cwl-vitest.sh` |
 | `hub-cwl-authoring-v61-v63` … `v91-v110` | Four vitest files (was one `gce-hub-authoring-batch-vitest.sh` phase) |
 | `wptp-matrix` | `scripts/gce-ensure-wptp-matrix.sh` |
