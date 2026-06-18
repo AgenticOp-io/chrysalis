@@ -14,9 +14,9 @@ demo and measurable numbers, not a pile of abstractions.
   milestones (`V2-M1`-`V2-M6`) are complete; see `CHANGELOG.md` and
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
-- **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only. Default build queue: **`docs/STRATEGIC-PLAN.md`** Phase **3 CWL interchange** (Phase 2 **G5780–G5823** closed).
-- **Recently shipped:** **G5830–G5833** — Phase 3 CWL interchange entry. **G5820–G5823** — Phase 2 closed. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
-- **CWL interchange (Phase 3, active):** **G5830–G5833** — entry gate (`runStrategicPlanPhase3CwlInterchangeEntryGate`, `docs/CWL-INTERCHANGE-PHASE-3.md`).
+- **Active lanes:** **Phase 3 CWL interchange closed** (**G5830–G5873**). Default queue → **Phase 4 second oracle origin** per `docs/STRATEGIC-PLAN.md`.
+- **Recently shipped:** **G5870–G5873** — Phase 3 program close. **G5840–G5863** — RFC, OpenAPI, full-stack alignment. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Second oracle origin (Phase 4, active):** Express flagship depth per `docs/NODE-EXPRESS-ORACLE-ORIGIN-PLAN.md` (**G5710** baseline).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -105,7 +105,6 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § **Phase 1 — PHP wedge depth** (Next 90 days program **closed** at **G5733**). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**, Next 90 days **G5680–G5733**. Current build focus:
 
-- **Migration OS (Phase 2):** **G5820–G5823** — Phase 2 reinforcement **closed** at **G5823** (hub-completion schema **511**). Default queue → **Phase 3 CWL interchange** per `docs/STRATEGIC-PLAN.md` unless amended.
 - **CWL / full-stack:** queues **111–437 complete** (schema **510**) — maintenance only.
 - **Next 90 days:** **G5680–G5733** — **complete** (Months 1–4 reinforcement).
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.

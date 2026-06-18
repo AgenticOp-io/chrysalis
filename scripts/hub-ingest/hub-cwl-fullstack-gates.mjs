@@ -1021,6 +1021,118 @@ export async function runStrategicPlanPhase3CwlInterchangeEntryGate(opts = {}) {
   };
 }
 
+/** G5841 — CWL RFC Phase 3 reinforcement plan doc. */
+export function runCwlRfcPhase3DocGate() {
+  const path = join(scriptRoot, "docs/CWL-RFC-PHASE-3-REINFORCEMENT.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-cwl-rfc-phase3-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runCwlAllRfcRoundtripSmoke") &&
+    text.includes("CWL-RFC-0005") &&
+    text.includes("CWL-RFC-0007") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5840 — Phase 3 CWL RFC track reinforcement. */
+export async function runStrategicPlanPhase3CwlRfcGate(opts = {}) {
+  const skipRoundtrip =
+    opts.skipRoundtrip === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_CWL_RFC_ROUNDTRIP === "1";
+  const doc = runCwlRfcPhase3DocGate();
+  let rfc = { ok: true, skip: "rfc-roundtrip-skipped" };
+  if (!skipRoundtrip) {
+    const { runCwlAllRfcRoundtripSmoke } = await import("./hub-cwl-all-rfc-roundtrip-smoke.mjs");
+    rfc = await runCwlAllRfcRoundtripSmoke();
+  }
+  const ok = doc.ok === true && rfc.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    rfcOk: rfc.ok === true,
+    skipRoundtrip,
+    reportCount: rfc.reports ? Object.keys(rfc.reports).length : null,
+  };
+}
+
+/** G5851 — CWL OpenAPI export Phase 3 plan doc. */
+export function runCwlOpenapiExportPhase3DocGate() {
+  const path = join(scriptRoot, "docs/CWL-OPENAPI-EXPORT-PHASE-3.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-cwl-openapi-phase3-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("exportProjectOpenApi") &&
+    text.includes("runCwlOpenapiSmoke") &&
+    text.includes("hub-migration-contract.mjs") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5850 — Phase 3 CWL OpenAPI export on translate paths. */
+export async function runStrategicPlanPhase3CwlOpenapiExportGate() {
+  const doc = runCwlOpenapiExportPhase3DocGate();
+  const { runCwlOpenapiSmoke } = await import("./hub-cwl-openapi-smoke.mjs");
+  const openapi = await runCwlOpenapiSmoke();
+  const ok = doc.ok === true && openapi.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    openapiOk: openapi.ok === true,
+    pathCount: openapi.pathCount ?? openapi.routeCount ?? null,
+  };
+}
+
+/** G5861 — full-stack Phase 3 alignment plan doc. */
+export function runCwlFullstackPhase3AlignmentDocGate() {
+  const path = join(scriptRoot, "docs/CWL-FULLSTACK-PHASE-3-ALIGNMENT.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-fullstack-phase3-doc" };
+  const scopePath = join(scriptRoot, "docs/CWL-FULLSTACK-SCOPE-RFC.md");
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanMonth2FullstackScopeGate") &&
+    text.includes("CWL-FULLSTACK-SCOPE-RFC") &&
+    text.includes("437") &&
+    text.includes("Phase A");
+  return { ok: docOk && existsSync(scopePath), docOk };
+}
+
+/** G5860 — Phase 3 full-stack CWL parallel track alignment. */
+export async function runStrategicPlanPhase3FullstackAlignmentGate(opts = {}) {
+  const doc = runCwlFullstackPhase3AlignmentDocGate();
+  const scope = await runStrategicPlanMonth2FullstackScopeGate(opts);
+  const ok = doc.ok === true && scope.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    scopeOk: scope.ok === true,
+    catalogOk: scope.catalogOk === true,
+    budgetOk: scope.budgetOk === true,
+  };
+}
+
+/** G5870 — Phase 3 CWL interchange program close gate. */
+export async function runStrategicPlanPhase3CwlInterchangeCloseGate(opts = {}) {
+  const skipRoundtrip =
+    opts.skipRoundtrip === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_PROJECT_CWL_ROUNDTRIP === "1";
+  const skipRfcRoundtrip =
+    opts.skipRfcRoundtrip === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_CWL_RFC_ROUNDTRIP === "1";
+  const [entry, rfc, openapi, fullstack] = await Promise.all([
+    runStrategicPlanPhase3CwlInterchangeEntryGate({ ...opts, skipRoundtrip }),
+    runStrategicPlanPhase3CwlRfcGate({ skipRoundtrip: skipRfcRoundtrip }),
+    runStrategicPlanPhase3CwlOpenapiExportGate(),
+    runStrategicPlanPhase3FullstackAlignmentGate(opts),
+  ]);
+  const ok = entry.ok === true && rfc.ok === true && openapi.ok === true && fullstack.ok === true;
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    rfcOk: rfc.ok === true,
+    openapiOk: openapi.ok === true,
+    fullstackOk: fullstack.ok === true,
+    skipRoundtrip,
+    skipRfcRoundtrip,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });
