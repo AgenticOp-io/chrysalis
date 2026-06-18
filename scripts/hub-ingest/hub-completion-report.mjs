@@ -1,6 +1,7 @@
 import { hubGoldStructuralSuiteIds } from "./hub-gold-manifest.mjs";
 import { hubNativeEmitTargetIds } from "./hub-gold-native-emit.mjs";
 import { buildHubCompletionPhase2MigrationOsSection } from "./hub-completion-phase2-migration-os.mjs";
+import { buildHubCompletionPhase8ProductProofSection } from "./hub-completion-phase8-product-proof.mjs";
 
 /** @param {Record<string, unknown>} ctx */
 export function buildHubCompletionReport(ctx) {
@@ -548,6 +549,7 @@ export function buildHubCompletionReport(ctx) {
     deliveryDashboardSmoke,
     strategicPlanPhase2Entry,
     strategicPlanPhase2LicenseTier,
+    strategicPlanPhase8Close,
     oracleProductUltraBatch,
     expressLaravelMinDeliveryBatch,
     symfonyLaravelMinDeliveryBatch,
@@ -607,7 +609,7 @@ export function buildHubCompletionReport(ctx) {
   } = smokes;
   return {
     kind: "chrysalis.hub.completion",
-    schemaVersion: 511,
+    schemaVersion: 512,
     ok,
     gceHubCompletionFast: gceHubCompletionFast || undefined,
     matrixSmoke: {
@@ -4065,6 +4067,7 @@ export function buildHubCompletionReport(ctx) {
       strategicPlanPhase2Entry,
       strategicPlanPhase2LicenseTier,
     }),
+    phase8ProductProof: okFlags.phase8ProductProof,
     oracleProductUltraBatch: {
       ok: okFlags.oracleProductUltraBatchOk,
       schemaVersion: oracleProductUltraBatch.schemaVersion ?? 7,

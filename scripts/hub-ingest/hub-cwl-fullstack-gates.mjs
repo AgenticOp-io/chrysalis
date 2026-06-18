@@ -18,6 +18,10 @@ import {
   resolveStrategicPlanSkips,
   strategicPlanSkipsToGateOpts,
 } from "./strategic-plan-skips.mjs";
+import {
+  buildHubCompletionPhase8ProductProofSection,
+  validateHubCompletionPhase8ProductProofSection,
+} from "./hub-completion-phase8-product-proof.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const flagshipDir = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack");
@@ -1798,10 +1802,9 @@ export async function runStrategicPlanPhase8HubOperatorProofGate(opts = {}) {
   const doc = runProductProofHubOperatorPhase8DocGate();
   const ui = runHubEvidenceUiProofGate();
   const { runHubEvidenceMvpBatchSmoke } = await import("./hub-evidence-mvp-batch-smoke.mjs");
-  const [migrationOsClose, evidenceMvp] = await Promise.all([
-    runStrategicPlanPhase2MigrationOsCloseGate(gateOpts),
-    runHubEvidenceMvpBatchSmoke(),
-  ]);
+  // Sequential: parallel smokes contend on hub-flagship-plain-php .chrysalis (Windows EBUSY).
+  const migrationOsClose = await runStrategicPlanPhase2MigrationOsCloseGate(gateOpts);
+  const evidenceMvp = await runHubEvidenceMvpBatchSmoke();
   const ok =
     doc.ok === true &&
     ui.ok === true &&
@@ -1850,11 +1853,10 @@ export async function runStrategicPlanPhase8CutoverProofGate(opts = {}) {
   const gateOpts = strategicPlanSkipsToGateOpts(skips);
   const doc = runProductProofCutoverPhase8DocGate();
   const honesty = runRuntimeSessionSqlHonestyGate();
-  const [chimera, sessionStub, productionSearch] = await Promise.all([
-    runStrategicPlanPhase1ChimeraCutoverGate(gateOpts),
-    runStrategicPlanPhase5SessionStubGate(gateOpts),
-    runStrategicPlanPhase5ProductionSearchGate(gateOpts),
-  ]);
+  // Sequential: parallel cutover smokes contend on shared fixture .chrysalis (Windows EBUSY).
+  const chimera = await runStrategicPlanPhase1ChimeraCutoverGate(gateOpts);
+  const sessionStub = await runStrategicPlanPhase5SessionStubGate(gateOpts);
+  const productionSearch = await runStrategicPlanPhase5ProductionSearchGate(gateOpts);
   const ok =
     doc.ok === true &&
     honesty.ok === true &&
@@ -1899,6 +1901,131 @@ export async function runStrategicPlanPhase8ProductProofCloseGate(opts = {}) {
     cwlOk: cwl.ok === true,
     hubOk: hub.ok === true,
     cutoverOk: cutover.ok === true,
+  };
+}
+
+/** G6121 — Operational hardening Phase 9 plan doc. */
+export function runOperationalHardeningPhase9DocGate() {
+  const path = join(scriptRoot, "docs/OPERATIONAL-HARDENING-PHASE-9.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-operational-hardening-phase9-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("buildHubCompletionPhase8ProductProofSection") &&
+    text.includes("runStrategicPlanPhase9OperationalCloseGate") &&
+    text.includes("schema **512**") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G6120 — Phase 9 operational hardening entry gate. */
+export async function runStrategicPlanPhase9OperationalEntryGate(opts = {}) {
+  const doc = runOperationalHardeningPhase9DocGate();
+  const skips = resolveStrategicPlanSkips(opts);
+  const phase8Close = await runStrategicPlanPhase8ProductProofCloseGate(skips);
+  const ok = doc.ok === true && phase8Close.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    phase8CloseOk: phase8Close.ok === true,
+    strict: skips.strict,
+  };
+}
+
+/** G6132 — GCE Phase 8 strict OK marker (optional skip when absent). */
+export function runGcePhase8StrictArtifactGate(opts = {}) {
+  const skipArtifact =
+    opts.skipArtifact === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_GCE_STRICT_ARTIFACT === "1";
+  const markerPath =
+    opts.markerPath ?? join(scriptRoot, "reports/ci/gce-phase8-strict.ok");
+  if (existsSync(markerPath)) {
+    return { ok: true, markerPath, skip: null };
+  }
+  if (skipArtifact) {
+    return { ok: true, skip: "gce-strict-artifact-skipped", markerPath };
+  }
+  return { ok: false, skip: "missing-gce-phase8-strict-ok", markerPath };
+}
+
+/** G6131 — Hub completion phase8 product proof section gate. */
+export function runHubCompletionPhase8ProductProofSectionGate(opts = {}) {
+  const section = buildHubCompletionPhase8ProductProofSection({
+    strategicPlanPhase8Close: { ok: true, strict: false },
+    gceStrictArtifact: runGcePhase8StrictArtifactGate(opts),
+  });
+  const ok = validateHubCompletionPhase8ProductProofSection(section) && section.ok === true;
+  return { ok, schemaVersion: section.schemaVersion ?? null, sectionOk: section.ok === true };
+}
+
+/** G6130 — Phase 9 hub-completion wiring gate. */
+export async function runStrategicPlanPhase9HubCompletionGate(opts = {}) {
+  const doc = runOperationalHardeningPhase9DocGate();
+  const section = runHubCompletionPhase8ProductProofSectionGate(opts);
+  const artifact = runGcePhase8StrictArtifactGate(opts);
+  const ok = doc.ok === true && section.ok === true && artifact.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    sectionOk: section.ok === true,
+    artifactOk: artifact.ok === true,
+    artifactSkip: artifact.skip ?? null,
+  };
+}
+
+/** G6142 — North-star metrics honesty (STRATEGIC-PLAN §0). */
+export function runNorthStarMetricsHonestyGate() {
+  const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+  const text = readFileSync(path, "utf8");
+  const honestyOk =
+    text.includes("Time to first green verify") &&
+    text.includes("Hole density trend") &&
+    text.includes("Not north-star metrics");
+  return { ok: honestyOk, honestyOk };
+}
+
+/** G6141 — Capability matrix includes Phase 8 strict proof. */
+export async function runCapabilityMatrixPhase8ProofGate() {
+  const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+    "./hub-capability-matrix.mjs"
+  );
+  const report = buildHubCapabilityMatrixReport();
+  const phase8 = report.strategicPlanPhase8ProductProof;
+  const ok =
+    report.schemaVersion === HUB_CAPABILITY_MATRIX_SCHEMA_VERSION &&
+    phase8?.strictGceScript === "pnpm run test:gce:phase8-strict" &&
+    phase8?.closeSmokeScript?.includes("phase8-product-proof-close");
+  return {
+    ok,
+    schemaVersion: report.schemaVersion ?? null,
+    phase8Ok: ok,
+  };
+}
+
+/** G6140 — Phase 9 capability matrix + north-star gate. */
+export async function runStrategicPlanPhase9CapabilityGate(opts = {}) {
+  const doc = runOperationalHardeningPhase9DocGate();
+  const northStar = runNorthStarMetricsHonestyGate();
+  const matrix = await runCapabilityMatrixPhase8ProofGate();
+  const ok = doc.ok === true && northStar.ok === true && matrix.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    northStarOk: northStar.ok === true,
+    matrixOk: matrix.ok === true,
+  };
+}
+
+/** G6150 — Phase 9 operational hardening program close gate. */
+export async function runStrategicPlanPhase9OperationalCloseGate(opts = {}) {
+  const entry = await runStrategicPlanPhase9OperationalEntryGate(opts);
+  const hubCompletion = await runStrategicPlanPhase9HubCompletionGate(opts);
+  const capability = await runStrategicPlanPhase9CapabilityGate(opts);
+  const ok = entry.ok === true && hubCompletion.ok === true && capability.ok === true;
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    hubCompletionOk: hubCompletion.ok === true,
+    capabilityOk: capability.ok === true,
   };
 }
 

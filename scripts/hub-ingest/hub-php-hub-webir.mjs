@@ -2,7 +2,7 @@
 /**
  * Export @chrysalis/ingest WebIR for hub gold emit (PHP origin).
  */
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, readFile } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
@@ -14,6 +14,24 @@ const exportScript = join(scriptRoot, "scripts/hub-ingest/export-project-webir.m
 
 function phpOnPath() {
   return spawnSync("php", ["-v"], { encoding: "utf8" }).status === 0;
+}
+
+/** @param {string} filePath @param {number} [attempts] */
+async function readTextWithRetry(filePath, attempts = 6) {
+  let last;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await readFile(filePath, "utf8");
+    } catch (e) {
+      last = e;
+      if (/** @type {NodeJS.ErrnoException} */ (e).code === "EBUSY" && i < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 100 * (i + 1)));
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw last;
 }
 
 function countRoutes(projectDir) {
@@ -53,7 +71,7 @@ export async function exportPhpHubWebir(projectDir) {
   await copyFile(ingested, out);
 
   const webir = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
-  const raw = JSON.parse(readFileSync(out, "utf8"));
+  const raw = JSON.parse(await readTextWithRetry(out));
   const mod = webir.moduleFromGoldenSnapshot(raw);
   const footprint = webir.computeOracleFootprint(mod);
   const routeCount = mod.roots.length;

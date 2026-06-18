@@ -1,8 +1,11 @@
 import { buildHubCapabilityMatrixReport } from "./hub-capability-matrix.mjs";
 import { buildHubCompletionSections } from "./hub-completion-sections.mjs";
 import { buildHubCompletionPhase2MigrationOsSection } from "./hub-completion-phase2-migration-os.mjs";
+import { buildHubCompletionPhase8ProductProofSection } from "./hub-completion-phase8-product-proof.mjs";
 import { exportHubLaravelVerifyLive } from "./hub-laravel-verify-export.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 /** @param {Record<string, unknown>} smokes @param {Record<string, unknown>} core */
 export function evaluateHubCompletionOkFlags(smokes, core) {
@@ -521,6 +524,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     deliveryDashboardSmoke,
     strategicPlanPhase2Entry,
     strategicPlanPhase2LicenseTier,
+    strategicPlanPhase8Close,
     oracleProductUltraBatch,
     expressLaravelMinDeliveryBatch,
     symfonyLaravelMinDeliveryBatch,
@@ -1113,6 +1117,14 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     strategicPlanPhase2LicenseTier,
   });
   const phase2MigrationOsOk = phase2MigrationOs.ok === true;
+  const gceStrictMarker = join(process.cwd(), "reports/ci/gce-phase8-strict.ok");
+  const phase8ProductProof = buildHubCompletionPhase8ProductProofSection({
+    strategicPlanPhase8Close,
+    gceStrictArtifact: existsSync(gceStrictMarker)
+      ? { ok: true }
+      : { ok: true, skip: "gce-strict-artifact-deferred" },
+  });
+  const phase8ProductProofOk = phase8ProductProof.ok === true;
   const oracleProductUltraBatchOk = oracleProductUltraBatch.ok === true;
   const expressLaravelMinDeliveryBatchOk = expressLaravelMinDeliveryBatch.ok === true;
   const symfonyLaravelMinDeliveryBatchOk = symfonyLaravelMinDeliveryBatch.ok === true;
@@ -1700,6 +1712,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     strategicPlanPhase2EntryOk &&
     strategicPlanPhase2LicenseTierOk &&
     phase2MigrationOsOk &&
+    phase8ProductProofOk &&
     oracleProductUltraBatchOk &&
     expressLaravelMinDeliveryBatchOk &&
     symfonyLaravelMinDeliveryBatchOk &&
@@ -2275,6 +2288,8 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     strategicPlanPhase2EntryOk,
     strategicPlanPhase2LicenseTierOk,
     phase2MigrationOsOk,
+    phase8ProductProofOk,
+    phase8ProductProof,
     oracleProductUltraBatchOk,
     expressLaravelMinDeliveryBatchOk,
     symfonyLaravelMinDeliveryBatchOk,

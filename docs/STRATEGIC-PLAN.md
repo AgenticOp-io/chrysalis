@@ -160,13 +160,19 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 - Reinforcement queue **G6010–G6043** complete — see `docs/CWL-FULLSTACK-PHASE-7.md`
 
-### Phase 8 — Product proof (strict reinforcement) — **Closed (2026-06-17)**
+### Phase 8 — Product proof (strict reinforcement) — **Closed (2026-06-18)**
 
 - Reinforcement queue **G6050–G6113** complete — see `docs/PRODUCT-PROOF-PHASE-8.md`
-- **Strict path:** `CHRYSALIS_STRICT_STRATEGIC_PLAN=1 pnpm run hub:strategic-plan-phase8-product-proof-close-smoke` (GCE / CI)
-- **Local fast path:** same smokes with `CHRYSALIS_STRATEGIC_PLAN_SKIP_*=1` (Vitest default)
+- **Strict path:** `pnpm run test:gce:phase8-strict` (GCE); passed **2026-06-18**
+- **Local fast path:** same smokes with explicit skip opts (Vitest default)
 
-**Strategic plan phases 0–8:** all reinforcement queues **closed** (**G5680–G6113**). Default build → **maintenance** unless plan amended.
+### Phase 9 — Operational hardening — **Closed (2026-06-18)**
+
+- Reinforcement queue **G6120–G6153** complete — see `docs/OPERATIONAL-HARDENING-PHASE-9.md`
+- Hub-completion schema **512** + `phase8ProductProof` section
+- Capability matrix schema **34** + `strategicPlanPhase8ProductProof`
+
+**Strategic plan phases 0–9:** all reinforcement queues **closed** (**G5680–G6153**). Default build → **maintenance** unless plan amended.
 
 ---
 
@@ -319,7 +325,11 @@ When the user says “build” without specifying, prefer this queue:
 
 **Phase 8 cutover proof (2026-06-17):** **G6100–G6103** — `runRuntimeSessionSqlHonestyGate`, `runStrategicPlanPhase8CutoverProofGate`, `pnpm run hub:strategic-plan-phase8-cutover-proof-smoke`.
 
-**Phase 8 program close (2026-06-17):** **G6110–G6113** — `runStrategicPlanPhase8ProductProofCloseGate`, `pnpm run hub:strategic-plan-phase8-product-proof-close-smoke`. **Strict:** `CHRYSALIS_STRICT_STRATEGIC_PLAN=1`. Phase 8 **closed**. **All strategic phases complete.**
+**Phase 8 program close (2026-06-17):** **G6110–G6113** — `runStrategicPlanPhase8ProductProofCloseGate`, `pnpm run hub:strategic-plan-phase8-product-proof-close-smoke`. **Strict:** `CHRYSALIS_STRICT_STRATEGIC_PLAN=1`. Phase 8 **closed**. **Strict proof passed on GCE (2026-06-18).**
+
+**Phase 9 operational hardening entry (2026-06-18):** **G6120–G6123** — `docs/OPERATIONAL-HARDENING-PHASE-9.md`, hub-completion schema **512** + `phase8ProductProof`, `runStrategicPlanPhase9OperationalEntryGate`.
+
+**Phase 9 program close (2026-06-18):** **G6150–G6153** — `runStrategicPlanPhase9OperationalCloseGate`, `pnpm run hub:strategic-plan-phase9-operational-close-smoke`. Phase 9 **closed**.
 
 
 ### Full-stack CWL — next 10 steps (after G1158)
