@@ -785,6 +785,66 @@ export async function runStrategicPlanPhase1ChimeraCutoverGate(opts = {}) {
   };
 }
 
+/** G5781 — Migration OS Phase 2 plan doc. */
+export function runMigrationOsPhase2DocGate() {
+  const path = join(scriptRoot, "docs/MIGRATION-OS-PHASE-2.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-migration-os-phase2-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runSiteIntelligenceSmoke") &&
+    text.includes("runMigrationOsSmoke") &&
+    text.includes("runHubEvidenceSmoke") &&
+    text.includes("runPathAdviceSmoke") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5780 — Phase 2 Migration OS entry gate. */
+export async function runStrategicPlanPhase2MigrationOsEntryGate(opts = {}) {
+  const skipStandaloneBatch =
+    opts.skipStandaloneBatch === true ||
+    process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_STANDALONE_BATCH === "1";
+  const doc = runMigrationOsPhase2DocGate();
+  const { runSiteIntelligenceSmoke } = await import("./hub-site-intelligence-smoke.mjs");
+  const { runMigrationOsSmoke } = await import("./hub-migration-os-smoke.mjs");
+  const { runHubEvidenceSmoke } = await import("./hub-evidence-smoke.mjs");
+  const { runPathAdviceSmoke } = await import("./hub-path-advice-smoke.mjs");
+  const [siteIntelligence, migrationOs, evidence, pathAdvice] = await Promise.all([
+    runSiteIntelligenceSmoke(),
+    runMigrationOsSmoke(),
+    runHubEvidenceSmoke(),
+    runPathAdviceSmoke(),
+  ]);
+  let standaloneBatch = { ok: true, skip: "standalone-batch-skipped" };
+  if (!skipStandaloneBatch) {
+    const { runMigrationOsStandaloneBatchSmoke } = await import(
+      "./hub-migration-os-standalone-batch-smoke.mjs",
+    );
+    standaloneBatch = await runMigrationOsStandaloneBatchSmoke();
+  }
+  const ok =
+    doc.ok === true &&
+    siteIntelligence.ok === true &&
+    migrationOs.ok === true &&
+    evidence.ok === true &&
+    pathAdvice.ok === true &&
+    standaloneBatch.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    siteIntelligenceOk: siteIntelligence.ok === true,
+    migrationOsOk: migrationOs.ok === true,
+    evidenceOk: evidence.ok === true,
+    pathAdviceOk: pathAdvice.ok === true,
+    standaloneBatchOk: standaloneBatch.ok === true,
+    skipStandaloneBatch,
+    routeCount: siteIntelligence.routeCount ?? null,
+    templateCount: migrationOs.programs?.templateCount ?? null,
+    programId: pathAdvice.programId ?? null,
+    evidenceProgramId: evidence.evidence?.programId ?? null,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

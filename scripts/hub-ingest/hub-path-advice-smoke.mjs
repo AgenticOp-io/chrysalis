@@ -25,7 +25,7 @@ export async function runPathAdviceSmoke(projectDir = defaultFixture) {
       report.pair?.grade != null &&
       (report.pipelineSteps?.length ?? 0) >= 4,
     grade: report.pair?.grade ?? null,
-    programId: report.migrationProgram?.program?.id ?? null,
+    programId: report.migrationProgram?.id ?? null,
     generatedAt: new Date().toISOString(),
   };
 }
