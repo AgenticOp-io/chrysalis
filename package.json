@@ -327,6 +327,8 @@
     "hub:strategic-plan-phase1-php-emit-parity-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase1-php-emit-parity-smoke.mjs",
     "hub:strategic-plan-phase1-chimera-cutover-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase1-chimera-cutover-smoke.mjs",
     "hub:strategic-plan-phase2-migration-os-entry-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase2-migration-os-entry-smoke.mjs",
+    "hub:license-tier-smoke": "node scripts/hub-ingest/hub-license-tier-smoke.mjs",
+    "hub:strategic-plan-phase2-license-tier-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase2-license-tier-smoke.mjs",
     "hub:laravel-verify-live-gaps-closure-smoke": "node scripts/hub-ingest/hub-laravel-verify-live-gaps-closure-smoke.mjs",
     "hub:gap-reingest-strict-smoke": "node scripts/hub-ingest/hub-gap-reingest-strict-smoke.mjs",
     "hub:laravel-auth-probe-reingest-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs",

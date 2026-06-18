@@ -56,9 +56,21 @@ Set `CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_STANDALONE_BATCH=1` for core pil
 
 ## In progress (Phase 2 backlog)
 
-- Commercial alignment with license tiers (D289) — reinforcement gate
 - Multi-origin Migration OS batch on GCE
 - Delivery dashboard wiring in hub-completion Phase 2 section
+
+## Phase F — License tier alignment (shipped)
+
+| Gate | Scope | Done when |
+| --- | --- | --- |
+| `runHubLicenseTierSmoke` | Tier map + OSS-default report | ≥7 features, ladder ok |
+| `runStrategicPlanPhase2LicenseTierGate` | doc + tier smoke | G5790 |
+
+Registry: `docs/MIGRATION-OS-LICENSE-TIER-ALIGNMENT.md`, `hub-license-status.mjs`.
+
+```bash
+pnpm run hub:strategic-plan-phase2-license-tier-smoke
+```
 
 ## Operator entry points
 

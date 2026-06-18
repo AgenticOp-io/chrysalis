@@ -845,6 +845,37 @@ export async function runStrategicPlanPhase2MigrationOsEntryGate(opts = {}) {
   };
 }
 
+/** G5791 — Migration OS license tier alignment plan doc. */
+export function runMigrationOsLicenseTierDocGate() {
+  const path = join(scriptRoot, "docs/MIGRATION-OS-LICENSE-TIER-ALIGNMENT.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-license-tier-doc" };
+  const text = readFileSync(path, "utf8");
+  const commercialPath = join(scriptRoot, "docs/COMMERCIAL.md");
+  const docOk =
+    text.includes("HUB_LICENSE_FEATURES") &&
+    text.includes("hub-chimera-cutover") &&
+    text.includes("CHRYSALIS_REQUIRE_LICENSE") &&
+    text.includes("Phase A");
+  const commercialOk = existsSync(commercialPath);
+  return { ok: docOk && commercialOk, docOk, commercialOk };
+}
+
+/** G5790 — Phase 2 license tier commercial alignment. */
+export async function runStrategicPlanPhase2LicenseTierGate() {
+  const doc = runMigrationOsLicenseTierDocGate();
+  const { runHubLicenseTierSmoke } = await import("./hub-license-tier-smoke.mjs");
+  const tierSmoke = await runHubLicenseTierSmoke();
+  const ok = doc.ok === true && tierSmoke.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    tierSmokeOk: tierSmoke.ok === true,
+    featureCount: tierSmoke.featureCount ?? null,
+    tiersOk: tierSmoke.tiersOk === true,
+    ossDefaultOk: tierSmoke.ossDefaultOk === true,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });

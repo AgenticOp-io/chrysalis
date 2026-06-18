@@ -15,7 +15,7 @@ demo and measurable numbers, not a pile of abstractions.
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
 - **Active lanes:** the **Multi-lane program** baseline is **closed** (2026-06-17); **maintenance** only. Default build queue: **`docs/STRATEGIC-PLAN.md`** Phase **2 Migration OS** (Phase 1 reinforcement **G5740–G5773** closed).
-- **Recently shipped:** **G5780–G5783** — Phase 2 Migration OS entry. **G5770–G5773** — Phase 1 Chimera cutover. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **Recently shipped:** **G5790–G5793** — Phase 2 license tier alignment. **G5780–G5783** — Migration OS entry. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.
@@ -104,7 +104,7 @@ The **v2.0.0** thesis and scale-out milestones are complete; the rows below trac
 
 The default implementation queue is **`docs/STRATEGIC-PLAN.md`** § **Phase 1 — PHP wedge depth** (Next 90 days program **closed** at **G5733**). **Closed programs** (do not reopen without plan amendment): multi-lane Waves **0–6**, post-2.0 options **A–E**, hub verify-gaps months **26–30**, post–queue **110** Phases **A+B**, Next 90 days **G5680–G5733**. Current build focus:
 
-- **Migration OS (Phase 2, active):** **G5780–G5783** — entry gate (`runStrategicPlanPhase2MigrationOsEntryGate`, `docs/MIGRATION-OS-PHASE-2.md`, `hub:strategic-plan-phase2-migration-os-entry-smoke`). Phase 1 **closed** at **G5773**.
+- **Migration OS (Phase 2, active):** **G5790–G5793** — license tier alignment (`runStrategicPlanPhase2LicenseTierGate`, `docs/MIGRATION-OS-LICENSE-TIER-ALIGNMENT.md`). **G5780–G5783** — entry gate **complete**.
 - **CWL / full-stack:** queues **111–437 complete** (schema **510**) — maintenance only.
 - **Next 90 days:** **G5680–G5733** — **complete** (Months 1–4 reinforcement).
 - **Parser maintenance:** contested-syntax pages in **`fixtures/parser-parity-probe`** when mapper gaps appear.

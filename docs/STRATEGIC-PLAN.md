@@ -260,6 +260,8 @@ When the user says “build” without specifying, prefer this queue:
 
 **Phase 2 Migration OS entry (2026-06-17):** **G5780–G5783** — `docs/MIGRATION-OS-PHASE-2.md`, `runStrategicPlanPhase2MigrationOsEntryGate`, `pnpm run hub:strategic-plan-phase2-migration-os-entry-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_MIGRATION_OS_STANDALONE_BATCH=1`).
 
+**Phase 2 license tier alignment (2026-06-17):** **G5790–G5793** — `docs/MIGRATION-OS-LICENSE-TIER-ALIGNMENT.md`, `runStrategicPlanPhase2LicenseTierGate`, `pnpm run hub:strategic-plan-phase2-license-tier-smoke`.
+
 
 ### Full-stack CWL — next 10 steps (after G1158)
 
