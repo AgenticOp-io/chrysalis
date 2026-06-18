@@ -6,6 +6,10 @@
 > [`DESIGN.md`](./DESIGN.md); the locked product path is
 > [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md).
 >
+> Per-queue build docs (`CWL-FULLSTACK-NEXT-10-*.md`, `CWL-FULLSTACK-QUEUES-*.md`) were
+> consolidated into [`docs/archive/CWL-FULLSTACK-BUILD-LOG.md`](./docs/archive/CWL-FULLSTACK-BUILD-LOG.md)
+> (2026-06-17). See [`docs/CWL-FULLSTACK-PROGRAM.md`](./docs/CWL-FULLSTACK-PROGRAM.md) for the formal summary.
+>
 > Contents:
 > 1. Shipped slice backlog (checkbox A-G + the full **G-series**, through G2404).
 > 2. **Milestones 0-6A** (the closed v1 checklist, incl. flagship-depth Milestone 5).
@@ -796,7 +800,7 @@
 
 ### Full-stack CWL — next 10 steps (locked queue)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10.md`. Default build order after G1158. Amend via Decision Log + that doc.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-1`. Default build order after G1158. Amend via Decision Log + that doc.
 
 - [x] **G1159 — RFC-0013 load-function lowering v1** — Simple `+page.server.ts` load → WebIR; RFC doc; deep-fixture gold/smoke. (**DESIGN D1159**)
 - [x] **G1160 — Page + load CWL emit merge** — Single `@page` with data + HTML; round-trip smoke on deep fixture. (**DESIGN D1160**)
@@ -811,7 +815,7 @@
 
 ### Full-stack CWL — queue 2 (G1169–G1178)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-2.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-2`.
 
 - [x] **G1169 — runtime-cwl load execution** — `__page_load` in simulate; page-load JSON sidecar in HTML. (**DESIGN D1169**)
 - [x] **G1170 — Bootstrap layout module** — `layouts/shell.cwl` on `cwl init` / portal bootstrap. (**DESIGN D1170**)
@@ -826,7 +830,7 @@
 
 ### Full-stack CWL — queue 3 (G1179–G1188)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-3.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-3`.
 
 - [x] **G1179 — Flagship page load route** — `@page GET "/blog/:slug"` with `load { }` on flagship pilot. (**DESIGN D1179**)
 - [x] **G1180 — Production page-load probe** — runtime-cwl sidecar check on `/blog/hello`. (**DESIGN D1180**)
@@ -841,7 +845,7 @@
 
 ### Full-stack CWL — queue 4 (G1189–G1198)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-4.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-4`.
 
 - [x] **G1189 — CWL HTML interpolation** — `html.template` for path/query/load fields in page HTML. (**DESIGN D1189**)
 - [x] **G1190 — Load env binding** — `__page_load` populates handler env for load-field HTML refs. (**DESIGN D1190**)
@@ -856,7 +860,7 @@
 
 ### Full-stack CWL — queue 5 (G1199–G1208)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-5.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-5`.
 
 - [x] **G1199 — RFC-0014 HTML interpolation** — `docs/CWL-RFC-0014-html-interpolation.md`. (**DESIGN D1199**)
 - [x] **G1200 — Svelte blog slug field ref** — `{slug}` in deep fixture page template. (**DESIGN D1200**)
@@ -870,7 +874,7 @@
 - [x] **G1208 — ROADMAP lock queue 5** — G1199–G1208 tracked. (**DESIGN D1208**)
 ### Full-stack CWL — queue 6 (G1209–G1218)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-6.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-6`.
 
 - [x] **G1209 — Flagship `/search` query route** — (**DESIGN D1209**)
 - [x] **G1210 — Runtime query HTML interpolation probe** — (**DESIGN D1210**)
@@ -885,7 +889,7 @@
 
 ### Full-stack CWL — queue 7 (G1219–G1228)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-7.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-7`.
 
 - [x] **G1219 — Blog load tags array** — (**DESIGN D1219**)
 - [x] **G1220 — Runtime load array sidecar** — (**DESIGN D1220**)
@@ -900,7 +904,7 @@
 
 ### Full-stack CWL — queue 8 (G1229–G1238)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-8.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-8`.
 
 - [x] **G1229 — layouts/shell.cwl import** — (**DESIGN D1229**)
 - [x] **G1230 — Layout route in preview** — (**DESIGN D1230**)
@@ -915,7 +919,7 @@
 
 ### Full-stack CWL — queue 9 (G1239–G1248)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-9.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-9`.
 
 - [x] **G1239 — RFC-0012 form-action holes** — (**DESIGN D1239**)
 - [x] **G1240 — hub-svelte:form-action catalogued** — (**DESIGN D1240**)
@@ -930,7 +934,7 @@
 
 ### Full-stack CWL — queue 10 (G1249–G1258)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-10.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-10`.
 
 - [x] **G1249 — cwl-diagnose pageRouteCount** — (**DESIGN D1249**)
 - [x] **G1250 — cwl-diagnose loadRouteCount** — (**DESIGN D1250**)
@@ -945,7 +949,7 @@
 
 ### Full-stack CWL — queue 11 (G1259–G1268)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-11.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-11`.
 
 - [x] **G1259 — OpenAPI export CWL origin** — (**DESIGN D1259**)
 - [x] **G1260 — Page routes in exported paths** — (**DESIGN D1260**)
@@ -960,7 +964,7 @@
 
 ### Full-stack CWL — queue 12 (G1269–G1278)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-12.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-12`.
 
 - [x] **G1269 — Gold cwl-fullstack-flagship-hono suite** — (**DESIGN D1269**)
 - [x] **G1270 — Gold suite in batch v12** — (**DESIGN D1270**)
@@ -975,7 +979,7 @@
 
 ### Full-stack CWL — queue 13 (G1279–G1288)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-13.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-13`.
 
 - [x] **G1279 — starterCwlModule search route** — (**DESIGN D1279**)
 - [x] **G1280 — starterCwlModule blog load route** — (**DESIGN D1280**)
@@ -990,7 +994,7 @@
 
 ### Full-stack CWL — queue 14 (G1289–G1298)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-14.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-14`.
 
 - [x] **G1289 — hub-cwl-preview interpolationRouteCount** — (**DESIGN D1289**)
 - [x] **G1290 — Delivery dashboard interpolationCount** — (**DESIGN D1290**)
@@ -1005,7 +1009,7 @@
 
 ### Full-stack CWL — queue 15 (G1299–G1308)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-15.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-15`.
 
 - [x] **G1299 — hub-verify-http hono CWL origin** — (**DESIGN D1299**)
 - [x] **G1300 — Emit page HTML search probe** — (**DESIGN D1300**)
@@ -1020,7 +1024,7 @@
 
 ### Full-stack CWL — queue 16 (G1309–G1318)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-16.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-16`.
 
 - [x] **G1309 — Next.js deep app/search/page.tsx** — (**DESIGN D1309**)
 - [x] **G1310 — Next deep lift /search** — (**DESIGN D1310**)
@@ -1035,7 +1039,7 @@
 
 ### Full-stack CWL — queue 17 (G1319–G1328)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-17.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-17`.
 
 - [x] **G1319 — SvelteKit deep search +page.svelte** — (**DESIGN D1319**)
 - [x] **G1320 — Svelte deep lift /search** — (**DESIGN D1320**)
@@ -1050,7 +1054,7 @@
 
 ### Full-stack CWL — queue 18 (G1329–G1338)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-18.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-18`.
 
 - [x] **G1329 — Hole budget schemaVersion 2** — (**DESIGN D1329**)
 - [x] **G1330 — minInterpolationRoutes field** — (**DESIGN D1330**)
@@ -1065,7 +1069,7 @@
 
 ### Full-stack CWL — queue 19 (G1339–G1348)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-19.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-19`.
 
 - [x] **G1339 — runMegaOriginGate parallel smokes** — (**DESIGN D1339**)
 - [x] **G1340 — Svelte + Next + flagship CWL** — (**DESIGN D1340**)
@@ -1080,7 +1084,7 @@
 
 ### Full-stack CWL — queue 20 (G1349–G1358)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-20.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-20`.
 
 - [x] **G1349 — runGraduationGate composite** — (**DESIGN D1349**)
 - [x] **G1350 — Query + load + layout + diagnose** — (**DESIGN D1350**)
@@ -1095,7 +1099,7 @@
 
 ### Full-stack CWL — queue 21 (G1359–G1368)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-21.md`; program index **`docs/CWL-FULLSTACK-QUEUES-21-30.md`**.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-21`; program index **`docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-21-30`**.
 
 - [x] **G1359 — Production smoke `/search?q=` probe** — RFC-0015 runtime probe on flagship. (**DESIGN D1359**)
 - [x] **G1360 — Runtime query HTML assertion** — `expectQuery` in production smoke. (**DESIGN D1360**)
@@ -1106,10 +1110,10 @@
 - [x] **G1365 — Vitest batch v21** — CLI smoke coverage. (**DESIGN D1365**)
 - [x] **G1366 — Strategic plan queue 21** — default build queue updated. (**DESIGN D1366**)
 - [x] **G1367 — ROADMAP lock queue 21** — G1359–G1368 tracked. (**DESIGN D1367**)
-- [x] **G1368 — Master index queues 21–30** — `docs/CWL-FULLSTACK-QUEUES-21-30.md`. (**DESIGN D1368**)
+- [x] **G1368 — Master index queues 21–30** — `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-21-30`. (**DESIGN D1368**)
 ### Full-stack CWL — queue 22 (G1369–G1378)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-22.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-22`.
 
 - [x] **G1369 — Fastify emit verify search** — (**DESIGN D1369**)
 - [x] **G1370 — GET_search.json artifact** — (**DESIGN D1370**)
@@ -1124,7 +1128,7 @@
 
 ### Full-stack CWL — queue 23 (G1379–G1388)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-23.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-23`.
 
 - [x] **G1379 — Next searchParams page** — (**DESIGN D1379**)
 - [x] **G1380 — liftJsxPageHtmlWithBareRefs** — (**DESIGN D1380**)
@@ -1139,7 +1143,7 @@
 
 ### Full-stack CWL — queue 24 (G1389–G1398)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-24.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-24`.
 
 - [x] **G1389 — Svelte search +page.server.ts** — (**DESIGN D1389**)
 - [x] **G1390 — url.searchParams load lift** — (**DESIGN D1390**)
@@ -1154,7 +1158,7 @@
 
 ### Full-stack CWL — queue 25 (G1399–G1408)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-25.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-25`.
 
 - [x] **G1399 — RFC-0016 form-action probe** — (**DESIGN D1399**)
 - [x] **G1400 — Catalog hub-svelte:form-action** — (**DESIGN D1400**)
@@ -1169,7 +1173,7 @@
 
 ### Full-stack CWL — queue 26 (G1409–G1418)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-26.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-26`.
 
 - [x] **G1409 — hub-cwl-session-stub-smoke** — (**DESIGN D1409**)
 - [x] **G1410 — Session cookie on health** — (**DESIGN D1410**)
@@ -1184,7 +1188,7 @@
 
 ### Full-stack CWL — queue 27 (G1419–G1428)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-27.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-27`.
 
 - [x] **G1419 — Express flagship depth** — (**DESIGN D1419**)
 - [x] **G1420 — runExpressDepthGate** — (**DESIGN D1420**)
@@ -1199,7 +1203,7 @@
 
 ### Full-stack CWL — queue 28 (G1429–G1438)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-28.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-28`.
 
 - [x] **G1429 — cwl-diagnose schema 2** — (**DESIGN D1429**)
 - [x] **G1430 — effectNoneRouteCount** — (**DESIGN D1430**)
@@ -1214,7 +1218,7 @@
 
 ### Full-stack CWL — queue 29 (G1439–G1448)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-29.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-29`.
 
 - [x] **G1439 — Hono + fastify verify mega** — (**DESIGN D1439**)
 - [x] **G1440 — runEmitVerifyMegaGate** — (**DESIGN D1440**)
@@ -1229,7 +1233,7 @@
 
 ### Full-stack CWL — queue 30 (G1449–G1458)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-30.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-30`.
 
 - [x] **G1449 — runProductionGraduationGate** — (**DESIGN D1449**)
 - [x] **G1450 — Phase 6 graduation composite** — (**DESIGN D1450**)
@@ -1244,7 +1248,7 @@
 
 ### Full-stack CWL — queue 31 (G1459–G1468)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-31.md`; program index **`docs/CWL-FULLSTACK-QUEUES-31-40.md`**.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-31`; program index **`docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-31-40`**.
 
 - [x] **G1459 — runtime-cwl hono parity gate** — (**DESIGN D1459**)
 - [x] **G1460 — runRuntimeHonoParityGate** — (**DESIGN D1460**)
@@ -1259,13 +1263,13 @@
 
 ### Full-stack CWL — queues 32–39 (G1469–G1548)
 
-> **Authority:** `docs/CWL-FULLSTACK-QUEUES-31-40.md` (queues 32–39 detail docs).
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-31-40` (queues 32–39 detail docs).
 
 - [x] **G1469–G1548** — runtime production, verify-gaps express/fullstack, project-to-CWL roundtrip, graduation replay, mega origin, post-30 composite, emit mega, batches v32–v39. (**DESIGN D1469–D1548**)
 
 ### Full-stack CWL — queue 40 (G1549–G1558)
 
-> **Authority:** `docs/CWL-FULLSTACK-NEXT-10-40.md`.
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-40`.
 
 - [x] **G1549 — runPost30GraduationGate** — (**DESIGN D1549**)
 - [x] **G1550 — Post-30 + Phase 6 composite** — (**DESIGN D1550**)
@@ -1280,7 +1284,7 @@
 
 ### Full-stack CWL — queues 41–50 (G1559–G1658)
 
-> **Authority:** `docs/CWL-FULLSTACK-QUEUES-41-50.md` (detail docs `docs/CWL-FULLSTACK-NEXT-10-41.md` … `-50.md`).
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-41-50` (detail docs `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#queue-41` … `-50.md`).
 
 - [x] **G1559–G1598** — flagship pilot, delivery interpolation, chimera cutover, verify-gaps ingest action, CWL preview; batches v41–v45. (**DESIGN D1559–D1598**)
 - [x] **G1599–G1638** — OpenAPI pages, post-30/post-40 composites; batches v46–v48. (**DESIGN D1599–D1638**)
@@ -1298,7 +1302,7 @@
 
 ### Full-stack CWL — queues 51–60 (G1659–G1758)
 
-> **Authority:** `docs/CWL-FULLSTACK-QUEUES-51-60.md` (verify-gaps × CWL bridge).
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-51-60` (verify-gaps × CWL bridge).
 
 - [x] **G1659–G1698** — CWL fullstack HTTP oracle, verify-gaps ingest + action; batches v51–v54. (**DESIGN D1659–D1698**)
 - [x] **G1699–G1738** — post-40/post-30/post-50 composites; batches v55–v57. (**DESIGN D1699–D1738**)
@@ -1316,7 +1320,7 @@
 
 ### Full-stack CWL — queues 61–70 (G1759–G1858)
 
-> **Authority:** `docs/CWL-FULLSTACK-QUEUES-61-70.md` (authoring bootstrap; **`docs/STRATEGIC-PLAN.md` §12** Month 1–2).
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-61-70` (authoring bootstrap; **`docs/STRATEGIC-PLAN.md` §12** Month 1–2).
 
 - [x] **G1759 — CWL authoring templates gate** — `runCwlAuthoringTemplatesGate`, bootstrap `layouts/shell.cwl` beside CWL path. (**DESIGN D1759**)
 - [x] **G1760 — Post-60 composite gate** — templates + post-50 composite. (**DESIGN D1760**)
@@ -1357,7 +1361,7 @@
 
 ### Full-stack CWL — queues 71–90 (G1859–G2058)
 
-> **Authority:** `docs/CWL-FULLSTACK-QUEUES-71-90.md` (Month 2–3 depth; **`docs/STRATEGIC-PLAN.md` §12**).
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-71-90` (Month 2–3 depth; **`docs/STRATEGIC-PLAN.md` §12**).
 
 - [x] **G1859 — runtime hono parity gate** — `runRuntimeHonoParityGate`. (**DESIGN D1859**)
 - [x] **G1869 — page-load parity gate** — `runPageLoadParityGate`. (**DESIGN D1869**)
@@ -1384,7 +1388,7 @@
 
 ### Full-stack CWL — queues 91–110 (G2059–G2258)
 
-> **Authority:** `docs/CWL-FULLSTACK-QUEUES-91-110.md` (hub verify-gaps bridge).
+> **Authority:** `docs/archive/CWL-FULLSTACK-BUILD-LOG.md#cwl-fullstack-queues-91-110` (hub verify-gaps bridge).
 
 - [x] **G2059 — verify-gaps express flagship gate** — (**DESIGN D2059**)
 - [x] **G2069 — verify-gaps symfony gate** — (**DESIGN D2069**)

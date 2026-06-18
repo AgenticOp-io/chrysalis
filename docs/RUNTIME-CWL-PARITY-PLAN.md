@@ -38,6 +38,16 @@ Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullst
 - Full-stack flagship pilot with explicit hole budget (`chrysalis.fullstack-hole-budget.json`).
 - Evidence gate before widening CWL page/layout semantics.
 
+## Phase E — STRATEGIC-PLAN Phase 5 reinforcement (shipped)
+
+| Program | Status |
+| --- | --- |
+| Phase 5 entry | `runStrategicPlanPhase5CwlRuntimeEntryGate` (G5930) |
+| Production search | `runStrategicPlanPhase5ProductionSearchGate` (G5940) |
+| Session stub honesty | `runStrategicPlanPhase5SessionStubGate` (G5950) |
+
+Registry: `docs/CWL-RUNTIME-PHASE-5.md`.
+
 ## Operator entry points
 
 ```bash

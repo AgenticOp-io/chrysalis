@@ -148,11 +148,11 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 - Reinforcement queue **G5880–G5923** complete — see `docs/SECOND-ORACLE-ORIGIN-PHASE-4.md`
 
-### Phase 5 — CWL runtime (accelerated) — **P1** (active)
+### Phase 5 — CWL runtime (accelerated) — **Closed (2026-06-17)**
 
-In-process CWL preview/runtime via `@chrysalis/runtime-cwl` (WebIR simulation) is the base. Expand toward production-grade runtime capability while preserving emit + verify parity checks.
+- Reinforcement queue **G5930–G5963** complete — see `docs/CWL-RUNTIME-PHASE-5.md`
 
-### Phase 6 — CWL runtime at scale (24–48 mo) — **P2**
+### Phase 6 — CWL runtime at scale (24–48 mo) — **P2** (active)
 
 Full production runtime parity (real SQL/session) remains phase-gated on evidence, but is an explicit product objective.
 
@@ -239,7 +239,7 @@ When the user says “build” without specifying, prefer this queue:
 
 **Month 3–4 reinforcement (2026-06-17):** **G5730–G5733** — `docs/CWL-FULLSTACK-FLAGSHIP-PILOT.md`, `runStrategicPlanMonth34FullstackPilotGate`, `pnpm run hub:strategic-plan-month34-fullstack-pilot-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1` for preview/budget without gold verify).
 
-**Next 90 days program:** **closed (2026-06-17)**. **Phase 1–4** reinforcement **closed** (**G5740–G5923**). Default build queue: **Phase 5 CWL runtime** (§7).
+**Next 90 days program:** **closed (2026-06-17)**. **Phase 1–5** reinforcement **closed** (**G5740–G5963**). Default build queue: **Phase 6 CWL runtime at scale** (§7).
 
 **Phase 1 reinforcement (2026-06-17):** **G5740–G5743** — `docs/PHP-WEDGE-PHASE-1.md`, `runStrategicPlanPhase1PhpWedgeGate`, `pnpm run hub:strategic-plan-phase1-php-wedge-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_PHP_WEDGE_FLAGSHIPS=1` for gaps/playbooks only).
 
@@ -278,6 +278,14 @@ When the user says “build” without specifying, prefer this queue:
 **Phase 4 Express delivery batch (2026-06-17):** **G5910–G5913** — `docs/EXPRESS-DELIVERY-BATCH-PHASE-4.md`, `runStrategicPlanPhase4ExpressDeliveryBatchGate`.
 
 **Phase 4 program close (2026-06-17):** **G5920–G5923** — `runStrategicPlanPhase4SecondOracleOriginCloseGate`, `pnpm run hub:strategic-plan-phase4-second-oracle-origin-close-smoke`. Phase 4 **closed**.
+
+**Phase 5 CWL runtime entry (2026-06-17):** **G5930–G5933** — `docs/CWL-RUNTIME-PHASE-5.md`, `runStrategicPlanPhase5CwlRuntimeEntryGate`, `pnpm run hub:strategic-plan-phase5-cwl-runtime-entry-smoke` (optional `CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP=1`).
+
+**Phase 5 production search (2026-06-17):** **G5940–G5943** — `docs/CWL-RUNTIME-PRODUCTION-SEARCH-PHASE-5.md`, `runStrategicPlanPhase5ProductionSearchGate`.
+
+**Phase 5 session stub honesty (2026-06-17):** **G5950–G5953** — `docs/CWL-RUNTIME-SESSION-STUB-PHASE-5.md`, `runStrategicPlanPhase5SessionStubGate`.
+
+**Phase 5 program close (2026-06-17):** **G5960–G5963** — `runStrategicPlanPhase5CwlRuntimeCloseGate`, `pnpm run hub:strategic-plan-phase5-cwl-runtime-close-smoke`. Phase 5 **closed**.
 
 
 ### Full-stack CWL — next 10 steps (after G1158)

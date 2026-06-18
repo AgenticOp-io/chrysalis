@@ -14,9 +14,9 @@ demo and measurable numbers, not a pile of abstractions.
   milestones (`V2-M1`-`V2-M6`) are complete; see `CHANGELOG.md` and
   [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 - **v1 scope:** Milestones 0-6A complete (the closed v1 checklist - archived).
-- **Active lanes:** **Phase 4 second oracle origin closed** (**G5880–G5923**). Default queue → **Phase 5 CWL runtime** per `docs/STRATEGIC-PLAN.md`.
-- **Recently shipped:** **G5920–G5923** — Phase 4 program close. **G5880–G5913** — entry, live verify, Express depth/delivery batches. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
-- **CWL runtime (Phase 5, active):** `@chrysalis/runtime-cwl` parity acceleration per `docs/RUNTIME-CWL-PARITY-PLAN.md` (**G5690** baseline).
+- **Active lanes:** **Phase 5 CWL runtime closed** (**G5930–G5963**). Default queue → **Phase 6 runtime at scale** per `docs/STRATEGIC-PLAN.md`.
+- **Recently shipped:** **G5960–G5963** — Phase 5 program close. **G5930–G5953** — runtime entry, production search, session stub. Prior slices in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+- **CWL runtime at scale (Phase 6, active):** production SQL/session parity remains evidence-gated per strategic plan §7.
 
 **Paused by policy (do not open without plan amendment):** matrix gold for
 marketing; WordPress before Laravel boring; "any language production-ready" claims.

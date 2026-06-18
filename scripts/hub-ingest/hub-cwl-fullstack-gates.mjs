@@ -1293,6 +1293,112 @@ export async function runStrategicPlanPhase4SecondOracleOriginCloseGate(opts = {
   };
 }
 
+/** G5931 — CWL runtime Phase 5 plan doc. */
+export function runCwlRuntimePhase5DocGate() {
+  const path = join(scriptRoot, "docs/CWL-RUNTIME-PHASE-5.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-cwl-runtime-phase5-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runStrategicPlanMonth12RuntimeParityGate") &&
+    text.includes("runCwlAuthoringBootstrapHardeningGate") &&
+    text.includes("@chrysalis/runtime-cwl") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5930 — Phase 5 CWL runtime entry gate. */
+export async function runStrategicPlanPhase5CwlRuntimeEntryGate(opts = {}) {
+  const skipEmitHttp =
+    opts.skipEmitHttp === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP === "1";
+  const doc = runCwlRuntimePhase5DocGate();
+  const [runtimeParity, authoringBootstrap] = await Promise.all([
+    runStrategicPlanMonth12RuntimeParityGate({ ...opts, skipEmitHttp }),
+    runCwlAuthoringBootstrapHardeningGate(opts),
+  ]);
+  const ok = doc.ok === true && runtimeParity.ok === true && authoringBootstrap.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    runtimeParityOk: runtimeParity.ok === true,
+    authoringBootstrapOk: authoringBootstrap.ok === true,
+    skipEmitHttp,
+    parityOk: runtimeParity.parityOk === true,
+    planOk: runtimeParity.planOk === true,
+    templatesOk: authoringBootstrap.templatesOk === true,
+    previewOk: authoringBootstrap.previewOk === true,
+    diagnoseOk: authoringBootstrap.diagnoseOk === true,
+  };
+}
+
+/** G5941 — production search Phase 5 plan doc. */
+export function runCwlRuntimeProductionSearchPhase5DocGate() {
+  const path = join(scriptRoot, "docs/CWL-RUNTIME-PRODUCTION-SEARCH-PHASE-5.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-production-search-phase5-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runProductionSearchGate") &&
+    text.includes("runCwlRuntimeProductionSmoke") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5940 — Phase 5 production search reinforcement. */
+export async function runStrategicPlanPhase5ProductionSearchGate(opts = {}) {
+  const doc = runCwlRuntimeProductionSearchPhase5DocGate();
+  const search = await runProductionSearchGate(opts);
+  const ok = doc.ok === true && search.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    searchOk: search.ok === true,
+    probeKey: search.probeKey ?? null,
+    status: search.status ?? null,
+  };
+}
+
+/** G5951 — session stub Phase 5 plan doc. */
+export function runCwlRuntimeSessionStubPhase5DocGate() {
+  const path = join(scriptRoot, "docs/CWL-RUNTIME-SESSION-STUB-PHASE-5.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-session-stub-phase5-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runSessionStubGate") &&
+    text.includes("RUNTIME-CWL-PARITY-PLAN") &&
+    text.includes("Phase A");
+  return { ok: docOk, docOk };
+}
+
+/** G5950 — Phase 5 session stub honesty gate. */
+export async function runStrategicPlanPhase5SessionStubGate(opts = {}) {
+  const doc = runCwlRuntimeSessionStubPhase5DocGate();
+  const session = await runSessionStubGate(opts);
+  const ok = doc.ok === true && session.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    sessionOk: session.ok === true,
+  };
+}
+
+/** G5960 — Phase 5 CWL runtime program close gate. */
+export async function runStrategicPlanPhase5CwlRuntimeCloseGate(opts = {}) {
+  const skipEmitHttp =
+    opts.skipEmitHttp === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP === "1";
+  const [entry, productionSearch, sessionStub] = await Promise.all([
+    runStrategicPlanPhase5CwlRuntimeEntryGate({ ...opts, skipEmitHttp }),
+    runStrategicPlanPhase5ProductionSearchGate(opts),
+    runStrategicPlanPhase5SessionStubGate(opts),
+  ]);
+  const ok = entry.ok === true && productionSearch.ok === true && sessionStub.ok === true;
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    productionSearchOk: productionSearch.ok === true,
+    sessionStubOk: sessionStub.ok === true,
+    skipEmitHttp,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });
