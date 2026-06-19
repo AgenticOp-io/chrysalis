@@ -1,6 +1,6 @@
 # CWL runtime — production graduation (Phase 6)
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/CWL-RUNTIME-SCALE-PHASE-6.md`; **G5990**  
 > **North star:** composite production readiness without SQL/session marketing
 

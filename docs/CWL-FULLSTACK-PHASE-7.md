@@ -1,6 +1,6 @@
 # Full-stack CWL surface — Phase 7 plan
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` Phase 7; **G6010**  
 > **North star:** CWL full-stack flagships with hole budgets and scope RFC evidence
 

@@ -1,6 +1,6 @@
 # Express delivery batch — Phase 4
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/SECOND-ORACLE-ORIGIN-PHASE-4.md`; **G5910**  
 > **North star:** assessment + chimera cutover on Express flagship
 

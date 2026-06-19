@@ -1,6 +1,6 @@
 # CWL RFC track — Phase 3 reinforcement
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/CWL-INTERCHANGE-PHASE-3.md`; **G5840**  
 > **North star:** body, response, effects, auth presets round-trip through WebIR
 

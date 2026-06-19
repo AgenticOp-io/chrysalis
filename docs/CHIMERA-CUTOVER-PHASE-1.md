@@ -1,6 +1,6 @@
 # Chimera cutover — Phase 1 plan
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` Phase 1; **G5770**  
 > **North star:** verify-gated phased cutover runbooks + operator metrics snapshots
 

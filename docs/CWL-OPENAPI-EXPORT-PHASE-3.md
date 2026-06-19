@@ -1,6 +1,6 @@
 # CWL OpenAPI export — Phase 3
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/CWL-INTERCHANGE-PHASE-3.md`; **G5850**  
 > **North star:** optional OpenAPI export from lifted WebIR on translate paths
 

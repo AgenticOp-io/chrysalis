@@ -1,6 +1,6 @@
 # Second oracle — live verify reinforcement
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/SECOND-ORACLE-ORIGIN-PHASE-4.md`; **G5890**  
 > **North star:** live Express capture + verify replay on emitted Hono
 

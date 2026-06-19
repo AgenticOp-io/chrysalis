@@ -1,6 +1,6 @@
 # PHP wedge — Phase 1 plan
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §7 Phase 1; **G5740**  
 > **Priority:** **P0**
 

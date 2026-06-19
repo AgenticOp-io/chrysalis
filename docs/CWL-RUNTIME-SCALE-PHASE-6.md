@@ -1,6 +1,6 @@
 # CWL runtime at scale — Phase 6 plan
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` Phase 6; **G5970**  
 > **North star:** production graduation gates without claiming real SQL/session parity
 

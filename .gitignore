@@ -38,6 +38,7 @@ fixtures/lift-helper-sql-case-twin/probe.sqlite
 traces/lift-helper-sql-case-twin-ci/
 generated/lift-helper-sql-same-twin-replay/
 generated/lift-helper-sql-case-twin-replay/
+generated/lift-helper-sql-param-inline-replay/
 fixtures/lift-helper-sql-param-inline/probe.sqlite
 traces/
 reports/

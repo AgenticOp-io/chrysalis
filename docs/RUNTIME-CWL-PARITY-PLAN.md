@@ -30,6 +30,8 @@ Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullst
 
 ## Phase C — Session/SQL honesty (paused)
 
+> Tracked as an **honest gap** in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §4 — requires plan amendment to become a build queue.
+
 - Session stub smoke only (`runSessionStubGate`) until Redis/DB parity gates exist.
 - Real SQL remains **emit + verify** authoritative; runtime-cwl uses stub DB.
 

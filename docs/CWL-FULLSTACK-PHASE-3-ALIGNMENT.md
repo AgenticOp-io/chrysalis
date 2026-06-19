@@ -1,6 +1,6 @@
 # Full-stack CWL — Phase 3 parallel track alignment
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` Phase 7 + Phase 3; **G5860**  
 > **North star:** full-stack scope RFC aligned with CWL interchange without reopening queue 437
 

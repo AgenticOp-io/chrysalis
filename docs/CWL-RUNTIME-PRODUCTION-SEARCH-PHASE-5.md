@@ -1,6 +1,6 @@
 # CWL runtime — production search probe
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/CWL-RUNTIME-PHASE-5.md`; **G5940**  
 > **North star:** `/search?q=` probe via runtime-cwl (RFC-0015)
 

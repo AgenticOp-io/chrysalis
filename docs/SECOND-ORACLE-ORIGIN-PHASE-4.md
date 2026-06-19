@@ -1,6 +1,6 @@
 # Second oracle origin — Phase 4 plan
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` Phase 4; **G5880**  
 > **North star:** JavaScript/Express → Hono with live oracle capture + verify replay
 

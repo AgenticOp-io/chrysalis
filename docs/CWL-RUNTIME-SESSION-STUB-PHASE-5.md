@@ -1,6 +1,6 @@
 # CWL runtime — session stub honesty
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/CWL-RUNTIME-PHASE-5.md`; **G5950**  
 > **North star:** session stub smoke only until Redis/DB parity exists
 

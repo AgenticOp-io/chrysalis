@@ -1,6 +1,6 @@
 # Express depth batch — Phase 4
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/SECOND-ORACLE-ORIGIN-PHASE-4.md`; **G5900**  
 > **North star:** site intel + path advice + project-to-CWL on Express flagship
 

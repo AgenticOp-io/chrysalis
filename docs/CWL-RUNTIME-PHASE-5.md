@@ -1,6 +1,6 @@
 # CWL runtime — Phase 5 plan
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` Phase 5; **G5930**  
 > **North star:** in-process `@chrysalis/runtime-cwl` parity with verify-gated emit
 

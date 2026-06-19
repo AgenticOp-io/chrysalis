@@ -24,6 +24,7 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | [GCE test runner](./GCE-LOCAL-VERIFY.md) | Anyone running CI-scale tests | **Default:** `pnpm run test:gce` on `chrysalis-test-vm` (detached; laptop can sleep). |
 | [Windows vs Linux tests](./WINDOWS-COMPAT.md) | Windows developers | What runs locally vs on GCE; env flags and known platform gaps. |
 | [CWL full-stack program](./CWL-FULLSTACK-PROGRAM.md) | Contributors | Closed queues 6–437 program summary; [archived build log](./archive/CWL-FULLSTACK-BUILD-LOG.md). |
+| [Strategic plan ship log (archive)](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) | Contributors | Historical G5680–G6153 reinforcement log — not active backlog. |
 
 ---
 
@@ -33,7 +34,8 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | --- | --- | --- |
 | [`DESIGN.md`](../DESIGN.md) (root) | Contributors and integrators | The non-negotiable principles, the project vocabulary, and the decision log. The rules every change has to live within. |
 | [Strategic plan](./STRATEGIC-PLAN.md) | Product owners, contributors, agents | **Locked** build order: PHP oracle wedge, Hub migration OS, CWL interchange; what to refuse. |
-| [`ROADMAP.md`](../ROADMAP.md) (root) | Contributors | The **active** plan: status, post-2.0 depth options, multi-lane program, and what's next. |
+| [Paused backlog and maintenance](./PAUSED-AND-MAINTENANCE.md) | Contributors, agents | **Single index** for policy-paused items, honest gaps, maintenance triggers, and closed-program archives. |
+| [`ROADMAP.md`](../ROADMAP.md) (root) | Contributors | **Active** plan: status, maintenance queue, closed-program index. |
 | [`ROADMAP-ARCHIVE.md`](../ROADMAP-ARCHIVE.md) (root) | Contributors | Completed history: shipped G-series slices, Milestones 0–6A, and the Road to Chrysalis 2.0 program. |
 | [`AGENTS.md`](../AGENTS.md) (root) | Contributors and automation | Repository contribution rules, pass naming, file layout discipline. |
 | [`README.md`](../README.md) (root) | Operators consuming machine output | Operator-facing tables for the JSON shapes Chrysalis emits (`schemaVersion`, `kind`, gate scripts). |

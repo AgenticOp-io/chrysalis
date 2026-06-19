@@ -1,6 +1,6 @@
 # Migration OS — Phase 2 plan
 
-> **Status:** accepted (2026-06-17)  
+> **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` Phase 2; **G5780**  
 > **Deliverable:** per-project **migration contract** (`routes.cwl` + hole manifest)
 

@@ -1,6 +1,6 @@
 # Operational hardening — Phase 9
 
-> **Status:** active (2026-06-18)  
+> **Status:** closed (2026-06-18)  
 > **Queue:** **G6120–G6153**  
 > **Builds on:** Phase 8 strict product proof (**G6113**) passed on GCE.
 

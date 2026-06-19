@@ -1,6 +1,6 @@
 # Product proof — Phase 8 (strict reinforcement)
 
-> **Status:** active (2026-06-17)  
+> **Status:** closed (2026-06-18)  
 > **Queue:** **G6050–G6113**  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §7 Phase 8; closes proof gaps left by Phases 0–7 optional `SKIP_*` envs.
 
