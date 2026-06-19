@@ -1,0 +1,23 @@
+{
+  "kind": "chrysalis.wordpress-core-stub.oracle-corpus",
+  "schemaVersion": 1,
+  "captureMode": "hub-probe-in-process",
+  "fixture": "fixtures/wordpress-core-stub",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "traceId": "wordpress-core-stub-home"
+    },
+    {
+      "method": "GET",
+      "path": "/wp-admin",
+      "traceId": "wordpress-core-stub-admin"
+    }
+  ],
+  "routeCount": 2,
+  "traceCount": 2,
+  "note": "Captured via hub probe corpus + verify replay (G6224); wp_* lowered via wordpressEffectCallees",
+  "correctness": 1,
+  "capturedAt": "2026-06-19T01:05:37.003Z"
+}

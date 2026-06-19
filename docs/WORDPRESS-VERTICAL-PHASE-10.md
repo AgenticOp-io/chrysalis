@@ -22,7 +22,9 @@ Open the WordPress vertical as a **verify-gated** program after Laravel/plain PH
 | --- | --- | --- |
 | G6212 | `runWordPressVerticalProbeIngestGate` | `pnpm run hub:wordpress-probe-ingest-smoke` |
 
-Fixture: `fixtures/wordpress-probe` — public + admin routes with **`wp_*`** recorded as **`data.call`**.
+Fixture: `fixtures/wordpress-probe` — public + admin routes; manifest **`wordpressEffectCallees`** lowers **`wp_*`** to **`effect.wp.call`** (**G6225**).
+
+Core stub fixture: `fixtures/wordpress-core-stub` — `lib/wp-core-stubs.php` implements wp_* for oracle replay (**G6224**).
 
 ## Phase C — Oracle prep + depth (G6213–G6219)
 
@@ -34,7 +36,9 @@ Fixture: `fixtures/wordpress-probe` — public + admin routes with **`wp_*`** re
 | G6217 | `runWordPressVerticalOracleCaptureGate` | `chrysalis.probe.json` mirrors routes |
 | G6218 | `runWordPressVerticalOracleLiveCaptureGate` | `chrysalis.oracle-corpus.json` + verify replay |
 | G6219 | `runWordPressVerticalVerifyReplayGate` | hub probe corpus replay |
-| G6216 | `runWordPressVerticalPhase10DepthGate` | composes G6212–G6219 |
+| G6224 | `runWordPressVerticalCoreStubOracleGate` | `fixtures/wordpress-core-stub` + verify replay |
+| G6225 | `runWordPressVerticalWpEffectLoweringGate` | manifest `wordpressEffectCallees` |
+| G6216 | `runWordPressVerticalPhase10DepthGate` | composes G6212–G6225 |
 
 Artifacts:
 

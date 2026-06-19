@@ -70,6 +70,32 @@ describe.sequential("hub strategic plan phase10 depth slices", () => {
     expect(gate.correctness).toBe(1);
   }, 120_000);
 
+  test("wordpress wp effect lowering gate (G6225)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWordPressVerticalWpEffectLoweringGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.declaredCount).toBeGreaterThanOrEqual(9);
+  });
+
+  test("wordpress core stub oracle gate (G6224)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWordPressVerticalCoreStubOracleGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.correctness).toBe(1);
+  }, 120_000);
+
+  test("runtime-cwl session resolve strict gate (G6211+)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runRuntimeCwlSessionResolveStrictGate",
+    );
+    expect(gate.ok).toBe(true);
+  });
+
   test("runtime-cwl session bridge gate (G6209)", () => {
     const gate = importSyncGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",

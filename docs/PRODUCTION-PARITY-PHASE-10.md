@@ -19,6 +19,7 @@ Phase 10 promotes previously policy-paused workstreams into a **verify-gated** b
 | G6208 | `runRuntimePhaseCProductionDepthGate` | composes G6200 + G6204–G6207 |
 | G6209 | `runRuntimeCwlProductionSessionBridgeGate` | runtime-cwl injected session |
 | G6210+ | `runRuntimeCwlResolveSessionBridgeGate` | cookie → session via `resolveSession` |
+| G6211+ | `runRuntimeCwlSessionResolveStrictGate` | resolveSession + CWL request-context echo |
 | G6200 | `runRuntimePhaseCProductionParityGate` | composes session + SQL gates |
 
 Runtime plan: [`RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) Phase C **active**.
@@ -36,6 +37,8 @@ Runtime plan: [`RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) Phase
 | G6217 | `runWordPressVerticalOracleCaptureGate` | `chrysalis.probe.json` capture routes |
 | G6218 | `runWordPressVerticalOracleLiveCaptureGate` | `pnpm run hub:wordpress-probe-oracle-capture-smoke` |
 | G6219 | `runWordPressVerticalVerifyReplayGate` | verify replay correctness 1 |
+| G6224 | `runWordPressVerticalCoreStubOracleGate` | `pnpm run hub:wordpress-core-stub-oracle-smoke` |
+| G6225 | `runWordPressVerticalWpEffectLoweringGate` | manifest `wordpressEffectCallees` → `effect.wp.call` |
 
 Plan: [`WORDPRESS-VERTICAL-PHASE-10.md`](./WORDPRESS-VERTICAL-PHASE-10.md).
 
@@ -61,17 +64,20 @@ Second-oracle path + capability matrix honesty for additional language claims.
 
 ## Phase E — Hub completion (G6240)
 
-Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **4**).
+Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **5**).
 
 | ID | Gate |
 | --- | --- |
 | G6241 | `runStrategicPlanPhase10DepthGate` |
+| G6251 | `runHubCompletionPhase10ProductionParitySectionGate` |
+| G6252 | `runStrategicPlanPhase10HubCompletionGate` |
 
 ## Phase F — Program close (G6250)
 
 | ID | Gate | Smoke |
 | --- | --- | --- |
 | G6250 | `runStrategicPlanPhase10ProductionParityCloseGate` | `pnpm run hub:strategic-plan-phase10-production-parity-close-smoke` |
+| G6253 | composes G6250 + G6252 | hub-completion wiring in close gate |
 
 Depth smoke: `pnpm run hub:strategic-plan-phase10-depth-smoke`
 

@@ -360,6 +360,8 @@ function evalNode(ctx: SimCtx, n: NodeBase): SimValue {
       return evalSessionRead(ctx, n);
     case "effect.session.write":
       return evalSessionWrite(ctx, n);
+    case "effect.wp.call":
+      return evalWpCall(ctx, n);
 
     case "web.request.response": {
       const status = (n.attrs as { status?: number }).status;
@@ -904,6 +906,36 @@ function evalSessionWrite(ctx: SimCtx, n: NodeBase): SimValue {
   ctx.sessionScratch.set(key, v);
   ctx.sessionWrites.push({ key, value: v });
   return { kind: "null" };
+}
+
+function evalWpCall(ctx: SimCtx, n: NodeBase): SimValue {
+  const callee = String((n.attrs as { callee?: string }).callee ?? "");
+  switch (callee) {
+    case "get_bloginfo":
+      return { kind: "str", value: "WordPress probe" };
+    case "apply_filters":
+      return n.operands.length >= 2 ? operand(ctx, n, 1) : { kind: "str", value: "" };
+    case "wp_create_nonce":
+      return { kind: "str", value: "probe-nonce" };
+    case "is_admin":
+      return { kind: "bool", value: true };
+    case "current_user_can":
+      return { kind: "bool", value: false };
+    case "add_action":
+    case "wp_head":
+    case "wp_footer":
+      return { kind: "null" };
+    case "wp_die":
+      ctx.status = 403;
+      if (n.operands[0]) {
+        const msg = operand(ctx, n, 0);
+        if (msg.kind === "str") ctx.echo.push(msg.value);
+      }
+      return { kind: "null" };
+    default:
+      ctx.errors.push({ reason: `wp.call:${callee}`, nodeId: n.id, op: "wp.call" });
+      return { kind: "null" };
+  }
 }
 
 function asNum(v: SimValue): number {

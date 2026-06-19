@@ -1,5 +1,5 @@
 {
-  "app": "wordpress-probe",
+  "app": "wordpress-core-stub",
   "wordpressEffectCallees": [
     "add_action",
     "apply_filters",

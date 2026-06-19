@@ -272,6 +272,11 @@ interface Ctx {
    */
   readonly dbFactoryReturnCallees: ReadonlySet<string>;
   /**
+   * Callee labels from **`chrysalis.routes.json`** **`wordpressEffectCallees`** (normalized).
+   * Declared wp_* globals only — no body inference.
+   */
+  readonly wordpressEffectCallees: ReadonlySet<string>;
+  /**
    * PHP variables whose **`->query`** calls may be lowered to **`effect.db.query`**: assigned
    * from **`db()`**, **`new mysqli`**, **`new PDO`**, **`new SQLite3`**, **`mysqli_connect(...)`**, a **manifest-declared** factory
    * call, or copied from another tracked variable (**`$b = $a`**) (sequential + merged across `if`/`foreach`
@@ -648,6 +653,7 @@ function makeCtx(
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
   functionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]> = new Map(),
   helperBodies: ReadonlyMap<string, HelperBodyEntry> = new Map(),
+  wordpressEffectCallees: ReadonlySet<string> = new Set(),
 ): Ctx {
   return {
     m: builder,
@@ -658,6 +664,7 @@ function makeCtx(
     effects: new Set(),
     effectObjs: [],
     dbFactoryReturnCallees,
+    wordpressEffectCallees,
     dbFactoryAliases: new Set(),
     functionAttributes,
     helperBodies,
@@ -1187,6 +1194,24 @@ function convertExpr(ctx: Ctx, e: PhpExpr, pathParams: RouteSpec["pathParams"]):
   }
 }
 
+function tryLowerWordPressEffectCall(
+  ctx: Ctx,
+  callee: string,
+  args: readonly NodeId[],
+  origin: Locator,
+): NodeId | undefined {
+  if (!ctx.wordpressEffectCallees.has(callee)) return undefined;
+  const boolCallees = new Set(["is_admin", "current_user_can"]);
+  const type = boolCallees.has(callee) ? T.bool : T.unknown;
+  return ctx.effect.wpCall({
+    callee,
+    args,
+    type,
+    origin,
+    provenance: [prov("php-ast", origin, `wordpressEffectCallees:${callee}`)],
+  });
+}
+
 function convertCall(
   ctx: Ctx,
   e: Extract<PhpExpr, { kind: "Call" }>,
@@ -1323,6 +1348,11 @@ function convertCall(
   }
   const lowering = KNOWN_CALLS[name];
   const args = e.args.map((a) => convertExpr(ctx, a, pathParams));
+
+  const wpLowered = tryLowerWordPressEffectCall(ctx, name, args, callOrigin);
+  if (wpLowered !== undefined) {
+    return wpLowered;
+  }
 
   if (!lowering) {
     const inlined = tryInlineLibHelperCall(ctx, name, args);
@@ -1914,13 +1944,14 @@ export function ingestHandler(
   dbFactoryReturnCallees: ReadonlySet<string> = new Set(),
   libFunctionAttributes: ReadonlyMap<string, readonly PhpAttributeMeta[]> = new Map(),
   helperBodies: ReadonlyMap<string, HelperBodyEntry> = new Map(),
+  wordpressEffectCallees: ReadonlySet<string> = new Set(),
 ): NodeId {
   const routeAttrs = collectFunctionAttributes(ast.statements);
   const mergedAttrs = new Map(libFunctionAttributes);
   for (const [name, attrs] of routeAttrs) {
     mergedAttrs.set(name, attrs);
   }
-  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees, mergedAttrs, helperBodies);
+  const ctx = makeCtx(builder, ast.file, dbFactoryReturnCallees, mergedAttrs, helperBodies, wordpressEffectCallees);
   const body = convertStatements(ctx, selectRouteHandlerStatements(ast.statements), route.pathParams);
 
   const handlerName =

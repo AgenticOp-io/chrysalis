@@ -26,6 +26,7 @@ import { filterRoutesForShard } from "./route-shard.js";
 import {
   dbFactoryReturnCalleeSet,
   loadRouteManifest,
+  wordpressEffectCalleeSet,
   type RouteManifest,
   type RouteSpec,
 } from "./routes.js";
@@ -130,6 +131,7 @@ export async function ingestDirectory(
 ): Promise<Module> {
   const manifest = await loadRouteManifest(root);
   const dbFactoryReturns = dbFactoryReturnCalleeSet(manifest);
+  const wordpressEffects = wordpressEffectCalleeSet(manifest);
   const callEffects = await buildCallEffectMap(root, manifest.routes, {
     ...(opts?.parserProvider ? { parserProvider: opts.parserProvider } : {}),
     ...(opts?.liftSharedHelpers === true ? { liftSharedHelpers: true as const } : {}),
@@ -236,6 +238,7 @@ export async function ingestDirectory(
       dbFactoryReturns,
       libFunctionAttributes,
       helperBodies,
+      wordpressEffects,
     );
     builder.addRoot(routeNode);
     completedSet.add(rk);
@@ -305,9 +308,12 @@ export async function ingestFile(
         })
       : new Map();
   let dbFactoryReturns: ReadonlySet<string> = new Set();
+  let wordpressEffects: ReadonlySet<string> = new Set();
   if (root !== "") {
     try {
-      dbFactoryReturns = dbFactoryReturnCalleeSet(await loadRouteManifest(root));
+      const manifest = await loadRouteManifest(root);
+      dbFactoryReturns = dbFactoryReturnCalleeSet(manifest);
+      wordpressEffects = wordpressEffectCalleeSet(manifest);
     } catch {
       /* single-file / no manifest */
     }
@@ -327,6 +333,7 @@ export async function ingestFile(
     dbFactoryReturns,
     libFunctionAttributes,
     helperBodies,
+    wordpressEffects,
   );
   builder.addRoot(routeNode);
   let mod = builder.finish();
@@ -381,5 +388,5 @@ export {
   type HelperBodyEntry,
   type PhpAttributeMeta,
 } from "./convert.js";
-export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel } from "./routes.js";
+export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel, wordpressEffectCalleeSet } from "./routes.js";
 export type { RouteManifest, RouteSpec };

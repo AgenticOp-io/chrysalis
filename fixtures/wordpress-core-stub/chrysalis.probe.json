@@ -1,0 +1,10 @@
+{
+  "kind": "chrysalis.wordpress-core-stub.oracle",
+  "schemaVersion": 1,
+  "fixture": "fixtures/wordpress-core-stub",
+  "captureRoutes": [
+    { "method": "GET", "path": "/" },
+    { "method": "GET", "path": "/wp-admin" }
+  ],
+  "note": "WordPress core stub oracle — lib/wp-core-stubs.php implements wp_* (G6224)"
+}

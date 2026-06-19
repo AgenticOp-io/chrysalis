@@ -53,7 +53,8 @@ export type Effect =
   | { kind: "time.now" }
   | { kind: "random" }
   | { kind: "fs.read" }
-  | { kind: "fs.write" };
+  | { kind: "fs.write" }
+  | { kind: "wp.call"; callee: string };
 
 export type EffectSet = ReadonlyArray<Effect>;
 

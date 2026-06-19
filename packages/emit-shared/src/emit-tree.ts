@@ -473,6 +473,12 @@ function emitEffectExpr(ctx: EmitCtx, n: NodeBase): string {
       const hi = emitExpr(ctx, n.operands[1]!);
       return `(Math.floor(chrysalisRandom() * ((${hi}) - (${lo}) + 1)) + (${lo}))`;
     }
+    case "wp.call": {
+      recordEffectsFromNode(ctx, n);
+      const callee = String(n.attrs.callee ?? "");
+      const args = n.operands.map((o) => emitExpr(ctx, o)).join(", ");
+      return `wpCall(${stringLit(callee)}, [${args}])`;
+    }
     default:
       return `/* unhandled effect.${n.op} */ null`;
   }
@@ -861,6 +867,7 @@ function emitEffectStmt(ctx: EmitCtx, n: NodeBase): string {
     case "session.read":
     case "time.now":
     case "random":
+    case "wp.call":
       return `${emitExpr(ctx, n.id)};`;
     default:
       return `/* unhandled effect.${n.op} */`;

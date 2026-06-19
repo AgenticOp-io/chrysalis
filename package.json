@@ -374,6 +374,7 @@
     "hub:strategic-plan-phase10-wordpress-entry-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-wordpress-entry-smoke.mjs",
     "hub:wordpress-probe-ingest-smoke": "node scripts/hub-ingest/hub-wordpress-probe-ingest-smoke.mjs",
     "hub:wordpress-probe-oracle-capture-smoke": "node scripts/hub-ingest/hub-wordpress-probe-oracle-capture-smoke.mjs",
+    "hub:wordpress-core-stub-oracle-smoke": "node scripts/hub-ingest/hub-wordpress-core-stub-oracle-smoke.mjs",
     "hub:strategic-plan-phase10-matrix-expansion-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-matrix-expansion-smoke.mjs",
     "hub:strategic-plan-phase10-production-parity-close-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-production-parity-close-smoke.mjs",
     "hub:strategic-plan-phase10-depth-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-depth-smoke.mjs",

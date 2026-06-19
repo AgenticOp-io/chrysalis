@@ -112,7 +112,9 @@ export function mergeEffects(...sets: EffectSet[]): EffectSet {
 
 /** Stable string tag for an effect (matches CLI / ingest expectations). */
 export function effectTag(e: Effect): string {
-  return "table" in e ? `${e.kind}:${e.table}` : e.kind;
+  if ("table" in e) return `${e.kind}:${e.table}`;
+  if ("callee" in e) return `${e.kind}:${e.callee}`;
+  return e.kind;
 }
 
 /** Sorted tags for a handler-level or merged effect list. */

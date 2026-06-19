@@ -52,6 +52,7 @@ export function runtimeExportNamesForAgg(agg: AggregatedHandlerImportNeeds): str
     "parseUrlParts",
     "passwordVerify",
     "__hole",
+    "wpCall",
   );
   if (agg.usesPhpFqnNew) lines.push("phpFqnNew");
   if (agg.usesPhpDynamicNew) lines.push("phpDynamicNew");

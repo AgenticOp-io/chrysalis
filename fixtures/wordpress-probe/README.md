@@ -1,6 +1,6 @@
 # wordpress-probe
 
-Minimal **Phase 10 WordPress vertical** ingest slice (**G6212–G6219**). Public + admin routes call common **`wp_*`** APIs; ingest records them as **`data.call`**.
+Minimal **Phase 10 WordPress vertical** ingest slice (**G6212–G6225**). Public + admin routes call common **`wp_*`** APIs; manifest **`wordpressEffectCallees`** lowers them to **`effect.wp.call`**.
 
 | Route | File | wp APIs |
 | --- | --- | --- |

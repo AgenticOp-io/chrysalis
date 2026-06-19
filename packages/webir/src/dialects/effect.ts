@@ -72,6 +72,13 @@ export interface Builders {
     origin: Locator;
     provenance?: ReadonlyArray<Provenance>;
   }): NodeId;
+  wpCall(opts: {
+    callee: string;
+    args: ReadonlyArray<NodeId>;
+    type: WebIRType;
+    origin: Locator;
+    provenance?: ReadonlyArray<Provenance>;
+  }): NodeId;
 }
 
 export function builders(m: ModuleBuilder): Builders {
@@ -191,6 +198,18 @@ export function builders(m: ModuleBuilder): Builders {
         attrs: {},
         origin,
         provenance: prov ?? [provenance("php-ast", origin, "echo")],
+      });
+    },
+    wpCall({ callee, args, type, origin, provenance: prov }) {
+      return m.node({
+        dialect: DIALECT,
+        op: "wp.call",
+        type,
+        effects: Object.freeze<Effect[]>([{ kind: "wp.call", callee }]),
+        operands: args,
+        attrs: { callee },
+        origin,
+        provenance: prov ?? [provenance("php-ast", origin, `wp:${callee}`)],
       });
     },
   };

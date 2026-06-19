@@ -1,0 +1,11 @@
+{
+  "app": "session-resolve-probe",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/whoami",
+      "file": "pages/whoami.php",
+      "pathParams": []
+    }
+  ]
+}
