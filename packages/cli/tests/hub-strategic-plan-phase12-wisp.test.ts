@@ -279,6 +279,17 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     expect(gate.phase14Closed).toBe(true);
   });
 
+  test("wisp program maintenance complete gate (G6720)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-program-maintenance-complete-smoke.mjs",
+      "runWispCwlProgramMaintenanceCompleteGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.doc.ok).toBe(true);
+    expect(gate.governance.ok).toBe(true);
+    expect(gate.governance.mode).toBe("phase14-closed");
+  });
+
   test("phase13 closed governance gate (G6413)", () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",

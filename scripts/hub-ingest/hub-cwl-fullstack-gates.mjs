@@ -2093,6 +2093,7 @@ export function runPausedAndMaintenanceDocGate() {
   const docOk = isWispCwlPhase14Closed()
     ? text.includes("Phase 14 closed") &&
       text.includes("G6690") &&
+      text.includes("G6710") &&
       text.includes("G6590") &&
       text.includes("G6410") &&
       text.includes("maintenance") &&
@@ -2148,6 +2149,7 @@ export function runStrategicPlanMaintenanceDefaultQueueGate() {
     const ok =
       text.includes("Phase 14 closed") &&
       text.includes("G6690") &&
+      text.includes("G6710") &&
       text.includes("maintenance") &&
       text.includes("PAUSED-AND-MAINTENANCE.md");
     return { ok, phase14ClosedOk: ok };
@@ -2206,6 +2208,7 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   const ok = isWispCwlPhase14Closed()
     ? text.includes("Phase 14 closed") &&
       text.includes("G6690") &&
+      text.includes("G6710") &&
       text.includes("G6590") &&
       text.includes("maintenance") &&
       text.includes("PAUSED-AND-MAINTENANCE.md")
@@ -3709,17 +3712,18 @@ export async function runPhase13ClosedGovernanceGate(_opts = {}) {
 
 /** G6695 — Phase 14 closed governance (post G6690). */
 export async function runPhase14ClosedGovernanceGate(_opts = {}) {
-  const phase14Close = await runWispCwlPhase14CloseGate({ apply: false, skipPipeline: true });
-  const programClose = await runWispCwlPhase14ProgramCloseGate({ skipOperatorClose: true });
-  const phase13Close = await runWispCwlPhase13CloseGate({ apply: false });
+  const { runWispCwlMaintenanceRegressionGate } = await import(
+    "./hub-wisp-cwl-maintenance-regression-smoke.mjs"
+  );
+  const maintenanceRegression = await runWispCwlMaintenanceRegressionGate({
+    skipOperatorVerify: true,
+  });
   const paused = runPausedAndMaintenanceDocGate();
   const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
   const roadmap = runRoadmapMaintenanceDefaultQueueGate();
   const pipeline = await runWispCwlPipelineSmokeGate({ ci: true, skipLift: true });
   const ok =
-    phase14Close.ok === true &&
-    programClose.ok === true &&
-    phase13Close.ok === true &&
+    maintenanceRegression.ok === true &&
     paused.ok === true &&
     strategicPlan.ok === true &&
     roadmap.ok === true &&
@@ -3727,9 +3731,10 @@ export async function runPhase14ClosedGovernanceGate(_opts = {}) {
     isWispCwlPhase14Closed();
   return {
     ok,
-    phase14CloseOk: phase14Close.ok === true,
-    programCloseOk: programClose.ok === true,
-    phase13CloseOk: phase13Close.ok === true,
+    maintenanceRegressionOk: maintenanceRegression.ok === true,
+    phase14CloseOk: maintenanceRegression.ok === true,
+    programCloseOk: maintenanceRegression.programClose?.ok === true,
+    phase13CloseOk: maintenanceRegression.phase13?.ok === true,
     pausedOk: paused.ok === true,
     strategicPlanOk: strategicPlan.ok === true,
     roadmapOk: roadmap.ok === true,

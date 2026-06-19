@@ -74,3 +74,6 @@ jobs:
 
       - name: Maintenance regression (G6710)
         run: node scripts/hub-ingest/hub-wisp-cwl-maintenance-regression-smoke.mjs --require
+
+      - name: Program maintenance complete (G6720)
+        run: node scripts/hub-ingest/hub-wisp-cwl-program-maintenance-complete-smoke.mjs --require

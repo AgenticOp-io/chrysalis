@@ -289,7 +289,7 @@ Without plan amendment, treat these as **out of scope**:
 When the user says "build" without specifying:
 
 1. **CWL language maintenance** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2
-2. **Phase 14 regression** — `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**)
+2. **Phase 14 regression** — `pnpm run hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `pnpm run hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**)
 3. **Phase 13 regression** — `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**)
 4. Verify: `pnpm run hub:cwl-surface-taxonomy-smoke`, `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`, `pnpm run hub:wisp-cwl-pipeline-smoke`
 

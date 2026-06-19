@@ -226,6 +226,7 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 | **G6590** | Phase 14 operator readiness composite | `pnpm run hub:wisp-cwl-phase14-close-smoke` |
 | **G6690** | Phase 14 program close (archive operator queue) | `pnpm run hub:wisp-cwl-phase14-program-close-smoke` |
 | **G6710** | Maintenance regression (post-close default verify) | `pnpm run hub:wisp-cwl-maintenance-regression-smoke` |
+| **G6720** | Program maintenance complete (governance + live verify) | `pnpm run hub:wisp-cwl-program-maintenance-complete-smoke` |
 | G6320 | Pipeline regression | `pnpm run hub:wisp-cwl-pipeline-smoke` |
 | G6330 | Dual deploy config | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |
 
@@ -250,6 +251,8 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 **G6690 (program close):** Archive Phase 14 operator queue; governance routes to maintenance + Phase 14/13 regression smokes. Requires **G6590** green and docs/ROADMAP/strategic plan updated to **Phase 14 closed**.
 
 **G6710 (maintenance regression):** One-shot default verify after program close — program close docs (**G6690**), Phase 13 doc/hole regression (**G6410** subset), taxonomy (**G6340**), operator verify (**G6680**, live with `--require`). Full M0–M6 + governance: `pnpm run hub:wisp-cwl-phase13-close-smoke`, `pnpm run hub:maintenance-mode-governance-smoke`. Post-deploy: `pnpm run hub:wisp-cwl-maintenance-regression-smoke -- --require`.
+
+**G6720 (program maintenance complete):** CI-scale composite — Phase 14 closed governance (**G6695** via **G6710**) + optional live operator verify. Post-deploy: `pnpm run hub:wisp-cwl-program-maintenance-complete-smoke -- --require`.
 
 ### Demo topology (Phase 14)
 
