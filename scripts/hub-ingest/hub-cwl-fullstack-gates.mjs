@@ -29,6 +29,22 @@ import {
 } from "./hub-completion-phase10-production-parity.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+const phase10ProductionParityDocPath = join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md");
+
+/** @returns {boolean} Phase 10 reinforcement queue is still the default build program. */
+export function isPhase10ProductionParityActive() {
+  if (!existsSync(phase10ProductionParityDocPath)) return false;
+  const text = readFileSync(phase10ProductionParityDocPath, "utf8");
+  return text.includes("**Status:** active");
+}
+
+/** @returns {boolean} Phase 10 reinforcement queue closed; default queue is maintenance. */
+export function isPhase10ProductionParityClosed() {
+  if (!existsSync(phase10ProductionParityDocPath)) return false;
+  const text = readFileSync(phase10ProductionParityDocPath, "utf8");
+  return text.includes("**Status:** closed");
+}
 const flagshipDir = join(scriptRoot, "fixtures/hub-flagship-cwl-fullstack");
 const flagshipCwl = join(flagshipDir, "routes.cwl");
 const goldVerify = join(scriptRoot, "scripts/hub-ingest/hub-gold-verify.mjs");
@@ -1827,20 +1843,21 @@ export async function runStrategicPlanPhase8HubOperatorProofGate(opts = {}) {
   };
 }
 
-/** G6102 — Runtime session/SQL honesty (Phase C active after Phase 10). */
+/** G6102 — Runtime session/SQL honesty (Phase C active after Phase 10 program). */
 export function runRuntimeSessionSqlHonestyGate() {
   const path = join(scriptRoot, "docs/RUNTIME-CWL-PARITY-PLAN.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-runtime-cwl-parity-plan" };
   const text = readFileSync(path, "utf8");
-  const phase10Active = existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"));
-  const honestyOk = phase10Active
+  const hasPhase10Doc = existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"));
+  const phase10ProgramActive = isPhase10ProductionParityActive();
+  const honestyOk = hasPhase10Doc
     ? text.includes("Phase C") &&
       text.includes("active") &&
       text.includes("runProductionSessionRedisParityGate")
     : text.includes("Phase C") &&
       text.includes("paused") &&
       text.includes("stub DB");
-  return { ok: honestyOk, honestyOk, phase10Active };
+  return { ok: honestyOk, honestyOk, phase10Active: phase10ProgramActive };
 }
 
 /** G6101 — Cutover proof Phase 8 plan doc section. */
@@ -2043,18 +2060,23 @@ export function runPausedAndMaintenanceDocGate() {
   const path = join(scriptRoot, "docs/PAUSED-AND-MAINTENANCE.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
-  const docOk =
-    text.includes("Phase 10 active") &&
-    text.includes("Unblocked by Phase 10") &&
-    text.includes("Production SQL/session") &&
-    text.includes("WordPress vertical") &&
-    text.includes("Do not treat closed program tables");
+  const phase10Closed = isPhase10ProductionParityClosed();
+  const docOk = phase10Closed
+    ? text.includes("Default queue today (maintenance)") &&
+      text.includes("Phase 10") &&
+      text.includes("closed") &&
+      text.includes("Do not treat closed program tables")
+    : text.includes("Phase 10 active") &&
+      text.includes("Unblocked by Phase 10") &&
+      text.includes("Production SQL/session") &&
+      text.includes("WordPress vertical") &&
+      text.includes("Do not treat closed program tables");
   return { ok: docOk, docOk };
 }
 
 /** G6162 — Strategic plan maintenance-only default queue gate. */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
-  if (existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"))) {
+  if (isPhase10ProductionParityActive()) {
     return runStrategicPlanPhase10DefaultQueueGate();
   }
   const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
@@ -2064,32 +2086,32 @@ export function runStrategicPlanMaintenanceDefaultQueueGate() {
     text.includes("## 12. Default queue (maintenance)") &&
     text.includes("maintenance only") &&
     text.includes("PAUSED-AND-MAINTENANCE.md") &&
-    text.includes("Strategic plan phases 0–9") &&
-    text.includes("Default build → **maintenance**");
+    text.includes("phases 0–10") &&
+    (text.includes("Default build → **maintenance**") ||
+      text.includes("Default build queue:** maintenance"));
   return { ok, maintenanceOk: ok };
 }
 
-/** G6163 — ROADMAP default queue gate (Phase 10 or maintenance). */
+/** G6163 — ROADMAP default queue gate (Phase 10 active or maintenance). */
 export function runRoadmapMaintenanceDefaultQueueGate() {
-  const path = join(scriptRoot, "ROADMAP.md");
-  if (!existsSync(path)) return { ok: false, skip: "missing-roadmap" };
-  const text = readFileSync(path, "utf8");
-  const phase10Active = existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"));
-  const ok = phase10Active
+  const roadmapPath = join(scriptRoot, "ROADMAP.md");
+  if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
+  const text = readFileSync(roadmapPath, "utf8");
+  const ok = isPhase10ProductionParityActive()
     ? text.includes("Phase 10") &&
       text.includes("PRODUCTION-PARITY-PHASE-10.md") &&
       text.includes("Closed programs (archive only)") &&
       text.includes("Do **not** treat archive tables")
-    : text.includes("There is no active feature backlog") &&
+    : text.includes("maintenance") &&
       text.includes("PAUSED-AND-MAINTENANCE.md") &&
       text.includes("Closed programs (archive only)") &&
-      text.includes("Do **not** treat these as active backlog");
+      text.includes("Do **not** treat archive tables");
   return { ok, roadmapOk: ok };
 }
 
-/** G6160 — Maintenance-mode governance (superseded when Phase 10 active). */
+/** G6160 — Maintenance-mode governance (Phase 10 active or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
-  if (existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"))) {
+  if (isPhase10ProductionParityActive()) {
     return runPhase10ActiveGovernanceGate(_opts);
   }
   const pausedDoc = runPausedAndMaintenanceDocGate();
@@ -2133,6 +2155,7 @@ export function runProductionParityPhase10DocGate() {
     text.includes("runRuntimeCwlSessionResolveProbeGate") &&
     text.includes("runWordPressVerticalWpCallVerifyReplayGate") &&
     text.includes("runWordPressVerticalWpCallFastifyParityGate") &&
+    text.includes("runStrategicPlanPhase10ProgramArchiveCloseGate") &&
     text.includes("runStrategicPlanPhase10HubCompletionGate") &&
     text.includes("runStrategicPlanPhase10ProductionParityCloseGate") &&
     text.includes("schema **513**");
@@ -2775,9 +2798,10 @@ export function runStrategicPlanPhase10DefaultQueueGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
   const text = readFileSync(path, "utf8");
   const ok =
+    isPhase10ProductionParityActive() &&
     text.includes("### Phase 10 — Production parity") &&
     text.includes("PRODUCTION-PARITY-PHASE-10.md") &&
-    text.includes("G6200–G6253") &&
+    text.includes("G6200–G6257") &&
     text.includes("## 12. Default queue (Phase 10)");
   return { ok, phase10Ok: ok };
 }
@@ -2821,6 +2845,7 @@ export async function runStrategicPlanPhase10ProductionParityEntryGate(opts = {}
 export function runHubCompletionPhase10ProductionParitySectionGate() {
   const section = buildHubCompletionPhase10ProductionParitySection({
     strategicPlanPhase10Close: { ok: true },
+    strategicPlanPhase10ArchiveClose: { ok: true },
   });
   const ok = validateHubCompletionPhase10ProductionParitySection(section) && section.ok === true;
   return { ok, schemaVersion: section.schemaVersion ?? null, sectionOk: section.ok === true };
@@ -2841,7 +2866,9 @@ export async function runStrategicPlanPhase10ProductionParityCloseGate(opts = {}
   const wordpress = await runWordPressVerticalPhase10EntryGate(opts);
   const matrix = await runMatrixExpansionPhase10Gate();
   const multiLang = await runMultiLanguageEvidencePhase10Gate(opts);
-  const governance = await runPhase10ActiveGovernanceGate(opts);
+  const governance = isPhase10ProductionParityClosed()
+    ? await runMaintenanceModeGovernanceGate(opts)
+    : await runPhase10ActiveGovernanceGate(opts);
   const hubCompletion = runStrategicPlanPhase10HubCompletionGate();
   const ok =
     entry.ok === true &&
@@ -2860,6 +2887,64 @@ export async function runStrategicPlanPhase10ProductionParityCloseGate(opts = {}
     multiLanguageOk: multiLang.ok === true,
     governanceOk: governance.ok === true,
     hubCompletionOk: hubCompletion.ok === true,
+    governanceMode: isPhase10ProductionParityClosed() ? "maintenance" : "phase10",
+  };
+}
+
+/** G6254 — Phase 10 ship log archive gate. */
+export function runStrategicPlanPhase10ShipLogGate() {
+  const path = join(scriptRoot, "docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-ship-log" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("Phase 10 program close") &&
+    text.includes("G6257") &&
+    (text.includes("G6200–G6257") || text.includes("G6254–G6257")) &&
+    text.includes("runStrategicPlanPhase10ProgramArchiveCloseGate");
+  return { ok, shipLogOk: ok };
+}
+
+/** G6255 — Phase 10 program archive doc gate (maintenance default queue). */
+export function runStrategicPlanPhase10ProgramArchiveDocGate() {
+  const strategicPath = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  const roadmapPath = join(scriptRoot, "ROADMAP.md");
+  if (!existsSync(strategicPath) || !existsSync(roadmapPath) || !existsSync(phase10ProductionParityDocPath)) {
+    return { ok: false, skip: "missing-phase10-archive-docs" };
+  }
+  const strategic = readFileSync(strategicPath, "utf8");
+  const roadmap = readFileSync(roadmapPath, "utf8");
+  const phase10 = readFileSync(phase10ProductionParityDocPath, "utf8");
+  const ok =
+    phase10.includes("**Status:** closed") &&
+    phase10.includes("Phase G — Program archive close") &&
+    strategic.includes("Phase 10 — Production parity — **Closed") &&
+    strategic.includes("## 12. Default queue (maintenance)") &&
+    strategic.includes("phases 0–10") &&
+    (roadmap.includes("maintenance") || roadmap.includes("There is no active feature backlog")) &&
+    roadmap.includes("Phase 10") &&
+    isPhase10ProductionParityClosed();
+  return { ok, archiveDocOk: ok };
+}
+
+/** G6257 — Phase 10 program archive close gate (reinforcement + maintenance flip). */
+export async function runStrategicPlanPhase10ProgramArchiveCloseGate(opts = {}) {
+  const reinforcement = await runStrategicPlanPhase10ProductionParityCloseGate(opts);
+  const shipLog = runStrategicPlanPhase10ShipLogGate();
+  const archiveDoc = runStrategicPlanPhase10ProgramArchiveDocGate();
+  const maintenance = await runMaintenanceModeGovernanceGate(opts);
+  const ok =
+    reinforcement.ok === true &&
+    shipLog.ok === true &&
+    archiveDoc.ok === true &&
+    maintenance.ok === true &&
+    isPhase10ProductionParityClosed();
+  return {
+    ok,
+    reinforcementOk: reinforcement.ok === true,
+    shipLogOk: shipLog.ok === true,
+    archiveDocOk: archiveDoc.ok === true,
+    maintenanceOk: maintenance.ok === true,
+    programClosed: isPhase10ProductionParityClosed(),
   };
 }
 

@@ -1,6 +1,6 @@
 # Strategic plan ship log (archived)
 
-> **Status:** historical only (2026-06-18). Next 90 days + phases 0–9 reinforcement **closed** at **G6153**. Do **not** treat as active backlog — see [`docs/PAUSED-AND-MAINTENANCE.md`](../PAUSED-AND-MAINTENANCE.md).
+> **Status:** historical only (2026-06-19). Strategic plan phases **0–10 closed** at **G6257**. Do **not** treat as active backlog — see [`docs/PAUSED-AND-MAINTENANCE.md`](../PAUSED-AND-MAINTENANCE.md).
 
 ## Ship log
 
@@ -107,6 +107,10 @@ When the user says “build” without specifying, prefer this queue:
 **Phase 9 operational hardening entry (2026-06-18):** **G6120–G6123** — `docs/OPERATIONAL-HARDENING-PHASE-9.md`, hub-completion schema **512** + `phase8ProductProof`, `runStrategicPlanPhase9OperationalEntryGate`.
 
 **Phase 9 program close (2026-06-18):** **G6150–G6153** — `runStrategicPlanPhase9OperationalCloseGate`, `pnpm run hub:strategic-plan-phase9-operational-close-smoke`. Phase 9 **closed**.
+
+**Phase 10 production parity (2026-06-19):** **G6200–G6257** — Runtime Phase C, WordPress vertical, matrix expansion, multi-language evidence; `docs/PRODUCTION-PARITY-PHASE-10.md`; `pnpm run hub:strategic-plan-phase10-production-parity-close-smoke`.
+
+**Phase 10 program close (2026-06-19):** **G6254–G6257** — `runStrategicPlanPhase10ProgramArchiveCloseGate`, `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`. Phase 10 **closed**. Default build queue → **maintenance**.
 
 
 ### Full-stack CWL — next 10 steps (after G1158)

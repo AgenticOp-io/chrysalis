@@ -1,10 +1,10 @@
 # Production parity — Phase 10
 
-> **Status:** active (2026-06-19)  
-> **Queue:** **G6200–G6253** (depth **G6213–G6241**)  
+> **Status:** closed (2026-06-19)  
+> **Queue:** **G6200–G6257** (reinforcement **G6213–G6228**, archive **G6254–G6257**)  
 > **Authority:** Plan amendment 2026-06-19 — unpause Runtime Phase C, WordPress vertical, matrix expansion, multi-language evidence path.
 
-Phase 10 promotes previously policy-paused workstreams into a **verify-gated** build queue. Claims still require oracle/replay evidence (DESIGN §3).
+Phase 10 promoted previously policy-paused workstreams into a **verify-gated** build queue. Claims still require oracle/replay evidence (DESIGN §3). **Program closed** — default build queue is **maintenance** (`docs/PAUSED-AND-MAINTENANCE.md`).
 
 ## Phase A — Runtime Phase C: production SQL/session (G6200)
 
@@ -67,7 +67,7 @@ Second-oracle path + capability matrix honesty for additional language claims.
 
 ## Phase E — Hub completion (G6240)
 
-Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **7**).
+Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **8**).
 
 | ID | Gate |
 | --- | --- |
@@ -83,6 +83,16 @@ Hub-completion schema **513** + `phase10ProductionParity` section (depth schema 
 | G6253 | composes G6250 + G6252 | hub-completion wiring in close gate |
 
 Depth smoke: `pnpm run hub:strategic-plan-phase10-depth-smoke`
+
+## Phase G — Program archive close (G6254)
+
+| ID | Gate | Smoke |
+| --- | --- | --- |
+| G6254 | `runStrategicPlanPhase10ShipLogGate` | ship log entry |
+| G6255 | `runStrategicPlanPhase10ProgramArchiveDocGate` | ROADMAP + STRATEGIC-PLAN maintenance |
+| G6257 | `runStrategicPlanPhase10ProgramArchiveCloseGate` | `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke` |
+
+Composes reinforcement close (**G6250**) + maintenance governance flip (**G6160**).
 
 ## Invariants (DESIGN §3)
 

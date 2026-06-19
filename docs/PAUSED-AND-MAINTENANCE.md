@@ -1,23 +1,22 @@
 # Paused backlog and active build queue
 
 > **Status:** authoritative (2026-06-19)  
-> **Purpose:** Index for **maintenance**, **Phase 10 active queue**, and **remaining honest gaps**. Strategic plan phases **0–10** — Phase 10 **active** (**G6200–G6253**).
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. Strategic plan phases **0–10 closed** (**G5680–G6257**).
 
 **Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
 
 ---
 
-## 1. Default queue today (Phase 10 active)
+## 1. Default queue today (maintenance)
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| Phase 10 production parity | [`PRODUCTION-PARITY-PHASE-10.md`](./PRODUCTION-PARITY-PHASE-10.md) — session/SQL, WordPress entry, matrix expansion |
 | Bug fix / regression / CI red | Fix it; keep gates green |
-| Mapper gap / new PHP syntax | Maintenance §2 |
+| Parser mapper gap / new PHP syntax | Maintenance §2 |
 | New hole from real customer route | Maintenance §2 + verify |
 
-**Close smoke:** `pnpm run hub:strategic-plan-phase10-production-parity-close-smoke`  
-**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (routes to Phase 10 active checks)
+**Governance:** `pnpm run hub:maintenance-mode-governance-smoke`  
+**Phase 10 archive verify:** `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`
 
 ---
 
@@ -35,14 +34,14 @@
 
 ---
 
-## 3. Unblocked by Phase 10 (2026-06-19)
+## 3. Shipped by Phase 10 (reference — not backlog)
 
 | Item | Status | Doc |
 | --- | --- | --- |
-| Production SQL/session (Runtime Phase C) | **Active** | `RUNTIME-CWL-PARITY-PLAN.md` Phase C |
-| WordPress vertical | **Active entry** | `WORDPRESS-VERTICAL-PHASE-10.md` |
-| Matrix gold (customer/flagship routes) | **Active** | `PRODUCTION-PARITY-PHASE-10.md` Phase C |
-| Multi-language evidence path | **Active** (second oracle) | Phase 10 Phase D |
+| Production SQL/session (Runtime Phase C) | **Active gates** (program closed) | `RUNTIME-CWL-PARITY-PLAN.md` Phase C |
+| WordPress vertical probe depth | **Shipped** | `WORDPRESS-VERTICAL-PHASE-10.md` |
+| Matrix gold (customer/flagship routes) | **Shipped** | `PRODUCTION-PARITY-PHASE-10.md` Phase C |
+| Multi-language evidence path | **Shipped** | Phase 10 Phase D |
 
 ---
 
@@ -50,6 +49,7 @@
 
 | Gap | Notes |
 | --- | --- |
+| Real WordPress core install (not stub) | Customer oracle only |
 | Customer north-star metrics on a live slice | Operator/pilot outside repo |
 | Commercial launch (SKUs/pricing) | `docs/COMMERCIAL.md` scaffolding only |
 | Broader IR helper lifting (non-B5) | Hub program when verify-gated |
@@ -70,8 +70,8 @@
 | Program | Closed at | Detail |
 | --- | --- | --- |
 | Strategic plan phases 0–9 | **G6153** | `STRATEGIC-PLAN.md` §7 |
-| Phase 10 | **active** | `PRODUCTION-PARITY-PHASE-10.md` |
-| Ship log | **G6153** | `archive/STRATEGIC-PLAN-SHIPPED-LOG.md` |
+| Phase 10 production parity | **G6257** | `PRODUCTION-PARITY-PHASE-10.md` |
+| Ship log | **G6257** | `archive/STRATEGIC-PLAN-SHIPPED-LOG.md` |
 
 ---
 

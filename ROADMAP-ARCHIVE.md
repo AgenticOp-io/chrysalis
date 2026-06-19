@@ -14,6 +14,21 @@
 > 1. Shipped slice backlog (checkbox A-G + the full **G-series**, through G2404).
 > 2. **Milestones 0-6A** (the closed v1 checklist, incl. flagship-depth Milestone 5).
 > 3. **Road to Chrysalis 2.0** (program milestones V2-M1 through V2-M6).
+>
+> **Phase 10 production parity** closed at **G6257** — [`docs/PRODUCTION-PARITY-PHASE-10.md`](./docs/PRODUCTION-PARITY-PHASE-10.md).
+
+---
+
+## Phase 10 production parity (closed 2026-06-19)
+
+Reinforcement **G6200–G6253** + program archive **G6257**:
+
+- Runtime Phase C session/SQL verify gates (remain active)
+- WordPress vertical probe, core-stub oracle, `wpCall` hono/fastify parity
+- Matrix customer-route oracle pair; multi-language express evidence
+- Archive smoke: `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`
+
+Default build queue → **maintenance** (`ROADMAP.md`).
 
 ---
 

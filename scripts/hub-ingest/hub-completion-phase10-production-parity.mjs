@@ -1,11 +1,12 @@
 /**
  * Hub completion Phase 10 production parity section (G6242).
  */
-export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 7;
+export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 8;
 
 /**
  * @param {{
  *   strategicPlanPhase10Close?: { ok?: boolean },
+ *   strategicPlanPhase10ArchiveClose?: { ok?: boolean },
  * }} smokes
  */
 export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
@@ -14,13 +15,19 @@ export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
     script: "pnpm run hub:strategic-plan-phase10-production-parity-close-smoke",
     note: "skip-fast path; includes Runtime Phase C session/SQL parity gates",
   };
+  const archiveClose = {
+    ok: smokes.strategicPlanPhase10ArchiveClose?.ok === true,
+    script: "pnpm run hub:strategic-plan-phase10-program-archive-close-smoke",
+    note: "maintenance default queue after Phase 10 reinforcement closed",
+  };
   return {
     schemaVersion: HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION,
-    ok: close.ok,
+    ok: close.ok && archiveClose.ok,
     doc: "docs/PRODUCTION-PARITY-PHASE-10.md",
     script: "pnpm run hub:strategic-plan-phase10-production-parity-close-smoke",
     depthScript: "pnpm run hub:strategic-plan-phase10-depth-smoke",
     close,
+    archiveClose,
     runtimePhaseC: "active",
     runtimePhaseCDepth: "G6208",
     wordpressVertical: "unblocked",
@@ -42,6 +49,7 @@ export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
     depthGate: "G6241",
     hubCompletionGate: "G6252",
     programCloseGate: "G6250",
+    programArchiveCloseGate: "G6257",
   };
 }
 

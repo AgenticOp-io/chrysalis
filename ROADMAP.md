@@ -6,21 +6,23 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lanes:** **Phase 10 — Production parity** (**G6200–G6253**). Phases **0–9 closed** (**G5680–G6153**).
-- **Recently shipped:** Plan amendment **2026-06-19** — Runtime Phase C, WordPress entry, matrix expansion unblocked. **G6150–G6153** Phase 9 operational hardening.
+- **Active lanes:** **maintenance only** — strategic plan phases **0–10 closed** (**G5680–G6257**).
+- **Recently shipped:** **G6254–G6257** Phase 10 program archive close (2026-06-19). Reinforcement queue **G6200–G6253** + archive **G6257**.
 
 ---
 
-## Default queue — Phase 10
+## Default queue — maintenance
 
-**Active program:** [`docs/PRODUCTION-PARITY-PHASE-10.md`](./docs/PRODUCTION-PARITY-PHASE-10.md)
+There is no active feature backlog. When the user says "build" without scope:
 
-| Track | Gate / smoke |
-| --- | --- |
-| Runtime Phase C (session/SQL) | `pnpm run hub:production-sql-verify-parity-smoke`, `pnpm run test:oracle-php-session-redis` |
-| WordPress vertical entry | `pnpm run hub:strategic-plan-phase10-wordpress-entry-smoke` |
-| Matrix expansion | `pnpm run hub:strategic-plan-phase10-matrix-expansion-smoke` |
-| Program close | `pnpm run hub:strategic-plan-phase10-production-parity-close-smoke` |
+| Trigger | Action | Pointer |
+| --- | --- | --- |
+| Bug fix / regression / CI red | Fix it; keep gates green | — |
+| Parser mapper gap / hole economics | Maintenance §2 | [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) |
+| New hole from customer route | Maintenance §2 + verify | same |
+
+**Governance:** `pnpm run hub:maintenance-mode-governance-smoke`  
+**Phase 10 archive verify:** `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`
 
 Index: [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)
 
@@ -39,8 +41,9 @@ Reactive work (parser probes, hole economics, docs, redaction) — see [`PAUSED-
 | Program | Closed at | Archive |
 | --- | --- | --- |
 | Strategic plan phases 0–9 | **G6153** | [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md) §7 |
-| Ship log | **G6153** | [`docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md) |
+| Phase 10 production parity | **G6257** | [`docs/PRODUCTION-PARITY-PHASE-10.md`](./docs/PRODUCTION-PARITY-PHASE-10.md) |
+| Ship log | **G6257** | [`docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md) |
 
 Do **not** treat archive tables as active backlog.
 
-Everything shipped before Phase 10 is in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
+Everything shipped before Phase 10 archive is in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).

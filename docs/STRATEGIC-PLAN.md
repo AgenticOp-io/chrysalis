@@ -58,7 +58,7 @@ The **PHP-to-TypeScript converter** is the **adoption vector**. The **framework*
 | **Structural plumbing**  | Hole-free lift/emit on toy/literal fixtures; trace replay where gated | Hub gold suites (119+ structural); most matrix pairs        |
 | **Scaffold / advisory**  | Route shells, file-lift, planning APIs                                | Pattern-lift origins; path knowledge; migration planner     |
 | **Paused (do not sell)** | No oracle + no real-app depth                                         | Vanity matrix pairs without customer route                  |
-| **Phase 10 (active)**    | Production SQL/session, WordPress entry, matrix expansion (verify-gated) | See `docs/PRODUCTION-PARITY-PHASE-10.md`                |
+| **Phase 10 (closed)**    | Production parity reinforcement shipped; maintenance default queue         | See `docs/PRODUCTION-PARITY-PHASE-10.md` (archive)      |
 
 
 **Rule:** Never imply structural matrix gold equals production migration for that pair.
@@ -173,18 +173,18 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 - Hub-completion schema **512** + `phase8ProductProof` section
 - Capability matrix schema **34** + `strategicPlanPhase8ProductProof`
 
-**Strategic plan phases 0–9:** all reinforcement queues **closed** (**G5680–G6153**).
+**Strategic plan phases 0–10:** all reinforcement queues **closed** (**G5680–G6257**).
 
-### Phase 10 — Production parity — **Active (2026-06-19)**
+### Phase 10 — Production parity — **Closed (2026-06-19)**
 
-- Reinforcement queue **G6200–G6253** — see `docs/PRODUCTION-PARITY-PHASE-10.md`
-- **Runtime Phase C:** session Redis + SQL verify parity gates **active**
-- **WordPress vertical:** entry unblocked — `docs/WORDPRESS-VERTICAL-PHASE-10.md`
-- **Matrix expansion:** customer/flagship routes only
-- **Multi-language evidence:** second-oracle path
-- Hub-completion schema **513** + `phase10ProductionParity`
+- Reinforcement queue **G6200–G6253** complete — see `docs/PRODUCTION-PARITY-PHASE-10.md`
+- Program archive close **G6254–G6257** — maintenance default queue restored
+- **Runtime Phase C** remains **active** (session/SQL verify gates; not reverted to stub-only claims)
+- Hub-completion schema **513** + `phase10ProductionParity` (depth schema **8**)
 
-**Default build queue:** Phase 10 unless amended (§13).
+**Strategic plan phases 0–10:** all reinforcement queues **closed** (**G5680–G6257**).
+
+**Default build queue:** maintenance unless amended (§13).
 
 ---
 
@@ -239,16 +239,17 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (Phase 10)
+## 12. Default queue (maintenance)
 
-**Status:** **Phase 10 active** (2026-06-19). Reinforcement queue **G6200–G6253**.
+**Status:** **maintenance only** (2026-06-19). Strategic plan phases **0–10 closed** (**G5680–G6257**).
 
 When the user says "build" without specifying:
 
-1. Prefer **Phase 10** in [`docs/PRODUCTION-PARITY-PHASE-10.md`](./PRODUCTION-PARITY-PHASE-10.md).
-2. Maintenance triggers in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2 when reactive.
-3. Do **not** treat archive ship logs as active backlog.
-4. Verify: `pnpm run hub:strategic-plan-phase10-production-parity-close-smoke` (skip-fast) or `pnpm run hub:maintenance-mode-governance-smoke`.
+1. Use **maintenance** triggers in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
+2. Do **not** treat archive ship logs or closed phase docs as active backlog.
+3. Verify: `pnpm run hub:maintenance-mode-governance-smoke` or `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`.
+
+Closed Phase 10 detail (reference only): [`docs/PRODUCTION-PARITY-PHASE-10.md`](./PRODUCTION-PARITY-PHASE-10.md).
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 

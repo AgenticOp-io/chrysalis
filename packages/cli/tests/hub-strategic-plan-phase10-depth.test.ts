@@ -200,4 +200,14 @@ describe.sequential("hub strategic plan phase10 depth slices", () => {
     expect(gate.matrixOk).toBe(true);
     expect(gate.expressOk).toBe(true);
   }, 600_000);
+
+  test("phase10 program archive close gate (G6257)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runStrategicPlanPhase10ProgramArchiveCloseGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.programClosed).toBe(true);
+    expect(gate.maintenanceOk).toBe(true);
+  }, 600_000);
 });
