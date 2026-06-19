@@ -57,7 +57,8 @@ The **PHP-to-TypeScript converter** is the **adoption vector**. The **framework*
 | **Oracle product**       | Behavioral capture + ingest + emit + verify on real traces            | PHP → hono / fastify / nextjs / typescript (4 matrix pairs) |
 | **Structural plumbing**  | Hole-free lift/emit on toy/literal fixtures; trace replay where gated | Hub gold suites (119+ structural); most matrix pairs        |
 | **Scaffold / advisory**  | Route shells, file-lift, planning APIs                                | Pattern-lift origins; path knowledge; migration planner     |
-| **Paused (do not sell)** | No oracle + no real-app depth                                         | “Any language production-ready”; matrix gold as headline    |
+| **Paused (do not sell)** | No oracle + no real-app depth                                         | Vanity matrix pairs without customer route                  |
+| **Phase 10 (active)**    | Production SQL/session, WordPress entry, matrix expansion (verify-gated) | See `docs/PRODUCTION-PARITY-PHASE-10.md`                |
 
 
 **Rule:** Never imply structural matrix gold equals production migration for that pair.
@@ -172,7 +173,18 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 - Hub-completion schema **512** + `phase8ProductProof` section
 - Capability matrix schema **34** + `strategicPlanPhase8ProductProof`
 
-**Strategic plan phases 0–9:** all reinforcement queues **closed** (**G5680–G6153**). Default build → **maintenance** unless plan amended.
+**Strategic plan phases 0–9:** all reinforcement queues **closed** (**G5680–G6153**).
+
+### Phase 10 — Production parity — **Active (2026-06-19)**
+
+- Reinforcement queue **G6200–G6253** — see `docs/PRODUCTION-PARITY-PHASE-10.md`
+- **Runtime Phase C:** session Redis + SQL verify parity gates **active**
+- **WordPress vertical:** entry unblocked — `docs/WORDPRESS-VERTICAL-PHASE-10.md`
+- **Matrix expansion:** customer/flagship routes only
+- **Multi-language evidence:** second-oracle path
+- Hub-completion schema **513** + `phase10ProductionParity`
+
+**Default build queue:** Phase 10 unless amended (§13).
 
 ---
 
@@ -183,11 +195,12 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 | -------- | ----------------------------------------------------------------------------- | ------------------------------------------------- |
 | **P0**   | PHP oracle E2E, verify playbooks, Hub evidence UI                             | Random matrix pairs                               |
 | **P0**   | Laravel/plain PHP ingest from verify gaps                                     | CWL RFC without replay                            |
-| **P1**   | CWL HTTP + full-stack surface (body, response, effects, authoring/runtime UX) | “All languages production-ready” without evidence |
+| **P1**   | CWL HTTP + full-stack surface (body, response, effects, authoring/runtime UX) | Vanity matrix pairs without customer route        |
 | **P1**   | Project-to-CWL export                                                         | Hub UI without delivery metrics                   |
 | **P1**   | CWL runtime acceleration with parity gates                                    | Runtime claims without verify parity              |
+| **P1**   | Phase 10: production SQL/session, WordPress entry, matrix expansion             | 575×26 marketing matrix                           |
 | **P2**   | Second oracle origin                                                          | Rust/Kotlin oracle before Node/Python flagship    |
-| **P2**   | WordPress vertical                                                            | Many literal-only gold suites                     |
+| **P2**   | WordPress vertical (Phase 10 entry)                                           | Many literal-only gold suites                     |
 
 
 ---
@@ -218,34 +231,26 @@ Without plan amendment, treat these as **out of scope**:
 
 - Chasing full **575×26 production** migration parity for marketing  
 - Claiming production-ready CWL runtime without parity evidence (verify + contract coverage)  
-- **WordPress** before Laravel oracle path is boringly reliable  
-- Promising **any web app, any language** without a second oracle flagship  
+- Promising **any web app, any language** without second-oracle flagship evidence  
 - LLM repair that bypasses verify  
 - Rebranding structural-only matrix depth as full-stack oracle parity
 
+**Amended 2026-06-19:** WordPress vertical, Runtime Phase C production SQL/session, customer-route matrix expansion, and multi-language evidence path are **in scope** under **Phase 10** (`docs/PRODUCTION-PARITY-PHASE-10.md`).
+
 ---
 
-## 12. Default queue (maintenance)
+## 12. Default queue (Phase 10)
 
-**Status:** **maintenance only** (2026-06-18). Strategic plan phases **0–9** and Next 90 days are **closed** (**G5680–G6153**).
+**Status:** **Phase 10 active** (2026-06-19). Reinforcement queue **G6200–G6253**.
 
 When the user says "build" without specifying:
 
-1. Prefer **maintenance** triggers in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
-2. Do **not** reopen closed programs without §13 amendment.
-3. Historical ship log (G5680–G6153): [`docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md).
-4. Verify governance: `pnpm run hub:maintenance-mode-governance-smoke` (**G6160**).
+1. Prefer **Phase 10** in [`docs/PRODUCTION-PARITY-PHASE-10.md`](./PRODUCTION-PARITY-PHASE-10.md).
+2. Maintenance triggers in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2 when reactive.
+3. Do **not** treat archive ship logs as active backlog.
+4. Verify: `pnpm run hub:strategic-plan-phase10-production-parity-close-smoke` (skip-fast) or `pnpm run hub:maintenance-mode-governance-smoke`.
 
-**Paused items, honest gaps, and archive pointers:** single index → [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
-
-### Without plan amendment, do not build
-
-| Blocked | Pointer |
-| --- | --- |
-| Unpause production SQL/session (Runtime Phase C) | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §4 |
-| WordPress vertical, matrix gold marketing, "any language production-ready" | §3 |
-| New phased program (Phase 10+) | §7 |
-| Treating archive ship logs as active backlog | §6 |
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
 ---
 

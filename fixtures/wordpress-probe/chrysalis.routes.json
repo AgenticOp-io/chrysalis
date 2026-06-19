@@ -1,0 +1,11 @@
+{
+  "app": "wordpress-probe",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "file": "pages/public_home.php",
+      "pathParams": []
+    }
+  ]
+}

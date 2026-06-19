@@ -8,7 +8,7 @@ Phases 0–7 shipped reinforcement gates that pass locally with `CHRYSALIS_STRAT
 
 ## Honest boundaries
 
-- **Production SQL/session:** `docs/RUNTIME-CWL-PARITY-PLAN.md` Phase C remains **paused**. Phase 8 proves **stub session + emit verify authority**, not live DB parity.
+- **Production SQL/session:** Runtime Phase C **active** under Phase 10 — `runProductionSessionRedisParityGate`, `runProductionSqlVerifyParityGate`.
 - **Customer pilot / north-star timing:** operator steps outside the repo; gates prove in-repo evidence factory readiness.
 - **WPTP D2+ / sibling repos:** out of scope (see `docs/MASTER-PROGRAM.md`).
 

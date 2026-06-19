@@ -28,12 +28,17 @@ Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullst
 
 **Non-goal:** marketing "production-ready runtime" without verify evidence.
 
-## Phase C — Session/SQL honesty (paused)
+## Phase C — Session/SQL production parity (**active** — Phase 10)
 
-> Tracked as an **honest gap** in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §4 — requires plan amendment to become a build queue.
+> **Unblocked 2026-06-19** via `docs/PRODUCTION-PARITY-PHASE-10.md`. Emit + verify remain authoritative; runtime-cwl may use injected session maps while Redis/SQL parity is proven on oracle paths.
 
-- Session stub smoke only (`runSessionStubGate`) until Redis/DB parity gates exist.
-- Real SQL remains **emit + verify** authoritative; runtime-cwl uses stub DB.
+| Gate | Scope | Status |
+| --- | --- | --- |
+| G6202 | `runProductionSessionRedisParityGate` | PHP Redis bridge smoke (`test:oracle-php-session-redis`) |
+| G6203 | `runProductionSqlVerifyParityGate` | tiny-blog verify replay |
+| G6200 | `runRuntimePhaseCProductionParityGate` | composes session + SQL |
+
+**Non-goal:** marketing "production-ready runtime" without verify evidence.
 
 ## Phase D — Full-stack surface expansion (Month 3–4)
 

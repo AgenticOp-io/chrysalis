@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 34;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 35;
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -448,7 +448,9 @@ export function buildHubCapabilityMatrixReport() {
     },
     externalCopy: {
       headline: "Verified PHP backend migration with oracle replay",
-      avoid: ["575 languages production-ready", "convert any website without oracle"],
+      avoid: ["575 languages without oracle evidence", "convert any website without oracle"],
+      multiLanguageEvidencePath: "second-oracle-flagship",
+      matrixExpansionPolicy: "customer-route-or-flagship-only",
     },
     strategicPlanPhase8ProductProof: {
       doc: "docs/PRODUCT-PROOF-PHASE-8.md",
@@ -457,6 +459,16 @@ export function buildHubCapabilityMatrixReport() {
       gceMarker: "reports/ci/gce-phase8-strict.ok",
       hubCompletionSection: "phase8ProductProof",
       hubCompletionSchemaVersion: 512,
+    },
+    strategicPlanPhase10ProductionParity: {
+      doc: "docs/PRODUCTION-PARITY-PHASE-10.md",
+      closeSmokeScript: "pnpm run hub:strategic-plan-phase10-production-parity-close-smoke",
+      hubCompletionSection: "phase10ProductionParity",
+      hubCompletionSchemaVersion: 513,
+      runtimePhaseC: "active",
+      matrixExpansionUnblocked: true,
+      wordpressVerticalUnblocked: true,
+      multiLanguageEvidenceUnblocked: true,
     },
     generatedAt: new Date().toISOString(),
   };

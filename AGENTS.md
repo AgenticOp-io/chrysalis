@@ -6,7 +6,7 @@
 
 1. Read `DESIGN.md` in full. It is the north star for architecture and invariants.
 2. Read **`docs/STRATEGIC-PLAN.md` in full. It is the **locked path** for what to build, in what order, and what to refuse. **Do not deviate** from it unless the user explicitly amends the plan (`DESIGN.md` Decision Log + edit `STRATEGIC-PLAN.md`).
-3. Read `ROADMAP.md` for **status** and the **maintenance** default queue (`docs/PAUSED-AND-MAINTENANCE.md`). Completed history — shipped **G-series**, **Milestones 0–6A**, strategic plan phases **0–9**, and the **Road to Chrysalis 2.0** program — is in **`ROADMAP-ARCHIVE.md`** and **`docs/archive/`**. For phased product delivery (the locked path), follow **`docs/STRATEGIC-PLAN.md`**.
+3. Read `ROADMAP.md` for **status** and the **Phase 10** default queue (`docs/PRODUCTION-PARITY-PHASE-10.md`). Completed history — phases **0–9** — is in **`ROADMAP-ARCHIVE.md`**. For phased delivery, follow **`docs/STRATEGIC-PLAN.md`**.
 4. Read the `README.md` of the specific package you're about to touch.
 5. For **install / operations / administration / releases / GitHub Project planning**, see **`docs/`** (index: `docs/README.md`; GitHub Project: `docs/GITHUB_PROJECT.md`) in addition to the root `README.md`.
 6. If your plan contradicts `DESIGN.md`, do one of two things:
@@ -26,7 +26,7 @@ The user may lock strategy in conversation. Unless they **explicitly** amend it:
 | “Also …” without a build verb | Assume **clarification** unless they clearly command implementation |
 | “Ignore the plan and …” | Refuse off-plan implementation; offer to amend the plan formally if they want a new direction |
 
-**Default implementation queue** when build scope is unclear: [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md) §1–§2 (maintenance triggers).
+**Default implementation queue** when build scope is unclear: [`docs/PRODUCTION-PARITY-PHASE-10.md`](docs/PRODUCTION-PARITY-PHASE-10.md) (Phase 10); maintenance triggers in [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md) §2.
 
 ## 1. The project is Chrysalis, not "a PHP-to-TS converter"
 

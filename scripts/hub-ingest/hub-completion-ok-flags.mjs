@@ -2,6 +2,7 @@ import { buildHubCapabilityMatrixReport } from "./hub-capability-matrix.mjs";
 import { buildHubCompletionSections } from "./hub-completion-sections.mjs";
 import { buildHubCompletionPhase2MigrationOsSection } from "./hub-completion-phase2-migration-os.mjs";
 import { buildHubCompletionPhase8ProductProofSection } from "./hub-completion-phase8-product-proof.mjs";
+import { buildHubCompletionPhase10ProductionParitySection } from "./hub-completion-phase10-production-parity.mjs";
 import { exportHubLaravelVerifyLive } from "./hub-laravel-verify-export.mjs";
 import { buildWebDatabaseCatalogReport } from "./hub-web-databases.mjs";
 import { existsSync } from "node:fs";
@@ -1125,6 +1126,10 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
       : { ok: true, skip: "gce-strict-artifact-deferred" },
   });
   const phase8ProductProofOk = phase8ProductProof.ok === true;
+  const phase10ProductionParity = buildHubCompletionPhase10ProductionParitySection({
+    strategicPlanPhase10Close: { ok: true, skip: "phase10-close-deferred-in-completion" },
+  });
+  const phase10ProductionParityOk = phase10ProductionParity.ok === true;
   const oracleProductUltraBatchOk = oracleProductUltraBatch.ok === true;
   const expressLaravelMinDeliveryBatchOk = expressLaravelMinDeliveryBatch.ok === true;
   const symfonyLaravelMinDeliveryBatchOk = symfonyLaravelMinDeliveryBatch.ok === true;
@@ -1713,6 +1718,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     strategicPlanPhase2LicenseTierOk &&
     phase2MigrationOsOk &&
     phase8ProductProofOk &&
+    phase10ProductionParityOk &&
     oracleProductUltraBatchOk &&
     expressLaravelMinDeliveryBatchOk &&
     symfonyLaravelMinDeliveryBatchOk &&
@@ -2290,6 +2296,8 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     phase2MigrationOsOk,
     phase8ProductProofOk,
     phase8ProductProof,
+    phase10ProductionParityOk,
+    phase10ProductionParity,
     oracleProductUltraBatchOk,
     expressLaravelMinDeliveryBatchOk,
     symfonyLaravelMinDeliveryBatchOk,

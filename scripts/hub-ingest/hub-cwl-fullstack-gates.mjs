@@ -13,6 +13,7 @@ import { buildDeliveryDashboard } from "./hub-delivery-dashboard.mjs";
 import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
 import { buildCwlPreviewReport } from "./hub-cwl-preview.mjs";
 import { runProjectVerifyHttp } from "./hub-verify-http.mjs";
+import { runProjectVerifyReplay } from "./hub-verify-replay.mjs";
 import { buildProjectVerifyGapsIngestReport } from "./hub-verify-gaps-ingest.mjs";
 import {
   resolveStrategicPlanSkips,
@@ -1822,16 +1823,20 @@ export async function runStrategicPlanPhase8HubOperatorProofGate(opts = {}) {
   };
 }
 
-/** G6102 — Runtime session/SQL honesty (Phase C paused). */
+/** G6102 — Runtime session/SQL honesty (Phase C active after Phase 10). */
 export function runRuntimeSessionSqlHonestyGate() {
   const path = join(scriptRoot, "docs/RUNTIME-CWL-PARITY-PLAN.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-runtime-cwl-parity-plan" };
   const text = readFileSync(path, "utf8");
-  const honestyOk =
-    text.includes("Phase C") &&
-    text.includes("paused") &&
-    text.includes("stub DB");
-  return { ok: honestyOk, honestyOk };
+  const phase10Active = existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"));
+  const honestyOk = phase10Active
+    ? text.includes("Phase C") &&
+      text.includes("active") &&
+      text.includes("runProductionSessionRedisParityGate")
+    : text.includes("Phase C") &&
+      text.includes("paused") &&
+      text.includes("stub DB");
+  return { ok: honestyOk, honestyOk, phase10Active };
 }
 
 /** G6101 — Cutover proof Phase 8 plan doc section. */
@@ -2029,27 +2034,25 @@ export async function runStrategicPlanPhase9OperationalCloseGate(opts = {}) {
   };
 }
 
-/** G6161 — Paused backlog / maintenance index doc gate. */
+/** G6161 — Paused backlog / active build index doc gate. */
 export function runPausedAndMaintenanceDocGate() {
   const path = join(scriptRoot, "docs/PAUSED-AND-MAINTENANCE.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const docOk =
-    text.includes("## 1. Default queue today") &&
-    text.includes("## 2. Maintenance") &&
-    text.includes("## 3. Policy-paused") &&
+    text.includes("Phase 10 active") &&
+    text.includes("Unblocked by Phase 10") &&
+    text.includes("Production SQL/session") &&
     text.includes("WordPress vertical") &&
-    text.includes("Matrix gold for marketing") &&
-    text.includes("## 4. Honest gaps") &&
-    text.includes("Production SQL/session parity") &&
-    text.includes("Phase C paused") &&
-    text.includes("## 6. Closed programs") &&
     text.includes("Do not treat closed program tables");
   return { ok: docOk, docOk };
 }
 
 /** G6162 — Strategic plan maintenance-only default queue gate. */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"))) {
+    return runStrategicPlanPhase10DefaultQueueGate();
+  }
   const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
   const text = readFileSync(path, "utf8");
@@ -2062,21 +2065,29 @@ export function runStrategicPlanMaintenanceDefaultQueueGate() {
   return { ok, maintenanceOk: ok };
 }
 
-/** G6163 — ROADMAP maintenance default + no feature backlog gate. */
+/** G6163 — ROADMAP default queue gate (Phase 10 or maintenance). */
 export function runRoadmapMaintenanceDefaultQueueGate() {
   const path = join(scriptRoot, "ROADMAP.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(path, "utf8");
-  const ok =
-    text.includes("There is no active feature backlog") &&
-    text.includes("PAUSED-AND-MAINTENANCE.md") &&
-    text.includes("Closed programs (archive only)") &&
-    text.includes("Do **not** treat these as active backlog");
+  const phase10Active = existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"));
+  const ok = phase10Active
+    ? text.includes("Phase 10") &&
+      text.includes("PRODUCTION-PARITY-PHASE-10.md") &&
+      text.includes("Closed programs (archive only)") &&
+      text.includes("Do **not** treat archive tables")
+    : text.includes("There is no active feature backlog") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md") &&
+      text.includes("Closed programs (archive only)") &&
+      text.includes("Do **not** treat these as active backlog");
   return { ok, roadmapOk: ok };
 }
 
-/** G6160 — Maintenance-mode governance (policy boundaries without plan amendment). */
+/** G6160 — Maintenance-mode governance (superseded when Phase 10 active). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (existsSync(join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md"))) {
+    return runPhase10ActiveGovernanceGate(_opts);
+  }
   const pausedDoc = runPausedAndMaintenanceDocGate();
   const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
   const roadmap = runRoadmapMaintenanceDefaultQueueGate();
@@ -2092,7 +2103,230 @@ export async function runMaintenanceModeGovernanceGate(_opts = {}) {
     strategicPlanOk: strategicPlan.ok === true,
     roadmapOk: roadmap.ok === true,
     sessionSqlHonestyOk: sessionSqlHonesty.ok === true,
-    phaseCPaused: sessionSqlHonesty.ok === true,
+    phaseCPaused: sessionSqlHonesty.ok === true && !sessionSqlHonesty.phase10Active,
+    mode: "maintenance",
+  };
+}
+
+/** G6201 — Production parity Phase 10 plan doc. */
+export function runProductionParityPhase10DocGate() {
+  const path = join(scriptRoot, "docs/PRODUCTION-PARITY-PHASE-10.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-production-parity-phase10-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runProductionSessionRedisParityGate") &&
+    text.includes("runWordPressVerticalPhase10EntryGate") &&
+    text.includes("runMatrixExpansionPhase10Gate") &&
+    text.includes("runStrategicPlanPhase10ProductionParityCloseGate") &&
+    text.includes("schema **513**");
+  return { ok: docOk, docOk };
+}
+
+/** G6202 — PHP Redis session bridge parity (skip when Redis unset). */
+export function runProductionSessionRedisParityGate() {
+  const r = spawnSync("pnpm", ["run", "test:oracle-php-session-redis"], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+    shell: true,
+    timeout: 120_000,
+  });
+  const skipped =
+    (r.stderr || r.stdout || "").includes("skip:") || (r.stderr || r.stdout || "").includes("SKIP");
+  const ok = r.status === 0;
+  return { ok, skip: skipped ? "redis-session-skipped" : null, exitCode: r.status ?? null };
+}
+
+/** G6203 — SQL parity via tiny-blog verify replay (emit + verify authoritative). */
+export async function runProductionSqlVerifyParityGate(opts = {}) {
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const fixture = join(repoRoot, "fixtures/tiny-blog");
+  if (!existsSync(join(fixture, "chrysalis.routes.json"))) {
+    return { ok: false, skip: "missing-tiny-blog-routes" };
+  }
+  const replay = await runProjectVerifyReplay(fixture, {
+    origin: "php",
+    target: "hono",
+    repoRoot,
+    threshold: 1,
+  });
+  const ok = replay.ok === true;
+  return {
+    ok,
+    skip: replay.skip ?? null,
+    correctness: replay.correctness ?? null,
+  };
+}
+
+/** G6200 — Runtime Phase C production session + SQL parity. */
+export async function runRuntimePhaseCProductionParityGate(opts = {}) {
+  const doc = runProductionParityPhase10DocGate();
+  const session = runProductionSessionRedisParityGate();
+  const sql = await runProductionSqlVerifyParityGate(opts);
+  const ok = doc.ok === true && session.ok === true && sql.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    sessionOk: session.ok === true,
+    sqlOk: sql.ok === true,
+    sessionSkip: session.skip ?? null,
+    sqlSkip: sql.skip ?? null,
+  };
+}
+
+/** G6212 — WordPress probe fixture ingest (wp_* recorded as data.call). */
+export async function runWordPressVerticalProbeIngestGate() {
+  const fixture = join(scriptRoot, "fixtures/wordpress-probe");
+  const routesPath = join(fixture, "chrysalis.routes.json");
+  const pagePath = join(fixture, "pages/public_home.php");
+  if (!existsSync(routesPath) || !existsSync(pagePath)) {
+    return { ok: false, skip: "missing-wordpress-probe-fixture" };
+  }
+  const ingestPkg = pathToFileURL(join(scriptRoot, "packages/ingest/dist/index.js")).href;
+  const webirPkg = pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href;
+  const { ingestDirectory } = await import(ingestPkg);
+  const { walk } = await import(webirPkg);
+  const mod = await ingestDirectory(fixture);
+  const expected = ["add_action", "apply_filters", "get_bloginfo", "wp_footer", "wp_head"];
+  const calls = [];
+  walk(mod, (n) => {
+    if (n.dialect === "data" && n.op === "call") {
+      const callee = String(n.attrs?.callee ?? "");
+      if (expected.includes(callee)) calls.push(callee);
+    }
+  });
+  const ok = mod.roots.length === 1 && calls.sort().join(",") === expected.sort().join(",");
+  return { ok, routeCount: mod.roots.length, wpCallCount: calls.length };
+}
+
+/** G6211 — WordPress vertical Phase 10 doc. */
+export function runWordPressVerticalPhase10DocGate() {
+  const path = join(scriptRoot, "docs/WORDPRESS-VERTICAL-PHASE-10.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-wordpress-vertical-phase10-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("runWordPressVerticalPhase10EntryGate") &&
+    text.includes("runWordPressVerticalProbeIngestGate") &&
+    text.includes("verify-gated") &&
+    text.includes("WordPress");
+  return { ok: docOk, docOk };
+}
+
+/** G6210 — WordPress vertical entry (unblocked). */
+export async function runWordPressVerticalPhase10EntryGate(_opts = {}) {
+  const doc = runWordPressVerticalPhase10DocGate();
+  const pathKnowledge = readFileSync(join(scriptRoot, "scripts/hub-ingest/hub-path-knowledge.mjs"), "utf8");
+  const knowledgeOk = pathKnowledge.includes("WordPress");
+  const probe = await runWordPressVerticalProbeIngestGate();
+  const ok = doc.ok === true && knowledgeOk && probe.ok === true;
+  return { ok, docOk: doc.ok === true, knowledgeOk, probeOk: probe.ok === true };
+}
+
+/** G6220 — Matrix expansion for customer/flagship routes (unblocked). */
+export async function runMatrixExpansionPhase10Gate() {
+  const doc = runProductionParityPhase10DocGate();
+  const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
+    "./hub-capability-matrix.mjs"
+  );
+  const report = buildHubCapabilityMatrixReport();
+  const block = report.strategicPlanPhase10ProductionParity;
+  const ok =
+    doc.ok === true &&
+    report.schemaVersion === HUB_CAPABILITY_MATRIX_SCHEMA_VERSION &&
+    block?.matrixExpansionUnblocked === true &&
+    block?.hubCompletionSchemaVersion === 513;
+  return { ok, schemaVersion: report.schemaVersion ?? null, matrixOk: ok };
+}
+
+/** G6230 — Multi-language evidence path (second oracle + matrix honesty). */
+export async function runMultiLanguageEvidencePhase10Gate(opts = {}) {
+  const doc = runProductionParityPhase10DocGate();
+  const skips = resolveStrategicPlanSkips({ ...opts, strict: false, skipOracleVerify: true });
+  const gateOpts = strategicPlanSkipsToGateOpts(skips);
+  const secondOracle = await runStrategicPlanPhase4SecondOracleOriginCloseGate(gateOpts);
+  const { buildHubCapabilityMatrixReport } = await import("./hub-capability-matrix.mjs");
+  const report = buildHubCapabilityMatrixReport();
+  const pairCount = report.tiers?.oracleProduct?.pairCount ?? 0;
+  const multiOk =
+    report.externalCopy?.multiLanguageEvidencePath === "second-oracle-flagship" &&
+    pairCount >= 4 &&
+    report.strategicPlanPhase10ProductionParity?.multiLanguageEvidenceUnblocked === true;
+  const ok = doc.ok === true && secondOracle.ok === true && multiOk;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    secondOracleOk: secondOracle.ok === true,
+    multiLanguageOk: multiOk,
+  };
+}
+
+/** G6242 — Strategic plan Phase 10 default queue gate. */
+export function runStrategicPlanPhase10DefaultQueueGate() {
+  const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("### Phase 10 — Production parity") &&
+    text.includes("PRODUCTION-PARITY-PHASE-10.md") &&
+    text.includes("G6200–G6253") &&
+    text.includes("## 12. Default queue (Phase 10)");
+  return { ok, phase10Ok: ok };
+}
+
+/** G6170 — Phase 10 active governance (post-amendment). */
+export async function runPhase10ActiveGovernanceGate(_opts = {}) {
+  const doc = runProductionParityPhase10DocGate();
+  const strategicPlan = runStrategicPlanPhase10DefaultQueueGate();
+  const runtimeC = await runRuntimePhaseCProductionParityGate(_opts);
+  const honesty = runRuntimeSessionSqlHonestyGate();
+  const ok =
+    doc.ok === true &&
+    strategicPlan.ok === true &&
+    runtimeC.ok === true &&
+    honesty.ok === true &&
+    honesty.phase10Active === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    runtimeCOk: runtimeC.ok === true,
+    sessionSqlHonestyOk: honesty.ok === true,
+    phaseCActive: true,
+    mode: "phase10",
+  };
+}
+
+/** G6205 — Phase 10 production parity entry gate. */
+export async function runStrategicPlanPhase10ProductionParityEntryGate(opts = {}) {
+  const doc = runProductionParityPhase10DocGate();
+  const runtimeC = await runRuntimePhaseCProductionParityGate(opts);
+  const ok = doc.ok === true && runtimeC.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    runtimeCOk: runtimeC.ok === true,
+  };
+}
+
+/** G6250 — Phase 10 program close gate. */
+export async function runStrategicPlanPhase10ProductionParityCloseGate(opts = {}) {
+  const entry = await runStrategicPlanPhase10ProductionParityEntryGate(opts);
+  const wordpress = await runWordPressVerticalPhase10EntryGate(opts);
+  const matrix = await runMatrixExpansionPhase10Gate();
+  const multiLang = await runMultiLanguageEvidencePhase10Gate(opts);
+  const governance = await runPhase10ActiveGovernanceGate(opts);
+  const ok =
+    entry.ok === true &&
+    wordpress.ok === true &&
+    matrix.ok === true &&
+    multiLang.ok === true &&
+    governance.ok === true;
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    wordpressOk: wordpress.ok === true,
+    matrixOk: matrix.ok === true,
+    multiLanguageOk: multiLang.ok === true,
+    governanceOk: governance.ok === true,
   };
 }
 

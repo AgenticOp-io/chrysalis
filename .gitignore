@@ -31,6 +31,7 @@ pnpm-debug.log*
 go/shim/chrysalis-go
 go/shim/chrysalis-go.exe
 # Local SQLite for tiny-blog (seed / oracle; DDL is schema.sql)
+/blog.sqlite
 fixtures/tiny-blog/blog.sqlite
 fixtures/tiny-n1/blog.sqlite
 fixtures/lift-helper-sql-same-twin/probe.sqlite

@@ -5956,6 +5956,12 @@ describe("ci-gates hub-completion", () => {
     expect(src).toMatch(/\[511,\s*"phase2MigrationOs"\]/);
   });
 
+  test("ci-gates hub-completion enforces phase10ProductionParity at schema v513 (G6243)", () => {
+    const src = readFileSync(CI_GATES_HUB_COMPLETION, "utf8");
+    expect(src).toContain("schemaVersion !== 513");
+    expect(src).toMatch(/\[513,\s*"phase10ProductionParity"\]/);
+  });
+
   test("ci-gates hub-completion enforces phase8ProductProof at schema v512 (G6133)", () => {
     const src = readFileSync(CI_GATES_HUB_COMPLETION, "utf8");
     expect(src).toContain("schemaVersion !== 512");
