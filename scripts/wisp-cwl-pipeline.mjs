@@ -19,6 +19,7 @@ import { runWispCwlPhase12Phase0EntryGate } from "./hub-ingest/hub-wisp-cwl-phas
 import { runWispCwlPhase12Phase0CloseGate } from "./hub-ingest/hub-wisp-cwl-phase12-phase0-close-smoke.mjs";
 import { runWispCwlPocVerify } from "./wisp-cwl-poc-verify.mjs";
 import { runWispFirebaseDeploy } from "./wisp-cwl-firebase-deploy.mjs";
+import { buildWispDemoManifest } from "./wisp-cwl-demo-manifest.mjs";
 import { applyWispPhase13Surfaces } from "./wisp-cwl-apply-phase13-surfaces.mjs";
 
 export const WISP_CWL_PIPELINE_KIND = "chrysalis.wisp-cwl-pipeline";
@@ -278,6 +279,7 @@ export async function runWispCwlPipeline(opts = {}) {
       const ip = (ipR.stdout ?? "").trim() || urlFromDeploy?.[1] || "";
       if (ip) {
         const baseUrl = `http://${ip}:${gce.port ?? 19100}`;
+        buildWispDemoManifest({ natIp: ip });
         const previewPath = join(scriptRoot, "generated/_wisp-cwl-poc-deploy/cwl-preview.json");
         remoteVerify = await runWispCwlPocVerify({ baseUrl, previewPath, chimera: true });
         steps.push({ step: "remote-verify", ok: remoteVerify.ok === true, detail: remoteVerify });

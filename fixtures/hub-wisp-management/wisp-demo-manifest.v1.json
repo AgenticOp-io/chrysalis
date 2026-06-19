@@ -1,0 +1,61 @@
+{
+  "kind": "chrysalis.wisp.demo-manifest",
+  "schemaVersion": 1,
+  "operator": "phase14-hss",
+  "gce": {
+    "project": "chrysalis-dev-f5x6qv",
+    "zone": "us-central1-a",
+    "instance": "chrysalis-test-vm",
+    "port": 19100,
+    "baseUrlPattern": "http://{natIp}:19100",
+    "lastKnownNatIp": "34.61.255.147"
+  },
+  "backend": {
+    "url": "https://hss.wisptools.io",
+    "policy": "proxy-only — GenieACS/Mongo unchanged on acs-hss-server"
+  },
+  "firebase": {
+    "hostingTarget": "hosting:management",
+    "optional": true
+  },
+  "healthProbes": [
+    {
+      "path": "/",
+      "expect": "redirect-login",
+      "chimera": "cwl"
+    },
+    {
+      "path": "/docs",
+      "expect": "200-html",
+      "chimera": "cwl"
+    },
+    {
+      "path": "/login",
+      "expect": "svelte-fallback",
+      "chimera": "svelte-or-backend"
+    },
+    {
+      "path": "/api/tenants",
+      "expect": "api-proxy",
+      "chimera": "backend"
+    },
+    {
+      "path": "/api/hss",
+      "expect": "api-proxy",
+      "chimera": "backend"
+    },
+    {
+      "path": "/api/device-assignment",
+      "expect": "api-proxy",
+      "chimera": "backend"
+    }
+  ],
+  "clientRedirectPaths": [
+    "/",
+    "/modules",
+    "/modules/customers/portal",
+    "/modules/monitor",
+    "/portal/:tenantId"
+  ],
+  "generatedAt": "2026-06-19T06:43:40.990Z"
+}

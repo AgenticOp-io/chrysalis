@@ -52,6 +52,7 @@ import { runWispCwlPhase13M5Gate } from "./hub-wisp-cwl-phase13-m5-smoke.mjs";
 import { runWispCwlPhase13M6Gate } from "./hub-wisp-cwl-phase13-m6-smoke.mjs";
 import { runWispCwlPhase13CloseGate } from "./hub-wisp-cwl-phase13-close-smoke.mjs";
 import { runWispCwlPhase14OperatorCloseGate } from "./hub-wisp-cwl-phase14-operator-close-smoke.mjs";
+import { runWispCwlPhase14CloseGate } from "./hub-wisp-cwl-phase14-close-smoke.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { runWispCwlPipelineSmokeGate } from "./hub-wisp-cwl-pipeline-smoke.mjs";
 
@@ -2092,6 +2093,8 @@ export function runPausedAndMaintenanceDocGate() {
     ? text.includes("Phase 14") &&
       text.includes("G6500") &&
       text.includes("G6510") &&
+      text.includes("G6530") &&
+      text.includes("G6590") &&
       text.includes("ACS") &&
       text.includes("G6410") &&
       text.includes("Do not treat closed program tables")
@@ -2182,6 +2185,8 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
       text.includes("D6204") &&
       text.includes("G6500") &&
       text.includes("G6510") &&
+      text.includes("G6530") &&
+      text.includes("G6590") &&
       text.includes("maintenance")
     : isWispCwlPhase13Closed()
     ? text.includes("Phase 13 closed") &&
@@ -3673,6 +3678,8 @@ export async function runPhase14OperatorGovernanceGate(_opts = {}) {
     operatorCloseOk: operatorClose.ok === true,
     clientRedirectOk: operatorClose.clientRedirect?.ok === true,
     bundleSyncOk: operatorClose.bundleSync?.ok === true,
+    hssProxyOk: operatorClose.hssProxy?.ok === true,
+    demoManifestOk: operatorClose.demoManifest?.ok === true,
     phase13CloseOk: operatorClose.phase13?.ok === true,
     pipelineOk: pipeline.ok === true,
     pausedOk: paused.ok === true,

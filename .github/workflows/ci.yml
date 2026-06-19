@@ -130,6 +130,21 @@ jobs:
       - name: WISP CWL Phase 13 close (G6410)
         run: pnpm run hub:wisp-cwl-phase13-close-smoke
 
+      - name: WISP CWL Phase 14 HSS proxy (G6530)
+        run: pnpm run hub:wisp-cwl-phase14-hss-proxy-smoke
+
+      - name: WISP CWL Phase 14 demo manifest (G6540)
+        run: pnpm run hub:wisp-cwl-phase14-demo-manifest-smoke
+
+      - name: WISP CWL Phase 14 client redirect (G6510)
+        run: pnpm run hub:wisp-cwl-phase14-client-redirect-smoke
+
+      - name: WISP CWL Phase 14 operator close (G6520)
+        run: pnpm run hub:wisp-cwl-phase14-operator-close-smoke
+
+      - name: WISP CWL Phase 14 close (G6590)
+        run: pnpm run hub:wisp-cwl-phase14-close-smoke
+
       - name: WISP CWL pipeline artifact gate
         run: pnpm run ci:wisp-cwl-pipeline
 

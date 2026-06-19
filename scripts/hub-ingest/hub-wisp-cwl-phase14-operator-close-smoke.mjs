@@ -5,6 +5,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runWispCwlPhase13CloseGate } from "./hub-wisp-cwl-phase13-close-smoke.mjs";
 import { runWispCwlPhase14ClientRedirectGate } from "./hub-wisp-cwl-phase14-client-redirect-smoke.mjs";
+import { runWispCwlPhase14HssProxyGate } from "./hub-wisp-cwl-phase14-hss-proxy-smoke.mjs";
+import { runWispCwlPhase14DemoManifestGate } from "./hub-wisp-cwl-phase14-demo-manifest-smoke.mjs";
 import { runWispCwlPipelineSmokeGate } from "./hub-wisp-cwl-pipeline-smoke.mjs";
 import { runWispCwlProgramDocGate } from "./hub-wisp-cwl-phase12-phase0-entry-smoke.mjs";
 import { prepareWispCwlDeployBundle } from "../wisp-cwl-pipeline.mjs";
@@ -48,6 +50,8 @@ export async function runWispCwlPhase14OperatorCloseGate(opts = {}) {
   const programDoc = runWispCwlProgramDocGate();
   const clientRedirect = runWispCwlPhase14ClientRedirectGate({ apply: opts.apply !== false });
   const bundleSync = runWispDeployBundleSyncGate();
+  const hssProxy = await runWispCwlPhase14HssProxyGate({ skipLive: true });
+  const demoManifest = runWispCwlPhase14DemoManifestGate({ skipRefresh: true });
   const phase13 = await runWispCwlPhase13CloseGate({ apply: false });
   const pipeline =
     opts.skipPipeline === true
@@ -58,6 +62,8 @@ export async function runWispCwlPhase14OperatorCloseGate(opts = {}) {
     programDoc.ok === true &&
     clientRedirect.ok === true &&
     bundleSync.ok === true &&
+    hssProxy.ok === true &&
+    demoManifest.ok === true &&
     phase13.ok === true &&
     pipeline.ok === true;
   return {
@@ -68,6 +74,8 @@ export async function runWispCwlPhase14OperatorCloseGate(opts = {}) {
     programDoc,
     clientRedirect,
     bundleSync,
+    hssProxy,
+    demoManifest,
     phase13,
     pipeline,
     generatedAt: new Date().toISOString(),

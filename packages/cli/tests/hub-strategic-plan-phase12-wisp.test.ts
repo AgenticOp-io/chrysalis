@@ -177,6 +177,37 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     expect(gate.phase13.ok).toBe(true);
   });
 
+  test("phase14 hss proxy gate (G6530)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase14-hss-proxy-smoke.mjs",
+      "runWispCwlPhase14HssProxyGate",
+      { skipLive: true },
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.contract.ok).toBe(true);
+    expect(gate.chimera.ok).toBe(true);
+  });
+
+  test("phase14 demo manifest gate (G6540)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase14-demo-manifest-smoke.mjs",
+      "runWispCwlPhase14DemoManifestGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.manifest.probeCount).toBeGreaterThanOrEqual(5);
+  });
+
+  test("phase14 close gate (G6590)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase14-close-smoke.mjs",
+      "runWispCwlPhase14CloseGate",
+      { ...gateOpts, skipPipeline: true },
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.hssProxy.ok).toBe(true);
+    expect(gate.demoManifest.ok).toBe(true);
+  });
+
   test("phase13 closed governance gate (G6413)", () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
@@ -197,6 +228,8 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     expect(gate.ok).toBe(true);
     expect(gate.mode).toBe("phase14-operator");
     expect(gate.clientRedirectOk).toBe(true);
+    expect(gate.hssProxyOk).toBe(true);
+    expect(gate.demoManifestOk).toBe(true);
     expect(gate.bundleSyncOk).toBe(true);
     expect(gate.phase13CloseOk).toBe(true);
   });
