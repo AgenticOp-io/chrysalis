@@ -2,7 +2,7 @@
  * Emit-time inlining and lowered lib helper modules (mirrors ingest B5.5, G2318).
  */
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
-import { stringLit } from "./ts-util.js";
+import { stringLit, ident } from "./ts-util.js";
 
 export interface EmitInlineCtx {
   readonly m: Module;
@@ -190,15 +190,25 @@ export function tryExtractInlineQuery(
   return { queryId, localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal };
 }
 
+/** Valid TS export name for a PHP lib helper callee (`Class::method`, FQN, or global). */
+export function libHelperTsExportName(callee: string): string {
+  const tail = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
+  return ident(tail);
+}
+
 export function resolveHelperBodyEntry(
   bodies: NonNullable<Module["meta"]["helperBodies"]>,
   callee: string,
 ): { readonly bodyId: NodeId; readonly paramNames: readonly string[] } | undefined {
   const direct = bodies[callee];
   if (direct !== undefined) return direct;
+  const sanitized = libHelperTsExportName(callee);
+  for (const [key, entry] of Object.entries(bodies)) {
+    if (key === callee || libHelperTsExportName(key) === sanitized) return entry;
+  }
   if (callee.includes("::")) {
     for (const [key, entry] of Object.entries(bodies)) {
-      if (key === callee || key.endsWith("\\" + callee)) return entry;
+      if (key.endsWith("\\" + callee)) return entry;
     }
   }
   const tail = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
@@ -335,7 +345,7 @@ export function libHelpersNeedingEmitModule(
     const entry = resolveHelperBodyEntry(bodies, callee);
     if (entry === undefined) continue;
     if (tryExtractInlineQuery(m, entry.bodyId, entry.paramNames) !== undefined) continue;
-    const exportName = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
+    const exportName = libHelperTsExportName(callee);
     if (!out.includes(exportName)) out.push(exportName);
   }
   return out.sort();

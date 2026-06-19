@@ -15,8 +15,9 @@ Phase 10 promotes previously policy-paused workstreams into a **verify-gated** b
 | G6203 | `runProductionSqlVerifyParityGate` | `pnpm run hub:production-sql-verify-parity-smoke` |
 | G6204 | `runRuntimeCwlProductionSessionHonestyGate` | composes depth |
 | G6206 | `runMysqliProbeIngestSqlGate` | composes depth |
-| G6207 | `runMysqliProbeVerifyPrepareGate` | mysqli-probe emit prepare |
-| G6208 | `runRuntimePhaseCProductionDepthGate` | `pnpm run hub:strategic-plan-phase10-depth-smoke` |
+| G6207 | `runMysqliProbeSqlVerifyParityGate` | mysqli-probe verify replay |
+| G6208 | `runRuntimePhaseCProductionDepthGate` | composes G6200 + G6204–G6207 |
+| G6209 | `runRuntimeCwlProductionSessionBridgeGate` | runtime-cwl injected session |
 | G6200 | `runRuntimePhaseCProductionParityGate` | composes session + SQL gates |
 
 Runtime plan: [`RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) Phase C **active**.
@@ -31,6 +32,7 @@ Runtime plan: [`RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) Phase
 | G6214 | `runWordPressVerticalAdminRouteIngestGate` | composes depth |
 | G6215 | `runWordPressVerticalVerifyPrepareGate` | composes depth |
 | G6216 | `runWordPressVerticalPhase10DepthGate` | composes depth |
+| G6217 | `runWordPressVerticalOracleCaptureGate` | `chrysalis.probe.json` capture routes |
 
 Plan: [`WORDPRESS-VERTICAL-PHASE-10.md`](./WORDPRESS-VERTICAL-PHASE-10.md).
 
@@ -43,6 +45,7 @@ Matrix gold for **customer routes / flagship fixtures** only — not vanity pair
 | G6220 | `runMatrixExpansionPhase10Gate` | `pnpm run hub:strategic-plan-phase10-matrix-expansion-smoke` |
 | G6221 | `runMatrixCustomerRouteRegistryGate` | composes depth |
 | G6222 | `runMatrixExpansionPhase10DepthGate` | composes depth |
+| G6223 | `runMatrixCustomerRouteOraclePairGate` | mysqli-probe oracle-product verify replay |
 
 ## Phase D — Multi-language evidence (G6230)
 

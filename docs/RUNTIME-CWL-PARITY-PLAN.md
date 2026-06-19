@@ -39,8 +39,7 @@ Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullst
 | G6204 | `runRuntimeCwlProductionSessionHonestyGate` | runtime-cwl README + injected session |
 | G6206 | `runMysqliProbeIngestSqlGate` | mysqli-probe hole-free ingest |
 | G6207 | `runMysqliProbeVerifyPrepareGate` | mysqli-probe emit prepare |
-| G6208 | `runRuntimePhaseCProductionDepthGate` | composes G6200 + G6204–G6207 |
-| G6200 | `runRuntimePhaseCProductionParityGate` | composes session + SQL |
+| G6209 | `runRuntimeCwlProductionSessionBridgeGate` | `createCwlRuntime({ session })` |
 
 **Non-goal:** marketing "production-ready runtime" without verify evidence.
 

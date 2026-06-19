@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Module } from "@chrysalis/webir";
 import { moduleFromGoldenSnapshot } from "@chrysalis/webir";
-import { DEFAULT_STUB_DB, simulateHandler, type RequestInput, type StubDb } from "@chrysalis/rewrite";
+import { DEFAULT_STUB_DB, simulateHandler, type RequestInput, type SimValue, type StubDb } from "@chrysalis/rewrite";
 import { compileCwlRoutes, matchCwlRoute, type CompiledCwlRoute } from "./route-match.js";
 
 export const CWL_RUNTIME_KIND = "chrysalis.cwl.runtime" as const;
@@ -12,6 +12,13 @@ export interface CwlRuntimeConfig {
   readonly db?: StubDb;
   readonly nowIso?: string;
   readonly randomSeed?: string;
+  /** Injected session map for preview/runtime (Phase 10 — verify remains authoritative). */
+  readonly session?: Readonly<Record<string, SimValue>>;
+  /** Optional cookie/header → session resolver (overrides `session` when set). */
+  readonly resolveSession?: (ctx: {
+    readonly cookies: Readonly<Record<string, string>>;
+    readonly headers: Headers;
+  }) => Readonly<Record<string, SimValue>>;
 }
 
 export interface CwlRuntimeHandle {
@@ -71,6 +78,7 @@ function buildRequestInput(
   url: URL,
   headers: Headers,
   pathParams: Record<string, string>,
+  session: Readonly<Record<string, SimValue>>,
 ): RequestInput {
   return {
     method: method.toUpperCase(),
@@ -78,7 +86,7 @@ function buildRequestInput(
     query: parseQuery(url.search),
     post: {},
     cookies: parseCookies(headers.get("cookie") ?? undefined),
-    session: {},
+    session: { ...session },
     pathParams,
   };
 }
@@ -95,7 +103,12 @@ export function createCwlRuntime(config: CwlRuntimeConfig): CwlRuntimeHandle {
         headers: { "content-type": "application/json" },
       });
     }
-    const input = buildRequestInput(method, url, headers, match.pathParams);
+    const cookies = parseCookies(headers.get("cookie") ?? undefined);
+    const session =
+      config.resolveSession !== undefined
+        ? config.resolveSession({ cookies, headers })
+        : { ...(config.session ?? {}) };
+    const input = buildRequestInput(method, url, headers, match.pathParams, session);
     const sim = simulateHandler(config.module, match.route.routeNodeId, input, db);
     if (sim.errors.length > 0) {
       return new Response(

@@ -52,6 +52,17 @@ describe("@chrysalis/runtime-cwl", () => {
     expect(body).toContain("intro");
   });
 
+  it("injects configured session map (G6209)", async () => {
+    const module = loadModuleFromCwlFile(GOLD_CWL, ROOT);
+    const runtime = createCwlRuntime({
+      module,
+      session: { user_id: { kind: "int", value: 42 }, role: { kind: "string", value: "admin" } },
+    });
+    expect(runtime.routes.length).toBeGreaterThanOrEqual(3);
+    const res = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/health" });
+    expect(res.status).toBe(200);
+  });
+
   it("page load sidecar in HTML (G1169)", async () => {
     const pageLoadGold = resolve(ROOT, "fixtures/hub-gold-cwl-page-load/routes.cwl");
     const module = loadModuleFromCwlFile(pageLoadGold, ROOT);

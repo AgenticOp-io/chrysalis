@@ -61,6 +61,7 @@ export {
   type EmittedLibHelpersModule,
 } from "./emit-lib-helpers.js";
 export {
+  libHelperTsExportName,
   libHelpersNeedingEmitModule,
   resolveHelperBodyEntry,
   tryEmitInlineLibHelperCall,

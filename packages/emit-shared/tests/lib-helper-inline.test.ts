@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ModuleBuilder, T, dataDialect, effectDialect, phpLocator } from "@chrysalis/webir";
-import { tryExtractInlineQuery } from "../src/lib-helper-inline.js";
+import { libHelperTsExportName, tryExtractInlineQuery } from "../src/lib-helper-inline.js";
 
 describe("tryExtractInlineQuery (G2334)", () => {
   it("accepts literal-RHS assign chains", () => {
@@ -312,5 +312,12 @@ describe("tryExtractInlineQuery (G2334)", () => {
     expect(extracted).toBeDefined();
     expect(extracted!.localToTrimFormal.size).toBe(1);
     expect(extracted!.localToTrimFormal.get("$flag")).toBe("active");
+  });
+});
+
+describe("libHelperTsExportName (G6207)", () => {
+  it("sanitizes static factory callees for TS exports", () => {
+    expect(libHelperTsExportName("DbFactory::getConnection")).toBe("DbFactory__getConnection");
+    expect(libHelperTsExportName("App\\DbFactory::getConnection")).toBe("DbFactory__getConnection");
   });
 });

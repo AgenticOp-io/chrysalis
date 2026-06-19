@@ -2118,7 +2118,9 @@ export function runProductionParityPhase10DocGate() {
     text.includes("runWordPressVerticalPhase10EntryGate") &&
     text.includes("runMatrixExpansionPhase10Gate") &&
     text.includes("runWordPressVerticalPhase10DepthGate") &&
-    text.includes("runStrategicPlanPhase10DepthGate") &&
+    text.includes("runMatrixCustomerRouteOraclePairGate") &&
+    text.includes("runRuntimeCwlProductionSessionBridgeGate") &&
+    text.includes("runWordPressVerticalOracleCaptureGate") &&
     text.includes("runStrategicPlanPhase10ProductionParityCloseGate") &&
     text.includes("schema **513**");
   return { ok: docOk, docOk };
@@ -2246,40 +2248,77 @@ export async function runWordPressVerticalVerifyPrepareGate(opts = {}) {
   };
 }
 
-/** G6216 — WordPress vertical Phase 10 depth (G6212–G6215). */
+/** G6217 — WordPress oracle capture prep (probe manifest + routes). */
+export function runWordPressVerticalOracleCaptureGate() {
+  const fixture = join(scriptRoot, "fixtures/wordpress-probe");
+  const probePath = join(fixture, "chrysalis.probe.json");
+  const routesPath = join(fixture, "chrysalis.routes.json");
+  if (!existsSync(probePath) || !existsSync(routesPath)) {
+    return { ok: false, skip: "missing-wordpress-oracle-probe-manifest" };
+  }
+  const probe = JSON.parse(readFileSync(probePath, "utf8"));
+  const routes = JSON.parse(readFileSync(routesPath, "utf8"));
+  const capture = probe.captureRoutes ?? [];
+  const manifestPaths = new Set((routes.routes ?? []).map((r) => `${r.method}:${r.path}`));
+  const captureOk =
+    Array.isArray(capture) &&
+    capture.length >= 2 &&
+    capture.every((r) => manifestPaths.has(`${r.method}:${r.path}`));
+  const ok = probe.kind === "chrysalis.wordpress-probe.oracle" && captureOk;
+  return { ok, captureRouteCount: capture.length, captureOk };
+}
+
+/** G6216 — WordPress vertical Phase 10 depth (G6212–G6217). */
 export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
   const probe = await runWordPressVerticalProbeIngestGate();
   const observe = runWordPressVerticalObserveManifestGate();
   const admin = await runWordPressVerticalAdminRouteIngestGate();
   const verifyPrepare = await runWordPressVerticalVerifyPrepareGate(_opts);
+  const oracleCapture = runWordPressVerticalOracleCaptureGate();
   const ok =
     probe.ok === true &&
     observe.ok === true &&
     admin.ok === true &&
-    verifyPrepare.ok === true;
+    verifyPrepare.ok === true &&
+    oracleCapture.ok === true;
   return {
     ok,
     probeOk: probe.ok === true,
     observeOk: observe.ok === true,
     adminOk: admin.ok === true,
     verifyPrepareOk: verifyPrepare.ok === true,
+    oracleCaptureOk: oracleCapture.ok === true,
   };
+}
+
+/** G6209 — runtime-cwl injected session bridge (Phase C). */
+export function runRuntimeCwlProductionSessionBridgeGate() {
+  const runtimePath = join(scriptRoot, "packages/runtime-cwl/src/runtime.ts");
+  const readmePath = join(scriptRoot, "packages/runtime-cwl/README.md");
+  if (!existsSync(runtimePath) || !existsSync(readmePath)) {
+    return { ok: false, skip: "missing-runtime-cwl-sources" };
+  }
+  const runtime = readFileSync(runtimePath, "utf8");
+  const readme = readFileSync(readmePath, "utf8");
+  const ok =
+    runtime.includes("readonly session?:") &&
+    runtime.includes("resolveSession") &&
+    runtime.includes("session: { ...session }") &&
+    readme.includes("injected session");
+  return { ok, sessionBridgeOk: ok };
 }
 
 /** G6204 — runtime-cwl production session honesty (Phase C active). */
 export function runRuntimeCwlProductionSessionHonestyGate() {
+  const bridge = runRuntimeCwlProductionSessionBridgeGate();
   const readmePath = join(scriptRoot, "packages/runtime-cwl/README.md");
-  const runtimePath = join(scriptRoot, "packages/runtime-cwl/src/runtime.ts");
-  if (!existsSync(readmePath) || !existsSync(runtimePath)) {
-    return { ok: false, skip: "missing-runtime-cwl-sources" };
-  }
+  if (!existsSync(readmePath)) return { ok: false, skip: "missing-runtime-cwl-readme" };
   const readme = readFileSync(readmePath, "utf8");
-  const runtime = readFileSync(runtimePath, "utf8");
   const ok =
+    bridge.ok === true &&
     readme.includes("Phase 10") &&
-    readme.includes("HTTP replay verify remains authoritative") &&
-    runtime.includes("session: {}");
-  return { ok, runtimeHonestyOk: ok };
+    readme.includes("HTTP replay verify remains authoritative");
+  return { ok, runtimeHonestyOk: ok, sessionBridgeOk: bridge.ok === true };
 }
 
 /** G6206 — mysqli-probe ingest SQL gate (hole-free SQL lowering). */
@@ -2297,37 +2336,45 @@ export async function runMysqliProbeIngestSqlGate() {
   return { ok, routeCount: mod.roots.length, holeCount: countHoles(mod) };
 }
 
-/** G6207 — mysqli-probe verify emit prepare (full replay blocked on static-import emit bug). */
-export async function runMysqliProbeVerifyPrepareGate(opts = {}) {
+/** G6207 — mysqli-probe SQL verify replay parity. */
+export async function runMysqliProbeSqlVerifyParityGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const fixture = join(repoRoot, "fixtures/mysqli-probe");
   if (!existsSync(join(fixture, "chrysalis.routes.json"))) {
     return { ok: false, skip: "missing-mysqli-probe-routes" };
   }
-  const prepared = await prepareProjectVerifyEmit(fixture, { origin: "php", target: "hono", repoRoot });
+  const replay = await runProjectVerifyReplay(fixture, {
+    origin: "php",
+    target: "hono",
+    repoRoot,
+    threshold: 1,
+  });
   return {
-    ok: prepared.ok === true,
-    skip: prepared.skip ?? null,
-    outDir: prepared.outDir ?? null,
-    note: "full replay pending emit fix for DbFactory:: static import",
+    ok: replay.ok === true,
+    skip: replay.skip ?? null,
+    correctness: replay.correctness ?? null,
+    routeCount: replay.routeCount ?? null,
   };
 }
 
-/** G6208 — Runtime Phase C production depth (G6204 + G6206 + G6207). */
+/** G6208 — Runtime Phase C production depth (G6200 + G6204–G6207 + G6209). */
 export async function runRuntimePhaseCProductionDepthGate(opts = {}) {
   const base = await runRuntimePhaseCProductionParityGate(opts);
   const runtimeHonesty = runRuntimeCwlProductionSessionHonestyGate();
+  const sessionBridge = runRuntimeCwlProductionSessionBridgeGate();
   const mysqliIngest = await runMysqliProbeIngestSqlGate();
-  const mysqliVerify = await runMysqliProbeVerifyPrepareGate(opts);
+  const mysqliVerify = await runMysqliProbeSqlVerifyParityGate(opts);
   const ok =
     base.ok === true &&
     runtimeHonesty.ok === true &&
+    sessionBridge.ok === true &&
     mysqliIngest.ok === true &&
     mysqliVerify.ok === true;
   return {
     ok,
     baseOk: base.ok === true,
     runtimeHonestyOk: runtimeHonesty.ok === true,
+    sessionBridgeOk: sessionBridge.ok === true,
     mysqliIngestOk: mysqliIngest.ok === true,
     mysqliVerifyOk: mysqliVerify.ok === true,
   };
@@ -2343,16 +2390,36 @@ export async function runMatrixCustomerRouteRegistryGate() {
     report.schemaVersion === HUB_CAPABILITY_MATRIX_SCHEMA_VERSION &&
     routes.length === MATRIX_CUSTOMER_ROUTES.length &&
     routes.some((r) => r.fixture === "fixtures/wordpress-probe") &&
-    routes.some((r) => r.fixture === "fixtures/mysqli-probe");
+    routes.some((r) => r.fixture === "fixtures/mysqli-probe" && r.tier === "oracle-product");
   return { ok, customerRouteCount: routes.length };
 }
 
-/** G6222 — Matrix expansion Phase 10 depth (G6220 + G6221). */
-export async function runMatrixExpansionPhase10DepthGate() {
+/** G6223 — Matrix customer-route oracle pair with verify replay. */
+export async function runMatrixCustomerRouteOraclePairGate(opts = {}) {
+  const { ORACLE_PRODUCT_PAIRS } = await import("./hub-capability-matrix.mjs");
+  const pair = ORACLE_PRODUCT_PAIRS.find((p) => p.fixture === "fixtures/mysqli-probe" && p.output === "hono");
+  const replay = await runMysqliProbeSqlVerifyParityGate(opts);
+  const ok = pair != null && pair.program === "sql-expansion-phase10" && replay.ok === true;
+  return {
+    ok,
+    pairOk: pair != null,
+    verifyOk: replay.ok === true,
+    correctness: replay.correctness ?? null,
+  };
+}
+
+/** G6222 — Matrix expansion Phase 10 depth (G6220 + G6221 + G6223). */
+export async function runMatrixExpansionPhase10DepthGate(opts = {}) {
   const base = await runMatrixExpansionPhase10Gate();
   const registry = await runMatrixCustomerRouteRegistryGate();
-  const ok = base.ok === true && registry.ok === true;
-  return { ok, baseOk: base.ok === true, registryOk: registry.ok === true };
+  const oraclePair = await runMatrixCustomerRouteOraclePairGate(opts);
+  const ok = base.ok === true && registry.ok === true && oraclePair.ok === true;
+  return {
+    ok,
+    baseOk: base.ok === true,
+    registryOk: registry.ok === true,
+    oraclePairOk: oraclePair.ok === true,
+  };
 }
 
 /** G6231 — Multi-language express oracle product pair gate. */

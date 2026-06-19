@@ -24,7 +24,7 @@ Open the WordPress vertical as a **verify-gated** program after Laravel/plain PH
 
 Fixture: `fixtures/wordpress-probe` — public + admin routes with **`wp_*`** recorded as **`data.call`**.
 
-## Phase C — Oracle prep + depth (G6213–G6216)
+## Phase C — Oracle prep + depth (G6213–G6217)
 
 | ID | Gate | Notes |
 | --- | --- | --- |
@@ -32,6 +32,9 @@ Fixture: `fixtures/wordpress-probe` — public + admin routes with **`wp_*`** re
 | G6214 | `runWordPressVerticalAdminRouteIngestGate` | `is_admin`, `current_user_can`, `wp_create_nonce`, `wp_die` |
 | G6215 | `runWordPressVerticalVerifyPrepareGate` | emit prepare; full oracle replay pending |
 | G6216 | `runWordPressVerticalPhase10DepthGate` | composes G6212–G6215 |
+| G6217 | `runWordPressVerticalOracleCaptureGate` | `chrysalis.probe.json` mirrors routes |
+
+Fixture: `fixtures/wordpress-probe/chrysalis.probe.json` lists capture routes for future oracle corpus.
 
 ## Phase D — Non-goals (still)
 

@@ -1,0 +1,10 @@
+{
+  "kind": "chrysalis.wordpress-probe.oracle",
+  "schemaVersion": 1,
+  "fixture": "fixtures/wordpress-probe",
+  "captureRoutes": [
+    { "method": "GET", "path": "/" },
+    { "method": "GET", "path": "/wp-admin" }
+  ],
+  "note": "Oracle capture prep — probe corpus routes mirror chrysalis.routes.json"
+}

@@ -11,7 +11,7 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 36;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 37;
 
 /** Customer / flagship routes eligible for Phase 10 matrix expansion (not vanity pairs). */
 export const MATRIX_CUSTOMER_ROUTES = [
@@ -24,8 +24,8 @@ export const MATRIX_CUSTOMER_ROUTES = [
   {
     fixture: "fixtures/mysqli-probe",
     program: "sql-expansion-phase10",
-    tier: "oracle-product-expand",
-    note: "mysqli/SQLite3 receiver lowering; verify-gated",
+    tier: "oracle-product",
+    note: "mysqli/SQLite3 receiver lowering; verify replay (G6223)",
   },
 ];
 
@@ -55,6 +55,13 @@ export const ORACLE_PRODUCT_PAIRS = [
     fixture: "fixtures/hub-flagship-express",
     program: "hub-node-express-oracle-verify",
     note: "second-origin pilot (live Express capture + verify replay)",
+  },
+  {
+    origin: "php",
+    output: "hono",
+    fixture: "fixtures/mysqli-probe",
+    program: "sql-expansion-phase10",
+    note: "customer-route SQL expansion (mysqli/SQLite3); verify replay",
   },
 ];
 

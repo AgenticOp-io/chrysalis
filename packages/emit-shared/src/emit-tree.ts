@@ -11,6 +11,7 @@ import { matchStringDispatchChain } from "@chrysalis/insight";
 import type { HttpEmitProfile } from "./http-profile.js";
 import { honoHttpProfile } from "./http-profile.js";
 import {
+  libHelperTsExportName,
   resolveHelperBodyEntry,
   tryEmitInlineLibHelperCall,
   type EmitInlineCtx,
@@ -120,7 +121,7 @@ function recordLibHelperCallIfNeeded(ctx: EmitCtx, callee: string, argExprs: rea
   if (entry === undefined) return undefined;
   const inline = tryEmitLibHelperCallExpr(ctx, callee, argExprs);
   if (inline !== undefined) return inline;
-  const exportName = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
+  const exportName = libHelperTsExportName(callee);
   ctx.libHelperCalls.add(exportName);
   return `${exportName}(${argExprs.join(", ")})`;
 }
