@@ -1,0 +1,28 @@
+{
+  "kind": "chrysalis.wisp.m0-surface-manifest",
+  "schemaVersion": 1,
+  "ok": true,
+  "wave": "M0",
+  "surfaces": {
+    "pages": [
+      "/docs",
+      "/docs/deployment",
+      "/docs/getting-started",
+      "/docs/reference",
+      "/docs/reference/project-status",
+      "/help"
+    ],
+    "uiHoles": [
+      {
+        "path": "/login",
+        "reason": "hub-svelte:firebase-auth",
+        "rfc": "CWL-RFC-0012"
+      }
+    ]
+  },
+  "docsPageCount": 5,
+  "helpNative": true,
+  "loginFirebaseHole": true,
+  "projectStatusNative": true,
+  "generatedAt": "2026-06-19T05:15:01.337Z"
+}

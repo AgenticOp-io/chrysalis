@@ -587,6 +587,27 @@ function assertNonNegativeInt(label, name, v) {
   }
 }
 
+function assertWispCwlPipeline(path) {
+  const label = "wisp-cwl-pipeline";
+  const s = readJsonGateArtifact(label, path, {
+    missingLabel: "pipeline report missing",
+    missingHint: [
+      "Run the WISP CWL pipeline first:",
+      "  pnpm run hub:wisp-cwl-pipeline-smoke",
+    ],
+  });
+  if (s.kind !== "chrysalis.wisp-cwl-pipeline") {
+    fail(`${label}: expected kind chrysalis.wisp-cwl-pipeline, got ${JSON.stringify(s.kind)}`);
+  }
+  if (s.schemaVersion !== 1) {
+    fail(`${label}: expected schemaVersion 1, got ${JSON.stringify(s.schemaVersion)}`);
+  }
+  if (s.ok !== true) fail(`${label}: expected ok true`);
+  if (!s.close || s.close.ok !== true) fail(`${label}: expected close gate ok (G6310)`);
+  if (!s.build || s.build.ok !== true) fail(`${label}: expected full-build ok`);
+  console.log(`${label} OK`);
+}
+
 function assertCorpusMergeSummary(path) {
   const label = "corpus-merge-summary";
   const s = readJsonGateArtifact(label, path, {
@@ -1016,10 +1037,13 @@ switch (cmd) {
   case "hub-web-databases":
     assertHubWebDatabases(arg0 ?? "reports/ci/hub-web-databases.json");
     break;
+  case "wisp-cwl-pipeline":
+    assertWispCwlPipeline(arg0 ?? "reports/wisp/wisp-cwl-pipeline.json");
+    break;
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|hub-completion|hub-path-knowledge|hub-web-databases|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|session-bridge-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|hub-completion|hub-path-knowledge|hub-web-databases|wisp-cwl-pipeline|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|session-bridge-release> [path]",
     );
     process.exit(1);
 }

@@ -1,0 +1,160 @@
+{
+  "kind": "chrysalis.wisp.scenario-inventory",
+  "schemaVersion": 1,
+  "ok": true,
+  "moduleRoot": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager",
+  "counts": {
+    "sveltePages": 87,
+    "layouts": 9,
+    "pageServer": 0,
+    "serverRoutes": 0,
+    "libFiles": 198,
+    "modules": 21
+  },
+  "modules": [
+    "acs-cpe-management",
+    "backend-management",
+    "billing",
+    "cbrs-management",
+    "coverage-map",
+    "customers",
+    "deploy",
+    "hardware",
+    "help-desk",
+    "hss-management",
+    "inventory",
+    "maintain",
+    "monitor",
+    "monitoring",
+    "pci-resolution",
+    "plan",
+    "sites",
+    "tenant-management",
+    "user-management",
+    "voice-telephony",
+    "work-orders"
+  ],
+  "scenarios": [
+    {
+      "id": "platform-shell",
+      "category": "auth",
+      "summary": "Root layout auth guard and public routes",
+      "files": [
+        "src\\routes\\+layout.svelte"
+      ],
+      "cwlPhase": 2,
+      "hole": "hub-svelte:page-component"
+    },
+    {
+      "id": "firebase-auth",
+      "category": "auth",
+      "summary": "Firebase client auth (email, Google OAuth)",
+      "files": [
+        "src\\lib\\services\\authService.ts",
+        "src\\routes\\login\\+page.svelte",
+        "src\\routes\\modules\\customers\\portal\\login\\+page.svelte"
+      ],
+      "cwlPhase": 1,
+      "hole": "hub-svelte:firebase-auth"
+    },
+    {
+      "id": "tenant-guard",
+      "category": "auth",
+      "summary": "TenantGuard and tenantStore",
+      "files": [
+        "src\\lib\\components\\admin\\TenantGuard.svelte",
+        "src\\lib\\services\\README-TenantGuardService.md",
+        "src\\lib\\stores\\tenantStore.ts"
+      ],
+      "cwlPhase": 2,
+      "hole": "hub-svelte:page-component"
+    },
+    {
+      "id": "api-jwt-tenant",
+      "category": "api",
+      "summary": "apiService JWT + X-Tenant-ID on REST calls",
+      "files": [
+        "src\\lib\\services\\apiService.ts"
+      ],
+      "cwlPhase": 1,
+      "hole": "hub-cwl:upstream-proxy"
+    },
+    {
+      "id": "backend-mongodb",
+      "category": "api",
+      "summary": "Existing Express/MongoDB backend on acs-hss-server — proxy only; no CWL conversion (GenieACS binaries stay operator-owned)",
+      "files": [
+        "../backend-services/server.js"
+      ],
+      "cwlPhase": 1,
+      "hole": "hub-cwl:upstream-proxy",
+      "backendConversion": "deferred"
+    },
+    {
+      "id": "genieacs-tr069",
+      "category": "backend",
+      "summary": "GenieACS TR-069 — own binaries on backend VM; out of scope for UI CWL program",
+      "files": [
+        "../genieacs-fork"
+      ],
+      "cwlPhase": null,
+      "hole": null,
+      "backendConversion": "deferred"
+    },
+    {
+      "id": "arcgis-mapview",
+      "category": "maps",
+      "summary": "ArcGIS MapView, widgets, @arcgis/core dynamic imports",
+      "files": [
+        "src\\routes\\modules\\coverage-map\\lib\\arcgisMapController.ts",
+        "src\\routes\\modules\\coverage-map\\components\\CoverageMapView.svelte"
+      ],
+      "cwlPhase": 4,
+      "hole": "hub-svelte:arcgis-map"
+    },
+    {
+      "id": "shared-map-iframe",
+      "category": "maps",
+      "summary": "SharedMap iframe postMessage plan ↔ coverage-map",
+      "files": [
+        "src\\lib\\map\\SharedMap.svelte"
+      ],
+      "cwlPhase": 4,
+      "hole": "hub-svelte:cross-frame-messaging"
+    },
+    {
+      "id": "arcgis-geocode",
+      "category": "maps",
+      "summary": "ArcGIS geocode REST from plan module",
+      "files": [
+        "src\\routes\\modules\\plan\\+page.svelte"
+      ],
+      "cwlPhase": 4,
+      "hole": "hub-svelte:arcgis-map"
+    },
+    {
+      "id": "echarts-monitoring",
+      "category": "charts",
+      "summary": "echarts monitoring graphs",
+      "files": [],
+      "cwlPhase": 4,
+      "hole": "hub-svelte:chart-component"
+    },
+    {
+      "id": "static-docs",
+      "category": "pages",
+      "summary": "Static docs pages liftable to CWL @page",
+      "files": [
+        "src\\routes\\docs\\+layout.svelte",
+        "src\\routes\\docs\\+layout.ts",
+        "src\\routes\\docs\\+page.svelte",
+        "src\\routes\\docs\\deployment\\+page.svelte",
+        "src\\routes\\docs\\getting-started\\+page.svelte",
+        "src\\routes\\docs\\reference\\+page.svelte"
+      ],
+      "cwlPhase": 0,
+      "hole": null
+    }
+  ],
+  "generatedAt": "2026-06-19T05:15:01.110Z"
+}

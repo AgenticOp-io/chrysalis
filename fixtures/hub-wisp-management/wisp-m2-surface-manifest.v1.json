@@ -1,0 +1,103 @@
+{
+  "kind": "chrysalis.wisp.m2-surface-manifest",
+  "schemaVersion": 1,
+  "ok": true,
+  "wave": "M2",
+  "surfaces": {
+    "api": [
+      "/api/admin",
+      "/api/customers"
+    ],
+    "data": [
+      {
+        "path": "/admin/billing",
+        "load": [
+          "adminArea",
+          "source",
+          "apiPrefix"
+        ]
+      },
+      {
+        "path": "/admin/management",
+        "load": [
+          "adminArea",
+          "source",
+          "apiPrefix"
+        ]
+      },
+      {
+        "path": "/admin/system-management",
+        "load": [
+          "adminArea",
+          "source",
+          "apiPrefix"
+        ]
+      },
+      {
+        "path": "/admin/tenant-management",
+        "load": [
+          "adminArea",
+          "source",
+          "apiPrefix"
+        ]
+      },
+      {
+        "path": "/admin/tenants/:tenantId/modules",
+        "load": [
+          "adminArea",
+          "source",
+          "apiPrefix"
+        ]
+      },
+      {
+        "path": "/modules/customers",
+        "load": [
+          "module",
+          "source",
+          "apiPath"
+        ]
+      }
+    ],
+    "pages": [
+      "/admin/billing",
+      "/admin/management",
+      "/admin/system-management",
+      "/admin/tenant-management",
+      "/admin/tenants/:tenantId/modules",
+      "/modules/customers"
+    ],
+    "uiWidgetHoles": [
+      {
+        "host": "/admin/*",
+        "widgets": [
+          "TenantAdminGrid",
+          "BillingAdminPanel",
+          "SystemConfigEditor",
+          "ModuleAssignmentMatrix"
+        ],
+        "reason": "hub-svelte:page-component",
+        "rfc": "CWL-RFC-0012"
+      },
+      {
+        "host": "/modules/customers",
+        "widgets": [
+          "CrmDashboard",
+          "CustomerDirectory",
+          "PortalSetupWizard",
+          "PortalBrandingEditor"
+        ],
+        "reason": "hub-svelte:page-component",
+        "rfc": "CWL-RFC-0012"
+      }
+    ],
+    "portalUiHoles": {
+      "prefix": "/modules/customers/portal",
+      "reason": "hub-svelte:page-component",
+      "note": "Portal sub-routes lift in a later wave; API proxy contract covers /api/customers"
+    }
+  },
+  "adminPages": true,
+  "customersPage": true,
+  "customersLoad": true,
+  "generatedAt": "2026-06-19T05:15:01.340Z"
+}

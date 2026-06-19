@@ -1,0 +1,90 @@
+{
+  "kind": "chrysalis.wisp.m6-effects-manifest",
+  "schemaVersion": 1,
+  "ok": true,
+  "wave": "M6",
+  "rfc": "CWL-RFC-0007",
+  "surfaces": {
+    "effects": [
+      {
+        "path": "/dashboard",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/admin/billing",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/admin/management",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/admin/system-management",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/admin/tenant-management",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/admin/tenants/:tenantId/modules",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/modules/customers",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/tenant-admin",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/tenant-selector",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/tenant-setup",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      },
+      {
+        "path": "/settings/module-access",
+        "effects": [
+          "session.read"
+        ],
+        "note": "Declarative metadata; chimera/Firebase auth enforcement stays upstream"
+      }
+    ]
+  },
+  "protectedCount": 11,
+  "generatedAt": "2026-06-19T05:15:01.348Z"
+}

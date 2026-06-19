@@ -1,0 +1,37 @@
+{
+  "kind": "chrysalis.wisp.api-paths",
+  "schemaVersion": 1,
+  "source": "Module_Manager/src/lib/config/api.ts",
+  "basePath": "/api",
+  "paths": [
+    { "id": "PLANS", "path": "/api/plans", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "NETWORK", "path": "/api/network", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "CUSTOMERS", "path": "/api/customers", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "CUSTOMER_BILLING", "path": "/api/customer-billing", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "INVENTORY", "path": "/api/inventory", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "BUNDLES", "path": "/api/bundles", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "DEPLOY", "path": "/api/deploy", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "HSS", "path": "/api/hss", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "MONITORING", "path": "/api/monitoring", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "MAINTAIN", "path": "/api/maintain", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "TENANTS", "path": "/api/tenants", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "USERS", "path": "/api/users", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "WORK_ORDERS", "path": "/api/work-orders", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "PERMISSIONS", "path": "/api/permissions", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "MIKROTIK", "path": "/api/mikrotik", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "EPC_UPDATES", "path": "/api/epc-updates", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "SNMP_MONITORING", "path": "/api/snmp", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "MONITORING_GRAPHS", "path": "/api/monitoring/graphs", "methods": ["GET", "POST"] },
+    { "id": "DEVICE_ASSIGNMENT", "path": "/api/device-assignment", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "NOTIFICATIONS", "path": "/api/notifications", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "VOICE", "path": "/api/voice", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+    { "id": "ADMIN_PREFIX", "path": "/api/admin", "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"], "note": "Platform admin via getAdminApiRequest" },
+    { "id": "INTERNAL", "path": "/api/internal", "methods": ["GET", "POST"], "note": "INTERNAL_API_KEY on backend" }
+  ],
+  "externalBases": {
+    "HSS_MANAGEMENT": "https://hss.wisptools.io:3001/api/hss",
+    "BACKEND_DEFAULT": "https://hss.wisptools.io:3001/api",
+    "API_PROXY_CF": "https://us-central1-wisptools-production.cloudfunctions.net/apiProxy",
+    "USER_TENANTS_CF": "https://usertenants-nxulhoqnyq-uc.a.run.app"
+  }
+}

@@ -31,6 +31,36 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     surface: "api",
     summary: "SvelteKit form actions not modeled.",
   },
+  "hub-svelte:firebase-auth": {
+    rfc: "0012",
+    origin: "svelte",
+    surface: "client",
+    summary: "Firebase client auth (email, OAuth, token refresh) not lowered to CWL.",
+  },
+  "hub-svelte:arcgis-map": {
+    rfc: "0012",
+    origin: "svelte",
+    surface: "client",
+    summary: "@arcgis/core MapView, widgets, and geocoding not lowered; client bundle required.",
+  },
+  "hub-svelte:cross-frame-messaging": {
+    rfc: "0012",
+    origin: "svelte",
+    surface: "client",
+    summary: "SharedMap iframe postMessage between plan and coverage-map not modeled in CWL.",
+  },
+  "hub-svelte:chart-component": {
+    rfc: "0012",
+    origin: "svelte",
+    surface: "client",
+    summary: "echarts, vis-network, and similar chart components not lowered.",
+  },
+  "hub-cwl:upstream-proxy": {
+    rfc: "0012",
+    origin: "cwl",
+    surface: "api",
+    summary: "HTTP upstream proxy to existing WISP backend-services (operator-owned; GenieACS/Mongo unchanged).",
+  },
   "hub-next:page-component": {
     rfc: "0012",
     origin: "nextjs",

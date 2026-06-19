@@ -1,0 +1,197 @@
+import { spawnSync } from "node:child_process";
+import { dirname, resolve } from "node:path";
+import { describe, test, expect } from "vitest";
+import { fileURLToPath } from "node:url";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+function importSyncGate(modulePath: string, exportName: string) {
+  const abs = resolve(ROOT, modulePath).replace(/\\/g, "/");
+  const r = spawnSync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      `import { pathToFileURL } from 'node:url'; const m = await import(pathToFileURL('${abs}').href); console.log(JSON.stringify(m.${exportName}()));`,
+    ],
+    { cwd: ROOT, encoding: "utf8", timeout: 60_000 },
+  );
+  expect(r.status, r.stderr || r.stdout).toBe(0);
+  return JSON.parse(r.stdout.trim());
+}
+
+function importGate(modulePath: string, exportName: string, opts: { apply?: boolean } = {}) {
+  const abs = resolve(ROOT, modulePath).replace(/\\/g, "/");
+  const optsArg = JSON.stringify(opts);
+  const r = spawnSync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      `import { pathToFileURL } from 'node:url'; const m = await import(pathToFileURL('${abs}').href); console.log(JSON.stringify(await m.${exportName}(${optsArg})));`,
+    ],
+    { cwd: ROOT, encoding: "utf8", timeout: 600_000 },
+  );
+  expect(r.status, r.stderr || r.stdout).toBe(0);
+  return JSON.parse(r.stdout.trim());
+}
+
+const gateOpts = { apply: false as const };
+
+describe.sequential("hub strategic plan phase12 wisp cwl", () => {
+  test("wisp program doc gate (G6300)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWispCwlProgramDocGate",
+    );
+    expect(gate.ok).toBe(true);
+  });
+
+  test("wisp api paths manifest gate (G6301)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWispCwlApiPathsManifestGate",
+    );
+    expect(gate.ok).toBe(true);
+  });
+
+  test("wisp phase12 phase0 entry gate (G6304)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWispCwlPhase12Phase0EntryGate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+  });
+
+  test("phase12 phase0 close gate (G6310)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase12-phase0-close-smoke.mjs",
+      "runWispCwlPhase12Phase0CloseGate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+  });
+
+  test("wisp phase13 m0 gate (G6350)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase13-m0-smoke.mjs",
+      "runWispCwlPhase13M0Gate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.chimera.ok).toBe(true);
+  });
+
+  test("wisp phase13 m1 gate (G6360)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase13-m1-smoke.mjs",
+      "runWispCwlPhase13M1Gate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.load.ok).toBe(true);
+  });
+
+  test("wisp phase13 m2 gate (G6370)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase13-m2-smoke.mjs",
+      "runWispCwlPhase13M2Gate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.load.ok).toBe(true);
+    expect(gate.api.ok).toBe(true);
+  });
+
+  test("wisp phase13 m3 gate (G6380)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase13-m3-smoke.mjs",
+      "runWispCwlPhase13M3Gate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.load.ok).toBe(true);
+    expect(gate.manifest.arcgisHole).toBe(true);
+  });
+
+  test("wisp phase13 m4 gate (G6390)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase13-m4-smoke.mjs",
+      "runWispCwlPhase13M4Gate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.load.ok).toBe(true);
+  });
+
+  test("wisp phase13 m5 gate (G6400)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase13-m5-smoke.mjs",
+      "runWispCwlPhase13M5Gate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.coverage.ok).toBe(true);
+    expect(gate.preview.uiHoleCount).toBe(1);
+  });
+
+  test("wisp phase13 m6 effects gate (G6420)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase13-m6-smoke.mjs",
+      "runWispCwlPhase13M6Gate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.routes.protectedCount).toBeGreaterThanOrEqual(10);
+  });
+
+  test("phase13 close gate (G6410)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase13-close-smoke.mjs",
+      "runWispCwlPhase13CloseGate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.m5.ok).toBe(true);
+    expect(gate.m6.ok).toBe(true);
+  });
+
+  test("phase13 closed governance gate (G6413)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runPhase13ClosedGovernanceGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.mode).toBe("phase13-closed");
+    expect(gate.phase13CloseOk).toBe(true);
+    expect(gate.m6Ok).toBe(true);
+  });
+
+  test("maintenance mode governance routes to phase13-closed (G6160)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runMaintenanceModeGovernanceGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.mode).toBe("phase13-closed");
+    expect(gate.phase13CloseOk).toBe(true);
+    expect(gate.m6Ok).toBe(true);
+  });
+
+  test("cwl surface taxonomy gate (G6340)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-cwl-surface-taxonomy-smoke.mjs",
+      "runCwlSurfaceTaxonomyDocGate",
+    );
+    expect(gate.ok).toBe(true);
+  });
+
+  test("phase13 surface queue gate (G6341)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runStrategicPlanPhase13SurfaceQueueGate",
+    );
+    expect(gate.ok).toBe(true);
+  });
+});

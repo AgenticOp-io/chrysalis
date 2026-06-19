@@ -1,0 +1,61 @@
+name: WISP CWL GCE deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_lift:
+        description: Skip Svelte lift (use pinned fixtures)
+        type: boolean
+        default: true
+      backend_url:
+        description: Existing WISP backend base URL
+        type: string
+        default: https://hss.wisptools.io
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  deploy-chimera:
+    name: deploy WISP chimera to GCE front VM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build runtime-cwl
+        run: pnpm --filter @chrysalis/runtime-cwl build
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CHRYSALIS_DEPLOY_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Pipeline + GCE deploy
+        env:
+          CHRYSALIS_WISP_DEPLOY_GCE: "1"
+          CHRYSALIS_WISP_BACKEND_URL: ${{ inputs.backend_url }}
+        run: |
+          if [ "${{ inputs.skip_lift }}" = "true" ]; then
+            node scripts/wisp-cwl-pipeline.mjs --ci --deploy-gce --skip-lift
+          else
+            node scripts/wisp-cwl-pipeline.mjs --deploy-gce --lift
+          fi
+
+      - name: Upload pipeline report
+        uses: actions/upload-artifact@v4
+        with:
+          name: wisp-cwl-pipeline-report
+          path: reports/wisp/wisp-cwl-pipeline.json

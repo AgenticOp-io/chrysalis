@@ -2,13 +2,15 @@
 
 > **Status:** accepted (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §12 Month 2; **G5700**  
-> **Related:** [CWL-RFC-0012](CWL-RFC-0012-full-stack-components.md), [CWL-RFC-0013](CWL-RFC-0013-page-load-functions.md)
+> **Related:** [CWL-SURFACE-TAXONOMY.md](CWL-SURFACE-TAXONOMY.md) (named surfaces), [CWL-RFC-0012](CWL-RFC-0012-full-stack-components.md), [CWL-RFC-0013](CWL-RFC-0013-page-load-functions.md)
 
 ## Goal
 
 Define **what CWL covers today** for full-stack web surfaces — backend handlers, frontend/SSR pages, and honest holes — so migration programs can sign contracts without over-claiming component or hydration semantics.
 
-## Backend boundary
+**Product names** for surfaces (CWL API, CWL Pages, CWL Data, CWL UI, CWL Effects) are defined in [`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md).
+
+## Backend boundary — **CWL API**
 
 | Surface | CWL syntax | Lowered to | Evidence |
 | --- | --- | --- | --- |
@@ -20,7 +22,7 @@ Define **what CWL covers today** for full-stack web surfaces — backend handler
 
 **Out of scope:** production SQL/session without verify parity; silent best-effort API lowering.
 
-## Frontend / SSR boundary
+## Frontend / SSR boundary — **CWL Pages** and **CWL Data**
 
 | Surface | CWL syntax | Status | Evidence |
 | --- | --- | --- | --- |
@@ -28,7 +30,7 @@ Define **what CWL covers today** for full-stack web surfaces — backend handler
 | Layout modules | `import "layouts/…"` | Shipped | `runCwlAuthoringTemplatesGate` |
 | Query/path interpolation | `param` / `query` in HTML | Shipped | `runQueryHtmlGate`, diagnose v3 |
 | Page load sidecars | `load { … }` | Partial (RFC-0013) | `runLoadArrayGate` |
-| Component trees | — | **Hole** (`hub-*:page-component`) | Origin lift smokes |
+| Component trees | — | **CWL UI** — **Hole** (`hub-*:page-component`) | Origin lift smokes |
 
 **In scope:** CWL-authored flagship with zero catalogued holes (`maxHoles: 0` budget).
 

@@ -1,0 +1,91 @@
+{
+  "kind": "chrysalis.wisp.m3-surface-manifest",
+  "schemaVersion": 1,
+  "ok": true,
+  "wave": "M3",
+  "surfaces": {
+    "api": [
+      "/api/plans",
+      "/api/deploy",
+      "/api/network"
+    ],
+    "data": [
+      {
+        "path": "/modules/plan",
+        "load": [
+          "module",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/deploy",
+        "load": [
+          "module",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/coverage-map",
+        "load": [
+          "module",
+          "source",
+          "apiPath"
+        ]
+      }
+    ],
+    "pages": [
+      "/modules/plan",
+      "/modules/deploy",
+      "/modules/coverage-map"
+    ],
+    "uiWidgetHoles": [
+      {
+        "host": "/modules/plan",
+        "widgets": [
+          "SitePlanner",
+          "PlanEditor",
+          "CoverageAnalysis"
+        ],
+        "reason": "hub-svelte:page-component",
+        "rfc": "CWL-RFC-0012"
+      },
+      {
+        "host": "/modules/deploy",
+        "widgets": [
+          "WorkOrderBoard",
+          "RolloutScheduler",
+          "DeploymentTracker"
+        ],
+        "reason": "hub-svelte:page-component",
+        "rfc": "CWL-RFC-0012"
+      }
+    ],
+    "clientHoles": [
+      {
+        "host": "/modules/coverage-map",
+        "widgets": [
+          "ArcGISMapView",
+          "CoverageLayerControls",
+          "MapLegend"
+        ],
+        "reason": "hub-svelte:arcgis-map",
+        "rfc": "CWL-RFC-0012",
+        "note": "ArcGIS @arcgis/core MapView — client bundle required"
+      },
+      {
+        "host": "/modules/plan",
+        "widgets": [
+          "ArcGisGeocodeClient"
+        ],
+        "reason": "hub-svelte:arcgis-map",
+        "rfc": "CWL-RFC-0012",
+        "note": "Geocode REST from plan module"
+      }
+    ]
+  },
+  "modulePages": true,
+  "moduleLoads": true,
+  "generatedAt": "2026-06-19T05:15:01.341Z"
+}

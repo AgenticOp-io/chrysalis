@@ -26,7 +26,11 @@ The user may lock strategy in conversation. Unless they **explicitly** amend it:
 | “Also …” without a build verb | Assume **clarification** unless they clearly command implementation |
 | “Ignore the plan and …” | Refuse off-plan implementation; offer to amend the plan formally if they want a new direction |
 
-**Default implementation queue** when build scope is unclear: [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md) §2 (maintenance); closed Phase 10 reference: [`docs/PRODUCTION-PARITY-PHASE-10.md`](docs/PRODUCTION-PARITY-PHASE-10.md).
+**Close before build:** A phase (or phase slice) is not **active for new implementation** until its **close gate** passes and status docs mark it **closed**. Do not start the next queue on scaffolding alone.
+
+**North star vs POC:** **CWL** (final web language) is the product direction; **WISP** is an important reference POC — prioritize generalizable language/engine wins over WISP-only convenience.
+
+**Default implementation queue** when build scope is unclear: [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md) §1 (Phase 13 when open); maintenance §2 otherwise.
 
 ## 1. The project is Chrysalis, not "a PHP-to-TS converter"
 

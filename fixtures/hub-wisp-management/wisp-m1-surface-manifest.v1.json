@@ -1,0 +1,38 @@
+{
+  "kind": "chrysalis.wisp.m1-surface-manifest",
+  "schemaVersion": 1,
+  "ok": true,
+  "wave": "M1",
+  "surfaces": {
+    "data": [
+      {
+        "path": "/dashboard",
+        "load": [
+          "tenantLabel",
+          "source",
+          "moduleCount"
+        ]
+      }
+    ],
+    "pages": [
+      "/dashboard"
+    ],
+    "uiWidgetHoles": [
+      {
+        "host": "/dashboard",
+        "widgets": [
+          "TenantGuard",
+          "NotificationCenter",
+          "ModuleCardGrid",
+          "GlobalSettings",
+          "FirstTimeSetupWizard"
+        ],
+        "reason": "hub-svelte:page-component",
+        "rfc": "CWL-RFC-0012"
+      }
+    ]
+  },
+  "dashboardPage": true,
+  "dashboardLoad": true,
+  "generatedAt": "2026-06-19T05:15:01.338Z"
+}

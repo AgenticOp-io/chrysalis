@@ -98,6 +98,41 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: WISP CWL Phase 12 Phase 0 close (G6310)
+        run: pnpm run hub:wisp-cwl-phase12-phase0-close-smoke
+
+      - name: WISP CWL Phase 12 pipeline (fixtures; G6320)
+        run: pnpm run hub:wisp-cwl-pipeline-smoke
+
+      - name: WISP CWL dual deploy config (G6330)
+        run: pnpm run hub:wisp-cwl-dual-deploy-config-smoke
+
+      - name: CWL surface taxonomy (G6340)
+        run: pnpm run hub:cwl-surface-taxonomy-smoke
+
+      - name: WISP CWL Phase 13 M0 surfaces (G6350)
+        run: pnpm run hub:wisp-cwl-phase13-m0-smoke
+
+      - name: WISP CWL Phase 13 M1 surfaces (G6360)
+        run: pnpm run hub:wisp-cwl-phase13-m1-smoke
+      - name: WISP CWL Phase 13 M2 surfaces (G6370)
+        run: pnpm run hub:wisp-cwl-phase13-m2-smoke
+      - name: WISP CWL Phase 13 M3 surfaces (G6380)
+        run: pnpm run hub:wisp-cwl-phase13-m3-smoke
+      - name: WISP CWL Phase 13 M4 surfaces (G6390)
+        run: pnpm run hub:wisp-cwl-phase13-m4-smoke
+      - name: WISP CWL Phase 13 M5 cutover (G6400)
+        run: pnpm run hub:wisp-cwl-phase13-m5-smoke
+
+      - name: WISP CWL Phase 13 M6 effects (G6420)
+        run: pnpm run hub:wisp-cwl-phase13-m6-smoke
+
+      - name: WISP CWL Phase 13 close (G6410)
+        run: pnpm run hub:wisp-cwl-phase13-close-smoke
+
+      - name: WISP CWL pipeline artifact gate
+        run: pnpm run ci:wisp-cwl-pipeline
+
       - name: Checkout wptp-matrix (hub contract-first oracle)
         uses: actions/checkout@v4
         with:

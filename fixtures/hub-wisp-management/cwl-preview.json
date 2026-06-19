@@ -1,0 +1,888 @@
+{
+  "kind": "chrysalis.hub.cwl-preview",
+  "schemaVersion": 1,
+  "ok": true,
+  "cwlPath": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.chrysalis\\migration.cwl",
+  "moduleName": "migration",
+  "imports": [],
+  "routeCount": 87,
+  "pageLoadRouteCount": 0,
+  "interpolationRouteCount": 0,
+  "holeCount": 78,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "handler": "root_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/billing",
+      "handler": "admin_billing_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/management",
+      "handler": "admin_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/system-management",
+      "handler": "admin_system_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/tenant-management",
+      "handler": "admin_tenant_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/tenants/:tenantId/modules",
+      "handler": "admin_tenants_tenantId_modules_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/auth/google/callback",
+      "handler": "auth_google_callback_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "handler": "dashboard_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/debug-tenants",
+      "handler": "debug_tenants_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/demo",
+      "handler": "demo_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/docs",
+      "handler": "docs_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/docs/deployment",
+      "handler": "docs_deployment_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/docs/getting-started",
+      "handler": "docs_getting_started_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/docs/reference",
+      "handler": "docs_reference_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/docs/reference/project-status",
+      "handler": "docs_reference_project_status_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/help",
+      "handler": "help_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/login",
+      "handler": "login_page",
+      "surfaceKind": "api",
+      "hole": true,
+      "holeReason": "hub-svelte:firebase-auth",
+      "hasLoad": false,
+      "kind": "route"
+    },
+    {
+      "method": "GET",
+      "path": "/modules",
+      "handler": "modules_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management",
+      "handler": "modules_acs_cpe_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/alerts",
+      "handler": "modules_acs_cpe_management_alerts_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/devices",
+      "handler": "modules_acs_cpe_management_devices_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/faults",
+      "handler": "modules_acs_cpe_management_faults_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/files",
+      "handler": "modules_acs_cpe_management_files_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/firmware",
+      "handler": "modules_acs_cpe_management_firmware_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/graphs",
+      "handler": "modules_acs_cpe_management_graphs_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/monitoring",
+      "handler": "modules_acs_cpe_management_monitoring_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/presets",
+      "handler": "modules_acs_cpe_management_presets_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/settings",
+      "handler": "modules_acs_cpe_management_settings_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/acs-cpe-management/tasks",
+      "handler": "modules_acs_cpe_management_tasks_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/backend-management",
+      "handler": "modules_backend_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/billing",
+      "handler": "modules_billing_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/cbrs-management",
+      "handler": "modules_cbrs_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/coverage-map",
+      "handler": "modules_coverage_map_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers",
+      "handler": "modules_customers_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal",
+      "handler": "modules_customers_portal_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal-setup",
+      "handler": "modules_customers_portal_setup_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/billing",
+      "handler": "modules_customers_portal_billing_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/billing/settings",
+      "handler": "modules_customers_portal_billing_settings_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/dashboard",
+      "handler": "modules_customers_portal_dashboard_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/faq",
+      "handler": "modules_customers_portal_faq_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/knowledge",
+      "handler": "modules_customers_portal_knowledge_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/knowledge/:id",
+      "handler": "modules_customers_portal_knowledge_id_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/live-chat",
+      "handler": "modules_customers_portal_live_chat_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/login",
+      "handler": "modules_customers_portal_login_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/service",
+      "handler": "modules_customers_portal_service_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/signup",
+      "handler": "modules_customers_portal_signup_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/tickets",
+      "handler": "modules_customers_portal_tickets_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/tickets/:id",
+      "handler": "modules_customers_portal_tickets_id_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/customers/portal/tickets/new",
+      "handler": "modules_customers_portal_tickets_new_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/deploy",
+      "handler": "modules_deploy_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/hardware",
+      "handler": "modules_hardware_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/help-desk",
+      "handler": "modules_help_desk_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/help-desk/reports",
+      "handler": "modules_help_desk_reports_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/hss-management",
+      "handler": "modules_hss_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory",
+      "handler": "modules_inventory_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/:id",
+      "handler": "modules_inventory_id_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/:id/edit",
+      "handler": "modules_inventory_id_edit_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/add",
+      "handler": "modules_inventory_add_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/bundles",
+      "handler": "modules_inventory_bundles_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/inventory/reports",
+      "handler": "modules_inventory_reports_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/maintain",
+      "handler": "modules_maintain_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/monitor",
+      "handler": "modules_monitor_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/monitoring",
+      "handler": "modules_monitoring_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/pci-resolution",
+      "handler": "modules_pci_resolution_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/plan",
+      "handler": "modules_plan_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/sites",
+      "handler": "modules_sites_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management",
+      "handler": "modules_tenant_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management/cbrs-platform",
+      "handler": "modules_tenant_management_cbrs_platform_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/tenant-management/users",
+      "handler": "modules_tenant_management_users_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management",
+      "handler": "modules_user_management_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management/permissions",
+      "handler": "modules_user_management_permissions_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/user-management/roles",
+      "handler": "modules_user_management_roles_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/voice-telephony",
+      "handler": "modules_voice_telephony_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/work-orders",
+      "handler": "modules_work_orders_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/modules/work-orders/:id",
+      "handler": "modules_work_orders_id_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/oauth/google/callback",
+      "handler": "oauth_google_callback_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/onboarding",
+      "handler": "onboarding_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/portal/:tenantId",
+      "handler": "portal_tenantId_page",
+      "surfaceKind": "page",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/reset-password",
+      "handler": "reset_password_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/settings/module-access",
+      "handler": "settings_module_access_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/setup-admin",
+      "handler": "setup_admin_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/signup",
+      "handler": "signup_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/support-dashboard",
+      "handler": "support_dashboard_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/tenant-admin",
+      "handler": "tenant_admin_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/tenant-selector",
+      "handler": "tenant_selector_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/tenant-setup",
+      "handler": "tenant_setup_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    },
+    {
+      "method": "GET",
+      "path": "/wizards",
+      "handler": "wizards_page",
+      "surfaceKind": "api",
+      "hole": false,
+      "holeReason": null,
+      "hasLoad": true,
+      "kind": "page"
+    }
+  ],
+  "probe": null,
+  "runtime": "@chrysalis/runtime-cwl",
+  "bootstrapped": false,
+  "generatedAt": "2026-06-19T05:15:01.346Z"
+}

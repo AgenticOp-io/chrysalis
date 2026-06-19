@@ -24,6 +24,8 @@ If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the ar
 | [GCE test runner](./GCE-LOCAL-VERIFY.md) | Anyone running CI-scale tests | **Default:** `pnpm run test:gce` on `chrysalis-test-vm` (detached; laptop can sleep). |
 | [Windows vs Linux tests](./WINDOWS-COMPAT.md) | Windows developers | What runs locally vs on GCE; env flags and known platform gaps. |
 | [CWL full-stack program](./CWL-FULLSTACK-PROGRAM.md) | Contributors | Closed queues 6–437 program summary; [archived build log](./archive/CWL-FULLSTACK-BUILD-LOG.md). |
+| [WISP CWL program (Phase 12)](./WISP-CWL-FULLSTACK-PROGRAM.md) | WISP / full-stack operators | Module_Manager flagship: chimera gateway, dual deploy, Phase 0 gates. |
+| [CWL surface taxonomy (Phase 13)](./CWL-SURFACE-TAXONOMY.md) | Full-stack / migration architects | Named surfaces (API, Pages, Data, UI, Effects); WISP module wave mapping. |
 | [Strategic plan ship log (archive)](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) | Contributors | Historical G5680–G6153 reinforcement log — not active backlog. |
 
 ---

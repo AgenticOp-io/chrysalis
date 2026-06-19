@@ -6,12 +6,89 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lanes:** **maintenance only** — phases **0–11 closed** (**G5680–G6290**).
-- **Recently shipped:** **G6280–G6290** Phase 11 honest gaps implementation (2026-06-19).
+- **Active lanes:** **Phase 13 closed** (**G6410**, 2026-06-19); **Phase 12 WISP Phase 0 closed** (**G6310**); phases **0–11 closed** (**G5680–G6290**).
+- **Recently shipped:** Phase 13 CWL surfaces close (**G6410**, 2026-06-19); Phase 12 WISP Phase 0 close (**G6310**, 2026-06-19).
 
 ---
 
-## Default queue — maintenance
+## Closed — Phase 12 WISP Phase 0 (G6310)
+
+Program doc: [`docs/WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md)
+
+| Gate | Smoke |
+| --- | --- |
+| G6304 entry | `pnpm run hub:wisp-cwl-phase12-phase0-entry-smoke` |
+| **G6310 close** | `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke` |
+| **G6320 pipeline** | `pnpm run hub:wisp-cwl-pipeline-smoke` |
+| G6330 dual deploy | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |
+
+Deploy/maintenance: `pnpm run wisp:deploy:gce`, `pnpm run wisp:deploy:firebase`, chimera gateway smokes.
+
+---
+
+## Closed — Phase 13 CWL surfaces (G6410)
+
+Taxonomy: [`docs/CWL-SURFACE-TAXONOMY.md`](./docs/CWL-SURFACE-TAXONOMY.md) (**D6193**, **G6340**)
+
+| Gate | Smoke |
+| --- | --- |
+| **G6340** taxonomy | `pnpm run hub:cwl-surface-taxonomy-smoke` |
+| **G6350–G6400** M0–M5 | `pnpm run hub:wisp-cwl-phase13-m0-smoke` … **m5-smoke** |
+| **G6420 M6** effects | `pnpm run hub:wisp-cwl-phase13-m6-smoke` |
+| **G6410 close** | `pnpm run hub:wisp-cwl-phase13-close-smoke` |
+
+Waves M0→M6 closed all five CWL surfaces on WISP (API contract, Pages, Data, UI holes, Effects metadata). **`/login`** remains the sole UI hole (`hub-svelte:firebase-auth`). Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) § Module waves.
+
+---
+
+## Active queue — Phase 13 CWL surfaces
+
+**Closed** — see above (**G6410**). Do not treat this section as active backlog.
+
+<details>
+<summary>Archived Phase 13 table (reference only)</summary>
+
+Taxonomy: [`docs/CWL-SURFACE-TAXONOMY.md`](./docs/CWL-SURFACE-TAXONOMY.md) (**D6193**, **G6340**)
+
+| Surface | Syntax | WISP module waves |
+| --- | --- | --- |
+| CWL API | `@route` | M2–M5 (proxy contract done in Phase 0) |
+| CWL Pages | `@page` | M0 docs; M1–M5 interactive pages |
+| CWL Data | `load { }` | M1 dashboard; M3 plan/deploy |
+| CWL UI | component holes → RFC | M0 login; M1–M5 widgets |
+| CWL Effects | `use` / `effects` | Auth, tenant, session (M1–M2) |
+
+| Gate | Smoke |
+| --- | --- |
+| **G6340** taxonomy | `pnpm run hub:cwl-surface-taxonomy-smoke` |
+| **G6350 M0** docs/help/login | `pnpm run hub:wisp-cwl-phase13-m0-smoke` |
+| **G6360 M1** dashboard load | `pnpm run hub:wisp-cwl-phase13-m1-smoke` |
+| **G6370 M2** admin + customers | `pnpm run hub:wisp-cwl-phase13-m2-smoke` |
+| **G6380 M3** plan/deploy/coverage-map | `pnpm run hub:wisp-cwl-phase13-m3-smoke` |
+| **G6390 M4** acs/hss/monitor | `pnpm run hub:wisp-cwl-phase13-m4-smoke` |
+| **G6400 M5** UI cutover ≥99% | `pnpm run hub:wisp-cwl-phase13-m5-smoke` |
+
+**M0 (shipped):** CWL Pages for all `/docs/*` + `/help`; login UI hole `hub-svelte:firebase-auth`.
+
+**M1 (shipped):** `/dashboard` CWL Data (`load`) + page shell; interactive widgets catalogued as UI holes.
+
+**M2 (shipped):** Admin routes + `/modules/customers` CWL Pages with `load`; `/api/admin` + `/api/customers` in proxy contract; CRM/admin widgets as UI holes.
+
+**M3 (shipped):** `/modules/plan`, `/modules/deploy`, `/modules/coverage-map` CWL Pages with `load`; `/api/plans`, `/api/deploy`, `/api/network` verified; ArcGIS catalogued as `hub-svelte:arcgis-map` client holes.
+
+**M4 (shipped):** ACS (11 routes), HSS, monitoring `@page` + `load`; GenieACS TR-069 via `/api/device-assignment` proxy policy.
+
+**M5 (shipped):** All remaining UI routes → native `@page` + `load` (≥99%); `/login` only `hub-svelte:firebase-auth` hole; chimera `*` native prefix.
+
+Module wave detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) § Module waves (Phase 13).
+
+**Close before build:** Phase 13 surface implementation requires **G6310** closed (regression: `hub:wisp-cwl-phase12-phase0-close-smoke`).
+
+</details>
+
+---
+
+## Default queue — maintenance (when not building Phase 13)
 
 Phases **0–11 closed**. Reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 

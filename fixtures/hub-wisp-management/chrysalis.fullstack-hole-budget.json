@@ -1,0 +1,16 @@
+{
+  "kind": "chrysalis.cwl.fullstack-hole-budget",
+  "schemaVersion": 1,
+  "fixture": "fixtures/hub-wisp-management",
+  "program": "wisp-cwl-phase12",
+  "maxHoles": 120,
+  "expectedHoleReasons": [
+    "hub-svelte:page-component",
+    "hub-svelte:firebase-auth",
+    "hub-svelte:arcgis-map",
+    "hub-svelte:cross-frame-messaging",
+    "hub-svelte:chart-component",
+    "hub-cwl:upstream-proxy"
+  ],
+  "notes": "Phase 0: upstream-proxy routes are runnable via chimera gateway; counted in budget until runtime-cwl native proxy lands."
+}

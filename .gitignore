@@ -86,8 +86,12 @@ packages/parser-bridge/composer-setup.php
 
 # Local scratch probes and hub-emitted controllers (reproduced by hub/probe scripts; not fixtures)
 scripts/_probe-*
+scripts/fixtures/
 generated/_probe-*/
 generated/_hub-smoke-*/
+generated/_wisp-cwl-poc-deploy/
+generated/_wisp-management-poc/
+generated/wisp-svelte-sidecar/
 /*Controller.php
 
 # Multi-repo program workspace: keep the tracked template, ignore personal copies

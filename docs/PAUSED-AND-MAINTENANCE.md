@@ -7,13 +7,20 @@
 
 ---
 
-## 1. Default queue today (maintenance)
+## 1. Default queue today
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
+| **Maintenance** (default) | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2 |
+| Phase 12 WISP (deploy/maintenance) | [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) — Phase 0 + Phase 13 **closed** |
 | Bug fix / regression / CI red | Fix it; keep gates green |
 | Parser mapper gap / new PHP syntax | Maintenance §2 |
 | New hole from real customer route | Maintenance §2 + verify |
+
+**Close before build:** Phase 13 surface work requires **G6310** closed. Regression: `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`.
+
+**Phase 13 verify:** `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:cwl-surface-taxonomy-smoke` (**G6340**)
+**Phase 12 Phase 0 regression:** `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**)
 
 **Governance:** `pnpm run hub:maintenance-mode-governance-smoke`  
 **Phase 10 archive verify:** `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`  

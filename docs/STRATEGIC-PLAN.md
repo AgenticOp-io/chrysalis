@@ -15,6 +15,7 @@
 | “What if …”, “Should we …”, “Can we …”, “Explain …” | **Clarification** — answer in plan terms; **do not fork** unless user explicitly approves a plan change     |
 | “Also do X” without “build”                         | **Question** — is X on-plan or off-plan? Say which phase/workstream it belongs to, or that it is **paused** |
 | “Forget the plan, do Y”                             | Requires **explicit** plan amendment: `DESIGN.md` Decision Log + edit this file + user approval             |
+| New phase / wave build                              | **Refuse** until prior phase **close gate** passes and docs say **closed** (**close before build**)         |
 
 
 **North star metrics (customer outcomes, not repo vanity):**
@@ -26,6 +27,16 @@
 - Migration cost per route (declining via Hub automation)
 
 **Not north-star metrics:** new matrix pairs for marketing, CWL RFCs without oracle/replay linkage, hub UI without verify/evidence tie-in.
+
+**North star vs POC (do not conflate):**
+
+| North star | POC |
+| --- | --- |
+| **CWL** — the final consolidated **web language** (API, Pages, Data, UI, Effects) over **WebIR**, verified by oracle | **WISP Module_Manager** — important **reference lab** that stress-tests surfaces on a real operator stack |
+| Patterns must **generalize** to any migration | WISP-specific shortcuts (Firebase, ArcGIS, GenieACS proxy) stay **catalogued**, not baked into the language |
+| Success = language + engine + verify truth | Success on WISP = evidence that a surface wave **closes with gates** — transferable, not “ship WISP” |
+
+WISP is **important**: it is the flagship full-stack exercise. It is **not** the product name or the end state.
 
 ---
 
@@ -184,7 +195,21 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 **Strategic plan phases 0–10:** all reinforcement queues **closed** (**G5680–G6257**).
 
-**Default build queue:** maintenance unless amended (§13).
+**Default build queue:** maintenance unless amended (§12). **Phase 12 Phase 0 closed** (**G6310**). **Phase 13 CWL surfaces closed** (**G6410**).
+
+### Phase 12 — WISP CWL flagship (Phase 0 closed)
+
+- **Queue G6300–G6310 closed** — see [`docs/WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
+- **Close verify:** `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**)
+- **Topology:** [`docs/WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (Topology and deploy)
+
+### Phase 13 — CWL surface waves (**closed G6410**)
+
+- **Authority:** **DESIGN D6193** — [`docs/CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md)
+- **Gate G6340:** `pnpm run hub:cwl-surface-taxonomy-smoke`
+- **Close G6410:** `pnpm run hub:wisp-cwl-phase13-close-smoke`
+- **Program:** WISP module waves M0–M6 closed **CWL API → Pages → Data → UI → Effects** per [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
+- **Refuse:** sidecar bridges without holes; “full replacement” claims while `hub-svelte:page-component` remains
 
 ---
 
@@ -237,19 +262,26 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-06-19 (Phase 11):** Honest gaps implementation (**G6280–G6290**) — WordPress customer sample oracle, north-star metrics automation, commercial launch verify, IR helper B6, WPTP D7 harness. See `docs/HONEST-GAPS-PHASE-11.md`.
 
+**Amended 2026-06-19 (Phase 12):** WISP Module_Manager full CWL flagship (**G6300–G6310**) — local GCE two-VM stack, scenario inventory, API proxy CWL, chimera gateway. See `docs/WISP-CWL-FULLSTACK-PROGRAM.md`.
+
+**Amended 2026-06-19 (Phase 13 — CWL surfaces):** Formal **CWL surface taxonomy** (**D6193**, **G6340**): CWL API / Pages / Data / UI / Effects as named layers of one web language; Phase 13 closes surfaces on WISP module waves. See `docs/CWL-SURFACE-TAXONOMY.md`.
+
 ---
 
 ## 12. Default queue (maintenance)
 
-**Status:** **maintenance only** (2026-06-19). Strategic plan phases **0–10** and Phase 11 honest gaps **closed** (**G5680–G6290**).
+**Status:** **Phase 13 CWL surfaces closed** (**G6410**, 2026-06-19); **Phase 12 Phase 0 closed** (**G6310**, 2026-06-19). Phases **0–11 closed** (**G5680–G6290**).
 
 When the user says "build" without specifying:
 
-1. Use **maintenance** triggers in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
-2. Do **not** treat archive ship logs or closed phase docs as active backlog.
-3. Verify: `pnpm run hub:maintenance-program-complete-smoke`, `pnpm run hub:honest-gaps-implementation-close-smoke`.
+1. **Maintenance** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2
+2. **Phase 12 WISP program** — deploy/maintenance only (`docs/WISP-CWL-FULLSTACK-PROGRAM.md`)
+3. **Phase 13 regression** — `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**)
+4. Verify: `pnpm run hub:cwl-surface-taxonomy-smoke`, `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`
 
-Closed programs: Phase 10 (`docs/PRODUCTION-PARITY-PHASE-10.md`), Phase 11 (`docs/HONEST-GAPS-PHASE-11.md`).
+**Close before build:** Phase 13 implementation requires **G6310** green and status docs marking Phase 0 **closed**.
+
+Closed programs: Phase 10, Phase 11.
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
@@ -264,4 +296,4 @@ Closed programs: Phase 10 (`docs/PRODUCTION-PARITY-PHASE-10.md`), Phase 11 (`doc
 
 ---
 
-*Related: `DESIGN.md`, `ROADMAP.md`, `docs/PAUSED-AND-MAINTENANCE.md`, `docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`, `docs/CWL.md`.*
+*Related: `DESIGN.md`, `ROADMAP.md`, `docs/PAUSED-AND-MAINTENANCE.md`, `docs/CWL-SURFACE-TAXONOMY.md`, `docs/CWL.md`.*

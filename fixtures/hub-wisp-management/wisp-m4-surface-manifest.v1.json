@@ -1,0 +1,187 @@
+{
+  "kind": "chrysalis.wisp.m4-surface-manifest",
+  "schemaVersion": 1,
+  "ok": true,
+  "wave": "M4",
+  "surfaces": {
+    "api": [
+      "/api/device-assignment",
+      "/api/hss",
+      "/api/monitoring",
+      "/api/snmp",
+      "/api/monitoring/graphs"
+    ],
+    "data": [
+      {
+        "path": "/modules/acs-cpe-management",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/alerts",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/devices",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/faults",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/files",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/firmware",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/graphs",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/monitoring",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/presets",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/settings",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/acs-cpe-management/tasks",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/hss-management",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      },
+      {
+        "path": "/modules/monitoring",
+        "load": [
+          "module",
+          "section",
+          "source",
+          "apiPath"
+        ]
+      }
+    ],
+    "pages": [
+      "/modules/acs-cpe-management",
+      "/modules/acs-cpe-management/alerts",
+      "/modules/acs-cpe-management/devices",
+      "/modules/acs-cpe-management/faults",
+      "/modules/acs-cpe-management/files",
+      "/modules/acs-cpe-management/firmware",
+      "/modules/acs-cpe-management/graphs",
+      "/modules/acs-cpe-management/monitoring",
+      "/modules/acs-cpe-management/presets",
+      "/modules/acs-cpe-management/settings",
+      "/modules/acs-cpe-management/tasks",
+      "/modules/hss-management",
+      "/modules/monitoring"
+    ],
+    "backendPolicy": {
+      "genieacs": "proxy-only — TR-069 via /api/device-assignment",
+      "hss": "proxy-only — /api/hss"
+    },
+    "uiWidgetHoles": [
+      {
+        "host": "/modules/acs-cpe-management/*",
+        "widgets": [
+          "GenieAcsDeviceTable",
+          "Tr069TaskRunner",
+          "FirmwarePushWizard"
+        ],
+        "reason": "hub-svelte:page-component",
+        "rfc": "CWL-RFC-0012"
+      },
+      {
+        "host": "/modules/hss-management",
+        "widgets": [
+          "SubscriberGrid",
+          "HssProfileEditor"
+        ],
+        "reason": "hub-svelte:page-component",
+        "rfc": "CWL-RFC-0012"
+      },
+      {
+        "host": "/modules/monitoring",
+        "widgets": [
+          "SnmpGraphPanel",
+          "AlertTimeline"
+        ],
+        "reason": "hub-svelte:page-component",
+        "rfc": "CWL-RFC-0012"
+      }
+    ]
+  },
+  "acsNative": true,
+  "hssNative": true,
+  "monitoringNative": true,
+  "generatedAt": "2026-06-19T05:15:01.342Z"
+}

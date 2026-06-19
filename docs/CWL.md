@@ -2,6 +2,16 @@
 
 CWL is the **consolidated web language** of the Chrysalis Translation Hub: a small, explicit syntax that maps **1:1** to **WebIR** and encodes the intersection of route/handler semantics learned from PHP, JavaScript, TypeScript, Python, Java, Go, Ruby, C#, Rust, Kotlin, Scala, Swift, and contract-first APIs.
 
+**Named surfaces** (CWL API, CWL Pages, CWL Data, CWL UI, CWL Effects) are documented in [`docs/CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md).
+
+| Surface | CWL syntax | Role |
+| --- | --- | --- |
+| **CWL API** | `@route` | HTTP handlers, middleware, upstream proxy |
+| **CWL Pages** | `@page` | SSR/HTML page routes |
+| **CWL Data** | `load { }` | Page data loaders (RFC-0013) |
+| **CWL UI** | holes / future RFC | Component trees from legacy frameworks |
+| **CWL Effects** | `use` / `effects` | Module middleware and side effects |
+
 Use CWL when you want:
 
 - A **canonical reference** for what “supported” means across all hub paths
@@ -170,7 +180,7 @@ handler items_create {
 
 ## Route declaration
 
-### API routes
+### API routes — **CWL API**
 
 ```cwl
 @route GET "/health"
@@ -180,7 +190,7 @@ handler health {
 }
 ```
 
-### Page routes (full-stack, RFC-0010)
+### Page routes — **CWL Pages** (full-stack, RFC-0010)
 
 ```cwl
 @page GET "/"

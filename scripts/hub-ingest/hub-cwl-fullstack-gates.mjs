@@ -27,6 +27,32 @@ import {
   buildHubCompletionPhase10ProductionParitySection,
   validateHubCompletionPhase10ProductionParitySection,
 } from "./hub-completion-phase10-production-parity.mjs";
+import {
+  runWispCwlProgramDocGate,
+  runWispCwlApiPathsManifestGate,
+  runWispCwlScenarioInventoryGate,
+  runWispCwlChimeraGatewaySmokeGate,
+  runWispCwlApiProxyCwlGate,
+  runWispCwlPhase12Phase0EntryGate,
+} from "./hub-wisp-cwl-phase12-phase0-entry-smoke.mjs";
+import {
+  runWispCwlHoleManifestGate,
+  runWispCwlRoutesFixtureGate,
+  runWispCwlTopologyDocGate,
+  runWispCwlBackendDeferralGate,
+  runWispCwlDeployScriptsGate,
+  runWispCwlPhase12Phase0CloseGate,
+} from "./hub-wisp-cwl-phase12-phase0-close-smoke.mjs";
+import { runWispCwlPhase13M0Gate } from "./hub-wisp-cwl-phase13-m0-smoke.mjs";
+import { runWispCwlPhase13M1Gate } from "./hub-wisp-cwl-phase13-m1-smoke.mjs";
+import { runWispCwlPhase13M2Gate } from "./hub-wisp-cwl-phase13-m2-smoke.mjs";
+import { runWispCwlPhase13M3Gate } from "./hub-wisp-cwl-phase13-m3-smoke.mjs";
+import { runWispCwlPhase13M4Gate } from "./hub-wisp-cwl-phase13-m4-smoke.mjs";
+import { runWispCwlPhase13M5Gate } from "./hub-wisp-cwl-phase13-m5-smoke.mjs";
+import { runWispCwlPhase13M6Gate } from "./hub-wisp-cwl-phase13-m6-smoke.mjs";
+import { runWispCwlPhase13CloseGate } from "./hub-wisp-cwl-phase13-close-smoke.mjs";
+import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
+import { runWispCwlPipelineSmokeGate } from "./hub-wisp-cwl-pipeline-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -2061,8 +2087,24 @@ export function runPausedAndMaintenanceDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const phase10Closed = isPhase10ProductionParityClosed();
-  const docOk = phase10Closed
-    ? text.includes("Default queue today (maintenance)") &&
+  const docOk = isWispCwlPhase13Closed()
+    ? text.includes("Maintenance") &&
+      text.includes("G6410") &&
+      text.includes("hub:wisp-cwl-phase13-close-smoke") &&
+      text.includes("Do not treat closed program tables")
+    : isWispCwlPhase12Phase0Closed()
+    ? text.includes("Phase 13") &&
+      text.includes("CWL-SURFACE-TAXONOMY") &&
+      text.includes("hub:cwl-surface-taxonomy-smoke") &&
+      text.includes("Close before build") &&
+      text.includes("Do not treat closed program tables")
+    : isWispCwlPhase12Active()
+    ? text.includes("Phase 12 WISP CWL") &&
+      text.includes("WISP-CWL-FULLSTACK-PROGRAM.md") &&
+      text.includes("hub:wisp-cwl-phase12-phase0-entry-smoke") &&
+      text.includes("Do not treat closed program tables")
+    : phase10Closed
+    ? text.includes("Default queue today") &&
       text.includes("Phase 10") &&
       text.includes("closed") &&
       text.includes("Do not treat closed program tables")
@@ -2074,8 +2116,25 @@ export function runPausedAndMaintenanceDocGate() {
   return { ok: docOk, docOk };
 }
 
-/** G6162 — Strategic plan default queue gate (Phase 11, Phase 10, or maintenance). */
+/** G6162 — Strategic plan default queue gate (Phase 13, Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isWispCwlPhase13Closed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("Phase 13") &&
+      text.includes("G6410") &&
+      text.includes("maintenance") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, maintenanceOk: ok };
+  }
+  if (isWispCwlPhase12Phase0Closed() && isWispCwlPhase13Active()) {
+    return runStrategicPlanPhase13DefaultQueueGate();
+  }
+  if (isWispCwlPhase12Active()) {
+    return runStrategicPlanPhase12DefaultQueueGate();
+  }
   if (isHonestGapsPhase11Active()) {
     return runStrategicPlanPhase11DefaultQueueGate();
   }
@@ -2096,12 +2155,26 @@ export function runStrategicPlanMaintenanceDefaultQueueGate() {
   return { ok, maintenanceOk: ok };
 }
 
-/** G6163 — ROADMAP default queue gate (Phase 11, Phase 10, or maintenance). */
+/** G6163 — ROADMAP default queue gate (Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runRoadmapMaintenanceDefaultQueueGate() {
   const roadmapPath = join(scriptRoot, "ROADMAP.md");
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
-  const ok = isHonestGapsPhase11Active()
+  const ok = isWispCwlPhase13Closed()
+    ? text.includes("Phase 13 closed") &&
+      text.includes("G6410") &&
+      text.includes("maintenance") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md")
+    : isWispCwlPhase12Phase0Closed()
+    ? text.includes("Phase 13") &&
+      text.includes("CWL-SURFACE-TAXONOMY") &&
+      text.includes("Phase 0 closed") &&
+      text.includes("G6340")
+    : isWispCwlPhase12Active()
+    ? text.includes("Phase 12") &&
+      text.includes("WISP-CWL-FULLSTACK-PROGRAM.md") &&
+      text.includes("G6304")
+    : isHonestGapsPhase11Active()
     ? text.includes("Phase 11") &&
       text.includes("HONEST-GAPS-PHASE-11.md") &&
       text.includes("Closed programs (archive only)")
@@ -2118,8 +2191,20 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   return { ok, roadmapOk: ok };
 }
 
-/** G6160 — Maintenance-mode governance (Phase 11, Phase 10 active, or post-close maintenance). */
+/** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isWispCwlPhase13Closed()) {
+    return runPhase13ClosedGovernanceGate(_opts);
+  }
+  if (isWispCwlPhase12Phase0Closed() && isWispCwlPhase13Active()) {
+    return runPhase13ActiveGovernanceGate(_opts);
+  }
+  if (isWispCwlPhase12Phase0Closed()) {
+    return runPhase13ClosedGovernanceGate(_opts);
+  }
+  if (isWispCwlPhase12Active()) {
+    return runPhase12ActiveGovernanceGate(_opts);
+  }
   if (isHonestGapsPhase11Active()) {
     return runPhase11ActiveGovernanceGate(_opts);
   }
@@ -3333,6 +3418,202 @@ export async function runHonestGapsImplementationCloseGate(opts = {}) {
     depthOk: depth.ok === true,
     maintenanceOk: maintenance.ok === true,
     phase11Active: isHonestGapsPhase11Active(),
+  };
+}
+
+const wispCwlPhase12ProgramDocPath = join(scriptRoot, "docs/WISP-CWL-FULLSTACK-PROGRAM.md");
+
+/** @returns {boolean} Phase 12 WISP CWL flagship program is active. */
+export function isWispCwlPhase12Active() {
+  if (!existsSync(wispCwlPhase12ProgramDocPath)) return false;
+  const text = readFileSync(wispCwlPhase12ProgramDocPath, "utf8");
+  return text.includes("**Status:** active");
+}
+
+/** @returns {boolean} Phase 12 WISP Phase 0 close recorded (G6310). */
+export function isWispCwlPhase12Phase0Closed() {
+  if (!existsSync(wispCwlPhase12ProgramDocPath)) return false;
+  const text = readFileSync(wispCwlPhase12ProgramDocPath, "utf8");
+  return text.includes("Phase 0 closed");
+}
+
+/** @returns {boolean} Phase 13 CWL surface program closed (G6410). */
+export function isWispCwlPhase13Closed() {
+  if (!existsSync(wispCwlPhase12ProgramDocPath)) return false;
+  const text = readFileSync(wispCwlPhase12ProgramDocPath, "utf8");
+  return text.includes("Phase 13 closed");
+}
+
+/** @returns {boolean} Phase 13 CWL surface build queue is active. */
+export function isWispCwlPhase13Active() {
+  if (!isWispCwlPhase12Phase0Closed()) return false;
+  if (isWispCwlPhase13Closed()) return false;
+  const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  if (!existsSync(path)) return false;
+  const text = readFileSync(path, "utf8");
+  return text.includes("Phase 13") && text.includes("Phase 0 closed");
+}
+
+export {
+  runWispCwlProgramDocGate,
+  runWispCwlApiPathsManifestGate,
+  runWispCwlScenarioInventoryGate,
+  runWispCwlChimeraGatewaySmokeGate,
+  runWispCwlApiProxyCwlGate,
+  runWispCwlPhase12Phase0EntryGate,
+  runWispCwlHoleManifestGate,
+  runWispCwlRoutesFixtureGate,
+  runWispCwlTopologyDocGate,
+  runWispCwlBackendDeferralGate,
+  runWispCwlDeployScriptsGate,
+  runWispCwlPhase12Phase0CloseGate,
+  runWispCwlPipelineSmokeGate,
+};
+
+/** G6293 — Phase 12 default queue (STRATEGIC-PLAN §12) — Phase 0 in progress only. */
+export function runStrategicPlanPhase12DefaultQueueGate() {
+  const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("Phase 12") &&
+    text.includes("WISP-CWL-FULLSTACK-PROGRAM.md") &&
+    text.includes("G6300–G6310") &&
+    (text.includes("Phase 12 Phase 0 active") || text.includes("Phase 0 closed")) &&
+    text.includes("CWL-SURFACE-TAXONOMY.md") &&
+    text.includes("D6193");
+  return { ok, phase12Ok: ok };
+}
+
+/** G6342 — Phase 13 default queue (STRATEGIC-PLAN §12, post G6310). */
+export function runStrategicPlanPhase13DefaultQueueGate() {
+  const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("Phase 13") &&
+    text.includes("CWL-SURFACE-TAXONOMY.md") &&
+    text.includes("Phase 0 closed") &&
+    text.includes("G6340") &&
+    text.includes("D6193") &&
+    text.includes("Close before build");
+  return { ok, phase13Ok: ok };
+}
+
+/** G6341 — Phase 13 CWL surface build queue (STRATEGIC-PLAN §7). */
+export function runStrategicPlanPhase13SurfaceQueueGate() {
+  const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("Phase 13") &&
+    text.includes("CWL surface") &&
+    text.includes("G6340");
+  return { ok, phase13Ok: ok };
+}
+
+/** G6294 — Phase 12 active governance (Phase 0 in progress). */
+export async function runPhase12ActiveGovernanceGate(_opts = {}) {
+  const doc = runWispCwlProgramDocGate();
+  const strategicPlan = runStrategicPlanPhase12DefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const pipeline = await runWispCwlPipelineSmokeGate({ ci: true, skipLift: true });
+  const ok =
+    doc.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    pipeline.ok === true &&
+    isWispCwlPhase12Active() &&
+    !isWispCwlPhase12Phase0Closed();
+  return {
+    ok,
+    docOk: doc.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    pipelineOk: pipeline.ok === true,
+    mode: "phase12",
+  };
+}
+
+/** G6343 — Phase 13 active governance (post G6310 close before build). */
+export async function runPhase13ActiveGovernanceGate(_opts = {}) {
+  const phase0Close = await runWispCwlPhase12Phase0CloseGate();
+  const strategicPlan = runStrategicPlanPhase13DefaultQueueGate();
+  const phase13Queue = runStrategicPlanPhase13SurfaceQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const paused = runPausedAndMaintenanceDocGate();
+  const pipeline = await runWispCwlPipelineSmokeGate({ ci: true, skipLift: true });
+  const m0 = await runWispCwlPhase13M0Gate({ apply: false });
+  const m1 = await runWispCwlPhase13M1Gate({ apply: false });
+  const m2 = await runWispCwlPhase13M2Gate({ apply: false });
+  const m3 = await runWispCwlPhase13M3Gate({ apply: false });
+  const m4 = await runWispCwlPhase13M4Gate({ apply: false });
+  const m5 = await runWispCwlPhase13M5Gate({ apply: false });
+  const m6 = await runWispCwlPhase13M6Gate({ apply: false });
+  const ok =
+    phase0Close.ok === true &&
+    strategicPlan.ok === true &&
+    phase13Queue.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    paused.ok === true &&
+    pipeline.ok === true &&
+    m0.ok === true &&
+    m1.ok === true &&
+    m2.ok === true &&
+    m3.ok === true &&
+    m4.ok === true &&
+    m5.ok === true &&
+    m6.ok === true &&
+    isWispCwlPhase13Active();
+  return {
+    ok,
+    phase0CloseOk: phase0Close.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    phase13QueueOk: phase13Queue.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    pausedOk: paused.ok === true,
+    pipelineOk: pipeline.ok === true,
+    m0Ok: m0.ok === true,
+    m1Ok: m1.ok === true,
+    m2Ok: m2.ok === true,
+    m3Ok: m3.ok === true,
+    m4Ok: m4.ok === true,
+    m5Ok: m5.ok === true,
+    m6Ok: m6.ok === true,
+    mode: "phase13",
+  };
+}
+
+/** G6413 — Phase 13 closed governance (post G6410). */
+export async function runPhase13ClosedGovernanceGate(_opts = {}) {
+  const phase13Close = await runWispCwlPhase13CloseGate({ apply: false });
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const pipeline = await runWispCwlPipelineSmokeGate({ ci: true, skipLift: true });
+  const ok =
+    phase13Close.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    pipeline.ok === true &&
+    isWispCwlPhase13Closed();
+  return {
+    ok,
+    phase13CloseOk: phase13Close.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    pipelineOk: pipeline.ok === true,
+    m5Ok: phase13Close.m5?.ok === true,
+    m6Ok: phase13Close.m6?.ok === true,
+    mode: "phase13-closed",
   };
 }
 
