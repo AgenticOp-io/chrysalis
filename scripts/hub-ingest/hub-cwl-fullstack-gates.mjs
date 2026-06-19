@@ -2160,6 +2160,13 @@ export function runProductionParityPhase10DocGate() {
     text.includes("runStrategicPlanPhase10HubCompletionGate") &&
     text.includes("runStrategicPlanPhase10ProductionParityCloseGate") &&
     text.includes("runStrategicPlanPhase10ProgramArchiveCloseGate") &&
+    text.includes("runHonestGapsProgramCompleteGate") &&
+    text.includes("runWordPressCustomerOracleScaffoldingGate") &&
+    text.includes("runCustomerNorthStarMetricsScaffoldingGate") &&
+    text.includes("runCommercialLaunchScaffoldingGate") &&
+    text.includes("runIrHelperLiftingNonB5DeferredGate") &&
+    text.includes("runWptpD2SiblingReposScaffoldingGate") &&
+    text.includes("Phase I — Honest gaps") &&
     text.includes("schema **513**");
   return { ok: docOk, docOk };
 }
@@ -2873,6 +2880,7 @@ export function runHubCompletionPhase10ProductionParitySectionGate() {
     strategicPlanPhase10Close: { ok: true },
     strategicPlanPhase10ArchiveClose: { ok: true },
     maintenanceProgramComplete: { ok: true },
+    honestGapsProgramComplete: { ok: true },
   });
   const ok = validateHubCompletionPhase10ProductionParitySection(section) && section.ok === true;
   return { ok, schemaVersion: section.schemaVersion ?? null, sectionOk: section.ok === true };
@@ -2986,14 +2994,115 @@ export function runPausedHonestGapsDocGate() {
     text.includes("Commercial launch") &&
     text.includes("WPTP D2+ sibling repos") &&
     text.includes("Broader IR helper lifting") &&
-    text.includes("runMaintenanceProgramCompleteGate");
+    text.includes("runMaintenanceProgramCompleteGate") &&
+    text.includes("runHonestGapsProgramCompleteGate");
   return { ok, honestGapsOk: ok };
+}
+
+/** G6262 — WordPress customer oracle scaffolding (real install is customer-owned). */
+export function runWordPressCustomerOracleScaffoldingGate() {
+  const path = join(scriptRoot, "docs/WORDPRESS-CUSTOMER-ORACLE.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-wordpress-customer-oracle-doc" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("runWordPressCustomerOracleScaffoldingGate") &&
+    text.includes("fixtures/wordpress-core-stub") &&
+    text.includes("customer oracle") &&
+    text.includes("correctness 1");
+  return { ok, wordpressCustomerOracleOk: ok };
+}
+
+/** G6263 — Customer north-star metrics operator playbook. */
+export function runCustomerNorthStarMetricsScaffoldingGate() {
+  const path = join(scriptRoot, "docs/CUSTOMER-NORTH-STAR-METRICS.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-customer-north-star-metrics-doc" };
+  const text = readFileSync(path, "utf8");
+  const strategicPath = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  const strategic = existsSync(strategicPath) ? readFileSync(strategicPath, "utf8") : "";
+  const ok =
+    text.includes("runCustomerNorthStarMetricsScaffoldingGate") &&
+    text.includes("Time to first green verify") &&
+    text.includes("Hole density trend") &&
+    text.includes("Not north-star metrics") &&
+    strategic.includes("Time to first green verify");
+  return { ok, customerNorthStarOk: ok };
+}
+
+/** G6264 — Commercial launch scaffolding (in-tree license; billing outside repo). */
+export function runCommercialLaunchScaffoldingGate() {
+  const commercialPath = join(scriptRoot, "docs/COMMERCIAL.md");
+  const licensePkg = join(scriptRoot, "packages/license/package.json");
+  const signScript = join(scriptRoot, "scripts/sign-license.mjs");
+  if (!existsSync(commercialPath) || !existsSync(licensePkg) || !existsSync(signScript)) {
+    return { ok: false, skip: "missing-commercial-scaffolding" };
+  }
+  const text = readFileSync(commercialPath, "utf8");
+  const ok =
+    text.includes("runCommercialLaunchScaffoldingGate") &&
+    text.includes("Launch readiness") &&
+    text.includes("CHRYSALIS_LICENSE_MIN_TIER") &&
+    text.includes("@chrysalis/license") &&
+    text.includes("license:sign");
+  return { ok, commercialLaunchOk: ok };
+}
+
+/** G6265 — IR helper lifting non-B5 deferred (B5.5 closed in-repo). */
+export function runIrHelperLiftingNonB5DeferredGate() {
+  const path = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-ir-helper-lifting-doc" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("runIrHelperLiftingNonB5DeferredGate") &&
+    text.includes("B5.5 v16") &&
+    text.includes("plan amendment") &&
+    text.includes("G2303");
+  return { ok, irHelperNonB5DeferredOk: ok };
+}
+
+/** G6266 — WPTP D2+ sibling repos scaffolding (engineering outside chrysalis main). */
+export function runWptpD2SiblingReposScaffoldingGate() {
+  const path = join(scriptRoot, "docs/MASTER-PROGRAM.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-master-program-doc" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("runWptpD2SiblingReposScaffoldingGate") &&
+    text.includes("wptp-ir") &&
+    text.includes("D2 technical exit met") &&
+    text.includes("sibling repos") &&
+    text.includes("WPTP-D7-ONGOING");
+  return { ok, wptpD2SiblingReposOk: ok };
+}
+
+/** G6270 — Honest gaps program complete (scaffolded deferrals indexed). */
+export function runHonestGapsProgramCompleteGate() {
+  const index = runPausedHonestGapsDocGate();
+  const wordpress = runWordPressCustomerOracleScaffoldingGate();
+  const northStar = runCustomerNorthStarMetricsScaffoldingGate();
+  const commercial = runCommercialLaunchScaffoldingGate();
+  const irHelper = runIrHelperLiftingNonB5DeferredGate();
+  const wptp = runWptpD2SiblingReposScaffoldingGate();
+  const ok =
+    index.ok === true &&
+    wordpress.ok === true &&
+    northStar.ok === true &&
+    commercial.ok === true &&
+    irHelper.ok === true &&
+    wptp.ok === true;
+  return {
+    ok,
+    indexOk: index.ok === true,
+    wordpressCustomerOracleOk: wordpress.ok === true,
+    customerNorthStarOk: northStar.ok === true,
+    commercialLaunchOk: commercial.ok === true,
+    irHelperNonB5DeferredOk: irHelper.ok === true,
+    wptpD2SiblingReposOk: wptp.ok === true,
+  };
 }
 
 /** G6261 — Maintenance program complete gate (post Phase 10 archive). */
 export async function runMaintenanceProgramCompleteGate(opts = {}) {
   const archive = await runStrategicPlanPhase10ProgramArchiveCloseGate(opts);
-  const gaps = runPausedHonestGapsDocGate();
+  const gaps = runHonestGapsProgramCompleteGate();
   const northStar = runNorthStarMetricsHonestyGate();
   const maintenance = await runMaintenanceModeGovernanceGate(opts);
   const ok =

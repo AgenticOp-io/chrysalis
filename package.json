@@ -379,6 +379,7 @@
     "hub:strategic-plan-phase10-production-parity-close-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-production-parity-close-smoke.mjs",
     "hub:strategic-plan-phase10-program-archive-close-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-program-archive-close-smoke.mjs",
     "hub:maintenance-program-complete-smoke": "node scripts/hub-ingest/hub-maintenance-program-complete-smoke.mjs",
+    "hub:honest-gaps-program-complete-smoke": "node scripts/hub-ingest/hub-honest-gaps-program-complete-smoke.mjs",
     "hub:strategic-plan-phase10-depth-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-depth-smoke.mjs",
     "hub:laravel-verify-live-gaps-closure-smoke": "node scripts/hub-ingest/hub-laravel-verify-live-gaps-closure-smoke.mjs",
     "hub:gap-reingest-strict-smoke": "node scripts/hub-ingest/hub-gap-reingest-strict-smoke.mjs",

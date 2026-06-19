@@ -72,7 +72,9 @@ Chrysalis is **open source (MIT)** in this repository. Revenue scales with **ser
 
 ## Launch readiness (maintainer)
 
-Use before announcing a **commercial SKU** or **`@chrysalis/license`** distribution:
+Use before announcing a **commercial SKU** or **`@chrysalis/license`** distribution.
+
+**Gate:** `runCommercialLaunchScaffoldingGate` (**G6264**)
 
 | Gate | Command / artifact |
 | --- | --- |

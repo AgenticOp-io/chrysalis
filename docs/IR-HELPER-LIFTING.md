@@ -73,6 +73,12 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 
 Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the capability matrix / delivery dashboard.
 
+## Non-B5 deferred (honest gap — G6265)
+
+**B0–B5.5 v16** is **closed** in-repo. Broader semantic lift (cross-file non-structural equivalence beyond B5 tiers) requires a **new design pass** and **STRATEGIC-PLAN §13 amendment** before becoming a build queue.
+
+**Gate:** `runIrHelperLiftingNonB5DeferredGate` — verifies this deferral is documented and hub B5 gates remain green.
+
 ## Decision
 
 **Closed (2026-06-17).** **B0–B5.5 v16** shipped with hub semantic + replay twin gates (**G2303–G2304**). Track maintenance under **ROADMAP** post-2.0 row **B** (GitHub **#3**). Non-structural cross-file lift beyond B5 tiers requires a new design pass + plan amendment.

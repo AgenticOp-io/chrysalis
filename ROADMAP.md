@@ -7,7 +7,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lanes:** **maintenance only** — strategic plan phases **0–10 closed** (**G5680–G6257**).
-- **Recently shipped:** **G6229–G6261** maintenance program complete (2026-06-19). Phase 10 archive **G6257**.
+- **Recently shipped:** **G6262–G6270** honest gaps scaffolding (2026-06-19). Maintenance complete **G6261**.
 
 ---
 

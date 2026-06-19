@@ -154,6 +154,8 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 - **Exit:** N/A (ongoing); **quarterly** board review of matrix claims vs harness coverage.
 - **Status:** Playbook in [`docs/WPTP-D7-ONGOING.md`](./WPTP-D7-ONGOING.md).
 
+**Honest gap (G6266):** D2+ engineering continues in **sibling repos** (`wptp-ir`, `wptp-matrix`, adapters, emitters). Chrysalis `main` remains the **D1 reference leg**. Gate: `runWptpD2SiblingReposScaffoldingGate`.
+
 ---
 
 ## 7. Verification and grading model (normative for WPTP claims)

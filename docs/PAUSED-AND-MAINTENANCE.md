@@ -17,7 +17,8 @@
 
 **Governance:** `pnpm run hub:maintenance-mode-governance-smoke`  
 **Phase 10 archive verify:** `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`  
-**Maintenance complete:** `pnpm run hub:maintenance-program-complete-smoke` (`runMaintenanceProgramCompleteGate`, **G6261**)
+**Maintenance complete:** `pnpm run hub:maintenance-program-complete-smoke` (`runMaintenanceProgramCompleteGate`, **G6261**)  
+**Honest gaps complete:** `pnpm run hub:honest-gaps-program-complete-smoke` (`runHonestGapsProgramCompleteGate`, **G6270**)
 
 ---
 
@@ -46,15 +47,19 @@
 
 ---
 
-## 4. Remaining honest gaps
+## 4. Honest gaps (scaffolded — operator/customer action)
 
-| Gap | Notes |
-| --- | --- |
-| Real WordPress core install (not stub) | Customer oracle only |
-| Customer north-star metrics on a live slice | Operator/pilot outside repo |
-| Commercial launch (SKUs/pricing) | `docs/COMMERCIAL.md` scaffolding only |
-| Broader IR helper lifting (non-B5) | Hub program when verify-gated |
-| WPTP D2+ sibling repos | `docs/MASTER-PROGRAM.md` |
+All five deferrals are **indexed**, **documented**, and **gate-verified** (**G6262–G6270**). They are not in-repo build backlog unless STRATEGIC-PLAN §13 is amended.
+
+| Gap | Scaffold doc / gate | Operator action |
+| --- | --- | --- |
+| Real WordPress core install (not stub) | `docs/WORDPRESS-CUSTOMER-ORACLE.md` — **G6262** | Customer oracle capture on live WP tree |
+| Customer north-star metrics on a live slice | `docs/CUSTOMER-NORTH-STAR-METRICS.md` — **G6263** | Measure STRATEGIC-PLAN §0 metrics on pilot |
+| Commercial launch (SKUs/pricing) | `docs/COMMERCIAL.md` — **G6264** | Contracts + billing outside repo |
+| Broader IR helper lifting (non-B5) | `docs/IR-HELPER-LIFTING.md` — **G6265** | Plan amendment before new lift program |
+| WPTP D2+ sibling repos | `docs/MASTER-PROGRAM.md` — **G6266** | Ongoing D7 expansion in sibling repos |
+
+**Composite gate:** `runHonestGapsProgramCompleteGate` (**G6270**)
 
 ---
 

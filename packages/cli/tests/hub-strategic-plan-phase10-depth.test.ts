@@ -227,5 +227,27 @@ describe.sequential("hub strategic plan phase10 depth slices", () => {
     );
     expect(gate.ok).toBe(true);
     expect(gate.programClosed).toBe(true);
+    expect(gate.honestGapsOk).toBe(true);
   }, 600_000);
+
+  test("honest gaps program complete gate (G6270)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runHonestGapsProgramCompleteGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.wordpressCustomerOracleOk).toBe(true);
+    expect(gate.customerNorthStarOk).toBe(true);
+    expect(gate.commercialLaunchOk).toBe(true);
+    expect(gate.irHelperNonB5DeferredOk).toBe(true);
+    expect(gate.wptpD2SiblingReposOk).toBe(true);
+  });
+
+  test("wordpress customer oracle scaffolding gate (G6262)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWordPressCustomerOracleScaffoldingGate",
+    );
+    expect(gate.ok).toBe(true);
+  });
 });

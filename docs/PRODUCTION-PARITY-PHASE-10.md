@@ -68,7 +68,7 @@ Second-oracle path + capability matrix honesty for additional language claims.
 
 ## Phase E — Hub completion (G6240)
 
-Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **9**).
+Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **10**).
 
 | ID | Gate |
 | --- | --- |
@@ -102,7 +102,22 @@ Composes reinforcement close (**G6250**) + maintenance governance flip (**G6160*
 | G6260 | `runPausedHonestGapsDocGate` | indexes out-of-repo gaps in `PAUSED-AND-MAINTENANCE.md` §4 |
 | G6261 | `runMaintenanceProgramCompleteGate` | `pnpm run hub:maintenance-program-complete-smoke` |
 
-Composes Phase 10 archive close (**G6257**) + north-star honesty + maintenance governance.
+Composes Phase 10 archive close (**G6257**) + north-star honesty + maintenance governance + honest gaps scaffolding (**G6270**).
+
+## Phase I — Honest gaps (G6262–G6270)
+
+Per-gap scaffolding for operator/customer deferrals indexed in `docs/PAUSED-AND-MAINTENANCE.md` §4.
+
+| ID | Gate | Scaffold |
+| --- | --- | --- |
+| G6262 | `runWordPressCustomerOracleScaffoldingGate` | `docs/WORDPRESS-CUSTOMER-ORACLE.md` |
+| G6263 | `runCustomerNorthStarMetricsScaffoldingGate` | `docs/CUSTOMER-NORTH-STAR-METRICS.md` |
+| G6264 | `runCommercialLaunchScaffoldingGate` | `docs/COMMERCIAL.md` launch readiness |
+| G6265 | `runIrHelperLiftingNonB5DeferredGate` | `docs/IR-HELPER-LIFTING.md` non-B5 deferral |
+| G6266 | `runWptpD2SiblingReposScaffoldingGate` | `docs/MASTER-PROGRAM.md` D2+ siblings |
+| G6270 | `runHonestGapsProgramCompleteGate` | `pnpm run hub:honest-gaps-program-complete-smoke` |
+
+Hub-completion depth schema **10** adds `honestGapsComplete` section.
 
 ## Invariants (DESIGN §3)
 

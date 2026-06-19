@@ -1,13 +1,14 @@
 /**
  * Hub completion Phase 10 production parity section (G6242).
  */
-export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 9;
+export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 10;
 
 /**
  * @param {{
  *   strategicPlanPhase10Close?: { ok?: boolean },
  *   strategicPlanPhase10ArchiveClose?: { ok?: boolean },
  *   maintenanceProgramComplete?: { ok?: boolean },
+ *   honestGapsProgramComplete?: { ok?: boolean },
  * }} smokes
  */
 export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
@@ -24,17 +25,23 @@ export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
   const maintenanceComplete = {
     ok: smokes.maintenanceProgramComplete?.ok === true,
     script: "pnpm run hub:maintenance-program-complete-smoke",
-    note: "honest gaps indexed; maintenance governance after Phase 10 archive",
+    note: "honest gaps scaffolded; maintenance governance after Phase 10 archive",
+  };
+  const honestGapsComplete = {
+    ok: smokes.honestGapsProgramComplete?.ok === true,
+    script: "pnpm run hub:honest-gaps-program-complete-smoke",
+    note: "operator/customer deferrals indexed with per-gap scaffolding gates",
   };
   return {
     schemaVersion: HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION,
-    ok: close.ok && archiveClose.ok && maintenanceComplete.ok,
+    ok: close.ok && archiveClose.ok && maintenanceComplete.ok && honestGapsComplete.ok,
     doc: "docs/PRODUCTION-PARITY-PHASE-10.md",
     script: "pnpm run hub:strategic-plan-phase10-production-parity-close-smoke",
     depthScript: "pnpm run hub:strategic-plan-phase10-depth-smoke",
     close,
     archiveClose,
     maintenanceComplete,
+    honestGapsComplete,
     runtimePhaseC: "active",
     runtimePhaseCDepth: "G6208",
     wordpressVertical: "unblocked",
@@ -59,6 +66,7 @@ export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
     programCloseGate: "G6250",
     programArchiveCloseGate: "G6257",
     maintenanceCompleteGate: "G6261",
+    honestGapsProgramCompleteGate: "G6270",
   };
 }
 

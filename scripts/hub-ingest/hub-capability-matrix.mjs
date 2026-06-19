@@ -489,6 +489,7 @@ export function buildHubCapabilityMatrixReport() {
       archiveCloseSmokeScript: "pnpm run hub:strategic-plan-phase10-program-archive-close-smoke",
       depthSmokeScript: "pnpm run hub:strategic-plan-phase10-depth-smoke",
       maintenanceCompleteSmokeScript: "pnpm run hub:maintenance-program-complete-smoke",
+      honestGapsCompleteSmokeScript: "pnpm run hub:honest-gaps-program-complete-smoke",
       hubCompletionSection: "phase10ProductionParity",
       hubCompletionSchemaVersion: 513,
       programClosed: true,
