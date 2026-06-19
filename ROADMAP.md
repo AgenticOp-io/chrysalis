@@ -6,25 +6,18 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lanes:** **maintenance only** — strategic plan phases **0–10 closed** (**G5680–G6257**).
-- **Recently shipped:** **G6262–G6270** honest gaps scaffolding (2026-06-19). Maintenance complete **G6261**.
+- **Active lanes:** **maintenance only** — phases **0–11 closed** (**G5680–G6290**).
+- **Recently shipped:** **G6280–G6290** Phase 11 honest gaps implementation (2026-06-19).
 
 ---
 
 ## Default queue — maintenance
 
-There is no active feature backlog. When the user says "build" without scope:
+Phases **0–11 closed**. Reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
-| Trigger | Action | Pointer |
-| --- | --- | --- |
-| Bug fix / regression / CI red | Fix it; keep gates green | — |
-| Parser mapper gap / hole economics | Maintenance §2 | [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) |
-| New hole from customer route | Maintenance §2 + verify | same |
+**Verify:** `pnpm run hub:maintenance-program-complete-smoke`, `pnpm run hub:honest-gaps-implementation-close-smoke`
 
-**Governance:** `pnpm run hub:maintenance-mode-governance-smoke`  
-**Phase 10 archive verify:** `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`
-
-Index: [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)
+Closed programs: Phase 10, Phase 11 (`docs/HONEST-GAPS-PHASE-11.md`).
 
 ---
 

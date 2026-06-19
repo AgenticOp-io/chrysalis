@@ -243,11 +243,21 @@ describe.sequential("hub strategic plan phase10 depth slices", () => {
     expect(gate.wptpD2SiblingReposOk).toBe(true);
   });
 
-  test("wordpress customer oracle scaffolding gate (G6262)", () => {
-    const gate = importSyncGate(
+  test("honest gaps implementation close gate (G6290)", async () => {
+    const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
-      "runWordPressCustomerOracleScaffoldingGate",
+      "runHonestGapsImplementationCloseGate",
     );
     expect(gate.ok).toBe(true);
-  });
+    expect(gate.depthOk).toBe(true);
+  }, 600_000);
+
+  test("wordpress customer sample oracle gate (G6280)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWordPressCustomerSampleOracleGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.correctness).toBe(1);
+  }, 120_000);
 });

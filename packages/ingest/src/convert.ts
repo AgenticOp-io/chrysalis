@@ -340,7 +340,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | undefined {
   const valueNode = ctx.m.get(valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -388,6 +388,10 @@ function resolveInlineAssignRhs(
       const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "trimFormal", formal: inner.formal };
     }
+    if (callee === "strlen" && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "strlenFormal", formal: inner.formal };
+    }
   }
   return undefined;
 }
@@ -405,6 +409,7 @@ function tryExtractInlineQuery(
   localToFloatCast: ReadonlyMap<string, string>;
   localToBoolCast: ReadonlyMap<string, string>;
   localToTrimFormal: ReadonlyMap<string, string>;
+  localToStrlenFormal: ReadonlyMap<string, string>;
 } | undefined {
   const body = ctx.m.get(bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
@@ -413,7 +418,7 @@ function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(ctx, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToArg: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map() };
+    return { queryId, localToArg: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
@@ -422,6 +427,7 @@ function tryExtractInlineQuery(
   const localToFloatCast = new Map<string, string>();
   const localToBoolCast = new Map<string, string>();
   const localToTrimFormal = new Map<string, string>();
+  const localToStrlenFormal = new Map<string, string>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = ctx.m.get(stmtId);
@@ -457,6 +463,10 @@ function tryExtractInlineQuery(
         localToTrimFormal.set(localName, resolved.formal);
         continue;
       }
+      if (resolved.kind === "strlenFormal") {
+        localToStrlenFormal.set(localName, resolved.formal);
+        continue;
+      }
       localToFormal.set(localName, resolved.formal);
       continue;
     }
@@ -465,7 +475,7 @@ function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(ctx, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToArg: localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal };
+  return { queryId, localToArg: localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal };
 }
 
 function walkSubgraphNodeIds(ctx: Ctx, rootId: NodeId, visit: (id: NodeId) => void, seen = new Set<NodeId>()): void {
@@ -517,6 +527,7 @@ function buildQueryParamReplacements(
   localToFloatCast: ReadonlyMap<string, string>,
   localToBoolCast: ReadonlyMap<string, string>,
   localToTrimFormal: ReadonlyMap<string, string>,
+  localToStrlenFormal: ReadonlyMap<string, string>,
 ): ReadonlyMap<NodeId, NodeId> | undefined {
   const formalToArg = new Map<string, NodeId>();
   for (let i = 0; i < paramNames.length; i++) {
@@ -603,6 +614,19 @@ function buildQueryParamReplacements(
     nameToArg.set(local, trimId);
     nameToArg.set(phpVarKey(local), trimId);
   }
+  for (const [local, formal] of localToStrlenFormal) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const strlenId = ctx.data.call({
+      callee: "strlen",
+      args: [argId],
+      type: T.int,
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, strlenId);
+    nameToArg.set(phpVarKey(local), strlenId);
+  }
   const replacements = new Map<NodeId, NodeId>();
   walkSubgraphNodeIds(ctx, queryId, (id) => {
     const n = ctx.m.get(id);
@@ -642,6 +666,7 @@ function tryInlineLibHelperCall(
     extracted.localToFloatCast,
     extracted.localToBoolCast,
     extracted.localToTrimFormal,
+    extracted.localToStrlenFormal,
   );
   if (replacements === undefined) return undefined;
   return cloneSubgraphWithReplacements(ctx, extracted.queryId, replacements);

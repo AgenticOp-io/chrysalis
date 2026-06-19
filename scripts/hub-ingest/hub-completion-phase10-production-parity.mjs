@@ -1,7 +1,7 @@
 /**
  * Hub completion Phase 10 production parity section (G6242).
  */
-export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 10;
+export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 11;
 
 /**
  * @param {{
@@ -67,6 +67,7 @@ export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
     programArchiveCloseGate: "G6257",
     maintenanceCompleteGate: "G6261",
     honestGapsProgramCompleteGate: "G6270",
+    honestGapsImplementationCloseGate: "G6290",
   };
 }
 

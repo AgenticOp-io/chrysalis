@@ -73,11 +73,14 @@ Large PHP codebases repeat helper logic across route files (`lib/`, `vendor/`, a
 
 Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the capability matrix / delivery dashboard.
 
-## Non-B5 deferred (honest gap — G6265)
+## Non-B5 deferred (honest gap — G6265) → **B6 active (Phase 11)**
 
-**B0–B5.5 v16** is **closed** in-repo. Broader semantic lift (cross-file non-structural equivalence beyond B5 tiers) requires a **new design pass** and **STRATEGIC-PLAN §13 amendment** before becoming a build queue.
+**B0–B5.5 v16** remains **closed**. **B6 v0 (G6283):** `strlen()` formal assign inlining on parametric lib SQL helpers — fixture route **`/phi`** on `lift-helper-sql-param-inline`.
 
-**Gate:** `runIrHelperLiftingNonB5DeferredGate` — verifies this deferral is documented and hub B5 gates remain green.
+**Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
+**Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
+
+Broader cross-file semantic lift beyond B6 still requires verify-gated design passes.
 
 ## Decision
 

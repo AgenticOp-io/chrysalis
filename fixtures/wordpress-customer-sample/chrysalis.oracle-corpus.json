@@ -1,0 +1,27 @@
+{
+  "kind": "chrysalis.wordpress-customer-sample.oracle-corpus",
+  "schemaVersion": 1,
+  "captureMode": "hub-probe-in-process",
+  "fixture": "fixtures/wordpress-customer-sample",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "traceId": "wordpress-customer-sample-home"
+    },
+    {
+      "method": "GET",
+      "path": "/wp-admin",
+      "traceId": "wordpress-customer-sample-admin"
+    },
+    {
+      "method": "GET",
+      "path": "/wp-json/wp/v2/posts",
+      "traceId": "wordpress-customer-sample-rest-posts"
+    }
+  ],
+  "routeCount": 3,
+  "traceCount": 3,
+  "note": "Customer-sample oracle + verify replay (G6280)",
+  "correctness": 1
+}

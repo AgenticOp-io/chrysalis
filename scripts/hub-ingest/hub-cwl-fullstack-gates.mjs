@@ -2074,8 +2074,11 @@ export function runPausedAndMaintenanceDocGate() {
   return { ok: docOk, docOk };
 }
 
-/** G6162 — Strategic plan maintenance-only default queue gate. */
+/** G6162 — Strategic plan default queue gate (Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isHonestGapsPhase11Active()) {
+    return runStrategicPlanPhase11DefaultQueueGate();
+  }
   if (isPhase10ProductionParityActive()) {
     return runStrategicPlanPhase10DefaultQueueGate();
   }
@@ -2086,31 +2089,40 @@ export function runStrategicPlanMaintenanceDefaultQueueGate() {
     text.includes("## 12. Default queue (maintenance)") &&
     text.includes("maintenance only") &&
     text.includes("PAUSED-AND-MAINTENANCE.md") &&
-    text.includes("phases 0–10") &&
-    (text.includes("Default build → **maintenance**") ||
+    (text.includes("phases 0–11") || text.includes("phases 0–10")) &&
+    (text.includes("maintenance only") ||
+      text.includes("Default build → **maintenance**") ||
       text.includes("Default build queue:** maintenance"));
   return { ok, maintenanceOk: ok };
 }
 
-/** G6163 — ROADMAP default queue gate (Phase 10 active or maintenance). */
+/** G6163 — ROADMAP default queue gate (Phase 11, Phase 10, or maintenance). */
 export function runRoadmapMaintenanceDefaultQueueGate() {
   const roadmapPath = join(scriptRoot, "ROADMAP.md");
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
-  const ok = isPhase10ProductionParityActive()
+  const ok = isHonestGapsPhase11Active()
+    ? text.includes("Phase 11") &&
+      text.includes("HONEST-GAPS-PHASE-11.md") &&
+      text.includes("Closed programs (archive only)")
+    : isPhase10ProductionParityActive()
     ? text.includes("Phase 10") &&
       text.includes("PRODUCTION-PARITY-PHASE-10.md") &&
       text.includes("Closed programs (archive only)") &&
       text.includes("Do **not** treat archive tables")
     : text.includes("maintenance") &&
       text.includes("PAUSED-AND-MAINTENANCE.md") &&
+      (text.includes("Phase 11") || text.includes("phases 0–11")) &&
       text.includes("Closed programs (archive only)") &&
       text.includes("Do **not** treat archive tables");
   return { ok, roadmapOk: ok };
 }
 
-/** G6160 — Maintenance-mode governance (Phase 10 active or post-close maintenance). */
+/** G6160 — Maintenance-mode governance (Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isHonestGapsPhase11Active()) {
+    return runPhase11ActiveGovernanceGate(_opts);
+  }
   if (isPhase10ProductionParityActive()) {
     return runPhase10ActiveGovernanceGate(_opts);
   }
@@ -2993,9 +3005,10 @@ export function runPausedHonestGapsDocGate() {
     text.includes("Customer north-star metrics") &&
     text.includes("Commercial launch") &&
     text.includes("WPTP D2+ sibling repos") &&
-    text.includes("Broader IR helper lifting") &&
+    text.includes("IR helper lifting") &&
     text.includes("runMaintenanceProgramCompleteGate") &&
-    text.includes("runHonestGapsProgramCompleteGate");
+    text.includes("runHonestGapsProgramCompleteGate") &&
+    text.includes("runHonestGapsImplementationCloseGate");
   return { ok, honestGapsOk: ok };
 }
 
@@ -3052,9 +3065,10 @@ export function runIrHelperLiftingNonB5DeferredGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-ir-helper-lifting-doc" };
   const text = readFileSync(path, "utf8");
   const ok =
-    text.includes("runIrHelperLiftingNonB5DeferredGate") &&
+    (text.includes("runIrHelperLiftingNonB5DeferredGate") ||
+      text.includes("runIrHelperLiftingB6StrlenInlineGate")) &&
     text.includes("B5.5 v16") &&
-    text.includes("plan amendment") &&
+    text.includes("B6") &&
     text.includes("G2303");
   return { ok, irHelperNonB5DeferredOk: ok };
 }
@@ -3099,15 +3113,243 @@ export function runHonestGapsProgramCompleteGate() {
   };
 }
 
+const phase11HonestGapsDocPath = join(scriptRoot, "docs/HONEST-GAPS-PHASE-11.md");
+
+/** @returns {boolean} Phase 11 honest gaps implementation queue is active. */
+export function isHonestGapsPhase11Active() {
+  if (!existsSync(phase11HonestGapsDocPath)) return false;
+  const text = readFileSync(phase11HonestGapsDocPath, "utf8");
+  return text.includes("**Status:** active");
+}
+
+/** @returns {boolean} Phase 11 honest gaps implementation program closed. */
+export function isHonestGapsPhase11Closed() {
+  if (!existsSync(phase11HonestGapsDocPath)) return false;
+  const text = readFileSync(phase11HonestGapsDocPath, "utf8");
+  return text.includes("**Status:** closed");
+}
+
+/** G6281-doc — Phase 11 honest gaps plan doc. */
+export function runHonestGapsPhase11DocGate() {
+  const path = phase11HonestGapsDocPath;
+  if (!existsSync(path)) return { ok: false, skip: "missing-honest-gaps-phase11-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    (text.includes("**Status:** active") || text.includes("**Status:** closed")) &&
+    text.includes("runWordPressCustomerSampleOracleGate") &&
+    text.includes("runCustomerNorthStarMetricsGate") &&
+    text.includes("runCommercialLaunchVerifyGate") &&
+    text.includes("runIrHelperLiftingB6StrlenInlineGate") &&
+    text.includes("runWptpD7HarnessGate") &&
+    text.includes("runHonestGapsImplementationCloseGate") &&
+    text.includes("schema **11**");
+  return { ok: docOk, docOk };
+}
+
+/** G6280 — WordPress customer sample oracle + verify replay. */
+export async function runWordPressCustomerSampleOracleGate(opts = {}) {
+  const fixture = join(scriptRoot, "fixtures/wordpress-customer-sample");
+  const corpusPath = join(fixture, "chrysalis.oracle-corpus.json");
+  const bootstrapPath = join(fixture, "bootstrap/wp-load.php");
+  if (!existsSync(corpusPath) || !existsSync(bootstrapPath)) {
+    return { ok: false, skip: "missing-wordpress-customer-sample" };
+  }
+  const corpus = JSON.parse(readFileSync(corpusPath, "utf8"));
+  const replay = await runProjectVerifyReplay(fixture, {
+    origin: "php",
+    target: "hono",
+    repoRoot: opts.repoRoot ?? scriptRoot,
+    threshold: 1,
+  });
+  const corpusOk =
+    corpus.kind === "chrysalis.wordpress-customer-sample.oracle-corpus" &&
+    Array.isArray(corpus.routes) &&
+    corpus.routes.length >= 3;
+  const ok = corpusOk && replay.ok === true && replay.correctness === 1;
+  return {
+    ok,
+    corpusOk,
+    replayOk: replay.ok === true,
+    correctness: replay.correctness ?? null,
+    routeCount: replay.routeCount ?? null,
+  };
+}
+
+/** G6281 — Customer north-star metrics from status JSON on tiny-blog. */
+export function runCustomerNorthStarMetricsGate() {
+  const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
+  const fixture = join(scriptRoot, "fixtures/tiny-blog");
+  if (!existsSync(cliBin) || !existsSync(join(fixture, "chrysalis.routes.json"))) {
+    return { ok: false, skip: "missing-cli-or-tiny-blog" };
+  }
+  const r = spawnSync(process.execPath, [cliBin, "status", "--json", "--project", fixture], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+    timeout: 120_000,
+  });
+  if (r.status !== 0) return { ok: false, skip: "status-json-failed", exitCode: r.status ?? null };
+  let summary;
+  try {
+    summary = JSON.parse(r.stdout.trim());
+  } catch {
+    return { ok: false, skip: "invalid-status-json" };
+  }
+  const residual = summary.residualLegacy ?? summary.residual ?? null;
+  const holeCount = typeof residual?.holeCount === "number" ? residual.holeCount : null;
+  const insights = summary.insights;
+  const migration = summary.migration;
+  const ok =
+    holeCount !== null &&
+    insights !== null &&
+    typeof insights.total === "number" &&
+    migration !== null &&
+    typeof migration.coverage?.holes === "number";
+  return { ok, holeCount, insightTotal: insights?.total ?? null };
+}
+
+/** G6282 — Commercial launch verify (license CLI + SKU fixture). */
+export function runCommercialLaunchVerifyGate() {
+  const skuPath = join(scriptRoot, "fixtures/commercial/sku-tiers.json");
+  if (!existsSync(skuPath)) return { ok: false, skip: "missing-sku-tiers" };
+  const sku = JSON.parse(readFileSync(skuPath, "utf8"));
+  const r = spawnSync("pnpm", ["exec", "vitest", "run", "packages/cli/tests/license-cli.test.ts"], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+    shell: true,
+    timeout: 180_000,
+  });
+  const skuOk =
+    sku.kind === "chrysalis.commercial.sku-tiers" &&
+    Array.isArray(sku.tiers) &&
+    sku.tiers.length >= 3 &&
+    sku.ordering?.includes("dev");
+  const ok = r.status === 0 && skuOk;
+  return { ok, licenseTestOk: r.status === 0, skuOk };
+}
+
+/** G6283 — IR helper lifting B6 strlen formal assign inline. */
+export function runIrHelperLiftingB6StrlenInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_strlen.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_phi.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b6-strlen-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync("pnpm", ["exec", "vitest", "run", "packages/ingest/tests/lift-helper-sql-param-inline.test.ts"], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+    shell: true,
+    timeout: 180_000,
+  });
+  const ok =
+    r.status === 0 &&
+    helper.includes("strlen") &&
+    doc.includes("runIrHelperLiftingB6StrlenInlineGate") &&
+    doc.includes("B6 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6284 — WPTP D7 harness (Chrysalis-local audit). */
+export function runWptpD7HarnessGate() {
+  const r = spawnSync("pnpm", ["run", "wptp:d7-audit"], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+    shell: true,
+    timeout: 300_000,
+  });
+  return { ok: r.status === 0, exitCode: r.status ?? null };
+}
+
+/** G6285 — Phase 11 honest gaps depth gate. */
+export async function runHonestGapsPhase11DepthGate(opts = {}) {
+  const wordpress = await runWordPressCustomerSampleOracleGate(opts);
+  const northStar = runCustomerNorthStarMetricsGate();
+  const commercial = runCommercialLaunchVerifyGate();
+  const irHelper = runIrHelperLiftingB6StrlenInlineGate();
+  const wptp = runWptpD7HarnessGate();
+  const ok =
+    wordpress.ok === true &&
+    northStar.ok === true &&
+    commercial.ok === true &&
+    irHelper.ok === true &&
+    wptp.ok === true;
+  return {
+    ok,
+    wordpressOk: wordpress.ok === true,
+    northStarOk: northStar.ok === true,
+    commercialOk: commercial.ok === true,
+    irHelperOk: irHelper.ok === true,
+    wptpOk: wptp.ok === true,
+  };
+}
+
+/** G6291 — Phase 11 default queue (STRATEGIC-PLAN §12). */
+export function runStrategicPlanPhase11DefaultQueueGate() {
+  const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("Phase 11") &&
+    text.includes("HONEST-GAPS-PHASE-11.md") &&
+    text.includes("G6280–G6290");
+  return { ok, phase11Ok: ok };
+}
+
+/** G6292 — Phase 11 active governance. */
+export async function runPhase11ActiveGovernanceGate(_opts = {}) {
+  const doc = runHonestGapsPhase11DocGate();
+  const strategicPlan = runStrategicPlanPhase11DefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const scaffolding = runHonestGapsProgramCompleteGate();
+  const ok =
+    doc.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    scaffolding.ok === true &&
+    isHonestGapsPhase11Active();
+  return {
+    ok,
+    docOk: doc.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    scaffoldingOk: scaffolding.ok === true,
+    mode: "phase11",
+  };
+}
+
+/** G6290 — Honest gaps implementation close (Phase 11). */
+export async function runHonestGapsImplementationCloseGate(opts = {}) {
+  const doc = runHonestGapsPhase11DocGate();
+  const scaffolding = runHonestGapsProgramCompleteGate();
+  const depth = await runHonestGapsPhase11DepthGate(opts);
+  const maintenance = await runMaintenanceModeGovernanceGate(opts);
+  const ok = doc.ok === true && scaffolding.ok === true && depth.ok === true && maintenance.ok === true;
+  return {
+    ok,
+    docOk: doc.ok === true,
+    scaffoldingOk: scaffolding.ok === true,
+    depthOk: depth.ok === true,
+    maintenanceOk: maintenance.ok === true,
+    phase11Active: isHonestGapsPhase11Active(),
+  };
+}
+
 /** G6261 — Maintenance program complete gate (post Phase 10 archive). */
 export async function runMaintenanceProgramCompleteGate(opts = {}) {
   const archive = await runStrategicPlanPhase10ProgramArchiveCloseGate(opts);
   const gaps = runHonestGapsProgramCompleteGate();
+  const phase11 =
+    isHonestGapsPhase11Active() || isHonestGapsPhase11Closed()
+      ? await runHonestGapsImplementationCloseGate(opts)
+      : { ok: true };
   const northStar = runNorthStarMetricsHonestyGate();
   const maintenance = await runMaintenanceModeGovernanceGate(opts);
   const ok =
     archive.ok === true &&
     gaps.ok === true &&
+    phase11.ok === true &&
     northStar.ok === true &&
     maintenance.ok === true &&
     isPhase10ProductionParityClosed();
@@ -3115,6 +3357,7 @@ export async function runMaintenanceProgramCompleteGate(opts = {}) {
     ok,
     archiveOk: archive.ok === true,
     honestGapsOk: gaps.ok === true,
+    phase11Ok: phase11.ok === true,
     northStarOk: northStar.ok === true,
     maintenanceOk: maintenance.ok === true,
     programClosed: isPhase10ProductionParityClosed(),

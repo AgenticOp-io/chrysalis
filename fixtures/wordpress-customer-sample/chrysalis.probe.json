@@ -1,0 +1,11 @@
+{
+  "kind": "chrysalis.wordpress-customer-sample.oracle",
+  "schemaVersion": 1,
+  "fixture": "fixtures/wordpress-customer-sample",
+  "captureRoutes": [
+    { "method": "GET", "path": "/" },
+    { "method": "GET", "path": "/wp-admin" },
+    { "method": "GET", "path": "/wp-json/wp/v2/posts" }
+  ],
+  "note": "Customer-sample WordPress oracle — bootstrap/wp-load.php + REST route (G6280)"
+}

@@ -47,19 +47,19 @@
 
 ---
 
-## 4. Honest gaps (scaffolded — operator/customer action)
+## 4. Honest gaps (implemented — operator-only remainder)
 
-All five deferrals are **indexed**, **documented**, and **gate-verified** (**G6262–G6270**). They are not in-repo build backlog unless STRATEGIC-PLAN §13 is amended.
+In-repo implementation **closed** at **G6290** (Phase 11). Gates remain green via `pnpm run hub:honest-gaps-implementation-close-smoke`.
 
-| Gap | Scaffold doc / gate | Operator action |
+| Gap | In-repo (shipped) | Operator-only remainder |
 | --- | --- | --- |
-| Real WordPress core install (not stub) | `docs/WORDPRESS-CUSTOMER-ORACLE.md` — **G6262** | Customer oracle capture on live WP tree |
-| Customer north-star metrics on a live slice | `docs/CUSTOMER-NORTH-STAR-METRICS.md` — **G6263** | Measure STRATEGIC-PLAN §0 metrics on pilot |
-| Commercial launch (SKUs/pricing) | `docs/COMMERCIAL.md` — **G6264** | Contracts + billing outside repo |
-| Broader IR helper lifting (non-B5) | `docs/IR-HELPER-LIFTING.md` — **G6265** | Plan amendment before new lift program |
-| WPTP D2+ sibling repos | `docs/MASTER-PROGRAM.md` — **G6266** | Ongoing D7 expansion in sibling repos |
+| Real WordPress core install | `fixtures/wordpress-customer-sample` + **G6280** | Live customer tree oracle capture |
+| Customer north-star metrics | **G6281** status JSON on `tiny-blog` | Pilot metrics on proprietary slice |
+| Commercial launch | **G6282** license verify + SKU fixture | Billing/contracts outside repo |
+| IR helper lifting (non-B5) | **G6283** B6 `strlen()` inline | Further B6+ design passes |
+| WPTP D2+ sibling repos | **G6284** D7 harness audit | Ongoing D7 expansion in siblings |
 
-**Composite gate:** `runHonestGapsProgramCompleteGate` (**G6270**)
+**Composite gates:** `runHonestGapsProgramCompleteGate` (**G6270**), `runHonestGapsImplementationCloseGate` (**G6290**)
 
 ---
 

@@ -235,21 +235,21 @@ Without plan amendment, treat these as **out of scope**:
 - LLM repair that bypasses verify  
 - Rebranding structural-only matrix depth as full-stack oracle parity
 
-**Amended 2026-06-19:** WordPress vertical, Runtime Phase C production SQL/session, customer-route matrix expansion, and multi-language evidence path are **in scope** under **Phase 10** (`docs/PRODUCTION-PARITY-PHASE-10.md`).
+**Amended 2026-06-19 (Phase 11):** Honest gaps implementation (**G6280–G6290**) — WordPress customer sample oracle, north-star metrics automation, commercial launch verify, IR helper B6, WPTP D7 harness. See `docs/HONEST-GAPS-PHASE-11.md`.
 
 ---
 
 ## 12. Default queue (maintenance)
 
-**Status:** **maintenance only** (2026-06-19). Strategic plan phases **0–10 closed** (**G5680–G6257**).
+**Status:** **maintenance only** (2026-06-19). Strategic plan phases **0–10** and Phase 11 honest gaps **closed** (**G5680–G6290**).
 
 When the user says "build" without specifying:
 
 1. Use **maintenance** triggers in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
 2. Do **not** treat archive ship logs or closed phase docs as active backlog.
-3. Verify: `pnpm run hub:maintenance-mode-governance-smoke`, `pnpm run hub:maintenance-program-complete-smoke`, `pnpm run hub:honest-gaps-program-complete-smoke`, or `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`.
+3. Verify: `pnpm run hub:maintenance-program-complete-smoke`, `pnpm run hub:honest-gaps-implementation-close-smoke`.
 
-Closed Phase 10 detail (reference only): [`docs/PRODUCTION-PARITY-PHASE-10.md`](./PRODUCTION-PARITY-PHASE-10.md).
+Closed programs: Phase 10 (`docs/PRODUCTION-PARITY-PHASE-10.md`), Phase 11 (`docs/HONEST-GAPS-PHASE-11.md`).
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 

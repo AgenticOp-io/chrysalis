@@ -1,0 +1,11 @@
+{
+  "kind": "chrysalis.commercial.sku-tiers",
+  "schemaVersion": 1,
+  "tiers": [
+    { "sku": "eval", "tier": "dev", "CHRYSALIS_LICENSE_MIN_TIER": "dev" },
+    { "sku": "team", "tier": "pro", "CHRYSALIS_LICENSE_MIN_TIER": "pro" },
+    { "sku": "enterprise", "tier": "enterprise", "CHRYSALIS_LICENSE_MIN_TIER": "enterprise" }
+  ],
+  "ordering": "dev < pro < enterprise",
+  "note": "In-tree SKU mapping for commercial launch verify (G6282); billing remains outside repo"
+}

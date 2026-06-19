@@ -102,6 +102,12 @@
       "path": "/tau",
       "file": "pages/show_tau.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/phi",
+      "file": "pages/show_phi.php",
+      "pathParams": []
     }
   ]
 }

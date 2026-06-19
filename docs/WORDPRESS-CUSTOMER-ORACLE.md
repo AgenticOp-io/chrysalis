@@ -2,7 +2,7 @@
 
 > **Status:** scaffolded (2026-06-19) — **G6262**  
 > **Gate:** `runWordPressCustomerOracleScaffoldingGate`  
-> **In-repo dev path:** `fixtures/wordpress-core-stub`, `fixtures/wordpress-probe`  
+> **In-repo dev path:** `fixtures/wordpress-core-stub`, `fixtures/wordpress-probe`, `fixtures/wordpress-customer-sample` (**G6280**)  
 > **Production path:** customer-owned WordPress install + oracle capture (outside CI)
 
 ## Goal

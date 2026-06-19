@@ -1,0 +1,34 @@
+{
+  "app": "wordpress-customer-sample",
+  "wordpressEffectCallees": [
+    "add_action",
+    "apply_filters",
+    "get_bloginfo",
+    "wp_head",
+    "wp_footer",
+    "is_admin",
+    "wp_die",
+    "current_user_can",
+    "wp_create_nonce"
+  ],
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "file": "pages/public_home.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/wp-admin",
+      "file": "pages/admin_home.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/wp-json/wp/v2/posts",
+      "file": "pages/rest_posts.php",
+      "pathParams": []
+    }
+  ]
+}
