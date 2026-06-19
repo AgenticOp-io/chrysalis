@@ -234,8 +234,18 @@ When the user says "build" without specifying:
 1. Prefer **maintenance** triggers in [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
 2. Do **not** reopen closed programs without §13 amendment.
 3. Historical ship log (G5680–G6153): [`docs/archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md).
+4. Verify governance: `pnpm run hub:maintenance-mode-governance-smoke` (**G6160**).
 
 **Paused items, honest gaps, and archive pointers:** single index → [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+### Without plan amendment, do not build
+
+| Blocked | Pointer |
+| --- | --- |
+| Unpause production SQL/session (Runtime Phase C) | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §4 |
+| WordPress vertical, matrix gold marketing, "any language production-ready" | §3 |
+| New phased program (Phase 10+) | §7 |
+| Treating archive ship logs as active backlog | §6 |
 
 ---
 

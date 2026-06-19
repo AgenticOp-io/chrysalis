@@ -31,6 +31,7 @@ Work here is **triggered by evidence**, not scheduled slices.
 | Redaction / verify regression | Lockstep Node + PHP redactor; run oracle smoke tests | `AGENTS.md` |
 | Refresh strict product proof | GCE only: `pnpm run test:gce:phase8-strict` | `docs/PRODUCT-PROOF-PHASE-8.md` |
 | Full CI-scale test run | `pnpm run test:gce` on Linux VM | `docs/GCE-LOCAL-VERIFY.md` |
+| Governance boundary check | `pnpm run hub:maintenance-mode-governance-smoke` | **G6160** — Phase C still paused, no feature backlog |
 
 **Cross-cutting hygiene** (security redaction, verify concurrency, docs accuracy) stays ongoing — see trimmed `ROADMAP.md` § Maintenance hygiene.
 

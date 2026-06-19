@@ -2029,6 +2029,73 @@ export async function runStrategicPlanPhase9OperationalCloseGate(opts = {}) {
   };
 }
 
+/** G6161 — Paused backlog / maintenance index doc gate. */
+export function runPausedAndMaintenanceDocGate() {
+  const path = join(scriptRoot, "docs/PAUSED-AND-MAINTENANCE.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
+  const text = readFileSync(path, "utf8");
+  const docOk =
+    text.includes("## 1. Default queue today") &&
+    text.includes("## 2. Maintenance") &&
+    text.includes("## 3. Policy-paused") &&
+    text.includes("WordPress vertical") &&
+    text.includes("Matrix gold for marketing") &&
+    text.includes("## 4. Honest gaps") &&
+    text.includes("Production SQL/session parity") &&
+    text.includes("Phase C paused") &&
+    text.includes("## 6. Closed programs") &&
+    text.includes("Do not treat closed program tables");
+  return { ok: docOk, docOk };
+}
+
+/** G6162 — Strategic plan maintenance-only default queue gate. */
+export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("## 12. Default queue (maintenance)") &&
+    text.includes("maintenance only") &&
+    text.includes("PAUSED-AND-MAINTENANCE.md") &&
+    text.includes("Strategic plan phases 0–9") &&
+    text.includes("Default build → **maintenance**");
+  return { ok, maintenanceOk: ok };
+}
+
+/** G6163 — ROADMAP maintenance default + no feature backlog gate. */
+export function runRoadmapMaintenanceDefaultQueueGate() {
+  const path = join(scriptRoot, "ROADMAP.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-roadmap" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("There is no active feature backlog") &&
+    text.includes("PAUSED-AND-MAINTENANCE.md") &&
+    text.includes("Closed programs (archive only)") &&
+    text.includes("Do **not** treat these as active backlog");
+  return { ok, roadmapOk: ok };
+}
+
+/** G6160 — Maintenance-mode governance (policy boundaries without plan amendment). */
+export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  const pausedDoc = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const sessionSqlHonesty = runRuntimeSessionSqlHonestyGate();
+  const ok =
+    pausedDoc.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    sessionSqlHonesty.ok === true;
+  return {
+    ok,
+    pausedDocOk: pausedDoc.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    sessionSqlHonestyOk: sessionSqlHonesty.ok === true,
+    phaseCPaused: sessionSqlHonesty.ok === true,
+  };
+}
+
 export async function runEmitVerifyMegaGate(opts = {}) {
   const repoRoot = opts.repoRoot ?? scriptRoot;
   const hono = await runProjectVerifyHttp(flagshipDir, { origin: "cwl", target: "hono", repoRoot, threshold: 1 });
