@@ -1,8 +1,8 @@
 # WISP Module_Manager — full CWL reference POC (Phase 12–13)
 
 > **Role:** **Important POC** — not the north star. The north star is **CWL** ([`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md)). WISP proves surface waves on a real app; wins here must **generalize** to other migrations.  
-> **Status:** active — **Phase 0 closed** (2026-06-19, **G6310**); **Phase 13 closed** (2026-06-19, **G6410**); **Phase 14 operator** (HSS deploy) **active**  
-> **Queue:** **G6300–G6420** closed; **G6500+** HSS operator deploy (ACS / GenieACS **not** CWL depth)  
+> **Status:** **maintenance** — **Phase 0 closed** (2026-06-19, **G6310**); **Phase 13 closed** (2026-06-19, **G6410**); **Phase 14 closed** (2026-06-19, **G6690**)  
+> **Queue:** **G6300–G6420** closed; **G6500–G6700** closed; **CWL language:** maintenance per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md)  
 > **Template app:** [AgenticOp-io/WISP-Management](https://github.com/AgenticOp-io/WISP-Management) `Module_Manager/`  
 > **Local path (operator):** `C:\Users\david\Downloads\WISPTools\Module_Manager`  
 > **Authority:** STRATEGIC-PLAN §13 amendment 2026-06-19 — **DESIGN D6192**
@@ -13,7 +13,9 @@ WISP is the **reference full-stack CWL migration** for the **Module_Manager UI l
 
 **Phase 13 close (G6410):** M0→M6 surface waves — Pages, Data, UI holes, and **CWL Effects** (`session.read` on protected routes) — verified `pnpm run hub:wisp-cwl-phase13-close-smoke`.
 
-**Phase 14 (active — operator):** Refresh **HSS site** deploy (chimera/CWL front → `https://hss.wisptools.io` proxy). **ACS / GenieACS / TR-069** remain **operator infra** on `acs-hss-server` — **not** CWL language goals (**DESIGN D6204**). Default CWL build: maintenance per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+**Phase 14 close (G6690):** HSS operator deploy archived — chimera demo on GCE, proxy to `https://hss.wisptools.io`, client redirects, remote verify. Regression: `pnpm run hub:wisp-cwl-phase14-program-close-smoke` and `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**).
+
+**Phase 14 (closed — operator):** Refresh **HSS site** deploy (chimera/CWL front → `https://hss.wisptools.io` proxy). **ACS / GenieACS / TR-069** remain **operator infra** on `acs-hss-server` — **not** CWL language goals (**DESIGN D6204**). Default CWL build: maintenance per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
 ## Definition of done (program close G6310)
 
@@ -200,7 +202,7 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 
 **Phase 13 close (G6410):** M0–M6 gates green + taxonomy + single login UI hole. Regression: `pnpm run hub:wisp-cwl-phase13-close-smoke`.
 
-## Phase 14 — HSS operator deploy (**active**)
+## Phase 14 — HSS operator deploy (**closed G6690**)
 
 **Authority:** **DESIGN D6204** — ACS / GenieACS excluded from CWL language depth; HSS site refresh is **operator** work.
 
@@ -221,7 +223,8 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 | **G6650** | Pipeline remote verify contract (manifest + poc in deploy report) | `pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke` |
 | **G6680** | Operator verify (one-shot live chimera + optional backend) | `pnpm run hub:wisp-cwl-phase14-operator-verify-smoke` |
 | **G6700** | Live HSS backend probe (`hss.wisptools.io`) | `pnpm run hub:wisp-cwl-phase14-live-backend-smoke` |
-| **G6590** | Phase 14 operator program close | `pnpm run hub:wisp-cwl-phase14-close-smoke` |
+| **G6590** | Phase 14 operator readiness composite | `pnpm run hub:wisp-cwl-phase14-close-smoke` |
+| **G6690** | Phase 14 program close (archive operator queue) | `pnpm run hub:wisp-cwl-phase14-program-close-smoke` |
 | G6320 | Pipeline regression | `pnpm run hub:wisp-cwl-pipeline-smoke` |
 | G6330 | Dual deploy config | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |
 
@@ -241,7 +244,9 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 
 **G6700 (live backend):** Optional direct probe to configured HSS backend (`CHRYSALIS_WISP_LIVE_BACKEND_PROBE=1` or `--require` on smoke). CI skips unless env set.
 
-**G6590 (close):** Composite operator readiness — G6520 + G6530 + G6540 + G6600 (doc) + G6650 + G6680 + G6700 + G6330 + G6410 regression.
+**G6590 (operator close):** Composite operator readiness — G6520 + G6530 + G6540 + G6600 (doc) + G6650 + G6680 + G6700 + G6330 + G6410 regression.
+
+**G6690 (program close):** Archive Phase 14 operator queue; governance routes to maintenance + Phase 14/13 regression smokes. Requires **G6590** green and docs/ROADMAP/strategic plan updated to **Phase 14 closed**.
 
 ### Demo topology (Phase 14)
 

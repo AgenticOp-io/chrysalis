@@ -11,8 +11,8 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **Phase 14 HSS operator** (default) | [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14 — chimera/deploy to `hss.wisptools.io`; **not** ACS CWL depth |
-| **CWL language maintenance** | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2 |
+| **CWL language maintenance** (default) | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2 |
+| **Phase 14 operator regression** | `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**), `wisp:operator-verify -- --require` |
 | Phase 12–13 regression | `hub:wisp-cwl-phase13-close-smoke` (**G6410**), `hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
 | Parser mapper gap / new PHP syntax | Maintenance §2 |
@@ -20,7 +20,7 @@
 
 **Close before build:** Phase 13 surface work requires **G6310** closed. Regression: `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`.
 
-**Phase 14 verify:** `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run hub:wisp-cwl-phase14-operator-close-smoke` (**G6520**), `pnpm run hub:wisp-cwl-phase14-hss-proxy-smoke` (**G6530**), `pnpm run hub:wisp-cwl-phase14-demo-manifest-smoke` (**G6540**), `pnpm run hub:wisp-cwl-phase14-remote-demo-smoke` (**G6600**), `pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke` (**G6650**), `pnpm run hub:wisp-cwl-phase14-operator-verify-smoke` (**G6680**), `pnpm run hub:wisp-cwl-phase14-live-backend-smoke` (**G6700**), `pnpm run hub:wisp-cwl-phase14-client-redirect-smoke` (**G6510**), `pnpm run hub:wisp-cwl-pipeline-smoke` (**G6320**), `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` (**G6330**); program doc gate **G6500** (ACS excluded from CWL depth)  
+**Phase 14 closed verify:** `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run wisp:operator-verify -- --require` (**G6680**); full gate list in [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14  
 **Phase 13 verify:** `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:cwl-surface-taxonomy-smoke` (**G6340**)
 **Phase 12 Phase 0 regression:** `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**)
 

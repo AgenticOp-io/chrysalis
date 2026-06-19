@@ -424,6 +424,7 @@
     "hub:wisp-cwl-phase14-pipeline-remote-verify-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-pipeline-remote-verify-smoke.mjs",
     "hub:wisp-cwl-phase14-operator-verify-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-operator-verify-smoke.mjs",
     "hub:wisp-cwl-phase14-live-backend-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-live-backend-smoke.mjs",
+    "hub:wisp-cwl-phase14-program-close-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-program-close-smoke.mjs",
     "hub:wisp-cwl-phase14-close-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-close-smoke.mjs",
     "wisp:demo-manifest": "node scripts/wisp-cwl-demo-manifest.mjs",
     "wisp:verify:demo": "node scripts/wisp-cwl-demo-manifest-verify.mjs",

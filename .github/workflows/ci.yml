@@ -157,6 +157,9 @@ jobs:
       - name: WISP CWL Phase 14 close (G6590)
         run: pnpm run hub:wisp-cwl-phase14-close-smoke
 
+      - name: WISP CWL Phase 14 program close (G6690)
+        run: pnpm run hub:wisp-cwl-phase14-program-close-smoke
+
       - name: WISP CWL pipeline artifact gate
         run: pnpm run ci:wisp-cwl-pipeline
 

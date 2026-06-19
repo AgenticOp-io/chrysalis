@@ -253,29 +253,38 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     expect(gate.liveBackend.ok).toBe(true);
   });
 
+  test("phase14 program close gate (G6690)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase14-program-close-smoke.mjs",
+      "runWispCwlPhase14ProgramCloseGate",
+      { skipOperatorClose: true },
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.closedRecorded).toBe(true);
+    expect(gate.doc.ok).toBe(true);
+  });
+
   test("phase13 closed governance gate (G6413)", () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
       "runPhase13ClosedGovernanceGate",
     );
     expect(gate.ok).toBe(true);
-    expect(gate.mode).toBe("phase14-operator");
+    expect(gate.mode).toBe("phase14-closed");
     expect(gate.phase13CloseOk).toBe(true);
     expect(gate.phase14DocOk).toBe(true);
     expect(gate.m6Ok).toBe(true);
   });
 
-  test("maintenance mode governance routes to phase14-operator (G6160)", () => {
+  test("maintenance mode governance routes to phase14-closed (G6160)", () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
       "runMaintenanceModeGovernanceGate",
     );
     expect(gate.ok).toBe(true);
-    expect(gate.mode).toBe("phase14-operator");
-    expect(gate.clientRedirectOk).toBe(true);
-    expect(gate.hssProxyOk).toBe(true);
-    expect(gate.demoManifestOk).toBe(true);
-    expect(gate.bundleSyncOk).toBe(true);
+    expect(gate.mode).toBe("phase14-closed");
+    expect(gate.phase14CloseOk).toBe(true);
+    expect(gate.programCloseOk).toBe(true);
     expect(gate.phase13CloseOk).toBe(true);
   });
 

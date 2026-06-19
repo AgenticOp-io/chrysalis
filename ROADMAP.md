@@ -6,8 +6,8 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lanes:** **Phase 14 HSS operator deploy** (**D6204**, 2026-06-19); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
-- **Recently shipped:** Phase 13 CWL surfaces close (**G6410**); strategy amendment ACS excluded from CWL depth (**D6204**).
+- **Active lanes:** **CWL language maintenance**; **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
+- **Recently shipped:** Phase 14 HSS operator program close (**G6690**); Phase 13 CWL surfaces close (**G6410**); strategy amendment ACS excluded from CWL depth (**D6204**).
 
 ---
 
@@ -41,15 +41,11 @@ Waves M0→M6 closed all five CWL surfaces on WISP (API contract, Pages, Data, U
 
 ---
 
-## Active queue — Phase 14 HSS operator deploy
+---
+
+## Closed — Phase 14 HSS operator deploy (G6690)
 
 **Authority:** **DESIGN D6204** — [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14
-
-| Goal | Build | Refuse |
-| --- | --- | --- |
-| HSS site / chimera | `wisp:deploy:gce`, `wisp:deploy:firebase`, proxy to `https://hss.wisptools.io` | GenieACS replatform to test VM |
-| Backend VM | Keep MongoDB + GenieACS + Express on `acs-hss-server` | CWL TR-069 handlers |
-| ACS module | Sidecar UI; M4 fixtures regression-only | ACS widget lowering in `runtime-cwl` |
 
 | Gate | Smoke |
 | --- | --- |
@@ -62,12 +58,13 @@ Waves M0→M6 closed all five CWL surfaces on WISP (API contract, Pages, Data, U
 | **G6650** pipeline remote verify | `pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke` |
 | **G6680** operator verify | `pnpm run hub:wisp-cwl-phase14-operator-verify-smoke` |
 | **G6700** live HSS backend | `pnpm run hub:wisp-cwl-phase14-live-backend-smoke` |
-| **G6590** Phase 14 close | `pnpm run hub:wisp-cwl-phase14-close-smoke` |
+| **G6590** operator readiness | `pnpm run hub:wisp-cwl-phase14-close-smoke` |
+| **G6690** program close | `pnpm run hub:wisp-cwl-phase14-program-close-smoke` |
 | G6320 | `pnpm run hub:wisp-cwl-pipeline-smoke` |
 | G6330 | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |
 | G6410 regression | `pnpm run hub:wisp-cwl-phase13-close-smoke` |
 
-**CWL language queue:** maintenance only — do not treat ACS / GenieACS as north-star depth.
+Deploy/maintenance: `pnpm run wisp:deploy:gce`, `pnpm run wisp:operator-verify`, `pnpm run wisp:verify:demo`.
 
 ---
 
@@ -111,11 +108,11 @@ Module wave detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-
 
 ## Default queue — CWL language maintenance
 
-When **not** building Phase 14 operator deploy: reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+**Phase 14 closed (G6690).** Reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
-**Verify:** `pnpm run hub:maintenance-program-complete-smoke`, `pnpm run hub:honest-gaps-implementation-close-smoke`
+**Verify:** `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:maintenance-mode-governance-smoke`
 
-Closed programs: Phase 10, Phase 11 (`docs/HONEST-GAPS-PHASE-11.md`).
+Closed programs: Phase 10, Phase 11, Phase 14 operator (`docs/WISP-CWL-FULLSTACK-PROGRAM.md`).
 
 ---
 

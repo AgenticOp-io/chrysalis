@@ -195,7 +195,7 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 **Strategic plan phases 0–10:** all reinforcement queues **closed** (**G5680–G6257**).
 
-**Default build queue:** **Phase 14 HSS operator deploy** unless amended (§12). **Phase 12 Phase 0 closed** (**G6310**). **Phase 13 CWL surfaces closed** (**G6410**). **CWL language:** maintenance — no ACS / GenieACS depth.
+**Default build queue:** **CWL language maintenance** per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md). **Phase 14 closed** (**G6690**). **Phase 13 CWL surfaces closed** (**G6410**). **Phase 12 Phase 0 closed** (**G6310**).
 
 ### Phase 12 — WISP CWL flagship (Phase 0 closed)
 
@@ -211,12 +211,13 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 - **Program:** WISP module waves M0–M6 closed **CWL API → Pages → Data → UI → Effects** per [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
 - **Refuse:** sidecar bridges without holes; “full replacement” claims while `hub-svelte:page-component` remains
 
-### Phase 14 — WISP HSS operator deploy (**active build queue**)
+### Phase 14 — WISP HSS operator deploy (**closed G6690**)
 
 - **Authority:** **DESIGN D6204** — [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14
-- **Goal:** Refresh **HSS site** (chimera/CWL front → `https://hss.wisptools.io`); keep **GenieACS + MongoDB** on `acs-hss-server` as operator infra
-- **Refuse:** ACS / TR-069 / GenieACS as **CWL language** goals (no runtime special cases, no ACS widget lowering, no backend conversion)
-- **Verify:** `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run wisp:operator-verify -- --require` (**G6680**), `pnpm run hub:wisp-cwl-phase14-remote-demo-smoke` (**G6600**, live with `--require`), `pnpm run hub:wisp-cwl-pipeline-smoke`, `pnpm run hub:wisp-cwl-dual-deploy-config-smoke`, Phase 13 regression **G6410**
+- **Close G6690:** `pnpm run hub:wisp-cwl-phase14-program-close-smoke`
+- **Operator regression G6590:** `pnpm run hub:wisp-cwl-phase14-close-smoke`
+- **Refuse:** ACS / GenieACS / TR-069 as **CWL language** goals (no runtime special cases, no ACS widget lowering, no backend conversion)
+- **Verify:** `pnpm run hub:wisp-cwl-phase14-program-close-smoke`, `pnpm run wisp:operator-verify -- --require`, Phase 13 regression **G6410**
 
 ---
 
@@ -277,20 +278,24 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (maintenance + Phase 14 operator)
+**Amended 2026-06-19 (Phase 14 close — G6690):** HSS operator deploy program archived; maintenance default queue resumes. Operator regression via **G6590** / **G6690**. ACS / GenieACS remain excluded from CWL depth (**D6204**).
 
-**Status:** **Phase 14 HSS operator deploy active** (**D6204**, 2026-06-19); **Phase 13 closed** (**G6410**); **Phase 12 Phase 0 closed** (**G6310**). Phases **0–11 closed** (**G5680–G6290**).
+---
+
+## 12. Default queue (maintenance)
+
+**Status:** **Phase 14 closed** (**G6690**, 2026-06-19); **Phase 13 closed** (**G6410**); **Phase 12 Phase 0 closed** (**G6310**). Phases **0–11 closed** (**G5680–G6290**).
 
 When the user says "build" without specifying:
 
-1. **Phase 14 operator** — HSS chimera/deploy refresh per [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14 (**not** ACS / GenieACS CWL depth)
-2. **CWL language maintenance** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2
+1. **CWL language maintenance** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2
+2. **Phase 14 regression** — `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**)
 3. **Phase 13 regression** — `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**)
 4. Verify: `pnpm run hub:cwl-surface-taxonomy-smoke`, `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`, `pnpm run hub:wisp-cwl-pipeline-smoke`
 
-**Close before build:** Phase 14 operator work assumes **G6410** green. Do not add ACS / GenieACS to CWL RFC or verify gates without amending **D6204**.
+**Close before build:** Do not add ACS / GenieACS to CWL RFC or verify gates without amending **D6204**.
 
-Closed programs: Phase 10, Phase 11.
+Closed programs: Phase 10, Phase 11, Phase 14 operator.
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
