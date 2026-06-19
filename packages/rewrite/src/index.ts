@@ -49,6 +49,7 @@ export {
 export {
   simulateHandler,
   simValueEquals,
+  normalizeSimValue,
   DEFAULT_STUB_DB,
   type DbReadEvent,
   type DbWriteEvent,

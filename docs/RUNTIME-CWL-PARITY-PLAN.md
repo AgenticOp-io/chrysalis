@@ -40,6 +40,9 @@ Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullst
 | G6206 | `runMysqliProbeIngestSqlGate` | mysqli-probe hole-free ingest |
 | G6207 | `runMysqliProbeVerifyPrepareGate` | mysqli-probe emit prepare |
 | G6209 | `runRuntimeCwlProductionSessionBridgeGate` | `createCwlRuntime({ session })` |
+| G6210+ | `runRuntimeCwlResolveSessionBridgeGate` | cookie → session via `resolveSession` |
+| G6211+ | `runRuntimeCwlSessionResolveStrictGate` | CWL request-context + `body.sid` |
+| G6226 | `runRuntimeCwlSessionResolveProbeGate` | `fixtures/session-resolve-probe` PHP `$_SESSION` echo |
 
 **Non-goal:** marketing "production-ready runtime" without verify evidence.
 

@@ -2130,6 +2130,8 @@ export function runProductionParityPhase10DocGate() {
     text.includes("runWordPressVerticalWpEffectLoweringGate") &&
     text.includes("runWordPressVerticalCoreStubOracleGate") &&
     text.includes("runRuntimeCwlSessionResolveStrictGate") &&
+    text.includes("runRuntimeCwlSessionResolveProbeGate") &&
+    text.includes("runWordPressVerticalWpCallVerifyReplayGate") &&
     text.includes("runStrategicPlanPhase10HubCompletionGate") &&
     text.includes("runStrategicPlanPhase10ProductionParityCloseGate") &&
     text.includes("schema **513**");
@@ -2361,8 +2363,41 @@ export function runRuntimeCwlSessionResolveStrictGate() {
     return { ok: false, skip: "missing-session-resolve-strict" };
   }
   const test = readFileSync(testPath, "utf8");
-  const ok = test.includes("resolveSession session.read echoes user_id") && test.includes("body.sid");
+  const ok =
+    test.includes("resolveSession session.read echoes user_id") &&
+    test.includes("body.sid") &&
+    test.includes("session-resolve-probe");
   return { ok, sessionResolveStrictOk: ok };
+}
+
+/** G6226 — runtime-cwl PHP $_SESSION resolveSession probe gate. */
+export function runRuntimeCwlSessionResolveProbeGate() {
+  const testPath = join(scriptRoot, "packages/runtime-cwl/tests/runtime.test.ts");
+  const rewriteTest = join(scriptRoot, "packages/rewrite/tests/session-read-echo.test.ts");
+  const fixturePath = join(scriptRoot, "fixtures/session-resolve-probe/chrysalis.routes.json");
+  if (!existsSync(testPath) || !existsSync(rewriteTest) || !existsSync(fixturePath)) {
+    return { ok: false, skip: "missing-session-resolve-probe" };
+  }
+  const runtimeTest = readFileSync(testPath, "utf8");
+  const rewrite = readFileSync(rewriteTest, "utf8");
+  const ok =
+    runtimeTest.includes("resolveSession session.read echoes PHP $_SESSION body (G6226)") &&
+    rewrite.includes("normalizeSimValue") &&
+    rewrite.includes('{"user_id":"42"}');
+  return { ok, sessionResolveProbeOk: ok };
+}
+
+/** G6227 — WordPress probe verify replay after wp.call lowering. */
+export async function runWordPressVerticalWpCallVerifyReplayGate(opts = {}) {
+  const wpEffects = await runWordPressVerticalWpEffectLoweringGate();
+  const replay = await runWordPressVerticalVerifyReplayGate(opts);
+  const ok = wpEffects.ok === true && replay.ok === true && replay.correctness === 1;
+  return {
+    ok,
+    wpEffectLoweringOk: wpEffects.ok === true,
+    replayOk: replay.ok === true,
+    correctness: replay.correctness ?? null,
+  };
 }
 
 /** G6217 — WordPress oracle capture prep (probe manifest + routes). */
@@ -2385,7 +2420,7 @@ export function runWordPressVerticalOracleCaptureGate() {
   return { ok, captureRouteCount: capture.length, captureOk };
 }
 
-/** G6216 — WordPress vertical Phase 10 depth (G6212–G6225). */
+/** G6216 — WordPress vertical Phase 10 depth (G6212–G6227). */
 export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
   const probe = await runWordPressVerticalProbeIngestGate();
   const observe = runWordPressVerticalObserveManifestGate();
@@ -2395,6 +2430,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
   const oracleLive = await runWordPressVerticalOracleLiveCaptureGate(_opts);
   const verifyReplay = await runWordPressVerticalVerifyReplayGate(_opts);
   const wpEffects = await runWordPressVerticalWpEffectLoweringGate();
+  const wpCallVerify = await runWordPressVerticalWpCallVerifyReplayGate(_opts);
   const coreStub = await runWordPressVerticalCoreStubOracleGate(_opts);
   const ok =
     probe.ok === true &&
@@ -2405,6 +2441,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
     oracleLive.ok === true &&
     verifyReplay.ok === true &&
     wpEffects.ok === true &&
+    wpCallVerify.ok === true &&
     coreStub.ok === true;
   return {
     ok,
@@ -2416,6 +2453,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
     oracleLiveOk: oracleLive.ok === true,
     verifyReplayOk: verifyReplay.ok === true,
     wpEffectLoweringOk: wpEffects.ok === true,
+    wpCallVerifyOk: wpCallVerify.ok === true,
     coreStubOracleOk: coreStub.ok === true,
   };
 }
@@ -2509,6 +2547,7 @@ export async function runRuntimePhaseCProductionDepthGate(opts = {}) {
   const sessionBridge = runRuntimeCwlProductionSessionBridgeGate();
   const resolveSession = runRuntimeCwlResolveSessionBridgeGate();
   const sessionResolveStrict = runRuntimeCwlSessionResolveStrictGate();
+  const sessionResolveProbe = runRuntimeCwlSessionResolveProbeGate();
   const mysqliIngest = await runMysqliProbeIngestSqlGate();
   const mysqliVerify = await runMysqliProbeSqlVerifyParityGate(opts);
   const ok =
@@ -2517,6 +2556,7 @@ export async function runRuntimePhaseCProductionDepthGate(opts = {}) {
     sessionBridge.ok === true &&
     resolveSession.ok === true &&
     sessionResolveStrict.ok === true &&
+    sessionResolveProbe.ok === true &&
     mysqliIngest.ok === true &&
     mysqliVerify.ok === true;
   return {
@@ -2526,6 +2566,7 @@ export async function runRuntimePhaseCProductionDepthGate(opts = {}) {
     sessionBridgeOk: sessionBridge.ok === true,
     resolveSessionOk: resolveSession.ok === true,
     sessionResolveStrictOk: sessionResolveStrict.ok === true,
+    sessionResolveProbeOk: sessionResolveProbe.ok === true,
     mysqliIngestOk: mysqliIngest.ok === true,
     mysqliVerifyOk: mysqliVerify.ok === true,
   };

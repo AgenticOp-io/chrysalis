@@ -56,7 +56,7 @@ describe("@chrysalis/runtime-cwl", () => {
     const module = loadModuleFromCwlFile(GOLD_CWL, ROOT);
     const runtime = createCwlRuntime({
       module,
-      session: { user_id: { kind: "int", value: 42 }, role: { kind: "string", value: "admin" } },
+      session: { user_id: { kind: "num", value: 42 }, role: { kind: "str", value: "admin" } },
     });
     expect(runtime.routes.length).toBeGreaterThanOrEqual(3);
     const res = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/health" });
@@ -71,7 +71,7 @@ describe("@chrysalis/runtime-cwl", () => {
       module,
       resolveSession: ({ cookies }) => {
         sawCookie = cookies.session_id === "abc123";
-        return { user_id: { kind: "string", value: cookies.session_id ?? "" } };
+        return { user_id: { kind: "str", value: cookies.session_id ?? "" } };
       },
     });
     const res = await runtime.fetch({
@@ -91,7 +91,7 @@ describe("@chrysalis/runtime-cwl", () => {
       module,
       resolveSession: ({ cookies }) => {
         resolvedSid = cookies.session_id ?? "";
-        return { session_id: { kind: "string", value: resolvedSid } };
+        return { session_id: { kind: "str", value: resolvedSid } };
       },
     });
     const res = await runtime.fetch({
@@ -103,6 +103,26 @@ describe("@chrysalis/runtime-cwl", () => {
     expect(resolvedSid).toBe("42");
     const body = JSON.parse(await res.text()) as { sid?: string };
     expect(body.sid).toBe("42");
+  });
+
+  it("resolveSession session.read echoes PHP $_SESSION body (G6226)", async () => {
+    const { ingestDirectory } = await import("@chrysalis/ingest");
+    const probe = resolve(ROOT, "fixtures/session-resolve-probe");
+    const module = await ingestDirectory(probe);
+    const runtime = createCwlRuntime({
+      module,
+      resolveSession: ({ cookies }) => ({
+        user_id: { kind: "str", value: cookies.session_uid ?? "" },
+      }),
+    });
+    const res = await runtime.fetch({
+      method: "GET",
+      url: "http://127.0.0.1/whoami",
+      headers: { cookie: "session_uid=42" },
+    });
+    expect(res.status).toBe(200);
+    const body = JSON.parse(await res.text()) as { user_id?: string };
+    expect(body.user_id).toBe("42");
   });
 
   it("page load sidecar in HTML (G1169)", async () => {

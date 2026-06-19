@@ -262,7 +262,7 @@ export function simulateHandler(
     dbReads: [],
     dbWrites: [],
     sessionWrites: [],
-    sessionScratch: new Map(Object.entries(input.session)),
+    sessionScratch: initSessionScratch(input.session),
     errors: [],
     phpAttributedCalls: [],
     pageLoad: null,
@@ -429,6 +429,25 @@ function toSimValue(v: unknown): SimValue {
   if (typeof v === "number") return { kind: "num", value: v };
   if (typeof v === "boolean") return { kind: "bool", value: v };
   return { kind: "symbol", tag: "unknown-literal" };
+}
+
+/** Coerce injected session maps that use loose `kind` labels into {@link SimValue}. */
+export function normalizeSimValue(v: SimValue): SimValue {
+  const k = (v as { kind: string }).kind;
+  if (k === "string") return { kind: "str", value: String((v as { value: unknown }).value ?? "") };
+  if (k === "int" || k === "integer") {
+    const n = Number((v as { value: unknown }).value);
+    return { kind: "num", value: Number.isFinite(n) ? Math.trunc(n) : 0 };
+  }
+  if (k === "float" || k === "double") {
+    const n = Number((v as { value: unknown }).value);
+    return { kind: "num", value: Number.isFinite(n) ? n : 0 };
+  }
+  return v;
+}
+
+function initSessionScratch(session: Readonly<Record<string, SimValue>>): Map<string, SimValue> {
+  return new Map(Object.entries(session).map(([k, v]) => [k, normalizeSimValue(v)]));
 }
 
 function operand(ctx: SimCtx, n: NodeBase, i: number): SimValue {

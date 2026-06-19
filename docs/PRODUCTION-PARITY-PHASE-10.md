@@ -20,6 +20,7 @@ Phase 10 promotes previously policy-paused workstreams into a **verify-gated** b
 | G6209 | `runRuntimeCwlProductionSessionBridgeGate` | runtime-cwl injected session |
 | G6210+ | `runRuntimeCwlResolveSessionBridgeGate` | cookie → session via `resolveSession` |
 | G6211+ | `runRuntimeCwlSessionResolveStrictGate` | resolveSession + CWL request-context echo |
+| G6226 | `runRuntimeCwlSessionResolveProbeGate` | `fixtures/session-resolve-probe` + `normalizeSimValue` |
 | G6200 | `runRuntimePhaseCProductionParityGate` | composes session + SQL gates |
 
 Runtime plan: [`RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) Phase C **active**.
@@ -39,6 +40,7 @@ Runtime plan: [`RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) Phase
 | G6219 | `runWordPressVerticalVerifyReplayGate` | verify replay correctness 1 |
 | G6224 | `runWordPressVerticalCoreStubOracleGate` | `pnpm run hub:wordpress-core-stub-oracle-smoke` |
 | G6225 | `runWordPressVerticalWpEffectLoweringGate` | manifest `wordpressEffectCallees` → `effect.wp.call` |
+| G6227 | `runWordPressVerticalWpCallVerifyReplayGate` | wp.call lowering + verify replay correctness 1 |
 
 Plan: [`WORDPRESS-VERTICAL-PHASE-10.md`](./WORDPRESS-VERTICAL-PHASE-10.md).
 
@@ -64,7 +66,7 @@ Second-oracle path + capability matrix honesty for additional language claims.
 
 ## Phase E — Hub completion (G6240)
 
-Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **5**).
+Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **6**).
 
 | ID | Gate |
 | --- | --- |
