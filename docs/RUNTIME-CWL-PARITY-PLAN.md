@@ -36,6 +36,10 @@ Registry: `scripts/hub-ingest/hub-cwl-runtime-parity-smoke.mjs`, `hub-cwl-fullst
 | --- | --- | --- |
 | G6202 | `runProductionSessionRedisParityGate` | PHP Redis bridge smoke (`test:oracle-php-session-redis`) |
 | G6203 | `runProductionSqlVerifyParityGate` | tiny-blog verify replay |
+| G6204 | `runRuntimeCwlProductionSessionHonestyGate` | runtime-cwl README + injected session |
+| G6206 | `runMysqliProbeIngestSqlGate` | mysqli-probe hole-free ingest |
+| G6207 | `runMysqliProbeVerifyPrepareGate` | mysqli-probe emit prepare |
+| G6208 | `runRuntimePhaseCProductionDepthGate` | composes G6200 + G6204–G6207 |
 | G6200 | `runRuntimePhaseCProductionParityGate` | composes session + SQL |
 
 **Non-goal:** marketing "production-ready runtime" without verify evidence.

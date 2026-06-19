@@ -21,7 +21,7 @@ function collectWpCalls(mod: Awaited<ReturnType<typeof ingestDirectory>>): strin
 describe("ingest: wordpress-probe fixture", () => {
   test("one route records wp_* as unsupported calls (honest vertical entry slice)", async () => {
     const mod = await ingestDirectory(FIXTURE);
-    expect(mod.roots.length).toBe(1);
+    expect(mod.roots.length).toBe(2);
     expect(collectWpCalls(mod).sort()).toEqual([
       "add_action",
       "apply_filters",

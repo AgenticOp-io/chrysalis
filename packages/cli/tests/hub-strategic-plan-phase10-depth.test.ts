@@ -5,21 +5,6 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
-const ALL_SKIPS = JSON.stringify({
-  strict: false,
-  skipOracleVerify: true,
-  skipEmitHttp: true,
-  skipGoldVerify: true,
-  skipProjectCwlRoundtrip: true,
-  skipCwlRfcRoundtrip: true,
-  skipLaravelLiveGaps: true,
-  skipMigrationOsMegaBatch: true,
-  skipMigrationOsStandaloneBatch: true,
-  skipPhpWedgeFlagships: true,
-  skipEmitParityFlagships: true,
-  skipChimeraOriginBatch: true,
-});
-
 function importSyncGate(modulePath: string, exportName: string) {
   const abs = resolve(ROOT, modulePath).replace(/\\/g, "/");
   const r = spawnSync(
@@ -35,7 +20,7 @@ function importSyncGate(modulePath: string, exportName: string) {
   return JSON.parse(r.stdout.trim());
 }
 
-function importGate(modulePath: string, exportName: string, args = ALL_SKIPS) {
+function importGate(modulePath: string, exportName: string, args = "{}") {
   const abs = resolve(ROOT, modulePath).replace(/\\/g, "/");
   const r = spawnSync(
     process.execPath,
@@ -50,50 +35,65 @@ function importGate(modulePath: string, exportName: string, args = ALL_SKIPS) {
   return JSON.parse(r.stdout.trim());
 }
 
-describe.sequential("hub strategic plan phase10 production parity", () => {
-  test("production parity phase10 doc gate (G6201)", () => {
+describe.sequential("hub strategic plan phase10 depth slices", () => {
+  test("wordpress observe manifest gate (G6213)", () => {
     const gate = importSyncGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
-      "runProductionParityPhase10DocGate",
+      "runWordPressVerticalObserveManifestGate",
     );
     expect(gate.ok).toBe(true);
   });
 
-  test("wordpress vertical phase10 entry gate (G6210)", () => {
+  test("wordpress admin route ingest gate (G6214)", async () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
-      "runWordPressVerticalPhase10EntryGate",
-      "{}",
+      "runWordPressVerticalAdminRouteIngestGate",
     );
     expect(gate.ok).toBe(true);
   });
 
-  test("matrix expansion phase10 gate (G6220)", () => {
-    const gate = importGate(
-      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
-      "runMatrixExpansionPhase10Gate",
-      "{}",
-    );
-    expect(gate.ok).toBe(true);
-  });
-
-  test("runtime session sql honesty gate phase C active (G6102)", () => {
+  test("runtime-cwl session honesty gate (G6204)", () => {
     const gate = importSyncGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
-      "runRuntimeSessionSqlHonestyGate",
+      "runRuntimeCwlProductionSessionHonestyGate",
     );
     expect(gate.ok).toBe(true);
-    expect(gate.phase10Active).toBe(true);
   });
 
-  test("phase10 production parity close gate (G6250) all skips", () => {
+  test("mysqli probe ingest sql gate (G6206)", async () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
-      "runStrategicPlanPhase10ProductionParityCloseGate",
+      "runMysqliProbeIngestSqlGate",
     );
     expect(gate.ok).toBe(true);
-    expect(gate.depthOk).toBe(true);
+  });
+
+  test("matrix customer route registry gate (G6221)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runMatrixCustomerRouteRegistryGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.customerRouteCount).toBe(2);
+  });
+
+  test("multi-language express oracle pair gate (G6231)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runMultiLanguageExpressOraclePairGate",
+    );
+    expect(gate.ok).toBe(true);
+  });
+
+  test("phase10 depth gate (G6241)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runStrategicPlanPhase10DepthGate",
+    );
+    expect(gate.ok).toBe(true);
     expect(gate.wordpressOk).toBe(true);
+    expect(gate.runtimeOk).toBe(true);
     expect(gate.matrixOk).toBe(true);
+    expect(gate.expressOk).toBe(true);
   }, 600_000);
 });

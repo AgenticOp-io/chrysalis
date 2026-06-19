@@ -1,0 +1,11 @@
+{
+  "redaction": {
+    "rules": [
+      { "path": "request.headers.cookie", "kind": "hash" },
+      { "path": "request.cookies.wordpress_logged_in", "kind": "hash" },
+      { "path": "request.post.log", "kind": "mask" },
+      { "path": "request.post.pwd", "kind": "mask" },
+      { "path": "session.user_login", "kind": "hash" }
+    ]
+  }
+}

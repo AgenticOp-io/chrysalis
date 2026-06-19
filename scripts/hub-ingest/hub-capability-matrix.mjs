@@ -11,7 +11,23 @@ import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gol
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 35;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 36;
+
+/** Customer / flagship routes eligible for Phase 10 matrix expansion (not vanity pairs). */
+export const MATRIX_CUSTOMER_ROUTES = [
+  {
+    fixture: "fixtures/wordpress-probe",
+    program: "wordpress-vertical-phase10",
+    tier: "scaffold",
+    note: "wp_* ingest probe; oracle capture pending",
+  },
+  {
+    fixture: "fixtures/mysqli-probe",
+    program: "sql-expansion-phase10",
+    tier: "oracle-product-expand",
+    note: "mysqli/SQLite3 receiver lowering; verify-gated",
+  },
+];
 
 /** @type {const} */
 export const ORACLE_PRODUCT_PAIRS = [
@@ -463,12 +479,15 @@ export function buildHubCapabilityMatrixReport() {
     strategicPlanPhase10ProductionParity: {
       doc: "docs/PRODUCTION-PARITY-PHASE-10.md",
       closeSmokeScript: "pnpm run hub:strategic-plan-phase10-production-parity-close-smoke",
+      depthSmokeScript: "pnpm run hub:strategic-plan-phase10-depth-smoke",
       hubCompletionSection: "phase10ProductionParity",
       hubCompletionSchemaVersion: 513,
       runtimePhaseC: "active",
       matrixExpansionUnblocked: true,
       wordpressVerticalUnblocked: true,
       multiLanguageEvidenceUnblocked: true,
+      customerRouteCount: MATRIX_CUSTOMER_ROUTES.length,
+      customerRoutes: MATRIX_CUSTOMER_ROUTES,
     },
     generatedAt: new Date().toISOString(),
   };

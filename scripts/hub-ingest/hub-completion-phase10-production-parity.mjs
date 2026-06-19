@@ -1,7 +1,7 @@
 /**
  * Hub completion Phase 10 production parity section (G6242).
  */
-export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 1;
+export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 2;
 
 /**
  * @param {{
@@ -19,11 +19,17 @@ export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
     ok: close.ok,
     doc: "docs/PRODUCTION-PARITY-PHASE-10.md",
     script: "pnpm run hub:strategic-plan-phase10-production-parity-close-smoke",
+    depthScript: "pnpm run hub:strategic-plan-phase10-depth-smoke",
     close,
     runtimePhaseC: "active",
+    runtimePhaseCDepth: "G6208",
     wordpressVertical: "unblocked",
+    wordpressDepth: "G6216",
     matrixExpansion: "unblocked",
+    matrixDepth: "G6222",
     multiLanguageEvidence: "second-oracle-path",
+    expressOraclePair: "G6231",
+    depthGate: "G6241",
   };
 }
 

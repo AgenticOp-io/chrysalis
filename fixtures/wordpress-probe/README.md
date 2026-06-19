@@ -1,9 +1,15 @@
 # wordpress-probe
 
-Minimal **Phase 10 WordPress vertical** ingest slice (**G6212**). One public route calls common **`wp_*`** APIs; ingest records them as **`data.call`** (unsupported semantics — not lowered to effects yet).
+Minimal **Phase 10 WordPress vertical** ingest slice (**G6212–G6216**). Public + admin routes call common **`wp_*`** APIs; ingest records them as **`data.call`** (unsupported semantics — not lowered to effects yet).
 
+| Route | File | wp APIs |
+| --- | --- | --- |
+| `GET /` | `pages/public_home.php` | `add_action`, `apply_filters`, `get_bloginfo`, `wp_head`, `wp_footer` |
+| `GET /wp-admin` | `pages/admin_home.php` | `is_admin`, `wp_die`, `current_user_can`, `wp_create_nonce` |
+
+- **Observe manifest:** `chrysalis.observe.json` (**G6213**)
 - **Ingest tests:** `packages/ingest/tests/wordpress-probe.test.ts`
-- **Gate:** `runWordPressVerticalProbeIngestGate` in `hub-cwl-fullstack-gates.mjs`
-- **Smoke:** `pnpm run hub:wordpress-probe-ingest-smoke`
+- **Gates:** `runWordPressVerticalPhase10DepthGate`
+- **Smokes:** `pnpm run hub:wordpress-probe-ingest-smoke`, `pnpm run hub:strategic-plan-phase10-depth-smoke`
 
-**Non-goal:** full plugin/theme oracle — that requires a dedicated WP fixture and capture path (future G6213).
+**Non-goal:** full plugin/theme oracle — dedicated WP capture fixture follows (**G6217+**).

@@ -6,6 +6,12 @@
       "path": "/",
       "file": "pages/public_home.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/wp-admin",
+      "file": "pages/admin_home.php",
+      "pathParams": []
     }
   ]
 }

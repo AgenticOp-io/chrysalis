@@ -375,6 +375,7 @@
     "hub:wordpress-probe-ingest-smoke": "node scripts/hub-ingest/hub-wordpress-probe-ingest-smoke.mjs",
     "hub:strategic-plan-phase10-matrix-expansion-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-matrix-expansion-smoke.mjs",
     "hub:strategic-plan-phase10-production-parity-close-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-production-parity-close-smoke.mjs",
+    "hub:strategic-plan-phase10-depth-smoke": "node scripts/hub-ingest/hub-strategic-plan-phase10-depth-smoke.mjs",
     "hub:laravel-verify-live-gaps-closure-smoke": "node scripts/hub-ingest/hub-laravel-verify-live-gaps-closure-smoke.mjs",
     "hub:gap-reingest-strict-smoke": "node scripts/hub-ingest/hub-gap-reingest-strict-smoke.mjs",
     "hub:laravel-auth-probe-reingest-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-smoke.mjs",

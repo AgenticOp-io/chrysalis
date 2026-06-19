@@ -26,4 +26,4 @@ pnpm exec chrysalis-cwl-serve --cwl fixtures/hub-gold-cwl/routes.cwl --port 8787
 ## Non-goals
 
 - Replacing emitted Hono/Fastify for production migrations (chimera path stays emit + verify).
-- Full SQL/session fidelity (stub DB only; HTTP replay verify remains authoritative).
+- Full SQL/session fidelity in runtime-cwl (Phase 10 **active** — stub session + injected maps; **HTTP replay verify remains authoritative** for production SQL/session claims).
