@@ -11,14 +11,16 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **Maintenance** (default) | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2 |
-| Phase 12 WISP (deploy/maintenance) | [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) — Phase 0 + Phase 13 **closed** |
+| **Phase 14 HSS operator** (default) | [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14 — chimera/deploy to `hss.wisptools.io`; **not** ACS CWL depth |
+| **CWL language maintenance** | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2 |
+| Phase 12–13 regression | `hub:wisp-cwl-phase13-close-smoke` (**G6410**), `hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
 | Parser mapper gap / new PHP syntax | Maintenance §2 |
 | New hole from real customer route | Maintenance §2 + verify |
 
 **Close before build:** Phase 13 surface work requires **G6310** closed. Regression: `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`.
 
+**Phase 14 verify:** `pnpm run hub:wisp-cwl-pipeline-smoke` (**G6320**), `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` (**G6330**); program doc gate **G6500** (ACS excluded from CWL depth)  
 **Phase 13 verify:** `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:cwl-surface-taxonomy-smoke` (**G6340**)
 **Phase 12 Phase 0 regression:** `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**)
 

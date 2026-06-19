@@ -46,10 +46,11 @@ export function runWispCwlTopologyDocGate() {
   const text = readFileSync(path, "utf8");
   const ok =
     text.includes("Topology and deploy") &&
-    text.includes("leave the backend as-is") &&
+    text.includes("leave the HSS backend VM as-is") &&
     text.includes("chrysalis-test-vm") &&
     text.includes("Dual deploy") &&
-    text.includes("Firebase Hosting");
+    text.includes("Firebase Hosting") &&
+    text.includes("GenieACS");
   return { ok, topologyDocOk: ok };
 }
 

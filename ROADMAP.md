@@ -6,8 +6,8 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lanes:** **Phase 13 closed** (**G6410**, 2026-06-19); **Phase 12 WISP Phase 0 closed** (**G6310**); phases **0–11 closed** (**G5680–G6290**).
-- **Recently shipped:** Phase 13 CWL surfaces close (**G6410**, 2026-06-19); Phase 12 WISP Phase 0 close (**G6310**, 2026-06-19).
+- **Active lanes:** **Phase 14 HSS operator deploy** (**D6204**, 2026-06-19); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
+- **Recently shipped:** Phase 13 CWL surfaces close (**G6410**); strategy amendment ACS excluded from CWL depth (**D6204**).
 
 ---
 
@@ -41,14 +41,28 @@ Waves M0→M6 closed all five CWL surfaces on WISP (API contract, Pages, Data, U
 
 ---
 
-## Active queue — Phase 13 CWL surfaces
+## Active queue — Phase 14 HSS operator deploy
 
-**Closed** — see above (**G6410**). Do not treat this section as active backlog.
+**Authority:** **DESIGN D6204** — [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14
 
-<details>
-<summary>Archived Phase 13 table (reference only)</summary>
+| Goal | Build | Refuse |
+| --- | --- | --- |
+| HSS site / chimera | `wisp:deploy:gce`, `wisp:deploy:firebase`, proxy to `https://hss.wisptools.io` | GenieACS replatform to test VM |
+| Backend VM | Keep MongoDB + GenieACS + Express on `acs-hss-server` | CWL TR-069 handlers |
+| ACS module | Sidecar UI; M4 fixtures regression-only | ACS widget lowering in `runtime-cwl` |
 
-Taxonomy: [`docs/CWL-SURFACE-TAXONOMY.md`](./docs/CWL-SURFACE-TAXONOMY.md) (**D6193**, **G6340**)
+| Gate | Smoke |
+| --- | --- |
+| **G6500** doc | `runWispCwlProgramDocGate` (Phase 14 + ACS excluded) |
+| G6320 | `pnpm run hub:wisp-cwl-pipeline-smoke` |
+| G6330 | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |
+| G6410 regression | `pnpm run hub:wisp-cwl-phase13-close-smoke` |
+
+**CWL language queue:** maintenance only — do not treat ACS / GenieACS as north-star depth.
+
+---
+
+## Archived — Phase 13 CWL surfaces (reference)
 
 | Surface | Syntax | WISP module waves |
 | --- | --- | --- |
@@ -76,7 +90,7 @@ Taxonomy: [`docs/CWL-SURFACE-TAXONOMY.md`](./docs/CWL-SURFACE-TAXONOMY.md) (**D6
 
 **M3 (shipped):** `/modules/plan`, `/modules/deploy`, `/modules/coverage-map` CWL Pages with `load`; `/api/plans`, `/api/deploy`, `/api/network` verified; ArcGIS catalogued as `hub-svelte:arcgis-map` client holes.
 
-**M4 (shipped):** ACS (11 routes), HSS, monitoring `@page` + `load`; GenieACS TR-069 via `/api/device-assignment` proxy policy.
+**M4 (shipped, regression-only):** ACS `@page` shells prove generic surface pattern; **ACS / GenieACS excluded from CWL depth** post **D6204**. HSS + monitoring shells remain; operator proxy via `/api/hss`, `/api/device-assignment`.
 
 **M5 (shipped):** All remaining UI routes → native `@page` + `load` (≥99%); `/login` only `hub-svelte:firebase-auth` hole; chimera `*` native prefix.
 
@@ -84,13 +98,11 @@ Module wave detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-
 
 **Close before build:** Phase 13 surface implementation requires **G6310** closed (regression: `hub:wisp-cwl-phase12-phase0-close-smoke`).
 
-</details>
-
 ---
 
-## Default queue — maintenance (when not building Phase 13)
+## Default queue — CWL language maintenance
 
-Phases **0–11 closed**. Reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+When **not** building Phase 14 operator deploy: reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
 **Verify:** `pnpm run hub:maintenance-program-complete-smoke`, `pnpm run hub:honest-gaps-implementation-close-smoke`
 

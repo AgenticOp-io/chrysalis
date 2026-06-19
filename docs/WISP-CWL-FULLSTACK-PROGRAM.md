@@ -1,8 +1,8 @@
 # WISP Module_Manager — full CWL reference POC (Phase 12–13)
 
 > **Role:** **Important POC** — not the north star. The north star is **CWL** ([`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md)). WISP proves surface waves on a real app; wins here must **generalize** to other migrations.  
-> **Status:** active — **Phase 0 closed** (2026-06-19, **G6310**); **Phase 13 closed** (2026-06-19, **G6410**)  
-> **Queue:** **G6300–G6310** closed; **G6340–G6420** Phase 13 surfaces **closed**
+> **Status:** active — **Phase 0 closed** (2026-06-19, **G6310**); **Phase 13 closed** (2026-06-19, **G6410**); **Phase 14 operator** (HSS deploy) **active**  
+> **Queue:** **G6300–G6420** closed; **G6500+** HSS operator deploy (ACS / GenieACS **not** CWL depth)  
 > **Template app:** [AgenticOp-io/WISP-Management](https://github.com/AgenticOp-io/WISP-Management) `Module_Manager/`  
 > **Local path (operator):** `C:\Users\david\Downloads\WISPTools\Module_Manager`  
 > **Authority:** STRATEGIC-PLAN §13 amendment 2026-06-19 — **DESIGN D6192**
@@ -11,7 +11,9 @@ WISP is the **reference full-stack CWL migration** for the **Module_Manager UI l
 
 **Phase 0 close (G6310):** governance, 87 UI routes + API proxy contract, chimera gateway, dual deploy scripts, hole manifest, scenario inventory — verified `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`.
 
-**Phase 13 close (G6410):** M0→M6 surface waves — Pages, Data, UI holes, and **CWL Effects** (`session.read` on protected routes) — verified `pnpm run hub:wisp-cwl-phase13-close-smoke`. **Default build:** maintenance per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+**Phase 13 close (G6410):** M0→M6 surface waves — Pages, Data, UI holes, and **CWL Effects** (`session.read` on protected routes) — verified `pnpm run hub:wisp-cwl-phase13-close-smoke`.
+
+**Phase 14 (active — operator):** Refresh **HSS site** deploy (chimera/CWL front → `https://hss.wisptools.io` proxy). **ACS / GenieACS / TR-069** remain **operator infra** on `acs-hss-server` — **not** CWL language goals (**DESIGN D6204**). Default CWL build: maintenance per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
 ## Definition of done (program close G6310)
 
@@ -28,9 +30,11 @@ WISP is the **reference full-stack CWL migration** for the **Module_Manager UI l
 
 ## Topology and deploy
 
-**Convert the Module_Manager UI to CWL; leave the backend as-is.**
+**Convert the Module_Manager UI to CWL where it generalizes; leave the HSS backend VM as-is.**
 
-The WISP backend on `acs-hss-server` includes Express (`backend-services`), MongoDB, **GenieACS**, HSS integrations, and related ops tooling. That stack is **not** replatformed during Phase 12. The chimera gateway **proxies** `/api/*` (and `/admin` where needed) to the operator backend.
+The **HSS GCE stack** (`acs-hss-server`, `https://hss.wisptools.io`) exists to run **operator backend services**: Express (`backend-services`), **MongoDB** (modernized in place), **GenieACS** (TR-069 binaries), and HSS integrations. That VM is **infra**, not a CWL migration target. Phase 14 **updates how the UI reaches** this stack (chimera proxy, deploy, health) — it does **not** convert GenieACS or Mongo into CWL.
+
+The chimera gateway **proxies** `/api/*` to the operator backend. ACS CPE UI may remain **Svelte sidecar** or static CWL shells (Phase 13 M4 regression fixtures only) — **no further ACS depth** in the language program.
 
 ```text
                     ┌──────────────────────────────────────┐
@@ -51,7 +55,7 @@ The WISP backend on `acs-hss-server` includes Express (`backend-services`), Mong
 | Layer | Role | Notes |
 | --- | --- | --- |
 | **chrysalis-test-vm** (front) | CWL + chimera gateway, optional SvelteKit fallback | `:19100` — we deploy this |
-| **acs-hss-server** (backend) | **Unchanged** — `backend-services`, MongoDB, GenieACS | Proxy target only |
+| **acs-hss-server** (HSS backend VM) | **Unchanged infra** — `backend-services`, MongoDB, **GenieACS** | Built to house GenieACS; proxy target only — **no CWL conversion** |
 
 **Chimera backend URL:** `https://hss.wisptools.io` (nginx → `:3001`). Do **not** use `https://hss.wisptools.io:3001` — port 3001 is plain HTTP.
 
@@ -122,7 +126,8 @@ CWL `@page` routes (e.g. `/docs`) run on **GCE chimera** via `runtime-cwl`. Fire
 | Tenant guard | `TenantGuard.svelte`, `+layout.svelte` | 2 | session + guard |
 | API JWT + X-Tenant-ID | `apiService.ts` | 1 | CWL upstream proxy + session |
 | MongoDB REST | `backend-services/routes/*` | 1 | `hub-cwl:upstream-proxy` → **existing** backend (no CWL backend conversion) |
-| GenieACS / TR-069 | `genieacs-fork`, ACS module | — | **Out of scope** — backend binaries stay on operator VM |
+| GenieACS / TR-069 | `genieacs-fork`, ACS module UI | — | **Operator-only** — binaries on HSS VM; **excluded from CWL depth** (D6204) |
+| ACS CPE UI | `modules/acs-cpe-management/*` | 13 (regression) | M4 `@page` shells in fixtures only; **sidecar/proxy** — no widget lowering |
 | ArcGIS MapView | `arcgisMapController.ts` | 4 | `hub-svelte:arcgis-map` |
 | SharedMap iframe | `SharedMap.svelte` | 4 | `hub-svelte:cross-frame-messaging` |
 | Geocoding | `plan/+page.svelte` | 4 | upstream or geocode proxy |
@@ -195,6 +200,24 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 
 **Phase 13 close (G6410):** M0–M6 gates green + taxonomy + single login UI hole. Regression: `pnpm run hub:wisp-cwl-phase13-close-smoke`.
 
+## Phase 14 — HSS operator deploy (**active**)
+
+**Authority:** **DESIGN D6204** — ACS / GenieACS excluded from CWL language depth; HSS site refresh is **operator** work.
+
+| Goal | In scope | Out of scope |
+| --- | --- | --- |
+| HSS front / chimera | `wisp:deploy:gce`, `wisp:deploy:firebase`, proxy health to `https://hss.wisptools.io` | Replatform GenieACS onto `chrysalis-test-vm` |
+| Backend VM | Keep MongoDB + GenieACS + `backend-services` on `acs-hss-server` | CWL handlers for TR-069 |
+| ACS module | Sidecar UI or committed M4 shells; `/api/device-assignment` in proxy contract | ACS widget parity in `runtime-cwl`; GenieACS lowering |
+
+| ID | Gate | Smoke / command |
+| --- | --- | --- |
+| **G6500** | HSS operator doc + deferral | `runWispCwlProgramDocGate` (Phase 14 section) |
+| G6320 | Pipeline regression | `pnpm run hub:wisp-cwl-pipeline-smoke` |
+| G6330 | Dual deploy config | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |
+
+**Pitfall guard (language program):** Do not let GenieACS, TR-069, or ACS UI drive CWL RFCs, runtime special cases, or verify gates. Catalog as **`hub-cwl:upstream-proxy`** + operator holes only.
+
 ## Operator commands
 
 ### One-command automation
@@ -238,13 +261,15 @@ powershell -ExecutionPolicy Bypass -File .\scripts\gce-wisp-local-stack-deploy.p
 node scripts/wisp-cwl-poc-verify.mjs --base-url http://34.61.255.147:19100 --preview fixtures/hub-wisp-management/cwl-preview.json
 ```
 
-## Non-goals (Phase 0–12 unless amended)
+## Non-goals (Phase 0–14 unless amended)
 
 - Pure CWL UI for all 87 routes (Phase 2+)
 - ArcGIS lowering inside `runtime-cwl` simulation
 - Replacing MongoDB with SQL in Chrysalis engine
-- **Backend / GenieACS conversion to CWL** — deferred; chimera proxies to existing APIs
+- **Backend / GenieACS conversion to CWL** — permanent deferral; chimera proxies to existing APIs
 - Replatforming GenieACS or Mongo onto `chrysalis-test-vm`
+- **ACS / TR-069 as CWL language goals** — operator infra on HSS VM; UI sidecar or static shells only (**D6204**)
+- CWL RFCs or verify gates specialized for GenieACS device models
 
 ## Related
 

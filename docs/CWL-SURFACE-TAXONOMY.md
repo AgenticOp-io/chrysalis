@@ -89,7 +89,9 @@ Programs close surfaces in order — no big-bang rewrite:
 
 **WISP Phase 12 (Phase 0 closed, G6310):** step 1 contract + step 2 partial (`/docs` @page) + step 4 bridged via Svelte sidecar.
 
-**WISP Phase 13 (active build queue):** close steps 2–4 per module wave — see [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Module waves.
+**WISP Phase 13 (closed G6410):** step 2–4 closed on representative modules; M4 ACS routes are **fixture regression only** — not language depth.
+
+**WISP Phase 14 (active operator):** HSS chimera/deploy refresh; **ACS / GenieACS / TR-069 permanently operator-only** — see [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14.
 
 ## WISP module → surface (Phase 13 planning)
 
@@ -99,7 +101,7 @@ Programs close surfaces in order — no big-bang rewrite:
 | M1 dashboard | Data, UI, API | Tenant context in `load`; widgets = UI |
 | M2 admin/customers | API, UI | Admin API already in proxy contract |
 | M3 plan/deploy/coverage-map | UI, Data, API | ArcGIS = client hole until CWL UI policy |
-| M4 acs/hss/monitor | API, UI | GenieACS stays backend; TR-069 via API surface |
+| M4 acs/hss/monitor | API, UI (regression) | **ACS excluded from CWL depth** (D6204); GenieACS operator-only on HSS VM |
 | M5 remainder | All | Pure CWL cutover gate |
 
 ## Gates

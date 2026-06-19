@@ -163,19 +163,21 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
       "runPhase13ClosedGovernanceGate",
     );
     expect(gate.ok).toBe(true);
-    expect(gate.mode).toBe("phase13-closed");
+    expect(gate.mode).toBe("phase14-operator");
     expect(gate.phase13CloseOk).toBe(true);
+    expect(gate.phase14DocOk).toBe(true);
     expect(gate.m6Ok).toBe(true);
   });
 
-  test("maintenance mode governance routes to phase13-closed (G6160)", () => {
+  test("maintenance mode governance routes to phase14-operator (G6160)", () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
       "runMaintenanceModeGovernanceGate",
     );
     expect(gate.ok).toBe(true);
-    expect(gate.mode).toBe("phase13-closed");
+    expect(gate.mode).toBe("phase14-operator");
     expect(gate.phase13CloseOk).toBe(true);
+    expect(gate.phase14DocOk).toBe(true);
     expect(gate.m6Ok).toBe(true);
   });
 
