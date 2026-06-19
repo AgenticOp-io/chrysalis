@@ -3221,9 +3221,11 @@ export function runIrHelperLiftingNonB5DeferredGate() {
   const text = readFileSync(path, "utf8");
   const ok =
     (text.includes("runIrHelperLiftingNonB5DeferredGate") ||
-      text.includes("runIrHelperLiftingB6StrlenInlineGate")) &&
+      text.includes("runIrHelperLiftingB6StrlenInlineGate") ||
+      text.includes("runIrHelperLiftingB7EmptyInlineGate")) &&
     text.includes("B5.5 v16") &&
     text.includes("B6") &&
+    text.includes("B7") &&
     text.includes("G2303");
   return { ok, irHelperNonB5DeferredOk: ok };
 }
@@ -3403,6 +3405,40 @@ export function runIrHelperLiftingB6StrlenInlineGate() {
     helper.includes("strlen") &&
     doc.includes("runIrHelperLiftingB6StrlenInlineGate") &&
     doc.includes("B6 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6730 — IR helper lifting B7 empty() formal assign inline (CWL language maintenance). */
+export function runIrHelperLiftingB7EmptyInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_empty.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_upsilon.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b7-empty-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "vitest",
+      "run",
+      "packages/ingest/tests/lift-helper-sql-param-inline.test.ts",
+      "packages/emit-shared/tests/lib-helper-inline.test.ts",
+    ],
+    {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: true,
+      timeout: 180_000,
+    },
+  );
+  const ok =
+    r.status === 0 &&
+    helper.includes("empty") &&
+    doc.includes("runIrHelperLiftingB7EmptyInlineGate") &&
+    doc.includes("B7 v0");
   return { ok, vitestOk: r.status === 0 };
 }
 

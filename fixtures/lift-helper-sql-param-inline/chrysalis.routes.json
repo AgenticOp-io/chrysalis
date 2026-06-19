@@ -108,6 +108,12 @@
       "path": "/phi",
       "file": "pages/show_phi.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/upsilon",
+      "file": "pages/show_upsilon.php",
+      "pathParams": []
     }
   ]
 }

@@ -77,6 +77,8 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B0–B5.5 v16** remains **closed**. **B6 v0 (G6283):** `strlen()` formal assign inlining on parametric lib SQL helpers — fixture route **`/phi`** on `lift-helper-sql-param-inline`.
 
+**B7 v0 (G6730):** `empty()` formal assign inlining on parametric lib SQL helpers — fixture route **`/upsilon`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB7EmptyInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 

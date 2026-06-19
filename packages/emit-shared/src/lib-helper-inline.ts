@@ -62,7 +62,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | undefined {
   const valueNode = getNode(m, valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -74,6 +74,14 @@ function resolveInlineAssignRhs(
       localToFormal.get(srcName);
     if (formal === undefined) return undefined;
     return { kind: "formal", formal };
+  }
+  if (
+    (valueNode.op === "unaryOp" || valueNode.op === "unaryop") &&
+    String(valueNode.attrs.operator) === "empty" &&
+    valueNode.operands.length === 1
+  ) {
+    const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+    if (inner?.kind === "formal") return { kind: "emptyFormal", formal: inner.formal };
   }
   if (valueNode.op === "binop" && String(valueNode.attrs.operator) === "??" && valueNode.operands.length === 2) {
     const left = getNode(m, valueNode.operands[0]!);
@@ -114,6 +122,10 @@ function resolveInlineAssignRhs(
       const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "strlenFormal", formal: inner.formal };
     }
+    if ((callee === "empty" || callee === "__empty") && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "emptyFormal", formal: inner.formal };
+    }
   }
   return undefined;
 }
@@ -132,6 +144,7 @@ export function tryExtractInlineQuery(
   localToBoolCast: ReadonlyMap<string, string>;
   localToTrimFormal: ReadonlyMap<string, string>;
   localToStrlenFormal: ReadonlyMap<string, string>;
+  localToEmptyFormal: ReadonlyMap<string, string>;
 } | undefined {
   const body = getNode(m, bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
@@ -140,7 +153,7 @@ export function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(m, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map() };
+    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
@@ -150,6 +163,7 @@ export function tryExtractInlineQuery(
   const localToBoolCast = new Map<string, string>();
   const localToTrimFormal = new Map<string, string>();
   const localToStrlenFormal = new Map<string, string>();
+  const localToEmptyFormal = new Map<string, string>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = getNode(m, stmtId);
@@ -189,6 +203,10 @@ export function tryExtractInlineQuery(
         localToStrlenFormal.set(localName, resolved.formal);
         continue;
       }
+      if (resolved.kind === "emptyFormal") {
+        localToEmptyFormal.set(localName, resolved.formal);
+        continue;
+      }
       localToFormal.set(localName, resolved.formal);
       continue;
     }
@@ -197,7 +215,7 @@ export function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(m, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal };
+  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal };
 }
 
 /** Valid TS export name for a PHP lib helper callee (`Class::method`, FQN, or global). */
@@ -344,6 +362,13 @@ export function tryEmitInlineLibHelperCall(
     const len = `String(${formalExpr}).length`;
     subst[local] = len;
     subst[phpVarKey(local)] = len;
+  }
+  for (const [local, formal] of extracted.localToEmptyFormal) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    if (formalExpr === undefined) return undefined;
+    const emptied = `empty(${formalExpr})`;
+    subst[local] = emptied;
+    subst[phpVarKey(local)] = emptied;
   }
   const q = getNode(ctx.m, extracted.queryId);
   if (!q || q.op !== "db.query") return undefined;

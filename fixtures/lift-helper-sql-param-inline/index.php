@@ -15,6 +15,8 @@ require_once __DIR__ . '/lib/sql_param_cast_string.php';
 require_once __DIR__ . '/lib/sql_param_bool.php';
 require_once __DIR__ . '/lib/sql_param_float.php';
 require_once __DIR__ . '/lib/sql_param_trim.php';
+require_once __DIR__ . '/lib/sql_param_strlen.php';
+require_once __DIR__ . '/lib/sql_param_empty.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
