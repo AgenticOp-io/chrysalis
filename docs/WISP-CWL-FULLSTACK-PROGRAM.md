@@ -218,6 +218,24 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 
 **Pitfall guard (language program):** Do not let GenieACS, TR-069, or ACS UI drive CWL RFCs, runtime special cases, or verify gates. Catalog as **`hub-cwl:upstream-proxy`** + operator holes only.
 
+### Demo topology (Phase 14)
+
+| Target | What it shows | Deploy | Firebase on VM? |
+| --- | --- | --- | --- |
+| **`chrysalis-test-vm` :19100** | CWL chimera + Svelte sidecar + `/api/*` → `https://hss.wisptools.io` | `pnpm run wisp:deploy:gce` | **No** — chimera is Node on the VM |
+| **`acs-hss-server` / `hss.wisptools.io`** | GenieACS + Mongo + backend-services (unchanged) | Operator stack only — **not** deployed from this repo | **No** |
+| **Firebase Hosting** (`management.wisptools.io`) | Production SPA + Hosting `apiProxy` rewrites | `pnpm run wisp:deploy:firebase` (separate) | **N/A** — CDN, not GCE |
+
+**Recommendation:** For Phase 14 language/operator demos, **GCE chimera alone is sufficient**. Add **Firebase deploy** only when you need a second URL for the production hosting path — not installed on GCE instances.
+
+**Prerequisites:** `gcloud auth login`, project `chrysalis-dev-f5x6qv`, WISP sidecar build (`Module_Manager` at `CHRYSALIS_WISP_ROOT`).
+
+```powershell
+pnpm run wisp:deploy:gce
+# optional second demo (Hosting CDN, not on VM):
+pnpm run wisp:deploy:firebase
+```
+
 ## Operator commands
 
 ### One-command automation

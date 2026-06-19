@@ -13,7 +13,7 @@
     "backendUrl": "https://hss.wisptools.io",
     "svelteFallback": "http://127.0.0.1:3000",
     "svelteSidecar": true,
-    "cwlNativePrefixes": "/docs"
+    "cwlNativePrefixes": "*"
   },
   "firebase": {
     "hostingTarget": "hosting:management",

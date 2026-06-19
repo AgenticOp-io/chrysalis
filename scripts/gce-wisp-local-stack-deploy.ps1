@@ -27,6 +27,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
 $env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $sshExtra = @()
