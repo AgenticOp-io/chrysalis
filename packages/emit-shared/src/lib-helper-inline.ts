@@ -62,7 +62,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | { kind: "issetFormal"; formal: string } | undefined {
   const valueNode = getNode(m, valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -77,11 +77,15 @@ function resolveInlineAssignRhs(
   }
   if (
     (valueNode.op === "unaryOp" || valueNode.op === "unaryop") &&
-    String(valueNode.attrs.operator) === "empty" &&
     valueNode.operands.length === 1
   ) {
-    const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
-    if (inner?.kind === "formal") return { kind: "emptyFormal", formal: inner.formal };
+    const op = String(valueNode.attrs.operator);
+    if (op === "empty" || op === "isset") {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") {
+        return op === "empty" ? { kind: "emptyFormal", formal: inner.formal } : { kind: "issetFormal", formal: inner.formal };
+      }
+    }
   }
   if (valueNode.op === "binop" && String(valueNode.attrs.operator) === "??" && valueNode.operands.length === 2) {
     const left = getNode(m, valueNode.operands[0]!);
@@ -126,6 +130,10 @@ function resolveInlineAssignRhs(
       const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "emptyFormal", formal: inner.formal };
     }
+    if ((callee === "isset" || callee === "__isset") && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "issetFormal", formal: inner.formal };
+    }
   }
   return undefined;
 }
@@ -145,6 +153,7 @@ export function tryExtractInlineQuery(
   localToTrimFormal: ReadonlyMap<string, string>;
   localToStrlenFormal: ReadonlyMap<string, string>;
   localToEmptyFormal: ReadonlyMap<string, string>;
+  localToIssetFormal: ReadonlyMap<string, string>;
 } | undefined {
   const body = getNode(m, bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
@@ -153,7 +162,7 @@ export function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(m, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map() };
+    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map(), localToIssetFormal: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
@@ -164,6 +173,7 @@ export function tryExtractInlineQuery(
   const localToTrimFormal = new Map<string, string>();
   const localToStrlenFormal = new Map<string, string>();
   const localToEmptyFormal = new Map<string, string>();
+  const localToIssetFormal = new Map<string, string>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = getNode(m, stmtId);
@@ -207,6 +217,10 @@ export function tryExtractInlineQuery(
         localToEmptyFormal.set(localName, resolved.formal);
         continue;
       }
+      if (resolved.kind === "issetFormal") {
+        localToIssetFormal.set(localName, resolved.formal);
+        continue;
+      }
       localToFormal.set(localName, resolved.formal);
       continue;
     }
@@ -215,7 +229,7 @@ export function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(m, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal };
+  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal, localToIssetFormal };
 }
 
 /** Valid TS export name for a PHP lib helper callee (`Class::method`, FQN, or global). */
@@ -369,6 +383,13 @@ export function tryEmitInlineLibHelperCall(
     const emptied = `empty(${formalExpr})`;
     subst[local] = emptied;
     subst[phpVarKey(local)] = emptied;
+  }
+  for (const [local, formal] of extracted.localToIssetFormal) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    if (formalExpr === undefined) return undefined;
+    const isseted = `isset(${formalExpr})`;
+    subst[local] = isseted;
+    subst[phpVarKey(local)] = isseted;
   }
   const q = getNode(ctx.m, extracted.queryId);
   if (!q || q.op !== "db.query") return undefined;

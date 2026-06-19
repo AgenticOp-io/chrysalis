@@ -18,16 +18,20 @@ function importGate(relPath: string, fn: string, opts: Record<string, unknown> =
   return JSON.parse(r.trim());
 }
 
-describe("hub cwl language maintenance", () => {
-  it("cwl language maintenance gate (G6731)", () => {
+describe("hub cwl language v1 close", () => {
+  it("cwl language v1 close gate (G6750)", () => {
     const gate = importGate(
-      "scripts/hub-ingest/hub-cwl-language-maintenance-smoke.mjs",
-      "runCwlLanguageMaintenanceGate",
+      "scripts/hub-ingest/hub-cwl-language-v1-close-smoke.mjs",
+      "runCwlLanguageV1CloseGate",
     );
     expect(gate.ok).toBe(true);
     expect(gate.doc.ok).toBe(true);
+    expect(gate.rfcIndex.ok).toBe(true);
     expect(gate.taxonomy.ok).toBe(true);
+    expect(gate.surfaceTaxonomy.ok).toBe(true);
+    expect(gate.b6.ok).toBe(true);
     expect(gate.b7.ok).toBe(true);
     expect(gate.b8.ok).toBe(true);
+    expect(gate.maintenance.ok).toBe(true);
   });
 });

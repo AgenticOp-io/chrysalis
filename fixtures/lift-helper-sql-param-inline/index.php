@@ -17,6 +17,7 @@ require_once __DIR__ . '/lib/sql_param_float.php';
 require_once __DIR__ . '/lib/sql_param_trim.php';
 require_once __DIR__ . '/lib/sql_param_strlen.php';
 require_once __DIR__ . '/lib/sql_param_empty.php';
+require_once __DIR__ . '/lib/sql_param_isset.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -90,6 +91,18 @@ if ($method === 'GET' && $path === '/sigma') {
 }
 if ($method === 'GET' && $path === '/tau') {
     require __DIR__ . '/pages/show_tau.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/phi') {
+    require __DIR__ . '/pages/show_phi.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/upsilon') {
+    require __DIR__ . '/pages/show_upsilon.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/chi') {
+    require __DIR__ . '/pages/show_chi.php';
     exit;
 }
 

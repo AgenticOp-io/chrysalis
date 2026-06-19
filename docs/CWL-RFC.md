@@ -17,6 +17,9 @@ CWL evolves by **RFC**: each proposal must cite cross-language evidence (path kn
 | [0011](CWL-RFC-0011-full-stack-layouts.md) | Layout imports + page params | accepted |
 | [0012](CWL-RFC-0012-full-stack-components.md) | Full-stack component holes (SvelteKit) | accepted |
 | [0013](CWL-RFC-0013-page-load-functions.md) | Page load / SSR data (`+page.server`) | accepted |
+| [0014](CWL-RFC-0014-html-interpolation.md) | HTML interpolation in `@page` | accepted |
+| [0015](CWL-RFC-0015-production-readiness-probes.md) | Production readiness probes | accepted |
+| [0016](CWL-RFC-0016-form-action-probe.md) | Form action probe + hole catalog | accepted |
 
 **Process**
 

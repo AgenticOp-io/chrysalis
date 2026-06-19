@@ -28,7 +28,7 @@ The user may lock strategy in conversation. Unless they **explicitly** amend it:
 
 **Close before build:** A phase (or phase slice) is not **active for new implementation** until its **close gate** passes and status docs mark it **closed**. Do not start the next queue on scaffolding alone.
 
-**North star vs POC:** **CWL** (final web language) is the product direction; **WISP** is an important reference POC — prioritize generalizable language/engine wins over WISP-only convenience.
+**North star vs POC:** **CWL** (final web language) is authoritative; **WISP** exists solely to **showcase** CWL — prioritize generalizable language/engine wins over WISP-only convenience. **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
 
 **Default implementation queue** when build scope is unclear: [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md) §1 (Phase 13 when open); maintenance §2 otherwise.
 

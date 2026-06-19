@@ -42,7 +42,7 @@ export function buildWispDemoManifest(opts = {}) {
     },
     backend: {
       url: gce.backendUrl ?? prior.backend?.url ?? "https://hss.wisptools.io",
-      policy: "proxy-only — GenieACS/Mongo unchanged on acs-hss-server",
+      policy: "proxy-only — Mongo/backend-services unchanged on acs-hss-server",
     },
     firebase: {
       hostingTarget: firebase.hostingTarget ?? prior.firebase?.hostingTarget,
@@ -54,7 +54,7 @@ export function buildWispDemoManifest(opts = {}) {
       { path: "/login", expect: "svelte-fallback", chimera: "svelte-or-backend" },
       { path: "/api/tenants", expect: "api-proxy", chimera: "backend" },
       { path: "/api/hss", expect: "api-proxy", chimera: "backend" },
-      { path: "/api/device-assignment", expect: "api-proxy", chimera: "backend" },
+      { path: "/api/monitoring", expect: "api-proxy", chimera: "backend" },
     ],
     clientRedirectPaths: WISP_CLIENT_REDIRECT_ROUTES.map((r) => r.path),
     generatedAt: new Date().toISOString(),

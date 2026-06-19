@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Apply WISP Phase 13 M4 — ACS (GenieACS TR-069 proxy), HSS, monitoring module shells.
+ * Apply WISP Phase 13 M4 — HSS + SNMP monitoring module shells (POC showcase).
+ * GenieACS/ACS is WISPTools legacy — not Chrysalis POC scope (DESIGN D6205).
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -18,39 +19,17 @@ export const WISP_M4_SURFACE_MANIFEST_SCHEMA_VERSION = 1;
 const manifestPath = join(fixtureDir, "wisp-m4-surface-manifest.v1.json");
 
 export const M4_API_SURFACES = [
-  "/api/device-assignment",
   "/api/hss",
   "/api/monitoring",
   "/api/snmp",
   "/api/monitoring/graphs",
 ];
 
-const ACS_SECTIONS = [
-  { path: "/modules/acs-cpe-management", pageName: "modules_acs_cpe_management_page", section: "overview", title: "ACS CPE Management" },
-  { path: "/modules/acs-cpe-management/alerts", pageName: "modules_acs_cpe_management_alerts_page", section: "alerts", title: "ACS Alerts" },
-  { path: "/modules/acs-cpe-management/devices", pageName: "modules_acs_cpe_management_devices_page", section: "devices", title: "ACS Devices" },
-  { path: "/modules/acs-cpe-management/faults", pageName: "modules_acs_cpe_management_faults_page", section: "faults", title: "ACS Faults" },
-  { path: "/modules/acs-cpe-management/files", pageName: "modules_acs_cpe_management_files_page", section: "files", title: "ACS Files" },
-  { path: "/modules/acs-cpe-management/firmware", pageName: "modules_acs_cpe_management_firmware_page", section: "firmware", title: "ACS Firmware" },
-  { path: "/modules/acs-cpe-management/graphs", pageName: "modules_acs_cpe_management_graphs_page", section: "graphs", title: "ACS Graphs" },
-  { path: "/modules/acs-cpe-management/monitoring", pageName: "modules_acs_cpe_management_monitoring_page", section: "monitoring", title: "ACS Monitoring" },
-  { path: "/modules/acs-cpe-management/presets", pageName: "modules_acs_cpe_management_presets_page", section: "presets", title: "ACS Presets" },
-  { path: "/modules/acs-cpe-management/settings", pageName: "modules_acs_cpe_management_settings_page", section: "settings", title: "ACS Settings" },
-  { path: "/modules/acs-cpe-management/tasks", pageName: "modules_acs_cpe_management_tasks_page", section: "tasks", title: "ACS Tasks" },
-];
-
-const GENIEACS_NOTE =
-  "GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).";
+const M4_NAV =
+  '<nav class="m4-nav">\n  <a href="/modules/hss-management">HSS</a>\n  <a href="/modules/monitoring">Monitoring</a>\n</nav>';
 
 /** @type {import("./wisp-cwl-apply-module-routes-lib.mjs").LiftRouteSpec[]} */
 export const M4_MODULE_ROUTES = [
-  ...ACS_SECTIONS.map((s) => ({
-    ...s,
-    module: "acs_cpe_management",
-    apiPath: "/api/device-assignment",
-    source: "wisp-m4",
-    extraNote: GENIEACS_NOTE,
-  })),
   {
     path: "/modules/hss-management",
     pageName: "modules_hss_management_page",
@@ -73,13 +52,10 @@ export const M4_MODULE_ROUTES = [
   },
 ];
 
-const ACS_NAV =
-  '<nav class="acs-nav">\n  <a href="/modules/acs-cpe-management/devices">Devices</a>\n  <a href="/modules/acs-cpe-management/tasks">Tasks</a>\n  <a href="/modules/acs-cpe-management/firmware">Firmware</a>\n  <a href="/modules/hss-management">HSS</a>\n  <a href="/modules/monitoring">Monitoring</a>\n</nav>';
-
 /** @param {import("./wisp-cwl-apply-module-routes-lib.mjs").LiftRouteSpec} route */
 function m4ShellHtml(route) {
   const base = genericModuleShellHtml(route);
-  return base.replace("<div class=\"module-shell\">", `<div class="module-shell">\n  ${ACS_NAV}`);
+  return base.replace("<div class=\"module-shell\">", `<div class="module-shell">\n  ${M4_NAV}`);
 }
 
 /** @param {import("./wisp-cwl-apply-module-routes-lib.mjs").LiftRouteSpec} route */
@@ -107,13 +83,12 @@ export function applyM4SurfacesToPreview() {
 
 export function buildM4SurfaceManifest() {
   const text = existsSync(routesPath) ? readFileSync(routesPath, "utf8") : "";
-  const acsNative = ACS_SECTIONS.every((s) => text.includes(`@page GET "${s.path}"`));
   const hssNative = text.includes('@page GET "/modules/hss-management"');
   const monitoringNative = text.includes('@page GET "/modules/monitoring"');
   const manifest = {
     kind: WISP_M4_SURFACE_MANIFEST_KIND,
     schemaVersion: WISP_M4_SURFACE_MANIFEST_SCHEMA_VERSION,
-    ok: acsNative && hssNative && monitoringNative,
+    ok: hssNative && monitoringNative,
     wave: "M4",
     surfaces: {
       api: M4_API_SURFACES,
@@ -123,16 +98,10 @@ export function buildM4SurfaceManifest() {
       })),
       pages: M4_MODULE_ROUTES.map((r) => r.path),
       backendPolicy: {
-        genieacs: "proxy-only — TR-069 via /api/device-assignment",
         hss: "proxy-only — /api/hss",
+        monitoring: "proxy-only — /api/monitoring, /api/snmp",
       },
       uiWidgetHoles: [
-        {
-          host: "/modules/acs-cpe-management/*",
-          widgets: ["GenieAcsDeviceTable", "Tr069TaskRunner", "FirmwarePushWizard"],
-          reason: "hub-svelte:page-component",
-          rfc: "CWL-RFC-0012",
-        },
         {
           host: "/modules/hss-management",
           widgets: ["SubscriberGrid", "HssProfileEditor"],
@@ -147,7 +116,6 @@ export function buildM4SurfaceManifest() {
         },
       ],
     },
-    acsNative,
     hssNative,
     monitoringNative,
     generatedAt: new Date().toISOString(),

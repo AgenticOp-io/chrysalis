@@ -3222,10 +3222,12 @@ export function runIrHelperLiftingNonB5DeferredGate() {
   const ok =
     (text.includes("runIrHelperLiftingNonB5DeferredGate") ||
       text.includes("runIrHelperLiftingB6StrlenInlineGate") ||
-      text.includes("runIrHelperLiftingB7EmptyInlineGate")) &&
+      text.includes("runIrHelperLiftingB7EmptyInlineGate") ||
+      text.includes("runIrHelperLiftingB8IssetInlineGate")) &&
     text.includes("B5.5 v16") &&
     text.includes("B6") &&
     text.includes("B7") &&
+    text.includes("B8") &&
     text.includes("G2303");
   return { ok, irHelperNonB5DeferredOk: ok };
 }
@@ -3442,6 +3444,40 @@ export function runIrHelperLiftingB7EmptyInlineGate() {
   return { ok, vitestOk: r.status === 0 };
 }
 
+/** G6740 — IR helper lifting B8 isset() formal assign inline (CWL language v1 close). */
+export function runIrHelperLiftingB8IssetInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_isset.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_chi.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b8-isset-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "vitest",
+      "run",
+      "packages/ingest/tests/lift-helper-sql-param-inline.test.ts",
+      "packages/emit-shared/tests/lib-helper-inline.test.ts",
+    ],
+    {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: true,
+      timeout: 180_000,
+    },
+  );
+  const ok =
+    r.status === 0 &&
+    helper.includes("isset") &&
+    doc.includes("runIrHelperLiftingB8IssetInlineGate") &&
+    doc.includes("B8 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
 /** G6284 — WPTP D7 harness (Chrysalis-local audit). */
 export function runWptpD7HarnessGate() {
   const r = spawnSync("pnpm", ["run", "wptp:d7-audit"], {
@@ -3563,7 +3599,7 @@ export function isWispCwlPhase14Active() {
   if (!isWispCwlPhase13Closed()) return false;
   if (!existsSync(wispCwlPhase12ProgramDocPath)) return false;
   const text = readFileSync(wispCwlPhase12ProgramDocPath, "utf8");
-  return text.includes("Phase 14") && text.includes("ACS / TR-069 as CWL language goals");
+  return text.includes("Phase 14") && text.includes("GenieACS is WISPTools legacy — not Chrysalis POC scope");
 }
 
 /** @returns {boolean} Phase 13 CWL surface build queue is active. */

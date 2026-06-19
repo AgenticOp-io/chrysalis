@@ -1,12 +1,12 @@
 # fixtures/hub-wisp-management
 
-WISP Module_Manager CWL flagship fixture (Phase 12–14).
+WISP Module_Manager CWL showcase fixture (Phase 12–14).
 
 ## Purpose
 
-Pinned **contract artifacts** for the WISP → CWL program — not a full copy of the WISP repo.
+Pinned **contract artifacts** for the WISP → CWL **showcase POC** — not a full copy of the WISP repo. **CWL is authoritative**; this fixture demonstrates the language on a real app (**D6205**).
 
-**Phase 14 (D6204):** HSS operator deploy is active; **ACS / GenieACS** are **operator-only** — M4 ACS `@page` entries here are **regression fixtures**, not a mandate to deepen ACS in CWL.
+**GenieACS is WISPTools legacy — not Chrysalis POC scope.** Do not plan, gate, or deepen ACS/GenieACS here.
 
 ## Contents
 
@@ -37,5 +37,5 @@ Or set `CHRYSALIS_WISP_ROOT`.
 
 - Committing full WISP source into Chrysalis.
 - Claiming oracle parity for Svelte origins.
-- Converting `backend-services` or GenieACS to CWL (**permanent deferral — D6204**).
-- ACS / TR-069 as CWL language depth (sidecar + proxy only).
+- Converting `backend-services` to CWL (proxy-only).
+- GenieACS / ACS / TR-069 — **WISPTools legacy; not POC scope** (**D6205**).

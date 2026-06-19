@@ -85,19 +85,10 @@ export function buildWispScenarioInventory(root) {
     {
       id: "backend-mongodb",
       category: "api",
-      summary: "Existing Express/MongoDB backend on acs-hss-server — proxy only; no CWL conversion (GenieACS binaries stay operator-owned)",
+      summary: "Existing Express/MongoDB backend on acs-hss-server — proxy only; no CWL conversion",
       files: ["../backend-services/server.js"],
       cwlPhase: 1,
       hole: "hub-cwl:upstream-proxy",
-      backendConversion: "deferred",
-    },
-    {
-      id: "genieacs-tr069",
-      category: "backend",
-      summary: "GenieACS TR-069 — own binaries on backend VM; out of scope for UI CWL program",
-      files: ["../genieacs-fork"],
-      cwlPhase: null,
-      hole: null,
       backendConversion: "deferred",
     },
     {

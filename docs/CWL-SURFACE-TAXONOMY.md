@@ -10,13 +10,13 @@
 
 CWL does **not** replace:
 
-- Databases (MongoDB, SQL), message queues, or GenieACS binaries
+- Databases (MongoDB, SQL), message queues, or WISPTools legacy backend binaries
 - Firebase Auth, Hosting, or Cloud Functions (deployment paths)
 - Browser runtimes (V8) or ArcGIS SDK (client libraries)
 
 Those remain **infra and vendor** layers. CWL replaces **web application language** — the code that declares routes, pages, data loading, effects, and (eventually) UI composition.
 
-**WISP** ([`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)) is the **reference POC** that closes surface waves on a real operator app. It validates the language; it is not the language.
+**WISP** ([`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)) **exists solely to showcase CWL** on a real operator app. It does **not** define the language — **CWL** (RFCs, WebIR, oracle) is authoritative.
 
 ## Surfaces (named layers)
 
@@ -91,7 +91,7 @@ Programs close surfaces in order — no big-bang rewrite:
 
 **WISP Phase 13 (closed G6410):** step 2–4 closed on representative modules; M4 ACS routes are **fixture regression only** — not language depth.
 
-**WISP Phase 14 (active operator):** HSS chimera/deploy refresh; **ACS / GenieACS / TR-069 permanently operator-only** — see [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14.
+**WISP Phase 14 (closed):** HSS chimera/deploy refresh — see [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14.
 
 ## WISP module → surface (Phase 13 planning)
 
@@ -101,7 +101,7 @@ Programs close surfaces in order — no big-bang rewrite:
 | M1 dashboard | Data, UI, API | Tenant context in `load`; widgets = UI |
 | M2 admin/customers | API, UI | Admin API already in proxy contract |
 | M3 plan/deploy/coverage-map | UI, Data, API | ArcGIS = client hole until CWL UI policy |
-| M4 acs/hss/monitor | API, UI (regression) | **ACS excluded from CWL depth** (D6204); GenieACS operator-only on HSS VM |
+| M4 hss/monitor | API, UI | HSS + SNMP monitoring POC showcase (**GenieACS is WISPTools legacy — not POC scope**, **D6205**) |
 | M5 remainder | All | Pure CWL cutover gate |
 
 ## Gates
@@ -109,10 +109,20 @@ Programs close surfaces in order — no big-bang rewrite:
 | ID | Gate | Smoke |
 | --- | --- | --- |
 | G6340 | `runCwlSurfaceTaxonomyDocGate` | `pnpm run hub:cwl-surface-taxonomy-smoke` |
+| G6731 | CWL language maintenance | `pnpm run hub:cwl-language-maintenance-smoke` |
+| **G6750** | **Language v1 closed** | `pnpm run hub:cwl-language-v1-close-smoke` |
+
+## Language v1 closed (G6750)
+
+**Status:** closed (2026-06-19). Program doc: [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md).
+
+CWL **API**, **Pages**, **Data**, and **Effects** surfaces are shipped and gated. **CWL UI** remains an explicit **Hole** per **RFC-0012** — no silent lowering. IR helper B-tier **B5.5–B8** (formal-assign lib SQL inlining) is closed.
+
+Regression: `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
 ## Non-goals
 
 - Renaming `@route` / `@page` syntax in this amendment (names are **documentation** only)
 - Claiming CWL UI parity without RFC + verify
 - Conflating chimera gateway with a CWL surface
-- Replacing Firebase/Mongo/GenieACS as part of “web language” replacement
+- Replacing Firebase/Mongo/WISPTools legacy backends as part of “web language” replacement

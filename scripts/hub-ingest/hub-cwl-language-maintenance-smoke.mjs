@@ -3,7 +3,10 @@
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { runIrHelperLiftingB7EmptyInlineGate } from "./hub-cwl-fullstack-gates.mjs";
+import {
+  runIrHelperLiftingB7EmptyInlineGate,
+  runIrHelperLiftingB8IssetInlineGate,
+} from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
@@ -20,7 +23,9 @@ export function runCwlLanguageMaintenanceDocGate() {
   const ok =
     text.includes("G6731") &&
     text.includes("hub:cwl-language-maintenance-smoke") &&
-    text.includes("CWL language maintenance");
+    text.includes("CWL language maintenance") &&
+    text.includes("G6750") &&
+    text.includes("isset");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -29,7 +34,8 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const doc = runCwlLanguageMaintenanceDocGate();
   const taxonomy = runCwlSurfaceTaxonomyDocGate();
   const b7 = runIrHelperLiftingB7EmptyInlineGate();
-  const ok = doc.ok === true && taxonomy.ok === true && b7.ok === true;
+  const b8 = runIrHelperLiftingB8IssetInlineGate();
+  const ok = doc.ok === true && taxonomy.ok === true && b7.ok === true && b8.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -37,6 +43,7 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     doc,
     taxonomy,
     b7,
+    b8,
     generatedAt: new Date().toISOString(),
   };
 }

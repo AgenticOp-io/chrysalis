@@ -59,7 +59,7 @@ export const CWL_FULLSTACK_HOLE_CATALOG = {
     rfc: "0012",
     origin: "cwl",
     surface: "api",
-    summary: "HTTP upstream proxy to existing WISP backend-services (operator-owned; GenieACS/Mongo unchanged).",
+    summary: "HTTP upstream proxy to existing WISP backend-services (operator-owned; Mongo unchanged).",
   },
   "hub-next:page-component": {
     rfc: "0012",

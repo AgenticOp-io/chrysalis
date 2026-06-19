@@ -11,7 +11,7 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **CWL language maintenance** (default) | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `hub:cwl-language-maintenance-smoke` (**G6731**) |
+| **CWL language maintenance** (default) | [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `hub:cwl-language-maintenance-smoke` (**G6731**), `hub:cwl-language-v1-close-smoke` (**G6750**) |
 | **Phase 14 operator regression** | `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**), `wisp:operator-verify -- --require` |
 | Phase 12–13 regression | `hub:wisp-cwl-phase13-close-smoke` (**G6410**), `hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
@@ -36,7 +36,7 @@
 | Trigger | Action | Pointer |
 | --- | --- | --- |
 | Parser mapper gap | Add contested-syntax page to `fixtures/parser-parity-probe` | Multi-lane lane A |
-| IR helper B7+ (`empty()` inline) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**) | `docs/IR-HELPER-LIFTING.md` |
+| IR helper B7+ (`empty()` / `isset()` inline) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**), `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**) | `docs/IR-HELPER-LIFTING.md`, `docs/CWL-LANGUAGE-PROGRAM.md` |
 | Widen `->query` lowering | Add tracked receiver via `mysqli-probe` | Hole economics |
 | IR helper pattern (B5 rules) | Hub-gated fixture | `docs/IR-HELPER-LIFTING.md` |
 | Package README drift | Update README | `ROADMAP.md` |

@@ -32,11 +32,11 @@
 
 | North star | POC |
 | --- | --- |
-| **CWL** — the final consolidated **web language** (API, Pages, Data, UI, Effects) over **WebIR**, verified by oracle | **WISP Module_Manager** — important **reference lab** that stress-tests surfaces on a real operator stack |
-| Patterns must **generalize** to any migration | WISP-specific shortcuts (Firebase, ArcGIS, **GenieACS/ACS**) stay **catalogued**, not baked into the language — **ACS excluded from CWL depth** (**D6204**) |
+| **CWL** — the final consolidated **web language** (API, Pages, Data, UI, Effects) over **WebIR**, verified by oracle | **WISP Module_Manager** — a **showcase lab** that demonstrates CWL surfaces on a real operator app |
+| **CWL is authoritative** — RFCs, WebIR, oracle, and verify define the language | **The POC exists solely to showcase the language** — wins must **generalize**; WISP-specific paths stay catalogued, not baked in |
 | Success = language + engine + verify truth | Success on WISP = evidence that a surface wave **closes with gates** — transferable, not “ship WISP” |
 
-WISP is **important**: it is the flagship full-stack exercise. It is **not** the product name or the end state.
+WISP is **important** as a showcase. It is **not** the product name, the north star, or the definition of CWL. **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
 
 ---
 
@@ -213,10 +213,10 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 ### Phase 14 — WISP HSS operator deploy (**closed G6690**)
 
-- **Authority:** **DESIGN D6204** — [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14
+- **Authority:** **DESIGN D6204**, **D6205** — [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14
 - **Close G6690:** `pnpm run hub:wisp-cwl-phase14-program-close-smoke`
 - **Operator regression G6590:** `pnpm run hub:wisp-cwl-phase14-close-smoke`
-- **Refuse:** ACS / GenieACS / TR-069 as **CWL language** goals (no runtime special cases, no ACS widget lowering, no backend conversion)
+- **Refuse:** **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**); no CWL RFCs, runtime special cases, or verify gates for GenieACS/ACS
 - **Verify:** `pnpm run hub:wisp-cwl-phase14-program-close-smoke`, `pnpm run wisp:operator-verify -- --require`, Phase 13 regression **G6410**
 
 ---
@@ -274,26 +274,28 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-06-19 (Phase 13 — CWL surfaces):** Formal **CWL surface taxonomy** (**D6193**, **G6340**): CWL API / Pages / Data / UI / Effects as named layers of one web language; Phase 13 closes surfaces on WISP module waves. See `docs/CWL-SURFACE-TAXONOMY.md`.
 
-**Amended 2026-06-19 (Phase 14 — HSS operator, ACS excluded):** **DESIGN D6204** — HSS GCE hosts GenieACS + Mongo (operator infra); **Phase 14** active queue is **HSS site / chimera deploy** only. **ACS / GenieACS / TR-069 excluded** from CWL language depth; M4 ACS fixtures are regression shells only.
+**Amended 2026-06-19 (Phase 14 — HSS operator):** **DESIGN D6204** — HSS chimera deploy to operator backend. **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
 
 ---
 
-**Amended 2026-06-19 (Phase 14 close — G6690):** HSS operator deploy program archived; maintenance default queue resumes. Operator regression via **G6590** / **G6690**. ACS / GenieACS remain excluded from CWL depth (**D6204**).
+**Amended 2026-06-19 (Phase 14 close — G6690):** HSS operator deploy program archived; maintenance default queue resumes. Operator regression via **G6590** / **G6690**.
+
+**Amended 2026-06-19 (POC vs language — D6205):** **CWL is authoritative.** WISP **exists solely to showcase the language** — not to define it. GenieACS removed from Chrysalis consideration (WISPTools original design only).
 
 ---
 
 ## 12. Default queue (maintenance)
 
-**Status:** **Phase 14 closed** (**G6690**, 2026-06-19); **Phase 13 closed** (**G6410**); **Phase 12 Phase 0 closed** (**G6310**). Phases **0–11 closed** (**G5680–G6290**).
+**Status:** **CWL language v1 closed** (**G6750**, 2026-06-19); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 Phase 0 closed** (**G6310**). Phases **0–11 closed** (**G5680–G6290**).
 
 When the user says "build" without specifying:
 
-1. **CWL language maintenance** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**)
+1. **CWL language maintenance** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**)
 2. **Phase 14 regression** — `pnpm run hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `pnpm run hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**)
 3. **Phase 13 regression** — `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**)
 4. Verify: `pnpm run hub:cwl-surface-taxonomy-smoke`, `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`, `pnpm run hub:wisp-cwl-pipeline-smoke`
 
-**Close before build:** Do not add ACS / GenieACS to CWL RFC or verify gates without amending **D6204**.
+**Close before build:** Do not add GenieACS/ACS to CWL RFC or verify gates — **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
 
 Closed programs: Phase 10, Phase 11, Phase 14 operator.
 

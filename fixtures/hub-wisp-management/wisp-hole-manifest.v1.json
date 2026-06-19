@@ -14,6 +14,6 @@
   },
   "unexpectedReasons": [],
   "backendConversion": "deferred",
-  "backendPolicy": "proxy-only — backend-services and GenieACS unchanged on acs-hss-server",
-  "generatedAt": "2026-06-19T12:54:16.488Z"
+  "backendPolicy": "proxy-only — backend-services unchanged on acs-hss-server",
+  "generatedAt": "2026-06-19T23:44:14.095Z"
 }

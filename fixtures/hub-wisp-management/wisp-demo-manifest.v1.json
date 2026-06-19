@@ -12,7 +12,7 @@
   },
   "backend": {
     "url": "https://hss.wisptools.io",
-    "policy": "proxy-only — GenieACS/Mongo unchanged on acs-hss-server"
+    "policy": "proxy-only — Mongo/backend-services unchanged on acs-hss-server"
   },
   "firebase": {
     "hostingTarget": "hosting:management",
@@ -45,7 +45,7 @@
       "chimera": "backend"
     },
     {
-      "path": "/api/device-assignment",
+      "path": "/api/monitoring",
       "expect": "api-proxy",
       "chimera": "backend"
     }
@@ -57,5 +57,5 @@
     "/modules/monitor",
     "/portal/:tenantId"
   ],
-  "generatedAt": "2026-06-19T12:56:46.448Z"
+  "generatedAt": "2026-06-19T23:43:48.412Z"
 }

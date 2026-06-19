@@ -6,8 +6,8 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lanes:** **CWL language maintenance**; **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
-- **Recently shipped:** Phase 14 HSS operator program close (**G6690**); Phase 13 CWL surfaces close (**G6410**); strategy amendment ACS excluded from CWL depth (**D6204**).
+- **Active lanes:** **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
+- **Recently shipped:** CWL language v1 close (**G6750**); B8 `isset()` IR helper inlining (**G6740**); Phase 14 HSS operator program close (**G6690**).
 
 ---
 
@@ -49,7 +49,7 @@ Waves M0→M6 closed all five CWL surfaces on WISP (API contract, Pages, Data, U
 
 | Gate | Smoke |
 | --- | --- |
-| **G6500** doc | `runWispCwlProgramDocGate` (Phase 14 + ACS excluded) |
+| **G6500** doc | `runWispCwlProgramDocGate` (Phase 14 + **D6205**) |
 | **G6510** client redirects | `pnpm run hub:wisp-cwl-phase14-client-redirect-smoke` |
 | **G6520** operator close | `pnpm run hub:wisp-cwl-phase14-operator-close-smoke` |
 | **G6530** HSS proxy | `pnpm run hub:wisp-cwl-phase14-hss-proxy-smoke` |
@@ -96,7 +96,7 @@ Deploy/maintenance: `pnpm run wisp:deploy:gce`, `pnpm run wisp:operator-verify`,
 
 **M3 (shipped):** `/modules/plan`, `/modules/deploy`, `/modules/coverage-map` CWL Pages with `load`; `/api/plans`, `/api/deploy`, `/api/network` verified; ArcGIS catalogued as `hub-svelte:arcgis-map` client holes.
 
-**M4 (shipped, regression-only):** ACS `@page` shells prove generic surface pattern; **ACS / GenieACS excluded from CWL depth** post **D6204**. HSS + monitoring shells remain; operator proxy via `/api/hss`, `/api/device-assignment`.
+**M4 (shipped):** HSS + monitoring `@page` shells — POC showcase for CWL Data/Pages on operator modules. Proxy via `/api/hss`, `/api/monitoring`, `/api/snmp`. *(GenieACS/ACS: WISPTools legacy — not POC scope, **D6205**.)*
 
 **M5 (shipped):** All remaining UI routes → native `@page` + `load` (≥99%); `/login` only `hub-svelte:firebase-auth` hole; chimera `*` native prefix.
 
@@ -106,11 +106,25 @@ Module wave detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-
 
 ---
 
+## Closed — CWL language v1 (G6750)
+
+Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
+
+| Gate | Smoke |
+| --- | --- |
+| G6731 maintenance | `pnpm run hub:cwl-language-maintenance-smoke` |
+| G6740 B8 `isset()` | `runIrHelperLiftingB8IssetInlineGate` |
+| **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
+
+**Honest scope:** API, Pages, Data, Effects shipped; **CWL UI** remains explicit holes (**RFC-0012**). **CWL is authoritative** — WISP showcases the language (**D6205**).
+
+---
+
 ## Default queue — CWL language maintenance
 
-**Phase 14 closed (G6690).** Reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+**Language v1 closed (G6750).** Reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
-**CWL language:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**)
+**CWL language:** `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**)
 
 **Verify:** `pnpm run hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `pnpm run hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:maintenance-mode-governance-smoke`
 

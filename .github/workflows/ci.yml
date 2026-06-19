@@ -169,6 +169,9 @@ jobs:
       - name: CWL language maintenance (G6731)
         run: pnpm run hub:cwl-language-maintenance-smoke
 
+      - name: CWL language v1 close (G6750)
+        run: pnpm run hub:cwl-language-v1-close-smoke
+
       - name: WISP CWL pipeline artifact gate
         run: pnpm run ci:wisp-cwl-pipeline
 

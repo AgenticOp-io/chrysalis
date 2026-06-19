@@ -21,7 +21,7 @@ export function runWispCwlProgramDocGate() {
     text.includes("wisp-cwl-chimera-gateway") &&
     text.includes("hub-svelte:arcgis-map") &&
     text.includes("acs-hss-server") &&
-    text.includes("Backend / GenieACS conversion") &&
+    text.includes("WISPTools legacy backend") &&
     text.includes("Phase 14") &&
     text.includes("G6500") &&
     text.includes("G6510") &&
@@ -33,7 +33,7 @@ export function runWispCwlProgramDocGate() {
     text.includes("G6700") &&
     text.includes("G6690") &&
     text.includes("client redirect") &&
-    text.includes("ACS / TR-069 as CWL language goals");
+    text.includes("GenieACS is WISPTools legacy — not Chrysalis POC scope");
   return { ok, wispProgramDocOk: ok };
 }
 

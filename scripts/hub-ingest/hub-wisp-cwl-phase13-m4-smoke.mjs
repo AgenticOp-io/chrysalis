@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Phase 13 M4 surface smoke (G6390) — ACS, HSS, monitoring + GenieACS proxy policy. */
+/** Phase 13 M4 surface smoke (G6390) — HSS + monitoring POC showcase (D6205). */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,7 +25,7 @@ export function runWispM4SurfaceManifestGate() {
   const ok =
     json.ok === true &&
     json.wave === "M4" &&
-    json.surfaces?.backendPolicy?.genieacs?.includes("proxy-only");
+    json.surfaces?.backendPolicy?.hss?.includes("proxy-only");
   return { ok, manifestOk: ok };
 }
 
@@ -75,10 +75,10 @@ async function runPageLoad(urlPath, needles) {
 }
 
 export async function runWispM4RuntimeLoadGate() {
-  const acs = await runPageLoad("/modules/acs-cpe-management/devices", ["ACS Devices", "wisp-m4", "GenieACS"]);
   const hss = await runPageLoad("/modules/hss-management", ["HSS Management", "wisp-m4", "/api/hss"]);
-  const ok = acs.ok === true && hss.ok === true;
-  return { ok, acs, hss };
+  const monitoring = await runPageLoad("/modules/monitoring", ["SNMP Monitoring", "wisp-m4", "/api/monitoring"]);
+  const ok = hss.ok === true && monitoring.ok === true;
+  return { ok, hss, monitoring };
 }
 
 export async function runWispCwlPhase13M4Gate(opts = {}) {
@@ -101,16 +101,23 @@ export async function runWispCwlPhase13M4Gate(opts = {}) {
   };
 }
 
-export async function runWispCwlPhase13M4SmokeGate(opts = {}) {
+/** @param {Record<string, unknown>} [opts] */
+export async function runWispCwlPhase13M4Smoke(opts = {}) {
   const progress = createSmokeProgress("wisp-cwl-phase13-m4");
-  const t0 = progress.start("WISP CWL Phase 13 M4 (G6390)");
+  const t0 = progress.start("WISP Phase 13 M4");
   const gate = await runWispCwlPhase13M4Gate(opts);
-  progress.end("WISP CWL Phase 13 M4 (G6390)", gate.ok === true, t0);
-  return gate;
+  progress.end("WISP Phase 13 M4", gate.ok === true, t0);
+  return {
+    kind: WISP_CWL_PHASE13_M4_SMOKE_KIND,
+    schemaVersion: WISP_CWL_PHASE13_M4_SMOKE_SCHEMA_VERSION,
+    ok: gate.ok === true,
+    gate,
+    generatedAt: new Date().toISOString(),
+  };
 }
 
 async function main() {
-  const r = await runWispCwlPhase13M4SmokeGate();
+  const r = await runWispCwlPhase13M4Smoke();
   console.log(JSON.stringify(r, null, 2));
   if (!r.ok) process.exit(1);
 }

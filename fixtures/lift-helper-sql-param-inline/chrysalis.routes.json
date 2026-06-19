@@ -114,6 +114,12 @@
       "path": "/upsilon",
       "file": "pages/show_upsilon.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/chi",
+      "file": "pages/show_chi.php",
+      "pathParams": []
     }
   ]
 }

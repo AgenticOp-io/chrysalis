@@ -32,7 +32,7 @@ export function runWispPhase14CloseDocGate() {
     text.includes("G6680") &&
     text.includes("G6700") &&
     text.includes("Phase 14") &&
-    text.includes("ACS / TR-069 as CWL language goals");
+    text.includes("GenieACS is WISPTools legacy — not Chrysalis POC scope");
   return { ok, phase14CloseDocOk: ok };
 }
 

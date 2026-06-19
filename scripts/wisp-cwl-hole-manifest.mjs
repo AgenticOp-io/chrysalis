@@ -86,7 +86,7 @@ export function buildWispHoleManifest(opts = {}) {
     byReason,
     unexpectedReasons: unexpected,
     backendConversion: "deferred",
-    backendPolicy: "proxy-only — backend-services and GenieACS unchanged on acs-hss-server",
+    backendPolicy: "proxy-only — backend-services unchanged on acs-hss-server",
     generatedAt: new Date().toISOString(),
   };
 

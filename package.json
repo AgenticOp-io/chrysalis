@@ -400,6 +400,7 @@
     "hub:wisp-cwl-dual-deploy-config-smoke": "node scripts/hub-ingest/hub-wisp-cwl-dual-deploy-config-smoke.mjs",
     "hub:cwl-surface-taxonomy-smoke": "node scripts/hub-ingest/hub-cwl-surface-taxonomy-smoke.mjs",
     "hub:cwl-language-maintenance-smoke": "node scripts/hub-ingest/hub-cwl-language-maintenance-smoke.mjs",
+    "hub:cwl-language-v1-close-smoke": "node scripts/hub-ingest/hub-cwl-language-v1-close-smoke.mjs",
     "hub:wisp-cwl-phase13-m0-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase13-m0-smoke.mjs",
     "hub:wisp-cwl-phase13-m1-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase13-m1-smoke.mjs",
     "hub:wisp-cwl-phase13-m2-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase13-m2-smoke.mjs",

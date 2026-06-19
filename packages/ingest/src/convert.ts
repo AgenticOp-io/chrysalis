@@ -340,7 +340,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | { kind: "issetFormal"; formal: string } | undefined {
   const valueNode = ctx.m.get(valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -355,11 +355,15 @@ function resolveInlineAssignRhs(
   }
   if (
     (valueNode.op === "unaryOp" || valueNode.op === "unaryop") &&
-    String(valueNode.attrs.operator) === "empty" &&
     valueNode.operands.length === 1
   ) {
-    const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
-    if (inner?.kind === "formal") return { kind: "emptyFormal", formal: inner.formal };
+    const op = String(valueNode.attrs.operator);
+    if (op === "empty" || op === "isset") {
+      const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") {
+        return op === "empty" ? { kind: "emptyFormal", formal: inner.formal } : { kind: "issetFormal", formal: inner.formal };
+      }
+    }
   }
   if (valueNode.op === "binop" && String(valueNode.attrs.operator) === "??" && valueNode.operands.length === 2) {
     const left = ctx.m.get(valueNode.operands[0]!);
@@ -404,6 +408,10 @@ function resolveInlineAssignRhs(
       const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "emptyFormal", formal: inner.formal };
     }
+    if ((callee === "isset" || callee === "__isset") && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "issetFormal", formal: inner.formal };
+    }
   }
   return undefined;
 }
@@ -423,6 +431,7 @@ function tryExtractInlineQuery(
   localToTrimFormal: ReadonlyMap<string, string>;
   localToStrlenFormal: ReadonlyMap<string, string>;
   localToEmptyFormal: ReadonlyMap<string, string>;
+  localToIssetFormal: ReadonlyMap<string, string>;
 } | undefined {
   const body = ctx.m.get(bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
@@ -431,7 +440,7 @@ function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(ctx, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToArg: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map() };
+    return { queryId, localToArg: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map(), localToIssetFormal: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
@@ -442,6 +451,7 @@ function tryExtractInlineQuery(
   const localToTrimFormal = new Map<string, string>();
   const localToStrlenFormal = new Map<string, string>();
   const localToEmptyFormal = new Map<string, string>();
+  const localToIssetFormal = new Map<string, string>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = ctx.m.get(stmtId);
@@ -485,6 +495,10 @@ function tryExtractInlineQuery(
         localToEmptyFormal.set(localName, resolved.formal);
         continue;
       }
+      if (resolved.kind === "issetFormal") {
+        localToIssetFormal.set(localName, resolved.formal);
+        continue;
+      }
       localToFormal.set(localName, resolved.formal);
       continue;
     }
@@ -493,7 +507,7 @@ function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(ctx, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToArg: localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal };
+  return { queryId, localToArg: localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal, localToIssetFormal };
 }
 
 function walkSubgraphNodeIds(ctx: Ctx, rootId: NodeId, visit: (id: NodeId) => void, seen = new Set<NodeId>()): void {
@@ -547,6 +561,7 @@ function buildQueryParamReplacements(
   localToTrimFormal: ReadonlyMap<string, string>,
   localToStrlenFormal: ReadonlyMap<string, string>,
   localToEmptyFormal: ReadonlyMap<string, string>,
+  localToIssetFormal: ReadonlyMap<string, string>,
 ): ReadonlyMap<NodeId, NodeId> | undefined {
   const formalToArg = new Map<string, NodeId>();
   for (let i = 0; i < paramNames.length; i++) {
@@ -659,6 +674,19 @@ function buildQueryParamReplacements(
     nameToArg.set(local, emptyId);
     nameToArg.set(phpVarKey(local), emptyId);
   }
+  for (const [local, formal] of localToIssetFormal) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const issetId = ctx.data.unaryOp({
+      operator: "isset",
+      operand: argId,
+      type: T.bool,
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, issetId);
+    nameToArg.set(phpVarKey(local), issetId);
+  }
   const replacements = new Map<NodeId, NodeId>();
   walkSubgraphNodeIds(ctx, queryId, (id) => {
     const n = ctx.m.get(id);
@@ -700,6 +728,7 @@ function tryInlineLibHelperCall(
     extracted.localToTrimFormal,
     extracted.localToStrlenFormal,
     extracted.localToEmptyFormal,
+    extracted.localToIssetFormal,
   );
   if (replacements === undefined) return undefined;
   return cloneSubgraphWithReplacements(ctx, extracted.queryId, replacements);

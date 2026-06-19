@@ -50,7 +50,7 @@ export function runWispCwlTopologyDocGate() {
     text.includes("chrysalis-test-vm") &&
     text.includes("Dual deploy") &&
     text.includes("Firebase Hosting") &&
-    text.includes("GenieACS");
+    text.includes("The POC exists solely to showcase the language");
   return { ok, topologyDocOk: ok };
 }
 
@@ -60,7 +60,7 @@ export function runWispCwlBackendDeferralGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-scenario-inventory" };
   const json = JSON.parse(readFileSync(path, "utf8"));
   const deferred = (json.scenarios ?? []).filter((s) => s.backendConversion === "deferred");
-  const ok = deferred.some((s) => s.id === "backend-mongodb") && deferred.some((s) => s.id === "genieacs-tr069");
+  const ok = deferred.some((s) => s.id === "backend-mongodb");
   return { ok, deferredCount: deferred.length };
 }
 

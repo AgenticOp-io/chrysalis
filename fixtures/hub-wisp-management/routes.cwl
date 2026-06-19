@@ -139,88 +139,88 @@ page modules_page {
 page modules_acs_cpe_management_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "overview", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS CPE Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS CPE Management</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: overview</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Acs Cpe Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Acs Cpe Management</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/alerts"
 page modules_acs_cpe_management_alerts_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "alerts", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Alerts – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Alerts</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: alerts</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "alerts", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Alerts – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Alerts</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: alerts</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/devices"
 page modules_acs_cpe_management_devices_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "devices", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Devices – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Devices</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: devices</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "devices", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Devices – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Devices</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: devices</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/faults"
 page modules_acs_cpe_management_faults_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "faults", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Faults – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Faults</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: faults</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "faults", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Faults – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Faults</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: faults</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/files"
 page modules_acs_cpe_management_files_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "files", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Files – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Files</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: files</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "files", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Files – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Files</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: files</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/firmware"
 page modules_acs_cpe_management_firmware_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "firmware", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Firmware – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Firmware</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: firmware</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "firmware", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Firmware – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Firmware</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: firmware</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/graphs"
 page modules_acs_cpe_management_graphs_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "graphs", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Graphs – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Graphs</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: graphs</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "graphs", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Graphs – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Graphs</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: graphs</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/monitoring"
 page modules_acs_cpe_management_monitoring_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "monitoring", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Monitoring – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Monitoring</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: monitoring</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "monitoring", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Monitoring – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Monitoring</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: monitoring</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/presets"
 page modules_acs_cpe_management_presets_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "presets", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Presets – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Presets</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: presets</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "presets", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Presets – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Presets</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: presets</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/settings"
 page modules_acs_cpe_management_settings_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "settings", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Settings – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Settings</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: settings</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "settings", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Settings – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Settings</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: settings</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/tasks"
 page modules_acs_cpe_management_tasks_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "acs_cpe_management", section: "tasks", source: "wisp-m4", apiPath: "/api/device-assignment" };
-  return html "<svelte:head>\n  <title>ACS Tasks – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>ACS Tasks</h1>\n    <p class=\"api-surface\">API: /api/device-assignment (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: tasks</p>\n  <p class=\"extra-note\">GenieACS TR-069 stays on backend VM; UI uses /api/device-assignment proxy (no CWL backend conversion).</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "acs_cpe_management", section: "tasks", source: "wisp-m5", apiPath: "/api/users" };
+  return html "<svelte:head>\n  <title>Tasks – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tasks</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: tasks</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/backend-management"
@@ -419,7 +419,7 @@ page modules_hss_management_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "hss_management", section: "overview", source: "wisp-m4", apiPath: "/api/hss" };
-  return html "<svelte:head>\n  <title>HSS Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>HSS Management</h1>\n    <p class=\"api-surface\">API: /api/hss (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: overview</p>\n  <p class=\"extra-note\">Open5GS HSS subscribers via proxied /api/hss.</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>HSS Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"m4-nav\">\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>HSS Management</h1>\n    <p class=\"api-surface\">API: /api/hss (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: overview</p>\n  <p class=\"extra-note\">Open5GS HSS subscribers via proxied /api/hss.</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/inventory"
@@ -490,7 +490,7 @@ page modules_monitoring_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "monitoring", section: "overview", source: "wisp-m4", apiPath: "/api/monitoring" };
-  return html "<svelte:head>\n  <title>SNMP Monitoring – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"acs-nav\">\n  <a href=\"/modules/acs-cpe-management/devices\">Devices</a>\n  <a href=\"/modules/acs-cpe-management/tasks\">Tasks</a>\n  <a href=\"/modules/acs-cpe-management/firmware\">Firmware</a>\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>SNMP Monitoring</h1>\n    <p class=\"api-surface\">API: /api/monitoring (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: overview</p>\n  <p class=\"extra-note\">SNMP graphs via /api/monitoring and /api/snmp.</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>SNMP Monitoring – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"m4-nav\">\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>SNMP Monitoring</h1>\n    <p class=\"api-surface\">API: /api/monitoring (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: overview</p>\n  <p class=\"extra-note\">SNMP graphs via /api/monitoring and /api/snmp.</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/pci-resolution"
