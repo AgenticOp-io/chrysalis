@@ -16,7 +16,8 @@
 | New hole from real customer route | Maintenance §2 + verify |
 
 **Governance:** `pnpm run hub:maintenance-mode-governance-smoke`  
-**Phase 10 archive verify:** `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`
+**Phase 10 archive verify:** `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`  
+**Maintenance complete:** `pnpm run hub:maintenance-program-complete-smoke` (`runMaintenanceProgramCompleteGate`, **G6261**)
 
 ---
 

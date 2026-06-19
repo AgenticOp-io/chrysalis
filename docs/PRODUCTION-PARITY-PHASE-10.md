@@ -42,6 +42,7 @@ Runtime plan: [`RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) Phase
 | G6225 | `runWordPressVerticalWpEffectLoweringGate` | manifest `wordpressEffectCallees` → `effect.wp.call` |
 | G6227 | `runWordPressVerticalWpCallVerifyReplayGate` | wp.call lowering + verify replay correctness 1 |
 | G6228 | `runWordPressVerticalWpCallFastifyParityGate` | emit-fastify `wpCall` + fastify verify replay |
+| G6229 | `runWordPressVerticalCoreStubFastifyVerifyReplayGate` | core-stub fastify verify replay |
 
 Plan: [`WORDPRESS-VERTICAL-PHASE-10.md`](./WORDPRESS-VERTICAL-PHASE-10.md).
 
@@ -67,7 +68,7 @@ Second-oracle path + capability matrix honesty for additional language claims.
 
 ## Phase E — Hub completion (G6240)
 
-Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **8**).
+Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **9**).
 
 | ID | Gate |
 | --- | --- |
@@ -93,6 +94,15 @@ Depth smoke: `pnpm run hub:strategic-plan-phase10-depth-smoke`
 | G6257 | `runStrategicPlanPhase10ProgramArchiveCloseGate` | `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke` |
 
 Composes reinforcement close (**G6250**) + maintenance governance flip (**G6160**).
+
+## Phase H — Maintenance complete (G6260)
+
+| ID | Gate | Smoke |
+| --- | --- | --- |
+| G6260 | `runPausedHonestGapsDocGate` | indexes out-of-repo gaps in `PAUSED-AND-MAINTENANCE.md` §4 |
+| G6261 | `runMaintenanceProgramCompleteGate` | `pnpm run hub:maintenance-program-complete-smoke` |
+
+Composes Phase 10 archive close (**G6257**) + north-star honesty + maintenance governance.
 
 ## Invariants (DESIGN §3)
 

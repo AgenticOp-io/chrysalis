@@ -7,7 +7,7 @@ Phase 10 WordPress vertical slice with **stub WordPress core** implementations i
 | `GET /` | `pages/public_home.php` | hooks + bloginfo + head/footer |
 | `GET /wp-admin` | `pages/admin_home.php` | admin gate + nonce |
 
-Manifest `wordpressEffectCallees` lowers calls to `effect.wp.call` (**G6225**).
+Manifest `wordpressEffectCallees` lowers calls to `effect.wp.call` (**G6225**). Fastify verify replay gate **G6229**.
 
 ```bash
 pnpm run hub:wordpress-core-stub-oracle-capture-smoke

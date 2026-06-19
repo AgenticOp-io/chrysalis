@@ -2154,10 +2154,12 @@ export function runProductionParityPhase10DocGate() {
     text.includes("runRuntimeCwlSessionResolveStrictGate") &&
     text.includes("runRuntimeCwlSessionResolveProbeGate") &&
     text.includes("runWordPressVerticalWpCallVerifyReplayGate") &&
+    text.includes("runWordPressVerticalCoreStubFastifyVerifyReplayGate") &&
     text.includes("runWordPressVerticalWpCallFastifyParityGate") &&
-    text.includes("runStrategicPlanPhase10ProgramArchiveCloseGate") &&
+    text.includes("runMaintenanceProgramCompleteGate") &&
     text.includes("runStrategicPlanPhase10HubCompletionGate") &&
     text.includes("runStrategicPlanPhase10ProductionParityCloseGate") &&
+    text.includes("runStrategicPlanPhase10ProgramArchiveCloseGate") &&
     text.includes("schema **513**");
   return { ok: docOk, docOk };
 }
@@ -2379,6 +2381,27 @@ export async function runWordPressVerticalCoreStubOracleGate(opts = {}) {
   };
 }
 
+/** G6229 — WordPress core stub fastify verify replay. */
+export async function runWordPressVerticalCoreStubFastifyVerifyReplayGate(opts = {}) {
+  const fixture = join(scriptRoot, "fixtures/wordpress-core-stub");
+  if (!existsSync(join(fixture, "chrysalis.routes.json"))) {
+    return { ok: false, skip: "missing-wordpress-core-stub-routes" };
+  }
+  const replay = await runProjectVerifyReplay(fixture, {
+    origin: "php",
+    target: "fastify",
+    repoRoot: opts.repoRoot ?? scriptRoot,
+    threshold: 1,
+  });
+  return {
+    ok: replay.ok === true,
+    skip: replay.skip ?? null,
+    correctness: replay.correctness ?? null,
+    routeCount: replay.routeCount ?? null,
+    traceCount: replay.traceCount ?? null,
+  };
+}
+
 /** G6211+ — runtime-cwl session resolve strict replay gate. */
 export function runRuntimeCwlSessionResolveStrictGate() {
   const testPath = join(scriptRoot, "packages/runtime-cwl/tests/runtime.test.ts");
@@ -2498,7 +2521,7 @@ export function runWordPressVerticalOracleCaptureGate() {
   return { ok, captureRouteCount: capture.length, captureOk };
 }
 
-/** G6216 — WordPress vertical Phase 10 depth (G6212–G6228). */
+/** G6216 — WordPress vertical Phase 10 depth (G6212–G6229). */
 export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
   const probe = await runWordPressVerticalProbeIngestGate();
   const observe = runWordPressVerticalObserveManifestGate();
@@ -2510,6 +2533,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
   const wpEffects = await runWordPressVerticalWpEffectLoweringGate();
   const wpCallVerify = await runWordPressVerticalWpCallVerifyReplayGate(_opts);
   const wpCallFastify = await runWordPressVerticalWpCallFastifyParityGate(_opts);
+  const coreStubFastify = await runWordPressVerticalCoreStubFastifyVerifyReplayGate(_opts);
   const coreStub = await runWordPressVerticalCoreStubOracleGate(_opts);
   const ok =
     probe.ok === true &&
@@ -2522,6 +2546,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
     wpEffects.ok === true &&
     wpCallVerify.ok === true &&
     wpCallFastify.ok === true &&
+    coreStubFastify.ok === true &&
     coreStub.ok === true;
   return {
     ok,
@@ -2535,6 +2560,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
     wpEffectLoweringOk: wpEffects.ok === true,
     wpCallVerifyOk: wpCallVerify.ok === true,
     wpCallFastifyOk: wpCallFastify.ok === true,
+    coreStubFastifyOk: coreStubFastify.ok === true,
     coreStubOracleOk: coreStub.ok === true,
   };
 }
@@ -2846,6 +2872,7 @@ export function runHubCompletionPhase10ProductionParitySectionGate() {
   const section = buildHubCompletionPhase10ProductionParitySection({
     strategicPlanPhase10Close: { ok: true },
     strategicPlanPhase10ArchiveClose: { ok: true },
+    maintenanceProgramComplete: { ok: true },
   });
   const ok = validateHubCompletionPhase10ProductionParitySection(section) && section.ok === true;
   return { ok, schemaVersion: section.schemaVersion ?? null, sectionOk: section.ok === true };
@@ -2943,6 +2970,43 @@ export async function runStrategicPlanPhase10ProgramArchiveCloseGate(opts = {}) 
     reinforcementOk: reinforcement.ok === true,
     shipLogOk: shipLog.ok === true,
     archiveDocOk: archiveDoc.ok === true,
+    maintenanceOk: maintenance.ok === true,
+    programClosed: isPhase10ProductionParityClosed(),
+  };
+}
+
+/** G6260 — Paused honest gaps doc gate (out-of-repo scope indexed). */
+export function runPausedHonestGapsDocGate() {
+  const path = join(scriptRoot, "docs/PAUSED-AND-MAINTENANCE.md");
+  if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
+  const text = readFileSync(path, "utf8");
+  const ok =
+    text.includes("Real WordPress core install") &&
+    text.includes("Customer north-star metrics") &&
+    text.includes("Commercial launch") &&
+    text.includes("WPTP D2+ sibling repos") &&
+    text.includes("Broader IR helper lifting") &&
+    text.includes("runMaintenanceProgramCompleteGate");
+  return { ok, honestGapsOk: ok };
+}
+
+/** G6261 — Maintenance program complete gate (post Phase 10 archive). */
+export async function runMaintenanceProgramCompleteGate(opts = {}) {
+  const archive = await runStrategicPlanPhase10ProgramArchiveCloseGate(opts);
+  const gaps = runPausedHonestGapsDocGate();
+  const northStar = runNorthStarMetricsHonestyGate();
+  const maintenance = await runMaintenanceModeGovernanceGate(opts);
+  const ok =
+    archive.ok === true &&
+    gaps.ok === true &&
+    northStar.ok === true &&
+    maintenance.ok === true &&
+    isPhase10ProductionParityClosed();
+  return {
+    ok,
+    archiveOk: archive.ok === true,
+    honestGapsOk: gaps.ok === true,
+    northStarOk: northStar.ok === true,
     maintenanceOk: maintenance.ok === true,
     programClosed: isPhase10ProductionParityClosed(),
   };

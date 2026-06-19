@@ -7,7 +7,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lanes:** **maintenance only** — strategic plan phases **0–10 closed** (**G5680–G6257**).
-- **Recently shipped:** **G6254–G6257** Phase 10 program archive close (2026-06-19). Reinforcement queue **G6200–G6253** + archive **G6257**.
+- **Recently shipped:** **G6229–G6261** maintenance program complete (2026-06-19). Phase 10 archive **G6257**.
 
 ---
 

@@ -210,4 +210,22 @@ describe.sequential("hub strategic plan phase10 depth slices", () => {
     expect(gate.programClosed).toBe(true);
     expect(gate.maintenanceOk).toBe(true);
   }, 600_000);
+
+  test("wordpress core stub fastify verify gate (G6229)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWordPressVerticalCoreStubFastifyVerifyReplayGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.correctness).toBe(1);
+  }, 120_000);
+
+  test("maintenance program complete gate (G6261)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runMaintenanceProgramCompleteGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.programClosed).toBe(true);
+  }, 600_000);
 });
