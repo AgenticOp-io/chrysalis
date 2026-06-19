@@ -420,6 +420,7 @@
     "hub:wisp-cwl-phase14-operator-close-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-operator-close-smoke.mjs",
     "hub:wisp-cwl-phase14-hss-proxy-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-hss-proxy-smoke.mjs",
     "hub:wisp-cwl-phase14-demo-manifest-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-demo-manifest-smoke.mjs",
+    "hub:wisp-cwl-phase14-remote-demo-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-remote-demo-smoke.mjs",
     "hub:wisp-cwl-phase14-close-smoke": "node scripts/hub-ingest/hub-wisp-cwl-phase14-close-smoke.mjs",
     "wisp:demo-manifest": "node scripts/wisp-cwl-demo-manifest.mjs",
     "ci:wisp-cwl-pipeline": "node scripts/ci-gates.mjs wisp-cwl-pipeline reports/wisp/wisp-cwl-pipeline.json",

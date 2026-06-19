@@ -197,6 +197,17 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     expect(gate.manifest.probeCount).toBeGreaterThanOrEqual(5);
   });
 
+  test("phase14 remote demo gate (G6600)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase14-remote-demo-smoke.mjs",
+      "runWispCwlPhase14RemoteDemoGate",
+      { skipLive: true },
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.doc.ok).toBe(true);
+    expect(gate.verify.skip).toBe("skip-live-remote-demo");
+  });
+
   test("phase14 close gate (G6590)", () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-wisp-cwl-phase14-close-smoke.mjs",
@@ -206,6 +217,7 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     expect(gate.ok).toBe(true);
     expect(gate.hssProxy.ok).toBe(true);
     expect(gate.demoManifest.ok).toBe(true);
+    expect(gate.remoteDemo.ok).toBe(true);
   });
 
   test("phase13 closed governance gate (G6413)", () => {

@@ -216,7 +216,7 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 - **Authority:** **DESIGN D6204** — [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14
 - **Goal:** Refresh **HSS site** (chimera/CWL front → `https://hss.wisptools.io`); keep **GenieACS + MongoDB** on `acs-hss-server` as operator infra
 - **Refuse:** ACS / TR-069 / GenieACS as **CWL language** goals (no runtime special cases, no ACS widget lowering, no backend conversion)
-- **Verify:** `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run hub:wisp-cwl-pipeline-smoke`, `pnpm run hub:wisp-cwl-dual-deploy-config-smoke`, Phase 13 regression **G6410**
+- **Verify:** `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run hub:wisp-cwl-phase14-remote-demo-smoke` (**G6600**, live with `--require`), `pnpm run hub:wisp-cwl-pipeline-smoke`, `pnpm run hub:wisp-cwl-dual-deploy-config-smoke`, Phase 13 regression **G6410**
 
 ---
 

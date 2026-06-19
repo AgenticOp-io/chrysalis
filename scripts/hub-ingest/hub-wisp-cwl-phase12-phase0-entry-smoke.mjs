@@ -27,6 +27,7 @@ export function runWispCwlProgramDocGate() {
     text.includes("G6510") &&
     text.includes("G6530") &&
     text.includes("G6540") &&
+    text.includes("G6600") &&
     text.includes("client redirect") &&
     text.includes("ACS / TR-069 as CWL language goals");
   return { ok, wispProgramDocOk: ok };
