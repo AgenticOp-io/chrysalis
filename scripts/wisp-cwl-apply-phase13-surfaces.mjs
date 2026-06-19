@@ -7,6 +7,7 @@ import { applyWispM3Surfaces } from "./wisp-cwl-apply-m3-surfaces.mjs";
 import { applyWispM4Surfaces } from "./wisp-cwl-apply-m4-surfaces.mjs";
 import { applyWispM5Surfaces } from "./wisp-cwl-apply-m5-surfaces.mjs";
 import { applyWispM6Effects } from "./wisp-cwl-apply-m6-effects.mjs";
+import { applyWispClientRedirects } from "./wisp-cwl-apply-client-redirects.mjs";
 import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 
 /** @param {object} [opts] */
@@ -17,10 +18,11 @@ export function applyWispPhase13Surfaces(opts = {}) {
   const m3 = applyWispM3Surfaces(opts);
   const m4 = applyWispM4Surfaces(opts);
   const m5 = applyWispM5Surfaces(opts);
+  const clientRedirects = applyWispClientRedirects(opts);
   const m6 = applyWispM6Effects(opts);
   const holeManifest = buildWispHoleManifest();
-  const ok = m0.ok && m1.ok && m2.ok && m3.ok && m4.ok && m5.ok && m6.ok;
-  return { ok, m0, m1, m2, m3, m4, m5, m6, holeManifest };
+  const ok = m0.ok && m1.ok && m2.ok && m3.ok && m4.ok && m5.ok && clientRedirects.ok && m6.ok;
+  return { ok, m0, m1, m2, m3, m4, m5, clientRedirects, m6, holeManifest };
 }
 
 async function main() {

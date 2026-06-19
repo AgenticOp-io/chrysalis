@@ -51,6 +51,7 @@ import { runWispCwlPhase13M4Gate } from "./hub-wisp-cwl-phase13-m4-smoke.mjs";
 import { runWispCwlPhase13M5Gate } from "./hub-wisp-cwl-phase13-m5-smoke.mjs";
 import { runWispCwlPhase13M6Gate } from "./hub-wisp-cwl-phase13-m6-smoke.mjs";
 import { runWispCwlPhase13CloseGate } from "./hub-wisp-cwl-phase13-close-smoke.mjs";
+import { runWispCwlPhase14OperatorCloseGate } from "./hub-wisp-cwl-phase14-operator-close-smoke.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { runWispCwlPipelineSmokeGate } from "./hub-wisp-cwl-pipeline-smoke.mjs";
 
@@ -2090,6 +2091,7 @@ export function runPausedAndMaintenanceDocGate() {
   const docOk = isWispCwlPhase14Active()
     ? text.includes("Phase 14") &&
       text.includes("G6500") &&
+      text.includes("G6510") &&
       text.includes("ACS") &&
       text.includes("G6410") &&
       text.includes("Do not treat closed program tables")
@@ -2179,6 +2181,7 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
     ? text.includes("Phase 14") &&
       text.includes("D6204") &&
       text.includes("G6500") &&
+      text.includes("G6510") &&
       text.includes("maintenance")
     : isWispCwlPhase13Closed()
     ? text.includes("Phase 13 closed") &&
@@ -2213,6 +2216,9 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
 
 /** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isWispCwlPhase14Active()) {
+    return runPhase14OperatorGovernanceGate(_opts);
+  }
   if (isWispCwlPhase13Closed()) {
     return runPhase13ClosedGovernanceGate(_opts);
   }
@@ -3645,6 +3651,34 @@ export async function runPhase13ClosedGovernanceGate(_opts = {}) {
     m5Ok: phase13Close.m5?.ok === true,
     m6Ok: phase13Close.m6?.ok === true,
     mode: isWispCwlPhase14Active() ? "phase14-operator" : "phase13-closed",
+  };
+}
+
+/** G6523 — Phase 14 operator governance (post G6410; chimera deploy readiness). */
+export async function runPhase14OperatorGovernanceGate(_opts = {}) {
+  const operatorClose = await runWispCwlPhase14OperatorCloseGate({ apply: false, skipPipeline: true });
+  const pipeline = await runWispCwlPipelineSmokeGate({ ci: true, skipLift: true });
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const ok =
+    operatorClose.ok === true &&
+    pipeline.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    isWispCwlPhase14Active();
+  return {
+    ok,
+    operatorCloseOk: operatorClose.ok === true,
+    clientRedirectOk: operatorClose.clientRedirect?.ok === true,
+    bundleSyncOk: operatorClose.bundleSync?.ok === true,
+    phase13CloseOk: operatorClose.phase13?.ok === true,
+    pipelineOk: pipeline.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    mode: "phase14-operator",
   };
 }
 

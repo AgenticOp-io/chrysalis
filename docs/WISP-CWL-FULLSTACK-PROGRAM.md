@@ -213,10 +213,14 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 | ID | Gate | Smoke / command |
 | --- | --- | --- |
 | **G6500** | HSS operator doc + deferral | `runWispCwlProgramDocGate` (Phase 14 section) |
+| **G6510** | Client redirect patches (no dead-end auth spinners) | `pnpm run hub:wisp-cwl-phase14-client-redirect-smoke` |
+| **G6520** | Operator close (bundle sync + regression) | `pnpm run hub:wisp-cwl-phase14-operator-close-smoke` |
 | G6320 | Pipeline regression | `pnpm run hub:wisp-cwl-pipeline-smoke` |
 | G6330 | Dual deploy config | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |
 
 **Pitfall guard (language program):** Do not let GenieACS, TR-069, or ACS UI drive CWL RFCs, runtime special cases, or verify gates. Catalog as **`hub-cwl:upstream-proxy`** + operator holes only.
+
+**G6510 (client redirects):** Svelte lift copies static “Checking authentication…” / “Redirecting…” HTML without `onMount` navigation. Chimera with `cwlNativePrefixes: *` must patch those routes via `scripts/wisp-cwl-apply-client-redirects.mjs` (meta refresh + `location.replace`). Deploy bundle must match fixtures after `applyWispPhase13Surfaces` (**G6520** `runWispDeployBundleSyncGate`).
 
 ### Demo topology (Phase 14)
 

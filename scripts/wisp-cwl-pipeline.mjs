@@ -94,6 +94,10 @@ export function prepareWispCwlDeployBundle(opts = {}) {
 
   applyWispPhase13Surfaces();
 
+  // Phase 13 apply patches fixtures/hub-wisp-management/routes.cwl — bundle must match for GCE deploy.
+  copyFileSync(fixtureRoutes, join(bundleDir, "routes.cwl"));
+  if (existsSync(previewFixture)) copyFileSync(previewFixture, previewDst);
+
   return { ok: true, bundleDir, wispRoot, routesSrc };
 }
 
@@ -269,7 +273,9 @@ export async function runWispCwlPipeline(opts = {}) {
         ],
         { encoding: "utf8", shell: false },
       );
-      const ip = (ipR.stdout ?? "").trim();
+      const deployStdout = String(gceDeploy?.stdoutTail ?? gceDeploy?.stdout ?? "");
+      const urlFromDeploy = deployStdout.match(/URL:\s+http:\/\/([\d.]+):(\d+)/);
+      const ip = (ipR.stdout ?? "").trim() || urlFromDeploy?.[1] || "";
       if (ip) {
         const baseUrl = `http://${ip}:${gce.port ?? 19100}`;
         const previewPath = join(scriptRoot, "generated/_wisp-cwl-poc-deploy/cwl-preview.json");

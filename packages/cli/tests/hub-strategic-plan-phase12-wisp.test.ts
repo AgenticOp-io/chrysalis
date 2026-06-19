@@ -157,6 +157,26 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     expect(gate.m6.ok).toBe(true);
   });
 
+  test("phase14 client redirect gate (G6510)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase14-client-redirect-smoke.mjs",
+      "runWispCwlPhase14ClientRedirectGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.routes.deadEnds).toEqual([]);
+  });
+
+  test("phase14 operator close gate (G6520)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-phase14-operator-close-smoke.mjs",
+      "runWispCwlPhase14OperatorCloseGate",
+      gateOpts,
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.bundleSync.ok).toBe(true);
+    expect(gate.phase13.ok).toBe(true);
+  });
+
   test("phase13 closed governance gate (G6413)", () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
@@ -176,9 +196,9 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     );
     expect(gate.ok).toBe(true);
     expect(gate.mode).toBe("phase14-operator");
+    expect(gate.clientRedirectOk).toBe(true);
+    expect(gate.bundleSyncOk).toBe(true);
     expect(gate.phase13CloseOk).toBe(true);
-    expect(gate.phase14DocOk).toBe(true);
-    expect(gate.m6Ok).toBe(true);
   });
 
   test("cwl surface taxonomy gate (G6340)", () => {

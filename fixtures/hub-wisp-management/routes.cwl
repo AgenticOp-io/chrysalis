@@ -5,7 +5,7 @@ module hub;
 page root_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  return html "<div class=\"loading-page\">\n  <div class=\"spinner\"></div>\n  <p>Checking authentication...</p>\n</div>";
+  return html "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0;url=/login\"><title>Checking authentication…</title></head><body><p>Checking authentication…</p><script>location.replace(\"/login\");</script><noscript><a href=\"/login\">Continue</a></noscript></body></html>";
 }
 
 @page GET "/admin/billing"
@@ -132,7 +132,7 @@ handler login_page {
 page modules_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  return html "<svelte:head>\n  <title>Modules - LTE WISP Management Platform</title>\n  <meta name=\"description\" content=\"Available modules for network management and optimization\" />\n</svelte:head>\n\n<div class=\"redirect-message\">\n  Redirecting to dashboard...\n</div>";
+  return html "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0;url=/dashboard\"><title>Redirecting to dashboard…</title></head><body><p>Redirecting to dashboard…</p><script>location.replace(\"/dashboard\");</script><noscript><a href=\"/dashboard\">Continue</a></noscript></body></html>";
 }
 
 @page GET "/modules/acs-cpe-management"
@@ -267,7 +267,7 @@ page modules_customers_page {
 page modules_customers_portal_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  return html "<div class=\"redirecting\">\n  <p>Redirecting...</p>\n</div>";
+  return html "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0;url=/modules/customers/portal/login\"><title>Redirecting…</title></head><body><p>Redirecting…</p><script>location.replace(\"/modules/customers/portal/login\");</script><noscript><a href=\"/modules/customers/portal/login\">Continue</a></noscript></body></html>";
 }
 
 @page GET "/modules/customers/portal-setup"
@@ -482,7 +482,7 @@ page modules_maintain_page {
 page modules_monitor_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  return html "<!-- This page redirects to /modules/monitoring -->\n<div style=\"display: flex; align-items: center; justify-content: center; height: 100vh;\">\n  <p>Redirecting to Monitoring...</p>\n</div>";
+  return html "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0;url=/modules/monitoring\"><title>Redirecting to Monitoring…</title></head><body><p>Redirecting to Monitoring…</p><script>location.replace(\"/modules/monitoring\");</script><noscript><a href=\"/modules/monitoring\">Continue</a></noscript></body></html>";
 }
 
 @page GET "/modules/monitoring"
@@ -609,7 +609,7 @@ page onboarding_page {
 page portal_tenantId_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  return html "<div>Redirecting to portal...</div>";
+  return html "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Redirecting to portal…</title></head><body><p>Redirecting to portal…</p><script>var m=location.pathname.match(/^\\/portal\\/([^/]+)/);location.replace(m?\"/modules/customers/portal/login?tenant=\"+encodeURIComponent(m[1]):\"/modules/customers/portal/login\");</script><noscript><a href=\"/modules/customers/portal/login\">Continue</a></noscript></body></html>";
 }
 
 @page GET "/reset-password"

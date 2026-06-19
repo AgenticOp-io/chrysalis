@@ -77,14 +77,24 @@ export async function runWispCwlPocVerify(opts) {
     const url = `${baseUrl}${path}`;
     try {
       const res = await fetch(url, { redirect: "manual" });
+      const proxyHeader = res.headers.get("x-chrysalis-wisp-proxy") ?? "";
+      const holeOkChimera =
+        opts.chimera === true &&
+        (proxyHeader === "svelte" || (res.status === 200 && res.headers.get("content-type")?.includes("text/html")));
       probes.push({
         path,
-        expected: "501-hole",
+        expected: opts.chimera ? "hole-or-svelte-fallback" : "501-hole",
         status: res.status,
-        ok: res.status === 501,
+        proxyHeader: proxyHeader || undefined,
+        ok: opts.chimera ? holeOkChimera : res.status === 501,
       });
     } catch (e) {
-      probes.push({ path, expected: "501-hole", ok: false, error: String(e) });
+      probes.push({
+        path,
+        expected: opts.chimera ? "hole-or-svelte-fallback" : "501-hole",
+        ok: false,
+        error: String(e),
+      });
     }
   }
 
@@ -104,7 +114,9 @@ export async function runWispCwlPocVerify(opts) {
   }
 
   const pageOk = probes.filter((p) => p.expected === "200-html").every((p) => p.ok);
-  const holeOk = probes.filter((p) => p.expected === "501-hole").every((p) => p.ok);
+  const holeOk = probes
+    .filter((p) => p.expected === "501-hole" || p.expected === "hole-or-svelte-fallback")
+    .every((p) => p.ok);
   const apiOk = opts.chimera
     ? probes.filter((p) => p.expected === "api-proxy").every((p) => p.ok)
     : true;

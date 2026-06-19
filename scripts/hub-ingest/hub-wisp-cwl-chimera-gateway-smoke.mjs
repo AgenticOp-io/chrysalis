@@ -70,16 +70,26 @@ export async function runWispChimeraGatewaySmoke() {
     const docs = await fetch(`${baseUrl}/docs`);
     const docsOk = docs.status === 200 && (await docs.text()).includes("WISP Management");
 
+    const root = await fetch(`${baseUrl}/`);
+    const rootText = await root.text();
+    const rootRedirectOk =
+      root.status === 200 &&
+      rootText.includes("location.replace") &&
+      rootText.includes("/login") &&
+      !rootText.includes('<div class="loading-page">');
+
     const api = await fetch(`${baseUrl}/api/tenants`);
     const apiProxied = api.headers.get("x-chrysalis-wisp-proxy") === "backend";
     const favicon = await fetch(`${baseUrl}/favicon.ico`);
     const faviconOk = favicon.status === 200 && favicon.headers.get("x-chrysalis-wisp-proxy") === "static";
-    const ok = docsOk && apiProxied && faviconOk;
+    const ok = docsOk && rootRedirectOk && apiProxied && faviconOk;
     return {
       ...base,
       ok,
       docsStatus: docs.status,
       docsOk,
+      rootStatus: root.status,
+      rootRedirectOk,
       apiProxied,
       apiStatus: api.status,
       faviconStatus: favicon.status,

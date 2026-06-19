@@ -24,6 +24,8 @@ export function runWispCwlProgramDocGate() {
     text.includes("Backend / GenieACS conversion") &&
     text.includes("Phase 14") &&
     text.includes("G6500") &&
+    text.includes("G6510") &&
+    text.includes("client redirect") &&
     text.includes("ACS / TR-069 as CWL language goals");
   return { ok, wispProgramDocOk: ok };
 }

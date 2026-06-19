@@ -20,7 +20,7 @@
 
 **Close before build:** Phase 13 surface work requires **G6310** closed. Regression: `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`.
 
-**Phase 14 verify:** `pnpm run hub:wisp-cwl-pipeline-smoke` (**G6320**), `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` (**G6330**); program doc gate **G6500** (ACS excluded from CWL depth)  
+**Phase 14 verify:** `pnpm run hub:wisp-cwl-phase14-operator-close-smoke` (**G6520**), `pnpm run hub:wisp-cwl-phase14-client-redirect-smoke` (**G6510**), `pnpm run hub:wisp-cwl-pipeline-smoke` (**G6320**), `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` (**G6330**); program doc gate **G6500** (ACS excluded from CWL depth)  
 **Phase 13 verify:** `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:cwl-surface-taxonomy-smoke` (**G6340**)
 **Phase 12 Phase 0 regression:** `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**)
 
