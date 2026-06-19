@@ -41,6 +41,7 @@ Runtime plan: [`RUNTIME-CWL-PARITY-PLAN.md`](./RUNTIME-CWL-PARITY-PLAN.md) Phase
 | G6224 | `runWordPressVerticalCoreStubOracleGate` | `pnpm run hub:wordpress-core-stub-oracle-smoke` |
 | G6225 | `runWordPressVerticalWpEffectLoweringGate` | manifest `wordpressEffectCallees` → `effect.wp.call` |
 | G6227 | `runWordPressVerticalWpCallVerifyReplayGate` | wp.call lowering + verify replay correctness 1 |
+| G6228 | `runWordPressVerticalWpCallFastifyParityGate` | emit-fastify `wpCall` + fastify verify replay |
 
 Plan: [`WORDPRESS-VERTICAL-PHASE-10.md`](./WORDPRESS-VERTICAL-PHASE-10.md).
 
@@ -66,7 +67,7 @@ Second-oracle path + capability matrix honesty for additional language claims.
 
 ## Phase E — Hub completion (G6240)
 
-Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **6**).
+Hub-completion schema **513** + `phase10ProductionParity` section (depth schema **7**).
 
 | ID | Gate |
 | --- | --- |

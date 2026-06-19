@@ -1,7 +1,7 @@
 /**
  * Hub completion Phase 10 production parity section (G6242).
  */
-export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 6;
+export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 7;
 
 /**
  * @param {{
@@ -37,6 +37,7 @@ export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
     sessionResolveProbe: "G6226",
     wpEffectLowering: "G6225",
     wpCallVerifyReplay: "G6227",
+    wpCallFastifyParity: "G6228",
     wordpressCoreStubOracle: "G6224",
     depthGate: "G6241",
     hubCompletionGate: "G6252",

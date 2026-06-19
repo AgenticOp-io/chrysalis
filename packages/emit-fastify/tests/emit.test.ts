@@ -795,3 +795,23 @@ describe("emit-fastify: lib-helpers module (G2321/G2326)", () => {
     }
   });
 });
+
+describe("emit-fastify: wordpress-probe wpCall (G6228)", () => {
+  const FIXTURE_WP = resolve(__dirname, "../../../fixtures/wordpress-probe");
+
+  test("emits wpCall runtime stub and handler imports for effect.wp.call", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "emit-wp-fastify-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE_WP);
+      await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_WP });
+      const runtime = readFileSync(resolve(out, "src/runtime.ts"), "utf8");
+      expect(runtime).toContain("export function wpCall(");
+      expect(runtime).toContain('case "get_bloginfo"');
+      const publicHome = readFileSync(resolve(out, "src/handlers/public_home.ts"), "utf8");
+      expect(publicHome).toContain('wpCall("add_action"');
+      expect(publicHome).toContain("wpCall,");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});

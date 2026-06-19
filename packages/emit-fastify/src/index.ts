@@ -352,6 +352,7 @@ function handlerFileText(
     : "";
   const runtimeFqn = emitted.usesPhpFqnNew ? "  phpFqnNew,\n" : "";
   const runtimeDynamicNew = emitted.usesPhpDynamicNew ? "  phpDynamicNew,\n" : "";
+  const runtimeWpCall = emitted.usesWpCall ? "  wpCall,\n" : "";
   const runtimeModule = useSharedRuntimeImports
     ? "../chrysalis-runtime-imports.js"
     : useRuntimeFacade
@@ -402,7 +403,7 @@ ${runtimeBatch}  microtimeString,
   parseUrlParts,
   passwordVerify,
   __hole,
-${runtimeFqn}${runtimeDynamicNew}  __respond,
+${runtimeWpCall}${runtimeFqn}${runtimeDynamicNew}  __respond,
 ${runtimeZod}} from "${runtimeModule}";
 
 /**

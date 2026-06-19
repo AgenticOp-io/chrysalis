@@ -45,6 +45,8 @@ export interface EmittedHandler {
   readonly usesPhpFqnNew: boolean;
   /** Handler uses `phpDynamicNew` for dynamic class construction (`new $x`). */
   readonly usesPhpDynamicNew: boolean;
+  /** Handler uses `wpCall` for manifest-declared WordPress / wp_* effects. */
+  readonly usesWpCall: boolean;
   /** Lib helper calls that require `lib-helpers.ts` (non-inlinable at emit). */
   readonly libHelperImports: ReadonlyArray<string>;
 }
@@ -95,6 +97,7 @@ interface EmitCtx {
   usesZod: boolean;
   usesPhpFqnNew: boolean;
   usesPhpDynamicNew: boolean;
+  usesWpCall: boolean;
   /** When `function`, `__return` lowers to TS `return` (lib helper bodies). */
   returnMode: "handler" | "function";
   libHelperCalls: Set<string>;
@@ -475,6 +478,7 @@ function emitEffectExpr(ctx: EmitCtx, n: NodeBase): string {
     }
     case "wp.call": {
       recordEffectsFromNode(ctx, n);
+      ctx.usesWpCall = true;
       const callee = String(n.attrs.callee ?? "");
       const args = n.operands.map((o) => emitExpr(ctx, o)).join(", ");
       return `wpCall(${stringLit(callee)}, [${args}])`;
@@ -938,6 +942,7 @@ export function emitHandlerBody(
     usesZod: false,
     usesPhpFqnNew: false,
     usesPhpDynamicNew: false,
+    usesWpCall: false,
     returnMode: "handler",
     libHelperCalls: new Set<string>(),
   };
@@ -967,6 +972,7 @@ export function emitHandlerBody(
     usesZod: ctx.usesZod,
     usesPhpFqnNew: ctx.usesPhpFqnNew,
     usesPhpDynamicNew: ctx.usesPhpDynamicNew,
+    usesWpCall: ctx.usesWpCall,
     libHelperImports: [...ctx.libHelperCalls].sort(),
   };
 }
@@ -997,6 +1003,7 @@ export function emitLibHelperFunctionBody(
     usesZod: false,
     usesPhpFqnNew: false,
     usesPhpDynamicNew: false,
+    usesWpCall: false,
     returnMode: "function",
     libHelperCalls: new Set<string>(),
   };

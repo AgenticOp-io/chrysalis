@@ -12,6 +12,7 @@ export interface AggregatedHandlerImportNeeds {
   readonly usesZod: boolean;
   readonly usesPhpFqnNew: boolean;
   readonly usesPhpDynamicNew: boolean;
+  readonly usesWpCall: boolean;
 }
 
 export function aggregateEmittedHandlerImports(
@@ -26,6 +27,7 @@ export function aggregateEmittedHandlerImports(
     usesZod: handlers.some((h) => h.usesZod),
     usesPhpFqnNew: handlers.some((h) => h.usesPhpFqnNew),
     usesPhpDynamicNew: handlers.some((h) => h.usesPhpDynamicNew),
+    usesWpCall: handlers.some((h) => h.usesWpCall),
   };
 }
 
@@ -52,8 +54,8 @@ export function runtimeExportNamesForAgg(agg: AggregatedHandlerImportNeeds): str
     "parseUrlParts",
     "passwordVerify",
     "__hole",
-    "wpCall",
   );
+  if (agg.usesWpCall) lines.push("wpCall");
   if (agg.usesPhpFqnNew) lines.push("phpFqnNew");
   if (agg.usesPhpDynamicNew) lines.push("phpDynamicNew");
   lines.push("__respond");
@@ -133,6 +135,7 @@ export function honoBarrelValueImportClause(emitted: EmittedHandler): string {
   const runtimeZod = emitted.usesZod ? "parseZodBodyFieldRaw,\n  parseZodEnumBodyFieldRaw,\n" : "";
   const runtimeFqn = emitted.usesPhpFqnNew ? "phpFqnNew,\n" : "";
   const runtimeDynamicNew = emitted.usesPhpDynamicNew ? "phpDynamicNew,\n" : "";
+  const runtimeWpCall = emitted.usesWpCall ? "  wpCall,\n" : "";
   return `getCookie, ${ctxPart}${dbImportNames}, getSession, 
   escapeHtml,
   nl2br,
@@ -149,7 +152,7 @@ ${runtimeBatch}  microtimeString,
   parseUrlParts,
   passwordVerify,
   __hole,
-${runtimeFqn}${runtimeDynamicNew}  __respond,
+${runtimeWpCall}${runtimeFqn}${runtimeDynamicNew}  __respond,
 ${runtimeZod}`;
 }
 
@@ -185,6 +188,7 @@ export function fastifyBarrelValueImportClause(emitted: EmittedHandler): string 
   const runtimeZod = emitted.usesZod ? "parseZodBodyFieldRaw,\n  parseZodEnumBodyFieldRaw,\n" : "";
   const runtimeFqn = emitted.usesPhpFqnNew ? "phpFqnNew,\n" : "";
   const runtimeDynamicNew = emitted.usesPhpDynamicNew ? "phpDynamicNew,\n" : "";
+  const runtimeWpCall = emitted.usesWpCall ? "  wpCall,\n" : "";
   return `${ctxPart}${dbImportNames}, getSession, 
   escapeHtml,
   nl2br,
@@ -201,6 +205,6 @@ ${runtimeBatch}  microtimeString,
   parseUrlParts,
   passwordVerify,
   __hole,
-${runtimeFqn}${runtimeDynamicNew}  __respond,
+${runtimeWpCall}${runtimeFqn}${runtimeDynamicNew}  __respond,
 ${runtimeZod}`;
 }

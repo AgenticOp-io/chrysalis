@@ -26,6 +26,7 @@ export function computeEmittedHandlerDedupeKey(
     usesZod: emitted.usesZod,
     usesPhpFqnNew: emitted.usesPhpFqnNew,
     usesPhpDynamicNew: emitted.usesPhpDynamicNew,
+    usesWpCall: emitted.usesWpCall,
   });
 }
 

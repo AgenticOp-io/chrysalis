@@ -105,6 +105,15 @@ describe.sequential("hub strategic plan phase10 depth slices", () => {
     expect(gate.correctness).toBe(1);
   }, 120_000);
 
+  test("wordpress wp call fastify parity gate (G6228)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWordPressVerticalWpCallFastifyParityGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.correctness).toBe(1);
+  }, 120_000);
+
   test("runtime-cwl session resolve strict gate (G6211+)", () => {
     const gate = importSyncGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",

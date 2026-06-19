@@ -2132,6 +2132,7 @@ export function runProductionParityPhase10DocGate() {
     text.includes("runRuntimeCwlSessionResolveStrictGate") &&
     text.includes("runRuntimeCwlSessionResolveProbeGate") &&
     text.includes("runWordPressVerticalWpCallVerifyReplayGate") &&
+    text.includes("runWordPressVerticalWpCallFastifyParityGate") &&
     text.includes("runStrategicPlanPhase10HubCompletionGate") &&
     text.includes("runStrategicPlanPhase10ProductionParityCloseGate") &&
     text.includes("schema **513**");
@@ -2400,6 +2401,60 @@ export async function runWordPressVerticalWpCallVerifyReplayGate(opts = {}) {
   };
 }
 
+/** G6228 — WordPress probe fastify verify replay (wpCall runtime parity). */
+export async function runWordPressVerticalFastifyVerifyReplayGate(opts = {}) {
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const fixture = join(repoRoot, "fixtures/wordpress-probe");
+  if (!existsSync(join(fixture, "chrysalis.routes.json"))) {
+    return { ok: false, skip: "missing-wordpress-probe-routes" };
+  }
+  const replay = await runProjectVerifyReplay(fixture, {
+    origin: "php",
+    target: "fastify",
+    repoRoot,
+    threshold: 1,
+  });
+  return {
+    ok: replay.ok === true,
+    skip: replay.skip ?? null,
+    correctness: replay.correctness ?? null,
+    routeCount: replay.routeCount ?? null,
+    traceCount: replay.traceCount ?? null,
+  };
+}
+
+/** G6228 — emit-fastify wpCall runtime stub gate. */
+export function runEmitFastifyWpCallRuntimeGate() {
+  const runtimePath = join(scriptRoot, "packages/emit-fastify/src/runtime-files.ts");
+  const honoPath = join(scriptRoot, "packages/emit-hono/src/index.ts");
+  const fastifyPath = join(scriptRoot, "packages/emit-fastify/src/index.ts");
+  if (!existsSync(runtimePath) || !existsSync(honoPath) || !existsSync(fastifyPath)) {
+    return { ok: false, skip: "missing-emit-fastify-wpcall" };
+  }
+  const runtime = readFileSync(runtimePath, "utf8");
+  const hono = readFileSync(honoPath, "utf8");
+  const fastify = readFileSync(fastifyPath, "utf8");
+  const ok =
+    runtime.includes("export function wpCall(") &&
+    runtime.includes("get_bloginfo") &&
+    hono.includes("usesWpCall") &&
+    fastify.includes("usesWpCall");
+  return { ok, wpCallRuntimeOk: ok };
+}
+
+/** G6228 — WordPress wp.call fastify parity (runtime stub + verify replay). */
+export async function runWordPressVerticalWpCallFastifyParityGate(opts = {}) {
+  const runtime = runEmitFastifyWpCallRuntimeGate();
+  const replay = await runWordPressVerticalFastifyVerifyReplayGate(opts);
+  const ok = runtime.ok === true && replay.ok === true && replay.correctness === 1;
+  return {
+    ok,
+    wpCallRuntimeOk: runtime.ok === true,
+    replayOk: replay.ok === true,
+    correctness: replay.correctness ?? null,
+  };
+}
+
 /** G6217 — WordPress oracle capture prep (probe manifest + routes). */
 export function runWordPressVerticalOracleCaptureGate() {
   const fixture = join(scriptRoot, "fixtures/wordpress-probe");
@@ -2420,7 +2475,7 @@ export function runWordPressVerticalOracleCaptureGate() {
   return { ok, captureRouteCount: capture.length, captureOk };
 }
 
-/** G6216 — WordPress vertical Phase 10 depth (G6212–G6227). */
+/** G6216 — WordPress vertical Phase 10 depth (G6212–G6228). */
 export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
   const probe = await runWordPressVerticalProbeIngestGate();
   const observe = runWordPressVerticalObserveManifestGate();
@@ -2431,6 +2486,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
   const verifyReplay = await runWordPressVerticalVerifyReplayGate(_opts);
   const wpEffects = await runWordPressVerticalWpEffectLoweringGate();
   const wpCallVerify = await runWordPressVerticalWpCallVerifyReplayGate(_opts);
+  const wpCallFastify = await runWordPressVerticalWpCallFastifyParityGate(_opts);
   const coreStub = await runWordPressVerticalCoreStubOracleGate(_opts);
   const ok =
     probe.ok === true &&
@@ -2442,6 +2498,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
     verifyReplay.ok === true &&
     wpEffects.ok === true &&
     wpCallVerify.ok === true &&
+    wpCallFastify.ok === true &&
     coreStub.ok === true;
   return {
     ok,
@@ -2454,6 +2511,7 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
     verifyReplayOk: verifyReplay.ok === true,
     wpEffectLoweringOk: wpEffects.ok === true,
     wpCallVerifyOk: wpCallVerify.ok === true,
+    wpCallFastifyOk: wpCallFastify.ok === true,
     coreStubOracleOk: coreStub.ok === true,
   };
 }

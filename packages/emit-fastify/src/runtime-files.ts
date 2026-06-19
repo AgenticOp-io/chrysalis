@@ -647,6 +647,33 @@ export async function passwordVerify(plain: string, hash: string): Promise<boole
   }
 }
 
+/**
+ * Manifest-declared WordPress / wp_* call stub (Phase 10 — verify-gated).
+ * Returns deterministic probe values; customer slices extend via oracle evidence.
+ */
+export function wpCall(callee: string, _args: readonly unknown[]): unknown {
+  switch (callee) {
+    case "get_bloginfo":
+      return "WordPress probe";
+    case "apply_filters":
+      return _args.length >= 2 ? _args[1] : "";
+    case "wp_create_nonce":
+      return "probe-nonce";
+    case "is_admin":
+      return true;
+    case "current_user_can":
+      return false;
+    case "add_action":
+    case "wp_head":
+    case "wp_footer":
+      return null;
+    case "wp_die":
+      return null;
+    default:
+      return __hole("wp.call:" + callee, { callee, args: _args });
+  }
+}
+
 export function __hole(name: string, payload: unknown): unknown {
   // eslint-disable-next-line no-console
   console.warn("[chrysalis] hole invoked:", name, payload);

@@ -39,7 +39,8 @@ Core stub fixture: `fixtures/wordpress-core-stub` — `lib/wp-core-stubs.php` im
 | G6224 | `runWordPressVerticalCoreStubOracleGate` | `fixtures/wordpress-core-stub` + verify replay |
 | G6225 | `runWordPressVerticalWpEffectLoweringGate` | manifest `wordpressEffectCallees` |
 | G6227 | `runWordPressVerticalWpCallVerifyReplayGate` | wp.call lowering + verify replay |
-| G6216 | `runWordPressVerticalPhase10DepthGate` | composes G6212–G6227 |
+| G6228 | `runWordPressVerticalWpCallFastifyParityGate` | emit-fastify `wpCall` + fastify verify replay |
+| G6216 | `runWordPressVerticalPhase10DepthGate` | composes G6212–G6228 |
 
 Artifacts:
 
