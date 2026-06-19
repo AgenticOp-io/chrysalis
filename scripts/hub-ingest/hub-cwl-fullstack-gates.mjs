@@ -2095,6 +2095,7 @@ export function runPausedAndMaintenanceDocGate() {
       text.includes("G6510") &&
       text.includes("G6530") &&
       text.includes("G6600") &&
+      text.includes("G6650") &&
       text.includes("G6590") &&
       text.includes("ACS") &&
       text.includes("G6410") &&
@@ -2188,6 +2189,7 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
       text.includes("G6510") &&
       text.includes("G6530") &&
       text.includes("G6600") &&
+      text.includes("G6650") &&
       text.includes("G6590") &&
       text.includes("maintenance")
     : isWispCwlPhase13Closed()

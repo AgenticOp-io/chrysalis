@@ -139,6 +139,9 @@ jobs:
       - name: WISP CWL Phase 14 remote demo (G6600)
         run: pnpm run hub:wisp-cwl-phase14-remote-demo-smoke
 
+      - name: WISP CWL Phase 14 pipeline remote verify (G6650)
+        run: pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke
+
       - name: WISP CWL Phase 14 client redirect (G6510)
         run: pnpm run hub:wisp-cwl-phase14-client-redirect-smoke
 

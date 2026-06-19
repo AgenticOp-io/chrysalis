@@ -7,6 +7,7 @@ import { runWispCwlPhase14OperatorCloseGate } from "./hub-wisp-cwl-phase14-opera
 import { runWispCwlPhase14HssProxyGate } from "./hub-wisp-cwl-phase14-hss-proxy-smoke.mjs";
 import { runWispCwlPhase14DemoManifestGate } from "./hub-wisp-cwl-phase14-demo-manifest-smoke.mjs";
 import { runWispCwlPhase14RemoteDemoGate } from "./hub-wisp-cwl-phase14-remote-demo-smoke.mjs";
+import { runWispCwlPhase14PipelineRemoteVerifyGate } from "./hub-wisp-cwl-phase14-pipeline-remote-verify-smoke.mjs";
 import { runWispCwlDualDeployConfigSmokeGate } from "./hub-wisp-cwl-dual-deploy-config-smoke.mjs";
 import { runWispCwlPhase13CloseGate } from "./hub-wisp-cwl-phase13-close-smoke.mjs";
 
@@ -25,6 +26,7 @@ export function runWispPhase14CloseDocGate() {
     text.includes("G6530") &&
     text.includes("G6540") &&
     text.includes("G6600") &&
+    text.includes("G6650") &&
     text.includes("Phase 14") &&
     text.includes("ACS / TR-069 as CWL language goals");
   return { ok, phase14CloseDocOk: ok };
@@ -42,6 +44,7 @@ export async function runWispCwlPhase14CloseGate(opts = {}) {
   const remoteDemo = await runWispCwlPhase14RemoteDemoGate({
     skipLive: opts.requireRemoteDemo !== true,
   });
+  const pipelineRemoteVerify = runWispCwlPhase14PipelineRemoteVerifyGate(opts);
   const dualDeploy = await runWispCwlDualDeployConfigSmokeGate();
   const phase13 = await runWispCwlPhase13CloseGate({ apply: false });
   const ok =
@@ -50,6 +53,7 @@ export async function runWispCwlPhase14CloseGate(opts = {}) {
     hssProxy.ok === true &&
     demoManifest.ok === true &&
     remoteDemo.ok === true &&
+    pipelineRemoteVerify.ok === true &&
     dualDeploy.ok === true &&
     phase13.ok === true;
   return {
@@ -61,6 +65,7 @@ export async function runWispCwlPhase14CloseGate(opts = {}) {
     hssProxy,
     demoManifest,
     remoteDemo,
+    pipelineRemoteVerify,
     dualDeploy,
     phase13,
     generatedAt: new Date().toISOString(),

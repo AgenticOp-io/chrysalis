@@ -218,6 +218,7 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 | **G6530** | HSS upstream proxy contract + chimera `/api/*` | `pnpm run hub:wisp-cwl-phase14-hss-proxy-smoke` |
 | **G6540** | Demo manifest (GCE URL + health probe catalog) | `pnpm run hub:wisp-cwl-phase14-demo-manifest-smoke` |
 | **G6600** | Remote demo verify (manifest health probes vs live chimera) | `pnpm run hub:wisp-cwl-phase14-remote-demo-smoke` |
+| **G6650** | Pipeline remote verify contract (manifest + poc in deploy report) | `pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke` |
 | **G6590** | Phase 14 operator program close | `pnpm run hub:wisp-cwl-phase14-close-smoke` |
 | G6320 | Pipeline regression | `pnpm run hub:wisp-cwl-pipeline-smoke` |
 | G6330 | Dual deploy config | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |
@@ -230,9 +231,11 @@ M0 docs/help/login → M1 dashboard → M2 admin/customers → M3 plan/deploy/co
 
 **G6540 (demo manifest):** `fixtures/hub-wisp-management/wisp-demo-manifest.v1.json` catalogs GCE demo URL, backend, health probes, and client redirect paths. Refreshed on GCE deploy via `scripts/wisp-cwl-demo-manifest.mjs`.
 
-**G6600 (remote demo verify):** `scripts/wisp-cwl-demo-manifest-verify.mjs` runs manifest `healthProbes` against a live chimera base URL (`redirect-login`, `200-html`, `svelte-fallback`, `api-proxy`). Wired into `wisp:deploy:gce` remote-verify alongside poc verify. CI skips live probes unless `CHRYSALIS_WISP_REMOTE_DEMO_REQUIRED=1`; post-deploy: `node scripts/wisp-cwl-demo-manifest-verify.mjs --base-url http://NAT:19100`.
+**G6600 (remote demo verify):** `scripts/wisp-cwl-demo-manifest-verify.mjs` runs manifest `healthProbes` against a live chimera base URL (`redirect-login`, `200-html`, `svelte-fallback`, `api-proxy`). Wired into `wisp:deploy:gce` remote-verify alongside poc verify. CI skips live probes unless `CHRYSALIS_WISP_REMOTE_DEMO_REQUIRED=1`; post-deploy: `pnpm run wisp:verify:demo -- --base-url http://NAT:19100`.
 
-**G6590 (close):** Composite operator readiness — G6520 + G6530 + G6540 + G6600 (doc) + G6330 + G6410 regression.
+**G6650 (pipeline remote verify):** Deploy pipeline `remoteVerify` bundles manifest verify + poc verify; `validatePipelineRemoteVerifyDetail` checks deploy report shape. GCE deploy workflow runs G6600 with `--require` after deploy.
+
+**G6590 (close):** Composite operator readiness — G6520 + G6530 + G6540 + G6600 (doc) + G6650 + G6330 + G6410 regression.
 
 ### Demo topology (Phase 14)
 
@@ -263,6 +266,7 @@ pnpm run wisp:deploy:firebase
 | `pnpm run wisp:deploy:gce` | Full pipeline + deploy chimera to `chrysalis-test-vm` + remote verify |
 | `pnpm run wisp:deploy:firebase` | Build Firebase client profile + `firebase deploy --only hosting:management` |
 | `pnpm run wisp:deploy:both` | Pipeline + deploy to GCE and Firebase (when credentials available) |
+| `pnpm run wisp:verify:demo` | Manifest health probes vs live chimera (uses demo manifest NAT IP) |
 | `pnpm run wisp:build:client:gce` | GCE sidecar client only (`VITE_CHRYSALIS_SAME_ORIGIN_API=1`) |
 | `pnpm run wisp:build:client:firebase` | Firebase Hosting client only |
 | `pnpm run hub:wisp-cwl-pipeline-smoke` | **G6320** — same as `wisp:pipeline:ci`, writes `reports/wisp/wisp-cwl-pipeline.json` |

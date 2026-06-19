@@ -59,3 +59,9 @@ jobs:
         with:
           name: wisp-cwl-pipeline-report
           path: reports/wisp/wisp-cwl-pipeline.json
+
+      - name: Remote demo verify (G6600)
+        run: node scripts/hub-ingest/hub-wisp-cwl-phase14-remote-demo-smoke.mjs --require
+
+      - name: Pipeline remote verify contract (G6650)
+        run: pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke

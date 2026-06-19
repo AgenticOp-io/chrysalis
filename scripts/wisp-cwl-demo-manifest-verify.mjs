@@ -119,6 +119,29 @@ export function resolveWispRemoteDemoBaseUrl(manifestPath = defaultManifest) {
   return `http://${ip}:${port}`;
 }
 
+/** Validate composite remote-verify detail from wisp-cwl-pipeline deploy step (G6650). */
+export function validatePipelineRemoteVerifyDetail(detail) {
+  if (!detail || typeof detail !== "object") {
+    return { ok: false, skip: "missing-remote-verify-detail" };
+  }
+  const baseOk = typeof detail.baseUrl === "string" && detail.baseUrl.length > 0;
+  const manifest = detail.manifest;
+  const poc = detail.poc;
+  const manifestOk =
+    manifest &&
+    manifest.kind === WISP_DEMO_MANIFEST_VERIFY_KIND &&
+    typeof manifest.probeCount === "number" &&
+    Array.isArray(manifest.probes);
+  const pocOk = poc && typeof poc.ok === "boolean";
+  const ok = detail.ok === true && baseOk && manifestOk && pocOk && poc.ok === true;
+  return {
+    ok,
+    baseUrl: detail.baseUrl ?? null,
+    manifestOk: manifestOk === true,
+    pocOk: pocOk === true && poc?.ok === true,
+  };
+}
+
 function parseArgs(argv) {
   let baseUrl = "";
   let manifestPath = defaultManifest;
