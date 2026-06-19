@@ -264,6 +264,21 @@ describe.sequential("hub strategic plan phase12 wisp cwl", () => {
     expect(gate.doc.ok).toBe(true);
   });
 
+  test("wisp maintenance regression gate (G6710)", () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-wisp-cwl-maintenance-regression-smoke.mjs",
+      "runWispCwlMaintenanceRegressionGate",
+      { skipOperatorVerify: true },
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.doc.ok).toBe(true);
+    expect(gate.programClose.ok).toBe(true);
+    expect(gate.phase13.ok).toBe(true);
+    expect(gate.phase13.doc.ok).toBe(true);
+    expect(gate.taxonomy.ok).toBe(true);
+    expect(gate.phase14Closed).toBe(true);
+  });
+
   test("phase13 closed governance gate (G6413)", () => {
     const gate = importGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",

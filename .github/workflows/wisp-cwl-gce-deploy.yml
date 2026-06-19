@@ -71,3 +71,6 @@ jobs:
 
       - name: Phase 14 program close (G6690)
         run: pnpm run hub:wisp-cwl-phase14-program-close-smoke
+
+      - name: Maintenance regression (G6710)
+        run: node scripts/hub-ingest/hub-wisp-cwl-maintenance-regression-smoke.mjs --require

@@ -160,6 +160,9 @@ jobs:
       - name: WISP CWL Phase 14 program close (G6690)
         run: pnpm run hub:wisp-cwl-phase14-program-close-smoke
 
+      - name: WISP CWL maintenance regression (G6710)
+        run: pnpm run hub:wisp-cwl-maintenance-regression-smoke
+
       - name: WISP CWL pipeline artifact gate
         run: pnpm run ci:wisp-cwl-pipeline
 
