@@ -1,6 +1,6 @@
 # wordpress-probe
 
-Minimal **Phase 10 WordPress vertical** ingest slice (**G6212–G6216**). Public + admin routes call common **`wp_*`** APIs; ingest records them as **`data.call`** (unsupported semantics — not lowered to effects yet).
+Minimal **Phase 10 WordPress vertical** ingest slice (**G6212–G6219**). Public + admin routes call common **`wp_*`** APIs; ingest records them as **`data.call`**.
 
 | Route | File | wp APIs |
 | --- | --- | --- |
@@ -8,8 +8,9 @@ Minimal **Phase 10 WordPress vertical** ingest slice (**G6212–G6216**). Public
 | `GET /wp-admin` | `pages/admin_home.php` | `is_admin`, `wp_die`, `current_user_can`, `wp_create_nonce` |
 
 - **Observe manifest:** `chrysalis.observe.json` (**G6213**)
+- **Oracle capture:** `chrysalis.probe.json` + `chrysalis.oracle-corpus.json` (**G6217–G6218**)
+- **Verify replay:** correctness **1** on hub probe corpus (**G6219**)
 - **Ingest tests:** `packages/ingest/tests/wordpress-probe.test.ts`
-- **Gates:** `runWordPressVerticalPhase10DepthGate`
-- **Smokes:** `pnpm run hub:wordpress-probe-ingest-smoke`, `pnpm run hub:strategic-plan-phase10-depth-smoke`
+- **Smokes:** `pnpm run hub:wordpress-probe-oracle-capture-smoke`
 
-**Non-goal:** full plugin/theme oracle — dedicated WP capture fixture follows (**G6217+**).
+**Non-goal:** full plugin/theme oracle on real WordPress core — customer slice only with holes for unsupported `wp_*`.

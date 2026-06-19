@@ -976,3 +976,27 @@ describe("emit-hono: lib-helpers module (G2318/G2321/G2326)", () => {
     }
   });
 });
+
+describe("emit-hono: static factory lib helpers (G6207)", () => {
+  const FIXTURE_MYSQLI = resolve(__dirname, "../../../fixtures/mysqli-probe");
+
+  test("mysqli-probe factory routes emit DbFactory__getConnection", async () => {
+    const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-h-mysqli-"));
+    try {
+      const mod = await ingestDirectory(FIXTURE_MYSQLI);
+      const res = await emit({ module: mod, outDir: out, provenanceRoot: FIXTURE_MYSQLI });
+      const factoryHoles = res.holes.filter((h) => h.file?.includes("factory_query"));
+      expect(factoryHoles).toEqual([]);
+      const factory = readFileSync(resolve(out, "src/handlers/factory_query.ts"), "utf8");
+      const chain = readFileSync(resolve(out, "src/handlers/factory_query_chain.ts"), "utf8");
+      expect(factory).toContain("DbFactory__getConnection");
+      expect(factory).not.toContain("DbFactory::");
+      expect(chain).not.toContain("DbFactory::");
+      expect(chain).toContain('queryAll("SELECT id, name FROM widgets');
+      const lib = readFileSync(resolve(out, "src/lib-helpers.ts"), "utf8");
+      expect(lib).toContain("export function DbFactory__getConnection");
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+});

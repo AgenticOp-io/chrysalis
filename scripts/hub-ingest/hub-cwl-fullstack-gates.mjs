@@ -2120,7 +2120,9 @@ export function runProductionParityPhase10DocGate() {
     text.includes("runWordPressVerticalPhase10DepthGate") &&
     text.includes("runMatrixCustomerRouteOraclePairGate") &&
     text.includes("runRuntimeCwlProductionSessionBridgeGate") &&
-    text.includes("runWordPressVerticalOracleCaptureGate") &&
+    text.includes("runWordPressVerticalOracleLiveCaptureGate") &&
+    text.includes("runWordPressVerticalVerifyReplayGate") &&
+    text.includes("runRuntimeCwlResolveSessionBridgeGate") &&
     text.includes("runStrategicPlanPhase10ProductionParityCloseGate") &&
     text.includes("schema **513**");
   return { ok: docOk, docOk };
@@ -2248,6 +2250,53 @@ export async function runWordPressVerticalVerifyPrepareGate(opts = {}) {
   };
 }
 
+/** G6219 — WordPress probe verify replay (hub probe corpus). */
+export async function runWordPressVerticalVerifyReplayGate(opts = {}) {
+  const repoRoot = opts.repoRoot ?? scriptRoot;
+  const fixture = join(repoRoot, "fixtures/wordpress-probe");
+  if (!existsSync(join(fixture, "chrysalis.routes.json"))) {
+    return { ok: false, skip: "missing-wordpress-probe-routes" };
+  }
+  const replay = await runProjectVerifyReplay(fixture, {
+    origin: "php",
+    target: "hono",
+    repoRoot,
+    threshold: 1,
+  });
+  return {
+    ok: replay.ok === true,
+    skip: replay.skip ?? null,
+    correctness: replay.correctness ?? null,
+    routeCount: replay.routeCount ?? null,
+    traceCount: replay.traceCount ?? null,
+  };
+}
+
+/** G6218 — WordPress oracle live capture (corpus manifest + verify replay). */
+export async function runWordPressVerticalOracleLiveCaptureGate(opts = {}) {
+  const corpusPath = join(scriptRoot, "fixtures/wordpress-probe/chrysalis.oracle-corpus.json");
+  const probePath = join(scriptRoot, "fixtures/wordpress-probe/chrysalis.probe.json");
+  if (!existsSync(corpusPath) || !existsSync(probePath)) {
+    return { ok: false, skip: "missing-wordpress-oracle-corpus" };
+  }
+  const corpus = JSON.parse(readFileSync(corpusPath, "utf8"));
+  const prep = runWordPressVerticalOracleCaptureGate();
+  const replay = await runWordPressVerticalVerifyReplayGate(opts);
+  const corpusOk =
+    corpus.kind === "chrysalis.wordpress-probe.oracle-corpus" &&
+    corpus.captureMode === "hub-probe-in-process" &&
+    Array.isArray(corpus.routes) &&
+    corpus.routes.length >= 2;
+  const ok = prep.ok === true && corpusOk && replay.ok === true && replay.correctness === 1;
+  return {
+    ok,
+    prepOk: prep.ok === true,
+    corpusOk,
+    replayOk: replay.ok === true,
+    replay,
+  };
+}
+
 /** G6217 — WordPress oracle capture prep (probe manifest + routes). */
 export function runWordPressVerticalOracleCaptureGate() {
   const fixture = join(scriptRoot, "fixtures/wordpress-probe");
@@ -2268,19 +2317,23 @@ export function runWordPressVerticalOracleCaptureGate() {
   return { ok, captureRouteCount: capture.length, captureOk };
 }
 
-/** G6216 — WordPress vertical Phase 10 depth (G6212–G6217). */
+/** G6216 — WordPress vertical Phase 10 depth (G6212–G6219). */
 export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
   const probe = await runWordPressVerticalProbeIngestGate();
   const observe = runWordPressVerticalObserveManifestGate();
   const admin = await runWordPressVerticalAdminRouteIngestGate();
   const verifyPrepare = await runWordPressVerticalVerifyPrepareGate(_opts);
   const oracleCapture = runWordPressVerticalOracleCaptureGate();
+  const oracleLive = await runWordPressVerticalOracleLiveCaptureGate(_opts);
+  const verifyReplay = await runWordPressVerticalVerifyReplayGate(_opts);
   const ok =
     probe.ok === true &&
     observe.ok === true &&
     admin.ok === true &&
     verifyPrepare.ok === true &&
-    oracleCapture.ok === true;
+    oracleCapture.ok === true &&
+    oracleLive.ok === true &&
+    verifyReplay.ok === true;
   return {
     ok,
     probeOk: probe.ok === true,
@@ -2288,6 +2341,8 @@ export async function runWordPressVerticalPhase10DepthGate(_opts = {}) {
     adminOk: admin.ok === true,
     verifyPrepareOk: verifyPrepare.ok === true,
     oracleCaptureOk: oracleCapture.ok === true,
+    oracleLiveOk: oracleLive.ok === true,
+    verifyReplayOk: verifyReplay.ok === true,
   };
 }
 
@@ -2306,6 +2361,21 @@ export function runRuntimeCwlProductionSessionBridgeGate() {
     runtime.includes("session: { ...session }") &&
     readme.includes("injected session");
   return { ok, sessionBridgeOk: ok };
+}
+
+/** G6210+ — runtime-cwl resolveSession cookie bridge gate. */
+export function runRuntimeCwlResolveSessionBridgeGate() {
+  const runtimePath = join(scriptRoot, "packages/runtime-cwl/src/runtime.ts");
+  const testPath = join(scriptRoot, "packages/runtime-cwl/tests/runtime.test.ts");
+  if (!existsSync(runtimePath) || !existsSync(testPath)) {
+    return { ok: false, skip: "missing-runtime-cwl-resolve-session" };
+  }
+  const runtime = readFileSync(runtimePath, "utf8");
+  const test = readFileSync(testPath, "utf8");
+  const ok =
+    runtime.includes("resolveSession") &&
+    test.includes("resolveSession maps cookies");
+  return { ok, resolveSessionOk: ok };
 }
 
 /** G6204 — runtime-cwl production session honesty (Phase C active). */
@@ -2362,12 +2432,14 @@ export async function runRuntimePhaseCProductionDepthGate(opts = {}) {
   const base = await runRuntimePhaseCProductionParityGate(opts);
   const runtimeHonesty = runRuntimeCwlProductionSessionHonestyGate();
   const sessionBridge = runRuntimeCwlProductionSessionBridgeGate();
+  const resolveSession = runRuntimeCwlResolveSessionBridgeGate();
   const mysqliIngest = await runMysqliProbeIngestSqlGate();
   const mysqliVerify = await runMysqliProbeSqlVerifyParityGate(opts);
   const ok =
     base.ok === true &&
     runtimeHonesty.ok === true &&
     sessionBridge.ok === true &&
+    resolveSession.ok === true &&
     mysqliIngest.ok === true &&
     mysqliVerify.ok === true;
   return {
@@ -2375,6 +2447,7 @@ export async function runRuntimePhaseCProductionDepthGate(opts = {}) {
     baseOk: base.ok === true,
     runtimeHonestyOk: runtimeHonesty.ok === true,
     sessionBridgeOk: sessionBridge.ok === true,
+    resolveSessionOk: resolveSession.ok === true,
     mysqliIngestOk: mysqliIngest.ok === true,
     mysqliVerifyOk: mysqliVerify.ok === true,
   };

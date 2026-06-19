@@ -1,7 +1,7 @@
 /**
  * Hub completion Phase 10 production parity section (G6242).
  */
-export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 3;
+export const HUB_COMPLETION_PHASE10_PRODUCTION_PARITY_SCHEMA_VERSION = 4;
 
 /**
  * @param {{
@@ -30,7 +30,9 @@ export function buildHubCompletionPhase10ProductionParitySection(smokes = {}) {
     multiLanguageEvidence: "second-oracle-path",
     expressOraclePair: "G6231",
     mysqliOraclePair: "G6223",
-    wordpressOracleCapture: "G6217",
+    wordpressOracleLive: "G6218",
+    wordpressVerifyReplay: "G6219",
+    resolveSessionBridge: "G6210+",
     depthGate: "G6241",
   };
 }

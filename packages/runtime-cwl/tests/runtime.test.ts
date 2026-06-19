@@ -63,6 +63,26 @@ describe("@chrysalis/runtime-cwl", () => {
     expect(res.status).toBe(200);
   });
 
+  it("resolveSession maps cookies into handler session (G6210+)", async () => {
+    const authEffects = resolve(ROOT, "fixtures/hub-gold-cwl-auth-effects/routes.cwl");
+    const module = loadModuleFromCwlFile(authEffects, ROOT);
+    let sawCookie = false;
+    const runtime = createCwlRuntime({
+      module,
+      resolveSession: ({ cookies }) => {
+        sawCookie = cookies.session_id === "abc123";
+        return { user_id: { kind: "string", value: cookies.session_id ?? "" } };
+      },
+    });
+    const res = await runtime.fetch({
+      method: "GET",
+      url: "http://127.0.0.1/me",
+      headers: { cookie: "session_id=abc123" },
+    });
+    expect(res.status).toBe(200);
+    expect(sawCookie).toBe(true);
+  });
+
   it("page load sidecar in HTML (G1169)", async () => {
     const pageLoadGold = resolve(ROOT, "fixtures/hub-gold-cwl-page-load/routes.cwl");
     const module = loadModuleFromCwlFile(pageLoadGold, ROOT);

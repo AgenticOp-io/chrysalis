@@ -1,7 +1,7 @@
 # WordPress vertical — Phase 10 entry
 
 > **Status:** active (2026-06-19)  
-> **Queue:** **G6210–G6216**  
+> **Queue:** **G6210–G6219**  
 > **Authority:** `docs/PRODUCTION-PARITY-PHASE-10.md` Phase B
 
 ## Goal
@@ -13,8 +13,8 @@ Open the WordPress vertical as a **verify-gated** program after Laravel/plain PH
 | Workstream | First slice |
 | --- | --- |
 | Ingest | `wp_*` hooks, plugin load order, theme template holes — fixture-driven |
-| Oracle | Capture admin + public routes on a minimal WP fixture (future) |
-| Verify | Replay on emitted hono/fastify before cutover claims |
+| Oracle | Hub probe in-process capture on public + admin routes |
+| Verify | Replay on emitted hono (correctness 1 on probe corpus) |
 
 ## Phase B — Probe fixture (G6212)
 
@@ -24,17 +24,22 @@ Open the WordPress vertical as a **verify-gated** program after Laravel/plain PH
 
 Fixture: `fixtures/wordpress-probe` — public + admin routes with **`wp_*`** recorded as **`data.call`**.
 
-## Phase C — Oracle prep + depth (G6213–G6217)
+## Phase C — Oracle prep + depth (G6213–G6219)
 
 | ID | Gate | Notes |
 | --- | --- | --- |
 | G6213 | `runWordPressVerticalObserveManifestGate` | `chrysalis.observe.json` redaction for WP auth |
 | G6214 | `runWordPressVerticalAdminRouteIngestGate` | `is_admin`, `current_user_can`, `wp_create_nonce`, `wp_die` |
-| G6215 | `runWordPressVerticalVerifyPrepareGate` | emit prepare; full oracle replay pending |
-| G6216 | `runWordPressVerticalPhase10DepthGate` | composes G6212–G6215 |
+| G6215 | `runWordPressVerticalVerifyPrepareGate` | emit prepare |
 | G6217 | `runWordPressVerticalOracleCaptureGate` | `chrysalis.probe.json` mirrors routes |
+| G6218 | `runWordPressVerticalOracleLiveCaptureGate` | `chrysalis.oracle-corpus.json` + verify replay |
+| G6219 | `runWordPressVerticalVerifyReplayGate` | hub probe corpus replay |
+| G6216 | `runWordPressVerticalPhase10DepthGate` | composes G6212–G6219 |
 
-Fixture: `fixtures/wordpress-probe/chrysalis.probe.json` lists capture routes for future oracle corpus.
+Artifacts:
+
+- `fixtures/wordpress-probe/chrysalis.probe.json` — capture route manifest
+- `fixtures/wordpress-probe/chrysalis.oracle-corpus.json` — live probe corpus metadata
 
 ## Phase D — Non-goals (still)
 
@@ -46,12 +51,12 @@ Fixture: `fixtures/wordpress-probe/chrysalis.probe.json` lists capture routes fo
 | ID | Gate |
 | --- | --- |
 | G6211 | `runWordPressVerticalPhase10DocGate` |
-| G6212 | `runWordPressVerticalProbeIngestGate` |
 | G6216 | `runWordPressVerticalPhase10DepthGate` |
 | G6210 | `runWordPressVerticalPhase10EntryGate` |
 
 ```bash
 pnpm run hub:strategic-plan-phase10-wordpress-entry-smoke
+pnpm run hub:wordpress-probe-oracle-capture-smoke
 pnpm run hub:strategic-plan-phase10-depth-smoke
 ```
 

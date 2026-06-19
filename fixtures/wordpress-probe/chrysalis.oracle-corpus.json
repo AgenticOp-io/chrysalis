@@ -1,0 +1,21 @@
+{
+  "kind": "chrysalis.wordpress-probe.oracle-corpus",
+  "schemaVersion": 1,
+  "fixture": "fixtures/wordpress-probe",
+  "captureMode": "hub-probe-in-process",
+  "routeCount": 2,
+  "traceCount": 2,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "method": "GET",
+      "path": "/wp-admin"
+    }
+  ],
+  "note": "Captured via hub probe corpus + verify replay (G6218); wp_* remain data.call holes",
+  "correctness": 1,
+  "capturedAt": "2026-06-19T00:56:34.463Z"
+}

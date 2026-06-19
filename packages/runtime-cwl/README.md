@@ -20,6 +20,7 @@ pnpm exec chrysalis-cwl-serve --cwl fixtures/hub-gold-cwl/routes.cwl --port 8787
 ## Invariants
 
 - Uses **`simulateHandler`** — same semantics as behavior-verify (D19), not a full PHP/TS runtime.
+- Optional **`session`** / **`resolveSession`** on `createCwlRuntime` for injected preview session maps (**G6209**, **G6210+**).
 - Unsupported IR ops return **501** with simulation errors (honest hole), never invented bodies.
 - No `Date.now()`, `Math.random()`, or real network inside handlers (simulator + stub DB).
 

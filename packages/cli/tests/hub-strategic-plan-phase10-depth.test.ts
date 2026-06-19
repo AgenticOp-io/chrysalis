@@ -52,10 +52,36 @@ describe.sequential("hub strategic plan phase10 depth slices", () => {
     expect(gate.ok).toBe(true);
   });
 
+  test("wordpress oracle live capture gate (G6218)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWordPressVerticalOracleLiveCaptureGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.replayOk).toBe(true);
+  }, 120_000);
+
+  test("wordpress verify replay gate (G6219)", async () => {
+    const gate = importGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runWordPressVerticalVerifyReplayGate",
+    );
+    expect(gate.ok).toBe(true);
+    expect(gate.correctness).toBe(1);
+  }, 120_000);
+
   test("runtime-cwl session bridge gate (G6209)", () => {
     const gate = importSyncGate(
       "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
       "runRuntimeCwlProductionSessionBridgeGate",
+    );
+    expect(gate.ok).toBe(true);
+  });
+
+  test("runtime-cwl resolveSession bridge gate (G6210+)", () => {
+    const gate = importSyncGate(
+      "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs",
+      "runRuntimeCwlResolveSessionBridgeGate",
     );
     expect(gate.ok).toBe(true);
   });

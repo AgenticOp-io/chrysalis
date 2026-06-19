@@ -19,7 +19,7 @@ export const MATRIX_CUSTOMER_ROUTES = [
     fixture: "fixtures/wordpress-probe",
     program: "wordpress-vertical-phase10",
     tier: "scaffold",
-    note: "wp_* ingest probe; oracle capture pending",
+    note: "wp_* ingest probe; hub probe oracle corpus (G6218)",
   },
   {
     fixture: "fixtures/mysqli-probe",
