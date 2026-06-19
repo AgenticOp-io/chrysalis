@@ -65,3 +65,6 @@ jobs:
 
       - name: Pipeline remote verify contract (G6650)
         run: pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke
+
+      - name: Operator verify (G6680)
+        run: node scripts/hub-ingest/hub-wisp-cwl-phase14-operator-verify-smoke.mjs --require

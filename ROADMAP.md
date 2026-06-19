@@ -60,6 +60,8 @@ Waves M0→M6 closed all five CWL surfaces on WISP (API contract, Pages, Data, U
 | **G6540** demo manifest | `pnpm run hub:wisp-cwl-phase14-demo-manifest-smoke` |
 | **G6600** remote demo verify | `pnpm run hub:wisp-cwl-phase14-remote-demo-smoke` |
 | **G6650** pipeline remote verify | `pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke` |
+| **G6680** operator verify | `pnpm run hub:wisp-cwl-phase14-operator-verify-smoke` |
+| **G6700** live HSS backend | `pnpm run hub:wisp-cwl-phase14-live-backend-smoke` |
 | **G6590** Phase 14 close | `pnpm run hub:wisp-cwl-phase14-close-smoke` |
 | G6320 | `pnpm run hub:wisp-cwl-pipeline-smoke` |
 | G6330 | `pnpm run hub:wisp-cwl-dual-deploy-config-smoke` |

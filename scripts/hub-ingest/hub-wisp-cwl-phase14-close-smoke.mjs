@@ -8,6 +8,8 @@ import { runWispCwlPhase14HssProxyGate } from "./hub-wisp-cwl-phase14-hss-proxy-
 import { runWispCwlPhase14DemoManifestGate } from "./hub-wisp-cwl-phase14-demo-manifest-smoke.mjs";
 import { runWispCwlPhase14RemoteDemoGate } from "./hub-wisp-cwl-phase14-remote-demo-smoke.mjs";
 import { runWispCwlPhase14PipelineRemoteVerifyGate } from "./hub-wisp-cwl-phase14-pipeline-remote-verify-smoke.mjs";
+import { runWispCwlPhase14OperatorVerifyGate } from "./hub-wisp-cwl-phase14-operator-verify-smoke.mjs";
+import { runWispCwlPhase14LiveBackendGate } from "./hub-wisp-cwl-phase14-live-backend-smoke.mjs";
 import { runWispCwlDualDeployConfigSmokeGate } from "./hub-wisp-cwl-dual-deploy-config-smoke.mjs";
 import { runWispCwlPhase13CloseGate } from "./hub-wisp-cwl-phase13-close-smoke.mjs";
 
@@ -27,6 +29,8 @@ export function runWispPhase14CloseDocGate() {
     text.includes("G6540") &&
     text.includes("G6600") &&
     text.includes("G6650") &&
+    text.includes("G6680") &&
+    text.includes("G6700") &&
     text.includes("Phase 14") &&
     text.includes("ACS / TR-069 as CWL language goals");
   return { ok, phase14CloseDocOk: ok };
@@ -45,6 +49,12 @@ export async function runWispCwlPhase14CloseGate(opts = {}) {
     skipLive: opts.requireRemoteDemo !== true,
   });
   const pipelineRemoteVerify = runWispCwlPhase14PipelineRemoteVerifyGate(opts);
+  const operatorVerify = await runWispCwlPhase14OperatorVerifyGate({
+    skipLive: opts.requireOperatorVerify !== true,
+  });
+  const liveBackend = await runWispCwlPhase14LiveBackendGate({
+    skipLive: opts.requireLiveBackend !== true,
+  });
   const dualDeploy = await runWispCwlDualDeployConfigSmokeGate();
   const phase13 = await runWispCwlPhase13CloseGate({ apply: false });
   const ok =
@@ -54,6 +64,8 @@ export async function runWispCwlPhase14CloseGate(opts = {}) {
     demoManifest.ok === true &&
     remoteDemo.ok === true &&
     pipelineRemoteVerify.ok === true &&
+    operatorVerify.ok === true &&
+    liveBackend.ok === true &&
     dualDeploy.ok === true &&
     phase13.ok === true;
   return {
@@ -66,6 +78,8 @@ export async function runWispCwlPhase14CloseGate(opts = {}) {
     demoManifest,
     remoteDemo,
     pipelineRemoteVerify,
+    operatorVerify,
+    liveBackend,
     dualDeploy,
     phase13,
     generatedAt: new Date().toISOString(),

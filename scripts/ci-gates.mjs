@@ -44,6 +44,7 @@ import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { fail, readJsonGateArtifact, readStdinUtf8 } from "./ci-gates-shared.mjs";
 import { assertHubCompletion } from "./ci-gates-hub-completion.mjs";
+import { validatePipelineRemoteVerifyDetail } from "./wisp-cwl-demo-manifest-verify.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -605,6 +606,12 @@ function assertWispCwlPipeline(path) {
   if (s.ok !== true) fail(`${label}: expected ok true`);
   if (!s.close || s.close.ok !== true) fail(`${label}: expected close gate ok (G6310)`);
   if (!s.build || s.build.ok !== true) fail(`${label}: expected full-build ok`);
+  if (s.remoteVerify) {
+    const remote = validatePipelineRemoteVerifyDetail(s.remoteVerify);
+    if (s.mode === "deploy-gce" && remote.ok !== true) {
+      fail(`${label}: deploy-gce remoteVerify failed manifest/poc contract (G6650)`);
+    }
+  }
   console.log(`${label} OK`);
 }
 

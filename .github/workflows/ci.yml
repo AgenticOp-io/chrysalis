@@ -142,6 +142,12 @@ jobs:
       - name: WISP CWL Phase 14 pipeline remote verify (G6650)
         run: pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke
 
+      - name: WISP CWL Phase 14 operator verify (G6680)
+        run: pnpm run hub:wisp-cwl-phase14-operator-verify-smoke
+
+      - name: WISP CWL Phase 14 live backend (G6700)
+        run: pnpm run hub:wisp-cwl-phase14-live-backend-smoke
+
       - name: WISP CWL Phase 14 client redirect (G6510)
         run: pnpm run hub:wisp-cwl-phase14-client-redirect-smoke
 
