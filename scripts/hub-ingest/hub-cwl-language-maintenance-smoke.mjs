@@ -6,6 +6,10 @@ import { fileURLToPath } from "node:url";
 import {
   runIrHelperLiftingB7EmptyInlineGate,
   runIrHelperLiftingB8IssetInlineGate,
+  runIrHelperLiftingB9CountInlineGate,
+  runIrHelperLiftingB10IsArrayInlineGate,
+  runIrHelperLiftingB11IsStringInlineGate,
+  runIrHelperLiftingB12AbsInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -25,7 +29,15 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("hub:cwl-language-maintenance-smoke") &&
     text.includes("CWL language maintenance") &&
     text.includes("G6750") &&
-    text.includes("isset");
+    text.includes("G6760") &&
+    text.includes("G6770") &&
+    text.includes("G6780") &&
+    text.includes("G6790") &&
+    text.includes("isset") &&
+    text.includes("count") &&
+    text.includes("is_array") &&
+    text.includes("is_string") &&
+    text.includes("abs");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -35,7 +47,11 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const taxonomy = runCwlSurfaceTaxonomyDocGate();
   const b7 = runIrHelperLiftingB7EmptyInlineGate();
   const b8 = runIrHelperLiftingB8IssetInlineGate();
-  const ok = doc.ok === true && taxonomy.ok === true && b7.ok === true && b8.ok === true;
+  const b9 = runIrHelperLiftingB9CountInlineGate();
+  const b10 = runIrHelperLiftingB10IsArrayInlineGate();
+  const b11 = runIrHelperLiftingB11IsStringInlineGate();
+  const b12 = runIrHelperLiftingB12AbsInlineGate();
+  const ok = doc.ok === true && taxonomy.ok === true && b7.ok === true && b8.ok === true && b9.ok === true && b10.ok === true && b11.ok === true && b12.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -44,6 +60,10 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     taxonomy,
     b7,
     b8,
+    b9,
+    b10,
+    b11,
+    b12,
     generatedAt: new Date().toISOString(),
   };
 }

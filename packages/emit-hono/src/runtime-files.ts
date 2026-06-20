@@ -549,6 +549,29 @@ export function empty(v: unknown): boolean {
   return false;
 }
 
+export function count(x: unknown): number {
+  if (Array.isArray(x) || (typeof x === "object" && x !== null && typeof (x as ArrayLike<unknown>).length === "number")) {
+    return (x as ArrayLike<unknown>).length;
+  }
+  if (typeof x === "object" && x !== null) {
+    return Object.keys(x as object).length;
+  }
+  return 0;
+}
+
+export function is_array(x: unknown): boolean {
+  return Array.isArray(x);
+}
+
+export function is_string(x: unknown): boolean {
+  return typeof x === "string";
+}
+
+export function abs(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? Math.abs(n) : 0;
+}
+
 export function trim(v: unknown): string {
   return String(v ?? "").trim();
 }

@@ -6,8 +6,8 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lanes:** **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
-- **Recently shipped:** CWL language v1 close (**G6750**); B8 `isset()` IR helper inlining (**G6740**); Phase 14 HSS operator program close (**G6690**).
+- **Active lanes:** **CWL language v1.1** (B9 **G6760**); **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
+- **Recently shipped:** B12 `abs()` IR helper inlining (**G6790**); B11 `is_string()` (**G6780**); B10 `is_array()` (**G6770**).
 
 ---
 
@@ -114,17 +114,30 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | --- | --- |
 | G6731 maintenance | `pnpm run hub:cwl-language-maintenance-smoke` |
 | G6740 B8 `isset()` | `runIrHelperLiftingB8IssetInlineGate` |
+| G6760 B9 `count()` | `runIrHelperLiftingB9CountInlineGate` |
+| G6770 B10 `is_array()` | `runIrHelperLiftingB10IsArrayInlineGate` |
+| G6780 B11 `is_string()` | `runIrHelperLiftingB11IsStringInlineGate` |
+| G6790 B12 `abs()` | `runIrHelperLiftingB12AbsInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
-**Honest scope:** API, Pages, Data, Effects shipped; **CWL UI** remains explicit holes (**RFC-0012**). **CWL is authoritative** — WISP showcases the language (**D6205**).
+## Active — CWL language v1.1 (G6760–G6790)
+
+Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Language v1.1.
+
+| Gate | Smoke |
+| --- | --- |
+| **G6760** B9 `count()` | `runIrHelperLiftingB9CountInlineGate` (via **G6731**) |
+| **G6770** B10 `is_array()` | `runIrHelperLiftingB10IsArrayInlineGate` (via **G6731**) |
+| **G6780** B11 `is_string()` | `runIrHelperLiftingB11IsStringInlineGate` (via **G6731**) |
+| **G6790** B12 `abs()` | `runIrHelperLiftingB12AbsInlineGate` (via **G6731**) |
 
 ---
 
-## Default queue — CWL language maintenance
+## Default queue — CWL language v1.1
 
-**Language v1 closed (G6750).** Reactive maintenance only — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+**Language v1 closed (G6750).** Active v1.1 depth: **B9–B12** (**G6760–G6790**) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
-**CWL language:** `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**)
+**CWL language:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760**), `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**)
 
 **Verify:** `pnpm run hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `pnpm run hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:maintenance-mode-governance-smoke`
 

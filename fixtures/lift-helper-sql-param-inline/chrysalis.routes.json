@@ -120,6 +120,30 @@
       "path": "/chi",
       "file": "pages/show_chi.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/psi",
+      "file": "pages/show_psi.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/omega",
+      "file": "pages/show_omega.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/eta",
+      "file": "pages/show_eta.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/theta",
+      "file": "pages/show_theta.php",
+      "pathParams": []
     }
   ]
 }

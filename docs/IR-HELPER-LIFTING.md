@@ -81,6 +81,14 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B8 v0 (G6740):** `isset()` formal assign inlining on parametric lib SQL helpers — fixture route **`/chi`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB8IssetInlineGate`; composite: `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**).
 
+**B9 v0 (G6760):** `count()` formal assign inlining on parametric lib SQL helpers — fixture route **`/psi`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB9CountInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+
+**B10 v0 (G6770):** `is_array()` formal assign inlining on parametric lib SQL helpers — fixture route **`/omega`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB10IsArrayInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+
+**B11 v0 (G6780):** `is_string()` formal assign inlining on parametric lib SQL helpers — fixture route **`/eta`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB11IsStringInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+
+**B12 v0 (G6790):** `abs()` formal assign inlining on parametric lib SQL helpers — fixture route **`/theta`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB12AbsInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 

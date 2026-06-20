@@ -3228,6 +3228,10 @@ export function runIrHelperLiftingNonB5DeferredGate() {
     text.includes("B6") &&
     text.includes("B7") &&
     text.includes("B8") &&
+    text.includes("B9") &&
+    text.includes("B10") &&
+    text.includes("B11") &&
+    text.includes("B12") &&
     text.includes("G2303");
   return { ok, irHelperNonB5DeferredOk: ok };
 }
@@ -3475,6 +3479,142 @@ export function runIrHelperLiftingB8IssetInlineGate() {
     helper.includes("isset") &&
     doc.includes("runIrHelperLiftingB8IssetInlineGate") &&
     doc.includes("B8 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6760 — IR helper lifting B9 count() formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB9CountInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_count.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_psi.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b9-count-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "vitest",
+      "run",
+      "packages/ingest/tests/lift-helper-sql-param-inline.test.ts",
+      "packages/emit-shared/tests/lib-helper-inline.test.ts",
+    ],
+    {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: true,
+      timeout: 180_000,
+    },
+  );
+  const ok =
+    r.status === 0 &&
+    helper.includes("count") &&
+    doc.includes("runIrHelperLiftingB9CountInlineGate") &&
+    doc.includes("B9 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6770 — IR helper lifting B10 is_array() formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB10IsArrayInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_is_array.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_omega.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b10-is-array-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "vitest",
+      "run",
+      "packages/ingest/tests/lift-helper-sql-param-inline.test.ts",
+      "packages/emit-shared/tests/lib-helper-inline.test.ts",
+    ],
+    {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: true,
+      timeout: 180_000,
+    },
+  );
+  const ok =
+    r.status === 0 &&
+    helper.includes("is_array") &&
+    doc.includes("runIrHelperLiftingB10IsArrayInlineGate") &&
+    doc.includes("B10 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6780 — IR helper lifting B11 is_string() formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB11IsStringInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_is_string.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_eta.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b11-is-string-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "vitest",
+      "run",
+      "packages/ingest/tests/lift-helper-sql-param-inline.test.ts",
+      "packages/emit-shared/tests/lib-helper-inline.test.ts",
+    ],
+    {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: true,
+      timeout: 180_000,
+    },
+  );
+  const ok =
+    r.status === 0 &&
+    helper.includes("is_string") &&
+    doc.includes("runIrHelperLiftingB11IsStringInlineGate") &&
+    doc.includes("B11 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6790 — IR helper lifting B12 abs() formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB12AbsInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_abs.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_theta.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b12-abs-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "vitest",
+      "run",
+      "packages/ingest/tests/lift-helper-sql-param-inline.test.ts",
+      "packages/emit-shared/tests/lib-helper-inline.test.ts",
+    ],
+    {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: true,
+      timeout: 180_000,
+    },
+  );
+  const ok =
+    r.status === 0 &&
+    helper.includes("abs") &&
+    doc.includes("runIrHelperLiftingB12AbsInlineGate") &&
+    doc.includes("B12 v0");
   return { ok, vitestOk: r.status === 0 };
 }
 

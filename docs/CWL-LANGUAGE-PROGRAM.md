@@ -19,6 +19,7 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 | **CWL Effects** | RFC-0007 + WISP M6 `session.read` metadata | **Declarative shipped** |
 | **CWL UI** | RFC-0012 component holes | **Explicit holes** — not v1; no silent lowering |
 | **IR helper B-tier** | B5.5–B8 formal-assign lib SQL inlining | **Closed** — `empty`, `isset`, casts, trim, strlen |
+| **IR helper B9+** | Incremental v1.1 depth | **Active** — `count()` (**G6760**), `is_array()` (**G6770**), `is_string()` (**G6780**), `abs()` (**G6790**) |
 | **Probes** | RFC-0015/0016 production + form-action hole catalog | **Shipped** — regression gates |
 
 ## Explicitly not “language v1”
@@ -37,7 +38,17 @@ Per **DESIGN §3** and **D6205**:
 | G6731 | Language maintenance regression | `pnpm run hub:cwl-language-maintenance-smoke` |
 | G6730 | B7 `empty()` formal assign | `runIrHelperLiftingB7EmptyInlineGate` |
 | G6740 | B8 `isset()` formal assign | `runIrHelperLiftingB8IssetInlineGate` |
+| G6760 | B9 `count()` formal assign | `runIrHelperLiftingB9CountInlineGate` |
+| G6770 | B10 `is_array()` formal assign | `runIrHelperLiftingB10IsArrayInlineGate` |
+| G6780 | B11 `is_string()` formal assign | `runIrHelperLiftingB11IsStringInlineGate` |
+| G6790 | B12 `abs()` formal assign | `runIrHelperLiftingB12AbsInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
+
+## Language v1.1 — active (G6760–G6790)
+
+Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). Does not reopen v1 surface scope; extends ingest/emit helper lifting only.
+
+Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G6790** B12).
 
 ## Default queue after close
 

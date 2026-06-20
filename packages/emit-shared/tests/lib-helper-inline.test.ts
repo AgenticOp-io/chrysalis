@@ -393,6 +393,166 @@ describe("tryExtractInlineQuery (G2334)", () => {
     expect(extracted!.localToIssetFormal.size).toBe(1);
     expect(extracted!.localToIssetFormal.get("$flag")).toBe("active");
   });
+
+  it("accepts count() wrapper on formal assign (G6760)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+
+    const items = data.param({ name: "items", type: T.array(T.unknown), origin });
+    const assignLen = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "len", type: T.string, origin }),
+        data.call({
+          callee: "count",
+          args: [items],
+          type: T.int,
+          origin,
+        }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "len", type: T.int, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignLen, ret], origin });
+    const mod = builder.finish();
+
+    const extracted = tryExtractInlineQuery(mod, body, ["items"]);
+    expect(extracted).toBeDefined();
+    expect(extracted!.localToCountFormal.size).toBe(1);
+    expect(extracted!.localToCountFormal.get("$len")).toBe("items");
+  });
+
+  it("accepts is_array() wrapper on formal assign (G6770)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+
+    const items = data.param({ name: "items", type: T.array(T.unknown), origin });
+    const assignFlag = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "flag", type: T.string, origin }),
+        data.call({
+          callee: "is_array",
+          args: [items],
+          type: T.bool,
+          origin,
+        }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "flag", type: T.bool, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignFlag, ret], origin });
+    const mod = builder.finish();
+
+    const extracted = tryExtractInlineQuery(mod, body, ["items"]);
+    expect(extracted).toBeDefined();
+    expect(extracted!.localToIsArrayFormal.size).toBe(1);
+    expect(extracted!.localToIsArrayFormal.get("$flag")).toBe("items");
+  });
+
+  it("accepts is_string() wrapper on formal assign (G6780)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+
+    const label = data.param({ name: "label", type: T.string, origin });
+    const assignFlag = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "flag", type: T.string, origin }),
+        data.call({
+          callee: "is_string",
+          args: [label],
+          type: T.bool,
+          origin,
+        }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "flag", type: T.bool, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignFlag, ret], origin });
+    const mod = builder.finish();
+
+    const extracted = tryExtractInlineQuery(mod, body, ["label"]);
+    expect(extracted).toBeDefined();
+    expect(extracted!.localToIsStringFormal.size).toBe(1);
+    expect(extracted!.localToIsStringFormal.get("$flag")).toBe("label");
+  });
+
+  it("accepts abs() wrapper on formal assign (G6790)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+
+    const n = data.param({ name: "n", type: T.int, origin });
+    const assignVal = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "val", type: T.string, origin }),
+        data.call({
+          callee: "abs",
+          args: [n],
+          type: T.int,
+          origin,
+        }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "val", type: T.int, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignVal, ret], origin });
+    const mod = builder.finish();
+
+    const extracted = tryExtractInlineQuery(mod, body, ["n"]);
+    expect(extracted).toBeDefined();
+    expect(extracted!.localToAbsFormal.size).toBe(1);
+    expect(extracted!.localToAbsFormal.get("$val")).toBe("n");
+  });
 });
 
 describe("libHelperTsExportName (G6207)", () => {

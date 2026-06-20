@@ -18,6 +18,10 @@ require_once __DIR__ . '/lib/sql_param_trim.php';
 require_once __DIR__ . '/lib/sql_param_strlen.php';
 require_once __DIR__ . '/lib/sql_param_empty.php';
 require_once __DIR__ . '/lib/sql_param_isset.php';
+require_once __DIR__ . '/lib/sql_param_count.php';
+require_once __DIR__ . '/lib/sql_param_is_array.php';
+require_once __DIR__ . '/lib/sql_param_is_string.php';
+require_once __DIR__ . '/lib/sql_param_abs.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -103,6 +107,22 @@ if ($method === 'GET' && $path === '/upsilon') {
 }
 if ($method === 'GET' && $path === '/chi') {
     require __DIR__ . '/pages/show_chi.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/psi') {
+    require __DIR__ . '/pages/show_psi.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/omega') {
+    require __DIR__ . '/pages/show_omega.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/eta') {
+    require __DIR__ . '/pages/show_eta.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/theta') {
+    require __DIR__ . '/pages/show_theta.php';
     exit;
 }
 
