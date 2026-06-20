@@ -541,6 +541,16 @@ export function abs(v: unknown): number {
   return Number.isFinite(n) ? Math.abs(n) : 0;
 }
 
+export function is_numeric(v: unknown): boolean {
+  if (typeof v === "number") return Number.isFinite(v);
+  if (typeof v === "string") {
+    const s = v.trim();
+    if (s === "") return false;
+    return Number.isFinite(Number(s));
+  }
+  return false;
+}
+
 export function trim(v: unknown): string {
   return String(v ?? "").trim();
 }

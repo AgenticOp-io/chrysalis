@@ -3232,6 +3232,8 @@ export function runIrHelperLiftingNonB5DeferredGate() {
     text.includes("B10") &&
     text.includes("B11") &&
     text.includes("B12") &&
+    text.includes("B13") &&
+    text.includes("B14") &&
     text.includes("G2303");
   return { ok, irHelperNonB5DeferredOk: ok };
 }
@@ -3615,6 +3617,74 @@ export function runIrHelperLiftingB12AbsInlineGate() {
     helper.includes("abs") &&
     doc.includes("runIrHelperLiftingB12AbsInlineGate") &&
     doc.includes("B12 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6800 — IR helper lifting B13 is_numeric() formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB13IsNumericInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_is_numeric.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_varsigma.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b13-is-numeric-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "vitest",
+      "run",
+      "packages/ingest/tests/lift-helper-sql-param-inline.test.ts",
+      "packages/emit-shared/tests/lib-helper-inline.test.ts",
+    ],
+    {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: true,
+      timeout: 180_000,
+    },
+  );
+  const ok =
+    r.status === 0 &&
+    helper.includes("is_numeric") &&
+    doc.includes("runIrHelperLiftingB13IsNumericInlineGate") &&
+    doc.includes("B13 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6810 — IR helper lifting B14 logical ! formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB14NotInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_not.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_digamma.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b14-not-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "vitest",
+      "run",
+      "packages/ingest/tests/lift-helper-sql-param-inline.test.ts",
+      "packages/emit-shared/tests/lib-helper-inline.test.ts",
+    ],
+    {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      shell: true,
+      timeout: 180_000,
+    },
+  );
+  const ok =
+    r.status === 0 &&
+    helper.includes("!$") &&
+    doc.includes("runIrHelperLiftingB14NotInlineGate") &&
+    doc.includes("B14 v0");
   return { ok, vitestOk: r.status === 0 };
 }
 

@@ -22,6 +22,8 @@ require_once __DIR__ . '/lib/sql_param_count.php';
 require_once __DIR__ . '/lib/sql_param_is_array.php';
 require_once __DIR__ . '/lib/sql_param_is_string.php';
 require_once __DIR__ . '/lib/sql_param_abs.php';
+require_once __DIR__ . '/lib/sql_param_is_numeric.php';
+require_once __DIR__ . '/lib/sql_param_not.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -123,6 +125,14 @@ if ($method === 'GET' && $path === '/eta') {
 }
 if ($method === 'GET' && $path === '/theta') {
     require __DIR__ . '/pages/show_theta.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/varsigma') {
+    require __DIR__ . '/pages/show_varsigma.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/digamma') {
+    require __DIR__ . '/pages/show_digamma.php';
     exit;
 }
 

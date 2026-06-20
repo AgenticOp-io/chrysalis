@@ -144,6 +144,18 @@
       "path": "/theta",
       "file": "pages/show_theta.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/varsigma",
+      "file": "pages/show_varsigma.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/digamma",
+      "file": "pages/show_digamma.php",
+      "pathParams": []
     }
   ]
 }

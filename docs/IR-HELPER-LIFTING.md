@@ -89,6 +89,10 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B12 v0 (G6790):** `abs()` formal assign inlining on parametric lib SQL helpers — fixture route **`/theta`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB12AbsInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
+**B13 v0 (G6800):** `is_numeric()` formal assign inlining on parametric lib SQL helpers — fixture route **`/varsigma`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB13IsNumericInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+
+**B14 v0 (G6810):** logical **`!`** formal assign inlining on parametric lib SQL helpers — fixture route **`/digamma`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB14NotInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 
