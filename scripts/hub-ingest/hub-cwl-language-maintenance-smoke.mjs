@@ -16,6 +16,9 @@ import {
   runIrHelperLiftingB16IsBoolInlineGate,
   runIrHelperLiftingB17IsNullInlineGate,
   runIrHelperLiftingB18NegInlineGate,
+  runIrHelperLiftingB19RoundInlineGate,
+  runIrHelperLiftingB20FloorInlineGate,
+  runIrHelperLiftingB21CeilInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -45,6 +48,9 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G6830") &&
     text.includes("G6840") &&
     text.includes("G6850") &&
+    text.includes("G6860") &&
+    text.includes("G6870") &&
+    text.includes("G6880") &&
     text.includes("isset") &&
     text.includes("count") &&
     text.includes("is_array") &&
@@ -55,7 +61,10 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("is_int") &&
     text.includes("is_bool") &&
     text.includes("is_null") &&
-    text.includes("unary -");
+    text.includes("unary -") &&
+    text.includes("round()") &&
+    text.includes("floor()") &&
+    text.includes("ceil()");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -75,6 +84,9 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b16 = runIrHelperLiftingB16IsBoolInlineGate();
   const b17 = runIrHelperLiftingB17IsNullInlineGate();
   const b18 = runIrHelperLiftingB18NegInlineGate();
+  const b19 = runIrHelperLiftingB19RoundInlineGate();
+  const b20 = runIrHelperLiftingB20FloorInlineGate();
+  const b21 = runIrHelperLiftingB21CeilInlineGate();
   const ok =
     doc.ok === true &&
     taxonomy.ok === true &&
@@ -89,7 +101,10 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b15.ok === true &&
     b16.ok === true &&
     b17.ok === true &&
-    b18.ok === true;
+    b18.ok === true &&
+    b19.ok === true &&
+    b20.ok === true &&
+    b21.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -108,6 +123,9 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b16,
     b17,
     b18,
+    b19,
+    b20,
+    b21,
     generatedAt: new Date().toISOString(),
   };
 }

@@ -180,6 +180,24 @@
       "path": "/qoppa",
       "file": "pages/show_qoppa.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/san",
+      "file": "pages/show_san.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/sho",
+      "file": "pages/show_sho.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/tsan",
+      "file": "pages/show_tsan.php",
+      "pathParams": []
     }
   ]
 }

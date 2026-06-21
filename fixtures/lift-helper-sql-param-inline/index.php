@@ -28,6 +28,9 @@ require_once __DIR__ . '/lib/sql_param_is_int.php';
 require_once __DIR__ . '/lib/sql_param_is_bool.php';
 require_once __DIR__ . '/lib/sql_param_is_null.php';
 require_once __DIR__ . '/lib/sql_param_neg.php';
+require_once __DIR__ . '/lib/sql_param_round.php';
+require_once __DIR__ . '/lib/sql_param_floor.php';
+require_once __DIR__ . '/lib/sql_param_ceil.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -153,6 +156,18 @@ if ($method === 'GET' && $path === '/koppa') {
 }
 if ($method === 'GET' && $path === '/qoppa') {
     require __DIR__ . '/pages/show_qoppa.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/san') {
+    require __DIR__ . '/pages/show_san.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/sho') {
+    require __DIR__ . '/pages/show_sho.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/tsan') {
+    require __DIR__ . '/pages/show_tsan.php';
     exit;
 }
 

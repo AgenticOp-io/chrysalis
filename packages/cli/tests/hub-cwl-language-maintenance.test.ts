@@ -39,5 +39,8 @@ describe("hub cwl language maintenance", () => {
     expect(gate.b16.ok).toBe(true);
     expect(gate.b17.ok).toBe(true);
     expect(gate.b18.ok).toBe(true);
+    expect(gate.b19.ok).toBe(true);
+    expect(gate.b20.ok).toBe(true);
+    expect(gate.b21.ok).toBe(true);
   });
 });

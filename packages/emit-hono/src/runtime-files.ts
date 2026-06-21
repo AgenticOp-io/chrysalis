@@ -594,6 +594,21 @@ export function is_null(v: unknown): boolean {
   return v === null;
 }
 
+export function round(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? Math.round(n) : 0;
+}
+
+export function floor(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? Math.floor(n) : 0;
+}
+
+export function ceil(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? Math.ceil(n) : 0;
+}
+
 export function trim(v: unknown): string {
   return String(v ?? "").trim();
 }

@@ -3238,6 +3238,9 @@ export function runIrHelperLiftingNonB5DeferredGate() {
     text.includes("B16") &&
     text.includes("B17") &&
     text.includes("B18") &&
+    text.includes("B19") &&
+    text.includes("B20") &&
+    text.includes("B21") &&
     text.includes("G2303");
   return { ok, irHelperNonB5DeferredOk: ok };
 }
@@ -3805,6 +3808,63 @@ export function runIrHelperLiftingB18NegInlineGate() {
     helper.includes("-$") &&
     doc.includes("runIrHelperLiftingB18NegInlineGate") &&
     doc.includes("B18 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6860 — IR helper lifting B19 round() formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB19RoundInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_round.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_san.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b19-round-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    ["exec", "vitest", "run", "packages/ingest/tests/lift-helper-sql-param-inline.test.ts", "packages/emit-shared/tests/lib-helper-inline.test.ts"],
+    { cwd: scriptRoot, encoding: "utf8", shell: true, timeout: 180_000 },
+  );
+  const ok = r.status === 0 && helper.includes("round") && doc.includes("runIrHelperLiftingB19RoundInlineGate") && doc.includes("B19 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6870 — IR helper lifting B20 floor() formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB20FloorInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_floor.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_sho.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b20-floor-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    ["exec", "vitest", "run", "packages/ingest/tests/lift-helper-sql-param-inline.test.ts", "packages/emit-shared/tests/lib-helper-inline.test.ts"],
+    { cwd: scriptRoot, encoding: "utf8", shell: true, timeout: 180_000 },
+  );
+  const ok = r.status === 0 && helper.includes("floor") && doc.includes("runIrHelperLiftingB20FloorInlineGate") && doc.includes("B20 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
+/** G6880 — IR helper lifting B21 ceil() formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB21CeilInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_ceil.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_tsan.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b21-ceil-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    ["exec", "vitest", "run", "packages/ingest/tests/lift-helper-sql-param-inline.test.ts", "packages/emit-shared/tests/lib-helper-inline.test.ts"],
+    { cwd: scriptRoot, encoding: "utf8", shell: true, timeout: 180_000 },
+  );
+  const ok = r.status === 0 && helper.includes("ceil") && doc.includes("runIrHelperLiftingB21CeilInlineGate") && doc.includes("B21 v0");
   return { ok, vitestOk: r.status === 0 };
 }
 

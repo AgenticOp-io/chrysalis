@@ -101,6 +101,12 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B18 v0 (G6850):** unary **`-`** formal assign inlining — fixture route **`/qoppa`**. Gate: `runIrHelperLiftingB18NegInlineGate`.
 
+**B19 v0 (G6860):** `round()` formal assign inlining — fixture route **`/san`**. Gate: `runIrHelperLiftingB19RoundInlineGate`.
+
+**B20 v0 (G6870):** `floor()` formal assign inlining — fixture route **`/sho`**. Gate: `runIrHelperLiftingB20FloorInlineGate`.
+
+**B21 v0 (G6880):** `ceil()` formal assign inlining — fixture route **`/tsan`**. Gate: `runIrHelperLiftingB21CeilInlineGate`.
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 

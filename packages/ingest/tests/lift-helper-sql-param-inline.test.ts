@@ -36,6 +36,9 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
       "chrysalis_sql_param_is_bool",
       "chrysalis_sql_param_is_null",
       "chrysalis_sql_param_neg",
+      "chrysalis_sql_param_round",
+      "chrysalis_sql_param_floor",
+      "chrysalis_sql_param_ceil",
       "chrysalis_sql_param_cast_float",
       "chrysalis_sql_param_cast_bool",
       "chrysalis_sql_param_cast_int",
@@ -59,7 +62,7 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     );
     expect(sideeffectCalls.length).toBe(1);
     const dbQueries = [...mod.nodes.values()].filter((n) => n.dialect === "effect" && n.op === "db.query");
-    expect(dbQueries.length).toBeGreaterThanOrEqual(27);
+    expect(dbQueries.length).toBeGreaterThanOrEqual(30);
   });
 
   it("prelude guard allows strlen skip but blocks sideeffect pre-return query", async () => {
@@ -109,6 +112,12 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     expect(tryExtractInlineQuery(mod, isNullHelper.bodyId, isNullHelper.paramNames)).toBeDefined();
     const negHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_neg")!;
     expect(tryExtractInlineQuery(mod, negHelper.bodyId, negHelper.paramNames)).toBeDefined();
+    const roundHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_round")!;
+    expect(tryExtractInlineQuery(mod, roundHelper.bodyId, roundHelper.paramNames)).toBeDefined();
+    const floorHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_floor")!;
+    expect(tryExtractInlineQuery(mod, floorHelper.bodyId, floorHelper.paramNames)).toBeDefined();
+    const ceilHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_ceil")!;
+    expect(tryExtractInlineQuery(mod, ceilHelper.bodyId, ceilHelper.paramNames)).toBeDefined();
     const castFloat = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_cast_float")!;
     expect(tryExtractInlineQuery(mod, castFloat.bodyId, castFloat.paramNames)).toBeDefined();
     const castBool = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_cast_bool")!;
