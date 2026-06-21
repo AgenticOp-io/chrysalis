@@ -12,6 +12,10 @@ import {
   runIrHelperLiftingB12AbsInlineGate,
   runIrHelperLiftingB13IsNumericInlineGate,
   runIrHelperLiftingB14NotInlineGate,
+  runIrHelperLiftingB15IsIntInlineGate,
+  runIrHelperLiftingB16IsBoolInlineGate,
+  runIrHelperLiftingB17IsNullInlineGate,
+  runIrHelperLiftingB18NegInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -37,13 +41,21 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G6790") &&
     text.includes("G6800") &&
     text.includes("G6810") &&
+    text.includes("G6820") &&
+    text.includes("G6830") &&
+    text.includes("G6840") &&
+    text.includes("G6850") &&
     text.includes("isset") &&
     text.includes("count") &&
     text.includes("is_array") &&
     text.includes("is_string") &&
     text.includes("abs") &&
     text.includes("is_numeric") &&
-    text.includes("logical !");
+    text.includes("logical !") &&
+    text.includes("is_int") &&
+    text.includes("is_bool") &&
+    text.includes("is_null") &&
+    text.includes("unary -");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -59,7 +71,25 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b12 = runIrHelperLiftingB12AbsInlineGate();
   const b13 = runIrHelperLiftingB13IsNumericInlineGate();
   const b14 = runIrHelperLiftingB14NotInlineGate();
-  const ok = doc.ok === true && taxonomy.ok === true && b7.ok === true && b8.ok === true && b9.ok === true && b10.ok === true && b11.ok === true && b12.ok === true && b13.ok === true && b14.ok === true;
+  const b15 = runIrHelperLiftingB15IsIntInlineGate();
+  const b16 = runIrHelperLiftingB16IsBoolInlineGate();
+  const b17 = runIrHelperLiftingB17IsNullInlineGate();
+  const b18 = runIrHelperLiftingB18NegInlineGate();
+  const ok =
+    doc.ok === true &&
+    taxonomy.ok === true &&
+    b7.ok === true &&
+    b8.ok === true &&
+    b9.ok === true &&
+    b10.ok === true &&
+    b11.ok === true &&
+    b12.ok === true &&
+    b13.ok === true &&
+    b14.ok === true &&
+    b15.ok === true &&
+    b16.ok === true &&
+    b17.ok === true &&
+    b18.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -74,6 +104,10 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b12,
     b13,
     b14,
+    b15,
+    b16,
+    b17,
+    b18,
     generatedAt: new Date().toISOString(),
   };
 }

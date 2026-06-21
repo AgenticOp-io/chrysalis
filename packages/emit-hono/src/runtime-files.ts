@@ -582,6 +582,18 @@ export function is_numeric(v: unknown): boolean {
   return false;
 }
 
+export function is_int(v: unknown): boolean {
+  return typeof v === "number" && Number.isInteger(v);
+}
+
+export function is_bool(v: unknown): boolean {
+  return typeof v === "boolean";
+}
+
+export function is_null(v: unknown): boolean {
+  return v === null;
+}
+
 export function trim(v: unknown): string {
   return String(v ?? "").trim();
 }

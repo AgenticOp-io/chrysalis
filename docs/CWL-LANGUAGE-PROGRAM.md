@@ -19,7 +19,7 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 | **CWL Effects** | RFC-0007 + WISP M6 `session.read` metadata | **Declarative shipped** |
 | **CWL UI** | RFC-0012 component holes | **Explicit holes** — not v1; no silent lowering |
 | **IR helper B-tier** | B5.5–B8 formal-assign lib SQL inlining | **Closed** — `empty`, `isset`, casts, trim, strlen |
-| **IR helper B9+** | Incremental v1.1 depth | **Active** — `count()` (**G6760**), `is_array()` (**G6770**), `is_string()` (**G6780**), `abs()` (**G6790**), `is_numeric()` (**G6800**), logical **`!`** (**G6810**) |
+| **IR helper B9+** | Incremental v1.1 depth | **Active** — through B18 (**G6760–G6850**): `count`, `is_array`, `is_string`, `abs`, `is_numeric`, logical `!`, `is_int`, `is_bool`, `is_null`, unary `-` |
 | **Probes** | RFC-0015/0016 production + form-action hole catalog | **Shipped** — regression gates |
 
 ## Explicitly not “language v1”
@@ -44,13 +44,17 @@ Per **DESIGN §3** and **D6205**:
 | G6790 | B12 `abs()` formal assign | `runIrHelperLiftingB12AbsInlineGate` |
 | G6800 | B13 `is_numeric()` formal assign | `runIrHelperLiftingB13IsNumericInlineGate` |
 | G6810 | B14 logical `!` formal assign | `runIrHelperLiftingB14NotInlineGate` |
+| G6820 | B15 `is_int()` formal assign | `runIrHelperLiftingB15IsIntInlineGate` |
+| G6830 | B16 `is_bool()` formal assign | `runIrHelperLiftingB16IsBoolInlineGate` |
+| G6840 | B17 `is_null()` formal assign | `runIrHelperLiftingB17IsNullInlineGate` |
+| G6850 | B18 unary `-` formal assign | `runIrHelperLiftingB18NegInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
-## Language v1.1 — active (G6760–G6810)
+## Language v1.1 — active (G6760–G6850)
 
 Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). Does not reopen v1 surface scope; extends ingest/emit helper lifting only.
 
-Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G6810** B14).
+Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G6850** B18).
 
 ## Default queue after close
 

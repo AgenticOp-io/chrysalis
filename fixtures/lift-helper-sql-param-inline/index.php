@@ -24,6 +24,10 @@ require_once __DIR__ . '/lib/sql_param_is_string.php';
 require_once __DIR__ . '/lib/sql_param_abs.php';
 require_once __DIR__ . '/lib/sql_param_is_numeric.php';
 require_once __DIR__ . '/lib/sql_param_not.php';
+require_once __DIR__ . '/lib/sql_param_is_int.php';
+require_once __DIR__ . '/lib/sql_param_is_bool.php';
+require_once __DIR__ . '/lib/sql_param_is_null.php';
+require_once __DIR__ . '/lib/sql_param_neg.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -133,6 +137,22 @@ if ($method === 'GET' && $path === '/varsigma') {
 }
 if ($method === 'GET' && $path === '/digamma') {
     require __DIR__ . '/pages/show_digamma.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/stigma') {
+    require __DIR__ . '/pages/show_stigma.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/sampi') {
+    require __DIR__ . '/pages/show_sampi.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/koppa') {
+    require __DIR__ . '/pages/show_koppa.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/qoppa') {
+    require __DIR__ . '/pages/show_qoppa.php';
     exit;
 }
 

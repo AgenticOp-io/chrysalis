@@ -93,6 +93,14 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B14 v0 (G6810):** logical **`!`** formal assign inlining on parametric lib SQL helpers — fixture route **`/digamma`** on `lift-helper-sql-param-inline`. Gate: `runIrHelperLiftingB14NotInlineGate`; composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
+**B15 v0 (G6820):** `is_int()` formal assign inlining — fixture route **`/stigma`**. Gate: `runIrHelperLiftingB15IsIntInlineGate`.
+
+**B16 v0 (G6830):** `is_bool()` formal assign inlining — fixture route **`/sampi`**. Gate: `runIrHelperLiftingB16IsBoolInlineGate`.
+
+**B17 v0 (G6840):** `is_null()` formal assign inlining — fixture route **`/koppa`**. Gate: `runIrHelperLiftingB17IsNullInlineGate`.
+
+**B18 v0 (G6850):** unary **`-`** formal assign inlining — fixture route **`/qoppa`**. Gate: `runIrHelperLiftingB18NegInlineGate`.
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 

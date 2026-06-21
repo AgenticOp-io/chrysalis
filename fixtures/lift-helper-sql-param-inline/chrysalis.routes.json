@@ -156,6 +156,30 @@
       "path": "/digamma",
       "file": "pages/show_digamma.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/stigma",
+      "file": "pages/show_stigma.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/sampi",
+      "file": "pages/show_sampi.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/koppa",
+      "file": "pages/show_koppa.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/qoppa",
+      "file": "pages/show_qoppa.php",
+      "pathParams": []
     }
   ]
 }

@@ -7,7 +7,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lanes:** **CWL language v1.1** (B9 **G6760**); **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
-- **Recently shipped:** B14 logical `!` IR helper inlining (**G6810**); B13 `is_numeric()` (**G6800**); B12 `abs()` (**G6790**).
+- **Recently shipped:** B18 unary `-` (**G6850**); B17 `is_null()` (**G6840**); B16 `is_bool()` (**G6830**); B15 `is_int()` (**G6820**).
 
 ---
 
@@ -120,9 +120,13 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G6790 B12 `abs()` | `runIrHelperLiftingB12AbsInlineGate` |
 | G6800 B13 `is_numeric()` | `runIrHelperLiftingB13IsNumericInlineGate` |
 | G6810 B14 logical `!` | `runIrHelperLiftingB14NotInlineGate` |
+| G6820 B15 `is_int()` | `runIrHelperLiftingB15IsIntInlineGate` |
+| G6830 B16 `is_bool()` | `runIrHelperLiftingB16IsBoolInlineGate` |
+| G6840 B17 `is_null()` | `runIrHelperLiftingB17IsNullInlineGate` |
+| G6850 B18 unary `-` | `runIrHelperLiftingB18NegInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
-## Active — CWL language v1.1 (G6760–G6810)
+## Active — CWL language v1.1 (G6760–G6850)
 
 Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Language v1.1.
 
@@ -134,12 +138,16 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G6790** B12 `abs()` | `runIrHelperLiftingB12AbsInlineGate` (via **G6731**) |
 | **G6800** B13 `is_numeric()` | `runIrHelperLiftingB13IsNumericInlineGate` (via **G6731**) |
 | **G6810** B14 logical `!` | `runIrHelperLiftingB14NotInlineGate` (via **G6731**) |
+| **G6820** B15 `is_int()` | `runIrHelperLiftingB15IsIntInlineGate` (via **G6731**) |
+| **G6830** B16 `is_bool()` | `runIrHelperLiftingB16IsBoolInlineGate` (via **G6731**) |
+| **G6840** B17 `is_null()` | `runIrHelperLiftingB17IsNullInlineGate` (via **G6731**) |
+| **G6850** B18 unary `-` | `runIrHelperLiftingB18NegInlineGate` (via **G6731**) |
 
 ---
 
 ## Default queue — CWL language v1.1
 
-**Language v1 closed (G6750).** Active v1.1 depth: **B9–B14** (**G6760–G6810**) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+**Language v1 closed (G6750).** Active v1.1 depth: **B9–B18** (**G6760–G6850**) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
 **CWL language:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760**), `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**)
 

@@ -318,147 +318,6 @@ function phpVarKey(name: string): string {
   return name.startsWith("$") ? name : `$${name}`;
 }
 
-type FormalAssignWrapperKind =
-  | "isIntFormal"
-  | "isBoolFormal"
-  | "isNullFormal"
-  | "roundFormal"
-  | "floorFormal"
-  | "ceilFormal"
-  | "strtolowerFormal"
-  | "strtoupperFormal"
-  | "htmlspecialcharsFormal";
-
-const FORMAL_ASSIGN_CALL_WRAPPERS: ReadonlyArray<{ callee: string; kind: FormalAssignWrapperKind }> = [
-  { callee: "is_int", kind: "isIntFormal" },
-  { callee: "is_bool", kind: "isBoolFormal" },
-  { callee: "is_null", kind: "isNullFormal" },
-  { callee: "round", kind: "roundFormal" },
-  { callee: "floor", kind: "floorFormal" },
-  { callee: "ceil", kind: "ceilFormal" },
-  { callee: "strtolower", kind: "strtolowerFormal" },
-  { callee: "strtoupper", kind: "strtoupperFormal" },
-  { callee: "htmlspecialchars", kind: "htmlspecialcharsFormal" },
-];
-
-type FormalAssignWrapperFields = {
-  localToIsIntFormal: Map<string, string>;
-  localToIsBoolFormal: Map<string, string>;
-  localToIsNullFormal: Map<string, string>;
-  localToRoundFormal: Map<string, string>;
-  localToFloorFormal: Map<string, string>;
-  localToCeilFormal: Map<string, string>;
-  localToStrtolowerFormal: Map<string, string>;
-  localToStrtoupperFormal: Map<string, string>;
-  localToHtmlspecialcharsFormal: Map<string, string>;
-  localToNegFormal: Map<string, string>;
-};
-
-function emptyFormalAssignWrapperFields(): FormalAssignWrapperFields {
-  return {
-    localToIsIntFormal: new Map(),
-    localToIsBoolFormal: new Map(),
-    localToIsNullFormal: new Map(),
-    localToRoundFormal: new Map(),
-    localToFloorFormal: new Map(),
-    localToCeilFormal: new Map(),
-    localToStrtolowerFormal: new Map(),
-    localToStrtoupperFormal: new Map(),
-    localToHtmlspecialcharsFormal: new Map(),
-    localToNegFormal: new Map(),
-  };
-}
-
-function assignFormalWrapperKind(
-  fields: FormalAssignWrapperFields,
-  kind: FormalAssignWrapperKind | "negFormal",
-  localName: string,
-  formal: string,
-): void {
-  switch (kind) {
-    case "isIntFormal":
-      fields.localToIsIntFormal.set(localName, formal);
-      break;
-    case "isBoolFormal":
-      fields.localToIsBoolFormal.set(localName, formal);
-      break;
-    case "isNullFormal":
-      fields.localToIsNullFormal.set(localName, formal);
-      break;
-    case "roundFormal":
-      fields.localToRoundFormal.set(localName, formal);
-      break;
-    case "floorFormal":
-      fields.localToFloorFormal.set(localName, formal);
-      break;
-    case "ceilFormal":
-      fields.localToCeilFormal.set(localName, formal);
-      break;
-    case "strtolowerFormal":
-      fields.localToStrtolowerFormal.set(localName, formal);
-      break;
-    case "strtoupperFormal":
-      fields.localToStrtoupperFormal.set(localName, formal);
-      break;
-    case "htmlspecialcharsFormal":
-      fields.localToHtmlspecialcharsFormal.set(localName, formal);
-      break;
-    case "negFormal":
-      fields.localToNegFormal.set(localName, formal);
-      break;
-  }
-}
-
-function bindFormalAssignCallWrappers(
-  ctx: Ctx,
-  queryId: NodeId,
-  formalToArg: ReadonlyMap<string, NodeId>,
-  nameToArg: Map<string, NodeId>,
-  wrappers: ReadonlyArray<{ map: ReadonlyMap<string, string>; callee: string; type: WebIRType }>,
-): boolean {
-  for (const { map, callee, type } of wrappers) {
-    for (const [local, formal] of map) {
-      const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
-      if (argId === undefined) return false;
-      const q = ctx.m.get(queryId);
-      const callId = ctx.data.call({
-        callee,
-        args: [argId],
-        type,
-        origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
-      });
-      nameToArg.set(local, callId);
-      nameToArg.set(phpVarKey(local), callId);
-    }
-  }
-  return true;
-}
-
-function bindFormalAssignUnaryWrappers(
-  ctx: Ctx,
-  queryId: NodeId,
-  formalToArg: ReadonlyMap<string, NodeId>,
-  nameToArg: Map<string, NodeId>,
-  wrappers: ReadonlyArray<{ map: ReadonlyMap<string, string>; operator: "!" | "-" }>,
-): boolean {
-  for (const { map, operator } of wrappers) {
-    for (const [local, formal] of map) {
-      const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
-      if (argId === undefined) return false;
-      const q = ctx.m.get(queryId);
-      const unaryId = ctx.data.unaryOp({
-        operator,
-        operand: argId,
-        type: operator === "!" ? T.bool : T.int,
-        origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
-      });
-      nameToArg.set(local, unaryId);
-      nameToArg.set(phpVarKey(local), unaryId);
-    }
-  }
-  return true;
-}
-
 function matchFormalParam(name: string, paramNames: readonly string[]): string | undefined {
   const key = phpVarKey(name);
   for (const p of paramNames) {
@@ -470,7 +329,7 @@ function matchFormalParam(name: string, paramNames: readonly string[]): string |
 function isSkippablePreludeExprStmt(ctx: Ctx, stmt: NodeBase): boolean {
   if (stmt.op !== "call") return false;
   const callee = String(stmt.attrs.callee);
-  if (callee === "strlen" || callee === "intval" || callee === "trim" || callee === "empty" || callee === "isset" || callee === "count" || callee === "is_array" || callee === "is_string" || callee === "abs" || callee === "is_numeric" || callee === "is_int" || callee === "is_bool" || callee === "is_null" || callee === "round" || callee === "floor" || callee === "ceil" || callee === "strtolower" || callee === "strtoupper" || callee === "htmlspecialchars") {
+  if (callee === "strlen" || callee === "intval" || callee === "trim" || callee === "empty" || callee === "isset" || callee === "count" || callee === "is_array" || callee === "is_string" || callee === "abs" || callee === "is_numeric" || callee === "is_int" || callee === "is_bool" || callee === "is_null") {
     return stmt.effects.length === 0;
   }
   return false;
@@ -481,7 +340,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | { kind: "issetFormal"; formal: string } | { kind: "countFormal"; formal: string } | { kind: "isArrayFormal"; formal: string } | { kind: "isStringFormal"; formal: string } | { kind: "absFormal"; formal: string } | { kind: "isNumericFormal"; formal: string } | { kind: "notFormal"; formal: string } | { kind: FormalAssignWrapperKind; formal: string } | { kind: "negFormal"; formal: string } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | { kind: "issetFormal"; formal: string } | { kind: "countFormal"; formal: string } | { kind: "isArrayFormal"; formal: string } | { kind: "isStringFormal"; formal: string } | { kind: "absFormal"; formal: string } | { kind: "isNumericFormal"; formal: string } | { kind: "notFormal"; formal: string } | { kind: "isIntFormal"; formal: string } | { kind: "isBoolFormal"; formal: string } | { kind: "isNullFormal"; formal: string } | { kind: "negFormal"; formal: string } | undefined {
   const valueNode = ctx.m.get(valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -581,11 +440,17 @@ function resolveInlineAssignRhs(
       const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "isNumericFormal", formal: inner.formal };
     }
-    for (const { callee: wrapCallee, kind } of FORMAL_ASSIGN_CALL_WRAPPERS) {
-      if (callee === wrapCallee && valueNode.operands.length === 1) {
-        const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
-        if (inner?.kind === "formal") return { kind, formal: inner.formal };
-      }
+    if (callee === "is_int" && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "isIntFormal", formal: inner.formal };
+    }
+    if (callee === "is_bool" && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "isBoolFormal", formal: inner.formal };
+    }
+    if (callee === "is_null" && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(ctx, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "isNullFormal", formal: inner.formal };
     }
   }
   return undefined;
@@ -613,7 +478,11 @@ function tryExtractInlineQuery(
   localToAbsFormal: ReadonlyMap<string, string>;
   localToIsNumericFormal: ReadonlyMap<string, string>;
   localToNotFormal: ReadonlyMap<string, string>;
-} & FormalAssignWrapperFields | undefined {
+  localToIsIntFormal: ReadonlyMap<string, string>;
+  localToIsBoolFormal: ReadonlyMap<string, string>;
+  localToIsNullFormal: ReadonlyMap<string, string>;
+  localToNegFormal: ReadonlyMap<string, string>;
+} | undefined {
   const body = ctx.m.get(bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
   const stmts = body.operands;
@@ -621,7 +490,7 @@ function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(ctx, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToArg: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map(), localToIssetFormal: new Map(), localToCountFormal: new Map(), localToIsArrayFormal: new Map(), localToIsStringFormal: new Map(), localToAbsFormal: new Map(), localToIsNumericFormal: new Map(), localToNotFormal: new Map(), ...emptyFormalAssignWrapperFields() };
+    return { queryId, localToArg: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map(), localToIssetFormal: new Map(), localToCountFormal: new Map(), localToIsArrayFormal: new Map(), localToIsStringFormal: new Map(), localToAbsFormal: new Map(), localToIsNumericFormal: new Map(), localToNotFormal: new Map(), localToIsIntFormal: new Map(), localToIsBoolFormal: new Map(), localToIsNullFormal: new Map(), localToNegFormal: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
@@ -639,7 +508,10 @@ function tryExtractInlineQuery(
   const localToAbsFormal = new Map<string, string>();
   const localToIsNumericFormal = new Map<string, string>();
   const localToNotFormal = new Map<string, string>();
-  const wrapperFields = emptyFormalAssignWrapperFields();
+  const localToIsIntFormal = new Map<string, string>();
+  const localToIsBoolFormal = new Map<string, string>();
+  const localToIsNullFormal = new Map<string, string>();
+  const localToNegFormal = new Map<string, string>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = ctx.m.get(stmtId);
@@ -711,20 +583,21 @@ function tryExtractInlineQuery(
         localToNotFormal.set(localName, resolved.formal);
         continue;
       }
-      if (resolved.kind === "negFormal") {
-        assignFormalWrapperKind(wrapperFields, "negFormal", localName, resolved.formal);
+      if (resolved.kind === "isIntFormal") {
+        localToIsIntFormal.set(localName, resolved.formal);
         continue;
       }
-      {
-        let matchedWrapper = false;
-        for (const spec of FORMAL_ASSIGN_CALL_WRAPPERS) {
-          if (resolved.kind === spec.kind) {
-            assignFormalWrapperKind(wrapperFields, spec.kind, localName, resolved.formal);
-            matchedWrapper = true;
-            break;
-          }
-        }
-        if (matchedWrapper) continue;
+      if (resolved.kind === "isBoolFormal") {
+        localToIsBoolFormal.set(localName, resolved.formal);
+        continue;
+      }
+      if (resolved.kind === "isNullFormal") {
+        localToIsNullFormal.set(localName, resolved.formal);
+        continue;
+      }
+      if (resolved.kind === "negFormal") {
+        localToNegFormal.set(localName, resolved.formal);
+        continue;
       }
       localToFormal.set(localName, resolved.formal);
       continue;
@@ -734,7 +607,7 @@ function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(ctx, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToArg: localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal, localToIssetFormal, localToCountFormal, localToIsArrayFormal, localToIsStringFormal, localToAbsFormal, localToIsNumericFormal, localToNotFormal, ...wrapperFields };
+  return { queryId, localToArg: localToFormal, localToLiteral, localToCoalesce, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal, localToIssetFormal, localToCountFormal, localToIsArrayFormal, localToIsStringFormal, localToAbsFormal, localToIsNumericFormal, localToNotFormal, localToIsIntFormal, localToIsBoolFormal, localToIsNullFormal, localToNegFormal };
 }
 
 function walkSubgraphNodeIds(ctx: Ctx, rootId: NodeId, visit: (id: NodeId) => void, seen = new Set<NodeId>()): void {
@@ -795,7 +668,10 @@ function buildQueryParamReplacements(
   localToAbsFormal: ReadonlyMap<string, string>,
   localToIsNumericFormal: ReadonlyMap<string, string>,
   localToNotFormal: ReadonlyMap<string, string>,
-  wrapperFields: FormalAssignWrapperFields,
+  localToIsIntFormal: ReadonlyMap<string, string>,
+  localToIsBoolFormal: ReadonlyMap<string, string>,
+  localToIsNullFormal: ReadonlyMap<string, string>,
+  localToNegFormal: ReadonlyMap<string, string>,
 ): ReadonlyMap<NodeId, NodeId> | undefined {
   const formalToArg = new Map<string, NodeId>();
   for (let i = 0; i < paramNames.length; i++) {
@@ -999,20 +875,57 @@ function buildQueryParamReplacements(
     nameToArg.set(local, notId);
     nameToArg.set(phpVarKey(local), notId);
   }
-  const callWrapperSpecs: Array<{ map: ReadonlyMap<string, string>; callee: string; type: WebIRType }> = [
-    { map: wrapperFields.localToIsIntFormal, callee: "is_int", type: T.bool },
-    { map: wrapperFields.localToIsBoolFormal, callee: "is_bool", type: T.bool },
-    { map: wrapperFields.localToIsNullFormal, callee: "is_null", type: T.bool },
-    { map: wrapperFields.localToRoundFormal, callee: "round", type: T.int },
-    { map: wrapperFields.localToFloorFormal, callee: "floor", type: T.int },
-    { map: wrapperFields.localToCeilFormal, callee: "ceil", type: T.int },
-    { map: wrapperFields.localToStrtolowerFormal, callee: "strtolower", type: T.string },
-    { map: wrapperFields.localToStrtoupperFormal, callee: "strtoupper", type: T.string },
-    { map: wrapperFields.localToHtmlspecialcharsFormal, callee: "htmlspecialchars", type: T.string },
-  ];
-  if (!bindFormalAssignCallWrappers(ctx, queryId, formalToArg, nameToArg, callWrapperSpecs)) return undefined;
-  if (!bindFormalAssignUnaryWrappers(ctx, queryId, formalToArg, nameToArg, [{ map: wrapperFields.localToNegFormal, operator: "-" }])) {
-    return undefined;
+  for (const [local, formal] of localToIsIntFormal) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const isIntId = ctx.data.call({
+      callee: "is_int",
+      args: [argId],
+      type: T.bool,
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, isIntId);
+    nameToArg.set(phpVarKey(local), isIntId);
+  }
+  for (const [local, formal] of localToIsBoolFormal) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const isBoolId = ctx.data.call({
+      callee: "is_bool",
+      args: [argId],
+      type: T.bool,
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, isBoolId);
+    nameToArg.set(phpVarKey(local), isBoolId);
+  }
+  for (const [local, formal] of localToIsNullFormal) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const isNullId = ctx.data.call({
+      callee: "is_null",
+      args: [argId],
+      type: T.bool,
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, isNullId);
+    nameToArg.set(phpVarKey(local), isNullId);
+  }
+  for (const [local, formal] of localToNegFormal) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const negId = ctx.data.unaryOp({
+      operator: "-",
+      operand: argId,
+      type: T.int,
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, negId);
+    nameToArg.set(phpVarKey(local), negId);
   }
   const replacements = new Map<NodeId, NodeId>();
   walkSubgraphNodeIds(ctx, queryId, (id) => {
@@ -1062,18 +975,10 @@ function tryInlineLibHelperCall(
     extracted.localToAbsFormal,
     extracted.localToIsNumericFormal,
     extracted.localToNotFormal,
-    {
-      localToIsIntFormal: new Map(extracted.localToIsIntFormal),
-      localToIsBoolFormal: new Map(extracted.localToIsBoolFormal),
-      localToIsNullFormal: new Map(extracted.localToIsNullFormal),
-      localToRoundFormal: new Map(extracted.localToRoundFormal),
-      localToFloorFormal: new Map(extracted.localToFloorFormal),
-      localToCeilFormal: new Map(extracted.localToCeilFormal),
-      localToStrtolowerFormal: new Map(extracted.localToStrtolowerFormal),
-      localToStrtoupperFormal: new Map(extracted.localToStrtoupperFormal),
-      localToHtmlspecialcharsFormal: new Map(extracted.localToHtmlspecialcharsFormal),
-      localToNegFormal: new Map(extracted.localToNegFormal),
-    },
+    extracted.localToIsIntFormal,
+    extracted.localToIsBoolFormal,
+    extracted.localToIsNullFormal,
+    extracted.localToNegFormal,
   );
   if (replacements === undefined) return undefined;
   return cloneSubgraphWithReplacements(ctx, extracted.queryId, replacements);
@@ -1160,11 +1065,6 @@ type CallLowering =
   | { kind: "is_int" }
   | { kind: "is_bool" }
   | { kind: "is_null" }
-  | { kind: "round" }
-  | { kind: "floor" }
-  | { kind: "ceil" }
-  | { kind: "strtolower" }
-  | { kind: "strtoupper" }
   | { kind: "http.status" }
   | { kind: "password_verify" }
   | { kind: "preg_match" }
@@ -1208,11 +1108,6 @@ const KNOWN_CALLS: Record<string, CallLowering> = {
   is_int: { kind: "is_int" },
   is_bool: { kind: "is_bool" },
   is_null: { kind: "is_null" },
-  round: { kind: "round" },
-  floor: { kind: "floor" },
-  ceil: { kind: "ceil" },
-  strtolower: { kind: "strtolower" },
-  strtoupper: { kind: "strtoupper" },
   http_response_code: { kind: "http.status" },
   password_verify: { kind: "password_verify" },
   preg_match: { kind: "preg_match" },
@@ -1982,51 +1877,6 @@ function convertCall(
         origin: loc(ctx, e.pos),
         ...phpCallArgNames(e),
         ...phpCallAttributes(ctx, "is_null"),
-      });
-    case "round":
-      return ctx.data.call({
-        callee: "round",
-        args,
-        type: T.int,
-        origin: loc(ctx, e.pos),
-        ...phpCallArgNames(e),
-        ...phpCallAttributes(ctx, "round"),
-      });
-    case "floor":
-      return ctx.data.call({
-        callee: "floor",
-        args,
-        type: T.int,
-        origin: loc(ctx, e.pos),
-        ...phpCallArgNames(e),
-        ...phpCallAttributes(ctx, "floor"),
-      });
-    case "ceil":
-      return ctx.data.call({
-        callee: "ceil",
-        args,
-        type: T.int,
-        origin: loc(ctx, e.pos),
-        ...phpCallArgNames(e),
-        ...phpCallAttributes(ctx, "ceil"),
-      });
-    case "strtolower":
-      return ctx.data.call({
-        callee: "strtolower",
-        args,
-        type: T.string,
-        origin: loc(ctx, e.pos),
-        ...phpCallArgNames(e),
-        ...phpCallAttributes(ctx, "strtolower"),
-      });
-    case "strtoupper":
-      return ctx.data.call({
-        callee: "strtoupper",
-        args,
-        type: T.string,
-        origin: loc(ctx, e.pos),
-        ...phpCallArgNames(e),
-        ...phpCallAttributes(ctx, "strtoupper"),
       });
     case "json_encode": {
       if (e.args.length !== 1) {
