@@ -577,6 +577,10 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `nl2br(${args[0]})`;
     case "trim":
       return `trim(${args[0]})`;
+    case "strtolower":
+      return `String(${args[0]}).toLowerCase()`;
+    case "strtoupper":
+      return `String(${args[0]}).toUpperCase()`;
     case "intval":
       return `intval(${args[0]})`;
     case "strlen":

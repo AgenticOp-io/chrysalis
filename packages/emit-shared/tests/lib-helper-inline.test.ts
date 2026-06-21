@@ -850,6 +850,99 @@ describe("tryExtractInlineQuery (G2334)", () => {
     const extracted = tryExtractInlineQuery(mod, body, ["amount"]);
     expect(extracted!.localToCeilFormal.get("$val")).toBe("amount");
   });
+
+  it("accepts strtolower() wrapper on formal assign (G6890)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+    const label = data.param({ name: "label", type: T.string, origin });
+    const assignVal = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "val", type: T.string, origin }),
+        data.call({ callee: "strtolower", args: [label], type: T.string, origin }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "val", type: T.string, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignVal, ret], origin });
+    const mod = builder.finish();
+    const extracted = tryExtractInlineQuery(mod, body, ["label"]);
+    expect(extracted!.localToStrtolowerFormal.get("$val")).toBe("label");
+  });
+
+  it("accepts strtoupper() wrapper on formal assign (G6900)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+    const label = data.param({ name: "label", type: T.string, origin });
+    const assignVal = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "val", type: T.string, origin }),
+        data.call({ callee: "strtoupper", args: [label], type: T.string, origin }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "val", type: T.string, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignVal, ret], origin });
+    const mod = builder.finish();
+    const extracted = tryExtractInlineQuery(mod, body, ["label"]);
+    expect(extracted!.localToStrtoupperFormal.get("$val")).toBe("label");
+  });
+
+  it("accepts htmlspecialchars() wrapper on formal assign (G6910)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+    const label = data.param({ name: "label", type: T.string, origin });
+    const assignVal = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "val", type: T.string, origin }),
+        data.call({ callee: "htmlspecialchars", args: [label], type: T.string, origin }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "val", type: T.string, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignVal, ret], origin });
+    const mod = builder.finish();
+    const extracted = tryExtractInlineQuery(mod, body, ["label"]);
+    expect(extracted!.localToHtmlspecialcharsFormal.get("$val")).toBe("label");
+  });
 });
 
 describe("libHelperTsExportName (G6207)", () => {

@@ -107,6 +107,12 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B21 v0 (G6880):** `ceil()` formal assign inlining — fixture route **`/tsan`**. Gate: `runIrHelperLiftingB21CeilInlineGate`.
 
+**B22 v0 (G6890):** `strtolower()` formal assign inlining — fixture route **`/teth`**. Gate: `runIrHelperLiftingB22StrtolowerInlineGate`.
+
+**B23 v0 (G6900):** `strtoupper()` formal assign inlining — fixture route **`/heth`**. Gate: `runIrHelperLiftingB23StrtoupperInlineGate`.
+
+**B24 v0 (G6910):** `htmlspecialchars()` formal assign inlining — fixture route **`/yodh`**. Gate: `runIrHelperLiftingB24HtmlspecialcharsInlineGate`.
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 

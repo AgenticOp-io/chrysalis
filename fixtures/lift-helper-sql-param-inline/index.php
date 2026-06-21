@@ -31,6 +31,9 @@ require_once __DIR__ . '/lib/sql_param_neg.php';
 require_once __DIR__ . '/lib/sql_param_round.php';
 require_once __DIR__ . '/lib/sql_param_floor.php';
 require_once __DIR__ . '/lib/sql_param_ceil.php';
+require_once __DIR__ . '/lib/sql_param_strtolower.php';
+require_once __DIR__ . '/lib/sql_param_strtoupper.php';
+require_once __DIR__ . '/lib/sql_param_htmlspecialchars.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -168,6 +171,18 @@ if ($method === 'GET' && $path === '/sho') {
 }
 if ($method === 'GET' && $path === '/tsan') {
     require __DIR__ . '/pages/show_tsan.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/teth') {
+    require __DIR__ . '/pages/show_teth.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/heth') {
+    require __DIR__ . '/pages/show_heth.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/yodh') {
+    require __DIR__ . '/pages/show_yodh.php';
     exit;
 }
 

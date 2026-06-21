@@ -198,6 +198,24 @@
       "path": "/tsan",
       "file": "pages/show_tsan.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/teth",
+      "file": "pages/show_teth.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/heth",
+      "file": "pages/show_heth.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/yodh",
+      "file": "pages/show_yodh.php",
+      "pathParams": []
     }
   ]
 }

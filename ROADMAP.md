@@ -7,7 +7,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lanes:** **CWL language v1.1** (B9 **G6760**); **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
-- **Recently shipped:** B21 `ceil()` (**G6880**); B20 `floor()` (**G6870**); B19 `round()` (**G6860**).
+- **Recently shipped:** B24 `htmlspecialchars()` (**G6910**); B23 `strtoupper()` (**G6900**); B22 `strtolower()` (**G6890**).
 
 ---
 
@@ -127,9 +127,12 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G6860 B19 `round()` | `runIrHelperLiftingB19RoundInlineGate` |
 | G6870 B20 `floor()` | `runIrHelperLiftingB20FloorInlineGate` |
 | G6880 B21 `ceil()` | `runIrHelperLiftingB21CeilInlineGate` |
+| G6890 B22 `strtolower()` | `runIrHelperLiftingB22StrtolowerInlineGate` |
+| G6900 B23 `strtoupper()` | `runIrHelperLiftingB23StrtoupperInlineGate` |
+| G6910 B24 `htmlspecialchars()` | `runIrHelperLiftingB24HtmlspecialcharsInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
-## Active — CWL language v1.1 (G6760–G6880)
+## Active — CWL language v1.1 (G6760–G6910)
 
 Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Language v1.1.
 
@@ -148,12 +151,15 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G6860** B19 `round()` | `runIrHelperLiftingB19RoundInlineGate` (via **G6731**) |
 | **G6870** B20 `floor()` | `runIrHelperLiftingB20FloorInlineGate` (via **G6731**) |
 | **G6880** B21 `ceil()` | `runIrHelperLiftingB21CeilInlineGate` (via **G6731**) |
+| **G6890** B22 `strtolower()` | `runIrHelperLiftingB22StrtolowerInlineGate` (via **G6731**) |
+| **G6900** B23 `strtoupper()` | `runIrHelperLiftingB23StrtoupperInlineGate` (via **G6731**) |
+| **G6910** B24 `htmlspecialchars()` | `runIrHelperLiftingB24HtmlspecialcharsInlineGate` (via **G6731**) |
 
 ---
 
 ## Default queue — CWL language v1.1
 
-**Language v1 closed (G6750).** Active v1.1 depth: **B9–B21** (**G6760–G6880**) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+**Language v1 closed (G6750).** Active v1.1 depth: **B9–B24** (**G6760–G6910**) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
 **CWL language:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760**), `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**)
 

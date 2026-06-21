@@ -36,7 +36,7 @@
 | Trigger | Action | Pointer |
 | --- | --- | --- |
 | Parser mapper gap | Add contested-syntax page to `fixtures/parser-parity-probe` | Multi-lane lane A |
-| IR helper B7–B21 (`empty()` / `isset()` / `count()` / `is_array()` / `is_string()` / `abs()` / `is_numeric()` / logical ! / `is_int()` / `is_bool()` / `is_null()` / unary - / `round()` / `floor()` / `ceil()` inline) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, **G6760**, **G6770**, **G6780**, **G6790**, **G6800**, **G6810**, **G6820**, **G6830**, **G6840**, **G6850**, **G6860**, **G6870**, **G6880**) | `docs/IR-HELPER-LIFTING.md`, `docs/CWL-LANGUAGE-PROGRAM.md` |
+| IR helper B7–B24 (`empty()` / `isset()` / `count()` / `is_array()` / `is_string()` / `abs()` / `is_numeric()` / logical ! / `is_int()` / `is_bool()` / `is_null()` / unary - / `round()` / `floor()` / `ceil()` / `strtolower()` / `strtoupper()` / `htmlspecialchars()` inline) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, **G6760**, **G6770**, **G6780**, **G6790**, **G6800**, **G6810**, **G6820**, **G6830**, **G6840**, **G6850**, **G6860**, **G6870**, **G6880**, **G6890**, **G6900**, **G6910**) | `docs/IR-HELPER-LIFTING.md`, `docs/CWL-LANGUAGE-PROGRAM.md` |
 | Widen `->query` lowering | Add tracked receiver via `mysqli-probe` | Hole economics |
 | IR helper pattern (B5 rules) | Hub-gated fixture | `docs/IR-HELPER-LIFTING.md` |
 | Package README drift | Update README | `ROADMAP.md` |
