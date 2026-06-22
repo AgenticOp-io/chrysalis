@@ -34,6 +34,20 @@ require_once __DIR__ . '/lib/sql_param_ceil.php';
 require_once __DIR__ . '/lib/sql_param_strtolower.php';
 require_once __DIR__ . '/lib/sql_param_strtoupper.php';
 require_once __DIR__ . '/lib/sql_param_htmlspecialchars.php';
+require_once __DIR__ . '/lib/sql_param_nl2br.php';
+require_once __DIR__ . '/lib/sql_param_urlencode.php';
+require_once __DIR__ . '/lib/sql_param_rawurlencode.php';
+require_once __DIR__ . '/lib/sql_param_urldecode.php';
+require_once __DIR__ . '/lib/sql_param_rawurldecode.php';
+require_once __DIR__ . '/lib/sql_param_ltrim.php';
+require_once __DIR__ . '/lib/sql_param_rtrim.php';
+require_once __DIR__ . '/lib/sql_param_is_float.php';
+require_once __DIR__ . '/lib/sql_param_is_object.php';
+require_once __DIR__ . '/lib/sql_param_is_scalar.php';
+require_once __DIR__ . '/lib/sql_param_round2.php';
+require_once __DIR__ . '/lib/sql_param_max.php';
+require_once __DIR__ . '/lib/sql_param_min.php';
+require_once __DIR__ . '/lib/sql_param_substr.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -183,6 +197,62 @@ if ($method === 'GET' && $path === '/heth') {
 }
 if ($method === 'GET' && $path === '/yodh') {
     require __DIR__ . '/pages/show_yodh.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/kaph') {
+    require __DIR__ . '/pages/show_kaph.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/lamed') {
+    require __DIR__ . '/pages/show_lamed.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/mem') {
+    require __DIR__ . '/pages/show_mem.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/nun') {
+    require __DIR__ . '/pages/show_nun.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/samekh') {
+    require __DIR__ . '/pages/show_samekh.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/ayin') {
+    require __DIR__ . '/pages/show_ayin.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/pe') {
+    require __DIR__ . '/pages/show_pe.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/tsadi') {
+    require __DIR__ . '/pages/show_tsadi.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/qof') {
+    require __DIR__ . '/pages/show_qof.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/resh') {
+    require __DIR__ . '/pages/show_resh.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/shin') {
+    require __DIR__ . '/pages/show_shin.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/tav') {
+    require __DIR__ . '/pages/show_tav.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/alef') {
+    require __DIR__ . '/pages/show_alef.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/bet') {
+    require __DIR__ . '/pages/show_bet.php';
     exit;
 }
 

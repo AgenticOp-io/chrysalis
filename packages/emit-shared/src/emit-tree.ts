@@ -581,6 +581,26 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `String(${args[0]}).toLowerCase()`;
     case "strtoupper":
       return `String(${args[0]}).toUpperCase()`;
+    case "urlencode":
+      return `urlencode(${args[0]})`;
+    case "rawurlencode":
+      return `rawurlencode(${args[0]})`;
+    case "urldecode":
+      return `urldecode(${args[0]})`;
+    case "rawurldecode":
+      return `rawurldecode(${args[0]})`;
+    case "ltrim":
+      return `ltrim(${args[0]})`;
+    case "rtrim":
+      return `rtrim(${args[0]})`;
+    case "max":
+      return `max(${args[0]}, ${args[1]})`;
+    case "min":
+      return `min(${args[0]}, ${args[1]})`;
+    case "substr":
+      return args.length === 3
+        ? `substr(${args[0]}, ${args[1]}, ${args[2]})`
+        : `substr(${args[0]}, ${args[1]})`;
     case "intval":
       return `intval(${args[0]})`;
     case "strlen":

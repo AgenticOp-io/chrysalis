@@ -216,6 +216,90 @@
       "path": "/yodh",
       "file": "pages/show_yodh.php",
       "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/kaph",
+      "file": "pages/show_kaph.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/lamed",
+      "file": "pages/show_lamed.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/mem",
+      "file": "pages/show_mem.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/nun",
+      "file": "pages/show_nun.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/samekh",
+      "file": "pages/show_samekh.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/ayin",
+      "file": "pages/show_ayin.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/pe",
+      "file": "pages/show_pe.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/tsadi",
+      "file": "pages/show_tsadi.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/qof",
+      "file": "pages/show_qof.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/resh",
+      "file": "pages/show_resh.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/shin",
+      "file": "pages/show_shin.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/tav",
+      "file": "pages/show_tav.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/alef",
+      "file": "pages/show_alef.php",
+      "pathParams": []
+    },
+    {
+      "method": "GET",
+      "path": "/bet",
+      "file": "pages/show_bet.php",
+      "pathParams": []
     }
   ]
 }

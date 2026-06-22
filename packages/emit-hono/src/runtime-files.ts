@@ -518,6 +518,30 @@ export function nl2br(v: unknown): string {
   return String(v ?? "").replace(/\\r?\\n/g, "<br />");
 }
 
+export function urlencode(v: unknown): string {
+  return encodeURIComponent(String(v ?? "")).replace(/%20/g, "+");
+}
+
+export function rawurlencode(v: unknown): string {
+  return encodeURIComponent(String(v ?? ""));
+}
+
+export function urldecode(v: unknown): string {
+  return decodeURIComponent(String(v ?? "").replace(/\+/g, " "));
+}
+
+export function rawurldecode(v: unknown): string {
+  return decodeURIComponent(String(v ?? ""));
+}
+
+export function ltrim(v: unknown): string {
+  return String(v ?? "").replace(/^\s+/, "");
+}
+
+export function rtrim(v: unknown): string {
+  return String(v ?? "").replace(/\s+$/, "");
+}
+
 export function currentUser(c: Context): { id: number; username: string } | null {
   const s = getSession(c);
   const id = s.get<number>("user_id");
@@ -586,6 +610,19 @@ export function is_int(v: unknown): boolean {
   return typeof v === "number" && Number.isInteger(v);
 }
 
+export function is_float(v: unknown): boolean {
+  return typeof v === "number" && !Number.isInteger(v);
+}
+
+export function is_object(v: unknown): boolean {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+export function is_scalar(v: unknown): boolean {
+  const t = typeof v;
+  return t === "boolean" || t === "number" || t === "string";
+}
+
 export function is_bool(v: unknown): boolean {
   return typeof v === "boolean";
 }
@@ -594,9 +631,40 @@ export function is_null(v: unknown): boolean {
   return v === null;
 }
 
-export function round(v: unknown): number {
+export function round(v: unknown, precision?: unknown): number {
   const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? Math.round(n) : 0;
+  if (!Number.isFinite(n)) return 0;
+  if (precision === undefined) return Math.round(n);
+  const p = typeof precision === "number" ? precision : parseInt(String(precision), 10);
+  if (!Number.isFinite(p)) return Math.round(n);
+  const m = 10 ** p;
+  return Math.round(n * m) / m;
+}
+
+export function max(a: unknown, b: unknown): number {
+  const x = typeof a === "number" ? a : Number(a);
+  const y = typeof b === "number" ? b : Number(b);
+  const fx = Number.isFinite(x) ? x : 0;
+  const fy = Number.isFinite(y) ? y : 0;
+  return Math.max(fx, fy);
+}
+
+export function min(a: unknown, b: unknown): number {
+  const x = typeof a === "number" ? a : Number(a);
+  const y = typeof b === "number" ? b : Number(b);
+  const fx = Number.isFinite(x) ? x : 0;
+  const fy = Number.isFinite(y) ? y : 0;
+  return Math.min(fx, fy);
+}
+
+export function substr(v: unknown, start: unknown, length?: unknown): string {
+  const s = String(v ?? "");
+  let i = typeof start === "number" ? start : parseInt(String(start), 10);
+  if (!Number.isFinite(i)) i = 0;
+  if (length === undefined) return s.slice(i);
+  const len = typeof length === "number" ? length : parseInt(String(length), 10);
+  if (!Number.isFinite(len)) return s.slice(i);
+  return s.slice(i, i + len);
 }
 
 export function floor(v: unknown): number {

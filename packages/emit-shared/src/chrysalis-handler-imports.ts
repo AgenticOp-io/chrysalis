@@ -36,6 +36,12 @@ export function runtimeExportNamesForAgg(agg: AggregatedHandlerImportNeeds): str
   const lines: string[] = [
     "escapeHtml",
     "nl2br",
+    "urlencode",
+    "rawurlencode",
+    "urldecode",
+    "rawurldecode",
+    "ltrim",
+    "rtrim",
     "currentUser",
     "requireLogin",
     "isset",

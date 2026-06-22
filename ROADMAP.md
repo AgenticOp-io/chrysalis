@@ -7,7 +7,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lanes:** **CWL language v1.1** (B9 **G6760**); **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
-- **Recently shipped:** B24 `htmlspecialchars()` (**G6910**); B23 `strtoupper()` (**G6900**); B22 `strtolower()` (**G6890**).
+- **Recently shipped:** B38 `substr(, literal)` (**G7050**); B37 `min(, literal)` (**G7040**); B36 `max(, literal)` (**G7030**); B35 `round(, precision)` (**G7020**).
 
 ---
 
@@ -130,9 +130,23 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G6890 B22 `strtolower()` | `runIrHelperLiftingB22StrtolowerInlineGate` |
 | G6900 B23 `strtoupper()` | `runIrHelperLiftingB23StrtoupperInlineGate` |
 | G6910 B24 `htmlspecialchars()` | `runIrHelperLiftingB24HtmlspecialcharsInlineGate` |
+| G6920 B25 `nl2br()` | `runIrHelperLiftingB25Nl2brInlineGate` |
+| G6930 B26 `urlencode()` | `runIrHelperLiftingB26UrlencodeInlineGate` |
+| G6940 B27 `rawurlencode()` | `runIrHelperLiftingB27RawurlencodeInlineGate` |
+| G6950 B28 `urldecode()` | `runIrHelperLiftingB28UrldecodeInlineGate` |
+| G6960 B29 `rawurldecode()` | `runIrHelperLiftingB29RawurldecodeInlineGate` |
+| G6970 B30 `ltrim()` | `runIrHelperLiftingB30LtrimInlineGate` |
+| G6980 B31 `rtrim()` | `runIrHelperLiftingB31RtrimInlineGate` |
+| G6990 B32 `is_float()` | `runIrHelperLiftingB32IsFloatInlineGate` |
+| G7000 B33 `is_object()` | `runIrHelperLiftingB33IsObjectInlineGate` |
+| G7010 B34 `is_scalar()` | `runIrHelperLiftingB34IsScalarInlineGate` |
+| G7020 B35 `round(, precision)` | `runIrHelperLiftingB35Round2InlineGate` |
+| G7030 B36 `max(, literal)` | `runIrHelperLiftingB36MaxInlineGate` |
+| G7040 B37 `min(, literal)` | `runIrHelperLiftingB37MinInlineGate` |
+| G7050 B38 `substr(, literal)` | `runIrHelperLiftingB38SubstrInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
-## Active — CWL language v1.1 (G6760–G6910)
+## Active — CWL language v1.1 (G6760–G7050)
 
 Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Language v1.1.
 
@@ -154,12 +168,26 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G6890** B22 `strtolower()` | `runIrHelperLiftingB22StrtolowerInlineGate` (via **G6731**) |
 | **G6900** B23 `strtoupper()` | `runIrHelperLiftingB23StrtoupperInlineGate` (via **G6731**) |
 | **G6910** B24 `htmlspecialchars()` | `runIrHelperLiftingB24HtmlspecialcharsInlineGate` (via **G6731**) |
+| **G6920** B25 `nl2br()` | `runIrHelperLiftingB25Nl2brInlineGate` (via **G6731**) |
+| **G6930** B26 `urlencode()` | `runIrHelperLiftingB26UrlencodeInlineGate` (via **G6731**) |
+| **G6940** B27 `rawurlencode()` | `runIrHelperLiftingB27RawurlencodeInlineGate` (via **G6731**) |
+| **G6950** B28 `urldecode()` | `runIrHelperLiftingB28UrldecodeInlineGate` (via **G6731**) |
+| **G6960** B29 `rawurldecode()` | `runIrHelperLiftingB29RawurldecodeInlineGate` (via **G6731**) |
+| **G6970** B30 `ltrim()` | `runIrHelperLiftingB30LtrimInlineGate` (via **G6731**) |
+| **G6980** B31 `rtrim()` | `runIrHelperLiftingB31RtrimInlineGate` (via **G6731**) |
+| **G6990** B32 `is_float()` | `runIrHelperLiftingB32IsFloatInlineGate` (via **G6731**) |
+| **G7000** B33 `is_object()` | `runIrHelperLiftingB33IsObjectInlineGate` (via **G6731**) |
+| **G7010** B34 `is_scalar()` | `runIrHelperLiftingB34IsScalarInlineGate` (via **G6731**) |
+| **G7020** B35 `round(, precision)` | `runIrHelperLiftingB35Round2InlineGate` (via **G6731**) |
+| **G7030** B36 `max(, literal)` | `runIrHelperLiftingB36MaxInlineGate` (via **G6731**) |
+| **G7040** B37 `min(, literal)` | `runIrHelperLiftingB37MinInlineGate` (via **G6731**) |
+| **G7050** B38 `substr(, literal)` | `runIrHelperLiftingB38SubstrInlineGate` (via **G6731**) |
 
 ---
 
 ## Default queue — CWL language v1.1
 
-**Language v1 closed (G6750).** Active v1.1 depth: **B9–B24** (**G6760–G6910**) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+**Language v1 closed (G6750).** Active v1.1 depth: **B9–B38** (**G6760–G7050**) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
 **CWL language:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760**), `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**)
 

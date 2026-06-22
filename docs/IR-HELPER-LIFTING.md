@@ -113,6 +113,34 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B24 v0 (G6910):** `htmlspecialchars()` formal assign inlining — fixture route **`/yodh`**. Gate: `runIrHelperLiftingB24HtmlspecialcharsInlineGate`.
 
+**B25 v0 (G6920):** `nl2br()` formal assign inlining — fixture route **`/kaph`**. Gate: `runIrHelperLiftingB25Nl2brInlineGate`.
+
+**B26 v0 (G6930):** `urlencode()` formal assign inlining — fixture route **`/lamed`**. Gate: `runIrHelperLiftingB26UrlencodeInlineGate`.
+
+**B27 v0 (G6940):** `rawurlencode()` formal assign inlining — fixture route **`/mem`**. Gate: `runIrHelperLiftingB27RawurlencodeInlineGate`.
+
+**B28 v0 (G6950):** `urldecode()` formal assign inlining — fixture route **`/nun`**. Gate: `runIrHelperLiftingB28UrldecodeInlineGate`.
+
+**B29 v0 (G6960):** `rawurldecode()` formal assign inlining — fixture route **`/samekh`**. Gate: `runIrHelperLiftingB29RawurldecodeInlineGate`.
+
+**B30 v0 (G6970):** `ltrim()` formal assign inlining — fixture route **`/ayin`**. Gate: `runIrHelperLiftingB30LtrimInlineGate`.
+
+**B31 v0 (G6980):** `rtrim()` formal assign inlining — fixture route **`/pe`**. Gate: `runIrHelperLiftingB31RtrimInlineGate`.
+
+**B32 v0 (G6990):** `is_float()` formal assign inlining — fixture route **`/tsadi`**. Gate: `runIrHelperLiftingB32IsFloatInlineGate`.
+
+**B33 v0 (G7000):** `is_object()` formal assign inlining — fixture route **`/qof`**. Gate: `runIrHelperLiftingB33IsObjectInlineGate`.
+
+**B34 v0 (G7010):** `is_scalar()` formal assign inlining — fixture route **`/resh`**. Gate: `runIrHelperLiftingB34IsScalarInlineGate`.
+
+**B35 v0 (G7020):** `round(, precision)` formal + literal inlining — fixture route **`/shin`**. Gate: `runIrHelperLiftingB35Round2InlineGate`.
+
+**B36 v0 (G7030):** `max(, literal)` formal + literal inlining — fixture route **`/tav`**. Gate: `runIrHelperLiftingB36MaxInlineGate`.
+
+**B37 v0 (G7040):** `min(, literal)` formal + literal inlining — fixture route **`/alef`**. Gate: `runIrHelperLiftingB37MinInlineGate`.
+
+**B38 v0 (G7050):** `substr(, literal)` formal + literal inlining — fixture route **`/bet`**. Gate: `runIrHelperLiftingB38SubstrInlineGate`.
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 

@@ -19,7 +19,7 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 | **CWL Effects** | RFC-0007 + WISP M6 `session.read` metadata | **Declarative shipped** |
 | **CWL UI** | RFC-0012 component holes | **Explicit holes** — not v1; no silent lowering |
 | **IR helper B-tier** | B5.5–B8 formal-assign lib SQL inlining | **Closed** — `empty`, `isset`, casts, trim, strlen |
-| **IR helper B9+** | Incremental v1.1 depth | **Active** — through B24 (**G6760–G6910**) |
+| **IR helper B9+** | Incremental v1.1 depth | **Active** — through B38 (**G6760–G7050**) |
 | **Probes** | RFC-0015/0016 production + form-action hole catalog | **Shipped** — regression gates |
 
 ## Explicitly not “language v1”
@@ -54,13 +54,27 @@ Per **DESIGN §3** and **D6205**:
 | G6890 | B22 `strtolower()` formal assign | `runIrHelperLiftingB22StrtolowerInlineGate` |
 | G6900 | B23 `strtoupper()` formal assign | `runIrHelperLiftingB23StrtoupperInlineGate` |
 | G6910 | B24 `htmlspecialchars()` formal assign | `runIrHelperLiftingB24HtmlspecialcharsInlineGate` |
+| G6920 | B25 `nl2br()` formal assign | `runIrHelperLiftingB25Nl2brInlineGate` |
+| G6930 | B26 `urlencode()` formal assign | `runIrHelperLiftingB26UrlencodeInlineGate` |
+| G6940 | B27 `rawurlencode()` formal assign | `runIrHelperLiftingB27RawurlencodeInlineGate` |
+| G6950 | B28 `urldecode()` formal assign | `runIrHelperLiftingB28UrldecodeInlineGate` |
+| G6960 | B29 `rawurldecode()` formal assign | `runIrHelperLiftingB29RawurldecodeInlineGate` |
+| G6970 | B30 `ltrim()` formal assign | `runIrHelperLiftingB30LtrimInlineGate` |
+| G6980 | B31 `rtrim()` formal assign | `runIrHelperLiftingB31RtrimInlineGate` |
+| G6990 | B32 `is_float()` formal assign | `runIrHelperLiftingB32IsFloatInlineGate` |
+| G7000 | B33 `is_object()` formal assign | `runIrHelperLiftingB33IsObjectInlineGate` |
+| G7010 | B34 `is_scalar()` formal assign | `runIrHelperLiftingB34IsScalarInlineGate` |
+| G7020 | B35 `round(, precision)` formal + literal | `runIrHelperLiftingB35Round2InlineGate` |
+| G7030 | B36 `max(, literal)` formal + literal | `runIrHelperLiftingB36MaxInlineGate` |
+| G7040 | B37 `min(, literal)` formal + literal | `runIrHelperLiftingB37MinInlineGate` |
+| G7050 | B38 `substr(, literal)` formal + literal | `runIrHelperLiftingB38SubstrInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
-## Language v1.1 — active (G6760–G6910)
+## Language v1.1 — active (G6760–G7050)
 
 Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). Does not reopen v1 surface scope; extends ingest/emit helper lifting only.
 
-Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G6910** B24).
+Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7050** B38).
 
 ## Default queue after close
 
