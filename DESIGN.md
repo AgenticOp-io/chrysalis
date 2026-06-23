@@ -3715,6 +3715,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-06-22 — D6207** **CWL native UI v0 (RFC-0017, G7111).** Phase **15** first implementation slice: **`return ui { element … }`** on `@page` routes lowers to WebIR **`data.ui.tree`** (serialised nodes + operand bindings); runtime **`renderCwlUiTree`** + **`escapeHtml`** for server HTML; gold fixture **`fixtures/hub-gold-cwl-ui-v0`**; smokes **`hub:cwl-phase15-entry-smoke`** (**G7101**), **`hub:cwl-ui-v0-smoke`** (**G7111**). **Non-goals:** hydration, silent Svelte lowering.
 
+- **2026-06-23 — D6211** **IR helper B41 `strrpos(, literal)` (G7080).** Formal + literal **`strrpos($formal, 'literal')`** assign inlining; fixture route **`/he`**; emit via **`String(…).lastIndexOf(…)`**; gate **`runIrHelperLiftingB41StrrposInlineGate`** in **G6731**.
+
 - **2026-06-23 — D6210** **IR helper B40 `stripos(, literal)` (G7070).** Formal + literal **`stripos($formal, 'literal')`** assign inlining; fixture route **`/dalet`**; emit via **`String(…).toLowerCase().indexOf(String(…).toLowerCase())`**; gate **`runIrHelperLiftingB40StriposInlineGate`** in **G6731**.
 
 - **2026-06-22 — D6209** **IR helper B39 `strpos(, literal)` (G7060).** Post-**G7150** default maintenance slice: formal + literal **`strpos($formal, 'literal')`** assign inlining on parametric lib SQL helpers; fixture route **`/gimel`** on **`lift-helper-sql-param-inline`**; ingest + **`@chrysalis/emit-shared`** emit via **`String(…).indexOf(…)`**; gate **`runIrHelperLiftingB39StrposInlineGate`** in **`hub:cwl-language-maintenance-smoke`** (**G6731**).

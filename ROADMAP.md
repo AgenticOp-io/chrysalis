@@ -6,18 +6,18 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **IR helper maintenance** — **B40 `stripos()`** (**G7070**); complete language **G7150 closed**.
-- **Recently shipped:** **B40 `stripos(, literal)`** (**G7070**); **B39 `strpos()`** (**G7060**); Phases **15–18** + **G7150**.
+- **Active lane:** **IR helper maintenance** — **B41 `strrpos()`** (**G7080**); complete language **G7150 closed**.
+- **Recently shipped:** **B41 `strrpos(, literal)`** (**G7080**); **B40 `stripos()`** (**G7070**); **G7150** program close.
 
 ---
 
-## Active — IR helper B40 (G7070)
+## Active — IR helper B41 (G7080)
 
 Default build queue post **G7150**. Program doc: [`docs/IR-HELPER-LIFTING.md`](./docs/IR-HELPER-LIFTING.md)
 
 | Gate | Smoke |
 | --- | --- |
-| **G7070** B40 `stripos(, literal)` | `runIrHelperLiftingB40StriposInlineGate` (via **G6731**) |
+| **G7080** B41 `strrpos(, literal)` | `runIrHelperLiftingB41StrrposInlineGate` (via **G6731**) |
 | **G6731** maintenance composite | `pnpm run hub:cwl-language-maintenance-smoke` |
 
 **Regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
@@ -178,6 +178,7 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G7050 B38 `substr(, literal)` | `runIrHelperLiftingB38SubstrInlineGate` |
 | G7060 B39 `strpos(, literal)` | `runIrHelperLiftingB39StrposInlineGate` |
 | G7070 B40 `stripos(, literal)` | `runIrHelperLiftingB40StriposInlineGate` |
+| G7080 B41 `strrpos(, literal)` | `runIrHelperLiftingB41StrrposInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
 ## Active — CWL language v1.1 (G6760–G7050)
@@ -218,12 +219,13 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G7050** B38 `substr(, literal)` | `runIrHelperLiftingB38SubstrInlineGate` (via **G6731**) |
 | **G7060** B39 `strpos(, literal)` | `runIrHelperLiftingB39StrposInlineGate` (via **G6731**) |
 | **G7070** B40 `stripos(, literal)` | `runIrHelperLiftingB40StriposInlineGate` (via **G6731**) |
+| **G7080** B41 `strrpos(, literal)` | `runIrHelperLiftingB41StrrposInlineGate` (via **G6731**) |
 
 ---
 
 ## Default queue — IR helper v1.1 (post G7150)
 
-**Active:** **B40 `stripos()`** (**G7070**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+**Active:** **B41 `strrpos()`** (**G7080**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
 **CWL language regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
 
