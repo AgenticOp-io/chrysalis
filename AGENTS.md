@@ -6,7 +6,7 @@
 
 1. Read `DESIGN.md` in full. It is the north star for architecture and invariants.
 2. Read **`docs/STRATEGIC-PLAN.md` in full. It is the **locked path** for what to build, in what order, and what to refuse. **Do not deviate** from it unless the user explicitly amends the plan (`DESIGN.md` Decision Log + edit `STRATEGIC-PLAN.md`).
-3. Read `ROADMAP.md` for **status** and the **maintenance** default queue (`docs/PAUSED-AND-MAINTENANCE.md`). Completed history — phases **0–10** — is in **`ROADMAP-ARCHIVE.md`**. For phased delivery, follow **`docs/STRATEGIC-PLAN.md`**.
+3. Read `ROADMAP.md` for **status** and the **active build queue** (`docs/PAUSED-AND-MAINTENANCE.md` §1 — **Phase 15 complete language**, **D6206**). Completed history — phases **0–10** — is in **`ROADMAP-ARCHIVE.md`**. For phased delivery, follow **`docs/STRATEGIC-PLAN.md`** §12.
 4. Read the `README.md` of the specific package you're about to touch.
 5. For **install / operations / administration / releases / GitHub Project planning**, see **`docs/`** (index: `docs/README.md`; GitHub Project: `docs/GITHUB_PROJECT.md`) in addition to the root `README.md`.
 6. If your plan contradicts `DESIGN.md`, do one of two things:
@@ -30,7 +30,7 @@ The user may lock strategy in conversation. Unless they **explicitly** amend it:
 
 **North star vs POC:** **CWL** (final web language) is authoritative; **WISP** exists solely to **showcase** CWL — prioritize generalizable language/engine wins over WISP-only convenience. **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
 
-**Default implementation queue** when build scope is unclear: [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md) §1 (Phase 13 when open); maintenance §2 otherwise.
+**Default implementation queue** when build scope is unclear: [`docs/STRATEGIC-PLAN.md`](docs/STRATEGIC-PLAN.md) §12 — **Phase 15 CWL UI v0** first (**G7110**); see [`docs/CWL-LANGUAGE-PROGRAM.md`](docs/CWL-LANGUAGE-PROGRAM.md) § Complete language program. IR helper maintenance (**G6731**) is subordinate per [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md) §2.
 
 ## 1. The project is Chrysalis, not "a PHP-to-TS converter"
 

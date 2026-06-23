@@ -6,8 +6,31 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lanes:** **CWL language v1.1** (B9 **G6760**); **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 WISP Phase 0 closed** (**G6310**).
-- **Recently shipped:** B38 `substr(, literal)` (**G7050**); B37 `min(, literal)` (**G7040**); B36 `max(, literal)` (**G7030**); B35 `round(, precision)` (**G7020**).
+- **Active lane:** **Phase 15 — CWL complete language** (**D6206**, **G7100** entry, **G7150** program close).
+- **Subordinate:** **CWL language v1.1** IR helper maintenance (**G6731**, B9–B38 **G6760–G7050**).
+- **Closed:** **CWL language v1** (**G6750**); **Phase 14** (**G6690**); **Phase 13** (**G6410**); **Phase 12 WISP Phase 0** (**G6310**).
+- **Recently shipped:** B38 `substr(, literal)` (**G7050**); plan amendment **D6206** (2026-06-22).
+
+---
+
+## Active — Phase 15 CWL complete language (G7100–G7150)
+
+Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Complete language program  
+Authority: **DESIGN D6206**; [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md) §7
+
+| Phase | Gate | Target |
+| --- | --- | --- |
+| **15** UI v0 | **G7110** | Native CWL component syntax + verify (extends RFC-0012) |
+| **16** Data complete | **G7120** | RFC-0013 load shapes; retire load holes on charter |
+| **17** Effects executable | **G7130** | RFC-0007 runtime parity |
+| **18** Cutover / greenfield | **G7140** | Ladder step 5 — chimera-out for app logic |
+| **Program close** | **G7150** | All five surfaces; hole budget zero on flagship |
+
+**Default when user says "build":** Phase **15** first (RFC → WebIR → gates → WISP proof).
+
+**Subordinate maintenance:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**Regression:** `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), Phase 14 operator smokes (**G6690** / **G6590**)
 
 ---
 
@@ -185,9 +208,9 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 
 ---
 
-## Default queue — CWL language v1.1
+## Default queue — CWL language v1.1 (subordinate)
 
-**Language v1 closed (G6750).** Active v1.1 depth: **B9–B38** (**G6760–G7050**) — see [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+**Phase 15 active (D6206).** IR helper depth **B9–B38** (**G6760–G7050**) continues via **G6731** — subordinate to complete-language phases. See [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
 
 **CWL language:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760**), `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**)
 

@@ -1,7 +1,7 @@
 # CWL language program
 
-> **Status:** **Language v1 closed** (2026-06-19, **G6750**)  
-> **Authority:** `docs/CWL-SURFACE-TAXONOMY.md` (**D6193**); `docs/CWL.md`; `docs/CWL-RFC.md`
+> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language program active** (2026-06-22, **D6206**, Phase **15–18**, close **G7150**)  
+> **Authority:** `docs/CWL-SURFACE-TAXONOMY.md` (**D6193**); `docs/CWL.md`; `docs/CWL-RFC.md`; `docs/STRATEGIC-PLAN.md` §7
 
 Chrysalis Web Language (CWL) is the **consolidated web language** for routes, pages, data loaders, effects metadata, and (future) UI composition — all lowering through **WebIR** to emit targets and oracle verify.
 
@@ -19,14 +19,39 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 | **CWL Effects** | RFC-0007 + WISP M6 `session.read` metadata | **Declarative shipped** |
 | **CWL UI** | RFC-0012 component holes | **Explicit holes** — not v1; no silent lowering |
 | **IR helper B-tier** | B5.5–B8 formal-assign lib SQL inlining | **Closed** — `empty`, `isset`, casts, trim, strlen |
-| **IR helper B9+** | Incremental v1.1 depth | **Active** — through B38 (**G6760–G7050**) |
+| **IR helper B9+** | Incremental v1.1 depth | **Subordinate** — through B38 (**G6760–G7050**); maintenance via **G6731** |
 | **Probes** | RFC-0015/0016 production + form-action hole catalog | **Shipped** — regression gates |
 
-## Explicitly not “language v1”
+## Complete language program — active (Phase 15–18, **D6206**)
+
+**North star:** CWL is a **complete web language** — all five surfaces native, verify-backed, hole-budget-clean on chartered apps. **Language v1 (G6750)** was a milestone, not the finish line.
+
+| Phase | Surface / win | Status | Close gate |
+| --- | --- | --- | --- |
+| **15** | **CWL UI v0** — component syntax beyond RFC-0012 holes; WebIR + emit + replay | **Active** | **G7110** |
+| **16** | **CWL Data complete** — RFC-0013 load shapes; no `hub-*:load-function` on charter | Queued | **G7120** |
+| **17** | **CWL Effects executable** — RFC-0007 parity, not metadata-only | Queued | **G7130** |
+| **18** | **Cutover / greenfield** — ladder step 5; chimera-out for app logic | Queued | **G7140** |
+| **Program** | All surfaces + **hole budget zero** on flagship CWL-native routes | — | **G7150** |
+
+**Entry G7100:** this section + [`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md) + [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12 aligned (doc gate; implementation follows RFC + hub smokes).
+
+**Phase 15 first deliverables (RFC before code):**
+
+1. **CWL UI syntax RFC** — props, server/client islands, hydration policy (extends RFC-0012)
+2. **WebIR node types** — `id`, `type`, `effects`, `provenance`, `origin` per **DESIGN §3**
+3. **WISP proof routes** — replace permanent holes where policy allows (e.g. `/login` bridge documented)
+4. **Verify/replay** — no runtime UI claims without oracle evidence
+
+**Refuse (D6206):** silent component lowering; IR helper B-tier as substitute for UI; GenieACS (**D6205**).
+
+**Showcase:** WISP proves surfaces; **CWL RFCs define syntax** (**D6205**).
+
+## Explicitly not “language v1” (unchanged)
 
 Per **DESIGN §3** and **D6205**:
 
-- **CWL UI** — Svelte/React/ArcGIS/Firebase widgets remain **holes** until a future RFC + verify program
+- **CWL UI** — was explicit holes in v1; **Phase 15 (D6206)** closes native UI syntax with RFC + verify — no silent lowering
 - **Backend replatform** — WISPTools Express/Mongo stays proxied; CWL replaces **web language**, not databases
 - **575×26 matrix marketing depth** — structural/oracle parity only where gated
 
@@ -69,17 +94,23 @@ Per **DESIGN §3** and **D6205**:
 | G7040 | B37 `min(, literal)` formal + literal | `runIrHelperLiftingB37MinInlineGate` |
 | G7050 | B38 `substr(, literal)` formal + literal | `runIrHelperLiftingB38SubstrInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
+| **G7100** | Complete language program entry | Doc gate — § Complete language program |
+| **G7110** | Phase 15 CWL UI v0 close | *(smoke TBD — RFC + verify first)* |
+| **G7120** | Phase 16 CWL Data complete close | *(smoke TBD)* |
+| **G7130** | Phase 17 CWL Effects executable close | *(smoke TBD)* |
+| **G7140** | Phase 18 cutover / greenfield close | *(smoke TBD)* |
+| **G7150** | **CWL complete language close** | *(smoke TBD)* |
 
-## Language v1.1 — active (G6760–G7050)
+## Language v1.1 — subordinate maintenance (G6760–G7050)
 
-Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). Does not reopen v1 surface scope; extends ingest/emit helper lifting only.
+Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). **Subordinate** to Phase 15–18 (**D6206**); extends ingest/emit helper lifting only.
 
 Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7050** B38).
 
-## Default queue after close
+## Default queue
 
-Reactive **language maintenance** only — see [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
+**Active build:** Phase **15 → 16 → 17 → 18**; program close **G7150** — see § Complete language program and [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
 
-Regression: `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+**Subordinate:** IR helper maintenance — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
 
-Future **CWL UI** depth requires a new RFC program and strategic plan amendment — not maintenance drift.
+**Regression:** Phase 13–14 WISP smokes per strategic plan §12.

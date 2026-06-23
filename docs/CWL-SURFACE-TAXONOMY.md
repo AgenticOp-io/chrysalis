@@ -111,14 +111,21 @@ Programs close surfaces in order — no big-bang rewrite:
 | G6340 | `runCwlSurfaceTaxonomyDocGate` | `pnpm run hub:cwl-surface-taxonomy-smoke` |
 | G6731 | CWL language maintenance | `pnpm run hub:cwl-language-maintenance-smoke` |
 | **G6750** | **Language v1 closed** | `pnpm run hub:cwl-language-v1-close-smoke` |
+| **G7100** | Complete language program entry | Doc gate — [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) |
+| **G7110** | Phase 15 CWL UI v0 close | *(smoke TBD — RFC + verify first)* |
+| **G7150** | **CWL complete language close** | *(smoke TBD)* |
 
 ## Language v1 closed (G6750)
 
 **Status:** closed (2026-06-19). Program doc: [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md).
 
-CWL **API**, **Pages**, **Data**, and **Effects** surfaces are shipped and gated. **CWL UI** remains an explicit **Hole** per **RFC-0012** — no silent lowering. IR helper B-tier **B5.5–B8** (formal-assign lib SQL inlining) is closed.
+CWL **API**, **Pages**, **Data**, and **Effects** surfaces are shipped and gated. **CWL UI** was an explicit **Hole** per **RFC-0012** in v1 — **Phase 15 (D6206)** is the active path to native UI syntax. IR helper B-tier **B5.5–B38** continues as subordinate maintenance (**G6731**).
 
 Regression: `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+
+## Complete language program active (Phase 15–18, D6206)
+
+**Default build:** Phase **15 → 16 → 17 → 18**; program close **G7150**. See [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) § Complete language program and [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
 
 ## Non-goals
 
