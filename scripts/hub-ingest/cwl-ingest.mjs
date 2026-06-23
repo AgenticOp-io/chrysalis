@@ -3,11 +3,11 @@
  */
 import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral, lowerHubPageWithLoadBody } from "./hub-lift-webir-route.mjs";
 import { lowerCwlHtmlTemplateBody } from "./cwl-html-template.mjs";
-import { lowerCwlUiTreeBody } from "./cwl-ui-tree.mjs";
+import { lowerCwlUiTreeBody, resolveCwlUiComponent } from "./cwl-ui-tree.mjs";
 import { parseCwlModuleResolved, resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
 import { liftCwlModuleMiddlewareToWebir } from "./hub-cwl-middleware.mjs";
 import { liftCwlAuthPresetsToWebir } from "./hub-cwl-auth-presets.mjs";
-import { cwlEffectsToWebir } from "./hub-cwl-effects.mjs";
+import { cwlEffectsToWebir, wrapCwlExecutableEffects } from "./hub-cwl-effects.mjs";
 import { cwlPathParamsForWebir } from "./hub-cwl-path-params.mjs";
 
 /**
@@ -228,11 +228,21 @@ export function liftCwlFileToWebir(opts) {
       );
     } else if (r.body.kind === "html") {
       valueId = lowerCwlHtmlTemplateBody(ctx, r.body.value, loc, wrBuilders, htmlBindings);
-    } else if (r.body.kind === "ui" && r.body.tree) {
-      valueId = lowerCwlUiTreeBody(ctx, r.body.tree, loc, htmlBindings);
+    } else if (r.body.kind === "ui") {
+      let tree = r.body.tree;
+      if (r.body.componentRef) {
+        tree = resolveCwlUiComponent(parsed.components ?? [], r.body.componentRef, r.body.props ?? []);
+        if (!tree) {
+          valueId = hubHandlerBodyHole(ctx, `cwl:unknown-component:${r.body.componentRef}`, loc);
+        }
+      }
+      if (tree) {
+        valueId = lowerCwlUiTreeBody(ctx, tree, loc, htmlBindings);
+      }
     } else {
       valueId = hubHandlerBodyHole(ctx, r.body.reason ?? "cwl:hole", loc);
     }
+    valueId = wrapCwlExecutableEffects({ data, webir, builder, file }, valueId, r.effects ?? [], loc);
     const status = r.responseStatus ?? 200;
     const contentType =
       r.responseContentType ??

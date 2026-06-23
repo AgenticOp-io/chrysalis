@@ -43,3 +43,20 @@ test("cwl ui v0 smoke (G7111)", () => {
   const gate = importGate("scripts/hub-ingest/hub-cwl-ui-v0-smoke.mjs", "runCwlUiV0Gate");
   expect(gate.ok).toBe(true);
 }, 300_000);
+
+test("cwl phase 15 close smoke (G7110)", () => {
+  const gate = importGate(
+    "scripts/hub-ingest/hub-cwl-phase15-close-smoke.mjs",
+    "runCwlPhase15CloseGate",
+  );
+  expect(gate.ok).toBe(true);
+}, 300_000);
+
+test("cwl complete language close smoke (G7150)", () => {
+  const gate = importGate(
+    "scripts/hub-ingest/hub-cwl-complete-language-close-smoke.mjs",
+    "runCwlCompleteLanguageCloseGate",
+    { runPipeline: false },
+  );
+  expect(gate.ok).toBe(true);
+}, 600_000);

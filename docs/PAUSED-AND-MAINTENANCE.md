@@ -1,7 +1,7 @@
 # Paused backlog and active build queue
 
 > **Status:** authoritative (2026-06-22)  
-> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. Strategic plan phases **0–10 closed** (**G5680–G6257**). **Phase 15 — complete language active** (**D6206**).
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. Strategic plan phases **0–10 closed** (**G5680–G6257**). **CWL complete language program closed** (**G7150**, Phases **15–18**, **D6206–D6208**).
 
 **Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
 
@@ -11,8 +11,8 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **Phase 15 — CWL complete language** (default) | [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) § Complete language program; [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12 — **Phase 15 UI v0** first (**G7110**) |
-| **IR helper maintenance** (subordinate) | §2 below; `hub:cwl-language-maintenance-smoke` (**G6731**), `hub:cwl-language-v1-close-smoke` (**G6750**) |
+| **IR helper maintenance** (default after G7150) | §2 below — **CWL language maintenance**; `hub:cwl-language-maintenance-smoke` (**G6731**), `hub:cwl-language-v1-close-smoke` (**G6750**) |
+| **CWL complete language regression** | `hub:cwl-complete-language-close-smoke` (**G7150**), phase smokes **G7110–G7140** |
 | **Phase 14 operator regression** | `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**), `wisp:operator-verify -- --require` |
 | Phase 12–13 regression | `hub:wisp-cwl-phase13-close-smoke` (**G6410**), `hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
@@ -37,7 +37,7 @@
 | Trigger | Action | Pointer |
 | --- | --- | --- |
 | Parser mapper gap | Add contested-syntax page to `fixtures/parser-parity-probe` | Multi-lane lane A |
-| IR helper B7–B38 (`empty()` / `isset()` / `count()` / `is_array()` / `is_string()` / `abs()` / `is_numeric()` / logical ! / `is_int()` / `is_bool()` / `is_null()` / unary - / `round()` / `floor()` / `ceil()` / `max()` / `min()` / `substr()` / `strtolower()` / `strtoupper()` / `htmlspecialchars()` / `nl2br()` / `urlencode()` / `rawurlencode()` / `urldecode()` / `rawurldecode()` / `ltrim()` / `rtrim()` / `is_float()` / `is_object()` / `is_scalar()` inline) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, **G6760**, **G6770**, **G6780**, **G6790**, **G6800**, **G6810**, **G6820**, **G6830**, **G6840**, **G6850**, **G6860**, **G6870**, **G6880**, **G6890**, **G6900**, **G6910**, **G6920**, **G6930**, **G6940**, **G6950**, **G6960**, **G6970**, **G6980**, **G6990**, **G7000**, **G7010**, **G7020**, **G7030**, **G7040**, **G7050**) | `docs/IR-HELPER-LIFTING.md`, `docs/CWL-LANGUAGE-PROGRAM.md` — **subordinate to Phase 15–18 (D6206)** |
+| IR helper B7–B39 (`empty()` / `isset()` / `count()` / `is_array()` / `is_string()` / `abs()` / `is_numeric()` / logical ! / `is_int()` / `is_bool()` / `is_null()` / unary - / `round()` / `floor()` / `ceil()` / `max()` / `min()` / `substr()` / `strpos()` / `strtolower()` / `strtoupper()` / `htmlspecialchars()` / `nl2br()` / `urlencode()` / `rawurlencode()` / `urldecode()` / `rawurldecode()` / `ltrim()` / `rtrim()` / `is_float()` / `is_object()` / `is_scalar()` inline) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, **G6760**, **G6770**, **G6780**, **G6790**, **G6800**, **G6810**, **G6820**, **G6830**, **G6840**, **G6850**, **G6860**, **G6870**, **G6880**, **G6890**, **G6900**, **G6910**, **G6920**, **G6930**, **G6940**, **G6950**, **G6960**, **G6970**, **G6980**, **G6990**, **G7000**, **G7010**, **G7020**, **G7030**, **G7040**, **G7050**, **G7060**) | `docs/IR-HELPER-LIFTING.md`, `docs/CWL-LANGUAGE-PROGRAM.md` — default build queue post **G7150** |
 | Widen `->query` lowering | Add tracked receiver via `mysqli-probe` | Hole economics |
 | IR helper pattern (B5 rules) | Hub-gated fixture | `docs/IR-HELPER-LIFTING.md` |
 | Package README drift | Update README | `ROADMAP.md` |

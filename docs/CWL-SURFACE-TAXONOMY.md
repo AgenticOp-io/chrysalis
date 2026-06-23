@@ -85,7 +85,7 @@ Programs close surfaces in order — no big-bang rewrite:
 | 2 | **CWL Pages** | Static/SSR HTML routes native in `runtime-cwl` |
 | 3 | **CWL Data** | Page loads replay against oracle |
 | 4 | **CWL UI** | Component holes closed or compiled islands with RFC + replay |
-| 5 | **Cutover** | Chimera sidecars removed; single CWL module deploy |
+| 5 | **Cutover** | Chimera sidecars removed; single CWL module deploy (ladder **step 5** — **cutover** / greenfield) |
 
 **WISP Phase 12 (Phase 0 closed, G6310):** step 1 contract + step 2 partial (`/docs` @page) + step 4 bridged via Svelte sidecar.
 

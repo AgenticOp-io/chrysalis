@@ -14,6 +14,9 @@ const HUB_T = { string: { kind: "string" } };
 const ELEMENT_RE = /^element\s+"([^"]+)"(.*)$/;
 const TEXT_RE = /^text\s+(.+);$/;
 const UI_RETURN_RE = /^return\s+ui\s*\{/;
+const UI_COMPONENT_RETURN_RE = /^return\s+ui\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
+const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
+const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
 
 function hubOrigin(file, line = 1) {
   return { file, line, column: 1 };
@@ -52,6 +55,10 @@ function parseElementAttrs(tail) {
  */
 export function parseCwlUiReturnBlock(lines, startIdx) {
   const openLine = lines[startIdx].trim();
+  const compUse = UI_COMPONENT_RETURN_RE.exec(openLine);
+  if (compUse) {
+    return parseCwlUiComponentUseBlock(lines, startIdx, compUse[1]);
+  }
   if (!UI_RETURN_RE.test(openLine)) {
     return { ok: false, error: "not-ui-return", consumed: startIdx + 1 };
   }
@@ -128,6 +135,128 @@ function finishUiParse(roots, consumed) {
   }
   const tree = roots.length === 1 ? roots[0] : { kind: "fragment", children: roots };
   return { ok: true, tree, consumed };
+}
+
+/**
+ * @param {string[]} lines
+ * @param {number} startIdx
+ * @param {string} componentName
+ */
+export function parseCwlUiComponentUseBlock(lines, startIdx, componentName) {
+  /** @type {Array<{ key: string, literal?: string, binding?: string }>} */
+  const props = [];
+  const openLine = lines[startIdx].trim();
+  const braceIdx = openLine.indexOf("{");
+  if (braceIdx >= 0) {
+    const inline = openLine.slice(braceIdx + 1).replace(/\};?\s*$/, "").trim();
+    if (inline) {
+      const parsed = parseCwlUiComponentPropLine(inline);
+      if (!parsed.ok) return { ok: false, error: parsed.error, consumed: startIdx + 1 };
+      props.push(...parsed.props);
+    }
+    if (/\};?\s*$/.test(openLine)) {
+      return { ok: true, componentRef: componentName, props, consumed: startIdx + 1 };
+    }
+  }
+  for (let i = startIdx + 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line || line.startsWith("#") || line.startsWith("//")) continue;
+    if (line === "};" || line === "}") {
+      return { ok: true, componentRef: componentName, props, consumed: i + 1 };
+    }
+    const parsed = parseCwlUiComponentPropLine(line.replace(/;\s*$/, ""));
+    if (!parsed.ok) return { ok: false, error: parsed.error, consumed: i + 1 };
+    props.push(...parsed.props);
+  }
+  return { ok: false, error: "unclosed-component-use", consumed: lines.length };
+}
+
+/**
+ * @param {string} line — single prop assignment or comma-separated props
+ */
+function parseCwlUiComponentPropLine(line) {
+  /** @type {Array<{ key: string, literal?: string, binding?: string }>} */
+  const props = [];
+  for (const part of line.split(",").map((s) => s.trim()).filter(Boolean)) {
+    const colon = part.indexOf(":");
+    if (colon < 0) return { ok: false, error: "invalid-component-prop", props };
+    const key = part.slice(0, colon).trim();
+    const raw = part.slice(colon + 1).replace(/;\s*$/, "").trim();
+    if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+      const literal = JSON.parse(raw.startsWith('"') ? raw : `"${raw.slice(1, -1)}"`);
+      props.push({ key, literal: String(literal) });
+      continue;
+    }
+    if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(raw)) {
+      props.push({ key, binding: raw });
+      continue;
+    }
+    return { ok: false, error: `invalid-component-prop:${key}`, props };
+  }
+  return { ok: true, props };
+}
+
+/**
+ * @param {Array<{ name: string, props: string[], tree: CwlUiNode }>} components
+ * @param {string} name
+ * @param {Array<{ key: string, literal?: string, binding?: string }>} useProps
+ */
+export function resolveCwlUiComponent(components, name, useProps) {
+  const def = components?.find((c) => c.name === name);
+  if (!def?.tree) return null;
+  /** @type {Record<string, { kind: "literal", text: string } | { kind: "binding", name: string }>} */
+  const propMap = {};
+  for (const p of useProps) {
+    if (p.literal !== undefined) propMap[p.key] = { kind: "literal", text: p.literal };
+    else if (p.binding) propMap[p.key] = { kind: "binding", name: p.binding };
+  }
+  for (const required of def.props ?? []) {
+    if (!propMap[required]) propMap[required] = { kind: "literal", text: "" };
+  }
+  return substituteUiComponentProps(def.tree, propMap, new Set(def.props ?? []));
+}
+
+/**
+ * @param {CwlUiNode} node
+ * @param {Record<string, { kind: "literal", text: string } | { kind: "binding", name: string }>} propMap
+ * @param {Set<string>} componentProps
+ */
+function substituteUiComponentProps(node, propMap, componentProps) {
+  if (node.kind === "fragment") {
+    return {
+      kind: "fragment",
+      children: node.children.map((c) => substituteUiComponentProps(c, propMap, componentProps)),
+    };
+  }
+  if (node.kind === "text") {
+    if (node.binding && componentProps.has(node.binding)) {
+      const mapped = propMap[node.binding];
+      if (!mapped) return { kind: "text", text: "", binding: null };
+      if (mapped.kind === "literal") return { kind: "text", text: mapped.text, binding: null };
+      return { kind: "text", text: null, binding: mapped.name };
+    }
+    return node;
+  }
+  if (node.kind === "element") {
+    return {
+      kind: "element",
+      tag: node.tag,
+      attrs: (node.attrs ?? []).map((a) => {
+        if (a.isBinding && componentProps.has(a.value)) {
+          const mapped = propMap[a.value];
+          if (mapped?.kind === "literal") {
+            return { key: a.key, value: mapped.text, isBinding: false };
+          }
+          if (mapped?.kind === "binding") {
+            return { key: a.key, value: mapped.name, isBinding: true };
+          }
+        }
+        return a;
+      }),
+      children: (node.children ?? []).map((c) => substituteUiComponentProps(c, propMap, componentProps)),
+    };
+  }
+  return node;
 }
 
 /**

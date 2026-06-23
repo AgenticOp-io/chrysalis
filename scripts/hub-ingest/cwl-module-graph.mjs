@@ -24,6 +24,10 @@ function mergeCwlModuleFragment(target, fragment) {
   for (const auth of fragment.moduleAuthUses ?? []) {
     if (!target.moduleAuthUses.includes(auth)) target.moduleAuthUses.push(auth);
   }
+  target.components = target.components ?? [];
+  for (const comp of fragment.components ?? []) {
+    if (!target.components.some((c) => c.name === comp.name)) target.components.push(comp);
+  }
   target.routes.push(...(fragment.routes ?? []));
 }
 

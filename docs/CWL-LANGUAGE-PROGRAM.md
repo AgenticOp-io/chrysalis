@@ -1,6 +1,6 @@
 # CWL language program
 
-> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language program active** (2026-06-22, **D6206**, Phase **15–18**, close **G7150**)  
+> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language closed** (2026-06-22, **G7150**); **IR helper v1.1 active** (**G7060** B39)  
 > **Authority:** `docs/CWL-SURFACE-TAXONOMY.md` (**D6193**); `docs/CWL.md`; `docs/CWL-RFC.md`; `docs/STRATEGIC-PLAN.md` §7
 
 Chrysalis Web Language (CWL) is the **consolidated web language** for routes, pages, data loaders, effects metadata, and (future) UI composition — all lowering through **WebIR** to emit targets and oracle verify.
@@ -28,11 +28,11 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 
 | Phase | Surface / win | Status | Close gate |
 | --- | --- | --- | --- |
-| **15** | **CWL UI v0** — component syntax beyond RFC-0012 holes; WebIR + emit + replay | **Active** | **G7110** |
-| **16** | **CWL Data complete** — RFC-0013 load shapes; no `hub-*:load-function` on charter | Queued | **G7120** |
-| **17** | **CWL Effects executable** — RFC-0007 parity, not metadata-only | Queued | **G7130** |
-| **18** | **Cutover / greenfield** — ladder step 5; chimera-out for app logic | Queued | **G7140** |
-| **Program** | All surfaces + **hole budget zero** on flagship CWL-native routes | — | **G7150** |
+| **15** | **CWL UI v0** — component syntax beyond RFC-0012 holes; WebIR + emit + replay | **Closed G7110** | **G7110** |
+| **16** | **CWL Data complete** — RFC-0013 load shapes; no `hub-*:load-function` on charter | **Closed G7120** | **G7120** |
+| **17** | **CWL Effects executable** — RFC-0007 parity, not metadata-only | **Closed G7130** | **G7130** |
+| **18** | **Cutover / greenfield** — ladder step 5; chimera-out for app logic | **Closed G7140** | **G7140** |
+| **Program** | All surfaces + **hole budget zero** on flagship CWL-native routes | **Closed G7150** | **G7150** |
 
 **Entry G7100:** this section + [`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md) + [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12 aligned (doc gate; implementation follows RFC + hub smokes).
 
@@ -93,25 +93,26 @@ Per **DESIGN §3** and **D6205**:
 | G7030 | B36 `max(, literal)` formal + literal | `runIrHelperLiftingB36MaxInlineGate` |
 | G7040 | B37 `min(, literal)` formal + literal | `runIrHelperLiftingB37MinInlineGate` |
 | G7050 | B38 `substr(, literal)` formal + literal | `runIrHelperLiftingB38SubstrInlineGate` |
+| G7060 | B39 `strpos(, literal)` formal + literal | `runIrHelperLiftingB39StrposInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 | **G7100** | Complete language program entry | Doc gate — § Complete language program |
 | **G7101** | Phase 15 program entry | `pnpm run hub:cwl-phase15-entry-smoke` |
-| **G7110** | Phase 15 CWL UI v0 close | *(WISP login + components — queued)* |
+| **G7110** | Phase 15 CWL UI v0 close | `pnpm run hub:cwl-phase15-close-smoke` |
 | **G7111** | CWL UI v0 server tree | `pnpm run hub:cwl-ui-v0-smoke` |
-| **G7120** | Phase 16 CWL Data complete close | *(smoke TBD)* |
-| **G7130** | Phase 17 CWL Effects executable close | *(smoke TBD)* |
-| **G7140** | Phase 18 cutover / greenfield close | *(smoke TBD)* |
-| **G7150** | **CWL complete language close** | *(smoke TBD)* |
+| **G7120** | Phase 16 CWL Data complete close | `pnpm run hub:cwl-data-complete-smoke` |
+| **G7130** | Phase 17 CWL Effects executable close | `pnpm run hub:cwl-effects-executable-smoke` |
+| **G7140** | Phase 18 cutover / greenfield close | `pnpm run hub:cwl-cutover-smoke` |
+| **G7150** | **CWL complete language close** | `pnpm run hub:cwl-complete-language-close-smoke` |
 
 ## Language v1.1 — subordinate maintenance (G6760–G7050)
 
 Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). **Subordinate** to Phase 15–18 (**D6206**); extends ingest/emit helper lifting only.
 
-Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7050** B38).
+Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7060** B39).
 
 ## Default queue
 
-**Active build:** Phase **15 → 16 → 17 → 18**; program close **G7150** — see § Complete language program and [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
+**Active build:** **IR helper B39 `strpos()`** (**G7060**); regression **`hub:cwl-complete-language-close-smoke`** (**G7150**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
 
 **Subordinate:** IR helper maintenance — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
 

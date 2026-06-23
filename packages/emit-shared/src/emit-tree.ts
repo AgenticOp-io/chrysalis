@@ -624,6 +624,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return args.length === 3
         ? `substr(${args[0]}, ${args[1]}, ${args[2]})`
         : `substr(${args[0]}, ${args[1]})`;
+    case "strpos":
+      return `String(${args[0]}).indexOf(${args[1]})`;
     case "intval":
       return `intval(${args[0]})`;
     case "strlen":

@@ -33,3 +33,61 @@ export function cwlEffectsToWebir(declared) {
   }
   return out;
 }
+
+const HUB_T = { string: { kind: "string" }, bool: { kind: "bool" }, unknown: { kind: "unknown" } };
+
+function hubOrigin(file, line = 1) {
+  return { file, line, column: 1 };
+}
+
+/**
+ * Lower declared CWL effects to executable effect-dialect nodes (Phase 17).
+ * @param {object} ctx — { data, webir, builder, file }
+ * @param {import('@chrysalis/webir').NodeId} bodyId
+ * @param {string[]} declared
+ * @param {{ file: string, line?: number }} loc
+ */
+export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
+  if (!declared?.length) return bodyId;
+  const { data, webir, builder } = ctx;
+  const effect = webir.effectDialect.builders(builder);
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  /** @type {import('@chrysalis/webir').NodeId[]} */
+  const statements = [];
+  for (const raw of declared) {
+    const t = raw.trim().toLowerCase();
+    if (t === "session.read") {
+      statements.push(
+        effect.sessionRead({
+          key: "user_id",
+          type: HUB_T.string,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-session-read")],
+        }),
+      );
+    } else if (t === "session.write") {
+      const touch = data.literal({
+        value: true,
+        type: HUB_T.bool,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "cwl:executable-session-write")],
+      });
+      statements.push(
+        effect.sessionWrite({
+          key: "_cwl_session_touch",
+          value: touch,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-session-write")],
+        }),
+      );
+    }
+  }
+  if (statements.length === 0) return bodyId;
+  statements.push(bodyId);
+  return data.block({
+    statements,
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "cwl:executable-effects-block")],
+  });
+}

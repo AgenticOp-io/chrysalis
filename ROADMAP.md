@@ -6,35 +6,42 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Phase 15 — CWL complete language** (**D6206**, **G7100** entry, **G7150** program close).
-- **Subordinate:** **CWL language v1.1** IR helper maintenance (**G6731**, B9–B38 **G6760–G7050**).
+- **Active lane:** **IR helper maintenance** — **B39 `strpos()`** (**G7060**); complete language **G7150 closed**.
+- **Subordinate:** CWL complete language regression (**G7110–G7150** smokes).
 - **Closed:** **CWL language v1** (**G6750**); **Phase 14** (**G6690**); **Phase 13** (**G6410**); **Phase 12 WISP Phase 0** (**G6310**).
-- **Recently shipped:** Plan amendment **D6206**; Phase 15 entry **G7101**; CWL UI v0 **G7111** (`return ui`, `data.ui.tree`).
+- **Recently shipped:** **B39 `strpos(, literal)`** (**G7060**); Phases **15–18** + **G7150**; `@component` (**RFC-0018**); executable effects lowering.
 
 ---
 
-## Active — Phase 15 CWL complete language (G7100–G7150)
+## Active — IR helper B39 (G7060)
+
+Default build queue post **G7150**. Program doc: [`docs/IR-HELPER-LIFTING.md`](./docs/IR-HELPER-LIFTING.md)
+
+| Gate | Smoke |
+| --- | --- |
+| **G7060** B39 `strpos(, literal)` | `runIrHelperLiftingB39StrposInlineGate` (via **G6731**) |
+| **G6731** maintenance composite | `pnpm run hub:cwl-language-maintenance-smoke` |
+
+**Regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
+
+---
+
+## Closed — Phase 15–18 CWL complete language (G7110–G7150)
 
 Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Complete language program  
-Authority: **DESIGN D6206**; [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md) §7
+Authority: **DESIGN D6206–D6208**; [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md) §7
 
-| Phase | Gate | Target |
+| Phase | Gate | Smoke |
 | --- | --- | --- |
-| **15** UI v0 | **G7110** | Native CWL component syntax + verify (extends RFC-0012) |
-| **16** Data complete | **G7120** | RFC-0013 load shapes; retire load holes on charter |
-| **17** Effects executable | **G7130** | RFC-0007 runtime parity |
-| **18** Cutover / greenfield | **G7140** | Ladder step 5 — chimera-out for app logic |
-| **Program close** | **G7150** | All five surfaces; hole budget zero on flagship |
+| **15** UI v0 | **G7110** | `pnpm run hub:cwl-phase15-close-smoke` |
+| **16** Data | **G7120** | `pnpm run hub:cwl-data-complete-smoke` |
+| **17** Effects | **G7130** | `pnpm run hub:cwl-effects-executable-smoke` |
+| **18** Cutover | **G7140** | `pnpm run hub:cwl-cutover-smoke` |
+| **Program** | **G7150** | `pnpm run hub:cwl-complete-language-close-smoke` |
 
-**Default when user says "build":** Phase **15** first (RFC → WebIR → gates → WISP proof).
-
-**Shipped (Phase 15 slice):** RFC-0017 native UI v0 — `return ui { element … }` → `data.ui.tree`; smokes **G7101**, **G7111** (`pnpm run hub:cwl-ui-v0-smoke`).
-
-**Close target G7110:** WISP `/login` native UI + component reuse (queued).
+**Shipped:** RFC-0017 `return ui` + RFC-0018 `@component`; executable `session.read`/`session.write` lowering; WISP `/login` bridge policy ([`docs/CWL-UI-LOGIN-BRIDGE.md`](./docs/CWL-UI-LOGIN-BRIDGE.md)).
 
 **Subordinate maintenance:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**)
-
-**Regression:** `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), Phase 14 operator smokes (**G6690** / **G6590**)
 
 ---
 
@@ -171,6 +178,7 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G7030 B36 `max(, literal)` | `runIrHelperLiftingB36MaxInlineGate` |
 | G7040 B37 `min(, literal)` | `runIrHelperLiftingB37MinInlineGate` |
 | G7050 B38 `substr(, literal)` | `runIrHelperLiftingB38SubstrInlineGate` |
+| G7060 B39 `strpos(, literal)` | `runIrHelperLiftingB39StrposInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
 ## Active — CWL language v1.1 (G6760–G7050)
@@ -209,14 +217,15 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G7030** B36 `max(, literal)` | `runIrHelperLiftingB36MaxInlineGate` (via **G6731**) |
 | **G7040** B37 `min(, literal)` | `runIrHelperLiftingB37MinInlineGate` (via **G6731**) |
 | **G7050** B38 `substr(, literal)` | `runIrHelperLiftingB38SubstrInlineGate` (via **G6731**) |
+| **G7060** B39 `strpos(, literal)` | `runIrHelperLiftingB39StrposInlineGate` (via **G6731**) |
 
 ---
 
-## Default queue — CWL language v1.1 (subordinate)
+## Default queue — IR helper v1.1 (post G7150)
 
-**Phase 15 active (D6206).** IR helper depth **B9–B38** (**G6760–G7050**) continues via **G6731** — subordinate to complete-language phases. See [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §2.
+**Active:** **B39 `strpos()`** (**G7060**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
-**CWL language:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760**), `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**)
+**CWL language regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
 
 **Verify:** `pnpm run hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `pnpm run hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:maintenance-mode-governance-smoke`
 

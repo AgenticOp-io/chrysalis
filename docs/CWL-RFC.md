@@ -21,6 +21,7 @@ CWL evolves by **RFC**: each proposal must cite cross-language evidence (path kn
 | [0015](CWL-RFC-0015-production-readiness-probes.md) | Production readiness probes | accepted |
 | [0016](CWL-RFC-0016-form-action-probe.md) | Form action probe + hole catalog | accepted |
 | [0017](CWL-RFC-0017-native-ui-v0.md) | Native UI v0 (`return ui`, `data.ui.tree`) | accepted |
+| [0018](CWL-RFC-0018-native-ui-components.md) | Native UI components (`@component`) | accepted |
 
 **Process**
 

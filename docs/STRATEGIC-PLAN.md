@@ -195,35 +195,34 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 **Strategic plan phases 0–10:** all reinforcement queues **closed** (**G5680–G6257**).
 
-**Default build queue:** **Phase 15 — CWL complete language** per [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) § Complete language program (**D6206**). **Phase 14 closed** (**G6690**). **Language v1 closed** (**G6750**). **Phase 13 CWL surfaces closed** (**G6410**). **Phase 12 Phase 0 closed** (**G6310**).
+**Default build queue:** **IR helper maintenance** (subordinate, **G6731**) after **CWL complete language closed** (**G7150**, Phases **15–18**, **D6208**). Regression: `hub:cwl-complete-language-close-smoke`. **Phase 14 closed** (**G6690**). **Language v1 closed** (**G6750**). **Phase 13 CWL surfaces closed** (**G6410**). **Phase 12 Phase 0 closed** (**G6310**).
 
-### Phase 15 — CWL UI v0 (**active**)
+### Phase 15 — CWL UI v0 (**closed G7110**)
 
-- **Authority:** **DESIGN D6206** — [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md); extends RFC-0012 (holes today) with **native component syntax**, WebIR, emit, oracle/replay
-- **Entry G7100:** program doc + taxonomy alignment (no implementation without RFC + gates)
-- **Close G7110:** simple pages/islands native in CWL; WISP `/login` bridge policy documented; no silent Svelte/React lowering
-- **Showcase:** WISP Module_Manager — prove UI surface, do not let WISP define syntax (**D6205**)
-- **Refuse:** hydration/stores/client routing without RFC + replay; matrix gold while component holes remain
+- **Authority:** **DESIGN D6207–D6208** — RFC-0017 + RFC-0018 (`@component`); [`CWL-UI-LOGIN-BRIDGE.md`](./CWL-UI-LOGIN-BRIDGE.md) for WISP `/login`
+- **Close G7110:** `pnpm run hub:cwl-phase15-close-smoke`
+- **Smoke G7111:** `pnpm run hub:cwl-ui-v0-smoke`
 
-### Phase 16 — CWL Data complete (**queued**)
+### Phase 16 — CWL Data complete (**closed G7120**)
 
-- **Authority:** RFC-0013 completion — all supported `load { }` shapes lower + verify; retire `hub-*:load-function` on chartered apps
-- **Close G7120:** load replay gates on flagship + WISP representative modules
+- **Authority:** RFC-0013 — native `load { }` on flagship + WISP charter
+- **Close G7120:** `pnpm run hub:cwl-data-complete-smoke`
 
-### Phase 17 — CWL Effects executable (**queued**)
+### Phase 17 — CWL Effects executable (**closed G7130**)
 
-- **Authority:** RFC-0007 depth — session/auth/body effects **executable** with verify parity, not metadata-only
-- **Close G7130:** effects replay on protected routes; no stub-only auth claims
+- **Authority:** RFC-0007 — `wrapCwlExecutableEffects` lowers `session.read` / `session.write` to effect-dialect nodes
+- **Close G7130:** `pnpm run hub:cwl-effects-executable-smoke`
 
-### Phase 18 — Cutover and greenfield (**queued**)
+### Phase 18 — Cutover and greenfield (**closed G7140**)
 
-- **Authority:** [`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md) ladder step 5 — deploy CWL module without chimera sidecars for app logic
-- **Close G7140:** greenfield authoring path + operator cutover evidence on WISP or flagship
+- **Authority:** [`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md) ladder **step 5** — single firebase login hole on WISP
+- **Close G7140:** `pnpm run hub:cwl-cutover-smoke`
 
-### CWL complete language close (**G7150**)
+### CWL complete language close (**closed G7150**)
 
-- **Win:** all five surfaces native on chartered flagship; **hole budget zero** on claimed CWL-native routes; verify + contract signed
-- **Regression:** Phase 13–14 smokes remain green; **G6731** maintenance stays for ingest depth
+- **Win:** Phases **15–18** + **G6731** maintenance composite green
+- **Smoke:** `pnpm run hub:cwl-complete-language-close-smoke`
+- **Regression:** Phase 13–14 smokes remain green
 
 ---
 
@@ -316,23 +315,22 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (Phase 15 — complete language)
+## 12. Default queue (post G7150 — maintenance + regression)
 
-**Status:** **Phase 15 active** (**D6206**, **G7100** entry); **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 Phase 0 closed** (**G6310**).
+**Status:** **CWL complete language closed** (**G7150**, **D6208**); Phases **15–18 closed** (**G7110–G7140**); **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 Phase 0 closed** (**G6310**).
 
 When the user says "build" without specifying:
 
-1. **Phase 15 — CWL UI v0** — [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) § Complete language program; **G7110** close target
-2. **Phase 16–18** — Data → Effects → cutover (after prior phase close gates)
-3. **IR helper maintenance (subordinate)** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `hub:cwl-language-maintenance-smoke` (**G6731**), `hub:cwl-language-v1-close-smoke` (**G6750**)
-4. **Phase 14 operator regression** — `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**)
-5. **Phase 13 regression** — `hub:wisp-cwl-phase13-close-smoke` (**G6410**)
+1. **IR helper maintenance (default)** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `hub:cwl-language-maintenance-smoke` (**G6731**)
+2. **CWL complete language regression** — `hub:cwl-complete-language-close-smoke` (**G7150**), phase smokes **G7110–G7140**
+3. **Phase 14 operator regression** — `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**)
+4. **Phase 13 regression** — `hub:wisp-cwl-phase13-close-smoke` (**G6410**)
 
-**Close before build:** Do not add GenieACS/ACS to CWL RFC or verify gates — **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**). Do not treat IR helper B-tier expansion as substitute for Phase 15 UI work.
+**Close before build:** Do not add GenieACS/ACS to CWL RFC or verify gates — **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
 
-**Program close:** **G7150** — all five CWL surfaces native + hole budget zero on chartered flagship (see [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md)).
+**Program close (shipped):** **G7150** — `pnpm run hub:cwl-complete-language-close-smoke`.
 
-Closed programs: Phase 10, Phase 11, Phase 14 operator, language v1 (**G6750**).
+Closed programs: Phase 10, Phase 11, Phase 14 operator, language v1 (**G6750**), **CWL complete language Phases 15–18** (**G7150**).
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 

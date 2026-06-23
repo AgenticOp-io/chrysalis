@@ -57,8 +57,12 @@ export async function runCwlUiV0Gate(opts = {}) {
   const src = await readFile(cwlPath, "utf8");
   const parsed = parseCwlModule(src, "routes.cwl");
   const uiPages = parsed.routes.filter((r) => r.surfaceKind === "page" && r.body.kind === "ui");
-  if (uiPages.length < 2) {
+  if (uiPages.length < 3) {
     return { ok: false, skip: "expected-ui-page-routes", uiPageCount: uiPages.length, rfc };
+  }
+  const components = parsed.components ?? [];
+  if (components.length < 1) {
+    return { ok: false, skip: "expected-component-def", componentCount: components.length, rfc };
   }
 
   let cwlProjection;

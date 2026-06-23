@@ -5,6 +5,9 @@
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
 import { parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
 
+const COMPONENT_DECL_RE = /^@component\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/;
+const PROP_RE = /^prop\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;$/;
+
 const ROUTE_RE = /^@route\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
 const PAGE_RE = /^@page\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
 const PAGE_BLOCK_RE = /^page\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
@@ -214,6 +217,8 @@ export function parseCwlModule(source, file) {
   const moduleAuthUses = [];
   /** @type {string[]} */
   const imports = [];
+  /** @type {Array<{ name: string, props: string[], tree: object, line: number }>} */
+  const components = [];
   /** @type {Array<{ method: string, path: string, pathParams: string[], name: string, line: number, effects: string[], handlerPathParams: string[], handlerQueryParams: string[], handlerHeaders: string[], handlerCookies: string[], handlerBodyParams: string[], responseStatus: number | null, body: object }>} */
   const routes = [];
   let i = 0;
@@ -242,6 +247,38 @@ export function parseCwlModule(source, file) {
     const impM = IMPORT_RE.exec(line);
     if (impM) {
       imports.push(impM[1]);
+      continue;
+    }
+    const compDecl = COMPONENT_DECL_RE.exec(line);
+    if (compDecl) {
+      const compName = compDecl[1];
+      /** @type {string[]} */
+      const compProps = [];
+      /** @type {object | null} */
+      let compTree = null;
+      while (i < lines.length) {
+        const inner = lines[i].trim();
+        i += 1;
+        if (inner === "}") break;
+        if (!inner || inner.startsWith("#") || inner.startsWith("//")) continue;
+        const pr = PROP_RE.exec(inner);
+        if (pr) {
+          if (!compProps.includes(pr[1])) compProps.push(pr[1]);
+          continue;
+        }
+        if (/^return\s+ui\s/.test(inner)) {
+          const uiParsed = parseCwlUiReturnBlock(lines, i - 1);
+          if (uiParsed.ok && uiParsed.tree) {
+            compTree = uiParsed.tree;
+            i = uiParsed.consumed;
+          } else {
+            compTree = { kind: "hole", reason: `cwl:${uiParsed.error ?? "invalid-component-ui"}` };
+          }
+          continue;
+        }
+        compTree = { kind: "hole", reason: "cwl:unknown-component-statement" };
+      }
+      if (compTree) components.push({ name: compName, props: compProps, tree: compTree, line: lineNo });
       continue;
     }
     /** @type {"api"|"page"} */
@@ -340,10 +377,14 @@ export function parseCwlModule(source, file) {
         }
         continue;
       }
-      if (UI_RETURN_RE.test(inner)) {
+      if (UI_RETURN_RE.test(inner) || /^return\s+ui\s+[A-Za-z]/.test(inner)) {
         const uiParsed = parseCwlUiReturnBlock(lines, i - 1);
         if (uiParsed.ok) {
-          body = { kind: "ui", tree: uiParsed.tree };
+          if (uiParsed.componentRef) {
+            body = { kind: "ui", componentRef: uiParsed.componentRef, props: uiParsed.props ?? [] };
+          } else {
+            body = { kind: "ui", tree: uiParsed.tree };
+          }
           if (!responseContentType) responseContentType = "text/html; charset=utf-8";
           i = uiParsed.consumed;
         } else {
@@ -416,5 +457,5 @@ export function parseCwlModule(source, file) {
       body,
     });
   }
-  return { moduleName, file, routes, moduleUses, moduleAuthUses, imports };
+  return { moduleName, file, routes, moduleUses, moduleAuthUses, imports, components };
 }

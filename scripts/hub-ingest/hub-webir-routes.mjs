@@ -215,6 +215,9 @@ export function walkCwlHandlerBody(get, bodyId) {
       if (Number.isFinite(s)) status = s;
       return;
     }
+    if (n.dialect === "effect" && (n.op === "session.read" || n.op === "session.write")) {
+      return;
+    }
     if (n.dialect === "effect" && n.op === "echo") {
       const ops = n.operands ?? [];
       if (ops.length === 0) return;

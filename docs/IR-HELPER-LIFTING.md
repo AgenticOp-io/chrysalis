@@ -141,6 +141,8 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B38 v0 (G7050):** `substr(, literal)` formal + literal inlining — fixture route **`/bet`**. Gate: `runIrHelperLiftingB38SubstrInlineGate`.
 
+**B39 v0 (G7060):** `strpos(, literal)` formal + literal inlining — fixture route **`/gimel`**. Gate: `runIrHelperLiftingB39StrposInlineGate`.
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 
