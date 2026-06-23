@@ -125,6 +125,8 @@
     "hub:cwl-response-status-smoke": "node scripts/hub-ingest/hub-cwl-response-status-smoke.mjs",
     "hub:cwl-request-body-smoke": "node scripts/hub-ingest/hub-cwl-request-body-smoke.mjs",
     "hub:cwl-fullstack-smoke": "node scripts/hub-ingest/hub-cwl-fullstack-smoke.mjs",
+    "hub:cwl-phase15-entry-smoke": "node scripts/hub-ingest/hub-cwl-phase15-entry-smoke.mjs",
+    "hub:cwl-ui-v0-smoke": "node scripts/hub-ingest/hub-cwl-ui-v0-smoke.mjs",
     "hub:cwl-fullstack-roundtrip-smoke": "node scripts/hub-ingest/hub-cwl-fullstack-roundtrip-smoke.mjs",
     "hub:cwl-layout-smoke": "node scripts/hub-ingest/hub-cwl-layout-smoke.mjs",
     "hub:sveltekit-smoke": "node scripts/hub-ingest/hub-sveltekit-smoke.mjs",

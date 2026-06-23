@@ -3,11 +3,13 @@
  * @see docs/CWL.md
  */
 import { extractPathParamsFromCwlPath } from "./hub-cwl-path-params.mjs";
+import { parseCwlUiReturnBlock } from "./cwl-ui-tree.mjs";
 
 const ROUTE_RE = /^@route\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
 const PAGE_RE = /^@page\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+"([^"]+)"/i;
 const PAGE_BLOCK_RE = /^page\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/;
 const HTML_RETURN_RE = /^return\s+html\s+(.+);$/i;
+const UI_RETURN_RE = /^return\s+ui\s*\{/;
 const LOAD_RE = /^load\s+(.+);$/i;
 const MODULE_RE = /^module\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;/;
 const IMPORT_RE = /^import\s+"([^"]+)"\s*;/;
@@ -335,6 +337,17 @@ export function parseCwlModule(source, file) {
           if (!responseContentType) responseContentType = "text/html; charset=utf-8";
         } else {
           body = { kind: "hole", reason: "cwl:invalid-html-return" };
+        }
+        continue;
+      }
+      if (UI_RETURN_RE.test(inner)) {
+        const uiParsed = parseCwlUiReturnBlock(lines, i - 1);
+        if (uiParsed.ok) {
+          body = { kind: "ui", tree: uiParsed.tree };
+          if (!responseContentType) responseContentType = "text/html; charset=utf-8";
+          i = uiParsed.consumed;
+        } else {
+          body = { kind: "hole", reason: `cwl:${uiParsed.error ?? "invalid-ui-return"}` };
         }
         continue;
       }

@@ -9,7 +9,7 @@
 - **Active lane:** **Phase 15 — CWL complete language** (**D6206**, **G7100** entry, **G7150** program close).
 - **Subordinate:** **CWL language v1.1** IR helper maintenance (**G6731**, B9–B38 **G6760–G7050**).
 - **Closed:** **CWL language v1** (**G6750**); **Phase 14** (**G6690**); **Phase 13** (**G6410**); **Phase 12 WISP Phase 0** (**G6310**).
-- **Recently shipped:** B38 `substr(, literal)` (**G7050**); plan amendment **D6206** (2026-06-22).
+- **Recently shipped:** Plan amendment **D6206**; Phase 15 entry **G7101**; CWL UI v0 **G7111** (`return ui`, `data.ui.tree`).
 
 ---
 
@@ -27,6 +27,10 @@ Authority: **DESIGN D6206**; [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC-PLAN.md
 | **Program close** | **G7150** | All five surfaces; hole budget zero on flagship |
 
 **Default when user says "build":** Phase **15** first (RFC → WebIR → gates → WISP proof).
+
+**Shipped (Phase 15 slice):** RFC-0017 native UI v0 — `return ui { element … }` → `data.ui.tree`; smokes **G7101**, **G7111** (`pnpm run hub:cwl-ui-v0-smoke`).
+
+**Close target G7110:** WISP `/login` native UI + component reuse (queued).
 
 **Subordinate maintenance:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**)
 

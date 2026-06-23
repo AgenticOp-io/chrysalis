@@ -64,7 +64,7 @@ function nodeMatchesDivergenceKind(n: NodeBase, kind: DivergenceKind): boolean {
       );
     }
     if (n.dialect === "data") {
-      if (n.op === "html.template" || n.op === "concat") return true;
+      if (n.op === "html.template" || n.op === "ui.tree" || n.op === "concat") return true;
       if (n.op === "call") {
         const c = String((n.attrs as { callee?: string }).callee ?? "");
         return (

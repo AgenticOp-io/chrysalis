@@ -72,6 +72,13 @@ export interface Builders {
     origin: Locator;
     provenance?: ReadonlyArray<Provenance>;
   }): NodeId;
+  uiTree(opts: {
+    /** Serialised element/text tree (RFC-0017). Dynamic slots reference `operands`. */
+    nodes: unknown;
+    operands?: ReadonlyArray<NodeId>;
+    origin: Locator;
+    provenance?: ReadonlyArray<Provenance>;
+  }): NodeId;
   block(opts: {
     statements: ReadonlyArray<NodeId>;
     type?: WebIRType;
@@ -229,6 +236,18 @@ export function builders(m: ModuleBuilder): Builders {
         attrs: { parts: serialisable },
         origin,
         provenance: prov ?? [provenance("php-ast", origin, "html template")],
+      });
+    },
+    uiTree({ nodes, operands = [], origin, provenance: prov }) {
+      return m.node({
+        dialect: DIALECT,
+        op: "ui.tree",
+        type: { kind: "string" },
+        effects: [],
+        operands,
+        attrs: { nodes },
+        origin,
+        provenance: prov ?? [provenance("hub-ingest", origin, "cwl ui tree")],
       });
     },
     block({ statements, type, origin, provenance: prov }) {

@@ -480,6 +480,50 @@ export function escapeHtml(v: unknown): string {
     .replace(/'/g, "&#39;");
 }
 
+export function renderCwlUiTree(nodes: unknown, values: unknown[]): string {
+  function render(node: unknown): string {
+    if (!node || typeof node !== "object") return "";
+    const rec = node as Record<string, unknown>;
+    if (rec.kind === "text") {
+      if (typeof rec.text === "string") {
+        return rec.escape === false ? rec.text : escapeHtml(rec.text);
+      }
+      const idx = rec.operandIndex;
+      if (typeof idx === "number") {
+        const s = String(values[idx] ?? "");
+        return rec.escape === false ? s : escapeHtml(s);
+      }
+      return "";
+    }
+    if (rec.kind === "fragment" && Array.isArray(rec.children)) {
+      return rec.children.map((c) => render(c)).join("");
+    }
+    if (rec.kind === "element" && typeof rec.tag === "string") {
+      const tag = rec.tag;
+      const attrs = rec.attrs && typeof rec.attrs === "object" ? (rec.attrs as Record<string, unknown>) : {};
+      let attrStr = "";
+      for (const [key, val] of Object.entries(attrs)) {
+        if (typeof val === "string") {
+          attrStr += " " + key + "=\\"" + escapeHtml(val) + "\\"";
+        } else if (val && typeof val === "object" && "operandIndex" in val) {
+          attrStr +=
+            " " +
+            key +
+            "=\\"" +
+            escapeHtml(String(values[(val as { operandIndex: number }).operandIndex] ?? "")) +
+            "\\"";
+        }
+      }
+      const children = Array.isArray(rec.children)
+        ? rec.children.map((c) => render(c)).join("")
+        : "";
+      return "<" + tag + attrStr + ">" + children + "</" + tag + ">";
+    }
+    return "";
+  }
+  return render(nodes);
+}
+
 export function nl2br(v: unknown): string {
   return String(v ?? "").replace(/\\r?\\n/g, "<br />");
 }
@@ -493,7 +537,7 @@ export function rawurlencode(v: unknown): string {
 }
 
 export function urldecode(v: unknown): string {
-  return decodeURIComponent(String(v ?? "").replace(/\+/g, " "));
+  return decodeURIComponent(String(v ?? "").replace(/\\+/g, " "));
 }
 
 export function rawurldecode(v: unknown): string {
@@ -501,11 +545,11 @@ export function rawurldecode(v: unknown): string {
 }
 
 export function ltrim(v: unknown): string {
-  return String(v ?? "").replace(/^\s+/, "");
+  return String(v ?? "").replace(/^\\s+/, "");
 }
 
 export function rtrim(v: unknown): string {
-  return String(v ?? "").replace(/\s+$/, "");
+  return String(v ?? "").replace(/\\s+$/, "");
 }
 
 export function currentUser(req: FastifyRequest): { id: number; username: string } | null {

@@ -35,6 +35,7 @@ export function aggregateEmittedHandlerImports(
 export function runtimeExportNamesForAgg(agg: AggregatedHandlerImportNeeds): string[] {
   const lines: string[] = [
     "escapeHtml",
+    "renderCwlUiTree",
     "nl2br",
     "urlencode",
     "rawurlencode",
@@ -144,6 +145,7 @@ export function honoBarrelValueImportClause(emitted: EmittedHandler): string {
   const runtimeWpCall = emitted.usesWpCall ? "  wpCall,\n" : "";
   return `getCookie, ${ctxPart}${dbImportNames}, getSession, 
   escapeHtml,
+  renderCwlUiTree,
   nl2br,
   currentUser,
   requireLogin,
@@ -197,6 +199,7 @@ export function fastifyBarrelValueImportClause(emitted: EmittedHandler): string 
   const runtimeWpCall = emitted.usesWpCall ? "  wpCall,\n" : "";
   return `${ctxPart}${dbImportNames}, getSession, 
   escapeHtml,
+  renderCwlUiTree,
   nl2br,
   currentUser,
   requireLogin,

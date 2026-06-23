@@ -299,6 +299,25 @@ export function emitExpr(ctx: EmitCtx, id: NodeId): string {
   return `null /* unknown dialect ${n.dialect} */`;
 }
 
+function emitHtmlTemplateExpr(ctx: EmitCtx, n: NodeBase): string {
+  const parts = (n.attrs as {
+    parts?: ReadonlyArray<
+      { kind: "literal"; text: string } | { kind: "expr"; idx?: number; operandIndex?: number; escape: boolean }
+    >;
+  }).parts ?? [];
+  const chunks: string[] = [];
+  for (const p of parts) {
+    if (p.kind === "literal") {
+      chunks.push(stringLit(p.text));
+      continue;
+    }
+    const idx = p.idx ?? p.operandIndex ?? 0;
+    const expr = emitExpr(ctx, n.operands[idx]!);
+    chunks.push(p.escape ? `escapeHtml(${expr})` : `String(${expr})`);
+  }
+  return chunks.length > 0 ? `(${chunks.join(" + ")})` : '""';
+}
+
 function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
   const p = ctx.profile;
   switch (n.op) {
@@ -408,7 +427,11 @@ function emitDataExpr(ctx: EmitCtx, n: NodeBase): string {
       return `(${parts.join(" + ") || '""'})`;
     }
     case "html.template": {
-      return stringLit("<!-- html template -->");
+      return emitHtmlTemplateExpr(ctx, n);
+    }
+    case "ui.tree": {
+      const ops = n.operands.map((o) => emitExpr(ctx, o));
+      return `renderCwlUiTree(${JSON.stringify(n.attrs.nodes)}, [${ops.join(", ")}])`;
     }
     case "hole": {
       const reason = String(n.attrs.reason);
@@ -857,6 +880,7 @@ function emitDataStmt(ctx: EmitCtx, n: NodeBase): string {
     case "member":
     case "concat":
     case "html.template":
+    case "ui.tree":
     case "request.field":
       return `${emitExpr(ctx, n.id)};`;
     case "hole":

@@ -95,7 +95,9 @@ Per **DESIGN §3** and **D6205**:
 | G7050 | B38 `substr(, literal)` formal + literal | `runIrHelperLiftingB38SubstrInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 | **G7100** | Complete language program entry | Doc gate — § Complete language program |
-| **G7110** | Phase 15 CWL UI v0 close | *(smoke TBD — RFC + verify first)* |
+| **G7101** | Phase 15 program entry | `pnpm run hub:cwl-phase15-entry-smoke` |
+| **G7110** | Phase 15 CWL UI v0 close | *(WISP login + components — queued)* |
+| **G7111** | CWL UI v0 server tree | `pnpm run hub:cwl-ui-v0-smoke` |
 | **G7120** | Phase 16 CWL Data complete close | *(smoke TBD)* |
 | **G7130** | Phase 17 CWL Effects executable close | *(smoke TBD)* |
 | **G7140** | Phase 18 cutover / greenfield close | *(smoke TBD)* |

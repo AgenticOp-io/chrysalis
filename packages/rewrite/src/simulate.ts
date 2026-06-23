@@ -337,6 +337,8 @@ function evalNode(ctx: SimCtx, n: NodeBase): SimValue {
       return evalConcat(ctx, n);
     case "data.html.template":
       return evalHtmlTemplate(ctx, n);
+    case "data.ui.tree":
+      return evalUiTree(ctx, n);
     case "data.block":
       return evalBlock(ctx, n);
     case "data.if":
@@ -831,6 +833,51 @@ function evalHtmlTemplate(ctx: SimCtx, n: NodeBase): SimValue {
     }
   }
   return { kind: "str", value: out };
+}
+
+function renderUiTreeNode(ctx: SimCtx, n: NodeBase, node: unknown): string {
+  if (!node || typeof node !== "object") return "";
+  const rec = node as Record<string, unknown>;
+  if (rec.kind === "hole") return "";
+  if (rec.kind === "text") {
+    if (typeof rec.text === "string") {
+      return rec.escape === false ? rec.text : htmlEscape(rec.text);
+    }
+    const idx = rec.operandIndex;
+    if (typeof idx === "number") {
+      const v = operand(ctx, n, idx);
+      const s = stringify(v);
+      return rec.escape === false ? s : htmlEscape(s);
+    }
+    return "";
+  }
+  if (rec.kind === "fragment" && Array.isArray(rec.children)) {
+    return rec.children.map((c) => renderUiTreeNode(ctx, n, c)).join("");
+  }
+  if (rec.kind === "element" && typeof rec.tag === "string") {
+    const tag = rec.tag;
+    const attrs = rec.attrs && typeof rec.attrs === "object" ? (rec.attrs as Record<string, unknown>) : {};
+    let attrStr = "";
+    for (const [key, val] of Object.entries(attrs)) {
+      if (typeof val === "string") {
+        attrStr += ` ${key}="${htmlEscape(val).replace(/&quot;/g, "&quot;")}"`;
+      } else if (val && typeof val === "object" && "operandIndex" in val) {
+        const v = operand(ctx, n, Number((val as { operandIndex: number }).operandIndex));
+        attrStr += ` ${key}="${htmlEscape(stringify(v))}"`;
+      }
+    }
+    const children = Array.isArray(rec.children)
+      ? rec.children.map((c) => renderUiTreeNode(ctx, n, c)).join("")
+      : "";
+    return `<${tag}${attrStr}>${children}</${tag}>`;
+  }
+  return "";
+}
+
+function evalUiTree(ctx: SimCtx, n: NodeBase): SimValue {
+  const nodes = (n.attrs as { nodes?: unknown }).nodes;
+  const html = renderUiTreeNode(ctx, n, nodes);
+  return { kind: "str", value: html };
 }
 
 function evalBlock(ctx: SimCtx, n: NodeBase): SimValue {

@@ -175,6 +175,7 @@ function classify(
       case "if":
       case "block":
       case "html.template":
+      case "ui.tree":
         return anyOperandTainted(n, visit);
       case "hole":
         return "tainted"; // unknown input → safest assumption
