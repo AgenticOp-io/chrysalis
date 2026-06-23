@@ -630,6 +630,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `String(${args[0]}).toLowerCase().indexOf(String(${args[1]}).toLowerCase())`;
     case "strrpos":
       return `String(${args[0]}).lastIndexOf(${args[1]})`;
+    case "strripos":
+      return `String(${args[0]}).toLowerCase().lastIndexOf(String(${args[1]}).toLowerCase())`;
     case "intval":
       return `intval(${args[0]})`;
     case "strlen":
