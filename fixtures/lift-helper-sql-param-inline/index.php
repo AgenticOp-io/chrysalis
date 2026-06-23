@@ -49,6 +49,7 @@ require_once __DIR__ . '/lib/sql_param_max.php';
 require_once __DIR__ . '/lib/sql_param_min.php';
 require_once __DIR__ . '/lib/sql_param_substr.php';
 require_once __DIR__ . '/lib/sql_param_strpos.php';
+require_once __DIR__ . '/lib/sql_param_stripos.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -258,6 +259,10 @@ if ($method === 'GET' && $path === '/bet') {
 }
 if ($method === 'GET' && $path === '/gimel') {
     require __DIR__ . '/pages/show_gimel.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/dalet') {
+    require __DIR__ . '/pages/show_dalet.php';
     exit;
 }
 

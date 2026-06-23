@@ -57,6 +57,7 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
       "chrysalis_sql_param_min",
       "chrysalis_sql_param_substr",
       "chrysalis_sql_param_strpos",
+      "chrysalis_sql_param_stripos",
       "chrysalis_sql_param_cast_float",
       "chrysalis_sql_param_cast_bool",
       "chrysalis_sql_param_cast_int",
@@ -172,6 +173,8 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     expect(tryExtractInlineQuery(mod, substrHelper.bodyId, substrHelper.paramNames)).toBeDefined();
     const strposHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_strpos")!;
     expect(tryExtractInlineQuery(mod, strposHelper.bodyId, strposHelper.paramNames)).toBeDefined();
+    const striposHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_stripos")!;
+    expect(tryExtractInlineQuery(mod, striposHelper.bodyId, striposHelper.paramNames)).toBeDefined();
     const castFloat = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_cast_float")!;
     expect(tryExtractInlineQuery(mod, castFloat.bodyId, castFloat.paramNames)).toBeDefined();
     const castBool = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_cast_bool")!;

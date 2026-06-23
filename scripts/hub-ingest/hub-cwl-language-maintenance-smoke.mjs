@@ -37,6 +37,7 @@ import {
   runIrHelperLiftingB37MinInlineGate,
   runIrHelperLiftingB38SubstrInlineGate,
   runIrHelperLiftingB39StrposInlineGate,
+  runIrHelperLiftingB40StriposInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -87,6 +88,7 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G7040") &&
     text.includes("G7050") &&
     text.includes("G7060") &&
+    text.includes("G7070") &&
     text.includes("isset") &&
     text.includes("count") &&
     text.includes("is_array") &&
@@ -117,7 +119,8 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("max()") &&
     text.includes("min()") &&
     text.includes("substr()") &&
-    text.includes("strpos()");
+    text.includes("strpos()") &&
+    text.includes("stripos()");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -158,6 +161,7 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b37 = runIrHelperLiftingB37MinInlineGate();
   const b38 = runIrHelperLiftingB38SubstrInlineGate();
   const b39 = runIrHelperLiftingB39StrposInlineGate();
+  const b40 = runIrHelperLiftingB40StriposInlineGate();
   const ok =
     doc.ok === true &&
     taxonomy.ok === true &&
@@ -193,7 +197,8 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b36.ok === true &&
     b37.ok === true &&
     b38.ok === true &&
-    b39.ok === true;
+    b39.ok === true &&
+    b40.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -233,6 +238,7 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b37,
     b38,
     b39,
+    b40,
     generatedAt: new Date().toISOString(),
   };
 }
