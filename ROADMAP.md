@@ -6,22 +6,21 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **IR helper maintenance** — **B50 `strncmp()`** (**G7098**); complete language **G7150 closed**.
-- **Recently shipped:** **B46–B50 batch** (`substr_count`, `explode`, `strcmp`, `strcasecmp`, `strncmp`, **G7094–G7098**); **B45 `str_ends_with()`** (**G7093**).
+- **Active lane:** **IR helper maintenance** — **B54 `str_pad()`** (**G7104**); complete language **G7150 closed**.
+- **Recently shipped:** **B51–B54 batch** (`strncasecmp`, `strrev`, `str_repeat`, `str_pad`, **G7099/G7102–G7104**); **B46–B50 batch** (**G7094–G7098**).
 
 ---
 
-## Active — IR helper B50 (G7098)
+## Active — IR helper B54 (G7104)
 
 Default build queue post **G7150**. Program doc: [`docs/IR-HELPER-LIFTING.md`](./docs/IR-HELPER-LIFTING.md)
 
 | Gate | Smoke |
 | --- | --- |
-| **G7094** B46 `substr_count(, literal)` | `runIrHelperLiftingB46SubstrCountInlineGate` (via **G6731**) |
-| **G7095** B47 `explode(, literal)` | `runIrHelperLiftingB47ExplodeInlineGate` (via **G6731**) |
-| **G7096** B48 `strcmp(, literal)` | `runIrHelperLiftingB48StrcmpInlineGate` (via **G6731**) |
-| **G7097** B49 `strcasecmp(, literal)` | `runIrHelperLiftingB49StrcasecmpInlineGate` (via **G6731**) |
-| **G7098** B50 `strncmp(, literal, literal)` | `runIrHelperLiftingB50StrncmpInlineGate` (via **G6731**) |
+| **G7099** B51 `strncasecmp(, literal, literal)` | `runIrHelperLiftingB51StrncasecmpInlineGate` (via **G6731**) |
+| **G7102** B52 `strrev()` | `runIrHelperLiftingB52StrrevInlineGate` (via **G6731**) |
+| **G7103** B53 `str_repeat(, literal)` | `runIrHelperLiftingB53StrRepeatInlineGate` (via **G6731**) |
+| **G7104** B54 `str_pad(, literal, literal)` | `runIrHelperLiftingB54StrPadInlineGate` (via **G6731**) |
 | **G6731** maintenance composite | `pnpm run hub:cwl-language-maintenance-smoke` |
 
 **Regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
@@ -192,6 +191,10 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G7096 B48 `strcmp(, literal)` | `runIrHelperLiftingB48StrcmpInlineGate` |
 | G7097 B49 `strcasecmp(, literal)` | `runIrHelperLiftingB49StrcasecmpInlineGate` |
 | G7098 B50 `strncmp(, literal, literal)` | `runIrHelperLiftingB50StrncmpInlineGate` |
+| G7099 B51 `strncasecmp(, literal, literal)` | `runIrHelperLiftingB51StrncasecmpInlineGate` |
+| G7102 B52 `strrev()` | `runIrHelperLiftingB52StrrevInlineGate` |
+| G7103 B53 `str_repeat(, literal)` | `runIrHelperLiftingB53StrRepeatInlineGate` |
+| G7104 B54 `str_pad(, literal, literal)` | `runIrHelperLiftingB54StrPadInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
 ## Active — CWL language v1.1 (G6760–G7050)
@@ -242,12 +245,16 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G7096** B48 `strcmp(, literal)` | `runIrHelperLiftingB48StrcmpInlineGate` (via **G6731**) |
 | **G7097** B49 `strcasecmp(, literal)` | `runIrHelperLiftingB49StrcasecmpInlineGate` (via **G6731**) |
 | **G7098** B50 `strncmp(, literal, literal)` | `runIrHelperLiftingB50StrncmpInlineGate` (via **G6731**) |
+| **G7099** B51 `strncasecmp(, literal, literal)` | `runIrHelperLiftingB51StrncasecmpInlineGate` (via **G6731**) |
+| **G7102** B52 `strrev()` | `runIrHelperLiftingB52StrrevInlineGate` (via **G6731**) |
+| **G7103** B53 `str_repeat(, literal)` | `runIrHelperLiftingB53StrRepeatInlineGate` (via **G6731**) |
+| **G7104** B54 `str_pad(, literal, literal)` | `runIrHelperLiftingB54StrPadInlineGate` (via **G6731**) |
 
 ---
 
 ## Default queue — IR helper v1.1 (post G7150)
 
-**Active:** **B50 `strncmp()`** (**G7098**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+**Active:** **B54 `str_pad()`** (**G7104**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
 **CWL language regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
 

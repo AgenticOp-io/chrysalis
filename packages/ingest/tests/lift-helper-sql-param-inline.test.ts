@@ -68,6 +68,10 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
       "chrysalis_sql_param_strcmp",
       "chrysalis_sql_param_strcasecmp",
       "chrysalis_sql_param_strncmp",
+      "chrysalis_sql_param_strncasecmp",
+      "chrysalis_sql_param_strrev",
+      "chrysalis_sql_param_str_repeat",
+      "chrysalis_sql_param_str_pad",
       "chrysalis_sql_param_cast_float",
       "chrysalis_sql_param_cast_bool",
       "chrysalis_sql_param_cast_int",
@@ -91,7 +95,7 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     );
     expect(sideeffectCalls.length).toBe(1);
     const dbQueries = [...mod.nodes.values()].filter((n) => n.dialect === "effect" && n.op === "db.query");
-    expect(dbQueries.length).toBeGreaterThanOrEqual(52);
+    expect(dbQueries.length).toBeGreaterThanOrEqual(56);
   });
 
   it("prelude guard allows strlen skip but blocks sideeffect pre-return query", async () => {
@@ -205,6 +209,14 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     expect(tryExtractInlineQuery(mod, strcasecmpHelper.bodyId, strcasecmpHelper.paramNames)).toBeDefined();
     const strncmpHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_strncmp")!;
     expect(tryExtractInlineQuery(mod, strncmpHelper.bodyId, strncmpHelper.paramNames)).toBeDefined();
+    const strncasecmpHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_strncasecmp")!;
+    expect(tryExtractInlineQuery(mod, strncasecmpHelper.bodyId, strncasecmpHelper.paramNames)).toBeDefined();
+    const strrevHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_strrev")!;
+    expect(tryExtractInlineQuery(mod, strrevHelper.bodyId, strrevHelper.paramNames)).toBeDefined();
+    const strRepeatHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_str_repeat")!;
+    expect(tryExtractInlineQuery(mod, strRepeatHelper.bodyId, strRepeatHelper.paramNames)).toBeDefined();
+    const strPadHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_str_pad")!;
+    expect(tryExtractInlineQuery(mod, strPadHelper.bodyId, strPadHelper.paramNames)).toBeDefined();
     const castFloat = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_cast_float")!;
     expect(tryExtractInlineQuery(mod, castFloat.bodyId, castFloat.paramNames)).toBeDefined();
     const castBool = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_cast_bool")!;

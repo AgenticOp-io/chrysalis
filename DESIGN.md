@@ -3717,6 +3717,14 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-06-24 — D6220** **IR helper B50 `strncmp(, literal, literal)` (G7098).** Formal + two literals **`strncmp($formal, 'needle', n)`** assign inlining via **`strncmpFormalLiteral2`**; fixture route **`/peh`**; emit via slice + strcmp logic; gate **`runIrHelperLiftingB50StrncmpInlineGate`** in **G6731**.
 
+- **2026-06-24 — D6221** **IR helper B51 `strncasecmp(, literal, literal)` (G7099).** Formal + two literals assign inlining via **`strncasecmpFormalLiteral2`**; fixture route **`/fe`**; emit via lowercase slice + strcmp logic; gate **`runIrHelperLiftingB51StrncasecmpInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6222** **IR helper B52 `strrev()` (G7102).** Formal-only assign inlining via **`strrevFormal`**; fixture route **`/kuf`**; emit via split/reverse/join; gate **`runIrHelperLiftingB52StrrevInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6223** **IR helper B53 `str_repeat(, literal)` (G7103).** Formal + literal assign inlining via **`strRepeatFormalLiteral`**; fixture route **`/gim`**; emit via **`String.repeat`**; gate **`runIrHelperLiftingB53StrRepeatInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6224** **IR helper B54 `str_pad(, literal, literal)` (G7104).** Formal + two literals assign inlining via **`strPadFormalLiteral2`**; fixture route **`/dale`**; emit via **`padEnd`** (STR_PAD_RIGHT default); gate **`runIrHelperLiftingB54StrPadInlineGate`** in **G6731**.
+
 - **2026-06-24 — D6219** **IR helper B49 `strcasecmp(, literal)` (G7097).** Formal + literal **`strcasecmp($formal, 'literal')`** assign inlining; fixture route **`/samech`**; emit via lowercase + strcmp logic; gate **`runIrHelperLiftingB49StrcasecmpInlineGate`** in **G6731**.
 
 - **2026-06-24 — D6218** **IR helper B48 `strcmp(, literal)` (G7096).** Formal + literal **`strcmp($formal, 'literal')`** assign inlining; fixture route **`/sin`**; emit via strcmp IIFE; gate **`runIrHelperLiftingB48StrcmpInlineGate`** in **G6731**.

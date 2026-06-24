@@ -40,7 +40,7 @@ function queryFromReturnStmt(m: Module, stmtId: NodeId): NodeId | undefined {
 function isSkippablePreludeExprStmt(m: Module, stmt: NodeBase): boolean {
   if (stmt.op !== "call") return false;
   const callee = String(stmt.attrs.callee);
-  if (callee === "strlen" || callee === "intval" || callee === "trim" || callee === "empty" || callee === "isset" || callee === "count" || callee === "is_array" || callee === "is_string" || callee === "abs" || callee === "is_numeric" || callee === "is_int" || callee === "is_bool" || callee === "is_null" || callee === "round" || callee === "floor" || callee === "ceil" || callee === "max" || callee === "min" || callee === "substr" || callee === "strpos" || callee === "stripos" || callee === "strrpos" || callee === "strripos" || callee === "str_contains" || callee === "str_starts_with" || callee === "str_ends_with" || callee === "substr_count" || callee === "explode" || callee === "strcmp" || callee === "strcasecmp" || callee === "strncmp" || callee === "strtolower" || callee === "strtoupper" || callee === "htmlspecialchars" || callee === "nl2br" || callee === "urlencode" || callee === "rawurlencode" || callee === "urldecode" || callee === "rawurldecode" || callee === "ltrim" || callee === "rtrim" || callee === "is_float" || callee === "is_object" || callee === "is_scalar") {
+  if (callee === "strlen" || callee === "intval" || callee === "trim" || callee === "empty" || callee === "isset" || callee === "count" || callee === "is_array" || callee === "is_string" || callee === "abs" || callee === "is_numeric" || callee === "is_int" || callee === "is_bool" || callee === "is_null" || callee === "round" || callee === "floor" || callee === "ceil" || callee === "max" || callee === "min" || callee === "substr" || callee === "strpos" || callee === "stripos" || callee === "strrpos" || callee === "strripos" || callee === "str_contains" || callee === "str_starts_with" || callee === "str_ends_with" || callee === "substr_count" || callee === "explode" || callee === "strcmp" || callee === "strcasecmp" || callee === "strncmp" || callee === "strncasecmp" || callee === "strrev" || callee === "str_repeat" || callee === "str_pad" || callee === "strtolower" || callee === "strtoupper" || callee === "htmlspecialchars" || callee === "nl2br" || callee === "urlencode" || callee === "rawurlencode" || callee === "urldecode" || callee === "rawurldecode" || callee === "ltrim" || callee === "rtrim" || callee === "is_float" || callee === "is_object" || callee === "is_scalar") {
     return stmt.effects.length === 0;
   }
   return false;
@@ -62,7 +62,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "roundFormal2"; formal: string; literalId: NodeId } | { kind: "maxFormalLiteral"; formal: string; literalId: NodeId } | { kind: "minFormalLiteral"; formal: string; literalId: NodeId } | { kind: "substrFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "striposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strrposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strriposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strContainsFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strStartsWithFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strEndsWithFormalLiteral"; formal: string; literalId: NodeId } | { kind: "substrCountFormalLiteral"; formal: string; literalId: NodeId } | { kind: "explodeFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcmpFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcasecmpFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strncmpFormalLiteral2"; formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | { kind: "issetFormal"; formal: string } | { kind: "countFormal"; formal: string } | { kind: "isArrayFormal"; formal: string } | { kind: "isStringFormal"; formal: string } | { kind: "absFormal"; formal: string } | { kind: "isNumericFormal"; formal: string } | { kind: "notFormal"; formal: string } | { kind: "isIntFormal"; formal: string } | { kind: "isBoolFormal"; formal: string } | { kind: "isNullFormal"; formal: string } | { kind: "negFormal"; formal: string } | { kind: "roundFormal"; formal: string } | { kind: "floorFormal"; formal: string } | { kind: "ceilFormal"; formal: string } | { kind: "strtolowerFormal"; formal: string } | { kind: "strtoupperFormal"; formal: string } | { kind: "htmlspecialcharsFormal"; formal: string } | { kind: "nl2brFormal"; formal: string } | { kind: "urlencodeFormal"; formal: string } | { kind: "rawurlencodeFormal"; formal: string } | { kind: "urldecodeFormal"; formal: string } | { kind: "rawurldecodeFormal"; formal: string } | { kind: "ltrimFormal"; formal: string } | { kind: "rtrimFormal"; formal: string } | { kind: "isFloatFormal"; formal: string } | { kind: "isObjectFormal"; formal: string } | { kind: "isScalarFormal"; formal: string } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "roundFormal2"; formal: string; literalId: NodeId } | { kind: "maxFormalLiteral"; formal: string; literalId: NodeId } | { kind: "minFormalLiteral"; formal: string; literalId: NodeId } | { kind: "substrFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "striposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strrposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strriposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strContainsFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strStartsWithFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strEndsWithFormalLiteral"; formal: string; literalId: NodeId } | { kind: "substrCountFormalLiteral"; formal: string; literalId: NodeId } | { kind: "explodeFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcmpFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcasecmpFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strncmpFormalLiteral2"; formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId } | { kind: "strncasecmpFormalLiteral2"; formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId } | { kind: "strrevFormal"; formal: string } | { kind: "strRepeatFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strPadFormalLiteral2"; formal: string; lengthLiteralId: NodeId; padLiteralId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | { kind: "issetFormal"; formal: string } | { kind: "countFormal"; formal: string } | { kind: "isArrayFormal"; formal: string } | { kind: "isStringFormal"; formal: string } | { kind: "absFormal"; formal: string } | { kind: "isNumericFormal"; formal: string } | { kind: "notFormal"; formal: string } | { kind: "isIntFormal"; formal: string } | { kind: "isBoolFormal"; formal: string } | { kind: "isNullFormal"; formal: string } | { kind: "negFormal"; formal: string } | { kind: "roundFormal"; formal: string } | { kind: "floorFormal"; formal: string } | { kind: "ceilFormal"; formal: string } | { kind: "strtolowerFormal"; formal: string } | { kind: "strtoupperFormal"; formal: string } | { kind: "htmlspecialcharsFormal"; formal: string } | { kind: "nl2brFormal"; formal: string } | { kind: "urlencodeFormal"; formal: string } | { kind: "rawurlencodeFormal"; formal: string } | { kind: "urldecodeFormal"; formal: string } | { kind: "rawurldecodeFormal"; formal: string } | { kind: "ltrimFormal"; formal: string } | { kind: "rtrimFormal"; formal: string } | { kind: "isFloatFormal"; formal: string } | { kind: "isObjectFormal"; formal: string } | { kind: "isScalarFormal"; formal: string } | undefined {
   const valueNode = getNode(m, valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -296,6 +296,39 @@ function resolveInlineAssignRhs(
         };
       }
     }
+    if (callee === "strncasecmp" && valueNode.operands.length === 3) {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      const needleLit = getNode(m, valueNode.operands[1]!);
+      const lengthLit = getNode(m, valueNode.operands[2]!);
+      if (inner?.kind === "formal" && needleLit?.op === "literal" && lengthLit?.op === "literal") {
+        return {
+          kind: "strncasecmpFormalLiteral2",
+          formal: inner.formal,
+          needleLiteralId: valueNode.operands[1]!,
+          lengthLiteralId: valueNode.operands[2]!,
+        };
+      }
+    }
+    if (callee === "str_repeat" && valueNode.operands.length === 2) {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      const lit = getNode(m, valueNode.operands[1]!);
+      if (inner?.kind === "formal" && lit?.op === "literal") {
+        return { kind: "strRepeatFormalLiteral", formal: inner.formal, literalId: valueNode.operands[1]! };
+      }
+    }
+    if (callee === "str_pad" && valueNode.operands.length === 3) {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      const lengthLit = getNode(m, valueNode.operands[1]!);
+      const padLit = getNode(m, valueNode.operands[2]!);
+      if (inner?.kind === "formal" && lengthLit?.op === "literal" && padLit?.op === "literal") {
+        return {
+          kind: "strPadFormalLiteral2",
+          formal: inner.formal,
+          lengthLiteralId: valueNode.operands[1]!,
+          padLiteralId: valueNode.operands[2]!,
+        };
+      }
+    }
     if (callee === "floor" && valueNode.operands.length === 1) {
       const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "floorFormal", formal: inner.formal };
@@ -311,6 +344,10 @@ function resolveInlineAssignRhs(
     if (callee === "strtoupper" && valueNode.operands.length === 1) {
       const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "strtoupperFormal", formal: inner.formal };
+    }
+    if (callee === "strrev" && valueNode.operands.length === 1) {
+      const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+      if (inner?.kind === "formal") return { kind: "strrevFormal", formal: inner.formal };
     }
     if (callee === "htmlspecialchars" && valueNode.operands.length === 1) {
       const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
@@ -385,6 +422,10 @@ export function tryExtractInlineQuery(
   localToStrcmpFormalLiteral: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId }>;
   localToStrcasecmpFormalLiteral: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId }>;
   localToStrncmpFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly needleLiteralId: NodeId; readonly lengthLiteralId: NodeId }>;
+  localToStrncasecmpFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly needleLiteralId: NodeId; readonly lengthLiteralId: NodeId }>;
+  localToStrrevFormal: ReadonlyMap<string, string>;
+  localToStrRepeatFormalLiteral: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId }>;
+  localToStrPadFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly lengthLiteralId: NodeId; readonly padLiteralId: NodeId }>;
   localToStringCast: ReadonlyMap<string, string>;
   localToFloatCast: ReadonlyMap<string, string>;
   localToBoolCast: ReadonlyMap<string, string>;
@@ -426,7 +467,7 @@ export function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(m, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToRoundFormal2: new Map(), localToMaxFormalLiteral: new Map(), localToMinFormalLiteral: new Map(), localToSubstrFormalLiteral: new Map(), localToStrposFormalLiteral: new Map(), localToStriposFormalLiteral: new Map(), localToStrrposFormalLiteral: new Map(), localToStrriposFormalLiteral: new Map(), localToStrContainsFormalLiteral: new Map(), localToStrStartsWithFormalLiteral: new Map(), localToStrEndsWithFormalLiteral: new Map(), localToSubstrCountFormalLiteral: new Map(), localToExplodeFormalLiteral: new Map(), localToStrcmpFormalLiteral: new Map(), localToStrcasecmpFormalLiteral: new Map(), localToStrncmpFormalLiteral2: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map(), localToIssetFormal: new Map(), localToCountFormal: new Map(), localToIsArrayFormal: new Map(), localToIsStringFormal: new Map(), localToAbsFormal: new Map(), localToIsNumericFormal: new Map(), localToNotFormal: new Map(), localToIsIntFormal: new Map(), localToIsBoolFormal: new Map(), localToIsNullFormal: new Map(), localToNegFormal: new Map(), localToRoundFormal: new Map(), localToFloorFormal: new Map(), localToCeilFormal: new Map(), localToStrtolowerFormal: new Map(), localToStrtoupperFormal: new Map(), localToHtmlspecialcharsFormal: new Map(), localToNl2brFormal: new Map(), localToUrlencodeFormal: new Map(), localToRawurlencodeFormal: new Map(), localToUrldecodeFormal: new Map(), localToRawurldecodeFormal: new Map(), localToLtrimFormal: new Map(), localToRtrimFormal: new Map(), localToIsFloatFormal: new Map(), localToIsObjectFormal: new Map(), localToIsScalarFormal: new Map() };
+    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToRoundFormal2: new Map(), localToMaxFormalLiteral: new Map(), localToMinFormalLiteral: new Map(), localToSubstrFormalLiteral: new Map(), localToStrposFormalLiteral: new Map(), localToStriposFormalLiteral: new Map(), localToStrrposFormalLiteral: new Map(), localToStrriposFormalLiteral: new Map(), localToStrContainsFormalLiteral: new Map(), localToStrStartsWithFormalLiteral: new Map(), localToStrEndsWithFormalLiteral: new Map(), localToSubstrCountFormalLiteral: new Map(), localToExplodeFormalLiteral: new Map(), localToStrcmpFormalLiteral: new Map(), localToStrcasecmpFormalLiteral: new Map(), localToStrncmpFormalLiteral2: new Map(), localToStrncasecmpFormalLiteral2: new Map(), localToStrrevFormal: new Map(), localToStrRepeatFormalLiteral: new Map(), localToStrPadFormalLiteral2: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map(), localToIssetFormal: new Map(), localToCountFormal: new Map(), localToIsArrayFormal: new Map(), localToIsStringFormal: new Map(), localToAbsFormal: new Map(), localToIsNumericFormal: new Map(), localToNotFormal: new Map(), localToIsIntFormal: new Map(), localToIsBoolFormal: new Map(), localToIsNullFormal: new Map(), localToNegFormal: new Map(), localToRoundFormal: new Map(), localToFloorFormal: new Map(), localToCeilFormal: new Map(), localToStrtolowerFormal: new Map(), localToStrtoupperFormal: new Map(), localToHtmlspecialcharsFormal: new Map(), localToNl2brFormal: new Map(), localToUrlencodeFormal: new Map(), localToRawurlencodeFormal: new Map(), localToUrldecodeFormal: new Map(), localToRawurldecodeFormal: new Map(), localToLtrimFormal: new Map(), localToRtrimFormal: new Map(), localToIsFloatFormal: new Map(), localToIsObjectFormal: new Map(), localToIsScalarFormal: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
@@ -447,6 +488,10 @@ export function tryExtractInlineQuery(
   const localToStrcmpFormalLiteral = new Map<string, { formal: string; literalId: NodeId }>();
   const localToStrcasecmpFormalLiteral = new Map<string, { formal: string; literalId: NodeId }>();
   const localToStrncmpFormalLiteral2 = new Map<string, { formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId }>();
+  const localToStrncasecmpFormalLiteral2 = new Map<string, { formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId }>();
+  const localToStrrevFormal = new Map<string, string>();
+  const localToStrRepeatFormalLiteral = new Map<string, { formal: string; literalId: NodeId }>();
+  const localToStrPadFormalLiteral2 = new Map<string, { formal: string; lengthLiteralId: NodeId; padLiteralId: NodeId }>();
   const localToStringCast = new Map<string, string>();
   const localToFloatCast = new Map<string, string>();
   const localToBoolCast = new Map<string, string>();
@@ -567,6 +612,26 @@ export function tryExtractInlineQuery(
         });
         continue;
       }
+      if (resolved.kind === "strncasecmpFormalLiteral2") {
+        localToStrncasecmpFormalLiteral2.set(localName, {
+          formal: resolved.formal,
+          needleLiteralId: resolved.needleLiteralId,
+          lengthLiteralId: resolved.lengthLiteralId,
+        });
+        continue;
+      }
+      if (resolved.kind === "strRepeatFormalLiteral") {
+        localToStrRepeatFormalLiteral.set(localName, { formal: resolved.formal, literalId: resolved.literalId });
+        continue;
+      }
+      if (resolved.kind === "strPadFormalLiteral2") {
+        localToStrPadFormalLiteral2.set(localName, {
+          formal: resolved.formal,
+          lengthLiteralId: resolved.lengthLiteralId,
+          padLiteralId: resolved.padLiteralId,
+        });
+        continue;
+      }
       if (resolved.kind === "stringCast") {
         localToStringCast.set(localName, resolved.formal);
         continue;
@@ -655,6 +720,10 @@ export function tryExtractInlineQuery(
         localToStrtoupperFormal.set(localName, resolved.formal);
         continue;
       }
+      if (resolved.kind === "strrevFormal") {
+        localToStrrevFormal.set(localName, resolved.formal);
+        continue;
+      }
       if (resolved.kind === "htmlspecialcharsFormal") {
         localToHtmlspecialcharsFormal.set(localName, resolved.formal);
         continue;
@@ -707,7 +776,7 @@ export function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(m, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToRoundFormal2, localToMaxFormalLiteral, localToMinFormalLiteral, localToSubstrFormalLiteral, localToStrposFormalLiteral, localToStriposFormalLiteral, localToStrrposFormalLiteral, localToStrriposFormalLiteral, localToStrContainsFormalLiteral, localToStrStartsWithFormalLiteral, localToStrEndsWithFormalLiteral, localToSubstrCountFormalLiteral, localToExplodeFormalLiteral, localToStrcmpFormalLiteral, localToStrcasecmpFormalLiteral, localToStrncmpFormalLiteral2, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal, localToIssetFormal, localToCountFormal, localToIsArrayFormal, localToIsStringFormal, localToAbsFormal, localToIsNumericFormal, localToNotFormal, localToIsIntFormal, localToIsBoolFormal, localToIsNullFormal, localToNegFormal, localToRoundFormal, localToFloorFormal, localToCeilFormal, localToStrtolowerFormal, localToStrtoupperFormal, localToHtmlspecialcharsFormal, localToNl2brFormal, localToUrlencodeFormal, localToRawurlencodeFormal, localToUrldecodeFormal, localToRawurldecodeFormal, localToLtrimFormal, localToRtrimFormal, localToIsFloatFormal, localToIsObjectFormal, localToIsScalarFormal };
+  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToRoundFormal2, localToMaxFormalLiteral, localToMinFormalLiteral, localToSubstrFormalLiteral, localToStrposFormalLiteral, localToStriposFormalLiteral, localToStrrposFormalLiteral, localToStrriposFormalLiteral, localToStrContainsFormalLiteral, localToStrStartsWithFormalLiteral, localToStrEndsWithFormalLiteral, localToSubstrCountFormalLiteral, localToExplodeFormalLiteral, localToStrcmpFormalLiteral, localToStrcasecmpFormalLiteral, localToStrncmpFormalLiteral2, localToStrncasecmpFormalLiteral2, localToStrrevFormal, localToStrRepeatFormalLiteral, localToStrPadFormalLiteral2, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal, localToIssetFormal, localToCountFormal, localToIsArrayFormal, localToIsStringFormal, localToAbsFormal, localToIsNumericFormal, localToNotFormal, localToIsIntFormal, localToIsBoolFormal, localToIsNullFormal, localToNegFormal, localToRoundFormal, localToFloorFormal, localToCeilFormal, localToStrtolowerFormal, localToStrtoupperFormal, localToHtmlspecialcharsFormal, localToNl2brFormal, localToUrlencodeFormal, localToRawurlencodeFormal, localToUrldecodeFormal, localToRawurldecodeFormal, localToLtrimFormal, localToRtrimFormal, localToIsFloatFormal, localToIsObjectFormal, localToIsScalarFormal };
 }
 
 /** Valid TS export name for a PHP lib helper callee (`Class::method`, FQN, or global). */
@@ -981,6 +1050,47 @@ export function tryEmitInlineLibHelperCall(
     const compared = `((a,b,n)=>{a=String(a).slice(0,n);b=String(b).slice(0,n);return a===b?0:a<b?-1:1})(${formalExpr},${needleExpr},${lengthExpr})`;
     subst[local] = compared;
     subst[phpVarKey(local)] = compared;
+  }
+  for (const [local, { formal, needleLiteralId, lengthLiteralId }] of extracted.localToStrncasecmpFormalLiteral2) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    const needleLit = getNode(ctx.m, needleLiteralId);
+    const lengthLit = getNode(ctx.m, lengthLiteralId);
+    if (formalExpr === undefined || !needleLit || !lengthLit) return undefined;
+    const needleExpr = literalToTsExpr(needleLit);
+    const lengthExpr = literalToTsExpr(lengthLit);
+    if (needleExpr === undefined || lengthExpr === undefined) return undefined;
+    const compared = `((a,b,n)=>{a=String(a).toLowerCase().slice(0,n);b=String(b).toLowerCase().slice(0,n);return a===b?0:a<b?-1:1})(${formalExpr},${needleExpr},${lengthExpr})`;
+    subst[local] = compared;
+    subst[phpVarKey(local)] = compared;
+  }
+  for (const [local, formal] of extracted.localToStrrevFormal) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    if (formalExpr === undefined) return undefined;
+    const reversed = `String(${formalExpr}).split('').reverse().join('')`;
+    subst[local] = reversed;
+    subst[phpVarKey(local)] = reversed;
+  }
+  for (const [local, { formal, literalId }] of extracted.localToStrRepeatFormalLiteral) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    const countLit = getNode(ctx.m, literalId);
+    if (formalExpr === undefined || !countLit) return undefined;
+    const countExpr = literalToTsExpr(countLit);
+    if (countExpr === undefined) return undefined;
+    const repeated = `String(${formalExpr}).repeat(${countExpr})`;
+    subst[local] = repeated;
+    subst[phpVarKey(local)] = repeated;
+  }
+  for (const [local, { formal, lengthLiteralId, padLiteralId }] of extracted.localToStrPadFormalLiteral2) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    const lengthLit = getNode(ctx.m, lengthLiteralId);
+    const padLit = getNode(ctx.m, padLiteralId);
+    if (formalExpr === undefined || !lengthLit || !padLit) return undefined;
+    const lengthExpr = literalToTsExpr(lengthLit);
+    const padExpr = literalToTsExpr(padLit);
+    if (lengthExpr === undefined || padExpr === undefined) return undefined;
+    const padded = `String(${formalExpr}).padEnd(${lengthExpr},${padExpr})`;
+    subst[local] = padded;
+    subst[phpVarKey(local)] = padded;
   }
   for (const [local, formal] of extracted.localToStringCast) {
     const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];

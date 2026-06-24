@@ -48,6 +48,10 @@ import {
   runIrHelperLiftingB48StrcmpInlineGate,
   runIrHelperLiftingB49StrcasecmpInlineGate,
   runIrHelperLiftingB50StrncmpInlineGate,
+  runIrHelperLiftingB51StrncasecmpInlineGate,
+  runIrHelperLiftingB52StrrevInlineGate,
+  runIrHelperLiftingB53StrRepeatInlineGate,
+  runIrHelperLiftingB54StrPadInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -109,6 +113,10 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G7096") &&
     text.includes("G7097") &&
     text.includes("G7098") &&
+    text.includes("G7099") &&
+    text.includes("G7102") &&
+    text.includes("G7103") &&
+    text.includes("G7104") &&
     text.includes("isset") &&
     text.includes("count") &&
     text.includes("is_array") &&
@@ -150,7 +158,11 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("explode()") &&
     text.includes("strcmp()") &&
     text.includes("strcasecmp()") &&
-    text.includes("strncmp()");
+    text.includes("strncmp()") &&
+    text.includes("strncasecmp()") &&
+    text.includes("strrev()") &&
+    text.includes("str_repeat()") &&
+    text.includes("str_pad()");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -202,6 +214,10 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b48 = runIrHelperLiftingB48StrcmpInlineGate();
   const b49 = runIrHelperLiftingB49StrcasecmpInlineGate();
   const b50 = runIrHelperLiftingB50StrncmpInlineGate();
+  const b51 = runIrHelperLiftingB51StrncasecmpInlineGate();
+  const b52 = runIrHelperLiftingB52StrrevInlineGate();
+  const b53 = runIrHelperLiftingB53StrRepeatInlineGate();
+  const b54 = runIrHelperLiftingB54StrPadInlineGate();
   const ok =
     doc.ok === true &&
     taxonomy.ok === true &&
@@ -248,7 +264,11 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b47.ok === true &&
     b48.ok === true &&
     b49.ok === true &&
-    b50.ok === true;
+    b50.ok === true &&
+    b51.ok === true &&
+    b52.ok === true &&
+    b53.ok === true &&
+    b54.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -299,6 +319,10 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b48,
     b49,
     b50,
+    b51,
+    b52,
+    b53,
+    b54,
     generatedAt: new Date().toISOString(),
   };
 }

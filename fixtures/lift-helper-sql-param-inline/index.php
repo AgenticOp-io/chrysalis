@@ -60,6 +60,10 @@ require_once __DIR__ . '/lib/sql_param_explode.php';
 require_once __DIR__ . '/lib/sql_param_strcmp.php';
 require_once __DIR__ . '/lib/sql_param_strcasecmp.php';
 require_once __DIR__ . '/lib/sql_param_strncmp.php';
+require_once __DIR__ . '/lib/sql_param_strncasecmp.php';
+require_once __DIR__ . '/lib/sql_param_strrev.php';
+require_once __DIR__ . '/lib/sql_param_str_repeat.php';
+require_once __DIR__ . '/lib/sql_param_str_pad.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -313,6 +317,22 @@ if ($method === 'GET' && $path === '/samech') {
 }
 if ($method === 'GET' && $path === '/peh') {
     require __DIR__ . '/pages/show_peh.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/fe') {
+    require __DIR__ . '/pages/show_fe.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/kuf') {
+    require __DIR__ . '/pages/show_kuf.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/gim') {
+    require __DIR__ . '/pages/show_gim.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/dale') {
+    require __DIR__ . '/pages/show_dale.php';
     exit;
 }
 
