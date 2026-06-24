@@ -112,8 +112,10 @@ Programs close surfaces in order — no big-bang rewrite:
 | G6731 | CWL language maintenance | `pnpm run hub:cwl-language-maintenance-smoke` |
 | **G6750** | **Language v1 closed** | `pnpm run hub:cwl-language-v1-close-smoke` |
 | **G7100** | Complete language program entry | Doc gate — [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) |
-| **G7110** | Phase 15 CWL UI v0 close | *(smoke TBD — RFC + verify first)* |
-| **G7150** | **CWL complete language close** | *(smoke TBD)* |
+| **G7110** | Phase 15 CWL UI v0 close | `pnpm run hub:cwl-phase15-close-smoke` |
+| **G7150** | **CWL complete language close** | `pnpm run hub:cwl-complete-language-close-smoke` |
+| **G7310** | Phase 19 CWL UI v1 close | `pnpm run hub:cwl-phase19-close-smoke` |
+| **G7390** | **Universal web language program close** | `pnpm run hub:cwl-universal-language-close-smoke` |
 
 ## Language v1 closed (G6750)
 
@@ -125,17 +127,23 @@ Regression: `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hu
 
 **WISP Phase 14 (closed — operator):** Optional POC regression only (**D6259**).
 
-## Universal language program active (Phase 19–23, D6260)
+## Universal language program closed (G7390, D6260 / D6261)
 
-**Default build:** Phase **19 → 20 → 21 → 22 → 23**; program close **G7390**. See [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md) and [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
+**Status:** closed (2026-06-24). Program doc: [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).
+
+**Default regression:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**).
 
 | Step | Surface | Phase | Close gate |
 | --- | --- | --- | --- |
-| 4+ | **CWL UI v1** | **19** | **G7310** *(TBD)* |
-| 3+ | **CWL Data v2** | **20** | **G7320** *(TBD)* |
-| — | **Effects middleware** | **21** | **G7330** *(TBD)* |
-| — | **Universal ingest** | **22** | **G7340** *(TBD)* |
-| 5 | **Greenfield cutover** | **23** | **G7350** *(TBD)* |
+| 4+ | **CWL UI v1** | **19** | **G7310** — `hub:cwl-phase19-close-smoke` |
+| 3+ | **CWL Data v2** | **20** | **G7320** — `hub:cwl-phase20-close-smoke` |
+| — | **Effects middleware** | **21** | **G7330** — `hub:cwl-phase21-close-smoke` |
+| — | **Universal ingest** | **22** | **G7340** — `hub:cwl-phase22-close-smoke` |
+| 5 | **Greenfield cutover** | **23** | **G7350** — `hub:cwl-phase23-close-smoke` |
+
+## Archived — universal language program active (G7300, superseded by G7390)
+
+**Was:** Phase **19 → 20 → 21 → 22 → 23**; entry **G7300**.
 
 ## Non-goals
 

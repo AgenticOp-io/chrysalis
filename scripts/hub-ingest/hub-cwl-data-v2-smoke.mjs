@@ -8,6 +8,8 @@ import { parseCwlModule } from "./cwl-parser.mjs";
 import { exportCwlFileToWebirJson } from "./export-cwl-webir.mjs";
 import { loadWebir } from "./shared.mjs";
 import { summarizeCwlProjection } from "./hub-webir-routes.mjs";
+import { runSveltekitDeepCwlExportSmoke } from "./hub-sveltekit-deep-cwl-export-smoke.mjs";
+import { runNextjsDeepCwlExportSmoke } from "./hub-nextjs-deep-cwl-export-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
 export const CWL_DATA_V2_SMOKE_KIND = "chrysalis.cwl.data-v2-smoke";
@@ -28,10 +30,19 @@ export function runCwlDataV2RfcGate() {
   return { ok, rfcV2Ok: ok };
 }
 
+/** G7321 — SvelteKit deep + Next.js deep gold export CWL Data `load { }` shapes. */
+export async function runCwlDataV2FrameworkIngestGate(opts = {}) {
+  const svelte = await runSveltekitDeepCwlExportSmoke(opts);
+  const nextjs = await runNextjsDeepCwlExportSmoke(opts);
+  const ok = svelte.ok === true && nextjs.ok === true;
+  return { ok, svelte, nextjs };
+}
+
 export async function runCwlDataV2Gate(opts = {}) {
   const rfc = runCwlDataV2RfcGate();
+  const framework = await runCwlDataV2FrameworkIngestGate(opts);
   const cwlPath = join(opts.fixture ?? FIXTURE, "routes.cwl");
-  if (!existsSync(cwlPath)) return { ok: false, skip: "missing-data-v2-fixture", rfc };
+  if (!existsSync(cwlPath)) return { ok: false, skip: "missing-data-v2-fixture", rfc, framework };
   const src = readFileSync(cwlPath, "utf8");
   const parsed = parseCwlModule(src, "routes.cwl");
   const loadUi = parsed.routes.filter((r) => r.loadBody && r.body.kind === "ui");
@@ -65,10 +76,11 @@ export async function runCwlDataV2Gate(opts = {}) {
     if (!goldVerify[suite]) goldOk = false;
   }
 
-  const ok = rfc.ok && hasRedirect && hasLoadUi && p.holeFree === p.total && goldOk;
+  const ok = rfc.ok && framework.ok === true && hasRedirect && hasLoadUi && p.holeFree === p.total && goldOk;
   return {
     ok,
     rfc,
+    framework,
     projection: { holeFree: p.holeFree, total: p.total },
     hasRedirect,
     hasLoadUi,

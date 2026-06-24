@@ -59,4 +59,4 @@ Framework ingest targets (structural gold):
 - SvelteKit `+page.server.ts` → `load { }` or hole
 - Next.js App Router server module → `load { }` or hole
 
-Verify: `fixtures/hub-gold-cwl-data-v2`, gate **G7320**.
+Verify: `fixtures/hub-gold-cwl-data-v2`, gate **G7320**; framework ingest **G7321** (`hub-sveltekit-deep-cwl-export-smoke`, `hub-nextjs-deep-cwl-export-smoke`).
