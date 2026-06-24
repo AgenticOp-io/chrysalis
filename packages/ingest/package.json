@@ -14,9 +14,8 @@
   },
   "dependencies": {
     "@chrysalis/webir": "workspace:*",
-    "@chrysalis/parser-bridge": "workspace:*"
-  },
-  "devDependencies": {
+    "@chrysalis/parser-bridge": "workspace:*",
     "@chrysalis/emit-shared": "workspace:*"
-  }
+  },
+  "devDependencies": {}
 }

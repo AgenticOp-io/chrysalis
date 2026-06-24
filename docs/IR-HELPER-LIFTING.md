@@ -1,5 +1,7 @@
 # IR helper lifting (design pass)
 
+> **Program status:** **IR Helper Program v1 closed** — see [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) and close gate **G7200** (`pnpm run hub:ir-helper-program-close-smoke`). This file retains design history and B-tier tier notes.
+
 **Status:** **baseline closed (2026-06-17)** — **B1–B5.5 v16** on `main` (fixtures + Vitest + simulate + oracle/replay gates + parametric lib-helper inlining + literal-RHS assign + **`__cast_int`** formal assign + **`??` coalesce formal assign + **`strval`/`__cast_string`** + **`boolval`/`__cast_bool`** + **`floatval`/`__cast_float`** formal assign + emit **`lib-helpers.ts`** on Hono/Fastify + full param-inline replay corpus). Ingest normalizes SQL whitespace, keyword case (quote-aware), and inlines lib query helpers at call sites. Hub: **semantic smoke v5** (`sql-param-inline`) and **emit replay twin gate** (sql-same + sql-case + param-inline twins) in completion batch (**G2303–G2304**). **Maintenance:** non-structurally-identical cross-file semantic lift beyond B5 tiers stays future work (see **V2-M4** *Remaining* in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md)).
 **Related:** **D283** structural dedupe (`dedupeStructuralSubgraphsInModule`), **D294** origin-insensitive dedupe CLI, **ROADMAP** post-2.0 row **B — IR helper lifting**.
 
@@ -213,7 +215,7 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B75 v0 (G7133):** `html_entity_decode()` formal assign inlining — fixture route **`/hdec`**. Gate: `runIrHelperLiftingB75HtmlEntityDecodeInlineGate`.
 
-**String helper v1.1 closed at B75 (G7133).**
+**String helper v1.1 closed at B75 (G7133)** — callee registry frozen; **program v1 close** is **G7200** ([`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md)).
 
 **B54 v0 (G7104):** `str_pad(, literal, literal)` formal + literal inlining — fixture route **`/dale`**. Gate: `runIrHelperLiftingB54StrPadInlineGate`.
 

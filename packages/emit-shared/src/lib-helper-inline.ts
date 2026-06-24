@@ -2,7 +2,13 @@
  * Emit-time inlining and lowered lib helper modules (mirrors ingest B5.5, G2318).
  */
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
+import { isIrHelperSkippablePreludeCallee } from "./ir-helper-inline-registry.js";
 import { stringLit, ident } from "./ts-util.js";
+
+/** Finished module or in-flight {@link ModuleBuilder} during ingest. */
+export type InlineQueryModule =
+  | Pick<Module, "nodes">
+  | { get(id: NodeId): NodeBase; has(id: NodeId): boolean };
 
 export interface EmitInlineCtx {
   readonly m: Module;
@@ -12,8 +18,10 @@ export interface EmitInlineCtx {
   emitParamExpr: (paramNodeId: NodeId, subst: Readonly<Record<string, string>>) => string;
 }
 
-function getNode(m: Module, id: NodeId): NodeBase | undefined {
-  return m.nodes.get(id);
+function getNode(m: InlineQueryModule, id: NodeId): NodeBase | undefined {
+  if ("nodes" in m) return m.nodes.get(id);
+  if (!m.has(id)) return undefined;
+  return m.get(id);
 }
 
 function phpVarKey(name: string): string {
@@ -28,7 +36,7 @@ function matchFormalParam(name: string, paramNames: readonly string[]): string |
   return undefined;
 }
 
-function queryFromReturnStmt(m: Module, stmtId: NodeId): NodeId | undefined {
+function queryFromReturnStmt(m: InlineQueryModule, stmtId: NodeId): NodeId | undefined {
   const retStmt = getNode(m, stmtId);
   if (!retStmt || retStmt.op !== "call" || retStmt.attrs.callee !== "__return") return undefined;
   if (retStmt.operands.length !== 1) return undefined;
@@ -37,13 +45,10 @@ function queryFromReturnStmt(m: Module, stmtId: NodeId): NodeId | undefined {
   return retStmt.operands[0]!;
 }
 
-function isSkippablePreludeExprStmt(m: Module, stmt: NodeBase): boolean {
+function isSkippablePreludeExprStmt(m: InlineQueryModule, stmt: NodeBase): boolean {
   if (stmt.op !== "call") return false;
   const callee = String(stmt.attrs.callee);
-  if (callee === "strlen" || callee === "intval" || callee === "trim" || callee === "empty" || callee === "isset" || callee === "count" || callee === "is_array" || callee === "is_string" || callee === "abs" || callee === "is_numeric" || callee === "is_int" || callee === "is_bool" || callee === "is_null" || callee === "round" || callee === "floor" || callee === "ceil" || callee === "max" || callee === "min" || callee === "substr" || callee === "strpos" || callee === "stripos" || callee === "strrpos" || callee === "strripos" || callee === "str_contains" || callee === "str_starts_with" || callee === "str_ends_with" || callee === "substr_count" || callee === "explode" || callee === "strcmp" || callee === "strcasecmp" || callee === "strncmp" || callee === "strncasecmp" || callee === "strrev" || callee === "str_repeat" || callee === "str_pad" || callee === "strtolower" || callee === "strtoupper" || callee === "htmlspecialchars" || callee === "nl2br" || callee === "urlencode" || callee === "rawurlencode" || callee === "urldecode" || callee === "rawurldecode" || callee === "ltrim" || callee === "rtrim" || callee === "is_float" || callee === "is_object" || callee === "is_scalar" || callee === "str_replace" || callee === "str_ireplace" || callee === "ucfirst" || callee === "lcfirst" || callee === "ucwords" || callee === "strip_tags" || callee === "addslashes" || callee === "stripslashes" || callee === "str_rot13" || callee === "str_word_count" || callee === "str_split" || callee === "strcspn" || callee === "strspn" || callee === "wordwrap" || callee === "chunk_split" || callee === "strtr" || callee === "htmlentities" || callee === "html_entity_decode") {
-    return stmt.effects.length === 0;
-  }
-  return false;
+  return stmt.effects.length === 0 && isIrHelperSkippablePreludeCallee(callee);
 }
 
 function literalToTsExpr(n: NodeBase): string | undefined {
@@ -58,7 +63,7 @@ function literalToTsExpr(n: NodeBase): string | undefined {
 }
 
 function resolveInlineAssignRhs(
-  m: Module,
+  m: InlineQueryModule,
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
@@ -546,7 +551,7 @@ function resolveInlineAssignRhs(
 }
 
 export function tryExtractInlineQuery(
-  m: Module,
+  m: InlineQueryModule,
   bodyId: NodeId,
   paramNames: readonly string[],
 ): {

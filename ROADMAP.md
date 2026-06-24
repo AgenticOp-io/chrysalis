@@ -6,45 +6,23 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **IR helper maintenance** — **B75 `html_entity_decode()`** (**G7133**); string helper **v1.1 closed**.
-- **Recently shipped:** **B51–B54 batch** (`strncasecmp`, `strrev`, `str_repeat`, `str_pad`, **G7099/G7102–G7104**); **B46–B50 batch** (**G7094–G7098**).
+- **Active lane:** **Maintenance only** — **IR Helper Program v1 closed** (**G7200**); tier regression **G6731** subordinate.
+- **Recently shipped:** **IR Helper Program v1 close** (**G7200**); **B55–B75** string closure batch (**G7105–G7133**).
 
 ---
 
-## Active — IR helper B75 (G7133) — string helper v1.1 closed
+## Closed — IR Helper Program v1 (G7200)
 
-Default build queue post **G7150**. Program doc: [`docs/IR-HELPER-LIFTING.md`](./docs/IR-HELPER-LIFTING.md)
+**Authority:** [`docs/IR-HELPER-PROGRAM.md`](./docs/IR-HELPER-PROGRAM.md) (not CWL language).
 
 | Gate | Smoke |
 | --- | --- |
-| **G7099** B51 `strncasecmp(, literal, literal)` | `runIrHelperLiftingB51StrncasecmpInlineGate` (via **G6731**) |
-| **G7102** B52 `strrev()` | `runIrHelperLiftingB52StrrevInlineGate` (via **G6731**) |
-| **G7103** B53 `str_repeat(, literal)` | `runIrHelperLiftingB53StrRepeatInlineGate` (via **G6731**) |
-| **G7105** B55 `str_replace(, lit, lit)` | `runIrHelperLiftingB55StrReplaceInlineGate` (via **G6731**) |
-| **G7106** B56 `str_ireplace(, lit, lit)` | `runIrHelperLiftingB56StrIreplaceInlineGate` (via **G6731**) |
-| **G7107** B57 `ucfirst()` | `runIrHelperLiftingB57UcfirstInlineGate` (via **G6731**) |
-| **G7108** B58 `lcfirst()` | `runIrHelperLiftingB58LcfirstInlineGate` (via **G6731**) |
-| **G7109** B59 `ucwords()` | `runIrHelperLiftingB59UcwordsInlineGate` (via **G6731**) |
-| **G7112** B60 `strip_tags()` | `runIrHelperLiftingB60StripTagsInlineGate` (via **G6731**) |
-| **G7113** B61 `addslashes()` | `runIrHelperLiftingB61AddslashesInlineGate` (via **G6731**) |
-| **G7114** B62 `stripslashes()` | `runIrHelperLiftingB62StripslashesInlineGate` (via **G6731**) |
-| **G7115** B63 `str_rot13()` | `runIrHelperLiftingB63StrRot13InlineGate` (via **G6731**) |
-| **G7116** B64 `str_word_count()` | `runIrHelperLiftingB64StrWordCountInlineGate` (via **G6731**) |
-| **G7117** B65 `str_split(, lit)` | `runIrHelperLiftingB65StrSplitInlineGate` (via **G6731**) |
-| **G7118** B66 `strcspn(, lit)` | `runIrHelperLiftingB66StrcspnInlineGate` (via **G6731**) |
-| **G7119** B67 `strspn(, lit)` | `runIrHelperLiftingB67StrspnInlineGate` (via **G6731**) |
-| **G7124** B68 `ltrim(, lit)` | `runIrHelperLiftingB68LtrimCharlistInlineGate` (via **G6731**) |
-| **G7125** B69 `rtrim(, lit)` | `runIrHelperLiftingB69RtrimCharlistInlineGate` (via **G6731**) |
-| **G7126** B70 `trim(, lit)` | `runIrHelperLiftingB70TrimCharlistInlineGate` (via **G6731**) |
-| **G7127** B71 `wordwrap(, lit, lit)` | `runIrHelperLiftingB71WordwrapInlineGate` (via **G6731**) |
-| **G7128** B72 `chunk_split(, lit, lit)` | `runIrHelperLiftingB72ChunkSplitInlineGate` (via **G6731**) |
-| **G7129** B73 `strtr(, lit, lit)` | `runIrHelperLiftingB73StrtrInlineGate` (via **G6731**) |
-| **G7132** B74 `htmlentities()` | `runIrHelperLiftingB74HtmlentitiesInlineGate` (via **G6731**) |
-| **G7133** B75 `html_entity_decode()` | `runIrHelperLiftingB75HtmlEntityDecodeInlineGate` (via **G6731**) |
-| **G7104** B54 `str_pad(, literal, literal)` | `runIrHelperLiftingB54StrPadInlineGate` (via **G6731**) |
-| **G6731** maintenance composite | `pnpm run hub:cwl-language-maintenance-smoke` |
+| **G7200** Program close | `pnpm run hub:ir-helper-program-close-smoke` |
+| **G2303–G2304** Semantic + replay twins | via G7200 composite |
+| **G6731** Tier regression (optional) | `pnpm run hub:cwl-language-maintenance-smoke` |
 
-**Regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
+**Track A:** B0–B5.5 cross-file lift baseline closed.  
+**Track B:** Body shapes I0–I5 + **74** I3 inline callees; holes H1–H2 documented.
 
 ---
 
@@ -273,9 +251,10 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 
 ---
 
-## Default queue — IR helper v1.1 (post G7150)
+## Default queue — post G7200 (maintenance)
 
-**Active:** **B75 `html_entity_decode()`** (**G7133**); string helper v1.1 closed at B75. Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+**IR Helper Program v1 closed:** `pnpm run hub:ir-helper-program-close-smoke` (**G7200**).  
+**Optional tier regression:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
 **CWL language regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
 

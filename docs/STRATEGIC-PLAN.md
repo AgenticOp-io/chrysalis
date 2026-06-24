@@ -195,7 +195,7 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 **Strategic plan phases 0–10:** all reinforcement queues **closed** (**G5680–G6257**).
 
-**Default build queue:** **IR helper maintenance** (subordinate, **G6731**) after **CWL complete language closed** (**G7150**, Phases **15–18**, **D6208**). Regression: `hub:cwl-complete-language-close-smoke`. **Phase 14 closed** (**G6690**). **Language v1 closed** (**G6750**). **Phase 13 CWL surfaces closed** (**G6410**). **Phase 12 Phase 0 closed** (**G6310**).
+**Default build queue:** **IR Helper Program closed** (**G7200**); **CWL complete language closed** (**G7150**). Tier regression **G6731** subordinate. See [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md).
 
 ### Phase 15 — CWL UI v0 (**closed G7110**)
 
@@ -321,10 +321,11 @@ Without plan amendment, treat these as **out of scope**:
 
 When the user says "build" without specifying:
 
-1. **IR helper maintenance (default)** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `hub:cwl-language-maintenance-smoke` (**G6731**)
-2. **CWL complete language regression** — `hub:cwl-complete-language-close-smoke` (**G7150**), phase smokes **G7110–G7140**
-3. **Phase 14 operator regression** — `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**)
-4. **Phase 13 regression** — `hub:wisp-cwl-phase13-close-smoke` (**G6410**)
+1. **IR Helper Program verify (default)** — [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md); `hub:ir-helper-program-close-smoke` (**G7200**)
+2. **IR helper tier regression (optional)** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `hub:cwl-language-maintenance-smoke` (**G6731**)
+3. **CWL complete language regression** — `hub:cwl-complete-language-close-smoke` (**G7150**), phase smokes **G7110–G7140**
+4. **Phase 14 operator regression** — `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**)
+5. **Phase 13 regression** — `hub:wisp-cwl-phase13-close-smoke` (**G6410**)
 
 **Close before build:** Do not add GenieACS/ACS to CWL RFC or verify gates — **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
 

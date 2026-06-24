@@ -67,3 +67,21 @@ export {
   tryEmitInlineLibHelperCall,
   tryExtractInlineQuery,
 } from "./lib-helper-inline.js";
+export {
+  IR_HELPER_PROGRAM_VERSION,
+  IR_HELPER_PROGRAM_CLOSE_GATE,
+  IR_HELPER_BODY_SHAPES,
+  IR_HELPER_INLINE_CALLEE_IDS,
+  IR_HELPER_INLINE_REGISTRY,
+  IR_HELPER_SKIPPABLE_PRELUDE_CALLEES,
+  IR_HELPER_PROGRAM_HOLES,
+  IR_HELPER_CROSS_FILE_TRACK,
+  buildIrHelperProgramCoverage,
+  isIrHelperSkippablePreludeCallee,
+  registryEntryForHelperId,
+  type IrHelperProgramCoverage,
+  type IrHelperBodyShape,
+  type IrHelperBodyShapeId,
+  type IrHelperInlineRegistryEntry,
+  type IrHelperInlinePatternKind,
+} from "./ir-helper-program-catalog.js";

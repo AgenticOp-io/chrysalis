@@ -59,7 +59,8 @@ Per-package details live under `packages/<name>/README.md`. Each package README 
 | [WPTP D6 exit report](./WPTP-D6-EXIT-REPORT.md) | Program board | D6 **enterprise policy** pack (private adapters, SSO, residency). |
 | [WPTP D6 enterprise policy](./WPTP-D6-ENTERPRISE-POLICY.md) | Sponsors, legal, security | In-tree policy; pairs with [Commercial offering](./COMMERCIAL.md). |
 | [WPTP D7 ongoing](./WPTP-D7-ONGOING.md) | Program board | Quarterly matrix hygiene and CI checklist. |
-| [IR helper lifting (design)](./IR-HELPER-LIFTING.md) | Ingest / architecture | Post-**D283** shared-helper lifting plan (**D311**); implementation gated by **D310**. |
+| [IR Helper Program (charter)](./IR-HELPER-PROGRAM.md) | Ingest / architecture | Standalone program close (**G7200**); Track A/B matrix, 74 I3 callees, decoupled from CWL language. |
+| [IR helper lifting (design)](./IR-HELPER-LIFTING.md) | Ingest / architecture | Post-**D283** shared-helper lifting plan (**D311**); tier history B0–B75; points to program charter. |
 | [WPTP global scope](./WPTP-GLOBAL-SCOPE.md) | Program / architects | Cross-platform repos, matrix, adapters — above Chrysalis D1. |
 | [wptp-ir](https://github.com/theorem6/wptp-ir) | IR hub (D2) | Neutral IR **v0**, WebIR bundle import, loss reports, conformance fixtures. |
 | [wptp-matrix](https://github.com/theorem6/wptp-matrix) | Matrix (D5) | Source × target × grade JSON with CI validation. |

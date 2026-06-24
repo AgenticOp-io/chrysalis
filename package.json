@@ -468,6 +468,7 @@
     "drive:lift-helper-sql-case-twin": "node scripts/drive-lift-helper-sql-case-twin.mjs",
     "hub:ir-helper-lifting-embed-smoke": "node scripts/hub-ingest/hub-ir-helper-lifting-embed-smoke.mjs",
     "hub:ir-helper-lifting-full-path-smoke": "node scripts/hub-ingest/hub-ir-helper-lifting-full-path-smoke.mjs",
+    "hub:ir-helper-program-close-smoke": "node scripts/hub-ingest/hub-ir-helper-program-close-smoke.mjs",
     "hub:laravel-auth-probe-reingest-verify-http-fastify-smoke": "node scripts/hub-ingest/hub-laravel-auth-probe-reingest-verify-http-fastify-smoke.mjs",
     "hub:laravel-auth-probe-verify-http-fastify": "node scripts/hub-ingest/hub-laravel-auth-probe-verify-http-fastify.mjs",
     "hub:flagship-verify-http-fastify-batch-smoke": "node scripts/hub-ingest/hub-flagship-verify-http-fastify-batch-smoke.mjs",

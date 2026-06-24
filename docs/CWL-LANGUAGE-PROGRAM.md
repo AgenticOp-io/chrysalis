@@ -1,6 +1,6 @@
 # CWL language program
 
-> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language closed** (2026-06-22, **G7150**); **IR helper string v1.1 closed** (**G7133** B75)  
+> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language closed** (2026-06-22, **G7150**); **IR Helper Program v1 closed** (**G7200** — [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md), not a CWL surface)  
 > **Authority:** `docs/CWL-SURFACE-TAXONOMY.md` (**D6193**); `docs/CWL.md`; `docs/CWL-RFC.md`; `docs/STRATEGIC-PLAN.md` §7
 
 Chrysalis Web Language (CWL) is the **consolidated web language** for routes, pages, data loaders, effects metadata, and (future) UI composition — all lowering through **WebIR** to emit targets and oracle verify.
@@ -19,7 +19,7 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 | **CWL Effects** | RFC-0007 + WISP M6 `session.read` metadata | **Declarative shipped** |
 | **CWL UI** | RFC-0012 component holes | **Explicit holes** — not v1; no silent lowering |
 | **IR helper B-tier** | B5.5–B8 formal-assign lib SQL inlining | **Closed** — `empty`, `isset`, casts, trim, strlen |
-| **IR helper B9+** | Incremental v1.1 depth | **Subordinate** — through B38 (**G6760–G7050**); maintenance via **G6731** |
+| **IR helper B9+** | Incremental inline depth | **Closed** — program **G7200**; tier regression **G6731** optional |
 | **Probes** | RFC-0015/0016 production + form-action hole catalog | **Shipped** — regression gates |
 
 ## Complete language program — active (Phase 15–18, **D6206**)
@@ -144,11 +144,11 @@ Per **DESIGN §3** and **D6205**:
 
 Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). **Subordinate** to Phase 15–18 (**D6206**); extends ingest/emit helper lifting only.
 
-Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7133** B75).
+Regression: `pnpm run hub:ir-helper-program-close-smoke` (**G7200**). Optional tier regression: **G6731**.
 
 ## Default queue
 
-**Active build:** **IR helper string v1.1 closed at B75** (**G7133**); regression **`hub:cwl-complete-language-close-smoke`** (**G7150**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
+**CWL regression:** **`hub:cwl-complete-language-close-smoke`** (**G7150**). **IR helpers:** [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) (**G7200**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
 
 **Subordinate:** IR helper maintenance — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
 

@@ -3763,6 +3763,18 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-06-24 — D6244** **IR helper B74 `htmlentities()` (G7132).** Formal assign inlining; fixture route **`/hent`**; gate **`runIrHelperLiftingB74HtmlentitiesInlineGate`** in **G6731**.
 
+- **2026-06-24 — D6255** **IR Helper Program registry (P1, G7204).** **`ir-helper-inline-registry.ts`** is authoritative pattern metadata (74 entries); prelude skips and callee ids derive from registry. Ingest **`convert.ts`** delegates **`tryExtractInlineQuery`** to **`@chrysalis/emit-shared`** (deduped ~1k lines). **G7204** idempotency gate + **`fixtures/ci/ir-helper-program-coverage.json`** artifact in **G7200**.
+
+- **2026-06-24 — D6250** **IR Helper Program v1 charter (G7200).** User amendment: **IR helper lifting is a standalone program**, not a CWL language surface or finish line. **`docs/IR-HELPER-PROGRAM.md`** is program authority; **G7200** (`hub:ir-helper-program-close-smoke`) is the composite close gate. **G6731** tier regression is **subordinate**. **DESIGN §3:** no silent inline; holes for H1/H2 and out-of-charter callees.
+
+- **2026-06-24 — D6251** **IR Helper Program body-shape matrix (I0–I5, H1–H2).** Track B call-site SQL inline documents **six supported shapes** (direct return through coalesce) and **two explicit holes** (multi-local, effectful prelude). Fixtures under **`fixtures/lift-helper-sql-param-inline`**.
+
+- **2026-06-24 — D6252** **IR Helper Program catalog (`IR_HELPER_INLINE_CALLEE_IDS`).** **`@chrysalis/emit-shared`** **`ir-helper-program-catalog.ts`** is the contract for **74** I3 callees (frozen at B75); ingest Vitest imports the catalog instead of duplicating callee lists.
+
+- **2026-06-24 — D6253** **IR Helper Program close gates (G7201–G7203 + G7200).** Doc gate (**G7201**), fixture↔catalog coverage (**G7202**), inline Vitest batch (**G7203**), composite **G7200** (Track A smokes + replay twin + coverage artifact).
+
+- **2026-06-24 — D6254** **B-tier numbering frozen at B75.** New inline callees are **program maintenance** (registry + fixtures + Vitest), not new CWL language tiers. String helper v1.1 closed at **G7133**; program v1 closed at **G7200**.
+
 - **2026-06-24 — D6245** **IR helper B75 `html_entity_decode()` (G7133).** Formal assign inlining; fixture route **`/hdec`**; gate **`runIrHelperLiftingB75HtmlEntityDecodeInlineGate`** in **G6731**.
 
 - **2026-06-24 — D6224** **IR helper B54 `str_pad(, literal, literal)` (G7104).** Formal + two literals assign inlining via **`strPadFormalLiteral2`**; fixture route **`/dale`**; emit via **`padEnd`** (STR_PAD_RIGHT default); gate **`runIrHelperLiftingB54StrPadInlineGate`** in **G6731**.

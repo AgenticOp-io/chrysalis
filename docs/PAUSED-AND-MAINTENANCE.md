@@ -11,7 +11,7 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **IR helper maintenance** (default after G7150) | §2 below — **CWL language maintenance**; `hub:cwl-language-maintenance-smoke` (**G6731**), `hub:cwl-language-v1-close-smoke` (**G6750**) |
+| **IR helper maintenance** (default after G7150) | §2 below — **IR Helper Program**; `hub:ir-helper-program-close-smoke` (**G7200**); optional tier regression **G6731** |
 | **CWL complete language regression** | `hub:cwl-complete-language-close-smoke` (**G7150**), phase smokes **G7110–G7140** |
 | **Phase 14 operator regression** | `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**), `wisp:operator-verify -- --require` |
 | Phase 12–13 regression | `hub:wisp-cwl-phase13-close-smoke` (**G6410**), `hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**) |
@@ -37,7 +37,8 @@
 | Trigger | Action | Pointer |
 | --- | --- | --- |
 | Parser mapper gap | Add contested-syntax page to `fixtures/parser-parity-probe` | Multi-lane lane A |
-| IR helper B7–B75 (`empty()` / `isset()` / `count()` / `is_array()` / `is_string()` / `abs()` / `is_numeric()` / logical ! / `is_int()` / `is_bool()` / `is_null()` / unary - / `round()` / `floor()` / `ceil()` / `max()` / `min()` / `substr()` / `strpos()` / `stripos()` / `strrpos()` / `strripos()` / `str_contains()` / `str_starts_with()` / `str_ends_with()` / `substr_count()` / `explode()` / `strcmp()` / `strcasecmp()` / `strncmp()` / `strncasecmp()` / `strrev()` / `str_repeat()` / `str_pad()` / `str_replace()` / `str_ireplace()` / `ucfirst()` / `lcfirst()` / `ucwords()` / `strip_tags()` / `addslashes()` / `stripslashes()` / `str_rot13()` / `str_word_count()` / `str_split()` / `strcspn()` / `strspn()` / `ltrim(, lit)` / `rtrim(, lit)` / `trim(, lit)` / `wordwrap()` / `chunk_split()` / `strtr()` / `htmlentities()` / `html_entity_decode()` / `strtolower()` / `strtoupper()` / `htmlspecialchars()` / `nl2br()` / `urlencode()` / `rawurlencode()` / `urldecode()` / `rawurldecode()` / `ltrim()` / `rtrim()` / `is_float()` / `is_object()` / `is_scalar()` inline) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, **G6760**, **G6770**, **G6780**, **G6790**, **G6800**, **G6810**, **G6820**, **G6830**, **G6840**, **G6850**, **G6860**, **G6870**, **G6880**, **G6890**, **G6900**, **G6910**, **G6920**, **G6930**, **G6940**, **G6950**, **G6960**, **G6970**, **G6980**, **G6990**, **G7000**, **G7010**, **G7020**, **G7030**, **G7040**, **G7050**, **G7060**, **G7070**, **G7080**, **G7090**, **G7091**, **G7092**, **G7093**, **G7094**, **G7095**, **G7096**, **G7097**, **G7098**, **G7099**, **G7102**, **G7103**, **G7104**, **G7105**, **G7106**, **G7107**, **G7108**, **G7109**, **G7112**, **G7113**, **G7114**, **G7115**, **G7116**, **G7117**, **G7118**, **G7119**, **G7124**, **G7125**, **G7126**, **G7127**, **G7128**, **G7129**, **G7132**, **G7133**) | `docs/IR-HELPER-LIFTING.md`, `docs/CWL-LANGUAGE-PROGRAM.md` — string helper **v1.1 closed at B75** |
+| IR Helper Program v1 close | `pnpm run hub:ir-helper-program-close-smoke` (**G7200**) | [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) |
+| IR helper tier regression (optional) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**) | [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md) — B7–B75 per-tier gates |
 | Widen `->query` lowering | Add tracked receiver via `mysqli-probe` | Hole economics |
 | IR helper pattern (B5 rules) | Hub-gated fixture | `docs/IR-HELPER-LIFTING.md` |
 | Package README drift | Update README | `ROADMAP.md` |

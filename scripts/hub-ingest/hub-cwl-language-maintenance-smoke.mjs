@@ -159,6 +159,8 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G7129") &&
     text.includes("G7132") &&
     text.includes("G7133") &&
+    text.includes("G7200") &&
+    text.includes("hub:ir-helper-program-close-smoke") &&
     text.includes("isset") &&
     text.includes("count") &&
     text.includes("is_array") &&
