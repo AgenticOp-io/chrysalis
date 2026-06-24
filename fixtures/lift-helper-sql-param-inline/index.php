@@ -54,6 +54,7 @@ require_once __DIR__ . '/lib/sql_param_strrpos.php';
 require_once __DIR__ . '/lib/sql_param_strripos.php';
 require_once __DIR__ . '/lib/sql_param_str_contains.php';
 require_once __DIR__ . '/lib/sql_param_str_starts_with.php';
+require_once __DIR__ . '/lib/sql_param_str_ends_with.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -283,6 +284,10 @@ if ($method === 'GET' && $path === '/zayin') {
 }
 if ($method === 'GET' && $path === '/chet') {
     require __DIR__ . '/pages/show_chet.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/tet') {
+    require __DIR__ . '/pages/show_tet.php';
     exit;
 }
 

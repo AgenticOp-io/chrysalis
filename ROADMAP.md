@@ -6,18 +6,18 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **IR helper maintenance** — **B44 `str_starts_with()`** (**G7092**); complete language **G7150 closed**.
-- **Recently shipped:** **B44 `str_starts_with(, literal)`** (**G7092**); **B43 `str_contains()`** (**G7091**); **G7150** program close.
+- **Active lane:** **IR helper maintenance** — **B45 `str_ends_with()`** (**G7093**); complete language **G7150 closed**.
+- **Recently shipped:** **B45 `str_ends_with(, literal)`** (**G7093**); **B44 `str_starts_with()`** (**G7092**); **G7150** program close.
 
 ---
 
-## Active — IR helper B44 (G7092)
+## Active — IR helper B45 (G7093)
 
 Default build queue post **G7150**. Program doc: [`docs/IR-HELPER-LIFTING.md`](./docs/IR-HELPER-LIFTING.md)
 
 | Gate | Smoke |
 | --- | --- |
-| **G7092** B44 `str_starts_with(, literal)` | `runIrHelperLiftingB44StrStartsWithInlineGate` (via **G6731**) |
+| **G7093** B45 `str_ends_with(, literal)` | `runIrHelperLiftingB45StrEndsWithInlineGate` (via **G6731**) |
 | **G6731** maintenance composite | `pnpm run hub:cwl-language-maintenance-smoke` |
 
 **Regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
@@ -182,6 +182,7 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G7090 B42 `strripos(, literal)` | `runIrHelperLiftingB42StrriposInlineGate` |
 | G7091 B43 `str_contains(, literal)` | `runIrHelperLiftingB43StrContainsInlineGate` |
 | G7092 B44 `str_starts_with(, literal)` | `runIrHelperLiftingB44StrStartsWithInlineGate` |
+| G7093 B45 `str_ends_with(, literal)` | `runIrHelperLiftingB45StrEndsWithInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
 ## Active — CWL language v1.1 (G6760–G7050)
@@ -226,12 +227,13 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G7090** B42 `strripos(, literal)` | `runIrHelperLiftingB42StrriposInlineGate` (via **G6731**) |
 | **G7091** B43 `str_contains(, literal)` | `runIrHelperLiftingB43StrContainsInlineGate` (via **G6731**) |
 | **G7092** B44 `str_starts_with(, literal)` | `runIrHelperLiftingB44StrStartsWithInlineGate` (via **G6731**) |
+| **G7093** B45 `str_ends_with(, literal)` | `runIrHelperLiftingB45StrEndsWithInlineGate` (via **G6731**) |
 
 ---
 
 ## Default queue — IR helper v1.1 (post G7150)
 
-**Active:** **B44 `str_starts_with()`** (**G7092**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+**Active:** **B45 `str_ends_with()`** (**G7093**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
 **CWL language regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
 

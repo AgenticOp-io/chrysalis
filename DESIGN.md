@@ -3715,6 +3715,8 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-06-22 — D6207** **CWL native UI v0 (RFC-0017, G7111).** Phase **15** first implementation slice: **`return ui { element … }`** on `@page` routes lowers to WebIR **`data.ui.tree`** (serialised nodes + operand bindings); runtime **`renderCwlUiTree`** + **`escapeHtml`** for server HTML; gold fixture **`fixtures/hub-gold-cwl-ui-v0`**; smokes **`hub:cwl-phase15-entry-smoke`** (**G7101**), **`hub:cwl-ui-v0-smoke`** (**G7111**). **Non-goals:** hydration, silent Svelte lowering.
 
+- **2026-06-24 — D6215** **IR helper B45 `str_ends_with(, literal)` (G7093).** Formal + literal **`str_ends_with($formal, 'literal')`** assign inlining; fixture route **`/tet`**; emit via **`String(…).endsWith(…)`**; gate **`runIrHelperLiftingB45StrEndsWithInlineGate`** in **G6731**.
+
 - **2026-06-24 — D6214** **IR helper B44 `str_starts_with(, literal)` (G7092).** Formal + literal **`str_starts_with($formal, 'literal')`** assign inlining; fixture route **`/chet`**; emit via **`String(…).startsWith(…)`**; gate **`runIrHelperLiftingB44StrStartsWithInlineGate`** in **G6731**.
 
 - **2026-06-23 — D6213** **IR helper B43 `str_contains(, literal)` (G7091).** Formal + literal **`str_contains($formal, 'literal')`** assign inlining; fixture route **`/zayin`**; emit via **`String(…).includes(…)`**; gate **`runIrHelperLiftingB43StrContainsInlineGate`** in **G6731**.

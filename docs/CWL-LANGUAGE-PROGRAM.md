@@ -1,6 +1,6 @@
 # CWL language program
 
-> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language closed** (2026-06-22, **G7150**); **IR helper v1.1 active** (**G7092** B44)  
+> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language closed** (2026-06-22, **G7150**); **IR helper v1.1 active** (**G7093** B45)  
 > **Authority:** `docs/CWL-SURFACE-TAXONOMY.md` (**D6193**); `docs/CWL.md`; `docs/CWL-RFC.md`; `docs/STRATEGIC-PLAN.md` §7
 
 Chrysalis Web Language (CWL) is the **consolidated web language** for routes, pages, data loaders, effects metadata, and (future) UI composition — all lowering through **WebIR** to emit targets and oracle verify.
@@ -99,6 +99,7 @@ Per **DESIGN §3** and **D6205**:
 | G7090 | B42 `strripos(, literal)` formal + literal | `runIrHelperLiftingB42StrriposInlineGate` |
 | G7091 | B43 `str_contains(, literal)` formal + literal | `runIrHelperLiftingB43StrContainsInlineGate` |
 | G7092 | B44 `str_starts_with(, literal)` formal + literal | `runIrHelperLiftingB44StrStartsWithInlineGate` |
+| G7093 | B45 `str_ends_with(, literal)` formal + literal | `runIrHelperLiftingB45StrEndsWithInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 | **G7100** | Complete language program entry | Doc gate — § Complete language program |
 | **G7101** | Phase 15 program entry | `pnpm run hub:cwl-phase15-entry-smoke` |
@@ -113,11 +114,11 @@ Per **DESIGN §3** and **D6205**:
 
 Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). **Subordinate** to Phase 15–18 (**D6206**); extends ingest/emit helper lifting only.
 
-Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7092** B44).
+Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7093** B45).
 
 ## Default queue
 
-**Active build:** **IR helper B44 `str_starts_with()`** (**G7092**); regression **`hub:cwl-complete-language-close-smoke`** (**G7150**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
+**Active build:** **IR helper B45 `str_ends_with()`** (**G7093**); regression **`hub:cwl-complete-language-close-smoke`** (**G7150**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
 
 **Subordinate:** IR helper maintenance — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
 

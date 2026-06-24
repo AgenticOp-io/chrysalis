@@ -636,6 +636,8 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `String(${args[0]}).includes(${args[1]})`;
     case "str_starts_with":
       return `String(${args[0]}).startsWith(${args[1]})`;
+    case "str_ends_with":
+      return `String(${args[0]}).endsWith(${args[1]})`;
     case "intval":
       return `intval(${args[0]})`;
     case "strlen":
