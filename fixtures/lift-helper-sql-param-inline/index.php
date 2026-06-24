@@ -55,6 +55,11 @@ require_once __DIR__ . '/lib/sql_param_strripos.php';
 require_once __DIR__ . '/lib/sql_param_str_contains.php';
 require_once __DIR__ . '/lib/sql_param_str_starts_with.php';
 require_once __DIR__ . '/lib/sql_param_str_ends_with.php';
+require_once __DIR__ . '/lib/sql_param_substr_count.php';
+require_once __DIR__ . '/lib/sql_param_explode.php';
+require_once __DIR__ . '/lib/sql_param_strcmp.php';
+require_once __DIR__ . '/lib/sql_param_strcasecmp.php';
+require_once __DIR__ . '/lib/sql_param_strncmp.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -288,6 +293,26 @@ if ($method === 'GET' && $path === '/chet') {
 }
 if ($method === 'GET' && $path === '/tet') {
     require __DIR__ . '/pages/show_tet.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/yod') {
+    require __DIR__ . '/pages/show_yod.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/kaf') {
+    require __DIR__ . '/pages/show_kaf.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/sin') {
+    require __DIR__ . '/pages/show_sin.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/samech') {
+    require __DIR__ . '/pages/show_samech.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/peh') {
+    require __DIR__ . '/pages/show_peh.php';
     exit;
 }
 

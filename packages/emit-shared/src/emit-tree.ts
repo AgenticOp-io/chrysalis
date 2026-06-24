@@ -638,6 +638,16 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `String(${args[0]}).startsWith(${args[1]})`;
     case "str_ends_with":
       return `String(${args[0]}).endsWith(${args[1]})`;
+    case "substr_count":
+      return `((h,l)=>{h=String(h);let c=0,i=0;while((i=h.indexOf(l,i))!==-1){c++;i+=l.length||1}return c})(${args[0]},${args[1]})`;
+    case "explode":
+      return `String(${args[1]}).split(${args[0]})`;
+    case "strcmp":
+      return `((a,b)=>{a=String(a);b=String(b);return a===b?0:a<b?-1:1})(${args[0]},${args[1]})`;
+    case "strcasecmp":
+      return `((a,b)=>{a=String(a).toLowerCase();b=String(b).toLowerCase();return a===b?0:a<b?-1:1})(${args[0]},${args[1]})`;
+    case "strncmp":
+      return `((a,b,n)=>{a=String(a).slice(0,n);b=String(b).slice(0,n);return a===b?0:a<b?-1:1})(${args[0]},${args[1]},${args[2]})`;
     case "intval":
       return `intval(${args[0]})`;
     case "strlen":

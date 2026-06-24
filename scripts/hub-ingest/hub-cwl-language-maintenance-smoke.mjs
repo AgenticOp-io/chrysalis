@@ -43,6 +43,11 @@ import {
   runIrHelperLiftingB43StrContainsInlineGate,
   runIrHelperLiftingB44StrStartsWithInlineGate,
   runIrHelperLiftingB45StrEndsWithInlineGate,
+  runIrHelperLiftingB46SubstrCountInlineGate,
+  runIrHelperLiftingB47ExplodeInlineGate,
+  runIrHelperLiftingB48StrcmpInlineGate,
+  runIrHelperLiftingB49StrcasecmpInlineGate,
+  runIrHelperLiftingB50StrncmpInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -99,6 +104,11 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G7091") &&
     text.includes("G7092") &&
     text.includes("G7093") &&
+    text.includes("G7094") &&
+    text.includes("G7095") &&
+    text.includes("G7096") &&
+    text.includes("G7097") &&
+    text.includes("G7098") &&
     text.includes("isset") &&
     text.includes("count") &&
     text.includes("is_array") &&
@@ -135,7 +145,12 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("strripos()") &&
     text.includes("str_contains()") &&
     text.includes("str_starts_with()") &&
-    text.includes("str_ends_with()");
+    text.includes("str_ends_with()") &&
+    text.includes("substr_count()") &&
+    text.includes("explode()") &&
+    text.includes("strcmp()") &&
+    text.includes("strcasecmp()") &&
+    text.includes("strncmp()");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -182,6 +197,11 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b43 = runIrHelperLiftingB43StrContainsInlineGate();
   const b44 = runIrHelperLiftingB44StrStartsWithInlineGate();
   const b45 = runIrHelperLiftingB45StrEndsWithInlineGate();
+  const b46 = runIrHelperLiftingB46SubstrCountInlineGate();
+  const b47 = runIrHelperLiftingB47ExplodeInlineGate();
+  const b48 = runIrHelperLiftingB48StrcmpInlineGate();
+  const b49 = runIrHelperLiftingB49StrcasecmpInlineGate();
+  const b50 = runIrHelperLiftingB50StrncmpInlineGate();
   const ok =
     doc.ok === true &&
     taxonomy.ok === true &&
@@ -223,7 +243,12 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b42.ok === true &&
     b43.ok === true &&
     b44.ok === true &&
-    b45.ok === true;
+    b45.ok === true &&
+    b46.ok === true &&
+    b47.ok === true &&
+    b48.ok === true &&
+    b49.ok === true &&
+    b50.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -269,6 +294,11 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b43,
     b44,
     b45,
+    b46,
+    b47,
+    b48,
+    b49,
+    b50,
     generatedAt: new Date().toISOString(),
   };
 }

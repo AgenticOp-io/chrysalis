@@ -3715,6 +3715,16 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-06-22 — D6207** **CWL native UI v0 (RFC-0017, G7111).** Phase **15** first implementation slice: **`return ui { element … }`** on `@page` routes lowers to WebIR **`data.ui.tree`** (serialised nodes + operand bindings); runtime **`renderCwlUiTree`** + **`escapeHtml`** for server HTML; gold fixture **`fixtures/hub-gold-cwl-ui-v0`**; smokes **`hub:cwl-phase15-entry-smoke`** (**G7101**), **`hub:cwl-ui-v0-smoke`** (**G7111**). **Non-goals:** hydration, silent Svelte lowering.
 
+- **2026-06-24 — D6220** **IR helper B50 `strncmp(, literal, literal)` (G7098).** Formal + two literals **`strncmp($formal, 'needle', n)`** assign inlining via **`strncmpFormalLiteral2`**; fixture route **`/peh`**; emit via slice + strcmp logic; gate **`runIrHelperLiftingB50StrncmpInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6219** **IR helper B49 `strcasecmp(, literal)` (G7097).** Formal + literal **`strcasecmp($formal, 'literal')`** assign inlining; fixture route **`/samech`**; emit via lowercase + strcmp logic; gate **`runIrHelperLiftingB49StrcasecmpInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6218** **IR helper B48 `strcmp(, literal)` (G7096).** Formal + literal **`strcmp($formal, 'literal')`** assign inlining; fixture route **`/sin`**; emit via strcmp IIFE; gate **`runIrHelperLiftingB48StrcmpInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6217** **IR helper B47 `explode(, literal)` (G7095).** Formal + literal **`explode(',', $formal)`** assign inlining; fixture route **`/kaf`**; emit via **`String(…).split(…)`**; gate **`runIrHelperLiftingB47ExplodeInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6216** **IR helper B46 `substr_count(, literal)` (G7094).** Formal + literal **`substr_count($formal, 'literal')`** assign inlining; fixture route **`/yod`**; emit via non-overlapping indexOf IIFE; gate **`runIrHelperLiftingB46SubstrCountInlineGate`** in **G6731**.
+
 - **2026-06-24 — D6215** **IR helper B45 `str_ends_with(, literal)` (G7093).** Formal + literal **`str_ends_with($formal, 'literal')`** assign inlining; fixture route **`/tet`**; emit via **`String(…).endsWith(…)`**; gate **`runIrHelperLiftingB45StrEndsWithInlineGate`** in **G6731**.
 
 - **2026-06-24 — D6214** **IR helper B44 `str_starts_with(, literal)` (G7092).** Formal + literal **`str_starts_with($formal, 'literal')`** assign inlining; fixture route **`/chet`**; emit via **`String(…).startsWith(…)`**; gate **`runIrHelperLiftingB44StrStartsWithInlineGate`** in **G6731**.

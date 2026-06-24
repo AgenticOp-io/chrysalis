@@ -155,6 +155,16 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B45 v0 (G7093):** `str_ends_with(, literal)` formal + literal inlining — fixture route **`/tet`**. Gate: `runIrHelperLiftingB45StrEndsWithInlineGate`.
 
+**B46 v0 (G7094):** `substr_count(, literal)` formal + literal inlining — fixture route **`/yod`**. Gate: `runIrHelperLiftingB46SubstrCountInlineGate`.
+
+**B47 v0 (G7095):** `explode(, literal)` formal + literal inlining — fixture route **`/kaf`**. Gate: `runIrHelperLiftingB47ExplodeInlineGate`.
+
+**B48 v0 (G7096):** `strcmp(, literal)` formal + literal inlining — fixture route **`/sin`**. Gate: `runIrHelperLiftingB48StrcmpInlineGate`.
+
+**B49 v0 (G7097):** `strcasecmp(, literal)` formal + literal inlining — fixture route **`/samech`**. Gate: `runIrHelperLiftingB49StrcasecmpInlineGate`.
+
+**B50 v0 (G7098):** `strncmp(, literal, literal)` formal + literal inlining — fixture route **`/peh`**. Gate: `runIrHelperLiftingB50StrncmpInlineGate`.
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 
