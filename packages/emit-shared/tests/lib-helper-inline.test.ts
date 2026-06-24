@@ -1907,6 +1907,106 @@ describe("tryExtractInlineQuery (G2334)", () => {
       padLiteralId: pad,
     });
   });
+
+  it("accepts ucfirst() wrapper on formal assign (B57/G7107)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+    const label = data.param({ name: "label", type: T.string, origin });
+    const assignVal = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "v", type: T.string, origin }),
+        data.call({ callee: "ucfirst", args: [label], type: T.string, origin }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "v", type: T.string, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignVal, ret], origin });
+    const mod = builder.finish();
+    const extracted = tryExtractInlineQuery(mod, body, ["label"]);
+    expect(extracted!.localToUcfirstFormal.get("$v")).toBe("label");
+  });
+
+  it("accepts str_split(, literal) wrapper on formal assign (B65/G7117)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+    const label = data.param({ name: "label", type: T.string, origin });
+    const length = data.literal({ value: 2, type: T.int, origin });
+    const assignVal = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "v", type: T.string, origin }),
+        data.call({ callee: "str_split", args: [label, length], type: T.array(T.string), origin }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "v", type: T.string, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignVal, ret], origin });
+    const mod = builder.finish();
+    const extracted = tryExtractInlineQuery(mod, body, ["label"]);
+    expect(extracted!.localToStrSplitFormalLiteral.get("$v")).toEqual({ formal: "label", literalId: length });
+  });
+
+  it("accepts str_replace(, literal, literal) wrapper on formal assign (B55/G7105)", () => {
+    const builder = new ModuleBuilder({ sourceApp: "test", chrysalisVersion: "1.0.0" });
+    const data = dataDialect.builders(builder);
+    const effect = effectDialect.builders(builder);
+    const origin = phpLocator("lib.php", 1, 1);
+    const label = data.param({ name: "label", type: T.string, origin });
+    const search = data.literal({ value: "a", type: T.string, origin });
+    const replace = data.literal({ value: "b", type: T.string, origin });
+    const assignVal = data.call({
+      callee: "__assign",
+      args: [
+        data.literal({ value: "v", type: T.string, origin }),
+        data.call({ callee: "str_replace", args: [label, search, replace], type: T.string, origin }),
+      ],
+      type: T.void,
+      origin,
+    });
+    const query = effect.dbQuery({
+      kind: "read",
+      sql: "SELECT id FROM items WHERE id = ?",
+      params: [data.param({ name: "v", type: T.string, origin })],
+      returns: "rows",
+      tables: ["items"],
+      type: T.array(T.record({})),
+      origin,
+    });
+    const ret = data.call({ callee: "__return", args: [query], type: T.void, origin });
+    const body = data.block({ statements: [assignVal, ret], origin });
+    const mod = builder.finish();
+    const extracted = tryExtractInlineQuery(mod, body, ["label"]);
+    expect(extracted!.localToStrReplaceFormalLiteral2.get("$v")).toEqual({
+      formal: "label",
+      searchLiteralId: search,
+      replaceLiteralId: replace,
+    });
+  });
 });
 
 describe("libHelperTsExportName (G6207)", () => {

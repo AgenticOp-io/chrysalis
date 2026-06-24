@@ -67,6 +67,27 @@ require_once __DIR__ . '/lib/sql_param_str_pad.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
+require_once __DIR__ . '/lib/sql_param_html_entity_decode.php';
+require_once __DIR__ . '/lib/sql_param_htmlentities.php';
+require_once __DIR__ . '/lib/sql_param_strtr.php';
+require_once __DIR__ . '/lib/sql_param_chunk_split.php';
+require_once __DIR__ . '/lib/sql_param_wordwrap.php';
+require_once __DIR__ . '/lib/sql_param_trim_charlist.php';
+require_once __DIR__ . '/lib/sql_param_rtrim_charlist.php';
+require_once __DIR__ . '/lib/sql_param_ltrim_charlist.php';
+require_once __DIR__ . '/lib/sql_param_strspn.php';
+require_once __DIR__ . '/lib/sql_param_strcspn.php';
+require_once __DIR__ . '/lib/sql_param_str_split.php';
+require_once __DIR__ . '/lib/sql_param_str_word_count.php';
+require_once __DIR__ . '/lib/sql_param_str_rot13.php';
+require_once __DIR__ . '/lib/sql_param_stripslashes.php';
+require_once __DIR__ . '/lib/sql_param_addslashes.php';
+require_once __DIR__ . '/lib/sql_param_strip_tags.php';
+require_once __DIR__ . '/lib/sql_param_ucwords.php';
+require_once __DIR__ . '/lib/sql_param_lcfirst.php';
+require_once __DIR__ . '/lib/sql_param_ucfirst.php';
+require_once __DIR__ . '/lib/sql_param_str_ireplace.php';
+require_once __DIR__ . '/lib/sql_param_str_replace.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -336,5 +357,89 @@ if ($method === 'GET' && $path === '/dale') {
     exit;
 }
 
+if ($method === 'GET' && $path === '/repl') {
+    require __DIR__ . '/pages/show_repl.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/irepl') {
+    require __DIR__ . '/pages/show_irepl.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/ucf') {
+    require __DIR__ . '/pages/show_ucf.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/lcf') {
+    require __DIR__ . '/pages/show_lcf.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/ucw') {
+    require __DIR__ . '/pages/show_ucw.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/stag') {
+    require __DIR__ . '/pages/show_stag.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/adds') {
+    require __DIR__ . '/pages/show_adds.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/subs') {
+    require __DIR__ . '/pages/show_subs.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/rot13') {
+    require __DIR__ . '/pages/show_rot13.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/swc') {
+    require __DIR__ . '/pages/show_swc.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/split') {
+    require __DIR__ . '/pages/show_split.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/cspn') {
+    require __DIR__ . '/pages/show_cspn.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/sspn') {
+    require __DIR__ . '/pages/show_sspn.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/ltrimc') {
+    require __DIR__ . '/pages/show_ltrimc.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/rtrimc') {
+    require __DIR__ . '/pages/show_rtrimc.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/trimc') {
+    require __DIR__ . '/pages/show_trimc.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/wrap') {
+    require __DIR__ . '/pages/show_wrap.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/csplit') {
+    require __DIR__ . '/pages/show_csplit.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/xlat') {
+    require __DIR__ . '/pages/show_xlat.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/hent') {
+    require __DIR__ . '/pages/show_hent.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/hdec') {
+    require __DIR__ . '/pages/show_hdec.php';
+    exit;
+}
 http_response_code(404);
 echo 'Not Found';

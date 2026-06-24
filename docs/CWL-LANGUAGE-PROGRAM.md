@@ -1,6 +1,6 @@
 # CWL language program
 
-> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language closed** (2026-06-22, **G7150**); **IR helper v1.1 active** (**G7104** B54)  
+> **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language closed** (2026-06-22, **G7150**); **IR helper string v1.1 closed** (**G7133** B75)  
 > **Authority:** `docs/CWL-SURFACE-TAXONOMY.md` (**D6193**); `docs/CWL.md`; `docs/CWL-RFC.md`; `docs/STRATEGIC-PLAN.md` §7
 
 Chrysalis Web Language (CWL) is the **consolidated web language** for routes, pages, data loaders, effects metadata, and (future) UI composition — all lowering through **WebIR** to emit targets and oracle verify.
@@ -108,6 +108,27 @@ Per **DESIGN §3** and **D6205**:
 | G7099 | B51 `strncasecmp(, literal, literal)` formal + literal | `runIrHelperLiftingB51StrncasecmpInlineGate` |
 | G7102 | B52 `strrev()` formal | `runIrHelperLiftingB52StrrevInlineGate` |
 | G7103 | B53 `str_repeat(, literal)` formal + literal | `runIrHelperLiftingB53StrRepeatInlineGate` |
+| G7105 | B55 `str_replace(, lit, lit)` formal assign | `runIrHelperLiftingB55StrReplaceInlineGate` |
+| G7106 | B56 `str_ireplace(, lit, lit)` formal assign | `runIrHelperLiftingB56StrIreplaceInlineGate` |
+| G7107 | B57 `ucfirst()` formal assign | `runIrHelperLiftingB57UcfirstInlineGate` |
+| G7108 | B58 `lcfirst()` formal assign | `runIrHelperLiftingB58LcfirstInlineGate` |
+| G7109 | B59 `ucwords()` formal assign | `runIrHelperLiftingB59UcwordsInlineGate` |
+| G7112 | B60 `strip_tags()` formal assign | `runIrHelperLiftingB60StripTagsInlineGate` |
+| G7113 | B61 `addslashes()` formal assign | `runIrHelperLiftingB61AddslashesInlineGate` |
+| G7114 | B62 `stripslashes()` formal assign | `runIrHelperLiftingB62StripslashesInlineGate` |
+| G7115 | B63 `str_rot13()` formal assign | `runIrHelperLiftingB63StrRot13InlineGate` |
+| G7116 | B64 `str_word_count()` formal assign | `runIrHelperLiftingB64StrWordCountInlineGate` |
+| G7117 | B65 `str_split(, lit)` formal assign | `runIrHelperLiftingB65StrSplitInlineGate` |
+| G7118 | B66 `strcspn(, lit)` formal assign | `runIrHelperLiftingB66StrcspnInlineGate` |
+| G7119 | B67 `strspn(, lit)` formal assign | `runIrHelperLiftingB67StrspnInlineGate` |
+| G7124 | B68 `ltrim(, lit)` formal assign | `runIrHelperLiftingB68LtrimCharlistInlineGate` |
+| G7125 | B69 `rtrim(, lit)` formal assign | `runIrHelperLiftingB69RtrimCharlistInlineGate` |
+| G7126 | B70 `trim(, lit)` formal assign | `runIrHelperLiftingB70TrimCharlistInlineGate` |
+| G7127 | B71 `wordwrap(, lit, lit)` formal assign | `runIrHelperLiftingB71WordwrapInlineGate` |
+| G7128 | B72 `chunk_split(, lit, lit)` formal assign | `runIrHelperLiftingB72ChunkSplitInlineGate` |
+| G7129 | B73 `strtr(, lit, lit)` formal assign | `runIrHelperLiftingB73StrtrInlineGate` |
+| G7132 | B74 `htmlentities()` formal assign | `runIrHelperLiftingB74HtmlentitiesInlineGate` |
+| G7133 | B75 `html_entity_decode()` formal assign | `runIrHelperLiftingB75HtmlEntityDecodeInlineGate` |
 | G7104 | B54 `str_pad(, literal, literal)` formal + literal | `runIrHelperLiftingB54StrPadInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 | **G7100** | Complete language program entry | Doc gate — § Complete language program |
@@ -123,11 +144,11 @@ Per **DESIGN §3** and **D6205**:
 
 Post-v1 incremental IR helper depth on the **same B-tier pattern** (formal-assign lib SQL inlining). **Subordinate** to Phase 15–18 (**D6206**); extends ingest/emit helper lifting only.
 
-Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7104** B54).
+Regression: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**, includes **G6760** B9 through **G7133** B75).
 
 ## Default queue
 
-**Active build:** **IR helper B54 `str_pad()`** (**G7104**); regression **`hub:cwl-complete-language-close-smoke`** (**G7150**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
+**Active build:** **IR helper string v1.1 closed at B75** (**G7133**); regression **`hub:cwl-complete-language-close-smoke`** (**G7150**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
 
 **Subordinate:** IR helper maintenance — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
 

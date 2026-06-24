@@ -171,6 +171,50 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B53 v0 (G7103):** `str_repeat(, literal)` formal + literal inlining — fixture route **`/gim`**. Gate: `runIrHelperLiftingB53StrRepeatInlineGate`.
 
+**B55 v0 (G7105):** `str_replace(, lit, lit)` formal assign inlining — fixture route **`/repl`**. Gate: `runIrHelperLiftingB55StrReplaceInlineGate`.
+
+**B56 v0 (G7106):** `str_ireplace(, lit, lit)` formal assign inlining — fixture route **`/irepl`**. Gate: `runIrHelperLiftingB56StrIreplaceInlineGate`.
+
+**B57 v0 (G7107):** `ucfirst()` formal assign inlining — fixture route **`/ucf`**. Gate: `runIrHelperLiftingB57UcfirstInlineGate`.
+
+**B58 v0 (G7108):** `lcfirst()` formal assign inlining — fixture route **`/lcf`**. Gate: `runIrHelperLiftingB58LcfirstInlineGate`.
+
+**B59 v0 (G7109):** `ucwords()` formal assign inlining — fixture route **`/ucw`**. Gate: `runIrHelperLiftingB59UcwordsInlineGate`.
+
+**B60 v0 (G7112):** `strip_tags()` formal assign inlining — fixture route **`/stag`**. Gate: `runIrHelperLiftingB60StripTagsInlineGate`.
+
+**B61 v0 (G7113):** `addslashes()` formal assign inlining — fixture route **`/adds`**. Gate: `runIrHelperLiftingB61AddslashesInlineGate`.
+
+**B62 v0 (G7114):** `stripslashes()` formal assign inlining — fixture route **`/subs`**. Gate: `runIrHelperLiftingB62StripslashesInlineGate`.
+
+**B63 v0 (G7115):** `str_rot13()` formal assign inlining — fixture route **`/rot13`**. Gate: `runIrHelperLiftingB63StrRot13InlineGate`.
+
+**B64 v0 (G7116):** `str_word_count()` formal assign inlining — fixture route **`/swc`**. Gate: `runIrHelperLiftingB64StrWordCountInlineGate`.
+
+**B65 v0 (G7117):** `str_split(, lit)` formal assign inlining — fixture route **`/split`**. Gate: `runIrHelperLiftingB65StrSplitInlineGate`.
+
+**B66 v0 (G7118):** `strcspn(, lit)` formal assign inlining — fixture route **`/cspn`**. Gate: `runIrHelperLiftingB66StrcspnInlineGate`.
+
+**B67 v0 (G7119):** `strspn(, lit)` formal assign inlining — fixture route **`/sspn`**. Gate: `runIrHelperLiftingB67StrspnInlineGate`.
+
+**B68 v0 (G7124):** `ltrim(, lit)` formal assign inlining — fixture route **`/ltrimc`**. Gate: `runIrHelperLiftingB68LtrimCharlistInlineGate`.
+
+**B69 v0 (G7125):** `rtrim(, lit)` formal assign inlining — fixture route **`/rtrimc`**. Gate: `runIrHelperLiftingB69RtrimCharlistInlineGate`.
+
+**B70 v0 (G7126):** `trim(, lit)` formal assign inlining — fixture route **`/trimc`**. Gate: `runIrHelperLiftingB70TrimCharlistInlineGate`.
+
+**B71 v0 (G7127):** `wordwrap(, lit, lit)` formal assign inlining — fixture route **`/wrap`**. Gate: `runIrHelperLiftingB71WordwrapInlineGate`.
+
+**B72 v0 (G7128):** `chunk_split(, lit, lit)` formal assign inlining — fixture route **`/csplit`**. Gate: `runIrHelperLiftingB72ChunkSplitInlineGate`.
+
+**B73 v0 (G7129):** `strtr(, lit, lit)` formal assign inlining — fixture route **`/xlat`**. Gate: `runIrHelperLiftingB73StrtrInlineGate`.
+
+**B74 v0 (G7132):** `htmlentities()` formal assign inlining — fixture route **`/hent`**. Gate: `runIrHelperLiftingB74HtmlentitiesInlineGate`.
+
+**B75 v0 (G7133):** `html_entity_decode()` formal assign inlining — fixture route **`/hdec`**. Gate: `runIrHelperLiftingB75HtmlEntityDecodeInlineGate`.
+
+**String helper v1.1 closed at B75 (G7133).**
+
 **B54 v0 (G7104):** `str_pad(, literal, literal)` formal + literal inlining — fixture route **`/dale`**. Gate: `runIrHelperLiftingB54StrPadInlineGate`.
 
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  

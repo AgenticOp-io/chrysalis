@@ -599,7 +599,9 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
     case "nl2br":
       return `nl2br(${args[0]})`;
     case "trim":
-      return `trim(${args[0]})`;
+      return args.length >= 2
+        ? `((s,c)=>{s=String(s);let a=0,b=s.length;while(a<b&&c.includes(s[a]))a++;while(b>a&&c.includes(s[b-1]))b--;return s.slice(a,b)})(${args[0]},${args[1]})`
+        : `trim(${args[0]})`;
     case "strtolower":
       return `String(${args[0]}).toLowerCase()`;
     case "strtoupper":
@@ -613,9 +615,13 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
     case "rawurldecode":
       return `rawurldecode(${args[0]})`;
     case "ltrim":
-      return `ltrim(${args[0]})`;
+      return args.length >= 2
+        ? `((s,c)=>{s=String(s);let i=0;while(i<s.length&&c.includes(s[i]))i++;return s.slice(i)})(${args[0]},${args[1]})`
+        : `ltrim(${args[0]})`;
     case "rtrim":
-      return `rtrim(${args[0]})`;
+      return args.length >= 2
+        ? `((s,c)=>{s=String(s);let i=s.length;while(i>0&&c.includes(s[i-1]))i--;return s.slice(0,i)})(${args[0]},${args[1]})`
+        : `rtrim(${args[0]})`;
     case "max":
       return `max(${args[0]}, ${args[1]})`;
     case "min":
@@ -656,6 +662,58 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `String(${args[0]}).repeat(${args[1]})`;
     case "str_pad":
       return `String(${args[0]}).padEnd(${args[1]},${args[2]})`;
+    case "str_replace":
+      return args.length >= 3
+        ? `String(${args[0]}).split(${args[1]}).join(${args[2]})`
+        : `str_replace(${args.join(", ")})`;
+    case "str_ireplace":
+      return args.length >= 3
+        ? `((s,search,repl)=>{const esc=String(search).replace(/[.*+?^\${}()|[\\]\\\\]/g,'\\\\$&');return String(s).replace(new RegExp(esc,'gi'),String(repl))})(${args[0]},${args[1]},${args[2]})`
+        : `str_ireplace(${args.join(", ")})`;
+    case "ucfirst":
+      return `((s)=>{s=String(s);return s?s[0].toUpperCase()+s.slice(1):s})(${args[0]})`;
+    case "lcfirst":
+      return `((s)=>{s=String(s);return s?s[0].toLowerCase()+s.slice(1):s})(${args[0]})`;
+    case "ucwords":
+      return `((s)=>String(s).replace(/\\b\\w/g,(c)=>c.toUpperCase()))(${args[0]})`;
+    case "strip_tags":
+      return `String(${args[0]}).replace(/<[^>]*>/g,'')`;
+    case "addslashes":
+      return `((s)=>String(s).replace(/\\\\/g,'\\\\\\\\').replace(/'/g,"\\\\'").replace(/"/g,'\\\\"').replace(/\\0/g,'\\\\0'))(${args[0]})`;
+    case "stripslashes":
+      return `((s)=>String(s).replace(/\\\\(['"\\\\0])/g,'$1'))(${args[0]})`;
+    case "str_rot13":
+      return `((s)=>String(s).replace(/[a-zA-Z]/g,(c)=>String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26)))(${args[0]})`;
+    case "str_word_count":
+      return `((s)=>{s=String(s).trim();return s?s.split(/\\s+/).filter(Boolean).length:0})(${args[0]})`;
+    case "str_split":
+      return args.length >= 2
+        ? `((s,n)=>{s=String(s);const a=[];for(let i=0;i<s.length;i+=n)a.push(s.slice(i,i+n));return a})(${args[0]},${args[1]})`
+        : `str_split(${args.join(", ")})`;
+    case "strcspn":
+      return args.length >= 2
+        ? `((s,c)=>{s=String(s);let i=0;for(;i<s.length;i++){if(c.includes(s[i]))break}return i})(${args[0]},${args[1]})`
+        : `strcspn(${args.join(", ")})`;
+    case "strspn":
+      return args.length >= 2
+        ? `((s,c)=>{s=String(s);let i=0;for(;i<s.length;i++){if(!c.includes(s[i]))break}return i})(${args[0]},${args[1]})`
+        : `strspn(${args.join(", ")})`;
+    case "wordwrap":
+      return args.length >= 3
+        ? `((s,w,brk)=>{s=String(s);if(!s)return s;const out=[];for(let i=0;i<s.length;i+=w)out.push(s.slice(i,i+w));return out.join(brk)})(${args[0]},${args[1]},${args[2]})`
+        : `wordwrap(${args.join(", ")})`;
+    case "chunk_split":
+      return args.length >= 3
+        ? `((s,w,sep)=>{s=String(s);if(!s)return s;const out=[];for(let i=0;i<s.length;i+=w)out.push(s.slice(i,i+w));return out.join(sep)+sep})(${args[0]},${args[1]},${args[2]})`
+        : `chunk_split(${args.join(", ")})`;
+    case "strtr":
+      return args.length >= 3
+        ? `((s,from,to)=>{s=String(s);const m=new Map();for(let i=0;i<from.length;i++)m.set(from[i],to[i]??from[i]);return s.split('').map((ch)=>m.has(ch)?m.get(ch):ch).join('')})(${args[0]},${args[1]},${args[2]})`
+        : `strtr(${args.join(", ")})`;
+    case "htmlentities":
+      return `escapeHtml(${args[0]})`;
+    case "html_entity_decode":
+      return `((s)=>String(s).replace(/&(#\\d+|#x[0-9a-fA-F]+|\\w+);/g,(m,e)=>{if(e[0]==='#'){const n=e[1]==='x'||e[1]==='X'?parseInt(e.slice(2),16):parseInt(e.slice(1),10);return Number.isFinite(n)?String.fromCodePoint(n):m}const map={lt:'<',gt:'>',amp:'&',quot:'"',apos:"'"};return map[e]??m}))(${args[0]})`;
     case "intval":
       return `intval(${args[0]})`;
     case "strlen":

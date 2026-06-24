@@ -52,6 +52,27 @@ import {
   runIrHelperLiftingB52StrrevInlineGate,
   runIrHelperLiftingB53StrRepeatInlineGate,
   runIrHelperLiftingB54StrPadInlineGate,
+  runIrHelperLiftingB55StrReplaceInlineGate,
+  runIrHelperLiftingB56StrIreplaceInlineGate,
+  runIrHelperLiftingB57UcfirstInlineGate,
+  runIrHelperLiftingB58LcfirstInlineGate,
+  runIrHelperLiftingB59UcwordsInlineGate,
+  runIrHelperLiftingB60StripTagsInlineGate,
+  runIrHelperLiftingB61AddslashesInlineGate,
+  runIrHelperLiftingB62StripslashesInlineGate,
+  runIrHelperLiftingB63StrRot13InlineGate,
+  runIrHelperLiftingB64StrWordCountInlineGate,
+  runIrHelperLiftingB65StrSplitInlineGate,
+  runIrHelperLiftingB66StrcspnInlineGate,
+  runIrHelperLiftingB67StrspnInlineGate,
+  runIrHelperLiftingB68LtrimCharlistInlineGate,
+  runIrHelperLiftingB69RtrimCharlistInlineGate,
+  runIrHelperLiftingB70TrimCharlistInlineGate,
+  runIrHelperLiftingB71WordwrapInlineGate,
+  runIrHelperLiftingB72ChunkSplitInlineGate,
+  runIrHelperLiftingB73StrtrInlineGate,
+  runIrHelperLiftingB74HtmlentitiesInlineGate,
+  runIrHelperLiftingB75HtmlEntityDecodeInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -117,6 +138,27 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G7102") &&
     text.includes("G7103") &&
     text.includes("G7104") &&
+    text.includes("G7105") &&
+    text.includes("G7106") &&
+    text.includes("G7107") &&
+    text.includes("G7108") &&
+    text.includes("G7109") &&
+    text.includes("G7112") &&
+    text.includes("G7113") &&
+    text.includes("G7114") &&
+    text.includes("G7115") &&
+    text.includes("G7116") &&
+    text.includes("G7117") &&
+    text.includes("G7118") &&
+    text.includes("G7119") &&
+    text.includes("G7124") &&
+    text.includes("G7125") &&
+    text.includes("G7126") &&
+    text.includes("G7127") &&
+    text.includes("G7128") &&
+    text.includes("G7129") &&
+    text.includes("G7132") &&
+    text.includes("G7133") &&
     text.includes("isset") &&
     text.includes("count") &&
     text.includes("is_array") &&
@@ -162,7 +204,28 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("strncasecmp()") &&
     text.includes("strrev()") &&
     text.includes("str_repeat()") &&
-    text.includes("str_pad()");
+    text.includes("str_pad()") &&
+    text.includes("str_replace()") &&
+    text.includes("str_ireplace()") &&
+    text.includes("ucfirst()") &&
+    text.includes("lcfirst()") &&
+    text.includes("ucwords()") &&
+    text.includes("strip_tags()") &&
+    text.includes("addslashes()") &&
+    text.includes("stripslashes()") &&
+    text.includes("str_rot13()") &&
+    text.includes("str_word_count()") &&
+    text.includes("str_split()") &&
+    text.includes("strcspn()") &&
+    text.includes("strspn()") &&
+    text.includes("ltrim(, lit)") &&
+    text.includes("rtrim(, lit)") &&
+    text.includes("trim(, lit)") &&
+    text.includes("wordwrap()") &&
+    text.includes("chunk_split()") &&
+    text.includes("strtr()") &&
+    text.includes("htmlentities()") &&
+    text.includes("html_entity_decode()");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -218,6 +281,27 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b52 = runIrHelperLiftingB52StrrevInlineGate();
   const b53 = runIrHelperLiftingB53StrRepeatInlineGate();
   const b54 = runIrHelperLiftingB54StrPadInlineGate();
+  const b55 = runIrHelperLiftingB55StrReplaceInlineGate();
+  const b56 = runIrHelperLiftingB56StrIreplaceInlineGate();
+  const b57 = runIrHelperLiftingB57UcfirstInlineGate();
+  const b58 = runIrHelperLiftingB58LcfirstInlineGate();
+  const b59 = runIrHelperLiftingB59UcwordsInlineGate();
+  const b60 = runIrHelperLiftingB60StripTagsInlineGate();
+  const b61 = runIrHelperLiftingB61AddslashesInlineGate();
+  const b62 = runIrHelperLiftingB62StripslashesInlineGate();
+  const b63 = runIrHelperLiftingB63StrRot13InlineGate();
+  const b64 = runIrHelperLiftingB64StrWordCountInlineGate();
+  const b65 = runIrHelperLiftingB65StrSplitInlineGate();
+  const b66 = runIrHelperLiftingB66StrcspnInlineGate();
+  const b67 = runIrHelperLiftingB67StrspnInlineGate();
+  const b68 = runIrHelperLiftingB68LtrimCharlistInlineGate();
+  const b69 = runIrHelperLiftingB69RtrimCharlistInlineGate();
+  const b70 = runIrHelperLiftingB70TrimCharlistInlineGate();
+  const b71 = runIrHelperLiftingB71WordwrapInlineGate();
+  const b72 = runIrHelperLiftingB72ChunkSplitInlineGate();
+  const b73 = runIrHelperLiftingB73StrtrInlineGate();
+  const b74 = runIrHelperLiftingB74HtmlentitiesInlineGate();
+  const b75 = runIrHelperLiftingB75HtmlEntityDecodeInlineGate();
   const ok =
     doc.ok === true &&
     taxonomy.ok === true &&
@@ -268,7 +352,28 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b51.ok === true &&
     b52.ok === true &&
     b53.ok === true &&
-    b54.ok === true;
+    b54.ok === true &&
+    b55.ok === true &&
+    b56.ok === true &&
+    b57.ok === true &&
+    b58.ok === true &&
+    b59.ok === true &&
+    b60.ok === true &&
+    b61.ok === true &&
+    b62.ok === true &&
+    b63.ok === true &&
+    b64.ok === true &&
+    b65.ok === true &&
+    b66.ok === true &&
+    b67.ok === true &&
+    b68.ok === true &&
+    b69.ok === true &&
+    b70.ok === true &&
+    b71.ok === true &&
+    b72.ok === true &&
+    b73.ok === true &&
+    b74.ok === true &&
+    b75.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -323,6 +428,27 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b52,
     b53,
     b54,
+    b55,
+    b56,
+    b57,
+    b58,
+    b59,
+    b60,
+    b61,
+    b62,
+    b63,
+    b64,
+    b65,
+    b66,
+    b67,
+    b68,
+    b69,
+    b70,
+    b71,
+    b72,
+    b73,
+    b74,
+    b75,
     generatedAt: new Date().toISOString(),
   };
 }

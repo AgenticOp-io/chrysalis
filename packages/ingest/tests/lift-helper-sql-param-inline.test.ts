@@ -75,6 +75,27 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
       "chrysalis_sql_param_cast_float",
       "chrysalis_sql_param_cast_bool",
       "chrysalis_sql_param_cast_int",
+      "chrysalis_sql_param_str_replace",
+      "chrysalis_sql_param_str_ireplace",
+      "chrysalis_sql_param_ucfirst",
+      "chrysalis_sql_param_lcfirst",
+      "chrysalis_sql_param_ucwords",
+      "chrysalis_sql_param_strip_tags",
+      "chrysalis_sql_param_addslashes",
+      "chrysalis_sql_param_stripslashes",
+      "chrysalis_sql_param_str_rot13",
+      "chrysalis_sql_param_str_word_count",
+      "chrysalis_sql_param_str_split",
+      "chrysalis_sql_param_strcspn",
+      "chrysalis_sql_param_strspn",
+      "chrysalis_sql_param_ltrim_charlist",
+      "chrysalis_sql_param_rtrim_charlist",
+      "chrysalis_sql_param_trim_charlist",
+      "chrysalis_sql_param_wordwrap",
+      "chrysalis_sql_param_chunk_split",
+      "chrysalis_sql_param_strtr",
+      "chrysalis_sql_param_htmlentities",
+      "chrysalis_sql_param_html_entity_decode",
     ]);
     const helperCalls = [...mod.nodes.values()].filter(
       (n) => n.dialect === "data" && n.op === "call" && inlineCallees.has(String(n.attrs.callee)),
@@ -95,7 +116,7 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     );
     expect(sideeffectCalls.length).toBe(1);
     const dbQueries = [...mod.nodes.values()].filter((n) => n.dialect === "effect" && n.op === "db.query");
-    expect(dbQueries.length).toBeGreaterThanOrEqual(56);
+    expect(dbQueries.length).toBeGreaterThanOrEqual(77);
   });
 
   it("prelude guard allows strlen skip but blocks sideeffect pre-return query", async () => {
@@ -223,6 +244,48 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     expect(tryExtractInlineQuery(mod, castBool.bodyId, castBool.paramNames)).toBeDefined();
     const castInt = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_cast_int")!;
     expect(tryExtractInlineQuery(mod, castInt.bodyId, castInt.paramNames)).toBeDefined();
+    const str_replaceHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_str_replace")!;
+    expect(tryExtractInlineQuery(mod, str_replaceHelper.bodyId, str_replaceHelper.paramNames)).toBeDefined();
+    const str_ireplaceHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_str_ireplace")!;
+    expect(tryExtractInlineQuery(mod, str_ireplaceHelper.bodyId, str_ireplaceHelper.paramNames)).toBeDefined();
+    const ucfirstHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_ucfirst")!;
+    expect(tryExtractInlineQuery(mod, ucfirstHelper.bodyId, ucfirstHelper.paramNames)).toBeDefined();
+    const lcfirstHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_lcfirst")!;
+    expect(tryExtractInlineQuery(mod, lcfirstHelper.bodyId, lcfirstHelper.paramNames)).toBeDefined();
+    const ucwordsHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_ucwords")!;
+    expect(tryExtractInlineQuery(mod, ucwordsHelper.bodyId, ucwordsHelper.paramNames)).toBeDefined();
+    const strip_tagsHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_strip_tags")!;
+    expect(tryExtractInlineQuery(mod, strip_tagsHelper.bodyId, strip_tagsHelper.paramNames)).toBeDefined();
+    const addslashesHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_addslashes")!;
+    expect(tryExtractInlineQuery(mod, addslashesHelper.bodyId, addslashesHelper.paramNames)).toBeDefined();
+    const stripslashesHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_stripslashes")!;
+    expect(tryExtractInlineQuery(mod, stripslashesHelper.bodyId, stripslashesHelper.paramNames)).toBeDefined();
+    const str_rot13Helper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_str_rot13")!;
+    expect(tryExtractInlineQuery(mod, str_rot13Helper.bodyId, str_rot13Helper.paramNames)).toBeDefined();
+    const str_word_countHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_str_word_count")!;
+    expect(tryExtractInlineQuery(mod, str_word_countHelper.bodyId, str_word_countHelper.paramNames)).toBeDefined();
+    const str_splitHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_str_split")!;
+    expect(tryExtractInlineQuery(mod, str_splitHelper.bodyId, str_splitHelper.paramNames)).toBeDefined();
+    const strcspnHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_strcspn")!;
+    expect(tryExtractInlineQuery(mod, strcspnHelper.bodyId, strcspnHelper.paramNames)).toBeDefined();
+    const strspnHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_strspn")!;
+    expect(tryExtractInlineQuery(mod, strspnHelper.bodyId, strspnHelper.paramNames)).toBeDefined();
+    const ltrim_charlistHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_ltrim_charlist")!;
+    expect(tryExtractInlineQuery(mod, ltrim_charlistHelper.bodyId, ltrim_charlistHelper.paramNames)).toBeDefined();
+    const rtrim_charlistHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_rtrim_charlist")!;
+    expect(tryExtractInlineQuery(mod, rtrim_charlistHelper.bodyId, rtrim_charlistHelper.paramNames)).toBeDefined();
+    const trim_charlistHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_trim_charlist")!;
+    expect(tryExtractInlineQuery(mod, trim_charlistHelper.bodyId, trim_charlistHelper.paramNames)).toBeDefined();
+    const wordwrapHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_wordwrap")!;
+    expect(tryExtractInlineQuery(mod, wordwrapHelper.bodyId, wordwrapHelper.paramNames)).toBeDefined();
+    const chunk_splitHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_chunk_split")!;
+    expect(tryExtractInlineQuery(mod, chunk_splitHelper.bodyId, chunk_splitHelper.paramNames)).toBeDefined();
+    const strtrHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_strtr")!;
+    expect(tryExtractInlineQuery(mod, strtrHelper.bodyId, strtrHelper.paramNames)).toBeDefined();
+    const htmlentitiesHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_htmlentities")!;
+    expect(tryExtractInlineQuery(mod, htmlentitiesHelper.bodyId, htmlentitiesHelper.paramNames)).toBeDefined();
+    const html_entity_decodeHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_html_entity_decode")!;
+    expect(tryExtractInlineQuery(mod, html_entity_decodeHelper.bodyId, html_entity_decodeHelper.paramNames)).toBeDefined();
     const sideeffect = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_sideeffect")!;
     expect(tryExtractInlineQuery(mod, sideeffect.bodyId, sideeffect.paramNames)).toBeUndefined();
   });

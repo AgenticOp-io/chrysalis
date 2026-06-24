@@ -3723,6 +3723,48 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 
 - **2026-06-24 — D6223** **IR helper B53 `str_repeat(, literal)` (G7103).** Formal + literal assign inlining via **`strRepeatFormalLiteral`**; fixture route **`/gim`**; emit via **`String.repeat`**; gate **`runIrHelperLiftingB53StrRepeatInlineGate`** in **G6731**.
 
+- **2026-06-24 — D6225** **IR helper B55 `str_replace(, lit, lit)` (G7105).** Formal assign inlining; fixture route **`/repl`**; gate **`runIrHelperLiftingB55StrReplaceInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6226** **IR helper B56 `str_ireplace(, lit, lit)` (G7106).** Formal assign inlining; fixture route **`/irepl`**; gate **`runIrHelperLiftingB56StrIreplaceInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6227** **IR helper B57 `ucfirst()` (G7107).** Formal assign inlining; fixture route **`/ucf`**; gate **`runIrHelperLiftingB57UcfirstInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6228** **IR helper B58 `lcfirst()` (G7108).** Formal assign inlining; fixture route **`/lcf`**; gate **`runIrHelperLiftingB58LcfirstInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6229** **IR helper B59 `ucwords()` (G7109).** Formal assign inlining; fixture route **`/ucw`**; gate **`runIrHelperLiftingB59UcwordsInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6230** **IR helper B60 `strip_tags()` (G7112).** Formal assign inlining; fixture route **`/stag`**; gate **`runIrHelperLiftingB60StripTagsInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6231** **IR helper B61 `addslashes()` (G7113).** Formal assign inlining; fixture route **`/adds`**; gate **`runIrHelperLiftingB61AddslashesInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6232** **IR helper B62 `stripslashes()` (G7114).** Formal assign inlining; fixture route **`/subs`**; gate **`runIrHelperLiftingB62StripslashesInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6233** **IR helper B63 `str_rot13()` (G7115).** Formal assign inlining; fixture route **`/rot13`**; gate **`runIrHelperLiftingB63StrRot13InlineGate`** in **G6731**.
+
+- **2026-06-24 — D6234** **IR helper B64 `str_word_count()` (G7116).** Formal assign inlining; fixture route **`/swc`**; gate **`runIrHelperLiftingB64StrWordCountInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6235** **IR helper B65 `str_split(, lit)` (G7117).** Formal assign inlining; fixture route **`/split`**; gate **`runIrHelperLiftingB65StrSplitInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6236** **IR helper B66 `strcspn(, lit)` (G7118).** Formal assign inlining; fixture route **`/cspn`**; gate **`runIrHelperLiftingB66StrcspnInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6237** **IR helper B67 `strspn(, lit)` (G7119).** Formal assign inlining; fixture route **`/sspn`**; gate **`runIrHelperLiftingB67StrspnInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6238** **IR helper B68 `ltrim(, lit)` (G7124).** Formal assign inlining; fixture route **`/ltrimc`**; gate **`runIrHelperLiftingB68LtrimCharlistInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6239** **IR helper B69 `rtrim(, lit)` (G7125).** Formal assign inlining; fixture route **`/rtrimc`**; gate **`runIrHelperLiftingB69RtrimCharlistInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6240** **IR helper B70 `trim(, lit)` (G7126).** Formal assign inlining; fixture route **`/trimc`**; gate **`runIrHelperLiftingB70TrimCharlistInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6241** **IR helper B71 `wordwrap(, lit, lit)` (G7127).** Formal assign inlining; fixture route **`/wrap`**; gate **`runIrHelperLiftingB71WordwrapInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6242** **IR helper B72 `chunk_split(, lit, lit)` (G7128).** Formal assign inlining; fixture route **`/csplit`**; gate **`runIrHelperLiftingB72ChunkSplitInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6243** **IR helper B73 `strtr(, lit, lit)` (G7129).** Formal assign inlining; fixture route **`/xlat`**; gate **`runIrHelperLiftingB73StrtrInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6244** **IR helper B74 `htmlentities()` (G7132).** Formal assign inlining; fixture route **`/hent`**; gate **`runIrHelperLiftingB74HtmlentitiesInlineGate`** in **G6731**.
+
+- **2026-06-24 — D6245** **IR helper B75 `html_entity_decode()` (G7133).** Formal assign inlining; fixture route **`/hdec`**; gate **`runIrHelperLiftingB75HtmlEntityDecodeInlineGate`** in **G6731**.
+
 - **2026-06-24 — D6224** **IR helper B54 `str_pad(, literal, literal)` (G7104).** Formal + two literals assign inlining via **`strPadFormalLiteral2`**; fixture route **`/dale`**; emit via **`padEnd`** (STR_PAD_RIGHT default); gate **`runIrHelperLiftingB54StrPadInlineGate`** in **G6731**.
 
 - **2026-06-24 — D6219** **IR helper B49 `strcasecmp(, literal)` (G7097).** Formal + literal **`strcasecmp($formal, 'literal')`** assign inlining; fixture route **`/samech`**; emit via lowercase + strcmp logic; gate **`runIrHelperLiftingB49StrcasecmpInlineGate`** in **G6731**.
