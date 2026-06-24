@@ -29,6 +29,14 @@ export function cwlEffectsToWebir(declared) {
       t === "mail.send"
     ) {
       out.push({ kind: t });
+      continue;
+    }
+    if (t === "auth.require") {
+      out.push({ kind: "session.read" });
+      continue;
+    }
+    if (t === "cors.allow" || t === "csrf.verify") {
+      out.push({ kind: "http.fetch" });
     }
   }
   return out;
@@ -78,6 +86,41 @@ export function wrapCwlExecutableEffects(ctx, bodyId, declared, loc) {
           value: touch,
           origin,
           provenance: [webir.provenance("hub-ingest", "cwl:executable-session-write")],
+        }),
+      );
+    } else if (t === "auth.require") {
+      statements.push(
+        effect.sessionRead({
+          key: "user_id",
+          type: HUB_T.string,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-auth-require")],
+        }),
+      );
+    } else if (t === "cors.allow") {
+      const allow = data.literal({
+        value: "*",
+        type: HUB_T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "cwl:executable-cors-allow")],
+      });
+      statements.push(
+        data.call({
+          callee: "__cwl_middleware_cors",
+          args: [allow],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-cors-allow")],
+        }),
+      );
+    } else if (t === "csrf.verify") {
+      statements.push(
+        data.call({
+          callee: "__cwl_middleware_csrf",
+          args: [],
+          type: HUB_T.unknown,
+          origin,
+          provenance: [webir.provenance("hub-ingest", "cwl:executable-csrf-verify")],
         }),
       );
     }

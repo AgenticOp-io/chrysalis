@@ -2091,7 +2091,27 @@ export function runPausedAndMaintenanceDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const phase10Closed = isPhase10ProductionParityClosed();
-  const docOk = isWispCwlPhase14Closed()
+  const docOk = isCwlUniversalLanguageProgramClosed()
+    ? text.includes("G7390") &&
+      text.includes("hub:cwl-universal-language-close-smoke") &&
+      text.includes("G7150") &&
+      text.includes("G7200") &&
+      text.includes("D6260") &&
+      text.includes("Do not treat closed program tables")
+    : isCwlUniversalLanguageProgramActive()
+    ? text.includes("G7300") &&
+      text.includes("Phase 19") &&
+      text.includes("CWL-UNIVERSAL-LANGUAGE-PROGRAM.md") &&
+      text.includes("D6260") &&
+      text.includes("Do not treat closed program tables")
+    : isWispPocDecoupledFromBuild() && isCwlCompleteLanguageProgramClosed()
+    ? text.includes("G7200") &&
+      text.includes("G7150") &&
+      text.includes("WISP POC") &&
+      text.includes("optional") &&
+      text.includes("D6259") &&
+      text.includes("Do not treat closed program tables")
+    : isWispCwlPhase14Closed()
     ? text.includes("Phase 14 closed") &&
       text.includes("G6690") &&
       text.includes("G6710") &&
@@ -2143,6 +2163,44 @@ export function runPausedAndMaintenanceDocGate() {
 
 /** G6162 — Strategic plan default queue gate (Phase 13, Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isCwlUniversalLanguageProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G7390") &&
+      text.includes("hub:cwl-universal-language-close-smoke") &&
+      text.includes("G7150") &&
+      text.includes("G7200") &&
+      text.includes("D6260") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, universalLanguageClosedOk: ok };
+  }
+  if (isCwlUniversalLanguageProgramActive()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("Phase 19 — CWL UI v1") &&
+      text.includes("G7300") &&
+      text.includes("G7390") &&
+      text.includes("D6260") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, universalLanguageActiveOk: ok };
+  }
+  if (isWispPocDecoupledFromBuild() && isCwlCompleteLanguageProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G7150") &&
+      text.includes("G7200") &&
+      text.includes("WISP POC") &&
+      text.includes("optional") &&
+      text.includes("D6259") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, cwlOnlyMaintenanceOk: ok };
+  }
   if (isWispCwlPhase14Closed()) {
     const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
     if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
@@ -2206,7 +2264,28 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   const roadmapPath = join(scriptRoot, "ROADMAP.md");
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
-  const ok = isWispCwlPhase14Closed()
+  const ok =
+    isCwlUniversalLanguageProgramClosed()
+      ? text.includes("G7390") &&
+        text.includes("hub:cwl-universal-language-close-smoke") &&
+        text.includes("G7150") &&
+        text.includes("G7200") &&
+        text.includes("D6260") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isCwlUniversalLanguageProgramActive()
+      ? text.includes("Phase 19 — CWL UI v1") &&
+        text.includes("G7300") &&
+        text.includes("G7390") &&
+        text.includes("D6260") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isWispPocDecoupledFromBuild() && isCwlCompleteLanguageProgramClosed()
+      ? text.includes("G7150") &&
+        text.includes("G7200") &&
+        text.includes("WISP POC") &&
+        text.includes("optional") &&
+        text.includes("D6259") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isWispCwlPhase14Closed()
     ? text.includes("Phase 14 closed") &&
       text.includes("G6690") &&
       text.includes("G6710") &&
@@ -2258,6 +2337,15 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
 
 /** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isCwlUniversalLanguageProgramClosed()) {
+    return runCwlUniversalLanguageClosedGovernanceGate(_opts);
+  }
+  if (isCwlUniversalLanguageProgramActive()) {
+    return runCwlUniversalLanguageActiveGovernanceGate(_opts);
+  }
+  if (isWispPocDecoupledFromBuild() && isCwlCompleteLanguageProgramClosed()) {
+    return runCwlOnlyMaintenanceGovernanceGate(_opts);
+  }
   if (isWispCwlPhase14Closed()) {
     return runPhase14ClosedGovernanceGate(_opts);
   }
@@ -5010,6 +5098,94 @@ export function isWispCwlPhase14Closed() {
   return text.includes("Phase 14 closed");
 }
 
+/** @returns {boolean} WISP showcase POC is decoupled from default CI/build (D6259). */
+export function isWispPocDecoupledFromBuild() {
+  if (!existsSync(wispCwlPhase12ProgramDocPath)) return false;
+  const text = readFileSync(wispCwlPhase12ProgramDocPath, "utf8");
+  return text.includes("Build:** **decoupled**") || text.includes("D6259");
+}
+
+/** @returns {boolean} CWL complete language program closed (G7150). */
+export function isCwlCompleteLanguageProgramClosed() {
+  const path = join(scriptRoot, "docs/CWL-LANGUAGE-PROGRAM.md");
+  if (!existsSync(path)) return false;
+  const text = readFileSync(path, "utf8");
+  return text.includes("Complete language closed") && text.includes("G7150");
+}
+
+const cwlUniversalLanguageProgramDocPath = join(scriptRoot, "docs/CWL-UNIVERSAL-LANGUAGE-PROGRAM.md");
+
+/** @returns {boolean} CWL universal web language program is active (G7300, D6260). */
+export function isCwlUniversalLanguageProgramActive() {
+  if (isCwlUniversalLanguageProgramClosed()) return false;
+  if (!existsSync(cwlUniversalLanguageProgramDocPath)) return false;
+  const text = readFileSync(cwlUniversalLanguageProgramDocPath, "utf8");
+  return text.includes("**Status:** **active**") && text.includes("G7300");
+}
+
+/** @returns {boolean} CWL universal web language program closed (G7390). */
+export function isCwlUniversalLanguageProgramClosed() {
+  if (!existsSync(cwlUniversalLanguageProgramDocPath)) return false;
+  const text = readFileSync(cwlUniversalLanguageProgramDocPath, "utf8");
+  return text.includes("Program closed") && text.includes("G7390");
+}
+
+/** G7301 — CWL universal language active governance (post G7300 entry). */
+export async function runCwlUniversalLanguageActiveGovernanceGate(_opts = {}) {
+  const { runCwlUniversalLanguageProgramEntryGate } = await import(
+    "./hub-cwl-universal-language-program-entry-smoke.mjs"
+  );
+  const entry = await runCwlUniversalLanguageProgramEntryGate(_opts);
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    entry.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isCwlUniversalLanguageProgramActive();
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "cwl-universal-active",
+  };
+}
+
+/** G7391 — CWL universal language closed governance (post G7390). */
+export async function runCwlUniversalLanguageClosedGovernanceGate(_opts = {}) {
+  const { runCwlUniversalLanguageCloseGate } = await import(
+    "./hub-cwl-universal-language-close-smoke.mjs"
+  );
+  const close = await runCwlUniversalLanguageCloseGate(_opts);
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    close.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isCwlUniversalLanguageProgramClosed();
+  return {
+    ok,
+    closeOk: close.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "cwl-universal-closed",
+  };
+}
+
 /** @returns {boolean} Phase 14 HSS operator deploy queue is active (D6204). */
 export function isWispCwlPhase14Active() {
   if (isWispCwlPhase14Closed()) return false;
@@ -5196,6 +5372,33 @@ export async function runPhase13ClosedGovernanceGate(_opts = {}) {
       : isWispCwlPhase14Active()
       ? "phase14-operator"
       : "phase13-closed",
+  };
+}
+
+/** G7210 — CWL-only maintenance governance (WISP POC decoupled from default build, D6259). */
+export async function runCwlOnlyMaintenanceGovernanceGate(_opts = {}) {
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const sessionSqlHonesty = runRuntimeSessionSqlHonestyGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    sessionSqlHonesty.ok === true &&
+    taxonomy.ok === true &&
+    isWispPocDecoupledFromBuild() &&
+    isCwlCompleteLanguageProgramClosed();
+  return {
+    ok,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    sessionSqlHonestyOk: sessionSqlHonesty.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    wispDecoupled: true,
+    mode: "cwl-only-maintenance",
   };
 }
 

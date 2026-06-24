@@ -123,9 +123,19 @@ CWL **API**, **Pages**, **Data**, and **Effects** surfaces are shipped and gated
 
 Regression: `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
-## Complete language program active (Phase 15–18, D6206)
+**WISP Phase 14 (closed — operator):** Optional POC regression only (**D6259**).
 
-**Default build:** Phase **15 → 16 → 17 → 18**; program close **G7150**. See [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) § Complete language program and [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
+## Universal language program active (Phase 19–23, D6260)
+
+**Default build:** Phase **19 → 20 → 21 → 22 → 23**; program close **G7390**. See [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md) and [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
+
+| Step | Surface | Phase | Close gate |
+| --- | --- | --- | --- |
+| 4+ | **CWL UI v1** | **19** | **G7310** *(TBD)* |
+| 3+ | **CWL Data v2** | **20** | **G7320** *(TBD)* |
+| — | **Effects middleware** | **21** | **G7330** *(TBD)* |
+| — | **Universal ingest** | **22** | **G7340** *(TBD)* |
+| 5 | **Greenfield cutover** | **23** | **G7350** *(TBD)* |
 
 ## Non-goals
 

@@ -652,6 +652,9 @@ function evalCall(ctx: SimCtx, n: NodeBase): SimValue {
       }
       return data;
     }
+    case "__cwl_middleware_cors":
+    case "__cwl_middleware_csrf":
+      return { kind: "null" };
     case "json_encode":
       return { kind: "str", value: jsonEncodeSimValue(args[0] ?? { kind: "null" }) };
     case "htmlspecialchars":
@@ -854,6 +857,12 @@ function renderUiTreeNode(ctx: SimCtx, n: NodeBase, node: unknown): string {
   if (rec.kind === "fragment" && Array.isArray(rec.children)) {
     return rec.children.map((c) => renderUiTreeNode(ctx, n, c)).join("");
   }
+  if (rec.kind === "island") {
+    const inner = Array.isArray(rec.children)
+      ? rec.children.map((c) => renderUiTreeNode(ctx, n, c)).join("")
+      : "";
+    return `<div data-cwl-island="client">${inner}</div>`;
+  }
   if (rec.kind === "element" && typeof rec.tag === "string") {
     const tag = rec.tag;
     const attrs = rec.attrs && typeof rec.attrs === "object" ? (rec.attrs as Record<string, unknown>) : {};
@@ -864,6 +873,13 @@ function renderUiTreeNode(ctx: SimCtx, n: NodeBase, node: unknown): string {
       } else if (val && typeof val === "object" && "operandIndex" in val) {
         const v = operand(ctx, n, Number((val as { operandIndex: number }).operandIndex));
         attrStr += ` ${key}="${htmlEscape(stringify(v))}"`;
+      }
+    }
+    if (Array.isArray(rec.events)) {
+      for (const ev of rec.events) {
+        if (ev && typeof ev === "object" && "name" in ev && "action" in ev) {
+          attrStr += ` data-cwl-on-${String((ev as { name: string }).name)}="${htmlEscape(String((ev as { action: string }).action))}"`;
+        }
       }
     }
     const children = Array.isArray(rec.children)

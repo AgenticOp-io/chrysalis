@@ -1,7 +1,7 @@
 /**
  * CWL → WebIR ingest (direct; no lossy lift).
  */
-import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral, lowerHubPageWithLoadBody } from "./hub-lift-webir-route.mjs";
+import { emitHubRoute, hubHandlerBodyHole, hubOrigin, HUB_T, lowerHubLiteral, lowerHubPageWithLoadBody, lowerHubPageWithLoadAndUiBody } from "./hub-lift-webir-route.mjs";
 import { lowerCwlHtmlTemplateBody } from "./cwl-html-template.mjs";
 import { lowerCwlUiTreeBody, resolveCwlUiComponent } from "./cwl-ui-tree.mjs";
 import { parseCwlModuleResolved, resolveCwlModuleFromPath } from "./cwl-module-graph.mjs";
@@ -180,6 +180,7 @@ function lowerObjectBody(ctx, obj, loc) {
 export function liftCwlFileToWebir(opts) {
   const { webir, builder, wr, source, file, language } = opts;
   const data = webir.dataDialect.builders(builder);
+  const effect = webir.effectDialect.builders(builder);
   const ctx = { data, webir, file };
   const parsed = opts.entryPath
     ? resolveCwlModuleFromPath(opts.entryPath)
@@ -211,8 +212,46 @@ export function liftCwlFileToWebir(opts) {
           : [],
     };
     if (r.loadBody && r.body.kind === "html" && r.loadBody.kind === "object" && r.loadBody.entries) {
-      const loadValueId = lowerObjectEntriesBody(ctx, r.loadBody.entries, loc);
-      valueId = lowerHubPageWithLoadBody(ctx, loadValueId, r.body.value, loc, wrBuilders, htmlBindings);
+      const redirectEntry = r.loadBody.entries.find((e) => e.key === "redirect");
+      const errorEntry = r.loadBody.entries.find((e) => e.key === "error");
+      if (redirectEntry?.value?.kind === "literal") {
+        const locId = lowerHubLiteral(ctx, redirectEntry.value.value, loc);
+        valueId = effect.redirect({
+          location: locId,
+          origin: hubOrigin(file, r.line ?? 1),
+          provenance: [webir.provenance("hub-ingest", "cwl-load-redirect")],
+        });
+      } else if (errorEntry?.value?.kind === "literal") {
+        const msgEntry = r.loadBody.entries.find((e) => e.key === "message");
+        const msgId =
+          msgEntry?.value?.kind === "literal" ? lowerHubLiteral(ctx, msgEntry.value.value, loc) : null;
+        valueId = effect.httpError({
+          status: Number(errorEntry.value.value),
+          message: msgId,
+          origin: hubOrigin(file, r.line ?? 1),
+          provenance: [webir.provenance("hub-ingest", "cwl-load-error")],
+        });
+      } else {
+        const loadValueId = lowerObjectEntriesBody(ctx, r.loadBody.entries, loc);
+        valueId = lowerHubPageWithLoadBody(ctx, loadValueId, r.body.value, loc, wrBuilders, htmlBindings);
+      }
+    } else if (
+      r.loadBody &&
+      r.body.kind === "ui" &&
+      r.loadBody.kind === "object" &&
+      r.loadBody.entries
+    ) {
+      let tree = r.body.tree;
+      if (r.body.componentRef) {
+        tree = resolveCwlUiComponent(parsed.components ?? [], r.body.componentRef, r.body.props ?? []);
+        if (!tree) {
+          valueId = hubHandlerBodyHole(ctx, `cwl:unknown-component:${r.body.componentRef}`, loc);
+        }
+      }
+      if (tree) {
+        const loadValueId = lowerObjectEntriesBody(ctx, r.loadBody.entries, loc);
+        valueId = lowerHubPageWithLoadAndUiBody(ctx, loadValueId, tree, loc, htmlBindings);
+      }
     } else if (r.body.kind === "literal") {
       valueId = lowerHubLiteral(ctx, r.body.value, loc);
     } else if (r.body.kind === "object" && r.body.entries) {
@@ -256,7 +295,8 @@ export function liftCwlFileToWebir(opts) {
           : "json";
     let bodyId = valueId;
     const pageLoadHtml = Boolean(r.loadBody && r.body.kind === "html");
-    if (!pageLoadHtml && (status !== 200 || contentType)) {
+    const pageLoadUi = Boolean(r.loadBody && r.body.kind === "ui");
+    if (!pageLoadHtml && !pageLoadUi && (status !== 200 || contentType)) {
       bodyId = wrBuilders.response({
         attrs: { status, kind, contentType },
         value: valueId,

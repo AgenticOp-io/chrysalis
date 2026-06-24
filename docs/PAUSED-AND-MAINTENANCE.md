@@ -1,7 +1,7 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-06-22)  
-> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. Strategic plan phases **0–10 closed** (**G5680–G6257**). **CWL complete language program closed** (**G7150**, Phases **15–18**, **D6206–D6208**).
+> **Status:** authoritative (2026-06-16)  
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **CWL universal web language program closed** (**G7390**, **D6260**). **G7150** / **G7200** shipped. **WISP POC decoupled** (**D6259**).
 
 **Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
 
@@ -11,24 +11,33 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **IR helper maintenance** (default after G7150) | §2 below — **IR Helper Program**; `hub:ir-helper-program-close-smoke` (**G7200**); optional tier regression **G6731** |
-| **CWL complete language regression** | `hub:cwl-complete-language-close-smoke` (**G7150**), phase smokes **G7110–G7140** |
-| **Phase 14 operator regression** | `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**), `wisp:operator-verify -- --require` |
-| Phase 12–13 regression | `hub:wisp-cwl-phase13-close-smoke` (**G6410**), `hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**) |
+| **CWL universal language regression (default)** | `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**) |
+| **G7150 / G7200 regression** | Included in **G7390** composite |
+| **IR helper tier regression (optional)** | `hub:cwl-language-maintenance-smoke` (**G6731**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
 | Parser mapper gap / new PHP syntax | Maintenance §2 |
-| New hole from real customer route | Maintenance §2 + verify |
 
-**Close before build:** Phase 13 surface work requires **G6310** closed. Regression: `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke`.
+**Close before build:** Phase **N+1** requires Phase **N** close gate green.
 
-**Phase 14 closed verify:** `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run wisp:operator-verify -- --require` (**G6680**); full gate list in [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) § Phase 14  
-**Phase 13 verify:** `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:cwl-surface-taxonomy-smoke` (**G6340**)
-**Phase 12 Phase 0 regression:** `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke` (**G6310**)
+**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / universal-closed mode)
 
-**Governance:** `pnpm run hub:maintenance-mode-governance-smoke`  
-**Phase 10 archive verify:** `pnpm run hub:strategic-plan-phase10-program-archive-close-smoke`  
-**Maintenance complete:** `pnpm run hub:maintenance-program-complete-smoke` (`runMaintenanceProgramCompleteGate`, **G6261**)  
-**Honest gaps complete:** `pnpm run hub:honest-gaps-program-complete-smoke` (`runHonestGapsProgramCompleteGate`, **G6270**)
+**Program close:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**)
+
+---
+
+## 1a. Optional — WISP POC regression (not default build)
+
+WISP Module_Manager is a **showcase POC** only (**D6205**, **D6259**). Smokes and deploy scripts remain; they are **not** in default CI or the default build queue.
+
+| When | Run |
+| --- | --- |
+| Operator refresh / chimera deploy | `pnpm run wisp:deploy:gce`, `wisp:operator-verify -- --require` |
+| Full POC regression (local or CI) | `.github/workflows/wisp-poc-regression.yml` (weekly + manual) |
+| Phase 14 closed verify | `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**) |
+| Phase 13 verify | `hub:wisp-cwl-phase13-close-smoke` (**G6410**), `hub:cwl-surface-taxonomy-smoke` (**G6340**) |
+| Maintenance composite | `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**) |
+
+Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
 
 ---
 
@@ -38,12 +47,11 @@
 | --- | --- | --- |
 | Parser mapper gap | Add contested-syntax page to `fixtures/parser-parity-probe` | Multi-lane lane A |
 | IR Helper Program v1 close | `pnpm run hub:ir-helper-program-close-smoke` (**G7200**) | [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) |
-| IR helper tier regression (optional) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**) | [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md) — B7–B75 per-tier gates |
+| IR helper tier regression (optional) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**) | [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md) |
+| CWL complete language regression | `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**) | [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) |
 | Widen `->query` lowering | Add tracked receiver via `mysqli-probe` | Hole economics |
-| IR helper pattern (B5 rules) | Hub-gated fixture | `docs/IR-HELPER-LIFTING.md` |
 | Package README drift | Update README | `ROADMAP.md` |
 | Redaction / verify regression | Lockstep Node + PHP redactor | `AGENTS.md` |
-| Refresh strict product proof | GCE: `pnpm run test:gce:phase8-strict` | Phase 8 doc |
 | Full CI-scale test run | `pnpm run test:gce` | `docs/GCE-LOCAL-VERIFY.md` |
 
 ---
@@ -71,8 +79,6 @@ In-repo implementation **closed** at **G6290** (Phase 11). Gates remain green vi
 | IR helper lifting (non-B5) | **G6283** B6 `strlen()` inline | Further B6+ design passes |
 | WPTP D2+ sibling repos | **G6284** D7 harness audit | Ongoing D7 expansion in siblings |
 
-**Composite gates:** `runHonestGapsProgramCompleteGate` (**G6270**), `runHonestGapsImplementationCloseGate` (**G6290**)
-
 ---
 
 ## 5. Still out of scope
@@ -89,8 +95,10 @@ In-repo implementation **closed** at **G6290** (Phase 11). Gates remain green vi
 | --- | --- | --- |
 | Strategic plan phases 0–9 | **G6153** | `STRATEGIC-PLAN.md` §7 |
 | Phase 10 production parity | **G6257** | `PRODUCTION-PARITY-PHASE-10.md` |
-| Ship log | **G6257** | `archive/STRATEGIC-PLAN-SHIPPED-LOG.md` |
+| CWL complete language Phases 15–18 | **G7150** | `CWL-LANGUAGE-PROGRAM.md` |
+| IR Helper Program v1 | **G7200** | `IR-HELPER-PROGRAM.md` |
+| WISP Phase 12–14 showcase POC | **G6690** | Optional regression (**D6259**) |
 
 ---
 
-*Related: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md), [`ROADMAP.md`](../ROADMAP.md).*
+*Related: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md), [`ROADMAP.md`](../ROADMAP.md), [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).*

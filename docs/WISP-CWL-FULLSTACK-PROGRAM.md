@@ -2,6 +2,7 @@
 
 > **Role:** **Showcase POC** — **not** the north star and **not** the definition of CWL. **CWL is authoritative** ([`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md)). **The POC exists solely to showcase the language** on a real app; wins must **generalize** to other migrations.  
 > **Status:** **maintenance** — **Phase 0 closed** (2026-06-19, **G6310**); **Phase 13 closed** (2026-06-19, **G6410**); **Phase 14 closed** (2026-06-19, **G6690**)  
+> **Build:** **decoupled** from default CI/build (**D6259**) — optional POC regression only; see [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §1a  
 > **Queue:** **G6300–G6420** closed; **G6500–G6700** closed; **CWL language:** maintenance per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md)  
 > **Template app:** [AgenticOp-io/WISP-Management](https://github.com/AgenticOp-io/WISP-Management) `Module_Manager/`  
 > **Local path (operator):** `C:\Users\david\Downloads\WISPTools\Module_Manager`  
@@ -17,7 +18,7 @@ WISP is the **showcase full-stack CWL migration** for the **Module_Manager UI la
 
 **Phase 14 close (G6690):** HSS operator deploy archived — chimera demo on GCE, proxy to `https://hss.wisptools.io`, client redirects, remote verify. Regression: `pnpm run hub:wisp-cwl-phase14-program-close-smoke` and `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**).
 
-**Phase 14 (closed — operator):** Refresh **HSS site** deploy (chimera/CWL front → `https://hss.wisptools.io` proxy). Default CWL build: maintenance per [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+**Phase 14 (closed — operator):** Refresh **HSS site** deploy (chimera/CWL front → `https://hss.wisptools.io` proxy). **Default build:** CWL + IR helper only (**D6259**); WISP regression is **optional** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §1a, `.github/workflows/wisp-poc-regression.yml`.
 
 ## Definition of done (program close G6310)
 

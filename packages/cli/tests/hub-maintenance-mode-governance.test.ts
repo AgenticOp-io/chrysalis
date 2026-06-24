@@ -44,7 +44,7 @@ test("roadmap maintenance default queue gate (G6163)", () => {
   expect(gate.ok).toBe(true);
 });
 
-test("maintenance mode governance gate routes to phase10 (G6160)", () => {
+test("maintenance mode governance gate routes to cwl-universal-active (G6160 / G7301)", () => {
   const abs = resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs").replace(/\\/g, "/");
   const r = spawnSync(
     process.execPath,
@@ -58,6 +58,5 @@ test("maintenance mode governance gate routes to phase10 (G6160)", () => {
   expect(r.status, r.stderr || r.stdout).toBe(0);
   const gate = JSON.parse(r.stdout.trim());
   expect(gate.ok).toBe(true);
-  expect(gate.mode).toBe("phase10");
-  expect(gate.phaseCActive).toBe(true);
+  expect(gate.mode).toBe("cwl-universal-active");
 });

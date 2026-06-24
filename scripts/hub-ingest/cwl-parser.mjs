@@ -159,6 +159,11 @@ function parseCwlObjectEntries(objectExpr, bindings) {
       entries.push({ key, value: { kind: "literal", value: lit.value } });
       continue;
     }
+    const cookieKw = /^cookie\s+([a-zA-Z_][a-zA-Z0-9_]*)$/.exec(rawVal);
+    if (cookieKw) {
+      entries.push({ key, value: { kind: "cookieParam", name: cookieKw[1] } });
+      continue;
+    }
     if (bindings.header.includes(rawVal)) {
       entries.push({ key, value: { kind: "headerParam", name: rawVal } });
       continue;

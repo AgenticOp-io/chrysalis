@@ -6,10 +6,31 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Maintenance only** — **IR Helper Program v1 closed** (**G7200**); tier regression **G6731** subordinate.
-- **Recently shipped:** **IR Helper Program v1 close** (**G7200**); **B55–B75** string closure batch (**G7105–G7133**).
+- **Active lane:** **Maintenance** — **G7390** universal language regression (**D6260** program **closed** 2026-06-24).
+- **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
+- **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
 ---
+
+## Closed — CWL universal web language (G7390)
+
+Program doc: [`docs/CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./docs/CWL-UNIVERSAL-LANGUAGE-PROGRAM.md)  
+Authority: **DESIGN D6260** / **D6261**
+
+| Phase | Goal | Close gate | Smoke |
+| --- | --- | --- | --- |
+| **19** | CWL UI v1 — islands, events, verify | **G7310** | `pnpm run hub:cwl-phase19-close-smoke` |
+| **20** | CWL Data v2 — load redirect/error, load+UI | **G7320** | `pnpm run hub:cwl-phase20-close-smoke` |
+| **21** | CWL Effects middleware | **G7330** | `pnpm run hub:cwl-phase21-close-smoke` |
+| **22** | Universal ingest — pilot ≥99% native CWL | **G7340** | `pnpm run hub:cwl-phase22-close-smoke` |
+| **23** | Greenfield cutover — CWL-only template | **G7350** | `pnpm run hub:cwl-phase23-close-smoke` |
+| **Program** | Universal web language close | **G7390** | `pnpm run hub:cwl-universal-language-close-smoke` |
+
+**Default regression:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**).
+
+---
+
+## Archived — Phase 19 entry (G7300, superseded by G7390 close)
 
 ## Closed — IR Helper Program v1 (G7200)
 
@@ -46,6 +67,8 @@ Authority: **DESIGN D6206–D6208**; [`docs/STRATEGIC-PLAN.md`](./docs/STRATEGIC
 ---
 
 ## Closed — Phase 12 WISP Phase 0 (G6310)
+
+**WISP POC optional** — not in default build (**D6259**). Regression: [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §1a.
 
 Program doc: [`docs/WISP-CWL-FULLSTACK-PROGRAM.md`](./docs/WISP-CWL-FULLSTACK-PROGRAM.md)
 
@@ -251,17 +274,15 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 
 ---
 
-## Default queue — post G7200 (maintenance)
+## Default queue — universal language closed (G7390)
 
-**IR Helper Program v1 closed:** `pnpm run hub:ir-helper-program-close-smoke` (**G7200**).  
-**Post-437 full-stack maintenance ladder:** queues **438–457** (`pnpm run hub:cwl-authoring-batch-v438-smoke` … **v457**); capstone **v457** in hub-completion (**G5677–G5876**, **DESIGN D6258**). Queue **438** composites **G7200** IR Helper close with post-437 replay.  
-**Optional tier regression:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+**Regression:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**).
+**Subordinate:** **G7150** + **G7200** (included in G7390 composite).
+**Optional:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**); WISP POC — [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §1a.
 
-**CWL language regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
+**Governance:** `pnpm run hub:maintenance-mode-governance-smoke`
 
-**Verify:** `pnpm run hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `pnpm run hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `pnpm run hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `pnpm run hub:wisp-cwl-phase14-close-smoke` (**G6590**), `pnpm run hub:wisp-cwl-phase13-close-smoke` (**G6410**), `pnpm run hub:maintenance-mode-governance-smoke`
-
-Closed programs: Phase 10, Phase 11, Phase 14 operator (`docs/WISP-CWL-FULLSTACK-PROGRAM.md`).
+Closed programs: Phase 10–18 (**G7150**), IR Helper v1 (**G7200**), WISP showcase POC (**G6690**, optional).
 
 ---
 

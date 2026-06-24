@@ -22,7 +22,7 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 | **IR helper B9+** | Incremental inline depth | **Closed** — program **G7200**; tier regression **G6731** optional |
 | **Probes** | RFC-0015/0016 production + form-action hole catalog | **Shipped** — regression gates |
 
-## Complete language program — active (Phase 15–18, **D6206**)
+## Complete language program — closed (Phase 15–18, **D6206**, **G7150**)
 
 **North star:** CWL is a **complete web language** — all five surfaces native, verify-backed, hole-budget-clean on chartered apps. **Language v1 (G6750)** was a milestone, not the finish line.
 
@@ -35,6 +35,21 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 | **Program** | All surfaces + **hole budget zero** on flagship CWL-native routes | **Closed G7150** | **G7150** |
 
 **Entry G7100:** this section + [`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md) + [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12 aligned (doc gate; implementation follows RFC + hub smokes).
+
+## Universal web language program — active (Phase 19–23, **D6260**)
+
+**Next locked path** after **G7150**: [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).
+
+| Phase | Win | Status | Close gate |
+| --- | --- | --- | --- |
+| **19** | **CWL UI v1** — islands, hydration policy, verify | **Active** | **G7310** *(TBD)* |
+| **20** | **CWL Data v2** — full load shapes + framework ingest | Planned | **G7320** *(TBD)* |
+| **21** | **CWL Effects middleware** — executable chains | Planned | **G7330** *(TBD)* |
+| **22** | **Universal ingest** — pilot ≥99% native CWL | Planned | **G7340** *(TBD)* |
+| **23** | **Greenfield cutover** — CWL-only new apps | Planned | **G7350** *(TBD)* |
+| **Program** | Universal web language close | Planned | **G7390** *(TBD)* |
+
+**Entry G7300:** `pnpm run hub:cwl-universal-language-program-entry-smoke`
 
 **Phase 15 first deliverables (RFC before code):**
 
@@ -148,8 +163,10 @@ Regression: `pnpm run hub:ir-helper-program-close-smoke` (**G7200**). Optional t
 
 ## Default queue
 
-**CWL regression:** **`hub:cwl-complete-language-close-smoke`** (**G7150**). **IR helpers:** [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) (**G7200**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
+**Universal language program:** **`hub:cwl-universal-language-program-entry-smoke`** (**G7300**). Build Phases **19 → 23** per [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).
 
-**Subordinate:** IR helper maintenance — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
+**Regression:** **`hub:cwl-complete-language-close-smoke`** (**G7150**), **`hub:ir-helper-program-close-smoke`** (**G7200**). See [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12.
 
-**Regression:** Phase 13–14 WISP smokes per strategic plan §12.
+**Subordinate:** IR helper tier regression — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2.
+
+**WISP POC:** optional only (**D6259**) — not default build.

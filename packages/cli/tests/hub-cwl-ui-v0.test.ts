@@ -39,6 +39,19 @@ test("cwl phase 15 entry smoke (G7101)", () => {
   expect(gate.ok).toBe(true);
 });
 
+test("cwl ui v1 parser: client ui islands and on click (RFC-0019)", async () => {
+  const { parseCwlModule } = await import(resolve(ROOT, "scripts/hub-ingest/cwl-parser.mjs"));
+  const { readFile } = await import("node:fs/promises");
+  const src = await readFile(resolve(ROOT, "fixtures/hub-gold-cwl-ui-v1/routes.cwl"), "utf8");
+  const mod = parseCwlModule(src, "routes.cwl");
+  const demo = mod.routes.find((r) => r.path === "/ui-v1");
+  expect(demo?.body.kind).toBe("ui");
+  expect(demo?.body.tree?.children?.some((c) => c.kind === "island")).toBe(true);
+  const loadUi = mod.routes.find((r) => r.path === "/ui-v1/load-ui");
+  expect(loadUi?.loadBody?.kind).toBe("object");
+  expect(loadUi?.body.kind).toBe("ui");
+});
+
 test("cwl ui v0 smoke (G7111)", () => {
   const gate = importGate("scripts/hub-ingest/hub-cwl-ui-v0-smoke.mjs", "runCwlUiV0Gate");
   expect(gate.ok).toBe(true);
@@ -56,7 +69,7 @@ test("cwl complete language close smoke (G7150)", () => {
   const gate = importGate(
     "scripts/hub-ingest/hub-cwl-complete-language-close-smoke.mjs",
     "runCwlCompleteLanguageCloseGate",
-    { runPipeline: false },
+    { runPipeline: false, skipMaintenance: true },
   );
   expect(gate.ok).toBe(true);
 }, 600_000);

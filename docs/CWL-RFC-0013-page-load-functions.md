@@ -42,3 +42,21 @@ Exact `load { … }` block syntax is **TBD** in G1159; must round-trip through `
 - Streaming, dependencies, invalidation, form actions
 - Client-side hydration contract
 - Automatic merge of arbitrary Svelte components
+
+## v2 extensions (Phase 20, G7320)
+
+**Status:** accepted (2026-06-16) — DESIGN D6260
+
+| Feature | Syntax | Lowering |
+| --- | --- | --- |
+| **Load + UI** | `load { … }` + `return ui { … }` on same `@page` | `__page_load` + `data.ui.tree` in handler block |
+| **Load redirect** | `load { redirect: "/path" }` | `effect.redirect` (302) |
+| **Load error** | `load { error: 404, message: "Not found" }` | `effect.httpError` |
+| **Cookie in load** | `load { sessionId: cookie session_id }` | `data.request.field` source cookie |
+
+Framework ingest targets (structural gold):
+
+- SvelteKit `+page.server.ts` → `load { }` or hole
+- Next.js App Router server module → `load { }` or hole
+
+Verify: `fixtures/hub-gold-cwl-data-v2`, gate **G7320**.

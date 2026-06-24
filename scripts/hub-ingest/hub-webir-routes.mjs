@@ -94,6 +94,9 @@ export function cwlValueOf(get, id) {
   if (n.dialect === "data" && n.op === "html.template") {
     return cwlHtmlTemplateToLit(get, n);
   }
+  if (n.dialect === "data" && n.op === "ui.tree") {
+    return { t: "lit", value: "__cwl_ui_tree__" };
+  }
   if (n.dialect === "data" && n.op === "literal") {
     return { t: "lit", value: stripBom(n.attrs?.value) };
   }
@@ -116,6 +119,11 @@ export function cwlValueOf(get, id) {
       if (def.t === "lit") return { ...primary, default: def.value };
     }
     return primary;
+  }
+  if (n.dialect === "data" && n.op === "block") {
+    const ops = n.operands ?? [];
+    if (ops.length === 1) return cwlValueOf(get, ops[0]);
+    return { t: "hole", reason: "hub:cwl:unsupported-value:data.block" };
   }
   if (n.dialect === "data" && n.op === "call") {
     const callee = String(n.attrs?.callee ?? "");
@@ -215,6 +223,11 @@ export function walkCwlHandlerBody(get, bodyId) {
       if (Number.isFinite(s)) status = s;
       return;
     }
+    if (n.dialect === "effect" && n.op === "redirect") {
+      status = 302;
+      for (const op of n.operands ?? []) visit(op);
+      return;
+    }
     if (n.dialect === "effect" && (n.op === "session.read" || n.op === "session.write")) {
       return;
     }
@@ -233,7 +246,7 @@ export function walkCwlHandlerBody(get, bodyId) {
       value = v;
       return;
     }
-    if (n.dialect === "data" && (n.op === "literal" || n.op === "call" || n.op === "request.field" || n.op === "html.template")) {
+    if (n.dialect === "data" && (n.op === "literal" || n.op === "call" || n.op === "request.field" || n.op === "html.template" || n.op === "ui.tree")) {
       const jsonCall = isCwlJsonCall(get, id);
       const v = cwlValueOf(get, id);
       if (v.t === "hole") {
@@ -279,6 +292,7 @@ export function walkCwlHandlerBody(get, bodyId) {
   const isPage =
     responseKind === "html" ||
     (contentType && contentType.includes("html")) ||
+    (value?.t === "lit" && value.value === "__cwl_ui_tree__") ||
     (value?.t === "lit" &&
       typeof value.value === "string" &&
       value.value.trimStart().startsWith("<"));

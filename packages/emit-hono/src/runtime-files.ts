@@ -534,6 +534,12 @@ export function renderCwlUiTree(nodes: unknown, values: unknown[]): string {
     if (rec.kind === "fragment" && Array.isArray(rec.children)) {
       return rec.children.map((c) => render(c)).join("");
     }
+    if (rec.kind === "island") {
+      const inner = Array.isArray(rec.children)
+        ? rec.children.map((c) => render(c)).join("")
+        : "";
+      return '<div data-cwl-island="client">' + inner + "</div>";
+    }
     if (rec.kind === "element" && typeof rec.tag === "string") {
       const tag = rec.tag;
       const attrs = rec.attrs && typeof rec.attrs === "object" ? (rec.attrs as Record<string, unknown>) : {};
@@ -548,6 +554,15 @@ export function renderCwlUiTree(nodes: unknown, values: unknown[]): string {
             "=\\"" +
             escapeHtml(String(values[(val as { operandIndex: number }).operandIndex] ?? "")) +
             "\\"";
+        }
+      }
+      if (Array.isArray(rec.events)) {
+        for (const ev of rec.events) {
+          if (ev && typeof ev === "object" && "name" in ev && "action" in ev) {
+            const e = ev as { name: string; action: string };
+            attrStr +=
+              " data-cwl-on-" + e.name + "=\\"" + escapeHtml(e.action) + "\\"";
+          }
         }
       }
       const children = Array.isArray(rec.children)

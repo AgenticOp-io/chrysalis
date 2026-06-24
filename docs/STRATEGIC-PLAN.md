@@ -195,7 +195,7 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 **Strategic plan phases 0–10:** all reinforcement queues **closed** (**G5680–G6257**).
 
-**Default build queue:** **IR Helper Program closed** (**G7200**); **CWL complete language closed** (**G7150**). Tier regression **G6731** subordinate. See [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md).
+**Default build queue:** **CWL universal web language program active** (**G7300**, **D6260**) — Phase **19 → 23**; subordinate **G7200** + **G7150** regression. See [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).
 
 ### Phase 15 — CWL UI v0 (**closed G7110**)
 
@@ -222,7 +222,44 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 - **Win:** Phases **15–18** + **G6731** maintenance composite green
 - **Smoke:** `pnpm run hub:cwl-complete-language-close-smoke`
-- **Regression:** Phase 13–14 smokes remain green
+- **Regression:** Phase 13–14 WISP smokes optional (**D6259**)
+
+---
+
+### Phase 19 — CWL UI v1 (**active**)
+
+- **Authority:** **DESIGN D6260** — [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md); RFC-0019 (UI v1: islands, hydration policy)
+- **Win:** Close `hub-svelte:page-component` on flagship CWL-native routes; vendor bridges documented
+- **Entry G7300:** `pnpm run hub:cwl-universal-language-program-entry-smoke`
+- **Close G7310:** `pnpm run hub:cwl-phase19-close-smoke` *(TBD — RFC + verify first)*
+- **Refuse:** silent Svelte/React lowering; hydration claims without replay
+
+### Phase 20 — CWL Data v2
+
+- **Authority:** RFC-0013 v2 — parallel loads, redirects, errors; SvelteKit/Next server ingest
+- **Close G7320:** `pnpm run hub:cwl-phase20-close-smoke` *(TBD)*
+
+### Phase 21 — CWL Effects middleware
+
+- **Authority:** RFC-0020 (draft) — executable effect chains beyond session (authz, CSRF, CORS)
+- **Close G7330:** `pnpm run hub:cwl-phase21-close-smoke` *(TBD)*
+
+### Phase 22 — Universal ingest
+
+- **Authority:** Multi-origin ingest at pilot scale — PHP + SvelteKit/Next/OpenAPI → CWL default output
+- **Win:** One non-WISP pilot: **≥99%** in-scope routes native CWL, verify **≥99%**
+- **Close G7340:** `pnpm run hub:cwl-phase22-close-smoke` *(TBD)*
+
+### Phase 23 — Greenfield cutover template
+
+- **Authority:** Ladder step 5 for **new apps** — CWL-only module, no chimera for app logic
+- **Close G7350:** `pnpm run hub:cwl-phase23-close-smoke` *(TBD)*
+
+### CWL universal web language close (**G7390**)
+
+- **Win:** Phases **19–23** + **G7150** + **G7200** regression composite green
+- **Smoke:** `pnpm run hub:cwl-universal-language-close-smoke` *(TBD)*
+- **Program doc:** [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md)
 
 ---
 
@@ -313,25 +350,27 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-06-19 (POC vs language — D6205):** **CWL is authoritative.** WISP **exists solely to showcase the language** — not to define it. GenieACS removed from Chrysalis consideration (WISPTools original design only).
 
+**Amended 2026-06-16 (WISP POC decoupled — D6259):** WISP Module_Manager showcase **decoupled from default CI/build**. Smokes, scripts, and optional weekly **`wisp-poc-regression`** workflow remain for operator demo refresh; default queue is **G7200 + G7150** only.
+
+**Amended 2026-06-16 (CWL universal web language — D6260):** Phases **19–23** active locked path after **G7150**: **UI v1 → Data v2 → Effects middleware → Universal ingest → Greenfield cutover**; program close **G7390**. See [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).
+
 ---
 
-## 12. Default queue (post G7150 — maintenance + regression)
+## 12. Default queue (post G7390 — universal language closed)
 
-**Status:** **CWL complete language closed** (**G7150**, **D6208**); Phases **15–18 closed** (**G7110–G7140**); **CWL language v1 closed** (**G6750**); **Phase 14 closed** (**G6690**); **Phase 13 closed** (**G6410**); **Phase 12 Phase 0 closed** (**G6310**).
+**Status:** **CWL universal web language program closed** (**G7390**, **D6260**); **CWL complete language closed** (**G7150**); **IR Helper Program v1 closed** (**G7200**); **WISP POC decoupled** (**D6259**).
 
 When the user says "build" without specifying:
 
-1. **IR Helper Program verify (default)** — [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md); `hub:ir-helper-program-close-smoke` (**G7200**)
-2. **IR helper tier regression (optional)** — [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2; `hub:cwl-language-maintenance-smoke` (**G6731**)
-3. **CWL complete language regression** — `hub:cwl-complete-language-close-smoke` (**G7150**), phase smokes **G7110–G7140**
-4. **Phase 14 operator regression** — `hub:wisp-cwl-program-maintenance-complete-smoke` (**G6720**), `hub:wisp-cwl-maintenance-regression-smoke` (**G6710**), `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**)
-5. **Phase 13 regression** — `hub:wisp-cwl-phase13-close-smoke` (**G6410**)
+1. **G7390 regression** — `pnpm run hub:cwl-universal-language-close-smoke`
+2. **G7150 / G7200** — subordinate (`pnpm run hub:cwl-complete-language-close-smoke`, `pnpm run hub:ir-helper-program-close-smoke`; included in G7390 composite)
+3. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
 
-**Close before build:** Do not add GenieACS/ACS to CWL RFC or verify gates — **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
+**WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — not default CI (**D6259**).
 
-**Program close (shipped):** **G7150** — `pnpm run hub:cwl-complete-language-close-smoke`.
+**Program close (shipped):** **G7390** — `pnpm run hub:cwl-universal-language-close-smoke`.
 
-Closed programs: Phase 10, Phase 11, Phase 14 operator, language v1 (**G6750**), **CWL complete language Phases 15–18** (**G7150**).
+**Shipped milestone:** **G7150** — `pnpm run hub:cwl-complete-language-close-smoke`.
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 

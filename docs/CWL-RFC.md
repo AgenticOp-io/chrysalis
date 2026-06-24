@@ -22,6 +22,8 @@ CWL evolves by **RFC**: each proposal must cite cross-language evidence (path kn
 | [0016](CWL-RFC-0016-form-action-probe.md) | Form action probe + hole catalog | accepted |
 | [0017](CWL-RFC-0017-native-ui-v0.md) | Native UI v0 (`return ui`, `data.ui.tree`) | accepted |
 | [0018](CWL-RFC-0018-native-ui-components.md) | Native UI components (`@component`) | accepted |
+| [0019](CWL-RFC-0019-native-ui-v1.md) | Native UI v1 (client islands, events) | accepted |
+| [0020](CWL-RFC-0020-effects-middleware.md) | Effects middleware chains | accepted |
 
 **Process**
 

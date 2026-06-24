@@ -1,5 +1,6 @@
 /** Shared WebIR route emission for hub AST/heuristic lifts. */
 import { lowerCwlHtmlTemplateBody } from "./cwl-html-template.mjs";
+import { lowerCwlUiTreeBody } from "./cwl-ui-tree.mjs";
 
 export const HUB_T = {
   string: { kind: "string" },
@@ -98,6 +99,33 @@ export function lowerHubPageWithLoadBody(ctx, loadValueId, html, loc, wr, bindin
     type: HUB_T.unknown,
     origin,
     provenance: [webir.provenance("hub-ingest", "cwl-page-load-html")],
+  });
+}
+
+/**
+ * Page handler with RFC-0013 load + RFC-0019 UI tree (Phase 20).
+ * @param {object} ctx
+ * @param {import('@chrysalis/webir').NodeId} loadValueId
+ * @param {object} tree
+ * @param {{ file: string, line?: number }} loc
+ * @param {{ path?: string[], query?: string[], load?: string[] }} bindings
+ */
+export function lowerHubPageWithLoadAndUiBody(ctx, loadValueId, tree, loc, bindings = {}) {
+  const { data, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const loadId = data.call({
+    callee: "__page_load",
+    args: [loadValueId],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "cwl-page-load")],
+  });
+  const uiId = lowerCwlUiTreeBody(ctx, tree, loc, bindings);
+  return data.block({
+    statements: [loadId, uiId],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "cwl-page-load-ui")],
   });
 }
 

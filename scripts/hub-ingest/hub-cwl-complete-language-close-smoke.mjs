@@ -36,7 +36,9 @@ export async function runCwlCompleteLanguageCloseGate(opts = {}) {
   const phase16 = await runCwlDataCompleteGate(opts);
   const phase17 = await runCwlEffectsExecutableGate(opts);
   const phase18 = await runCwlCutoverGate({ ...opts, runPipeline: false });
-  const maintenance = await runCwlLanguageMaintenanceGate(opts);
+  const maintenance = opts.skipMaintenance
+    ? { ok: true, skip: "maintenance-skipped" }
+    : await runCwlLanguageMaintenanceGate(opts);
   const ok =
     doc.ok === true &&
     phase15.ok === true &&

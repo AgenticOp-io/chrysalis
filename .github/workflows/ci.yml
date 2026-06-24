@@ -98,73 +98,8 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: WISP CWL Phase 12 Phase 0 close (G6310)
-        run: pnpm run hub:wisp-cwl-phase12-phase0-close-smoke
-
-      - name: WISP CWL Phase 12 pipeline (fixtures; G6320)
-        run: pnpm run hub:wisp-cwl-pipeline-smoke
-
-      - name: WISP CWL dual deploy config (G6330)
-        run: pnpm run hub:wisp-cwl-dual-deploy-config-smoke
-
       - name: CWL surface taxonomy (G6340)
         run: pnpm run hub:cwl-surface-taxonomy-smoke
-
-      - name: WISP CWL Phase 13 M0 surfaces (G6350)
-        run: pnpm run hub:wisp-cwl-phase13-m0-smoke
-
-      - name: WISP CWL Phase 13 M1 surfaces (G6360)
-        run: pnpm run hub:wisp-cwl-phase13-m1-smoke
-      - name: WISP CWL Phase 13 M2 surfaces (G6370)
-        run: pnpm run hub:wisp-cwl-phase13-m2-smoke
-      - name: WISP CWL Phase 13 M3 surfaces (G6380)
-        run: pnpm run hub:wisp-cwl-phase13-m3-smoke
-      - name: WISP CWL Phase 13 M4 surfaces (G6390)
-        run: pnpm run hub:wisp-cwl-phase13-m4-smoke
-      - name: WISP CWL Phase 13 M5 cutover (G6400)
-        run: pnpm run hub:wisp-cwl-phase13-m5-smoke
-
-      - name: WISP CWL Phase 13 M6 effects (G6420)
-        run: pnpm run hub:wisp-cwl-phase13-m6-smoke
-
-      - name: WISP CWL Phase 13 close (G6410)
-        run: pnpm run hub:wisp-cwl-phase13-close-smoke
-
-      - name: WISP CWL Phase 14 HSS proxy (G6530)
-        run: pnpm run hub:wisp-cwl-phase14-hss-proxy-smoke
-
-      - name: WISP CWL Phase 14 demo manifest (G6540)
-        run: pnpm run hub:wisp-cwl-phase14-demo-manifest-smoke
-
-      - name: WISP CWL Phase 14 remote demo (G6600)
-        run: pnpm run hub:wisp-cwl-phase14-remote-demo-smoke
-
-      - name: WISP CWL Phase 14 pipeline remote verify (G6650)
-        run: pnpm run hub:wisp-cwl-phase14-pipeline-remote-verify-smoke
-
-      - name: WISP CWL Phase 14 operator verify (G6680)
-        run: pnpm run hub:wisp-cwl-phase14-operator-verify-smoke
-
-      - name: WISP CWL Phase 14 live backend (G6700)
-        run: pnpm run hub:wisp-cwl-phase14-live-backend-smoke
-
-      - name: WISP CWL Phase 14 client redirect (G6510)
-        run: pnpm run hub:wisp-cwl-phase14-client-redirect-smoke
-
-      - name: WISP CWL Phase 14 operator close (G6520)
-        run: pnpm run hub:wisp-cwl-phase14-operator-close-smoke
-
-      - name: WISP CWL Phase 14 close (G6590)
-        run: pnpm run hub:wisp-cwl-phase14-close-smoke
-
-      - name: WISP CWL Phase 14 program close (G6690)
-        run: pnpm run hub:wisp-cwl-phase14-program-close-smoke
-
-      - name: WISP CWL maintenance regression (G6710)
-        run: pnpm run hub:wisp-cwl-maintenance-regression-smoke
-
-      - name: WISP CWL program maintenance complete (G6720)
-        run: pnpm run hub:wisp-cwl-program-maintenance-complete-smoke
 
       - name: CWL language maintenance (G6731)
         run: pnpm run hub:cwl-language-maintenance-smoke
@@ -172,8 +107,32 @@ jobs:
       - name: CWL language v1 close (G6750)
         run: pnpm run hub:cwl-language-v1-close-smoke
 
-      - name: WISP CWL pipeline artifact gate
-        run: pnpm run ci:wisp-cwl-pipeline
+      - name: CWL complete language close (G7150)
+        run: pnpm run hub:cwl-complete-language-close-smoke
+
+      - name: IR Helper Program close (G7200)
+        run: pnpm run hub:ir-helper-program-close-smoke
+
+      - name: Maintenance mode governance (G6160 / G7391)
+        run: pnpm run hub:maintenance-mode-governance-smoke
+
+      - name: CWL Phase 19 close (G7310)
+        run: pnpm run hub:cwl-phase19-close-smoke
+
+      - name: CWL Phase 20 close (G7320)
+        run: pnpm run hub:cwl-phase20-close-smoke
+
+      - name: CWL Phase 21 close (G7330)
+        run: pnpm run hub:cwl-phase21-close-smoke
+
+      - name: CWL Phase 22 close (G7340)
+        run: pnpm run hub:cwl-phase22-close-smoke
+
+      - name: CWL Phase 23 close (G7350)
+        run: pnpm run hub:cwl-phase23-close-smoke
+
+      - name: CWL universal language program close (G7390)
+        run: pnpm run hub:cwl-universal-language-close-smoke
 
       - name: Checkout wptp-matrix (hub contract-first oracle)
         uses: actions/checkout@v4
