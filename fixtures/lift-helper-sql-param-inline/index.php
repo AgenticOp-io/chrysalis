@@ -52,6 +52,7 @@ require_once __DIR__ . '/lib/sql_param_strpos.php';
 require_once __DIR__ . '/lib/sql_param_stripos.php';
 require_once __DIR__ . '/lib/sql_param_strrpos.php';
 require_once __DIR__ . '/lib/sql_param_strripos.php';
+require_once __DIR__ . '/lib/sql_param_str_contains.php';
 require_once __DIR__ . '/lib/sql_param_cast_float.php';
 require_once __DIR__ . '/lib/sql_param_cast_bool.php';
 require_once __DIR__ . '/lib/sql_param_cast_int.php';
@@ -273,6 +274,10 @@ if ($method === 'GET' && $path === '/he') {
 }
 if ($method === 'GET' && $path === '/vav') {
     require __DIR__ . '/pages/show_vav.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/zayin') {
+    require __DIR__ . '/pages/show_zayin.php';
     exit;
 }
 

@@ -6,18 +6,18 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **IR helper maintenance** — **B42 `strripos()`** (**G7090**); complete language **G7150 closed**.
-- **Recently shipped:** **B42 `strripos(, literal)`** (**G7090**); **B41 `strrpos()`** (**G7080**); **G7150** program close.
+- **Active lane:** **IR helper maintenance** — **B43 `str_contains()`** (**G7091**); complete language **G7150 closed**.
+- **Recently shipped:** **B43 `str_contains(, literal)`** (**G7091**); **B42 `strripos()`** (**G7090**); **G7150** program close.
 
 ---
 
-## Active — IR helper B42 (G7090)
+## Active — IR helper B43 (G7091)
 
 Default build queue post **G7150**. Program doc: [`docs/IR-HELPER-LIFTING.md`](./docs/IR-HELPER-LIFTING.md)
 
 | Gate | Smoke |
 | --- | --- |
-| **G7090** B42 `strripos(, literal)` | `runIrHelperLiftingB42StrriposInlineGate` (via **G6731**) |
+| **G7091** B43 `str_contains(, literal)` | `runIrHelperLiftingB43StrContainsInlineGate` (via **G6731**) |
 | **G6731** maintenance composite | `pnpm run hub:cwl-language-maintenance-smoke` |
 
 **Regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
@@ -180,6 +180,7 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G7070 B40 `stripos(, literal)` | `runIrHelperLiftingB40StriposInlineGate` |
 | G7080 B41 `strrpos(, literal)` | `runIrHelperLiftingB41StrrposInlineGate` |
 | G7090 B42 `strripos(, literal)` | `runIrHelperLiftingB42StrriposInlineGate` |
+| G7091 B43 `str_contains(, literal)` | `runIrHelperLiftingB43StrContainsInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
 ## Active — CWL language v1.1 (G6760–G7050)
@@ -222,12 +223,13 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G7070** B40 `stripos(, literal)` | `runIrHelperLiftingB40StriposInlineGate` (via **G6731**) |
 | **G7080** B41 `strrpos(, literal)` | `runIrHelperLiftingB41StrrposInlineGate` (via **G6731**) |
 | **G7090** B42 `strripos(, literal)` | `runIrHelperLiftingB42StrriposInlineGate` (via **G6731**) |
+| **G7091** B43 `str_contains(, literal)` | `runIrHelperLiftingB43StrContainsInlineGate` (via **G6731**) |
 
 ---
 
 ## Default queue — IR helper v1.1 (post G7150)
 
-**Active:** **B42 `strripos()`** (**G7090**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
+**Active:** **B43 `str_contains()`** (**G7091**). Composite: `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
 **CWL language regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)
 

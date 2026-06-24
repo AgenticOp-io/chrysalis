@@ -149,6 +149,8 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B42 v0 (G7090):** `strripos(, literal)` formal + literal inlining — fixture route **`/vav`**. Gate: `runIrHelperLiftingB42StrriposInlineGate`.
 
+**B43 v0 (G7091):** `str_contains(, literal)` formal + literal inlining — fixture route **`/zayin`**. Gate: `runIrHelperLiftingB43StrContainsInlineGate`.
+
 **Gate:** `runIrHelperLiftingB6StrlenInlineGate` — verifies B6 inlining + ingest test coverage.  
 **Historical gate:** `runIrHelperLiftingNonB5DeferredGate` (scaffolding, G6265).
 
