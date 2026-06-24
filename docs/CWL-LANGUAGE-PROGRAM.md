@@ -36,20 +36,22 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 
 **Entry G7100:** this section + [`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md) + [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12 aligned (doc gate; implementation follows RFC + hub smokes).
 
-## Universal web language program — active (Phase 19–23, **D6260**)
+## Universal web language program — closed (G7390, D6260 / D6261)
 
-**Next locked path** after **G7150**: [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).
+**Status:** closed (2026-06-24). Program doc: [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).
+
+**Superseded by:** Phase **25** fully complete web language — [`CWL-FULL-WEB-LANGUAGE-PROGRAM.md`](./CWL-FULL-WEB-LANGUAGE-PROGRAM.md) (**G7590** target).
 
 | Phase | Win | Status | Close gate |
 | --- | --- | --- | --- |
-| **19** | **CWL UI v1** — islands, hydration policy, verify | **Active** | **G7310** *(TBD)* |
-| **20** | **CWL Data v2** — full load shapes + framework ingest | Planned | **G7320** *(TBD)* |
-| **21** | **CWL Effects middleware** — executable chains | Planned | **G7330** *(TBD)* |
-| **22** | **Universal ingest** — pilot ≥99% native CWL | Planned | **G7340** *(TBD)* |
-| **23** | **Greenfield cutover** — CWL-only new apps | Planned | **G7350** *(TBD)* |
-| **Program** | Universal web language close | Planned | **G7390** *(TBD)* |
+| **19** | **CWL UI v1** | **Closed G7310** | **G7310** |
+| **20** | **CWL Data v2** | **Closed G7320** | **G7320** |
+| **21** | **Effects middleware** | **Closed G7330** | **G7330** |
+| **22** | **Universal ingest** | **Closed G7340** | **G7340** |
+| **23** | **Greenfield cutover** | **Closed G7350** | **G7350** |
+| **Program** | Universal web language close | **Closed G7390** | **G7390** |
 
-**Entry G7300:** `pnpm run hub:cwl-universal-language-program-entry-smoke`
+**Entry G7300:** archived — superseded by **G7390** close.
 
 **Phase 15 first deliverables (RFC before code):**
 

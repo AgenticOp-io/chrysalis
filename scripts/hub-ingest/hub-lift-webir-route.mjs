@@ -45,6 +45,79 @@ export function lowerHubLiteral(ctx, value, loc) {
 }
 
 /**
+ * @param {object} ctx — { data, webir }
+ * @param {Record<string, string | number | boolean>} obj
+ * @param {{ file: string, line?: number }} loc
+ */
+export function lowerHubObjectLiteral(ctx, obj, loc) {
+  const { data, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const flat = [];
+  for (const [key, val] of Object.entries(obj)) {
+    const valType =
+      typeof val === "string"
+        ? HUB_T.string
+        : typeof val === "boolean"
+          ? HUB_T.bool
+          : typeof val === "number"
+            ? HUB_T.int
+            : HUB_T.unknown;
+    flat.push(
+      data.literal({
+        value: key,
+        type: HUB_T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "object-key")],
+      }),
+    );
+    flat.push(
+      data.literal({
+        value: val,
+        type: valType,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "object-val")],
+      }),
+    );
+  }
+  const objId = data.call({
+    callee: "__object_literal",
+    args: flat,
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "object-literal")],
+  });
+  return data.block({
+    statements: [objId],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "object-literal")],
+  });
+}
+
+/**
+ * @param {object} ctx — { data, effect, webir }
+ * @param {number} status
+ * @param {{ file: string, line?: number }} loc
+ */
+export function lowerHubStatusOnly(ctx, status, loc) {
+  const { data, effect, webir } = ctx;
+  const origin = hubOrigin(loc.file, loc.line ?? 1);
+  const statusId = effect.httpError({
+    status,
+    message: null,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "status-only")],
+  });
+  const bodyId = lowerHubObjectLiteral(ctx, {}, loc);
+  return data.block({
+    statements: [statusId, bodyId],
+    type: HUB_T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "status-only")],
+  });
+}
+
+/**
  * @param {object} ctx
  * @param {string} reason
  * @param {{ file: string, line?: number }} loc

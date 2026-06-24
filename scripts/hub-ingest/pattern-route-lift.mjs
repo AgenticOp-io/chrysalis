@@ -2,7 +2,7 @@
  * Lift hub routes from {@link PATTERN_PARSERS} into WebIR.
  */
 import { PATTERN_PARSERS } from "./pattern-route-parsers.mjs";
-import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
+import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral, lowerHubObjectLiteral, lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
 
 const LITERAL_RETURN_RE =
   /return\s+(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'|"""[\s\S]*?"""|`[^`]*`)\s*;/;
@@ -12,7 +12,11 @@ const RUST_RESPONDER_STR_RE = /\{\s*"([^"]*)"\s*\}/;
 const KTOR_RESPOND_RE = /call\.respond(?:Text)?\s*\(\s*(true|false|-?\d+(?:\.\d+)?)/;
 const SCALA_COMPLETE_RE = /\bcomplete\s*\(\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*")\s*\)/;
 const KOTLIN_FUN_EXPR_RE = /=\s*(true|false|-?\d+(?:\.\d+)?)\s*$/m;
-const SWIFT_RETURN_RE = /\breturn\s+(true|false|-?\d+(?:\.\d+)?)\s*$/m;
+const SWIFT_RETURN_RE = /\breturn\s+("([^"]*)"|true|false|-?\d+(?:\.\d+)?)\s*$/m;
+const KOTLIN_MAP_OF_RE = /mapOf\s*\(\s*"([^"]+)"\s+to\s+(-?\d+)\s*\)/;
+const RUBY_HASH_RE = /\{[\s\n]*:?(\w+)[\s\n]*:[\s\n]*(-?\d+)[\s\n]*\}/;
+const CSHARP_CREATED_RE = /Results\.Created\s*\(/;
+const SCALA_MAP_COMPLETE_RE = /complete\s*\(\s*Map\s*\(\s*"([^"]+)"\s*->\s*(-?\d+)\s*\)\s*\)/;
 
 /**
  * @param {string} raw
@@ -105,11 +109,48 @@ function swiftReturnLiteralAfter(source, fromIndex) {
   const slice = source.slice(fromIndex, fromIndex + 400);
   const m = slice.match(SWIFT_RETURN_RE);
   if (!m) return null;
-  const v = parseLiteralToken(m[1]);
+  const raw = m[1];
+  const v = raw.startsWith('"') ? raw.slice(1, -1) : parseLiteralToken(raw);
   if (v === null) return null;
   const baseLine = source.slice(0, fromIndex).split("\n").length;
   const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
   return { value: v, line };
+}
+
+function kotlinMapOfAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 400);
+  const m = slice.match(KOTLIN_MAP_OF_RE);
+  if (!m) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { object: { [m[1]]: Number.parseInt(m[2], 10) }, line };
+}
+
+function rubyHashAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 400);
+  const m = slice.match(RUBY_HASH_RE);
+  if (!m) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { object: { [m[1]]: Number.parseInt(m[2], 10) }, line };
+}
+
+function csharpCreatedAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 120);
+  const m = slice.match(CSHARP_CREATED_RE);
+  if (!m) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { status: 201, line };
+}
+
+function scalaMapCompleteAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 600);
+  const m = slice.match(SCALA_MAP_COMPLETE_RE);
+  if (!m) return null;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  const line = baseLine + slice.slice(0, m.index).split("\n").length - 1;
+  return { object: { [m[1]]: Number.parseInt(m[2], 10) }, line };
 }
 
 function rubyBlockLiteralAfter(source, fromIndex) {
@@ -145,9 +186,19 @@ export function liftPatternRoutesFile(opts) {
   }
 
   const data = webir.dataDialect.builders(builder);
-  const ctx = { data, webir };
+  const effect = webir.effectDialect.builders(builder);
+  const ctx = { data, effect, webir };
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
+    const statusOnly = language === "csharp" ? csharpCreatedAfter(source, idx) : null;
+    const objectLit =
+      language === "kotlin"
+        ? kotlinMapOfAfter(source, idx)
+        : language === "ruby"
+          ? rubyHashAfter(source, idx)
+          : language === "scala"
+            ? scalaMapCompleteAfter(source, idx)
+            : null;
     const lit =
       literalReturnAfter(source, idx) ??
       (language === "ruby"
@@ -163,10 +214,13 @@ export function liftPatternRoutesFile(opts) {
                 : language === "swift"
                   ? swiftReturnLiteralAfter(source, idx)
                   : null);
-    const bodyId =
-      lit?.value !== undefined
-        ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })
-        : hubHandlerBodyHole(ctx, `hub-${language}:handler-body`, { file, line: r.line });
+    const bodyId = statusOnly
+      ? lowerHubStatusOnly(ctx, statusOnly.status, { file, line: statusOnly.line })
+      : objectLit?.object
+        ? lowerHubObjectLiteral(ctx, objectLit.object, { file, line: objectLit.line })
+        : lit?.value !== undefined
+          ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })
+          : hubHandlerBodyHole(ctx, `hub-${language}:handler-body`, { file, line: r.line });
     emitHubRoute({ webir, builder, wr, language, file, route: r, bodyId });
   }
 

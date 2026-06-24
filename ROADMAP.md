@@ -6,9 +6,47 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Maintenance** — **G7490** customer pilot regression (**D6262** program **closed** 2026-06-24).
+- **Active lane:** **Post G7690 maintenance** — universal translator N×N closed (**G7690**, **D6267**); default regression **G7690** composite.
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
+
+---
+
+---
+
+## Closed — Phase 26 Universal translator N×N (G7690)
+
+Program doc: [`docs/CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md`](./docs/CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md)  
+Authority: **DESIGN D6267**  
+Requires: **G7590** closed
+
+| Phase | Goal | Close gate | Smoke |
+| --- | --- | --- | --- |
+| **26a** | Composer charter | **G7601** | `pnpm run hub:cwl-phase26a-close-smoke` |
+| **26b** | CWL outbound emit | **G7602** | `pnpm run hub:cwl-phase26b-close-smoke` |
+| **26c** | Mandatory inbound roundtrip | **G7603** | `pnpm run hub:cwl-phase26c-close-smoke` |
+| **26d** | Composer cross-edges | **G7604** | `pnpm run hub:cwl-phase26d-close-smoke` |
+| **Program** | Universal translator close | **G7690** | `pnpm run hub:cwl-universal-translator-close-smoke` |
+
+**Default maintenance queue:** `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**).
+
+---
+
+## Closed — Phase 25 Fully complete web language (G7590)
+
+Program doc: [`docs/CWL-FULL-WEB-LANGUAGE-PROGRAM.md`](./docs/CWL-FULL-WEB-LANGUAGE-PROGRAM.md)  
+Translator parity: [`docs/CWL-UNIVERSAL-TRANSLATOR-PARITY.md`](./docs/CWL-UNIVERSAL-TRANSLATOR-PARITY.md)  
+Authority: **DESIGN D6264** / **D6265** / **D6266**
+
+| Phase | Goal | Close gate | Smoke |
+| --- | --- | --- | --- |
+| **25a** | Completion charter | **G7501** | `pnpm run hub:cwl-phase25a-close-smoke` |
+| **25b** | CWL-authored 100% native | **G7502** | `pnpm run hub:cwl-phase25b-close-smoke` |
+| **25c** | Universal translator parity | **G7503** | `pnpm run hub:cwl-phase25c-close-smoke` |
+| **25d** | Translator verify replay | **G7504** | `pnpm run hub:cwl-phase25d-close-smoke` |
+| **Program** | Full web language close | **G7590** | `pnpm run hub:cwl-full-web-language-close-smoke` |
+
+**Regression:** `pnpm run hub:cwl-full-web-language-close-smoke` (**G7590**).
 
 ---
 
@@ -299,14 +337,28 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 
 ---
 
-## Default queue — customer pilot closed (G7490)
+## Default queue — universal translator closed (G7690)
 
-**Regression:** `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**).  
-**Subordinate:** **G7390** (included in G7490 composite).
+**Maintenance queue:** `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**).  
+**Subordinate:** **G7590** (included in G7690 composite).
 
 ---
 
-## Archived — Default queue customer pilot active (G7400)
+## Archived — Default queue universal translator active (G7600–G7690)
+
+**Build queue:** `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**).  
+**Subordinate:** **G7590** (included in G7690 composite).
+
+---
+
+## Archived — Default queue post G7590 (fully complete web language closed)
+
+**Regression:** `pnpm run hub:cwl-full-web-language-close-smoke` (**G7590**).  
+**Subordinate:** **G7490** (included in G7590 composite).
+
+---
+
+## Archived — Default queue full web language active (G7590)
 
 **Regression:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**).
 **Subordinate:** **G7150** + **G7200** (included in G7390 composite).

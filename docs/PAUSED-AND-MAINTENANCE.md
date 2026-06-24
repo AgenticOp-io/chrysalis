@@ -1,7 +1,7 @@
 # Paused backlog and active build queue
 
 > **Status:** authoritative (2026-06-24)  
-> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **CWL customer pilot program closed** (**G7490**, **D6262** / **D6263**). **CWL universal web language program closed** (**G7390**, **D6260**). **G7150** / **G7200** shipped. **WISP POC decoupled** (**D6259**).
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **CWL universal translator closed** (**G7690**, **D6267**). **Full web language closed** (**G7590**). **Customer pilot closed** (**G7490**). **WISP POC decoupled** (**D6259**).
 
 **Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
 
@@ -11,20 +11,18 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **CWL customer pilot regression (default)** | `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**) |
-| **G7390 regression (subordinate)** | Included in **G7490** composite |
-| **G7150 / G7200 regression** | Included in **G7390** composite |
-| **IR helper tier regression (optional)** | `hub:cwl-language-maintenance-smoke` (**G6731**) |
+| **Universal translator N×N regression (default)** | `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**) |
+| **G7590 regression (subordinate)** | Included in **G7690** composite |
+| **G7490 regression** | Included in **G7690** composite |
+| **IR helper tier regression (optional)** | `hub:cwl-language-maintenance-smoke` (**G6731**); `hub:ir-helper-program-close-smoke` (**G7200**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
 | Parser mapper gap / new PHP syntax | Maintenance §2 |
 
-**Close before build:** Phase **N+1** requires Phase **N** close gate green.
+**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **cwl-translator-closed** mode)
 
-**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **cwl-pilot-closed** mode)
+**Program doc:** [`CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md`](./CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md)
 
-**Program doc:** [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md)
-
-**Program close (shipped):** `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**)
+**Program close verify:** `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**)
 
 ---
 
@@ -48,63 +46,36 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
 
 | Trigger | Action | Pointer |
 | --- | --- | --- |
-| Parser mapper gap | Add contested-syntax page to `fixtures/parser-parity-probe` | Multi-lane lane A |
-| IR Helper Program v1 close | `pnpm run hub:ir-helper-program-close-smoke` (**G7200**) | [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) |
-| IR helper tier regression (optional) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**) | [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md) |
-| CWL complete language regression | `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**) | [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) |
-| CWL customer pilot regression | `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**) | [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md) |
-| Widen `->query` lowering | Add tracked receiver via `mysqli-probe` | Hole economics |
-| Package README drift | Update README | `ROADMAP.md` |
-| Redaction / verify regression | Lockstep Node + PHP redactor | `AGENTS.md` |
-| Full CI-scale test run | `pnpm run test:gce` | `docs/GCE-LOCAL-VERIFY.md` |
+| CI red / gate failure | Fix regression; run relevant smoke | `ROADMAP.md` |
+| Parser gap / unsupported PHP | Hole + fixture; IR helper tier if chartered | `AGENTS.md` §4 |
+| Customer oracle / session | Redaction lockstep; Redis session smoke | `AGENTS.md` oracle-php |
+| Commercial license | `@chrysalis/license` build + sign playbook | `docs/COMMERCIAL.md` |
 
 ---
 
-## 3. Shipped by Phase 10 (reference — not backlog)
+## 3. Honest gaps (paused — not default build)
 
-| Item | Status | Doc |
+| Gap | Status | Doc |
 | --- | --- | --- |
-| Production SQL/session (Runtime Phase C) | **Active gates** (program closed) | `RUNTIME-CWL-PARITY-PLAN.md` Phase C |
-| WordPress vertical probe depth | **Shipped** | `WORDPRESS-VERTICAL-PHASE-10.md` |
-| Matrix gold (customer/flagship routes) | **Shipped** | `PRODUCTION-PARITY-PHASE-10.md` Phase C |
-| Multi-language evidence path | **Shipped** | Phase 10 Phase D |
+| Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
+| Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
+| Commercial launch | Optional vendor gate | `COMMERCIAL.md` |
+| WPTP D2+ sibling repos | Out-of-repo matrix | `MULTI-REPO-WORKSPACE.md` |
+| IR helper lifting backlog | Optional **G6731** / **G7200** | `ROADMAP.md` IR helper table; `IR-HELPER-PROGRAM.md` |
+
+**Governance smokes:** `runMaintenanceProgramCompleteGate`, `runHonestGapsProgramCompleteGate`, `runHonestGapsImplementationCloseGate`
 
 ---
 
-## 4. Honest gaps (implemented — operator-only remainder)
+## 4. Closed programs (reference only)
 
-In-repo implementation **closed** at **G6290** (Phase 11). Gates remain green via `pnpm run hub:honest-gaps-implementation-close-smoke`.
-
-| Gap | In-repo (shipped) | Operator-only remainder |
+| Program | Close | Smoke |
 | --- | --- | --- |
-| Real WordPress core install | `fixtures/wordpress-customer-sample` + **G6280** | Live customer tree oracle capture |
-| Customer north-star metrics | **G6281** status JSON on `tiny-blog` | Pilot metrics on proprietary slice |
-| Commercial launch | **G6282** license verify + SKU fixture | Billing/contracts outside repo |
-| IR helper lifting (non-B5) | **G6283** B6 `strlen()` inline | Further B6+ design passes |
-| WPTP D2+ sibling repos | **G6284** D7 harness audit | Ongoing D7 expansion in siblings |
-
----
-
-## 5. Still out of scope
-
-- Chasing full **575×26** matrix for marketing without oracle  
-- LLM repair bypassing verify  
-- Rebranding structural matrix depth as full-stack oracle parity  
-
----
-
-## 6. Closed programs (archive — not backlog)
-
-| Program | Closed at | Detail |
-| --- | --- | --- |
-| Strategic plan phases 0–9 | **G6153** | `STRATEGIC-PLAN.md` §7 |
-| Phase 10 production parity | **G6257** | `PRODUCTION-PARITY-PHASE-10.md` |
-| CWL complete language Phases 15–18 | **G7150** | `CWL-LANGUAGE-PROGRAM.md` |
-| IR Helper Program v1 | **G7200** | `IR-HELPER-PROGRAM.md` |
-| CWL universal language Phases 19–23 | **G7390** | `CWL-UNIVERSAL-LANGUAGE-PROGRAM.md` |
-| CWL customer pilot Phase 24 | **G7490** | `CWL-CUSTOMER-PILOT-PROGRAM.md` |
-| WISP Phase 12–14 showcase POC | **G6690** | Optional regression (**D6259**) |
-
----
-
-*Related: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md), [`ROADMAP.md`](../ROADMAP.md), [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md), [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).*
+| Universal translator N×N | **G7690** | `hub:cwl-universal-translator-close-smoke` |
+| Full web language | **G7590** | `hub:cwl-full-web-language-close-smoke` |
+| Customer pilot | **G7490** | `hub:cwl-customer-pilot-close-smoke` |
+| Universal language | **G7390** | `hub:cwl-universal-language-close-smoke` |
+| Complete language v1 | **G7150** | `hub:cwl-complete-language-close-smoke` |
+| IR Helper Program v1 | **G7200** | `hub:ir-helper-program-close-smoke` |
+| WISP Phase 14 | **G6690** | `hub:wisp-cwl-phase14-program-close-smoke` |
+| Phase 10 production parity | **G6257** | `hub:strategic-plan-phase10-program-archive-close-smoke` |

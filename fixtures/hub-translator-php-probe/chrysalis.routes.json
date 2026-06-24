@@ -1,0 +1,7 @@
+{
+  "app": "hub-translator-php-probe",
+  "routes": [
+    { "method": "GET", "path": "/health", "file": "pages/health.php", "pathParams": [] },
+    { "method": "POST", "path": "/items", "file": "pages/items.php", "pathParams": [] }
+  ]
+}

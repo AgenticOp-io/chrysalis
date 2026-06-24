@@ -2091,7 +2091,31 @@ export function runPausedAndMaintenanceDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const phase10Closed = isPhase10ProductionParityClosed();
-  const docOk = isCwlCustomerPilotProgramClosed()
+  const docOk = isCwlUniversalTranslatorProgramClosed()
+    ? text.includes("G7690") &&
+      text.includes("hub:cwl-universal-translator-close-smoke") &&
+      text.includes("G7590") &&
+      text.includes("D6267") &&
+      text.includes("Do not treat closed program tables")
+    : isCwlUniversalTranslatorProgramActive()
+    ? text.includes("G7600") &&
+      text.includes("G7690") &&
+      text.includes("CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md") &&
+      text.includes("D6267") &&
+      text.includes("Do not treat closed program tables")
+    : isCwlFullWebLanguageProgramClosed()
+    ? text.includes("G7590") &&
+      text.includes("hub:cwl-full-web-language-close-smoke") &&
+      text.includes("G7490") &&
+      text.includes("D6264") &&
+      text.includes("Do not treat closed program tables")
+    : isCwlFullWebLanguageProgramActive()
+    ? text.includes("G7500") &&
+      text.includes("G7590") &&
+      text.includes("CWL-FULL-WEB-LANGUAGE-PROGRAM.md") &&
+      text.includes("D6264") &&
+      text.includes("Do not treat closed program tables")
+    : isCwlCustomerPilotProgramClosed()
     ? text.includes("G7490") &&
       text.includes("hub:cwl-customer-pilot-close-smoke") &&
       text.includes("G7390") &&
@@ -2175,6 +2199,54 @@ export function runPausedAndMaintenanceDocGate() {
 
 /** G6162 — Strategic plan default queue gate (Phase 13, Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isCwlUniversalTranslatorProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G7690") &&
+      text.includes("hub:cwl-universal-translator-close-smoke") &&
+      text.includes("G7590") &&
+      text.includes("D6267") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, universalTranslatorClosedOk: ok };
+  }
+  if (isCwlUniversalTranslatorProgramActive()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("Phase 26") &&
+      text.includes("G7600") &&
+      text.includes("G7690") &&
+      text.includes("D6267") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, universalTranslatorActiveOk: ok };
+  }
+  if (isCwlFullWebLanguageProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G7590") &&
+      text.includes("hub:cwl-full-web-language-close-smoke") &&
+      text.includes("G7490") &&
+      text.includes("D6264") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, fullWebLanguageClosedOk: ok };
+  }
+  if (isCwlFullWebLanguageProgramActive()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("Phase 25") &&
+      text.includes("G7500") &&
+      text.includes("G7590") &&
+      text.includes("D6264") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, fullWebLanguageActiveOk: ok };
+  }
   if (isCwlCustomerPilotProgramClosed()) {
     const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
     if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
@@ -2301,7 +2373,31 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
   const ok =
-    isCwlCustomerPilotProgramClosed()
+    isCwlUniversalTranslatorProgramClosed()
+      ? text.includes("G7690") &&
+        text.includes("hub:cwl-universal-translator-close-smoke") &&
+        text.includes("G7590") &&
+        text.includes("D6267") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isCwlUniversalTranslatorProgramActive()
+      ? text.includes("Phase 26") &&
+        text.includes("G7600") &&
+        text.includes("G7690") &&
+        text.includes("D6267") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isCwlFullWebLanguageProgramClosed()
+      ? text.includes("G7590") &&
+        text.includes("hub:cwl-full-web-language-close-smoke") &&
+        text.includes("G7490") &&
+        text.includes("D6264") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isCwlFullWebLanguageProgramActive()
+      ? text.includes("Phase 25") &&
+        text.includes("G7500") &&
+        text.includes("G7590") &&
+        text.includes("D6264") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isCwlCustomerPilotProgramClosed()
       ? text.includes("G7490") &&
         text.includes("hub:cwl-customer-pilot-close-smoke") &&
         text.includes("G7390") &&
@@ -2385,6 +2481,18 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
 
 /** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isCwlUniversalTranslatorProgramClosed()) {
+    return runCwlUniversalTranslatorClosedGovernanceGate(_opts);
+  }
+  if (isCwlUniversalTranslatorProgramActive()) {
+    return runCwlUniversalTranslatorActiveGovernanceGate(_opts);
+  }
+  if (isCwlFullWebLanguageProgramClosed()) {
+    return runCwlFullWebLanguageClosedGovernanceGate(_opts);
+  }
+  if (isCwlFullWebLanguageProgramActive()) {
+    return runCwlFullWebLanguageActiveGovernanceGate(_opts);
+  }
   if (isCwlCustomerPilotProgramClosed()) {
     return runCwlCustomerPilotClosedGovernanceGate(_opts);
   }
@@ -5308,6 +5416,162 @@ export async function runCwlCustomerPilotClosedGovernanceGate(_opts = {}) {
     roadmapOk: roadmap.ok === true,
     taxonomyOk: taxonomy.ok === true,
     mode: "cwl-pilot-closed",
+  };
+}
+
+const cwlFullWebLanguageProgramDocPath = join(scriptRoot, "docs/CWL-FULL-WEB-LANGUAGE-PROGRAM.md");
+
+/** @returns {boolean} CWL full web language program is active (G7500, D6264). */
+export function isCwlFullWebLanguageProgramActive() {
+  if (isCwlFullWebLanguageProgramClosed()) return false;
+  if (!existsSync(cwlFullWebLanguageProgramDocPath)) return false;
+  const text = readFileSync(cwlFullWebLanguageProgramDocPath, "utf8");
+  return text.includes("**Status:** **active**") && text.includes("G7500");
+}
+
+/** @returns {boolean} CWL full web language program closed (G7590). */
+export function isCwlFullWebLanguageProgramClosed() {
+  if (!existsSync(cwlFullWebLanguageProgramDocPath)) return false;
+  const text = readFileSync(cwlFullWebLanguageProgramDocPath, "utf8");
+  return text.includes("Program closed") && text.includes("G7590");
+}
+
+/** G7501 — CWL full web language active governance (post G7500 entry). */
+export async function runCwlFullWebLanguageActiveGovernanceGate(_opts = {}) {
+  const { runCwlFullWebLanguageProgramEntryGate } = await import(
+    "./hub-cwl-full-web-language-program-entry-smoke.mjs"
+  );
+  const entry = await runCwlFullWebLanguageProgramEntryGate(_opts);
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    entry.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isCwlFullWebLanguageProgramActive();
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "cwl-full-language-active",
+  };
+}
+
+/** G7591 — CWL full web language closed governance (post G7590). */
+export async function runCwlFullWebLanguageClosedGovernanceGate(_opts = {}) {
+  const skipGoldVerify =
+    _opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
+  const { runCwlFullWebLanguageCloseGate } = await import("./hub-cwl-full-web-language-close-smoke.mjs");
+  const close = await runCwlFullWebLanguageCloseGate({
+    ..._opts,
+    skipMaintenance: true,
+    skipGoldVerify,
+  });
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    close.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isCwlFullWebLanguageProgramClosed();
+  return {
+    ok,
+    closeOk: close.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "cwl-full-language-closed",
+  };
+}
+
+const cwlUniversalTranslatorProgramDocPath = join(scriptRoot, "docs/CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md");
+
+/** @returns {boolean} CWL universal translator program is active (G7600, D6267). */
+export function isCwlUniversalTranslatorProgramActive() {
+  if (isCwlUniversalTranslatorProgramClosed()) return false;
+  if (!existsSync(cwlUniversalTranslatorProgramDocPath)) return false;
+  const text = readFileSync(cwlUniversalTranslatorProgramDocPath, "utf8");
+  return text.includes("**Status:** **active**") && text.includes("G7600");
+}
+
+/** @returns {boolean} CWL universal translator program closed (G7690). */
+export function isCwlUniversalTranslatorProgramClosed() {
+  if (!existsSync(cwlUniversalTranslatorProgramDocPath)) return false;
+  const text = readFileSync(cwlUniversalTranslatorProgramDocPath, "utf8");
+  return text.includes("Program closed") && text.includes("G7690");
+}
+
+/** G7601 — CWL universal translator active governance (post G7600 entry). */
+export async function runCwlUniversalTranslatorActiveGovernanceGate(_opts = {}) {
+  const { runCwlUniversalTranslatorProgramEntryGate } = await import(
+    "./hub-cwl-universal-translator-program-entry-smoke.mjs"
+  );
+  const entry = await runCwlUniversalTranslatorProgramEntryGate(_opts);
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    entry.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isCwlUniversalTranslatorProgramActive();
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "cwl-translator-active",
+  };
+}
+
+/** G7691 — CWL universal translator closed governance (post G7690). */
+export async function runCwlUniversalTranslatorClosedGovernanceGate(_opts = {}) {
+  const skipGoldVerify =
+    _opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
+  const { runCwlUniversalTranslatorCloseGate } = await import(
+    "./hub-cwl-universal-translator-close-smoke.mjs"
+  );
+  const close = await runCwlUniversalTranslatorCloseGate({
+    ..._opts,
+    skipMaintenance: true,
+    skipGoldVerify,
+  });
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    close.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isCwlUniversalTranslatorProgramClosed();
+  return {
+    ok,
+    closeOk: close.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "cwl-translator-closed",
   };
 }
 

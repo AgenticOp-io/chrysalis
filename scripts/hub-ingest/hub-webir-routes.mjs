@@ -23,8 +23,26 @@ export function classifyHubHandlerBody(get, bodyId) {
     }
     if (n.dialect === "data" && n.op === "block") {
       const ops = n.operands ?? [];
-      if (ops.length !== 1) return { kind: "hole", reason: "hub:multi-statement-body" };
-      return unwrap(ops[0]);
+      if (ops.length === 0) return { kind: "hole", reason: "hub:empty-body" };
+      if (ops.length === 1) return unwrap(ops[0]);
+      for (let i = ops.length - 1; i >= 0; i--) {
+        const inner = unwrap(ops[i]);
+        if (inner.kind === "literal") return inner;
+      }
+      const onlyStatusEffects = ops.every((id) => {
+        const stmt = get(id);
+        return stmt?.dialect === "effect" && (stmt?.op === "httpError" || stmt?.op === "http.error");
+      });
+      if (onlyStatusEffects) return { kind: "literal", value: {} };
+      return { kind: "hole", reason: "hub:multi-statement-body" };
+    }
+    if (n.dialect === "effect" && n.op === "echo") {
+      const ops = n.operands ?? [];
+      if (ops.length === 1) return unwrap(ops[0]);
+      return { kind: "hole", reason: "hub:echo-arity" };
+    }
+    if (n.dialect === "effect" && (n.op === "httpError" || n.op === "http.error")) {
+      return { kind: "literal", value: {} };
     }
     if (n.dialect === "data" && n.op === "literal") {
       return { kind: "literal", value: n.attrs?.value };
@@ -33,6 +51,13 @@ export function classifyHubHandlerBody(get, bodyId) {
       const ops = n.operands ?? [];
       if (ops.length !== 1) return { kind: "hole", reason: "hub:return-json-arity" };
       return unwrap(ops[0]);
+    }
+    if (n.dialect === "data" && n.op === "call") {
+      const callee = String(n.attrs?.callee ?? "");
+      if (callee === "json_encode" || callee === "__return") {
+        const ops = n.operands ?? [];
+        if (ops.length === 1) return unwrap(ops[0]);
+      }
     }
     if (n.dialect === "data" && n.op === "call" && n.attrs?.callee === "__object_literal") {
       const ops = n.operands ?? [];
@@ -229,6 +254,9 @@ export function walkCwlHandlerBody(get, bodyId) {
       return;
     }
     if (n.dialect === "effect" && (n.op === "session.read" || n.op === "session.write")) {
+      return;
+    }
+    if (n.dialect === "data" && n.op === "call" && n.attrs?.callee === "__assign") {
       return;
     }
     if (n.dialect === "effect" && n.op === "echo") {

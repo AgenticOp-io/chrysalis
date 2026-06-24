@@ -113,7 +113,7 @@ jobs:
       - name: IR Helper Program close (G7200)
         run: pnpm run hub:ir-helper-program-close-smoke
 
-      - name: Maintenance mode governance (G6160 / G7491)
+      - name: Maintenance mode governance (G6160 / G7501)
         run: pnpm run hub:maintenance-mode-governance-smoke
 
       - name: CWL Phase 19 close (G7310)
@@ -148,6 +148,25 @@ jobs:
 
       - name: CWL customer pilot program close (G7490)
         run: pnpm run hub:cwl-customer-pilot-close-smoke
+
+      - name: CWL Phase 25a close (G7501)
+        run: pnpm run hub:cwl-phase25a-close-smoke
+
+      - name: CWL Phase 25b close (G7502)
+        run: pnpm run hub:cwl-phase25b-close-smoke
+
+      - name: CWL Phase 25c close (G7503)
+        run: pnpm run hub:cwl-phase25c-close-smoke
+
+      - name: CWL Phase 25d close (G7504)
+        run: pnpm run hub:cwl-phase25d-close-smoke
+        env:
+          CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
+
+      - name: CWL universal translator program close (G7690)
+        run: pnpm run hub:cwl-universal-translator-close-smoke
+        env:
+          CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
 
       - name: Checkout wptp-matrix (hub contract-first oracle)
         uses: actions/checkout@v4

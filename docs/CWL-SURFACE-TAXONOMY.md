@@ -27,7 +27,7 @@ All surfaces share one module file (or multi-file `import`), one WebIR module, a
 | **CWL API** | `@route` + handler + JSON/object `return` | Express routes, `+server.ts`, Next route handlers, OpenAPI ops | **Shipped** — RFC-0001–0008, verify gold |
 | **CWL Pages** | `@page` + `return html` | Static HTML, SSR shells, Blade/Jinja-like pages | **Shipped** — RFC-0010/0011/0014 |
 | **CWL Data** | `load { … }` on pages | Svelte `load`, Next `page.server`, PHP controller prep | **Partial** — RFC-0013 |
-| **CWL UI** | *(reserved)* / `hole hub-*:page-component` | Svelte/React/Vue component trees, stores, hydration | **Hole** — RFC-0012; no silent lowering |
+| **CWL UI** | RFC-0017–0019 (`@component`, islands, events) | Server + client island metadata; no silent Svelte/React lowering |
 | **CWL Effects** | `effects:`, `use auth`, `use json` | Middleware, session, body parsers | **Declarative** — deepening with verify |
 
 ### Not a CWL surface
@@ -117,6 +117,13 @@ Programs close surfaces in order — no big-bang rewrite:
 | **G7310** | Phase 19 CWL UI v1 close | `pnpm run hub:cwl-phase19-close-smoke` |
 | **G7390** | **Universal web language program close** | `pnpm run hub:cwl-universal-language-close-smoke` |
 | **G7490** | **Customer pilot program close** | `pnpm run hub:cwl-customer-pilot-close-smoke` |
+| **G7590** | **Full web language program close** | `pnpm run hub:cwl-full-web-language-close-smoke` |
+
+## Fully complete web language program (Phase 25, G7500–G7590, D6264)
+
+**Status:** **active** — see [`CWL-FULL-WEB-LANGUAGE-PROGRAM.md`](./CWL-FULL-WEB-LANGUAGE-PROGRAM.md).
+
+**Win:** CWL-authored modules **100%** native; universal translator at **CWL parity** (oracle hole-free, web-origin ≥99%, verify replay). Translator doc: [`CWL-UNIVERSAL-TRANSLATOR-PARITY.md`](./CWL-UNIVERSAL-TRANSLATOR-PARITY.md) (**D6265**).
 
 ## Language v1 closed (G6750)
 

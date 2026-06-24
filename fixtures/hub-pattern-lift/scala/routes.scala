@@ -1,7 +1,5 @@
-import play.api.routing.Router
-import play.api.routing.sird._
+import akka.http.scaladsl.server.Directives._
 
-val routes: Router.Routes = {
-  case GET(p"/health") => health
-  case POST(p"/items") => createItem
-}
+val routes =
+  get(path("health")) { complete(true) } ~
+  post(path("items")) { complete(Map("id" -> 1)) }

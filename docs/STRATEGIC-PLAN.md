@@ -262,9 +262,24 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 ### Phase 24 — Customer pilot at scale (**closed G7490**)
 
 - **Authority:** **DESIGN D6262** / **D6263** — [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md)
-- **Charter:** `fixtures/hub-pilot-customer-slice/chrysalis.pilot-charter.v1.json`
-- **Close G7401–G7404:** phase smokes `hub:cwl-phase24a-close-smoke` … `hub:cwl-phase24d-close-smoke`
 - **Program close G7490:** `pnpm run hub:cwl-customer-pilot-close-smoke`
+
+---
+
+### Phase 25 — Fully complete web language (**closed G7590**)
+
+- **Authority:** **DESIGN D6264** / **D6265** / **D6266** — [`CWL-FULL-WEB-LANGUAGE-PROGRAM.md`](./CWL-FULL-WEB-LANGUAGE-PROGRAM.md); [`CWL-UNIVERSAL-TRANSLATOR-PARITY.md`](./CWL-UNIVERSAL-TRANSLATOR-PARITY.md)
+- **Requires:** **G7490** closed
+- **Close verify:** `pnpm run hub:cwl-full-web-language-close-smoke` (**G7590**)
+
+---
+
+### Phase 26 — Universal translator N×N through CWL (**closed G7690**)
+
+- **Authority:** **DESIGN D6267** — [`CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md`](./CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md)
+- **Requires:** **G7590** closed
+- **Charter:** `fixtures/hub-universal-translator-slice/chrysalis.translator-composer.v1.json`
+- **Close verify:** `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**)
 
 ---
 
@@ -369,25 +384,86 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (post G7490 — customer pilot closed)
+**Amended 2026-06-24 (Fully complete web language — D6264 / D6265):** Phase **25** active locked path after **G7490**: **charter → CWL 100% → translator parity → translator verify**; universal translator must meet **CWL-equivalent** evidence; program close **G7590**. See [`CWL-FULL-WEB-LANGUAGE-PROGRAM.md`](./CWL-FULL-WEB-LANGUAGE-PROGRAM.md).
 
-**Status:** **CWL customer pilot program closed** (**G7490**, **D6262** / **D6263**); **CWL universal web language program closed** (**G7390**); **G7150** / **G7200** shipped; **WISP POC decoupled** (**D6259**).
+**Amended 2026-06-24 (Phase 25 program close — D6266):** **G7590** closed — fully complete web language + universal translator at CWL parity; default queue is **G7590 regression** + maintenance.
+
+**Amended 2026-06-24 (Universal translator N×N closed — D6267):** Phase **26** closed at **G7690**: composer charter, CWL outbound, mandatory roundtrip, cross-edges green; default maintenance **G7690** composite. See [`CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md`](./CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md).
+
+---
+
+## 12. Default queue (post G7690 — universal translator N×N closed)
+
+**Status:** **CWL universal translator program closed** (**G7690**, **D6267**); **full web language closed** (**G7590**); **customer pilot closed** (**G7490**); **WISP POC decoupled** (**D6259**).
 
 When the user says "build" without specifying:
 
-1. **G7490 regression** — `pnpm run hub:cwl-customer-pilot-close-smoke`
-2. **G7390 subordinate** — included in G7490 composite; also `pnpm run hub:cwl-universal-language-close-smoke`
-3. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+1. **G7690 regression** — `pnpm run hub:cwl-universal-translator-close-smoke` (includes **G7590** subordinate)
+2. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
 
 **WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — not default CI (**D6259**).
-
-**Program close (shipped):** **G7490** — `pnpm run hub:cwl-customer-pilot-close-smoke`.
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
 ---
 
-## 12 (archived) — Default queue (Phase 24 — customer pilot active, superseded 2026-06-24)
+## 12 (archived) — Default queue (Phase 26 — universal translator N×N active, superseded 2026-06-24)
+
+**Status:** **CWL universal translator program active** (**G7600**, **D6267**); **full web language closed** (**G7590**); **customer pilot closed** (**G7490**); **WISP POC decoupled** (**D6259**).
+
+When the user says "build" without specifying:
+
+1. **Phase 26a → 26d** in order — close gates **G7601–G7604** before advancing
+2. **G7690 composite** — `pnpm run hub:cwl-universal-translator-close-smoke` (includes **G7590** regression)
+3. **G7590 subordinate** — `pnpm run hub:cwl-full-web-language-close-smoke`
+4. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — not default CI (**D6259**).
+
+**Program close (target):** **G7690** — `pnpm run hub:cwl-universal-translator-close-smoke`.
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G7590 — fully complete web language closed, superseded 2026-06-24)
+
+**Status:** **CWL full web language program closed** (**G7590**, **D6266**); **customer pilot closed** (**G7490**); **universal language closed** (**G7390**); **WISP POC decoupled** (**D6259**).
+
+When the user says "build" without specifying:
+
+1. **G7590 regression** — `pnpm run hub:cwl-full-web-language-close-smoke` (includes **G7490** + Phase 25 composite)
+2. **G7490 subordinate** — `pnpm run hub:cwl-customer-pilot-close-smoke`
+3. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — not default CI (**D6259**).
+
+**Program regression:** **G7590** — `pnpm run hub:cwl-full-web-language-close-smoke`.
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (Phase 25 active — superseded 2026-06-24)
+
+**Status:** **CWL full web language program active** (**G7500**, **D6264**); **customer pilot closed** (**G7490**); **universal language closed** (**G7390**); **WISP POC decoupled** (**D6259**).
+
+When the user says "build" without specifying:
+
+1. **Phase 25a → 25d** in order — close gates **G7501–G7504** before advancing
+2. **G7590 composite** — `pnpm run hub:cwl-full-web-language-close-smoke` (includes **G7490** regression)
+3. **G7490 subordinate** — `pnpm run hub:cwl-customer-pilot-close-smoke`
+4. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — not default CI (**D6259**).
+
+**Program close (target):** **G7590** — `pnpm run hub:cwl-full-web-language-close-smoke`.
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G7490 — customer pilot closed, superseded 2026-06-24)
 
 **Status:** **CWL universal web language program closed** (**G7390**, **D6260**); **CWL complete language closed** (**G7150**); **IR Helper Program v1 closed** (**G7200**); **WISP POC decoupled** (**D6259**).
 

@@ -7,6 +7,7 @@ import { simple as walkSimple } from "acorn-walk";
 import ts from "typescript";
 import { detectHttpRoutesInSource } from "./lift-routes-heuristic.mjs";
 import { liftExpressMiddlewareToWebir } from "./hub-express-middleware.mjs";
+import { lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
 
 const HTTP_METHODS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 const RECEIVER_NAMES = new Set(["app", "router", "server", "fastify"]);
@@ -238,6 +239,59 @@ function peelResJsonArgument(expr) {
 }
 
 /**
+ * @param {import('estree').Expression} expr
+ */
+function peelResSendArgument(expr) {
+  if (expr.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (callee?.type === "MemberExpression" && !callee.computed && callee.property?.type === "Identifier") {
+    if (callee.property.name === "send") {
+      return expr.arguments[0] ?? null;
+    }
+  }
+  return null;
+}
+
+/**
+ * @param {import('estree').Expression | null | undefined} expr
+ */
+function isResEndCall(expr) {
+  if (expr?.type !== "CallExpression") return false;
+  const callee = expr.callee;
+  return (
+    callee?.type === "MemberExpression" &&
+    !callee.computed &&
+    callee.property?.type === "Identifier" &&
+    callee.property.name === "end"
+  );
+}
+
+/**
+ * @param {import('estree').Function} fn
+ */
+function resSendPayloadExpression(fn) {
+  const expr = extractHandlerExpression(fn);
+  if (expr?.type === "CallExpression") {
+    const peeled = peelResSendArgument(expr);
+    if (peeled) return peeled;
+  }
+  const body = fn.body;
+  if (body.type === "BlockStatement") {
+    for (const s of body.body) {
+      if (s.type === "ReturnStatement" && s.argument?.type === "CallExpression") {
+        const peeled = peelResSendArgument(s.argument);
+        if (peeled) return peeled;
+      }
+      if (s.type === "ExpressionStatement" && s.expression?.type === "CallExpression") {
+        const peeled = peelResSendArgument(s.expression);
+        if (peeled) return peeled;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * @param {import('estree').Function} fn
  */
 function extractHandlerExpression(fn) {
@@ -442,6 +496,12 @@ function lowerHandlerBody(ctx, fn) {
   const primaryExpr = extractHandlerExpression(fn);
   const status = extractResStatus(primaryExpr);
   const statusId = lowerStatusEffect(ctx, status, primaryExpr?.loc?.start);
+  if (isResEndCall(primaryExpr)) {
+    return lowerHubStatusOnly(ctx, status ?? 204, {
+      file,
+      line: primaryExpr?.loc?.start?.line ?? 1,
+    });
+  }
   const jsonPayload = resJsonPayloadExpression(fn);
   if (jsonPayload) {
     const valId = lowerExpression(ctx, jsonPayload);
@@ -457,6 +517,16 @@ function lowerHandlerBody(ctx, fn) {
       type: T.unknown,
       origin: ctx.origin,
       provenance: [webir.provenance("hub-ingest", "javascript-ast:handler-json")],
+    });
+  }
+  const sendPayload = resSendPayloadExpression(fn);
+  if (sendPayload) {
+    const valId = lowerExpression(ctx, sendPayload);
+    return data.block({
+      statements: statusId ? [statusId, valId] : [valId],
+      type: T.unknown,
+      origin: sendPayload.loc?.start ? originAt(sendPayload.loc.start, file) : ctx.origin,
+      provenance: [webir.provenance("hub-ingest", "javascript-ast:res-send")],
     });
   }
   const expr = primaryExpr;

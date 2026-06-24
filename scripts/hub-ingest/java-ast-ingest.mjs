@@ -1,7 +1,7 @@
 /**
  * Java hub ingest v0 — Spring/JAX-RS annotation patterns (source scan, not javac).
  */
-import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
+import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral, lowerHubObjectLiteral } from "./hub-lift-webir-route.mjs";
 
 const SPRING_VERB_RE =
   /@(Get|Post|Put|Patch|Delete|Head|Options)Mapping\s*\(\s*(?:(?:value|path)\s*=\s*)?["']([^"']+)["']/gi;
@@ -13,6 +13,7 @@ const JAXRS_PATH_VERB_RE =
   /@Path\s*\(\s*["']([^"']+)["']\s*\)[\s\S]{0,120}?@(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/gi;
 
 const LITERAL_RETURN_RE = /return\s+(true|false|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')\s*;/;
+const MAP_OF_RE = /return\s+java\.util\.Map\.of\s*\(\s*"([^"]+)"\s*,\s*(-?\d+)\s*\)\s*;/;
 
 /**
  * @param {string} language
@@ -44,6 +45,12 @@ function parseLiteralToken(raw) {
 function literalReturnAfter(source, fromIndex, file) {
   const slice = source.slice(fromIndex, fromIndex + 1200);
   const line = source.slice(0, fromIndex).split("\n").length;
+  const mapM = slice.match(MAP_OF_RE);
+  if (mapM) {
+    const key = mapM[1];
+    const val = Number.parseInt(mapM[2], 10);
+    return { object: { [key]: val }, line: line + slice.slice(0, mapM.index).split("\n").length - 1 };
+  }
   const m = slice.match(LITERAL_RETURN_RE);
   if (!m) return { bodyId: null, line };
   const v = parseLiteralToken(m[1].trim());
@@ -102,9 +109,11 @@ export function liftJavaFileToWebir(opts) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     const lit = literalReturnAfter(source, idx, file);
     const bodyId =
-      lit?.value !== undefined
-        ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })
-        : hubHandlerBodyHole(ctx, "hub-java:handler-body", { file, line: r.line });
+      lit?.object
+        ? lowerHubObjectLiteral(ctx, lit.object, { file, line: lit.line })
+        : lit?.value !== undefined
+          ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })
+          : hubHandlerBodyHole(ctx, "hub-java:handler-body", { file, line: r.line });
     emitHubRoute({ webir, builder, wr, language, file, route: r, bodyId });
   }
 

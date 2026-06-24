@@ -12,7 +12,13 @@ const patternLiftRoot = "fixtures/hub-pattern-lift";
 
 /** Special flagships beyond pattern-lift probes. */
 const SPECIAL_ORIGIN_FIXTURES = {
-  php: { id: "php", rel: "fixtures/tiny-blog", origin: "php", requireHoleFree: false, minRoutes: 1 },
+  php: {
+    id: "php",
+    rel: "fixtures/hub-flagship-plain-php",
+    origin: "php",
+    requireHoleFree: false,
+    minRoutes: 1,
+  },
   svelte: {
     id: "svelte",
     rel: "fixtures/hub-gold-svelte-kit",

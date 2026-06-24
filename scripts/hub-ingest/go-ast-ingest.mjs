@@ -1,7 +1,7 @@
 /**
  * Go hub ingest v0 — net/http, gin, echo, chi, mux-style route registration patterns.
  */
-import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral } from "./hub-lift-webir-route.mjs";
+import { emitHubRoute, hubHandlerBodyHole, lowerHubLiteral, lowerHubStatusOnly } from "./hub-lift-webir-route.mjs";
 
 const GO_VERB_RE =
   /\b([a-zA-Z_][\w]*)\.(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(\s*"([^"]+)"/g;
@@ -10,6 +10,7 @@ const GO_HANDLE_FUNC_RE = /\bhttp\.HandleFunc\s*\(\s*"([^"]+)"/g;
 
 const LITERAL_RETURN_RE = /return\s+("([^"]*)"|'([^']*)'|true|false|-?\d+)\b/;
 const GIN_STRING_RE = /c\.String\s*\(\s*\d+\s*,\s*"([^"]*)"\s*\)/;
+const GIN_STATUS_RE = /c\.Status\s*\(\s*(\d+)\s*\)/;
 
 /**
  * @param {string} language
@@ -56,6 +57,15 @@ function ginStringLiteralAfter(source, fromIndex) {
   return { value: m[1], line: baseLine + lineOffset };
 }
 
+function ginStatusAfter(source, fromIndex) {
+  const slice = source.slice(fromIndex, fromIndex + 800);
+  const m = slice.match(GIN_STATUS_RE);
+  if (!m) return null;
+  const lineOffset = slice.slice(0, m.index).split("\n").length - 1;
+  const baseLine = source.slice(0, fromIndex).split("\n").length;
+  return { status: Number.parseInt(m[1], 10), line: baseLine + lineOffset };
+}
+
 /**
  * @param {string} source
  */
@@ -95,7 +105,8 @@ export function parseGoRoutes(source) {
 export function liftGoFileToWebir(opts) {
   const { webir, builder, wr, source, file, language } = opts;
   const data = webir.dataDialect.builders(builder);
-  const ctx = { data, webir };
+  const effect = webir.effectDialect.builders(builder);
+  const ctx = { data, effect, webir };
   const routes = parseGoRoutes(source);
   if (routes.length === 0) {
     return { routeCount: 0, astRouteCount: 0, usedAst: false };
@@ -104,10 +115,13 @@ export function liftGoFileToWebir(opts) {
   for (const r of routes) {
     const idx = source.split("\n").slice(0, (r.line ?? 1) - 1).join("\n").length;
     const lit = literalReturnAfter(source, idx) ?? ginStringLiteralAfter(source, idx);
+    const statusOnly = lit ? null : ginStatusAfter(source, idx);
     const bodyId =
       lit?.value !== undefined
         ? lowerHubLiteral(ctx, lit.value, { file, line: lit.line })
-        : hubHandlerBodyHole(ctx, "hub-go:handler-body", { file, line: r.line });
+        : statusOnly
+          ? lowerHubStatusOnly(ctx, statusOnly.status, { file, line: statusOnly.line })
+          : hubHandlerBodyHole(ctx, "hub-go:handler-body", { file, line: r.line });
     emitHubRoute({ webir, builder, wr, language, file, route: r, bodyId });
   }
 

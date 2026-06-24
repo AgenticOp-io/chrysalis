@@ -1,0 +1,49 @@
+{
+  "kind": "chrysalis.cwl.full-language-charter",
+  "schemaVersion": 1,
+  "charterId": "full-web-language-v1",
+  "description": "Fully complete web language + universal translator at CWL parity (Phase 25).",
+  "cwlAuthoredModules": [
+    "fixtures/hub-flagship-cwl-fullstack",
+    "fixtures/hub-greenfield-cwl-only",
+    "fixtures/hub-gold-cwl-data-v2",
+    "fixtures/hub-gold-cwl-ui-v1"
+  ],
+  "minCwlNativeRatio": 1,
+  "translatorOracleOrigins": [
+    { "id": "plainPhp", "rel": "fixtures/hub-flagship-plain-php", "origin": "php", "requireHoleFree": true },
+    { "id": "symfony", "rel": "fixtures/hub-flagship-symfony", "origin": "php", "requireHoleFree": true },
+    { "id": "express", "rel": "fixtures/hub-flagship-express", "origin": "javascript", "requireHoleFree": true }
+  ],
+  "translatorAllOriginsMinCount": 24,
+  "translatorWebOriginMinNativeRatio": 0.99,
+  "translatorWebOriginIds": [
+    "php",
+    "javascript",
+    "typescript",
+    "vue",
+    "svelte",
+    "python",
+    "java",
+    "kotlin",
+    "go",
+    "ruby",
+    "csharp",
+    "rust",
+    "scala",
+    "cpp",
+    "c",
+    "swift"
+  ],
+  "verifySuites": [
+    "cwl-fullstack-flagship-hono",
+    "cwl-fullstack-flagship-fastify"
+  ],
+  "evidenceGates": [
+    "full-language-charter",
+    "cwl-authored-complete",
+    "translator-oracle-parity",
+    "translator-all-origins",
+    "translator-verify-replay"
+  ]
+}

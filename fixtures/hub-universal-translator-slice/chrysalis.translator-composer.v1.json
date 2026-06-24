@@ -1,0 +1,69 @@
+{
+  "kind": "chrysalis.cwl.translator-composer",
+  "schemaVersion": 1,
+  "charterId": "universal-translator-v1",
+  "description": "N×N universal translator through CWL (composer-gated, Phase 26).",
+  "hubLanguage": "cwl",
+  "requiresProgramClosed": "G7590",
+  "webOriginIds": [
+    "php",
+    "javascript",
+    "typescript",
+    "vue",
+    "svelte",
+    "python",
+    "java",
+    "kotlin",
+    "go",
+    "ruby",
+    "csharp",
+    "rust",
+    "scala",
+    "cpp",
+    "c",
+    "swift"
+  ],
+  "cwlSourceFixture": "fixtures/hub-gold-cwl",
+  "crossEdgeFixtureOverrides": {
+    "php": "fixtures/hub-translator-php-probe"
+  },
+  "cwlOutboundTargets": [
+    { "id": "python", "emit": "emit-python-from-hub.mjs" },
+    { "id": "java", "emit": "emit-java-from-hub.mjs" },
+    { "id": "go", "emit": "emit-go-from-hub.mjs" },
+    { "id": "ruby", "emit": "emit-ruby-from-hub.mjs" },
+    { "id": "csharp", "emit": "emit-csharp-from-hub.mjs" },
+    { "id": "rust", "emit": "emit-rust-from-hub.mjs" },
+    { "id": "kotlin", "emit": "emit-kotlin-from-hub.mjs" },
+    { "id": "scala", "emit": "emit-scala-from-hub.mjs" },
+    { "id": "swift", "emit": "emit-swift-from-hub.mjs" },
+    { "id": "hono", "emit": "emit-from-hub.mjs", "emitTarget": "hono" },
+    { "id": "fastify", "emit": "emit-from-hub.mjs", "emitTarget": "fastify" }
+  ],
+  "composerCrossEdges": [
+    { "from": "php", "to": "python" },
+    { "from": "javascript", "to": "go" },
+    { "from": "typescript", "to": "hono" },
+    { "from": "vue", "to": "fastify" },
+    { "from": "svelte", "to": "hono" },
+    { "from": "python", "to": "java" },
+    { "from": "java", "to": "kotlin" },
+    { "from": "kotlin", "to": "scala" },
+    { "from": "go", "to": "ruby" },
+    { "from": "ruby", "to": "csharp" },
+    { "from": "csharp", "to": "rust" },
+    { "from": "rust", "to": "swift" },
+    { "from": "scala", "to": "python" },
+    { "from": "cpp", "to": "go" },
+    { "from": "c", "to": "python" },
+    { "from": "swift", "to": "java" }
+  ],
+  "maxCrossEdgeHoleCount": 0,
+  "requireRoundtripRouteParity": true,
+  "evidenceGates": [
+    "translator-composer-charter",
+    "cwl-outbound-emit",
+    "translator-roundtrip-mandatory",
+    "translator-composer-cross-edge"
+  ]
+}
