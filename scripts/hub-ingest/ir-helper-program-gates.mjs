@@ -81,7 +81,7 @@ export function runIrHelperProgramDocGate() {
   return { ok, programDocOk: ok };
 }
 
-/** G7202 — inline fixture coverage matches catalog (74 I3 callees). */
+/** G7202 — inline fixture coverage matches catalog (102 I3 callees). */
 export async function runIrHelperProgramCoverageGate() {
   const catalogPath = join(scriptRoot, "packages/emit-shared/dist/ir-helper-program-catalog.js");
   if (!existsSync(catalogPath)) {
@@ -103,7 +103,7 @@ export async function runIrHelperProgramCoverageGate() {
   );
 
   const missingFixtures = ids.filter((id) => !fixtureIds.has(id));
-  const catalogOk = missingFixtures.length === 0 && expected === 74;
+  const catalogOk = missingFixtures.length === 0 && expected === 102;
 
   const r = spawnSync(
     "pnpm",

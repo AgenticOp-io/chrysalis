@@ -2,7 +2,7 @@
  * Emit-time inlining and lowered lib helper modules (mirrors ingest B5.5, G2318).
  */
 import type { Module, NodeBase, NodeId } from "@chrysalis/webir";
-import { isIrHelperSkippablePreludeCallee } from "./ir-helper-inline-registry.js";
+import { IR_HELPER_GENERIC_CALLEE_MAP, irHelperEmitCallee, isIrHelperSkippablePreludeCallee, type IrHelperInlineRegistryEntry } from "./ir-helper-inline-registry.js";
 import { stringLit, ident } from "./ts-util.js";
 
 /** Finished module or in-flight {@link ModuleBuilder} during ingest. */
@@ -67,7 +67,7 @@ function resolveInlineAssignRhs(
   valueId: NodeId,
   paramNames: readonly string[],
   localToFormal: ReadonlyMap<string, string>,
-): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "roundFormal2"; formal: string; literalId: NodeId } | { kind: "maxFormalLiteral"; formal: string; literalId: NodeId } | { kind: "minFormalLiteral"; formal: string; literalId: NodeId } | { kind: "substrFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "striposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strrposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strriposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strContainsFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strStartsWithFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strEndsWithFormalLiteral"; formal: string; literalId: NodeId } | { kind: "substrCountFormalLiteral"; formal: string; literalId: NodeId } | { kind: "explodeFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcmpFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcasecmpFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strncmpFormalLiteral2"; formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId } | { kind: "strncasecmpFormalLiteral2"; formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId } | { kind: "strrevFormal"; formal: string } | { kind: "strRepeatFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strPadFormalLiteral2"; formal: string; lengthLiteralId: NodeId; padLiteralId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | { kind: "issetFormal"; formal: string } | { kind: "countFormal"; formal: string } | { kind: "isArrayFormal"; formal: string } | { kind: "isStringFormal"; formal: string } | { kind: "absFormal"; formal: string } | { kind: "isNumericFormal"; formal: string } | { kind: "notFormal"; formal: string } | { kind: "isIntFormal"; formal: string } | { kind: "isBoolFormal"; formal: string } | { kind: "isNullFormal"; formal: string } | { kind: "negFormal"; formal: string } | { kind: "roundFormal"; formal: string } | { kind: "floorFormal"; formal: string } | { kind: "ceilFormal"; formal: string } | { kind: "strtolowerFormal"; formal: string } | { kind: "strtoupperFormal"; formal: string } | { kind: "htmlspecialcharsFormal"; formal: string } | { kind: "nl2brFormal"; formal: string } | { kind: "urlencodeFormal"; formal: string } | { kind: "rawurlencodeFormal"; formal: string } | { kind: "urldecodeFormal"; formal: string } | { kind: "rawurldecodeFormal"; formal: string } | { kind: "ltrimFormal"; formal: string } | { kind: "rtrimFormal"; formal: string } | { kind: "isFloatFormal"; formal: string } | { kind: "isObjectFormal"; formal: string } | { kind: "isScalarFormal"; formal: string }| { kind: "ucfirstFormal"; formal: string } | { kind: "lcfirstFormal"; formal: string } | { kind: "ucwordsFormal"; formal: string } | { kind: "stripTagsFormal"; formal: string } | { kind: "addslashesFormal"; formal: string } | { kind: "stripslashesFormal"; formal: string } | { kind: "strRot13Formal"; formal: string } | { kind: "strWordCountFormal"; formal: string } | { kind: "htmlentitiesFormal"; formal: string } | { kind: "htmlEntityDecodeFormal"; formal: string } | { kind: "strSplitFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcspnFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strspnFormalLiteral"; formal: string; literalId: NodeId } | { kind: "ltrimFormalLiteral"; formal: string; literalId: NodeId } | { kind: "rtrimFormalLiteral"; formal: string; literalId: NodeId } | { kind: "trimFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strReplaceFormalLiteral2"; formal: string; searchLiteralId: NodeId; replaceLiteralId: NodeId } | { kind: "strIreplaceFormalLiteral2"; formal: string; searchLiteralId: NodeId; replaceLiteralId: NodeId } | { kind: "wordwrapFormalLiteral2"; formal: string; widthLiteralId: NodeId; breakLiteralId: NodeId } | { kind: "chunkSplitFormalLiteral2"; formal: string; widthLiteralId: NodeId; breakLiteralId: NodeId } | { kind: "strtrFormalLiteral2"; formal: string; fromLiteralId: NodeId; toLiteralId: NodeId } | undefined {
+): { kind: "formal"; formal: string } | { kind: "literal"; id: NodeId } | { kind: "coalesce"; formal: string; literalId: NodeId } | { kind: "roundFormal2"; formal: string; literalId: NodeId } | { kind: "maxFormalLiteral"; formal: string; literalId: NodeId } | { kind: "minFormalLiteral"; formal: string; literalId: NodeId } | { kind: "substrFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "striposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strrposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strriposFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strContainsFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strStartsWithFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strEndsWithFormalLiteral"; formal: string; literalId: NodeId } | { kind: "substrCountFormalLiteral"; formal: string; literalId: NodeId } | { kind: "explodeFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcmpFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcasecmpFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strncmpFormalLiteral2"; formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId } | { kind: "strncasecmpFormalLiteral2"; formal: string; needleLiteralId: NodeId; lengthLiteralId: NodeId } | { kind: "strrevFormal"; formal: string } | { kind: "strRepeatFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strPadFormalLiteral2"; formal: string; lengthLiteralId: NodeId; padLiteralId: NodeId } | { kind: "stringCast"; formal: string } | { kind: "floatCast"; formal: string } | { kind: "boolCast"; formal: string } | { kind: "trimFormal"; formal: string } | { kind: "strlenFormal"; formal: string } | { kind: "emptyFormal"; formal: string } | { kind: "issetFormal"; formal: string } | { kind: "countFormal"; formal: string } | { kind: "isArrayFormal"; formal: string } | { kind: "isStringFormal"; formal: string } | { kind: "absFormal"; formal: string } | { kind: "isNumericFormal"; formal: string } | { kind: "notFormal"; formal: string } | { kind: "isIntFormal"; formal: string } | { kind: "isBoolFormal"; formal: string } | { kind: "isNullFormal"; formal: string } | { kind: "negFormal"; formal: string } | { kind: "roundFormal"; formal: string } | { kind: "floorFormal"; formal: string } | { kind: "ceilFormal"; formal: string } | { kind: "strtolowerFormal"; formal: string } | { kind: "strtoupperFormal"; formal: string } | { kind: "htmlspecialcharsFormal"; formal: string } | { kind: "nl2brFormal"; formal: string } | { kind: "urlencodeFormal"; formal: string } | { kind: "rawurlencodeFormal"; formal: string } | { kind: "urldecodeFormal"; formal: string } | { kind: "rawurldecodeFormal"; formal: string } | { kind: "ltrimFormal"; formal: string } | { kind: "rtrimFormal"; formal: string } | { kind: "isFloatFormal"; formal: string } | { kind: "isObjectFormal"; formal: string } | { kind: "isScalarFormal"; formal: string }| { kind: "ucfirstFormal"; formal: string } | { kind: "lcfirstFormal"; formal: string } | { kind: "ucwordsFormal"; formal: string } | { kind: "stripTagsFormal"; formal: string } | { kind: "addslashesFormal"; formal: string } | { kind: "stripslashesFormal"; formal: string } | { kind: "strRot13Formal"; formal: string } | { kind: "strWordCountFormal"; formal: string } | { kind: "htmlentitiesFormal"; formal: string } | { kind: "htmlEntityDecodeFormal"; formal: string } | { kind: "strSplitFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strcspnFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strspnFormalLiteral"; formal: string; literalId: NodeId } | { kind: "ltrimFormalLiteral"; formal: string; literalId: NodeId } | { kind: "rtrimFormalLiteral"; formal: string; literalId: NodeId } | { kind: "trimFormalLiteral"; formal: string; literalId: NodeId } | { kind: "strReplaceFormalLiteral2"; formal: string; searchLiteralId: NodeId; replaceLiteralId: NodeId } | { kind: "strIreplaceFormalLiteral2"; formal: string; searchLiteralId: NodeId; replaceLiteralId: NodeId } | { kind: "wordwrapFormalLiteral2"; formal: string; widthLiteralId: NodeId; breakLiteralId: NodeId } | { kind: "chunkSplitFormalLiteral2"; formal: string; widthLiteralId: NodeId; breakLiteralId: NodeId } | { kind: "strtrFormalLiteral2"; formal: string; fromLiteralId: NodeId; toLiteralId: NodeId } | { kind: "genericFormal"; formal: string; entry: IrHelperInlineRegistryEntry } | { kind: "genericFormalLiteral"; formal: string; literalId: NodeId; entry: IrHelperInlineRegistryEntry } | { kind: "genericFormalLiteral2"; formal: string; literalId: NodeId; literalId2: NodeId; entry: IrHelperInlineRegistryEntry } | undefined {
   const valueNode = getNode(m, valueId);
   if (!valueNode) return undefined;
   if (valueNode.op === "literal") return { kind: "literal", id: valueId };
@@ -546,6 +546,58 @@ function resolveInlineAssignRhs(
       const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
       if (inner?.kind === "formal") return { kind: "isScalarFormal", formal: inner.formal };
     }
+    const genericEntry = IR_HELPER_GENERIC_CALLEE_MAP.get(callee);
+    if (genericEntry?.generic === true) {
+      if (genericEntry.pattern === "formal" && valueNode.operands.length === 1) {
+        const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+        if (inner?.kind === "formal") {
+          return { kind: "genericFormal", formal: inner.formal, entry: genericEntry };
+        }
+      }
+      if (genericEntry.pattern === "formal_literal" && valueNode.operands.length === 2) {
+        const litIdx = genericEntry.literalFirst ? 0 : 1;
+        const formalIdx = genericEntry.literalFirst ? 1 : 0;
+        const inner = resolveInlineAssignRhs(m, valueNode.operands[formalIdx]!, paramNames, localToFormal);
+        const lit = getNode(m, valueNode.operands[litIdx]!);
+        if (inner?.kind === "formal" && lit?.op === "literal") {
+          return {
+            kind: "genericFormalLiteral",
+            formal: inner.formal,
+            literalId: valueNode.operands[litIdx]!,
+            entry: genericEntry,
+          };
+        }
+      }
+      if (genericEntry.pattern === "formal_literal_literal" && valueNode.operands.length === 3) {
+        if (genericEntry.formalLast) {
+          const lit0 = getNode(m, valueNode.operands[0]!);
+          const lit1 = getNode(m, valueNode.operands[1]!);
+          const inner = resolveInlineAssignRhs(m, valueNode.operands[2]!, paramNames, localToFormal);
+          if (inner?.kind === "formal" && lit0?.op === "literal" && lit1?.op === "literal") {
+            return {
+              kind: "genericFormalLiteral2",
+              formal: inner.formal,
+              literalId: valueNode.operands[0]!,
+              literalId2: valueNode.operands[1]!,
+              entry: genericEntry,
+            };
+          }
+        } else {
+          const inner = resolveInlineAssignRhs(m, valueNode.operands[0]!, paramNames, localToFormal);
+          const lit1 = getNode(m, valueNode.operands[1]!);
+          const lit2 = getNode(m, valueNode.operands[2]!);
+          if (inner?.kind === "formal" && lit1?.op === "literal" && lit2?.op === "literal") {
+            return {
+              kind: "genericFormalLiteral2",
+              formal: inner.formal,
+              literalId: valueNode.operands[1]!,
+              literalId2: valueNode.operands[2]!,
+              entry: genericEntry,
+            };
+          }
+        }
+      }
+    }
   }
   return undefined;
 }
@@ -633,6 +685,9 @@ export function tryExtractInlineQuery(
   localToWordwrapFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly widthLiteralId: NodeId; readonly breakLiteralId: NodeId }>;
   localToChunkSplitFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly widthLiteralId: NodeId; readonly breakLiteralId: NodeId }>;
   localToStrtrFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly fromLiteralId: NodeId; readonly toLiteralId: NodeId }>;
+  localToGenericFormal: ReadonlyMap<string, { readonly formal: string; readonly entry: IrHelperInlineRegistryEntry }>;
+  localToGenericFormalLiteral: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId; readonly entry: IrHelperInlineRegistryEntry }>;
+  localToGenericFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId; readonly literalId2: NodeId; readonly entry: IrHelperInlineRegistryEntry }>;
 } | undefined {
   const body = getNode(m, bodyId);
   if (!body || body.dialect !== "data" || body.op !== "block") return undefined;
@@ -641,7 +696,7 @@ export function tryExtractInlineQuery(
   const queryId = queryFromReturnStmt(m, stmts[stmts.length - 1]!);
   if (queryId === undefined) return undefined;
   if (stmts.length === 1) {
-    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToRoundFormal2: new Map(), localToMaxFormalLiteral: new Map(), localToMinFormalLiteral: new Map(), localToSubstrFormalLiteral: new Map(), localToStrposFormalLiteral: new Map(), localToStriposFormalLiteral: new Map(), localToStrrposFormalLiteral: new Map(), localToStrriposFormalLiteral: new Map(), localToStrContainsFormalLiteral: new Map(), localToStrStartsWithFormalLiteral: new Map(), localToStrEndsWithFormalLiteral: new Map(), localToSubstrCountFormalLiteral: new Map(), localToExplodeFormalLiteral: new Map(), localToStrcmpFormalLiteral: new Map(), localToStrcasecmpFormalLiteral: new Map(), localToStrncmpFormalLiteral2: new Map(), localToStrncasecmpFormalLiteral2: new Map(), localToStrrevFormal: new Map(), localToStrRepeatFormalLiteral: new Map(), localToStrPadFormalLiteral2: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map(), localToIssetFormal: new Map(), localToCountFormal: new Map(), localToIsArrayFormal: new Map(), localToIsStringFormal: new Map(), localToAbsFormal: new Map(), localToIsNumericFormal: new Map(), localToNotFormal: new Map(), localToIsIntFormal: new Map(), localToIsBoolFormal: new Map(), localToIsNullFormal: new Map(), localToNegFormal: new Map(), localToRoundFormal: new Map(), localToFloorFormal: new Map(), localToCeilFormal: new Map(), localToStrtolowerFormal: new Map(), localToStrtoupperFormal: new Map(), localToHtmlspecialcharsFormal: new Map(), localToNl2brFormal: new Map(), localToUrlencodeFormal: new Map(), localToRawurlencodeFormal: new Map(), localToUrldecodeFormal: new Map(), localToRawurldecodeFormal: new Map(), localToLtrimFormal: new Map(), localToRtrimFormal: new Map(), localToIsFloatFormal: new Map(), localToIsObjectFormal: new Map(), localToIsScalarFormal: new Map(), localToUcfirstFormal: new Map(), localToLcfirstFormal: new Map(), localToUcwordsFormal: new Map(), localToStripTagsFormal: new Map(), localToAddslashesFormal: new Map(), localToStripslashesFormal: new Map(), localToStrRot13Formal: new Map(), localToStrWordCountFormal: new Map(), localToHtmlentitiesFormal: new Map(), localToHtmlEntityDecodeFormal: new Map(), localToStrSplitFormalLiteral: new Map(), localToStrcspnFormalLiteral: new Map(), localToStrspnFormalLiteral: new Map(), localToLtrimFormalLiteral: new Map(), localToRtrimFormalLiteral: new Map(), localToTrimFormalLiteral: new Map(), localToStrReplaceFormalLiteral2: new Map(), localToStrIreplaceFormalLiteral2: new Map(), localToWordwrapFormalLiteral2: new Map(), localToChunkSplitFormalLiteral2: new Map(), localToStrtrFormalLiteral2: new Map() };
+    return { queryId, localToFormal: new Map(), localToLiteral: new Map(), localToCoalesce: new Map(), localToRoundFormal2: new Map(), localToMaxFormalLiteral: new Map(), localToMinFormalLiteral: new Map(), localToSubstrFormalLiteral: new Map(), localToStrposFormalLiteral: new Map(), localToStriposFormalLiteral: new Map(), localToStrrposFormalLiteral: new Map(), localToStrriposFormalLiteral: new Map(), localToStrContainsFormalLiteral: new Map(), localToStrStartsWithFormalLiteral: new Map(), localToStrEndsWithFormalLiteral: new Map(), localToSubstrCountFormalLiteral: new Map(), localToExplodeFormalLiteral: new Map(), localToStrcmpFormalLiteral: new Map(), localToStrcasecmpFormalLiteral: new Map(), localToStrncmpFormalLiteral2: new Map(), localToStrncasecmpFormalLiteral2: new Map(), localToStrrevFormal: new Map(), localToStrRepeatFormalLiteral: new Map(), localToStrPadFormalLiteral2: new Map(), localToStringCast: new Map(), localToFloatCast: new Map(), localToBoolCast: new Map(), localToTrimFormal: new Map(), localToStrlenFormal: new Map(), localToEmptyFormal: new Map(), localToIssetFormal: new Map(), localToCountFormal: new Map(), localToIsArrayFormal: new Map(), localToIsStringFormal: new Map(), localToAbsFormal: new Map(), localToIsNumericFormal: new Map(), localToNotFormal: new Map(), localToIsIntFormal: new Map(), localToIsBoolFormal: new Map(), localToIsNullFormal: new Map(), localToNegFormal: new Map(), localToRoundFormal: new Map(), localToFloorFormal: new Map(), localToCeilFormal: new Map(), localToStrtolowerFormal: new Map(), localToStrtoupperFormal: new Map(), localToHtmlspecialcharsFormal: new Map(), localToNl2brFormal: new Map(), localToUrlencodeFormal: new Map(), localToRawurlencodeFormal: new Map(), localToUrldecodeFormal: new Map(), localToRawurldecodeFormal: new Map(), localToLtrimFormal: new Map(), localToRtrimFormal: new Map(), localToIsFloatFormal: new Map(), localToIsObjectFormal: new Map(), localToIsScalarFormal: new Map(), localToUcfirstFormal: new Map(), localToLcfirstFormal: new Map(), localToUcwordsFormal: new Map(), localToStripTagsFormal: new Map(), localToAddslashesFormal: new Map(), localToStripslashesFormal: new Map(), localToStrRot13Formal: new Map(), localToStrWordCountFormal: new Map(), localToHtmlentitiesFormal: new Map(), localToHtmlEntityDecodeFormal: new Map(), localToStrSplitFormalLiteral: new Map(), localToStrcspnFormalLiteral: new Map(), localToStrspnFormalLiteral: new Map(), localToLtrimFormalLiteral: new Map(), localToRtrimFormalLiteral: new Map(), localToTrimFormalLiteral: new Map(), localToStrReplaceFormalLiteral2: new Map(), localToStrIreplaceFormalLiteral2: new Map(), localToWordwrapFormalLiteral2: new Map(), localToChunkSplitFormalLiteral2: new Map(), localToStrtrFormalLiteral2: new Map(), localToGenericFormal: new Map(), localToGenericFormalLiteral: new Map(), localToGenericFormalLiteral2: new Map() };
   }
   const localToFormal = new Map<string, string>();
   const localToLiteral = new Map<string, NodeId>();
@@ -720,6 +775,9 @@ export function tryExtractInlineQuery(
   const localToWordwrapFormalLiteral2 = new Map<string, { formal: string; widthLiteralId: NodeId; breakLiteralId: NodeId }>();
   const localToChunkSplitFormalLiteral2 = new Map<string, { formal: string; widthLiteralId: NodeId; breakLiteralId: NodeId }>();
   const localToStrtrFormalLiteral2 = new Map<string, { formal: string; fromLiteralId: NodeId; toLiteralId: NodeId }>();
+  const localToGenericFormal = new Map<string, { formal: string; entry: IrHelperInlineRegistryEntry }>();
+  const localToGenericFormalLiteral = new Map<string, { formal: string; literalId: NodeId; entry: IrHelperInlineRegistryEntry }>();
+  const localToGenericFormalLiteral2 = new Map<string, { formal: string; literalId: NodeId; literalId2: NodeId; entry: IrHelperInlineRegistryEntry }>();
   for (let i = 0; i < stmts.length - 1; i++) {
     const stmtId = stmts[i]!;
     const stmt = getNode(m, stmtId);
@@ -1043,6 +1101,27 @@ export function tryExtractInlineQuery(
         localToStrtrFormalLiteral2.set(localName, { formal: resolved.formal, fromLiteralId: resolved.fromLiteralId, toLiteralId: resolved.toLiteralId });
         continue;
       }
+      if (resolved.kind === "genericFormal") {
+        localToGenericFormal.set(localName, { formal: resolved.formal, entry: resolved.entry });
+        continue;
+      }
+      if (resolved.kind === "genericFormalLiteral") {
+        localToGenericFormalLiteral.set(localName, {
+          formal: resolved.formal,
+          literalId: resolved.literalId,
+          entry: resolved.entry,
+        });
+        continue;
+      }
+      if (resolved.kind === "genericFormalLiteral2") {
+        localToGenericFormalLiteral2.set(localName, {
+          formal: resolved.formal,
+          literalId: resolved.literalId,
+          literalId2: resolved.literalId2,
+          entry: resolved.entry,
+        });
+        continue;
+      }
       if (resolved.kind === "isScalarFormal") {
         localToIsScalarFormal.set(localName, resolved.formal);
         continue;
@@ -1055,7 +1134,7 @@ export function tryExtractInlineQuery(
     if (isSkippablePreludeExprStmt(m, stmt)) continue;
     return undefined;
   }
-  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToRoundFormal2, localToMaxFormalLiteral, localToMinFormalLiteral, localToSubstrFormalLiteral, localToStrposFormalLiteral, localToStriposFormalLiteral, localToStrrposFormalLiteral, localToStrriposFormalLiteral, localToStrContainsFormalLiteral, localToStrStartsWithFormalLiteral, localToStrEndsWithFormalLiteral, localToSubstrCountFormalLiteral, localToExplodeFormalLiteral, localToStrcmpFormalLiteral, localToStrcasecmpFormalLiteral, localToStrncmpFormalLiteral2, localToStrncasecmpFormalLiteral2, localToStrrevFormal, localToStrRepeatFormalLiteral, localToStrPadFormalLiteral2, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal, localToIssetFormal, localToCountFormal, localToIsArrayFormal, localToIsStringFormal, localToAbsFormal, localToIsNumericFormal, localToNotFormal, localToIsIntFormal, localToIsBoolFormal, localToIsNullFormal, localToNegFormal, localToRoundFormal, localToFloorFormal, localToCeilFormal, localToStrtolowerFormal, localToStrtoupperFormal, localToHtmlspecialcharsFormal, localToNl2brFormal, localToUrlencodeFormal, localToRawurlencodeFormal, localToUrldecodeFormal, localToRawurldecodeFormal, localToLtrimFormal, localToRtrimFormal, localToIsFloatFormal, localToIsObjectFormal, localToIsScalarFormal, localToUcfirstFormal, localToLcfirstFormal, localToUcwordsFormal, localToStripTagsFormal, localToAddslashesFormal, localToStripslashesFormal, localToStrRot13Formal, localToStrWordCountFormal, localToHtmlentitiesFormal, localToHtmlEntityDecodeFormal, localToStrSplitFormalLiteral, localToStrcspnFormalLiteral, localToStrspnFormalLiteral, localToLtrimFormalLiteral, localToRtrimFormalLiteral, localToTrimFormalLiteral, localToStrReplaceFormalLiteral2, localToStrIreplaceFormalLiteral2, localToWordwrapFormalLiteral2, localToChunkSplitFormalLiteral2, localToStrtrFormalLiteral2 };
+  return { queryId, localToFormal, localToLiteral, localToCoalesce, localToRoundFormal2, localToMaxFormalLiteral, localToMinFormalLiteral, localToSubstrFormalLiteral, localToStrposFormalLiteral, localToStriposFormalLiteral, localToStrrposFormalLiteral, localToStrriposFormalLiteral, localToStrContainsFormalLiteral, localToStrStartsWithFormalLiteral, localToStrEndsWithFormalLiteral, localToSubstrCountFormalLiteral, localToExplodeFormalLiteral, localToStrcmpFormalLiteral, localToStrcasecmpFormalLiteral, localToStrncmpFormalLiteral2, localToStrncasecmpFormalLiteral2, localToStrrevFormal, localToStrRepeatFormalLiteral, localToStrPadFormalLiteral2, localToStringCast, localToFloatCast, localToBoolCast, localToTrimFormal, localToStrlenFormal, localToEmptyFormal, localToIssetFormal, localToCountFormal, localToIsArrayFormal, localToIsStringFormal, localToAbsFormal, localToIsNumericFormal, localToNotFormal, localToIsIntFormal, localToIsBoolFormal, localToIsNullFormal, localToNegFormal, localToRoundFormal, localToFloorFormal, localToCeilFormal, localToStrtolowerFormal, localToStrtoupperFormal, localToHtmlspecialcharsFormal, localToNl2brFormal, localToUrlencodeFormal, localToRawurlencodeFormal, localToUrldecodeFormal, localToRawurldecodeFormal, localToLtrimFormal, localToRtrimFormal, localToIsFloatFormal, localToIsObjectFormal, localToIsScalarFormal, localToUcfirstFormal, localToLcfirstFormal, localToUcwordsFormal, localToStripTagsFormal, localToAddslashesFormal, localToStripslashesFormal, localToStrRot13Formal, localToStrWordCountFormal, localToHtmlentitiesFormal, localToHtmlEntityDecodeFormal, localToStrSplitFormalLiteral, localToStrcspnFormalLiteral, localToStrspnFormalLiteral, localToLtrimFormalLiteral, localToRtrimFormalLiteral, localToTrimFormalLiteral, localToStrReplaceFormalLiteral2, localToStrIreplaceFormalLiteral2, localToWordwrapFormalLiteral2, localToChunkSplitFormalLiteral2, localToStrtrFormalLiteral2, localToGenericFormal, localToGenericFormalLiteral, localToGenericFormalLiteral2 };
 }
 
 /** Valid TS export name for a PHP lib helper callee (`Class::method`, FQN, or global). */
@@ -1798,6 +1877,42 @@ export function tryEmitInlineLibHelperCall(
     const isScalars = `is_scalar(${formalExpr})`;
     subst[local] = isScalars;
     subst[phpVarKey(local)] = isScalars;
+  }
+  for (const [local, { formal, entry }] of extracted.localToGenericFormal) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    if (formalExpr === undefined) return undefined;
+    const callee = irHelperEmitCallee(entry);
+    const expr = `${callee}(${formalExpr})`;
+    subst[local] = expr;
+    subst[phpVarKey(local)] = expr;
+  }
+  for (const [local, { formal, literalId, entry }] of extracted.localToGenericFormalLiteral) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    const lit = getNode(ctx.m, literalId);
+    if (formalExpr === undefined || !lit) return undefined;
+    const litExpr = literalToTsExpr(lit);
+    if (litExpr === undefined) return undefined;
+    const callee = irHelperEmitCallee(entry);
+    const args = entry.literalFirst ? [litExpr, formalExpr] : [formalExpr, litExpr];
+    const expr = `${callee}(${args.join(", ")})`;
+    subst[local] = expr;
+    subst[phpVarKey(local)] = expr;
+  }
+  for (const [local, { formal, literalId, literalId2, entry }] of extracted.localToGenericFormalLiteral2) {
+    const formalExpr = subst[formal] ?? subst[phpVarKey(formal)];
+    const lit1 = getNode(ctx.m, literalId);
+    const lit2 = getNode(ctx.m, literalId2);
+    if (formalExpr === undefined || !lit1 || !lit2) return undefined;
+    const lit1Expr = literalToTsExpr(lit1);
+    const lit2Expr = literalToTsExpr(lit2);
+    if (lit1Expr === undefined || lit2Expr === undefined) return undefined;
+    const callee = irHelperEmitCallee(entry);
+    const args = entry.formalLast
+      ? [lit1Expr, lit2Expr, formalExpr]
+      : [formalExpr, lit1Expr, lit2Expr];
+    const expr = `${callee}(${args.join(", ")})`;
+    subst[local] = expr;
+    subst[phpVarKey(local)] = expr;
   }
   const q = getNode(ctx.m, extracted.queryId);
   if (!q || q.op !== "db.query") return undefined;

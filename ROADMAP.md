@@ -254,6 +254,7 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 ## Default queue — post G7200 (maintenance)
 
 **IR Helper Program v1 closed:** `pnpm run hub:ir-helper-program-close-smoke` (**G7200**).  
+**Post-437 full-stack maintenance ladder:** queues **438–457** (`pnpm run hub:cwl-authoring-batch-v438-smoke` … **v457**); capstone **v457** in hub-completion (**G5677–G5876**, **DESIGN D6258**). Queue **438** composites **G7200** IR Helper close with post-437 replay.  
 **Optional tier regression:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**).
 
 **CWL language regression:** `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**)

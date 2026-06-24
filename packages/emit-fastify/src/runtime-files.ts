@@ -467,6 +467,8 @@ export function getSession(req: FastifyRequest): Session {
 
 export const RUNTIME_TS = `import type { FastifyReply, FastifyRequest } from "fastify";
 import { compare as bcryptCompare } from "bcryptjs";
+import { createHash } from "node:crypto";
+import { crc32 as zlibCrc32 } from "node:zlib";
 import { queryOne } from "./db.js";
 import { getSession } from "./session.js";
 
@@ -784,6 +786,119 @@ export function parseUrlParts(url: unknown): Record<string, string> {
   }
 }
 
+export function json_decode(v: unknown): unknown {
+  if (v === null || v === undefined || v === "") return null;
+  try {
+    return JSON.parse(String(v));
+  } catch {
+    return null;
+  }
+}
+
+export function md5(v: unknown): string {
+  return createHash("md5").update(String(v ?? "")).digest("hex");
+}
+
+export function sha1(v: unknown): string {
+  return createHash("sha1").update(String(v ?? "")).digest("hex");
+}
+
+export function base64_encode(v: unknown): string {
+  return Buffer.from(String(v ?? ""), "utf8").toString("base64");
+}
+
+export function base64_decode(v: unknown): string {
+  try {
+    return Buffer.from(String(v ?? ""), "base64").toString("utf8");
+  } catch {
+    return "";
+  }
+}
+
+export function bin2hex(v: unknown): string {
+  return Buffer.from(String(v ?? ""), "binary").toString("hex");
+}
+
+export function preg_quote(v: unknown, delimiter?: unknown): string {
+  const s = String(v ?? "");
+  const d = delimiter !== undefined ? String(delimiter) : "/";
+  let out = "";
+  for (const ch of s) {
+    if ("\\\\.[]{}()*+-?^$|".includes(ch) || ch === d) out += "\\\\" + ch;
+    else out += ch;
+  }
+  return out;
+}
+
+export function basename(path: unknown, suffix?: unknown): string {
+  let p = String(path ?? "").replace(/\\\\/g, "/");
+  const base = p.split("/").pop() ?? "";
+  if (suffix !== undefined && base.endsWith(String(suffix))) {
+    return base.slice(0, -String(suffix).length);
+  }
+  return base;
+}
+
+export function dirname(path: unknown): string {
+  let p = String(path ?? "").replace(/\\\\/g, "/");
+  const i = p.lastIndexOf("/");
+  if (i === -1) return ".";
+  if (i === 0) return "/";
+  return p.slice(0, i);
+}
+
+export function gettype(v: unknown): string {
+  if (v === null) return "NULL";
+  if (Array.isArray(v)) return "array";
+  if (typeof v === "boolean") return "boolean";
+  if (typeof v === "number") return Number.isInteger(v) ? "integer" : "double";
+  if (typeof v === "string") return "string";
+  if (typeof v === "object") return "object";
+  return "unknown type";
+}
+
+export function is_callable(v: unknown): boolean {
+  return typeof v === "function";
+}
+
+export function is_resource(_v: unknown): boolean {
+  return false;
+}
+
+export function ord(v: unknown): number {
+  const s = String(v ?? "");
+  const c = s.codePointAt(0);
+  return c === undefined ? 0 : c;
+}
+
+export function chr(v: unknown): string {
+  const n = typeof v === "number" ? v : parseInt(String(v), 10);
+  if (!Number.isFinite(n)) return "";
+  return String.fromCodePoint(n);
+}
+
+export function hash(algo: unknown, data: unknown): string {
+  const a = String(algo ?? "md5").toLowerCase();
+  const allowed = ["md5", "sha1", "sha256", "sha512"];
+  const alg = allowed.includes(a) ? a : "md5";
+  return createHash(alg).update(String(data ?? "")).digest("hex");
+}
+
+export function sprintf(fmt: unknown, ...rest: unknown[]): string {
+  let i = 0;
+  return String(fmt ?? "").replace(/%[sd]/g, () => {
+    const a = rest[i++];
+    return a === undefined || a === null ? "" : String(a);
+  });
+}
+
+export function number_format(num: unknown, decimals?: unknown): string {
+  const n = typeof num === "number" ? num : Number(num);
+  const d = decimals === undefined ? 0 : typeof decimals === "number" ? decimals : parseInt(String(decimals), 10);
+  if (!Number.isFinite(n)) return "0";
+  return n.toFixed(Number.isFinite(d) ? d : 0);
+}
+
 export function pregMatch(pattern: unknown, subject: unknown): boolean {
   const p = String(pattern ?? "");
   const s = String(subject ?? "");
@@ -802,6 +917,78 @@ export function pregMatch(pattern: unknown, subject: unknown): boolean {
   } catch {
     return false;
   }
+}
+
+function phpRegexFromPattern(pattern: unknown): RegExp | null {
+  const p = String(pattern ?? "");
+  const lastSlash = p.lastIndexOf("/");
+  if (p.length >= 2 && p[0] === "/" && lastSlash > 0) {
+    const body = p.slice(1, lastSlash);
+    const flags = p.slice(lastSlash + 1).replace(/[^gimsuy]/g, "");
+    try {
+      return new RegExp(body, flags);
+    } catch {
+      return null;
+    }
+  }
+  try {
+    return new RegExp(p);
+  } catch {
+    return null;
+  }
+}
+
+export function implode(separator: unknown, pieces: unknown): string {
+  if (Array.isArray(pieces)) {
+    return pieces.map((x) => String(x ?? "")).join(String(separator ?? ""));
+  }
+  return String(pieces ?? "");
+}
+
+export function pregReplace(pattern: unknown, replacement: unknown, subject: unknown): string {
+  const re = phpRegexFromPattern(pattern);
+  const s = String(subject ?? "");
+  if (!re) return s;
+  return s.replace(re, String(replacement ?? ""));
+}
+
+export function pregSplit(pattern: unknown, subject: unknown): string[] {
+  const re = phpRegexFromPattern(pattern);
+  const s = String(subject ?? "");
+  if (!re) return [s];
+  const parts = s.split(re);
+  return parts.length > 0 && parts[parts.length - 1] === "" ? parts.slice(0, -1) : parts;
+}
+
+export function hexdec(hex: unknown): number {
+  const n = parseInt(String(hex ?? "").replace(/^0x/i, ""), 16);
+  return Number.isFinite(n) ? n : 0;
+}
+
+export function dechex(num: unknown): string {
+  const n = typeof num === "number" ? num : parseInt(String(num), 10);
+  if (!Number.isFinite(n)) return "0";
+  return (n >>> 0).toString(16);
+}
+
+export function strval(v: unknown): string {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "boolean") return v ? "1" : "";
+  return String(v);
+}
+
+export function filterVar(value: unknown, filter: unknown): unknown {
+  const f = typeof filter === "number" ? filter : parseInt(String(filter), 10);
+  // FILTER_SANITIZE_STRING (deprecated in PHP 8.1) = 513
+  if (f === 513) {
+    return String(value ?? "").replace(/<[^>]*>/g, "");
+  }
+  return value;
+}
+
+export function crc32(v: unknown): number {
+  const u = zlibCrc32(Buffer.from(String(v ?? ""), "utf8")) >>> 0;
+  return u > 0x7fffffff ? u - 0x100000000 : u;
 }
 
 export async function passwordVerify(plain: string, hash: string): Promise<boolean> {

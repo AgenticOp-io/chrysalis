@@ -15,13 +15,13 @@ describe("ir-helper-program-catalog (G7200)", () => {
     expect(cov.kind).toBe("chrysalis.ir-helper-program-coverage");
   });
 
-  it("covers all chartered I3 inline callees (74)", () => {
-    expect(IR_HELPER_INLINE_CALLEE_IDS.length).toBe(74);
-    expect(new Set(IR_HELPER_INLINE_CALLEE_IDS).size).toBe(74);
+  it("covers all chartered I3 inline callees (102)", () => {
+    expect(IR_HELPER_INLINE_CALLEE_IDS.length).toBe(102);
+    expect(new Set(IR_HELPER_INLINE_CALLEE_IDS).size).toBe(102);
   });
 
   it("registry drives callee ids and prelude skips", () => {
-    expect(IR_HELPER_INLINE_REGISTRY.length).toBe(74);
+    expect(IR_HELPER_INLINE_REGISTRY.length).toBe(102);
     expect(registryEntryForHelperId("chrysalis_sql_param_trim")?.resolveKind).toBe("trimFormal");
   });
 

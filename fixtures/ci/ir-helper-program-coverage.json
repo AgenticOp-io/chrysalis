@@ -49,7 +49,7 @@
       "fixture": "sql_param_sideeffect.php"
     }
   ],
-  "inlineCalleeCount": 74,
+  "inlineCalleeCount": 102,
   "inlineCalleeIds": [
     "chrysalis_sql_param_trim",
     "chrysalis_sql_param_strlen",
@@ -124,9 +124,37 @@
     "chrysalis_sql_param_chunk_split",
     "chrysalis_sql_param_strtr",
     "chrysalis_sql_param_htmlentities",
-    "chrysalis_sql_param_html_entity_decode"
+    "chrysalis_sql_param_html_entity_decode",
+    "chrysalis_sql_param_json_encode",
+    "chrysalis_sql_param_json_decode",
+    "chrysalis_sql_param_md5",
+    "chrysalis_sql_param_sha1",
+    "chrysalis_sql_param_base64_encode",
+    "chrysalis_sql_param_base64_decode",
+    "chrysalis_sql_param_bin2hex",
+    "chrysalis_sql_param_preg_quote",
+    "chrysalis_sql_param_parse_url",
+    "chrysalis_sql_param_basename",
+    "chrysalis_sql_param_dirname",
+    "chrysalis_sql_param_gettype",
+    "chrysalis_sql_param_is_callable",
+    "chrysalis_sql_param_is_resource",
+    "chrysalis_sql_param_ord",
+    "chrysalis_sql_param_chr",
+    "chrysalis_sql_param_preg_match",
+    "chrysalis_sql_param_hash",
+    "chrysalis_sql_param_sprintf",
+    "chrysalis_sql_param_number_format2",
+    "chrysalis_sql_param_implode",
+    "chrysalis_sql_param_preg_replace",
+    "chrysalis_sql_param_preg_split",
+    "chrysalis_sql_param_hexdec",
+    "chrysalis_sql_param_dechex",
+    "chrysalis_sql_param_strval",
+    "chrysalis_sql_param_filter_var",
+    "chrysalis_sql_param_crc32"
   ],
-  "inlineRegistryCount": 74,
+  "inlineRegistryCount": 102,
   "programHoles": [
     {
       "id": "legacy:helper_multi_local",
@@ -161,5 +189,5 @@
       "reason": "multiple db.query effects in one helper"
     }
   ],
-  "generatedAt": "2026-06-24T02:24:12.588Z"
+  "generatedAt": "2026-06-24T03:36:31.297Z"
 }

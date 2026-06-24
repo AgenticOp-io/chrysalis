@@ -28,6 +28,7 @@ import {
   type NodeId,
   type WebIRType,
 } from "@chrysalis/webir";
+import { irHelperEmitCallee, type IrHelperInlineRegistryEntry } from "@chrysalis/emit-shared";
 import { tryExtractInlineQueryFromModule } from "./helper-inline-extract.js";
 import type { RouteSpec } from "./routes.js";
 
@@ -311,6 +312,15 @@ function phpVarKey(name: string): string {
   return name.startsWith("$") ? name : `$${name}`;
 }
 
+function genericInlineCalleeType(callee: string): WebIRType {
+  if (callee === "preg_match" || callee === "is_callable" || callee === "is_resource") return T.bool;
+  if (callee === "ord" || callee === "hexdec" || callee === "crc32") return T.int;
+  if (callee === "parseUrlParts") return T.record({});
+  if (callee === "json_decode") return T.unknown;
+  if (callee === "preg_split") return T.array(T.string);
+  return T.string;
+}
+
 function matchFormalParam(name: string, paramNames: readonly string[]): string | undefined {
   const key = phpVarKey(name);
   for (const p of paramNames) {
@@ -446,6 +456,9 @@ function buildQueryParamReplacements(
   localToWordwrapFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly widthLiteralId: NodeId; readonly breakLiteralId: NodeId }>,
   localToChunkSplitFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly widthLiteralId: NodeId; readonly breakLiteralId: NodeId }>,
   localToStrtrFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly fromLiteralId: NodeId; readonly toLiteralId: NodeId }>,
+  localToGenericFormal: ReadonlyMap<string, { readonly formal: string; readonly entry: IrHelperInlineRegistryEntry }>,
+  localToGenericFormalLiteral: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId; readonly entry: IrHelperInlineRegistryEntry }>,
+  localToGenericFormalLiteral2: ReadonlyMap<string, { readonly formal: string; readonly literalId: NodeId; readonly literalId2: NodeId; readonly entry: IrHelperInlineRegistryEntry }>,
 ): ReadonlyMap<NodeId, NodeId> | undefined {
   const formalToArg = new Map<string, NodeId>();
   for (let i = 0; i < paramNames.length; i++) {
@@ -1442,6 +1455,50 @@ function buildQueryParamReplacements(
     nameToArg.set(local, isScalarId);
     nameToArg.set(phpVarKey(local), isScalarId);
   }
+  for (const [local, { formal, entry }] of localToGenericFormal) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const callee = irHelperEmitCallee(entry);
+    const callId = ctx.data.call({
+      callee,
+      args: [argId],
+      type: genericInlineCalleeType(callee),
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, callId);
+    nameToArg.set(phpVarKey(local), callId);
+  }
+  for (const [local, { formal, literalId, entry }] of localToGenericFormalLiteral) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const callee = irHelperEmitCallee(entry);
+    const args = entry.literalFirst ? [literalId, argId] : [argId, literalId];
+    const callId = ctx.data.call({
+      callee,
+      args,
+      type: genericInlineCalleeType(callee),
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, callId);
+    nameToArg.set(phpVarKey(local), callId);
+  }
+  for (const [local, { formal, literalId, literalId2, entry }] of localToGenericFormalLiteral2) {
+    const argId = formalToArg.get(formal) ?? formalToArg.get(phpVarKey(formal));
+    if (argId === undefined) return undefined;
+    const q = ctx.m.get(queryId);
+    const callee = irHelperEmitCallee(entry);
+    const args = entry.formalLast ? [literalId, literalId2, argId] : [argId, literalId, literalId2];
+    const callId = ctx.data.call({
+      callee,
+      args,
+      type: genericInlineCalleeType(callee),
+      origin: q?.origin ?? { file: ctx.file, line: 0, col: 0 },
+    });
+    nameToArg.set(local, callId);
+    nameToArg.set(phpVarKey(local), callId);
+  }
   const replacements = new Map<NodeId, NodeId>();
   walkSubgraphNodeIds(ctx, queryId, (id) => {
     const n = ctx.m.get(id);
@@ -1551,6 +1608,9 @@ function tryInlineLibHelperCall(
     extracted.localToWordwrapFormalLiteral2,
     extracted.localToChunkSplitFormalLiteral2,
     extracted.localToStrtrFormalLiteral2,
+    extracted.localToGenericFormal,
+    extracted.localToGenericFormalLiteral,
+    extracted.localToGenericFormalLiteral2,
   );
   if (replacements === undefined) return undefined;
   return cloneSubgraphWithReplacements(ctx, extracted.queryId, replacements);
@@ -1694,7 +1754,32 @@ type CallLowering =
   | { kind: "getrandmax_builtin" }
   | { kind: "microtime_builtin" }
   | { kind: "uniqid_builtin" }
-  | { kind: "json_encode" };
+  | { kind: "json_encode" }
+  | { kind: "json_decode" }
+  | { kind: "md5" }
+  | { kind: "sha1" }
+  | { kind: "base64_encode" }
+  | { kind: "base64_decode" }
+  | { kind: "bin2hex" }
+  | { kind: "preg_quote" }
+  | { kind: "basename" }
+  | { kind: "dirname" }
+  | { kind: "gettype" }
+  | { kind: "is_callable" }
+  | { kind: "is_resource" }
+  | { kind: "ord" }
+  | { kind: "chr" }
+  | { kind: "hash" }
+  | { kind: "sprintf" }
+  | { kind: "number_format" }
+  | { kind: "implode" }
+  | { kind: "preg_replace" }
+  | { kind: "preg_split" }
+  | { kind: "hexdec" }
+  | { kind: "dechex" }
+  | { kind: "strval" }
+  | { kind: "filter_var" }
+  | { kind: "crc32" };
 
 const KNOWN_CALLS: Record<string, CallLowering> = {
   query_all: { kind: "dbQuery", mode: "rows", tableFrom: "firstArg" },
@@ -1789,6 +1874,31 @@ const KNOWN_CALLS: Record<string, CallLowering> = {
   microtime: { kind: "microtime_builtin" },
   uniqid: { kind: "uniqid_builtin" },
   json_encode: { kind: "json_encode" },
+  json_decode: { kind: "json_decode" },
+  md5: { kind: "md5" },
+  sha1: { kind: "sha1" },
+  base64_encode: { kind: "base64_encode" },
+  base64_decode: { kind: "base64_decode" },
+  bin2hex: { kind: "bin2hex" },
+  preg_quote: { kind: "preg_quote" },
+  basename: { kind: "basename" },
+  dirname: { kind: "dirname" },
+  gettype: { kind: "gettype" },
+  is_callable: { kind: "is_callable" },
+  is_resource: { kind: "is_resource" },
+  ord: { kind: "ord" },
+  chr: { kind: "chr" },
+  hash: { kind: "hash" },
+  sprintf: { kind: "sprintf" },
+  number_format: { kind: "number_format" },
+  implode: { kind: "implode" },
+  preg_replace: { kind: "preg_replace" },
+  preg_split: { kind: "preg_split" },
+  hexdec: { kind: "hexdec" },
+  dechex: { kind: "dechex" },
+  strval: { kind: "strval" },
+  filter_var: { kind: "filter_var" },
+  crc32: { kind: "crc32" },
 };
 
 /** Crude table guesser from a SQL literal. Used for effect tagging. */
@@ -2946,6 +3056,67 @@ function convertCall(
         origin: loc(ctx, e.pos),
       });
     }
+    case "json_decode":
+      return ctx.data.call({
+        callee: "json_decode",
+        args,
+        type: T.unknown,
+        origin: loc(ctx, e.pos),
+      });
+    case "md5":
+    case "sha1":
+    case "base64_encode":
+    case "base64_decode":
+    case "bin2hex":
+    case "preg_quote":
+    case "basename":
+    case "dirname":
+    case "gettype":
+    case "chr":
+    case "hash":
+    case "sprintf":
+    case "number_format":
+    case "implode":
+    case "preg_replace":
+    case "dechex":
+    case "strval":
+    case "filter_var":
+      return ctx.data.call({
+        callee: lowering.kind,
+        args,
+        type: T.string,
+        origin: loc(ctx, e.pos),
+      });
+    case "preg_split":
+      return ctx.data.call({
+        callee: "preg_split",
+        args,
+        type: T.array(T.string),
+        origin: loc(ctx, e.pos),
+      });
+    case "hexdec":
+    case "crc32":
+      return ctx.data.call({
+        callee: lowering.kind,
+        args,
+        type: T.int,
+        origin: loc(ctx, e.pos),
+      });
+    case "is_callable":
+    case "is_resource":
+      return ctx.data.call({
+        callee: lowering.kind,
+        args,
+        type: T.bool,
+        origin: loc(ctx, e.pos),
+      });
+    case "ord":
+      return ctx.data.call({
+        callee: "ord",
+        args,
+        type: T.int,
+        origin: loc(ctx, e.pos),
+      });
     case "time_builtin": {
       if (e.args.length !== 0) {
         return hole(ctx, "time:args", e.pos, T.int);

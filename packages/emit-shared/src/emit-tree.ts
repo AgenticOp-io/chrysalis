@@ -720,8 +720,58 @@ function emitKnownCall(ctx: EmitCtx, callee: string, args: string[]): string {
       return `strlen(${args[0]})`;
     case "json_encode":
       return `JSON.stringify(${args[0]})`;
+    case "json_decode":
+      return `json_decode(${args[0]})`;
+    case "md5":
+      return `md5(${args[0]})`;
+    case "sha1":
+      return `sha1(${args[0]})`;
+    case "base64_encode":
+      return `base64_encode(${args[0]})`;
+    case "base64_decode":
+      return `base64_decode(${args[0]})`;
+    case "bin2hex":
+      return `bin2hex(${args[0]})`;
+    case "preg_quote":
+      return args.length >= 2 ? `preg_quote(${args[0]}, ${args[1]})` : `preg_quote(${args[0]})`;
+    case "basename":
+      return args.length >= 2 ? `basename(${args[0]}, ${args[1]})` : `basename(${args[0]})`;
+    case "dirname":
+      return `dirname(${args[0]})`;
+    case "gettype":
+      return `gettype(${args[0]})`;
+    case "is_callable":
+      return `is_callable(${args[0]})`;
+    case "is_resource":
+      return `is_resource(${args[0]})`;
+    case "ord":
+      return `ord(${args[0]})`;
+    case "chr":
+      return `chr(${args[0]})`;
+    case "hash":
+      return `hash(${args[0]}, ${args[1]})`;
+    case "sprintf":
+      return `sprintf(${args[0]}, ${args.slice(1).join(", ")})`;
+    case "number_format":
+      return args.length >= 2 ? `number_format(${args[0]}, ${args[1]})` : `number_format(${args[0]})`;
     case "preg_match":
       return `pregMatch(${args[0]}, ${args[1]})`;
+    case "implode":
+      return `implode(${args[0]}, ${args[1]})`;
+    case "preg_replace":
+      return `pregReplace(${args[0]}, ${args[1]}, ${args[2]})`;
+    case "preg_split":
+      return `pregSplit(${args[0]}, ${args[1]})`;
+    case "hexdec":
+      return `hexdec(${args[0]})`;
+    case "dechex":
+      return `dechex(${args[0]})`;
+    case "strval":
+      return `strval(${args[0]})`;
+    case "filter_var":
+      return `filterVar(${args[0]}, ${args[1]})`;
+    case "crc32":
+      return `crc32(${args[0]})`;
     case "password_verify":
     case "verify_password":
       return `(await passwordVerify(${args[0]}, ${args[1]}))`;

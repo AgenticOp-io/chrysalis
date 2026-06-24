@@ -8,9 +8,11 @@ import { IR_HELPER_INLINE_CALLEE_IDS } from "./ir-helper-inline-registry.js";
 export {
   IR_HELPER_INLINE_CALLEE_IDS,
   IR_HELPER_INLINE_REGISTRY,
+  IR_HELPER_GENERIC_CALLEE_MAP,
   IR_HELPER_SKIPPABLE_PRELUDE_CALLEES,
   isIrHelperSkippablePreludeCallee,
   registryEntryForHelperId,
+  irHelperEmitCallee,
   type IrHelperInlineRegistryEntry,
   type IrHelperInlinePatternKind,
 } from "./ir-helper-inline-registry.js";

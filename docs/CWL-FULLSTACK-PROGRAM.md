@@ -1,12 +1,14 @@
 # CWL full-stack program
 
-> **Status:** closed (2026-06-17)  
-> **Authority:** `docs/STRATEGIC-PLAN.md` Phase 7 (parallel track); hub-completion schema **510**  
+> **Status:** closed (2026-06-17); post-437 maintenance ladder **438–457** (2026-06-23)  
+> **Authority:** `docs/STRATEGIC-PLAN.md` Phase 7 (parallel track); hub-completion schema **513** (batch capstone **v457**)  
 > **Maintenance:** no new per-queue markdown; amend this doc + `DESIGN.md` Decision Log only
 
 ## Summary
 
 The **CWL full-stack authoring program** ran as numbered **queues 6–437** (ROADMAP **G1159–G4956**), each queue shipping a batch smoke, hub-completion schema bump, and Vitest gate coverage. The program is **complete**; successor work follows the locked strategic plan (**Phase 5+**), not new queue ladders.
+
+A **post-437 maintenance ladder** (**queues 438–457**, ROADMAP **G5677–G5866**) extends composite replay depth after **IR Helper Program v1 close** (**G7200**). Queue **438** chains **`runPost437CompositeGate`** with **`runIrHelperProgramCloseGate`**; queues **439–457** replay prior composite depth only. Hub-completion stays at schema **513** with capstone section **`fullstackAuthoringBatchV457`** — no Phase program reopen.
 
 | Milestone | Queues | Hub schema | Notes |
 | --- | --- | --- | --- |
@@ -14,6 +16,7 @@ The **CWL full-stack authoring program** ran as numbered **queues 6–437** (ROA
 | Month 2–3 depth | 71–90 | 163 | Express oracle slice, full-stack pilot |
 | Hub verify-gaps bridge | 91–110 | 183 | Post-110 reinforcement |
 | Post-110 Phase C | 111–437 | 510 | Phase H–T locks; ladder complete |
+| Post-437 maintenance | 438–457 | 513 (v457 capstone) | IR Helper close at 438; maintenance replay only |
 
 ## Formal references
 
@@ -29,6 +32,7 @@ The **CWL full-stack authoring program** ran as numbered **queues 6–437** (ROA
 
 ```bash
 pnpm run hub:cwl-authoring-batch-v63-smoke    # runtime-cwl parity chain
+pnpm run hub:cwl-authoring-batch-v457-smoke   # post-437 maintenance ladder capstone
 pnpm run hub:strategic-plan-month12-runtime-parity-smoke
 pnpm run hub:strategic-plan-month34-fullstack-pilot-smoke
 pnpm run hub:strategic-plan-phase3-fullstack-alignment-smoke

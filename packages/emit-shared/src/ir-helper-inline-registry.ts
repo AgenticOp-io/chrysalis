@@ -20,7 +20,16 @@ export type IrHelperInlineRegistryEntry = {
   readonly phpCallee: string;
   readonly pattern: IrHelperInlinePatternKind;
   readonly resolveKind: string;
+  readonly generic?: boolean;
+  readonly literalFirst?: boolean;
+  /** For `formal_literal_literal` generic callees: formal operand is last (e.g. preg_replace). */
+  readonly formalLast?: boolean;
+  readonly emitCallee?: string;
 };
+
+export function irHelperEmitCallee(entry: IrHelperInlineRegistryEntry): string {
+  return entry.emitCallee ?? entry.phpCallee;
+}
 
 /** Chartered I3 callee patterns (frozen at B75). */
 export const IR_HELPER_INLINE_REGISTRY: readonly IrHelperInlineRegistryEntry[] = [
@@ -98,7 +107,41 @@ export const IR_HELPER_INLINE_REGISTRY: readonly IrHelperInlineRegistryEntry[] =
   { suffix: "strtr", phpCallee: "strtr", pattern: "formal_literal_literal", resolveKind: "strtrFormalLiteral2" },
   { suffix: "htmlentities", phpCallee: "htmlentities", pattern: "formal", resolveKind: "htmlentitiesFormal" },
   { suffix: "html_entity_decode", phpCallee: "html_entity_decode", pattern: "formal", resolveKind: "htmlEntityDecodeFormal" },
+  // P3 maintenance batch 1 — generic registry-driven resolve/emit (D6256)
+  { suffix: "json_encode", phpCallee: "json_encode", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "json_decode", phpCallee: "json_decode", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "md5", phpCallee: "md5", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "sha1", phpCallee: "sha1", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "base64_encode", phpCallee: "base64_encode", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "base64_decode", phpCallee: "base64_decode", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "bin2hex", phpCallee: "bin2hex", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "preg_quote", phpCallee: "preg_quote", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "parse_url", phpCallee: "parse_url", pattern: "formal", resolveKind: "genericFormal", generic: true, emitCallee: "parseUrlParts" },
+  { suffix: "basename", phpCallee: "basename", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "dirname", phpCallee: "dirname", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "gettype", phpCallee: "gettype", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "is_callable", phpCallee: "is_callable", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "is_resource", phpCallee: "is_resource", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "ord", phpCallee: "ord", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "chr", phpCallee: "chr", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "preg_match", phpCallee: "preg_match", pattern: "formal_literal", resolveKind: "genericFormalLiteral", generic: true, literalFirst: true },
+  { suffix: "hash", phpCallee: "hash", pattern: "formal_literal", resolveKind: "genericFormalLiteral", generic: true, literalFirst: true },
+  { suffix: "sprintf", phpCallee: "sprintf", pattern: "formal_literal", resolveKind: "genericFormalLiteral", generic: true, literalFirst: true },
+  { suffix: "number_format2", phpCallee: "number_format", pattern: "formal_literal", resolveKind: "genericFormalLiteral", generic: true, literalFirst: false },
+  // P3 maintenance batch 2 — remaining safe formal-assign gaps (D6257)
+  { suffix: "implode", phpCallee: "implode", pattern: "formal_literal", resolveKind: "genericFormalLiteral", generic: true, literalFirst: true },
+  { suffix: "preg_replace", phpCallee: "preg_replace", pattern: "formal_literal_literal", resolveKind: "genericFormalLiteral2", generic: true, formalLast: true },
+  { suffix: "preg_split", phpCallee: "preg_split", pattern: "formal_literal", resolveKind: "genericFormalLiteral", generic: true, literalFirst: true },
+  { suffix: "hexdec", phpCallee: "hexdec", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "dechex", phpCallee: "dechex", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "strval", phpCallee: "strval", pattern: "formal", resolveKind: "genericFormal", generic: true },
+  { suffix: "filter_var", phpCallee: "filter_var", pattern: "formal_literal", resolveKind: "genericFormalLiteral", generic: true, literalFirst: false },
+  { suffix: "crc32", phpCallee: "crc32", pattern: "formal", resolveKind: "genericFormal", generic: true },
 ] as const;
+
+export const IR_HELPER_GENERIC_CALLEE_MAP: ReadonlyMap<string, IrHelperInlineRegistryEntry> = new Map(
+  IR_HELPER_INLINE_REGISTRY.filter((e) => e.generic === true).map((e) => [e.phpCallee, e] as const),
+);
 
 export const IR_HELPER_INLINE_CALLEE_IDS = IR_HELPER_INLINE_REGISTRY.map(
   (e) => `chrysalis_sql_param_${e.suffix}` as const,

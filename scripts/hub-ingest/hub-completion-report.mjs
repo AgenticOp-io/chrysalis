@@ -540,6 +540,7 @@ export function buildHubCompletionReport(ctx) {
     fullstackAuthoringBatchV435,
     fullstackAuthoringBatchV436,
     fullstackAuthoringBatchV437,
+    fullstackAuthoringBatchV457,
     plainPhpMigrationOsBatch,
     tinyBlogDeliveryBatch,
     deliveryPipelineStandaloneBatch,
@@ -4021,6 +4022,13 @@ export function buildHubCompletionReport(ctx) {
       schemaVersion: fullstackAuthoringBatchV437.schemaVersion ?? 1,
       skipPriorChain: true,
       gate437Mode: fullstackAuthoringBatchV437.gate437Mode ?? null,
+    },
+    fullstackAuthoringBatchV457: {
+      ok: okFlags.fullstackAuthoringBatchV457Ok,
+      script: "pnpm run hub:cwl-authoring-batch-v457-smoke",
+      schemaVersion: fullstackAuthoringBatchV457.schemaVersion ?? 1,
+      skipPriorChain: true,
+      gate457Mode: fullstackAuthoringBatchV457.gate457Mode ?? null,
     },
     plainPhpMigrationOsBatch: {
       ok: okFlags.plainPhpMigrationOsBatchOk,

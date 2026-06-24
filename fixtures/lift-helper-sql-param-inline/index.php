@@ -88,6 +88,33 @@ require_once __DIR__ . '/lib/sql_param_lcfirst.php';
 require_once __DIR__ . '/lib/sql_param_ucfirst.php';
 require_once __DIR__ . '/lib/sql_param_str_ireplace.php';
 require_once __DIR__ . '/lib/sql_param_str_replace.php';
+require_once __DIR__ . '/lib/sql_param_json_encode.php';
+require_once __DIR__ . '/lib/sql_param_json_decode.php';
+require_once __DIR__ . '/lib/sql_param_md5.php';
+require_once __DIR__ . '/lib/sql_param_sha1.php';
+require_once __DIR__ . '/lib/sql_param_base64_encode.php';
+require_once __DIR__ . '/lib/sql_param_base64_decode.php';
+require_once __DIR__ . '/lib/sql_param_bin2hex.php';
+require_once __DIR__ . '/lib/sql_param_preg_quote.php';
+require_once __DIR__ . '/lib/sql_param_parse_url.php';
+require_once __DIR__ . '/lib/sql_param_basename.php';
+require_once __DIR__ . '/lib/sql_param_dirname.php';
+require_once __DIR__ . '/lib/sql_param_gettype.php';
+require_once __DIR__ . '/lib/sql_param_is_callable.php';
+require_once __DIR__ . '/lib/sql_param_is_resource.php';
+require_once __DIR__ . '/lib/sql_param_ord.php';
+require_once __DIR__ . '/lib/sql_param_chr.php';
+require_once __DIR__ . '/lib/sql_param_preg_match.php';
+require_once __DIR__ . '/lib/sql_param_hash.php';
+require_once __DIR__ . '/lib/sql_param_sprintf.php';
+require_once __DIR__ . '/lib/sql_param_number_format2.php';
+require_once __DIR__ . '/lib/sql_param_implode.php';
+require_once __DIR__ . '/lib/sql_param_preg_replace.php';
+require_once __DIR__ . '/lib/sql_param_preg_split.php';
+require_once __DIR__ . '/lib/sql_param_hexdec.php';
+require_once __DIR__ . '/lib/sql_param_dechex.php';
+require_once __DIR__ . '/lib/sql_param_filter_var.php';
+require_once __DIR__ . '/lib/sql_param_crc32.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -439,6 +466,118 @@ if ($method === 'GET' && $path === '/hent') {
 }
 if ($method === 'GET' && $path === '/hdec') {
     require __DIR__ . '/pages/show_hdec.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m76') {
+    require __DIR__ . '/pages/show_m76.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m77') {
+    require __DIR__ . '/pages/show_m77.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m78') {
+    require __DIR__ . '/pages/show_m78.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m79') {
+    require __DIR__ . '/pages/show_m79.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m80') {
+    require __DIR__ . '/pages/show_m80.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m81') {
+    require __DIR__ . '/pages/show_m81.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m82') {
+    require __DIR__ . '/pages/show_m82.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m83') {
+    require __DIR__ . '/pages/show_m83.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m84') {
+    require __DIR__ . '/pages/show_m84.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m85') {
+    require __DIR__ . '/pages/show_m85.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m86') {
+    require __DIR__ . '/pages/show_m86.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m87') {
+    require __DIR__ . '/pages/show_m87.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m88') {
+    require __DIR__ . '/pages/show_m88.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m89') {
+    require __DIR__ . '/pages/show_m89.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m90') {
+    require __DIR__ . '/pages/show_m90.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m91') {
+    require __DIR__ . '/pages/show_m91.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m92') {
+    require __DIR__ . '/pages/show_m92.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m93') {
+    require __DIR__ . '/pages/show_m93.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m94') {
+    require __DIR__ . '/pages/show_m94.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m95') {
+    require __DIR__ . '/pages/show_m95.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m96') {
+    require __DIR__ . '/pages/show_m96.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m97') {
+    require __DIR__ . '/pages/show_m97.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m98') {
+    require __DIR__ . '/pages/show_m98.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m99') {
+    require __DIR__ . '/pages/show_m99.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m100') {
+    require __DIR__ . '/pages/show_m100.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m101') {
+    require __DIR__ . '/pages/show_m101.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m102') {
+    require __DIR__ . '/pages/show_m102.php';
+    exit;
+}
+if ($method === 'GET' && $path === '/m103') {
+    require __DIR__ . '/pages/show_m103.php';
     exit;
 }
 http_response_code(404);

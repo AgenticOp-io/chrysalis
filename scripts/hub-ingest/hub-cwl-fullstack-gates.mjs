@@ -27,6 +27,7 @@ import {
   buildHubCompletionPhase10ProductionParitySection,
   validateHubCompletionPhase10ProductionParitySection,
 } from "./hub-completion-phase10-production-parity.mjs";
+import { runIrHelperProgramCloseGate } from "./hub-ir-helper-program-close-smoke.mjs";
 import {
   runWispCwlProgramDocGate,
   runWispCwlApiPathsManifestGate,
@@ -12818,3 +12819,366 @@ export async function runPost437GraduationGate(opts = {}) {
   const post436 = await runPost436GraduationGate(opts);
   return { ok: post437.ok === true && post436.ok === true, post437, post436 };
 }
+
+/** G5677 - post-437 IR Helper Program close (G7200) + post-437 composite replay (post-437 maintenance ladder). */
+export async function runPost438CompositeGate(opts = {}) {
+  const post437 = await runPost437CompositeGate(opts);
+  const irHelperClose = await runIrHelperProgramCloseGate();
+  const gates = [post437, irHelperClose];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post437,
+    irHelperClose,
+  };
+}
+
+export async function runPost438GraduationGate(opts = {}) {
+  const post438 = await runPost438CompositeGate(opts);
+  const post437 = await runPost437GraduationGate(opts);
+  return { ok: post438.ok === true && post437.ok === true, post438, post437 };
+}
+
+/** G5687 - post-438 maintenance composite replay depth. */
+export async function runPost439CompositeGate(opts = {}) {
+  const post438 = await runPost438CompositeGate(opts);
+  const gates = [post438];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post438,
+  };
+}
+
+export async function runPost439GraduationGate(opts = {}) {
+  const post439 = await runPost439CompositeGate(opts);
+  const post438 = await runPost438GraduationGate(opts);
+  return { ok: post439.ok === true && post438.ok === true, post439, post438 };
+}
+
+/** G5697 - post-439 maintenance composite replay depth. */
+export async function runPost440CompositeGate(opts = {}) {
+  const post439 = await runPost439CompositeGate(opts);
+  const gates = [post439];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post439,
+  };
+}
+
+export async function runPost440GraduationGate(opts = {}) {
+  const post440 = await runPost440CompositeGate(opts);
+  const post439 = await runPost439GraduationGate(opts);
+  return { ok: post440.ok === true && post439.ok === true, post440, post439 };
+}
+
+/** G5707 - post-440 maintenance composite replay depth. */
+export async function runPost441CompositeGate(opts = {}) {
+  const post440 = await runPost440CompositeGate(opts);
+  const gates = [post440];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post440,
+  };
+}
+
+export async function runPost441GraduationGate(opts = {}) {
+  const post441 = await runPost441CompositeGate(opts);
+  const post440 = await runPost440GraduationGate(opts);
+  return { ok: post441.ok === true && post440.ok === true, post441, post440 };
+}
+
+/** G5717 - post-441 maintenance composite replay depth. */
+export async function runPost442CompositeGate(opts = {}) {
+  const post441 = await runPost441CompositeGate(opts);
+  const gates = [post441];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post441,
+  };
+}
+
+export async function runPost442GraduationGate(opts = {}) {
+  const post442 = await runPost442CompositeGate(opts);
+  const post441 = await runPost441GraduationGate(opts);
+  return { ok: post442.ok === true && post441.ok === true, post442, post441 };
+}
+
+/** G5727 - post-442 maintenance composite replay depth. */
+export async function runPost443CompositeGate(opts = {}) {
+  const post442 = await runPost442CompositeGate(opts);
+  const gates = [post442];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post442,
+  };
+}
+
+export async function runPost443GraduationGate(opts = {}) {
+  const post443 = await runPost443CompositeGate(opts);
+  const post442 = await runPost442GraduationGate(opts);
+  return { ok: post443.ok === true && post442.ok === true, post443, post442 };
+}
+
+/** G5737 - post-443 maintenance composite replay depth. */
+export async function runPost444CompositeGate(opts = {}) {
+  const post443 = await runPost443CompositeGate(opts);
+  const gates = [post443];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post443,
+  };
+}
+
+export async function runPost444GraduationGate(opts = {}) {
+  const post444 = await runPost444CompositeGate(opts);
+  const post443 = await runPost443GraduationGate(opts);
+  return { ok: post444.ok === true && post443.ok === true, post444, post443 };
+}
+
+/** G5747 - post-444 maintenance composite replay depth. */
+export async function runPost445CompositeGate(opts = {}) {
+  const post444 = await runPost444CompositeGate(opts);
+  const gates = [post444];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post444,
+  };
+}
+
+export async function runPost445GraduationGate(opts = {}) {
+  const post445 = await runPost445CompositeGate(opts);
+  const post444 = await runPost444GraduationGate(opts);
+  return { ok: post445.ok === true && post444.ok === true, post445, post444 };
+}
+
+/** G5757 - post-445 maintenance composite replay depth. */
+export async function runPost446CompositeGate(opts = {}) {
+  const post445 = await runPost445CompositeGate(opts);
+  const gates = [post445];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post445,
+  };
+}
+
+export async function runPost446GraduationGate(opts = {}) {
+  const post446 = await runPost446CompositeGate(opts);
+  const post445 = await runPost445GraduationGate(opts);
+  return { ok: post446.ok === true && post445.ok === true, post446, post445 };
+}
+
+/** G5767 - post-446 maintenance composite replay depth. */
+export async function runPost447CompositeGate(opts = {}) {
+  const post446 = await runPost446CompositeGate(opts);
+  const gates = [post446];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post446,
+  };
+}
+
+export async function runPost447GraduationGate(opts = {}) {
+  const post447 = await runPost447CompositeGate(opts);
+  const post446 = await runPost446GraduationGate(opts);
+  return { ok: post447.ok === true && post446.ok === true, post447, post446 };
+}
+
+/** G5777 - post-447 maintenance composite replay depth. */
+export async function runPost448CompositeGate(opts = {}) {
+  const post447 = await runPost447CompositeGate(opts);
+  const gates = [post447];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post447,
+  };
+}
+
+export async function runPost448GraduationGate(opts = {}) {
+  const post448 = await runPost448CompositeGate(opts);
+  const post447 = await runPost447GraduationGate(opts);
+  return { ok: post448.ok === true && post447.ok === true, post448, post447 };
+}
+
+/** G5787 - post-448 maintenance composite replay depth. */
+export async function runPost449CompositeGate(opts = {}) {
+  const post448 = await runPost448CompositeGate(opts);
+  const gates = [post448];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post448,
+  };
+}
+
+export async function runPost449GraduationGate(opts = {}) {
+  const post449 = await runPost449CompositeGate(opts);
+  const post448 = await runPost448GraduationGate(opts);
+  return { ok: post449.ok === true && post448.ok === true, post449, post448 };
+}
+
+/** G5797 - post-449 maintenance composite replay depth. */
+export async function runPost450CompositeGate(opts = {}) {
+  const post449 = await runPost449CompositeGate(opts);
+  const gates = [post449];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post449,
+  };
+}
+
+export async function runPost450GraduationGate(opts = {}) {
+  const post450 = await runPost450CompositeGate(opts);
+  const post449 = await runPost449GraduationGate(opts);
+  return { ok: post450.ok === true && post449.ok === true, post450, post449 };
+}
+
+/** G5807 - post-450 maintenance composite replay depth. */
+export async function runPost451CompositeGate(opts = {}) {
+  const post450 = await runPost450CompositeGate(opts);
+  const gates = [post450];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post450,
+  };
+}
+
+export async function runPost451GraduationGate(opts = {}) {
+  const post451 = await runPost451CompositeGate(opts);
+  const post450 = await runPost450GraduationGate(opts);
+  return { ok: post451.ok === true && post450.ok === true, post451, post450 };
+}
+
+/** G5817 - post-451 maintenance composite replay depth. */
+export async function runPost452CompositeGate(opts = {}) {
+  const post451 = await runPost451CompositeGate(opts);
+  const gates = [post451];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post451,
+  };
+}
+
+export async function runPost452GraduationGate(opts = {}) {
+  const post452 = await runPost452CompositeGate(opts);
+  const post451 = await runPost451GraduationGate(opts);
+  return { ok: post452.ok === true && post451.ok === true, post452, post451 };
+}
+
+/** G5827 - post-452 maintenance composite replay depth. */
+export async function runPost453CompositeGate(opts = {}) {
+  const post452 = await runPost452CompositeGate(opts);
+  const gates = [post452];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post452,
+  };
+}
+
+export async function runPost453GraduationGate(opts = {}) {
+  const post453 = await runPost453CompositeGate(opts);
+  const post452 = await runPost452GraduationGate(opts);
+  return { ok: post453.ok === true && post452.ok === true, post453, post452 };
+}
+
+/** G5837 - post-453 maintenance composite replay depth. */
+export async function runPost454CompositeGate(opts = {}) {
+  const post453 = await runPost453CompositeGate(opts);
+  const gates = [post453];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post453,
+  };
+}
+
+export async function runPost454GraduationGate(opts = {}) {
+  const post454 = await runPost454CompositeGate(opts);
+  const post453 = await runPost453GraduationGate(opts);
+  return { ok: post454.ok === true && post453.ok === true, post454, post453 };
+}
+
+/** G5847 - post-454 maintenance composite replay depth. */
+export async function runPost455CompositeGate(opts = {}) {
+  const post454 = await runPost454CompositeGate(opts);
+  const gates = [post454];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post454,
+  };
+}
+
+export async function runPost455GraduationGate(opts = {}) {
+  const post455 = await runPost455CompositeGate(opts);
+  const post454 = await runPost454GraduationGate(opts);
+  return { ok: post455.ok === true && post454.ok === true, post455, post454 };
+}
+
+/** G5857 - post-455 maintenance composite replay depth. */
+export async function runPost456CompositeGate(opts = {}) {
+  const post455 = await runPost455CompositeGate(opts);
+  const gates = [post455];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post455,
+  };
+}
+
+export async function runPost456GraduationGate(opts = {}) {
+  const post456 = await runPost456CompositeGate(opts);
+  const post455 = await runPost455GraduationGate(opts);
+  return { ok: post456.ok === true && post455.ok === true, post456, post455 };
+}
+
+/** G5867 - post-456 maintenance composite replay depth. */
+export async function runPost457CompositeGate(opts = {}) {
+  const post456 = await runPost456CompositeGate(opts);
+  const gates = [post456];
+  return {
+    ok: gates.every((g) => g.ok === true),
+    gateCount: gates.length,
+    passed: gates.filter((g) => g.ok === true).length,
+    post456,
+  };
+}
+
+export async function runPost457GraduationGate(opts = {}) {
+  const post457 = await runPost457CompositeGate(opts);
+  const post456 = await runPost456GraduationGate(opts);
+  return { ok: post457.ok === true && post456.ok === true, post457, post456 };
+}
+

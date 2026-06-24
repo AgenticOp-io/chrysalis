@@ -550,6 +550,7 @@ export function buildGceFastHeavySmokeState() {
   state.fullstackAuthoringBatchV435 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate435Mode: "gce-deferred" };
   state.fullstackAuthoringBatchV436 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate436Mode: "gce-deferred" };
   state.fullstackAuthoringBatchV437 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate437Mode: "gce-deferred" };
+  state.fullstackAuthoringBatchV457 = { ...d(), schemaVersion: 1, skipPriorChain: true, gate457Mode: "gce-deferred" };
   state.plainPhpMigrationOsBatch = d();
   state.tinyBlogDeliveryBatch = d();
   state.deliveryPipelineStandaloneBatch = d();

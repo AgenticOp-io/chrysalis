@@ -13,7 +13,7 @@ On chartered PHP apps, lib helpers that are provably equivalent to inlined WebIR
 | Track | Mechanism | v1 status |
 | --- | --- | --- |
 | **A — Cross-file lift** | `--ingest-lift-shared-helpers*` + structural dedupe; semantic keys B3–B5.5 | **Closed** (B0–B5.5) |
-| **B — Call-site SQL inline** | `tryInlineLibHelperCall` / `tryExtractInlineQuery` on `return query_*` helpers | **Closed** (chartered shapes + 74 I3 callees) |
+| **B — Call-site SQL inline** | `tryInlineLibHelperCall` / `tryExtractInlineQuery` on `return query_*` helpers | **Closed** (chartered shapes + 102 I3 callees) |
 
 Deferred Track A depth (non-B5 semantic widening) remains **maintenance backlog** per **D2404** — not required for program v1 close.
 
@@ -24,7 +24,7 @@ Deferred Track A depth (non-B5 semantic widening) remains **maintenance backlog*
 | **I0** | `return query_all(...)` | Supported | `sql_param.php` |
 | **I1** | `$v = literal; return query…` | Supported | `sql_param_literal.php` |
 | **I2** | `$v = $param; return query…` | Supported | `sql_param_local.php` |
-| **I3** | `$v = f($param[, literals…]); return query…` | Supported | B6–B75 registry (74 callees) |
+| **I3** | `$v = f($param[, literals…]); return query…` | Supported | B6–B75 registry + P3 maintenance (102 callees) |
 | **I4** | assign chain → query | Supported | `sql_param_chain.php` |
 | **I5** | `$v = $param ?? literal` | Supported | `sql_param_coalesce.php` |
 | **H1** | multi-local feed | **Hole** | `sql_param_noinline.php` |
@@ -34,9 +34,9 @@ Cast / strval / boolval / floatval / prelude-skip variants ship under B5.5 (see 
 
 ## Track B — I3 callee registry (frozen at B75)
 
-**74** formal-assign wrapper callees are chartered for full call-site inline on `fixtures/lift-helper-sql-param-inline`. Source of truth: `@chrysalis/emit-shared` **`IR_HELPER_INLINE_REGISTRY`** / **`IR_HELPER_INLINE_CALLEE_IDS`** (ingest + emit-shared share **`tryExtractInlineQuery`**; Vitest imports the catalog).
+**102** formal-assign wrapper callees are chartered for full call-site inline on `fixtures/lift-helper-sql-param-inline`. Source of truth: `@chrysalis/emit-shared` **`IR_HELPER_INLINE_REGISTRY`** / **`IR_HELPER_INLINE_CALLEE_IDS`** (ingest + emit-shared share **`tryExtractInlineQuery`**; Vitest imports the catalog).
 
-**B-tier numbering frozen** at B75 — new callees are **program maintenance** (registry + Vitest), not new language tiers.
+**B-tier numbering frozen** at B75 — new callees are **program maintenance** (registry + Vitest), not new language tiers. **P3 maintenance batch 1** (D6256) added 20 generic registry-driven callees (json/hash/preg/format tier) via **`generic: true`** rows and **`IR_HELPER_GENERIC_CALLEE_MAP`** — 74 → 94 without new G6731 B-tier gates. **P3 maintenance batch 2** (D6257) closed the remaining safe formal-assign gaps (implode/preg/hex/strval/filter/crc32 tier) — 94 → 102; **`genericFormalLiteral2`** for `preg_replace`; `mb_*` and `str_shuffle` remain program holes.
 
 ## Explicit program holes (v1 out of scope)
 
@@ -68,7 +68,7 @@ New inline callees: add a registry row + fixture + Vitest — not a new B-tier.
 ### G7200 composite checks
 
 1. Program doc gate (this file + registry exports)
-2. Coverage gate — registry ↔ fixtures (74 I3 callees)
+2. Coverage gate — registry ↔ fixtures (102 I3 callees)
 3. Inline Vitest batch (ingest + emit-shared + catalog)
 4. Ingest idempotency on param-inline fixture (**G7204**)
 5. Coverage artifact — `fixtures/ci/ir-helper-program-coverage.json`
@@ -82,7 +82,7 @@ New inline callees: add a registry row + fixture + Vitest — not a new B-tier.
   "kind": "chrysalis.ir-helper-program-coverage",
   "schemaVersion": 1,
   "programCloseGate": "G7200",
-  "inlineCalleeCount": 74
+  "inlineCalleeCount": 94
 }
 ```
 

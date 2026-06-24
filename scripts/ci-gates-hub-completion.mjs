@@ -3385,6 +3385,12 @@ function assertHubCompletion(path) {
       }
     }
   }
+  if (s.fullstackAuthoringBatchV457?.ok !== true) {
+    fail(`${label}: fullstackAuthoringBatchV457.ok must be true`);
+  }
+  if (s.fullstackAuthoringBatchV457 && !s.fullstackAuthoringBatchV457.script) {
+    fail(`${label}: fullstackAuthoringBatchV457.script must be set`);
+  }
   const g = s.routeGrades;
   if (!g || typeof g.gold !== "number" || typeof g.silver !== "number" || typeof g.open !== "number") {
     fail(`${label}: missing routeGrades counts`);
