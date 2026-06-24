@@ -1,0 +1,27 @@
+{
+  "kind": "chrysalis.cwl.pilot-charter",
+  "schemaVersion": 1,
+  "pilotId": "flagship-customer-slice",
+  "description": "Non-WISP customer pilot slice — CWL flagship + PHP ingest origins (plain + Symfony).",
+  "cwlFixture": "fixtures/hub-flagship-cwl-fullstack",
+  "holeBudgetFile": "chrysalis.fullstack-hole-budget.json",
+  "routesManifest": "chrysalis.routes.json",
+  "minInScopeRoutes": 8,
+  "minNativeRatio": 0.99,
+  "ingestOrigins": [
+    {
+      "id": "plainPhp",
+      "rel": "fixtures/hub-flagship-plain-php",
+      "origin": "php",
+      "requireHoleFree": true
+    },
+    {
+      "id": "symfony",
+      "rel": "fixtures/hub-flagship-symfony",
+      "origin": "php",
+      "requireHoleFree": true
+    }
+  ],
+  "verifySuites": ["cwl-fullstack-flagship-hono", "cwl-fullstack-flagship-fastify"],
+  "evidenceGates": ["pilot-charter", "pilot-ingest", "pilot-verify", "pilot-cutover"]
+}

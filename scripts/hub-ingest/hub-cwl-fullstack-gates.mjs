@@ -2091,7 +2091,19 @@ export function runPausedAndMaintenanceDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const phase10Closed = isPhase10ProductionParityClosed();
-  const docOk = isCwlUniversalLanguageProgramClosed()
+  const docOk = isCwlCustomerPilotProgramClosed()
+    ? text.includes("G7490") &&
+      text.includes("hub:cwl-customer-pilot-close-smoke") &&
+      text.includes("G7390") &&
+      text.includes("D6262") &&
+      text.includes("Do not treat closed program tables")
+    : isCwlCustomerPilotProgramActive()
+    ? text.includes("G7400") &&
+      text.includes("G7490") &&
+      text.includes("CWL-CUSTOMER-PILOT-PROGRAM.md") &&
+      text.includes("D6262") &&
+      text.includes("Do not treat closed program tables")
+    : isCwlUniversalLanguageProgramClosed()
     ? text.includes("G7390") &&
       text.includes("hub:cwl-universal-language-close-smoke") &&
       text.includes("G7150") &&
@@ -2163,6 +2175,30 @@ export function runPausedAndMaintenanceDocGate() {
 
 /** G6162 — Strategic plan default queue gate (Phase 13, Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isCwlCustomerPilotProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G7490") &&
+      text.includes("hub:cwl-customer-pilot-close-smoke") &&
+      text.includes("G7390") &&
+      text.includes("D6262") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, customerPilotClosedOk: ok };
+  }
+  if (isCwlCustomerPilotProgramActive()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("Phase 24") &&
+      text.includes("G7400") &&
+      text.includes("G7490") &&
+      text.includes("D6262") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, customerPilotActiveOk: ok };
+  }
   if (isCwlUniversalLanguageProgramClosed()) {
     const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
     if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
@@ -2265,7 +2301,19 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
   const ok =
-    isCwlUniversalLanguageProgramClosed()
+    isCwlCustomerPilotProgramClosed()
+      ? text.includes("G7490") &&
+        text.includes("hub:cwl-customer-pilot-close-smoke") &&
+        text.includes("G7390") &&
+        text.includes("D6262") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isCwlCustomerPilotProgramActive()
+      ? text.includes("Phase 24") &&
+        text.includes("G7400") &&
+        text.includes("G7490") &&
+        text.includes("D6262") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isCwlUniversalLanguageProgramClosed()
       ? text.includes("G7390") &&
         text.includes("hub:cwl-universal-language-close-smoke") &&
         text.includes("G7150") &&
@@ -2337,6 +2385,12 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
 
 /** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isCwlCustomerPilotProgramClosed()) {
+    return runCwlCustomerPilotClosedGovernanceGate(_opts);
+  }
+  if (isCwlCustomerPilotProgramActive()) {
+    return runCwlCustomerPilotActiveGovernanceGate(_opts);
+  }
   if (isCwlUniversalLanguageProgramClosed()) {
     return runCwlUniversalLanguageClosedGovernanceGate(_opts);
   }
@@ -5183,6 +5237,77 @@ export async function runCwlUniversalLanguageClosedGovernanceGate(_opts = {}) {
     roadmapOk: roadmap.ok === true,
     taxonomyOk: taxonomy.ok === true,
     mode: "cwl-universal-closed",
+  };
+}
+
+const cwlCustomerPilotProgramDocPath = join(scriptRoot, "docs/CWL-CUSTOMER-PILOT-PROGRAM.md");
+
+/** @returns {boolean} CWL customer pilot program is active (G7400, D6262). */
+export function isCwlCustomerPilotProgramActive() {
+  if (isCwlCustomerPilotProgramClosed()) return false;
+  if (!existsSync(cwlCustomerPilotProgramDocPath)) return false;
+  const text = readFileSync(cwlCustomerPilotProgramDocPath, "utf8");
+  return text.includes("**Status:** **active**") && text.includes("G7400");
+}
+
+/** @returns {boolean} CWL customer pilot program closed (G7490). */
+export function isCwlCustomerPilotProgramClosed() {
+  if (!existsSync(cwlCustomerPilotProgramDocPath)) return false;
+  const text = readFileSync(cwlCustomerPilotProgramDocPath, "utf8");
+  return text.includes("Program closed") && text.includes("G7490");
+}
+
+/** G7401 — CWL customer pilot active governance (post G7400 entry). */
+export async function runCwlCustomerPilotActiveGovernanceGate(_opts = {}) {
+  const { runCwlCustomerPilotProgramEntryGate } = await import(
+    "./hub-cwl-customer-pilot-program-entry-smoke.mjs"
+  );
+  const entry = await runCwlCustomerPilotProgramEntryGate(_opts);
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    entry.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isCwlCustomerPilotProgramActive();
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "cwl-pilot-active",
+  };
+}
+
+/** G7491 — CWL customer pilot closed governance (post G7490). */
+export async function runCwlCustomerPilotClosedGovernanceGate(_opts = {}) {
+  const { runCwlCustomerPilotCloseGate } = await import("./hub-cwl-customer-pilot-close-smoke.mjs");
+  const close = await runCwlCustomerPilotCloseGate({ ..._opts, skipMaintenance: true });
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    close.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isCwlCustomerPilotProgramClosed();
+  return {
+    ok,
+    closeOk: close.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "cwl-pilot-closed",
   };
 }
 

@@ -226,40 +226,45 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 ---
 
-### Phase 19 — CWL UI v1 (**active**)
+### Phase 19 — CWL UI v1 (**closed G7310**)
 
 - **Authority:** **DESIGN D6260** — [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md); RFC-0019 (UI v1: islands, hydration policy)
-- **Win:** Close `hub-svelte:page-component` on flagship CWL-native routes; vendor bridges documented
-- **Entry G7300:** `pnpm run hub:cwl-universal-language-program-entry-smoke`
-- **Close G7310:** `pnpm run hub:cwl-phase19-close-smoke` *(TBD — RFC + verify first)*
-- **Refuse:** silent Svelte/React lowering; hydration claims without replay
+- **Close G7310:** `pnpm run hub:cwl-phase19-close-smoke`
 
-### Phase 20 — CWL Data v2
+### Phase 20 — CWL Data v2 (**closed G7320**)
 
 - **Authority:** RFC-0013 v2 — parallel loads, redirects, errors; SvelteKit/Next server ingest
-- **Close G7320:** `pnpm run hub:cwl-phase20-close-smoke` *(TBD)*
+- **Close G7320:** `pnpm run hub:cwl-phase20-close-smoke`
 
-### Phase 21 — CWL Effects middleware
+### Phase 21 — CWL Effects middleware (**closed G7330**)
 
-- **Authority:** RFC-0020 (draft) — executable effect chains beyond session (authz, CSRF, CORS)
-- **Close G7330:** `pnpm run hub:cwl-phase21-close-smoke` *(TBD)*
+- **Authority:** RFC-0020 — executable effect chains beyond session (authz, CSRF, CORS)
+- **Close G7330:** `pnpm run hub:cwl-phase21-close-smoke`
 
-### Phase 22 — Universal ingest
+### Phase 22 — Universal ingest (**closed G7340**)
 
 - **Authority:** Multi-origin ingest at pilot scale — PHP + SvelteKit/Next/OpenAPI → CWL default output
-- **Win:** One non-WISP pilot: **≥99%** in-scope routes native CWL, verify **≥99%**
-- **Close G7340:** `pnpm run hub:cwl-phase22-close-smoke` *(TBD)*
+- **Close G7340:** `pnpm run hub:cwl-phase22-close-smoke`
 
-### Phase 23 — Greenfield cutover template
+### Phase 23 — Greenfield cutover template (**closed G7350**)
 
 - **Authority:** Ladder step 5 for **new apps** — CWL-only module, no chimera for app logic
-- **Close G7350:** `pnpm run hub:cwl-phase23-close-smoke` *(TBD)*
+- **Close G7350:** `pnpm run hub:cwl-phase23-close-smoke`
 
-### CWL universal web language close (**G7390**)
+### CWL universal web language close (**closed G7390**)
 
 - **Win:** Phases **19–23** + **G7150** + **G7200** regression composite green
-- **Smoke:** `pnpm run hub:cwl-universal-language-close-smoke` *(TBD)*
+- **Smoke:** `pnpm run hub:cwl-universal-language-close-smoke`
 - **Program doc:** [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md)
+
+---
+
+### Phase 24 — Customer pilot at scale (**closed G7490**)
+
+- **Authority:** **DESIGN D6262** / **D6263** — [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md)
+- **Charter:** `fixtures/hub-pilot-customer-slice/chrysalis.pilot-charter.v1.json`
+- **Close G7401–G7404:** phase smokes `hub:cwl-phase24a-close-smoke` … `hub:cwl-phase24d-close-smoke`
+- **Program close G7490:** `pnpm run hub:cwl-customer-pilot-close-smoke`
 
 ---
 
@@ -356,7 +361,33 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (post G7390 — universal language closed)
+**Amended 2026-06-24 (CWL customer pilot — D6262):** Phase **24** active locked path after **G7390**: **charter → ingest → verify → cutover**; program close **G7490**. See [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md).
+
+---
+
+**Amended 2026-06-24 (CWL customer pilot closed — D6263):** Phase **24** shipped; program close **G7490**. Default queue → **G7490** regression. See [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md).
+
+---
+
+## 12. Default queue (post G7490 — customer pilot closed)
+
+**Status:** **CWL customer pilot program closed** (**G7490**, **D6262** / **D6263**); **CWL universal web language program closed** (**G7390**); **G7150** / **G7200** shipped; **WISP POC decoupled** (**D6259**).
+
+When the user says "build" without specifying:
+
+1. **G7490 regression** — `pnpm run hub:cwl-customer-pilot-close-smoke`
+2. **G7390 subordinate** — included in G7490 composite; also `pnpm run hub:cwl-universal-language-close-smoke`
+3. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — not default CI (**D6259**).
+
+**Program close (shipped):** **G7490** — `pnpm run hub:cwl-customer-pilot-close-smoke`.
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (Phase 24 — customer pilot active, superseded 2026-06-24)
 
 **Status:** **CWL universal web language program closed** (**G7390**, **D6260**); **CWL complete language closed** (**G7150**); **IR Helper Program v1 closed** (**G7200**); **WISP POC decoupled** (**D6259**).
 

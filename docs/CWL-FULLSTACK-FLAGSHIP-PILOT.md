@@ -2,7 +2,8 @@
 
 > **Status:** accepted (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` §12 Month 3–4; **G5730**  
-> **Fixture:** `fixtures/hub-flagship-cwl-fullstack`
+> **Fixture:** `fixtures/hub-flagship-cwl-fullstack`  
+> **Pilot charter:** `fixtures/hub-pilot-customer-slice/chrysalis.pilot-charter.v1.json` (**Phase 24**, **G7401**)
 
 ## Goal
 

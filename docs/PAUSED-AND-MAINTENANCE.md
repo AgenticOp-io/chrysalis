@@ -1,7 +1,7 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-06-16)  
-> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **CWL universal web language program closed** (**G7390**, **D6260**). **G7150** / **G7200** shipped. **WISP POC decoupled** (**D6259**).
+> **Status:** authoritative (2026-06-24)  
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **CWL customer pilot program closed** (**G7490**, **D6262** / **D6263**). **CWL universal web language program closed** (**G7390**, **D6260**). **G7150** / **G7200** shipped. **WISP POC decoupled** (**D6259**).
 
 **Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
 
@@ -11,7 +11,8 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **CWL universal language regression (default)** | `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**) |
+| **CWL customer pilot regression (default)** | `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**) |
+| **G7390 regression (subordinate)** | Included in **G7490** composite |
 | **G7150 / G7200 regression** | Included in **G7390** composite |
 | **IR helper tier regression (optional)** | `hub:cwl-language-maintenance-smoke` (**G6731**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
@@ -19,9 +20,11 @@
 
 **Close before build:** Phase **N+1** requires Phase **N** close gate green.
 
-**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / universal-closed mode)
+**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **cwl-pilot-closed** mode)
 
-**Program close:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**)
+**Program doc:** [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md)
+
+**Program close (shipped):** `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**)
 
 ---
 
@@ -49,6 +52,7 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
 | IR Helper Program v1 close | `pnpm run hub:ir-helper-program-close-smoke` (**G7200**) | [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) |
 | IR helper tier regression (optional) | `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**) | [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md) |
 | CWL complete language regression | `pnpm run hub:cwl-complete-language-close-smoke` (**G7150**) | [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) |
+| CWL customer pilot regression | `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**) | [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md) |
 | Widen `->query` lowering | Add tracked receiver via `mysqli-probe` | Hole economics |
 | Package README drift | Update README | `ROADMAP.md` |
 | Redaction / verify regression | Lockstep Node + PHP redactor | `AGENTS.md` |
@@ -97,8 +101,10 @@ In-repo implementation **closed** at **G6290** (Phase 11). Gates remain green vi
 | Phase 10 production parity | **G6257** | `PRODUCTION-PARITY-PHASE-10.md` |
 | CWL complete language Phases 15–18 | **G7150** | `CWL-LANGUAGE-PROGRAM.md` |
 | IR Helper Program v1 | **G7200** | `IR-HELPER-PROGRAM.md` |
+| CWL universal language Phases 19–23 | **G7390** | `CWL-UNIVERSAL-LANGUAGE-PROGRAM.md` |
+| CWL customer pilot Phase 24 | **G7490** | `CWL-CUSTOMER-PILOT-PROGRAM.md` |
 | WISP Phase 12–14 showcase POC | **G6690** | Optional regression (**D6259**) |
 
 ---
 
-*Related: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md), [`ROADMAP.md`](../ROADMAP.md), [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).*
+*Related: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md), [`ROADMAP.md`](../ROADMAP.md), [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md), [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).*

@@ -113,7 +113,7 @@ jobs:
       - name: IR Helper Program close (G7200)
         run: pnpm run hub:ir-helper-program-close-smoke
 
-      - name: Maintenance mode governance (G6160 / G7391)
+      - name: Maintenance mode governance (G6160 / G7491)
         run: pnpm run hub:maintenance-mode-governance-smoke
 
       - name: CWL Phase 19 close (G7310)
@@ -133,6 +133,21 @@ jobs:
 
       - name: CWL universal language program close (G7390)
         run: pnpm run hub:cwl-universal-language-close-smoke
+
+      - name: CWL Phase 24a close (G7401)
+        run: pnpm run hub:cwl-phase24a-close-smoke
+
+      - name: CWL Phase 24b close (G7402)
+        run: pnpm run hub:cwl-phase24b-close-smoke
+
+      - name: CWL Phase 24c close (G7403)
+        run: pnpm run hub:cwl-phase24c-close-smoke
+
+      - name: CWL Phase 24d close (G7404)
+        run: pnpm run hub:cwl-phase24d-close-smoke
+
+      - name: CWL customer pilot program close (G7490)
+        run: pnpm run hub:cwl-customer-pilot-close-smoke
 
       - name: Checkout wptp-matrix (hub contract-first oracle)
         uses: actions/checkout@v4

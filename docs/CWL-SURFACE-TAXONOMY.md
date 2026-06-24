@@ -116,6 +116,7 @@ Programs close surfaces in order — no big-bang rewrite:
 | **G7150** | **CWL complete language close** | `pnpm run hub:cwl-complete-language-close-smoke` |
 | **G7310** | Phase 19 CWL UI v1 close | `pnpm run hub:cwl-phase19-close-smoke` |
 | **G7390** | **Universal web language program close** | `pnpm run hub:cwl-universal-language-close-smoke` |
+| **G7490** | **Customer pilot program close** | `pnpm run hub:cwl-customer-pilot-close-smoke` |
 
 ## Language v1 closed (G6750)
 
@@ -140,6 +141,19 @@ Regression: `pnpm run hub:cwl-language-v1-close-smoke` (**G6750**), `pnpm run hu
 | — | **Effects middleware** | **21** | **G7330** — `hub:cwl-phase21-close-smoke` |
 | — | **Universal ingest** | **22** | **G7340** — `hub:cwl-phase22-close-smoke` |
 | 5 | **Greenfield cutover** | **23** | **G7350** — `hub:cwl-phase23-close-smoke` |
+
+## Customer pilot program closed (G7490, D6262 / D6263)
+
+**Status:** closed (2026-06-24). Program doc: [`CWL-CUSTOMER-PILOT-PROGRAM.md`](./CWL-CUSTOMER-PILOT-PROGRAM.md).
+
+**Default regression:** `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**).
+
+| Phase | Goal | Close gate |
+| --- | --- | --- |
+| **24a** | Pilot charter | **G7401** — `hub:cwl-phase24a-close-smoke` |
+| **24b** | Ingest depth | **G7402** — `hub:cwl-phase24b-close-smoke` |
+| **24c** | Verify replay | **G7403** — `hub:cwl-phase24c-close-smoke` |
+| **24d** | Cutover evidence | **G7404** — `hub:cwl-phase24d-close-smoke` |
 
 ## Archived — universal language program active (G7300, superseded by G7390)
 

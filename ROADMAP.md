@@ -6,11 +6,30 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Maintenance** — **G7390** universal language regression (**D6260** program **closed** 2026-06-24).
+- **Active lane:** **Maintenance** — **G7490** customer pilot regression (**D6262** program **closed** 2026-06-24).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
 ---
+
+## Closed — CWL customer pilot at scale (G7490)
+
+Program doc: [`docs/CWL-CUSTOMER-PILOT-PROGRAM.md`](./docs/CWL-CUSTOMER-PILOT-PROGRAM.md)  
+Authority: **DESIGN D6262** / **D6263**
+
+| Phase | Goal | Close gate | Smoke |
+| --- | --- | --- | --- |
+| **24a** | Pilot charter — hole budget + routes | **G7401** | `pnpm run hub:cwl-phase24a-close-smoke` |
+| **24b** | Ingest depth — PHP origins → CWL | **G7402** | `pnpm run hub:cwl-phase24b-close-smoke` |
+| **24c** | Verify replay — flagship gold | **G7403** | `pnpm run hub:cwl-phase24c-close-smoke` |
+| **24d** | Cutover evidence — HTTP verify | **G7404** | `pnpm run hub:cwl-phase24d-close-smoke` |
+| **Program** | Customer pilot close | **G7490** | `pnpm run hub:cwl-customer-pilot-close-smoke` |
+
+**Default regression:** `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**).
+
+---
+
+## Archived — Phase 24 entry (G7400, superseded by G7490 close)
 
 ## Closed — CWL universal web language (G7390)
 
@@ -27,6 +46,12 @@ Authority: **DESIGN D6260** / **D6261**
 | **Program** | Universal web language close | **G7390** | `pnpm run hub:cwl-universal-language-close-smoke` |
 
 **Default regression:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**).
+
+---
+
+## Archived — Phase 24 active (G7400, superseded by G7490)
+
+Was: Phase **24a → 24d**; entry **G7400**.
 
 ---
 
@@ -274,7 +299,14 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 
 ---
 
-## Default queue — universal language closed (G7390)
+## Default queue — customer pilot closed (G7490)
+
+**Regression:** `pnpm run hub:cwl-customer-pilot-close-smoke` (**G7490**).  
+**Subordinate:** **G7390** (included in G7490 composite).
+
+---
+
+## Archived — Default queue customer pilot active (G7400)
 
 **Regression:** `pnpm run hub:cwl-universal-language-close-smoke` (**G7390**).
 **Subordinate:** **G7150** + **G7200** (included in G7390 composite).
