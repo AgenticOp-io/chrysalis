@@ -40,5 +40,6 @@ test("wisp full site api inventory baseline (G7702 inventory)", () => {
     "runWispFullSiteApiInventoryGate",
   );
   expect(gate.ok).toBe(true);
-  expect(gate.nativeOk).toBe(false);
+  expect(gate.nativeOk).toBe(true);
+  expect(gate.upstreamProxyRefs).toBe(0);
 });

@@ -29,10 +29,11 @@ Signed charter, docs aligned, WISP fixture inventory baselined.
 
 **Close:** `pnpm run hub:wisp-phase27a-close-smoke`
 
-### Phase 27b — CWL API native (**G7702**)
+### Phase 27b — CWL API native (**G7702** — closed)
 
 Lift `backend-services` route classes to native CWL handlers; retire `hub-cwl:upstream-proxy` on chartered APIs.
 
+**Apply:** `pnpm run wisp:apply-phase27b-native-api`  
 **Close:** `pnpm run hub:wisp-phase27b-close-smoke`
 
 ### Phase 27c — CWL UI module depth (**G7703**)

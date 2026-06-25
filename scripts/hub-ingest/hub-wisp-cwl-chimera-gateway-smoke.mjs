@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { createWispChimeraGateway } from "../wisp-cwl-chimera-gateway.mjs";
 import { generateWispApiProxyCwl } from "../wisp-cwl-generate-api-proxy-cwl.mjs";
 import { applyWispPhase13Surfaces } from "../wisp-cwl-apply-phase13-surfaces.mjs";
+import { isWispFullSiteCwlProgramActive } from "./hub-cwl-fullstack-gates.mjs";
 
 export const WISP_CHIMERA_GATEWAY_SMOKE_KIND = "chrysalis.wisp.chimera-gateway-smoke";
 export const WISP_CHIMERA_GATEWAY_SMOKE_SCHEMA_VERSION = 1;
@@ -23,7 +24,7 @@ export async function runWispChimeraGatewaySmoke() {
     ok: false,
   };
 
-  generateWispApiProxyCwl();
+  generateWispApiProxyCwl({ mode: isWispFullSiteCwlProgramActive() ? "native" : "proxy" });
 
   const wispRoutes = join(wispRoot, "generated/cwl/routes.cwl");
   const fixtureRoutes = join(fixtureDir, "routes.cwl");

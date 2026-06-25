@@ -60,9 +60,11 @@ export function buildWispHoleManifest(opts = {}) {
   }
 
   let apiProxyRoutes = 0;
+  let upstreamProxyHoles = 0;
   if (existsSync(apiProxyPath)) {
     const text = readFileSync(apiProxyPath, "utf8");
     apiProxyRoutes = (text.match(/^@route /gm) ?? []).length;
+    upstreamProxyHoles = (text.match(/hub-cwl:upstream-proxy/g) ?? []).length;
   }
 
   const uiHoleCount = holed.length;
@@ -72,6 +74,11 @@ export function buildWispHoleManifest(opts = {}) {
   const unexpected = Object.keys(byReason).filter((k) => !expected.has(k) && k !== "unknown");
   const withinBudget = totalUiHoles <= maxHoles;
   const ok = withinBudget && unexpected.length === 0 && routes.length >= 87 && apiProxyRoutes >= 20;
+  const backendConversion = upstreamProxyHoles === 0 ? "native-cwl-handlers" : "deferred";
+  const backendPolicy =
+    backendConversion === "native-cwl-handlers"
+      ? "native CWL handlers — backend-services lifted to api-proxy.cwl (Phase 27b)"
+      : "proxy-only — backend-services unchanged on acs-hss-server";
 
   const manifest = {
     ...base,
@@ -85,8 +92,9 @@ export function buildWispHoleManifest(opts = {}) {
     withinBudget,
     byReason,
     unexpectedReasons: unexpected,
-    backendConversion: "deferred",
-    backendPolicy: "proxy-only — backend-services unchanged on acs-hss-server",
+    backendConversion,
+    backendPolicy,
+    upstreamProxyHoles,
     generatedAt: new Date().toISOString(),
   };
 
