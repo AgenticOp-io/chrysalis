@@ -24,10 +24,10 @@ export function runWispFullSiteUiBaselineGate(_opts = {}) {
     ? JSON.parse(readFileSync(manifestPath, "utf8"))
     : buildWispHoleManifest();
   const uiHoleCount = manifest.totalUiHoles ?? manifest.uiHoleCount ?? null;
+  const pageComponentHoles = manifest.byReason?.["hub-svelte:page-component"] ?? 0;
+  const nativeUiPages = (text.match(/return ui \{/g) ?? []).length;
   const inventoryOk = routeCount >= (charter.uiRouteMin ?? 87);
-  const nativeOk =
-    pageComponentRefs === 0 &&
-    (uiHoleCount ?? 1) <= (charter.maxAppLogicUiHoles ?? 0);
+  const nativeOk = pageComponentRefs === 0 && pageComponentHoles === 0;
   const ok = inventoryOk === true;
   return {
     kind: WISP_FULL_SITE_UI_BASELINE_SMOKE_KIND,
@@ -37,6 +37,8 @@ export function runWispFullSiteUiBaselineGate(_opts = {}) {
     nativeOk,
     routeCount,
     pageComponentRefs,
+    pageComponentHoles,
+    nativeUiPages,
     uiHoleCount,
     generatedAt: new Date().toISOString(),
   };

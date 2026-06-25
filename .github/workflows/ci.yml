@@ -172,6 +172,9 @@ jobs:
       - name: WISP Phase 27b close (G7702)
         run: pnpm run hub:wisp-phase27b-close-smoke
 
+      - name: WISP Phase 27c close (G7703)
+        run: pnpm run hub:wisp-phase27c-close-smoke
+
       - name: CWL universal translator program close (G7690)
         run: pnpm run hub:cwl-universal-translator-close-smoke
         env:

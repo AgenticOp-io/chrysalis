@@ -13,7 +13,23 @@ page admin_billing_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { adminArea: "billing", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return html "<svelte:head>\n  <title>Billing – WISP Admin</title>\n</svelte:head>\n\n<div class=\"admin-shell\">\n  <nav class=\"admin-nav\">\n  <a href=\"/admin/management\">Management</a>\n  <a href=\"/admin/billing\">Billing</a>\n  <a href=\"/admin/system-management\">System</a>\n  <a href=\"/admin/tenant-management\">Tenants</a>\n  <a href=\"/dashboard\">← Dashboard</a>\n</nav>\n  <header>\n    <h1>Billing</h1>\n    <p class=\"admin-area\">Area: billing</p>\n    <p class=\"api-surface\">API: /api/admin (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive admin widgets remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Billing"; }
+        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/admin/management"
@@ -21,7 +37,23 @@ page admin_management_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { adminArea: "management", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return html "<svelte:head>\n  <title>Management – WISP Admin</title>\n</svelte:head>\n\n<div class=\"admin-shell\">\n  <nav class=\"admin-nav\">\n  <a href=\"/admin/management\">Management</a>\n  <a href=\"/admin/billing\">Billing</a>\n  <a href=\"/admin/system-management\">System</a>\n  <a href=\"/admin/tenant-management\">Tenants</a>\n  <a href=\"/dashboard\">← Dashboard</a>\n</nav>\n  <header>\n    <h1>Management</h1>\n    <p class=\"admin-area\">Area: management</p>\n    <p class=\"api-surface\">API: /api/admin (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive admin widgets remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Management"; }
+        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/admin/system-management"
@@ -29,7 +61,23 @@ page admin_system_management_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { adminArea: "system-management", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return html "<svelte:head>\n  <title>System Management – WISP Admin</title>\n</svelte:head>\n\n<div class=\"admin-shell\">\n  <nav class=\"admin-nav\">\n  <a href=\"/admin/management\">Management</a>\n  <a href=\"/admin/billing\">Billing</a>\n  <a href=\"/admin/system-management\">System</a>\n  <a href=\"/admin/tenant-management\">Tenants</a>\n  <a href=\"/dashboard\">← Dashboard</a>\n</nav>\n  <header>\n    <h1>System Management</h1>\n    <p class=\"admin-area\">Area: system-management</p>\n    <p class=\"api-surface\">API: /api/admin (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive admin widgets remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "System Management"; }
+        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/admin/tenant-management"
@@ -37,7 +85,23 @@ page admin_tenant_management_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { adminArea: "tenant-management", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return html "<svelte:head>\n  <title>Tenant Management – WISP Admin</title>\n</svelte:head>\n\n<div class=\"admin-shell\">\n  <nav class=\"admin-nav\">\n  <a href=\"/admin/management\">Management</a>\n  <a href=\"/admin/billing\">Billing</a>\n  <a href=\"/admin/system-management\">System</a>\n  <a href=\"/admin/tenant-management\">Tenants</a>\n  <a href=\"/dashboard\">← Dashboard</a>\n</nav>\n  <header>\n    <h1>Tenant Management</h1>\n    <p class=\"admin-area\">Area: tenant-management</p>\n    <p class=\"api-surface\">API: /api/admin (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive admin widgets remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Tenant Management"; }
+        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/admin/tenants/:tenantId/modules"
@@ -45,7 +109,23 @@ page admin_tenants_tenantId_modules_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { adminArea: "tenant-modules", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return html "<svelte:head>\n  <title>Tenant Modules – WISP Admin</title>\n</svelte:head>\n\n<div class=\"admin-shell\">\n  <nav class=\"admin-nav\">\n  <a href=\"/admin/management\">Management</a>\n  <a href=\"/admin/billing\">Billing</a>\n  <a href=\"/admin/system-management\">System</a>\n  <a href=\"/admin/tenant-management\">Tenants</a>\n  <a href=\"/dashboard\">← Dashboard</a>\n</nav>\n  <header>\n    <h1>Tenant Modules</h1>\n    <p class=\"admin-area\">Area: tenant-modules</p>\n    <p class=\"api-surface\">API: /api/admin (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive admin widgets remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Tenant Modules"; }
+        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/auth/google/callback"
@@ -53,7 +133,7 @@ page auth_google_callback_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "auth", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Callback – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Callback</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Callback – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Callback</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/dashboard"
@@ -61,7 +141,23 @@ page dashboard_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { tenantLabel: "WISP Tenant", source: "wisp-m1", moduleCount: 6 };
-  return html "<svelte:head>\n  <title>Dashboard – WISP Management</title>\n</svelte:head>\n\n<div class=\"dashboard-shell\">\n  <header>\n    <h1>Dashboard</h1>\n    <p class=\"tenant\">Tenant: tenantLabel</p>\n  </header>\n  <section class=\"modules\">\n    <h2>Modules</h2>\n    <ul>\n      <li><a href=\"/modules/plan\">Plan</a> – coverage and site planning</li>\n      <li><a href=\"/modules/deploy\">Deploy</a> – rollouts and work orders</li>\n      <li><a href=\"/modules/monitor\">Monitor</a> – SNMP and performance</li>\n      <li><a href=\"/modules/maintain\">Maintain</a> – tickets and maintenance</li>\n      <li><a href=\"/modules/customers\">Customers</a> – CRM and portal</li>\n      <li><a href=\"/modules/hardware\">Hardware</a> – inventory and RMA</li>\n    </ul>\n  </section>\n  <section class=\"wizards\">\n    <p><a href=\"/wizards\">Wizards</a> – guided flows</p>\n  </section>\n  <p class=\"ui-hole-note\">Interactive widgets (tenant guard, notifications, module cards, settings) remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Dashboard"; }
+        element "p" class "api-surface" { text "API: /api/tenants (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/debug-tenants"
@@ -69,7 +165,7 @@ page debug_tenants_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "debug_tenants", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Debug Tenants – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Debug Tenants</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Debug Tenants – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Debug Tenants</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/demo"
@@ -77,7 +173,7 @@ page demo_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "demo", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Demo – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Demo</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Demo – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Demo</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/docs"
@@ -140,7 +236,7 @@ page modules_acs_cpe_management_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Acs Cpe Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Acs Cpe Management</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Acs Cpe Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Acs Cpe Management</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/alerts"
@@ -148,7 +244,7 @@ page modules_acs_cpe_management_alerts_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "alerts", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Alerts – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Alerts</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: alerts</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Alerts – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Alerts</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: alerts</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/devices"
@@ -156,7 +252,7 @@ page modules_acs_cpe_management_devices_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "devices", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Devices – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Devices</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: devices</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Devices – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Devices</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: devices</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/faults"
@@ -164,7 +260,7 @@ page modules_acs_cpe_management_faults_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "faults", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Faults – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Faults</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: faults</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Faults – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Faults</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: faults</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/files"
@@ -172,7 +268,7 @@ page modules_acs_cpe_management_files_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "files", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Files – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Files</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: files</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Files – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Files</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: files</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/firmware"
@@ -180,7 +276,7 @@ page modules_acs_cpe_management_firmware_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "firmware", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Firmware – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Firmware</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: firmware</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Firmware – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Firmware</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: firmware</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/graphs"
@@ -188,7 +284,7 @@ page modules_acs_cpe_management_graphs_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "graphs", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Graphs – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Graphs</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: graphs</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Graphs – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Graphs</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: graphs</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/monitoring"
@@ -196,7 +292,7 @@ page modules_acs_cpe_management_monitoring_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "monitoring", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Monitoring – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Monitoring</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: monitoring</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Monitoring – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Monitoring</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: monitoring</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/presets"
@@ -204,7 +300,7 @@ page modules_acs_cpe_management_presets_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "presets", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Presets – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Presets</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: presets</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Presets – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Presets</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: presets</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/settings"
@@ -212,7 +308,7 @@ page modules_acs_cpe_management_settings_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "settings", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Settings – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Settings</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: settings</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Settings – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Settings</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: settings</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/acs-cpe-management/tasks"
@@ -220,7 +316,7 @@ page modules_acs_cpe_management_tasks_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "acs_cpe_management", section: "tasks", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Tasks – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tasks</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: tasks</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Tasks – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tasks</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: tasks</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/backend-management"
@@ -228,7 +324,7 @@ page modules_backend_management_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "backend_management", source: "wisp-m5", apiPath: "/api/internal" };
-  return html "<svelte:head>\n  <title>Backend Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Backend Management</h1>\n    <p class=\"api-surface\">API: /api/internal (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Backend Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Backend Management</h1>\n    <p class=\"api-surface\">API: /api/internal (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/billing"
@@ -236,7 +332,7 @@ page modules_billing_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "billing", source: "wisp-m5", apiPath: "/api/customer-billing" };
-  return html "<svelte:head>\n  <title>Billing – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Billing</h1>\n    <p class=\"api-surface\">API: /api/customer-billing (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Billing – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Billing</h1>\n    <p class=\"api-surface\">API: /api/customer-billing (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/cbrs-management"
@@ -244,7 +340,7 @@ page modules_cbrs_management_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "cbrs_management", source: "wisp-m5", apiPath: "/api/epc-updates" };
-  return html "<svelte:head>\n  <title>Cbrs Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Cbrs Management</h1>\n    <p class=\"api-surface\">API: /api/epc-updates (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Cbrs Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Cbrs Management</h1>\n    <p class=\"api-surface\">API: /api/epc-updates (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/coverage-map"
@@ -252,7 +348,24 @@ page modules_coverage_map_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "coverage-map", source: "wisp-m3", apiPath: "/api/network" };
-  return html "<svelte:head>\n  <title>Coverage Map – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"module-nav\">\n  <a href=\"/modules/plan\">Plan</a>\n  <a href=\"/modules/deploy\">Deploy</a>\n  <a href=\"/modules/coverage-map\">Coverage Map</a>\n  <a href=\"/dashboard\">← Dashboard</a>\n</nav>\n  <header>\n    <h1>Coverage Map</h1>\n    <p class=\"module-blurb\">Network coverage visualization</p>\n    <p class=\"api-surface\">API: /api/network (proxied upstream)</p>\n  </header>\n  <p class=\"client-hole-note\">ArcGIS MapView remains <code>hub-svelte:arcgis-map</code> (client bundle) until CWL UI policy.</p>\n  <p class=\"ui-hole-note\">Interactive module widgets remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Coverage Map"; }
+        element "p" class "api-surface" { text "API: /api/network (native CWL API)"; }
+      }
+      element "p" class "vendor-surface" { text "ArcGIS MapView (chartered vendor surface)"; }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/modules/customers"
@@ -260,7 +373,23 @@ page modules_customers_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { module: "customers", source: "wisp-m2", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Customers – WISP Management</title>\n</svelte:head>\n\n<div class=\"customers-shell\">\n  <header>\n    <h1>Customers Module</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <section class=\"portal-links\">\n    <h2>Customer Portal</h2>\n    <ul>\n      <li><a href=\"/modules/customers/portal\">Portal home</a></li>\n      <li><a href=\"/modules/customers/portal-setup\">Portal setup</a></li>\n      <li><a href=\"/modules/customers/portal/dashboard\">Portal dashboard</a></li>\n      <li><a href=\"/modules/customers/portal/tickets\">Tickets</a></li>\n      <li><a href=\"/modules/customers/portal/billing\">Billing</a></li>\n      <li><a href=\"/modules/customers/portal/knowledge\">Knowledge base</a></li>\n    </ul>\n  </section>\n  <p class=\"ui-hole-note\">CRM widgets and portal sub-pages remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Customers"; }
+        element "p" class "api-surface" { text "API: /api/customers (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/modules/customers/portal"
@@ -275,7 +404,7 @@ page modules_customers_portal_setup_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal-setup", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Portal Setup – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Portal Setup</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal-setup</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Portal Setup – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Portal Setup</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal-setup</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/billing"
@@ -283,7 +412,7 @@ page modules_customers_portal_billing_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/billing", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Billing – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Billing</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/billing</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Billing – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Billing</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/billing</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/billing/settings"
@@ -291,7 +420,7 @@ page modules_customers_portal_billing_settings_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/billing/settings", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Settings – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Settings</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/billing/settings</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Settings – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Settings</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/billing/settings</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/dashboard"
@@ -299,7 +428,7 @@ page modules_customers_portal_dashboard_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/dashboard", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Dashboard – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Dashboard</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/dashboard</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Dashboard – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Dashboard</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/dashboard</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/faq"
@@ -307,7 +436,7 @@ page modules_customers_portal_faq_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/faq", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Faq – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Faq</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/faq</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Faq – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Faq</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/faq</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/knowledge"
@@ -315,7 +444,7 @@ page modules_customers_portal_knowledge_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/knowledge", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Knowledge – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Knowledge</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/knowledge</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Knowledge – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Knowledge</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/knowledge</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/knowledge/:id"
@@ -323,7 +452,7 @@ page modules_customers_portal_knowledge_id_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/knowledge/:id", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Detail – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Detail</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/knowledge/:id</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Detail – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Detail</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/knowledge/:id</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/live-chat"
@@ -331,7 +460,7 @@ page modules_customers_portal_live_chat_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/live-chat", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Live Chat – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Live Chat</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/live-chat</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Live Chat – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Live Chat</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/live-chat</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/login"
@@ -339,7 +468,7 @@ page modules_customers_portal_login_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/login", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Login – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Login</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/login</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Login – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Login</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/login</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/service"
@@ -347,7 +476,7 @@ page modules_customers_portal_service_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/service", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Service – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Service</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/service</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Service – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Service</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/service</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/signup"
@@ -355,7 +484,7 @@ page modules_customers_portal_signup_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/signup", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Signup – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Signup</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/signup</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Signup – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Signup</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/signup</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/tickets"
@@ -363,7 +492,7 @@ page modules_customers_portal_tickets_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/tickets", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Tickets – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tickets</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/tickets</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Tickets – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tickets</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/tickets</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/tickets/:id"
@@ -371,7 +500,7 @@ page modules_customers_portal_tickets_id_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/tickets/:id", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>Detail – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Detail</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/tickets/:id</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Detail – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Detail</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/tickets/:id</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/customers/portal/tickets/new"
@@ -379,7 +508,7 @@ page modules_customers_portal_tickets_new_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "customers", section: "portal/tickets/new", source: "wisp-m5", apiPath: "/api/customers" };
-  return html "<svelte:head>\n  <title>New – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>New</h1>\n    <p class=\"api-surface\">API: /api/customers (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: portal/tickets/new</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>New – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>New</h1>\n    <p class=\"api-surface\">API: /api/customers (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: portal/tickets/new</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/deploy"
@@ -387,7 +516,23 @@ page modules_deploy_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "deploy", source: "wisp-m3", apiPath: "/api/deploy" };
-  return html "<svelte:head>\n  <title>Deploy – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"module-nav\">\n  <a href=\"/modules/plan\">Plan</a>\n  <a href=\"/modules/deploy\">Deploy</a>\n  <a href=\"/modules/coverage-map\">Coverage Map</a>\n  <a href=\"/dashboard\">← Dashboard</a>\n</nav>\n  <header>\n    <h1>Deploy</h1>\n    <p class=\"module-blurb\">Rollouts and work orders</p>\n    <p class=\"api-surface\">API: /api/deploy (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive module widgets remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Deploy"; }
+        element "p" class "api-surface" { text "API: /api/deploy (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/modules/hardware"
@@ -395,7 +540,7 @@ page modules_hardware_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "hardware", source: "wisp-m5", apiPath: "/api/inventory" };
-  return html "<svelte:head>\n  <title>Hardware – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Hardware</h1>\n    <p class=\"api-surface\">API: /api/inventory (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Hardware – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Hardware</h1>\n    <p class=\"api-surface\">API: /api/inventory (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/help-desk"
@@ -403,7 +548,7 @@ page modules_help_desk_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "help_desk", source: "wisp-m5", apiPath: "/api/maintain" };
-  return html "<svelte:head>\n  <title>Help Desk – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Help Desk</h1>\n    <p class=\"api-surface\">API: /api/maintain (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Help Desk – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Help Desk</h1>\n    <p class=\"api-surface\">API: /api/maintain (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/help-desk/reports"
@@ -411,15 +556,31 @@ page modules_help_desk_reports_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "help_desk", section: "reports", source: "wisp-m5", apiPath: "/api/maintain" };
-  return html "<svelte:head>\n  <title>Reports – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Reports</h1>\n    <p class=\"api-surface\">API: /api/maintain (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: reports</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Reports – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Reports</h1>\n    <p class=\"api-surface\">API: /api/maintain (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: reports</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/hss-management"
 page modules_hss_management_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "hss_management", section: "overview", source: "wisp-m4", apiPath: "/api/hss" };
-  return html "<svelte:head>\n  <title>HSS Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"m4-nav\">\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>HSS Management</h1>\n    <p class=\"api-surface\">API: /api/hss (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: overview</p>\n  <p class=\"extra-note\">Open5GS HSS subscribers via proxied /api/hss.</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "hss_management", source: "wisp-m4", apiPath: "/api/hss" };
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "HSS Management"; }
+        element "p" class "api-surface" { text "API: /api/hss (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/modules/inventory"
@@ -427,7 +588,7 @@ page modules_inventory_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "inventory", source: "wisp-m5", apiPath: "/api/inventory" };
-  return html "<svelte:head>\n  <title>Inventory – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Inventory</h1>\n    <p class=\"api-surface\">API: /api/inventory (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Inventory – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Inventory</h1>\n    <p class=\"api-surface\">API: /api/inventory (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/inventory/:id"
@@ -435,7 +596,7 @@ page modules_inventory_id_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "inventory", section: ":id", source: "wisp-m5", apiPath: "/api/inventory" };
-  return html "<svelte:head>\n  <title>Detail – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Detail</h1>\n    <p class=\"api-surface\">API: /api/inventory (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: :id</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Detail – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Detail</h1>\n    <p class=\"api-surface\">API: /api/inventory (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: :id</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/inventory/:id/edit"
@@ -443,7 +604,7 @@ page modules_inventory_id_edit_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "inventory", section: ":id/edit", source: "wisp-m5", apiPath: "/api/inventory" };
-  return html "<svelte:head>\n  <title>Edit – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Edit</h1>\n    <p class=\"api-surface\">API: /api/inventory (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: :id/edit</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Edit – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Edit</h1>\n    <p class=\"api-surface\">API: /api/inventory (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: :id/edit</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/inventory/add"
@@ -451,7 +612,7 @@ page modules_inventory_add_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "inventory", section: "add", source: "wisp-m5", apiPath: "/api/inventory" };
-  return html "<svelte:head>\n  <title>Add – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Add</h1>\n    <p class=\"api-surface\">API: /api/inventory (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: add</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Add – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Add</h1>\n    <p class=\"api-surface\">API: /api/inventory (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: add</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/inventory/bundles"
@@ -459,7 +620,7 @@ page modules_inventory_bundles_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "inventory", section: "bundles", source: "wisp-m5", apiPath: "/api/inventory" };
-  return html "<svelte:head>\n  <title>Bundles – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Bundles</h1>\n    <p class=\"api-surface\">API: /api/inventory (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: bundles</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Bundles – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Bundles</h1>\n    <p class=\"api-surface\">API: /api/inventory (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: bundles</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/inventory/reports"
@@ -467,7 +628,7 @@ page modules_inventory_reports_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "inventory", section: "reports", source: "wisp-m5", apiPath: "/api/inventory" };
-  return html "<svelte:head>\n  <title>Reports – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Reports</h1>\n    <p class=\"api-surface\">API: /api/inventory (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: reports</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Reports – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Reports</h1>\n    <p class=\"api-surface\">API: /api/inventory (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: reports</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/maintain"
@@ -475,7 +636,7 @@ page modules_maintain_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "maintain", source: "wisp-m5", apiPath: "/api/maintain" };
-  return html "<svelte:head>\n  <title>Maintain – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Maintain</h1>\n    <p class=\"api-surface\">API: /api/maintain (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Maintain – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Maintain</h1>\n    <p class=\"api-surface\">API: /api/maintain (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/monitor"
@@ -489,8 +650,24 @@ page modules_monitor_page {
 page modules_monitoring_page {
   effects: none;
   content-type "text/html; charset=utf-8";
-  load { module: "monitoring", section: "overview", source: "wisp-m4", apiPath: "/api/monitoring" };
-  return html "<svelte:head>\n  <title>SNMP Monitoring – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"m4-nav\">\n  <a href=\"/modules/hss-management\">HSS</a>\n  <a href=\"/modules/monitoring\">Monitoring</a>\n</nav>\n  <header>\n    <h1>SNMP Monitoring</h1>\n    <p class=\"api-surface\">API: /api/monitoring (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: overview</p>\n  <p class=\"extra-note\">SNMP graphs via /api/monitoring and /api/snmp.</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  load { module: "monitoring", source: "wisp-m4", apiPath: "/api/monitoring" };
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "SNMP Monitoring"; }
+        element "p" class "api-surface" { text "API: /api/monitoring (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/modules/pci-resolution"
@@ -498,7 +675,7 @@ page modules_pci_resolution_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "pci_resolution", source: "wisp-m5", apiPath: "/api/network" };
-  return html "<svelte:head>\n  <title>Pci Resolution – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Pci Resolution</h1>\n    <p class=\"api-surface\">API: /api/network (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Pci Resolution – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Pci Resolution</h1>\n    <p class=\"api-surface\">API: /api/network (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/plan"
@@ -506,7 +683,23 @@ page modules_plan_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "plan", source: "wisp-m3", apiPath: "/api/plans" };
-  return html "<svelte:head>\n  <title>Plan – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <nav class=\"module-nav\">\n  <a href=\"/modules/plan\">Plan</a>\n  <a href=\"/modules/deploy\">Deploy</a>\n  <a href=\"/modules/coverage-map\">Coverage Map</a>\n  <a href=\"/dashboard\">← Dashboard</a>\n</nav>\n  <header>\n    <h1>Plan</h1>\n    <p class=\"module-blurb\">Coverage and site planning</p>\n    <p class=\"api-surface\">API: /api/plans (proxied upstream)</p>\n  </header>\n  <p class=\"client-hole-note\">ArcGIS geocode client calls remain <code>hub-svelte:arcgis-map</code>.</p>\n  <p class=\"ui-hole-note\">Interactive module widgets remain <code>hub-svelte:page-component</code> until CWL UI RFC-0012.</p>\n</div>";
+  return ui {
+    element "main" class "wisp-module-shell" {
+      element "header" {
+        element "h1" { text "Plan"; }
+        element "p" class "api-surface" { text "API: /api/plans (native CWL API)"; }
+      }
+      client ui {
+        element "section" class "module-widgets" {
+          element "p" { text "Native CWL UI islands (Phase 27c)"; }
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/modules/sites"
@@ -514,7 +707,7 @@ page modules_sites_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "sites", source: "wisp-m5", apiPath: "/api/network" };
-  return html "<svelte:head>\n  <title>Sites – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Sites</h1>\n    <p class=\"api-surface\">API: /api/network (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Sites – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Sites</h1>\n    <p class=\"api-surface\">API: /api/network (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/tenant-management"
@@ -522,7 +715,7 @@ page modules_tenant_management_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "tenant_management", source: "wisp-m5", apiPath: "/api/tenants" };
-  return html "<svelte:head>\n  <title>Tenant Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tenant Management</h1>\n    <p class=\"api-surface\">API: /api/tenants (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Tenant Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tenant Management</h1>\n    <p class=\"api-surface\">API: /api/tenants (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/tenant-management/cbrs-platform"
@@ -530,7 +723,7 @@ page modules_tenant_management_cbrs_platform_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "tenant_management", section: "cbrs-platform", source: "wisp-m5", apiPath: "/api/tenants" };
-  return html "<svelte:head>\n  <title>Cbrs Platform – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Cbrs Platform</h1>\n    <p class=\"api-surface\">API: /api/tenants (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: cbrs-platform</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Cbrs Platform – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Cbrs Platform</h1>\n    <p class=\"api-surface\">API: /api/tenants (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: cbrs-platform</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/tenant-management/users"
@@ -538,7 +731,7 @@ page modules_tenant_management_users_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "tenant_management", section: "users", source: "wisp-m5", apiPath: "/api/tenants" };
-  return html "<svelte:head>\n  <title>Users – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Users</h1>\n    <p class=\"api-surface\">API: /api/tenants (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: users</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Users – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Users</h1>\n    <p class=\"api-surface\">API: /api/tenants (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: users</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/user-management"
@@ -546,7 +739,7 @@ page modules_user_management_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "user_management", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>User Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>User Management</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>User Management – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>User Management</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/user-management/permissions"
@@ -554,7 +747,7 @@ page modules_user_management_permissions_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "user_management", section: "permissions", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Permissions – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Permissions</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: permissions</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Permissions – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Permissions</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: permissions</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/user-management/roles"
@@ -562,7 +755,7 @@ page modules_user_management_roles_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "user_management", section: "roles", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Roles – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Roles</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: roles</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Roles – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Roles</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: roles</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/voice-telephony"
@@ -570,7 +763,7 @@ page modules_voice_telephony_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "voice_telephony", source: "wisp-m5", apiPath: "/api/voice" };
-  return html "<svelte:head>\n  <title>Voice Telephony – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Voice Telephony</h1>\n    <p class=\"api-surface\">API: /api/voice (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Voice Telephony – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Voice Telephony</h1>\n    <p class=\"api-surface\">API: /api/voice (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/work-orders"
@@ -578,7 +771,7 @@ page modules_work_orders_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "work_orders", source: "wisp-m5", apiPath: "/api/work-orders" };
-  return html "<svelte:head>\n  <title>Work Orders – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Work Orders</h1>\n    <p class=\"api-surface\">API: /api/work-orders (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Work Orders – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Work Orders</h1>\n    <p class=\"api-surface\">API: /api/work-orders (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/modules/work-orders/:id"
@@ -586,7 +779,7 @@ page modules_work_orders_id_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "work_orders", section: ":id", source: "wisp-m5", apiPath: "/api/work-orders" };
-  return html "<svelte:head>\n  <title>Detail – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Detail</h1>\n    <p class=\"api-surface\">API: /api/work-orders (proxied upstream)</p>\n  </header>\n  <p class=\"section\">Section: :id</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Detail – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Detail</h1>\n    <p class=\"api-surface\">API: /api/work-orders (native CWL API)</p>\n  </header>\n  <p class=\"section\">Section: :id</p>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/oauth/google/callback"
@@ -594,7 +787,7 @@ page oauth_google_callback_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "oauth", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Callback – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Callback</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Callback – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Callback</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/onboarding"
@@ -602,7 +795,7 @@ page onboarding_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "onboarding", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Onboarding – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Onboarding</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Onboarding – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Onboarding</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/portal/:tenantId"
@@ -617,7 +810,7 @@ page reset_password_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "reset_password", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Reset Password – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Reset Password</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Reset Password – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Reset Password</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/settings/module-access"
@@ -625,7 +818,7 @@ page settings_module_access_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { module: "settings", source: "wisp-m5", apiPath: "/api/permissions" };
-  return html "<svelte:head>\n  <title>Module Access – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Module Access</h1>\n    <p class=\"api-surface\">API: /api/permissions (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Module Access – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Module Access</h1>\n    <p class=\"api-surface\">API: /api/permissions (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/setup-admin"
@@ -633,7 +826,7 @@ page setup_admin_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "setup_admin", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Setup Admin – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Setup Admin</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Setup Admin – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Setup Admin</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/signup"
@@ -641,7 +834,7 @@ page signup_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "signup", source: "wisp-m5", apiPath: "/api/users" };
-  return html "<svelte:head>\n  <title>Signup – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Signup</h1>\n    <p class=\"api-surface\">API: /api/users (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Signup – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Signup</h1>\n    <p class=\"api-surface\">API: /api/users (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/support-dashboard"
@@ -649,7 +842,7 @@ page support_dashboard_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "support_dashboard", source: "wisp-m5", apiPath: "/api/maintain" };
-  return html "<svelte:head>\n  <title>Support Dashboard – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Support Dashboard</h1>\n    <p class=\"api-surface\">API: /api/maintain (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Support Dashboard – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Support Dashboard</h1>\n    <p class=\"api-surface\">API: /api/maintain (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/tenant-admin"
@@ -657,7 +850,7 @@ page tenant_admin_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { module: "tenant_admin", source: "wisp-m5", apiPath: "/api/tenants" };
-  return html "<svelte:head>\n  <title>Tenant Admin – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tenant Admin</h1>\n    <p class=\"api-surface\">API: /api/tenants (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Tenant Admin – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tenant Admin</h1>\n    <p class=\"api-surface\">API: /api/tenants (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/tenant-selector"
@@ -665,7 +858,7 @@ page tenant_selector_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { module: "tenant_selector", source: "wisp-m5", apiPath: "/api/tenants" };
-  return html "<svelte:head>\n  <title>Tenant Selector – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tenant Selector</h1>\n    <p class=\"api-surface\">API: /api/tenants (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Tenant Selector – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tenant Selector</h1>\n    <p class=\"api-surface\">API: /api/tenants (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/tenant-setup"
@@ -673,7 +866,7 @@ page tenant_setup_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { module: "tenant_setup", source: "wisp-m5", apiPath: "/api/tenants" };
-  return html "<svelte:head>\n  <title>Tenant Setup – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tenant Setup</h1>\n    <p class=\"api-surface\">API: /api/tenants (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Tenant Setup – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Tenant Setup</h1>\n    <p class=\"api-surface\">API: /api/tenants (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 
 @page GET "/wizards"
@@ -681,6 +874,6 @@ page wizards_page {
   effects: none;
   content-type "text/html; charset=utf-8";
   load { module: "wizards", source: "wisp-m5", apiPath: "/api/plans" };
-  return html "<svelte:head>\n  <title>Wizards – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Wizards</h1>\n    <p class=\"api-surface\">API: /api/plans (proxied upstream)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
+  return html "<svelte:head>\n  <title>Wizards – WISP Management</title>\n</svelte:head>\n\n<div class=\"module-shell\">\n  <header>\n    <h1>Wizards</h1>\n    <p class=\"api-surface\">API: /api/plans (native CWL API)</p>\n  </header>\n  <p class=\"ui-hole-note\">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>\n</div>";
 }
 

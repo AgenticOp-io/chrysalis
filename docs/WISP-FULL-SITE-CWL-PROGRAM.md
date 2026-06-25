@@ -36,10 +36,11 @@ Lift `backend-services` route classes to native CWL handlers; retire `hub-cwl:up
 **Apply:** `pnpm run wisp:apply-phase27b-native-api`  
 **Close:** `pnpm run hub:wisp-phase27b-close-smoke`
 
-### Phase 27c — CWL UI module depth (**G7703**)
+### Phase 27c — CWL UI module depth (**G7703** — closed)
 
 Replace `hub-svelte:page-component` stubs with native `@component` / islands on module waves M0–M5.
 
+**Apply:** `pnpm run wisp:apply-phase27c-native-ui`  
 **Close:** `pnpm run hub:wisp-phase27c-close-smoke`
 
 ### Phase 27d — Auth + session (**G7704**)

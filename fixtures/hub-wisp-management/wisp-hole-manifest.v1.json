@@ -16,5 +16,5 @@
   "backendConversion": "native-cwl-handlers",
   "backendPolicy": "native CWL handlers — backend-services lifted to api-proxy.cwl (Phase 27b)",
   "upstreamProxyHoles": 0,
-  "generatedAt": "2026-06-25T04:58:22.749Z"
+  "generatedAt": "2026-06-25T05:02:38.186Z"
 }

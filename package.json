@@ -181,6 +181,7 @@
     "hub:wisp-full-site-ui-baseline-smoke": "node scripts/hub-ingest/hub-wisp-full-site-ui-baseline-smoke.mjs",
     "hub:wisp-phase27a-close-smoke": "node scripts/hub-ingest/hub-wisp-phase27a-close-smoke.mjs",
     "wisp:apply-phase27b-native-api": "node scripts/wisp-cwl-apply-phase27b-native-api.mjs",
+    "wisp:apply-phase27c-native-ui": "node scripts/wisp-cwl-apply-phase27c-native-ui.mjs",
     "hub:wisp-phase27b-close-smoke": "node scripts/hub-ingest/hub-wisp-phase27b-close-smoke.mjs",
     "hub:wisp-phase27c-close-smoke": "node scripts/hub-ingest/hub-wisp-phase27c-close-smoke.mjs",
     "hub:wisp-phase27d-close-smoke": "node scripts/hub-ingest/hub-wisp-phase27d-close-smoke.mjs",

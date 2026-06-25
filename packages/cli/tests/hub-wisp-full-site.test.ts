@@ -34,7 +34,7 @@ test("wisp full site charter gate (G7701)", () => {
   expect(gate.ok).toBe(true);
 });
 
-test("wisp full site api inventory baseline (G7702 inventory)", () => {
+test("wisp full site api inventory baseline (G7702)", () => {
   const gate = importSyncGate(
     "scripts/hub-ingest/hub-wisp-full-site-api-inventory-smoke.mjs",
     "runWispFullSiteApiInventoryGate",
@@ -42,4 +42,14 @@ test("wisp full site api inventory baseline (G7702 inventory)", () => {
   expect(gate.ok).toBe(true);
   expect(gate.nativeOk).toBe(true);
   expect(gate.upstreamProxyRefs).toBe(0);
+});
+
+test("wisp full site ui baseline inventory (G7703)", () => {
+  const gate = importSyncGate(
+    "scripts/hub-ingest/hub-wisp-full-site-ui-baseline-smoke.mjs",
+    "runWispFullSiteUiBaselineGate",
+  );
+  expect(gate.ok).toBe(true);
+  expect(gate.nativeOk).toBe(true);
+  expect(gate.pageComponentRefs).toBe(0);
 });
