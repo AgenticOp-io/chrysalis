@@ -44,7 +44,7 @@ test("roadmap maintenance default queue gate (G6163)", () => {
   expect(gate.ok).toBe(true);
 });
 
-test("maintenance mode governance gate routes to cwl-translator-closed (G6160 / G7691)", () => {
+test("maintenance mode governance gate routes to wisp-full-site-active (G6160 / G7701)", () => {
   const abs = resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs").replace(/\\/g, "/");
   const r = spawnSync(
     process.execPath,
@@ -58,5 +58,5 @@ test("maintenance mode governance gate routes to cwl-translator-closed (G6160 / 
   expect(r.status, r.stderr || r.stdout).toBe(0);
   const gate = JSON.parse(r.stdout.trim());
   expect(gate.ok).toBe(true);
-  expect(gate.mode).toBe("cwl-translator-closed");
+  expect(gate.mode).toBe("wisp-full-site-active");
 }, 600_000);

@@ -1,0 +1,42 @@
+{
+  "kind": "chrysalis.wisp.full-site-cwl",
+  "schemaVersion": 1,
+  "charterId": "wisp-full-site-v1",
+  "description": "WISP Module_Manager full site replacement in CWL (Phase 27) — first proof that CWL replaces any website web tier.",
+  "requiresProgramClosed": "G7690",
+  "fixtureRoot": "fixtures/hub-wisp-management",
+  "wispSourceHint": "Module_Manager",
+  "ladderTarget": "taxonomy-step-5-cutover",
+  "uiRouteMin": 87,
+  "apiPathPrefixMin": 20,
+  "apiProxyRouteMin": 100,
+  "maxAppLogicUiHoles": 0,
+  "maxAppLogicApiProxyHoles": 0,
+  "backendConversionTarget": "native-cwl-handlers",
+  "backendInfra": ["mongodb", "express-legacy-source"],
+  "authPolicy": "cwl-effects-session-native",
+  "disallowedAtClose": [
+    "hub-svelte:page-component",
+    "hub-svelte:firebase-auth",
+    "hub-cwl:upstream-proxy"
+  ],
+  "integrationVendorSurfaces": [
+    "hub-svelte:arcgis-map",
+    "hub-svelte:chart-component",
+    "hub-svelte:cross-frame-messaging"
+  ],
+  "cutover": {
+    "chimeraSvelteFallback": false,
+    "runtime": "runtime-cwl",
+    "verifyReplayRequired": true
+  },
+  "moduleWaves": ["M0", "M1", "M2", "M3", "M4", "M5"],
+  "evidenceGates": [
+    "wisp-full-site-charter",
+    "wisp-full-site-api-inventory",
+    "wisp-full-site-ui-baseline",
+    "wisp-full-site-auth-policy",
+    "wisp-full-site-integrations",
+    "wisp-full-site-cutover"
+  ]
+}

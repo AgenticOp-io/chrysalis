@@ -6,11 +6,33 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Post G7690 maintenance** — universal translator N×N closed (**G7690**, **D6267**); default regression **G7690** composite.
+- **Active lane:** **Phase 27 — WISP full site CWL replacement** (**G7700**, **D6268**); **G7690** regression subordinate.
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
 ---
+
+---
+
+## Active — Phase 27 WISP full site CWL (G7700–G7790)
+
+Program doc: [`docs/WISP-FULL-SITE-CWL-PROGRAM.md`](./docs/WISP-FULL-SITE-CWL-PROGRAM.md)  
+Authority: **DESIGN D6268**  
+Requires: **G7690** closed
+
+| Phase | Goal | Close gate | Smoke |
+| --- | --- | --- | --- |
+| **27a** | Full-site charter | **G7701** | `pnpm run hub:wisp-phase27a-close-smoke` |
+| **27b** | CWL API native | **G7702** | `pnpm run hub:wisp-phase27b-close-smoke` |
+| **27c** | CWL UI module depth | **G7703** | `pnpm run hub:wisp-phase27c-close-smoke` |
+| **27d** | Auth + session | **G7704** | `pnpm run hub:wisp-phase27d-close-smoke` |
+| **27e** | Integrations | **G7705** | `pnpm run hub:wisp-phase27e-close-smoke` |
+| **27f** | Cutover | **G7706** | `pnpm run hub:wisp-phase27f-close-smoke` |
+| **Program** | WISP full site close | **G7790** | `pnpm run hub:wisp-full-site-close-smoke` |
+
+**Default build queue:** `pnpm run hub:wisp-full-site-close-smoke` (**G7790**).
+
+**Entry:** `pnpm run hub:wisp-full-site-program-entry-smoke` (**G7700**).
 
 ---
 
@@ -337,7 +359,14 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 
 ---
 
-## Default queue — universal translator closed (G7690)
+## Default queue — WISP full site active (G7790)
+
+**Build queue:** `pnpm run hub:wisp-full-site-close-smoke` (**G7790**).  
+**Subordinate:** **G7690** (included in G7790 composite).
+
+---
+
+## Archived — Default queue universal translator closed (G7690)
 
 **Maintenance queue:** `pnpm run hub:cwl-universal-translator-close-smoke` (**G7690**).  
 **Subordinate:** **G7590** (included in G7690 composite).

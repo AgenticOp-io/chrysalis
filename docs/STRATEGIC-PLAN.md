@@ -274,6 +274,26 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 ---
 
+**Amended 2026-06-24 (WISP full site CWL — D6268):** Phase **27** active after **G7690**: CWL must **replace any website** web tier; **WISP** is first proof — native API, UI depth, auth, cutover; program close **G7790**. See [`WISP-FULL-SITE-CWL-PROGRAM.md`](./WISP-FULL-SITE-CWL-PROGRAM.md).
+
+---
+
+### Phase 27 — WISP full site CWL replacement (**active**)
+
+- **Authority:** **DESIGN D6268** — [`WISP-FULL-SITE-CWL-PROGRAM.md`](./WISP-FULL-SITE-CWL-PROGRAM.md)
+- **Requires:** **G7690** closed
+- **Charter:** `fixtures/hub-wisp-full-site-slice/chrysalis.wisp-full-site.v1.json`
+- **Phase 27a — Charter:** **G7701** `pnpm run hub:wisp-phase27a-close-smoke`
+- **Phase 27b — CWL API native:** **G7702** `pnpm run hub:wisp-phase27b-close-smoke`
+- **Phase 27c — CWL UI depth:** **G7703** `pnpm run hub:wisp-phase27c-close-smoke`
+- **Phase 27d — Auth + session:** **G7704** `pnpm run hub:wisp-phase27d-close-smoke`
+- **Phase 27e — Integrations:** **G7705** `pnpm run hub:wisp-phase27e-close-smoke`
+- **Phase 27f — Cutover:** **G7706** `pnpm run hub:wisp-phase27f-close-smoke`
+- **Program close G7790:** `pnpm run hub:wisp-full-site-close-smoke`
+- **Entry G7700:** `pnpm run hub:wisp-full-site-program-entry-smoke`
+
+---
+
 ### Phase 26 — Universal translator N×N through CWL (**closed G7690**)
 
 - **Authority:** **DESIGN D6267** — [`CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md`](./CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md)
@@ -392,7 +412,26 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (post G7690 — universal translator N×N closed)
+## 12. Default queue (Phase 27 — WISP full site active)
+
+**Status:** **WISP full site CWL program active** (**G7700**, **D6268**); **universal translator closed** (**G7690**); **WISP POC optional regression** preserved (**D6259**).
+
+When the user says "build" without specifying:
+
+1. **Phase 27a → 27f** in order — close gates **G7701–G7706** before advancing
+2. **G7790 composite** — `pnpm run hub:wisp-full-site-close-smoke` (includes **G7690** regression)
+3. **G7690 subordinate** — `pnpm run hub:cwl-universal-translator-close-smoke`
+4. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — legacy operator path only.
+
+**Program close (target):** **G7790** — `pnpm run hub:wisp-full-site-close-smoke`.
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G7690 — universal translator N×N closed, superseded 2026-06-24)
 
 **Status:** **CWL universal translator program closed** (**G7690**, **D6267**); **full web language closed** (**G7590**); **customer pilot closed** (**G7490**); **WISP POC decoupled** (**D6259**).
 

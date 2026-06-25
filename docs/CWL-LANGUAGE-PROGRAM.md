@@ -69,7 +69,7 @@ This program defines what **“language v1 complete”** means in-repo. It is **
 Per **DESIGN §3** and **D6205**:
 
 - **CWL UI** — was explicit holes in v1; **Phase 15 (D6206)** closes native UI syntax with RFC + verify — no silent lowering
-- **Backend replatform** — WISPTools Express/Mongo stays proxied; CWL replaces **web language**, not databases
+- **Backend replatform** — Phase **27** (**D6268**) lifts WISP Express route **handlers** to native CWL; MongoDB remains infra
 - **575×26 matrix marketing depth** — structural/oracle parity only where gated
 
 ## Gates
