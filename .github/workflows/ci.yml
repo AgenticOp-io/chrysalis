@@ -163,20 +163,8 @@ jobs:
         env:
           CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
 
-      - name: WISP full site program entry (G7700)
-        run: pnpm run hub:wisp-full-site-program-entry-smoke
-
-      - name: WISP Phase 27a close (G7701)
-        run: pnpm run hub:wisp-phase27a-close-smoke
-
-      - name: WISP Phase 27b close (G7702)
-        run: pnpm run hub:wisp-phase27b-close-smoke
-
-      - name: WISP Phase 27c close (G7703)
-        run: pnpm run hub:wisp-phase27c-close-smoke
-
-      - name: CWL universal translator program close (G7690)
-        run: pnpm run hub:cwl-universal-translator-close-smoke
+      - name: WISP full site program close (G7790)
+        run: pnpm run hub:wisp-full-site-close-smoke
         env:
           CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
 

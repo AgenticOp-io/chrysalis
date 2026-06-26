@@ -14,6 +14,7 @@ import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.m
 import { buildWispHoleManifest } from "../wisp-cwl-hole-manifest.mjs";
 import { applyWispPhase13Surfaces } from "../wisp-cwl-apply-phase13-surfaces.mjs";
 import { applyWispM6Effects } from "../wisp-cwl-apply-m6-effects.mjs";
+import { isWispFullSiteCwlProgramClosed } from "./hub-cwl-fullstack-gates.mjs";
 
 export const WISP_CWL_PHASE13_CLOSE_SMOKE_KIND = "chrysalis.wisp-cwl-phase13-close-smoke";
 export const WISP_CWL_PHASE13_CLOSE_SMOKE_SCHEMA_VERSION = 1;
@@ -33,34 +34,43 @@ export function runWispPhase13CloseDocGate() {
   return { ok, phase13CloseDocOk: ok };
 }
 
-/** G6412 — hole manifest at M5 cutover (login firebase only). */
+/** G6412 — hole manifest at M5 cutover (login firebase only) or post-G7790 zero-hole native. */
 export function runWispPhase13CloseHoleGate() {
   const live = buildWispHoleManifest();
-  const ok =
-    live.ok === true &&
-    live.uiHoleCount === 1 &&
-    live.byReason?.["hub-svelte:firebase-auth"] === 1;
-  return { ok, uiHoleCount: live.uiHoleCount, routeCount: live.routeCount };
+  const fullSiteClosed = isWispFullSiteCwlProgramClosed();
+  const ok = fullSiteClosed
+    ? live.ok === true && live.uiHoleCount === 0 && live.totalUiHoles === 0
+    : live.ok === true &&
+      live.uiHoleCount === 1 &&
+      live.byReason?.["hub-svelte:firebase-auth"] === 1;
+  return {
+    ok,
+    mode: fullSiteClosed ? "wisp-full-site-closed" : "phase13-m5",
+    uiHoleCount: live.uiHoleCount,
+    routeCount: live.routeCount,
+  };
 }
 
 /** G6410 — Phase 13 close composite. */
 export async function runWispCwlPhase13CloseGate(opts = {}) {
-  if (opts.apply !== false) {
+  const fullSiteClosed = isWispFullSiteCwlProgramClosed();
+  if (opts.apply !== false && !fullSiteClosed) {
     applyWispPhase13Surfaces();
     applyWispM6Effects();
-  } else {
+  } else if (!fullSiteClosed) {
     buildWispHoleManifest();
   }
   const taxonomy = runCwlSurfaceTaxonomyDocGate();
   const doc = runWispPhase13CloseDocGate();
   const holes = runWispPhase13CloseHoleGate();
-  const m0 = await runWispCwlPhase13M0Gate({ apply: false });
-  const m1 = await runWispCwlPhase13M1Gate({ apply: false });
-  const m2 = await runWispCwlPhase13M2Gate({ apply: false });
-  const m3 = await runWispCwlPhase13M3Gate({ apply: false });
-  const m4 = await runWispCwlPhase13M4Gate({ apply: false });
-  const m5 = await runWispCwlPhase13M5Gate({ apply: false });
-  const m6 = await runWispCwlPhase13M6Gate({ apply: false });
+  const skipped = { ok: true, skip: "post-g7790-fixture" };
+  const m0 = fullSiteClosed ? skipped : await runWispCwlPhase13M0Gate({ apply: false });
+  const m1 = fullSiteClosed ? skipped : await runWispCwlPhase13M1Gate({ apply: false });
+  const m2 = fullSiteClosed ? skipped : await runWispCwlPhase13M2Gate({ apply: false });
+  const m3 = fullSiteClosed ? skipped : await runWispCwlPhase13M3Gate({ apply: false });
+  const m4 = fullSiteClosed ? skipped : await runWispCwlPhase13M4Gate({ apply: false });
+  const m5 = fullSiteClosed ? skipped : await runWispCwlPhase13M5Gate({ apply: false });
+  const m6 = fullSiteClosed ? skipped : await runWispCwlPhase13M6Gate({ apply: false });
   const ok =
     taxonomy.ok === true &&
     doc.ok === true &&
@@ -76,6 +86,7 @@ export async function runWispCwlPhase13CloseGate(opts = {}) {
     kind: WISP_CWL_PHASE13_CLOSE_SMOKE_KIND,
     schemaVersion: WISP_CWL_PHASE13_CLOSE_SMOKE_SCHEMA_VERSION,
     ok,
+    mode: fullSiteClosed ? "wisp-full-site-closed" : "phase13-closed",
     taxonomy,
     doc,
     holes,

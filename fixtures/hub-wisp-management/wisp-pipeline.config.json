@@ -1,7 +1,10 @@
 {
   "kind": "chrysalis.wisp.pipeline-config",
   "schemaVersion": 1,
-  "wispRootEnv": ["CHRYSALIS_WISP_ROOT", "WISP_MODULE_DIR"],
+  "wispRootEnv": [
+    "CHRYSALIS_WISP_ROOT",
+    "WISP_MODULE_DIR"
+  ],
   "defaultWispRoot": "C:/Users/david/Downloads/WISPTools/Module_Manager",
   "fixtureDir": "fixtures/hub-wisp-management",
   "reportPath": "reports/wisp/wisp-cwl-pipeline.json",
@@ -11,9 +14,11 @@
     "instance": "chrysalis-test-vm",
     "port": 19100,
     "backendUrl": "https://hss.wisptools.io",
-    "svelteFallback": "http://127.0.0.1:3000",
-    "svelteSidecar": true,
-    "cwlNativePrefixes": "*"
+    "svelteFallback": "",
+    "svelteSidecar": false,
+    "cwlNativePrefixes": "*",
+    "apiMode": "runtime-cwl-native",
+    "nativeApi": true
   },
   "firebase": {
     "hostingTarget": "hosting:management",
@@ -24,7 +29,7 @@
     "gce": {
       "clientBuild": "gce",
       "npmScript": "build:single-use",
-      "apiMode": "chimera-same-origin"
+      "apiMode": "runtime-cwl-native"
     },
     "firebase": {
       "clientBuild": "firebase",

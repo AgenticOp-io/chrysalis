@@ -21,19 +21,31 @@ export function runCwlCutoverDocGate() {
   return { ok, cutoverDocOk: ok };
 }
 
-/** G7142 — WISP hole budget: single firebase login hole (native pages elsewhere). */
+/** G7142 — WISP hole budget: Phase 18 ladder (firebase login) or post-G7790 zero-hole native cutover. */
 export function runCwlWispCutoverHoleGate() {
   const live = buildWispHoleManifest();
-  const ok =
-    live.ok === true &&
-    live.uiHoleCount === 1 &&
-    live.byReason?.["hub-svelte:firebase-auth"] === 1 &&
-    (live.routeCount ?? 0) >= 20;
+  const programPath = join(scriptRoot, "docs/WISP-FULL-SITE-CWL-PROGRAM.md");
+  const programText = existsSync(programPath) ? readFileSync(programPath, "utf8") : "";
+  const fullSiteClosed = programText.includes("Program closed") && programText.includes("G7790");
+  const ok = fullSiteClosed
+    ? live.ok === true &&
+      live.uiHoleCount === 0 &&
+      live.totalUiHoles === 0 &&
+      live.upstreamProxyHoles === 0 &&
+      live.backendConversion === "native-cwl-handlers" &&
+      (live.routeCount ?? 0) >= 20
+    : live.ok === true &&
+      live.uiHoleCount === 1 &&
+      live.byReason?.["hub-svelte:firebase-auth"] === 1 &&
+      (live.routeCount ?? 0) >= 20;
   return {
     ok,
+    mode: fullSiteClosed ? "wisp-full-site-closed" : "phase18-ladder",
     uiHoleCount: live.uiHoleCount,
     routeCount: live.routeCount,
     nativePageRatio: live.nativePageRatio,
+    backendConversion: live.backendConversion,
+    upstreamProxyHoles: live.upstreamProxyHoles,
   };
 }
 

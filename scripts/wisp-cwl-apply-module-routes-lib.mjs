@@ -70,9 +70,11 @@ export function reconcilePreviewFromRoutesCwl() {
   const json = JSON.parse(readFileSync(previewPath, "utf8"));
   for (const r of json.routes ?? []) {
     if (r.path === "/login") {
-      r.hole = text.includes('@route GET "/login"') && text.includes("hole hub-svelte:firebase-auth");
+      const isPage = text.includes('@page GET "/login"');
+      const hasFirebaseHole = text.includes("hole hub-svelte:firebase-auth");
+      r.hole = !isPage && hasFirebaseHole;
       r.holeReason = r.hole ? "hub-svelte:firebase-auth" : null;
-      r.kind = r.hole ? "route" : "page";
+      r.kind = isPage ? "page" : "route";
       continue;
     }
     if (text.includes(`@page GET "${r.path}"`)) {

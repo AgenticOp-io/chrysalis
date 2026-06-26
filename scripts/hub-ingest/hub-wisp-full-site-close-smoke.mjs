@@ -29,16 +29,32 @@ export function runWispFullSiteDocGate() {
 }
 
 export async function runWispFullSiteCloseGate(opts = {}) {
+  const progress = createSmokeProgress("wisp-full-site-close-gates");
   const doc = runWispFullSiteDocGate();
+  progress.info(`doc ${doc.ok === true ? "ok" : "FAIL"}`);
+  let t0 = progress.start("phase27a");
   const phase27a = await runWispPhase27aCloseGate(opts);
+  progress.end("phase27a", phase27a.ok === true, t0);
+  t0 = progress.start("phase27b");
   const phase27b = await runWispPhase27bCloseGate(opts);
+  progress.end("phase27b", phase27b.ok === true, t0);
+  t0 = progress.start("phase27c");
   const phase27c = await runWispPhase27cCloseGate(opts);
+  progress.end("phase27c", phase27c.ok === true, t0);
+  t0 = progress.start("phase27d");
   const phase27d = await runWispPhase27dCloseGate(opts);
+  progress.end("phase27d", phase27d.ok === true, t0);
+  t0 = progress.start("phase27e");
   const phase27e = await runWispPhase27eCloseGate(opts);
+  progress.end("phase27e", phase27e.ok === true, t0);
+  t0 = progress.start("phase27f");
   const phase27f = await runWispPhase27fCloseGate(opts);
+  progress.end("phase27f", phase27f.ok === true, t0);
   const skipGoldVerify =
     opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
+  t0 = progress.start("g7690-regression");
   const g7690 = await runCwlUniversalTranslatorCloseGate({ ...opts, skipGoldVerify, skipMaintenance: true });
+  progress.end("g7690-regression", g7690.ok === true, t0);
   const ok =
     doc.ok === true &&
     phase27a.ok === true &&

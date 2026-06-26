@@ -5599,12 +5599,17 @@ export async function runWispFullSiteCwlActiveGovernanceGate(_opts = {}) {
 export async function runWispFullSiteCwlClosedGovernanceGate(_opts = {}) {
   const skipGoldVerify =
     _opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
-  const { runWispFullSiteCloseGate } = await import("./hub-wisp-full-site-close-smoke.mjs");
-  const close = await runWispFullSiteCloseGate({
-    ..._opts,
-    skipMaintenance: true,
-    skipGoldVerify,
-  });
+  const { runWispFullSiteCloseGate, runWispFullSiteDocGate } = await import(
+    "./hub-wisp-full-site-close-smoke.mjs"
+  );
+  const close =
+    _opts.skipCloseSmoke === true
+      ? runWispFullSiteDocGate()
+      : await runWispFullSiteCloseGate({
+          ..._opts,
+          skipMaintenance: true,
+          skipGoldVerify,
+        });
   const paused = runPausedAndMaintenanceDocGate();
   const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
   const roadmap = runRoadmapMaintenanceDefaultQueueGate();

@@ -5,7 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createWispChimeraGateway } from "../wisp-cwl-chimera-gateway.mjs";
 import { loadWispPipelineConfig } from "../wisp-cwl-pipeline.mjs";
-import { isWispFullSiteCwlProgramActive } from "./hub-cwl-fullstack-gates.mjs";
+import { isWispFullSiteCwlProgramActive, isWispFullSiteCwlProgramClosed } from "./hub-cwl-fullstack-gates.mjs";
 
 export const WISP_CWL_PHASE14_HSS_PROXY_SMOKE_KIND = "chrysalis.wisp-cwl-phase14-hss-proxy-smoke";
 export const WISP_CWL_PHASE14_HSS_PROXY_SMOKE_SCHEMA_VERSION = 1;
@@ -27,7 +27,7 @@ export function runWispHssProxyContractGate() {
   const path = join(fixtureDir, "api-proxy.cwl");
   if (!existsSync(path)) return { ok: false, skip: "missing-api-proxy-cwl" };
   const text = readFileSync(path, "utf8");
-  if (isWispFullSiteCwlProgramActive()) {
+  if (isWispFullSiteCwlProgramActive() || isWispFullSiteCwlProgramClosed()) {
     const missing = WISP_HSS_PROXY_CONTRACT_PATHS.filter((p) => !text.includes(`"${p}"`));
     const ok =
       missing.length === 0 &&
@@ -64,13 +64,18 @@ export async function runWispHssChimeraProxyGate() {
 
     /** @type {Array<Record<string, unknown>>} */
     const probes = [];
+    const nativeApi =
+      process.env.WISP_CWL_NATIVE_API === "1" ||
+      isWispFullSiteCwlProgramActive() ||
+      isWispFullSiteCwlProgramClosed();
     for (const path of WISP_HSS_PROXY_CONTRACT_PATHS) {
       const res = await fetch(`${baseUrl}${path}`, { redirect: "manual" });
+      const proxyHeader = res.headers.get("x-chrysalis-wisp-proxy") ?? "";
       probes.push({
         path,
         status: res.status,
-        proxyHeader: res.headers.get("x-chrysalis-wisp-proxy") ?? "",
-        ok: res.headers.get("x-chrysalis-wisp-proxy") === "backend",
+        proxyHeader,
+        ok: nativeApi ? proxyHeader === "cwl-native-api" : proxyHeader === "backend",
       });
     }
     const ok = probes.every((p) => p.ok === true);

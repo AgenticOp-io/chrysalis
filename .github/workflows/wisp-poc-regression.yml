@@ -37,17 +37,12 @@ jobs:
       - name: WISP CWL dual deploy config (G6330)
         run: pnpm run hub:wisp-cwl-dual-deploy-config-smoke
 
-      - name: WISP CWL Phase 13 M0–M6 surfaces (G6350–G6420)
-        run: |
-          pnpm run hub:wisp-cwl-phase13-m0-smoke
-          pnpm run hub:wisp-cwl-phase13-m1-smoke
-          pnpm run hub:wisp-cwl-phase13-m2-smoke
-          pnpm run hub:wisp-cwl-phase13-m3-smoke
-          pnpm run hub:wisp-cwl-phase13-m4-smoke
-          pnpm run hub:wisp-cwl-phase13-m5-smoke
-          pnpm run hub:wisp-cwl-phase13-m6-smoke
+      - name: WISP full site program close (G7790; post Phase 27 fixture)
+        run: pnpm run hub:wisp-full-site-close-smoke
+        env:
+          CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
 
-      - name: WISP CWL Phase 13 close (G6410)
+      - name: WISP CWL Phase 13 close doc gate (G6410 archived slice)
         run: pnpm run hub:wisp-cwl-phase13-close-smoke
 
       - name: WISP CWL Phase 14 operator smokes (G6510–G6700)

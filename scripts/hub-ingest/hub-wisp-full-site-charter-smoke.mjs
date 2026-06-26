@@ -14,11 +14,11 @@ export function runWispFullSiteCharterDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-wisp-full-site-program-doc" };
   const text = readFileSync(path, "utf8");
   const ok =
-    text.includes("**Status:** **active**") &&
+    (text.includes("**Status:** **active**") || text.includes("Program closed")) &&
     text.includes("G7700") &&
     text.includes("G7790") &&
     text.includes("D6268") &&
-    text.includes("native CWL API handlers") &&
+    text.includes("native CWL") &&
     text.includes("hub:wisp-full-site-close-smoke");
   return { ok, docOk: ok };
 }

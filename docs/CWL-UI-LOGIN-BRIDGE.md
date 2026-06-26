@@ -1,7 +1,7 @@
 # CWL UI — WISP `/login` vendor bridge policy (Phase 15)
 
-> **Status:** accepted (2026-06-23)  
-> **Tracking:** G7110, **DESIGN D6208**
+> **Status:** superseded at **G7704** (Phase 27d native session auth) — was accepted (2026-06-23)  
+> **Tracking:** G7110, **DESIGN D6208**; retired by **DESIGN D6269**
 
 ## Policy
 
@@ -22,4 +22,4 @@ Native CWL **`return ui`** covers **all other** WISP page routes (M5 cutover). `
 
 - **RFC-0017** server element trees + **RFC-0018** `@component` reuse — shipped
 - **This doc** — `/login` bridge policy — satisfies G7110 login requirement
-- **Regression:** `hub:wisp-cwl-phase13-close-smoke` (**G6410**) — still expects exactly **one** `hub-svelte:firebase-auth` hole
+- **Regression:** `hub:wisp-cwl-phase13-close-smoke` (**G6410**) — expects **one** `hub-svelte:firebase-auth` hole on pre-G7790 fixtures; post-G7790 fixture uses **zero** UI holes (native `/login`)

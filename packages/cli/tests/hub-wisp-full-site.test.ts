@@ -13,15 +13,15 @@ function importSyncGate(relPath: string, fn: string) {
       "-e",
       `import { ${fn} as gate } from "./${relPath.replace(/\\/g, "/")}"; console.log(JSON.stringify(await gate()));`,
     ],
-    { cwd: ROOT, encoding: "utf8", timeout: 60_000 },
+    { cwd: ROOT, encoding: "utf8", timeout: 120_000, env: { ...process.env, CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1" } },
   );
   return JSON.parse(r.trim());
 }
 
-test("wisp full site program entry doc gate (G7700)", () => {
+test("wisp full site program doc closed (G7790 doc slice)", () => {
   const gate = importSyncGate(
-    "scripts/hub-ingest/hub-wisp-full-site-program-entry-smoke.mjs",
-    "runWispFullSiteProgramEntryGate",
+    "scripts/hub-ingest/hub-wisp-full-site-close-smoke.mjs",
+    "runWispFullSiteDocGate",
   );
   expect(gate.ok).toBe(true);
 });
@@ -53,3 +53,23 @@ test("wisp full site ui baseline inventory (G7703)", () => {
   expect(gate.nativeOk).toBe(true);
   expect(gate.pageComponentRefs).toBe(0);
 });
+
+test("wisp full site auth policy (G7704)", () => {
+  const gate = importSyncGate(
+    "scripts/hub-ingest/hub-wisp-full-site-auth-policy-smoke.mjs",
+    "runWispFullSiteAuthPolicyGate",
+  );
+  expect(gate.ok).toBe(true);
+  expect(gate.nativeOk).toBe(true);
+});
+
+test("wisp full site cutover policy (G7706)", () => {
+  const gate = importSyncGate(
+    "scripts/hub-ingest/hub-wisp-full-site-cutover-smoke.mjs",
+    "runWispFullSiteCutoverGate",
+  );
+  expect(gate.ok).toBe(true);
+  expect(gate.nativeOk).toBe(true);
+});
+
+// G7790 composite runs G7690→G7590 regression (~6+ min). CI runs hub:wisp-full-site-close-smoke directly.

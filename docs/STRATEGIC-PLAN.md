@@ -278,7 +278,9 @@ Capture (oracle) → Gap (verify/insight) → Fix (ingest/repair, verify-gated)
 
 ---
 
-### Phase 27 — WISP full site CWL replacement (**active**)
+**Amended 2026-06-25 (WISP full site closed — D6269):** Phase **27** closed at **G7790**: WISP Module_Manager first full-site CWL proof; default maintenance **G7790** composite. See [`WISP-FULL-SITE-CWL-PROGRAM.md`](./WISP-FULL-SITE-CWL-PROGRAM.md).
+
+### Phase 27 — WISP full site CWL replacement (**closed G7790**)
 
 - **Authority:** **DESIGN D6268** — [`WISP-FULL-SITE-CWL-PROGRAM.md`](./WISP-FULL-SITE-CWL-PROGRAM.md)
 - **Requires:** **G7690** closed
@@ -412,7 +414,23 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (Phase 27 — WISP full site active)
+## 12. Default queue (post G7790 — WISP full site closed)
+
+**Status:** **WISP full site CWL program closed** (**G7790**, **D6268**); **universal translator closed** (**G7690**); **WISP POC optional regression** preserved (**D6259**).
+
+When the user says "build" without specifying:
+
+1. **G7790 composite** — `pnpm run hub:wisp-full-site-close-smoke` (includes Phase 27 + **G7690** regression)
+2. **G7690 subordinate** — `pnpm run hub:cwl-universal-translator-close-smoke`
+3. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — legacy operator path only.
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (Phase 27 — WISP full site active, superseded 2026-06-25)
 
 **Status:** **WISP full site CWL program active** (**G7700**, **D6268**); **universal translator closed** (**G7690**); **WISP POC optional regression** preserved (**D6259**).
 

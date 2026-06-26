@@ -44,19 +44,21 @@ test("roadmap maintenance default queue gate (G6163)", () => {
   expect(gate.ok).toBe(true);
 });
 
-test("maintenance mode governance gate routes to wisp-full-site-active (G6160 / G7701)", () => {
+// Full G7790 composite (~6+ min) runs in CI via hub:maintenance-mode-governance-smoke.
+test("maintenance mode governance gate routes to wisp-full-site-closed (G6160 / G7791)", () => {
   const abs = resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs").replace(/\\/g, "/");
   const r = spawnSync(
     process.execPath,
     [
       "--input-type=module",
       "-e",
-      `import { pathToFileURL } from 'node:url'; const m = await import(pathToFileURL('${abs}').href); console.log(JSON.stringify(await m.runMaintenanceModeGovernanceGate({})));`,
+      `import { pathToFileURL } from 'node:url'; const m = await import(pathToFileURL('${abs}').href); console.log(JSON.stringify(await m.runMaintenanceModeGovernanceGate({ skipCloseSmoke: true })));`,
     ],
-    { cwd: ROOT, encoding: "utf8", timeout: 600_000, env: { ...process.env, CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1" } },
+    { cwd: ROOT, encoding: "utf8", timeout: 120_000, env: { ...process.env, CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1" } },
   );
   expect(r.status, r.stderr || r.stdout).toBe(0);
   const gate = JSON.parse(r.stdout.trim());
   expect(gate.ok).toBe(true);
-  expect(gate.mode).toBe("wisp-full-site-active");
-}, 600_000);
+  expect(gate.mode).toBe("wisp-full-site-closed");
+  expect(gate.closeOk).toBe(true);
+}, 120_000);

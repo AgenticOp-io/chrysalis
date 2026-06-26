@@ -218,10 +218,64 @@ page help_page {
   return html "<svelte:head>\n  <title>Help – WISP Management</title>\n</svelte:head>\n\n<div class=\"help-container\">\n  <h1>WISP Management Help</h1>\n  <p class=\"lead\">Complete guide to using the platform. Module-specific interactive help remains on the full app until CWL UI surfaces ship.</p>\n  <p><a href=\"/docs\">Reference &amp; Project Status → /docs</a></p>\n  <section>\n    <h2>Quick topics</h2>\n    <ul>\n      <li><a href=\"/docs/getting-started\">Getting Started</a></li>\n      <li><a href=\"/docs/deployment\">Using WISP Management</a></li>\n      <li><a href=\"/docs/reference/project-status\">Project Status &amp; Next Steps</a></li>\n      <li><a href=\"/wizards\">Wizards</a> – guided flows (requires interactive UI sidecar)</li>\n      <li><a href=\"/dashboard\">Dashboard</a> – CWL Data shell with tenant load (M1)</li>\n    </ul>\n  </section>\n  <section>\n    <h2>What is WISP Multitool?</h2>\n    <p>All-in-one platform for wireless ISPs: network planning, field operations, customer support, device management (ACS/TR-069), HSS subscribers, and team management.</p>\n  </section>\n</div>";
 }
 
-@route GET "/login"
-handler login_page {
-  effects: none;
-  hole hub-svelte:firebase-auth;
+@page GET "/login"
+page login_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  use auth session;
+  load { surface: "wisp-auth-native", source: "wisp-27d" };
+  return ui {
+    element "main" class "login-shell" {
+      element "h1" { text "WISP Management"; }
+      element "p" { text "Native CWL session auth (Phase 27d)"; }
+      client ui {
+        element "form" id "login-form" {
+          element "label" { text "Email"; }
+          element "input" id "email" { }
+          element "label" { text "Password"; }
+          element "input" id "password" { }
+          element "button" id "sign-in" {
+            text "Sign in";
+            on click { action "loginSubmit"; }
+          }
+        }
+      }
+    }
+  };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
 }
 
 @page GET "/modules"

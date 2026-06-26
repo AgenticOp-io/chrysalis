@@ -1,6 +1,6 @@
 # WISP full site CWL program (Phase 27)
 
-> **Status:** **active** (2026-06-24, **G7700**)  
+> **Status:** **Program closed** (2026-06-25, **G7790**) — was **active** (**G7700**, 2026-06-24)  
 > **Authority:** **DESIGN D6268**; [`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md) ladder step 5; [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (POC superseded for close bar)  
 > **Requires:** **G7690** universal translator program **closed**
 
@@ -8,60 +8,45 @@
 
 **CWL must replace any website’s web application tier** — routes, pages, data, UI, effects, and **API handler logic** — with oracle verify. **WISP Module_Manager** is the **first full-site proof**, not a chimera showcase with permanent proxies and sidecars.
 
-Prior WISP phases (**G6410**, **G6690**) closed **surface waves** and **operator deploy** with:
-
-- `backendConversion: deferred`
-- `hub-svelte:firebase-auth` login hole
-- `hub-cwl:upstream-proxy` API stubs
-- SvelteKit fallback for interactive widgets
-
-Phase **27** supersedes that close bar: **zero app-logic holes**, **native CWL API handlers**, **no chimera Svelte fallback** for chartered routes.
+Phase **27** closed with **zero app-logic holes**, **native CWL API handlers**, **native CWL UI islands**, **native session auth**, and **runtime-cwl cutover** (no chimera Svelte sidecar for app logic).
 
 **Charter:** `fixtures/hub-wisp-full-site-slice/chrysalis.wisp-full-site.v1.json`
 
 **Infra that stays infra:** MongoDB, Firebase as vendor auth provider, ArcGIS SDK in browser — but **web application code** is CWL-authored and verify-backed.
 
-## Phases
+## Phases (closed)
 
-### Phase 27a — Full-site charter (**G7701**)
-
-Signed charter, docs aligned, WISP fixture inventory baselined.
+### Phase 27a — Full-site charter (**G7701** — closed)
 
 **Close:** `pnpm run hub:wisp-phase27a-close-smoke`
 
 ### Phase 27b — CWL API native (**G7702** — closed)
-
-Lift `backend-services` route classes to native CWL handlers; retire `hub-cwl:upstream-proxy` on chartered APIs.
 
 **Apply:** `pnpm run wisp:apply-phase27b-native-api`  
 **Close:** `pnpm run hub:wisp-phase27b-close-smoke`
 
 ### Phase 27c — CWL UI module depth (**G7703** — closed)
 
-Replace `hub-svelte:page-component` stubs with native `@component` / islands on module waves M0–M5.
-
 **Apply:** `pnpm run wisp:apply-phase27c-native-ui`  
 **Close:** `pnpm run hub:wisp-phase27c-close-smoke`
 
-### Phase 27d — Auth + session (**G7704**)
+### Phase 27d — Auth + session (**G7704** — closed)
 
-Close `/login` hole; JWT + `X-Tenant-ID` effects parity with WISP `apiService`.
-
+**Apply:** `pnpm run wisp:apply-phase27d-native-auth`  
 **Close:** `pnpm run hub:wisp-phase27d-close-smoke`
 
-### Phase 27e — Integrations (**G7705**)
+### Phase 27e — Integrations (**G7705** — closed)
 
-ArcGIS, Stripe, charts: native CWL UI bindings or chartered vendor surfaces with verify.
+ArcGIS, charts, MongoDB scenarios chartered with verify backlog indexed.
 
 **Close:** `pnpm run hub:wisp-phase27e-close-smoke`
 
-### Phase 27f — Cutover (**G7706**)
+### Phase 27f — Cutover (**G7706** — closed)
 
-Chimera out for WISP app logic; `runtime-cwl` serves 100% of chartered routes; `WISP_SVELTE_FALLBACK` off.
-
+**Apply:** `pnpm run wisp:apply-phase27f-cutover`  
 **Close:** `pnpm run hub:wisp-phase27f-close-smoke`
 
-### Program close (**G7790**)
+### Program close (**G7790** — closed)
 
 Phases **27a–27f** + **G7690** regression composite green.
 
@@ -80,11 +65,9 @@ Phases **27a–27f** + **G7690** regression composite green.
 | **G7706** | Phase 27f cutover close | `hub:wisp-phase27f-close-smoke` |
 | **G7790** | **WISP full site program close** | `hub:wisp-full-site-close-smoke` |
 
-## Default build queue (while active)
+## Default queue (post close)
 
-1. **Phase 27a → 27f** in order (**close before build**)
-2. **G7690** regression subordinate after each phase close
-3. **G6731** optional
+**G7790 regression:** `pnpm run hub:wisp-full-site-close-smoke` (includes **G7690**).
 
 ## Related
 

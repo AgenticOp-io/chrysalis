@@ -4,17 +4,15 @@
   "ok": true,
   "previewPath": "C:\\Users\\david\\Downloads\\PHP_converter\\fixtures\\hub-wisp-management\\cwl-preview.json",
   "routeCount": 87,
-  "uiHoleCount": 1,
+  "uiHoleCount": 0,
   "apiProxyRouteCount": 110,
-  "totalUiHoles": 1,
+  "totalUiHoles": 0,
   "maxHoles": 120,
   "withinBudget": true,
-  "byReason": {
-    "hub-svelte:firebase-auth": 1
-  },
+  "byReason": {},
   "unexpectedReasons": [],
   "backendConversion": "native-cwl-handlers",
   "backendPolicy": "native CWL handlers — backend-services lifted to api-proxy.cwl (Phase 27b)",
   "upstreamProxyHoles": 0,
-  "generatedAt": "2026-06-25T05:02:38.186Z"
+  "generatedAt": "2026-06-26T05:22:51.412Z"
 }

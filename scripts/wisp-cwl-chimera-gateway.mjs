@@ -6,6 +6,7 @@ import { createServer } from "node:http";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
 
 export const WISP_CHIMERA_GATEWAY_KIND = "chrysalis.wisp.chimera-gateway";
 export const WISP_CHIMERA_GATEWAY_SCHEMA_VERSION = 1;
@@ -109,11 +110,26 @@ export async function proxyHttp(req, res, targetBase, proxyKind = "backend") {
 }
 
 /** @param {object} opts */
+export function shouldUseWispNativeApi(opts = {}) {
+  if (opts.nativeApi === true) return true;
+  if (opts.nativeApi === false) return false;
+  if (process.env.WISP_CWL_NATIVE_API === "1") return true;
+  const pipeline = loadWispPipelineConfig();
+  return pipeline.gce?.nativeApi === true || pipeline.gce?.apiMode === "runtime-cwl-native";
+}
+
+/** @param {object} opts */
 export async function createWispChimeraGateway(opts) {
   const repoRoot = resolveRepoRoot(opts);
   const cwlPath = resolve(opts.cwlPath);
   const backendUrl = (opts.backendUrl ?? "http://127.0.0.1:3001").replace(/\/$/, "");
-  const svelteFallback = opts.svelteFallback?.replace(/\/$/, "") ?? "";
+  const pipeline = loadWispPipelineConfig();
+  const nativeApi = shouldUseWispNativeApi(opts);
+  const svelteFallbackRaw = opts.svelteFallback ?? process.env.WISP_SVELTE_FALLBACK ?? "";
+  const svelteFallback =
+    pipeline.gce?.svelteSidecar === false || nativeApi
+      ? ""
+      : svelteFallbackRaw.replace(/\/$/, "");
   const host = opts.host ?? "127.0.0.1";
   const port = opts.port === undefined ? 19100 : opts.port;
 
@@ -121,6 +137,13 @@ export async function createWispChimeraGateway(opts) {
   const { createCwlRuntime, loadModuleFromCwlFile } = runtimeMod;
   const module = loadModuleFromCwlFile(cwlPath, repoRoot);
   const runtime = createCwlRuntime({ module });
+  const apiCwlPath = join(dirname(cwlPath), "api-proxy.cwl");
+  /** @type {Awaited<ReturnType<typeof createCwlRuntime>> | null} */
+  let apiRuntime = null;
+  if (nativeApi && existsSync(apiCwlPath)) {
+    const apiModule = loadModuleFromCwlFile(apiCwlPath, repoRoot);
+    apiRuntime = createCwlRuntime({ module: apiModule });
+  }
   const staticDir = resolveStaticDir(cwlPath);
 
   const server = createServer(async (req, res) => {
@@ -128,6 +151,21 @@ export async function createWispChimeraGateway(opts) {
       const hostHdr = req.headers.host ?? `${host}:${port}`;
       const url = new URL(req.url ?? "/", `http://${hostHdr}`);
       const path = url.pathname;
+
+      if ((path.startsWith("/api/") || path === "/api") && apiRuntime) {
+        const body = req.method === "GET" || req.method === "HEAD" ? undefined : await readBody(req);
+        const cwlRes = await apiRuntime.fetch({
+          method: req.method ?? "GET",
+          url: `http://${hostHdr}${path}${url.search}`,
+          headers: req.headers,
+          body: body?.length ? body.toString("utf8") : undefined,
+        });
+        res.statusCode = cwlRes.status;
+        cwlRes.headers.forEach((v, k) => res.setHeader(k, v));
+        res.setHeader("x-chrysalis-wisp-proxy", "cwl-native-api");
+        res.end(Buffer.from(await cwlRes.arrayBuffer()));
+        return;
+      }
 
       if (path.startsWith("/api/") || path === "/api") {
         await proxyHttp(req, res, backendUrl);
@@ -186,10 +224,12 @@ export async function createWispChimeraGateway(opts) {
     port: boundPort,
     cwlPath,
     backendUrl,
+    nativeApi,
     svelteFallback: svelteFallback || null,
     async stop() {
       await new Promise((r) => server.close(() => r(undefined)));
       await runtime.stop();
+      if (apiRuntime) await apiRuntime.stop();
     },
     server,
   };

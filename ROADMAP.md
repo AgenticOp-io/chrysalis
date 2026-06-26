@@ -6,7 +6,7 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Phase 27 — WISP full site CWL replacement** (**G7700**, **D6268**); **G7690** regression subordinate.
+- **Active lane:** **Post G7790 maintenance** — WISP full site CWL closed (**G7790**, **D6268**); default regression **G7790** composite.
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -14,7 +14,22 @@
 
 ---
 
-## Active — Phase 27 WISP full site CWL (G7700–G7790)
+## Closed — Phase 27 WISP full site CWL (G7790)
+
+Program doc: [`docs/WISP-FULL-SITE-CWL-PROGRAM.md`](./docs/WISP-FULL-SITE-CWL-PROGRAM.md)  
+Authority: **DESIGN D6268**  
+Closed: **2026-06-25**
+
+| Phase | Goal | Close gate |
+| --- | --- | --- |
+| **27a–27f** | Native API, UI, auth, integrations, cutover | **G7701–G7706** |
+| **Program** | WISP full site close | **G7790** |
+
+**Default regression:** `pnpm run hub:wisp-full-site-close-smoke` (**G7790**).
+
+---
+
+## Archived — Active Phase 27 WISP full site CWL (G7700–G7790)
 
 Program doc: [`docs/WISP-FULL-SITE-CWL-PROGRAM.md`](./docs/WISP-FULL-SITE-CWL-PROGRAM.md)  
 Authority: **DESIGN D6268**  
@@ -359,7 +374,14 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 
 ---
 
-## Default queue — WISP full site active (G7790)
+## Default queue — WISP full site closed (G7790)
+
+**Build queue:** `pnpm run hub:wisp-full-site-close-smoke` (**G7790**).  
+**Subordinate:** **G7690** (included in G7790 composite).
+
+---
+
+## Archived — Default queue WISP full site active (G7790 target)
 
 **Build queue:** `pnpm run hub:wisp-full-site-close-smoke` (**G7790**).  
 **Subordinate:** **G7690** (included in G7790 composite).
