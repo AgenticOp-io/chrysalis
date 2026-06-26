@@ -1,0 +1,16 @@
+{
+  "kind": "chrysalis.wisp.api-trace-pilot",
+  "schemaVersion": 1,
+  "status": "pending-capture",
+  "pilotRoutes": [
+    {
+      "method": "GET",
+      "path": "/api/tenants",
+      "backendSource": "backend-services/routes/tenants",
+      "traceCorpus": null,
+      "replayOk": null
+    }
+  ],
+  "capturePlaybook": "docs/WISP-PRODUCTION-POC-PROGRAM.md#trace-capture-playbook",
+  "generatedAt": "2026-06-26T05:30:00.000Z"
+}

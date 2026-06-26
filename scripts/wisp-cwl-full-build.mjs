@@ -13,6 +13,8 @@ import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 import { applyWispPhase13Surfaces } from "./wisp-cwl-apply-phase13-surfaces.mjs";
 import { reconcilePreviewFromRoutesCwl } from "./wisp-cwl-apply-module-routes-lib.mjs";
 import { writeFileSync } from "node:fs";
+import { isWispFullSiteProgramClosed, applyPostG7790ScenarioMetadata } from "./wisp-cwl-post-g7790.mjs";
+import { applyWispPostG7790Chain } from "./wisp-cwl-apply-post-g7790-chain.mjs";
 
 export const WISP_CWL_FULL_BUILD_KIND = "chrysalis.wisp-cwl-full-build";
 export const WISP_CWL_FULL_BUILD_SCHEMA_VERSION = 1;
@@ -50,10 +52,16 @@ export function runWispCwlFullBuild(opts = {}) {
     steps.push({ step: "lift", status: 0, skip: skipLift ? "skip-lift" : "missing-wisp-root" });
   }
 
-  const api = generateWispApiProxyCwl();
-  steps.push({ step: "api-proxy-cwl", status: api.ok ? 0 : 1, routeEntries: api.routeEntries ?? null });
+  const api = generateWispApiProxyCwl({
+    mode: isWispFullSiteProgramClosed() ? "native" : "proxy",
+  });
+  steps.push({ step: "api-proxy-cwl", status: api.ok ? 0 : 1, routeEntries: api.routeEntries ?? null, mode: api.mode ?? null });
 
   const inventory = buildWispScenarioInventory(wispRoot);
+  if (isWispFullSiteProgramClosed() && inventory.scenarios) {
+    inventory.scenarios = applyPostG7790ScenarioMetadata(inventory.scenarios);
+    inventory.postG7790 = true;
+  }
   const inventoryOut = join(fixtureDir, "wisp-scenarios.v1.json");
   let inventoryOk = inventory.ok;
   if (inventory.ok) {
@@ -71,7 +79,7 @@ export function runWispCwlFullBuild(opts = {}) {
 
   const wispRoutes = join(wispRoot, "generated/cwl/routes.cwl");
   const fixtureRoutes = join(fixtureDir, "routes.cwl");
-  if (!skipLift && existsSync(wispRoutes)) {
+  if (!isWispFullSiteProgramClosed() && !skipLift && existsSync(wispRoutes)) {
     mkdirSync(fixtureDir, { recursive: true });
     copyFileSync(wispRoutes, fixtureRoutes);
     const previewSrc = join(wispRoot, ".chrysalis/cwl-preview.json");
@@ -79,8 +87,13 @@ export function runWispCwlFullBuild(opts = {}) {
     if (existsSync(previewSrc)) copyFileSync(previewSrc, previewDst);
   }
 
-  applyWispPhase13Surfaces();
-  reconcilePreviewFromRoutesCwl();
+  if (isWispFullSiteProgramClosed()) {
+    const chain = applyWispPostG7790Chain({ previewPath: join(fixtureDir, "cwl-preview.json") });
+    steps.push({ step: "post-g7790-apply-chain", status: chain.ok ? 0 : 1, chainOk: chain.ok === true });
+  } else {
+    applyWispPhase13Surfaces();
+    reconcilePreviewFromRoutesCwl();
+  }
 
   const previewDst = join(fixtureDir, "cwl-preview.json");
 

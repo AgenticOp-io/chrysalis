@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.wisp.demo-manifest",
   "schemaVersion": 1,
-  "operator": "phase14-hss",
+  "operator": "phase28-production-poc",
   "gce": {
     "project": "chrysalis-dev-f5x6qv",
     "zone": "us-central1-a",
@@ -12,11 +12,12 @@
   },
   "backend": {
     "url": "https://hss.wisptools.io",
-    "policy": "proxy-only — Mongo/backend-services unchanged on acs-hss-server"
+    "policy": "native-cwl-handlers — MongoDB/Express remain infra; API served via runtime-cwl-native"
   },
   "firebase": {
     "hostingTarget": "hosting:management",
-    "optional": true
+    "optional": true,
+    "policy": "hosting-apiProxy — full SPA until CWL static export (Phase 28 honest gap)"
   },
   "healthProbes": [
     {
@@ -31,23 +32,23 @@
     },
     {
       "path": "/login",
-      "expect": "svelte-fallback",
-      "chimera": "svelte-or-backend"
+      "expect": "cwl-native-login",
+      "chimera": "cwl"
     },
     {
       "path": "/api/tenants",
-      "expect": "api-proxy",
-      "chimera": "backend"
+      "expect": "cwl-native-api",
+      "chimera": "cwl-native-api"
     },
     {
       "path": "/api/hss",
-      "expect": "api-proxy",
-      "chimera": "backend"
+      "expect": "cwl-native-api",
+      "chimera": "cwl-native-api"
     },
     {
       "path": "/api/monitoring",
-      "expect": "api-proxy",
-      "chimera": "backend"
+      "expect": "cwl-native-api",
+      "chimera": "cwl-native-api"
     }
   ],
   "clientRedirectPaths": [
@@ -57,5 +58,5 @@
     "/modules/monitor",
     "/portal/:tenantId"
   ],
-  "generatedAt": "2026-06-19T23:43:48.412Z"
+  "generatedAt": "2026-06-26T05:30:00.000Z"
 }

@@ -412,9 +412,28 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-06-24 (Universal translator N×N closed — D6267):** Phase **26** closed at **G7690**: composer charter, CWL outbound, mandatory roundtrip, cross-edges green; default maintenance **G7690** composite. See [`CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md`](./CWL-UNIVERSAL-TRANSLATOR-PROGRAM.md).
 
+**Amended 2026-06-26 (WISP production POC — D6270):** Phase **28** active after **G7790**: operator HTTP contracts, post-G7790 pipeline, integration client UI, honest oracle trace pilot; program close **G7890**. See [`WISP-PRODUCTION-POC-PROGRAM.md`](./WISP-PRODUCTION-POC-PROGRAM.md).
+
 ---
 
-## 12. Default queue (post G7790 — WISP full site closed)
+## 12. Default queue (Phase 28 — WISP production POC active)
+
+**Status:** **WISP production POC program active** (**G7800**, **D6270**); **WISP full site closed** (**G7790**); **universal translator closed** (**G7690**).
+
+When the user says "build" without specifying:
+
+1. **Phase 28a → 28d** in order — close gates **G7801–G7805** before **G7890**
+2. **G7890 composite** — `pnpm run hub:wisp-production-poc-close-smoke` (includes **G7790** regression)
+3. **G7790 subordinate** — `pnpm run hub:wisp-full-site-close-smoke`
+4. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**Apply chain:** `pnpm run wisp:apply-post-g7790-chain`
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G7790 — WISP full site closed, superseded 2026-06-26)
 
 **Status:** **WISP full site CWL program closed** (**G7790**, **D6268**); **universal translator closed** (**G7690**); **WISP POC optional regression** preserved (**D6259**).
 

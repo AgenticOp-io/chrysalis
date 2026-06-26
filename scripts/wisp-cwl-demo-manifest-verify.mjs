@@ -7,6 +7,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { WISP_DEMO_MANIFEST_KIND } from "./wisp-cwl-demo-manifest.mjs";
+import { isWispNativeCutoverMode, isWispApiProxyHeaderOk } from "./wisp-cwl-post-g7790.mjs";
 
 export const WISP_DEMO_MANIFEST_VERIFY_KIND = "chrysalis.wisp.demo-manifest.verify";
 export const WISP_DEMO_MANIFEST_VERIFY_SCHEMA_VERSION = 1;
@@ -38,8 +39,17 @@ export function evaluateDemoProbe(expect, res, text, proxyHeader) {
         (proxyHeader === "svelte" || proxyHeader === "backend") &&
         (res.headers.get("content-type") ?? "").includes("text/html")
       );
+    case "cwl-native-login":
+      return (
+        res.status === 200 &&
+        (proxyHeader === "cwl" || proxyHeader === "") &&
+        (res.headers.get("content-type") ?? "").includes("text/html") &&
+        text.includes("login")
+      );
     case "api-proxy":
-      return proxyHeader === "backend";
+      return isWispApiProxyHeaderOk(proxyHeader, isWispNativeCutoverMode());
+    case "cwl-native-api":
+      return proxyHeader === "cwl-native-api";
     default:
       return false;
   }

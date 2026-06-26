@@ -1,7 +1,7 @@
 # Paused backlog and active build queue
 
 > **Status:** authoritative (2026-06-25)  
-> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **WISP full site CWL program closed** (**G7790**, **D6268**). **Universal translator closed** (**G7690**). **Full web language closed** (**G7590**). **WISP POC optional regression** (**D6259**).
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **WISP production POC active** (**G7800**, **D6270**). **WISP full site CWL closed** (**G7790**, **D6268**). **Universal translator closed** (**G7690**).
 
 **Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
 
@@ -11,9 +11,9 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **WISP full site CWL regression (default)** | **G7790** — `pnpm run hub:wisp-full-site-close-smoke` |
-| **G7690 regression (subordinate)** | Included in **G7790** composite |
-| **G7590 regression** | Included in **G7790** composite |
+| **Phase 28 production POC (default)** | **G7890** — `pnpm run hub:wisp-production-poc-close-smoke` |
+| **G7790 regression (subordinate)** | Included in **G7890** composite |
+| **G7690 regression** | Included in **G7790** composite |
 | **IR helper tier regression (optional)** | `hub:cwl-language-maintenance-smoke` (**G6731**); `hub:ir-helper-program-close-smoke` (**G7200**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
 | Parser mapper gap / new PHP syntax | Maintenance §2 |

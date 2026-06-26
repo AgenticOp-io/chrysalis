@@ -42,8 +42,10 @@
       "files": [
         "src\\routes\\+layout.svelte"
       ],
-      "cwlPhase": 2,
-      "hole": "hub-svelte:page-component"
+      "cwlPhase": 27,
+      "hole": null,
+      "conversionStatus": "native-cwl-ui",
+      "convertedBy": "G7703"
     },
     {
       "id": "firebase-auth",
@@ -54,8 +56,10 @@
         "src\\routes\\login\\+page.svelte",
         "src\\routes\\modules\\customers\\portal\\login\\+page.svelte"
       ],
-      "cwlPhase": 1,
-      "hole": "hub-svelte:firebase-auth"
+      "cwlPhase": 27,
+      "hole": null,
+      "conversionStatus": "native-cwl-session",
+      "convertedBy": "G7704"
     },
     {
       "id": "tenant-guard",
@@ -66,8 +70,10 @@
         "src\\lib\\services\\README-TenantGuardService.md",
         "src\\lib\\stores\\tenantStore.ts"
       ],
-      "cwlPhase": 2,
-      "hole": "hub-svelte:page-component"
+      "cwlPhase": 27,
+      "hole": null,
+      "conversionStatus": "native-cwl-ui",
+      "convertedBy": "G7703"
     },
     {
       "id": "api-jwt-tenant",
@@ -76,8 +82,11 @@
       "files": [
         "src\\lib\\services\\apiService.ts"
       ],
-      "cwlPhase": 1,
-      "hole": "hub-cwl:upstream-proxy"
+      "cwlPhase": 27,
+      "hole": null,
+      "conversionStatus": "native-cwl-handlers",
+      "backendConversion": "native-cwl-handlers",
+      "convertedBy": "G7702"
     },
     {
       "id": "backend-mongodb",
@@ -86,9 +95,11 @@
       "files": [
         "../backend-services/server.js"
       ],
-      "cwlPhase": 1,
-      "hole": "hub-cwl:upstream-proxy",
-      "backendConversion": "deferred"
+      "cwlPhase": 27,
+      "hole": null,
+      "backendConversion": "native-cwl-handlers",
+      "conversionStatus": "native-cwl-handlers",
+      "convertedBy": "G7702"
     },
     {
       "id": "arcgis-mapview",
@@ -98,8 +109,10 @@
         "src\\routes\\modules\\coverage-map\\lib\\arcgisMapController.ts",
         "src\\routes\\modules\\coverage-map\\components\\CoverageMapView.svelte"
       ],
-      "cwlPhase": 4,
-      "hole": "hub-svelte:arcgis-map"
+      "cwlPhase": 28,
+      "hole": "hub-svelte:arcgis-map",
+      "conversionStatus": "cwl-client-bundle-chartered",
+      "convertedBy": "G7804"
     },
     {
       "id": "shared-map-iframe",
@@ -108,8 +121,10 @@
       "files": [
         "src\\lib\\map\\SharedMap.svelte"
       ],
-      "cwlPhase": 4,
-      "hole": "hub-svelte:cross-frame-messaging"
+      "cwlPhase": 28,
+      "hole": "hub-svelte:arcgis-map",
+      "conversionStatus": "cwl-client-bundle-chartered",
+      "convertedBy": "G7804"
     },
     {
       "id": "arcgis-geocode",
@@ -118,16 +133,20 @@
       "files": [
         "src\\routes\\modules\\plan\\+page.svelte"
       ],
-      "cwlPhase": 4,
-      "hole": "hub-svelte:arcgis-map"
+      "cwlPhase": 28,
+      "hole": "hub-svelte:arcgis-map",
+      "conversionStatus": "cwl-client-bundle-chartered",
+      "convertedBy": "G7804"
     },
     {
       "id": "echarts-monitoring",
       "category": "charts",
       "summary": "echarts monitoring graphs",
       "files": [],
-      "cwlPhase": 4,
-      "hole": "hub-svelte:chart-component"
+      "cwlPhase": 28,
+      "hole": "hub-svelte:chart-component",
+      "conversionStatus": "cwl-client-bundle-chartered",
+      "convertedBy": "G7804"
     },
     {
       "id": "static-docs",
@@ -145,5 +164,6 @@
       "hole": null
     }
   ],
-  "generatedAt": "2026-06-23T14:30:36.693Z"
+  "postG7790": true,
+  "generatedAt": "2026-06-26T05:41:50.433Z"
 }

@@ -6,6 +6,10 @@
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  isWispNativeCutoverMode,
+  isWispApiProxyHeaderOk,
+} from "./wisp-cwl-post-g7790.mjs";
 
 export const WISP_CWL_POC_VERIFY_KIND = "chrysalis.wisp-cwl-poc.verify";
 export const WISP_CWL_POC_VERIFY_SCHEMA_VERSION = 1;
@@ -72,21 +76,42 @@ export async function runWispCwlPocVerify(opts) {
     }
   }
 
-  const holeSamples = ["/login", "/dashboard"].filter((p) => holed.some((r) => r.path === p));
+  const holeSamples = isWispNativeCutoverMode()
+    ? ["/login", "/dashboard"]
+    : ["/login", "/dashboard"].filter((p) => holed.some((r) => r.path === p));
   for (const path of holeSamples) {
     const url = `${baseUrl}${path}`;
     try {
       const res = await fetch(url, { redirect: "manual" });
       const proxyHeader = res.headers.get("x-chrysalis-wisp-proxy") ?? "";
+      const text = await res.text();
+      const nativeLoginOk =
+        isWispNativeCutoverMode() &&
+        path === "/login" &&
+        res.status === 200 &&
+        (proxyHeader === "cwl" || proxyHeader === "") &&
+        text.includes("login");
       const holeOkChimera =
         opts.chimera === true &&
         (proxyHeader === "svelte" || (res.status === 200 && res.headers.get("content-type")?.includes("text/html")));
       probes.push({
         path,
-        expected: opts.chimera ? "hole-or-svelte-fallback" : "501-hole",
+        expected: isWispNativeCutoverMode()
+          ? path === "/login"
+            ? "native-login-html"
+            : "200-html"
+          : opts.chimera
+            ? "hole-or-svelte-fallback"
+            : "501-hole",
         status: res.status,
         proxyHeader: proxyHeader || undefined,
-        ok: opts.chimera ? holeOkChimera : res.status === 501,
+        ok: isWispNativeCutoverMode()
+          ? path === "/login"
+            ? nativeLoginOk
+            : res.status === 200 && text.length > 20
+          : opts.chimera
+            ? holeOkChimera
+            : res.status === 501,
       });
     } catch (e) {
       probes.push({
@@ -103,24 +128,26 @@ export async function runWispCwlPocVerify(opts) {
       const api = await fetch(`${baseUrl}/api/tenants`, { redirect: "manual" });
       probes.push({
         path: "/api/tenants",
-        expected: "api-proxy",
+        expected: isWispNativeCutoverMode() ? "cwl-native-api" : "api-proxy",
         status: api.status,
         proxyHeader: api.headers.get("x-chrysalis-wisp-proxy") ?? "",
-        ok: api.headers.get("x-chrysalis-wisp-proxy") === "backend",
+        ok: isWispApiProxyHeaderOk(api.headers.get("x-chrysalis-wisp-proxy")),
       });
     } catch (e) {
       probes.push({ path: "/api/tenants", expected: "api-proxy", ok: false, error: String(e) });
     }
   }
 
-  const pageOk = probes.filter((p) => p.expected === "200-html").every((p) => p.ok);
+  const pageOk = probes.filter((p) => p.expected === "200-html" || p.expected === "native-login-html").every((p) => p.ok);
   const holeOk = probes
     .filter((p) => p.expected === "501-hole" || p.expected === "hole-or-svelte-fallback")
     .every((p) => p.ok);
   const apiOk = opts.chimera
-    ? probes.filter((p) => p.expected === "api-proxy").every((p) => p.ok)
+    ? probes.filter((p) => p.expected === "api-proxy" || p.expected === "cwl-native-api").every((p) => p.ok)
     : true;
-  const ok = pageOk && holeOk && apiOk && holeFree.length >= 9;
+  const ok = isWispNativeCutoverMode()
+    ? pageOk && apiOk && holeFree.length >= 9
+    : pageOk && holeOk && apiOk && holeFree.length >= 9;
 
   return {
     ...base,

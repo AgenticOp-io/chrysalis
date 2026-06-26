@@ -7,6 +7,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
+import { resolveWispPreviewSession } from "./wisp-cwl-post-g7790.mjs";
 
 export const WISP_CHIMERA_GATEWAY_KIND = "chrysalis.wisp.chimera-gateway";
 export const WISP_CHIMERA_GATEWAY_SCHEMA_VERSION = 1;
@@ -136,13 +137,13 @@ export async function createWispChimeraGateway(opts) {
   const runtimeMod = await import(pathToFileURL(join(repoRoot, "packages/runtime-cwl/dist/index.js")).href);
   const { createCwlRuntime, loadModuleFromCwlFile } = runtimeMod;
   const module = loadModuleFromCwlFile(cwlPath, repoRoot);
-  const runtime = createCwlRuntime({ module });
+  const runtime = createCwlRuntime({ module, resolveSession: resolveWispPreviewSession });
   const apiCwlPath = join(dirname(cwlPath), "api-proxy.cwl");
   /** @type {Awaited<ReturnType<typeof createCwlRuntime>> | null} */
   let apiRuntime = null;
   if (nativeApi && existsSync(apiCwlPath)) {
     const apiModule = loadModuleFromCwlFile(apiCwlPath, repoRoot);
-    apiRuntime = createCwlRuntime({ module: apiModule });
+    apiRuntime = createCwlRuntime({ module: apiModule, resolveSession: resolveWispPreviewSession });
   }
   const staticDir = resolveStaticDir(cwlPath);
 

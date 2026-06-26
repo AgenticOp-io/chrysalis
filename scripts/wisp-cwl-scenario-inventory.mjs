@@ -6,6 +6,7 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { applyPostG7790ScenarioMetadata, isWispNativeCutoverMode } from "./wisp-cwl-post-g7790.mjs";
 
 export const WISP_SCENARIO_INVENTORY_KIND = "chrysalis.wisp.scenario-inventory";
 export const WISP_SCENARIO_INVENTORY_SCHEMA_VERSION = 1;
@@ -49,7 +50,7 @@ export function buildWispScenarioInventory(root) {
   const pageServer = files.filter((f) => /[/\\]\+page\.server\.(ts|js)$/.test(f)).length;
   const serverRoutes = files.filter((f) => /[/\\]\+server\.(ts|js)$/.test(f)).length;
 
-  const scenarios = [
+  let scenarios = [
     {
       id: "platform-shell",
       category: "auth",
@@ -133,6 +134,10 @@ export function buildWispScenarioInventory(root) {
     },
   ];
 
+  if (isWispNativeCutoverMode()) {
+    scenarios = applyPostG7790ScenarioMetadata(scenarios);
+  }
+
   const modulesDir = join(routesRoot, "modules");
   /** @type {string[]} */
   const modules = existsSync(modulesDir)
@@ -154,6 +159,7 @@ export function buildWispScenarioInventory(root) {
     },
     modules,
     scenarios,
+    postG7790: isWispNativeCutoverMode(),
     generatedAt: new Date().toISOString(),
   };
 }

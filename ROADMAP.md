@@ -6,11 +6,33 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Post G7790 maintenance** — WISP full site CWL closed (**G7790**, **D6268**); default regression **G7790** composite.
+- **Active lane:** **Phase 28 WISP production POC** — structural cutover closed (**G7790**); production operator contracts + integration depth (**G7800–G7890**, **D6270**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
 ---
+
+---
+
+---
+
+## Active — Phase 28 WISP production POC (G7890)
+
+Program doc: [`docs/WISP-PRODUCTION-POC-PROGRAM.md`](./docs/WISP-PRODUCTION-POC-PROGRAM.md)  
+Authority: **DESIGN D6270**  
+Requires: **G7790** closed
+
+| Phase | Goal | Close gate |
+| --- | --- | --- |
+| **28a** | Operator HTTP contract | **G7801** |
+| **28b** | Scenario + pipeline post-G7790 | **G7802** / **G7803** |
+| **28c** | Integration client UI | **G7804** |
+| **28d** | Oracle trace pilot (honest) | **G7805** |
+| **Program** | Production POC close | **G7890** |
+
+**Build queue:** `pnpm run hub:wisp-production-poc-close-smoke` (**G7890**).
+
+**Apply:** `pnpm run wisp:apply-post-g7790-chain`
 
 ---
 

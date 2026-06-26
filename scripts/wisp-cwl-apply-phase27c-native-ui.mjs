@@ -111,14 +111,16 @@ page ${anchor.pageName} {
 export function cleanupPhase27cRoutesText(text) {
   let out = text;
   out = out.replace(/\(proxied upstream\)/g, "(native CWL API)");
+  out = out.replace(/\bhole hub-svelte:page-component;/g, "cwl-native-ui");
+  out = out.replace(/\bhole hub-svelte:firebase-auth;/g, "cwl-auth-native");
   out = out.replace(/hub-svelte:page-component/g, "cwl-native-ui");
   out = out.replace(
-    /<p class="ui-hole-note">Interactive widgets remain sidecar until CWL UI RFC-0012\.<\/p>/g,
+    /<p class="ui-hole-note">[\s\S]*?<\/p>/g,
     '<p class="ui-native-note">Native CWL UI islands (Phase 27c).</p>',
   );
   out = out.replace(
-    /<p class="ui-hole-note">[^\\]*cwl-native-ui[^\\]*<\/p>/g,
-    '<p class="ui-native-note">Native CWL UI islands (Phase 27c).</p>',
+    /<p class="client-hole-note">[\s\S]*?<\/p>/g,
+    '<p class="ui-native-note">Native CWL client bundle charter (Phase 28g).</p>',
   );
   return out;
 }

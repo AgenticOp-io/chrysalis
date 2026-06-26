@@ -278,6 +278,40 @@ handler session_me {
   return { ok: true, surface: "wisp-auth-native" };
 }
 
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
 @page GET "/modules"
 page modules_page {
   effects: none;
@@ -399,19 +433,25 @@ page modules_cbrs_management_page {
 
 @page GET "/modules/coverage-map"
 page modules_coverage_map_page {
-  effects: none;
+  effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "coverage-map", source: "wisp-m3", apiPath: "/api/network" };
+  load { module: "coverage-map", source: "wisp-28g", apiPath: "/api/coverage", vendor: "hub-svelte:arcgis-map" };
   return ui {
-    element "main" class "wisp-module-shell" {
+    element "main" class "wisp-module-shell wisp-integration-shell" {
       element "header" {
         element "h1" { text "Coverage Map"; }
-        element "p" class "api-surface" { text "API: /api/network (native CWL API)"; }
+        element "p" class "vendor-charter" { text "Vendor: hub-svelte:arcgis-map (chartered — browser SDK remains infra)"; }
+        element "p" class "api-surface" { text "API: /api/coverage (native CWL API)"; }
       }
-      element "p" class "vendor-surface" { text "ArcGIS MapView (chartered vendor surface)"; }
       client ui {
+        element "div" id "arcgis-map-host" class "wisp-vendor-surface" {
+          element "p" { text "ArcGIS MapView host (Phase 28g — CWL client bundle charter)"; }
+        }
+        element "div" id "map-toolbar" class "wisp-vendor-controls" {
+          element "button" id "zoom-in" { text "Zoom in"; on click { action "mapZoomIn"; } }
+          element "button" id "zoom-out" { text "Zoom out"; on click { action "mapZoomOut"; } }
+        }
         element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
           element "button" id "refresh" {
             text "Refresh";
             on click { action "loadModule"; }
@@ -695,25 +735,49 @@ page modules_maintain_page {
 
 @page GET "/modules/monitor"
 page modules_monitor_page {
-  effects: none;
+  effects: session.read;
   content-type "text/html; charset=utf-8";
-  return html "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"0;url=/modules/monitoring\"><title>Redirecting to Monitoring…</title></head><body><p>Redirecting to Monitoring…</p><script>location.replace(\"/modules/monitoring\");</script><noscript><a href=\"/modules/monitoring\">Continue</a></noscript></body></html>";
+  load { module: "monitor", source: "wisp-28g", apiPath: "/api/monitoring", vendor: "hub-svelte:chart-component" };
+  return ui {
+    element "main" class "wisp-module-shell wisp-integration-shell" {
+      element "header" {
+        element "h1" { text "Monitor"; }
+        element "p" class "vendor-charter" { text "Vendor: hub-svelte:chart-component (chartered — browser SDK remains infra)"; }
+        element "p" class "api-surface" { text "API: /api/monitoring (native CWL API)"; }
+      }
+      client ui {
+        element "div" id "monitor-charts" class "wisp-vendor-surface" {
+          element "p" { text "ECharts monitoring graphs (Phase 28g — CWL client bundle charter)"; }
+        }
+        element "canvas" id "monitor-chart-primary" { }
+        element "section" class "module-widgets" {
+          element "button" id "refresh" {
+            text "Refresh";
+            on click { action "loadModule"; }
+          }
+        }
+      }
+    }
+  };
 }
 
 @page GET "/modules/monitoring"
 page modules_monitoring_page {
-  effects: none;
+  effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "monitoring", source: "wisp-m4", apiPath: "/api/monitoring" };
+  load { module: "monitoring", source: "wisp-28g", apiPath: "/api/monitoring-graphs", vendor: "hub-svelte:chart-component" };
   return ui {
-    element "main" class "wisp-module-shell" {
+    element "main" class "wisp-module-shell wisp-integration-shell" {
       element "header" {
-        element "h1" { text "SNMP Monitoring"; }
-        element "p" class "api-surface" { text "API: /api/monitoring (native CWL API)"; }
+        element "h1" { text "Monitoring"; }
+        element "p" class "vendor-charter" { text "Vendor: hub-svelte:chart-component (chartered — browser SDK remains infra)"; }
+        element "p" class "api-surface" { text "API: /api/monitoring-graphs (native CWL API)"; }
       }
       client ui {
+        element "div" id "monitoring-graphs" class "wisp-vendor-surface" {
+          element "p" { text "SNMP / monitoring graph host (Phase 28g charter)"; }
+        }
         element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
           element "button" id "refresh" {
             text "Refresh";
             on click { action "loadModule"; }
@@ -734,18 +798,21 @@ page modules_pci_resolution_page {
 
 @page GET "/modules/plan"
 page modules_plan_page {
-  effects: none;
+  effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "plan", source: "wisp-m3", apiPath: "/api/plans" };
+  load { module: "plan", source: "wisp-28g", apiPath: "/api/plans", vendor: "hub-svelte:arcgis-map" };
   return ui {
-    element "main" class "wisp-module-shell" {
+    element "main" class "wisp-module-shell wisp-integration-shell" {
       element "header" {
         element "h1" { text "Plan"; }
+        element "p" class "vendor-charter" { text "Vendor: hub-svelte:arcgis-map (chartered — browser SDK remains infra)"; }
         element "p" class "api-surface" { text "API: /api/plans (native CWL API)"; }
       }
       client ui {
+        element "div" id "plan-map-host" class "wisp-vendor-surface" {
+          element "p" { text "ArcGIS geocode + plan map (Phase 28g charter)"; }
+        }
         element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
           element "button" id "refresh" {
             text "Refresh";
             on click { action "loadModule"; }
