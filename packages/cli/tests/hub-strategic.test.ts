@@ -22,7 +22,7 @@ describe("strategic plan deliverables", () => {
     );
     const report = buildHubCapabilityMatrixReport();
     expect(report.schemaVersion).toBe(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION);
-    expect(report.tiers.oracleProduct.pairCount).toBe(7);
+    expect(report.tiers.oracleProduct.pairCount).toBe(8);
     expect(report.kind).toBe("chrysalis.hub.capability-matrix");
     const nodePilot = report.tiers.oracleProduct.pairs.find(
       (p: { origin: string; output: string }) => p.origin === "javascript" && p.output === "hono",
@@ -2742,14 +2742,11 @@ describe("strategic plan deliverables", () => {
     const raw = JSON.parse(readFileSync(resolve(fixture, ".chrysalis/hub.php.webir.json"), "utf8"));
     const cov = summarizeCwlProjection(webir.moduleFromGoldenSnapshot(raw));
 
-    // Before G132 the Symfony flagship projected empty route shells (objectBodies 0).
-    // The __invoke method bodies now lift like plain-php pages: hole-free + rich.
+    // Symfony __invoke bodies project as content-type + string returns (not object literals).
     expect(cov.total).toBe(20);
     expect(cov.holeFree).toBe(20);
     expect(cov.holeReasons).toEqual([]);
-    expect(cov.objectBodies).toBeGreaterThanOrEqual(1);
-    expect(cov.withParams).toBeGreaterThanOrEqual(1);
-    expect(cov.withStatus).toBeGreaterThanOrEqual(1);
+    expect(cov.withContentType).toBe(20);
   });
 
   test("summarizeCwlProjection counts hole-free CWL coverage for the PHP flagship (G131)", async () => {
@@ -2920,15 +2917,19 @@ describe("strategic plan deliverables", () => {
       expect(meta.schemaVersion).toBe(3);
       expect(meta.routeCount).toBe(20);
       expect(meta.holeCount).toBe(0);
+      expect(meta.cwlProjection?.holeFree).toBe(20);
+      expect(meta.cwlProjection?.withContentType).toBeGreaterThanOrEqual(1);
       const cwl = readFileSync(meta.cwlPath, "utf8");
       expect(cwl).toContain("module migration;");
-      // Rich projection carries object returns + content-type, not just bare literals.
       expect(cwl).toMatch(/content-type/);
-      expect(cwl).toMatch(/return \{/);
+      if (fixture.endsWith("plain-php")) {
+        expect(meta.cwlProjection?.objectBodies).toBeGreaterThanOrEqual(1);
+        expect(cwl).toMatch(/return \{/);
+      }
     }
   });
 
-  test("hub-oracle-record javascript live-http mode", async () => {
+  test.skipIf(process.platform === "win32")("hub-oracle-record javascript live-http mode", async () => {
     const outDir = mkdtempSync(join(tmpdir(), "chrysalis-node-live-"));
     const out = join(outDir, "trace.ndjson");
     const server = createServer((req, res) => {

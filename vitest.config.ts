@@ -38,5 +38,11 @@ export default defineConfig({
     /** Hub gold/completion subprocesses contend on shared fixtures when files run in parallel. */
     fileParallelism: false,
     passWithNoTests: true,
+    /** Hub ingest scripts are Node CLIs; do not Vite-transform JSDoc-heavy .mjs (SyntaxError). */
+    server: {
+      deps: {
+        external: [/\/scripts\//],
+      },
+    },
   },
 });
