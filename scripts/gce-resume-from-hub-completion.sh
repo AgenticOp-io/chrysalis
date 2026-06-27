@@ -51,6 +51,12 @@ node "${SCRIPT_DIR}/gce-progress.mjs" bootstrap "${CHRYSALIS_GCE_PHASE_LIST:-${G
 
 bash "${SCRIPT_DIR}/gce-cleanup-vm-temp.sh" || log "WARN: gce-cleanup-vm-temp failed (continuing)"
 
+if [[ ! -f reports/ci/gce-gold-verify.json || ! -f reports/ci/gce-trace-replay.json ]]; then
+  log "phase: seed gold artifacts (missing gce-gold-gates cache for fast hub-completion)"
+  run_phase hub-gold-verify bash scripts/gce-hub-gold-verify.sh
+  run_phase hub-gold-trace-replay bash scripts/gce-hub-gold-trace-replay.sh
+fi
+
 log "phase: hub completion json artifact"
 run_phase hub-completion-json node scripts/hub-ingest/hub-completion.mjs --json-out reports/ci/hub-completion.json
 

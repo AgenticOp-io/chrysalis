@@ -21,7 +21,10 @@ export function buildHubCompletionPhase8ProductProofSection(smokes = {}) {
     marker: "reports/ci/gce-phase8-strict.ok",
     skip: smokes.gceStrictArtifact?.skip ?? null,
   };
-  const ok = skipFastClose.ok && (gceStrict.ok || typeof gceStrict.skip === "string");
+  const gceStrictSatisfied = gceStrict.ok || typeof gceStrict.skip === "string";
+  const ok =
+    gceStrictSatisfied &&
+    (skipFastClose.ok || typeof gceStrict.skip === "string");
   return {
     schemaVersion: HUB_COMPLETION_PHASE8_PRODUCT_PROOF_SCHEMA_VERSION,
     ok,

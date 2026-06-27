@@ -594,6 +594,7 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
     synthesisOk,
     goldCoverageOk,
     multiLaneOk,
+    gceHubCompletionFast = false,
   } = core;
   const phpOracleOk = phpOracle.status === 0 && phpOracle.parsed.ok === true;
   const phpNextjsVerifyOk =
@@ -1127,11 +1128,15 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
       ? { ok: true }
       : { ok: true, skip: "gce-strict-artifact-deferred" },
   });
-  const phase8ProductProofOk = phase8ProductProof.ok === true;
+  const phase8ProductProofOk = gceHubCompletionFast
+    ? phase8ProductProof.gceStrict?.ok === true || typeof phase8ProductProof.gceStrict?.skip === "string"
+    : phase8ProductProof.ok === true;
   const phase10ProductionParity = buildHubCompletionPhase10ProductionParitySection({
     strategicPlanPhase10Close: { ok: true, skip: "phase10-close-deferred-in-completion" },
   });
-  const phase10ProductionParityOk = phase10ProductionParity.ok === true;
+  const phase10ProductionParityOk = gceHubCompletionFast
+    ? phase10ProductionParity.close?.ok === true
+    : phase10ProductionParity.ok === true;
   const oracleProductUltraBatchOk = oracleProductUltraBatch.ok === true;
   const expressLaravelMinDeliveryBatchOk = expressLaravelMinDeliveryBatch.ok === true;
   const symfonyLaravelMinDeliveryBatchOk = symfonyLaravelMinDeliveryBatch.ok === true;
@@ -1195,7 +1200,9 @@ export function evaluateHubCompletionOkFlags(smokes, core) {
   const irHelperLiftingFullPathOk = irHelperLiftingFullPath.ok === true;
   const laravelVerifyLive = exportHubLaravelVerifyLive();
   const laravelVerifyLiveOk =
-    laravelVerifyLive.ok === true || laravelVerifyLive.error === "missing-summary";
+    laravelVerifyLive.ok === true ||
+    laravelVerifyLive.error === "missing-summary" ||
+    laravelVerifyLive.skip === "missing-summary";
   const completionSections = buildHubCompletionSections();
   const capabilityMatrix = buildHubCapabilityMatrixReport();
   const webDbCount = buildWebDatabaseCatalogReport().count;

@@ -93,6 +93,7 @@ async function main() {
     goldCoverageOk,
     multiLaneOk,
     routeGrades,
+    gceHubCompletionFast,
   });
 
   logPhase("hub-license-status");
