@@ -7,8 +7,8 @@ const MANIFEST = fileURLToPath(
 
 test("hub gold manifest: pair coverage and suite inventory (G37)", async () => {
   const m = await import(MANIFEST);
-  expect(m.hubGoldStructuralSuiteIds().length).toBe(159);
-  expect(m.hubGoldTraceReplaySuiteIds().length).toBe(119);
+  expect(m.hubGoldStructuralSuiteIds().length).toBe(169);
+  expect(m.hubGoldTraceReplaySuiteIds().length).toBe(129);
   const cssHono = m.hubGoldSuitesForPair("css", "hono");
   expect(cssHono.map((s: { id: string }) => s.id)).toContain("css-literal-hono");
   const jsNext = m.hubGoldSuitesForPair("javascript", "nextjs");
