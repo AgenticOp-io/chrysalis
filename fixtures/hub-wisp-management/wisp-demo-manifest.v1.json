@@ -17,7 +17,7 @@
   "firebase": {
     "hostingTarget": "hosting:management",
     "optional": true,
-    "policy": "hosting-apiProxy — full SPA until CWL static export (Phase 28 honest gap)"
+    "policy": "cwl-static-export — 87 pages exported to fixtures/hub-wisp-management/cwl-static-export (Phase 29b)"
   },
   "healthProbes": [
     {

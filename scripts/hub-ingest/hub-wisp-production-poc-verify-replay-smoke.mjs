@@ -26,9 +26,12 @@ export function runWispProductionPocVerifyReplayPilotGate() {
   if (!existsSync(manifestPath)) return { ok: false, skip: "missing-pilot-manifest" };
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
   const routes = manifest.pilotRoutes ?? [];
-  const hasPilot = routes.some((r) => r.path === "/api/tenants" && r.method === "GET");
+  const hasPilot = routes.some((r) => r.path === "/api/tenants" && r.method === "GET") || manifest.mode === "all-routes";
   const captured = manifest.status === "captured" || manifest.status === "replay-green";
-  const replayReady = routes.some((r) => r.replayOk === true);
+  const allRoutes = manifest.mode === "all-routes";
+  const replayReady = allRoutes
+    ? routes.length >= 109 && routes.every((r) => r.replayOk === true)
+    : routes.some((r) => r.replayOk === true);
   const ok =
     manifest.kind === "chrysalis.wisp.api-trace-pilot" &&
     hasPilot &&

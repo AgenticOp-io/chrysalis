@@ -69,9 +69,10 @@ export async function runWispApiTraceReplayVerify(_opts = {}) {
 
   const manifest = JSON.parse(readFileSync(pilotManifestPath, "utf8"));
   manifest.status = replayOk ? "replay-green" : manifest.status === "replay-green" ? "replay-green" : "captured";
-  manifest.pilotRoutes = (manifest.pilotRoutes ?? []).map((r) =>
-    r.path === "/api/tenants" && r.method === "GET" ? { ...r, replayOk } : r,
-  );
+  manifest.pilotRoutes = (manifest.pilotRoutes ?? []).map((r) => {
+    const outcome = outcomes.find((o) => o.route === `${r.method} ${r.path}`);
+    return outcome ? { ...r, replayOk: outcome.ok === true } : r;
+  });
   manifest.replayCorrectness = correctness;
   manifest.generatedAt = new Date().toISOString();
   writeFileSync(pilotManifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");

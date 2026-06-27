@@ -1,0 +1,6 @@
+{
+  "ok": true,
+  "surface": "wisp-api-native",
+  "resource": "plans",
+  "op": "delete"
+}

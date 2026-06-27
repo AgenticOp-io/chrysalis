@@ -3,19 +3,884 @@
   "schemaVersion": 1,
   "status": "replay-green",
   "source": "oracle-fixture",
+  "mode": "all-routes",
   "pilotRoutes": [
+    {
+      "method": "GET",
+      "path": "/api/plans",
+      "backendSource": "backend-services/routes/plans",
+      "goldenPath": "wisp-api-goldens\\GET-api-plans.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.611Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/plans",
+      "backendSource": "backend-services/routes/plans",
+      "goldenPath": "wisp-api-goldens\\POST-api-plans.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.614Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/plans",
+      "backendSource": "backend-services/routes/plans",
+      "goldenPath": "wisp-api-goldens\\PUT-api-plans.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.616Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/plans",
+      "backendSource": "backend-services/routes/plans",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-plans.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.617Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/plans",
+      "backendSource": "backend-services/routes/plans",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-plans.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.619Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network",
+      "backendSource": "backend-services/routes/network",
+      "goldenPath": "wisp-api-goldens\\GET-api-network.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.620Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network",
+      "backendSource": "backend-services/routes/network",
+      "goldenPath": "wisp-api-goldens\\POST-api-network.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.621Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/network",
+      "backendSource": "backend-services/routes/network",
+      "goldenPath": "wisp-api-goldens\\PUT-api-network.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.622Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/network",
+      "backendSource": "backend-services/routes/network",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-network.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.623Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/network",
+      "backendSource": "backend-services/routes/network",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-network.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.625Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/customers",
+      "backendSource": "backend-services/routes/customers",
+      "goldenPath": "wisp-api-goldens\\GET-api-customers.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.625Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/customers",
+      "backendSource": "backend-services/routes/customers",
+      "goldenPath": "wisp-api-goldens\\POST-api-customers.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.627Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/customers",
+      "backendSource": "backend-services/routes/customers",
+      "goldenPath": "wisp-api-goldens\\PUT-api-customers.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.629Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/customers",
+      "backendSource": "backend-services/routes/customers",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-customers.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.629Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/customers",
+      "backendSource": "backend-services/routes/customers",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-customers.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.630Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/customer-billing",
+      "backendSource": "backend-services/routes/customer-billing",
+      "goldenPath": "wisp-api-goldens\\GET-api-customer-billing.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.631Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/customer-billing",
+      "backendSource": "backend-services/routes/customer-billing",
+      "goldenPath": "wisp-api-goldens\\POST-api-customer-billing.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.631Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/customer-billing",
+      "backendSource": "backend-services/routes/customer-billing",
+      "goldenPath": "wisp-api-goldens\\PUT-api-customer-billing.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.632Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/customer-billing",
+      "backendSource": "backend-services/routes/customer-billing",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-customer-billing.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.632Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/customer-billing",
+      "backendSource": "backend-services/routes/customer-billing",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-customer-billing.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.633Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventory",
+      "backendSource": "backend-services/routes/inventory",
+      "goldenPath": "wisp-api-goldens\\GET-api-inventory.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.634Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory",
+      "backendSource": "backend-services/routes/inventory",
+      "goldenPath": "wisp-api-goldens\\POST-api-inventory.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.634Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/inventory",
+      "backendSource": "backend-services/routes/inventory",
+      "goldenPath": "wisp-api-goldens\\PUT-api-inventory.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.635Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/inventory",
+      "backendSource": "backend-services/routes/inventory",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-inventory.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.636Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/inventory",
+      "backendSource": "backend-services/routes/inventory",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-inventory.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.637Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/bundles",
+      "backendSource": "backend-services/routes/bundles",
+      "goldenPath": "wisp-api-goldens\\GET-api-bundles.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.637Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/bundles",
+      "backendSource": "backend-services/routes/bundles",
+      "goldenPath": "wisp-api-goldens\\POST-api-bundles.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.638Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/bundles",
+      "backendSource": "backend-services/routes/bundles",
+      "goldenPath": "wisp-api-goldens\\PUT-api-bundles.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.638Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/bundles",
+      "backendSource": "backend-services/routes/bundles",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-bundles.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.639Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/bundles",
+      "backendSource": "backend-services/routes/bundles",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-bundles.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.639Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/deploy",
+      "backendSource": "backend-services/routes/deploy",
+      "goldenPath": "wisp-api-goldens\\GET-api-deploy.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.640Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/deploy",
+      "backendSource": "backend-services/routes/deploy",
+      "goldenPath": "wisp-api-goldens\\POST-api-deploy.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.640Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/deploy",
+      "backendSource": "backend-services/routes/deploy",
+      "goldenPath": "wisp-api-goldens\\PUT-api-deploy.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.641Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/deploy",
+      "backendSource": "backend-services/routes/deploy",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-deploy.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.641Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/deploy",
+      "backendSource": "backend-services/routes/deploy",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-deploy.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.642Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/hss",
+      "backendSource": "backend-services/routes/hss",
+      "goldenPath": "wisp-api-goldens\\GET-api-hss.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.642Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/hss",
+      "backendSource": "backend-services/routes/hss",
+      "goldenPath": "wisp-api-goldens\\POST-api-hss.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.643Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/hss",
+      "backendSource": "backend-services/routes/hss",
+      "goldenPath": "wisp-api-goldens\\PUT-api-hss.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.643Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/hss",
+      "backendSource": "backend-services/routes/hss",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-hss.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.644Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/hss",
+      "backendSource": "backend-services/routes/hss",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-hss.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.644Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/monitoring",
+      "backendSource": "backend-services/routes/monitoring",
+      "goldenPath": "wisp-api-goldens\\GET-api-monitoring.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.644Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/monitoring",
+      "backendSource": "backend-services/routes/monitoring",
+      "goldenPath": "wisp-api-goldens\\POST-api-monitoring.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.645Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/monitoring",
+      "backendSource": "backend-services/routes/monitoring",
+      "goldenPath": "wisp-api-goldens\\PUT-api-monitoring.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.646Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/monitoring",
+      "backendSource": "backend-services/routes/monitoring",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-monitoring.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.646Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/monitoring",
+      "backendSource": "backend-services/routes/monitoring",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-monitoring.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.647Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/maintain",
+      "backendSource": "backend-services/routes/maintain",
+      "goldenPath": "wisp-api-goldens\\GET-api-maintain.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.648Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/maintain",
+      "backendSource": "backend-services/routes/maintain",
+      "goldenPath": "wisp-api-goldens\\POST-api-maintain.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.649Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/maintain",
+      "backendSource": "backend-services/routes/maintain",
+      "goldenPath": "wisp-api-goldens\\PUT-api-maintain.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.650Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/maintain",
+      "backendSource": "backend-services/routes/maintain",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-maintain.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.651Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/maintain",
+      "backendSource": "backend-services/routes/maintain",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-maintain.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.652Z"
+    },
     {
       "method": "GET",
       "path": "/api/tenants",
       "backendSource": "backend-services/routes/tenants",
-      "traceCorpus": "wisp-api-pilot-traces/2026-06-27/88ea7622-c188-4576-b85a-6860bec61131.ndjson",
-      "goldenPath": "wisp-api-tenants-get.golden.json",
+      "goldenPath": "wisp-api-goldens\\GET-api-tenants.golden.json",
       "replayOk": true,
-      "capturedAt": "2026-06-27T02:57:42.149Z"
+      "capturedAt": "2026-06-27T03:31:00.654Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenants",
+      "backendSource": "backend-services/routes/tenants",
+      "goldenPath": "wisp-api-goldens\\POST-api-tenants.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.655Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/tenants",
+      "backendSource": "backend-services/routes/tenants",
+      "goldenPath": "wisp-api-goldens\\PUT-api-tenants.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.656Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/tenants",
+      "backendSource": "backend-services/routes/tenants",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-tenants.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.656Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/tenants",
+      "backendSource": "backend-services/routes/tenants",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-tenants.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.656Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/users",
+      "backendSource": "backend-services/routes/users",
+      "goldenPath": "wisp-api-goldens\\GET-api-users.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.657Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/users",
+      "backendSource": "backend-services/routes/users",
+      "goldenPath": "wisp-api-goldens\\POST-api-users.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.657Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/users",
+      "backendSource": "backend-services/routes/users",
+      "goldenPath": "wisp-api-goldens\\PUT-api-users.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.658Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/users",
+      "backendSource": "backend-services/routes/users",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-users.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.658Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/users",
+      "backendSource": "backend-services/routes/users",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-users.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.659Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/work-orders",
+      "backendSource": "backend-services/routes/work-orders",
+      "goldenPath": "wisp-api-goldens\\GET-api-work-orders.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.659Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/work-orders",
+      "backendSource": "backend-services/routes/work-orders",
+      "goldenPath": "wisp-api-goldens\\POST-api-work-orders.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.660Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/work-orders",
+      "backendSource": "backend-services/routes/work-orders",
+      "goldenPath": "wisp-api-goldens\\PUT-api-work-orders.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.660Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/work-orders",
+      "backendSource": "backend-services/routes/work-orders",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-work-orders.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.661Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/work-orders",
+      "backendSource": "backend-services/routes/work-orders",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-work-orders.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.661Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/permissions",
+      "backendSource": "backend-services/routes/permissions",
+      "goldenPath": "wisp-api-goldens\\GET-api-permissions.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.662Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/permissions",
+      "backendSource": "backend-services/routes/permissions",
+      "goldenPath": "wisp-api-goldens\\POST-api-permissions.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.662Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/permissions",
+      "backendSource": "backend-services/routes/permissions",
+      "goldenPath": "wisp-api-goldens\\PUT-api-permissions.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.663Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/permissions",
+      "backendSource": "backend-services/routes/permissions",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-permissions.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.663Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/permissions",
+      "backendSource": "backend-services/routes/permissions",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-permissions.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.664Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mikrotik",
+      "backendSource": "backend-services/routes/mikrotik",
+      "goldenPath": "wisp-api-goldens\\GET-api-mikrotik.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.665Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mikrotik",
+      "backendSource": "backend-services/routes/mikrotik",
+      "goldenPath": "wisp-api-goldens\\POST-api-mikrotik.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.665Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/mikrotik",
+      "backendSource": "backend-services/routes/mikrotik",
+      "goldenPath": "wisp-api-goldens\\PUT-api-mikrotik.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.666Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/mikrotik",
+      "backendSource": "backend-services/routes/mikrotik",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-mikrotik.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.666Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/mikrotik",
+      "backendSource": "backend-services/routes/mikrotik",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-mikrotik.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.667Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/epc-updates",
+      "backendSource": "backend-services/routes/epc-updates",
+      "goldenPath": "wisp-api-goldens\\GET-api-epc-updates.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.668Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/epc-updates",
+      "backendSource": "backend-services/routes/epc-updates",
+      "goldenPath": "wisp-api-goldens\\POST-api-epc-updates.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.669Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/epc-updates",
+      "backendSource": "backend-services/routes/epc-updates",
+      "goldenPath": "wisp-api-goldens\\PUT-api-epc-updates.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.669Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/epc-updates",
+      "backendSource": "backend-services/routes/epc-updates",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-epc-updates.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.670Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/epc-updates",
+      "backendSource": "backend-services/routes/epc-updates",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-epc-updates.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.671Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snmp",
+      "backendSource": "backend-services/routes/snmp-monitoring",
+      "goldenPath": "wisp-api-goldens\\GET-api-snmp.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.671Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snmp",
+      "backendSource": "backend-services/routes/snmp-monitoring",
+      "goldenPath": "wisp-api-goldens\\POST-api-snmp.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.671Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/snmp",
+      "backendSource": "backend-services/routes/snmp-monitoring",
+      "goldenPath": "wisp-api-goldens\\PUT-api-snmp.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.672Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/snmp",
+      "backendSource": "backend-services/routes/snmp-monitoring",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-snmp.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.672Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/snmp",
+      "backendSource": "backend-services/routes/snmp-monitoring",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-snmp.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.673Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/monitoring/graphs",
+      "backendSource": "backend-services/routes/monitoring-graphs",
+      "goldenPath": "wisp-api-goldens\\GET-api-monitoring-graphs.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.673Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/monitoring/graphs",
+      "backendSource": "backend-services/routes/monitoring-graphs",
+      "goldenPath": "wisp-api-goldens\\POST-api-monitoring-graphs.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.674Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/device-assignment",
+      "backendSource": "backend-services/routes/device-assignment",
+      "goldenPath": "wisp-api-goldens\\GET-api-device-assignment.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.674Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/device-assignment",
+      "backendSource": "backend-services/routes/device-assignment",
+      "goldenPath": "wisp-api-goldens\\POST-api-device-assignment.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.674Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/device-assignment",
+      "backendSource": "backend-services/routes/device-assignment",
+      "goldenPath": "wisp-api-goldens\\PUT-api-device-assignment.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.675Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/device-assignment",
+      "backendSource": "backend-services/routes/device-assignment",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-device-assignment.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.676Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/device-assignment",
+      "backendSource": "backend-services/routes/device-assignment",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-device-assignment.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.676Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications",
+      "backendSource": "backend-services/routes/notifications",
+      "goldenPath": "wisp-api-goldens\\GET-api-notifications.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.677Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/notifications",
+      "backendSource": "backend-services/routes/notifications",
+      "goldenPath": "wisp-api-goldens\\POST-api-notifications.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.677Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/notifications",
+      "backendSource": "backend-services/routes/notifications",
+      "goldenPath": "wisp-api-goldens\\PUT-api-notifications.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.678Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/notifications",
+      "backendSource": "backend-services/routes/notifications",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-notifications.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.678Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/notifications",
+      "backendSource": "backend-services/routes/notifications",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-notifications.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.679Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/voice",
+      "backendSource": "backend-services/routes/voice",
+      "goldenPath": "wisp-api-goldens\\GET-api-voice.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.679Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/voice",
+      "backendSource": "backend-services/routes/voice",
+      "goldenPath": "wisp-api-goldens\\POST-api-voice.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.680Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/voice",
+      "backendSource": "backend-services/routes/voice",
+      "goldenPath": "wisp-api-goldens\\PUT-api-voice.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.680Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/voice",
+      "backendSource": "backend-services/routes/voice",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-voice.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.681Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/voice",
+      "backendSource": "backend-services/routes/voice",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-voice.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.681Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin",
+      "backendSource": "backend-services/routes/admin-prefix",
+      "goldenPath": "wisp-api-goldens\\GET-api-admin.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.684Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin",
+      "backendSource": "backend-services/routes/admin-prefix",
+      "goldenPath": "wisp-api-goldens\\POST-api-admin.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.685Z"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin",
+      "backendSource": "backend-services/routes/admin-prefix",
+      "goldenPath": "wisp-api-goldens\\PUT-api-admin.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.686Z"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/admin",
+      "backendSource": "backend-services/routes/admin-prefix",
+      "goldenPath": "wisp-api-goldens\\PATCH-api-admin.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.687Z"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin",
+      "backendSource": "backend-services/routes/admin-prefix",
+      "goldenPath": "wisp-api-goldens\\DELETE-api-admin.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.688Z"
+    },
+    {
+      "method": "GET",
+      "path": "/api/internal",
+      "backendSource": "backend-services/routes/internal",
+      "goldenPath": "wisp-api-goldens\\GET-api-internal.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.688Z"
+    },
+    {
+      "method": "POST",
+      "path": "/api/internal",
+      "backendSource": "backend-services/routes/internal",
+      "goldenPath": "wisp-api-goldens\\POST-api-internal.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T03:31:00.689Z"
     }
   ],
   "tracesRoot": "wisp-api-pilot-traces",
-  "capturePlaybook": "docs/WISP-PRODUCTION-POC-PROGRAM.md#trace-capture-playbook",
-  "generatedAt": "2026-06-27T03:15:26.278Z",
+  "goldensDir": "wisp-api-goldens",
+  "capturePlaybook": "docs/WISP-PRODUCTION-COMPLETION-PROGRAM.md#trace-capture-playbook",
+  "generatedAt": "2026-06-27T03:44:19.016Z",
   "replayCorrectness": 1
 }

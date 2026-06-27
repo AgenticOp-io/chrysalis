@@ -62,9 +62,9 @@ Optional live capture: deploy chimera with `runtime-cwl-native` on GCE (`pnpm ru
 
 | Gap | Status |
 | --- | --- |
-| Full backend-services lift (all `/api/*`) | Pending trace + ingest per route family (~109 stubs remain) |
-| Firebase Hosting CWL static export | `hosting-apiProxy` remains on Firebase target |
-| Live operator deploy refresh | Run `wisp:deploy:gce` + `wisp:operator-verify -- --require` after merge |
+| Full backend-services lift (all `/api/*`) | **Closed** — 109 handlers oracle-verified (`wisp-api-goldens/`, replay 1.0) |
+| Firebase Hosting CWL static export | **Closed** — `cwl-static-export/` (87 pages, Phase 29b) |
+| Live operator deploy refresh | Operator-run — `wisp:deploy:gce` + `wisp:operator-verify -- --require` |
 
 ## Gates
 

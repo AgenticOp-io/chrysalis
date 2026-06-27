@@ -1,0 +1,4 @@
+{"type":"header","schemaVersion":"1.0.0","traceId":"dcbb78f2-afaa-4714-9a05-b6a85e75325f","startedAt":"2026-06-27T03:31:00.467Z","php":{"version":"hub-node","sapi":"oracle-node"},"redaction":{"configHash":"oracle-node-min","rules":[]}}
+{"type":"http.request","method":"PATCH","path":"/api/hss","query":{},"headers":{"host":"127.0.0.1:27165"},"cookies":{},"post":{},"rawBody":null,"session":{}}
+{"type":"http.response","status":200,"headers":{"connection":"keep-alive","content-length":"70","content-type":"application/json; charset=utf-8","date":"Sat, 27 Jun 2026 03:31:00 GMT","etag":"W/\"46-94CZoZR6XMBLr770NegsntcKoAY\"","keep-alive":"timeout=5","x-powered-by":"Express"},"body":"{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"hss\",\"op\":\"update\"}","bodyTruncated":false,"session":{}}
+{"type":"footer","endedAt":"2026-06-27T03:31:00.467Z","durationUs":1000,"eventCount":2,"exitStatus":0}

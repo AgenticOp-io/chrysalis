@@ -11,12 +11,14 @@ import { applyWispPhase27dNativeAuth } from "./wisp-cwl-apply-phase27d-native-au
 import { applyWispPhase27fCutover } from "./wisp-cwl-apply-phase27f-cutover.mjs";
 import { applyWispPhase28gIntegrationsUi } from "./wisp-cwl-apply-phase28g-integrations-ui.mjs";
 import { applyWispApiPilotHandler } from "./wisp-cwl-apply-api-pilot-handler.mjs";
+import { applyWispApiGoldenHandlers } from "./wisp-cwl-apply-api-golden-handlers.mjs";
 import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 
 export const WISP_POST_G7790_CHAIN_KIND = "chrysalis.wisp.post-g7790-apply-chain";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const pilotGoldenPath = join(scriptRoot, "fixtures/hub-wisp-management/wisp-api-tenants-get.golden.json");
+const goldensIndexPath = join(scriptRoot, "fixtures/hub-wisp-management/chrysalis.wisp-api-goldens.v1.json");
 
 /** @param {object} [opts] */
 export function applyWispPostG7790Chain(opts = {}) {
@@ -25,9 +27,11 @@ export function applyWispPostG7790Chain(opts = {}) {
   const phase27d = applyWispPhase27dNativeAuth(opts);
   const phase27f = applyWispPhase27fCutover(opts);
   const phase28g = applyWispPhase28gIntegrationsUi(opts);
-  const phase28dPilot = existsSync(pilotGoldenPath)
-    ? applyWispApiPilotHandler({ goldenPath: pilotGoldenPath })
-    : { ok: true, skip: "no-pilot-golden" };
+  const phase28dPilot = existsSync(goldensIndexPath)
+    ? applyWispApiGoldenHandlers({ includeTenantsPilot: false })
+    : existsSync(pilotGoldenPath)
+      ? applyWispApiPilotHandler({ goldenPath: pilotGoldenPath })
+      : { ok: true, skip: "no-pilot-golden" };
   const holeManifest = buildWispHoleManifest(opts);
   const ok =
     phase27b.ok === true &&

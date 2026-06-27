@@ -6,7 +6,7 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Maintenance** — WISP production POC closed (**G7890**); default regression **G7890** composite (**D6271**).
+- **Active lane:** **Maintenance** — WISP production completion closed (**G7990**); default regression **G7990** composite (**D6272**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -15,6 +15,25 @@
 ---
 
 ---
+
+---
+
+---
+
+## Closed — Phase 29 WISP production completion (G7990)
+
+Program doc: [`docs/WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./docs/WISP-PRODUCTION-COMPLETION-PROGRAM.md)  
+Authority: **DESIGN D6272**  
+Closed: **2026-06-27**
+
+| Phase | Goal | Close gate |
+| --- | --- | --- |
+| **29a** | Full API oracle corpus | **G7905** |
+| **29b** | CWL static export | **G7904** |
+| **29c** | Operator deploy contract | **G7906** |
+| **Program** | Production completion close | **G7990** |
+
+**Default regression:** `pnpm run hub:wisp-production-completion-close-smoke` (**G7990**).
 
 ---
 

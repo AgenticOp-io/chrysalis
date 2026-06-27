@@ -1,0 +1,4 @@
+{"type":"header","schemaVersion":"1.0.0","traceId":"de05473e-9c55-4515-a2cb-a667afa08ca4","startedAt":"2026-06-27T03:31:00.522Z","php":{"version":"hub-node","sapi":"oracle-node"},"redaction":{"configHash":"oracle-node-min","rules":[]}}
+{"type":"http.request","method":"POST","path":"/api/monitoring/graphs","query":{},"headers":{"host":"127.0.0.1:27165"},"cookies":{},"post":{},"rawBody":null,"session":{}}
+{"type":"http.response","status":200,"headers":{"connection":"keep-alive","content-length":"84","content-type":"application/json; charset=utf-8","date":"Sat, 27 Jun 2026 03:31:00 GMT","etag":"W/\"54-TUggJMkSiDpmKYC9XOawZhFfClk\"","keep-alive":"timeout=5","x-powered-by":"Express"},"body":"{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"monitoring-graphs\",\"op\":\"create\"}","bodyTruncated":false,"session":{}}
+{"type":"footer","endedAt":"2026-06-27T03:31:00.522Z","durationUs":1000,"eventCount":2,"exitStatus":0}

@@ -414,11 +414,31 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-06-27 (WISP production POC closed — D6271):** Phase **28** closed at **G7890**: operator contracts, post-G7790 pipeline, integration client UI, oracle trace pilot replay green (**G7805**); default maintenance **G7890** composite. See [`WISP-PRODUCTION-POC-PROGRAM.md`](./WISP-PRODUCTION-POC-PROGRAM.md).
 
+**Amended 2026-06-27 (WISP production completion closed — D6272):** Phase **29** closed at **G7990**: full API oracle corpus (**109** routes, **G7905**), CWL static export (**87** pages, **G7904**), operator contract smoke (**G7906**); default maintenance **G7990** composite. See [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md).
+
 **Amended 2026-06-26 (WISP production POC — D6270):** Phase **28** active after **G7790**: operator HTTP contracts, post-G7790 pipeline, integration client UI, honest oracle trace pilot; program close **G7890**. See [`WISP-PRODUCTION-POC-PROGRAM.md`](./WISP-PRODUCTION-POC-PROGRAM.md).
 
 ---
 
-## 12. Default queue (post G7890 — WISP production POC closed)
+## 12. Default queue (post G7990 — WISP production completion closed)
+
+**Status:** **WISP production completion program closed** (**G7990**, **D6272**); **WISP production POC closed** (**G7890**); **WISP full site closed** (**G7790**); **universal translator closed** (**G7690**).
+
+When the user says "build" without specifying:
+
+1. **G7990 composite** — `pnpm run hub:wisp-production-completion-close-smoke` (includes Phase 29 + **G7890** regression)
+2. **G7890 subordinate** — `pnpm run hub:wisp-production-poc-close-smoke`
+3. **G7790 subordinate** — included in **G7890** composite
+4. **G7690 subordinate** — included in **G7790** composite
+5. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**Apply chain (fixture refresh):** `pnpm run wisp:apply-post-g7790-chain`
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G7890 — WISP production POC closed, superseded 2026-06-27)
 
 **Status:** **WISP production POC program closed** (**G7890**, **D6271**); **WISP full site closed** (**G7790**); **universal translator closed** (**G7690**).
 

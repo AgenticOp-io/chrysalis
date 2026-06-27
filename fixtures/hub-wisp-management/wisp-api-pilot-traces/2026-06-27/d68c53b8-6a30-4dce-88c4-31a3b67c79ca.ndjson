@@ -1,0 +1,4 @@
+{"type":"header","schemaVersion":"1.0.0","traceId":"d68c53b8-6a30-4dce-88c4-31a3b67c79ca","startedAt":"2026-06-27T03:31:00.537Z","php":{"version":"hub-node","sapi":"oracle-node"},"redaction":{"configHash":"oracle-node-min","rules":[]}}
+{"type":"http.request","method":"GET","path":"/api/voice","query":{},"headers":{"host":"127.0.0.1:27165"},"cookies":{},"post":{},"rawBody":null,"session":{}}
+{"type":"http.response","status":200,"headers":{"connection":"keep-alive","content-length":"70","content-type":"application/json; charset=utf-8","date":"Sat, 27 Jun 2026 03:31:00 GMT","etag":"W/\"46-avLOA1W5w/gz8txLGmD0+6SV7SQ\"","keep-alive":"timeout=5","x-powered-by":"Express"},"body":"{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"voice\",\"op\":\"list\"}","bodyTruncated":false,"session":{}}
+{"type":"footer","endedAt":"2026-06-27T03:31:00.537Z","durationUs":1000,"eventCount":2,"exitStatus":0}

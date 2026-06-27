@@ -23,7 +23,9 @@
   "firebase": {
     "hostingTarget": "hosting:management",
     "project": "wisptools-production",
-    "clientBuildTarget": "firebase"
+    "clientBuildTarget": "firebase",
+    "cwlStaticExportDir": "fixtures/hub-wisp-management/cwl-static-export",
+    "apiMode": "cwl-static-export"
   },
   "deployTargets": {
     "gce": {
@@ -34,7 +36,7 @@
     "firebase": {
       "clientBuild": "firebase",
       "npmScript": "build",
-      "apiMode": "hosting-apiProxy"
+      "apiMode": "cwl-static-export"
     }
   }
 }

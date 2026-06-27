@@ -2091,7 +2091,19 @@ export function runPausedAndMaintenanceDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const phase10Closed = isPhase10ProductionParityClosed();
-  const docOk = isWispProductionPocProgramClosed()
+  const docOk = isWispProductionCompletionProgramClosed()
+    ? text.includes("G7990") &&
+      text.includes("hub:wisp-production-completion-close-smoke") &&
+      text.includes("G7890") &&
+      text.includes("D6272") &&
+      text.includes("Do not treat closed program tables")
+    : isWispProductionCompletionProgramActive()
+    ? text.includes("G7900") &&
+      text.includes("G7990") &&
+      text.includes("WISP-PRODUCTION-COMPLETION-PROGRAM.md") &&
+      text.includes("D6272") &&
+      text.includes("Do not treat closed program tables")
+    : isWispProductionPocProgramClosed()
     ? text.includes("G7890") &&
       text.includes("hub:wisp-production-poc-close-smoke") &&
       text.includes("G7790") &&
@@ -2223,6 +2235,30 @@ export function runPausedAndMaintenanceDocGate() {
 
 /** G6162 — Strategic plan default queue gate (Phase 13, Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isWispProductionCompletionProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G7990") &&
+      text.includes("hub:wisp-production-completion-close-smoke") &&
+      text.includes("G7890") &&
+      text.includes("D6272") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, wispProductionCompletionClosedOk: ok };
+  }
+  if (isWispProductionCompletionProgramActive()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("Phase 29") &&
+      text.includes("G7900") &&
+      text.includes("G7990") &&
+      text.includes("D6272") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, wispProductionCompletionActiveOk: ok };
+  }
   if (isWispProductionPocProgramClosed()) {
     const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
     if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
@@ -2445,7 +2481,19 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
   const ok =
-    isWispProductionPocProgramClosed()
+    isWispProductionCompletionProgramClosed()
+      ? text.includes("G7990") &&
+        text.includes("hub:wisp-production-completion-close-smoke") &&
+        text.includes("G7890") &&
+        text.includes("D6272") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isWispProductionCompletionProgramActive()
+      ? text.includes("Phase 29") &&
+        text.includes("G7900") &&
+        text.includes("G7990") &&
+        text.includes("D6272") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isWispProductionPocProgramClosed()
       ? text.includes("G7890") &&
         text.includes("hub:wisp-production-poc-close-smoke") &&
         text.includes("G7790") &&
@@ -2577,6 +2625,12 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
 
 /** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isWispProductionCompletionProgramClosed()) {
+    return runWispProductionCompletionClosedGovernanceGate(_opts);
+  }
+  if (isWispProductionCompletionProgramActive()) {
+    return runWispProductionCompletionActiveGovernanceGate(_opts);
+  }
   if (isWispProductionPocProgramClosed()) {
     return runWispProductionPocClosedGovernanceGate(_opts);
   }
@@ -5764,6 +5818,87 @@ export async function runWispProductionPocClosedGovernanceGate(_opts = {}) {
     roadmapOk: roadmap.ok === true,
     taxonomyOk: taxonomy.ok === true,
     mode: "wisp-production-poc-closed",
+  };
+}
+
+const wispProductionCompletionProgramDocPath = join(
+  scriptRoot,
+  "docs/WISP-PRODUCTION-COMPLETION-PROGRAM.md",
+);
+
+/** @returns {boolean} WISP production completion program is active (G7900, D6272). */
+export function isWispProductionCompletionProgramActive() {
+  if (isWispProductionCompletionProgramClosed()) return false;
+  if (!existsSync(wispProductionCompletionProgramDocPath)) return false;
+  const text = readFileSync(wispProductionCompletionProgramDocPath, "utf8");
+  return text.includes("**Status:** **active**") && text.includes("G7900");
+}
+
+/** @returns {boolean} WISP production completion program closed (G7990). */
+export function isWispProductionCompletionProgramClosed() {
+  if (!existsSync(wispProductionCompletionProgramDocPath)) return false;
+  const text = readFileSync(wispProductionCompletionProgramDocPath, "utf8");
+  return text.includes("Program closed") && text.includes("G7990");
+}
+
+/** G7901 — WISP production completion active governance (post G7900 entry). */
+export async function runWispProductionCompletionActiveGovernanceGate(_opts = {}) {
+  const { runWispProductionCompletionProgramEntryGate } = await import(
+    "./hub-wisp-production-completion-program-entry-smoke.mjs"
+  );
+  const entry = await runWispProductionCompletionProgramEntryGate(_opts);
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    entry.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isWispProductionCompletionProgramActive();
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "wisp-production-completion-active",
+  };
+}
+
+/** G7991 — WISP production completion closed governance. */
+export async function runWispProductionCompletionClosedGovernanceGate(_opts = {}) {
+  const skipGoldVerify =
+    _opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";
+  const { runWispProductionCompletionCloseGate, runWispProductionCompletionDocGate } = await import(
+    "./hub-wisp-production-completion-close-smoke.mjs"
+  );
+  const close =
+    _opts.skipCloseSmoke === true
+      ? runWispProductionCompletionDocGate()
+      : await runWispProductionCompletionCloseGate({ ..._opts, skipGoldVerify });
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const taxonomy = runCwlSurfaceTaxonomyDocGate();
+  const ok =
+    close.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    taxonomy.ok === true &&
+    isWispProductionCompletionProgramClosed();
+  return {
+    ok,
+    closeOk: close.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    taxonomyOk: taxonomy.ok === true,
+    mode: "wisp-production-completion-closed",
   };
 }
 
