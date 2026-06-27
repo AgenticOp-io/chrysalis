@@ -21,20 +21,33 @@ export function runWispProductionCompletionOperatorDocGate() {
     program.includes("wisp:operator-verify") &&
     program.includes("wisp:deploy:gce") &&
     manifest.includes("cwl-native-api") &&
-    manifest.includes("runtime-cwl-native");
+    manifest.includes("runtime-cwl-native") &&
+    manifest.includes("cwl-static-export");
   return { ok, docOk: ok };
+}
+
+export function runWispProductionCompletionOperatorPipelineGate() {
+  const pipelinePath = join(scriptRoot, "fixtures/hub-wisp-management/wisp-pipeline.config.json");
+  if (!existsSync(pipelinePath)) return { ok: false, skip: "missing-pipeline-config" };
+  const pipeline = readFileSync(pipelinePath, "utf8");
+  const ok =
+    pipeline.includes('"apiMode": "cwl-static-export"') &&
+    pipeline.includes("cwlStaticExportDir");
+  return { ok, pipelineOk: ok };
 }
 
 export function runWispProductionCompletionOperatorGate() {
   const doc = runWispProductionCompletionOperatorDocGate();
+  const pipeline = runWispProductionCompletionOperatorPipelineGate();
   const contract = runWispProductionPocOperatorContractGate();
   const scriptOk = WISP_OPERATOR_VERIFY_KIND === "chrysalis.wisp.operator-verify";
-  const ok = doc.ok === true && contract.ok === true && scriptOk;
+  const ok = doc.ok === true && pipeline.ok === true && contract.ok === true && scriptOk;
   return {
     kind: WISP_PRODUCTION_COMPLETION_OPERATOR_KIND,
     schemaVersion: 1,
     ok,
     doc,
+    pipeline,
     contract,
     scriptOk,
     generatedAt: new Date().toISOString(),

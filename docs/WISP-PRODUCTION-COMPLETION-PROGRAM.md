@@ -22,6 +22,7 @@ All **109** native handlers in `api-proxy.cwl` lifted from oracle goldens (`fixt
 Export **87** `@page` routes from `routes.cwl` to `fixtures/hub-wisp-management/cwl-static-export/` for Firebase Hosting charter.
 
 **Command:** `pnpm run wisp:cwl-static-export`  
+**Firebase deploy staging:** `pnpm run wisp:stage:firebase-static` (copies export → `Module_Manager/build/client`)  
 **Close:** `pnpm run hub:wisp-production-completion-static-export-smoke`
 
 ### Phase 29c — Operator deploy contract (**G7906** — closed)

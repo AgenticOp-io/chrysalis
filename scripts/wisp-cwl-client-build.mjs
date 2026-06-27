@@ -9,6 +9,8 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
+import { stageWispCwlStaticExportClient } from "./wisp-cwl-firebase-static-stage.mjs";
 
 export const WISP_CWL_CLIENT_BUILD_KIND = "chrysalis.wisp.client-build";
 export const WISP_CWL_CLIENT_BUILD_SCHEMA_VERSION = 1;
@@ -57,6 +59,13 @@ export function resolveWispToolsRoot(wispRoot) {
   return base;
 }
 
+/** @param {Record<string, unknown>} config @param {"gce"|"firebase"} deployTarget */
+export function resolveWispDeployApiMode(config, deployTarget) {
+  const section = deployTarget === "firebase" ? config.firebase : config.gce;
+  const targetSection = config.deployTargets?.[deployTarget];
+  return targetSection?.apiMode ?? section?.apiMode ?? null;
+}
+
 /**
  * @param {object} [opts]
  * @param {WispDeployTarget} [opts.deployTarget]
@@ -78,16 +87,42 @@ export function buildWispClient(opts = {}) {
 
   const wispRoot = resolve(opts.wispRoot ?? defaultRoot);
   const clientDir = join(wispRoot, "build/client");
+  const config = loadWispPipelineConfig();
+  const apiMode = resolveWispDeployApiMode(config, deployTarget);
   const base = {
     kind: WISP_CWL_CLIENT_BUILD_KIND,
     schemaVersion: WISP_CWL_CLIENT_BUILD_SCHEMA_VERSION,
     ok: false,
     deployTarget,
     profile: profile.summary,
+    apiMode,
     wispRoot,
     wispToolsRoot: resolveWispToolsRoot(wispRoot),
     clientDir,
   };
+
+  if (deployTarget === "firebase" && apiMode === "cwl-static-export") {
+    const staged = stageWispCwlStaticExportClient({
+      wispRoot,
+      dryRun: opts.dryRun,
+    });
+    if (staged.ok !== true) {
+      return {
+        ...base,
+        skip: staged.skip ?? "cwl-static-export-stage-failed",
+        stage: staged,
+        buildMode: "cwl-static-export",
+      };
+    }
+    return {
+      ...base,
+      ok: true,
+      buildMode: "cwl-static-export",
+      npmScript: null,
+      stage: staged,
+      dryRun: opts.dryRun === true ? true : undefined,
+    };
+  }
 
   if (!existsSync(join(wispRoot, "package.json"))) {
     return { ...base, skip: "missing-wisp-package-json" };

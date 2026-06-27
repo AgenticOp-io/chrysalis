@@ -38,6 +38,12 @@ export async function runWispCwlDualDeployConfigSmokeGate(opts = {}) {
   const firebaseDryRun = runWispFirebaseDeploy({ dryRun: true, skipBuild: true });
   checks.firebaseDryRunOk = firebaseDryRun.ok === true || firebaseDryRun.skip === "missing-firebase-json";
 
+  const { runWispCwlFirebaseStaticExportStageGate } = await import(
+    "./hub-wisp-cwl-firebase-static-export-stage-smoke.mjs"
+  );
+  const firebaseStaticStage = runWispCwlFirebaseStaticExportStageGate();
+  checks.firebaseStaticExportStageOk = firebaseStaticStage.ok === true;
+
   const docPath = join(scriptRoot, "docs/WISP-CWL-FULLSTACK-PROGRAM.md");
   const docText = existsSync(docPath) ? readFileSync(docPath, "utf8") : "";
   checks.topologyDualDeployDoc =
