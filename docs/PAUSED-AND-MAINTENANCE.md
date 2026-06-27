@@ -1,7 +1,7 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-06-25)  
-> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **WISP production POC active** (**G7800**, **D6270**). **WISP full site CWL closed** (**G7790**, **D6268**). **Universal translator closed** (**G7690**).
+> **Status:** authoritative (2026-06-27)  
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **WISP production POC closed** (**G7890**, **D6270** / **D6271**). **WISP full site CWL closed** (**G7790**, **D6268**). **Universal translator closed** (**G7690**).
 
 **Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
 
@@ -11,18 +11,18 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **Phase 28 production POC (default)** | **G7890** — `pnpm run hub:wisp-production-poc-close-smoke` |
-| **G7790 regression (subordinate)** | Included in **G7890** composite |
-| **G7690 regression** | Included in **G7790** composite |
+| **G7890 regression (default)** | `pnpm run hub:wisp-production-poc-close-smoke` |
+| **G7790 subordinate** | Included in **G7890** composite |
+| **G7690 subordinate** | Included in **G7790** composite |
 | **IR helper tier regression (optional)** | `hub:cwl-language-maintenance-smoke` (**G6731**); `hub:ir-helper-program-close-smoke` (**G7200**) |
 | Bug fix / regression / CI red | Fix it; keep gates green |
 | Parser mapper gap / new PHP syntax | Maintenance §2 |
 
-**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **wisp-full-site-closed** mode)
+**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **G7891** / **wisp-production-poc-closed** mode)
 
-**Program doc:** [`WISP-FULL-SITE-CWL-PROGRAM.md`](./WISP-FULL-SITE-CWL-PROGRAM.md)
+**Program doc:** [`WISP-PRODUCTION-POC-PROGRAM.md`](./WISP-PRODUCTION-POC-PROGRAM.md)
 
-**Program close regression:** `pnpm run hub:wisp-full-site-close-smoke` (**G7790**)
+**Program close regression:** `pnpm run hub:wisp-production-poc-close-smoke` (**G7890**)
 
 ---
 
@@ -56,6 +56,9 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
 
 | Gap | Status | Doc |
 | --- | --- | --- |
+| WISP full `/api/*` backend lift | ~109 stub handlers; pilot `GET /api/tenants` replay green | `WISP-PRODUCTION-POC-PROGRAM.md` |
+| Firebase Hosting CWL static export | `hosting-apiProxy` on Firebase target | `WISP-PRODUCTION-POC-PROGRAM.md` |
+| Live operator deploy refresh | `wisp:deploy:gce` + `wisp:operator-verify --require` | `WISP-CWL-FULLSTACK-PROGRAM.md` |
 | Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
 | Commercial launch | Optional vendor gate | `COMMERCIAL.md` |
@@ -70,6 +73,7 @@ Governance hooks: `runMaintenanceProgramCompleteGate`, `runHonestGapsProgramComp
 
 | Program | Close | Smoke |
 | --- | --- | --- |
+| WISP production POC | **G7890** | `hub:wisp-production-poc-close-smoke` |
 | WISP full site CWL | **G7790** | `hub:wisp-full-site-close-smoke` |
 | Universal translator N×N | **G7690** | `hub:cwl-universal-translator-close-smoke` |
 | Full web language | **G7590** | `hub:cwl-full-web-language-close-smoke` |
@@ -78,4 +82,3 @@ Governance hooks: `runMaintenanceProgramCompleteGate`, `runHonestGapsProgramComp
 | Complete language v1 | **G7150** | `hub:cwl-complete-language-close-smoke` |
 | IR Helper Program v1 | **G7200** | `hub:ir-helper-program-close-smoke` |
 | WISP POC surfaces (Phase 13–14) | **G6690** | `hub:wisp-cwl-phase14-program-close-smoke` |
-| Phase 10 production parity | **G6257** | `hub:strategic-plan-phase10-program-archive-close-smoke` |

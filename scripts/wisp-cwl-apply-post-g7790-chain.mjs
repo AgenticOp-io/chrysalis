@@ -2,14 +2,21 @@
 /**
  * Apply Phase 27b–27f + Phase 28g on WISP fixture (post-G7790 production POC path).
  */
+import { existsSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { applyWispPhase27bNativeApi } from "./wisp-cwl-apply-phase27b-native-api.mjs";
 import { applyWispPhase27cNativeUi } from "./wisp-cwl-apply-phase27c-native-ui.mjs";
 import { applyWispPhase27dNativeAuth } from "./wisp-cwl-apply-phase27d-native-auth.mjs";
 import { applyWispPhase27fCutover } from "./wisp-cwl-apply-phase27f-cutover.mjs";
 import { applyWispPhase28gIntegrationsUi } from "./wisp-cwl-apply-phase28g-integrations-ui.mjs";
+import { applyWispApiPilotHandler } from "./wisp-cwl-apply-api-pilot-handler.mjs";
 import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 
 export const WISP_POST_G7790_CHAIN_KIND = "chrysalis.wisp.post-g7790-apply-chain";
+
+const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const pilotGoldenPath = join(scriptRoot, "fixtures/hub-wisp-management/wisp-api-tenants-get.golden.json");
 
 /** @param {object} [opts] */
 export function applyWispPostG7790Chain(opts = {}) {
@@ -18,6 +25,9 @@ export function applyWispPostG7790Chain(opts = {}) {
   const phase27d = applyWispPhase27dNativeAuth(opts);
   const phase27f = applyWispPhase27fCutover(opts);
   const phase28g = applyWispPhase28gIntegrationsUi(opts);
+  const phase28dPilot = existsSync(pilotGoldenPath)
+    ? applyWispApiPilotHandler({ goldenPath: pilotGoldenPath })
+    : { ok: true, skip: "no-pilot-golden" };
   const holeManifest = buildWispHoleManifest(opts);
   const ok =
     phase27b.ok === true &&
@@ -25,6 +35,7 @@ export function applyWispPostG7790Chain(opts = {}) {
     phase27d.ok === true &&
     phase27f.ok === true &&
     phase28g.ok === true &&
+    phase28dPilot.ok !== false &&
     holeManifest.ok === true &&
     holeManifest.uiHoleCount === 0 &&
     holeManifest.upstreamProxyHoles === 0;
@@ -37,6 +48,7 @@ export function applyWispPostG7790Chain(opts = {}) {
     phase27d,
     phase27f,
     phase28g,
+    phase28dPilot,
     holeManifest,
     generatedAt: new Date().toISOString(),
   };

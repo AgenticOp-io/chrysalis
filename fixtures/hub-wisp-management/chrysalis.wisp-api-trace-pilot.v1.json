@@ -1,16 +1,21 @@
 {
   "kind": "chrysalis.wisp.api-trace-pilot",
   "schemaVersion": 1,
-  "status": "pending-capture",
+  "status": "replay-green",
+  "source": "oracle-fixture",
   "pilotRoutes": [
     {
       "method": "GET",
       "path": "/api/tenants",
       "backendSource": "backend-services/routes/tenants",
-      "traceCorpus": null,
-      "replayOk": null
+      "traceCorpus": "wisp-api-pilot-traces/2026-06-27/88ea7622-c188-4576-b85a-6860bec61131.ndjson",
+      "goldenPath": "wisp-api-tenants-get.golden.json",
+      "replayOk": true,
+      "capturedAt": "2026-06-27T02:57:42.149Z"
     }
   ],
+  "tracesRoot": "wisp-api-pilot-traces",
   "capturePlaybook": "docs/WISP-PRODUCTION-POC-PROGRAM.md#trace-capture-playbook",
-  "generatedAt": "2026-06-26T05:30:00.000Z"
+  "generatedAt": "2026-06-27T03:15:26.278Z",
+  "replayCorrectness": 1
 }

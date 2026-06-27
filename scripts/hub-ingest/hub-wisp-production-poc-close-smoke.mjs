@@ -41,7 +41,7 @@ export async function runWispProductionPocCloseGate(opts = {}) {
   const phase28c = runWispProductionPocIntegrationsGate();
   progress.end("phase28c", phase28c.ok === true, t0);
   t0 = progress.start("phase28d");
-  const phase28d = runWispProductionPocVerifyReplayGate();
+  const phase28d = await runWispProductionPocVerifyReplayGate();
   progress.end("phase28d", phase28d.ok === true, t0);
   const skipGoldVerify =
     opts.skipGoldVerify === true || process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD === "1";

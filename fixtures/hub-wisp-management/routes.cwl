@@ -312,6 +312,91 @@ handler session_me {
   return { ok: true, surface: "wisp-auth-native" };
 }
 
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
 @page GET "/modules"
 page modules_page {
   effects: none;

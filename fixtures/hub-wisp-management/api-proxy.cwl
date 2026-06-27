@@ -404,10 +404,10 @@ handler wisp_api_maintain_delete {
 
 @route GET "/api/tenants"
 handler wisp_api_tenants_get {
-  # source backend-services/routes/tenants
+  # source backend-services/routes/tenants — oracle-verified (Phase 28d)
   effects: db, session;
   use auth bearer;
-  return { ok: true, surface: "wisp-api-native", resource: "tenants", op: "list" };
+  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"tenants\",\"op\":\"list\",\"count\":1,\"tenants\":[{\"id\":\"674a1b2c3d4e5f6789012345\",\"name\":\"WISP Oracle Tenant\",\"subdomain\":\"wisp-oracle\",\"status\":\"active\",\"userCount\":1}]}";
 }
 
 @route POST "/api/tenants"

@@ -44,8 +44,8 @@ test("roadmap maintenance default queue gate (G6163)", () => {
   expect(gate.ok).toBe(true);
 });
 
-// Full G7790 composite (~6+ min) runs in CI via hub:maintenance-mode-governance-smoke.
-test("maintenance mode governance gate routes to wisp-full-site-closed (G6160 / G7791)", () => {
+// Full G7890 composite (~6+ min) runs in CI via hub:maintenance-mode-governance-smoke.
+test("maintenance mode governance gate routes to wisp-production-poc-closed (G6160 / G7891)", () => {
   const abs = resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs").replace(/\\/g, "/");
   const r = spawnSync(
     process.execPath,
@@ -59,6 +59,6 @@ test("maintenance mode governance gate routes to wisp-full-site-closed (G6160 / 
   expect(r.status, r.stderr || r.stdout).toBe(0);
   const gate = JSON.parse(r.stdout.trim());
   expect(gate.ok).toBe(true);
-  expect(gate.mode).toBe("wisp-full-site-closed");
+  expect(gate.mode).toBe("wisp-production-poc-closed");
   expect(gate.closeOk).toBe(true);
 }, 120_000);
