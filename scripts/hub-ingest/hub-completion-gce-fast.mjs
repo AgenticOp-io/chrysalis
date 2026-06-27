@@ -558,6 +558,9 @@ export function buildGceFastHeavySmokeState() {
   state.advisoryStandaloneMegaBatch = deferMega(3);
   state.allDeliveryUltraMegaBatch = deferMega(4);
   state.migrationOsMegaBatch = deferMega(5);
+  state.deliveryDashboardSmoke = d();
+  state.strategicPlanPhase2Entry = d();
+  state.strategicPlanPhase2LicenseTier = d();
   state.oracleProductUltraBatch = deferMega(11);
   state.expressLaravelMinDeliveryBatch = d();
   state.symfonyLaravelMinDeliveryBatch = d();
