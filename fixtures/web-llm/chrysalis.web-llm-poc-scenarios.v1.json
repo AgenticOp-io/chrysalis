@@ -17,6 +17,17 @@
       "gateName": "wvb-close-loop"
     },
     {
+      "id": "intelligence-shorthand-export",
+      "title": "Intelligence Shorthand export",
+      "userPrompt": "Export verify-gated Intelligence Shorthand artifacts (IS-T3/T4/T5) from the Open Legacy corpus — CPU only, no GPU.",
+      "steps": [
+        { "kind": "tool", "tool": "web_llm_export_shorthand", "toolInput": { "buildHub": true } },
+        { "kind": "check", "check": "min-shorthand-count", "min": 10 }
+      ],
+      "gateName": "intelligence-shorthand-export",
+      "tags": ["G8560", "CPU"]
+    },
+    {
       "id": "wisp-ui-parity-anchors",
       "title": "WISP UI parity anchors",
       "userPrompt": "Confirm WISP CWL UI parity anchor routes are in WVB and the parity manifest is green.",

@@ -69,11 +69,18 @@ export async function runOpenWebLlmMcpToolsGate() {
   const mod = await loadWebLlm();
   const manifest = mod.buildAgentToolManifest();
   const verifyTool = mod.findAgentTool("chrysalis_verify");
+  const shorthandTool = mod.findAgentTool("web_llm_export_shorthand");
   const ok =
     manifest.kind === "chrysalis.web-llm.tool-manifest" &&
-    manifest.tools.length >= 8 &&
-    verifyTool?.name === "chrysalis_verify";
-  return { ok, toolCount: manifest.tools.length, verifyTool: verifyTool?.name ?? null };
+    manifest.tools.length >= 9 &&
+    verifyTool?.name === "chrysalis_verify" &&
+    shorthandTool?.name === "web_llm_export_shorthand";
+  return {
+    ok,
+    toolCount: manifest.tools.length,
+    verifyTool: verifyTool?.name ?? null,
+    shorthandTool: shorthandTool?.name ?? null,
+  };
 }
 
 export async function runOpenWebLlmCloseGate() {

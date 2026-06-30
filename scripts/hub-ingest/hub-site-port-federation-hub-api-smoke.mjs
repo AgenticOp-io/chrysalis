@@ -118,6 +118,8 @@ export async function runSitePortFederationHubApiSmoke(opts = {}) {
       submit,
       remote,
       publishAll,
+      exportShorthand,
+      shorthandGet,
       generatedAt: new Date().toISOString(),
     };
   } finally {

@@ -18,6 +18,7 @@ This is **not** a foundation-model train run. We ship **evidence infrastructure*
 | **A** | Web Verify Benchmark (WVB) from fixtures | build script |
 | **A** | Trajectory JSONL + verify policy | **G8290** |
 | **A** | MCP tool server (`web-llm-mcp-server.mjs`) | **G8290** |
+| **A** | Intelligence Shorthand export tool (`web_llm_export_shorthand`) | **G8560** |
 | **B** | Agent trajectory logging from Hub / Cursor hooks | **G8240** |
 | **B** | Public WVB leaderboard from CI artifacts | **G8240** |
 | **B** | Training shard export + recipe doc | **G8240** |

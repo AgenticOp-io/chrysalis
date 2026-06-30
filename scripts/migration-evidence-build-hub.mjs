@@ -74,6 +74,19 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
       ok: lastDemo?.webLlm?.ok ?? webLlmRun?.ok ?? null,
       hub: "../web-llm/poc/index.html",
     },
+    {
+      id: "intelligence-shorthand",
+      title: "Intelligence Shorthand (CPU)",
+      gate: "G8560",
+      ok:
+        (shorthandBundle?.summary?.count ?? 0) >= 1 &&
+        existsSync(join(outDir, "../web-llm/shorthand/poc/index.html"))
+          ? true
+          : shorthandBundle
+            ? false
+            : null,
+      hub: "../web-llm/shorthand/poc/index.html",
+    },
   ];
 
   const rows = programRows

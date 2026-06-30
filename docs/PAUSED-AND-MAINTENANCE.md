@@ -11,6 +11,8 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
+| **G8550 Migration OS (closed composite)** | `pnpm run hub:migration-os-close-smoke` (includes **G8560** IS) |
+| **G8560 Intelligence Shorthand (closed, CPU)** | `pnpm run hub:intelligence-shorthand-close-smoke` |
 | **G8290 Open web-LLM framework (active)** | `pnpm run hub:open-web-llm-close-smoke` |
 | **G8100 WISP CWL UI parity (subordinate)** | `pnpm run hub:wisp-cwl-ui-parity-close-smoke` |
 | **G7990 regression (subordinate)** | `pnpm run hub:wisp-production-completion-close-smoke` |

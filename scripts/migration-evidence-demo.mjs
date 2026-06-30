@@ -56,6 +56,11 @@ export async function runMigrationEvidenceDemo(opts = {}) {
       passCount: webLlm.passCount ?? null,
       scenarioCount: webLlm.scenarioCount ?? null,
     },
+    shorthand: {
+      count: federation.shorthand?.count ?? null,
+      compressionVs7BTotal: federation.shorthand?.summary?.compressionVs7BTotal ?? null,
+      hubOk: federation.shorthandHub?.ok ?? null,
+    },
     federation,
     webLlmDetail: webLlm,
     generatedAt: new Date().toISOString(),

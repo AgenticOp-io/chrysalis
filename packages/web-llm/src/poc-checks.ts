@@ -17,6 +17,14 @@ export async function runPocCheck(
       const ok = benchmark.caseCount >= min;
       return { ok, detail: { caseCount: benchmark.caseCount, min } };
     }
+    case "min-shorthand-count": {
+      const path = join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json");
+      if (!existsSync(path)) return { ok: false, skip: "shorthand-not-exported" };
+      const bundle = JSON.parse(readFileSync(path, "utf8"));
+      const count = bundle.summary?.count ?? bundle.count ?? 0;
+      const min = step.min ?? 1;
+      return { ok: count >= min, detail: { count, min, compressionVs7BTotal: bundle.summary?.compressionVs7BTotal ?? null } };
+    }
     case "wisp-ui-anchors": {
       const benchmark = buildWebVerifyBenchmark({ repoRoot });
       const manifestPath = join(repoRoot, "fixtures/hub-wisp-management/chrysalis.wisp-ui-parity.v1.json");

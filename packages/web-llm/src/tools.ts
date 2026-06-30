@@ -108,6 +108,19 @@ export function chrysalisAgentToolDefinitions(): AgentToolDefinition[] {
         additionalProperties: false,
       },
     },
+    {
+      name: "web_llm_export_shorthand",
+      description:
+        "Export verify-gated Intelligence Shorthand artifacts (IS-T3/T4/T5) from port reports and federation shards — CPU only, no GPU.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          repoRoot: { type: "string" },
+          buildHub: { type: "boolean", description: "Also build static shorthand POC hub when true" },
+        },
+        additionalProperties: false,
+      },
+    },
   ];
 }
 

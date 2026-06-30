@@ -80,6 +80,20 @@ export async function callWebLlmTool(repoRoot, name, args = {}) {
       });
       return { ok: r.ok, stdout: JSON.stringify(r, null, 2), detail: r, stderr: "" };
     }
+    case "web_llm_export_shorthand": {
+      const { exportIntelligenceShorthands } = await import("./web-llm-export-shorthand.mjs");
+      const r = await exportIntelligenceShorthands({
+        repoRoot: args.repoRoot ? String(args.repoRoot) : repoRoot,
+      });
+      if (args.buildHub === true && r.ok === true) {
+        const { runWebLlmBuildShorthandHub } = await import("./web-llm-build-shorthand-hub.mjs");
+        const hub = await runWebLlmBuildShorthandHub({
+          repoRoot: args.repoRoot ? String(args.repoRoot) : repoRoot,
+        });
+        return { ok: r.ok && hub.ok === true, stdout: JSON.stringify({ export: r, hub }, null, 2), detail: { export: r, hub }, stderr: "" };
+      }
+      return { ok: r.ok, stdout: JSON.stringify(r, null, 2), detail: r, stderr: "" };
+    }
     case "web_llm_record_trajectory": {
       if (args.role === "assistant" && args.gateOk !== true && args.unverified !== true) {
         return { ok: false, stderr: "assistant records require gateOk or unverified", stdout: "" };

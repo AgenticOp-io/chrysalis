@@ -149,10 +149,18 @@ pnpm run federation:export-bundle
 # → reports/federation/league/index.html
 # → reports/federation/bundle/open-legacy-bundle.v1.json
 
+# Intelligence Shorthand (CPU only — no GPU)
+pnpm run web-llm:export-shorthand
+pnpm run web-llm:build-shorthand-hub
+chrysalis federation export-shorthand
+# → reports/web-llm/shorthand/poc/index.html
+
 # Local VMF hub (remote contributors POST shards + port reports only)
 pnpm run federation:serve
 # POST /api/vmf/submit-shard  { fixtureId, contributor, portReport, shard }
 # POST /api/vmf/publish-all
+# POST /api/vmf/export-shorthand   → IS-T3/T4/T5 export (CPU only)
+# GET  /api/vmf/shorthand          → latest intelligence-shorthands.v1.json
 
 # Or via pnpm scripts
 pnpm run federation:sync-registry

@@ -67,6 +67,8 @@ describe("@chrysalis/web-llm", () => {
     const names = tools.map((t) => t.name);
     expect(names).toContain("chrysalis_verify");
     expect(names).toContain("web_llm_export_dataset");
+    expect(names).toContain("web_llm_export_shorthand");
+    expect(tools.length).toBeGreaterThanOrEqual(9);
   });
 
   test("benchmarkCaseToEvalPrompt mentions verify", () => {

@@ -29,6 +29,7 @@ CHRYSALIS_WISP_POC_LIVE=1 pnpm run hub:wisp-poc-live-smoke
 | ID | What it proves |
 | --- | --- |
 | `wvb-close-loop` | Build WVB, export training shards, publish leaderboard |
+| `intelligence-shorthand-export` | Export IS-T3/T4/T5 shorthands + static hub (**G8560**, CPU only) |
 | `wisp-ui-parity-anchors` | WISP anchor routes in WVB + parity manifest green |
 | `wisp-gce-demo-contract` | Pure CWL deploy contract (no Svelte sidecar) |
 | `wisp-gce-live-anchors` | HTTP probes against deployed GCE demo (soft-skip locally; strict with `CHRYSALIS_WISP_POC_LIVE=1`) |
