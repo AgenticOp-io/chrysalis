@@ -1,35 +1,44 @@
 # Paused backlog and active build queue
 
 > **Status:** authoritative (2026-06-16)  
-> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **Phase 31 WISP CWL UI parity closed** (**G8100**, **D6274**). **WISP production completion closed** (**G7990**, **D6272**).
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
+> **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
-**Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
+**Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**  
+**Historical phase docs:** [`archive/INDEX.md`](./archive/INDEX.md).
 
 ---
 
 ## 1. Default queue today
 
-| When the user says "build" without scope | Do this |
+When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12. Summary:
+
+| Priority | Gate | Smoke |
+| --- | --- | --- |
+| **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` |
+| **Unified WISP + web-LLM POC** | **G8310** | `hub:wisp-web-llm-poc-close-smoke` (+ `CHRYSALIS_G8310_LIVE=1` for live) |
+| **Open Legacy wedge regression** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
+| **Web-LLM framework** | **G8290** | `hub:open-web-llm-close-smoke` |
+| **Intelligence Shorthand (CPU)** | **G8560** | `hub:intelligence-shorthand-close-smoke` |
+
+**One-command demo:** `pnpm run migration-evidence:demo`  
+**Program docs:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md)
+
+### Subordinate (closed — regression only)
+
+| Gate | Smoke | Doc |
+| --- | --- | --- |
+| **G8100** WISP CWL UI parity | `hub:wisp-cwl-ui-parity-close-smoke` | [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) |
+| **G7990** WISP production completion | `hub:wisp-production-completion-close-smoke` | [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md) |
+| **G7890** / **G7790** | Composed in **G7990** | [`archive/INDEX.md`](./archive/INDEX.md) |
+| **G6731** / **G7200** IR helper (optional) | `hub:cwl-language-maintenance-smoke` | [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) |
+
+**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **G7991**)
+
+| Trigger | Action |
 | --- | --- |
-| **G8570 wedge (closed when index green)** | `pnpm run hub:site-port-open-legacy-wedge-smoke` |
-| **G8550 Migration OS (closed composite)** | `pnpm run hub:migration-os-close-smoke` (includes **G8560** IS) |
-| **G8560 Intelligence Shorthand (closed, CPU)** | `pnpm run hub:intelligence-shorthand-close-smoke` |
-| **G8290 Open web-LLM framework (active)** | `pnpm run hub:open-web-llm-close-smoke` |
-| **G8100 WISP CWL UI parity (subordinate)** | `pnpm run hub:wisp-cwl-ui-parity-close-smoke` |
-| **G7990 regression (subordinate)** | `pnpm run hub:wisp-production-completion-close-smoke` |
-| **G7890 subordinate** | Included in **G7990** composite |
-| **G7790 subordinate** | Included in **G7890** composite |
-| **IR helper tier regression (optional)** | `hub:cwl-language-maintenance-smoke` (**G6731**); `hub:ir-helper-program-close-smoke` (**G7200**) |
-| Bug fix / regression / CI red | Fix it; keep gates green |
-| Parser mapper gap / new PHP syntax | Maintenance §2 |
-
-**Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **G7991** / **wisp-production-completion-closed** mode)
-
-**Program doc:** [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md)
-
-**Program close regression:** `pnpm run hub:open-web-llm-close-smoke` (**G8290**)
-
-**Subordinate:** [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) (**G8100**), [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md) (**G7990**)
+| Bug fix / CI red | Fix regression; run relevant smoke |
+| Parser gap | Hole + fixture per `AGENTS.md` §4 |
 
 ---
 
@@ -39,12 +48,12 @@ Pre-Phase-27 operator deploy and chimera showcase. **Not** the default build que
 
 | When | Run |
 | --- | --- |
-| Operator refresh / chimera deploy | `pnpm run wisp:deploy:gce`, `wisp:operator-verify -- --require` |
-| Full POC regression (local or CI) | `.github/workflows/wisp-poc-regression.yml` (weekly + manual) |
-| Phase 14 closed verify | `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**), `hub:wisp-cwl-phase14-close-smoke` (**G6590**) |
-| Phase 13 verify | `hub:wisp-cwl-phase13-close-smoke` (**G6410**), `hub:cwl-surface-taxonomy-smoke` (**G6340**) |
+| Operator refresh / chimera deploy | `wisp:deploy:gce`, `wisp:operator-verify -- --require` |
+| Full POC regression (local or CI) | `.github/workflows/wisp-poc-regression.yml` |
+| Phase 14 closed verify | `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**) |
+| Phase 13 verify | `hub:wisp-cwl-phase13-close-smoke` (**G6410**) |
 
-Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
+Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (archived — [`archive/INDEX.md`](./archive/INDEX.md))
 
 ---
 
@@ -68,7 +77,7 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md)
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
 | Commercial launch | Optional vendor gate | `COMMERCIAL.md` |
 | WPTP D2+ sibling repos | Out-of-repo matrix | `MULTI-REPO-WORKSPACE.md` |
-| IR helper lifting backlog | Optional **G6731** / **G7200** | `ROADMAP.md` IR helper table |
+| IR helper lifting backlog | Optional **G6731** / **G7200** | `archive/INDEX.md` → IR Helper |
 
 Governance hooks: `runMaintenanceProgramCompleteGate`, `runHonestGapsProgramCompleteGate`, `runHonestGapsImplementationCloseGate`.
 
@@ -76,15 +85,16 @@ Governance hooks: `runMaintenanceProgramCompleteGate`, `runHonestGapsProgramComp
 
 ## 4. Closed programs (reference only)
 
+Full catalog: [`archive/INDEX.md`](./archive/INDEX.md).
+
 | Program | Close | Smoke |
 | --- | --- | --- |
+| Migration OS composite | **G8550** | `hub:migration-os-close-smoke` |
+| Intelligence Shorthand | **G8560** | `hub:intelligence-shorthand-close-smoke` |
+| Open Legacy expansion | **G8520** / **G8570** | `hub:site-port-open-legacy-close-smoke` |
+| VMF hub API | **G8540** | `hub:site-port-federation-hub-close-smoke` |
+| Site → CWL → LLM | **G8400** / **G8410** | `hub:site-port-close-smoke` |
 | WISP production completion | **G7990** | `hub:wisp-production-completion-close-smoke` |
-| WISP production POC | **G7890** | `hub:wisp-production-poc-close-smoke` |
 | WISP full site CWL | **G7790** | `hub:wisp-full-site-close-smoke` |
-| Universal translator N×N | **G7690** | `hub:cwl-universal-translator-close-smoke` |
-| Full web language | **G7590** | `hub:cwl-full-web-language-close-smoke` |
-| Customer pilot | **G7490** | `hub:cwl-customer-pilot-close-smoke` |
-| Universal language | **G7390** | `hub:cwl-universal-language-close-smoke` |
 | Complete language v1 | **G7150** | `hub:cwl-complete-language-close-smoke` |
 | IR Helper Program v1 | **G7200** | `hub:ir-helper-program-close-smoke` |
-| WISP POC surfaces (Phase 13–14) | **G6690** | `hub:wisp-cwl-phase14-program-close-smoke` |

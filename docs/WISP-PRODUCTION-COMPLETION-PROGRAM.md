@@ -1,3 +1,5 @@
+> **Archive notice:** Closed **program** — regression and history only. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+
 # WISP production completion program (Phase 29)
 
 > **Status:** **Program closed** (2026-06-27, **G7990**) — was **active** (**G7900**, 2026-06-27)

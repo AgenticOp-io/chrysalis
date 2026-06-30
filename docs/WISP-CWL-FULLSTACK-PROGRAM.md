@@ -1,3 +1,5 @@
+> **Archive notice:** Closed **program** — regression and history only. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+
 # WISP Module_Manager — CWL showcase POC (Phase 12–14)
 
 > **Role:** **Showcase POC** — **not** the north star and **not** the definition of CWL. **CWL is authoritative** ([`CWL-SURFACE-TAXONOMY.md`](./CWL-SURFACE-TAXONOMY.md)). **The POC exists solely to showcase the language** on a real app; wins must **generalize** to other migrations.  

@@ -1,5 +1,8 @@
 # Migration OS — Phase 2 plan
 
+> **Naming warning:** This is the **2026-06 strategic-plan Phase 2 Hub entry** (**G5780**), not the **2026 operator Migration OS composite** (**G8550**). For the current prize, read [`MIGRATION-OS.md`](./MIGRATION-OS.md).  
+> **Archive:** closed phase — source material for gates **G5780–G5823**. Index: [`archive/INDEX.md`](./archive/INDEX.md).
+
 > **Status:** closed (2026-06-17)  
 > **Authority:** `docs/STRATEGIC-PLAN.md` Phase 2; **G5780**  
 > **Deliverable:** per-project **migration contract** (`routes.cwl` + hole manifest)

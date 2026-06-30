@@ -1,3 +1,5 @@
+> **Archive notice:** Closed **program** — regression and history only. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+
 # CWL language program
 
 > **Status:** **Language v1 closed** (2026-06-19, **G6750**); **Complete language closed** (2026-06-22, **G7150**); **IR Helper Program v1 closed** (**G7200** — [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md), not a CWL surface)  

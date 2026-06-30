@@ -2,6 +2,7 @@
 
 > **Status:** locked (2026-05-26)  
 > **Authority:** This document governs *what to build and in what order*. It does not override `**DESIGN.md`** non-negotiables or `**ROADMAP.md**` mechanics.  
+> **Operator stack (what ships today):** [`MIGRATION-OS.md`](./MIGRATION-OS.md)  
 > **For AI assistants:** Read `**AGENTS.md`** § “Strategic path (locked)” before planning or implementing.
 
 ---
@@ -441,6 +442,8 @@ When the user says "build" without specifying:
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
 ---
 
 ## 12 (archived) — Default queue (post G8560 — Intelligence Shorthand closed, superseded 2026-06-16)
@@ -461,6 +464,8 @@ When the user says "build" without specifying:
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
 ---
 
 ## 12 (archived) — Default queue (post G8550 — Migration OS closed, superseded 2026-06-16)
@@ -479,6 +484,8 @@ When the user says "build" without specifying:
 **Nightly CI:** `.github/workflows/open-legacy-index-nightly.yml`
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
 
 ---
 
@@ -500,6 +507,8 @@ When the user says "build" without specifying:
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
 ---
 
 ## 12 (archived) — Default queue (post G8510 — Phase 37 Open Legacy expansion active, superseded 2026-06-16)
@@ -516,6 +525,8 @@ When the user says "build" without specifying:
 **Apply chain (fixture refresh):** post-G7790 chain → Phase 28g → **Phase 31 bulk lift** → Phase 30 → Phase 30b (`wisp:full-build` / `prepareWispCwlDeployBundle`)
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
 
 ---
 
@@ -535,6 +546,8 @@ When the user says "build" without specifying:
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
 ---
 
 ## 12 (archived) — Default queue (post G7890 — WISP production POC closed, superseded 2026-06-27)
@@ -551,6 +564,8 @@ When the user says "build" without specifying:
 **Apply chain (fixture refresh):** `pnpm run wisp:apply-post-g7790-chain`
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
 
 ---
 
@@ -569,6 +584,8 @@ When the user says "build" without specifying:
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
 ---
 
 ## 12 (archived) — Default queue (post G7790 — WISP full site closed, superseded 2026-06-26)
@@ -584,6 +601,8 @@ When the user says "build" without specifying:
 **WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — legacy operator path only.
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
 
 ---
 
@@ -604,6 +623,8 @@ When the user says "build" without specifying:
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
 ---
 
 ## 12 (archived) — Default queue (post G7690 — universal translator N×N closed, superseded 2026-06-24)
@@ -618,6 +639,8 @@ When the user says "build" without specifying:
 **WISP POC (optional):** `.github/workflows/wisp-poc-regression.yml` — not default CI (**D6259**).
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
 
 ---
 
@@ -638,6 +661,8 @@ When the user says "build" without specifying:
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
 ---
 
 ## 12 (archived) — Default queue (post G7590 — fully complete web language closed, superseded 2026-06-24)
@@ -655,6 +680,8 @@ When the user says "build" without specifying:
 **Program regression:** **G7590** — `pnpm run hub:cwl-full-web-language-close-smoke`.
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
 
 ---
 
@@ -675,6 +702,8 @@ When the user says "build" without specifying:
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
 ---
 
 ## 12 (archived) — Default queue (post G7490 — customer pilot closed, superseded 2026-06-24)
@@ -694,6 +723,8 @@ When the user says "build" without specifying:
 **Shipped milestone:** **G7150** — `pnpm run hub:cwl-complete-language-close-smoke`.
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
 
 ---
 

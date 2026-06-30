@@ -1,7 +1,8 @@
 # Site → CWL → LLM program (Phase 33)
 
-> **Status:** active — first close gate **G8400** on `fixtures/tiny-blog`  
+> **Status:** closed (**G8400** / **G8410**, 2026-06-16) — composed in **G8550** Migration OS  
 > **Authority:** **DESIGN D6280**  
+> **Hub:** [`MIGRATION-OS.md`](./MIGRATION-OS.md)  
 > **CLI:** `chrysalis port-site <dir>`  
 > **Smoke:** `pnpm run hub:site-port-close-smoke`
 

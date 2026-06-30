@@ -1,6 +1,7 @@
 # Chrysalis - Roadmap
 
 > Read `DESIGN.md` first. This file is the **active** execution plan.
+> **Operator stack:** [`docs/MIGRATION-OS.md`](./docs/MIGRATION-OS.md) · **Doc index:** [`docs/README.md`](./docs/README.md)
 > Completed history is archived in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
 ## Status (2026-06)

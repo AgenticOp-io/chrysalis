@@ -1,3 +1,5 @@
+> **Archive notice:** Closed **program** — regression and history only. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+
 # CWL full-stack program
 
 > **Status:** closed (2026-06-17); post-437 maintenance ladder **438–457** (2026-06-23)  

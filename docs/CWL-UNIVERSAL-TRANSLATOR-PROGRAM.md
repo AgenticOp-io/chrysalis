@@ -1,3 +1,5 @@
+> **Archive notice:** Closed **program** — regression and history only. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+
 # CWL universal translator program (Phase 26)
 
 > **Status:** **Program closed** (2026-06-24, **G7690**) — was **active** (**G7600**, 2026-06-24)  

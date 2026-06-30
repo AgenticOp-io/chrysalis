@@ -1,122 +1,112 @@
 # Chrysalis documentation
 
-Chrysalis is a Node.js toolchain for migrating a legacy PHP application to a modern TypeScript service while keeping evidence — not faith — that the new code matches the old one.
+**Start here:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — the operator stack (Site → CWL → LLM, VMF federation, Migration Evidence hub, Intelligence Shorthand, open web-LLM).
 
-If you are new to the project, read the [Whitepaper](./WHITEPAPER.md) for the architecture story, then the [User guide](./USER-GUIDE.md) to learn the commands. If you know *what* you want to do but not *how*, start at the goal-indexed [Use cases](./USE-CASES.md) map. If you would rather learn by following complete worked scenarios end-to-end, jump straight to the [How-to cookbook](./HOW-TO.md). If you are setting up CI or production hosts, read [Installation](./INSTALLATION.md), [Deployment](./DEPLOYMENT.md), and [Administration](./ADMINISTRATION.md) in that order.
+Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** with oracle replay — not faith. The converter is the adoption vector; the product is **verified migration infrastructure**.
 
 ---
 
-## Guides by role
+## The prize (Migration OS)
+
+| Doc | What |
+| --- | --- |
+| [**Migration OS**](./MIGRATION-OS.md) | **Primary entry** — pipeline, demos, gates, reading order |
+| [Site → CWL → LLM](./SITE-TO-CWL-LLM-PROGRAM.md) | `chrysalis port-site`, trajectories, WVB |
+| [Verified Migration Federation](./SITE-PORT-FEDERATION-PROGRAM.md) | VMF, Open Legacy Index, hub API |
+| [Migration Evidence POC](./MIGRATION-EVIDENCE-POC-PROGRAM.md) | Unified evidence hub (**G8480** / **G8550**) |
+| [Intelligence Shorthand](./INTELLIGENCE-SHORTHAND.md) | CPU-only IS-T3/T4/T5 (**G8560**) |
+| [Open web-LLM program](./OPEN-WEB-LLM-PROGRAM.md) | Trajectories, WVB, MCP (**G8290**) |
+| [Web-LLM agent POC](./OPEN-WEB-LLM-POC.md) | Scripted scenarios (**G8300** / **G8310**) |
+| [Web-LLM training recipe](./WEB-LLM-TRAINING-RECIPE.md) | Shard export |
+| [Web Verify Benchmark](./WEB-VERIFY-BENCHMARK.md) | WVB manifest |
+
+**Governance:** [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) (locked build order) · [`ROADMAP.md`](../ROADMAP.md) (status) · [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) (default queue)
+
+---
+
+## Engine and CLI (substrate)
 
 | Guide | Audience | Contents |
 | --- | --- | --- |
-| [Whitepaper](./WHITEPAPER.md) | Anyone evaluating or coming back to the project | The architecture in narrative form: why the system is split into translate / capture / replay, what each piece does, and how they compose. |
-| [Use cases](./USE-CASES.md) | Anyone with a concrete goal | Goal-indexed catalog: map a task (evaluate, translate, capture, verify, dual-stack, scale, hub, multi-repo, commercial) to the exact command(s) and the deep-dive doc. |
-| [Installation](./INSTALLATION.md) | First-time users, CI agents | Prerequisites, install, build, smoke checks. Optional **Python** / **Go** CLI shims that invoke the same Node `bin.js` (**DESIGN D295**). |
-| [User guide](./USER-GUIDE.md) | Engineers using the CLI | Plain-English explanation of every command with worked examples, exit codes, output conventions, and recipes. |
-| [How-to cookbook](./HOW-TO.md) | Anyone trying to do a specific thing | 24 end-to-end scenarios — from "first-time setup" to "GCE smoke VM" — each as a copy-pasteable, top-to-bottom walkthrough. |
-| [Operations](./OPERATIONS.md) | Day-to-day operators | Runbooks for ingest scale-out, capture, verify sharding, the dual-stack router, signed routing config, sessions across stacks, fleet rollups. |
-| [Deployment](./DEPLOYMENT.md) | Platform engineers, release engineers, SRE | Where each component runs in CI and production, the three deployment patterns, rollback playbooks. |
-| [Hub connectivity](./HUB-CONNECTIVITY.md) | Translation Hub operators | SSH/local access model, origin scan agent install, database and Redis reachability, connectivity probes. |
-| [Hub demo install](./HUB-DEMO-INSTALL.md) | Demo server visitors | Walkthrough for the public Translation Hub on port **19090** (URL, SSH, web-only output targets). |
-| [Hub server install](./HUB-SERVER-INSTALL.md) | Hub operators | Client/server install, multi-site SSH batch, automated deploy scripts. |
-| [Administration](./ADMINISTRATION.md) | SRE, platform, release owners | Environment variables, CI gates, the report tree, redaction policy, corpus retention, repository settings. |
-| [GCE test runner](./GCE-LOCAL-VERIFY.md) | Anyone running CI-scale tests | **Default:** `pnpm run test:gce` on `chrysalis-test-vm` (detached; laptop can sleep). |
-| [Windows vs Linux tests](./WINDOWS-COMPAT.md) | Windows developers | What runs locally vs on GCE; env flags and known platform gaps. |
-| [CWL full-stack program](./CWL-FULLSTACK-PROGRAM.md) | Contributors | Closed queues 6–437 program summary; [archived build log](./archive/CWL-FULLSTACK-BUILD-LOG.md). |
-| [WISP CWL program (Phase 12)](./WISP-CWL-FULLSTACK-PROGRAM.md) | WISP / full-stack operators | Module_Manager flagship: chimera gateway, dual deploy, Phase 0 gates. |
-| [CWL surface taxonomy (Phase 13)](./CWL-SURFACE-TAXONOMY.md) | Full-stack / migration architects | Named surfaces (API, Pages, Data, UI, Effects); replacement ladder |
-| [CWL language program](./CWL-LANGUAGE-PROGRAM.md) | Contributors | Phases 15–18 closed (**G7150**); universal program pointer |
-| [CWL universal language program (Phases 19–23)](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md) | Contributors, agents | **Active** locked path: UI v1 → universal ingest → greenfield; **G7300** entry |
-| [Strategic plan ship log (archive)](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) | Contributors | Historical G5680–G6153 reinforcement log — not active backlog. |
+| [Whitepaper](./WHITEPAPER.md) | Evaluators | Architecture narrative: translate / capture / replay |
+| [Use cases](./USE-CASES.md) | Anyone with a goal | Goal → command → deep doc |
+| [Installation](./INSTALLATION.md) | First-time / CI | Prerequisites, build, CLI shims |
+| [User guide](./USER-GUIDE.md) | Engineers | Every CLI command |
+| [How-to cookbook](./HOW-TO.md) | Hands-on | 24 copy-paste scenarios |
+| [Operations](./OPERATIONS.md) | Operators | Verify, dual-stack, sessions, fleet |
+| [Deployment](./DEPLOYMENT.md) | Platform / SRE | CI and production patterns |
+| [Administration](./ADMINISTRATION.md) | SRE | Env vars, gates, reports, retention |
+| [GCE test runner](./GCE-LOCAL-VERIFY.md) | CI-scale tests | `pnpm run test:gce` on Linux VM |
+| [Windows vs Linux](./WINDOWS-COMPAT.md) | Windows devs | Local vs GCE split |
+
+---
+
+## Hub and commercial
+
+| Guide | Audience |
+| --- | --- |
+| [Hub connectivity](./HUB-CONNECTIVITY.md) | Translation Hub operators |
+| [Hub demo install](./HUB-DEMO-INSTALL.md) | Public demo on port **19090** |
+| [Hub server install](./HUB-SERVER-INSTALL.md) | Multi-site SSH batch |
+| [Commercial offering](./COMMERCIAL.md) | License tiers, services |
+| [GitHub Project](./GITHUB_PROJECT.md) | Project board bootstrap |
+| [Multi-repo workspace](./MULTI-REPO-WORKSPACE.md) | WPTP sibling repos |
 
 ---
 
 ## Architecture and contribution
 
-| Document | Audience | Purpose |
-| --- | --- | --- |
-| [`DESIGN.md`](../DESIGN.md) (root) | Contributors and integrators | The non-negotiable principles, the project vocabulary, and the decision log. The rules every change has to live within. |
-| [Strategic plan](./STRATEGIC-PLAN.md) | Product owners, contributors, agents | **Locked** build order: PHP oracle wedge, Hub migration OS, CWL interchange; what to refuse. |
-| [Paused backlog and maintenance](./PAUSED-AND-MAINTENANCE.md) | Contributors, agents | **Single index** for policy-paused items, honest gaps, maintenance triggers, and closed-program archives. |
-| [`ROADMAP.md`](../ROADMAP.md) (root) | Contributors | **Active** plan: status, maintenance queue, closed-program index. |
-| [`ROADMAP-ARCHIVE.md`](../ROADMAP-ARCHIVE.md) (root) | Contributors | Completed history: shipped G-series slices, Milestones 0–6A, and the Road to Chrysalis 2.0 program. |
-| [`AGENTS.md`](../AGENTS.md) (root) | Contributors and automation | Repository contribution rules, pass naming, file layout discipline. |
-| [`README.md`](../README.md) (root) | Operators consuming machine output | Operator-facing tables for the JSON shapes Chrysalis emits (`schemaVersion`, `kind`, gate scripts). |
-
-Per-package details live under `packages/<name>/README.md`. Each package README states purpose, public API, invariants, and non-goals.
+| Document | Purpose |
+| --- | --- |
+| [`DESIGN.md`](../DESIGN.md) | Non-negotiables, vocabulary, decision log |
+| [`AGENTS.md`](../AGENTS.md) | Rules for AI assistants and contributors |
+| [`ROADMAP-ARCHIVE.md`](../ROADMAP-ARCHIVE.md) | Shipped milestones and G-series history |
+| Package `README.md` files | Per-package API, invariants, non-goals |
 
 ---
 
-## Other references
+## Archive (closed programs — source material)
 
-| Document | Audience | Purpose |
-| --- | --- | --- |
-| [Release process](./RELEASE.md) | Maintainers | Version tags, source archives, GitHub Releases checklist. |
-| [Master program](./MASTER-PROGRAM.md) | Sponsors, architecture board | Umbrella **Web Platform Translation Program**: charter, D0–D7 plan, repo topology, grades; **Chrysalis = D1**. GitHub preset: **`pnpm run github:project-bootstrap:master`**. |
-| [WPTP D1 exit report](./WPTP-D1-EXIT-REPORT.md) | Program board | D1 **technical exit** recorded; **funding** is a future non-blocking lane (MASTER-PROGRAM §10.1). |
-| [WPTP D2 exit report](./WPTP-D2-EXIT-REPORT.md) | Program board | D2 **IR hub v0** exit (`@wptp/ir`, CI **`webir-bundle-to-wptp-ir`**). |
-| [WPTP D3 exit report](./WPTP-D3-EXIT-REPORT.md) | Program board | D3 **OpenAPI + HAR** sources → Chrysalis Hono (CI **`wptp-d3-harness`**). |
-| [WPTP D4 exit report](./WPTP-D4-EXIT-REPORT.md) | Program board | D4 **Next.js** emit (`@wptp/emit-nextjs`, CI **`wptp-d4-harness`**). |
-| [WPTP D6 exit report](./WPTP-D6-EXIT-REPORT.md) | Program board | D6 **enterprise policy** pack (private adapters, SSO, residency). |
-| [WPTP D6 enterprise policy](./WPTP-D6-ENTERPRISE-POLICY.md) | Sponsors, legal, security | In-tree policy; pairs with [Commercial offering](./COMMERCIAL.md). |
-| [WPTP D7 ongoing](./WPTP-D7-ONGOING.md) | Program board | Quarterly matrix hygiene and CI checklist. |
-| [IR Helper Program (charter)](./IR-HELPER-PROGRAM.md) | Ingest / architecture | Standalone program close (**G7200**); Track A/B matrix, 74 I3 callees, decoupled from CWL language. |
-| [IR helper lifting (design)](./IR-HELPER-LIFTING.md) | Ingest / architecture | Post-**D283** shared-helper lifting plan (**D311**); tier history B0–B75; points to program charter. |
-| [WPTP global scope](./WPTP-GLOBAL-SCOPE.md) | Program / architects | Cross-platform repos, matrix, adapters — above Chrysalis D1. |
-| [wptp-ir](https://github.com/theorem6/wptp-ir) | IR hub (D2) | Neutral IR **v0**, WebIR bundle import, loss reports, conformance fixtures. |
-| [wptp-matrix](https://github.com/theorem6/wptp-matrix) | Matrix (D5) | Source × target × grade JSON with CI validation. |
-| [wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi) | Adapter (D3) | OpenAPI 3 → IR v0 (bronze). |
-| [wptp-adapter-browser](https://github.com/theorem6/wptp-adapter-browser) | Adapter (D3) | HAR browser trace → IR v0 (bronze). |
-| [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs) | Emit (D4) | IR v0 → Next.js App Router stubs (bronze). |
-| [GitHub Project](./GITHUB_PROJECT.md) | Maintainers | Bootstrap a GitHub Project (**chrysalis** or **master** preset). |
-| [Git layout](./GIT-LAYOUT.md) | Contributors | Nested `.git` trees, remotes, worktrees. |
-| [Multi-repo workspace](./MULTI-REPO-WORKSPACE.md) | Contributors working across program repos | Recommended multi-root workspace (`chrysalis-program.code-workspace`) + IDE hygiene so siblings don't surface as phantom repos; use cases per deliverable. |
-| [Commercial offering](./COMMERCIAL.md) | Operators, vendors | Optional vendor build, license tiers, services posture. |
-| [AgenticOp site](./AGENTICOP.md) | Anyone | Optional public practice site; independent of the toolchain. |
+Closed strategic-plan phases, CWL language waves, and WISP programs remain in-tree for **gates, fixtures, and design history**. They are **not** the default build queue.
 
-Community: [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md), and the issue/PR templates under [`.github/`](../.github/).
+| Index | Contents |
+| --- | --- |
+| [**Archive index**](./archive/INDEX.md) | Catalog of all closed phase and program docs |
+| [Strategic plan ship log](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) | G5680–G6257 reinforcement history |
+| [CWL full-stack build log](./archive/CWL-FULLSTACK-BUILD-LOG.md) | Queues 6–437 build log |
+
+**WISP showcase (subordinate):** [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) · [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md) — optional operator regression only.
+
+**WPTP umbrella:** [`MASTER-PROGRAM.md`](./MASTER-PROGRAM.md) and `WPTP-D*.md` exit reports.
 
 ---
 
-## Reading order suggestions
+## Reading order
 
-**"I want to translate one PHP app today."**
+**"I want the Migration OS demo today."**
 
-1. [Installation](./INSTALLATION.md) — get the CLI built.
-2. [How-to cookbook](./HOW-TO.md), scenarios 1–2 — guided setup and your first translation.
-3. [User guide](./USER-GUIDE.md) — the command reference for the flags you'll need next.
-4. [Operations](./OPERATIONS.md) — the verify section when you reach it; the dual-stack router section if you plan to roll over gradually.
+1. [`MIGRATION-OS.md`](./MIGRATION-OS.md) — one-command demos and gates.
+2. [`INSTALLATION.md`](./INSTALLATION.md) — build the CLI if needed.
+3. Open `reports/migration-evidence/poc/index.html` after `pnpm run migration-evidence:demo`.
 
-**"I want to evaluate Chrysalis for a planned migration."**
+**"I want to translate one PHP app."**
 
-1. [Whitepaper](./WHITEPAPER.md) — the architecture story.
-2. [How-to cookbook](./HOW-TO.md), scenarios 13–16 — what the rollout actually looks like in production.
-3. [User guide](./USER-GUIDE.md) — the command reference for what is shipping today.
-4. [Deployment](./DEPLOYMENT.md) — the three deployment patterns to pick the one that fits.
+1. [`INSTALLATION.md`](./INSTALLATION.md)
+2. [`HOW-TO.md`](./HOW-TO.md) scenarios 1–2
+3. [`USER-GUIDE.md`](./USER-GUIDE.md)
+4. [`OPERATIONS.md`](./OPERATIONS.md) when you reach verify / dual-stack
 
-**"I am setting Chrysalis up in CI for a team."**
+**"I am contributing or using an AI agent."**
 
-1. [Installation](./INSTALLATION.md) — for the CI agent.
-2. [How-to cookbook](./HOW-TO.md), scenario 12 — a full GitHub Actions workflow you can paste in.
-3. [Administration](./ADMINISTRATION.md) — environment variables and the gate scripts.
-4. [Operations](./OPERATIONS.md) — for the rollback and rotation tooling.
+1. [`DESIGN.md`](../DESIGN.md) + [`AGENTS.md`](../AGENTS.md)
+2. [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12
+3. [`MIGRATION-OS.md`](./MIGRATION-OS.md)
+4. [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md)
 
-**"I am putting Chrysalis in front of production traffic."**
+**"Something is broken in CI."**
 
-1. [Deployment](./DEPLOYMENT.md) — Pattern C, end to end.
-2. [How-to cookbook](./HOW-TO.md), scenarios 13, 14, 16, 17 — shadow, canary, rollback, and shared sessions.
-3. [Operations](./OPERATIONS.md) — the dual-stack rollout, signed routing config, and Redis session sections.
-4. [Administration](./ADMINISTRATION.md) — the operator metrics, fleet rollups, and retention sections.
+1. [`HOW-TO.md`](./HOW-TO.md) scenario 7 — verify triage
+2. [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) §2 — maintenance triggers
+3. [`GCE-LOCAL-VERIFY.md`](./GCE-LOCAL-VERIFY.md) — if Windows or long smokes
 
-**"Something is broken right now."**
-
-1. [How-to cookbook](./HOW-TO.md), scenario 7 — triage a verify failure in five minutes.
-2. [How-to cookbook](./HOW-TO.md), scenario 16 — roll back the canary in under a minute.
-3. [Operations](./OPERATIONS.md) — incident-time references for hot config reload, signed routing, and metrics.
-
-**"I only invoke Chrysalis from Python or Go."**
-
-1. [Installation](./INSTALLATION.md) — build the Node CLI, then the **Optional: Python and Go entrypoints** section.
-2. [How-to cookbook](./HOW-TO.md), scenario 23 — copy-paste examples and environment variables.
-3. After **`packages/cli/dist/bin.js` exists**, run **`pnpm run test:cli-shims`** (skips a missing Go or Python locally). Set **`CHRYSALIS_STRICT_CLI_SHIMS=1`** with both on **`PATH`** to match **`GITHUB_ACTIONS`** / CI (**DESIGN D295**).
+Community: [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), [`SECURITY.md`](../SECURITY.md).

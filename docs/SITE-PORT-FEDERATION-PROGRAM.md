@@ -1,8 +1,8 @@
 # Verified Migration Federation (VMF) — world expansion program
 
-> **Status:** POC closed **G8470** (Open Legacy Index + one-command demo)  
+> **Status:** POC closed **G8470** — composed in **G8550** Migration OS  
 > **Authority:** **DESIGN D6281** / **D6282** / **D6283**  
-> **Builds on:** Phase 33 `chrysalis port-site` (**G8400**), verify matrix (**G8410**), `@chrysalis/web-llm` (**G8290**)
+> **Hub:** [`MIGRATION-OS.md`](./MIGRATION-OS.md)
 
 ## Thesis
 

@@ -1,3 +1,5 @@
+> **Archive notice:** Closed **program** — regression and history only. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+
 # CWL customer pilot at scale (Phase 24)
 
 > **Status:** **Program closed** (2026-06-24, **G7490**) — was **active** (**G7400**, 2026-06-24)  

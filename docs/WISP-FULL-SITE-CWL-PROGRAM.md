@@ -1,3 +1,5 @@
+> **Archive notice:** Closed **program** — regression and history only. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+
 # WISP full site CWL program (Phase 27)
 
 > **Status:** **Program closed** (2026-06-25, **G7790**) — was **active** (**G7700**, 2026-06-24)  

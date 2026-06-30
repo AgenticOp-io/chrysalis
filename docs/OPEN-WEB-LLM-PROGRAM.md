@@ -2,6 +2,8 @@
 
 > **Status:** **active** (**G8290**, 2026-06-16)  
 > **Authority:** **DESIGN D6275**; requires **G8100** WISP CWL UI parity **closed** (subordinate)  
+> **Hub:** [`MIGRATION-OS.md`](./MIGRATION-OS.md)
+
 > **Charter:** [`fixtures/web-llm/chrysalis.web-llm-charter.v1.json`](../fixtures/web-llm/chrysalis.web-llm-charter.v1.json)
 
 ## Thesis

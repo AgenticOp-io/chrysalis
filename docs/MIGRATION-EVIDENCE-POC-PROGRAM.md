@@ -2,7 +2,7 @@
 
 > **Status:** closed (**G8480**, superseded by **G8550** Migration OS)  
 > **Authority:** **DESIGN D6284**  
-> **Composes:** Phase 33 Site → CWL → LLM (**G8400**), Phase 34 VMF (**G8470**), Phase 32c web-LLM agent POC (**G8300**)
+> **Hub:** [`MIGRATION-OS.md`](./MIGRATION-OS.md)
 
 ## What this is
 

@@ -5,6 +5,6 @@ alwaysApply: true
 
 # Chrysalis
 
-1. **Authoritative rules** are in **`AGENTS.md`**. Read **`DESIGN.md`**, **`docs/STRATEGIC-PLAN.md`** (locked path — do not deviate), **`docs/PAUSED-AND-MAINTENANCE.md`** (maintenance + paused index), and **`ROADMAP.md`** as required there.
+1. **Authoritative rules** are in **`AGENTS.md`**. Read **`DESIGN.md`**, **`docs/STRATEGIC-PLAN.md`** (locked path — do not deviate), **`docs/MIGRATION-OS.md`** (operator stack), **`docs/PAUSED-AND-MAINTENANCE.md`** (maintenance + paused index), and **`ROADMAP.md`** as required there.
 2. User messages without **build/implement/add/fix** are usually **questions** — clarify against the strategic plan; do not fork unless the user explicitly amends the plan.
 3. After substantive changes, run **`pnpm test`** (or the smallest relevant package tests). Respect package boundaries (no circular dependencies; no oracle or environment shortcuts in generated or verify code).

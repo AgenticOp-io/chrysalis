@@ -10,6 +10,20 @@ not a tutorial — the deep, copy-pasteable steps live in the
 > emitted TypeScript by replaying captured traces. Unsupported constructs become **holes**,
 > never silent guesses. See [`WHITEPAPER.md`](./WHITEPAPER.md) and root `DESIGN.md`.
 
+> **Operator stack (2026):** federation, evidence hub, Intelligence Shorthand, and agent POC — start at [`MIGRATION-OS.md`](./MIGRATION-OS.md).
+
+---
+
+## 0. Migration OS (port, federate, evidence, agents)
+
+| Goal | Do this | See |
+| --- | --- | --- |
+| Run the full operator demo | `pnpm run migration-evidence:demo` | [`MIGRATION-OS.md`](./MIGRATION-OS.md) |
+| Port a site to CWL + verify + shards | `chrysalis port-site <dir> --origin php` | [`SITE-TO-CWL-LLM-PROGRAM.md`](./SITE-TO-CWL-LLM-PROGRAM.md) |
+| Submit verify-green shard to VMF | `chrysalis federation submit-shard` | [`SITE-PORT-FEDERATION-PROGRAM.md`](./SITE-PORT-FEDERATION-PROGRAM.md) |
+| Export Intelligence Shorthand (CPU) | `pnpm run web-llm:export-shorthand` | [`INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md) |
+| Wire agent tools (MCP) | `pnpm run web-llm:mcp-server` | [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) |
+
 ---
 
 ## 1. Evaluate the toolchain
