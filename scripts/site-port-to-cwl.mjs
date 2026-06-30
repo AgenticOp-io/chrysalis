@@ -247,7 +247,7 @@ export async function runSitePortToCwl(opts) {
     steps.push({ step: "dataset-export", ok: datasetOk, log: datasetLog });
   }
 
-  const trajectorySummary = webLlm.summarizeTrajectoryFile(trajectoryPath);
+  const trajectorySummary = webLlm.summarizeTrajectorySession(trajectoryPath, sessionId);
   const verifyRequired = opts.verify !== false && webLlm.SITE_PORT_VERIFY_ORIGINS.has(resolvedOrigin);
   const verifyOk = !verifyRequired || verify.ok === true;
   const ok =

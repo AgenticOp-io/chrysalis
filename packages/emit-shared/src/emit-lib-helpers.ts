@@ -25,6 +25,7 @@ export function emitLibHelpersModuleSource(
   const domainTypeImports = new Set<string>();
   const allHoles: { name: string; line: number; reason: string }[] = [];
   let usesDb = false;
+  let usesPasswordVerify = false;
 
   for (const exportName of helperNames) {
     const entry = resolveHelperBodyEntry(bodies, exportName);
@@ -32,9 +33,11 @@ export function emitLibHelpersModuleSource(
     const emitted = emitLibHelperFunctionBody(m, entry.bodyId, entry.paramNames, opts);
     for (const t of emitted.domainTypeImports) domainTypeImports.add(t);
     if (emitted.usesDb) usesDb = true;
+    if (/\bpasswordVerify\b/.test(emitted.body)) usesPasswordVerify = true;
     allHoles.push(...emitted.holes);
     const params = entry.paramNames.map((p) => ident(p)).join(", ");
-    fnLines.push(`export function ${exportName}(${params}) {`);
+    const isAsync = /\bawait\b/.test(emitted.body);
+    fnLines.push(`export ${isAsync ? "async " : ""}function ${exportName}(${params}) {`);
     fnLines.push(emitted.body.split("\n").map((l) => (l.length ? `  ${l}` : l)).join("\n"));
     fnLines.push("}");
     fnLines.push("");
@@ -49,7 +52,8 @@ export function emitLibHelpersModuleSource(
       ? `import type { ${[...domainTypeImports].sort().join(", ")} } from "./domain.js";\n`
       : "";
   const dbImport = usesDb ? `import { queryAll, queryOne, execSql } from "./db.js";\n` : "";
-  const source = `${domainImport}${dbImport}\n${fnLines.join("\n")}`;
+  const runtimeImport = usesPasswordVerify ? `import { passwordVerify } from "./runtime.js";\n` : "";
+  const source = `${domainImport}${dbImport}${runtimeImport}\n${fnLines.join("\n")}`;
   return {
     source,
     helperNames,

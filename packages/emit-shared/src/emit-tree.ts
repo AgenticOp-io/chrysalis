@@ -12,6 +12,7 @@ import type { HttpEmitProfile } from "./http-profile.js";
 import { honoHttpProfile } from "./http-profile.js";
 import {
   libHelperTsExportName,
+  libHelperCalleeNeedsAwait,
   resolveHelperBodyEntry,
   tryEmitInlineLibHelperCall,
   type EmitInlineCtx,
@@ -126,7 +127,8 @@ function recordLibHelperCallIfNeeded(ctx: EmitCtx, callee: string, argExprs: rea
   if (inline !== undefined) return inline;
   const exportName = libHelperTsExportName(callee);
   ctx.libHelperCalls.add(exportName);
-  return `${exportName}(${argExprs.join(", ")})`;
+  const awaitPrefix = libHelperCalleeNeedsAwait(callee) ? "await " : "";
+  return `${awaitPrefix}${exportName}(${argExprs.join(", ")})`;
 }
 
 /** TS identifier for a PHP `$name` binding; must not shadow the HTTP profile request/reply param. */

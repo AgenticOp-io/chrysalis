@@ -1143,6 +1143,12 @@ export function libHelperTsExportName(callee: string): string {
   return ident(tail);
 }
 
+/** Lib helpers that lower to async TS (call sites must await). */
+export function libHelperCalleeNeedsAwait(callee: string): boolean {
+  const tail = callee.includes("\\") ? callee.slice(callee.lastIndexOf("\\") + 1) : callee;
+  return tail === "password_verify" || tail === "verify_password";
+}
+
 export function resolveHelperBodyEntry(
   bodies: NonNullable<Module["meta"]["helperBodies"]>,
   callee: string,

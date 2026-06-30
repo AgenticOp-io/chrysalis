@@ -68,10 +68,20 @@ export function appendTrajectoryRecord(input: AppendTrajectoryRecordInput): Traj
 
 export function summarizeTrajectoryFile(filePath: string) {
   const records = readTrajectoryRecords(filePath);
+  return summarizeTrajectoryRecords(records);
+}
+
+/** Summarize only gates from one session (site-port ok must not inherit stale failures). */
+export function summarizeTrajectorySession(filePath: string, sessionId: string) {
+  const records = readTrajectoryRecords(filePath).filter((r) => r.sessionId === sessionId);
+  return summarizeTrajectoryRecords(records, filePath);
+}
+
+function summarizeTrajectoryRecords(records: TrajectoryRecord[], filePath?: string) {
   const gates = records.filter((r) => r.gate).map((r) => r.gate);
   const gateOk = gates.filter((g) => g?.ok === true).length;
   return {
-    filePath,
+    filePath: filePath ?? null,
     recordCount: records.length,
     sessionId: records[0]?.sessionId ?? null,
     gateCount: gates.length,

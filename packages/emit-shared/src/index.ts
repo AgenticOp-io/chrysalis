@@ -62,6 +62,7 @@ export {
 } from "./emit-lib-helpers.js";
 export {
   libHelperTsExportName,
+  libHelperCalleeNeedsAwait,
   libHelpersNeedingEmitModule,
   resolveHelperBodyEntry,
   tryEmitInlineLibHelperCall,
