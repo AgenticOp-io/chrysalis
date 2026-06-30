@@ -970,6 +970,23 @@ handler session_me {
   return { ok: true, surface: "wisp-auth-native" };
 }
 
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
 @page GET "/modules"
 page modules_page {
   effects: none;
@@ -1324,8 +1341,8 @@ page modules_maintain_page {
 page modules_monitor_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { source: "wisp-m31", path: "/modules/monitor" };
-  return html "<!-- This page redirects to /modules/monitoring -->\n<div style=\"display: flex; align-items: center; justify-content: center; height: 100vh;\">\n  <p>Redirecting to Monitoring...</p>\n</div>";
+  load { source: "wisp-m32", path: "/modules/monitor" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_monitor\" data-wisp-path=\"/modules/monitor\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\"><h1>Monitor</h1></header>\n  <article class=\"wisp-demo-docs\"><p>Redirecting to <a href=\"/modules/monitoring\">Monitoring</a>…</p></article>\n  <script>location.replace(\"/modules/monitoring\");</script>\n</div>";
 }
 
 @page GET "/modules/monitoring"
