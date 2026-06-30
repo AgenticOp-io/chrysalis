@@ -94,6 +94,7 @@ describe("@chrysalis/web-llm", () => {
     expect(anchorCheck.ok).toBe(true);
     const longBody =
       "login-page demo@wisptools.io Sign in dashboard-container modules-grid WISP Management wisp-plan-app plan-map-iframe wisp-header-overlay wisp-deploy-app deploy-map-iframe wisp-coverage-map arcgis-map-view " +
+      "wisp-demo-content Hardware wisp-demo-table wisp-demo-form data-wisp-layout=\"form\" " +
       "x".repeat(900);
     const mockFetch = async () =>
       ({
