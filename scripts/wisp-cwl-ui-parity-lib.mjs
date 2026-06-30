@@ -30,6 +30,12 @@ export function wispUiAnchorSpecs() {
     { path: "/modules/plan", required: ["wisp-plan-app", "plan-map-iframe", "wisp-header-overlay"], minLength: 500 },
     { path: "/modules/deploy", required: ["wisp-deploy-app", "deploy-map-iframe", "wisp-header-overlay"], minLength: 500 },
     { path: "/modules/coverage-map", required: ["wisp-coverage-map", "arcgis-map-view"], minLength: 80 },
+    { path: "/modules/hardware", required: ["wisp-demo-content", "Hardware", "wisp-demo-table"], minLength: 400 },
+    {
+      path: "/modules/hardware/add",
+      required: ["wisp-demo-content", "wisp-demo-form", "data-wisp-layout=\"form\""],
+      minLength: 300,
+    },
   ];
 }
 

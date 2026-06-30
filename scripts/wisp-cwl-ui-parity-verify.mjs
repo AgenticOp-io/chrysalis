@@ -17,6 +17,7 @@ import {
   WISP_FORBIDDEN_STUB_PATTERNS,
   htmlContainsForbiddenStub,
 } from "./wisp-cwl-ui-parity-lib.mjs";
+import { collectMissingModuleAddPaths } from "./wisp-cwl-module-demo-lib.mjs";
 
 export const WISP_UI_PARITY_VERIFY_KIND = `${WISP_UI_PARITY_KIND}.verify`;
 
@@ -82,15 +83,18 @@ export function scanWispRoutesForForbiddenStubs(opts = {}) {
 export function buildWispUiParityManifest(opts = {}) {
   const path = opts.routesPath ?? routesPath;
   const outPath = resolve(opts.outPath ?? defaultManifestPath);
+  const routesText = readFileSync(path, "utf8");
   const stubScan = scanWispRoutesForForbiddenStubs({ routesPath: path });
+  const addMissing = collectMissingModuleAddPaths(routesText);
   const anchors = wispUiAnchorSpecs();
   const manifest = {
     kind: WISP_UI_PARITY_VERIFY_KIND,
     schemaVersion: WISP_UI_PARITY_SCHEMA_VERSION,
-    ok: stubScan.ok === true,
+    ok: stubScan.ok === true && addMissing.length === 0,
     generatedAt: new Date().toISOString(),
     anchors,
     stubScan,
+    addRouteScan: { ok: addMissing.length === 0, missing: addMissing },
   };
   writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   return { ...manifest, outPath };

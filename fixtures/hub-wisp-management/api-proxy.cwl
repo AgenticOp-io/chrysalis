@@ -874,6 +874,14 @@ handler wisp_api_internal_post {
   return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"internal\",\"op\":\"create\"}";
 }
 
+@route GET "/api/user-tenants/tenant/:tenantId"
+handler wisp_api_user_tenants_tenant_get {
+  # POC stub — Firebase tenant store (legacy Svelte client contract)
+  effects: session;
+  use auth bearer;
+  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"user-tenants\",\"op\":\"get\",\"tenant\":{\"id\":\"demo\",\"name\":\"WISPTools Demo ISP\",\"status\":\"active\"}}";
+}
+
 @route ANY "/api/*"
 handler wisp_api_catchall {
   effects: none;

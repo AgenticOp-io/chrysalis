@@ -1,5 +1,6 @@
 /** WISP module demo HTML — Phase 32 complete POC surfaces (no empty shells). */
-import { titleFromHttpPath } from "./wisp-cwl-bulk-lift-lib.mjs";
+import { titleFromHttpPath, listGetUiPaths } from "./wisp-cwl-bulk-lift-lib.mjs";
+import { buildWispModuleHtmlPageBlock } from "./wisp-cwl-ui-parity-lib.mjs";
 
 /** Routes with dedicated parity HTML (Phase 30/30b) — never replace. */
 export const WISP_MODULE_DEMO_SKIP_PATHS = new Set([
@@ -207,4 +208,43 @@ export function buildWispMonitorRedirectDemoHtml(httpPath = "/modules/monitor") 
   <article class="wisp-demo-docs"><p>Redirecting to <a href="/modules/monitoring">Monitoring</a>…</p></article>
   <script>location.replace("/modules/monitoring");</script>
 </div>`;
+}
+
+/** @param {string} routesText */
+export function collectMissingModuleAddPaths(routesText) {
+  const existing = new Set(listGetUiPaths(routesText));
+  /** @type {Set<string>} */
+  const linked = new Set();
+  for (const m of routesText.matchAll(/href=\\?"(\/(?:modules|admin)(?:\/[^"\\]+)*\/add)\\?"/g)) {
+    linked.add(m[1]);
+  }
+  return [...linked].filter((p) => !existing.has(p)).sort();
+}
+
+/** @param {string} httpPath */
+export function buildWispModuleAddRouteBlock(httpPath) {
+  const pageName = `${httpPath.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+/, "") || "root"}_page`;
+  const html = buildWispModuleDemoHtml(httpPath);
+  return buildWispModuleHtmlPageBlock(
+    httpPath,
+    pageName,
+    html,
+    `{ source: "wisp-m32-add", path: "${httpPath}" }`,
+  );
+}
+
+/**
+ * Append CWL @page routes for every list-page "Add new" link that would otherwise fall through to SvelteKit.
+ * @param {string} routesText
+ */
+export function ensureWispModuleAddRoutes(routesText) {
+  const missing = collectMissingModuleAddPaths(routesText);
+  let text = routesText;
+  /** @type {string[]} */
+  const added = [];
+  for (const httpPath of missing) {
+    text = `${text.trimEnd()}\n\n${buildWispModuleAddRouteBlock(httpPath)}\n`;
+    added.push(httpPath);
+  }
+  return { ok: true, text, added, missing, addRouteCount: added.length };
 }

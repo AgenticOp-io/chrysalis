@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp.ui-parity.verify",
   "schemaVersion": 1,
   "ok": true,
-  "generatedAt": "2026-06-29T04:16:15.800Z",
+  "generatedAt": "2026-06-30T05:22:19.399Z",
   "anchors": [
     {
       "path": "/login",
@@ -47,14 +47,36 @@
         "arcgis-map-view"
       ],
       "minLength": 80
+    },
+    {
+      "path": "/modules/hardware",
+      "required": [
+        "wisp-demo-content",
+        "Hardware",
+        "wisp-demo-table"
+      ],
+      "minLength": 400
+    },
+    {
+      "path": "/modules/hardware/add",
+      "required": [
+        "wisp-demo-content",
+        "wisp-demo-form",
+        "data-wisp-layout=\"form\""
+      ],
+      "minLength": 300
     }
   ],
   "stubScan": {
     "ok": true,
-    "routeCount": 87,
-    "htmlRoutes": 87,
+    "routeCount": 126,
+    "htmlRoutes": 126,
     "uiRoutes": 0,
     "violationCount": 0,
     "violations": []
+  },
+  "addRouteScan": {
+    "ok": true,
+    "missing": []
   }
 }

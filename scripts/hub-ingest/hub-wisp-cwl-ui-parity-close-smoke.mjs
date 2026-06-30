@@ -5,8 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { applyWispPhase31BulkLift } from "../wisp-cwl-apply-phase31-bulk-lift.mjs";
-import { applyWispPhase30UiParity } from "../wisp-cwl-apply-phase30-ui-parity.mjs";
-import { applyWispPhase30bModuleParity } from "../wisp-cwl-apply-phase30b-module-parity.mjs";
+import { applyWispPhase32CompleteDemo } from "../wisp-cwl-apply-phase32-complete-demo.mjs";
 import {
   buildWispUiParityManifest,
   probeWispUiAnchorRoutes,
@@ -44,10 +43,9 @@ export function runWispCwlUiParityDocGate() {
 
 export function runWispCwlUiParityApplyChainGate() {
   const phase31 = applyWispPhase31BulkLift();
-  const phase30 = applyWispPhase30UiParity();
-  const phase30b = applyWispPhase30bModuleParity();
-  const ok = phase31.ok === true && phase30.ok === true && phase30b.ok === true;
-  return { ok, phase31, phase30, phase30b };
+  const phase32 = applyWispPhase32CompleteDemo();
+  const ok = phase31.ok === true && phase32.ok === true;
+  return { ok, phase31, phase32 };
 }
 
 export function runWispCwlUiParityStubGate() {

@@ -171,6 +171,142 @@ handler session_me {
   return { ok: true, surface: "wisp-auth-native" };
 }
 
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
+@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, surface: "wisp-auth-native" };
+}
+
 @page GET "/modules"
 page modules_page {
   effects: none;
@@ -525,8 +661,8 @@ page modules_maintain_page {
 page modules_monitor_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { source: "wisp-m31", path: "/modules/monitor" };
-  return html "<!-- This page redirects to /modules/monitoring -->\n<div style=\"display: flex; align-items: center; justify-content: center; height: 100vh;\">\n  <p>Redirecting to Monitoring...</p>\n</div>";
+  load { source: "wisp-m32", path: "/modules/monitor" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_monitor\" data-wisp-path=\"/modules/monitor\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\"><h1>Monitor</h1></header>\n  <article class=\"wisp-demo-docs\"><p>Redirecting to <a href=\"/modules/monitoring\">Monitoring</a>…</p></article>\n  <script>location.replace(\"/modules/monitoring\");</script>\n</div>";
 }
 
 @page GET "/modules/monitoring"
@@ -728,3 +864,314 @@ page wizards_page {
   return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"wizards\" data-wisp-path=\"/wizards\" data-cwl-island=\"client\" data-wisp-layout=\"list\">\n  <header class=\"wisp-demo-header\">\n    <h1>Wizards</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Wizards — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/wizards/add\">Add new</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>176</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>4</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>14</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"Wizards data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
+@page GET "/admin/billing/add"
+page admin_billing_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/admin/billing/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_billing_add\" data-wisp-path=\"/admin/billing/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/admin/management/add"
+page admin_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/admin/management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_management_add\" data-wisp-path=\"/admin/management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/admin/system-management/add"
+page admin_system_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/admin/system-management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_system_management_add\" data-wisp-path=\"/admin/system-management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/admin/tenant-management/add"
+page admin_tenant_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/admin/tenant-management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_tenant_management_add\" data-wisp-path=\"/admin/tenant-management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/admin/tenants/:tenantId/modules/add"
+page admin_tenants_tenantId_modules_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/admin/tenants/:tenantId/modules/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_tenants_tenantId_modules_add\" data-wisp-path=\"/admin/tenants/:tenantId/modules/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/add"
+page modules_acs_cpe_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_add\" data-wisp-path=\"/modules/acs-cpe-management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/alerts/add"
+page modules_acs_cpe_management_alerts_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/alerts/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_alerts_add\" data-wisp-path=\"/modules/acs-cpe-management/alerts/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/devices/add"
+page modules_acs_cpe_management_devices_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/devices/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_devices_add\" data-wisp-path=\"/modules/acs-cpe-management/devices/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/faults/add"
+page modules_acs_cpe_management_faults_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/faults/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_faults_add\" data-wisp-path=\"/modules/acs-cpe-management/faults/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/files/add"
+page modules_acs_cpe_management_files_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/files/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_files_add\" data-wisp-path=\"/modules/acs-cpe-management/files/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/firmware/add"
+page modules_acs_cpe_management_firmware_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/firmware/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_firmware_add\" data-wisp-path=\"/modules/acs-cpe-management/firmware/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/graphs/add"
+page modules_acs_cpe_management_graphs_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/graphs/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_graphs_add\" data-wisp-path=\"/modules/acs-cpe-management/graphs/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/monitoring/add"
+page modules_acs_cpe_management_monitoring_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/monitoring/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_monitoring_add\" data-wisp-path=\"/modules/acs-cpe-management/monitoring/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/presets/add"
+page modules_acs_cpe_management_presets_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/presets/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_presets_add\" data-wisp-path=\"/modules/acs-cpe-management/presets/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/settings/add"
+page modules_acs_cpe_management_settings_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/settings/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_settings_add\" data-wisp-path=\"/modules/acs-cpe-management/settings/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/acs-cpe-management/tasks/add"
+page modules_acs_cpe_management_tasks_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/acs-cpe-management/tasks/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_acs_cpe_management_tasks_add\" data-wisp-path=\"/modules/acs-cpe-management/tasks/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/snmp\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/backend-management/add"
+page modules_backend_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/backend-management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_backend_management_add\" data-wisp-path=\"/modules/backend-management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/billing/add"
+page modules_billing_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/billing/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_billing_add\" data-wisp-path=\"/modules/billing/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/customer-billing\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/cbrs-management/add"
+page modules_cbrs_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/cbrs-management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_cbrs_management_add\" data-wisp-path=\"/modules/cbrs-management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/network\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/customers/add"
+page modules_customers_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/customers/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_customers_add\" data-wisp-path=\"/modules/customers/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/customers\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/customers/portal-setup/add"
+page modules_customers_portal_setup_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/customers/portal-setup/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_customers_portal_setup_add\" data-wisp-path=\"/modules/customers/portal-setup/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/customers\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/hardware/add"
+page modules_hardware_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/hardware/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_hardware_add\" data-wisp-path=\"/modules/hardware/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/inventory\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/help-desk/add"
+page modules_help_desk_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/help-desk/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_help_desk_add\" data-wisp-path=\"/modules/help-desk/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/maintain\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/help-desk/reports/add"
+page modules_help_desk_reports_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/help-desk/reports/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_help_desk_reports_add\" data-wisp-path=\"/modules/help-desk/reports/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/maintain\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/hss-management/add"
+page modules_hss_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/hss-management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_hss_management_add\" data-wisp-path=\"/modules/hss-management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/hss\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/inventory/bundles/add"
+page modules_inventory_bundles_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/inventory/bundles/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_inventory_bundles_add\" data-wisp-path=\"/modules/inventory/bundles/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/inventory\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/inventory/reports/add"
+page modules_inventory_reports_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/inventory/reports/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_inventory_reports_add\" data-wisp-path=\"/modules/inventory/reports/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/inventory\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/maintain/add"
+page modules_maintain_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/maintain/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_maintain_add\" data-wisp-path=\"/modules/maintain/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/maintain\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/monitoring/add"
+page modules_monitoring_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/monitoring/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_monitoring_add\" data-wisp-path=\"/modules/monitoring/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/monitoring/graphs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/pci-resolution/add"
+page modules_pci_resolution_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/pci-resolution/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_pci_resolution_add\" data-wisp-path=\"/modules/pci-resolution/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/network\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/sites/add"
+page modules_sites_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/sites/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_sites_add\" data-wisp-path=\"/modules/sites/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/network\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/tenant-management/add"
+page modules_tenant_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/tenant-management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_tenant_management_add\" data-wisp-path=\"/modules/tenant-management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/tenants\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/tenant-management/cbrs-platform/add"
+page modules_tenant_management_cbrs_platform_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/tenant-management/cbrs-platform/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_tenant_management_cbrs_platform_add\" data-wisp-path=\"/modules/tenant-management/cbrs-platform/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/tenants\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/tenant-management/users/add"
+page modules_tenant_management_users_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/tenant-management/users/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_tenant_management_users_add\" data-wisp-path=\"/modules/tenant-management/users/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/tenants\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/user-management/add"
+page modules_user_management_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/user-management/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_user_management_add\" data-wisp-path=\"/modules/user-management/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/users\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/user-management/permissions/add"
+page modules_user_management_permissions_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/user-management/permissions/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_user_management_permissions_add\" data-wisp-path=\"/modules/user-management/permissions/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/users\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/user-management/roles/add"
+page modules_user_management_roles_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/user-management/roles/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_user_management_roles_add\" data-wisp-path=\"/modules/user-management/roles/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/users\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/voice-telephony/add"
+page modules_voice_telephony_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/voice-telephony/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_voice_telephony_add\" data-wisp-path=\"/modules/voice-telephony/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/voice\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}
+
+@page GET "/modules/work-orders/add"
+page modules_work_orders_add_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { source: "wisp-m32-add", path: "/modules/work-orders/add" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_work_orders_add\" data-wisp-path=\"/modules/work-orders/add\" data-cwl-island=\"client\" data-wisp-layout=\"form\" data-wisp-api=\"/api/work-orders\">\n  <header class=\"wisp-demo-header\">\n    <h1>Add</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Add — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <form class=\"wisp-demo-form\" id=\"wisp-demo-form\">\n  <div class=\"wisp-demo-field\"><label>Name</label><input name=\"name\" type=\"text\" placeholder=\"Add entry\" required /></div>\n  <div class=\"wisp-demo-field\"><label>Notes</label><textarea name=\"notes\" rows=\"4\" placeholder=\"Optional notes\"></textarea></div>\n  <div class=\"wisp-demo-field\"><label>Status</label><select name=\"status\"><option>Active</option><option>Pending</option><option>Archived</option></select></div>\n  <button type=\"submit\" class=\"wisp-demo-btn primary\">Save</button>\n</form>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+}

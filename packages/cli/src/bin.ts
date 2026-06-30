@@ -512,10 +512,11 @@ async function cmdFederation(rest: string[]): Promise<number> {
     )) as { runWebLlmBuildShorthandHub: (opts: { repoRoot: string }) => Promise<Record<string, unknown>> };
     const exported = await exportMod.exportIntelligenceShorthands({ repoRoot });
     const hub = await hubMod.runWebLlmBuildShorthandHub({ repoRoot });
+    const summary = exported.summary as { compressionVs7BTotal?: number } | undefined;
     process.stdout.write(`${JSON.stringify({ exported, hub }, null, 2)}\n`);
     if (exported.ok === true) {
       console.log(
-        `[federation] exported ${String(exported.count ?? 0)} shorthand(s), ${String(exported.summary?.compressionVs7BTotal ?? "?")}× vs 7B`,
+        `[federation] exported ${String(exported.count ?? 0)} shorthand(s), ${String(summary?.compressionVs7BTotal ?? "?")}× vs 7B`,
       );
     }
     return exported.ok === true ? 0 : 1;

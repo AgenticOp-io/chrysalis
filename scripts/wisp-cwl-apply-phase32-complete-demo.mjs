@@ -19,6 +19,8 @@ import {
   buildWispMonitorRedirectDemoHtml,
   routeBlockNeedsModuleDemo,
   WISP_MODULE_DEMO_SKIP_PATHS,
+  ensureWispModuleAddRoutes,
+  collectMissingModuleAddPaths,
 } from "./wisp-cwl-module-demo-lib.mjs";
 
 export const WISP_PHASE32_COMPLETE_DEMO_KIND = "chrysalis.wisp.phase32-complete-demo";
@@ -65,6 +67,9 @@ export function applyWispPhase32CompleteDemo(opts = {}) {
     applied++;
   }
 
+  const addRoutes = ensureWispModuleAddRoutes(text);
+  text = addRoutes.text;
+
   writeFileSync(path, text, "utf8");
   const preview = reconcilePreviewFromRoutesCwl();
   const holeManifest = buildWispHoleManifest();
@@ -72,13 +77,20 @@ export function applyWispPhase32CompleteDemo(opts = {}) {
   const manifest = buildWispUiParityManifest({ routesPath: path });
   const demoCount = (text.match(/\bwisp-demo-content\b/g) ?? []).length;
   const emptyShellCount = (text.match(/<main class="wisp-surface-body"><\/main>/g) ?? []).length;
+  const addMissing = collectMissingModuleAddPaths(text);
 
   return {
     kind: WISP_PHASE32_COMPLETE_DEMO_KIND,
     schemaVersion: 1,
-    ok: emptyShellCount === 0 && stubScan.ok === true && demoCount >= 75,
+    ok:
+      emptyShellCount === 0 &&
+      stubScan.ok === true &&
+      demoCount >= 75 &&
+      addMissing.length === 0,
     applied,
     skipped,
+    addRoutes: addRoutes.addRouteCount,
+    addMissingCount: addMissing.length,
     demoCount,
     emptyShellCount,
     stubScan,

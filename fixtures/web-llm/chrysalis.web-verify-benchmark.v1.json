@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.web-llm.web-verify-benchmark",
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T02:31:33.431Z",
-  "caseCount": 297,
+  "generatedAt": "2026-06-30T05:18:38.783Z",
+  "caseCount": 298,
   "cases": [
     {
       "id": "auth-tag-probe-GET-_probe-0",
@@ -2441,6 +2441,19 @@
       ]
     },
     {
+      "id": "wisp-anchor-_modules_hardware_add",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/hardware/add",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "ui-parity",
+        "anchor"
+      ]
+    },
+    {
       "id": "wisp-static-_-0",
       "fixture": "hub-wisp-management",
       "path": "/",
@@ -3045,7 +3058,9 @@
       "tier": "showcase",
       "tags": [
         "wisp",
-        "cwl-static-export"
+        "cwl-static-export",
+        "ui-parity",
+        "anchor"
       ]
     },
     {
@@ -3582,11 +3597,11 @@
   "tiers": {
     "structural": 144,
     "oracle": 66,
-    "showcase": 87
+    "showcase": 88
   },
   "tasks": {
     "verify": 130,
     "migrate": 80,
-    "ui-parity": 87
+    "ui-parity": 88
   }
 }
