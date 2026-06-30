@@ -1,4 +1,4 @@
-> **Archive notice:** Closed **program** — regression and history only. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+> **Archive notice:** Closed **program** — regression and history only. Active stack: [`MIGRATION-OS.md`](./MIGRATION-OS.md). Index: [`archive/INDEX.md`](./archive/INDEX.md).
 
 # WISP production POC program (Phase 28)
 

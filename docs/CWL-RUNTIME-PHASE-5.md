@@ -1,4 +1,4 @@
-> **Archive notice:** Closed strategic-plan **phase** — source material for gates and fixtures. Active stack: [MIGRATION-OS.md](./MIGRATION-OS.md). Index: [rchive/INDEX.md](./archive/INDEX.md).
+> **Archive notice:** Closed strategic-plan **phase** — source material for gates and fixtures. Active stack: [`MIGRATION-OS.md`](./MIGRATION-OS.md). Index: [`archive/INDEX.md`](./archive/INDEX.md).
 
 # CWL runtime — Phase 5 plan
 
