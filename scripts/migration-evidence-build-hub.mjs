@@ -27,9 +27,10 @@ function escapeHtml(text) {
     .replace(/"/g, "&quot;");
 }
 
-function linkIfExists(label, relPath, className = "button secondary") {
-  return existsSync(relPath)
-    ? `<a class="${className}" href="${relPath}">${escapeHtml(label)}</a>`
+function linkIfExists(label, hrefRel, absPath, className = "button secondary") {
+  const check = absPath ?? hrefRel;
+  return existsSync(check)
+    ? `<a class="${className}" href="${hrefRel}">${escapeHtml(label)}</a>`
     : `<span class="pending">${escapeHtml(label)} (pending)</span>`;
 }
 
@@ -58,21 +59,21 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
       title: "Site → CWL → LLM",
       gate: "G8400/G8410",
       ok: lastDemo?.sitePort?.ok ?? lastDemo?.vmf?.ok ?? federationDemo?.ok ?? null,
-      hub: "../federation/poc/index.html",
+      hub: "../../federation/poc/index.html",
     },
     {
       id: "vmf",
       title: "Verified Migration Federation",
       gate: "G8470",
       ok: lastDemo?.vmf?.ok ?? federationDemo?.ok ?? null,
-      hub: "../federation/poc/index.html",
+      hub: "../../federation/poc/index.html",
     },
     {
       id: "web-llm",
       title: "Open web-LLM agent POC",
       gate: "G8300",
       ok: lastDemo?.webLlm?.ok ?? webLlmRun?.ok ?? null,
-      hub: "../web-llm/poc/index.html",
+      hub: "../../web-llm/poc/index.html",
     },
     {
       id: "intelligence-shorthand",
@@ -80,12 +81,12 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
       gate: "G8560",
       ok:
         (shorthandBundle?.summary?.count ?? 0) >= 1 &&
-        existsSync(join(outDir, "../web-llm/shorthand/poc/index.html"))
+        existsSync(resolve(outDir, "../../web-llm/shorthand/poc/index.html"))
           ? true
           : shorthandBundle
             ? false
             : null,
-      hub: "../web-llm/shorthand/poc/index.html",
+      hub: "../../web-llm/shorthand/poc/index.html",
     },
   ];
 
@@ -93,7 +94,7 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
     .map((p) => {
       const badge =
         p.ok === true ? "pass" : p.ok === false ? "fail" : "pending";
-      const hubPath = join(outDir, p.hub);
+      const hubPath = resolve(outDir, p.hub);
       const hubLink = existsSync(hubPath)
         ? `<a href="${p.hub}">open hub</a>`
         : `<span class="pending">pending</span>`;
@@ -138,11 +139,11 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
   </div>
 
   <p>
-    ${linkIfExists("VMF POC hub", join(outDir, "../federation/poc/index.html"), "button")}
-    ${linkIfExists("Web-LLM POC hub", join(outDir, "../web-llm/poc/index.html"), "button secondary")}
-    ${linkIfExists("Verify League", join(outDir, "../federation/league/index.html"), "button secondary")}
-    ${linkIfExists("Intelligence Shorthand", join(outDir, "../web-llm/shorthand/poc/index.html"), "button secondary")}
-    ${linkIfExists("Nightly report", join(outDir, "../open-legacy-index/nightly/latest.json"), "button secondary")}
+    ${linkIfExists("VMF POC hub", "../../federation/poc/index.html", resolve(outDir, "../../federation/poc/index.html"), "button")}
+    ${linkIfExists("Web-LLM POC hub", "../../web-llm/poc/index.html", resolve(outDir, "../../web-llm/poc/index.html"), "button secondary")}
+    ${linkIfExists("Verify League", "../../federation/league/index.html", resolve(outDir, "../../federation/league/index.html"), "button secondary")}
+    ${linkIfExists("Intelligence Shorthand", "../../web-llm/shorthand/poc/index.html", resolve(outDir, "../../web-llm/shorthand/poc/index.html"), "button secondary")}
+    ${linkIfExists("Nightly report", "../../open-legacy-index/nightly/latest.json", resolve(outDir, "../../open-legacy-index/nightly/latest.json"), "button secondary")}
     ${demoUrl ? `<a class="button secondary" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener">WISP live demo</a>` : ""}
   </p>
 

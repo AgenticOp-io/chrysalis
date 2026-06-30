@@ -38,6 +38,9 @@ export async function runMigrationEvidencePocCloseSmoke(opts = {}) {
     corpusShards: (demo.federation?.corpus?.shardCount ?? 0) >= expectedCount,
     shorthandCount: (demo.federation?.shorthand?.count ?? 0) >= expectedCount * 2,
     shorthandHubExists: existsSync(join(repoRoot, "reports/web-llm/shorthand/poc/index.html")),
+    hubProgramsGreen:
+      (demo.hub?.programsGreen ?? 0) >= (demo.hub?.programCount ?? 4) &&
+      (demo.hub?.programCount ?? 0) >= 4,
   };
   const ok = Object.values(checks).every(Boolean);
 
