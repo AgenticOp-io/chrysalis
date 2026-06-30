@@ -47,6 +47,13 @@ Produces under `reports/web-llm/dataset/`:
 | `training-shards.v1.json` | Same, pretty-printed |
 | `wvb-eval-prompts.v1.json` | Eval prompts from WVB cases |
 
+**Intelligence Shorthand (IS-T3):** collapse verify-green shards to skill capsules — [`docs/INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md)
+
+```bash
+pnpm run web-llm:export-shorthand
+# → reports/web-llm/shorthand/intelligence-shorthands.v1.json
+```
+
 ## Shard schema
 
 Each shard includes:

@@ -189,6 +189,14 @@ run_phase hub-completion-gate node scripts/ci-gates.mjs hub-completion reports/c
 log "phase: hub knowledge ci gates"
 run_phase hub-knowledge pnpm run ci:hub-knowledge
 
+if [[ "${CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND:-1}" != "0" ]]; then
+  log "phase: intelligence shorthand close (G8560, CPU only)"
+  run_phase intelligence-shorthand-close env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:intelligence-shorthand-close-smoke
+else
+  log "phase: skip intelligence shorthand (CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND=0)"
+  skip_phase intelligence-shorthand-close
+fi
+
 log "phase: cwl fullstack HTTP verify"
 run_phase cwl-http-verify node scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs
 

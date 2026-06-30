@@ -1,0 +1,23 @@
+{
+  "kind": "chrysalis.web-llm.intelligence-shorthand",
+  "schemaVersion": 1,
+  "id": "is-example-tiny-blog-port",
+  "tier": "IS-T3-skill-capsule",
+  "domainId": "tinyBlog",
+  "payload": {
+    "summary": "user: port tiny-blog to CWL with verify\nassistant: exported CWL routes; verify correctness 1.0",
+    "shardDigest": "a1b2c3d4e5f67890",
+    "tools": ["chrysalis.port-site", "chrysalis.verify-replay"],
+    "policyRef": "fixtures/tiny-blog/routes.cwl",
+    "verifyGate": {
+      "name": "site-port:verify",
+      "ok": true,
+      "correctness": 1
+    },
+    "benchmarkCaseIds": ["vmf-tinyBlog-get-posts"]
+  },
+  "storageBytesEstimate": 420,
+  "compressionFactorVs7BWeights": 10000,
+  "provenance": ["fixtures/web-llm/intelligence-shorthand.example.v1.json"],
+  "generatedAt": "2026-06-16T00:00:00.000Z"
+}

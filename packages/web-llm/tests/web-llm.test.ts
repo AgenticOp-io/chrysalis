@@ -9,6 +9,7 @@ import { join, resolve } from "node:path";
 import { existsSync, unlinkSync } from "node:fs";
 import { evaluateSitePortVerifyGate, logSitePortStep, resolveSitePortTrajectoryPath, SITE_PORT_GATE_NAMES } from "../src/site-port.js";
 import { buildWvbCasesForWorkUnit, mergeWvbWithFederationCases, pickBestSubmissionsByContributorFixture, validateFederationSubmission, validateFederationShard } from "../src/federation.js";
+import { buildSkillCapsuleFromShard, buildOracleRefShorthandFromPortReport, buildPolicyGraphShorthandFromPortReport, summarizeIntelligenceShorthands, validateIntelligenceShorthand } from "../src/shorthand.js";
 import { WEB_LLM_TRAINING_SHARD_KIND, WEB_LLM_TRAINING_SHARD_SCHEMA_VERSION } from "../src/kinds.js";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
@@ -162,6 +163,42 @@ describe("@chrysalis/web-llm", () => {
     const merged = mergeWvbWithFederationCases(base, extra);
     expect(merged.caseCount).toBe(base.caseCount + 1);
     expect(merged.cases.some((c) => c.id.startsWith("vmf-tinyBlog"))).toBe(true);
+  });
+
+  test("buildPolicyGraph and OracleRef shorthands from port report", () => {
+    const port = {
+      ok: true,
+      cwl: { ok: true, cwlPath: "fixtures/tiny-blog/routes.cwl", routeCount: 5 },
+      verify: { ok: true, correctness: 1, mode: "probe-replay" },
+    };
+    const t4 = buildPolicyGraphShorthandFromPortReport("tinyBlog", port);
+    const t5 = buildOracleRefShorthandFromPortReport("tinyBlog", port);
+    expect(t4?.tier).toBe("IS-T4-policy-graph");
+    expect(t5?.tier).toBe("IS-T5-oracle-ref");
+    const summary = summarizeIntelligenceShorthands([t4!, t5!]);
+    expect(summary.compressionVs7BTotal).toBeGreaterThan(10_000);
+  });
+
+  test("buildSkillCapsuleFromShard collapses verify-green shard to IS-T3", () => {
+    const shard = {
+      kind: WEB_LLM_TRAINING_SHARD_KIND,
+      schemaVersion: WEB_LLM_TRAINING_SHARD_SCHEMA_VERSION,
+      id: "shard-is-test",
+      sessionId: "sess-is-test",
+      generatedAt: new Date().toISOString(),
+      messages: [
+        { role: "user" as const, content: "port tiny-blog" },
+        { role: "assistant" as const, content: "CWL export complete" },
+      ],
+      gate: { name: "site-port:verify", ok: true, detail: { correctness: 1 } },
+      tools: ["chrysalis.port-site"],
+      provenance: ["test"],
+    };
+    const capsule = buildSkillCapsuleFromShard(shard, { domainId: "tinyBlog" });
+    expect(capsule?.tier).toBe("IS-T3-skill-capsule");
+    expect(capsule?.storageBytesEstimate).toBeLessThan(4096);
+    expect(capsule?.compressionFactorVs7BWeights).toBeGreaterThanOrEqual(10_000);
+    expect(validateIntelligenceShorthand(capsule).ok).toBe(true);
   });
 
   test("site-port step logging appends gated trajectory records", () => {

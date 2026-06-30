@@ -49,6 +49,7 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
   const index = readJson(join(repoRoot, "fixtures/site-port-federation/open-legacy-index.v1.json"));
   const registry = readJson(join(repoRoot, "reports/federation/registry.v1.json"));
   const nightly = readJson(join(repoRoot, "reports/open-legacy-index/nightly/latest.json"));
+  const shorthandBundle = readJson(join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json"));
   const demoUrl = mod.resolveWispDemoBaseUrl(repoRoot);
 
   const programRows = [
@@ -118,6 +119,8 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
     <div class="stat"><strong>${registry?.submissions?.length ?? 0}</strong>VMF shard submissions</div>
     <div class="stat"><strong>${benchmark.caseCount}</strong>WVB cases</div>
     <div class="stat"><strong>${webLlmRun?.passCount ?? "—"}</strong>Agent scenarios passed</div>
+    <div class="stat"><strong>${shorthandBundle?.summary?.count ?? "—"}</strong>IS shorthands</div>
+    <div class="stat"><strong>${shorthandBundle?.summary?.compressionVs7BTotal ? `${shorthandBundle.summary.compressionVs7BTotal.toLocaleString()}×` : "—"}</strong>vs 14 GB 7B</div>
     <div class="stat"><strong class="${nightly?.ok === true ? "pass" : "pending"}">${nightly?.ok === true ? "pass" : "—"}</strong>Nightly matrix</div>
   </div>
 
@@ -125,6 +128,7 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
     ${linkIfExists("VMF POC hub", join(outDir, "../federation/poc/index.html"), "button")}
     ${linkIfExists("Web-LLM POC hub", join(outDir, "../web-llm/poc/index.html"), "button secondary")}
     ${linkIfExists("Verify League", join(outDir, "../federation/league/index.html"), "button secondary")}
+    ${linkIfExists("Intelligence Shorthand", join(outDir, "../web-llm/shorthand/poc/index.html"), "button secondary")}
     ${linkIfExists("Nightly report", join(outDir, "../open-legacy-index/nightly/latest.json"), "button secondary")}
     ${demoUrl ? `<a class="button secondary" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener">WISP live demo</a>` : ""}
   </p>

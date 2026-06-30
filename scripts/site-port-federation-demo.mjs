@@ -77,6 +77,13 @@ export async function runFederationDemo(opts = {}) {
   const wvb = published.wvb;
   const bundle = published.bundle;
   const hub = await runFederationBuildPocHub({ repoRoot });
+  let shorthandHub = null;
+  try {
+    const { runWebLlmBuildShorthandHub } = await import("./web-llm-build-shorthand-hub.mjs");
+    shorthandHub = await runWebLlmBuildShorthandHub({ repoRoot });
+  } catch {
+    /* optional */
+  }
 
   const portOk = ports.every((p) => p.portOk === true);
   const submitOk = ports.every((p) => p.submitOk === true);
@@ -96,6 +103,8 @@ export async function runFederationDemo(opts = {}) {
     league,
     wvb,
     bundle,
+    shorthand: published.shorthand,
+    shorthandHub,
     hub,
     hubPath: hub.indexPath,
     bundlePath: bundle.outPath ?? null,

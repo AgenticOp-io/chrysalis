@@ -120,6 +120,12 @@ jobs:
           CHRYSALIS_POC_SKIP_BUILD: "1"
           CHRYSALIS_FEDERATION_CONTRIBUTOR: "ci-hub-close-smoke"
 
+      - name: Intelligence Shorthand close (G8560, CPU only)
+        run: pnpm run hub:intelligence-shorthand-close-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+          CHRYSALIS_POC_SKIP_BUILD: "1"
+
       - name: WISP complete demo close (G8330)
         run: pnpm run hub:wisp-complete-demo-close-smoke
 

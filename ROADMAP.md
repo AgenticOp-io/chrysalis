@@ -133,6 +133,9 @@ Composes: **G8480** (evidence hub) + **G8520** (open legacy) + **G8540** (VMF hu
 **Operator demo:** `pnpm run migration-evidence:demo`  
 **Bundle export:** `pnpm run federation:export-bundle`
 
+**Intelligence Shorthand:** `pnpm run web-llm:export-shorthand` — see [`docs/INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md)  
+**IS close (CPU, G8560):** `pnpm run hub:intelligence-shorthand-close-smoke`
+
 ---
 
 ## Closed — Phase 31 WISP CWL UI parity (G8100)

@@ -69,6 +69,7 @@ Script: `scripts/gce-run-all-tests.sh` — each row is a separate **`gce-run-pha
 | `cwl-v107-*` (3 phases) | verify standalone mega slices |
 | `cwl-v110-verify-gaps-parallel`, `cwl-v110-migration-mega` | graduation lock (oracle/verify megas skipped on GCE — already covered by v106/v107 slices; set `CHRYSALIS_GCE_V110_SKIP_REPEAT_MEGAS=0` to re-run) |
 | `post110-verify-gaps` | hub verify-gaps B1–B5 reinforcement (**green 2026-06-16**); HTTP verify uses **`hub-verify-http-probe-worker.mjs`** subprocess (avoids tsx hang on fastify) |
+| `intelligence-shorthand-close` | **G8560** IS-T3/T4/T5 export + hub (**CPU only**). Skip: `CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND=0` |
 
 Long smokes emit **`[chrysalis-smoke:scope] ISO8601 start|ok|FAIL|defer …`** lines to stderr (captured in `gce-phase-*.log` via `2>&1 tee`). Silence with `CHRYSALIS_HUB_SMOKE_PROGRESS=0`.
 

@@ -453,8 +453,15 @@ export async function publishFederationArtifacts(repoRoot) {
   const wvb = await mergeFederationWvb(repoRoot);
   const league = await publishFederationLeague(repoRoot);
   const bundle = exportOpenLegacyBundle(repoRoot);
+  let shorthand = { ok: false, skip: "not-run" };
+  try {
+    const { exportIntelligenceShorthands } = await import("./web-llm-export-shorthand.mjs");
+    shorthand = await exportIntelligenceShorthands({ repoRoot });
+  } catch {
+    /* shorthand export optional until web-llm built */
+  }
   const ok = corpus.ok === true && wvb.ok === true && league.ok === true && bundle.ok === true;
-  return { ok, corpus, wvb, league, bundle };
+  return { ok, corpus, wvb, league, bundle, shorthand };
 }
 
 /**

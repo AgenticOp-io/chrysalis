@@ -23,6 +23,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     openLegacyOk: openLegacy.ok === true,
     federationHubOk: federationHub.ok === true,
     bundleExists: existsSync(join(repoRoot, "reports/federation/bundle/open-legacy-bundle.v1.json")),
+    shorthandExists: existsSync(join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json")),
     nightlyExists: existsSync(join(repoRoot, "reports/open-legacy-index/nightly/latest.json")),
     leagueExists: existsSync(join(repoRoot, "reports/federation/league/index.html")),
   };
