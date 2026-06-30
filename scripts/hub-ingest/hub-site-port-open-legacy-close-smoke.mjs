@@ -4,21 +4,24 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runSitePortOpenLegacyIndexCloseSmoke } from "./hub-site-port-open-legacy-index-close-smoke.mjs";
 import { runSitePortOpenLegacyNightlySmoke } from "./hub-site-port-open-legacy-nightly-smoke.mjs";
+import { runSitePortOpenLegacyWedgeSmoke } from "./hub-site-port-open-legacy-wedge-smoke.mjs";
 
 export const HUB_SITE_PORT_OPEN_LEGACY_CLOSE_KIND = "chrysalis.hub.site-port-open-legacy-close-smoke";
-export const HUB_SITE_PORT_OPEN_LEGACY_CLOSE_SCHEMA_VERSION = 1;
+export const HUB_SITE_PORT_OPEN_LEGACY_CLOSE_SCHEMA_VERSION = 2;
 
 export async function runSitePortOpenLegacyCloseSmoke() {
   const indexClose = await runSitePortOpenLegacyIndexCloseSmoke();
+  const wedge = await runSitePortOpenLegacyWedgeSmoke();
   const nightly = await runSitePortOpenLegacyNightlySmoke();
 
-  const ok = indexClose.ok === true && nightly.ok === true;
+  const ok = indexClose.ok === true && wedge.ok === true && nightly.ok === true;
 
   return {
     kind: HUB_SITE_PORT_OPEN_LEGACY_CLOSE_KIND,
     schemaVersion: HUB_SITE_PORT_OPEN_LEGACY_CLOSE_SCHEMA_VERSION,
     ok,
     indexClose,
+    wedge,
     nightly,
     generatedAt: new Date().toISOString(),
   };

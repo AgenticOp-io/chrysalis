@@ -106,6 +106,7 @@ Optional **contractual shard export** (redacted trajectories, no source) feeds t
 | **38a** | Local VMF hub HTTP API | **G8530** | Yes |
 | **38b** | Remote payload submit + publish-all + bundle | **G8540** | Yes |
 | **Migration OS** | Evidence + open legacy + VMF hub composite | **G8550** | Yes |
+| **39a** | WordPress vertical wedge (7th index entry) | **G8570** | Yes (closed) |
 | **Horizon C** | Fine-tune on merged corpus | sponsor | **No** |
 
 ## Best expansion idea (recommended)
@@ -180,14 +181,15 @@ pnpm run hub:site-port-federation-close-smoke   # G8460 (full loop)
 pnpm run hub:site-port-close-smoke              # G8400
 pnpm run hub:site-port-verify-matrix-smoke      # G8410 (Open Legacy Index)
 pnpm run hub:site-port-federation-hub-api-smoke  # G8530
-pnpm run hub:site-port-open-legacy-close-smoke   # G8520
+pnpm run hub:site-port-open-legacy-close-smoke   # G8520 (includes G8570 wedge)
+pnpm run hub:site-port-open-legacy-wedge-smoke   # G8570 (WordPress vertical)
 pnpm run hub:site-port-federation-entry-smoke   # G8420
 pnpm run hub:site-port-federation-registry-smoke  # G8430
 pnpm run hub:site-port-federation-submit-smoke    # G8440
 pnpm run hub:site-port-federation-league-smoke    # G8450
 ```
 
-**Open Legacy Index:** [`fixtures/site-port-federation/open-legacy-index.v1.json`](../fixtures/site-port-federation/open-legacy-index.v1.json) — tiny-blog, plain-php, symfony, express, laravel-min, cwl-fullstack.
+**Open Legacy Index:** [`fixtures/site-port-federation/open-legacy-index.v1.json`](../fixtures/site-port-federation/open-legacy-index.v1.json) — tiny-blog, plain-php, symfony, express, laravel-min, cwl-fullstack, **wordpress-probe**.
 
 **Nightly verify:** `.github/workflows/open-legacy-index-nightly.yml` (**G8510**)
 

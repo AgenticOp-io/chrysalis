@@ -42,9 +42,9 @@ Each scenario writes verify-gated records to `reports/web-llm/poc/sessions.jsonl
 | --- | --- | --- |
 | **G8300** | Agent POC close | `hub:open-web-llm-poc-smoke` |
 | **G8320** | WISP GCE live anchors (strict) | `hub:wisp-poc-live-smoke` |
-| **G8310** | WISP + web-LLM unified POC | `hub:wisp-web-llm-poc-close-smoke` |
+| **G8310** | WISP + web-LLM unified POC (v2: + G8560 IS; optional G8320 live) | `hub:wisp-web-llm-poc-close-smoke` |
 
-**G8310** runs **G8100** + **G8290** + **G8300** in sequence.
+**G8310** runs **G8100** + **G8290** + **G8300** + **G8560** (`skipPort`). Set **`CHRYSALIS_G8310_LIVE=1`** to also run **G8320** live anchor probes.
 
 ## MCP integration
 

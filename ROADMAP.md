@@ -6,7 +6,7 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Intelligence Shorthand closed** (**G8560**, **D6290**); **Migration OS closed** (**G8550**); **Phase 38 closed** (**G8540**).
+- **Active lane:** **Phase 32 Open web-LLM** (**G8290**); **Phase 39 Open Legacy 7th wedge closed** (**G8570**); **Migration OS closed** (**G8550**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -154,6 +154,21 @@ Requires: Open Legacy port reports (from **G8480** / **G8550**)
 
 ---
 
+## Closed — Phase 39 Open Legacy 7th wedge (G8570)
+
+Authority: **DESIGN D6292**  
+Closed: **2026-06-16**
+
+| Phase | Goal | Gate |
+| --- | --- | --- |
+| **39a** | WordPress vertical probe (7th index entry) | **G8570** |
+
+**Index entry:** `wordpressProbe` → `fixtures/wordpress-probe`  
+**Regression:** `hub:site-port-open-legacy-wedge-smoke` (**G8570**)  
+**Composed in:** `hub:site-port-open-legacy-close-smoke` (**G8520** v2)
+
+---
+
 ## Closed — Phase 31 WISP CWL UI parity (G8100)
 
 Program doc: [`docs/WISP-CWL-UI-PARITY-PROGRAM.md`](./docs/WISP-CWL-UI-PARITY-PROGRAM.md)  
@@ -193,7 +208,7 @@ Authority: **DESIGN D6277**
 | --- | --- | --- |
 | **G8300** | Scripted agent scenarios + static POC hub | `hub:open-web-llm-poc-smoke` |
 | **G8320** | WISP GCE live anchor probes (strict) | `hub:wisp-poc-live-smoke` |
-| **G8310** | WISP + web-LLM unified POC (G8100 + G8290 + G8300) | `hub:wisp-web-llm-poc-close-smoke` |
+| **G8310** | WISP + web-LLM unified POC (G8100 + G8290 + G8300 + G8560; optional G8320 live) | `hub:wisp-web-llm-poc-close-smoke` |
 
 **One-command demo:** `pnpm run web-llm:demo` → open `reports/web-llm/poc/index.html`.
 

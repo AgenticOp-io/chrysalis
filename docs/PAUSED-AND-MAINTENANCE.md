@@ -11,6 +11,7 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
+| **G8570 wedge (closed when index green)** | `pnpm run hub:site-port-open-legacy-wedge-smoke` |
 | **G8550 Migration OS (closed composite)** | `pnpm run hub:migration-os-close-smoke` (includes **G8560** IS) |
 | **G8560 Intelligence Shorthand (closed, CPU)** | `pnpm run hub:intelligence-shorthand-close-smoke` |
 | **G8290 Open web-LLM framework (active)** | `pnpm run hub:open-web-llm-close-smoke` |

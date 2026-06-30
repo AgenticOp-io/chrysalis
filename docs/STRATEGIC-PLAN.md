@@ -422,7 +422,28 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (post G8560 — Intelligence Shorthand closed)
+## 12. Default queue (post G8570 — Open Legacy 7th wedge closed)
+
+**Status:** **Phase 39 closed** (**G8570**, **D6292**); **Intelligence Shorthand closed** (**G8560**); **Migration OS closed** (**G8550**).
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** IS close)
+2. **G8310 unified POC** — `pnpm run hub:wisp-web-llm-poc-close-smoke` (includes **G8560**; add **`CHRYSALIS_G8310_LIVE=1`** for G8320)
+3. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+4. **G8290 web-LLM framework** — `pnpm run hub:open-web-llm-close-smoke`
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**IS export:** `pnpm run web-llm:export-shorthand` / `chrysalis federation export-shorthand`  
+**VMF hub:** `pnpm run federation:serve`  
+**GCE WISP refresh:** `pnpm run wisp:deploy:gce` then `pnpm run wisp:operator-verify -- --require`  
+**Nightly CI:** `.github/workflows/open-legacy-index-nightly.yml`
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G8560 — Intelligence Shorthand closed, superseded 2026-06-16)
 
 **Status:** **Intelligence Shorthand closed** (**G8560**, **D6290**); **Migration OS closed** (**G8550**, **D6288**); **Phase 38 closed** (**G8540**).
 

@@ -219,6 +219,7 @@
     "hub:site-port-verify-matrix-smoke": "node scripts/hub-ingest/hub-site-port-verify-matrix-smoke.mjs",
     "hub:site-port-open-legacy-index-close-smoke": "node scripts/hub-ingest/hub-site-port-open-legacy-index-close-smoke.mjs",
     "hub:site-port-open-legacy-nightly-smoke": "node scripts/hub-ingest/hub-site-port-open-legacy-nightly-smoke.mjs",
+    "hub:site-port-open-legacy-wedge-smoke": "node scripts/hub-ingest/hub-site-port-open-legacy-wedge-smoke.mjs",
     "hub:site-port-open-legacy-close-smoke": "node scripts/hub-ingest/hub-site-port-open-legacy-close-smoke.mjs",
     "hub:site-port-federation-hub-api-smoke": "node scripts/hub-ingest/hub-site-port-federation-hub-api-smoke.mjs",
     "hub:site-port-federation-hub-close-smoke": "node scripts/hub-ingest/hub-site-port-federation-hub-close-smoke.mjs",

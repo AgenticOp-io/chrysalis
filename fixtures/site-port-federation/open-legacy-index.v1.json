@@ -56,6 +56,15 @@
       "minRoutes": 5,
       "license": "MIT",
       "tags": ["php", "cwl", "fullstack", "structural"]
+    },
+    {
+      "id": "wordpressProbe",
+      "title": "WordPress Vertical Probe",
+      "fixtureRel": "fixtures/wordpress-probe",
+      "origin": "php",
+      "minRoutes": 2,
+      "license": "MIT",
+      "tags": ["php", "wordpress", "vertical", "oracle"]
     }
   ]
 }

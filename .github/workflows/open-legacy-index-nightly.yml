@@ -41,6 +41,9 @@ jobs:
       - name: Open Legacy index close (G8500)
         run: pnpm run hub:site-port-open-legacy-index-close-smoke
 
+      - name: Open Legacy WordPress wedge (G8570)
+        run: pnpm run hub:site-port-open-legacy-wedge-smoke
+
       - name: VMF hub API (G8530)
         run: pnpm run hub:site-port-federation-hub-api-smoke
 

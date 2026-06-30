@@ -6,7 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createFederationHubHandler } from "../federation-hub-server.mjs";
 import { runSitePortToCwl } from "../site-port-to-cwl.mjs";
-import { syncRegistryFromOpenLegacyIndex } from "../site-port-federation-lib.mjs";
+import { expectedOpenLegacyIndexCount, syncRegistryFromOpenLegacyIndex } from "../site-port-federation-lib.mjs";
 
 export const HUB_SITE_PORT_FEDERATION_HUB_API_KIND = "chrysalis.hub.site-port-federation-hub-api-smoke";
 export const HUB_SITE_PORT_FEDERATION_HUB_API_SCHEMA_VERSION = 3;
@@ -36,6 +36,7 @@ function listenEphemeral(handler) {
  */
 export async function runSitePortFederationHubApiSmoke(opts = {}) {
   const repoRoot = resolve(opts.repoRoot ?? scriptRoot);
+  const expectedCount = expectedOpenLegacyIndexCount(repoRoot);
   syncRegistryFromOpenLegacyIndex(repoRoot);
 
   const port = await runSitePortToCwl({
@@ -94,9 +95,9 @@ export async function runSitePortFederationHubApiSmoke(opts = {}) {
 
     const checks = {
       healthOk: health.ok === true,
-      indexEntries: (index.entries?.length ?? 0) >= 6,
+      indexEntries: (index.entries?.length ?? 0) >= expectedCount,
       bundleOk: bundle.kind === "chrysalis.site-port-federation.open-legacy-bundle.v1",
-      registryOk: (registryBefore.workUnits?.length ?? 0) >= 6,
+      registryOk: (registryBefore.workUnits?.length ?? 0) >= expectedCount,
       portOk: port.ok === true,
       submitOk: submit.ok === true,
       remoteSubmitOk: remote.ok === true,
