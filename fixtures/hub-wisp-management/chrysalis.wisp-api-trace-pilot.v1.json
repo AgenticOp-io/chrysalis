@@ -881,6 +881,6 @@
   "tracesRoot": "wisp-api-pilot-traces",
   "goldensDir": "wisp-api-goldens",
   "capturePlaybook": "docs/WISP-PRODUCTION-COMPLETION-PROGRAM.md#trace-capture-playbook",
-  "generatedAt": "2026-06-30T05:41:25.939Z",
+  "generatedAt": "2026-06-30T06:21:53.010Z",
   "replayCorrectness": 1
 }

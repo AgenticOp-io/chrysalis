@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.wisp.m0-surface-manifest",
   "schemaVersion": 1,
-  "ok": true,
+  "ok": false,
   "wave": "M0",
   "surfaces": {
     "pages": [
@@ -22,7 +22,7 @@
   },
   "docsPageCount": 5,
   "helpNative": true,
-  "loginFirebaseHole": true,
+  "loginFirebaseHole": false,
   "projectStatusNative": true,
-  "generatedAt": "2026-06-27T22:48:01.777Z"
+  "generatedAt": "2026-06-30T06:21:39.372Z"
 }

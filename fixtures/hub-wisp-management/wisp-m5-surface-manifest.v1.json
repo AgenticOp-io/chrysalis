@@ -1,14 +1,14 @@
 {
   "kind": "chrysalis.wisp.m5-surface-manifest",
   "schemaVersion": 1,
-  "ok": true,
+  "ok": false,
   "wave": "M5",
   "cutover": {
     "uiRouteCount": 87,
-    "nativePageCount": 86,
-    "uiHoleCount": 1,
-    "nativeRatio": 0.9885,
-    "loginFirebaseHole": true
+    "nativePageCount": 87,
+    "uiHoleCount": 0,
+    "nativeRatio": 1,
+    "loginFirebaseHole": false
   },
   "surfaces": {
     "pages": "all UI routes except /login",
@@ -21,5 +21,5 @@
     ],
     "note": "Interactive widgets remain sidecar; shells are native CWL Pages + Data load"
   },
-  "generatedAt": "2026-06-27T22:48:01.801Z"
+  "generatedAt": "2026-06-30T06:21:39.787Z"
 }
