@@ -422,7 +422,27 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (post G8550 — Migration OS closed)
+## 12. Default queue (post G8560 — Intelligence Shorthand closed)
+
+**Status:** **Intelligence Shorthand closed** (**G8560**, **D6290**); **Migration OS closed** (**G8550**, **D6288**); **Phase 38 closed** (**G8540**).
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** IS close)
+2. **G8560 composite** — `pnpm run hub:intelligence-shorthand-close-smoke` (CPU only)
+3. **G8540 composite** — `pnpm run hub:site-port-federation-hub-close-smoke`
+4. **G8480 composite** — `pnpm run hub:migration-evidence-poc-close-smoke`
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**IS export:** `pnpm run web-llm:export-shorthand` / `chrysalis federation export-shorthand`  
+**VMF hub:** `pnpm run federation:serve`  
+**Nightly CI:** `.github/workflows/open-legacy-index-nightly.yml`
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G8550 — Migration OS closed, superseded 2026-06-16)
 
 **Status:** **Migration OS closed** (**G8550**, **D6288**); **Phase 38 closed** (**G8540**, **D6287**); **Phase 37 closed** (**G8520**, **D6286**); **Phase 35 closed** (**G8480**, **D6284**).
 

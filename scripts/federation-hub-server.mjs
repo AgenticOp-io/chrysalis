@@ -72,6 +72,22 @@ export function createFederationHubHandler(opts) {
         return sendJson(res, 200, exportOpenLegacyBundle(repoRoot).bundle);
       }
 
+      if (req.method === "GET" && path === "/api/vmf/shorthand") {
+        const shorthandPath = join(repoRoot, "reports/federation/shorthand/intelligence-shorthands.v1.json");
+        if (!existsSync(shorthandPath)) {
+          return sendJson(res, 404, { ok: false, skip: "shorthand-not-exported" });
+        }
+        return sendJson(res, 200, JSON.parse(readFileSync(shorthandPath, "utf8")));
+      }
+
+      if (req.method === "POST" && path === "/api/vmf/export-shorthand") {
+        const { exportIntelligenceShorthands } = await import("./web-llm-export-shorthand.mjs");
+        const { runWebLlmBuildShorthandHub } = await import("./web-llm-build-shorthand-hub.mjs");
+        const exported = await exportIntelligenceShorthands({ repoRoot });
+        const hub = await runWebLlmBuildShorthandHub({ repoRoot });
+        return sendJson(res, exported.ok === true ? 200 : 400, { ok: exported.ok === true, exported, hub });
+      }
+
       if (req.method === "GET" && path === "/api/vmf/league") {
         const paths = resolveFederationPaths(repoRoot);
         const jsonPath = join(paths.leagueDir, "leaderboard.v1.json");
@@ -171,8 +187,8 @@ export function startFederationHubServer(opts = {}) {
 async function main() {
   const started = await startFederationHubServer();
   console.error(`[federation-hub] listening on ${started.baseUrl}`);
-  console.error("[federation-hub] GET  /api/vmf/health /index /registry /bundle /league");
-  console.error("[federation-hub] POST /api/vmf/submit-shard /merge-corpus /merge-wvb /publish-league /publish-all");
+  console.error("[federation-hub] GET  /api/vmf/health /index /registry /bundle /shorthand /league");
+  console.error("[federation-hub] POST /api/vmf/submit-shard /merge-corpus /merge-wvb /publish-league /publish-all /export-shorthand");
 }
 
 if (process.argv[1]?.includes("federation-hub-server")) {

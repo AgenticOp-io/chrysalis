@@ -434,6 +434,9 @@ export function exportOpenLegacyBundle(repoRoot) {
       submit: "POST /api/vmf/submit-shard { fixtureId, contributor, portReport, shard }",
       mergeCorpus: "POST /api/vmf/merge-corpus",
       publishLeague: "POST /api/vmf/publish-league",
+      publishAll: "POST /api/vmf/publish-all",
+      shorthand: "GET /api/vmf/shorthand",
+      exportShorthand: "POST /api/vmf/export-shorthand",
     },
     generatedAt: new Date().toISOString(),
   };

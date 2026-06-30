@@ -45,6 +45,8 @@ export async function runFederationBuildPocHub(opts = {}) {
   const wvbFed = readJson(join(paths.base, "wvb/chrysalis.web-verify-benchmark.federation.v1.json"));
   const benchmark = mod.buildWebVerifyBenchmark({ repoRoot });
   const webLlmHub = join(repoRoot, "reports/web-llm/poc/index.html");
+  const shorthandBundle = readJson(join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json"));
+  const shorthandHub = join(repoRoot, "reports/web-llm/shorthand/poc/index.html");
 
   const indexRows = (index.entries ?? [])
     .map((e) => {
@@ -91,11 +93,13 @@ export async function runFederationBuildPocHub(opts = {}) {
     <div class="stat"><strong>${registry?.submissions?.length ?? 0}</strong>Shard submissions</div>
     <div class="stat"><strong>${corpus?.shardCount ?? 0}</strong>Federated corpus shards</div>
     <div class="stat"><strong>${wvbFed?.caseCount ?? benchmark.caseCount}</strong>WVB cases</div>
+    <div class="stat"><strong>${shorthandBundle?.summary?.count ?? "—"}</strong>IS shorthands</div>
   </div>
 
   <p>
     ${existsSync(join(paths.leagueDir, "index.html")) ? `<a class="button" href="../league/index.html">Verify League</a>` : ""}
     ${existsSync(join(paths.corpusDir, "training-shards.v1.jsonl")) ? `<a class="button secondary" href="../corpus/training-shards.v1.jsonl">Federated corpus</a>` : ""}
+    ${existsSync(shorthandHub) ? `<a class="button secondary" href="../../web-llm/shorthand/poc/index.html">Intelligence Shorthand</a>` : ""}
     ${existsSync(webLlmHub) ? `<a class="button secondary" href="../../web-llm/poc/index.html">Web-LLM POC hub</a>` : ""}
     ${existsSync(join(repoRoot, "reports/migration-evidence/poc/index.html")) ? `<a class="button secondary" href="../../migration-evidence/poc/index.html">Migration Evidence hub</a>` : ""}
   </p>

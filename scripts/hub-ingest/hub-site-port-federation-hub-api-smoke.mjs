@@ -9,7 +9,7 @@ import { runSitePortToCwl } from "../site-port-to-cwl.mjs";
 import { syncRegistryFromOpenLegacyIndex } from "../site-port-federation-lib.mjs";
 
 export const HUB_SITE_PORT_FEDERATION_HUB_API_KIND = "chrysalis.hub.site-port-federation-hub-api-smoke";
-export const HUB_SITE_PORT_FEDERATION_HUB_API_SCHEMA_VERSION = 2;
+export const HUB_SITE_PORT_FEDERATION_HUB_API_SCHEMA_VERSION = 3;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const tinyBlog = join(scriptRoot, "fixtures/tiny-blog");
@@ -86,6 +86,10 @@ export async function runSitePortFederationHubApiSmoke(opts = {}) {
     const publishAllRes = await fetch(`${baseUrl}/api/vmf/publish-all`, { method: "POST" });
     const publishAll = await publishAllRes.json();
 
+    const exportShorthandRes = await fetch(`${baseUrl}/api/vmf/export-shorthand`, { method: "POST" });
+    const exportShorthand = await exportShorthandRes.json();
+    const shorthandGet = await fetch(`${baseUrl}/api/vmf/shorthand`).then((r) => r.json());
+
     const leagueGet = await fetch(`${baseUrl}/api/vmf/league`).then((r) => r.json());
 
     const checks = {
@@ -98,6 +102,8 @@ export async function runSitePortFederationHubApiSmoke(opts = {}) {
       remoteSubmitOk: remote.ok === true,
       remoteMode: remote.mode === "remote-payload",
       publishAllOk: publishAll.ok === true,
+      exportShorthandOk: exportShorthand.ok === true,
+      shorthandGetOk: (shorthandGet.count ?? 0) >= 1,
       leagueGetOk: (leagueGet.entries?.length ?? 0) >= 1,
       submissionsRecorded: submit.ok === true && remote.ok === true,
     };

@@ -49,6 +49,9 @@ jobs:
         env:
           CHRYSALIS_FEDERATION_CONTRIBUTOR: "ci-nightly-hub-close"
 
+      - name: Intelligence Shorthand close (G8560, CPU only)
+        run: pnpm run hub:intelligence-shorthand-close-smoke
+
       - name: Upload nightly report
         if: always()
         uses: actions/upload-artifact@v4

@@ -437,6 +437,7 @@ async function cmdFederation(rest: string[]): Promise<number> {
     console.log("  merge-corpus               Merge accepted shards into federated corpus");
     console.log("  merge-wvb                  Merge federation WVB cases from verified submissions");
     console.log("  publish-league             Publish Verify League leaderboard HTML+JSON");
+    console.log("  export-shorthand           Export IS-T3/T4/T5 intelligence shorthands (CPU only)");
     console.log("  demo                       One-command Site-Port + VMF POC (port all index fixtures)");
     console.log("  serve                      Local VMF hub HTTP API (file-based ingest v1)");
     console.log("\nEnv: CHRYSALIS_FEDERATION_CONTRIBUTOR, CHRYSALIS_FEDERATION_DIR, CHRYSALIS_POC_SKIP_BUILD, CHRYSALIS_FEDERATION_HUB_PORT");
@@ -502,6 +503,24 @@ async function cmdFederation(rest: string[]): Promise<number> {
     return result.ok === true ? 0 : 1;
   }
 
+  if (sub === "export-shorthand") {
+    const exportMod = (await import(
+      pathToFileURL(resolve(repoRoot, "scripts/web-llm-export-shorthand.mjs")).href
+    )) as { exportIntelligenceShorthands: (opts: { repoRoot: string }) => Promise<Record<string, unknown>> };
+    const hubMod = (await import(
+      pathToFileURL(resolve(repoRoot, "scripts/web-llm-build-shorthand-hub.mjs")).href
+    )) as { runWebLlmBuildShorthandHub: (opts: { repoRoot: string }) => Promise<Record<string, unknown>> };
+    const exported = await exportMod.exportIntelligenceShorthands({ repoRoot });
+    const hub = await hubMod.runWebLlmBuildShorthandHub({ repoRoot });
+    process.stdout.write(`${JSON.stringify({ exported, hub }, null, 2)}\n`);
+    if (exported.ok === true) {
+      console.log(
+        `[federation] exported ${String(exported.count ?? 0)} shorthand(s), ${String(exported.summary?.compressionVs7BTotal ?? "?")}× vs 7B`,
+      );
+    }
+    return exported.ok === true ? 0 : 1;
+  }
+
   if (sub === "demo") {
     const demoMod = await loadFederationDemo();
     const result = await demoMod.runFederationDemo({ repoRoot });
@@ -544,6 +563,7 @@ async function cmdEvidence(rest: string[]): Promise<number> {
   if (!sub || sub === "--help" || sub === "-h" || sub === "help") {
     console.log("chrysalis evidence — Migration Evidence POC (Phase 35)\n");
     console.log("  demo                       Run Site-Port + VMF + web-LLM demos and build unified hub");
+    console.log("  export-shorthand           Export IS intelligence shorthands (CPU only, no GPU)");
     console.log("\nEnv: CHRYSALIS_POC_SKIP_BUILD, CHRYSALIS_FEDERATION_CONTRIBUTOR");
     return 0;
   }
@@ -556,6 +576,20 @@ async function cmdEvidence(rest: string[]): Promise<number> {
       console.log(`[evidence] POC hub: ${String(result.hubPath ?? "?")}`);
     }
     return result.ok === true ? 0 : 1;
+  }
+
+  if (sub === "export-shorthand") {
+    const repoRoot = resolveRepoRoot();
+    const exportMod = (await import(
+      pathToFileURL(resolve(repoRoot, "scripts/web-llm-export-shorthand.mjs")).href
+    )) as { exportIntelligenceShorthands: (opts: { repoRoot: string }) => Promise<Record<string, unknown>> };
+    const hubMod = (await import(
+      pathToFileURL(resolve(repoRoot, "scripts/web-llm-build-shorthand-hub.mjs")).href
+    )) as { runWebLlmBuildShorthandHub: (opts: { repoRoot: string }) => Promise<Record<string, unknown>> };
+    const exported = await exportMod.exportIntelligenceShorthands({ repoRoot });
+    const hub = await hubMod.runWebLlmBuildShorthandHub({ repoRoot });
+    process.stdout.write(`${JSON.stringify({ exported, hub }, null, 2)}\n`);
+    return exported.ok === true ? 0 : 1;
   }
 
   console.error(`[evidence] unknown subcommand: ${sub}`);

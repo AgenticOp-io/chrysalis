@@ -6,7 +6,7 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Migration OS closed** (**G8550**, **D6288**); **Phase 38 closed** (**G8540**, **D6287**); **Phase 37 closed** (**G8520**); **Phase 35 closed** (**G8480**).
+- **Active lane:** **Intelligence Shorthand closed** (**G8560**, **D6290**); **Migration OS closed** (**G8550**); **Phase 38 closed** (**G8540**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -135,6 +135,22 @@ Composes: **G8480** (evidence hub) + **G8520** (open legacy) + **G8540** (VMF hu
 
 **Intelligence Shorthand:** `pnpm run web-llm:export-shorthand` — see [`docs/INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md)  
 **IS close (CPU, G8560):** `pnpm run hub:intelligence-shorthand-close-smoke`
+
+---
+
+## Closed — Intelligence Shorthand (G8560)
+
+Authority: **DESIGN D6290**  
+Requires: Open Legacy port reports (from **G8480** / **G8550**)
+
+| Phase | Goal | Gate |
+| --- | --- | --- |
+| **IS export** | IS-T3/T4/T5 from verify-gated artifacts | `web-llm:export-shorthand` |
+| **IS hub** | Operator dashboard (compression vs 7B) | `web-llm:build-shorthand-hub` |
+| **IS close** | Full index coverage, CPU only | **G8560** |
+
+**Regression:** `hub:intelligence-shorthand-close-smoke` (**G8560**)  
+**Composed in:** `hub:migration-os-close-smoke` (**G8550** v2)
 
 ---
 
