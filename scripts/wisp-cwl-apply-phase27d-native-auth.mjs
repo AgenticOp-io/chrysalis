@@ -22,10 +22,10 @@ page login_page {
       client ui {
         element "form" id "login-form" {
           element "label" { text "Email"; }
-          element "input" id "email" { }
+          element "input" id "email" type "email" { }
           element "label" { text "Password"; }
-          element "input" id "password" { }
-          element "button" id "sign-in" {
+          element "input" id "password" type "password" { }
+          element "button" id "sign-in" type "submit" {
             text "Sign in";
             on click { action "loginSubmit"; }
           }

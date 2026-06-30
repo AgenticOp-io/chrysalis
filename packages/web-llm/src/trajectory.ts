@@ -1,0 +1,87 @@
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { dirname } from "node:path";
+import { randomUUID } from "node:crypto";
+import {
+  WEB_LLM_TRAJECTORY_RECORD_KIND,
+  WEB_LLM_TRAJECTORY_SCHEMA_VERSION,
+} from "./kinds.js";
+import type { TrajectoryGateResult, TrajectoryRecord, TrajectoryRole } from "./types.js";
+
+export function createTrajectorySessionId(prefix = "web-llm") {
+  return `${prefix}-${randomUUID()}`;
+}
+
+/** @param {string} filePath */
+export function readTrajectoryRecords(filePath: string): TrajectoryRecord[] {
+  if (!existsSync(filePath)) return [];
+  const lines = readFileSync(filePath, "utf8").split(/\r?\n/).filter(Boolean);
+  /** @type {TrajectoryRecord[]} */
+  const records = [];
+  for (const line of lines) {
+    try {
+      const row = JSON.parse(line);
+      if (row.kind === WEB_LLM_TRAJECTORY_RECORD_KIND) records.push(row);
+    } catch {
+      /* skip malformed */
+    }
+  }
+  return records;
+}
+
+export type AppendTrajectoryRecordInput = {
+  filePath: string;
+  sessionId: string;
+  step: number;
+  role: TrajectoryRole;
+  content?: string;
+  toolName?: string;
+  toolInput?: Record<string, unknown>;
+  toolOutput?: unknown;
+  gate?: TrajectoryGateResult;
+  artifacts?: string[];
+  unverified?: boolean;
+};
+
+export function appendTrajectoryRecord(input: AppendTrajectoryRecordInput): TrajectoryRecord {
+  if (input.gate?.ok !== true && input.unverified !== true && input.role === "assistant") {
+    throw new Error("assistant trajectory steps require gate.ok or unverified:true");
+  }
+  const record: TrajectoryRecord = {
+    kind: WEB_LLM_TRAJECTORY_RECORD_KIND,
+    schemaVersion: WEB_LLM_TRAJECTORY_SCHEMA_VERSION,
+    sessionId: input.sessionId,
+    step: input.step,
+    ts: new Date().toISOString(),
+    role: input.role,
+    ...(input.content !== undefined ? { content: input.content } : {}),
+    ...(input.toolName !== undefined ? { toolName: input.toolName } : {}),
+    ...(input.toolInput !== undefined ? { toolInput: input.toolInput } : {}),
+    ...(input.toolOutput !== undefined ? { toolOutput: input.toolOutput } : {}),
+    ...(input.gate !== undefined ? { gate: input.gate } : {}),
+    ...(input.artifacts !== undefined ? { artifacts: input.artifacts } : {}),
+    ...(input.unverified !== undefined ? { unverified: input.unverified } : {}),
+  };
+  mkdirSync(dirname(input.filePath), { recursive: true });
+  appendFileSync(input.filePath, `${JSON.stringify(record)}\n`, "utf8");
+  return record;
+}
+
+export function summarizeTrajectoryFile(filePath: string) {
+  const records = readTrajectoryRecords(filePath);
+  const gates = records.filter((r) => r.gate).map((r) => r.gate);
+  const gateOk = gates.filter((g) => g?.ok === true).length;
+  return {
+    filePath,
+    recordCount: records.length,
+    sessionId: records[0]?.sessionId ?? null,
+    gateCount: gates.length,
+    gateOk,
+    gateFail: gates.length - gateOk,
+    ok: records.length > 0 && gateFailCount(gates) === 0,
+  };
+}
+
+/** @param {Array<TrajectoryGateResult | undefined>} gates */
+function gateFailCount(gates: Array<TrajectoryGateResult | undefined>) {
+  return gates.filter((g) => g && g.ok !== true).length;
+}

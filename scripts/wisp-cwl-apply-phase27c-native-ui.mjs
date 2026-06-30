@@ -137,7 +137,11 @@ export function applyWispPhase27cNativeUi(opts = {}) {
   let converted = 0;
   for (const anchor of anchors) {
     const block = buildPhase27cNativeUiPageBlock(anchor);
-    const applied = replaceRouteHandlerBlock(text, [`@page GET "${anchor.path}"`], block);
+    const applied = replaceRouteHandlerBlock(
+      text,
+      [`@page GET "${anchor.path}"`, `@route GET "${anchor.path}"`],
+      block,
+    );
     if (!applied.ok) return { kind: WISP_PHASE27C_NATIVE_UI_KIND, schemaVersion: 1, ok: false, skip: applied.skip, anchor: anchor.path };
     if (!applied.skipped) converted++;
     text = applied.text;

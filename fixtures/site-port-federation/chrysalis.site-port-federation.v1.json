@@ -1,0 +1,44 @@
+{
+  "kind": "chrysalis.site-port-federation.v1",
+  "schemaVersion": 1,
+  "name": "Chrysalis Verified Migration Federation",
+  "shortName": "VMF",
+  "thesis": "Models propose; WebIR + oracle + verify dispose. Contributors run port-site locally and publish verify-gated shards — never raw proprietary source.",
+  "publicTier": {
+    "workUnits": [
+      "open-fixture-port",
+      "verify-shard-replay",
+      "wvb-case-submission",
+      "trajectory-shard-export"
+    ],
+    "allowedArtifacts": [
+      "chrysalis.site-port.v1",
+      "chrysalis.web-llm.training-shard",
+      "chrysalis.web-llm.web-verify-benchmark",
+      "chrysalis.hub.verify-replay"
+    ],
+    "forbidden": [
+      "raw-customer-source",
+      "unverified-llm-output",
+      "oracle-bypass-shortcuts"
+    ]
+  },
+  "privateTier": {
+    "description": "Enterprises run chrysalis port-site on-prem; optional signed shard export under contract.",
+    "localOnly": ["source-code", "production-traces", "credentials"]
+  },
+  "entryFixture": "fixtures/tiny-blog",
+  "referenceGates": {
+    "portClose": "hub:site-port-close-smoke",
+    "verifyMatrix": "hub:site-port-verify-matrix-smoke",
+    "openLegacyIndexClose": "hub:site-port-open-legacy-index-close-smoke",
+    "openLegacyNightly": "hub:site-port-open-legacy-nightly-smoke",
+    "openLegacyClose": "hub:site-port-open-legacy-close-smoke",
+    "federationHubApi": "hub:site-port-federation-hub-api-smoke",
+    "federationEntry": "hub:site-port-federation-entry-smoke",
+    "federationRegistry": "hub:site-port-federation-registry-smoke",
+    "federationSubmit": "hub:site-port-federation-submit-smoke",
+    "federationLeague": "hub:site-port-federation-league-smoke",
+    "federationClose": "hub:site-port-federation-close-smoke"
+  }
+}

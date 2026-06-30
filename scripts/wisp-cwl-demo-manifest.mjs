@@ -8,6 +8,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
 import { WISP_CLIENT_REDIRECT_ROUTES } from "./wisp-cwl-apply-client-redirects.mjs";
+import { isWispNativeCutoverMode } from "./wisp-cwl-post-g7790.mjs";
 
 export const WISP_DEMO_MANIFEST_KIND = "chrysalis.wisp.demo-manifest";
 export const WISP_DEMO_MANIFEST_SCHEMA_VERSION = 1;
@@ -28,10 +29,11 @@ export function buildWispDemoManifest(opts = {}) {
     prior.gce?.lastKnownNatIp ??
     null;
 
+  const nativeMode = isWispNativeCutoverMode();
   const manifest = {
     kind: WISP_DEMO_MANIFEST_KIND,
     schemaVersion: WISP_DEMO_MANIFEST_SCHEMA_VERSION,
-    operator: "phase14-hss",
+    operator: nativeMode ? "wisp-cwl-native-gce" : "phase14-hss",
     gce: {
       project: gce.project ?? prior.gce?.project,
       zone: gce.zone ?? prior.gce?.zone,
@@ -42,20 +44,31 @@ export function buildWispDemoManifest(opts = {}) {
     },
     backend: {
       url: gce.backendUrl ?? prior.backend?.url ?? "https://hss.wisptools.io",
-      policy: "proxy-only — Mongo/backend-services unchanged on acs-hss-server",
+      policy: nativeMode
+        ? "native-cwl-handlers — api-proxy.cwl on chimera (runtime-cwl-native)"
+        : "proxy-only — Mongo/backend-services unchanged on acs-hss-server",
     },
     firebase: {
       hostingTarget: firebase.hostingTarget ?? prior.firebase?.hostingTarget,
       optional: true,
     },
-    healthProbes: [
-      { path: "/", expect: "redirect-login", chimera: "cwl" },
-      { path: "/docs", expect: "200-html", chimera: "cwl" },
-      { path: "/login", expect: "svelte-fallback", chimera: "svelte-or-backend" },
-      { path: "/api/tenants", expect: "api-proxy", chimera: "backend" },
-      { path: "/api/hss", expect: "api-proxy", chimera: "backend" },
-      { path: "/api/monitoring", expect: "api-proxy", chimera: "backend" },
-    ],
+    healthProbes: nativeMode
+      ? [
+          { path: "/", expect: "redirect-login", chimera: "cwl" },
+          { path: "/docs", expect: "200-html", chimera: "cwl" },
+          { path: "/login", expect: "cwl-native-login", chimera: "cwl" },
+          { path: "/api/tenants", expect: "cwl-native-api", chimera: "cwl-native-api" },
+          { path: "/api/hss", expect: "cwl-native-api", chimera: "cwl-native-api" },
+          { path: "/api/monitoring", expect: "cwl-native-api", chimera: "cwl-native-api" },
+        ]
+      : [
+          { path: "/", expect: "redirect-login", chimera: "cwl" },
+          { path: "/docs", expect: "200-html", chimera: "cwl" },
+          { path: "/login", expect: "svelte-fallback", chimera: "svelte-or-backend" },
+          { path: "/api/tenants", expect: "api-proxy", chimera: "backend" },
+          { path: "/api/hss", expect: "api-proxy", chimera: "backend" },
+          { path: "/api/monitoring", expect: "api-proxy", chimera: "backend" },
+        ],
     clientRedirectPaths: WISP_CLIENT_REDIRECT_ROUTES.map((r) => r.path),
     generatedAt: new Date().toISOString(),
   };

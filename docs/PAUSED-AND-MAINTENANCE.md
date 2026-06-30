@@ -1,7 +1,7 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-06-27)  
-> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **WISP production completion closed** (**G7990**, **D6272**). **WISP production POC closed** (**G7890**, **D6270** / **D6271**). **WISP full site CWL closed** (**G7790**, **D6268**). **Universal translator closed** (**G7690**).
+> **Status:** authoritative (2026-06-16)  
+> **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**. **Phase 31 WISP CWL UI parity closed** (**G8100**, **D6274**). **WISP production completion closed** (**G7990**, **D6272**).
 
 **Do not treat closed program tables in `ROADMAP.md` or [`archive/STRATEGIC-PLAN-SHIPPED-LOG.md`](./archive/STRATEGIC-PLAN-SHIPPED-LOG.md) as active backlog.**
 
@@ -11,7 +11,9 @@
 
 | When the user says "build" without scope | Do this |
 | --- | --- |
-| **G7990 regression (default)** | `pnpm run hub:wisp-production-completion-close-smoke` |
+| **G8290 Open web-LLM framework (active)** | `pnpm run hub:open-web-llm-close-smoke` |
+| **G8100 WISP CWL UI parity (subordinate)** | `pnpm run hub:wisp-cwl-ui-parity-close-smoke` |
+| **G7990 regression (subordinate)** | `pnpm run hub:wisp-production-completion-close-smoke` |
 | **G7890 subordinate** | Included in **G7990** composite |
 | **G7790 subordinate** | Included in **G7890** composite |
 | **IR helper tier regression (optional)** | `hub:cwl-language-maintenance-smoke` (**G6731**); `hub:ir-helper-program-close-smoke` (**G7200**) |
@@ -20,9 +22,11 @@
 
 **Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **G7991** / **wisp-production-completion-closed** mode)
 
-**Program doc:** [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md)
+**Program doc:** [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md)
 
-**Program close regression:** `pnpm run hub:wisp-production-completion-close-smoke` (**G7990**)
+**Program close regression:** `pnpm run hub:open-web-llm-close-smoke` (**G8290**)
+
+**Subordinate:** [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) (**G8100**), [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md) (**G7990**)
 
 ---
 

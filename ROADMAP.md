@@ -6,9 +6,193 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Maintenance** — WISP production completion closed (**G7990**); default regression **G7990** composite (**D6272**).
+- **Active lane:** **Migration OS closed** (**G8550**, **D6288**); **Phase 38 closed** (**G8540**, **D6287**); **Phase 37 closed** (**G8520**); **Phase 35 closed** (**G8480**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
+
+---
+
+## Closed — Phase 33 Site → CWL → LLM program (G8400)
+
+Program doc: [`docs/SITE-TO-CWL-LLM-PROGRAM.md`](./docs/SITE-TO-CWL-LLM-PROGRAM.md)  
+Authority: **DESIGN D6280**  
+Closed: **2026-06-16**
+
+| Step | Goal | Gate |
+| --- | --- | --- |
+| **33a–33d** | Port pipeline + tiny-blog close | **G8400** |
+| **33e** | Verify replay + matrix | **G8410** |
+
+**CLI:** `chrysalis port-site`  
+**Regression:** `hub:site-port-close-smoke`, `hub:site-port-verify-matrix-smoke`
+
+---
+
+## Closed — Phase 34 Verified Migration Federation (G8460)
+
+Program doc: [`docs/SITE-PORT-FEDERATION-PROGRAM.md`](./docs/SITE-PORT-FEDERATION-PROGRAM.md)  
+Authority: **DESIGN D6281** / **D6282**  
+Closed: **2026-06-16**
+
+| Phase | Goal | Gate |
+| --- | --- | --- |
+| **34a** | Charter + entry | **G8420** |
+| **34b** | Work-unit registry | **G8430** |
+| **34c** | `chrysalis federation submit-shard` | **G8440** |
+| **34d** | Corpus merge + Verify League | **G8450** |
+| **34 close** | Full VMF loop | **G8460** |
+
+**CLI:** `chrysalis federation`  
+**Regression:** `pnpm run hub:site-port-federation-close-smoke` (**G8460**)
+
+---
+
+## Closed — Phase 34 VMF POC (G8470)
+
+Authority: **DESIGN D6283**  
+Closed: **2026-06-16**
+
+| Phase | Goal | Gate |
+| --- | --- | --- |
+| **34 POC** | Open Legacy Index (3 fixtures), WVB crowd merge, operator hub | **G8470** |
+
+**Open Legacy Index:** `fixtures/site-port-federation/open-legacy-index.v1.json`  
+**One-command demo:** `pnpm run federation:demo` / `chrysalis federation demo`  
+**POC hub:** `reports/federation/poc/index.html`  
+**Regression:** `pnpm run hub:site-port-federation-poc-close-smoke` (**G8470**)
+
+---
+
+## Closed — Phase 35 Migration Evidence POC (G8480)
+
+Program doc: [`docs/MIGRATION-EVIDENCE-POC-PROGRAM.md`](./docs/MIGRATION-EVIDENCE-POC-PROGRAM.md)  
+Authority: **DESIGN D6284**  
+Closed: **2026-06-16**
+
+| Phase | Goal | Gate |
+| --- | --- | --- |
+| **35** | Unified evidence hub (Site-Port + VMF + web-LLM) | **G8480** |
+
+**One-command demo:** `pnpm run migration-evidence:demo` / `chrysalis evidence demo`  
+**POC hub:** `reports/migration-evidence/poc/index.html`  
+**Regression:** `pnpm run hub:migration-evidence-poc-close-smoke` (**G8480**)
+
+---
+
+## Closed — Phase 36 Open Legacy Index multi-origin (G8490)
+
+Authority: **DESIGN D6285**  
+Closed: **2026-06-16**
+
+| Phase | Goal | Gate |
+| --- | --- | --- |
+| **36** | PHP + JavaScript origins in Open Legacy Index | **G8490** |
+
+**Regression:** `pnpm run hub:site-port-open-legacy-index-close-smoke` (superseded by G8500 at 5 fixtures)
+
+---
+
+## Closed — Phase 37 Open Legacy expansion (G8520)
+
+Authority: **DESIGN D6286**  
+Closed: **2026-06-16**
+
+| Phase | Goal | Gate |
+| --- | --- | --- |
+| **37a** | Laravel-min wedge (5th index entry) | **G8500** |
+| **37b** | Nightly verify matrix CI | **G8510** |
+| **37 close** | Program composite | **G8520** |
+
+**Regression:** `hub:site-port-open-legacy-close-smoke` (**G8520**)
+
+---
+
+## Closed — Phase 38 VMF local hub API (G8540)
+
+Authority: **DESIGN D6287** / **D6288**  
+Requires: **G8520** closed
+
+| Phase | Goal | Gate |
+| --- | --- | --- |
+| **38a** | HTTP ingest over file-based registry | **G8530** |
+| **38b** | Remote payload submit + publish-all + bundle export | **G8540** |
+| **38 close** | VMF hub program composite | **G8540** |
+
+**Serve:** `pnpm run federation:serve` / `chrysalis federation serve` (port **19101**)  
+**Regression:** `hub:site-port-federation-hub-close-smoke` (**G8540**)
+
+---
+
+## Closed — Migration OS (G8550)
+
+Authority: **DESIGN D6288**  
+Composes: **G8480** (evidence hub) + **G8520** (open legacy) + **G8540** (VMF hub)
+
+**Regression:** `pnpm run hub:migration-os-close-smoke` (**G8550**)
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**Bundle export:** `pnpm run federation:export-bundle`
+
+---
+
+## Closed — Phase 31 WISP CWL UI parity (G8100)
+
+Program doc: [`docs/WISP-CWL-UI-PARITY-PROGRAM.md`](./docs/WISP-CWL-UI-PARITY-PROGRAM.md)  
+Authority: **DESIGN D6274**  
+Closed: **2026-06-16**
+
+| Phase | Goal | Close gate |
+| --- | --- | --- |
+| **31a** | Bulk Svelte → CWL `@page` lift | apply + stub scan |
+| **31b** | Anchor parity (login, dashboard, plan, deploy, map) | Phase 30/30b |
+| **31c** | Automated close (forbidden stubs + HTTP anchors) | **G8100** |
+
+**Default regression:** `pnpm run hub:wisp-cwl-ui-parity-close-smoke` (**G8100**).
+
+---
+
+## Active — Phase 32 Open web-LLM framework (G8290)
+
+Program doc: [`docs/OPEN-WEB-LLM-PROGRAM.md`](./docs/OPEN-WEB-LLM-PROGRAM.md)  
+Authority: **DESIGN D6275**  
+Requires: engine + verify substrate (G8100/G7990 subordinate)
+
+| Horizon | Goal | Close gate |
+| --- | --- | --- |
+| **A** | `@chrysalis/web-llm`, WVB, trajectories, MCP tools | **G8290** |
+| **B** | Dataset export, leaderboard, auto gate logging | **G8240** |
+| **C** | Sponsor-funded CWL fine-tune | out of scope until funded |
+
+**Default regression (web-LLM framework):** `pnpm run hub:open-web-llm-close-smoke` (**G8290**).
+
+### Phase 32c — Agent POC (G8300 / G8310)
+
+Program doc: [`docs/OPEN-WEB-LLM-POC.md`](./docs/OPEN-WEB-LLM-POC.md)  
+Authority: **DESIGN D6277**
+
+| Gate | Goal | Smoke |
+| --- | --- | --- |
+| **G8300** | Scripted agent scenarios + static POC hub | `hub:open-web-llm-poc-smoke` |
+| **G8320** | WISP GCE live anchor probes (strict) | `hub:wisp-poc-live-smoke` |
+| **G8310** | WISP + web-LLM unified POC (G8100 + G8290 + G8300) | `hub:wisp-web-llm-poc-close-smoke` |
+
+**One-command demo:** `pnpm run web-llm:demo` → open `reports/web-llm/poc/index.html`.
+
+---
+
+## Active — Phase 31 WISP CWL UI parity (G8100) — archived entry
+
+Program doc: [`docs/WISP-CWL-UI-PARITY-PROGRAM.md`](./docs/WISP-CWL-UI-PARITY-PROGRAM.md)  
+Authority: **DESIGN D6274**  
+Requires: **G7990** closed
+
+| Phase | Goal | Close gate |
+| --- | --- | --- |
+| **31a** | Bulk Svelte → CWL `@page` lift | apply + stub scan |
+| **31b** | Anchor parity (login, dashboard, plan, deploy, map) | Phase 30/30b |
+| **31c** | Automated close (forbidden stubs + HTTP anchors) | **G8100** |
+
+**Default regression (UI parity):** `pnpm run hub:wisp-cwl-ui-parity-close-smoke` (**G8100**).
 
 ---
 

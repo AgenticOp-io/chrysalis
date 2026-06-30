@@ -1,0 +1,28 @@
+{
+  "kind": "chrysalis.web-llm.charter",
+  "schemaVersion": 1,
+  "agenda": "website-management-creation-conversion",
+  "principles": [
+    "The running app is the spec — oracle + verify are authoritative",
+    "Models propose CWL/WebIR patches; verify gates dispose",
+    "Partial output with explicit holes beats silent best-effort translation",
+    "Provenance on every generated route, page, and handler"
+  ],
+  "inScope": [
+    "Routes, pages, loaders, UI composition, effects middleware",
+    "Migration programs with chartered fixtures",
+    "Agent trajectories with verify-gated records"
+  ],
+  "outOfScope": [
+    "Raw codegen that bypasses WebIR/CWL",
+    "Infra/vendor replacement without explicit bridges",
+    "Unverified claims of production parity"
+  ],
+  "evalPrimary": "chrysalis.web-llm.web-verify-benchmark",
+  "trainingPhases": [
+    "trajectory-logging",
+    "benchmark-publication",
+    "agent-mcp-tools",
+    "sponsor-funded-fine-tune"
+  ]
+}

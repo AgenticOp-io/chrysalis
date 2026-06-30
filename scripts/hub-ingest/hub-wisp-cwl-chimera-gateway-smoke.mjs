@@ -1,21 +1,18 @@
 #!/usr/bin/env node
 /** WISP chimera gateway smoke — CWL /docs + /api proxy path (backend may be down). */
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createWispChimeraGateway } from "../wisp-cwl-chimera-gateway.mjs";
 import { generateWispApiProxyCwl } from "../wisp-cwl-generate-api-proxy-cwl.mjs";
-import { applyWispPhase13Surfaces } from "../wisp-cwl-apply-phase13-surfaces.mjs";
+import { prepareWispCwlDeployBundle } from "../wisp-cwl-pipeline.mjs";
 import { isWispFullSiteCwlProgramActive, isWispFullSiteCwlProgramClosed } from "./hub-cwl-fullstack-gates.mjs";
 
 export const WISP_CHIMERA_GATEWAY_SMOKE_KIND = "chrysalis.wisp.chimera-gateway-smoke";
 export const WISP_CHIMERA_GATEWAY_SMOKE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const fixtureDir = join(scriptRoot, "fixtures/hub-wisp-management");
-const wispRoot =
-  process.env.CHRYSALIS_WISP_ROOT ?? "C:/Users/david/Downloads/WISPTools/Module_Manager";
 
 export async function runWispChimeraGatewaySmoke() {
   const base = {
@@ -28,21 +25,14 @@ export async function runWispChimeraGatewaySmoke() {
     mode: isWispFullSiteCwlProgramActive() || isWispFullSiteCwlProgramClosed() ? "native" : "proxy",
   });
 
-  const wispRoutes = join(wispRoot, "generated/cwl/routes.cwl");
-  const fixtureRoutes = join(fixtureDir, "routes.cwl");
-  if (existsSync(wispRoutes)) {
-    mkdirSync(fixtureDir, { recursive: true });
-    copyFileSync(wispRoutes, fixtureRoutes);
-    applyWispPhase13Surfaces();
-  }
-  if (!existsSync(fixtureRoutes)) {
-    return { ...base, skip: "missing-routes-cwl", hint: "lift WISP Module_Manager or set CHRYSALIS_WISP_ROOT" };
-  }
+  const bundle = prepareWispCwlDeployBundle({ skipLift: true });
+  if (!bundle.ok) return { ...base, skip: bundle.skip ?? "bundle-failed" };
+  const cwlPath = join(bundle.bundleDir, "routes.cwl");
+  if (!existsSync(cwlPath)) return { ...base, skip: "missing-bundle-routes-cwl" };
 
   const runtimeDist = join(scriptRoot, "packages/runtime-cwl/dist/index.js");
   if (!existsSync(runtimeDist)) {
-    const pnpmCmd = process.platform === "win32" ? "pnpm" : "pnpm";
-    const build = spawnSync(pnpmCmd, ["--filter", "@chrysalis/runtime-cwl", "build"], {
+    const build = spawnSync("pnpm", ["--filter", "@chrysalis/runtime-cwl", "build"], {
       cwd: scriptRoot,
       encoding: "utf8",
       shell: process.platform === "win32",
@@ -61,7 +51,7 @@ export async function runWispChimeraGatewaySmoke() {
   try {
     gw = await createWispChimeraGateway({
       repoRoot: scriptRoot,
-      cwlPath: fixtureRoutes,
+      cwlPath,
       backendUrl: "http://127.0.0.1:9",
       host: "127.0.0.1",
       port: 0,
@@ -71,7 +61,8 @@ export async function runWispChimeraGatewaySmoke() {
     const baseUrl = `http://127.0.0.1:${port}`;
 
     const docs = await fetch(`${baseUrl}/docs`);
-    const docsOk = docs.status === 200 && (await docs.text()).includes("WISP Management");
+    const docsText = await docs.text();
+    const docsOk = docs.status === 200 && docsText.includes("WISP Management") && docsText.includes("wisp-cwl-app.css");
 
     const root = await fetch(`${baseUrl}/`);
     const rootText = await root.text();
@@ -81,6 +72,14 @@ export async function runWispChimeraGatewaySmoke() {
       rootText.includes("/login") &&
       !rootText.includes('<div class="loading-page">');
 
+    const login = await fetch(`${baseUrl}/login`);
+    const loginText = await login.text();
+    const loginOk =
+      login.status === 200 &&
+      loginText.includes("Sign in") &&
+      loginText.includes("wisp-cwl-client.js") &&
+      loginText.includes("login-page");
+
     const api = await fetch(`${baseUrl}/api/tenants`);
     const nativeApi = gw.nativeApi === true;
     const apiProxied = nativeApi
@@ -88,7 +87,7 @@ export async function runWispChimeraGatewaySmoke() {
       : api.headers.get("x-chrysalis-wisp-proxy") === "backend";
     const favicon = await fetch(`${baseUrl}/favicon.ico`);
     const faviconOk = favicon.status === 200 && favicon.headers.get("x-chrysalis-wisp-proxy") === "static";
-    const ok = docsOk && rootRedirectOk && apiProxied && faviconOk;
+    const ok = docsOk && rootRedirectOk && loginOk && apiProxied && faviconOk;
     return {
       ...base,
       ok,
@@ -96,13 +95,17 @@ export async function runWispChimeraGatewaySmoke() {
       docsOk,
       rootStatus: root.status,
       rootRedirectOk,
+      loginOk,
       apiProxied,
       apiStatus: api.status,
       faviconStatus: favicon.status,
       faviconOk,
+      svelteFallback: gw.svelteFallback,
     };
   } finally {
-    if (gw) await gw.stop();
+    if (gw) {
+      await new Promise((resolve) => gw.server.close(() => resolve(undefined)));
+    }
   }
 }
 

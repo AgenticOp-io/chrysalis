@@ -1,7 +1,7 @@
 {
   "kind": "chrysalis.wisp.demo-manifest",
   "schemaVersion": 1,
-  "operator": "phase28-production-poc",
+  "operator": "wisp-cwl-native-gce",
   "gce": {
     "project": "chrysalis-dev-f5x6qv",
     "zone": "us-central1-a",
@@ -12,12 +12,11 @@
   },
   "backend": {
     "url": "https://hss.wisptools.io",
-    "policy": "native-cwl-handlers — MongoDB/Express remain infra; API served via runtime-cwl-native"
+    "policy": "native-cwl-handlers — api-proxy.cwl on chimera (runtime-cwl-native)"
   },
   "firebase": {
     "hostingTarget": "hosting:management",
-    "optional": true,
-    "policy": "cwl-static-export — 87 pages exported to fixtures/hub-wisp-management/cwl-static-export (Phase 29b)"
+    "optional": true
   },
   "healthProbes": [
     {
@@ -58,5 +57,5 @@
     "/modules/monitor",
     "/portal/:tenantId"
   ],
-  "generatedAt": "2026-06-26T05:30:00.000Z"
+  "generatedAt": "2026-06-29T04:16:50.271Z"
 }

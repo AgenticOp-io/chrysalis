@@ -44,7 +44,8 @@ export function evaluateDemoProbe(expect, res, text, proxyHeader) {
         res.status === 200 &&
         (proxyHeader === "cwl" || proxyHeader === "") &&
         (res.headers.get("content-type") ?? "").includes("text/html") &&
-        text.includes("login")
+        text.includes("login-page") &&
+        text.includes("wisptools-logo.svg")
       );
     case "api-proxy":
       return isWispApiProxyHeaderOk(proxyHeader, isWispNativeCutoverMode());

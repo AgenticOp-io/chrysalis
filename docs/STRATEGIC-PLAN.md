@@ -416,11 +416,69 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-06-27 (WISP production completion closed — D6272):** Phase **29** closed at **G7990**: full API oracle corpus (**109** routes, **G7905**), CWL static export (**87** pages, **G7904**), operator contract smoke (**G7906**); default maintenance **G7990** composite. See [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md).
 
+**Amended 2026-06-16 (WISP CWL UI parity — D6274):** Phase **31** active after **G7990**: bulk Svelte lift, anchor parity (login/dashboard/plan/deploy/map), forbidden-stub crawler + chimera HTTP probes; program close **G8100**. See [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md).
+
 **Amended 2026-06-26 (WISP production POC — D6270):** Phase **28** active after **G7790**: operator HTTP contracts, post-G7790 pipeline, integration client UI, honest oracle trace pilot; program close **G7890**. See [`WISP-PRODUCTION-POC-PROGRAM.md`](./WISP-PRODUCTION-POC-PROGRAM.md).
 
 ---
 
-## 12. Default queue (post G7990 — WISP production completion closed)
+## 12. Default queue (post G8550 — Migration OS closed)
+
+**Status:** **Migration OS closed** (**G8550**, **D6288**); **Phase 38 closed** (**G8540**, **D6287**); **Phase 37 closed** (**G8520**, **D6286**); **Phase 35 closed** (**G8480**, **D6284**).
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke`
+2. **G8540 composite** — `pnpm run hub:site-port-federation-hub-close-smoke`
+3. **G8520 composite** — `pnpm run hub:site-port-open-legacy-close-smoke`
+4. **G8480 composite** — `pnpm run hub:migration-evidence-poc-close-smoke`
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**VMF hub:** `pnpm run federation:serve`  
+**Nightly CI:** `.github/workflows/open-legacy-index-nightly.yml`
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G8530 — Phase 38 VMF hub API active, superseded 2026-06-16)
+
+**Status:** **Phase 38 VMF local hub API active** (**G8530**, **D6287**); **Phase 37 closed** (**G8520**, **D6286**); **Phase 35 closed** (**G8480**, **D6284**).
+
+When the user says "build" without specifying:
+
+1. **G8530 composite** — `pnpm run hub:site-port-federation-hub-api-smoke`
+2. **G8520 composite** — `pnpm run hub:site-port-open-legacy-close-smoke`
+3. **G8480 composite** — `pnpm run hub:migration-evidence-poc-close-smoke`
+4. **G8500 subordinate** — `pnpm run hub:site-port-open-legacy-index-close-smoke`
+5. **G8510 subordinate** — `pnpm run hub:site-port-open-legacy-nightly-smoke`
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**VMF hub:** `pnpm run federation:serve`  
+**Nightly CI:** `.github/workflows/open-legacy-index-nightly.yml`
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G8510 — Phase 37 Open Legacy expansion active, superseded 2026-06-16)
+
+**Status:** **Phase 31 WISP CWL UI parity closed** (**G8100**, **D6274**); **WISP production completion closed** (**G7990**); **WISP production POC closed** (**G7890**); **WISP full site closed** (**G7790**).
+
+When the user says "build" without specifying:
+
+1. **G8100 composite** — `pnpm run hub:wisp-cwl-ui-parity-close-smoke` (bulk lift + anchor parity + forbidden-stub scan + chimera probes)
+2. **G7990 subordinate** — `pnpm run hub:wisp-production-completion-close-smoke`
+3. **G7890 subordinate** — included in **G7990**
+4. **IR helper tier regression (optional)** — `hub:cwl-language-maintenance-smoke` (**G6731**)
+
+**Apply chain (fixture refresh):** post-G7790 chain → Phase 28g → **Phase 31 bulk lift** → Phase 30 → Phase 30b (`wisp:full-build` / `prepareWispCwlDeployBundle`)
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (post G7990 — Phase 31 WISP CWL UI parity active, superseded 2026-06-16)
 
 **Status:** **WISP production completion program closed** (**G7990**, **D6272**); **WISP production POC closed** (**G7890**); **WISP full site closed** (**G7790**); **universal translator closed** (**G7690**).
 

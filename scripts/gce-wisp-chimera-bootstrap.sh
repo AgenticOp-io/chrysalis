@@ -69,8 +69,19 @@ if ! curl -sf "http://127.0.0.1:${PORT}/docs" >/dev/null; then
 fi
 
 api_hdr="$(curl -sI "http://127.0.0.1:${PORT}/api/tenants" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-chrysalis-wisp-proxy"{print $2; exit}')"
-if [[ "${api_hdr}" != "backend" ]]; then
-  log "ERROR: /api/tenants missing x-chrysalis-wisp-proxy: backend (got '${api_hdr}') — tail ${LOG}" >&2
+native_api="${WISP_CWL_NATIVE_API:-}"
+if [[ -z "${native_api}" && -f "${POC_DIR}/wisp-pipeline.config.json" ]]; then
+  if grep -q '"nativeApi"[[:space:]]*:[[:space:]]*true' "${POC_DIR}/wisp-pipeline.config.json" 2>/dev/null; then
+    native_api=1
+  fi
+fi
+if [[ "${native_api}" == "1" || "${WISP_CWL_NATIVE_PREFIXES:-}" == "*" ]]; then
+  expected_api_hdr="cwl-native-api"
+else
+  expected_api_hdr="backend"
+fi
+if [[ "${api_hdr}" != "${expected_api_hdr}" ]]; then
+  log "ERROR: /api/tenants missing x-chrysalis-wisp-proxy: ${expected_api_hdr} (got '${api_hdr}') — tail ${LOG}" >&2
   tail -20 "${LOG}" >&2 || true
   exit 1
 fi

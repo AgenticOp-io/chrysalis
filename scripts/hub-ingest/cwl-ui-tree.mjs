@@ -22,6 +22,58 @@ const CLIENT_UI_RE = /^client\s+ui\s*\{/;
 const ON_EVENT_RE = /^on\s+([a-zA-Z_]+)\s*\{/;
 const ACTION_RE = /^action\s+"([^"]+)"\s*;?$/;
 
+/**
+ * Parse inline `{ text "x"; on click { action "y"; } }` inside a single element line.
+ * @param {string} inner
+ * @returns {{ children: CwlUiNode[], events: Array<{ name: string, action: string }> }}
+ */
+export function parseInlineUiStatements(inner) {
+  /** @type {CwlUiNode[]} */
+  const children = [];
+  /** @type {Array<{ name: string, action: string }>} */
+  const events = [];
+  let i = 0;
+  const s = inner.trim();
+  while (i < s.length) {
+    while (i < s.length && /\s/.test(s[i])) i += 1;
+    if (i >= s.length) break;
+
+    const textSlice = s.slice(i);
+    const textM = /^text\s+([^;]+);/.exec(textSlice);
+    if (textM) {
+      const val = textM[1].trim();
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        const text = JSON.parse(val.startsWith('"') ? val : `"${val.slice(1, -1)}"`);
+        children.push({ kind: "text", text, binding: null });
+      } else if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(val)) {
+        children.push({ kind: "text", text: null, binding: val });
+      }
+      i += textM[0].length;
+      continue;
+    }
+
+    const onM = /^on\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\{/.exec(textSlice);
+    if (onM) {
+      const eventName = onM[1];
+      let depth = 1;
+      let j = i + onM[0].length;
+      while (j < s.length && depth > 0) {
+        if (s[j] === "{") depth += 1;
+        else if (s[j] === "}") depth -= 1;
+        j += 1;
+      }
+      const eventInner = s.slice(i + onM[0].length, j - 1).trim();
+      const actionM = ACTION_RE.exec(eventInner);
+      events.push({ name: eventName, action: actionM?.[1] ?? "noop" });
+      i = j;
+      continue;
+    }
+
+    break;
+  }
+  return { children, events };
+}
+
 function hubOrigin(file, line = 1) {
   return { file, line, column: 1 };
 }
@@ -93,6 +145,15 @@ export function parseCwlUiReturnBlock(lines, startIdx) {
       const node = { kind: "element", tag, attrs, children: [] };
       stack[stack.length - 1].push(node);
       if (braceIdx >= 0) {
+        const closeIdx = line.lastIndexOf("}");
+        const inlineBody = closeIdx > braceIdx ? line.slice(braceIdx + 1, closeIdx).trim() : "";
+        const inlineOnly = inlineBody.length > 0 && closeIdx > braceIdx && !line.slice(closeIdx + 1).trim();
+        if (inlineOnly) {
+          const parsed = parseInlineUiStatements(inlineBody);
+          node.children.push(...parsed.children);
+          if (parsed.events.length) node.events = parsed.events;
+          continue;
+        }
         depth += 1;
         stack.push(node.children);
         if (line.includes("}") && line.indexOf("}") > braceIdx) {

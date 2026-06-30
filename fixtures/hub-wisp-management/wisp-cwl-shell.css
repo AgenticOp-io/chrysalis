@@ -1,0 +1,150 @@
+:root {
+  color-scheme: light dark;
+  --wisp-bg: #0f172a;
+  --wisp-surface: #1e293b;
+  --wisp-border: #334155;
+  --wisp-text: #f1f5f9;
+  --wisp-muted: #94a3b8;
+  --wisp-accent: #38bdf8;
+  --wisp-accent-hover: #0ea5e9;
+  --wisp-danger: #f87171;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--wisp-bg) 0%, #111827 100%);
+  color: var(--wisp-text);
+}
+
+.wisp-app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.wisp-topnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--wisp-border);
+}
+
+.wisp-topnav a {
+  color: var(--wisp-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.wisp-topnav a:hover { color: var(--wisp-accent-hover); }
+
+.wisp-topnav .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--wisp-text);
+  margin-right: auto;
+  text-decoration: none;
+}
+
+.wisp-logo {
+  border-radius: 6px;
+  vertical-align: middle;
+}
+
+main, .wisp-module-shell, .login-shell {
+  background: var(--wisp-surface);
+  border: 1px solid var(--wisp-border);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+header h1, main h1, .login-shell h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+header p, main p, .api-surface, .ui-native-note {
+  color: var(--wisp-muted);
+  margin: 0.25rem 0 1rem;
+}
+
+[data-cwl-island="client"] form {
+  display: grid;
+  gap: 1rem;
+  max-width: 420px;
+  margin-top: 1rem;
+}
+
+[data-cwl-island="client"] label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+[data-cwl-island="client"] input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--wisp-border);
+  background: #0b1220;
+  color: var(--wisp-text);
+  font-size: 1rem;
+}
+
+[data-cwl-island="client"] button,
+.module-widgets button {
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--wisp-accent);
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+}
+
+[data-cwl-island="client"] button:hover,
+.module-widgets button:hover {
+  background: var(--wisp-accent-hover);
+}
+
+.doc-section, .help-container, section {
+  margin: 1.25rem 0;
+}
+
+.doc-section h2, .help-container h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.doc-section a, .help-container a {
+  color: var(--wisp-accent);
+}
+
+.doc-section ul, .help-container ul {
+  padding-left: 1.25rem;
+}
+
+.lead { font-size: 1.05rem; line-height: 1.5; }
+
+.wisp-status {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #0b1220;
+  border: 1px solid var(--wisp-border);
+  font-size: 0.9rem;
+}
+
+.wisp-status.error { border-color: var(--wisp-danger); color: var(--wisp-danger); }

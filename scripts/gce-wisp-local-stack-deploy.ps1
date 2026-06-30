@@ -61,8 +61,20 @@ try {
 
   $tarball = Join-Path $env:TEMP ("wisp-cwl-stack-" + [guid]::NewGuid().ToString("n") + ".tar.gz")
   Push-Location $bundleDir
-  tar -czf $tarball routes.cwl api-proxy.cwl cwl-preview.json wisp-cwl-chimera-gateway.mjs favicon.svg 2>$null
-  if ($LASTEXITCODE -ne 0) { tar -czf $tarball routes.cwl api-proxy.cwl wisp-cwl-chimera-gateway.mjs favicon.svg }
+  $tarFiles = @(
+    "routes.cwl", "api-proxy.cwl", "cwl-preview.json",
+    "wisp-cwl-chimera-gateway.mjs", "wisp-cwl-gateway-config.mjs",
+    "wisp-cwl-post-g7790.mjs", "wisp-pipeline.config.json", "favicon.svg",
+    "wisp-cwl-login.css", "wisp-cwl-app.css", "wisp-cwl-client.js", "wisp-firebase-config.json",
+    "wisp-cwl-modules.css", "wisp-cwl-modules.js", "wisp-cwl-map.js", "wisp-arcgis-config.json",
+    "wisptools-logo.svg", "routes.webir.json", "api-proxy.webir.json"
+  )
+  $present = $tarFiles | Where-Object { Test-Path $_ }
+  tar -czf $tarball @present
+  if ($LASTEXITCODE -ne 0) {
+    $present = @("routes.cwl", "api-proxy.cwl", "wisp-cwl-chimera-gateway.mjs", "wisp-cwl-gateway-config.mjs", "wisp-cwl-post-g7790.mjs", "wisp-pipeline.config.json") | Where-Object { Test-Path $_ }
+    tar -czf $tarball @present
+  }
   Pop-Location
 
   $bootstrap = Join-Path $PSScriptRoot "gce-wisp-chimera-bootstrap.sh"
@@ -80,7 +92,12 @@ try {
     & gcloud compute firewall-rules create $fwName --project=$Project --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules="tcp:$Port" --source-ranges="0.0.0.0/0" --target-tags="http-server"
   }
 
-  $svelteEnv = "export WISP_SVELTE_FALLBACK='$SvelteFallback'; export WISP_CWL_NATIVE_PREFIXES='*';"
+  $nativePrefixes = "/docs,/help,/favicon.ico,/favicon.svg"
+  $svelteEnv = if (-not $SkipSvelteSidecar) {
+    "export WISP_SVELTE_FALLBACK='$SvelteFallback'; export WISP_CWL_NATIVE_PREFIXES='$nativePrefixes';"
+  } else {
+    "export WISP_CWL_NATIVE_PREFIXES='*';"
+  }
   $sidecarSetup = if (-not $SkipSvelteSidecar) {
     "mkdir -p ~/wisp-svelte-sidecar; tar -xzf ~/wisp-svelte-sidecar.tgz -C ~/wisp-svelte-sidecar; chmod +x ~/gce-wisp-svelte-sidecar-bootstrap.sh;"
   } else { "" }

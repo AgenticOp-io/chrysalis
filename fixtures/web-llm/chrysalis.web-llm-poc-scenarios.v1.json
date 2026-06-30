@@ -1,0 +1,47 @@
+{
+  "kind": "chrysalis.web-llm.poc-scenarios",
+  "schemaVersion": 1,
+  "agenda": "website-management-creation-conversion",
+  "demoUrl": "http://34.61.255.147:19100",
+  "scenarios": [
+    {
+      "id": "wvb-close-loop",
+      "title": "WVB close loop",
+      "userPrompt": "Build the Web Verify Benchmark, export verify-gated training shards, and publish the static leaderboard.",
+      "steps": [
+        { "kind": "tool", "tool": "web_llm_build_benchmark" },
+        { "kind": "tool", "tool": "web_llm_export_dataset" },
+        { "kind": "tool", "tool": "web_llm_build_leaderboard" },
+        { "kind": "check", "check": "min-wvb-cases", "min": 250 }
+      ],
+      "gateName": "wvb-close-loop"
+    },
+    {
+      "id": "wisp-ui-parity-anchors",
+      "title": "WISP UI parity anchors",
+      "userPrompt": "Confirm WISP CWL UI parity anchor routes are in WVB and the parity manifest is green.",
+      "steps": [
+        { "kind": "check", "check": "wisp-ui-anchors" },
+        { "kind": "check", "check": "wisp-ui-parity-manifest" }
+      ],
+      "gateName": "wisp-ui-parity-anchors",
+      "tags": ["wisp", "G8100"]
+    },
+    {
+      "id": "wisp-gce-demo-contract",
+      "title": "WISP GCE demo contract",
+      "userPrompt": "Validate the operator demo manifest matches pure CWL deploy (no Svelte sidecar).",
+      "steps": [{ "kind": "check", "check": "wisp-demo-manifest" }],
+      "gateName": "wisp-gce-demo-contract",
+      "tags": ["wisp", "GCE"]
+    },
+    {
+      "id": "wisp-gce-live-anchors",
+      "title": "WISP GCE live anchors",
+      "userPrompt": "Probe the deployed WISP GCE demo and confirm UI parity anchor routes return real CWL HTML.",
+      "steps": [{ "kind": "check", "check": "wisp-gce-live-anchors" }],
+      "gateName": "wisp-gce-live-anchors",
+      "tags": ["wisp", "GCE", "live"]
+    }
+  ]
+}

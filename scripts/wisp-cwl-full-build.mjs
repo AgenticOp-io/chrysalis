@@ -15,6 +15,12 @@ import { reconcilePreviewFromRoutesCwl } from "./wisp-cwl-apply-module-routes-li
 import { writeFileSync } from "node:fs";
 import { isWispFullSiteProgramClosed, applyPostG7790ScenarioMetadata } from "./wisp-cwl-post-g7790.mjs";
 import { applyWispPostG7790Chain } from "./wisp-cwl-apply-post-g7790-chain.mjs";
+import { applyWispClientRedirects } from "./wisp-cwl-apply-client-redirects.mjs";
+import { applyWispPhase28gIntegrationsUi } from "./wisp-cwl-apply-phase28g-integrations-ui.mjs";
+import { applyWispPhase31BulkLift } from "./wisp-cwl-apply-phase31-bulk-lift.mjs";
+import { applyWispPhase30UiParity } from "./wisp-cwl-apply-phase30-ui-parity.mjs";
+import { applyWispPhase30bModuleParity } from "./wisp-cwl-apply-phase30b-module-parity.mjs";
+import { applyWispPhase32CompleteDemo } from "./wisp-cwl-apply-phase32-complete-demo.mjs";
 
 export const WISP_CWL_FULL_BUILD_KIND = "chrysalis.wisp-cwl-full-build";
 export const WISP_CWL_FULL_BUILD_SCHEMA_VERSION = 1;
@@ -89,6 +95,12 @@ export function runWispCwlFullBuild(opts = {}) {
 
   if (isWispFullSiteProgramClosed()) {
     const chain = applyWispPostG7790Chain({ previewPath: join(fixtureDir, "cwl-preview.json") });
+    applyWispClientRedirects();
+    applyWispPhase28gIntegrationsUi();
+    applyWispPhase31BulkLift();
+    applyWispPhase30UiParity();
+    applyWispPhase30bModuleParity();
+    applyWispPhase32CompleteDemo();
     steps.push({ step: "post-g7790-apply-chain", status: chain.ok ? 0 : 1, chainOk: chain.ok === true });
   } else {
     applyWispPhase13Surfaces();

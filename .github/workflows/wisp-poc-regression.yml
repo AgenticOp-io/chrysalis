@@ -63,5 +63,65 @@ jobs:
           pnpm run hub:wisp-cwl-maintenance-regression-smoke
           pnpm run hub:wisp-cwl-program-maintenance-complete-smoke
 
+      - name: Open web-LLM framework close (G8290)
+        run: pnpm run hub:open-web-llm-close-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+
+      - name: Open web-LLM agent POC (G8300)
+        run: pnpm run hub:open-web-llm-poc-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+
+      - name: Site port to CWL close (G8400)
+        run: pnpm run hub:site-port-close-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+
+      - name: Site port verify matrix (G8410)
+        run: pnpm run hub:site-port-verify-matrix-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+
+      - name: Open Legacy Index multi-origin close (G8490)
+        run: pnpm run hub:site-port-open-legacy-index-close-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+
+      - name: Site port federation close (G8460)
+        run: pnpm run hub:site-port-federation-close-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+          CHRYSALIS_FEDERATION_CONTRIBUTOR: "ci-smoke"
+
+      - name: Site port federation POC close (G8470)
+        run: pnpm run hub:site-port-federation-poc-close-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+          CHRYSALIS_POC_SKIP_BUILD: "1"
+          CHRYSALIS_FEDERATION_CONTRIBUTOR: "ci-poc-smoke"
+
+      - name: Migration evidence POC close (G8480)
+        run: pnpm run hub:migration-evidence-poc-close-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+          CHRYSALIS_POC_SKIP_BUILD: "1"
+          CHRYSALIS_FEDERATION_CONTRIBUTOR: "ci-evidence-smoke"
+
+      - name: VMF hub API (G8530)
+        run: pnpm run hub:site-port-federation-hub-api-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+
+      - name: VMF hub close (G8540)
+        run: pnpm run hub:site-port-federation-hub-close-smoke
+        env:
+          CHRYSALIS_WEB_LLM_TRAJECTORY: "1"
+          CHRYSALIS_POC_SKIP_BUILD: "1"
+          CHRYSALIS_FEDERATION_CONTRIBUTOR: "ci-hub-close-smoke"
+
+      - name: WISP complete demo close (G8330)
+        run: pnpm run hub:wisp-complete-demo-close-smoke
+
       - name: WISP CWL pipeline artifact gate
         run: pnpm run ci:wisp-cwl-pipeline

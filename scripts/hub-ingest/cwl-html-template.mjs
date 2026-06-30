@@ -48,9 +48,22 @@ export function splitCwlHtmlTemplate(html, bindings = {}) {
       else if (querySet.has(name)) source = "query";
       else if (loadSet.has(name)) source = "load";
       if (source) {
-        parts.push({ kind: "expr", name, source });
-        i += name.length;
-        continue;
+        const after = html[i + name.length];
+        const before = i > 0 ? html[i - 1] : "";
+        // Skip load/path/query ids inside hyphenated CSS tokens (e.g. class="module-header").
+        if (before === "-" || after === "-") {
+          let start = i;
+          let end = i + name.length;
+          while (start > 0 && /[a-zA-Z0-9_-]/.test(html[start - 1])) start--;
+          while (end < html.length && /[a-zA-Z0-9_-]/.test(html[end])) end++;
+          parts.push({ kind: "literal", text: html.slice(start, end) });
+          i = end;
+          continue;
+        } else {
+          parts.push({ kind: "expr", name, source });
+          i += name.length;
+          continue;
+        }
       }
     }
     let j = i + 1;

@@ -1,0 +1,25 @@
+{
+  "app": "hub-flagship-express",
+  "routes": [
+    { "method": "GET", "path": "/health", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/ping", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/version", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/ready", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/count", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/flag", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/build", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/tier", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/meta", "file": "src/app.js", "pathParams": [] },
+    { "method": "POST", "path": "/echo", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/items", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/items/:id", "file": "src/app.js", "pathParams": [{ "name": "id", "type": "string", "jsVar": "id" }] },
+    { "method": "POST", "path": "/items", "file": "src/app.js", "pathParams": [] },
+    { "method": "GET", "path": "/search", "file": "src/app.js", "pathParams": [] },
+    { "method": "PUT", "path": "/items/:id", "file": "src/app.js", "pathParams": [{ "name": "id", "type": "string", "jsVar": "id" }] },
+    { "method": "DELETE", "path": "/items/:id", "file": "src/app.js", "pathParams": [{ "name": "id", "type": "string", "jsVar": "id" }] },
+    { "method": "PATCH", "path": "/items/:id", "file": "src/app.js", "pathParams": [{ "name": "id", "type": "string", "jsVar": "id" }] },
+    { "method": "GET", "path": "/users/:userId", "file": "src/app.js", "pathParams": [{ "name": "userId", "type": "string", "jsVar": "userId" }] },
+    { "method": "GET", "path": "/stats", "file": "src/app.js", "pathParams": [] },
+    { "method": "POST", "path": "/notify", "file": "src/app.js", "pathParams": [] }
+  ]
+}

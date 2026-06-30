@@ -1,0 +1,3592 @@
+{
+  "kind": "chrysalis.web-llm.web-verify-benchmark",
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-30T02:31:33.431Z",
+  "caseCount": 297,
+  "cases": [
+    {
+      "id": "auth-tag-probe-GET-_probe-0",
+      "fixture": "auth-tag-probe",
+      "path": "/probe",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "auth-tag-probe"
+      ]
+    },
+    {
+      "id": "db-query-unknown-receiver-probe-GET-_mysqli_query-0",
+      "fixture": "db-query-unknown-receiver-probe",
+      "path": "/mysqli-query",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "db-query-unknown-receiver-probe"
+      ]
+    },
+    {
+      "id": "dedupe-identical-handlers-GET-_a-0",
+      "fixture": "dedupe-identical-handlers",
+      "path": "/a",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "dedupe-identical-handlers"
+      ]
+    },
+    {
+      "id": "dedupe-identical-handlers-GET-_b-1",
+      "fixture": "dedupe-identical-handlers",
+      "path": "/b",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "dedupe-identical-handlers"
+      ]
+    },
+    {
+      "id": "hub-flagship-cwl-fullstack-GET-_-0",
+      "fixture": "hub-flagship-cwl-fullstack",
+      "path": "/",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-cwl-fullstack"
+      ]
+    },
+    {
+      "id": "hub-flagship-cwl-fullstack-GET-_about-1",
+      "fixture": "hub-flagship-cwl-fullstack",
+      "path": "/about",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-cwl-fullstack"
+      ]
+    },
+    {
+      "id": "hub-flagship-cwl-fullstack-GET-_api_docs_slug-2",
+      "fixture": "hub-flagship-cwl-fullstack",
+      "path": "/api/docs/:slug",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-cwl-fullstack"
+      ]
+    },
+    {
+      "id": "hub-flagship-cwl-fullstack-GET-_api_health-3",
+      "fixture": "hub-flagship-cwl-fullstack",
+      "path": "/api/health",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-cwl-fullstack"
+      ]
+    },
+    {
+      "id": "hub-flagship-cwl-fullstack-GET-_docs_slug-5",
+      "fixture": "hub-flagship-cwl-fullstack",
+      "path": "/docs/:slug",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-cwl-fullstack"
+      ]
+    },
+    {
+      "id": "hub-flagship-cwl-fullstack-POST-_api_notify-4",
+      "fixture": "hub-flagship-cwl-fullstack",
+      "path": "/api/notify",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-cwl-fullstack"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-DELETE-_items_id-15",
+      "fixture": "hub-flagship-express",
+      "path": "/items/:id",
+      "method": "DELETE",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_build-6",
+      "fixture": "hub-flagship-express",
+      "path": "/build",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_count-4",
+      "fixture": "hub-flagship-express",
+      "path": "/count",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_flag-5",
+      "fixture": "hub-flagship-express",
+      "path": "/flag",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_health-0",
+      "fixture": "hub-flagship-express",
+      "path": "/health",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_items_id-11",
+      "fixture": "hub-flagship-express",
+      "path": "/items/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_items-10",
+      "fixture": "hub-flagship-express",
+      "path": "/items",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_meta-8",
+      "fixture": "hub-flagship-express",
+      "path": "/meta",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_ping-1",
+      "fixture": "hub-flagship-express",
+      "path": "/ping",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_ready-3",
+      "fixture": "hub-flagship-express",
+      "path": "/ready",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_search-13",
+      "fixture": "hub-flagship-express",
+      "path": "/search",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_stats-18",
+      "fixture": "hub-flagship-express",
+      "path": "/stats",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_tier-7",
+      "fixture": "hub-flagship-express",
+      "path": "/tier",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_users_userId-17",
+      "fixture": "hub-flagship-express",
+      "path": "/users/:userId",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-GET-_version-2",
+      "fixture": "hub-flagship-express",
+      "path": "/version",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-PATCH-_items_id-16",
+      "fixture": "hub-flagship-express",
+      "path": "/items/:id",
+      "method": "PATCH",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-POST-_echo-9",
+      "fixture": "hub-flagship-express",
+      "path": "/echo",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-POST-_items-12",
+      "fixture": "hub-flagship-express",
+      "path": "/items",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-POST-_notify-19",
+      "fixture": "hub-flagship-express",
+      "path": "/notify",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-express-PUT-_items_id-14",
+      "fixture": "hub-flagship-express",
+      "path": "/items/:id",
+      "method": "PUT",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-express"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-DELETE-_items_id-15",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/items/:id",
+      "method": "DELETE",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_build-6",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/build",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_count-4",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/count",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_flag-5",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/flag",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_health-0",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/health",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_items_id-11",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/items/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_items-10",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/items",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_meta-8",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/meta",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_ping-1",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/ping",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_ready-3",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/ready",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_search-13",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/search",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_stats-18",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/stats",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_tier-7",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/tier",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_users_userId-17",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/users/:userId",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-GET-_version-2",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/version",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-PATCH-_items_id-16",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/items/:id",
+      "method": "PATCH",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-POST-_echo-9",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/echo",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-POST-_items-12",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/items",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-POST-_notify-19",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/notify",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-plain-php-PUT-_items_id-14",
+      "fixture": "hub-flagship-plain-php",
+      "path": "/items/:id",
+      "method": "PUT",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-plain-php"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-DELETE-_items_id-15",
+      "fixture": "hub-flagship-symfony",
+      "path": "/items/:id",
+      "method": "DELETE",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_build-6",
+      "fixture": "hub-flagship-symfony",
+      "path": "/build",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_count-4",
+      "fixture": "hub-flagship-symfony",
+      "path": "/count",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_flag-5",
+      "fixture": "hub-flagship-symfony",
+      "path": "/flag",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_health-0",
+      "fixture": "hub-flagship-symfony",
+      "path": "/health",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_items_id-11",
+      "fixture": "hub-flagship-symfony",
+      "path": "/items/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_items-10",
+      "fixture": "hub-flagship-symfony",
+      "path": "/items",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_meta-8",
+      "fixture": "hub-flagship-symfony",
+      "path": "/meta",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_ping-1",
+      "fixture": "hub-flagship-symfony",
+      "path": "/ping",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_ready-3",
+      "fixture": "hub-flagship-symfony",
+      "path": "/ready",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_search-13",
+      "fixture": "hub-flagship-symfony",
+      "path": "/search",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_stats-18",
+      "fixture": "hub-flagship-symfony",
+      "path": "/stats",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_tier-7",
+      "fixture": "hub-flagship-symfony",
+      "path": "/tier",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_users_userId-17",
+      "fixture": "hub-flagship-symfony",
+      "path": "/users/:userId",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-GET-_version-2",
+      "fixture": "hub-flagship-symfony",
+      "path": "/version",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-PATCH-_items_id-16",
+      "fixture": "hub-flagship-symfony",
+      "path": "/items/:id",
+      "method": "PATCH",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-POST-_echo-9",
+      "fixture": "hub-flagship-symfony",
+      "path": "/echo",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-POST-_items-12",
+      "fixture": "hub-flagship-symfony",
+      "path": "/items",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-POST-_notify-19",
+      "fixture": "hub-flagship-symfony",
+      "path": "/notify",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-flagship-symfony-PUT-_items_id-14",
+      "fixture": "hub-flagship-symfony",
+      "path": "/items/:id",
+      "method": "PUT",
+      "task": "migrate",
+      "tier": "oracle",
+      "tags": [
+        "routes-json",
+        "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-symfony-attr-methods-GET-_resource-1",
+      "fixture": "hub-symfony-attr-methods",
+      "path": "/resource",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-symfony-attr-methods"
+      ]
+    },
+    {
+      "id": "hub-symfony-attr-methods-POST-_resource-2",
+      "fixture": "hub-symfony-attr-methods",
+      "path": "/resource",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-symfony-attr-methods"
+      ]
+    },
+    {
+      "id": "hub-symfony-attr-methods-POST-_submit-0",
+      "fixture": "hub-symfony-attr-methods",
+      "path": "/submit",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-symfony-attr-methods"
+      ]
+    },
+    {
+      "id": "hub-symfony-attr-prefix-GET-_api_items_id-1",
+      "fixture": "hub-symfony-attr-prefix",
+      "path": "/api/items/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-symfony-attr-prefix"
+      ]
+    },
+    {
+      "id": "hub-symfony-attr-prefix-GET-_api_items-0",
+      "fixture": "hub-symfony-attr-prefix",
+      "path": "/api/items",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-symfony-attr-prefix"
+      ]
+    },
+    {
+      "id": "hub-translator-php-probe-GET-_health-0",
+      "fixture": "hub-translator-php-probe",
+      "path": "/health",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-translator-php-probe"
+      ]
+    },
+    {
+      "id": "hub-translator-php-probe-POST-_items-1",
+      "fixture": "hub-translator-php-probe",
+      "path": "/items",
+      "method": "POST",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-translator-php-probe"
+      ]
+    },
+    {
+      "id": "laravel-auth-probe-GET-_chrysalis_auth_probe-0",
+      "fixture": "laravel-auth-probe",
+      "path": "/chrysalis-auth-probe",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "laravel-auth-probe"
+      ]
+    },
+    {
+      "id": "laravel-auth-probe-GET-_chrysalis_socialite_fortify_probe-1",
+      "fixture": "laravel-auth-probe",
+      "path": "/chrysalis-socialite-fortify-probe",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "laravel-auth-probe"
+      ]
+    },
+    {
+      "id": "laravel-shaped-db-factory-probe-GET-_probe_conn_make-2",
+      "fixture": "laravel-shaped-db-factory-probe",
+      "path": "/probe/conn-make",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "laravel-shaped-db-factory-probe"
+      ]
+    },
+    {
+      "id": "laravel-shaped-db-factory-probe-GET-_probe_illuminate_assign-1",
+      "fixture": "laravel-shaped-db-factory-probe",
+      "path": "/probe/illuminate-assign",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "laravel-shaped-db-factory-probe"
+      ]
+    },
+    {
+      "id": "laravel-shaped-db-factory-probe-GET-_probe_illuminate_chain-0",
+      "fixture": "laravel-shaped-db-factory-probe",
+      "path": "/probe/illuminate-chain",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "laravel-shaped-db-factory-probe"
+      ]
+    },
+    {
+      "id": "laravel-shaped-db-factory-probe-GET-_probe_repo_db_chain-3",
+      "fixture": "laravel-shaped-db-factory-probe",
+      "path": "/probe/repo-db-chain",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "laravel-shaped-db-factory-probe"
+      ]
+    },
+    {
+      "id": "lift-helper-attr-class-GET-_show-0",
+      "fixture": "lift-helper-attr-class",
+      "path": "/show",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-attr-class"
+      ]
+    },
+    {
+      "id": "lift-helper-attr-lib-GET-_show-0",
+      "fixture": "lift-helper-attr-lib",
+      "path": "/show",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-attr-lib"
+      ]
+    },
+    {
+      "id": "lift-helper-dedupe-control-GET-_ok-0",
+      "fixture": "lift-helper-dedupe-control",
+      "path": "/ok",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-dedupe-control"
+      ]
+    },
+    {
+      "id": "lift-helper-gap-probe-GET-_alpha-0",
+      "fixture": "lift-helper-gap-probe",
+      "path": "/alpha",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-gap-probe"
+      ]
+    },
+    {
+      "id": "lift-helper-gap-probe-GET-_beta-1",
+      "fixture": "lift-helper-gap-probe",
+      "path": "/beta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-gap-probe"
+      ]
+    },
+    {
+      "id": "lift-helper-lift-twin-GET-_a-0",
+      "fixture": "lift-helper-lift-twin",
+      "path": "/a",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-lift-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-lift-twin-GET-_b-1",
+      "fixture": "lift-helper-lift-twin",
+      "path": "/b",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-lift-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-param-twin-GET-_alpha-0",
+      "fixture": "lift-helper-param-twin",
+      "path": "/alpha",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-param-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-param-twin-GET-_beta-1",
+      "fixture": "lift-helper-param-twin",
+      "path": "/beta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-param-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-case-twin-GET-_alpha-0",
+      "fixture": "lift-helper-sql-case-twin",
+      "path": "/alpha",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-case-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-case-twin-GET-_beta-1",
+      "fixture": "lift-helper-sql-case-twin",
+      "path": "/beta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-case-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_alef-48",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/alef",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_alpha-0",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/alpha",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_ayin-41",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/ayin",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_bet-49",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/bet",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_beta-1",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/beta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_chi-19",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/chi",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_delta-3",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/delta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_digamma-25",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/digamma",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_epsilon-4",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/epsilon",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_eta-22",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/eta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_gamma-2",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/gamma",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_heth-34",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/heth",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_iota-6",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/iota",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_kaph-36",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/kaph",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_kappa-7",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/kappa",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_koppa-28",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/koppa",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_lambda-8",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/lambda",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_lamed-37",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/lamed",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_mem-38",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/mem",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_mu-9",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/mu",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_nu-10",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/nu",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_nun-39",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/nun",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_omega-21",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/omega",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_omicron-12",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/omicron",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_pe-42",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/pe",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_phi-17",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/phi",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_pi-13",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/pi",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_psi-20",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/psi",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_qof-44",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/qof",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_qoppa-29",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/qoppa",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_resh-45",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/resh",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_rho-14",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/rho",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_samekh-40",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/samekh",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_sampi-27",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/sampi",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_san-30",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/san",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_shin-46",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/shin",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_sho-31",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/sho",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_sigma-15",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/sigma",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_stigma-26",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/stigma",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_tau-16",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/tau",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_tav-47",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/tav",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_teth-33",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/teth",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_theta-23",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/theta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_tsadi-43",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/tsadi",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_tsan-32",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/tsan",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_upsilon-18",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/upsilon",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_varsigma-24",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/varsigma",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_xi-11",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/xi",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_yodh-35",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/yodh",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-param-inline-GET-_zeta-5",
+      "fixture": "lift-helper-sql-param-inline",
+      "path": "/zeta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-param-inline"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-same-twin-GET-_alpha-0",
+      "fixture": "lift-helper-sql-same-twin",
+      "path": "/alpha",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-same-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-same-twin-GET-_beta-1",
+      "fixture": "lift-helper-sql-same-twin",
+      "path": "/beta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-same-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-twin-GET-_alpha-0",
+      "fixture": "lift-helper-sql-twin",
+      "path": "/alpha",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-twin-GET-_beta-1",
+      "fixture": "lift-helper-sql-twin",
+      "path": "/beta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-ws-twin-GET-_alpha-0",
+      "fixture": "lift-helper-sql-ws-twin",
+      "path": "/alpha",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-ws-twin"
+      ]
+    },
+    {
+      "id": "lift-helper-sql-ws-twin-GET-_beta-1",
+      "fixture": "lift-helper-sql-ws-twin",
+      "path": "/beta",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "lift-helper-sql-ws-twin"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets_alias_copy-4",
+      "fixture": "mysqli-probe",
+      "path": "/widgets/alias-copy",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets_alias_query-2",
+      "fixture": "mysqli-probe",
+      "path": "/widgets/alias-query",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets_db_query-1",
+      "fixture": "mysqli-probe",
+      "path": "/widgets/db-query",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets_factory_query_chain-7",
+      "fixture": "mysqli-probe",
+      "path": "/widgets/factory-query-chain",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets_factory_query-6",
+      "fixture": "mysqli-probe",
+      "path": "/widgets/factory-query",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets_mysqli_new_query-3",
+      "fixture": "mysqli-probe",
+      "path": "/widgets/mysqli-new-query",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets_pdo_query-5",
+      "fixture": "mysqli-probe",
+      "path": "/widgets/pdo-query",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets_sqlite3_query-8",
+      "fixture": "mysqli-probe",
+      "path": "/widgets/sqlite3-query",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "mysqli-probe-GET-_widgets-0",
+      "fixture": "mysqli-probe",
+      "path": "/widgets",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "mysqli-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_abstract_class-25",
+      "fixture": "parser-parity-probe",
+      "path": "/abstract-class",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_arrow_fn-5",
+      "fixture": "parser-parity-probe",
+      "path": "/arrow-fn",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_attributes-8",
+      "fixture": "parser-parity-probe",
+      "path": "/attributes",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_coalesce_assign-2",
+      "fixture": "parser-parity-probe",
+      "path": "/coalesce-assign",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_coalesce-0",
+      "fixture": "parser-parity-probe",
+      "path": "/coalesce",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_constructor_promotion-12",
+      "fixture": "parser-parity-probe",
+      "path": "/constructor-promotion",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_enum_methods-17",
+      "fixture": "parser-parity-probe",
+      "path": "/enum-methods",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_enum-10",
+      "fixture": "parser-parity-probe",
+      "path": "/enum",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_final_class-26",
+      "fixture": "parser-parity-probe",
+      "path": "/final-class",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_first_class_callable-9",
+      "fixture": "parser-parity-probe",
+      "path": "/first-class-callable",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_heredoc-24",
+      "fixture": "parser-parity-probe",
+      "path": "/heredoc",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_int_enum-21",
+      "fixture": "parser-parity-probe",
+      "path": "/int-enum",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_interface_methods-22",
+      "fixture": "parser-parity-probe",
+      "path": "/interface-methods",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_intersection_type-14",
+      "fixture": "parser-parity-probe",
+      "path": "/intersection-type",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_match-6",
+      "fixture": "parser-parity-probe",
+      "path": "/match",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_mixed_type-18",
+      "fixture": "parser-parity-probe",
+      "path": "/mixed-type",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_named_args-7",
+      "fixture": "parser-parity-probe",
+      "path": "/named-args",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_nested_array-1",
+      "fixture": "parser-parity-probe",
+      "path": "/nested-array",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_never_type-16",
+      "fixture": "parser-parity-probe",
+      "path": "/never-type",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_nullsafe-4",
+      "fixture": "parser-parity-probe",
+      "path": "/nullsafe",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_readonly_class_keyword-15",
+      "fixture": "parser-parity-probe",
+      "path": "/readonly-class-keyword",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_readonly_class-11",
+      "fixture": "parser-parity-probe",
+      "path": "/readonly-class",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_static_property-23",
+      "fixture": "parser-parity-probe",
+      "path": "/static-property",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_string_interpolation-3",
+      "fixture": "parser-parity-probe",
+      "path": "/string-interpolation",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_throw_expr-27",
+      "fixture": "parser-parity-probe",
+      "path": "/throw-expr",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_trait_methods-20",
+      "fixture": "parser-parity-probe",
+      "path": "/trait-methods",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_union_type-13",
+      "fixture": "parser-parity-probe",
+      "path": "/union-type",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "parser-parity-probe-GET-_unit_enum-19",
+      "fixture": "parser-parity-probe",
+      "path": "/unit-enum",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "parser-parity-probe"
+      ]
+    },
+    {
+      "id": "session-resolve-probe-GET-_whoami-0",
+      "fixture": "session-resolve-probe",
+      "path": "/whoami",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "session-resolve-probe"
+      ]
+    },
+    {
+      "id": "throw-new-probe-GET-_dynfqn-4",
+      "fixture": "throw-new-probe",
+      "path": "/dynfqn",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "throw-new-probe"
+      ]
+    },
+    {
+      "id": "throw-new-probe-GET-_dynnew-3",
+      "fixture": "throw-new-probe",
+      "path": "/dynnew",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "throw-new-probe"
+      ]
+    },
+    {
+      "id": "throw-new-probe-GET-_newok-1",
+      "fixture": "throw-new-probe",
+      "path": "/newok",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "throw-new-probe"
+      ]
+    },
+    {
+      "id": "throw-new-probe-GET-_nsnew-2",
+      "fixture": "throw-new-probe",
+      "path": "/nsnew",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "throw-new-probe"
+      ]
+    },
+    {
+      "id": "throw-new-probe-GET-_throw-0",
+      "fixture": "throw-new-probe",
+      "path": "/throw",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "throw-new-probe"
+      ]
+    },
+    {
+      "id": "tiny-blog-GET-_posts_id-1",
+      "fixture": "tiny-blog",
+      "path": "/posts/:id",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-blog"
+      ]
+    },
+    {
+      "id": "tiny-blog-GET-_posts-0",
+      "fixture": "tiny-blog",
+      "path": "/posts",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-blog"
+      ]
+    },
+    {
+      "id": "tiny-blog-POST-_login-2",
+      "fixture": "tiny-blog",
+      "path": "/login",
+      "method": "POST",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-blog"
+      ]
+    },
+    {
+      "id": "tiny-blog-POST-_posts_id_comments-4",
+      "fixture": "tiny-blog",
+      "path": "/posts/:id/comments",
+      "method": "POST",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-blog"
+      ]
+    },
+    {
+      "id": "tiny-blog-POST-_posts-3",
+      "fixture": "tiny-blog",
+      "path": "/posts",
+      "method": "POST",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-blog"
+      ]
+    },
+    {
+      "id": "tiny-n1-GET-_dashboard-0",
+      "fixture": "tiny-n1",
+      "path": "/dashboard",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-n1"
+      ]
+    },
+    {
+      "id": "tiny-n1-GET-_lookup-4",
+      "fixture": "tiny-n1",
+      "path": "/lookup",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-n1"
+      ]
+    },
+    {
+      "id": "tiny-n1-GET-_search-3",
+      "fixture": "tiny-n1",
+      "path": "/search",
+      "method": "GET",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-n1"
+      ]
+    },
+    {
+      "id": "tiny-n1-POST-_action-2",
+      "fixture": "tiny-n1",
+      "path": "/action",
+      "method": "POST",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-n1"
+      ]
+    },
+    {
+      "id": "tiny-n1-POST-_register-1",
+      "fixture": "tiny-n1",
+      "path": "/register",
+      "method": "POST",
+      "task": "verify",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "tiny-n1"
+      ]
+    },
+    {
+      "id": "wisp-static-_-0",
+      "fixture": "hub-wisp-management",
+      "path": "/",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_admin_billing-1",
+      "fixture": "hub-wisp-management",
+      "path": "/admin/billing",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_admin_management-2",
+      "fixture": "hub-wisp-management",
+      "path": "/admin/management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_admin_system_management-3",
+      "fixture": "hub-wisp-management",
+      "path": "/admin/system-management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_admin_tenant_management-4",
+      "fixture": "hub-wisp-management",
+      "path": "/admin/tenant-management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_admin_tenants_tenantId_modules-5",
+      "fixture": "hub-wisp-management",
+      "path": "/admin/tenants/:tenantId/modules",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_auth_google_callback-6",
+      "fixture": "hub-wisp-management",
+      "path": "/auth/google/callback",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_dashboard-7",
+      "fixture": "hub-wisp-management",
+      "path": "/dashboard",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export",
+        "ui-parity",
+        "anchor"
+      ]
+    },
+    {
+      "id": "wisp-static-_debug_tenants-8",
+      "fixture": "hub-wisp-management",
+      "path": "/debug-tenants",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_demo-9",
+      "fixture": "hub-wisp-management",
+      "path": "/demo",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_docs_deployment-11",
+      "fixture": "hub-wisp-management",
+      "path": "/docs/deployment",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_docs_getting_started-12",
+      "fixture": "hub-wisp-management",
+      "path": "/docs/getting-started",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_docs_reference_project_status-14",
+      "fixture": "hub-wisp-management",
+      "path": "/docs/reference/project-status",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_docs_reference-13",
+      "fixture": "hub-wisp-management",
+      "path": "/docs/reference",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_docs-10",
+      "fixture": "hub-wisp-management",
+      "path": "/docs",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_help-15",
+      "fixture": "hub-wisp-management",
+      "path": "/help",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_login-16",
+      "fixture": "hub-wisp-management",
+      "path": "/login",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export",
+        "ui-parity",
+        "anchor"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_alerts-19",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/alerts",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_devices-20",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/devices",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_faults-21",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/faults",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_files-22",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/files",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_firmware-23",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/firmware",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_graphs-24",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/graphs",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_monitoring-25",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/monitoring",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_presets-26",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/presets",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_settings-27",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/settings",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management_tasks-28",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management/tasks",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_acs_cpe_management-18",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/acs-cpe-management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_backend_management-29",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/backend-management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_billing-30",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/billing",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_cbrs_management-31",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/cbrs-management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_coverage_map-32",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/coverage-map",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export",
+        "ui-parity",
+        "anchor"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_billing_settings-37",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/billing/settings",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_billing-36",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/billing",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_dashboard-38",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/dashboard",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_faq-39",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/faq",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_knowledge_id-41",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/knowledge/:id",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_knowledge-40",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/knowledge",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_live_chat-42",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/live-chat",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_login-43",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/login",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_service-44",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/service",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_setup-35",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal-setup",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_signup-45",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/signup",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_tickets_id-47",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/tickets/:id",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_tickets_new-48",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/tickets/new",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal_tickets-46",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal/tickets",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers_portal-34",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers/portal",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_customers-33",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/customers",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_deploy-49",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/deploy",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export",
+        "ui-parity",
+        "anchor"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_hardware-50",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/hardware",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_help_desk_reports-52",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/help-desk/reports",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_help_desk-51",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/help-desk",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_hss_management-53",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/hss-management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_inventory_add-57",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/inventory/add",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_inventory_bundles-58",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/inventory/bundles",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_inventory_id_edit-56",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/inventory/:id/edit",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_inventory_id-55",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/inventory/:id",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_inventory_reports-59",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/inventory/reports",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_inventory-54",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/inventory",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_maintain-60",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/maintain",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_monitor-61",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/monitor",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_monitoring-62",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/monitoring",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_pci_resolution-63",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/pci-resolution",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_plan-64",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/plan",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export",
+        "ui-parity",
+        "anchor"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_sites-65",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/sites",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_tenant_management_cbrs_platform-67",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/tenant-management/cbrs-platform",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_tenant_management_users-68",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/tenant-management/users",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_tenant_management-66",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/tenant-management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_user_management_permissions-70",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/user-management/permissions",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_user_management_roles-71",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/user-management/roles",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_user_management-69",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/user-management",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_voice_telephony-72",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/voice-telephony",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_work_orders_id-74",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/work-orders/:id",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules_work_orders-73",
+      "fixture": "hub-wisp-management",
+      "path": "/modules/work-orders",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_modules-17",
+      "fixture": "hub-wisp-management",
+      "path": "/modules",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_oauth_google_callback-75",
+      "fixture": "hub-wisp-management",
+      "path": "/oauth/google/callback",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_onboarding-76",
+      "fixture": "hub-wisp-management",
+      "path": "/onboarding",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_portal_tenantId-77",
+      "fixture": "hub-wisp-management",
+      "path": "/portal/:tenantId",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_reset_password-78",
+      "fixture": "hub-wisp-management",
+      "path": "/reset-password",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_settings_module_access-79",
+      "fixture": "hub-wisp-management",
+      "path": "/settings/module-access",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_setup_admin-80",
+      "fixture": "hub-wisp-management",
+      "path": "/setup-admin",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_signup-81",
+      "fixture": "hub-wisp-management",
+      "path": "/signup",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_support_dashboard-82",
+      "fixture": "hub-wisp-management",
+      "path": "/support-dashboard",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_tenant_admin-83",
+      "fixture": "hub-wisp-management",
+      "path": "/tenant-admin",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_tenant_selector-84",
+      "fixture": "hub-wisp-management",
+      "path": "/tenant-selector",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_tenant_setup-85",
+      "fixture": "hub-wisp-management",
+      "path": "/tenant-setup",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wisp-static-_wizards-86",
+      "fixture": "hub-wisp-management",
+      "path": "/wizards",
+      "method": "GET",
+      "task": "ui-parity",
+      "tier": "showcase",
+      "tags": [
+        "wisp",
+        "cwl-static-export"
+      ]
+    },
+    {
+      "id": "wordpress-core-stub-GET-_-0",
+      "fixture": "wordpress-core-stub",
+      "path": "/",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "wordpress-core-stub"
+      ]
+    },
+    {
+      "id": "wordpress-core-stub-GET-_wp_admin-1",
+      "fixture": "wordpress-core-stub",
+      "path": "/wp-admin",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "wordpress-core-stub"
+      ]
+    },
+    {
+      "id": "wordpress-customer-sample-GET-_-0",
+      "fixture": "wordpress-customer-sample",
+      "path": "/",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "wordpress-customer-sample"
+      ]
+    },
+    {
+      "id": "wordpress-customer-sample-GET-_wp_admin-1",
+      "fixture": "wordpress-customer-sample",
+      "path": "/wp-admin",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "wordpress-customer-sample"
+      ]
+    },
+    {
+      "id": "wordpress-customer-sample-GET-_wp_json_wp_v2_posts-2",
+      "fixture": "wordpress-customer-sample",
+      "path": "/wp-json/wp/v2/posts",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "wordpress-customer-sample"
+      ]
+    },
+    {
+      "id": "wordpress-probe-GET-_-0",
+      "fixture": "wordpress-probe",
+      "path": "/",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "wordpress-probe"
+      ]
+    },
+    {
+      "id": "wordpress-probe-GET-_wp_admin-1",
+      "fixture": "wordpress-probe",
+      "path": "/wp-admin",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "wordpress-probe"
+      ]
+    }
+  ],
+  "tiers": {
+    "structural": 144,
+    "oracle": 66,
+    "showcase": 87
+  },
+  "tasks": {
+    "verify": 130,
+    "migrate": 80,
+    "ui-parity": 87
+  }
+}

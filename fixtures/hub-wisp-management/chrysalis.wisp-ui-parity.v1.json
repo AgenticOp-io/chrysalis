@@ -1,0 +1,60 @@
+{
+  "kind": "chrysalis.wisp.ui-parity.verify",
+  "schemaVersion": 1,
+  "ok": true,
+  "generatedAt": "2026-06-29T04:16:15.800Z",
+  "anchors": [
+    {
+      "path": "/login",
+      "required": [
+        "login-page",
+        "demo@wisptools.io",
+        "Sign in"
+      ],
+      "minLength": 400
+    },
+    {
+      "path": "/dashboard",
+      "required": [
+        "dashboard-container",
+        "modules-grid",
+        "WISP Management"
+      ],
+      "minLength": 800
+    },
+    {
+      "path": "/modules/plan",
+      "required": [
+        "wisp-plan-app",
+        "plan-map-iframe",
+        "wisp-header-overlay"
+      ],
+      "minLength": 500
+    },
+    {
+      "path": "/modules/deploy",
+      "required": [
+        "wisp-deploy-app",
+        "deploy-map-iframe",
+        "wisp-header-overlay"
+      ],
+      "minLength": 500
+    },
+    {
+      "path": "/modules/coverage-map",
+      "required": [
+        "wisp-coverage-map",
+        "arcgis-map-view"
+      ],
+      "minLength": 80
+    }
+  ],
+  "stubScan": {
+    "ok": true,
+    "routeCount": 87,
+    "htmlRoutes": 87,
+    "uiRoutes": 0,
+    "violationCount": 0,
+    "violations": []
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "chrysalis-web-llm": {
+      "command": "node",
+      "args": ["scripts/web-llm-mcp-server.mjs"],
+      "cwd": "REPLACE_WITH_CHRYSALIS_REPO_ROOT"
+    }
+  }
+}

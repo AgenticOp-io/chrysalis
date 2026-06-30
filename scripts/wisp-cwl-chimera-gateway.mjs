@@ -4,9 +4,9 @@
  */
 import { createServer } from "node:http";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve, basename, extname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
+import { loadWispPipelineConfig } from "./wisp-cwl-gateway-config.mjs";
 import { resolveWispPreviewSession } from "./wisp-cwl-post-g7790.mjs";
 
 export const WISP_CHIMERA_GATEWAY_KIND = "chrysalis.wisp.chimera-gateway";
@@ -28,7 +28,77 @@ const HOP = new Set(["connection", "keep-alive", "transfer-encoding", "upgrade",
 export const WISP_CHIMERA_STATIC_ASSETS = {
   "/favicon.ico": { file: "favicon.svg", contentType: "image/svg+xml" },
   "/favicon.svg": { file: "favicon.svg", contentType: "image/svg+xml" },
+  "/wisptools-logo.svg": { file: "wisptools-logo.svg", contentType: "image/svg+xml" },
+  "/assets/wisp-cwl-shell.css": { file: "wisp-cwl-shell.css", contentType: "text/css; charset=utf-8" },
+  "/assets/wisp-cwl-login.css": { file: "wisp-cwl-login.css", contentType: "text/css; charset=utf-8" },
+  "/assets/wisp-cwl-app.css": { file: "wisp-cwl-app.css", contentType: "text/css; charset=utf-8" },
+  "/assets/wisp-cwl-client.js": { file: "wisp-cwl-client.js", contentType: "application/javascript; charset=utf-8" },
+  "/assets/wisp-cwl-modules.css": { file: "wisp-cwl-modules.css", contentType: "text/css; charset=utf-8" },
+  "/assets/wisp-cwl-modules.js": { file: "wisp-cwl-modules.js", contentType: "application/javascript; charset=utf-8" },
+  "/assets/wisp-cwl-map.js": { file: "wisp-cwl-map.js", contentType: "application/javascript; charset=utf-8" },
+  "/assets/wisp-firebase-config.json": {
+    file: "wisp-firebase-config.json",
+    contentType: "application/json; charset=utf-8",
+  },
+  "/assets/wisp-arcgis-config.json": {
+    file: "wisp-arcgis-config.json",
+    contentType: "application/json; charset=utf-8",
+  },
 };
+
+/** @param {string} body @param {string} [title] @param {string} [pathname] */
+export function wrapWispCwlHtmlDocument(body, title = "WISP Management", pathname = "") {
+  const trimmed = body.trim();
+  if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html")) return body;
+
+  const isLogin =
+    pathname === "/login" ||
+    trimmed.includes('data-wisp-page="login"') ||
+    trimmed.includes('class="login-page"');
+  const isDashboard =
+    pathname === "/dashboard" ||
+    trimmed.includes('data-wisp-page="dashboard"') ||
+    trimmed.includes('class="dashboard-container"');
+  const isPlanModule =
+    pathname === "/modules/plan" || trimmed.includes('data-wisp-page="plan"') || trimmed.includes("wisp-plan-app");
+  const isDeployModule =
+    pathname === "/modules/deploy" || trimmed.includes('data-wisp-page="deploy"') || trimmed.includes("wisp-deploy-app");
+  const isCoverageMap =
+    pathname === "/modules/coverage-map" ||
+    trimmed.includes('data-wisp-page="coverage-map"') ||
+    trimmed.includes("wisp-coverage-map");
+
+  if (isLogin) {
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-login.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+  }
+
+  if (isDashboard) {
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+  }
+
+  if (isPlanModule) {
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan – WISP Management</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-modules.js" defer></script></body></html>`;
+  }
+
+  if (isDeployModule) {
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy – WISP Management</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-modules.js" defer></script></body></html>`;
+  }
+
+  if (isCoverageMap) {
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Coverage Map</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-map.js" defer></script></body></html>`;
+  }
+
+  const moduleNav = `<div class="wisp-module-page"><nav class="wisp-module-nav"><a href="/dashboard">← Dashboard</a> · <a href="/help">Help</a></nav>`;
+  const isModuleDemo =
+    trimmed.includes("wisp-module-demo") || trimmed.includes("wisp-demo-content");
+  const moduleAssets = isModuleDemo
+    ? `<link rel="stylesheet" href="/assets/wisp-cwl-modules.css">`
+    : "";
+  const moduleScripts = isModuleDemo
+    ? `<script src="/assets/wisp-cwl-modules.js" defer></script>`
+    : "";
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css">${moduleAssets}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${moduleNav}${body}</div><script src="/assets/wisp-cwl-client.js" defer></script>${moduleScripts}</body></html>`;
+}
 
 /**
  * @param {string} pathname
@@ -57,10 +127,18 @@ function resolveStaticDir(cwlPath) {
   return dirname(resolve(cwlPath));
 }
 
-/** @param {string} path */
-function isCwlNativePath(path) {
-  const raw = process.env.WISP_CWL_NATIVE_PREFIXES ?? "*";
-  const prefixes = raw.split(",").map((s) => s.trim()).filter(Boolean);
+/** @param {Record<string, unknown>} [pipeline] */
+function resolveCwlNativePrefixes(pipeline) {
+  const fromEnv = process.env.WISP_CWL_NATIVE_PREFIXES?.trim();
+  if (fromEnv) return fromEnv;
+  const fromConfig = pipeline?.gce?.cwlNativePrefixes;
+  if (typeof fromConfig === "string" && fromConfig.trim()) return fromConfig.trim();
+  return "*";
+}
+
+/** @param {string} path @param {string} [nativePrefixesRaw] */
+function isCwlNativePath(path, nativePrefixesRaw = resolveCwlNativePrefixes(loadWispPipelineConfig())) {
+  const prefixes = nativePrefixesRaw.split(",").map((s) => s.trim()).filter(Boolean);
   if (prefixes.includes("*")) return !path.startsWith("/api/");
   return prefixes.some((p) => path === p || path.startsWith(`${p}/`));
 }
@@ -127,22 +205,28 @@ export async function createWispChimeraGateway(opts) {
   const pipeline = loadWispPipelineConfig();
   const nativeApi = shouldUseWispNativeApi(opts);
   const svelteFallbackRaw = opts.svelteFallback ?? process.env.WISP_SVELTE_FALLBACK ?? "";
+  const nativePrefixes = resolveCwlNativePrefixes(pipeline);
   const svelteFallback =
-    pipeline.gce?.svelteSidecar === false || nativeApi
+    pipeline.gce?.svelteSidecar === false && !svelteFallbackRaw
       ? ""
       : svelteFallbackRaw.replace(/\/$/, "");
   const host = opts.host ?? "127.0.0.1";
   const port = opts.port === undefined ? 19100 : opts.port;
 
   const runtimeMod = await import(pathToFileURL(join(repoRoot, "packages/runtime-cwl/dist/index.js")).href);
-  const { createCwlRuntime, loadModuleFromCwlFile } = runtimeMod;
-  const module = loadModuleFromCwlFile(cwlPath, repoRoot);
+  const { createCwlRuntime, loadModuleFromCwlFile, loadModuleFromWebirJsonFile } = runtimeMod;
+  const loadModule = (cwlFile) => {
+    const webirJson = join(dirname(cwlFile), `${basename(cwlFile, extname(cwlFile))}.webir.json`);
+    if (existsSync(webirJson)) return loadModuleFromWebirJsonFile(webirJson);
+    return loadModuleFromCwlFile(cwlFile, repoRoot);
+  };
+  const module = loadModule(cwlPath);
   const runtime = createCwlRuntime({ module, resolveSession: resolveWispPreviewSession });
   const apiCwlPath = join(dirname(cwlPath), "api-proxy.cwl");
   /** @type {Awaited<ReturnType<typeof createCwlRuntime>> | null} */
   let apiRuntime = null;
   if (nativeApi && existsSync(apiCwlPath)) {
-    const apiModule = loadModuleFromCwlFile(apiCwlPath, repoRoot);
+    const apiModule = loadModule(apiCwlPath);
     apiRuntime = createCwlRuntime({ module: apiModule, resolveSession: resolveWispPreviewSession });
   }
   const staticDir = resolveStaticDir(cwlPath);
@@ -184,7 +268,7 @@ export async function createWispChimeraGateway(opts) {
         svelteFallback &&
         !path.startsWith("/api/") &&
         path !== "/api" &&
-        !isCwlNativePath(path)
+        !isCwlNativePath(path, nativePrefixes)
       ) {
         await proxyHttp(req, res, svelteFallback, "svelte");
         return;
@@ -206,7 +290,14 @@ export async function createWispChimeraGateway(opts) {
       res.statusCode = cwlRes.status;
       cwlRes.headers.forEach((v, k) => res.setHeader(k, v));
       res.setHeader("x-chrysalis-wisp-proxy", "cwl");
-      res.end(Buffer.from(await cwlRes.arrayBuffer()));
+      let outBody = Buffer.from(await cwlRes.arrayBuffer());
+      const ct = cwlRes.headers.get("content-type") ?? "";
+      if ((req.method === "GET" || req.method === "HEAD") && ct.includes("text/html") && cwlRes.status >= 200 && cwlRes.status < 400) {
+        outBody = Buffer.from(wrapWispCwlHtmlDocument(outBody.toString("utf8"), "WISP Management", path), "utf8");
+        res.setHeader("content-length", String(outBody.length));
+      }
+      if (req.method === "HEAD") res.end();
+      else res.end(outBody);
     } catch (e) {
       res.statusCode = 502;
       res.setHeader("content-type", "application/json");

@@ -112,6 +112,9 @@ const SUBCOMMANDS = [
     "Verify-gated WebIR repair (optional --llm, --hole-patch, --write-module)",
   ],
   ["license", "Verify local Ed25519 license envelope (optional commercial gate)"],
+  ["port-site", "Port a legacy site to CWL with verify-gated LLM trajectories (Phase 33)"],
+  ["federation", "Verified Migration Federation — registry, submit shards, corpus, league"],
+  ["evidence", "Migration Evidence POC — unified Site-Port + VMF + web-LLM demo hub"],
   ["cwl", "CWL authoring: init starter contract, preview via runtime-cwl"],
 ] as const;
 
@@ -355,6 +358,209 @@ async function cmdCwlLint(rest: string[]): Promise<number> {
     else if (d.severity === "warn") console.warn(`[cwl lint] warn: ${d.message}`);
   }
   return report.ok === true ? 0 : 1;
+}
+
+async function cmdPortSite(rest: string[]): Promise<number> {
+  const pos = rest.filter((a) => !a.startsWith("-"));
+  const projectDir = pos[0];
+  if (!projectDir) {
+    console.error(
+      "usage: chrysalis port-site <project-dir> [--origin php|javascript] [--trajectory path] [--corpus traces/] [--verify-target hono] [--min-routes N] [--no-verify] [--no-dataset]",
+    );
+    return 2;
+  }
+  const flags = parseFlags(rest);
+  const mod = await import(
+    pathToFileURL(resolve(resolveRepoRoot(), "scripts/site-port-to-cwl.mjs")).href
+  );
+  const report = await mod.runSitePortToCwl({
+    projectDir: resolve(projectDir),
+    repoRoot: resolveRepoRoot(),
+    ...(typeof flags.origin === "string" ? { origin: flags.origin } : {}),
+    ...(typeof flags.trajectory === "string" ? { trajectoryPath: resolve(flags.trajectory) } : {}),
+    ...(typeof flags.corpus === "string" ? { corpusDir: resolve(flags.corpus) } : {}),
+    ...(typeof flags["min-routes"] === "string"
+      ? { minRoutes: Number.parseInt(flags["min-routes"], 10) }
+      : {}),
+    exportDataset: !rest.includes("--no-dataset"),
+    verify: !rest.includes("--no-verify"),
+    ...(typeof flags["verify-target"] === "string" ? { verifyTarget: flags["verify-target"] } : {}),
+  });
+  process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+  if (report.ok === true) {
+    console.log(
+      `[port-site] CWL contract: ${String(report.cwl?.cwlPath ?? join(resolve(projectDir), ".chrysalis", "migration.cwl"))} (${String(report.cwl?.routeCount ?? 0)} route(s))`,
+    );
+    if (report.trajectory?.path) {
+      console.log(`[port-site] trajectory: ${report.trajectory.path}`);
+    }
+  } else {
+    console.error(`[port-site] failed: ${String(report.reason ?? "pipeline-error")}`);
+  }
+  return report.ok === true ? 0 : 1;
+}
+
+async function loadFederationLib(): Promise<{
+  syncRegistryFromOpenLegacyIndex: (repoRoot: string) => unknown;
+  submitFederationShard: (opts: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  mergeFederationCorpus: (repoRoot: string) => Promise<Record<string, unknown>>;
+  mergeFederationWvb: (repoRoot: string) => Promise<Record<string, unknown>>;
+  publishFederationLeague: (repoRoot: string) => Promise<Record<string, unknown>>;
+}> {
+  return import(
+    pathToFileURL(resolve(resolveRepoRoot(), "scripts/site-port-federation-lib.mjs")).href
+  ) as Promise<{
+    syncRegistryFromOpenLegacyIndex: (repoRoot: string) => unknown;
+    submitFederationShard: (opts: Record<string, unknown>) => Promise<Record<string, unknown>>;
+    mergeFederationCorpus: (repoRoot: string) => Promise<Record<string, unknown>>;
+    mergeFederationWvb: (repoRoot: string) => Promise<Record<string, unknown>>;
+    publishFederationLeague: (repoRoot: string) => Promise<Record<string, unknown>>;
+  }>;
+}
+
+async function loadFederationDemo(): Promise<{
+  runFederationDemo: (opts?: Record<string, unknown>) => Promise<Record<string, unknown>>;
+}> {
+  return import(
+    pathToFileURL(resolve(resolveRepoRoot(), "scripts/site-port-federation-demo.mjs")).href
+  ) as Promise<{
+    runFederationDemo: (opts?: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  }>;
+}
+
+async function cmdFederation(rest: string[]): Promise<number> {
+  const sub = rest[0];
+  if (!sub || sub === "--help" || sub === "-h" || sub === "help") {
+    console.log("chrysalis federation — Verified Migration Federation (VMF)\n");
+    console.log("  sync-registry              Refresh public work-unit registry (Open Legacy Index)");
+    console.log("  submit-shard <project-dir> Submit verify-gated trajectory shard");
+    console.log("  merge-corpus               Merge accepted shards into federated corpus");
+    console.log("  merge-wvb                  Merge federation WVB cases from verified submissions");
+    console.log("  publish-league             Publish Verify League leaderboard HTML+JSON");
+    console.log("  demo                       One-command Site-Port + VMF POC (port all index fixtures)");
+    console.log("  serve                      Local VMF hub HTTP API (file-based ingest v1)");
+    console.log("\nEnv: CHRYSALIS_FEDERATION_CONTRIBUTOR, CHRYSALIS_FEDERATION_DIR, CHRYSALIS_POC_SKIP_BUILD, CHRYSALIS_FEDERATION_HUB_PORT");
+    return 0;
+  }
+
+  const lib = await loadFederationLib();
+  const repoRoot = resolveRepoRoot();
+
+  if (sub === "sync-registry") {
+    const registry = lib.syncRegistryFromOpenLegacyIndex(repoRoot) as { workUnits?: unknown[]; generatedAt?: string };
+    console.log(
+      `[federation] registry synced (${String(registry.workUnits?.length ?? 0)} work unit(s))`,
+    );
+    return (registry.workUnits?.length ?? 0) >= 1 ? 0 : 1;
+  }
+
+  if (sub === "submit-shard") {
+    const pos = rest.slice(1).filter((a) => !a.startsWith("-"));
+    const projectDir = pos[0];
+    if (!projectDir) {
+      console.error("usage: chrysalis federation submit-shard <project-dir> [--fixture id] [--contributor name]");
+      return 2;
+    }
+    const flags = parseFlags(rest.slice(1));
+    const result = await lib.submitFederationShard({
+      repoRoot,
+      projectDir: resolve(projectDir),
+      ...(typeof flags.fixture === "string" ? { fixtureId: flags.fixture } : {}),
+      ...(typeof flags.contributor === "string" ? { contributor: flags.contributor } : {}),
+    });
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (result.ok === true) {
+      console.log(`[federation] submitted ${String(result.id ?? "?")} for ${String(result.fixtureId ?? "?")}`);
+    }
+    return result.ok === true ? 0 : 1;
+  }
+
+  if (sub === "merge-corpus") {
+    const result = await lib.mergeFederationCorpus(repoRoot);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (result.ok === true) {
+      console.log(`[federation] merged ${String(result.shardCount ?? 0)} shard(s) into federated corpus`);
+    }
+    return result.ok === true ? 0 : 1;
+  }
+
+  if (sub === "publish-league") {
+    const result = await lib.publishFederationLeague(repoRoot);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (result.ok === true) {
+      console.log(`[federation] league published: ${String(result.htmlPath ?? "?")}`);
+    }
+    return result.ok === true ? 0 : 1;
+  }
+
+  if (sub === "merge-wvb") {
+    const result = await lib.mergeFederationWvb(repoRoot);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (result.ok === true) {
+      console.log(`[federation] WVB merged: ${String(result.outPath ?? "?")} (${String(result.mergedCaseCount ?? "?")} cases)`);
+    }
+    return result.ok === true ? 0 : 1;
+  }
+
+  if (sub === "demo") {
+    const demoMod = await loadFederationDemo();
+    const result = await demoMod.runFederationDemo({ repoRoot });
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (result.ok === true) {
+      console.log(`[federation] POC hub: ${String(result.hubPath ?? "?")}`);
+    }
+    return result.ok === true ? 0 : 1;
+  }
+
+  if (sub === "serve") {
+    const hubMod = (await import(
+      pathToFileURL(resolve(repoRoot, "scripts/federation-hub-server.mjs")).href
+    )) as { startFederationHubServer: (opts: { repoRoot: string; port?: number }) => Promise<{ baseUrl: string }> };
+    const flags = parseFlags(rest.slice(1));
+    const portRaw = flags.port ?? process.env.CHRYSALIS_FEDERATION_HUB_PORT;
+    const port = typeof portRaw === "string" ? Number.parseInt(portRaw, 10) : undefined;
+    const started = await hubMod.startFederationHubServer({ repoRoot, ...(port ? { port } : {}) });
+    console.log(`[federation] hub listening on ${started.baseUrl}`);
+    return 0;
+  }
+
+  console.error(`[federation] unknown subcommand: ${sub}`);
+  console.error("run 'chrysalis federation help' for usage.");
+  return 2;
+}
+
+async function loadMigrationEvidenceDemo(): Promise<{
+  runMigrationEvidenceDemo: (opts?: Record<string, unknown>) => Promise<Record<string, unknown>>;
+}> {
+  return import(
+    pathToFileURL(resolve(resolveRepoRoot(), "scripts/migration-evidence-demo.mjs")).href
+  ) as Promise<{
+    runMigrationEvidenceDemo: (opts?: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  }>;
+}
+
+async function cmdEvidence(rest: string[]): Promise<number> {
+  const sub = rest[0];
+  if (!sub || sub === "--help" || sub === "-h" || sub === "help") {
+    console.log("chrysalis evidence — Migration Evidence POC (Phase 35)\n");
+    console.log("  demo                       Run Site-Port + VMF + web-LLM demos and build unified hub");
+    console.log("\nEnv: CHRYSALIS_POC_SKIP_BUILD, CHRYSALIS_FEDERATION_CONTRIBUTOR");
+    return 0;
+  }
+
+  if (sub === "demo") {
+    const mod = await loadMigrationEvidenceDemo();
+    const result = await mod.runMigrationEvidenceDemo({ repoRoot: resolveRepoRoot() });
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (result.ok === true) {
+      console.log(`[evidence] POC hub: ${String(result.hubPath ?? "?")}`);
+    }
+    return result.ok === true ? 0 : 1;
+  }
+
+  console.error(`[evidence] unknown subcommand: ${sub}`);
+  console.error("run 'chrysalis evidence help' for usage.");
+  return 2;
 }
 
 async function cmdCwl(rest: string[]): Promise<number> {
@@ -3636,6 +3842,12 @@ async function main(): Promise<number> {
       return await cmdRepair(rest);
     case "license":
       return await cmdLicense(rest);
+    case "port-site":
+      return await cmdPortSite(rest);
+    case "federation":
+      return await cmdFederation(rest);
+    case "evidence":
+      return await cmdEvidence(rest);
     case "cwl":
       return await cmdCwl(rest);
     default:

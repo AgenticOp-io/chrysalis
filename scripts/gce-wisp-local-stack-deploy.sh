@@ -10,6 +10,7 @@ BACKEND_URL="https://hss.wisptools.io"
 SVELTE_FALLBACK=""
 PORT=19100
 SKIP_LIFT=0
+SKIP_SVELTE_SIDECAR=0
 TUNNEL_IAP=0
 
 while [[ $# -gt 0 ]]; do
@@ -22,6 +23,7 @@ while [[ $# -gt 0 ]]; do
     --svelte-fallback) SVELTE_FALLBACK="$2"; shift 2 ;;
     --port) PORT="$2"; shift 2 ;;
     --skip-lift) SKIP_LIFT=1; shift ;;
+    --skip-svelte-sidecar) SKIP_SVELTE_SIDECAR=1; shift ;;
     --tunnel-through-iap) TUNNEL_IAP=1; shift ;;
     *) echo "unknown arg: $1" >&2; exit 1 ;;
   esac
@@ -46,8 +48,11 @@ node scripts/wisp-cwl-pipeline.mjs --bundle-only --skip-lift ${WISP_ROOT:+--root
 
 BUNDLE_DIR="${REPO_ROOT}/generated/_wisp-cwl-poc-deploy"
 TARBALL="$(mktemp /tmp/wisp-cwl-stack-XXXXXX.tar.gz)"
-tar -czf "${TARBALL}" -C "${BUNDLE_DIR}" routes.cwl api-proxy.cwl wisp-cwl-chimera-gateway.mjs cwl-preview.json favicon.svg 2>/dev/null \
-  || tar -czf "${TARBALL}" -C "${BUNDLE_DIR}" routes.cwl api-proxy.cwl wisp-cwl-chimera-gateway.mjs favicon.svg
+TAR_FILES=(routes.cwl api-proxy.cwl routes.webir.json api-proxy.webir.json wisp-cwl-chimera-gateway.mjs wisp-cwl-gateway-config.mjs wisp-cwl-post-g7790.mjs wisp-pipeline.config.json wisp-cwl-login.css wisp-cwl-app.css wisp-cwl-client.js wisp-firebase-config.json wisp-cwl-modules.css wisp-cwl-modules.js wisp-cwl-map.js wisp-arcgis-config.json wisptools-logo.svg)
+for f in cwl-preview.json favicon.svg; do
+  [[ -f "${BUNDLE_DIR}/${f}" ]] && TAR_FILES+=("${f}")
+done
+tar -czf "${TARBALL}" -C "${BUNDLE_DIR}" "${TAR_FILES[@]}"
 
 SSH_EXTRA=()
 if [[ "${TUNNEL_IAP}" -eq 1 ]]; then SSH_EXTRA+=(--tunnel-through-iap); fi
@@ -64,8 +69,10 @@ if ! gcloud compute firewall-rules describe "${FW_NAME}" --project="${PROJECT}" 
 fi
 
 SVELTE_ENV=""
-if [[ -n "${SVELTE_FALLBACK}" ]]; then
-  SVELTE_ENV="export WISP_SVELTE_FALLBACK='${SVELTE_FALLBACK}';"
+if [[ "${SKIP_SVELTE_SIDECAR}" -eq 1 ]]; then
+  SVELTE_ENV="export WISP_CWL_NATIVE_PREFIXES='*';"
+elif [[ -n "${SVELTE_FALLBACK}" ]]; then
+  SVELTE_ENV="export WISP_SVELTE_FALLBACK='${SVELTE_FALLBACK}'; export WISP_CWL_NATIVE_PREFIXES='/docs,/help,/favicon.ico,/favicon.svg';"
 fi
 
 REMOTE="set -e; mkdir -p ~/wisp-cwl-poc; tar -xzf ~/wisp-cwl-poc.tgz -C ~/wisp-cwl-poc; chmod +x ~/gce-wisp-chimera-bootstrap.sh; export WISP_BACKEND_URL='${BACKEND_URL}'; export WISP_CWL_POC_PORT=${PORT}; ${SVELTE_ENV} ~/gce-wisp-chimera-bootstrap.sh"

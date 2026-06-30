@@ -34,7 +34,7 @@ export async function runWispProductionCompletionCloseGate(opts = {}) {
   const phase29b = await runWispProductionCompletionStaticExportGate();
   progress.end("phase29b-static", phase29b.ok === true, t0);
   t0 = progress.start("phase29c-operator");
-  const phase29c = runWispProductionCompletionOperatorGate();
+  const phase29c = await runWispProductionCompletionOperatorGate();
   progress.end("phase29c-operator", phase29c.ok === true, t0);
   t0 = progress.start("g7890-regression");
   const g7890 = await runWispProductionPocCloseGate({ ...opts, skipMaintenance: true });

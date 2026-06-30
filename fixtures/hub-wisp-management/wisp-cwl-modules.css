@@ -1,0 +1,240 @@
+/* Map modules — Plan / Deploy / Coverage Map (lifted from moduleHeaderMenu.css + plan layout). */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: #f1f5f9;
+}
+
+.wisp-plan-app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #0f1419;
+}
+
+.map-fullscreen {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.plan-map-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.module-header-overlay,
+.wisp-header-overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 40px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.module-header-left,
+.wisp-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.module-back-btn,
+.wisp-back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: white;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.module-back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.module-header-overlay h1,
+.wisp-header-overlay h1 {
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.module-header-controls,
+.wisp-header-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.module-control-btn,
+.module-control-btn.help-link,
+.wisp-control-btn,
+.wisp-control-btn.help-link {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  min-width: 72px;
+  cursor: pointer;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.module-control-btn:hover,
+.wisp-control-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.control-icon { font-size: 1.1rem; line-height: 1; }
+.control-label { font-size: 0.7rem; font-weight: 600; }
+
+.plan-side-panel {
+  position: absolute;
+  top: 90px;
+  left: 20px;
+  z-index: 12;
+  width: min(360px, calc(100vw - 40px));
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  background: linear-gradient(135deg, #1e3a4f 0%, #1a2332 100%);
+  border: 2px solid rgba(0, 217, 255, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  padding: 1rem;
+}
+
+.plan-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.plan-panel-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #00f2fe;
+}
+
+.plan-panel-close {
+  background: transparent;
+  border: none;
+  color: #a0d9e8;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.plan-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.plan-project-item {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 217, 255, 0.25);
+  background: rgba(15, 20, 25, 0.5);
+  cursor: pointer;
+}
+
+.plan-project-item:hover {
+  border-color: #00d9ff;
+}
+
+.plan-project-item h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  color: #00f2fe;
+}
+
+.plan-project-item p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #a0d9e8;
+}
+
+.plan-panel-loading,
+.plan-panel-empty {
+  color: #a0d9e8;
+  font-size: 0.875rem;
+}
+
+.plan-summary {
+  position: absolute;
+  bottom: 24px;
+  left: 20px;
+  z-index: 11;
+  max-width: 320px;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: rgba(26, 35, 50, 0.92);
+  border: 1px solid rgba(0, 217, 255, 0.35);
+}
+
+.plan-summary h3 {
+  margin: 0 0 0.35rem;
+  color: #00f2fe;
+  font-size: 1rem;
+}
+
+.plan-summary p {
+  margin: 0.15rem 0;
+  font-size: 0.85rem;
+  color: #a0d9e8;
+}
+
+.wisp-coverage-map {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.map-view-host {
+  width: 100%;
+  height: 100%;
+}
+
+.map-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  background: rgba(26, 35, 50, 0.9);
+  color: #00d9ff;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.map-loading.hidden { display: none; }

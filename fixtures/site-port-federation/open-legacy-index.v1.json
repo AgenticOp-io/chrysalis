@@ -1,0 +1,61 @@
+{
+  "kind": "chrysalis.site-port-federation.open-legacy-index.v1",
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-16T00:00:00.000Z",
+  "entries": [
+    {
+      "id": "tinyBlog",
+      "title": "Tiny Blog (Milestone 1 PHP)",
+      "fixtureRel": "fixtures/tiny-blog",
+      "origin": "php",
+      "minRoutes": 5,
+      "license": "MIT",
+      "tags": ["php", "procedural", "milestone-1"]
+    },
+    {
+      "id": "plainPhp",
+      "title": "Plain PHP Flagship",
+      "fixtureRel": "fixtures/hub-flagship-plain-php",
+      "origin": "php",
+      "minRoutes": 10,
+      "license": "MIT",
+      "tags": ["php", "flagship", "oracle"]
+    },
+    {
+      "id": "symfonyPhp",
+      "title": "Symfony PHP Flagship",
+      "fixtureRel": "fixtures/hub-flagship-symfony",
+      "origin": "php",
+      "minRoutes": 10,
+      "license": "MIT",
+      "tags": ["php", "symfony", "flagship", "oracle"]
+    },
+    {
+      "id": "expressJs",
+      "title": "Express JavaScript Flagship",
+      "fixtureRel": "fixtures/hub-flagship-express",
+      "origin": "javascript",
+      "minRoutes": 10,
+      "license": "MIT",
+      "tags": ["javascript", "express", "flagship", "oracle"]
+    },
+    {
+      "id": "laravelMin",
+      "title": "Laravel-min PHP Wedge",
+      "fixtureRel": "flagship/laravel-min",
+      "origin": "php",
+      "minRoutes": 10,
+      "license": "MIT",
+      "tags": ["php", "laravel", "wedge", "oracle", "session"]
+    },
+    {
+      "id": "cwlFullstack",
+      "title": "CWL Fullstack PHP Pilot",
+      "fixtureRel": "fixtures/hub-flagship-cwl-fullstack",
+      "origin": "php",
+      "minRoutes": 5,
+      "license": "MIT",
+      "tags": ["php", "cwl", "fullstack", "structural"]
+    }
+  ]
+}

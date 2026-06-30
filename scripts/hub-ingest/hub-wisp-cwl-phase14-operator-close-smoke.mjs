@@ -9,7 +9,7 @@ import { runWispCwlPhase14HssProxyGate } from "./hub-wisp-cwl-phase14-hss-proxy-
 import { runWispCwlPhase14DemoManifestGate } from "./hub-wisp-cwl-phase14-demo-manifest-smoke.mjs";
 import { runWispCwlPipelineSmokeGate } from "./hub-wisp-cwl-pipeline-smoke.mjs";
 import { runWispCwlProgramDocGate } from "./hub-wisp-cwl-phase12-phase0-entry-smoke.mjs";
-import { prepareWispCwlDeployBundle } from "../wisp-cwl-pipeline.mjs";
+import { prepareWispCwlDeployBundle, verifyWispGceDeployBundle } from "../wisp-cwl-pipeline.mjs";
 
 export const WISP_CWL_PHASE14_OPERATOR_CLOSE_SMOKE_KIND = "chrysalis.wisp-cwl-phase14-operator-close-smoke";
 export const WISP_CWL_PHASE14_OPERATOR_CLOSE_SMOKE_SCHEMA_VERSION = 1;
@@ -28,7 +28,13 @@ export function runWispDeployBundleSyncGate() {
   const fixtureText = readFileSync(fixtureRoutes, "utf8");
   const bundleText = readFileSync(bundleRoutes, "utf8");
   const syncOk = fixtureText === bundleText;
-  return { ok: syncOk, bundleSyncOk: syncOk, bundleDir: bundle.bundleDir };
+  const shell = verifyWispGceDeployBundle(bundle);
+  return {
+    ok: syncOk === true && shell.ok === true,
+    bundleSyncOk: syncOk,
+    shell,
+    bundleDir: bundle.bundleDir,
+  };
 }
 
 /** G6522 — operator close doc gate. */

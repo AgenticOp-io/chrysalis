@@ -1,0 +1,210 @@
+/** WISP module demo HTML — Phase 32 complete POC surfaces (no empty shells). */
+import { titleFromHttpPath } from "./wisp-cwl-bulk-lift-lib.mjs";
+
+/** Routes with dedicated parity HTML (Phase 30/30b) — never replace. */
+export const WISP_MODULE_DEMO_SKIP_PATHS = new Set([
+  "/login",
+  "/dashboard",
+  "/modules/plan",
+  "/modules/deploy",
+  "/modules/coverage-map",
+]);
+
+/** @param {string} s */
+function esc(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** @param {string} httpPath */
+export function inferWispModuleApiPath(httpPath) {
+  const p = httpPath.replace(/\/$/, "");
+  const map = [
+    ["/modules/inventory", "/api/inventory"],
+    ["/modules/customers", "/api/customers"],
+    ["/modules/monitor", "/api/monitoring"],
+    ["/modules/monitoring", "/api/monitoring/graphs"],
+    ["/modules/hss-management", "/api/hss"],
+    ["/modules/work-orders", "/api/work-orders"],
+    ["/modules/deploy", "/api/deploy"],
+    ["/modules/plan", "/api/plans"],
+    ["/modules/billing", "/api/customer-billing"],
+    ["/modules/maintain", "/api/maintain"],
+    ["/modules/voice-telephony", "/api/voice"],
+    ["/modules/hardware", "/api/inventory"],
+    ["/modules/sites", "/api/network"],
+    ["/modules/pci-resolution", "/api/network"],
+    ["/modules/help-desk", "/api/maintain"],
+    ["/modules/tenant-management", "/api/tenants"],
+    ["/modules/user-management", "/api/users"],
+    ["/modules/acs-cpe-management", "/api/snmp"],
+    ["/modules/backend-management", "/api/admin"],
+    ["/modules/cbrs-management", "/api/network"],
+    ["/modules/customers/portal", "/api/customers"],
+  ];
+  for (const [prefix, api] of map) {
+    if (p === prefix || p.startsWith(`${prefix}/`)) return api;
+  }
+  if (p.startsWith("/admin")) return "/api/admin";
+  if (p.startsWith("/docs")) return null;
+  if (p.startsWith("/modules/")) {
+    const seg = p.split("/")[2];
+    if (seg) return `/api/${seg.replace(/-/g, "")}`;
+  }
+  return null;
+}
+
+/** @param {string} httpPath */
+export function inferWispModuleDemoLayout(httpPath) {
+  if (httpPath.startsWith("/docs")) return "docs";
+  if (httpPath.includes("/portal/")) return "portal";
+  if (/\/(add|edit|new|signup|setup|onboarding|reset-password)$/.test(httpPath)) return "form";
+  if (httpPath === "/help" || httpPath.startsWith("/help")) return "docs";
+  if (httpPath === "/demo") return "dashboard";
+  return "list";
+}
+
+/** @param {string} httpPath */
+export function buildWispModuleDemoDescription(httpPath) {
+  const title = titleFromHttpPath(httpPath);
+  if (httpPath.startsWith("/modules/customers/portal")) {
+    return "Customer self-service portal — tickets, billing, knowledge base, and live chat.";
+  }
+  if (httpPath.startsWith("/modules/acs-cpe-management")) {
+    return "TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.";
+  }
+  if (httpPath.startsWith("/admin")) {
+    return "Platform administration — tenants, billing, and system configuration.";
+  }
+  if (httpPath.startsWith("/docs")) {
+    return "Operator documentation for WISP Management on pure CWL deploy.";
+  }
+  return `Operational workspace for ${title} — native CWL handlers with live API integration.`;
+}
+
+/** @param {string} httpPath @param {string} layout */
+function buildDemoToolbar(httpPath, layout) {
+  if (layout === "docs") return "";
+  const parts = httpPath.split("/").filter(Boolean);
+  const actions = ['<button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button>'];
+  if (layout === "list" && !httpPath.includes(":id")) {
+    const addPath = `${httpPath.replace(/\/$/, "")}/add`;
+    if (!httpPath.endsWith("/add")) {
+      actions.push(`<a class="wisp-demo-btn primary" href="${esc(addPath)}">Add new</a>`);
+    }
+  }
+  if (parts[0] === "modules" && parts.length === 2) {
+    actions.push(`<a class="wisp-demo-btn" href="/help">Help</a>`);
+  }
+  actions.push('<button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button>');
+  return `<div class="wisp-demo-toolbar">${actions.join("")}</div>`;
+}
+
+/** @param {string} httpPath */
+function buildDemoStats(httpPath) {
+  const seed = httpPath.length * 17;
+  const online = 120 + (seed % 80);
+  const alerts = seed % 12;
+  const pending = (seed % 25) + 3;
+  return `<div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>${online}</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>${alerts}</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>${pending}</strong><span>Pending tasks</span></article>
+</div>`;
+}
+
+/** @param {string} httpPath @param {string} layout */
+function buildDemoBodyContent(httpPath, layout) {
+  const title = titleFromHttpPath(httpPath);
+  if (layout === "docs") {
+    const section = httpPath.split("/").pop() || "overview";
+    return `<article class="wisp-demo-docs">
+  <h2>${esc(title)}</h2>
+  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>
+  <ul>
+    <li>Session auth via Firebase or CWL session preview</li>
+    <li>API routes proxied to HSS backend when configured</li>
+    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>
+  </ul>
+  <p class="wisp-demo-docs-section">Section: <code>${esc(section)}</code></p>
+</article>`;
+  }
+  if (layout === "form") {
+    return `<form class="wisp-demo-form" id="wisp-demo-form">
+  <div class="wisp-demo-field"><label>Name</label><input name="name" type="text" placeholder="${esc(title)} entry" required /></div>
+  <div class="wisp-demo-field"><label>Notes</label><textarea name="notes" rows="4" placeholder="Optional notes"></textarea></div>
+  <div class="wisp-demo-field"><label>Status</label><select name="status"><option>Active</option><option>Pending</option><option>Archived</option></select></div>
+  <button type="submit" class="wisp-demo-btn primary">Save</button>
+</form>`;
+  }
+  if (layout === "portal") {
+    return `<div class="wisp-demo-portal">
+  <nav class="wisp-demo-portal-nav">
+    <a href="/modules/customers/portal/dashboard">Dashboard</a>
+    <a href="/modules/customers/portal/tickets">Tickets</a>
+    <a href="/modules/customers/portal/billing">Billing</a>
+    <a href="/modules/customers/portal/knowledge">Knowledge</a>
+  </nav>
+  <section class="wisp-demo-portal-body">
+    <h2>${esc(title)}</h2>
+    <p>Customer portal surface — demo content wired to native CWL API.</p>
+    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
+  </section>
+</div>`;
+  }
+  return `${buildDemoStats(httpPath)}
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="${esc(title)} data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>`;
+}
+
+/**
+ * @param {string} httpPath
+ * @returns {string}
+ */
+export function buildWispModuleDemoHtml(httpPath) {
+  const title = titleFromHttpPath(httpPath);
+  const layout = inferWispModuleDemoLayout(httpPath);
+  const apiPath = inferWispModuleApiPath(httpPath);
+  const pageKey = httpPath.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+/, "") || "root";
+  const apiAttr = apiPath ? ` data-wisp-api="${esc(apiPath)}"` : "";
+  return `<div class="wisp-module-demo wisp-demo-content" data-wisp-page="${esc(pageKey)}" data-wisp-path="${esc(httpPath)}" data-cwl-island="client" data-wisp-layout="${layout}"${apiAttr}>
+  <header class="wisp-demo-header">
+    <h1>${esc(title)}</h1>
+    <p class="wisp-demo-desc">${esc(buildWispModuleDemoDescription(httpPath))}</p>
+    ${buildDemoToolbar(httpPath, layout)}
+  </header>
+  <section class="wisp-demo-panel">
+    ${buildDemoBodyContent(httpPath, layout)}
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>`;
+}
+
+/** @param {string} block @param {string} [httpPath] */
+export function routeBlockNeedsModuleDemo(block, httpPath = "") {
+  if (!block) return true;
+  if (/\bwisp-demo-content\b/.test(block) && !/<main class="wisp-surface-body">\s*<\/main>/.test(block)) {
+    if (httpPath === "/modules/monitor" && /Redirecting to Monitoring/.test(block)) return true;
+    return false;
+  }
+  if (httpPath.startsWith("/docs") && !/\bwisp-demo-content\b/.test(block)) return true;
+  if (httpPath === "/modules/monitor") return true;
+  if (/<main class="wisp-surface-body">\s*<\/main>/.test(block)) return true;
+  if (/\bwisp-app-surface\b/.test(block) && !/\bwisp-demo-content\b/.test(block)) return true;
+  if (/<svelte:head>/.test(block)) return true;
+  return false;
+}
+
+/** @param {string} httpPath */
+export function buildWispMonitorRedirectDemoHtml(httpPath = "/modules/monitor") {
+  return `<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_monitor" data-wisp-path="${httpPath.replace(/"/g, "")}" data-cwl-island="client" data-wisp-layout="docs">
+  <header class="wisp-demo-header"><h1>Monitor</h1></header>
+  <article class="wisp-demo-docs"><p>Redirecting to <a href="/modules/monitoring">Monitoring</a>…</p></article>
+  <script>location.replace("/modules/monitoring");</script>
+</div>`;
+}
