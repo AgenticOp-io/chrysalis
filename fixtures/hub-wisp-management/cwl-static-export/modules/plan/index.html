@@ -1,1 +1,27 @@
-<main><header><h1>Plan</h1><p>Vendor: hub-svelte:arcgis-map (chartered — browser SDK remains infra)</p><p>API: /api/plans (native CWL API)</p></header><div data-cwl-island="client"><div><p>ArcGIS geocode + plan map (Phase 28g charter)</p></div><section><button>Refresh</button></section></div></main>
+<div class="wisp-plan-app" data-wisp-page="plan" data-cwl-island="client">
+  <div class="map-fullscreen">
+    <iframe id="plan-map-iframe" class="plan-map-iframe" title="Plan map" src="/modules/coverage-map?mode=plan&hideStats=true&planMode=true"></iframe>
+  </div>
+  <div class="wisp-header-overlay">
+    <div class="wisp-header-left">
+      <button type="button" class="wisp-back-btn" data-action="back" title="Back to Dashboard" aria-label="Back to Dashboard">←</button>
+      <h1>📋 Plan</h1>
+    </div>
+    <div class="wisp-header-controls">
+      <a href="/help" class="wisp-control-btn help-link" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></a>
+      <button type="button" class="wisp-control-btn" data-action="hardware" title="View hardware"><span class="control-icon">🔧</span><span class="control-label">Hardware</span></button>
+      <button type="button" class="wisp-control-btn" data-action="projects" title="Project list"><span class="control-icon">📁</span><span class="control-label">Projects</span></button>
+      <button type="button" class="wisp-control-btn" data-action="layers" title="Layer filters"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
+      <button type="button" class="wisp-control-btn marketing-btn" data-action="marketing" title="Find addresses"><span class="control-icon">🔍</span><span class="control-label">Find Addresses</span></button>
+    </div>
+  </div>
+  <aside id="plan-projects-panel" class="plan-side-panel" hidden aria-label="Plan projects">
+    <div class="plan-panel-header">
+      <h2>Plan projects</h2>
+      <button type="button" class="plan-panel-close" data-action="close-projects" aria-label="Close">✕</button>
+    </div>
+    <div id="plan-projects-list" class="plan-projects-list"><p class="plan-panel-loading">Loading projects…</p></div>
+  </aside>
+  <div id="plan-active-summary" class="plan-summary" hidden></div>
+</div>
+<script type="application/json" id="cwl-page-load">{"moduleKey":"plan","source":"wisp-m30","apiPath":"/api/plans"}</script>

@@ -3,13 +3,14 @@
  * Phase 32 — complete WISP module demo surfaces (replace empty shells with interactive demo HTML).
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
 import { applyWispPhase30UiParity } from "./wisp-cwl-apply-phase30-ui-parity.mjs";
 import { applyWispPhase30bModuleParity } from "./wisp-cwl-apply-phase30b-module-parity.mjs";
 import {
   extractRouteBlock,
   listGetUiPaths,
 } from "./wisp-cwl-bulk-lift-lib.mjs";
-import { replaceRouteHandlerBlock, routesPath } from "./wisp-cwl-apply-surfaces-lib.mjs";
+import { replaceRouteHandlerBlock, routesPath, fixtureDir } from "./wisp-cwl-apply-surfaces-lib.mjs";
 import { reconcilePreviewFromRoutesCwl } from "./wisp-cwl-apply-module-routes-lib.mjs";
 import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 import { buildWispUiParityManifest, scanWispRoutesForForbiddenStubs } from "./wisp-cwl-ui-parity-verify.mjs";
@@ -21,7 +22,10 @@ import {
   WISP_MODULE_DEMO_SKIP_PATHS,
   ensureWispModuleAddRoutes,
   collectMissingModuleAddPaths,
+  ensureWispPocApiStubs,
 } from "./wisp-cwl-module-demo-lib.mjs";
+
+const apiProxyPath = join(fixtureDir, "api-proxy.cwl");
 
 export const WISP_PHASE32_COMPLETE_DEMO_KIND = "chrysalis.wisp.phase32-complete-demo";
 
@@ -71,6 +75,17 @@ export function applyWispPhase32CompleteDemo(opts = {}) {
   text = addRoutes.text;
 
   writeFileSync(path, text, "utf8");
+
+  let apiPatched = false;
+  if (existsSync(apiProxyPath)) {
+    const apiText = readFileSync(apiProxyPath, "utf8");
+    const apiStubs = ensureWispPocApiStubs(apiText);
+    if (apiStubs.ok === true && apiStubs.patched === true) {
+      writeFileSync(apiProxyPath, apiStubs.text, "utf8");
+      apiPatched = true;
+    }
+  }
+
   const preview = reconcilePreviewFromRoutesCwl();
   const holeManifest = buildWispHoleManifest();
   const stubScan = scanWispRoutesForForbiddenStubs({ routesPath: path });
@@ -91,6 +106,7 @@ export function applyWispPhase32CompleteDemo(opts = {}) {
     skipped,
     addRoutes: addRoutes.addRouteCount,
     addMissingCount: addMissing.length,
+    apiPatched,
     demoCount,
     emptyShellCount,
     stubScan,

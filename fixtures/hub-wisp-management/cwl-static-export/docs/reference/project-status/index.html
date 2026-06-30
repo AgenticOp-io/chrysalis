@@ -1,59 +1,21 @@
-<svelte:head>
-  <title>Project Status &amp; Next Steps – WISP Management Docs</title>
-</svelte:head>
-
-<article class="doc-article">
-  <h1>Project Status &amp; Next Steps</h1>
-  <p class="intro">This page summarizes where the project stands and what to work on next. For the full lists, see the markdown files in the repository <code>docs/</code> folder.</p>
-  <div class="doc-body">
-<h2>Where We Are</h2>
-<ul>
-  <li><strong>Frontend:</strong> Firebase Hosting. Deploy: <code>npm run build</code> in Module_Manager, then <code>firebase deploy --only hosting:app</code>.</li>
-  <li><strong>Backend:</strong> GCE VM. Deploy: <code>deploy-backend-to-gce.ps1</code> (Upload or Git).</li>
-  <li><strong>Functions:</strong> <code>firebase deploy --only functions</code>.</li>
-  <li><strong>Wizards:</strong> All 19+ wizards implemented and in-app. Access via <code>/wizards</code> or each module's wizard menu.</li>
-  <li><strong>Customer Portal:</strong> Branding, tickets, billing, FAQ, KB at <code>/modules/customers/portal/*</code>.</li>
-  <li><strong>Documentation:</strong> Integrated at <code>/help</code> and <code>/docs</code>.</li>
-</ul>
-
-<h2>Next Items (Optional / Polish)</h2>
-<ol>
-  <li><strong>Documentation:</strong> Add frontmatter to more <code>docs/</code> files; fix broken links.</li>
-  <li><strong>Customer Portal:</strong> Optional live chat integration, KB search enhancements.</li>
-  <li><strong>ACS:</strong> Optional alert email/SMS integration; device grouping/tags.</li>
-</ol>
-
-<h2>Key Docs in Repository</h2>
-<p>In the repo <code>docs/</code> folder: <strong>docs/README.md</strong>, <strong>WHERE_WE_ARE_AND_NEXT_STEPS.md</strong>, <strong>NEXT_ITEMS_TO_ADD.md</strong>, and related planning files.</p>
-  </div>
-  <p><a href="/docs">← Documentation home</a></p>
-</article><svelte:head>
-  <title>Project Status &amp; Next Steps – WISP Management Docs</title>
-</svelte:head>
-
-<article class="doc-article">
-  <h1>Project Status &amp; Next Steps</h1>
-  <p class="intro">This page summarizes where the project stands and what to work on next. For the full lists, see the markdown files in the repository <code>docs/</code> folder.</p>
-  <div class="doc-body">
-<h2>Where We Are</h2>
-<ul>
-  <li><strong>Frontend:</strong> Firebase Hosting. Deploy: <code>npm run build</code> in Module_Manager, then <code>firebase deploy --only hosting:app</code>.</li>
-  <li><strong>Backend:</strong> GCE VM. Deploy: <code>deploy-backend-to-gce.ps1</code> (Upload or Git).</li>
-  <li><strong>Functions:</strong> <code>firebase deploy --only functions</code>.</li>
-  <li><strong>Wizards:</strong> All 19+ wizards implemented and in-app. Access via <code>/wizards</code> or each module's wizard menu.</li>
-  <li><strong>Customer Portal:</strong> Branding, tickets, billing, FAQ, KB at <code>/modules/customers/portal/*</code>.</li>
-  <li><strong>Documentation:</strong> Integrated at <code>/help</code> and <code>/docs</code>.</li>
-</ul>
-
-<h2>Next Items (Optional / Polish)</h2>
-<ol>
-  <li><strong>Documentation:</strong> Add frontmatter to more <code>docs/</code> files; fix broken links.</li>
-  <li><strong>Customer Portal:</strong> Optional live chat integration, KB search enhancements.</li>
-  <li><strong>ACS:</strong> Optional alert email/SMS integration; device grouping/tags.</li>
-</ol>
-
-<h2>Key Docs in Repository</h2>
-<p>In the repo <code>docs/</code> folder: <strong>docs/README.md</strong>, <strong>WHERE_WE_ARE_AND_NEXT_STEPS.md</strong>, <strong>NEXT_ITEMS_TO_ADD.md</strong>, and related planning files.</p>
-  </div>
-  <p><a href="/docs">← Documentation home</a></p>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="docs_reference_project_status" data-wisp-path="/docs/reference/project-status" data-cwl-island="client" data-wisp-layout="docs">
+  <header class="wisp-demo-header">
+    <h1>Project Status</h1>
+    <p class="wisp-demo-desc">Operator documentation for WISP Management on pure CWL deploy.</p>
+    
+  </header>
+  <section class="wisp-demo-panel">
+    <article class="wisp-demo-docs">
+  <h2>Project Status</h2>
+  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>
+  <ul>
+    <li>Session auth via Firebase or CWL session preview</li>
+    <li>API routes proxied to HSS backend when configured</li>
+    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>
+  </ul>
+  <p class="wisp-demo-docs-section">Section: <code>project-status</code></p>
 </article>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/docs/reference/project-status"}</script>

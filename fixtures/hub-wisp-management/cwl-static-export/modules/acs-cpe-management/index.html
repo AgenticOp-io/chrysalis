@@ -1,12 +1,20 @@
-<svelte:head>
-  <title>Acs Cpe Management – WISP Management</title>
-</svelte:head>
-
-<div class="acs_cpe_management-shell">
-  <header>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_acs_cpe_management" data-wisp-path="/modules/acs-cpe-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/snmp">
+  <header class="wisp-demo-header">
     <h1>Acs Cpe Management</h1>
-    <p class="api-surface">API: /api/users (native CWL API)</p>
+    <p class="wisp-demo-desc">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/acs-cpe-management/add">Add new</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
   </header>
-  <p class="ui-hole-note">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>179</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>3</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>12</strong><span>Pending tasks</span></article>
 </div>
-<script type="application/json" id="cwl-page-load">{"module":"acs_cpe_management","source":"wisp-m5","apiPath":"/api/users"}</script>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Acs Cpe Management data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management"}</script>

@@ -51,6 +51,7 @@ export function logWebLlmSmokeGate(input: LogWebLlmGateInput) {
     role: "assistant",
     content: input.ok ? `${input.gateName}: pass` : `${input.gateName}: fail`,
     gate,
+    ...(input.ok ? {} : { unverified: true }),
   });
 
   return { ok: true, skipped: false, filePath, sessionId, step };

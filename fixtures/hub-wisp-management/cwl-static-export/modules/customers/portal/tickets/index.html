@@ -1,13 +1,24 @@
-<svelte:head>
-  <title>Tickets – WISP Management</title>
-</svelte:head>
-
-<div class="customers-shell">
-  <header>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_tickets" data-wisp-path="/modules/customers/portal/tickets" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
+  <header class="wisp-demo-header">
     <h1>Tickets</h1>
-    <p class="api-surface">API: /api/customers (native CWL API)</p>
+    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
   </header>
-  <p class="portal/tickets">Section: portal/tickets</p>
-  <p class="ui-hole-note">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-portal">
+  <nav class="wisp-demo-portal-nav">
+    <a href="/modules/customers/portal/dashboard">Dashboard</a>
+    <a href="/modules/customers/portal/tickets">Tickets</a>
+    <a href="/modules/customers/portal/billing">Billing</a>
+    <a href="/modules/customers/portal/knowledge">Knowledge</a>
+  </nav>
+  <section class="wisp-demo-portal-body">
+    <h2>Tickets</h2>
+    <p>Customer portal surface — demo content wired to native CWL API.</p>
+    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
+  </section>
 </div>
-<script type="application/json" id="cwl-page-load">{"module":"customers","section":"portal/tickets","source":"wisp-m5","apiPath":"/api/customers"}</script>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers/portal/tickets"}</script>

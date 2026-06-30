@@ -1,0 +1,17 @@
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_tenant_management_add" data-wisp-path="/modules/tenant-management/add" data-cwl-island="client" data-wisp-layout="form" data-wisp-api="/api/tenants">
+  <header class="wisp-demo-header">
+    <h1>Add</h1>
+    <p class="wisp-demo-desc">Operational workspace for Add — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <form class="wisp-demo-form" id="wisp-demo-form">
+  <div class="wisp-demo-field"><label>Name</label><input name="name" type="text" placeholder="Add entry" required /></div>
+  <div class="wisp-demo-field"><label>Notes</label><textarea name="notes" rows="4" placeholder="Optional notes"></textarea></div>
+  <div class="wisp-demo-field"><label>Status</label><select name="status"><option>Active</option><option>Pending</option><option>Archived</option></select></div>
+  <button type="submit" class="wisp-demo-btn primary">Save</button>
+</form>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32-add","path":"/modules/tenant-management/add"}</script>

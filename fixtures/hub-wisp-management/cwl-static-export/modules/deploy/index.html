@@ -1,1 +1,17 @@
-<main><header><h1>Deploy</h1><p>API: /api/deploy (native CWL API)</p></header><div data-cwl-island="client"><section><p>Native CWL UI islands (Phase 27c)</p><button>Refresh</button></section></div></main>
+<div class="wisp-deploy-app" data-wisp-page="deploy" data-cwl-island="client">
+  <div class="map-fullscreen">
+    <iframe id="deploy-map-iframe" class="plan-map-iframe" title="🚀 Deploy map" src="/modules/coverage-map?mode=deploy&hideStats=true&deployMode=true"></iframe>
+  </div>
+  <div class="wisp-header-overlay">
+    <div class="wisp-header-left">
+      <button type="button" class="wisp-back-btn" data-action="back" title="Back to Dashboard" aria-label="Back to Dashboard">←</button>
+      <h1>🚀 Deploy</h1>
+    </div>
+    <div class="wisp-header-controls">
+      <a href="/help" class="wisp-control-btn help-link" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></a>
+      <button type="button" class="wisp-control-btn" data-action="projects" title="Projects"><span class="control-icon">📁</span><span class="control-label">Projects</span></button>
+      <button type="button" class="wisp-control-btn" data-action="layers" title="Layers"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
+    </div>
+  </div>
+</div>
+<script type="application/json" id="cwl-page-load">{"moduleKey":"deploy","source":"wisp-m30","apiPath":"/api/deploy"}</script>

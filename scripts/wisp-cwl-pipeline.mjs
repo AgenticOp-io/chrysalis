@@ -135,6 +135,7 @@ export function prepareWispCwlDeployBundle(opts = {}) {
 
   // Phase 13 apply patches fixtures/hub-wisp-management/routes.cwl — bundle must match for GCE deploy.
   copyFileSync(fixtureRoutes, join(bundleDir, "routes.cwl"));
+  copyFileSync(join(fixtureDir, "api-proxy.cwl"), join(bundleDir, "api-proxy.cwl"));
   if (existsSync(previewFixture)) copyFileSync(previewFixture, previewDst);
 
   for (const cwlName of ["routes.cwl", "api-proxy.cwl"]) {

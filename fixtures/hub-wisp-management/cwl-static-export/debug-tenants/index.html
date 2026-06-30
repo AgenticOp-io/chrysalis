@@ -1,12 +1,20 @@
-<svelte:head>
-  <title>Debug Tenants – WISP Management</title>
-</svelte:head>
-
-<div class="debug_tenants-shell">
-  <header>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="debug_tenants" data-wisp-path="/debug-tenants" data-cwl-island="client" data-wisp-layout="list">
+  <header class="wisp-demo-header">
     <h1>Debug Tenants</h1>
-    <p class="api-surface">API: /api/users (native CWL API)</p>
+    <p class="wisp-demo-desc">Operational workspace for Debug Tenants — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/debug-tenants/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
   </header>
-  <p class="ui-hole-note">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>198</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>10</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>16</strong><span>Pending tasks</span></article>
 </div>
-<script type="application/json" id="cwl-page-load">{"module":"debug_tenants","source":"wisp-m5","apiPath":"/api/users"}</script>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Debug Tenants data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/debug-tenants"}</script>

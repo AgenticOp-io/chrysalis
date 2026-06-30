@@ -1,12 +1,20 @@
-<svelte:head>
-  <title>Tenant Setup – WISP Management</title>
-</svelte:head>
-
-<div class="tenant_setup-shell">
-  <header>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="tenant_setup" data-wisp-path="/tenant-setup" data-cwl-island="client" data-wisp-layout="list">
+  <header class="wisp-demo-header">
     <h1>Tenant Setup</h1>
-    <p class="api-surface">API: /api/tenants (native CWL API)</p>
+    <p class="wisp-demo-desc">Operational workspace for Tenant Setup — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/tenant-setup/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
   </header>
-  <p class="ui-hole-note">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>181</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>5</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>24</strong><span>Pending tasks</span></article>
 </div>
-<script type="application/json" id="cwl-page-load">{"module":"tenant_setup","source":"wisp-m5","apiPath":"/api/tenants"}</script>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Tenant Setup data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/tenant-setup"}</script>

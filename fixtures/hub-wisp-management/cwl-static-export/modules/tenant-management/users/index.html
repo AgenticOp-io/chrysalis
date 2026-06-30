@@ -1,13 +1,20 @@
-<svelte:head>
-  <title>Users – WISP Management</title>
-</svelte:head>
-
-<div class="tenant_management-shell">
-  <header>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_tenant_management_users" data-wisp-path="/modules/tenant-management/users" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/tenants">
+  <header class="wisp-demo-header">
     <h1>Users</h1>
-    <p class="api-surface">API: /api/tenants (native CWL API)</p>
+    <p class="wisp-demo-desc">Operational workspace for Users — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/tenant-management/users/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
   </header>
-  <p class="users">Section: users</p>
-  <p class="ui-hole-note">Interactive widgets remain sidecar until CWL UI RFC-0012.</p>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>184</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>4</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>22</strong><span>Pending tasks</span></article>
 </div>
-<script type="application/json" id="cwl-page-load">{"module":"tenant_management","section":"users","source":"wisp-m5","apiPath":"/api/tenants"}</script>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Users data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/tenant-management/users"}</script>

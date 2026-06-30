@@ -248,3 +248,23 @@ export function ensureWispModuleAddRoutes(routesText) {
   }
   return { ok: true, text, added, missing, addRouteCount: added.length };
 }
+
+const WISP_POC_API_USER_TENANTS_STUB = `@route GET "/api/user-tenants/tenant/:tenantId"
+handler wisp_api_user_tenants_tenant_get {
+  # POC stub — Firebase tenant store (legacy Svelte client contract)
+  effects: session;
+  use auth bearer;
+  return "{\\"ok\\":true,\\"surface\\":\\"wisp-api-native\\",\\"resource\\":\\"user-tenants\\",\\"op\\":\\"get\\",\\"tenant\\":{\\"id\\":\\"demo\\",\\"name\\":\\"WISPTools Demo ISP\\",\\"status\\":\\"active\\"}}";
+}`;
+
+/** @param {string} apiProxyText */
+export function ensureWispPocApiStubs(apiProxyText) {
+  if (apiProxyText.includes("/api/user-tenants/tenant/:tenantId")) {
+    return { ok: true, text: apiProxyText, patched: false };
+  }
+  const needle = '@route ANY "/api/*"';
+  const idx = apiProxyText.indexOf(needle);
+  if (idx < 0) return { ok: false, text: apiProxyText, patched: false, skip: "missing-api-catchall" };
+  const text = `${apiProxyText.slice(0, idx).trimEnd()}\n\n${WISP_POC_API_USER_TENANTS_STUB}\n\n${apiProxyText.slice(idx)}`;
+  return { ok: true, text, patched: true };
+}

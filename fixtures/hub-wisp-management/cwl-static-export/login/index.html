@@ -1,1 +1,32 @@
-<main><h1>WISP Management</h1><p>Native CWL session auth (Phase 27d)</p><div data-cwl-island="client"><form><label>Email</label><input></input><label>Password</label><input></input><button>Sign in</button></form></div></main>
+<div class="login-page" data-wisp-page="login" data-cwl-island="client">
+  <div class="login-container">
+    <div class="login-brand">
+      <img src="/wisptools-logo.svg" alt="WISP Management" class="brand-logo" width="120" height="120" />
+      <h1>WISPTools Demo ISP</h1>
+    </div>
+    <div class="login-card">
+      <h2>Sign in</h2>
+      <div class="demo-credentials-panel" role="note">
+        <p class="demo-credentials-title">Demo login (Firebase <code>wisptools-production</code>)</p>
+        <p><strong>Email:</strong> demo@wisptools.io</p>
+        <p><strong>Password:</strong> WisptoolsDemo2026!</p>
+        <p class="demo-credentials-hint">Use the GCE demo URL for this deployment.</p>
+      </div>
+      <p class="subtitle">Use your email and password to access WISPTools Demo ISP.</p>
+      <div id="wisp-cwl-status" class="wisp-status" hidden aria-live="polite"></div>
+      <form id="login-form" autocomplete="on">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input id="email" name="email" type="email" value="demo@wisptools.io" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="Enter your password" required />
+        </div>
+        <button type="submit" class="btn-primary" id="sign-in">Sign In</button>
+      </form>
+      <p class="form-footer simple-only-hint">Access is managed by your administrator.</p>
+    </div>
+  </div>
+</div>
+<script type="application/json" id="cwl-page-load">{"surface":"wisp-auth-native","source":"wisp-30","profile":"gce-single-use"}</script>

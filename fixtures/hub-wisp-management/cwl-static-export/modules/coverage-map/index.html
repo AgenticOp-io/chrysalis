@@ -1,1 +1,5 @@
-<main><header><h1>Coverage Map</h1><p>Vendor: hub-svelte:arcgis-map (chartered — browser SDK remains infra)</p><p>API: /api/coverage (native CWL API)</p></header><div data-cwl-island="client"><div><p>ArcGIS MapView host (Phase 28g — CWL client bundle charter)</p></div><div><button data-cwl-on-click="mapZoomIn">Zoom in</button><button data-cwl-on-click="mapZoomOut">Zoom out</button></div><section><button>Refresh</button></section></div></main>
+<div class="wisp-coverage-map" data-wisp-page="coverage-map" data-cwl-island="client">
+  <div id="arcgis-map-view" class="map-view-host" role="application" aria-label="Coverage map"></div>
+  <div id="map-loading" class="map-loading">Loading map…</div>
+</div>
+<script type="application/json" id="cwl-page-load">{"moduleKey":"coverage-map","source":"wisp-m30","apiPath":"/api/coverage","vendor":"arcgis-map"}</script>

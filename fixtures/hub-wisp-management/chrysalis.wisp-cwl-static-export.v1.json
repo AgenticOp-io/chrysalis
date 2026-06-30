@@ -2,8 +2,8 @@
   "kind": "chrysalis.wisp.cwl-static-export",
   "schemaVersion": 1,
   "outRoot": "cwl-static-export",
-  "pageCount": 87,
-  "exportedCount": 87,
+  "pageCount": 126,
+  "exportedCount": 126,
   "routes": [
     {
       "path": "/",
@@ -526,7 +526,241 @@
       "out": "wizards/index.html",
       "status": 200,
       "ok": true
+    },
+    {
+      "path": "/admin/billing/add",
+      "out": "admin/billing/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/admin/management/add",
+      "out": "admin/management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/admin/system-management/add",
+      "out": "admin/system-management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/admin/tenant-management/add",
+      "out": "admin/tenant-management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/admin/tenants/:tenantId/modules/add",
+      "out": "admin/tenants/preview-tenant/modules/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/add",
+      "out": "modules/acs-cpe-management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/alerts/add",
+      "out": "modules/acs-cpe-management/alerts/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/devices/add",
+      "out": "modules/acs-cpe-management/devices/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/faults/add",
+      "out": "modules/acs-cpe-management/faults/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/files/add",
+      "out": "modules/acs-cpe-management/files/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/firmware/add",
+      "out": "modules/acs-cpe-management/firmware/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/graphs/add",
+      "out": "modules/acs-cpe-management/graphs/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/monitoring/add",
+      "out": "modules/acs-cpe-management/monitoring/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/presets/add",
+      "out": "modules/acs-cpe-management/presets/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/settings/add",
+      "out": "modules/acs-cpe-management/settings/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/acs-cpe-management/tasks/add",
+      "out": "modules/acs-cpe-management/tasks/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/backend-management/add",
+      "out": "modules/backend-management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/billing/add",
+      "out": "modules/billing/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/cbrs-management/add",
+      "out": "modules/cbrs-management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/customers/add",
+      "out": "modules/customers/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/customers/portal-setup/add",
+      "out": "modules/customers/portal-setup/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/hardware/add",
+      "out": "modules/hardware/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/help-desk/add",
+      "out": "modules/help-desk/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/help-desk/reports/add",
+      "out": "modules/help-desk/reports/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/hss-management/add",
+      "out": "modules/hss-management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/inventory/bundles/add",
+      "out": "modules/inventory/bundles/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/inventory/reports/add",
+      "out": "modules/inventory/reports/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/maintain/add",
+      "out": "modules/maintain/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/monitoring/add",
+      "out": "modules/monitoring/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/pci-resolution/add",
+      "out": "modules/pci-resolution/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/sites/add",
+      "out": "modules/sites/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/tenant-management/add",
+      "out": "modules/tenant-management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/tenant-management/cbrs-platform/add",
+      "out": "modules/tenant-management/cbrs-platform/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/tenant-management/users/add",
+      "out": "modules/tenant-management/users/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/user-management/add",
+      "out": "modules/user-management/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/user-management/permissions/add",
+      "out": "modules/user-management/permissions/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/user-management/roles/add",
+      "out": "modules/user-management/roles/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/voice-telephony/add",
+      "out": "modules/voice-telephony/add/index.html",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "path": "/modules/work-orders/add",
+      "out": "modules/work-orders/add/index.html",
+      "status": 200,
+      "ok": true
     }
   ],
-  "generatedAt": "2026-06-28T16:25:51.790Z"
+  "generatedAt": "2026-06-30T05:41:25.148Z"
 }
