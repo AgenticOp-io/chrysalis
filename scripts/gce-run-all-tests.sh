@@ -197,6 +197,26 @@ else
   skip_phase intelligence-shorthand-close
 fi
 
+if [[ "${CHRYSALIS_GCE_MIGRATION_OS:-1}" != "0" ]]; then
+  log "phase: migration os close (G8550)"
+  run_phase migration-os-close env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:migration-os-close-smoke
+
+  log "phase: open web-llm close (G8290)"
+  run_phase open-web-llm-close env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:open-web-llm-close-smoke
+
+  log "phase: wisp web-llm poc close (G8310)"
+  if [[ "${CHRYSALIS_GCE_WISP_LIVE:-}" == "1" ]]; then
+    run_phase wisp-web-llm-poc-close env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 CHRYSALIS_G8310_LIVE=1 pnpm run hub:wisp-web-llm-poc-close-smoke
+  else
+    run_phase wisp-web-llm-poc-close env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:wisp-web-llm-poc-close-smoke
+  fi
+else
+  log "phase: skip migration os composite (CHRYSALIS_GCE_MIGRATION_OS=0)"
+  skip_phase migration-os-close
+  skip_phase open-web-llm-close
+  skip_phase wisp-web-llm-poc-close
+fi
+
 log "phase: cwl fullstack HTTP verify"
 run_phase cwl-http-verify node scripts/hub-ingest/hub-cwl-fullstack-verify-http-smoke.mjs
 

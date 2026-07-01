@@ -21,6 +21,15 @@
       "title": "Intelligence Shorthand export",
       "userPrompt": "Export verify-gated Intelligence Shorthand artifacts (IS-T3/T4/T5) from the Open Legacy corpus — CPU only, no GPU.",
       "steps": [
+        {
+          "kind": "tool",
+          "tool": "web_llm_preferred_shorthand_tier",
+          "toolInput": {
+            "hasOracleReplay": true,
+            "hasPolicyGraph": true,
+            "needsNovelLanguage": false
+          }
+        },
         { "kind": "tool", "tool": "web_llm_export_shorthand", "toolInput": { "buildHub": true } },
         { "kind": "check", "check": "min-shorthand-count", "min": 10 }
       ],

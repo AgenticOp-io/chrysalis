@@ -70,10 +70,13 @@ Script: `scripts/gce-run-all-tests.sh` — each row is a separate **`gce-run-pha
 | `cwl-v110-verify-gaps-parallel`, `cwl-v110-migration-mega` | graduation lock (oracle/verify megas skipped on GCE — already covered by v106/v107 slices; set `CHRYSALIS_GCE_V110_SKIP_REPEAT_MEGAS=0` to re-run) |
 | `post110-verify-gaps` | hub verify-gaps B1–B5 reinforcement (**green 2026-06-16**); HTTP verify uses **`hub-verify-http-probe-worker.mjs`** subprocess (avoids tsx hang on fastify) |
 | `intelligence-shorthand-close` | **G8560** IS-T3/T4/T5 export + hub (**CPU only**). Skip: `CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND=0` |
+| `migration-os-close` | **G8550** Migration OS composite (evidence + open legacy + VMF hub + IS). Skip block: `CHRYSALIS_GCE_MIGRATION_OS=0` |
+| `open-web-llm-close` | **G8290** web-LLM framework close (part of Migration OS block) |
+| `wisp-web-llm-poc-close` | **G8310** WISP + web-LLM unified POC. Live G8320 probes: `CHRYSALIS_GCE_WISP_LIVE=1` on VM |
 
 Long smokes emit **`[chrysalis-smoke:scope] ISO8601 start|ok|FAIL|defer …`** lines to stderr (captured in `gce-phase-*.log` via `2>&1 tee`). Silence with `CHRYSALIS_HUB_SMOKE_PROGRESS=0`.
 
-Full phase id list: `node scripts/gce-phase-list.mjs csv` (**38** phases by default; was 27 before mega split).
+Full phase id list: `node scripts/gce-phase-list.mjs csv` (**43** phases by default; includes Migration OS close **G8550** / **G8290** / **G8310**).
 
 **In-flight run on old manifest:** if progress shows legacy `cwl-batch-v106` (monolith), let it finish or stop it, sync scripts, then `node scripts/gce-progress.mjs bootstrap "$(node scripts/gce-phase-list.mjs csv)"` and `bash scripts/gce-resume-from-mega-phases.sh`.
 
