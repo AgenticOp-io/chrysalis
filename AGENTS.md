@@ -96,7 +96,7 @@ If you find yourself doing any of these, stop:
 - **`pnpm run ci:insight`** runs **`chrysalis insight`** then **`tiny-n1-insight`**; use **`pnpm run ci:tiny-n1-insight`** when the insight JSON artifact already exists.
 - **`pnpm run ci:migration-sidecar-floors`** no-ops (exit **0**, skip log) unless **`CHRYSALIS_IDIOMATICITY_MIN`** and/or **`CHRYSALIS_RESIDUAL_LEGACY_MAX`** are set; coverage is in **`packages/cli/tests/ci-gates-json-artifacts.test.ts`**.
 - **`pnpm run ci:emit-layout-floors`** no-ops unless **`CHRYSALIS_EMIT_LAYOUT_MAX_HONO_*`** and/or **`CHRYSALIS_EMIT_LAYOUT_MAX_FASTIFY_*`** are set (**`emit-layout-floors`**, **D251**); same Vitest file.
-- **Default long test runs:** **`pnpm run test:gce`** uploads local **`git HEAD`**, syncs runner scripts, and starts **`scripts/gce-run-all-tests.sh`** detached on **`chrysalis-test-vm`** (see **`docs/GCE-LOCAL-VERIFY.md`**). Includes **G8560** IS close and **G8550** / **G8290** / **G8310** Migration OS smokes. **`pnpm run test:gce:status`** / **`test:gce:fetch`**. Optional full workspace Vitest: **`.\scripts\gce-run-all-tests.ps1 -FullVitest -Detach`**.
+- **Default long test runs:** **`pnpm run test:gce`** uploads local **`git HEAD`**, syncs runner scripts, and starts **`scripts/gce-run-all-tests.sh`** detached on **`chrysalis-test-vm`** (see **`docs/GCE-LOCAL-VERIFY.md`**). Includes **G8560** IS close and **G8550** / **G8290** / **G8310** Migration OS smokes. Fast slice: **`pnpm run test:gce:migration-os`**. **`pnpm run test:gce:status`** / **`test:gce:fetch`**. Optional full workspace Vitest: **`.\scripts\gce-run-all-tests.ps1 -FullVitest -Detach`**.
 
 ### Commercial CLI license (**DESIGN D289**)
 

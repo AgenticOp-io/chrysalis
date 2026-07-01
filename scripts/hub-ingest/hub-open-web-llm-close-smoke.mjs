@@ -70,16 +70,19 @@ export async function runOpenWebLlmMcpToolsGate() {
   const manifest = mod.buildAgentToolManifest();
   const verifyTool = mod.findAgentTool("chrysalis_verify");
   const shorthandTool = mod.findAgentTool("web_llm_export_shorthand");
+  const tierTool = mod.findAgentTool("web_llm_preferred_shorthand_tier");
   const ok =
     manifest.kind === "chrysalis.web-llm.tool-manifest" &&
-    manifest.tools.length >= 9 &&
+    manifest.tools.length >= 10 &&
     verifyTool?.name === "chrysalis_verify" &&
-    shorthandTool?.name === "web_llm_export_shorthand";
+    shorthandTool?.name === "web_llm_export_shorthand" &&
+    tierTool?.name === "web_llm_preferred_shorthand_tier";
   return {
     ok,
     toolCount: manifest.tools.length,
     verifyTool: verifyTool?.name ?? null,
     shorthandTool: shorthandTool?.name ?? null,
+    tierTool: tierTool?.name ?? null,
   };
 }
 

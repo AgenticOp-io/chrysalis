@@ -142,7 +142,7 @@ Everything through **IS-T5** runs on **CPU only** on your existing `chrysalis-te
 | Static hub | `pnpm run web-llm:build-shorthand-hub` | $0 |
 | Close gate | `pnpm run hub:intelligence-shorthand-close-smoke` | $0 |
 | Wired into federation publish | `publishFederationArtifacts()` | $0 |
-| GCE phase | `intelligence-shorthand-close` in `gce-run-all-tests.sh` | Same VM you already pay for |
+| GCE phase | `intelligence-shorthand-close` in `gce-run-all-tests.sh`; fast slice `pnpm run test:gce:migration-os` | Same VM you already pay for |
 
 Disable on GCE: `CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND=0`
 

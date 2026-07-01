@@ -45,7 +45,21 @@ pnpm run test:gce:phase8-strict:status   # OK marker + log tail
 pnpm run test:gce:phase8-strict:foreground   # block until done
 ```
 
-Log: `reports/ci/gce-phase-strategic-plan-phase8-strict.log` on the VM. OK marker: `reports/ci/gce-phase8-strict.ok`.
+Log: `reports/ci/gce-phase8-strict.log` on the VM. OK marker: `reports/ci/gce-phase8-strict.ok`.
+
+## Migration OS close (GCE only)
+
+Fast slice for **G8560** + **G8550** + **G8290** + **G8310** without the full mega suite:
+
+```powershell
+pnpm run test:gce:migration-os
+pnpm run test:gce:migration-os:status
+pnpm run test:gce:migration-os:foreground   # block until done
+```
+
+Live WISP G8320 probes on the VM: pass **`-WispLive`** to the ps1 script or set **`CHRYSALIS_GCE_WISP_LIVE=1`** on the VM.
+
+Log: `reports/ci/gce-migration-os-run.log` · OK marker: `reports/ci/gce-migration-os.ok`
 
 ## What runs on the VM
 
