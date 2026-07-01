@@ -1,5 +1,11 @@
 {
-  "git.autoRepositoryDetection": true,
+  "terminal.integrated.defaultProfile.windows": "WSL",
+  "terminal.integrated.profiles.windows": {
+    "WSL": {
+      "path": "C:\\Windows\\System32\\wsl.exe",
+      "args": []
+    }
+  },
   "git.openRepositoryInParentFolders": "never",
   "git.repositoryScanMaxDepth": 1,
   "git.detectSubmodules": false,

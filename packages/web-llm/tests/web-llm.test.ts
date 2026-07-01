@@ -9,7 +9,7 @@ import { join, resolve } from "node:path";
 import { existsSync, unlinkSync } from "node:fs";
 import { evaluateSitePortVerifyGate, logSitePortStep, resolveSitePortTrajectoryPath, SITE_PORT_GATE_NAMES } from "../src/site-port.js";
 import { buildWvbCasesForWorkUnit, mergeWvbWithFederationCases, pickBestSubmissionsByContributorFixture, validateFederationSubmission, validateFederationShard } from "../src/federation.js";
-import { buildSkillCapsuleFromShard, buildOracleRefShorthandFromPortReport, buildPolicyGraphShorthandFromPortReport, summarizeIntelligenceShorthands, validateIntelligenceShorthand } from "../src/shorthand.js";
+import { buildSkillCapsuleFromShard, buildOracleRefShorthandFromPortReport, buildPolicyGraphShorthandFromPortReport, preferredShorthandTierForTask, summarizeIntelligenceShorthands, validateIntelligenceShorthand } from "../src/shorthand.js";
 import { WEB_LLM_TRAINING_SHARD_KIND, WEB_LLM_TRAINING_SHARD_SCHEMA_VERSION } from "../src/kinds.js";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
@@ -68,7 +68,32 @@ describe("@chrysalis/web-llm", () => {
     expect(names).toContain("chrysalis_verify");
     expect(names).toContain("web_llm_export_dataset");
     expect(names).toContain("web_llm_export_shorthand");
-    expect(tools.length).toBeGreaterThanOrEqual(9);
+    expect(names).toContain("web_llm_preferred_shorthand_tier");
+    expect(tools.length).toBeGreaterThanOrEqual(10);
+  });
+
+  test("preferredShorthandTierForTask selects lowest verify tier", () => {
+    expect(
+      preferredShorthandTierForTask({
+        hasOracleReplay: true,
+        hasPolicyGraph: true,
+        needsNovelLanguage: false,
+      }),
+    ).toBe("IS-T5-oracle-ref");
+    expect(
+      preferredShorthandTierForTask({
+        hasOracleReplay: false,
+        hasPolicyGraph: true,
+        needsNovelLanguage: false,
+      }),
+    ).toBe("IS-T4-policy-graph");
+    expect(
+      preferredShorthandTierForTask({
+        hasOracleReplay: false,
+        hasPolicyGraph: false,
+        needsNovelLanguage: true,
+      }),
+    ).toBe("IS-T2-lora-delta");
   });
 
   test("benchmarkCaseToEvalPrompt mentions verify", () => {

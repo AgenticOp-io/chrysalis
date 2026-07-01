@@ -1,6 +1,8 @@
 # Windows vs Linux test compatibility
 
-**Default:** run the full suite on **Linux GCE** (`pnpm run test:gce`). Use a Windows workstation for quick edits and gate-only smokes only.
+**Default:** run the full suite on **Linux GCE** (`pnpm run test:gce`) or **WSL** locally. Native Windows PowerShell is for quick edits and gate-only smokes only.
+
+**Windows + WSL (recommended):** set the integrated terminal to WSL (`.vscode/settings.json` → `"terminal.integrated.defaultProfile.windows": "WSL"`). Use bash, `curl`, and `pnpm` inside WSL — not PowerShell `curl` (alias for `Invoke-WebRequest`).
 
 Authority: **`docs/GCE-LOCAL-VERIFY.md`**, **`docs/STRATEGIC-PLAN.md`** §12 (default test execution on GCE).
 

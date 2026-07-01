@@ -94,6 +94,16 @@ export async function callWebLlmTool(repoRoot, name, args = {}) {
       }
       return { ok: r.ok, stdout: JSON.stringify(r, null, 2), detail: r, stderr: "" };
     }
+    case "web_llm_preferred_shorthand_tier": {
+      const tier = mod.preferredShorthandTierForTask({
+        hasOracleReplay: args.hasOracleReplay === true,
+        hasPolicyGraph: args.hasPolicyGraph === true,
+        needsNovelLanguage: args.needsNovelLanguage === true,
+      });
+      const spec = mod.tierSpec(tier);
+      const body = { tier, spec };
+      return { ok: true, stdout: JSON.stringify(body, null, 2), detail: body, stderr: "" };
+    }
     case "web_llm_record_trajectory": {
       if (args.role === "assistant" && args.gateOk !== true && args.unverified !== true) {
         return { ok: false, stderr: "assistant records require gateOk or unverified", stdout: "" };

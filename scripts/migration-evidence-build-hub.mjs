@@ -65,6 +65,15 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
     (webLlmRun?.passCount ?? 0) >= 5 &&
     (shorthandBundle?.summary?.count ?? 0) >= 1;
 
+  const isByTier = shorthandBundle?.summary?.byTier ?? {};
+  const isTierRows = ["IS-T5-oracle-ref", "IS-T4-policy-graph", "IS-T3-skill-capsule"]
+    .filter((tier) => (isByTier[tier] ?? 0) > 0)
+    .map(
+      (tier) =>
+        `<tr><td><code>${escapeHtml(tier)}</code></td><td>${isByTier[tier]}</td></tr>`,
+    )
+    .join("\n");
+
   const programRows = [
     {
       id: "site-port",
@@ -172,6 +181,12 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
   <table>
     <thead><tr><th>Program</th><th>Gate</th><th>Status</th><th>Hub</th></tr></thead>
     <tbody>${rows}</tbody>
+  </table>
+
+  <h2>Intelligence Shorthand tiers (T3–T5)</h2>
+  <table>
+    <thead><tr><th>Tier</th><th>Count</th></tr></thead>
+    <tbody>${isTierRows || "<tr><td colspan=\"2\">Run <code>pnpm run web-llm:export-shorthand</code></td></tr>"}</tbody>
   </table>
 
   <h2>One-command demo</h2>

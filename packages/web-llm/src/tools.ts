@@ -121,6 +121,24 @@ export function chrysalisAgentToolDefinitions(): AgentToolDefinition[] {
         additionalProperties: false,
       },
     },
+    {
+      name: "web_llm_preferred_shorthand_tier",
+      description:
+        "Select the lowest IS tier (T5→T2) that can satisfy a verify-gated migration task without storing neural weights.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          hasOracleReplay: { type: "boolean", description: "Oracle replay fully covers the task" },
+          hasPolicyGraph: { type: "boolean", description: "CWL/WebIR policy graph covers the task" },
+          needsNovelLanguage: {
+            type: "boolean",
+            description: "Task requires novel language not in policy/oracle (needs LoRA or base model)",
+          },
+        },
+        required: ["hasOracleReplay", "hasPolicyGraph", "needsNovelLanguage"],
+        additionalProperties: false,
+      },
+    },
   ];
 }
 
