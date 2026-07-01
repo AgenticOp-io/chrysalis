@@ -60,5 +60,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: open-legacy-index-nightly
-          path: reports/open-legacy-index/nightly/latest.json
+          path: reports/open-legacy-index/nightly/
           if-no-files-found: ignore

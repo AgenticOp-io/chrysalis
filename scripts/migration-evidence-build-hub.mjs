@@ -3,6 +3,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { runOpenLegacyNightlyBuildHub } from "./open-legacy-nightly-build-hub.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -50,8 +51,19 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
   const index = readJson(join(repoRoot, "fixtures/site-port-federation/open-legacy-index.v1.json"));
   const registry = readJson(join(repoRoot, "reports/federation/registry.v1.json"));
   const nightly = readJson(join(repoRoot, "reports/open-legacy-index/nightly/latest.json"));
+  if (nightly) {
+    runOpenLegacyNightlyBuildHub({ repoRoot });
+  }
   const shorthandBundle = readJson(join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json"));
+  const wispUiParity = readJson(join(repoRoot, "fixtures/hub-wisp-management/chrysalis.wisp-ui-parity.v1.json"));
   const demoUrl = mod.resolveWispDemoBaseUrl(repoRoot);
+
+  const wispUnifiedOk =
+    wispUiParity?.ok === true &&
+    wispUiParity?.addRouteScan?.ok === true &&
+    webLlmRun?.ok === true &&
+    (webLlmRun?.passCount ?? 0) >= 5 &&
+    (shorthandBundle?.summary?.count ?? 0) >= 1;
 
   const programRows = [
     {
@@ -87,6 +99,13 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
             ? false
             : null,
       hub: "../../web-llm/shorthand/poc/index.html",
+    },
+    {
+      id: "wisp-unified",
+      title: "WISP + web-LLM unified POC",
+      gate: "G8310",
+      ok: wispUnifiedOk ? true : wispUiParity || webLlmRun ? false : null,
+      hub: "../../web-llm/poc/index.html",
     },
   ];
 
@@ -133,6 +152,8 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
     <div class="stat"><strong>${registry?.submissions?.length ?? 0}</strong>VMF shard submissions</div>
     <div class="stat"><strong>${benchmark.caseCount}</strong>WVB cases</div>
     <div class="stat"><strong>${webLlmRun?.passCount ?? "—"}</strong>Agent scenarios passed</div>
+    <div class="stat"><strong>${wispUiParity?.stubScan?.routeCount ?? "—"}</strong>WISP CWL routes</div>
+    <div class="stat"><strong class="${wispUiParity?.addRouteScan?.ok === true ? "pass" : "pending"}">${wispUiParity?.addRouteScan?.ok === true ? "pass" : "—"}</strong>WISP /add routes</div>
     <div class="stat"><strong>${shorthandBundle?.summary?.count ?? "—"}</strong>IS shorthands</div>
     <div class="stat"><strong>${shorthandBundle?.summary?.compressionVs7BTotal ? `${shorthandBundle.summary.compressionVs7BTotal.toLocaleString()}×` : "—"}</strong>vs 14 GB 7B</div>
     <div class="stat"><strong class="${nightly?.ok === true ? "pass" : "pending"}">${nightly?.ok === true ? "pass" : "—"}</strong>Nightly matrix</div>
@@ -143,7 +164,7 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
     ${linkIfExists("Web-LLM POC hub", "../../web-llm/poc/index.html", resolve(outDir, "../../web-llm/poc/index.html"), "button secondary")}
     ${linkIfExists("Verify League", "../../federation/league/index.html", resolve(outDir, "../../federation/league/index.html"), "button secondary")}
     ${linkIfExists("Intelligence Shorthand", "../../web-llm/shorthand/poc/index.html", resolve(outDir, "../../web-llm/shorthand/poc/index.html"), "button secondary")}
-    ${linkIfExists("Nightly report", "../../open-legacy-index/nightly/latest.json", resolve(outDir, "../../open-legacy-index/nightly/latest.json"), "button secondary")}
+    ${linkIfExists("Nightly report", "../../open-legacy-index/nightly/index.html", resolve(outDir, "../../open-legacy-index/nightly/index.html"), "button secondary")}
     ${demoUrl ? `<a class="button secondary" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener">WISP live demo</a>` : ""}
   </p>
 
@@ -155,6 +176,7 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
 
   <h2>One-command demo</h2>
   <pre>pnpm run migration-evidence:demo
+pnpm run hub:wisp-web-llm-poc-close-smoke
 pnpm run federation:serve
 pnpm run hub:migration-evidence-poc-close-smoke</pre>
 
@@ -174,6 +196,8 @@ pnpm run hub:migration-evidence-poc-close-smoke</pre>
     webLlmPassCount: webLlmRun?.passCount ?? null,
     programsGreen: programRows.filter((p) => p.ok === true).length,
     programCount: programRows.length,
+    wispUnifiedOk,
+    wispRouteCount: wispUiParity?.stubScan?.routeCount ?? null,
   };
 }
 

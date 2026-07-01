@@ -9,6 +9,7 @@ import {
   publishFederationArtifacts,
 } from "../site-port-federation-lib.mjs";
 import { runSitePortVerifyMatrixSmoke } from "./hub-site-port-verify-matrix-smoke.mjs";
+import { runOpenLegacyNightlyBuildHub } from "../open-legacy-nightly-build-hub.mjs";
 
 export const HUB_SITE_PORT_OPEN_LEGACY_NIGHTLY_KIND = "chrysalis.hub.site-port-open-legacy-nightly-smoke";
 export const HUB_SITE_PORT_OPEN_LEGACY_NIGHTLY_SCHEMA_VERSION = 2;
@@ -49,12 +50,13 @@ export async function runSitePortOpenLegacyNightlySmoke(opts = {}) {
   mkdirSync(outDir, { recursive: true });
   const latestPath = join(outDir, "latest.json");
   writeFileSync(latestPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  const hub = runOpenLegacyNightlyBuildHub({ repoRoot, outDir });
 
   if (!existsSync(join(repoRoot, "reports/federation/bundle/open-legacy-bundle.v1.json"))) {
     exportOpenLegacyBundle(repoRoot);
   }
 
-  return { ...report, latestPath };
+  return { ...report, latestPath, hubPath: hub.indexPath ?? null, hubOk: hub.ok === true };
 }
 
 async function main() {

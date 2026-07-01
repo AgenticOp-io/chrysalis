@@ -39,8 +39,9 @@ export async function runMigrationEvidencePocCloseSmoke(opts = {}) {
     shorthandCount: (demo.federation?.shorthand?.count ?? 0) >= expectedCount * 2,
     shorthandHubExists: existsSync(join(repoRoot, "reports/web-llm/shorthand/poc/index.html")),
     hubProgramsGreen:
-      (demo.hub?.programsGreen ?? 0) >= (demo.hub?.programCount ?? 4) &&
-      (demo.hub?.programCount ?? 0) >= 4,
+      (demo.hub?.programsGreen ?? 0) >= (demo.hub?.programCount ?? 5) &&
+      (demo.hub?.programCount ?? 0) >= 5,
+    wispUnifiedGreen: demo.hub?.wispUnifiedOk === true,
   };
   const ok = Object.values(checks).every(Boolean);
 
