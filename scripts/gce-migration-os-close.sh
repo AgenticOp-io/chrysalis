@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Migration OS close slice on Linux GCE: G8560 + G8550 + G8290 + G8310.
+# Migration OS close slice on Linux GCE: G8560 + G8550 + G8290 + G8310 + G8570.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -39,3 +39,7 @@ else
     env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 \
     pnpm run hub:wisp-web-llm-poc-close-smoke
 fi
+
+run_phase open-legacy-wedge \
+  env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 \
+  pnpm run hub:site-port-open-legacy-wedge-smoke

@@ -54,6 +54,7 @@ export function buildGcePhaseList(opts = {}) {
     "migration-os-close",
     "open-web-llm-close",
     "wisp-web-llm-poc-close",
+    "open-legacy-wedge",
     "cwl-http-verify",
     "cwl-batch-v40",
     "cwl-batch-v60",

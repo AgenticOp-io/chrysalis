@@ -12,7 +12,7 @@ rm -f "${OK_MARKER}"
 export CHRYSALIS_STATUS_REPO="${REPO}"
 
 node scripts/gce-progress.mjs init \
-  intelligence-shorthand-close,migration-os-close,open-web-llm-close,wisp-web-llm-poc-close
+  intelligence-shorthand-close,migration-os-close,open-web-llm-close,wisp-web-llm-poc-close,open-legacy-wedge
 
 bash scripts/gce-migration-os-close.sh
 

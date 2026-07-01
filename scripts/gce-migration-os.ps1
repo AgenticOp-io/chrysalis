@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   Refreshes VM to local git HEAD, syncs runner scripts, starts detached or foreground:
-  G8560 + G8550 + G8290 + G8310 (optional G8320 live with -WispLive).
+  G8560 + G8550 + G8290 + G8310 + G8570 (optional G8320 live with -WispLive).
 
 .EXAMPLE
   pnpm run test:gce:migration-os
@@ -67,7 +67,7 @@ if ($Status) {
 }
 
 if ($FetchReports) {
-  & "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $VmName @sshExtra
+  & "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $VmName -OperatorHubs @sshExtra
   exit $LASTEXITCODE
 }
 
@@ -112,4 +112,4 @@ $foreground = "cd ~/chrysalis-test && ${remoteEnv} bash scripts/gce-migration-os
 $gcloudArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command=$foreground")
 Invoke-Gcloud -GcloudArgs $gcloudArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-& "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $VmName @sshExtra
+& "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $VmName -OperatorHubs @sshExtra

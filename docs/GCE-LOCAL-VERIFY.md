@@ -49,7 +49,7 @@ Log: `reports/ci/gce-phase8-strict.log` on the VM. OK marker: `reports/ci/gce-ph
 
 ## Migration OS close (GCE only)
 
-Fast slice for **G8560** + **G8550** + **G8290** + **G8310** without the full mega suite:
+Fast slice for **G8560** + **G8550** + **G8290** + **G8310** + **G8570** without the full mega suite:
 
 ```powershell
 pnpm run test:gce:migration-os
@@ -60,6 +60,15 @@ pnpm run test:gce:migration-os:foreground   # block until done
 Live WISP G8320 probes on the VM: pass **`-WispLive`** to the ps1 script or set **`CHRYSALIS_GCE_WISP_LIVE=1`** on the VM.
 
 Log: `reports/ci/gce-migration-os-run.log` · OK marker: `reports/ci/gce-migration-os.ok`
+
+Fetch operator HTML hubs from the VM (migration evidence, IS, web-LLM POC, nightly):
+
+```powershell
+pnpm run test:gce:fetch:operator-hubs
+# or: CHRYSALIS_GCE_FETCH_OPERATOR_HUBS=1 pnpm run test:gce:fetch
+```
+
+Foreground `test:gce:migration-os` fetches CI logs **and** operator hubs automatically.
 
 ## What runs on the VM
 
@@ -87,10 +96,11 @@ Script: `scripts/gce-run-all-tests.sh` — each row is a separate **`gce-run-pha
 | `migration-os-close` | **G8550** Migration OS composite (evidence + open legacy + VMF hub + IS). Skip block: `CHRYSALIS_GCE_MIGRATION_OS=0` |
 | `open-web-llm-close` | **G8290** web-LLM framework close (part of Migration OS block) |
 | `wisp-web-llm-poc-close` | **G8310** WISP + web-LLM unified POC. Live G8320 probes: `CHRYSALIS_GCE_WISP_LIVE=1` on VM |
+| `open-legacy-wedge` | **G8570** WordPress vertical wedge (part of Migration OS block) |
 
 Long smokes emit **`[chrysalis-smoke:scope] ISO8601 start|ok|FAIL|defer …`** lines to stderr (captured in `gce-phase-*.log` via `2>&1 tee`). Silence with `CHRYSALIS_HUB_SMOKE_PROGRESS=0`.
 
-Full phase id list: `node scripts/gce-phase-list.mjs csv` (**43** phases by default; includes Migration OS close **G8550** / **G8290** / **G8310**).
+Full phase id list: `node scripts/gce-phase-list.mjs csv` (**44** phases by default; includes Migration OS close **G8550** / **G8290** / **G8310** / **G8570**).
 
 **In-flight run on old manifest:** if progress shows legacy `cwl-batch-v106` (monolith), let it finish or stop it, sync scripts, then `node scripts/gce-progress.mjs bootstrap "$(node scripts/gce-phase-list.mjs csv)"` and `bash scripts/gce-resume-from-mega-phases.sh`.
 
