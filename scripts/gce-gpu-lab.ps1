@@ -68,10 +68,13 @@ function Invoke-Gcloud {
   param([string[]] $GcloudArgs)
   $prevEap = $ErrorActionPreference
   $ErrorActionPreference = "Continue"
-  & gcloud @GcloudArgs 2>&1 | Out-Null
+  $out = & gcloud @GcloudArgs 2>&1
   $exit = $LASTEXITCODE
   $ErrorActionPreference = $prevEap
-  if ($exit -ne 0) { throw "gcloud failed: gcloud $($GcloudArgs -join ' ')" }
+  if ($exit -ne 0) {
+    if ($out) { Write-Host $out }
+    throw "gcloud failed: gcloud $($GcloudArgs -join ' ')"
+  }
 }
 
 function Get-InstanceStatus {
@@ -113,8 +116,8 @@ if ($Create) {
   }
 
   $machineType = if ($L4) { "g2-standard-4" } else { "n1-standard-4" }
-  $accelerator = if ($L4) { "type=nvidia-l4,count=1" } else { "type=nvidia-tesla-t4,count=1" }
-  $imageFamily = "common-cu124-ubuntu-2204-nvidia-570"
+  $acceleratorType = if ($L4) { "nvidia-l4" } else { "nvidia-tesla-t4" }
+  $imageFamily = "common-cu129-ubuntu-2204-nvidia-580"
   $imageProject = "deeplearning-platform-release"
 
   $createArgs = @(
@@ -122,7 +125,7 @@ if ($Create) {
     "--project=$Project",
     "--zone=$Zone",
     "--machine-type=$machineType",
-    "--accelerator=$accelerator",
+    "--accelerator", "type=$acceleratorType,count=1",
     "--maintenance-policy=TERMINATE",
     "--boot-disk-size=100GB",
     "--boot-disk-type=pd-balanced",
@@ -139,7 +142,7 @@ if ($Create) {
     )
   }
 
-  Write-Host "Creating GPU lab VM ($machineType + $accelerator, spot=$(-not $OnDemand)) ..."
+  Write-Host "Creating GPU lab VM ($machineType + type=$acceleratorType,count=1, spot=$(-not $OnDemand)) ..."
   Invoke-Gcloud -GcloudArgs $createArgs
 
   $bootstrap = Join-Path $PSScriptRoot "gce-gpu-lab-bootstrap.sh"

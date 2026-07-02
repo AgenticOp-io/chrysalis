@@ -22,6 +22,8 @@ Override key path: **`CHRYSALIS_GCP_SA_KEY_FILE`**.
 
 Legacy (session-only): `gcloud auth login` without service account — fine for manual use, not for agents.
 
+**Monthly billing report:** `pnpm run billing:report` (BigQuery when export enabled; VM inventory fallback). One-time: `pnpm run billing:export-setup` then [enable export in Console](https://console.cloud.google.com/billing/01EA2A-7E22D6-7B7AAF/export/bigquery?project=chrysalis-dev-f5x6qv).
+
 ## One command (recommended)
 
 Uploads local **`git HEAD`**, copies runner scripts from your workspace (so uncommitted runner changes still apply), starts the full suite **detached** on the VM, and returns immediately:

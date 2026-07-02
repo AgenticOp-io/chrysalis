@@ -102,6 +102,8 @@
     "test:gce": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-run-all-tests.ps1 -Detach",
     "gce:auth:activate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-auth-activate.ps1",
     "gce:auth:setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-gcp-vm-service-account.ps1 -Project chrysalis-dev-f5x6qv -Activate -CopyToUserProfile",
+    "billing:export-setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gcp-billing-export-setup.ps1",
+    "billing:report": "node scripts/gcp-billing-report.mjs",
     "test:gce:foreground": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-run-all-tests.ps1",
     "test:gce:sync": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-run-all-tests.ps1 -SkipRefresh -Status",
     "test:gce:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-test-status.ps1",

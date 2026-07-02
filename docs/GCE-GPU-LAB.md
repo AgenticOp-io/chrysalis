@@ -95,7 +95,9 @@ Same lab VM can run SD 1.5 via AUTOMATIC1111 or Docker after `nvidia-smi` works 
 
 ## Quota
 
-Project `chrysalis-dev-f5x6qv` / `us-central1`: default **1× T4** and **1× L4** quota. Request increase in Console if create fails.
+Project `chrysalis-dev-f5x6qv` / `us-central1`: request **GPUs (all regions)** quota if create fails with `GPUS_ALL_REGIONS` limit 0. [Quotas console](https://console.cloud.google.com/iam-admin/quotas?project=chrysalis-dev-f5x6qv&metric=compute.googleapis.com%2Fgpus_all_regions).
+
+Image family (Deep Learning VM): `common-cu129-ubuntu-2204-nvidia-580` (`deeplearning-platform-release`).
 
 ## Gates
 
