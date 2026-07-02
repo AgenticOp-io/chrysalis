@@ -57,7 +57,7 @@ pnpm run test:gce:migration-os:status
 pnpm run test:gce:migration-os:foreground   # block until done
 ```
 
-Live WISP G8320 probes on the VM: pass **`-WispLive`** to the ps1 script or set **`CHRYSALIS_GCE_WISP_LIVE=1`** on the VM.
+Live WISP G8320 probes on the VM: **`pnpm run test:gce:migration-os:wisp-live`**, pass **`-WispLive`** to the ps1 script, or set **`CHRYSALIS_GCE_WISP_LIVE=1`** on the VM.
 
 Log: `reports/ci/gce-migration-os-run.log` · OK marker: `reports/ci/gce-migration-os.ok`
 

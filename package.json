@@ -115,6 +115,7 @@
     "test:gce:phase8-strict:foreground": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-phase8-strict.ps1",
     "test:gce:phase8-strict:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-phase8-strict.ps1 -Status",
     "test:gce:migration-os": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-migration-os.ps1 -Detach",
+    "test:gce:migration-os:wisp-live": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-migration-os.ps1 -Detach -WispLive",
     "test:gce:migration-os:foreground": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-migration-os.ps1",
     "test:gce:migration-os:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-migration-os.ps1 -Status",
     "test:gce:supervise": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-auto-supervise.ps1 -Detach",

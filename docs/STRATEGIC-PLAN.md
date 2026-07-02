@@ -438,6 +438,7 @@ When the user says "build" without specifying:
 **IS export:** `pnpm run web-llm:export-shorthand` / `chrysalis federation export-shorthand`  
 **VMF hub:** `pnpm run federation:serve`  
 **GCE WISP refresh:** `pnpm run wisp:deploy:gce` then `pnpm run wisp:operator-verify -- --require`  
+**GCE Migration OS + live (G8320):** `pnpm run test:gce:migration-os:wisp-live`  
 **Nightly CI:** `.github/workflows/open-legacy-index-nightly.yml`
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
