@@ -23,6 +23,7 @@ param(
   [switch] $Stop,
   [switch] $Delete,
   [switch] $Status,
+  [switch] $CheckQuota,
   [switch] $Ssh,
   [switch] $Sync,
   [switch] $Train,
@@ -64,6 +65,92 @@ function Start-GpuLabAutoStop {
   ) | Out-Null
 }
 
+function Format-GcloudFailure {
+  param(
+    [string[]] $GcloudArgs,
+    [object] $Output
+  )
+  $text = if ($Output) { ($Output | Out-String).Trim() } else { "" }
+  $cmd = "gcloud $($GcloudArgs -join ' ')"
+
+  if ($text -match "GPUS_ALL_REGIONS|GPUS-ALL-REGIONS") {
+    $quotaUrl = "https://console.cloud.google.com/iam-admin/quotas?project=$Project&metric=compute.googleapis.com%2Fgpus_all_regions"
+    return @(
+      "GPU lab create blocked: project GPUS_ALL_REGIONS quota is 0.",
+      "Request at least 1 GPU (global) before pnpm run gpu-lab:create.",
+      "Console: $quotaUrl",
+      "",
+      "gcloud output:",
+      $text
+    ) -join "`n"
+  }
+  if ($text -match "Quota 'PREEMPTIBLE_NVIDIA_T4_GPUS'|NVIDIA_T4_GPUS") {
+    $quotaUrl = "https://console.cloud.google.com/iam-admin/quotas?project=$Project&metric=compute.googleapis.com%2Fnvidia_t4_gpus"
+    return @(
+      "GPU lab create blocked: NVIDIA T4 quota exceeded in $Zone.",
+      "Console: $quotaUrl",
+      "",
+      "gcloud output:",
+      $text
+    ) -join "`n"
+  }
+  if ($text -match "was not found" -and $text -match "image") {
+    return @(
+      "GPU lab create failed: Deep Learning VM image family not found.",
+      "Update image-family in scripts/gce-gpu-lab.ps1 (see: gcloud compute images list --project=deeplearning-platform-release).",
+      "",
+      "gcloud output:",
+      $text
+    ) -join "`n"
+  }
+
+  $parts = @("gcloud command failed.", "Command: $cmd")
+  if ($text) { $parts += "Output:`n$text" } else { $parts += "No output captured." }
+  return ($parts -join "`n")
+}
+
+function Test-GpuLabQuota {
+  $prevEap = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  $info = gcloud compute project-info describe --project=$Project --format=json 2>$null
+  $ErrorActionPreference = $prevEap
+  if ($LASTEXITCODE -ne 0 -or -not $info) {
+    Write-Host "[gpu-lab] warn: could not read project quotas"
+    return $true
+  }
+  $doc = $info | ConvertFrom-Json
+  $globalGpu = $doc.quotas | Where-Object { $_.metric -eq "GPUS_ALL_REGIONS" } | Select-Object -First 1
+  if ($globalGpu -and [double]$globalGpu.limit -le 0) {
+    $quotaUrl = "https://console.cloud.google.com/iam-admin/quotas?project=$Project&metric=compute.googleapis.com%2Fgpus_all_regions"
+    Write-Host @"
+
+[gpu-lab] BLOCKED: GPUS_ALL_REGIONS quota is 0 on project $Project.
+  Regional T4/L4 quotas do not matter until this global quota is > 0.
+  Request quota: $quotaUrl
+  Then re-run: pnpm run gpu-lab:create
+
+"@
+    return $false
+  }
+  $metric = if ($L4) { "NVIDIA_L4_GPUS" } else { "PREEMPTIBLE_NVIDIA_T4_GPUS" }
+  if ($OnDemand) { $metric = if ($L4) { "NVIDIA_L4_GPUS" } else { "NVIDIA_T4_GPUS" } }
+  $region = ($Zone -replace "-[a-z]$", "")
+  $prevEap = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  $reg = gcloud compute regions describe $region --project=$Project --format=json 2>$null
+  $ErrorActionPreference = $prevEap
+  if ($LASTEXITCODE -eq 0 -and $reg) {
+    $rdoc = $reg | ConvertFrom-Json
+    $rq = $rdoc.quotas | Where-Object { $_.metric -eq $metric } | Select-Object -First 1
+    if ($rq -and [double]$rq.limit -le 0) {
+      Write-Host "[gpu-lab] BLOCKED: $metric quota is 0 in $region"
+      return $false
+    }
+    Write-Host "[gpu-lab] quota ok: GPUS_ALL_REGIONS limit=$($globalGpu.limit), $metric limit=$($rq.limit) in $region"
+  }
+  return $true
+}
+
 function Invoke-Gcloud {
   param([string[]] $GcloudArgs)
   $prevEap = $ErrorActionPreference
@@ -72,9 +159,11 @@ function Invoke-Gcloud {
   $exit = $LASTEXITCODE
   $ErrorActionPreference = $prevEap
   if ($exit -ne 0) {
-    if ($out) { Write-Host $out }
-    throw "gcloud failed: gcloud $($GcloudArgs -join ' ')"
+    $message = Format-GcloudFailure -GcloudArgs $GcloudArgs -Output $out
+    Write-Host $message
+    exit 2
   }
+  if ($out) { Write-Host $out }
 }
 
 function Get-InstanceStatus {
@@ -87,8 +176,13 @@ function Get-InstanceStatus {
   return $fmt
 }
 
-if (-not ($Create -or $Start -or $Stop -or $Delete -or $Status -or $Ssh -or $Sync -or $Train)) {
+if (-not ($Create -or $Start -or $Stop -or $Delete -or $Status -or $CheckQuota -or $Ssh -or $Sync -or $Train)) {
   $Status = $true
+}
+
+if ($CheckQuota) {
+  if (Test-GpuLabQuota) { exit 0 }
+  exit 2
 }
 
 if ($Status) {
@@ -143,6 +237,7 @@ if ($Create) {
   }
 
   Write-Host "Creating GPU lab VM ($machineType + type=$acceleratorType,count=1, spot=$(-not $OnDemand)) ..."
+  if (-not (Test-GpuLabQuota)) { exit 2 }
   Invoke-Gcloud -GcloudArgs $createArgs
 
   $bootstrap = Join-Path $PSScriptRoot "gce-gpu-lab-bootstrap.sh"

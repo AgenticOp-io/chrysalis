@@ -260,6 +260,7 @@
     "gpu-lab:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-gpu-lab.ps1 -Start",
     "gpu-lab:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-gpu-lab.ps1 -Stop",
     "gpu-lab:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-gpu-lab.ps1 -Status",
+    "gpu-lab:check-quota": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-gpu-lab.ps1 -CheckQuota",
     "gpu-lab:delete": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-gpu-lab.ps1 -Delete",
     "gpu-lab:ssh": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-gpu-lab.ps1 -Ssh",
     "gpu-lab:prep": "node scripts/web-llm-export-lora-manifest.mjs",

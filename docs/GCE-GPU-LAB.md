@@ -39,6 +39,7 @@ pnpm run gpu-lab:stop
 | `gpu-lab:create` | Create spot T4 + Deep Learning VM drivers |
 | `gpu-lab:start` / `gpu-lab:stop` | Billing on/off |
 | `gpu-lab:status` | Instance state + external IP |
+| `gpu-lab:check-quota` | Pre-flight GPU quota (fails fast before create) |
 | `gpu-lab:delete` | Remove VM |
 | `gpu-lab:ssh` | SSH to lab |
 | `gpu-lab:prep` | Export dataset + `train-manifest.v1.json` (CPU) |
