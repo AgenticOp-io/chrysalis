@@ -28,6 +28,8 @@ param(
 $ErrorActionPreference = "Stop"
 $env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
+Initialize-ChrysalisGceAuth -Project $Project -RepoRoot $repoRoot -Quiet | Out-Null
 # $Name is a PowerShell automatic variable inside nested functions; use $VmName for gcloud.
 $VmName = $Name
 $sshExtra = @()

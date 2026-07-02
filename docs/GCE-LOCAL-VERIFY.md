@@ -2,7 +2,25 @@
 
 **Run Chrysalis tests on `chrysalis-test-vm` (Linux), not on a laptop that may sleep.**
 
-Prerequisites: `gcloud auth login`, project **`chrysalis-dev-f5x6qv`** (or set **`CHRYSALIS_GCE_PROJECT`**).
+Prerequisites: project **`chrysalis-dev-f5x6qv`** (or set **`CHRYSALIS_GCE_PROJECT`**).
+
+### Permanent auth (recommended for agents / scripts)
+
+User OAuth (`gcloud auth login`) **expires** and cannot refresh in non-interactive shells (Cursor agents, detached scripts).
+
+**One-time setup** (browser login once, then permanent service-account key):
+
+```powershell
+gcloud auth login
+pnpm run gce:auth:setup
+pnpm run gce:auth:activate
+```
+
+This creates **`chrysalis-vm-agent@…`**, writes a gitignored key to **`.chrysalis-gcp-sa-key.json`**, copies a backup to **`%USERPROFILE%\.chrysalis\gcp-sa-key.json`**, and activates it for all **`gce-*.ps1`** scripts. The key works until revoked in GCP Console — no repeated browser login.
+
+Override key path: **`CHRYSALIS_GCP_SA_KEY_FILE`**.
+
+Legacy (session-only): `gcloud auth login` without service account — fine for manual use, not for agents.
 
 ## One command (recommended)
 

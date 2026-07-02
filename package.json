@@ -100,6 +100,8 @@
     "verify:gce:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-cross-platform-verify.ps1 -WindowsOnly",
     "verify:gce": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-cross-platform-verify.ps1",
     "test:gce": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-run-all-tests.ps1 -Detach",
+    "gce:auth:activate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-auth-activate.ps1",
+    "gce:auth:setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-gcp-vm-service-account.ps1 -Project chrysalis-dev-f5x6qv -Activate -CopyToUserProfile",
     "test:gce:foreground": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-run-all-tests.ps1",
     "test:gce:sync": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-run-all-tests.ps1 -SkipRefresh -Status",
     "test:gce:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gce-test-status.ps1",

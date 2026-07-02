@@ -31,7 +31,9 @@ param(
   [string] $Project,
   [string] $ServiceAccountId = "chrysalis-vm-agent",
   [string] $KeyFile = ".chrysalis-gcp-sa-key.json",
-  [switch] $PrintAccessToken
+  [switch] $PrintAccessToken,
+  [switch] $Activate,
+  [switch] $CopyToUserProfile
 )
 
 $ErrorActionPreference = "Stop"
@@ -44,8 +46,12 @@ if (-not [System.IO.Path]::IsPathRooted($KeyFile)) {
 
 function Invoke-Gcloud {
   param([string[]] $GcloudArgs)
-  & gcloud @GcloudArgs
-  if ($LASTEXITCODE -ne 0) { throw "gcloud failed: gcloud $($GcloudArgs -join ' ')" }
+  $prevEap = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  & gcloud @GcloudArgs 2>&1 | Out-Null
+  $exit = $LASTEXITCODE
+  $ErrorActionPreference = $prevEap
+  if ($exit -ne 0) { throw "gcloud failed: gcloud $($GcloudArgs -join ' ')" }
 }
 
 $email = "${ServiceAccountId}@${Project}.iam.gserviceaccount.com"
@@ -53,10 +59,14 @@ $email = "${ServiceAccountId}@${Project}.iam.gserviceaccount.com"
 Write-Host "Project: $Project"
 Write-Host "Service account: $email"
 
-$createOut = gcloud iam service-accounts create $ServiceAccountId `
+$prevEap = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+$createOut = & gcloud iam service-accounts create $ServiceAccountId `
   --display-name="Chrysalis VM / gcloud token" `
   --project=$Project 2>&1 | Out-String
-if ($LASTEXITCODE -ne 0) {
+$createExit = $LASTEXITCODE
+$ErrorActionPreference = $prevEap
+if ($createExit -ne 0) {
   if ($createOut -match "already exists|Already exists") {
     Write-Host "Service account already exists; continuing."
   }
@@ -80,18 +90,36 @@ if (Test-Path $KeyFile) {
   throw "Refusing to overwrite existing key file: $KeyFile"
 }
 Invoke-Gcloud @("iam", "service-accounts", "keys", "create", $KeyFile, "--iam-account=$email", "--project=$Project")
+Start-Sleep -Seconds 2
+
+if ($CopyToUserProfile) {
+  $profileDir = Join-Path $env:USERPROFILE ".chrysalis"
+  New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
+  $profileKey = Join-Path $profileDir "gcp-sa-key.json"
+  if (-not (Test-Path $profileKey)) {
+    Copy-Item -LiteralPath $KeyFile -Destination $profileKey
+    Write-Host "Copied key to $profileKey (survives repo moves)."
+  }
+}
 
 Write-Host ""
 Write-Host "Activate for this shell (non-interactive gcloud / agents):"
-Write-Host "  gcloud auth activate-service-account --key-file=""$KeyFile"""
+Write-Host "  pnpm run gce:auth:activate"
+Write-Host "  # or: gcloud auth activate-service-account --key-file=""$KeyFile"""
 Write-Host "  gcloud config set project $Project"
 Write-Host ""
 Write-Host "Application Default Credentials (client libraries):"
 Write-Host "  `$env:GOOGLE_APPLICATION_CREDENTIALS=""$KeyFile"""
 Write-Host ""
 
-if ($PrintAccessToken) {
+if ($Activate -or $PrintAccessToken) {
   Invoke-Gcloud @("auth", "activate-service-account", "--key-file=$KeyFile")
+  Invoke-Gcloud @("config", "set", "project", $Project)
+  $env:GOOGLE_APPLICATION_CREDENTIALS = $KeyFile
+  Write-Host "Activated service account for current shell and gcloud config."
+}
+
+if ($PrintAccessToken) {
   $tok = gcloud auth print-access-token 2>&1
   if ($LASTEXITCODE -ne 0) { throw "print-access-token failed" }
   Write-Host "Access token (short-lived, do not log in production):"

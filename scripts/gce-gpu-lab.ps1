@@ -36,6 +36,8 @@ param(
 $ErrorActionPreference = "Stop"
 $env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
+Initialize-ChrysalisGceAuth -Project $Project -RepoRoot $repoRoot -Quiet | Out-Null
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
 
@@ -64,13 +66,21 @@ function Start-GpuLabAutoStop {
 
 function Invoke-Gcloud {
   param([string[]] $GcloudArgs)
-  & gcloud @GcloudArgs
-  if ($LASTEXITCODE -ne 0) { throw "gcloud failed: gcloud $($GcloudArgs -join ' ')" }
+  $prevEap = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  & gcloud @GcloudArgs 2>&1 | Out-Null
+  $exit = $LASTEXITCODE
+  $ErrorActionPreference = $prevEap
+  if ($exit -ne 0) { throw "gcloud failed: gcloud $($GcloudArgs -join ' ')" }
 }
 
 function Get-InstanceStatus {
+  $prevEap = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
   $fmt = gcloud compute instances describe $Name --zone=$Zone --project=$Project --format="value(status)" 2>$null
-  if ($LASTEXITCODE -ne 0) { return "NOT_FOUND" }
+  $exit = $LASTEXITCODE
+  $ErrorActionPreference = $prevEap
+  if ($exit -ne 0) { return "NOT_FOUND" }
   return $fmt
 }
 
@@ -82,8 +92,11 @@ if ($Status) {
   $st = Get-InstanceStatus
   Write-Host "INSTANCE=$Name STATUS=$st ZONE=$Zone PROJECT=$Project"
   if ($st -ne "NOT_FOUND") {
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
     gcloud compute instances describe $Name --zone=$Zone --project=$Project `
       --format="table(name,machineType.basename(),status,networkInterfaces[0].accessConfigs[0].natIP:label=EXTERNAL_IP,scheduling.provisioningModel,guestAccelerators[0].acceleratorType)"
+    $ErrorActionPreference = $prevEap
   }
   exit 0
 }
