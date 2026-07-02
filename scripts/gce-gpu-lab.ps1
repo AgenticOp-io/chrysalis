@@ -163,11 +163,11 @@ if ($Ssh) {
 
 if ($Sync) {
   $st = Get-InstanceStatus
-  if ($st -ne "RUNNING") { throw "Instance $Name is $st — run pnpm run gpu-lab:start first" }
+  if ($st -ne "RUNNING") { throw "Instance $Name is $st - run pnpm run gpu-lab:start first" }
 
   $manifest = Join-Path $repoRoot "reports/web-llm/lora/train-manifest.v1.json"
   if (-not (Test-Path $manifest)) {
-    throw "Missing $manifest — run pnpm run gpu-lab:prep first"
+    throw "Missing $manifest - run pnpm run gpu-lab:prep first"
   }
 
   $remoteMk = "mkdir -p ~/chrysalis-gpu-lab/reports/web-llm/lora ~/chrysalis-gpu-lab/reports/web-llm/dataset ~/chrysalis-gpu-lab/scripts"
@@ -193,7 +193,7 @@ if ($Sync) {
 
 if ($Train) {
   $st = Get-InstanceStatus
-  if ($st -ne "RUNNING") { throw "Instance $Name is $st — run pnpm run gpu-lab:start first" }
+  if ($st -ne "RUNNING") { throw "Instance $Name is $st - run pnpm run gpu-lab:start first" }
   Start-GpuLabAutoStop -Reason "train"
   $sshTimeoutSec = ($MaxMinutes * 60) + 120
   $cmd = "export CHRYSALIS_GPU_LAB_MAX_MINUTES=$MaxMinutes; bash ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh"
