@@ -37,6 +37,7 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [Deployment](./DEPLOYMENT.md) | Platform / SRE | CI and production patterns |
 | [Administration](./ADMINISTRATION.md) | SRE | Env vars, gates, reports, retention |
 | [GCE test runner](./GCE-LOCAL-VERIFY.md) | CI-scale tests | `pnpm run test:gce` on Linux VM |
+| [GCE GPU lab](./GCE-GPU-LAB.md) | IS-T2 LoRA (optional) | Spot T4 on/off; CPU prep gate **G8610** |
 | [Windows vs Linux](./WINDOWS-COMPAT.md) | Windows devs | Local vs GCE split |
 
 ---

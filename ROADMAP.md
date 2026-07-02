@@ -7,7 +7,7 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Phase 40 IS runtime protocol** (**G8600**); **Phase 32 Open web-LLM** (**G8290**); **Migration OS closed** (**G8550**).
+- **Active lane:** **Phase 40 IS runtime protocol** (**G8600**); **Phase 40b IS-T2 LoRA prep** (**G8610**); **Phase 32 Open web-LLM** (**G8290**); **Migration OS closed** (**G8550**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -179,9 +179,11 @@ Requires: **G8560** export corpus
 | Phase | Goal | Close gate |
 | --- | --- | --- |
 | **40a** | Tier retrieval, skip-LLM routing, trajectory tier logging | **G8600** |
+| **40b** | IS-T2 LoRA train manifest + GCE GPU lab operator path (CPU prep) | **G8610** |
 
-**Regression:** `pnpm run hub:is-runtime-close-smoke` (**G8600**)  
-**Composed in:** `hub:migration-os-close-smoke` (**G8550** v3)
+**Regression:** `pnpm run hub:is-runtime-close-smoke` (**G8600**) · `pnpm run hub:is-t2-lora-prep-smoke` (**G8610**)  
+**Composed in:** `hub:migration-os-close-smoke` (**G8550** v3)  
+**GPU lab:** [`docs/GCE-GPU-LAB.md`](./docs/GCE-GPU-LAB.md) — spot T4 on/off; no GPU in default CI
 
 ---
 

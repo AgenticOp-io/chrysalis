@@ -159,6 +159,7 @@ IS-T3–T5 cover migration evidence **without any GPU**. Only **IS-T2 LoRA fine-
 | Option | Typical cost | Best for |
 | --- | --- | --- |
 | **Your GCE VM (CPU)** | Already paid | IS export, verify, oracle — **use this first** |
+| **GCE GPU lab (spot T4)** | ~$0.11/hr while running | IS-T2 LoRA — **`pnpm run gpu-lab:create`** then stop when done |
 | **GitHub Actions** | Free tier / included | `wisp-poc-regression` runs G8560 |
 | **Google Colab free** | $0 | Manual LoRA experiments (session limits) |
 | **Kaggle notebooks** | $0 | ~30h/week GPU — one-off LoRA trials |
@@ -176,7 +177,14 @@ IS-T3–T5 cover migration evidence **without any GPU**. Only **IS-T2 LoRA fine-
 # After port-site / federation demo (verify-green shards exist)
 pnpm run web-llm:export-shorthand
 # → reports/web-llm/shorthand/intelligence-shorthands.v1.json
+
+# IS-T2 LoRA prep (CPU only — G8610)
+pnpm run gpu-lab:prep
+pnpm run hub:is-t2-lora-prep-smoke
+# → reports/web-llm/lora/train-manifest.v1.json
 ```
+
+See [`GCE-GPU-LAB.md`](./GCE-GPU-LAB.md) for optional spot GPU train sessions.
 
 Federation merge can treat IS-T3 capsules like training shards — **smaller, dedupe-friendly, verify-gated**.
 

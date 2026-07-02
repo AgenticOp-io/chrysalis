@@ -11,6 +11,7 @@ import { evaluateSitePortVerifyGate, logSitePortStep, resolveSitePortTrajectoryP
 import { buildWvbCasesForWorkUnit, mergeWvbWithFederationCases, pickBestSubmissionsByContributorFixture, validateFederationSubmission, validateFederationShard } from "../src/federation.js";
 import { buildSkillCapsuleFromShard, buildOracleRefShorthandFromPortReport, buildPolicyGraphShorthandFromPortReport, preferredShorthandTierForTask, summarizeIntelligenceShorthands, validateIntelligenceShorthand } from "../src/shorthand.js";
 import { promoteShorthandsByDomain, resolveShorthandForTask, tierRank } from "../src/shorthand-retrieval.js";
+import { buildLoraTrainManifest, validateLoraTrainManifest, LORA_TRAIN_MANIFEST_KIND } from "../src/lora-manifest.js";
 import { WEB_LLM_TRAINING_SHARD_KIND, WEB_LLM_TRAINING_SHARD_SCHEMA_VERSION } from "../src/kinds.js";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
@@ -270,5 +271,28 @@ describe("@chrysalis/web-llm", () => {
     const records = readTrajectoryRecords(filePath);
     expect(records.length).toBeGreaterThanOrEqual(2);
     expect(resolveSitePortTrajectoryPath(repoRoot, projectDir)).toContain("tiny-blog.jsonl");
+  });
+
+  test("buildLoraTrainManifest requires verify-green shards", () => {
+    const manifest = buildLoraTrainManifest({
+      repoRoot,
+      shards: [
+        {
+          kind: WEB_LLM_TRAINING_SHARD_KIND,
+          schemaVersion: WEB_LLM_TRAINING_SHARD_SCHEMA_VERSION,
+          sessionId: "unit",
+          messages: [{ role: "user", content: "hi" }],
+          gate: { name: "unit", ok: true },
+          tools: [],
+          provenance: ["test"],
+        },
+      ],
+    });
+    expect(manifest.kind).toBe(LORA_TRAIN_MANIFEST_KIND);
+    expect(manifest.tier).toBe("IS-T2-lora-delta");
+    expect(manifest.shardCount).toBe(1);
+    expect(manifest.verifyGreenCount).toBe(1);
+    expect(validateLoraTrainManifest(manifest).ok).toBe(true);
+    expect(validateLoraTrainManifest({ ...manifest, verifyGreenCount: 0 }).ok).toBe(false);
   });
 });

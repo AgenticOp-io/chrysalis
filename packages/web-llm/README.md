@@ -14,6 +14,7 @@ Open **website LLM framework** scaffolding for Chrysalis: verify-gated agent tra
 - `logWebLlmSmokeGate`, `isWebLlmTrajectoryLoggingEnabled`
 - `chrysalisAgentToolDefinitions`, `findAgentTool`
 - `resolveShorthandForTask`, `promoteShorthandsByDomain`, `loadIntelligenceShorthandsFromRepo` (IS runtime protocol)
+- `buildLoraTrainManifest`, `validateLoraTrainManifest`, `readTrainingShardsFromJsonl` (IS-T2 train manifest — CPU export only)
 - `evaluateVerifyGatePolicy`, `VERIFY_GATE_POLICY`
 
 ## Invariants

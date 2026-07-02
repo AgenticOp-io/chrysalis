@@ -76,11 +76,23 @@ pnpm run web-llm:build-leaderboard
 
 Leaderboard: `reports/web-llm/leaderboard/index.html`
 
-## Fine-tune (deferred)
+## Fine-tune (deferred — IS-T2 LoRA)
 
-When funded:
+When funded, use the **train manifest** (CPU export today; GPU train on optional lab VM):
 
-1. Base model: open weights (Llama/Mistral/Qwen class)  
+```bash
+pnpm run web-llm:export-lora-manifest
+# or: pnpm run gpu-lab:prep
+# → reports/web-llm/lora/train-manifest.v1.json
+
+pnpm run hub:is-t2-lora-prep-smoke   # G8610 gate (no GPU)
+```
+
+Operator GPU path: [`GCE-GPU-LAB.md`](./GCE-GPU-LAB.md) — `gpu-lab:create` / `start` / `sync` / `train` / `stop`.
+
+When funded on GPU:
+
+1. Base model: manifest `baseModel` (default open Qwen 1.5B instruct class)  
 2. Train on `training-shards.v1.jsonl` — target assistant messages after tool+verify turns  
 3. Publish model card with WVB scores  
 4. Ship MCP server + verify policy unchanged  

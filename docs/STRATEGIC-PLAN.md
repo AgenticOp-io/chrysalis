@@ -425,18 +425,20 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (post G8600 — IS runtime protocol active)
 
-**Status:** **Phase 40 active** (**G8600**, **D6295**); **Phase 39 closed** (**G8570**); **Intelligence Shorthand export closed** (**G8560**); **Migration OS closed** (**G8550**).
+**Status:** **Phase 40 active** (**G8600**, **D6295**); **Phase 40b active** (**G8610**, **D6296** — CPU prep + optional GPU lab); **Phase 39 closed** (**G8570**); **Intelligence Shorthand export closed** (**G8560**); **Migration OS closed** (**G8550**).
 
 When the user says "build" without specifying:
 
 1. **G8600 composite** — `pnpm run hub:is-runtime-close-smoke` (tier retrieval + skip-LLM routing)
-2. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600**)
-3. **G8310 unified POC** — `pnpm run hub:wisp-web-llm-poc-close-smoke` (includes **G8560**; add **`CHRYSALIS_G8310_LIVE=1`** for G8320)
-4. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
-5. **G8290 web-LLM framework** — `pnpm run hub:open-web-llm-close-smoke`
+2. **G8610 IS-T2 prep** — `pnpm run hub:is-t2-lora-prep-smoke` (train manifest; no GPU spend)
+3. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600**)
+4. **G8310 unified POC** — `pnpm run hub:wisp-web-llm-poc-close-smoke` (includes **G8560**; add **`CHRYSALIS_G8310_LIVE=1`** for G8320)
+5. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+6. **G8290 web-LLM framework** — `pnpm run hub:open-web-llm-close-smoke`
 
 **Operator demo:** `pnpm run migration-evidence:demo`  
 **IS export:** `pnpm run web-llm:export-shorthand` / `chrysalis federation export-shorthand`  
+**IS-T2 prep (CPU):** `pnpm run gpu-lab:prep` · **GPU lab (on/off):** [`GCE-GPU-LAB.md`](./GCE-GPU-LAB.md)  
 **VMF hub:** `pnpm run federation:serve`  
 **GCE WISP refresh:** `pnpm run wisp:deploy:gce` then `pnpm run wisp:operator-verify -- --require`  
 **GCE Migration OS + live (G8320):** `pnpm run test:gce:migration-os:wisp-live`  
