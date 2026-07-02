@@ -29,6 +29,8 @@ $includeOperator =
 if ($includeOperator) {
   $operatorPaths = @(
     @{ Remote = "chrysalis-test/reports/migration-evidence/poc"; Local = "reports\migration-evidence\poc" },
+    @{ Remote = "chrysalis-test/reports/federation/poc"; Local = "reports\federation\poc" },
+    @{ Remote = "chrysalis-test/reports/federation/league"; Local = "reports\federation\league" },
     @{ Remote = "chrysalis-test/reports/web-llm/shorthand/poc"; Local = "reports\web-llm\shorthand\poc" },
     @{ Remote = "chrysalis-test/reports/web-llm/poc"; Local = "reports\web-llm\poc" },
     @{ Remote = "chrysalis-test/reports/open-legacy-index/nightly"; Local = "reports\open-legacy-index\nightly" }

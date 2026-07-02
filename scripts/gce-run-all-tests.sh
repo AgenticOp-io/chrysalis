@@ -213,12 +213,16 @@ if [[ "${CHRYSALIS_GCE_MIGRATION_OS:-1}" != "0" ]]; then
 
   log "phase: open legacy wedge (G8570)"
   run_phase open-legacy-wedge env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:site-port-open-legacy-wedge-smoke
+
+  log "phase: migration evidence hub refresh"
+  run_phase migration-evidence-hub-refresh node scripts/migration-evidence-build-hub.mjs
 else
   log "phase: skip migration os composite (CHRYSALIS_GCE_MIGRATION_OS=0)"
   skip_phase migration-os-close
   skip_phase open-web-llm-close
   skip_phase wisp-web-llm-poc-close
   skip_phase open-legacy-wedge
+  skip_phase migration-evidence-hub-refresh
 fi
 
 log "phase: cwl fullstack HTTP verify"

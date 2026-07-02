@@ -8,6 +8,10 @@ import { runSitePortOpenLegacyCloseSmoke } from "./hub-site-port-open-legacy-clo
 import { runSitePortFederationHubCloseSmoke } from "./hub-site-port-federation-hub-close-smoke.mjs";
 import { runIntelligenceShorthandCloseSmoke } from "./hub-intelligence-shorthand-close-smoke.mjs";
 import { runOpenLegacyNightlyBuildHub } from "../open-legacy-nightly-build-hub.mjs";
+import {
+  migrationEvidenceHubNightlyLinked,
+  refreshMigrationEvidenceHub,
+} from "../migration-evidence-build-hub.mjs";
 
 export const HUB_MIGRATION_OS_CLOSE_KIND = "chrysalis.hub.migration-os-close-smoke";
 export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 2;
@@ -26,11 +30,18 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     runOpenLegacyNightlyBuildHub({ repoRoot });
   }
 
+  const evidenceHub = await refreshMigrationEvidenceHub({
+    repoRoot,
+    demoState: evidence.demo,
+  });
+
   const checks = {
     evidenceOk: evidence.ok === true,
     openLegacyOk: openLegacy.ok === true,
     federationHubOk: federationHub.ok === true,
     intelligenceOk: intelligence.ok === true,
+    evidenceHubRefreshed: evidenceHub.ok === true,
+    evidenceHubNightlyLinked: migrationEvidenceHubNightlyLinked(repoRoot),
     bundleExists: existsSync(join(repoRoot, "reports/federation/bundle/open-legacy-bundle.v1.json")),
     shorthandExists: existsSync(join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json")),
     shorthandHubExists: existsSync(join(repoRoot, "reports/web-llm/shorthand/poc/index.html")),
@@ -49,6 +60,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     openLegacy,
     federationHub,
     intelligence,
+    evidenceHub,
     generatedAt: new Date().toISOString(),
   };
 }

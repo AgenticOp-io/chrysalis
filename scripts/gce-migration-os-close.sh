@@ -43,3 +43,6 @@ fi
 run_phase open-legacy-wedge \
   env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 \
   pnpm run hub:site-port-open-legacy-wedge-smoke
+
+run_phase migration-evidence-hub-refresh \
+  node scripts/migration-evidence-build-hub.mjs

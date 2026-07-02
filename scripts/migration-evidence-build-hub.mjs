@@ -35,6 +35,38 @@ function linkIfExists(label, hrefRel, absPath, className = "button secondary") {
     : `<span class="pending">${escapeHtml(label)} (pending)</span>`;
 }
 
+/** True when nightly HTML exists and migration evidence hub links to it (not pending). */
+export function migrationEvidenceHubNightlyLinked(repoRoot) {
+  const outDir = join(repoRoot, "reports/migration-evidence/poc");
+  const indexPath = join(outDir, "index.html");
+  const nightlyHtml = resolve(outDir, "../../open-legacy-index/nightly/index.html");
+  if (!existsSync(nightlyHtml)) return true;
+  if (!existsSync(indexPath)) return false;
+  const html = readFileSync(indexPath, "utf8");
+  return html.includes('href="../../open-legacy-index/nightly/index.html"');
+}
+
+/**
+ * Rebuild migration evidence + nightly hubs after Migration OS sub-smokes finish.
+ * @param {object} [opts]
+ */
+export async function refreshMigrationEvidenceHub(opts = {}) {
+  const repoRoot = resolve(opts.repoRoot ?? scriptRoot);
+  const nightlyJson = join(repoRoot, "reports/open-legacy-index/nightly/latest.json");
+  if (existsSync(nightlyJson)) {
+    runOpenLegacyNightlyBuildHub({ repoRoot });
+  }
+  const hub = await runMigrationEvidenceBuildHub({
+    repoRoot,
+    demoState: opts.demoState,
+    outDir: opts.outDir,
+  });
+  return {
+    ...hub,
+    nightlyLinked: migrationEvidenceHubNightlyLinked(repoRoot),
+  };
+}
+
 /**
  * @param {object} [opts]
  */
@@ -213,6 +245,8 @@ pnpm run hub:migration-evidence-poc-close-smoke</pre>
     programCount: programRows.length,
     wispUnifiedOk,
     wispRouteCount: wispUiParity?.stubScan?.routeCount ?? null,
+    nightlyOk: nightly?.ok === true,
+    nightlyLinked: migrationEvidenceHubNightlyLinked(repoRoot),
   };
 }
 
