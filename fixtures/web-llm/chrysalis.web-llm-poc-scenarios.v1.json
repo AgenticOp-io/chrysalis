@@ -37,6 +37,22 @@
       "tags": ["G8560", "CPU"]
     },
     {
+      "id": "is-tier-routing",
+      "title": "IS tier routing (runtime protocol)",
+      "userPrompt": "Resolve Intelligence Shorthand for a chartered domain and confirm skip-LLM tier routing without neural weights.",
+      "steps": [
+        { "kind": "tool", "tool": "web_llm_export_shorthand" },
+        {
+          "kind": "tool",
+          "tool": "web_llm_resolve_shorthand",
+          "toolInput": { "domainId": "tinyBlog" }
+        },
+        { "kind": "check", "check": "is-tier-skip-llm", "domainId": "tinyBlog" }
+      ],
+      "gateName": "is-tier-routing",
+      "tags": ["G8600", "CPU"]
+    },
+    {
       "id": "wisp-ui-parity-anchors",
       "title": "WISP UI parity anchors",
       "userPrompt": "Confirm WISP CWL UI parity anchor routes are in WVB and the parity manifest is green.",

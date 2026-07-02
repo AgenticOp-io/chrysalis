@@ -15,3 +15,4 @@ export * from "./policy.js";
 export * from "./site-port.js";
 export * from "./federation.js";
 export * from "./shorthand.js";
+export * from "./shorthand-retrieval.js";

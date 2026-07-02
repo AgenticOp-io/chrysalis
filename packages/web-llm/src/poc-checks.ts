@@ -67,6 +67,24 @@ export async function runPocCheck(
         },
       };
     }
+    case "is-tier-skip-llm": {
+      const { loadIntelligenceShorthandsFromRepo, resolveShorthandForTask } = await import(
+        "./shorthand-retrieval.js"
+      );
+      const domainId = step.domainId ?? "tinyBlog";
+      const shorthands = loadIntelligenceShorthandsFromRepo(repoRoot);
+      const resolved = resolveShorthandForTask({ domainId, shorthands, needsNovelLanguage: false });
+      const ok = resolved.retrievalHit === true && resolved.skipLlm === true;
+      return {
+        ok,
+        detail: {
+          domainId,
+          tier: resolved.tier,
+          retrievalHit: resolved.retrievalHit,
+          skipLlm: resolved.skipLlm,
+        },
+      };
+    }
     default:
       return { ok: false, skip: `unknown-check:${step.check}` };
   }

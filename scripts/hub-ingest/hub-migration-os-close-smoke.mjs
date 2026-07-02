@@ -7,6 +7,7 @@ import { runMigrationEvidencePocCloseSmoke } from "./hub-migration-evidence-poc-
 import { runSitePortOpenLegacyCloseSmoke } from "./hub-site-port-open-legacy-close-smoke.mjs";
 import { runSitePortFederationHubCloseSmoke } from "./hub-site-port-federation-hub-close-smoke.mjs";
 import { runIntelligenceShorthandCloseSmoke } from "./hub-intelligence-shorthand-close-smoke.mjs";
+import { runIsRuntimeCloseSmoke } from "./hub-is-runtime-close-smoke.mjs";
 import { runOpenLegacyNightlyBuildHub } from "../open-legacy-nightly-build-hub.mjs";
 import {
   migrationEvidenceHubNightlyLinked,
@@ -14,7 +15,7 @@ import {
 } from "../migration-evidence-build-hub.mjs";
 
 export const HUB_MIGRATION_OS_CLOSE_KIND = "chrysalis.hub.migration-os-close-smoke";
-export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 2;
+export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 3;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -24,6 +25,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
   const openLegacy = await runSitePortOpenLegacyCloseSmoke();
   const federationHub = await runSitePortFederationHubCloseSmoke();
   const intelligence = await runIntelligenceShorthandCloseSmoke({ repoRoot, skipPort: true });
+  const isRuntime = await runIsRuntimeCloseSmoke({ repoRoot });
 
   const nightlyJson = join(repoRoot, "reports/open-legacy-index/nightly/latest.json");
   if (existsSync(nightlyJson)) {
@@ -40,6 +42,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     openLegacyOk: openLegacy.ok === true,
     federationHubOk: federationHub.ok === true,
     intelligenceOk: intelligence.ok === true,
+    isRuntimeOk: isRuntime.ok === true,
     evidenceHubRefreshed: evidenceHub.ok === true,
     evidenceHubNightlyLinked: migrationEvidenceHubNightlyLinked(repoRoot),
     bundleExists: existsSync(join(repoRoot, "reports/federation/bundle/open-legacy-bundle.v1.json")),
@@ -60,6 +63,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     openLegacy,
     federationHub,
     intelligence,
+    isRuntime,
     evidenceHub,
     generatedAt: new Date().toISOString(),
   };

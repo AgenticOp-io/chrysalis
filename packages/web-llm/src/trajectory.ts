@@ -40,6 +40,10 @@ export type AppendTrajectoryRecordInput = {
   gate?: TrajectoryGateResult;
   artifacts?: string[];
   unverified?: boolean;
+  isTier?: string;
+  isRetrievalHit?: boolean;
+  skipLlm?: boolean;
+  domainId?: string;
 };
 
 export function appendTrajectoryRecord(input: AppendTrajectoryRecordInput): TrajectoryRecord {
@@ -60,6 +64,10 @@ export function appendTrajectoryRecord(input: AppendTrajectoryRecordInput): Traj
     ...(input.gate !== undefined ? { gate: input.gate } : {}),
     ...(input.artifacts !== undefined ? { artifacts: input.artifacts } : {}),
     ...(input.unverified !== undefined ? { unverified: input.unverified } : {}),
+    ...(input.isTier !== undefined ? { isTier: input.isTier } : {}),
+    ...(input.isRetrievalHit !== undefined ? { isRetrievalHit: input.isRetrievalHit } : {}),
+    ...(input.skipLlm !== undefined ? { skipLlm: input.skipLlm } : {}),
+    ...(input.domainId !== undefined ? { domainId: input.domainId } : {}),
   };
   mkdirSync(dirname(input.filePath), { recursive: true });
   appendFileSync(input.filePath, `${JSON.stringify(record)}\n`, "utf8");

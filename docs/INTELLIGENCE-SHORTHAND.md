@@ -95,7 +95,9 @@ else if domain_adapter_trained    → IS-T2 (LoRA on base)
 else                              → IS-T1/T0 (general model proposes)
 ```
 
-Implemented in `@chrysalis/web-llm`: `preferredShorthandTierForTask()`, `buildSkillCapsuleFromShard()`. MCP tool: `web_llm_preferred_shorthand_tier`.
+Implemented in `@chrysalis/web-llm`: `preferredShorthandTierForTask()`, `buildSkillCapsuleFromShard()`, **`resolveShorthandForTask()`** (runtime protocol). MCP tools: `web_llm_preferred_shorthand_tier`, **`web_llm_resolve_shorthand`**.
+
+**Runtime protocol:** [`INTELLIGENCE-SHORTHAND-PROTOCOL.md`](./INTELLIGENCE-SHORTHAND-PROTOCOL.md) (**G8600**)
 
 ---
 

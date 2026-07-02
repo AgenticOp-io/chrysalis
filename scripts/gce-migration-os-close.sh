@@ -22,6 +22,10 @@ run_phase intelligence-shorthand-close \
   env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 \
   pnpm run hub:intelligence-shorthand-close-smoke
 
+run_phase is-runtime-close \
+  env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 \
+  pnpm run hub:is-runtime-close-smoke
+
 run_phase migration-os-close \
   env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 \
   pnpm run hub:migration-os-close-smoke

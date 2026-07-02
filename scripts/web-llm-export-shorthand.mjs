@@ -101,7 +101,11 @@ export async function exportIntelligenceShorthands(opts = {}) {
   }
 
   const shorthands = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
+  const promotedShorthands = mod.promoteShorthandsByDomain(shorthands);
   const summary = mod.summarizeIntelligenceShorthands(shorthands);
+  const promotedSummary = mod.summarizeIntelligenceShorthands(promotedShorthands);
+  const domainIds = entries.map((e) => e.id);
+  const tierRouting = mod.summarizeTierRoutingForDomains(domainIds, shorthands);
 
   const outDir = join(repoRoot, "reports/web-llm/shorthand");
   const federationDir = join(repoRoot, "reports/federation/shorthand");
@@ -112,8 +116,12 @@ export async function exportIntelligenceShorthands(opts = {}) {
     kind: INTELLIGENCE_SHORTHAND_EXPORT_KIND,
     schemaVersion: INTELLIGENCE_SHORTHAND_EXPORT_SCHEMA_VERSION,
     count: shorthands.length,
+    promotedCount: promotedShorthands.length,
     summary,
+    promotedSummary,
+    tierRouting,
     shorthands,
+    promotedShorthands,
     indexEntryCount: entries.length,
     generatedAt: new Date().toISOString(),
   };
@@ -139,8 +147,12 @@ export async function exportIntelligenceShorthands(opts = {}) {
     schemaVersion: INTELLIGENCE_SHORTHAND_EXPORT_SCHEMA_VERSION,
     ok,
     count: shorthands.length,
+    promotedCount: promotedShorthands.length,
     summary,
+    promotedSummary,
+    tierRouting,
     shorthands,
+    promotedShorthands,
     jsonPath,
     jsonlPath: jsonlOut,
     federationPath,

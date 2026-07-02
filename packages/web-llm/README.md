@@ -13,6 +13,7 @@ Open **website LLM framework** scaffolding for Chrysalis: verify-gated agent tra
 - `buildWebVerifyLeaderboard`, `renderLeaderboardHtml`
 - `logWebLlmSmokeGate`, `isWebLlmTrajectoryLoggingEnabled`
 - `chrysalisAgentToolDefinitions`, `findAgentTool`
+- `resolveShorthandForTask`, `promoteShorthandsByDomain`, `loadIntelligenceShorthandsFromRepo` (IS runtime protocol)
 - `evaluateVerifyGatePolicy`, `VERIFY_GATE_POLICY`
 
 ## Invariants

@@ -7,7 +7,7 @@
 ## Status (2026-06)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Phase 32 Open web-LLM** (**G8290**); **Phase 39 Open Legacy 7th wedge closed** (**G8570**); **Migration OS closed** (**G8550**).
+- **Active lane:** **Phase 40 IS runtime protocol** (**G8600**); **Phase 32 Open web-LLM** (**G8290**); **Migration OS closed** (**G8550**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -167,6 +167,21 @@ Closed: **2026-06-16**
 **Index entry:** `wordpressProbe` → `fixtures/wordpress-probe`  
 **Regression:** `hub:site-port-open-legacy-wedge-smoke` (**G8570**)  
 **Composed in:** `hub:site-port-open-legacy-close-smoke` (**G8520** v2)
+
+---
+
+## Active — Phase 40 IS runtime protocol (G8600)
+
+Program doc: [`docs/INTELLIGENCE-SHORTHAND-PROTOCOL.md`](./docs/INTELLIGENCE-SHORTHAND-PROTOCOL.md)  
+Authority: **DESIGN D6295**  
+Requires: **G8560** export corpus
+
+| Phase | Goal | Close gate |
+| --- | --- | --- |
+| **40a** | Tier retrieval, skip-LLM routing, trajectory tier logging | **G8600** |
+
+**Regression:** `pnpm run hub:is-runtime-close-smoke` (**G8600**)  
+**Composed in:** `hub:migration-os-close-smoke` (**G8550** v3)
 
 ---
 

@@ -21,6 +21,7 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Open Legacy wedge regression** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **Web-LLM framework** | **G8290** | `hub:open-web-llm-close-smoke` |
 | **Intelligence Shorthand (CPU)** | **G8560** | `hub:intelligence-shorthand-close-smoke` |
+| **IS runtime protocol** | **G8600** | `hub:is-runtime-close-smoke` |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
 **Program docs:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md)

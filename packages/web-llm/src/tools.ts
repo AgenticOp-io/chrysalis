@@ -134,8 +134,28 @@ export function chrysalisAgentToolDefinitions(): AgentToolDefinition[] {
             type: "boolean",
             description: "Task requires novel language not in policy/oracle (needs LoRA or base model)",
           },
+          domainId: { type: "string", description: "Open Legacy domain id — uses corpus when set" },
+          repoRoot: { type: "string", description: "Repo root for shorthand index lookup" },
         },
         required: ["hasOracleReplay", "hasPolicyGraph", "needsNovelLanguage"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "web_llm_resolve_shorthand",
+      description:
+        "Resolve Intelligence Shorthand tier + capsule for a chartered domain from the verify-gated corpus (IS runtime protocol).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          domainId: { type: "string", description: "Open Legacy index domain id (e.g. tinyBlog)" },
+          needsNovelLanguage: {
+            type: "boolean",
+            description: "When true, may route to IS-T2+ (LoRA/base model)",
+          },
+          repoRoot: { type: "string", description: "Repo root; defaults to cwd" },
+        },
+        required: ["domainId"],
         additionalProperties: false,
       },
     },

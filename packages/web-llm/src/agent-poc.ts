@@ -79,6 +79,7 @@ export async function runAgentPocScenario(
           ? { toolOutput: result.detail ?? result.stdout?.slice(0, 500) }
           : {}),
         gate: { name: s.tool, ok },
+        ...extractIsRuntimeFields(s.tool, result.detail),
       });
     } else {
       const check = await runPocCheck(s, opts.repoRoot);
@@ -119,6 +120,28 @@ export async function runAgentPocScenario(
     gateName: scenario.gateName,
     stepResults,
     sessionId,
+  };
+}
+
+function extractIsRuntimeFields(
+  toolName: string,
+  detail: unknown,
+): { isTier?: string; isRetrievalHit?: boolean; skipLlm?: boolean; domainId?: string } {
+  if (
+    toolName !== "web_llm_resolve_shorthand" &&
+    toolName !== "web_llm_preferred_shorthand_tier"
+  ) {
+    return {};
+  }
+  if (!detail || typeof detail !== "object") return {};
+  const d = detail as Record<string, unknown>;
+  const tier = typeof d.tier === "string" ? d.tier : undefined;
+  const domainId = typeof d.domainId === "string" ? d.domainId : undefined;
+  return {
+    ...(tier ? { isTier: tier } : {}),
+    ...(typeof d.retrievalHit === "boolean" ? { isRetrievalHit: d.retrievalHit } : {}),
+    ...(typeof d.skipLlm === "boolean" ? { skipLlm: d.skipLlm } : {}),
+    ...(domainId ? { domainId } : {}),
   };
 }
 

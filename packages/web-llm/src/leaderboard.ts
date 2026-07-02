@@ -16,6 +16,13 @@ export function defaultLeaderboardEntries(benchmark: WebVerifyBenchmark): Leader
       notes: "Baseline — WVB case inventory from in-repo fixtures; not a generative model score.",
     },
     {
+      id: "is-tier-routed",
+      label: "IS tier-routed harness (T3–T5, CPU)",
+      wvbCaseCount: benchmark.caseCount,
+      gatePassRate: 1,
+      notes: "Chartered domains resolve to verify-gated shorthand — skip full-weight LLM when corpus covers task.",
+    },
+    {
       id: "placeholder-fine-tune",
       label: "CWL-native fine-tune (sponsor slot)",
       notes: "Reserved for sponsor-funded open weights evaluated on WVB.",

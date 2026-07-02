@@ -51,6 +51,7 @@ export function buildGcePhaseList(opts = {}) {
     "hub-completion-gate",
     "hub-knowledge",
     "intelligence-shorthand-close",
+    "is-runtime-close",
     "migration-os-close",
     "open-web-llm-close",
     "wisp-web-llm-poc-close",

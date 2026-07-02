@@ -10,6 +10,7 @@ import { existsSync, unlinkSync } from "node:fs";
 import { evaluateSitePortVerifyGate, logSitePortStep, resolveSitePortTrajectoryPath, SITE_PORT_GATE_NAMES } from "../src/site-port.js";
 import { buildWvbCasesForWorkUnit, mergeWvbWithFederationCases, pickBestSubmissionsByContributorFixture, validateFederationSubmission, validateFederationShard } from "../src/federation.js";
 import { buildSkillCapsuleFromShard, buildOracleRefShorthandFromPortReport, buildPolicyGraphShorthandFromPortReport, preferredShorthandTierForTask, summarizeIntelligenceShorthands, validateIntelligenceShorthand } from "../src/shorthand.js";
+import { promoteShorthandsByDomain, resolveShorthandForTask, tierRank } from "../src/shorthand-retrieval.js";
 import { WEB_LLM_TRAINING_SHARD_KIND, WEB_LLM_TRAINING_SHARD_SCHEMA_VERSION } from "../src/kinds.js";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
@@ -69,7 +70,8 @@ describe("@chrysalis/web-llm", () => {
     expect(names).toContain("web_llm_export_dataset");
     expect(names).toContain("web_llm_export_shorthand");
     expect(names).toContain("web_llm_preferred_shorthand_tier");
-    expect(tools.length).toBeGreaterThanOrEqual(10);
+    expect(names).toContain("web_llm_resolve_shorthand");
+    expect(tools.length).toBeGreaterThanOrEqual(11);
   });
 
   test("preferredShorthandTierForTask selects lowest verify tier", () => {
@@ -94,6 +96,31 @@ describe("@chrysalis/web-llm", () => {
         needsNovelLanguage: true,
       }),
     ).toBe("IS-T2-lora-delta");
+  });
+
+  test("resolveShorthandForTask promotes highest tier and skipLlm", () => {
+    const t5 = buildOracleRefShorthandFromPortReport("tinyBlog", {
+      ok: true,
+      verify: { ok: true, correctness: 1 },
+    });
+    const t4 = buildPolicyGraphShorthandFromPortReport("tinyBlog", {
+      ok: true,
+      cwl: { ok: true, cwlPath: "fixtures/tiny-blog/routes.cwl", routeCount: 5 },
+    });
+    expect(t5).not.toBeNull();
+    expect(t4).not.toBeNull();
+    const shorthands = [t4!, t5!];
+    const promoted = promoteShorthandsByDomain(shorthands);
+    expect(promoted.length).toBe(1);
+    expect(promoted[0]?.tier).toBe("IS-T5-oracle-ref");
+    const resolved = resolveShorthandForTask({
+      domainId: "tinyBlog",
+      shorthands,
+      needsNovelLanguage: false,
+    });
+    expect(resolved.retrievalHit).toBe(true);
+    expect(resolved.skipLlm).toBe(true);
+    expect(tierRank(resolved.tier)).toBeLessThanOrEqual(tierRank("IS-T3-skill-capsule"));
   });
 
   test("benchmarkCaseToEvalPrompt mentions verify", () => {

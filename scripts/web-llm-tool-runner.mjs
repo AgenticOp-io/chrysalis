@@ -95,6 +95,17 @@ export async function callWebLlmTool(repoRoot, name, args = {}) {
       return { ok: r.ok, stdout: JSON.stringify(r, null, 2), detail: r, stderr: "" };
     }
     case "web_llm_preferred_shorthand_tier": {
+      if (args.domainId && typeof args.domainId === "string") {
+        const shorthands = mod.loadIntelligenceShorthandsFromRepo(
+          args.repoRoot ? String(args.repoRoot) : repoRoot,
+        );
+        const resolved = mod.resolveShorthandForTask({
+          domainId: String(args.domainId),
+          shorthands,
+          needsNovelLanguage: args.needsNovelLanguage === true,
+        });
+        return { ok: true, stdout: JSON.stringify(resolved, null, 2), detail: resolved, stderr: "" };
+      }
       const tier = mod.preferredShorthandTierForTask({
         hasOracleReplay: args.hasOracleReplay === true,
         hasPolicyGraph: args.hasPolicyGraph === true,
@@ -103,6 +114,17 @@ export async function callWebLlmTool(repoRoot, name, args = {}) {
       const spec = mod.tierSpec(tier);
       const body = { tier, spec };
       return { ok: true, stdout: JSON.stringify(body, null, 2), detail: body, stderr: "" };
+    }
+    case "web_llm_resolve_shorthand": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const shorthands = mod.loadIntelligenceShorthandsFromRepo(root);
+      const resolved = mod.resolveShorthandForTask({
+        domainId: String(args.domainId ?? ""),
+        shorthands,
+        needsNovelLanguage: args.needsNovelLanguage === true,
+      });
+      const ok = Boolean(args.domainId) && resolved.retrievalHit === true;
+      return { ok, stdout: JSON.stringify(resolved, null, 2), detail: resolved, stderr: "" };
     }
     case "web_llm_record_trajectory": {
       if (args.role === "assistant" && args.gateOk !== true && args.unverified !== true) {
@@ -118,6 +140,10 @@ export async function callWebLlmTool(repoRoot, name, args = {}) {
           ? { name: String(args.gateName), ok: args.gateOk === true }
           : undefined,
         unverified: args.unverified === true,
+        isTier: args.isTier ? String(args.isTier) : undefined,
+        isRetrievalHit: args.isRetrievalHit === true ? true : undefined,
+        skipLlm: args.skipLlm === true ? true : undefined,
+        domainId: args.domainId ? String(args.domainId) : undefined,
       });
       return { ok: true, stdout: JSON.stringify(record, null, 2), detail: record, stderr: "" };
     }

@@ -253,6 +253,7 @@
     "web-llm:export-shorthand": "node scripts/web-llm-export-shorthand.mjs",
     "web-llm:build-shorthand-hub": "node scripts/web-llm-build-shorthand-hub.mjs",
     "hub:intelligence-shorthand-close-smoke": "node scripts/hub-ingest/hub-intelligence-shorthand-close-smoke.mjs",
+    "hub:is-runtime-close-smoke": "node scripts/hub-ingest/hub-is-runtime-close-smoke.mjs",
     "web-llm:record-trajectory": "node scripts/web-llm-record-trajectory.mjs",
     "web-llm:mcp-server": "node scripts/web-llm-mcp-server.mjs",
     "web-llm:run-poc": "node scripts/web-llm-run-poc.mjs",

@@ -21,6 +21,11 @@ export type TrajectoryRecord = {
   gate?: TrajectoryGateResult;
   artifacts?: string[];
   unverified?: boolean;
+  /** Intelligence Shorthand tier chosen for this step (IS runtime protocol). */
+  isTier?: string;
+  isRetrievalHit?: boolean;
+  skipLlm?: boolean;
+  domainId?: string;
 };
 
 export type WebVerifyBenchmarkCase = {
