@@ -17,6 +17,7 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | --- | --- | --- |
 | **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` |
 | **Unified WISP + web-LLM POC** | **G8310** | `hub:wisp-web-llm-poc-close-smoke` (+ `CHRYSALIS_G8310_LIVE=1` for live) |
+| **WISP GCE live anchors** | **G8320** | `hub:wisp-poc-live-smoke` · GCE: `test:gce:migration-os:wisp-live` |
 | **Open Legacy wedge regression** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **Web-LLM framework** | **G8290** | `hub:open-web-llm-close-smoke` |
 | **Intelligence Shorthand (CPU)** | **G8560** | `hub:intelligence-shorthand-close-smoke` |
