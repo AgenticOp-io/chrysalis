@@ -8,6 +8,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** maintenance **G8550** / **G8570** / **G6731** (see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)).
+- **Active (2026-07-03):** **Phase 42 LLM-assisted convert** (**G8800** → **G8830**) — verify-gated propose only; subordinate to maintenance (**D6302**).
 - **Closed (2026-07-03):** **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
@@ -564,6 +565,19 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G7103 B53 `str_repeat(, literal)` | `runIrHelperLiftingB53StrRepeatInlineGate` |
 | G7104 B54 `str_pad(, literal, literal)` | `runIrHelperLiftingB54StrPadInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
+
+---
+
+## Active — Phase 42 LLM-assisted convert (G8800–G8830)
+
+**Authority:** [`docs/LLM-ASSISTED-CONVERT-PROGRAM.md`](./docs/LLM-ASSISTED-CONVERT-PROGRAM.md) (**D6302**); verify-gated propose layer — subordinate to **G8550**.
+
+| Gate | Goal | Smoke (planned) |
+| --- | --- | --- |
+| **G8800** | Program entry + governance | doc + **D6302** |
+| **G8810** | IS-routed convert assist on hub translate/ingest | extend **G8600** |
+| **G8820** | Operator MCP convert workflow | **G8290** / **G8310** regression |
+| **G8830** | Program close composite | `hub:llm-assisted-convert-close-smoke` (future) |
 
 ---
 

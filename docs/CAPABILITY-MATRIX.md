@@ -10,7 +10,7 @@ This matrix is how we **talk honestly** about what Chrysalis can do today versus
 
 | Tier | Customer promise | Proof bar |
 | --- | --- | --- |
-| **Oracle product** | Migrate a real PHP backend slice with behavioral evidence | Oracle capture → ingest → emit → **verify replay** on traces |
+| **Oracle product** | Migrate a real backend slice with behavioral evidence | Oracle capture → ingest → emit → **verify replay** on traces |
 | **Structural plumbing** | Lift/emit toy or literal routes without holes; optional trace replay | Hub gold suites; matrix pair is **gold** but not oracle |
 | **Scaffold / advisory** | Planning, route shells, file-lift, path knowledge | Pattern-lift, migration planner, scans — **no** verify SLA |
 | **Paused** | Do not sell | No oracle flagship; no real-app depth |
@@ -19,7 +19,23 @@ This matrix is how we **talk honestly** about what Chrysalis can do today versus
 
 ---
 
-## Oracle product pairs (7)
+## Core matrix oracle product (72 pairs — Phase 41 closed)
+
+**Program:** [`FULL-MATRIX-ORACLE-PROGRAM.md`](./FULL-MATRIX-ORACLE-PROGRAM.md) closed at **G8790** (**D6301**, 2026-07-03).
+
+| Scope | Count | Proof |
+| --- | --- | --- |
+| Core 9×9 language pairs (CWL, C#, Go, Java, JS, PHP, Python, Ruby, TS) | **72** directed | Gold fixtures + **trace replay** on each pair |
+| Regression smoke | — | `pnpm run hub:full-matrix-oracle-close-smoke` |
+| Progress census | — | `pnpm run hub:full-matrix-oracle-progress-smoke` (**G8701**) |
+
+**Honest limit:** These 72 pairs are **gold-fixture oracle product** — not full production parity on arbitrary customer repos. The open hub grid is larger (see below).
+
+---
+
+## Flagship oracle product pairs (customer routes)
+
+Separate from the core 72 matrix, these are **real-app / flagship** oracle routes we sell today:
 
 | Origin | Output | Fixture / program | Verify |
 | --- | --- | --- | --- |
@@ -30,12 +46,19 @@ This matrix is how we **talk honestly** about what Chrysalis can do today versus
 | PHP | Hono | `fixtures/hub-flagship-plain-php` | `hub-plain-php-flagship` (plain procedural PHP) |
 | PHP | Hono | `fixtures/hub-flagship-symfony` | `hub-symfony-flagship` (Symfony layout pilot) |
 | JavaScript | Hono | `fixtures/hub-flagship-express` | `hub-node-express-oracle-verify` (live Express + replay) |
+| PHP | Hono | `fixtures/mysqli-probe` | SQL expansion (mysqli/SQLite3); verify replay |
 
 ### Oracle micro-fixture (G176)
 
 The canonical **oracle micro surface** is **`fixtures/tiny-blog`** (5 routes): ingest, hono/fastify/nextjs emit, migration-debt verify, and optional WPTP Next.js trace replay. Metadata: `pnpm run hub:oracle-micro-fixture`. Override path: `CHRYSALIS_ORACLE_MICRO_FIXTURE`.
 
-All other **575×26** hub routes are **structural**, **scaffold**, or **asset** tiers unless listed in `hub-capability-matrix.json`.
+---
+
+## Open hub grid (601 directed pairs)
+
+The Translation Hub catalog exposes **601** directed origin→output pairs (24 origins × 26 outputs minus identity overlaps; **`svelte`** is origin-only). Machine count: `hubDirectedPairCount()` in `language-catalog.mjs`.
+
+All pairs **not** listed above as oracle product are **structural**, **scaffold**, or **asset** tiers unless promoted with trace oracle evidence. **Do not** headline “601 languages production-ready.”
 
 ---
 
@@ -43,10 +66,11 @@ All other **575×26** hub routes are **structural**, **scaffold**, or **asset** 
 
 | Artifact | Tier implied | Notes |
 | --- | --- | --- |
+| `hub-capability-matrix.json` `fullMatrixOracle` | Oracle (core 72) | Phase 41 census; `programComplete: true` |
 | `hub-completion.json` `phpOracleSmoke` | Oracle | tiny-blog ingest + emit + verify debt |
 | `hub-completion.json` `goldVerify` / `traceReplay` | Structural | 119+ structural suites; 93+ trace suites |
 | `hub-gold-coverage.json` `coverageGaps` | Packaging truth | oracle tier without chrysalis CI gold |
-| `hub-path-knowledge.json` | Scaffold | Planning only |
+| `hub-path-knowledge.json` | Scaffold | Planning only (601-pair grid) |
 | `hub-migration-plan` API | Scaffold | Steps, not correctness proof |
 
 ---
@@ -60,17 +84,18 @@ All other **575×26** hub routes are **structural**, **scaffold**, or **asset** 
 | 2 | Evidence dashboard, migration programs, contract export | **G90–G98**, **G114** trend |
 | 3 | CWL RFC 0005–0007+, project-to-CWL on translate | **G99–G106** |
 | 4 | Second oracle (Node/Express flagship) | **G110–G112**, **G115** matrix |
-| 4+ | CWL body round-trip + hub-translate E2E on plain-php flagship | **G191–G200** (matrix schema v4) |
-| 4++ | CWL RFC 0004/7/8 runtime + roundtrip + delivery pipeline smokes | **G201–G230** (matrix schema v5, completion v47) |
+| 41 | Core 9×9 matrix oracle product | **G8790** closed |
+| 42 | LLM-assisted convert (verify-gated propose) | **G8800** active — [`LLM-ASSISTED-CONVERT-PROGRAM.md`](./LLM-ASSISTED-CONVERT-PROGRAM.md) |
 
-**Matrix schema v5** adds RFC 0004 request-context, RFC 0007 auth-effects, RFC 0008 content-type runtime smokes, contract roundtrip, delivery pipeline bundle, verify playbooks, and hub runner metadata.
+**Matrix schema v38** adds `fullMatrixOracle` (72-pair census), hub directed pair count (601), and Phase 42 program pointer.
 
 ---
 
 ## External copy (approved)
 
 - **Say:** “Verified PHP backend migration with oracle replay and dual-stack cutover.”
+- **Say:** “72 core language pairs with gold-fixture trace oracle evidence (Phase 41).”
 - **Say:** “Translation Hub operations for multi-site programs with evidence dashboards.”
-- **Do not say:** “575 languages production-ready” or “convert any website.”
+- **Do not say:** “601 languages production-ready” or “convert any website.”
 
 See also: `docs/STRATEGIC-PLAN.md`, `docs/HUB-CROSS-LANGUAGE-SYNTHESIS.md`, `docs/CWL.md`.

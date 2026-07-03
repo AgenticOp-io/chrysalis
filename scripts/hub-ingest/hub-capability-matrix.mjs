@@ -7,11 +7,13 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
+import { runFullMatrixOracleProgressGate } from "./hub-full-matrix-oracle-progress-smoke.mjs";
+import { hubDirectedPairCount } from "./language-catalog.mjs";
 
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 37;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 38;
 
 /** Customer / flagship routes eligible for Phase 10 matrix expansion (not vanity pairs). */
 export const MATRIX_CUSTOMER_ROUTES = [
@@ -69,6 +71,8 @@ export function buildHubCapabilityMatrixReport() {
   const coverage = buildHubGoldCoverageReport();
   const structuralSuiteCount = hubGoldStructuralSuiteIds().length;
   const traceReplaySuiteCount = hubGoldTraceReplaySuiteIds().length;
+  const matrixOracle = runFullMatrixOracleProgressGate();
+  const hubDirectedPairs = hubDirectedPairCount();
   const oraclePairs = ORACLE_PRODUCT_PAIRS.map((p) => ({
     ...p,
     tier: "oracle-product",
@@ -101,6 +105,27 @@ export function buildHubCapabilityMatrixReport() {
       },
     },
     coverage: coverage.summary,
+    hubDirectedPairs,
+    fullMatrixOracle: {
+      program: "Phase 41 — Full matrix oracle product",
+      doc: "docs/FULL-MATRIX-ORACLE-PROGRAM.md",
+      closedGate: "G8790",
+      regressionSmoke: "pnpm run hub:full-matrix-oracle-close-smoke",
+      progressSmoke: "pnpm run hub:full-matrix-oracle-progress-smoke",
+      corePairCount: matrixOracle.expectedPairCount ?? 72,
+      oracleProductCount: matrixOracle.oracleProductCount ?? 0,
+      programComplete: matrixOracle.programComplete === true,
+      targetTier: matrixOracle.targetTier ?? "oracle-product",
+      note: "Gold-fixture trace replay on 9×9 core languages — not 601-pair production parity",
+    },
+    llmAssistedConvert: {
+      program: "Phase 42 — LLM-assisted convert",
+      doc: "docs/LLM-ASSISTED-CONVERT-PROGRAM.md",
+      entryGate: "G8800",
+      closeGate: "G8830",
+      status: "active",
+      invariant: "models propose; WebIR + oracle + verify dispose",
+    },
     oracleMicroFixture: {
       fixture: ORACLE_MICRO_FIXTURE,
       script: "pnpm run hub:oracle-micro-fixture",
@@ -471,7 +496,7 @@ export function buildHubCapabilityMatrixReport() {
     },
     externalCopy: {
       headline: "Verified PHP backend migration with oracle replay",
-      avoid: ["575 languages without oracle evidence", "convert any website without oracle"],
+      avoid: ["601 languages without oracle evidence", "575 languages production-ready", "convert any website without oracle"],
       multiLanguageEvidencePath: "second-oracle-flagship",
       matrixExpansionPolicy: "customer-route-or-flagship-only",
     },

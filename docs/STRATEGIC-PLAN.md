@@ -421,17 +421,20 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-06-26 (WISP production POC — D6270):** Phase **28** active after **G7790**: operator HTTP contracts, post-G7790 pipeline, integration client UI, honest oracle trace pilot; program close **G7890**. See [`WISP-PRODUCTION-POC-PROGRAM.md`](./WISP-PRODUCTION-POC-PROGRAM.md).
 
+**Amended 2026-07-03 (Phase 42 LLM-assisted convert — D6302):** Phase **42** active at **G8800**: bounded verify-gated LLM propose layer on convert workflows — **not** a bypass around WebIR/ingest/emit/oracle. Subordinate to **G8550** maintenance. See [`LLM-ASSISTED-CONVERT-PROGRAM.md`](./LLM-ASSISTED-CONVERT-PROGRAM.md).
+
 ---
 
-## 12. Default queue (maintenance — post Phase 41 close)
+## 12. Default queue (maintenance — post Phase 41 close; Phase 42 optional)
 
-**Status:** **Phase 41 closed** (**G8790**, **D6301** — 2026-07-03); **Phase 32 closed** (**G8290**); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
+**Status:** **Phase 41 closed** (**G8790**, **D6301** — 2026-07-03); **Phase 42 active** (**G8800**, **D6302** — user-amended 2026-07-03); **Phase 32 closed** (**G8290**); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
 
 When the user says "build" without specifying:
 
 1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600**)
 2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
 3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (subordinate)
+4. **Phase 42 optional** — [`LLM-ASSISTED-CONVERT-PROGRAM.md`](./LLM-ASSISTED-CONVERT-PROGRAM.md): **G8810** IS-routed convert assist → **G8820** operator MCP → **G8830** close (after maintenance green)
 
 **Closed program regression:** `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:open-web-llm-close-smoke` (**G8290**) · `hub:is-runtime-close-smoke` (**G8600**) · `hub:cwl-universal-translator-close-smoke` (**G7690**)
 

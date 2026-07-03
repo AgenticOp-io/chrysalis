@@ -28,6 +28,20 @@ if [[ -f "${PIDFILE}" ]]; then
   rm -f "${PIDFILE}"
 fi
 
+# Shared VM: another user's operator may still hold PORT (stale ~/.chrysalis-status-server.pid).
+free_port() {
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -k "${PORT}/tcp" 2>/dev/null || true
+  fi
+  if command -v ss >/dev/null 2>&1 && ss -tln "sport = :${PORT}" 2>/dev/null | grep -q LISTEN; then
+    if command -v fuser >/dev/null 2>&1; then
+      sudo fuser -k "${PORT}/tcp" 2>/dev/null || true
+    fi
+  fi
+  sleep 1
+}
+free_port
+
 export CHRYSALIS_STATUS_PORT="${PORT}"
 export CHRYSALIS_STATUS_BIND="${BIND}"
 export CHRYSALIS_STATUS_REPO="${REPO}"
