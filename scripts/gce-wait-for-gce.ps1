@@ -22,6 +22,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
 $statusScript = Join-Path $PSScriptRoot "gce-test-status.ps1"
 $fetchScript = Join-Path $PSScriptRoot "gce-fetch-reports.ps1"
 $runScript = Join-Path $PSScriptRoot "gce-run-all-tests.ps1"
@@ -36,7 +37,8 @@ WORKER_PID=$(pgrep -f 'bash scripts/gce-run-all-tests.sh|bash scripts/gce-resume
 if [ -n "$WORKER_PID" ] && kill -0 "$WORKER_PID" 2>/dev/null; then ALIVE=1; fi
 if [ "$ALIVE" -eq 1 ]; then echo ALIVE; else echo DEAD; fi
 '@
-  $out = & gcloud compute ssh $Name --zone=$Zone --project=$Project @Extra --command=$remote 2>&1
+  $gcloudArgs = Build-ChrysalisGceSshArgs -Name $Name -Zone $Zone -Project $Project -Command $remote -Extra $Extra
+  $out = & gcloud @gcloudArgs 2>&1
   if ($LASTEXITCODE -ne 0) { throw "gcloud ssh failed: $out" }
   $lines = $out -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ }
   [pscustomobject]@{

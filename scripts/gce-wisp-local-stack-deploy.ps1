@@ -27,9 +27,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
-$env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
 
@@ -103,7 +102,7 @@ try {
   } else { "" }
   $remoteCmd = "set -e; ${sidecarSetup} mkdir -p ~/wisp-cwl-poc; tar -xzf ~/wisp-cwl-poc.tgz -C ~/wisp-cwl-poc; chmod +x ~/gce-wisp-chimera-bootstrap.sh; export WISP_BACKEND_URL='$BackendUrl'; export WISP_CWL_POC_PORT=$Port; $svelteEnv ~/gce-wisp-chimera-bootstrap.sh"
   Write-Host "Starting chimera gateway on ${Name}..."
-  & gcloud compute ssh $Name --zone=$Zone --project=$Project @sshExtra --command=$remoteCmd
+  Invoke-ChrysalisGceSsh -Name $Name -Zone $Zone -Project $Project -Extra $sshExtra -Command $remoteCmd
 
   $ip = (& gcloud compute instances describe $Name --zone=$Zone --project=$Project --format="get(networkInterfaces[0].accessConfigs[0].natIP)" 2>$null | Out-String).Trim()
   $baseUrl = "http://${ip}:${Port}"

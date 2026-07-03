@@ -24,8 +24,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
 $VmName = $Name
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
@@ -51,19 +51,18 @@ function Sync-MigrationOsRunnerScripts {
     & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$local" $remote
     if ($LASTEXITCODE -ne 0) { throw "scp failed for $name" }
   }
-  $chmodArgs = @(
-    "compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project"
-  ) + $sshExtra + @(
-    "--command=chmod +x ~/chrysalis-test/scripts/gce-migration-os-close.sh ~/chrysalis-test/scripts/gce-migration-os-only.sh && sed -i 's/\r$//' ~/chrysalis-test/scripts/gce-migration-os-close.sh ~/chrysalis-test/scripts/gce-migration-os-only.sh"
-  )
+  $chmodArgs = Build-ChrysalisGceSshArgs -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command "chmod +x ~/chrysalis-test/scripts/gce-migration-os-close.sh ~/chrysalis-test/scripts/gce-migration-os-only.sh && sed -i 's/\r$//' ~/chrysalis-test/scripts/gce-migration-os-close.sh ~/chrysalis-test/scripts/gce-migration-os-only.sh"
   Invoke-Gcloud -GcloudArgs $chmodArgs
 }
 
 if ($Status) {
   $remote = 'if test -f ~/chrysalis-test/reports/ci/gce-migration-os.ok; then echo STATUS_OK; else echo STATUS_RUNNING; fi; pgrep -af gce-migration-os 2>/dev/null | head -3 || true; tail -n 25 ~/chrysalis-test/reports/ci/gce-phase-migration-os-close.log 2>/dev/null || tail -n 25 ~/chrysalis-test/reports/ci/gce-migration-os-run.log 2>/dev/null || echo no_log'
-  $gcloudArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command", $remote)
-  & gcloud @gcloudArgs
-  exit $LASTEXITCODE
+  try {
+    Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $remote
+    exit 0
+  } catch {
+    exit 1
+  }
 }
 
 if ($FetchReports) {
@@ -99,8 +98,7 @@ nohup bash scripts/gce-migration-os-only.sh </dev/null >>reports/ci/gce-migratio
 sleep 2
 if pgrep -f gce-migration-os-only.sh >/dev/null 2>&1; then echo 'started migration-os worker'; else echo 'WARN: worker not found (check gce-migration-os-run.log)'; fi
 "@
-  $gcloudArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command=$start")
-  Invoke-Gcloud -GcloudArgs $gcloudArgs
+  Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $start
   Write-Host ""
   Write-Host "Detached. Status:  pnpm run test:gce:migration-os:status"
   Write-Host "Fetch logs:      pnpm run test:gce:fetch"
@@ -109,7 +107,5 @@ if pgrep -f gce-migration-os-only.sh >/dev/null 2>&1; then echo 'started migrati
 
 Write-Host "=== Run Migration OS close on ${VmName} (foreground) ==="
 $foreground = "cd ~/chrysalis-test && ${remoteEnv} bash scripts/gce-migration-os-only.sh"
-$gcloudArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command=$foreground")
-Invoke-Gcloud -GcloudArgs $gcloudArgs
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $foreground
 & "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $VmName -OperatorHubs @sshExtra

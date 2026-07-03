@@ -10,6 +10,9 @@ param(
   [string[]] $SshExtra
 )
 
+$ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
+
 $remote = @'
 if test -f ~/chrysalis-test/reports/ci/gce-all-tests.ok; then echo 'STATUS: OK (gce-all-tests.ok present)'; else echo 'STATUS: running or failed (no ok marker)'; fi
 WORKER_PID=$(pgrep -f 'bash scripts/gce-run-all-tests.sh|bash scripts/gce-resume-from-' 2>/dev/null | head -1 || true)
@@ -39,6 +42,9 @@ LATEST=$(ls -t ~/chrysalis-test/reports/ci/gce-phase-*.log 2>/dev/null | head -n
 if test -n "$LATEST"; then tail -n 25 "$LATEST" | sed 's/\x1b\[[0-9;]*m//g' 2>/dev/null || tail -n 25 "$LATEST"; else tail -n 25 ~/chrysalis-test/reports/ci/gce-all-tests.log 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' 2>/dev/null || tail -n 25 ~/gce-all-tests.nohup.log 2>/dev/null || echo '(no log yet)'; fi
 '@
 
-$gcloudArgs = @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + $SshExtra + @("--command", $remote)
-& gcloud @gcloudArgs
-exit $LASTEXITCODE
+try {
+  Invoke-ChrysalisGceSsh -Name $Name -Zone $Zone -Project $Project -Extra $SshExtra -Command $remote
+  exit 0
+} catch {
+  exit 1
+}

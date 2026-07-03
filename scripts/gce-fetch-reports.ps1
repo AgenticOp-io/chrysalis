@@ -12,6 +12,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $localReports = Join-Path $repoRoot "reports\ci"
 New-Item -ItemType Directory -Force -Path $localReports | Out-Null

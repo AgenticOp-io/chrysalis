@@ -20,9 +20,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
-$env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
 $bootstrap = Join-Path $PSScriptRoot "gce-test-vm-bootstrap.sh"
 $finish = Join-Path $PSScriptRoot "gce-hub-finish-deploy.sh"
 $tarball = Join-Path $env:TEMP ("chrysalis-src-" + [guid]::NewGuid().ToString("n") + ".tar.gz")
@@ -52,11 +51,11 @@ export CHRYSALIS_REFRESH_ONLY=1 CHRYSALIS_TEST_USE_TARBALL=1 CHRYSALIS_AUTO_STAR
 ~/gce-test-vm-bootstrap.sh
 "@
 Write-Host "Running refresh bootstrap (+ hub finish)..."
-& gcloud compute ssh $Name --zone=$Zone --project=$Project @sshExtra --command=$remote
+Invoke-ChrysalisGceSsh -Name $Name -Zone $Zone -Project $Project -Extra $sshExtra -Command $remote
 
 # Bootstrap calls finish when SKIP_HUB_FINISH=0; legacy -StartStatusServer if finish skipped
 if ($StartStatusServer -and $SkipHubFinish) {
-  & gcloud compute ssh $Name --zone=$Zone --project=$Project @sshExtra --command="chmod +x ~/chrysalis-test/scripts/gce-chrysalis-status.sh && CHRYSALIS_STATUS_REPO=~/chrysalis-test bash ~/chrysalis-test/scripts/gce-chrysalis-status.sh"
+  Invoke-ChrysalisGceSsh -Name $Name -Zone $Zone -Project $Project -Extra $sshExtra -Command "chmod +x ~/chrysalis-test/scripts/gce-chrysalis-status.sh && CHRYSALIS_STATUS_REPO=~/chrysalis-test bash ~/chrysalis-test/scripts/gce-chrysalis-status.sh"
 }
 
 $ip = (& gcloud compute instances describe $Name --zone=$Zone --project=$Project --format="get(networkInterfaces[0].accessConfigs[0].natIP)" 2>$null | Out-String).Trim()

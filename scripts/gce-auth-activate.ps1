@@ -43,13 +43,39 @@ function Get-ChrysalisGcpSaKeyPath {
 }
 
 function Initialize-ChrysalisGceRemoteClient {
-  # Windows: use OpenSSH so `gcloud compute ssh --command` never opens PuTTY/plink windows
-  # (see docs/HOW-TO.md §25, scripts/gce-wptp-test-vm.ps1, DESIGN D412).
+  # Windows: force OpenSSH so gcloud never spawns PuTTY/plink windows (docs/HOW-TO.md §25, DESIGN D412).
+  $env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
   if ($IsWindows -or $env:OS -eq "Windows_NT") {
-    if (-not $env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH) {
-      $env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"
-    }
+    $env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"
   }
+}
+
+function Build-ChrysalisGceSshArgs {
+  param(
+    [Parameter(Mandatory)][string] $Name,
+    [Parameter(Mandatory)][string] $Zone,
+    [Parameter(Mandatory)][string] $Project,
+    [Parameter(Mandatory)][string] $Command,
+    [string[]] $Extra = @()
+  )
+  Initialize-ChrysalisGceRemoteClient
+  if ([string]::IsNullOrWhiteSpace($Command)) {
+    throw "[chrysalis-gce] Refusing interactive gcloud compute ssh (missing --command)."
+  }
+  @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + $Extra + @("--command=$Command")
+}
+
+function Invoke-ChrysalisGceSsh {
+  param(
+    [Parameter(Mandatory)][string] $Name,
+    [Parameter(Mandatory)][string] $Zone,
+    [Parameter(Mandatory)][string] $Project,
+    [Parameter(Mandatory)][string] $Command,
+    [string[]] $Extra = @()
+  )
+  $gcloudArgs = Build-ChrysalisGceSshArgs -Name $Name -Zone $Zone -Project $Project -Command $Command -Extra $Extra
+  & gcloud @gcloudArgs
+  if ($LASTEXITCODE -ne 0) { throw "gcloud ssh failed: gcloud $($gcloudArgs -join ' ')" }
 }
 
 function Initialize-ChrysalisGceAuth {
@@ -96,6 +122,8 @@ function Initialize-ChrysalisGceAuth {
   }
   return $true
 }
+
+Initialize-ChrysalisGceRemoteClient
 
 if ($MyInvocation.InvocationName -eq '.') {
   return

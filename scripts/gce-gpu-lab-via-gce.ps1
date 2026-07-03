@@ -25,21 +25,12 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
-$env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"
 $repoRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
+Initialize-ChrysalisGceAuth -Project $Project -RepoRoot $repoRoot -Quiet | Out-Null
 $VmName = $Name
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
-
-. (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
-Initialize-ChrysalisGceAuth -Project $Project -RepoRoot $repoRoot -Quiet | Out-Null
-
-function Invoke-Gcloud {
-  param([string[]] $GcloudArgs)
-  & gcloud @GcloudArgs
-  if ($LASTEXITCODE -ne 0) { throw "gcloud failed: gcloud $($GcloudArgs -join ' ')" }
-}
 
 function Sync-GpuLabArtifacts {
   $artNames = @(
@@ -53,10 +44,7 @@ function Sync-GpuLabArtifacts {
   if (-not (Test-Path $shards)) { throw "Missing $shards - run pnpm run gpu-lab:prep" }
 
   Write-Host "=== Sync GPU lab artifacts to ${VmName} ==="
-  $mkdirArgs = @(
-    "compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project"
-  ) + $sshExtra + @("--command=mkdir -p chrysalis-test/gpu-lab-artifacts chrysalis-test/reports/ci")
-  Invoke-Gcloud -GcloudArgs $mkdirArgs
+  Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command "mkdir -p chrysalis-test/gpu-lab-artifacts chrysalis-test/reports/ci"
 
   foreach ($scriptName in $artNames) {
     $local = Join-Path $PSScriptRoot $scriptName
@@ -70,16 +58,17 @@ function Sync-GpuLabArtifacts {
   & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$shards" "${VmName}:chrysalis-test/gpu-lab-artifacts/training-shards.v1.jsonl"
   if ($LASTEXITCODE -ne 0) { throw "scp failed for training-shards" }
 
-  $chmodArgs = @(
-    "compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project"
-  ) + $sshExtra + @("--command=chmod +x chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh && sed -i 's/\r$//' chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh")
-  Invoke-Gcloud -GcloudArgs $chmodArgs
+  Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command "chmod +x chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh && sed -i 's/\r$//' chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh"
 }
 
 if ($Status) {
   $remote = 'if test -f ~/chrysalis-test/reports/ci/gce-gpu-lab.ok; then echo STATUS_OK; else echo STATUS_RUNNING; fi; pgrep -af gce-gpu-lab-orchestrate 2>/dev/null | head -3 || true; tail -n 30 ~/chrysalis-test/reports/ci/gce-gpu-lab.log 2>/dev/null || echo no_log'
-  & gcloud compute ssh $VmName --zone=$Zone --project=$Project @sshExtra --command=$remote
-  exit $LASTEXITCODE
+  try {
+    Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $remote
+    exit 0
+  } catch {
+    exit 1
+  }
 }
 
 if ($FetchReports) {
@@ -122,8 +111,7 @@ nohup bash gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh </dev/null >>reports/ci/
 sleep 2
 if pgrep -f gce-gpu-lab-orchestrate.sh >/dev/null 2>&1; then echo 'started gpu-lab orchestrator'; else echo 'WARN: worker not found'; fi
 "@
-  & gcloud compute ssh $VmName --zone=$Zone --project=$Project @sshExtra --command=$remoteCmd
-  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $remoteCmd
   Write-Host ""
   Write-Host "Detached. Status: pnpm run gpu-lab:gce:status"
   Write-Host "Log on VM:       ~/chrysalis-test/reports/ci/gce-gpu-lab.log"
@@ -132,6 +120,5 @@ if pgrep -f gce-gpu-lab-orchestrate.sh >/dev/null 2>&1; then echo 'started gpu-l
 
 Write-Host "=== Run GPU lab orchestrator on ${VmName} (foreground) ==="
 $remoteCmd = "cd ~/chrysalis-test && export CHRYSALIS_STATUS_REPO=~/chrysalis-test CHRYSALIS_GCE_PROJECT=$Project CHRYSALIS_GPU_LAB_MAX_MINUTES=$maxMin CHRYSALIS_GPU_LAB_DRY_RUN=$dryRun && bash gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh"
-& gcloud compute ssh $VmName --zone=$Zone --project=$Project @sshExtra --command=$remoteCmd
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $remoteCmd
 & "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $VmName @sshExtra

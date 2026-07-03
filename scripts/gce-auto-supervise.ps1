@@ -20,6 +20,7 @@ param(
 $ErrorActionPreference = "Stop"
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $repoRoot = Split-Path -Parent $scriptDir
+. (Join-Path $scriptDir "gce-auth-activate.ps1") | Out-Null
 $logPath = Join-Path $repoRoot "reports/ci/gce-supervise.log"
 $pidFile = Join-Path (Split-Path -Parent $logPath) "gce-supervise.pid"
 $runScript = Join-Path $scriptDir "gce-run-all-tests.ps1"
@@ -50,7 +51,8 @@ echo "PID=$PID"
 echo "PROG=$PROG"
 echo "RESUME=$RESUME"
 '@
-  $out = & gcloud compute ssh $Name --zone=$Zone --project=$Project @Extra --command=$remote 2>&1
+  $gcloudArgs = Build-ChrysalisGceSshArgs -Name $Name -Zone $Zone -Project $Project -Command $remote -Extra $Extra
+  $out = & gcloud @gcloudArgs 2>&1
   if ($LASTEXITCODE -ne 0) { throw "gcloud ssh failed: $out" }
   $kv = @{}
   foreach ($line in ($out | ForEach-Object { "$_".Trim() } | Where-Object { $_ -match '^[A-Z]+=' })) {
@@ -79,7 +81,8 @@ nohup bash scripts/$ResumeScript </dev/null >>reports/ci/gce-all-tests.log 2>&1 
 sleep 2
 if test -f ~/.chrysalis-gce-test.pid; then echo started pid=`$(cat ~/.chrysalis-gce-test.pid); else echo WARN-no-pid; fi
 "@
-  $out = & gcloud compute ssh $Name --zone=$Zone --project=$Project @Extra --command=$start 2>&1
+  $gcloudArgs = Build-ChrysalisGceSshArgs -Name $Name -Zone $Zone -Project $Project -Command $start -Extra $Extra
+  $out = & gcloud @gcloudArgs 2>&1
   Write-SuperviseLog "[gce-supervise] resume output: $($out -join ' | ')"
 }
 

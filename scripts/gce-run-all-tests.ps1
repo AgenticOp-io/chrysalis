@@ -26,11 +26,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
 Initialize-ChrysalisGceAuth -Project $Project -RepoRoot $repoRoot -Quiet | Out-Null
-# $Name is a PowerShell automatic variable inside nested functions; use $VmName for gcloud.
 $VmName = $Name
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
@@ -126,9 +124,7 @@ function Sync-GceRunnerScripts {
     & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$local" $remote
     if ($LASTEXITCODE -ne 0) { throw "scp failed for hub-ingest/$name" }
   }
-  $chmodArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @(
-    "--command=sed -i 's/\r$//' ~/chrysalis-test/scripts/gce-*.sh && chmod +x ~/chrysalis-test/scripts/gce-*.sh"
-  )
+  $chmodArgs = Build-ChrysalisGceSshArgs -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command "sed -i 's/\r$//' ~/chrysalis-test/scripts/gce-*.sh && chmod +x ~/chrysalis-test/scripts/gce-*.sh"
   Invoke-Gcloud -GcloudArgs $chmodArgs
 }
 
@@ -175,8 +171,7 @@ nohup bash scripts/gce-run-all-tests.sh </dev/null >>reports/ci/gce-all-tests.lo
 sleep 1
 if test -f ~/.chrysalis-gce-test.pid; then echo started pid=`$(cat ~/.chrysalis-gce-test.pid); else echo 'WARN: pid file missing (check gce-all-tests.log)'; fi
 "@
-  $gcloudArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command=$start")
-  Invoke-Gcloud -GcloudArgs $gcloudArgs
+  Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $start
   Write-Host ""
   Write-Host "Detached. Status:  pnpm run test:gce:status"
   Write-Host "Fetch logs:     pnpm run test:gce:fetch"
@@ -185,8 +180,5 @@ if test -f ~/.chrysalis-gce-test.pid; then echo started pid=`$(cat ~/.chrysalis-
 
 Write-Host "=== Run tests on ${VmName} (foreground; SSH stays open) ==="
 $foreground = "chmod +x ~/chrysalis-test/scripts/gce-run-all-tests.sh && cd ~/chrysalis-test && ${remoteEnv} bash scripts/gce-run-all-tests.sh"
-$gcloudArgs = @("compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command=$foreground")
-Invoke-Gcloud -GcloudArgs $gcloudArgs
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
+Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $foreground
 & "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $Name @sshExtra

@@ -25,6 +25,7 @@ param(
 $ErrorActionPreference = "Stop"
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $repoRoot = Split-Path -Parent $scriptDir
+. (Join-Path $scriptDir "gce-auth-activate.ps1") | Out-Null
 if (-not $LogPath) { $LogPath = Join-Path $repoRoot "reports/ci/gce-watch.log" }
 $fetchScript = Join-Path $scriptDir "gce-fetch-reports.ps1"
 $pidFile = Join-Path (Split-Path -Parent $LogPath) "gce-watch.pid"
@@ -60,7 +61,8 @@ echo "PROG=$PROG"
 echo "FAILLOG=${FAILLOG:-}"
 if [ -n "$FAILLOG" ]; then echo '---FAIL---'; tail -15 "$FAILLOG" | tr -d '\r'; fi
 '@
-  $out = & gcloud compute ssh $Name --zone=$Zone --project=$Project @Extra --command=$remote 2>&1
+  $gcloudArgs = Build-ChrysalisGceSshArgs -Name $Name -Zone $Zone -Project $Project -Command $remote -Extra $Extra
+  $out = & gcloud @gcloudArgs 2>&1
   if ($LASTEXITCODE -ne 0) {
     return [pscustomobject]@{
       OkMarker = $false
