@@ -72,7 +72,9 @@ describe("@chrysalis/web-llm", () => {
     expect(names).toContain("web_llm_export_shorthand");
     expect(names).toContain("web_llm_preferred_shorthand_tier");
     expect(names).toContain("web_llm_resolve_shorthand");
-    expect(tools.length).toBeGreaterThanOrEqual(11);
+    expect(names).toContain("hub_convert_is_routing");
+    expect(names).toContain("hub_convert_propose_holes");
+    expect(tools.length).toBeGreaterThanOrEqual(13);
   });
 
   test("preferredShorthandTierForTask selects lowest verify tier", () => {

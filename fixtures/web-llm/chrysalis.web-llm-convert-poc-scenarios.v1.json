@@ -1,0 +1,74 @@
+{
+  "kind": "chrysalis.web-llm.convert-poc-scenarios",
+  "schemaVersion": 1,
+  "agenda": "phase-42-llm-assisted-convert",
+  "scenarios": [
+    {
+      "id": "php-hono-convert-verify",
+      "title": "PHP to Hono convert with verify-gated assist",
+      "userPrompt": "Route convert via IS shorthand, ingest tiny-blog, check status, propose holes without auto-apply.",
+      "steps": [
+        {
+          "kind": "tool",
+          "tool": "web_llm_resolve_shorthand",
+          "toolInput": { "domainId": "tinyBlog" }
+        },
+        {
+          "kind": "tool",
+          "tool": "hub_convert_is_routing",
+          "toolInput": {
+            "origin": "php",
+            "output": "hono",
+            "projectDir": "fixtures/tiny-blog"
+          }
+        },
+        {
+          "kind": "tool",
+          "tool": "chrysalis_ingest",
+          "toolInput": { "originDir": "fixtures/tiny-blog", "language": "php" }
+        },
+        {
+          "kind": "tool",
+          "tool": "chrysalis_status",
+          "toolInput": { "projectDir": "fixtures/tiny-blog" }
+        },
+        {
+          "kind": "tool",
+          "tool": "hub_convert_propose_holes",
+          "toolInput": { "projectDir": "fixtures/tiny-blog" }
+        },
+        { "kind": "check", "check": "convert-proposals-never-applied", "projectDir": "fixtures/tiny-blog" },
+        { "kind": "check", "check": "is-tier-skip-llm", "domainId": "tinyBlog" }
+      ],
+      "gateName": "php-hono-convert-verify",
+      "tags": ["G8822", "convert", "CPU"]
+    },
+    {
+      "id": "convert-hole-propose-db-query",
+      "title": "Hole proposals on db-query probe (never apply)",
+      "userPrompt": "Ingest db-query probe and log verify-gated hole proposals without applying patches.",
+      "steps": [
+        {
+          "kind": "tool",
+          "tool": "chrysalis_ingest",
+          "toolInput": {
+            "originDir": "fixtures/db-query-unknown-receiver-probe",
+            "language": "php"
+          }
+        },
+        {
+          "kind": "tool",
+          "tool": "hub_convert_propose_holes",
+          "toolInput": { "projectDir": "fixtures/db-query-unknown-receiver-probe" }
+        },
+        {
+          "kind": "check",
+          "check": "convert-proposals-never-applied",
+          "projectDir": "fixtures/db-query-unknown-receiver-probe"
+        }
+      ],
+      "gateName": "convert-hole-propose-db-query",
+      "tags": ["G8821", "holes", "CPU"]
+    }
+  ]
+}

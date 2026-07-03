@@ -126,6 +126,28 @@ export async function callWebLlmTool(repoRoot, name, args = {}) {
       const ok = Boolean(args.domainId) && resolved.retrievalHit === true;
       return { ok, stdout: JSON.stringify(resolved, null, 2), detail: resolved, stderr: "" };
     }
+    case "hub_convert_is_routing": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const { resolveHubConvertIsRouting } = await import("./hub-ingest/hub-llm-convert-is-routing.mjs");
+      const routing = await resolveHubConvertIsRouting({
+        repoRoot: root,
+        origin: String(args.origin ?? "php"),
+        output: String(args.output ?? "hono"),
+        projectDir: args.projectDir ? String(args.projectDir) : undefined,
+      });
+      const ok = routing.proposeOnly === true && routing.verifyRequired === true;
+      return { ok, stdout: JSON.stringify(routing, null, 2), detail: routing, stderr: "" };
+    }
+    case "hub_convert_propose_holes": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const { proposeHubConvertHolePatches } = await import("./hub-ingest/hub-llm-convert-hole-proposals.mjs");
+      const report = await proposeHubConvertHolePatches({
+        projectDir: resolve(root, String(args.projectDir ?? ".")),
+        domainId: args.domainId ? String(args.domainId) : undefined,
+      });
+      const ok = report.applied === false && report.verifyRequired === true;
+      return { ok, stdout: JSON.stringify(report, null, 2), detail: report, stderr: "" };
+    }
     case "web_llm_record_trajectory": {
       if (args.role === "assistant" && args.gateOk !== true && args.unverified !== true) {
         return { ok: false, stderr: "assistant records require gateOk or unverified", stdout: "" };

@@ -159,6 +159,37 @@ export function chrysalisAgentToolDefinitions(): AgentToolDefinition[] {
         additionalProperties: false,
       },
     },
+    {
+      name: "hub_convert_is_routing",
+      description:
+        "Resolve IS tier routing for a hub convert pair (propose-only; logs trajectory when projectDir set).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          origin: { type: "string", description: "Hub origin language id (e.g. php)" },
+          output: { type: "string", description: "Hub output language id (e.g. hono)" },
+          projectDir: { type: "string", description: "Optional project workspace for trajectory logging" },
+          repoRoot: { type: "string" },
+        },
+        required: ["origin", "output"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "hub_convert_propose_holes",
+      description:
+        "Propose hole patches for a translated project — verify-gated, never auto-applied (Phase 42 convert assist).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectDir: { type: "string", description: "Project directory with ingest/status holes" },
+          domainId: { type: "string", description: "Optional IS domain id for trajectory" },
+          repoRoot: { type: "string" },
+        },
+        required: ["projectDir"],
+        additionalProperties: false,
+      },
+    },
   ];
 }
 

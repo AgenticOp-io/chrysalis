@@ -4,7 +4,7 @@ import { WEB_LLM_POC_SCENARIOS_KIND } from "./kinds.js";
 
 export type PocScenarioStep =
   | { kind: "tool"; tool: string; toolInput?: Record<string, unknown> }
-  | { kind: "check"; check: "min-wvb-cases" | "min-shorthand-count" | "wisp-ui-anchors" | "wisp-ui-parity-manifest" | "wisp-demo-manifest" | "wisp-gce-live-anchors" | "is-tier-skip-llm"; min?: number; domainId?: string };
+  | { kind: "check"; check: "min-wvb-cases" | "min-shorthand-count" | "wisp-ui-anchors" | "wisp-ui-parity-manifest" | "wisp-demo-manifest" | "wisp-gce-live-anchors" | "is-tier-skip-llm" | "convert-proposals-never-applied"; min?: number; domainId?: string; projectDir?: string };
 
 export type PocScenario = {
   id: string;

@@ -34,8 +34,8 @@ Integrate LLM into the **conversion product** only as a **verify-gated propose l
 
 | Slice | Scope | Gate |
 | --- | --- | --- |
-| **42b.1** | MCP tools: `web_llm_resolve_shorthand`, propose hole patch (no auto-apply) | **G8821** |
-| **42b.2** | Agent POC scenario: php→hono with verify loop | **G8822** |
+| **42b.1** | MCP tools: `web_llm_resolve_shorthand`, `hub_convert_propose_holes` (no auto-apply) | **G8821** (`hub:llm-convert-mcp-smoke`) |
+| **42b.2** | Agent POC scenario: php→hono with verify loop | **G8822** (`hub:llm-convert-poc-smoke`) |
 
 **Regression:** `hub:open-web-llm-poc-smoke`, `hub:wisp-web-llm-poc-close-smoke`.
 

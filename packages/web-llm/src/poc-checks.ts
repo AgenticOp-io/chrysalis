@@ -85,6 +85,25 @@ export async function runPocCheck(
         },
       };
     }
+    case "convert-proposals-never-applied": {
+      const rel = step.projectDir ?? "fixtures/tiny-blog";
+      const path = join(repoRoot, rel, ".chrysalis/hub-convert.hole-proposals.json");
+      if (!existsSync(path)) {
+        return { ok: true, detail: { skip: "no-proposals-artifact", projectDir: rel } };
+      }
+      const artifact = JSON.parse(readFileSync(path, "utf8"));
+      const ok =
+        artifact.applied === false &&
+        (artifact.proposals ?? []).every((p: { apply?: boolean }) => p.apply !== true);
+      return {
+        ok,
+        detail: {
+          applied: artifact.applied,
+          proposalCount: artifact.proposalCount ?? 0,
+          projectDir: rel,
+        },
+      };
+    }
     default:
       return { ok: false, skip: `unknown-check:${step.check}` };
   }

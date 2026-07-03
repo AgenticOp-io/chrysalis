@@ -53,4 +53,12 @@ describe("hub llm-assisted convert (Phase 42)", () => {
     const gate = runLlmConvertUiRoutingGate();
     expect(gate.ok).toBe(true);
   });
+
+  test("G8821 MCP convert tools propose without apply", async () => {
+    const { runLlmConvertMcpGate } = await import(
+      "../../../scripts/hub-ingest/hub-llm-convert-mcp-smoke.mjs"
+    );
+    const gate = await runLlmConvertMcpGate({ repoRoot: ROOT });
+    expect(gate.ok).toBe(true);
+  });
 });

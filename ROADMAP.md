@@ -578,7 +578,10 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | **G8811** | IS-routed convert assist on hub translate/ingest | `hub:llm-convert-is-routing-smoke` |
 | **G8812** | Hole proposals logged; verify before apply | `hub:llm-convert-hole-proposals-smoke` |
 | **G8813** | Hub UI IS tier on job progress | `hub:llm-convert-ui-routing-smoke` |
-| **G8820** | Operator MCP convert workflow | **G8290** / **G8310** regression |
+| **G8813** | Hub UI IS tier on job progress | `hub:llm-convert-ui-routing-smoke` |
+| **G8820** | Operator MCP convert workflow | `hub:llm-convert-mcp-smoke` + `hub:llm-convert-poc-smoke` |
+| **G8821** | MCP convert tools (no auto-apply) | `hub:llm-convert-mcp-smoke` |
+| **G8822** | Agent POC php→hono convert | `hub:llm-convert-poc-smoke` |
 | **G8830** | Program close composite | `hub:llm-assisted-convert-close-smoke` (future) |
 
 ---
