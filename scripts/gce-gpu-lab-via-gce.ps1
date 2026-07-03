@@ -53,9 +53,10 @@ function Sync-GpuLabArtifacts {
   if (-not (Test-Path $shards)) { throw "Missing $shards - run pnpm run gpu-lab:prep" }
 
   Write-Host "=== Sync GPU lab artifacts to ${VmName} ==="
-  Invoke-Gcloud -GcloudArgs @(
+  $mkdirArgs = @(
     "compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project"
   ) + $sshExtra + @("--command=mkdir -p chrysalis-test/gpu-lab-artifacts chrysalis-test/reports/ci")
+  Invoke-Gcloud -GcloudArgs $mkdirArgs
 
   foreach ($scriptName in $artNames) {
     $local = Join-Path $PSScriptRoot $scriptName
@@ -69,9 +70,10 @@ function Sync-GpuLabArtifacts {
   & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$shards" "${VmName}:chrysalis-test/gpu-lab-artifacts/training-shards.v1.jsonl"
   if ($LASTEXITCODE -ne 0) { throw "scp failed for training-shards" }
 
-  Invoke-Gcloud -GcloudArgs @(
+  $chmodArgs = @(
     "compute", "ssh", $VmName, "--zone=$Zone", "--project=$Project"
   ) + $sshExtra + @("--command=chmod +x chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh && sed -i 's/\r$//' chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh")
+  Invoke-Gcloud -GcloudArgs $chmodArgs
 }
 
 if ($Status) {
