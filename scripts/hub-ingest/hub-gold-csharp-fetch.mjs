@@ -2,9 +2,39 @@
  * Probe emitted ASP.NET hub apps via WebApplicationFactory (oracle-csharp).
  */
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { concreteProbePath, writeProbeRoutes } from "./hub-gold-probe-routes.mjs";
+
+/**
+ * @param {string} fixture
+ * @returns {string}
+ */
+function aspnetProbeWorkDir(fixture) {
+  const abs = resolve(fixture);
+  if (process.platform === "win32") {
+    const base = process.env.TEMP ?? process.env.TMP ?? tmpdir();
+    const tag = createHash("sha256").update(abs).digest("hex").slice(0, 12);
+    return join(base, "chrysalis-aspnet-probe", tag);
+  }
+  return join(abs, ".chrysalis/aspnet-probe-work");
+}
+
+/** @param {string} rootDir */
+function unblockTreeWindows(rootDir) {
+  if (process.platform !== "win32") return;
+  spawnSync(
+    "powershell",
+    [
+      "-NoProfile",
+      "-Command",
+      `Get-ChildItem -LiteralPath '${rootDir.replace(/'/g, "''")}' -Recurse -File | Unblock-File -ErrorAction SilentlyContinue`,
+    ],
+    { encoding: "utf8", stdio: "ignore" },
+  );
+}
 
 /**
  * @returns {string | null}
@@ -39,7 +69,7 @@ export function runCsharpAspNetProbe(scriptRoot, fixture) {
     return { status: 1, stderr: "missing-generated-program", stdout: "" };
   }
 
-  const work = join(fixture, ".chrysalis/aspnet-probe-work");
+  const work = aspnetProbeWorkDir(fixture);
   rmSync(work, { recursive: true, force: true });
   mkdirSync(join(work, "HubApp"), { recursive: true });
   mkdirSync(join(work, "Probe"), { recursive: true });
@@ -87,12 +117,25 @@ export function runCsharpAspNetProbe(scriptRoot, fixture) {
   if (restore.status !== 0) {
     return { status: 1, stderr: restore.stderr || restore.stdout || "dotnet restore failed", stdout: "" };
   }
+  const build = spawnSync(
+    dotnet,
+    ["build", "Probe/Probe.csproj", "--no-restore", "-v", "q"],
+    { cwd: work, encoding: "utf8" },
+  );
+  if (build.status !== 0) {
+    return { status: 1, stderr: build.stderr || build.stdout || "dotnet build failed", stdout: "" };
+  }
+  unblockTreeWindows(work);
 
-  return spawnSync(dotnet, ["run", "--project", "Probe/Probe.csproj", "--no-restore", "--", resolve(fixture)], {
-    cwd: work,
-    encoding: "utf8",
-    maxBuffer: 32 * 1024 * 1024,
-  });
+  return spawnSync(
+    dotnet,
+    ["run", "--project", "Probe/Probe.csproj", "--no-build", "--", resolve(fixture)],
+    {
+      cwd: work,
+      encoding: "utf8",
+      maxBuffer: 32 * 1024 * 1024,
+    },
+  );
 }
 
 /**
