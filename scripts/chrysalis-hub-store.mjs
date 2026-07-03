@@ -12,6 +12,17 @@ import { prepOriginOverSsh } from "./chrysalis-hub-prep-origin.mjs";
 import {
   hubOriginLanguages,
   hubOutputLanguages,
+  hubDirectedPairCount,
+  HUB_POPULAR_WEB_FOCUS_IDS,
+  isHubWebOrigin,
+  isHubWebOutput,
+  LANGUAGE_LABELS,
+  popularityRank,
+} from "./hub-ingest/language-catalog.mjs";
+export {
+  hubOriginLanguages,
+  hubOutputLanguages,
+  hubDirectedPairCount,
   HUB_POPULAR_WEB_FOCUS_IDS,
   isHubWebOrigin,
   isHubWebOutput,

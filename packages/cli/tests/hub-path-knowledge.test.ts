@@ -10,8 +10,7 @@ test("path knowledge: full grid 575 pairs with similarities and practices", asyn
   const kb = await import(KNOWLEDGE);
   const hub = await import(HUB_STORE);
   const db = kb.buildHubPathKnowledgeBase();
-  const expected =
-    hub.INPUT_LANGUAGES.length * hub.OUTPUT_LANGUAGES.length - hub.INPUT_LANGUAGES.length;
+  const expected = hub.hubDirectedPairCount();
 
   expect(db.kind).toBe(kb.HUB_PATH_KNOWLEDGE_KIND);
   expect(db.pairCount).toBe(expected);

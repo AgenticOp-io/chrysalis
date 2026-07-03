@@ -5,6 +5,7 @@
 import {
   HUB_WEB_ORIGIN_LANGUAGE_IDS,
   HUB_WEB_OUTPUT_LANGUAGE_IDS,
+  hubDirectedPairCount,
   LANGUAGE_LABELS,
   popularityRank,
 } from "./language-catalog.mjs";
@@ -587,7 +588,7 @@ export function buildHubPathKnowledgeBase(opts = {}) {
   }
 
   const originClusters = Object.fromEntries(
-    HUB_INGEST_LANES.filter((l) => l !== "none").map((lane) => [
+    HUB_INGEST_LANES.map((lane) => [
       lane,
       HUB_WEB_ORIGIN_LANGUAGE_IDS.filter((id) => ingestLaneForOrigin(id) === lane),
     ]),
@@ -598,8 +599,7 @@ export function buildHubPathKnowledgeBase(opts = {}) {
   return {
     kind: HUB_PATH_KNOWLEDGE_KIND,
     schemaVersion: HUB_PATH_KNOWLEDGE_SCHEMA_VERSION,
-    mission:
-      "Comprehensive map of all web language translation paths: 23 origins × 26 outputs (575 directed pairs), with similarities, differences, best practices, and web database catalog.",
+    mission: `Comprehensive map of all web language translation paths: ${HUB_WEB_ORIGIN_LANGUAGE_IDS.length} origins × ${HUB_WEB_OUTPUT_LANGUAGE_IDS.length} outputs (${hubDirectedPairCount()} directed pairs), with similarities, differences, best practices, and web database catalog.`,
     webDatabaseCatalog: {
       kind: webDatabaseCatalog.kind,
       schemaVersion: webDatabaseCatalog.schemaVersion,

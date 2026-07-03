@@ -56,11 +56,12 @@ test("hub store: resolveHubRoute gold for javascript → cwl (G34)", async () =>
   expect(resolveHubRoute("python", "cwl").grade).toBe("gold");
 });
 
-test("hub store: buildCrossLanguageSynthesis 575 pairs (G33)", async () => {
-  const { buildCrossLanguageSynthesis, HUB_CROSS_LANGUAGE_SYNTHESIS_KIND } = await import(HUB_STORE);
+test("hub store: buildCrossLanguageSynthesis full open matrix (G33)", async () => {
+  const { buildCrossLanguageSynthesis, HUB_CROSS_LANGUAGE_SYNTHESIS_KIND, hubDirectedPairCount } =
+    await import(HUB_STORE);
   const db = buildCrossLanguageSynthesis();
   expect(db.kind).toBe(HUB_CROSS_LANGUAGE_SYNTHESIS_KIND);
-  expect(db.universe.pairCount).toBe(575);
+  expect(db.universe.pairCount).toBe(hubDirectedPairCount());
   expect(db.origins.some((o) => o.id === "cwl")).toBe(true);
 });
 
@@ -70,23 +71,22 @@ test("hub store: resolveHubRoute hub-translate for python → java", async () =>
   expect(route.ok).toBe(true);
   expect(route.action).toBe("hub-translate");
   expect(route.grade).toBe("gold");
-  expect(route.verifyTier).toBe("scaffold-native");
+  expect(route.verifyTier).toBe("structural");
 });
 
-test("hub store: resolveHubRoute php → java is gold scaffold-native", async () => {
+test("hub store: resolveHubRoute php → java is gold structural", async () => {
   const { resolveHubRoute } = await import(HUB_STORE);
   const route = resolveHubRoute("php", "java");
   expect(route.ok).toBe(true);
   expect(route.action).toBe("hub-translate");
   expect(route.grade).toBe("gold");
-  expect(route.verifyTier).toBe("scaffold-native");
+  expect(route.verifyTier).toBe("structural");
 });
 
 test("hub store: HUB_MISSION_OPEN and full route grid", async () => {
-  const { HUB_MISSION_OPEN, HUB_ROUTES, INPUT_LANGUAGES, OUTPUT_LANGUAGES } = await import(HUB_STORE);
+  const { HUB_MISSION_OPEN, HUB_ROUTES, hubDirectedPairCount } = await import(HUB_STORE);
   expect(HUB_MISSION_OPEN).toBe(true);
-  const expected = INPUT_LANGUAGES.length * OUTPUT_LANGUAGES.length - INPUT_LANGUAGES.length;
-  expect(Object.keys(HUB_ROUTES).length).toBe(expected);
+  expect(Object.keys(HUB_ROUTES).length).toBe(hubDirectedPairCount());
   for (const spec of Object.values(HUB_ROUTES)) {
     expect(spec.status).toBe("ready");
     expect(["gold", "silver", "open"]).toContain(spec.grade);
@@ -210,8 +210,9 @@ test("hub runners: hub-translate step for python → typescript", async () => {
     targetId: "typescript",
     action: "hub-translate",
   });
-  expect(steps).toHaveLength(1);
+  expect(steps).toHaveLength(2);
   expect(steps[0]?.kind).toBe("hub-translate");
+  expect(steps[1]?.kind).toBe("hub-evidence-gate");
 });
 
 test("hub store: normalizeProject migrates legacy ssh to sites", async () => {

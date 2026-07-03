@@ -152,6 +152,13 @@ export function hubOutputLanguages() {
   return HUB_WEB_OUTPUT_LANGUAGE_IDS.map((id) => ({ id, label: LANGUAGE_LABELS[id] ?? id }));
 }
 
+/** Directed hub pairs: origins × outputs minus identity (origin also listed as output). */
+export function hubDirectedPairCount() {
+  const outputIds = new Set(HUB_WEB_OUTPUT_LANGUAGE_IDS);
+  const identityPairs = HUB_WEB_ORIGIN_LANGUAGE_IDS.filter((id) => outputIds.has(id)).length;
+  return HUB_WEB_ORIGIN_LANGUAGE_IDS.length * HUB_WEB_OUTPUT_LANGUAGE_IDS.length - identityPairs;
+}
+
 export function isFrameworkOutput(id) {
   return HUB_FRAMEWORK_OUTPUT_IDS.includes(id);
 }
