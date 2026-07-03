@@ -185,7 +185,7 @@ Closed: **2026-07-03** (local + GCE: `test:gce:migration-os`; GPU lab dry-run **
 
 **Regression:** `pnpm run hub:is-runtime-close-smoke` (**G8600**) · `pnpm run hub:is-t2-lora-prep-smoke` (**G8610**)  
 **GCE phase:** `is-t2-lora-prep-close` in `gce-run-all-tests.sh` (CPU only)  
-**Composed in:** `hub:migration-os-close-smoke` (**G8550** v3)  
+**Composed in:** `hub:migration-os-close-smoke` (**G8550** v4 — includes **G8701** matrix oracle census)  
 **GPU lab (operator, not CI):** [`docs/GCE-GPU-LAB.md`](./docs/GCE-GPU-LAB.md) — `pnpm run gpu-lab:gce`
 
 ---
