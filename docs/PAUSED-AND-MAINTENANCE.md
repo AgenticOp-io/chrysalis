@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-06-16)  
+> **Status:** authoritative (2026-07-03)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -15,16 +15,13 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 
 | Priority | Gate | Smoke |
 | --- | --- | --- |
-| **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` |
-| **Unified WISP + web-LLM POC** | **G8310** | `hub:wisp-web-llm-poc-close-smoke` (+ `CHRYSALIS_G8310_LIVE=1` for live) |
-| **WISP GCE live anchors** | **G8320** | `hub:wisp-poc-live-smoke` · GCE: `test:gce:migration-os:wisp-live` |
-| **Open Legacy wedge regression** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
-| **Web-LLM framework** | **G8290** | `hub:open-web-llm-close-smoke` |
-| **Intelligence Shorthand (CPU)** | **G8560** | `hub:intelligence-shorthand-close-smoke` |
-| **IS runtime protocol** | **G8600** | `hub:is-runtime-close-smoke` |
+| **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
+| **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
+| **CWL IR helper v1.1** | **G6731** / **G6760+** | `hub:cwl-language-maintenance-smoke` (subordinate — explicit scope only) |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
-**Program docs:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md)
+**Closed program regression:** `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
+**Program docs:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) (closed)
 
 ### Subordinate (closed — regression only)
 

@@ -1,6 +1,6 @@
 # Web-LLM POC (Phase 32c)
 
-> **Status:** **active** (**G8300**, **G8320**, 2026-06-16)  
+> **Status:** **closed** (**G8300** / **G8310** / **G8320**, 2026-07-03)  
 > **Authority:** **DESIGN D6277**; composes with **G8100** (WISP UI parity) and **G8290** (framework close)  
 > **Scenarios:** [`fixtures/web-llm/chrysalis.web-llm-poc-scenarios.v1.json`](../fixtures/web-llm/chrysalis.web-llm-poc-scenarios.v1.json)
 

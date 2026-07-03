@@ -7,8 +7,8 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Phase 32c** WISP + web-LLM POC (**G8310** / optional live **G8320**); **Phase 32 Horizons A+B closed** (**G8290** / **G8240**, 2026-07-03).
-- **Closed (2026-07-03):** **Phase 40 IS runtime protocol** (**G8600**) + **IS-T2 LoRA prep** (**G8610**).
+- **Active lane:** **Migration OS maintenance** (**G8550**); **CWL language v1.1** IR helper depth (**G6731** / **G6760+**, subordinate).
+- **Closed (2026-07-03):** **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -206,57 +206,22 @@ Closed: **2026-06-16**
 
 ---
 
-## Active — Phase 32 Open web-LLM framework (G8290)
+## Closed — Phase 32 Open web-LLM (G8290 / G8310)
 
-Program doc: [`docs/OPEN-WEB-LLM-PROGRAM.md`](./docs/OPEN-WEB-LLM-PROGRAM.md)  
-Authority: **DESIGN D6275** / **D6298**  
-Requires: engine + verify substrate (G8100/G7990 subordinate)
+Program doc: [`docs/OPEN-WEB-LLM-PROGRAM.md`](./docs/OPEN-WEB-LLM-PROGRAM.md) · POC: [`docs/OPEN-WEB-LLM-POC.md`](./docs/OPEN-WEB-LLM-POC.md)  
+Authority: **DESIGN D6275** / **D6277** / **D6298** / **D6299**  
+Closed: **2026-07-03** (local + GCE **`test:gce:migration-os:wisp-live`**, G8320 **7/7** live probes)
 
-| Horizon | Goal | Close gate | Status |
-| --- | --- | --- | --- |
-| **A** | `@chrysalis/web-llm`, WVB, trajectories, MCP tools | **G8290** | **closed** 2026-07-03 |
-| **B** | Dataset export, leaderboard, auto gate logging | **G8240** | **closed** 2026-07-03 |
-| **C** | Sponsor-funded CWL fine-tune | — | out of scope until funded |
-
-**Regression:** `pnpm run hub:open-web-llm-horizon-b-smoke` (**G8240**) · `pnpm run hub:open-web-llm-close-smoke` (**G8290**)  
-**GCE:** `open-web-llm-close` in `test:gce:migration-os` / full `test:gce`
-
-### Phase 32c — Agent POC (G8300 / G8310)
-
-Program doc: [`docs/OPEN-WEB-LLM-POC.md`](./docs/OPEN-WEB-LLM-POC.md)  
-Authority: **DESIGN D6277**
-
-| Gate | Goal | Smoke |
+| Slice | Goal | Close gate |
 | --- | --- | --- |
-| **G8300** | Scripted agent scenarios + static POC hub | `hub:open-web-llm-poc-smoke` |
-| **G8320** | WISP GCE live anchor probes (strict) | `hub:wisp-poc-live-smoke` |
-| **G8310** | WISP + web-LLM unified POC (G8100 + G8290 + G8300 + G8560; optional G8320 live) | `hub:wisp-web-llm-poc-close-smoke` |
+| **Horizon A** | `@chrysalis/web-llm`, WVB, trajectories, MCP tools | **G8290** |
+| **Horizon B** | Dataset export, leaderboard, auto gate logging | **G8240** |
+| **32c POC** | Agent scenarios + unified WISP + web-LLM hub | **G8300** / **G8310** |
+| **32c live** | WISP GCE anchor probes | **G8320** |
+| **Horizon C** | Sponsor-funded CWL fine-tune | out of scope until funded |
 
-**One-command demo:** `pnpm run web-llm:demo` → open `reports/web-llm/poc/index.html`.
-
----
-
-## Active — Phase 31 WISP CWL UI parity (G8100) — archived entry
-
-Program doc: [`docs/WISP-CWL-UI-PARITY-PROGRAM.md`](./docs/WISP-CWL-UI-PARITY-PROGRAM.md)  
-Authority: **DESIGN D6274**  
-Requires: **G7990** closed
-
-| Phase | Goal | Close gate |
-| --- | --- | --- |
-| **31a** | Bulk Svelte → CWL `@page` lift | apply + stub scan |
-| **31b** | Anchor parity (login, dashboard, plan, deploy, map) | Phase 30/30b |
-| **31c** | Automated close (forbidden stubs + HTTP anchors) | **G8100** |
-
-**Default regression (UI parity):** `pnpm run hub:wisp-cwl-ui-parity-close-smoke` (**G8100**).
-
----
-
----
-
----
-
----
+**Regression:** `hub:open-web-llm-close-smoke` · `hub:wisp-web-llm-poc-close-smoke` · GCE: `test:gce:migration-os:wisp-live`  
+**Demo:** `pnpm run web-llm:demo` → `reports/web-llm/poc/index.html` · WISP live: `http://34.61.255.147:19100`
 
 ---
 

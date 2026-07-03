@@ -423,24 +423,21 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (post Phase 40 — IS runtime + LoRA prep closed)
+## 12. Default queue (post Phase 32 — Open web-LLM closed)
 
-**Status:** **Phase 32 Horizons A+B closed** (**G8290** / **G8240**, **D6298**); **Phase 32c active** (**G8310** / **G8320** live); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**).
+**Status:** **Phase 32 closed** (**G8290** / **G8310** / **G8320**, **D6299**); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**); **CWL language v1.1** (**G6731** / **G6760+**) subordinate when not in maintenance.
 
 When the user says "build" without specifying:
 
-1. **G8310 unified POC** — `pnpm run hub:wisp-web-llm-poc-close-smoke` (live G8320: **`CHRYSALIS_G8310_LIVE=1`** or `pnpm run test:gce:migration-os:wisp-live`)
-2. **G8550 composite regression** — `pnpm run hub:migration-os-close-smoke`
-3. **G8240 / G8290 maintenance** — `pnpm run hub:open-web-llm-horizon-b-smoke` · `pnpm run hub:open-web-llm-close-smoke`
-4. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+1. **G8550 composite regression** — `pnpm run hub:migration-os-close-smoke` (GCE: `pnpm run test:gce:migration-os`)
+2. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+3. **G6731 IR helper maintenance** — next open **G6760+** slice in [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) (only when explicitly scoped — not Migration OS)
+4. **Operator demos** — `pnpm run migration-evidence:demo` · `pnpm run web-llm:demo`
 
-**Operator demo:** `pnpm run migration-evidence:demo`  
-**IS export:** `pnpm run web-llm:export-shorthand` / `chrysalis federation export-shorthand`  
-**IS-T2 prep (CPU):** `pnpm run hub:is-t2-lora-prep-smoke` · **GPU lab dry-run:** `pnpm run gpu-lab:gce`  
-**VMF hub:** `pnpm run federation:serve`  
-**GCE WISP refresh:** `pnpm run wisp:deploy:gce` then `pnpm run wisp:operator-verify -- --require`  
-**GCE Migration OS + live (G8320):** `pnpm run test:gce:migration-os:wisp-live`  
-**Nightly CI:** `.github/workflows/open-legacy-index-nightly.yml`
+**Regression (closed programs):** `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke` · `hub:is-t2-lora-prep-smoke`  
+**GCE live WISP:** `pnpm run test:gce:migration-os:wisp-live`  
+**GPU lab dry-run:** `pnpm run gpu-lab:gce`  
+**VMF hub:** `pnpm run federation:serve`
 
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
@@ -448,7 +445,7 @@ When the user says "build" without specifying:
 
 ---
 
-## 12 (archived) — Default queue (post G8600 — IS runtime protocol active, superseded 2026-07-03)
+## 12 (archived) — Default queue (post Phase 40 — IS runtime + LoRA prep closed, superseded 2026-07-03)
 
 **Status:** **Phase 40 active** (**G8600**, **D6295**); **Phase 40b active** (**G8610**, **D6296** — CPU prep + optional GPU lab); **Phase 39 closed** (**G8570**); **Intelligence Shorthand export closed** (**G8560**); **Migration OS closed** (**G8550**).
 
