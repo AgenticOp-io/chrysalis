@@ -7,8 +7,8 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Phase 41 Full matrix oracle** (**G8700** → **G8790**); maintenance **G8550** / **G8570** after each track.
-- **Closed (2026-07-03):** **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
+- **Active lane:** maintenance **G8550** / **G8570** / **G6731** (see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)).
+- **Closed (2026-07-03):** **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -567,7 +567,7 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 
 ---
 
-## Active — Phase 41 Full matrix oracle product (G8700–G8790)
+## Closed — Phase 41 Full matrix oracle product (G8700–G8790)
 
 **Authority:** [`docs/FULL-MATRIX-ORACLE-PROGRAM.md`](./docs/FULL-MATRIX-ORACLE-PROGRAM.md) (**D6300**); 9×9 core hub matrix → **oracle product** tier (72 pairs).
 
@@ -617,6 +617,8 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | **G8750** | Phase 41e CWL executable effects outbound | `pnpm run hub:phase41e-cwl-effects-smoke` |
 | **Master slice** | Phase 41a–41e composite | `pnpm run hub:phase41-master-build-slice-smoke` |
 | **G8790** | Program close (honest; `programComplete` when matrix ready) | `pnpm run hub:full-matrix-oracle-close-smoke` |
+
+**Close (2026-07-03):** **G8790** green — 72/72 oracle-product pairs; `programComplete: true`.
 
 **Build order:** 41a → 41b → 41c → 41d → 41e → 41f. **Regression:** **G8550**, **G7690**, **G6731**.
 

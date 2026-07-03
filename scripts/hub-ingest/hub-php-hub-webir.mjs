@@ -60,11 +60,17 @@ export async function exportPhpHubWebir(projectDir) {
 
   await mkdir(dirname(out), { recursive: true });
   const ingested = join(root, ".chrysalis", "ingested.webir.json");
-  const r = spawnSync(process.execPath, [exportScript, root, "--out", ingested], {
-    cwd: scriptRoot,
-    encoding: "utf8",
-    maxBuffer: 20 * 1024 * 1024,
-  });
+  /** @type {import("node:child_process").SpawnSyncReturns<string>} */
+  let r;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    r = spawnSync(process.execPath, [exportScript, root, "--out", ingested], {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      maxBuffer: 20 * 1024 * 1024,
+    });
+    if (r.status === 0) break;
+    if (attempt < 2) await new Promise((resolveDelay) => setTimeout(resolveDelay, 150 * (attempt + 1)));
+  }
   if (r.status !== 0) {
     return { ok: false, skip: "ingest-export-failed", detail: (r.stderr || r.stdout)?.slice(0, 400) };
   }
