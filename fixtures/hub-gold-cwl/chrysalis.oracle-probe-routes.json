@@ -1,0 +1,16 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "path": "/meta"
+    },
+    {
+      "method": "GET",
+      "path": "/ping"
+    }
+  ]
+}

@@ -9,6 +9,9 @@ import { fileURLToPath } from "node:url";
 import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 import { runHubWptpContractGoldSuite } from "./hub-wptp-contract-gold.mjs";
 import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
+import { isHubNativeGoldEmitTarget } from "./hub-gold-native-emit.mjs";
+import { runNativeTraceReplaySuite } from "./hub-gold-native-trace-replay.mjs";
+import { runCwlTraceReplaySuite } from "./hub-gold-cwl-trace-replay.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -39,6 +42,14 @@ export async function runTraceReplaySuite(suite) {
   const fixture = suite.fixture;
   const origin = suite.origin;
   const target = suite.emitTarget;
+
+  if (target === "cwl") {
+    return runCwlTraceReplaySuite(suite);
+  }
+
+  if (isHubNativeGoldEmitTarget(target)) {
+    return runNativeTraceReplaySuite(suite);
+  }
 
   if (suite.wptpCompose) {
     const composeTarget = target === "nextjs" ? "nextjs" : "hono";

@@ -423,18 +423,22 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (post Phase 32 — Open web-LLM closed)
+## 12. Default queue (Phase 41 — Full matrix oracle product active)
 
-**Status:** **Phase 32 closed** (**G8290** / **G8310** / **G8320**, **D6299**); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**); **CWL language v1.1** (**G6731** / **G6760+**) subordinate when not in maintenance.
+**Status:** **Phase 41 active** (**G8700**, **D6300** — user-amended 2026-07-03); **Phase 32 closed** (**G8290**); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
 
 When the user says "build" without specifying:
 
-1. **G8550 composite regression** — `pnpm run hub:migration-os-close-smoke` (GCE: `pnpm run test:gce:migration-os`)
-2. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
-3. **G6731 IR helper maintenance** — next open **G6760+** slice in [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) (only when explicitly scoped — not Migration OS)
-4. **Operator demos** — `pnpm run migration-evidence:demo` · `pnpm run web-llm:demo`
+1. **G8701 matrix progress** — `pnpm run hub:full-matrix-oracle-progress-smoke` (honest grade census)
+2. **G8711 build slice** — `pnpm run hub:phase41-llm-build-slice-smoke` (41a.1 req/res + IS corpus refresh **G8610**)
+3. **G8710 → G8750** — Phase 41 tracks in order ([`FULL-MATRIX-ORACLE-PROGRAM.md`](./FULL-MATRIX-ORACLE-PROGRAM.md))
+3. **G8550 / G8570 maintenance** — after each track merge
+4. **G7690** universal translator regression — subordinate
 
-**Regression (closed programs):** `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke` · `hub:is-t2-lora-prep-smoke`  
+**Program entry:** `pnpm run hub:full-matrix-oracle-program-entry-smoke` (**G8700**)  
+**Program close (future):** `pnpm run hub:full-matrix-oracle-close-smoke` (**G8790**)
+
+**Regression (closed programs):** `hub:migration-os-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke` · `hub:cwl-universal-translator-close-smoke` · `hub:cwl-language-maintenance-smoke`  
 **GCE live WISP:** `pnpm run test:gce:migration-os:wisp-live`  
 **GPU lab dry-run:** `pnpm run gpu-lab:gce`  
 **VMF hub:** `pnpm run federation:serve`
@@ -445,7 +449,7 @@ When the user says "build" without specifying:
 
 ---
 
-## 12 (archived) — Default queue (post Phase 40 — IS runtime + LoRA prep closed, superseded 2026-07-03)
+## 12 (archived) — Default queue (post Phase 32 — maintenance only, superseded 2026-07-03 by Phase 41)
 
 **Status:** **Phase 40 active** (**G8600**, **D6295**); **Phase 40b active** (**G8610**, **D6296** — CPU prep + optional GPU lab); **Phase 39 closed** (**G8570**); **Intelligence Shorthand export closed** (**G8560**); **Migration OS closed** (**G8550**).
 

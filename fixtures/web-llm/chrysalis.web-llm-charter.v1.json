@@ -23,6 +23,7 @@
     "trajectory-logging",
     "benchmark-publication",
     "agent-mcp-tools",
+    "phase41-build-slice",
     "sponsor-funded-fine-tune"
   ]
 }

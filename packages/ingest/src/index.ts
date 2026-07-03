@@ -390,3 +390,26 @@ export {
 } from "./convert.js";
 export { dbFactoryReturnCalleeSet, loadRouteManifest, normalizeDbFactoryCalleeLabel, wordpressEffectCalleeSet } from "./routes.js";
 export type { RouteManifest, RouteSpec };
+export {
+  canPythonHubIngest,
+  canPythonAstIngest,
+  ingestPythonHubSource,
+  liftPythonFileToWebir,
+  liftPythonRoutesToWebir,
+  parsePythonFile,
+  parsePythonRoutes,
+  PYTHON_BRIDGE_SCHEMA_VERSION,
+  type LiftPythonHubOpts,
+  type LiftPythonHubResult,
+  type PythonHubParseResult,
+  type PythonHubRoute,
+} from "./hub-python.js";
+export {
+  parseCsharpRoutes,
+  parseGoRoutes,
+  parseJavaRoutes,
+  parseRubyRoutes,
+  HUB_NATIVE_BRIDGE_SCHEMA_VERSION,
+  type HubNativeParseResult,
+  type HubNativeRoute,
+} from "./hub-native.js";

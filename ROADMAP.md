@@ -7,7 +7,7 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Migration OS maintenance** (**G8550**); **CWL language v1.1** IR helper depth (**G6731** / **G6760+**, subordinate).
+- **Active lane:** **Phase 41 Full matrix oracle** (**G8700** → **G8790**); maintenance **G8550** / **G8570** after each track.
 - **Closed (2026-07-03):** **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
@@ -565,9 +565,68 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G7104 B54 `str_pad(, literal, literal)` | `runIrHelperLiftingB54StrPadInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 
-## Active — CWL language v1.1 (G6760–G7050)
+---
 
-Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Language v1.1.
+## Active — Phase 41 Full matrix oracle product (G8700–G8790)
+
+**Authority:** [`docs/FULL-MATRIX-ORACLE-PROGRAM.md`](./docs/FULL-MATRIX-ORACLE-PROGRAM.md) (**D6300**); 9×9 core hub matrix → **oracle product** tier (72 pairs).
+
+| Gate | Smoke |
+| --- | --- |
+| **G8700** | Program entry — `pnpm run hub:full-matrix-oracle-program-entry-smoke` |
+| **G8701** | Matrix progress census — `pnpm run hub:full-matrix-oracle-progress-smoke` |
+| **G8711** | Phase 41a.1 req/res request fields | `pnpm run hub:js-semantic-req-res-smoke` |
+| **G8712** | Phase 41a.2 middleware presets + gold replay | `pnpm run hub:js-semantic-middleware-smoke` |
+| **G8713** | Phase 41a.3 SQL/DB `db.query` / `pool.query` effects | `pnpm run hub:js-semantic-sql-smoke` |
+| **G8714** | Phase 41a.4 parseInt call lowering | `pnpm run hub:js-semantic-calls-smoke` |
+| **G8710** | Phase 41a JS/TS semantic lowering composite | G8711–G8714 green via build slice |
+| **Build slice** | Phase 41a + LLM IS/WVB refresh | `pnpm run hub:phase41-llm-build-slice-smoke` |
+| **G8720** | Phase 41b Python native ingest | `pnpm run hub:phase41b-python-build-slice-smoke` |
+| **G8721** | Phase 41b.1 python-bridge + ingest adapter | `pnpm run hub:python-native-ingest-smoke` |
+| **G8722** | Phase 41b.2 oracle-python trace parity | `pnpm run hub:python-oracle-trace-smoke` |
+| **G8723** | Phase 41b.3 Python → CWL/hono oracle product | `pnpm run hub:python-oracle-product-smoke` |
+| **G8724** | Phase 41b.4 Python req/res request-field lowering | `pnpm run hub:python-semantic-req-res-smoke` |
+| **G8725** | Phase 41b.5 Python SQL/DB `db.execute` effects | `pnpm run hub:python-semantic-sql-smoke` |
+| **G8730** | Phase 41c Java/Go/C#/Ruby native ingest | `pnpm run hub:phase41c-native-build-slice-smoke` |
+| **G8731–G8734** | Per-language native bridge + oracle replay | gates inside 41c slice |
+| **G8735** | Phase 41c.5 Java req/res request-field lowering | `pnpm run hub:java-semantic-req-res-smoke` |
+| **G8736** | Phase 41c.6 Java SQL/DB JdbcTemplate effects | `pnpm run hub:java-semantic-sql-smoke` |
+| **G8737** | Phase 41c.7 Go Gin req/res request-field lowering | `pnpm run hub:go-semantic-req-res-smoke` |
+| **G8738** | Phase 41c.8 Go database/sql Query effects | `pnpm run hub:go-semantic-sql-smoke` |
+| **G8739** | Phase 41c.9 C# Minimal API req/res lowering | `pnpm run hub:csharp-semantic-req-res-smoke` |
+| **G8740** | Phase 41d Native emit gold | `pnpm run hub:phase41d-native-emit-smoke` |
+| **G8763** | Phase 41d.4 PHP → Python native oracle product | `pnpm run hub:php-python-oracle-product-smoke` |
+| **G8764** | Phase 41d.5 PHP → Java native oracle product | `pnpm run hub:php-java-oracle-product-smoke` |
+| **G8765** | Phase 41d.6 PHP → Go native oracle product | `pnpm run hub:php-go-oracle-product-smoke` |
+| **G8766** | Phase 41d.7 PHP → Ruby native oracle product | `pnpm run hub:php-ruby-oracle-product-smoke` |
+| **G8767** | Phase 41d.8 PHP → C# native oracle product | `pnpm run hub:php-csharp-oracle-product-smoke` |
+| **G8768** | Phase 41d.9 Native → native oracle product | `pnpm run hub:native-oracle-product-smoke` |
+| **G8769** | Phase 41d.10 Express → native oracle product | `pnpm run hub:express-native-oracle-product-smoke` |
+| **G8770** | Phase 41d.11 Python literal → cross-native oracle product | `pnpm run hub:python-cross-native-oracle-product-smoke` |
+| **G8771** | Phase 41d.12 Java literal → cross-native oracle product | `pnpm run hub:java-cross-native-oracle-product-smoke` |
+| **G8772** | Phase 41d.13 Go literal → cross-native oracle product | `pnpm run hub:go-cross-native-oracle-product-smoke` |
+| **G8773** | Phase 41d.14 Ruby literal → cross-native oracle product | `pnpm run hub:ruby-cross-native-oracle-product-smoke` |
+| **G8774** | Phase 41d.15 C# literal → cross-native oracle product | `pnpm run hub:csharp-cross-native-oracle-product-smoke` |
+| **G8775** | Phase 41d.16 TypeScript literal → cross-native oracle product | `pnpm run hub:typescript-cross-native-oracle-product-smoke` |
+| **G8776** | Phase 41d.17 Javascript output lane oracle product (hono emit) | `pnpm run hub:javascript-oracle-product-smoke` |
+| **G8777** | Phase 41e.1 CWL gold → cross-native oracle product | `pnpm run hub:cwl-cross-native-oracle-product-smoke` |
+| **G8778** | Phase 41f Remaining matrix oracle product close | `pnpm run hub:matrix-oracle-remaining-smoke` |
+| **G8744** | Phase 41c.10 Ruby req/res semantic lowering | `pnpm run hub:ruby-semantic-req-res-smoke` |
+| **G8745** | Phase 41c.11 Ruby SQL semantic lowering | `pnpm run hub:ruby-semantic-sql-smoke` |
+| **G8746** | Phase 41c.12 C# SQL semantic lowering | `pnpm run hub:csharp-semantic-sql-smoke` |
+| **G8750** | Phase 41e CWL executable effects outbound | `pnpm run hub:phase41e-cwl-effects-smoke` |
+| **Master slice** | Phase 41a–41e composite | `pnpm run hub:phase41-master-build-slice-smoke` |
+| **G8790** | Program close (honest; `programComplete` when matrix ready) | `pnpm run hub:full-matrix-oracle-close-smoke` |
+
+**Build order:** 41a → 41b → 41c → 41d → 41e → 41f. **Regression:** **G8550**, **G7690**, **G6731**.
+
+---
+
+## Closed — CWL language v1.1 IR helper tier (G6760–G7133)
+
+Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6731 composite** (2026-07-03). Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md) § Language v1.1.
+
+**Regression:** `pnpm run hub:cwl-language-maintenance-smoke` (**G6731**); doc index **G6732** in [`PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md) §1b.
 
 | Gate | Smoke |
 | --- | --- |
@@ -617,6 +676,27 @@ Incremental IR helper depth after v1 close. Program doc: [`docs/CWL-LANGUAGE-PRO
 | **G7102** B52 `strrev()` | `runIrHelperLiftingB52StrrevInlineGate` (via **G6731**) |
 | **G7103** B53 `str_repeat(, literal)` | `runIrHelperLiftingB53StrRepeatInlineGate` (via **G6731**) |
 | **G7104** B54 `str_pad(, literal, literal)` | `runIrHelperLiftingB54StrPadInlineGate` (via **G6731**) |
+| **G7105** B55 `str_replace(, lit, lit)` | `runIrHelperLiftingB55StrReplaceInlineGate` (via **G6731**) |
+| **G7106** B56 `str_ireplace(, lit, lit)` | `runIrHelperLiftingB56StrIreplaceInlineGate` (via **G6731**) |
+| **G7107** B57 `ucfirst()` | `runIrHelperLiftingB57UcfirstInlineGate` (via **G6731**) |
+| **G7108** B58 `lcfirst()` | `runIrHelperLiftingB58LcfirstInlineGate` (via **G6731**) |
+| **G7109** B59 `ucwords()` | `runIrHelperLiftingB59UcwordsInlineGate` (via **G6731**) |
+| **G7112** B60 `strip_tags()` | `runIrHelperLiftingB60StripTagsInlineGate` (via **G6731**) |
+| **G7113** B61 `addslashes()` | `runIrHelperLiftingB61AddslashesInlineGate` (via **G6731**) |
+| **G7114** B62 `stripslashes()` | `runIrHelperLiftingB62StripslashesInlineGate` (via **G6731**) |
+| **G7115** B63 `str_rot13()` | `runIrHelperLiftingB63StrRot13InlineGate` (via **G6731**) |
+| **G7116** B64 `str_word_count()` | `runIrHelperLiftingB64StrWordCountInlineGate` (via **G6731**) |
+| **G7117** B65 `str_split(, lit)` | `runIrHelperLiftingB65StrSplitInlineGate` (via **G6731**) |
+| **G7118** B66 `strcspn(, lit)` | `runIrHelperLiftingB66StrcspnInlineGate` (via **G6731**) |
+| **G7119** B67 `strspn(, lit)` | `runIrHelperLiftingB67StrspnInlineGate` (via **G6731**) |
+| **G7124** B68 `ltrim(, lit)` | `runIrHelperLiftingB68LtrimCharlistInlineGate` (via **G6731**) |
+| **G7125** B69 `rtrim(, lit)` | `runIrHelperLiftingB69RtrimCharlistInlineGate` (via **G6731**) |
+| **G7126** B70 `trim(, lit)` | `runIrHelperLiftingB70TrimCharlistInlineGate` (via **G6731**) |
+| **G7127** B71 `wordwrap(, lit, lit)` | `runIrHelperLiftingB71WordwrapInlineGate` (via **G6731**) |
+| **G7128** B72 `chunk_split(, lit, lit)` | `runIrHelperLiftingB72ChunkSplitInlineGate` (via **G6731**) |
+| **G7129** B73 `strtr(, lit, lit)` | `runIrHelperLiftingB73StrtrInlineGate` (via **G6731**) |
+| **G7132** B74 `htmlentities()` | `runIrHelperLiftingB74HtmlentitiesInlineGate` (via **G6731**) |
+| **G7133** B75 `html_entity_decode()` | `runIrHelperLiftingB75HtmlEntityDecodeInlineGate` (via **G6731**) |
 
 ---
 

@@ -1,0 +1,3 @@
+{
+  "routes": [{ "method": "GET", "path": "/user/{id}" }]
+}

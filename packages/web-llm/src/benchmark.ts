@@ -87,6 +87,30 @@ function loadWispStaticExportCases(repoRoot: string): WebVerifyBenchmarkCase[] {
   return cases;
 }
 
+function loadPhase41SemanticCases(repoRoot: string): WebVerifyBenchmarkCase[] {
+  const fixtures = [
+    "hub-js-semantic-req-res",
+    "hub-js-semantic-calls",
+    "hub-js-semantic-sql",
+    "hub-gold-js-middleware",
+    "hub-python-semantic-req-res",
+    "hub-python-semantic-sql",
+  ];
+  /** @type {WebVerifyBenchmarkCase[]} */
+  const cases = [];
+  for (const fixture of fixtures) {
+    for (const c of loadRoutesCases(repoRoot, fixture)) {
+      cases.push({
+        ...c,
+        task: "migrate" as const,
+        tier: "structural" as const,
+        tags: [...(c.tags ?? []), "phase41", "js-semantic"],
+      });
+    }
+  }
+  return cases;
+}
+
 function loadWispUiAnchorCases(repoRoot: string): WebVerifyBenchmarkCase[] {
   const manifestPath = join(repoRoot, "fixtures/hub-wisp-management/chrysalis.wisp-ui-parity.v1.json");
   if (!existsSync(manifestPath)) return [];
@@ -144,6 +168,13 @@ export function buildWebVerifyBenchmark(opts: BuildWebVerifyBenchmarkOptions): W
       seen.add(key);
       cases.push(c);
     }
+  }
+
+  for (const c of loadPhase41SemanticCases(repoRoot)) {
+    const key = `${c.fixture}:${c.method}:${c.path}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cases.push(c);
   }
 
   cases.sort((a, b) => a.id.localeCompare(b.id));

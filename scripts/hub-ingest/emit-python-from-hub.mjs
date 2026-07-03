@@ -6,6 +6,11 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { loadHubRoutes } from "./hub-load-routes.mjs";
+import {
+  pythonHandlerDef,
+  renderPythonBody,
+  toFlaskPath,
+} from "./hub-native-body-emit.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -18,17 +23,6 @@ function parseArgs(argv) {
 }
 
 /**
- * @param {unknown} value
- */
-function pyLiteral(value) {
-  if (value === true) return "True";
-  if (value === false) return "False";
-  if (typeof value === "number") return String(value);
-  if (typeof value === "string") return JSON.stringify(value);
-  return "None";
-}
-
-/**
  * @param {string} name
  */
 function pyHandlerName(name) {
@@ -37,10 +31,11 @@ function pyHandlerName(name) {
 }
 
 /**
- * @param {ReturnType<typeof listHubWebRoutes>} routes
+ * @param {ReturnType<typeof import('./hub-webir-routes.mjs').listHubWebRoutes>} routes
  * @param {string} origin
  */
 function renderFlaskApp(routes, origin) {
+  let needsRequest = false;
   const lines = [
     `"""Chrysalis hub emit: ${origin} -> python (Flask)."""`,
     "from flask import Flask, jsonify",
@@ -51,21 +46,14 @@ function renderFlaskApp(routes, origin) {
   let holeCount = 0;
   for (const r of routes) {
     const fn = pyHandlerName(r.handlerName);
-    const dec = `@app.route(${JSON.stringify(r.path)}, methods=[${JSON.stringify(r.method)}])`;
+    const flaskPath = toFlaskPath(r.path);
+    const dec = `@app.route(${JSON.stringify(flaskPath)}, methods=[${JSON.stringify(r.method)}])`;
     lines.push(dec);
-    lines.push(`def ${fn}():`);
-    if (r.body.kind === "literal") {
-      const v = r.body.value;
-      if (v !== null && typeof v === "object") {
-        lines.push(`    return jsonify(${JSON.stringify(v)})`);
-      } else {
-        lines.push(`    return ${pyLiteral(v)}`);
-      }
-    } else {
-      holeCount += 1;
-      lines.push(`    # HOLE: ${r.body.reason}`);
-      lines.push(`    raise NotImplementedError(${JSON.stringify(r.body.reason)})`);
-    }
+    lines.push(pythonHandlerDef(fn, r.path));
+    const body = renderPythonBody(r.body);
+    if (body.hole) holeCount += 1;
+    if (body.usesRequest) needsRequest = true;
+    for (const line of body.lines) lines.push(`    ${line}`);
     lines.push("");
   }
   if (routes.length === 0) {
@@ -74,6 +62,10 @@ function renderFlaskApp(routes, origin) {
     lines.push('    raise NotImplementedError("hub:empty-webir")');
     lines.push("");
     holeCount += 1;
+  }
+  if (needsRequest) {
+    const idx = lines.findIndex((l) => l.startsWith("from flask import"));
+    if (idx >= 0) lines[idx] = "from flask import Flask, jsonify, request";
   }
   lines.push('if __name__ == "__main__":');
   lines.push("    app.run(host='127.0.0.1', port=5000, debug=False)");

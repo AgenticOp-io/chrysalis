@@ -2,7 +2,11 @@
  * Per-language HTTP route pattern parsers (hub open matrix; bodies via hub-lift-webir-route).
  */
 import { detectHttpRoutesInSource } from "./lift-routes-heuristic.mjs";
-import { parseJavaRoutes } from "./java-ast-ingest.mjs";
+import { parseJavaRoutes } from "../../packages/hub-native-bridge/dist/java.js";
+import { parseRubyRoutes } from "../../packages/hub-native-bridge/dist/ruby.js";
+import { parseCsharpRoutes } from "../../packages/hub-native-bridge/dist/csharp.js";
+
+export { parseRubyRoutes, parseCsharpRoutes };
 
 /**
  * @typedef {{ method: string, path: string, line: number, name?: string }} HubRoute
@@ -36,9 +40,6 @@ function pushRoute(routes, source, method, path, index, seen) {
   });
 }
 
-const RUBY_VERB_RE = /\b(get|post|put|patch|delete|head|options)\s+['"]([^'"]+)['"]/gi;
-const CSHARP_HTTP_ATTR_RE = /\[(Http(Get|Post|Put|Patch|Delete|Head|Options))\s*\(\s*"([^"]+)"\s*\)\]/gi;
-const CSHARP_MAP_RE = /\bapp\.Map(Get|Post|Put|Delete|Patch)\s*\(\s*"([^"]+)"/gi;
 const RUST_ROUTE_RE =
   /\.route\s*\(\s*"([^"]+)"\s*,\s*(?:web::)?(get|post|put|patch|delete|head|options)\s*\(/gi;
 const RUST_MACRO_RE = /#\[(\w+)\s*\(\s*"([^"]+)"\s*\)\]/g;
@@ -48,32 +49,6 @@ const SCALA_AKKA_ROUTE_RE =
   /\b(get|post|put|patch|delete|head|options)\s*\(\s*path\s*\(\s*"([^"]+)"\s*\)\s*\)/gi;
 const KTOR_ROUTE_RE = /\b(get|post|put|patch|delete|head|options)\s*\(\s*"([^"]+)"\s*\)/gi;
 const SWIFT_VERB_RE = /\bapp\.(get|post|put|patch|delete|head)\s*\(\s*"([^"]+)"/gi;
-
-export function parseRubyRoutes(source) {
-  const routes = [];
-  const seen = new Set();
-  let m;
-  RUBY_VERB_RE.lastIndex = 0;
-  while ((m = RUBY_VERB_RE.exec(source)) !== null) {
-    pushRoute(routes, source, m[1], m[2], m.index, seen);
-  }
-  return routes;
-}
-
-export function parseCsharpRoutes(source) {
-  const routes = [];
-  const seen = new Set();
-  let m;
-  CSHARP_HTTP_ATTR_RE.lastIndex = 0;
-  while ((m = CSHARP_HTTP_ATTR_RE.exec(source)) !== null) {
-    pushRoute(routes, source, m[2], m[3], m.index, seen);
-  }
-  CSHARP_MAP_RE.lastIndex = 0;
-  while ((m = CSHARP_MAP_RE.exec(source)) !== null) {
-    pushRoute(routes, source, m[1], m[2], m.index, seen);
-  }
-  return routes;
-}
 
 export function parseKotlinRoutes(source, file) {
   const routes = parseJavaRoutes(source, file);

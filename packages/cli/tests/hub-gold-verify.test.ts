@@ -107,6 +107,26 @@ test("listCwlRoutes lowers PHP effect-blocks to hole-free CWL projections (G124)
   expect(byName("items_delete")?.contentType).toBe(null);
 });
 
+test("listHubWebRoutes lowers PHP flagship to literal or structured bodies (G8741)", async () => {
+  const { listHubWebRoutes } = await import(resolve(ROOT, "scripts/hub-ingest/hub-webir-routes.mjs"));
+  const webir = await import(resolve(ROOT, "packages/webir/dist/index.js"));
+  const fixture = resolve(ROOT, "fixtures/hub-flagship-plain-php");
+  const raw = JSON.parse(await readFile(join(fixture, ".chrysalis/hub.php.webir.json"), "utf8"));
+  const routes = listHubWebRoutes(webir.moduleFromGoldenSnapshot(raw));
+
+  expect(routes.length).toBe(20);
+  expect(routes.every((r) => r.body.kind === "literal" || r.body.kind === "structured")).toBe(true);
+  expect(routes.filter((r) => r.body.kind === "structured").length).toBe(5);
+
+  const byPath = (path: string, method = "GET") =>
+    routes.find((r) => r.path === path && r.method === method);
+  expect(byPath("/users/:userId")?.body).toEqual({
+    kind: "structured",
+    value: { t: "ref", source: "path", name: "userId" },
+  });
+  expect(byPath("/search")?.body.kind).toBe("structured");
+});
+
 test("hub gold fixture lifts with zero holes", () => {
   const r = spawnSync(process.execPath, [LIFT, GOLD_FIXTURE, "--language", "javascript"], {
     cwd: ROOT,

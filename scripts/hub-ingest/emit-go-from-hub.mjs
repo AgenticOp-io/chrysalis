@@ -5,6 +5,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { loadHubRoutes } from "./hub-load-routes.mjs";
+import { renderGoBody } from "./hub-native-body-emit.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -16,75 +17,57 @@ function parseArgs(argv) {
   return { projectDir, origin };
 }
 
-/**
- * @param {unknown} value
- */
-function goLiteral(value) {
-  if (value === true) return "true";
-  if (value === false) return "false";
-  if (typeof value === "number") return String(value);
-  if (typeof value === "string") return JSON.stringify(value);
-  return "nil";
-}
-
 function renderGo(routes, origin) {
-  const lines = [
+  /** @type {string[]} */
+  const routeLines = [];
+  let holeCount = 0;
+  for (const r of routes) {
+    const m = r.method.toUpperCase();
+    routeLines.push(`\tr.${m}(${JSON.stringify(r.path)}, func(c *gin.Context) {`);
+    const body = renderGoBody(r.body);
+    if (body.hole) holeCount += 1;
+    for (const line of body.lines) routeLines.push(`\t\t${line}`);
+    routeLines.push("\t})");
+  }
+  if (routes.length === 0) {
+    holeCount += 1;
+    routeLines.push('\tpanic("hub:empty-webir")');
+  }
+  const routesSource = [
     "package main",
     "",
-    `// Chrysalis hub emit: ${origin} -> go`,
+    `// Chrysalis hub emit: ${origin} -> go (routes)`,
+    'import "github.com/gin-gonic/gin"',
+    "",
+    "func registerHubRoutes(r *gin.Engine) {",
+    ...routeLines,
+    "}",
+    "",
+  ].join("\n");
+  const mainSource = [
+    "package main",
+    "",
+    `// Chrysalis hub emit: ${origin} -> go (main)`,
     'import "github.com/gin-gonic/gin"',
     "",
     "func main() {",
     "\tr := gin.Default()",
-  ];
-  let holeCount = 0;
-  for (const r of routes) {
-    const m = r.method.toUpperCase();
-    if (r.body.kind === "literal") {
-      const v = r.body.value;
-      if (v !== null && typeof v === "object") {
-        const pairs = Object.entries(v)
-          .map(([k, val]) => `"${k}": ${goLiteral(val)}`)
-          .join(", ");
-        lines.push(`\tr.${m}(${JSON.stringify(r.path)}, func(c *gin.Context) {`);
-        lines.push(`\t\tc.JSON(200, gin.H{${pairs}})`);
-        lines.push("\t})");
-      } else {
-        lines.push(`\tr.${m}(${JSON.stringify(r.path)}, func(c *gin.Context) {`);
-        if (typeof v === "string") {
-          lines.push(`\t\tc.String(200, ${goLiteral(v)})`);
-        } else if (typeof v === "boolean" || typeof v === "number") {
-          lines.push(`\t\tc.JSON(200, ${goLiteral(v)})`);
-        } else {
-          lines.push(`\t\tc.Status(200)`);
-        }
-        lines.push("\t})");
-      }
-    } else {
-      holeCount += 1;
-      lines.push(`\tr.${m}(${JSON.stringify(r.path)}, func(c *gin.Context) {`);
-      lines.push(`\t\t// HOLE: ${r.body.reason}`);
-      lines.push(`\t\tpanic(${JSON.stringify(r.body.reason)})`);
-      lines.push("\t})");
-    }
-  }
-  if (routes.length === 0) {
-    holeCount += 1;
-    lines.push('\tpanic("hub:empty-webir")');
-  }
-  lines.push("\t_ = r");
-  lines.push("}");
-  lines.push("");
-  return { source: lines.join("\n"), holeCount };
+    "\tregisterHubRoutes(r)",
+    '\tr.Run("127.0.0.1:8080")',
+    "}",
+    "",
+  ].join("\n");
+  return { routesSource, mainSource, holeCount };
 }
 
 async function main() {
   const { projectDir, origin } = parseArgs(process.argv);
   const { routes } = await loadHubRoutes(projectDir, origin);
-  const { source, holeCount } = renderGo(routes, origin);
+  const { routesSource, mainSource, holeCount } = renderGo(routes, origin);
   const outDir = join(projectDir, "generated", "go");
   await mkdir(outDir, { recursive: true });
-  await writeFile(join(outDir, "main.go"), source, "utf8");
+  await writeFile(join(outDir, "routes.go"), routesSource, "utf8");
+  await writeFile(join(outDir, "main.go"), mainSource, "utf8");
   await writeFile(join(outDir, "go.mod"), `module chrysalis-hub-go\n\ngo 1.22\n\nrequire github.com/gin-gonic/gin v1.10.0\n`, "utf8");
   const report = {
     kind: "chrysalis.hub.emit",

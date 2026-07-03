@@ -1,0 +1,22 @@
+{
+  "name": "@chrysalis/hub-native-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hub route parsers for Java, Go, Ruby, and C# (parser-bridge pattern for Phase 41c).",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./java": "./dist/java.js",
+    "./go": "./dist/go.js",
+    "./ruby": "./dist/ruby.js",
+    "./csharp": "./dist/csharp.js"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  }
+}

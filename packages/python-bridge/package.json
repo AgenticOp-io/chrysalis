@@ -1,0 +1,19 @@
+{
+  "name": "@chrysalis/python-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Subprocess bridge to CPython ast; emits canonical Python hub route JSON for @chrysalis/ingest.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

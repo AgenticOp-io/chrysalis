@@ -70,7 +70,11 @@ function simToResponse(sim: ReturnType<typeof simulateHandler>): Response {
   } else if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
     headers.set("content-type", "application/json; charset=utf-8");
   }
-  return new Response(body, { status: sim.status || 200, headers });
+  const status = sim.status || 200;
+  if (status === 204 || status === 304) {
+    return new Response(null, { status, headers });
+  }
+  return new Response(body, { status, headers });
 }
 
 function buildRequestInput(

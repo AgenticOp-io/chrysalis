@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /** Emit ASP.NET minimal routes from hub WebIR. */
 import { emitNativeFromHub } from "./hub-native-emit-shared.mjs";
+import { renderCsharpBody, toAspNetPath, hubPathParamNames } from "./hub-native-body-emit.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -10,14 +11,6 @@ function parseArgs(argv) {
   }
   if (!projectDir) throw new Error("usage: emit-csharp-from-hub.mjs <projectDir> --origin <lang>");
   return { projectDir, origin };
-}
-
-function csharpLiteral(value) {
-  if (value === true) return "true";
-  if (value === false) return "false";
-  if (typeof value === "number") return String(value);
-  if (typeof value === "string") return JSON.stringify(value);
-  return "null";
 }
 
 function renderCsharp(routes, origin) {
@@ -30,26 +23,37 @@ function renderCsharp(routes, origin) {
   let holeCount = 0;
   for (const r of routes) {
     const m = r.method.toLowerCase();
-    if (r.body.kind === "literal") {
-      const v = r.body.value;
-      if (v !== null && typeof v === "object") {
-        const pairs = Object.entries(v).map(([k, val]) => `[${JSON.stringify(k)}] = ${csharpLiteral(val)}`);
-        lines.push(`app.Map${m[0].toUpperCase()}${m.slice(1)}(${JSON.stringify(r.path)}, () => Results.Json(new Dictionary<string, object> { ${pairs.join(", ")} }));`);
-      } else {
-        lines.push(`app.Map${m[0].toUpperCase()}${m.slice(1)}(${JSON.stringify(r.path)}, () => ${csharpLiteral(v)});`);
-      }
+    const map = `Map${m[0].toUpperCase()}${m.slice(1)}`;
+    const aspPath = toAspNetPath(r.path);
+    const body = renderCsharpBody(r.body, r.path);
+    if (body.hole) holeCount += 1;
+    if (body.hole) {
+      lines.push(`// HOLE ${r.path}: ${r.body.reason ?? "hub:hole"}`);
+      lines.push(`app.${map}(${JSON.stringify(aspPath)}, () => throw new NotImplementedException(${JSON.stringify(r.body.reason ?? "hub:hole")}));`);
+      continue;
+    }
+    const params =
+      body.lambdaParams ||
+      hubPathParamNames(r.path)
+        .map((n) => `string ${n}`)
+        .join(", ");
+    const arrowBody = body.lines[0].replace(/;\s*$/, "");
+    if (params) {
+      lines.push(`app.${map}(${JSON.stringify(aspPath)}, (${params}) => ${arrowBody});`);
+    } else if (arrowBody.startsWith("Results.")) {
+      lines.push(`app.${map}(${JSON.stringify(aspPath)}, () => ${arrowBody});`);
     } else {
-      holeCount += 1;
-      lines.push(`// HOLE ${r.path}: ${r.body.reason}`);
-      lines.push(`app.Map${m[0].toUpperCase()}${m.slice(1)}(${JSON.stringify(r.path)}, () => throw new NotImplementedException(${JSON.stringify(r.body.reason)}));`);
+      lines.push(`app.${map}(${JSON.stringify(aspPath)}, () => ${arrowBody});`);
     }
   }
   lines.push("app.Run();");
   lines.push("");
+  lines.push("public partial class Program { }");
+  lines.push("");
   return {
     files: {
       "Program.cs": lines.join("\n"),
-      "chrysalis-hub.csproj": '<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net8.0</TargetFramework></PropertyGroup></Project>\n',
+      "chrysalis-hub.csproj": '<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net9.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup></Project>\n',
     },
     holeCount,
   };

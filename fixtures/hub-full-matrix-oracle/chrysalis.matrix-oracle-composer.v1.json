@@ -1,0 +1,79 @@
+{
+  "kind": "chrysalis.matrix-oracle-composer",
+  "schemaVersion": 1,
+  "charterId": "full-matrix-oracle-v1",
+  "description": "Phase 41 — promote 9×9 core hub web language matrix to oracle product tier (G8700–G8790).",
+  "hubLanguage": "cwl",
+  "requiresProgramClosed": "G7690",
+  "targetTier": "oracle-product",
+  "coreLanguageIds": [
+    "cwl",
+    "csharp",
+    "go",
+    "java",
+    "javascript",
+    "php",
+    "python",
+    "ruby",
+    "typescript"
+  ],
+  "pairCount": 72,
+  "tracks": [
+    {
+      "id": "41a",
+      "gate": "G8710",
+      "label": "JavaScript / TypeScript semantic lowering",
+      "blocker": "Full semantic lowering (req/res, middleware, SQL effects) is not implemented.",
+      "originIds": ["javascript", "typescript"]
+    },
+    {
+      "id": "41b",
+      "gate": "G8720",
+      "label": "Python native ingest + oracle",
+      "blocker": "Native @chrysalis/ingest package adapter and oracle verify are not implemented.",
+      "originIds": ["python"]
+    },
+    {
+      "id": "41c",
+      "gate": "G8730",
+      "label": "Java / Go / C# / Ruby native ingest",
+      "blocker": "Native parser ingest in @chrysalis/ingest and oracle verify are not implemented.",
+      "originIds": ["java", "go", "csharp", "ruby"]
+    },
+    {
+      "id": "41d",
+      "gate": "G8740",
+      "label": "Native emit gold (non-TS targets)",
+      "blocker": "Direct native emitters for non-TS outputs still scaffold/open routes.",
+      "originIds": ["php"],
+      "outputFocus": ["python", "java", "go", "ruby", "csharp"]
+    },
+    {
+      "id": "41e",
+      "gate": "G8750",
+      "label": "CWL executable effects outbound",
+      "blocker": "CWL effect typing beyond declared effects: list is metadata until WebIR effect pass lands.",
+      "originIds": ["cwl"]
+    },
+    {
+      "id": "41f",
+      "gate": "G8760",
+      "label": "Matrix oracle promotion + program close",
+      "blocker": "Pair grade below oracle-product",
+      "originIds": ["cwl", "csharp", "go", "java", "javascript", "php", "python", "ruby", "typescript"]
+    }
+  ],
+  "evidenceGates": [
+    "matrix-oracle-program-entry",
+    "matrix-oracle-progress",
+    "js-ts-semantic-lowering",
+    "python-native-ingest",
+    "jvm-go-csharp-ruby-native-ingest",
+    "native-emit-gold",
+    "cwl-effects-outbound",
+    "matrix-oracle-close"
+  ],
+  "requireOracleVerify": true,
+  "maxCoreMatrixOpenPairs": 0,
+  "maxCoreMatrixBelowOracleProduct": 0
+}

@@ -1,0 +1,84 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/build"
+    },
+    {
+      "method": "GET",
+      "path": "/count"
+    },
+    {
+      "method": "POST",
+      "path": "/echo"
+    },
+    {
+      "method": "GET",
+      "path": "/flag"
+    },
+    {
+      "method": "GET",
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "path": "/items"
+    },
+    {
+      "method": "POST",
+      "path": "/items"
+    },
+    {
+      "method": "DELETE",
+      "path": "/items/1"
+    },
+    {
+      "method": "GET",
+      "path": "/items/1"
+    },
+    {
+      "method": "PATCH",
+      "path": "/items/1"
+    },
+    {
+      "method": "PUT",
+      "path": "/items/1"
+    },
+    {
+      "method": "GET",
+      "path": "/meta"
+    },
+    {
+      "method": "POST",
+      "path": "/notify"
+    },
+    {
+      "method": "GET",
+      "path": "/ping"
+    },
+    {
+      "method": "GET",
+      "path": "/ready"
+    },
+    {
+      "method": "GET",
+      "path": "/search"
+    },
+    {
+      "method": "GET",
+      "path": "/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/tier"
+    },
+    {
+      "method": "GET",
+      "path": "/users/1"
+    },
+    {
+      "method": "GET",
+      "path": "/version"
+    }
+  ]
+}

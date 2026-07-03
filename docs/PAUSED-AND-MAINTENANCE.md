@@ -15,9 +15,10 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 
 | Priority | Gate | Smoke |
 | --- | --- | --- |
+| **Full matrix oracle (Phase 41)** | **G8700** / **G8710+** | `hub:full-matrix-oracle-program-entry-smoke` · `hub:full-matrix-oracle-progress-smoke` |
 | **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
-| **CWL IR helper v1.1** | **G6731** / **G6760+** | `hub:cwl-language-maintenance-smoke` (subordinate — explicit scope only) |
+| **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (subordinate) |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
 **Closed program regression:** `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
@@ -38,6 +39,33 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | --- | --- |
 | Bug fix / CI red | Fix regression; run relevant smoke |
 | Parser gap | Hole + fixture per `AGENTS.md` §4 |
+
+### 1b. G6731 composite — CWL language maintenance (G6732 doc index)
+
+Regression: `hub:cwl-language-maintenance-smoke` (**G6731**). Tier close: `hub:ir-helper-program-close-smoke` (**G7200**). Detail: [`CWL-LANGUAGE-PROGRAM.md`](./CWL-LANGUAGE-PROGRAM.md) · [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md).
+
+| Gate | Helper | Gate | Helper |
+| --- | --- | --- | --- |
+| **G6750** language v1 close | — | **G6760** B9 `count()` | **G6770** B10 `is_array()` |
+| **G6780** B11 `is_string()` | **G6790** B12 `abs()` | **G6800** B13 `is_numeric()` | **G6810** B14 logical `!` |
+| **G6820** B15 `is_int()` | **G6830** B16 `is_bool()` | **G6840** B17 `is_null()` | **G6850** B18 unary `-` |
+| **G6860** B19 `round()` | **G6870** B20 `floor()` | **G6880** B21 `ceil()` | **G6890** B22 `strtolower()` |
+| **G6900** B23 `strtoupper()` | **G6910** B24 `htmlspecialchars()` | **G6920** B25 `nl2br()` | **G6930** B26 `urlencode()` |
+| **G6940** B27 `rawurlencode()` | **G6950** B28 `urldecode()` | **G6960** B29 `rawurldecode()` | **G6970** B30 `ltrim()` |
+| **G6980** B31 `rtrim()` | **G6990** B32 `is_float()` | **G7000** B33 `is_object()` | **G7010** B34 `is_scalar()` |
+| **G7020** B35 `round(, precision)` | **G7030** B36 `max()` | **G7040** B37 `min()` | **G7050** B38 `substr()` |
+| **G7060** B39 `strpos()` | **G7070** B40 `stripos()` | **G7080** B41 `strrpos()` | **G7090** B42 `strripos()` |
+| **G7091** B43 `str_contains()` | **G7092** B44 `str_starts_with()` | **G7093** B45 `str_ends_with()` | **G7094** B46 `substr_count()` |
+| **G7095** B47 `explode()` | **G7096** B48 `strcmp()` | **G7097** B49 `strcasecmp()` | **G7098** B50 `strncmp()` |
+| **G7099** B51 `strncasecmp()` | **G7102** B52 `strrev()` | **G7103** B53 `str_repeat()` | **G7104** B54 `str_pad()` |
+| **G7105** B55 `str_replace()` | **G7106** B56 `str_ireplace()` | **G7107** B57 `ucfirst()` | **G7108** B58 `lcfirst()` |
+| **G7109** B59 `ucwords()` | **G7112** B60 `strip_tags()` | **G7113** B61 `addslashes()` | **G7114** B62 `stripslashes()` |
+| **G7115** B63 `str_rot13()` | **G7116** B64 `str_word_count()` | **G7117** B65 `str_split()` | **G7118** B66 `strcspn()` |
+| **G7119** B67 `strspn()` | **G7124** B68 `ltrim(, lit)` | **G7125** B69 `rtrim(, lit)` | **G7126** B70 `trim(, lit)` |
+| **G7127** B71 `wordwrap()` | **G7128** B72 `chunk_split()` | **G7129** B73 `strtr()` | **G7132** B74 `htmlentities()` |
+| **G7133** B75 `html_entity_decode()` | | | |
+
+Also indexed: `isset`, `count`, `is_array`, `is_string`, `abs`, `is_numeric`, logical !, `is_int`, `is_bool`, `is_null`, unary -, `round()`, `floor()`, `ceil()`, `strtolower()`, `strtoupper()`, `htmlspecialchars()`, `nl2br()`, `urlencode()`, `rawurlencode()`, `urldecode()`, `rawurldecode()`, `ltrim()`, `rtrim()`, `is_float()`, `is_object()`, `is_scalar()`, `max()`, `min()`, `substr()`, `strpos()`, `stripos()`, `strrpos()`, `strripos()`, `str_contains()`, `str_starts_with()`, `str_ends_with()`, `substr_count()`, `explode()`, `strcmp()`, `strcasecmp()`, `strncmp()`, `strncasecmp()`, `strrev()`, `str_repeat()`, `str_pad()`, `str_replace()`, `str_ireplace()`, `ucfirst()`, `lcfirst()`, `ucwords()`, `strip_tags()`, `addslashes()`, `stripslashes()`, `str_rot13()`, `str_word_count()`, `str_split()`, `strcspn()`, `strspn()`, `ltrim(, lit)`, `rtrim(, lit)`, `trim(, lit)`, `wordwrap()`, `chunk_split()`, `strtr()`, `htmlentities()`, `html_entity_decode()`.
 
 ---
 

@@ -163,32 +163,88 @@ function lowerObjectExpression(ctx, expr, origin) {
 }
 
 /**
- * Detect an Express request-field access: `<req>.params.<name>`,
- * `<req>.query.<name>`, or their computed string forms. Returns the WebIR
- * request field source ("path" | "query") and field name, or null.
  * @param {import('estree').MemberExpression} expr
- * @returns {{ source: "path" | "query", name: string } | null}
+ * @returns {string | null}
+ */
+function memberPropName(expr) {
+  if (!expr.computed && expr.property?.type === "Identifier") return expr.property.name;
+  if (expr.computed && expr.property?.type === "Literal" && typeof expr.property.value === "string") {
+    return expr.property.value;
+  }
+  return null;
+}
+
+/**
+ * Detect an Express request-field access: `<req>.params.<name>`,
+ * `<req>.query.<name>`, `<req>.body.<name>`, `<req>.headers.<name>`,
+ * `<req>.cookies.<name>`, or `params.<name>` shorthand. Returns the WebIR
+ * request field source and field name, or null.
+ * @param {import('estree').MemberExpression} expr
+ * @returns {{ source: "path" | "query" | "body" | "header" | "cookie", name: string } | null}
  */
 function requestFieldOf(expr) {
   if (expr.type !== "MemberExpression") return null;
-  const name =
-    !expr.computed && expr.property?.type === "Identifier"
-      ? expr.property.name
-      : expr.computed && expr.property?.type === "Literal" && typeof expr.property.value === "string"
-        ? expr.property.value
-        : null;
+  const name = memberPropName(expr);
   if (!name) return null;
-  const owner = expr.object;
-  if (owner?.type === "Identifier" && owner.name === "params") {
+
+  if (expr.object?.type === "Identifier" && expr.object.name === "params") {
     return { source: "path", name };
   }
-  if (owner?.type !== "MemberExpression" || owner.computed) return null;
-  if (owner.property?.type !== "Identifier") return null;
-  const bucket = owner.property.name;
-  if (owner.object?.type !== "Identifier") return null;
-  if (bucket === "params") return { source: "path", name };
-  if (bucket === "query") return { source: "query", name };
+
+  const bucketMap = {
+    params: "path",
+    query: "query",
+    body: "body",
+    headers: "header",
+    cookies: "cookie",
+  };
+
+  if (expr.object?.type === "MemberExpression") {
+    const bucketName =
+      !expr.object.computed && expr.object.property?.type === "Identifier"
+        ? expr.object.property.name
+        : expr.object.property?.type === "Identifier"
+          ? expr.object.property.name
+          : null;
+    if (
+      bucketName &&
+      bucketMap[bucketName] &&
+      expr.object.object?.type === "Identifier" &&
+      expr.object.object.name === "req"
+    ) {
+      return { source: bucketMap[bucketName], name };
+    }
+    if (
+      expr.object.property?.type === "Identifier" &&
+      expr.object.property.name === "headers" &&
+      expr.object.object?.type === "Identifier" &&
+      expr.object.object.name === "req"
+    ) {
+      return { source: "header", name };
+    }
+  }
   return null;
+}
+
+/**
+ * Express `req.get("Header-Name")` → header request field.
+ * @param {import('estree').CallExpression} expr
+ */
+function reqGetHeaderFieldOf(expr) {
+  if (expr.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (
+    callee?.type !== "MemberExpression" ||
+    callee.computed ||
+    callee.property?.type !== "Identifier" ||
+    callee.property.name !== "get"
+  ) {
+    return null;
+  }
+  if (callee.object?.type !== "Identifier" || callee.object.name !== "req") return null;
+  const arg = expr.arguments[0];
+  if (arg?.type !== "Literal" || typeof arg.value !== "string") return null;
+  return { name: arg.value };
 }
 
 /**
@@ -250,6 +306,126 @@ function peelResSendArgument(expr) {
     }
   }
   return null;
+}
+
+/**
+ * @param {import('estree').CallExpression} expr
+ */
+function peelParseIntCall(expr) {
+  if (expr.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (callee?.type !== "Identifier" || callee.name !== "parseInt") return null;
+  const arg0 = expr.arguments[0];
+  if (!arg0) return null;
+  const radixArg = expr.arguments[1];
+  const radix =
+    radixArg?.type === "Literal" && typeof radixArg.value === "number" ? radixArg.value : 10;
+  return { arg: arg0, radix };
+}
+
+/**
+ * @param {import('estree').CallExpression} expr
+ */
+function peelDbQueryCall(expr) {
+  if (expr.type !== "CallExpression") return null;
+  const callee = expr.callee;
+  if (
+    callee?.type !== "MemberExpression" ||
+    callee.computed ||
+    callee.property?.type !== "Identifier" ||
+    callee.property.name !== "query"
+  ) {
+    return null;
+  }
+  const recv = callee.object;
+  const recvName = recv?.type === "Identifier" ? recv.name : null;
+  if (!recvName || !["db", "pool", "connection", "conn"].includes(recvName)) return null;
+  const sqlArg = expr.arguments[0];
+  if (sqlArg?.type !== "Literal" || typeof sqlArg.value !== "string") return null;
+  /** @type {import('estree').Expression[]} */
+  const paramExprs = [];
+  const paramsArg = expr.arguments[1];
+  if (paramsArg?.type === "ArrayExpression") {
+    for (const el of paramsArg.elements) {
+      if (el && el.type !== "SpreadElement") paramExprs.push(el);
+    }
+  }
+  return { sql: sqlArg.value, paramExprs, recvName };
+}
+
+/** @param {string} sql */
+function guessTablesFromSql(sql) {
+  const out = new Set();
+  const re = /\b(?:from|join|into|update)\s+([a-z_][a-z0-9_]*)/gi;
+  let match;
+  while ((match = re.exec(sql)) !== null) {
+    if (match[1]) out.add(match[1].toLowerCase());
+  }
+  return [...out];
+}
+
+/**
+ * @param {object} ctx
+ * @param {{ sql: string, paramExprs: import('estree').Expression[] }} peel
+ * @param {{ line: number, column: number } | undefined} loc
+ */
+function lowerDbQueryCall(ctx, peel, loc) {
+  const { effect, webir, file } = ctx;
+  const origin = loc ? originAt(loc, file) : ctx.origin;
+  const params = peel.paramExprs.map((p) => lowerExpression(ctx, p));
+  const isRead = /^\s*select\b/i.test(peel.sql);
+  const tables = guessTablesFromSql(peel.sql);
+  return effect.dbQuery({
+    kind: isRead ? "read" : "write",
+    sql: peel.sql,
+    params,
+    returns: "rows",
+    tables: tables.length ? tables : ["*"],
+    type: T.unknown,
+    origin,
+    provenance: [webir.provenance("hub-ingest", "javascript-ast:db-query")],
+  });
+}
+
+/**
+ * @param {object} ctx
+ * @param {import('estree').Statement} stmt
+ */
+function lowerDbQueryFromStatement(ctx, stmt) {
+  if (stmt.type === "ExpressionStatement") {
+    let expr = stmt.expression;
+    if (expr?.type === "AwaitExpression") expr = expr.argument;
+    if (expr?.type === "CallExpression") {
+      const peel = peelDbQueryCall(expr);
+      if (peel) return lowerDbQueryCall(ctx, peel, expr.loc?.start);
+    }
+    return null;
+  }
+  if (stmt.type === "VariableDeclaration") {
+    for (const d of stmt.declarations) {
+      let init = d.init;
+      if (init?.type === "AwaitExpression") init = init.argument;
+      if (init?.type === "CallExpression") {
+        const peel = peelDbQueryCall(init);
+        if (peel) return lowerDbQueryCall(ctx, peel, init.loc?.start);
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * @param {object} ctx
+ * @param {import('estree').BlockStatement} body
+ */
+function collectBlockDbQueryEffects(ctx, body) {
+  /** @type {import('@chrysalis/webir').NodeId[]} */
+  const ids = [];
+  for (const stmt of body.body) {
+    const id = lowerDbQueryFromStatement(ctx, stmt);
+    if (id) ids.push(id);
+  }
+  return ids;
 }
 
 /**
@@ -389,6 +565,16 @@ function lowerExpression(ctx, expr) {
     });
   }
   if (expr.type === "CallExpression") {
+    const reqHdr = reqGetHeaderFieldOf(expr);
+    if (reqHdr) {
+      return data.requestField({
+        source: "header",
+        name: reqHdr.name,
+        type: T.string,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:req-get")],
+      });
+    }
     const urlQuery = urlSearchParamsGetFieldOf(expr);
     if (urlQuery) {
       return data.requestField({
@@ -402,6 +588,27 @@ function lowerExpression(ctx, expr) {
     const jsonArg = peelJsonCallArgument(expr);
     if (jsonArg) {
       return lowerExpression(ctx, jsonArg);
+    }
+    const parseIntCall = peelParseIntCall(expr);
+    if (parseIntCall) {
+      const innerId = lowerExpression(ctx, parseIntCall.arg);
+      const radixId = data.literal({
+        value: parseIntCall.radix,
+        type: T.int,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:parse-int-radix")],
+      });
+      return data.call({
+        callee: "parseInt",
+        args: [innerId, radixId],
+        type: T.int,
+        origin,
+        provenance: [webir.provenance("hub-ingest", "javascript-ast:parse-int")],
+      });
+    }
+    const dbPeel = peelDbQueryCall(expr);
+    if (dbPeel) {
+      return lowerDbQueryCall(ctx, dbPeel, expr.loc?.start);
     }
     return data.hole({
       reason: "hub-js:call-expression",
@@ -505,6 +712,9 @@ function lowerHandlerBody(ctx, fn) {
   const jsonPayload = resJsonPayloadExpression(fn);
   if (jsonPayload) {
     const valId = lowerExpression(ctx, jsonPayload);
+    const body = fn.body;
+    const dbEffects =
+      body.type === "BlockStatement" ? collectBlockDbQueryEffects(ctx, body) : [];
     const retId = data.call({
       callee: "__return_json",
       args: [valId],
@@ -512,8 +722,9 @@ function lowerHandlerBody(ctx, fn) {
       origin: jsonPayload.loc?.start ? originAt(jsonPayload.loc.start, file) : ctx.origin,
       provenance: [webir.provenance("hub-ingest", "javascript-ast:res-json")],
     });
+    const statements = [...(statusId ? [statusId] : []), ...dbEffects, retId];
     return data.block({
-      statements: statusId ? [statusId, retId] : [retId],
+      statements,
       type: T.unknown,
       origin: ctx.origin,
       provenance: [webir.provenance("hub-ingest", "javascript-ast:handler-json")],

@@ -2,82 +2,6 @@
  * Walk hub-lifted WebIR modules for HTTP routes and handler body shape.
  */
 
-/**
- * @param {(id: string) => object | undefined} get
- * @param {string} bodyId
- */
-export function classifyHubHandlerBody(get, bodyId) {
-  const unwrap = (id) => {
-    const n = get(id);
-    if (!n) return { kind: "hole", reason: "hub:missing-body" };
-    if (n.dialect === "legacy" && n.op === "hole") {
-      return { kind: "hole", reason: String(n.attrs?.reason ?? "legacy:hole") };
-    }
-    if (n.dialect === "data" && n.op === "hole") {
-      return { kind: "hole", reason: String(n.attrs?.reason ?? "data:hole") };
-    }
-    if (n.dialect === "web.request" && n.op === "response") {
-      const ops = n.operands ?? [];
-      if (ops.length !== 1) return { kind: "hole", reason: "hub:response-arity" };
-      return unwrap(ops[0]);
-    }
-    if (n.dialect === "data" && n.op === "block") {
-      const ops = n.operands ?? [];
-      if (ops.length === 0) return { kind: "hole", reason: "hub:empty-body" };
-      if (ops.length === 1) return unwrap(ops[0]);
-      for (let i = ops.length - 1; i >= 0; i--) {
-        const inner = unwrap(ops[i]);
-        if (inner.kind === "literal") return inner;
-      }
-      const onlyStatusEffects = ops.every((id) => {
-        const stmt = get(id);
-        return stmt?.dialect === "effect" && (stmt?.op === "httpError" || stmt?.op === "http.error");
-      });
-      if (onlyStatusEffects) return { kind: "literal", value: {} };
-      return { kind: "hole", reason: "hub:multi-statement-body" };
-    }
-    if (n.dialect === "effect" && n.op === "echo") {
-      const ops = n.operands ?? [];
-      if (ops.length === 1) return unwrap(ops[0]);
-      return { kind: "hole", reason: "hub:echo-arity" };
-    }
-    if (n.dialect === "effect" && (n.op === "httpError" || n.op === "http.error")) {
-      return { kind: "literal", value: {} };
-    }
-    if (n.dialect === "data" && n.op === "literal") {
-      return { kind: "literal", value: n.attrs?.value };
-    }
-    if (n.dialect === "data" && n.op === "call" && n.attrs?.callee === "__return_json") {
-      const ops = n.operands ?? [];
-      if (ops.length !== 1) return { kind: "hole", reason: "hub:return-json-arity" };
-      return unwrap(ops[0]);
-    }
-    if (n.dialect === "data" && n.op === "call") {
-      const callee = String(n.attrs?.callee ?? "");
-      if (callee === "json_encode" || callee === "__return") {
-        const ops = n.operands ?? [];
-        if (ops.length === 1) return unwrap(ops[0]);
-      }
-    }
-    if (n.dialect === "data" && n.op === "call" && n.attrs?.callee === "__object_literal") {
-      const ops = n.operands ?? [];
-      const obj = {};
-      for (let i = 0; i + 1 < ops.length; i += 2) {
-        const keyNode = get(ops[i]);
-        const valNode = get(ops[i + 1]);
-        const key = keyNode?.attrs?.value;
-        if (typeof key !== "string" || valNode?.op !== "literal") {
-          return { kind: "hole", reason: "hub:complex-object-literal" };
-        }
-        obj[key] = valNode.attrs?.value;
-      }
-      return { kind: "literal", value: obj };
-    }
-    return { kind: "hole", reason: `hub:unsupported-body:${n.dialect}:${n.op}` };
-  };
-  return unwrap(bodyId);
-}
-
 const CWL_TRANSPARENT_CALLS = new Set([
   "json_encode",
   "__return_json",
@@ -93,6 +17,7 @@ const CWL_TRANSPARENT_CALLS = new Set([
 ]);
 
 import { cwlHtmlTemplateToLit } from "./cwl-html-template.mjs";
+import { isLowerableStructuredValue } from "./hub-native-body-emit.mjs";
 function stripBom(s) {
   return typeof s === "string" ? s.replace(/^\uFEFF/, "") : s;
 }
@@ -337,6 +262,53 @@ export function walkCwlHandlerBody(get, bodyId) {
     contentType: noContent ? null : contentType,
     surfaceKind: isPage ? "page" : "api",
   };
+}
+
+/**
+ * Lower a CWL value representation to a plain JSON-serializable literal.
+ * Dynamic refs cannot be lowered — returns null.
+ * @param {ReturnType<typeof cwlValueOf> | null | undefined} v
+ * @returns {unknown | null}
+ */
+function hubCwlValueToLiteral(v) {
+  if (!v) return null;
+  if (v.t === "lit") return v.value;
+  if (v.t === "obj") {
+    /** @type {Record<string, unknown>} */
+    const obj = {};
+    for (const e of v.entries) {
+      const inner = hubCwlValueToLiteral(e.value);
+      if (inner === null) return null;
+      obj[e.key] = inner;
+    }
+    return obj;
+  }
+  return null;
+}
+
+/**
+ * Classify hub handler bodies for native emit (literal or path/query structured refs).
+ * Reuses the CWL block walker so PHP header+echo and effect blocks lower consistently (D423).
+ * @param {(id: string) => object | undefined} get
+ * @param {string} bodyId
+ */
+export function classifyHubHandlerBody(get, bodyId) {
+  const walked = walkCwlHandlerBody(get, bodyId);
+  if (walked.holeReason) {
+    return { kind: "hole", reason: walked.holeReason };
+  }
+  if (!walked.value) {
+    const s = walked.status;
+    if (s === 204 || s === 304) return { kind: "literal", value: null };
+    if (s !== null || walked.contentType) return { kind: "literal", value: "" };
+    return { kind: "hole", reason: "hub:empty-body" };
+  }
+  const literal = hubCwlValueToLiteral(walked.value);
+  if (literal !== null) return { kind: "literal", value: literal };
+  if (isLowerableStructuredValue(walked.value)) {
+    return { kind: "structured", value: walked.value };
+  }
+  return { kind: "hole", reason: "hub:unsupported-body-shape" };
 }
 
 /**

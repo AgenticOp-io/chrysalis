@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.web-llm.web-verify-benchmark",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T05:13:51.704Z",
-  "caseCount": 336,
+  "generatedAt": "2026-07-03T19:10:52.506Z",
+  "caseCount": 355,
   "cases": [
     {
       "id": "auth-tag-probe-GET-_probe-0",
@@ -50,6 +50,42 @@
       "tags": [
         "routes-json",
         "dedupe-identical-handlers"
+      ]
+    },
+    {
+      "id": "hub-csharp-semantic-req-res-GET-_user_id_-0",
+      "fixture": "hub-csharp-semantic-req-res",
+      "path": "/user/{id}",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-csharp-semantic-req-res"
+      ]
+    },
+    {
+      "id": "hub-csharp-semantic-sql-GET-_item_id_-0",
+      "fixture": "hub-csharp-semantic-sql",
+      "path": "/item/{id}",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-csharp-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-csharp-semantic-sql-GET-_users_id_-1",
+      "fixture": "hub-csharp-semantic-sql",
+      "path": "/users/{id}",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-csharp-semantic-sql"
       ]
     },
     {
@@ -842,6 +878,198 @@
       "tags": [
         "routes-json",
         "hub-flagship-symfony"
+      ]
+    },
+    {
+      "id": "hub-go-semantic-req-res-GET-_user_id-0",
+      "fixture": "hub-go-semantic-req-res",
+      "path": "/user/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-go-semantic-req-res"
+      ]
+    },
+    {
+      "id": "hub-go-semantic-sql-GET-_item_id-0",
+      "fixture": "hub-go-semantic-sql",
+      "path": "/item/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-go-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-go-semantic-sql-GET-_users_id-1",
+      "fixture": "hub-go-semantic-sql",
+      "path": "/users/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-go-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-java-semantic-req-res-GET-_user_id_-0",
+      "fixture": "hub-java-semantic-req-res",
+      "path": "/user/{id}",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-java-semantic-req-res"
+      ]
+    },
+    {
+      "id": "hub-java-semantic-sql-GET-_item_id_-0",
+      "fixture": "hub-java-semantic-sql",
+      "path": "/item/{id}",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-java-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-java-semantic-sql-GET-_users_id_-1",
+      "fixture": "hub-java-semantic-sql",
+      "path": "/users/{id}",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-java-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-js-semantic-calls-GET-_n-0",
+      "fixture": "hub-js-semantic-calls",
+      "path": "/n",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-js-semantic-calls"
+      ]
+    },
+    {
+      "id": "hub-js-semantic-req-res-GET-_user_id-0",
+      "fixture": "hub-js-semantic-req-res",
+      "path": "/user/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-js-semantic-req-res"
+      ]
+    },
+    {
+      "id": "hub-js-semantic-sql-GET-_item_id-0",
+      "fixture": "hub-js-semantic-sql",
+      "path": "/item/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-js-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-js-semantic-sql-GET-_users_id-1",
+      "fixture": "hub-js-semantic-sql",
+      "path": "/users/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-js-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-python-semantic-req-res-GET-_user_id-0",
+      "fixture": "hub-python-semantic-req-res",
+      "path": "/user/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-python-semantic-req-res"
+      ]
+    },
+    {
+      "id": "hub-python-semantic-sql-GET-_item_id-0",
+      "fixture": "hub-python-semantic-sql",
+      "path": "/item/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-python-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-python-semantic-sql-GET-_users_id-1",
+      "fixture": "hub-python-semantic-sql",
+      "path": "/users/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-python-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-ruby-semantic-req-res-GET-_user_id-0",
+      "fixture": "hub-ruby-semantic-req-res",
+      "path": "/user/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-ruby-semantic-req-res"
+      ]
+    },
+    {
+      "id": "hub-ruby-semantic-sql-GET-_item_id-0",
+      "fixture": "hub-ruby-semantic-sql",
+      "path": "/item/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-ruby-semantic-sql"
+      ]
+    },
+    {
+      "id": "hub-ruby-semantic-sql-GET-_users_id-1",
+      "fixture": "hub-ruby-semantic-sql",
+      "path": "/users/:id",
+      "method": "GET",
+      "task": "migrate",
+      "tier": "structural",
+      "tags": [
+        "routes-json",
+        "hub-ruby-semantic-sql"
       ]
     },
     {
@@ -4052,13 +4280,13 @@
     }
   ],
   "tiers": {
-    "structural": 144,
+    "structural": 163,
     "oracle": 66,
     "showcase": 126
   },
   "tasks": {
     "verify": 130,
-    "migrate": 80,
+    "migrate": 99,
     "ui-parity": 126
   }
 }

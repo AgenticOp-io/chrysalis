@@ -14,6 +14,7 @@ export const HUB_NATIVE_EMIT_SCRIPTS = {
   go: "emit-go-from-hub.mjs",
   ruby: "emit-ruby-from-hub.mjs",
   csharp: "emit-csharp-from-hub.mjs",
+  php: "emit-php-from-hub.mjs",
   rust: "emit-rust-from-hub.mjs",
   kotlin: "emit-kotlin-from-hub.mjs",
   scala: "emit-scala-from-hub.mjs",

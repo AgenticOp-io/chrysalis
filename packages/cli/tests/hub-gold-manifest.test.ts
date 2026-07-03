@@ -7,8 +7,8 @@ const MANIFEST = fileURLToPath(
 
 test("hub gold manifest: pair coverage and suite inventory (G37)", async () => {
   const m = await import(MANIFEST);
-  expect(m.hubGoldStructuralSuiteIds().length).toBe(169);
-  expect(m.hubGoldTraceReplaySuiteIds().length).toBe(129);
+  expect(m.hubGoldStructuralSuiteIds().length).toBe(217);
+  expect(m.hubGoldTraceReplaySuiteIds().length).toBe(190);
   const cssHono = m.hubGoldSuitesForPair("css", "hono");
   expect(cssHono.map((s: { id: string }) => s.id)).toContain("css-literal-hono");
   const jsNext = m.hubGoldSuitesForPair("javascript", "nextjs");
@@ -30,8 +30,11 @@ test("hub gold manifest: pair coverage and suite inventory (G37)", async () => {
     expect.arrayContaining(["ts-literal-hono", "ts-structured-hono"]),
   );
   const phpTs = m.hubGoldSuitesForPair("php", "typescript");
-  expect(phpTs.length).toBe(0);
+  expect(phpTs.map((s: { id: string }) => s.id)).toContain("plain-php-flagship-hono");
   const pyNative = m.hubGoldSuitesForPair("python", "python");
   expect(pyNative.map((s: { id: string }) => s.id)).toContain("python-native-python");
   expect(m.hubGoldEmitTargetForOutput("java")).toBe("java");
+  expect(m.hubGoldEmitTargetForOutput("javascript")).toBe("hono");
+  const javaJs = m.buildHubGoldSuiteCoverage("java", "javascript");
+  expect(javaJs.traceReplaySuiteIds).toContain("java-literal-hono");
 });
