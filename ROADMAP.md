@@ -4,10 +4,11 @@
 > **Operator stack:** [`docs/MIGRATION-OS.md`](./docs/MIGRATION-OS.md) · **Doc index:** [`docs/README.md`](./docs/README.md)
 > Completed history is archived in [`ROADMAP-ARCHIVE.md`](./ROADMAP-ARCHIVE.md).
 
-## Status (2026-06)
+## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Phase 40 IS runtime protocol** (**G8600**); **Phase 40b IS-T2 LoRA prep** (**G8610**); **Phase 32 Open web-LLM** (**G8290**); **Migration OS closed** (**G8550**).
+- **Active lane:** **Phase 32 Open web-LLM** (**G8290** / Horizon **B** **G8240**); **Migration OS closed** (**G8550**).
+- **Closed (2026-07-03):** **Phase 40 IS runtime protocol** (**G8600**) + **IS-T2 LoRA prep** (**G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -170,11 +171,12 @@ Closed: **2026-06-16**
 
 ---
 
-## Active — Phase 40 IS runtime protocol (G8600)
+## Closed — Phase 40 IS runtime protocol (G8600 / G8610)
 
 Program doc: [`docs/INTELLIGENCE-SHORTHAND-PROTOCOL.md`](./docs/INTELLIGENCE-SHORTHAND-PROTOCOL.md)  
-Authority: **DESIGN D6295**  
-Requires: **G8560** export corpus
+Authority: **DESIGN D6295** / **D6296** / **D6297**  
+Requires: **G8560** export corpus  
+Closed: **2026-07-03** (local + GCE: `test:gce:migration-os`; GPU lab dry-run **STATUS_OK**)
 
 | Phase | Goal | Close gate |
 | --- | --- | --- |
@@ -182,8 +184,9 @@ Requires: **G8560** export corpus
 | **40b** | IS-T2 LoRA train manifest + GCE GPU lab operator path (CPU prep) | **G8610** |
 
 **Regression:** `pnpm run hub:is-runtime-close-smoke` (**G8600**) · `pnpm run hub:is-t2-lora-prep-smoke` (**G8610**)  
+**GCE phase:** `is-t2-lora-prep-close` in `gce-run-all-tests.sh` (CPU only)  
 **Composed in:** `hub:migration-os-close-smoke` (**G8550** v3)  
-**GPU lab:** [`docs/GCE-GPU-LAB.md`](./docs/GCE-GPU-LAB.md) — spot T4 on/off; no GPU in default CI
+**GPU lab (operator, not CI):** [`docs/GCE-GPU-LAB.md`](./docs/GCE-GPU-LAB.md) — `pnpm run gpu-lab:gce`
 
 ---
 

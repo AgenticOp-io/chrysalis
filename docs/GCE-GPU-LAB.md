@@ -1,6 +1,6 @@
 # GCE GPU lab (IS-T2 / Horizon C)
 
-> **Status:** operator path (**G8610** prep, GPU lab scripts)  
+> **Status:** operator path (**G8610** prep, GPU lab scripts) — Phase **40 closed** 2026-07-03  
 > **CPU VM:** `chrysalis-test-vm` — Migration OS, verify, IS export (unchanged)  
 > **GPU VM:** `chrysalis-gpu-lab` — on/off spot T4 (~**$0.11/hr**) or L4 for IS-T2 LoRA experiments
 

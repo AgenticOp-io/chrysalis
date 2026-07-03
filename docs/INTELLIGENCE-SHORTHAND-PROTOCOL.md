@@ -1,6 +1,6 @@
 # Intelligence Shorthand — runtime protocol (RFC-0001)
 
-> **Status:** active (**G8600**, 2026-07-02)  
+> **Status:** closed (**G8600** / **G8610**, 2026-07-03)  
 > **Artifact kind:** `chrysalis.web-llm.intelligence-shorthand`  
 > **Package:** `@chrysalis/web-llm` — `shorthand-retrieval.ts`  
 > **Parent:** [`INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md)

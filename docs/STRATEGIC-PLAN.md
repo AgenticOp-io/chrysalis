@@ -423,7 +423,33 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (post G8600 — IS runtime protocol active)
+## 12. Default queue (post Phase 40 — IS runtime + LoRA prep closed)
+
+**Status:** **Phase 40 closed** (**G8600** / **G8610**, **D6297**); **Phase 32 active** (**G8290** / **G8240**, **D6275**); **Migration OS closed** (**G8550**); **Intelligence Shorthand closed** (**G8560**).
+
+When the user says "build" without specifying:
+
+1. **G8240 Horizon B** — dataset export, leaderboard, auto gate logging (`hub:open-web-llm-horizon-b-smoke` if present; else extend **G8290** slice)
+2. **G8290 web-LLM framework** — `pnpm run hub:open-web-llm-close-smoke`
+3. **G8310 unified POC** — `pnpm run hub:wisp-web-llm-poc-close-smoke` (add **`CHRYSALIS_G8310_LIVE=1`** for G8320 on GCE)
+4. **G8550 composite regression** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600** + **G8610** on GCE)
+5. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**IS export:** `pnpm run web-llm:export-shorthand` / `chrysalis federation export-shorthand`  
+**IS-T2 prep (CPU):** `pnpm run hub:is-t2-lora-prep-smoke` · **GPU lab dry-run:** `pnpm run gpu-lab:gce`  
+**VMF hub:** `pnpm run federation:serve`  
+**GCE WISP refresh:** `pnpm run wisp:deploy:gce` then `pnpm run wisp:operator-verify -- --require`  
+**GCE Migration OS + live (G8320):** `pnpm run test:gce:migration-os:wisp-live`  
+**Nightly CI:** `.github/workflows/open-legacy-index-nightly.yml`
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
+---
+
+## 12 (archived) — Default queue (post G8600 — IS runtime protocol active, superseded 2026-07-03)
 
 **Status:** **Phase 40 active** (**G8600**, **D6295**); **Phase 40b active** (**G8610**, **D6296** — CPU prep + optional GPU lab); **Phase 39 closed** (**G8570**); **Intelligence Shorthand export closed** (**G8560**); **Migration OS closed** (**G8550**).
 
