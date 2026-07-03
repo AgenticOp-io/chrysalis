@@ -194,10 +194,13 @@ if [[ "${CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND:-1}" != "0" ]]; then
   run_phase intelligence-shorthand-close env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:intelligence-shorthand-close-smoke
   log "phase: IS runtime protocol close (G8600, CPU only)"
   run_phase is-runtime-close env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:is-runtime-close-smoke
+  log "phase: IS-T2 LoRA prep close (G8610, CPU only)"
+  run_phase is-t2-lora-prep-close env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:is-t2-lora-prep-smoke
 else
   log "phase: skip intelligence shorthand (CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND=0)"
   skip_phase intelligence-shorthand-close
   skip_phase is-runtime-close
+  skip_phase is-t2-lora-prep-close
 fi
 
 if [[ "${CHRYSALIS_GCE_MIGRATION_OS:-1}" != "0" ]]; then

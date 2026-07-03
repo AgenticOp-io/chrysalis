@@ -15,32 +15,24 @@ Do **not** attach GPUs to the CPU test VM — keep Migration OS cheap and stable
 
 ## Quick start
 
-**Windows (recommended):** orchestrate via `chrysalis-test-vm` — non-interactive `gcloud compute ssh --command` only (no PuTTY shell to the GPU VM).
+Use the **same remote pattern as `pnpm run wisp:deploy:gce`** (`scripts/gce-wisp-local-stack-deploy.ps1` on **`chrysalis-test-vm`**):
 
-Service-account auth uses OS Login user `sa_*` on the test VM; artifacts land in `~/chrysalis-test` under that account. Close any interactive PuTTY window with `exit` — use `gpu-lab:gce`, not `gpu-lab:ssh`, for automation.
+1. **`$env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"`** — OpenSSH, not PuTTY (no popup windows; **`docs/HOW-TO.md`** §25).
+2. **`gcloud compute scp`** to **`VM:chrysalis-test/...`** — never **`~/...`** on Windows (**DESIGN D412**).
+3. **`gcloud compute ssh VM --command="..."`** — one non-interactive remote command; long work uses **`nohup`** on the VM (same as **`pnpm run test:gce -Detach`**).
 
-Service-account auth (`pnpm run gce:auth:activate`) logs in as OS Login user `sa_*` with its own `~/chrysalis-test` on the CPU VM (separate from `/home/david_agenticop_io/chrysalis-test` used when you `gcloud auth login` interactively). GPU lab artifacts live under the SA home — that is intentional.
+`gpu-lab:gce` uploads artifacts to the CPU VM, then **`nohup`** runs `gce-gpu-lab-orchestrate.sh` there; that script reaches **`chrysalis-gpu-lab`** over internal GCE SSH (no Windows SSH to the GPU VM).
+
+Do **not** use `gpu-lab:ssh` / `gpu-lab:bootstrap` / `gpu-lab:sync` from Windows.
 
 ```powershell
-# One-time: create spot T4 lab (~$0.11/hr while running)
 pnpm run gpu-lab:create
-
-# Detached dry-run on GCE (prep + bootstrap + sync + train + stop GPU VM)
 $env:CHRYSALIS_GPU_LAB_MAX_MINUTES = "15"
 pnpm run gpu-lab:gce
 pnpm run gpu-lab:gce:status
 ```
 
-**Direct SSH from laptop** (Linux/macOS, or Windows with OpenSSH): `gpu-lab:start` / `gpu-lab:sync` / `gpu-lab:train` / `gpu-lab:stop`.
-
-```powershell
-pnpm run gpu-lab:prep
-pnpm run hub:is-t2-lora-prep-smoke
-pnpm run gpu-lab:start
-pnpm run gpu-lab:sync
-pnpm run gpu-lab:train
-pnpm run gpu-lab:stop
-```
+**Reference scripts:** `gce-wisp-local-stack-deploy.ps1`, `gce-test-vm-refresh.ps1`, `gce-run-all-tests.ps1 -Detach`.
 
 ## Commands
 
@@ -55,7 +47,7 @@ pnpm run gpu-lab:stop
 | `gpu-lab:prep` | Export dataset + `train-manifest.v1.json` (CPU) |
 | `gpu-lab:sync` | Upload manifest + shards to lab |
 | `gpu-lab:train` | Run `gce-gpu-lora-train.sh` (dry-run by default) |
-| `gpu-lab:gce` | **Windows:** prep + run full lab via `chrysalis-test-vm` (detached) |
+| `gpu-lab:gce` | **Windows:** same as `test:gce:migration-os` — detached on CPU VM |
 | `gpu-lab:gce:status` | Tail orchestrator log + OK marker on CPU VM |
 
 **On-demand (no spot):** `powershell -File scripts/gce-gpu-lab.ps1 -Create -OnDemand`  

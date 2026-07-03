@@ -48,9 +48,21 @@ function Test-GpuLabWindowsClient {
   return ($IsWindows -or $env:OS -eq "Windows_NT")
 }
 
-function Get-GpuLabSshFlagArgs {
-  # gcloud on Windows uses PuTTY/plink; OpenSSH -o flags are rejected and block automation.
+function Assert-NotWindowsDirectGpuOps {
+  param([string] $Op)
   if (Test-GpuLabWindowsClient) {
+    throw @"
+[gpu-lab] $Op to chrysalis-gpu-lab from Windows opens PuTTY/plink unless routed via the CPU VM.
+  Use: pnpm run gpu-lab:gce          (detached dry-run on chrysalis-test-vm)
+        pnpm run gpu-lab:gce:status
+  See: docs/GCE-GPU-LAB.md
+"@
+  }
+}
+
+function Get-GpuLabSshFlagArgs {
+  # OpenSSH (Initialize-ChrysalisGceRemoteClient) accepts -o flags; legacy PuTTY does not.
+  if ((Test-GpuLabWindowsClient) -and ($env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH -ne "True")) {
     return @("--strict-host-key-checking=no")
   }
   return @(
@@ -58,6 +70,20 @@ function Get-GpuLabSshFlagArgs {
     "--ssh-flag=-o", "UserKnownHostsFile=/dev/null",
     "--ssh-flag=-o", "BatchMode=yes"
   )
+}
+
+function Get-GpuLabBootstrapRemote {
+  return "${Name}:gce-gpu-lab-bootstrap.sh"
+}
+
+function Invoke-GpuLabBootstrap {
+  $bootstrapScript = Join-Path $PSScriptRoot "gce-gpu-lab-bootstrap.sh"
+  Invoke-GcloudScp -Local $bootstrapScript -Remote (Get-GpuLabBootstrapRemote)
+  $cmd = "chmod +x ~/gce-gpu-lab-bootstrap.sh && bash ~/gce-gpu-lab-bootstrap.sh"
+  $gcloudArgs = @(
+    "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project"
+  ) + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", $cmd)
+  Invoke-Gcloud -GcloudArgs $gcloudArgs
 }
 
 function Get-GpuLabTrainSshFlagArgs {
@@ -247,14 +273,11 @@ if ($CheckQuota) {
 }
 
 if ($Bootstrap) {
+  Assert-NotWindowsDirectGpuOps -Op "Bootstrap"
   $st = Get-InstanceStatus
   if ($st -ne "RUNNING") { throw "Instance $Name is $st - run pnpm run gpu-lab:start first" }
   if (-not (Wait-GpuLabSsh)) { throw "SSH not ready on $Name" }
-  $bootstrapScript = Join-Path $PSScriptRoot "gce-gpu-lab-bootstrap.sh"
-  Invoke-GcloudScp -Local $bootstrapScript -Remote "${Name}:/tmp/gce-gpu-lab-bootstrap.sh"
-  $cmd = "chmod +x /tmp/gce-gpu-lab-bootstrap.sh && bash /tmp/gce-gpu-lab-bootstrap.sh"
-  Invoke-Gcloud -GcloudArgs @(
-    "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", $cmd)
+  Invoke-GpuLabBootstrap
   Write-Host "Bootstrap complete on $Name"
   exit 0
 }
@@ -316,12 +339,12 @@ if ($Create) {
 
   if (-not (Wait-GpuLabSsh)) { throw "SSH not ready on $Name after create" }
 
-  $bootstrapScript = Join-Path $PSScriptRoot "gce-gpu-lab-bootstrap.sh"
-  Invoke-GcloudScp -Local $bootstrapScript -Remote "${Name}:/tmp/gce-gpu-lab-bootstrap.sh"
-  $cmd = "chmod +x /tmp/gce-gpu-lab-bootstrap.sh && bash /tmp/gce-gpu-lab-bootstrap.sh"
-  Invoke-Gcloud -GcloudArgs @(
-    "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", $cmd)
-  Write-Host "Created $Name. Run: pnpm run gpu-lab:prep && pnpm run gpu-lab:sync"
+  if (Test-GpuLabWindowsClient) {
+    Write-Host "Created $Name. Run: pnpm run gpu-lab:prep && pnpm run gpu-lab:gce"
+  } else {
+    Invoke-GpuLabBootstrap
+    Write-Host "Created $Name. Run: pnpm run gpu-lab:prep && pnpm run gpu-lab:sync"
+  }
   exit 0
 }
 
@@ -343,11 +366,13 @@ if ($Delete) {
 }
 
 if ($Ssh) {
+  Assert-NotWindowsDirectGpuOps -Op "SSH"
   & gcloud compute ssh $Name --zone=$Zone --project=$Project @sshExtra
   exit $LASTEXITCODE
 }
 
 if ($Sync) {
+  Assert-NotWindowsDirectGpuOps -Op "Sync"
   $st = Get-InstanceStatus
   if ($st -ne "RUNNING") { throw "Instance $Name is $st - run pnpm run gpu-lab:start first" }
 
@@ -357,7 +382,8 @@ if ($Sync) {
   }
 
   $remoteMk = "mkdir -p ~/chrysalis-gpu-lab/reports/web-llm/lora ~/chrysalis-gpu-lab/reports/web-llm/dataset ~/chrysalis-gpu-lab/scripts"
-  Invoke-Gcloud -GcloudArgs @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", $remoteMk)
+  $gcloudArgs = @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", $remoteMk)
+  Invoke-Gcloud -GcloudArgs $gcloudArgs
 
   $files = @(
     @{ Local = $manifest; Remote = "${Name}:~/chrysalis-gpu-lab/reports/web-llm/lora/train-manifest.v1.json" },
@@ -369,22 +395,25 @@ if ($Sync) {
     Invoke-GcloudScp -Local $f.Local -Remote $f.Remote
   }
 
-  Invoke-Gcloud -GcloudArgs @(
+  $chmodArgs = @(
     "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project"
   ) + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", "chmod +x ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh")
+  Invoke-Gcloud -GcloudArgs $chmodArgs
   Write-Host "Synced manifest + dataset + train script to ~/chrysalis-gpu-lab on $Name"
   exit 0
 }
 
 if ($Train) {
+  Assert-NotWindowsDirectGpuOps -Op "Train"
   $st = Get-InstanceStatus
   if ($st -ne "RUNNING") { throw "Instance $Name is $st - run pnpm run gpu-lab:start first" }
   Start-GpuLabAutoStop -Reason "train"
   $sshTimeoutSec = ($MaxMinutes * 60) + 120
   $cmd = "export CHRYSALIS_GPU_LAB_MAX_MINUTES=$MaxMinutes; bash ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh"
-  Invoke-Gcloud -GcloudArgs @(
+  $gcloudArgs = @(
     "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project"
   ) + @(Get-GpuLabTrainSshFlagArgs) + $sshExtra + @("--command", $cmd, "--quiet", "--ssh-timeout=${sshTimeoutSec}s")
+  Invoke-Gcloud -GcloudArgs $gcloudArgs
   if (Get-GpuLabAutoStopEnabled) {
     Write-Host "Train SSH finished. VM auto-stop still scheduled within ${MaxMinutes} min of train start unless already stopped."
   }

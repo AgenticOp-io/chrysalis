@@ -42,12 +42,24 @@ function Get-ChrysalisGcpSaKeyPath {
   return $null
 }
 
+function Initialize-ChrysalisGceRemoteClient {
+  # Windows: use OpenSSH so `gcloud compute ssh --command` never opens PuTTY/plink windows
+  # (see docs/HOW-TO.md §25, scripts/gce-wptp-test-vm.ps1, DESIGN D412).
+  if ($IsWindows -or $env:OS -eq "Windows_NT") {
+    if (-not $env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH) {
+      $env:CLOUDSDK_COMPUTE_SSH_USE_OPENSSH = "True"
+    }
+  }
+}
+
 function Initialize-ChrysalisGceAuth {
   param(
     [string] $Project,
     [string] $RepoRoot = $(Split-Path -Parent (Split-Path -Parent $PSScriptRoot)),
     [switch] $Quiet
   )
+
+  Initialize-ChrysalisGceRemoteClient
 
   $keyFile = Get-ChrysalisGcpSaKeyPath -RepoRoot $RepoRoot
   if (-not $keyFile) {

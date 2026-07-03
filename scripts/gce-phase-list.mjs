@@ -52,6 +52,7 @@ export function buildGcePhaseList(opts = {}) {
     "hub-knowledge",
     "intelligence-shorthand-close",
     "is-runtime-close",
+    "is-t2-lora-prep-close",
     "migration-os-close",
     "open-web-llm-close",
     "wisp-web-llm-poc-close",
