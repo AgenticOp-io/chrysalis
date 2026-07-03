@@ -1388,11 +1388,24 @@
   }
 
   function setJob(j) {
+    const isEl = $("isRoutingSummary");
+    if (isEl) {
+      if (j?.isRouting) {
+        const tier = j.isRouting.tier ?? "—";
+        const skip = j.isRouting.skipLlm === true ? "yes" : "no";
+        isEl.textContent = `IS routing: ${tier} · skipLlm ${skip} · domain ${j.isRouting.domainId ?? "—"}`;
+      } else if (!j || j.state === "idle") {
+        isEl.textContent = "IS routing: idle";
+      }
+    }
     if (!j || j.state === "idle") {
       if (hubSetupState !== "running" && hubBatchState !== "running") setPortalBusy(false);
       return;
     }
-    setPortalBusy(j.state === "running", (j.kind || "job") + " · " + j.state);
+    const isNote = j.isRouting
+      ? ` · IS ${j.isRouting.tier ?? "?"}${j.isRouting.skipLlm ? " skipLlm" : ""}`
+      : "";
+    setPortalBusy(j.state === "running", (j.kind || "job") + " · " + j.state + isNote);
   }
 
   function applyProgress(p) {

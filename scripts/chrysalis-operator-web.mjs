@@ -90,6 +90,7 @@ import { runProjectSetup } from "./chrysalis-hub-setup.mjs";
 import { buildObserveAssist } from "./chrysalis-hub-observe-assist.mjs";
 import { readVerifySummary, runProjectVerify, runSiteVerify, defaultTracesDir } from "./chrysalis-hub-verify.mjs";
 import { runWptpHubSmoke, runSiteWptpCompose } from "./chrysalis-hub-wptp.mjs";
+import { resolveHubConvertIsRouting } from "./hub-ingest/hub-llm-convert-is-routing.mjs";
 import {
   readRawBody,
   parseMultipartFiles,
@@ -132,6 +133,26 @@ let batchProgressTimer = null;
 let activeProgressFile =
   process.env.CHRYSALIS_OPERATOR_PROGRESS_FILE ?? join(repo, ".chrysalis", "ingest.progress");
 let runtimeHealthTimer = null;
+
+/** @returns {Promise<object | null>} */
+async function resolveJobIsRouting(projectDir, hubPlan) {
+  if (process.env.CHRYSALIS_HUB_SKIP_IS_ROUTING === "1" || !hubPlan) return null;
+  const runnable = hubPlan.runnable?.[0];
+  const origin = runnable?.sourceLang ?? hubPlan.originLanguage ?? defaultOriginLanguage();
+  const output = runnable?.targetId ?? hubPlan.outputLanguage ?? defaultOutputLanguage();
+  try {
+    const routing = await resolveHubConvertIsRouting({ repoRoot: repo, origin, output, projectDir });
+    return {
+      domainId: routing.domainId,
+      tier: routing.tier,
+      skipLlm: routing.skipLlm === true,
+      retrievalHit: routing.retrievalHit === true,
+      proposeOnly: routing.proposeOnly === true,
+    };
+  } catch {
+    return null;
+  }
+}
 
 async function pollRuntimeHealth() {
   for (const rt of listRunningRuntimes()) {
@@ -495,6 +516,12 @@ function runHubJobSteps(steps, projectDir, hubPlan) {
   const id = `job-${Date.now()}`;
   currentJob = { id, kind: "translate", state: "running", projectDir, startedAt: new Date().toISOString(), plan: hubPlan };
   broadcast("job", { ...currentJob });
+  void resolveJobIsRouting(projectDir, hubPlan).then((isRouting) => {
+    if (currentJob?.id === id && isRouting) {
+      currentJob = { ...currentJob, isRouting };
+      broadcast("job", { ...currentJob });
+    }
+  });
   if (steps.some((s) => s.kind === "ingest" || s.kind === "hub-translate")) startProgressWatch();
 
   runJobSteps(steps, repo, {
@@ -1943,6 +1970,12 @@ const server = createServer(async (req, res) => {
             plan: hubPlan,
           };
           broadcast("job", { ...currentJob });
+          void resolveJobIsRouting(projectDir, hubPlan).then((isRouting) => {
+            if (currentJob?.id === jobId && isRouting) {
+              currentJob = { ...currentJob, isRouting };
+              broadcast("job", { ...currentJob });
+            }
+          });
           startProgressWatch();
           void runSiteTranslation({
             repo,

@@ -238,6 +238,8 @@
     "hub:full-matrix-oracle-program-entry-smoke": "node scripts/hub-ingest/hub-full-matrix-oracle-program-entry-smoke.mjs",
     "hub:llm-assisted-convert-program-entry-smoke": "node scripts/hub-ingest/hub-llm-assisted-convert-program-entry-smoke.mjs",
     "hub:llm-convert-is-routing-smoke": "node scripts/hub-ingest/hub-llm-convert-is-routing-smoke.mjs",
+    "hub:llm-convert-hole-proposals-smoke": "node scripts/hub-ingest/hub-llm-convert-hole-proposals-smoke.mjs",
+    "hub:llm-convert-ui-routing-smoke": "node scripts/hub-ingest/hub-llm-convert-ui-routing-smoke.mjs",
     "hub:full-matrix-oracle-progress-smoke": "node scripts/hub-ingest/hub-full-matrix-oracle-progress-smoke.mjs",
     "hub:js-semantic-req-res-smoke": "node scripts/hub-ingest/hub-js-semantic-req-res-smoke.mjs",
     "hub:js-semantic-middleware-smoke": "node scripts/hub-ingest/hub-js-semantic-middleware-smoke.mjs",

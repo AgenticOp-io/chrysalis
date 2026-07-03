@@ -36,4 +36,21 @@ describe("hub llm-assisted convert (Phase 42)", () => {
     expect(report.llmAssistedConvert?.entryGate).toBe("G8800");
     expect(report.fullMatrixOracle?.programComplete).toBe(true);
   });
+
+  test("G8812 hole proposals never auto-apply", async () => {
+    const { runLlmConvertHoleProposalsGate } = await import(
+      "../../../scripts/hub-ingest/hub-llm-convert-hole-proposals-smoke.mjs"
+    );
+    const gate = await runLlmConvertHoleProposalsGate({ repoRoot: ROOT });
+    expect(gate.ok).toBe(true);
+    expect(gate.proposals?.applied).toBe(false);
+  });
+
+  test("G8813 hub UI exposes IS routing summary", async () => {
+    const { runLlmConvertUiRoutingGate } = await import(
+      "../../../scripts/hub-ingest/hub-llm-convert-ui-routing-smoke.mjs"
+    );
+    const gate = runLlmConvertUiRoutingGate();
+    expect(gate.ok).toBe(true);
+  });
 });

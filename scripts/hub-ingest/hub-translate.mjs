@@ -13,6 +13,7 @@ import { writeProjectCwlDiffArtifacts } from "./hub-cwl-diff.mjs";
 import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
 import { writeHubPostTranslateArtifacts } from "./hub-post-translate-artifacts.mjs";
 import { resolveHubConvertIsRouting } from "./hub-llm-convert-is-routing.mjs";
+import { runHubConvertHoleProposalPipeline } from "./hub-llm-convert-hole-proposals.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -71,6 +72,20 @@ async function emitTranslateResult(projectDir, origin, output, payload) {
     deliveryArtifacts = null;
   }
   console.log(JSON.stringify({ ...payload, deliveryArtifacts }));
+}
+
+async function attachHoleProposals(projectDir, isRouting) {
+  if (process.env.CHRYSALIS_HUB_SKIP_HOLE_PROPOSALS === "1") return null;
+  try {
+    return await runHubConvertHoleProposalPipeline({
+      projectDir,
+      domainId: isRouting?.domainId,
+      trajectoryPath: isRouting?.trajectoryPath,
+      recordVerifyGate: process.env.CHRYSALIS_HUB_CONVERT_RECORD_VERIFY !== "0",
+    });
+  } catch {
+    return null;
+  }
 }
 
 async function main() {
@@ -132,12 +147,14 @@ async function main() {
     } catch {
       cwlDiff = null;
     }
+    const holeProposals = await attachHoleProposals(projectDir, isRouting);
     await emitTranslateResult(projectDir, origin, output, {
       ok: true,
       origin,
       output,
       path: "chrysalis-php",
       isRouting,
+      holeProposals,
       cwlExport,
       openapiExport,
       cwlDiff,
@@ -160,6 +177,7 @@ async function main() {
     } catch {
       cwlDiff = null;
     }
+    const holeProposals = await attachHoleProposals(projectDir, isRouting);
     await emitTranslateResult(projectDir, origin, output, {
       ok: r.ok,
       origin,
@@ -167,6 +185,7 @@ async function main() {
       path: r.path,
       hole: r.hole ?? null,
       isRouting,
+      holeProposals,
       cwlExport,
       cwlDiff,
     });
@@ -198,12 +217,14 @@ async function main() {
     cwlDiff = null;
   }
 
+  const holeProposals = await attachHoleProposals(projectDir, isRouting);
   await emitTranslateResult(projectDir, origin, output, {
     ok: true,
     origin,
     output,
     path: "hub-lift-emit",
     isRouting,
+    holeProposals,
     cwlExport,
     cwlDiff,
   });

@@ -25,8 +25,8 @@ Integrate LLM into the **conversion product** only as a **verify-gated propose l
 | Slice | Scope | Gate |
 | --- | --- | --- |
 | **42a.1** | `resolveShorthandForTask` on hub translate / ingest jobs | **G8811** (`hub:llm-convert-is-routing-smoke`) |
-| **42a.2** | Hole proposals logged to trajectory; verify before apply | **G8812** |
-| **42a.3** | Hub UI: show IS tier + skipLlm on job progress | **G8813** |
+| **42a.2** | Hole proposals logged to trajectory; verify before apply | **G8812** (`hub:llm-convert-hole-proposals-smoke`) |
+| **42a.3** | Hub UI: show IS tier + skipLlm on job progress | **G8813** (`hub:llm-convert-ui-routing-smoke`) |
 
 **Regression:** extend `hub:is-runtime-close-smoke`; compose in **G8830**.
 
