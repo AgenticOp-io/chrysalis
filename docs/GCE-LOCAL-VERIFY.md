@@ -127,6 +127,7 @@ Script: `scripts/gce-run-all-tests.sh` — each row is a separate **`gce-run-pha
 | `post110-verify-gaps` | hub verify-gaps B1–B5 reinforcement (**green 2026-06-16**); HTTP verify uses **`hub-verify-http-probe-worker.mjs`** subprocess (avoids tsx hang on fastify) |
 | `intelligence-shorthand-close` | **G8560** IS-T3/T4/T5 export + hub (**CPU only**). Skip: `CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND=0` |
 | `is-runtime-close` | **G8600** IS tier retrieval + skip-LLM routing (**CPU only**) |
+| `llm-assisted-convert-close` | **G8830** LLM-assisted convert program close (build slice + IS runtime + matrix oracle). Skip with `CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND=0` |
 | `is-t2-lora-prep-close` | **G8610** IS-T2 LoRA train manifest + dataset export (**CPU only**; no GPU VM). Skip with `CHRYSALIS_GCE_INTELLIGENCE_SHORTHAND=0` |
 | `migration-os-close` | **G8550** Migration OS composite (evidence + open legacy + VMF hub + IS). Skip block: `CHRYSALIS_GCE_MIGRATION_OS=0` |
 | `open-web-llm-close` | **G8290** web-LLM framework close (part of Migration OS block) |
@@ -136,7 +137,7 @@ Script: `scripts/gce-run-all-tests.sh` — each row is a separate **`gce-run-pha
 
 Long smokes emit **`[chrysalis-smoke:scope] ISO8601 start|ok|FAIL|defer …`** lines to stderr (captured in `gce-phase-*.log` via `2>&1 tee`). Silence with `CHRYSALIS_HUB_SMOKE_PROGRESS=0`.
 
-Full phase id list: `node scripts/gce-phase-list.mjs csv` (**47** phases by default; includes **G8560** / **G8600** / **G8610** / Migration OS close **G8550** / **G8290** / **G8310** / **G8570**).
+Full phase id list: `node scripts/gce-phase-list.mjs csv` (**48** phases by default; includes **G8560** / **G8600** / **G8830** / **G8610** / Migration OS close **G8550** / **G8290** / **G8310** / **G8570**).
 
 **In-flight run on old manifest:** if progress shows legacy `cwl-batch-v106` (monolith), let it finish or stop it, sync scripts, then `node scripts/gce-progress.mjs bootstrap "$(node scripts/gce-phase-list.mjs csv)"` and `bash scripts/gce-resume-from-mega-phases.sh`.
 

@@ -82,6 +82,9 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 | **G8570** | `hub:site-port-open-legacy-wedge-smoke` | WordPress vertical wedge |
 | **G8310** | `hub:wisp-web-llm-poc-close-smoke` | WISP UI + web-LLM + IS (+ optional live) |
 | **G8290** | `hub:open-web-llm-close-smoke` | Framework close (trajectories, WVB, MCP) |
+| **G8790** | `hub:full-matrix-oracle-close-smoke` | 72/72 core matrix oracle-product |
+| **G8830** | `hub:llm-assisted-convert-close-smoke` | Verify-gated convert assist + MCP + IS routing |
+| **G8600** | `hub:is-runtime-close-smoke` | IS tier retrieval + skip-LLM routing (CPU) |
 
 Nightly CI: `.github/workflows/open-legacy-index-nightly.yml`  
 GCE full suite: `pnpm run test:gce` — see [`GCE-LOCAL-VERIFY.md`](./GCE-LOCAL-VERIFY.md).
@@ -98,6 +101,8 @@ GCE full suite: `pnpm run test:gce` — see [`GCE-LOCAL-VERIFY.md`](./GCE-LOCAL-
 | Open web-LLM framework (Phase 32) | [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) |
 | Agent POC scenarios | [`OPEN-WEB-LLM-POC.md`](./OPEN-WEB-LLM-POC.md) |
 | Intelligence Shorthand | [`INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md) |
+| LLM-assisted convert (Phase 42) | [`LLM-ASSISTED-CONVERT-PROGRAM.md`](./LLM-ASSISTED-CONVERT-PROGRAM.md) |
+| Full matrix oracle (Phase 41) | [`FULL-MATRIX-ORACLE-PROGRAM.md`](./FULL-MATRIX-ORACLE-PROGRAM.md) |
 | Training shard recipe | [`WEB-LLM-TRAINING-RECIPE.md`](./WEB-LLM-TRAINING-RECIPE.md) |
 | WVB | [`WEB-VERIFY-BENCHMARK.md`](./WEB-VERIFY-BENCHMARK.md) |
 
