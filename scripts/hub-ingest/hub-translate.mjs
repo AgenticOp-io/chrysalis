@@ -12,6 +12,7 @@ import { exportProjectMigrationCwlFromContractOrWebir } from "./hub-contract-cwl
 import { writeProjectCwlDiffArtifacts } from "./hub-cwl-diff.mjs";
 import { exportProjectOpenApi } from "./hub-cwl-openapi-export.mjs";
 import { writeHubPostTranslateArtifacts } from "./hub-post-translate-artifacts.mjs";
+import { resolveHubConvertIsRouting } from "./hub-llm-convert-is-routing.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -76,6 +77,11 @@ async function main() {
   const { projectDir, origin, output, cliBin } = parseArgs(process.argv);
   const hubIngest = join(root, "scripts/hub-ingest");
 
+  const isRouting =
+    process.env.CHRYSALIS_HUB_SKIP_IS_ROUTING === "1"
+      ? null
+      : await resolveHubConvertIsRouting({ repoRoot: root, origin, output, projectDir });
+
   if (origin === "php") {
     const progress = join(projectDir, ".chrysalis", "ingest.progress");
     const backend = resolveEmitBackend(output);
@@ -131,6 +137,7 @@ async function main() {
       origin,
       output,
       path: "chrysalis-php",
+      isRouting,
       cwlExport,
       openapiExport,
       cwlDiff,
@@ -159,6 +166,7 @@ async function main() {
       output,
       path: r.path,
       hole: r.hole ?? null,
+      isRouting,
       cwlExport,
       cwlDiff,
     });
@@ -195,6 +203,7 @@ async function main() {
     origin,
     output,
     path: "hub-lift-emit",
+    isRouting,
     cwlExport,
     cwlDiff,
   });

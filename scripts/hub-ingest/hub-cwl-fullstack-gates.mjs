@@ -63,6 +63,11 @@ import {
   isFullMatrixOracleProgramClosed,
   runFullMatrixOracleProgramEntryGate,
 } from "./hub-full-matrix-oracle-program-entry-smoke.mjs";
+import {
+  runLlmAssistedConvertProgramDocGate,
+  isLlmAssistedConvertProgramActive,
+  runLlmAssistedConvertProgramEntryGate,
+} from "./hub-llm-assisted-convert-program-entry-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -2102,6 +2107,10 @@ export function runPausedAndMaintenanceDocGate() {
       text.includes("hub:full-matrix-oracle-close-smoke") &&
       text.includes("G8700") &&
       text.includes("D6301") &&
+      (!isLlmAssistedConvertProgramActive() ||
+        (text.includes("G8800") &&
+          text.includes("LLM-ASSISTED-CONVERT-PROGRAM.md") &&
+          text.includes("D6302"))) &&
       text.includes("Do not treat closed program tables")
     : isFullMatrixOracleProgramActive()
     ? text.includes("G8700") &&
@@ -2261,6 +2270,10 @@ export function runStrategicPlanMaintenanceDefaultQueueGate() {
       text.includes("G8790") &&
       text.includes("hub:full-matrix-oracle-close-smoke") &&
       text.includes("D6301") &&
+      (!isLlmAssistedConvertProgramActive() ||
+        (text.includes("G8800") &&
+          text.includes("LLM-ASSISTED-CONVERT-PROGRAM.md") &&
+          text.includes("D6302"))) &&
       text.includes("PAUSED-AND-MAINTENANCE.md");
     return { ok, fullMatrixOracleClosedOk: ok };
   }
@@ -2686,10 +2699,16 @@ export async function runFullMatrixOracleClosedGovernanceGate(_opts = {}) {
   const roadmap = runRoadmapMaintenanceDefaultQueueGate();
   let closeOk = true;
   let close = null;
+  let llmEntryOk = true;
+  let llmEntry = null;
   if (!skipClose) {
     const { runFullMatrixOracleCloseGate } = await import("./hub-full-matrix-oracle-close-smoke.mjs");
     close = await runFullMatrixOracleCloseGate({ ..._opts, skipMaintenance: true });
     closeOk = close.ok === true;
+  }
+  if (isLlmAssistedConvertProgramActive()) {
+    llmEntry = await runLlmAssistedConvertProgramEntryGate(_opts);
+    llmEntryOk = llmEntry.ok === true;
   }
   const ok =
     doc.ok === true &&
@@ -2697,6 +2716,7 @@ export async function runFullMatrixOracleClosedGovernanceGate(_opts = {}) {
     strategicPlan.ok === true &&
     roadmap.ok === true &&
     closeOk &&
+    llmEntryOk &&
     isFullMatrixOracleProgramClosed();
   return {
     ok,
@@ -2706,6 +2726,8 @@ export async function runFullMatrixOracleClosedGovernanceGate(_opts = {}) {
     roadmapOk: roadmap.ok === true,
     closeOk,
     close,
+    llmEntryOk,
+    llmEntry,
     mode: "full-matrix-oracle-closed",
   };
 }

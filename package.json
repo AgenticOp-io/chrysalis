@@ -236,6 +236,8 @@
     "hub:site-port-federation-hub-close-smoke": "node scripts/hub-ingest/hub-site-port-federation-hub-close-smoke.mjs",
     "hub:migration-os-close-smoke": "node scripts/hub-ingest/hub-migration-os-close-smoke.mjs",
     "hub:full-matrix-oracle-program-entry-smoke": "node scripts/hub-ingest/hub-full-matrix-oracle-program-entry-smoke.mjs",
+    "hub:llm-assisted-convert-program-entry-smoke": "node scripts/hub-ingest/hub-llm-assisted-convert-program-entry-smoke.mjs",
+    "hub:llm-convert-is-routing-smoke": "node scripts/hub-ingest/hub-llm-convert-is-routing-smoke.mjs",
     "hub:full-matrix-oracle-progress-smoke": "node scripts/hub-ingest/hub-full-matrix-oracle-progress-smoke.mjs",
     "hub:js-semantic-req-res-smoke": "node scripts/hub-ingest/hub-js-semantic-req-res-smoke.mjs",
     "hub:js-semantic-middleware-smoke": "node scripts/hub-ingest/hub-js-semantic-middleware-smoke.mjs",
