@@ -44,6 +44,7 @@ import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { fail, readJsonGateArtifact, readStdinUtf8 } from "./ci-gates-shared.mjs";
 import { assertHubCompletion } from "./ci-gates-hub-completion.mjs";
+import { hubDirectedPairCount } from "./hub-ingest/language-catalog.mjs";
 import { validatePipelineRemoteVerifyDetail } from "./wisp-cwl-demo-manifest-verify.mjs";
 
 const require = createRequire(import.meta.url);
@@ -705,8 +706,9 @@ function assertHubPathKnowledge(path) {
   if (s.schemaVersion !== 3) {
     fail(`${label}: schemaVersion must be 3`);
   }
-  if ((s.pairCount ?? 0) < 575) {
-    fail(`${label}: pairCount must be >= 575`);
+  const minPairs = hubDirectedPairCount();
+  if ((s.pairCount ?? 0) < minPairs) {
+    fail(`${label}: pairCount must be >= ${minPairs}`);
   }
   if ((s.webDatabaseCatalog?.count ?? 0) < 20) {
     fail(`${label}: webDatabaseCatalog.count must be >= 20`);

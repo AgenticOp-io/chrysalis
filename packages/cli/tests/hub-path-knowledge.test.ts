@@ -6,7 +6,7 @@ const KNOWLEDGE = fileURLToPath(
 );
 const HUB_STORE = fileURLToPath(new URL("../../../scripts/chrysalis-hub-store.mjs", import.meta.url));
 
-test("path knowledge: full grid 575 pairs with similarities and practices", async () => {
+test("path knowledge: full grid with similarities and practices", async () => {
   const kb = await import(KNOWLEDGE);
   const hub = await import(HUB_STORE);
   const db = kb.buildHubPathKnowledgeBase();

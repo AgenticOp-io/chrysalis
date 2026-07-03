@@ -6,14 +6,18 @@ import { expect, test } from "vitest";
 const ROOT = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const COVERAGE = resolve(ROOT, "scripts/hub-ingest/hub-gold-coverage.mjs");
 
-test("hub gold coverage: zero gaps across 575 pairs (G40)", async () => {
+test("hub gold coverage: zero gaps across open matrix (G40)", async () => {
   const m = await import(COVERAGE);
+  const { hubDirectedPairCount } = await import(
+    fileURLToPath(new URL("../../../scripts/hub-ingest/language-catalog.mjs", import.meta.url)),
+  );
   const report = m.buildHubGoldCoverageReport();
+  const pairCount = hubDirectedPairCount();
   expect(report.kind).toBe(m.HUB_GOLD_COVERAGE_KIND);
-  expect(report.summary.pairCount).toBe(575);
-  expect(report.summary.goldMatrix).toBe(575);
+  expect(report.summary.pairCount).toBe(pairCount);
+  expect(report.summary.goldMatrix).toBe(pairCount);
   expect(report.summary.oracleTier).toBe(4);
-  expect(report.summary.structuralTier).toBe(99);
+  expect(report.summary.structuralTier).toBe(180);
   expect(report.summary.coverageGaps).toBe(0);
   expect(report.summary.hubCiStructuralPairs).toBeGreaterThan(10);
   expect(report.summary.chrysalisCiGoldPairs).toBe(4);
