@@ -81,14 +81,46 @@ export async function proposeHubConvertHolePatches(input) {
   /** @type {Array<object>} */
   const proposals = [];
   let step = input.stepBase ?? 10;
-  for (const hole of holes) {
-    const name = hole.name ?? hole.id ?? hole.reason ?? "legacy:unknown";
+
+  const holeInputs = holes.map((hole) => ({
+    name: hole.name ?? hole.id ?? hole.reason ?? "legacy:unknown",
+    detail: hole.detail ?? hole.message ?? null,
+  }));
+
+  let enrichResult = { enrichments: [], skipLlm: true, llmUsed: false };
+  if (input.enrichWithLlm === true && holeInputs.length > 0) {
+    const skipLlm = input.skipLlm === true;
+    enrichResult = await mod.enrichConvertHoleProposals({
+      holes: holeInputs,
+      skipLlm,
+      domainId: input.domainId,
+      tier: input.tier,
+    });
+    mod.appendTrajectoryRecord({
+      filePath: trajectoryPath,
+      sessionId,
+      step: step++,
+      role: "tool",
+      toolName: "hub_convert_llm_enrich",
+      content: enrichResult.llmUsed ? "llm-enriched" : enrichResult.skipLlm ? "skip-llm" : "stub-enriched",
+      gate: { name: "llm-enrich", ok: true },
+      skipLlm: enrichResult.skipLlm,
+      domainId: input.domainId ?? undefined,
+    });
+  }
+
+  for (let i = 0; i < holeInputs.length; i++) {
+    const holeInput = holeInputs[i];
+    const name = holeInput.name;
+    const enrichment = enrichResult.enrichments[i];
     const proposal = {
       id: `hole-proposal-${proposals.length + 1}`,
       hole: name,
-      detail: hole.detail ?? hole.message ?? null,
+      detail: holeInput.detail,
       action: "hole-patch",
-      patch: null,
+      patch: enrichment?.patchHint ?? null,
+      suggestion: enrichment?.suggestion ?? null,
+      enrichSource: enrichment?.source ?? null,
       apply: false,
       verifyBeforeApply: true,
       status: "pending_verify",
@@ -118,6 +150,9 @@ export async function proposeHubConvertHolePatches(input) {
     proposalCount: proposals.length,
     applied: false,
     verifyRequired: true,
+    llmEnriched: input.enrichWithLlm === true,
+    llmUsed: enrichResult.llmUsed === true,
+    skipLlm: enrichResult.skipLlm === true,
     proposals,
     trajectoryPath,
     sessionId,
@@ -195,5 +230,5 @@ export async function runHubConvertHoleProposalPipeline(input) {
   if (input.recordVerifyGate === true) {
     verifyRecord = await recordVerifyGateForHoleProposals({ projectDir: input.projectDir });
   }
-  return { proposals, verifyRecord, applied: false };
+  return { proposals, verifyRecord, applied: proposals.applied === true };
 }

@@ -74,4 +74,21 @@ describe("hub llm-assisted convert (Phase 42)", () => {
     expect(gate.isRuntime?.ok).toBe(true);
     expect(gate.matrixOracle?.programComplete).toBe(true);
   });
+
+  test("G8911 LLM convert enrich gate is green", async () => {
+    const { runLlmConvertEnrichGate } = await import(
+      "../../../scripts/hub-ingest/hub-llm-convert-enrich-smoke.mjs"
+    );
+    const gate = await runLlmConvertEnrichGate({ repoRoot: ROOT });
+    expect(gate.ok).toBe(true);
+  });
+
+  test("G8912 verify-gated apply records operator confirm", async () => {
+    const { runLlmConvertVerifyApplyGate } = await import(
+      "../../../scripts/hub-ingest/hub-llm-convert-verify-apply-smoke.mjs"
+    );
+    const gate = await runLlmConvertVerifyApplyGate({ repoRoot: ROOT });
+    expect(gate.ok).toBe(true);
+    expect(gate.apply?.applied).toBe(true);
+  });
 });

@@ -8,6 +8,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** maintenance **G8550** / **G8570** / **G6731** (see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)).
+- **Active (2026-07-03):** **Phase 43 LLM convert full** (**G8900** → **G8940**, **D6303**) — verify-gated enrich + apply; subordinate to maintenance.
 - **Closed (2026-07-03):** **Phase 42 LLM-assisted convert** (**G8800** → **G8830**, **D6302**); **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
@@ -564,6 +565,22 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 | G7103 B53 `str_repeat(, literal)` | `runIrHelperLiftingB53StrRepeatInlineGate` |
 | G7104 B54 `str_pad(, literal, literal)` | `runIrHelperLiftingB54StrPadInlineGate` |
 | **G6750 close** | `pnpm run hub:cwl-language-v1-close-smoke` |
+
+---
+
+---
+
+## Active — Phase 43 LLM convert full (G8900–G8940)
+
+**Authority:** [`docs/LLM-CONVERT-FULL-PROGRAM.md`](./docs/LLM-CONVERT-FULL-PROGRAM.md) (**D6303**); extends Phase 42 — subordinate to **G8550**.
+
+| Gate | Goal | Smoke |
+| --- | --- | --- |
+| **G8900** | Program entry | `hub:llm-convert-full-program-entry-smoke` |
+| **G8911** | LLM/stub hole enrichment | `hub:llm-convert-enrich-smoke` |
+| **G8912** | Verify-gated operator apply | `hub:llm-convert-verify-apply-smoke` |
+| **G8920** | MCP enrich + verify + apply | build slice |
+| **G8940** | Program close composite | `hub:llm-convert-full-build-slice-smoke` |
 
 ---
 

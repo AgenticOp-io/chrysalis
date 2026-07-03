@@ -77,7 +77,9 @@ export async function runIsRuntimeCloseSmoke(opts = {}) {
     resolveToolPresent: resolveTool?.name === "web_llm_resolve_shorthand",
     convertRoutingToolPresent: convertRoutingTool?.name === "hub_convert_is_routing",
     convertProposeToolPresent: convertProposeTool?.name === "hub_convert_propose_holes",
-    toolCountMin: manifest.tools.length >= 13,
+    convertApplyToolPresent: mod.findAgentTool("hub_convert_apply_holes")?.name === "hub_convert_apply_holes",
+    convertEnrichToolPresent: mod.findAgentTool("hub_convert_llm_enrich")?.name === "hub_convert_llm_enrich",
+    toolCountMin: manifest.tools.length >= 16,
     tierLogged,
     bundleExists: existsSync(exported.jsonPath ?? ""),
   };

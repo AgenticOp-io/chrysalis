@@ -81,6 +81,9 @@ async function attachHoleProposals(projectDir, isRouting) {
       projectDir,
       domainId: isRouting?.domainId,
       trajectoryPath: isRouting?.trajectoryPath,
+      tier: isRouting?.tier,
+      skipLlm: isRouting?.skipLlm === true,
+      enrichWithLlm: process.env.CHRYSALIS_HUB_CONVERT_ENRICH_LLM !== "0",
       recordVerifyGate: process.env.CHRYSALIS_HUB_CONVERT_RECORD_VERIFY !== "0",
     });
   } catch {

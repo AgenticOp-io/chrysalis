@@ -1393,7 +1393,14 @@
       if (j?.isRouting) {
         const tier = j.isRouting.tier ?? "—";
         const skip = j.isRouting.skipLlm === true ? "yes" : "no";
-        isEl.textContent = `IS routing: ${tier} · skipLlm ${skip} · domain ${j.isRouting.domainId ?? "—"}`;
+        let text = `IS routing: ${tier} · skipLlm ${skip} · domain ${j.isRouting.domainId ?? "—"}`;
+        const hp = j.holeProposals;
+        if (hp?.proposalCount > 0) {
+          text += ` · holes ${hp.proposalCount}`;
+          if (hp.applied === true) text += " · applied";
+          else if (hp.llmEnriched === true) text += hp.llmUsed ? " · LLM enriched" : " · stub enriched";
+        }
+        isEl.textContent = text;
       } else if (!j || j.state === "idle") {
         isEl.textContent = "IS routing: idle";
       }

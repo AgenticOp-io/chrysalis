@@ -45,7 +45,7 @@ export async function runLlmConvertMcpGate(opts = {}) {
     resolveToolPresent: resolveTool?.name === "web_llm_resolve_shorthand",
     routingToolPresent: routingTool?.name === "hub_convert_is_routing",
     proposeToolPresent: proposeTool?.name === "hub_convert_propose_holes",
-    toolCountMin: names.length >= 13,
+    toolCountMin: names.length >= 16,
     resolveOk: resolved.ok === true,
     routingOk: routing.ok === true,
     routingProposeOnly: routing.detail?.proposeOnly === true,

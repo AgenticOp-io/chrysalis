@@ -144,9 +144,45 @@ export async function callWebLlmTool(repoRoot, name, args = {}) {
       const report = await proposeHubConvertHolePatches({
         projectDir: resolve(root, String(args.projectDir ?? ".")),
         domainId: args.domainId ? String(args.domainId) : undefined,
+        enrichWithLlm: args.enrichWithLlm === true,
+        skipLlm: args.skipLlm === true,
+        tier: args.tier ? String(args.tier) : undefined,
       });
       const ok = report.applied === false && report.verifyRequired === true;
       return { ok, stdout: JSON.stringify(report, null, 2), detail: report, stderr: "" };
+    }
+    case "hub_convert_verify_gate": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const { recordConvertVerifyGate } = await import("./hub-ingest/hub-llm-convert-verify-apply.mjs");
+      const result = await recordConvertVerifyGate({
+        projectDir: resolve(root, String(args.projectDir ?? ".")),
+      });
+      const ok = result.gatePass === true || result.record?.verifyGate?.gatePass === true;
+      return { ok, stdout: JSON.stringify(result, null, 2), detail: result, stderr: "" };
+    }
+    case "hub_convert_apply_holes": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const { applyHubConvertHoleProposals } = await import("./hub-ingest/hub-llm-convert-verify-apply.mjs");
+      const result = await applyHubConvertHoleProposals({
+        projectDir: resolve(root, String(args.projectDir ?? ".")),
+        confirmApply: args.confirmApply === true,
+      });
+      const ok = args.confirmApply !== true ? result.applied === false : result.ok === true;
+      return { ok, stdout: JSON.stringify(result, null, 2), detail: result, stderr: "" };
+    }
+    case "hub_convert_llm_enrich": {
+      const mod = await loadWebLlm();
+      const holes = Array.isArray(args.holes) ? args.holes : [];
+      const enriched = await mod.enrichConvertHoleProposals({
+        holes: holes.map((h) => ({
+          name: String(h?.name ?? "legacy:unknown"),
+          detail: h?.detail != null ? String(h.detail) : null,
+        })),
+        skipLlm: args.skipLlm === true,
+        domainId: args.domainId ? String(args.domainId) : undefined,
+        tier: args.tier ? String(args.tier) : undefined,
+      });
+      return { ok: enriched.enrichments.length === holes.length, stdout: JSON.stringify(enriched, null, 2), detail: enriched, stderr: "" };
     }
     case "web_llm_record_trajectory": {
       if (args.role === "assistant" && args.gateOk !== true && args.unverified !== true) {

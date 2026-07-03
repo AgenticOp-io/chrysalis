@@ -1,0 +1,228 @@
+#!/usr/bin/env node
+/** Phase 43 — verify-gated convert hole apply (G8912). Never applies without verify + operator confirm. */
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdir } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { defaultVerifySummaryPath } from "./hub-verify-playbooks.mjs";
+import { HUB_CONVERT_HOLE_PROPOSALS_KIND } from "./hub-llm-convert-hole-proposals.mjs";
+
+const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const cliBin = join(scriptRoot, "packages/cli/dist/bin.js");
+
+export const HUB_CONVERT_VERIFY_APPLY_KIND = "chrysalis.hub.convert-verify-apply";
+export const HUB_CONVERT_VERIFY_APPLY_SCHEMA_VERSION = 1;
+
+async function loadWebLlm() {
+  try {
+    return await import("@chrysalis/web-llm");
+  } catch {
+    return import(pathToFileURL(join(scriptRoot, "packages/web-llm/dist/index.js")).href);
+  }
+}
+
+/** Run verify gate for convert apply — post-translate verify when configured, else read summary. */
+export function runConvertVerifyGate(projectDir) {
+  const dir = resolve(projectDir);
+  const summaryPath = defaultVerifySummaryPath(dir);
+
+  if (!existsSync(cliBin)) {
+    return { ok: false, skip: "cli-not-built", gatePass: false, correctness: null, summaryPath: null };
+  }
+
+  const tracesDir = join(dir, ".chrysalis", "traces");
+  const baseUrl = process.env.CHRYSALIS_HUB_VERIFY_BASE_URL?.trim() ?? "";
+  if (existsSync(tracesDir) && baseUrl) {
+    const reportDir = join(dir, "reports", "verify");
+    mkdirSync(reportDir, { recursive: true });
+    const r = spawnSync(
+      process.execPath,
+      [
+        cliBin,
+        "verify",
+        tracesDir,
+        "--base-url",
+        baseUrl,
+        "--report",
+        reportDir,
+        "--project",
+        dir,
+        "--threshold",
+        "1",
+        "--json-summary",
+        "--disable-cookie-chain",
+      ],
+      { cwd: scriptRoot, encoding: "utf8", maxBuffer: 8 * 1024 * 1024 },
+    );
+    let correctness = null;
+    if (existsSync(summaryPath)) {
+      try {
+        correctness = JSON.parse(readFileSync(summaryPath, "utf8")).aggregate?.correctness ?? null;
+      } catch {
+        /* ignore */
+      }
+    }
+    const gatePass = (r.status ?? 1) === 0 && correctness !== null && correctness >= 1;
+    return {
+      ok: gatePass,
+      gatePass,
+      correctness,
+      verifyExit: r.status ?? 1,
+      summaryPath: existsSync(summaryPath) ? summaryPath : null,
+      mode: "post-translate",
+    };
+  }
+
+  let correctness = null;
+  if (existsSync(summaryPath)) {
+    try {
+      correctness = JSON.parse(readFileSync(summaryPath, "utf8")).aggregate?.correctness ?? null;
+    } catch {
+      /* ignore */
+    }
+  }
+  const gatePass = correctness !== null && correctness >= 1;
+  return {
+    ok: gatePass,
+    gatePass,
+    correctness,
+    verifyExit: gatePass ? 0 : 1,
+    summaryPath: existsSync(summaryPath) ? summaryPath : null,
+    mode: existsSync(summaryPath) ? "summary-cache" : "unavailable",
+  };
+}
+
+/**
+ * Apply hole proposals after verify gate + operator confirm.
+ * @param {object} input
+ * @param {string} input.projectDir
+ * @param {boolean} input.confirmApply
+ */
+export async function applyHubConvertHoleProposals(input) {
+  const projectDir = resolve(input.projectDir);
+  const artifactPath = join(projectDir, ".chrysalis", "hub-convert.hole-proposals.json");
+  if (!existsSync(artifactPath)) {
+    return { ok: false, skip: "missing-hole-proposals-artifact", applied: false };
+  }
+  const artifact = JSON.parse(readFileSync(artifactPath, "utf8"));
+  const verify = runConvertVerifyGate(projectDir);
+  const mod = await loadWebLlm();
+  const policy = mod.evaluateConvertVerifyApplyPolicy({
+    gateOk: verify.gatePass === true,
+    verifyCorrectness: verify.correctness,
+    confirmApply: input.confirmApply === true,
+    holeCount: artifact.holeCount ?? 0,
+  });
+
+  const trajectoryPath =
+    artifact.trajectoryPath ?? join(projectDir, ".chrysalis", "hub-convert.trajectory.jsonl");
+  const sessionId = artifact.sessionId ?? mod.createTrajectorySessionId("hub-convert-apply");
+  await mkdir(dirname(trajectoryPath), { recursive: true });
+
+  mod.appendTrajectoryRecord({
+    filePath: trajectoryPath,
+    sessionId,
+    step: (artifact.proposalCount ?? 0) + 30,
+    role: "tool",
+    toolName: "hub_convert_verify_gate",
+    content: verify.gatePass ? "verify-pass" : "verify-fail",
+    gate: { name: "verify-before-apply", ok: verify.gatePass === true },
+  });
+
+  if (!policy.ok) {
+    const pending = {
+      ...artifact,
+      applied: false,
+      verifyGate: {
+        available: verify.summaryPath != null,
+        correctness: verify.correctness,
+        gatePass: verify.gatePass === true,
+        summaryPath: verify.summaryPath,
+      },
+      applyPolicy: policy,
+      proposals: (artifact.proposals ?? []).map((p) => ({
+        ...p,
+        apply: false,
+        status: verify.gatePass ? "verify_passed_pending_operator" : "pending_verify",
+      })),
+      updatedAt: new Date().toISOString(),
+    };
+    writeFileSync(artifactPath, `${JSON.stringify(pending, null, 2)}\n`, "utf8");
+    return {
+      ok: false,
+      applied: false,
+      verifyGate: verify,
+      applyPolicy: policy,
+      artifact: pending,
+    };
+  }
+
+  const appliedArtifact = {
+    ...artifact,
+    kind: HUB_CONVERT_HOLE_PROPOSALS_KIND,
+    applied: true,
+    appliedAt: new Date().toISOString(),
+    verifyGate: {
+      available: true,
+      correctness: verify.correctness,
+      gatePass: true,
+      summaryPath: verify.summaryPath,
+    },
+    applyPolicy: policy,
+    proposals: (artifact.proposals ?? []).map((p) => ({
+      ...p,
+      apply: true,
+      status: "applied_verify_gated",
+    })),
+    updatedAt: new Date().toISOString(),
+  };
+  writeFileSync(artifactPath, `${JSON.stringify(appliedArtifact, null, 2)}\n`, "utf8");
+
+  const appliedRegistryPath = join(projectDir, ".chrysalis", "hub-convert.applied-holes.json");
+  writeFileSync(
+    appliedRegistryPath,
+    `${JSON.stringify(
+      {
+        kind: HUB_CONVERT_VERIFY_APPLY_KIND,
+        schemaVersion: HUB_CONVERT_VERIFY_APPLY_SCHEMA_VERSION,
+        projectDir,
+        holeCount: appliedArtifact.holeCount ?? 0,
+        appliedAt: appliedArtifact.appliedAt,
+        proposals: appliedArtifact.proposals,
+        verifyGate: appliedArtifact.verifyGate,
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+
+  mod.appendTrajectoryRecord({
+    filePath: trajectoryPath,
+    sessionId,
+    step: (artifact.proposalCount ?? 0) + 31,
+    role: "assistant",
+    toolName: "hub_convert_apply_holes",
+    content: `applied ${appliedArtifact.proposalCount ?? 0} proposals`,
+    gate: { name: "convert-apply", ok: true },
+  });
+
+  return {
+    ok: true,
+    applied: true,
+    verifyGate: verify,
+    applyPolicy: policy,
+    artifact: appliedArtifact,
+    appliedRegistryPath,
+  };
+}
+
+/** Verify gate only — record on existing proposals artifact. */
+export async function recordConvertVerifyGate(input) {
+  const projectDir = resolve(input.projectDir);
+  const verify = runConvertVerifyGate(projectDir);
+  const { recordVerifyGateForHoleProposals } = await import("./hub-llm-convert-hole-proposals.mjs");
+  const record = await recordVerifyGateForHoleProposals({ projectDir });
+  return { verify, record, gatePass: verify.gatePass === true };
+}

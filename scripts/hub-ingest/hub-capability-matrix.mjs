@@ -126,6 +126,14 @@ export function buildHubCapabilityMatrixReport() {
       status: "closed",
       invariant: "models propose; WebIR + oracle + verify dispose",
     },
+    llmConvertFull: {
+      program: "Phase 43 — LLM convert full",
+      doc: "docs/LLM-CONVERT-FULL-PROGRAM.md",
+      entryGate: "G8900",
+      closeGate: "G8940",
+      status: "active",
+      invariant: "enrich + verify-gated apply; no auto-apply",
+    },
     oracleMicroFixture: {
       fixture: ORACLE_MICRO_FIXTURE,
       script: "pnpm run hub:oracle-micro-fixture",

@@ -184,9 +184,67 @@ export function chrysalisAgentToolDefinitions(): AgentToolDefinition[] {
         properties: {
           projectDir: { type: "string", description: "Project directory with ingest/status holes" },
           domainId: { type: "string", description: "Optional IS domain id for trajectory" },
+          enrichWithLlm: { type: "boolean", description: "Enrich proposals with LLM/stub hints when true" },
+          skipLlm: { type: "boolean", description: "Force IS skipLlm routing for enrichment" },
+          tier: { type: "string", description: "IS tier label for LLM context" },
           repoRoot: { type: "string" },
         },
         required: ["projectDir"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "hub_convert_verify_gate",
+      description: "Run oracle verify and record verify-before-apply gate on hole proposals.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectDir: { type: "string" },
+          repoRoot: { type: "string" },
+        },
+        required: ["projectDir"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "hub_convert_apply_holes",
+      description:
+        "Apply verify-gated hole proposals after operator confirm — requires verify correctness >= 1.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectDir: { type: "string" },
+          confirmApply: { type: "boolean", description: "Must be true to apply" },
+          repoRoot: { type: "string" },
+        },
+        required: ["projectDir", "confirmApply"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "hub_convert_llm_enrich",
+      description:
+        "Enrich hole list with LLM or stub scaffold hints (respects skipLlm and API key env).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          holes: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                detail: { type: "string" },
+              },
+              required: ["name"],
+            },
+          },
+          skipLlm: { type: "boolean" },
+          domainId: { type: "string" },
+          tier: { type: "string" },
+          repoRoot: { type: "string" },
+        },
+        required: ["holes"],
         additionalProperties: false,
       },
     },

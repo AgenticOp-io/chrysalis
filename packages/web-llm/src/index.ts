@@ -16,4 +16,6 @@ export * from "./site-port.js";
 export * from "./federation.js";
 export * from "./shorthand.js";
 export * from "./shorthand-retrieval.js";
+export * from "./convert-assist.js";
+export * from "./convert-llm-proposer.js";
 export * from "./lora-manifest.js";

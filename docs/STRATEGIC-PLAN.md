@@ -425,15 +425,18 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (maintenance — post Phase 41/42 close)
+**Amended 2026-07-03 (Phase 43 LLM convert full — D6303):** Phase **43** active at **G8900**: LLM/stub hole enrichment, verify-gated operator apply, MCP **`hub_convert_apply_holes`** — extends closed Phase 42 without bypassing WebIR/oracle. See [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md).
 
-**Status:** **Phase 41 closed** (**G8790**, **D6301** — 2026-07-03); **Phase 42 closed** (**G8830**, **D6302** — 2026-07-03); **Phase 32 closed** (**G8290**); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
+## 12. Default queue (maintenance + Phase 43 LLM convert full)
+
+**Status:** **Phase 43 active** (**G8900**, **D6303** — 2026-07-03); **Phase 42 closed** (**G8830**, **D6302**); **Phase 41 closed** (**G8790**, **D6301**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
 
 When the user says "build" without specifying:
 
 1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600**)
 2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
 3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (subordinate)
+4. **Phase 43 LLM convert full** — [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md): **G8911** enrich → **G8912** verify-apply → **G8940** close
 
 **Closed program regression:** `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:open-web-llm-close-smoke` (**G8290**) · `hub:is-runtime-close-smoke` (**G8600**) · `hub:cwl-universal-translator-close-smoke` (**G7690**)
 
