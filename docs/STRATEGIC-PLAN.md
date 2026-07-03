@@ -425,15 +425,14 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (post Phase 40 — IS runtime + LoRA prep closed)
 
-**Status:** **Phase 40 closed** (**G8600** / **G8610**, **D6297**); **Phase 32 active** (**G8290** / **G8240**, **D6275**); **Migration OS closed** (**G8550**); **Intelligence Shorthand closed** (**G8560**).
+**Status:** **Phase 32 Horizons A+B closed** (**G8290** / **G8240**, **D6298**); **Phase 32c active** (**G8310** / **G8320** live); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**).
 
 When the user says "build" without specifying:
 
-1. **G8240 Horizon B** — dataset export, leaderboard, auto gate logging (`hub:open-web-llm-horizon-b-smoke` if present; else extend **G8290** slice)
-2. **G8290 web-LLM framework** — `pnpm run hub:open-web-llm-close-smoke`
-3. **G8310 unified POC** — `pnpm run hub:wisp-web-llm-poc-close-smoke` (add **`CHRYSALIS_G8310_LIVE=1`** for G8320 on GCE)
-4. **G8550 composite regression** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600** + **G8610** on GCE)
-5. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+1. **G8310 unified POC** — `pnpm run hub:wisp-web-llm-poc-close-smoke` (live G8320: **`CHRYSALIS_G8310_LIVE=1`** or `pnpm run test:gce:migration-os:wisp-live`)
+2. **G8550 composite regression** — `pnpm run hub:migration-os-close-smoke`
+3. **G8240 / G8290 maintenance** — `pnpm run hub:open-web-llm-horizon-b-smoke` · `pnpm run hub:open-web-llm-close-smoke`
+4. **G8570 wedge regression** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
 
 **Operator demo:** `pnpm run migration-evidence:demo`  
 **IS export:** `pnpm run web-llm:export-shorthand` / `chrysalis federation export-shorthand`  

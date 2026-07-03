@@ -7,7 +7,7 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** **Phase 32 Open web-LLM** (**G8290** / Horizon **B** **G8240**); **Migration OS closed** (**G8550**).
+- **Active lane:** **Phase 32c** WISP + web-LLM POC (**G8310** / optional live **G8320**); **Phase 32 Horizons A+B closed** (**G8290** / **G8240**, 2026-07-03).
 - **Closed (2026-07-03):** **Phase 40 IS runtime protocol** (**G8600**) + **IS-T2 LoRA prep** (**G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
@@ -209,16 +209,17 @@ Closed: **2026-06-16**
 ## Active — Phase 32 Open web-LLM framework (G8290)
 
 Program doc: [`docs/OPEN-WEB-LLM-PROGRAM.md`](./docs/OPEN-WEB-LLM-PROGRAM.md)  
-Authority: **DESIGN D6275**  
+Authority: **DESIGN D6275** / **D6298**  
 Requires: engine + verify substrate (G8100/G7990 subordinate)
 
-| Horizon | Goal | Close gate |
-| --- | --- | --- |
-| **A** | `@chrysalis/web-llm`, WVB, trajectories, MCP tools | **G8290** |
-| **B** | Dataset export, leaderboard, auto gate logging | **G8240** |
-| **C** | Sponsor-funded CWL fine-tune | out of scope until funded |
+| Horizon | Goal | Close gate | Status |
+| --- | --- | --- | --- |
+| **A** | `@chrysalis/web-llm`, WVB, trajectories, MCP tools | **G8290** | **closed** 2026-07-03 |
+| **B** | Dataset export, leaderboard, auto gate logging | **G8240** | **closed** 2026-07-03 |
+| **C** | Sponsor-funded CWL fine-tune | — | out of scope until funded |
 
-**Default regression (web-LLM framework):** `pnpm run hub:open-web-llm-close-smoke` (**G8290**).
+**Regression:** `pnpm run hub:open-web-llm-horizon-b-smoke` (**G8240**) · `pnpm run hub:open-web-llm-close-smoke` (**G8290**)  
+**GCE:** `open-web-llm-close` in `test:gce:migration-os` / full `test:gce`
 
 ### Phase 32c — Agent POC (G8300 / G8310)
 

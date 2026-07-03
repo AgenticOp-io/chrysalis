@@ -1,6 +1,6 @@
 # Open web-LLM program (Phase 32)
 
-> **Status:** **active** (**G8290**, 2026-06-16)  
+> **Status:** **Horizon B closed** (**G8240**, 2026-07-03); **framework close** (**G8290**) green locally + GCE **`open-web-llm-close`** phase  
 > **Authority:** **DESIGN D6275**; requires **G8100** WISP CWL UI parity **closed** (subordinate)  
 > **Hub:** [`MIGRATION-OS.md`](./MIGRATION-OS.md)
 

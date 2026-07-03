@@ -5,6 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { runWebLlmExportDataset } from "../web-llm-export-dataset.mjs";
 import { runWebLlmBuildLeaderboard } from "../web-llm-build-leaderboard.mjs";
+import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 
 export const OPEN_WEB_LLM_HORIZON_B_KIND = "chrysalis.web-llm.horizon-b-smoke";
 
@@ -77,7 +78,21 @@ export async function runOpenWebLlmHorizonBGate() {
 }
 
 async function main() {
+  const progress = createSmokeProgress("open-web-llm-horizon-b");
+  const t0 = progress.start("Open web-LLM Horizon B (G8240)");
   const r = await runOpenWebLlmHorizonBGate();
+  progress.end("Open web-LLM Horizon B (G8240)", r.ok === true, t0);
+  const mod = await loadWebLlm();
+  mod.logWebLlmSmokeGate({
+    repoRoot: scriptRoot,
+    gateName: "G8240",
+    ok: r.ok === true,
+    detail: {
+      datasetOk: r.dataset?.ok ?? false,
+      leaderboardOk: r.leaderboard?.ok ?? false,
+      autoLogOk: r.autoLog?.ok ?? false,
+    },
+  });
   console.log(JSON.stringify(r, null, 2));
   if (!r.ok) process.exit(1);
 }
