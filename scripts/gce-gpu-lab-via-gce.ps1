@@ -62,7 +62,7 @@ function Sync-GpuLabArtifacts {
 }
 
 if ($Status) {
-  $remote = 'if test -f ~/chrysalis-test/reports/ci/gce-gpu-lab.ok; then echo STATUS_OK; else echo STATUS_RUNNING; fi; pgrep -af gce-gpu-lab-orchestrate 2>/dev/null | head -3 || true; tail -n 30 ~/chrysalis-test/reports/ci/gce-gpu-lab.log 2>/dev/null || echo no_log'
+  $remote = 'if test -f ~/chrysalis-test/reports/ci/gce-gpu-lab.ok; then echo STATUS_OK; else echo STATUS_RUNNING; fi; pgrep -af "gpu-lab-artifacts/gce-gpu-lab-orchestrate" 2>/dev/null | head -3 || true; tail -n 30 ~/chrysalis-test/reports/ci/gce-gpu-lab.log 2>/dev/null || echo no_log'
   try {
     Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $remote
     exit 0

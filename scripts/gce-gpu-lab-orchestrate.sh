@@ -136,7 +136,9 @@ schedule_auto_stop() {
 
 main() {
   rm -f "$OK"
-  if pgrep -f gce-gpu-lab-orchestrate.sh | grep -qv "$$"; then
+  LOCK="${REPO}/reports/ci/gce-gpu-lab.lock"
+  exec 9>"$LOCK"
+  if ! flock -n 9; then
     log "another orchestrator already running — exit"
     exit 0
   fi
