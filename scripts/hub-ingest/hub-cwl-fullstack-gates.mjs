@@ -57,6 +57,12 @@ import { runWispCwlPhase14CloseGate } from "./hub-wisp-cwl-phase14-close-smoke.m
 import { runWispCwlPhase14ProgramCloseGate } from "./hub-wisp-cwl-phase14-program-close-smoke.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { runWispCwlPipelineSmokeGate } from "./hub-wisp-cwl-pipeline-smoke.mjs";
+import {
+  runFullMatrixOracleProgramDocGate,
+  isFullMatrixOracleProgramActive,
+  isFullMatrixOracleProgramClosed,
+  runFullMatrixOracleProgramEntryGate,
+} from "./hub-full-matrix-oracle-program-entry-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -2091,7 +2097,19 @@ export function runPausedAndMaintenanceDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const phase10Closed = isPhase10ProductionParityClosed();
-  const docOk = isWispProductionCompletionProgramClosed()
+  const docOk = isFullMatrixOracleProgramClosed()
+    ? text.includes("G8790") &&
+      text.includes("hub:full-matrix-oracle-close-smoke") &&
+      text.includes("G8700") &&
+      text.includes("D6301") &&
+      text.includes("Do not treat closed program tables")
+    : isFullMatrixOracleProgramActive()
+    ? text.includes("G8700") &&
+      text.includes("hub:full-matrix-oracle-program-entry-smoke") &&
+      text.includes("FULL-MATRIX-ORACLE-PROGRAM.md") &&
+      text.includes("D6300") &&
+      text.includes("Do not treat closed program tables")
+    : isWispProductionCompletionProgramClosed()
     ? text.includes("G7990") &&
       text.includes("hub:wisp-production-completion-close-smoke") &&
       text.includes("G7890") &&
@@ -2235,6 +2253,28 @@ export function runPausedAndMaintenanceDocGate() {
 
 /** G6162 — Strategic plan default queue gate (Phase 13, Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isFullMatrixOracleProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G8790") &&
+      text.includes("hub:full-matrix-oracle-close-smoke") &&
+      text.includes("D6301") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, fullMatrixOracleClosedOk: ok };
+  }
+  if (isFullMatrixOracleProgramActive()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("Phase 41") &&
+      text.includes("G8700") &&
+      text.includes("D6300") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, fullMatrixOracleActiveOk: ok };
+  }
   if (isWispProductionCompletionProgramClosed()) {
     const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
     if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
@@ -2481,7 +2521,19 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
   const ok =
-    isWispProductionCompletionProgramClosed()
+    isFullMatrixOracleProgramClosed()
+      ? text.includes("G8790") &&
+        text.includes("hub:full-matrix-oracle-close-smoke") &&
+        text.includes("G8700") &&
+        text.includes("D6300") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isFullMatrixOracleProgramActive()
+      ? text.includes("Phase 41") &&
+        text.includes("G8700") &&
+        text.includes("G8790") &&
+        text.includes("D6300") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isWispProductionCompletionProgramClosed()
       ? text.includes("G7990") &&
         text.includes("hub:wisp-production-completion-close-smoke") &&
         text.includes("G7890") &&
@@ -2623,8 +2675,71 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   return { ok, roadmapOk: ok };
 }
 
+/** G8791 — Full matrix oracle closed governance (post G8790). */
+export async function runFullMatrixOracleClosedGovernanceGate(_opts = {}) {
+  const skipClose =
+    _opts.skipFullMatrixOracleClose === true ||
+    process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FULL_MATRIX_ORACLE === "1";
+  const doc = runFullMatrixOracleProgramDocGate();
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  let closeOk = true;
+  let close = null;
+  if (!skipClose) {
+    const { runFullMatrixOracleCloseGate } = await import("./hub-full-matrix-oracle-close-smoke.mjs");
+    close = await runFullMatrixOracleCloseGate({ ..._opts, skipMaintenance: true });
+    closeOk = close.ok === true;
+  }
+  const ok =
+    doc.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    closeOk &&
+    isFullMatrixOracleProgramClosed();
+  return {
+    ok,
+    docOk: doc.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    closeOk,
+    close,
+    mode: "full-matrix-oracle-closed",
+  };
+}
+
+/** G8701 — Full matrix oracle active governance (post G8700 entry). */
+export async function runFullMatrixOracleActiveGovernanceGate(_opts = {}) {
+  const entry = await runFullMatrixOracleProgramEntryGate(_opts);
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const ok =
+    entry.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    isFullMatrixOracleProgramActive();
+  return {
+    ok,
+    entryOk: entry.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    mode: "full-matrix-oracle-active",
+  };
+}
+
 /** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isFullMatrixOracleProgramClosed()) {
+    return runFullMatrixOracleClosedGovernanceGate(_opts);
+  }
+  if (isFullMatrixOracleProgramActive()) {
+    return runFullMatrixOracleActiveGovernanceGate(_opts);
+  }
   if (isWispProductionCompletionProgramClosed()) {
     return runWispProductionCompletionClosedGovernanceGate(_opts);
   }

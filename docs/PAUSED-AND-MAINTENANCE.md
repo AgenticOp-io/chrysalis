@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-03)  
+> **Status:** authoritative (2026-07-03) — Phase 41 closed (**G8790**, **D6301**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -15,13 +15,12 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 
 | Priority | Gate | Smoke |
 | --- | --- | --- |
-| **Full matrix oracle (Phase 41)** | **G8700** / **G8710+** | `hub:full-matrix-oracle-program-entry-smoke` · `hub:full-matrix-oracle-progress-smoke` |
 | **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (subordinate) |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
-**Closed program regression:** `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
+**Closed program regression:** `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
 **Program docs:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) (closed)
 
 ### Subordinate (closed — regression only)
@@ -125,3 +124,4 @@ Full catalog: [`archive/INDEX.md`](./archive/INDEX.md).
 | WISP full site CWL | **G7790** | `hub:wisp-full-site-close-smoke` |
 | Complete language v1 | **G7150** | `hub:cwl-complete-language-close-smoke` |
 | IR Helper Program v1 | **G7200** | `hub:ir-helper-program-close-smoke` |
+| Full matrix oracle product | **G8790** / **G8700** | `hub:full-matrix-oracle-close-smoke` |

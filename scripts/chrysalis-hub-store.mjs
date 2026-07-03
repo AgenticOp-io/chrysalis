@@ -564,8 +564,11 @@ function readinessForOrigin(languageId) {
       done: [
         "Native ingest via @chrysalis/ingest with parser bridge and oracle-backed verify path.",
         "Gold routes for php -> typescript/hono/fastify.",
+        "Native emit to python/java/go/ruby/csharp with oracle product trace replay (G8740–G8768).",
       ],
-      notDone: ["Direct native emitters for non-TS outputs still scaffold/open routes."],
+      notDone: [
+        "Arbitrary PHP handler bodies beyond gold fixtures may still emit holes.",
+      ],
     };
   }
   if (languageId === "python") {
@@ -579,11 +582,12 @@ function readinessForOrigin(languageId) {
         "CPython ast route lift (G22): Flask/FastAPI-style decorators when python3 is on PATH.",
         "Literal and simple dict returns lowered; other bodies remain holes.",
         "Literal python -> hono/fastify/typescript is gold when hub-gold-verify passes (G30).",
+        "Hub python-bridge native ingest + oracle-python trace parity on gold fixtures (G8720).",
         "Contract-first WPTP compose when OpenAPI/HAR present (G20).",
       ],
       notDone: [
-        "Native @chrysalis/ingest package adapter and oracle verify are not implemented.",
-        "Native emitters for non-TS targets remain scaffolds.",
+        "Package-level @chrysalis/ingest adapter (outside hub scripts) remains future work.",
+        "Non-literal handler bodies beyond gold fixtures remain holes.",
       ],
     };
   }
@@ -597,11 +601,12 @@ function readinessForOrigin(languageId) {
       done: [
         `Annotation/pattern route lift (G23/G24): Spring or ${languageId === "go" ? "net/http/gin/echo" : "JAX-RS"}-style paths from source scan.`,
         "Simple literal returns lowered when found near route registration.",
+        `Hub native-bridge ingest + oracle-${languageId} trace parity on gold fixtures (G8730).`,
         "Contract-first WPTP compose when OpenAPI/HAR present (G20).",
       ],
       notDone: [
-        `Native ${languageId} parser ingest in @chrysalis/ingest and oracle verify are not implemented.`,
-        "Native emitters for non-TS targets remain scaffolds.",
+        "Package-level @chrysalis/ingest adapter remains future work.",
+        "Non-literal handler bodies beyond gold fixtures remain holes.",
       ],
     };
   }
@@ -613,13 +618,14 @@ function readinessForOrigin(languageId) {
       ingestStatus: "silver-ast-lift",
       emitStatus: "open-scaffold-or-ts",
       done: [
-        "Acorn-based AST lift (G21): Express-style routes + literal return lowering; calls/objects stay holes.",
-        "When the site tree has OpenAPI/Swagger or HAR, any origin can use contract-first WPTP compose to hono/nextjs (G20).",
+        "Acorn-based AST lift (G21): Express-style routes + literal return lowering.",
+        "Semantic lowering slices on gold fixtures: req/res (G8711), middleware (G8712), SQL (G8713), calls (G8714).",
+        "When the site tree has OpenAPI/Swagger or HAR, contract-first WPTP compose to hono/nextjs (G20).",
         "Runnable TS framework emit from lifted WebIR (hono/fastify/nextjs).",
+        "Oracle product trace replay for all core matrix output pairs (G8790).",
       ],
       notDone: [
-        "Full semantic lowering (req/res, middleware, SQL effects) is not implemented.",
-        "Per-language oracle/verify parity suites are not implemented.",
+        "Full semantic lowering for arbitrary AST bodies beyond gold fixtures remains hole-prone.",
       ],
     };
   }
@@ -633,11 +639,12 @@ function readinessForOrigin(languageId) {
       done: [
         `Pattern route lift (G25): framework-specific HTTP registrations for ${languageId}.`,
         "Literal returns near registrations lower when obvious; other bodies stay holes.",
+        `Hub native-bridge ingest + oracle trace parity on gold fixtures (G8730).`,
         "Contract-first WPTP compose when OpenAPI/HAR present (G20).",
       ],
       notDone: [
-        `Native ${languageId} parser ingest in @chrysalis/ingest and oracle verify are not implemented.`,
-        "Native emitters for non-TS targets remain scaffolds.",
+        "Package-level @chrysalis/ingest adapter remains future work.",
+        "Non-literal handler bodies beyond gold fixtures remain holes.",
       ],
     };
   }
@@ -714,10 +721,12 @@ function readinessForOutput(languageId) {
       label: LANGUAGE_LABELS[languageId] ?? languageId,
       popularityRank: popularityRank(languageId),
       emitStatus: "silver-hub-native",
-      done: ["Hub WebIR -> Flask emit (emit-python-from-hub.mjs) for lifted routes (G26)."],
+      done: [
+        "Hub WebIR -> Flask emit (emit-python-from-hub.mjs) for lifted routes (G26).",
+        "Oracle product trace replay from all core matrix origins (G8790).",
+      ],
       notDone: [
-        "Full @chrysalis/ingest PHP-style oracle ingest for Python origins is not implemented.",
-        "Dict/call handler bodies remain holes unless literal.",
+        "Non-literal handler bodies beyond gold fixtures remain holes.",
       ],
     };
   }
@@ -729,10 +738,10 @@ function readinessForOutput(languageId) {
       emitStatus: "silver-hub-native",
       done: [
         `Hub WebIR -> ${languageId === "java" ? "Spring" : "gin"} emit (emit-${languageId}-from-hub.mjs, G27).`,
+        "Oracle product trace replay from all core matrix origins (G8790).",
       ],
       notDone: [
-        `Native @chrysalis/ingest and oracle verify for ${languageId} are not implemented.`,
-        "Non-literal handler bodies remain holes.",
+        "Non-literal handler bodies beyond gold fixtures remain holes.",
       ],
     };
   }
@@ -761,10 +770,12 @@ function readinessForOutput(languageId) {
       label: LANGUAGE_LABELS[languageId] ?? languageId,
       popularityRank: popularityRank(languageId),
       emitStatus: "silver-hub-native",
-      done: [`Hub WebIR -> ${stack} emit (emit-${languageId}-from-hub.mjs, G30).`],
+      done: [
+        `Hub WebIR -> ${stack} emit (emit-${languageId}-from-hub.mjs, G30).`,
+        "Oracle product trace replay from all core matrix origins (G8790).",
+      ],
       notDone: [
-        `Native @chrysalis/ingest and oracle verify for ${languageId} are not implemented.`,
-        "Non-literal handler bodies remain holes.",
+        "Non-literal handler bodies beyond gold fixtures remain holes.",
       ],
     };
   }

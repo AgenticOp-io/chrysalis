@@ -10,10 +10,26 @@ export const FULL_MATRIX_ORACLE_PROGRAM_ENTRY_SMOKE_KIND =
 export const FULL_MATRIX_ORACLE_PROGRAM_ENTRY_SMOKE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const programDocPath = join(scriptRoot, "docs/FULL-MATRIX-ORACLE-PROGRAM.md");
 
-/** G8700 — program docs + charter aligned. */
+/** @returns {boolean} Phase 41 full matrix oracle program closed (G8790). */
+export function isFullMatrixOracleProgramClosed() {
+  if (!existsSync(programDocPath)) return false;
+  const text = readFileSync(programDocPath, "utf8");
+  return text.includes("Program closed") && text.includes("G8790");
+}
+
+/** @returns {boolean} Phase 41 full matrix oracle program active (G8700). */
+export function isFullMatrixOracleProgramActive() {
+  if (isFullMatrixOracleProgramClosed()) return false;
+  if (!existsSync(programDocPath)) return false;
+  const text = readFileSync(programDocPath, "utf8");
+  return text.includes("**Status:** **active**") && text.includes("G8700");
+}
+
+/** G8700 — program docs + charter aligned (active or closed). */
 export function runFullMatrixOracleProgramDocGate() {
-  const programPath = join(scriptRoot, "docs/FULL-MATRIX-ORACLE-PROGRAM.md");
+  const programPath = programDocPath;
   const strategicPath = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
   const roadmapPath = join(scriptRoot, "ROADMAP.md");
   const designPath = join(scriptRoot, "DESIGN.md");
@@ -28,22 +44,33 @@ export function runFullMatrixOracleProgramDocGate() {
   const strategic = readFileSync(strategicPath, "utf8");
   const roadmap = readFileSync(roadmapPath, "utf8");
   const design = existsSync(designPath) ? readFileSync(designPath, "utf8") : "";
+  const closed = isFullMatrixOracleProgramClosed();
+  const active = isFullMatrixOracleProgramActive();
+  const statusOk =
+    (closed && program.includes("Program closed") && program.includes("G8790")) ||
+    (active && program.includes("**Status:** **active**"));
+  const strategicOk = closed
+    ? strategic.includes("G8790") &&
+      strategic.includes("hub:full-matrix-oracle-close-smoke") &&
+      strategic.includes("D6301") &&
+      strategic.includes("PAUSED-AND-MAINTENANCE.md")
+    : strategic.includes("Phase 41") &&
+      strategic.includes("G8700") &&
+      strategic.includes("D6300");
   const ok =
-    program.includes("**Status:** **active**") &&
+    statusOk &&
     program.includes("Phase 41") &&
     program.includes("G8700") &&
     program.includes("G8790") &&
     program.includes("D6300") &&
     program.includes("72 pairs") &&
     program.includes("oracle product") &&
-    strategic.includes("Phase 41") &&
-    strategic.includes("G8700") &&
-    strategic.includes("D6300") &&
+    strategicOk &&
     roadmap.includes("Phase 41") &&
     roadmap.includes("G8700") &&
     design.includes("D6300") &&
     existsSync(charterPath);
-  return { ok, programEntryOk: ok };
+  return { ok, programEntryOk: ok, closed, active };
 }
 
 export async function runFullMatrixOracleProgramEntryGate(_opts = {}) {

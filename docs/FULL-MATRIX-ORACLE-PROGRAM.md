@@ -1,6 +1,6 @@
 # Full matrix oracle product program (Phase 41)
 
-> **Status:** **active** (2026-07-03, **G8700**) — user-amended locked path (**D6300**)  
+> **Status:** **Program closed** (2026-07-03, **G8790**) — **72/72** core matrix pairs at oracle-product tier; was **active** (**G8700**, **D6300**)  
 > **Authority:** **DESIGN D6300**; [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12; hub readiness matrix (`buildLanguageReadinessReport`)  
 > **Requires:** **G7690** universal translator closed (maintenance regression); **G8550** Migration OS closed  
 > **Supersedes for default build:** maintenance-only queue (**D6299**) when user scopes “build all matrix pairs”
@@ -25,7 +25,7 @@ Origins and outputs (same set):
 
 `cwl`, `csharp`, `go`, `java`, `javascript`, `php`, `python`, `ruby`, `typescript`
 
-**Today (2026-07-03):** ~4 structural gold cells (PHP→TS, CWL↔TS, literal→CWL); remainder silver/open with blockers indexed in hub UI.
+**Closed (2026-07-03):** **72/72** core pairs at **oracle product** tier (trace-replay suites on gold fixtures). Hub UI language profiles may still list semantic-depth gaps for non-gold bodies.
 
 ## Tracks (build order — do not skip)
 
@@ -116,14 +116,13 @@ Builds on Phase 21 (**G7330**) and Phase 17 (**G7130**) regression.
 | **G8760–G8780** | Phase 41f promotion slices | `hub:phase41-master-build-slice-smoke` |
 | **G8790** | **Program close** | `hub:full-matrix-oracle-close-smoke` |
 
-## Default queue (Phase 41 active)
+## Default queue (closed — regression only)
 
-1. **G8701 progress** — census before/after each slice
-2. **G8710** → **G8750** tracks in order (41a first — unblocks largest origin cluster)
-3. **G8550** / **G8570** maintenance — run after each track merge
-4. **G7690** universal translator regression — subordinate
+**Maintenance default:** [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12 (**G8550** / **G8570** / **G6731**).
 
-**Regression (closed):** Migration OS (**G8550**), Open web-LLM (**G8290**), IS runtime (**G8600**), IR helper tier (**G6731**)
+**Program regression:** `pnpm run hub:full-matrix-oracle-close-smoke` (**G8790**) · `pnpm run hub:full-matrix-oracle-progress-smoke` (**G8701** census)
+
+**Regression (other closed programs):** Migration OS (**G8550**), Open web-LLM (**G8290**), IS runtime (**G8600**), IR helper tier (**G6731**)
 
 ## Non-goals
 

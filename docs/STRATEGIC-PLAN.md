@@ -423,7 +423,30 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-## 12. Default queue (Phase 41 — Full matrix oracle product active)
+## 12. Default queue (maintenance — post Phase 41 close)
+
+**Status:** **Phase 41 closed** (**G8790**, **D6301** — 2026-07-03); **Phase 32 closed** (**G8290**); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600**)
+2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (subordinate)
+
+**Closed program regression:** `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:open-web-llm-close-smoke` (**G8290**) · `hub:is-runtime-close-smoke` (**G8600**) · `hub:cwl-universal-translator-close-smoke` (**G7690**)
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**GCE Migration OS:** `pnpm run test:gce:migration-os`  
+**GPU lab dry-run:** `pnpm run gpu-lab:gce`  
+**VMF hub:** `pnpm run federation:serve`
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+
+---
+
+## 12 (archived) — Default queue (Phase 41 — Full matrix oracle product active, superseded 2026-07-03 by maintenance)
 
 **Status:** **Phase 41 active** (**G8700**, **D6300** — user-amended 2026-07-03); **Phase 32 closed** (**G8290**); **Phase 40 closed** (**G8600** / **G8610**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
 
@@ -432,20 +455,11 @@ When the user says "build" without specifying:
 1. **G8701 matrix progress** — `pnpm run hub:full-matrix-oracle-progress-smoke` (honest grade census)
 2. **G8711 build slice** — `pnpm run hub:phase41-llm-build-slice-smoke` (41a.1 req/res + IS corpus refresh **G8610**)
 3. **G8710 → G8750** — Phase 41 tracks in order ([`FULL-MATRIX-ORACLE-PROGRAM.md`](./FULL-MATRIX-ORACLE-PROGRAM.md))
-3. **G8550 / G8570 maintenance** — after each track merge
-4. **G7690** universal translator regression — subordinate
+4. **G8550 / G8570 maintenance** — after each track merge
+5. **G7690** universal translator regression — subordinate
 
 **Program entry:** `pnpm run hub:full-matrix-oracle-program-entry-smoke` (**G8700**)  
-**Program close (future):** `pnpm run hub:full-matrix-oracle-close-smoke` (**G8790**)
-
-**Regression (closed programs):** `hub:migration-os-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke` · `hub:cwl-universal-translator-close-smoke` · `hub:cwl-language-maintenance-smoke`  
-**GCE live WISP:** `pnpm run test:gce:migration-os:wisp-live`  
-**GPU lab dry-run:** `pnpm run gpu-lab:gce`  
-**VMF hub:** `pnpm run federation:serve`
-
-**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
-
-**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
+**Program close:** `pnpm run hub:full-matrix-oracle-close-smoke` (**G8790**)
 
 ---
 
