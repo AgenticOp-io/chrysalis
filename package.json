@@ -243,6 +243,7 @@
     "hub:llm-convert-mcp-smoke": "node scripts/hub-ingest/hub-llm-convert-mcp-smoke.mjs",
     "hub:llm-convert-poc-smoke": "node scripts/hub-ingest/hub-llm-convert-poc-smoke.mjs",
     "hub:llm-convert-build-slice-smoke": "node scripts/hub-ingest/hub-llm-convert-build-slice-smoke.mjs",
+    "hub:llm-assisted-convert-close-smoke": "node scripts/hub-ingest/hub-llm-assisted-convert-close-smoke.mjs",
     "web-llm-run-convert-poc": "node scripts/web-llm-run-convert-poc.mjs",
     "hub:full-matrix-oracle-progress-smoke": "node scripts/hub-ingest/hub-full-matrix-oracle-progress-smoke.mjs",
     "hub:js-semantic-req-res-smoke": "node scripts/hub-ingest/hub-js-semantic-req-res-smoke.mjs",

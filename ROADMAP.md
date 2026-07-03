@@ -8,8 +8,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** maintenance **G8550** / **G8570** / **G6731** (see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)).
-- **Active (2026-07-03):** **Phase 42 LLM-assisted convert** (**G8800** → **G8830**) — verify-gated propose only; subordinate to maintenance (**D6302**).
-- **Closed (2026-07-03):** **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
+- **Closed (2026-07-03):** **Phase 42 LLM-assisted convert** (**G8800** → **G8830**, **D6302**); **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
 
@@ -568,21 +567,20 @@ Program doc: [`docs/CWL-LANGUAGE-PROGRAM.md`](./docs/CWL-LANGUAGE-PROGRAM.md)
 
 ---
 
-## Active — Phase 42 LLM-assisted convert (G8800–G8830)
+## Closed — Phase 42 LLM-assisted convert (G8800–G8830)
 
 **Authority:** [`docs/LLM-ASSISTED-CONVERT-PROGRAM.md`](./docs/LLM-ASSISTED-CONVERT-PROGRAM.md) (**D6302**); verify-gated propose layer — subordinate to **G8550**.
 
-| Gate | Goal | Smoke (planned) |
+| Gate | Goal | Smoke |
 | --- | --- | --- |
-| **G8800** | Program entry + governance | doc + **D6302** · `hub:llm-assisted-convert-program-entry-smoke` |
+| **G8800** | Program entry + governance | `hub:llm-assisted-convert-program-entry-smoke` |
 | **G8811** | IS-routed convert assist on hub translate/ingest | `hub:llm-convert-is-routing-smoke` |
 | **G8812** | Hole proposals logged; verify before apply | `hub:llm-convert-hole-proposals-smoke` |
 | **G8813** | Hub UI IS tier on job progress | `hub:llm-convert-ui-routing-smoke` |
-| **G8813** | Hub UI IS tier on job progress | `hub:llm-convert-ui-routing-smoke` |
-| **G8820** | Operator MCP convert workflow | `hub:llm-convert-mcp-smoke` + `hub:llm-convert-poc-smoke` |
 | **G8821** | MCP convert tools (no auto-apply) | `hub:llm-convert-mcp-smoke` |
 | **G8822** | Agent POC php→hono convert | `hub:llm-convert-poc-smoke` |
-| **G8830** | Program close composite | `hub:llm-assisted-convert-close-smoke` (future) |
+| **G8820** | Operator MCP convert workflow | build slice + MCP + POC smokes |
+| **G8830** | Program close composite | `hub:llm-assisted-convert-close-smoke` |
 
 ---
 

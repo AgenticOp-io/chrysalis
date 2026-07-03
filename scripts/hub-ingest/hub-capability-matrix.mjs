@@ -123,7 +123,7 @@ export function buildHubCapabilityMatrixReport() {
       doc: "docs/LLM-ASSISTED-CONVERT-PROGRAM.md",
       entryGate: "G8800",
       closeGate: "G8830",
-      status: "active",
+      status: "closed",
       invariant: "models propose; WebIR + oracle + verify dispose",
     },
     oracleMicroFixture: {

@@ -4,13 +4,13 @@ import { resolve } from "node:path";
 const ROOT = resolve(import.meta.dirname, "../../..");
 
 describe("hub llm-assisted convert (Phase 42)", () => {
-  test("G8800 program entry gate is green", async () => {
-    const { runLlmAssistedConvertProgramEntryGate, isLlmAssistedConvertProgramActive } =
+  test("G8800 program entry gate accepts closed program", async () => {
+    const { runLlmAssistedConvertProgramEntryGate, isLlmAssistedConvertProgramClosed } =
       await import("../../../scripts/hub-ingest/hub-llm-assisted-convert-program-entry-smoke.mjs");
-    expect(isLlmAssistedConvertProgramActive()).toBe(true);
+    expect(isLlmAssistedConvertProgramClosed()).toBe(true);
     const gate = await runLlmAssistedConvertProgramEntryGate();
     expect(gate.ok).toBe(true);
-    expect(gate.program?.active).toBe(true);
+    expect(gate.program?.closed).toBe(true);
   });
 
   test("G8811 IS routing resolves php→hono with skipLlm", async () => {
@@ -60,5 +60,18 @@ describe("hub llm-assisted convert (Phase 42)", () => {
     );
     const gate = await runLlmConvertMcpGate({ repoRoot: ROOT });
     expect(gate.ok).toBe(true);
+  });
+
+  test("G8830 program close composite is green", async () => {
+    const { runLlmAssistedConvertCloseGate } = await import(
+      "../../../scripts/hub-ingest/hub-llm-assisted-convert-close-smoke.mjs"
+    );
+    const gate = await runLlmAssistedConvertCloseGate({ repoRoot: ROOT });
+    expect(gate.ok).toBe(true);
+    expect(gate.closeReady).toBe(true);
+    expect(gate.programClosed).toBe(true);
+    expect(gate.buildSlice?.ok).toBe(true);
+    expect(gate.isRuntime?.ok).toBe(true);
+    expect(gate.matrixOracle?.programComplete).toBe(true);
   });
 });

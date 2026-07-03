@@ -47,6 +47,9 @@ export function runLlmAssistedConvertProgramDocGate() {
   const statusOk =
     (closed && program.includes("Program closed") && program.includes("G8830")) ||
     (active && program.includes("**Status:** **active**"));
+  const strategicGateOk = closed
+    ? strategic.includes("G8830") && strategic.includes("D6302")
+    : strategic.includes("G8800") && strategic.includes("D6302");
   const ok =
     statusOk &&
     program.includes("Phase 42") &&
@@ -55,11 +58,10 @@ export function runLlmAssistedConvertProgramDocGate() {
     program.includes("D6302") &&
     program.includes("verify-gated") &&
     program.includes("Models propose") &&
-    strategic.includes("G8800") &&
-    strategic.includes("D6302") &&
+    strategicGateOk &&
     strategic.includes("LLM-ASSISTED-CONVERT-PROGRAM.md") &&
     roadmap.includes("Phase 42") &&
-    roadmap.includes("G8800") &&
+    (roadmap.includes("G8800") || roadmap.includes("G8830")) &&
     design.includes("D6302") &&
     capability.includes("Phase 42");
   return { ok, programEntryOk: ok, closed, active };

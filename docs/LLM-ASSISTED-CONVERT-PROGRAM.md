@@ -1,6 +1,6 @@
 # LLM-assisted convert program (Phase 42)
 
-> **Status:** **active** (2026-07-03, **G8800**, **D6302** — user-amended)  
+> **Status:** **Program closed** (2026-07-03, **G8830**) — was **active** (**G8800**, **D6302** — user-amended)  
 > **Authority:** **DESIGN D6302**; [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) §12; [`INTELLIGENCE-SHORTHAND-PROTOCOL.md`](./INTELLIGENCE-SHORTHAND-PROTOCOL.md)  
 > **Requires:** **G8790** full matrix oracle closed; **G8600** IS runtime; **G8290** open web-LLM closed  
 > **Subordinate to:** **G8550** / **G8570** / **G6731** maintenance regression
@@ -43,7 +43,7 @@ Integrate LLM into the **conversion product** only as a **verify-gated propose l
 
 Composite: **G8810** + **G8820** + **G8790** + **G8600** regression.
 
-**Smoke (future):** `pnpm run hub:llm-assisted-convert-close-smoke` (**G8830**)
+**Smoke:** `pnpm run hub:llm-assisted-convert-close-smoke` (**G8830**)
 
 ## Default queue interaction
 

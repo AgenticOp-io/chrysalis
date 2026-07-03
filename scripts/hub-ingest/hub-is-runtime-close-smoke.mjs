@@ -43,6 +43,8 @@ export async function runIsRuntimeCloseSmoke(opts = {}) {
 
   const manifest = mod.buildAgentToolManifest();
   const resolveTool = mod.findAgentTool("web_llm_resolve_shorthand");
+  const convertRoutingTool = mod.findAgentTool("hub_convert_is_routing");
+  const convertProposeTool = mod.findAgentTool("hub_convert_propose_holes");
 
   const trajectoryPath = join(repoRoot, "generated/_is-runtime-smoke/trajectory.jsonl");
   const sessionId = mod.createTrajectorySessionId("is-runtime");
@@ -73,7 +75,9 @@ export async function runIsRuntimeCloseSmoke(opts = {}) {
       typeof resolveDetail.tier === "string" &&
       mod.tierRank(resolveDetail.tier) <= mod.tierRank("IS-T3-skill-capsule"),
     resolveToolPresent: resolveTool?.name === "web_llm_resolve_shorthand",
-    toolCountMin: manifest.tools.length >= 11,
+    convertRoutingToolPresent: convertRoutingTool?.name === "hub_convert_is_routing",
+    convertProposeToolPresent: convertProposeTool?.name === "hub_convert_propose_holes",
+    toolCountMin: manifest.tools.length >= 13,
     tierLogged,
     bundleExists: existsSync(exported.jsonPath ?? ""),
   };

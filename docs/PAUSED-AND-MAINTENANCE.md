@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-03) — Phase 41 closed (**G8790**, **D6301**); Phase 42 active (**G8800**, **D6302**)  
+> **Status:** authoritative (2026-07-03) — Phase 41 closed (**G8790**, **D6301**); Phase 42 closed (**G8830**, **D6302**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -18,10 +18,9 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (subordinate) |
-| **LLM-assisted convert (optional)** | **G8800** | [`LLM-ASSISTED-CONVERT-PROGRAM.md`](./LLM-ASSISTED-CONVERT-PROGRAM.md) — after maintenance green |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
-**Closed program regression:** `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
+**Closed program regression:** `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
 **Program docs:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) (closed)
 
 ### Subordinate (closed — regression only)
