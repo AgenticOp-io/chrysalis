@@ -23,7 +23,7 @@ echo "=== GPU ==="
 nvidia-smi
 
 echo "=== Manifest ==="
-node -e "const m=require('${MANIFEST}'); console.log(JSON.stringify({tier:m.tier,baseModel:m.baseModel,shardCount:m.shardCount,verifyGreenCount:m.verifyGreenCount},null,2))"
+python3 -c "import json; m=json.load(open('${MANIFEST}')); print(json.dumps({k:m[k] for k in ('tier','baseModel','shardCount','verifyGreenCount')}, indent=2))"
 
 DATASET="${LAB_ROOT}/reports/web-llm/dataset/training-shards.v1.jsonl"
 if [[ ! -f "$DATASET" ]]; then
@@ -34,7 +34,7 @@ fi
 OUT="${LAB_ROOT}/reports/web-llm/lora/adapter"
 mkdir -p "$OUT"
 
-BASE_MODEL="$(node -pe "require('${MANIFEST}').baseModel")"
+BASE_MODEL="$(python3 -c "import json; print(json.load(open('${MANIFEST}'))['baseModel'])")"
 echo "[gce-gpu-lora-train] IS-T2 prep complete — base=$BASE_MODEL shards=$(wc -l < "$DATASET")"
 echo "[gce-gpu-lora-train] session cap: ${MAX_MINUTES} min (CHRYSALIS_GPU_LAB_MAX_MINUTES) deadline_epoch=${DEADLINE_EPOCH}"
 

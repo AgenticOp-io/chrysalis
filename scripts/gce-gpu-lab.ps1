@@ -24,6 +24,7 @@ param(
   [switch] $Delete,
   [switch] $Status,
   [switch] $CheckQuota,
+  [switch] $Bootstrap,
   [switch] $Ssh,
   [switch] $Sync,
   [switch] $Train,
@@ -39,8 +40,37 @@ $env:CLOUDSDK_CORE_DISABLE_PROMPTS = "1"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot "gce-auth-activate.ps1") | Out-Null
 Initialize-ChrysalisGceAuth -Project $Project -RepoRoot $repoRoot -Quiet | Out-Null
+
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
+
+function Test-GpuLabWindowsClient {
+  return ($IsWindows -or $env:OS -eq "Windows_NT")
+}
+
+function Get-GpuLabSshFlagArgs {
+  # gcloud on Windows uses PuTTY/plink; OpenSSH -o flags are rejected and block automation.
+  if (Test-GpuLabWindowsClient) {
+    return @("--strict-host-key-checking=no")
+  }
+  return @(
+    "--ssh-flag=-o", "StrictHostKeyChecking=accept-new",
+    "--ssh-flag=-o", "UserKnownHostsFile=/dev/null",
+    "--ssh-flag=-o", "BatchMode=yes"
+  )
+}
+
+function Get-GpuLabTrainSshFlagArgs {
+  $flags = @(Get-GpuLabSshFlagArgs)
+  if (-not (Test-GpuLabWindowsClient)) {
+    $flags += @(
+      "--ssh-flag=-o", "ServerAliveInterval=30",
+      "--ssh-flag=-o", "ConnectTimeout=30"
+    )
+  }
+  return $flags
+}
+
 
 function Get-GpuLabAutoStopEnabled {
   return $env:CHRYSALIS_GPU_LAB_AUTO_STOP -ne "0"
@@ -151,6 +181,37 @@ function Test-GpuLabQuota {
   return $true
 }
 
+function Wait-GpuLabSsh {
+  param([int] $MaxAttempts = 36)
+  for ($i = 1; $i -le $MaxAttempts; $i++) {
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    & gcloud compute ssh $Name --zone=$Zone --project=$Project @sshExtra @(Get-GpuLabSshFlagArgs) --command="echo gpu-lab-ssh-ready" 2>&1 | Out-Null
+    $ok = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $prevEap
+    if ($ok) {
+      Write-Host "[gpu-lab] SSH ready (attempt $i)"
+      return $true
+    }
+    Write-Host "[gpu-lab] waiting for SSH ($i/$MaxAttempts)..."
+    Start-Sleep -Seconds 10
+  }
+  return $false
+}
+
+function Invoke-GcloudScp {
+  param(
+    [string] $Local,
+    [string] $Remote
+  )
+  $prevEap = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  & gcloud compute scp --zone=$Zone --project=$Project @sshExtra @(Get-GpuLabSshFlagArgs) -- "$Local" $Remote 2>&1 | Out-Null
+  $exit = $LASTEXITCODE
+  $ErrorActionPreference = $prevEap
+  if ($exit -ne 0) { throw "scp failed for $Local" }
+}
+
 function Invoke-Gcloud {
   param([string[]] $GcloudArgs)
   $prevEap = $ErrorActionPreference
@@ -176,13 +237,26 @@ function Get-InstanceStatus {
   return $fmt
 }
 
-if (-not ($Create -or $Start -or $Stop -or $Delete -or $Status -or $CheckQuota -or $Ssh -or $Sync -or $Train)) {
+if (-not ($Create -or $Start -or $Stop -or $Delete -or $Status -or $CheckQuota -or $Bootstrap -or $Ssh -or $Sync -or $Train)) {
   $Status = $true
 }
 
 if ($CheckQuota) {
   if (Test-GpuLabQuota) { exit 0 }
   exit 2
+}
+
+if ($Bootstrap) {
+  $st = Get-InstanceStatus
+  if ($st -ne "RUNNING") { throw "Instance $Name is $st - run pnpm run gpu-lab:start first" }
+  if (-not (Wait-GpuLabSsh)) { throw "SSH not ready on $Name" }
+  $bootstrapScript = Join-Path $PSScriptRoot "gce-gpu-lab-bootstrap.sh"
+  Invoke-GcloudScp -Local $bootstrapScript -Remote "${Name}:/tmp/gce-gpu-lab-bootstrap.sh"
+  $cmd = "chmod +x /tmp/gce-gpu-lab-bootstrap.sh && bash /tmp/gce-gpu-lab-bootstrap.sh"
+  Invoke-Gcloud -GcloudArgs @(
+    "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", $cmd)
+  Write-Host "Bootstrap complete on $Name"
+  exit 0
 }
 
 if ($Status) {
@@ -240,12 +314,13 @@ if ($Create) {
   if (-not (Test-GpuLabQuota)) { exit 2 }
   Invoke-Gcloud -GcloudArgs $createArgs
 
-  $bootstrap = Join-Path $PSScriptRoot "gce-gpu-lab-bootstrap.sh"
-  $remote = "${Name}:~/gce-gpu-lab-bootstrap.sh"
-  & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$bootstrap" $remote
-  if ($LASTEXITCODE -ne 0) { throw "scp bootstrap failed" }
-  $cmd = "chmod +x ~/gce-gpu-lab-bootstrap.sh && bash ~/gce-gpu-lab-bootstrap.sh"
-  Invoke-Gcloud -GcloudArgs @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command", $cmd)
+  if (-not (Wait-GpuLabSsh)) { throw "SSH not ready on $Name after create" }
+
+  $bootstrapScript = Join-Path $PSScriptRoot "gce-gpu-lab-bootstrap.sh"
+  Invoke-GcloudScp -Local $bootstrapScript -Remote "${Name}:/tmp/gce-gpu-lab-bootstrap.sh"
+  $cmd = "chmod +x /tmp/gce-gpu-lab-bootstrap.sh && bash /tmp/gce-gpu-lab-bootstrap.sh"
+  Invoke-Gcloud -GcloudArgs @(
+    "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", $cmd)
   Write-Host "Created $Name. Run: pnpm run gpu-lab:prep && pnpm run gpu-lab:sync"
   exit 0
 }
@@ -282,7 +357,7 @@ if ($Sync) {
   }
 
   $remoteMk = "mkdir -p ~/chrysalis-gpu-lab/reports/web-llm/lora ~/chrysalis-gpu-lab/reports/web-llm/dataset ~/chrysalis-gpu-lab/scripts"
-  Invoke-Gcloud -GcloudArgs @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + $sshExtra + @("--command", $remoteMk)
+  Invoke-Gcloud -GcloudArgs @("compute", "ssh", $Name, "--zone=$Zone", "--project=$Project") + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", $remoteMk)
 
   $files = @(
     @{ Local = $manifest; Remote = "${Name}:~/chrysalis-gpu-lab/reports/web-llm/lora/train-manifest.v1.json" },
@@ -291,13 +366,12 @@ if ($Sync) {
   )
   foreach ($f in $files) {
     if (-not (Test-Path $f.Local)) { throw "Missing $($f.Local)" }
-    & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$($f.Local)" $f.Remote
-    if ($LASTEXITCODE -ne 0) { throw "scp failed for $($f.Local)" }
+    Invoke-GcloudScp -Local $f.Local -Remote $f.Remote
   }
 
   Invoke-Gcloud -GcloudArgs @(
     "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project"
-  ) + $sshExtra + @("--command", "chmod +x ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh")
+  ) + @(Get-GpuLabSshFlagArgs) + $sshExtra + @("--command", "chmod +x ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh")
   Write-Host "Synced manifest + dataset + train script to ~/chrysalis-gpu-lab on $Name"
   exit 0
 }
@@ -309,9 +383,8 @@ if ($Train) {
   $sshTimeoutSec = ($MaxMinutes * 60) + 120
   $cmd = "export CHRYSALIS_GPU_LAB_MAX_MINUTES=$MaxMinutes; bash ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh"
   Invoke-Gcloud -GcloudArgs @(
-    "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project",
-    "--ssh-flag=-o ServerAliveInterval=30", "--ssh-flag=-o ConnectTimeout=30"
-  ) + $sshExtra + @("--command", $cmd, "--quiet", "--ssh-timeout=${sshTimeoutSec}s")
+    "compute", "ssh", $Name, "--zone=$Zone", "--project=$Project"
+  ) + @(Get-GpuLabTrainSshFlagArgs) + $sshExtra + @("--command", $cmd, "--quiet", "--ssh-timeout=${sshTimeoutSec}s")
   if (Get-GpuLabAutoStopEnabled) {
     Write-Host "Train SSH finished. VM auto-stop still scheduled within ${MaxMinutes} min of train start unless already stopped."
   }

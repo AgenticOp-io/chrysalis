@@ -15,20 +15,30 @@ Do **not** attach GPUs to the CPU test VM — keep Migration OS cheap and stable
 
 ## Quick start
 
+**Windows (recommended):** orchestrate via `chrysalis-test-vm` — non-interactive `gcloud compute ssh --command` only (no PuTTY shell to the GPU VM).
+
+Service-account auth uses OS Login user `sa_*` on the test VM; artifacts land in `~/chrysalis-test` under that account. Close any interactive PuTTY window with `exit` — use `gpu-lab:gce`, not `gpu-lab:ssh`, for automation.
+
+Service-account auth (`pnpm run gce:auth:activate`) logs in as OS Login user `sa_*` with its own `~/chrysalis-test` on the CPU VM (separate from `/home/david_agenticop_io/chrysalis-test` used when you `gcloud auth login` interactively). GPU lab artifacts live under the SA home — that is intentional.
+
 ```powershell
 # One-time: create spot T4 lab (~$0.11/hr while running)
 pnpm run gpu-lab:create
 
-# CPU prep (laptop or CPU VM) — dataset + LoRA manifest
+# Detached dry-run on GCE (prep + bootstrap + sync + train + stop GPU VM)
+$env:CHRYSALIS_GPU_LAB_MAX_MINUTES = "15"
+pnpm run gpu-lab:gce
+pnpm run gpu-lab:gce:status
+```
+
+**Direct SSH from laptop** (Linux/macOS, or Windows with OpenSSH): `gpu-lab:start` / `gpu-lab:sync` / `gpu-lab:train` / `gpu-lab:stop`.
+
+```powershell
 pnpm run gpu-lab:prep
 pnpm run hub:is-t2-lora-prep-smoke
-
-# Start GPU VM, sync corpus, dry-run train check
 pnpm run gpu-lab:start
 pnpm run gpu-lab:sync
 pnpm run gpu-lab:train
-
-# Stop billing (keep disk)
 pnpm run gpu-lab:stop
 ```
 
@@ -45,6 +55,8 @@ pnpm run gpu-lab:stop
 | `gpu-lab:prep` | Export dataset + `train-manifest.v1.json` (CPU) |
 | `gpu-lab:sync` | Upload manifest + shards to lab |
 | `gpu-lab:train` | Run `gce-gpu-lora-train.sh` (dry-run by default) |
+| `gpu-lab:gce` | **Windows:** prep + run full lab via `chrysalis-test-vm` (detached) |
+| `gpu-lab:gce:status` | Tail orchestrator log + OK marker on CPU VM |
 
 **On-demand (no spot):** `powershell -File scripts/gce-gpu-lab.ps1 -Create -OnDemand`  
 **L4 instead of T4:** add `-L4` to `-Create` (~$0.25–0.36/hr spot)
