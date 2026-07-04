@@ -2,13 +2,15 @@
 /**
  * Lift + emit + in-process trace replay oracle for hub gold literal suites.
  */
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 import { runHubWptpContractGoldSuite } from "./hub-wptp-contract-gold.mjs";
 import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
+import { exportCwlFileToWebirJson } from "./export-cwl-webir.mjs";
+import { hubWebirPath } from "./shared.mjs";
 import { isHubNativeGoldEmitTarget } from "./hub-gold-native-emit.mjs";
 import { runNativeTraceReplaySuite } from "./hub-gold-native-trace-replay.mjs";
 import { runCwlTraceReplaySuite } from "./hub-gold-cwl-trace-replay.mjs";
@@ -33,6 +35,45 @@ function parseStdoutJson(stdout) {
   const end = text.lastIndexOf("}");
   if (start < 0 || end <= start) return {};
   return JSON.parse(text.slice(start, end + 1));
+}
+
+/**
+ * Ensure hub WebIR snapshot exists before emit (CWL uses routes.cwl export, not lift-to-webir).
+ * @param {string} fixture
+ * @param {string} origin
+ */
+export async function ensureHubWebirForTraceReplay(fixture, origin) {
+  const webirPath = hubWebirPath(fixture, origin);
+  if (existsSync(webirPath)) return;
+
+  if (origin === "cwl") {
+    const cwlPath = join(fixture, "routes.cwl");
+    if (!existsSync(cwlPath)) throw new Error(`missing ${cwlPath}`);
+    const snapshot = await exportCwlFileToWebirJson(cwlPath);
+    mkdirSync(join(fixture, ".chrysalis"), { recursive: true });
+    writeFileSync(
+      webirPath,
+      typeof snapshot === "string" ? snapshot : `${JSON.stringify(snapshot, null, 2)}\n`,
+      "utf8",
+    );
+    return;
+  }
+
+  if (origin === "php") {
+    const phpExport = await exportPhpHubWebir(fixture);
+    if (phpExport.skip || !phpExport.ok) {
+      throw new Error(phpExport.skip ?? `php-export-holes:${phpExport.holeCount}`);
+    }
+    return;
+  }
+
+  const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", origin], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+  });
+  if (lift.status !== 0) {
+    throw new Error(lift.stderr || lift.stdout || "lift failed");
+  }
 }
 
 /**
@@ -85,20 +126,7 @@ export async function runTraceReplaySuite(suite) {
     target === "nextjs"
       ? [emitNextjsScript, [fixture, "--origin", origin]]
       : [emitScript, [fixture, "--origin", origin, "--target", target]];
-  if (origin === "php") {
-    const phpExport = await exportPhpHubWebir(fixture);
-    if (phpExport.skip || !phpExport.ok) {
-      throw new Error(phpExport.skip ?? `php-export-holes:${phpExport.holeCount}`);
-    }
-  } else {
-    const lift = spawnSync(process.execPath, [liftScript, [fixture, "--language", origin]], {
-      cwd: scriptRoot,
-      encoding: "utf8",
-    });
-    if (lift.status !== 0) {
-      throw new Error(lift.stderr || lift.stdout || "lift failed");
-    }
-  }
+  await ensureHubWebirForTraceReplay(fixture, origin);
   const emitOnly = emitArgs;
   const r = spawnSync(process.execPath, [emitOnly[0], ...emitOnly[1]], { cwd: scriptRoot, encoding: "utf8" });
   if (r.status !== 0) {

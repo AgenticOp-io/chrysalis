@@ -42,6 +42,20 @@ Write-Host "Uploading to ${Name} (refresh-only, ~/chrysalis-test only)..."
 & gcloud compute scp --zone=$Zone --project=$Project @sshExtra $bootstrap "${Name}:gce-test-vm-bootstrap.sh"
 & gcloud compute scp --zone=$Zone --project=$Project @sshExtra $finish "${Name}:gce-hub-finish-deploy.sh"
 & gcloud compute scp --zone=$Zone --project=$Project @sshExtra $tarball "${Name}:chrysalis-src.tgz"
+$gceHelpers = @(
+  "gce-install-native-oracle-deps.sh",
+  "gce-prep-intelligence-shorthand.sh",
+  "gce-full-matrix-oracle-close-only.sh",
+  "gce-maintenance-program-complete-only.sh",
+  "gce-maintenance-diagnose.sh"
+)
+& gcloud compute ssh --zone=$Zone --project=$Project @sshExtra $Name --command="mkdir -p ~/chrysalis-gce-helpers"
+foreach ($helper in $gceHelpers) {
+  $localHelper = Join-Path $PSScriptRoot $helper
+  if (Test-Path -LiteralPath $localHelper) {
+    & gcloud compute scp --zone=$Zone --project=$Project @sshExtra $localHelper "${Name}:chrysalis-gce-helpers/$helper"
+  }
+}
 Remove-Item -LiteralPath $tarball -Force -ErrorAction SilentlyContinue
 
 $skipFinish = if ($SkipHubFinish) { "1" } else { "0" }

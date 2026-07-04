@@ -81,6 +81,16 @@ Live WISP G8320 probes on the VM: **`pnpm run test:gce:migration-os:wisp-live`**
 
 Log: `reports/ci/gce-migration-os-run.log` · OK marker: `reports/ci/gce-migration-os.ok`
 
+## Native oracle replay deps (Phase 41 / maintenance close)
+
+`hub:full-matrix-oracle-close-smoke` and `hub:maintenance-program-complete-smoke` need **javac**, **go**, **ruby**, **dotnet**, and a **Python venv** (Flask probes — avoids Debian PEP 668). Bootstrap runs `scripts/gce-install-native-oracle-deps.sh` and writes `~/.chrysalis/gce-hub-env.sh` (`CHRYSALIS_HUB_PYTHON`). **G8610** shorthand prep: `scripts/gce-prep-intelligence-shorthand.sh` (cached marker under `~/.chrysalis/`). Skip: `CHRYSALIS_SKIP_NATIVE_ORACLE_DEPS=1` / `CHRYSALIS_SKIP_INTELLIGENCE_SHORTHAND_PREP=1`.
+
+```powershell
+pnpm run test:gce:maintenance
+pnpm run test:gce:maintenance:status
+pnpm run test:gce:fetch
+```
+
 Fetch operator HTML hubs from the VM (migration evidence, IS, web-LLM POC, nightly):
 
 ```powershell

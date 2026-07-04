@@ -11,6 +11,36 @@ TARBALL="${HOME}/chrysalis-src.tgz"
 export DEBIAN_FRONTEND=noninteractive
 export GIT_TERMINAL_PROMPT=0
 
+install_native_oracle_deps() {
+  if [[ ! -f scripts/gce-install-native-oracle-deps.sh ]]; then
+    echo "[gce-test-vm-bootstrap] WARN: missing scripts/gce-install-native-oracle-deps.sh — skip native oracle deps" >&2
+    return 0
+  fi
+  chmod +x scripts/gce-install-native-oracle-deps.sh
+  sed -i 's/\r$//' scripts/gce-install-native-oracle-deps.sh 2>/dev/null || true
+  bash scripts/gce-install-native-oracle-deps.sh
+}
+
+source_gce_hub_env() {
+  if [[ -f "${HOME}/.chrysalis/gce-hub-env.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "${HOME}/.chrysalis/gce-hub-env.sh"
+  fi
+}
+
+prep_intelligence_shorthand() {
+  if [[ "${CHRYSALIS_SKIP_INTELLIGENCE_SHORTHAND_PREP:-}" == "1" ]]; then
+    return 0
+  fi
+  if [[ ! -f scripts/gce-prep-intelligence-shorthand.sh ]]; then
+    echo "[gce-test-vm-bootstrap] WARN: missing scripts/gce-prep-intelligence-shorthand.sh — skip shorthand prep" >&2
+    return 0
+  fi
+  chmod +x scripts/gce-prep-intelligence-shorthand.sh
+  sed -i 's/\r$//' scripts/gce-prep-intelligence-shorthand.sh 2>/dev/null || true
+  bash scripts/gce-prep-intelligence-shorthand.sh
+}
+
 if [[ "${CHRYSALIS_REFRESH_ONLY:-}" == "1" ]]; then
   echo "[gce-test-vm-bootstrap] CHRYSALIS_REFRESH_ONLY=1 — skip apt/node/swap (shared VM safe)"
   if ! command -v php >/dev/null 2>&1; then
@@ -66,6 +96,13 @@ else
 fi
 
 cd "${WORKDIR}"
+if [[ -d "${HOME}/chrysalis-gce-helpers" ]]; then
+  echo "[gce-test-vm-bootstrap] merging local gce helper scripts from ~/chrysalis-gce-helpers"
+  cp "${HOME}/chrysalis-gce-helpers/"*.sh scripts/ 2>/dev/null || true
+fi
+install_native_oracle_deps
+source_gce_hub_env
+
 pnpm install
 
 echo "[gce-test-vm-bootstrap] building full workspace (hub translate needs webir, ingest, emit)..."
@@ -87,6 +124,8 @@ if [[ "${CHRYSALIS_SKIP_WPTP_HUB_DEPS:-}" != "1" ]]; then
 fi
 
 pnpm run test:cli-shims
+
+prep_intelligence_shorthand
 
 if [[ "${CHRYSALIS_SKIP_HUB_FINISH:-}" != "1" ]]; then
   chmod +x scripts/gce-hub-finish-deploy.sh
