@@ -719,6 +719,7 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 | **G7132** B74 `htmlentities()` | `runIrHelperLiftingB74HtmlentitiesInlineGate` (via **G6731**) |
 | **G7133** B75 `html_entity_decode()` | `runIrHelperLiftingB75HtmlEntityDecodeInlineGate` (via **G6731**) |
 | **G7134** B76 `json_encode()` | `runIrHelperLiftingB76JsonEncodeInlineGate` (via **G6731**) |
+| **G7135** B77 `json_decode()` | `runIrHelperLiftingB77JsonDecodeInlineGate` (via **G6731**) |
 
 ---
 

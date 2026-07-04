@@ -63,9 +63,9 @@ Regression: `hub:cwl-language-maintenance-smoke` (**G6731**). Tier close: `hub:i
 | **G7115** B63 `str_rot13()` | **G7116** B64 `str_word_count()` | **G7117** B65 `str_split()` | **G7118** B66 `strcspn()` |
 | **G7119** B67 `strspn()` | **G7124** B68 `ltrim(, lit)` | **G7125** B69 `rtrim(, lit)` | **G7126** B70 `trim(, lit)` |
 | **G7127** B71 `wordwrap()` | **G7128** B72 `chunk_split()` | **G7129** B73 `strtr()` | **G7132** B74 `htmlentities()` |
-| **G7133** B75 `html_entity_decode()` | **G7134** B76 `json_encode()` | | |
+| **G7133** B75 `html_entity_decode()` | **G7134** B76 `json_encode()` | **G7135** B77 `json_decode()` | |
 
-Also indexed: `isset`, `count`, `is_array`, `is_string`, `abs`, `is_numeric`, logical !, `is_int`, `is_bool`, `is_null`, unary -, `round()`, `floor()`, `ceil()`, `strtolower()`, `strtoupper()`, `htmlspecialchars()`, `nl2br()`, `urlencode()`, `rawurlencode()`, `urldecode()`, `rawurldecode()`, `ltrim()`, `rtrim()`, `is_float()`, `is_object()`, `is_scalar()`, `max()`, `min()`, `substr()`, `strpos()`, `stripos()`, `strrpos()`, `strripos()`, `str_contains()`, `str_starts_with()`, `str_ends_with()`, `substr_count()`, `explode()`, `strcmp()`, `strcasecmp()`, `strncmp()`, `strncasecmp()`, `strrev()`, `str_repeat()`, `str_pad()`, `str_replace()`, `str_ireplace()`, `ucfirst()`, `lcfirst()`, `ucwords()`, `strip_tags()`, `addslashes()`, `stripslashes()`, `str_rot13()`, `str_word_count()`, `str_split()`, `strcspn()`, `strspn()`, `ltrim(, lit)`, `rtrim(, lit)`, `trim(, lit)`, `wordwrap()`, `chunk_split()`, `strtr()`, `htmlentities()`, `html_entity_decode()`, `json_encode()`.
+Also indexed: `isset`, `count`, `is_array`, `is_string`, `abs`, `is_numeric`, logical !, `is_int`, `is_bool`, `is_null`, unary -, `round()`, `floor()`, `ceil()`, `strtolower()`, `strtoupper()`, `htmlspecialchars()`, `nl2br()`, `urlencode()`, `rawurlencode()`, `urldecode()`, `rawurldecode()`, `ltrim()`, `rtrim()`, `is_float()`, `is_object()`, `is_scalar()`, `max()`, `min()`, `substr()`, `strpos()`, `stripos()`, `strrpos()`, `strripos()`, `str_contains()`, `str_starts_with()`, `str_ends_with()`, `substr_count()`, `explode()`, `strcmp()`, `strcasecmp()`, `strncmp()`, `strncasecmp()`, `strrev()`, `str_repeat()`, `str_pad()`, `str_replace()`, `str_ireplace()`, `ucfirst()`, `lcfirst()`, `ucwords()`, `strip_tags()`, `addslashes()`, `stripslashes()`, `str_rot13()`, `str_word_count()`, `str_split()`, `strcspn()`, `strspn()`, `ltrim(, lit)`, `rtrim(, lit)`, `trim(, lit)`, `wordwrap()`, `chunk_split()`, `strtr()`, `htmlentities()`, `html_entity_decode()`, `json_encode()`, `json_decode()`.
 
 ---
 
@@ -126,3 +126,5 @@ Full catalog: [`archive/INDEX.md`](./archive/INDEX.md).
 | Complete language v1 | **G7150** | `hub:cwl-complete-language-close-smoke` |
 | IR Helper Program v1 | **G7200** | `hub:ir-helper-program-close-smoke` |
 | Full matrix oracle product | **G8790** / **G8700** | `hub:full-matrix-oracle-close-smoke` |
+| LLM-assisted convert | **G8830** / **G8800** | `hub:llm-assisted-convert-close-smoke` |
+| LLM convert full | **G8940** / **G8900** | `hub:llm-convert-full-close-smoke` |

@@ -149,6 +149,7 @@ Per **DESIGN §3** and **D6205**:
 | G7132 | B74 `htmlentities()` formal assign | `runIrHelperLiftingB74HtmlentitiesInlineGate` |
 | G7133 | B75 `html_entity_decode()` formal assign | `runIrHelperLiftingB75HtmlEntityDecodeInlineGate` |
 | G7134 | B76 `json_encode()` formal assign | `runIrHelperLiftingB76JsonEncodeInlineGate` |
+| G7135 | B77 `json_decode()` formal assign | `runIrHelperLiftingB77JsonDecodeInlineGate` |
 | G7104 | B54 `str_pad(, literal, literal)` formal + literal | `runIrHelperLiftingB54StrPadInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 | **G7100** | Complete language program entry | Doc gate — § Complete language program |

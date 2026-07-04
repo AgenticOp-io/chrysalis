@@ -31,7 +31,8 @@ export {
 } from "./hub-ingest/language-catalog.mjs";
 import { PATTERN_LIFT_LANGUAGE_IDS } from "./hub-ingest/pattern-route-parsers.mjs";
 import { describeTranslationPath } from "./hub-ingest/hub-translation-paths.mjs";
-import { finalizeHubRouteSpec } from "./hub-ingest/hub-route-grades.mjs";
+import { finalizeHubRouteSpec, verifyTierForPair } from "./hub-ingest/hub-route-grades.mjs";
+import { buildHubGoldSuiteCoverage } from "./hub-ingest/hub-gold-manifest.mjs";
 
 export {
   buildHubTranslationPathMatrix,
@@ -803,6 +804,37 @@ function readinessForOutput(languageId) {
   };
 }
 
+/** Pair-level next action — prefer verify depth over generic origin notDone (Phase 41 honesty). */
+function pairNextAction(originRow, outputRow, route) {
+  const origin = originRow.id;
+  const output = outputRow.id;
+  const action = route.action ?? "hub-translate";
+  const grade = route.grade ?? "open";
+  const coverage = buildHubGoldSuiteCoverage(origin, output);
+  const verifyTier =
+    route.verifyTier ?? verifyTierForPair(origin, output, { action, emitTarget: coverage.emitTarget });
+  const traceReplay = (coverage.traceReplaySuiteIds?.length ?? 0) > 0;
+  const structural = coverage.suiteCount > 0;
+
+  if (verifyTier === "oracle") {
+    return "Oracle product — chrysalis ingest/emit + trace replay (G8790); arbitrary real apps may still hole.";
+  }
+  if (grade === "gold" && traceReplay) {
+    return "Oracle product — native emit + cross-language trace replay on gold fixtures (G8790 closed).";
+  }
+  if (grade === "gold" && structural) {
+    return "Structural gold — hub-gold CI suite present; expand fixtures for full trace oracle.";
+  }
+  if (grade === "gold") {
+    return "Gold route — verify depth tracked in hub-gold-coverage; non-gold bodies may still hole.";
+  }
+  return (
+    originRow.notDone?.[0] ??
+    outputRow.notDone?.[0] ??
+    "Route exists; promote with native ingest/emitter + verify parity."
+  );
+}
+
 function buildPairReadiness(origins, outputs) {
   const rows = [];
   for (const origin of origins) {
@@ -822,10 +854,7 @@ function buildPairReadiness(origins, outputs) {
         ingestLane: path.ingest.lane,
         emitLane: path.emit.lane,
         verifyLanes: path.verify.lanes,
-        next:
-          origin.notDone?.[0] ??
-          output.notDone?.[0] ??
-          "Route exists; promote with native ingest/emitter + verify parity.",
+        next: pairNextAction(origin, output, route),
       });
     }
   }

@@ -164,6 +164,10 @@ test("hub store: language readiness report is popularity-ordered", async () => {
   expect(report.origins.find((o) => o.id === "sql")?.ingestStatus).toBe("silver-file-lift");
   const sqlOut = report.outputs.find((o) => o.id === "sql");
   expect(sqlOut?.emitStatus).toBe("open-scaffold");
+  const jsTs = report.pairs.find((p) => p.origin === "javascript" && p.output === "typescript");
+  expect(jsTs?.grade).toBe("gold");
+  expect(jsTs?.next).toContain("Oracle product");
+  expect(jsTs?.next).not.toContain("Full semantic lowering");
 });
 
 test("hub store: language work queue lists popular-web gold pairs", async () => {

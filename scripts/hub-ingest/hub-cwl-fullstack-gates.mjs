@@ -5463,6 +5463,25 @@ export function runIrHelperLiftingB76JsonEncodeInlineGate() {
   return { ok, vitestOk: r.status === 0 };
 }
 
+/** G7135 — IR helper lifting B77 json_decode((, ...)) formal assign inline (CWL language v1.1). */
+export function runIrHelperLiftingB77JsonDecodeInlineGate() {
+  const helperPath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/lib/sql_param_json_decode.php");
+  const routePath = join(scriptRoot, "fixtures/lift-helper-sql-param-inline/pages/show_m77.php");
+  const docPath = join(scriptRoot, "docs/IR-HELPER-LIFTING.md");
+  if (!existsSync(helperPath) || !existsSync(routePath) || !existsSync(docPath)) {
+    return { ok: false, skip: "missing-b77-json_decode-fixture" };
+  }
+  const helper = readFileSync(helperPath, "utf8");
+  const doc = readFileSync(docPath, "utf8");
+  const r = spawnSync(
+    "pnpm",
+    ["exec", "vitest", "run", "packages/ingest/tests/lift-helper-sql-param-inline.test.ts", "packages/emit-shared/tests/lib-helper-inline.test.ts"],
+    { cwd: scriptRoot, encoding: "utf8", shell: true, timeout: 180_000 },
+  );
+  const ok = r.status === 0 && helper.includes("json_decode($label)") && doc.includes("runIrHelperLiftingB77JsonDecodeInlineGate") && doc.includes("B77 v0");
+  return { ok, vitestOk: r.status === 0 };
+}
+
 /** G6284 — WPTP D7 harness (Chrysalis-local audit). */
 export function runWptpD7HarnessGate() {
   const r = spawnSync("pnpm", ["run", "wptp:d7-audit"], {
