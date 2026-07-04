@@ -198,6 +198,9 @@ export async function applyHubConvertHoleProposals(input) {
     "utf8",
   );
 
+  const { runConvertRepairBridge } = await import("./hub-llm-convert-repair-bridge.mjs");
+  const repairBridge = runConvertRepairBridge(projectDir, appliedArtifact);
+
   mod.appendTrajectoryRecord({
     filePath: trajectoryPath,
     sessionId,
@@ -208,12 +211,32 @@ export async function applyHubConvertHoleProposals(input) {
     gate: { name: "convert-apply", ok: true },
   });
 
+  if (repairBridge.repairs?.length) {
+    mod.appendTrajectoryRecord({
+      filePath: trajectoryPath,
+      sessionId,
+      step: (artifact.proposalCount ?? 0) + 32,
+      role: "tool",
+      toolName: "hub_convert_repair_bridge",
+      content: repairBridge.skipped ?? `repairs ${repairBridge.repairs.length}`,
+      gate: { name: "convert-repair-bridge", ok: repairBridge.ok === true },
+    });
+  }
+
+  const finalArtifact = {
+    ...appliedArtifact,
+    repairBridge,
+    updatedAt: new Date().toISOString(),
+  };
+  writeFileSync(artifactPath, `${JSON.stringify(finalArtifact, null, 2)}\n`, "utf8");
+
   return {
     ok: true,
     applied: true,
     verifyGate: verify,
     applyPolicy: policy,
-    artifact: appliedArtifact,
+    repairBridge,
+    artifact: finalArtifact,
     appliedRegistryPath,
   };
 }

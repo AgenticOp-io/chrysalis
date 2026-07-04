@@ -54,6 +54,7 @@ export async function runLlmConvertVerifyApplyGate(opts = {}) {
     denyNotApplied: deny.applied === false,
     applyOk: apply.ok === true,
     applyApplied: apply.applied === true,
+    repairBridgeRecorded: apply.repairBridge?.skipped != null || apply.repairBridge?.repairs != null,
     registryExists: existsSync(registryPath),
     proposalsHaveSuggestions: (apply.artifact?.proposals ?? []).some((p) => p.suggestion != null),
   };

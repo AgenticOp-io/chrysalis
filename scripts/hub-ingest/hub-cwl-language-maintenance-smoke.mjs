@@ -73,6 +73,7 @@ import {
   runIrHelperLiftingB73StrtrInlineGate,
   runIrHelperLiftingB74HtmlentitiesInlineGate,
   runIrHelperLiftingB75HtmlEntityDecodeInlineGate,
+  runIrHelperLiftingB76JsonEncodeInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -159,6 +160,7 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G7129") &&
     text.includes("G7132") &&
     text.includes("G7133") &&
+    text.includes("G7134") &&
     text.includes("G7200") &&
     text.includes("hub:ir-helper-program-close-smoke") &&
     text.includes("isset") &&
@@ -227,7 +229,8 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("chunk_split()") &&
     text.includes("strtr()") &&
     text.includes("htmlentities()") &&
-    text.includes("html_entity_decode()");
+    text.includes("html_entity_decode()") &&
+    text.includes("json_encode()");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -304,6 +307,7 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b73 = runIrHelperLiftingB73StrtrInlineGate();
   const b74 = runIrHelperLiftingB74HtmlentitiesInlineGate();
   const b75 = runIrHelperLiftingB75HtmlEntityDecodeInlineGate();
+  const b76 = runIrHelperLiftingB76JsonEncodeInlineGate();
   const ok =
     doc.ok === true &&
     taxonomy.ok === true &&
@@ -375,7 +379,8 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b72.ok === true &&
     b73.ok === true &&
     b74.ok === true &&
-    b75.ok === true;
+    b75.ok === true &&
+    b76.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -451,6 +456,7 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b73,
     b74,
     b75,
+    b76,
     generatedAt: new Date().toISOString(),
   };
 }

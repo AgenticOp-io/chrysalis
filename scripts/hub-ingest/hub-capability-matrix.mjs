@@ -13,7 +13,7 @@ import { hubDirectedPairCount } from "./language-catalog.mjs";
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 38;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 39;
 
 /** Customer / flagship routes eligible for Phase 10 matrix expansion (not vanity pairs). */
 export const MATRIX_CUSTOMER_ROUTES = [
@@ -131,8 +131,8 @@ export function buildHubCapabilityMatrixReport() {
       doc: "docs/LLM-CONVERT-FULL-PROGRAM.md",
       entryGate: "G8900",
       closeGate: "G8940",
-      status: "active",
-      invariant: "enrich + verify-gated apply; no auto-apply",
+      status: "closed",
+      invariant: "enrich + verify-gated apply + repair bridge; no auto-apply",
     },
     oracleMicroFixture: {
       fixture: ORACLE_MICRO_FIXTURE,

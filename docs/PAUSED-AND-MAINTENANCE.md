@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-03) — Phase 43 active (**G8900**, **D6303**); Phase 42 closed (**G8830**); Phase 41 closed (**G8790**)  
+> **Status:** authoritative (2026-07-03) — Phase 43 closed (**G8940**, **D6303**); Phase 42 closed (**G8830**); Phase 41 closed (**G8790**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -63,9 +63,9 @@ Regression: `hub:cwl-language-maintenance-smoke` (**G6731**). Tier close: `hub:i
 | **G7115** B63 `str_rot13()` | **G7116** B64 `str_word_count()` | **G7117** B65 `str_split()` | **G7118** B66 `strcspn()` |
 | **G7119** B67 `strspn()` | **G7124** B68 `ltrim(, lit)` | **G7125** B69 `rtrim(, lit)` | **G7126** B70 `trim(, lit)` |
 | **G7127** B71 `wordwrap()` | **G7128** B72 `chunk_split()` | **G7129** B73 `strtr()` | **G7132** B74 `htmlentities()` |
-| **G7133** B75 `html_entity_decode()` | | | |
+| **G7133** B75 `html_entity_decode()` | **G7134** B76 `json_encode()` | | |
 
-Also indexed: `isset`, `count`, `is_array`, `is_string`, `abs`, `is_numeric`, logical !, `is_int`, `is_bool`, `is_null`, unary -, `round()`, `floor()`, `ceil()`, `strtolower()`, `strtoupper()`, `htmlspecialchars()`, `nl2br()`, `urlencode()`, `rawurlencode()`, `urldecode()`, `rawurldecode()`, `ltrim()`, `rtrim()`, `is_float()`, `is_object()`, `is_scalar()`, `max()`, `min()`, `substr()`, `strpos()`, `stripos()`, `strrpos()`, `strripos()`, `str_contains()`, `str_starts_with()`, `str_ends_with()`, `substr_count()`, `explode()`, `strcmp()`, `strcasecmp()`, `strncmp()`, `strncasecmp()`, `strrev()`, `str_repeat()`, `str_pad()`, `str_replace()`, `str_ireplace()`, `ucfirst()`, `lcfirst()`, `ucwords()`, `strip_tags()`, `addslashes()`, `stripslashes()`, `str_rot13()`, `str_word_count()`, `str_split()`, `strcspn()`, `strspn()`, `ltrim(, lit)`, `rtrim(, lit)`, `trim(, lit)`, `wordwrap()`, `chunk_split()`, `strtr()`, `htmlentities()`, `html_entity_decode()`.
+Also indexed: `isset`, `count`, `is_array`, `is_string`, `abs`, `is_numeric`, logical !, `is_int`, `is_bool`, `is_null`, unary -, `round()`, `floor()`, `ceil()`, `strtolower()`, `strtoupper()`, `htmlspecialchars()`, `nl2br()`, `urlencode()`, `rawurlencode()`, `urldecode()`, `rawurldecode()`, `ltrim()`, `rtrim()`, `is_float()`, `is_object()`, `is_scalar()`, `max()`, `min()`, `substr()`, `strpos()`, `stripos()`, `strrpos()`, `strripos()`, `str_contains()`, `str_starts_with()`, `str_ends_with()`, `substr_count()`, `explode()`, `strcmp()`, `strcasecmp()`, `strncmp()`, `strncasecmp()`, `strrev()`, `str_repeat()`, `str_pad()`, `str_replace()`, `str_ireplace()`, `ucfirst()`, `lcfirst()`, `ucwords()`, `strip_tags()`, `addslashes()`, `stripslashes()`, `str_rot13()`, `str_word_count()`, `str_split()`, `strcspn()`, `strspn()`, `ltrim(, lit)`, `rtrim(, lit)`, `trim(, lit)`, `wordwrap()`, `chunk_split()`, `strtr()`, `htmlentities()`, `html_entity_decode()`, `json_encode()`.
 
 ---
 

@@ -11,7 +11,16 @@ export const LLM_CONVERT_FULL_PROGRAM_ENTRY_SCHEMA_VERSION = 1;
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const programDocPath = join(scriptRoot, "docs/LLM-CONVERT-FULL-PROGRAM.md");
 
+/** @returns {boolean} */
+export function isLlmConvertFullProgramClosed() {
+  if (!existsSync(programDocPath)) return false;
+  const text = readFileSync(programDocPath, "utf8");
+  return text.includes("Program closed") && text.includes("G8940");
+}
+
+/** @returns {boolean} */
 export function isLlmConvertFullProgramActive() {
+  if (isLlmConvertFullProgramClosed()) return false;
   if (!existsSync(programDocPath)) return false;
   const text = readFileSync(programDocPath, "utf8");
   return text.includes("**Status:** **active**") && text.includes("G8900");
@@ -21,6 +30,7 @@ export function runLlmConvertFullProgramDocGate() {
   const strategicPath = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
   const roadmapPath = join(scriptRoot, "ROADMAP.md");
   const designPath = join(scriptRoot, "DESIGN.md");
+  const capabilityPath = join(scriptRoot, "docs/CAPABILITY-MATRIX.md");
   if (!existsSync(programDocPath) || !existsSync(strategicPath) || !existsSync(roadmapPath)) {
     return { ok: false, skip: "missing-program-or-strategic-doc" };
   }
@@ -28,17 +38,28 @@ export function runLlmConvertFullProgramDocGate() {
   const strategic = readFileSync(strategicPath, "utf8");
   const roadmap = readFileSync(roadmapPath, "utf8");
   const design = existsSync(designPath) ? readFileSync(designPath, "utf8") : "";
+  const capability = existsSync(capabilityPath) ? readFileSync(capabilityPath, "utf8") : "";
+  const closed = isLlmConvertFullProgramClosed();
+  const active = isLlmConvertFullProgramActive();
+  const statusOk =
+    (closed && program.includes("Program closed") && program.includes("G8940")) ||
+    (active && program.includes("**Status:** **active**"));
+  const strategicGateOk = closed
+    ? strategic.includes("G8940") && strategic.includes("D6303")
+    : strategic.includes("G8900") && strategic.includes("D6303");
   const ok =
+    statusOk &&
     program.includes("Phase 43") &&
     program.includes("G8900") &&
     program.includes("G8940") &&
     (program.includes("verify-gated") || program.includes("Verify-gated")) &&
     program.includes("D6303") &&
-    strategic.includes("Phase 43") &&
-    strategic.includes("D6303") &&
+    strategicGateOk &&
+    strategic.includes("LLM-CONVERT-FULL-PROGRAM.md") &&
     roadmap.includes("Phase 43") &&
-    design.includes("D6303");
-  return { ok, active: isLlmConvertFullProgramActive() };
+    design.includes("D6303") &&
+    capability.includes("Phase 43");
+  return { ok, active, closed };
 }
 
 export async function runLlmConvertFullProgramEntrySmoke() {

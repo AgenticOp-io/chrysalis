@@ -27,13 +27,16 @@ describe("hub llm-assisted convert (Phase 42)", () => {
     expect(gate.routing?.proposeOnly).toBe(true);
   });
 
-  test("capability matrix v38 includes llmAssistedConvert", async () => {
+  test("capability matrix v39 includes llmAssistedConvert and llmConvertFull", async () => {
     const { buildHubCapabilityMatrixReport, HUB_CAPABILITY_MATRIX_SCHEMA_VERSION } = await import(
       "../../../scripts/hub-ingest/hub-capability-matrix.mjs"
     );
-    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(38);
+    expect(HUB_CAPABILITY_MATRIX_SCHEMA_VERSION).toBeGreaterThanOrEqual(39);
     const report = buildHubCapabilityMatrixReport();
     expect(report.llmAssistedConvert?.entryGate).toBe("G8800");
+    expect(report.llmAssistedConvert?.status).toBe("closed");
+    expect(report.llmConvertFull?.closeGate).toBe("G8940");
+    expect(report.llmConvertFull?.status).toBe("closed");
     expect(report.fullMatrixOracle?.programComplete).toBe(true);
   });
 
@@ -90,5 +93,36 @@ describe("hub llm-assisted convert (Phase 42)", () => {
     const gate = await runLlmConvertVerifyApplyGate({ repoRoot: ROOT });
     expect(gate.ok).toBe(true);
     expect(gate.apply?.applied).toBe(true);
+    expect(gate.checks?.repairBridgeRecorded).toBe(true);
+  });
+
+  test("G8913 repair bridge skips scaffold patches", async () => {
+    const { runLlmConvertRepairBridgeGate } = await import(
+      "../../../scripts/hub-ingest/hub-llm-convert-repair-bridge-smoke.mjs"
+    );
+    const gate = await runLlmConvertRepairBridgeGate({ repoRoot: ROOT });
+    expect(gate.ok).toBe(true);
+  });
+
+  test("G8900 Phase 43 program entry gate accepts closed program", async () => {
+    const { runLlmConvertFullProgramDocGate, isLlmConvertFullProgramClosed } = await import(
+      "../../../scripts/hub-ingest/hub-llm-convert-full-program-entry-smoke.mjs"
+    );
+    expect(isLlmConvertFullProgramClosed()).toBe(true);
+    const gate = runLlmConvertFullProgramDocGate();
+    expect(gate.ok).toBe(true);
+    expect(gate.closed).toBe(true);
+  });
+
+  test("G8940 Phase 43 program close composite is green", async () => {
+    const { runLlmConvertFullCloseGate } = await import(
+      "../../../scripts/hub-ingest/hub-llm-convert-full-close-smoke.mjs"
+    );
+    const gate = await runLlmConvertFullCloseGate({ repoRoot: ROOT });
+    expect(gate.ok).toBe(true);
+    expect(gate.closeReady).toBe(true);
+    expect(gate.programClosed).toBe(true);
+    expect(gate.buildSlice?.ok).toBe(true);
+    expect(gate.repairBridge?.ok).toBe(true);
   });
 });
