@@ -1,0 +1,10 @@
+{
+  "holes": [
+    {
+      "name": "legacy:db-query-unknown-receiver",
+      "reason": "legacy:db-query-unknown-receiver",
+      "holeId": "hole-db-query-probe-1",
+      "detail": "mysqli_query receiver unknown — hole-closure probe (Phase 44b)"
+    }
+  ]
+}

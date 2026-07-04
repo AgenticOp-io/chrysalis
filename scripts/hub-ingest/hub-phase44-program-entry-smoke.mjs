@@ -33,8 +33,8 @@ export function runPhase44ProgramDocGate() {
   const strategic = readFileSync(strategicPath, "utf8");
   const roadmap = readFileSync(roadmapPath, "utf8");
   const design = existsSync(designPath) ? readFileSync(designPath, "utf8") : "";
-  const charter = readFileSync(charterPath, "utf8");
   const capability = existsSync(capabilityPath) ? readFileSync(capabilityPath, "utf8") : "";
+  const charter = readFileSync(charterPath, "utf8");
   const ok =
     program.includes("Phase 44") &&
     program.includes("G9000") &&
@@ -48,7 +48,9 @@ export function runPhase44ProgramDocGate() {
     design.includes("D6310") &&
     capability.includes("Phase 44") &&
     charter.includes("extended-matrix-oracle-charter") &&
-    charter.includes("wave1");
+    charter.includes("wave1") &&
+    charter.includes("wave2") &&
+    charter.includes("wave3");
   return { ok, active: isPhase44ProgramActive() };
 }
 

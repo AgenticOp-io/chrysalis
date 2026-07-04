@@ -11,10 +11,11 @@ Close the **honest product gaps** left after Phase 41/43 — without bypassing W
 
 | Track | Scope | Close gate |
 | --- | --- | --- |
-| **44a** | Extended hub matrix oracle promotion (601-pair census + waves) | **G9030** |
+| **44a** | Extended hub matrix oracle promotion (601-pair census + waves) | **G9085** (wave 3); ongoing waves maintenance |
 | **44b** | LLM/stub hole-closure hints → `@chrysalis/repair` | **G9070** |
 | **44c** | Horizon C in-repo QLoRA train loop (sponsor GPU operator path) | **G9130** |
-| **44d** | Program close composite | **G9140** |
+| **44d** | Operator hub UI (census + hole-closure) | **G9121** |
+| **44e** | Program close composite | **G9140** |
 
 **Charter invariant:** *Models propose; WebIR + oracle + verify dispose.*
 
@@ -27,7 +28,11 @@ Phase 41 closed **72/72** core 9×9 pairs. Phase 44 promotes **non-core** hub pa
 | **G9000** | `hub:phase44-program-entry-smoke` |
 | **G9001** | `hub:extended-matrix-oracle-progress-smoke` — 601-pair census |
 | **G9010** | `hub:extended-matrix-oracle-wave1-smoke` — wave-1 charter + coverage |
-| **G9030** | Wave-1 oracle promotion bar (charter `wave1MinOraclePairs`) |
+| **G9020** | `hub:extended-matrix-oracle-wave2-smoke` — wave-2 pattern-lift + CWL |
+| **G9030** | `hub:extended-matrix-oracle-wave1-close-smoke` — wave-1 oracle promotion bar |
+| **G9040** | `hub:extended-matrix-oracle-wave2-close-smoke` — wave-2 promotion bar |
+| **G9080** | `hub:extended-matrix-oracle-wave3-smoke` — wave-3 C/C++/SCSS file-lift |
+| **G9085** | `hub:extended-matrix-oracle-wave3-close-smoke` — wave-3 promotion bar |
 
 Charter: `fixtures/hub-extended-matrix-oracle/chrysalis.extended-matrix-charter.v1.json`
 
@@ -38,7 +43,7 @@ Wire convert enrich → **hole-closure patch hints** (with `holeId`) → existin
 | Gate | Smoke |
 | --- | --- |
 | **G9051** | `hub:llm-convert-hole-closure-smoke` |
-| **G9070** | Composed in build slice |
+| **G9070** | `hub:llm-convert-hole-closure-close-smoke` — enrich + verify-gated apply + repair bridge |
 
 **Refused:** auto-apply hole closure without verify + operator confirm; string transpile without WebIR.
 
@@ -50,7 +55,19 @@ In-repo **train plan + QLoRA entry script**; GPU spend remains **operator-run** 
 | --- | --- |
 | **G9100** | `hub:horizon-c-program-entry-smoke` |
 | **G9110** | `hub:horizon-c-train-loop-smoke` — manifest + dry-run plan |
-| **G9130** | Real GPU train (operator; `CHRYSALIS_GPU_LAB_DRY_RUN=0`) — not CI default |
+| **G9130** | `hub:horizon-c-train-close-smoke` — operator contract (+ `reports/ci/gce-gpu-lab.ok` when strict) |
+
+## 44d — Operator hub UI (G9121)
+
+| Gate | Smoke |
+| --- | --- |
+| **G9121** | `hub:phase44-ui-smoke` — extended matrix census + hole-closure on console |
+
+## 44e — Program close (G9140)
+
+| Gate | Smoke |
+| --- | --- |
+| **G9140** | `hub:phase44-program-close-smoke` — all track closes + honest 601-pair census (not full promotion) |
 
 ## Regression
 

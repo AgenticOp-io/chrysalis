@@ -57,6 +57,9 @@ export async function runLlmConvertVerifyApplyGate(opts = {}) {
     repairBridgeRecorded: apply.repairBridge?.skipped != null || apply.repairBridge?.repairs != null,
     registryExists: existsSync(registryPath),
     proposalsHaveSuggestions: (apply.artifact?.proposals ?? []).some((p) => p.suggestion != null),
+    holeClosurePatch:
+      (apply.artifact?.proposals ?? []).some((p) => p?.patch?.kind === "hole-closure" && p.patch.holeId) ||
+      !existsSync(join(projectDir, "chrysalis.holes.json")),
   };
   return {
     kind: "chrysalis.llm-convert-verify-apply-smoke",

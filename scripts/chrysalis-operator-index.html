@@ -141,6 +141,14 @@
           </table>
         </div>
       </div>
+      <div class="card">
+        <h2 style="margin-top:0">Extended matrix oracle (Phase 44)</h2>
+        <p id="extendedMatrixSummary" class="muted">601-pair census — wave promotion in progress (not all pairs production-ready).</p>
+        <div class="row">
+          <button type="button" class="secondary" id="btnLoadExtendedMatrix">Load census</button>
+        </div>
+        <ul id="extendedMatrixWaves" class="muted" style="list-style:none;padding:0;margin:0.5rem 0 0"></ul>
+      </div>
     </section>
 
     <section id="viewPaths" hidden>
@@ -370,6 +378,7 @@
         <div class="bar-wrap"><div class="bar" id="bar"></div></div>
         <p id="routeSummary" class="muted">0 / 0 routes (aggregate)</p>
         <p id="isRoutingSummary" class="muted">IS routing: idle</p>
+        <p id="holeClosureSummary" class="muted">Hole closure: verify-gated repair bridge when holeId present</p>
         <ul id="routeList"></ul>
       </div>
       <div class="card">

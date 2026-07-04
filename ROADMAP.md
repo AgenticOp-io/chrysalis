@@ -735,9 +735,17 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 | **G9000** | Program entry | `hub:phase44-program-entry-smoke` |
 | **G9001** | 601-pair oracle census | `hub:extended-matrix-oracle-progress-smoke` |
 | **G9010** | Wave-1 file-lift promotion | `hub:extended-matrix-oracle-wave1-smoke` |
+| **G9030** | Wave-1 track close | `hub:extended-matrix-oracle-wave1-close-smoke` |
+| **G9020** | Wave-2 pattern-lift + CWL | `hub:extended-matrix-oracle-wave2-smoke` |
+| **G9040** | Wave-2 track close | `hub:extended-matrix-oracle-wave2-close-smoke` |
 | **G9051** | LLM hole-closure hints | `hub:llm-convert-hole-closure-smoke` |
+| **G9070** | Hole-closure verify-apply close | `hub:llm-convert-hole-closure-close-smoke` |
 | **G9110** | Horizon C train loop (dry-run) | `hub:horizon-c-train-loop-smoke` |
-| **G9140** | Program close composite | `hub:phase44-build-slice-smoke` |
+| **G9085** | Wave-3 track close | `hub:extended-matrix-oracle-wave3-close-smoke` |
+| **G9121** | Operator hub UI | `hub:phase44-ui-smoke` |
+| **G9130** | Horizon C operator train close | `hub:horizon-c-train-close-smoke` |
+| **G9140** | Program close composite | `hub:phase44-program-close-smoke` |
+| **—** | Active build slice | `hub:phase44-build-slice-smoke` |
 
 ---
 

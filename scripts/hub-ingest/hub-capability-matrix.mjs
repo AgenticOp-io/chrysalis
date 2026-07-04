@@ -8,12 +8,16 @@ import { fileURLToPath } from "node:url";
 import { buildHubGoldCoverageReport } from "./hub-gold-coverage.mjs";
 import { hubGoldStructuralSuiteIds, hubGoldTraceReplaySuiteIds } from "./hub-gold-manifest.mjs";
 import { runFullMatrixOracleProgressGate } from "./hub-full-matrix-oracle-progress-smoke.mjs";
+import { runExtendedMatrixOracleProgressGate } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
+import { runExtendedMatrixOracleWave1Gate } from "./hub-extended-matrix-oracle-wave1-smoke.mjs";
+import { runExtendedMatrixOracleWave2Gate } from "./hub-extended-matrix-oracle-wave2-smoke.mjs";
+import { runExtendedMatrixOracleWave3Gate } from "./hub-extended-matrix-oracle-wave3-smoke.mjs";
 import { hubDirectedPairCount } from "./language-catalog.mjs";
 
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 40;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 43;
 
 /** Customer / flagship routes eligible for Phase 10 matrix expansion (not vanity pairs). */
 export const MATRIX_CUSTOMER_ROUTES = [
@@ -72,6 +76,10 @@ export function buildHubCapabilityMatrixReport() {
   const structuralSuiteCount = hubGoldStructuralSuiteIds().length;
   const traceReplaySuiteCount = hubGoldTraceReplaySuiteIds().length;
   const matrixOracle = runFullMatrixOracleProgressGate();
+  const extendedMatrix = runExtendedMatrixOracleProgressGate();
+  const extendedWave1 = runExtendedMatrixOracleWave1Gate();
+  const extendedWave2 = runExtendedMatrixOracleWave2Gate();
+  const extendedWave3 = runExtendedMatrixOracleWave3Gate();
   const hubDirectedPairs = hubDirectedPairCount();
   const oraclePairs = ORACLE_PRODUCT_PAIRS.map((p) => ({
     ...p,
@@ -118,6 +126,49 @@ export function buildHubCapabilityMatrixReport() {
       targetTier: matrixOracle.targetTier ?? "oracle-product",
       note: "Gold-fixture trace replay on 9×9 core languages — not 601-pair production parity",
     },
+    extendedMatrixOracle: {
+      program: "Phase 44a — Extended hub matrix oracle waves",
+      doc: "docs/PHASE-44-PROGRAM.md",
+      charter: "fixtures/hub-extended-matrix-oracle/chrysalis.extended-matrix-charter.v1.json",
+      entryGate: "G9001",
+      wave1Gate: "G9010",
+      wave1CloseGate: "G9030",
+      progressSmoke: "pnpm run hub:extended-matrix-oracle-progress-smoke",
+      wave1Smoke: "pnpm run hub:extended-matrix-oracle-wave1-smoke",
+      wave1CloseSmoke: "pnpm run hub:extended-matrix-oracle-wave1-close-smoke",
+      hubDirectedPairCount: extendedMatrix.totalPairs ?? hubDirectedPairs,
+      oracleProductCount: extendedMatrix.oracleProductCount ?? 0,
+      coreOraclePairs: extendedMatrix.coreOracle ?? 72,
+      extendedOraclePairs: extendedMatrix.extendedOracle ?? 0,
+      belowTarget: extendedMatrix.belowTarget ?? null,
+      wave1OracleInWave: extendedWave1.oracleInWave ?? 0,
+      wave1MinOraclePairs: extendedWave1.minOracle ?? 24,
+      wave1Complete: extendedWave1.ok === true,
+      wave2Gate: "G9020",
+      wave2CloseGate: "G9040",
+      wave2OracleInWave: extendedWave2.wave?.oracleInWave ?? 0,
+      wave2MinOraclePairs: extendedWave2.wave?.minOracle ?? 20,
+      wave2Complete: extendedWave2.ok === true,
+      wave3Gate: "G9080",
+      wave3CloseGate: "G9085",
+      wave3OracleInWave: extendedWave3.wave?.oracleInWave ?? 0,
+      wave3MinOraclePairs: extendedWave3.wave?.minOracle ?? 12,
+      wave3Complete: extendedWave3.ok === true,
+      note: "601-pair census; wave-1 file-lift + wave-2 pattern-lift/CWL + wave-3 asset file-lift",
+    },
+    horizonCTrain: {
+      program: "Phase 44c — Horizon C QLoRA train loop",
+      doc: "docs/GCE-GPU-LAB.md",
+      entryGate: "G9100",
+      trainLoopGate: "G9110",
+      closeGate: "G9130",
+      trainLoopSmoke: "pnpm run hub:horizon-c-train-loop-smoke",
+      closeSmoke: "pnpm run hub:horizon-c-train-close-smoke",
+      operatorGpuScript: "pnpm run gpu-lab:gce",
+      pythonEntry: "scripts/chrysalis-lora-qlora-train.py",
+      dryRunDefault: true,
+      note: "Real QLoRA on chrysalis-gpu-lab; CI validates operator contract only",
+    },
     llmAssistedConvert: {
       program: "Phase 42 — LLM-assisted convert",
       doc: "docs/LLM-ASSISTED-CONVERT-PROGRAM.md",
@@ -141,6 +192,14 @@ export function buildHubCapabilityMatrixReport() {
       closeGate: "G9140",
       status: "active",
       invariant: "601-pair waves; hole-closure repair; operator GPU train",
+      trackCloseGates: {
+        wave1: "G9030",
+        wave2: "G9040",
+        wave3: "G9085",
+        holeClosure: "G9070",
+        horizonC: "G9130",
+      },
+      operatorUiGate: "G9121",
     },
     oracleMicroFixture: {
       fixture: ORACLE_MICRO_FIXTURE,

@@ -438,7 +438,7 @@ When the user says "build" without specifying:
 1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600**)
 2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
 3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (subordinate)
-4. **Phase 44** — [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md): **G9001** census → **G9010** wave-1 → **G9051** hole closure → **G9110** Horizon C train loop → **G9140** close
+4. **Phase 44** — [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md): waves **G9010–G9085** → **G9051/G9070** hole closure → **G9110/G9130** Horizon C → **G9121** UI → **G9140** close
 
 **Closed program regression:** `hub:phase44-build-slice-smoke` (in progress) · `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**)
 

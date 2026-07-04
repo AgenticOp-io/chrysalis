@@ -109,5 +109,7 @@ Image family (Deep Learning VM): `common-cu129-ubuntu-2204-nvidia-580` (`deeplea
 | Gate | Smoke |
 | --- | --- |
 | **G8610** | `hub:is-t2-lora-prep-smoke` (CPU only) |
+| **G9110** | `hub:horizon-c-train-loop-smoke` (CPU dry-run plan) |
+| **G9130** | `hub:horizon-c-train-close-smoke` (operator contract; real GPU via `gpu-lab:gce`) |
 
 **Index:** [`INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md) · [`WEB-LLM-TRAINING-RECIPE.md`](./WEB-LLM-TRAINING-RECIPE.md)

@@ -2,7 +2,7 @@
   "kind": "chrysalis.extended-matrix-oracle-charter",
   "schemaVersion": 1,
   "charterId": "extended-matrix-oracle-v1",
-  "description": "Phase 44a — promote non-core hub matrix pairs to oracle product in waves (G9000–G9030).",
+  "description": "Phase 44a — promote non-core hub matrix pairs to oracle product in waves (G9000–G9040).",
   "requiresProgramClosed": "G8790",
   "targetTier": "oracle-product",
   "hubDirectedPairCount": 601,
@@ -13,6 +13,20 @@
     "originIds": ["sql", "html", "css", "json", "yaml", "markdown"],
     "outputIds": ["typescript", "javascript", "hono", "fastify", "nextjs", "python", "java", "go", "ruby", "csharp"],
     "minOraclePairs": 24
+  },
+  "wave2": {
+    "id": "wave2-pattern-lift-cwl",
+    "label": "Pattern-lift + CWL origins × web/CWL outputs",
+    "originIds": ["cwl", "rust", "kotlin", "scala", "swift", "dart"],
+    "outputIds": ["typescript", "javascript", "hono", "fastify", "nextjs", "cwl"],
+    "minOraclePairs": 20
+  },
+  "wave3": {
+    "id": "wave3-asset-file-lift-web",
+    "label": "C/C++/SCSS file-lift × web framework outputs",
+    "originIds": ["c", "cpp", "scss"],
+    "outputIds": ["typescript", "javascript", "hono", "fastify", "nextjs", "express", "nestjs", "python", "java", "go"],
+    "minOraclePairs": 12
   },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",

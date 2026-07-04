@@ -91,16 +91,22 @@ sync_gpu() {
   local manifest="${ART}/train-manifest.v1.json"
   local shards="${ART}/training-shards.v1.jsonl"
   local train="${ART}/gce-gpu-lora-train.sh"
+  local train_py="${REPO}/scripts/chrysalis-lora-qlora-train.py"
   for f in "$manifest" "$shards" "$train"; do
     if [[ ! -f "$f" ]]; then
       log "ERROR: missing $f — run pnpm run gpu-lab:prep and gpu-lab:gce sync" >&2
       exit 1
     fi
   done
+  if [[ ! -f "$train_py" ]]; then
+    log "ERROR: missing $train_py" >&2
+    exit 1
+  fi
   gpu_ssh "mkdir -p ~/chrysalis-gpu-lab/reports/web-llm/lora ~/chrysalis-gpu-lab/reports/web-llm/dataset ~/chrysalis-gpu-lab/scripts"
   gpu_scp "$manifest" "${GPU_NAME}:~/chrysalis-gpu-lab/reports/web-llm/lora/train-manifest.v1.json"
   gpu_scp "$shards" "${GPU_NAME}:~/chrysalis-gpu-lab/reports/web-llm/dataset/training-shards.v1.jsonl"
   gpu_scp "$train" "${GPU_NAME}:~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh"
+  gpu_scp "$train_py" "${GPU_NAME}:~/chrysalis-gpu-lab/scripts/chrysalis-lora-qlora-train.py"
   gpu_ssh "chmod +x ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh"
 }
 

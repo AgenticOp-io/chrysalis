@@ -89,6 +89,12 @@ All pairs **not** listed above as oracle product are **structural**, **scaffold*
 | 43 | LLM convert full (enrich + verify-gated apply + repair bridge) | **G8940** closed — [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md) |
 | 44 | Extended matrix + hole closure + Horizon C | **G9000** active — [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md) |
 
+**Matrix schema v43** adds wave-3 extended matrix + operator UI gate (**G9121**).
+
+**Matrix schema v42** adds wave-2 extended matrix + `horizonCTrain` operator close (**G9130**).
+
+**Matrix schema v41** adds `extendedMatrixOracle` census (601-pair waves, **G9030** wave-1 close).
+
 **Matrix schema v40** adds Phase 44 `phase44` (active **G9000**).
 
 ---

@@ -388,7 +388,8 @@ if ($Sync) {
   $files = @(
     @{ Local = $manifest; Remote = "${Name}:~/chrysalis-gpu-lab/reports/web-llm/lora/train-manifest.v1.json" },
     @{ Local = (Join-Path $repoRoot "reports/web-llm/dataset/training-shards.v1.jsonl"); Remote = "${Name}:~/chrysalis-gpu-lab/reports/web-llm/dataset/training-shards.v1.jsonl" },
-    @{ Local = (Join-Path $PSScriptRoot "gce-gpu-lora-train.sh"); Remote = "${Name}:~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh" }
+    @{ Local = (Join-Path $PSScriptRoot "gce-gpu-lora-train.sh"); Remote = "${Name}:~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh" },
+    @{ Local = (Join-Path $repoRoot "scripts/chrysalis-lora-qlora-train.py"); Remote = "${Name}:~/chrysalis-gpu-lab/scripts/chrysalis-lora-qlora-train.py" }
   )
   foreach ($f in $files) {
     if (-not (Test-Path $f.Local)) { throw "Missing $($f.Local)" }

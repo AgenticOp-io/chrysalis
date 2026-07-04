@@ -174,6 +174,44 @@
     loadLanguageReadiness().catch(() => {});
   });
 
+  async function loadExtendedMatrixSummary() {
+    const summary = $("extendedMatrixSummary");
+    const wavesEl = $("extendedMatrixWaves");
+    if (!summary || !wavesEl) return;
+    summary.textContent = "Loading extended matrix census…";
+    try {
+      const data = await api("/api/hub/capability-matrix");
+      const ext = data.extendedMatrixOracle ?? {};
+      const core = data.fullMatrixOracle?.corePairCount ?? 72;
+      const total = ext.hubDirectedPairCount ?? data.hubDirectedPairs ?? 601;
+      const oracle = ext.oracleProductCount ?? 0;
+      const below = ext.belowTarget ?? total - oracle;
+      summary.textContent = `${oracle}/${total} oracle-product pairs (${core} core + ${ext.extendedOraclePairs ?? oracle - core} extended); ${below} below target — honest waves, not 601 production-ready.`;
+      wavesEl.innerHTML = "";
+      const waves = [
+        ["Wave 1 file-lift", ext.wave1OracleInWave, ext.wave1MinOraclePairs, ext.wave1Complete],
+        ["Wave 2 pattern/CWL", ext.wave2OracleInWave, ext.wave2MinOraclePairs, ext.wave2Complete],
+        ["Wave 3 C/C++/SCSS", ext.wave3OracleInWave, ext.wave3MinOraclePairs, ext.wave3Complete],
+      ];
+      for (const [label, count, min, ok] of waves) {
+        const li = document.createElement("li");
+        li.textContent = `${label}: ${count ?? "—"}/${min ?? "—"} oracle pairs${ok ? " ✓" : ""}`;
+        wavesEl.appendChild(li);
+      }
+      const hc = $("holeClosureSummary");
+      if (hc && data.phase44?.trackCloseGates?.holeClosure) {
+        hc.textContent = `Hole closure (${data.phase44.trackCloseGates.holeClosure}): enrich → verify → operator apply → @chrysalis/repair when holeId present`;
+      }
+    } catch (e) {
+      summary.textContent = "Extended matrix error: " + e.message;
+      wavesEl.innerHTML = "";
+    }
+  }
+
+  $("btnLoadExtendedMatrix")?.addEventListener("click", () => {
+    loadExtendedMatrixSummary().catch(() => {});
+  });
+
   let pathCatalogLoaded = false;
 
   function pathExplorerQuery() {
@@ -1397,12 +1435,30 @@
         const hp = j.holeProposals;
         if (hp?.proposalCount > 0) {
           text += ` · holes ${hp.proposalCount}`;
+          const proposals = hp.proposals?.proposals ?? hp.proposals ?? [];
+          const closureCount = Array.isArray(proposals)
+            ? proposals.filter((p) => p?.patch?.kind === "hole-closure").length
+            : 0;
+          if (closureCount > 0) text += ` · hole-closure ${closureCount}`;
           if (hp.applied === true) text += " · applied";
           else if (hp.llmEnriched === true) text += hp.llmUsed ? " · LLM enriched" : " · stub enriched";
         }
         isEl.textContent = text;
+        const hcEl = $("holeClosureSummary");
+        if (hcEl) {
+          const proposals = hp?.proposals?.proposals ?? hp?.proposals ?? [];
+          const closureCount = Array.isArray(proposals)
+            ? proposals.filter((p) => p?.patch?.kind === "hole-closure").length
+            : 0;
+          hcEl.textContent =
+            closureCount > 0
+              ? `Hole closure: ${closureCount} patch(es) with holeId — verify then confirm apply for repair bridge`
+              : "Hole closure: idle (needs holeId in chrysalis.holes.json)";
+        }
       } else if (!j || j.state === "idle") {
         isEl.textContent = "IS routing: idle";
+        const hcEl = $("holeClosureSummary");
+        if (hcEl) hcEl.textContent = "Hole closure: verify-gated repair bridge when holeId present";
       }
     }
     if (!j || j.state === "idle") {
