@@ -190,7 +190,10 @@ export function buildHubCapabilityMatrixReport() {
       doc: "docs/PHASE-44-PROGRAM.md",
       entryGate: "G9000",
       closeGate: "G9140",
-      status: "active",
+      status: "closed",
+      oracleProductCount: extendedMatrix.oracleProductCount ?? 0,
+      hubDirectedPairCount: extendedMatrix.totalPairs ?? hubDirectedPairs,
+      belowTarget: extendedMatrix.belowTarget ?? null,
       invariant: "601-pair waves; hole-closure repair; operator GPU train",
       trackCloseGates: {
         wave1: "G9030",

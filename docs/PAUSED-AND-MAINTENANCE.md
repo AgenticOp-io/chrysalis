@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-04) — Phase 44 active (**G9000**, **D6310**); Phase 43 closed (**G8940**); Phase 42 closed (**G8830**)  
+> **Status:** authoritative (2026-07-04) — Phase 44 closed (**G9140**, **D6311**); Phase 43 closed (**G8940**); Phase 42 closed (**G8830**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -21,7 +21,7 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **LLM convert full (optional)** | **G8900** | [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md) — after maintenance green |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
-**Closed program regression:** `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
+**Closed program regression:** `hub:phase44-program-close-smoke` (**G9140**) · `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
 **Program docs:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) (closed)
 
 ### Subordinate (closed — regression only)
@@ -128,3 +128,4 @@ Full catalog: [`archive/INDEX.md`](./archive/INDEX.md).
 | Full matrix oracle product | **G8790** / **G8700** | `hub:full-matrix-oracle-close-smoke` |
 | LLM-assisted convert | **G8830** / **G8800** | `hub:llm-assisted-convert-close-smoke` |
 | LLM convert full | **G8940** / **G8900** | `hub:llm-convert-full-close-smoke` |
+| Phase 44 extended matrix | **G9140** / **G9000** | `hub:phase44-program-close-smoke` |

@@ -1,6 +1,6 @@
 # Phase 44 — Extended matrix, LLM hole closure, Horizon C
 
-> **Status:** **active** (2026-07-04, **G9000**, **D6310** — user-amended)  
+> **Status:** **Program closed** (2026-07-04, **G9140**) — **169/601** oracle-product (72 core + 97 extended); honest partial census; was **active** (**G9000**, **D6310** — user-amended)  
 > **Authority:** **DESIGN D6310**; extends closed **Phase 41** (**G8790**), **Phase 43** (**G8940**)  
 > **Requires:** **G8790** core 72/72 oracle-product; **G8940** LLM convert full closed; **G8550** maintenance green  
 > **Subordinate to:** **G8550** / **G8570** / **G6731**
@@ -69,8 +69,19 @@ In-repo **train plan + QLoRA entry script**; GPU spend remains **operator-run** 
 | --- | --- |
 | **G9140** | `hub:phase44-program-close-smoke` — all track closes + honest 601-pair census (not full promotion) |
 
+## Closed census (2026-07-04)
+
+| Metric | Value |
+| --- | --- |
+| Hub directed pairs | **601** |
+| Oracle product | **169** (72 core + 97 extended) |
+| Below target | **432** (maintenance waves — not production parity claim) |
+
+Wave closes **G9030**, **G9040**, **G9085**; hole closure **G9070**; Horizon C operator contract **G9130**; operator UI **G9121**.
+
 ## Regression
 
+- **G9140** `hub:phase44-program-close-smoke` — program composite
 - **G8790** `hub:full-matrix-oracle-close-smoke`
 - **G8940** `hub:llm-convert-full-close-smoke`
 - **G8550** maintenance

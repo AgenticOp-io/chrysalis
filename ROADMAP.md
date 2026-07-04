@@ -8,7 +8,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** maintenance **G8550** / **G8570** / **G6731** (see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)).
-- **Active (2026-07-04):** **Phase 44 extended matrix + hole closure + Horizon C** (**G9000** → **G9140**, **D6310**).
+- **Closed (2026-07-04):** **Phase 44 extended matrix + hole closure + Horizon C** (**G9000** → **G9140**, **D6310** / **D6311**); **169/601** oracle-product census.
 - **Closed (2026-07-03):** **Phase 43 LLM convert full** (**G8900** → **G8940**, **D6303**); **Phase 42 LLM-assisted convert** (**G8800** → **G8830**, **D6302**); **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
@@ -726,9 +726,9 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 
 ---
 
-## Active — Phase 44 extended matrix + hole closure + Horizon C (G9000–G9140)
+## Closed — Phase 44 extended matrix + hole closure + Horizon C (G9000–G9140)
 
-**Authority:** [`docs/PHASE-44-PROGRAM.md`](./docs/PHASE-44-PROGRAM.md) (**D6310**); subordinate to **G8550**.
+**Authority:** [`docs/PHASE-44-PROGRAM.md`](./docs/PHASE-44-PROGRAM.md) (**D6310** / **D6311**); subordinate to **G8550**.
 
 | Gate | Goal | Smoke |
 | --- | --- | --- |
@@ -745,7 +745,7 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 | **G9121** | Operator hub UI | `hub:phase44-ui-smoke` |
 | **G9130** | Horizon C operator train close | `hub:horizon-c-train-close-smoke` |
 | **G9140** | Program close composite | `hub:phase44-program-close-smoke` |
-| **—** | Active build slice | `hub:phase44-build-slice-smoke` |
+| **—** | Build slice regression | `hub:phase44-build-slice-smoke` |
 
 ---
 

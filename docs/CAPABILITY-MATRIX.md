@@ -87,7 +87,7 @@ All pairs **not** listed above as oracle product are **structural**, **scaffold*
 | 41 | Core 9×9 matrix oracle product | **G8790** closed |
 | 42 | LLM-assisted convert (verify-gated propose) | **G8830** closed — [`LLM-ASSISTED-CONVERT-PROGRAM.md`](./LLM-ASSISTED-CONVERT-PROGRAM.md) |
 | 43 | LLM convert full (enrich + verify-gated apply + repair bridge) | **G8940** closed — [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md) |
-| 44 | Extended matrix + hole closure + Horizon C | **G9000** active — [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md) |
+| 44 | Extended matrix + hole closure + Horizon C | **G9140** closed — [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md) |
 
 **Matrix schema v43** adds wave-3 extended matrix + operator UI gate (**G9121**).
 

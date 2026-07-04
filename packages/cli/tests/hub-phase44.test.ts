@@ -4,14 +4,15 @@ import { resolve } from "node:path";
 const ROOT = resolve(import.meta.dirname, "../../..");
 
 describe("hub Phase 44 program (G9000–G9140)", () => {
-  test("G9000 program entry gate accepts active Phase 44", async () => {
-    const { runPhase44ProgramDocGate, isPhase44ProgramActive } = await import(
+  test("G9000 program entry gate accepts closed Phase 44", async () => {
+    const { runPhase44ProgramDocGate, isPhase44ProgramActive, isPhase44ProgramClosed } = await import(
       "../../../scripts/hub-ingest/hub-phase44-program-entry-smoke.mjs"
     );
-    expect(isPhase44ProgramActive()).toBe(true);
+    expect(isPhase44ProgramClosed()).toBe(true);
+    expect(isPhase44ProgramActive()).toBe(false);
     const gate = runPhase44ProgramDocGate();
     expect(gate.ok).toBe(true);
-    expect(gate.active).toBe(true);
+    expect(gate.closed).toBe(true);
   });
 
   test("G9001 extended matrix census reports wave progress", async () => {
@@ -131,6 +132,7 @@ describe("hub Phase 44 program (G9000–G9140)", () => {
     const report = buildHubCapabilityMatrixReport();
     expect(report.phase44?.trackCloseGates?.wave3).toBe("G9085");
     expect(report.phase44?.operatorUiGate).toBe("G9121");
+    expect(report.phase44?.status).toBe("closed");
     expect(report.extendedMatrixOracle?.wave3Complete).toBe(true);
     expect(report.horizonCTrain?.closeGate).toBe("G9130");
     expect(report.fullMatrixOracle?.corePairCount).toBe(72);
@@ -144,6 +146,7 @@ describe("hub Phase 44 program (G9000–G9140)", () => {
     expect(gate.ok).toBe(true);
     expect(gate.closeReady).toBe(true);
     expect(gate.programHonest).toBe(true);
+    expect(gate.programClosed).toBe(true);
     expect(gate.census?.belowTarget).toBeGreaterThan(0);
   });
 

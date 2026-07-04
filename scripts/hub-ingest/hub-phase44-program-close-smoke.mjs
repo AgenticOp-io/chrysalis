@@ -5,7 +5,11 @@ import { fileURLToPath } from "node:url";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 import { runPhase44BuildSliceGate } from "./hub-phase44-build-slice-smoke.mjs";
 import { runExtendedMatrixOracleProgressGate } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
-import { runPhase44ProgramDocGate, isPhase44ProgramActive } from "./hub-phase44-program-entry-smoke.mjs";
+import {
+  runPhase44ProgramDocGate,
+  isPhase44ProgramActive,
+  isPhase44ProgramClosed,
+} from "./hub-phase44-program-entry-smoke.mjs";
 
 export const PHASE44_PROGRAM_CLOSE_KIND = "chrysalis.phase44-program-close-smoke";
 export const PHASE44_PROGRAM_CLOSE_SCHEMA_VERSION = 1;
@@ -23,6 +27,7 @@ export async function runPhase44ProgramCloseGate(opts = {}) {
     (census.belowTarget ?? 0) > 0 &&
     (census.extendedOracle ?? 0) > 0 &&
     (census.oracleProductCount ?? 0) < (census.totalPairs ?? 601);
+  const programClosed = isPhase44ProgramClosed();
   const closeReady = buildSlice.ok === true && programHonest === true;
   const ok = program.ok === true && closeReady;
   return {
@@ -31,6 +36,7 @@ export async function runPhase44ProgramCloseGate(opts = {}) {
     ok,
     closeReady,
     programHonest,
+    programClosed,
     programActive: isPhase44ProgramActive(),
     program,
     buildSlice,

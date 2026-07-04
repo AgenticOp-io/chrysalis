@@ -15,7 +15,14 @@ const charterPath = join(
   "fixtures/hub-extended-matrix-oracle/chrysalis.extended-matrix-charter.v1.json",
 );
 
+export function isPhase44ProgramClosed() {
+  if (!existsSync(programDocPath)) return false;
+  const text = readFileSync(programDocPath, "utf8");
+  return text.includes("Program closed") && text.includes("G9140");
+}
+
 export function isPhase44ProgramActive() {
+  if (isPhase44ProgramClosed()) return false;
   if (!existsSync(programDocPath)) return false;
   const text = readFileSync(programDocPath, "utf8");
   return text.includes("**Status:** **active**") && text.includes("G9000");
@@ -35,23 +42,36 @@ export function runPhase44ProgramDocGate() {
   const design = existsSync(designPath) ? readFileSync(designPath, "utf8") : "";
   const capability = existsSync(capabilityPath) ? readFileSync(capabilityPath, "utf8") : "";
   const charter = readFileSync(charterPath, "utf8");
+  const closed = isPhase44ProgramClosed();
+  const active = isPhase44ProgramActive();
+  const statusOk =
+    (closed && program.includes("Program closed") && program.includes("G9140")) ||
+    (active && program.includes("**Status:** **active**"));
+  const strategicGateOk = closed
+    ? strategic.includes("G9140") && strategic.includes("D6310")
+    : strategic.includes("G9000") && strategic.includes("D6310");
+  const capabilityPhase44Ok =
+    capability.includes("Phase 44") ||
+    capability.includes("| 44 |") ||
+    capability.includes("G9140");
   const ok =
+    statusOk &&
     program.includes("Phase 44") &&
     program.includes("G9000") &&
     program.includes("G9140") &&
     program.includes("D6310") &&
     program.includes("601-pair") &&
     program.includes("Horizon C") &&
-    strategic.includes("Phase 44") &&
-    strategic.includes("D6310") &&
+    strategicGateOk &&
+    strategic.includes("PHASE-44-PROGRAM.md") &&
     roadmap.includes("Phase 44") &&
     design.includes("D6310") &&
-    capability.includes("Phase 44") &&
+    capabilityPhase44Ok &&
     charter.includes("extended-matrix-oracle-charter") &&
     charter.includes("wave1") &&
     charter.includes("wave2") &&
     charter.includes("wave3");
-  return { ok, active: isPhase44ProgramActive() };
+  return { ok, active, closed };
 }
 
 export async function runPhase44ProgramEntrySmoke() {
