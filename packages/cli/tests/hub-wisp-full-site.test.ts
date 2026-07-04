@@ -61,6 +61,8 @@ test("wisp full site auth policy (G7704)", () => {
   );
   expect(gate.ok).toBe(true);
   expect(gate.nativeOk).toBe(true);
+  expect(gate.authHandlersUnique).toBe(true);
+  expect(gate.loginPostCount).toBe(1);
 });
 
 test("wisp full site cutover policy (G7706)", () => {

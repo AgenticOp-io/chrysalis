@@ -18,7 +18,7 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (subordinate) |
-| **LLM convert full (optional)** | **G8900** | [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md) — after maintenance green |
+| **Extended matrix census (optional)** | **G9001** | `hub:extended-matrix-oracle-progress-smoke` — **432** pairs below oracle-product; wave maintenance only |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
 **Closed program regression:** `hub:phase44-program-close-smoke` (**G9140**) · `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
@@ -99,6 +99,7 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (arch
 
 | Gap | Status | Doc |
 | --- | --- | --- |
+| Extended matrix oracle promotion | **432/601** below target — wave maintenance only (**G9001**); not production parity | [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md) |
 | Live operator deploy refresh | Operator-run — `wisp:deploy:gce` + `wisp:operator-verify --require` | `WISP-PRODUCTION-COMPLETION-PROGRAM.md` |
 | Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |

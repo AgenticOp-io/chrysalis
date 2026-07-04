@@ -48,6 +48,30 @@ export function replaceRouteHandlerBlock(text, routeLines, replacement) {
   return { text: text.slice(0, start) + replacement + text.slice(end), ok: true };
 }
 
+const NATIVE_AUTH_HANDLER_PAIR_RE =
+  /@route POST "\/login"\s*\r?\nhandler login_post \{[\s\S]*?\}\s*\r?\n\s*@route GET "\/api\/me"\s*\r?\nhandler session_me \{[\s\S]*?\}\s*\r?\n/g;
+
+/** Keep one native auth handler pair; drop duplicates from idempotent apply chains. */
+export function dedupeNativeAuthRouteHandlers(text) {
+  let kept = false;
+  let removed = 0;
+  const cleaned = text.replace(NATIVE_AUTH_HANDLER_PAIR_RE, (block) => {
+    if (!kept) {
+      kept = true;
+      return block;
+    }
+    removed++;
+    return "";
+  });
+  return {
+    text: cleaned,
+    ok: true,
+    removed,
+    loginPostCount: (cleaned.match(/@route POST "\/login"/g) ?? []).length,
+    sessionMeCount: (cleaned.match(/@route GET "\/api\/me"/g) ?? []).length,
+  };
+}
+
 /** @param {string} path @param {(route: Record<string, unknown>) => void} patch */
 export function patchPreviewRoute(path, patch) {
   if (!existsSync(previewPath)) return { ok: false, skip: "missing-cwl-preview" };

@@ -19,8 +19,13 @@ export function runWispFullSiteAuthPolicyGate(_opts = {}) {
     ? JSON.parse(readFileSync(manifestPath, "utf8"))
     : buildWispHoleManifest();
   const firebaseHoles = manifest.byReason?.["hub-svelte:firebase-auth"] ?? 0;
+  const routesPath = join(scriptRoot, charter.fixtureRoot, "routes.cwl");
+  const routesText = existsSync(routesPath) ? readFileSync(routesPath, "utf8") : "";
+  const loginPostCount = (routesText.match(/@route POST "\/login"/g) ?? []).length;
+  const sessionMeCount = (routesText.match(/@route GET "\/api\/me"/g) ?? []).length;
+  const authHandlersUnique = loginPostCount === 1 && sessionMeCount === 1;
   const policyOk = charter.authPolicy === "cwl-effects-session-native";
-  const nativeOk = firebaseHoles === 0;
+  const nativeOk = firebaseHoles === 0 && authHandlersUnique;
   const ok = policyOk === true;
   return {
     kind: WISP_FULL_SITE_AUTH_POLICY_SMOKE_KIND,
@@ -29,6 +34,9 @@ export function runWispFullSiteAuthPolicyGate(_opts = {}) {
     policyOk,
     nativeOk,
     firebaseHoles,
+    loginPostCount,
+    sessionMeCount,
+    authHandlersUnique,
     generatedAt: new Date().toISOString(),
   };
 }

@@ -3,7 +3,7 @@
  * Phase 27d — native CWL auth + session on /login (retire hub-svelte:firebase-auth).
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { replaceRouteHandlerBlock, routesPath } from "./wisp-cwl-apply-surfaces-lib.mjs";
+import { replaceRouteHandlerBlock, routesPath, dedupeNativeAuthRouteHandlers } from "./wisp-cwl-apply-surfaces-lib.mjs";
 import { reconcilePreviewFromRoutesCwl } from "./wisp-cwl-apply-module-routes-lib.mjs";
 import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 
@@ -60,10 +60,23 @@ export function applyWispPhase27dNativeAuth(opts = {}) {
   if (!existsSync(path)) return { kind: WISP_PHASE27D_NATIVE_AUTH_KIND, schemaVersion: 1, ok: false, skip: "missing-routes-cwl" };
 
   let text = readFileSync(path, "utf8");
-  const applied = replaceRouteHandlerBlock(text, [`@route GET "/login"`, `@page GET "/login"`], LOGIN_PAGE_BLOCK);
-  if (!applied.ok) return { kind: WISP_PHASE27D_NATIVE_AUTH_KIND, schemaVersion: 1, ok: false, skip: applied.skip };
-  text = applied.text;
-  text = text.replace(/hub-svelte:firebase-auth/g, "cwl-auth-native");
+  const deduped = dedupeNativeAuthRouteHandlers(text);
+  text = deduped.text;
+  const alreadyNative =
+    text.includes("wisp-auth-native") &&
+    !text.includes("hub-svelte:firebase-auth") &&
+    deduped.loginPostCount === 1 &&
+    deduped.sessionMeCount === 1;
+
+  if (!alreadyNative) {
+    const applied = replaceRouteHandlerBlock(text, [`@route GET "/login"`, `@page GET "/login"`], LOGIN_PAGE_BLOCK);
+    if (!applied.ok) return { kind: WISP_PHASE27D_NATIVE_AUTH_KIND, schemaVersion: 1, ok: false, skip: applied.skip };
+    text = applied.text;
+    text = text.replace(/hub-svelte:firebase-auth/g, "cwl-auth-native");
+    const afterApply = dedupeNativeAuthRouteHandlers(text);
+    text = afterApply.text;
+  }
+
   writeFileSync(path, text, "utf8");
 
   const preview = reconcilePreviewFromRoutesCwl();
