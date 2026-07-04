@@ -1,9 +1,8 @@
 /** Verify-gated convert hole enrichment — HTTP chat when allowed, deterministic stub otherwise. */
 
-export type ConvertHoleInput = {
-  name: string;
-  detail?: string | null;
-};
+import { mergeHoleClosureIntoPatchHint, type ConvertHoleRecord } from "./convert-hole-closure-hint.js";
+
+export type ConvertHoleInput = ConvertHoleRecord;
 
 export type ConvertHoleEnrichment = {
   hole: string;
@@ -39,15 +38,13 @@ function resolveConvertLlmApiKey(): string {
 
 function stubEnrichment(hole: ConvertHoleInput): ConvertHoleEnrichment {
   const name = hole.name ?? "legacy:unknown";
+  const patchHint = mergeHoleClosureIntoPatchHint(null, hole);
   return {
     hole: name,
-    suggestion: `Review WebIR lowering for ${name}; add fixture or IR helper tier before apply.`,
-    patchHint: {
-      kind: "hole-scaffold",
-      hole: name,
-      action: "manual-review",
-      webirRequired: true,
-    },
+    suggestion: patchHint.kind === "hole-closure"
+      ? `Hole ${patchHint.holeId} — complete WebIR replacement subgraph; verify then repair apply.`
+      : `Review WebIR lowering for ${name}; add fixture or IR helper tier before apply.`,
+    patchHint,
     source: "stub",
   };
 }
@@ -76,10 +73,12 @@ function parseEnrichments(parsed: unknown, holes: ConvertHoleInput[]): ConvertHo
     out.push({
       hole: hole.name,
       suggestion: typeof r.suggestion === "string" ? r.suggestion : stubEnrichment(hole).suggestion,
-      patchHint:
+      patchHint: mergeHoleClosureIntoPatchHint(
         typeof r.patchHint === "object" && r.patchHint !== null
           ? (r.patchHint as Record<string, unknown>)
-          : stubEnrichment(hole).patchHint,
+          : null,
+        hole,
+      ),
       source: "llm",
     });
   }

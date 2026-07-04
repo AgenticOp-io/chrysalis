@@ -86,13 +86,13 @@ Default **`gpu-lab:train`** is **dry-run** (`CHRYSALIS_GPU_LAB_DRY_RUN=1`): chec
 
 For a real QLoRA session on the lab VM:
 
-1. SSH: `pnpm run gpu-lab:ssh`
-2. Create venv, install `torch`, `peft`, `transformers`, `bitsandbytes`
-3. Train from `training-shards.v1.jsonl` against manifest `baseModel`
-4. Write adapter to `~/chrysalis-gpu-lab/reports/web-llm/lora/adapter/`
+1. Sync repo to lab (`pnpm run gpu-lab:sync`) or use CPU VM orchestrator (`pnpm run gpu-lab:gce`)
+2. On GPU VM: `pip install torch transformers peft datasets accelerate bitsandbytes`
+3. Run in-repo script: `python3 scripts/chrysalis-lora-qlora-train.py --manifest reports/web-llm/lora/train-manifest.v1.json --output reports/web-llm/lora/adapter`
+4. Or via wrapper: `CHRYSALIS_GPU_LAB_DRY_RUN=0 pnpm run gpu-lab:train`
 5. Eval on **CPU** with WVB + `chrysalis verify` — models propose; WebIR + oracle + verify dispose
 
-In-repo train loop is **intentionally not shipped** (no GPU deps in `@chrysalis/web-llm`). Manifest + gates define the contract.
+In-repo entry: **`scripts/chrysalis-lora-qlora-train.py`** + **`buildLoraTrainPlan`** in `@chrysalis/web-llm`. GPU deps stay on the lab VM only (**G9110** dry-run in CI).
 
 ## Stable Diffusion 1.5 (optional)
 

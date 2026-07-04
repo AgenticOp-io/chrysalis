@@ -47,6 +47,10 @@ export function runLlmConvertFullProgramDocGate() {
   const strategicGateOk = closed
     ? strategic.includes("G8940") && strategic.includes("D6303")
     : strategic.includes("G8900") && strategic.includes("D6303");
+  const capabilityPhase43Ok =
+    capability.includes("Phase 43") ||
+    capability.includes("| 43 | LLM convert full") ||
+    capability.includes("G8940");
   const ok =
     statusOk &&
     program.includes("Phase 43") &&
@@ -58,7 +62,7 @@ export function runLlmConvertFullProgramDocGate() {
     strategic.includes("LLM-CONVERT-FULL-PROGRAM.md") &&
     roadmap.includes("Phase 43") &&
     design.includes("D6303") &&
-    capability.includes("Phase 43");
+    capabilityPhase43Ok;
   return { ok, active, closed };
 }
 

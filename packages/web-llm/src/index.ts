@@ -18,4 +18,6 @@ export * from "./shorthand.js";
 export * from "./shorthand-retrieval.js";
 export * from "./convert-assist.js";
 export * from "./convert-llm-proposer.js";
+export * from "./convert-hole-closure-hint.js";
+export * from "./lora-train-plan.js";
 export * from "./lora-manifest.js";

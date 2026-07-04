@@ -3830,6 +3830,7 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-06-24 — D6245** **IR helper B75 `html_entity_decode()` (G7133).** Formal assign inlining; fixture route **`/hdec`**; gate **`runIrHelperLiftingB75HtmlEntityDecodeInlineGate`** in **G6731**.
 - **2026-07-03 — D6246** **IR helper B76 `json_encode()` (G7134).** Formal assign inlining; fixture route **`/m76`**; gate **`runIrHelperLiftingB76JsonEncodeInlineGate`** in **G6731**.
 - **2026-07-04 — D6247** **IR helper B77 `json_decode()` (G7135).** Formal assign inlining; fixture route **`/m77`**; gate **`runIrHelperLiftingB77JsonDecodeInlineGate`** in **G6731**.
+- **2026-07-04 — D6310** **Phase 44 program (G9000).** User-amended: **601-pair extended matrix oracle waves**, **LLM hole-closure → repair**, **Horizon C in-repo QLoRA train loop** (`scripts/chrysalis-lora-qlora-train.py`). Subordinate to **G8550**; close **G9140**. Program [`docs/PHASE-44-PROGRAM.md`](./docs/PHASE-44-PROGRAM.md).
 - **2026-07-04 — D6305** **Hub matrix pair next-action honesty.** `buildLanguageReadinessReport` uses verify depth (trace replay / structural gold) instead of generic origin `notDone` for gold oracle-product pairs (**Phase 41** closed messaging).
 
 - **2026-06-24 — D6224** **IR helper B54 `str_pad(, literal, literal)` (G7104).** Formal + two literals assign inlining via **`strPadFormalLiteral2`**; fixture route **`/dale`**; emit via **`padEnd`** (STR_PAD_RIGHT default); gate **`runIrHelperLiftingB54StrPadInlineGate`** in **G6731**.

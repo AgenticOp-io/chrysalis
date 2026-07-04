@@ -13,7 +13,7 @@ import { hubDirectedPairCount } from "./language-catalog.mjs";
 import { ORACLE_MICRO_FIXTURE } from "./hub-php-oracle-micro-fixture.mjs";
 
 export const HUB_CAPABILITY_MATRIX_KIND = "chrysalis.hub.capability-matrix";
-export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 39;
+export const HUB_CAPABILITY_MATRIX_SCHEMA_VERSION = 40;
 
 /** Customer / flagship routes eligible for Phase 10 matrix expansion (not vanity pairs). */
 export const MATRIX_CUSTOMER_ROUTES = [
@@ -133,6 +133,14 @@ export function buildHubCapabilityMatrixReport() {
       closeGate: "G8940",
       status: "closed",
       invariant: "enrich + verify-gated apply + repair bridge; no auto-apply",
+    },
+    phase44: {
+      program: "Phase 44 — Extended matrix + hole closure + Horizon C",
+      doc: "docs/PHASE-44-PROGRAM.md",
+      entryGate: "G9000",
+      closeGate: "G9140",
+      status: "active",
+      invariant: "601-pair waves; hole-closure repair; operator GPU train",
     },
     oracleMicroFixture: {
       fixture: ORACLE_MICRO_FIXTURE,

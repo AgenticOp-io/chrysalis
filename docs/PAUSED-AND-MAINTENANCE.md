@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-03) — Phase 43 closed (**G8940**, **D6303**); Phase 42 closed (**G8830**); Phase 41 closed (**G8790**)  
+> **Status:** authoritative (2026-07-04) — Phase 44 active (**G9000**, **D6310**); Phase 43 closed (**G8940**); Phase 42 closed (**G8830**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 

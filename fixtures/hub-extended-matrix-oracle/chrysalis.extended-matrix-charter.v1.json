@@ -1,0 +1,22 @@
+{
+  "kind": "chrysalis.extended-matrix-oracle-charter",
+  "schemaVersion": 1,
+  "charterId": "extended-matrix-oracle-v1",
+  "description": "Phase 44a — promote non-core hub matrix pairs to oracle product in waves (G9000–G9030).",
+  "requiresProgramClosed": "G8790",
+  "targetTier": "oracle-product",
+  "hubDirectedPairCount": 601,
+  "coreOraclePairs": 72,
+  "wave1": {
+    "id": "wave1-file-lift-popular",
+    "label": "Silver file-lift origins × popular web outputs",
+    "originIds": ["sql", "html", "css", "json", "yaml", "markdown"],
+    "outputIds": ["typescript", "javascript", "hono", "fastify", "nextjs", "python", "java", "go", "ruby", "csharp"],
+    "minOraclePairs": 24
+  },
+  "refused": [
+    "Claim all 601 pairs production-ready without per-pair trace oracle",
+    "Skip WebIR for promotion",
+    "Auto-promote without hub-gold trace replay suite"
+  ]
+}

@@ -425,19 +425,22 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
+**Amended 2026-07-04 (Phase 44 — D6310):** Phase **44** active at **G9000**: extended hub matrix oracle waves (601-pair census), LLM hole-closure → repair bridge, in-repo Horizon C QLoRA train loop (operator GPU). See [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md).
+
 **Amended 2026-07-03 (Phase 43 LLM convert full — D6303):** Phase **43** **closed** at **G8940**: LLM/stub hole enrichment, verify-gated operator apply, repair bridge, MCP **`hub_convert_apply_holes`** — extends closed Phase 42 without bypassing WebIR/oracle. See [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md).
 
-## 12. Default queue (maintenance)
+## 12. Default queue (Phase 44 — extended matrix + hole closure + Horizon C)
 
-**Status:** **Phase 43 closed** (**G8940**, **D6303** — 2026-07-03); **Phase 42 closed** (**G8830**, **D6302**); **Phase 41 closed** (**G8790**, **D6301**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
+**Status:** **Phase 44 active** (**G9000**, **D6310** — 2026-07-04); **Phase 43 closed** (**G8940**, **D6303**); **Phase 41 closed** (**G8790**, **D6301**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
 
 When the user says "build" without specifying:
 
 1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600**)
 2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
 3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (subordinate)
+4. **Phase 44** — [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md): **G9001** census → **G9010** wave-1 → **G9051** hole closure → **G9110** Horizon C train loop → **G9140** close
 
-**Closed program regression:** `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:open-web-llm-close-smoke` (**G8290**) · `hub:is-runtime-close-smoke` (**G8600**) · `hub:cwl-universal-translator-close-smoke` (**G7690**)
+**Closed program regression:** `hub:phase44-build-slice-smoke` (in progress) · `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**)
 
 **Operator demo:** `pnpm run migration-evidence:demo`  
 **GCE Migration OS:** `pnpm run test:gce:migration-os`  

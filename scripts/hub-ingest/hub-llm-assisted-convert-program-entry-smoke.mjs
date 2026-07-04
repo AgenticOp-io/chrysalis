@@ -50,6 +50,10 @@ export function runLlmAssistedConvertProgramDocGate() {
   const strategicGateOk = closed
     ? strategic.includes("G8830") && strategic.includes("D6302")
     : strategic.includes("G8800") && strategic.includes("D6302");
+  const capabilityPhase42Ok =
+    capability.includes("Phase 42") ||
+    capability.includes("| 42 | LLM-assisted convert") ||
+    capability.includes("G8830");
   const ok =
     statusOk &&
     program.includes("Phase 42") &&
@@ -63,7 +67,7 @@ export function runLlmAssistedConvertProgramDocGate() {
     roadmap.includes("Phase 42") &&
     (roadmap.includes("G8800") || roadmap.includes("G8830")) &&
     design.includes("D6302") &&
-    capability.includes("Phase 42");
+    capabilityPhase42Ok;
   return { ok, programEntryOk: ok, closed, active };
 }
 

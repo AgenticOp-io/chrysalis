@@ -39,14 +39,18 @@ echo "[gce-gpu-lora-train] IS-T2 prep complete — base=$BASE_MODEL shards=$(wc 
 echo "[gce-gpu-lora-train] session cap: ${MAX_MINUTES} min (CHRYSALIS_GPU_LAB_MAX_MINUTES) deadline_epoch=${DEADLINE_EPOCH}"
 
 if [[ "${CHRYSALIS_GPU_LAB_DRY_RUN:-1}" != "0" ]]; then
+  TRAIN_PY="${LAB_ROOT}/scripts/chrysalis-lora-qlora-train.py"
+  if [[ -f "$TRAIN_PY" ]]; then
+    python3 "$TRAIN_PY" --manifest "$MANIFEST" --output "$OUT" --dry-run
+    exit 0
+  fi
   cat <<EOF
 
 DRY RUN (CHRYSALIS_GPU_LAB_DRY_RUN=1). To execute a real QLoRA session on this VM:
 
-  python3 -m venv ~/venv-lora && source ~/venv-lora/bin/activate
-  pip install torch transformers peft datasets accelerate bitsandbytes
-  # Convert shards to HF dataset, train LoRA, write adapter to:
-  #   ${OUT}
+  python3 ${LAB_ROOT}/scripts/chrysalis-lora-qlora-train.py --manifest ${MANIFEST} --output ${OUT}
+
+  # Requires: pip install torch transformers peft datasets accelerate bitsandbytes
 
 Then evaluate on CPU with WVB + chrysalis verify (see docs/GCE-GPU-LAB.md).
 
@@ -56,14 +60,18 @@ EOF
   exit 0
 fi
 
-echo "[gce-gpu-lora-train] CHRYSALIS_GPU_LAB_DRY_RUN=0 — operator must wire peft/QLoRA train script here"
+TRAIN_PY="${LAB_ROOT}/scripts/chrysalis-lora-qlora-train.py"
+if [[ ! -f "$TRAIN_PY" ]]; then
+  echo "Missing $TRAIN_PY" >&2
+  exit 1
+fi
+
+echo "[gce-gpu-lora-train] CHRYSALIS_GPU_LAB_DRY_RUN=0 — QLoRA via chrysalis-lora-qlora-train.py"
 echo "[gce-gpu-lora-train] output dir: ${OUT}"
-echo "[gce-gpu-lora-train] train would run under: timeout ${MAX_SECONDS}s"
 
 if command -v timeout >/dev/null 2>&1; then
-  timeout --preserve-status "${MAX_SECONDS}s" bash -c 'echo "[gce-gpu-lora-train] timeout wrapper ready — plug QLoRA train body here"; exit 2'
+  timeout --preserve-status "${MAX_SECONDS}s" python3 "$TRAIN_PY" --manifest "$MANIFEST" --output "$OUT"
   exit $?
 fi
 
-echo "[gce-gpu-lora-train] timeout(1) not found — refusing unbounded train" >&2
-exit 2
+python3 "$TRAIN_PY" --manifest "$MANIFEST" --output "$OUT"

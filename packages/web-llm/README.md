@@ -14,7 +14,7 @@ Open **website LLM framework** scaffolding for Chrysalis: verify-gated agent tra
 - `logWebLlmSmokeGate`, `isWebLlmTrajectoryLoggingEnabled`
 - `chrysalisAgentToolDefinitions`, `findAgentTool`
 - `resolveShorthandForTask`, `promoteShorthandsByDomain`, `loadIntelligenceShorthandsFromRepo` (IS runtime protocol)
-- `buildLoraTrainManifest`, `validateLoraTrainManifest`, `readTrainingShardsFromJsonl` (IS-T2 train manifest — CPU export only)
+- `buildLoraTrainManifest`, `validateLoraTrainManifest`, `buildLoraTrainPlan`, `validateLoraTrainPlan`, `readTrainingShardsFromJsonl` (IS-T2 train manifest + Horizon C plan — CPU export; GPU train via `scripts/chrysalis-lora-qlora-train.py`)
 - `evaluateVerifyGatePolicy`, `VERIFY_GATE_POLICY`
 
 ## Invariants
@@ -22,10 +22,10 @@ Open **website LLM framework** scaffolding for Chrysalis: verify-gated agent tra
 1. Trajectory records never claim verify pass without an attached gate result or explicit `unverified` flag.
 2. Benchmark cases reference in-repo fixtures only (no network fetch at build time).
 3. Agent tools shell out to built `packages/cli/dist/bin.js` — no bypass of CLI verify semantics.
-4. No training weights or GPU dependencies in this package (recipes and eval only).
+4. No torch/peft GPU dependencies in this npm package — Horizon C train runs on operator GPU VM via `scripts/chrysalis-lora-qlora-train.py`.
 
 ## Non-goals
 
-- Pretraining or fine-tuning models (see `docs/OPEN-WEB-LLM-PROGRAM.md`).
+- Pretraining or hosting inference (see `docs/OPEN-WEB-LLM-PROGRAM.md`).
 - Replacing WebIR/CWL ingest or emitting raw TS/PHP without verify.
-- Hosted inference, billing, or telemetry to third parties.
+- Bundling torch/peft in npm dependencies.

@@ -8,6 +8,7 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** maintenance **G8550** / **G8570** / **G6731** (see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)).
+- **Active (2026-07-04):** **Phase 44 extended matrix + hole closure + Horizon C** (**G9000** → **G9140**, **D6310**).
 - **Closed (2026-07-03):** **Phase 43 LLM convert full** (**G8900** → **G8940**, **D6303**); **Phase 42 LLM-assisted convert** (**G8800** → **G8830**, **D6302**); **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
@@ -720,6 +721,23 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 | **G7133** B75 `html_entity_decode()` | `runIrHelperLiftingB75HtmlEntityDecodeInlineGate` (via **G6731**) |
 | **G7134** B76 `json_encode()` | `runIrHelperLiftingB76JsonEncodeInlineGate` (via **G6731**) |
 | **G7135** B77 `json_decode()` | `runIrHelperLiftingB77JsonDecodeInlineGate` (via **G6731**) |
+
+---
+
+---
+
+## Active — Phase 44 extended matrix + hole closure + Horizon C (G9000–G9140)
+
+**Authority:** [`docs/PHASE-44-PROGRAM.md`](./docs/PHASE-44-PROGRAM.md) (**D6310**); subordinate to **G8550**.
+
+| Gate | Goal | Smoke |
+| --- | --- | --- |
+| **G9000** | Program entry | `hub:phase44-program-entry-smoke` |
+| **G9001** | 601-pair oracle census | `hub:extended-matrix-oracle-progress-smoke` |
+| **G9010** | Wave-1 file-lift promotion | `hub:extended-matrix-oracle-wave1-smoke` |
+| **G9051** | LLM hole-closure hints | `hub:llm-convert-hole-closure-smoke` |
+| **G9110** | Horizon C train loop (dry-run) | `hub:horizon-c-train-loop-smoke` |
+| **G9140** | Program close composite | `hub:phase44-build-slice-smoke` |
 
 ---
 

@@ -85,6 +85,8 @@ export async function proposeHubConvertHolePatches(input) {
   const holeInputs = holes.map((hole) => ({
     name: hole.name ?? hole.id ?? hole.reason ?? "legacy:unknown",
     detail: hole.detail ?? hole.message ?? null,
+    holeId: hole.holeId ?? hole.nodeId ?? hole.id ?? null,
+    reason: hole.reason ?? hole.name ?? null,
   }));
 
   let enrichResult = { enrichments: [], skipLlm: true, llmUsed: false };
