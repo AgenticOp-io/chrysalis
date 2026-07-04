@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-04) — Phase 44 closed (**G9140**, **D6311**); Phase 43 closed (**G8940**); Phase 42 closed (**G8830**)  
+> **Status:** authoritative (2026-07-04) — Phase 44 closed (**G9140**, **D6311**); Phase 43 closed (**G8940**, **D6303**); Phase 41 closed (**G8790**, **D6301**); Phase 42 closed (**G8830**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -126,7 +126,7 @@ Full catalog: [`archive/INDEX.md`](./archive/INDEX.md).
 | WISP full site CWL | **G7790** | `hub:wisp-full-site-close-smoke` |
 | Complete language v1 | **G7150** | `hub:cwl-complete-language-close-smoke` |
 | IR Helper Program v1 | **G7200** | `hub:ir-helper-program-close-smoke` |
-| Full matrix oracle product | **G8790** / **G8700** | `hub:full-matrix-oracle-close-smoke` |
+| Full matrix oracle product | **G8790** / **G8700** (**D6301**) | `hub:full-matrix-oracle-close-smoke` |
 | LLM-assisted convert | **G8830** / **G8800** | `hub:llm-assisted-convert-close-smoke` |
 | LLM convert full | **G8940** / **G8900** | `hub:llm-convert-full-close-smoke` |
 | Phase 44 extended matrix | **G9140** / **G9000** | `hub:phase44-program-close-smoke` |

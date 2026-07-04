@@ -431,7 +431,9 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-07-03 (Phase 43 LLM convert full — D6303):** Phase **43** **closed** at **G8940**: LLM/stub hole enrichment, verify-gated operator apply, repair bridge, MCP **`hub_convert_apply_holes`** — extends closed Phase 42 without bypassing WebIR/oracle. See [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md).
 
-## 12. Default queue (maintenance — post Phase 44 close)
+## 12. Default queue (maintenance)
+
+**Post Phase 44 close (2026-07-04).**
 
 **Status:** **Phase 44 closed** (**G9140**, **D6311** — 2026-07-04); **Phase 43 closed** (**G8940**, **D6303**); **Phase 41 closed** (**G8790**, **D6301**); **Migration OS closed** (**G8550**); **G6731** subordinate regression.
 
