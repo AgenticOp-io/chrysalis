@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp.ui-parity.verify",
   "schemaVersion": 1,
   "ok": true,
-  "generatedAt": "2026-07-03T15:09:26.241Z",
+  "generatedAt": "2026-07-03T20:26:09.185Z",
   "anchors": [
     {
       "path": "/login",
