@@ -243,7 +243,35 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B89 v0 (G7152):** `is_resource()` formal assign inlining — fixture route **`/m89`**. Gate: `runIrHelperLiftingB89IsResourceInlineGate`.
 
-**String helper v1.1 extended at B89 (G7152)** — callee registry frozen at B75 close; **B76–B89** add json encode/decode, hash/base64 helpers, path/url introspection, and type/callable checks; **program v1 close** remains **G7200** ([`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md)).
+**B90 v0 (G7153):** `ord()` formal assign inlining — fixture route **`/m90`**. Gate: `runIrHelperLiftingB90OrdInlineGate`.
+
+**B91 v0 (G7154):** `chr()` formal assign inlining — fixture route **`/m91`**. Gate: `runIrHelperLiftingB91ChrInlineGate`.
+
+**B92 v0 (G7155):** `preg_match(, lit)` formal assign inlining — fixture route **`/m92`**. Gate: `runIrHelperLiftingB92PregMatchInlineGate`.
+
+**B93 v0 (G7156):** `hash(, lit)` formal assign inlining — fixture route **`/m93`**. Gate: `runIrHelperLiftingB93HashInlineGate`.
+
+**B94 v0 (G7157):** `sprintf(, lit)` formal assign inlining — fixture route **`/m94`**. Gate: `runIrHelperLiftingB94SprintfInlineGate`.
+
+**B95 v0 (G7158):** `number_format(, lit)` formal assign inlining — fixture route **`/m95`**. Gate: `runIrHelperLiftingB95NumberFormatInlineGate`.
+
+**B96 v0 (G7159):** `implode(lit, ...)` formal assign inlining — fixture route **`/m96`**. Gate: `runIrHelperLiftingB96ImplodeInlineGate`.
+
+**B97 v0 (G7160):** `preg_replace(lit, lit, ...)` formal assign inlining — fixture route **`/m97`**. Gate: `runIrHelperLiftingB97PregReplaceInlineGate`.
+
+**B98 v0 (G7161):** `preg_split(, lit)` formal assign inlining — fixture route **`/m98`**. Gate: `runIrHelperLiftingB98PregSplitInlineGate`.
+
+**B99 v0 (G7162):** `hexdec()` formal assign inlining — fixture route **`/m99`**. Gate: `runIrHelperLiftingB99HexdecInlineGate`.
+
+**B100 v0 (G7163):** `dechex()` formal assign inlining — fixture route **`/m100`**. Gate: `runIrHelperLiftingB100DechexInlineGate`.
+
+**B101 v0 (G7164):** `strval()` formal assign inlining — fixture route **`/m101`**. Gate: `runIrHelperLiftingB101StrvalInlineGate`.
+
+**B102 v0 (G7165):** `filter_var(, lit)` formal assign inlining — fixture route **`/m102`**. Gate: `runIrHelperLiftingB102FilterVarInlineGate`.
+
+**B103 v0 (G7166):** `crc32()` formal assign inlining — fixture route **`/m103`**. Gate: `runIrHelperLiftingB103Crc32InlineGate`.
+
+**String helper v1.1 extended at B103 (G7166)** — callee registry frozen at B75 close; **B76–B103** cover json/hash/base64, path/url introspection, type checks, preg/format tier, and P3 maintenance batch 2 hex/strval/filter/crc32; **program v1 close** remains **G7200** ([`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md)).
 
 **B54 v0 (G7104):** `str_pad(, literal, literal)` formal + literal inlining — fixture route **`/dale`**. Gate: `runIrHelperLiftingB54StrPadInlineGate`.
 

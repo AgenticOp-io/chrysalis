@@ -733,6 +733,20 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 | **G7148** B87 `gettype()` | `runIrHelperLiftingB87GettypeInlineGate` (via **G6731**) |
 | **G7149** B88 `is_callable()` | `runIrHelperLiftingB88IsCallableInlineGate` (via **G6731**) |
 | **G7152** B89 `is_resource()` | `runIrHelperLiftingB89IsResourceInlineGate` (via **G6731**) |
+| **G7153** B90 `ord()` | `runIrHelperLiftingB90OrdInlineGate` (via **G6731**) |
+| **G7154** B91 `chr()` | `runIrHelperLiftingB91ChrInlineGate` (via **G6731**) |
+| **G7155** B92 `preg_match(, lit)` | `runIrHelperLiftingB92PregMatchInlineGate` (via **G6731**) |
+| **G7156** B93 `hash(, lit)` | `runIrHelperLiftingB93HashInlineGate` (via **G6731**) |
+| **G7157** B94 `sprintf(, lit)` | `runIrHelperLiftingB94SprintfInlineGate` (via **G6731**) |
+| **G7158** B95 `number_format(, lit)` | `runIrHelperLiftingB95NumberFormatInlineGate` (via **G6731**) |
+| **G7159** B96 `implode(lit, ...)` | `runIrHelperLiftingB96ImplodeInlineGate` (via **G6731**) |
+| **G7160** B97 `preg_replace(lit, lit, ...)` | `runIrHelperLiftingB97PregReplaceInlineGate` (via **G6731**) |
+| **G7161** B98 `preg_split(, lit)` | `runIrHelperLiftingB98PregSplitInlineGate` (via **G6731**) |
+| **G7162** B99 `hexdec()` | `runIrHelperLiftingB99HexdecInlineGate` (via **G6731**) |
+| **G7163** B100 `dechex()` | `runIrHelperLiftingB100DechexInlineGate` (via **G6731**) |
+| **G7164** B101 `strval()` | `runIrHelperLiftingB101StrvalInlineGate` (via **G6731**) |
+| **G7165** B102 `filter_var(, lit)` | `runIrHelperLiftingB102FilterVarInlineGate` (via **G6731**) |
+| **G7166** B103 `crc32()` | `runIrHelperLiftingB103Crc32InlineGate` (via **G6731**) |
 
 ---
 

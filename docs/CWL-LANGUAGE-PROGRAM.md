@@ -162,6 +162,20 @@ Per **DESIGN §3** and **D6205**:
 | G7148 | B87 `gettype()` formal assign | `runIrHelperLiftingB87GettypeInlineGate` |
 | G7149 | B88 `is_callable()` formal assign | `runIrHelperLiftingB88IsCallableInlineGate` |
 | G7152 | B89 `is_resource()` formal assign | `runIrHelperLiftingB89IsResourceInlineGate` |
+| G7153 | B90 `ord()` formal assign | `runIrHelperLiftingB90OrdInlineGate` |
+| G7154 | B91 `chr()` formal assign | `runIrHelperLiftingB91ChrInlineGate` |
+| G7155 | B92 `preg_match(, lit)` formal + literal | `runIrHelperLiftingB92PregMatchInlineGate` |
+| G7156 | B93 `hash(, lit)` formal + literal | `runIrHelperLiftingB93HashInlineGate` |
+| G7157 | B94 `sprintf(, lit)` formal + literal | `runIrHelperLiftingB94SprintfInlineGate` |
+| G7158 | B95 `number_format(, lit)` formal + literal | `runIrHelperLiftingB95NumberFormatInlineGate` |
+| G7159 | B96 `implode(lit, ...)` literal + formal | `runIrHelperLiftingB96ImplodeInlineGate` |
+| G7160 | B97 `preg_replace(lit, lit, ...)` formal last | `runIrHelperLiftingB97PregReplaceInlineGate` |
+| G7161 | B98 `preg_split(, lit)` formal + literal | `runIrHelperLiftingB98PregSplitInlineGate` |
+| G7162 | B99 `hexdec()` formal assign | `runIrHelperLiftingB99HexdecInlineGate` |
+| G7163 | B100 `dechex()` formal assign | `runIrHelperLiftingB100DechexInlineGate` |
+| G7164 | B101 `strval()` formal assign | `runIrHelperLiftingB101StrvalInlineGate` |
+| G7165 | B102 `filter_var(, lit)` formal + literal | `runIrHelperLiftingB102FilterVarInlineGate` |
+| G7166 | B103 `crc32()` formal assign | `runIrHelperLiftingB103Crc32InlineGate` |
 | G7104 | B54 `str_pad(, literal, literal)` formal + literal | `runIrHelperLiftingB54StrPadInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 | **G7100** | Complete language program entry | Doc gate — § Complete language program |

@@ -87,6 +87,20 @@ import {
   runIrHelperLiftingB87GettypeInlineGate,
   runIrHelperLiftingB88IsCallableInlineGate,
   runIrHelperLiftingB89IsResourceInlineGate,
+  runIrHelperLiftingB90OrdInlineGate,
+  runIrHelperLiftingB91ChrInlineGate,
+  runIrHelperLiftingB92PregMatchInlineGate,
+  runIrHelperLiftingB93HashInlineGate,
+  runIrHelperLiftingB94SprintfInlineGate,
+  runIrHelperLiftingB95NumberFormatInlineGate,
+  runIrHelperLiftingB96ImplodeInlineGate,
+  runIrHelperLiftingB97PregReplaceInlineGate,
+  runIrHelperLiftingB98PregSplitInlineGate,
+  runIrHelperLiftingB99HexdecInlineGate,
+  runIrHelperLiftingB100DechexInlineGate,
+  runIrHelperLiftingB101StrvalInlineGate,
+  runIrHelperLiftingB102FilterVarInlineGate,
+  runIrHelperLiftingB103Crc32InlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -187,6 +201,20 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G7148") &&
     text.includes("G7149") &&
     text.includes("G7152") &&
+    text.includes("G7153") &&
+    text.includes("G7154") &&
+    text.includes("G7155") &&
+    text.includes("G7156") &&
+    text.includes("G7157") &&
+    text.includes("G7158") &&
+    text.includes("G7159") &&
+    text.includes("G7160") &&
+    text.includes("G7161") &&
+    text.includes("G7162") &&
+    text.includes("G7163") &&
+    text.includes("G7164") &&
+    text.includes("G7165") &&
+    text.includes("G7166") &&
     text.includes("G7200") &&
     text.includes("hub:ir-helper-program-close-smoke") &&
     text.includes("isset") &&
@@ -269,7 +297,21 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("dirname()") &&
     text.includes("gettype()") &&
     text.includes("is_callable()") &&
-    text.includes("is_resource()");
+    text.includes("is_resource()") &&
+    text.includes("ord()") &&
+    text.includes("chr()") &&
+    text.includes("preg_match()") &&
+    text.includes("hash()") &&
+    text.includes("sprintf()") &&
+    text.includes("number_format()") &&
+    text.includes("implode()") &&
+    text.includes("preg_replace()") &&
+    text.includes("preg_split()") &&
+    text.includes("hexdec()") &&
+    text.includes("dechex()") &&
+    text.includes("strval()") &&
+    text.includes("filter_var()") &&
+    text.includes("crc32()");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -360,6 +402,20 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b87 = runIrHelperLiftingB87GettypeInlineGate();
   const b88 = runIrHelperLiftingB88IsCallableInlineGate();
   const b89 = runIrHelperLiftingB89IsResourceInlineGate();
+  const b90 = runIrHelperLiftingB90OrdInlineGate();
+  const b91 = runIrHelperLiftingB91ChrInlineGate();
+  const b92 = runIrHelperLiftingB92PregMatchInlineGate();
+  const b93 = runIrHelperLiftingB93HashInlineGate();
+  const b94 = runIrHelperLiftingB94SprintfInlineGate();
+  const b95 = runIrHelperLiftingB95NumberFormatInlineGate();
+  const b96 = runIrHelperLiftingB96ImplodeInlineGate();
+  const b97 = runIrHelperLiftingB97PregReplaceInlineGate();
+  const b98 = runIrHelperLiftingB98PregSplitInlineGate();
+  const b99 = runIrHelperLiftingB99HexdecInlineGate();
+  const b100 = runIrHelperLiftingB100DechexInlineGate();
+  const b101 = runIrHelperLiftingB101StrvalInlineGate();
+  const b102 = runIrHelperLiftingB102FilterVarInlineGate();
+  const b103 = runIrHelperLiftingB103Crc32InlineGate();
   const ok =
     doc.ok === true &&
     taxonomy.ok === true &&
@@ -445,7 +501,21 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b86.ok === true &&
     b87.ok === true &&
     b88.ok === true &&
-    b89.ok === true;
+    b89.ok === true &&
+    b90.ok === true &&
+    b91.ok === true &&
+    b92.ok === true &&
+    b93.ok === true &&
+    b94.ok === true &&
+    b95.ok === true &&
+    b96.ok === true &&
+    b97.ok === true &&
+    b98.ok === true &&
+    b99.ok === true &&
+    b100.ok === true &&
+    b101.ok === true &&
+    b102.ok === true &&
+    b103.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -535,6 +605,20 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b87,
     b88,
     b89,
+    b90,
+    b91,
+    b92,
+    b93,
+    b94,
+    b95,
+    b96,
+    b97,
+    b98,
+    b99,
+    b100,
+    b101,
+    b102,
+    b103,
     generatedAt: new Date().toISOString(),
   };
 }
