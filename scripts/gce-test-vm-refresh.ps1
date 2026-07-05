@@ -25,14 +25,18 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $bootstrap = Join-Path $PSScriptRoot "gce-test-vm-bootstrap.sh"
 $finish = Join-Path $PSScriptRoot "gce-hub-finish-deploy.sh"
 $tarball = Join-Path $env:TEMP ("chrysalis-src-" + [guid]::NewGuid().ToString("n") + ".tar.gz")
+$headSidecar = Join-Path $env:TEMP ("chrysalis-deployed-head-" + [guid]::NewGuid().ToString("n"))
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra = @("--tunnel-through-iap") }
 
 Push-Location $repoRoot
 try {
   Write-Host "Archiving local HEAD..."
+  $deployedHead = (& git rev-parse HEAD).Trim()
+  if ($LASTEXITCODE -ne 0) { throw "git rev-parse HEAD failed" }
   & git archive --format=tar.gz -o $tarball HEAD
   if ($LASTEXITCODE -ne 0) { throw "git archive failed" }
+  Set-Content -LiteralPath $headSidecar -Value $deployedHead -NoNewline
 }
 finally {
   Pop-Location
@@ -42,6 +46,7 @@ Write-Host "Uploading to ${Name} (refresh-only, ~/chrysalis-test only)..."
 & gcloud compute scp --zone=$Zone --project=$Project @sshExtra $bootstrap "${Name}:gce-test-vm-bootstrap.sh"
 & gcloud compute scp --zone=$Zone --project=$Project @sshExtra $finish "${Name}:gce-hub-finish-deploy.sh"
 & gcloud compute scp --zone=$Zone --project=$Project @sshExtra $tarball "${Name}:chrysalis-src.tgz"
+& gcloud compute scp --zone=$Zone --project=$Project @sshExtra $headSidecar "${Name}:chrysalis-deployed-head"
 $gceHelpers = @(
   "gce-install-native-oracle-deps.sh",
   "gce-prep-intelligence-shorthand.sh",
@@ -57,6 +62,7 @@ foreach ($helper in $gceHelpers) {
   }
 }
 Remove-Item -LiteralPath $tarball -Force -ErrorAction SilentlyContinue
+Remove-Item -LiteralPath $headSidecar -Force -ErrorAction SilentlyContinue
 
 $skipFinish = if ($SkipHubFinish) { "1" } else { "0" }
 $remote = @"

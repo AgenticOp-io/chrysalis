@@ -13,13 +13,20 @@ if [[ "${CHRYSALIS_SKIP_INTELLIGENCE_SHORTHAND_PREP:-}" == "1" ]]; then
   exit 0
 fi
 
-REPO_HEAD="$(git -C "${REPO}" rev-parse HEAD 2>/dev/null || echo unknown)"
+REPO_HEAD="unknown"
+if [[ -f "${REPO}/.chrysalis/deployed-head" ]]; then
+  REPO_HEAD="$(tr -d '\n\r' <"${REPO}/.chrysalis/deployed-head")"
+elif git -C "${REPO}" rev-parse HEAD >/dev/null 2>&1; then
+  REPO_HEAD="$(git -C "${REPO}" rev-parse HEAD)"
+fi
 CACHED_HEAD=""
 if [[ -f "${HEAD_FILE}" ]]; then
   CACHED_HEAD="$(tr -d '\n\r' <"${HEAD_FILE}")"
 fi
 
-if [[ -f "${MARKER}" && "${CHRYSALIS_FORCE_INTELLIGENCE_SHORTHAND_PREP:-}" != "1" && "${CACHED_HEAD}" == "${REPO_HEAD}" ]]; then
+if [[ "${REPO_HEAD}" == "unknown" ]]; then
+  echo "[gce-prep-intelligence-shorthand] WARN: no deployed HEAD — skipping cache"
+elif [[ -f "${MARKER}" && "${CHRYSALIS_FORCE_INTELLIGENCE_SHORTHAND_PREP:-}" != "1" && "${CACHED_HEAD}" == "${REPO_HEAD}" ]]; then
   echo "[gce-prep-intelligence-shorthand] OK (cached ${MARKER} @ ${REPO_HEAD:0:12})"
   exit 0
 fi

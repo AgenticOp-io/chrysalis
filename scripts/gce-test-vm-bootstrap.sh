@@ -86,6 +86,11 @@ if [[ "${CHRYSALIS_TEST_USE_TARBALL:-}" == "1" ]]; then
   mkdir -p "${WORKDIR}"
   tar -xzf "${TARBALL}" -C "${WORKDIR}"
   rm -f "${TARBALL}"
+  if [[ -f "${HOME}/chrysalis-deployed-head" ]]; then
+    mkdir -p "${WORKDIR}/.chrysalis"
+    tr -d '\n\r' <"${HOME}/chrysalis-deployed-head" >"${WORKDIR}/.chrysalis/deployed-head"
+    rm -f "${HOME}/chrysalis-deployed-head"
+  fi
 else
   if git clone --depth 1 --branch "${BRANCH}" "${REPO_URL}" "${WORKDIR}" 2>/dev/null; then
     :
