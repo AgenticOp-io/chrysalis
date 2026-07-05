@@ -217,6 +217,8 @@ describe("ingest: lift-helper-sql-param-inline (B5.5 v3+)", () => {
     expect(tryExtractInlineQuery(mod, json_encodeHelper.bodyId, json_encodeHelper.paramNames)).toBeDefined();
     const json_decodeHelper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_json_decode")!;
     expect(tryExtractInlineQuery(mod, json_decodeHelper.bodyId, json_decodeHelper.paramNames)).toBeDefined();
+    const md5Helper = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_md5")!;
+    expect(tryExtractInlineQuery(mod, md5Helper.bodyId, md5Helper.paramNames)).toBeDefined();
     const sideeffect = resolveHelperBodyEntry(bodies, "chrysalis_sql_param_sideeffect")!;
     expect(tryExtractInlineQuery(mod, sideeffect.bodyId, sideeffect.paramNames)).toBeUndefined();
   });

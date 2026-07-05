@@ -219,7 +219,9 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B77 v0 (G7135):** `json_decode()` formal assign inlining — fixture route **`/m77`**. Gate: `runIrHelperLiftingB77JsonDecodeInlineGate`.
 
-**String helper v1.1 extended at B77 (G7135)** — callee registry frozen at B75 close; **B76–B77** add json encode/decode; **program v1 close** remains **G7200** ([`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md)).
+**B78 v0 (G7136):** `md5()` formal assign inlining — fixture route **`/m78`**. Gate: `runIrHelperLiftingB78Md5InlineGate`.
+
+**String helper v1.1 extended at B78 (G7136)** — callee registry frozen at B75 close; **B76–B78** add json encode/decode + md5; **program v1 close** remains **G7200** ([`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md)).
 
 **B54 v0 (G7104):** `str_pad(, literal, literal)` formal + literal inlining — fixture route **`/dale`**. Gate: `runIrHelperLiftingB54StrPadInlineGate`.
 
