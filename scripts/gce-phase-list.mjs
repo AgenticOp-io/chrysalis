@@ -67,6 +67,7 @@ export function buildGcePhaseList(opts = {}) {
     ...V110_PHASES,
   );
   if (opts.post110 !== false) phases.push("post110-verify-gaps");
+  if (opts.maintenance === true) phases.push("maintenance-program-complete");
   return phases;
 }
 

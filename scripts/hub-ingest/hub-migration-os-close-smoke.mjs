@@ -14,9 +14,11 @@ import {
   refreshMigrationEvidenceHub,
 } from "../migration-evidence-build-hub.mjs";
 import { runFullMatrixOracleProgressGate } from "./hub-full-matrix-oracle-progress-smoke.mjs";
+import { runExtendedMatrixOracleProgressGate } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
+import { isPhase44ProgramClosed } from "./hub-phase44-program-entry-smoke.mjs";
 
 export const HUB_MIGRATION_OS_CLOSE_KIND = "chrysalis.hub.migration-os-close-smoke";
-export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 4;
+export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 5;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -39,6 +41,8 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
   });
 
   const matrixOracle = runFullMatrixOracleProgressGate();
+  const extendedMatrix = runExtendedMatrixOracleProgressGate();
+  const phase44Closed = isPhase44ProgramClosed();
 
   const checks = {
     evidenceOk: evidence.ok === true,
@@ -50,7 +54,11 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     evidenceHubNightlyLinked: migrationEvidenceHubNightlyLinked(repoRoot),
     matrixOracleOk: matrixOracle.ok === true,
     matrixOracleProgramComplete: matrixOracle.programComplete === true,
-    matrixOracleProductCount: matrixOracle.oracleProductCount === 72,
+    matrixOracleProductCount: phase44Closed
+      ? (extendedMatrix.oracleProductCount ?? 0) >= 169
+      : matrixOracle.oracleProductCount === 72,
+    extendedMatrixOk: phase44Closed ? extendedMatrix.ok === true : true,
+    extendedOracleProductCount: phase44Closed ? extendedMatrix.oracleProductCount ?? 0 : null,
     bundleExists: existsSync(join(repoRoot, "reports/federation/bundle/open-legacy-bundle.v1.json")),
     shorthandExists: existsSync(join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json")),
     shorthandHubExists: existsSync(join(repoRoot, "reports/web-llm/shorthand/poc/index.html")),
@@ -72,6 +80,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     isRuntime,
     evidenceHub,
     matrixOracle,
+    extendedMatrix,
     generatedAt: new Date().toISOString(),
   };
 }

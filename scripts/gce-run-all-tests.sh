@@ -261,5 +261,13 @@ else
   skip_phase post110-verify-gaps
 fi
 
+if [[ "${CHRYSALIS_GCE_MAINTENANCE:-}" == "1" ]]; then
+  log "phase: maintenance program complete (G6261)"
+  run_phase maintenance-program-complete bash scripts/gce-maintenance-program-complete-only.sh
+else
+  log "phase: skip maintenance program complete (set CHRYSALIS_GCE_MAINTENANCE=1 to enable)"
+  skip_phase maintenance-program-complete
+fi
+
 date -Is >"${OK_FILE}"
 log "ALL OK — marker ${OK_FILE}"

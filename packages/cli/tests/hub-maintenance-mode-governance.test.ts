@@ -44,21 +44,23 @@ test("roadmap maintenance default queue gate (G6163)", () => {
   expect(gate.ok).toBe(true);
 });
 
-// Full G7890 composite (~6+ min) runs in CI via hub:maintenance-mode-governance-smoke.
-test("maintenance mode governance gate routes to wisp-production-completion-closed (G6160 / G7991)", () => {
+// Full composite (~6+ min) runs in CI via hub:maintenance-mode-governance-smoke.
+test("maintenance mode governance gate routes to phase44-closed (G6160 / G9141)", () => {
   const abs = resolve(ROOT, "scripts/hub-ingest/hub-cwl-fullstack-gates.mjs").replace(/\\/g, "/");
   const r = spawnSync(
     process.execPath,
     [
       "--input-type=module",
       "-e",
-      `import { pathToFileURL } from 'node:url'; const m = await import(pathToFileURL('${abs}').href); console.log(JSON.stringify(await m.runMaintenanceModeGovernanceGate({ skipCloseSmoke: true })));`,
+      `import { pathToFileURL } from 'node:url'; const m = await import(pathToFileURL('${abs}').href); console.log(JSON.stringify(await m.runMaintenanceModeGovernanceGate({ skipCloseSmoke: true, skipPhase44ProgramClose: true, skipFullMatrixOracleClose: true })));`,
     ],
     { cwd: ROOT, encoding: "utf8", timeout: 120_000, env: { ...process.env, CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1" } },
   );
   expect(r.status, r.stderr || r.stdout).toBe(0);
   const gate = JSON.parse(r.stdout.trim());
   expect(gate.ok).toBe(true);
-  expect(gate.mode).toBe("wisp-production-completion-closed");
-  expect(gate.closeOk).toBe(true);
+  expect(gate.mode).toBe("phase44-closed");
+  expect(gate.docOk).toBe(true);
+  expect(gate.strategicPlanOk).toBe(true);
+  expect(gate.roadmapOk).toBe(true);
 }, 120_000);
