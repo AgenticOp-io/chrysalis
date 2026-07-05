@@ -2688,6 +2688,14 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   return { ok, roadmapOk: ok };
 }
 
+/** Process-level cache — maintenance composite invokes close governance repeatedly. */
+let cachedFullMatrixOracleCloseResult = null;
+
+/** @internal Vitest / diagnostic hook */
+export function resetFullMatrixOracleCloseCacheForTests() {
+  cachedFullMatrixOracleCloseResult = null;
+}
+
 /** G8791 — Full matrix oracle closed governance (post G8790). */
 export async function runFullMatrixOracleClosedGovernanceGate(_opts = {}) {
   const skipClose =
@@ -2699,12 +2707,24 @@ export async function runFullMatrixOracleClosedGovernanceGate(_opts = {}) {
   const roadmap = runRoadmapMaintenanceDefaultQueueGate();
   let closeOk = true;
   let close = null;
+  let closeCached = false;
   let llmEntryOk = true;
   let llmEntry = null;
   if (!skipClose) {
-    const { runFullMatrixOracleCloseGate } = await import("./hub-full-matrix-oracle-close-smoke.mjs");
-    close = await runFullMatrixOracleCloseGate({ ..._opts, skipMaintenance: true });
-    closeOk = close.ok === true;
+    if (_opts.fullMatrixOracleClose != null) {
+      close = _opts.fullMatrixOracleClose;
+      closeOk = close.ok === true;
+      closeCached = true;
+    } else if (cachedFullMatrixOracleCloseResult != null) {
+      close = cachedFullMatrixOracleCloseResult;
+      closeOk = close.ok === true;
+      closeCached = true;
+    } else {
+      const { runFullMatrixOracleCloseGate } = await import("./hub-full-matrix-oracle-close-smoke.mjs");
+      close = await runFullMatrixOracleCloseGate({ ..._opts, skipMaintenance: true });
+      cachedFullMatrixOracleCloseResult = close;
+      closeOk = close.ok === true;
+    }
   }
   if (isLlmAssistedConvertProgramActive()) {
     llmEntry = await runLlmAssistedConvertProgramEntryGate(_opts);
@@ -2726,6 +2746,7 @@ export async function runFullMatrixOracleClosedGovernanceGate(_opts = {}) {
     roadmapOk: roadmap.ok === true,
     closeOk,
     close,
+    closeCached,
     llmEntryOk,
     llmEntry,
     mode: "full-matrix-oracle-closed",
@@ -3697,6 +3718,10 @@ export async function runStrategicPlanPhase10ProgramArchiveCloseGate(opts = {}) 
     archiveDocOk: archiveDoc.ok === true,
     maintenanceOk: maintenance.ok === true,
     programClosed: isPhase10ProductionParityClosed(),
+    reinforcement,
+    shipLog,
+    archiveDoc,
+    maintenance,
   };
 }
 
@@ -6435,16 +6460,93 @@ export async function runPhase14OperatorGovernanceGate(_opts = {}) {
   };
 }
 
+/** @param {Record<string, unknown> | null | undefined} governance */
+function summarizeFullMatrixOracleGovernance(governance) {
+  if (!governance || typeof governance !== "object") return governance ?? null;
+  return {
+    ok: governance.ok === true,
+    closeOk: governance.closeOk === true,
+    closeCached: governance.closeCached === true,
+    docOk: governance.docOk === true,
+    pausedOk: governance.pausedOk === true,
+    strategicPlanOk: governance.strategicPlanOk === true,
+    roadmapOk: governance.roadmapOk === true,
+    llmEntryOk: governance.llmEntryOk === true,
+    mode: governance.mode ?? null,
+  };
+}
+
+/** @param {Record<string, unknown> | null | undefined} reinforcement */
+function summarizePhase10ReinforcementGate(reinforcement) {
+  if (!reinforcement || typeof reinforcement !== "object") return reinforcement ?? null;
+  return {
+    ok: reinforcement.ok === true,
+    entryOk: reinforcement.entryOk === true,
+    depthOk: reinforcement.depthOk === true,
+    wordpressOk: reinforcement.wordpressOk === true,
+    matrixOk: reinforcement.matrixOk === true,
+    multiLanguageOk: reinforcement.multiLanguageOk === true,
+    governanceOk: reinforcement.governanceOk === true,
+    hubCompletionOk: reinforcement.hubCompletionOk === true,
+    governance: summarizeFullMatrixOracleGovernance(
+      /** @type {Record<string, unknown>} */ (reinforcement.governance),
+    ),
+  };
+}
+
+/** @param {Record<string, unknown> | null | undefined} archive */
+function summarizePhase10ArchiveGate(archive) {
+  if (!archive || typeof archive !== "object") return archive ?? null;
+  return {
+    ok: archive.ok === true,
+    reinforcementOk: archive.reinforcementOk === true,
+    shipLogOk: archive.shipLogOk === true,
+    archiveDocOk: archive.archiveDocOk === true,
+    maintenanceOk: archive.maintenanceOk === true,
+    reinforcement: summarizePhase10ReinforcementGate(
+      /** @type {Record<string, unknown>} */ (archive.reinforcement),
+    ),
+    maintenance: summarizeFullMatrixOracleGovernance(
+      /** @type {Record<string, unknown>} */ (archive.maintenance),
+    ),
+  };
+}
+
+/** @param {Record<string, unknown> | null | undefined} close */
+function summarizeFullMatrixOracleClose(close) {
+  if (!close || typeof close !== "object") return close ?? null;
+  const master = /** @type {Record<string, unknown>} */ (close.masterSlice);
+  return {
+    ok: close.ok === true,
+    programComplete: close.programComplete === true,
+    masterSliceOk: master?.ok === true,
+    slice41aOk: /** @type {Record<string, unknown>} */ (master?.slice41a)?.ok === true,
+    slice41dOk: /** @type {Record<string, unknown>} */ (master?.slice41d)?.ok === true,
+    slice41eOk: /** @type {Record<string, unknown>} */ (master?.slice41e)?.ok === true,
+  };
+}
+
 /** G6261 — Maintenance program complete gate (post Phase 10 archive). */
 export async function runMaintenanceProgramCompleteGate(opts = {}) {
-  const archive = await runStrategicPlanPhase10ProgramArchiveCloseGate(opts);
+  cachedFullMatrixOracleCloseResult = null;
+  let gateOpts = opts;
+  const skipClose =
+    opts.skipFullMatrixOracleClose === true ||
+    process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_FULL_MATRIX_ORACLE === "1";
+  if (isFullMatrixOracleProgramClosed() && !skipClose && opts.fullMatrixOracleClose == null) {
+    const { runFullMatrixOracleCloseGate } = await import("./hub-full-matrix-oracle-close-smoke.mjs");
+    const fullMatrixOracleClose = await runFullMatrixOracleCloseGate({ ...opts, skipMaintenance: true });
+    cachedFullMatrixOracleCloseResult = fullMatrixOracleClose;
+    gateOpts = { ...opts, fullMatrixOracleClose };
+  }
+  const archive = await runStrategicPlanPhase10ProgramArchiveCloseGate(gateOpts);
   const gaps = runHonestGapsProgramCompleteGate();
   const phase11 =
     isHonestGapsPhase11Active() || isHonestGapsPhase11Closed()
-      ? await runHonestGapsImplementationCloseGate(opts)
+      ? await runHonestGapsImplementationCloseGate(gateOpts)
       : { ok: true };
   const northStar = runNorthStarMetricsHonestyGate();
-  const maintenance = await runMaintenanceModeGovernanceGate(opts);
+  const maintenance = await runMaintenanceModeGovernanceGate(gateOpts);
   const ok =
     archive.ok === true &&
     gaps.ok === true &&
@@ -6460,6 +6562,23 @@ export async function runMaintenanceProgramCompleteGate(opts = {}) {
     northStarOk: northStar.ok === true,
     maintenanceOk: maintenance.ok === true,
     programClosed: isPhase10ProductionParityClosed(),
+    fullMatrixCloseOk:
+      gateOpts.fullMatrixOracleClose?.ok === true || cachedFullMatrixOracleCloseResult?.ok === true,
+    fullMatrixClose: summarizeFullMatrixOracleClose(
+      gateOpts.fullMatrixOracleClose ?? cachedFullMatrixOracleCloseResult,
+    ),
+    archive: summarizePhase10ArchiveGate(archive),
+    phase11: {
+      ok: phase11.ok === true,
+      docOk: phase11.docOk === true,
+      scaffoldingOk: phase11.scaffoldingOk === true,
+      depthOk: phase11.depthOk === true,
+      maintenanceOk: phase11.maintenanceOk === true,
+      maintenance: summarizeFullMatrixOracleGovernance(
+        /** @type {Record<string, unknown>} */ (phase11.maintenance),
+      ),
+    },
+    maintenance: summarizeFullMatrixOracleGovernance(maintenance),
   };
 }
 
