@@ -151,6 +151,17 @@ Per **DESIGN §3** and **D6205**:
 | G7134 | B76 `json_encode()` formal assign | `runIrHelperLiftingB76JsonEncodeInlineGate` |
 | G7135 | B77 `json_decode()` formal assign | `runIrHelperLiftingB77JsonDecodeInlineGate` |
 | G7136 | B78 `md5()` formal assign | `runIrHelperLiftingB78Md5InlineGate` |
+| G7137 | B79 `sha1()` formal assign | `runIrHelperLiftingB79Sha1InlineGate` |
+| G7138 | B80 `base64_encode()` formal assign | `runIrHelperLiftingB80Base64EncodeInlineGate` |
+| G7139 | B81 `base64_decode()` formal assign | `runIrHelperLiftingB81Base64DecodeInlineGate` |
+| G7143 | B82 `bin2hex()` formal assign | `runIrHelperLiftingB82Bin2hexInlineGate` |
+| G7144 | B83 `preg_quote()` formal assign | `runIrHelperLiftingB83PregQuoteInlineGate` |
+| G7145 | B84 `parse_url()` formal assign | `runIrHelperLiftingB84ParseUrlInlineGate` |
+| G7146 | B85 `basename()` formal assign | `runIrHelperLiftingB85BasenameInlineGate` |
+| G7147 | B86 `dirname()` formal assign | `runIrHelperLiftingB86DirnameInlineGate` |
+| G7148 | B87 `gettype()` formal assign | `runIrHelperLiftingB87GettypeInlineGate` |
+| G7149 | B88 `is_callable()` formal assign | `runIrHelperLiftingB88IsCallableInlineGate` |
+| G7152 | B89 `is_resource()` formal assign | `runIrHelperLiftingB89IsResourceInlineGate` |
 | G7104 | B54 `str_pad(, literal, literal)` formal + literal | `runIrHelperLiftingB54StrPadInlineGate` |
 | **G6750** | **Language v1 program close** | `pnpm run hub:cwl-language-v1-close-smoke` |
 | **G7100** | Complete language program entry | Doc gate — § Complete language program |

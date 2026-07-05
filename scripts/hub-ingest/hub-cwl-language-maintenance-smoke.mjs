@@ -76,6 +76,17 @@ import {
   runIrHelperLiftingB76JsonEncodeInlineGate,
   runIrHelperLiftingB77JsonDecodeInlineGate,
   runIrHelperLiftingB78Md5InlineGate,
+  runIrHelperLiftingB79Sha1InlineGate,
+  runIrHelperLiftingB80Base64EncodeInlineGate,
+  runIrHelperLiftingB81Base64DecodeInlineGate,
+  runIrHelperLiftingB82Bin2hexInlineGate,
+  runIrHelperLiftingB83PregQuoteInlineGate,
+  runIrHelperLiftingB84ParseUrlInlineGate,
+  runIrHelperLiftingB85BasenameInlineGate,
+  runIrHelperLiftingB86DirnameInlineGate,
+  runIrHelperLiftingB87GettypeInlineGate,
+  runIrHelperLiftingB88IsCallableInlineGate,
+  runIrHelperLiftingB89IsResourceInlineGate,
 } from "./hub-cwl-fullstack-gates.mjs";
 import { runCwlSurfaceTaxonomyDocGate } from "./hub-cwl-surface-taxonomy-smoke.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
@@ -165,6 +176,17 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("G7134") &&
     text.includes("G7135") &&
     text.includes("G7136") &&
+    text.includes("G7137") &&
+    text.includes("G7138") &&
+    text.includes("G7139") &&
+    text.includes("G7143") &&
+    text.includes("G7144") &&
+    text.includes("G7145") &&
+    text.includes("G7146") &&
+    text.includes("G7147") &&
+    text.includes("G7148") &&
+    text.includes("G7149") &&
+    text.includes("G7152") &&
     text.includes("G7200") &&
     text.includes("hub:ir-helper-program-close-smoke") &&
     text.includes("isset") &&
@@ -236,7 +258,18 @@ export function runCwlLanguageMaintenanceDocGate() {
     text.includes("html_entity_decode()") &&
     text.includes("json_encode()") &&
     text.includes("json_decode()") &&
-    text.includes("md5()");
+    text.includes("md5()") &&
+    text.includes("sha1()") &&
+    text.includes("base64_encode()") &&
+    text.includes("base64_decode()") &&
+    text.includes("bin2hex()") &&
+    text.includes("preg_quote()") &&
+    text.includes("parse_url()") &&
+    text.includes("basename()") &&
+    text.includes("dirname()") &&
+    text.includes("gettype()") &&
+    text.includes("is_callable()") &&
+    text.includes("is_resource()");
   return { ok, languageMaintenanceDocOk: ok };
 }
 
@@ -316,6 +349,17 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
   const b76 = runIrHelperLiftingB76JsonEncodeInlineGate();
   const b77 = runIrHelperLiftingB77JsonDecodeInlineGate();
   const b78 = runIrHelperLiftingB78Md5InlineGate();
+  const b79 = runIrHelperLiftingB79Sha1InlineGate();
+  const b80 = runIrHelperLiftingB80Base64EncodeInlineGate();
+  const b81 = runIrHelperLiftingB81Base64DecodeInlineGate();
+  const b82 = runIrHelperLiftingB82Bin2hexInlineGate();
+  const b83 = runIrHelperLiftingB83PregQuoteInlineGate();
+  const b84 = runIrHelperLiftingB84ParseUrlInlineGate();
+  const b85 = runIrHelperLiftingB85BasenameInlineGate();
+  const b86 = runIrHelperLiftingB86DirnameInlineGate();
+  const b87 = runIrHelperLiftingB87GettypeInlineGate();
+  const b88 = runIrHelperLiftingB88IsCallableInlineGate();
+  const b89 = runIrHelperLiftingB89IsResourceInlineGate();
   const ok =
     doc.ok === true &&
     taxonomy.ok === true &&
@@ -390,7 +434,18 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b75.ok === true &&
     b76.ok === true &&
     b77.ok === true &&
-    b78.ok === true;
+    b78.ok === true &&
+    b79.ok === true &&
+    b80.ok === true &&
+    b81.ok === true &&
+    b82.ok === true &&
+    b83.ok === true &&
+    b84.ok === true &&
+    b85.ok === true &&
+    b86.ok === true &&
+    b87.ok === true &&
+    b88.ok === true &&
+    b89.ok === true;
   return {
     kind: CWL_LANGUAGE_MAINTENANCE_SMOKE_KIND,
     schemaVersion: CWL_LANGUAGE_MAINTENANCE_SMOKE_SCHEMA_VERSION,
@@ -469,6 +524,17 @@ export async function runCwlLanguageMaintenanceGate(_opts = {}) {
     b76,
     b77,
     b78,
+    b79,
+    b80,
+    b81,
+    b82,
+    b83,
+    b84,
+    b85,
+    b86,
+    b87,
+    b88,
+    b89,
     generatedAt: new Date().toISOString(),
   };
 }

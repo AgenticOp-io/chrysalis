@@ -140,7 +140,14 @@ export const IR_HELPER_INLINE_REGISTRY: readonly IrHelperInlineRegistryEntry[] =
 ] as const;
 
 export const IR_HELPER_GENERIC_CALLEE_MAP: ReadonlyMap<string, IrHelperInlineRegistryEntry> = new Map(
-  IR_HELPER_INLINE_REGISTRY.filter((e) => e.generic === true).map((e) => [e.phpCallee, e] as const),
+  IR_HELPER_INLINE_REGISTRY.filter((e) => e.generic === true).flatMap((e) => {
+    const pairs: [string, IrHelperInlineRegistryEntry][] = [[e.phpCallee, e]];
+    const emit = e.emitCallee;
+    if (emit !== undefined && emit !== e.phpCallee) {
+      pairs.push([emit, e]);
+    }
+    return pairs;
+  }),
 );
 
 export const IR_HELPER_INLINE_CALLEE_IDS = IR_HELPER_INLINE_REGISTRY.map(

@@ -3831,6 +3831,17 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-07-03 — D6246** **IR helper B76 `json_encode()` (G7134).** Formal assign inlining; fixture route **`/m76`**; gate **`runIrHelperLiftingB76JsonEncodeInlineGate`** in **G6731**.
 - **2026-07-04 — D6247** **IR helper B77 `json_decode()` (G7135).** Formal assign inlining; fixture route **`/m77`**; gate **`runIrHelperLiftingB77JsonDecodeInlineGate`** in **G6731**.
 - **2026-07-05 — D6248** **IR helper B78 `md5()` (G7136).** Formal assign inlining; fixture route **`/m78`**; gate **`runIrHelperLiftingB78Md5InlineGate`** in **G6731**.
+- **2026-07-05 — D6249** **IR helper B79 `sha1()` (G7137).** Formal assign inlining; fixture route **`/m79`**; gate **`runIrHelperLiftingB79Sha1InlineGate`** in **G6731**.
+- **2026-07-05 — D6312** **IR helper B80 `base64_encode()` (G7138).** Formal assign inlining; fixture route **`/m80`**; gate **`runIrHelperLiftingB80Base64EncodeInlineGate`** in **G6731**.
+- **2026-07-05 — D6313** **IR helper B81 `base64_decode()` (G7139).** Formal assign inlining; fixture route **`/m81`**; gate **`runIrHelperLiftingB81Base64DecodeInlineGate`** in **G6731**.
+- **2026-07-05 — D6314** **IR helper B82 `bin2hex()` (G7143).** Formal assign inlining; fixture route **`/m82`**; gate **`runIrHelperLiftingB82Bin2hexInlineGate`** in **G6731**.
+- **2026-07-05 — D6315** **IR helper B83 `preg_quote()` (G7144).** Formal assign inlining; fixture route **`/m83`**; gate **`runIrHelperLiftingB83PregQuoteInlineGate`** in **G6731**.
+- **2026-07-05 — D6316** **IR helper B84 `parse_url()` (G7145).** Formal assign inlining; fixture route **`/m84`**; gate **`runIrHelperLiftingB84ParseUrlInlineGate`** in **G6731**.
+- **2026-07-05 — D6317** **IR helper B85 `basename()` (G7146).** Formal assign inlining; fixture route **`/m85`**; gate **`runIrHelperLiftingB85BasenameInlineGate`** in **G6731**.
+- **2026-07-05 — D6318** **IR helper B86 `dirname()` (G7147).** Formal assign inlining; fixture route **`/m86`**; gate **`runIrHelperLiftingB86DirnameInlineGate`** in **G6731**.
+- **2026-07-05 — D6319** **IR helper B87 `gettype()` (G7148).** Formal assign inlining; fixture route **`/m87`**; gate **`runIrHelperLiftingB87GettypeInlineGate`** in **G6731**.
+- **2026-07-05 — D6320** **IR helper B88 `is_callable()` (G7149).** Formal assign inlining; fixture route **`/m88`**; gate **`runIrHelperLiftingB88IsCallableInlineGate`** in **G6731**.
+- **2026-07-05 — D6321** **IR helper B89 `is_resource()` (G7152).** Formal assign inlining; fixture route **`/m89`**; gate **`runIrHelperLiftingB89IsResourceInlineGate`** in **G6731**.
 - **2026-07-04 — D6311** **Phase 44 program close (G9140).** Extended matrix waves 1–3 (**169/601** oracle-product), hole-closure repair bridge, Horizon C operator train contract — honest partial census; default queue returns to **G8550** maintenance. Program [`docs/PHASE-44-PROGRAM.md`](./docs/PHASE-44-PROGRAM.md).
 - **2026-07-04 — D6310** **Phase 44 program (G9000).** User-amended: **601-pair extended matrix oracle waves**, **LLM hole-closure → repair**, **Horizon C in-repo QLoRA train loop** (`scripts/chrysalis-lora-qlora-train.py`). Subordinate to **G8550**; close **G9140**. Program [`docs/PHASE-44-PROGRAM.md`](./docs/PHASE-44-PROGRAM.md).
 - **2026-07-04 — D6305** **Hub matrix pair next-action honesty.** `buildLanguageReadinessReport` uses verify depth (trace replay / structural gold) instead of generic origin `notDone` for gold oracle-product pairs (**Phase 41** closed messaging).

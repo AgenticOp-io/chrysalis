@@ -221,7 +221,29 @@ Both are invoked from **`hub-completion-heavy-smokes.mjs`** and surfaced in the 
 
 **B78 v0 (G7136):** `md5()` formal assign inlining — fixture route **`/m78`**. Gate: `runIrHelperLiftingB78Md5InlineGate`.
 
-**String helper v1.1 extended at B78 (G7136)** — callee registry frozen at B75 close; **B76–B78** add json encode/decode + md5; **program v1 close** remains **G7200** ([`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md)).
+**B79 v0 (G7137):** `sha1()` formal assign inlining — fixture route **`/m79`**. Gate: `runIrHelperLiftingB79Sha1InlineGate`.
+
+**B80 v0 (G7138):** `base64_encode()` formal assign inlining — fixture route **`/m80`**. Gate: `runIrHelperLiftingB80Base64EncodeInlineGate`.
+
+**B81 v0 (G7139):** `base64_decode()` formal assign inlining — fixture route **`/m81`**. Gate: `runIrHelperLiftingB81Base64DecodeInlineGate`.
+
+**B82 v0 (G7143):** `bin2hex()` formal assign inlining — fixture route **`/m82`**. Gate: `runIrHelperLiftingB82Bin2hexInlineGate`.
+
+**B83 v0 (G7144):** `preg_quote()` formal assign inlining — fixture route **`/m83`**. Gate: `runIrHelperLiftingB83PregQuoteInlineGate`.
+
+**B84 v0 (G7145):** `parse_url()` formal assign inlining — fixture route **`/m84`**. Gate: `runIrHelperLiftingB84ParseUrlInlineGate`.
+
+**B85 v0 (G7146):** `basename()` formal assign inlining — fixture route **`/m85`**. Gate: `runIrHelperLiftingB85BasenameInlineGate`.
+
+**B86 v0 (G7147):** `dirname()` formal assign inlining — fixture route **`/m86`**. Gate: `runIrHelperLiftingB86DirnameInlineGate`.
+
+**B87 v0 (G7148):** `gettype()` formal assign inlining — fixture route **`/m87`**. Gate: `runIrHelperLiftingB87GettypeInlineGate`.
+
+**B88 v0 (G7149):** `is_callable()` formal assign inlining — fixture route **`/m88`**. Gate: `runIrHelperLiftingB88IsCallableInlineGate`.
+
+**B89 v0 (G7152):** `is_resource()` formal assign inlining — fixture route **`/m89`**. Gate: `runIrHelperLiftingB89IsResourceInlineGate`.
+
+**String helper v1.1 extended at B89 (G7152)** — callee registry frozen at B75 close; **B76–B89** add json encode/decode, hash/base64 helpers, path/url introspection, and type/callable checks; **program v1 close** remains **G7200** ([`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md)).
 
 **B54 v0 (G7104):** `str_pad(, literal, literal)` formal + literal inlining — fixture route **`/dale`**. Gate: `runIrHelperLiftingB54StrPadInlineGate`.
 

@@ -722,6 +722,17 @@ Incremental IR helper depth after v1 close — **all B9–B75 gates green via G6
 | **G7134** B76 `json_encode()` | `runIrHelperLiftingB76JsonEncodeInlineGate` (via **G6731**) |
 | **G7135** B77 `json_decode()` | `runIrHelperLiftingB77JsonDecodeInlineGate` (via **G6731**) |
 | **G7136** B78 `md5()` | `runIrHelperLiftingB78Md5InlineGate` (via **G6731**) |
+| **G7137** B79 `sha1()` | `runIrHelperLiftingB79Sha1InlineGate` (via **G6731**) |
+| **G7138** B80 `base64_encode()` | `runIrHelperLiftingB80Base64EncodeInlineGate` (via **G6731**) |
+| **G7139** B81 `base64_decode()` | `runIrHelperLiftingB81Base64DecodeInlineGate` (via **G6731**) |
+| **G7143** B82 `bin2hex()` | `runIrHelperLiftingB82Bin2hexInlineGate` (via **G6731**) |
+| **G7144** B83 `preg_quote()` | `runIrHelperLiftingB83PregQuoteInlineGate` (via **G6731**) |
+| **G7145** B84 `parse_url()` | `runIrHelperLiftingB84ParseUrlInlineGate` (via **G6731**) |
+| **G7146** B85 `basename()` | `runIrHelperLiftingB85BasenameInlineGate` (via **G6731**) |
+| **G7147** B86 `dirname()` | `runIrHelperLiftingB86DirnameInlineGate` (via **G6731**) |
+| **G7148** B87 `gettype()` | `runIrHelperLiftingB87GettypeInlineGate` (via **G6731**) |
+| **G7149** B88 `is_callable()` | `runIrHelperLiftingB88IsCallableInlineGate` (via **G6731**) |
+| **G7152** B89 `is_resource()` | `runIrHelperLiftingB89IsResourceInlineGate` (via **G6731**) |
 
 ---
 
