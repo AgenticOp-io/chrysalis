@@ -101,8 +101,10 @@ jobs:
       - name: CWL surface taxonomy (G6340)
         run: pnpm run hub:cwl-surface-taxonomy-smoke
 
-      - name: CWL language maintenance (G6731)
-        run: pnpm run hub:cwl-language-maintenance-smoke
+      # G6731 full IR helper composite (~30+ min) — weekly in maintenance-weekly.yml
+
+      - name: Emit runtime-cwl scaffold (G9200)
+        run: pnpm run hub:emit-runtime-cwl-smoke
 
       - name: CWL language v1 close (G6750)
         run: pnpm run hub:cwl-language-v1-close-smoke

@@ -20,6 +20,8 @@ import {
 } from "@chrysalis/webir";
 import { emit as emitFastify } from "@chrysalis/emit-fastify";
 import { emit as emitHono } from "@chrysalis/emit-hono";
+import { emit as emitRuntimeCwl } from "@chrysalis/emit-runtime-cwl";
+import { renderCwlFromModule } from "./cwl-projection.js";
 import { loadObserveConfig, mergeCorpusDirectories, readCorpus, startObserver } from "@chrysalis/oracle";
 import {
   buildMergedVerifySummaryJson,
@@ -1137,7 +1139,7 @@ async function cmdEmit(args: string[]): Promise<number> {
   const target = typeof flags.target === "string" ? flags.target : "hono";
   if (!root || !outDir) {
     console.error(
-      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-dedupe-identical-handler-bodies] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin] [--ingest-lift-shared-helpers] [--ingest-lift-shared-helpers-semantic] [--ingest-embed-shared-helper-bodies]",
+      "usage: chrysalis emit <php-project-dir> --out <out> [--target=hono|fastify|runtime-cwl] [--emit-route-registration eager|lazy] [--emit-handler-import-barrel] [--emit-shared-runtime-imports] [--emit-dedupe-identical-handler-bodies] [--emit-route-path-constants] [--emit-handler-fingerprints] [--emit-runtime-facade] [--emit-resume] [--schema <schema.sql>] [--parser-provider glayzzle|nikic] [--shard-index I --shard-count K] [--merge-all-shards --shard-count K] [--ingest-cache <dir>] [--ingest-progress-file <path>] [--ingest-checkpoint-file <path>] [--ingest-resume-checkpoint] [--ingest-dedupe-structural-subgraphs] [--ingest-dedupe-structural-subgraphs-ignore-origin] [--ingest-lift-shared-helpers] [--ingest-lift-shared-helpers-semantic] [--ingest-embed-shared-helper-bodies]",
     );
     return 2;
   }
@@ -1194,13 +1196,27 @@ async function cmdEmit(args: string[]): Promise<number> {
     console.error(liftFlagCheckEmit.message);
     return 1;
   }
-  if (target !== "hono" && target !== "fastify") {
-    console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify`);
+  if (target !== "hono" && target !== "fastify" && target !== "runtime-cwl") {
+    console.error(`error: unsupported emit target '${target}'. Supported: hono, fastify, runtime-cwl`);
     return 2;
   }
   const routeReg = emitRouteRegistrationFromFlags(flags);
   if (!routeReg.ok) {
     console.error(routeReg.message);
+    return 2;
+  }
+  if (
+    target === "runtime-cwl" &&
+    (flags["emit-handler-import-barrel"] === true ||
+      flags["emit-shared-runtime-imports"] === true ||
+      flags["emit-route-path-constants"] === true ||
+      flags["emit-handler-fingerprints"] === true ||
+      flags["emit-runtime-facade"] === true ||
+      flags["emit-dedupe-identical-handler-bodies"] === true ||
+      flags["emit-resume"] === true ||
+      routeReg.value === "lazy")
+  ) {
+    console.error("error: runtime-cwl emit does not support hono/fastify emit strategy flags");
     return 2;
   }
   if (flags["emit-shared-runtime-imports"] === true && flags["emit-handler-import-barrel"] === true) {
@@ -1233,6 +1249,26 @@ async function cmdEmit(args: string[]): Promise<number> {
     domainMap = domainTypesByTable(schemaReport);
     mkdirSync(join(outAbs, "src"), { recursive: true });
     writeFileSync(join(outAbs, "src", "domain.ts"), emitTypes(schemaReport));
+  }
+  if (target === "runtime-cwl") {
+    const { text, holeCount } = await renderCwlFromModule(mod, {
+      header: `# Chrysalis Web Language — runtime-cwl emit from ${resolve(root)}`,
+      moduleName: mod.meta.sourceApp || "chrysalis",
+    });
+    const res = await emitRuntimeCwl({
+      module: mod,
+      outDir: outAbs,
+      cwlSource: text,
+      holeCount,
+      provenanceRoot: resolve(root),
+    });
+    console.log(`routes:       ${res.routeCount}`);
+    console.log(`files:        ${res.files.length}`);
+    console.log(`cwl holes:    ${res.holeCount}`);
+    if (res.holeCount > 0) {
+      console.log(`  (CWL projection holes — verify before production claims)`);
+    }
+    return 0;
   }
   const emitStrategy: {
     routeRegistration?: "lazy";
@@ -2625,7 +2661,7 @@ function npmInstallEmitted(outDir: string): void {
   }
 }
 
-type EmitTarget = "hono" | "fastify";
+type EmitTarget = "hono" | "fastify" | "runtime-cwl";
 
 async function loadEmittedFetch(
   outDir: string,

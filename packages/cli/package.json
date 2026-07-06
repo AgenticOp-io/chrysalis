@@ -22,6 +22,7 @@
     "@chrysalis/ingest": "workspace:*",
     "@chrysalis/emit-fastify": "workspace:*",
     "@chrysalis/emit-hono": "workspace:*",
+    "@chrysalis/emit-runtime-cwl": "workspace:*",
     "@chrysalis/oracle": "workspace:*",
     "@chrysalis/verify": "workspace:*",
     "@chrysalis/archaeology": "workspace:*",

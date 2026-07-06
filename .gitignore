@@ -78,17 +78,22 @@ generated/tiny-n1/
 
 # Composer Laravel scaffold output (see flagship/laravel-full/README.md)
 flagship/chrysalis-laravel-work/
+flagship/laravel-min/generated/
 
 # parser-bridge nikic / composer (lock file is committed; vendor is not)
 packages/parser-bridge/vendor/
 packages/parser-bridge/composer.phar
 packages/parser-bridge/composer-setup.php
+packages/ingest/tests/ingest-checkpoint-resume-tmp.json
 
 # Local scratch probes and hub-emitted controllers (reproduced by hub/probe scripts; not fixtures)
 scripts/_probe-*
 scripts/fixtures/
 generated/_probe-*/
 generated/_hub-smoke-*/
+generated/_is-runtime-smoke/
+generated/_web-llm-smoke/
+generated/_web-llm-unit/
 generated/_wisp-cwl-poc-deploy/
 generated/_wisp-management-poc/
 generated/wisp-svelte-sidecar/

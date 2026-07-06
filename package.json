@@ -277,6 +277,7 @@
     "hub:phase45-program-entry-smoke": "node scripts/hub-ingest/hub-phase45-program-entry-smoke.mjs",
     "hub:phase45-wisp-showcase-smoke": "node scripts/hub-ingest/hub-phase45-wisp-showcase-smoke.mjs",
     "hub:phase45-build-slice-smoke": "node scripts/hub-ingest/hub-phase45-build-slice-smoke.mjs",
+    "hub:emit-runtime-cwl-smoke": "node scripts/hub-ingest/hub-emit-runtime-cwl-smoke.mjs",
     "hub:phase44-program-close-smoke": "node scripts/hub-ingest/hub-phase44-program-close-smoke.mjs",
     "hub:phase44-ui-smoke": "node scripts/hub-ingest/hub-phase44-ui-smoke.mjs",
     "web-llm-run-convert-poc": "node scripts/web-llm-run-convert-poc.mjs",
@@ -1186,7 +1187,11 @@
       "protobufjs": "7.6.0",
       "tar": "7.5.15",
       "qs": ">=6.15.2",
-      "uuid": ">=11.1.1"
+      "uuid": ">=11.1.1",
+      "@grpc/grpc-js": ">=1.14.4",
+      "tmp": ">=0.2.6",
+      "ws": ">=7.5.11",
+      "form-data": ">=4.0.6"
     }
   }
 }
