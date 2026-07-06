@@ -129,6 +129,11 @@ jobs:
         env:
           CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
 
+      - name: Phase 45 program close (G9190)
+        run: pnpm run hub:phase45-program-close-smoke
+        env:
+          CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
+
       - name: CWL Phase 19 close (G7310)
         run: pnpm run hub:cwl-phase19-close-smoke
 

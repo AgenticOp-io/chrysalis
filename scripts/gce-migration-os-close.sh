@@ -26,6 +26,10 @@ run_phase phase45-wisp-showcase \
   env CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1 \
   pnpm run hub:phase45-wisp-showcase-smoke
 
+run_phase phase45-program-close \
+  env CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD=1 \
+  pnpm run hub:phase45-program-close-smoke
+
 run_phase intelligence-shorthand-close \
   env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 \
   pnpm run hub:intelligence-shorthand-close-smoke

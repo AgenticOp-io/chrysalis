@@ -43,7 +43,7 @@ if ($Detach) {
 cd ~/chrysalis-test
 mkdir -p reports/ci
 rm -f reports/ci/gce-maintenance-program-complete.ok
-${remoteEnv}
+${remoteEnv};
 nohup bash scripts/gce-maintenance-program-complete-only.sh </dev/null >>reports/ci/gce-maintenance-program-complete-run.log 2>&1 &
 sleep 2
 pgrep -af gce-maintenance-program-complete-only || true
@@ -53,5 +53,5 @@ pgrep -af gce-maintenance-program-complete-only || true
   exit 0
 }
 
-Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Command "cd ~/chrysalis-test && ${remoteEnv} bash scripts/gce-maintenance-program-complete-only.sh"
+Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Command "cd ~/chrysalis-test && ${remoteEnv} && bash scripts/gce-maintenance-program-complete-only.sh"
 & (Join-Path $PSScriptRoot "gce-fetch-reports.ps1") -Project $Project -Zone $Zone -Name $VmName
