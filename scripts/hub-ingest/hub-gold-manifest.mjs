@@ -1708,7 +1708,7 @@ export const HUB_GOLD_SUITES = [
     origin: "sql",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1717,7 +1717,7 @@ export const HUB_GOLD_SUITES = [
     origin: "html",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1742,7 +1742,7 @@ export const HUB_GOLD_SUITES = [
     origin: "scss",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1769,7 +1769,7 @@ export const HUB_GOLD_SUITES = [
     origin: "c",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1778,7 +1778,7 @@ export const HUB_GOLD_SUITES = [
     origin: "cpp",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
