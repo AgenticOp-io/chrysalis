@@ -1,0 +1,16 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "method": "GET",
+      "path": "/blog/1"
+    },
+    {
+      "method": "GET",
+      "path": "/blog/1"
+    }
+  ]
+}

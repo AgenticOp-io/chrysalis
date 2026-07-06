@@ -283,6 +283,7 @@
     "hub:extended-matrix-oracle-wave6-close-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave6-close-smoke.mjs",
     "hub:extended-matrix-oracle-wave7-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave7-smoke.mjs",
     "hub:extended-matrix-oracle-wave7-close-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave7-close-smoke.mjs",
+    "hub:extended-matrix-oracle-wave8-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave8-smoke.mjs",
     "hub:phase46-cwl-runtime-depth-smoke": "node scripts/hub-ingest/hub-phase46-cwl-runtime-depth-smoke.mjs",
     "hub:phase46-cwl-runtime-depth-close-smoke": "node scripts/hub-ingest/hub-phase46-cwl-runtime-depth-close-smoke.mjs",
     "hub:cwl-runtime-deploy-smoke": "node scripts/hub-ingest/hub-cwl-runtime-deploy-smoke.mjs",
@@ -1206,8 +1207,9 @@
       "form-data": ">=4.0.6",
       "undici": ">=6.27.0",
       "esbuild": ">=0.28.1",
-      "js-yaml": ">=4.1.1",
-      "hono": ">=4.12.28"
+      "js-yaml": ">=4.2.0",
+      "hono": ">=4.12.28",
+      "@opentelemetry/core": ">=1.30.2"
     }
   }
 }

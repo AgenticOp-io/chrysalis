@@ -56,6 +56,13 @@
     "outputIds": ["typescript", "javascript", "hono", "fastify"],
     "minOraclePairs": 8
   },
+  "wave8": {
+    "id": "wave8-component-native-outbound",
+    "label": "Svelte/Vue component-lift × native outbound (python/java/go/ruby/csharp/php)",
+    "originIds": ["svelte", "vue"],
+    "outputIds": ["python", "java", "go", "ruby", "csharp", "php"],
+    "minOraclePairs": 10
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

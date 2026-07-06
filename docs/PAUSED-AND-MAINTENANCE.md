@@ -19,7 +19,8 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (weekly CI) |
 | **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |
-| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **412** pairs below oracle-product |
+| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **401** pairs below oracle-product |
+| **Extended matrix wave 8** | **G9161** | `hub:extended-matrix-oracle-wave8-smoke` — svelte/vue native outbound |
 | **CWL runtime scaffold depth** | **G9238** | `hub:cwl-runtime-scaffold-depth-smoke` |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
@@ -124,7 +125,7 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (arch
 
 | Gap | Status | Doc |
 | --- | --- | --- |
-| Extended matrix oracle promotion | **412/601** below target — maintenance census (**G9160**); not production parity claim | [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) |
+| Extended matrix oracle promotion | **401/601** below target — maintenance census + wave **8** (**G9160** / **G9161**); not production parity claim | [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) |
 | Live operator deploy refresh | Operator-run — `wisp:deploy:gce` + `wisp:operator-verify --require` | `WISP-PRODUCTION-COMPLETION-PROGRAM.md` |
 | Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
