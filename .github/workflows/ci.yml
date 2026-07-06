@@ -115,6 +115,19 @@ jobs:
 
       - name: Maintenance mode governance (G6160 / G7501)
         run: pnpm run hub:maintenance-mode-governance-smoke
+        env:
+          CHRYSALIS_STRATEGIC_PLAN_SKIP_PHASE45_WISP: "1"
+
+      - name: Phase 45 program entry (G9150)
+        run: pnpm run hub:phase45-program-entry-smoke
+
+      - name: Extended matrix oracle census (G9160)
+        run: pnpm run hub:extended-matrix-oracle-progress-smoke
+
+      - name: WISP CWL showcase default CI (G9170)
+        run: pnpm run hub:phase45-wisp-showcase-smoke
+        env:
+          CHRYSALIS_STRATEGIC_PLAN_SKIP_FLAGSHIP_GOLD: "1"
 
       - name: CWL Phase 19 close (G7310)
         run: pnpm run hub:cwl-phase19-close-smoke

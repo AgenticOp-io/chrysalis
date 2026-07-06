@@ -73,6 +73,11 @@ import {
   isPhase44ProgramActive,
   isPhase44ProgramClosed,
 } from "./hub-phase44-program-entry-smoke.mjs";
+import {
+  runPhase45ProgramDocGate,
+  isPhase45ProgramActive,
+  isPhase45ProgramClosed,
+} from "./hub-phase45-program-entry-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -2107,7 +2112,18 @@ export function runPausedAndMaintenanceDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const phase10Closed = isPhase10ProductionParityClosed();
-  const docOk = isPhase44ProgramClosed()
+  const docOk = isPhase45ProgramActive()
+    ? text.includes("G9150") &&
+      text.includes("PHASE-45-PROGRAM.md") &&
+      text.includes("D6336") &&
+      text.includes("G9170") &&
+      text.includes("Do not treat closed program tables")
+    : isPhase45ProgramClosed()
+    ? text.includes("G9190") &&
+      text.includes("PHASE-45-PROGRAM.md") &&
+      text.includes("D6336") &&
+      text.includes("Do not treat closed program tables")
+    : isPhase44ProgramClosed()
     ? text.includes("G9140") &&
       text.includes("hub:phase44-program-close-smoke") &&
       text.includes("PHASE-44-PROGRAM.md") &&
@@ -2279,6 +2295,30 @@ export function runPausedAndMaintenanceDocGate() {
 
 /** G6162 — Strategic plan default queue gate (Phase 13, Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isPhase45ProgramActive()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G9150") &&
+      text.includes("PHASE-45-PROGRAM.md") &&
+      text.includes("D6336") &&
+      text.includes("G9170") &&
+      text.includes("## 12. Default queue (Phase 45 active)") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, phase45ActiveOk: ok };
+  }
+  if (isPhase45ProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G9190") &&
+      text.includes("hub:phase45-program-close-smoke") &&
+      text.includes("D6336") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, phase45ClosedOk: ok };
+  }
   if (isPhase44ProgramClosed()) {
     const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
     if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
@@ -2287,7 +2327,7 @@ export function runStrategicPlanMaintenanceDefaultQueueGate() {
       text.includes("G9140") &&
       text.includes("hub:phase44-program-close-smoke") &&
       text.includes("D6311") &&
-      text.includes("## 12. Default queue (maintenance)") &&
+      text.includes("## 12 (archived) — Default queue (maintenance") &&
       text.includes("G8550") &&
       text.includes("PAUSED-AND-MAINTENANCE.md");
     return { ok, phase44ClosedOk: ok };
@@ -2575,7 +2615,18 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
   const ok =
-    isPhase44ProgramClosed()
+    isPhase45ProgramActive()
+      ? text.includes("G9150") &&
+        text.includes("Phase 45") &&
+        text.includes("D6336") &&
+        text.includes("G9170") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isPhase45ProgramClosed()
+      ? text.includes("G9190") &&
+        text.includes("Phase 45") &&
+        text.includes("D6336") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isPhase44ProgramClosed()
       ? text.includes("G9140") &&
         text.includes("Phase 44") &&
         text.includes("G8550") &&
@@ -2904,8 +2955,51 @@ export async function runFullMatrixOracleActiveGovernanceGate(_opts = {}) {
   };
 }
 
+/** G9151 — Phase 45 active governance (CWL product supremacy, D6336). */
+export async function runPhase45ActiveGovernanceGate(_opts = {}) {
+  const skipWisp =
+    _opts.skipPhase45WispShowcase === true ||
+    process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_PHASE45_WISP === "1";
+  const doc = runPhase45ProgramDocGate();
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  let wispOk = true;
+  let wisp = null;
+  if (!skipWisp) {
+    const { runPhase45WispShowcaseGate } = await import("./hub-phase45-wisp-showcase-smoke.mjs");
+    wisp = await runPhase45WispShowcaseGate(_opts);
+    wispOk = wisp.ok === true;
+  }
+  const ok =
+    doc.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    wispOk &&
+    isPhase45ProgramActive() &&
+    !isWispPocDecoupledFromBuild();
+  return {
+    ok,
+    docOk: doc.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    wispOk,
+    wisp,
+    wispDecoupled: isWispPocDecoupledFromBuild(),
+    mode: "phase45-active",
+  };
+}
+
 /** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
+  if (isPhase45ProgramActive()) {
+    return runPhase45ActiveGovernanceGate(_opts);
+  }
+  if (isPhase45ProgramClosed()) {
+    return runPhase44ClosedGovernanceGate(_opts);
+  }
   if (isPhase44ProgramClosed()) {
     return runPhase44ClosedGovernanceGate(_opts);
   }
@@ -6336,8 +6430,9 @@ export function isWispCwlPhase14Closed() {
   return text.includes("Phase 14 closed");
 }
 
-/** @returns {boolean} WISP showcase POC is decoupled from default CI/build (D6259). */
+/** @returns {boolean} WISP showcase POC is decoupled from default CI/build (D6259; superseded by D6336 when Phase 45 active). */
 export function isWispPocDecoupledFromBuild() {
+  if (isPhase45ProgramActive()) return false;
   if (!existsSync(wispCwlPhase12ProgramDocPath)) return false;
   const text = readFileSync(wispCwlPhase12ProgramDocPath, "utf8");
   return text.includes("Build:** **decoupled**") || text.includes("D6259");

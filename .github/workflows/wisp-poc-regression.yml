@@ -10,7 +10,7 @@ env:
 
 jobs:
   wisp-poc:
-    name: WISP showcase POC regression (optional)
+    name: WISP showcase extended operator regression
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

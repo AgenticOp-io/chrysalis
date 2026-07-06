@@ -28,6 +28,13 @@
     "outputIds": ["typescript", "javascript", "hono", "fastify", "nextjs", "express", "nestjs", "python", "java", "go"],
     "minOraclePairs": 12
   },
+  "wave4": {
+    "id": "wave4-component-lift-cwl",
+    "label": "Vue/Svelte component-lift × CWL and modern web outputs",
+    "originIds": ["vue", "svelte"],
+    "outputIds": ["typescript", "javascript", "hono", "fastify", "nextjs", "cwl"],
+    "minOraclePairs": 8
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

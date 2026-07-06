@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-04) — Phase 44 closed (**G9140**, **D6311**); Phase 43 closed (**G8940**, **D6303**); Phase 41 closed (**G8790**, **D6301**); Phase 42 closed (**G8830**)  
+> **Status:** authoritative (2026-07-06) — Phase 45 active (**G9150**, **D6336**); Phase 44 closed (**G9140**, **D6311**); Phase 43 closed (**G8940**, **D6303**); Phase 41 closed (**G8790**, **D6301**); Phase 42 closed (**G8830**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -15,14 +15,16 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 
 | Priority | Gate | Smoke |
 | --- | --- | --- |
+| **Phase 45 build slice** | **G9180** | `hub:phase45-build-slice-smoke` |
+| **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |
 | **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
-| **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (subordinate) |
-| **Extended matrix census (optional)** | **G9001** | `hub:extended-matrix-oracle-progress-smoke` — **432** pairs below oracle-product; wave maintenance only |
+| **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (first-class) |
+| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **432** pairs below oracle-product; wave maintenance only |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
-**Closed program regression:** `hub:phase44-program-close-smoke` (**G9140**) · `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
-**Program docs:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) (closed)
+**Closed program regression:** `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
+**Program docs:** [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md) · [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) (closed)
 
 ### Subordinate (closed — regression only)
 
@@ -31,7 +33,7 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **G8100** WISP CWL UI parity | `hub:wisp-cwl-ui-parity-close-smoke` | [`WISP-CWL-UI-PARITY-PROGRAM.md`](./WISP-CWL-UI-PARITY-PROGRAM.md) |
 | **G7990** WISP production completion | `hub:wisp-production-completion-close-smoke` | [`WISP-PRODUCTION-COMPLETION-PROGRAM.md`](./WISP-PRODUCTION-COMPLETION-PROGRAM.md) |
 | **G7890** / **G7790** | Composed in **G7990** | [`archive/INDEX.md`](./archive/INDEX.md) |
-| **G6731** / **G7200** IR helper (optional) | `hub:cwl-language-maintenance-smoke` | [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) |
+| **G6731** / **G7200** IR helper | `hub:cwl-language-maintenance-smoke` | [`IR-HELPER-PROGRAM.md`](./IR-HELPER-PROGRAM.md) |
 
 **Governance:** `pnpm run hub:maintenance-mode-governance-smoke` (**G6160** / **G7991**)
 
@@ -76,7 +78,23 @@ Also indexed: `isset`, `count`, `is_array`, `is_string`, `abs`, `is_numeric`, lo
 
 ---
 
-## 1a. Optional — WISP POC regression (legacy operator path)
+## 1a. WISP showcase — default CI (Phase 45)
+
+WISP Module_Manager CWL showcase runs in **default CI** (**D6336**, **G9170**). Extended operator path remains in `.github/workflows/wisp-poc-regression.yml`.
+
+| When | Run |
+| --- | --- |
+| Default CI / build | `hub:phase45-wisp-showcase-smoke` (**G9170**) |
+| Operator refresh / chimera deploy | `wisp:deploy:gce`, `wisp:operator-verify -- --require` |
+| Full extended POC regression | `.github/workflows/wisp-poc-regression.yml` |
+| Phase 14 closed verify | `hub:wisp-cwl-phase14-program-close-smoke` (**G6690**) |
+| Phase 13 verify | `hub:wisp-cwl-phase13-close-smoke` (**G6410**) |
+
+Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) · [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md)
+
+---
+
+## 1b (archived). Optional — WISP POC regression (legacy operator path)
 
 Pre-Phase-27 operator deploy and chimera showcase. **Not** the default build queue.
 
@@ -106,13 +124,13 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (arch
 
 | Gap | Status | Doc |
 | --- | --- | --- |
-| Extended matrix oracle promotion | **432/601** below target — wave maintenance only (**G9001**); not production parity | [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md) |
+| Extended matrix oracle promotion | **426/601** below target — Phase 45 wave maintenance (**G9160**); not production parity | [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md) |
 | Live operator deploy refresh | Operator-run — `wisp:deploy:gce` + `wisp:operator-verify --require` | `WISP-PRODUCTION-COMPLETION-PROGRAM.md` |
 | Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
 | Commercial launch | Optional vendor gate | `COMMERCIAL.md` |
 | WPTP D2+ sibling repos | Out-of-repo matrix | `MULTI-REPO-WORKSPACE.md` |
-| IR helper lifting backlog | Optional **G6731** / **G7200** | `archive/INDEX.md` → IR Helper |
+| IR helper lifting backlog | Phase 45 first-class **G6731** / **G7200** | [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md) |
 
 Governance hooks: `runMaintenanceProgramCompleteGate`, `runHonestGapsProgramCompleteGate`, `runHonestGapsImplementationCloseGate`.
 

@@ -4,6 +4,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runWispCwlPhase14CloseGate } from "./hub-wisp-cwl-phase14-close-smoke.mjs";
+import { isPhase45ProgramActive } from "./hub-phase45-program-entry-smoke.mjs";
 
 export const WISP_CWL_PHASE14_PROGRAM_CLOSE_SMOKE_KIND = "chrysalis.wisp-cwl-phase14-program-close-smoke";
 export const WISP_CWL_PHASE14_PROGRAM_CLOSE_SMOKE_SCHEMA_VERSION = 1;
@@ -34,6 +35,15 @@ export function runStrategicPlanPhase14ClosedQueueGate() {
   const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
   const text = readFileSync(path, "utf8");
+  if (isPhase45ProgramActive()) {
+    const ok =
+      text.includes("G9150") &&
+      text.includes("G9170") &&
+      text.includes("D6336") &&
+      text.includes("PHASE-45-PROGRAM.md") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, strategicPlanOk: ok, phase45ActiveOk: ok };
+  }
   const ok =
     text.includes("Phase 14 closed") &&
     text.includes("G6690") &&
@@ -47,6 +57,14 @@ export function runRoadmapPhase14ClosedQueueGate() {
   const path = join(scriptRoot, "ROADMAP.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(path, "utf8");
+  if (isPhase45ProgramActive()) {
+    const ok =
+      text.includes("Phase 45") &&
+      text.includes("G9170") &&
+      text.includes("D6336") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, roadmapOk: ok, phase45ActiveOk: ok };
+  }
   const ok =
     text.includes("Phase 14 closed") &&
     text.includes("G6690") &&
@@ -60,6 +78,14 @@ export function runPausedPhase14ClosedDocGate() {
   const path = join(scriptRoot, "docs/PAUSED-AND-MAINTENANCE.md");
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
+  if (isPhase45ProgramActive()) {
+    const ok =
+      text.includes("G9170") &&
+      text.includes("hub:phase45-wisp-showcase-smoke") &&
+      text.includes("G6690") &&
+      text.includes("PHASE-45-PROGRAM.md");
+    return { ok, pausedOk: ok, phase45ActiveOk: ok };
+  }
   const ok =
     text.includes("Phase 14 closed") &&
     text.includes("G6690") &&

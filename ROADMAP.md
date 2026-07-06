@@ -7,11 +7,29 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** maintenance **G8550** / **G8570** / **G6731** (see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md)).
+- **Active lane:** **Phase 45 CWL product supremacy** (**G9150** → **G9190**, **D6336**) — see [`docs/PHASE-45-PROGRAM.md`](./docs/PHASE-45-PROGRAM.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md).
 - **Closed (2026-07-04):** **Phase 44 extended matrix + hole closure + Horizon C** (**G9000** → **G9140**, **D6310** / **D6311**); **169/601** oracle-product census.
 - **Closed (2026-07-03):** **Phase 43 LLM convert full** (**G8900** → **G8940**, **D6303**); **Phase 42 LLM-assisted convert** (**G8800** → **G8830**, **D6302**); **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
-- **WISP POC:** **optional** regression only — decoupled from default CI/build (**D6259**).
+- **WISP POC:** **default CI showcase** (**G9170**, **D6336**); extended operator regression in **`wisp-poc-regression.yml`**.
+
+---
+
+## Active — Phase 45 CWL product supremacy (G9150–G9190)
+
+Program doc: [`docs/PHASE-45-PROGRAM.md`](./docs/PHASE-45-PROGRAM.md)  
+Authority: **DESIGN D6336**  
+Active: **2026-07-06**
+
+| Track | Goal | Gate |
+| --- | --- | --- |
+| **45a** | Extended matrix wave 4 Vue/Svelte promotion + census | **G9160** / **G9165** / **G9166** |
+| **45b** | WISP showcase in default CI | **G9170** |
+| **45c** | Product supremacy build slice | **G9180** |
+| **45d** | CWL language + IR helper first-class | **G6731** / **G7200** |
+| **45e** | Program close | **G9190** (future) |
+
+**Regression:** `hub:phase45-program-entry-smoke`, `hub:phase45-build-slice-smoke`, `hub:phase45-wisp-showcase-smoke`
 
 ---
 

@@ -7,6 +7,7 @@ import { buildLanguageReadinessReport, hubDirectedPairCount } from "../chrysalis
 import { describeHubGoldPairCoverage } from "./hub-gold-coverage.mjs";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 import { runPhase44ProgramDocGate } from "./hub-phase44-program-entry-smoke.mjs";
+import { isPhase45ProgramActive, runPhase45ProgramDocGate } from "./hub-phase45-program-entry-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -29,7 +30,7 @@ export function runExtendedMatrixOracleProgressGate() {
   );
   if (!existsSync(charterPath)) return { ok: false, skip: "missing-extended-matrix-charter" };
   const charter = JSON.parse(readFileSync(charterPath, "utf8"));
-  const program = runPhase44ProgramDocGate();
+  const program = isPhase45ProgramActive() ? runPhase45ProgramDocGate() : runPhase44ProgramDocGate();
   const report = buildLanguageReadinessReport();
   const pairs = report.pairs ?? [];
   const totalPairs = hubDirectedPairCount();
