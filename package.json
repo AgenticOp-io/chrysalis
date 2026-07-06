@@ -1186,7 +1186,7 @@
   "devDependencies": {
     "acorn": "^8.14.1",
     "acorn-walk": "^8.3.4",
-    "@types/node": "^20.19.41",
+    "@types/node": "^20.19.43",
     "rimraf": "^5.0.5",
     "tsx": "^4.22.3",
     "typescript": "^5.6.0",
