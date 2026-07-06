@@ -20,7 +20,7 @@ async function renderCwlFromModule(mod: Awaited<ReturnType<typeof ingestDirector
 }
 
 describe("@chrysalis/emit-runtime-cwl", () => {
-  test("emits routes.cwl, webir.json, and bootable server scaffold", async () => {
+  test("emits routes.cwl, webir.json, deploy scaffold, and bootable server", async () => {
     const out = mkdtempSync(resolve(tmpdir(), "chrysalis-emit-rt-cwl-"));
     try {
       const mod = await ingestDirectory(FIXTURE);
@@ -31,12 +31,16 @@ describe("@chrysalis/emit-runtime-cwl", () => {
         cwlSource: text,
         holeCount,
         provenanceRoot: FIXTURE,
+        bundleRuntime: true,
       });
       expect(res.routeCount).toBeGreaterThan(0);
       expect(existsSync(resolve(out, "routes.cwl"))).toBe(true);
       expect(existsSync(resolve(out, "src/webir.json"))).toBe(true);
       expect(existsSync(resolve(out, "src/index.ts"))).toBe(true);
       expect(existsSync(resolve(out, "package.json"))).toBe(true);
+      expect(existsSync(resolve(out, "Dockerfile"))).toBe(true);
+      expect(existsSync(resolve(out, "README.md"))).toBe(true);
+      expect(existsSync(resolve(out, "vendor/@chrysalis/runtime-cwl/dist/index.js"))).toBe(true);
       const preview = JSON.parse(readFileSync(resolve(out, "cwl-preview.json"), "utf8"));
       expect(preview.runtime).toBe("@chrysalis/runtime-cwl");
       expect(preview.emitTarget).toBe("runtime-cwl");

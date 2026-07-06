@@ -1,0 +1,15 @@
+{
+  "name": "@chrysalis/runtime-cwl-browser",
+  "version": "2.0.2",
+  "private": true,
+  "description": "Browser runtime scaffold for CWL client islands (RFC-0019 contract).",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "clean": "rimraf dist *.tsbuildinfo"
+  }
+}

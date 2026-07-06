@@ -1,23 +1,28 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { dirname, join, resolve } from "node:path";
 import type { Module } from "@chrysalis/webir";
 import { moduleToGoldenSnapshot } from "@chrysalis/webir";
 import {
   INDEX_TS,
   cwlPreviewJson,
+  deployReadme,
+  DOCKERFILE,
+  DOCKERIGNORE,
   emitManifestJson,
   packageJson,
   TSCONFIG_JSON,
 } from "./scaffold-files.js";
+import { readRuntimeCwlVersion, runtimeCwlDependencyForEmit, vendorRuntimeStack } from "./vendor-runtime.js";
 
 export interface EmitInput {
   readonly module: Module;
   readonly outDir: string;
   readonly cwlSource: string;
   readonly holeCount?: number;
-  /** npm dependency specifier for @chrysalis/runtime-cwl (default: file: relative to outDir). */
+  /** npm dependency specifier for @chrysalis/runtime-cwl (overrides bundle/default). */
   readonly runtimeCwlDependency?: string;
+  /** Copy vendored runtime stack into vendor/ for self-contained deploy (default true). */
+  readonly bundleRuntime?: boolean;
   readonly provenanceRoot?: string;
 }
 
@@ -34,11 +39,8 @@ export interface EmitResult {
   readonly holeCount: number;
 }
 
-function defaultRuntimeCwlDependency(outDir: string): string {
-  const emitPkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  const runtimePkgRoot = resolve(emitPkgRoot, "..", "runtime-cwl");
-  const rel = relative(resolve(outDir), runtimePkgRoot).replace(/\\/g, "/");
-  return `file:${rel.startsWith(".") ? rel : `./${rel}`}`;
+function defaultRuntimeCwlDependency(outDir: string, bundleRuntime: boolean): string {
+  return runtimeCwlDependencyForEmit(resolve(outDir), bundleRuntime);
 }
 
 async function writeFileWithMkdir(path: string, contents: string): Promise<number> {
@@ -62,7 +64,13 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
   const appName = module.meta.sourceApp || "chrysalis-cwl-runtime";
   const routeCount = countRoutes(module);
   const holeCount = input.holeCount ?? 0;
-  const runtimeDep = input.runtimeCwlDependency ?? defaultRuntimeCwlDependency(outAbs);
+  const bundleRuntime = input.bundleRuntime !== false;
+  if (bundleRuntime) {
+    await vendorRuntimeStack(outAbs);
+  }
+  const runtimeVersion = await readRuntimeCwlVersion();
+  const runtimeDep =
+    input.runtimeCwlDependency ?? defaultRuntimeCwlDependency(outAbs, bundleRuntime);
   const webirJson = moduleToGoldenSnapshot(module);
   const files: EmittedFile[] = [];
 
@@ -72,6 +80,12 @@ export async function emit(input: EmitInput): Promise<EmitResult> {
     { rel: "src/index.ts", contents: INDEX_TS },
     { rel: "package.json", contents: packageJson(appName, runtimeDep) },
     { rel: "tsconfig.json", contents: TSCONFIG_JSON },
+    { rel: "Dockerfile", contents: DOCKERFILE },
+    { rel: ".dockerignore", contents: DOCKERIGNORE },
+    {
+      rel: "README.md",
+      contents: `${deployReadme({ appName, routeCount, runtimeVersion })}\n`,
+    },
     {
       rel: "cwl-preview.json",
       contents: `${cwlPreviewJson({ routeCount, holeCount, appName })}\n`,

@@ -8,11 +8,32 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** maintenance **G8550** / **G8570** / **G6731** — see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md).
-- **Closed (2026-07-06):** **Phase 45 CWL product supremacy** (**G9150** → **G9190**, **D6336** / **D6340**); **178/601** oracle-product census.
+- **Closed (2026-07-06):** **Phase 46 matrix + CWL runtime depth** (**G9250** → **G9290**, **D6341** / **D6343**); **180/601** oracle-product census.
+- **Closed (2026-07-06):** **Phase 45 CWL product supremacy** (**G9150** → **G9190**, **D6336** / **D6340**).
 - **Closed (2026-07-04):** **Phase 44 extended matrix + hole closure + Horizon C** (**G9000** → **G9140**, **D6310** / **D6311**); **169/601** oracle-product census.
 - **Closed (2026-07-03):** **Phase 43 LLM convert full** (**G8900** → **G8940**, **D6303**); **Phase 42 LLM-assisted convert** (**G8800** → **G8830**, **D6302**); **Phase 41 Full matrix oracle** (**G8700** → **G8790**); **Phase 32 Open web-LLM** (**G8290** / **G8240** / **G8310** / **G8320**); **Phase 40** (**G8600** / **G8610**).
 - **Shipped milestones:** **G7150** complete language; **G7200** IR Helper; **G6750** language v1.
 - **WISP POC:** **default CI showcase** (**G9170**, **D6336**); extended operator regression in **`wisp-poc-regression.yml`**.
+
+---
+
+---
+
+## Closed — Phase 46 matrix waves + CWL runtime depth (G9250–G9290)
+
+Program doc: [`docs/PHASE-46-PROGRAM.md`](./docs/PHASE-46-PROGRAM.md)  
+Runtime depth: [`docs/CWL-RUNTIME-DEPTH-PHASE-46.md`](./docs/CWL-RUNTIME-DEPTH-PHASE-46.md)  
+Authority: **DESIGN D6341** / **D6342** / **D6343**  
+Closed: **2026-07-06** at **G9290** — **180/601** oracle-product
+
+| Track | Goal | Gate |
+| --- | --- | --- |
+| **46a** | Extended matrix waves 6–7 | **G9276** / **G9286** |
+| **46b** | CWL runtime depth + deploy scaffold | **G9220** / **G9240** |
+| **46c** | Product build slice | **G9280** |
+| **46e** | Program close | **G9290** |
+
+**Regression:** `hub:phase46-program-close-smoke`, `hub:phase45-program-close-smoke`
 
 ---
 

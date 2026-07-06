@@ -1726,8 +1726,7 @@ export const HUB_GOLD_SUITES = [
     origin: "json",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
-    roundTrip: true,
+    traceReplay: true,
   },
   {
     id: "css-literal-cwl",
@@ -1735,8 +1734,7 @@ export const HUB_GOLD_SUITES = [
     origin: "css",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
-    roundTrip: true,
+    traceReplay: true,
   },
   {
     id: "scss-literal-cwl",

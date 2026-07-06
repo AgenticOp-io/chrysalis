@@ -425,17 +425,70 @@ Without plan amendment, treat these as **out of scope**:
 
 ---
 
-**Amended 2026-07-04 (Phase 44 close — D6311):** Phase **44** **closed** at **G9140**: extended matrix waves 1–3 (**169/601** oracle-product), LLM hole-closure → repair bridge, Horizon C operator train contract — honest partial census, not 601-pair production parity. See [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md).
+**Amended 2026-07-06 (Phase 46 close — D6343):** Phase **46** **closed** at **G9290**: waves **6–7** (**180/601** oracle-product), CWL runtime deploy (**G9240**); default queue returns to **G8550** maintenance. See [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md).
+
+**Amended 2026-07-06 (Phase 46 — D6341):** Phase **46** **active** at **G9250**: matrix waves **6–7** + **CWL runtime depth** (browser/worker scaffolds, emit-runtime-cwl); requires **G9190** closed. See [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md).
 
 **Amended 2026-07-06 (Phase 45 close — D6340):** Phase **45** **closed** at **G9190**: waves **4–5** (**178/601** oracle-product), WISP showcase default CI preserved; default queue returns to **G8550** maintenance. See [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md).
 
 **Amended 2026-07-06 (Phase 45 CWL product supremacy — D6336):** Phase **45** **active** at **G9150**: default build prioritizes **CWL product evidence** — extended matrix wave maintenance, **WISP showcase in default CI** (supersedes **D6259** default-build bar), IR helper/CWL language first-class. See [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md).
+
+**Amended 2026-07-04 (Phase 44 close — D6311):** Phase **44** **closed** at **G9140**: extended matrix waves 1–3 (**169/601** oracle-product), LLM hole-closure → repair bridge, Horizon C operator train contract — honest partial census, not 601-pair production parity. See [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md).
 
 **Amended 2026-07-04 (Phase 44 — D6310):** Phase **44** active at **G9000**: extended hub matrix oracle waves (601-pair census), LLM hole-closure → repair bridge, in-repo Horizon C QLoRA train loop (operator GPU). See [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md).
 
 **Amended 2026-07-03 (Phase 43 LLM convert full — D6303):** Phase **43** **closed** at **G8940**: LLM/stub hole enrichment, verify-gated operator apply, repair bridge, MCP **`hub_convert_apply_holes`** — extends closed Phase 42 without bypassing WebIR/oracle. See [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md).
 
 ## 12. Default queue (maintenance)
+
+**Post Phase 46 close (2026-07-06).**
+
+**Status:** **Phase 46 closed** (**G9290**, **D6343** — 2026-07-06); **Phase 45 closed** (**G9190**); **Migration OS closed** (**G8550**); **G7200** IR helper closed; **WISP showcase in default CI** (**G9170**).
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke`
+2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (weekly CI)
+4. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**) — **421** pairs below oracle-product (baseline **180/601**)
+
+**WISP showcase (default CI):** `hub:phase45-wisp-showcase-smoke` (**G9170**)
+
+**Closed program regression:** `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**)
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**GCE Migration OS:** `pnpm run test:gce:migration-os`  
+**GCE maintenance:** `pnpm run test:gce:maintenance`  
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (Phase 46 active, superseded 2026-07-06)
+
+**Post Phase 45 close; Phase 46 activated 2026-07-06.**
+
+**Status:** **Phase 46 active** (**G9250**, **D6341** — 2026-07-06); **Phase 45 closed** (**G9190**); **Migration OS closed** (**G8550**); **G7200** IR helper closed.
+
+When the user says "build" without specifying:
+
+1. **G9280 build slice** — `pnpm run hub:phase46-build-slice-smoke`
+2. **G9275 / G9285** — `hub:extended-matrix-oracle-wave6-smoke` · `hub:extended-matrix-oracle-wave7-smoke`
+3. **G9210 runtime depth** — `pnpm run hub:phase46-cwl-runtime-depth-smoke`
+4. **G8550 / G8570 maintenance** — after each track merge
+5. **G9160 census** — `hub:extended-matrix-oracle-progress-smoke` — **423** pairs below oracle-product (baseline **178/601**)
+
+**WISP showcase (default CI):** `hub:phase45-wisp-showcase-smoke` (**G9170**)
+
+**Closed program regression:** `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**)
+
+**Program close (in progress):** `hub:phase46-program-close-smoke` (**G9290**)
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (maintenance, superseded 2026-07-06 by Phase 46)
 
 **Post Phase 45 close (2026-07-06).**
 

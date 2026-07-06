@@ -42,6 +42,20 @@
     "outputIds": ["cwl"],
     "minOraclePairs": 3
   },
+  "wave6": {
+    "id": "wave6-file-lift-cwl-replay",
+    "label": "JSON/CSS file-lift × CWL with trace-replay oracle promotion",
+    "originIds": ["json", "css"],
+    "outputIds": ["cwl"],
+    "minOraclePairs": 2
+  },
+  "wave7": {
+    "id": "wave7-enterprise-web-lift",
+    "label": "JSON/CSS file-lift × hono/fastify/typescript/javascript",
+    "originIds": ["json", "css"],
+    "outputIds": ["typescript", "javascript", "hono", "fastify"],
+    "minOraclePairs": 8
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

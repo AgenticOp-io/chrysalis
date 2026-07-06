@@ -78,6 +78,11 @@ import {
   isPhase45ProgramActive,
   isPhase45ProgramClosed,
 } from "./hub-phase45-program-entry-smoke.mjs";
+import {
+  runPhase46ProgramDocGate,
+  isPhase46ProgramActive,
+  isPhase46ProgramClosed,
+} from "./hub-phase46-program-entry-smoke.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -2112,7 +2117,21 @@ export function runPausedAndMaintenanceDocGate() {
   if (!existsSync(path)) return { ok: false, skip: "missing-paused-and-maintenance-doc" };
   const text = readFileSync(path, "utf8");
   const phase10Closed = isPhase10ProductionParityClosed();
-  const docOk = isPhase45ProgramClosed()
+  const docOk = isPhase46ProgramClosed()
+    ? text.includes("G9290") &&
+      text.includes("hub:phase46-program-close-smoke") &&
+      text.includes("PHASE-46-PROGRAM.md") &&
+      text.includes("D6343") &&
+      text.includes("G8550") &&
+      text.includes("Do not treat closed program tables")
+    : isPhase46ProgramActive()
+    ? text.includes("G9250") &&
+      text.includes("PHASE-46-PROGRAM.md") &&
+      text.includes("D6341") &&
+      text.includes("G9280") &&
+      text.includes("G9210") &&
+      text.includes("Do not treat closed program tables")
+    : isPhase45ProgramClosed()
     ? text.includes("G9190") &&
       text.includes("hub:phase45-program-close-smoke") &&
       text.includes("PHASE-45-PROGRAM.md") &&
@@ -2302,6 +2321,33 @@ export function runPausedAndMaintenanceDocGate() {
 
 /** G6162 — Strategic plan default queue gate (Phase 13, Phase 12, Phase 11, Phase 10, or maintenance). */
 export function runStrategicPlanMaintenanceDefaultQueueGate() {
+  if (isPhase46ProgramClosed()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G9290") &&
+      text.includes("hub:phase46-program-close-smoke") &&
+      text.includes("D6343") &&
+      text.includes("D6341") &&
+      text.includes("## 12. Default queue (maintenance)") &&
+      text.includes("G8550") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, phase46ClosedOk: ok };
+  }
+  if (isPhase46ProgramActive()) {
+    const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
+    if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
+    const text = readFileSync(path, "utf8");
+    const ok =
+      text.includes("G9250") &&
+      text.includes("PHASE-46-PROGRAM.md") &&
+      text.includes("D6341") &&
+      text.includes("G9280") &&
+      text.includes("## 12 (archived) — Default queue (maintenance") &&
+      text.includes("PAUSED-AND-MAINTENANCE.md");
+    return { ok, phase46ActiveOk: ok };
+  }
   if (isPhase45ProgramClosed()) {
     const path = join(scriptRoot, "docs/STRATEGIC-PLAN.md");
     if (!existsSync(path)) return { ok: false, skip: "missing-strategic-plan" };
@@ -2624,7 +2670,18 @@ export function runRoadmapMaintenanceDefaultQueueGate() {
   if (!existsSync(roadmapPath)) return { ok: false, skip: "missing-roadmap" };
   const text = readFileSync(roadmapPath, "utf8");
   const ok =
-    isPhase45ProgramActive()
+    isPhase46ProgramClosed()
+      ? text.includes("G9290") &&
+        text.includes("Phase 46") &&
+        text.includes("D6343") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isPhase46ProgramActive()
+      ? text.includes("G9250") &&
+        text.includes("Phase 46") &&
+        text.includes("D6341") &&
+        text.includes("G9280") &&
+        text.includes("PAUSED-AND-MAINTENANCE.md")
+      : isPhase45ProgramActive()
       ? text.includes("G9150") &&
         text.includes("Phase 45") &&
         text.includes("D6336") &&
@@ -3003,6 +3060,65 @@ export async function runPhase45ActiveGovernanceGate(_opts = {}) {
   };
 }
 
+/** G9291 — Phase 46 closed governance (post G9290). */
+export async function runPhase46ClosedGovernanceGate(_opts = {}) {
+  const skipClose =
+    _opts.skipPhase46ProgramClose === true ||
+    _opts.skipCloseSmoke === true ||
+    process.env.CHRYSALIS_STRATEGIC_PLAN_SKIP_PHASE46 === "1";
+  const doc = runPhase46ProgramDocGate();
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  let closeOk = true;
+  let close = null;
+  if (!skipClose) {
+    const { runPhase46ProgramCloseGate } = await import("./hub-phase46-program-close-smoke.mjs");
+    close = await runPhase46ProgramCloseGate(_opts);
+    closeOk = close.ok === true;
+  }
+  const ok =
+    doc.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    closeOk &&
+    isPhase46ProgramClosed();
+  return {
+    ok,
+    docOk: doc.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    closeOk,
+    close,
+    mode: "phase46-closed",
+  };
+}
+
+/** G9251 — Phase 46 active governance (D6341). */
+export async function runPhase46ActiveGovernanceGate(_opts = {}) {
+  const doc = runPhase46ProgramDocGate();
+  const paused = runPausedAndMaintenanceDocGate();
+  const strategicPlan = runStrategicPlanMaintenanceDefaultQueueGate();
+  const roadmap = runRoadmapMaintenanceDefaultQueueGate();
+  const ok =
+    doc.ok === true &&
+    paused.ok === true &&
+    strategicPlan.ok === true &&
+    roadmap.ok === true &&
+    isPhase46ProgramActive() &&
+    isPhase45ProgramClosed();
+  return {
+    ok,
+    docOk: doc.ok === true,
+    pausedOk: paused.ok === true,
+    strategicPlanOk: strategicPlan.ok === true,
+    roadmapOk: roadmap.ok === true,
+    mode: "phase46-active",
+  };
+}
+
 /** G9191 — Phase 45 closed governance (post G9190). */
 export async function runPhase45ClosedGovernanceGate(_opts = {}) {
   const skipClose =
@@ -3050,8 +3166,11 @@ export async function runPhase45ClosedGovernanceGate(_opts = {}) {
 
 /** G6160 — Maintenance-mode governance (Phase 13, Phase 12, Phase 11, Phase 10 active, or post-close maintenance). */
 export async function runMaintenanceModeGovernanceGate(_opts = {}) {
-  if (isPhase45ProgramClosed()) {
-    return runPhase45ClosedGovernanceGate(_opts);
+  if (isPhase46ProgramClosed()) {
+    return runPhase46ClosedGovernanceGate(_opts);
+  }
+  if (isPhase46ProgramActive()) {
+    return runPhase46ActiveGovernanceGate(_opts);
   }
   if (isPhase45ProgramClosed()) {
     return runPhase45ClosedGovernanceGate(_opts);

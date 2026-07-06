@@ -120,6 +120,12 @@ jobs:
         env:
           CHRYSALIS_STRATEGIC_PLAN_SKIP_PHASE45_WISP: "1"
 
+      - name: Phase 46 program close regression (G9290)
+        run: pnpm run hub:phase46-program-close-smoke
+        env:
+          CHRYSALIS_STRATEGIC_PLAN_SKIP_EMIT_HTTP: "1"
+          CHRYSALIS_STRATEGIC_PLAN_SKIP_CWL_DEPLOY_NPM: "1"
+
       - name: Phase 45 program entry (G9150)
         run: pnpm run hub:phase45-program-entry-smoke
 

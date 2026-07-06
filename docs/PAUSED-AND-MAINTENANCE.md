@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-06) — Phase 45 closed (**G9190**, **D6340**); Phase 44 closed (**G9140**); Phase 43 closed (**G8940**)  
+> **Status:** authoritative (2026-07-06) — Phase 46 closed (**G9290**, **D6343**); Phase 45 closed (**G9190**); Phase 44 closed (**G9140**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -17,13 +17,13 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | --- | --- | --- |
 | **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
-| **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` |
+| **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (weekly CI) |
 | **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |
-| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **423** pairs below oracle-product |
+| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **421** pairs below oracle-product |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
-**Closed program regression:** `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790`) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940`) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
-**Program docs:** [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md) · [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`OPEN-WEB-LLM-PROGRAM.md`](./OPEN-WEB-LLM-PROGRAM.md) (closed)
+**Closed program regression:** `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790`) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940`) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
+**Program docs:** [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) · [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md) · [`MIGRATION-OS.md`](./MIGRATION-OS.md)
 
 ### Subordinate (closed — regression only)
 

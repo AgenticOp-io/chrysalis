@@ -258,6 +258,14 @@ importers:
         specifier: workspace:*
         version: link:../webir
 
+  packages/runtime-cwl-browser: {}
+
+  packages/runtime-cwl-worker:
+    dependencies:
+      '@chrysalis/webir':
+        specifier: workspace:*
+        version: link:../webir
+
   packages/verify:
     dependencies:
       '@chrysalis/oracle':

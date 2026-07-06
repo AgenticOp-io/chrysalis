@@ -122,6 +122,59 @@ The emitted app reads a small set of environment variables. The most important o
 
 For multi-instance deployments, use Redis sessions (see [Operations](./OPERATIONS.md) for the exact bridge).
 
+### Deploying CWL (`runtime-cwl` target)
+
+Native CWL apps use **`chrysalis emit --target=runtime-cwl`**. The emitted tree is a **self-contained Node project** — not a separate CWL binary on the host.
+
+**What you get:**
+
+| Artifact | Purpose |
+| --- | --- |
+| `routes.cwl` | Human-readable contract |
+| `src/webir.json` | Boot-time module (runtime loads this) |
+| `src/index.ts` | Thin HTTP server |
+| `vendor/@chrysalis/*` | Vendored runtime stack (`runtime-cwl`, `rewrite`, `webir`, …) |
+| `Dockerfile` | Production container image |
+| `README.md` | Operator quick start |
+
+**Build (CI or laptop with Chrysalis):**
+
+```bash
+pnpm -r build   # runtime stack must be built before emit
+chrysalis emit <project> --out ./deploy --target=runtime-cwl
+```
+
+**Run on a server (Node only — no Chrysalis CLI required):**
+
+```bash
+cd deploy
+npm install --omit=dev
+HOST=0.0.0.0 PORT=8787 npm start
+```
+
+**Docker:**
+
+```bash
+cd deploy
+npm run docker:build
+docker run --rm -p 8787:8787 -e PORT=8787 chrysalis-cwl-app
+```
+
+**Environment:**
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `HOST` | `127.0.0.1` | Bind address (`0.0.0.0` in containers) |
+| `PORT` | `8787` | Listen port |
+
+**Honest tiering:**
+
+- **`runtime-cwl`** — preview, greenfield CWL, demos; WebIR simulator via `@chrysalis/runtime-cwl`.
+- **`hono` / `fastify` emit + `chrysalis verify`** — authoritative path for **PHP migration cutover** and production SQL/session claims.
+- **Chimera** — optional dual-stack router during gradual cutover (see below).
+
+Gate: `pnpm run hub:cwl-runtime-deploy-smoke` (**G9240**).
+
 ### Where the legacy PHP server runs
 
 Your existing servers, unchanged. To turn capture on, load the Chrysalis bootstrap before each request:
