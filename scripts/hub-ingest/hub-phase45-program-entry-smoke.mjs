@@ -47,14 +47,18 @@ export function runPhase45ProgramDocGate() {
   const statusOk =
     (closed && program.includes("Program closed") && program.includes("G9190")) ||
     (active && program.includes("**Status:** **active**"));
-  const strategicGateOk = active
+  const strategicGateOk = closed
+    ? strategic.includes("G9190") &&
+      strategic.includes("hub:phase45-program-close-smoke") &&
+      strategic.includes("D6340")
+    : active
     ? strategic.includes("G9150") &&
       strategic.includes("PHASE-45-PROGRAM.md") &&
       strategic.includes("D6336") &&
       strategic.includes("G9170")
     : strategic.includes("G9190") && strategic.includes("D6336");
   const wispShowcaseOk =
-    !active ||
+    closed ||
     (wisp.includes("default CI showcase") &&
       wisp.includes("D6336") &&
       !wisp.includes("Build:** **decoupled**"));
@@ -67,9 +71,11 @@ export function runPhase45ProgramDocGate() {
     program.includes("G9160") &&
     program.includes("G9165") &&
     program.includes("G9166") &&
+    program.includes("G9175") &&
+    program.includes("G9176") &&
     program.includes("G9170") &&
     program.includes("G9180") &&
-    program.includes("432/601") &&
+    program.includes("178/601") &&
     program.includes("CWL is authoritative") &&
     strategicGateOk &&
     strategic.includes("PHASE-45-PROGRAM.md") &&
@@ -77,7 +83,8 @@ export function runPhase45ProgramDocGate() {
     design.includes("D6336") &&
     wispShowcaseOk &&
     charter.includes("extended-matrix-oracle-charter") &&
-    charter.includes("wave4");
+    charter.includes("wave4") &&
+    charter.includes("wave5");
   return { ok, active, closed };
 }
 

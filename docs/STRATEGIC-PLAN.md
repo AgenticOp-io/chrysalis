@@ -427,42 +427,39 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-07-04 (Phase 44 close — D6311):** Phase **44** **closed** at **G9140**: extended matrix waves 1–3 (**169/601** oracle-product), LLM hole-closure → repair bridge, Horizon C operator train contract — honest partial census, not 601-pair production parity. See [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md).
 
+**Amended 2026-07-06 (Phase 45 close — D6340):** Phase **45** **closed** at **G9190**: waves **4–5** (**178/601** oracle-product), WISP showcase default CI preserved; default queue returns to **G8550** maintenance. See [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md).
+
 **Amended 2026-07-06 (Phase 45 CWL product supremacy — D6336):** Phase **45** **active** at **G9150**: default build prioritizes **CWL product evidence** — extended matrix wave maintenance, **WISP showcase in default CI** (supersedes **D6259** default-build bar), IR helper/CWL language first-class. See [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md).
 
 **Amended 2026-07-04 (Phase 44 — D6310):** Phase **44** active at **G9000**: extended hub matrix oracle waves (601-pair census), LLM hole-closure → repair bridge, in-repo Horizon C QLoRA train loop (operator GPU). See [`PHASE-44-PROGRAM.md`](./PHASE-44-PROGRAM.md).
 
 **Amended 2026-07-03 (Phase 43 LLM convert full — D6303):** Phase **43** **closed** at **G8940**: LLM/stub hole enrichment, verify-gated operator apply, repair bridge, MCP **`hub_convert_apply_holes`** — extends closed Phase 42 without bypassing WebIR/oracle. See [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md).
 
-## 12. Default queue (Phase 45 active)
+## 12. Default queue (maintenance)
 
-**Post Phase 45 entry (2026-07-06).**
+**Post Phase 45 close (2026-07-06).**
 
-**Status:** **Phase 45 active** (**G9150**, **D6336** — 2026-07-06); **Phase 44 closed** (**G9140**, **D6311**); **Phase 43 closed** (**G8940**, **D6303**); **Migration OS closed** (**G8550**); **G7200** IR helper closed; **WISP showcase in default CI** (**G9170**).
+**Status:** **Phase 45 closed** (**G9190**, **D6340** — 2026-07-06); **Phase 44 closed** (**G9140**); **Migration OS closed** (**G8550**); **G7200** IR helper closed; **WISP showcase in default CI** (**G9170**).
 
 When the user says "build" without specifying:
 
-1. **Phase 45 build slice** — `pnpm run hub:phase45-build-slice-smoke` (**G9180**) — entry + extended matrix census + WISP showcase
-2. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (includes **G8560** + **G8600**)
-3. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
-4. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (first-class, not optional)
-5. **Phase 45 extended matrix** — [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md): census **G9160** → wave 4+ maintenance
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke`
+2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke`
+4. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**) — **423** pairs below oracle-product
 
-**WISP showcase (default CI):** `hub:phase45-wisp-showcase-smoke` (**G9170**) · extended operator path: `.github/workflows/wisp-poc-regression.yml`
+**WISP showcase (default CI):** `hub:phase45-wisp-showcase-smoke` (**G9170**)
 
-**Closed program regression:** `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:full-matrix-oracle-close-smoke` (**G8790**)
+**Closed program regression:** `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**)
 
 **Operator demo:** `pnpm run migration-evidence:demo`  
 **GCE Migration OS:** `pnpm run test:gce:migration-os`  
-**GPU lab dry-run:** `pnpm run gpu-lab:gce`  
-**VMF hub:** `pnpm run federation:serve`
-
+**GCE maintenance:** `pnpm run test:gce:maintenance`  
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
-
-**Operator hub:** [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md).
 
 ---
 
-## 12 (archived) — Default queue (maintenance-only, superseded 2026-07-06 by Phase 45)
+## 12 (archived) — Default queue (Phase 45 active, superseded 2026-07-06)
 
 **Post Phase 44 close (2026-07-04).**
 

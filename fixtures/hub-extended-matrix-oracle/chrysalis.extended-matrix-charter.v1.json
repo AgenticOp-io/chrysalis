@@ -35,6 +35,13 @@
     "outputIds": ["typescript", "javascript", "hono", "fastify", "nextjs", "cwl"],
     "minOraclePairs": 8
   },
+  "wave5": {
+    "id": "wave5-config-lift-cwl",
+    "label": "Markdown/YAML/Vue config file-lift × CWL outbound",
+    "originIds": ["markdown", "yaml", "vue"],
+    "outputIds": ["cwl"],
+    "minOraclePairs": 3
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

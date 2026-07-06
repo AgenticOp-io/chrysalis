@@ -7,6 +7,7 @@ import { runPhase45ProgramDocGate } from "./hub-phase45-program-entry-smoke.mjs"
 import { runExtendedMatrixOracleProgressGate } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
 import { runPhase45WispShowcaseGate } from "./hub-phase45-wisp-showcase-smoke.mjs";
 import { runExtendedMatrixOracleWave4Gate } from "./hub-extended-matrix-oracle-wave4-smoke.mjs";
+import { runExtendedMatrixOracleWave5Gate } from "./hub-extended-matrix-oracle-wave5-smoke.mjs";
 
 export const PHASE45_BUILD_SLICE_KIND = "chrysalis.phase45-build-slice-smoke";
 export const PHASE45_BUILD_SLICE_SCHEMA_VERSION = 1;
@@ -18,8 +19,9 @@ export async function runPhase45BuildSliceGate(opts = {}) {
   const program = runPhase45ProgramDocGate();
   const census = runExtendedMatrixOracleProgressGate();
   const wave4 = runExtendedMatrixOracleWave4Gate();
+  const wave5 = runExtendedMatrixOracleWave5Gate();
   const wisp = await runPhase45WispShowcaseGate({ ...opts, repoRoot });
-  const ok = program.ok === true && census.ok === true && wave4.ok === true && wisp.ok === true;
+  const ok = program.ok === true && census.ok === true && wave4.ok === true && wave5.ok === true && wisp.ok === true;
   return {
     kind: PHASE45_BUILD_SLICE_KIND,
     schemaVersion: PHASE45_BUILD_SLICE_SCHEMA_VERSION,
@@ -27,6 +29,7 @@ export async function runPhase45BuildSliceGate(opts = {}) {
     program,
     census,
     wave4,
+    wave5,
     wisp,
     generatedAt: new Date().toISOString(),
   };

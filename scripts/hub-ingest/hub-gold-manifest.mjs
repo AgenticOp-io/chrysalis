@@ -1699,7 +1699,7 @@ export const HUB_GOLD_SUITES = [
     origin: "vue",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1753,7 +1753,7 @@ export const HUB_GOLD_SUITES = [
     origin: "markdown",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1762,7 +1762,7 @@ export const HUB_GOLD_SUITES = [
     origin: "yaml",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
