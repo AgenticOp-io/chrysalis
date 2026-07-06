@@ -63,6 +63,13 @@
     "outputIds": ["python", "java", "go", "ruby", "csharp", "php"],
     "minOraclePairs": 10
   },
+  "wave9": {
+    "id": "wave9-pattern-lift-native-outbound",
+    "label": "Rust/Kotlin/Scala/Swift pattern-lift × native outbound",
+    "originIds": ["rust", "kotlin", "scala", "swift"],
+    "outputIds": ["python", "java", "go", "ruby", "csharp", "php"],
+    "minOraclePairs": 24
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

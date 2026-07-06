@@ -3855,6 +3855,7 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-07-05 — D6332** **IR helper B100 `dechex()` (G7163).** Formal assign inlining; fixture route **`/m100`**; gate **`runIrHelperLiftingB100DechexInlineGate`** in **G6731**.
 - **2026-07-05 — D6333** **IR helper B101 `strval()` (G7164).** Formal assign inlining; fixture route **`/m101`**; gate **`runIrHelperLiftingB101StrvalInlineGate`** in **G6731**.
 - **2026-07-05 — D6334** **IR helper B102 `filter_var(, lit)` (G7165).** Formal + literal assign inlining; fixture route **`/m102`**; gate **`runIrHelperLiftingB102FilterVarInlineGate`** in **G6731**.
+- **2026-07-06 — D6350** **Maintenance census wave 9 (G9163).** Rust/Kotlin/Scala/Swift pattern-lift × native outbound trace-replay — **225/601** (**376** below target); probe-route dedupe fixes svelte→go Gin replay.
 - **2026-07-06 — D6349** **Maintenance census wave 8 (G9161).** Svelte/Vue component-lift × native outbound (python/java/go/ruby/csharp/php) trace-replay promotion — **200/601** (**401** below target). Charter wave **8**; svelte→go deferred (gin route collision).
 - **2026-07-06 — D6348** **Dependency hygiene (maintenance).** pnpm overrides for **protobufjs**, **undici**, **esbuild**, **js-yaml**, **hono**, **@opentelemetry/core**; **vite** 6.4.3; **firebase-tools** 14.27.x.
 - **2026-07-06 — D6347** **Maintenance census batch 2 (G9160).** Promote remaining CWL hub-gold trace-replay suites (kotlin/scala/swift/rust → CWL + structured/flagship CWL coverage) — **189/601** (**412** below target).
