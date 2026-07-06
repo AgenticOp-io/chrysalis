@@ -20,7 +20,7 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (first-class) |
-| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **432** pairs below oracle-product; wave maintenance only |
+| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **426** pairs below oracle-product; wave maintenance only |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
 **Closed program regression:** `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790**) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940**) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
