@@ -12,8 +12,8 @@ Deepen CWL runtimes beyond Node preview without violating **DESIGN §3**:
 | --- | --- | --- |
 | **Node simulator** | `@chrysalis/runtime-cwl` | Shipped — `simulateHandler`, session inject |
 | **Node deploy emit** | `@chrysalis/emit-runtime-cwl` | Shipped — **G9200** + **G9240** deploy scaffold |
-| **Browser scaffold** | `@chrysalis/runtime-cwl-browser` | Scaffold — island contract stub (**G9230**) |
-| **Worker scaffold** | `@chrysalis/runtime-cwl-worker` | Scaffold — edge/worker contract stub (**G9235**) |
+| **Browser scaffold** | `@chrysalis/runtime-cwl-browser` | **G9238** — island bind + mount handle |
+| **Worker scaffold** | `@chrysalis/runtime-cwl-worker` | **G9238** — fetch delegate to runtime-cwl |
 
 ## Phase A — Emit + Node parity (shipped / reinforced)
 
@@ -65,6 +65,20 @@ Skip deploy `npm install` in CI: `CHRYSALIS_STRATEGIC_PLAN_SKIP_CWL_DEPLOY_NPM=1
 - Production Redis/DB session claims from runtime-cwl alone
 - Marketing "full-stack runtime" without verify evidence
 - Replacing chimera + hono/fastify cutover path
+
+## Maintenance continuation (D6346 — G9238)
+
+Post–Phase 46 close maintenance deepens scaffolds without claiming hydration or edge production parity:
+
+| Item | Status |
+| --- | --- |
+| `bindClientIslandEvents` / `mountCwlClientIslands` | **Shipped** — RFC-0019 declarative binding |
+| `createCwlBrowserRuntime` | **Shipped** — mount/unmount handle |
+| `createCwlWorkerFetchHandler` / `createCwlWorkerRuntime` | **Shipped** — delegates to `@chrysalis/runtime-cwl` |
+| Hydration / client JS execution | **Refused** until RFC-0019 v2 + verify gold |
+| Emit to worker target | **Future** — requires emit package + verify harness |
+
+**Smoke:** `hub:cwl-runtime-scaffold-depth-smoke` (**G9238**)
 
 ## Invariants (DESIGN §3)
 

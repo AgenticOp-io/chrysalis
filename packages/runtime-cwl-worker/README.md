@@ -2,19 +2,21 @@
 
 ## Purpose
 
-**Worker/edge runtime scaffold** for CWL WebIR modules. Holds the contract for a future emit target that boots golden WebIR JSON in isolates (Cloudflare Workers, service workers) — **Phase 46 stub only**.
+**Worker/edge runtime** for CWL WebIR modules. Delegates fetch dispatch to `@chrysalis/runtime-cwl` simulate — contract for future worker emit targets (Cloudflare Workers, service workers).
 
 ## Public API
 
 - `CWL_WORKER_RUNTIME_KIND` — artifact kind constant
-- `createCwlWorkerRuntimeHandle({ moduleKind })` — placeholder handle for verify harness wiring
+- `createCwlWorkerRuntimeHandle({ module })` — route count metadata
+- `createCwlWorkerFetchHandler(config)` — fetch delegate
+- `createCwlWorkerRuntime(config)` — handle + fetch + stop
 
 ## Invariants
 
-- No network, wall-clock, or randomness in scaffold APIs
+- Uses injected `ctx.*` via runtime-cwl simulate path
 - Production claims require emit package + verify replay (future)
 
 ## Non-goals
 
-- Full worker emit backend in Phase 46 entry
-- SQL/session fidelity in edge isolates
+- Full worker emit backend
+- SQL/session fidelity in edge isolates without oracle

@@ -84,7 +84,7 @@ export const HUB_GOLD_SUITES = [
     origin: "javascript",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -230,7 +230,7 @@ export const HUB_GOLD_SUITES = [
     origin: "php",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -287,7 +287,7 @@ export const HUB_GOLD_SUITES = [
     origin: "typescript",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "js-structured-hono",
@@ -311,7 +311,7 @@ export const HUB_GOLD_SUITES = [
     origin: "javascript",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "js-structured-nextjs",
@@ -351,7 +351,7 @@ export const HUB_GOLD_SUITES = [
     origin: "javascript",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "js-middleware-nextjs",
@@ -399,7 +399,7 @@ export const HUB_GOLD_SUITES = [
     origin: "python",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "cwl-gold-hono",
@@ -743,7 +743,7 @@ export const HUB_GOLD_SUITES = [
     origin: "cwl",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1235,7 +1235,7 @@ export const HUB_GOLD_SUITES = [
     origin: "python",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "python-middleware-nextjs",
@@ -1343,7 +1343,7 @@ export const HUB_GOLD_SUITES = [
     origin: "kotlin",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1376,7 +1376,7 @@ export const HUB_GOLD_SUITES = [
     origin: "scala",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1409,7 +1409,7 @@ export const HUB_GOLD_SUITES = [
     origin: "swift",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {
@@ -1442,7 +1442,7 @@ export const HUB_GOLD_SUITES = [
     origin: "rust",
     emitTarget: "cwl",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
     roundTrip: true,
   },
   {

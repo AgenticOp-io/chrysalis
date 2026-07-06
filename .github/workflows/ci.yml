@@ -132,6 +132,9 @@ jobs:
       - name: Extended matrix oracle census (G9160)
         run: pnpm run hub:extended-matrix-oracle-progress-smoke
 
+      - name: CWL runtime scaffold depth (G9238)
+        run: pnpm run hub:cwl-runtime-scaffold-depth-smoke
+
       - name: WISP CWL showcase default CI (G9170)
         run: pnpm run hub:phase45-wisp-showcase-smoke
         env:

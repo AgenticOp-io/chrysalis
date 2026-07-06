@@ -19,7 +19,8 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (weekly CI) |
 | **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |
-| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **416** pairs below oracle-product |
+| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **412** pairs below oracle-product |
+| **CWL runtime scaffold depth** | **G9238** | `hub:cwl-runtime-scaffold-depth-smoke` |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
 **Closed program regression:** `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790`) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940`) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
@@ -123,7 +124,7 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (arch
 
 | Gap | Status | Doc |
 | --- | --- | --- |
-| Extended matrix oracle promotion | **416/601** below target — maintenance census (**G9160**); not production parity claim | [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) |
+| Extended matrix oracle promotion | **412/601** below target — maintenance census (**G9160**); not production parity claim | [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) |
 | Live operator deploy refresh | Operator-run — `wisp:deploy:gce` + `wisp:operator-verify --require` | `WISP-PRODUCTION-COMPLETION-PROGRAM.md` |
 | Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
