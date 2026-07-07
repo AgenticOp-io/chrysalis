@@ -4,6 +4,8 @@
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { hubAssetOutboundSuites } from "./hub-gold-asset-outbound-suites.mjs";
+import { hubSwiftOutboundSuites } from "./hub-gold-swift-outbound-suites.mjs";
+import { hubPhpCwlBackfillSuites } from "./hub-gold-php-cwl-backfill-suites.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -1788,7 +1790,7 @@ export const HUB_GOLD_SUITES = [
     origin: "swift",
     emitTarget: "swift",
     structural: true,
-    traceReplay: false,
+    traceReplay: true,
   },
   {
     id: "python-middleware-hono",
@@ -3025,6 +3027,8 @@ export const HUB_GOLD_SUITES = [
     wptpCompose: true,
   },
   ...hubAssetOutboundSuites(scriptRoot),
+  ...hubSwiftOutboundSuites(scriptRoot),
+  ...hubPhpCwlBackfillSuites(scriptRoot),
 ];
 
 /**

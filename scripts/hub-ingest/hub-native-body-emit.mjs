@@ -881,3 +881,58 @@ export function renderScalaBody(body, routePath) {
     hole: true,
   };
 }
+
+/**
+ * @param {unknown} value
+ */
+export function swiftLiteral(value) {
+  if (value === true) return "true";
+  if (value === false) return "false";
+  if (typeof value === "number") return String(value);
+  if (typeof value === "string") return JSON.stringify(value);
+  return "nil";
+}
+
+/**
+ * @param {string} path
+ */
+export function vaporRouteArgs(path) {
+  const parts = path.split("/").filter(Boolean);
+  if (parts.length === 0) return "";
+  return parts.map((p) => JSON.stringify(p)).join(", ");
+}
+
+/**
+ * @param {{ kind: string, reason?: string, value?: unknown }} body
+ * @param {string} routePath
+ */
+export function renderSwiftBody(body, routePath) {
+  void routePath;
+  if (body.kind === "hole") {
+    return {
+      lines: [`throw Abort(.internalServerError, reason: ${JSON.stringify(body.reason ?? "hub:hole")})`],
+      hole: true,
+    };
+  }
+  if (body.kind === "literal") {
+    const v = body.value;
+    if (v !== null && typeof v === "object") {
+      const ent = Object.entries(v).map(([k, val]) => `"${k}": ${swiftLiteral(val)}`).join(", ");
+      return { lines: [`return [${ent}]`], hole: false };
+    }
+    if (typeof v === "boolean") {
+      return { lines: [`return ${v}`], hole: false };
+    }
+    return { lines: [`return ${swiftLiteral(v)}`], hole: false };
+  }
+  if (body.kind === "structured") {
+    return {
+      lines: [`throw Abort(.internalServerError, reason: "hub:unsupported-body-shape")`],
+      hole: true,
+    };
+  }
+  return {
+    lines: [`throw Abort(.internalServerError, reason: "hub:unsupported-body")`],
+    hole: true,
+  };
+}

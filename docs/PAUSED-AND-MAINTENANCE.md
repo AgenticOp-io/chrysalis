@@ -19,10 +19,12 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (weekly CI) |
 | **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |
-| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **322** pairs below oracle-product |
+| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **601/601** oracle-product |
 | **Extended matrix wave 8** | **G9161** | `hub:extended-matrix-oracle-wave8-smoke` |
 | **Extended matrix wave 9** | **G9163** | `hub:extended-matrix-oracle-wave9-smoke` |
 | **Extended matrix wave 10** | **G9164** | `hub:extended-matrix-oracle-wave10-smoke` |
+| **Extended matrix wave 15** | **G9169** | `hub:extended-matrix-oracle-wave15-smoke` |
+| **Extended matrix wave 16** | **G9172** | `hub:extended-matrix-oracle-wave16-smoke` |
 | **CWL runtime scaffold depth** | **G9238** | `hub:cwl-runtime-scaffold-depth-smoke` |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  

@@ -1,6 +1,11 @@
 #!/usr/bin/env node
-/** Emit Vapor-style Swift routes from hub WebIR. */
-import { emitNativeFromHub } from "./hub-native-emit-shared.mjs";
+/**
+ * Emit Vapor hub routes from hub-lift WebIR (probe-friendly routes.swift).
+ */
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { loadHubRoutes } from "./hub-load-routes.mjs";
+import { renderSwiftBody, vaporRouteArgs } from "./hub-native-body-emit.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -12,60 +17,49 @@ function parseArgs(argv) {
   return { projectDir, origin };
 }
 
-function swiftLiteral(value) {
-  if (value === true) return "true";
-  if (value === false) return "false";
-  if (typeof value === "number") return String(value);
-  if (typeof value === "string") return JSON.stringify(value);
-  return "nil";
-}
-
 function renderSwift(routes, origin) {
   const lines = [
-    `// Chrysalis hub emit: ${origin} -> swift`,
+    `// Chrysalis hub emit: ${origin} -> swift (routes)`,
     "import Vapor",
     "",
-    "func hubRoutes(_ routes: RoutesBuilder) throws {",
+    "public func hubRoutes(_ routes: RoutesBuilder) throws {",
   ];
   let holeCount = 0;
   for (const r of routes) {
     const m = r.method.toLowerCase();
-    lines.push(`    routes.${m}(${JSON.stringify(r.path)}) { req in`);
-    if (r.body.kind === "literal") {
-      const v = r.body.value;
-      if (v !== null && typeof v === "object") {
-        const ent = Object.entries(v)
-          .map(([k, val]) => `"${k}": ${swiftLiteral(val)}`)
-          .join(", ");
-        lines.push(`        return [${ent}]`);
-      } else if (typeof v === "boolean") {
-        lines.push(`        return ${v}`);
-      } else {
-        lines.push(`        return ${swiftLiteral(v)}`);
-      }
-    } else {
-      holeCount += 1;
-      lines.push(`        // HOLE: ${r.body.reason}`);
-      lines.push(`        throw Abort(.notImplemented, reason: ${JSON.stringify(r.body.reason)})`);
-    }
+    const args = vaporRouteArgs(r.path);
+    lines.push(`    routes.${m}(${args}) { req in`);
+    const body = renderSwiftBody(r.body, r.path);
+    if (body.hole) holeCount += 1;
+    for (const line of body.lines) lines.push(`        ${line}`);
     lines.push("    }");
   }
   if (routes.length === 0) holeCount += 1;
-  lines.push("}");
-  lines.push("");
-  return {
-    files: {
-      "Sources/HubRoutes/routes.swift": `${lines.join("\n")}\n`,
-      "Package.swift":
-        '// swift-tools-version:5.9\nimport PackageDescription\nlet package = Package(name: "ChrysalisHubSwift", dependencies: [.package(url: "https://github.com/vapor/vapor.git", from: "4.0.0")], targets: [.target(name: "HubRoutes", dependencies: [.product(name: "Vapor", package: "vapor")])])\n',
-    },
-    holeCount,
-  };
+  lines.push("}", "");
+  return { routesSource: `${lines.join("\n")}\n`, holeCount };
 }
 
 async function main() {
   const { projectDir, origin } = parseArgs(process.argv);
-  const report = await emitNativeFromHub(projectDir, origin, "swift", "hub-webir-swift", renderSwift);
+  const { routes } = await loadHubRoutes(projectDir, origin);
+  const { routesSource, holeCount } = renderSwift(routes, origin);
+  const rel = "Sources/HubRoutes/routes.swift";
+  const outDir = join(projectDir, "generated", "swift");
+  await mkdir(join(outDir, "Sources/HubRoutes"), { recursive: true });
+  await writeFile(join(outDir, rel), routesSource, "utf8");
+  const report = {
+    kind: "chrysalis.hub.emit",
+    schemaVersion: 1,
+    origin,
+    output: "swift",
+    path: "hub-webir-swift",
+    outDir,
+    routeCount: routes.length,
+    holeCount,
+    generatedAt: new Date().toISOString(),
+  };
+  await mkdir(join(projectDir, ".chrysalis"), { recursive: true });
+  await writeFile(join(projectDir, ".chrysalis", `hub.${origin}.emit.json`), `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(JSON.stringify(report));
 }
 

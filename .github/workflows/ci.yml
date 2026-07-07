@@ -76,6 +76,10 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.10"
+
       - name: Python + Go CLI shims (forward to Node CLI, DESIGN D295)
         run: pnpm run test:cli-shims
 
@@ -163,6 +167,12 @@ jobs:
 
       - name: Extended matrix wave 14 maintenance (G9168)
         run: pnpm run hub:extended-matrix-oracle-wave14-smoke
+
+      - name: Extended matrix wave 15 maintenance (G9169)
+        run: pnpm run hub:extended-matrix-oracle-wave15-smoke
+
+      - name: Extended matrix wave 16 maintenance (G9172)
+        run: pnpm run hub:extended-matrix-oracle-wave16-smoke
 
       - name: CWL runtime scaffold depth (G9238)
         run: pnpm run hub:cwl-runtime-scaffold-depth-smoke

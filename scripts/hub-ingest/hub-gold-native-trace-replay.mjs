@@ -3,11 +3,14 @@
  * Trace replay for hub native emit targets (python Flask first).
  */
 import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildReport, replayCorpus } from "../../packages/verify/dist/index.js";
 import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
+import { exportCwlFileToWebirJson } from "./export-cwl-webir.mjs";
+import { hubWebirPath } from "./shared.mjs";
 import { isHubNativeGoldEmitTarget, runNativeGoldEmit } from "./hub-gold-native-emit.mjs";
 import { probeHubGoldCorpus } from "./hub-verify-probe-corpus.mjs";
 import { parseHubWebirGoldenFile } from "./hub-webir-golden-walk.mjs";
@@ -49,9 +52,45 @@ import {
   createScalaAkkaInProcessFetch,
   writeProbeRoutes as writeScalaProbeRoutes,
 } from "./hub-gold-scala-fetch.mjs";
+import {
+  createSwiftVaporInProcessFetch,
+  writeProbeRoutes as writeSwiftProbeRoutes,
+} from "./hub-gold-swift-fetch.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
+
+/**
+ * @param {string} fixture
+ * @param {string} origin
+ */
+async function ensureHubOriginWebir(fixture, origin) {
+  if (origin === "php") {
+    const phpExport = await exportPhpHubWebir(fixture);
+    if (phpExport.skip || !phpExport.ok) {
+      throw new Error(phpExport.skip ?? `php-export-holes:${phpExport.holeCount}`);
+    }
+    return;
+  }
+  if (origin === "cwl") {
+    const webirPath = hubWebirPath(fixture, origin);
+    if (existsSync(webirPath)) return;
+    const cwlPath = join(fixture, "routes.cwl");
+    const snapshot = await exportCwlFileToWebirJson(cwlPath);
+    mkdirSync(join(fixture, ".chrysalis"), { recursive: true });
+    writeFileSync(
+      webirPath,
+      typeof snapshot === "string" ? snapshot : `${JSON.stringify(snapshot, null, 2)}\n`,
+      "utf8",
+    );
+    return;
+  }
+  const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", origin], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+  });
+  if (lift.status !== 0) throw new Error(lift.stderr || lift.stdout || "lift failed");
+}
 
 /**
  * @param {import('./hub-gold-manifest.mjs').HUB_GOLD_SUITES[number]} suite
@@ -64,18 +103,7 @@ export async function runNativeTraceReplaySuite(suite) {
     throw new Error(`not a native emit target: ${target}`);
   }
 
-  if (origin === "php") {
-    const phpExport = await exportPhpHubWebir(fixture);
-    if (phpExport.skip || !phpExport.ok) {
-      throw new Error(phpExport.skip ?? `php-export-holes:${phpExport.holeCount}`);
-    }
-  } else {
-    const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", origin], {
-      cwd: scriptRoot,
-      encoding: "utf8",
-    });
-    if (lift.status !== 0) throw new Error(lift.stderr || lift.stdout || "lift failed");
-  }
+  await ensureHubOriginWebir(fixture, origin);
 
   const emit = runNativeGoldEmit(fixture, origin, target);
   if (emit.status !== 0) throw new Error(emit.stderr || emit.stdout || "native emit failed");
@@ -106,6 +134,9 @@ export async function runNativeTraceReplaySuite(suite) {
   }
   if (target === "scala") {
     return runScalaAkkaTraceReplay(fixture, origin, target, suite.id);
+  }
+  if (target === "swift") {
+    return runSwiftVaporTraceReplay(fixture, origin, target, suite.id);
   }
   throw new Error(`native trace replay not implemented for ${target}`);
 }
@@ -518,6 +549,54 @@ async function runScalaAkkaTraceReplay(fixture, origin, target, suiteId) {
     inProcessFetch,
     fixture,
     corpusId: "hub-native-scala-probe",
+  });
+
+  const outcomes = await replayCorpus(corpus, {
+    baseUrl: "http://127.0.0.1",
+    injectDeterminismHeaders: true,
+    fetch: inProcessFetch,
+  });
+  const report = buildReport(outcomes);
+  const correctness = report.aggregate?.correctness ?? 0;
+  return {
+    kind: "chrysalis.hub.trace-replay",
+    schemaVersion: 0,
+    fixture,
+    origin,
+    emitTarget: target,
+    routeCount: routes.length,
+    traceCount: corpus.traces.length,
+    correctness,
+    ok: correctness >= 1,
+    report,
+    suiteId: suiteId ?? `${origin}-native-${target}`,
+  };
+}
+
+/**
+ * @param {string} fixture
+ * @param {string} origin
+ * @param {string} target
+ * @param {string} [suiteId]
+ */
+async function runSwiftVaporTraceReplay(fixture, origin, target, suiteId) {
+  const webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
+  const webirMod = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
+  const mod = webirMod.moduleFromGoldenSnapshot(parseHubWebirGoldenFile(await readFile(webirPath, "utf8")));
+  const routes = listHubWebRoutes(mod);
+  const probeRoutes = routes.map((r) => ({
+    method: r.method,
+    path: concreteProbePath(r.path),
+  }));
+  await writeSwiftProbeRoutes(fixture, probeRoutes);
+
+  const inProcessFetch = createSwiftVaporInProcessFetch(scriptRoot, fixture);
+  const corpus = await probeHubGoldCorpus({
+    routes: probeRoutes,
+    middlewarePresets: new Set(),
+    inProcessFetch,
+    fixture,
+    corpusId: "hub-native-swift-probe",
   });
 
   const outcomes = await replayCorpus(corpus, {

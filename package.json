@@ -290,6 +290,8 @@
     "hub:extended-matrix-oracle-wave12-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave12-smoke.mjs",
     "hub:extended-matrix-oracle-wave13-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave13-smoke.mjs",
     "hub:extended-matrix-oracle-wave14-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave14-smoke.mjs",
+    "hub:extended-matrix-oracle-wave15-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave15-smoke.mjs",
+    "hub:extended-matrix-oracle-wave16-smoke": "node scripts/hub-ingest/hub-extended-matrix-oracle-wave16-smoke.mjs",
     "hub:phase46-cwl-runtime-depth-smoke": "node scripts/hub-ingest/hub-phase46-cwl-runtime-depth-smoke.mjs",
     "hub:phase46-cwl-runtime-depth-close-smoke": "node scripts/hub-ingest/hub-phase46-cwl-runtime-depth-close-smoke.mjs",
     "hub:cwl-runtime-deploy-smoke": "node scripts/hub-ingest/hub-cwl-runtime-deploy-smoke.mjs",

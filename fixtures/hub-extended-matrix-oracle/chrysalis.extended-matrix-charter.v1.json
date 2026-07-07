@@ -194,6 +194,58 @@
     "outputIds": ["c", "cpp", "sql", "html", "css", "scss", "json", "yaml", "markdown", "vue"],
     "minOraclePairs": 210
   },
+  "wave15": {
+    "id": "wave15-swift-outbound-native",
+    "label": "All non-swift hub origins × swift Vapor outbound with native trace replay",
+    "originIds": [
+      "javascript",
+      "typescript",
+      "python",
+      "java",
+      "go",
+      "csharp",
+      "ruby",
+      "svelte",
+      "vue",
+      "rust",
+      "kotlin",
+      "scala",
+      "sql",
+      "html",
+      "css",
+      "json",
+      "yaml",
+      "markdown",
+      "scss",
+      "c",
+      "cpp",
+      "php",
+      "cwl"
+    ],
+    "outputIds": ["swift"],
+    "minOraclePairs": 23
+  },
+  "wave16": {
+    "id": "wave16-php-cwl-backfill",
+    "label": "php/cwl origins × asset file-lift + rust/kotlin/scala native backfill",
+    "originIds": ["php", "cwl"],
+    "outputIds": [
+      "c",
+      "cpp",
+      "sql",
+      "html",
+      "css",
+      "scss",
+      "json",
+      "yaml",
+      "markdown",
+      "vue",
+      "rust",
+      "kotlin",
+      "scala"
+    ],
+    "minOraclePairs": 26
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

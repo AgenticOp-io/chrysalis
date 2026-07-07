@@ -3,11 +3,14 @@
  * Trace replay for hub asset emit targets (route-manifest oracle).
  */
 import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { buildReport, replayCorpus } from "../../packages/verify/dist/index.js";
 import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
+import { exportCwlFileToWebirJson } from "./export-cwl-webir.mjs";
+import { hubWebirPath } from "./shared.mjs";
 import { runAssetGoldEmit } from "./hub-gold-asset-emit.mjs";
 import { probeHubGoldCorpus } from "./hub-verify-probe-corpus.mjs";
 import { parseHubWebirGoldenFile } from "./hub-webir-golden-walk.mjs";
@@ -33,6 +36,18 @@ export async function runAssetTraceReplaySuite(suite) {
     const phpExport = await exportPhpHubWebir(fixture);
     if (phpExport.skip || !phpExport.ok) {
       throw new Error(phpExport.skip ?? `php-export-holes:${phpExport.holeCount}`);
+    }
+  } else if (origin === "cwl") {
+    const webirPath = hubWebirPath(fixture, origin);
+    if (!existsSync(webirPath)) {
+      const cwlPath = join(fixture, "routes.cwl");
+      const snapshot = await exportCwlFileToWebirJson(cwlPath);
+      mkdirSync(join(fixture, ".chrysalis"), { recursive: true });
+      writeFileSync(
+        webirPath,
+        typeof snapshot === "string" ? snapshot : `${JSON.stringify(snapshot, null, 2)}\n`,
+        "utf8",
+      );
     }
   } else {
     const lift = spawnSync(process.execPath, [liftScript, fixture, "--language", origin], {
