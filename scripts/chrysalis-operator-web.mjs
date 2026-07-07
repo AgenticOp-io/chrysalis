@@ -28,6 +28,7 @@ import { buildMigrationPlan } from "./hub-ingest/hub-migration-planner.mjs";
 import { buildMigrationProgram } from "./hub-ingest/hub-migration-programs.mjs";
 import { buildHubCapabilityMatrixReport } from "./hub-ingest/hub-capability-matrix.mjs";
 import { buildHubEvidenceReport } from "./hub-ingest/hub-evidence.mjs";
+import { HUB_OPERATOR_DOC_CATALOG, resolveHubOperatorDoc } from "./hub-operator-docs.mjs";
 import { buildVerifyPlaybooksReport } from "./hub-ingest/hub-verify-playbooks.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-ingest/hub-laravel-verify-gaps.mjs";
 import { runLaravelVerifyGapsAction } from "./hub-ingest/hub-laravel-verify-gaps-action.mjs";
@@ -686,21 +687,26 @@ const server = createServer(async (req, res) => {
     res.end(asset.body);
     return;
   }
-  if (req.method === "GET" && url.pathname === "/docs/hub-connectivity") {
-    try {
-      const md = await readFile(join(__dir, "..", "docs", "HUB-CONNECTIVITY.md"), "utf8");
-      sendText(res, 200, "text/plain; charset=utf-8", md);
-    } catch {
-      sendJson(res, 404, { error: "doc-not-found" });
-    }
+  if (req.method === "GET" && url.pathname === "/api/hub/docs") {
+    sendJson(res, 200, {
+      kind: "chrysalis.hub.operator-docs",
+      schemaVersion: 1,
+      docs: HUB_OPERATOR_DOC_CATALOG.map((d) => ({ id: d.id, title: d.title, category: d.category })),
+    });
     return;
   }
-  if (req.method === "GET" && url.pathname === "/docs/hub-install") {
+  if (req.method === "GET" && url.pathname.startsWith("/docs/")) {
+    const docId = url.pathname.slice("/docs/".length).replace(/\/$/, "");
+    const resolved = resolveHubOperatorDoc(docId);
+    if (!resolved || !resolved.abs) {
+      sendJson(res, 404, { error: "doc-not-found", id: docId });
+      return;
+    }
     try {
-      const md = await readFile(join(__dir, "..", "docs", "HUB-DEMO-INSTALL.md"), "utf8");
+      const md = await readFile(resolved.abs, "utf8");
       sendText(res, 200, "text/plain; charset=utf-8", md);
     } catch {
-      sendJson(res, 404, { error: "doc-not-found" });
+      sendJson(res, 404, { error: "doc-read-failed", id: docId });
     }
     return;
   }

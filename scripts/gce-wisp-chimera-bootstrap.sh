@@ -11,7 +11,10 @@ BACKEND="${WISP_BACKEND_URL:-http://127.0.0.1:3001}"
 SVELTE="${WISP_SVELTE_FALLBACK:-http://127.0.0.1:3000}"
 PIDFILE="${HOME}/.wisp-cwl-chimera.pid"
 LOG="${HOME}/.wisp-cwl-chimera.log"
-GW="${POC_DIR}/wisp-cwl-chimera-gateway.mjs"
+GW="${POC_DIR}/wisp-cwl-chimera-serve.mjs"
+if [[ ! -f "${GW}" ]]; then
+  GW="${POC_DIR}/wisp-cwl-chimera-gateway.mjs"
+fi
 SIDECAR_BOOT="${HOME}/gce-wisp-svelte-sidecar-bootstrap.sh"
 
 log() { echo "[gce-wisp-chimera] $*"; }
@@ -48,17 +51,29 @@ if [[ -f "${PIDFILE}" ]]; then
     log "stopping pid ${old_pid}"
     kill "${old_pid}" || true
     sleep 1
+    kill -9 "${old_pid}" 2>/dev/null || true
   fi
   rm -f "${PIDFILE}"
 fi
-if command -v fuser >/dev/null 2>&1; then
-  fuser -k "${PORT}/tcp" 2>/dev/null || true
+free_port() {
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -k "${PORT}/tcp" 2>/dev/null || true
+    if command -v ss >/dev/null 2>&1 && ss -tln "sport = :${PORT}" 2>/dev/null | grep -q LISTEN; then
+      sudo fuser -k "${PORT}/tcp" 2>/dev/null || true
+    fi
+  fi
   sleep 1
+}
+free_port
+if command -v ss >/dev/null 2>&1 && ss -tln "sport = :${PORT}" 2>/dev/null | grep -q LISTEN; then
+  log "ERROR: port ${PORT} still in use after free_port" >&2
+  ss -tln "sport = :${PORT}" 2>&1 || true
+  exit 1
 fi
 
 export CHRYSALIS_REPO="${REPO}"
 export WISP_CWL_NATIVE_PREFIXES="${WISP_CWL_NATIVE_PREFIXES:-*}"
-nohup node "${GW}" --cwl "${CWL}" --backend "${BACKEND}" --host "${BIND}" --port "${PORT}" ${SVELTE:+--svelte-fallback "${SVELTE}"} >>"${LOG}" 2>&1 &
+nohup node "${GW}" --cwl "${CWL}" --backend "${BACKEND}" --host "${BIND}" --port "${PORT}" >>"${LOG}" 2>&1 &
 echo $! >"${PIDFILE}"
 sleep 2
 

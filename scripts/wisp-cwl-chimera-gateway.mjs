@@ -204,12 +204,12 @@ export async function createWispChimeraGateway(opts) {
   const backendUrl = (opts.backendUrl ?? "http://127.0.0.1:3001").replace(/\/$/, "");
   const pipeline = loadWispPipelineConfig();
   const nativeApi = shouldUseWispNativeApi(opts);
-  const svelteFallbackRaw = opts.svelteFallback ?? process.env.WISP_SVELTE_FALLBACK ?? "";
   const nativePrefixes = resolveCwlNativePrefixes(pipeline);
-  const svelteFallback =
-    pipeline.gce?.svelteSidecar === false && !svelteFallbackRaw
-      ? ""
-      : svelteFallbackRaw.replace(/\/$/, "");
+  const svelteSidecarOff = pipeline.gce?.svelteSidecar === false;
+  const svelteFallbackRaw = svelteSidecarOff
+    ? (opts.svelteFallback ?? pipeline.gce?.svelteFallback ?? "")
+    : (opts.svelteFallback ?? process.env.WISP_SVELTE_FALLBACK ?? pipeline.gce?.svelteFallback ?? "");
+  const svelteFallback = String(svelteFallbackRaw ?? "").replace(/\/$/, "");
   const host = opts.host ?? "127.0.0.1";
   const port = opts.port === undefined ? 19100 : opts.port;
 

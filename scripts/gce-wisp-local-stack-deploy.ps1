@@ -62,7 +62,7 @@ try {
   Push-Location $bundleDir
   $tarFiles = @(
     "routes.cwl", "api-proxy.cwl", "cwl-preview.json",
-    "wisp-cwl-chimera-gateway.mjs", "wisp-cwl-gateway-config.mjs",
+    "wisp-cwl-chimera-gateway.mjs", "wisp-cwl-chimera-serve.mjs", "wisp-cwl-gateway-config.mjs",
     "wisp-cwl-post-g7790.mjs", "wisp-pipeline.config.json", "favicon.svg",
     "wisp-cwl-login.css", "wisp-cwl-app.css", "wisp-cwl-client.js", "wisp-firebase-config.json",
     "wisp-cwl-modules.css", "wisp-cwl-modules.js", "wisp-cwl-map.js", "wisp-arcgis-config.json",

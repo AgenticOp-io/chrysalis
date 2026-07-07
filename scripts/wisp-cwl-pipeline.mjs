@@ -85,6 +85,7 @@ export function prepareWispCwlDeployBundle(opts = {}) {
   else if (existsSync(previewFixture)) copyFileSync(previewFixture, previewDst);
 
   copyFileSync(join(scriptRoot, "scripts/wisp-cwl-chimera-gateway.mjs"), join(bundleDir, "wisp-cwl-chimera-gateway.mjs"));
+  copyFileSync(join(scriptRoot, "scripts/wisp-cwl-chimera-serve.mjs"), join(bundleDir, "wisp-cwl-chimera-serve.mjs"));
   for (const name of WISP_CWL_GCE_GATEWAY_SUPPORT_FILES) {
     const src = join(scriptRoot, "scripts", name);
     if (name === "wisp-pipeline.config.json") {

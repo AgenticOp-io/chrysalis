@@ -12,120 +12,40 @@ page root_page {
 page admin_billing_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { adminArea: "billing", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "Billing"; }
-        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m31", path: "/admin/billing" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_billing\" data-wisp-path=\"/admin/billing\" data-cwl-island=\"client\" data-wisp-layout=\"list\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Billing</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/admin/billing/add\">Add new</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>198</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>10</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>16</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"Billing data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/admin/management"
 page admin_management_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { adminArea: "management", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "Management"; }
-        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m31", path: "/admin/management" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_management\" data-wisp-path=\"/admin/management\" data-cwl-island=\"client\" data-wisp-layout=\"list\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Management</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/admin/management/add\">Add new</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>169</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>1</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>17</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"Management data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/admin/system-management"
 page admin_system_management_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { adminArea: "system-management", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "System Management"; }
-        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m31", path: "/admin/system-management" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_system_management\" data-wisp-path=\"/admin/system-management\" data-cwl-island=\"client\" data-wisp-layout=\"list\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>System Management</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/admin/system-management/add\">Add new</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>128</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>0</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>11</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"System Management data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/admin/tenant-management"
 page admin_tenant_management_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { adminArea: "tenant-management", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "Tenant Management"; }
-        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m31", path: "/admin/tenant-management" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_tenant_management\" data-wisp-path=\"/admin/tenant-management\" data-cwl-island=\"client\" data-wisp-layout=\"list\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Tenant Management</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/admin/tenant-management/add\">Add new</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>128</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>0</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>11</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"Tenant Management data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/admin/tenants/:tenantId/modules"
 page admin_tenants_tenantId_modules_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { adminArea: "tenant-modules", source: "wisp-m2", apiPrefix: "/api/admin" };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "Tenant Modules"; }
-        element "p" class "api-surface" { text "API: /api/admin (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m31", path: "/admin/tenants/:tenantId/modules" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"admin_tenants_tenantId_modules\" data-wisp-path=\"/admin/tenants/:tenantId/modules\" data-cwl-island=\"client\" data-wisp-layout=\"list\" data-wisp-api=\"/api/admin\">\n  <header class=\"wisp-demo-header\">\n    <h1>Modules</h1>\n    <p class=\"wisp-demo-desc\">Platform administration — tenants, billing, and system configuration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/admin/tenants/:tenantId/modules/add\">Add new</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>184</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>4</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>22</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"Modules data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/auth/google/callback"
@@ -140,24 +60,8 @@ page auth_google_callback_page {
 page dashboard_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { tenantLabel: "WISP Tenant", source: "wisp-m1", moduleCount: 6 };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "Dashboard"; }
-        element "p" class "api-surface" { text "API: /api/tenants (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { tenantLabel: "WISP Tenant", source: "wisp-m30", moduleCount: 7 };
+  return html "<div class=\"dashboard-container\" data-wisp-page=\"dashboard\" data-cwl-island=\"client\">\n  <div class=\"header\">\n    <div class=\"header-content\">\n      <div class=\"header-brand\">\n        <div class=\"logo-section\">\n          <img src=\"/wisptools-logo.svg\" alt=\"WISP Management\" class=\"dashboard-logo\" width=\"72\" height=\"72\" />\n          <div class=\"branding\">\n            <h1 class=\"app-title\">WISP Management</h1>\n            <p class=\"app-subtitle\">wisptools.io</p>\n            <p class=\"poc-notice\">wisptools.io · Source code: <a href=\"https://github.com/theorem6/WISP-Management\" target=\"_blank\" rel=\"noopener noreferrer\">github.com/theorem6/WISP-Management</a></p>\n          </div>\n        </div>\n        <div class=\"header-icons\">\n          <a href=\"/help\" class=\"icon-btn doc-btn\" title=\"Help\" aria-label=\"Open help\"><span class=\"doc-icon\">📖</span></a>\n          <button type=\"button\" class=\"icon-btn power-btn\" data-cwl-on-click=\"logout\" title=\"Logout\" aria-label=\"Logout\">\n            <svg class=\"power-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\">\n              <path d=\"M18.36 6.64a9 9 0 1 1-12.73 0\"></path>\n              <line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"12\"></line>\n            </svg>\n          </button>\n        </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"main-content\">\n    <div class=\"modules-section\">\n      <div class=\"modules-grid\"><a class=\"module-card active\" href=\"/modules/plan\" aria-label=\"Open 📋 Plan\">\n  <div class=\"module-header\"><h3 class=\"module-name\">📋 Plan</h3></div>\n  <p class=\"module-description\">Interactive map-based planning tools for network expansion</p>\n  <div class=\"module-features\"><ul><li>Coverage Analysis</li><li>Site Planning</li><li>Inventory Check</li><li>CBRS Spectrum</li><li>Capacity Planning</li><li>Cost Analysis</li></ul></div>\n  <div class=\"module-status\"><span class=\"status-badge active\">Active</span></div>\n</a>\n<a class=\"module-card active\" href=\"/modules/deploy\" aria-label=\"Open 🚀 Deploy\">\n  <div class=\"module-header\"><h3 class=\"module-name\">🚀 Deploy</h3></div>\n  <p class=\"module-description\">Interactive map-based deployment tools for network rollouts</p>\n  <div class=\"module-features\"><ul><li>PCI Resolution</li><li>ACS CPE Management</li><li>Work Orders</li><li>Installation Management</li><li>Equipment Configuration</li><li>Quality Assurance</li></ul></div>\n  <div class=\"module-status\"><span class=\"status-badge active\">Active</span></div>\n</a>\n<a class=\"module-card active\" href=\"/modules/monitor\" aria-label=\"Open 📊 Monitor\">\n  <div class=\"module-header\"><h3 class=\"module-name\">📊 Monitor</h3></div>\n  <p class=\"module-description\">Interactive map-based monitoring tools for network oversight</p>\n  <div class=\"module-features\"><ul><li>Network Monitoring</li><li>Device Health</li><li>Traffic Analysis</li><li>Performance Analytics</li><li>Alert Management</li><li>HSS Management</li></ul></div>\n  <div class=\"module-status\"><span class=\"status-badge active\">Active</span></div>\n</a>\n<a class=\"module-card active\" href=\"/modules/maintain\" aria-label=\"Open 🔧 Maintain\">\n  <div class=\"module-header\"><h3 class=\"module-name\">🔧 Maintain</h3></div>\n  <p class=\"module-description\">Traditional interface for ticketing and maintenance management</p>\n  <div class=\"module-features\"><ul><li>Ticketing System</li><li>Preventive Maintenance</li><li>Incident Management</li><li>Customer Support</li><li>Vendor Management</li><li>Knowledge Base</li></ul></div>\n  <div class=\"module-status\"><span class=\"status-badge active\">Active</span></div>\n</a>\n<a class=\"module-card active\" href=\"/modules/customers\" aria-label=\"Open 👥 Customers\">\n  <div class=\"module-header\"><h3 class=\"module-name\">👥 Customers</h3></div>\n  <p class=\"module-description\">Manage customers and the customer portal</p>\n  <div class=\"module-features\"><ul><li>Customer Database</li><li>Customer Portal</li><li>Service Management</li><li>Installation History</li><li>Customer Support</li></ul></div>\n  <div class=\"module-status\"><span class=\"status-badge active\">Active</span></div>\n</a>\n<a class=\"module-card active\" href=\"/modules/hardware\" aria-label=\"Open 🔧 Hardware\">\n  <div class=\"module-header\"><h3 class=\"module-name\">🔧 Hardware</h3></div>\n  <p class=\"module-description\">Comprehensive equipment and hardware management system</p>\n  <div class=\"module-features\"><ul><li>Equipment Inventory</li><li>Asset Tracking</li><li>Hardware Management</li><li>Status Monitoring</li><li>Location Tracking</li><li>Maintenance Records</li></ul></div>\n  <div class=\"module-status\"><span class=\"status-badge active\">Active</span></div>\n</a>\n<a class=\"module-card active\" href=\"/modules/voice-telephony\" aria-label=\"Open 📞 Voice / SIP\">\n  <div class=\"module-header\"><h3 class=\"module-name\">📞 Voice / SIP</h3></div>\n  <p class=\"module-description\">Telephone numbers, carrier linkage, E911, and number porting (LNP)</p>\n  <div class=\"module-features\"><ul><li>Provider accounts</li><li>TN inventory</li><li>E911 status</li><li>Port orders</li><li>Domain reference</li></ul></div>\n  <div class=\"module-status\"><span class=\"status-badge active\">Active</span></div>\n</a></div>\n    </div>\n    <footer class=\"app-footer\">\n      <a href=\"https://github.com/theorem6/WISP-Management\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a>\n      <span class=\"sep\">·</span>\n      <a href=\"https://creativecommons.org/licenses/by/4.0/\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 4.0</a>\n    </footer>\n  </div>\n</div>";
 }
 
 @page GET "/debug-tenants"
@@ -181,7 +85,7 @@ page docs_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { source: "wisp-m32", path: "/docs" };
-  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs\" data-wisp-path=\"/docs\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Docs</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation for WISP Management on pure CWL deploy.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Docs</h2>\n  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>\n  <ul>\n    <li>Session auth via Firebase or CWL session preview</li>\n    <li>API routes proxied to HSS backend when configured</li>\n    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>\n  </ul>\n  <p class=\"wisp-demo-docs-section\">Section: <code>docs</code></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs\" data-wisp-path=\"/docs\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Docs</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation — WISP demo surfaces + Chrysalis Migration OS library.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Documentation</h2>\n  <p>Operator docs for Chrysalis Migration OS, the Translation Hub, CLI, and this WISP CWL showcase.</p>\n  <ul>\n    <li><a href=\"/help\">Help home</a></li>\n    <li><a href=\"/docs/getting-started\">Getting started</a></li>\n    <li><a href=\"/docs/deployment\">Deployment</a></li>\n    <li><a href=\"/docs/reference\">Reference</a></li>\n    <li><a href=\"/docs/reference/project-status\">Project status</a></li>\n  </ul>\n  <h3>Translation Hub library</h3>\n  <p>Full Chrysalis operator library on the Translation Hub (<code>http://34.61.255.147:19090</code>):</p>\n<h3>Architecture</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=design\" target=\"_blank\" rel=\"noopener\">DESIGN.md</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=agents\" target=\"_blank\" rel=\"noopener\">AGENTS.md</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=roadmap-archive\" target=\"_blank\" rel=\"noopener\">Roadmap archive</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=docs-index\" target=\"_blank\" rel=\"noopener\">Documentation index</a></li>\n</ul>\n<h3>Archive</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=archive-index\" target=\"_blank\" rel=\"noopener\">Archive index</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=strategic-plan-shipped-log\" target=\"_blank\" rel=\"noopener\">Strategic plan ship log</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=cwl-fullstack-build-log\" target=\"_blank\" rel=\"noopener\">CWL full-stack build log</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=master-program\" target=\"_blank\" rel=\"noopener\">WPTP master program</a></li>\n</ul>\n<h3>Community</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=code-of-conduct\" target=\"_blank\" rel=\"noopener\">Code of conduct</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=contributing\" target=\"_blank\" rel=\"noopener\">Contributing</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=security\" target=\"_blank\" rel=\"noopener\">Security</a></li>\n</ul>\n<h3>Engine &amp; CLI</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=whitepaper\" target=\"_blank\" rel=\"noopener\">Whitepaper</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=use-cases\" target=\"_blank\" rel=\"noopener\">Use cases</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=installation\" target=\"_blank\" rel=\"noopener\">Installation</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=user-guide\" target=\"_blank\" rel=\"noopener\">User guide (CLI)</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=how-to\" target=\"_blank\" rel=\"noopener\">How-to cookbook</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=operations\" target=\"_blank\" rel=\"noopener\">Operations</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=deployment\" target=\"_blank\" rel=\"noopener\">Deployment</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=administration\" target=\"_blank\" rel=\"noopener\">Administration</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=gce-local-verify\" target=\"_blank\" rel=\"noopener\">GCE test runner</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=gce-gpu-lab\" target=\"_blank\" rel=\"noopener\">GCE GPU lab</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=windows-compat\" target=\"_blank\" rel=\"noopener\">Windows vs Linux</a></li>\n</ul>\n<h3>Governance</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=strategic-plan\" target=\"_blank\" rel=\"noopener\">Strategic plan (locked)</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=paused-and-maintenance\" target=\"_blank\" rel=\"noopener\">Paused &amp; maintenance index</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=roadmap\" target=\"_blank\" rel=\"noopener\">Roadmap (active)</a></li>\n</ul>\n<h3>Hub</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=hub-install\" target=\"_blank\" rel=\"noopener\">Demo install &amp; walkthrough</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=hub-connectivity\" target=\"_blank\" rel=\"noopener\">SSH &amp; connectivity</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=hub-server-install\" target=\"_blank\" rel=\"noopener\">Hub server install</a></li>\n</ul>\n<h3>Hub &amp; commercial</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=commercial\" target=\"_blank\" rel=\"noopener\">Commercial offering</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=github-project\" target=\"_blank\" rel=\"noopener\">GitHub Project</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=multi-repo-workspace\" target=\"_blank\" rel=\"noopener\">Multi-repo workspace</a></li>\n</ul>\n<h3>Migration OS</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=migration-os\" target=\"_blank\" rel=\"noopener\">Migration OS</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=site-to-cwl-llm\" target=\"_blank\" rel=\"noopener\">Site → CWL → LLM</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=site-port-federation\" target=\"_blank\" rel=\"noopener\">Verified Migration Federation</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=migration-evidence\" target=\"_blank\" rel=\"noopener\">Migration Evidence POC</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=intelligence-shorthand\" target=\"_blank\" rel=\"noopener\">Intelligence Shorthand</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=open-web-llm\" target=\"_blank\" rel=\"noopener\">Open web-LLM program</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=open-web-llm-poc\" target=\"_blank\" rel=\"noopener\">Web-LLM agent POC</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=web-llm-training\" target=\"_blank\" rel=\"noopener\">Web-LLM training recipe</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=web-verify-benchmark\" target=\"_blank\" rel=\"noopener\">Web Verify Benchmark (WVB)</a></li>\n</ul>\n<h3>WISP showcase</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=wisp-cwl-fullstack\" target=\"_blank\" rel=\"noopener\">WISP CWL fullstack program</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=wisp-cwl-ui-parity\" target=\"_blank\" rel=\"noopener\">WISP CWL UI parity</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=wisp-production\" target=\"_blank\" rel=\"noopener\">WISP production completion</a></li>\n</ul>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/docs/deployment"
@@ -189,7 +93,7 @@ page docs_deployment_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { source: "wisp-m32", path: "/docs/deployment" };
-  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs_deployment\" data-wisp-path=\"/docs/deployment\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Deployment</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation for WISP Management on pure CWL deploy.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Deployment</h2>\n  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>\n  <ul>\n    <li>Session auth via Firebase or CWL session preview</li>\n    <li>API routes proxied to HSS backend when configured</li>\n    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>\n  </ul>\n  <p class=\"wisp-demo-docs-section\">Section: <code>deployment</code></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs_deployment\" data-wisp-path=\"/docs/deployment\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Deployment</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation — WISP demo surfaces + Chrysalis Migration OS library.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Deployment</h2>\n  <p>CI patterns, GCE hub deploy (<code>deploy:hub-demo</code>), WISP chimera (<code>wisp:deploy:gce</code>), and production dual-stack routing.</p>\n  <p><strong>Full guide:</strong> <a href=\"http://34.61.255.147:19090/#/guide?doc=deployment\" target=\"_blank\" rel=\"noopener\">Open in Translation Hub</a></p>\n  <p><a href=\"/docs\">← Documentation home</a> · <a href=\"/help\">Help</a></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/docs/getting-started"
@@ -197,7 +101,7 @@ page docs_getting_started_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { source: "wisp-m32", path: "/docs/getting-started" };
-  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs_getting_started\" data-wisp-path=\"/docs/getting-started\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Getting Started</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation for WISP Management on pure CWL deploy.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Getting Started</h2>\n  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>\n  <ul>\n    <li>Session auth via Firebase or CWL session preview</li>\n    <li>API routes proxied to HSS backend when configured</li>\n    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>\n  </ul>\n  <p class=\"wisp-demo-docs-section\">Section: <code>getting-started</code></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs_getting_started\" data-wisp-path=\"/docs/getting-started\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Getting Started</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation — WISP demo surfaces + Chrysalis Migration OS library.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Getting Started</h2>\n  <p>Install Chrysalis, run your first ingest/emit/verify loop, and try the tiny-blog fixture.</p>\n  <p><strong>Full guide:</strong> <a href=\"http://34.61.255.147:19090/#/guide?doc=installation\" target=\"_blank\" rel=\"noopener\">Open in Translation Hub</a></p>\n  <p><a href=\"/docs\">← Documentation home</a> · <a href=\"/help\">Help</a></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/docs/reference"
@@ -205,23 +109,23 @@ page docs_reference_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
   load { source: "wisp-m32", path: "/docs/reference" };
-  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs_reference\" data-wisp-path=\"/docs/reference\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Reference</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation for WISP Management on pure CWL deploy.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Reference</h2>\n  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>\n  <ul>\n    <li>Session auth via Firebase or CWL session preview</li>\n    <li>API routes proxied to HSS backend when configured</li>\n    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>\n  </ul>\n  <p class=\"wisp-demo-docs-section\">Section: <code>reference</code></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs_reference\" data-wisp-path=\"/docs/reference\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Reference</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation — WISP demo surfaces + Chrysalis Migration OS library.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Reference</h2>\n  <p>CLI reference, environment variables, gates, and operator reports.</p>\n  <p><strong>Full guide:</strong> <a href=\"http://34.61.255.147:19090/#/guide?doc=docs-index\" target=\"_blank\" rel=\"noopener\">Open in Translation Hub</a></p>\n  <p><a href=\"/docs\">← Documentation home</a> · <a href=\"/help\">Help</a></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/docs/reference/project-status"
 page docs_reference_project_status_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { source: "wisp-m31", path: "/docs/reference/project-status" };
-  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs_reference_project_status\" data-wisp-path=\"/docs/reference/project-status\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Project Status</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation for WISP Management on pure CWL deploy.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Project Status</h2>\n  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>\n  <ul>\n    <li>Session auth via Firebase or CWL session preview</li>\n    <li>API routes proxied to HSS backend when configured</li>\n    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>\n  </ul>\n  <p class=\"wisp-demo-docs-section\">Section: <code>project-status</code></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+  load { source: "wisp-m32", path: "/docs/reference/project-status" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"docs_reference_project_status\" data-wisp-path=\"/docs/reference/project-status\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Project Status</h1>\n    <p class=\"wisp-demo-desc\">Operator documentation — WISP demo surfaces + Chrysalis Migration OS library.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Project Status</h2>\n  <p>Program status, maintenance queue, and honest gaps (census 601/601 oracle-product; depth beyond trace replay remains).</p>\n  <p><strong>Full guide:</strong> <a href=\"http://34.61.255.147:19090/#/guide?doc=paused-and-maintenance\" target=\"_blank\" rel=\"noopener\">Open in Translation Hub</a></p>\n  <p><a href=\"/docs\">← Documentation home</a> · <a href=\"/help\">Help</a></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/help"
 page help_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { source: "wisp-m31", path: "/help" };
-  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"help\" data-wisp-path=\"/help\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Help</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Help — native CWL handlers with live API integration.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>Help</h2>\n  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>\n  <ul>\n    <li>Session auth via Firebase or CWL session preview</li>\n    <li>API routes proxied to HSS backend when configured</li>\n    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>\n  </ul>\n  <p class=\"wisp-demo-docs-section\">Section: <code>help</code></p>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
+  load { source: "wisp-m32", path: "/help" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"help\" data-wisp-path=\"/help\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Help</h1>\n    <p class=\"wisp-demo-desc\">Help — WISP operational guide and links to the full Chrysalis documentation library.</p>\n    \n  </header>\n  <section class=\"wisp-demo-panel\">\n    <article class=\"wisp-demo-docs\">\n  <h2>WISP Management Help</h2>\n  <p class=\"wisp-demo-lead\">This GCE demo runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Operational modules use live API integration when the HSS backend is configured.</p>\n  <h3>WISP quick topics</h3>\n  <ul>\n    <li><a href=\"/docs/getting-started\">Getting started (this demo)</a></li>\n    <li><a href=\"/docs/deployment\">Deployment &amp; operator refresh</a></li>\n    <li><a href=\"/docs/reference/project-status\">Project status &amp; next steps</a></li>\n    <li><a href=\"/dashboard\">Dashboard</a> — tenant load shell</li>\n    <li><a href=\"/login\">Login</a> — Firebase / session preview</li>\n  </ul>\n  <h3>This deployment</h3>\n  <ul>\n    <li>Session auth via Firebase or CWL session preview</li>\n    <li>API routes use native CWL handlers; HSS backend at <code>https://hss.wisptools.io</code> when proxied</li>\n    <li>Plan / Deploy / Coverage Map — ArcGIS MapView charter surfaces</li>\n    <li>Verify live demo: <code>pnpm run wisp:verify:demo -- --base-url http://HOST:19100</code></li>\n  </ul>\n  <h3>Chrysalis operator documentation</h3>\n  <p>Full Chrysalis operator library on the Translation Hub (<code>http://34.61.255.147:19090</code>):</p>\n<h3>Architecture</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=design\" target=\"_blank\" rel=\"noopener\">DESIGN.md</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=agents\" target=\"_blank\" rel=\"noopener\">AGENTS.md</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=roadmap-archive\" target=\"_blank\" rel=\"noopener\">Roadmap archive</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=docs-index\" target=\"_blank\" rel=\"noopener\">Documentation index</a></li>\n</ul>\n<h3>Archive</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=archive-index\" target=\"_blank\" rel=\"noopener\">Archive index</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=strategic-plan-shipped-log\" target=\"_blank\" rel=\"noopener\">Strategic plan ship log</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=cwl-fullstack-build-log\" target=\"_blank\" rel=\"noopener\">CWL full-stack build log</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=master-program\" target=\"_blank\" rel=\"noopener\">WPTP master program</a></li>\n</ul>\n<h3>Community</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=code-of-conduct\" target=\"_blank\" rel=\"noopener\">Code of conduct</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=contributing\" target=\"_blank\" rel=\"noopener\">Contributing</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=security\" target=\"_blank\" rel=\"noopener\">Security</a></li>\n</ul>\n<h3>Engine &amp; CLI</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=whitepaper\" target=\"_blank\" rel=\"noopener\">Whitepaper</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=use-cases\" target=\"_blank\" rel=\"noopener\">Use cases</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=installation\" target=\"_blank\" rel=\"noopener\">Installation</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=user-guide\" target=\"_blank\" rel=\"noopener\">User guide (CLI)</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=how-to\" target=\"_blank\" rel=\"noopener\">How-to cookbook</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=operations\" target=\"_blank\" rel=\"noopener\">Operations</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=deployment\" target=\"_blank\" rel=\"noopener\">Deployment</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=administration\" target=\"_blank\" rel=\"noopener\">Administration</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=gce-local-verify\" target=\"_blank\" rel=\"noopener\">GCE test runner</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=gce-gpu-lab\" target=\"_blank\" rel=\"noopener\">GCE GPU lab</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=windows-compat\" target=\"_blank\" rel=\"noopener\">Windows vs Linux</a></li>\n</ul>\n<h3>Governance</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=strategic-plan\" target=\"_blank\" rel=\"noopener\">Strategic plan (locked)</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=paused-and-maintenance\" target=\"_blank\" rel=\"noopener\">Paused &amp; maintenance index</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=roadmap\" target=\"_blank\" rel=\"noopener\">Roadmap (active)</a></li>\n</ul>\n<h3>Hub</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=hub-install\" target=\"_blank\" rel=\"noopener\">Demo install &amp; walkthrough</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=hub-connectivity\" target=\"_blank\" rel=\"noopener\">SSH &amp; connectivity</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=hub-server-install\" target=\"_blank\" rel=\"noopener\">Hub server install</a></li>\n</ul>\n<h3>Hub &amp; commercial</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=commercial\" target=\"_blank\" rel=\"noopener\">Commercial offering</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=github-project\" target=\"_blank\" rel=\"noopener\">GitHub Project</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=multi-repo-workspace\" target=\"_blank\" rel=\"noopener\">Multi-repo workspace</a></li>\n</ul>\n<h3>Migration OS</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=migration-os\" target=\"_blank\" rel=\"noopener\">Migration OS</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=site-to-cwl-llm\" target=\"_blank\" rel=\"noopener\">Site → CWL → LLM</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=site-port-federation\" target=\"_blank\" rel=\"noopener\">Verified Migration Federation</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=migration-evidence\" target=\"_blank\" rel=\"noopener\">Migration Evidence POC</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=intelligence-shorthand\" target=\"_blank\" rel=\"noopener\">Intelligence Shorthand</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=open-web-llm\" target=\"_blank\" rel=\"noopener\">Open web-LLM program</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=open-web-llm-poc\" target=\"_blank\" rel=\"noopener\">Web-LLM agent POC</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=web-llm-training\" target=\"_blank\" rel=\"noopener\">Web-LLM training recipe</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=web-verify-benchmark\" target=\"_blank\" rel=\"noopener\">Web Verify Benchmark (WVB)</a></li>\n</ul>\n<h3>WISP showcase</h3><ul>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=wisp-cwl-fullstack\" target=\"_blank\" rel=\"noopener\">WISP CWL fullstack program</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=wisp-cwl-ui-parity\" target=\"_blank\" rel=\"noopener\">WISP CWL UI parity</a></li>\n<li><a href=\"http://34.61.255.147:19090/#/guide?doc=wisp-production\" target=\"_blank\" rel=\"noopener\">WISP production completion</a></li>\n</ul>\n</article>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/login"
@@ -373,55 +277,16 @@ page modules_cbrs_management_page {
 page modules_coverage_map_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "coverage-map", source: "wisp-28g", apiPath: "/api/coverage", vendor: "hub-svelte:arcgis-map" };
-  return ui {
-    element "main" class "wisp-module-shell wisp-integration-shell" {
-      element "header" {
-        element "h1" { text "Coverage Map"; }
-        element "p" class "vendor-charter" { text "Vendor: hub-svelte:arcgis-map (chartered — browser SDK remains infra)"; }
-        element "p" class "api-surface" { text "API: /api/coverage (native CWL API)"; }
-      }
-      client ui {
-        element "div" id "arcgis-map-host" class "wisp-vendor-surface" {
-          element "p" { text "ArcGIS MapView host (Phase 28g — CWL client bundle charter)"; }
-        }
-        element "div" id "map-toolbar" class "wisp-vendor-controls" {
-          element "button" id "zoom-in" { text "Zoom in"; on click { action "mapZoomIn"; } }
-          element "button" id "zoom-out" { text "Zoom out"; on click { action "mapZoomOut"; } }
-        }
-        element "section" class "module-widgets" {
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { moduleKey: "coverage-map", source: "wisp-m30", apiPath: "/api/coverage", vendor: "arcgis-map" };
+  return html "<div class=\"wisp-coverage-map\" data-wisp-page=\"coverage-map\" data-cwl-island=\"client\">\n  <div id=\"arcgis-map-view\" class=\"map-view-host\" role=\"application\" aria-label=\"Coverage map\"></div>\n  <div id=\"map-loading\" class=\"map-loading\">Loading map…</div>\n</div>";
 }
 
 @page GET "/modules/customers"
 page modules_customers_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "customers", source: "wisp-m2", apiPath: "/api/customers" };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "Customers"; }
-        element "p" class "api-surface" { text "API: /api/customers (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m31", path: "/modules/customers" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_customers\" data-wisp-path=\"/modules/customers\" data-cwl-island=\"client\" data-wisp-layout=\"list\" data-wisp-api=\"/api/customers\">\n  <header class=\"wisp-demo-header\">\n    <h1>Customers</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Customers — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/modules/customers/add\">Add new</a><a class=\"wisp-demo-btn\" href=\"/help\">Help</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>186</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>6</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>9</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"Customers data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/modules/customers/portal"
@@ -545,26 +410,10 @@ page modules_customers_portal_tickets_new_page {
 
 @page GET "/modules/deploy"
 page modules_deploy_page {
-  effects: none;
+  effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "deploy", source: "wisp-m3", apiPath: "/api/deploy" };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "Deploy"; }
-        element "p" class "api-surface" { text "API: /api/deploy (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { moduleKey: "deploy", source: "wisp-m30", apiPath: "/api/deploy" };
+  return html "<div class=\"wisp-deploy-app\" data-wisp-page=\"deploy\" data-cwl-island=\"client\">\n  <div class=\"map-fullscreen\">\n    <iframe id=\"deploy-map-iframe\" class=\"plan-map-iframe\" title=\"🚀 Deploy map\" src=\"/modules/coverage-map?mode=deploy&hideStats=true&deployMode=true\"></iframe>\n  </div>\n  <div class=\"wisp-header-overlay\">\n    <div class=\"wisp-header-left\">\n      <button type=\"button\" class=\"wisp-back-btn\" data-action=\"back\" title=\"Back to Dashboard\" aria-label=\"Back to Dashboard\">←</button>\n      <h1>🚀 Deploy</h1>\n    </div>\n    <div class=\"wisp-header-controls\">\n      <a href=\"/help\" class=\"wisp-control-btn help-link\" title=\"Help\"><span class=\"control-icon\">❓</span><span class=\"control-label\">Help</span></a>\n      <button type=\"button\" class=\"wisp-control-btn\" data-action=\"projects\" title=\"Projects\"><span class=\"control-icon\">📁</span><span class=\"control-label\">Projects</span></button>\n      <button type=\"button\" class=\"wisp-control-btn\" data-action=\"layers\" title=\"Layers\"><span class=\"control-icon\">🎛️</span><span class=\"control-label\">Layers</span></button>\n    </div>\n  </div>\n</div>";
 }
 
 @page GET "/modules/hardware"
@@ -593,26 +442,10 @@ page modules_help_desk_reports_page {
 
 @page GET "/modules/hss-management"
 page modules_hss_management_page {
-  effects: none;
+  effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "hss_management", source: "wisp-m4", apiPath: "/api/hss" };
-  return ui {
-    element "main" class "wisp-module-shell" {
-      element "header" {
-        element "h1" { text "HSS Management"; }
-        element "p" class "api-surface" { text "API: /api/hss (native CWL API)"; }
-      }
-      client ui {
-        element "section" class "module-widgets" {
-          element "p" { text "Native CWL UI islands (Phase 27c)"; }
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m31", path: "/modules/hss-management" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_hss_management\" data-wisp-path=\"/modules/hss-management\" data-cwl-island=\"client\" data-wisp-layout=\"list\" data-wisp-api=\"/api/hss\">\n  <header class=\"wisp-demo-header\">\n    <h1>Hss Management</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Hss Management — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/modules/hss-management/add\">Add new</a><a class=\"wisp-demo-btn\" href=\"/help\">Help</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>191</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>7</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>19</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"Hss Management data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/modules/inventory"
@@ -675,55 +508,16 @@ page modules_maintain_page {
 page modules_monitor_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "monitor", source: "wisp-28g", apiPath: "/api/monitoring", vendor: "hub-svelte:chart-component" };
-  return ui {
-    element "main" class "wisp-module-shell wisp-integration-shell" {
-      element "header" {
-        element "h1" { text "Monitor"; }
-        element "p" class "vendor-charter" { text "Vendor: hub-svelte:chart-component (chartered — browser SDK remains infra)"; }
-        element "p" class "api-surface" { text "API: /api/monitoring (native CWL API)"; }
-      }
-      client ui {
-        element "div" id "monitor-charts" class "wisp-vendor-surface" {
-          element "p" { text "ECharts monitoring graphs (Phase 28g — CWL client bundle charter)"; }
-        }
-        element "canvas" id "monitor-chart-primary" { }
-        element "section" class "module-widgets" {
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m32", path: "/modules/monitor" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_monitor\" data-wisp-path=\"/modules/monitor\" data-cwl-island=\"client\" data-wisp-layout=\"docs\">\n  <header class=\"wisp-demo-header\"><h1>Monitor</h1></header>\n  <article class=\"wisp-demo-docs\"><p>Redirecting to <a href=\"/modules/monitoring\">Monitoring</a>…</p></article>\n  <script>location.replace(\"/modules/monitoring\");</script>\n</div>";
 }
 
 @page GET "/modules/monitoring"
 page modules_monitoring_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "monitoring", source: "wisp-28g", apiPath: "/api/monitoring-graphs", vendor: "hub-svelte:chart-component" };
-  return ui {
-    element "main" class "wisp-module-shell wisp-integration-shell" {
-      element "header" {
-        element "h1" { text "Monitoring"; }
-        element "p" class "vendor-charter" { text "Vendor: hub-svelte:chart-component (chartered — browser SDK remains infra)"; }
-        element "p" class "api-surface" { text "API: /api/monitoring-graphs (native CWL API)"; }
-      }
-      client ui {
-        element "div" id "monitoring-graphs" class "wisp-vendor-surface" {
-          element "p" { text "SNMP / monitoring graph host (Phase 28g charter)"; }
-        }
-        element "section" class "module-widgets" {
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { source: "wisp-m31", path: "/modules/monitoring" };
+  return html "<div class=\"wisp-module-demo wisp-demo-content\" data-wisp-page=\"modules_monitoring\" data-wisp-path=\"/modules/monitoring\" data-cwl-island=\"client\" data-wisp-layout=\"list\" data-wisp-api=\"/api/monitoring/graphs\">\n  <header class=\"wisp-demo-header\">\n    <h1>Monitoring</h1>\n    <p class=\"wisp-demo-desc\">Operational workspace for Monitoring — native CWL handlers with live API integration.</p>\n    <div class=\"wisp-demo-toolbar\"><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"refresh\">Refresh</button><a class=\"wisp-demo-btn primary\" href=\"/modules/monitoring/add\">Add new</a><a class=\"wisp-demo-btn\" href=\"/help\">Help</a><button type=\"button\" class=\"wisp-demo-btn\" data-action=\"back\">← Dashboard</button></div>\n  </header>\n  <section class=\"wisp-demo-panel\">\n    <div class=\"wisp-demo-stats\">\n  <article class=\"wisp-demo-stat\"><strong>123</strong><span>Active records</span></article>\n  <article class=\"wisp-demo-stat\"><strong>11</strong><span>Open alerts</span></article>\n  <article class=\"wisp-demo-stat\"><strong>26</strong><span>Pending tasks</span></article>\n</div>\n<table class=\"wisp-demo-table\" id=\"wisp-demo-table\" aria-label=\"Monitoring data\">\n  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>\n  <tbody><tr><td colspan=\"4\">Loading…</td></tr></tbody>\n</table>\n  </section>\n  <footer class=\"wisp-demo-api-status\" id=\"wisp-demo-api-status\" aria-live=\"polite\">Ready</footer>\n</div>";
 }
 
 @page GET "/modules/pci-resolution"
@@ -738,27 +532,8 @@ page modules_pci_resolution_page {
 page modules_plan_page {
   effects: session.read;
   content-type "text/html; charset=utf-8";
-  load { module: "plan", source: "wisp-28g", apiPath: "/api/plans", vendor: "hub-svelte:arcgis-map" };
-  return ui {
-    element "main" class "wisp-module-shell wisp-integration-shell" {
-      element "header" {
-        element "h1" { text "Plan"; }
-        element "p" class "vendor-charter" { text "Vendor: hub-svelte:arcgis-map (chartered — browser SDK remains infra)"; }
-        element "p" class "api-surface" { text "API: /api/plans (native CWL API)"; }
-      }
-      client ui {
-        element "div" id "plan-map-host" class "wisp-vendor-surface" {
-          element "p" { text "ArcGIS geocode + plan map (Phase 28g charter)"; }
-        }
-        element "section" class "module-widgets" {
-          element "button" id "refresh" {
-            text "Refresh";
-            on click { action "loadModule"; }
-          }
-        }
-      }
-    }
-  };
+  load { moduleKey: "plan", source: "wisp-m30", apiPath: "/api/plans" };
+  return html "<div class=\"wisp-plan-app\" data-wisp-page=\"plan\" data-cwl-island=\"client\">\n  <div class=\"map-fullscreen\">\n    <iframe id=\"plan-map-iframe\" class=\"plan-map-iframe\" title=\"Plan map\" src=\"/modules/coverage-map?mode=plan&hideStats=true&planMode=true\"></iframe>\n  </div>\n  <div class=\"wisp-header-overlay\">\n    <div class=\"wisp-header-left\">\n      <button type=\"button\" class=\"wisp-back-btn\" data-action=\"back\" title=\"Back to Dashboard\" aria-label=\"Back to Dashboard\">←</button>\n      <h1>📋 Plan</h1>\n    </div>\n    <div class=\"wisp-header-controls\">\n      <a href=\"/help\" class=\"wisp-control-btn help-link\" title=\"Help\"><span class=\"control-icon\">❓</span><span class=\"control-label\">Help</span></a>\n      <button type=\"button\" class=\"wisp-control-btn\" data-action=\"hardware\" title=\"View hardware\"><span class=\"control-icon\">🔧</span><span class=\"control-label\">Hardware</span></button>\n      <button type=\"button\" class=\"wisp-control-btn\" data-action=\"projects\" title=\"Project list\"><span class=\"control-icon\">📁</span><span class=\"control-label\">Projects</span></button>\n      <button type=\"button\" class=\"wisp-control-btn\" data-action=\"layers\" title=\"Layer filters\"><span class=\"control-icon\">🎛️</span><span class=\"control-label\">Layers</span></button>\n      <button type=\"button\" class=\"wisp-control-btn marketing-btn\" data-action=\"marketing\" title=\"Find addresses\"><span class=\"control-icon\">🔍</span><span class=\"control-label\">Find Addresses</span></button>\n    </div>\n  </div>\n  <aside id=\"plan-projects-panel\" class=\"plan-side-panel\" hidden aria-label=\"Plan projects\">\n    <div class=\"plan-panel-header\">\n      <h2>Plan projects</h2>\n      <button type=\"button\" class=\"plan-panel-close\" data-action=\"close-projects\" aria-label=\"Close\">✕</button>\n    </div>\n    <div id=\"plan-projects-list\" class=\"plan-projects-list\"><p class=\"plan-panel-loading\">Loading projects…</p></div>\n  </aside>\n  <div id=\"plan-active-summary\" class=\"plan-summary\" hidden></div>\n</div>";
 }
 
 @page GET "/modules/sites"

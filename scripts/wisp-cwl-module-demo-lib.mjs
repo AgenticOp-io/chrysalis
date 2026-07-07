@@ -1,6 +1,11 @@
 /** WISP module demo HTML — Phase 32 complete POC surfaces (no empty shells). */
 import { titleFromHttpPath, listGetUiPaths } from "./wisp-cwl-bulk-lift-lib.mjs";
 import { buildWispModuleHtmlPageBlock } from "./wisp-cwl-ui-parity-lib.mjs";
+import { groupHubOperatorDocsByCategory } from "./hub-operator-docs.mjs";
+
+const WISP_HUB_DOCS_BASE =
+  process.env.CHRYSALIS_HUB_DOCS_BASE ??
+  `http://${process.env.CHRYSALIS_WISP_GCE_HOST ?? "34.61.255.147"}:19090`;
 
 /** Routes with dedicated parity HTML (Phase 30/30b) — never replace. */
 export const WISP_MODULE_DEMO_SKIP_PATHS = new Set([
@@ -81,7 +86,10 @@ export function buildWispModuleDemoDescription(httpPath) {
     return "Platform administration — tenants, billing, and system configuration.";
   }
   if (httpPath.startsWith("/docs")) {
-    return "Operator documentation for WISP Management on pure CWL deploy.";
+    return "Operator documentation — WISP demo surfaces + Chrysalis Migration OS library.";
+  }
+  if (httpPath === "/help") {
+    return "Help — WISP operational guide and links to the full Chrysalis documentation library.";
   }
   return `Operational workspace for ${title} — native CWL handlers with live API integration.`;
 }
@@ -117,10 +125,100 @@ function buildDemoStats(httpPath) {
 </div>`;
 }
 
+/** @param {string} docId @param {string} label */
+function hubGuideLink(docId, label) {
+  const href = `${WISP_HUB_DOCS_BASE}/#/guide?doc=${encodeURIComponent(docId)}`;
+  return `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}</a>`;
+}
+
+/** @param {string} httpPath */
+function buildWispHubDocIndexHtml() {
+  const groups = groupHubOperatorDocsByCategory();
+  const parts = [
+    `<p>Full Chrysalis operator library on the Translation Hub (<code>${esc(WISP_HUB_DOCS_BASE)}</code>):</p>`,
+  ];
+  for (const category of Object.keys(groups).sort()) {
+    parts.push(`<h3>${esc(category)}</h3><ul>`);
+    for (const doc of groups[category]) {
+      parts.push(`<li>${hubGuideLink(doc.id, doc.title)}</li>`);
+    }
+    parts.push("</ul>");
+  }
+  return parts.join("\n");
+}
+
+/** @param {string} httpPath */
+function buildWispDocsSectionContent(httpPath) {
+  const section = httpPath.split("/").pop() || "overview";
+  const blurbs = {
+    help: null,
+    docs: null,
+    "getting-started": "Install Chrysalis, run your first ingest/emit/verify loop, and try the tiny-blog fixture.",
+    deployment: "CI patterns, GCE hub deploy (<code>deploy:hub-demo</code>), WISP chimera (<code>wisp:deploy:gce</code>), and production dual-stack routing.",
+    reference: "CLI reference, environment variables, gates, and operator reports.",
+    "project-status": "Program status, maintenance queue, and honest gaps (census 601/601 oracle-product; depth beyond trace replay remains).",
+  };
+  if (httpPath === "/help") {
+    return `<article class="wisp-demo-docs">
+  <h2>WISP Management Help</h2>
+  <p class="wisp-demo-lead">This GCE demo runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Operational modules use live API integration when the HSS backend is configured.</p>
+  <h3>WISP quick topics</h3>
+  <ul>
+    <li><a href="/docs/getting-started">Getting started (this demo)</a></li>
+    <li><a href="/docs/deployment">Deployment &amp; operator refresh</a></li>
+    <li><a href="/docs/reference/project-status">Project status &amp; next steps</a></li>
+    <li><a href="/dashboard">Dashboard</a> — tenant load shell</li>
+    <li><a href="/login">Login</a> — Firebase / session preview</li>
+  </ul>
+  <h3>This deployment</h3>
+  <ul>
+    <li>Session auth via Firebase or CWL session preview</li>
+    <li>API routes use native CWL handlers; HSS backend at <code>https://hss.wisptools.io</code> when proxied</li>
+    <li>Plan / Deploy / Coverage Map — ArcGIS MapView charter surfaces</li>
+    <li>Verify live demo: <code>pnpm run wisp:verify:demo -- --base-url http://HOST:19100</code></li>
+  </ul>
+  <h3>Chrysalis operator documentation</h3>
+  ${buildWispHubDocIndexHtml()}
+</article>`;
+  }
+  if (httpPath === "/docs" || httpPath === "/docs/") {
+    return `<article class="wisp-demo-docs">
+  <h2>Documentation</h2>
+  <p>Operator docs for Chrysalis Migration OS, the Translation Hub, CLI, and this WISP CWL showcase.</p>
+  <ul>
+    <li><a href="/help">Help home</a></li>
+    <li><a href="/docs/getting-started">Getting started</a></li>
+    <li><a href="/docs/deployment">Deployment</a></li>
+    <li><a href="/docs/reference">Reference</a></li>
+    <li><a href="/docs/reference/project-status">Project status</a></li>
+  </ul>
+  <h3>Translation Hub library</h3>
+  ${buildWispHubDocIndexHtml()}
+</article>`;
+  }
+  const blurb = blurbs[section] ?? `Section <code>${esc(section)}</code> — see the Translation Hub for the full markdown guide.`;
+  const docIdMap = {
+    "getting-started": "installation",
+    deployment: "deployment",
+    reference: section === "project-status" ? "paused-and-maintenance" : "docs-index",
+    "project-status": "paused-and-maintenance",
+  };
+  const hubId = docIdMap[section] ?? "docs-index";
+  return `<article class="wisp-demo-docs">
+  <h2>${esc(titleFromHttpPath(httpPath))}</h2>
+  <p>${blurb}</p>
+  <p><strong>Full guide:</strong> ${hubGuideLink(hubId, "Open in Translation Hub")}</p>
+  <p><a href="/docs">← Documentation home</a> · <a href="/help">Help</a></p>
+</article>`;
+}
+
 /** @param {string} httpPath @param {string} layout */
 function buildDemoBodyContent(httpPath, layout) {
   const title = titleFromHttpPath(httpPath);
   if (layout === "docs") {
+    if (httpPath === "/help" || httpPath.startsWith("/docs")) {
+      return buildWispDocsSectionContent(httpPath);
+    }
     const section = httpPath.split("/").pop() || "overview";
     return `<article class="wisp-demo-docs">
   <h2>${esc(title)}</h2>
@@ -130,7 +228,7 @@ function buildDemoBodyContent(httpPath, layout) {
     <li>API routes proxied to HSS backend when configured</li>
     <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>
   </ul>
-  <p class="wisp-demo-docs-section">Section: <code>${esc(section)}</code></p>
+  <p class="wisp-demo-docs-section">Section: <code>${esc(section)}</code> — <a href="/help">full help index</a></p>
 </article>`;
   }
   if (layout === "form") {
@@ -189,6 +287,12 @@ export function buildWispModuleDemoHtml(httpPath) {
 /** @param {string} block @param {string} [httpPath] */
 export function routeBlockNeedsModuleDemo(block, httpPath = "") {
   if (!block) return true;
+  if (
+    (httpPath === "/help" || httpPath.startsWith("/docs")) &&
+    !/\bTranslation Hub library\b/.test(block)
+  ) {
+    return true;
+  }
   if (/\bwisp-demo-content\b/.test(block) && !/<main class="wisp-surface-body">\s*<\/main>/.test(block)) {
     if (httpPath === "/modules/monitor" && /Redirecting to Monitoring/.test(block)) return true;
     return false;

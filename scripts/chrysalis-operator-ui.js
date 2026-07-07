@@ -24,7 +24,8 @@
     }
     else if (page === "guide" || page === "install") {
       show("guide");
-      loadGuideDoc("/docs/hub-install");
+      const docId = new URLSearchParams(query || "").get("doc") || "hub-install";
+      initGuideNav(docId).catch(() => {});
     } else if (page === "paths" || page === "path-explorer") {
       show("paths");
       initPathExplorer().catch(() => {});
@@ -684,9 +685,58 @@
   }
 
   const guideCache = new Map();
-  async function loadGuideDoc(path) {
+  let guideNavLoaded = false;
+
+  async function initGuideNav(preferredId = "hub-install") {
+    const nav = $("guideNav");
+    if (!nav) {
+      await loadGuideDoc("/docs/hub-install");
+      return;
+    }
+    if (!guideNavLoaded) {
+      nav.innerHTML = "<p class=\"muted\">Loading index…</p>";
+      try {
+        const data = await fetch("/api/hub/docs").then((r) => r.json());
+        const docs = data.docs ?? [];
+        /** @type {Record<string, typeof docs>} */
+        const groups = {};
+        for (const d of docs) {
+          if (!groups[d.category]) groups[d.category] = [];
+          groups[d.category].push(d);
+        }
+        nav.innerHTML = "";
+        for (const category of Object.keys(groups).sort()) {
+          const h = document.createElement("h3");
+          h.textContent = category;
+          nav.appendChild(h);
+          for (const d of groups[category]) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "secondary guide-doc-btn";
+            btn.dataset.docId = d.id;
+            btn.textContent = d.title;
+            btn.addEventListener("click", () => {
+              location.hash = `#/guide?doc=${encodeURIComponent(d.id)}`;
+              loadGuideDoc(`/docs/${d.id}`, d.id);
+            });
+            nav.appendChild(btn);
+          }
+        }
+        guideNavLoaded = true;
+      } catch (e) {
+        nav.innerHTML = `<p class="muted">Could not load doc index: ${esc(e.message)}</p>`;
+      }
+    }
+    const id = preferredId || "hub-install";
+    await loadGuideDoc(`/docs/${id}`, id);
+  }
+
+  async function loadGuideDoc(path, docId) {
     const el = $("guideBody");
     if (!el) return;
+    for (const btn of document.querySelectorAll(".guide-doc-btn")) {
+      btn.classList.toggle("active", btn.dataset.docId === docId);
+    }
     if (guideCache.has(path)) {
       el.innerHTML = guideCache.get(path);
       return;
@@ -694,6 +744,7 @@
     el.innerHTML = "<p class=\"muted\">Loading…</p>";
     try {
       const r = await fetch(path);
+      if (!r.ok) throw new Error(r.statusText || String(r.status));
       const md = await r.text();
       const html = renderInstallMarkdown(md);
       guideCache.set(path, html);
@@ -703,8 +754,14 @@
     }
   }
 
-  $("btnGuideInstall")?.addEventListener("click", () => loadGuideDoc("/docs/hub-install"));
-  $("btnGuideConnectivity")?.addEventListener("click", () => loadGuideDoc("/docs/hub-connectivity"));
+  $("btnGuideInstall")?.addEventListener("click", () => {
+    location.hash = "#/guide?doc=hub-install";
+    initGuideNav("hub-install").catch(() => {});
+  });
+  $("btnGuideConnectivity")?.addEventListener("click", () => {
+    location.hash = "#/guide?doc=hub-connectivity";
+    initGuideNav("hub-connectivity").catch(() => {});
+  });
 
   function renderInstallMarkdown(md) {
     const lines = md.split(/\r?\n/);

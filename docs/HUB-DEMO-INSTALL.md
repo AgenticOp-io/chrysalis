@@ -23,7 +23,8 @@ Gold-path translation (**PHP → TypeScript / Hono / Fastify**) uses Chrysalis i
 ## Quick tour (no SSH)
 
 1. Open the demo URL.
-2. Read this guide from **Demo guide** in the nav (or `/docs/hub-install`).
+2. Open **Documentation** in the nav (`#/guide`) — full operator library (Migration OS, CLI, hub, governance, WISP programs).
+3. Or read the install walkthrough at `/docs/hub-install` (same content, plain text).
 3. Click **New project**.
 4. Set **Origin** and **Output** (output list is **web application targets only** — no SQL, JSON, or native-only languages).
 5. Leave SSH fields empty; use a name only and create the project (you can point **Local project path** at a folder already on the hub under `~/.chrysalis-hub/workspaces/`).
