@@ -13,6 +13,7 @@
     for (const [k, el] of Object.entries(views)) {
       if (el) el.hidden = k !== view;
     }
+    document.documentElement.classList.toggle("guide-mode", view === "guide");
   }
 
   function route() {
@@ -685,46 +686,102 @@
   }
 
   const guideCache = new Map();
+  /** @type {Map<string, { id: string, title: string, category: string }>} */
+  const guideDocMeta = new Map();
   let guideNavLoaded = false;
+
+  function filterGuideNav(query) {
+    const q = query.trim().toLowerCase();
+    for (const details of document.querySelectorAll(".guide-nav details")) {
+      let visible = 0;
+      for (const link of details.querySelectorAll("a.guide-doc-link")) {
+        const text = link.textContent?.toLowerCase() ?? "";
+        const match = !q || text.includes(q);
+        link.classList.toggle("hidden-by-search", !match);
+        if (match) visible += 1;
+      }
+      details.classList.toggle("hidden-by-search", q.length > 0 && visible === 0);
+      if (q.length > 0 && visible > 0) details.open = true;
+    }
+  }
+
+  function setGuideDocHeader(docId) {
+    const head = $("guideDocHeader");
+    const titleEl = $("guideDocTitle");
+    const catEl = $("guideDocCategory");
+    const meta = guideDocMeta.get(docId);
+    if (!head || !titleEl || !catEl || !meta) {
+      head?.setAttribute("hidden", "");
+      return;
+    }
+    titleEl.textContent = meta.title;
+    catEl.textContent = meta.category;
+    head.removeAttribute("hidden");
+  }
 
   async function initGuideNav(preferredId = "hub-install") {
     const nav = $("guideNav");
     if (!nav) {
-      await loadGuideDoc("/docs/hub-install");
+      await loadGuideDoc("/docs/hub-install", "hub-install");
       return;
     }
     if (!guideNavLoaded) {
-      nav.innerHTML = "<p class=\"muted\">Loading index…</p>";
+      nav.innerHTML = "<p class=\"muted\" style=\"margin:0.5rem 0.35rem\">Loading index…</p>";
       try {
         const data = await fetch("/api/hub/docs").then((r) => r.json());
         const docs = data.docs ?? [];
+        guideDocMeta.clear();
+        for (const d of docs) guideDocMeta.set(d.id, d);
         /** @type {Record<string, typeof docs>} */
         const groups = {};
         for (const d of docs) {
           if (!groups[d.category]) groups[d.category] = [];
           groups[d.category].push(d);
         }
+        const order = [
+          "Migration OS", "Hub", "Engine & CLI", "Governance", "WISP showcase",
+          "Hub & commercial", "Architecture", "Archive", "Community",
+        ];
         nav.innerHTML = "";
-        for (const category of Object.keys(groups).sort()) {
-          const h = document.createElement("h3");
-          h.textContent = category;
-          nav.appendChild(h);
+        const categories = Object.keys(groups).sort((a, b) => {
+          const ia = order.indexOf(a);
+          const ib = order.indexOf(b);
+          return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib) || a.localeCompare(b);
+        });
+        for (const category of categories) {
+          const details = document.createElement("details");
+          details.className = "guide-category";
+          details.open = category === "Migration OS" || category === "Hub";
+          const summary = document.createElement("summary");
+          summary.innerHTML = `${esc(category)} <span class="count">${groups[category].length}</span>`;
+          details.appendChild(summary);
+          const ul = document.createElement("ul");
           for (const d of groups[category]) {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "secondary guide-doc-btn";
-            btn.dataset.docId = d.id;
-            btn.textContent = d.title;
-            btn.addEventListener("click", () => {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.href = `#/guide?doc=${encodeURIComponent(d.id)}`;
+            a.className = "guide-doc-link";
+            a.dataset.docId = d.id;
+            a.textContent = d.title;
+            a.addEventListener("click", (ev) => {
+              ev.preventDefault();
               location.hash = `#/guide?doc=${encodeURIComponent(d.id)}`;
               loadGuideDoc(`/docs/${d.id}`, d.id);
             });
-            nav.appendChild(btn);
+            li.appendChild(a);
+            ul.appendChild(li);
           }
+          details.appendChild(ul);
+          nav.appendChild(details);
         }
         guideNavLoaded = true;
+        const search = $("guideSearch");
+        if (search && !search.dataset.bound) {
+          search.dataset.bound = "1";
+          search.addEventListener("input", () => filterGuideNav(search.value));
+        }
       } catch (e) {
-        nav.innerHTML = `<p class="muted">Could not load doc index: ${esc(e.message)}</p>`;
+        nav.innerHTML = `<p class="muted" style="margin:0.5rem 0.35rem">Could not load doc index: ${esc(e.message)}</p>`;
       }
     }
     const id = preferredId || "hub-install";
@@ -734,9 +791,10 @@
   async function loadGuideDoc(path, docId) {
     const el = $("guideBody");
     if (!el) return;
-    for (const btn of document.querySelectorAll(".guide-doc-btn")) {
-      btn.classList.toggle("active", btn.dataset.docId === docId);
+    for (const link of document.querySelectorAll(".guide-doc-link")) {
+      link.classList.toggle("active", link.dataset.docId === docId);
     }
+    setGuideDocHeader(docId);
     if (guideCache.has(path)) {
       el.innerHTML = guideCache.get(path);
       return;
@@ -762,6 +820,13 @@
     location.hash = "#/guide?doc=hub-connectivity";
     initGuideNav("hub-connectivity").catch(() => {});
   });
+
+  function wrapMarkdownLists(html) {
+    return html.replace(/(?:^(?:<li>.*<\/li>\s*)+)/gm, (block) => {
+      const items = block.trim().split(/\n/).filter(Boolean);
+      return `<ul>\n${items.join("\n")}\n</ul>`;
+    });
+  }
 
   function renderInstallMarkdown(md) {
     const lines = md.split(/\r?\n/);
@@ -812,9 +877,11 @@
         continue;
       }
       if (inTable) flushTable();
-      if (line.startsWith("# ")) out.push("<h2>" + inlineMd(line.slice(2)) + "</h2>");
+      if (line.trim() === "---") out.push("<hr />");
+      else if (line.startsWith("# ")) out.push("<h1>" + inlineMd(line.slice(2)) + "</h1>");
       else if (line.startsWith("## ")) out.push("<h2>" + inlineMd(line.slice(3)) + "</h2>");
       else if (line.startsWith("### ")) out.push("<h3>" + inlineMd(line.slice(4)) + "</h3>");
+      else if (line.startsWith("#### ")) out.push("<h3>" + inlineMd(line.slice(5)) + "</h3>");
       else if (/^\d+\.\s/.test(line)) out.push("<li>" + inlineMd(line.replace(/^\d+\.\s/, "")) + "</li>");
       else if (line.startsWith("- ")) out.push("<li>" + inlineMd(line.slice(2)) + "</li>");
       else if (line.trim() === "") out.push("");
@@ -822,7 +889,7 @@
     }
     if (inTable) flushTable();
     if (inCode && codeBuf.length) out.push("<pre><code>" + esc(codeBuf.join("\n")) + "</code></pre>");
-    return out.join("\n");
+    return wrapMarkdownLists(out.join("\n"));
   }
 
   let inputLanguages = [];

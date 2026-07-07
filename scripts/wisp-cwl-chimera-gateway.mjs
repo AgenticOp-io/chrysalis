@@ -88,6 +88,11 @@ export function wrapWispCwlHtmlDocument(body, title = "WISP Management", pathnam
     return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Coverage Map</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-map.js" defer></script></body></html>`;
   }
 
+  const isDocsShell = trimmed.includes("wisp-docs-shell");
+  if (isDocsShell) {
+    return `<!DOCTYPE html><html lang="en" class="wisp-docs-mode"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} – WISP Docs</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body class="wisp-docs-mode">${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+  }
+
   const moduleNav = `<div class="wisp-module-page"><nav class="wisp-module-nav"><a href="/dashboard">← Dashboard</a> · <a href="/help">Help</a></nav>`;
   const isModuleDemo =
     trimmed.includes("wisp-module-demo") || trimmed.includes("wisp-demo-content");

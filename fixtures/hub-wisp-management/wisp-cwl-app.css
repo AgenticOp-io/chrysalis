@@ -382,6 +382,275 @@ main.wisp-module-shell,
 .wisp-demo-docs { color: #cde; line-height: 1.6; }
 .wisp-demo-docs code { background: rgba(0,0,0,0.3); padding: 0.15rem 0.35rem; border-radius: 4px; }
 
+/* Documentation / help surfaces */
+html.wisp-docs-mode,
+html.wisp-docs-mode body {
+  height: auto;
+  min-height: 100%;
+  overflow: auto;
+}
+
+.wisp-docs-shell {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0b1219 0%, #121c28 40%, #0f1419 100%);
+  color: #e2e8f0;
+}
+
+.wisp-docs-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(0, 217, 255, 0.15);
+  background: rgba(10, 16, 24, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.wisp-docs-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: #8bb;
+}
+
+.wisp-docs-crumb a {
+  color: #00d9ff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.wisp-docs-crumb a:hover { text-decoration: underline; }
+.wisp-docs-crumb span:last-child { color: #cbd5e1; }
+
+.wisp-docs-main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 2.5rem;
+}
+
+.wisp-docs-body { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.wisp-docs-hero {
+  padding: 1.35rem 1.4rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 217, 255, 0.22);
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.08), rgba(79, 172, 254, 0.05));
+}
+
+.wisp-docs-hero-compact { padding: 1rem 1.15rem; }
+
+.wisp-docs-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7aa;
+}
+
+.wisp-docs-eyebrow a { color: #00d9ff; text-decoration: none; }
+
+.wisp-docs-hero h2 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.45rem, 2.5vw, 1.9rem);
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.wisp-docs-lead {
+  margin: 0;
+  max-width: 42rem;
+  color: #b8d4e0;
+  line-height: 1.55;
+}
+
+.wisp-docs-section-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8bb;
+}
+
+.wisp-docs-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+
+.wisp-docs-quick-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.05rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(0, 217, 255, 0.2);
+  background: rgba(0, 0, 0, 0.22);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.wisp-docs-quick-card:hover {
+  border-color: rgba(0, 217, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.wisp-docs-quick-label {
+  font-weight: 600;
+  color: #00f2fe;
+  font-size: 0.95rem;
+}
+
+.wisp-docs-quick-desc {
+  font-size: 0.84rem;
+  color: #9cb;
+  line-height: 1.45;
+}
+
+.wisp-docs-section-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.9fr);
+  gap: 1rem;
+}
+
+.wisp-docs-panel {
+  padding: 1rem 1.1rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.wisp-docs-panel-accent {
+  border-color: rgba(0, 217, 255, 0.18);
+  background: rgba(0, 217, 255, 0.05);
+}
+
+.wisp-docs-checklist,
+.wisp-docs-linklist {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #cde;
+  line-height: 1.55;
+}
+
+.wisp-docs-linklist { list-style: none; padding: 0; }
+.wisp-docs-linklist a { color: #00d9ff; text-decoration: none; font-weight: 500; }
+.wisp-docs-linklist li + li { margin-top: 0.45rem; }
+
+.wisp-docs-inline-links {
+  margin: 0.85rem 0 0;
+  font-size: 0.88rem;
+}
+
+.wisp-docs-inline-links a { color: #00d9ff; text-decoration: none; }
+.wisp-docs-inline-links a:hover { text-decoration: underline; }
+
+.wisp-docs-library-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.wisp-docs-library-lead {
+  margin: 0;
+  color: #9cb;
+  font-size: 0.9rem;
+}
+
+.wisp-docs-hub-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #0f1419;
+  font-weight: 700;
+  font-size: 0.86rem;
+  text-decoration: none;
+}
+
+.wisp-docs-hub-cta:hover { filter: brightness(1.05); }
+
+.wisp-docs-category {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.85rem;
+  background: rgba(0, 0, 0, 0.16);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.wisp-docs-category summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0.95rem;
+  font-weight: 600;
+  color: #d7e8ef;
+}
+
+.wisp-docs-category summary::-webkit-details-marker { display: none; }
+
+.wisp-docs-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 217, 255, 0.12);
+  color: #00d9ff;
+}
+
+.wisp-docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.65rem;
+  padding: 0 0.85rem 0.85rem;
+}
+
+.wisp-docs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(0, 217, 255, 0.14);
+  background: rgba(15, 20, 25, 0.65);
+  text-decoration: none;
+  color: inherit;
+  min-height: 4.5rem;
+}
+
+.wisp-docs-card:hover {
+  border-color: rgba(0, 217, 255, 0.35);
+  background: rgba(0, 217, 255, 0.06);
+}
+
+.wisp-docs-card-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e2f3ff;
+  line-height: 1.35;
+}
+
+.wisp-docs-card-meta {
+  font-size: 0.72rem;
+  color: #7aa;
+}
+
+@media (max-width: 800px) {
+  .wisp-docs-section-split { grid-template-columns: 1fr; }
+  .wisp-docs-main { padding-inline: 1rem; }
+}
+
 .wisp-demo-api-status {
   margin-top: 1rem;
   font-size: 0.8rem;

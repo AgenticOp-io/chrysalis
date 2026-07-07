@@ -67,6 +67,31 @@ export function resolveHubOperatorDoc(id) {
   return { entry, abs };
 }
 
+/** @type {readonly string[]} */
+export const HUB_OPERATOR_DOC_CATEGORY_ORDER = [
+  "Migration OS",
+  "Hub",
+  "Engine & CLI",
+  "Governance",
+  "WISP showcase",
+  "Hub & commercial",
+  "Architecture",
+  "Archive",
+  "Community",
+];
+
+/** @param {Record<string, HubOperatorDocEntry[]>} groups */
+export function sortedHubOperatorDocCategories(groups) {
+  const keys = Object.keys(groups);
+  return keys.sort((a, b) => {
+    const ia = HUB_OPERATOR_DOC_CATEGORY_ORDER.indexOf(a);
+    const ib = HUB_OPERATOR_DOC_CATEGORY_ORDER.indexOf(b);
+    const ra = ia < 0 ? 999 : ia;
+    const rb = ib < 0 ? 999 : ib;
+    return ra - rb || a.localeCompare(b);
+  });
+}
+
 /** @returns {Record<string, HubOperatorDocEntry[]>} */
 export function groupHubOperatorDocsByCategory() {
   /** @type {Record<string, HubOperatorDocEntry[]>} */
