@@ -161,6 +161,9 @@ jobs:
       - name: Extended matrix wave 13 maintenance (G9167)
         run: pnpm run hub:extended-matrix-oracle-wave13-smoke
 
+      - name: Extended matrix wave 14 maintenance (G9168)
+        run: pnpm run hub:extended-matrix-oracle-wave14-smoke
+
       - name: CWL runtime scaffold depth (G9238)
         run: pnpm run hub:cwl-runtime-scaffold-depth-smoke
 

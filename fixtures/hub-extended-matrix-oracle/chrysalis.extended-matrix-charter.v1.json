@@ -164,6 +164,36 @@
     "outputIds": ["scala"],
     "minOraclePairs": 21
   },
+  "wave14": {
+    "id": "wave14-asset-outbound-manifest",
+    "label": "All non-asset hub origins × asset file-lift outputs with route-manifest trace replay",
+    "originIds": [
+      "javascript",
+      "typescript",
+      "python",
+      "java",
+      "go",
+      "csharp",
+      "ruby",
+      "svelte",
+      "vue",
+      "rust",
+      "kotlin",
+      "scala",
+      "swift",
+      "sql",
+      "html",
+      "css",
+      "json",
+      "yaml",
+      "markdown",
+      "scss",
+      "c",
+      "cpp"
+    ],
+    "outputIds": ["c", "cpp", "sql", "html", "css", "scss", "json", "yaml", "markdown", "vue"],
+    "minOraclePairs": 210
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

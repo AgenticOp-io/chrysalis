@@ -11,6 +11,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { HUB_GOLD_SUITES, resolveGoldSuites } from "./hub-gold-manifest.mjs";
 import { isHubNativeGoldEmitTarget, runNativeGoldEmit } from "./hub-gold-native-emit.mjs";
+import { isHubAssetGoldEmitTarget, runAssetGoldEmit } from "./hub-gold-asset-emit.mjs";
 import { runHubWptpContractGoldSuite } from "./hub-wptp-contract-gold.mjs";
 import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
 
@@ -54,6 +55,9 @@ function runEmit(fixture, origin, emitTarget) {
   }
   if (isHubNativeGoldEmitTarget(emitTarget)) {
     return runNativeGoldEmit(fixture, origin, emitTarget);
+  }
+  if (isHubAssetGoldEmitTarget(emitTarget)) {
+    return runAssetGoldEmit(fixture, origin, emitTarget);
   }
   return spawnSync(process.execPath, [emitTsScript, fixture, "--origin", origin, "--target", emitTarget], {
     cwd: scriptRoot,

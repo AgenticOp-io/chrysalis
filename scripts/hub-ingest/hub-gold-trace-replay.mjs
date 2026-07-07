@@ -12,8 +12,10 @@ import { exportPhpHubWebir } from "./hub-php-hub-webir.mjs";
 import { exportCwlFileToWebirJson } from "./export-cwl-webir.mjs";
 import { hubWebirPath } from "./shared.mjs";
 import { isHubNativeGoldEmitTarget } from "./hub-gold-native-emit.mjs";
+import { isHubAssetGoldEmitTarget } from "./hub-gold-asset-emit.mjs";
 import { runNativeTraceReplaySuite } from "./hub-gold-native-trace-replay.mjs";
 import { runCwlTraceReplaySuite } from "./hub-gold-cwl-trace-replay.mjs";
+import { runAssetTraceReplaySuite } from "./hub-gold-asset-trace-replay.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -86,6 +88,10 @@ export async function runTraceReplaySuite(suite) {
 
   if (target === "cwl") {
     return runCwlTraceReplaySuite(suite);
+  }
+
+  if (isHubAssetGoldEmitTarget(target)) {
+    return runAssetTraceReplaySuite(suite);
   }
 
   if (isHubNativeGoldEmitTarget(target)) {

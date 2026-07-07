@@ -7,10 +7,6 @@
     {
       "method": "GET",
       "path": "/blog/1"
-    },
-    {
-      "method": "GET",
-      "path": "/blog/1"
     }
   ]
 }

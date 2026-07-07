@@ -3,6 +3,7 @@
  */
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { hubAssetOutboundSuites } from "./hub-gold-asset-outbound-suites.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -3023,6 +3024,7 @@ export const HUB_GOLD_SUITES = [
     traceReplay: true,
     wptpCompose: true,
   },
+  ...hubAssetOutboundSuites(scriptRoot),
 ];
 
 /**
@@ -3069,6 +3071,19 @@ export function hubGoldEmitTargetForOutput(outputLang) {
     "swift",
   ]);
   if (native.has(outputLang)) return outputLang;
+  const asset = new Set([
+    "c",
+    "cpp",
+    "sql",
+    "html",
+    "css",
+    "scss",
+    "json",
+    "yaml",
+    "markdown",
+    "vue",
+  ]);
+  if (asset.has(outputLang)) return outputLang;
   return null;
 }
 
