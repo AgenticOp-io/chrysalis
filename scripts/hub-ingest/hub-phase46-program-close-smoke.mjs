@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 import { runPhase46BuildSliceGate } from "./hub-phase46-build-slice-smoke.mjs";
 import { runExtendedMatrixOracleWave7CloseGate } from "./hub-extended-matrix-oracle-wave7-close-smoke.mjs";
-import { runExtendedMatrixOracleProgressGate } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
+import { runExtendedMatrixOracleProgressGate, isExtendedMatrixCensusProgramHonest } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
 import { runPhase46CwlRuntimeDepthCloseGate } from "./hub-phase46-cwl-runtime-depth-close-smoke.mjs";
 import {
   runPhase46ProgramDocGate,
@@ -26,12 +26,10 @@ export async function runPhase46ProgramCloseGate(opts = {}) {
   const wave7Close = runExtendedMatrixOracleWave7CloseGate();
   const runtimeDepthClose = await runPhase46CwlRuntimeDepthCloseGate({ repoRoot });
   const census = runExtendedMatrixOracleProgressGate();
-  const programHonest =
-    (census.totalPairs ?? 0) >= 601 &&
-    (census.belowTarget ?? 0) > 0 &&
-    (census.extendedOracle ?? 0) > 0 &&
-    (census.oracleProductCount ?? 0) >= 180 &&
-    (census.oracleProductCount ?? 0) < (census.totalPairs ?? 601);
+  const programHonest = isExtendedMatrixCensusProgramHonest(census, {
+    minOracleAtClose: 180,
+    programClosed: isPhase46ProgramClosed(),
+  });
   const closeReady =
     buildSlice.ok === true &&
     wave7Close.ok === true &&

@@ -81,6 +81,24 @@ export function runExtendedMatrixOracleProgressGate() {
   };
 }
 
+/**
+ * Census honesty for closed phase program smokes — allows post-close maintenance to reach 601/601.
+ * @param {ReturnType<typeof runExtendedMatrixOracleProgressGate>} census
+ * @param {{ minOracleAtClose: number, programClosed: boolean }} opts
+ */
+export function isExtendedMatrixCensusProgramHonest(census, opts) {
+  const total = census.totalPairs ?? 601;
+  const oracle = census.oracleProductCount ?? 0;
+  const below = census.belowTarget ?? total - oracle;
+  if (total < 601) return false;
+  if ((census.extendedOracle ?? 0) <= 0) return false;
+  if (oracle < opts.minOracleAtClose) return false;
+  if (opts.programClosed) {
+    return oracle <= total;
+  }
+  return below > 0 && oracle < total;
+}
+
 export async function runExtendedMatrixOracleProgressSmoke() {
   const progress = createSmokeProgress("extended-matrix-oracle-progress");
   const t0 = progress.start("Extended matrix oracle progress (G9001)");

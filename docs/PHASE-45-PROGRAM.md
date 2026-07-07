@@ -11,7 +11,7 @@ Chrysalis default build prioritizes **CWL product evidence** above maintenance-o
 
 | Track | Scope | Gate |
 | --- | --- | --- |
-| **45a** | Extended matrix oracle wave maintenance (**432/601** gap; honest census) | **G9160** |
+| **45a** | Extended matrix oracle wave maintenance (**432/601** gap at program open; **601/601** after post-close waves **8–16**) | **G9160** |
 | **45b** | WISP Module_Manager showcase in **default CI** (**D6336** supersedes **D6259** default-build bar) | **G9170** |
 | **45c** | Product supremacy build slice (entry + census + showcase + closed-program regression index) | **G9180** |
 | **45d** | CWL language + IR helper tiers — **first-class**, not optional subordinate | **G6731** / **G7200** |

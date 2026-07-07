@@ -466,6 +466,8 @@ When the user says "build" without specifying:
 
 ## 12 (archived) — Default queue (Phase 46 active, superseded 2026-07-06)
 
+> **Historical snapshot** — census counts below are close-time only. Active baseline: **601/601** (**G9160**, **D6357**). See active §12 above.
+
 **Post Phase 45 close; Phase 46 activated 2026-07-06.**
 
 **Status:** **Phase 46 active** (**G9250**, **D6341** — 2026-07-06); **Phase 45 closed** (**G9190**); **Migration OS closed** (**G8550**); **G7200** IR helper closed.
@@ -490,6 +492,8 @@ When the user says "build" without specifying:
 ---
 
 ## 12 (archived) — Default queue (maintenance, superseded 2026-07-06 by Phase 46)
+
+> **Historical snapshot** — census counts below are close-time only. Active baseline: **601/601** (**G9160**, **D6357**). See active §12 above.
 
 **Post Phase 45 close (2026-07-06).**
 

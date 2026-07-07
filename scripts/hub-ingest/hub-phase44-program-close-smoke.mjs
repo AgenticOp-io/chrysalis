@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 import { runPhase44BuildSliceGate } from "./hub-phase44-build-slice-smoke.mjs";
-import { runExtendedMatrixOracleProgressGate } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
+import { runExtendedMatrixOracleProgressGate, isExtendedMatrixCensusProgramHonest } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
 import {
   runPhase44ProgramDocGate,
   isPhase44ProgramActive,
@@ -22,11 +22,10 @@ export async function runPhase44ProgramCloseGate(opts = {}) {
   const program = runPhase44ProgramDocGate();
   const buildSlice = await runPhase44BuildSliceGate({ repoRoot });
   const census = runExtendedMatrixOracleProgressGate();
-  const programHonest =
-    (census.totalPairs ?? 0) >= 601 &&
-    (census.belowTarget ?? 0) > 0 &&
-    (census.extendedOracle ?? 0) > 0 &&
-    (census.oracleProductCount ?? 0) < (census.totalPairs ?? 601);
+  const programHonest = isExtendedMatrixCensusProgramHonest(census, {
+    minOracleAtClose: 169,
+    programClosed: isPhase44ProgramClosed(),
+  });
   const programClosed = isPhase44ProgramClosed();
   const closeReady = buildSlice.ok === true && programHonest === true;
   const ok = program.ok === true && closeReady;

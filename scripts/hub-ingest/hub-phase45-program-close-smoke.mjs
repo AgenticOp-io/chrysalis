@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createSmokeProgress } from "./hub-smoke-progress.mjs";
 import { runPhase45BuildSliceGate } from "./hub-phase45-build-slice-smoke.mjs";
 import { runExtendedMatrixOracleWave5CloseGate } from "./hub-extended-matrix-oracle-wave5-close-smoke.mjs";
-import { runExtendedMatrixOracleProgressGate } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
+import { runExtendedMatrixOracleProgressGate, isExtendedMatrixCensusProgramHonest } from "./hub-extended-matrix-oracle-progress-smoke.mjs";
 import {
   runPhase45ProgramDocGate,
   isPhase45ProgramActive,
@@ -24,12 +24,10 @@ export async function runPhase45ProgramCloseGate(opts = {}) {
   const buildSlice = await runPhase45BuildSliceGate({ repoRoot });
   const wave5Close = runExtendedMatrixOracleWave5CloseGate();
   const census = runExtendedMatrixOracleProgressGate();
-  const programHonest =
-    (census.totalPairs ?? 0) >= 601 &&
-    (census.belowTarget ?? 0) > 0 &&
-    (census.extendedOracle ?? 0) > 0 &&
-    (census.oracleProductCount ?? 0) >= 178 &&
-    (census.oracleProductCount ?? 0) < (census.totalPairs ?? 601);
+  const programHonest = isExtendedMatrixCensusProgramHonest(census, {
+    minOracleAtClose: 178,
+    programClosed: isPhase45ProgramClosed(),
+  });
   const closeReady = buildSlice.ok === true && wave5Close.ok === true && programHonest === true;
   const ok = program.ok === true && closeReady;
   return {
