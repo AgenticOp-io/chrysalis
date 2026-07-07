@@ -750,6 +750,7 @@
     "clean": "pnpm -r clean",
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",
     "deploy:agenticop-site": "pnpm run sync:agenticop-site && firebase deploy --only hosting",
+    "publish:zenodo": "node scripts/publish-zenodo.mjs",
     "advisor:package": "node scripts/make-advisor-package.mjs",
     "test:cli-shims": "node scripts/test-cli-shims.mjs",
     "hub:cwl-authoring-batch-v22-smoke": "node scripts/hub-ingest/hub-cwl-authoring-batch-v22-smoke.mjs",

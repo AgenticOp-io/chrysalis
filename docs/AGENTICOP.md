@@ -1,6 +1,6 @@
 # AgenticOp and Chrysalis
 
-**AgenticOp** is the public **practice** for verification-led modernization and operations: delivery stays **grounded in production behavior** (oracle traces and replay), not speculative rewrites.
+**AgenticOp** is the public **practice** for verification-led modernization and operations: delivery centers **CWL** as the migration contract and **Intelligence Shorthand** so agents skip heavyweight LLM calls when verify already externalized the answer — always **grounded in production behavior** (oracle traces and replay), not speculative rewrites.
 
 - **Site / primary domain:** https://agenticop.io  
 - **Display name:** **AgenticOp** (not “AgenticOps”; avoid **`agenticops.*`** hostnames in new materials).
@@ -27,6 +27,17 @@ Commercial lever ordering (services, support, licensed builds): **[`COMMERCIAL.m
 The landing page source lives in **[`agenticop-site/`](../agenticop-site/)** — **`index.html`** uses the same **inline** stylesheet as the original wisptools-era static page; **`site.css`** is **generated** for **`whitepaper.html`** only (from that inline block + **`whitepaper-append.css`** via **`scripts/rebuild-agenticop-site-css.mjs`**). **`assets/*.svg`** are kept in lockstep with **`branding/agenticop/`** by the same script. Also committed: **`whitepaper.html`**, **`whitepaper.md`** (byte copy of **`docs/WHITEPAPER.md`**). **`firebase.json`** deploys **`agenticop-site/`** to Hosting target **`agenticop`** → site **`agenticops-production`** in Firebase project **`wisptools-production`**. Technical overview: **https://agenticop.io/whitepaper.html**.
 
 After editing **`docs/WHITEPAPER.md`** or **`index.html`** styles, run **`pnpm run sync:agenticop-site`** (or **`pnpm run deploy:agenticop-site`**) so **`whitepaper.md`** and **`site.css`** / **`assets/`** stay aligned; **`pnpm test`** guards **`whitepaper.md`** vs **`docs/WHITEPAPER.md`** and **`assets/`** vs **`branding/agenticop/`**.
+
+### Zenodo (documentation only — no source code)
+
+Publish markdown materials (CWL + Intelligence Shorthand) **without** a repo tarball:
+
+1. Token: [zenodo.org/account/settings/applications/tokens/new/](https://zenodo.org/account/settings/applications/tokens/new/) — scopes **`deposit:write`**, **`deposit:actions`**.
+2. Preview bundle + metadata: **`pnpm run publish:zenodo`**
+3. Publish: **`$env:ZENODO_TOKEN='<token>'; pnpm run publish:zenodo -- --publish`**
+4. Sandbox test: add **`--sandbox`**
+
+Script: **`scripts/publish-zenodo.mjs`**. Do **not** enable GitHub–Zenodo release archiving if you want to avoid automatic code uploads.
 
 - **Default web.app URL:** https://agenticops-production.web.app  
 - **Custom domain** **agenticop.io**: add in Firebase console → Hosting → **agenticops-production** → Add custom domain (DNS at your registrar).

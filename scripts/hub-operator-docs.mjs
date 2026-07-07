@@ -1,8 +1,8 @@
 /**
- * Translation Hub operator documentation catalog — served at /docs/:id and #/guide.
+ * Translation Hub operator documentation catalog — served at /docs/:id, /docs/:file.md, /:file.md, and #/guide.
  */
 import { existsSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -19,10 +19,16 @@ export const HUB_OPERATOR_DOC_CATALOG = [
   { id: "site-port-federation", title: "Verified Migration Federation", category: "Migration OS", file: "docs/SITE-PORT-FEDERATION-PROGRAM.md" },
   { id: "migration-evidence", title: "Migration Evidence POC", category: "Migration OS", file: "docs/MIGRATION-EVIDENCE-POC-PROGRAM.md" },
   { id: "intelligence-shorthand", title: "Intelligence Shorthand", category: "Migration OS", file: "docs/INTELLIGENCE-SHORTHAND.md" },
+  { id: "intelligence-shorthand-protocol", title: "IS runtime protocol", category: "Migration OS", file: "docs/INTELLIGENCE-SHORTHAND-PROTOCOL.md" },
   { id: "open-web-llm", title: "Open web-LLM program", category: "Migration OS", file: "docs/OPEN-WEB-LLM-PROGRAM.md" },
   { id: "open-web-llm-poc", title: "Web-LLM agent POC", category: "Migration OS", file: "docs/OPEN-WEB-LLM-POC.md" },
+  { id: "llm-assisted-convert", title: "LLM-assisted convert", category: "Migration OS", file: "docs/LLM-ASSISTED-CONVERT-PROGRAM.md" },
+  { id: "llm-convert-full", title: "LLM convert full program", category: "Migration OS", file: "docs/LLM-CONVERT-FULL-PROGRAM.md" },
+  { id: "full-matrix-oracle", title: "Full matrix oracle", category: "Migration OS", file: "docs/FULL-MATRIX-ORACLE-PROGRAM.md" },
   { id: "web-llm-training", title: "Web-LLM training recipe", category: "Migration OS", file: "docs/WEB-LLM-TRAINING-RECIPE.md" },
   { id: "web-verify-benchmark", title: "Web Verify Benchmark (WVB)", category: "Migration OS", file: "docs/WEB-VERIFY-BENCHMARK.md" },
+  { id: "cwl", title: "CWL overview", category: "Migration OS", file: "docs/CWL.md" },
+  { id: "cwl-rfc", title: "CWL RFC index", category: "Migration OS", file: "docs/CWL-RFC.md" },
   { id: "strategic-plan", title: "Strategic plan (locked)", category: "Governance", file: "docs/STRATEGIC-PLAN.md" },
   { id: "paused-and-maintenance", title: "Paused & maintenance index", category: "Governance", file: "docs/PAUSED-AND-MAINTENANCE.md" },
   { id: "roadmap", title: "Roadmap (active)", category: "Governance", file: "ROADMAP.md" },
@@ -38,6 +44,7 @@ export const HUB_OPERATOR_DOC_CATALOG = [
   { id: "gce-gpu-lab", title: "GCE GPU lab", category: "Engine & CLI", file: "docs/GCE-GPU-LAB.md" },
   { id: "windows-compat", title: "Windows vs Linux", category: "Engine & CLI", file: "docs/WINDOWS-COMPAT.md" },
   { id: "commercial", title: "Commercial offering", category: "Hub & commercial", file: "docs/COMMERCIAL.md" },
+  { id: "agenticop", title: "AgenticOp practice", category: "Hub & commercial", file: "docs/AGENTICOP.md" },
   { id: "github-project", title: "GitHub Project", category: "Hub & commercial", file: "docs/GITHUB_PROJECT.md" },
   { id: "multi-repo-workspace", title: "Multi-repo workspace", category: "Hub & commercial", file: "docs/MULTI-REPO-WORKSPACE.md" },
   { id: "design", title: "DESIGN.md", category: "Architecture", file: "DESIGN.md" },
@@ -58,13 +65,70 @@ export const HUB_OPERATOR_DOC_CATALOG = [
 
 const byId = new Map(HUB_OPERATOR_DOC_CATALOG.map((d) => [d.id, d]));
 
-/** @param {string} id */
-export function resolveHubOperatorDoc(id) {
+/** @type {Map<string, string>} slug → catalog id */
+const slugToId = new Map();
+for (const entry of HUB_OPERATOR_DOC_CATALOG) {
+  const normFile = entry.file.replace(/\\/g, "/");
+  slugToId.set(entry.id, entry.id);
+  slugToId.set(normFile, entry.id);
+  slugToId.set(basename(normFile), entry.id);
+  slugToId.set(`docs/${basename(normFile)}`, entry.id);
+}
+
+/** @param {string} slug */
+function normalizeDocSlug(slug) {
+  return decodeURIComponent(String(slug))
+    .replace(/\/$/, "")
+    .replace(/^\//, "")
+    .replace(/\\/g, "/");
+}
+
+/** @param {string} slug */
+export function resolveHubOperatorDocId(slug) {
+  const raw = normalizeDocSlug(slug);
+  if (!raw) return null;
+  const direct = slugToId.get(raw);
+  if (direct) return direct;
+  const base = basename(raw);
+  if (slugToId.has(base)) return slugToId.get(base) ?? null;
+  if (raw.endsWith(".md")) {
+    for (const entry of HUB_OPERATOR_DOC_CATALOG) {
+      const norm = entry.file.replace(/\\/g, "/");
+      if (norm === raw || norm.endsWith(`/${raw}`) || basename(norm) === base) {
+        return entry.id;
+      }
+    }
+  }
+  return byId.has(raw) ? raw : null;
+}
+
+/** @param {string} idOrSlug */
+export function resolveHubOperatorDoc(idOrSlug) {
+  const id = byId.has(idOrSlug) ? idOrSlug : resolveHubOperatorDocId(idOrSlug);
+  if (!id) return null;
   const entry = byId.get(id);
   if (!entry) return null;
   const abs = join(scriptRoot, entry.file);
   if (!existsSync(abs)) return { entry, abs: null };
   return { entry, abs };
+}
+
+/** @returns {Record<string, string>} */
+export function hubOperatorDocAliasMap() {
+  /** @type {Record<string, string>} */
+  const aliases = {};
+  for (const entry of HUB_OPERATOR_DOC_CATALOG) {
+    const norm = entry.file.replace(/\\/g, "/");
+    const base = basename(norm);
+    aliases[entry.id] = entry.id;
+    aliases[norm] = entry.id;
+    aliases[base] = entry.id;
+    aliases[`docs/${base}`] = entry.id;
+    aliases[`./${base}`] = entry.id;
+    aliases[`./${norm}`] = entry.id;
+    aliases[`../${norm}`] = entry.id;
+  }
+  return aliases;
 }
 
 /** @type {readonly string[]} */

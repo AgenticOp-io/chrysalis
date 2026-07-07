@@ -686,9 +686,50 @@
   }
 
   const guideCache = new Map();
-  /** @type {Map<string, { id: string, title: string, category: string }>} */
+  /** @type {Map<string, { id: string, title: string, category: string, file?: string }>} */
   const guideDocMeta = new Map();
+  /** @type {Map<string, string>} */
+  const guideDocAliases = new Map();
   let guideNavLoaded = false;
+
+  function registerGuideDocAliases(aliases) {
+    guideDocAliases.clear();
+    if (!aliases || typeof aliases !== "object") return;
+    for (const [key, id] of Object.entries(aliases)) {
+      guideDocAliases.set(key, id);
+      guideDocAliases.set(key.toLowerCase(), id);
+    }
+    for (const [id, meta] of guideDocMeta) {
+      if (meta.file) {
+        const base = meta.file.split("/").pop() ?? "";
+        if (base) {
+          guideDocAliases.set(base, id);
+          guideDocAliases.set(base.toLowerCase(), id);
+          guideDocAliases.set(`./${base}`, id);
+          guideDocAliases.set(`../${meta.file}`, id);
+        }
+      }
+    }
+  }
+
+  /** @param {string} href */
+  function resolveGuideDocHref(href) {
+    const raw = String(href).trim();
+    if (!raw || raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("mailto:")) {
+      return raw;
+    }
+    if (raw.startsWith("#/guide")) return raw;
+    const noHash = raw.split("#")[0];
+    const norm = noHash.replace(/^\.\//, "").replace(/\\/g, "/");
+    const base = norm.split("/").pop() ?? norm;
+    const id =
+      guideDocAliases.get(norm) ??
+      guideDocAliases.get(norm.toLowerCase()) ??
+      guideDocAliases.get(base) ??
+      guideDocAliases.get(base.toLowerCase());
+    if (id) return `#/guide?doc=${encodeURIComponent(id)}`;
+    return raw;
+  }
 
   function filterGuideNav(query) {
     const q = query.trim().toLowerCase();
@@ -732,6 +773,7 @@
         const docs = data.docs ?? [];
         guideDocMeta.clear();
         for (const d of docs) guideDocMeta.set(d.id, d);
+        registerGuideDocAliases(data.aliases);
         /** @type {Record<string, typeof docs>} */
         const groups = {};
         for (const d of docs) {
@@ -788,6 +830,20 @@
     await loadGuideDoc(`/docs/${id}`, id);
   }
 
+  function bindGuideInternalLinks(container) {
+    container?.querySelectorAll("a.guide-internal-link").forEach((a) => {
+      if (a.dataset.bound === "1") return;
+      a.dataset.bound = "1";
+      a.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        const docId = a.dataset.docId;
+        if (!docId) return;
+        location.hash = `#/guide?doc=${encodeURIComponent(docId)}`;
+        initGuideNav(docId).catch(() => {});
+      });
+    });
+  }
+
   async function loadGuideDoc(path, docId) {
     const el = $("guideBody");
     if (!el) return;
@@ -797,6 +853,7 @@
     setGuideDocHeader(docId);
     if (guideCache.has(path)) {
       el.innerHTML = guideCache.get(path);
+      bindGuideInternalLinks(el);
       return;
     }
     el.innerHTML = "<p class=\"muted\">Loading…</p>";
@@ -807,6 +864,7 @@
       const html = renderInstallMarkdown(md);
       guideCache.set(path, html);
       el.innerHTML = html;
+      bindGuideInternalLinks(el);
     } catch (e) {
       el.innerHTML = `<p class="muted">Could not load guide: ${esc(e.message)}.</p>`;
     }
@@ -854,7 +912,14 @@
       let t = esc(s);
       t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
       t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
-      t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+      t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label, href) => {
+        const resolved = resolveGuideDocHref(href);
+        if (resolved.startsWith("#/guide?doc=")) {
+          const docId = decodeURIComponent(resolved.split("doc=")[1]?.split("&")[0] ?? "");
+          return `<a href="${resolved}" class="guide-internal-link" data-doc-id="${esc(docId)}">${label}</a>`;
+        }
+        return `<a href="${esc(resolved)}" target="_blank" rel="noopener">${label}</a>`;
+      });
       return t;
     };
 

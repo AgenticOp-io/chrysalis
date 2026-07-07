@@ -28,7 +28,12 @@ import { buildMigrationPlan } from "./hub-ingest/hub-migration-planner.mjs";
 import { buildMigrationProgram } from "./hub-ingest/hub-migration-programs.mjs";
 import { buildHubCapabilityMatrixReport } from "./hub-ingest/hub-capability-matrix.mjs";
 import { buildHubEvidenceReport } from "./hub-ingest/hub-evidence.mjs";
-import { HUB_OPERATOR_DOC_CATALOG, resolveHubOperatorDoc } from "./hub-operator-docs.mjs";
+import {
+  HUB_OPERATOR_DOC_CATALOG,
+  hubOperatorDocAliasMap,
+  resolveHubOperatorDoc,
+  resolveHubOperatorDocId,
+} from "./hub-operator-docs.mjs";
 import { buildVerifyPlaybooksReport } from "./hub-ingest/hub-verify-playbooks.mjs";
 import { buildLaravelVerifyGapsReport } from "./hub-ingest/hub-laravel-verify-gaps.mjs";
 import { runLaravelVerifyGapsAction } from "./hub-ingest/hub-laravel-verify-gaps-action.mjs";
@@ -690,23 +695,45 @@ const server = createServer(async (req, res) => {
   if (req.method === "GET" && url.pathname === "/api/hub/docs") {
     sendJson(res, 200, {
       kind: "chrysalis.hub.operator-docs",
-      schemaVersion: 1,
-      docs: HUB_OPERATOR_DOC_CATALOG.map((d) => ({ id: d.id, title: d.title, category: d.category })),
+      schemaVersion: 2,
+      docs: HUB_OPERATOR_DOC_CATALOG.map((d) => ({
+        id: d.id,
+        title: d.title,
+        category: d.category,
+        file: d.file.replace(/\\/g, "/"),
+      })),
+      aliases: hubOperatorDocAliasMap(),
     });
     return;
   }
-  if (req.method === "GET" && url.pathname.startsWith("/docs/")) {
-    const docId = url.pathname.slice("/docs/".length).replace(/\/$/, "");
-    const resolved = resolveHubOperatorDoc(docId);
+  const docSlugFromPath =
+    req.method === "GET" && url.pathname.startsWith("/docs/")
+      ? url.pathname.slice("/docs/".length)
+      : req.method === "GET" && url.pathname.endsWith(".md") && url.pathname !== "/docs"
+        ? url.pathname.slice(1)
+        : null;
+  if (docSlugFromPath) {
+    const docId = resolveHubOperatorDocId(docSlugFromPath);
+    const resolved = docId ? resolveHubOperatorDoc(docId) : null;
     if (!resolved || !resolved.abs) {
-      sendJson(res, 404, { error: "doc-not-found", id: docId });
+      sendJson(res, 404, { error: "doc-not-found", slug: docSlugFromPath, id: docId });
+      return;
+    }
+    const accept = String(req.headers.accept ?? "");
+    const wantsGuide =
+      accept.includes("text/html") &&
+      !accept.includes("text/plain") &&
+      (docSlugFromPath.endsWith(".md") || docSlugFromPath.includes(".md"));
+    if (wantsGuide) {
+      res.writeHead(302, { Location: `/#/guide?doc=${encodeURIComponent(resolved.entry.id)}` });
+      res.end();
       return;
     }
     try {
       const md = await readFile(resolved.abs, "utf8");
       sendText(res, 200, "text/plain; charset=utf-8", md);
     } catch {
-      sendJson(res, 404, { error: "doc-read-failed", id: docId });
+      sendJson(res, 404, { error: "doc-read-failed", id: resolved.entry.id });
     }
     return;
   }
