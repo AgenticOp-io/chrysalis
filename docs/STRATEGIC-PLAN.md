@@ -450,7 +450,7 @@ When the user says "build" without specifying:
 1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke`
 2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
 3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (weekly CI)
-4. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**) — **301** pairs below oracle-product (baseline **300/601**); waves **8–11** (**G9161** / **G9163** / **G9164** / **G9165**)
+4. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**) — **280** pairs below oracle-product (baseline **321/601**); waves **8–12** (**G9161** / **G9163** / **G9164** / **G9165** / **G9166**)
 5. **CWL runtime scaffold depth** — `hub:cwl-runtime-scaffold-depth-smoke` (**G9238**) — browser island binding + worker fetch delegate
 
 **WISP showcase (default CI):** `hub:phase45-wisp-showcase-smoke` (**G9170**)

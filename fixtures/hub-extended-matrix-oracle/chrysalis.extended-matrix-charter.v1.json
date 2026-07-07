@@ -106,6 +106,35 @@
     "outputIds": ["rust"],
     "minOraclePairs": 21
   },
+  "wave12": {
+    "id": "wave12-systems-lang-kotlin-outbound",
+    "label": "All non-kotlin hub origins × kotlin Ktor outbound with native trace replay",
+    "originIds": [
+      "javascript",
+      "typescript",
+      "python",
+      "java",
+      "go",
+      "csharp",
+      "ruby",
+      "svelte",
+      "vue",
+      "rust",
+      "scala",
+      "swift",
+      "sql",
+      "html",
+      "css",
+      "json",
+      "yaml",
+      "markdown",
+      "scss",
+      "c",
+      "cpp"
+    ],
+    "outputIds": ["kotlin"],
+    "minOraclePairs": 21
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

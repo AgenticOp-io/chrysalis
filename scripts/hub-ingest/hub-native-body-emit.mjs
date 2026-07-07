@@ -666,3 +666,110 @@ export function renderRustBody(body, routePath) {
   }
   return { lines: [`HttpResponse::InternalServerError().body("hub:unsupported-body")`], hole: true };
 }
+
+/**
+ * @param {unknown} value
+ */
+export function ktLiteral(value) {
+  if (value === true) return "true";
+  if (value === false) return "false";
+  if (typeof value === "number") return String(value);
+  if (typeof value === "string") return JSON.stringify(value);
+  return "null";
+}
+
+/** @param {string} path */
+export function ktorRoutePath(path) {
+  return actixRoutePath(path);
+}
+
+/**
+ * @param {{ kind: string, reason?: string, value?: unknown }} body
+ * @param {string} routePath
+ */
+export function renderKotlinBody(body, routePath) {
+  const pathNames = hubPathParamNames(routePath);
+
+  /** @param {HubStructuredValue} v */
+  function pathRefExpr(name) {
+    if (pathNames.length === 1) return `call.parameters[${JSON.stringify(name)}] ?: ""`;
+    return `call.parameters[${JSON.stringify(name)}] ?: ""`;
+  }
+
+  /** @param {{ source: string, name: string, default?: unknown }} ref */
+  function queryRefExpr(ref) {
+    const def = Object.prototype.hasOwnProperty.call(ref, "default")
+      ? ` ?: ${JSON.stringify(String(ref.default))}`
+      : ` ?: ""`;
+    return `call.request.queryParameters[${JSON.stringify(ref.name)}]${def}`;
+  }
+
+  /** @param {HubStructuredValue} v */
+  function structured(v) {
+    if (v.t === "lit") {
+      if (v.value !== null && typeof v.value === "object") {
+        const ent = Object.entries(/** @type {Record<string, unknown>} */ (v.value))
+          .map(([k, val]) => `"${k}" to ${ktLiteral(val)}`)
+          .join(", ");
+        return { expr: `mapOf(${ent})`, json: true };
+      }
+      if (typeof v.value === "boolean") return { expr: String(v.value), json: false };
+      if (typeof v.value === "number") return { expr: ktLiteral(String(v.value)), json: false };
+      return { expr: ktLiteral(v.value), json: false };
+    }
+    if (v.t === "ref") {
+      if (v.source === "path") {
+        const expr = pathRefExpr(v.name);
+        if (!expr) return null;
+        return { expr, json: false };
+      }
+      if (v.source === "query") return { expr: queryRefExpr(v), json: false };
+      return null;
+    }
+    if (v.t === "obj") {
+      const pairs = [];
+      for (const e of v.entries) {
+        const inner = structured(/** @type {HubStructuredValue} */ (e.value));
+        if (!inner || inner.expr === null) return null;
+        pairs.push(`"${e.key}" to ${inner.expr}`);
+      }
+      return { expr: `mapOf(${pairs.join(", ")})`, json: true };
+    }
+    return null;
+  }
+
+  if (body.kind === "hole") {
+    return {
+      lines: [`call.respondText(${JSON.stringify(body.reason ?? "hub:hole")}, status = HttpStatusCode.InternalServerError)`],
+      hole: true,
+    };
+  }
+  if (body.kind === "literal") {
+    const v = body.value;
+    if (v !== null && typeof v === "object") {
+      const ent = Object.entries(v).map(([k, val]) => `"${k}" to ${ktLiteral(val)}`).join(", ");
+      return { lines: [`call.respond(mapOf(${ent}))`], hole: false };
+    }
+    if (typeof v === "boolean") {
+      return { lines: [`call.respond(${v})`], hole: false };
+    }
+    return { lines: [`call.respondText(${ktLiteral(v)})`], hole: false };
+  }
+  if (body.kind === "structured") {
+    const lowered = structured(/** @type {HubStructuredValue} */ (body.value));
+    if (!lowered || lowered.expr === null) {
+      return {
+        lines: [`call.respondText("hub:unsupported-body-shape", status = HttpStatusCode.InternalServerError)`],
+        hole: true,
+      };
+    }
+    if (lowered.json || hubBodyIsJsonReturn(body)) {
+      return { lines: [`call.respond(${lowered.expr})`], hole: false };
+    }
+    return { lines: [`call.respondText(${lowered.expr})`], hole: false };
+  }
+  return {
+    lines: [`call.respondText("hub:unsupported-body", status = HttpStatusCode.InternalServerError)`],
+    hole: true,
+  };
+}

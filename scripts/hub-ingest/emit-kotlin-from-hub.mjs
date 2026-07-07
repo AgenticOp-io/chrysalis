@@ -1,6 +1,11 @@
 #!/usr/bin/env node
-/** Emit Ktor-style Kotlin routes from hub WebIR. */
-import { emitNativeFromHub } from "./hub-native-emit-shared.mjs";
+/**
+ * Emit Ktor hub routes from hub-lift WebIR (probe-friendly HubRoutes.kt).
+ */
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { loadHubRoutes } from "./hub-load-routes.mjs";
+import { ktorRoutePath, renderKotlinBody } from "./hub-native-body-emit.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -12,23 +17,15 @@ function parseArgs(argv) {
   return { projectDir, origin };
 }
 
-function ktLiteral(value) {
-  if (value === true) return "true";
-  if (value === false) return "false";
-  if (typeof value === "number") return String(value);
-  if (typeof value === "string") return JSON.stringify(value);
-  return "null";
-}
-
 function renderKotlin(routes, origin) {
   const lines = [
-    `// Chrysalis hub emit: ${origin} -> kotlin`,
+    `// Chrysalis hub emit: ${origin} -> kotlin (routes)`,
     "package hub",
     "",
-    'import io.ktor.server.application.*',
-    'import io.ktor.server.response.*',
-    'import io.ktor.server.routing.*',
-    'import io.ktor.http.*',
+    "import io.ktor.server.application.*",
+    "import io.ktor.server.response.*",
+    "import io.ktor.server.routing.*",
+    "import io.ktor.http.*",
     "",
     "fun Application.hubRoutes() {",
     "    routing {",
@@ -36,42 +33,39 @@ function renderKotlin(routes, origin) {
   let holeCount = 0;
   for (const r of routes) {
     const m = r.method.toLowerCase();
-    lines.push(`        ${m}(${JSON.stringify(r.path)}) {`);
-    if (r.body.kind === "literal") {
-      const v = r.body.value;
-      if (v !== null && typeof v === "object") {
-        const ent = Object.entries(v)
-          .map(([k, val]) => `"${k}" to ${ktLiteral(val)}`)
-          .join(", ");
-        lines.push(`            call.respond(mapOf(${ent}))`);
-      } else if (typeof v === "boolean") {
-        lines.push(`            call.respond(${v})`);
-      } else {
-        lines.push(`            call.respondText(${ktLiteral(v)})`);
-      }
-    } else {
-      holeCount += 1;
-      lines.push(`            // HOLE: ${r.body.reason}`);
-      lines.push(`            error(${JSON.stringify(r.body.reason)})`);
-    }
+    lines.push(`        ${m}(${JSON.stringify(ktorRoutePath(r.path))}) {`);
+    const body = renderKotlinBody(r.body, r.path);
+    if (body.hole) holeCount += 1;
+    for (const line of body.lines) lines.push(`            ${line}`);
     lines.push("        }");
   }
   if (routes.length === 0) holeCount += 1;
   lines.push("    }");
-  lines.push("}");
-  lines.push("");
-  return {
-    files: {
-      "src/main/kotlin/hub/HubRoutes.kt": `${lines.join("\n")}\n`,
-      "build.gradle.kts": 'plugins { kotlin("jvm") version "1.9.0" }\ndependencies { implementation("io.ktor:ktor-server-core:2.3.0") }\n',
-    },
-    holeCount,
-  };
+  lines.push("}", "");
+  return { hubRoutesSource: `${lines.join("\n")}\n`, holeCount };
 }
 
 async function main() {
   const { projectDir, origin } = parseArgs(process.argv);
-  const report = await emitNativeFromHub(projectDir, origin, "kotlin", "hub-webir-kotlin", renderKotlin);
+  const { routes } = await loadHubRoutes(projectDir, origin);
+  const { hubRoutesSource, holeCount } = renderKotlin(routes, origin);
+  const rel = "src/main/kotlin/hub/HubRoutes.kt";
+  const outDir = join(projectDir, "generated", "kotlin");
+  await mkdir(join(outDir, "src/main/kotlin/hub"), { recursive: true });
+  await writeFile(join(outDir, rel), hubRoutesSource, "utf8");
+  const report = {
+    kind: "chrysalis.hub.emit",
+    schemaVersion: 1,
+    origin,
+    output: "kotlin",
+    path: "hub-webir-kotlin",
+    outDir,
+    routeCount: routes.length,
+    holeCount,
+    generatedAt: new Date().toISOString(),
+  };
+  await mkdir(join(projectDir, ".chrysalis"), { recursive: true });
+  await writeFile(join(projectDir, ".chrysalis", `hub.${origin}.emit.json`), `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(JSON.stringify(report));
 }
 
