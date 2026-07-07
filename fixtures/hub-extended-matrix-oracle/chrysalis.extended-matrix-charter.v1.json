@@ -70,6 +70,13 @@
     "outputIds": ["python", "java", "go", "ruby", "csharp", "php"],
     "minOraclePairs": 24
   },
+  "wave10": {
+    "id": "wave10-file-lift-native-outbound",
+    "label": "SQL/HTML/CSS/JSON/YAML/MD/SCSS/C/C++ file-lift × native outbound",
+    "originIds": ["sql", "html", "css", "json", "yaml", "markdown", "scss", "c", "cpp"],
+    "outputIds": ["python", "java", "go", "ruby", "csharp", "php"],
+    "minOraclePairs": 54
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

@@ -19,9 +19,10 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (weekly CI) |
 | **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |
-| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **376** pairs below oracle-product |
-| **Extended matrix wave 8** | **G9161** | `hub:extended-matrix-oracle-wave8-smoke` — svelte/vue native outbound |
-| **Extended matrix wave 9** | **G9163** | `hub:extended-matrix-oracle-wave9-smoke` — rust/kotlin/scala/swift native outbound |
+| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **322** pairs below oracle-product |
+| **Extended matrix wave 8** | **G9161** | `hub:extended-matrix-oracle-wave8-smoke` |
+| **Extended matrix wave 9** | **G9163** | `hub:extended-matrix-oracle-wave9-smoke` |
+| **Extended matrix wave 10** | **G9164** | `hub:extended-matrix-oracle-wave10-smoke` |
 | **CWL runtime scaffold depth** | **G9238** | `hub:cwl-runtime-scaffold-depth-smoke` |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
@@ -126,7 +127,7 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (arch
 
 | Gap | Status | Doc |
 | --- | --- | --- |
-| Extended matrix oracle promotion | **376/601** below target — maintenance census + waves **8–9** (**G9160** / **G9161** / **G9163**); not production parity claim | [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) |
+| Extended matrix oracle promotion | **322/601** below target — maintenance census + waves **8–10**; not production parity claim | [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) |
 | Live operator deploy refresh | Operator-run — `wisp:deploy:gce` + `wisp:operator-verify --require` | `WISP-PRODUCTION-COMPLETION-PROGRAM.md` |
 | Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
