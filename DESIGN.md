@@ -3858,6 +3858,7 @@ covers `**--max-holes**` / `**--min-correctness**`. CI `**typecheck-and-test**` 
 - **2026-07-06 — D6351** **Maintenance census wave 10 (G9164).** File-lift origins (sql/html/css/json/yaml/markdown/scss/c/cpp) × native outbound — **279/601** (**322** below target).
 - **2026-07-06 — D6352** **Maintenance census wave 11 (G9165).** All non-rust hub origins × rust actix outbound with **`oracle-rust`** native trace replay — **300/601** (**301** below target).
 - **2026-07-06 — D6353** **Maintenance census wave 12 (G9166).** All non-kotlin hub origins × kotlin Ktor outbound with **`oracle-kotlin`** native trace replay — **321/601** (**280** below target).
+- **2026-07-06 — D6354** **Maintenance census wave 13 (G9167).** All non-scala hub origins × scala Akka HTTP outbound with **`oracle-scala`** native trace replay — **342/601** (**259** below target).
 - **2026-07-06 — D6350** **Maintenance census wave 9 (G9163).** Rust/Kotlin/Scala/Swift pattern-lift × native outbound trace-replay — **225/601** (**376** below target); probe-route dedupe fixes svelte→go Gin replay.
 - **2026-07-06 — D6349** **Maintenance census wave 8 (G9161).** Svelte/Vue component-lift × native outbound (python/java/go/ruby/csharp/php) trace-replay promotion — **200/601** (**401** below target). Charter wave **8**; svelte→go deferred (gin route collision).
 - **2026-07-06 — D6348** **Dependency hygiene (maintenance).** pnpm overrides for **protobufjs**, **undici**, **esbuild**, **js-yaml**, **hono**, **@opentelemetry/core**; **vite** 6.4.3; **firebase-tools** 14.27.x.

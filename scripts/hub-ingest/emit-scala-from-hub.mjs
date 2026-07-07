@@ -1,6 +1,11 @@
 #!/usr/bin/env node
-/** Emit Akka HTTP-style Scala routes from hub WebIR. */
-import { emitNativeFromHub } from "./hub-native-emit-shared.mjs";
+/**
+ * Emit Akka HTTP hub routes from hub-lift WebIR (probe-friendly HubRoutes.scala).
+ */
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { loadHubRoutes } from "./hub-load-routes.mjs";
+import { akkaHttpMethodDir, akkaPathMatcher, renderScalaBody } from "./hub-native-body-emit.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -12,74 +17,57 @@ function parseArgs(argv) {
   return { projectDir, origin };
 }
 
-function scalaLiteral(value) {
-  if (value === true) return "true";
-  if (value === false) return "false";
-  if (typeof value === "number") return String(value);
-  if (typeof value === "string") return JSON.stringify(value);
-  return "null";
-}
-
 function renderScala(routes, origin) {
   const lines = [
-    `// Chrysalis hub emit: ${origin} -> scala`,
+    `// Chrysalis hub emit: ${origin} -> scala (routes)`,
     "package hub",
     "",
-    'import akka.http.scaladsl.server.Directives._',
-    'import akka.http.scaladsl.model._',
-    'import akka.http.scaladsl.server.Route',
-    'import spray.json.DefaultJsonProtocol._',
-    'import spray.json._',
+    "import akka.http.scaladsl.server.Directives._",
+    "import akka.http.scaladsl.model._",
+    "import akka.http.scaladsl.server.Route",
+    "import spray.json.DefaultJsonProtocol._",
+    "import spray.json._",
     "",
     "object HubRoutes {",
     "  val routes: Route = concat(",
   ];
   let holeCount = 0;
+  /** @type {string[]} */
   const routeExprs = [];
   for (const r of routes) {
-    const m = r.method.toUpperCase();
-    const dir = m === "GET" ? "get" : m === "POST" ? "post" : m === "PUT" ? "put" : m === "DELETE" ? "delete" : "get";
-    if (r.body.kind === "literal") {
-      const v = r.body.value;
-      let complete;
-      if (v !== null && typeof v === "object") {
-        const ent = Object.entries(v)
-          .map(([k, val]) => `"${k}" -> ${scalaLiteral(val)}`)
-          .join(", ");
-        complete = `complete(Map(${ent}).toJson.compactPrint)`;
-      } else if (typeof v === "boolean") {
-        complete = `complete(${v}.toString)`;
-      } else {
-        complete = `complete(${scalaLiteral(v)})`;
-      }
-      routeExprs.push(`    ${dir}(path(${JSON.stringify(r.path)})) { ${complete} }`);
-    } else {
-      holeCount += 1;
-      routeExprs.push(
-        `    ${dir}(path(${JSON.stringify(r.path)})) { complete(StatusCodes.NotImplemented) /* HOLE: ${r.body.reason} */ }`,
-      );
-    }
+    const dir = akkaHttpMethodDir(r.method);
+    const pathMatch = akkaPathMatcher(r.path);
+    const body = renderScalaBody(r.body, r.path);
+    if (body.hole) holeCount += 1;
+    routeExprs.push(`    ${dir}(${pathMatch}) { ${body.lines.join(" ")} }`);
   }
-  if (routeExprs.length === 0) {
-    holeCount += 1;
-    routeExprs.push('    get(path("hub-empty")) { complete("HOLE: empty webir") }');
-  }
-  lines.push(routeExprs.join(",\n"));
-  lines.push("  )");
-  lines.push("}");
-  lines.push("");
-  return {
-    files: {
-      "src/main/scala/hub/HubRoutes.scala": `${lines.join("\n")}\n`,
-      "build.sbt": 'scalaVersion := "2.13.12"\nlibraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.5.0"\n',
-    },
-    holeCount,
-  };
+  if (routes.length === 0) holeCount += 1;
+  lines.push(routeExprs.length > 0 ? routeExprs.join(",\n") : '    get(path("hub-empty")) { complete("HOLE: empty webir") }');
+  lines.push("  )", "}", "");
+  return { hubRoutesSource: `${lines.join("\n")}\n`, holeCount };
 }
 
 async function main() {
   const { projectDir, origin } = parseArgs(process.argv);
-  const report = await emitNativeFromHub(projectDir, origin, "scala", "hub-webir-scala", renderScala);
+  const { routes } = await loadHubRoutes(projectDir, origin);
+  const { hubRoutesSource, holeCount } = renderScala(routes, origin);
+  const rel = "src/main/scala/hub/HubRoutes.scala";
+  const outDir = join(projectDir, "generated", "scala");
+  await mkdir(join(outDir, "src/main/scala/hub"), { recursive: true });
+  await writeFile(join(outDir, rel), hubRoutesSource, "utf8");
+  const report = {
+    kind: "chrysalis.hub.emit",
+    schemaVersion: 1,
+    origin,
+    output: "scala",
+    path: "hub-webir-scala",
+    outDir,
+    routeCount: routes.length,
+    holeCount,
+    generatedAt: new Date().toISOString(),
+  };
+  await mkdir(join(projectDir, ".chrysalis"), { recursive: true });
+  await writeFile(join(projectDir, ".chrysalis", `hub.${origin}.emit.json`), `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(JSON.stringify(report));
 }
 

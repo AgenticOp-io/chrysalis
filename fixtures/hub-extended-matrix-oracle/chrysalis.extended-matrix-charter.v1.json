@@ -135,6 +135,35 @@
     "outputIds": ["kotlin"],
     "minOraclePairs": 21
   },
+  "wave13": {
+    "id": "wave13-systems-lang-scala-outbound",
+    "label": "All non-scala hub origins × scala Akka HTTP outbound with native trace replay",
+    "originIds": [
+      "javascript",
+      "typescript",
+      "python",
+      "java",
+      "go",
+      "csharp",
+      "ruby",
+      "svelte",
+      "vue",
+      "rust",
+      "kotlin",
+      "swift",
+      "sql",
+      "html",
+      "css",
+      "json",
+      "yaml",
+      "markdown",
+      "scss",
+      "c",
+      "cpp"
+    ],
+    "outputIds": ["scala"],
+    "minOraclePairs": 21
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

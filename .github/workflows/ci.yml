@@ -74,6 +74,8 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - uses: sbt/setup-sbt@v1
+
       - name: Python + Go CLI shims (forward to Node CLI, DESIGN D295)
         run: pnpm run test:cli-shims
 
@@ -155,6 +157,9 @@ jobs:
 
       - name: Extended matrix wave 12 maintenance (G9166)
         run: pnpm run hub:extended-matrix-oracle-wave12-smoke
+
+      - name: Extended matrix wave 13 maintenance (G9167)
+        run: pnpm run hub:extended-matrix-oracle-wave13-smoke
 
       - name: CWL runtime scaffold depth (G9238)
         run: pnpm run hub:cwl-runtime-scaffold-depth-smoke

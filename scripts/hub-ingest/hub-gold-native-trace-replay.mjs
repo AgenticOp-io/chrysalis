@@ -45,6 +45,10 @@ import {
   createKotlinKtorInProcessFetch,
   writeProbeRoutes as writeKotlinProbeRoutes,
 } from "./hub-gold-kotlin-fetch.mjs";
+import {
+  createScalaAkkaInProcessFetch,
+  writeProbeRoutes as writeScalaProbeRoutes,
+} from "./hub-gold-scala-fetch.mjs";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const liftScript = join(scriptRoot, "scripts/hub-ingest/lift-to-webir.mjs");
@@ -99,6 +103,9 @@ export async function runNativeTraceReplaySuite(suite) {
   }
   if (target === "kotlin") {
     return runKotlinKtorTraceReplay(fixture, origin, target, suite.id);
+  }
+  if (target === "scala") {
+    return runScalaAkkaTraceReplay(fixture, origin, target, suite.id);
   }
   throw new Error(`native trace replay not implemented for ${target}`);
 }
@@ -463,6 +470,54 @@ async function runKotlinKtorTraceReplay(fixture, origin, target, suiteId) {
     inProcessFetch,
     fixture,
     corpusId: "hub-native-kotlin-probe",
+  });
+
+  const outcomes = await replayCorpus(corpus, {
+    baseUrl: "http://127.0.0.1",
+    injectDeterminismHeaders: true,
+    fetch: inProcessFetch,
+  });
+  const report = buildReport(outcomes);
+  const correctness = report.aggregate?.correctness ?? 0;
+  return {
+    kind: "chrysalis.hub.trace-replay",
+    schemaVersion: 0,
+    fixture,
+    origin,
+    emitTarget: target,
+    routeCount: routes.length,
+    traceCount: corpus.traces.length,
+    correctness,
+    ok: correctness >= 1,
+    report,
+    suiteId: suiteId ?? `${origin}-native-${target}`,
+  };
+}
+
+/**
+ * @param {string} fixture
+ * @param {string} origin
+ * @param {string} target
+ * @param {string} [suiteId]
+ */
+async function runScalaAkkaTraceReplay(fixture, origin, target, suiteId) {
+  const webirPath = join(fixture, ".chrysalis", `hub.${origin}.webir.json`);
+  const webirMod = await import(pathToFileURL(join(scriptRoot, "packages/webir/dist/index.js")).href);
+  const mod = webirMod.moduleFromGoldenSnapshot(parseHubWebirGoldenFile(await readFile(webirPath, "utf8")));
+  const routes = listHubWebRoutes(mod);
+  const probeRoutes = routes.map((r) => ({
+    method: r.method,
+    path: concreteProbePath(r.path),
+  }));
+  await writeScalaProbeRoutes(fixture, probeRoutes);
+
+  const inProcessFetch = createScalaAkkaInProcessFetch(scriptRoot, fixture);
+  const corpus = await probeHubGoldCorpus({
+    routes: probeRoutes,
+    middlewarePresets: new Set(),
+    inProcessFetch,
+    fixture,
+    corpusId: "hub-native-scala-probe",
   });
 
   const outcomes = await replayCorpus(corpus, {

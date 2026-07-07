@@ -773,3 +773,111 @@ export function renderKotlinBody(body, routePath) {
     hole: true,
   };
 }
+
+/**
+ * @param {unknown} value
+ */
+export function scalaLiteral(value) {
+  if (value === true) return "true";
+  if (value === false) return "false";
+  if (typeof value === "number") return String(value);
+  if (typeof value === "string") return JSON.stringify(value);
+  return "null";
+}
+
+/**
+ * @param {string} path
+ */
+export function akkaPathMatcher(path) {
+  const parts = path.split("/").filter(Boolean);
+  if (parts.length === 0) return "pathEnd";
+  const segs = parts.map((p) => (p.startsWith(":") ? "Segment" : JSON.stringify(p)));
+  if (segs.length === 1) return `path(${segs[0]})`;
+  return `path(${segs.join(" / ")})`;
+}
+
+/**
+ * @param {string} method
+ */
+export function akkaHttpMethodDir(method) {
+  const m = method.toUpperCase();
+  if (m === "POST") return "post";
+  if (m === "PUT") return "put";
+  if (m === "PATCH") return "patch";
+  if (m === "DELETE") return "delete";
+  if (m === "HEAD") return "head";
+  return "get";
+}
+
+/**
+ * @param {{ kind: string, reason?: string, value?: unknown }} body
+ * @param {string} routePath
+ */
+export function renderScalaBody(body, routePath) {
+  /** @param {HubStructuredValue} v */
+  function structured(v) {
+    if (v.t === "lit") {
+      if (v.value !== null && typeof v.value === "object") {
+        const ent = Object.entries(/** @type {Record<string, unknown>} */ (v.value))
+          .map(([k, val]) => `"${k}" -> ${scalaLiteral(val)}`)
+          .join(", ");
+        return { expr: `Map(${ent}).toJson.compactPrint`, json: true };
+      }
+      if (typeof v.value === "boolean") return { expr: `${v.value}.toString`, json: false };
+      if (typeof v.value === "number") return { expr: scalaLiteral(String(v.value)), json: false };
+      return { expr: scalaLiteral(v.value), json: false };
+    }
+    if (v.t === "ref") {
+      if (v.source === "path") return { expr: scalaLiteral(v.name), json: false };
+      if (v.source === "query") {
+        const def = Object.prototype.hasOwnProperty.call(v, "default")
+          ? `.getOrElse(${scalaLiteral(String(v.default))})`
+          : ".getOrElse(\"\")";
+        return { expr: `parameter(${JSON.stringify(v.name)})${def}`, json: false };
+      }
+      return null;
+    }
+    if (v.t === "obj") {
+      const pairs = [];
+      for (const e of v.entries) {
+        const inner = structured(/** @type {HubStructuredValue} */ (e.value));
+        if (!inner || inner.expr === null) return null;
+        pairs.push(`"${e.key}" -> ${inner.expr}`);
+      }
+      return { expr: `Map(${pairs.join(", ")}).toJson.compactPrint`, json: true };
+    }
+    return null;
+  }
+
+  if (body.kind === "hole") {
+    return {
+      lines: [`complete(StatusCodes.InternalServerError, ${JSON.stringify(body.reason ?? "hub:hole")})`],
+      hole: true,
+    };
+  }
+  if (body.kind === "literal") {
+    const v = body.value;
+    if (v !== null && typeof v === "object") {
+      const ent = Object.entries(v).map(([k, val]) => `"${k}" -> ${scalaLiteral(val)}`).join(", ");
+      return { lines: [`complete(Map(${ent}).toJson.compactPrint)`], hole: false };
+    }
+    if (typeof v === "boolean") {
+      return { lines: [`complete(${v})`], hole: false };
+    }
+    return { lines: [`complete(${scalaLiteral(v)})`], hole: false };
+  }
+  if (body.kind === "structured") {
+    const lowered = structured(/** @type {HubStructuredValue} */ (body.value));
+    if (!lowered || lowered.expr === null) {
+      return {
+        lines: [`complete(StatusCodes.InternalServerError, "hub:unsupported-body-shape")`],
+        hole: true,
+      };
+    }
+    return { lines: [`complete(${lowered.expr})`], hole: false };
+  }
+  return {
+    lines: [`complete(StatusCodes.InternalServerError, "hub:unsupported-body")`],
+    hole: true,
+  };
+}
