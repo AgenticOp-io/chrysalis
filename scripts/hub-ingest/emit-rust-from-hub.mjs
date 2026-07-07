@@ -1,6 +1,15 @@
 #!/usr/bin/env node
-/** Emit actix-web routes from hub WebIR. */
-import { emitNativeFromHub } from "./hub-native-emit-shared.mjs";
+/**
+ * Emit actix-web routes from hub-lift WebIR (probe-friendly routes.rs).
+ */
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { loadHubRoutes } from "./hub-load-routes.mjs";
+import {
+  actixRoutePath,
+  renderRustBody,
+  rustHandlerSignature,
+} from "./hub-native-body-emit.mjs";
 
 function parseArgs(argv) {
   const projectDir = argv[2];
@@ -14,66 +23,79 @@ function parseArgs(argv) {
 
 function renderRust(routes, origin) {
   const lines = [
-    "// Chrysalis hub emit",
-    "use actix_web::{web, App, HttpResponse, HttpServer};",
+    `// Chrysalis hub emit: ${origin} -> rust (routes)`,
+    "use actix_web::{web, HttpRequest, HttpResponse};",
     "",
-    "async fn hole() -> HttpResponse {",
-    '    HttpResponse::InternalServerError().body("hub:hole")',
-    "}",
-    "",
+    "pub fn configure(cfg: &mut web::ServiceConfig) {",
   ];
+  const actixVerb = { GET: "get", POST: "post", PUT: "put", PATCH: "patch", DELETE: "delete", HEAD: "head" };
   let holeCount = 0;
   let idx = 0;
   for (const r of routes) {
     const fn = `h_${idx++}`;
-    if (r.body.kind === "literal") {
-      const v = r.body.value;
-      if (v !== null && typeof v === "object") {
-        lines.push(`async fn ${fn}() -> HttpResponse {`);
-        lines.push(`    HttpResponse::Ok().json(serde_json::json!(${JSON.stringify(v)}))`);
-        lines.push("}");
-      } else if (typeof v === "boolean") {
-        lines.push(`async fn ${fn}() -> HttpResponse { HttpResponse::Ok().body(${v ? '"true"' : '"false"'}) }`);
-      } else if (typeof v === "number") {
-        lines.push(`async fn ${fn}() -> HttpResponse { HttpResponse::Ok().body("${v}") }`);
-      } else {
-        lines.push(`async fn ${fn}() -> HttpResponse { HttpResponse::Ok().body(${JSON.stringify(String(v))}) }`);
-      }
-    } else {
-      holeCount += 1;
-      lines.push(`async fn ${fn}() -> HttpResponse { hole().await }`);
-    }
-    lines.push("");
+    const verb = actixVerb[r.method.toUpperCase()] ?? "get";
+    lines.push(`    cfg.route(${JSON.stringify(actixRoutePath(r.path))}, web::${verb}().to(${fn}));`);
   }
-  lines.push("#[actix_web::main]");
-  lines.push("async fn main() -> std::io::Result<()> {");
-  lines.push("    HttpServer::new(|| {");
-  lines.push("        App::new()");
-  const actixVerb = { GET: "get", POST: "post", PUT: "put", PATCH: "patch", DELETE: "delete", HEAD: "head" };
+  if (routes.length === 0) holeCount += 1;
+  lines.push("}", "");
+
   idx = 0;
   for (const r of routes) {
     const fn = `h_${idx++}`;
-    const verb = actixVerb[r.method.toUpperCase()] ?? "get";
-    lines.push(`            .route(${JSON.stringify(r.path)}, web::${verb}().to(${fn}))`);
+    const sig = rustHandlerSignature(r.path, r.body);
+    const body = renderRustBody(r.body, r.path);
+    if (body.hole) holeCount += 1;
+    lines.push(`async fn ${fn}(${sig}) -> HttpResponse {`);
+    for (const line of body.lines) lines.push(`    ${line}`);
+    lines.push("}", "");
   }
-  lines.push("    })");
-  lines.push('    .bind(("127.0.0.1", 8080))?.run()');
-  lines.push("    .await");
-  lines.push("}");
-  lines.push("");
-  return {
-    files: {
-      "src/main.rs": lines.join("\n"),
-      "Cargo.toml":
-        '[package]\nname = "chrysalis-hub-rust"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\nactix-web = "4"\nserde_json = "1"\n',
-    },
-    holeCount,
-  };
+
+  const routesSource = `${lines.join("\n")}\n`;
+  const mainSource = [
+    `// Chrysalis hub emit: ${origin} -> rust (main)`,
+    "use actix_web::{web, App, HttpServer};",
+    "",
+    "mod routes;",
+    "",
+    "#[actix_web::main]",
+    "async fn main() -> std::io::Result<()> {",
+    "    HttpServer::new(|| App::new().configure(routes::configure))",
+    '        .bind(("127.0.0.1", 8080))?',
+    "        .run()",
+    "        .await",
+    "}",
+    "",
+  ].join("\n");
+
+  return { routesSource, mainSource, holeCount };
 }
 
 async function main() {
   const { projectDir, origin } = parseArgs(process.argv);
-  const report = await emitNativeFromHub(projectDir, origin, "rust", "hub-webir-rust", renderRust);
+  const { routes } = await loadHubRoutes(projectDir, origin);
+  const { routesSource, mainSource, holeCount } = renderRust(routes, origin);
+  const outDir = join(projectDir, "generated", "rust");
+  await mkdir(outDir, { recursive: true });
+  await writeFile(join(outDir, "routes.rs"), routesSource, "utf8");
+  await writeFile(join(outDir, "main.rs"), mainSource, "utf8");
+  await writeFile(
+    join(outDir, "Cargo.toml"),
+    '[package]\nname = "chrysalis-hub-rust"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\nactix-web = "4"\nserde_json = "1"\n',
+    "utf8",
+  );
+  const report = {
+    kind: "chrysalis.hub.emit",
+    schemaVersion: 1,
+    origin,
+    output: "rust",
+    path: "hub-webir-rust",
+    outDir,
+    routeCount: routes.length,
+    holeCount,
+    generatedAt: new Date().toISOString(),
+  };
+  await mkdir(join(projectDir, ".chrysalis"), { recursive: true });
+  await writeFile(join(projectDir, ".chrysalis", `hub.${origin}.emit.json`), `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(JSON.stringify(report));
 }
 

@@ -77,6 +77,35 @@
     "outputIds": ["python", "java", "go", "ruby", "csharp", "php"],
     "minOraclePairs": 54
   },
+  "wave11": {
+    "id": "wave11-systems-lang-rust-outbound",
+    "label": "All non-rust hub origins × rust actix outbound with native trace replay",
+    "originIds": [
+      "javascript",
+      "typescript",
+      "python",
+      "java",
+      "go",
+      "csharp",
+      "ruby",
+      "svelte",
+      "vue",
+      "kotlin",
+      "scala",
+      "swift",
+      "sql",
+      "html",
+      "css",
+      "json",
+      "yaml",
+      "markdown",
+      "scss",
+      "c",
+      "cpp"
+    ],
+    "outputIds": ["rust"],
+    "minOraclePairs": 21
+  },
   "refused": [
     "Claim all 601 pairs production-ready without per-pair trace oracle",
     "Skip WebIR for promotion",

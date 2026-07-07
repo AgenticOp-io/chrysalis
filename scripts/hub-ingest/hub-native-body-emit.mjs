@@ -539,3 +539,130 @@ export function javaMethodParams(path, value) {
   }
   return { annotations, signature: paramNames.join(", ") };
 }
+
+/**
+ * @param {string} path
+ */
+export function actixRoutePath(path) {
+  return path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, "{$1}");
+}
+
+/**
+ * @param {string} routePath
+ * @returns {string}
+ */
+export function rustHandlerSignature(routePath, body) {
+  /** @type {string[]} */
+  const params = [];
+  const pathNames = hubPathParamNames(routePath);
+  if (pathNames.length === 1) params.push("path: web::Path<String>");
+  else if (pathNames.length > 1) {
+    params.push(`path: web::Path<(${pathNames.map(() => "String").join(", ")})>`);
+  }
+  const queryRefs =
+    body.kind === "structured" ? collectQueryRefs(/** @type {HubStructuredValue} */ (body.value)) : [];
+  if (queryRefs.length > 0) params.unshift("req: HttpRequest");
+  return params.join(", ");
+}
+
+/**
+ * @param {{ kind: string, reason?: string, value?: unknown }} body
+ * @param {string} routePath
+ */
+export function renderRustBody(body, routePath) {
+  const pathNames = hubPathParamNames(routePath);
+
+  /** @param {HubStructuredValue} v */
+  function pathRefExpr(name) {
+    if (pathNames.length === 1) return "path.into_inner()";
+    const idx = pathNames.indexOf(name);
+    if (idx < 0) return null;
+    return `path.${idx}`;
+  }
+
+  /** @param {{ source: string, name: string, default?: unknown }} ref */
+  function queryRefExpr(ref) {
+    const key = JSON.stringify(ref.name);
+    const fallback = Object.prototype.hasOwnProperty.call(ref, "default")
+      ? `.unwrap_or_else(|| ${JSON.stringify(String(ref.default))}.to_string())`
+      : ".unwrap_or_default()";
+    return `req.uri().query().and_then(|q| web::Query::<std::collections::HashMap<String, String>>::from_query(q).ok()).and_then(|q| q.get(${key}).cloned())${fallback}`;
+  }
+
+  /** @param {HubStructuredValue} v */
+  function structured(v) {
+    if (v.t === "lit") {
+      if (v.value !== null && typeof v.value === "object") {
+        return { expr: `serde_json::json!(${JSON.stringify(v.value)})`, json: true };
+      }
+      if (typeof v.value === "boolean") {
+        return { expr: JSON.stringify(String(v.value)), json: false };
+      }
+      if (typeof v.value === "number") {
+        return { expr: JSON.stringify(String(v.value)), json: false };
+      }
+      return { expr: JSON.stringify(String(v.value)), json: false };
+    }
+    if (v.t === "ref") {
+      if (v.source === "path") {
+        const expr = pathRefExpr(v.name);
+        if (!expr) return null;
+        return { expr, json: false };
+      }
+      if (v.source === "query") return { expr: queryRefExpr(v), json: false };
+      return null;
+    }
+    if (v.t === "obj") {
+      const pairs = [];
+      for (const e of v.entries) {
+        const inner = structured(/** @type {HubStructuredValue} */ (e.value));
+        if (!inner || inner.expr === null) return null;
+        pairs.push(`"${e.key}": ${inner.expr}`);
+      }
+      return { expr: `serde_json::json!({ ${pairs.join(", ")} })`, json: true };
+    }
+    return null;
+  }
+
+  if (body.kind === "hole") {
+    return {
+      lines: [
+        `HttpResponse::InternalServerError().body(${JSON.stringify(body.reason ?? "hub:hole")})`,
+      ],
+      hole: true,
+    };
+  }
+  if (body.kind === "literal") {
+    const v = body.value;
+    if (v !== null && typeof v === "object") {
+      return { lines: [`HttpResponse::Ok().json(serde_json::json!(${JSON.stringify(v)}))`], hole: false };
+    }
+    if (typeof v === "boolean") {
+      return { lines: [`HttpResponse::Ok().body(${JSON.stringify(String(v))})`], hole: false };
+    }
+    if (typeof v === "number") {
+      return { lines: [`HttpResponse::Ok().body(${JSON.stringify(String(v))})`], hole: false };
+    }
+    return {
+      lines: [`HttpResponse::Ok().content_type("text/plain; charset=utf-8").body(${JSON.stringify(String(v))})`],
+      hole: false,
+    };
+  }
+  if (body.kind === "structured") {
+    const lowered = structured(/** @type {HubStructuredValue} */ (body.value));
+    if (!lowered || lowered.expr === null) {
+      return {
+        lines: [`HttpResponse::InternalServerError().body("hub:unsupported-body-shape")`],
+        hole: true,
+      };
+    }
+    if (lowered.json || hubBodyIsJsonReturn(body)) {
+      return { lines: [`HttpResponse::Ok().json(${lowered.expr})`], hole: false };
+    }
+    return {
+      lines: [`HttpResponse::Ok().content_type("text/plain; charset=utf-8").body(${lowered.expr})`],
+      hole: false,
+    };
+  }
+  return { lines: [`HttpResponse::InternalServerError().body("hub:unsupported-body")`], hole: true };
+}

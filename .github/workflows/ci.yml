@@ -65,6 +65,8 @@ jobs:
         with:
           go-version: "1.22"
 
+      - uses: dtolnay/rust-toolchain@stable
+
       - name: Python + Go CLI shims (forward to Node CLI, DESIGN D295)
         run: pnpm run test:cli-shims
 
@@ -140,6 +142,9 @@ jobs:
 
       - name: Extended matrix wave 10 maintenance (G9164)
         run: pnpm run hub:extended-matrix-oracle-wave10-smoke
+
+      - name: Extended matrix wave 11 maintenance (G9165)
+        run: pnpm run hub:extended-matrix-oracle-wave11-smoke
 
       - name: CWL runtime scaffold depth (G9238)
         run: pnpm run hub:cwl-runtime-scaffold-depth-smoke
