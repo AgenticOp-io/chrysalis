@@ -1,6 +1,6 @@
 # Paused backlog and active build queue
 
-> **Status:** authoritative (2026-07-06) — Phase 46 closed (**G9290**, **D6343**); Phase 45 closed (**G9190**); Phase 44 closed (**G9140**)  
+> **Status:** authoritative (2026-07-07) — Phase 46 closed (**G9290**, **D6343**); Phase 45 closed (**G9190**); Phase 44 closed (**G9140**); extended matrix census **601/601** (**G9160**, **D6357**)  
 > **Purpose:** Index for **maintenance**, **closed programs**, and **remaining honest gaps**.  
 > **Active operator stack:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — start there, not here, if you are new.
 
@@ -19,12 +19,8 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (weekly CI) |
 | **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |
-| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **601/601** oracle-product |
-| **Extended matrix wave 8** | **G9161** | `hub:extended-matrix-oracle-wave8-smoke` |
-| **Extended matrix wave 9** | **G9163** | `hub:extended-matrix-oracle-wave9-smoke` |
-| **Extended matrix wave 10** | **G9164** | `hub:extended-matrix-oracle-wave10-smoke` |
-| **Extended matrix wave 15** | **G9169** | `hub:extended-matrix-oracle-wave15-smoke` |
-| **Extended matrix wave 16** | **G9172** | `hub:extended-matrix-oracle-wave16-smoke` |
+| **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **601/601** oracle-product (regression) |
+| **Extended matrix wave regression (8–16)** | **G9161**–**G9172** | `hub:extended-matrix-oracle-wave*-smoke` — charter waves; see `package.json` |
 | **CWL runtime scaffold depth** | **G9238** | `hub:cwl-runtime-scaffold-depth-smoke` |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
@@ -129,7 +125,7 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (arch
 
 | Gap | Status | Doc |
 | --- | --- | --- |
-| Extended matrix oracle promotion | **322/601** below target — maintenance census + waves **8–10**; not production parity claim | [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) |
+| Per-pair production parity beyond trace replay | Census **601/601** closed — not a production-ready claim; idiomaticity / cutover depth remain | charter `refused` in `fixtures/hub-extended-matrix-oracle/` |
 | Live operator deploy refresh | Operator-run — `wisp:deploy:gce` + `wisp:operator-verify --require` | `WISP-PRODUCTION-COMPLETION-PROGRAM.md` |
 | Real WordPress core install | Customer-owned oracle | `WORDPRESS-CUSTOMER-ORACLE.md` |
 | Customer north-star metrics | Playbook scaffolding | `CUSTOMER-NORTH-STAR-METRICS.md` |
@@ -160,3 +156,4 @@ Full catalog: [`archive/INDEX.md`](./archive/INDEX.md).
 | LLM-assisted convert | **G8830** / **G8800** | `hub:llm-assisted-convert-close-smoke` |
 | LLM convert full | **G8940** / **G8900** | `hub:llm-convert-full-close-smoke` |
 | Phase 44 extended matrix | **G9140** / **G9000** | `hub:phase44-program-close-smoke` |
+| Extended matrix census (601-pair oracle-product) | **G9160** / waves **8–16** (**D6355–D6357**) | `hub:extended-matrix-oracle-progress-smoke` |

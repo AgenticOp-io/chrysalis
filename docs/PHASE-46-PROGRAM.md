@@ -68,6 +68,16 @@ Closed when wave **6–7** bars pass, runtime depth close **G9220** green, and c
 
 Wave **6** promoted **json/css → cwl** (+2). Wave **7** closed **json/css × hono/fastify/typescript/javascript** trace-replay bar (8 pairs).
 
+## Post-close maintenance — extended matrix census (2026-07-06)
+
+Waves **8–16** (maintenance, post–**G9290**) closed the **601-pair oracle-product census** at **601/601** (**D6355–D6357**). Regression: `hub:extended-matrix-oracle-progress-smoke` (**G9160**) + per-wave smokes **G9161**–**G9172**. This does **not** revise the Phase 46 program close record above (**180/601** at **G9290**).
+
+| Metric | Value (maintenance close) |
+| --- | --- |
+| Hub directed pairs | **601** |
+| Oracle product | **601** (72 core + 529 extended) |
+| Below target | **0** |
+
 ## Refused
 
 - 601-pair production parity marketing

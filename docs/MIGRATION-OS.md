@@ -86,6 +86,7 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 | **G8830** | `hub:llm-assisted-convert-close-smoke` | Verify-gated convert assist + MCP + IS routing |
 | **G8940** | `hub:llm-convert-full-close-smoke` | LLM enrich + verify-gated apply + repair bridge |
 | **G9140** | `hub:phase44-program-close-smoke` | Extended matrix waves + hole closure + Horizon C (169/601 honest) |
+| **G9160** | `hub:extended-matrix-oracle-progress-smoke` | 601-pair oracle-product census (**601/601**; waves **8–16** maintenance) |
 | **G8600** | `hub:is-runtime-close-smoke` | IS tier retrieval + skip-LLM routing (CPU) |
 
 Nightly CI: `.github/workflows/open-legacy-index-nightly.yml`  
