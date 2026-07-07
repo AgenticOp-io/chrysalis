@@ -139,6 +139,7 @@
     ul.querySelectorAll(".home-delete-project").forEach((btn) => {
       btn.addEventListener("click", () => deleteProjectFromHome(btn.getAttribute("data-project-id")));
     });
+    loadExtendedMatrixSummary().catch(() => {});
   }
 
   async function loadLanguageReadiness() {
@@ -187,9 +188,25 @@
       const core = data.fullMatrixOracle?.corePairCount ?? 72;
       const total = ext.hubDirectedPairCount ?? data.hubDirectedPairs ?? 601;
       const oracle = ext.oracleProductCount ?? 0;
-      const below = ext.belowTarget ?? total - oracle;
-      summary.textContent = `${oracle}/${total} oracle-product pairs (${core} core + ${ext.extendedOraclePairs ?? oracle - core} extended); ${below} below target — honest waves, not 601 production-ready.`;
+      const below = ext.belowTarget ?? Math.max(0, total - oracle);
+      const extended = ext.extendedOraclePairs ?? Math.max(0, oracle - core);
+      const censusClosed = oracle >= total && below <= 0;
+      if (censusClosed) {
+        summary.textContent =
+          `${oracle}/${total} oracle-product pairs (G9160 closed — maintenance regression). ` +
+          `${core} core + ${extended} extended. Trace replay in CI per pair — not production cutover parity.`;
+      } else {
+        summary.textContent =
+          `${oracle}/${total} oracle-product pairs (${core} core + ${extended} extended); ` +
+          `${below} below census target. Trace replay only — not production-ready.`;
+      }
       wavesEl.innerHTML = "";
+      if (censusClosed) {
+        const li = document.createElement("li");
+        li.textContent =
+          "Phase 44–46 waves closed; census held by hub:extended-matrix-oracle-progress-smoke (G9160).";
+        wavesEl.appendChild(li);
+      }
       const waves = [
         ["Wave 1 file-lift", ext.wave1OracleInWave, ext.wave1MinOraclePairs, ext.wave1Complete],
         ["Wave 2 pattern/CWL", ext.wave2OracleInWave, ext.wave2MinOraclePairs, ext.wave2Complete],

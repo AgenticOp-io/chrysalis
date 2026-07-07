@@ -154,7 +154,7 @@ export function buildHubCapabilityMatrixReport() {
       wave3OracleInWave: extendedWave3.wave?.oracleInWave ?? 0,
       wave3MinOraclePairs: extendedWave3.wave?.minOracle ?? 12,
       wave3Complete: extendedWave3.ok === true,
-      note: "601-pair census; wave-1 file-lift + wave-2 pattern-lift/CWL + wave-3 asset file-lift",
+      note: "601/601 oracle-product census closed (G9160 maintenance); waves 1–16 historical — trace replay, not production parity",
     },
     horizonCTrain: {
       program: "Phase 44c — Horizon C QLoRA train loop",
