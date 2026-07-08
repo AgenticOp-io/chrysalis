@@ -9,7 +9,7 @@
 
 ## How it uses Chrysalis
 
-**Chrysalis** (this repository, **MIT**) supplies the **engine**:
+**Chrysalis** (this repository, **Apache-2.0**) supplies the **engine**:
 
 - **Oracle** capture and **corpus** design  
 - **WebIR** ingest and emit  

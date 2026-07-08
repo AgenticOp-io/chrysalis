@@ -93,6 +93,7 @@ import {
   runSiteTranslation,
 } from "./chrysalis-hub-batch.mjs";
 import { runProjectSetup } from "./chrysalis-hub-setup.mjs";
+import { assertDemoSiteScope, isHubDemoMode, demoMaxRoutes, demoMaxSites } from "./chrysalis-hub-demo-guard.mjs";
 import { buildObserveAssist } from "./chrysalis-hub-observe-assist.mjs";
 import { readVerifySummary, runProjectVerify, runSiteVerify, defaultTracesDir } from "./chrysalis-hub-verify.mjs";
 import { runWptpHubSmoke, runSiteWptpCompose } from "./chrysalis-hub-wptp.mjs";
@@ -421,6 +422,7 @@ async function startProjectBatch(
   if (hubBusy()) {
     throw new Error("A setup, batch, or job is already running");
   }
+  assertDemoSiteScope((siteIds ?? project.sites.map((s) => s.id)).length);
   if (setupFirst) {
     await new Promise((resolve, reject) => {
       const setupId = `setup-${Date.now()}`;
@@ -763,6 +765,9 @@ const server = createServer(async (req, res) => {
       port,
       authRequired: Boolean(authToken),
       wptpReferences: WPTP_CI_REFERENCES,
+      demoMode: isHubDemoMode()
+        ? { on: true, maxRoutesPerRequest: demoMaxRoutes(), maxSitesPerRequest: demoMaxSites() }
+        : { on: false },
     });
     return;
   }
@@ -1907,6 +1912,10 @@ const server = createServer(async (req, res) => {
           });
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
+          if (e?.code === "demo-scope-limit") {
+            sendJson(res, 403, { error: "demo-scope-limit", message: msg });
+            return;
+          }
           if (msg.includes("license")) {
             sendJson(res, 403, { error: "license-gate", message: msg });
             return;
@@ -1939,6 +1948,10 @@ const server = createServer(async (req, res) => {
           });
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
+          if (e?.code === "demo-scope-limit") {
+            sendJson(res, 403, { error: "demo-scope-limit", message: msg });
+            return;
+          }
           if (msg.includes("license")) {
             sendJson(res, 403, { error: "license-gate", message: msg });
             return;

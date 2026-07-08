@@ -3,7 +3,7 @@
   "version": "2.0.2",
   "private": true,
   "description": "In-process HTTP runtime for Chrysalis Web Language (CWL) via WebIR simulation.",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

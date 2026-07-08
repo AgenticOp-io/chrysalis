@@ -8,6 +8,13 @@ cd "${REPO}"
 
 export CHRYSALIS_SKIP_PARSER_VENDOR="${CHRYSALIS_SKIP_PARSER_VENDOR:-0}"
 export CHRYSALIS_HUB_MAX_PARALLEL="${CHRYSALIS_HUB_MAX_PARALLEL:-3}"
+# Public-demo lockdown (off by default — see scripts/chrysalis-hub-demo-guard.mjs).
+# Set CHRYSALIS_HUB_DEMO_MODE=1 before running this script on a public-facing hub
+# to cap pages-per-request and sites-per-batch so a "demo" can't become an
+# unbounded, LLM-assisted rewrite of a visitor's whole site.
+export CHRYSALIS_HUB_DEMO_MODE="${CHRYSALIS_HUB_DEMO_MODE:-0}"
+export CHRYSALIS_HUB_DEMO_MAX_ROUTES="${CHRYSALIS_HUB_DEMO_MAX_ROUTES:-2}"
+export CHRYSALIS_HUB_DEMO_MAX_SITES="${CHRYSALIS_HUB_DEMO_MAX_SITES:-1}"
 
 echo "[hub-install] repo=${REPO}"
 if ! command -v node >/dev/null 2>&1; then
@@ -44,6 +51,9 @@ Environment=CHRYSALIS_STATUS_REPO=${REPO}
 Environment=CHRYSALIS_STATUS_PORT=${PORT}
 Environment=CHRYSALIS_STATUS_BIND=${BIND}
 Environment=CHRYSALIS_HUB_MAX_PARALLEL=${CHRYSALIS_HUB_MAX_PARALLEL}
+Environment=CHRYSALIS_HUB_DEMO_MODE=${CHRYSALIS_HUB_DEMO_MODE}
+Environment=CHRYSALIS_HUB_DEMO_MAX_ROUTES=${CHRYSALIS_HUB_DEMO_MAX_ROUTES}
+Environment=CHRYSALIS_HUB_DEMO_MAX_SITES=${CHRYSALIS_HUB_DEMO_MAX_SITES}
 ExecStart=$(command -v node) ${REPO}/scripts/chrysalis-operator-web.mjs
 Restart=on-failure
 

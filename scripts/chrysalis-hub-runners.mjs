@@ -4,9 +4,22 @@
 import { spawn } from "node:child_process";
 import { join } from "node:path";
 import { resolveHubRoute } from "./chrysalis-hub-store.mjs";
+import { isHubDemoMode } from "./chrysalis-hub-demo-guard.mjs";
 
 /** Build sequential job steps for a hub runnable row. */
 export function hubJobSteps(repo, cliBin, projectDir, runnable, progressFile) {
+  const steps = buildActionSteps(repo, cliBin, projectDir, runnable, progressFile);
+  if (isHubDemoMode()) {
+    steps.unshift({
+      kind: "hub-demo-route-guard",
+      execPath: process.execPath,
+      argv: [join(repo, "scripts/hub-ingest/hub-demo-route-guard.mjs"), projectDir],
+    });
+  }
+  return steps;
+}
+
+function buildActionSteps(repo, cliBin, projectDir, runnable, progressFile) {
   const progress = progressFile ?? join(projectDir, ".chrysalis", "ingest.progress");
   const steps = [];
   const resolved = resolveHubRoute(runnable.sourceLang, runnable.targetId);

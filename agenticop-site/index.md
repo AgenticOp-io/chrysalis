@@ -4,7 +4,7 @@
 
 **AgenticOp** is the practice layer for **verified web modernization**: we help teams move legacy stacks onto **CWL** (Chrysalis Web Language) and run **agentic** workflows where **Intelligence Shorthand** replaces heavyweight LLM calls whenever verify already knows the answer.
 
-**Chrysalis** (MIT, [theorem6/chrysalis](https://github.com/theorem6/chrysalis)) is the engine underneath — oracle capture, WebIR, verify replay, chimera cutover, and the `@chrysalis/web-llm` shorthand stack.
+**Chrysalis** (Apache-2.0, [AgenticOp-io/chrysalis](https://github.com/AgenticOp-io/chrysalis)) is the engine underneath — oracle capture, WebIR, verify replay, chimera cutover, and the `@chrysalis/web-llm` shorthand stack.
 
 ---
 
@@ -143,7 +143,7 @@ Commercial playbook: [docs/COMMERCIAL.md](https://github.com/theorem6/chrysalis/
 
 ### Is AgenticOp a separate product from Chrysalis?
 
-Chrysalis is the open-source engine (MIT). AgenticOp is how we run programs on top: scoping, gates, cutover, and operator discipline — with **CWL** and **Intelligence Shorthand** as the default vocabulary.
+Chrysalis is the open-source engine (Apache-2.0). AgenticOp is how we run programs on top: scoping, gates, cutover, and operator discipline — with **CWL** and **Intelligence Shorthand** as the default vocabulary.
 
 ### Do you ship “AI-written” production code without review?
 
@@ -165,8 +165,8 @@ TypeScript emit is a **backend**. **CWL** is the **durable contract** teams revi
 
 Clone a fixture, run verify, export shorthand. That loop is the spine of every AgenticOp engagement.
 
-[Open the Chrysalis repository](https://github.com/theorem6/chrysalis)
+[Open the Chrysalis repository](https://github.com/AgenticOp-io/chrysalis)
 
 ---
 
-*AgenticOp.io · Chrysalis is MIT licensed.*
+*AgenticOp.io · Chrysalis is Apache-2.0 licensed.*

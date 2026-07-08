@@ -321,7 +321,7 @@ Programs:
 
 ## 12. AgenticOp’s layer
 
-**Chrysalis** (MIT) is the engine. **AgenticOp** is the practice:
+**Chrysalis** (Apache-2.0) is the engine. **AgenticOp** is the practice:
 
 - Corpus design and redaction policy
 - CWL review and migration contract governance

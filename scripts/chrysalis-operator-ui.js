@@ -2376,6 +2376,13 @@
     api("/api/config")
       .then((c) => {
         if (c.authRequired && !hubAuthToken) $("authGate").hidden = false;
+        if (c.demoMode?.on) {
+          const b = $("demoBanner");
+          if (b) {
+            b.hidden = false;
+            b.textContent = `Public demo mode: capped at ${c.demoMode.maxRoutesPerRequest} page(s) and ${c.demoMode.maxSitesPerRequest} site(s) per request, one job at a time. Ask for a full pilot at hello@agenticop.io.`;
+          }
+        }
       })
       .catch(() => {});
     loadHome().catch(() => {});
