@@ -20,7 +20,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$script = Join-Path $PSScriptRoot "gce-hub-caddy-tls.sh"
+$script = Join-Path $PSScriptRoot "gce-hub-nginx-tls.sh"
 $gceTestVm = Join-Path $PSScriptRoot "gce-test-vm.ps1"
 
 if (-not (Test-Path $gceTestVm)) { throw "missing $gceTestVm" }
@@ -28,13 +28,16 @@ if (-not (Test-Path $gceTestVm)) { throw "missing $gceTestVm" }
 $sshExtra = @()
 if ($TunnelThroughIap) { $sshExtra += "--tunnel-through-iap" }
 
-$remote = "~/chrysalis-gce-helpers/gce-hub-caddy-tls.sh"
-Write-Host "Uploading gce-hub-caddy-tls.sh..."
+$remoteDir = "chrysalis-gce-helpers"
+$remote = "${remoteDir}/gce-hub-nginx-tls.sh"
+Write-Host "Uploading gce-hub-nginx-tls.sh..."
+& gcloud compute ssh $Name @sshExtra --zone=$Zone --project=$Project --command="mkdir -p ~/${remoteDir}"
+if ($LASTEXITCODE -ne 0) { throw "ssh mkdir failed" }
 & gcloud compute scp @sshExtra $script "${Name}:${remote}" --zone=$Zone --project=$Project
 if ($LASTEXITCODE -ne 0) { throw "scp failed" }
 
-Write-Host "Running Caddy TLS setup on VM (DNS must already point here)..."
-$cmd = "chmod +x ${remote} && CHRYSALIS_CADDY_ACME_EMAIL=hello@agenticop.io bash ${remote}"
+Write-Host "Running nginx + certbot TLS on VM (DNS must already point here)..."
+$cmd = "chmod +x ~/${remote} && CHRYSALIS_HUB_NGINX_WISP=0 CHRYSALIS_HUB_ACME_EMAIL=hello@agenticop.io bash ~/${remote}"
 & gcloud compute ssh $Name @sshExtra --zone=$Zone --project=$Project --command=$cmd
 if ($LASTEXITCODE -ne 0) { throw "caddy setup failed — verify DNS A records for hub.agenticop.io" }
 

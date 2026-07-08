@@ -69,7 +69,7 @@ Script: **`scripts/publish-zenodo.mjs`**. Do **not** enable GitHub–Zenodo rele
 
 ## Demo hub TLS (`hub.agenticop.io`)
 
-The Translation Hub runs on GCE **`chrysalis-test-vm`** (port **19090**). Public HTTPS uses **Caddy** on the VM with automatic **Let's Encrypt** certificates.
+The Translation Hub runs on GCE **`chrysalis-test-vm`** (port **19090**). Public HTTPS uses **nginx + certbot** on the VM (port **80** is already nginx; **443** terminates TLS and reverse-proxies to **19090**).
 
 ### One-time DNS (at your registrar)
 
@@ -94,6 +94,6 @@ pnpm run deploy:hub-caddy-tls
 
 Or: **`.\scripts\gce-hub-caddy-deploy.ps1 -Project chrysalis-dev-f5x6qv`**
 
-Script: **`scripts/gce-hub-caddy-tls.sh`**. Override hosts with **`CHRYSALIS_HUB_PUBLIC_HOST`**, **`CHRYSALIS_WISP_PUBLIC_HOST`**, ACME email with **`CHRYSALIS_CADDY_ACME_EMAIL`** (default **`hello@agenticop.io`**).
+Script: **`scripts/gce-hub-nginx-tls.sh`** (invoked by **`pnpm run deploy:hub-caddy-tls`**). Override hosts with **`CHRYSALIS_HUB_PUBLIC_HOST`**, **`CHRYSALIS_WISP_PUBLIC_HOST`**, ACME email with **`CHRYSALIS_HUB_ACME_EMAIL`** (default **`hello@agenticop.io`**). Set **`CHRYSALIS_HUB_NGINX_WISP=1`** when **`wisp.agenticop.io`** DNS exists.
 
 After TLS is live, site and WISP doc links default to **`https://hub.agenticop.io`**. Override with **`CHRYSALIS_HUB_DOCS_BASE`** for IP-only dev.
