@@ -3,6 +3,8 @@
 **AgenticOp** is the public **practice** for verification-led modernization and operations: delivery centers **CWL** as the migration contract and **Intelligence Shorthand** so agents skip heavyweight LLM calls when verify already externalized the answer — always **grounded in production behavior** (oracle traces and replay), not speculative rewrites.
 
 - **Site / primary domain:** https://agenticop.io  
+- **Demo hub (HTTPS):** https://hub.agenticop.io — Translation Hub operator UI (Caddy + Let's Encrypt on GCE).  
+- **WISP demo (HTTPS, optional):** https://wisp.agenticop.io  
 - **Display name:** **AgenticOp** (not “AgenticOps”; avoid **`agenticops.*`** hostnames in new materials).
 
 ## How it uses Chrysalis
@@ -51,3 +53,34 @@ For maintainers with Firebase CLI access:
 **`.firebaserc`** (committed) pins **`projects.default`** = **`wisptools-production`** and the **`hosting.agenticop`** → **`agenticops-production`** mapping. **`firebase.json`** sets **`hosting.target`** = **`agenticop`**. Do **not** deploy this target to the primary **`wisptools-production`** Hosting site if that site serves another app; this repo only targets **`agenticops-production`**.
 
 **`.firebaserc.example`** is a minimal template for other Firebase projects.
+
+## Demo hub TLS (`hub.agenticop.io`)
+
+The Translation Hub runs on GCE **`chrysalis-test-vm`** (port **19090**). Public HTTPS uses **Caddy** on the VM with automatic **Let's Encrypt** certificates.
+
+### One-time DNS (at your registrar)
+
+| Host | Type | Value |
+| --- | --- | --- |
+| `hub.agenticop.io` | A | GCE VM external IP (same as hub IP deploy) |
+| `wisp.agenticop.io` | A | same IP (optional; WISP on **19100**) |
+
+Wait for DNS propagation before running TLS setup (Let's Encrypt HTTP-01).
+
+### GCP firewall
+
+Allow **tcp:443** to the VM (e.g. tag **`chrysalis-hub`** or default network rule). Port **19090** can stay for direct IP access during transition.
+
+### Deploy TLS on the VM
+
+From repo root (after DNS points at the VM):
+
+```powershell
+pnpm run deploy:hub-caddy-tls
+```
+
+Or: **`.\scripts\gce-hub-caddy-deploy.ps1 -Project chrysalis-dev-f5x6qv`**
+
+Script: **`scripts/gce-hub-caddy-tls.sh`**. Override hosts with **`CHRYSALIS_HUB_PUBLIC_HOST`**, **`CHRYSALIS_WISP_PUBLIC_HOST`**, ACME email with **`CHRYSALIS_CADDY_ACME_EMAIL`** (default **`hello@agenticop.io`**).
+
+After TLS is live, site and WISP doc links default to **`https://hub.agenticop.io`**. Override with **`CHRYSALIS_HUB_DOCS_BASE`** for IP-only dev.

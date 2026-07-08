@@ -5,7 +5,9 @@ import { groupHubOperatorDocsByCategory, sortedHubOperatorDocCategories } from "
 
 const WISP_HUB_DOCS_BASE =
   process.env.CHRYSALIS_HUB_DOCS_BASE ??
-  `http://${process.env.CHRYSALIS_WISP_GCE_HOST ?? "34.61.255.147"}:19090`;
+  (process.env.CHRYSALIS_HUB_PUBLIC_HOST
+    ? `https://${process.env.CHRYSALIS_HUB_PUBLIC_HOST}`
+    : "https://hub.agenticop.io");
 
 /** Routes with dedicated parity HTML (Phase 30/30b) — never replace. */
 export const WISP_MODULE_DEMO_SKIP_PATHS = new Set([
