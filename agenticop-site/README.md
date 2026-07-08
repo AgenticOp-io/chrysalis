@@ -1,15 +1,22 @@
-# AgenticOp static site (Firebase Hosting)
+# AgenticOp site mirror (Chrysalis repo — not production hosting)
 
-Source for **https://agenticop.io** (custom domain on Hosting site **`agenticops-production`**, project **`wisptools-production`**).
+**Production site:** **[AgenticOp-io/agenticops-web](https://github.com/AgenticOp-io/agenticops-web)** — dark theme, `agenticops.css`, multi-page layout, Firebase deploy from that repo only.
 
-- **`site.css`** — generated for **`whitepaper.html`** only: run **`node scripts/rebuild-agenticop-site-css.mjs`** (also part of **`pnpm run sync:agenticop-site`**). It copies the inline **`<style>`** block from **`index.html`** (the canonical wisptools-era palette) plus **`whitepaper-append.css`**, and copies **`branding/agenticop/*.svg`** into **`assets/`** so the hosted logos match the repo marks.
-- **`index.md`** — **canonical landing copy** (CWL + Intelligence Shorthand focus). Rebuild **`index.html`** from this file when refreshing the public site.
-- **`index.html`** — hosted landing; **inline CSS** (same as last committed design before split). Do not move its styles to **`site.css`** without updating the rebuild script. Content may lag **`index.md`** until the next HTML rebuild.
-- **`whitepaper.html`** + **`whitepaper.md`** — technical overview (CWL, IS tiers, verify-gated agents). Markdown synced from **`docs/WHITEPAPER.md`** on each **`pnpm run deploy:agenticop-site`**).
-- **`assets/`** — SVG logos (keep in sync with **`branding/agenticop/`** when marks change).
+**Do not** `firebase deploy` this folder. It will overwrite **https://agenticop.io** with the wrong design. Use:
 
-Keep **`agenticop-site/whitepaper.md`** in lockstep with **`docs/WHITEPAPER.md`**: **`pnpm run sync:agenticop-site`** (Vitest asserts they match).
+```bash
+pnpm run deploy:agenticop-site   # runs firebase in ../agenticops-web
+```
 
-Deploy from repo root: **`pnpm run deploy:agenticop-site`** (runs sync, then Firebase; see **`docs/AGENTICOP.md`**). Public URLs: **https://agenticop.io/** · **https://agenticop.io/whitepaper.html**
+Set **`AGENTICOPS_WEB_DIR`** if the clone is elsewhere. See **`docs/AGENTICOP.md`**.
 
-Zenodo (docs only, no code): **`pnpm run publish:zenodo`** (dry-run); **`pnpm run publish:zenodo -- --publish`** with **`ZENODO_TOKEN`** set.
+## What this folder is for
+
+- **`whitepaper.md`** — byte copy of **`docs/WHITEPAPER.md`** for Zenodo and optional hosted whitepaper sync
+- **`whitepaper.html`** — technical overview (styles from generated **`site.css`**)
+- **`index.md`** — internal landing copy notes (not the live site)
+- **`assets/`** — SVG logos synced from **`branding/agenticop/`**
+
+Keep **`whitepaper.md`** in lockstep: **`pnpm run sync:agenticop-site`** (Vitest guards vs **`docs/WHITEPAPER.md`**).
+
+Zenodo (docs only): **`pnpm run publish:zenodo`**

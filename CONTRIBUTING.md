@@ -20,7 +20,7 @@
 - **TypeScript strict** everywhere; avoid `any` without a `// FIXME: …` note (see `AGENTS.md`).
 - **Tests:** new behavior needs fixtures or Vitest coverage; generated-code changes need trace-based verification where the project already does so.
 - **Changelog:** add an **Unreleased** bullet in [`CHANGELOG.md`](./CHANGELOG.md) for user-visible changes (maintainers fold into a version at release time).
-- **AgenticOp site:** after changing **`docs/WHITEPAPER.md`** or **`branding/agenticop/*.svg`**, run **`pnpm run sync:agenticop-site`** so **`agenticop-site/`** stays in sync; **`pnpm test`** includes Vitest guards for **`whitepaper.md`** and assets (**`packages/cli/tests/agenticop-site-*.test.ts`**).
+- **AgenticOp site:** production HTML/CSS lives in **[AgenticOp-io/agenticops-web](https://github.com/AgenticOp-io/agenticops-web)** — deploy with **`pnpm run deploy:agenticop-site`**, not **`firebase deploy`** from **`agenticop-site/`**. After changing **`docs/WHITEPAPER.md`** or **`branding/agenticop/*.svg`**, run **`pnpm run sync:agenticop-site`** for the whitepaper mirror; **`pnpm test`** guards **`whitepaper.md`** and assets.
 - **Oracle / redaction lockstep:** if you touch [`packages/oracle/src/redaction.ts`](./packages/oracle/src/redaction.ts) or [`packages/oracle-php/src/Redactor.php`](./packages/oracle-php/src/Redactor.php), run **`pnpm run test:oracle-php-redactor`** with PHP on `PATH`.
 
 ## Proof-of-concept and pilot trees (version control)

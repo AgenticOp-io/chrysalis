@@ -24,11 +24,35 @@ Vector logos and usage notes: **[`../branding/agenticop/README.md`](../branding/
 
 Commercial lever ordering (services, support, licensed builds): **[`COMMERCIAL.md`](./COMMERCIAL.md)**.
 
-## Firebase Hosting (`agenticop.io`)
+## Public site (`agenticop.io`)
 
-The landing page source lives in **[`agenticop-site/`](../agenticop-site/)** — **`index.html`** uses the same **inline** stylesheet as the original wisptools-era static page; **`site.css`** is **generated** for **`whitepaper.html`** only (from that inline block + **`whitepaper-append.css`** via **`scripts/rebuild-agenticop-site-css.mjs`**). **`assets/*.svg`** are kept in lockstep with **`branding/agenticop/`** by the same script. Also committed: **`whitepaper.html`**, **`whitepaper.md`** (byte copy of **`docs/WHITEPAPER.md`**). **`firebase.json`** deploys **`agenticop-site/`** to Hosting target **`agenticop`** → site **`agenticops-production`** in Firebase project **`wisptools-production`**. Technical overview: **https://agenticop.io/whitepaper.html**.
+**Canonical source:** **[AgenticOp-io/agenticops-web](https://github.com/AgenticOp-io/agenticops-web)** — layout, **`agenticops.css`**, pages, nav, and Firebase config. Clone beside this repo (e.g. **`../agenticops-web`**) and deploy from there only.
 
-After editing **`docs/WHITEPAPER.md`** or **`index.html`** styles, run **`pnpm run sync:agenticop-site`** (or **`pnpm run deploy:agenticop-site`**) so **`whitepaper.md`** and **`site.css`** / **`assets/`** stay aligned; **`pnpm test`** guards **`whitepaper.md`** vs **`docs/WHITEPAPER.md`** and **`assets/`** vs **`branding/agenticop/`**.
+| Repo | Role |
+| --- | --- |
+| **`agenticops-web`** | **Production** marketing site → **https://agenticop.io** |
+| **`chrysalis/agenticop-site/`** | **Mirror only** — **`whitepaper.md`** sync from **`docs/WHITEPAPER.md`**, Zenodo bundle; **never** `firebase deploy` this folder |
+
+### Deploy (from Chrysalis root)
+
+```bash
+pnpm run deploy:agenticop-site
+```
+
+Runs **`firebase deploy --only hosting:agenticops`** in **`../agenticops-web`** (override with **`AGENTICOPS_WEB_DIR`**). Default Firebase project: **`agenticop-io`** (override with **`AGENTICOP_FIREBASE_PROJECT`**).
+
+Or from the site repo:
+
+```bash
+cd ../agenticops-web
+firebase deploy --only hosting:agenticops --project agenticop-io
+```
+
+See **`agenticops-web/README.md`**, **`AGENTS.md`**, and **`DNS_SETUP.md`** in that repo.
+
+### Whitepaper mirror (this repo)
+
+After editing **`docs/WHITEPAPER.md`**, run **`pnpm run sync:agenticop-site`** so **`agenticop-site/whitepaper.md`** and **`site.css`** / **`assets/`** stay aligned; **`pnpm test`** guards the copy.
 
 ### Zenodo (documentation only — no source code)
 
@@ -41,18 +65,7 @@ Publish markdown materials (CWL + Intelligence Shorthand) **without** a repo tar
 
 Script: **`scripts/publish-zenodo.mjs`**. Do **not** enable GitHub–Zenodo release archiving if you want to avoid automatic code uploads.
 
-- **Default web.app URL:** https://agenticops-production.web.app  
-- **Custom domain** **agenticop.io**: add in Firebase console → Hosting → **agenticops-production** → Add custom domain (DNS at your registrar).
-
-For maintainers with Firebase CLI access:
-
-1. **`pnpm install`** (includes **`firebase-tools`**).
-2. **`firebase login`** (once).
-3. From the repo root: **`pnpm run deploy:agenticop-site`** (runs **`firebase deploy --only hosting`** against **`wisptools-production`**).
-
-**`.firebaserc`** (committed) pins **`projects.default`** = **`wisptools-production`** and the **`hosting.agenticop`** → **`agenticops-production`** mapping. **`firebase.json`** sets **`hosting.target`** = **`agenticop`**. Do **not** deploy this target to the primary **`wisptools-production`** Hosting site if that site serves another app; this repo only targets **`agenticops-production`**.
-
-**`.firebaserc.example`** is a minimal template for other Firebase projects.
+**Legacy:** Root **`firebase.json`** + **`.firebaserc`** in this repo are **not** used for production deploys. They remain for historical reference only; use **`agenticops-web`** instead.
 
 ## Demo hub TLS (`hub.agenticop.io`)
 
