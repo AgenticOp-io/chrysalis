@@ -86,6 +86,7 @@ import {
   registerHubAccount,
   loginHubAccount,
   findHubAccountByToken,
+  recordHubDemandSignal,
 } from "./chrysalis-hub-store.mjs";
 import { probeHubConnectivity, probeOriginOverSsh } from "./chrysalis-hub-connectivity.mjs";
 import { hubJobSteps, runJobSteps } from "./chrysalis-hub-runners.mjs";
@@ -638,6 +639,16 @@ async function readBody(req) {
   for await (const c of req) chunks.push(c);
   const raw = Buffer.concat(chunks).toString("utf8");
   return raw.trim() ? JSON.parse(raw) : {};
+}
+
+/** Best-effort caller context for demo-signup metadata (never used for access control). */
+function requestClientMeta(req) {
+  const forwarded = String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim();
+  return {
+    ip: forwarded || req.socket?.remoteAddress || null,
+    userAgent: req.headers["user-agent"] ?? null,
+    referer: req.headers["referer"] ?? req.headers["referrer"] ?? null,
+  };
 }
 
 function sendJson(res, code, body) {
@@ -1532,7 +1543,7 @@ const server = createServer(async (req, res) => {
   if (req.method === "POST" && url.pathname === "/api/hub/auth/register") {
     try {
       const body = await readBody(req);
-      const account = await registerHubAccount({ email: body.email, password: body.password });
+      const account = await registerHubAccount({ email: body.email, password: body.password, ...requestClientMeta(req) });
       sendJson(res, 200, account);
     } catch (e) {
       sendJson(res, 400, { error: "register-failed", message: e instanceof Error ? e.message : String(e) });
@@ -1543,7 +1554,7 @@ const server = createServer(async (req, res) => {
   if (req.method === "POST" && url.pathname === "/api/hub/auth/login") {
     try {
       const body = await readBody(req);
-      const account = await loginHubAccount({ email: body.email, password: body.password });
+      const account = await loginHubAccount({ email: body.email, password: body.password, ...requestClientMeta(req) });
       sendJson(res, 200, account);
     } catch (e) {
       sendJson(res, 401, { error: "login-failed", message: e instanceof Error ? e.message : String(e) });
@@ -1677,6 +1688,14 @@ const server = createServer(async (req, res) => {
           outputLanguage: body.outputLanguage,
           prepOrigin: body.prepOrigin !== false,
           backgroundSetup,
+        });
+        void recordHubDemandSignal({
+          actorId: actor.id ?? null,
+          actorRole: actor.role,
+          originLanguage: body.originLanguage ?? null,
+          outputLanguage: body.outputLanguage ?? null,
+          siteCount: Array.isArray(body.sites) ? body.sites.length : 0,
+          demoMode: isHubDemoMode(),
         });
         let full = (await getProject(project.id)) ?? project;
         let setupStarted = false;

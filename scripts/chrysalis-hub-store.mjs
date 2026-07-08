@@ -4,7 +4,7 @@
  */
 import { createHash, randomBytes, scryptSync } from "node:crypto";
 import { spawn } from "node:child_process";
-import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, extname, join } from "node:path";
 import { buildRemoteScanShell, parseOriginAgentJson } from "./chrysalis-hub-connectivity.mjs";
@@ -1549,8 +1549,13 @@ function hashPassword(password, salt) {
   return scryptSync(String(password), salt, 64).toString("hex");
 }
 
-/** Register a demo-hub account (email + password) — used to gate the public login/register page. */
-export async function registerHubAccount({ email, password }) {
+/**
+ * Register a demo-hub account (email + password) — used to gate the public login/register page.
+ * `ip`/`userAgent`/`referer` are captured (not required) purely as demo-signup metadata — who's
+ * trying the product and how they found it — for later pilot follow-up and roadmap prioritization,
+ * never used for access control.
+ */
+export async function registerHubAccount({ email, password, ip, userAgent, referer }) {
   const normEmail = normalizeEmail(email);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normEmail)) throw new Error("Enter a valid email address.");
   if (String(password ?? "").length < 8) throw new Error("Password must be at least 8 characters.");
@@ -1562,27 +1567,47 @@ export async function registerHubAccount({ email, password }) {
     throw new Error("This demo has reached its account limit. Ask for a full pilot at hello@agenticop.io.");
   }
   const salt = randomBytes(16).toString("hex");
+  const now = new Date().toISOString();
   const account = {
     id: createHash("sha256").update(normEmail).digest("hex").slice(0, 24),
     email: normEmail,
     salt,
     passwordHash: hashPassword(password, salt),
     apiToken: randomBytes(24).toString("hex"),
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    lastLoginAt: now,
+    loginCount: 1,
+    signupMeta: cleanMeta({ ip, userAgent, referer }),
   };
   store.accounts.push(account);
   await saveAccounts(store);
   return { id: account.id, email: account.email, apiToken: account.apiToken };
 }
 
+function cleanMeta({ ip, userAgent, referer }) {
+  return {
+    ip: ip ? String(ip).slice(0, 100) : null,
+    userAgent: userAgent ? String(userAgent).slice(0, 300) : null,
+    referer: referer ? String(referer).slice(0, 300) : null,
+  };
+}
+
 /** Verify email/password and return the account's stable API token (unchanged across logins). */
-export async function loginHubAccount({ email, password }) {
+export async function loginHubAccount({ email, password, ip, userAgent, referer }) {
   const normEmail = normalizeEmail(email);
   const store = await loadAccounts();
-  const account = store.accounts.find((a) => a.email === normEmail);
+  const idx = store.accounts.findIndex((a) => a.email === normEmail);
+  const account = idx >= 0 ? store.accounts[idx] : null;
   if (!account || hashPassword(password, account.salt) !== account.passwordHash) {
     throw new Error("Email or password is incorrect.");
   }
+  store.accounts[idx] = {
+    ...account,
+    lastLoginAt: new Date().toISOString(),
+    loginCount: (account.loginCount ?? 1) + 1,
+    lastLoginMeta: cleanMeta({ ip, userAgent, referer }),
+  };
+  await saveAccounts(store);
   return { id: account.id, email: account.email, apiToken: account.apiToken };
 }
 
@@ -1591,6 +1616,35 @@ export async function findHubAccountByToken(token) {
   if (!token) return null;
   const store = await loadAccounts();
   return store.accounts.find((a) => a.apiToken === token) ?? null;
+}
+
+const demandSignalsPath = join(hubRoot, "demand-signals.jsonl");
+
+/**
+ * Append-only log of which origin/output language pairs real visitors ask for on the hub
+ * (demo or private). Never gates anything — purely a product signal: real-world demand is a
+ * better prioritization input than guesswork, and can refine `popularityRank`
+ * (hub-ingest/language-catalog.mjs) over time. No email/PII — actor is the same hashed
+ * tenant/account id already used for access scoping (hubActorFromRequest / account.id).
+ */
+export async function recordHubDemandSignal({ actorId, actorRole, originLanguage, outputLanguage, siteCount, demoMode }) {
+  try {
+    await ensureHubDirs();
+    const line = `${JSON.stringify({
+      kind: "chrysalis.hub.demand-signal",
+      schemaVersion: 1,
+      at: new Date().toISOString(),
+      actorId: actorId ?? null,
+      actorRole: actorRole ?? null,
+      originLanguage: originLanguage ?? null,
+      outputLanguage: outputLanguage ?? null,
+      siteCount: Number.isFinite(siteCount) ? siteCount : null,
+      demoMode: Boolean(demoMode),
+    })}\n`;
+    await appendFile(demandSignalsPath, line, "utf8");
+  } catch {
+    /* best-effort telemetry — never block project creation on a logging failure */
+  }
 }
 
 /** Portal tenancy when CHRYSALIS_OPERATOR_TOKEN is set on the hub server. */

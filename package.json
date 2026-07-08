@@ -747,6 +747,7 @@
     "verify:hub-deploy": "node scripts/hub-post-deploy-verify.mjs",
     "deploy:hub-demo": "powershell -ExecutionPolicy Bypass -File scripts/gce-hub-deploy.ps1 -Project chrysalis-dev-f5x6qv",
     "deploy:hub-caddy-tls": "powershell -ExecutionPolicy Bypass -File scripts/gce-hub-caddy-deploy.ps1 -Project chrysalis-dev-f5x6qv",
+    "hub:demand-report": "node scripts/hub-demand-report.mjs",
     "emit:webir-bundle-hono": "node scripts/emit-webir-bundle-hono.mjs",
     "clean": "pnpm -r clean",
     "sync:agenticop-site": "node scripts/sync-agenticop-site-content.mjs && node scripts/rebuild-agenticop-site-css.mjs",
