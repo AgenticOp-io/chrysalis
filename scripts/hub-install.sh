@@ -15,6 +15,12 @@ export CHRYSALIS_HUB_MAX_PARALLEL="${CHRYSALIS_HUB_MAX_PARALLEL:-3}"
 export CHRYSALIS_HUB_DEMO_MODE="${CHRYSALIS_HUB_DEMO_MODE:-0}"
 export CHRYSALIS_HUB_DEMO_MAX_ROUTES="${CHRYSALIS_HUB_DEMO_MAX_ROUTES:-2}"
 export CHRYSALIS_HUB_DEMO_MAX_SITES="${CHRYSALIS_HUB_DEMO_MAX_SITES:-1}"
+# Login/register gate (see scripts/chrysalis-hub-store.mjs registerHubAccount/loginHubAccount, DESIGN D6362).
+# Unset by default (no auth at all). Set CHRYSALIS_OPERATOR_TOKEN on a public-facing hub to require
+# sign-in for every API route: that exact value is the admin secret; any visitor who registers a free
+# account at the login page gets their own token instead.
+export CHRYSALIS_OPERATOR_TOKEN="${CHRYSALIS_OPERATOR_TOKEN:-}"
+export CHRYSALIS_HUB_MAX_ACCOUNTS="${CHRYSALIS_HUB_MAX_ACCOUNTS:-200}"
 
 echo "[hub-install] repo=${REPO}"
 if ! command -v node >/dev/null 2>&1; then
@@ -54,6 +60,8 @@ Environment=CHRYSALIS_HUB_MAX_PARALLEL=${CHRYSALIS_HUB_MAX_PARALLEL}
 Environment=CHRYSALIS_HUB_DEMO_MODE=${CHRYSALIS_HUB_DEMO_MODE}
 Environment=CHRYSALIS_HUB_DEMO_MAX_ROUTES=${CHRYSALIS_HUB_DEMO_MAX_ROUTES}
 Environment=CHRYSALIS_HUB_DEMO_MAX_SITES=${CHRYSALIS_HUB_DEMO_MAX_SITES}
+Environment=CHRYSALIS_OPERATOR_TOKEN=${CHRYSALIS_OPERATOR_TOKEN}
+Environment=CHRYSALIS_HUB_MAX_ACCOUNTS=${CHRYSALIS_HUB_MAX_ACCOUNTS}
 ExecStart=$(command -v node) ${REPO}/scripts/chrysalis-operator-web.mjs
 Restart=on-failure
 

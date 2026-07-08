@@ -37,7 +37,7 @@
     } else show("home");
   }
 
-  let hubAuthToken = sessionStorage.getItem("chrysalis_hub_token") || "";
+  let hubAuthToken = localStorage.getItem("chrysalis_hub_token") || "";
 
   function buildHeaders(opts) {
     const h = { ...(opts.headers || {}) };
@@ -79,11 +79,65 @@
     return j;
   }
 
-  $("btnSaveToken")?.addEventListener("click", () => {
-    hubAuthToken = $("hubToken").value.trim();
-    sessionStorage.setItem("chrysalis_hub_token", hubAuthToken);
-    $("authGate").hidden = true;
-    loadHome().catch(() => {});
+  let authMode = "register";
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    const registering = mode === "register";
+    $("authTitle").textContent = registering ? "Create your demo account" : "Welcome back";
+    $("authTabRegister")?.classList.toggle("primary", registering);
+    $("authTabRegister")?.classList.toggle("secondary", !registering);
+    $("authTabLogin")?.classList.toggle("primary", !registering);
+    $("authTabLogin")?.classList.toggle("secondary", registering);
+    $("btnAuthSubmit").textContent = registering ? "Create account" : "Log in";
+    $("authPassword").setAttribute("autocomplete", registering ? "new-password" : "current-password");
+    $("authError").textContent = "";
+  }
+
+  $("authTabRegister")?.addEventListener("click", () => setAuthMode("register"));
+  $("authTabLogin")?.addEventListener("click", () => setAuthMode("login"));
+  setAuthMode("register");
+
+  async function submitAuth() {
+    const email = $("authEmail").value.trim();
+    const password = $("authPassword").value;
+    const errEl = $("authError");
+    errEl.textContent = "";
+    if (!email || !password) {
+      errEl.textContent = "Enter an email and password.";
+      return;
+    }
+    try {
+      const path = authMode === "register" ? "/api/hub/auth/register" : "/api/hub/auth/login";
+      const r = await fetch(path, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.message || j.error || "Sign-in failed.");
+      hubAuthToken = j.apiToken;
+      localStorage.setItem("chrysalis_hub_token", hubAuthToken);
+      $("authGate").hidden = true;
+      $("authPassword").value = "";
+      const signOut = $("navSignOut");
+      if (signOut) signOut.hidden = false;
+      loadHome().catch(() => {});
+    } catch (e) {
+      errEl.textContent = e instanceof Error ? e.message : String(e);
+    }
+  }
+
+  $("btnAuthSubmit")?.addEventListener("click", () => void submitAuth());
+  $("authPassword")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") void submitAuth();
+  });
+
+  $("navSignOut")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    hubAuthToken = "";
+    localStorage.removeItem("chrysalis_hub_token");
+    location.reload();
   });
 
   async function loadOrgs(selectEl) {
@@ -2376,6 +2430,10 @@
     api("/api/config")
       .then((c) => {
         if (c.authRequired && !hubAuthToken) $("authGate").hidden = false;
+        if (c.authRequired && hubAuthToken) {
+          const signOut = $("navSignOut");
+          if (signOut) signOut.hidden = false;
+        }
         if (c.demoMode?.on) {
           const b = $("demoBanner");
           if (b) {

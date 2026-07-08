@@ -2,7 +2,7 @@
  * Translation hub project registry + SSH scan helpers (operator server).
  * @see docs/MASTER-PROGRAM.md bounded universality
  */
-import { createHash } from "node:crypto";
+import { createHash, randomBytes, scryptSync } from "node:crypto";
 import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -1507,6 +1507,90 @@ export async function listProjects() {
 
 export function hubRootPath() {
   return hubRoot;
+}
+
+const accountsPath = join(hubRoot, "accounts.json");
+const HUB_ACCOUNTS_KIND = "chrysalis.hub.accounts";
+const HUB_ACCOUNTS_SCHEMA_VERSION = 1;
+const HUB_MAX_ACCOUNTS = (() => {
+  const n = Number(process.env.CHRYSALIS_HUB_MAX_ACCOUNTS ?? "200");
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 200;
+})();
+
+async function loadAccounts() {
+  await ensureHubDirs();
+  try {
+    const raw = await readFile(accountsPath, "utf8");
+    const j = JSON.parse(raw);
+    if (j.kind !== HUB_ACCOUNTS_KIND || j.schemaVersion !== HUB_ACCOUNTS_SCHEMA_VERSION) {
+      return { kind: HUB_ACCOUNTS_KIND, schemaVersion: HUB_ACCOUNTS_SCHEMA_VERSION, accounts: [] };
+    }
+    return j;
+  } catch (e) {
+    if (e && typeof e === "object" && "code" in e && e.code === "ENOENT") {
+      return { kind: HUB_ACCOUNTS_KIND, schemaVersion: HUB_ACCOUNTS_SCHEMA_VERSION, accounts: [] };
+    }
+    throw e;
+  }
+}
+
+async function saveAccounts(store) {
+  await ensureHubDirs();
+  const tmp = `${accountsPath}.tmp`;
+  await writeFile(tmp, `${JSON.stringify(store, null, 2)}\n`, "utf8");
+  await rename(tmp, accountsPath);
+}
+
+function normalizeEmail(email) {
+  return String(email ?? "").trim().toLowerCase();
+}
+
+function hashPassword(password, salt) {
+  return scryptSync(String(password), salt, 64).toString("hex");
+}
+
+/** Register a demo-hub account (email + password) — used to gate the public login/register page. */
+export async function registerHubAccount({ email, password }) {
+  const normEmail = normalizeEmail(email);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normEmail)) throw new Error("Enter a valid email address.");
+  if (String(password ?? "").length < 8) throw new Error("Password must be at least 8 characters.");
+  const store = await loadAccounts();
+  if (store.accounts.some((a) => a.email === normEmail)) {
+    throw new Error("An account with that email already exists — try logging in instead.");
+  }
+  if (store.accounts.length >= HUB_MAX_ACCOUNTS) {
+    throw new Error("This demo has reached its account limit. Ask for a full pilot at hello@agenticop.io.");
+  }
+  const salt = randomBytes(16).toString("hex");
+  const account = {
+    id: createHash("sha256").update(normEmail).digest("hex").slice(0, 24),
+    email: normEmail,
+    salt,
+    passwordHash: hashPassword(password, salt),
+    apiToken: randomBytes(24).toString("hex"),
+    createdAt: new Date().toISOString(),
+  };
+  store.accounts.push(account);
+  await saveAccounts(store);
+  return { id: account.id, email: account.email, apiToken: account.apiToken };
+}
+
+/** Verify email/password and return the account's stable API token (unchanged across logins). */
+export async function loginHubAccount({ email, password }) {
+  const normEmail = normalizeEmail(email);
+  const store = await loadAccounts();
+  const account = store.accounts.find((a) => a.email === normEmail);
+  if (!account || hashPassword(password, account.salt) !== account.passwordHash) {
+    throw new Error("Email or password is incorrect.");
+  }
+  return { id: account.id, email: account.email, apiToken: account.apiToken };
+}
+
+/** Look up a registered account by its bearer token — used by checkAuth() to admit demo-gate visitors. */
+export async function findHubAccountByToken(token) {
+  if (!token) return null;
+  const store = await loadAccounts();
+  return store.accounts.find((a) => a.apiToken === token) ?? null;
 }
 
 /** Portal tenancy when CHRYSALIS_OPERATOR_TOKEN is set on the hub server. */

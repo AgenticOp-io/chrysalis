@@ -83,6 +83,9 @@ import {
   updateProjectSite,
   deleteHubProject,
   writeHubReport,
+  registerHubAccount,
+  loginHubAccount,
+  findHubAccountByToken,
 } from "./chrysalis-hub-store.mjs";
 import { probeHubConnectivity, probeOriginOverSsh } from "./chrysalis-hub-connectivity.mjs";
 import { hubJobSteps, runJobSteps } from "./chrysalis-hub-runners.mjs";
@@ -247,10 +250,13 @@ function resolveProjectDir(input) {
   return isAbsolute(trimmed) ? trimmed : resolve(repo, trimmed);
 }
 
-function checkAuth(req) {
+async function checkAuth(req) {
   if (!authToken) return true;
   const h = req.headers.authorization ?? "";
-  return h === `Bearer ${authToken}` || h === authToken;
+  if (h === `Bearer ${authToken}` || h === authToken) return true;
+  const bearer = h.startsWith("Bearer ") ? h.slice(7).trim() : h.trim();
+  if (!bearer) return false;
+  return Boolean(await findHubAccountByToken(bearer));
 }
 
 async function readBatchProgressState(project) {
@@ -673,8 +679,26 @@ async function loadStatic() {
 
 const noCache = { "cache-control": "no-cache, no-store, must-revalidate", pragma: "no-cache" };
 
+/** Routes reachable before/without login — bootstrapping (config, docs, the auth gate itself). */
+function isPublicHubApiPath(pathname) {
+  return (
+    pathname === "/api/config" ||
+    pathname.startsWith("/api/hub/auth/") ||
+    pathname === "/api/hub/docs" ||
+    pathname.startsWith("/docs/") ||
+    pathname.endsWith(".md")
+  );
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
+
+  if (authToken && url.pathname.startsWith("/api/") && !isPublicHubApiPath(url.pathname)) {
+    if (!(await checkAuth(req))) {
+      sendJson(res, 401, { error: "unauthorized" });
+      return;
+    }
+  }
 
   if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
     await loadStatic();
@@ -1443,7 +1467,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (req.method === "PATCH" || req.method === "DELETE") {
-      if (!checkAuth(req)) {
+      if (!(await checkAuth(req))) {
         sendJson(res, 401, { error: "unauthorized" });
         return;
       }
@@ -1505,8 +1529,30 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "POST" && url.pathname === "/api/hub/auth/register") {
+    try {
+      const body = await readBody(req);
+      const account = await registerHubAccount({ email: body.email, password: body.password });
+      sendJson(res, 200, account);
+    } catch (e) {
+      sendJson(res, 400, { error: "register-failed", message: e instanceof Error ? e.message : String(e) });
+    }
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/hub/auth/login") {
+    try {
+      const body = await readBody(req);
+      const account = await loginHubAccount({ email: body.email, password: body.password });
+      sendJson(res, 200, account);
+    } catch (e) {
+      sendJson(res, 401, { error: "login-failed", message: e instanceof Error ? e.message : String(e) });
+    }
+    return;
+  }
+
   if (req.method === "POST") {
-    if (!checkAuth(req)) {
+    if (!(await checkAuth(req))) {
       sendJson(res, 401, { error: "unauthorized" });
       return;
     }

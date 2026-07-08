@@ -106,6 +106,7 @@
     <a href="#/new" id="navNew">New project</a>
     <a href="#/guide" id="navGuide">Documentation</a>
     <a href="#/paths" id="navPaths">Path explorer</a>
+    <a href="#" id="navSignOut" hidden style="margin-left:auto">Sign out</a>
   </nav>
   <main>
     <section id="viewHome" hidden>
@@ -479,11 +480,21 @@
   </main>
   <div id="authGate" hidden style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:99">
     <div class="card" style="max-width:24rem">
-      <h3 style="margin-top:0">Hub sign-in</h3>
-      <p class="muted">This server requires <code>CHRYSALIS_OPERATOR_TOKEN</code>.</p>
-      <label for="hubToken">Bearer token</label>
-      <input id="hubToken" type="password" autocomplete="off" />
-      <button type="button" class="primary" id="btnSaveToken">Continue</button>
+      <h3 style="margin-top:0" id="authTitle">Create your demo account</h3>
+      <p class="muted">
+        This is a shared public demo (capped at a couple of pages per job, one job at a time) —
+        create a free account to try it. Full pilots aren't capped: <a href="mailto:hello@agenticop.io">hello@agenticop.io</a>.
+      </p>
+      <div class="row" style="margin-top:0;margin-bottom:0.75rem">
+        <button type="button" class="secondary" id="authTabRegister">Create account</button>
+        <button type="button" class="secondary" id="authTabLogin">Log in</button>
+      </div>
+      <label for="authEmail">Email</label>
+      <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+      <label for="authPassword">Password</label>
+      <input id="authPassword" type="password" autocomplete="current-password" placeholder="8+ characters" />
+      <p class="muted" id="authError" style="color:#fca5a5;min-height:1.2rem"></p>
+      <button type="button" class="primary" id="btnAuthSubmit">Create account</button>
     </div>
   </div>
   <script src="/ui.js?v=hub-cwl-preview-console-1"></script>
