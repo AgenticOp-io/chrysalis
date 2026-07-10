@@ -14,6 +14,11 @@ Open **website LLM framework** scaffolding for Chrysalis: verify-gated agent tra
 - `logWebLlmSmokeGate`, `isWebLlmTrajectoryLoggingEnabled`
 - `chrysalisAgentToolDefinitions`, `findAgentTool`
 - `resolveShorthandForTask`, `promoteShorthandsByDomain`, `loadIntelligenceShorthandsFromRepo` (IS runtime protocol)
+- `resolveShorthandWithTransfer`, `summarizeIsLiveAnalytics`, `demoteShorthandsForDomain` (IS live hit/near-miss/miss + demote — **D6372**)
+- `scoreNearMissCandidates`, `CYNOENGINE_ATTRIBUTION` (near-miss salience — **G9520** / **D6375**; CynoEngine-inspired)
+- `recordUtilityOutcome`, `recordEvidenceUsedUtility`, `loadIsUtilityStore` (utility prior — **G9530** / **G9560**)
+- `classifyConvertAction`, `governConvertAction`, `listGovernedAgentTools` (convert/MCP governor — **G9540** / **G9570**)
+- `createConvertAim`, `evaluateAimDrive`, `gateConvertCycle` (aim + cycle gate — **G9550** / **G9580**)
 - `buildLoraTrainManifest`, `validateLoraTrainManifest`, `buildLoraTrainPlan`, `validateLoraTrainPlan`, `readTrainingShardsFromJsonl` (IS-T2 train manifest + Horizon C plan — CPU export; GPU train via `scripts/chrysalis-lora-qlora-train.py`)
 - `evaluateVerifyGatePolicy`, `VERIFY_GATE_POLICY`
 

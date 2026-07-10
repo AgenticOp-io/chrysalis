@@ -15,7 +15,7 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 
 | Priority | Gate | Smoke |
 | --- | --- | --- |
-| **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` · GCE: `test:gce:migration-os` |
+| **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` (schema **v6** / **D6376**) · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (weekly CI) |
 | **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |
@@ -29,10 +29,13 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **WISP remaining holes** | **G9490** | `hub:wisp-remaining-holes-finish-smoke` (needs WISP root; GenieACS out of scope) |
 | **Fill fillable holes** | **G9500** | `hub:wisp-fill-holes-smoke` (needs WISP root) |
 | **IS live analytics** | **G9510** | `hub:is-live-analytics-close-smoke` |
-| **Cyno near-miss salience (next)** | **G9520** | Plan [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) (**D6374**) — not closed yet |
+| **Cyno near-miss salience** | **G9520** | `hub:is-near-miss-salience-smoke` (**D6375**) |
+| **Cyno utility prior** | **G9530** | `hub:is-utility-prior-smoke` |
+| **Convert governor** | **G9540** | `hub:convert-governor-smoke` |
+| **Convert aim persist** | **G9550** | `hub:convert-aim-persist-smoke` |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
-**Closed program regression:** `hub:whole-site-cwl-close-smoke` (**G9450**) · `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**) · `hub:is-live-analytics-close-smoke` (**G9510**) · `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790`) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940`) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`
+**Closed program regression:** `hub:whole-site-cwl-close-smoke` (**G9450**) · `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**) · `hub:is-live-analytics-close-smoke` (**G9510**) · `hub:is-near-miss-salience-smoke` (**G9520**) · `hub:is-utility-prior-smoke` (**G9530**) · `hub:convert-governor-smoke` (**G9540**) · `hub:convert-aim-persist-smoke` (**G9550**) · `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790`) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940`) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`
 **Program docs:** [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) · [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md) · [`MIGRATION-OS.md`](./MIGRATION-OS.md)
 
 ### Subordinate (closed — regression only)

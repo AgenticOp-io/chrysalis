@@ -441,33 +441,30 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (maintenance)
 
-**Post D6374 plan (2026-07-09) — CynoEngine collab ideas queued.**
+**Post D6377 close (2026-07-09) — Cyno substrate depth shipped (G9560–G9590).**
 
-**Status:** **G9520–G9550 planned** ([`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md), **D6374**); **G9510 closed** (**D6372**); **G9400 closed** (**G9450**, **D6366**); Phase 46 closed (**G9290**); **Migration OS closed** (**G8550**).
+**Status:** **G9560–G9590 closed** (**D6377**); **G9520–G9550 closed** (**D6375**); **G9510 closed** (**D6372**); **G8550** schema **v7**; Phase 46 closed (**G9290**).
 
 When the user says "build" without specifying:
 
-1. **G9520 IS near-miss salience** — implement per [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) (CynoEngine-inspired; cite upstream)
-2. **G8550 composite** — `pnpm run hub:migration-os-close-smoke`
-3. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
-4. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (weekly CI)
-5. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
-6. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
-7. **IS live analytics** — `pnpm run hub:is-live-analytics-close-smoke` (**G9510** / **D6372**)
-8. **G9530 → G9540 → G9550** — after G9520 close (utility prior, convert governor, aim persistence)
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (schema **v7** — includes **G9510** + **G9520–G9590**)
+2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (weekly CI)
+4. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
+5. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
+6. **Live IS from real hub jobs** — operator trajectories writing hit/near-miss/miss (product evidence beyond synthetic smoke)
+7. **WISP residual honesty** — component lift or explicit showcase bound (~1260 holes)
 
-**Closed program regression:** `hub:whole-site-cwl-close-smoke` (**G9450** / **G9470**) · `hub:ui-markup-lift-smoke` (**G9460**) · `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**) · `hub:is-live-analytics-close-smoke` (**G9510**) · `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**)
+**Closed program regression:** `hub:migration-os-close-smoke` (**G8550** / **D6377**) · `hub:is-evidence-used-utility-smoke` (**G9560**) · `hub:mcp-governor-coverage-smoke` (**G9570**) · `hub:convert-cycle-gate-smoke` (**G9580**) · `hub:doc-vs-box-smoke` (**G9590**) · `hub:is-near-miss-salience-smoke` (**G9520**) · `hub:is-utility-prior-smoke` (**G9530**) · `hub:convert-governor-smoke` (**G9540**) · `hub:convert-aim-persist-smoke` (**G9550**) · `hub:is-live-analytics-close-smoke` (**G9510**)
 
-**WISP showcase:** `hub:phase45-wisp-showcase-smoke` (**G9170**); visual parity `hub:wisp-cwl-ui-parity-close-smoke` (**G8100**) remains showcase-only; finish `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**)
-
-**CynoEngine collab:** [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) · [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1)
+**CynoEngine collab:** [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) · strategic plan: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) · [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1)
 
 **Operator demo:** `pnpm run migration-evidence:demo`  
 **Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
 
 ---
 
-## 12 (archived) — Default queue (maintenance, superseded 2026-07-09 by D6374 / G9520 queue)
+## 12 (archived) — Default queue (maintenance, superseded 2026-07-09 by D6377 / G9560–G9590)
 
 **Post G9510 close (2026-07-09).**
 

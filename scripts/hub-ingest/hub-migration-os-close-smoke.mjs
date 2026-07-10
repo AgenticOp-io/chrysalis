@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Migration OS program close — evidence + open legacy + VMF hub (G8550). */
+/** Migration OS program close — evidence + open legacy + VMF hub + IS live/Cyno substrate (G8550). */
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +8,15 @@ import { runSitePortOpenLegacyCloseSmoke } from "./hub-site-port-open-legacy-clo
 import { runSitePortFederationHubCloseSmoke } from "./hub-site-port-federation-hub-close-smoke.mjs";
 import { runIntelligenceShorthandCloseSmoke } from "./hub-intelligence-shorthand-close-smoke.mjs";
 import { runIsRuntimeCloseSmoke } from "./hub-is-runtime-close-smoke.mjs";
+import { runIsLiveAnalyticsCloseSmoke } from "./hub-is-live-analytics-close-smoke.mjs";
+import { runIsNearMissSalienceSmoke } from "./hub-is-near-miss-salience-smoke.mjs";
+import { runIsUtilityPriorSmoke } from "./hub-is-utility-prior-smoke.mjs";
+import { runConvertGovernorSmoke } from "./hub-convert-governor-smoke.mjs";
+import { runConvertAimPersistSmoke } from "./hub-convert-aim-persist-smoke.mjs";
+import { runIsEvidenceUsedUtilitySmoke } from "./hub-is-evidence-used-utility-smoke.mjs";
+import { runMcpGovernorCoverageSmoke } from "./hub-mcp-governor-coverage-smoke.mjs";
+import { runConvertCycleGateSmoke } from "./hub-convert-cycle-gate-smoke.mjs";
+import { runDocVsBoxSmoke } from "./hub-doc-vs-box-smoke.mjs";
 import { runOpenLegacyNightlyBuildHub } from "../open-legacy-nightly-build-hub.mjs";
 import {
   migrationEvidenceHubNightlyLinked,
@@ -19,7 +28,8 @@ import { isPhase44ProgramClosed } from "./hub-phase44-program-entry-smoke.mjs";
 import { isPhase45ProgramActive, isPhase45ProgramClosed } from "./hub-phase45-program-entry-smoke.mjs";
 
 export const HUB_MIGRATION_OS_CLOSE_KIND = "chrysalis.hub.migration-os-close-smoke";
-export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 5;
+/** v7: compose G9560–G9590 Cyno substrate depth (D6377). */
+export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 7;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -30,6 +40,15 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
   const federationHub = await runSitePortFederationHubCloseSmoke();
   const intelligence = await runIntelligenceShorthandCloseSmoke({ repoRoot, skipPort: true });
   const isRuntime = await runIsRuntimeCloseSmoke({ repoRoot });
+  const isLiveAnalytics = await runIsLiveAnalyticsCloseSmoke({ repoRoot });
+  const isNearMissSalience = await runIsNearMissSalienceSmoke({ repoRoot });
+  const isUtilityPrior = await runIsUtilityPriorSmoke({ repoRoot });
+  const convertGovernor = await runConvertGovernorSmoke({ repoRoot });
+  const convertAimPersist = await runConvertAimPersistSmoke({ repoRoot });
+  const isEvidenceUsedUtility = await runIsEvidenceUsedUtilitySmoke({ repoRoot });
+  const mcpGovernorCoverage = await runMcpGovernorCoverageSmoke({ repoRoot });
+  const convertCycleGate = await runConvertCycleGateSmoke({ repoRoot });
+  const docVsBox = await runDocVsBoxSmoke({ repoRoot });
 
   const nightlyJson = join(repoRoot, "reports/open-legacy-index/nightly/latest.json");
   if (existsSync(nightlyJson)) {
@@ -53,6 +72,15 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     federationHubOk: federationHub.ok === true,
     intelligenceOk: intelligence.ok === true,
     isRuntimeOk: isRuntime.ok === true,
+    isLiveAnalyticsOk: isLiveAnalytics.ok === true,
+    isNearMissSalienceOk: isNearMissSalience.ok === true,
+    isUtilityPriorOk: isUtilityPrior.ok === true,
+    convertGovernorOk: convertGovernor.ok === true,
+    convertAimPersistOk: convertAimPersist.ok === true,
+    isEvidenceUsedUtilityOk: isEvidenceUsedUtility.ok === true,
+    mcpGovernorCoverageOk: mcpGovernorCoverage.ok === true,
+    convertCycleGateOk: convertCycleGate.ok === true,
+    docVsBoxOk: docVsBox.ok === true,
     evidenceHubRefreshed: evidenceHub.ok === true,
     evidenceHubNightlyLinked: migrationEvidenceHubNightlyLinked(repoRoot),
     matrixOracleOk: matrixOracle.ok === true,
@@ -81,6 +109,15 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     federationHub,
     intelligence,
     isRuntime,
+    isLiveAnalytics,
+    isNearMissSalience,
+    isUtilityPrior,
+    convertGovernor,
+    convertAimPersist,
+    isEvidenceUsedUtility,
+    mcpGovernorCoverage,
+    convertCycleGate,
+    docVsBox,
     evidenceHub,
     matrixOracle,
     extendedMatrix,

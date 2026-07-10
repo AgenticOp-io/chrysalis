@@ -26,6 +26,30 @@ export type TrajectoryRecord = {
   isRetrievalHit?: boolean;
   skipLlm?: boolean;
   domainId?: string;
+  /** hit | near-miss | miss — live cache outcome (D6372). */
+  isCacheOutcome?: "hit" | "near-miss" | "miss";
+  /** Wall-clock ms for verify dispose on this step. */
+  verifyCostMs?: number;
+  /** Source digest binding the capsule (invalidation key). */
+  sourceDigest?: string;
+  /** Near-miss donor domain when cacheOutcome is near-miss. */
+  nearMissDomainId?: string;
+  /** G9520 salience score for chosen near-miss donor. */
+  nearMissScore?: number;
+  nearMissFeatures?: Record<string, number>;
+  /** Transparent CynoEngine citation (D6375). */
+  collaborationAttribution?: string;
+  /** G9540 governor tier for this tool step. */
+  governorTier?: "GREEN" | "YELLOW" | "RED" | "DENY";
+  /** G9550 persisted convert aim. */
+  convertAim?: {
+    domainId: string;
+    successGate: string;
+    origin?: string;
+    output?: string;
+    sourceDigest?: string;
+    setAt?: string;
+  };
 };
 
 export type WebVerifyBenchmarkCase = {

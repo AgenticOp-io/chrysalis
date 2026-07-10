@@ -41,6 +41,58 @@ function runCli(args) {
  */
 export async function callWebLlmTool(repoRoot, name, args = {}) {
   const mod = await loadWebLlm();
+  // G9570 / G9580 — governor + optional aim gate before RED/YELLOW mutate paths
+  if (
+    name === "hub_convert_apply_holes" ||
+    name === "chrysalis_verify" ||
+    name === "web_llm_demote_shorthand"
+  ) {
+    const gated = mod.gateConvertCycle({
+      aim:
+        args.domainId != null
+          ? mod.createConvertAim({
+              domainId: String(args.domainId),
+              successGate: String(args.successGate ?? "verify-green"),
+            })
+          : args.aimDomainId != null
+            ? mod.createConvertAim({
+                domainId: String(args.aimDomainId),
+                successGate: String(args.successGate ?? "verify-green"),
+              })
+            : null,
+      nudge: args.nudge != null ? String(args.nudge) : String(args.domainId ?? name),
+      action: name,
+      confirmApply: args.confirmApply === true,
+      verifyGatePass: args.verifyGatePass === true || args.gateOk === true,
+    });
+    if (!gated.ok) {
+      return {
+        ok: false,
+        stdout: JSON.stringify(gated, null, 2),
+        detail: gated,
+        stderr: gated.reason,
+      };
+    }
+  } else if (name === "hub_convert_propose_holes" && args.requireAim === true) {
+    const gated = mod.gateConvertCycle({
+      aim: args.domainId
+        ? mod.createConvertAim({
+            domainId: String(args.domainId),
+            successGate: String(args.successGate ?? "verify-green"),
+          })
+        : null,
+      nudge: args.nudge != null ? String(args.nudge) : undefined,
+      action: name,
+    });
+    if (!gated.ok) {
+      return {
+        ok: false,
+        stdout: JSON.stringify(gated, null, 2),
+        detail: gated,
+        stderr: gated.reason,
+      };
+    }
+  }
   switch (name) {
     case "chrysalis_status":
       return runCli(["status", "--json", String(args.projectDir ?? ".")]);
@@ -118,13 +170,122 @@ export async function callWebLlmTool(repoRoot, name, args = {}) {
     case "web_llm_resolve_shorthand": {
       const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
       const shorthands = mod.loadIntelligenceShorthandsFromRepo(root);
+      /** @type {import("@chrysalis/web-llm").OpenLegacyDomainEntry[] | undefined} */
+      let domainCatalog;
+      if (args.enableNearMiss === true) {
+        const { openLegacyIndexEntries } = await import("./site-port-federation-lib.mjs");
+        domainCatalog = openLegacyIndexEntries(root).map((e) => ({
+          id: e.id,
+          origin: e.origin,
+          minRoutes: e.minRoutes,
+          tags: e.tags,
+          fixtureRel: e.fixtureRel,
+        }));
+      }
       const resolved = mod.resolveShorthandForTask({
         domainId: String(args.domainId ?? ""),
         shorthands,
         needsNovelLanguage: args.needsNovelLanguage === true,
+        ...(domainCatalog ? { domainCatalog } : {}),
+        utilityStorePath: mod.defaultIsUtilityPath(root),
       });
-      const ok = Boolean(args.domainId) && resolved.retrievalHit === true;
+      const ok =
+        Boolean(args.domainId) &&
+        (resolved.retrievalHit === true || resolved.cacheOutcome === "near-miss");
       return { ok, stdout: JSON.stringify(resolved, null, 2), detail: resolved, stderr: "" };
+    }
+    case "web_llm_is_live_analytics": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const trajectoryPath = resolve(root, String(args.trajectoryPath ?? ""));
+      const summary = mod.summarizeIsLiveAnalyticsFromTrajectoryFile(trajectoryPath, {
+        scope: "live-job",
+      });
+      let outPath = null;
+      if (args.writeReport === true) {
+        outPath = mod.writeIsLiveAnalytics(root, summary);
+      }
+      return {
+        ok: summary.jobCount >= 0,
+        stdout: JSON.stringify({ ...summary, outPath }, null, 2),
+        detail: { ...summary, outPath },
+        stderr: "",
+      };
+    }
+    case "web_llm_demote_shorthand": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const result = mod.demoteShorthandInRepo({
+        repoRoot: root,
+        domainId: String(args.domainId ?? ""),
+        reason: /** @type {"verify-fail"|"source-digest-mismatch"|"operator"} */ (
+          String(args.reason ?? "operator")
+        ),
+        sourceDigest: args.sourceDigest ? String(args.sourceDigest) : undefined,
+      });
+      const ok = result != null && Boolean(args.domainId);
+      return { ok, stdout: JSON.stringify(result, null, 2), detail: result, stderr: "" };
+    }
+    case "web_llm_score_near_miss": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const { openLegacyIndexEntries } = await import("./site-port-federation-lib.mjs");
+      const domainCatalog = openLegacyIndexEntries(root).map((e) => ({
+        id: e.id,
+        origin: e.origin,
+        minRoutes: e.minRoutes,
+        tags: e.tags,
+        fixtureRel: e.fixtureRel,
+      }));
+      const shorthands = mod.loadIntelligenceShorthandsFromRepo(root);
+      const entry = domainCatalog.find((e) => e.id === String(args.domainId ?? ""));
+      const taskFingerprint = entry
+        ? mod.fingerprintFromOpenLegacyEntry(entry)
+        : { domainId: String(args.domainId ?? ""), origin: "unknown" };
+      const scored = mod.scoreNearMissCandidates({
+        taskFingerprint,
+        domainCatalog,
+        shorthands,
+        ...(args.lastDonorDomainId ? { lastDonorDomainId: String(args.lastDonorDomainId) } : {}),
+      });
+      const body = {
+        domainId: args.domainId,
+        candidates: scored,
+        attribution: mod.CYNOENGINE_ATTRIBUTION,
+      };
+      return { ok: Boolean(args.domainId), stdout: JSON.stringify(body, null, 2), detail: body, stderr: "" };
+    }
+    case "web_llm_record_utility_outcome": {
+      const root = args.repoRoot ? String(args.repoRoot) : repoRoot;
+      const path = mod.defaultIsUtilityPath(root);
+      let store = mod.loadIsUtilityStore(path);
+      store = mod.recordUtilityOutcome(store, {
+        domainId: String(args.domainId ?? ""),
+        outcome: /** @type {"useful"|"noise"} */ (String(args.outcome ?? "noise")),
+        ...(typeof args.verifyCorrectness === "number"
+          ? { verifyCorrectness: Number(args.verifyCorrectness) }
+          : {}),
+      });
+      mod.writeIsUtilityStore(path, store);
+      return { ok: Boolean(args.domainId), stdout: JSON.stringify(store, null, 2), detail: store, stderr: "" };
+    }
+    case "hub_convert_govern_action": {
+      const decision = mod.governConvertAction({
+        action: String(args.action ?? ""),
+        confirmApply: args.confirmApply === true,
+        verifyGatePass: args.verifyGatePass === true,
+      });
+      return { ok: decision.ok === true || decision.tier === "GREEN" || decision.tier === "YELLOW", stdout: JSON.stringify(decision, null, 2), detail: decision, stderr: "" };
+    }
+    case "hub_convert_evaluate_aim": {
+      const aim = mod.createConvertAim({
+        domainId: String(args.domainId ?? ""),
+        successGate: String(args.successGate ?? "verify-green"),
+        ...(args.origin ? { origin: String(args.origin) } : {}),
+        ...(args.output ? { output: String(args.output) } : {}),
+      });
+      const decision = mod.evaluateAimDrive({
+        aim: args.domainId ? aim : null,
+        nudge: args.nudge != null ? String(args.nudge) : undefined,
+      });
+      return { ok: decision.ok === true || decision.stall === true, stdout: JSON.stringify(decision, null, 2), detail: decision, stderr: "" };
     }
     case "hub_convert_is_routing": {
       const root = args.repoRoot ? String(args.repoRoot) : repoRoot;

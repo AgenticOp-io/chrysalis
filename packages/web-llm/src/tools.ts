@@ -144,7 +144,7 @@ export function chrysalisAgentToolDefinitions(): AgentToolDefinition[] {
     {
       name: "web_llm_resolve_shorthand",
       description:
-        "Resolve Intelligence Shorthand tier + capsule for a chartered domain from the verify-gated corpus (IS runtime protocol).",
+        "Resolve Intelligence Shorthand tier + capsule for a chartered domain from the verify-gated corpus (IS runtime protocol). Returns cacheOutcome hit|near-miss|miss.",
       inputSchema: {
         type: "object",
         properties: {
@@ -154,6 +154,110 @@ export function chrysalisAgentToolDefinitions(): AgentToolDefinition[] {
             description: "When true, may route to IS-T2+ (LoRA/base model)",
           },
           repoRoot: { type: "string", description: "Repo root; defaults to cwd" },
+          enableNearMiss: {
+            type: "boolean",
+            description: "When true, load Open Legacy catalog for near-miss transfer (D6372)",
+          },
+        },
+        required: ["domainId"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "web_llm_is_live_analytics",
+      description:
+        "Summarize hit / near-miss / miss rates and verifyCostMs from a trajectory JSONL (IS live evidence dashboard).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          trajectoryPath: { type: "string", description: "Path to trajectory JSONL" },
+          repoRoot: { type: "string" },
+          writeReport: {
+            type: "boolean",
+            description: "When true, write reports/web-llm/shorthand/is-live-analytics.v1.json",
+          },
+        },
+        required: ["trajectoryPath"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "web_llm_demote_shorthand",
+      description:
+        "Demote / remove verify-gated shorthand for a domain after verify fail or source-digest mismatch.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          domainId: { type: "string" },
+          reason: {
+            type: "string",
+            enum: ["verify-fail", "source-digest-mismatch", "operator"],
+          },
+          sourceDigest: { type: "string" },
+          repoRoot: { type: "string" },
+        },
+        required: ["domainId", "reason"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "web_llm_score_near_miss",
+      description:
+        "Score near-miss IS donors with CynoEngine-inspired salience (G9520). Never implies skipLlm.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          domainId: { type: "string", description: "Task domain id" },
+          repoRoot: { type: "string" },
+          lastDonorDomainId: { type: "string" },
+        },
+        required: ["domainId"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "web_llm_record_utility_outcome",
+      description:
+        "Record graded verify outcome into IS utility prior (G9530 / CynoEngine-inspired). Never from LLM self-report.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          domainId: { type: "string" },
+          outcome: { type: "string", enum: ["useful", "noise"] },
+          verifyCorrectness: { type: "number" },
+          repoRoot: { type: "string" },
+        },
+        required: ["domainId", "outcome"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "hub_convert_govern_action",
+      description:
+        "Classify / enforce convert tool governor GREEN/YELLOW/RED (G9540 / CynoEngine-inspired).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          action: { type: "string" },
+          confirmApply: { type: "boolean" },
+          verifyGatePass: { type: "boolean" },
+        },
+        required: ["action"],
+        additionalProperties: false,
+      },
+    },
+    {
+      name: "hub_convert_evaluate_aim",
+      description:
+        "Evaluate aim-gated drive for convert loops (G9550 / CynoEngine-inspired). Stalls contentless nudge without aim.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          domainId: { type: "string" },
+          successGate: { type: "string" },
+          nudge: { type: "string" },
+          origin: { type: "string" },
+          output: { type: "string" },
         },
         required: ["domainId"],
         additionalProperties: false,

@@ -2,25 +2,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { IntelligenceShorthand, IntelligenceShorthandTier } from "./shorthand.js";
 import { preferredShorthandTierForTask, tierSpec } from "./shorthand.js";
+import type { IsCacheOutcome } from "./shorthand-analytics.js";
+import type { OpenLegacyDomainEntry, ShorthandTaskFingerprint } from "./shorthand-fingerprint.js";
+import type { NearMissSalienceFeatures } from "./shorthand-salience.js";
+import { resolveShorthandWithTransfer } from "./shorthand-transfer.js";
+import type { IsUtilityStore } from "./shorthand-utility.js";
+import { isHigherTier, tierRank, TIER_ORDER } from "./shorthand-tiers.js";
 
-const TIER_ORDER: readonly IntelligenceShorthandTier[] = [
-  "IS-T5-oracle-ref",
-  "IS-T4-policy-graph",
-  "IS-T3-skill-capsule",
-  "IS-T2-lora-delta",
-  "IS-T1-quantized",
-  "IS-T0-weights",
-] as const;
-
-export function tierRank(tier: IntelligenceShorthandTier): number {
-  const idx = TIER_ORDER.indexOf(tier);
-  if (idx < 0) throw new Error(`unknown tier: ${tier}`);
-  return idx;
-}
-
-export function isHigherTier(a: IntelligenceShorthandTier, b: IntelligenceShorthandTier): boolean {
-  return tierRank(a) < tierRank(b);
-}
+export { isHigherTier, tierRank, TIER_ORDER } from "./shorthand-tiers.js";
 
 export function shorthandsForDomain(domainId: string, shorthands: IntelligenceShorthand[]): IntelligenceShorthand[] {
   return shorthands.filter((s) => s.domainId === domainId);
@@ -50,6 +39,14 @@ export type ResolveShorthandInput = {
   domainId: string;
   needsNovelLanguage?: boolean;
   shorthands: IntelligenceShorthand[];
+  /** When set with domainCatalog, enables near-miss transfer (D6372). */
+  taskFingerprint?: ShorthandTaskFingerprint;
+  domainCatalog?: OpenLegacyDomainEntry[];
+  /** Prefer not replaying same donor (G9520 / Cyno novelty). */
+  lastDonorDomainId?: string;
+  /** Optional utility store for near-miss score multiply / down-rank (G9530). */
+  utilityStore?: IsUtilityStore;
+  utilityStorePath?: string;
 };
 
 export type ResolveShorthandResult = {
@@ -62,12 +59,54 @@ export type ResolveShorthandResult = {
   hasOracleReplay: boolean;
   hasPolicyGraph: boolean;
   hasSkillCapsule: boolean;
+  /** Exact hit / near-miss transfer / miss (D6372). */
+  cacheOutcome: IsCacheOutcome;
+  nearMissDomainId: string | null;
+  holeDeltaLlmOnly: boolean;
+  /** G9520 salience score when near-miss. */
+  nearMissScore?: number;
+  nearMissFeatures?: NearMissSalienceFeatures;
+  /** Transparent CynoEngine citation when near-miss path used. */
+  collaborationAttribution?: string;
 };
 
 /** Pick lowest-storage tier with corpus binding for a chartered domain task. */
 export function resolveShorthandForTask(input: ResolveShorthandInput): ResolveShorthandResult {
   const needsNovel = input.needsNovelLanguage === true;
   const flags = domainShorthandFlags(input.domainId, input.shorthands);
+
+  if (input.domainCatalog?.length || input.taskFingerprint) {
+    const transfer = resolveShorthandWithTransfer({
+      domainId: input.domainId,
+      needsNovelLanguage: needsNovel,
+      shorthands: input.shorthands,
+      ...(input.taskFingerprint ? { taskFingerprint: input.taskFingerprint } : {}),
+      ...(input.domainCatalog?.length ? { domainCatalog: input.domainCatalog } : {}),
+      ...(input.lastDonorDomainId ? { lastDonorDomainId: input.lastDonorDomainId } : {}),
+      ...(input.utilityStore ? { utilityStore: input.utilityStore } : {}),
+      ...(input.utilityStorePath ? { utilityStorePath: input.utilityStorePath } : {}),
+    });
+    return {
+      domainId: transfer.domainId,
+      tier: transfer.tier,
+      tierSpec: tierSpec(transfer.tier),
+      shorthand: transfer.shorthand,
+      retrievalHit: transfer.retrievalHit,
+      skipLlm: transfer.skipLlm,
+      hasOracleReplay: flags.hasOracleReplay,
+      hasPolicyGraph: flags.hasPolicyGraph,
+      hasSkillCapsule: flags.hasSkillCapsule,
+      cacheOutcome: transfer.cacheOutcome,
+      nearMissDomainId: transfer.nearMissDomainId,
+      holeDeltaLlmOnly: transfer.holeDeltaLlmOnly,
+      ...(transfer.nearMissScore != null ? { nearMissScore: transfer.nearMissScore } : {}),
+      ...(transfer.nearMissFeatures ? { nearMissFeatures: transfer.nearMissFeatures } : {}),
+      ...(transfer.collaborationAttribution
+        ? { collaborationAttribution: transfer.collaborationAttribution }
+        : {}),
+    };
+  }
+
   const best = bestShorthandForDomain(input.domainId, input.shorthands);
 
   let tier = preferredShorthandTierForTask({
@@ -94,6 +133,7 @@ export function resolveShorthandForTask(input: ResolveShorthandInput): ResolveSh
   const retrievalHit = shorthand !== null;
   const skipLlm =
     !needsNovel && retrievalHit && tierRank(tier) <= tierRank("IS-T3-skill-capsule");
+  const cacheOutcome: IsCacheOutcome = retrievalHit ? "hit" : "miss";
 
   return {
     domainId: input.domainId,
@@ -105,6 +145,9 @@ export function resolveShorthandForTask(input: ResolveShorthandInput): ResolveSh
     hasOracleReplay: flags.hasOracleReplay,
     hasPolicyGraph: flags.hasPolicyGraph,
     hasSkillCapsule: flags.hasSkillCapsule,
+    cacheOutcome,
+    nearMissDomainId: null,
+    holeDeltaLlmOnly: false,
   };
 }
 

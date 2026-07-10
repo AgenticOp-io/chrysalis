@@ -31,29 +31,67 @@ export function domainIdForHubPair(origin, output) {
  * @param {string} input.origin
  * @param {string} input.output
  * @param {string} [input.projectDir]
+ * @param {string} [input.domainId]
+ * @param {string} [input.sourceDigest]
+ * @param {string} [input.lastDonorDomainId]
+ * @param {string} [input.nudge]
  */
 export async function resolveHubConvertIsRouting(input) {
   const repoRoot = resolve(input.repoRoot ?? scriptRoot);
   const mod = await loadWebLlm();
-  const domainId = domainIdForHubPair(input.origin, input.output);
+  const domainId = input.domainId ?? domainIdForHubPair(input.origin, input.output);
   const shorthands = mod.loadIntelligenceShorthandsFromRepo(repoRoot);
+  const domainCatalog = openLegacyIndexEntries(repoRoot).map((e) => ({
+    id: e.id,
+    origin: e.origin,
+    minRoutes: e.minRoutes,
+    tags: e.tags,
+    fixtureRel: e.fixtureRel,
+  }));
+  const utilityStorePath = mod.defaultIsUtilityPath(repoRoot);
   const resolved = mod.resolveShorthandForTask({
     domainId,
     shorthands,
     needsNovelLanguage: false,
+    domainCatalog,
+    ...(input.lastDonorDomainId ? { lastDonorDomainId: String(input.lastDonorDomainId) } : {}),
+    utilityStorePath,
   });
+
+  const aim = mod.createConvertAim({
+    domainId,
+    successGate: "verify-green",
+    origin: input.origin,
+    output: input.output,
+    ...(input.sourceDigest ? { sourceDigest: String(input.sourceDigest) } : {}),
+  });
+  const aimDrive = mod.evaluateAimDrive({
+    aim,
+    nudge: input.nudge != null ? String(input.nudge) : domainId,
+  });
+  const governor = mod.classifyConvertAction("hub_convert_is_routing");
 
   const routing = {
     kind: "chrysalis.hub.convert-is-routing",
-    schemaVersion: 1,
+    schemaVersion: 3,
     domainId,
     origin: input.origin,
     output: input.output,
     tier: resolved.tier ?? null,
     retrievalHit: resolved.retrievalHit === true,
     skipLlm: resolved.skipLlm === true,
+    cacheOutcome: resolved.cacheOutcome ?? (resolved.retrievalHit ? "hit" : "miss"),
+    nearMissDomainId: resolved.nearMissDomainId ?? null,
+    nearMissScore: resolved.nearMissScore ?? null,
+    nearMissFeatures: resolved.nearMissFeatures ?? null,
+    holeDeltaLlmOnly: resolved.holeDeltaLlmOnly === true,
+    collaborationAttribution: resolved.collaborationAttribution ?? null,
     proposeOnly: true,
     verifyRequired: true,
+    governor,
+    aim,
+    aimDrive,
+    ...(input.sourceDigest ? { sourceDigest: input.sourceDigest } : {}),
   };
 
   if (input.projectDir) {
@@ -74,8 +112,24 @@ export async function resolveHubConvertIsRouting(input) {
       isRetrievalHit: routing.retrievalHit,
       skipLlm: routing.skipLlm,
       domainId,
+      isCacheOutcome: routing.cacheOutcome,
+      nearMissDomainId: routing.nearMissDomainId ?? undefined,
+      nearMissScore: routing.nearMissScore ?? undefined,
+      nearMissFeatures: routing.nearMissFeatures ?? undefined,
+      collaborationAttribution: routing.collaborationAttribution ?? undefined,
+      governorTier: governor.tier,
+      convertAim: {
+        domainId: aim.domainId,
+        successGate: aim.successGate,
+        origin: aim.origin,
+        output: aim.output,
+        sourceDigest: aim.sourceDigest,
+        setAt: aim.setAt,
+      },
+      sourceDigest: input.sourceDigest,
     });
     routing.trajectoryPath = trajectoryPath;
+    routing.sessionId = sessionId;
   }
 
   return routing;

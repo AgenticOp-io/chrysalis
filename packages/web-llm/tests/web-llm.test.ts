@@ -11,6 +11,21 @@ import { evaluateSitePortVerifyGate, logSitePortStep, resolveSitePortTrajectoryP
 import { buildWvbCasesForWorkUnit, mergeWvbWithFederationCases, pickBestSubmissionsByContributorFixture, validateFederationSubmission, validateFederationShard } from "../src/federation.js";
 import { buildSkillCapsuleFromShard, buildOracleRefShorthandFromPortReport, buildPolicyGraphShorthandFromPortReport, preferredShorthandTierForTask, summarizeIntelligenceShorthands, validateIntelligenceShorthand } from "../src/shorthand.js";
 import { promoteShorthandsByDomain, resolveShorthandForTask, tierRank } from "../src/shorthand-retrieval.js";
+import { demoteShorthandsForDomain } from "../src/shorthand-demote.js";
+import {
+  summarizeIsLiveAnalytics,
+  summarizeIsLiveAnalyticsFromTrajectoryFile,
+} from "../src/shorthand-analytics.js";
+import { CYNOENGINE_ATTRIBUTION, scoreNearMissCandidates } from "../src/shorthand-salience.js";
+import {
+  emptyIsUtilityStore,
+  recordUtilityOutcome,
+  shouldDownRankByUtility,
+  utilityScoreMultiplier,
+} from "../src/shorthand-utility.js";
+import { classifyConvertAction, governConvertAction } from "../src/convert-governor.js";
+import { createConvertAim, evaluateAimDrive, shouldStallAfterRound } from "../src/convert-aim.js";
+import { IS_LIVE_ANALYTICS_KIND } from "../src/kinds.js";
 import { buildLoraTrainManifest, validateLoraTrainManifest, LORA_TRAIN_MANIFEST_KIND } from "../src/lora-manifest.js";
 import { WEB_LLM_TRAINING_SHARD_KIND, WEB_LLM_TRAINING_SHARD_SCHEMA_VERSION } from "../src/kinds.js";
 
@@ -125,7 +140,143 @@ describe("@chrysalis/web-llm", () => {
     });
     expect(resolved.retrievalHit).toBe(true);
     expect(resolved.skipLlm).toBe(true);
+    expect(resolved.cacheOutcome).toBe("hit");
     expect(tierRank(resolved.tier)).toBeLessThanOrEqual(tierRank("IS-T3-skill-capsule"));
+  });
+
+  test("near-miss transfer and live analytics summary (D6372)", () => {
+    const t5 = buildOracleRefShorthandFromPortReport("plainPhp", {
+      ok: true,
+      verify: { ok: true, correctness: 1 },
+    });
+    expect(t5).not.toBeNull();
+    const catalog = [
+      { id: "plainPhp", origin: "php", minRoutes: 10, tags: ["php", "flagship"] },
+      { id: "laravelMin", origin: "php", minRoutes: 10, tags: ["php", "laravel"] },
+      { id: "expressJs", origin: "javascript", minRoutes: 10, tags: ["javascript"] },
+    ];
+    const near = resolveShorthandForTask({
+      domainId: "laravelMin",
+      shorthands: [t5!],
+      domainCatalog: catalog,
+    });
+    expect(near.cacheOutcome).toBe("near-miss");
+    expect(near.skipLlm).toBe(false);
+    expect(near.holeDeltaLlmOnly).toBe(true);
+    expect(near.nearMissDomainId).toBe("plainPhp");
+    expect(typeof near.nearMissScore).toBe("number");
+    expect(near.collaborationAttribution).toContain("CynoEngine");
+
+    const miss = resolveShorthandForTask({
+      domainId: "expressJs",
+      shorthands: [t5!],
+      domainCatalog: catalog,
+    });
+    expect(miss.cacheOutcome).toBe("miss");
+
+    const demote = demoteShorthandsForDomain({
+      domainId: "plainPhp",
+      reason: "verify-fail",
+      shorthands: [t5!],
+    });
+    expect(demote.demoted).toBe(true);
+
+    const summary = summarizeIsLiveAnalytics(
+      [
+        { domainId: "a", outcome: "hit", verifyCostMs: 10, skipLlm: true },
+        { domainId: "b", outcome: "near-miss", verifyCostMs: 50 },
+        { domainId: "c", outcome: "miss", verifyCostMs: 100, verifyOk: false },
+      ],
+      { scope: "synthetic-smoke" },
+    );
+    expect(summary.kind).toBe(IS_LIVE_ANALYTICS_KIND);
+    expect(summary.hitCount).toBe(1);
+    expect(summary.nearMissCount).toBe(1);
+    expect(summary.missCount).toBe(1);
+    expect(summary.verifyCostMsP50).toBe(50);
+
+    const filePath = join(repoRoot, "generated/_web-llm-unit/is-live-analytics.jsonl");
+    if (existsSync(filePath)) unlinkSync(filePath);
+    const sid = createTrajectorySessionId("unit-is-live");
+    appendTrajectoryRecord({
+      filePath,
+      sessionId: sid,
+      step: 1,
+      role: "system",
+      gate: { name: "is-routing", ok: true },
+      domainId: "tinyBlog",
+      isCacheOutcome: "hit",
+      skipLlm: true,
+    });
+    appendTrajectoryRecord({
+      filePath,
+      sessionId: sid,
+      step: 2,
+      role: "tool",
+      gate: { name: "verify", ok: true },
+      domainId: "tinyBlog",
+      verifyCostMs: 33,
+    });
+    const fromFile = summarizeIsLiveAnalyticsFromTrajectoryFile(filePath, { scope: "live-job" });
+    expect(fromFile.jobCount).toBe(1);
+    expect(fromFile.hitCount).toBe(1);
+    expect(fromFile.verifyCostMsP50).toBe(33);
+  });
+
+  test("Cyno-inspired salience, utility, governor, aim (D6375 / G9520–G9550)", () => {
+    const t5 = buildOracleRefShorthandFromPortReport("plainPhp", {
+      ok: true,
+      verify: { ok: true, correctness: 1 },
+    });
+    expect(t5).not.toBeNull();
+    const catalog = [
+      { id: "plainPhp", origin: "php", minRoutes: 10, tags: ["php", "flagship"] },
+      { id: "laravelMin", origin: "php", minRoutes: 10, tags: ["php", "laravel"] },
+    ];
+    const scored = scoreNearMissCandidates({
+      taskFingerprint: { domainId: "laravelMin", origin: "php", minRoutes: 10, tags: ["php"] },
+      domainCatalog: catalog,
+      shorthands: [t5!],
+    });
+    expect(scored.length).toBeGreaterThanOrEqual(1);
+    expect(scored[0]?.attribution).toBe(CYNOENGINE_ATTRIBUTION);
+
+    let store = emptyIsUtilityStore();
+    store = recordUtilityOutcome(store, { domainId: "plainPhp", outcome: "noise" });
+    store = recordUtilityOutcome(store, { domainId: "plainPhp", outcome: "noise" });
+    store = recordUtilityOutcome(store, { domainId: "plainPhp", outcome: "noise" });
+    expect(shouldDownRankByUtility(store.domains.plainPhp)).toBe(true);
+    expect(utilityScoreMultiplier(store.domains.plainPhp)).toBeLessThan(1);
+    expect(store.attribution).toBe(CYNOENGINE_ATTRIBUTION);
+
+    expect(classifyConvertAction("hub_convert_is_routing").tier).toBe("GREEN");
+    expect(classifyConvertAction("hub_convert_apply_holes").tier).toBe("RED");
+    expect(
+      governConvertAction({
+        action: "hub_convert_apply_holes",
+        confirmApply: false,
+        verifyGatePass: true,
+      }).ok,
+    ).toBe(false);
+    expect(
+      governConvertAction({
+        action: "hub_convert_apply_holes",
+        confirmApply: true,
+        verifyGatePass: true,
+      }).ok,
+    ).toBe(true);
+
+    expect(evaluateAimDrive({ aim: null, nudge: "proceed" }).stall).toBe(true);
+    const aim = createConvertAim({ domainId: "laravelMin", successGate: "verify-green" });
+    expect(aim.attribution).toBe(CYNOENGINE_ATTRIBUTION);
+    expect(evaluateAimDrive({ aim, nudge: "ok" }).ok).toBe(true);
+    expect(shouldStallAfterRound({ aim, advancedAim: false, ranVerify: false }).stall).toBe(true);
+
+    const names = chrysalisAgentToolDefinitions().map((t) => t.name);
+    expect(names).toContain("web_llm_score_near_miss");
+    expect(names).toContain("web_llm_record_utility_outcome");
+    expect(names).toContain("hub_convert_govern_action");
+    expect(names).toContain("hub_convert_evaluate_aim");
   });
 
   test("benchmarkCaseToEvalPrompt mentions verify", () => {

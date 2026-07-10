@@ -10,6 +10,10 @@ export const SITE_PORT_GATE_NAMES = {
   intelligence: "site-port:intelligence",
   ingest: "site-port:ingest",
   cwlExport: "site-port:cwl-export",
+  uiAssets: "site-port:ui-assets",
+  uiMarkup: "site-port:ui-markup",
+  siteLoadBind: "site-port:site-load-bind",
+  siteScaleMatrix: "site-port:site-scale-matrix",
   verify: "site-port:verify",
   dataset: "site-port:dataset-export",
 } as const;

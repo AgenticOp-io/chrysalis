@@ -17,7 +17,7 @@ Chrysalis’s moat is the second path: **models propose; WebIR + oracle + verify
 
 **Product primary metrics (D6372 / G9510):** `hitRate` / `nearMissRate` / `missRate` / `verifyCostMsP50` from live job trajectories (`chrysalis.web-llm.is-live-analytics`). Fixture skip-LLM ≥50% is a curated routing gate — not production coverage.
 
-**CynoEngine (upstream ideas, not a dependency):** near-miss salience, outcome→utility, and convert-governor work is planned under **D6374** / [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md), inspired by [CynoEngine](https://github.com/nimbus7772017/CynoEngine) (Theurgy). We adapt laws into WebIR/oracle dispose — we do not import their lake, souls, or instance config.
+**CynoEngine (upstream ideas, not a dependency):** near-miss salience, outcome→utility, convert governor, and aim persistence shipped under **D6375** / [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md), inspired by [CynoEngine](https://github.com/nimbus7772017/CynoEngine). Citation: `CYNOENGINE_ATTRIBUTION` on APIs and trajectory. We adapt laws into WebIR/oracle dispose — we do not import their lake, souls, or instance config.
 
 ---
 
@@ -149,9 +149,14 @@ Kind: `chrysalis.web-llm.is-live-analytics` (v1)
 ```bash
 pnpm run hub:is-live-analytics-close-smoke
 # → reports/web-llm/shorthand/is-live-analytics.v1.json
+
+pnpm run hub:is-near-miss-salience-smoke   # G9520
+pnpm run hub:is-utility-prior-smoke       # G9530
+pnpm run hub:convert-governor-smoke       # G9540
+pnpm run hub:convert-aim-persist-smoke    # G9550
 ```
 
-Near-miss: same origin + shared transfer tag or overlapping route-count band → replay donor capsule + LLM only for hole deltas; **never** `skipLlm`. Demote on verify-fail / source-digest mismatch.
+Near-miss: same origin + shared transfer tag or overlapping route-count band, then **salience-ranked** (G9520 / CynoEngine-inspired: tag overlap, route band, digest, tier authority, novelty) → replay donor capsule + LLM only for hole deltas; **never** `skipLlm`. Utility prior (G9530) down-ranks chronically noisy donors. Demote on verify-fail / source-digest mismatch.
 
 ---
 

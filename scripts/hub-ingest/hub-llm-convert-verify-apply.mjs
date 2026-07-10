@@ -26,9 +26,17 @@ async function loadWebLlm() {
 export function runConvertVerifyGate(projectDir) {
   const dir = resolve(projectDir);
   const summaryPath = defaultVerifySummaryPath(dir);
+  const t0 = Date.now();
 
   if (!existsSync(cliBin)) {
-    return { ok: false, skip: "cli-not-built", gatePass: false, correctness: null, summaryPath: null };
+    return {
+      ok: false,
+      skip: "cli-not-built",
+      gatePass: false,
+      correctness: null,
+      summaryPath: null,
+      verifyCostMs: Date.now() - t0,
+    };
   }
 
   const tracesDir = join(dir, ".chrysalis", "traces");
@@ -71,6 +79,7 @@ export function runConvertVerifyGate(projectDir) {
       verifyExit: r.status ?? 1,
       summaryPath: existsSync(summaryPath) ? summaryPath : null,
       mode: "post-translate",
+      verifyCostMs: Date.now() - t0,
     };
   }
 
@@ -90,6 +99,7 @@ export function runConvertVerifyGate(projectDir) {
     verifyExit: gatePass ? 0 : 1,
     summaryPath: existsSync(summaryPath) ? summaryPath : null,
     mode: existsSync(summaryPath) ? "summary-cache" : "unavailable",
+    verifyCostMs: Date.now() - t0,
   };
 }
 
@@ -108,6 +118,11 @@ export async function applyHubConvertHoleProposals(input) {
   const artifact = JSON.parse(readFileSync(artifactPath, "utf8"));
   const verify = runConvertVerifyGate(projectDir);
   const mod = await loadWebLlm();
+  const governor = mod.governConvertAction({
+    action: "hub_convert_apply_holes",
+    confirmApply: input.confirmApply === true,
+    verifyGatePass: verify.gatePass === true,
+  });
   const policy = mod.evaluateConvertVerifyApplyPolicy({
     gateOk: verify.gatePass === true,
     verifyCorrectness: verify.correctness,
@@ -128,9 +143,36 @@ export async function applyHubConvertHoleProposals(input) {
     toolName: "hub_convert_verify_gate",
     content: verify.gatePass ? "verify-pass" : "verify-fail",
     gate: { name: "verify-before-apply", ok: verify.gatePass === true },
+    domainId: artifact.domainId,
+    verifyCostMs: typeof verify.verifyCostMs === "number" ? verify.verifyCostMs : undefined,
+    sourceDigest: artifact.sourceDigest,
+    governorTier: mod.classifyConvertAction("hub_convert_verify_gate").tier,
   });
 
-  if (!policy.ok) {
+  if (artifact.domainId) {
+    const utilPath = mod.defaultIsUtilityPath(scriptRoot);
+    let store = mod.loadIsUtilityStore(utilPath);
+    const used = [String(artifact.domainId)];
+    if (artifact.nearMissDomainId) used.push(String(artifact.nearMissDomainId));
+    store = mod.recordEvidenceUsedUtility(store, {
+      outcome: verify.gatePass === true ? "useful" : "noise",
+      ...(typeof verify.correctness === "number" ? { verifyCorrectness: verify.correctness } : {}),
+      usedDomainIds: used,
+      surfacedButUnusedDomainIds: [],
+    });
+    mod.writeIsUtilityStore(utilPath, store);
+  }
+
+  if (verify.gatePass !== true && artifact.domainId) {
+    mod.demoteShorthandInRepo({
+      repoRoot: scriptRoot,
+      domainId: String(artifact.domainId),
+      reason: "verify-fail",
+      sourceDigest: artifact.sourceDigest ? String(artifact.sourceDigest) : undefined,
+    });
+  }
+
+  if (!governor.ok || !policy.ok) {
     const pending = {
       ...artifact,
       applied: false,
@@ -141,6 +183,7 @@ export async function applyHubConvertHoleProposals(input) {
         summaryPath: verify.summaryPath,
       },
       applyPolicy: policy,
+      governor,
       proposals: (artifact.proposals ?? []).map((p) => ({
         ...p,
         apply: false,
@@ -154,6 +197,7 @@ export async function applyHubConvertHoleProposals(input) {
       applied: false,
       verifyGate: verify,
       applyPolicy: policy,
+      governor,
       artifact: pending,
     };
   }
@@ -170,6 +214,7 @@ export async function applyHubConvertHoleProposals(input) {
       summaryPath: verify.summaryPath,
     },
     applyPolicy: policy,
+    governor,
     proposals: (artifact.proposals ?? []).map((p) => ({
       ...p,
       apply: true,
@@ -209,6 +254,8 @@ export async function applyHubConvertHoleProposals(input) {
     toolName: "hub_convert_apply_holes",
     content: `applied ${appliedArtifact.proposalCount ?? 0} proposals`,
     gate: { name: "convert-apply", ok: true },
+    governorTier: governor.tier,
+    collaborationAttribution: governor.attribution,
   });
 
   if (repairBridge.repairs?.length) {
@@ -247,5 +294,59 @@ export async function recordConvertVerifyGate(input) {
   const verify = runConvertVerifyGate(projectDir);
   const { recordVerifyGateForHoleProposals } = await import("./hub-llm-convert-hole-proposals.mjs");
   const record = await recordVerifyGateForHoleProposals({ projectDir });
-  return { verify, record, gatePass: verify.gatePass === true };
+
+  const artifactPath = join(projectDir, ".chrysalis", "hub-convert.hole-proposals.json");
+  let domainId;
+  let sourceDigest;
+  let trajectoryPath = join(projectDir, ".chrysalis", "hub-convert.trajectory.jsonl");
+  let sessionId;
+  if (existsSync(artifactPath)) {
+    try {
+      const artifact = JSON.parse(readFileSync(artifactPath, "utf8"));
+      domainId = artifact.domainId;
+      sourceDigest = artifact.sourceDigest;
+      if (artifact.trajectoryPath) trajectoryPath = artifact.trajectoryPath;
+      sessionId = artifact.sessionId;
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const mod = await loadWebLlm();
+  sessionId = sessionId ?? mod.createTrajectorySessionId("hub-convert-verify");
+  await mkdir(dirname(trajectoryPath), { recursive: true });
+  mod.appendTrajectoryRecord({
+    filePath: trajectoryPath,
+    sessionId,
+    step: 20,
+    role: "tool",
+    toolName: "hub_convert_verify_gate",
+    content: verify.gatePass ? "verify-pass" : "verify-fail",
+    gate: { name: "verify-gate", ok: verify.gatePass === true },
+    domainId,
+    verifyCostMs: typeof verify.verifyCostMs === "number" ? verify.verifyCostMs : undefined,
+    sourceDigest,
+  });
+
+  if (verify.gatePass !== true && domainId) {
+    mod.demoteShorthandInRepo({
+      repoRoot: scriptRoot,
+      domainId: String(domainId),
+      reason: "verify-fail",
+      sourceDigest: sourceDigest ? String(sourceDigest) : undefined,
+    });
+  }
+
+  if (domainId) {
+    const utilPath = mod.defaultIsUtilityPath(scriptRoot);
+    let store = mod.loadIsUtilityStore(utilPath);
+    store = mod.recordUtilityOutcome(store, {
+      domainId: String(domainId),
+      outcome: verify.gatePass === true ? "useful" : "noise",
+      ...(typeof verify.correctness === "number" ? { verifyCorrectness: verify.correctness } : {}),
+    });
+    mod.writeIsUtilityStore(utilPath, store);
+  }
+
+  return { verify, record, gatePass: verify.gatePass === true, verifyCostMs: verify.verifyCostMs };
 }

@@ -7,8 +7,10 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** maintenance **G8550** / **G8570** / **G6731** — census **601/601** (**G9160**); see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md).
-- **Planned (2026-07-09):** **CynoEngine × Chrysalis collab** (**D6374**) — G9520 near-miss salience → G9530 utility prior → G9540 convert governor → G9550 aim persistence; plan [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md). Cite Cyno; do not merge repos; do not push privacy lockouts into their `.gitignore`.
+- **Active lane:** maintenance **G8550** (schema **v7** / **D6377**) / **G8570** / **G6731** — census **601/601** (**G9160**); see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md).
+- **Closed (2026-07-09):** **Cyno substrate depth** (**G9560–G9590**, **D6377**) — evidence-used utility, MCP governor coverage, cycle gate, doc-vs-box; composed in **G8550** v7.
+- **Closed (2026-07-09):** **Migration OS composite bump** (**G8550** v6→v7, **D6376** / **D6377**) — composes **G9510** + **G9520–G9590**.
+- **Closed (2026-07-09):** **CynoEngine × Chrysalis collab substrate** (**G9520–G9550**, **D6375**) — near-miss salience, utility prior, convert governor, aim persistence; cite Cyno; gates `hub:is-near-miss-salience-smoke` · `hub:is-utility-prior-smoke` · `hub:convert-governor-smoke` · `hub:convert-aim-persist-smoke`. Plan [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md).
 - **Closed (2026-07-09):** **IS live analytics** (**G9510**, **D6372**) — hit / near-miss / miss + verifyCostMs; near-miss transfer; demote on verify fail; gate `hub:is-live-analytics-close-smoke`.
 - **Closed (2026-07-09):** **Fill fillable WISP holes** (**G9500**, **D6371**) — balanced if/each, showcase settle, static inline; gate `hub:wisp-fill-holes-smoke` (~1260 residual holes).
 - **Closed (2026-07-09):** **WISP remaining-holes finish** (**G9490**, **D6370**) — layout passthrough, structural hydration, island nested events, static export shell; GenieACS permanently out of scope.
@@ -27,19 +29,27 @@
 
 ---
 
+## Closed — CynoEngine × Chrysalis substrate (G9520–G9550)
+
+Authority: **DESIGN D6375** (implements **D6374** plan)  
+Upstream: [nimbus7772017/CynoEngine](https://github.com/nimbus7772017/CynoEngine) — **ideas only; not a code port**  
+Plan: [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md)
+
+| Gate | Slice | Smoke |
+| --- | --- | --- |
+| **G9520** | Near-miss salience (`scoreNearMissCandidates`) | `hub:is-near-miss-salience-smoke` |
+| **G9530** | Outcome → utility prior (`is-utility.v1`) | `hub:is-utility-prior-smoke` |
+| **G9540** | Convert governor GREEN/YELLOW/RED | `hub:convert-governor-smoke` |
+| **G9550** | Aim persistence / stall contentless nudge | `hub:convert-aim-persist-smoke` |
+
+**Citation on every surface:** `CYNOENGINE_ATTRIBUTION` — *Inspired by CynoEngine (…) — adapted to WebIR/oracle dispose. Not a code port.*  
+**Privacy:** Chrysalis does not modify CynoEngine `.gitignore`.
+
+---
+
 ## Planned — CynoEngine × Chrysalis (D6374 / G9520–G9550)
 
-Authority: **DESIGN D6374** · Plan: [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md)  
-Upstream: [nimbus7772017/CynoEngine](https://github.com/nimbus7772017/CynoEngine) · Issues: [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1), [chrysalis#54](https://github.com/AgenticOp-io/chrysalis/issues/54)
-
-| Gate | Slice |
-| --- | --- |
-| **G9520** | Near-miss salience v1 (Cyno-inspired scoring; still `skipLlm=false` on near-miss) |
-| **G9530** | Outcome → utility prior for capsules |
-| **G9540** | Convert/tool governor GREEN/YELLOW/RED |
-| **G9550** | Aim persistence on convert/agent loops |
-
-**Privacy:** Chrysalis does not modify CynoEngine `.gitignore`. Instance lockouts are recommendations only.
+> **Superseded 2026-07-09:** closed under **D6375** above. Historical plan text remains in [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md).
 
 ---
 
@@ -325,18 +335,18 @@ Requires: **G8520** closed
 
 ## Closed — Migration OS (G8550)
 
-Authority: **DESIGN D6288**  
-Composes: **G8480** (evidence hub) + **G8520** (open legacy) + **G8540** (VMF hub)
+Authority: **DESIGN D6288**; composite bump **D6376** (schema **v6**)  
+Composes: **G8480** (evidence hub) + **G8520** (open legacy) + **G8540** (VMF hub) + **G8560** / **G8600** (IS) + **G9510** (live analytics) + **G9520–G9550** (CynoEngine-inspired substrate)
 
 **Regression:** `pnpm run hub:migration-os-close-smoke` (**G8550**)
 
 **Operator demo:** `pnpm run migration-evidence:demo`  
 **Bundle export:** `pnpm run federation:export-bundle`
 
-**Intelligence Shorthand:** `pnpm run web-llm:export-shorthand` — see [`docs/INTELLIGENCE-SHORTHAND.md`](./INTELLIGENCE-SHORTHAND.md)  
-**IS close (CPU, G8560):** `pnpm run hub:intelligence-shorthand-close-smoke`
+**Intelligence Shorthand:** `pnpm run web-llm:export-shorthand` — see [`docs/INTELLIGENCE-SHORTHAND.md`](./docs/INTELLIGENCE-SHORTHAND.md)  
+**IS close (CPU, G8560):** `pnpm run hub:intelligence-shorthand-close-smoke`  
+**IS live + Cyno substrate:** `hub:is-live-analytics-close-smoke` · `hub:is-near-miss-salience-smoke` · `hub:is-utility-prior-smoke` · `hub:convert-governor-smoke` · `hub:convert-aim-persist-smoke`
 
----
 
 ## Closed — Intelligence Shorthand (G8560)
 

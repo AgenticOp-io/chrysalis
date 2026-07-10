@@ -44,6 +44,22 @@ export type AppendTrajectoryRecordInput = {
   isRetrievalHit?: boolean;
   skipLlm?: boolean;
   domainId?: string;
+  isCacheOutcome?: "hit" | "near-miss" | "miss";
+  verifyCostMs?: number;
+  sourceDigest?: string;
+  nearMissDomainId?: string;
+  nearMissScore?: number;
+  nearMissFeatures?: Record<string, number>;
+  collaborationAttribution?: string;
+  governorTier?: "GREEN" | "YELLOW" | "RED" | "DENY";
+  convertAim?: {
+    domainId: string;
+    successGate: string;
+    origin?: string;
+    output?: string;
+    sourceDigest?: string;
+    setAt?: string;
+  };
 };
 
 export function appendTrajectoryRecord(input: AppendTrajectoryRecordInput): TrajectoryRecord {
@@ -68,6 +84,17 @@ export function appendTrajectoryRecord(input: AppendTrajectoryRecordInput): Traj
     ...(input.isRetrievalHit !== undefined ? { isRetrievalHit: input.isRetrievalHit } : {}),
     ...(input.skipLlm !== undefined ? { skipLlm: input.skipLlm } : {}),
     ...(input.domainId !== undefined ? { domainId: input.domainId } : {}),
+    ...(input.isCacheOutcome !== undefined ? { isCacheOutcome: input.isCacheOutcome } : {}),
+    ...(input.verifyCostMs !== undefined ? { verifyCostMs: input.verifyCostMs } : {}),
+    ...(input.sourceDigest !== undefined ? { sourceDigest: input.sourceDigest } : {}),
+    ...(input.nearMissDomainId !== undefined ? { nearMissDomainId: input.nearMissDomainId } : {}),
+    ...(input.nearMissScore !== undefined ? { nearMissScore: input.nearMissScore } : {}),
+    ...(input.nearMissFeatures !== undefined ? { nearMissFeatures: input.nearMissFeatures } : {}),
+    ...(input.collaborationAttribution !== undefined
+      ? { collaborationAttribution: input.collaborationAttribution }
+      : {}),
+    ...(input.governorTier !== undefined ? { governorTier: input.governorTier } : {}),
+    ...(input.convertAim !== undefined ? { convertAim: input.convertAim } : {}),
   };
   mkdirSync(dirname(input.filePath), { recursive: true });
   appendFileSync(input.filePath, `${JSON.stringify(record)}\n`, "utf8");

@@ -22,6 +22,8 @@ Chrysalis is not “a PHP converter.” The product is **verified migration infr
 
 WISP Module_Manager remains the **CWL showcase lab** (subordinate to this stack). The **language** is CWL; WISP proves surfaces close with gates — it is not the product name.
 
+**Active build program:** whole-site CWL conversion is **closed** at **G9450** ([`WHOLE-SITE-CWL-CONVERSION.md`](./WHOLE-SITE-CWL-CONVERSION.md)). Regression: `pnpm run hub:whole-site-cwl-close-smoke`.
+
 ---
 
 ## Pipeline (one picture)
@@ -75,7 +77,7 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 
 | Gate | Smoke | What it proves |
 | --- | --- | --- |
-| **G8550** | `hub:migration-os-close-smoke` | Evidence + open legacy + VMF hub + IS |
+| **G8550** | `hub:migration-os-close-smoke` | Evidence + open legacy + VMF hub + IS + live analytics + Cyno substrate (schema **v6**) |
 | **G8560** | `hub:intelligence-shorthand-close-smoke` | IS-T3/T4/T5 export + hub (CPU) |
 | **G8540** | `hub:site-port-federation-hub-close-smoke` | VMF hub program |
 | **G8520** | `hub:site-port-open-legacy-close-smoke` | 7-fixture index + nightly + wedge |
@@ -88,6 +90,11 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 | **G9140** | `hub:phase44-program-close-smoke` | Extended matrix waves + hole closure + Horizon C (169/601 honest) |
 | **G9160** | `hub:extended-matrix-oracle-progress-smoke` | 601-pair oracle-product census (**601/601**; waves **8–16** maintenance) |
 | **G8600** | `hub:is-runtime-close-smoke` | IS tier retrieval + skip-LLM routing (CPU) |
+| **G9510** | `hub:is-live-analytics-close-smoke` | Hit / near-miss / miss + verifyCostMs |
+| **G9520** | `hub:is-near-miss-salience-smoke` | CynoEngine-inspired near-miss salience |
+| **G9530** | `hub:is-utility-prior-smoke` | Outcome → utility prior |
+| **G9540** | `hub:convert-governor-smoke` | Convert GREEN/YELLOW/RED governor |
+| **G9550** | `hub:convert-aim-persist-smoke` | Aim persistence / stall contentless nudge |
 
 Nightly CI: `.github/workflows/open-legacy-index-nightly.yml`  
 GCE full suite: `pnpm run test:gce` — see [`GCE-LOCAL-VERIFY.md`](./GCE-LOCAL-VERIFY.md).
