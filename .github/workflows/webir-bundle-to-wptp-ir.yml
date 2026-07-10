@@ -26,7 +26,7 @@ jobs:
     name: export bundle → wptp-ir import (zero losses)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v4
 
@@ -44,7 +44,7 @@ jobs:
             --in packages/ingest/tests/golden/tiny-blog.webir.json \
             --out "${{ runner.temp }}/tiny-blog.webir.bundle.json"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AgenticOp-io/wptp-ir
           ref: main
