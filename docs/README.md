@@ -2,7 +2,8 @@
 
 **Start here:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — the operator stack (Site → CWL → LLM, VMF federation, Migration Evidence hub, Intelligence Shorthand, open web-LLM).
 
-**Contributors / org home:** [`PROGRAM-HOME.md`](./PROGRAM-HOME.md) — one org (**AgenticOp-io**), one Project, many repos (**D6373**).
+**Contributors / org home:** [`PROGRAM-HOME.md`](./PROGRAM-HOME.md) — one org (**AgenticOp-io**), one Project, many repos (**D6373**).  
+**CynoEngine collab:** [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) (**D6374**) — ideas in, repos apart; we do not push lockouts into their tree.
 
 Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** with oracle replay — not faith. The converter is the adoption vector; the product is **verified migration infrastructure**.
 

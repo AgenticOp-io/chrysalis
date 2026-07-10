@@ -11,9 +11,13 @@ Can you store the “intelligence” of an LLM in **many orders of magnitude** l
 
 **Short answer:**  
 - **General-purpose intelligence in neural weights alone:** **No** — hard ceiling around **4–8×** compression before catastrophic collapse (Nature/npj 2026 phase-transition work).  
-- **Domain-specific migration intelligence (Chrysalis-shaped tasks):** **Yes — 10³–10⁹×** — by **not** storing weights for what WebIR, oracle, and verify already dispose.
+- **Domain-specific migration intelligence (Chrysalis-shaped tasks):** **Yes — when covered** — by **not** storing weights for what WebIR, oracle, and verify already dispose. Economics live on **cache hit rate** and **verifier cost**, not on “× vs 7B weights.”
 
 Chrysalis’s moat is the second path: **models propose; WebIR + oracle + verify dispose.** Intelligence Shorthand (IS) is the formal tier ladder for *what to store* instead of replicating a 7B–70B brain.
+
+**Product primary metrics (D6372 / G9510):** `hitRate` / `nearMissRate` / `missRate` / `verifyCostMsP50` from live job trajectories (`chrysalis.web-llm.is-live-analytics`). Fixture skip-LLM ≥50% is a curated routing gate — not production coverage.
+
+**CynoEngine (upstream ideas, not a dependency):** near-miss salience, outcome→utility, and convert-governor work is planned under **D6374** / [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md), inspired by [CynoEngine](https://github.com/nimbus7772017/CynoEngine) (Theurgy). We adapt laws into WebIR/oracle dispose — we do not import their lake, souls, or instance config.
 
 ---
 
@@ -70,7 +74,7 @@ Chrysalis’s moat is the second path: **models propose; WebIR + oracle + verify
 | **IS-T1** Quantized base | Shared inference model | ~3.5 GB (7B 4-bit) |
 | **IS-T0** Full weights | Baseline | ~14 GB (7B bf16) |
 
-A verify-green **site-port** on tiny-blog produces **CWL + oracle proof + IS-T3 capsule** totaling **≪1 MB** — vs **~14 GB** to hold “how to port PHP blogs” implicitly in a 7B model. That is **~10⁷×** for that domain slice.
+A verify-green **site-port** on tiny-blog produces **CWL + oracle proof + IS-T3 capsule** totaling **≪1 MB** — vs **~14 GB** to hold “how to port PHP blogs” implicitly in a 7B model. That size gap is a **storage analogy** (cached verified artifact ≪ engine), **not** a compression ratio of intelligence (**D6372**). You still need a model (or human) to mint capsules and to handle misses / near-miss hole deltas.
 
 ---
 
@@ -130,7 +134,24 @@ Example: [`fixtures/web-llm/intelligence-shorthand.example.v1.json`](../fixtures
 | `payload.verifyGate` | **Required** `ok: true` — non-negotiable §3 |
 | `payload.shardDigest` | Links to source trajectory without storing full chat |
 | `storageBytesEstimate` | Honest byte count |
-| `compressionFactorVs7BWeights` | Order-of-magnitude vs 14 GB bf16 reference |
+| `compressionFactorVs7BWeights` | **Storage analogy only** (order-of-magnitude vs 14 GB bf16) — **not** a product primary (**D6372**) |
+
+## Live analytics (G9510)
+
+Kind: `chrysalis.web-llm.is-live-analytics` (v1)
+
+| Field | Purpose |
+| --- | --- |
+| `hitRate` / `nearMissRate` / `missRate` | Cache outcomes on job trajectories |
+| `verifyCostMsP50` / `verifyCostMsMean` | Verifier wall-clock |
+| `scope` | `live-job` \| `synthetic-smoke` \| `fixture-domains` |
+
+```bash
+pnpm run hub:is-live-analytics-close-smoke
+# → reports/web-llm/shorthand/is-live-analytics.v1.json
+```
+
+Near-miss: same origin + shared transfer tag or overlapping route-count band → replay donor capsule + LLM only for hole deltas; **never** `skipLlm`. Demote on verify-fail / source-digest mismatch.
 
 ---
 

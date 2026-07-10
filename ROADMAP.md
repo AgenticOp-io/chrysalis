@@ -8,6 +8,15 @@
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
 - **Active lane:** maintenance **G8550** / **G8570** / **G6731** — census **601/601** (**G9160**); see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md).
+- **Planned (2026-07-09):** **CynoEngine × Chrysalis collab** (**D6374**) — G9520 near-miss salience → G9530 utility prior → G9540 convert governor → G9550 aim persistence; plan [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md). Cite Cyno; do not merge repos; do not push privacy lockouts into their `.gitignore`.
+- **Closed (2026-07-09):** **IS live analytics** (**G9510**, **D6372**) — hit / near-miss / miss + verifyCostMs; near-miss transfer; demote on verify fail; gate `hub:is-live-analytics-close-smoke`.
+- **Closed (2026-07-09):** **Fill fillable WISP holes** (**G9500**, **D6371**) — balanced if/each, showcase settle, static inline; gate `hub:wisp-fill-holes-smoke` (~1260 residual holes).
+- **Closed (2026-07-09):** **WISP remaining-holes finish** (**G9490**, **D6370**) — layout passthrough, structural hydration, island nested events, static export shell; GenieACS permanently out of scope.
+- **Closed (2026-07-09):** **WISP whole-site finish** (**G9480**, **D6369**) — no-source holes, load-bind seed, CSS serve; gate `hub:wisp-whole-site-finish-smoke`.
+- **Closed (2026-07-09):** **Document-shell CSS wiring** (**G9470**, **D6368**) — runtime-cwl wraps HTML + serves lifted CSS.
+- **Closed (2026-07-09):** **Structural-shell markup lift** (**G9460**, **D6367**) — interactive Svelte pages lift with explicit holes; WISP **87/87** source pages.
+- **Closed (2026-07-09):** **Whole-site CWL conversion** (**G9400** → **G9450**, **D6366**) — proof gate `hub:whole-site-cwl-close-smoke`.
+- **Closed (2026-07-08):** **UI asset + markup lift** (**G9300** → **G9309**, **D6365**).
 - **Closed (2026-07-06):** **Maintenance census waves 8–16** (**G9161** → **G9172**, **D6355–D6357**) — **601/601** oracle-product (post–Phase 46 maintenance).
 - **Closed (2026-07-06):** **Phase 46 matrix + CWL runtime depth** (**G9250** → **G9290**, **D6341** / **D6343**); program close census **180/601** oracle-product.
 - **Closed (2026-07-06):** **Phase 45 CWL product supremacy** (**G9150** → **G9190**, **D6336** / **D6340**).
@@ -17,6 +26,154 @@
 - **WISP POC:** **default CI showcase** (**G9170**, **D6336**); extended operator regression in **`wisp-poc-regression.yml`**.
 
 ---
+
+## Planned — CynoEngine × Chrysalis (D6374 / G9520–G9550)
+
+Authority: **DESIGN D6374** · Plan: [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md)  
+Upstream: [nimbus7772017/CynoEngine](https://github.com/nimbus7772017/CynoEngine) · Issues: [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1), [chrysalis#54](https://github.com/AgenticOp-io/chrysalis/issues/54)
+
+| Gate | Slice |
+| --- | --- |
+| **G9520** | Near-miss salience v1 (Cyno-inspired scoring; still `skipLlm=false` on near-miss) |
+| **G9530** | Outcome → utility prior for capsules |
+| **G9540** | Convert/tool governor GREEN/YELLOW/RED |
+| **G9550** | Aim persistence on convert/agent loops |
+
+**Privacy:** Chrysalis does not modify CynoEngine `.gitignore`. Instance lockouts are recommendations only.
+
+---
+
+## Closed — IS live analytics (G9510)
+
+Authority: **DESIGN D6372** (user-directed 2026-07-09: ship hit/near-miss/miss + verify cost; retire compression as marketing primary)  
+Gate: `hub:is-live-analytics-close-smoke`  
+API: `summarizeIsLiveAnalytics`, `resolveShorthandWithTransfer`, `demoteShorthandsForDomain`, trajectory v2 (`isCacheOutcome`, `verifyCostMs`)
+
+| Result | Detail |
+| --- | --- |
+| Primary metrics | `hitRate` / `nearMissRate` / `missRate` / `verifyCostMsP50` |
+| Near-miss | Same origin + tag or route-band; `skipLlm=false`; hole-delta LLM only |
+| Demote | Verify-fail removes domain capsules; source-digest keying |
+| Honest bound | Close smoke is synthetic live-job trajectory — production rates need real hub jobs |
+
+---
+
+## Closed — Fill fillable WISP holes (G9500)
+
+Authority: **DESIGN D6371** (user amendment 2026-07-09: "fill all holes" — fill every *fillable* hole; refuse invented widgets)  
+Gate: `hub:wisp-fill-holes-smoke`  
+API: `findNextSvelteBlock`, `DEFAULT_SHOWCASE_LOAD_BOOLS`, `indexSvelteComponentSources`, `parseCwlLoadScalars`, first-occurrence CWL patch
+
+| Result | Detail |
+| --- | --- |
+| Fake `/if`/`/each` | **0** (balanced control-flow) |
+| Settled loading/error ifs | **0** remaining |
+| Hole count | **~1260** declared (was ~1671 with fakes/truncation artifacts) |
+| Must remain | 39 no-source `/add`; modals/wizards/maps; complex `{#if}`; GenieACS |
+
+---
+
+## Closed — WISP remaining-holes finish (G9490)
+
+Authority: **DESIGN D6370** (user amendment 2026-07-09: GenieACS is standalone C — always out of scope; finish the rest)  
+Gate: `hub:wisp-remaining-holes-finish-smoke`  
+API: `DEFAULT_LAYOUT_PASSTHROUGH_COMPONENTS`, `hydrateStructuralHtmlFromApiBody`, `collectIslandEventBindings`, brace-safe `extractCwlRouteBlock`, static export `uiAssets`
+
+| Result | Detail |
+| --- | --- |
+| Layout passthrough | `TenantGuard` unwrapped; component holes **188 → 160** |
+| Brace-safe CWL patch | Full page bodies patchable (no truncation on `{` in HTML) |
+| Static export | **126/126** with document shell + CSS; no stale demo `/add` |
+| GenieACS | Permanently out of scope (standalone C / WISPTools legacy) |
+| Honest residual | Modals/wizards/maps, complex `{#if}` / expressions remain holes |
+
+---
+
+## Closed — WISP whole-site finish (G9480)
+
+Authority: **DESIGN D6369** (user amendment 2026-07-09: "all of it")  
+Gate: `hub:wisp-whole-site-finish-smoke` (skips if `CHRYSALIS_WISP_ROOT` / default WISP tree missing)  
+API: `applyNoSourceMarkupHolesToCwlSource`, `inferUiPageApiPath` / `seedApiPathsIntoCwlSource`, `bindSiteProjectLoadFromTraces({ seedApiPaths })`, hyphen mid-token guard (schema v2)
+
+| Result | Detail |
+| --- | --- |
+| No-source holes | ~39 synthetic `/add` routes → `legacy:markup-no-source-route` (no `wisp-module-demo`) |
+| Load-bind | Pilot traces seeded + bound (~100+ `apiPath` / `tracedApiStatus`) |
+| CSS + shell | Fixture `.chrysalis/ui-assets` + runtime document shell; login CSS 200 |
+| Honest limit | Component behavior / live widgets remain holes until **G9490**; **GenieACS permanently out of scope** (standalone C) |
+
+---
+
+## Closed — Document-shell CSS wiring (G9470)
+
+Authority: **DESIGN D6368** (follow-on to D6365 / D6367 — CSS must reach the browser on the product path)  
+Gate: `hub:whole-site-cwl-close-smoke` (runtime proof: document shell + CSS 200)  
+API: `wrapHtmlFragmentWithDocumentShell`, `resolveRouteStylesheetHrefs`, `loadUiAssetLiftArtifacts`, `createCwlRuntime({ uiAssets })`, `loadCwlUiAssetsFromProject`
+
+| Result | Detail |
+| --- | --- |
+| Product | HTML fragments get `<!DOCTYPE>` + route+fallback `<link>` tags; CSS files served from lift dir |
+| Proof | `fixtures/site-scale-matrix` login response includes stylesheet links; `/assets/original-css/login.css` returns 200 |
+
+---
+
+## Closed — Structural-shell markup lift (G9460)
+
+Authority: **DESIGN D6367** (user amendment 2026-07-09: lift all via product; build capability if missing)  
+Gate: `hub:ui-markup-lift-smoke` (schema v3 includes structural-shell check)  
+API: `liftStructuralSveltePageHtml`, `liftUiMarkup({ mode: "structural-shell" })`, `convertSiteProjectUi` default markup mode
+
+| Result | Detail |
+| --- | --- |
+| Product | Interactive Svelte pages emit layout shells + `legacy:markup-lift-svelte-*` holes |
+| WISP showcase | **87/87** `+page.svelte` → markup bundles; **87** `@page` patched; synthetic `/add` without source → **G9480** holes |
+
+---
+
+## Closed — Whole-site CWL conversion (G9400–G9450)
+
+Authority: **DESIGN D6366** (user amendment 2026-07-09)  
+Program: [`docs/WHOLE-SITE-CWL-CONVERSION.md`](./docs/WHOLE-SITE-CWL-CONVERSION.md)  
+Closed: **2026-07-09** at **G9450** — `pnpm run hub:whole-site-cwl-close-smoke`  
+Goal: ingest entire site → export working CWL site (backend + UI surfaces + live data). **Proof is last.**
+
+| Slice | Goal | Gate |
+| --- | --- | --- |
+| **G9410** | Wire package UI lift into WISP Phase 31 | `hub:wisp-package-ui-lift-smoke` |
+| **G9420** | `convertSiteProjectUi` orchestrator | `hub:site-convert-smoke` |
+| **G9430** | Traced API → `load { }` + HTML hydration | `hub:site-load-bind-smoke` |
+| **G9440** | Site-scale verify matrix (UI + API + load-bind) | `hub:site-scale-matrix-smoke` |
+| **G9450** | Program close: fixture site serves via runtime-cwl | `hub:whole-site-cwl-close-smoke` |
+
+**Honest scope:** close proves the package pipeline on `fixtures/site-scale-matrix` (UI artifacts + traces + CWL runtime). Full WISP visual parity / live backend remain showcase regressions — not silent product claims.
+
+**Prerequisites closed:** G9300–G9309 (per-route CSS + markup adapters), G8400 (site-port backend wedge).
+
+---
+
+## Closed — UI asset lift: per-route scoped-CSS conversion (G9300)
+
+Authority: **DESIGN D6365** (user amendment 2026-07-08)  
+Origin: WISP UI-parity failure — global de-scoped concatenation let unrelated components' selectors collide; fix is one bundle per source route, keyed by the source build manifest.
+
+| Slice | Goal | Owner |
+| --- | --- | --- |
+| **G9300a** | Artifact types `UiRouteStyleMapV1` + `UiStylesheetBundle` (provenance: `Locator` kind `asset`, `Provenance` source `ui-asset-lift`) | `@chrysalis/webir` `ui-assets.ts` |
+| **G9300b** | `UiFrameworkCssAdapter` contract + SvelteKit adapter + `liftUiAssets` engine | `@chrysalis/ingest` `ui-assets.ts` |
+| **G9300c** | Backend-agnostic consumption: `resolveRouteStylesheetHref` / `routeStylesheetLinkTag` | `@chrysalis/emit-shared` `ui-route-style.ts` |
+| **G9300d** | Selector-coverage parity report `verifyUiRouteStyleParity` | `@chrysalis/verify` `ui-css-parity.ts` |
+| **G9300e** | `chrysalis ui-assets` subcommand + fixture `fixtures/ui-assets-svelte/` goldens; WISP script becomes wrapper | `@chrysalis/cli`, `scripts/` |
+| **G9301** | Vite + Vue adapter (`viteVueCssAdapter`, `[data-v-*]` de-scope) + fixture `fixtures/ui-assets-vue/` | `@chrysalis/ingest` `ui-assets-vue.ts` |
+| **G9302** | `writeUiAssetLiftArtifacts`, `hub:ui-asset-lift-smoke`, `ci:ui-parity-floors`, `status --json` `uiAssets` | `@chrysalis/ingest`, `scripts/`, `@chrysalis/cli` |
+| **G9303** | Vite + CSS Modules adapter (`viteCssModulesAdapter`, hashed module class de-scope) + fixture `fixtures/ui-assets-css-modules/` | `@chrysalis/ingest` `ui-assets-css-modules.ts` |
+| **G9304** | `discoverUiAssetBuildRoot` + `liftProjectUiAssets`; site-port `ui-assets` gate + `.chrysalis/ui-assets/` artifacts | `@chrysalis/ingest`, `scripts/site-port-to-cwl.mjs`, `@chrysalis/web-llm` |
+| **G9305** | Angular emulated encapsulation adapter (`angularCssAdapter`, `_ngcontent-*` / `_nghost-*`) + fixture `fixtures/ui-assets-angular/` | `@chrysalis/ingest` `ui-assets-angular.ts` |
+| **G9306** | Per-route static markup lift (`liftUiMarkup`, SvelteKit adapter) + `verifyUiRouteMarkupParity` + site-port `ui-markup` gate | `@chrysalis/webir`, `@chrysalis/ingest`, `@chrysalis/verify`, `scripts/` |
+| **G9307** | Vue + Angular markup adapters + fixtures `fixtures/ui-markup-vue/`, `fixtures/ui-markup-angular/` | `@chrysalis/ingest` `ui-markup-vue.ts`, `ui-markup-angular.ts` |
+| **G9308** | Emit consumption: `resolveRouteMarkupHref`, `findRouteMarkupBundle`, `loadUiMarkupLiftArtifacts` | `@chrysalis/emit-shared` |
+| **G9309** | CWL `@page` wiring: `applyLiftedMarkupToCwlSource` + `hub-project-cwl-export` patch; CLI `chrysalis ui-markup` | `@chrysalis/emit-shared`, `@chrysalis/cli`, `scripts/hub-ingest/` |
+
+Unsupported schemes hole as `legacy:css-scoping-<scheme>` or `legacy:markup-lift-<scheme>`.
 
 ---
 

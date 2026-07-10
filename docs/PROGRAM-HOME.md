@@ -21,8 +21,11 @@ One **GitHub organization**, one **Project**, many **repositories**. Contributor
 | [`WISP-Management`](https://github.com/AgenticOp-io/WISP-Management) | WISP showcase app |
 | [`fragility-discovery-engine`](https://github.com/AgenticOp-io/fragility-discovery-engine) | Related AgenticOp product |
 | [`agenticops-web`](https://github.com/AgenticOp-io/agenticops-web) | AgenticOp web |
+| [`CynoEngine`](https://github.com/nimbus7772017/CynoEngine) (contributor) | Salience / sovereign-agent substrate — **sibling product**, not Chrysalis core ([collab plan](./CYNO-CHRYSALIS-COLLAB.md)) |
 
 GitHub redirects old `theorem6/wptp-*` URLs to `AgenticOp-io/wptp-*`. Prefer the org URLs in new clones and docs.
+
+**Privacy:** Cyno instance data (souls, lake, prod topology) stays on the Cyno maintainer’s machine/repo policy. Chrysalis does **not** push `.gitignore` or lockout files into their tree (**D6374**).
 
 ## Local layout
 

@@ -22,9 +22,17 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 | **Extended matrix census** | **G9160** | `hub:extended-matrix-oracle-progress-smoke` — **601/601** oracle-product (regression) |
 | **Extended matrix wave regression (8–16)** | **G9161**–**G9172** | `hub:extended-matrix-oracle-wave*-smoke` — charter waves; see `package.json` |
 | **CWL runtime scaffold depth** | **G9238** | `hub:cwl-runtime-scaffold-depth-smoke` |
+| **Whole-site CWL regression** | **G9450** | `hub:whole-site-cwl-close-smoke` |
+| **Structural-shell markup** | **G9460** | `hub:ui-markup-lift-smoke` (schema v3) |
+| **Document-shell CSS** | **G9470** | `hub:whole-site-cwl-close-smoke` (runtime CSS checks) |
+| **WISP whole-site finish** | **G9480** | `hub:wisp-whole-site-finish-smoke` (needs WISP root) |
+| **WISP remaining holes** | **G9490** | `hub:wisp-remaining-holes-finish-smoke` (needs WISP root; GenieACS out of scope) |
+| **Fill fillable holes** | **G9500** | `hub:wisp-fill-holes-smoke` (needs WISP root) |
+| **IS live analytics** | **G9510** | `hub:is-live-analytics-close-smoke` |
+| **Cyno near-miss salience (next)** | **G9520** | Plan [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) (**D6374**) — not closed yet |
 
 **One-command demo:** `pnpm run migration-evidence:demo`  
-**Closed program regression:** `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790`) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940`) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`  
+**Closed program regression:** `hub:whole-site-cwl-close-smoke` (**G9450**) · `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**) · `hub:is-live-analytics-close-smoke` (**G9510**) · `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**) · `hub:phase44-program-close-smoke` (**G9140**) · `hub:ir-helper-program-close-smoke` (**G7200**) · `hub:full-matrix-oracle-close-smoke` (**G8790`) · `hub:llm-assisted-convert-close-smoke` (**G8830**) · `hub:llm-convert-full-close-smoke` (**G8940`) · `hub:wisp-web-llm-poc-close-smoke` · `hub:open-web-llm-close-smoke` · `hub:is-runtime-close-smoke`
 **Program docs:** [`PHASE-46-PROGRAM.md`](./PHASE-46-PROGRAM.md) · [`PHASE-45-PROGRAM.md`](./PHASE-45-PROGRAM.md) · [`MIGRATION-OS.md`](./MIGRATION-OS.md)
 
 ### Subordinate (closed — regression only)

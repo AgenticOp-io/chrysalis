@@ -37,7 +37,7 @@
 | **CWL is authoritative** — RFCs, WebIR, oracle, and verify define the language | **The POC exists solely to showcase the language** — wins must **generalize**; WISP-specific paths stay catalogued, not baked in |
 | Success = language + engine + verify truth | Success on WISP = evidence that a surface wave **closes with gates** — transferable, not “ship WISP” |
 
-WISP is **important** as a showcase. It is **not** the product name, the north star, or the definition of CWL. **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
+WISP is **important** as a showcase. It is **not** the product name, the north star, or the definition of CWL. **GenieACS is standalone C (WISPTools legacy) — permanently out of Chrysalis scope** (**D6205**, **D6370**).
 
 ---
 
@@ -440,6 +440,81 @@ Without plan amendment, treat these as **out of scope**:
 **Amended 2026-07-03 (Phase 43 LLM convert full — D6303):** Phase **43** **closed** at **G8940**: LLM/stub hole enrichment, verify-gated operator apply, repair bridge, MCP **`hub_convert_apply_holes`** — extends closed Phase 42 without bypassing WebIR/oracle. See [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md).
 
 ## 12. Default queue (maintenance)
+
+**Post D6374 plan (2026-07-09) — CynoEngine collab ideas queued.**
+
+**Status:** **G9520–G9550 planned** ([`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md), **D6374**); **G9510 closed** (**D6372**); **G9400 closed** (**G9450**, **D6366**); Phase 46 closed (**G9290**); **Migration OS closed** (**G8550**).
+
+When the user says "build" without specifying:
+
+1. **G9520 IS near-miss salience** — implement per [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) (CynoEngine-inspired; cite upstream)
+2. **G8550 composite** — `pnpm run hub:migration-os-close-smoke`
+3. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+4. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (weekly CI)
+5. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
+6. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
+7. **IS live analytics** — `pnpm run hub:is-live-analytics-close-smoke` (**G9510** / **D6372**)
+8. **G9530 → G9540 → G9550** — after G9520 close (utility prior, convert governor, aim persistence)
+
+**Closed program regression:** `hub:whole-site-cwl-close-smoke` (**G9450** / **G9470**) · `hub:ui-markup-lift-smoke` (**G9460**) · `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**) · `hub:is-live-analytics-close-smoke` (**G9510**) · `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**)
+
+**WISP showcase:** `hub:phase45-wisp-showcase-smoke` (**G9170**); visual parity `hub:wisp-cwl-ui-parity-close-smoke` (**G8100**) remains showcase-only; finish `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**)
+
+**CynoEngine collab:** [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) · [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1)
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (maintenance, superseded 2026-07-09 by D6374 / G9520 queue)
+
+**Post G9510 close (2026-07-09).**
+
+**Status:** **G9510 closed** (**D6372** — IS live analytics); **G9400 closed** (**G9450**, **D6366** — 2026-07-09); Phase 46 closed (**G9290**); UI asset/markup adapters closed (**G9300–G9309**); **Migration OS closed** (**G8550**).
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke`
+2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
+3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (weekly CI)
+4. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
+5. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
+6. **Structural-shell markup** — `pnpm run hub:ui-markup-lift-smoke` (**G9460** / **D6367**)
+7. **Document-shell CSS** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9470** / **D6368**)
+8. **WISP whole-site finish** — `pnpm run hub:wisp-whole-site-finish-smoke` (**G9480** / **D6369**; needs WISP root)
+9. **WISP remaining holes** — `pnpm run hub:wisp-remaining-holes-finish-smoke` (**G9490** / **D6370**; needs WISP root; GenieACS out of scope)
+10. **Fill fillable holes** — `pnpm run hub:wisp-fill-holes-smoke` (**G9500** / **D6371**; needs WISP root)
+11. **IS live analytics** — `pnpm run hub:is-live-analytics-close-smoke` (**G9510** / **D6372**)
+
+**Closed program regression:** `hub:whole-site-cwl-close-smoke` (**G9450** / **G9470**) · `hub:ui-markup-lift-smoke` (**G9460**) · `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**) · `hub:is-live-analytics-close-smoke` (**G9510**) · `hub:phase46-program-close-smoke` (**G9290**) · `hub:phase45-program-close-smoke` (**G9190**)
+
+**WISP showcase:** `hub:phase45-wisp-showcase-smoke` (**G9170**); visual parity `hub:wisp-cwl-ui-parity-close-smoke` (**G8100**) remains showcase-only; finish `hub:wisp-whole-site-finish-smoke` (**G9480**) · `hub:wisp-remaining-holes-finish-smoke` (**G9490**) · `hub:wisp-fill-holes-smoke` (**G9500**)
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (whole-site CWL conversion — G9400, superseded 2026-07-09 by G9450 close)
+
+**Post G9309 close; G9400 activated 2026-07-09.**
+
+**Status:** **G9400 active** (**D6366**); Phase 46 closed (**G9290**); UI asset/markup adapters closed (**G9300–G9309**). **Proof is last**.
+
+When the user said "build" without specifying:
+
+1. **G9420** — `pnpm run hub:site-convert-smoke`
+2. **G9410** — `pnpm run hub:wisp-package-ui-lift-smoke`
+3. **G9430** — `pnpm run hub:site-load-bind-smoke`
+4. **G9440** — `pnpm run hub:site-scale-matrix-smoke`
+5. **G9450** — `pnpm run hub:whole-site-cwl-close-smoke`
+
+**Program doc:** [`docs/WHOLE-SITE-CWL-CONVERSION.md`](./WHOLE-SITE-CWL-CONVERSION.md)
+
+---
+
+## 12 (archived) — Default queue (maintenance, superseded 2026-07-09 by G9400)
 
 **Post Phase 46 close (2026-07-06).**
 
