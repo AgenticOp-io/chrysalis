@@ -2,6 +2,8 @@
 
 **Start here:** [`MIGRATION-OS.md`](./MIGRATION-OS.md) — the operator stack (Site → CWL → LLM, VMF federation, Migration Evidence hub, Intelligence Shorthand, open web-LLM).
 
+**Contributors / org home:** [`PROGRAM-HOME.md`](./PROGRAM-HOME.md) — one org (**AgenticOp-io**), one Project, many repos (**D6373**).
+
 Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** with oracle replay — not faith. The converter is the adoption vector; the product is **verified migration infrastructure**.
 
 ---
@@ -11,6 +13,7 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | Doc | What |
 | --- | --- |
 | [**Migration OS**](./MIGRATION-OS.md) | **Primary entry** — pipeline, demos, gates, reading order |
+| [**Whole-site CWL conversion**](./WHOLE-SITE-CWL-CONVERSION.md) | **Closed (G9450)** — package pipeline close; regression `hub:whole-site-cwl-close-smoke` |
 | [Site → CWL → LLM](./SITE-TO-CWL-LLM-PROGRAM.md) | `chrysalis port-site`, trajectories, WVB |
 | [Verified Migration Federation](./SITE-PORT-FEDERATION-PROGRAM.md) | VMF, Open Legacy Index, hub API |
 | [Migration Evidence POC](./MIGRATION-EVIDENCE-POC-PROGRAM.md) | Unified evidence hub (**G8480** / **G8550**) |

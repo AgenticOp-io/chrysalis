@@ -83,14 +83,14 @@
 | Repository | Purpose | When |
 | --- | --- | --- |
 | **`AgenticOp-io/chrysalis`** (this repo) | **D1** — PHP oracle, WebIR, emit-hono/fastify, verify, chimera, docs | **Now**; remains source of truth for PHP leg until board agrees migration of responsibilities. |
-| **[`theorem6/wptp-ir`](https://github.com/theorem6/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 exit met** — see [`docs/WPTP-D2-EXIT-REPORT.md`](./WPTP-D2-EXIT-REPORT.md) |
-| **[`theorem6/wptp-matrix`](https://github.com/theorem6/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **24** edges, Pages, `verify:harness` (**2026-05-25**) |
-| **[`theorem6/wptp-adapter-openapi`](https://github.com/theorem6/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3** — supported |
-| **[`theorem6/wptp-adapter-browser`](https://github.com/theorem6/wptp-adapter-browser)** | HAR → IR v0 routes (**bronze**) | **D3** — supported |
-| **[`theorem6/wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs)** | IR v0 → Next.js App Router stubs | **D4 exit met** — bronze **`wptp-d4-harness`**; silver WebIR bridge **`wptp-silver-nextjs-harness`** (**D306**) |
-| **`theorem6/wptp-adapter-*`** (other families) | Additional sources | **planned** |
-| **`theorem6/wptp-emit-*`** (new, per target) | Emitters beyond current `emit-*` | **D4+** per target business case. |
-| **`theorem6/wptp-verify-*`** (new, optional) | Shared replay libraries | When duplication across emitters hurts. |
+| **[`AgenticOp-io/wptp-ir`](https://github.com/AgenticOp-io/wptp-ir)** | IR schema **v0.1.0**, validators, **10+** fixtures, WebIR bundle import + loss report | **D2 exit met** — see [`docs/WPTP-D2-EXIT-REPORT.md`](./WPTP-D2-EXIT-REPORT.md) |
+| **[`AgenticOp-io/wptp-matrix`](https://github.com/AgenticOp-io/wptp-matrix)** | Public **compatibility matrix** JSON + validator (no false Gold) | **D5 exit met** — **24** edges, Pages, `verify:harness` (**2026-05-25**) |
+| **[`AgenticOp-io/wptp-adapter-openapi`](https://github.com/AgenticOp-io/wptp-adapter-openapi)** | OpenAPI 3 → IR v0 routes (**bronze**) | **D3** — supported |
+| **[`AgenticOp-io/wptp-adapter-browser`](https://github.com/AgenticOp-io/wptp-adapter-browser)** | HAR → IR v0 routes (**bronze**) | **D3** — supported |
+| **[`AgenticOp-io/wptp-emit-nextjs`](https://github.com/AgenticOp-io/wptp-emit-nextjs)** | IR v0 → Next.js App Router stubs | **D4 exit met** — bronze **`wptp-d4-harness`**; silver WebIR bridge **`wptp-silver-nextjs-harness`** (**D306**) |
+| **`AgenticOp-io/wptp-adapter-*`** (other families) | Additional sources | **planned** |
+| **`AgenticOp-io/wptp-emit-*`** (new, per target) | Emitters beyond current `emit-*` | **D4+** per target business case. |
+| **`AgenticOp-io/wptp-verify-*`** (new, optional) | Shared replay libraries | When duplication across emitters hurts. |
 
 **Fork policy:** Sibling repos **fork or depend on** Chrysalis **by license** (MIT); **do not** copy-paste core IR without submodule or package boundary. Prefer **`workspace:`-style** consumption only inside a monorepo if the org later merges repos — **default is multi-repo** for blast radius.
 
@@ -118,7 +118,7 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 
 - **Entry:** D1 technical exit (not contingent on sponsor funding).
 - **Exit:** **`wptp-ir`** public **schemaVersion 0** with: **loss report** from a **WebIR subset** (flagship: tiny-blog **zero losses**); **10+ golden fixtures**; **RFC-style** versioning policy.
-- **Artifacts:** [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir); conformance tests; **import** from **`chrysalis.webir.bundle@1.0.0`** (Chrysalis **`scripts/export-webir-bundle.mjs`**).
+- **Artifacts:** [AgenticOp-io/wptp-ir](https://github.com/AgenticOp-io/wptp-ir); conformance tests; **import** from **`chrysalis.webir.bundle@1.0.0`** (Chrysalis **`scripts/export-webir-bundle.mjs`**).
 - **Status (2026-05-19):** **D2 technical exit met** — `@wptp/ir@v0.1.3`, **12** IR goldens, tiny-blog **zero losses**, Chrysalis CI **`webir-bundle-to-wptp-ir`**. See [`docs/WPTP-D2-EXIT-REPORT.md`](./WPTP-D2-EXIT-REPORT.md).
 
 ### D3 — Second **source** profile (non-PHP)
@@ -133,13 +133,13 @@ Each phase has **entry criteria**, **exit criteria**, and **artifacts** (docs, r
 - **Entry:** D3 exit.
 - **Exit:** New emitter + **verify harness** + **one** golden app ported **IR → new target** with **graded** matrix entry (§8).
 - **Artifacts:** `wptp-emit-*` repo; docs for operator.
-- **Status (2026-05-19):** **D4 technical exit met** — [`wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs), matrix bronze + **silver** Chrysalis WebIR paths, CI **`wptp-d4-harness`** + **`wptp-silver-nextjs-harness`**. See [`docs/WPTP-D4-EXIT-REPORT.md`](./WPTP-D4-EXIT-REPORT.md).
+- **Status (2026-05-19):** **D4 technical exit met** — [`wptp-emit-nextjs`](https://github.com/AgenticOp-io/wptp-emit-nextjs), matrix bronze + **silver** Chrysalis WebIR paths, CI **`wptp-d4-harness`** + **`wptp-silver-nextjs-harness`**. See [`docs/WPTP-D4-EXIT-REPORT.md`](./WPTP-D4-EXIT-REPORT.md).
 
 ### D5 — Compatibility matrix product
 
 - **Entry:** D4 exit.
 - **Exit:** Public **matrix** (site or repo) with **≥6** supported **edges** (source,target,grade); **composer** CLI or docs for multi-hop; **no false “green”** without harness proof.
-- **Status (2026-05-25):** **Exit met** — [wptp-matrix](https://github.com/theorem6/wptp-matrix) **24** edges, **14** composer paths, GitHub Pages, `npm run verify:harness`; Chrysalis optional job **`wptp-harness-smoke.yml`** with `CHRYSALIS_ROOT`.
+- **Status (2026-05-25):** **Exit met** — [wptp-matrix](https://github.com/AgenticOp-io/wptp-matrix) **24** edges, **14** composer paths, GitHub Pages, `npm run verify:harness`; Chrysalis optional job **`wptp-harness-smoke.yml`** with `CHRYSALIS_ROOT`.
 - **Artifacts:** Matrix JSON schema; CI that fails if docs claim unsupported green; [WPTP funding tracker](./WPTP-FUNDING-TRACKER.md) (non-blocking).
 
 ### D6 — Enterprise connectors and policy packs
@@ -253,7 +253,7 @@ The script **links** the project to **`repository.url`**’s repo (default **`th
 **Manual:** copy as draft issues; set **Lane** and **Workstream** on each.
 
 1. **D0 — Approve `docs/MASTER-PROGRAM.md` v1** (Legal + Architecture board).
-2. **D0 — Link sibling repos to Project** (`theorem6/wptp-matrix`, `theorem6/wptp-ir`, emit/adapters; see bootstrap seed bodies).
+2. **D0 — Link sibling repos to Project** (`AgenticOp-io/wptp-matrix`, `AgenticOp-io/wptp-ir`, emit/adapters; see bootstrap seed bodies).
 3. **D5 — wptp-matrix linked + CI** (24 matrix edges; Chrysalis harnesses).
 4. **D2 — wptp-ir linked + WebIR import** (`webir-bundle-to-wptp-ir` CI).
 5. **D1 — Confirm Chrysalis D1 exit checklist** (§10) against **`ROADMAP.md`**.

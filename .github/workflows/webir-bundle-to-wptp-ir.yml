@@ -46,7 +46,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          repository: theorem6/wptp-ir
+          repository: AgenticOp-io/wptp-ir
           ref: main
           path: wptp-ir
 

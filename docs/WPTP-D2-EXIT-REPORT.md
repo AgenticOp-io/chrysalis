@@ -1,7 +1,7 @@
 # WPTP D2 exit report — IR hub specification v0
 
 **Program:** [Web Platform Translation Program](./MASTER-PROGRAM.md)  
-**Deliverable:** D2 — neutral IR hub (`theorem6/wptp-ir`)  
+**Deliverable:** D2 — neutral IR hub (`AgenticOp-io/wptp-ir`)  
 **Date:** 2026-05-19  
 **Status:** **Technical exit met** (engineering); sponsor funding remains optional per [§10](./MASTER-PROGRAM.md#101-future--program-funding-non-blocking).
 
@@ -9,11 +9,11 @@
 
 | Criterion | Evidence |
 | --- | --- |
-| Public **IR schemaVersion 0** | `@wptp/ir` **v0.1.3** tagged; `schemaVersion: 0.1.0` on documents; [VERSIONING.md](https://github.com/theorem6/wptp-ir/blob/main/docs/VERSIONING.md) |
+| Public **IR schemaVersion 0** | `@wptp/ir` **v0.1.3** tagged; `schemaVersion: 0.1.0` on documents; [VERSIONING.md](https://github.com/AgenticOp-io/wptp-ir/blob/main/docs/VERSIONING.md) |
 | **Loss report** from WebIR subset | `summarizeLosses` / `formatLossReportMarkdown`; `fixtures/reports/tiny-blog-loss.md` |
 | **tiny-blog flagship zero losses** | `tests/tiny-blog-flagship.test.ts` — **325** nodes, **0** losses |
 | **10+ golden fixtures** | **12** `fixtures/ir-v0/*.json` + matching WebIR bundles; **33** Vitest tests |
-| **RFC-style versioning** | [wptp-ir/docs/VERSIONING.md](https://github.com/theorem6/wptp-ir/blob/main/docs/VERSIONING.md) |
+| **RFC-style versioning** | [wptp-ir/docs/VERSIONING.md](https://github.com/AgenticOp-io/wptp-ir/blob/main/docs/VERSIONING.md) |
 | Chrysalis **export** path | `scripts/export-webir-bundle.mjs` → `chrysalis.webir.bundle@1.0.0` |
 | **CI gold wire** | Chrysalis workflow [`.github/workflows/webir-bundle-to-wptp-ir.yml`](../.github/workflows/webir-bundle-to-wptp-ir.yml) |
 

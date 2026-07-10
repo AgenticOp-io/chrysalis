@@ -1,6 +1,6 @@
 /**
  * Wrap a Chrysalis WebIR module snapshot (golden JSON) in a chrysalis.webir.bundle envelope
- * for import by theorem6/wptp-ir (WPTP D2).
+ * for import by AgenticOp-io/wptp-ir (WPTP D2).
  *
  * Usage:
  *   node scripts/export-webir-bundle.mjs --in packages/ingest/tests/golden/tiny-blog.webir.json --out /tmp/tiny-blog.webir.bundle.json

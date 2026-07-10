@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Install WPTP siblings required by Translation Hub (Next.js emit path).
- * Clones theorem6/wptp-emit-nextjs (+ ensures @wptp/ir via npm) next to the Chrysalis repo by default.
+ * Clones AgenticOp-io/wptp-emit-nextjs (+ ensures @wptp/ir via npm) next to the Chrysalis repo by default.
  *
  * Usage:
  *   node scripts/install-wptp-hub-deps.mjs
@@ -16,7 +16,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const chrysalisRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const siblingsRoot = resolve(process.env.WPTP_SIBLINGS_ROOT ?? join(chrysalisRoot, ".."));
 const emitNextJsTag = process.env.WPTP_EMIT_NEXTJS_REF ?? "v0.1.1";
-const emitRepo = process.env.WPTP_EMIT_NEXTJS_REPO ?? "https://github.com/theorem6/wptp-emit-nextjs.git";
+const emitRepo = process.env.WPTP_EMIT_NEXTJS_REPO ?? "https://github.com/AgenticOp-io/wptp-emit-nextjs.git";
 const emitDir = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(siblingsRoot, "wptp-emit-nextjs"));
 
 function run(cmd, args, opts = {}) {

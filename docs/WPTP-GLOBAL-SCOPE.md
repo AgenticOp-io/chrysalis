@@ -9,10 +9,10 @@ Chrysalis remains **PHP → WebIR → TypeScript (Hono/Fastify)** on `theorem6/c
 
 | Layer | Repository | Role |
 | --- | --- | --- |
-| **IR hub** | [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) (`@wptp/ir@v0.1.3`) | Neutral **IR v0**; import Chrysalis WebIR bundles; **export** back to `chrysalis.webir.bundle@1.0.0` (silver) |
-| **Compatibility matrix** | [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.10`) | Public **source × target × grade** claims (**24** edges); **compose** + **verify harness** CLIs |
-| **Source adapters** | [wptp-adapter-openapi](https://github.com/theorem6/wptp-adapter-openapi), [wptp-adapter-browser](https://github.com/theorem6/wptp-adapter-browser) | OpenAPI 3 and HAR traces → IR v0 |
-| **Emit targets** | [wptp-emit-nextjs](https://github.com/theorem6/wptp-emit-nextjs), [wptp-emit-hono](https://github.com/theorem6/wptp-emit-hono), [wptp-emit-fastify](https://github.com/theorem6/wptp-emit-fastify) | Next.js / Hono / Fastify stubs from IR v0 (**bronze**); **contract-replay gold** in matrix harness |
+| **IR hub** | [AgenticOp-io/wptp-ir](https://github.com/AgenticOp-io/wptp-ir) (`@wptp/ir@v0.1.3`) | Neutral **IR v0**; import Chrysalis WebIR bundles; **export** back to `chrysalis.webir.bundle@1.0.0` (silver) |
+| **Compatibility matrix** | [AgenticOp-io/wptp-matrix](https://github.com/AgenticOp-io/wptp-matrix) (`@wptp/matrix@v0.1.10`) | Public **source × target × grade** claims (**24** edges); **compose** + **verify harness** CLIs |
+| **Source adapters** | [wptp-adapter-openapi](https://github.com/AgenticOp-io/wptp-adapter-openapi), [wptp-adapter-browser](https://github.com/AgenticOp-io/wptp-adapter-browser) | OpenAPI 3 and HAR traces → IR v0 |
+| **Emit targets** | [wptp-emit-nextjs](https://github.com/AgenticOp-io/wptp-emit-nextjs), [wptp-emit-hono](https://github.com/AgenticOp-io/wptp-emit-hono), [wptp-emit-fastify](https://github.com/AgenticOp-io/wptp-emit-fastify) | Next.js / Hono / Fastify stubs from IR v0 (**bronze**); **contract-replay gold** in matrix harness |
 | **Verify harnesses** | `wptp-matrix` (`wptp-verify-harness`, `npm run verify:harness`) | **Bronze** composed-path contracts; **Silver** WebIR import; **Gold** remains Chrysalis CI |
 
 ## Platform families (working names)
@@ -49,7 +49,7 @@ Expanding **Chrysalis** to “all web platforms” on `main` still requires a **
 
 ## Composer paths (live)
 
-Documented in [composer-paths.v0.json](https://github.com/theorem6/wptp-matrix/blob/main/data/composer-paths.v0.json):
+Documented in [composer-paths.v0.json](https://github.com/AgenticOp-io/wptp-matrix/blob/main/data/composer-paths.v0.json):
 
 | Path ID | Steps | Grade |
 | --- | --- | --- |

@@ -9,10 +9,10 @@
 
 | Criterion | Evidence |
 | --- | --- |
-| **New emitter** | [`theorem6/wptp-emit-nextjs`](https://github.com/theorem6/wptp-emit-nextjs) (`@wptp/emit-nextjs@v0.1.1`) — `emitNextJsAppRouter` |
-| **Verify harness** | [`wptp-matrix`](https://github.com/theorem6/wptp-matrix) `verifyComposedNextJsBronze`; paths **`openapi-ir-nextjs`**, **`har-ir-nextjs`** in `runMatrixHarness` |
+| **New emitter** | [`AgenticOp-io/wptp-emit-nextjs`](https://github.com/AgenticOp-io/wptp-emit-nextjs) (`@wptp/emit-nextjs@v0.1.1`) — `emitNextJsAppRouter` |
+| **Verify harness** | [`wptp-matrix`](https://github.com/AgenticOp-io/wptp-matrix) `verifyComposedNextJsBronze`; paths **`openapi-ir-nextjs`**, **`har-ir-nextjs`** in `runMatrixHarness` |
 | **Golden app (IR → target)** | Fixtures **`petstore-mini.openapi.json`**, **`mini.har.json`** → emitted `app/**/route.ts` stubs |
-| **Graded matrix** | Bronze edges **`openapi-to-nextjs-composed`**, **`browser-to-nextjs-composed`**, **`wptp-ir-to-nextjs-handlers`** in [`matrix.v0.json`](https://github.com/theorem6/wptp-matrix/blob/main/data/matrix.v0.json) |
+| **Graded matrix** | Bronze edges **`openapi-to-nextjs-composed`**, **`browser-to-nextjs-composed`**, **`wptp-ir-to-nextjs-handlers`** in [`matrix.v0.json`](https://github.com/AgenticOp-io/wptp-matrix/blob/main/data/matrix.v0.json) |
 
 ## Chrysalis CI
 

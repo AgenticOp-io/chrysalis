@@ -30,8 +30,7 @@ matrix, and the additional source/target adapters.
 | `wptp-adapter-browser` | **D3** | HAR browser trace → IR v0 (bronze) |
 | `wptp-emit-nextjs` | **D4** | IR v0 → Next.js App Router (bronze + silver WebIR bridge) |
 
-Clone names map to GitHub as `<owner>/<repo>` (Chrysalis: see root `package.json`
-`repository.url`; siblings live under `theorem6/*`). The workspace template uses **local
+Clone names map to GitHub as `<owner>/<repo>` (canonical: **`AgenticOp-io/*`** — see [`PROGRAM-HOME.md`](./PROGRAM-HOME.md)). The workspace template uses **local
 folder names only**, so it works regardless of which owner/fork you cloned from.
 
 ---
@@ -54,12 +53,12 @@ Clone what you need (siblings are optional — the workspace tolerates missing f
 
 ```bash
 # from your chosen parent folder
-git clone https://github.com/theorem6/chrysalis.git           # or your fork
-git clone https://github.com/theorem6/wptp-ir.git
-git clone https://github.com/theorem6/wptp-matrix.git
-git clone https://github.com/theorem6/wptp-adapter-openapi.git
-git clone https://github.com/theorem6/wptp-adapter-browser.git
-git clone https://github.com/theorem6/wptp-emit-nextjs.git
+git clone https://github.com/AgenticOp-io/chrysalis.git
+git clone https://github.com/AgenticOp-io/wptp-ir.git
+git clone https://github.com/AgenticOp-io/wptp-matrix.git
+git clone https://github.com/AgenticOp-io/wptp-adapter-openapi.git
+git clone https://github.com/AgenticOp-io/wptp-adapter-browser.git
+git clone https://github.com/AgenticOp-io/wptp-emit-nextjs.git
 ```
 
 ---

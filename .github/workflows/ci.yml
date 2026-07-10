@@ -177,6 +177,9 @@ jobs:
       - name: CWL runtime scaffold depth (G9238)
         run: pnpm run hub:cwl-runtime-scaffold-depth-smoke
 
+      - name: Whole-site CWL conversion close (G9450)
+        run: pnpm run hub:whole-site-cwl-close-smoke
+
       - name: WISP CWL showcase default CI (G9170)
         run: pnpm run hub:phase45-wisp-showcase-smoke
         env:
@@ -242,7 +245,7 @@ jobs:
       - name: Checkout wptp-matrix (hub contract-first oracle)
         uses: actions/checkout@v4
         with:
-          repository: theorem6/wptp-matrix
+          repository: AgenticOp-io/wptp-matrix
           ref: v0.1.10
           path: wptp-matrix
 
@@ -252,7 +255,7 @@ jobs:
       - name: Checkout wptp-emit-nextjs (hub Next.js structural gold)
         uses: actions/checkout@v4
         with:
-          repository: theorem6/wptp-emit-nextjs
+          repository: AgenticOp-io/wptp-emit-nextjs
           ref: main
           path: wptp-emit-nextjs
 

@@ -30,8 +30,8 @@ Chrysalis meets the **chartered engineering** bar for D1: Milestones 0–6 (incl
 ## Artifacts
 
 - **WebIR export for D2:** `scripts/export-webir-bundle.mjs` → `chrysalis.webir.bundle@1.0.0`
-- **IR hub (D2):** [theorem6/wptp-ir](https://github.com/theorem6/wptp-ir) (`@wptp/ir@v0.1.3`)
-- **Compatibility matrix (D5):** [theorem6/wptp-matrix](https://github.com/theorem6/wptp-matrix) (`@wptp/matrix@v0.1.10`) — **24 edges**, compose + `verify:harness`, [GitHub Pages](https://theorem6.github.io/wptp-matrix/)
+- **IR hub (D2):** [AgenticOp-io/wptp-ir](https://github.com/AgenticOp-io/wptp-ir) (`@wptp/ir@v0.1.3`)
+- **Compatibility matrix (D5):** [AgenticOp-io/wptp-matrix](https://github.com/AgenticOp-io/wptp-matrix) (`@wptp/matrix@v0.1.10`) — **24 edges**, compose + `verify:harness`, [GitHub Pages](https://theorem6.github.io/wptp-matrix/)
 - **GCE smoke:** `scripts/gce-wptp-test-vm.ps1` + `gce-wptp-test-bootstrap.sh` (e2-small; [HOW-TO §25](./HOW-TO.md#25-smoke-test-wptp-matrix-on-gce)). Default **full harness**: builds **`~/chrysalis-test`**, **`wptp-emit-nextjs`**, runs **`verify-tiny-blog`**, then **`verify:harness`** with **`CHRYSALIS_ROOT`** / **`WPTP_EMIT_NEXTJS_ROOT`**. **`-MatrixOnlyHarness`** skips Chrysalis (matrix-only). Bootstrap reclones when **`MATRIX_REF`** or Chrysalis ref stamps change.
 - **Chrysalis WPTP CI:** `.github/workflows/wptp-harness-smoke.yml` (`CHRYSALIS_ROOT` + matrix `verify:harness`)
 - **Program board:** [GitHub Project #1](https://github.com/users/theorem6/projects/1)

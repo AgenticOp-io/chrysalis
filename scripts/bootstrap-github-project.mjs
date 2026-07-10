@@ -125,10 +125,10 @@ const MASTER_PROGRAM_DRAFT_ISSUES = [
     title: "D0 — Link sibling repos to Project",
     body:
       "Link these repositories on the WPTP GitHub Project (Settings → Linked repositories):\n\n" +
-      "- https://github.com/theorem6/wptp-matrix (compatibility matrix, 24 edges; CI via Chrysalis `wptp:*-harness`)\n" +
-      "- https://github.com/theorem6/wptp-ir (IR hub v0; `exportIrToWebIrBundleV0`)\n" +
-      "- https://github.com/theorem6/wptp-emit-nextjs (silver Next.js emitter)\n" +
-      "- https://github.com/theorem6/wptp-emit-hono / wptp-adapter-openapi / wptp-adapter-browser (bronze compose)\n\n" +
+      "- https://github.com/AgenticOp-io/wptp-matrix (compatibility matrix, 24 edges; CI via Chrysalis `wptp:*-harness`)\n" +
+      "- https://github.com/AgenticOp-io/wptp-ir (IR hub v0; `exportIrToWebIrBundleV0`)\n" +
+      "- https://github.com/AgenticOp-io/wptp-emit-nextjs (silver Next.js emitter)\n" +
+      "- https://github.com/AgenticOp-io/wptp-emit-hono / wptp-adapter-openapi / wptp-adapter-browser (bronze compose)\n\n" +
       "Evidence rows: `echo-api-composed-*-chrysalis-silver`, `openapi-composed-hono-chrysalis-silver`, D3/D4 harnesses in Chrysalis CI.",
     lane: "D0 - Charter and GitHub Project",
     workstream: "Matrix and product",
@@ -137,7 +137,7 @@ const MASTER_PROGRAM_DRAFT_ISSUES = [
   {
     title: "D5 — wptp-matrix: link Project + keep CI green",
     body:
-      "Repository: https://github.com/theorem6/wptp-matrix\n\n" +
+      "Repository: https://github.com/AgenticOp-io/wptp-matrix\n\n" +
       "- `npm run validate` (matrix.v0.json)\n" +
       "- `CHRYSALIS_ROOT` + `verify:harness` / Chrysalis `wptp:d3-silver-harness`, `wptp:silver-nextjs-harness`\n" +
       "- Quarterly: `pnpm run wptp:d7-audit` in Chrysalis (see docs/WPTP-D7-ONGOING.md)",
@@ -148,7 +148,7 @@ const MASTER_PROGRAM_DRAFT_ISSUES = [
   {
     title: "D2 — wptp-ir: link Project + WebIR import contract",
     body:
-      "Repository: https://github.com/theorem6/wptp-ir\n\n" +
+      "Repository: https://github.com/AgenticOp-io/wptp-ir\n\n" +
       "- IR schema 0.1.0; import `chrysalis.webir.bundle@1.0.0`\n" +
       "- Chrysalis CI: `webir-bundle-to-wptp-ir` workflow + `scripts/verify-webir-bundle-wptp-ir.mjs`",
     lane: "D2 - IR hub specification v0",
