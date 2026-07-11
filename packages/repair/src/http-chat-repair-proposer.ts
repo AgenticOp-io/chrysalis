@@ -65,6 +65,9 @@ function nodeLabel(n: NodeBase): string {
     case "trace":
       loc = `${o.corpusId}/${o.frameId}`;
       break;
+    case "asset":
+      loc = o.file;
+      break;
     case "synthetic":
       loc = o.reason;
       break;

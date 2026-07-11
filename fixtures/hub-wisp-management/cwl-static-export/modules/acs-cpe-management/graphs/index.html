@@ -1,20 +1,86 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_acs_cpe_management_graphs" data-wisp-path="/modules/acs-cpe-management/graphs" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/snmp">
-  <header class="wisp-demo-header">
-    <h1>Graphs</h1>
-    <p class="wisp-demo-desc">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/acs-cpe-management/graphs/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>138</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>2</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>6</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>graphs</title>
+<link rel="stylesheet" href="/assets/original-css/modules_acs-cpe-management_graphs.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="graphs-page">
+  <nav class="cwl-nav-shell" data-cwl-nav-shell="MainMenu" aria-hidden="true"></nav>
+  
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-top">
+        <a href="/dashboard" class="back-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            </modules/acs-cpe-management/graphs d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          ← Back to Dashboard
+        </a>
+      </div>
+      <h1 class="page-title">
+        <span class="page-icon">📊</span>
+        Multi-Device Graphs
+      </h1>
+      <p class="page-description">
+        Compare TR-069 metrics across multiple CPE devices
+      </p>
+    </div>
+    <div class="header-actions">
+      <div class="time-range-selector">
+        <button class="time-btn">1H</button>
+        <button class="time-btn">6H</button>
+        <button class="time-btn">24H</button>
+        <button class="time-btn">7D</button>
+      </div>
+      <button class="btn btn-secondary">
+        ▶️ Auto-Refresh
+      </button>
+      <button class="btn btn-primary">
+        
+          🔄
+        
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Device Selector -->
+  <div class="device-selector-bar">
+    <div class="selector-header">
+      <h3>Select Devices (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedCount"></span> selected)</h3>
+      <div class="selector-actions">
+        <button class="btn-link">Select All</button>
+        <button class="btn-link">Deselect All</button>
+      </div>
+    </div>
+    <div class="device-chips">
+      <button
+          class="device-chip">
+          <span class="chip-status"></span>
+          <span class="chip-label"> - </span>
+        </button><button
+          class="device-chip">
+          <span class="chip-status"></span>
+          <span class="chip-label"> - </span>
+        </button>
+    </div>
+  </div>
+
+  <!-- Graphs Content -->
+  <div class="content">
+    
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="selectedDevices as deviceId">
+        
+        
+        </div>
+    
+  </div>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Graphs data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/graphs"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/graphs","apiPath":"/api/snmp","api_ok":true,"api_surface":"wisp-api-native","api_resource":"snmp-monitoring","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

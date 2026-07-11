@@ -8,10 +8,11 @@ import {
 import type { IsCacheOutcome } from "./shorthand-analytics.js";
 import {
   CYNOENGINE_ATTRIBUTION,
-  scoreNearMissCandidates,
+  scoreNearMissCandidatesAuto,
   type NearMissCandidateScore,
   type NearMissSalienceFeatures,
 } from "./shorthand-salience.js";
+import { countOperatorEvidenceDomains } from "./shorthand-analytics.js";
 import {
   loadIsUtilityStore,
   shouldDownRankByUtility,
@@ -33,6 +34,10 @@ export type ResolveShorthandWithTransferInput = {
   utilityStore?: IsUtilityStore;
   /** Path to load utility store when utilityStore omitted. */
   utilityStorePath?: string;
+  /** Repo root for operator-evidence domain count (G9630 auto salience). */
+  repoRoot?: string;
+  /** Override operator domain count (tests). */
+  operatorDomainCount?: number;
 };
 
 export type ResolveShorthandWithTransferResult = {
@@ -53,6 +58,8 @@ export type ResolveShorthandWithTransferResult = {
   nearMissFeatures?: NearMissSalienceFeatures;
   /** Transparent CynoEngine citation when near-miss path used. */
   collaborationAttribution?: string;
+  /** Salience ranker version used when near-miss (1 or 2). */
+  salienceVersion?: 1 | 2;
 };
 
 function bestForDomain(
@@ -75,12 +82,18 @@ function rankNearMiss(
   taskFingerprint: ShorthandTaskFingerprint,
   utilityStore: IsUtilityStore | undefined,
 ): NearMissCandidateScore | null {
-  const scored = scoreNearMissCandidates({
-    taskFingerprint,
-    domainCatalog: input.domainCatalog ?? [],
-    shorthands: input.shorthands,
-    ...(input.lastDonorDomainId ? { lastDonorDomainId: input.lastDonorDomainId } : {}),
-  });
+  const operatorCount =
+    input.operatorDomainCount ??
+    (input.repoRoot ? countOperatorEvidenceDomains(input.repoRoot) : 0);
+  const scored = scoreNearMissCandidatesAuto(
+    {
+      taskFingerprint,
+      domainCatalog: input.domainCatalog ?? [],
+      shorthands: input.shorthands,
+      ...(input.lastDonorDomainId ? { lastDonorDomainId: input.lastDonorDomainId } : {}),
+    },
+    operatorCount,
+  );
   if (!scored.length) return null;
 
   const withUtility = scored
@@ -146,6 +159,7 @@ export function resolveShorthandWithTransfer(
         nearMissScore: ranked.score,
         nearMissFeatures: ranked.features,
         collaborationAttribution: CYNOENGINE_ATTRIBUTION,
+        salienceVersion: ranked.salienceVersion ?? 1,
       };
     }
   }

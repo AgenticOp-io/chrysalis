@@ -38,8 +38,9 @@ export async function exportLoraTrainManifest(opts = {}) {
   });
 
   const validation = mod.validateLoraTrainManifest(manifest);
-  mkdirSync(manifest.outputDir, { recursive: true });
-  const manifestPath = join(manifest.outputDir, "train-manifest.v1.json");
+  const outDir = join(repoRoot, manifest.outputDir);
+  mkdirSync(outDir, { recursive: true });
+  const manifestPath = join(outDir, "train-manifest.v1.json");
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
   const ok = validation.ok === true;

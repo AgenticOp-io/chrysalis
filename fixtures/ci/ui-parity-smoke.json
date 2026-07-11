@@ -1,0 +1,19 @@
+{
+  "kind": "chrysalis.verify.ui-css-parity",
+  "schemaVersion": 1,
+  "ok": true,
+  "framework": "sveltekit",
+  "routes": [
+    {
+      "routeId": "/login",
+      "href": "/assets/original-css/login.css",
+      "expected": 12,
+      "covered": 12,
+      "missing": [],
+      "ok": true
+    }
+  ],
+  "routesChecked": 1,
+  "routesFailed": 0,
+  "unmatchedMapEntries": []
+}

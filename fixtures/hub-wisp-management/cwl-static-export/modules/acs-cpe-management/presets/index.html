@@ -1,20 +1,44 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_acs_cpe_management_presets" data-wisp-path="/modules/acs-cpe-management/presets" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/snmp">
-  <header class="wisp-demo-header">
-    <h1>Presets</h1>
-    <p class="wisp-demo-desc">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/acs-cpe-management/presets/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>155</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>7</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>23</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>presets</title>
+<link rel="stylesheet" href="/assets/original-css/modules_acs-cpe-management_presets.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="presets-page">
+  <nav class="cwl-nav-shell" data-cwl-nav-shell="MainMenu" aria-hidden="true"></nav>
+  
+  <div class="page-header">
+    <div class="header-content">
+      <a href="/modules/acs-cpe-management" class="back-button">← Back to ACS Management</a>
+      <h1>⚙️ Preset Management</h1>
+      <p>Create and manage configuration presets for CPE devices</p>
+    </div>
+    <button class="btn btn-primary">
+      ➕ Create Preset
+    </button>
+  </div>
+
+  
+
+  
+
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isLoading && presets.length === 0"><div class="loading">Loading presets...</div>
+  
+    <div class="empty-state">
+      <p>No presets found. Create your first preset to get started.</p>
+      <button class="btn btn-primary">Create Preset</button>
+    </div></div>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Presets data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/presets"}</script>
+
+<!-- Create/Edit Modal -->
+
+
+<!-- Apply Preset Modal -->
+
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/presets","apiPath":"/api/snmp","api_ok":true,"api_surface":"wisp-api-native","api_resource":"snmp-monitoring","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

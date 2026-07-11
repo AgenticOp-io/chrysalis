@@ -139,11 +139,13 @@ BatchMode is used (no password prompts). Use `ssh-agent` or a key without passph
 | Port | Service | Notes |
 | --- | --- | --- |
 | **22** | SSH | Hub → origin (outbound from hub). |
-| **19090** | Translation Hub | Inbound to hub VM (or SSH tunnel only). |
+| **80 / 443** | nginx (shared VM) | Hub site **`chrysalis-hub`** only — **D6396**; do not edit FDE sites |
+| **19090** | Translation Hub | Prefer **`127.0.0.1`** behind nginx; public **https://chrysalis.agenticop.io** |
+| **8765** | FDE runner | **Do not touch** (shared VM) |
 | **3000+** | Emitted Node / verify | Local or your LB; not opened by Chrysalis automatically. |
 | **6379** | Redis | Only if you use session bridge; keep on private network. |
 
-On GCE, tag the hub VM and add `tcp:19090` (see `docs/DEPLOYMENT.md`).
+On GCE: allow **tcp:443** (and **80** for ACME). Optionally close **tcp:19090** after localhost bind. See [`HUB-DEMO-INSTALL.md`](./HUB-DEMO-INSTALL.md).
 
 ---
 

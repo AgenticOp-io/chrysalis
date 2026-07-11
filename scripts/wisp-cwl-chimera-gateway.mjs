@@ -22,6 +22,52 @@ function resolveRepoRoot(opts) {
   if (home && existsSync(join(gceDefault, "packages/runtime-cwl/dist/index.js"))) return gceDefault;
   return scriptRoot;
 }
+/** Mirrors Module_Manager themeStore boot: saved mode or system preference -> data-theme. */
+export const WISP_THEME_BOOT_SCRIPT =
+  '<script>(function(){try{var m=localStorage.getItem("theme-mode");var d=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches;var r=m==="light"||m==="dark"?m:(d?"dark":"light");document.documentElement.setAttribute("data-theme",r);}catch(e){}})();</' + 'script>';
+
+
+/**
+ * Route-scoped original CSS (D6365 / D6368 / G9470).
+ * Uses the same route+fallback link rules as `@chrysalis/emit-shared`
+ * `routeStylesheetLinkTag` against the fixture style map.
+ */
+let wispStyleMap;
+function loadWispStyleMap() {
+  if (wispStyleMap !== undefined) return wispStyleMap;
+  try {
+    const raw = readFileSync(join(scriptRoot, "fixtures/hub-wisp-management/wisp-cwl-original-css-map.json"), "utf8");
+    const parsed = JSON.parse(raw);
+    if (parsed.kind === "chrysalis.ui.route-style-map" && parsed.schemaVersion === 1) {
+      wispStyleMap = parsed;
+      return wispStyleMap;
+    }
+  } catch {
+    /* ignore */
+  }
+  wispStyleMap = null;
+  return null;
+}
+
+/** @param {string} pathname */
+export function wispOriginalCssLink(pathname) {
+  const map = loadWispStyleMap();
+  if (!map) return "";
+  const clean = (pathname || "/").split("?")[0] || "/";
+  /** @type {string[]} */
+  const hrefs = [];
+  for (const r of map.routes ?? []) {
+    if (r && typeof r.pattern === "string" && typeof r.href === "string" && new RegExp(r.pattern).test(clean)) {
+      hrefs.push(r.href);
+      break;
+    }
+  }
+  if (typeof map.fallbackHref === "string" && map.fallbackHref !== hrefs[0]) {
+    hrefs.push(map.fallbackHref);
+  }
+  return hrefs.map((h) => '<link rel="stylesheet" href="' + h + '">').join("");
+}
+
 const HOP = new Set(["connection", "keep-alive", "transfer-encoding", "upgrade", "host", "content-length"]);
 
 /** @type {Record<string, { file: string; contentType: string }>} */
@@ -69,28 +115,28 @@ export function wrapWispCwlHtmlDocument(body, title = "WISP Management", pathnam
     trimmed.includes("wisp-coverage-map");
 
   if (isLogin) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-login.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-login.css">${wispOriginalCssLink(pathname)}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
   }
 
   if (isDashboard) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css">${wispOriginalCssLink(pathname)}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
   }
 
   if (isPlanModule) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan – WISP Management</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-modules.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan – WISP Management</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css">${wispOriginalCssLink(pathname)}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-modules.js" defer></script></body></html>`;
   }
 
   if (isDeployModule) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy – WISP Management</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-modules.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Deploy – WISP Management</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css">${wispOriginalCssLink(pathname)}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-modules.js" defer></script></body></html>`;
   }
 
   if (isCoverageMap) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Coverage Map</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-map.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Coverage Map</title><link rel="stylesheet" href="/assets/wisp-cwl-modules.css">${wispOriginalCssLink(pathname)}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${body}<script src="/assets/wisp-cwl-client.js" defer></script><script src="/assets/wisp-cwl-map.js" defer></script></body></html>`;
   }
 
   const isDocsShell = trimmed.includes("wisp-docs-shell");
   if (isDocsShell) {
-    return `<!DOCTYPE html><html lang="en" class="wisp-docs-mode"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} – WISP Docs</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css"><link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body class="wisp-docs-mode">${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
+    return `<!DOCTYPE html><html lang="en" class="wisp-docs-mode"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} – WISP Docs</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css">${wispOriginalCssLink(pathname)}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body class="wisp-docs-mode">${body}<script src="/assets/wisp-cwl-client.js" defer></script></body></html>`;
   }
 
   const moduleNav = `<div class="wisp-module-page"><nav class="wisp-module-nav"><a href="/dashboard">← Dashboard</a> · <a href="/help">Help</a></nav>`;
@@ -102,7 +148,7 @@ export function wrapWispCwlHtmlDocument(body, title = "WISP Management", pathnam
   const moduleScripts = isModuleDemo
     ? `<script src="/assets/wisp-cwl-modules.js" defer></script>`
     : "";
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css">${moduleAssets}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml"></head><body>${moduleNav}${body}</div><script src="/assets/wisp-cwl-client.js" defer></script>${moduleScripts}</body></html>`;
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}</title><link rel="stylesheet" href="/assets/wisp-cwl-app.css">${wispOriginalCssLink(pathname)}${moduleAssets}<link rel="icon" href="/wisptools-logo.svg" type="image/svg+xml">${WISP_THEME_BOOT_SCRIPT}</head><body>${moduleNav}${body}</div><script src="/assets/wisp-cwl-client.js" defer></script>${moduleScripts}</body></html>`;
 }
 
 /**
@@ -113,8 +159,27 @@ export function wrapWispCwlHtmlDocument(body, title = "WISP Management", pathnam
  * @returns {boolean}
  */
 export function serveWispChimeraStaticAsset(pathname, staticDir, res, method = "GET") {
-  const spec = WISP_CHIMERA_STATIC_ASSETS[pathname];
-  if (!spec) return false;
+  let spec = WISP_CHIMERA_STATIC_ASSETS[pathname];
+  if (!spec) {
+    // Lifted original CSS bundles + the fonts/images they reference.
+    const prefixed =
+      /^\/assets\/original-css\/([a-zA-Z0-9_.-]+\.css)$/.exec(pathname) ??
+      /^\/assets\/original\/([a-zA-Z0-9_.-]+)$/.exec(pathname);
+    if (!prefixed || prefixed[1].includes("..")) return false;
+    const dir = pathname.startsWith("/assets/original-css/") ? "original-css" : "original-assets";
+    const types = {
+      ".css": "text/css; charset=utf-8",
+      ".woff2": "font/woff2",
+      ".woff": "font/woff",
+      ".ttf": "font/ttf",
+      ".svg": "image/svg+xml",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".webp": "image/webp",
+    };
+    const ext = extname(prefixed[1]).toLowerCase();
+    spec = { file: join(dir, prefixed[1]), contentType: types[ext] ?? "application/octet-stream" };
+  }
   const fp = join(staticDir, spec.file);
   if (!existsSync(fp)) return false;
   res.statusCode = 200;

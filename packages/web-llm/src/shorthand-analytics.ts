@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
   IS_LIVE_ANALYTICS_KIND,
@@ -10,6 +10,8 @@ import { readTrajectoryRecords } from "./trajectory.js";
 /** Cache outcome for one IS resolve / job step (D6372). */
 export type IsCacheOutcome = "hit" | "near-miss" | "miss";
 
+export type OperatorEvidenceSource = "seed" | "hub-convert-verify" | "synthetic-smoke";
+
 export type IsLiveJobOutcome = {
   domainId: string;
   outcome: IsCacheOutcome;
@@ -20,6 +22,7 @@ export type IsLiveJobOutcome = {
   sourceDigest?: string;
   sessionId?: string;
   ts?: string;
+  evidenceSource?: OperatorEvidenceSource;
 };
 
 export type IsLiveAnalyticsSummary = {
@@ -40,11 +43,26 @@ export type IsLiveAnalyticsSummary = {
   verifyCostMsMean: number | null;
   verifyFailCount: number;
   skipLlmCount: number;
+  /** G9760 — provenance split (seed must not claim live READY). */
+  seedJobCount: number;
+  liveVerifiedJobCount: number;
+  syntheticSmokeJobCount: number;
   jobs: IsLiveJobOutcome[];
   /** Honest scope note — fixture vs live. */
-  scope: "live-job" | "synthetic-smoke" | "fixture-domains";
+  scope: "live-job" | "synthetic-smoke" | "fixture-domains" | "operator-aggregate";
   notes?: string[];
 };
+
+/** Infer evidenceSource when older trajectories omit the field (G9760). */
+export function resolveEvidenceSource(
+  record: { evidenceSource?: OperatorEvidenceSource; sessionId?: string },
+): OperatorEvidenceSource | undefined {
+  if (record.evidenceSource) return record.evidenceSource;
+  const sid = String(record.sessionId ?? "");
+  if (sid.startsWith("seed-")) return "seed";
+  if (sid.startsWith("hub-convert")) return "hub-convert-verify";
+  return undefined;
+}
 
 function percentileSorted(sorted: number[], p: number): number | null {
   if (!sorted.length) return null;
@@ -62,6 +80,9 @@ export function summarizeIsLiveAnalytics(
   let missCount = 0;
   let skipLlmCount = 0;
   let verifyFailCount = 0;
+  let seedJobCount = 0;
+  let liveVerifiedJobCount = 0;
+  let syntheticSmokeJobCount = 0;
   const verifyCosts: number[] = [];
 
   for (const job of jobs) {
@@ -73,6 +94,12 @@ export function summarizeIsLiveAnalytics(
     if (typeof job.verifyCostMs === "number" && Number.isFinite(job.verifyCostMs) && job.verifyCostMs >= 0) {
       verifyCosts.push(job.verifyCostMs);
     }
+    const src =
+      job.evidenceSource ??
+      resolveEvidenceSource(job.sessionId != null ? { sessionId: job.sessionId } : {});
+    if (src === "seed") seedJobCount += 1;
+    else if (src === "hub-convert-verify") liveVerifiedJobCount += 1;
+    else if (src === "synthetic-smoke") syntheticSmokeJobCount += 1;
   }
 
   const jobCount = jobs.length;
@@ -96,6 +123,9 @@ export function summarizeIsLiveAnalytics(
     verifyCostMsMean: verifyCosts.length ? Math.round(verifyCostMsTotal / verifyCosts.length) : null,
     verifyFailCount,
     skipLlmCount,
+    seedJobCount,
+    liveVerifiedJobCount,
+    syntheticSmokeJobCount,
     jobs: [...jobs],
     scope: opts.scope ?? "live-job",
     ...(opts.notes?.length ? { notes: opts.notes } : {}),
@@ -132,6 +162,10 @@ export function extractIsLiveJobsFromTrajectory(records: TrajectoryRecord[]): Is
     const verifyStep = [...sorted].reverse().find((s) => typeof s.verifyCostMs === "number" || s.gate?.name?.includes("verify"));
     const domainId = resolveStep.domainId ?? verifyStep?.domainId ?? "unknown";
 
+    const evidenceSource =
+      resolveEvidenceSource(resolveStep) ??
+      (verifyStep ? resolveEvidenceSource(verifyStep) : undefined);
+
     jobs.push({
       domainId,
       outcome,
@@ -142,6 +176,7 @@ export function extractIsLiveJobsFromTrajectory(records: TrajectoryRecord[]): Is
       ...(resolveStep.sourceDigest != null ? { sourceDigest: resolveStep.sourceDigest } : {}),
       sessionId,
       ts: resolveStep.ts,
+      ...(evidenceSource != null ? { evidenceSource } : {}),
     });
   }
   return jobs;
@@ -153,6 +188,132 @@ export function summarizeIsLiveAnalyticsFromTrajectoryFile(
 ): IsLiveAnalyticsSummary {
   const records = readTrajectoryRecords(filePath);
   return summarizeIsLiveAnalytics(extractIsLiveJobsFromTrajectory(records), opts);
+}
+
+/** Merge multiple analytics summaries (dedupe by sessionId). */
+export function mergeIsLiveAnalyticsSummaries(
+  summaries: IsLiveAnalyticsSummary[],
+): IsLiveAnalyticsSummary {
+  const jobs: IsLiveJobOutcome[] = [];
+  const seen = new Set<string>();
+  for (const summary of summaries) {
+    for (const job of summary.jobs) {
+      const key = job.sessionId ?? `${job.domainId}:${job.ts ?? jobs.length}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      jobs.push(job);
+    }
+  }
+  const scope = summaries.some((s) => s.scope === "live-job")
+    ? "live-job"
+    : (summaries[0]?.scope ?? "live-job");
+  return summarizeIsLiveAnalytics(jobs, {
+    scope,
+    notes: [
+      `Merged ${summaries.length} analytics artifact(s)`,
+      ...summaries.flatMap((s) => s.notes ?? []),
+    ],
+  });
+}
+
+/**
+ * Aggregate hit / near-miss / miss from multiple operator trajectory JSONL files (G9600).
+ * Deduplicates by sessionId so re-exported smokes do not double-count.
+ */
+export function aggregateIsLiveAnalyticsFromTrajectoryFiles(
+  paths: string[],
+  opts: {
+    scope?: IsLiveAnalyticsSummary["scope"];
+    notes?: string[];
+    excludePathPatterns?: RegExp[];
+  } = {},
+): IsLiveAnalyticsSummary {
+  const excludes = opts.excludePathPatterns ?? [
+    /[/\\]_is-live-analytics-smoke[/\\]/,
+    /[/\\]_web-llm-smoke[/\\]/,
+    /[/\\]_is-runtime-smoke[/\\]/,
+  ];
+  const jobs: IsLiveJobOutcome[] = [];
+  const seen = new Set<string>();
+  const usedPaths: string[] = [];
+  for (const filePath of paths) {
+    if (!existsSync(filePath)) continue;
+    if (excludes.some((re) => re.test(filePath))) continue;
+    usedPaths.push(filePath);
+    for (const job of extractIsLiveJobsFromTrajectory(readTrajectoryRecords(filePath))) {
+      const key = job.sessionId ?? `${job.domainId}:${job.ts ?? jobs.length}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      jobs.push(job);
+    }
+  }
+  const scope =
+    opts.scope ??
+    (usedPaths.some((p) => p.includes("operator-evidence") || p.includes("hub-convert"))
+      ? "live-job"
+      : "operator-aggregate");
+  return summarizeIsLiveAnalytics(jobs, {
+    scope,
+    notes: [
+      ...(opts.notes ?? []),
+      `Operator trajectory sources: ${usedPaths.length}`,
+      ...usedPaths.map((p) => `  ${p}`),
+    ],
+  });
+}
+
+/** Copy hub-convert trajectory into reports for cross-job IS aggregation (G9600). */
+export function snapshotOperatorTrajectoryForEvidence(
+  repoRoot: string,
+  sourcePath: string,
+  meta: { domainId: string },
+): string | null {
+  if (!existsSync(sourcePath)) return null;
+  const destDir = join(repoRoot, "reports", "web-llm", "operator-evidence", meta.domainId);
+  const dest = join(destDir, "latest.trajectory.jsonl");
+  mkdirSync(destDir, { recursive: true });
+  writeFileSync(dest, readFileSync(sourcePath, "utf8"), "utf8");
+  return dest;
+}
+
+/** Discover hub-convert / site-port trajectory JSONL under reports and generated (operator evidence). */
+export function discoverOperatorTrajectoryPaths(repoRoot: string): string[] {
+  const roots = [
+    join(repoRoot, "reports", "web-llm", "operator-evidence"),
+    join(repoRoot, "reports", "web-llm"),
+    join(repoRoot, "generated"),
+  ];
+  const out: string[] = [];
+  const visit = (dir: string, depth: number) => {
+    if (depth > 6 || !existsSync(dir)) return;
+    try {
+      for (const ent of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, ent.name);
+        if (ent.isDirectory()) visit(full, depth + 1);
+        else if (
+          ent.name.endsWith(".trajectory.jsonl") ||
+          ent.name === "hub-convert.trajectory.jsonl"
+        ) {
+          out.push(full);
+        }
+      }
+    } catch {
+      /* skip unreadable */
+    }
+  };
+  for (const root of roots) visit(root, 0);
+  return [...new Set(out)].sort();
+}
+
+/** Distinct domain folders under operator-evidence (G9630 production gate). */
+export function countOperatorEvidenceDomains(repoRoot: string): number {
+  const base = join(repoRoot, "reports", "web-llm", "operator-evidence");
+  if (!existsSync(base)) return 0;
+  try {
+    return readdirSync(base, { withFileTypes: true }).filter((e) => e.isDirectory()).length;
+  } catch {
+    return 0;
+  }
 }
 
 export function defaultIsLiveAnalyticsPath(repoRoot: string): string {
@@ -175,7 +336,12 @@ export function loadIsLiveAnalytics(path: string): IsLiveAnalyticsSummary | null
   try {
     const doc = JSON.parse(readFileSync(path, "utf8")) as IsLiveAnalyticsSummary;
     if (doc.kind !== IS_LIVE_ANALYTICS_KIND) return null;
-    return doc;
+    return {
+      ...doc,
+      seedJobCount: doc.seedJobCount ?? 0,
+      liveVerifiedJobCount: doc.liveVerifiedJobCount ?? 0,
+      syntheticSmokeJobCount: doc.syntheticSmokeJobCount ?? 0,
+    };
   } catch {
     return null;
   }

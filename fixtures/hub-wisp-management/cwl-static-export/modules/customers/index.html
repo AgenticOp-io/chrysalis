@@ -1,20 +1,206 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers" data-wisp-path="/modules/customers" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>Customers</h1>
-    <p class="wisp-demo-desc">Operational workspace for Customers — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/customers/add">Add new</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>186</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>6</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>9</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Customers data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers"}</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>customers</title>
+<link rel="stylesheet" href="/assets/original-css/modules_customers.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="customers-page">
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-top">
+          <button class="back-btn" title="Back to Module Manager">
+            ←
+          </button>
+          <h1>👥 Customer Management</h1>
+        </div>
+        <p class="subtitle">Manage your tenant's customers, service plans, and customer groups</p>
+      </div>
+      <div class="header-actions">
+        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="if (e.detail?.id === 'customer-onboarding') true;"></span>}
+          />
+          <button class="btn-primary">
+            ➕ Add Customer
+          </button>
+      </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button
+      >
+        👥 Customers
+      </button>
+      <button
+      >
+        📡 Service Plans
+      </button>
+      <button
+      >
+        📦 Customer Groups
+      </button>
+      <button
+      >
+        🌐 Portal
+      </button>
+    </div>
+    
+    
+    
+    
+    
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Customers Tab -->
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Total Customers</div>
+      </div>
+      <div class="stat-card stat-active">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Active</div>
+      </div>
+      <div class="stat-card stat-pending">
+        <div class="stat-value">1</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card stat-suspended">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Suspended</div>
+      </div>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="filters-section">
+      <div class="search-bar">
+        <input
+          type="text"
+          placeholder="Search by name, phone, email, or customer ID..."
+          class="search-input"
+        />
+      </div>
+      
+      <div class="filter-controls">
+        <select>
+          <option>All Statuses</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+          <option value="suspended">Suspended</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="trial">Trial</option>
+        </select>
+        
+        <label class="checkbox-label">
+          <input type="checkbox" />
+          Show Inactive
+        </label>
+      </div>
+    </div>
+    
+    <!-- Customer List -->
+    <div class="customers-list">
+      
+        <div class="customer-grid">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="customers as customer (customer._id || customer.customerId)"><div class="customer-card">
+              <div class="customer-header">
+                <div class="customer-name-section">
+                  <h3> $`}</h3>
+                  <span class="customer-id"></span>
+                </div>
+                <span class="status-badge ">
+                  
+                </span>
+              </div>
+              
+              <div class="customer-details">
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.primaryPhone"><div class="detail-row">
+                    <span class="detail-icon">📞</span>
+                    <span></span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.email"><div class="detail-row">
+                    <span class="detail-icon">📧</span>
+                    <span></span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress?.street"><div class="detail-row">
+                    <span class="detail-icon">📍</span>
+                    <span>
+                      
+                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress.city">,</div>
+                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress.state">,</div>
+                    </span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.servicePlan?.planName"><div class="detail-row">
+                    <span class="detail-icon">📡</span>
+                    <span>
+                      
+                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.servicePlan.downloadMbps">(/ Mbps)</div>
+                    </span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceType"><div class="detail-row">
+                    <span class="detail-icon">📶</span>
+                    <span>Service Type: </span>
+                  </div></div>
+                
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.networkInfo?.imsi"><div class="detail-row">
+                    <span class="detail-icon">🔢</span>
+                    <span>IMSI: </span>
+                  </div></div>
+              </div>
+              
+              <div class="customer-actions">
+                <button class="btn-secondary btn-sm">
+                  ✏️ Edit
+                </button>
+                <button class="btn-danger btn-sm">
+                  🗑️ Delete
+                </button>
+                <button class="btn-secondary btn-sm">
+                  👁️ View
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary btn-sm"
+                  title="Voice & SIP for this customer"
+                >
+                  📞 Voice
+                </button>
+                <a 
+                  href="/modules/customers/portal/login" 
+                  target="_blank" 
+                  class="btn-secondary btn-sm"
+                  title="Open Customer Portal"
+                >
+                  🌐 Portal
+                </a>
+              </div>
+            </div></div>
+        </div>
+      
+    </div>
+      
+        <!-- Service Plans Tab -->
+        <div class="cwl-widget-shell" data-cwl-widget-shell="BandwidthPlans" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>c1</td><td>active</td></tr><tr><td>c2</td><td>pending</td></tr><tr><td>c3</td><td>active</td></tr></tbody></table></div>
+      
+        <!-- Customer Groups Tab -->
+        <div class="cwl-widget-shell" data-cwl-widget-shell="GroupManagement" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>c1</td><td>active</td></tr><tr><td>c2</td><td>pending</td></tr><tr><td>c3</td><td>active</td></tr></tbody></table></div>
+    </div>
+  </div>
+  
+  
+  
+  
+
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="CustomerOnboardingWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showOnboardingWizard = false; loadCustomers();"></span>}
+  />
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

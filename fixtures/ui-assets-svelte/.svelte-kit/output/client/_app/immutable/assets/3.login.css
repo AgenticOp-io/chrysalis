@@ -1,0 +1,4 @@
+.login-page.svelte-log1n{min-height:100vh;background:linear-gradient(135deg,#0f1419,#1e3a4f);display:flex;align-items:center}
+.login-card:where(.svelte-log1n){background:#1a2332;padding:2rem;border-radius:12px}
+h1:where(.svelte-log1n){color:var(--accent)}
+@media(max-width:768px){.login-page.svelte-log1n{padding:1rem}}

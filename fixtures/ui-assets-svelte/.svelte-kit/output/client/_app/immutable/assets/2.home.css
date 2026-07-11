@@ -1,0 +1,3 @@
+.dashboard.svelte-home9z{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.card:where(.svelte-home9z){background:#1a2332;border-radius:8px;padding:1rem}
+.svelte-home9z:hover{outline:1px solid var(--accent)}

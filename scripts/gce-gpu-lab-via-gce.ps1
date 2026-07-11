@@ -36,7 +36,8 @@ function Sync-GpuLabArtifacts {
   $artNames = @(
     "gce-gpu-lab-orchestrate.sh",
     "gce-gpu-lab-bootstrap.sh",
-    "gce-gpu-lora-train.sh"
+    "gce-gpu-lora-train.sh",
+    "chrysalis-lora-qlora-train.py"
   )
   $manifest = Join-Path $repoRoot "reports/web-llm/lora/train-manifest.v1.json"
   $shards = Join-Path $repoRoot "reports/web-llm/dataset/training-shards.v1.jsonl"
@@ -98,15 +99,17 @@ Sync-GpuLabArtifacts
 
 $maxMin = if ($env:CHRYSALIS_GPU_LAB_MAX_MINUTES) { $env:CHRYSALIS_GPU_LAB_MAX_MINUTES } else { "120" }
 $dryRun = if ($env:CHRYSALIS_GPU_LAB_DRY_RUN) { $env:CHRYSALIS_GPU_LAB_DRY_RUN } else { "1" }
+$gpuZone = if ($env:CHRYSALIS_GPU_LAB_ZONE) { $env:CHRYSALIS_GPU_LAB_ZONE } elseif ($env:CHRYSALIS_GCE_ZONE) { $env:CHRYSALIS_GCE_ZONE } else { "us-central1-a" }
 
 if ($Detach) {
   Write-Host "=== Start detached GPU lab on ${VmName} ==="
+  Write-Host "GPU zone=$gpuZone dry_run=$dryRun max_min=$maxMin"
   $remoteCmd = @"
 set -e
 cd ~/chrysalis-test
 mkdir -p reports/ci gpu-lab-artifacts
 rm -f reports/ci/gce-gpu-lab.ok
-export CHRYSALIS_STATUS_REPO=~/chrysalis-test CHRYSALIS_GCE_PROJECT=$Project CHRYSALIS_GPU_LAB_MAX_MINUTES=$maxMin CHRYSALIS_GPU_LAB_DRY_RUN=$dryRun
+export CHRYSALIS_STATUS_REPO=~/chrysalis-test CHRYSALIS_GCE_PROJECT=$Project CHRYSALIS_GPU_LAB_ZONE=$gpuZone CHRYSALIS_GCE_ZONE=$gpuZone CHRYSALIS_GPU_LAB_MAX_MINUTES=$maxMin CHRYSALIS_GPU_LAB_DRY_RUN=$dryRun
 nohup bash gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh </dev/null >>reports/ci/gce-gpu-lab.log 2>&1 &
 sleep 2
 if pgrep -f gce-gpu-lab-orchestrate.sh >/dev/null 2>&1; then echo 'started gpu-lab orchestrator'; else echo 'WARN: worker not found'; fi
@@ -119,6 +122,7 @@ if pgrep -f gce-gpu-lab-orchestrate.sh >/dev/null 2>&1; then echo 'started gpu-l
 }
 
 Write-Host "=== Run GPU lab orchestrator on ${VmName} (foreground) ==="
-$remoteCmd = "cd ~/chrysalis-test && export CHRYSALIS_STATUS_REPO=~/chrysalis-test CHRYSALIS_GCE_PROJECT=$Project CHRYSALIS_GPU_LAB_MAX_MINUTES=$maxMin CHRYSALIS_GPU_LAB_DRY_RUN=$dryRun && bash gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh"
+Write-Host "GPU zone=$gpuZone dry_run=$dryRun max_min=$maxMin"
+$remoteCmd = "cd ~/chrysalis-test && export CHRYSALIS_STATUS_REPO=~/chrysalis-test CHRYSALIS_GCE_PROJECT=$Project CHRYSALIS_GPU_LAB_ZONE=$gpuZone CHRYSALIS_GCE_ZONE=$gpuZone CHRYSALIS_GPU_LAB_MAX_MINUTES=$maxMin CHRYSALIS_GPU_LAB_DRY_RUN=$dryRun && bash gpu-lab-artifacts/gce-gpu-lab-orchestrate.sh"
 Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $remoteCmd
 & "$PSScriptRoot\gce-fetch-reports.ps1" -Project $Project -Zone $Zone -Name $VmName @sshExtra

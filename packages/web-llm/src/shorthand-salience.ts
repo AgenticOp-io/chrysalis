@@ -38,6 +38,8 @@ export type NearMissCandidateScore = {
   features: NearMissSalienceFeatures;
   shorthand: IntelligenceShorthand;
   attribution: typeof CYNOENGINE_ATTRIBUTION;
+  /** 1 = raw weighted mix (G9520); 2 = catalog z-score (G9630). */
+  salienceVersion?: 1 | 2;
 };
 
 export type ScoreNearMissInput = {
@@ -54,6 +56,8 @@ export type ScoreNearMissInput = {
     authority: number;
     novelty: number;
   }>;
+  /** Force G9630 z-score path in tests/smoke (production uses operator domain count). */
+  forceSalienceV2?: boolean;
 };
 
 const DEFAULT_WEIGHTS = {
@@ -106,57 +110,191 @@ function digestMatchScore(task: ShorthandTaskFingerprint, cand: ShorthandTaskFin
   return 0;
 }
 
-/**
- * Score near-miss donors for a task. Exact domainId matches are excluded.
- * Higher score = better transfer candidate. Never implies skipLlm.
- */
-export function scoreNearMissCandidates(input: ScoreNearMissInput): NearMissCandidateScore[] {
-  const w = { ...DEFAULT_WEIGHTS, ...input.weights };
+const FEATURE_KEYS: (keyof NearMissSalienceFeatures)[] = [
+  "tagOverlap",
+  "routeBand",
+  "digestMatch",
+  "authority",
+  "novelty",
+];
+
+/** Minimum distinct operator-evidence domains before v2 ranks in production (G9630). */
+export const SALIENCE_V2_MIN_OPERATOR_DOMAINS = 20;
+
+/** Minimum live analytics jobs before product hit-rate claims are READY (G9670) — sample floor (may include seed). */
+export const PRODUCT_HIT_RATE_MIN_JOBS = 50;
+
+/** Minimum hub-convert-verify jobs before live hit-rate READY (G9760) — seed does not count. */
+export const PRODUCT_HIT_RATE_LIVE_MIN_JOBS = 50;
+
+function normalizeWeights(w: {
+  tagOverlap: number;
+  routeBand: number;
+  digestMatch: number;
+  authority: number;
+  novelty: number;
+}) {
   const wSum = w.tagOverlap + w.routeBand + w.digestMatch + w.authority + w.novelty;
-  const nw = {
+  return {
     tagOverlap: w.tagOverlap / wSum,
     routeBand: w.routeBand / wSum,
     digestMatch: w.digestMatch / wSum,
     authority: w.authority / wSum,
     novelty: w.novelty / wSum,
   };
+}
 
-  const out: NearMissCandidateScore[] = [];
+function weightedScore(
+  features: NearMissSalienceFeatures,
+  nw: ReturnType<typeof normalizeWeights>,
+): number {
+  return (
+    nw.tagOverlap * features.tagOverlap +
+    nw.routeBand * features.routeBand +
+    nw.digestMatch * features.digestMatch +
+    nw.authority * features.authority +
+    nw.novelty * features.novelty
+  );
+}
+
+type FeatureStats = Record<keyof NearMissSalienceFeatures, { mean: number; std: number }>;
+
+function computeFeatureStats(rows: NearMissSalienceFeatures[]): FeatureStats {
+  const stats = {} as FeatureStats;
+  for (const key of FEATURE_KEYS) {
+    const vals = rows.map((r) => r[key]);
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length;
+    stats[key] = { mean, std: Math.sqrt(variance) };
+  }
+  return stats;
+}
+
+function zNormalizeFeatures(features: NearMissSalienceFeatures, stats: FeatureStats): NearMissSalienceFeatures {
+  const z = (key: keyof NearMissSalienceFeatures) => {
+    const { mean, std } = stats[key];
+    const v = features[key];
+    return std > 1e-9 ? (v - mean) / std : v - mean;
+  };
+  return {
+    tagOverlap: z("tagOverlap"),
+    routeBand: z("routeBand"),
+    digestMatch: z("digestMatch"),
+    authority: z("authority"),
+    novelty: z("novelty"),
+  };
+}
+
+export function salienceV2ProductionReady(operatorDomainCount: number): boolean {
+  return operatorDomainCount >= SALIENCE_V2_MIN_OPERATOR_DOMAINS;
+}
+
+export function productHitRateSampleReady(jobCount: number): boolean {
+  return jobCount >= PRODUCT_HIT_RATE_MIN_JOBS;
+}
+
+/** Production hit-rate READY — only verify-sourced jobs (D6397). */
+export function productHitRateLiveReady(liveVerifiedJobCount: number): boolean {
+  return liveVerifiedJobCount >= PRODUCT_HIT_RATE_LIVE_MIN_JOBS;
+}
+
+function enumerateNearMissCandidates(input: ScoreNearMissInput): Array<{
+  domainId: string;
+  features: NearMissSalienceFeatures;
+  shorthand: IntelligenceShorthand;
+}> {
+  const out: Array<{
+    domainId: string;
+    features: NearMissSalienceFeatures;
+    shorthand: IntelligenceShorthand;
+  }> = [];
   for (const entry of input.domainCatalog) {
     if (entry.id === input.taskFingerprint.domainId) continue;
     const candFp = fingerprintFromOpenLegacyEntry(entry);
     if (!isNearMissFingerprint(input.taskFingerprint, candFp)) continue;
     const sh = bestForDomain(entry.id, input.shorthands);
     if (!sh) continue;
-
-    const features: NearMissSalienceFeatures = {
-      tagOverlap: tagOverlapScore(input.taskFingerprint, candFp),
-      routeBand: routeBandScore(input.taskFingerprint, candFp),
-      digestMatch: digestMatchScore(input.taskFingerprint, candFp),
-      authority: authorityFromTier(sh.tier),
-      novelty: input.lastDonorDomainId && input.lastDonorDomainId === entry.id ? 0 : 1,
-    };
-    const score =
-      nw.tagOverlap * features.tagOverlap +
-      nw.routeBand * features.routeBand +
-      nw.digestMatch * features.digestMatch +
-      nw.authority * features.authority +
-      nw.novelty * features.novelty;
-
     out.push({
       domainId: entry.id,
-      score,
-      features,
       shorthand: sh,
-      attribution: CYNOENGINE_ATTRIBUTION,
+      features: {
+        tagOverlap: tagOverlapScore(input.taskFingerprint, candFp),
+        routeBand: routeBandScore(input.taskFingerprint, candFp),
+        digestMatch: digestMatchScore(input.taskFingerprint, candFp),
+        authority: authorityFromTier(sh.tier),
+        novelty: input.lastDonorDomainId && input.lastDonorDomainId === entry.id ? 0 : 1,
+      },
     });
   }
+  return out;
+}
 
+/**
+ * Score near-miss donors for a task. Exact domainId matches are excluded.
+ * Higher score = better transfer candidate. Never implies skipLlm.
+ */
+export function scoreNearMissCandidates(input: ScoreNearMissInput): NearMissCandidateScore[] {
+  const w = { ...DEFAULT_WEIGHTS, ...input.weights };
+  const nw = normalizeWeights(w);
+  const out: NearMissCandidateScore[] = [];
+  for (const row of enumerateNearMissCandidates(input)) {
+    out.push({
+      domainId: row.domainId,
+      score: weightedScore(row.features, nw),
+      features: row.features,
+      shorthand: row.shorthand,
+      attribution: CYNOENGINE_ATTRIBUTION,
+      salienceVersion: 1,
+    });
+  }
   return out.sort((a, b) => b.score - a.score || a.domainId.localeCompare(b.domainId));
+}
+
+/**
+ * G9630 — z-score each salience feature across the near-miss candidate pool,
+ * then apply weights. Requires ≥2 candidates for meaningful normalization.
+ */
+export function scoreNearMissCandidatesV2(input: ScoreNearMissInput): NearMissCandidateScore[] {
+  const w = { ...DEFAULT_WEIGHTS, ...input.weights };
+  const nw = normalizeWeights(w);
+  const rows = enumerateNearMissCandidates(input);
+  if (!rows.length) return [];
+  const stats = computeFeatureStats(rows.map((r) => r.features));
+  const out: NearMissCandidateScore[] = rows.map((row) => {
+    const zFeatures = zNormalizeFeatures(row.features, stats);
+    return {
+      domainId: row.domainId,
+      score: weightedScore(zFeatures, nw),
+      features: row.features,
+      shorthand: row.shorthand,
+      attribution: CYNOENGINE_ATTRIBUTION,
+      salienceVersion: 2,
+    };
+  });
+  return out.sort((a, b) => b.score - a.score || a.domainId.localeCompare(b.domainId));
+}
+
+/** Pick v1 or v2 scorer based on operator evidence depth (honest production gate). */
+export function scoreNearMissCandidatesAuto(
+  input: ScoreNearMissInput,
+  operatorDomainCount: number,
+): NearMissCandidateScore[] {
+  if (input.forceSalienceV2 === true || salienceV2ProductionReady(operatorDomainCount)) {
+    return scoreNearMissCandidatesV2(input);
+  }
+  return scoreNearMissCandidates(input);
 }
 
 /** Pick the best near-miss donor, or null if none. */
 export function pickBestNearMissDonor(input: ScoreNearMissInput): NearMissCandidateScore | null {
   const ranked = scoreNearMissCandidates(input);
+  return ranked[0] ?? null;
+}
+
+export function pickBestNearMissDonorAuto(
+  input: ScoreNearMissInput,
+  operatorDomainCount: number,
+): NearMissCandidateScore | null {
+  const ranked = scoreNearMissCandidatesAuto(input, operatorDomainCount);
   return ranked[0] ?? null;
 }

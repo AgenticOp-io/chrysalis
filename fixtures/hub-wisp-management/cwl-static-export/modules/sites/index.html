@@ -1,20 +1,194 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_sites" data-wisp-path="/modules/sites" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/network">
-  <header class="wisp-demo-header">
-    <h1>Sites</h1>
-    <p class="wisp-demo-desc">Operational workspace for Sites — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/sites/add">Add new</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>198</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>10</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>16</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Sites data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/sites"}</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sites</title>
+<link rel="stylesheet" href="/assets/original-css/modules_sites.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="sites-page">
+    <div class="page-header">
+      <div>
+        <h1>🏢 Site Management</h1>
+        <p class="subtitle">Manage all network sites, towers, buildings, and facilities</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-primary">
+          ➕ Create New Site
+        </button>
+        <button class="btn-secondary" title="Refresh">
+          🔄 Refresh
+        </button>
+      </div>
+    </div>
+    
+    
+    
+    <!-- Filters and Search -->
+    <div class="filters-section">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search sites by name, address, or city..."
+          class="search-input"
+        />
+        <span class="search-icon">🔍</span>
+      </div>
+      
+      <div class="filter-group">
+        <label>Type:</label>
+        <select>
+          <option value="all">All Types</option>
+          <option value="tower">📡 Tower</option>
+          <option value="building">🏢 Building</option>
+          <option value="noc">🖥️ NOC</option>
+          <option value="warehouse">🏭 Warehouse</option>
+          <option value="pole">📡 Pole</option>
+          <option value="other">📍 Other</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Status:</label>
+        <select>
+          <option value="all">All Statuses</option>
+          <option value="active">✅ Active</option>
+          <option value="inactive">❌ Inactive</option>
+          <option value="maintenance">🔧 Maintenance</option>
+          <option value="planned">📅 Planned</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Summary Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">1</div>
+        <div class="stat-label">Total Sites</div>
+      </div>
+      <div class="stat-card active">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sites.filter(s => s.status === 'active').length"></span></div>
+        <div class="stat-label">Active</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sites.filter(s => s.type === 'tower').length"></span></div>
+        <div class="stat-label">Towers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sites.filter(s => s.type === 'building').length"></span></div>
+        <div class="stat-label">Buildings</div>
+      </div>
+    </div>
+    
+    <!-- Sites Table -->
+    
+      <div class="sites-table-container">
+        <table class="sites-table">
+          <thead>
+            <tr>
+              <th>Site Name</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Location</th>
+              <th>Contact</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredSites as site"><tr>
+                <td>
+                  <div class="site-name">
+                    <strong></strong>
+                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.owner"><small></small></div>
+                  </div>
+                </td>
+                <td>
+                  <span class="type-badge">
+                     
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge status-">
+                     
+                  </span>
+                </td>
+                <td>
+                  <div class="location-info">
+                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.address"><div></div></div>
+                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.city || site.location?.state"><div class="location-secondary">
+                        
+                        <span data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.zipCode"></span>
+                      </div></div>
+                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.latitude && site.location?.longitude"><div class="coordinates">
+                        , 
+                      </div></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="contact-info">
+                    
+                  </div>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button 
+                      class="btn-icon"
+                      title="Edit Site"
+                    >
+                      ✏️
+                    </button>
+                    <div class="deploy-menu">
+                      <button 
+                        class="btn-icon btn-deploy" 
+                        title="Deploy Equipment"
+                      >
+                        🚀
+                      </button>
+                      <div class="deploy-dropdown">
+                        <button>
+                          🖥️ Deploy EPC
+                        </button>
+                        <button>
+                          📡 Deploy LTE/5G Sector
+                        </button>
+                        <button>
+                          📱 Deploy FWA (CPE)
+                        </button>
+                        <button>
+                          🔗 Deploy Backhaul (Wireless/Fiber)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr></div>
+          </tbody>
+        </table>
+      </div>
+    
+  </div>
+  
+  <!-- Site Edit Modal -->
+  <div class="cwl-modal-shell" data-cwl-modal-shell="SiteEditModal" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showEditModal = false; null;"></span>}
+  />
+  
+  <!-- EPC Deployment Modal -->
+  
+  
+  <!-- Sector Deployment Modal -->
+  
+  
+  <!-- CPE/FWA Deployment Modal -->
+  
+  
+  <!-- Backhaul Deployment Modal -->
+  
+
+  <!-- Tips Modal -->
+  <div class="cwl-modal-shell" data-cwl-modal-shell="TipsModal" aria-hidden="true" role="dialog"></div> false}
+  />
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/sites","apiPath":"/api/network","api_ok":true,"api_surface":"wisp-api-native","api_resource":"network","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

@@ -17,6 +17,7 @@ export type Locator =
   | { kind: "db"; table: string; column?: string }
   | { kind: "form"; file: string; fieldName: string }
   | { kind: "trace"; corpusId: string; frameId: string }
+  | { kind: "asset"; file: string }
   | { kind: "synthetic"; reason: string };
 
 /**
@@ -32,6 +33,8 @@ export interface Provenance {
     | "trace-corpus"
     | "repair-pass"
     | "intent-rewrite"
+    | "ui-asset-lift"
+    | "ui-markup-lift"
     | "hand-authored";
   locator: Locator;
   reason: string;
@@ -156,6 +159,27 @@ export {
   mergeDedupeStructuralKeyIgnoringOrigin,
 } from "./merge-dedupe-key.js";
 export { dedupeStructuralSubgraphsInModule } from "./dedupe-module-structural.js";
+export {
+  UI_ROUTE_STYLE_MAP_KIND,
+  UI_ROUTE_STYLE_MAP_SCHEMA_VERSION,
+  parseUiRouteStyleMapJson,
+  type ParseUiRouteStyleMapResult,
+  type UiLiftedAssetRef,
+  type UiRouteStyleEntry,
+  type UiRouteStyleMapV1,
+  type UiStylesheetBundle,
+} from "./ui-assets.js";
+export {
+  UI_ROUTE_MARKUP_MAP_KIND,
+  UI_ROUTE_MARKUP_MAP_SCHEMA_VERSION,
+  parseUiRouteMarkupMapJson,
+  type ParseUiRouteMarkupMapResult,
+  type UiMarkupBundle,
+  type UiMarkupLiftHoleRecord,
+  type UiMarkupLiftMode,
+  type UiRouteMarkupEntry,
+  type UiRouteMarkupMapV1,
+} from "./ui-markup.js";
 export type { ModuleBuilderOpts } from "./builder.js";
 export * as webRequest from "./dialects/web-request.js";
 export * as effectDialect from "./dialects/effect.js";

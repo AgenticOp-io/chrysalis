@@ -1,20 +1,208 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="admin_billing" data-wisp-path="/admin/billing" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/admin">
-  <header class="wisp-demo-header">
-    <h1>Billing</h1>
-    <p class="wisp-demo-desc">Platform administration — tenants, billing, and system configuration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/admin/billing/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>198</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>10</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>16</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Billing data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/admin/billing"}</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>billing</title>
+<link rel="stylesheet" href="/assets/original-css/admin_billing.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="billing-module">
+    <!-- Header -->
+    <div class="module-header">
+      <nav class="cwl-nav-shell" data-cwl-nav-shell="AdminBreadcrumb" aria-hidden="true"></nav>
+      <div class="header-content">
+        <div class="module-title">
+          <h1>💳 Billing Management</h1>
+          <p>Manage subscriptions, payments, and billing analytics</p>
+        </div>
+        <div class="user-info">
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="module-content">
+      
+
+      <!-- Billing Analytics -->
+      <div class="analytics-section">
+        <h2>Billing Analytics</h2>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-icon">💰</div>
+            <div class="analytics-info">
+              <h4>Total Revenue</h4>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(analytics.totalRevenue)"></span></p>
+            </div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-icon">📈</div>
+            <div class="analytics-info">
+              <h4>Monthly Recurring Revenue</h4>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(analytics.monthlyRecurringRevenue)"></span></p>
+            </div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-icon">👥</div>
+            <div class="analytics-info">
+              <h4>Active Subscriptions</h4>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="analytics.activeSubscriptions"></span></p>
+            </div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-icon">📊</div>
+            <div class="analytics-info">
+              <h4>Average Revenue Per User</h4>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(analytics.averageRevenuePerUser)"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscription Plans -->
+      <div class="plans-section">
+        <h2>Subscription Plans</h2>
+        <div class="plans-grid">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plans as plan"><div class="plan-card ">
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="plan.isPopular"><div class="popular-badge">Most Popular</div></div>
+              <div class="plan-header">
+                <h3></h3>
+                <div class="plan-price">
+                  <span class="price"></span>
+                  <span class="interval">/</span>
+                </div>
+              </div>
+              <p class="plan-description"></p>
+              <ul class="plan-features">
+                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plan.features as feature"><li>✓ </li></div>
+              </ul>
+              <div class="plan-limits">
+                <span>Up to  users</span>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="plan.maxTenants"><span>Up to  tenants</span></div>
+              </div>
+            </div></div>
+        </div>
+      </div>
+
+      <!-- Failed Payment Alerts -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!loading && getFailedPayments().length > 0"><div class="alerts-section">
+          <h2>⚠️ Failed Payment Alerts</h2>
+          <div class="failed-payments-list">
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="getFailedPayments() as invoice"><div class="alert-card alert-error">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                  <strong>Failed Payment</strong>
+                  <p>Tenant: </p>
+                  <p>Amount:  </p>
+                  <p>Invoice ID: </p>
+                  <p class="alert-date">Date: </p>
+                </div>
+              </div></div>
+          </div>
+        </div></div>
+
+      <!-- Payment History Section -->
+      <div class="payments-section">
+        <h2>💳 Payment History</h2>
+        
+          <div class="payments-table">
+            <div class="table-header">
+              <div class="col-invoice">Invoice ID</div>
+              <div class="col-tenant">Tenant</div>
+              <div class="col-amount">Amount</div>
+              <div class="col-status">Status</div>
+              <div class="col-date">Date</div>
+            </div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="invoices as invoice"><div class="table-row">
+                <div class="col-invoice">
+                  <span class="invoice-id"></span>
+                </div>
+                <div class="col-tenant">
+                  <span class="tenant-name"></span>
+                </div>
+                <div class="col-amount">
+                  <span class="amount"> </span>
+                </div>
+                <div class="col-status">
+                  <span class="badge ">
+                    
+                  </span>
+                </div>
+                <div class="col-date">
+                  <span class="date"></span>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="invoice.paidAt"><span class="paid-date">Paid: </span></div>
+                </div>
+              </div></div>
+          </div>
+        
+      </div>
+
+      <!-- Payment Methods Section -->
+      <div class="payment-methods-section">
+        <h2>💳 Payment Methods & Billing Details</h2>
+        
+          <div class="payment-methods-grid">
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="paymentMethods as method"><div class="payment-method-card">
+                <div class="method-header">
+                  <div class="method-type">
+                    <span class="method-icon">💳</span>
+                    <strong></strong>
+                  </div>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="method.isDefault"><span class="default-badge">Default</span></div>
+                </div>
+                <div class="method-details">
+                  <p><strong>Tenant:</strong> </p>
+                  <p><strong>Email:</strong> </p>
+                  <p><strong>Added:</strong> </p>
+                </div>
+              </div></div>
+          </div>
+        
+      </div>
+
+      <!-- Active Subscriptions -->
+      <div class="subscriptions-section">
+        <h2>Active Subscriptions</h2>
+        
+          <div class="subscriptions-table">
+            <div class="table-header">
+              <div class="col-tenant">Tenant</div>
+              <div class="col-plan">Plan</div>
+              <div class="col-status">Status</div>
+              <div class="col-period">Current Period</div>
+              <div class="col-actions">Actions</div>
+            </div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="subscriptions as subscription"><div class="table-row">
+                <div class="col-tenant">
+                  <span class="tenant-name"></span>
+                </div>
+                <div class="col-plan">
+                  <span class="plan-name"></span>
+                </div>
+                <div class="col-status">
+                  <span class="badge ">
+                    
+                  </span>
+                </div>
+                <div class="col-period">
+                  <span class="period-dates">
+                     - 
+                  </span>
+                </div>
+                <div class="col-actions">
+                  <button class="action-btn">
+                    View Details
+                  </button>
+                </div>
+              </div></div>
+          </div>
+        
+      </div>
+      </div>
+    </div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/admin/billing","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

@@ -42,6 +42,40 @@ export function normalizeCwlContentType(raw) {
 }
 
 /**
+ * Extract a CWL `return html "…";` string literal, tolerating `;` inside the
+ * quoted HTML (e.g. `Seed &amp; env:`). Falls back to greedy line match.
+ * @param {string} inner
+ * @returns {string | null} the quoted literal including quotes, or null
+ */
+export function extractCwlHtmlReturnLiteral(inner) {
+  const t = inner.trim();
+  const prefix = /^return\s+html\s+/i.exec(t);
+  if (!prefix) return null;
+  const rest = t.slice(prefix[0].length).trim();
+  if (!(rest.startsWith('"') || rest.startsWith("'"))) {
+    const m = HTML_RETURN_RE.exec(t);
+    return m?.[1]?.trim() ?? null;
+  }
+  const quote = rest[0];
+  let i = 1;
+  while (i < rest.length) {
+    if (rest[i] === "\\" && i + 1 < rest.length) {
+      i += 2;
+      continue;
+    }
+    if (rest[i] === quote) {
+      const lit = rest.slice(0, i + 1);
+      const after = rest.slice(i + 1).trim();
+      if (after === ";" || after.startsWith(";")) return lit;
+      // Unescaped quote mid-string (corrupt prior emit) — keep scanning
+    }
+    i += 1;
+  }
+  const m = HTML_RETURN_RE.exec(t);
+  return m?.[1]?.trim() ?? null;
+}
+
+/**
  * @param {string} expr
  */
 export function parseCwlLiteral(expr) {
@@ -371,9 +405,9 @@ export function parseCwlModule(source, file) {
         effects.push(...parseEffects(em[1]));
         continue;
       }
-      const htmlRet = HTML_RETURN_RE.exec(inner);
-      if (htmlRet) {
-        const lit = parseCwlLiteral(htmlRet[1].trim());
+      const htmlRetLit = extractCwlHtmlReturnLiteral(inner);
+      if (htmlRetLit !== null) {
+        const lit = parseCwlLiteral(htmlRetLit);
         if (lit.ok && typeof lit.value === "string") {
           body = { kind: "html", value: lit.value };
           if (!responseContentType) responseContentType = "text/html; charset=utf-8";

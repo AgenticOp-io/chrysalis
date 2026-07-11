@@ -135,4 +135,28 @@ describe("@chrysalis/runtime-cwl", () => {
     expect(body).toContain("cwl-page-load");
     expect(body).toContain('"slug":"hello"');
   });
+
+  it("wraps HTML with UI stylesheet links and serves CSS (G9470)", async () => {
+    const { loadCwlUiAssetsFromProject } = await import("../src/index.js");
+    const fixture = resolve(ROOT, "fixtures/site-scale-matrix");
+    const module = loadModuleFromCwlFile(resolve(fixture, "routes.cwl"), ROOT);
+    const uiAssets = loadCwlUiAssetsFromProject(fixture);
+    expect(uiAssets).not.toBeNull();
+    const runtime = createCwlRuntime({ module, uiAssets: uiAssets! });
+    const res = await runtime.fetch({ method: "GET", url: "http://127.0.0.1/login" });
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("<!DOCTYPE html>");
+    expect(body).toContain('href="/assets/original-css/login.css"');
+    expect(body).toContain('href="/assets/original-css/layout.css"');
+    expect(body).toContain("login-form");
+
+    const css = await runtime.fetch({
+      method: "GET",
+      url: "http://127.0.0.1/assets/original-css/login.css",
+    });
+    expect(css.status).toBe(200);
+    expect(css.headers.get("content-type")).toMatch(/text\/css/);
+    expect(await css.text()).toContain("login");
+  });
 });

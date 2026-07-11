@@ -15,6 +15,7 @@ Open **website LLM framework** scaffolding for Chrysalis: verify-gated agent tra
 - `chrysalisAgentToolDefinitions`, `findAgentTool`
 - `resolveShorthandForTask`, `promoteShorthandsByDomain`, `loadIntelligenceShorthandsFromRepo` (IS runtime protocol)
 - `resolveShorthandWithTransfer`, `summarizeIsLiveAnalytics`, `demoteShorthandsForDomain` (IS live hit/near-miss/miss + demote — **D6372**)
+- `productHitRateLiveReady`, `evidenceSource` provenance (`seed` vs `hub-convert-verify` — **D6397** / **G9760**)
 - `scoreNearMissCandidates`, `CYNOENGINE_ATTRIBUTION` (near-miss salience — **G9520** / **D6375**; CynoEngine-inspired)
 - `recordUtilityOutcome`, `recordEvidenceUsedUtility`, `loadIsUtilityStore` (utility prior — **G9530** / **G9560**)
 - `classifyConvertAction`, `governConvertAction`, `listGovernedAgentTools` (convert/MCP governor — **G9540** / **G9570**)

@@ -7,7 +7,18 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** maintenance **G8550** (schema **v7** / **D6377**) / **G8570** / **G6731** — census **601/601** (**G9160**); see [`docs/PAUSED-AND-MAINTENANCE.md`](./docs/PAUSED-AND-MAINTENANCE.md).
+- **Active lane:** maintenance **G8550** (schema **v18** / **D6397**) — census **601/601** (**G9160**).
+- **Closed (2026-07-11):** **Live hit-rate provenance** (**G9760**, **D6397**) — `evidenceSource` + `productHitRateLiveReady`; seed ≠ live READY; gate `hub:product-hit-rate-live-smoke`; LoRA `messages[]` train mapping; **G8550** v18.
+- **Closed (2026-07-10):** **Enriched traces + Object.entries/ternary/$store** (**G9750**, **D6394**) — residual **~564** holes; gate `hub:wisp-fill-holes-smoke`; **G8550** v17.
+- **Closed (2026-07-10):** **Full-sample hydrate + if settle** (**G9740**, **D6393**) — all apiPath samples; residual was **~635**; **G8550** v16.
+- **Closed (2026-07-10):** **Widget shells + showcase hydrate** (**G9730**, **D6392**) — residual was **~738**; **G8550** v15.
+- **Closed (2026-07-10):** **WISP reconvert + nav/wizard shells** (**G9710–G9720**, **D6390–D6391**) — residual was **~1115**; gate `hub:wisp-nav-wizard-shell-smoke`.
+- **Closed (2026-07-10):** **New tracks G9670–G9700** (**D6387–D6389**) — product sample ≥50 jobs; map/chart + expanded modal shells; public `/reports/`; **G8550** v13.
+- **Closed (2026-07-10):** **Operator evidence + dashboard + modal shells** (**G9640–G9660**, **D6383–D6386**) — seed trajectories, live analytics hub, Tips/Help modal shells; **G8550** v12.
+- **Closed (2026-07-10):** **Salience v2** (**G9630**, **D6382**) — catalog z-score; auto at ≥20 operator-evidence domains; gate `hub:is-near-miss-salience-v2-smoke`.
+- **Closed (2026-07-10):** **WISP showcase bound** (**G9610**, **D6380**) — honest residual markup holes (now **~564** post G9750); gate `hub:wisp-showcase-bound-smoke`.
+- **Closed (2026-07-10):** **GPU lab close prep** (**G9620**, **D6381**) — IS-T2 manifest + GCE orchestrator contract; gate `hub:gpu-lab-close-smoke`; train via `gpu-lab:gce`.
+- **Closed (2026-07-10):** **Live IS operator evidence** (**G9600**, **D6378**) — aggregate hub-convert trajectories; `snapshotOperatorTrajectoryForEvidence`; gate `hub:is-live-operator-evidence-smoke`; **G8550** v8.
 - **Closed (2026-07-09):** **Cyno substrate depth** (**G9560–G9590**, **D6377**) — evidence-used utility, MCP governor coverage, cycle gate, doc-vs-box; composed in **G8550** v7.
 - **Closed (2026-07-09):** **Migration OS composite bump** (**G8550** v6→v7, **D6376** / **D6377**) — composes **G9510** + **G9520–G9590**.
 - **Closed (2026-07-09):** **CynoEngine × Chrysalis collab substrate** (**G9520–G9550**, **D6375**) — near-miss salience, utility prior, convert governor, aim persistence; cite Cyno; gates `hub:is-near-miss-salience-smoke` · `hub:is-utility-prior-smoke` · `hub:convert-governor-smoke` · `hub:convert-aim-persist-smoke`. Plan [`docs/CYNO-CHRYSALIS-COLLAB.md`](./docs/CYNO-CHRYSALIS-COLLAB.md).
@@ -68,6 +79,40 @@ API: `summarizeIsLiveAnalytics`, `resolveShorthandWithTransfer`, `demoteShorthan
 
 ---
 
+## Closed — WISP showcase bound (G9610)
+
+Authority: **DESIGN D6380**  
+Gate: `hub:wisp-showcase-bound-smoke`  
+Fixture: `fixtures/ci/wisp-showcase-bound.v1.json` · artifact `reports/wisp/showcase-bound.v1.json`
+
+| Bucket | Count |
+| --- | --- |
+| `svelte-interp` | 267 |
+| `svelte-if` | 187 |
+| `svelte-each` | 71 |
+| `svelte-component` | 0 |
+| `no-source-route` | 39 |
+| **Total** | **564** (post G9750; was 635 / 1260) |
+
+**Regression:** fake `/if`/`/each` = 0; settled loading/error ifs = 0; GenieACS out of scope.
+
+---
+
+## Closed — Enriched traces + settle patterns (G9750)
+
+Authority: **DESIGN D6394**  
+Gate: `hub:wisp-fill-holes-smoke` · enrich `wisp:enrich-pilot-traces`  
+Bound: `fixtures/ci/wisp-showcase-bound.v1.json` (schema **v5**, **545–585**)
+
+| Result | Detail |
+| --- | --- |
+| Enriched traces | **17** apiPath NDJSON from hydrate-samples |
+| Settled | `Object.entries` each, simple ternaries, `$store` / `?.` |
+| Hole count | **~564** (interp ~267, each ~71, if ~187, no-source **39**) |
+| Must remain | 39 no-source `/add`; complex calls; unclean each inners; GenieACS |
+
+---
+
 ## Closed — Fill fillable WISP holes (G9500)
 
 Authority: **DESIGN D6371** (user amendment 2026-07-09: "fill all holes" — fill every *fillable* hole; refuse invented widgets)  
@@ -78,8 +123,8 @@ API: `findNextSvelteBlock`, `DEFAULT_SHOWCASE_LOAD_BOOLS`, `indexSvelteComponent
 | --- | --- |
 | Fake `/if`/`/each` | **0** (balanced control-flow) |
 | Settled loading/error ifs | **0** remaining |
-| Hole count | **~1260** declared (was ~1671 with fakes/truncation artifacts) |
-| Must remain | 39 no-source `/add`; modals/wizards/maps; complex `{#if}`; GenieACS |
+| Hole count | **~564** declared showcase-bound (**G9750**; was 635 / 1260) |
+| Must remain | 39 no-source `/add`; complex `{#if}`/`{#each}`/interp; GenieACS |
 
 ---
 

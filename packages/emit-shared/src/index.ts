@@ -88,3 +88,40 @@ export {
   type IrHelperInlineRegistryEntry,
   type IrHelperInlinePatternKind,
 } from "./ir-helper-program-catalog.js";
+export {
+  matchRouteStylesheetHref,
+  resolveFallbackStylesheetHref,
+  resolveRouteStylesheetHref,
+  resolveRouteStylesheetHrefs,
+  routeStylesheetLinkTag,
+  stylesheetLinkTagForHref,
+  wrapHtmlFragmentWithDocumentShell,
+  type WrapHtmlDocumentShellOptions,
+} from "./ui-route-style.js";
+export {
+  resolveRouteMarkupHref,
+  findRouteMarkupBundle,
+} from "./ui-route-markup.js";
+export {
+  applyLiftedMarkupToCwlSource,
+  buildCwlReturnHtmlStatement,
+  extractCwlRouteBlock,
+  listCwlPageGetPaths,
+  patchCwlRouteBlockHtml,
+  type ApplyUiMarkupToCwlResult,
+} from "./apply-ui-markup-to-cwl.js";
+export {
+  applyNoSourceMarkupHolesToCwlSource,
+  buildNoSourceMarkupHoleHtml,
+  MARKUP_NO_SOURCE_HOLE_REASON,
+  type ApplyNoSourceMarkupHolesOptions,
+  type ApplyNoSourceMarkupHolesResult,
+} from "./apply-no-source-markup-holes.js";
+export {
+  loadUiMarkupLiftArtifacts,
+  type LoadedUiMarkupArtifacts,
+} from "./load-ui-markup-artifacts.js";
+export {
+  loadUiAssetLiftArtifacts,
+  type LoadedUiAssetArtifacts,
+} from "./load-ui-asset-artifacts.js";

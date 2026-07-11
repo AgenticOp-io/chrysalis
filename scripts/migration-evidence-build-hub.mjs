@@ -205,6 +205,7 @@ export async function runMigrationEvidenceBuildHub(opts = {}) {
     ${linkIfExists("Web-LLM POC hub", "../../web-llm/poc/index.html", resolve(outDir, "../../web-llm/poc/index.html"), "button secondary")}
     ${linkIfExists("Verify League", "../../federation/league/index.html", resolve(outDir, "../../federation/league/index.html"), "button secondary")}
     ${linkIfExists("Intelligence Shorthand", "../../web-llm/shorthand/poc/index.html", resolve(outDir, "../../web-llm/shorthand/poc/index.html"), "button secondary")}
+    ${linkIfExists("IS Live Analytics", "/reports/web-llm/operator-evidence/poc/", resolve(outDir, "../../web-llm/operator-evidence/poc/index.html"), "button secondary")}
     ${linkIfExists("Nightly report", "../../open-legacy-index/nightly/index.html", resolve(outDir, "../../open-legacy-index/nightly/index.html"), "button secondary")}
     ${demoUrl ? `<a class="button secondary" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener">WISP live demo</a>` : ""}
   </p>

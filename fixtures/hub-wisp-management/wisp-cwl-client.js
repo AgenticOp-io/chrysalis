@@ -50,6 +50,10 @@
       sessionStorage.setItem("wm_session_login_completed", "true");
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("userEmail", (user && user.email) || "");
+      if (!localStorage.getItem("selectedTenantId") && firebaseConfig && firebaseConfig.defaultTenantId) {
+        localStorage.setItem("selectedTenantId", firebaseConfig.defaultTenantId);
+        localStorage.setItem("selectedTenantName", firebaseConfig.defaultTenantName || "WISPTools Demo ISP");
+      }
     } catch (_e) {
       /* ignore */
     }
@@ -81,6 +85,9 @@
           storageBucket: "wisptools-production.firebasestorage.app",
           messagingSenderId: "1048161130237",
           appId: "1:1048161130237:web:160789736967985b655094",
+          backendUrl: "https://hss.wisptools.io",
+          defaultTenantId: "6a166eb07089304417ec967a",
+          defaultTenantName: "WISPTools Demo ISP",
         };
         return firebaseConfig;
       });
@@ -107,6 +114,82 @@
       });
     return firebaseReady;
   }
+
+  function currentIdToken() {
+    return ensureFirebase()
+      .then(function (fb) {
+        var user = fb.auth().currentUser;
+        if (user) return user.getIdToken();
+        return new Promise(function (resolve) {
+          var settled = false;
+          var off = fb.auth().onAuthStateChanged(function (u) {
+            if (settled) return;
+            settled = true;
+            off();
+            if (u) u.getIdToken().then(resolve, function () { resolve(null); });
+            else resolve(null);
+          });
+          setTimeout(function () {
+            if (!settled) {
+              settled = true;
+              off();
+              resolve(null);
+            }
+          }, 4000);
+        });
+      })
+      .catch(function () {
+        return null;
+      });
+  }
+
+  function authHeaders() {
+    return currentIdToken().then(function (token) {
+      var headers = { Accept: "application/json" };
+      if (token) headers.Authorization = "Bearer " + token;
+      try {
+        var tid = localStorage.getItem("selectedTenantId") || (firebaseConfig && firebaseConfig.defaultTenantId);
+        if (tid) headers["X-Tenant-ID"] = tid;
+        var email = localStorage.getItem("userEmail");
+        if (email) headers["X-User-Email"] = email;
+      } catch (_e) {
+        /* ignore */
+      }
+      return headers;
+    });
+  }
+
+  /**
+   * Fetch an /api path against the live backend (same DB/HSS as the original
+   * Svelte app). Tries the configured backend origin first (Firebase Hosting
+   * has no working apiProxy), falls back to same-origin (GCE chimera gateway
+   * proxies /api natively).
+   */
+  function apiFetch(path, opts) {
+    opts = opts || {};
+    return fetchFirebaseConfig().then(function (cfg) {
+      return authHeaders().then(function (headers) {
+        var merged = Object.assign({}, opts.headers || {}, headers);
+        if (opts.body && !merged["Content-Type"] && !merged["content-type"]) {
+          merged["Content-Type"] = "application/json";
+        }
+        var init = Object.assign({}, opts, { headers: merged });
+        var base = (cfg && cfg.backendUrl ? String(cfg.backendUrl) : "").replace(/\/$/, "");
+        var direct = base && path.indexOf("/api") === 0 ? base + path : path;
+        var attempt = function (url, credentials) {
+          return fetch(url, Object.assign({}, init, { credentials: credentials }));
+        };
+        if (direct !== path) {
+          return attempt(direct, "omit").catch(function () {
+            return attempt(path, "same-origin");
+          });
+        }
+        return attempt(path, "same-origin");
+      });
+    });
+  }
+
+  window.WispCwlApi = { fetch: apiFetch, headers: authHeaders };
 
   function firebaseLogin(email, password) {
     return ensureFirebase().then(function (fb) {
@@ -135,7 +218,12 @@
       body: JSON.stringify({ email: email, password: password }),
       credentials: "same-origin",
     }).then(function (res) {
-      if (!res.ok) throw new Error("Sign-in failed (" + res.status + ")");
+      var ct = res.headers.get("content-type") || "";
+      // Static hosting rewrites POST /login to index.html (200 text/html);
+      // only a JSON response is a real preview-runtime login.
+      if (!res.ok || ct.indexOf("application/json") === -1) {
+        throw new Error("Sign-in failed (" + res.status + ")");
+      }
       markSession({ email: email });
       return { email: email };
     });
@@ -184,7 +272,8 @@
   document.addEventListener("submit", function (ev) {
     var form = ev.target;
     if (!(form instanceof HTMLFormElement)) return;
-    if (!form.closest('[data-wisp-page="login"], [data-cwl-island="client"], .login-shell, .login-page')) return;
+    if (form.classList.contains("wisp-demo-form")) return;
+    if (!form.closest('[data-wisp-page="login"], .login-page, .login-shell')) return;
     ev.preventDefault();
     submitLogin(form);
   });
@@ -193,7 +282,7 @@
     var btn = ev.target.closest("[data-cwl-on-click], button");
     if (!btn) return;
     var action = btn.getAttribute("data-cwl-on-click");
-    if (action === "loginSubmit" || (btn.type === "submit" && btn.closest("form"))) {
+    if (action === "loginSubmit" || (btn.type === "submit" && btn.closest("form") && btn.closest(".login-page, .login-shell"))) {
       ev.preventDefault();
       var form = btn.closest("form");
       if (form) submitLogin(form);
@@ -230,77 +319,103 @@ function initModuleDemos() {
     });
   }
 
-  function demoRows(resource, count) {
-    var names = ["Tower Alpha", "Sector B12", "CPE Batch 7", "Backhaul West", "POP Downtown", "Relay Hill"];
-    var rows = [];
-    for (var i = 0; i < count; i++) {
-      rows.push({
-        id: "DEMO-" + (1000 + i),
-        name: names[i % names.length] + " (" + resource + ")",
-        status: i % 3 === 0 ? "Pending" : "Active",
-        updated: "2026-06-" + String(10 + (i % 18)).padStart(2, "0"),
-      });
+  function firstArray(data) {
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== "object") return null;
+    var keys = ["items", "records", "customers", "devices", "subscribers", "projects", "orders", "results", "data", "rows", "users", "tenants", "graphs"];
+    for (var i = 0; i < keys.length; i++) {
+      if (Array.isArray(data[keys[i]])) return data[keys[i]];
     }
-    return rows;
+    for (var k in data) {
+      if (Array.isArray(data[k])) return data[k];
+    }
+    return null;
+  }
+
+  function fieldOf(row, names) {
+    for (var i = 0; i < names.length; i++) {
+      var v = row[names[i]];
+      if (v !== undefined && v !== null && v !== "") return v;
+    }
+    return "";
+  }
+
+  function rowView(r) {
+    if (!r || typeof r !== "object") return { id: String(r), name: "", status: "", updated: "" };
+    var id = fieldOf(r, ["customerId", "workOrderId", "imsi", "serialNumber", "deviceId", "id", "_id"]);
+    var name = fieldOf(r, ["fullName", "displayName", "name", "title", "model", "email", "subject", "description"]);
+    var status = fieldOf(r, ["serviceStatus", "status", "state", "accountStatus", "installationStatus"]);
+    var updatedRaw = String(fieldOf(r, ["updatedAt", "lastSeen", "createdAt", "date"]));
+    var updated = updatedRaw ? updatedRaw.slice(0, 10) : "";
+    return {
+      id: String(id).slice(0, 24),
+      name: String(name).slice(0, 60),
+      status: String(status),
+      updated: updated,
+    };
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
   function renderTable(demo, rows) {
     var table = demo.querySelector("#wisp-demo-table tbody");
     if (!table) return;
     if (!rows.length) {
-      table.innerHTML = "<tr><td colspan=\"4\">No records yet.</td></tr>";
+      table.innerHTML = '<tr><td colspan="4">No records yet for this tenant.</td></tr>';
       return;
     }
     table.innerHTML = rows
-      .map(function (r) {
+      .map(function (raw) {
+        var r = rowView(raw);
         return (
-          "<tr><td>" +
-          r.id +
-          "</td><td>" +
-          r.name +
-          "</td><td>" +
-          r.status +
-          "</td><td>" +
-          r.updated +
-          "</td></tr>"
+          "<tr><td>" + esc(r.id) + "</td><td>" + esc(r.name) + "</td><td>" + esc(r.status) + "</td><td>" + esc(r.updated) + "</td></tr>"
         );
       })
       .join("");
+  }
+
+  function updateStats(demo, count) {
+    var stats = demo.querySelectorAll(".wisp-demo-stat");
+    if (!stats.length) return;
+    var first = stats[0].querySelector("strong");
+    if (first) first.textContent = String(count);
+    for (var i = 1; i < stats.length; i++) {
+      var strong = stats[i].querySelector("strong");
+      if (strong) strong.textContent = "–";
+    }
   }
 
   function loadDemo(demo) {
     var api = demo.getAttribute("data-wisp-api");
     var layout = demo.getAttribute("data-wisp-layout") || "list";
     if (layout === "form" || layout === "docs") {
-      setApiStatus("Demo surface ready", false);
+      setApiStatus("Ready", false);
       return;
     }
     if (!api) {
-      renderTable(demo, demoRows("module", 4));
-      setApiStatus("Static demo data", false);
+      renderTable(demo, []);
+      setApiStatus("No API bound to this surface", false);
       return;
     }
     setApiStatus("Loading " + api + "…", false);
-    fetch(api, { credentials: "same-origin" })
+    var doFetch = window.WispCwlApi ? window.WispCwlApi.fetch : function (p) { return fetch(p, { credentials: "same-origin" }); };
+    doFetch(api)
       .then(function (r) {
-        return r.json().catch(function () {
-          return { ok: r.ok, status: r.status };
-        });
+        if (!r.ok) throw new Error("API " + api + " returned " + r.status);
+        return r.json();
       })
       .then(function (data) {
-        var resource = data && data.resource ? data.resource : api.split("/").pop();
-        var rows = Array.isArray(data)
-          ? data
-          : data && (data.items || data.projects || data.records)
-            ? data.items || data.projects || data.records
-            : demoRows(resource, 5);
-        if (!Array.isArray(rows)) rows = demoRows(resource, 5);
-        renderTable(demo, rows.slice(0, 8));
-        setApiStatus("API " + api + " — " + (data && data.surface ? data.surface : "connected"), false);
+        var rows = firstArray(data) || [];
+        renderTable(demo, rows.slice(0, 25));
+        updateStats(demo, rows.length);
+        setApiStatus("Live data — " + api + " (" + rows.length + " records)", false);
       })
-      .catch(function () {
-        renderTable(demo, demoRows("offline", 4));
-        setApiStatus("API unreachable — showing demo rows", true);
+      .catch(function (e) {
+        renderTable(demo, []);
+        updateStats(demo, 0);
+        setApiStatus((e && e.message) || "API unreachable — sign in and retry", true);
       });
   }
 
@@ -326,7 +441,27 @@ function initModuleDemos() {
     var form = ev.target;
     if (!(form instanceof HTMLFormElement) || !form.classList.contains("wisp-demo-form")) return;
     ev.preventDefault();
-    setApiStatus("Saved (demo) — native CWL POST would run on production backend", false);
+    var demo = form.closest(".wisp-module-demo");
+    var api = (demo && demo.getAttribute("data-wisp-api")) || "";
+    if (!api || !window.WispCwlApi) {
+      setApiStatus("No API bound — cannot save", true);
+      return;
+    }
+    var payload = {};
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (el.name) payload[el.name] = el.value;
+    });
+    setApiStatus("Saving…", false);
+    window.WispCwlApi
+      .fetch(api, { method: "POST", body: JSON.stringify(payload) })
+      .then(function (r) {
+        if (!r.ok) throw new Error("Save failed (" + r.status + ")");
+        setApiStatus("Saved to live backend", false);
+        if (demo) loadDemo(demo);
+      })
+      .catch(function (e) {
+        setApiStatus((e && e.message) || "Save failed", true);
+      });
   });
 
   if (

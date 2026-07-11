@@ -9,7 +9,9 @@
     { "path": "../webir" },
     { "path": "../parser-bridge" },
     { "path": "../python-bridge" },
-    { "path": "../hub-native-bridge" }
+    { "path": "../hub-native-bridge" },
+    { "path": "../emit-shared" },
+    { "path": "../oracle" }
   ],
   "include": ["src/**/*"]
 }

@@ -1,21 +1,48 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="docs" data-wisp-path="/docs" data-cwl-island="client" data-wisp-layout="docs">
-  <header class="wisp-demo-header">
-    <h1>Docs</h1>
-    <p class="wisp-demo-desc">Operator documentation for WISP Management on pure CWL deploy.</p>
-    
-  </header>
-  <section class="wisp-demo-panel">
-    <article class="wisp-demo-docs">
-  <h2>Docs</h2>
-  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>docs</title>
+<link rel="stylesheet" href="/assets/original-css/docs.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<svelte:head>
+  <title>Documentation – WISP Management</title>
+</svelte:head>
+
+<h1>WISP Management Documentation</h1>
+<p class="lead">Documentation is integrated into the app. Use the sidebar or the links below.</p>
+
+<section class="doc-section">
+  <h2>Quick links</h2>
   <ul>
-    <li>Session auth via Firebase or CWL session preview</li>
-    <li>API routes proxied to HSS backend when configured</li>
-    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>
+    <li><a href="/help">Getting Started</a> – New users and administrators.</li>
+    <li><a href="/help">Using WISP Management</a> – For end users: dashboard, wizards, help.</li>
+    <li><a href="/help">Project Status & Next Steps</a> – Current status and what to work on next.</li>
+    <li><a href="/help">Help by topic</a> – Module-specific help (Inventory, ACS, Deploy, Plan, etc.).</li>
+    <li><a href="/wizards">Wizards</a> – Guided flows (sites, subscribers, customers, RMA, plans, groups, troubleshooting).</li>
   </ul>
-  <p class="wisp-demo-docs-section">Section: <code>docs</code></p>
-</article>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
+</section>
+
+<section class="doc-section">
+  <h2>What is WISP Management?</h2>
+  <p>WISP Management is the main app on wisptools.io for LTE WISP operations:</p>
+  <ul>
+    <li><strong>Multi-tenant</strong> – Manage multiple organizations</li>
+    <li><strong>HSS</strong> – Home Subscriber Server for Open5GS</li>
+    <li><strong>Device management</strong> – TR-069/CWMP via GenieACS</li>
+    <li><strong>Network planning</strong> – Coverage mapping, PCI resolution</li>
+    <li><strong>Monitoring</strong> – SNMP and performance graphs</li>
+    <li><strong>CBRS/SAS</strong> – Spectrum Access System integration</li>
+  </ul>
+</section>
+
+<section class="doc-section">
+  <h2>In-app help</h2>
+  <p>Each module (Inventory, Deploy, ACS CPE, HSS, Plan, Coverage Map, CBRS, PCI Resolution, Monitoring) has a <strong>Help</strong> button that opens module-specific documentation. The <a href="/help">Help by topic</a> page lists all topics in one place. For reference and project status, use the sidebar or <a href="/docs/reference/project-status">Project Status &amp; Next Steps</a>.</p>
+</section>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/docs"}</script>
+
+</body>
+</html>

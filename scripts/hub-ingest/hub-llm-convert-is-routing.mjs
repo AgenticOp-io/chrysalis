@@ -127,6 +127,7 @@ export async function resolveHubConvertIsRouting(input) {
         setAt: aim.setAt,
       },
       sourceDigest: input.sourceDigest,
+      evidenceSource: "hub-convert-verify",
     });
     routing.trajectoryPath = trajectoryPath;
     routing.sessionId = sessionId;

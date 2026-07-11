@@ -2,10 +2,11 @@
 /**
  * Stage CWL static export into WISP Module_Manager/build/client for Firebase Hosting.
  */
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
+import { WISP_CHIMERA_STATIC_ASSETS, wrapWispCwlHtmlDocument } from "./wisp-cwl-chimera-gateway.mjs";
 
 export const WISP_CWL_FIREBASE_STATIC_STAGE_KIND = "chrysalis.wisp.firebase-static-stage";
 export const WISP_CWL_FIREBASE_STATIC_STAGE_SCHEMA_VERSION = 1;
@@ -89,8 +90,73 @@ export function stageWispCwlStaticExportClient(opts = {}) {
   }
   cpSync(exportDir, clientDir, { recursive: true });
 
+  const assetsCopied = copyWispCwlStaticAssets(clientDir);
+  const wrappedPages = wrapExportedHtmlDocuments(clientDir);
+
   const ok = existsSync(join(clientDir, "index.html"));
-  return { ...base, ok, staged: ok };
+  return { ...base, ok, staged: ok, assetsCopied, wrappedPages };
+}
+
+/**
+ * Copy the CWL shell assets (CSS/JS/logo/config) that the chimera gateway
+ * serves at runtime into the static client dir, so Firebase Hosting serves
+ * the same styled shell as the GCE deployment.
+ * @param {string} clientDir
+ */
+export function copyWispCwlStaticAssets(clientDir) {
+  const fixtureDir = join(scriptRoot, "fixtures/hub-wisp-management");
+  let copied = 0;
+  for (const [urlPath, spec] of Object.entries(WISP_CHIMERA_STATIC_ASSETS)) {
+    const src = join(fixtureDir, spec.file);
+    if (!existsSync(src)) continue;
+    const dest = join(clientDir, urlPath.replace(/^\//, ""));
+    mkdirSync(dirname(dest), { recursive: true });
+    cpSync(src, dest);
+    copied += 1;
+  }
+  // Binary assets (fonts/images) referenced by the lifted original CSS.
+  const originalAssets = join(fixtureDir, "original-assets");
+  if (existsSync(originalAssets)) {
+    cpSync(originalAssets, join(clientDir, "assets/original"), { recursive: true });
+    copied += 1;
+  }
+  // Per-route lifted CSS bundles (see wisp-cwl-css-lift.mjs).
+  const originalCss = join(fixtureDir, "original-css");
+  if (existsSync(originalCss)) {
+    cpSync(originalCss, join(clientDir, "assets/original-css"), { recursive: true });
+    copied += 1;
+  }
+  return copied;
+}
+
+/**
+ * The static export writes bare HTML fragments (the runtime normally wraps
+ * them per-request). Wrap each page with the same document shell the chimera
+ * gateway uses so styling matches the live GCE deployment.
+ * @param {string} clientDir
+ */
+export function wrapExportedHtmlDocuments(clientDir) {
+  let wrapped = 0;
+  /** @param {string} dir */
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const abs = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(abs);
+        continue;
+      }
+      if (!entry.name.endsWith(".html")) continue;
+      const body = readFileSync(abs, "utf8");
+      if (body.trimStart().startsWith("<!DOCTYPE") || body.trimStart().startsWith("<html")) continue;
+      const rel = relative(clientDir, abs).replace(/\\/g, "/");
+      const pathname = rel === "index.html" ? "/" : `/${rel.replace(/\/index\.html$/, "")}`;
+      const doc = wrapWispCwlHtmlDocument(body, "WISP Management", pathname);
+      writeFileSync(abs, doc.endsWith("\n") ? doc : `${doc}\n`, "utf8");
+      wrapped += 1;
+    }
+  };
+  walk(clientDir);
+  return wrapped;
 }
 
 async function main() {

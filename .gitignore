@@ -101,3 +101,7 @@ generated/wisp-svelte-sidecar/
 
 # Multi-repo program workspace: keep the tracked template, ignore personal copies
 *.code-workspace.local
+
+# Generated from hydrate-samples (G9750)
+fixtures/hub-wisp-management/wisp-api-pilot-traces/enriched/
+

@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "stats": { "subscribers": 120, "active": 110 },
+  "groups": [
+    { "id": "g1", "name": "Default", "status": "active" },
+    { "id": "g2", "name": "VIP", "status": "active" }
+  ],
+  "items": [
+    { "id": "g1", "name": "Default", "status": "active" },
+    { "id": "g2", "name": "VIP", "status": "active" }
+  ]
+}

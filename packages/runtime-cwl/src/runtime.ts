@@ -1,11 +1,28 @@
+import { existsSync, readFileSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Module } from "@chrysalis/webir";
+import { basename, join } from "node:path";
+import type { Module, UiRouteStyleMapV1 } from "@chrysalis/webir";
 import { moduleFromGoldenSnapshot } from "@chrysalis/webir";
+import { wrapHtmlFragmentWithDocumentShell } from "@chrysalis/emit-shared";
 import { DEFAULT_STUB_DB, simulateHandler, type RequestInput, type SimValue, type StubDb } from "@chrysalis/rewrite";
 import { compileCwlRoutes, matchCwlRoute, type CompiledCwlRoute } from "./route-match.js";
 
 export const CWL_RUNTIME_KIND = "chrysalis.cwl.runtime" as const;
 export const CWL_RUNTIME_SCHEMA_VERSION = 1 as const;
+
+export interface CwlUiAssetsServeConfig {
+  /** Parsed `chrysalis.ui.route-style-map` (from `.chrysalis/ui-assets/`). */
+  readonly styleMap: UiRouteStyleMapV1;
+  /** Absolute path to `original-css/` directory. */
+  readonly cssDir: string;
+  /** Absolute path to `original-assets/` when present. */
+  readonly assetsDir?: string | null;
+  /**
+   * When true (default), wrap HTML body fragments in a document shell and
+   * inject per-route stylesheet `<link>` tags (D6368 / G9470).
+   */
+  readonly wrapHtmlDocuments?: boolean;
+}
 
 export interface CwlRuntimeConfig {
   readonly module: Module;
@@ -19,6 +36,11 @@ export interface CwlRuntimeConfig {
     readonly cookies: Readonly<Record<string, string>>;
     readonly headers: Headers;
   }) => Readonly<Record<string, SimValue>>;
+  /**
+   * Optional UI asset lift artifacts — serves `/assets/original-css/*` and
+   * wraps HTML responses with stylesheet links (D6368 / G9470).
+   */
+  readonly uiAssets?: CwlUiAssetsServeConfig;
 }
 
 export interface CwlRuntimeHandle {
@@ -56,17 +78,71 @@ function parseCookies(header: string | undefined): Record<string, string> {
   return out;
 }
 
-function simToResponse(sim: ReturnType<typeof simulateHandler>): Response {
+function contentTypeForAsset(fileName: string): string {
+  const lower = fileName.toLowerCase();
+  if (lower.endsWith(".css")) return "text/css; charset=utf-8";
+  if (lower.endsWith(".js")) return "application/javascript; charset=utf-8";
+  if (lower.endsWith(".svg")) return "image/svg+xml";
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  if (lower.endsWith(".woff2")) return "font/woff2";
+  if (lower.endsWith(".woff")) return "font/woff";
+  if (lower.endsWith(".ttf")) return "font/ttf";
+  if (lower.endsWith(".gif")) return "image/gif";
+  return "application/octet-stream";
+}
+
+/** Reject path traversal; allow only a single basename under a root dir. */
+function safeFileUnderDir(dir: string, fileName: string): string | null {
+  if (!fileName || /[/\\]/.test(fileName) || fileName.includes("..")) return null;
+  const abs = join(dir, fileName);
+  if (!existsSync(abs)) return null;
+  return abs;
+}
+
+function tryServeUiAsset(uiAssets: CwlUiAssetsServeConfig, pathname: string): Response | null {
+  const cssMatch = /^\/assets\/original-css\/([^/]+)$/.exec(pathname);
+  if (cssMatch !== null && cssMatch[1] !== undefined) {
+    const abs = safeFileUnderDir(uiAssets.cssDir, cssMatch[1]);
+    if (abs === null) return new Response("not found", { status: 404 });
+    return new Response(readFileSync(abs), {
+      status: 200,
+      headers: { "content-type": contentTypeForAsset(cssMatch[1]) },
+    });
+  }
+  const assetMatch = /^\/assets\/original-assets\/([^/]+)$/.exec(pathname);
+  if (assetMatch !== null && assetMatch[1] !== undefined && uiAssets.assetsDir) {
+    const abs = safeFileUnderDir(uiAssets.assetsDir, assetMatch[1]);
+    if (abs === null) return new Response("not found", { status: 404 });
+    return new Response(readFileSync(abs), {
+      status: 200,
+      headers: { "content-type": contentTypeForAsset(assetMatch[1]) },
+    });
+  }
+  return null;
+}
+
+function simToResponse(
+  sim: ReturnType<typeof simulateHandler>,
+  pathname: string,
+  uiAssets: CwlUiAssetsServeConfig | undefined,
+): Response {
   if (sim.redirectTo) {
     return new Response(null, { status: sim.status || 302, headers: { Location: sim.redirectTo } });
   }
-  const body = sim.body;
+  let body = sim.body;
   const headers = new Headers();
   const trimmed = body.trim();
+  const looksHtml = trimmed.startsWith("<");
   if (trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed === "true" || trimmed === "false") {
     headers.set("content-type", "application/json; charset=utf-8");
-  } else if (trimmed.startsWith("<")) {
+  } else if (looksHtml) {
     headers.set("content-type", "text/html; charset=utf-8");
+    if (uiAssets !== undefined && uiAssets.wrapHtmlDocuments !== false) {
+      body = wrapHtmlFragmentWithDocumentShell(body, uiAssets.styleMap, pathname, {
+        title: basename(pathname) || "page",
+      });
+    }
   } else if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
     headers.set("content-type", "application/json; charset=utf-8");
   }
@@ -98,8 +174,13 @@ function buildRequestInput(
 export function createCwlRuntime(config: CwlRuntimeConfig): CwlRuntimeHandle {
   const routes = compileCwlRoutes(config.module);
   const db = config.db ?? DEFAULT_STUB_DB;
+  const uiAssets = config.uiAssets;
 
   async function dispatch(method: string, url: URL, headers: Headers): Promise<Response> {
+    if (uiAssets !== undefined && method.toUpperCase() === "GET") {
+      const asset = tryServeUiAsset(uiAssets, url.pathname);
+      if (asset !== null) return asset;
+    }
     const match = matchCwlRoute(routes, method, url.pathname);
     if (!match) {
       return new Response(JSON.stringify({ error: "not found" }), {
@@ -120,7 +201,7 @@ export function createCwlRuntime(config: CwlRuntimeConfig): CwlRuntimeHandle {
         { status: 501, headers: { "content-type": "application/json" } },
       );
     }
-    return simToResponse(sim);
+    return simToResponse(sim, url.pathname, uiAssets);
   }
 
   return {

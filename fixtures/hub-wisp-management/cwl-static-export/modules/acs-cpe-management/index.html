@@ -1,20 +1,288 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_acs_cpe_management" data-wisp-path="/modules/acs-cpe-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/snmp">
-  <header class="wisp-demo-header">
-    <h1>Acs Cpe Management</h1>
-    <p class="wisp-demo-desc">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/acs-cpe-management/add">Add new</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>179</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>3</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>12</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>acs-cpe-management</title>
+<link rel="stylesheet" href="/assets/original-css/modules_acs-cpe-management.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="acs-module">
+  <!-- Main Navigation -->
+  <nav class="cwl-nav-shell" data-cwl-nav-shell="MainMenu" aria-hidden="true"></nav>
+  
+  <!-- Help Button -->
+  <button class="help-button" aria-label="Open Help" title="Help">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      </modules/acs-cpe-management d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"><//modules/acs-cpe-management>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>
+  </button>
+  
+  <!-- Module Header -->
+  <div class="module-header">
+    <div class="header-content">
+      <div class="header-top">
+        <a href="/dashboard" class="back-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            </modules/acs-cpe-management d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          ← Back to Dashboard
+        </a>
+      </div>
+      <div class="module-info">
+        <h1 class="module-title">
+          <span class="module-icon">📡</span>
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="moduleData.title"></span>
+        </h1>
+        <p class="module-description"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="moduleData.description"></span></p>
+        
+        <!-- Multi-Tenant Info -->
+        <div class="tenant-badge">
+            <span class="tenant-icon">🏢</span>
+            <span class="tenant-text">Demo Tenant</span>
+            <span class="tenant-label">Organization</span>
+          </div>
+      </div>
+      
+      <div class="module-actions">
+        
+        
+        
+        
+        <button 
+          class="btn btn-primary"
+        >
+          
+        </button>
+
+        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="const e.detail.id;
+            if (id === 'acs-setup') tr"></span>}
+        />
+
+        <button 
+          class="btn btn-primary"
+        >
+          
+        </button>
+        
+        <button 
+          class="btn btn-secondary"
+        >
+          🔄 Refresh View
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Display -->
+  
+
+  <!-- Module Content -->
+  <div class="module-content">
+    <!-- CPE Statistics -->
+    <div class="stats-grid">
+      <div class="stat-card tenant-stat">
+        <div class="stat-icon">🏢</div>
+        <div class="stat-content">
+          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenantName || 'No Tenant'"></span></div>
+          <div class="stat-label">Current Organization</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">📱</div>
+        <div class="stat-content">
+          <div class="stat-number">2</div>
+          <div class="stat-label">Total CPEs</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-content">
+          <div class="stat-number">
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpeDevices.filter(d => d.status === 'Online').length"></span>
+          </div>
+          <div class="stat-label">Online</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">🔴</div>
+        <div class="stat-content">
+          <div class="stat-number">
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpeDevices.filter(d => d.status === 'Offline').length"></span>
+          </div>
+          <div class="stat-label">Offline</div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">📍</div>
+        <div class="stat-content">
+          <div class="stat-number">
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpeDevices.filter(d => d.location).length"></span>
+          </div>
+          <div class="stat-label">With GPS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map Section Placeholder -->
+    <div class="map-section">
+      <div class="map-header">
+        <h3>CPE Device Map</h3>
+        <div class="map-controls">
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-color online"></span>
+              <span>Online CPEs</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color offline"></span>
+              <span>Offline CPEs</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color error"></span>
+              <span>Error CPEs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="map-container">
+        <div class="arcgis-map"></div>
+        
+        
+      </div>
+    </div>
+
+    <!-- Performance Analytics Section -->
+    <div class="performance-analytics-section">
+      <div class="section-header">
+        <div class="section-title-block">
+          <h3>📊 Performance Analytics</h3>
+          <p class="section-hint">Monitoring and Graphs are in the sidebar →</p>
+        </div>
+        <div class="analytics-controls">
+          <select class="time-select">
+            <option value="1h">Last Hour</option>
+            <option value="6h">Last 6 Hours</option>
+            <option value="24h">Last 24 Hours</option>
+            <option value="7d">Last 7 Days</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="analytics-content">
+        <!-- Performance Summary Cards (from TR-069 metrics API) -->
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-icon">📶</div>
+            <div class="analytics-metric">
+              <div class="metric-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="averageRSSI != null ? `${averageRSSI} dBm` : (performanceLoading ? '…' : '—')"></span></div>
+              <div class="metric-label">Average RSSI</div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="averageRSSI != null && !performanceLoading"><div class="metric-trend neutral">From device metrics</div></div>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon">📡</div>
+            <div class="analytics-metric">
+              <div class="metric-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="onlineCount"></span>/<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="totalCount"></span></div>
+              <div class="metric-label">Online CPEs</div>
+              <div class="metric-trend positive"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="uptimePercentage"></span>% uptime</div>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon">⚡</div>
+            <div class="analytics-metric">
+              <div class="metric-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="signalQuality != null ? `${signalQuality}%` : (performanceLoading ? '…' : '—')"></span></div>
+              <div class="metric-label">Signal Quality</div>
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="signalQuality != null && !performanceLoading"><div class="metric-trend neutral">RSRP-based</div></div>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon">🔄</div>
+            <div class="analytics-metric">
+              <div class="metric-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="averageUptime ?? (performanceLoading ? '…' : '—')"></span></div>
+              <div class="metric-label">Avg. Uptime</div>
+              
+            </div>
+          </div>
+        </div>
+
+        <!-- Per-device metrics & charts (link to dedicated pages) -->
+        <div class="performance-charts">
+          <div class="chart-placeholder chart-cta">
+            <div class="chart-icon">📈</div>
+            <h4>Per-Device Metrics & Charts</h4>
+            <p>View time-series RSSI, SINR, throughput, and uptime for individual CPE devices.</p>
+            <div class="chart-actions">
+              <a href="/modules/acs-cpe-management/monitoring" class="btn btn-primary">📊 Monitoring</a>
+              <a href="/modules/acs-cpe-management/graphs" class="btn btn-secondary">📈 Graphs</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CPE Device List -->
+    <div class="cpe-list-section">
+      <div class="section-header">
+        <h3>CPE Device List</h3>
+        <div class="list-controls">
+          <input
+            type="text"
+            placeholder="Search CPE devices..."
+            class="search-input"
+          />
+        </div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <!-- CPE Performance Modal -->
+  <div class="cwl-modal-shell" data-cwl-modal-shell="CPEPerformanceModal" aria-hidden="true" role="dialog"></div>
+  
+  <!-- Help / Tips Modal -->
+  <div class="cwl-modal-shell" data-cwl-modal-shell="TipsModal" aria-hidden="true" role="dialog"></div> false}
+  />
+
+  
+  
+  <!-- Device Onboarding Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeviceOnboardingWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showDeviceOnboardingWizard = false;
+      loadDevices(); // Refresh device list "></span>}
+  />
+  
+  <!-- Troubleshooting Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="TroubleshootingWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showTroubleshootingWizard = false; null"></span>}
+  />
+
+  <!-- Preset Creation Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="PresetCreationWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showPresetWizard = false; loadDevices();"></span>}
+  />
+
+  <!-- Bulk Operations Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="BulkOperationsWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showBulkWizard = false; loadDevices();"></span>}
+  />
+
+  <!-- Firmware Update Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="FirmwareUpdateWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showFirmwareWizard = false; loadDevices();"></span>}
+  />
+
+  <!-- Device Registration Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeviceRegistrationWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showDeviceRegistrationWizard = false; loadDevices();"></span>}
+  />
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Acs Cpe Management data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management","apiPath":"/api/snmp","api_ok":true,"api_surface":"wisp-api-native","api_resource":"snmp-monitoring","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

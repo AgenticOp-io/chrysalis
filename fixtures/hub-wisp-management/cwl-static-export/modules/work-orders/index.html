@@ -1,20 +1,120 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_work_orders" data-wisp-path="/modules/work-orders" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/work-orders">
-  <header class="wisp-demo-header">
-    <h1>Work Orders</h1>
-    <p class="wisp-demo-desc">Operational workspace for Work Orders — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/work-orders/add">Add new</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>140</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>4</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>18</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>work-orders</title>
+<link rel="stylesheet" href="/assets/original-css/modules_work-orders.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="work-orders-page">
+  <div class="page-header">
+    <div class="header-left">
+      <button class="back-button">
+        ← Back to Dashboard
+      </button>
+      <h1>📋 Work Orders & Tickets</h1>
+      <p class="subtitle">Field operations and trouble ticket management</p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-secondary">
+        🔄 Refresh
+      </button>
+      <button class="btn-secondary">
+        ➕ Quick Create
+      </button>
+      <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> true}
+      />
+    </div>
+  </div>
+  
+  <!-- Alerts -->
+  
+  
+  
+  
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-content">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Total Tickets</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">🔓</div>
+      <div class="stat-content">
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalOpen"></span></div>
+        <div class="stat-label">Open</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-content">
+        <div class="stat-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrders.filter(wo => wo.priority === 'critical' || wo.priority === 'high').le"></span>
+        </div>
+        <div class="stat-label">High Priority</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-content">
+        <div class="stat-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.avgResolutionTime ? Math.round(stats.avgResolutionTime) : 0"></span>h
+        </div>
+        <div class="stat-label">Avg Resolution</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <select>
+        <option>All Statuses</option>
+        <option></option><option></option><option></option><option></option><option></option>
+      </select>
+      
+      <select>
+        <option>All Priorities</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="priorities as priority"><option></option></div>
+      </select>
+      
+      <select>
+        <option>All Types</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="types as type"><option></option></div>
+      </select>
+      
+      <button class="btn-secondary">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+  
+  <!-- Work Orders List -->
+  
+    <div class="work-orders-grid">
+      <div class="cwl-widget-shell" data-cwl-widget-shell="WorkOrderCard" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>wo-1</td><td>open</td></tr><tr><td>wo-2</td><td>scheduled</td></tr></tbody></table></div> goto(`/modules/work-orders/$`)}/><div class="cwl-widget-shell" data-cwl-widget-shell="WorkOrderCard" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>wo-1</td><td>open</td></tr><tr><td>wo-2</td><td>scheduled</td></tr></tbody></table></div> goto(`/modules/work-orders/$`)}/>
+      
+      
+    </div>
+  
+  
+  <!-- Create Modal -->
+  <div class="cwl-modal-shell" data-cwl-modal-shell="CreateWorkOrderModal" aria-hidden="true" role="dialog"></div>
+  
+  <!-- Work Order Creation Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="WorkOrderCreationWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showWorkOrderWizard = false;
+      loadData(); // Refresh work orders after crea"></span>}
+  />
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Work Orders data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/work-orders"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/work-orders","apiPath":"/api/work-orders","api_ok":true,"api_surface":"wisp-api-native","api_resource":"work-orders","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

@@ -77,7 +77,7 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 
 | Gate | Smoke | What it proves |
 | --- | --- | --- |
-| **G8550** | `hub:migration-os-close-smoke` | Evidence + open legacy + VMF hub + IS + live analytics + Cyno substrate (schema **v6**) |
+| **G8550** | `hub:migration-os-close-smoke` | Evidence + open legacy + VMF + IS + showcase/GPU + product sample + shells + hydrate + public reports + live hit-rate provenance (schema **v18**) |
 | **G8560** | `hub:intelligence-shorthand-close-smoke` | IS-T3/T4/T5 export + hub (CPU) |
 | **G8540** | `hub:site-port-federation-hub-close-smoke` | VMF hub program |
 | **G8520** | `hub:site-port-open-legacy-close-smoke` | 7-fixture index + nightly + wedge |
@@ -95,8 +95,25 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 | **G9530** | `hub:is-utility-prior-smoke` | Outcome → utility prior |
 | **G9540** | `hub:convert-governor-smoke` | Convert GREEN/YELLOW/RED governor |
 | **G9550** | `hub:convert-aim-persist-smoke` | Aim persistence / stall contentless nudge |
+| **G9600** | `hub:is-live-operator-evidence-smoke` | Operator hub-convert trajectory aggregate |
+| **G9610** | `hub:wisp-showcase-bound-smoke` | Honest **~564** WISP residual hole budget (post G9750) |
+| **G9710** | `hub:wisp-nav-wizard-shell-smoke` | Nav/menu + wizard chrome shells |
+| **G9730** | `hub:wisp-fill-holes-smoke` | Widget shells + showcase hydrate samples |
+| **G9740** | `hub:wisp-fill-holes-smoke` | Full apiPath samples + if/length/bool settle |
+| **G9750** | `hub:wisp-fill-holes-smoke` | Enriched traces + Object.entries/ternary/$store |
+| **G9620** | `hub:gpu-lab-close-smoke` | IS-T2 LoRA prep + GCE GPU orchestrator contract |
+| **G9630** | `hub:is-near-miss-salience-v2-smoke` | Salience v2 z-score; auto ≥20 operator domains |
+| **G9640** | `hub:operator-evidence-seed-smoke` | Seed ≥20 domains / hub-convert-shaped trajectories |
+| **G9650** | `hub:live-analytics-hub-smoke` | IS Live Analytics HTML dashboard |
+| **G9660** | `hub:wisp-modal-shell-smoke` | Inert modal shells (`data-cwl-modal-shell`) |
+| **G9670** | `hub:product-hit-rate-sample-smoke` | Product sample READY at ≥50 jobs |
+| **G9760** | `hub:product-hit-rate-live-smoke` | Live hit-rate READY only from hub-convert-verify (≥50); seed cannot claim |
+| **G9680** | `hub:wisp-map-shell-smoke` | Map/chart embed shells + expanded modals |
+| **G9700** | `hub:public-reports-smoke` | Public hub `/reports/` static serve |
+| **G6731** | `hub:cwl-language-maintenance-smoke` | CWL IR helper lifting B7–B103 regression (weekly CI) |
 
-Nightly CI: `.github/workflows/open-legacy-index-nightly.yml`  
+Nightly CI: `.github/workflows/open-legacy-index-nightly.yml` (includes **G8570** wedge)  
+Weekly CI: `.github/workflows/maintenance-weekly.yml` (**G6731**)  
 GCE full suite: `pnpm run test:gce` — see [`GCE-LOCAL-VERIFY.md`](./GCE-LOCAL-VERIFY.md).
 
 ---

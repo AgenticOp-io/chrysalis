@@ -1,0 +1,2 @@
+.login-page.svelte-p0rtl{min-height:100vh;background:linear-gradient(135deg,#0fb8a9,#3ee8d8);display:flex;justify-content:center}
+.login-card:where(.svelte-p0rtl){background:#ffffff;color:#0b2b28;padding:1.5rem;border-radius:16px}

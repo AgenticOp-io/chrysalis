@@ -405,6 +405,146 @@ export {
   type PythonHubRoute,
 } from "./hub-python.js";
 export {
+  descopeSvelteSelector,
+  liftUiAssets,
+  svelteKitCssAdapter,
+  svelteKitRoutePatternSource,
+  uiRouteBundleSlug,
+  writeUiAssetLiftArtifacts,
+  UI_FRAMEWORK_CSS_ADAPTERS,
+  type LiftUiAssetsOptions,
+  type LiftUiAssetsResult,
+  type SuccessfulLiftUiAssetsResult,
+  type UiAssetLiftHole,
+  type UiFrameworkCssAdapter,
+  type UiRouteStyleSources,
+  type WriteUiAssetLiftArtifactsOptions,
+  type WriteUiAssetLiftArtifactsResult,
+} from "./ui-assets.js";
+export {
+  cleanupDescopedSelector,
+  descopeVueSelector,
+  viteVueCssAdapter,
+  viteVueManifestKeyToRouteId,
+} from "./ui-assets-vue.js";
+export {
+  descopeCssModuleSelector,
+  viteCssModulesAdapter,
+  viteJsManifestKeyToRouteId,
+} from "./ui-assets-css-modules.js";
+export {
+  angularComponentManifestKeyToRouteId,
+  angularCssAdapter,
+  descopeAngularSelector,
+  resolveAngularBrowserRoot,
+} from "./ui-assets-angular.js";
+export {
+  discoverUiAssetBuildRoot,
+  liftProjectUiAssets,
+  type LiftProjectUiAssetsOptions,
+  type LiftProjectUiAssetsResult,
+} from "./ui-assets-discover.js";
+export {
+  extractHtmlClassNames,
+  liftStaticSveltePageHtml,
+  svelteKitMarkupAdapter,
+  svelteKitPageFileToRouteId,
+} from "./ui-markup-svelte.js";
+export {
+  DEFAULT_LAYOUT_PASSTHROUGH_COMPONENTS,
+  DEFAULT_SHOWCASE_LOAD_BOOLS,
+  DEFAULT_STATIC_INLINE_COMPONENTS,
+  DEFAULT_MODAL_SHELL_COMPONENTS,
+  DEFAULT_MAP_SHELL_COMPONENTS,
+  DEFAULT_CHART_SHELL_COMPONENTS,
+  DEFAULT_NAV_SHELL_COMPONENTS,
+  DEFAULT_WIZARD_SHELL_COMPONENTS,
+  DEFAULT_WIDGET_SHELL_COMPONENTS,
+  HOLE_COMPONENT,
+  HOLE_EACH,
+  HOLE_IF,
+  HOLE_INTERP,
+  findNextSvelteBlock,
+  indexSvelteComponentSources,
+  liftStructuralSveltePageHtml,
+  stripSvelteNonMarkup,
+  type LiftStructuralSvelteOptions,
+  type SvelteMarkupLiftHole,
+  type SvelteMarkupLiftMode,
+  type SvelteMarkupLiftResult,
+} from "./ui-markup-svelte-structural.js";
+export {
+  angularMarkupAdapter,
+  angularTemplateFileToRouteId,
+  liftStaticAngularTemplateHtml,
+} from "./ui-markup-angular.js";
+export {
+  liftStaticVueTemplateHtml,
+  viteVueMarkupAdapter,
+  vueSourceFileToRouteId,
+} from "./ui-markup-vue.js";
+export { finalizeStaticMarkup, isStaticHtmlFragment } from "./ui-markup-static.js";
+export {
+  liftUiMarkup,
+  writeUiMarkupLiftArtifacts,
+  UI_FRAMEWORK_MARKUP_ADAPTERS,
+  type LiftUiMarkupOptions,
+  type LiftUiMarkupResult,
+  type SuccessfulLiftUiMarkupResult,
+  type UiFrameworkMarkupAdapter,
+  type UiMarkupLiftHole,
+  type UiMarkupLiftModeOption,
+  type UiMarkupPageLiftDetail,
+  type WriteUiMarkupLiftArtifactsOptions,
+  type WriteUiMarkupLiftArtifactsResult,
+} from "./ui-markup.js";
+export {
+  discoverUiMarkupProjectRoot,
+  liftProjectUiMarkup,
+  type LiftProjectUiMarkupOptions,
+  type LiftProjectUiMarkupResult,
+} from "./ui-markup-discover.js";
+export {
+  convertSiteProjectUi,
+  defaultSiteConvertCwlPaths,
+  summarizeSiteConvertReport,
+  writeSiteConvertReport,
+  SITE_CONVERT_REPORT_KIND,
+  SITE_CONVERT_REPORT_SCHEMA_VERSION,
+  type ConvertSiteProjectOptions,
+  type ConvertSiteProjectResult,
+  type CwlMarkupPatchResult,
+} from "./site-convert.js";
+export {
+  bindSiteProjectLoadFromTraces,
+  bindTracedLoadToCwlSource,
+  hydrateDemoHtmlFromApiBody,
+  hydrateStructuralHtmlFromApiBody,
+  parseCwlLoadScalars,
+  parseEachHeader,
+  resolveInterpDetail,
+  evaluateIfDetail,
+  resolveJsonPath,
+  mergeShowcaseHydrateBody,
+  DEFAULT_SHOWCASE_HYDRATE_CONSTANTS,
+  WIDGET_SHELL_COLLECTION_KEYS,
+  indexTracedApiResponses,
+  resolveRouteApiPath,
+  seedApiPathsIntoCwlSource,
+  SITE_LOAD_BIND_REPORT_KIND,
+  SITE_LOAD_BIND_REPORT_SCHEMA_VERSION,
+  tracedApiLoadFields,
+  type BindSiteProjectLoadOptions,
+  type BindSiteProjectLoadResult,
+  type BindTracedLoadToCwlOptions,
+  type BindTracedLoadToCwlResult,
+  type SeedApiPathsIntoCwlOptions,
+  type SeedApiPathsIntoCwlResult,
+  type SiteLoadBindRouteResult,
+  type TraceApiBinding,
+} from "./site-load-bind.js";
+export { inferUiPageApiPath } from "./infer-ui-page-api-path.js";
+export {
   parseCsharpRoutes,
   parseGoRoutes,
   parseJavaRoutes,

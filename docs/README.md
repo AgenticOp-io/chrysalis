@@ -51,7 +51,8 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | Guide | Audience |
 | --- | --- |
 | [Hub connectivity](./HUB-CONNECTIVITY.md) | Translation Hub operators |
-| [Hub demo install](./HUB-DEMO-INSTALL.md) | Public demo on port **19090** |
+| [Hub demo install](./HUB-DEMO-INSTALL.md) | Public demo — **https://chrysalis.agenticop.io** (nginx edge **D6396**) |
+| [Hub nginx vhost](./nginx/chrysalis-hub.vhost.example) | Locked `chrysalis-hub` site (do not edit FDE vhosts) |
 | [Hub server install](./HUB-SERVER-INSTALL.md) | Multi-site SSH batch |
 | [Commercial offering](./COMMERCIAL.md) | License tiers, services |
 | [GitHub Project](./GITHUB_PROJECT.md) | Project board bootstrap |

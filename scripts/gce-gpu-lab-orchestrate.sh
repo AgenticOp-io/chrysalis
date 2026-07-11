@@ -3,7 +3,7 @@
 set -euo pipefail
 
 PROJECT="${CHRYSALIS_GCE_PROJECT:-chrysalis-dev-f5x6qv}"
-ZONE="${CHRYSALIS_GCE_ZONE:-us-central1-a}"
+ZONE="${CHRYSALIS_GPU_LAB_ZONE:-${CHRYSALIS_GCE_ZONE:-us-central1-a}}"
 GPU_NAME="${CHRYSALIS_GPU_LAB_NAME:-chrysalis-gpu-lab}"
 REPO="${CHRYSALIS_STATUS_REPO:-$HOME/chrysalis-test}"
 if [[ "$REPO" != /* ]]; then
@@ -91,7 +91,11 @@ sync_gpu() {
   local manifest="${ART}/train-manifest.v1.json"
   local shards="${ART}/training-shards.v1.jsonl"
   local train="${ART}/gce-gpu-lora-train.sh"
-  local train_py="${REPO}/scripts/chrysalis-lora-qlora-train.py"
+  # Prefer artifact synced from laptop (D6395) — test-vm REPO checkout may be stale.
+  local train_py="${ART}/chrysalis-lora-qlora-train.py"
+  if [[ ! -f "$train_py" ]]; then
+    train_py="${REPO}/scripts/chrysalis-lora-qlora-train.py"
+  fi
   for f in "$manifest" "$shards" "$train"; do
     if [[ ! -f "$f" ]]; then
       log "ERROR: missing $f — run pnpm run gpu-lab:prep and gpu-lab:gce sync" >&2
@@ -111,7 +115,7 @@ sync_gpu() {
 }
 
 train_gpu() {
-  gpu_ssh "export CHRYSALIS_GPU_LAB_MAX_MINUTES=${MAX_MIN} CHRYSALIS_GPU_LAB_DRY_RUN=${DRY_RUN}; bash ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh"
+  gpu_ssh "export CHRYSALIS_GPU_LAB_ROOT=\$HOME/chrysalis-gpu-lab CHRYSALIS_GPU_LAB_MAX_MINUTES=${MAX_MIN} CHRYSALIS_GPU_LAB_DRY_RUN=${DRY_RUN}; bash ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh"
 }
 
 stop_gpu() {
@@ -130,6 +134,9 @@ schedule_auto_stop() {
     return 0
   fi
   (
+    # Do not inherit the orchestrator flock (fd 9) — otherwise a finished run
+    # blocks the next gpu-lab:gce until MAX_MIN elapses.
+    exec 9>&- 2>/dev/null || true
     sleep $((MAX_MIN * 60))
     st="$(gcloud compute instances describe "$GPU_NAME" --zone="$ZONE" --project="$PROJECT" --format="value(status)" 2>/dev/null || echo NOT_FOUND)"
     if [[ "$st" == "RUNNING" ]]; then
@@ -141,13 +148,14 @@ schedule_auto_stop() {
 }
 
 main() {
-  rm -f "$OK"
   LOCK="${REPO}/reports/ci/gce-gpu-lab.lock"
+  mkdir -p "$(dirname "$LOCK")" "$(dirname "$LOG")"
   exec 9>"$LOCK"
   if ! flock -n 9; then
     log "another orchestrator already running — exit"
     exit 0
   fi
+  rm -f "$OK"
   : >"$LOG"
   log "start project=$PROJECT gpu=$GPU_NAME max_min=$MAX_MIN dry_run=$DRY_RUN"
   ensure_gcloud

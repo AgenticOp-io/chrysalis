@@ -1,20 +1,152 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="admin_management" data-wisp-path="/admin/management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/admin">
-  <header class="wisp-demo-header">
-    <h1>Management</h1>
-    <p class="wisp-demo-desc">Platform administration — tenants, billing, and system configuration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/admin/management/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>169</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>1</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>17</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Management data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/admin/management"}</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>management</title>
+<link rel="stylesheet" href="/assets/original-css/admin_management.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="admin-module">
+    <!-- Header -->
+    <div class="module-header">
+      <div class="header-content">
+        <div class="module-title">
+          <h1>⚙️ Admin Management</h1>
+          <p>User and tenant management for owners and administrators</p>
+        </div>
+        <div class="user-info">
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="module-content">
+      <!-- Overview -->
+      <div class="overview-section">
+        <h2>Administration Overview</h2>
+        <p>The Admin Management module provides comprehensive tools for managing users, tenants, system settings, and billing. This module is only accessible to platform owners and administrators.</p>
+      </div>
+
+      <!-- Features Grid -->
+      <div class="features-section">
+        <h2>Administration Features</h2>
+        <div class="features-grid">
+          <div 
+              class="feature-card"
+              role="button"
+              tabindex="0"
+            >
+              <div class="feature-icon"></div>
+              <div class="feature-info">
+                <h3 class="feature-name"></h3>
+                <p class="feature-description"></p>
+              </div>
+              <div class="feature-arrow">→</div>
+            </div><div 
+              class="feature-card"
+              role="button"
+              tabindex="0"
+            >
+              <div class="feature-icon"></div>
+              <div class="feature-info">
+                <h3 class="feature-name"></h3>
+                <p class="feature-description"></p>
+              </div>
+              <div class="feature-arrow">→</div>
+            </div><div 
+              class="feature-card"
+              role="button"
+              tabindex="0"
+            >
+              <div class="feature-icon"></div>
+              <div class="feature-info">
+                <h3 class="feature-name"></h3>
+                <p class="feature-description"></p>
+              </div>
+              <div class="feature-arrow">→</div>
+            </div><div 
+              class="feature-card"
+              role="button"
+              tabindex="0"
+            >
+              <div class="feature-icon"></div>
+              <div class="feature-info">
+                <h3 class="feature-name"></h3>
+                <p class="feature-description"></p>
+              </div>
+              <div class="feature-arrow">→</div>
+            </div>
+        </div>
+      </div>
+
+      <!-- System Status -->
+      <div class="system-status">
+        <h2>System Status</h2>
+        
+        <div class="status-grid">
+          <div class="status-card">
+            <div class="status-icon">
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="systemStatus.health === 'operational'">🟢
+              
+                🔴</div>
+            </div>
+            <div class="status-info">
+              <h4>System Health</h4>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.healthMessage"></span></p>
+            </div>
+          </div>
+          <div class="status-card">
+            <div class="status-icon">📊</div>
+            <div class="status-info">
+              <h4>Active Tenants</h4>
+              <p>
+                
+                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.activeTenants"></span> tenant<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.activeTenants !== 1 ? 's' : ''"></span> active
+                
+              </p>
+            </div>
+          </div>
+          <div class="status-card">
+            <div class="status-icon">👥</div>
+            <div class="status-info">
+              <h4>Total Users</h4>
+              <p>
+                
+                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.totalUsers"></span> users across all tenants
+                
+              </p>
+            </div>
+          </div>
+          <div class="status-card">
+            <div class="status-icon">
+              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="systemStatus.databaseStatus === 'connected'">💾
+              
+                ⚠️</div>
+            </div>
+            <div class="status-info">
+              <h4>Database</h4>
+              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.databaseMessage"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remote Agents Status Section -->
+      <div class="remote-agents-section">
+        <div class="section-header">
+          <h2>📡 Remote Agents Status</h2>
+          <button class="refresh-btn">
+            🔄 Refresh
+          </button>
+        </div>
+
+        
+      </div>
+      </div>
+    </div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/admin/management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

@@ -1,20 +1,151 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_acs_cpe_management_devices" data-wisp-path="/modules/acs-cpe-management/devices" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/snmp">
-  <header class="wisp-demo-header">
-    <h1>Devices</h1>
-    <p class="wisp-demo-desc">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/acs-cpe-management/devices/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>155</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>7</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>23</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>devices</title>
+<link rel="stylesheet" href="/assets/original-css/modules_acs-cpe-management_devices.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="devices-page">
+  <nav class="cwl-nav-shell" data-cwl-nav-shell="MainMenu" aria-hidden="true"></nav>
+  
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-top">
+        <a href="/dashboard" class="back-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            </modules/acs-cpe-management/devices d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          ← Back to Dashboard
+        </a>
+      </div>
+      <h1 class="page-title">
+        <span class="page-icon">📱</span>
+        CPE Device Management
+      </h1>
+      <p class="page-description">
+        Manage TR-069 enabled CPE devices with remote control capabilities
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary">
+        
+          🔄
+        
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-icon">📊</span>
+      <span class="stat-value">2</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-item online">
+      <span class="stat-icon">🟢</span>
+      <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="onlineCount"></span></span>
+      <span class="stat-label">Online</span>
+    </div>
+    <div class="stat-item offline">
+      <span class="stat-icon">🔴</span>
+      <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="offlineCount"></span></span>
+      <span class="stat-label">Offline</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-icon">📈</span>
+      <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredDevices.length"></span></span>
+      <span class="stat-label">Shown</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <input
+        type="text"
+        placeholder="Search devices..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-group">
+      <select class="filter-select">
+        <option value="all">All Status</option>
+        <option value="online">Online</option>
+        <option value="offline">Offline</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <select class="filter-select">
+        <option>All Tags</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableTags as tag"><option></option></div>
+      </select>
+    </div>
+    <button 
+      class="btn btn-secondary btn-sm"
+    >
+      ▶ Advanced Filters
+    </button>
+    <button 
+      class="btn btn-secondary btn-sm"
+    >
+      Clear Filters
+    </button>
+  </div>
+
+  
+
+  <!-- Bulk Actions Bar -->
+  
+
+  <!-- Devices Table -->
+  <div class="devices-table-container">
+    <table class="devices-table">
+      <thead>
+        <tr>
+          <th class="col-select">
+            <input
+              type="checkbox"
+              class="select-all-checkbox"
+            />
+          </th>
+          <th class="col-expand"></th>
+          <th class="col-status">Status</th>
+          <th class="col-device-id">Device ID</th>
+          <th class="col-manufacturer">Manufacturer</th>
+          <th class="col-model">Model</th>
+          <th class="col-serial">Serial Number</th>
+          <th class="col-ip">IP Address</th>
+          <th class="col-firmware">Firmware</th>
+          <th class="col-contact">Last Contact</th>
+          <th class="col-tags">Tags</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredDevices as device (device.id)"><div class="cwl-widget-shell" data-cwl-widget-shell="CPEDeviceRow" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>cpe-1</td><td>online</td></tr><tr><td>cpe-2</td><td>degraded</td></tr></tbody></table></div> toggleSelectDevice(e.detail.id)}/></div>
+        
+      </tbody>
+    </table>
+  </div>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Devices data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/devices"}</script>
+
+<!-- TR-069 Actions Modal -->
+
+
+
+
+<!-- Preset Selection Modal -->
+
+
+<!-- Edit Device Tags Modal -->
+
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/devices","apiPath":"/api/snmp","api_ok":true,"api_surface":"wisp-api-native","api_resource":"snmp-monitoring","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "stats": { "total": 4, "inStock": 3, "rma": 1 },
+  "items": [
+    { "id": "inv-1", "name": "CPE-AX100", "status": "in-stock" },
+    { "id": "inv-2", "name": "Sector-60", "status": "in-stock" },
+    { "id": "inv-3", "name": "Backhaul-Link", "status": "rma" }
+  ],
+  "devices": [
+    { "id": "dev-1", "name": "CPE-AX100", "status": "online" },
+    { "id": "dev-2", "name": "CPE-BX200", "status": "offline" }
+  ]
+}

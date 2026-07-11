@@ -9,14 +9,38 @@
     console: $("viewConsole"),
   };
 
+  const NAV_LINK_BY_VIEW = { home: "navHome", newProject: "navNew", guide: "navGuide", paths: "navPaths" };
+
   function show(view) {
     for (const [k, el] of Object.entries(views)) {
       if (el) el.hidden = k !== view;
     }
     document.documentElement.classList.toggle("guide-mode", view === "guide");
+    const activeId = NAV_LINK_BY_VIEW[view];
+    for (const id of Object.values(NAV_LINK_BY_VIEW)) {
+      $(id)?.classList.toggle("ao-nav-link-active", id === activeId);
+    }
+  }
+
+  /** True once boot has read /api/config and we either have a token or login is off. */
+  function isAuthed() {
+    if (!authBootComplete) return false;
+    return !authRequired || Boolean(hubAuthToken);
+  }
+
+  function navigateHash(hash) {
+    if (location.hash === hash) route();
+    else location.hash = hash;
   }
 
   function route() {
+    // Wait for /api/config before routing — otherwise authRequired=false briefly looks "open".
+    if (!authBootComplete) return;
+    // Deep links (typed URLs, back/forward, bookmarks) must not reach protected views/data.
+    if (!isAuthed()) {
+      showAuthGate();
+      return;
+    }
     const h = (location.hash || "#/").replace(/^#\/?/, "");
     const [page, query] = h.split("?");
     if (page === "new" || page === "newProject") {
@@ -34,10 +58,17 @@
       show("console");
       const id = new URLSearchParams(query || "").get("id");
       if (id) loadConsoleProject(id);
-    } else show("home");
+    } else {
+      show("home");
+      loadHome().catch(() => {});
+    }
   }
 
+  let authRequired = false;
+  let authBootComplete = false;
+  let demoBannerOn = false;
   let hubAuthToken = localStorage.getItem("chrysalis_hub_token") || "";
+  const PENDING_HASH_KEY = "chrysalis_hub_pending_hash";
 
   function buildHeaders(opts) {
     const h = { ...(opts.headers || {}) };
@@ -49,7 +80,7 @@
     const r = await fetch(path, { method: "POST", headers: buildHeaders({}), body: formData });
     const j = await r.json().catch(() => ({}));
     if (r.status === 401) {
-      $("authGate").hidden = false;
+      showAuthGate();
       throw new Error("Unauthorized — enter hub token.");
     }
     if (!r.ok) throw new Error(j.message || j.error || r.statusText);
@@ -72,11 +103,61 @@
     });
     const j = await r.json().catch(() => ({}));
     if (r.status === 401) {
-      $("authGate").hidden = false;
+      showAuthGate();
       throw new Error("Unauthorized — enter hub token.");
     }
     if (!r.ok) throw new Error(j.message || j.error || r.statusText);
     return j;
+  }
+
+  function stashPendingHash() {
+    const h = location.hash || "";
+    if (h && h !== "#/" && h !== "#") {
+      sessionStorage.setItem(PENDING_HASH_KEY, h);
+    }
+    const base = location.pathname + location.search;
+    if (history.replaceState) history.replaceState(null, "", `${base}#/`);
+    else location.hash = "#/";
+  }
+
+  function takePendingHash() {
+    const pending = sessionStorage.getItem(PENDING_HASH_KEY);
+    if (!pending) return null;
+    sessionStorage.removeItem(PENDING_HASH_KEY);
+    return pending;
+  }
+
+  function showAuthGate() {
+    // A 401 here means the stored token is gone/invalid (e.g. server-side reset) — drop it
+    // so the UI doesn't look half logged-in behind the gate.
+    hubAuthToken = "";
+    localStorage.removeItem("chrysalis_hub_token");
+    if (es) {
+      try {
+        es.close();
+      } catch {}
+      es = null;
+    }
+    const signOut = $("navSignOut");
+    if (signOut) signOut.hidden = true;
+    $("hubSubnav").hidden = true;
+    for (const el of Object.values(views)) {
+      if (el) el.hidden = true;
+    }
+    stashPendingHash();
+    const demo = $("demoBanner");
+    if (demo) demo.hidden = true;
+    document.body.classList.add("hub-auth-mode");
+    $("authGate").hidden = false;
+  }
+  function hideAuthGate() {
+    $("authGate").hidden = true;
+    $("hubSubnav").hidden = false;
+    document.body.classList.remove("hub-auth-mode");
+    if (demoBannerOn) {
+      const demo = $("demoBanner");
+      if (demo) demo.hidden = false;
+    }
   }
 
   let authMode = "register";
@@ -85,6 +166,12 @@
     authMode = mode;
     const registering = mode === "register";
     $("authTitle").textContent = registering ? "Create your demo account" : "Welcome back";
+    const blurb = $("authBlurb");
+    if (blurb) {
+      blurb.innerHTML = registering
+        ? 'Sign up for the public demo hub. Full pilots are uncapped — <a href="mailto:hello@agenticop.io">hello@agenticop.io</a>.'
+        : 'Sign in to continue. Full pilots are uncapped — <a href="mailto:hello@agenticop.io">hello@agenticop.io</a>.';
+    }
     $("authTabRegister")?.classList.toggle("primary", registering);
     $("authTabRegister")?.classList.toggle("secondary", !registering);
     $("authTabLogin")?.classList.toggle("primary", !registering);
@@ -118,26 +205,25 @@
       if (!r.ok) throw new Error(j.message || j.error || "Sign-in failed.");
       hubAuthToken = j.apiToken;
       localStorage.setItem("chrysalis_hub_token", hubAuthToken);
-      $("authGate").hidden = true;
+      hideAuthGate();
       $("authPassword").value = "";
       const signOut = $("navSignOut");
       if (signOut) signOut.hidden = false;
-      loadHome().catch(() => {});
+      void loadProtectedData();
     } catch (e) {
       errEl.textContent = e instanceof Error ? e.message : String(e);
     }
   }
 
-  $("btnAuthSubmit")?.addEventListener("click", () => void submitAuth());
-  $("authPassword")?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") void submitAuth();
+  $("authForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    void submitAuth();
   });
 
   $("navSignOut")?.addEventListener("click", (e) => {
     e.preventDefault();
-    hubAuthToken = "";
-    localStorage.removeItem("chrysalis_hub_token");
-    location.reload();
+    sessionStorage.removeItem(PENDING_HASH_KEY);
+    showAuthGate();
   });
 
   async function loadOrgs(selectEl) {
@@ -1313,6 +1399,43 @@
     });
   });
 
+  $("btnUploadCreateProject")?.addEventListener("click", async () => {
+    const zipFile = $("uploadZipInput")?.files?.[0];
+    const folderFiles = $("uploadFolderInput")?.files;
+    if (!zipFile && (!folderFiles || folderFiles.length === 0)) {
+      $("uploadCreateStatus").textContent = "Choose files, a folder, or a .zip first.";
+      return;
+    }
+    $("uploadCreateStatus").textContent = "Creating project…";
+    try {
+      const name = $("projName").value.trim() || "Uploaded project";
+      const body = {
+        name,
+        description: $("projDesc").value.trim(),
+        orgId: $("newOrgId")?.value?.trim() || null,
+        originLanguage: $("originLanguage").value,
+        outputLanguage: $("outputLanguage").value,
+        sites: [],
+        prepOrigin: false,
+        pullFromSsh: false,
+        detectLanguages: false,
+        backgroundSetup: false,
+        runSetup: false,
+      };
+      const r = await api("/api/hub/projects", { method: "POST", body });
+      const id = r.project.id;
+      const siteId = r.project.sites?.[0]?.id || "local";
+      const result = await uploadSourceToSite(id, siteId, { folderFiles, zipFile }, (msg) => {
+        $("uploadCreateStatus").textContent = msg;
+      });
+      $("uploadCreateStatus").textContent = `Created ${id}. ${describeSourceUploadResult(result)}`;
+      location.hash = `#/console?id=${encodeURIComponent(id)}`;
+      route();
+    } catch (e) {
+      $("uploadCreateStatus").textContent = "Error: " + e.message;
+    }
+  });
+
   async function createCwlFullstackProject() {
     $("createStatus").textContent = "Creating CWL full-stack workspace…";
     const body = {
@@ -1752,52 +1875,66 @@
     el.scrollTop = el.scrollHeight;
   }
 
-  const es = new EventSource("/api/events");
-  es.addEventListener("job", (e) => setJob(JSON.parse(e.data)));
-  es.addEventListener("progress", (e) => applyProgress(JSON.parse(e.data)));
-  es.addEventListener("log", (e) => {
-    const d = JSON.parse(e.data);
-    logLine("[" + d.stream + "] " + d.line);
-  });
-  es.addEventListener("statusResult", (e) => {
-    $("statusJson").textContent = JSON.stringify(JSON.parse(e.data), null, 2);
-  });
-  es.addEventListener("batchProgress", (e) => applyBatchProgress(JSON.parse(e.data)));
-  es.addEventListener("batch", (e) => {
-    const b = JSON.parse(e.data);
-    hubBatchState = b.state || "idle";
-    if ($("batchOverall")) $("batchOverall").textContent = "Batch: " + (b.state || "idle");
-    if (b.state !== "running") setPortalBusy(hubSetupState === "running", "setup · running");
-    if (b.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
-  });
-  es.addEventListener("setup", (e) => {
-    const s = JSON.parse(e.data);
-    hubSetupState = s.state || "idle";
-    if ($("batchOverall")) $("batchOverall").textContent = "Setup: " + (s.state || "idle");
-    setPortalBusy(s.state === "running", "setup · running");
-    if (s.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
-  });
-  es.addEventListener("siteSetup", () => {
-    if (consoleProjectId) loadConsoleProject(consoleProjectId);
-  });
-  es.addEventListener("verify", (e) => {
-    const v = JSON.parse(e.data);
-    hubVerifyState = v.state || "idle";
-    if ($("verifyStatus")) $("verifyStatus").textContent = "Verify: " + (v.state || "idle");
-    setPortalBusy(v.state === "running", "verify · running");
-    if (v.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
-  });
-  es.addEventListener("siteVerify", () => {
-    if (consoleProjectId) loadConsoleProject(consoleProjectId);
-  });
-  es.addEventListener("siteRuntime", (e) => {
-    const d = JSON.parse(e.data);
-    if (d.runtime?.baseUrl && $("verifyBaseUrl")) $("verifyBaseUrl").value = d.runtime.baseUrl;
-    if (consoleProjectId) loadConsoleProject(consoleProjectId);
-  });
-  es.addEventListener("runtimeHealth", () => {
-    if (consoleProjectId) loadConsoleProject(consoleProjectId);
-  });
+  let es = null;
+  function connectEvents() {
+    if (es) {
+      try {
+        es.close();
+      } catch {}
+    }
+    // EventSource can't send custom headers, so the auth token (when required) rides along in the query string.
+    const url = hubAuthToken ? `/api/events?token=${encodeURIComponent(hubAuthToken)}` : "/api/events";
+    es = new EventSource(url);
+    attachEventListeners(es);
+  }
+
+  function attachEventListeners(es) {
+    es.addEventListener("job", (e) => setJob(JSON.parse(e.data)));
+    es.addEventListener("progress", (e) => applyProgress(JSON.parse(e.data)));
+    es.addEventListener("log", (e) => {
+      const d = JSON.parse(e.data);
+      logLine("[" + d.stream + "] " + d.line);
+    });
+    es.addEventListener("statusResult", (e) => {
+      $("statusJson").textContent = JSON.stringify(JSON.parse(e.data), null, 2);
+    });
+    es.addEventListener("batchProgress", (e) => applyBatchProgress(JSON.parse(e.data)));
+    es.addEventListener("batch", (e) => {
+      const b = JSON.parse(e.data);
+      hubBatchState = b.state || "idle";
+      if ($("batchOverall")) $("batchOverall").textContent = "Batch: " + (b.state || "idle");
+      if (b.state !== "running") setPortalBusy(hubSetupState === "running", "setup · running");
+      if (b.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
+    });
+    es.addEventListener("setup", (e) => {
+      const s = JSON.parse(e.data);
+      hubSetupState = s.state || "idle";
+      if ($("batchOverall")) $("batchOverall").textContent = "Setup: " + (s.state || "idle");
+      setPortalBusy(s.state === "running", "setup · running");
+      if (s.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
+    });
+    es.addEventListener("siteSetup", () => {
+      if (consoleProjectId) loadConsoleProject(consoleProjectId);
+    });
+    es.addEventListener("verify", (e) => {
+      const v = JSON.parse(e.data);
+      hubVerifyState = v.state || "idle";
+      if ($("verifyStatus")) $("verifyStatus").textContent = "Verify: " + (v.state || "idle");
+      setPortalBusy(v.state === "running", "verify · running");
+      if (v.state !== "running" && consoleProjectId) loadConsoleProject(consoleProjectId);
+    });
+    es.addEventListener("siteVerify", () => {
+      if (consoleProjectId) loadConsoleProject(consoleProjectId);
+    });
+    es.addEventListener("siteRuntime", (e) => {
+      const d = JSON.parse(e.data);
+      if (d.runtime?.baseUrl && $("verifyBaseUrl")) $("verifyBaseUrl").value = d.runtime.baseUrl;
+      if (consoleProjectId) loadConsoleProject(consoleProjectId);
+    });
+    es.addEventListener("runtimeHealth", () => {
+      if (consoleProjectId) loadConsoleProject(consoleProjectId);
+    });
+  }
 
   const CHUNK_SIZE = 2 * 1024 * 1024;
 
@@ -1834,6 +1971,36 @@
 
   async function post(path, body) {
     return api(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  }
+
+  /** Upload origin source code into a site's workspace — the no-SSH alternative to pullFromSsh. */
+  async function uploadSourceToSite(projectId, siteId, { folderFiles, zipFile }, onStatus) {
+    const base = `/api/hub/projects/${encodeURIComponent(projectId)}/sites/${encodeURIComponent(siteId)}/source/upload`;
+    if (zipFile) {
+      onStatus?.(`Uploading ${zipFile.name}…`);
+      const r = await fetch(base, { method: "POST", headers: buildHeaders({ "content-type": "application/zip" }), body: zipFile });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 401) {
+        showAuthGate();
+        throw new Error("Unauthorized — enter hub token.");
+      }
+      if (!r.ok) throw new Error(j.message || j.error || r.statusText);
+      return j;
+    }
+    const files = Array.from(folderFiles || []);
+    if (files.length === 0) throw new Error("choose files, a folder, or a .zip to upload");
+    const fd = new FormData();
+    for (const f of files) fd.append("files", f, f.webkitRelativePath || f.name);
+    onStatus?.(`Uploading ${files.length} file(s)…`);
+    return apiUpload(base, fd);
+  }
+
+  function describeSourceUploadResult(r) {
+    const routesNote = r.hasRoutesManifest
+      ? "found chrysalis.routes.json"
+      : "no chrysalis.routes.json yet — add one before translating";
+    const skippedNote = r.skipped ? `, skipped ${r.skipped} unsafe/empty` : "";
+    return `Uploaded ${r.saved} file(s)${skippedNote} (${routesNote})`;
   }
 
   $("btnIngest")?.addEventListener("click", () => runSingleSite());
@@ -2202,6 +2369,23 @@
     }
   });
 
+  $("btnUploadSource")?.addEventListener("click", async () => {
+    if (!selectedSiteId) {
+      $("verifyStatus").textContent = "Select a site first.";
+      return;
+    }
+    const zipFile = $("sourceZipFileInput")?.files?.[0];
+    const folderFiles = $("sourceFileInput")?.files;
+    try {
+      const r = await uploadSourceToSite(consoleProjectId, selectedSiteId, { folderFiles, zipFile }, (msg) => {
+        $("verifyStatus").textContent = msg;
+      });
+      $("verifyStatus").textContent = describeSourceUploadResult(r);
+    } catch (e) {
+      $("verifyStatus").textContent = "Upload error: " + e.message;
+    }
+  });
+
   $("btnUploadTraces")?.addEventListener("click", async () => {
     if (!selectedSiteId) {
       $("verifyStatus").textContent = "Select a site first.";
@@ -2405,54 +2589,77 @@
     }
   });
 
+  // Nav links only change the hash — route() (via hashchange) owns view switching and data loads.
   $("navHome").addEventListener("click", (e) => {
     e.preventDefault();
-    location.hash = "#/";
-    route();
-    loadHome();
+    navigateHash("#/");
   });
   $("navNew").addEventListener("click", (e) => {
     e.preventDefault();
-    location.hash = "#/new";
-    route();
-    loadOrgs($("newOrgId")).catch(() => {});
+    navigateHash("#/new");
   });
   $("navGuide")?.addEventListener("click", (e) => {
     e.preventDefault();
-    location.hash = "#/guide";
-    route();
+    navigateHash("#/guide");
+  });
+  $("navPaths")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    navigateHash("#/paths");
   });
 
   window.addEventListener("hashchange", route);
+  if ($("footerYear")) $("footerYear").textContent = String(new Date().getFullYear());
   syncDetectUi();
-  loadHubLanguages().then(() => {
+
+  /** Loads everything that requires a logged-in session — called once at boot, and again right after login. */
+  async function loadProtectedData() {
+    connectEvents();
+    await loadHubLanguages().catch(() => {});
+    const pending = takePendingHash();
+    if (pending) location.hash = pending;
     route();
-    api("/api/config")
-      .then((c) => {
-        if (c.authRequired && !hubAuthToken) $("authGate").hidden = false;
-        if (c.authRequired && hubAuthToken) {
-          const signOut = $("navSignOut");
-          if (signOut) signOut.hidden = false;
+    api("/api/state")
+      .then((s) => {
+        if (s.job) setJob(s.job);
+        if (s.setup) {
+          hubSetupState = s.setup.state || "idle";
+          if (s.setup.state === "running") setPortalBusy(true, "setup · running");
         }
-        if (c.demoMode?.on) {
-          const b = $("demoBanner");
-          if (b) {
-            b.hidden = false;
-            b.textContent = `Public demo mode: capped at ${c.demoMode.maxRoutesPerRequest} page(s) and ${c.demoMode.maxSitesPerRequest} site(s) per request, one job at a time. Ask for a full pilot at hello@agenticop.io.`;
-          }
-        }
+        if (s.batch) hubBatchState = s.batch.state || "idle";
+        if (s.verify) hubVerifyState = s.verify.state || "idle";
+        if (s.progress) applyProgress(s.progress);
       })
       .catch(() => {});
-    loadHome().catch(() => {});
-    api("/api/state").then((s) => {
-      if (s.job) setJob(s.job);
-      if (s.setup) {
-        hubSetupState = s.setup.state || "idle";
-        if (s.setup.state === "running") setPortalBusy(true, "setup · running");
+  }
+
+  /** `/api/config` is reachable without login, so check it first to decide whether to show the auth gate. */
+  async function boot() {
+    try {
+      const c = await api("/api/config");
+      authRequired = Boolean(c.authRequired);
+      if (c.demoMode?.on) {
+        demoBannerOn = true;
+        const b = $("demoBanner");
+        if (b) {
+          b.textContent = `Public demo mode: capped at ${c.demoMode.maxRoutesPerRequest} page(s) and ${c.demoMode.maxSitesPerRequest} site(s) per request, one job at a time. Ask for a full pilot at hello@agenticop.io.`;
+        }
       }
-      if (s.batch) hubBatchState = s.batch.state || "idle";
-      if (s.verify) hubVerifyState = s.verify.state || "idle";
-      if (s.progress) applyProgress(s.progress);
-    });
-  });
+    } catch {
+      // /api/config itself failed — fall through and try to render anyway.
+    } finally {
+      authBootComplete = true;
+    }
+    if (!isAuthed()) {
+      showAuthGate();
+      return;
+    }
+    if (authRequired) {
+      const signOut = $("navSignOut");
+      if (signOut) signOut.hidden = false;
+    }
+    hideAuthGate();
+    await loadProtectedData();
+  }
+
+  void boot();
 })();

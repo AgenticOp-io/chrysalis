@@ -1,0 +1,661 @@
+{
+  "kind": "chrysalis.ui.route-style-map",
+  "schemaVersion": 1,
+  "framework": "sveltekit",
+  "routes": [
+    {
+      "routeId": "/",
+      "pattern": "^//?$",
+      "href": "/assets/original-css/root.css"
+    },
+    {
+      "routeId": "/admin/billing",
+      "pattern": "^/admin/billing/?$",
+      "href": "/assets/original-css/admin_billing.css"
+    },
+    {
+      "routeId": "/admin/management",
+      "pattern": "^/admin/management/?$",
+      "href": "/assets/original-css/admin_management.css"
+    },
+    {
+      "routeId": "/admin/system-management",
+      "pattern": "^/admin/system-management/?$",
+      "href": "/assets/original-css/admin_system-management.css"
+    },
+    {
+      "routeId": "/admin/tenant-management",
+      "pattern": "^/admin/tenant-management/?$",
+      "href": "/assets/original-css/admin_tenant-management.css"
+    },
+    {
+      "routeId": "/admin/tenants/[tenantId]/modules",
+      "pattern": "^/admin/tenants/[^/]+/modules/?$",
+      "href": "/assets/original-css/admin_tenants_tenantId_modules.css"
+    },
+    {
+      "routeId": "/auth/google/callback",
+      "pattern": "^/auth/google/callback/?$",
+      "href": "/assets/original-css/auth_google_callback.css"
+    },
+    {
+      "routeId": "/dashboard",
+      "pattern": "^/dashboard/?$",
+      "href": "/assets/original-css/dashboard.css"
+    },
+    {
+      "routeId": "/debug-tenants",
+      "pattern": "^/debug-tenants/?$",
+      "href": "/assets/original-css/debug-tenants.css"
+    },
+    {
+      "routeId": "/demo",
+      "pattern": "^/demo/?$",
+      "href": "/assets/original-css/demo.css"
+    },
+    {
+      "routeId": "/docs",
+      "pattern": "^/docs/?$",
+      "href": "/assets/original-css/docs.css"
+    },
+    {
+      "routeId": "/docs/deployment",
+      "pattern": "^/docs/deployment/?$",
+      "href": "/assets/original-css/docs_deployment.css"
+    },
+    {
+      "routeId": "/docs/getting-started",
+      "pattern": "^/docs/getting-started/?$",
+      "href": "/assets/original-css/docs_getting-started.css"
+    },
+    {
+      "routeId": "/docs/reference",
+      "pattern": "^/docs/reference/?$",
+      "href": "/assets/original-css/docs_reference.css"
+    },
+    {
+      "routeId": "/docs/reference/project-status",
+      "pattern": "^/docs/reference/project-status/?$",
+      "href": "/assets/original-css/docs_reference_project-status.css"
+    },
+    {
+      "routeId": "/help",
+      "pattern": "^/help/?$",
+      "href": "/assets/original-css/help.css"
+    },
+    {
+      "routeId": "/login",
+      "pattern": "^/login/?$",
+      "href": "/assets/original-css/login.css"
+    },
+    {
+      "routeId": "/modules",
+      "pattern": "^/modules/?$",
+      "href": "/assets/original-css/modules.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management",
+      "pattern": "^/modules/acs-cpe-management/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/alerts",
+      "pattern": "^/modules/acs-cpe-management/alerts/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_alerts.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/devices",
+      "pattern": "^/modules/acs-cpe-management/devices/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_devices.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/faults",
+      "pattern": "^/modules/acs-cpe-management/faults/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_faults.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/files",
+      "pattern": "^/modules/acs-cpe-management/files/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_files.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/firmware",
+      "pattern": "^/modules/acs-cpe-management/firmware/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_firmware.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/graphs",
+      "pattern": "^/modules/acs-cpe-management/graphs/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_graphs.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/monitoring",
+      "pattern": "^/modules/acs-cpe-management/monitoring/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_monitoring.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/presets",
+      "pattern": "^/modules/acs-cpe-management/presets/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_presets.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/settings",
+      "pattern": "^/modules/acs-cpe-management/settings/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_settings.css"
+    },
+    {
+      "routeId": "/modules/acs-cpe-management/tasks",
+      "pattern": "^/modules/acs-cpe-management/tasks/?$",
+      "href": "/assets/original-css/modules_acs-cpe-management_tasks.css"
+    },
+    {
+      "routeId": "/modules/backend-management",
+      "pattern": "^/modules/backend-management/?$",
+      "href": "/assets/original-css/modules_backend-management.css"
+    },
+    {
+      "routeId": "/modules/billing",
+      "pattern": "^/modules/billing/?$",
+      "href": "/assets/original-css/modules_billing.css"
+    },
+    {
+      "routeId": "/modules/cbrs-management",
+      "pattern": "^/modules/cbrs-management/?$",
+      "href": "/assets/original-css/modules_cbrs-management.css"
+    },
+    {
+      "routeId": "/modules/coverage-map",
+      "pattern": "^/modules/coverage-map/?$",
+      "href": "/assets/original-css/modules_coverage-map.css"
+    },
+    {
+      "routeId": "/modules/customers",
+      "pattern": "^/modules/customers/?$",
+      "href": "/assets/original-css/modules_customers.css"
+    },
+    {
+      "routeId": "/modules/customers/portal-setup",
+      "pattern": "^/modules/customers/portal-setup/?$",
+      "href": "/assets/original-css/modules_customers_portal-setup.css"
+    },
+    {
+      "routeId": "/modules/customers/portal",
+      "pattern": "^/modules/customers/portal/?$",
+      "href": "/assets/original-css/modules_customers_portal.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/billing",
+      "pattern": "^/modules/customers/portal/billing/?$",
+      "href": "/assets/original-css/modules_customers_portal_billing.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/billing/settings",
+      "pattern": "^/modules/customers/portal/billing/settings/?$",
+      "href": "/assets/original-css/modules_customers_portal_billing_settings.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/dashboard",
+      "pattern": "^/modules/customers/portal/dashboard/?$",
+      "href": "/assets/original-css/modules_customers_portal_dashboard.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/faq",
+      "pattern": "^/modules/customers/portal/faq/?$",
+      "href": "/assets/original-css/modules_customers_portal_faq.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/knowledge",
+      "pattern": "^/modules/customers/portal/knowledge/?$",
+      "href": "/assets/original-css/modules_customers_portal_knowledge.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/knowledge/[id]",
+      "pattern": "^/modules/customers/portal/knowledge/[^/]+/?$",
+      "href": "/assets/original-css/modules_customers_portal_knowledge_id_.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/live-chat",
+      "pattern": "^/modules/customers/portal/live-chat/?$",
+      "href": "/assets/original-css/modules_customers_portal_live-chat.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/login",
+      "pattern": "^/modules/customers/portal/login/?$",
+      "href": "/assets/original-css/modules_customers_portal_login.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/service",
+      "pattern": "^/modules/customers/portal/service/?$",
+      "href": "/assets/original-css/modules_customers_portal_service.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/signup",
+      "pattern": "^/modules/customers/portal/signup/?$",
+      "href": "/assets/original-css/modules_customers_portal_signup.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/tickets",
+      "pattern": "^/modules/customers/portal/tickets/?$",
+      "href": "/assets/original-css/modules_customers_portal_tickets.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/tickets/new",
+      "pattern": "^/modules/customers/portal/tickets/new/?$",
+      "href": "/assets/original-css/modules_customers_portal_tickets_new.css"
+    },
+    {
+      "routeId": "/modules/customers/portal/tickets/[id]",
+      "pattern": "^/modules/customers/portal/tickets/[^/]+/?$",
+      "href": "/assets/original-css/modules_customers_portal_tickets_id_.css"
+    },
+    {
+      "routeId": "/modules/deploy",
+      "pattern": "^/modules/deploy/?$",
+      "href": "/assets/original-css/modules_deploy.css"
+    },
+    {
+      "routeId": "/modules/hardware",
+      "pattern": "^/modules/hardware/?$",
+      "href": "/assets/original-css/modules_hardware.css"
+    },
+    {
+      "routeId": "/modules/help-desk",
+      "pattern": "^/modules/help-desk/?$",
+      "href": "/assets/original-css/modules_help-desk.css"
+    },
+    {
+      "routeId": "/modules/help-desk/reports",
+      "pattern": "^/modules/help-desk/reports/?$",
+      "href": "/assets/original-css/modules_help-desk_reports.css"
+    },
+    {
+      "routeId": "/modules/hss-management",
+      "pattern": "^/modules/hss-management/?$",
+      "href": "/assets/original-css/modules_hss-management.css"
+    },
+    {
+      "routeId": "/modules/inventory",
+      "pattern": "^/modules/inventory/?$",
+      "href": "/assets/original-css/modules_inventory.css"
+    },
+    {
+      "routeId": "/modules/inventory/add",
+      "pattern": "^/modules/inventory/add/?$",
+      "href": "/assets/original-css/modules_inventory_add.css"
+    },
+    {
+      "routeId": "/modules/inventory/bundles",
+      "pattern": "^/modules/inventory/bundles/?$",
+      "href": "/assets/original-css/modules_inventory_bundles.css"
+    },
+    {
+      "routeId": "/modules/inventory/reports",
+      "pattern": "^/modules/inventory/reports/?$",
+      "href": "/assets/original-css/modules_inventory_reports.css"
+    },
+    {
+      "routeId": "/modules/inventory/[id]",
+      "pattern": "^/modules/inventory/[^/]+/?$",
+      "href": "/assets/original-css/modules_inventory_id_.css"
+    },
+    {
+      "routeId": "/modules/inventory/[id]/edit",
+      "pattern": "^/modules/inventory/[^/]+/edit/?$",
+      "href": "/assets/original-css/modules_inventory_id_edit.css"
+    },
+    {
+      "routeId": "/modules/maintain",
+      "pattern": "^/modules/maintain/?$",
+      "href": "/assets/original-css/modules_maintain.css"
+    },
+    {
+      "routeId": "/modules/monitoring",
+      "pattern": "^/modules/monitoring/?$",
+      "href": "/assets/original-css/modules_monitoring.css"
+    },
+    {
+      "routeId": "/modules/monitor",
+      "pattern": "^/modules/monitor/?$",
+      "href": "/assets/original-css/modules_monitor.css"
+    },
+    {
+      "routeId": "/modules/pci-resolution",
+      "pattern": "^/modules/pci-resolution/?$",
+      "href": "/assets/original-css/modules_pci-resolution.css"
+    },
+    {
+      "routeId": "/modules/plan",
+      "pattern": "^/modules/plan/?$",
+      "href": "/assets/original-css/modules_plan.css"
+    },
+    {
+      "routeId": "/modules/sites",
+      "pattern": "^/modules/sites/?$",
+      "href": "/assets/original-css/modules_sites.css"
+    },
+    {
+      "routeId": "/modules/tenant-management",
+      "pattern": "^/modules/tenant-management/?$",
+      "href": "/assets/original-css/modules_tenant-management.css"
+    },
+    {
+      "routeId": "/modules/tenant-management/cbrs-platform",
+      "pattern": "^/modules/tenant-management/cbrs-platform/?$",
+      "href": "/assets/original-css/modules_tenant-management_cbrs-platform.css"
+    },
+    {
+      "routeId": "/modules/tenant-management/users",
+      "pattern": "^/modules/tenant-management/users/?$",
+      "href": "/assets/original-css/modules_tenant-management_users.css"
+    },
+    {
+      "routeId": "/modules/user-management",
+      "pattern": "^/modules/user-management/?$",
+      "href": "/assets/original-css/modules_user-management.css"
+    },
+    {
+      "routeId": "/modules/user-management/permissions",
+      "pattern": "^/modules/user-management/permissions/?$",
+      "href": "/assets/original-css/modules_user-management_permissions.css"
+    },
+    {
+      "routeId": "/modules/user-management/roles",
+      "pattern": "^/modules/user-management/roles/?$",
+      "href": "/assets/original-css/modules_user-management_roles.css"
+    },
+    {
+      "routeId": "/modules/voice-telephony",
+      "pattern": "^/modules/voice-telephony/?$",
+      "href": "/assets/original-css/modules_voice-telephony.css"
+    },
+    {
+      "routeId": "/modules/work-orders",
+      "pattern": "^/modules/work-orders/?$",
+      "href": "/assets/original-css/modules_work-orders.css"
+    },
+    {
+      "routeId": "/modules/work-orders/[id]",
+      "pattern": "^/modules/work-orders/[^/]+/?$",
+      "href": "/assets/original-css/modules_work-orders_id_.css"
+    },
+    {
+      "routeId": "/oauth/google/callback",
+      "pattern": "^/oauth/google/callback/?$",
+      "href": "/assets/original-css/oauth_google_callback.css"
+    },
+    {
+      "routeId": "/onboarding",
+      "pattern": "^/onboarding/?$",
+      "href": "/assets/original-css/onboarding.css"
+    },
+    {
+      "routeId": "/portal/[tenantId]",
+      "pattern": "^/portal/[^/]+/?$",
+      "href": "/assets/original-css/portal_tenantId_.css"
+    },
+    {
+      "routeId": "/reset-password",
+      "pattern": "^/reset-password/?$",
+      "href": "/assets/original-css/reset-password.css"
+    },
+    {
+      "routeId": "/settings/module-access",
+      "pattern": "^/settings/module-access/?$",
+      "href": "/assets/original-css/settings_module-access.css"
+    },
+    {
+      "routeId": "/setup-admin",
+      "pattern": "^/setup-admin/?$",
+      "href": "/assets/original-css/setup-admin.css"
+    },
+    {
+      "routeId": "/signup",
+      "pattern": "^/signup/?$",
+      "href": "/assets/original-css/signup.css"
+    },
+    {
+      "routeId": "/support-dashboard",
+      "pattern": "^/support-dashboard/?$",
+      "href": "/assets/original-css/support-dashboard.css"
+    },
+    {
+      "routeId": "/tenant-admin",
+      "pattern": "^/tenant-admin/?$",
+      "href": "/assets/original-css/tenant-admin.css"
+    },
+    {
+      "routeId": "/tenant-selector",
+      "pattern": "^/tenant-selector/?$",
+      "href": "/assets/original-css/tenant-selector.css"
+    },
+    {
+      "routeId": "/tenant-setup",
+      "pattern": "^/tenant-setup/?$",
+      "href": "/assets/original-css/tenant-setup.css"
+    },
+    {
+      "routeId": "/wizards",
+      "pattern": "^/wizards/?$",
+      "href": "/assets/original-css/wizards.css"
+    }
+  ],
+  "fallbackHref": "/assets/original-css/_layout.css",
+  "assets": [
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939.BUuJstda.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939.BUuJstda.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02.BeQQ1X_f.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02.BeQQ1X_f.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b9c5b839-db56-4419-8fcb-6ab661babb1d.ph0M7193.woff2",
+      "href": "/assets/original/b9c5b839-db56-4419-8fcb-6ab661babb1d.ph0M7193.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688.Coi0fa6j.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688.Coi0fa6j.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7.0VhhKiIj.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7.0VhhKiIj.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-math.CjJO_J9U.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-math.CjJO_J9U.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-math.lIkApr1P.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-math.lIkApr1P.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b9c5b839-db56-4419-8fcb-6ab661babb1d-math.DhSGGw4r.woff2",
+      "href": "/assets/original/b9c5b839-db56-4419-8fcb-6ab661babb1d-math.DhSGGw4r.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-math.VowRATwI.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-math.VowRATwI.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-math.Vhad558A.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-math.Vhad558A.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-ext.Bem3XA3V.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-ext.Bem3XA3V.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-ext.CrNe3KHy.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-ext.CrNe3KHy.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b9c5b839-db56-4419-8fcb-6ab661babb1d-ext.94Ghj3da.woff2",
+      "href": "/assets/original/b9c5b839-db56-4419-8fcb-6ab661babb1d-ext.94Ghj3da.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-ext.7n5CqxL7.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-ext.7n5CqxL7.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-ext.ZIUWLV_l.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-ext.ZIUWLV_l.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-greek.BbxfPdAl.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-greek.BbxfPdAl.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-greek.B_XuJTAZ.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-greek.B_XuJTAZ.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b9c5b839-db56-4419-8fcb-6ab661babb1d-greek.Dk1iFglY.woff2",
+      "href": "/assets/original/b9c5b839-db56-4419-8fcb-6ab661babb1d-greek.Dk1iFglY.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-greek.CausCqqg.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-greek.CausCqqg.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-greek.WY7WHFrm.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-greek.WY7WHFrm.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-cyrillic.CsPLnRLo.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-cyrillic.CsPLnRLo.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-cyrillic.CqwMzsPk.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-cyrillic.CqwMzsPk.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b9c5b839-db56-4419-8fcb-6ab661babb1d-cyrillic.BblJ-_rD.woff2",
+      "href": "/assets/original/b9c5b839-db56-4419-8fcb-6ab661babb1d-cyrillic.BblJ-_rD.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-cyrillic.DNRszQOD.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-cyrillic.DNRszQOD.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-cyrillic.2_3luF0M.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-cyrillic.2_3luF0M.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-georgian.DQYdUyS6.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-georgian.DQYdUyS6.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-georgian.K3ojRBvX.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-georgian.K3ojRBvX.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-georgian.Dm7_Errf.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-georgian.Dm7_Errf.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-georgian.DxEPV1YF.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-georgian.DxEPV1YF.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-arabic.DREZC0GR.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-arabic.DREZC0GR.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-arabic.BSq1tCUT.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-arabic.BSq1tCUT.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-arabic.CsDfqCdG.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-arabic.CsDfqCdG.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-arabic.CFkBSarF.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-arabic.CFkBSarF.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-hebrew.7nGTaaLY.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-hebrew.7nGTaaLY.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-hebrew.MIL9x_nF.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-hebrew.MIL9x_nF.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b9c5b839-db56-4419-8fcb-6ab661babb1d-hebrew.NCOHbXrA.woff2",
+      "href": "/assets/original/b9c5b839-db56-4419-8fcb-6ab661babb1d-hebrew.NCOHbXrA.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-hebrew.CcMqJEql.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-hebrew.CcMqJEql.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-hebrew.Cz9TkiS-.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-hebrew.Cz9TkiS-.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\94aa531e-7746-4df0-bb6e-349891f2eda5.DAQswxTR.woff2",
+      "href": "/assets/original/94aa531e-7746-4df0-bb6e-349891f2eda5.DAQswxTR.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\3ae1e25e-3aa6-4061-a016-a079159f9d65.CccJlW6N.woff2",
+      "href": "/assets/original/3ae1e25e-3aa6-4061-a016-a079159f9d65.CccJlW6N.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\41331c3c-3759-4462-8695-33c9a21b6a5b.egzEe5Uy.woff2",
+      "href": "/assets/original/41331c3c-3759-4462-8695-33c9a21b6a5b.egzEe5Uy.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-thai.C81xO0ss.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-thai.C81xO0ss.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-thai.Bzm7xvwp.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-thai.Bzm7xvwp.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-thai.BIwtsGXD.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-thai.BIwtsGXD.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-thai.tllTIX2k.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-thai.tllTIX2k.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b8b15cdf-85d1-4120-8daa-48863d803939-vietnamese.ebkwrOfo.woff2",
+      "href": "/assets/original/b8b15cdf-85d1-4120-8daa-48863d803939-vietnamese.ebkwrOfo.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\09ab0626-bb45-4650-acc8-0182d693df02-vietnamese.bXDpdbzz.woff2",
+      "href": "/assets/original/09ab0626-bb45-4650-acc8-0182d693df02-vietnamese.bXDpdbzz.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\b9c5b839-db56-4419-8fcb-6ab661babb1d-vietnamese.Dzp9U02O.woff2",
+      "href": "/assets/original/b9c5b839-db56-4419-8fcb-6ab661babb1d-vietnamese.Dzp9U02O.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\12f4c786-0bef-4a48-b7c0-eebaa7591688-vietnamese.DWeOXKdi.woff2",
+      "href": "/assets/original/12f4c786-0bef-4a48-b7c0-eebaa7591688-vietnamese.DWeOXKdi.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\0c8a5d21-8a14-4451-8145-695071809cb7-vietnamese.Dv4zYZ2L.woff2",
+      "href": "/assets/original/0c8a5d21-8a14-4451-8145-695071809cb7-vietnamese.Dv4zYZ2L.woff2"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\CalciteWebCoreIcons.D9GbE-gE.ttf",
+      "href": "/assets/original/CalciteWebCoreIcons.D9GbE-gE.ttf"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\CalciteWebCoreIcons.p0hGLA1J.woff",
+      "href": "/assets/original/CalciteWebCoreIcons.p0hGLA1J.woff"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\CalciteWebCoreIcons.B_0Jnq6z.svg",
+      "href": "/assets/original/CalciteWebCoreIcons.B_0Jnq6z.svg"
+    },
+    {
+      "sourceFile": "C:\\Users\\david\\Downloads\\WISPTools\\Module_Manager\\.svelte-kit\\output\\client\\_app\\immutable\\assets\\loading-throb.ygSoXYWG.gif",
+      "href": "/assets/original/loading-throb.ygSoXYWG.gif"
+    }
+  ]
+}

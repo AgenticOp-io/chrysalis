@@ -50,13 +50,14 @@ export function splitCwlHtmlTemplate(html, bindings = {}) {
       if (source) {
         const after = html[i + name.length];
         const before = i > 0 ? html[i - 1] : "";
-        // Skip load/path/query ids inside hyphenated CSS tokens (e.g. class="module-header").
+        // Skip load/path/query ids inside hyphenated CSS/attr tokens
+        // (e.g. class="module-header", data-cwl-path). Only consume from the
+        // current index forward — walking back would duplicate a prior literal
+        // prefix (legacy:markup-no- + markup-no-source-route).
         if (before === "-" || after === "-") {
-          let start = i;
           let end = i + name.length;
-          while (start > 0 && /[a-zA-Z0-9_-]/.test(html[start - 1])) start--;
           while (end < html.length && /[a-zA-Z0-9_-]/.test(html[end])) end++;
-          parts.push({ kind: "literal", text: html.slice(start, end) });
+          parts.push({ kind: "literal", text: html.slice(i, end) });
           i = end;
           continue;
         } else {

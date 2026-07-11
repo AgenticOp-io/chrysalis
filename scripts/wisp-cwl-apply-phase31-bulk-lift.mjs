@@ -1,15 +1,62 @@
 #!/usr/bin/env node
 /**
- * Phase 31 — bulk SvelteKit → CWL @page lift (replaces Phase 27c/28g UI stubs).
+ * Phase 31 — package UI lift (G9410) then legacy bulk SvelteKit fallback for
+ * routes the adapters did not patch (replaces Phase 27c/28g UI stubs).
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { applyWispBulkSvelteLift, WISP_BULK_LIFT_KIND } from "./wisp-cwl-bulk-lift-lib.mjs";
+import { WISP_PACKAGE_UI_LIFT_KIND } from "./wisp-cwl-package-ui-lift.mjs";
 import { routesPath } from "./wisp-cwl-apply-surfaces-lib.mjs";
 import { reconcilePreviewFromRoutesCwl } from "./wisp-cwl-apply-module-routes-lib.mjs";
 import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 import { scanWispRoutesForForbiddenStubs } from "./wisp-cwl-ui-parity-verify.mjs";
 
 export const WISP_PHASE31_BULK_LIFT_KIND = WISP_BULK_LIFT_KIND;
+
+const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+/** @param {object} [opts] */
+function runPackageUiLiftSync(opts = {}) {
+  const wispRoot =
+    opts.wispRoot ??
+    process.env.CHRYSALIS_WISP_ROOT ??
+    process.env.WISP_MODULE_DIR ??
+    "C:/Users/david/Downloads/WISPTools/Module_Manager";
+  const env = {
+    ...process.env,
+    CHRYSALIS_WISP_ROOT: wispRoot,
+    WISP_MODULE_DIR: wispRoot,
+  };
+  const script = join(scriptRoot, "scripts/wisp-cwl-package-ui-lift.mjs");
+  const r = spawnSync(process.execPath, [script], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+    env,
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  if (r.status !== 0) {
+    return {
+      kind: WISP_PACKAGE_UI_LIFT_KIND,
+      schemaVersion: 1,
+      ok: false,
+      skip: "package-lift-subprocess-failed",
+      stderr: r.stderr?.slice(0, 500) ?? null,
+    };
+  }
+  try {
+    return JSON.parse(r.stdout ?? "{}");
+  } catch {
+    return {
+      kind: WISP_PACKAGE_UI_LIFT_KIND,
+      schemaVersion: 1,
+      ok: false,
+      skip: "package-lift-invalid-json",
+    };
+  }
+}
 
 /** @param {object} [opts] */
 export function applyWispPhase31BulkLift(opts = {}) {
@@ -18,9 +65,18 @@ export function applyWispPhase31BulkLift(opts = {}) {
     return { kind: WISP_PHASE31_BULK_LIFT_KIND, schemaVersion: 1, ok: false, skip: "missing-routes-cwl" };
   }
 
+  const packageLift = runPackageUiLiftSync(opts);
+
   const lift = applyWispBulkSvelteLift({ ...opts, routesPath: path });
   if (!lift.ok) {
-    return { kind: WISP_PHASE31_BULK_LIFT_KIND, schemaVersion: 1, ok: false, skip: lift.skip, path: lift.path };
+    return {
+      kind: WISP_PHASE31_BULK_LIFT_KIND,
+      schemaVersion: 1,
+      ok: false,
+      skip: lift.skip,
+      path: lift.path,
+      packageLift,
+    };
   }
 
   writeFileSync(path, lift.text, "utf8");
@@ -44,6 +100,8 @@ export function applyWispPhase31BulkLift(opts = {}) {
     stubScan,
     preview,
     holeManifest,
+    packageLift,
+    packageLiftKind: WISP_PACKAGE_UI_LIFT_KIND,
     generatedAt: new Date().toISOString(),
   };
 }

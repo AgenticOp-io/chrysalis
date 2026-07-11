@@ -6,6 +6,6 @@
     "composite": true,
     "lib": ["ES2022", "DOM"]
   },
-  "references": [{ "path": "../rewrite" }, { "path": "../webir" }],
+  "references": [{ "path": "../emit-shared" }, { "path": "../rewrite" }, { "path": "../webir" }],
   "include": ["src/**/*"]
 }

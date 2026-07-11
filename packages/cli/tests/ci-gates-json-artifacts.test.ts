@@ -389,4 +389,27 @@ describe("ci-gates readJsonGateArtifact", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  test("ui-parity-floors skips when CHRYSALIS_UI_PARITY_MAX_ROUTES_FAILED unset", () => {
+    const env = { ...process.env };
+    delete env.CHRYSALIS_UI_PARITY_MAX_ROUTES_FAILED;
+    const r = spawnSync(process.execPath, [CI_GATES, "ui-parity-floors"], {
+      cwd: ROOT,
+      encoding: "utf8",
+      env,
+    });
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain("ui-parity-floors skipped");
+  });
+
+  test("ui-parity-floors passes smoke fixture when max routes failed is 0", () => {
+    const env = { ...process.env, CHRYSALIS_UI_PARITY_MAX_ROUTES_FAILED: "0" };
+    const r = spawnSync(process.execPath, [CI_GATES, "ui-parity-floors"], {
+      cwd: ROOT,
+      encoding: "utf8",
+      env,
+    });
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain("ui-parity-floors OK");
+  });
 });

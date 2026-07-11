@@ -5,7 +5,7 @@
 
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { ingestDirectory } from "@chrysalis/ingest";
+import { ingestDirectory, liftUiAssets, liftUiMarkup, writeUiAssetLiftArtifacts, writeUiMarkupLiftArtifacts, convertSiteProjectUi } from "@chrysalis/ingest";
 import {
   computeOracleFootprint,
   countAuthTaggedHoles,
@@ -14,6 +14,7 @@ import {
   irCoverageStats,
   mergeWebIrModules,
   moduleToGoldenSnapshot,
+  parseUiRouteStyleMapJson,
   walk,
   type Module,
   type RouteOracleFootprint,
@@ -31,6 +32,8 @@ import {
   mergeCorrectnessReports,
   replayCorpus,
   resolveVerifyReplayExtras,
+  verifyUiRouteStyleParity,
+  verifyUiRouteMarkupParity,
   writeReport,
   type CorrectnessReport,
   type ReplayOptions,
@@ -118,6 +121,9 @@ const SUBCOMMANDS = [
   ["federation", "Verified Migration Federation — registry, submit shards, corpus, league"],
   ["evidence", "Migration Evidence POC — unified Site-Port + VMF + web-LLM demo hub"],
   ["cwl", "CWL authoring: init starter contract, preview via runtime-cwl"],
+  ["ui-assets", "Lift a source app's scoped CSS into per-route bundles (DESIGN D6365)"],
+  ["ui-markup", "Lift static HTML per route into markup bundles (DESIGN D6365 G9306)"],
+  ["convert-site", "Whole-site UI convert: CSS + markup lift, CWL patch, optional load-bind (D6366)"],
 ] as const;
 
 /** Written by `chrysalis init`; other tooling may use it to detect a Chrysalis PHP root. */
@@ -360,6 +366,185 @@ async function cmdCwlLint(rest: string[]): Promise<number> {
     else if (d.severity === "warn") console.warn(`[cwl lint] warn: ${d.message}`);
   }
   return report.ok === true ? 0 : 1;
+}
+
+/**
+ * `chrysalis ui-assets --build-root <dir> --out <dir>` — lift a source app's
+ * scoped CSS into per-route bundles + a route→stylesheet map (DESIGN D6365).
+ * Writes `<out>/<slug>.css` per route, `<out>/_layout.css` fallback, copies
+ * `url()` assets under `<out>/assets/`, and writes the map JSON artifact.
+ */
+async function cmdUiAssets(rest: string[]): Promise<number> {
+  const flags = parseFlags(rest);
+  const buildRoot = typeof flags["build-root"] === "string" ? resolve(flags["build-root"]) : null;
+  const outDir = typeof flags.out === "string" ? resolve(flags.out) : null;
+  if (buildRoot === null || outDir === null) {
+    console.error("usage: chrysalis ui-assets --build-root <app-root> --out <dir> [--json] [--no-parity]");
+    return 2;
+  }
+  const result = liftUiAssets({ buildRoot });
+  if (!result.ok) {
+    const payload = { ok: false, hole: result.hole };
+    if (rest.includes("--json")) process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
+    else console.error(`[ui-assets] hole ${result.hole.reason}: ${result.hole.detail}`);
+    return 1;
+  }
+
+  const mapPath = join(outDir, "ui-route-style-map.json");
+  const written = writeUiAssetLiftArtifacts(result, {
+    bundleDir: outDir,
+    assetsDir: join(outDir, "assets"),
+    mapPath,
+  });
+  const allBundles = [...result.bundles, ...(result.fallbackBundle !== null ? [result.fallbackBundle] : [])];
+
+  const parity = rest.includes("--no-parity") ? null : verifyUiRouteStyleParity(result.map, allBundles);
+  const summary = {
+    ok: parity === null ? true : parity.ok,
+    framework: result.framework,
+    bundles: result.bundles.length,
+    fallbackBundle: result.fallbackBundle !== null,
+    assetsCopied: result.assetCopies.length,
+    selectorsDropped: result.selectorsDropped,
+    mapPath,
+    outDir,
+    ...(parity !== null
+      ? { parity: { ok: parity.ok, routesChecked: parity.routesChecked, routesFailed: parity.routesFailed } }
+      : {}),
+  };
+  if (rest.includes("--json")) {
+    process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+  } else {
+    console.log(
+      `[ui-assets] ${result.framework}: ${result.bundles.length} route bundle(s), ${result.assetCopies.length} asset(s), ${result.selectorsDropped} selector(s) dropped -> ${outDir}`,
+    );
+    if (parity !== null) {
+      console.log(
+        `[ui-assets] parity: ${parity.ok ? "ok" : "FAILED"} (${parity.routesChecked} route(s), ${parity.routesFailed} failed)`,
+      );
+    }
+  }
+  return summary.ok ? 0 : 1;
+}
+
+/** `chrysalis ui-markup --build-root <dir> --out <dir>` — per-route static HTML lift. */
+async function cmdUiMarkup(rest: string[]): Promise<number> {
+  const flags = parseFlags(rest);
+  const buildRoot = typeof flags["build-root"] === "string" ? resolve(flags["build-root"]) : null;
+  const outDir = typeof flags.out === "string" ? resolve(flags.out) : null;
+  if (buildRoot === null || outDir === null) {
+    console.error(
+      "usage: chrysalis ui-markup --build-root <app-root> --out <dir> [--mode static|structural-shell] [--json] [--no-parity]",
+    );
+    return 2;
+  }
+  const modeFlag = typeof flags.mode === "string" ? flags.mode : "static";
+  if (modeFlag !== "static" && modeFlag !== "structural-shell") {
+    console.error("error: --mode must be static or structural-shell");
+    return 2;
+  }
+  const result = liftUiMarkup({ buildRoot, mode: modeFlag });
+  if (!result.ok) {
+    const payload = { ok: false, hole: result.hole };
+    if (rest.includes("--json")) process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
+    else console.error(`[ui-markup] hole ${result.hole.reason}: ${result.hole.detail}`);
+    return 1;
+  }
+  const mapPath = join(outDir, "ui-route-markup-map.json");
+  const written = writeUiMarkupLiftArtifacts(result, {
+    bundleDir: join(outDir, "original-html"),
+    mapPath,
+    cleanBundleDir: true,
+  });
+  const parity = rest.includes("--no-parity") ? null : verifyUiRouteMarkupParity(result.map, result.bundles);
+  const summary = {
+    ok: parity === null ? true : parity.ok,
+    framework: result.framework,
+    bundles: result.bundles.length,
+    routesSkipped: result.routesSkipped,
+    mapPath: written.mapPath,
+    outDir,
+    ...(parity !== null
+      ? { parity: { ok: parity.ok, routesChecked: parity.routesChecked, routesFailed: parity.routesFailed } }
+      : {}),
+  };
+  if (rest.includes("--json")) {
+    process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+  } else {
+    console.log(
+      `[ui-markup] ${result.framework}: ${result.bundles.length} route bundle(s), ${result.routesSkipped} skipped -> ${outDir}`,
+    );
+    if (parity !== null) {
+      console.log(
+        `[ui-markup] parity: ${parity.ok ? "ok" : "FAILED"} (${parity.routesChecked} route(s), ${parity.routesFailed} failed)`,
+      );
+    }
+  }
+  return summary.ok ? 0 : 1;
+}
+
+/**
+ * `chrysalis convert-site <project-dir>` — whole-site UI conversion (D6366).
+ * Lifts CSS/markup, patches CWL `@page` bodies, binds traced API into `load { }`,
+ * writes `.chrysalis/site-convert.json`.
+ */
+async function cmdConvertSite(rest: string[]): Promise<number> {
+  const flags = parseFlags(rest);
+  const pos = rest.filter((a) => !a.startsWith("-"));
+  const projectDir = pos[0] ? resolve(pos[0]) : null;
+  if (projectDir === null) {
+    console.error(
+      "usage: chrysalis convert-site <project-dir> [--traces <dir>] [--lift-only] [--markup-mode static|structural-shell] [--json] [--no-report]",
+    );
+    return 2;
+  }
+  const tracesDir = typeof flags.traces === "string" ? resolve(flags.traces) : undefined;
+  const markupModeFlag = typeof flags["markup-mode"] === "string" ? flags["markup-mode"] : undefined;
+  if (markupModeFlag !== undefined && markupModeFlag !== "static" && markupModeFlag !== "structural-shell") {
+    console.error("error: --markup-mode must be static or structural-shell");
+    return 2;
+  }
+  const result = convertSiteProjectUi({
+    projectDir,
+    ...(tracesDir !== undefined ? { tracesDir } : {}),
+    ...(markupModeFlag !== undefined ? { markupMode: markupModeFlag } : {}),
+    liftOnly: rest.includes("--lift-only"),
+    writeReport: !rest.includes("--no-report"),
+  });
+  const summary = {
+    ok: result.ok,
+    projectDir: result.projectDir,
+    reportPath: result.reportPath ?? null,
+    uiAssets:
+      result.uiAssets.ok && "skip" in result.uiAssets
+        ? { ok: true, skip: result.uiAssets.skip }
+        : result.uiAssets.ok && "framework" in result.uiAssets
+          ? { ok: true, framework: result.uiAssets.framework, bundles: result.uiAssets.bundles.length }
+          : { ok: false },
+    uiMarkup:
+      result.uiMarkup.ok && "skip" in result.uiMarkup
+        ? { ok: true, skip: result.uiMarkup.skip }
+        : result.uiMarkup.ok && "framework" in result.uiMarkup
+          ? { ok: true, framework: result.uiMarkup.framework, bundles: result.uiMarkup.bundles.length }
+          : { ok: false },
+    cwlPatches: result.cwlPatches,
+    loadBind:
+      result.loadBind === null
+        ? null
+        : {
+            ok: result.loadBind.ok,
+            tracesIndexed: result.loadBind.tracesIndexed,
+            routesBound: result.loadBind.routes.filter((r) => r.skip === null).length,
+          },
+  };
+  if (rest.includes("--json")) {
+    process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+  } else {
+    console.log(
+      `[convert-site] ${result.ok ? "ok" : "FAILED"} -> ${result.reportPath ?? projectDir}`,
+    );
+  }
+  return result.ok ? 0 : 1;
 }
 
 async function cmdPortSite(rest: string[]): Promise<number> {
@@ -3104,6 +3289,8 @@ function renderLocator(l: Opportunity["origin"]): string {
       return `form:${l.file}#${l.fieldName}`;
     case "trace":
       return `trace:${l.corpusId}/${l.frameId}`;
+    case "asset":
+      return `asset:${l.file}`;
     case "synthetic":
       return `synthetic:${l.reason}`;
   }
@@ -3199,6 +3386,13 @@ interface StatusSummary {
     | { readonly mode: "routeShard"; readonly shardIndex: number; readonly shardCount: number }
     | { readonly mode: "mergedShards"; readonly shardCount: number }
     | null;
+  /** Per-route UI stylesheet map when present under the project or migration reports (D6365). */
+  readonly uiAssets: {
+    readonly mapPath: string;
+    readonly framework: string;
+    readonly routeCount: number;
+    readonly fallbackHref: string | null;
+  } | null;
   /**
    * Milestone 4 dashboard roll-up (DESIGN success metrics). Optional sidecars:
    * `reports/migration/idiomaticity.json` `{ "pct": 0..1 }`,
@@ -3232,6 +3426,30 @@ function tryReadJson<T>(path: string): T | null {
   } catch {
     return null;
   }
+}
+
+function readUiAssetsStatus(
+  project: string | null,
+  migrationReportsDir: string,
+): StatusSummary["uiAssets"] {
+  const candidates = [
+    project !== null ? join(project, ".chrysalis/ui-assets/ui-route-style-map.json") : null,
+    project !== null ? join(project, ".chrysalis/ui-route-style-map.json") : null,
+    project !== null ? join(project, "ui-route-style-map.json") : null,
+    join(migrationReportsDir, "ui-route-style-map.json"),
+  ].filter((p): p is string => p !== null);
+  for (const mapPath of candidates) {
+    if (!existsSync(mapPath)) continue;
+    const parsed = parseUiRouteStyleMapJson(readFileSync(mapPath, "utf8"));
+    if (!parsed.ok) continue;
+    return {
+      mapPath,
+      framework: parsed.map.framework,
+      routeCount: parsed.map.routes.length,
+      fallbackHref: parsed.map.fallbackHref,
+    };
+  }
+  return null;
 }
 
 type VerifyReportJson = {
@@ -3430,6 +3648,7 @@ async function cmdStatus(args: string[]): Promise<number> {
     insights: null,
     oracleFootprint: null,
     ingestSharding: null,
+    uiAssets: null,
     migration: {
       coverage: null,
       correctness: null,
@@ -3698,6 +3917,11 @@ async function cmdStatus(args: string[]): Promise<number> {
         : null,
   };
 
+  (summary as { uiAssets: StatusSummary["uiAssets"] }).uiAssets = readUiAssetsStatus(
+    project,
+    migrationReportsDir,
+  );
+
   // Render -----------------------------------------------------------
   if (flags.json) {
     console.log(JSON.stringify(summary, null, 2));
@@ -3833,6 +4057,13 @@ async function cmdStatus(args: string[]): Promise<number> {
   } else {
     console.log(`oracle footprint: (none — pass --project <php-dir>)`);
   }
+  if (summary.uiAssets) {
+    const u = summary.uiAssets;
+    console.log(
+      `ui assets    : ${u.framework}  ${u.routeCount} route bundle(s)  fallback=${u.fallbackHref ?? "none"}`,
+    );
+    console.log(`               map ${u.mapPath}`);
+  }
   const mig = summary.migration;
   const covStr =
     mig.coverage != null
@@ -3921,6 +4152,12 @@ async function main(): Promise<number> {
       return await cmdEvidence(rest);
     case "cwl":
       return await cmdCwl(rest);
+    case "ui-assets":
+      return await cmdUiAssets(rest);
+    case "ui-markup":
+      return await cmdUiMarkup(rest);
+    case "convert-site":
+      return await cmdConvertSite(rest);
     default:
       console.log(`[chrysalis] '${cmd}' is not implemented yet (Milestone 0 scaffold).`);
       console.log(`[chrysalis] args: ${JSON.stringify(rest)}`);

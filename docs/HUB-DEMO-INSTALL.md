@@ -2,13 +2,80 @@
 
 This guide is for the **public demo hub** on the Chrysalis test VM. Use it to walk through the UI without deploying your own server first.
 
-## Demo URL
+**Locked public edge (DESIGN D6396):** nginx on `chrysalis-test-vm` terminates TLS for **`hub.agenticop.io`** and **`chrysalis.agenticop.io`**, then proxies to the hub on **`127.0.0.1:19090`**. Do **not** invent a different edge (Caddy-only, alternate hostnames, or editing FDE nginx sites).
 
-Open in your browser:
+## Demo URLs
 
-**http://34.61.255.147:19090/**
+| URL | Role |
+| --- | --- |
+| **https://chrysalis.agenticop.io/** | Canonical Chrysalis public UI |
+| https://hub.agenticop.io/ | Same app (alias A record) |
+| http://34.61.255.147:19090/ | Direct IP (transition / break-glass; close **tcp:19090** once HTTPS + bind localhost work) |
 
-The hub listens on port **19090** only. It does not use port 80 (other apps on the shared VM may own that port).
+Vhost source of truth: [`docs/nginx/chrysalis-hub.vhost.example`](./nginx/chrysalis-hub.vhost.example).  
+Automated TLS: `pnpm run deploy:hub-caddy-tls` → `scripts/gce-hub-nginx-tls.sh`.
+
+## Shared VM — do not deviate
+
+On **`chrysalis-test-vm`** (external IP **34.61.255.147**), nginx **:80** is shared with **fragility-discovery-engine (FDE)**.
+
+| Allowed | Forbidden |
+| --- | --- |
+| Add/edit **`/etc/nginx/sites-available/chrysalis-hub`** only | Edit **`fragility-default-ip`**, **`fragility-public`**, or any FDE site |
+| Proxy hub → **`127.0.0.1:19090`** | Touch FDE runner port **8765** |
+| ACME webroot **`/var/www/chrysalis/acme`** | Claim **`default_server`** on **:80** (FDE owns it) |
+
+## Public HTTPS edge (locked procedure)
+
+Prerequisites: DNS **A** records for **`hub.agenticop.io`** and **`chrysalis.agenticop.io`** → **34.61.255.147**; GCP firewall **tcp:443** (and **tcp:80** for ACME).
+
+1. **Hub listen (after nginx works):** bind hub to localhost only:
+
+   ```bash
+   export CHRYSALIS_OPERATOR_BIND=127.0.0.1
+   export CHRYSALIS_OPERATOR_PORT=19090
+   # restart hub serve / systemd unit with these env vars
+   ```
+
+   Until then, `0.0.0.0:19090` is acceptable for break-glass (`http://34.61.255.147:19090/`).
+
+2. **Create vhost** `/etc/nginx/sites-available/chrysalis-hub` from [`nginx/chrysalis-hub.vhost.example`](./nginx/chrysalis-hub.vhost.example):
+
+   - `server_name hub.agenticop.io chrysalis.agenticop.io;`
+   - `proxy_pass http://127.0.0.1:19090;`
+   - WebSocket upgrade headers, `client_max_body_size 512m`, long `proxy_*_timeout` (86400s)
+
+3. **TLS (certbot webroot — not `--nginx` plugin rewriting FDE sites):**
+
+   ```bash
+   sudo mkdir -p /var/www/chrysalis/acme
+   sudo certbot certonly --webroot -w /var/www/chrysalis/acme \
+     -d hub.agenticop.io -d chrysalis.agenticop.io \
+     --non-interactive --agree-tos -m admin@agenticop.io \
+     --cert-name hub.agenticop.io
+   ```
+
+4. **Enable:**
+
+   ```bash
+   sudo ln -sf /etc/nginx/sites-available/chrysalis-hub /etc/nginx/sites-enabled/
+   sudo nginx -t && sudo systemctl reload nginx
+   ```
+
+5. **Verify:**
+
+   ```bash
+   curl -sI https://hub.agenticop.io/ | head
+   curl -sI https://chrysalis.agenticop.io/ | head
+   ```
+
+6. **Optional:** close GCE firewall **tcp:19090** once HTTPS works and the hub binds **127.0.0.1**.
+
+From a Windows operator laptop (same steps, scripted):
+
+```powershell
+pnpm run deploy:hub-caddy-tls
+```
 
 ## What you need
 
@@ -22,13 +89,13 @@ Gold-path translation (**PHP → TypeScript / Hono / Fastify**) uses Chrysalis i
 
 ## Quick tour (no SSH)
 
-1. Open the demo URL.
+1. Open **https://chrysalis.agenticop.io/** (or the direct IP URL above).
 2. Open **Documentation** in the nav (`#/guide`) — full operator library (Migration OS, CLI, hub, governance, WISP programs).
 3. Or read the install walkthrough at `/docs/hub-install` (same content, plain text).
-3. Click **New project**.
-4. Set **Origin** and **Output** (output list is **web application targets only** — no SQL, JSON, or native-only languages).
-5. Leave SSH fields empty; use a name only and create the project (you can point **Local project path** at a folder already on the hub under `~/.chrysalis-hub/workspaces/`).
-6. Open **Console** → **Run translation** and watch the live log.
+4. Click **New project**.
+5. Set **Origin** and **Output** (output list is **web application targets only** — no SQL, JSON, or native-only languages).
+6. Leave SSH fields empty; use a name only and create the project (you can point **Local project path** at a folder already on the hub under `~/.chrysalis-hub/workspaces/`).
+7. Open **Console** → **Run translation** and watch the live log.
 
 ## Full flow (SSH from hub to your server)
 
@@ -66,7 +133,7 @@ It does **not** include SQL, JSON, YAML, Markdown, C/C++, Swift, or other non-we
 
 Open **Path explorer** in the nav (`#/paths`) or:
 
-`http://34.61.255.147:19090/#/paths?origin=javascript&output=hono`
+`https://chrysalis.agenticop.io/#/paths?origin=javascript&output=hono`
 
 The page auto-loads cross-language synthesis, lists all **17 gold pairs**, and shows per-pair ingest/emit lanes plus **CI gold suite** coverage (`GET /api/hub/gold-suites`).
 
@@ -109,6 +176,8 @@ Refresh only (no local build):
 .\scripts\gce-test-vm-refresh.ps1 -Project chrysalis-dev-f5x6qv
 ```
 
+Public HTTPS (after DNS): `pnpm run deploy:hub-caddy-tls` — see **Public HTTPS edge** above.
+
 ## Multi-site projects (professional use)
 
 In **Console**, add multiple **origin sites** (SSH) to one project. Use **Run full pipeline** (prep + pull + translate) or **Run all sites** for translate-only. Default **3** parallel jobs (`CHRYSALIS_HUB_MAX_PARALLEL`). Each site has its own progress bar.
@@ -140,6 +209,7 @@ pnpm install
 pnpm run build:hub-all
 export CHRYSALIS_OPERATOR_REPO="$(pwd)"
 export CHRYSALIS_OPERATOR_PORT=19090
+export CHRYSALIS_OPERATOR_BIND=127.0.0.1   # when behind local nginx/TLS
 pnpm run hub:serve
 ```
 
@@ -157,3 +227,4 @@ See also `docs/DEPLOYMENT.md` and `docs/HUB-CONNECTIVITY.md`.
 - **SSH scan failed** — Install `chrysalis-origin-scan` on the origin or disable autodetect and set origin manually.
 - **PHP ingest errors** — Hub needs `php` and `packages/parser-bridge/vendor` (demo VM bootstrap installs these).
 - **Next.js output** — Requires sibling **`wptp-emit-nextjs`** next to the repo (e.g. `~/wptp-emit-nextjs` on the demo VM). Bootstrap runs `node scripts/install-wptp-hub-deps.mjs` automatically; locally: `pnpm run build:hub-all`.
+- **HTTPS / nginx** — Only edit **`chrysalis-hub`**. If ACME fails, check DNS A records and that FDE `default_server` is not stealing `/.well-known` for our hostnames (our vhost must match `server_name`).

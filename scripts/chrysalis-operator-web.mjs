@@ -6,9 +6,10 @@
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { readFile, readdir } from "node:fs/promises";
+import { existsSync, statSync } from "node:fs";
 import { watch } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HUB_POPULAR_WEB_FOCUS_IDS } from "./hub-ingest/language-catalog.mjs";
 import {
@@ -107,6 +108,8 @@ import {
   parseMultipartFiles,
   saveTraceFiles,
   saveZipTraces,
+  saveSourceFiles,
+  saveZipSource,
   startResumableUpload,
   appendUploadChunk,
   finishResumableUpload,
@@ -255,8 +258,17 @@ async function checkAuth(req) {
   if (!authToken) return true;
   const h = req.headers.authorization ?? "";
   if (h === `Bearer ${authToken}` || h === authToken) return true;
-  const bearer = h.startsWith("Bearer ") ? h.slice(7).trim() : h.trim();
+  let bearer = h.startsWith("Bearer ") ? h.slice(7).trim() : h.trim();
+  if (!bearer) {
+    // EventSource can't set custom headers, so /api/events passes its token via query string instead.
+    try {
+      bearer = new URL(req.url ?? "/", "http://localhost").searchParams.get("token")?.trim() ?? "";
+    } catch {
+      bearer = "";
+    }
+  }
   if (!bearer) return false;
+  if (bearer === authToken) return true;
   return Boolean(await findHubAccountByToken(bearer));
 }
 
@@ -701,6 +713,55 @@ function isPublicHubApiPath(pathname) {
   );
 }
 
+/** Public Migration OS / IS POC dashboards under reports/ (read-only). */
+const REPORTS_PUBLIC_EXT = new Set([
+  ".html",
+  ".json",
+  ".css",
+  ".js",
+  ".svg",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".txt",
+  ".md",
+]);
+
+function contentTypeForReport(filePath) {
+  const lower = filePath.toLowerCase();
+  if (lower.endsWith(".html")) return "text/html; charset=utf-8";
+  if (lower.endsWith(".json")) return "application/json; charset=utf-8";
+  if (lower.endsWith(".css")) return "text/css; charset=utf-8";
+  if (lower.endsWith(".js")) return "application/javascript; charset=utf-8";
+  if (lower.endsWith(".svg")) return "image/svg+xml";
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  if (lower.endsWith(".webp")) return "image/webp";
+  if (lower.endsWith(".md") || lower.endsWith(".txt")) return "text/plain; charset=utf-8";
+  return "application/octet-stream";
+}
+
+/**
+ * Resolve a safe path under repo/reports for public demo dashboards.
+ * @returns {string | null}
+ */
+function resolvePublicReportPath(pathname) {
+  if (!pathname.startsWith("/reports/")) return null;
+  const rel = pathname.slice("/reports/".length);
+  if (!rel || rel.includes("\0") || rel.split("/").some((p) => p === "..")) return null;
+  const reportsRoot = resolve(repo, "reports");
+  const candidate = resolve(reportsRoot, rel);
+  const relToRoot = relative(reportsRoot, candidate);
+  if (!relToRoot || relToRoot.startsWith("..") || isAbsolute(relToRoot)) return null;
+  if (relToRoot.split(sep).includes("..")) return null;
+  if (!existsSync(candidate) || !statSync(candidate).isFile()) return null;
+  const dot = candidate.lastIndexOf(".");
+  const ext = dot >= 0 ? candidate.slice(dot).toLowerCase() : "";
+  if (!REPORTS_PUBLIC_EXT.has(ext)) return null;
+  return candidate;
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
 
@@ -727,6 +788,26 @@ const server = createServer(async (req, res) => {
     const asset = brandAssets.get(url.pathname);
     res.writeHead(200, { "content-type": asset.type, "cache-control": "public, max-age=86400" });
     res.end(asset.body);
+    return;
+  }
+  if (req.method === "GET" && url.pathname.startsWith("/reports/")) {
+    let reportPath = resolvePublicReportPath(url.pathname);
+    if (!reportPath && url.pathname.endsWith("/")) {
+      reportPath = resolvePublicReportPath(`${url.pathname}index.html`);
+    }
+    if (!reportPath && !url.pathname.includes(".")) {
+      reportPath = resolvePublicReportPath(`${url.pathname.replace(/\/?$/, "/")}index.html`);
+    }
+    if (!reportPath) {
+      sendJson(res, 404, { error: "report-not-found", path: url.pathname });
+      return;
+    }
+    const body = await readFile(reportPath);
+    res.writeHead(200, {
+      "content-type": contentTypeForReport(reportPath),
+      ...noCache,
+    });
+    res.end(body);
     return;
   }
   if (req.method === "GET" && url.pathname === "/api/hub/docs") {
@@ -1601,6 +1682,46 @@ const server = createServer(async (req, res) => {
         } else {
           sendJson(res, 415, { error: "unsupported-media", message: "Use multipart/form-data (field traces) or application/zip" });
           return;
+        }
+        sendJson(res, 200, result);
+        return;
+      }
+
+      const sourceUploadMatch = url.pathname.match(/^\/api\/hub\/projects\/([^/]+)\/sites\/([^/]+)\/source\/upload$/);
+      if (sourceUploadMatch) {
+        const projectId = decodeURIComponent(sourceUploadMatch[1]);
+        const siteId = decodeURIComponent(sourceUploadMatch[2]);
+        const p = await getProjectForActor(projectId, actor);
+        const site = p?.sites?.find((s) => s.id === siteId);
+        if (!p || !site) {
+          sendJson(res, 404, { error: "not-found" });
+          return;
+        }
+        const ct = String(req.headers["content-type"] ?? "");
+        const raw = await readRawBody(req);
+        let result;
+        try {
+          if (ct.includes("multipart/form-data")) {
+            const files = parseMultipartFiles(raw, ct).filter((f) => f.field === "files" || f.field === "file");
+            if (files.length === 0) throw new Error("no files in upload (field \"files\")");
+            result = await saveSourceFiles(site.localDir, files);
+          } else if (ct.includes("application/zip") || ct.includes("application/octet-stream")) {
+            result = await saveZipSource(site.localDir, raw);
+          } else {
+            sendJson(res, 415, { error: "unsupported-media", message: "Use multipart/form-data (field files) or application/zip" });
+            return;
+          }
+        } catch (e) {
+          sendJson(res, 400, { error: "upload-failed", message: e instanceof Error ? e.message : String(e) });
+          return;
+        }
+        if (!p.chrysalisInitialized) {
+          try {
+            await runInit(site.localDir);
+            await updateProject(p.id, { chrysalisInitialized: true });
+          } catch {
+            /* init optional — CLI ingest re-checks on run */
+          }
         }
         sendJson(res, 200, result);
         return;

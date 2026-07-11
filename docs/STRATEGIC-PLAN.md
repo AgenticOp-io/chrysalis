@@ -441,21 +441,53 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (maintenance)
 
-**Post D6377 close (2026-07-09) — Cyno substrate depth shipped (G9560–G9590).**
+**Post D6397 close (2026-07-11) — live hit-rate provenance shipped.**
 
-**Status:** **G9560–G9590 closed** (**D6377**); **G9520–G9550 closed** (**D6375**); **G9510 closed** (**D6372**); **G8550** schema **v7**; Phase 46 closed (**G9290**).
+**Status:** **G9760** closed (**D6397**); **G8550** schema **v18**; residual WISP holes **~564**.
 
 When the user says "build" without specifying:
 
-1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (schema **v7** — includes **G9510** + **G9520–G9590**)
-2. **G8570 Open Legacy wedge** — `pnpm run hub:site-port-open-legacy-wedge-smoke`
-3. **G6731 CWL language maintenance** — `pnpm run hub:cwl-language-maintenance-smoke` (weekly CI)
-4. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
-5. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
-6. **Live IS from real hub jobs** — operator trajectories writing hit/near-miss/miss (product evidence beyond synthetic smoke)
-7. **WISP residual honesty** — component lift or explicit showcase bound (~1260 holes)
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (schema **v18**)
+2. **Operator GPU train** — `pnpm run gpu-lab:gce` (T4; prep **G9620**; LoRA `messages[]` mapping fixed)
+3. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
+4. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
+5. **WISP residual** — complex calls + 39 no-source `/add` (no invented forms); live production traces when available
+6. **Accumulate live verify jobs** — hub-convert verify outcomes toward `productHitRateLiveReady` (≥50)
 
-**Closed program regression:** `hub:migration-os-close-smoke` (**G8550** / **D6377**) · `hub:is-evidence-used-utility-smoke` (**G9560**) · `hub:mcp-governor-coverage-smoke` (**G9570**) · `hub:convert-cycle-gate-smoke` (**G9580**) · `hub:doc-vs-box-smoke` (**G9590**) · `hub:is-near-miss-salience-smoke` (**G9520**) · `hub:is-utility-prior-smoke` (**G9530**) · `hub:convert-governor-smoke` (**G9540**) · `hub:convert-aim-persist-smoke` (**G9550**) · `hub:is-live-analytics-close-smoke` (**G9510**)
+**Product sample READY:** ≥ **50** live-analytics jobs (`PRODUCT_HIT_RATE_MIN_JOBS`) — may include seed.  
+**Live hit-rate READY:** ≥ **50** `hub-convert-verify` jobs (`PRODUCT_HIT_RATE_LIVE_MIN_JOBS`) — seed does not count.  
+**Salience v2 production:** auto when `reports/web-llm/operator-evidence/` has ≥ **20** domain folders.  
+**Public dashboard:** `/reports/web-llm/operator-evidence/poc/` on the operator hub.
+
+**Closed program regression:** `hub:migration-os-close-smoke` (**G8550** / **D6397**) · `hub:product-hit-rate-live-smoke` (**G9760**) · `hub:wisp-fill-holes-smoke` (**G9750**) · `hub:wisp-showcase-bound-smoke` (**G9610**) · `hub:product-hit-rate-sample-smoke` (**G9670**) · `hub:public-reports-smoke` (**G9700**)
+
+**CynoEngine collab:** [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) · strategic plan: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) · [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1)
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (maintenance, superseded 2026-07-11 by D6397 / G9760)
+
+**Post D6394 close (2026-07-10) — enriched traces + Object.entries/ternary/$store shipped.**
+
+**Status:** **G9750** closed (**D6394**); **G8550** schema **v17**; residual WISP holes **~564**.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (schema **v17**)
+2. **Operator GPU train** — `pnpm run gpu-lab:gce` (T4; prep **G9620**)
+3. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
+4. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
+5. **WISP residual** — complex calls + 39 no-source `/add` (no invented forms); live production traces when available
+6. **Real operator hit-rate** — replace seeded trajectories with live hub-convert verify outcomes
+
+**Product sample READY:** ≥ **50** live-analytics jobs (`PRODUCT_HIT_RATE_MIN_JOBS`).  
+**Salience v2 production:** auto when `reports/web-llm/operator-evidence/` has ≥ **20** domain folders.  
+**Public dashboard:** `/reports/web-llm/operator-evidence/poc/` on the operator hub.
+
+**Closed program regression:** `hub:migration-os-close-smoke` (**G8550** / **D6394**) · `hub:wisp-fill-holes-smoke` (**G9750**) · `hub:wisp-showcase-bound-smoke` (**G9610**) · `hub:product-hit-rate-sample-smoke` (**G9670**) · `hub:public-reports-smoke` (**G9700**)
 
 **CynoEngine collab:** [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) · strategic plan: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) · [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1)
 

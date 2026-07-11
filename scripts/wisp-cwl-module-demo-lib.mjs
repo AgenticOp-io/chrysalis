@@ -406,13 +406,14 @@ export function collectMissingModuleAddPaths(routesText) {
 /** @param {string} httpPath */
 export function buildWispModuleAddRouteBlock(httpPath) {
   const pageName = `${httpPath.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+/, "") || "root"}_page`;
-  const html = buildWispModuleDemoHtml(httpPath);
-  return buildWispModuleHtmlPageBlock(
-    httpPath,
-    pageName,
-    html,
-    `{ source: "wisp-m32-add", path: "${httpPath}" }`,
-  );
+  // D6369 / G9480: explicit hole — never invent demo form HTML for missing +page.svelte
+  const safePath = httpPath.replace(/"/g, "'");
+  const html = `<div class="cwl-markup-hole" data-cwl-hole="legacy:markup-no-source-route" data-cwl-hole-detail="missing +page.svelte for ${safePath}" data-cwl-route="${safePath}"></div>`;
+  const apiPath = inferWispModuleApiPath(httpPath);
+  const loadMeta = apiPath
+    ? `{ source: "markup-no-source", path: "${httpPath}", apiPath: "${apiPath}" }`
+    : `{ source: "markup-no-source", path: "${httpPath}" }`;
+  return buildWispModuleHtmlPageBlock(httpPath, pageName, html, loadMeta);
 }
 
 /**

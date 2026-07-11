@@ -29,6 +29,32 @@ def validate(manifest: dict, dataset_path: Path) -> None:
         raise SystemExit(f"missing dataset: {dataset_path}")
 
 
+def resolve_lab_root(manifest_path: Path) -> Path:
+    env = os.environ.get("CHRYSALIS_GPU_LAB_ROOT", "").strip()
+    if env:
+        return Path(env)
+    # .../reports/web-llm/lora/train-manifest.v1.json → lab/repo root
+    return manifest_path.resolve().parents[3]
+
+
+def resolve_repo_path(path_str: str, lab_root: Path) -> Path:
+    """Resolve manifest paths: prefer relative posix; fall back to reports/web-llm/ suffix."""
+    raw = (path_str or "").strip()
+    if not raw:
+        return lab_root / "reports/web-llm/dataset/training-shards.v1.jsonl"
+    p = Path(raw)
+    if p.is_file():
+        return p
+    posix = raw.replace("\\", "/")
+    marker = "reports/web-llm/"
+    idx = posix.find(marker)
+    if idx >= 0:
+        return lab_root / posix[idx:]
+    if not p.is_absolute():
+        return lab_root / posix
+    return p
+
+
 def dry_run_report(manifest: dict, output: Path) -> None:
     print(
         json.dumps(
@@ -46,11 +72,15 @@ def dry_run_report(manifest: dict, output: Path) -> None:
 
 
 def run_train(manifest: dict, dataset_path: Path, output: Path, max_steps: int) -> None:
+    # Stock Deep Learning VM pip torch may pull Triton kernels that need a full
+    # CUDA toolchain; keep the operator path on plain fp16 LoRA (fits T4 16GB).
+    os.environ.setdefault("TORCHDYNAMO_DISABLE", "1")
+    os.environ.setdefault("TRITON_INTERPRET", "0")
     try:
-        import torch  # noqa: F401
-        from datasets import load_dataset  # noqa: F401
-        from peft import LoraConfig, get_peft_model  # noqa: F401
-        from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer  # noqa: F401
+        import torch
+        from datasets import load_dataset
+        from peft import LoraConfig, get_peft_model
+        from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer
     except ImportError as exc:
         raise SystemExit(
             "Missing GPU train deps. On chrysalis-gpu-lab:\n"
@@ -59,13 +89,16 @@ def run_train(manifest: dict, dataset_path: Path, output: Path, max_steps: int) 
         ) from exc
 
     base = manifest["baseModel"]
-    print(f"[chrysalis-lora-qlora-train] loading base model {base}")
+    print(f"[chrysalis-lora-qlora-train] loading base model {base} (fp16 LoRA)", flush=True)
     tokenizer = AutoTokenizer.from_pretrained(base, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
     model = AutoModelForCausalLM.from_pretrained(
         base,
         device_map="auto",
         trust_remote_code=True,
-        load_in_4bit=True,
+        dtype=torch.float16,
     )
     lora = LoraConfig(r=8, lora_alpha=16, lora_dropout=0.05, bias="none", task_type="CAUSAL_LM")
     model = get_peft_model(model, lora)
@@ -75,8 +108,24 @@ def run_train(manifest: dict, dataset_path: Path, output: Path, max_steps: int) 
     def fmt(row):
         prompt = row.get("prompt") or row.get("input") or ""
         completion = row.get("completion") or row.get("output") or ""
-        text = f"{prompt}\n{completion}"
-        return tokenizer(text, truncation=True, max_length=512)
+        if not prompt and not completion:
+            messages = row.get("messages") or []
+            parts = []
+            for m in messages:
+                if not isinstance(m, dict):
+                    continue
+                role = str(m.get("role") or "user")
+                content = str(m.get("content") or "")
+                if content:
+                    parts.append(f"{role}: {content}")
+            text = "\n".join(parts)
+        else:
+            text = f"{prompt}\n{completion}".strip()
+        if not text:
+            text = str(row.get("id") or "empty-shard")
+        toks = tokenizer(text, truncation=True, max_length=512)
+        toks["labels"] = list(toks["input_ids"])
+        return toks
 
     tokenized = ds.map(fmt, remove_columns=ds.column_names)
     output.mkdir(parents=True, exist_ok=True)
@@ -85,15 +134,18 @@ def run_train(manifest: dict, dataset_path: Path, output: Path, max_steps: int) 
         per_device_train_batch_size=1,
         gradient_accumulation_steps=4,
         max_steps=max_steps,
-        logging_steps=10,
+        logging_steps=5,
         save_steps=max_steps,
         report_to=[],
+        fp16=True,
+        dataloader_pin_memory=False,
     )
     trainer = Trainer(model=model, args=args, train_dataset=tokenized)
     trainer.train()
-    model.save_pretrained(str(output / "adapter"))
-    tokenizer.save_pretrained(str(output / "adapter"))
-    print(f"[chrysalis-lora-qlora-train] adapter saved to {output / 'adapter'}")
+    adapter_dir = output / "adapter"
+    model.save_pretrained(str(adapter_dir))
+    tokenizer.save_pretrained(str(adapter_dir))
+    print(f"[chrysalis-lora-qlora-train] adapter saved to {adapter_dir}", flush=True)
 
 
 def main() -> None:
@@ -106,8 +158,13 @@ def main() -> None:
 
     manifest_path = Path(args.manifest)
     manifest = load_manifest(manifest_path)
-    dataset_path = Path(manifest.get("datasetJsonlPath", ""))
-    output = Path(args.output or manifest.get("outputDir", "reports/web-llm/lora/adapter"))
+    lab_root = resolve_lab_root(manifest_path)
+    dataset_path = resolve_repo_path(str(manifest.get("datasetJsonlPath", "")), lab_root)
+    if args.output:
+        output = Path(args.output)
+    else:
+        out_raw = str(manifest.get("outputDir") or "reports/web-llm/lora")
+        output = resolve_repo_path(out_raw, lab_root) / "adapter"
     validate(manifest, dataset_path)
 
     dry = args.dry_run or os.environ.get("CHRYSALIS_GPU_LAB_DRY_RUN", "1") != "0"

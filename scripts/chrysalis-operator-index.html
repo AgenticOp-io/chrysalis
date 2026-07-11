@@ -4,17 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/agenticops.css" />
-  <title>AgenticOp Translation Hub</title>
+  <title>AgenticOp</title>
   <style>
     :root { --bg: var(--ao-bg, #010104); --panel: #0c1228; --text: var(--ao-text, #e8eefc); --muted: var(--ao-text-dim, #98a3b8); --accent: var(--ao-cyan, #06b6d4); --accent2: var(--ao-violet, #a78bfa); --ok:#10b981; --err:#ef4444; --border:rgba(148,163,184,0.22); }
     * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
-    nav { display: flex; gap: 1rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); align-items: center; background: rgba(2,3,10,0.92); }
-    nav a { color: var(--accent); text-decoration: none; font-weight: 500; }
-    nav .brand { font-weight: 700; color: var(--text); margin-right: auto; display:flex; align-items:center; }
-    nav .brand img { height: 28px; width: auto; display: block; }
-    main { padding: 1.25rem; max-width: 56rem; margin: 0 auto; }
+    main { padding: 1.25rem; max-width: 56rem; margin: 0 auto; position: relative; }
     .hero { padding: 2rem 0 1.5rem; }
     .hero h1 { font-size: 2rem; margin: 0 0 0.5rem; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .hero p { color: var(--muted); max-width: 40rem; line-height: 1.5; }
@@ -44,7 +42,26 @@
     #routeList { font-size: 0.85rem; color: var(--muted); max-height: 6rem; overflow-y: auto; }
     #routeList li.done { color: var(--ok); }
     [hidden] { display: none !important; }
-    .hub-banner { background: linear-gradient(90deg, #164e63, #6d28d9); color: #e0f2fe; padding: 0.5rem 1.25rem; font-size: 0.88rem; border-bottom: 1px solid var(--accent); }
+    .hub-banner { background: rgba(6,182,212,0.08); color: var(--muted); padding: 0.55rem 1.25rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .hub-banner strong { color: var(--text); }
+    .hub-banner#demoBanner { background: rgba(217,119,6,0.12); border-bottom-color: rgba(217,119,6,0.35); color: #fcd34d; }
+    /* Header is just the mark + wordmark; page nav lives in its own slim bar below it. */
+    .ao-nav .ao-brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+    .ao-nav .ao-brand-mark { border-radius: 8px; }
+    .ao-subnav { border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+    .ao-subnav-inner { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: center; padding: 0.6rem 0; }
+    .ao-subnav .ao-nav-link { font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+    .ao-subnav .ao-nav-link:hover { color: var(--text); }
+    .ao-subnav .ao-nav-link.ao-nav-link-active { color: var(--accent); }
+    .ao-subnav #navSignOut { margin-left: auto; }
+    /* Signed-out: only the header + login card — no app chrome or demo banner noise. */
+    body.hub-auth-mode .hub-banner { display: none !important; }
+    body.hub-auth-mode main { display: flex; align-items: flex-start; justify-content: center; min-height: calc(100vh - 8rem); padding-top: 1rem; }
+    body.hub-auth-mode #authGate { width: 100%; }
+    body.hub-auth-mode #authGate .auth-card { max-width: 24rem; margin: 2rem auto; }
+    .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .auth-tabs button { flex: 1; }
+    .ao-footer-inner { justify-content: center; text-align: center; padding: 1.25rem 0; }
     .site-card { border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem; margin-bottom: 0.5rem; background: #0b1022; }
     .site-card .bar-wrap { height: 6px; margin: 0.35rem 0; }
     .steps { margin-bottom: 1rem; }
@@ -97,21 +114,57 @@
     table.readiness th { position: sticky; top: 0; background: #0b1022; }
   </style>
 </head>
-<body>
-  <div class="hub-banner">AgenticOp Translation Hub: create projects, SSH prep, pull code, translate, and verify from this web portal.</div>
-  <div class="hub-banner" id="demoBanner" hidden style="background:linear-gradient(90deg,#7c2d12,#a16207);"></div>
-  <nav>
-    <span class="brand"><img src="/assets/logo.svg" alt="AgenticOp" /></span>
-    <a href="#/" id="navHome">Projects</a>
-    <a href="#/new" id="navNew">New project</a>
-    <a href="#/guide" id="navGuide">Documentation</a>
-    <a href="#/paths" id="navPaths">Path explorer</a>
-    <a href="#" id="navSignOut" hidden style="margin-left:auto">Sign out</a>
+<body class="ao-page" data-ao-page="hub">
+  <div class="ao-bg-fx" aria-hidden="true">
+    <div class="ao-vignette"></div>
+    <div class="ao-orb ao-orb-a"></div>
+    <div class="ao-orb ao-orb-b"></div>
+    <div class="ao-grid"></div>
+    <div class="ao-noise"></div>
+  </div>
+  <header class="ao-nav" role="banner">
+    <div class="ao-wrap ao-nav-inner">
+      <span class="ao-brand" aria-label="AgenticOp">
+        <img class="ao-brand-mark" src="/assets/logo.svg" alt="" width="40" height="40" loading="eager" />
+        <span class="ao-brand-name">AgenticOp</span>
+      </span>
+    </div>
+  </header>
+  <nav class="ao-subnav" id="hubSubnav" aria-label="Primary" hidden>
+    <div class="ao-wrap ao-subnav-inner">
+      <a class="ao-nav-link" href="#/" id="navHome">Projects</a>
+      <a class="ao-nav-link" href="#/new" id="navNew">New project</a>
+      <a class="ao-nav-link" href="#/guide" id="navGuide">Documentation</a>
+      <a class="ao-nav-link" href="#/paths" id="navPaths">Path explorer</a>
+      <a class="ao-nav-link" href="#" id="navSignOut" hidden>Sign out</a>
+    </div>
   </nav>
+  <div class="hub-banner" id="demoBanner" hidden></div>
   <main>
+    <section id="authGate" hidden>
+      <div class="card auth-card">
+        <h3 style="margin-top:0" id="authTitle">Create your demo account</h3>
+        <p class="muted" id="authBlurb">
+          Sign in to use the public demo hub. Full pilots are uncapped —
+          <a href="mailto:hello@agenticop.io">hello@agenticop.io</a>.
+        </p>
+        <div class="auth-tabs">
+          <button type="button" class="secondary" id="authTabRegister">Create account</button>
+          <button type="button" class="secondary" id="authTabLogin">Log in</button>
+        </div>
+        <form id="authForm" autocomplete="on">
+          <label for="authEmail">Email</label>
+          <input id="authEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+          <label for="authPassword">Password</label>
+          <input id="authPassword" name="password" type="password" autocomplete="current-password" placeholder="8+ characters" required minlength="8" />
+          <p class="muted" id="authError" style="color:#fca5a5;min-height:1.2rem"></p>
+          <button type="submit" class="primary" id="btnAuthSubmit">Create account</button>
+        </form>
+      </div>
+    </section>
     <section id="viewHome" hidden>
       <div class="hero">
-        <h1>AgenticOp multi-site translation hub</h1>
+        <h1>AgenticOp multi-site translation</h1>
         <p>
           Professional converters run this <strong>server</strong>; your browser is the <strong>client</strong>.
           Create a project, attach <strong>many legacy sites over SSH</strong>, pick one web output language, then
@@ -282,6 +335,33 @@
         </div>
       </div>
       <div class="card">
+        <h3>No server to point at? Upload your files</h3>
+        <p class="muted">
+          Skip SSH — upload your site's PHP files (or a .zip of the whole tree) straight from your browser.
+          You'll also need a small <code>chrysalis.routes.json</code> in the upload declaring your routes explicitly
+          (no auto-detection — Chrysalis never guesses routes from code).
+        </p>
+        <details>
+          <summary class="muted" style="cursor:pointer">Show an example chrysalis.routes.json</summary>
+          <pre style="white-space:pre-wrap;font-size:0.82rem">{
+  "app": "my-site",
+  "routes": [
+    { "method": "GET", "path": "/posts", "file": "pages/posts_list.php", "pathParams": [] },
+    { "method": "GET", "path": "/posts/:id", "file": "pages/posts_view.php",
+      "pathParams": [{ "name": "id", "type": "int", "phpVar": "post_id" }] }
+  ]
+}</pre>
+        </details>
+        <label for="uploadFolderInput">Select files or a folder</label>
+        <input id="uploadFolderInput" type="file" multiple webkitdirectory />
+        <label for="uploadZipInput">...or a single .zip instead</label>
+        <input id="uploadZipInput" type="file" accept=".zip" />
+        <div class="row">
+          <button type="button" class="primary" id="btnUploadCreateProject">Upload &amp; create project</button>
+        </div>
+        <p id="uploadCreateStatus" class="muted"></p>
+      </div>
+      <div class="card">
         <h3>Output language (all sites)</h3>
         <div class="grid2">
           <div>
@@ -444,6 +524,12 @@
         <input id="verifyTracesDir" type="text" placeholder="Leave empty for site/.chrysalis/traces" />
         <label for="traceFileInput">Upload traces (.ndjson / .json, or .zip)</label>
         <input id="traceFileInput" type="file" multiple accept=".ndjson,.json,.zip" />
+        <label for="sourceFileInput">Upload origin source files (PHP tree, files/folder, or .zip — no SSH needed)</label>
+        <input id="sourceFileInput" type="file" multiple webkitdirectory />
+        <input id="sourceZipFileInput" type="file" accept=".zip" />
+        <div class="row">
+          <button type="button" class="secondary" id="btnUploadSource">Upload source for selected site</button>
+        </div>
         <div class="row">
           <button type="button" class="secondary" id="btnUploadTraces">Upload traces for selected site</button>
           <button type="button" class="secondary" id="btnStartRuntime">Start emitted app</button>
@@ -478,25 +564,11 @@
       </div>
     </section>
   </main>
-  <div id="authGate" hidden style="position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:99">
-    <div class="card" style="max-width:24rem">
-      <h3 style="margin-top:0" id="authTitle">Create your demo account</h3>
-      <p class="muted">
-        This is a shared public demo (capped at a couple of pages per job, one job at a time) —
-        create a free account to try it. Full pilots aren't capped: <a href="mailto:hello@agenticop.io">hello@agenticop.io</a>.
-      </p>
-      <div class="row" style="margin-top:0;margin-bottom:0.75rem">
-        <button type="button" class="secondary" id="authTabRegister">Create account</button>
-        <button type="button" class="secondary" id="authTabLogin">Log in</button>
-      </div>
-      <label for="authEmail">Email</label>
-      <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" />
-      <label for="authPassword">Password</label>
-      <input id="authPassword" type="password" autocomplete="current-password" placeholder="8+ characters" />
-      <p class="muted" id="authError" style="color:#fca5a5;min-height:1.2rem"></p>
-      <button type="button" class="primary" id="btnAuthSubmit">Create account</button>
+  <footer class="ao-footer" role="contentinfo">
+    <div class="ao-wrap ao-footer-inner">
+      <p class="ao-footer-fine">© <span id="footerYear"></span> AgenticOps. Chrysalis is open source — real traffic decides what ships.</p>
     </div>
-  </div>
-  <script src="/ui.js?v=hub-cwl-preview-console-1"></script>
+  </footer>
+  <script src="/ui.js?v=hub-cwl-preview-console-2"></script>
 </body>
 </html>

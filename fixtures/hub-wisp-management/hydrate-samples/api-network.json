@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "sites": [{ "id": "s1", "name": "North Tower", "status": "online" }],
+  "towers": [{ "id": "tw-1", "name": "Tower A", "status": "online" }],
+  "networkDevices": [{ "id": "nd-1", "name": "Core Switch", "status": "online" }],
+  "epcDevices": [{ "id": "epc-1", "name": "MME-1", "status": "online" }],
+  "grants": [{ "id": "g1", "name": "CBRS Grant", "status": "authorized" }],
+  "items": [{ "id": "s1", "name": "North Tower", "status": "online" }]
+}

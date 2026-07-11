@@ -1,0 +1,19 @@
+{
+  "kind": "chrysalis.wisp.showcase-bound",
+  "schemaVersion": 5,
+  "description": "Honest residual hole budget for WISP CWL showcase lab (G9750). Enriched traces + Object.entries/ternary/$store settle.",
+  "fixtureRel": "fixtures/hub-wisp-management/routes.cwl",
+  "totalMin": 545,
+  "totalMax": 585,
+  "noSourceMin": 39,
+  "componentMin": 0,
+  "componentMax": 5,
+  "maxOther": 0,
+  "intentionalCategories": [
+    "legacy:markup-no-source-route — synthetic /add without Svelte source (39; cannot invent forms)",
+    "legacy:markup-lift-svelte-if — complex/call conditionals",
+    "legacy:markup-lift-svelte-each — getX() / nested / unclean inners",
+    "legacy:markup-lift-svelte-interp — complex calls and nested ternaries"
+  ],
+  "outOfScope": ["GenieACS / WISPTools legacy ACS-CPE module"]
+}

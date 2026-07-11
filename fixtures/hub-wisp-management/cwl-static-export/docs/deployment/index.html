@@ -1,21 +1,35 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="docs_deployment" data-wisp-path="/docs/deployment" data-cwl-island="client" data-wisp-layout="docs">
-  <header class="wisp-demo-header">
-    <h1>Deployment</h1>
-    <p class="wisp-demo-desc">Operator documentation for WISP Management on pure CWL deploy.</p>
-    
-  </header>
-  <section class="wisp-demo-panel">
-    <article class="wisp-demo-docs">
-  <h2>Deployment</h2>
-  <p>This deployment runs <strong>pure CWL</strong> (chimera + runtime-cwl) with native API handlers. Use the dashboard to open operational modules.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deployment</title>
+<link rel="stylesheet" href="/assets/original-css/docs_deployment.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<svelte:head>
+  <title>Using WISP Management – WISP Management Docs</title>
+</svelte:head>
+
+<h1>Using WISP Management</h1>
+<p class="lead">Your organization’s WISP Management instance is set up and managed by your administrator. This page is for end users.</p>
+
+<section class="doc-section">
+  <h2>What you can do</h2>
   <ul>
-    <li>Session auth via Firebase or CWL session preview</li>
-    <li>API routes proxied to HSS backend when configured</li>
-    <li>Plan / Deploy / Coverage Map use ArcGIS MapView charter</li>
+    <li><strong>Dashboard</strong> – Open modules (Plan, Deploy, Monitor, Maintain, Customers, Hardware) and use <strong>Wizards</strong> for guided flows.</li>
+    <li><strong>Wizards</strong> – Use the <strong>Wizards</strong> menu on the dashboard or go to <a href="/wizards">/wizards</a> to see all guided flows (sites, subscribers, customers, RMA, plans, groups, troubleshooting).</li>
+    <li><strong>Documentation</strong> – Use <a href="/help">Help</a> for getting started and project status.</li>
+    <li><strong>Help</strong> – Use <a href="/help">Help by topic</a> for module-specific guidance.</li>
   </ul>
-  <p class="wisp-demo-docs-section">Section: <code>deployment</code></p>
-</article>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
+</section>
+
+<section class="doc-section">
+  <h2>Need access or changes?</h2>
+  <p>For new accounts, access to modules, or platform changes, contact your WISP Management administrator.</p>
+  <p><a href="/help">← Help & Documentation</a></p>
+</section>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/docs/deployment"}</script>
+
+</body>
+</html>

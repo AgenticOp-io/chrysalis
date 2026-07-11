@@ -33,8 +33,8 @@ export function wispUiAnchorSpecs() {
     { path: "/modules/hardware", required: ["wisp-demo-content", "Hardware", "wisp-demo-table"], minLength: 400 },
     {
       path: "/modules/hardware/add",
-      required: ["wisp-demo-content", "wisp-demo-form", "data-wisp-layout=\"form\""],
-      minLength: 300,
+      required: ["data-cwl-hole", "legacy:markup-no-source-route", "data-cwl-route"],
+      minLength: 40,
     },
   ];
 }

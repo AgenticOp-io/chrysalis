@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "projects": {
+    "demo": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "options": {
+            "outputPath": "dist/demo"
+          }
+        }
+      }
+    }
+  }
+}

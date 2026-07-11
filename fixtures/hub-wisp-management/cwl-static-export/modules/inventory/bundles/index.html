@@ -1,20 +1,246 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_inventory_id" data-wisp-path="/modules/inventory/:id" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/inventory">
-  <header class="wisp-demo-header">
-    <h1>:id</h1>
-    <p class="wisp-demo-desc">Operational workspace for :id — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>174</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>2</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>27</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bundles</title>
+<link rel="stylesheet" href="/assets/original-css/modules_inventory_bundles.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="item-detail-page">
+  <div class="page-header">
+    <div class="header-left">
+      <button class="back-btn">
+        ← Back to Inventory
+      </button>
+      <h1>📦 Equipment Details</h1>
+      
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-secondary">
+        📱 View QR Code
+      </button>
+      <button class="btn btn-secondary">
+        🖨️ Print Tag
+      </button>
+      <button class="btn btn-primary">
+        ✏️ Edit
+      </button>
+      <button class="btn btn-primary">
+        📦 Transfer
+      </button>
+    </div>
+  </div>
+
+  
+    <div class="content-grid">
+      <!-- Basic Information -->
+      <div class="info-card">
+        <h3>📋 Basic Information</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Asset Tag</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.assetTag || 'N/A'"></span></span>
+          </div>
+          <div class="info-item">
+            <label>Serial Number</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.serialNumber"></span></span>
+          </div>
+          <div class="info-item">
+            <label>Category</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.category"></span></span>
+          </div>
+          <div class="info-item">
+            <label>Equipment Type</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.equipmentType"></span></span>
+          </div>
+          <div class="info-item">
+            <label>Manufacturer</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.manufacturer || 'N/A'"></span></span>
+          </div>
+          <div class="info-item">
+            <label>Model</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.model || 'N/A'"></span></span>
+          </div>
+          <div class="info-item">
+            <label>Status</label>
+            <span class="status-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.status"></span></span>
+          </div>
+          <div class="info-item">
+            <label>Condition</label>
+            <span class="condition-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.condition"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Location -->
+      <div class="info-card">
+        <h3>📍 Current Location</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Location Type</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation?.type === 'unassigned' ? 'Unassigned' : (item.currentLocati"></span></span>
+          </div>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.currentLocation?.type === 'unassigned'"><div class="info-item">
+              <span class="value">Assign during deploy</span>
+            </div></div>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.currentLocation?.type !== 'unassigned' && item.currentLocation?.warehouse"><div class="info-item">
+              <label>Warehouse</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.warehouse.name || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Section</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.warehouse.section || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Aisle</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.warehouse.aisle || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Shelf</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.warehouse.shelf || 'N/A'"></span></span>
+            </div></div>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.currentLocation?.type !== 'unassigned' && item.currentLocation?.tower"><div class="info-item">
+              <label>Rack</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.tower.rack || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Rack Unit</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.tower.rackUnit || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Cabinet</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation.tower.cabinet || 'N/A'"></span></span>
+            </div></div>
+        </div>
+      </div>
+
+      <!-- Purchase Information -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.purchaseInfo"><div class="info-card">
+          <h3>💰 Purchase Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Vendor</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.purchaseInfo.vendor || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Purchase Date</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.purchaseInfo.purchaseDate)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Purchase Price</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(item.purchaseInfo.purchasePrice)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>PO Number</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.purchaseInfo.purchaseOrderNumber || 'N/A'"></span></span>
+            </div>
+          </div>
+        </div></div>
+
+      <!-- Warranty Information -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.warranty"><div class="info-card">
+          <h3>🛡️ Warranty Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Provider</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.warranty.provider || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Start Date</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.warranty.startDate)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>End Date</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.warranty.endDate)"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Type</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.warranty.type || 'N/A'"></span></span>
+            </div>
+          </div>
+        </div></div>
+
+      <!-- Technical Specifications -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.technicalSpecs"><div class="info-card">
+          <h3>⚙️ Technical Specifications</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Power Requirements</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.technicalSpecs.powerRequirements || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>IP Address</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.technicalSpecs.ipAddress || 'N/A'"></span></span>
+            </div>
+            <div class="info-item">
+              <label>Management URL</label>
+              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.technicalSpecs.managementUrl || 'N/A'"></span></span>
+            </div>
+          </div>
+        </div></div>
+
+      <!-- Module Integration -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.modules"><div class="info-card">
+          <h3>🔗 Module Integration</h3>
+          <div class="info-grid">
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.modules.acs"><div class="info-item">
+                <label>ACS Device ID</label>
+                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.modules.acs.deviceId"></span></span>
+              </div>
+              <div class="info-item">
+                <label>ACS Last Sync</label>
+                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.modules.acs.lastSync)"></span></span>
+              </div></div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.modules.cbrs"><div class="info-item">
+                <label>CBRS CBSD ID</label>
+                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.modules.cbrs.cbsdId"></span></span>
+              </div>
+              <div class="info-item">
+                <label>CBRS Last Sync</label>
+                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.modules.cbrs.lastSync)"></span></span>
+              </div></div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.modules.coverageMap"><div class="info-item">
+                <label>Coverage Map Site ID</label>
+                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.modules.coverageMap.siteId"></span></span>
+              </div>
+              <div class="info-item">
+                <label>Map Last Sync</label>
+                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.modules.coverageMap.lastSync)"></span></span>
+              </div></div>
+          </div>
+        </div></div>
+
+      <!-- Notes -->
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.notes"><div class="info-card full-width">
+          <h3>📝 Notes</h3>
+          <div class="notes-content">
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.notes"></span>
+          </div>
+        </div></div>
+
+      <!-- Metadata -->
+      <div class="info-card full-width">
+        <h3>📊 Metadata</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Created</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.createdAt)"></span></span>
+          </div>
+          <div class="info-item">
+            <label>Last Updated</label>
+            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.updatedAt)"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label=":id data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/inventory/:id"}</script>
+
+<!-- QR Code Modal -->
+
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/inventory/:id","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

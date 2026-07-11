@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "stats": { "activeRecords": 12, "openAlerts": 2, "pendingTasks": 3 },
+  "tenants": [
+    { "id": "t1", "name": "Acme Org", "displayName": "Acme Org", "status": "active" },
+    { "id": "t2", "name": "Beta Org", "displayName": "Beta Org", "status": "trial" }
+  ],
+  "items": [
+    { "id": "t1", "name": "Acme Org", "status": "active" },
+    { "id": "t2", "name": "Beta Org", "status": "trial" }
+  ],
+  "modules": [
+    { "id": "customers", "name": "Customers", "status": "active" },
+    { "id": "inventory", "name": "Inventory", "status": "active" }
+  ]
+}

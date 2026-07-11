@@ -13,6 +13,15 @@
 
 Do **not** attach GPUs to the CPU test VM — keep Migration OS cheap and stable.
 
+## Close gate (CPU)
+
+Before spending GPU time, run the prep gate locally or on the CPU VM:
+
+```bash
+pnpm run hub:gpu-lab-close-smoke   # G9620 — manifest + orchestrator contract
+pnpm run hub:is-t2-lora-prep-smoke # G8610 — same manifest path
+```
+
 ## Quick start
 
 Use the **same remote pattern as `pnpm run wisp:deploy:gce`** (`scripts/gce-wisp-local-stack-deploy.ps1` on **`chrysalis-test-vm`**):
@@ -77,7 +86,7 @@ pnpm run gpu-lab:train
 | Path | Purpose |
 | --- | --- |
 | `reports/web-llm/dataset/training-shards.v1.jsonl` | Verify-gated training shards |
-| `reports/web-llm/lora/train-manifest.v1.json` | IS-T2 manifest (`chrysalis.web-llm.lora-train-manifest`) |
+| `reports/web-llm/lora/train-manifest.v1.json` | IS-T2 manifest (`chrysalis.web-llm.lora-train-manifest`) — **repo-relative posix paths** (**D6395**) |
 | `reports/web-llm/lora/adapter/` | LoRA output (after real train on GPU VM) |
 
 ## Train (operator)
@@ -87,10 +96,9 @@ Default **`gpu-lab:train`** is **dry-run** (`CHRYSALIS_GPU_LAB_DRY_RUN=1`): chec
 For a real QLoRA session on the lab VM:
 
 1. Sync repo to lab (`pnpm run gpu-lab:sync`) or use CPU VM orchestrator (`pnpm run gpu-lab:gce`)
-2. On GPU VM: `pip install torch transformers peft datasets accelerate bitsandbytes`
-3. Run in-repo script: `python3 scripts/chrysalis-lora-qlora-train.py --manifest reports/web-llm/lora/train-manifest.v1.json --output reports/web-llm/lora/adapter`
-4. Or via wrapper: `CHRYSALIS_GPU_LAB_DRY_RUN=0 pnpm run gpu-lab:train`
-5. Eval on **CPU** with WVB + `chrysalis verify` — models propose; WebIR + oracle + verify dispose
+2. Set `CHRYSALIS_GPU_LAB_DRY_RUN=0` (train script installs torch/peft/… on first real run)
+3. Optional zone override after stockout: `$env:CHRYSALIS_GPU_LAB_ZONE = "us-central1-b"`
+4. Eval on **CPU** with WVB + `chrysalis verify` — models propose; WebIR + oracle + verify dispose
 
 In-repo entry: **`scripts/chrysalis-lora-qlora-train.py`** + **`buildLoraTrainPlan`** in `@chrysalis/web-llm`. GPU deps stay on the lab VM only (**G9110** dry-run in CI).
 

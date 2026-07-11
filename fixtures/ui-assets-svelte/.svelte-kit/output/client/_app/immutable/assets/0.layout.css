@@ -1,0 +1,4 @@
+:root{--bg-primary:#0f1419;--accent:#00f2fe}
+nav.svelte-nav1a{display:flex;gap:1rem;background:var(--bg-primary)}
+nav.svelte-nav1a a:where(.svelte-nav1a){color:var(--accent)}
+@keyframes pulse{0%{opacity:1}50%{opacity:.5}100%{opacity:1}}

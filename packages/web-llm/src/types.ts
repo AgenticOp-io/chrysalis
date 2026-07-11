@@ -28,6 +28,11 @@ export type TrajectoryRecord = {
   domainId?: string;
   /** hit | near-miss | miss — live cache outcome (D6372). */
   isCacheOutcome?: "hit" | "near-miss" | "miss";
+  /**
+   * Provenance for product hit-rate honesty (G9760 / D6397).
+   * Seeds must not claim live-verified READY.
+   */
+  evidenceSource?: "seed" | "hub-convert-verify" | "synthetic-smoke";
   /** Wall-clock ms for verify dispose on this step. */
   verifyCostMs?: number;
   /** Source digest binding the capsule (invalidation key). */

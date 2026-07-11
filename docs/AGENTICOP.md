@@ -3,7 +3,7 @@
 **AgenticOp** is the public **practice** for verification-led modernization and operations: delivery centers **CWL** as the migration contract and **Intelligence Shorthand** so agents skip heavyweight LLM calls when verify already externalized the answer — always **grounded in production behavior** (oracle traces and replay), not speculative rewrites.
 
 - **Site / primary domain:** https://agenticop.io  
-- **Demo hub (HTTPS):** https://hub.agenticop.io — Translation Hub operator UI (Caddy + Let's Encrypt on GCE).  
+- **Demo hub (HTTPS):** https://chrysalis.agenticop.io — Chrysalis public UI (nginx + certbot on GCE; alias **https://hub.agenticop.io**).  
 - **WISP demo (HTTPS, optional):** https://wisp.agenticop.io  
 - **Display name:** **AgenticOp** (not “AgenticOps”; avoid **`agenticops.*`** hostnames in new materials).
 
@@ -67,22 +67,31 @@ Script: **`scripts/publish-zenodo.mjs`**. Do **not** enable GitHub–Zenodo rele
 
 **Legacy:** Root **`firebase.json`** + **`.firebaserc`** in this repo are **not** used for production deploys. They remain for historical reference only; use **`agenticops-web`** instead.
 
-## Demo hub TLS (`hub.agenticop.io`)
+## Demo hub TLS (`hub.agenticop.io` / `chrysalis.agenticop.io`)
 
-The Translation Hub runs on GCE **`chrysalis-test-vm`** (port **19090**). Public HTTPS uses **nginx + certbot** on the VM (port **80** is already nginx; **443** terminates TLS and reverse-proxies to **19090**).
+**Authority:** **DESIGN D6396** · [`HUB-DEMO-INSTALL.md`](./HUB-DEMO-INSTALL.md) · [`nginx/chrysalis-hub.vhost.example`](./nginx/chrysalis-hub.vhost.example)
+
+The Translation Hub runs on GCE **`chrysalis-test-vm`** (app port **19090**). Public HTTPS uses **nginx + certbot webroot** on the VM: **443** terminates TLS and reverse-proxies to **`127.0.0.1:19090`**. Port **80** is shared with FDE — Chrysalis only adds site **`chrysalis-hub`**.
 
 ### One-time DNS (at your registrar)
 
 | Host | Type | Value |
 | --- | --- | --- |
-| `hub.agenticop.io` | A | GCE VM external IP (same as hub IP deploy) |
-| `wisp.agenticop.io` | A | same IP (optional; WISP on **19100**) |
+| `hub.agenticop.io` | A | **34.61.255.147** (`chrysalis-test-vm` external IP) |
+| `chrysalis.agenticop.io` | A | same IP (required alias) |
+| `wisp.agenticop.io` | A | same IP (optional; WISP chimera on **19100** — separate vhost, not this procedure) |
 
-Wait for DNS propagation before running TLS setup (Let's Encrypt HTTP-01).
+Wait for DNS propagation before certbot (Let's Encrypt HTTP-01).
 
 ### GCP firewall
 
-Allow **tcp:443** to the VM (e.g. tag **`chrysalis-hub`** or default network rule). Port **19090** can stay for direct IP access during transition.
+Allow **tcp:443** (and **tcp:80** for ACME) to the VM. After HTTPS works and the hub binds **`127.0.0.1`**, optionally **close tcp:19090**.
+
+### Do not touch (shared VM)
+
+- FDE nginx sites: **`fragility-default-ip`**, **`fragility-public`**
+- FDE runner port **8765**
+- FDE **`default_server`** on **:80**
 
 ### Deploy TLS on the VM
 
@@ -94,6 +103,6 @@ pnpm run deploy:hub-caddy-tls
 
 Or: **`.\scripts\gce-hub-caddy-deploy.ps1 -Project chrysalis-dev-f5x6qv`**
 
-Script: **`scripts/gce-hub-nginx-tls.sh`** (invoked by **`pnpm run deploy:hub-caddy-tls`**). Override hosts with **`CHRYSALIS_HUB_PUBLIC_HOST`**, **`CHRYSALIS_WISP_PUBLIC_HOST`**, ACME email with **`CHRYSALIS_HUB_ACME_EMAIL`** (default **`hello@agenticop.io`**). Set **`CHRYSALIS_HUB_NGINX_WISP=1`** when **`wisp.agenticop.io`** DNS exists.
+Script: **`scripts/gce-hub-nginx-tls.sh`**. Hosts default to **`hub.agenticop.io chrysalis.agenticop.io`**. ACME email default **`admin@agenticop.io`** (`CHRYSALIS_HUB_ACME_EMAIL`). ACME webroot **`/var/www/chrysalis/acme`**.
 
-After TLS is live, site and WISP doc links default to **`https://hub.agenticop.io`**. Override with **`CHRYSALIS_HUB_DOCS_BASE`** for IP-only dev.
+After TLS is live, Chrysalis doc links default to **`https://chrysalis.agenticop.io`**. Override with **`CHRYSALIS_HUB_DOCS_BASE`** for IP-only dev.

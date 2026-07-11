@@ -36,6 +36,13 @@ export function readTrainingShardsFromJsonl(jsonlPath: string): TrainingShard[] 
     .filter((s) => s.kind === WEB_LLM_TRAINING_SHARD_KIND);
 }
 
+/** Repo-relative posix paths so Windows prep → Linux GPU VM stays portable (G9620 / D6395). */
+const REL_DATASET_JSONL = "reports/web-llm/dataset/training-shards.v1.jsonl";
+const REL_DATASET_JSON = "reports/web-llm/dataset/training-shards.v1.json";
+const REL_EVAL_PROMPTS = "reports/web-llm/dataset/wvb-eval-prompts.v1.json";
+const REL_SHORTHAND = "reports/web-llm/shorthand/intelligence-shorthands.v1.json";
+const REL_OUTPUT_DIR = "reports/web-llm/lora";
+
 export function buildLoraTrainManifest(opts: {
   repoRoot: string;
   shards?: TrainingShard[];
@@ -43,14 +50,11 @@ export function buildLoraTrainManifest(opts: {
   provenance?: string[];
 }): LoraTrainManifest {
   const repoRoot = opts.repoRoot;
-  const datasetDir = join(repoRoot, "reports/web-llm/dataset");
-  const jsonlPath = join(datasetDir, "training-shards.v1.jsonl");
-  const jsonPath = join(datasetDir, "training-shards.v1.json");
-  const evalPath = join(datasetDir, "wvb-eval-prompts.v1.json");
-  const shorthandPath = join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json");
-  const outputDir = join(repoRoot, "reports/web-llm/lora");
+  const jsonlAbs = join(repoRoot, REL_DATASET_JSONL);
+  const evalAbs = join(repoRoot, REL_EVAL_PROMPTS);
+  const shorthandAbs = join(repoRoot, REL_SHORTHAND);
 
-  const shards = opts.shards ?? readTrainingShardsFromJsonl(jsonlPath);
+  const shards = opts.shards ?? readTrainingShardsFromJsonl(jsonlAbs);
   const verifyGreenCount = shards.filter((s) => s.gate?.ok === true).length;
 
   return {
@@ -60,11 +64,11 @@ export function buildLoraTrainManifest(opts: {
     baseModel: opts.baseModel ?? DEFAULT_IS_T2_BASE_MODEL,
     shardCount: shards.length,
     verifyGreenCount,
-    datasetJsonlPath: jsonlPath,
-    datasetJsonPath: jsonPath,
-    evalPromptsPath: existsSync(evalPath) ? evalPath : null,
-    shorthandBundlePath: existsSync(shorthandPath) ? shorthandPath : null,
-    outputDir,
+    datasetJsonlPath: REL_DATASET_JSONL,
+    datasetJsonPath: REL_DATASET_JSON,
+    evalPromptsPath: existsSync(evalAbs) ? REL_EVAL_PROMPTS : null,
+    shorthandBundlePath: existsSync(shorthandAbs) ? REL_SHORTHAND : null,
+    outputDir: REL_OUTPUT_DIR,
     provenance: opts.provenance ?? ["chrysalis.web-llm.export-lora-manifest"],
     generatedAt: new Date().toISOString(),
   };

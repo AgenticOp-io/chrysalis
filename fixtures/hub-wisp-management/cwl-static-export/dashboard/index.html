@@ -1,77 +1,109 @@
-<div class="dashboard-container" data-wisp-page="dashboard" data-cwl-island="client">
-  <div class="header">
-    <div class="header-content">
-      <div class="header-brand">
-        <div class="logo-section">
-          <img src="/wisptools-logo.svg" alt="WISP Management" class="dashboard-logo" width="72" height="72" />
-          <div class="branding">
-            <h1 class="app-title">WISP Management</h1>
-            <p class="app-subtitle">wisptools.io</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dashboard</title>
+<link rel="stylesheet" href="/assets/original-css/dashboard.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<!-- First-Time Setup Wizard -->
+  
+  
+  <div class="dashboard-container">
+    <!-- Header: centered logo + text, icons directly below -->
+    <div class="header">
+      <div class="header-content">
+        <div class="header-brand">
+          <div class="logo-section">
+            <img src="/wisptools-logo.svg" alt="WISP Management" class="dashboard-logo" />
+            <div class="branding">
+              <h1 class="app-title">WISP Management</h1>
+              <p class="app-subtitle">wisptools.io</p>
             <p class="poc-notice">wisptools.io · Source code: <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">github.com/theorem6/WISP-Management</a></p>
+            </div>
           </div>
-        </div>
-        <div class="header-icons">
-          <a href="/help" class="icon-btn doc-btn" title="Help" aria-label="Open help"><span class="doc-icon">📖</span></a>
-          <button type="button" class="icon-btn power-btn" data-cwl-on-click="logout" title="Logout" aria-label="Logout">
-            <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-              <line x1="12" y1="2" x2="12" y2="12"></line>
-            </svg>
-          </button>
+          <div class="header-icons">
+            <a class="icon-btn apk-btn" title="Download Field App" aria-label="Download WISP Field App (APK)" download>
+              <span class="apk-icon">📱</span>
+            </a>
+            <a href="/help" class="icon-btn doc-btn" title="Help" aria-label="Open help">
+              <span class="doc-icon">📖</span>
+            </a>
+            <button class="icon-btn gear-btn" title="Settings" aria-label="Open settings">
+              <svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </button>
+            
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="main-content">
-    <div class="modules-section">
-      <div class="modules-grid"><a class="module-card active" href="/modules/plan" aria-label="Open 📋 Plan">
-  <div class="module-header"><h3 class="module-name">📋 Plan</h3></div>
-  <p class="module-description">Interactive map-based planning tools for network expansion</p>
-  <div class="module-features"><ul><li>Coverage Analysis</li><li>Site Planning</li><li>Inventory Check</li><li>CBRS Spectrum</li><li>Capacity Planning</li><li>Cost Analysis</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/deploy" aria-label="Open 🚀 Deploy">
-  <div class="module-header"><h3 class="module-name">🚀 Deploy</h3></div>
-  <p class="module-description">Interactive map-based deployment tools for network rollouts</p>
-  <div class="module-features"><ul><li>PCI Resolution</li><li>ACS CPE Management</li><li>Work Orders</li><li>Installation Management</li><li>Equipment Configuration</li><li>Quality Assurance</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/monitor" aria-label="Open 📊 Monitor">
-  <div class="module-header"><h3 class="module-name">📊 Monitor</h3></div>
-  <p class="module-description">Interactive map-based monitoring tools for network oversight</p>
-  <div class="module-features"><ul><li>Network Monitoring</li><li>Device Health</li><li>Traffic Analysis</li><li>Performance Analytics</li><li>Alert Management</li><li>HSS Management</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/maintain" aria-label="Open 🔧 Maintain">
-  <div class="module-header"><h3 class="module-name">🔧 Maintain</h3></div>
-  <p class="module-description">Traditional interface for ticketing and maintenance management</p>
-  <div class="module-features"><ul><li>Ticketing System</li><li>Preventive Maintenance</li><li>Incident Management</li><li>Customer Support</li><li>Vendor Management</li><li>Knowledge Base</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/customers" aria-label="Open 👥 Customers">
-  <div class="module-header"><h3 class="module-name">👥 Customers</h3></div>
-  <p class="module-description">Manage customers and the customer portal</p>
-  <div class="module-features"><ul><li>Customer Database</li><li>Customer Portal</li><li>Service Management</li><li>Installation History</li><li>Customer Support</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/hardware" aria-label="Open 🔧 Hardware">
-  <div class="module-header"><h3 class="module-name">🔧 Hardware</h3></div>
-  <p class="module-description">Comprehensive equipment and hardware management system</p>
-  <div class="module-features"><ul><li>Equipment Inventory</li><li>Asset Tracking</li><li>Hardware Management</li><li>Status Monitoring</li><li>Location Tracking</li><li>Maintenance Records</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a>
-<a class="module-card active" href="/modules/voice-telephony" aria-label="Open 📞 Voice / SIP">
-  <div class="module-header"><h3 class="module-name">📞 Voice / SIP</h3></div>
-  <p class="module-description">Telephone numbers, carrier linkage, E911, and number porting (LNP)</p>
-  <div class="module-features"><ul><li>Provider accounts</li><li>TN inventory</li><li>E911 status</li><li>Port orders</li><li>Domain reference</li></ul></div>
-  <div class="module-status"><span class="status-badge active">Active</span></div>
-</a></div>
+
+    <div class="cwl-widget-shell" data-cwl-widget-shell="GlobalSettings" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>t1</td><td>active</td></tr><tr><td>t2</td><td>trial</td></tr></tbody></table></div> (showSettings = false)} />
+    <div class="cwl-modal-shell" data-cwl-modal-shell="TipsModal" aria-hidden="true" role="dialog"></div> (showTipsModal = false)} />
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Core Modules -->
+      <div class="modules-section">
+        <div class="modules-grid">
+          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="modules as module"><div 
+              class="module-card" role="button"
+              tabindex="0"
+              aria-label="Open . "
+            >
+              <div class="module-header">
+                <h3 class="module-name"></h3>
+              </div>
+              
+              <div class="module-features">
+                <ul>
+                  <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="module.features as feature"><li></li></div>
+                </ul>
+              </div>
+
+              <div class="module-status">
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="module.status === 'active'"><span class="status-badge active">Active</span></div>
+              </div>
+            </div></div>
+        </div>
+      </div>
+
+      <!-- Admin Modules -->
+      
+        <div class="admin-section">
+          <h2 class="section-title">Administration</h2>
+          <div class="admin-modules">
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="adminModules as module"><div 
+                class="admin-card"
+                role="button"
+                tabindex="0"
+                aria-label="Open . "
+              >
+                <div class="admin-icon" style="background-color: 20; color: ">
+                  
+                </div>
+                <div class="admin-info">
+                  <h3 class="admin-name"></h3>
+                  <p class="admin-description"></p>
+                </div>
+              </div></div>
+          </div>
+        </div>
+      
+
+      <!-- Footer: License + GitHub -->
+      <footer class="app-footer">
+        <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <span class="sep">·</span>
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
+      </footer>
     </div>
-    <footer class="app-footer">
-      <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <span class="sep">·</span>
-      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
-    </footer>
   </div>
-</div>
-<script type="application/json" id="cwl-page-load">{"tenantLabel":"WISP Tenant","source":"wisp-m30","moduleCount":7}</script>
+<script type="application/json" id="cwl-page-load">{"tenantLabel":"WISP Tenant","source":"wisp-m30","moduleCount":7,"apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

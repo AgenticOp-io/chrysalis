@@ -13,11 +13,12 @@
     "clean": "rimraf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@chrysalis/webir": "workspace:*",
+    "@chrysalis/emit-shared": "workspace:*",
+    "@chrysalis/hub-native-bridge": "workspace:*",
+    "@chrysalis/oracle": "workspace:*",
     "@chrysalis/parser-bridge": "workspace:*",
     "@chrysalis/python-bridge": "workspace:*",
-    "@chrysalis/hub-native-bridge": "workspace:*",
-    "@chrysalis/emit-shared": "workspace:*"
-  },
-  "devDependencies": {}
+    "@chrysalis/webir": "workspace:*",
+    "postcss": "^8.5.16"
+  }
 }

@@ -1,20 +1,109 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_user_management_roles" data-wisp-path="/modules/user-management/roles" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/users">
-  <header class="wisp-demo-header">
-    <h1>Roles</h1>
-    <p class="wisp-demo-desc">Operational workspace for Roles — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/user-management/roles/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>150</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>6</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>13</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>roles</title>
+<link rel="stylesheet" href="/assets/original-css/modules_user-management_roles.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="role-management-page">
+  <div class="page-header">
+    <div class="header-left">
+      <button class="btn-back">
+        ← Back
+      </button>
+      <div>
+        <h1>👥 Role Management</h1>
+        <p class="subtitle">Define FCAPS permissions (Fault, Configuration, Accounting, Performance, Security) for each role</p>
+      </div>
+    </div>
+  </div>
+
+  
+
+  
+
+  <!-- Role Selector -->
+  <div class="role-selector-section">
+    <h2>Select Role</h2>
+    <div class="role-tabs">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="EDITABLE_ROLES as role"><button
+          class="role-tab" style="border-color: "
+        >
+          <span class="role-icon"></span>
+          <span class="role-name"></span>
+        </button></div>
+    </div>
+    
+  </div>
+
+  <!-- FCAPS Legend -->
+  <div class="fcaps-legend">
+    <h3>FCAPS Categories:</h3>
+    <div class="legend-items">
+      <div class="legend-item">
+        <strong>F</strong> - <span>Fault:</span> Monitoring, alarms, error handling
+      </div>
+      <div class="legend-item">
+        <strong>C</strong> - <span>Configuration:</span> Settings, changes, management
+      </div>
+      <div class="legend-item">
+        <strong>A</strong> - <span>Accounting:</span> Billing, usage tracking
+      </div>
+      <div class="legend-item">
+        <strong>P</strong> - <span>Performance:</span> Metrics, analytics, monitoring
+      </div>
+      <div class="legend-item">
+        <strong>S</strong> - <span>Security:</span> Access control, authentication
+      </div>
+    </div>
+    <div class="operations-legend">
+      <strong>Operations:</strong> <span class="badge">R</span> = Read, <span class="badge">W</span> = Write, <span class="badge">D</span> = Delete
+    </div>
+  </div>
+
+  <!-- Modules Grid -->
+  <div class="modules-section">
+    <h2>Module Permissions for <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ROLE_NAMES[selectedRole]"></span></h2>
+    <div class="modules-grid">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="MODULES as module">
+        <div class="module-card">
+          <div class="module-header">
+            <span class="module-icon"></span>
+            <div>
+              <h3></h3>
+              <p class="module-description"></p>
+            </div>
+          </div>
+          
+          <div class="fcaps-matrix">
+            <div class="matrix-header">
+              <div class="category-col"></div>
+              <div class="operation-col">R</div>
+              <div class="operation-col">W</div>
+              <div class="operation-col">D</div>
+            </div>
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="FCAPS_CATEGORIES as category"><div class="matrix-row">
+                <div class="category-label"></div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="FCAPS_OPERATIONS as op">
+                  <div class="permission-cell">
+                    
+                  </div></div>
+              </div></div>
+          </div>
+          
+          <button class="btn-edit">
+            ✏️ Edit Permissions
+          </button>
+        </div></div>
+    </div>
+  </div>
+
+  <!-- Edit Permission Modal -->
+  
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Roles data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/user-management/roles"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/user-management/roles","apiPath":"/api/users","api_ok":true,"api_surface":"wisp-api-native","api_resource":"users","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

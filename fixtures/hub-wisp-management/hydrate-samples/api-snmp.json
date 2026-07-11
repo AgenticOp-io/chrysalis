@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "stats": { "rssi": -72, "sinr": 18, "uptimeHours": 120 },
+  "devices": [
+    { "id": "cpe-1", "name": "Tower A CPE", "status": "online" },
+    { "id": "cpe-2", "name": "Tower B CPE", "status": "degraded" }
+  ],
+  "cpeDevices": [
+    { "id": "cpe-1", "name": "Tower A CPE", "status": "online" },
+    { "id": "cpe-2", "name": "Tower B CPE", "status": "degraded" }
+  ],
+  "items": [
+    { "id": "cpe-1", "name": "Tower A CPE", "status": "online" },
+    { "id": "cpe-2", "name": "Tower B CPE", "status": "degraded" }
+  ]
+}

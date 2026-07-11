@@ -1,20 +1,161 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_tenant_management" data-wisp-path="/modules/tenant-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/tenants">
-  <header class="wisp-demo-header">
-    <h1>Tenant Management</h1>
-    <p class="wisp-demo-desc">Operational workspace for Tenant Management — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/tenant-management/add">Add new</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>162</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>10</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>20</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tenant-management</title>
+<link rel="stylesheet" href="/assets/original-css/modules_tenant-management.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="tenant-management-page">
+  <div class="page-header">
+    <div>
+      <button class="back-btn">
+        ← Back to Dashboard
+      </button>
+      <h1>🏢 Tenant Management</h1>
+      <p class="subtitle">Manage all organizations and customer accounts</p>
+      <div class="admin-badge">
+        <span>🔐</span>
+        <span>Platform Admin Access</span>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-secondary">
+        🔑 CBRS Platform Keys
+      </button>
+      <button class="btn-primary">
+        ➕ Create New Tenant
+      </button>
+    </div>
+  </div>
+
+  
+
+  
+
+  <!-- Create Tenant Form -->
+  
+
+  <!-- Tenants List -->
+  <div class="tenants-section">
+    <h2>All Tenants (2)</h2>
+    
+    
+      <div class="tenants-grid">
+        <div class="tenant-card">
+            <div class="tenant-header">
+              <div class="tenant-icon">🏢</div>
+              <div class="tenant-status">
+                <span class="status-badge status-">
+                  
+                </span>
+              </div>
+            </div>
+
+            <h3 class="tenant-name"></h3>
+            <p class="tenant-id"></p>
+
+            <div class="tenant-info">
+              <div class="info-row">
+                <span class="label">Contact:</span>
+                <span class="value"></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Created:</span>
+                <span class="value"></span>
+              </div>
+              <div class="info-row">
+                <span class="label">CWMP URL:</span>
+                <span class="value url"></span>
+              </div>
+            </div>
+
+            <div class="tenant-stats">
+              <div class="stat">
+                <span class="stat-value"></span>
+                <span class="stat-label">Users</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value"></span>
+                <span class="stat-label">Devices</span>
+              </div>
+            </div>
+
+            <div class="tenant-actions">
+              <button class="btn-small">
+                ⚙️ Manage
+              </button>
+              <button class="btn-small">
+                📊 Settings
+              </button>
+              <button class="btn-small btn-danger">
+                🗑️ Delete
+              </button>
+            </div>
+          </div><div class="tenant-card">
+            <div class="tenant-header">
+              <div class="tenant-icon">🏢</div>
+              <div class="tenant-status">
+                <span class="status-badge status-">
+                  
+                </span>
+              </div>
+            </div>
+
+            <h3 class="tenant-name"></h3>
+            <p class="tenant-id"></p>
+
+            <div class="tenant-info">
+              <div class="info-row">
+                <span class="label">Contact:</span>
+                <span class="value"></span>
+              </div>
+              <div class="info-row">
+                <span class="label">Created:</span>
+                <span class="value"></span>
+              </div>
+              <div class="info-row">
+                <span class="label">CWMP URL:</span>
+                <span class="value url"></span>
+              </div>
+            </div>
+
+            <div class="tenant-stats">
+              <div class="stat">
+                <span class="stat-value"></span>
+                <span class="stat-label">Users</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value"></span>
+                <span class="stat-label">Devices</span>
+              </div>
+            </div>
+
+            <div class="tenant-actions">
+              <button class="btn-small">
+                ⚙️ Manage
+              </button>
+              <button class="btn-small">
+                📊 Settings
+              </button>
+              <button class="btn-small btn-danger">
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
+      </div>
+    
+  </div>
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Tenant Management data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/tenant-management"}</script>
+
+<!-- Edit Tenant Modal -->
+
+
+<!-- Delete Confirmation Dialog -->
+
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/tenant-management","apiPath":"/api/tenants","api_ok":true,"api_surface":"wisp-api-native","api_resource":"tenants","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

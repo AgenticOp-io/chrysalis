@@ -47,6 +47,8 @@ export type ResolveShorthandInput = {
   /** Optional utility store for near-miss score multiply / down-rank (G9530). */
   utilityStore?: IsUtilityStore;
   utilityStorePath?: string;
+  repoRoot?: string;
+  operatorDomainCount?: number;
 };
 
 export type ResolveShorthandResult = {
@@ -85,6 +87,8 @@ export function resolveShorthandForTask(input: ResolveShorthandInput): ResolveSh
       ...(input.lastDonorDomainId ? { lastDonorDomainId: input.lastDonorDomainId } : {}),
       ...(input.utilityStore ? { utilityStore: input.utilityStore } : {}),
       ...(input.utilityStorePath ? { utilityStorePath: input.utilityStorePath } : {}),
+      ...(input.repoRoot ? { repoRoot: input.repoRoot } : {}),
+      ...(input.operatorDomainCount != null ? { operatorDomainCount: input.operatorDomainCount } : {}),
     });
     return {
       domainId: transfer.domainId,

@@ -1,24 +1,53 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_login" data-wisp-path="/modules/customers/portal/login" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>Login</h1>
-    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-portal">
-  <nav class="wisp-demo-portal-nav">
-    <a href="/modules/customers/portal/dashboard">Dashboard</a>
-    <a href="/modules/customers/portal/tickets">Tickets</a>
-    <a href="/modules/customers/portal/billing">Billing</a>
-    <a href="/modules/customers/portal/knowledge">Knowledge</a>
-  </nav>
-  <section class="wisp-demo-portal-body">
-    <h2>Login</h2>
-    <p>Customer portal surface — demo content wired to native CWL API.</p>
-    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
-  </section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>login</title>
+<link rel="stylesheet" href="/assets/original-css/modules_customers_portal_login.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-container">
+    <div class="login-header">
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="branding?.logo?.url"><img class="login-logo" /></div>
+      <h2>Sign In</h2>
+      <p class="login-subtitle">Access your account to view tickets and service information</p>
+    </div>
+    
+      <form class="login-form">
+      
+      
+      <div class="form-group">
+        <label for="identifier">Customer ID, Email, or Phone</label>
+        <input
+          id="identifier"
+          type="text"
+          placeholder="Enter your customer ID, email, or phone"
+          required
+        />
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+      
+      <button type="submit" class="btn-primary">
+        Sign In
+      </button>
+    </form>
+    <div class="login-links">
+      
+    </div>
+  </div>
 </div>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers/portal/login"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers/portal/login","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

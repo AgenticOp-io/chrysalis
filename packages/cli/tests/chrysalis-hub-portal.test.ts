@@ -56,6 +56,67 @@ test("hub traces upload: parseMultipartFiles", async () => {
   expect(files[0].filename).toBe("t.ndjson");
 });
 
+test("hub traces upload: parseMultipartFiles keeps every file in a multi-file upload", async () => {
+  const { parseMultipartFiles } = await import(
+    fileURLToPath(new URL("../../../scripts/chrysalis-hub-traces-upload.mjs", import.meta.url))
+  );
+  const boundary = "----boundary";
+  const body = Buffer.from(
+    [
+      `--${boundary}`,
+      `Content-Disposition: form-data; name="files"; filename="a.ndjson"`,
+      "",
+      `{"a":1}`,
+      `--${boundary}`,
+      `Content-Disposition: form-data; name="files"; filename="b.ndjson"`,
+      "",
+      `{"b":2}`,
+      `--${boundary}`,
+      `Content-Disposition: form-data; name="files"; filename="c.ndjson"`,
+      "",
+      `{"c":3}`,
+      `--${boundary}--`,
+      "",
+    ].join("\r\n"),
+  );
+  const files = parseMultipartFiles(body, `multipart/form-data; boundary=${boundary}`);
+  expect(files.map((f) => f.filename)).toEqual(["a.ndjson", "b.ndjson", "c.ndjson"]);
+  expect(files.map((f) => f.data.toString())).toEqual(['{"a":1}', '{"b":2}', '{"c":3}']);
+});
+
+test("hub source upload: safeRelativePath rejects traversal and accepts nested paths", async () => {
+  const { safeRelativePath } = await import(
+    fileURLToPath(new URL("../../../scripts/chrysalis-hub-traces-upload.mjs", import.meta.url))
+  );
+  expect(safeRelativePath("pages/list.php")).toBe("pages/list.php");
+  expect(safeRelativePath("index.php")).toBe("index.php");
+  expect(safeRelativePath("../../etc/passwd")).toBeNull();
+  expect(safeRelativePath("/etc/passwd")).toBeNull();
+  expect(safeRelativePath("C:\\evil.php")).toBeNull();
+  expect(safeRelativePath("a/../../b")).toBeNull();
+  expect(safeRelativePath("node_modules/x.php")).toBeNull();
+});
+
+test("hub source upload: saveSourceFiles writes safe files, skips unsafe ones, flags routes manifest", async () => {
+  const { saveSourceFiles } = await import(
+    fileURLToPath(new URL("../../../scripts/chrysalis-hub-traces-upload.mjs", import.meta.url))
+  );
+  const { readFile } = await import("node:fs/promises");
+  const dir = await mkdtemp(join(tmpdir(), "chrysalis-hub-source-"));
+  try {
+    const result = await saveSourceFiles(dir, [
+      { field: "files", filename: "index.php", data: Buffer.from("<?php echo 1; ?>") },
+      { field: "files", filename: "pages/list.php", data: Buffer.from("<?php echo 2; ?>") },
+      { field: "files", filename: "chrysalis.routes.json", data: Buffer.from("{}") },
+      { field: "files", filename: "../../evil.txt", data: Buffer.from("nope") },
+    ]);
+    expect(result).toEqual({ saved: 3, skipped: 1, hasRoutesManifest: true });
+    expect((await readFile(join(dir, "pages", "list.php"), "utf8")).length).toBeGreaterThan(0);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("hub org: create and org-scoped project access", async () => {
   const prev = process.env.CHRYSALIS_HUB_ROOT;
   const root = await mkdtemp(join(tmpdir(), "chrysalis-hub-org-"));

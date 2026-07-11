@@ -1,24 +1,73 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_tickets_id" data-wisp-path="/modules/customers/portal/tickets/:id" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
-  <header class="wisp-demo-header">
-    <h1>:id</h1>
-    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-portal">
-  <nav class="wisp-demo-portal-nav">
-    <a href="/modules/customers/portal/dashboard">Dashboard</a>
-    <a href="/modules/customers/portal/tickets">Tickets</a>
-    <a href="/modules/customers/portal/billing">Billing</a>
-    <a href="/modules/customers/portal/knowledge">Knowledge</a>
-  </nav>
-  <section class="wisp-demo-portal-body">
-    <h2>:id</h2>
-    <p>Customer portal surface — demo content wired to native CWL API.</p>
-    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
-  </section>
-</div>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers/portal/tickets/:id"}</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>preview</title>
+<link rel="stylesheet" href="/assets/original-css/modules_customers_portal_tickets_id_.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="ticket-details-page">
+    <div class="page-header">
+      <a href="/modules/customers/portal/tickets" class="back-link">← Back to Tickets</a>
+      <h1>Ticket Details</h1>
+    </div>
+    
+    <div class="ticket-details">
+      <div class="ticket-header">
+        <div>
+          <span class="ticket-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.ticketNumber || 'N/A'"></span></span>
+          <span 
+            class="ticket-status" 
+            style="background:"
+          >
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.status"></span>
+          </span>
+        </div>
+        <div class="ticket-meta">
+          <span>Priority: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.priority"></span></span>
+          <span>Created: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="new Date(ticket.createdAt || '').toLocaleDateString()"></span></span>
+        </div>
+      </div>
+      
+      <div class="ticket-content">
+        <h2><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.title"></span></h2>
+        <p class="ticket-description"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.description || 'No description'"></span></p>
+      </div>
+      
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.workPerformed && ticket.workPerformed.length > 0"><div class="ticket-history">
+          <h3>Ticket History</h3>
+          <div class="history-list">
+            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ticket.workPerformed as work"><div class="history-item">
+                <div class="history-header">
+                  <span class="history-action"></span>
+                  <span class="history-date">
+                    
+                  </span>
+                </div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="work.performedByName"><div class="history-performer">
+                    By: 
+                  </div></div>
+                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="work.notes"><div class="history-notes"></div></div>
+              </div></div>
+          </div>
+        </div></div>
+      
+      <div class="add-comment">
+        <h3>Add Comment</h3>
+        <form>
+          <textarea
+            placeholder="Add a comment or update..."
+            rows="4"
+          ></textarea>
+          <button type="submit" class="btn-primary">
+            Add Comment
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers/portal/tickets/:id","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

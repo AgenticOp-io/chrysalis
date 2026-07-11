@@ -147,6 +147,7 @@ export async function applyHubConvertHoleProposals(input) {
     verifyCostMs: typeof verify.verifyCostMs === "number" ? verify.verifyCostMs : undefined,
     sourceDigest: artifact.sourceDigest,
     governorTier: mod.classifyConvertAction("hub_convert_verify_gate").tier,
+    evidenceSource: "hub-convert-verify",
   });
 
   if (artifact.domainId) {
@@ -326,6 +327,7 @@ export async function recordConvertVerifyGate(input) {
     domainId,
     verifyCostMs: typeof verify.verifyCostMs === "number" ? verify.verifyCostMs : undefined,
     sourceDigest,
+    evidenceSource: "hub-convert-verify",
   });
 
   if (verify.gatePass !== true && domainId) {
@@ -346,6 +348,12 @@ export async function recordConvertVerifyGate(input) {
       ...(typeof verify.correctness === "number" ? { verifyCorrectness: verify.correctness } : {}),
     });
     mod.writeIsUtilityStore(utilPath, store);
+  }
+
+  if (domainId && existsSync(trajectoryPath)) {
+    mod.snapshotOperatorTrajectoryForEvidence(scriptRoot, trajectoryPath, {
+      domainId: String(domainId),
+    });
   }
 
   return { verify, record, gatePass: verify.gatePass === true, verifyCostMs: verify.verifyCostMs };

@@ -180,6 +180,9 @@ importers:
       '@chrysalis/hub-native-bridge':
         specifier: workspace:*
         version: link:../hub-native-bridge
+      '@chrysalis/oracle':
+        specifier: workspace:*
+        version: link:../oracle
       '@chrysalis/parser-bridge':
         specifier: workspace:*
         version: link:../parser-bridge
@@ -189,6 +192,9 @@ importers:
       '@chrysalis/webir':
         specifier: workspace:*
         version: link:../webir
+      postcss:
+        specifier: ^8.5.16
+        version: 8.5.16
 
   packages/insight:
     dependencies:
@@ -259,6 +265,9 @@ importers:
 
   packages/runtime-cwl:
     dependencies:
+      '@chrysalis/emit-shared':
+        specifier: workspace:*
+        version: link:../emit-shared
       '@chrysalis/rewrite':
         specifier: workspace:*
         version: link:../rewrite
@@ -2358,6 +2367,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@3.3.15:
+    resolution: {integrity: sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
   nearley@2.20.1:
     resolution: {integrity: sha512-+Mc8UaAebFzgV+KpI5n7DasuuQCHA89dmwm7JXw3TV43ukfNQ9DnBH3Mdb2g/I4Fdxc26pwimBWvjIw0UAILSQ==}
     hasBin: true
@@ -2599,6 +2613,10 @@ packages:
 
   postcss@8.5.10:
     resolution: {integrity: sha512-pMMHxBOZKFU6HgAZ4eyGnwXF/EvPGGqUr0MnZ5+99485wwW41kW91A4LOGxSHhgugZmSChL5AlElNdwlNgcnLQ==}
+    engines: {node: ^10 || ^12 || >=14}
+
+  postcss@8.5.16:
+    resolution: {integrity: sha512-vuwillviilfKZsg0VGj5R/YwwcHx4SLsIOI/7K6mQkWx+l5cUHTjj5g0AasTBcyXsbfTgrwsUNmVUb5xVwyPwg==}
     engines: {node: ^10 || ^12 || >=14}
 
   postgres-array@2.0.0:
@@ -5547,6 +5565,8 @@ snapshots:
 
   nanoid@3.3.11: {}
 
+  nanoid@3.3.15: {}
+
   nearley@2.20.1:
     dependencies:
       commander: 2.20.3
@@ -5786,6 +5806,12 @@ snapshots:
   postcss@8.5.10:
     dependencies:
       nanoid: 3.3.11
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
+
+  postcss@8.5.16:
+    dependencies:
+      nanoid: 3.3.15
       picocolors: 1.1.1
       source-map-js: 1.2.1
 

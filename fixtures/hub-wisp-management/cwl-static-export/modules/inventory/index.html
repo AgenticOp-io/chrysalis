@@ -1,20 +1,210 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_inventory" data-wisp-path="/modules/inventory" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/inventory">
-  <header class="wisp-demo-header">
-    <h1>Inventory</h1>
-    <p class="wisp-demo-desc">Operational workspace for Inventory — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/inventory/add">Add new</a><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>186</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>6</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>9</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>inventory</title>
+<link rel="stylesheet" href="/assets/original-css/modules_inventory.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="inventory-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+        <button class="back-button">
+        ← Back to Dashboard
+      </button>
+      <h1>📦 Inventory Management</h1>
+      <p class="subtitle">Centralized asset tracking and management</p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-secondary"}>
+        🔍 Scan Lookup
+      </button>
+      <button class="btn-secondary"}>
+        📥 Scan Check In
+      </button>
+      <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="if (e.detail.id === 'inventory-checkin') true;
+          els"></span>}
+      />
+      <button class="btn-secondary"}>
+        📤 Scan Check Out
+      </button>
+      <button class="btn-secondary">
+        🔍 Manual Lookup
+      </button>
+      <button class="btn-secondary">
+        📦 Bundles
+      </button>
+      <button class="btn-secondary">
+        📊 View Reports
+      </button>
+      <button class="btn-secondary">
+        📥 Export CSV
+      </button>
+      <button class="btn-primary">
+        ➕ Add Item
+      </button>
+    </div>
+  </div>
+  
+  <!-- Alerts -->
+  
+  
+  
+  
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalItems"></span></div>
+        <div class="stat-label">Total Items</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('available')"></span>
+        </div>
+        <div class="stat-label">Available</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">🚀</div>
+      <div>
+        <div class="stat-value">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('deployed')"></span>
+        </div>
+        <div class="stat-label">Deployed</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div>
+        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(stats.totalValue)"></span></div>
+        <div class="stat-label">Total Value</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="🔍 Search by serial number, model, manufacturer..."
+        />
+      </div>
+      
+      <select>
+        <option>All Categories</option>
+        <option></option><option></option><option></option><option></option>
+      </select>
+      
+      <select>
+        <option>All Statuses</option>
+        <option></option><option></option><option></option><option></option><option></option>
+      </select>
+      
+      <select>
+        <option>All Locations</option>
+        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="locationTypes as locType"><option></option></div>
+      </select>
+      
+      <button class="btn-primary">Apply</button>
+      <button class="btn-secondary">Clear</button>
+    </div>
+  </div>
+  
+  <!-- Loading State -->
+  
+    <!-- Inventory Table -->
+    <div class="table-container">
+      <table class="inventory-table">
+        <thead>
+          <tr>
+            <th>Asset Tag</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Manufacturer</th>
+            <th>Model</th>
+            <th>Serial Number</th>
+            <th>Status</th>
+            <th>Condition</th>
+            <th>Location</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="pagination.pages > 1"><div class="pagination">
+        <button 
+          class="btn-secondary"
+        >
+          ← Previous
+        </button>
+        
+        <span class="pagination-info">
+          Page <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="pagination.page"></span> of <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="pagination.pages"></span> 
+          (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="pagination.total"></span> items)
+        </span>
+        
+        <button 
+          class="btn-secondary"
+        >
+          Next →
+        </button>
+      </div></div>
+  
+  
+  <!-- Manual Barcode Entry Modal -->
+  
+
+  <!-- Asset Tag Viewer -->
+  
+  
+  <!-- Scan Modal -->
+  
+  
+  <!-- Check-in Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="InventoryCheckInWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showCheckInWizard = false;
+      loadData(); // Refresh inventory after check-in"></span>}
+  />
+  <!-- RMA Tracking Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="RMATrackingWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showRMAWizard = false;
+      loadData();"></span>}
+  />
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Inventory data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/inventory"}</script>
+
+<!-- Help Button - Fixed Position -->
+<button class="help-button" aria-label="Open Help" title="Help">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    </modules/inventory d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"><//modules/inventory>
+    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+  </svg>
+</button>
+
+<!-- Help Modal -->
+<div class="cwl-modal-shell" data-cwl-modal-shell="TipsModal" aria-hidden="true" role="dialog"></div> false}
+/>
+
+<div class="cwl-modal-shell" data-cwl-modal-shell="HelpModal" aria-hidden="true" role="dialog"></div> false}
+/>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/inventory","apiPath":"/api/inventory","api_ok":true,"api_surface":"wisp-api-native","api_resource":"inventory","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

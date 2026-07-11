@@ -1,20 +1,57 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="demo" data-wisp-path="/demo" data-cwl-island="client" data-wisp-layout="dashboard">
-  <header class="wisp-demo-header">
-    <h1>Demo</h1>
-    <p class="wisp-demo-desc">Operational workspace for Demo — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>125</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>1</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>13</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Demo data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>demo</title>
+<link rel="stylesheet" href="/assets/original-css/demo.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="wrap">
+    <header class="hero">
+      <h1>Demo walkthrough</h1>
+      <p class="lead">
+        Seeded records use prefixes <code>CUST-DEMO-*</code>, <code>TKT-DEMO-*</code>,
+        <code>INC-DEMO-*</code>, <code>DEMO-SN-*</code>. Prefer editing and resolving over deleting.
+        Use one pre-provisioned demo login — see the operator runbook in the repo.
+      </p>
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$currentTenant"><p class="tenant">
+          Organization: <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.displayName"></span></strong>
+          <span class="muted">(<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.id"></span>)</span>
+        </p></div>
+    </header>
+
+    <div class="grid">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="links as item"><a class="card">
+          <h2></h2>
+          <p></p>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.hint"><span class="hint"></span></div>
+        </a></div>
+    </div>
+
+    <section class="doc">
+      <h2>Documentation (repository)</h2>
+      <ul>
+        <li>
+          Demo visitor (IP login, limits, purge on logout):
+          <code>docs/deployment/DEMO_VISITOR.md</code>
+        </li>
+        <li>
+          Operator runbook (logins, isolation, feature matrix, reset policy):
+          <code>docs/deployment/DEMO_RUNBOOK.md</code>
+        </li>
+        <li>
+          Seed &amp; env:
+          <code>scripts/demo/README.md</code>
+        </li>
+        <li>
+          Deploy:
+          <code>docs/deployment/DEMO_SITE.md</code>
+        </li>
+      </ul>
+    </section>
+  </div>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/demo"}</script>
+
+</body>
+</html>

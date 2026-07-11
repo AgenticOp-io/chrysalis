@@ -28,6 +28,8 @@ diffs each response against what was captured.
 - `normalizeBody` / `normalizeHeaders` — allowlisted normalization rules
   (timestamps, session-cookie values, UUIDs, whitespace). Exported so callers
   can extend them.
+- `verifyUiRouteStyleParity` / `verifyUiRouteMarkupParity` — in-memory lift parity for CSS selectors / HTML class inventories (**D6365**).
+- `verifySiteScaleMatrix({ projectDir, tracesDir?, cwlPaths? })` — site-scale conversion matrix (**D6366**, **G9440**): on-disk UI CSS/markup artifact integrity, traced API GET index, and CWL `load`-bind evidence. Missing layers skip; present failures fail. Smoke: **`pnpm run hub:site-scale-matrix-smoke`**.
 
 ### Replay environment (CLI + env)
 

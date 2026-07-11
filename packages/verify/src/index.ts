@@ -77,3 +77,28 @@ export {
   VERIFY_SUMMARY_BATCH_SCHEMA_VERSION,
   VERIFY_SUMMARY_KIND,
 } from "./verify-summary-batch.js";
+
+export {
+  UI_CSS_PARITY_KIND,
+  UI_CSS_PARITY_SCHEMA_VERSION,
+  verifyUiRouteStyleParity,
+  type UiCssParityReportV1,
+  type UiCssRouteParity,
+} from "./ui-css-parity.js";
+
+export {
+  UI_MARKUP_PARITY_KIND,
+  UI_MARKUP_PARITY_SCHEMA_VERSION,
+  verifyUiRouteMarkupParity,
+  type UiMarkupParityReportV1,
+  type UiMarkupRouteParity,
+} from "./ui-markup-parity.js";
+
+export {
+  SITE_SCALE_MATRIX_KIND,
+  SITE_SCALE_MATRIX_SCHEMA_VERSION,
+  verifySiteScaleMatrix,
+  type SiteScaleLayerResult,
+  type SiteScaleMatrixReportV1,
+  type VerifySiteScaleMatrixOptions,
+} from "./site-scale-matrix.js";

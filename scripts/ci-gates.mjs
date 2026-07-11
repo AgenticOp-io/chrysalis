@@ -868,6 +868,36 @@ function assertEmitLayoutFloors(pathArg) {
   console.log(`emit-layout-floors OK: path=${statsPath}`);
 }
 
+function assertUiParityFloors(pathArg) {
+  const maxFailed = parseOptionalEnvNonNegativeInt(
+    process.env.CHRYSALIS_UI_PARITY_MAX_ROUTES_FAILED,
+    "CHRYSALIS_UI_PARITY_MAX_ROUTES_FAILED",
+  );
+  if (maxFailed == null) {
+    console.log("ui-parity-floors skipped: set CHRYSALIS_UI_PARITY_MAX_ROUTES_FAILED");
+    return;
+  }
+  const parityPath = resolve(pathArg ?? "fixtures/ci/ui-parity-smoke.json");
+  const report = readJsonGateArtifact("ui-parity-floors", parityPath, {
+    missingLabel: "ui-css-parity report file missing",
+    missingHint: ["Run pnpm run hub:ui-asset-lift-smoke or pass path to chrysalis.verify.ui-css-parity JSON"],
+  });
+  if (report.kind !== "chrysalis.verify.ui-css-parity") {
+    fail(`ui-parity-floors: kind must be chrysalis.verify.ui-css-parity (got ${String(report.kind)})`);
+  }
+  if (report.ok !== true) {
+    fail("ui-parity-floors: report ok must be true");
+  }
+  const failed = Number(report.routesFailed);
+  if (!Number.isInteger(failed) || failed < 0) {
+    fail("ui-parity-floors: routesFailed must be a non-negative integer");
+  }
+  if (failed > maxFailed) {
+    fail(`ui-parity-floors: routesFailed ${failed} > CHRYSALIS_UI_PARITY_MAX_ROUTES_FAILED ${maxFailed}`);
+  }
+  console.log(`ui-parity-floors OK: path=${parityPath} routesFailed=${failed}`);
+}
+
 function assertMigrationSidecarFloors(dirArg) {
   const idioMin = parseOptionalEnvNumber(process.env.CHRYSALIS_IDIOMATICITY_MIN, "CHRYSALIS_IDIOMATICITY_MIN");
   const resMax = parseOptionalEnvNumber(process.env.CHRYSALIS_RESIDUAL_LEGACY_MAX, "CHRYSALIS_RESIDUAL_LEGACY_MAX");
@@ -1034,6 +1064,9 @@ switch (cmd) {
   case "emit-layout-floors":
     assertEmitLayoutFloors(arg0);
     break;
+  case "ui-parity-floors":
+    assertUiParityFloors(arg0);
+    break;
   case "session-bridge-release":
     assertSessionBridgeRelease();
     break;
@@ -1052,7 +1085,7 @@ switch (cmd) {
   default:
     console.error(
       "Usage: node scripts/ci-gates.mjs " +
-        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|hub-completion|hub-path-knowledge|hub-web-databases|wisp-cwl-pipeline|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|session-bridge-release> [path]",
+        "<status-migration|tiny-n1-insight|rewrite-pre-xss|tiny-n1-rewrite|confidence-5nines|confidence-trend|confidence-trend-ready|verify-dual-summary|verify-merged-summary|corpus-merge-summary|hub-completion|hub-path-knowledge|hub-web-databases|wisp-cwl-pipeline|migration-sidecar-floors|migration-sidecar-floors-release|emit-layout-floors|ui-parity-floors|session-bridge-release> [path]",
     );
     process.exit(1);
 }

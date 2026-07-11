@@ -223,6 +223,14 @@ if [[ "${CHRYSALIS_GCE_MIGRATION_OS:-1}" != "0" ]]; then
   log "phase: open legacy wedge (G8570)"
   run_phase open-legacy-wedge env CHRYSALIS_POC_SKIP_BUILD=1 CHRYSALIS_WEB_LLM_TRAJECTORY=1 pnpm run hub:site-port-open-legacy-wedge-smoke
 
+  if [[ "${CHRYSALIS_GCE_GPU_LAB:-1}" != "0" ]]; then
+    log "phase: GPU lab close prep (G9620, CPU only)"
+    run_phase gpu-lab-close env CHRYSALIS_POC_SKIP_BUILD=1 pnpm run hub:gpu-lab-close-smoke
+  else
+    log "phase: skip GPU lab prep (CHRYSALIS_GCE_GPU_LAB=0)"
+    skip_phase gpu-lab-close
+  fi
+
   log "phase: migration evidence hub refresh"
   run_phase migration-evidence-hub-refresh node scripts/migration-evidence-build-hub.mjs
 else
@@ -231,6 +239,7 @@ else
   skip_phase open-web-llm-close
   skip_phase wisp-web-llm-poc-close
   skip_phase open-legacy-wedge
+  skip_phase gpu-lab-close
   skip_phase migration-evidence-hub-refresh
 fi
 

@@ -8,13 +8,14 @@ In-process **HTTP runtime** for **Chrysalis Web Language (CWL)**. Loads CWL → 
 
 - `loadModuleFromCwlFile(path)` — lift `.cwl` to WebIR (monorepo hub bridge)
 - `loadModuleFromWebirJsonFile(path)` — load golden WebIR JSON
-- `createCwlRuntime({ module })` — `fetch()` + Node `http` handler
+- `createCwlRuntime({ module, uiAssets? })` — `fetch()` + Node `http` handler; optional **`uiAssets`** (**G9470** / **D6368**) wraps HTML fragments with document-shell stylesheet links and serves `/assets/original-css/*`
+- `loadCwlUiAssetsFromProject(projectDir)` — load `.chrysalis/ui-assets/` for `uiAssets`
 - `startCwlServer({ runtime, host, port })` — bind TCP port
 
 ### CLI
 
 ```
-pnpm exec chrysalis-cwl-serve --cwl fixtures/hub-gold-cwl/routes.cwl --port 8787
+pnpm exec chrysalis-cwl-serve --cwl fixtures/site-scale-matrix/routes.cwl --project fixtures/site-scale-matrix --port 8787
 ```
 
 ## Invariants

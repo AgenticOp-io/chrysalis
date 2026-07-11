@@ -1,0 +1,5 @@
+{
+  "ok": true,
+  "coverage": [{ "id": "c1", "name": "Sector Alpha", "status": "active" }],
+  "items": [{ "id": "c1", "name": "Sector Alpha", "status": "active" }]
+}

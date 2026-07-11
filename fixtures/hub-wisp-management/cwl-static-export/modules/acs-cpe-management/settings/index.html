@@ -1,20 +1,56 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_acs_cpe_management_settings" data-wisp-path="/modules/acs-cpe-management/settings" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/snmp">
-  <header class="wisp-demo-header">
-    <h1>Settings</h1>
-    <p class="wisp-demo-desc">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/acs-cpe-management/settings/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>172</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>0</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>15</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>settings</title>
+<link rel="stylesheet" href="/assets/original-css/modules_acs-cpe-management_settings.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="acs-settings-page">
+  <div class="page-header">
+    <div>
+      <button class="back-btn">
+        ← Back to ACS Management
+      </button>
+      <h1>⚙️ ACS Settings</h1>
+      <p class="subtitle">Demo Tenant - Device Management Configuration</p>
+    </div>
+  </div>
+
+  
+
+  
+
+  
+    <div class="settings-container">
+      <div class="tabs">
+        <button 
+          class="tab"
+        >
+          Device Management
+        </button>
+        <button 
+          class="tab"
+        >
+          Monitoring & Analytics
+        </button>
+        <button 
+          class="tab"
+        >
+          Authentication
+        </button>
+      </div>
+
+      
+
+      
+
+      
+    </div>
+  
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Settings data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/settings"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/settings","apiPath":"/api/snmp","api_ok":true,"api_surface":"wisp-api-native","api_resource":"snmp-monitoring","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

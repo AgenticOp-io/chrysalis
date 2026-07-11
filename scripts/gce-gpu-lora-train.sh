@@ -3,6 +3,7 @@
 set -euo pipefail
 
 LAB_ROOT="${CHRYSALIS_GPU_LAB_ROOT:-$HOME/chrysalis-gpu-lab}"
+export CHRYSALIS_GPU_LAB_ROOT="$LAB_ROOT"
 MANIFEST="${LAB_ROOT}/reports/web-llm/lora/train-manifest.v1.json"
 TRAIN_SH="${LAB_ROOT}/scripts/gce-gpu-lora-train.sh"
 MAX_MINUTES="${CHRYSALIS_GPU_LAB_MAX_MINUTES:-120}"
@@ -69,9 +70,39 @@ fi
 echo "[gce-gpu-lora-train] CHRYSALIS_GPU_LAB_DRY_RUN=0 — QLoRA via chrysalis-lora-qlora-train.py"
 echo "[gce-gpu-lora-train] output dir: ${OUT}"
 
+PY=python3
+if [[ -x /opt/conda/bin/python ]]; then
+  PY=/opt/conda/bin/python
+elif command -v conda >/dev/null 2>&1; then
+  CONDA_PY="$(conda info --base 2>/dev/null)/bin/python"
+  if [[ -x "$CONDA_PY" ]]; then PY="$CONDA_PY"; fi
+fi
+
+# Torch/Triton compiles a small CUDA extension; needs Python.h (python3-dev).
+if [[ ! -f /usr/include/python3.10/Python.h && ! -f /usr/include/python3.11/Python.h ]]; then
+  echo "[gce-gpu-lora-train] installing python3-dev/build-essential for Triton…"
+  if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update -qq
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-dev build-essential
+  fi
+fi
+
+if ! "$PY" -c "import torch, transformers, peft, datasets, accelerate" 2>/dev/null; then
+  echo "[gce-gpu-lora-train] installing GPU train deps via $PY …"
+  if ! "$PY" -m pip --version >/dev/null 2>&1; then
+    echo "[gce-gpu-lora-train] bootstrapping pip…"
+    curl -fsSL https://bootstrap.pypa.io/get-pip.py | "$PY"
+  fi
+  "$PY" -m pip install -q torch transformers peft datasets accelerate
+fi
+
+export PATH="${HOME}/.local/bin:${PATH}"
+export TORCHDYNAMO_DISABLE=1
+export TORCH_COMPILE_DISABLE=1
+
 if command -v timeout >/dev/null 2>&1; then
-  timeout --preserve-status "${MAX_SECONDS}s" python3 "$TRAIN_PY" --manifest "$MANIFEST" --output "$OUT"
+  timeout --preserve-status "${MAX_SECONDS}s" "$PY" "$TRAIN_PY" --manifest "$MANIFEST" --output "$OUT"
   exit $?
 fi
 
-python3 "$TRAIN_PY" --manifest "$MANIFEST" --output "$OUT"
+"$PY" "$TRAIN_PY" --manifest "$MANIFEST" --output "$OUT"

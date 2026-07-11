@@ -1,0 +1,24 @@
+{
+  "kind": "chrysalis.operator-evidence.seed-domains",
+  "schemaVersion": 2,
+  "minDomains": 50,
+  "minJobs": 50,
+  "notes": [
+    "Hub-convert-shaped IS routing trajectories from open legacy + federation shorthand corpus.",
+    "Enables salience v2 (≥20 domains) and product hit-rate sample floor (≥50 jobs, G9670).",
+    "Not a substitute for real hub-convert verify outcomes in production claims."
+  ],
+  "priorityIds": [
+    "tinyBlog",
+    "plainPhp",
+    "symfonyPhp",
+    "expressJs",
+    "laravelMin",
+    "cwlFullstack",
+    "wordpressProbe",
+    "hub-flagship-plain-php",
+    "hub-flagship-symfony",
+    "hub-flagship-express",
+    "hub-flagship-cwl-fullstack"
+  ]
+}

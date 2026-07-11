@@ -15,8 +15,19 @@ import { demoteShorthandsForDomain } from "../src/shorthand-demote.js";
 import {
   summarizeIsLiveAnalytics,
   summarizeIsLiveAnalyticsFromTrajectoryFile,
+  aggregateIsLiveAnalyticsFromTrajectoryFiles,
+  mergeIsLiveAnalyticsSummaries,
 } from "../src/shorthand-analytics.js";
-import { CYNOENGINE_ATTRIBUTION, scoreNearMissCandidates } from "../src/shorthand-salience.js";
+import {
+  CYNOENGINE_ATTRIBUTION,
+  SALIENCE_V2_MIN_OPERATOR_DOMAINS,
+  salienceV2ProductionReady,
+  productHitRateSampleReady,
+  productHitRateLiveReady,
+  scoreNearMissCandidates,
+  scoreNearMissCandidatesV2,
+  scoreNearMissCandidatesAuto,
+} from "../src/shorthand-salience.js";
 import {
   emptyIsUtilityStore,
   recordUtilityOutcome,
@@ -194,6 +205,28 @@ describe("@chrysalis/web-llm", () => {
     expect(summary.nearMissCount).toBe(1);
     expect(summary.missCount).toBe(1);
     expect(summary.verifyCostMsP50).toBe(50);
+    expect(summary.seedJobCount).toBe(0);
+    expect(summary.liveVerifiedJobCount).toBe(0);
+
+    const seeded = summarizeIsLiveAnalytics(
+      [
+        { domainId: "a", outcome: "hit", evidenceSource: "seed", sessionId: "seed-a" },
+        { domainId: "b", outcome: "miss", evidenceSource: "seed", sessionId: "seed-b" },
+      ],
+      { scope: "live-job" },
+    );
+    expect(seeded.seedJobCount).toBe(2);
+    expect(seeded.liveVerifiedJobCount).toBe(0);
+    expect(productHitRateSampleReady(2)).toBe(false);
+    expect(productHitRateLiveReady(0)).toBe(false);
+    expect(productHitRateLiveReady(50)).toBe(true);
+
+    const live = summarizeIsLiveAnalytics(
+      [{ domainId: "c", outcome: "hit", evidenceSource: "hub-convert-verify", sessionId: "hub-convert-1" }],
+      { scope: "live-job" },
+    );
+    expect(live.liveVerifiedJobCount).toBe(1);
+    expect(live.seedJobCount).toBe(0);
 
     const filePath = join(repoRoot, "generated/_web-llm-unit/is-live-analytics.jsonl");
     if (existsSync(filePath)) unlinkSync(filePath);
@@ -223,6 +256,48 @@ describe("@chrysalis/web-llm", () => {
     expect(fromFile.verifyCostMsP50).toBe(33);
   });
 
+  test("operator trajectory aggregate excludes synthetic smokes (G9600 / D6378)", () => {
+    const synthetic = summarizeIsLiveAnalytics(
+      [
+        { domainId: "a", outcome: "hit" },
+        { domainId: "b", outcome: "miss" },
+      ],
+      { scope: "synthetic-smoke" },
+    );
+    const operator = summarizeIsLiveAnalytics([{ domainId: "plainPhp", outcome: "hit", verifyCostMs: 50 }], {
+      scope: "live-job",
+    });
+    const merged = mergeIsLiveAnalyticsSummaries([synthetic, operator]);
+    expect(merged.jobCount).toBe(3);
+    expect(merged.scope).toBe("live-job");
+
+    const work = join(repoRoot, "generated/_is-live-analytics-smoke/agg-test.trajectory.jsonl");
+    const op = join(repoRoot, "generated/_operator-agg-test/latest.trajectory.jsonl");
+    const sid = createTrajectorySessionId("agg-synth");
+    appendTrajectoryRecord({
+      filePath: work,
+      sessionId: sid,
+      step: 1,
+      domainId: "tinyBlog",
+      isCacheOutcome: "hit",
+    });
+    const sid2 = createTrajectorySessionId("agg-op");
+    appendTrajectoryRecord({
+      filePath: op,
+      sessionId: sid2,
+      step: 1,
+      domainId: "plainPhp",
+      isCacheOutcome: "near-miss",
+      verifyCostMs: 40,
+    });
+    const agg = aggregateIsLiveAnalyticsFromTrajectoryFiles([work, op]);
+    expect(agg.jobCount).toBe(1);
+    expect(agg.nearMissCount).toBe(1);
+    for (const p of [work, op]) {
+      if (existsSync(p)) unlinkSync(p);
+    }
+  });
+
   test("Cyno-inspired salience, utility, governor, aim (D6375 / G9520–G9550)", () => {
     const t5 = buildOracleRefShorthandFromPortReport("plainPhp", {
       ok: true,
@@ -240,6 +315,26 @@ describe("@chrysalis/web-llm", () => {
     });
     expect(scored.length).toBeGreaterThanOrEqual(1);
     expect(scored[0]?.attribution).toBe(CYNOENGINE_ATTRIBUTION);
+
+    const v2 = scoreNearMissCandidatesV2({
+      taskFingerprint: { domainId: "laravelMin", origin: "php", minRoutes: 10, tags: ["php"] },
+      domainCatalog: catalog,
+      shorthands: [t5!],
+      forceSalienceV2: true,
+    });
+    expect(v2[0]?.salienceVersion).toBe(2);
+    expect(salienceV2ProductionReady(19)).toBe(false);
+    expect(salienceV2ProductionReady(20)).toBe(true);
+    expect(SALIENCE_V2_MIN_OPERATOR_DOMAINS).toBe(20);
+    const auto = scoreNearMissCandidatesAuto(
+      {
+        taskFingerprint: { domainId: "laravelMin", origin: "php", minRoutes: 10, tags: ["php"] },
+        domainCatalog: catalog,
+        shorthands: [t5!],
+      },
+      5,
+    );
+    expect(auto[0]?.salienceVersion).toBe(1);
 
     let store = emptyIsUtilityStore();
     store = recordUtilityOutcome(store, { domainId: "plainPhp", outcome: "noise" });
@@ -447,6 +542,9 @@ describe("@chrysalis/web-llm", () => {
     expect(manifest.tier).toBe("IS-T2-lora-delta");
     expect(manifest.shardCount).toBe(1);
     expect(manifest.verifyGreenCount).toBe(1);
+    expect(manifest.datasetJsonlPath).toBe("reports/web-llm/dataset/training-shards.v1.jsonl");
+    expect(manifest.outputDir).toBe("reports/web-llm/lora");
+    expect(manifest.datasetJsonlPath.includes("\\")).toBe(false);
     expect(validateLoraTrainManifest(manifest).ok).toBe(true);
     expect(validateLoraTrainManifest({ ...manifest, verifyGreenCount: 0 }).ok).toBe(false);
   });

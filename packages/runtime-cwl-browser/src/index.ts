@@ -22,12 +22,15 @@ export function discoverClientIslands(root: ParentNode = document): CwlClientIsl
   const out: CwlClientIsland[] = [];
   for (const el of Array.from(nodes)) {
     if (!(el instanceof Element)) continue;
-    out.push({ element: el, events: readIslandEventBindings(el) });
+    out.push({
+      element: el,
+      events: collectIslandEventBindings(el).map(({ name, action }) => ({ name, action })),
+    });
   }
   return out;
 }
 
-/** Read declarative `data-cwl-on-{event}` bindings from an island element. */
+/** Read declarative `data-cwl-on-{event}` bindings from a single element. */
 export function readIslandEventBindings(el: Element): Array<{ name: string; action: string }> {
   const events: Array<{ name: string; action: string }> = [];
   for (const attr of Array.from(el.attributes)) {
@@ -39,6 +42,27 @@ export function readIslandEventBindings(el: Element): Array<{ name: string; acti
   return events;
 }
 
+/**
+ * Collect event bindings from the island root and descendants (G9490 / D6370).
+ * Emit places `data-cwl-on-*` on the element that declared the event, which may
+ * be nested inside `data-cwl-island="client"`.
+ */
+export function collectIslandEventBindings(
+  islandRoot: Element,
+): Array<{ name: string; action: string; target: Element }> {
+  const out: Array<{ name: string; action: string; target: Element }> = [];
+  const visit = (el: Element) => {
+    for (const { name, action } of readIslandEventBindings(el)) {
+      out.push({ name, action, target: el });
+    }
+  };
+  visit(islandRoot);
+  for (const child of Array.from(islandRoot.querySelectorAll("*"))) {
+    if (child instanceof Element) visit(child);
+  }
+  return out;
+}
+
 /** Wire declarative island events to a dispatch handler; returns teardown. */
 export function bindClientIslandEvents(
   islands: readonly CwlClientIsland[],
@@ -46,12 +70,12 @@ export function bindClientIslandEvents(
 ): () => void {
   const cleanups: Array<() => void> = [];
   for (const island of islands) {
-    for (const { name, action } of island.events) {
+    for (const { name, action, target } of collectIslandEventBindings(island.element)) {
       const listener = (event: Event) => {
-        void dispatch(action, { event, element: island.element });
+        void dispatch(action, { event, element: target });
       };
-      island.element.addEventListener(name, listener);
-      cleanups.push(() => island.element.removeEventListener(name, listener));
+      target.addEventListener(name, listener);
+      cleanups.push(() => target.removeEventListener(name, listener));
     }
   }
   return () => {

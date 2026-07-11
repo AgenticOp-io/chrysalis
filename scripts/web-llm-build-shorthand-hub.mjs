@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-/** Static Intelligence Shorthand hub — CPU-only storage tier dashboard. */
+/** Static Intelligence Shorthand hub — primary metrics: hit/near-miss/miss + verify cost (D6372). */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -20,6 +20,11 @@ function formatBytes(n) {
   return `${n} B`;
 }
 
+function formatRate(r) {
+  if (r == null || Number.isNaN(r)) return "—";
+  return `${(r * 100).toFixed(1)}%`;
+}
+
 /**
  * @param {object} [opts]
  */
@@ -27,6 +32,8 @@ export async function runWebLlmBuildShorthandHub(opts = {}) {
   const repoRoot = resolve(opts.repoRoot ?? scriptRoot);
   const bundlePath =
     opts.bundlePath ?? join(repoRoot, "reports/web-llm/shorthand/intelligence-shorthands.v1.json");
+  const analyticsPath =
+    opts.analyticsPath ?? join(repoRoot, "reports/web-llm/shorthand/is-live-analytics.v1.json");
   const outDir = opts.outDir ?? join(repoRoot, "reports/web-llm/shorthand/poc");
   mkdirSync(outDir, { recursive: true });
 
@@ -38,6 +45,15 @@ export async function runWebLlmBuildShorthandHub(opts = {}) {
   const summary = bundle.summary ?? {};
   const shorthands = bundle.shorthands ?? [];
   const byTier = summary.byTier ?? {};
+
+  let analytics = null;
+  if (existsSync(analyticsPath)) {
+    try {
+      analytics = JSON.parse(readFileSync(analyticsPath, "utf8"));
+    } catch {
+      analytics = null;
+    }
+  }
 
   const tierRows = Object.entries(byTier)
     .filter(([, n]) => n > 0)
@@ -51,9 +67,20 @@ export async function runWebLlmBuildShorthandHub(opts = {}) {
     .slice(0, 12)
     .map(
       (s) =>
-        `<tr><td><code>${escapeHtml(s.id)}</code></td><td>${escapeHtml(s.tier)}</td><td>${escapeHtml(s.domainId)}</td><td>${formatBytes(s.storageBytesEstimate)}</td><td>${s.compressionFactorVs7BWeights.toLocaleString()}×</td></tr>`,
+        `<tr><td><code>${escapeHtml(s.id)}</code></td><td>${escapeHtml(s.tier)}</td><td>${escapeHtml(s.domainId)}</td><td>${formatBytes(s.storageBytesEstimate)}</td></tr>`,
     )
     .join("\n");
+
+  const liveStats =
+    analytics && analytics.kind === "chrysalis.web-llm.is-live-analytics"
+      ? `<div class="stats">
+    <div class="stat"><strong>${formatRate(analytics.hitRate)}</strong>hit rate</div>
+    <div class="stat"><strong>${formatRate(analytics.nearMissRate)}</strong>near-miss</div>
+    <div class="stat"><strong>${formatRate(analytics.missRate)}</strong>miss</div>
+    <div class="stat"><strong>${analytics.verifyCostMsP50 ?? "—"}</strong>verify p50 ms</div>
+  </div>
+  <p class="note">Live job evidence (<code>${escapeHtml(analytics.scope ?? "live-job")}</code>, ${analytics.jobCount ?? 0} jobs). Fixture skip-LLM rate is a separate curated gate — not this dashboard.</p>`
+      : `<p class="note">No <code>is-live-analytics.v1.json</code> yet. Run a hub convert job (or <code>pnpm run hub:is-live-analytics-close-smoke</code>) to publish hit / near-miss / miss + verify cost.</p>`;
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -66,6 +93,7 @@ export async function runWebLlmBuildShorthandHub(opts = {}) {
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
     .stat { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; }
     .stat strong { display: block; font-size: 1.35rem; }
+    .note { color: #444; font-size: 0.95rem; }
     a.button { display: inline-block; margin: 0.25rem 0.5rem 0.25rem 0; padding: 0.5rem 1rem; background: #1a4; color: #fff; text-decoration: none; border-radius: 6px; }
     a.button.secondary { background: #456; }
     table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.95rem; }
@@ -76,18 +104,21 @@ export async function runWebLlmBuildShorthandHub(opts = {}) {
 </head>
 <body>
   <h1>Intelligence Shorthand (IS)</h1>
-  <p>Verify-gated domain intelligence stored <strong>outside</strong> neural weights. T5 oracle → T4 CWL → T3 skill capsules. <strong>Zero GPU</strong> for tiers T3–T5.</p>
+  <p>Verified memoization + deterministic dispose (CWL/WebIR + oracle). <strong>Primary metrics:</strong> cache hit / near-miss / miss and verify wall-clock — not weight-size theater.</p>
+
+  <h2>Live evidence</h2>
+  ${liveStats}
 
   <div class="stats">
-    <div class="stat"><strong>${summary.count ?? 0}</strong>shorthands</div>
-    <div class="stat"><strong>${formatBytes(summary.totalBytes ?? 0)}</strong>total storage</div>
-    <div class="stat"><strong>${(summary.compressionVs7BTotal ?? 0).toLocaleString()}×</strong>vs 14 GB 7B</div>
+    <div class="stat"><strong>${summary.count ?? 0}</strong>shorthands stored</div>
+    <div class="stat"><strong>${formatBytes(summary.totalBytes ?? 0)}</strong>corpus bytes</div>
     <div class="stat"><strong>${summary.domainCount ?? 0}</strong>domains</div>
   </div>
+  <p class="note">Storage vs a 7B weight file is an analogy only (cached verified artifact ≪ engine). Product bar: hit rate on real jobs + verify $/task.</p>
 
   <p>
     <a class="button secondary" href="../intelligence-shorthands.v1.json">JSON bundle</a>
-    <a class="button secondary" href="../../federation/shorthand/intelligence-shorthands.v1.json">VMF copy</a>
+    <a class="button secondary" href="../is-live-analytics.v1.json">Live analytics</a>
     <a class="button secondary" href="../../migration-evidence/poc/index.html">Migration Evidence</a>
   </p>
 
@@ -95,14 +126,14 @@ export async function runWebLlmBuildShorthandHub(opts = {}) {
   <table><thead><tr><th>Tier</th><th>Count</th></tr></thead><tbody>${tierRows || "<tr><td colspan=2>none</td></tr>"}</tbody></table>
 
   <h2>Samples</h2>
-  <table><thead><tr><th>Id</th><th>Tier</th><th>Domain</th><th>Bytes</th><th>vs 7B</th></tr></thead><tbody>${sampleRows || "<tr><td colspan=5>none</td></tr>"}</tbody></table>
+  <table><thead><tr><th>Id</th><th>Tier</th><th>Domain</th><th>Bytes</th></tr></thead><tbody>${sampleRows || "<tr><td colspan=4>none</td></tr>"}</tbody></table>
 
   <h2>Export (CPU only)</h2>
   <pre>pnpm run web-llm:export-shorthand
 pnpm run web-llm:build-shorthand-hub
-pnpm run hub:intelligence-shorthand-close-smoke</pre>
+pnpm run hub:is-live-analytics-close-smoke</pre>
 
-  <footer>Generated ${new Date().toISOString()} · GPU not required for IS-T3–T5</footer>
+  <footer>Generated ${new Date().toISOString()} · D6372 / G9510</footer>
 </body>
 </html>`;
 
@@ -113,6 +144,10 @@ pnpm run hub:intelligence-shorthand-close-smoke</pre>
     indexPath,
     count: summary.count ?? 0,
     totalBytes: summary.totalBytes ?? 0,
+    hasLiveAnalytics: analytics != null,
+    hitRate: analytics?.hitRate ?? null,
+    verifyCostMsP50: analytics?.verifyCostMsP50 ?? null,
+    /** @deprecated storage analogy only — not a product primary (D6372) */
     compressionVs7BTotal: summary.compressionVs7BTotal ?? 0,
   };
 }

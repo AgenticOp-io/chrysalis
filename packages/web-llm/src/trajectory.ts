@@ -45,6 +45,7 @@ export type AppendTrajectoryRecordInput = {
   skipLlm?: boolean;
   domainId?: string;
   isCacheOutcome?: "hit" | "near-miss" | "miss";
+  evidenceSource?: "seed" | "hub-convert-verify" | "synthetic-smoke";
   verifyCostMs?: number;
   sourceDigest?: string;
   nearMissDomainId?: string;
@@ -85,6 +86,7 @@ export function appendTrajectoryRecord(input: AppendTrajectoryRecordInput): Traj
     ...(input.skipLlm !== undefined ? { skipLlm: input.skipLlm } : {}),
     ...(input.domainId !== undefined ? { domainId: input.domainId } : {}),
     ...(input.isCacheOutcome !== undefined ? { isCacheOutcome: input.isCacheOutcome } : {}),
+    ...(input.evidenceSource !== undefined ? { evidenceSource: input.evidenceSource } : {}),
     ...(input.verifyCostMs !== undefined ? { verifyCostMs: input.verifyCostMs } : {}),
     ...(input.sourceDigest !== undefined ? { sourceDigest: input.sourceDigest } : {}),
     ...(input.nearMissDomainId !== undefined ? { nearMissDomainId: input.nearMissDomainId } : {}),

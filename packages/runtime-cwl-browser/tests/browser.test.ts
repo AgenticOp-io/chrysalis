@@ -39,4 +39,16 @@ describe("@chrysalis/runtime-cwl-browser", () => {
     runtime.unmount();
     expect(runtime.islands).toHaveLength(0);
   });
+
+  it("binds nested data-cwl-on-* inside an island (G9490)", () => {
+    document.body.innerHTML = `<div data-cwl-island="client"><button data-cwl-on-click="nested.ping">Go</button></div>`;
+    const dispatch = vi.fn();
+    const { unmount } = mountCwlClientIslands(dispatch, document);
+    document.querySelector("button")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(dispatch).toHaveBeenCalledWith(
+      "nested.ping",
+      expect.objectContaining({ event: expect.any(Event) }),
+    );
+    unmount();
+  });
 });

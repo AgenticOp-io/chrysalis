@@ -29,6 +29,22 @@ async function loadWebLlm() {
   }
 }
 
+async function loadIngest() {
+  try {
+    return await import("@chrysalis/ingest");
+  } catch {
+    return import(pathToFileURL(join(scriptRoot, "packages/ingest/dist/index.js")).href);
+  }
+}
+
+async function loadVerify() {
+  try {
+    return await import("@chrysalis/verify");
+  } catch {
+    return import(pathToFileURL(join(scriptRoot, "packages/verify/dist/index.js")).href);
+  }
+}
+
 function corpusHasTraces(corpusRoot) {
   if (!existsSync(corpusRoot)) return false;
   try {
@@ -173,8 +189,119 @@ export async function runSitePortToCwl(opts) {
   });
   steps.push({ step: "cwl-export", ok: cwlOk, log: cwlLog });
 
+  const ingest = await loadIngest();
+  const uiLift = ingest.liftProjectUiAssets({ projectDir });
+  const uiAssetsOk = uiLift.ok === true;
+  const uiAssetsLog = webLlm.logSitePortStep({
+    repoRoot,
+    projectDir,
+    gateName: webLlm.SITE_PORT_GATE_NAMES.uiAssets,
+    ok: uiAssetsOk,
+    skip: "skip" in uiLift ? uiLift.skip : undefined,
+    detail: uiLift.ok
+      ? {
+          buildRoot: "buildRoot" in uiLift ? uiLift.buildRoot : null,
+          framework: "framework" in uiLift ? uiLift.framework : null,
+          bundleCount: "bundles" in uiLift ? uiLift.bundles.length : null,
+          mapPath: "written" in uiLift ? uiLift.written.mapPath : null,
+        }
+      : { hole: uiLift.hole?.reason ?? null },
+    sessionId,
+    trajectoryPath,
+  });
+  steps.push({
+    step: "ui-assets",
+    ok: uiAssetsOk,
+    skip: "skip" in uiLift ? uiLift.skip : null,
+    log: uiAssetsLog,
+  });
+
+  const uiMarkupLift = ingest.liftProjectUiMarkup({ projectDir });
+  const uiMarkupOk = uiMarkupLift.ok === true;
+  const uiMarkupLog = webLlm.logSitePortStep({
+    repoRoot,
+    projectDir,
+    gateName: webLlm.SITE_PORT_GATE_NAMES.uiMarkup,
+    ok: uiMarkupOk,
+    skip: "skip" in uiMarkupLift ? uiMarkupLift.skip : undefined,
+    detail: uiMarkupLift.ok
+      ? {
+          sourceRoot: "sourceRoot" in uiMarkupLift ? uiMarkupLift.sourceRoot : null,
+          framework: "framework" in uiMarkupLift ? uiMarkupLift.framework : null,
+          bundleCount: "bundles" in uiMarkupLift ? uiMarkupLift.bundles.length : null,
+          mapPath: "written" in uiMarkupLift ? uiMarkupLift.written.mapPath : null,
+        }
+      : { hole: uiMarkupLift.hole?.reason ?? null },
+    sessionId,
+    trajectoryPath,
+  });
+  steps.push({
+    step: "ui-markup",
+    ok: uiMarkupOk,
+    skip: "skip" in uiMarkupLift ? uiMarkupLift.skip : null,
+    log: uiMarkupLog,
+  });
+
   const corpusRoot = opts.corpusDir ?? join(projectDir, "traces");
   const hasCorpus = corpusHasTraces(corpusRoot);
+  let loadBind = null;
+  if (hasCorpus) {
+    const cwlTargets = ingest.defaultSiteConvertCwlPaths(projectDir);
+    if (cwlTargets.length > 0) {
+      loadBind = ingest.bindSiteProjectLoadFromTraces({
+        tracesDir: corpusRoot,
+        cwlPaths: cwlTargets,
+      });
+      const loadBindOk = loadBind.ok === true;
+      const loadBindLog = webLlm.logSitePortStep({
+        repoRoot,
+        projectDir,
+        gateName: webLlm.SITE_PORT_GATE_NAMES.siteLoadBind,
+        ok: loadBindOk,
+        detail: {
+          tracesIndexed: loadBind.tracesIndexed,
+          routesBound: loadBind.routes.filter((r) => r.skip === null).length,
+        },
+        sessionId,
+        trajectoryPath,
+      });
+      steps.push({
+        step: "site-load-bind",
+        ok: loadBindOk,
+        log: loadBindLog,
+      });
+    }
+  }
+
+  const verifyPkg = await loadVerify();
+  const siteScale = verifyPkg.verifySiteScaleMatrix({
+    projectDir,
+    tracesDir: corpusRoot,
+  });
+  const siteScaleOk = siteScale.ok === true || siteScale.layersChecked === 0;
+  const siteScaleLog = webLlm.logSitePortStep({
+    repoRoot,
+    projectDir,
+    gateName: webLlm.SITE_PORT_GATE_NAMES.siteScaleMatrix,
+    ok: siteScaleOk,
+    skip: siteScale.layersChecked === 0 ? "no-layers" : undefined,
+    detail: {
+      layersChecked: siteScale.layersChecked,
+      layersFailed: siteScale.layersFailed,
+      layersSkipped: siteScale.layersSkipped,
+      layers: siteScale.layers.map((l) => ({ layer: l.layer, ok: l.ok, skip: l.skip })),
+    },
+    sessionId,
+    trajectoryPath,
+  });
+  steps.push({
+    step: "site-scale-matrix",
+    ok: siteScaleOk,
+    skip: siteScale.layersChecked === 0 ? "no-layers" : null,
+    log: siteScaleLog,
+    report: siteScale,
+  });
+
   /** @type {Record<string, unknown>} */
   let verify = { ok: true, skip: "verify-disabled" };
 
@@ -264,6 +391,8 @@ export async function runSitePortToCwl(opts) {
     intelligence,
     webir,
     cwl,
+    uiAssets: formatUiAssetsReport(uiLift),
+    uiMarkup: formatUiMarkupReport(uiMarkupLift),
     verify,
     dataset,
     steps,
@@ -273,6 +402,38 @@ export async function runSitePortToCwl(opts) {
   });
   writeReportArtifacts(projectDir, report);
   return report;
+}
+
+function formatUiAssetsReport(uiLift) {
+  if (uiLift.ok !== true) {
+    return { ok: false, hole: uiLift.hole?.reason ?? null, detail: uiLift.hole?.detail ?? null };
+  }
+  if ("skip" in uiLift) {
+    return { ok: true, skip: uiLift.skip };
+  }
+  return {
+    ok: true,
+    framework: uiLift.framework,
+    buildRoot: uiLift.buildRoot,
+    bundleCount: uiLift.bundles.length,
+    mapPath: uiLift.written.mapPath,
+  };
+}
+
+function formatUiMarkupReport(uiLift) {
+  if (uiLift.ok !== true) {
+    return { ok: false, hole: uiLift.hole?.reason ?? null, detail: uiLift.hole?.detail ?? null };
+  }
+  if ("skip" in uiLift) {
+    return { ok: true, skip: uiLift.skip };
+  }
+  return {
+    ok: true,
+    framework: uiLift.framework,
+    sourceRoot: uiLift.sourceRoot,
+    bundleCount: uiLift.bundles.length,
+    mapPath: uiLift.written.mapPath,
+  };
 }
 
 function buildReport(input) {
@@ -299,6 +460,8 @@ function buildReport(input) {
           cwlPath: input.cwl.cwlPath ?? null,
         }
       : null,
+    uiAssets: input.uiAssets ?? null,
+    uiMarkup: input.uiMarkup ?? null,
     verify: input.verify ?? null,
     dataset: input.dataset
       ? {

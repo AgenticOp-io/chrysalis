@@ -1,0 +1,13 @@
+---
+description: Chrysalis public demo URL is chrysalis.agenticop.io
+alwaysApply: true
+---
+
+# Chrysalis public URL
+
+When referring to the live Chrysalis Translation product UI, use:
+
+**https://chrysalis.agenticop.io/**
+
+- Domain `hub.agenticop.io` is an alias to the same app — do not treat it as the primary Chrysalis URL in user-facing copy, verify checks, or demos unless the user asks for that host specifically.
+- Do not change DNS or nginx hostnames without an explicit amend to DESIGN D6396 / `docs/HUB-DEMO-INSTALL.md`.

@@ -1,17 +1,153 @@
-<div class="wisp-deploy-app" data-wisp-page="deploy" data-cwl-island="client">
-  <div class="map-fullscreen">
-    <iframe id="deploy-map-iframe" class="plan-map-iframe" title="🚀 Deploy map" src="/modules/coverage-map?mode=deploy&hideStats=true&deployMode=true"></iframe>
-  </div>
-  <div class="wisp-header-overlay">
-    <div class="wisp-header-left">
-      <button type="button" class="wisp-back-btn" data-action="back" title="Back to Dashboard" aria-label="Back to Dashboard">←</button>
-      <h1>🚀 Deploy</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deploy</title>
+<link rel="stylesheet" href="/assets/original-css/modules_deploy.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="app">
+    <!-- Full Screen Map -->
+    <div class="map-fullscreen">
+      <div class="cwl-map-shell" data-cwl-map-shell="SharedMap" aria-hidden="true" role="img"></div>
     </div>
-    <div class="wisp-header-controls">
-      <a href="/help" class="wisp-control-btn help-link" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></a>
-      <button type="button" class="wisp-control-btn" data-action="projects" title="Projects"><span class="control-icon">📁</span><span class="control-label">Projects</span></button>
-      <button type="button" class="wisp-control-btn" data-action="layers" title="Layers"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
+
+    <!-- Minimal Header Overlay -->
+    <!-- Deploy Header Overlay -->
+    <div class="module-header-overlay" style="background: var(--gradient-success);">
+      <div class="module-header-left">
+        <button class="module-back-btn"} title="Back to Dashboard">
+          ←
+        </button>
+        <h1>🚀 Deploy</h1>
+      </div>
+      <div class="module-header-controls">
+        <button class="help-button" aria-label="Open Help" title="Help">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+        <button 
+          class="module-control-btn" 
+          title="Project Filters - Approved projects ready for deployment"
+        >
+          <span class="control-icon">🔍</span>
+          <span class="control-label">Approved (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="approvedPlans.length"></span>)</span>
+        </button>
+        <button class="module-control-btn" title="Projects - View and manage all projects">
+          <span class="control-icon">📋</span>
+          <span class="control-label">Projects (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="readyPlans.length"></span>)</span>
+        </button>
+        <button 
+          class="module-control-btn"
+          title="View Deployed Projects"
+        >
+          <span class="control-icon">✅</span>
+          <span class="control-label">Deployed (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deployedPlans.length"></span>)</span>
+        </button>
+        <button 
+          class="module-control-btn"}
+        >
+          <span class="control-icon">📊</span>
+          <span class="control-label">PCI </span>
+        </button>
+
+        <button 
+          class="module-control-btn"}
+        >
+          <span class="control-icon">📡</span>
+          <span class="control-label">Frequency </span>
+        </button>
+        <button 
+          class="module-control-btn"
+          title="View and Edit Deployed Hardware"
+        >
+          <span class="control-icon">🔧</span>
+          <span class="control-label">Hardware (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deployedCount"></span>)</span>
+        </button>
+        
+        <button 
+          class="module-control-btn deploy-btn"
+        >
+          <span class="control-icon">🚀</span>
+          <span class="control-label">Deploy Plan</span>
+        </button>
+        
+        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="if (e.detail.id === 'site-deployment') true;
+        "></span>}
+        />
+      </div>
     </div>
+
   </div>
-</div>
-<script type="application/json" id="cwl-page-load">{"moduleKey":"deploy","source":"wisp-m30","apiPath":"/api/deploy"}</script>
+
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mapState?.activePlan"><div class="plan-summary">
+      <h3>Active Plan: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="mapState.activePlan.name"></span></h3>
+      <p class="summary-line">
+        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="mapState.stagedSummary.total"></span> staged features • <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="mapState.productionHardware.length"></span> production assets in view
+      </p>
+    </div></div>
+
+  
+
+  
+
+  <!-- PCI Planner Modal -->
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showPCIPlannerModal && ($currentTenant?.id || isAdmin)"><div class="cwl-modal-shell" data-cwl-modal-shell="PCIPlannerModal" aria-hidden="true" role="dialog"></div></div>
+
+  <!-- Frequency Planner Modal -->
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showFrequencyPlannerModal && ($currentTenant?.id || isAdmin)"><div class="cwl-modal-shell" data-cwl-modal-shell="FrequencyPlannerModal" aria-hidden="true" role="dialog"></div></div>
+
+  <!-- Plan Approval Modal -->
+  
+  
+  <!-- Deployed Hardware Modal -->
+  <div class="cwl-modal-shell" data-cwl-modal-shell="DeployedHardwareModal" aria-hidden="true" role="dialog"></div> false}
+  />
+  
+  <!-- Site Details Modal -->
+  
+
+  
+  
+  <!-- Add Inventory Modal -->
+  
+  
+  <!-- Site Edit Modal -->
+  
+  
+  <!-- EPC Deployment Modal -->
+  
+  
+  <!-- Project Filter Panel -->
+  <nav class="cwl-nav-shell" data-cwl-nav-shell="ProjectFilterPanel" aria-hidden="true"></nav> false}
+  />
+  
+  <!-- Deployment Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeploymentWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showDeploymentWizard = false; null;
+      deplo"></span>}
+  />
+
+  <!-- Site Deployment Wizard -->
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="SiteDeploymentWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showSiteDeploymentWizard = false;
+      loadReadyPlans();"></span>}
+  />
+
+  <!-- Plan Selection Modal (shows list of all plans) -->
+  
+  
+  <!-- Global Settings Button - Hidden in deploy mode, shown in coverage-map iframe instead -->
+
+  <!-- Help Modal -->
+<div class="cwl-modal-shell" data-cwl-modal-shell="HelpModal" aria-hidden="true" role="dialog"></div> false}
+  />
+
+<div class="cwl-modal-shell" data-cwl-modal-shell="TipsModal" aria-hidden="true" role="dialog"></div> false}
+/>
+<script type="application/json" id="cwl-page-load">{"moduleKey":"deploy","source":"wisp-m30","apiPath":"/api/deploy","api_ok":true,"api_surface":"wisp-api-native","api_resource":"deploy","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

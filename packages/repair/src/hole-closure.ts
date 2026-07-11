@@ -189,6 +189,8 @@ function reviveLocator(raw: unknown, ctx: string): Locator {
         corpusId: requireString(o.corpusId, `${ctx}.corpusId`),
         frameId: requireString(o.frameId, `${ctx}.frameId`),
       };
+    case "asset":
+      return { kind: "asset", file: requireString(o.file, `${ctx}.file`) };
     case "synthetic":
       return { kind: "synthetic", reason: requireString(o.reason, `${ctx}.reason`) };
     default:
@@ -201,11 +203,14 @@ function reviveProvenance(raw: unknown, ctx: string): Provenance {
   const source = requireString(o.source, `${ctx}.source`);
   const allowed: ReadonlySet<Provenance["source"]> = new Set([
     "php-ast",
+    "hub-ingest",
     "db-schema",
     "form-scan",
     "trace-corpus",
     "repair-pass",
     "intent-rewrite",
+    "ui-asset-lift",
+    "ui-markup-lift",
     "hand-authored",
   ]);
   if (!allowed.has(source as Provenance["source"])) {

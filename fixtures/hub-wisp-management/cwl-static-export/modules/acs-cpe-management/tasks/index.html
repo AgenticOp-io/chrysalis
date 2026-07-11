@@ -1,20 +1,39 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_acs_cpe_management_tasks" data-wisp-path="/modules/acs-cpe-management/tasks" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/snmp">
-  <header class="wisp-demo-header">
-    <h1>Tasks</h1>
-    <p class="wisp-demo-desc">TR-069 ACS / CPE management — devices, firmware, faults, and monitoring graphs.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/acs-cpe-management/tasks/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>121</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>9</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>14</strong><span>Pending tasks</span></article>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tasks</title>
+<link rel="stylesheet" href="/assets/original-css/modules_acs-cpe-management_tasks.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="tasks-page">\r
+  <nav class="cwl-nav-shell" data-cwl-nav-shell="MainMenu" aria-hidden="true"></nav>\r
+  <main class="content">\r
+    <header class="page-header">\r
+      <h1>TR-069 Task Queue</h1>\r
+      <p class="subtitle">Pending and recent tasks sent to CPE devices via GenieACS.</p>\r
+    </header>\r
+\r
+    <div class="toolbar">\r
+      <input\r
+        type="text"\r
+        placeholder="Filter by device ID"\r
+        class="filter-input"\r
+      />\r
+      <button class="btn-primary">\r
+        Refresh\r
+      </button>\r
+    </div>\r
+\r
+    \r
+\r
+    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isLoading && tasks.length === 0"><div class="loading">Loading task queue…</div>\r
+    \r
+      <div class="empty">No tasks in the queue. Tasks appear when you reboot, refresh, or run operations on devices.</div></div>\r
+  </main>\r
 </div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Tasks data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/tasks"}</script>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management/tasks","apiPath":"/api/snmp","api_ok":true,"api_surface":"wisp-api-native","api_resource":"snmp-monitoring","api_op":"list","tracedApiStatus":200}</script>
+
+</body>
+</html>

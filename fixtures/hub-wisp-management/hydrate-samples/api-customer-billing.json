@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "analytics": { "totalRevenue": 12500.5, "monthlyRecurringRevenue": 4200, "activeSubscriptions": 18, "averageRevenuePerUser": 69.44 },
+  "plans": [
+    { "id": "p1", "name": "Starter", "status": "active", "price": 49, "isPopular": true, "features": ["email", "portal"] },
+    { "id": "p2", "name": "Pro", "status": "active", "price": 149, "features": ["email", "portal", "sla"] }
+  ],
+  "invoices": [
+    { "id": "inv-1", "tenant": "Acme", "amount": 149, "status": "paid" },
+    { "id": "inv-2", "tenant": "Beta", "amount": 49, "status": "failed" }
+  ],
+  "paymentMethods": [
+    { "id": "pm-1", "type": "card", "tenant": "Acme", "email": "ops@acme.example", "isDefault": true }
+  ],
+  "subscriptions": [
+    { "id": "sub-1", "tenant": "Acme", "plan": "Pro", "status": "active" }
+  ],
+  "items": [
+    { "id": "inv-1", "name": "Acme invoice", "status": "paid" }
+  ]
+}

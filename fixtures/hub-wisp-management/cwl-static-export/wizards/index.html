@@ -1,20 +1,62 @@
-<div class="wisp-module-demo wisp-demo-content" data-wisp-page="wizards" data-wisp-path="/wizards" data-cwl-island="client" data-wisp-layout="list">
-  <header class="wisp-demo-header">
-    <h1>Wizards</h1>
-    <p class="wisp-demo-desc">Operational workspace for Wizards — native CWL handlers with live API integration.</p>
-    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/wizards/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
-  </header>
-  <section class="wisp-demo-panel">
-    <div class="wisp-demo-stats">
-  <article class="wisp-demo-stat"><strong>176</strong><span>Active records</span></article>
-  <article class="wisp-demo-stat"><strong>4</strong><span>Open alerts</span></article>
-  <article class="wisp-demo-stat"><strong>14</strong><span>Pending tasks</span></article>
-</div>
-<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Wizards data">
-  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
-  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
-</table>
-  </section>
-  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wizards</title>
+<link rel="stylesheet" href="/assets/original-css/wizards.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
+</head>
+<body>
+<div class="wizards-page">
+    <header class="wizards-header">
+      <button class="back-btn" type="button">
+        ← Dashboard
+      </button>
+      <div class="wizards-header-row">
+        <h1>🧙 List of wizards</h1>
+        <div class="wizards-pulldown-wrap">
+          <button
+            type="button"
+            class="wizards-pulldown-trigger"
+            aria-haspopup="true"
+          >
+            Jump to wizard ▼
+          </button>
+          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizardsPulldownOpen"><div class="wizards-pulldown-menu" role="menu">
+              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ALL_WIZARDS as w"><button type="button" role="menuitem" class="wizards-pulldown-item"}>
+                  <span class="wizards-pulldown-icon"></span>
+                  <span></span>
+                </button></div>
+            </div></div>
+        </div>
+      </div>
+      <p class="subtitle">Guided flows for setup, deployment, and operations. Each wizard runs inside its module. Use <strong>Jump to wizard</strong> above or "Open in [Module]" below to go to that module, then click the wizard button in the module header.</p>
+    </header>
+
+    <div class="wizards-grid">
+      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><article class="wizard-card">
+          <div class="wizard-icon"></div>
+          <h2 class="wizard-name"></h2>
+          <p class="wizard-desc"></p>
+          <p class="wizard-where">
+            <strong></strong> · 
+          </p>
+          <button
+            class="open-in-module"
+              if (w.openHere && w.id === 'initial-configuration') <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showConfigWizard = true; return;"></span>
+              const w.modulePath + '?wizard=' + encodeURIComponent(w.id);
+              goto(url);
+            }}
+            type="button"
+          >
+            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.openHere">Open</div>
+          </button>
+        </article></div>
+    </div>
+  </div>
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="OrganizationSetupWizard" aria-hidden="true" role="dialog"></div> (showOrgWizard = false)} />
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="InitialConfigurationWizard" aria-hidden="true" role="dialog"></div> (showConfigWizard = false)} />
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/wizards"}</script>
+
+</body>
+</html>

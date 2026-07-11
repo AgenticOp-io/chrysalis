@@ -8,10 +8,35 @@
 import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadWebir } from "./shared.mjs";
 import { listCwlRoutes, renderCwlRoutes, summarizeCwlProjection } from "./hub-webir-routes.mjs";
 import { checkFullstackHoleBudget, readFullstackHoleBudget } from "./hub-cwl-fullstack-hole-budget.mjs";
+
+const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+async function loadEmitShared() {
+  try {
+    return await import("@chrysalis/emit-shared");
+  } catch {
+    return import(pathToFileURL(join(scriptRoot, "packages/emit-shared/dist/index.js")).href);
+  }
+}
+
+/**
+ * Patch projected CWL `@page` bodies with lifted markup when
+ * `.chrysalis/ui-markup/` artifacts exist (G9309).
+ * @param {string} projectDir
+ * @param {string} cwlText
+ */
+export async function applyProjectUiMarkupToCwl(projectDir, cwlText) {
+  const uiMarkupDir = join(resolve(projectDir), ".chrysalis", "ui-markup");
+  const emitShared = await loadEmitShared();
+  const loaded = emitShared.loadUiMarkupLiftArtifacts(uiMarkupDir);
+  if (loaded === null) return { skip: "no-ui-markup-artifacts", text: cwlText, routesPatched: 0 };
+  const patched = emitShared.applyLiftedMarkupToCwlSource(cwlText, loaded.map, loaded.bundles);
+  return { ...patched, skip: null };
+}
 
 export const HUB_CWL_EXPORT_KIND = "chrysalis.hub.cwl-export";
 // v3: export meta carries cwlProjection summary (G179).
@@ -68,7 +93,10 @@ export async function exportProjectMigrationCwl(projectDir, opts = {}) {
   const cwlName = opts.outBasename ?? "migration.cwl";
   const cwlPath = join(outDir, cwlName);
   await mkdir(outDir, { recursive: true });
-  await writeFile(cwlPath, text, "utf8");
+  let cwlText = text;
+  const uiMarkupPatch = await applyProjectUiMarkupToCwl(projectDir, cwlText);
+  if (uiMarkupPatch.text) cwlText = uiMarkupPatch.text;
+  await writeFile(cwlPath, cwlText, "utf8");
 
   const budgetRead = await readFullstackHoleBudget(resolve(projectDir));
   const budgetCheck = budgetRead.ok
@@ -87,6 +115,13 @@ export async function exportProjectMigrationCwl(projectDir, opts = {}) {
     cwlProjection,
     fullstackHoleBudget: budgetRead.ok ? budgetRead.budget : null,
     fullstackHoleBudgetCheck: budgetCheck,
+    uiMarkup: uiMarkupPatch.skip
+      ? { skip: uiMarkupPatch.skip, routesPatched: 0 }
+      : {
+          routesPatched: uiMarkupPatch.routesPatched ?? 0,
+          routesSkipped: uiMarkupPatch.routesSkipped ?? 0,
+          routesWithoutBundle: uiMarkupPatch.routesWithoutBundle ?? 0,
+        },
     generatedAt: new Date().toISOString(),
   };
   await writeFile(join(outDir, "cwl-export.json"), `${JSON.stringify(meta, null, 2)}\n`, "utf8");

@@ -57,9 +57,16 @@ export async function runWispCwlStaticExport(opts = {}) {
   if (!pages.length) return { ...base, skip: "no-page-routes" };
 
   const runtimeMod = await loadRuntimeCwl(scriptRoot);
-  const { createCwlRuntime, loadModuleFromCwlFile } = runtimeMod;
+  const { createCwlRuntime, loadModuleFromCwlFile, loadCwlUiAssetsFromProject } = runtimeMod;
   const module = loadModuleFromCwlFile(routesCwl, scriptRoot);
-  const runtime = createCwlRuntime({ module, resolveSession: resolveWispPreviewSession });
+  const fixtureDir = dirname(routesCwl);
+  const uiAssets =
+    typeof loadCwlUiAssetsFromProject === "function" ? loadCwlUiAssetsFromProject(fixtureDir) : null;
+  const runtime = createCwlRuntime({
+    module,
+    resolveSession: resolveWispPreviewSession,
+    ...(uiAssets ? { uiAssets } : {}),
+  });
 
   /** @type {Array<{ path: string, out: string, status: number, ok: boolean }>} */
   const exported = [];
