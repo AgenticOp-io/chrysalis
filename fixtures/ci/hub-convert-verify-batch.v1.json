@@ -1,0 +1,25 @@
+{
+  "kind": "chrysalis.hub-convert-verify-batch",
+  "schemaVersion": 1,
+  "minLiveJobs": 50,
+  "defaultOutput": "hono",
+  "verifySummaryRel": "fixtures/ci/tiny-blog-verify-for-status/summary.json",
+  "notes": [
+    "Batch hub-convert IS routing + verify-gate against committed verify summary-cache (G9770).",
+    "Does not invent correctness — reuses fixtures/ci tiny-blog verify summary like other hub status smokes.",
+    "Writes operator-evidence/<domain>/hub-convert.trajectory.jsonl (seed uses seed.trajectory.jsonl)."
+  ],
+  "priorityIds": [
+    "tinyBlog",
+    "plainPhp",
+    "symfonyPhp",
+    "expressJs",
+    "laravelMin",
+    "cwlFullstack",
+    "wordpressProbe",
+    "hub-flagship-plain-php",
+    "hub-flagship-symfony",
+    "hub-flagship-express",
+    "hub-flagship-cwl-fullstack"
+  ]
+}

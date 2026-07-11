@@ -417,6 +417,8 @@
     "hub:public-reports-smoke": "node scripts/hub-ingest/hub-public-reports-smoke.mjs",
     "hub:product-hit-rate-sample-smoke": "node scripts/hub-ingest/hub-operator-evidence-seed-smoke.mjs",
     "hub:product-hit-rate-live-smoke": "node scripts/hub-ingest/hub-product-hit-rate-live-smoke.mjs",
+    "hub:product-hit-rate-live-ready-smoke": "node scripts/hub-ingest/hub-product-hit-rate-live-ready-smoke.mjs",
+    "web-llm:batch-hub-convert-verify-evidence": "node scripts/web-llm-batch-hub-convert-verify-evidence.mjs",
     "web-llm:aggregate-live-analytics": "node scripts/web-llm-aggregate-live-analytics.mjs",
     "hub:is-t2-lora-prep-smoke": "node scripts/hub-ingest/hub-is-t2-lora-prep-smoke.mjs",
     "web-llm:record-trajectory": "node scripts/web-llm-record-trajectory.mjs",

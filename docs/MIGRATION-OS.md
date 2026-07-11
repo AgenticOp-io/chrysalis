@@ -77,7 +77,7 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 
 | Gate | Smoke | What it proves |
 | --- | --- | --- |
-| **G8550** | `hub:migration-os-close-smoke` | Evidence + open legacy + VMF + IS + showcase/GPU + product sample + shells + hydrate + public reports + live hit-rate provenance (schema **v18**) |
+| **G8550** | `hub:migration-os-close-smoke` | Evidence + open legacy + VMF + IS + showcase/GPU + product sample + shells + hydrate + public reports + live hit-rate READY (schema **v19**) |
 | **G8560** | `hub:intelligence-shorthand-close-smoke` | IS-T3/T4/T5 export + hub (CPU) |
 | **G8540** | `hub:site-port-federation-hub-close-smoke` | VMF hub program |
 | **G8520** | `hub:site-port-open-legacy-close-smoke` | 7-fixture index + nightly + wedge |
@@ -108,6 +108,7 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 | **G9660** | `hub:wisp-modal-shell-smoke` | Inert modal shells (`data-cwl-modal-shell`) |
 | **G9670** | `hub:product-hit-rate-sample-smoke` | Product sample READY at ≥50 jobs |
 | **G9760** | `hub:product-hit-rate-live-smoke` | Live hit-rate READY only from hub-convert-verify (≥50); seed cannot claim |
+| **G9770** | `hub:product-hit-rate-live-ready-smoke` | Batch ≥50 hub-convert-verify jobs → `productHitRateLiveReady` |
 | **G9680** | `hub:wisp-map-shell-smoke` | Map/chart embed shells + expanded modals |
 | **G9700** | `hub:public-reports-smoke` | Public hub `/reports/` static serve |
 | **G6731** | `hub:cwl-language-maintenance-smoke` | CWL IR helper lifting B7–B103 regression (weekly CI) |

@@ -7,7 +7,8 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** maintenance **G8550** (schema **v18** / **D6397**) — census **601/601** (**G9160**).
+- **Active lane:** maintenance **G8550** (schema **v19** / **D6398**) — census **601/601** (**G9160**).
+- **Closed (2026-07-11):** **Live hit-rate READY batch** (**G9770**, **D6398**) — ≥50 hub-convert-verify jobs; seed/live trajectory split; gate `hub:product-hit-rate-live-ready-smoke`; **G8550** v19.
 - **Closed (2026-07-11):** **Live hit-rate provenance** (**G9760**, **D6397**) — `evidenceSource` + `productHitRateLiveReady`; seed ≠ live READY; gate `hub:product-hit-rate-live-smoke`; LoRA `messages[]` train mapping; **G8550** v18.
 - **Closed (2026-07-10):** **Enriched traces + Object.entries/ternary/$store** (**G9750**, **D6394**) — residual **~564** holes; gate `hub:wisp-fill-holes-smoke`; **G8550** v17.
 - **Closed (2026-07-10):** **Full-sample hydrate + if settle** (**G9740**, **D6393**) — all apiPath samples; residual was **~635**; **G8550** v16.

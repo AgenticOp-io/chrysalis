@@ -30,6 +30,7 @@ import { runWispNavWizardShellSmoke } from "./hub-wisp-nav-wizard-shell-smoke.mj
 import { runPublicReportsSmoke } from "./hub-public-reports-smoke.mjs";
 import { runWholeSiteCwlCloseSmoke } from "./hub-whole-site-cwl-close-smoke.mjs";
 import { runProductHitRateLiveSmoke } from "./hub-product-hit-rate-live-smoke.mjs";
+import { runProductHitRateLiveReadySmoke } from "./hub-product-hit-rate-live-ready-smoke.mjs";
 import { runOpenLegacyNightlyBuildHub } from "../open-legacy-nightly-build-hub.mjs";
 import {
   migrationEvidenceHubNightlyLinked,
@@ -41,8 +42,8 @@ import { isPhase44ProgramClosed } from "./hub-phase44-program-entry-smoke.mjs";
 import { isPhase45ProgramActive, isPhase45ProgramClosed } from "./hub-phase45-program-entry-smoke.mjs";
 
 export const HUB_MIGRATION_OS_CLOSE_KIND = "chrysalis.hub.migration-os-close-smoke";
-/** v18: G9760 live hit-rate provenance — seed ≠ live READY (D6397). */
-export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 18;
+/** v19: G9770 live hit-rate READY via hub-convert-verify batch (D6398). */
+export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 19;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -80,6 +81,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
   const wispNavWizardShell = await runWispNavWizardShellSmoke({ repoRoot });
   const publicReports = await runPublicReportsSmoke({ repoRoot });
   const productHitRateLive = await runProductHitRateLiveSmoke({ repoRoot, skipSeed: true });
+  const productHitRateLiveReady = await runProductHitRateLiveReadySmoke({ repoRoot });
 
   const skipSlowRegression =
     opts.skipSlowRegression === true || process.env.CHRYSALIS_MIGRATION_OS_SKIP_SLOW_REGRESSION === "1";
@@ -121,6 +123,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     wispNavWizardShellOk: wispNavWizardShell.ok === true,
     publicReportsOk: publicReports.ok === true,
     productHitRateLiveOk: productHitRateLive.ok === true,
+    productHitRateLiveReadyOk: productHitRateLiveReady.ok === true,
     wholeSiteCwlOk: wholeSiteCwl.ok === true,
     extendedMatrixCensusOk: extendedMatrixCensus.ok === true,
     federationHubOk: federationHub.ok === true,
@@ -185,6 +188,7 @@ export async function runMigrationOsCloseSmoke(opts = {}) {
     wispNavWizardShell,
     publicReports,
     productHitRateLive,
+    productHitRateLiveReady,
     wholeSiteCwl,
     extendedMatrixCensus,
     evidenceHub,

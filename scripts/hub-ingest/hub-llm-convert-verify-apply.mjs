@@ -294,26 +294,44 @@ export async function recordConvertVerifyGate(input) {
   const projectDir = resolve(input.projectDir);
   const verify = runConvertVerifyGate(projectDir);
   const { recordVerifyGateForHoleProposals } = await import("./hub-llm-convert-hole-proposals.mjs");
-  const record = await recordVerifyGateForHoleProposals({ projectDir });
+  let record = null;
+  try {
+    record = await recordVerifyGateForHoleProposals({ projectDir });
+  } catch {
+    record = { ok: false, skip: "hole-proposals-optional" };
+  }
 
   const artifactPath = join(projectDir, ".chrysalis", "hub-convert.hole-proposals.json");
-  let domainId;
-  let sourceDigest;
-  let trajectoryPath = join(projectDir, ".chrysalis", "hub-convert.trajectory.jsonl");
-  let sessionId;
+  let domainId = input.domainId;
+  let sourceDigest = input.sourceDigest;
+  let trajectoryPath =
+    input.trajectoryPath ?? join(projectDir, ".chrysalis", "hub-convert.trajectory.jsonl");
+  let sessionId = input.sessionId;
   if (existsSync(artifactPath)) {
     try {
       const artifact = JSON.parse(readFileSync(artifactPath, "utf8"));
-      domainId = artifact.domainId;
-      sourceDigest = artifact.sourceDigest;
-      if (artifact.trajectoryPath) trajectoryPath = artifact.trajectoryPath;
-      sessionId = artifact.sessionId;
+      domainId = domainId ?? artifact.domainId;
+      sourceDigest = sourceDigest ?? artifact.sourceDigest;
+      if (!input.trajectoryPath && artifact.trajectoryPath) trajectoryPath = artifact.trajectoryPath;
+      sessionId = sessionId ?? artifact.sessionId;
     } catch {
       /* ignore */
     }
   }
 
   const mod = await loadWebLlm();
+  if ((!domainId || !sessionId) && existsSync(trajectoryPath)) {
+    try {
+      const records = mod.readTrajectoryRecords(trajectoryPath);
+      const last = [...records].reverse().find((r) => r.domainId || r.sessionId);
+      domainId = domainId ?? last?.domainId;
+      sessionId = sessionId ?? last?.sessionId;
+      sourceDigest = sourceDigest ?? last?.sourceDigest;
+    } catch {
+      /* ignore */
+    }
+  }
+
   sessionId = sessionId ?? mod.createTrajectorySessionId("hub-convert-verify");
   await mkdir(dirname(trajectoryPath), { recursive: true });
   mod.appendTrajectoryRecord({
@@ -330,7 +348,7 @@ export async function recordConvertVerifyGate(input) {
     evidenceSource: "hub-convert-verify",
   });
 
-  if (verify.gatePass !== true && domainId) {
+  if (verify.gatePass !== true && domainId && input.allowDemote !== false) {
     mod.demoteShorthandInRepo({
       repoRoot: scriptRoot,
       domainId: String(domainId),
@@ -339,7 +357,7 @@ export async function recordConvertVerifyGate(input) {
     });
   }
 
-  if (domainId) {
+  if (domainId && input.recordUtility !== false) {
     const utilPath = mod.defaultIsUtilityPath(scriptRoot);
     let store = mod.loadIsUtilityStore(utilPath);
     store = mod.recordUtilityOutcome(store, {
@@ -353,8 +371,9 @@ export async function recordConvertVerifyGate(input) {
   if (domainId && existsSync(trajectoryPath)) {
     mod.snapshotOperatorTrajectoryForEvidence(scriptRoot, trajectoryPath, {
       domainId: String(domainId),
+      fileName: input.evidenceFileName ?? "hub-convert.trajectory.jsonl",
     });
   }
 
-  return { verify, record, gatePass: verify.gatePass === true, verifyCostMs: verify.verifyCostMs };
+  return { verify, record, gatePass: verify.gatePass === true, verifyCostMs: verify.verifyCostMs, domainId, sessionId };
 }

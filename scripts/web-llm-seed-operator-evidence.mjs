@@ -69,6 +69,7 @@ export async function runWebLlmSeedOperatorEvidence(opts = {}) {
   const outcomes = { hit: 0, "near-miss": 0, miss: 0 };
 
   for (const domainId of domainIds) {
+    const evidenceDir = join(evidenceBase, domainId);
     const resolved = mod.resolveShorthandForTask({
       domainId,
       shorthands,
@@ -76,7 +77,8 @@ export async function runWebLlmSeedOperatorEvidence(opts = {}) {
       repoRoot,
     });
     const sessionId = mod.createTrajectorySessionId(`seed-${domainId}`);
-    const trajectoryPath = join(evidenceBase, domainId, "latest.trajectory.jsonl");
+    // Seed and live coexist: seed.trajectory.jsonl vs hub-convert.trajectory.jsonl (G9770).
+    const trajectoryPath = join(evidenceDir, "seed.trajectory.jsonl");
     mkdirSync(dirname(trajectoryPath), { recursive: true });
     writeFileSync(trajectoryPath, "", "utf8");
 
@@ -105,7 +107,6 @@ export async function runWebLlmSeedOperatorEvidence(opts = {}) {
       verifyCostMs: resolved.cacheOutcome === "hit" ? 42 : resolved.cacheOutcome === "near-miss" ? 96 : 180,
       evidenceSource: "seed",
     });
-    mod.snapshotOperatorTrajectoryForEvidence(repoRoot, trajectoryPath, { domainId });
     seeded += 1;
     outcomes[resolved.cacheOutcome] = (outcomes[resolved.cacheOutcome] ?? 0) + 1;
   }

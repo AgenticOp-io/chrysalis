@@ -232,6 +232,7 @@ export function aggregateIsLiveAnalyticsFromTrajectoryFiles(
     /[/\\]_is-live-analytics-smoke[/\\]/,
     /[/\\]_web-llm-smoke[/\\]/,
     /[/\\]_is-runtime-smoke[/\\]/,
+    /[/\\]_hub-convert-verify-batch[/\\]/
   ];
   const jobs: IsLiveJobOutcome[] = [];
   const seen = new Set<string>();
@@ -266,11 +267,12 @@ export function aggregateIsLiveAnalyticsFromTrajectoryFiles(
 export function snapshotOperatorTrajectoryForEvidence(
   repoRoot: string,
   sourcePath: string,
-  meta: { domainId: string },
+  meta: { domainId: string; fileName?: string },
 ): string | null {
   if (!existsSync(sourcePath)) return null;
   const destDir = join(repoRoot, "reports", "web-llm", "operator-evidence", meta.domainId);
-  const dest = join(destDir, "latest.trajectory.jsonl");
+  const fileName = meta.fileName ?? "latest.trajectory.jsonl";
+  const dest = join(destDir, fileName);
   mkdirSync(destDir, { recursive: true });
   writeFileSync(dest, readFileSync(sourcePath, "utf8"), "utf8");
   return dest;

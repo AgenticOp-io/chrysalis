@@ -441,6 +441,34 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (maintenance)
 
+**Post D6398 close (2026-07-11) — live hit-rate READY accumulator shipped.**
+
+**Status:** **G9770** closed (**D6398**); **G8550** schema **v19**; residual WISP holes **~564**.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (schema **v19**)
+2. **Operator GPU train** — `pnpm run gpu-lab:gce` with `CHRYSALIS_GPU_LAB_DRY_RUN=0` (T4; LoRA `messages[]` mapping)
+3. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
+4. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
+5. **WISP residual** — complex calls + 39 no-source `/add` (no invented forms); live production traces when available
+
+**Product sample READY:** ≥ **50** live-analytics jobs (`PRODUCT_HIT_RATE_MIN_JOBS`) — may include seed.  
+**Live hit-rate READY:** ≥ **50** `hub-convert-verify` jobs (`PRODUCT_HIT_RATE_LIVE_MIN_JOBS`) — via `web-llm:batch-hub-convert-verify-evidence`.  
+**Salience v2 production:** auto when `reports/web-llm/operator-evidence/` has ≥ **20** domain folders.  
+**Public dashboard:** `/reports/web-llm/operator-evidence/poc/` on the operator hub.
+
+**Closed program regression:** `hub:migration-os-close-smoke` (**G8550** / **D6398**) · `hub:product-hit-rate-live-ready-smoke` (**G9770**) · `hub:product-hit-rate-live-smoke` (**G9760**) · `hub:wisp-fill-holes-smoke` (**G9750**) · `hub:wisp-showcase-bound-smoke` (**G9610**) · `hub:product-hit-rate-sample-smoke` (**G9670**) · `hub:public-reports-smoke` (**G9700**)
+
+**CynoEngine collab:** [`CYNO-CHRYSALIS-COLLAB.md`](./CYNO-CHRYSALIS-COLLAB.md) · strategic plan: [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) · [CynoEngine#1](https://github.com/nimbus7772017/CynoEngine/issues/1)
+
+**Operator demo:** `pnpm run migration-evidence:demo`  
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md).
+
+---
+
+## 12 (archived) — Default queue (maintenance, superseded 2026-07-11 by D6398 / G9770)
+
 **Post D6397 close (2026-07-11) — live hit-rate provenance shipped.**
 
 **Status:** **G9760** closed (**D6397**); **G8550** schema **v18**; residual WISP holes **~564**.
