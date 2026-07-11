@@ -24,6 +24,15 @@ if ($LASTEXITCODE -ne 0) {
   Write-Host "WARN: partial fetch (remote reports/ci may be empty until run completes)"
 }
 
+# Always try LoRA adapter/summary from CPU VM (GPU train lands here after orchestrate fetch).
+$loraLocal = Join-Path $repoRoot "reports\web-llm\lora"
+New-Item -ItemType Directory -Force -Path $loraLocal | Out-Null
+Write-Host "scp ${Name}:chrysalis-test/reports/web-llm/lora -> $loraLocal"
+& gcloud compute scp --recurse --zone=$Zone --project=$Project @SshExtra "${Name}:chrysalis-test/reports/web-llm/lora/*" $loraLocal 2>$null
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "WARN: no LoRA reports on CPU VM yet (adapter fetch runs after real train)"
+}
+
 $includeOperator =
   $OperatorHubs.IsPresent -or $env:CHRYSALIS_GCE_FETCH_OPERATOR_HUBS -eq "1"
 
@@ -34,6 +43,7 @@ if ($includeOperator) {
     @{ Remote = "chrysalis-test/reports/federation/league"; Local = "reports\federation\league" },
     @{ Remote = "chrysalis-test/reports/web-llm/shorthand/poc"; Local = "reports\web-llm\shorthand\poc" },
     @{ Remote = "chrysalis-test/reports/web-llm/poc"; Local = "reports\web-llm\poc" },
+    @{ Remote = "chrysalis-test/reports/web-llm/lora"; Local = "reports\web-llm\lora" },
     @{ Remote = "chrysalis-test/reports/open-legacy-index/nightly"; Local = "reports\open-legacy-index\nightly" }
   )
   foreach ($entry in $operatorPaths) {

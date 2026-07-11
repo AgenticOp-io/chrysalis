@@ -37,7 +37,9 @@ function Sync-GpuLabArtifacts {
     "gce-gpu-lab-orchestrate.sh",
     "gce-gpu-lab-bootstrap.sh",
     "gce-gpu-lora-train.sh",
-    "chrysalis-lora-qlora-train.py"
+    "chrysalis-lora-qlora-train.py",
+    "gce-gpu-lab-recover-adapter.sh",
+    "gce-gpu-lab-status-remote.sh"
   )
   $manifest = Join-Path $repoRoot "reports/web-llm/lora/train-manifest.v1.json"
   $shards = Join-Path $repoRoot "reports/web-llm/dataset/training-shards.v1.jsonl"
@@ -63,7 +65,13 @@ function Sync-GpuLabArtifacts {
 }
 
 if ($Status) {
-  $remote = 'if test -f ~/chrysalis-test/reports/ci/gce-gpu-lab.ok; then echo STATUS_OK; else echo STATUS_RUNNING; fi; pgrep -af "gpu-lab-artifacts/gce-gpu-lab-orchestrate" 2>/dev/null | head -3 || true; tail -n 30 ~/chrysalis-test/reports/ci/gce-gpu-lab.log 2>/dev/null || echo no_log'
+  # Single-line --command only (Windows gcloud mangles multiline). Sync + run remote script.
+  $statusScript = Join-Path $PSScriptRoot "gce-gpu-lab-status-remote.sh"
+  if (-not (Test-Path $statusScript)) { throw "Missing $statusScript" }
+  Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command "mkdir -p chrysalis-test/gpu-lab-artifacts"
+  & gcloud compute scp --zone=$Zone --project=$Project @sshExtra -- "$statusScript" "${VmName}:chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-status-remote.sh"
+  if ($LASTEXITCODE -ne 0) { throw "scp failed for gce-gpu-lab-status-remote.sh" }
+  $remote = "sed -i 's/\r`$//' chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-status-remote.sh && chmod +x chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-status-remote.sh && bash chrysalis-test/gpu-lab-artifacts/gce-gpu-lab-status-remote.sh"
   try {
     Invoke-ChrysalisGceSsh -Name $VmName -Zone $Zone -Project $Project -Extra $sshExtra -Command $remote
     exit 0
@@ -99,7 +107,7 @@ Sync-GpuLabArtifacts
 
 $maxMin = if ($env:CHRYSALIS_GPU_LAB_MAX_MINUTES) { $env:CHRYSALIS_GPU_LAB_MAX_MINUTES } else { "120" }
 $dryRun = if ($env:CHRYSALIS_GPU_LAB_DRY_RUN) { $env:CHRYSALIS_GPU_LAB_DRY_RUN } else { "1" }
-$gpuZone = if ($env:CHRYSALIS_GPU_LAB_ZONE) { $env:CHRYSALIS_GPU_LAB_ZONE } elseif ($env:CHRYSALIS_GCE_ZONE) { $env:CHRYSALIS_GCE_ZONE } else { "us-central1-a" }
+$gpuZone = if ($env:CHRYSALIS_GPU_LAB_ZONE) { $env:CHRYSALIS_GPU_LAB_ZONE } elseif ($env:CHRYSALIS_GCE_ZONE) { $env:CHRYSALIS_GCE_ZONE } else { "us-central1-b" }
 
 if ($Detach) {
   Write-Host "=== Start detached GPU lab on ${VmName} ==="

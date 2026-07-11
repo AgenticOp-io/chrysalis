@@ -3,7 +3,7 @@
 set -euo pipefail
 
 PROJECT="${CHRYSALIS_GCE_PROJECT:-chrysalis-dev-f5x6qv}"
-ZONE="${CHRYSALIS_GPU_LAB_ZONE:-${CHRYSALIS_GCE_ZONE:-us-central1-a}}"
+ZONE="${CHRYSALIS_GPU_LAB_ZONE:-${CHRYSALIS_GCE_ZONE:-us-central1-b}}"
 GPU_NAME="${CHRYSALIS_GPU_LAB_NAME:-chrysalis-gpu-lab}"
 REPO="${CHRYSALIS_STATUS_REPO:-$HOME/chrysalis-test}"
 if [[ "$REPO" != /* ]]; then
@@ -118,6 +118,52 @@ train_gpu() {
   gpu_ssh "export CHRYSALIS_GPU_LAB_ROOT=\$HOME/chrysalis-gpu-lab CHRYSALIS_GPU_LAB_MAX_MINUTES=${MAX_MIN} CHRYSALIS_GPU_LAB_DRY_RUN=${DRY_RUN}; bash ~/chrysalis-gpu-lab/scripts/gce-gpu-lora-train.sh"
 }
 
+# Pull LoRA adapter (+ summary) onto the CPU VM before billing-off stop (G9820).
+fetch_adapter() {
+  if [[ "$DRY_RUN" != "0" ]]; then
+    log "dry-run — skip adapter fetch"
+    return 0
+  fi
+  local dest_root="${REPO}/reports/web-llm/lora"
+  local dest="${dest_root}/adapter"
+  mkdir -p "$dest_root"
+  log "fetching LoRA adapter from ${GPU_NAME} -> ${dest}"
+  rm -rf "$dest"
+  if gcloud compute scp --recurse \
+    --zone="$ZONE" --project="$PROJECT" \
+    --internal-ip --strict-host-key-checking=no --quiet \
+    -- "${GPU_NAME}:~/chrysalis-gpu-lab/reports/web-llm/lora/adapter" \
+    "${dest_root}/"; then
+    log "adapter fetched to ${dest}"
+  else
+    log "WARN: adapter scp failed — check GPU path reports/web-llm/lora/adapter"
+  fi
+  # Compact train summary for status/fetch (no huge tensors).
+  local summary="${dest_root}/train-result.v1.json"
+  local adapter_ok=0
+  if [[ -d "$dest" ]] && find "$dest" -type f \( -name '*.safetensors' -o -name 'adapter_config.json' -o -name '*.bin' \) 2>/dev/null | head -1 | grep -q .; then
+    adapter_ok=1
+  fi
+  local loss
+  loss="$(grep -oE "train_loss': '[0-9.]+" "$LOG" 2>/dev/null | tail -1 | sed "s/train_loss': '//" || true)"
+  cat >"$summary" <<EOF
+{
+  "kind": "chrysalis.web-llm.lora-train-result",
+  "schemaVersion": 1,
+  "ok": $([[ "$adapter_ok" == "1" ]] && echo true || echo false),
+  "dryRun": false,
+  "gpuName": "${GPU_NAME}",
+  "gpuZone": "${ZONE}",
+  "adapterDir": "reports/web-llm/lora/adapter",
+  "adapterPresent": $([[ "$adapter_ok" == "1" ]] && echo true || echo false),
+  "trainLoss": $([[ -n "$loss" ]] && echo "$loss" || echo null),
+  "logPath": "reports/ci/gce-gpu-lab.log",
+  "generatedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+  log "wrote ${summary} adapterPresent=${adapter_ok} trainLoss=${loss:-unknown}"
+}
+
 stop_gpu() {
   local st
   st="$(gcloud compute instances describe "$GPU_NAME" --zone="$ZONE" --project="$PROJECT" --format="value(status)" 2>/dev/null || echo NOT_FOUND)"
@@ -164,6 +210,7 @@ main() {
   bootstrap_gpu
   sync_gpu
   train_gpu
+  fetch_adapter
   stop_gpu
   touch "$OK"
   log "done — OK marker at $OK"

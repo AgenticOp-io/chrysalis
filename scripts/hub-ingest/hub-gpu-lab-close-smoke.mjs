@@ -54,6 +54,20 @@ export async function runGpuLabCloseSmoke(opts = {}) {
       if (!existsSync(ps1)) return false;
       return readFileSync(ps1, "utf8").includes("chrysalis-lora-qlora-train.py");
     })(),
+    // G9820 — fetch adapter before stop; status reports presence (not bar spam).
+    orchestrateFetchAdapter: orchestrateText.includes("fetch_adapter"),
+    statusRemoteScript: existsSync(join(repoRoot, "scripts/gce-gpu-lab-status-remote.sh")),
+    statusReportsAdapter: (() => {
+      const sh = join(repoRoot, "scripts/gce-gpu-lab-status-remote.sh");
+      if (!existsSync(sh)) return false;
+      const t = readFileSync(sh, "utf8");
+      return t.includes("ADAPTER_PRESENT") && t.includes("train-result.v1.json");
+    })(),
+    fetchReportsPullsLora: (() => {
+      const ps1 = join(repoRoot, "scripts/gce-fetch-reports.ps1");
+      if (!existsSync(ps1)) return false;
+      return readFileSync(ps1, "utf8").includes("reports/web-llm/lora");
+    })(),
   };
   const ok = Object.values(checks).every(Boolean);
 

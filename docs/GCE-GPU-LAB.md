@@ -38,8 +38,15 @@ Do **not** use `gpu-lab:ssh` / `gpu-lab:bootstrap` / `gpu-lab:sync` from Windows
 pnpm run gpu-lab:create
 $env:CHRYSALIS_GPU_LAB_MAX_MINUTES = "15"
 pnpm run gpu-lab:gce
-pnpm run gpu-lab:gce:status
+pnpm run gpu-lab:gce:status     # milestones + adapter present (not progress-bar spam)
+pnpm run test:gce:fetch         # pulls reports/ci + reports/web-llm/lora when present
 ```
+
+**Default GPU zone:** `us-central1-b` (matches `chrysalis-gpu-lab`). Override with `CHRYSALIS_GPU_LAB_ZONE`.
+
+After a real train (`CHRYSALIS_GPU_LAB_DRY_RUN=0`), the orchestrator **fetches the LoRA adapter onto the CPU VM** before stopping the GPU (billing off). Status then reports `ADAPTER_PRESENT=yes`.
+
+If a prior run stopped the GPU before fetch, recover with `scripts/gce-gpu-lab-recover-adapter.sh` on the CPU VM (starts GPU briefly, pulls `reports/web-llm/lora/adapter`, writes `train-result.v1.json`, stops GPU).
 
 **Reference scripts:** `gce-wisp-local-stack-deploy.ps1`, `gce-test-vm-refresh.ps1`, `gce-run-all-tests.ps1 -Detach`.
 
@@ -57,7 +64,7 @@ pnpm run gpu-lab:gce:status
 | `gpu-lab:sync` | Upload manifest + shards to lab |
 | `gpu-lab:train` | Run `gce-gpu-lora-train.sh` (dry-run by default) |
 | `gpu-lab:gce` | **Windows:** same as `test:gce:migration-os` — detached on CPU VM |
-| `gpu-lab:gce:status` | Tail orchestrator log + OK marker on CPU VM |
+| `gpu-lab:gce:status` | OK / running / idle + `ADAPTER_PRESENT` + milestones (not progress-bar spam) |
 
 **On-demand (no spot):** `powershell -File scripts/gce-gpu-lab.ps1 -Create -OnDemand`  
 **L4 instead of T4:** add `-L4` to `-Create` (~$0.25–0.36/hr spot)

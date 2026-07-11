@@ -448,7 +448,7 @@ Without plan amendment, treat these as **out of scope**:
 When the user says "build" without specifying:
 
 1. **G8550 composite** — `pnpm run hub:migration-os-close-smoke` (schema **v22**)
-2. **Operator GPU train** — `pnpm run gpu-lab:gce` with `CHRYSALIS_GPU_LAB_DRY_RUN=0` (T4; LoRA `messages[]` mapping)
+2. **Operator GPU train** — `pnpm run gpu-lab:gce` with `CHRYSALIS_GPU_LAB_DRY_RUN=0` (T4; LoRA `messages[]` mapping; **G9820** fetch adapter + honest `gpu-lab:gce:status`)
 3. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
 4. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
 5. **WISP regression** — `hub:wisp-fill-holes-smoke` / `hub:wisp-showcase-bound-smoke` (zero-hole bound); GenieACS never in scope
