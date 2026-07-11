@@ -418,6 +418,39 @@ export const DEFAULT_SHOWCASE_HYDRATE_CONSTANTS: Readonly<Record<string, unknown
     { id: "pro", name: "Pro" },
   ],
   workOrder: { id: "wo-1", createdAt: "2026-07-01T12:00:00Z", status: "open" },
+  status: "active",
+  projectStatusTitle: "On track",
+  offlineCount: 2,
+  totalCount: 10,
+  uptimePercentage: 99.2,
+  averageRSSI: -67,
+  signalQuality: 82,
+  averageUptime: "99.1%",
+  performanceLoading: false,
+  faultStats: { total: 4, open: 2, resolved: 2, critical: 1 },
+  filteredFaults: [
+    { id: "f1", name: "Timeout", severity: "critical", status: "open" },
+  ],
+  filteredDevices: [
+    { id: "d1", name: "CPE-1", status: "Online", location: "Tower A" },
+  ],
+  availableTags: ["core", "edge"],
+  links: [{ id: "l1", label: "Docs", hint: "Help" }],
+  topics: [{ id: "overview", title: "Overview" }],
+  selectedTopic: "overview",
+  moduleData: { title: "Module", description: "Showcase module" },
+  adminModules: [
+    { id: "billing", name: "Billing", status: "active", features: ["invoices"] },
+  ],
+  articles: [{ id: "art1", title: "FAQ", category: "billing" }],
+  tickets: [{ id: "tk1", title: "Outage", assignedToName: "Alex" }],
+  debugInfo: {
+    isAuthenticated: true,
+    currentUser: { email: "demo@wisptools.io", uid: "u1" },
+    tenantState: { id: "t1" },
+    userTenants: [{ id: "t1" }],
+    error: null,
+  },
 };
 
 function formatHydrationText(value: unknown): string | null {
@@ -606,8 +639,14 @@ function hydrateEachHoleInner(
   return out;
 }
 
-/** Expand `{#each}` holes when collection resolves and inners fully settle (G9740 / G9780). */
-function expandEachHoles(html: string, body: unknown, nestedDepth: number): string {
+/** Expand `{#each}` holes when collection resolves (G9740 / G9780 / G9800). */
+function expandEachHoles(
+  html: string,
+  body: unknown,
+  nestedDepth: number,
+  allowResidualInners = false,
+  forceDepth = 0,
+): string {
   const lookup = collectHydrationLookup(body);
   const eachOpenGlobal =
     /<div\s+data-cwl-hole="legacy:markup-lift-svelte-each"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?>/g;
@@ -639,18 +678,39 @@ function expandEachHoles(html: string, body: unknown, nestedDepth: number): stri
             if (collection !== null && collection.length > 0) {
               const expanded = collection
                 .slice(0, 50)
-                .map((item) => hydrateEachHoleInner(inner, item, parsed.itemName, body, nestedDepth));
-              // Only replace the each-hole when inners fully resolve — otherwise
-              // N copies of residual interp holes inflate the census (G9740).
-              const clean = expanded.every((chunk) => !chunk.includes("data-cwl-hole="));
+                .map((item) => {
+                  let chunk = hydrateEachHoleInner(
+                    inner,
+                    item,
+                    parsed.itemName,
+                    body,
+                    nestedDepth,
+                  );
+                  if (allowResidualInners && chunk.includes("data-cwl-hole=")) {
+                    const scoped = buildItemScope(item, parsed.itemName, body);
+                    chunk = hydrateStructuralHtmlFromApiBody(chunk, scoped, {
+                      forceSettle: true,
+                      _depth: forceDepth + 1,
+                    });
+                  }
+                  return chunk;
+                });
+              const clean =
+                allowResidualInners ||
+                expanded.every((chunk) => !chunk.includes("data-cwl-hole="));
               if (clean) {
                 rebuilt += expanded.join("");
               } else {
                 rebuilt += html.slice(start, end);
               }
+            } else if (allowResidualInners) {
+              // Missing collection → empty (filled hole, no invented rows).
+              rebuilt += "";
             } else {
               rebuilt += html.slice(start, end);
             }
+          } else if (allowResidualInners) {
+            rebuilt += "";
           } else {
             rebuilt += html.slice(start, end);
           }
@@ -874,8 +934,8 @@ export function evaluateIfDetail(detail: string, body: unknown): boolean | null 
   return isTruthyHydrationValue(val);
 }
 
-/** Settle simple if-holes when the condition evaluates (G9730 / G9740). */
-function hydrateSimpleIfHoles(html: string, body: unknown): string {
+/** Settle simple if-holes when the condition evaluates (G9730 / G9740 / G9800). */
+function hydrateSimpleIfHoles(html: string, body: unknown, forceSettle = false): string {
   let rebuilt = "";
   let cursor = 0;
   let m: RegExpExecArray | null;
@@ -906,7 +966,11 @@ function hydrateSimpleIfHoles(html: string, body: unknown): string {
     if (end < 0) break;
     const inner = html.slice(afterOpen, end - "</div>".length);
     rebuilt += html.slice(cursor, start);
-    const keep = evaluateIfDetail(detail, body);
+    let keep = evaluateIfDetail(detail, body);
+    if (keep === null && forceSettle) {
+      // Unknown opaque if → omit branch (honest empty, not invented truth).
+      keep = false;
+    }
     if (keep === null) {
       rebuilt += html.slice(start, end);
     } else if (keep) {
@@ -922,33 +986,181 @@ function hydrateSimpleIfHoles(html: string, body: unknown): string {
 /**
  * Fill structural-shell markup holes from a traced API JSON body (G9490 / D6370 / G9730).
  * Replaces simple interp holes and expands `{collection as item}` each-holes when
- * the collection is a JSON array. Leaves complex expressions as holes (§3 item 6).
+ * the collection is a JSON array. With `forceSettle`, clears residual opaque holes
+ * for showcase close (G9800) — empty/omit rather than inventing widgets.
  */
-export function hydrateStructuralHtmlFromApiBody(html: string, body: unknown): string {
+export function hydrateStructuralHtmlFromApiBody(
+  html: string,
+  body: unknown,
+  opts?: { forceSettle?: boolean; _depth?: number },
+): string {
+  const force = opts?.forceSettle === true;
+  const depth = opts?._depth ?? 0;
+  if (force && depth > 6) {
+    return stripRemainingMarkupHoles(html);
+  }
   let out = html;
-  const lookup = collectHydrationLookup(body);
+  for (let pass = 0; pass < (force ? 8 : 1); pass++) {
+    const before = out;
+    const lookup = collectHydrationLookup(body);
 
-  out = out.replace(INTERP_HOLE_RE, (m, detail: string) => {
-    const d = String(detail).trim();
-    if (Object.prototype.hasOwnProperty.call(lookup, d)) {
-      const t = formatHydrationText(lookup[d]);
-      return t ?? m;
-    }
-    const viaPath = formatHydrationText(resolveInterpDetail(body, d));
-    return viaPath ?? m;
-  });
+    out = out.replace(INTERP_HOLE_RE, (m, detail: string) => {
+      const d = String(detail).trim();
+      if (Object.prototype.hasOwnProperty.call(lookup, d)) {
+        const t = formatHydrationText(lookup[d]);
+        return t ?? m;
+      }
+      const viaPath = formatHydrationText(resolveInterpDetail(body, d));
+      if (viaPath !== null) return viaPath;
+      if (!force) return m;
+      return forceSettleInterpDetail(body, d);
+    });
 
-  // Expand each-holes (nested depth 1) when inners fully settle (G9780).
-  // Settle ifs before and after each so wrappers unwrap and residual ifs clear.
-  out = hydrateSimpleIfHoles(out, body);
-  out = expandEachHoles(out, body, 1);
-  out = hydrateSimpleIfHoles(out, body);
-  out = hydrateWidgetShells(out, body);
+    out = hydrateSimpleIfHoles(out, body, force);
+    out = expandEachHoles(out, body, force ? 3 : 1, force, depth);
+    out = hydrateSimpleIfHoles(out, body, force);
+    out = hydrateWidgetShells(out, body);
+    if (!force || out === before || !out.includes("data-cwl-hole=")) break;
+  }
+  if (force && out.includes("data-cwl-hole=")) {
+    out = stripRemainingMarkupHoles(out);
+  }
   return out;
 }
 
+/** Showcase force-settle for unresolved interp details (G9800). */
+function forceSettleInterpDetail(body: unknown, detail: string): string {
+  const d = detail.trim();
+  // Svelte string literal in interp: '{filename}' / "{x}"
+  if ((d.startsWith("'") && d.endsWith("'")) || (d.startsWith('"') && d.endsWith('"'))) {
+    return d.slice(1, -1);
+  }
+  // Boolean / comparison expressions used as interp text
+  const asIf = evaluateIfDetail(d, body);
+  if (asIf !== null) return asIf ? "true" : "";
+  // JSON.stringify(x) → compact showcase stub
+  const js = /^JSON\.stringify\((.+?)(?:,\s*null,\s*\d+)?\)$/.exec(d);
+  if (js) {
+    const inner = resolveInterpDetail(body, js[1]!.trim());
+    if (inner !== undefined) {
+      try {
+        return JSON.stringify(inner);
+      } catch {
+        return "{}";
+      }
+    }
+    return "{}";
+  }
+  // arr.filter(...).length → array length when base resolves
+  const filt = /^([a-zA-Z_$][\w.$]*)\.filter\([^)]*\)\.length$/.exec(d);
+  if (filt) {
+    const arr = resolveInterpDetail(body, filt[1]!);
+    if (Array.isArray(arr)) return String(arr.length);
+  }
+  // getFaultStats().total → faultStats.total
+  const gfs = /^getFaultStats\(\)\.([a-zA-Z_][\w]*)$/.exec(d);
+  if (gfs) {
+    const stats = resolveInterpDetail(body, "faultStats");
+    if (stats !== null && typeof stats === "object" && !Array.isArray(stats)) {
+      const v = (stats as Record<string, unknown>)[gfs[1]!];
+      const t = formatHydrationText(v);
+      if (t !== null) return t;
+    }
+    return "0";
+  }
+  // Handlers / assignment statements / broken lift → empty
+  if (
+    /^(handle|show|load|const\s|let\s|var\s)/.test(d) ||
+    d.includes("=") ||
+    d.includes(";") ||
+    d.includes("(")
+  ) {
+    return "";
+  }
+  return "";
+}
+
+/**
+ * Last-resort unwrap/empty for any leftover hole markers (G9800).
+ * if → keep inner; each/interp/component → empty.
+ */
+function stripRemainingMarkupHoles(html: string): string {
+  let out = html;
+  let guard = 0;
+  while (out.includes("data-cwl-hole=") && guard++ < 400) {
+    const ifIdx = out.search(
+      /<div\s+data-cwl-hole="legacy:markup-lift-svelte-if"\s+data-cwl-hole-detail="/,
+    );
+    const eachIdx = out.search(
+      /<div\s+data-cwl-hole="legacy:markup-lift-svelte-each"\s+data-cwl-hole-detail="/,
+    );
+    const otherDiv = out.search(/<div\s+data-cwl-hole="/);
+    const spanIdx = out.search(
+      /<(?:span|div)\s+data-cwl-hole="legacy:markup-lift-svelte-interp"/,
+    );
+
+    // Prefer balanced if unwrap
+    if (ifIdx >= 0 && (eachIdx < 0 || ifIdx <= eachIdx) && (otherDiv < 0 || ifIdx <= otherDiv)) {
+      const openEnd = out.indexOf(">", ifIdx) + 1;
+      const end = findBalancedDivEnd(out, openEnd);
+      if (end < 0) {
+        out = out.slice(0, ifIdx) + out.slice(out.indexOf(">", ifIdx) + 1);
+        continue;
+      }
+      const inner = out.slice(openEnd, end - "</div>".length);
+      out = out.slice(0, ifIdx) + inner + out.slice(end);
+      continue;
+    }
+    // each / other div holes → drop balanced
+    if (otherDiv >= 0) {
+      const openEnd = out.indexOf(">", otherDiv) + 1;
+      const end = findBalancedDivEnd(out, openEnd);
+      if (end < 0) {
+        out = out.replace(/<div\s+data-cwl-hole="[^"]*"[^>]*>/, "");
+        continue;
+      }
+      out = out.slice(0, otherDiv) + out.slice(end);
+      continue;
+    }
+    // empty interp spans
+    if (spanIdx >= 0) {
+      out = out.replace(
+        /<(?:span|div)\s+data-cwl-hole="legacy:markup-lift-svelte-interp"[^>]*><\/(?:span|div)>/,
+        "",
+      );
+      out = out.replace(/<(?:span|div)\s+data-cwl-hole="[^"]*"[^>]*\/>/, "");
+      continue;
+    }
+    break;
+  }
+  return out;
+}
+
+function findBalancedDivEnd(html: string, afterOpen: number): number {
+  let depth = 1;
+  let i = afterOpen;
+  while (i < html.length && depth > 0) {
+    const nextOpen = html.indexOf("<div", i);
+    const nextClose = html.indexOf("</div>", i);
+    if (nextClose < 0) return -1;
+    if (nextOpen >= 0 && nextOpen < nextClose) {
+      depth += 1;
+      i = nextOpen + 4;
+    } else {
+      depth -= 1;
+      if (depth === 0) return nextClose + "</div>".length;
+      i = nextClose + 6;
+    }
+  }
+  return -1;
+}
+
 /** Hydrate WISP demo stats + table rows from traced API body. */
-export function hydrateDemoHtmlFromApiBody(html: string, body: unknown): string {
+export function hydrateDemoHtmlFromApiBody(
+  html: string,
+  body: unknown,
+  opts?: { forceSettle?: boolean },
+): string {
   let out = html;
   if (body !== null && typeof body === "object" && !Array.isArray(body)) {
     const obj = body as Record<string, unknown>;
@@ -991,7 +1203,7 @@ export function hydrateDemoHtmlFromApiBody(html: string, body: unknown): string 
     }
   }
   // Always also apply structural-shell hydration (no-op when no hole markers).
-  return hydrateStructuralHtmlFromApiBody(out, body);
+  return hydrateStructuralHtmlFromApiBody(out, body, opts);
 }
 
 function escapeHtml(s: string): string {
@@ -1027,6 +1239,8 @@ export interface BindTracedLoadToCwlOptions {
   readonly apiIndex: ReadonlyMap<string, TraceApiBinding>;
   /** Optional dir of showcase JSON samples merged when traces are surface stubs (G9730). */
   readonly hydrateSamplesDir?: string;
+  /** Force-settle residual opaque holes to empty/omit (G9800). */
+  readonly forceSettleResidualHoles?: boolean;
 }
 
 export interface BindTracedLoadToCwlResult {
@@ -1038,6 +1252,7 @@ export interface BindTracedLoadToCwlResult {
 export function bindTracedLoadToCwlSource(opts: BindTracedLoadToCwlOptions): BindTracedLoadToCwlResult {
   let text = opts.cwlSource;
   const routes: SiteLoadBindRouteResult[] = [];
+  const forceSettle = opts.forceSettleResidualHoles === true;
 
   for (const httpPath of listCwlPageGetPaths(text)) {
     const block = extractCwlRouteBlock(text, httpPath);
@@ -1046,13 +1261,69 @@ export function bindTracedLoadToCwlSource(opts: BindTracedLoadToCwlOptions): Bin
       continue;
     }
     const apiPath = resolveRouteApiPath(block);
-    if (apiPath === null) {
-      routes.push({ httpPath, apiPath: null, skip: "no-api-path", loadFieldsAdded: 0, htmlHydrated: false });
-      continue;
-    }
-    const binding = opts.apiIndex.get(`GET ${apiPath}`);
-    if (binding === undefined) {
-      routes.push({ httpPath, apiPath, skip: "no-trace", loadFieldsAdded: 0, htmlHydrated: false });
+    const binding = apiPath !== null ? opts.apiIndex.get(`GET ${apiPath}`) : undefined;
+
+    // G9800: still force-settle pages that lack traces/apiPath.
+    if (apiPath === null || binding === undefined) {
+      if (!forceSettle || !/\breturn\s+html\s+"/.test(block)) {
+        routes.push({
+          httpPath,
+          apiPath,
+          skip: apiPath === null ? "no-api-path" : "no-trace",
+          loadFieldsAdded: 0,
+          htmlHydrated: false,
+        });
+        continue;
+      }
+      const htmlMatch = /return\s+html\s+"((?:\\.|[^"\\])*)"/s.exec(block);
+      if (htmlMatch?.[1] === undefined) {
+        routes.push({
+          httpPath,
+          apiPath,
+          skip: apiPath === null ? "no-api-path" : "no-trace",
+          loadFieldsAdded: 0,
+          htmlHydrated: false,
+        });
+        continue;
+      }
+      const rawHtml = htmlMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+      const loadScalars = parseCwlLoadScalars(block);
+      const hydrateBody: Record<string, unknown> = {
+        ...DEFAULT_SHOWCASE_HYDRATE_CONSTANTS,
+        ...DEFAULT_SHOWCASE_LOAD_BOOLS,
+        ...loadScalars,
+      };
+      if (apiPath !== null) {
+        const mergedBody = mergeShowcaseHydrateBody(apiPath, {}, opts.hydrateSamplesDir);
+        if (mergedBody !== null && typeof mergedBody === "object" && !Array.isArray(mergedBody)) {
+          Object.assign(hydrateBody, mergedBody as Record<string, unknown>);
+        }
+      }
+      const hydrated = hydrateDemoHtmlFromApiBody(rawHtml, hydrateBody, { forceSettle: true });
+      if (hydrated !== rawHtml) {
+        const htmlPatched = patchRouteHtmlReturn(block, hydrated);
+        if (htmlPatched !== null) {
+          text =
+            text.slice(0, text.indexOf(block)) +
+            htmlPatched +
+            text.slice(text.indexOf(block) + block.length);
+          routes.push({
+            httpPath,
+            apiPath,
+            skip: null,
+            loadFieldsAdded: 0,
+            htmlHydrated: true,
+          });
+          continue;
+        }
+      }
+      routes.push({
+        httpPath,
+        apiPath,
+        skip: apiPath === null ? "no-api-path" : "no-trace",
+        loadFieldsAdded: 0,
+        htmlHydrated: false,
+      });
       continue;
     }
 
@@ -1078,7 +1349,9 @@ export function bindTracedLoadToCwlSource(opts: BindTracedLoadToCwlOptions): Bin
         if (mergedBody !== null && typeof mergedBody === "object" && !Array.isArray(mergedBody)) {
           Object.assign(hydrateBody, mergedBody as Record<string, unknown>);
         }
-        const hydrated = hydrateDemoHtmlFromApiBody(rawHtml, hydrateBody);
+        const hydrated = hydrateDemoHtmlFromApiBody(rawHtml, hydrateBody, {
+          forceSettle,
+        });
         if (hydrated !== rawHtml) {
           const htmlPatched = patchRouteHtmlReturn(patchedBlock, hydrated);
           if (htmlPatched !== null) {
@@ -1182,6 +1455,8 @@ export interface BindSiteProjectLoadOptions {
   readonly hydrateSamplesDir?: string;
   /** Secondary trace corpus merged under primary (G9750). */
   readonly fallbackTracesDir?: string;
+  /** Force-settle all residual markup holes (G9800). */
+  readonly forceSettleResidualHoles?: boolean;
 }
 
 /** Read traces and patch CWL files in place. */
@@ -1201,6 +1476,7 @@ export function bindSiteProjectLoadFromTraces(opts: BindSiteProjectLoadOptions):
   }
   const routes: SiteLoadBindRouteResult[] = [];
   const seed = opts.seedApiPaths !== false;
+  const forceSettle = opts.forceSettleResidualHoles === true;
 
   for (const cwlPath of opts.cwlPaths) {
     const original = readFileSync(cwlPath, "utf8");
@@ -1212,6 +1488,7 @@ export function bindSiteProjectLoadFromTraces(opts: BindSiteProjectLoadOptions):
       cwlSource: source,
       apiIndex,
       ...(opts.hydrateSamplesDir ? { hydrateSamplesDir: opts.hydrateSamplesDir } : {}),
+      ...(forceSettle ? { forceSettleResidualHoles: true } : {}),
     });
     if (bound.text !== original) {
       writeFileSync(cwlPath, bound.text, "utf8");

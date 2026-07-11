@@ -65,8 +65,8 @@
       <div class="plans-section">
         <h2>Subscription Plans</h2>
         <div class="plans-grid">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plans as plan"><div class="plan-card ">
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="plan.isPopular"><div class="popular-badge">Most Popular</div></div>
+          <div class="plan-card ">
+              
               <div class="plan-header">
                 <h3></h3>
                 <div class="plan-price">
@@ -76,13 +76,30 @@
               </div>
               <p class="plan-description"></p>
               <ul class="plan-features">
-                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plan.features as feature"><li>✓ </li></div>
+                <li>✓ </li><li>✓ </li>
               </ul>
               <div class="plan-limits">
                 <span>Up to  users</span>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="plan.maxTenants"><span>Up to  tenants</span></div>
+                
               </div>
-            </div></div>
+            </div><div class="plan-card ">
+              
+              <div class="plan-header">
+                <h3></h3>
+                <div class="plan-price">
+                  <span class="price"></span>
+                  <span class="interval">/</span>
+                </div>
+              </div>
+              <p class="plan-description"></p>
+              <ul class="plan-features">
+                <li>✓ </li><li>✓ </li>
+              </ul>
+              <div class="plan-limits">
+                <span>Up to  users</span>
+                
+              </div>
+            </div>
         </div>
       </div>
 
@@ -141,7 +158,7 @@
                 </div>
                 <div class="col-date">
                   <span class="date"></span>
-                  <span class="paid-date">Paid: </span>
+                  
                 </div>
               </div>
           </div>
@@ -159,7 +176,7 @@
                     <span class="method-icon">💳</span>
                     <strong></strong>
                   </div>
-                  <span class="default-badge">Default</span>
+                  
                 </div>
                 <div class="method-details">
                   <p><strong>Tenant:</strong> </p>

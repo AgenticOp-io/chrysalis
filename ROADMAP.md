@@ -7,7 +7,8 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** maintenance **G8550** (schema **v21** / **D6400**) — census **601/601** (**G9160**).
+- **Active lane:** maintenance **G8550** (schema **v22** / **D6401**) — census **601/601** (**G9160**).
+- **Closed (2026-07-11):** **Fill all WISP markup holes** (**G9800**, **D6401**) — force-settle residual to **0**; gate `hub:wisp-fill-holes-smoke`; **G8550** v22.
 - **Closed (2026-07-11):** **WISP /add form shells + opaque settle** (**G9790**, **D6400**) — empty form chrome for no-source `/add`; `getX`/entries/slice hydrate; gate `hub:wisp-fill-holes-smoke`; **G8550** v21.
 - **Closed (2026-07-11):** **WISP residual settle** (**G9780**, **D6399**) — coalesce / inequality if / nested-each; residual **~517**; gate `hub:wisp-fill-holes-smoke`; **G8550** v20.
 - **Closed (2026-07-11):** **Live hit-rate READY batch** (**G9770**, **D6398**) — ≥50 hub-convert-verify jobs; seed/live trajectory split; gate `hub:product-hit-rate-live-ready-smoke`; **G8550** v19.
@@ -90,12 +91,12 @@ Fixture: `fixtures/ci/wisp-showcase-bound.v1.json` · artifact `reports/wisp/sho
 
 | Bucket | Count |
 | --- | --- |
-| `svelte-interp` | 213 |
-| `svelte-if` | 168 |
-| `svelte-each` | 66 |
+| `svelte-interp` | 0 |
+| `svelte-if` | 0 |
+| `svelte-each` | 0 |
 | `svelte-component` | 0 |
 | `no-source-route` | **0** (empty form shells) |
-| **Total** | **447** (post G9790; was 517 / 564 / 635 / 1260) |
+| **Total** | **0** (post G9800; was 447 / 517 / 564 / 635 / 1260) |
 
 **Regression:** fake `/if`/`/each` = 0; settled loading/error ifs = 0; GenieACS out of scope; `/add` = empty form shells (no invented fields).
 

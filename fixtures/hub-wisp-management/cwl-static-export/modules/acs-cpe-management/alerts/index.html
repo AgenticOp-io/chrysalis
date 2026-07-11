@@ -29,7 +29,7 @@
   <div class="alerts-section">
       <h2>Active Alerts (2)</h2>
       <div class="alerts-list">
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="alerts as alert"><div class="alert-item" style="border-left-color: ">
+        <div class="alert-item" style="border-left-color: ">
             <div class="alert-header">
               <span class="alert-severity" style="color: ">
                 
@@ -37,19 +37,24 @@
               <span class="alert-time"></span>
             </div>
             <div class="alert-message"></div>
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="alert.device_name"><div class="alert-device">Device: </div></div>
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="alert.current_value !== undefined"><div class="alert-value">Current Value: </div></div>
-          </div></div>
+            
+            
+          </div><div class="alert-item" style="border-left-color: ">
+            <div class="alert-header">
+              <span class="alert-severity" style="color: ">
+                
+              </span>
+              <span class="alert-time"></span>
+            </div>
+            <div class="alert-message"></div>
+            
+            
+          </div>
       </div>
     </div>
 
   <!-- Alert Rules -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isLoading && rules.length === 0"><div class="loading">Loading alert rules...</div>
   
-    <div class="empty-state">
-      <p>No alert rules found. Create your first alert rule to get started.</p>
-      <button class="btn btn-primary">Create Alert Rule</button>
-    </div></div>
 </div>
 
 <!-- Create/Edit Modal -->

@@ -34,9 +34,9 @@
       <div class="module-info">
         <h1 class="module-title">
           <span class="module-icon">📡</span>
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="moduleData.title"></span>
+          Module
         </h1>
-        <p class="module-description"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="moduleData.description"></span></p>
+        <p class="module-description">Showcase module</p>
         
         <!-- Multi-Tenant Info -->
         <div class="tenant-badge">
@@ -57,8 +57,7 @@
           
         </button>
 
-        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="const e.detail.id;
-            if (id === 'acs-setup') tr"></span>}
+        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> }
         />
 
         <button 
@@ -103,7 +102,7 @@
         <div class="stat-icon">🟢</div>
         <div class="stat-content">
           <div class="stat-number">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpeDevices.filter(d => d.status === 'Online').length"></span>
+            2
           </div>
           <div class="stat-label">Online</div>
         </div>
@@ -113,7 +112,7 @@
         <div class="stat-icon">🔴</div>
         <div class="stat-content">
           <div class="stat-number">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpeDevices.filter(d => d.status === 'Offline').length"></span>
+            2
           </div>
           <div class="stat-label">Offline</div>
         </div>
@@ -123,7 +122,7 @@
         <div class="stat-icon">📍</div>
         <div class="stat-content">
           <div class="stat-number">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="cpeDevices.filter(d => d.location).length"></span>
+            2
           </div>
           <div class="stat-label">With GPS</div>
         </div>
@@ -182,36 +181,36 @@
           <div class="analytics-card">
             <div class="analytics-icon">📶</div>
             <div class="analytics-metric">
-              <div class="metric-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="averageRSSI != null ? `${averageRSSI} dBm` : (performanceLoading ? '…' : '—')"></span></div>
+              <div class="metric-value"></div>
               <div class="metric-label">Average RSSI</div>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="averageRSSI != null && !performanceLoading"><div class="metric-trend neutral">From device metrics</div></div>
+              
             </div>
           </div>
 
           <div class="analytics-card">
             <div class="analytics-icon">📡</div>
             <div class="analytics-metric">
-              <div class="metric-value">8/<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="totalCount"></span></div>
+              <div class="metric-value">8/10</div>
               <div class="metric-label">Online CPEs</div>
-              <div class="metric-trend positive"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="uptimePercentage"></span>% uptime</div>
+              <div class="metric-trend positive">99.2% uptime</div>
             </div>
           </div>
 
           <div class="analytics-card">
             <div class="analytics-icon">⚡</div>
             <div class="analytics-metric">
-              <div class="metric-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="signalQuality != null ? `${signalQuality}%` : (performanceLoading ? '…' : '—')"></span></div>
+              <div class="metric-value"></div>
               <div class="metric-label">Signal Quality</div>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="signalQuality != null && !performanceLoading"><div class="metric-trend neutral">RSRP-based</div></div>
+              
             </div>
           </div>
 
           <div class="analytics-card">
             <div class="analytics-icon">🔄</div>
             <div class="analytics-metric">
-              <div class="metric-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="averageUptime ?? (performanceLoading ? '…' : '—')"></span></div>
+              <div class="metric-value"></div>
               <div class="metric-label">Avg. Uptime</div>
-              
+              <div class="metric-trend neutral">From device metrics</div>
             </div>
           </div>
         </div>
@@ -258,28 +257,27 @@
   
   
   <!-- Device Onboarding Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeviceOnboardingWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showDeviceOnboardingWizard = false;
-      loadDevices(); // Refresh device list "></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeviceOnboardingWizard" aria-hidden="true" role="dialog"></div> }
   />
   
   <!-- Troubleshooting Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="TroubleshootingWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showTroubleshootingWizard = false; null"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="TroubleshootingWizard" aria-hidden="true" role="dialog"></div> }
   />
 
   <!-- Preset Creation Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="PresetCreationWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showPresetWizard = false; loadDevices();"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="PresetCreationWizard" aria-hidden="true" role="dialog"></div> }
   />
 
   <!-- Bulk Operations Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="BulkOperationsWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showBulkWizard = false; loadDevices();"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="BulkOperationsWizard" aria-hidden="true" role="dialog"></div> }
   />
 
   <!-- Firmware Update Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="FirmwareUpdateWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showFirmwareWizard = false; loadDevices();"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="FirmwareUpdateWizard" aria-hidden="true" role="dialog"></div> }
   />
 
   <!-- Device Registration Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeviceRegistrationWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showDeviceRegistrationWizard = false; loadDevices();"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeviceRegistrationWizard" aria-hidden="true" role="dialog"></div> }
   />
 </div>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/acs-cpe-management","apiPath":"/api/snmp","api_ok":true,"api_surface":"wisp-api-native","api_resource":"snmp-monitoring","api_op":"list","tracedApiStatus":200}</script>

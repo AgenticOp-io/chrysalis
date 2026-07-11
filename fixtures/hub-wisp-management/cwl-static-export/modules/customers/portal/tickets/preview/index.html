@@ -21,37 +21,21 @@
             class="ticket-status" 
             style="background:"
           >
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.status"></span>
+            
           </span>
         </div>
         <div class="ticket-meta">
-          <span>Priority: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.priority"></span></span>
-          <span>Created: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="new Date(ticket.createdAt || '').toLocaleDateString()"></span></span>
+          <span>Priority: </span>
+          <span>Created: </span>
         </div>
       </div>
       
       <div class="ticket-content">
-        <h2><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.title"></span></h2>
+        <h2></h2>
         <p class="ticket-description">No description</p>
       </div>
       
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.workPerformed && ticket.workPerformed.length > 0"><div class="ticket-history">
-          <h3>Ticket History</h3>
-          <div class="history-list">
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ticket.workPerformed as work"><div class="history-item">
-                <div class="history-header">
-                  <span class="history-action"></span>
-                  <span class="history-date">
-                    
-                  </span>
-                </div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="work.performedByName"><div class="history-performer">
-                    By: 
-                  </div></div>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="work.notes"><div class="history-notes"></div></div>
-              </div></div>
-          </div>
-        </div></div>
+      
       
       <div class="add-comment">
         <h3>Add Comment</h3>

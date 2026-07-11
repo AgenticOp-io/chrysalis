@@ -44,8 +44,7 @@
         <button class="btn btn-primary">
           + Add CBSD Device
         </button>
-        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="if (e.detail.id === 'cbrs-setup') true;
-            else if (e"></span>}
+        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> }
         />
       </div>
     </div>
@@ -69,7 +68,7 @@
       <div class="stat-card">
         <div class="stat-icon">📡</div>
         <div class="stat-content">
-          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="devices.length"></span></div>
+          <div class="stat-number"></div>
           <div class="stat-label">Total Devices</div>
         </div>
       </div>
@@ -77,7 +76,7 @@
       <div class="stat-card">
         <div class="stat-icon">✅</div>
         <div class="stat-content">
-          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="devices.filter(d => d.state === 'REGISTERED' || d.state === 'GRANTED' || d.state"></span></div>
+          <div class="stat-number"></div>
           <div class="stat-label">Registered</div>
         </div>
       </div>
@@ -85,7 +84,7 @@
       <div class="stat-card">
         <div class="stat-icon">📊</div>
         <div class="stat-content">
-          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="devices.reduce((sum, d) => sum + (d.activeGrants?.length || 0), 0)"></span></div>
+          <div class="stat-number"></div>
           <div class="stat-label">Active Grants</div>
         </div>
       </div>
@@ -93,7 +92,7 @@
       <div class="stat-card">
         <div class="stat-icon">🌐</div>
         <div class="stat-content">
-          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="CBRS_BAND.BANDWIDTH / 1000000"></span> MHz</div>
+          <div class="stat-number"> MHz</div>
           <div class="stat-label">CBRS Band</div>
         </div>
       </div>

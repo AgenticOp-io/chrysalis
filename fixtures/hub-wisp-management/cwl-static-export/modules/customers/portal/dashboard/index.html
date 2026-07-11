@@ -15,15 +15,15 @@
     
     <div class="dashboard-stats">
       <div class="stat-card">
-          <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalTickets"></span></div>
+          <div class="stat-value"></div>
           <div class="stat-label">Total Tickets</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.openTickets"></span></div>
+          <div class="stat-value"></div>
           <div class="stat-label">Open Tickets</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.resolvedTickets"></span></div>
+          <div class="stat-value"></div>
           <div class="stat-label">Resolved</div>
         </div>
       <div class="stat-card">
@@ -58,22 +58,14 @@
             <p>Browse answers to the most common account, billing, and technical questions.</p>
             <a class="support-link" href="/modules/customers/portal/faq">Visit FAQ</a>
           </div>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="featureFlags.knowledgeBase"><div class="support-card">
-            <h3>Knowledge Base</h3>
-            <p>Step-by-step guides and tutorials curated by our team.</p>
-            <a class="support-link" href="/modules/customers/portal/knowledge">Browse Articles</a>
-          </div></div>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="featureFlags.liveChat"><div class="support-card">
-            <h3>Live Chat Support</h3>
-            <p>Connect with a support specialist for hands-on troubleshooting.</p>
-            <a class="support-link" href="/modules/customers/portal/live-chat">Start Chat</a>
-          </div></div>
+        
+        
       </div>
     
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="featureFlags.tickets && tickets.length > 0"><div class="recent-tickets">
+    <div class="recent-tickets">
         <h2>Recent Tickets</h2>
         <div class="tickets-list">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="tickets.slice(0, 5) as ticket"><div class="ticket-card">
+          <div class="ticket-card">
               <div class="ticket-header">
                 <span class="ticket-number"></span>
                 <span 
@@ -89,9 +81,9 @@
                 <span>Priority: </span>
                 <span>Created: </span>
               </div>
-            </div></div>
+            </div>
         </div>
-      </div></div>
+      </div>
     
     <div class="service-info">
         <h2>Service Information</h2>
@@ -104,13 +96,7 @@
               <span class="info-label">Service Plan:</span>
               <span class="info-value">Residential 100</span>
             </div>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="serviceInfo.serviceAddress"><div class="info-row">
-              <span class="info-label">Service Address:</span>
-              <span class="info-value">
-                
-                ,  
-              </span>
-            </div></div>
+          
         </div>
       </div>
   </div>

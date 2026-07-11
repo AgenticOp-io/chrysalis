@@ -48,7 +48,7 @@
       <div class="stat-card">
         <div class="stat-icon">📊</div>
         <div class="stat-content">
-          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getFaultStats().total"></span></div>
+          <div class="stat-number">4</div>
           <div class="stat-label">Total Faults</div>
         </div>
       </div>
@@ -56,7 +56,7 @@
       <div class="stat-card">
         <div class="stat-icon">🔴</div>
         <div class="stat-content">
-          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getFaultStats().open"></span></div>
+          <div class="stat-number">2</div>
           <div class="stat-label">Open</div>
         </div>
       </div>
@@ -64,7 +64,7 @@
       <div class="stat-card">
         <div class="stat-icon">🟢</div>
         <div class="stat-content">
-          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getFaultStats().resolved"></span></div>
+          <div class="stat-number">2</div>
           <div class="stat-label">Resolved</div>
         </div>
       </div>
@@ -72,7 +72,7 @@
       <div class="stat-card">
         <div class="stat-icon">🚨</div>
         <div class="stat-content">
-          <div class="stat-number"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getFaultStats().critical"></span></div>
+          <div class="stat-number">1</div>
           <div class="stat-label">Critical</div>
         </div>
       </div>
@@ -109,7 +109,7 @@
   <div class="faults-container">
     
       <div class="faults-list">
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="getFilteredFaults() as fault"><div class="fault-card">
+        <div class="fault-card">
             <div class="fault-header">
               <div class="fault-info">
                 <h3 class="fault-id"></h3>
@@ -136,12 +136,7 @@
                 <span class="meta-item">
                   <strong>Timestamp:</strong> 
                 </span>
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="fault.resolvedAt"><span class="meta-item">
-                    <strong>Resolved:</strong> 
-                  </span>
-                  <span class="meta-item">
-                    <strong>By:</strong> 
-                  </span></div>
+                
               </div>
             </div>
             
@@ -149,14 +144,12 @@
               <button class="btn btn-sm btn-primary">
                 View Details
               </button>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="fault.status === 'Open'"><button class="btn btn-sm btn-success">
-                  ✅ Mark Resolved
-                </button></div>
+              
               <button class="btn btn-sm btn-danger">
                 🗑️ Delete
               </button>
             </div>
-          </div></div>
+          </div>
       </div>
     
   </div>

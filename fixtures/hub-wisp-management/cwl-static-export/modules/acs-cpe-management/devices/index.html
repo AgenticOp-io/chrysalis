@@ -53,12 +53,12 @@
     </div>
     <div class="stat-item offline">
       <span class="stat-icon">🔴</span>
-      <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="offlineCount"></span></span>
+      <span class="stat-value">2</span>
       <span class="stat-label">Offline</span>
     </div>
     <div class="stat-item">
       <span class="stat-icon">📈</span>
-      <span class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredDevices.length"></span></span>
+      <span class="stat-value">1</span>
       <span class="stat-label">Shown</span>
     </div>
   </div>
@@ -82,7 +82,7 @@
     <div class="filter-group">
       <select class="filter-select">
         <option>All Tags</option>
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="availableTags as tag"><option></option></div>
+        <option></option><option></option>
       </select>
     </div>
     <button 
@@ -128,7 +128,7 @@
       </thead>
       <tbody>
         
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredDevices as device (device.id)"><div class="cwl-widget-shell" data-cwl-widget-shell="CPEDeviceRow" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>cpe-1</td><td>online</td></tr><tr><td>cpe-2</td><td>degraded</td></tr></tbody></table></div> toggleSelectDevice(e.detail.id)}/></div>
+          <div class="cwl-widget-shell" data-cwl-widget-shell="CPEDeviceRow" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>cpe-1</td><td>online</td></tr><tr><td>cpe-2</td><td>degraded</td></tr></tbody></table></div> toggleSelectDevice(e.detail.id)}/>
         
       </tbody>
     </table>

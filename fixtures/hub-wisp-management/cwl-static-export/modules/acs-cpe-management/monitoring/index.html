@@ -112,27 +112,27 @@
         <div class="summary-grid">
           <div class="summary-item">
             <span class="summary-label">Average RSSI:</span>
-            <span class="summary-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="(metrics.reduce((sum, m) => sum + m.rssi, 0) / metrics.length).toFixed(1)"></span> dBm</span>
+            <span class="summary-value"> dBm</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Average RSRP:</span>
-            <span class="summary-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="(metrics.reduce((sum, m) => sum + m.rsrp, 0) / metrics.length).toFixed(1)"></span> dBm</span>
+            <span class="summary-value"> dBm</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Average SINR:</span>
-            <span class="summary-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="(metrics.reduce((sum, m) => sum + m.sinr, 0) / metrics.length).toFixed(1)"></span> dB</span>
+            <span class="summary-value"> dB</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Current PCI:</span>
-            <span class="summary-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="metrics.length > 0 ? metrics[metrics.length - 1].pci : 'N/A'"></span></span>
+            <span class="summary-value"></span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Current EARFCN:</span>
-            <span class="summary-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="metrics.length > 0 ? metrics[metrics.length - 1].earfcn : 'N/A'"></span></span>
+            <span class="summary-value"></span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Connection Status:</span>
-            <span class="summary-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="metrics.length > 0 ? metrics[metrics.length - 1].status : 'Unknown'"></span></span>
+            <span class="summary-value"></span>
           </div>
         </div>
         

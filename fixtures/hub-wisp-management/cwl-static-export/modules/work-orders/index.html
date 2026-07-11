@@ -47,7 +47,7 @@
     <div class="stat-card">
       <div class="stat-icon">🔓</div>
       <div class="stat-content">
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalOpen"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Open</div>
       </div>
     </div>
@@ -56,7 +56,7 @@
       <div class="stat-icon">⚡</div>
       <div class="stat-content">
         <div class="stat-value">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrders.filter(wo => wo.priority === 'critical' || wo.priority === 'high').le"></span>
+          
         </div>
         <div class="stat-label">High Priority</div>
       </div>
@@ -66,7 +66,7 @@
       <div class="stat-icon">⏱️</div>
       <div class="stat-content">
         <div class="stat-value">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.avgResolutionTime ? Math.round(stats.avgResolutionTime) : 0"></span>h
+          h
         </div>
         <div class="stat-label">Avg Resolution</div>
       </div>
@@ -83,12 +83,12 @@
       
       <select>
         <option>All Priorities</option>
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="priorities as priority"><option></option></div>
+        
       </select>
       
       <select>
         <option>All Types</option>
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="types as type"><option></option></div>
+        
       </select>
       
       <button class="btn-secondary">
@@ -110,8 +110,7 @@
   <div class="cwl-modal-shell" data-cwl-modal-shell="CreateWorkOrderModal" aria-hidden="true" role="dialog"></div>
   
   <!-- Work Order Creation Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="WorkOrderCreationWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showWorkOrderWizard = false;
-      loadData(); // Refresh work orders after crea"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="WorkOrderCreationWizard" aria-hidden="true" role="dialog"></div> }
   />
 </div>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/work-orders","apiPath":"/api/work-orders","api_ok":true,"api_surface":"wisp-api-native","api_resource":"work-orders","api_op":"list","tracedApiStatus":200}</script>

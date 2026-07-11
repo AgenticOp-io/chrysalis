@@ -7,54 +7,32 @@
 <link rel="stylesheet" href="/assets/original-css/wizards.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
 </head>
 <body>
-<div class="wizards-page">
-    <header class="wizards-header">
-      <button class="back-btn" type="button">
-        ← Dashboard
-      </button>
-      <div class="wizards-header-row">
-        <h1>🧙 List of wizards</h1>
-        <div class="wizards-pulldown-wrap">
-          <button
-            type="button"
-            class="wizards-pulldown-trigger"
-            aria-haspopup="true"
-          >
-            Jump to wizard ▼
-          </button>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="wizardsPulldownOpen"><div class="wizards-pulldown-menu" role="menu">
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ALL_WIZARDS as w"><button type="button" role="menuitem" class="wizards-pulldown-item"}>
-                  <span class="wizards-pulldown-icon"></span>
-                  <span></span>
-                </button></div>
-            </div></div>
-        </div>
-      </div>
-      <p class="subtitle">Guided flows for setup, deployment, and operations. Each wizard runs inside its module. Use <strong>Jump to wizard</strong> above or "Open in [Module]" below to go to that module, then click the wizard button in the module header.</p>
-    </header>
-
-    <div class="wizards-grid">
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="wizards as w"><article class="wizard-card">
-          <div class="wizard-icon"></div>
-          <h2 class="wizard-name"></h2>
-          <p class="wizard-desc"></p>
-          <p class="wizard-where">
-            <strong></strong> · 
-          </p>
-          <button
-            class="open-in-module"
-              if (w.openHere && w.id === 'initial-configuration') <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showConfigWizard = true; return;"></span>
-              const w.modulePath + '?wizard=' + encodeURIComponent(w.id);
-              goto(url);
-            }}
-            type="button"
-          >
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="w.openHere">Open</div>
-          </button>
-        </article></div>
-    </div>
-  </div>
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="OrganizationSetupWizard" aria-hidden="true" role="dialog"></div> (showOrgWizard = false)} />
+<div class="wizards-page">\r
+    <header class="wizards-header">\r
+      <button class="back-btn" type="button">\r
+        ← Dashboard\r
+      </button>\r
+      <div class="wizards-header-row">\r
+        <h1>🧙 List of wizards</h1>\r
+        <div class="wizards-pulldown-wrap">\r
+          <button\r
+            type="button"\r
+            class="wizards-pulldown-trigger"\r
+            aria-haspopup="true"\r
+          >\r
+            Jump to wizard ▼\r
+          </button>\r
+          \r
+        </div>\r
+      </div>\r
+      <p class="subtitle">Guided flows for setup, deployment, and operations. Each wizard runs inside its module. Use <strong>Jump to wizard</strong> above or "Open in [Module]" below to go to that module, then click the wizard button in the module header.</p>\r
+    </header>\r
+\r
+    <div class="wizards-grid">\r
+      \r
+    </div>\r
+  </div>\r
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="OrganizationSetupWizard" aria-hidden="true" role="dialog"></div> (showOrgWizard = false)} />\r
   <div class="cwl-wizard-shell" data-cwl-wizard-shell="InitialConfigurationWizard" aria-hidden="true" role="dialog"></div> (showConfigWizard = false)} />
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/wizards"}</script>
 

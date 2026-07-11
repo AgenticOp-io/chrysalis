@@ -14,7 +14,7 @@
         ← Back to Dashboard
       </button>
       <h1>🏢 Tenant Settings</h1>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="tenant"><p class="tenant-name"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenant.displayName"></span></p></div>
+      
     </div>
   </div>
 
@@ -50,230 +50,17 @@
 
   
 
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="error && tenant"><div class="error-message">
-      <span class="error-icon">⚠️</span>
-      <span></span>
-      <button class="dismiss-btn">✕</button>
-    </div></div>
+  
 
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'general'"><div class="settings-panel">
-          <h2>General Settings</h2>
-          
-          <div class="form-group">
-            <label>Organization Name</label>
-            <input type="text" />
-          </div>
+      
 
-          <div class="form-group">
-            <label>Contact Email</label>
-            <input type="email" />
-          </div>
+      
 
-          <div class="form-group">
-            <label>Contact Phone</label>
-            <input type="tel" />
-          </div>
+      
 
-          <div class="form-group">
-            <label for="tenant-timezone">Timezone</label>
-            <select id="tenant-timezone">
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="US_TIMEZONES as tz"><option></option></div>
-            </select>
-            <p class="help-text">All device times will be displayed in this timezone</p>
-          </div>
+      
 
-          <div class="form-group">
-            <div class="field-label">Status</div>
-            <div class="status-badge status-"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenant.status"></span></div>
-          </div>
-
-          <div class="form-group">
-            <div class="field-label">Created</div>
-            <p class="read-only"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatInTenantTimezone(tenant.createdAt)"></span></p>
-          </div>
-
-          <button class="btn-primary">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : 'Save General Settings'"></span>
-          </button>
-        </div></div>
-
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'devices' && settings"><div class="settings-panel">
-          <h2>Device Management Settings</h2>
-          
-          <div class="form-group">
-            <label>Inform Interval (seconds)</label>
-            <input
-              type="number"
-              min="60"
-              max="3600"
-            />
-            <p class="help-text">How often devices report to the ACS (60-3600 seconds)</p>
-          </div>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" />
-              Enable Auto Discovery
-            </label>
-            <p class="help-text">Automatically discover new devices when they connect</p>
-          </div>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" />
-              Enable PCI Monitoring
-            </label>
-            <p class="help-text">Monitor LTE PCI values and detect conflicts</p>
-          </div>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" />
-              Enable Performance Monitoring
-            </label>
-            <p class="help-text">Track device performance metrics</p>
-          </div>
-
-          <div class="form-group">
-            <label>Data Retention (days)</label>
-            <input
-              type="number"
-              min="7"
-              max="365"
-            />
-            <p class="help-text">How long to keep historical data (7-365 days)</p>
-          </div>
-
-          <button class="btn-primary" type="button">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : 'Save Device Settings'"></span>
-          </button>
-        </div></div>
-
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'connection' && settings"><div class="settings-panel">
-          <h2>Connection Information</h2>
-          
-          <div class="info-box">
-            <h3>CWMP Connection URL</h3>
-            <div class="url-display">
-              <code><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenant.cwmpUrl"></span></code>
-              <button class="copy-btn">
-                📋 Copy
-              </button>
-            </div>
-            <p class="help-text">Configure this URL in your TR-069 devices as the ACS URL</p>
-          </div>
-
-          <div class="info-box">
-            <h3>Tenant Subdomain</h3>
-            <code class="subdomain-display"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenant.subdomain"></span></code>
-            <p class="help-text">Unique identifier for your organization</p>
-          </div>
-
-          <div class="info-box credentials-box">
-            <h3>ACS Authentication Credentials</h3>
-            <p class="help-text">Credentials that CPE devices must use to connect</p>
-            
-            <div class="form-group">
-              <label>
-                <input type="checkbox" />
-                Require Authentication
-              </label>
-              <p class="help-text">If enabled, devices must provide username/password</p>
-            </div>
-
-            <div class="credentials-grid">
-              <div class="form-group">
-                <label for="acs-username">ACS Username</label>
-                <input
-                  id="acs-username"
-                  type="text"
-                  placeholder="admin"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="acs-password">ACS Password</label>
-                <div class="password-field">
-                  <input
-                    id="acs-password"
-                    type="text"
-                    placeholder="••••••••"
-                  />
-                  <button 
-                    class="generate-btn"
-                  >
-                    🔄 Generate
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <button 
-              class="btn-primary"
-            >
-              <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : 'Save ACS Credentials'"></span>
-            </button>
-          </div>
-
-          <div class="info-box">
-            <h3>Connection Instructions</h3>
-            <ol class="instructions">
-              <li>Access your device's TR-069 configuration</li>
-              <li>Set <strong>ACS URL</strong> to: <code><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="tenant.cwmpUrl"></span></code></li>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="settings.requireAuth"><li>Set <strong>ACS Username</strong> to: <code><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="settings.acsUsername"></span></code></li>
-                <li>Set <strong>ACS Password</strong> to: <code><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="settings.acsPassword"></span></code></li></div>
-              <li>Save and reboot the device</li>
-              <li>Device should appear in your device list within 5 minutes</li>
-            </ol>
-          </div>
-        </div></div>
-
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'limits' && limits"><div class="settings-panel">
-          <h2>Limits & Quotas</h2>
-          <p class="subtitle">Current plan limits for your organization</p>
-          
-          <div class="limits-grid">
-            <div class="limit-card">
-              <h3>Max Devices</h3>
-              <div class="limit-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="limits.maxDevices"></span></div>
-              <input type="number" min="1" />
-            </div>
-
-            <div class="limit-card">
-              <h3>Max Users</h3>
-              <div class="limit-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="limits.maxUsers"></span></div>
-              <input type="number" min="1" />
-            </div>
-
-            <div class="limit-card">
-              <h3>Max Networks</h3>
-              <div class="limit-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="limits.maxNetworks"></span></div>
-              <input type="number" min="1" />
-            </div>
-
-            <div class="limit-card">
-              <h3>Storage Quota (MB)</h3>
-              <div class="limit-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="limits.storageQuotaMB"></span></div>
-              <input type="number" min="100" step="100" />
-            </div>
-          </div>
-
-          <button class="btn-primary">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="isSaving ? 'Saving...' : 'Update Limits'"></span>
-          </button>
-        </div></div>
-
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeTab === 'users'"><div class="settings-panel">
-          <h2>User Management</h2>
-          <p class="subtitle">Manage users and their roles in your organization</p>
-          
-          <div class="user-management-redirect">
-            <p>Manage your team members and their access levels</p>
-            <button class="btn-primary">
-              👥 Manage Users
-            </button>
-          </div>
-        </div></div>
+      
     </div>
   
 </div>

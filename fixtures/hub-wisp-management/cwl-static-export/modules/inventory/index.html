@@ -25,8 +25,7 @@
       <button class="btn-secondary"}>
         📥 Scan Check In
       </button>
-      <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="if (e.detail.id === 'inventory-checkin') true;
-          els"></span>}
+      <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> }
       />
       <button class="btn-secondary"}>
         📤 Scan Check Out
@@ -59,7 +58,7 @@
     <div class="stat-card">
       <div class="stat-icon">📦</div>
       <div>
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalItems"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Total Items</div>
       </div>
     </div>
@@ -78,7 +77,7 @@
       <div class="stat-icon">🚀</div>
       <div>
         <div class="stat-value">
-          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('deployed')"></span>
+          
         </div>
         <div class="stat-label">Deployed</div>
       </div>
@@ -87,7 +86,7 @@
     <div class="stat-card">
       <div class="stat-icon">💰</div>
       <div>
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(stats.totalValue)"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Total Value</div>
       </div>
     </div>
@@ -115,7 +114,7 @@
       
       <select>
         <option>All Locations</option>
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="locationTypes as locType"><option></option></div>
+        
       </select>
       
       <button class="btn-primary">Apply</button>
@@ -180,12 +179,10 @@
   
   
   <!-- Check-in Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="InventoryCheckInWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showCheckInWizard = false;
-      loadData(); // Refresh inventory after check-in"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="InventoryCheckInWizard" aria-hidden="true" role="dialog"></div> }
   />
   <!-- RMA Tracking Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="RMATrackingWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showRMAWizard = false;
-      loadData();"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="RMATrackingWizard" aria-hidden="true" role="dialog"></div> }
   />
 </div>
 

@@ -38,43 +38,7 @@
     </button>
   </div>
 
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="permissionType === 'role'"><!-- Role Permissions -->
-    <div class="permissions-section">
-      <div class="section-header">
-        <h2>Role Permissions</h2>
-        <select>
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="ROLES as role"><option></option></div>
-        </select>
-      </div>
-
-      <div class="modules-grid">
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="MODULES as module">
-          <div class="module-card">
-            <div class="module-header">
-              <h3></h3>
-              <p class="module-description"></p>
-            </div>
-            
-            <div class="fcaps-permissions">
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="FCAPS_CATEGORIES as category"><div class="fcaps-category">
-                  <div class="category-header">
-                    <strong></strong>
-                  </div>
-                  <div class="operations">
-                    <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="FCAPS_OPERATIONS as op">
-                      <span class="operation-badge">
-                        
-                      </span></div>
-                  </div>
-                </div></div>
-            </div>
-            
-            <button class="btn-edit">
-              ✏️ Edit
-            </button>
-          </div></div>
-      </div>
-    </div></div>
+  
 
   <!-- Edit Permission Modal -->
   

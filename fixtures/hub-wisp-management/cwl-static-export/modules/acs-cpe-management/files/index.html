@@ -41,7 +41,7 @@
       <div class="form-group">
         <label for="file-type">File Type</label>
         <select id="file-type">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="fileTypes as type"><option></option></div>
+          
         </select>
         <p class="help-text">TR-069 FileType parameter for Download RPC</p>
       </div>
@@ -79,7 +79,7 @@
         <ol>
           <li>Upload firmware file to File Server (this page)</li>
           <li>File stored in GenieACS FS (MongoDB GridFS)</li>
-          <li>System generates URL: <code>http://your-domain.com/fs/<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="'{filename}'"></span></code></li>
+          <li>System generates URL: <code>http://your-domain.com/fs/{filename}</code></li>
           <li>Create Download task in Presets or manually</li>
           <li>CPE downloads file from URL and installs</li>
         </ol>
@@ -156,7 +156,7 @@
       <div class="step-card">
         <div class="step-number">2</div>
         <h3>Note the URL</h3>
-        <p>File Server URL: <code>http://domain:7567/<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="'{filename}'"></span></code></p>
+        <p>File Server URL: <code>http://domain:7567/{filename}</code></p>
       </div>
 
       <div class="step-card">

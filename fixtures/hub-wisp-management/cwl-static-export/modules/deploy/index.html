@@ -35,38 +35,38 @@
           title="Project Filters - Approved projects ready for deployment"
         >
           <span class="control-icon">🔍</span>
-          <span class="control-label">Approved (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="approvedPlans.length"></span>)</span>
+          <span class="control-label">Approved ()</span>
         </button>
         <button class="module-control-btn" title="Projects - View and manage all projects">
           <span class="control-icon">📋</span>
-          <span class="control-label">Projects (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="readyPlans.length"></span>)</span>
+          <span class="control-label">Projects ()</span>
         </button>
         <button 
           class="module-control-btn"
           title="View Deployed Projects"
         >
           <span class="control-icon">✅</span>
-          <span class="control-label">Deployed (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deployedPlans.length"></span>)</span>
+          <span class="control-label">Deployed ()</span>
         </button>
         <button 
           class="module-control-btn"}
         >
           <span class="control-icon">📊</span>
-          <span class="control-label">PCI <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="lteSectorCount > 0 ? `(${lteSectorCount})` : ''"></span></span>
+          <span class="control-label">PCI </span>
         </button>
 
         <button 
           class="module-control-btn"}
         >
           <span class="control-icon">📡</span>
-          <span class="control-label">Frequency <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="frequencySectorCount > 0 ? `(${frequencySectorCount})` : ''"></span></span>
+          <span class="control-label">Frequency </span>
         </button>
         <button 
           class="module-control-btn"
           title="View and Edit Deployed Hardware"
         >
           <span class="control-icon">🔧</span>
-          <span class="control-label">Hardware (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="deployedCount"></span>)</span>
+          <span class="control-label">Hardware ()</span>
         </button>
         
         <button 
@@ -76,30 +76,24 @@
           <span class="control-label">Deploy Plan</span>
         </button>
         
-        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="if (e.detail.id === 'site-deployment') true;
-        "></span>}
+        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> }
         />
       </div>
     </div>
 
   </div>
 
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="mapState?.activePlan"><div class="plan-summary">
-      <h3>Active Plan: <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="mapState.activePlan.name"></span></h3>
-      <p class="summary-line">
-        <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="mapState.stagedSummary.total"></span> staged features • <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="mapState.productionHardware.length"></span> production assets in view
-      </p>
-    </div></div>
+  
 
   
 
   
 
   <!-- PCI Planner Modal -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showPCIPlannerModal && ($currentTenant?.id || isAdmin)"><div class="cwl-modal-shell" data-cwl-modal-shell="PCIPlannerModal" aria-hidden="true" role="dialog"></div></div>
+  
 
   <!-- Frequency Planner Modal -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showFrequencyPlannerModal && ($currentTenant?.id || isAdmin)"><div class="cwl-modal-shell" data-cwl-modal-shell="FrequencyPlannerModal" aria-hidden="true" role="dialog"></div></div>
+  
 
   <!-- Plan Approval Modal -->
   
@@ -127,13 +121,11 @@
   />
   
   <!-- Deployment Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeploymentWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showDeploymentWizard = false; null;
-      deplo"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="DeploymentWizard" aria-hidden="true" role="dialog"></div> }
   />
 
   <!-- Site Deployment Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="SiteDeploymentWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showSiteDeploymentWizard = false;
-      loadReadyPlans();"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="SiteDeploymentWizard" aria-hidden="true" role="dialog"></div> }
   />
 
   <!-- Plan Selection Modal (shows list of all plans) -->

@@ -74,19 +74,7 @@
     </svg>
   </button>
 
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="displayPlanSummary && (() =>"><div class="plan-summary-card">
-      <div class="plan-summary-header">
-        <span>Plan Drafts</span>
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="sharedMapStateTimestamp"><small>Updated <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sharedMapStateTimestamp.toLocaleTimeString()"></span></small></div>
-      </div>
-      <div class="plan-summary-total"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="displayPlanSummary.total"></span> objects</div>
-      <div class="plan-summary-grid">
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="Object.entries(displayPlanSummary.byType ?? ) as [type, count]"><div class="plan-summary-item">
-            <span class="label"></span>
-            <span class="value"></span>
-          </div></div>
-      </div>
-    </div></div>
+  
 
   <!-- Filters Modal -->
   
@@ -101,11 +89,10 @@
 </div>
 
 <!-- Unified Device Management -->
-<div class="cwl-widget-shell" data-cwl-widget-shell="DeviceManagementPanel" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>c1</td><td>active</td></tr></tbody></table></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedDevice = e.detail.device; e.detail.deviceType;
-"></span>}
+<div class="cwl-widget-shell" data-cwl-widget-shell="DeviceManagementPanel" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>c1</td><td>active</td></tr></tbody></table></div> }
 />
 
-<div class="cwl-modal-shell" data-cwl-modal-shell="UnifiedDeviceDetailsModal" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showUnifiedDeviceModal = false; null;"></span>}
+<div class="cwl-modal-shell" data-cwl-modal-shell="UnifiedDeviceDetailsModal" aria-hidden="true" role="dialog"></div> }
 />
 
 <!-- Modals -->
@@ -137,15 +124,15 @@
 <nav class="cwl-nav-shell" data-cwl-nav-shell="BackhaulActionsMenu" aria-hidden="true"></nav>
 
 <!-- EPC Deployment Modal -->
-<div class="cwl-modal-shell" data-cwl-modal-shell="EPCDeploymentModal" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showEPCDeploymentModal = false; null;"></span>}
+<div class="cwl-modal-shell" data-cwl-modal-shell="EPCDeploymentModal" aria-hidden="true" role="dialog"></div> }
 />
 
 <!-- HSS Registration Modal -->
-<div class="cwl-modal-shell" data-cwl-modal-shell="HSSRegistrationModal" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showHSSRegistrationModal = false; null;"></span>}
+<div class="cwl-modal-shell" data-cwl-modal-shell="HSSRegistrationModal" aria-hidden="true" role="dialog"></div> }
 />
 
 <!-- Hardware Deployment Modal -->
-<div class="cwl-modal-shell" data-cwl-modal-shell="HardwareDeploymentModal" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showHardwareDeploymentModal = false; null;"></span>}
+<div class="cwl-modal-shell" data-cwl-modal-shell="HardwareDeploymentModal" aria-hidden="true" role="dialog"></div> }
 />
 
 <!-- Help Modal -->
@@ -156,7 +143,7 @@
 />
 
 <!-- Site Edit Modal -->
-<div class="cwl-modal-shell" data-cwl-modal-shell="SiteEditModal" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showSiteEditModal = false; null;"></span>}
+<div class="cwl-modal-shell" data-cwl-modal-shell="SiteEditModal" aria-hidden="true" role="dialog"></div> }
 />
 
 <!-- Global Settings Button - Removed from modules -->

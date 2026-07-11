@@ -11,7 +11,7 @@
   <div class="header">
     <div class="title-section">
       <h1>⚙️ Module Access Configuration</h1>
-      <p class="subtitle">Configure which modules each role can access in <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant?.name || 'your organization'"></span></p>
+      <p class="subtitle">Configure which modules each role can access in Demo Tenant</p>
     </div>
     
     <div class="header-actions">
@@ -31,10 +31,7 @@
   
   
   
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="hasChanges"><div class="alert alert-warning">
-      <span>⚠️</span>
-      <span>You have unsaved changes. Click "Save Configuration" to apply them.</span>
-    </div></div>
+  
   
   
     <div class="config-table-container">
@@ -42,28 +39,29 @@
         <thead>
           <tr>
             <th class="module-column">Module</th>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="roles as role"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="role !== 'platform_admin'"><th class="role-column">
-                  <div class="role-header">
-                    <div class="role-name"></div>
-                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isRoleLocked(role)"><span class="lock-badge">🔒</span></div>
-                  </div>
-                </th></div></div>
+            
           </tr>
         </thead>
         <tbody>
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="modules as module"><tr>
+          <tr>
               <td class="module-name">
                 <span class="module-icon"></span>
                 
               </td>
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="roles as role"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="role !== 'platform_admin'"><td class="checkbox-cell">
-                    <label class="checkbox-container">
-                      <input
-                        type="checkbox"/>
-                      <span class="checkmark"></span>
-                    </label>
-                  </td></div></div>
-            </tr></div>
+              
+            </tr><tr>
+              <td class="module-name">
+                <span class="module-icon"></span>
+                
+              </td>
+              
+            </tr><tr>
+              <td class="module-name">
+                <span class="module-icon"></span>
+                
+              </td>
+              
+            </tr>
         </tbody>
       </table>
     </div>
@@ -80,40 +78,7 @@
   
 </div>
 
-<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="showResetConfirm"><div
-    class="modal-backdrop"
-    role="presentation"
-    aria-hidden="true"
-    tabindex="-1"
-  >
-    <div
-      class="modal-content"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Reset module access confirmation dialog"
-      tabindex="0"
-      on:click|stopPropagation
-    >
-      <div class="modal-header">
-        <h2>Reset All to Defaults?</h2>
-        <button class="close-btn">✕</button>
-      </div>
-      <div class="modal-body">
-        <p>This will reset module access for all roles to their default configurations.</p>
-        <p class="warning-text">Any custom changes will be lost. This cannot be undone.</p>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary">
-          Cancel
-        </button>
-        <button class="btn btn-danger">
-          
-            Yes, Reset All
-          
-        </button>
-      </div>
-    </div>
-  </div></div>
+
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/settings/module-access"}</script>
 
 </body>

@@ -19,7 +19,7 @@
         <p class="subtitle">Manage your tenant's customers, service plans, and customer groups</p>
       </div>
       <div class="header-actions">
-        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="if (e.detail?.id === 'customer-onboarding') true;"></span>}
+        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> }
           />
           <button class="btn-primary">
             ➕ Add Customer
@@ -105,7 +105,7 @@
     <div class="customers-list">
       
         <div class="customer-grid">
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="customers as customer (customer._id || customer.customerId)"><div class="customer-card">
+          <div class="customer-card">
               <div class="customer-header">
                 <div class="customer-name-section">
                   <h3> $`}</h3>
@@ -117,42 +117,20 @@
               </div>
               
               <div class="customer-details">
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.primaryPhone"><div class="detail-row">
-                    <span class="detail-icon">📞</span>
-                    <span></span>
-                  </div></div>
+                
                 
                 <div class="detail-row">
                     <span class="detail-icon">📧</span>
                     <span></span>
                   </div>
                 
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress?.street"><div class="detail-row">
-                    <span class="detail-icon">📍</span>
-                    <span>
-                      
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress.city">,</div>
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceAddress.state">,</div>
-                    </span>
-                  </div></div>
                 
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.servicePlan?.planName"><div class="detail-row">
-                    <span class="detail-icon">📡</span>
-                    <span>
-                      
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.servicePlan.downloadMbps">(/ Mbps)</div>
-                    </span>
-                  </div></div>
                 
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.serviceType"><div class="detail-row">
-                    <span class="detail-icon">📶</span>
-                    <span>Service Type: </span>
-                  </div></div>
                 
-                <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="customer.networkInfo?.imsi"><div class="detail-row">
-                    <span class="detail-icon">🔢</span>
-                    <span>IMSI: </span>
-                  </div></div>
+                
+                
+                
+                
               </div>
               
               <div class="customer-actions">
@@ -181,7 +159,115 @@
                   🌐 Portal
                 </a>
               </div>
-            </div></div>
+            </div><div class="customer-card">
+              <div class="customer-header">
+                <div class="customer-name-section">
+                  <h3> $`}</h3>
+                  <span class="customer-id"></span>
+                </div>
+                <span class="status-badge ">
+                  
+                </span>
+              </div>
+              
+              <div class="customer-details">
+                
+                
+                <div class="detail-row">
+                    <span class="detail-icon">📧</span>
+                    <span></span>
+                  </div>
+                
+                
+                
+                
+                
+                
+                
+                
+              </div>
+              
+              <div class="customer-actions">
+                <button class="btn-secondary btn-sm">
+                  ✏️ Edit
+                </button>
+                <button class="btn-danger btn-sm">
+                  🗑️ Delete
+                </button>
+                <button class="btn-secondary btn-sm">
+                  👁️ View
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary btn-sm"
+                  title="Voice & SIP for this customer"
+                >
+                  📞 Voice
+                </button>
+                <a 
+                  href="/modules/customers/portal/login" 
+                  target="_blank" 
+                  class="btn-secondary btn-sm"
+                  title="Open Customer Portal"
+                >
+                  🌐 Portal
+                </a>
+              </div>
+            </div><div class="customer-card">
+              <div class="customer-header">
+                <div class="customer-name-section">
+                  <h3> $`}</h3>
+                  <span class="customer-id"></span>
+                </div>
+                <span class="status-badge ">
+                  
+                </span>
+              </div>
+              
+              <div class="customer-details">
+                
+                
+                <div class="detail-row">
+                    <span class="detail-icon">📧</span>
+                    <span></span>
+                  </div>
+                
+                
+                
+                
+                
+                
+                
+                
+              </div>
+              
+              <div class="customer-actions">
+                <button class="btn-secondary btn-sm">
+                  ✏️ Edit
+                </button>
+                <button class="btn-danger btn-sm">
+                  🗑️ Delete
+                </button>
+                <button class="btn-secondary btn-sm">
+                  👁️ View
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary btn-sm"
+                  title="Voice & SIP for this customer"
+                >
+                  📞 Voice
+                </button>
+                <a 
+                  href="/modules/customers/portal/login" 
+                  target="_blank" 
+                  class="btn-secondary btn-sm"
+                  title="Open Customer Portal"
+                >
+                  🌐 Portal
+                </a>
+              </div>
+            </div>
         </div>
       
     </div>
@@ -198,7 +284,7 @@
   
   
 
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="CustomerOnboardingWizard" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showOnboardingWizard = false; loadCustomers();"></span>}
+  <div class="cwl-wizard-shell" data-cwl-wizard-shell="CustomerOnboardingWizard" aria-hidden="true" role="dialog"></div> }
   />
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
 

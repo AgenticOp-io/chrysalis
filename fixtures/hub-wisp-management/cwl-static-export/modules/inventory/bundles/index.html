@@ -45,15 +45,15 @@
           </div>
           <div class="info-item">
             <label>Serial Number</label>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.serialNumber"></span></span>
+            <span class="value"></span>
           </div>
           <div class="info-item">
             <label>Category</label>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.category"></span></span>
+            <span class="value"></span>
           </div>
           <div class="info-item">
             <label>Equipment Type</label>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.equipmentType"></span></span>
+            <span class="value"></span>
           </div>
           <div class="info-item">
             <label>Manufacturer</label>
@@ -65,11 +65,11 @@
           </div>
           <div class="info-item">
             <label>Status</label>
-            <span class="status-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.status"></span></span>
+            <span class="status-badge"></span>
           </div>
           <div class="info-item">
             <label>Condition</label>
-            <span class="condition-badge"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.condition"></span></span>
+            <span class="condition-badge"></span>
           </div>
         </div>
       </div>
@@ -80,145 +80,28 @@
         <div class="info-grid">
           <div class="info-item">
             <label>Location Type</label>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.currentLocation?.type === 'unassigned' ? 'Unassigned' : (item.currentLocati"></span></span>
+            <span class="value"></span>
           </div>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.currentLocation?.type === 'unassigned'"><div class="info-item">
-              <span class="value">Assign during deploy</span>
-            </div></div>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.currentLocation?.type !== 'unassigned' && item.currentLocation?.warehouse"><div class="info-item">
-              <label>Warehouse</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>Section</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>Aisle</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>Shelf</label>
-              <span class="value">N/A</span>
-            </div></div>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.currentLocation?.type !== 'unassigned' && item.currentLocation?.tower"><div class="info-item">
-              <label>Rack</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>Rack Unit</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>Cabinet</label>
-              <span class="value">N/A</span>
-            </div></div>
+          
+          
+          
         </div>
       </div>
 
       <!-- Purchase Information -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.purchaseInfo"><div class="info-card">
-          <h3>💰 Purchase Information</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <label>Vendor</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>Purchase Date</label>
-              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.purchaseInfo.purchaseDate)"></span></span>
-            </div>
-            <div class="info-item">
-              <label>Purchase Price</label>
-              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(item.purchaseInfo.purchasePrice)"></span></span>
-            </div>
-            <div class="info-item">
-              <label>PO Number</label>
-              <span class="value">N/A</span>
-            </div>
-          </div>
-        </div></div>
+      
 
       <!-- Warranty Information -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.warranty"><div class="info-card">
-          <h3>🛡️ Warranty Information</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <label>Provider</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>Start Date</label>
-              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.warranty.startDate)"></span></span>
-            </div>
-            <div class="info-item">
-              <label>End Date</label>
-              <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.warranty.endDate)"></span></span>
-            </div>
-            <div class="info-item">
-              <label>Type</label>
-              <span class="value">N/A</span>
-            </div>
-          </div>
-        </div></div>
+      
 
       <!-- Technical Specifications -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.technicalSpecs"><div class="info-card">
-          <h3>⚙️ Technical Specifications</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <label>Power Requirements</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>IP Address</label>
-              <span class="value">N/A</span>
-            </div>
-            <div class="info-item">
-              <label>Management URL</label>
-              <span class="value">N/A</span>
-            </div>
-          </div>
-        </div></div>
+      
 
       <!-- Module Integration -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.modules"><div class="info-card">
-          <h3>🔗 Module Integration</h3>
-          <div class="info-grid">
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.modules.acs"><div class="info-item">
-                <label>ACS Device ID</label>
-                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.modules.acs.deviceId"></span></span>
-              </div>
-              <div class="info-item">
-                <label>ACS Last Sync</label>
-                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.modules.acs.lastSync)"></span></span>
-              </div></div>
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.modules.cbrs"><div class="info-item">
-                <label>CBRS CBSD ID</label>
-                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.modules.cbrs.cbsdId"></span></span>
-              </div>
-              <div class="info-item">
-                <label>CBRS Last Sync</label>
-                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.modules.cbrs.lastSync)"></span></span>
-              </div></div>
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.modules.coverageMap"><div class="info-item">
-                <label>Coverage Map Site ID</label>
-                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.modules.coverageMap.siteId"></span></span>
-              </div>
-              <div class="info-item">
-                <label>Map Last Sync</label>
-                <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.modules.coverageMap.lastSync)"></span></span>
-              </div></div>
-          </div>
-        </div></div>
+      
 
       <!-- Notes -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.notes"><div class="info-card full-width">
-          <h3>📝 Notes</h3>
-          <div class="notes-content">
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.notes"></span>
-          </div>
-        </div></div>
+      
 
       <!-- Metadata -->
       <div class="info-card full-width">
@@ -226,11 +109,11 @@
         <div class="info-grid">
           <div class="info-item">
             <label>Created</label>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.createdAt)"></span></span>
+            <span class="value"></span>
           </div>
           <div class="info-item">
             <label>Last Updated</label>
-            <span class="value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDate(item.updatedAt)"></span></span>
+            <span class="value"></span>
           </div>
         </div>
       </div>

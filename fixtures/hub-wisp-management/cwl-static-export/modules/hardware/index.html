@@ -56,7 +56,7 @@
     <div class="stat-card">
       <div class="stat-icon">🔧</div>
       <div>
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.totalItems + epcDevices.length"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Total Hardware</div>
       </div>
     </div>
@@ -80,7 +80,7 @@
     <div class="stat-card">
       <div class="stat-icon">🚀</div>
       <div>
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('deployed') + epcDevices.filter(d => d.status === 'online').lengt"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Deployed/Online</div>
       </div>
     </div>
@@ -88,7 +88,7 @@
     <div class="stat-card">
       <div class="stat-icon">💰</div>
       <div>
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatCurrency(stats.totalValue)"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Total Value</div>
       </div>
     </div>
@@ -96,7 +96,7 @@
     <div class="stat-card">
       <div class="stat-icon">🏗️</div>
       <div>
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="getStatusCount('maintenance')"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">In Maintenance</div>
       </div>
     </div>
@@ -105,7 +105,7 @@
   <!-- Hardware Type Tabs -->
   <div class="hardware-tabs">
     <button class="tab-btn">
-      📋 All Hardware (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="items.length + epcDevices.length"></span>)
+      📋 All Hardware ()
     </button>
     <button class="tab-btn">
       📦 Inventory (3)
@@ -138,13 +138,10 @@
       
       <select>
         <option>All Locations</option>
-        <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="locationTypes as location"><option></option></div>
+        
       </select>
       
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="manufacturers.length > 0"><select>
-          <option>All Manufacturers</option>
-          <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="manufacturers as manufacturer"><option></option></div>
-        </select></div>
+      
       
       <button class="btn-clear">
         Clear Filters
@@ -153,44 +150,22 @@
     
     <!-- Category Quick Filters -->
     <div class="category-filters">
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="categoryList as category">
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="count > 0"><button
-            class="category-chip">
-             ()
-          </button></div></div>
+      
+        
+        
+        
+        
     </div>
   </div>
   
   <!-- Hardware Content -->
   
     <!-- EPC/SNMP Devices Section -->
-    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="activeHardwareTab === 'epc'"><!-- EPC Devices Section -->
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="epcDevices.length === 0"><div class="empty-state">
-          <span class="empty-icon">📡</span>
-          <h3>No EPC devices deployed</h3>
-          <p>Deploy EPC devices from the Deploy module</p>
-          <button class="btn-primary">
-            🚀 Go to Deploy
-          </button>
-        </div></div>
-      
-      <!-- Discovered SNMP Devices Section -->
-      <div class="snmp-section" style="margin-top: 2rem;">
-        <div class="cwl-widget-shell" data-cwl-widget-shell="SNMPDevicesPanel" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>dev-1</td><td>online</td></tr><tr><td>dev-2</td><td>offline</td></tr></tbody></table></div>
-      </div></div>
+    
   
   
   <!-- Inventory Items Section -->
-  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="!isLoading && (activeHardwareTab === 'inventory' || activeHardwareTab === 'all')"><div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="items.length === 0 && activeHardwareTab === 'inventory'"><div class="empty-state">
-        <span class="empty-icon">🔧</span>
-        <h3>No inventory items found</h3>
-        <p>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="searchQuery || selectedCategory || selectedStatus || selectedLocation">Try adjusting your filters or search criteria</div>
-        </p>
-        <button class="btn-primary">
-          ➕ Add Hardware
-        </button>
-      </div></div></div>
+  
 </div>
 
 <!-- Scan Modal -->

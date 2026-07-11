@@ -51,7 +51,7 @@
                 </tr>
               </thead>
               <tbody>
-                <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="remoteAgents as agent (agent.epc_id || agent.device_id)"><tr>
+                <tr>
                     <td>
                       <strong></strong>
                     </td>
@@ -69,8 +69,7 @@
                     <td></td>
                     <td>
                       
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="agent.time_since_checkin !== null && agent.time_since_checkin !== undefined"><br>
-                        <small class="time-ago"></small></div>
+                      
                     </td>
                     <td>
                       <span class="status-badge status-">
@@ -78,10 +77,9 @@
                       </span>
                     </td>
                     <td>
-                      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="agent.hardware_linked"><span class="linked-badge linked">✓ Linked</span>
-                        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="agent.hardware_link_type"><br><small>()</small></div></div>
+                      
                     </td>
-                  </tr></div>
+                  </tr>
               </tbody>
             </table>
           </div>

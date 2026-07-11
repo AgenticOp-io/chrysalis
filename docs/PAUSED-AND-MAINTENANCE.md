@@ -15,7 +15,7 @@ When the user says **"build"** without scope, prefer [`STRATEGIC-PLAN.md`](./STR
 
 | Priority | Gate | Smoke |
 | --- | --- | --- |
-| **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` (schema **v21** / **D6400**) · GCE: `test:gce:migration-os` |
+| **Migration OS composite** | **G8550** | `hub:migration-os-close-smoke` (schema **v22** / **D6401**) · GCE: `test:gce:migration-os` |
 | **Open Legacy wedge** | **G8570** | `hub:site-port-open-legacy-wedge-smoke` |
 | **CWL IR helper tier** | **G6731** | `hub:cwl-language-maintenance-smoke` (weekly CI) |
 | **WISP showcase (default CI)** | **G9170** | `hub:phase45-wisp-showcase-smoke` |

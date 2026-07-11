@@ -40,7 +40,7 @@
     <div class="stat-card">
       <div class="stat-icon open">📋</div>
       <div class="stat-content">
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.open"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Open Tickets</div>
       </div>
     </div>
@@ -48,7 +48,7 @@
     <div class="stat-card">
       <div class="stat-icon in-progress">⚙️</div>
       <div class="stat-content">
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.inProgress"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">In Progress</div>
       </div>
     </div>
@@ -56,7 +56,7 @@
     <div class="stat-card">
       <div class="stat-icon resolved">✅</div>
       <div class="stat-content">
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.resolved"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Resolved</div>
       </div>
     </div>
@@ -64,7 +64,7 @@
     <div class="stat-card">
       <div class="stat-icon time">⏱️</div>
       <div class="stat-content">
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="stats.avgResolutionTime"></span></div>
+        <div class="stat-value"></div>
         <div class="stat-label">Avg Resolution</div>
       </div>
     </div>
@@ -104,49 +104,13 @@
     </select>
     
     <div class="results-count">
-      <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="filteredTickets.length"></span> of 1 tickets
+       of 1 tickets
     </div>
   </div>
   
   
     <div class="tickets-grid">
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredTickets as ticket (ticket._id)"><div class="ticket-card">
-          <div class="ticket-header">
-            <div>
-              <div class="ticket-number"></div>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.ticketCategory"><span class="ticket-category"></span></div>
-            </div>
-            <div class="badges">
-              <span class="badge ">
-                
-              </span>
-              <span class="badge ">
-                
-              </span>
-            </div>
-          </div>
-          
-          <h3 class="ticket-title"></h3>
-          
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.description"><p class="ticket-description"></p></div>
-          
-          <div class="ticket-meta">
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.affectedCustomers && ticket.affectedCustomers.length > 0"><div class="meta-item">
-                <span class="meta-icon">👤</span>
-                <span class="meta-text"></span>
-              </div></div>
-            
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="ticket.assignedToName"><div class="meta-item">
-                <span class="meta-icon">👷</span>
-                <span class="meta-text"></span>
-              </div></div>
-            
-            <div class="meta-item">
-              <span class="meta-icon">🕒</span>
-              <span class="meta-text"></span>
-            </div>
-          </div>
-        </div></div>
+      
     </div>
   
 </div>

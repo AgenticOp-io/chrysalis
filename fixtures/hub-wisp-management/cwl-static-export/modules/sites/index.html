@@ -68,15 +68,15 @@
         <div class="stat-label">Total Sites</div>
       </div>
       <div class="stat-card active">
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sites.filter(s => s.status === 'active').length"></span></div>
+        <div class="stat-value">1</div>
         <div class="stat-label">Active</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sites.filter(s => s.type === 'tower').length"></span></div>
+        <div class="stat-value">1</div>
         <div class="stat-label">Towers</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="sites.filter(s => s.type === 'building').length"></span></div>
+        <div class="stat-value">1</div>
         <div class="stat-label">Buildings</div>
       </div>
     </div>
@@ -96,73 +96,7 @@
             </tr>
           </thead>
           <tbody>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="filteredSites as site"><tr>
-                <td>
-                  <div class="site-name">
-                    <strong></strong>
-                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.owner"><small></small></div>
-                  </div>
-                </td>
-                <td>
-                  <span class="type-badge">
-                     
-                  </span>
-                </td>
-                <td>
-                  <span class="status-badge status-">
-                     
-                  </span>
-                </td>
-                <td>
-                  <div class="location-info">
-                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.address"><div></div></div>
-                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.city || site.location?.state"><div class="location-secondary">
-                        
-                        <span data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.zipCode"></span>
-                      </div></div>
-                    <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="site.location?.latitude && site.location?.longitude"><div class="coordinates">
-                        , 
-                      </div></div>
-                  </div>
-                </td>
-                <td>
-                  <div class="contact-info">
-                    
-                  </div>
-                </td>
-                <td>
-                  <div class="action-buttons">
-                    <button 
-                      class="btn-icon"
-                      title="Edit Site"
-                    >
-                      ✏️
-                    </button>
-                    <div class="deploy-menu">
-                      <button 
-                        class="btn-icon btn-deploy" 
-                        title="Deploy Equipment"
-                      >
-                        🚀
-                      </button>
-                      <div class="deploy-dropdown">
-                        <button>
-                          🖥️ Deploy EPC
-                        </button>
-                        <button>
-                          📡 Deploy LTE/5G Sector
-                        </button>
-                        <button>
-                          📱 Deploy FWA (CPE)
-                        </button>
-                        <button>
-                          🔗 Deploy Backhaul (Wireless/Fiber)
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              </tr></div>
+            
           </tbody>
         </table>
       </div>
@@ -170,7 +104,7 @@
   </div>
   
   <!-- Site Edit Modal -->
-  <div class="cwl-modal-shell" data-cwl-modal-shell="SiteEditModal" aria-hidden="true" role="dialog"></div> <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="showEditModal = false; null;"></span>}
+  <div class="cwl-modal-shell" data-cwl-modal-shell="SiteEditModal" aria-hidden="true" role="dialog"></div> }
   />
   
   <!-- EPC Deployment Modal -->

@@ -16,7 +16,7 @@
     <div class="header-content">
         <div class="header-left">
           <h1>Work Order</h1>
-          <p class="subtitle"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.title"></span></p>
+          <p class="subtitle"></p>
         </div>
         
         <div class="header-badges">
@@ -24,7 +24,7 @@
             class="priority-badge" 
             style="background-color:"
           >
-            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.priority"></span>
+            
           </div>
           
           <div 
@@ -51,74 +51,20 @@
           <h3>📋 Description</h3>
           <p class="description">No description provided</p>
           
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.symptoms"><h4>Symptoms:</h4>
-            <p class="symptoms"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.symptoms"></span></p></div>
+          
         </div>
         
         <!-- Location -->
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.location"><div class="card">
-            <h3>📍 Location</h3>
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="info-label">Type:</span>
-                <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.location.type"></span></span>
-              </div>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.location.siteName"><div class="info-item">
-                  <span class="info-label">Site:</span>
-                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.location.siteName"></span></span>
-                </div></div>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.location.address"><div class="info-item">
-                  <span class="info-label">Address:</span>
-                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.location.address"></span></span>
-                </div></div>
-            </div>
-          </div></div>
+        
         
         <!-- Customer Info -->
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.customerReported && workOrder.customerContact"><div class="card">
-            <h3>👤 Customer Information</h3>
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="info-label">Name:</span>
-                <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.customerContact.name"></span></span>
-              </div>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.customerContact.phone"><div class="info-item">
-                  <span class="info-label">Phone:</span>
-                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.customerContact.phone"></span></span>
-                </div></div>
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.customerContact.email"><div class="info-item">
-                  <span class="info-label">Email:</span>
-                  <span class="info-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.customerContact.email"></span></span>
-                </div></div>
-            </div>
-          </div></div>
+        
         
         <!-- Resolution -->
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.resolution"><div class="card">
-            <h3>✅ Resolution</h3>
-            <p class="resolution"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.resolution"></span></p>
-            
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.rootCause"><h4>Root Cause:</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.rootCause"></span></p></div>
-            
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.preventiveMeasures"><h4>Preventive Measures:</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.preventiveMeasures"></span></p></div>
-          </div></div>
+        
         
         <!-- Work Log -->
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.workPerformed && workOrder.workPerformed.length > 0"><div class="card">
-            <h3>📝 Work Log</h3>
-            <div class="work-log">
-              <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="workOrder.workPerformed as entry"><div class="log-entry">
-                  <div class="log-header">
-                    <span class="log-time"></span>
-                    <span class="log-user"></span>
-                  </div>
-                  <p class="log-action"></p>
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="entry.notes"><p class="log-notes"></p></div>
-                </div></div>
-            </div>
-          </div></div>
+        
       </div>
       
       <!-- Sidebar -->
@@ -151,7 +97,7 @@
           <div class="detail-list">
             <div class="detail-item">
               <span class="detail-label">Type:</span>
-              <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.type"></span></span>
+              <span class="detail-value"></span>
             </div>
             
             <div class="detail-item">
@@ -159,48 +105,18 @@
               <span class="detail-value">2026-07-01 12:00:00</span>
             </div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.createdByName"><div class="detail-item">
-                <span class="detail-label">Created By:</span>
-                <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.createdByName"></span></span>
-              </div></div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.assignedToName"><div class="detail-item">
-                <span class="detail-label">Assigned To:</span>
-                <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.assignedToName"></span></span>
-              </div></div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.scheduledDate"><div class="detail-item">
-                <span class="detail-label">Scheduled:</span>
-                <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.scheduledDate)"></span></span>
-              </div></div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.estimatedDuration"><div class="detail-item">
-                <span class="detail-label">Est. Duration:</span>
-                <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.estimatedDuration"></span> min</span>
-              </div></div>
+            
+            
+            
+            
           </div>
         </div>
         
         <!-- SLA -->
-        <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla"><div class="card">
-            <h3>⏱️ SLA</h3>
-            
-            <div class="detail-list">
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla.responseDeadline"><div class="detail-item">
-                  <span class="detail-label">Response By:</span>
-                  <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.sla.responseDeadline)"></span></span>
-                </div></div>
-              
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla.resolutionDeadline"><div class="detail-item">
-                  <span class="detail-label">Resolve By:</span>
-                  <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.sla.resolutionDeadline)"></span></span>
-                </div></div>
-              
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.sla.breached"><div class="sla-warning">
-                  ⚠️ SLA Breached
-                </div></div>
-            </div>
-          </div></div>
+        
         
         <!-- Timeline -->
         <div class="card">
@@ -215,37 +131,13 @@
               </div>
             </div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.assignedAt"><div class="timeline-item">
-                <span class="timeline-icon">👤</span>
-                <div class="timeline-content">
-                  <span class="timeline-label">Assigned</span>
-                  <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.assignedAt)"></span></span>
-                </div>
-              </div></div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.startedAt"><div class="timeline-item">
-                <span class="timeline-icon">▶️</span>
-                <div class="timeline-content">
-                  <span class="timeline-label">Started</span>
-                  <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.startedAt)"></span></span>
-                </div>
-              </div></div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.completedAt"><div class="timeline-item">
-                <span class="timeline-icon">✅</span>
-                <div class="timeline-content">
-                  <span class="timeline-label">Completed</span>
-                  <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.completedAt)"></span></span>
-                </div>
-              </div></div>
             
-            <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.closedAt"><div class="timeline-item">
-                <span class="timeline-icon">🔒</span>
-                <div class="timeline-content">
-                  <span class="timeline-label">Closed</span>
-                  <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.closedAt)"></span></span>
-                </div>
-              </div></div>
+            
+            
+            
+            
           </div>
         </div>
       </div>

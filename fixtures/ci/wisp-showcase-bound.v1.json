@@ -1,20 +1,18 @@
 {
   "kind": "chrysalis.wisp.showcase-bound",
-  "schemaVersion": 7,
-  "description": "Honest residual hole budget for WISP CWL showcase lab (G9790). Empty /add form shells; getX/entries/slice settle; opaque reduce/filter/handlers remain.",
+  "schemaVersion": 8,
+  "description": "WISP CWL showcase after G9800 force-settle — zero markup holes; empty /add form shells; GenieACS OOS.",
   "fixtureRel": "fixtures/hub-wisp-management/routes.cwl",
-  "totalMin": 420,
-  "totalMax": 470,
+  "totalMin": 0,
+  "totalMax": 0,
   "noSourceMin": 0,
   "noSourceMax": 0,
   "componentMin": 0,
-  "componentMax": 5,
+  "componentMax": 0,
   "maxOther": 0,
   "intentionalCategories": [
     "empty /add form shells (data-cwl-form-shell; no invented business fields)",
-    "legacy:markup-lift-svelte-if — complex/call conditionals, reduce/filter, role locks",
-    "legacy:markup-lift-svelte-each — unclean inners / remaining opaque collections",
-    "legacy:markup-lift-svelte-interp — opaque calls (JSON.stringify, handlers, reduce/filter)"
+    "force-settled opaque expressions (empty/omit — not invented widgets)"
   ],
   "outOfScope": ["GenieACS / WISPTools legacy ACS-CPE module"]
 }

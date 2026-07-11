@@ -31,7 +31,7 @@
   
 
   <div class="users-section">
-    <h2>Organization Users (<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="users.length"></span>)</h2>
+    <h2>Organization Users ()</h2>
 
     
       <div class="users-table">
@@ -45,32 +45,7 @@
             </tr>
           </thead>
           <tbody>
-            <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="users as user"><tr>
-                <td>
-                  <div class="user-cell">
-                    <span class="user-icon">👤</span>
-                    <span></span>
-                  </div>
-                </td>
-                <td>
-                  <select>
-                    <option value="owner">Owner</option>
-                    <option value="admin">Admin</option>
-                    <option value="operator">Operator</option>
-                    <option value="viewer">Viewer</option>
-                  </select>
-                </td>
-                <td>
-                  
-                </td>
-                <td>
-                  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="user.role !== 'owner'"><button 
-                      class="btn-danger-small"
-                    >
-                      Remove
-                    </button></div>
-                </td>
-              </tr></div>
+            
           </tbody>
         </table>
       </div>

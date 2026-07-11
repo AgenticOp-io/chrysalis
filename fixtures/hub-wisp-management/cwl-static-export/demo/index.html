@@ -15,18 +15,18 @@
         <code>INC-DEMO-*</code>, <code>DEMO-SN-*</code>. Prefer editing and resolving over deleting.
         Use one pre-provisioned demo login — see the operator runbook in the repo.
       </p>
-      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="$currentTenant"><p class="tenant">
-          Organization: <strong><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.displayName"></span></strong>
-          <span class="muted">(<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="$currentTenant.id"></span>)</span>
-        </p></div>
+      <p class="tenant">
+          Organization: <strong>Demo Tenant</strong>
+          <span class="muted">(t1)</span>
+        </p>
     </header>
 
     <div class="grid">
-      <div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="links as item"><a class="card">
+      <a class="card">
           <h2></h2>
           <p></p>
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="item.hint"><span class="hint"></span></div>
-        </a></div>
+          
+        </a>
     </div>
 
     <section class="doc">

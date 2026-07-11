@@ -96,13 +96,14 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 | **G9540** | `hub:convert-governor-smoke` | Convert GREEN/YELLOW/RED governor |
 | **G9550** | `hub:convert-aim-persist-smoke` | Aim persistence / stall contentless nudge |
 | **G9600** | `hub:is-live-operator-evidence-smoke` | Operator hub-convert trajectory aggregate |
-| **G9610** | `hub:wisp-showcase-bound-smoke` | Honest WISP residual hole budget (post G9790 form shells) |
+| **G9610** | `hub:wisp-showcase-bound-smoke` | Honest WISP residual hole budget (post G9800: **0**) |
 | **G9710** | `hub:wisp-nav-wizard-shell-smoke` | Nav/menu + wizard chrome shells |
 | **G9730** | `hub:wisp-fill-holes-smoke` | Widget shells + showcase hydrate samples |
 | **G9740** | `hub:wisp-fill-holes-smoke` | Full apiPath samples + if/length/bool settle |
 | **G9750** | `hub:wisp-fill-holes-smoke` | Enriched traces + Object.entries/ternary/$store |
 | **G9780** | `hub:wisp-fill-holes-smoke` | Coalesce/numeric if + nested each/item-scope settle |
 | **G9790** | `hub:wisp-fill-holes-smoke` | Empty `/add` form shells + getX/entries/slice settle |
+| **G9800** | `hub:wisp-fill-holes-smoke` | Force-settle all residual markup holes to **0** |
 | **G9620** | `hub:gpu-lab-close-smoke` | IS-T2 LoRA prep + GCE GPU orchestrator contract |
 | **G9630** | `hub:is-near-miss-salience-v2-smoke` | Salience v2 z-score; auto ≥20 operator domains |
 | **G9640** | `hub:operator-evidence-seed-smoke` | Seed ≥20 domains / hub-convert-shaped trajectories |

@@ -288,4 +288,16 @@ page hardware {
     expect(out).not.toContain("t3");
     expect(out).not.toContain("legacy:markup-lift-svelte-each");
   });
+
+  test("forceSettle clears residual opaque holes (G9800)", () => {
+    const html =
+      '<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="handleSave"></span>' +
+      '<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="isRoleLocked(role)"><span>X</span></div>' +
+      '<div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="unknownCollection as item">' +
+      '<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="item.name"></span></div>' +
+      '<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="\'{filename}\'"></span>';
+    const out = hydrateStructuralHtmlFromApiBody(html, {}, { forceSettle: true });
+    expect(out).not.toContain("data-cwl-hole=");
+    expect(out).toContain("{filename}");
+  });
 });

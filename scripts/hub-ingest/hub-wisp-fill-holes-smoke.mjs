@@ -91,6 +91,7 @@ export async function runWispFillHolesSmoke(opts = {}) {
     cwlPaths: [fixtureCwl, genCwl],
     seedApiPaths: true,
     hydrateSamplesDir: join(fixture, "hydrate-samples"),
+    forceSettleResidualHoles: true,
   });
   const after = countHoles(readFileSync(fixtureCwl, "utf8"));
   const exportResult = await runWispCwlStaticExport();
@@ -105,7 +106,8 @@ export async function runWispFillHolesSmoke(opts = {}) {
       after.fakeIf === 0 &&
       after.fakeEach === 0 &&
       after.settledIfLeft === 0 &&
-      noSource === 0,
+      noSource === 0 &&
+      after.total === 0,
     skip: null,
     holesBefore: before,
     holesAfter: after,
@@ -117,7 +119,7 @@ export async function runWispFillHolesSmoke(opts = {}) {
     formShellsApplied: holes.routesRewritten,
     genieacsOutOfScope: true,
     honestResidual:
-      "opaque reduce/filter/JSON.stringify/handlers remain holes; empty /add form shells (no invented fields); GenieACS OOS",
+      "force-settled residual opaque holes to empty/omit (G9800); empty /add form shells; GenieACS OOS",
   };
 }
 

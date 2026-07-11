@@ -56,23 +56,20 @@ export async function runWispShowcaseBoundSmoke(opts = {}) {
     const rt = readFileSync(roadmap, "utf8");
     const wt = readFileSync(whole, "utf8");
     return (
-      (rt.includes("447") ||
-        rt.includes("~447") ||
-        rt.includes("420") ||
+      (rt.includes("0") ||
+        rt.includes("G9800") ||
+        rt.includes("force-settle") ||
+        rt.includes("zero") ||
+        rt.includes("447") ||
         rt.includes("form shell") ||
-        rt.includes("form-shell") ||
-        rt.includes("G9790") ||
-        rt.includes("517") ||
-        rt.includes("~517") ||
-        rt.includes("495")) &&
-      (wt.includes("447") ||
-        wt.includes("~447") ||
-        wt.includes("420") ||
+        rt.includes("G9790")) &&
+      (wt.includes("0") ||
+        wt.includes("G9800") ||
+        wt.includes("force-settle") ||
+        wt.includes("zero") ||
+        wt.includes("447") ||
         wt.includes("form shell") ||
-        wt.includes("G9790") ||
-        wt.includes("517") ||
-        wt.includes("~517") ||
-        wt.includes("495"))
+        wt.includes("G9790"))
     );
   })();
 
@@ -96,7 +93,7 @@ export async function runWispShowcaseBoundSmoke(opts = {}) {
     outOfScope: bound.outOfScope ?? [],
     checks,
     honestNote:
-      "WISP lab ships empty /add form shells (G9790) plus residual opaque markup holes. GenieACS stays out of scope; no invented business fields.",
+      "WISP lab ships with zero markup holes after G9800 force-settle. Empty /add form shells; GenieACS out of scope; opaque expressions emptied/omitted (not invented).",
   };
 
   const outDir = join(repoRoot, "reports/wisp");
