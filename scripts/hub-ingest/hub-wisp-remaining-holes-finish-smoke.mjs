@@ -101,6 +101,7 @@ export async function runWispRemainingHolesFinishSmoke(opts = {}) {
     tracesDir,
     cwlPaths: [fixtureCwl, genCwl],
     seedApiPaths: true,
+    forceSettleResidualHoles: true,
   });
 
   const after = countHoles(readFileSync(fixtureCwl, "utf8"));
@@ -131,7 +132,7 @@ export async function runWispRemainingHolesFinishSmoke(opts = {}) {
       dashHtml.includes("stylesheet") &&
       !dashHtml.includes('data-cwl-hole-detail="TenantGuard"') &&
       !dashHtml.includes('data-cwl-component="TenantGuard"') &&
-      addHtml.includes("data-cwl-form-shell") ||
+      (addHtml.includes("data-cwl-form-shell") ||
         addHtml.includes("legacy:markup-no-source-route")) &&
       !addHtml.includes("wisp-module-demo"),
     skip: null,

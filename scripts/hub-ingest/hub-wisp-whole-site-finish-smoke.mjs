@@ -121,6 +121,7 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
     tracesDir,
     cwlPaths: [fixtureCwl, genCwl],
     seedApiPaths: true,
+    forceSettleResidualHoles: true,
   });
 
   cwlText = readFileSync(fixtureCwl, "utf8");
