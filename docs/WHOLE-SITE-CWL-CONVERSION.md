@@ -103,7 +103,7 @@ Unsupported constructs become **holes** with registry names (`legacy:css-scoping
 
 **G9480 / D6369:** WISP finish on product APIs — `applyNoSourceMarkupHolesToCwlSource` for routes without `+page.svelte`; `bindSiteProjectLoadFromTraces({ seedApiPaths })`; CSS lift synced into the hub fixture; mid-token HTML template guard so load fields do not corrupt hole attributes. Showcase gate: `hub:wisp-whole-site-finish-smoke`.
 
-**G9500 / D6371:** Fill every *fillable* hole — balanced `{#if}`/`{#each}`, showcase `loadBools`, static component inline, load-scalar hydration. Gate: `hub:wisp-fill-holes-smoke`. Residual after coalesce/numeric/nested-each settle (**G9780**) is **~517** intentional showcase-bound. GenieACS never in scope. **39** no-source `/add` routes stay holes (DESIGN §3 — no invented forms).
+**G9500 / D6371:** Fill every *fillable* hole — balanced `{#if}`/`{#each}`, showcase `loadBools`, static component inline, load-scalar hydration. Gate: `hub:wisp-fill-holes-smoke`. **G9790 / D6400:** no-source `/add` → empty form shells (no invented fields); opaque `getX`/entries/slice settle; residual **~447**. GenieACS never in scope.
 
 ---
 
@@ -114,7 +114,7 @@ pnpm run hub:whole-site-cwl-close-smoke   # G9450 program close / regression
 pnpm run hub:wisp-whole-site-finish-smoke # G9480 WISP finish (needs WISP root)
 pnpm run hub:wisp-remaining-holes-finish-smoke # G9490 remaining holes (needs WISP root)
 pnpm run hub:wisp-fill-holes-smoke        # G9500 fill fillable holes (needs WISP root)
-pnpm run hub:wisp-showcase-bound-smoke    # honest ~517-hole budget (fixture only)
+pnpm run hub:wisp-showcase-bound-smoke    # honest residual after G9790 form shells
 pnpm run hub:site-convert-smoke
 pnpm run hub:site-load-bind-smoke
 pnpm run hub:site-scale-matrix-smoke

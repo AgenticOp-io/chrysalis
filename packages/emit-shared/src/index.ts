@@ -112,6 +112,7 @@ export {
 } from "./apply-ui-markup-to-cwl.js";
 export {
   applyNoSourceMarkupHolesToCwlSource,
+  buildNoSourceFormShellHtml,
   buildNoSourceMarkupHoleHtml,
   MARKUP_NO_SOURCE_HOLE_REASON,
   type ApplyNoSourceMarkupHolesOptions,

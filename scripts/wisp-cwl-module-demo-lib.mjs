@@ -406,13 +406,27 @@ export function collectMissingModuleAddPaths(routesText) {
 /** @param {string} httpPath */
 export function buildWispModuleAddRouteBlock(httpPath) {
   const pageName = `${httpPath.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+/, "") || "root"}_page`;
-  // D6369 / G9480: explicit hole — never invent demo form HTML for missing +page.svelte
+  // D6400 / G9790: empty form chrome — never invent business fields for missing +page.svelte
   const safePath = httpPath.replace(/"/g, "'");
-  const html = `<div class="cwl-markup-hole" data-cwl-hole="legacy:markup-no-source-route" data-cwl-hole-detail="missing +page.svelte for ${safePath}" data-cwl-route="${safePath}"></div>`;
+  const parent = httpPath.replace(/\/add\/?$/, "") || "/";
+  const safeParent = parent.replace(/"/g, "'");
+  const leaf = httpPath
+    .replace(/\/add\/?$/, "")
+    .split("/")
+    .filter(Boolean)
+    .pop();
+  const label = leaf ? `Add ${leaf.replace(/-/g, " ")}` : "Add";
+  const html =
+    `<section class="cwl-form-shell" data-cwl-form-shell="no-source-add" data-cwl-route="${safePath}">` +
+    `<header class="cwl-form-shell-header"><h1>${label}</h1>` +
+    `<a class="cwl-form-shell-back" href="${safeParent}">Back</a></header>` +
+    `<form class="cwl-form-shell-form" method="post" action="${safePath}" data-cwl-form-shell-empty="true">` +
+    `<p class="cwl-form-shell-note">Missing +page.svelte — empty shell (no invented fields).</p>` +
+    `<button type="submit" disabled>Save</button></form></section>`;
   const apiPath = inferWispModuleApiPath(httpPath);
   const loadMeta = apiPath
-    ? `{ source: "markup-no-source", path: "${httpPath}", apiPath: "${apiPath}" }`
-    : `{ source: "markup-no-source", path: "${httpPath}" }`;
+    ? `{ source: "markup-form-shell", path: "${httpPath}", apiPath: "${apiPath}" }`
+    : `{ source: "markup-form-shell", path: "${httpPath}" }`;
   return buildWispModuleHtmlPageBlock(httpPath, pageName, html, loadMeta);
 }
 

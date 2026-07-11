@@ -1,18 +1,19 @@
 {
   "kind": "chrysalis.wisp.showcase-bound",
-  "schemaVersion": 6,
-  "description": "Honest residual hole budget for WISP CWL showcase lab (G9780). Coalesce / inequality if / nested-each settle; 39 no-source /add unchanged.",
+  "schemaVersion": 7,
+  "description": "Honest residual hole budget for WISP CWL showcase lab (G9790). Empty /add form shells; getX/entries/slice settle; opaque reduce/filter/handlers remain.",
   "fixtureRel": "fixtures/hub-wisp-management/routes.cwl",
-  "totalMin": 495,
-  "totalMax": 535,
-  "noSourceMin": 39,
+  "totalMin": 420,
+  "totalMax": 470,
+  "noSourceMin": 0,
+  "noSourceMax": 0,
   "componentMin": 0,
   "componentMax": 5,
   "maxOther": 0,
   "intentionalCategories": [
-    "legacy:markup-no-source-route — synthetic /add without Svelte source (39; cannot invent forms)",
-    "legacy:markup-lift-svelte-if — complex/call conditionals, reduce/filter",
-    "legacy:markup-lift-svelte-each — getX() / unclean inners / broken Object.entries",
+    "empty /add form shells (data-cwl-form-shell; no invented business fields)",
+    "legacy:markup-lift-svelte-if — complex/call conditionals, reduce/filter, role locks",
+    "legacy:markup-lift-svelte-each — unclean inners / remaining opaque collections",
     "legacy:markup-lift-svelte-interp — opaque calls (JSON.stringify, handlers, reduce/filter)"
   ],
   "outOfScope": ["GenieACS / WISPTools legacy ACS-CPE module"]

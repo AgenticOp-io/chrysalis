@@ -81,6 +81,7 @@ export async function runWispFillHolesSmoke(opts = {}) {
     cwlSource: cwlText,
     knownSourcePaths: known,
     onlyDemoShells: true,
+    formShell: true,
   });
   writeFileSync(fixtureCwl, holes.text, "utf8");
   cpSync(fixtureCwl, genCwl);
@@ -93,6 +94,7 @@ export async function runWispFillHolesSmoke(opts = {}) {
   });
   const after = countHoles(readFileSync(fixtureCwl, "utf8"));
   const exportResult = await runWispCwlStaticExport();
+  const noSource = after.reasons["legacy:markup-no-source-route"] ?? 0;
   return {
     kind: WISP_FILL_HOLES_KIND,
     schemaVersion: WISP_FILL_HOLES_SCHEMA_VERSION,
@@ -103,7 +105,7 @@ export async function runWispFillHolesSmoke(opts = {}) {
       after.fakeIf === 0 &&
       after.fakeEach === 0 &&
       after.settledIfLeft === 0 &&
-      (after.reasons["legacy:markup-no-source-route"] ?? 0) >= 30,
+      noSource === 0,
     skip: null,
     holesBefore: before,
     holesAfter: after,
@@ -111,10 +113,11 @@ export async function runWispFillHolesSmoke(opts = {}) {
     enrichedTraceCount: enriched.count ?? 0,
     tracesDir,
     fakeIfClosed: before.fakeIf,
-    noSourceHoles: after.reasons["legacy:markup-no-source-route"] ?? 0,
+    noSourceHoles: noSource,
+    formShellsApplied: holes.routesRewritten,
     genieacsOutOfScope: true,
     honestResidual:
-      "complex calls / nested expressions remain holes; 39 no-source /add stay holes (DESIGN §3)",
+      "opaque reduce/filter/JSON.stringify/handlers remain holes; empty /add form shells (no invented fields); GenieACS OOS",
   };
 }
 

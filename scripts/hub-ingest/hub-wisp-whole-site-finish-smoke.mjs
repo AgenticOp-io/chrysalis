@@ -111,6 +111,7 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
     cwlSource: cwlText,
     knownSourcePaths: known,
     onlyDemoShells: true,
+    formShell: true,
   });
   cwlText = holes.text;
   writeFileSync(fixtureCwl, cwlText, "utf8");
@@ -125,6 +126,7 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
   cwlText = readFileSync(fixtureCwl, "utf8");
   const demoLeft = (cwlText.match(/wisp-module-demo/g) ?? []).length;
   const noSourceHoles = (cwlText.match(/legacy:markup-no-source-route/g) ?? []).length;
+  const formShells = (cwlText.match(/data-cwl-form-shell/g) ?? []).length;
   const traced = (cwlText.match(/tracedApiStatus/g) ?? []).length;
   const apiPaths = (cwlText.match(/apiPath:/g) ?? []).length;
   const boundOk = bind.routes.filter((r) => r.skip === null).length;
@@ -148,8 +150,9 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
   });
   const hardwareAddBody = await hardwareAdd.text();
 
-  const hardwareAddHasHole =
-    hardwareAddBody.includes("legacy:markup-no-source-route") &&
+  const hardwareAddHasShell =
+    (hardwareAddBody.includes("legacy:markup-no-source-route") ||
+      hardwareAddBody.includes("data-cwl-form-shell")) &&
     hardwareAddBody.includes("data-cwl-route=");
   const noCorruptedHole =
     !hardwareAddBody.includes("markup-no-markup-no-source") &&
@@ -162,11 +165,11 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
       convert.ok === true &&
       bind.ok === true &&
       demoLeft === 0 &&
-      noSourceHoles >= 30 &&
+      (noSourceHoles >= 30 || formShells >= 30) &&
       login.status === 200 &&
       loginBody.includes("stylesheet") &&
       css.status === 200 &&
-      hardwareAddHasHole &&
+      hardwareAddHasShell &&
       noCorruptedHole &&
       uiAssets !== null &&
       hyphen.ok === true,
@@ -177,6 +180,7 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
     holesRewritten: holes.routesRewritten,
     demoLeft,
     noSourceHoles,
+    formShells,
     bind: {
       ok: bind.ok,
       tracesIndexed: bind.tracesIndexed,
@@ -191,7 +195,7 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
       loginHasShell: loginBody.includes("<!DOCTYPE html>"),
       loginHasCssLink: loginBody.includes("/assets/original-css/login.css"),
       cssStatus: css.status,
-      hardwareAddHasHole,
+      hardwareAddHasShell,
       noCorruptedHole,
     },
   };

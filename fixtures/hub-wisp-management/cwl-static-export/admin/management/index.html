@@ -88,13 +88,13 @@
         <div class="status-grid">
           <div class="status-card">
             <div class="status-icon">
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="systemStatus.health === 'operational'">🟢
+              🟢
               
-                🔴</div>
+                🔴
             </div>
             <div class="status-info">
               <h4>System Health</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.healthMessage"></span></p>
+              <p>All systems nominal</p>
             </div>
           </div>
           <div class="status-card">
@@ -103,7 +103,7 @@
               <h4>Active Tenants</h4>
               <p>
                 
-                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.activeTenants"></span> tenant<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.activeTenants !== 1 ? 's' : ''"></span> active
+                  2 tenants active
                 
               </p>
             </div>
@@ -114,20 +114,20 @@
               <h4>Total Users</h4>
               <p>
                 
-                  <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.totalUsers"></span> users across all tenants
+                  14 users across all tenants
                 
               </p>
             </div>
           </div>
           <div class="status-card">
             <div class="status-icon">
-              <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="systemStatus.databaseStatus === 'connected'">💾
+              💾
               
-                ⚠️</div>
+                ⚠️
             </div>
             <div class="status-info">
               <h4>Database</h4>
-              <p><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="systemStatus.databaseMessage"></span></p>
+              <p>Primary OK</p>
             </div>
           </div>
         </div>

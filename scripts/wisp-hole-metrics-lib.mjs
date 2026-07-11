@@ -78,6 +78,10 @@ export function evaluateWispShowcaseBound(metrics, bound) {
     componentMin: buckets.svelteComponent >= bound.componentMin,
     genieacsAbsent: !Object.keys(metrics.reasons).some((r) => /genieacs/i.test(r)),
   };
+  if (bound.noSourceMax != null) {
+    checks.noSourceMax =
+      (metrics.reasons["legacy:markup-no-source-route"] ?? 0) <= bound.noSourceMax;
+  }
   if (bound.componentMax != null) {
     checks.componentMax = buckets.svelteComponent <= bound.componentMax;
   }

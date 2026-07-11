@@ -1,7 +1,8 @@
 /**
- * Explicit holes for CWL `@page` routes with no source markup (D6369 / G9480).
+ * Explicit holes / honest form shells for CWL `@page` routes with no source markup
+ * (D6369 / G9480; form shells D6400 / G9790).
  *
- * Prefer holes over invented demo HTML (DESIGN §3 item 6).
+ * Prefer holes or empty chrome shells over invented business fields (DESIGN §3 item 6).
  */
 import { extractCwlRouteBlock, listCwlPageGetPaths, patchCwlRouteBlockHtml } from "./apply-ui-markup-to-cwl.js";
 
@@ -18,6 +19,33 @@ export function buildNoSourceMarkupHoleHtml(httpPath: string, detail?: string): 
   return `<div class="cwl-markup-hole" data-cwl-hole="${MARKUP_NO_SOURCE_HOLE_REASON}" data-cwl-hole-detail="${safeDetail}" data-cwl-route="${safePath}"></div>`;
 }
 
+/**
+ * Honest empty add-form chrome for routes without `+page.svelte` (G9790).
+ * Layout + disabled submit only — never invents business fields.
+ */
+export function buildNoSourceFormShellHtml(httpPath: string): string {
+  const safePath = httpPath.replace(/"/g, "'");
+  const parent = httpPath.replace(/\/add\/?$/, "") || "/";
+  const safeParent = parent.replace(/"/g, "'");
+  const leaf = httpPath
+    .replace(/\/add\/?$/, "")
+    .split("/")
+    .filter(Boolean)
+    .pop();
+  const label = leaf
+    ? `Add ${leaf.replace(/-/g, " ")}`
+    : "Add";
+  // Avoid load-field idents in free text (G1189): no bare "source" / "path".
+  return (
+    `<section class="cwl-form-shell" data-cwl-form-shell="no-source-add" data-cwl-route="${safePath}">` +
+    `<header class="cwl-form-shell-header"><h1>${label}</h1>` +
+    `<a class="cwl-form-shell-back" href="${safeParent}">Back</a></header>` +
+    `<form class="cwl-form-shell-form" method="post" action="${safePath}" data-cwl-form-shell-empty="true">` +
+    `<p class="cwl-form-shell-note">Missing +page.svelte — empty shell (no invented fields).</p>` +
+    `<button type="submit" disabled>Save</button></form></section>`
+  );
+}
+
 export interface ApplyNoSourceMarkupHolesOptions {
   readonly cwlSource: string;
   /** Paths that already have (or will have) lifted markup — leave alone. */
@@ -25,8 +53,14 @@ export interface ApplyNoSourceMarkupHolesOptions {
   /**
    * When true, only rewrite routes whose HTML still looks like a synthetic
    * demo shell (`wisp-module-demo` / `wisp-m32-add`). Default true.
+   * Ignored when `formShell` is true (upgrades demo, stale, and hole markers).
    */
   readonly onlyDemoShells?: boolean;
+  /**
+   * When true, emit `buildNoSourceFormShellHtml` instead of hole markers and
+   * upgrade existing no-source holes to form shells (G9790).
+   */
+  readonly formShell?: boolean;
 }
 
 export interface ApplyNoSourceMarkupHolesResult {
@@ -65,15 +99,21 @@ function blockHasNoSourceHole(block: string): boolean {
   );
 }
 
+function blockHasFormShell(block: string): boolean {
+  return /\bdata-cwl-form-shell=/.test(block) || /data-cwl-form-shell=\\?"/.test(block);
+}
+
 /**
  * Replace synthetic demo HTML (or empty shells) on routes without source
- * markup with an explicit `legacy:markup-no-source-route` hole.
+ * markup with an explicit `legacy:markup-no-source-route` hole, or — when
+ * `formShell` — an honest empty form chrome (G9790).
  * Also normalizes stale hole HTML (`data-cwl-path` / "no source page") to the
  * mid-token-safe form (D6369).
  */
 export function applyNoSourceMarkupHolesToCwlSource(
   opts: ApplyNoSourceMarkupHolesOptions,
 ): ApplyNoSourceMarkupHolesResult {
+  const formShell = opts.formShell === true;
   const onlyDemo = opts.onlyDemoShells !== false;
   const known = opts.knownSourcePaths ?? new Set<string>();
   let text = opts.cwlSource;
@@ -91,31 +131,47 @@ export function applyNoSourceMarkupHolesToCwlSource(
       routesSkipped += 1;
       continue;
     }
+    if (blockHasFormShell(block)) {
+      routesSkipped += 1;
+      continue;
+    }
     const staleHole = looksLikeStaleNoSourceHole(block);
     const demoShell = looksLikeSyntheticDemoShell(block);
-    if (onlyDemo && !demoShell && !staleHole) {
-      routesSkipped += 1;
-      continue;
+    const hasHole = blockHasNoSourceHole(block);
+    if (formShell) {
+      // Upgrade demo shells and no-source hole markers to empty form chrome.
+      if (!demoShell && !staleHole && !hasHole) {
+        routesSkipped += 1;
+        continue;
+      }
+    } else {
+      if (onlyDemo && !demoShell && !staleHole) {
+        routesSkipped += 1;
+        continue;
+      }
+      if (hasHole && !staleHole) {
+        routesSkipped += 1;
+        continue;
+      }
     }
-    if (blockHasNoSourceHole(block) && !staleHole) {
-      routesSkipped += 1;
-      continue;
-    }
-    const holeHtml = buildNoSourceMarkupHoleHtml(httpPath);
-    const patched = patchCwlRouteBlockHtml(block, holeHtml);
+    const shellHtml = formShell
+      ? buildNoSourceFormShellHtml(httpPath)
+      : buildNoSourceMarkupHoleHtml(httpPath);
+    const patched = patchCwlRouteBlockHtml(block, shellHtml);
     if (patched === null) {
       routesSkipped += 1;
       continue;
     }
+    const loadSource = formShell ? "markup-form-shell" : "markup-no-source";
     // Retag load source for honesty
     const withLoad = patched.replace(
       /load\s*\{([^}]*)\}/s,
       (_m, inner: string) => {
         let next = String(inner);
         if (/\bsource\s*:/.test(next)) {
-          next = next.replace(/\bsource\s*:\s*"[^"]*"/, `source: "markup-no-source"`);
+          next = next.replace(/\bsource\s*:\s*"[^"]*"/, `source: "${loadSource}"`);
         } else {
-          next = `${next.trim()}${next.trim() ? ", " : ""}source: "markup-no-source"`;
+          next = `${next.trim()}${next.trim() ? ", " : ""}source: "${loadSource}"`;
         }
         return `load { ${next.trim()} }`;
       },

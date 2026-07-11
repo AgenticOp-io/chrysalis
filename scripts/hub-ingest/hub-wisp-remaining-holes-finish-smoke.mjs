@@ -92,6 +92,7 @@ export async function runWispRemainingHolesFinishSmoke(opts = {}) {
     cwlSource: cwlText,
     knownSourcePaths: known,
     onlyDemoShells: true,
+    formShell: true,
   });
   writeFileSync(fixtureCwl, holes.text, "utf8");
   cpSync(fixtureCwl, genCwl);
@@ -130,7 +131,8 @@ export async function runWispRemainingHolesFinishSmoke(opts = {}) {
       dashHtml.includes("stylesheet") &&
       !dashHtml.includes('data-cwl-hole-detail="TenantGuard"') &&
       !dashHtml.includes('data-cwl-component="TenantGuard"') &&
-      addHtml.includes("legacy:markup-no-source-route") &&
+      addHtml.includes("data-cwl-form-shell") ||
+        addHtml.includes("legacy:markup-no-source-route")) &&
       !addHtml.includes("wisp-module-demo"),
     skip: null,
     holesBefore: before,
@@ -146,7 +148,9 @@ export async function runWispRemainingHolesFinishSmoke(opts = {}) {
       exportedCount: exportResult.exportedCount ?? 0,
       dashboardHasShell: dashHtml.includes("<!DOCTYPE html>"),
       dashboardHasCss: dashHtml.includes("stylesheet"),
-      addHasNoSourceHole: addHtml.includes("legacy:markup-no-source-route"),
+      addHasFormShell:
+        addHtml.includes("data-cwl-form-shell") ||
+        addHtml.includes("legacy:markup-no-source-route"),
     },
     genieacsOutOfScope: true,
   };

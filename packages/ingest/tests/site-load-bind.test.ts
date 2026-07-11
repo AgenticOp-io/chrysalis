@@ -244,4 +244,48 @@ page hardware {
     expect(out).toContain("100 Mbps");
     expect(out).not.toContain("legacy:markup-lift-svelte-each");
   });
+
+  test("hydrate getX alias, Object.entries ??, slice, getStatusCount (G9790)", () => {
+    const body = {
+      failedPayments: [{ id: "inv-1", amount: 10 }],
+      report: {
+        summary: { byStatus: { open: 2 } },
+        alerts: { criticalOpen: [{ id: "t1" }, { id: "t2" }, { id: "t3" }] },
+      },
+      statusCounts: { available: 7 },
+    };
+    expect(parseEachHeader("getFailedPayments() as invoice")).toEqual({
+      collection: "failedPayments",
+      itemName: "invoice",
+    });
+    expect(parseEachHeader("Object.entries(report.summary.byStatus ?? ) as [status, count]")).toEqual(
+      {
+        collection: "report.summary.byStatus",
+        itemName: "status",
+        objectEntries: true,
+        entryKeys: ["status", "count"],
+      },
+    );
+    expect(parseEachHeader("report.alerts.criticalOpen.slice(0, 2) as ticket")).toEqual({
+      collection: "report.alerts.criticalOpen",
+      itemName: "ticket",
+      sliceEnd: 2,
+    });
+    expect(evaluateIfDetail("!loading && getFailedPayments().length > 0", body)).toBe(true);
+    expect(resolveInterpDetail(body, "getStatusCount('available')")).toBe(7);
+    const html =
+      '<div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="getFailedPayments() as invoice">' +
+      '<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="invoice.id"></span></div>' +
+      '<div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="Object.entries(report.summary.byStatus ?? ) as [status, count]">' +
+      '<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="status"></span></div>' +
+      '<div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="report.alerts.criticalOpen.slice(0, 2) as ticket">' +
+      '<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="ticket.id"></span></div>';
+    const out = hydrateStructuralHtmlFromApiBody(html, body);
+    expect(out).toContain("inv-1");
+    expect(out).toContain("open");
+    expect(out).toContain("t1");
+    expect(out).toContain("t2");
+    expect(out).not.toContain("t3");
+    expect(out).not.toContain("legacy:markup-lift-svelte-each");
+  });
 });

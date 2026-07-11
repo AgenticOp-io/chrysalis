@@ -13,7 +13,28 @@
       ← Back to Work Orders
     </button>
     
-    
+    <div class="header-content">
+        <div class="header-left">
+          <h1>Work Order</h1>
+          <p class="subtitle"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.title"></span></p>
+        </div>
+        
+        <div class="header-badges">
+          <div 
+            class="priority-badge" 
+            style="background-color:"
+          >
+            <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="workOrder.priority"></span>
+          </div>
+          
+          <div 
+            class="status-badge" 
+            style="background-color:"
+          >
+            open
+          </div>
+        </div>
+      </div>
   </div>
   
   <!-- Alerts -->
@@ -106,23 +127,15 @@
         <div class="card actions-card">
           <h3>⚡ Quick Actions</h3>
           
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.status === 'open' || workOrder.status === 'assigned'"><button 
+          <button 
               class="action-btn start-btn"
             >
               ▶️ Start Work
-            </button></div>
+            </button>
           
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.status === 'in-progress'"><button 
-              class="action-btn complete-btn"
-            >
-              ✅ Mark Complete
-            </button></div>
           
-          <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.status === 'resolved'"><button 
-              class="action-btn"
-            >
-              🔒 Close Ticket
-            </button></div>
+          
+          
           
           <button 
             class="action-btn secondary-btn"
@@ -143,7 +156,7 @@
             
             <div class="detail-item">
               <span class="detail-label">Created:</span>
-              <span class="detail-value"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.createdAt)"></span></span>
+              <span class="detail-value">2026-07-01 12:00:00</span>
             </div>
             
             <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="workOrder.createdByName"><div class="detail-item">
@@ -198,7 +211,7 @@
               <span class="timeline-icon">📝</span>
               <div class="timeline-content">
                 <span class="timeline-label">Created</span>
-                <span class="timeline-time"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="formatDateTime(workOrder.createdAt)"></span></span>
+                <span class="timeline-time">2026-07-01 12:00:00</span>
               </div>
             </div>
             

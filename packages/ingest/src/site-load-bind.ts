@@ -240,6 +240,20 @@ export function resolveInterpDetail(root: unknown, detail: string): unknown {
     }
     return String(val);
   }
+  // getStatusCount('available') → statusCounts.available (G9790)
+  const statusCount = /^getStatusCount\(['"]([^'"]+)['"]\)$/.exec(d);
+  if (statusCount) {
+    const counts = resolveJsonPath(root, "statusCounts");
+    if (counts !== null && typeof counts === "object" && !Array.isArray(counts)) {
+      return (counts as Record<string, unknown>)[statusCount[1]!];
+    }
+    return undefined;
+  }
+  // getFailedPayments() → failedPayments alias (G9790)
+  const getterAlias = resolveGetterAliasName(d);
+  if (getterAlias) {
+    return resolveJsonPath(root, getterAlias);
+  }
   if (d.includes("(")) return undefined;
   // Svelte store prefix `$foo` → `foo` (G9750)
   if (d.startsWith("$")) d = d.slice(1);
@@ -362,7 +376,48 @@ export const DEFAULT_SHOWCASE_HYDRATE_CONSTANTS: Readonly<Record<string, unknown
       byCategory: { network: 3, billing: 2, support: 5 },
       slaCompliance: { onTime: 8, breached: 2 },
     },
+    alerts: {
+      criticalOpen: [
+        { id: "t1", title: "Outage", severity: "critical" },
+        { id: "t2", title: "Billing fail", severity: "critical" },
+      ],
+    },
   },
+  // Getter aliases for getX() settle (G9790)
+  failedPayments: [
+    { id: "inv-1", amount: 49.99, paidAt: null, status: "failed" },
+    { id: "inv-2", amount: 19.99, paidAt: null, status: "failed" },
+  ],
+  invoices: [
+    { id: "inv-3", amount: 49.99, paidAt: "2026-07-01T00:00:00Z", status: "paid" },
+  ],
+  paymentMethods: [
+    { id: "pm-1", brand: "visa", last4: "4242", isDefault: true },
+  ],
+  subscriptions: [{ id: "sub-1", plan: "Residential 100", status: "active" }],
+  analytics: {
+    totalRevenue: 12000,
+    monthlyRecurringRevenue: 4800,
+    activeSubscriptions: 96,
+    averageRevenuePerUser: 50,
+  },
+  stats: { totalValue: 25000 },
+  systemStatus: {
+    health: "operational",
+    healthMessage: "All systems nominal",
+    activeTenants: 2,
+    totalUsers: 14,
+    databaseStatus: "connected",
+    databaseMessage: "Primary OK",
+  },
+  statusCounts: { available: 12, online: 8, offline: 2, degraded: 1, pending: 3 },
+  onlineCount: 8,
+  selectedCount: 0,
+  tiers: [
+    { id: "starter", name: "Starter" },
+    { id: "pro", name: "Pro" },
+  ],
+  workOrder: { id: "wo-1", createdAt: "2026-07-01T12:00:00Z", status: "open" },
 };
 
 function formatHydrationText(value: unknown): string | null {
@@ -405,7 +460,7 @@ function collectHydrationLookup(body: unknown): Record<string, unknown> {
   return lookup;
 }
 
-/** Parse `{#each}` hole headers including keyed / Object.entries forms (G9730 / G9750). */
+/** Parse `{#each}` hole headers including keyed / Object.entries / getX / slice forms (G9730–G9790). */
 export function parseEachHeader(
   detail: string,
 ): {
@@ -413,18 +468,39 @@ export function parseEachHeader(
   itemName: string;
   objectEntries?: boolean;
   entryKeys?: readonly [string, string];
+  sliceEnd?: number;
 } | null {
   const trimmed = detail.trim();
-  // Object.entries(report.summary.byStatus) as [status, count]
-  const entries = /^Object\.entries\(([^)]+)\)\s+as\s+\[([a-zA-Z_][\w]*),\s*([a-zA-Z_][\w]*)\]/.exec(
-    trimmed,
-  );
+  // Object.entries(report.summary.byStatus ?? {}) as [status, count]
+  const entries =
+    /^Object\.entries\((.+?)(?:\s*\?\?\s*[^)]*)?\)\s+as\s+\[([a-zA-Z_][\w]*),\s*([a-zA-Z_][\w]*)\]/.exec(
+      trimmed,
+    );
   if (entries) {
+    let collection = entries[1]!.trim();
+    // Strip trailing incomplete `??` left by broken lift: `foo ??`
+    collection = collection.replace(/\s*\?\?\s*$/, "").trim();
     return {
-      collection: entries[1]!.trim(),
+      collection,
       itemName: entries[2]!,
       objectEntries: true,
       entryKeys: [entries[2]!, entries[3]!],
+    };
+  }
+  // getFailedPayments() as invoice  →  failedPayments
+  const getter = /^get([A-Z][\w]*)\(\)\s+as\s+([a-zA-Z_][\w]*)/.exec(trimmed);
+  if (getter) {
+    const alias = getter[1]!.charAt(0).toLowerCase() + getter[1]!.slice(1);
+    return { collection: alias, itemName: getter[2]! };
+  }
+  // report.alerts.criticalOpen.slice(0, 5) as ticket
+  const sliced =
+    /^([a-zA-Z_][\w.]*)\.slice\(\s*0\s*,\s*(\d+)\s*\)\s+as\s+([a-zA-Z_][\w]*)/.exec(trimmed);
+  if (sliced) {
+    return {
+      collection: sliced[1]!,
+      itemName: sliced[3]!,
+      sliceEnd: Number(sliced[2]),
     };
   }
   // "items as item (item.id)" or "customers as customer (customer._id || customer.customerId)"
@@ -436,6 +512,12 @@ export function parseEachHeader(
   const plain = /^([a-zA-Z_][\w.]*)\s+as\s+([a-zA-Z_][\w]*)$/.exec(trimmed);
   if (!plain) return null;
   return { collection: plain[1]!, itemName: plain[2]! };
+}
+
+function resolveGetterAliasName(detail: string): string | null {
+  const m = /^get([A-Z][\w]*)\(\)$/.exec(detail.trim());
+  if (!m) return null;
+  return m[1]!.charAt(0).toLowerCase() + m[1]!.slice(1);
 }
 
 function resolveEachCollection(
@@ -452,7 +534,11 @@ function resolveEachCollection(
       [vName]: v,
     }));
   }
-  return Array.isArray(raw) ? raw : null;
+  if (!Array.isArray(raw)) return null;
+  if (typeof parsed.sliceEnd === "number" && Number.isFinite(parsed.sliceEnd)) {
+    return raw.slice(0, parsed.sliceEnd);
+  }
+  return raw;
 }
 
 function buildItemScope(
@@ -706,6 +792,25 @@ export function evaluateIfDetail(detail: string, body: unknown): boolean | null 
     return inner === null ? null : !inner;
   }
 
+  // getFailedPayments().length > 0 (G9790)
+  const getLenCmp =
+    /^get([A-Z][\w]*)\(\)\.length\s*(===|!==|==|!=|>=|<=|>|<)\s*(\d+)$/.exec(d);
+  if (getLenCmp) {
+    const alias = getLenCmp[1]!.charAt(0).toLowerCase() + getLenCmp[1]!.slice(1);
+    const arr = resolveInterpDetail(body, alias);
+    if (!Array.isArray(arr) && typeof arr !== "string") return null;
+    const left = Array.isArray(arr) ? arr.length : (arr as string).length;
+    const right = Number(getLenCmp[3]);
+    const op = getLenCmp[2]!;
+    if (op === "===" || op === "==") return left === right;
+    if (op === "!==" || op === "!=") return left !== right;
+    if (op === ">") return left > right;
+    if (op === ">=") return left >= right;
+    if (op === "<") return left < right;
+    if (op === "<=") return left <= right;
+    return null;
+  }
+
   const lenCmp = /^([a-zA-Z_$][\w.$]*)\.length\s*(===|!==|==|!=|>=|<=|>|<)\s*(\d+)$/.exec(d);
   if (lenCmp) {
     const arr = resolveInterpDetail(body, lenCmp[1]!);
@@ -756,7 +861,9 @@ export function evaluateIfDetail(detail: string, body: unknown): boolean | null 
     return left !== right;
   }
 
-  if (d.includes("(")) return null;
+  if (d.includes("(") && !/^get[A-Z][\w]*\(\)$/.test(d) && !/^getStatusCount\(/.test(d)) {
+    return null;
+  }
   // Allow $store / optional chaining via resolveInterpDetail (G9750)
   const val = resolveInterpDetail(body, d);
   // Missing simple idents are falsy for showcase settle; dotted paths stay unknown.
