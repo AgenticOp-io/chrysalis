@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp.ui-parity.verify",
   "schemaVersion": 1,
   "ok": true,
-  "generatedAt": "2026-07-11T17:40:41.249Z",
+  "generatedAt": "2026-07-11T22:06:38.781Z",
   "anchors": [
     {
       "path": "/login",
@@ -68,8 +68,8 @@
   ],
   "stubScan": {
     "ok": true,
-    "routeCount": 126,
-    "htmlRoutes": 126,
+    "routeCount": 127,
+    "htmlRoutes": 127,
     "uiRoutes": 0,
     "violationCount": 0,
     "violations": []

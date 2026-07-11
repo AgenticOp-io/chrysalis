@@ -16,6 +16,7 @@ import { writeFileSync } from "node:fs";
 import { isWispFullSiteProgramClosed, applyPostG7790ScenarioMetadata } from "./wisp-cwl-post-g7790.mjs";
 import { applyWispPostG7790Chain } from "./wisp-cwl-apply-post-g7790-chain.mjs";
 import { applyWispClientRedirects } from "./wisp-cwl-apply-client-redirects.mjs";
+import { inspectRoutesCwlIntegrity } from "./wisp-cwl-apply-surfaces-lib.mjs";
 import { applyWispPhase28gIntegrationsUi } from "./wisp-cwl-apply-phase28g-integrations-ui.mjs";
 import { applyWispPhase31BulkLift } from "./wisp-cwl-apply-phase31-bulk-lift.mjs";
 import { applyWispPhase30UiParity } from "./wisp-cwl-apply-phase30-ui-parity.mjs";
@@ -95,13 +96,22 @@ export function runWispCwlFullBuild(opts = {}) {
 
   if (isWispFullSiteProgramClosed()) {
     const chain = applyWispPostG7790Chain({ previewPath: join(fixtureDir, "cwl-preview.json") });
-    applyWispClientRedirects();
     applyWispPhase28gIntegrationsUi();
     applyWispPhase31BulkLift();
     applyWispPhase30UiParity();
     applyWispPhase30bModuleParity();
     applyWispPhase32CompleteDemo();
-    steps.push({ step: "post-g7790-apply-chain", status: chain.ok ? 0 : 1, chainOk: chain.ok === true });
+    // Client redirects last — later lifts can reintroduce dead-end spinner shells.
+    const redirects = applyWispClientRedirects();
+    const integrity = inspectRoutesCwlIntegrity();
+    steps.push({
+      step: "post-g7790-apply-chain",
+      status: chain.ok && redirects.ok !== false && integrity.ok ? 0 : 1,
+      chainOk: chain.ok === true,
+      redirectsOk: redirects.ok !== false,
+      routesIntegrityOk: integrity.ok === true,
+      junkCount: integrity.junkCount ?? 0,
+    });
   } else {
     applyWispPhase13Surfaces();
     reconcilePreviewFromRoutesCwl();

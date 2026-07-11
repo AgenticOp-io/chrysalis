@@ -104,6 +104,7 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 | **G9780** | `hub:wisp-fill-holes-smoke` | Coalesce/numeric if + nested each/item-scope settle |
 | **G9790** | `hub:wisp-fill-holes-smoke` | Empty `/add` form shells + getX/entries/slice settle |
 | **G9800** | `hub:wisp-fill-holes-smoke` | Force-settle all residual markup holes to **0** |
+| **G9830** | `hub:wisp-cwl-routes-integrity-smoke` | String-aware CWL replace + redirects-last + no post-brace junk |
 | **G9810** | `hub:wisp-fill-holes-smoke` | Structural-shell convert defaults force-settle |
 | **G9620** | `hub:gpu-lab-close-smoke` | IS-T2 LoRA prep + GCE GPU orchestrator contract (**G9820:** fetch adapter + honest status) |
 | **G9630** | `hub:is-near-miss-salience-v2-smoke` | Salience v2 z-score; auto ≥20 operator domains |

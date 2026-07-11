@@ -18,7 +18,13 @@ export function cwlHtmlReturn(html) {
   return `return html "${escaped}";`;
 }
 
-/** @param {string} text @param {string[]} routeLines @param {string} replacement */
+/**
+ * Replace a @page/@route block. Brace matching must ignore `{`/`}` inside
+ * double-quoted strings (return html "…") or early closes leave leftover HTML
+ * as cwl:unknown-statement holes and live 501s.
+ *
+ * @param {string} text @param {string[]} routeLines @param {string} replacement
+ */
 export function replaceRouteHandlerBlock(text, routeLines, replacement) {
   const lines = Array.isArray(routeLines) ? routeLines : [routeLines];
   let start = -1;
@@ -34,9 +40,23 @@ export function replaceRouteHandlerBlock(text, routeLines, replacement) {
   if (brace < 0) return { text, ok: false, skip: `malformed-${lines[0]}` };
   let depth = 0;
   let end = -1;
+  let inString = false;
   for (let i = brace; i < text.length; i++) {
-    if (text[i] === "{") depth++;
-    else if (text[i] === "}") {
+    const ch = text[i];
+    if (inString) {
+      if (ch === "\\") {
+        i++;
+        continue;
+      }
+      if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
       depth--;
       if (depth === 0) {
         end = i + 1;
@@ -46,6 +66,60 @@ export function replaceRouteHandlerBlock(text, routeLines, replacement) {
   }
   if (end < 0) return { text, ok: false, skip: `unclosed-${lines[0]}` };
   return { text: text.slice(0, start) + replacement + text.slice(end), ok: true };
+}
+
+/**
+ * Lines that close a page/handler then leave leftover HTML (apply-chain corruption).
+ * Bare `}` is fine; `} />…` / `}>\n…` become cwl:unknown-statement holes at runtime.
+ *
+ * @param {string} text
+ * @returns {{ line: number, preview: string }[]}
+ */
+export function findPostBraceJunkLines(text) {
+  const lines = text.split(/\n/);
+  /** @type {{ line: number, preview: string }[]} */
+  const junk = [];
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const line = raw.replace(/\r$/, "");
+    if (line === "}") continue;
+    if (line.startsWith("}") && line.trim().length > 1) {
+      junk.push({ line: i + 1, preview: line.slice(0, 120) });
+    }
+  }
+  return junk;
+}
+
+/**
+ * Structural integrity for showcase/deploy routes.cwl (G9830).
+ * @param {string} [text]
+ * @param {string} [filePath]
+ */
+export function inspectRoutesCwlIntegrity(text, filePath = routesPath) {
+  const src = text ?? (existsSync(filePath) ? readFileSync(filePath, "utf8") : "");
+  if (!src) return { ok: false, skip: "missing-routes-cwl", junkLines: [], rootRedirectOk: false };
+  const junkLines = findPostBraceJunkLines(src);
+  const rootIdx = src.indexOf('@page GET "/"');
+  const rootSlice = rootIdx >= 0 ? src.slice(rootIdx, rootIdx + 1500) : "";
+  const rootRet = rootSlice.match(/return html "([^"]*(?:\\.[^"]*)*)";/);
+  const rootHtml = rootRet?.[1] ?? "";
+  const rootRedirectOk =
+    rootIdx >= 0 &&
+    (rootHtml.includes("location.replace") ||
+      rootHtml.includes("http-equiv=\\\"refresh\\\"") ||
+      rootHtml.includes("url=/login"));
+  const loginOk = src.includes('@page GET "/login"') && src.includes("login-page");
+  const dashboardOk = src.includes('@page GET "/dashboard"') && src.includes("dashboard-container");
+  const ok = junkLines.length === 0 && rootRedirectOk && loginOk && dashboardOk;
+  return {
+    ok,
+    junkLines,
+    junkCount: junkLines.length,
+    rootRedirectOk,
+    loginOk,
+    dashboardOk,
+    filePath,
+  };
 }
 
 const NATIVE_AUTH_HANDLER_PAIR_RE =

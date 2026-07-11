@@ -451,7 +451,7 @@ When the user says "build" without specifying:
 2. **Operator GPU train** — `pnpm run gpu-lab:gce` with `CHRYSALIS_GPU_LAB_DRY_RUN=0` (T4; LoRA `messages[]` mapping; **G9820** fetch adapter + honest `gpu-lab:gce:status`)
 3. **Extended matrix census** — `hub:extended-matrix-oracle-progress-smoke` (**G9160**)
 4. **Whole-site CWL regression** — `pnpm run hub:whole-site-cwl-close-smoke` (**G9450**)
-5. **WISP regression** — `hub:wisp-fill-holes-smoke` / `hub:wisp-showcase-bound-smoke` (zero-hole bound); GenieACS never in scope
+5. **WISP regression** — `hub:wisp-fill-holes-smoke` / `hub:wisp-showcase-bound-smoke` (zero-hole bound) + `hub:wisp-cwl-routes-integrity-smoke` (**G9830**); GenieACS never in scope
 
 **Product sample READY:** ≥ **50** live-analytics jobs (`PRODUCT_HIT_RATE_MIN_JOBS`) — may include seed.  
 **Live hit-rate READY:** ≥ **50** `hub-convert-verify` jobs (`PRODUCT_HIT_RATE_LIVE_MIN_JOBS`) — via `web-llm:batch-hub-convert-verify-evidence`.  

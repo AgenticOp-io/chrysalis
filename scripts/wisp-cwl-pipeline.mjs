@@ -29,6 +29,7 @@ import { applyWispPhase31BulkLift } from "./wisp-cwl-apply-phase31-bulk-lift.mjs
 import { applyWispPhase30UiParity } from "./wisp-cwl-apply-phase30-ui-parity.mjs";
 import { applyWispPhase30bModuleParity } from "./wisp-cwl-apply-phase30b-module-parity.mjs";
 import { applyWispPhase32CompleteDemo } from "./wisp-cwl-apply-phase32-complete-demo.mjs";
+import { inspectRoutesCwlIntegrity } from "./wisp-cwl-apply-surfaces-lib.mjs";
 import { isWispFullSiteProgramClosed } from "./wisp-cwl-post-g7790.mjs";
 import {
   loadWispPipelineConfig,
@@ -124,12 +125,25 @@ export function prepareWispCwlDeployBundle(opts = {}) {
 
   if (isWispFullSiteProgramClosed()) {
     applyWispPostG7790Chain();
-    applyWispClientRedirects();
     applyWispPhase28gIntegrationsUi();
     applyWispPhase31BulkLift();
     applyWispPhase30UiParity();
     applyWispPhase30bModuleParity();
     applyWispPhase32CompleteDemo();
+    // Client redirects last — later lifts can reintroduce dead-end spinner shells.
+    const redirects = applyWispClientRedirects();
+    const integrity = inspectRoutesCwlIntegrity();
+    if (redirects.ok === false || integrity.ok !== true) {
+      return {
+        ok: false,
+        skip: redirects.ok === false ? redirects.skip ?? "client-redirects-failed" : "routes-integrity-failed",
+        bundleDir,
+        wispRoot,
+        routesSrc,
+        redirects,
+        integrity,
+      };
+    }
   } else {
     applyWispPhase13Surfaces();
   }
@@ -154,7 +168,19 @@ export function prepareWispCwlDeployBundle(opts = {}) {
     }
   }
 
-  return { ok: true, bundleDir, wispRoot, routesSrc };
+  const bundleIntegrity = inspectRoutesCwlIntegrity(undefined, join(bundleDir, "routes.cwl"));
+  if (bundleIntegrity.ok !== true) {
+    return {
+      ok: false,
+      skip: "bundle-routes-integrity-failed",
+      bundleDir,
+      wispRoot,
+      routesSrc,
+      integrity: bundleIntegrity,
+    };
+  }
+
+  return { ok: true, bundleDir, wispRoot, routesSrc, integrity: bundleIntegrity };
 }
 
 /** @param {{ ok?: boolean, skip?: string, bundleDir?: string }} bundle */
@@ -199,10 +225,12 @@ export function verifyWispGceDeployBundle(bundle) {
     gatewayText.includes("wisp-cwl-modules.css") &&
     gatewayText.includes("wisp-cwl-map.js") &&
     gatewayText.includes("wisp-cwl-client.js");
+  const integrity = inspectRoutesCwlIntegrity(undefined, join(dir, "routes.cwl"));
   return {
-    ok: operatorOk === true && wrapOk === true,
+    ok: operatorOk === true && wrapOk === true && integrity.ok === true,
     operatorOk,
     wrapOk,
+    integrity,
     missing: [],
     bundleDir: dir,
   };
