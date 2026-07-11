@@ -7,7 +7,8 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** maintenance **G8550** (schema **v22** / **D6401**) — census **601/601** (**G9160**).
+- **Active lane:** maintenance **G8550** (schema **v22** / **D6401–D6402**) — census **601/601** (**G9160**).
+- **Closed (2026-07-11):** **Convert force-settle default** (**G9810**, **D6402**) — structural-shell `convertSiteProjectUi` clears residual holes without leaving markers after reconvert.
 - **Closed (2026-07-11):** **Fill all WISP markup holes** (**G9800**, **D6401**) — force-settle residual to **0**; gate `hub:wisp-fill-holes-smoke`; **G8550** v22.
 - **Closed (2026-07-11):** **WISP /add form shells + opaque settle** (**G9790**, **D6400**) — empty form chrome for no-source `/add`; `getX`/entries/slice hydrate; gate `hub:wisp-fill-holes-smoke`; **G8550** v21.
 - **Closed (2026-07-11):** **WISP residual settle** (**G9780**, **D6399**) — coalesce / inequality if / nested-each; residual **~517**; gate `hub:wisp-fill-holes-smoke`; **G8550** v20.

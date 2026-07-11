@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp.ui-parity.verify",
   "schemaVersion": 1,
   "ok": true,
-  "generatedAt": "2026-07-09T05:13:12.669Z",
+  "generatedAt": "2026-07-11T17:40:41.249Z",
   "anchors": [
     {
       "path": "/login",
@@ -60,11 +60,10 @@
     {
       "path": "/modules/hardware/add",
       "required": [
-        "wisp-demo-content",
-        "wisp-demo-form",
-        "data-wisp-layout=\"form\""
+        "data-cwl-form-shell",
+        "data-cwl-route"
       ],
-      "minLength": 300
+      "minLength": 40
     }
   ],
   "stubScan": {

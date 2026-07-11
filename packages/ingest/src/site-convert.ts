@@ -23,7 +23,11 @@ import {
 } from "./ui-markup-discover.js";
 import {
   bindSiteProjectLoadFromTraces,
+  bindTracedLoadToCwlSource,
+  SITE_LOAD_BIND_REPORT_KIND,
+  SITE_LOAD_BIND_REPORT_SCHEMA_VERSION,
   type BindSiteProjectLoadResult,
+  type SiteLoadBindRouteResult,
 } from "./site-load-bind.js";
 
 export const SITE_CONVERT_REPORT_KIND = "chrysalis.site-convert.v1";
@@ -42,6 +46,13 @@ export interface ConvertSiteProjectOptions {
   readonly markupMode?: "static" | "structural-shell";
   /** Oracle trace corpus root — binds traced API JSON into `load { }` (G9430). */
   readonly tracesDir?: string;
+  /**
+   * Force-settle residual markup holes after patch (G9810).
+   * Defaults to true for `structural-shell` so reconvert does not leave hole markers.
+   */
+  readonly forceSettleResidualHoles?: boolean;
+  /** Showcase hydrate samples merged during force-settle / bind (G9730). */
+  readonly hydrateSamplesDir?: string;
   /** Write `.chrysalis/site-convert.json`. Default true. */
   readonly writeReport?: boolean;
 }
@@ -176,8 +187,44 @@ export function convertSiteProjectUi(opts: ConvertSiteProjectOptions): ConvertSi
   }
 
   const tracesDir = opts.tracesDir ?? join(projectDir, "traces");
-  if (ok && opts.liftOnly !== true && existsSync(tracesDir) && paths.length > 0) {
-    loadBind = bindSiteProjectLoadFromTraces({ tracesDir, cwlPaths: paths });
+  const markupMode = opts.markupMode ?? "structural-shell";
+  const forceSettle =
+    opts.forceSettleResidualHoles !== undefined
+      ? opts.forceSettleResidualHoles
+      : markupMode === "structural-shell";
+
+  if (ok && opts.liftOnly !== true && paths.length > 0 && existsSync(tracesDir)) {
+    loadBind = bindSiteProjectLoadFromTraces({
+      tracesDir,
+      cwlPaths: paths,
+      ...(forceSettle ? { forceSettleResidualHoles: true } : {}),
+      ...(opts.hydrateSamplesDir ? { hydrateSamplesDir: opts.hydrateSamplesDir } : {}),
+    });
+  } else if (ok && opts.liftOnly !== true && paths.length > 0 && forceSettle) {
+    // No oracle traces — still clear residual holes with showcase constants (G9810).
+    let pagesSettled = 0;
+    const routes: SiteLoadBindRouteResult[] = [];
+    for (const cwlPath of paths) {
+      if (!existsSync(cwlPath)) continue;
+      const original = readFileSync(cwlPath, "utf8");
+      const bound = bindTracedLoadToCwlSource({
+        cwlSource: original,
+        apiIndex: new Map(),
+        forceSettleResidualHoles: true,
+        ...(opts.hydrateSamplesDir ? { hydrateSamplesDir: opts.hydrateSamplesDir } : {}),
+      });
+      if (bound.text !== original) writeFileSync(cwlPath, bound.text, "utf8");
+      pagesSettled += bound.routes.filter((r) => r.htmlHydrated).length;
+      routes.push(...bound.routes);
+    }
+    loadBind = {
+      kind: SITE_LOAD_BIND_REPORT_KIND,
+      schemaVersion: SITE_LOAD_BIND_REPORT_SCHEMA_VERSION,
+      ok: true,
+      routes,
+      tracesIndexed: 0,
+    };
+    void pagesSettled;
   }
 
   const loadOk = loadBind === null || loadBind.ok === true;
