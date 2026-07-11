@@ -100,7 +100,37 @@
   
 
   <!-- Bulk Actions Bar -->
-  
+  <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="selectedCount > 0"><div class="bulk-actions-bar">
+      <div class="bulk-info">
+        <span class="bulk-count"><span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="selectedCount"></span></span>
+        <span>device(s) selected</span>
+      </div>
+      <div class="bulk-buttons">
+        <button 
+          class="btn btn-secondary btn-sm"
+        >
+          Clear Selection
+        </button>
+        <button 
+          class="btn btn-primary btn-sm"
+        >
+          🔄 Refresh Selected
+        </button>
+        <button 
+          class="btn btn-warning btn-sm"
+        >
+          ⚡ Reboot Selected
+        </button>
+        <button 
+          class="btn btn-primary btn-sm"
+        >
+          ⚙️ Apply Preset
+        </button>
+      </div>
+      <div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="bulkActionMessage"><div class="bulk-message">
+          <span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="bulkActionMessage"></span>
+        </div></div>
+    </div></div>
 
   <!-- Devices Table -->
   <div class="devices-table-container">

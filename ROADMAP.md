@@ -7,7 +7,8 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** maintenance **G8550** (schema **v19** / **D6398**) — census **601/601** (**G9160**).
+- **Active lane:** maintenance **G8550** (schema **v20** / **D6399**) — census **601/601** (**G9160**).
+- **Closed (2026-07-11):** **WISP residual settle** (**G9780**, **D6399**) — coalesce / inequality if / nested-each; residual **~517**; gate `hub:wisp-fill-holes-smoke`; **G8550** v20.
 - **Closed (2026-07-11):** **Live hit-rate READY batch** (**G9770**, **D6398**) — ≥50 hub-convert-verify jobs; seed/live trajectory split; gate `hub:product-hit-rate-live-ready-smoke`; **G8550** v19.
 - **Closed (2026-07-11):** **Live hit-rate provenance** (**G9760**, **D6397**) — `evidenceSource` + `productHitRateLiveReady`; seed ≠ live READY; gate `hub:product-hit-rate-live-smoke`; LoRA `messages[]` train mapping; **G8550** v18.
 - **Closed (2026-07-10):** **Enriched traces + Object.entries/ternary/$store** (**G9750**, **D6394**) — residual **~564** holes; gate `hub:wisp-fill-holes-smoke`; **G8550** v17.
@@ -93,7 +94,7 @@ Fixture: `fixtures/ci/wisp-showcase-bound.v1.json` · artifact `reports/wisp/sho
 | `svelte-each` | 71 |
 | `svelte-component` | 0 |
 | `no-source-route` | 39 |
-| **Total** | **564** (post G9750; was 635 / 1260) |
+| **Total** | **517** (post G9780; was 564 / 635 / 1260) |
 
 **Regression:** fake `/if`/`/each` = 0; settled loading/error ifs = 0; GenieACS out of scope.
 
@@ -109,7 +110,7 @@ Bound: `fixtures/ci/wisp-showcase-bound.v1.json` (schema **v5**, **545–585**)
 | --- | --- |
 | Enriched traces | **17** apiPath NDJSON from hydrate-samples |
 | Settled | `Object.entries` each, simple ternaries, `$store` / `?.` |
-| Hole count | **~564** (interp ~267, each ~71, if ~187, no-source **39**) |
+| Hole count | **~517** (interp ~229, each ~71, if ~178, no-source **39**) |
 | Must remain | 39 no-source `/add`; complex calls; unclean each inners; GenieACS |
 
 ---
@@ -124,7 +125,7 @@ API: `findNextSvelteBlock`, `DEFAULT_SHOWCASE_LOAD_BOOLS`, `indexSvelteComponent
 | --- | --- |
 | Fake `/if`/`/each` | **0** (balanced control-flow) |
 | Settled loading/error ifs | **0** remaining |
-| Hole count | **~564** declared showcase-bound (**G9750**; was 635 / 1260) |
+| Hole count | **~517** declared showcase-bound (**G9780**; was 564 / 635 / 1260) |
 | Must remain | 39 no-source `/add`; complex `{#if}`/`{#each}`/interp; GenieACS |
 
 ---

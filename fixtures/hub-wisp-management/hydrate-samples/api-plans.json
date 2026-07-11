@@ -1,8 +1,22 @@
 {
   "ok": true,
   "plans": [
-    { "id": "p1", "name": "Residential 100", "status": "active", "price": 49.99 },
-    { "id": "p2", "name": "Business 500", "status": "active", "price": 149.99 }
+    {
+      "id": "p1",
+      "name": "Residential 100",
+      "status": "active",
+      "price": 49.99,
+      "isPopular": true,
+      "features": ["100 Mbps", "Unlimited data"]
+    },
+    {
+      "id": "p2",
+      "name": "Business 500",
+      "status": "active",
+      "price": 149.99,
+      "isPopular": false,
+      "features": ["500 Mbps", "SLA"]
+    }
   ],
   "items": [
     { "id": "p1", "name": "Residential 100", "status": "active" },

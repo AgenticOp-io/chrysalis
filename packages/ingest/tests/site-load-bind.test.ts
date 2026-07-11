@@ -205,4 +205,43 @@ page hardware {
     expect(out).toContain("closed");
     expect(out).not.toContain("legacy:markup-lift-svelte-each");
   });
+
+  test("hydrate coalesce, inequality ifs, nested each, and formatDateTime (G9780)", () => {
+    const body = {
+      customer: { firstName: "Alex" },
+      alerts: [{ id: "a1", name: "High latency" }],
+      plans: [
+        {
+          id: "p1",
+          name: "Residential",
+          isPopular: true,
+          features: ["100 Mbps", "Unlimited"],
+        },
+      ],
+      report: { summary: { totalTickets: 10, byStatus: { open: 4 } } },
+      createdAt: "2026-07-11T12:00:00.000Z",
+    };
+    expect(resolveInterpDetail(body, "customer?.firstName || 'Customer'")).toBe("Alex");
+    expect(resolveInterpDetail(body, "missingName || 'N/A'")).toBe("N/A");
+    expect(resolveInterpDetail(body, "formatDateTime(createdAt)")).toContain("2026-07-11");
+    expect(resolveInterpDetail({ count: 4, total: 10 }, "((count / total) * 100).toFixed(1)")).toBe(
+      "40.0",
+    );
+    expect(evaluateIfDetail("alerts.length > 0", body)).toBe(true);
+    expect(evaluateIfDetail("pagination.pages > 1", { pagination: { pages: 2 } })).toBe(true);
+    const html =
+      '<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="alerts.length > 0"><span>HAS</span></div>' +
+      '<div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plans as plan">' +
+      '<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="plan.name"></span>' +
+      '<div data-cwl-hole="legacy:markup-lift-svelte-if" data-cwl-hole-detail="plan.isPopular"><span>HOT</span></div>' +
+      '<div data-cwl-hole="legacy:markup-lift-svelte-each" data-cwl-hole-detail="plan.features as feature">' +
+      '<span data-cwl-hole="legacy:markup-lift-svelte-interp" data-cwl-hole-detail="feature"></span>' +
+      "</div></div>";
+    const out = hydrateStructuralHtmlFromApiBody(html, body);
+    expect(out).toContain("HAS");
+    expect(out).toContain("Residential");
+    expect(out).toContain("HOT");
+    expect(out).toContain("100 Mbps");
+    expect(out).not.toContain("legacy:markup-lift-svelte-each");
+  });
 });

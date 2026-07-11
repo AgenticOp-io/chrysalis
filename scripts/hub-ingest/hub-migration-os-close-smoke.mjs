@@ -42,8 +42,8 @@ import { isPhase44ProgramClosed } from "./hub-phase44-program-entry-smoke.mjs";
 import { isPhase45ProgramActive, isPhase45ProgramClosed } from "./hub-phase45-program-entry-smoke.mjs";
 
 export const HUB_MIGRATION_OS_CLOSE_KIND = "chrysalis.hub.migration-os-close-smoke";
-/** v19: G9770 live hit-rate READY via hub-convert-verify batch (D6398). */
-export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 19;
+/** v20: G9780 WISP residual settle (coalesce / inequality / nested-each) (D6399). */
+export const HUB_MIGRATION_OS_CLOSE_SCHEMA_VERSION = 20;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 

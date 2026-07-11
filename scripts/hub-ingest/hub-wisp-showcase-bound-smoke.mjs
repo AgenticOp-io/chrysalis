@@ -56,8 +56,8 @@ export async function runWispShowcaseBoundSmoke(opts = {}) {
     const rt = readFileSync(roadmap, "utf8");
     const wt = readFileSync(whole, "utf8");
     return (
-      (rt.includes("564") || rt.includes("~564") || rt.includes("545")) &&
-      (wt.includes("564") || wt.includes("~564") || wt.includes("545"))
+      (rt.includes("517") || rt.includes("~517") || rt.includes("495") || rt.includes("564") || rt.includes("~564") || rt.includes("545")) &&
+      (wt.includes("517") || wt.includes("~517") || wt.includes("495") || wt.includes("564") || wt.includes("~564") || wt.includes("545"))
     );
   })();
 
@@ -81,7 +81,7 @@ export async function runWispShowcaseBoundSmoke(opts = {}) {
     outOfScope: bound.outOfScope ?? [],
     checks,
     honestNote:
-      "WISP lab ships with ~564 declared markup holes after G9750 enriched traces. 39 no-source /add remain intentional; complex calls stay holes.",
+      "WISP lab ships with ~517 declared markup holes after G9780 residual settle. 39 no-source /add remain intentional; complex calls stay holes.",
   };
 
   const outDir = join(repoRoot, "reports/wisp");

@@ -163,15 +163,39 @@ export function resolveJsonPath(root: unknown, path: string): unknown {
   return cur;
 }
 
+function isTruthyHydrationValue(val: unknown): boolean {
+  return val !== undefined && val !== null && val !== false && val !== 0 && val !== "";
+}
+
 /**
- * Resolve interp detail against a body — plain paths plus simple showcase formatters (G9730 / G9740 / G9750).
+ * Resolve interp detail against a body — plain paths plus simple showcase formatters (G9730 / G9740 / G9750 / G9780).
  * Leaves complex expressions unresolved (§3 item 6).
  */
 export function resolveInterpDetail(root: unknown, detail: string): unknown {
   let d = detail.trim();
-  if (!d || d.includes("|") || d.includes("&&") || d.includes("||")) {
-    return undefined;
+  if (!d) return undefined;
+  // Reject Svelte pipe filters (`|`) but allow `||` coalesce (G9780).
+  if (/(^|[^|])\|([^|]|$)/.test(d) || d.includes("&&")) return undefined;
+
+  // Coalesce: a || 'literal' || b (leftmost truthy)
+  if (d.includes("||")) {
+    const parts = d.split("||").map((p) => p.trim()).filter(Boolean);
+    if (parts.length < 2) return undefined;
+    let last: unknown;
+    for (const part of parts) {
+      if (/^'.*'$/.test(part) || /^".*"$/.test(part)) {
+        const lit = part.slice(1, -1);
+        if (lit) return lit;
+        last = lit;
+        continue;
+      }
+      const v = resolveInterpDetail(root, part);
+      last = v;
+      if (isTruthyHydrationValue(v)) return v;
+    }
+    return last;
   }
+
   // Simple ternary: cond ? 'a' : 'b' (G9750)
   const tern = /^(.+?)\s*\?\s*(.+?)\s*:\s*(.+)$/.exec(d);
   if (tern && !tern[1]!.includes("?")) {
@@ -181,7 +205,18 @@ export function resolveInterpDetail(root: unknown, detail: string): unknown {
     if (/^'.*'$/.test(pick) || /^".*"$/.test(pick)) return pick.slice(1, -1);
     return resolveInterpDetail(root, pick);
   }
-  const call = /^(formatCurrency|formatDate|formatNumber|String)\((.+)\)$/.exec(d);
+
+  // Percent: ((num / den) * 100).toFixed(n) (G9780)
+  const pct = /^\(\((.+?)\s*\/\s*(.+?)\)\s*\*\s*100\)\.toFixed\((\d+)\)$/.exec(d);
+  if (pct) {
+    const num = Number(resolveInterpDetail(root, pct[1]!.trim()));
+    const den = Number(resolveInterpDetail(root, pct[2]!.trim()));
+    const digits = Number(pct[3]);
+    if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) return undefined;
+    return ((num / den) * 100).toFixed(digits);
+  }
+
+  const call = /^(formatCurrency|formatDate|formatDateTime|formatNumber|String)\((.+)\)$/.exec(d);
   if (call) {
     const inner = call[2]!.trim();
     const val = resolveInterpDetail(root, inner);
@@ -193,6 +228,15 @@ export function resolveInterpDetail(root: unknown, detail: string): unknown {
     if (call[1] === "formatNumber") {
       const n = typeof val === "number" ? val : Number(val);
       return Number.isFinite(n) ? String(n) : String(val);
+    }
+    if (call[1] === "formatDate" || call[1] === "formatDateTime") {
+      const raw = String(val);
+      const t = Date.parse(raw);
+      if (!Number.isFinite(t)) return raw;
+      const dt = new Date(t);
+      return call[1] === "formatDate"
+        ? dt.toISOString().slice(0, 10)
+        : dt.toISOString().replace("T", " ").slice(0, 19);
     }
     return String(val);
   }
@@ -224,15 +268,39 @@ export const DEFAULT_SHOWCASE_HYDRATE_CONSTANTS: Readonly<Record<string, unknown
   categories: ["network", "billing", "support", "inventory"],
   categoryList: ["network", "billing", "support", "inventory"],
   availableTypes: ["cpe", "sector", "backhaul", "server"],
-  roles: ["admin", "operator", "viewer"],
   modules: [
-    { id: "customers", name: "Customers", status: "active" },
-    { id: "inventory", name: "Inventory", status: "active" },
-    { id: "monitoring", name: "Monitoring", status: "active" },
+    {
+      id: "customers",
+      name: "Customers",
+      status: "active",
+      features: ["portal", "tickets"],
+    },
+    {
+      id: "inventory",
+      name: "Inventory",
+      status: "active",
+      features: ["assets", "bundles"],
+    },
+    {
+      id: "monitoring",
+      name: "Monitoring",
+      status: "active",
+      features: ["alerts", "graphs"],
+    },
   ],
   MODULES: [
-    { id: "customers", name: "Customers", status: "active" },
-    { id: "inventory", name: "Inventory", status: "active" },
+    {
+      id: "customers",
+      name: "Customers",
+      status: "active",
+      features: ["portal", "tickets"],
+    },
+    {
+      id: "inventory",
+      name: "Inventory",
+      status: "active",
+      features: ["assets", "bundles"],
+    },
   ],
   FCAPS_CATEGORIES: ["fault", "config", "accounting", "performance", "security"],
   FCAPS_OPERATIONS: ["create", "read", "update", "delete"],
@@ -240,11 +308,52 @@ export const DEFAULT_SHOWCASE_HYDRATE_CONSTANTS: Readonly<Record<string, unknown
   networkDevices: [{ id: "nd-1", name: "Core Switch", status: "online" }],
   epcDevices: [{ id: "epc-1", name: "MME-1", status: "online" }],
   remoteAgents: [{ id: "agent-1", name: "Field Agent", status: "online", epc_id: "epc-1" }],
-  currentTenant: { id: "t1", name: "Demo Tenant", displayName: "Demo Tenant" },
+  currentTenant: {
+    id: "t1",
+    name: "Demo Tenant",
+    displayName: "Demo Tenant",
+    subdomain: "demo",
+  },
   cpeDevices: [
     { id: "cpe-1", name: "Tower A CPE", status: "online" },
     { id: "cpe-2", name: "Tower B CPE", status: "degraded" },
   ],
+  plans: [
+    {
+      id: "p1",
+      name: "Residential 100",
+      status: "active",
+      price: 49.99,
+      isPopular: true,
+      features: ["100 Mbps", "Unlimited data"],
+    },
+    {
+      id: "p2",
+      name: "Business 500",
+      status: "active",
+      price: 149.99,
+      isPopular: false,
+      features: ["500 Mbps", "SLA"],
+    },
+  ],
+  roles: [
+    { id: "r1", name: "admin", status: "active" },
+    { id: "r2", name: "operator", status: "active" },
+  ],
+  alerts: [
+    { id: "a1", name: "High latency", status: "open", severity: "warning" },
+    { id: "a2", name: "CPE offline", status: "open", severity: "critical" },
+  ],
+  featureFlags: {
+    tickets: true,
+    billing: true,
+    knowledge: true,
+    faq: true,
+    serviceStatus: true,
+  },
+  pagination: { page: 1, pages: 2, total: 24, limit: 12 },
+  customer: { firstName: "Alex", lastName: "Demo", email: "alex@example.com" },
+  serviceInfo: { serviceStatus: "active", servicePlan: "Residential 100" },
   report: {
     summary: {
       totalTickets: 10,
@@ -346,7 +455,29 @@ function resolveEachCollection(
   return Array.isArray(raw) ? raw : null;
 }
 
-function hydrateEachHoleInner(template: string, item: unknown, itemName: string): string {
+function buildItemScope(
+  item: unknown,
+  itemName: string,
+  parent: unknown,
+): Record<string, unknown> {
+  const scope: Record<string, unknown> = {};
+  if (parent !== null && typeof parent === "object" && !Array.isArray(parent)) {
+    Object.assign(scope, parent as Record<string, unknown>);
+  }
+  scope[itemName] = item;
+  if (item !== null && typeof item === "object" && !Array.isArray(item)) {
+    Object.assign(scope, item as Record<string, unknown>);
+  }
+  return scope;
+}
+
+function hydrateEachHoleInner(
+  template: string,
+  item: unknown,
+  itemName: string,
+  parent: unknown,
+  nestedDepth: number,
+): string {
   let out = template;
   out = out.replace(INTERP_HOLE_RE, (_m, detail: string) => {
     const d = String(detail).trim();
@@ -357,7 +488,15 @@ function hydrateEachHoleInner(template: string, item: unknown, itemName: string)
         if (t !== null) return t;
       }
       const t = formatHydrationText(item);
-      return t ?? _m;
+      if (t !== null) return t;
+      if (item !== null && typeof item === "object" && !Array.isArray(item)) {
+        const obj = item as Record<string, unknown>;
+        for (const key of ["name", "title", "label", "id", "value"]) {
+          const prefer = formatHydrationText(obj[key]);
+          if (prefer !== null) return prefer;
+        }
+      }
+      return _m;
     }
     if (d.startsWith(`${itemName}.`)) {
       const t = formatHydrationText(resolveInterpDetail(item, d.slice(itemName.length + 1)));
@@ -368,9 +507,79 @@ function hydrateEachHoleInner(template: string, item: unknown, itemName: string)
       const t = formatHydrationText(resolveInterpDetail(item, d));
       if (t !== null) return t;
     }
+    // Parent-scoped paths (e.g. report.summary.totalTickets in percent rows).
+    const fromParent = formatHydrationText(resolveInterpDetail(parent, d));
+    if (fromParent !== null) return fromParent;
     return _m;
   });
+  const scoped = buildItemScope(item, itemName, parent);
+  out = hydrateSimpleIfHoles(out, scoped);
+  if (nestedDepth > 0) {
+    out = expandEachHoles(out, scoped, nestedDepth - 1);
+  }
   return out;
+}
+
+/** Expand `{#each}` holes when collection resolves and inners fully settle (G9740 / G9780). */
+function expandEachHoles(html: string, body: unknown, nestedDepth: number): string {
+  const lookup = collectHydrationLookup(body);
+  const eachOpenGlobal =
+    /<div\s+data-cwl-hole="legacy:markup-lift-svelte-each"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?>/g;
+  let rebuilt = "";
+  let cursor = 0;
+  let em: RegExpExecArray | null;
+  while ((em = eachOpenGlobal.exec(html)) !== null) {
+    const detail = em[1] ?? "";
+    const parsed = parseEachHeader(detail);
+    const start = em.index;
+    const afterOpen = start + em[0].length;
+    let depth = 1;
+    let i = afterOpen;
+    while (i < html.length && depth > 0) {
+      const nextOpen = html.indexOf("<div", i);
+      const nextClose = html.indexOf("</div>", i);
+      if (nextClose < 0) break;
+      if (nextOpen >= 0 && nextOpen < nextClose) {
+        depth += 1;
+        i = nextOpen + 4;
+      } else {
+        depth -= 1;
+        if (depth === 0) {
+          const inner = html.slice(afterOpen, nextClose);
+          const end = nextClose + "</div>".length;
+          rebuilt += html.slice(cursor, start);
+          if (parsed !== null) {
+            const collection = resolveEachCollection(body, lookup, parsed);
+            if (collection !== null && collection.length > 0) {
+              const expanded = collection
+                .slice(0, 50)
+                .map((item) => hydrateEachHoleInner(inner, item, parsed.itemName, body, nestedDepth));
+              // Only replace the each-hole when inners fully resolve — otherwise
+              // N copies of residual interp holes inflate the census (G9740).
+              const clean = expanded.every((chunk) => !chunk.includes("data-cwl-hole="));
+              if (clean) {
+                rebuilt += expanded.join("");
+              } else {
+                rebuilt += html.slice(start, end);
+              }
+            } else {
+              rebuilt += html.slice(start, end);
+            }
+          } else {
+            rebuilt += html.slice(start, end);
+          }
+          cursor = end;
+          eachOpenGlobal.lastIndex = end;
+          i = end;
+          break;
+        }
+        i = nextClose + 6;
+      }
+    }
+    if (depth !== 0) break;
+  }
+  rebuilt += html.slice(cursor);
+  return rebuilt;
 }
 
 /** Widget shell → preferred JSON collection keys for showcase hydrate (G9730). */
@@ -471,13 +680,9 @@ function hydrateWidgetShells(html: string, body: unknown): string {
 const IF_HOLE_OPEN_RE =
   /<div\s+data-cwl-hole="legacy:markup-lift-svelte-if"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?>/g;
 
-function isTruthyHydrationValue(val: unknown): boolean {
-  return val !== undefined && val !== null && val !== false && val !== 0 && val !== "";
-}
-
 /**
- * Evaluate a simple if-hole detail against hydrate body (G9740).
- * Supports path/ident, !, === / !== string|number, `.length === N`, and && / || of those.
+ * Evaluate a simple if-hole detail against hydrate body (G9740 / G9780).
+ * Supports path/ident, !, === / !== string|number, `.length` cmp, numeric cmp, and && / || of those.
  */
 export function evaluateIfDetail(detail: string, body: unknown): boolean | null {
   const d = detail.trim();
@@ -501,7 +706,7 @@ export function evaluateIfDetail(detail: string, body: unknown): boolean | null 
     return inner === null ? null : !inner;
   }
 
-  const lenCmp = /^([a-zA-Z_$][\w.$]*)\.length\s*(===|!==|==|!=)\s*(\d+)$/.exec(d);
+  const lenCmp = /^([a-zA-Z_$][\w.$]*)\.length\s*(===|!==|==|!=|>=|<=|>|<)\s*(\d+)$/.exec(d);
   if (lenCmp) {
     const arr = resolveInterpDetail(body, lenCmp[1]!);
     if (!Array.isArray(arr) && typeof arr !== "string") return null;
@@ -509,7 +714,26 @@ export function evaluateIfDetail(detail: string, body: unknown): boolean | null 
     const right = Number(lenCmp[3]);
     const op = lenCmp[2]!;
     if (op === "===" || op === "==") return left === right;
-    return left !== right;
+    if (op === "!==" || op === "!=") return left !== right;
+    if (op === ">") return left > right;
+    if (op === ">=") return left >= right;
+    if (op === "<") return left < right;
+    if (op === "<=") return left <= right;
+    return null;
+  }
+
+  const numCmp = /^([a-zA-Z_$][\w.$]*)\s*(>=|<=|>|<)\s*(-?\d+(?:\.\d+)?)$/.exec(d);
+  if (numCmp) {
+    const leftRaw = resolveInterpDetail(body, numCmp[1]!);
+    const left = typeof leftRaw === "number" ? leftRaw : Number(leftRaw);
+    if (!Number.isFinite(left)) return null;
+    const right = Number(numCmp[3]);
+    const op = numCmp[2]!;
+    if (op === ">") return left > right;
+    if (op === ">=") return left >= right;
+    if (op === "<") return left < right;
+    if (op === "<=") return left <= right;
+    return null;
   }
 
   const cmp = /^([a-zA-Z_$][\w.$]*)\s*(===|!==|==|!=)\s*(.+)$/.exec(d);
@@ -607,64 +831,10 @@ export function hydrateStructuralHtmlFromApiBody(html: string, body: unknown): s
     return viaPath ?? m;
   });
 
-  // Expand each-holes whose collection resolves to an array (non-nested shells).
-  const eachOpenGlobal =
-    /<div\s+data-cwl-hole="legacy:markup-lift-svelte-each"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?>/g;
-  let rebuilt = "";
-  let cursor = 0;
-  let em: RegExpExecArray | null;
-  while ((em = eachOpenGlobal.exec(out)) !== null) {
-    const detail = em[1] ?? "";
-    const parsed = parseEachHeader(detail);
-    const start = em.index;
-    const afterOpen = start + em[0].length;
-    let depth = 1;
-    let i = afterOpen;
-    while (i < out.length && depth > 0) {
-      const nextOpen = out.indexOf("<div", i);
-      const nextClose = out.indexOf("</div>", i);
-      if (nextClose < 0) break;
-      if (nextOpen >= 0 && nextOpen < nextClose) {
-        depth += 1;
-        i = nextOpen + 4;
-      } else {
-        depth -= 1;
-        if (depth === 0) {
-          const inner = out.slice(afterOpen, nextClose);
-          const end = nextClose + "</div>".length;
-          rebuilt += out.slice(cursor, start);
-          if (parsed !== null) {
-            const collection = resolveEachCollection(body, lookup, parsed);
-            if (collection !== null && collection.length > 0) {
-              const expanded = collection
-                .slice(0, 50)
-                .map((item) => hydrateEachHoleInner(inner, item, parsed.itemName));
-              // Only replace the each-hole when inners fully resolve — otherwise
-              // N copies of residual interp holes inflate the census (G9740).
-              const clean = expanded.every((chunk) => !chunk.includes("data-cwl-hole="));
-              if (clean) {
-                rebuilt += expanded.join("");
-              } else {
-                rebuilt += out.slice(start, end);
-              }
-            } else {
-              rebuilt += out.slice(start, end);
-            }
-          } else {
-            rebuilt += out.slice(start, end);
-          }
-          cursor = end;
-          eachOpenGlobal.lastIndex = end;
-          i = end;
-          break;
-        }
-        i = nextClose + 6;
-      }
-    }
-    if (depth !== 0) break;
-  }
-  rebuilt += out.slice(cursor);
-  out = rebuilt;
+  // Expand each-holes (nested depth 1) when inners fully settle (G9780).
+  // Settle ifs before and after each so wrappers unwrap and residual ifs clear.
+  out = hydrateSimpleIfHoles(out, body);
+  out = expandEachHoles(out, body, 1);
   out = hydrateSimpleIfHoles(out, body);
   out = hydrateWidgetShells(out, body);
   return out;
