@@ -30,7 +30,7 @@ export function wispUiAnchorSpecs() {
     { path: "/modules/plan", required: ["wisp-plan-app", "plan-map-iframe", "wisp-header-overlay"], minLength: 500 },
     { path: "/modules/deploy", required: ["wisp-deploy-app", "deploy-map-iframe", "wisp-header-overlay"], minLength: 500 },
     { path: "/modules/coverage-map", required: ["wisp-coverage-map", "arcgis-map-view"], minLength: 80 },
-    { path: "/modules/hardware", required: ["wisp-demo-content", "Hardware", "wisp-demo-table"], minLength: 400 },
+    { path: "/modules/hardware", required: ["hardware-page", "Hardware Management"], minLength: 400 },
     {
       path: "/modules/hardware/add",
       required: ["data-cwl-form-shell", "data-cwl-route"],
@@ -44,9 +44,9 @@ export function wispUiAnchorSpecs() {
 export const WISP_UI_PARITY_KIND = "chrysalis.wisp.ui-parity";
 export const WISP_UI_PARITY_SCHEMA_VERSION = 1;
 
-/** GCE single-use login profile (matches .env.single-use). */
+/** GCE / Firebase showcase login profile (Module_Manager single-use defaults). */
 export const WISP_GCE_LOGIN_PROFILE = {
-  title: "WISPTools Demo ISP",
+  title: "WISP Management",
   demoEmail: "demo@wisptools.io",
   demoPassword: "WisptoolsDemo2026!",
   firebaseProject: "wisptools-production",
@@ -70,7 +70,7 @@ export function wispDashboardModules() {
       name: "🚀 Deploy",
       description: "Interactive map-based deployment tools for network rollouts",
       path: "/modules/deploy",
-      features: ["PCI Resolution", "ACS CPE Management", "Work Orders", "Installation Management", "Equipment Configuration", "Quality Assurance"],
+      features: ["PCI Resolution", "Work Orders", "Installation Management", "Equipment Configuration", "Quality Assurance"],
       status: "active",
     },
     {
@@ -116,6 +116,19 @@ export function wispDashboardModules() {
   ];
 }
 
+/** Secondary Module Manager entries (real routes — not GenieACS). */
+export function wispSecondaryModules() {
+  return [
+    { id: "coverage-map", name: "Coverage Map", path: "/modules/coverage-map", description: "ArcGIS network map" },
+    { id: "inventory", name: "Inventory", path: "/modules/inventory", description: "Stock, scan, transfer" },
+    { id: "sites", name: "Sites", path: "/modules/sites", description: "Site inventory" },
+    { id: "pci-resolution", name: "PCI Resolution", path: "/modules/pci-resolution", description: "PCI planner" },
+    { id: "hss-management", name: "HSS", path: "/modules/hss-management", description: "Subscriber HSS" },
+    { id: "work-orders", name: "Work Orders", path: "/modules/work-orders", description: "Field work orders" },
+    { id: "modules-index", name: "All modules", path: "/modules", description: "Module directory" },
+  ];
+}
+
 /** @param {string} s */
 function esc(s) {
   return String(s)
@@ -136,10 +149,10 @@ export function buildWispLoginParityHtml(profile = WISP_GCE_LOGIN_PROFILE) {
     <div class="login-card">
       <h2>Sign in</h2>
       <div class="demo-credentials-panel" role="note">
-        <p class="demo-credentials-title">Demo login (Firebase <code>${esc(profile.firebaseProject)}</code>)</p>
+        <p class="demo-credentials-title">Demo login</p>
         <p><strong>Email:</strong> ${esc(profile.demoEmail)}</p>
         <p><strong>Password:</strong> ${esc(profile.demoPassword)}</p>
-        <p class="demo-credentials-hint">Use the GCE demo URL for this deployment.</p>
+        <p class="demo-credentials-hint">On management.wisptools.io uses Firebase Auth; on the GCE demo uses native CWL session.</p>
       </div>
       <p class="subtitle">Use your email and password to access ${esc(profile.title)}.</p>
       <div id="wisp-cwl-status" class="wisp-status" hidden aria-live="polite"></div>
@@ -172,13 +185,20 @@ export function buildWispDashboardParityHtml(modules = wispDashboardModules()) {
       const cls = m.status === "active" ? "module-card active" : "module-card coming-soon";
       const href = m.status === "active" ? ` href="${esc(m.path)}"` : "";
       const tag = m.status === "active" ? "a" : "div";
-      return `<${tag} class="${cls}"${href} aria-label="Open ${esc(m.name)}">
+      // Match Module_Manager dashboard/+page.svelte: no description block on cards.
+      return `<${tag} class="${cls}"${href} aria-label="Open ${esc(m.name)}" role="button">
   <div class="module-header"><h3 class="module-name">${esc(m.name)}</h3></div>
-  <p class="module-description">${esc(m.description)}</p>
   <div class="module-features"><ul>${features}</ul></div>
   <div class="module-status">${status}</div>
 </${tag}>`;
     })
+    .join("\n");
+
+  const secondary = wispSecondaryModules()
+    .map(
+      (m) =>
+        `<a class="wisp-secondary-module" href="${esc(m.path)}" title="${esc(m.description)}">${esc(m.name)}</a>`,
+    )
     .join("\n");
 
   return `<div class="dashboard-container" data-wisp-page="dashboard" data-cwl-island="client">
@@ -194,7 +214,14 @@ export function buildWispDashboardParityHtml(modules = wispDashboardModules()) {
           </div>
         </div>
         <div class="header-icons">
+          <a href="/help" class="icon-btn apk-btn" title="Field App" aria-label="Field App"><span class="apk-icon">📱</span></a>
           <a href="/help" class="icon-btn doc-btn" title="Help" aria-label="Open help"><span class="doc-icon">📖</span></a>
+          <button type="button" class="icon-btn gear-btn" data-cwl-on-click="open-settings" title="Settings" aria-label="Open settings">
+            <svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
           <button type="button" class="icon-btn power-btn" data-cwl-on-click="logout" title="Logout" aria-label="Logout">
             <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
@@ -208,6 +235,10 @@ export function buildWispDashboardParityHtml(modules = wispDashboardModules()) {
   <div class="main-content">
     <div class="modules-section">
       <div class="modules-grid">${cards}</div>
+      <section class="wisp-secondary-modules" aria-label="More modules">
+        <h2 class="wisp-secondary-title">More modules</h2>
+        <nav class="wisp-secondary-nav">${secondary}</nav>
+      </section>
     </div>
     <footer class="app-footer">
       <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -216,6 +247,46 @@ export function buildWispDashboardParityHtml(modules = wispDashboardModules()) {
     </footer>
   </div>
 </div>`;
+}
+
+/** Module Manager directory at /modules (G9951). */
+export function buildWispModulesIndexHtml() {
+  const primary = wispDashboardModules()
+    .map(
+      (m) =>
+        `<a class="module-card active" href="${esc(m.path)}" aria-label="Open ${esc(m.name)}. ${esc(m.description)}" role="button"><div class="module-header"><h3 class="module-name">${esc(m.name)}</h3></div></a>`,
+    )
+    .join("\n");
+  const secondary = wispSecondaryModules()
+    .filter((m) => m.id !== "modules-index")
+    .map(
+      (m) =>
+        `<a class="wisp-secondary-module" href="${esc(m.path)}" title="${esc(m.description)}">${esc(m.name)}</a>`,
+    )
+    .join("\n");
+  return `<div class="dashboard-container wisp-modules-index" data-wisp-page="modules" data-cwl-island="client">
+  <div class="header"><div class="header-content"><div class="header-brand"><div class="logo-section"><img src="/wisptools-logo.svg" alt="WISP Management" class="dashboard-logo" width="72" height="72" /><div class="branding"><h1 class="app-title">Module Manager</h1><p class="app-subtitle"><a href="/dashboard">← Dashboard</a></p></div></div></div></div></div>
+  <div class="main-content">
+    <div class="modules-section">
+      <div class="modules-grid">${primary}</div>
+      <section class="wisp-secondary-modules" aria-label="Map and ops modules">
+        <h2 class="wisp-secondary-title">Map &amp; ops</h2>
+        <nav class="wisp-secondary-nav">${secondary}</nav>
+      </section>
+    </div>
+  </div>
+</div>`;
+}
+
+export function buildWispModulesPageBlock(html) {
+  const body = html.replace(/\n/g, "\\n").replace(/"/g, '\\"');
+  return `@page GET "/modules"
+page modules_page {
+  effects: session.read;
+  content-type "text/html; charset=utf-8";
+  load { surface: "wisp-modules-index", source: "wisp-g9951" };
+  return html "${body}";
+}`;
 }
 
 /** @param {string} html */
@@ -243,10 +314,39 @@ page dashboard_page {
 }`;
 }
 
-/** Deploy module — coverage-map iframe (deploy mode). */
+/** Deploy module — coverage-map iframe + Module_Manager deploy toolbar (G9950). */
 export function buildWispDeployParityHtml() {
   const mapQuery = "mode=deploy&hideStats=true&deployMode=true";
-  return buildWispMapModuleShellHtml("deploy", "🚀 Deploy", mapQuery, "wisp-deploy-app", "deploy-map-iframe");
+  return `<div class="wisp-deploy-app" data-wisp-page="deploy" data-cwl-island="client">
+  <div class="map-fullscreen">
+    <iframe id="deploy-map-iframe" class="plan-map-iframe" title="Deploy map" src="/modules/coverage-map?${mapQuery}"></iframe>
+  </div>
+  <div class="wisp-header-overlay">
+    <div class="wisp-header-left">
+      <button type="button" class="wisp-back-btn" data-action="back" title="Back to Dashboard" aria-label="Back to Dashboard">←</button>
+      <h1>🚀 Deploy</h1>
+    </div>
+    <div class="wisp-header-controls">
+      <button type="button" class="wisp-control-btn" data-action="help" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></button>
+      <button type="button" class="wisp-control-btn" data-action="approved" title="Approved projects ready for deployment"><span class="control-icon">🔍</span><span class="control-label">Approved</span></button>
+      <button type="button" class="wisp-control-btn" data-action="projects" title="Projects"><span class="control-icon">📋</span><span class="control-label">Projects</span></button>
+      <button type="button" class="wisp-control-btn" data-action="deployed" title="Deployed projects"><span class="control-icon">✅</span><span class="control-label">Deployed</span></button>
+      <button type="button" class="wisp-control-btn" data-action="pci" title="PCI Planner"><span class="control-icon">📊</span><span class="control-label">PCI</span></button>
+      <button type="button" class="wisp-control-btn" data-action="frequency" title="Frequency Planner"><span class="control-icon">📡</span><span class="control-label">Frequency</span></button>
+      <button type="button" class="wisp-control-btn" data-action="hardware" title="Deployed hardware"><span class="control-icon">🔧</span><span class="control-label">Hardware</span></button>
+      <button type="button" class="wisp-control-btn deploy-btn" data-action="deploy-plan" title="Push active plan to field"><span class="control-icon">🚀</span><span class="control-label">Deploy Plan</span></button>
+      <button type="button" class="wisp-control-btn" data-action="layers" title="Layers"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
+    </div>
+  </div>
+  <aside id="plan-projects-panel" class="plan-side-panel" hidden aria-label="Deploy projects">
+    <div class="plan-panel-header">
+      <h2>Deploy projects</h2>
+      <button type="button" class="plan-panel-close" data-action="close-projects" aria-label="Close">✕</button>
+    </div>
+    <div id="plan-projects-list" class="plan-projects-list"><p class="plan-panel-loading">Loading projects…</p></div>
+  </aside>
+  <div id="plan-active-summary" class="plan-summary" hidden></div>
+</div>`;
 }
 
 function buildWispMapModuleShellHtml(page, heading, mapQuery, appClass, iframeId) {
@@ -260,7 +360,7 @@ function buildWispMapModuleShellHtml(page, heading, mapQuery, appClass, iframeId
       <h1>${heading}</h1>
     </div>
     <div class="wisp-header-controls">
-      <a href="/help" class="wisp-control-btn help-link" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></a>
+      <button type="button" class="wisp-control-btn" data-action="help" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></button>
       <button type="button" class="wisp-control-btn" data-action="projects" title="Projects"><span class="control-icon">📁</span><span class="control-label">Projects</span></button>
       <button type="button" class="wisp-control-btn" data-action="layers" title="Layers"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
     </div>
@@ -268,7 +368,7 @@ function buildWispMapModuleShellHtml(page, heading, mapQuery, appClass, iframeId
 </div>`;
 }
 
-/** Plan module — full-screen coverage-map iframe + header overlay (POC SharedMap pattern). */
+/** Plan module — SharedMap iframe + Module_Manager plan toolbar (G9950). */
 export function buildWispPlanParityHtml() {
   const mapQuery = "mode=plan&hideStats=true&planMode=true";
   return `<div class="wisp-plan-app" data-wisp-page="plan" data-cwl-island="client">
@@ -281,9 +381,10 @@ export function buildWispPlanParityHtml() {
       <h1>📋 Plan</h1>
     </div>
     <div class="wisp-header-controls">
-      <a href="/help" class="wisp-control-btn help-link" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></a>
-      <button type="button" class="wisp-control-btn" data-action="hardware" title="View hardware"><span class="control-icon">🔧</span><span class="control-label">Hardware</span></button>
+      <button type="button" class="wisp-control-btn" data-action="help" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></button>
+      <button type="button" class="wisp-control-btn" data-action="hardware" title="View hardware on map context"><span class="control-icon">🔧</span><span class="control-label">Hardware</span></button>
       <button type="button" class="wisp-control-btn" data-action="projects" title="Project list"><span class="control-icon">📁</span><span class="control-label">Projects</span></button>
+      <button type="button" class="wisp-control-btn" data-action="create-project" title="Create plan project"><span class="control-icon">➕</span><span class="control-label">Create</span></button>
       <button type="button" class="wisp-control-btn" data-action="layers" title="Layer filters"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
       <button type="button" class="wisp-control-btn marketing-btn" data-action="marketing" title="Find addresses"><span class="control-icon">🔍</span><span class="control-label">Find Addresses</span></button>
     </div>

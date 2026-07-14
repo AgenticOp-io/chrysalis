@@ -1,6 +1,195 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "network",
-  "op": "list"
+  "sites": [
+    {
+      "id": "s1",
+      "_id": "s1",
+      "name": "North Tower",
+      "status": "active",
+      "type": [
+        "tower"
+      ],
+      "lat": 39.85,
+      "lng": -98.58,
+      "location": {
+        "latitude": 39.85,
+        "longitude": -98.58,
+        "address": "North Sector"
+      },
+      "height": 40
+    },
+    {
+      "id": "s2",
+      "_id": "s2",
+      "name": "Beta Rooftop",
+      "status": "active",
+      "type": [
+        "rooftop"
+      ],
+      "lat": 39.91,
+      "lng": -98.65,
+      "location": {
+        "latitude": 39.91,
+        "longitude": -98.65
+      },
+      "height": 25
+    },
+    {
+      "id": "s3",
+      "_id": "s3",
+      "name": "Core Monopole",
+      "status": "online",
+      "type": [
+        "monopole"
+      ],
+      "lat": 39.78,
+      "lng": -98.52,
+      "location": {
+        "latitude": 39.78,
+        "longitude": -98.52
+      },
+      "height": 35
+    }
+  ],
+  "towers": [
+    {
+      "id": "tw-1",
+      "name": "Tower A",
+      "status": "online",
+      "lat": 39.78,
+      "lng": -98.52
+    }
+  ],
+  "sectors": [
+    {
+      "id": "sec-1",
+      "_id": "sec-1",
+      "siteId": "s1",
+      "name": "North-LTE-0",
+      "status": "active",
+      "technology": "LTE",
+      "band": "LTE",
+      "azimuth": 0,
+      "beamwidth": 65,
+      "pci": 101,
+      "earfcn": 2300,
+      "eNodeB": 1001,
+      "lat": 39.85,
+      "lng": -98.58,
+      "location": {
+        "latitude": 39.85,
+        "longitude": -98.58
+      }
+    },
+    {
+      "id": "sec-2",
+      "_id": "sec-2",
+      "siteId": "s1",
+      "name": "North-CBRS-120",
+      "status": "deployed",
+      "technology": "CBRS",
+      "band": "CBRS",
+      "azimuth": 120,
+      "beamwidth": 60,
+      "pci": 204,
+      "earfcn": 55240,
+      "eNodeB": 1001,
+      "lat": 39.85,
+      "lng": -98.58,
+      "location": {
+        "latitude": 39.85,
+        "longitude": -98.58
+      }
+    },
+    {
+      "id": "sec-3",
+      "_id": "sec-3",
+      "siteId": "s2",
+      "name": "Beta-FWA-240",
+      "status": "active",
+      "technology": "FWA",
+      "band": "FWA",
+      "azimuth": 240,
+      "beamwidth": 90,
+      "pci": 88,
+      "earfcn": 66661,
+      "eNodeB": 2002,
+      "lat": 39.91,
+      "lng": -98.65,
+      "location": {
+        "latitude": 39.91,
+        "longitude": -98.65
+      }
+    }
+  ],
+  "cpe": [
+    {
+      "id": "cpe-1",
+      "name": "CPE Acme",
+      "status": "active",
+      "lat": 39.842,
+      "lng": -98.57,
+      "location": {
+        "latitude": 39.842,
+        "longitude": -98.57
+      }
+    }
+  ],
+  "cpeDevices": [
+    {
+      "id": "cpe-1",
+      "name": "CPE Acme",
+      "status": "active",
+      "lat": 39.842,
+      "lng": -98.57,
+      "location": {
+        "latitude": 39.842,
+        "longitude": -98.57
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "eq-1",
+      "name": "Core Switch",
+      "status": "online",
+      "locationType": "noc",
+      "lat": 39.78,
+      "lng": -98.52,
+      "location": {
+        "latitude": 39.78,
+        "longitude": -98.52
+      }
+    }
+  ],
+  "networkDevices": [
+    {
+      "id": "nd-1",
+      "name": "Core Switch",
+      "status": "online"
+    }
+  ],
+  "epcDevices": [
+    {
+      "id": "epc-1",
+      "name": "MME-1",
+      "status": "online"
+    }
+  ],
+  "grants": [
+    {
+      "id": "g1",
+      "name": "CBRS Grant",
+      "status": "authorized"
+    }
+  ],
+  "items": [
+    {
+      "id": "s1",
+      "name": "North Tower",
+      "status": "active",
+      "lat": 39.85,
+      "lng": -98.58
+    }
+  ]
 }

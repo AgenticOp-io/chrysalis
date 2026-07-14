@@ -1,0 +1,5 @@
+{
+  "ok": true,
+  "op": "check-out",
+  "item": { "id": "inv-1", "name": "CPE-AX100", "status": "deployed" }
+}

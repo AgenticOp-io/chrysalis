@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { angularMarkupAdapter } from "./ui-markup-angular.js";
 import { svelteKitMarkupAdapter } from "./ui-markup-svelte.js";
 import { viteVueMarkupAdapter } from "./ui-markup-vue.js";
+import { nextAppMarkupAdapter } from "./ui-markup-next.js";
 import {
   liftUiMarkup,
   writeUiMarkupLiftArtifacts,
@@ -15,7 +16,12 @@ import {
   type WriteUiMarkupLiftArtifactsResult,
 } from "./ui-markup.js";
 
-const MARKUP_DISCOVER_ADAPTERS = [svelteKitMarkupAdapter, viteVueMarkupAdapter, angularMarkupAdapter] as const;
+const MARKUP_DISCOVER_ADAPTERS = [
+  svelteKitMarkupAdapter,
+  viteVueMarkupAdapter,
+  angularMarkupAdapter,
+  nextAppMarkupAdapter,
+] as const;
 
 const SUBDIR_CANDIDATES = [
   "client",

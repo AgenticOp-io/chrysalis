@@ -1,0 +1,42 @@
+{
+  "kind": "chrysalis.ut.wave-b-adapter-work-items",
+  "schemaVersion": 1,
+  "description": "Named adapter work items for inbound roundtrip / composer refuses (G9973). Silent skips are forbidden — every non-green path maps here.",
+  "items": [
+    {
+      "id": "UT-ADAPTER-NEXTJS-WPTP",
+      "skipCodes": ["no-wptp-emit-nextjs", "skipped-no-wptp-emit-nextjs"],
+      "surface": "emit-nextjs / cwl-auth-effects-nextjs / php-nextjs-verify",
+      "summary": "Next.js emit requires out-of-repo WPTP sibling wptp-emit-nextjs; honest skip until sibling present or in-repo emit exists.",
+      "status": "refused-until-sibling"
+    },
+    {
+      "id": "UT-ADAPTER-MISSING-ORIGIN-FIXTURE",
+      "skipCodes": ["missing-fixture"],
+      "surface": "project-to-cwl-roundtrip / composer-cross-edge",
+      "summary": "Origin listed in charter but probe tree absent — fill fixtures/hub-pattern-lift/<origin> or crossEdgeFixtureOverrides.",
+      "status": "open"
+    },
+    {
+      "id": "UT-ADAPTER-CWL-EXPORT",
+      "skipCodes": ["cwl-export-failed", "missing-migration-cwl", "missing-source-webir"],
+      "surface": "exportOriginToCwl",
+      "summary": "Origin lift/export to migration.cwl failed — deepen origin gold or lower requireHoleFree only with holes.",
+      "status": "open"
+    },
+    {
+      "id": "UT-ADAPTER-UNKNOWN-ORIGIN",
+      "skipCodes": ["unknown-origin"],
+      "surface": "composer-cross-edge",
+      "summary": "Chartered from-id missing from CWL_ORIGIN_FIXTURES — add catalog entry or remove from charter.",
+      "status": "open"
+    },
+    {
+      "id": "UT-ADAPTER-ROUNDTRIP-ROUTE-MISMATCH",
+      "skipCodes": ["roundtrip-route-mismatch"],
+      "surface": "project-to-cwl-roundtrip",
+      "summary": "Exported route count ≠ re-lifted CWL route count — fix lifter or export surface.",
+      "status": "open"
+    }
+  ]
+}

@@ -1,6 +1,17 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "deploy",
-  "op": "list"
+  "deployments": [
+    {
+      "id": "d1",
+      "name": "Site Deploy",
+      "status": "scheduled"
+    }
+  ],
+  "items": [
+    {
+      "id": "d1",
+      "name": "Site Deploy",
+      "status": "scheduled"
+    }
+  ]
 }

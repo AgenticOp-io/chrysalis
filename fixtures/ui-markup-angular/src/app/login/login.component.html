@@ -1,3 +1,12 @@
 <main class="login-page">
-  <div class="login-card"><h1>Angular Sign in</h1></div>
+  <div class="login-card">
+    <h1>{{ title }}</h1>
+    <p *ngIf="showHint" class="hint">Enter credentials</p>
+    <ul>
+      <li *ngFor="let item of items">{{ item.label }}</li>
+    </ul>
+    <p>{{ status$ | async }}</p>
+    <app-status-badge></app-status-badge>
+    <button type="button" [disabled]="busy" (click)="onSubmit()">Sign in</button>
+  </div>
 </main>

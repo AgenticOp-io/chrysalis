@@ -1,150 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>preview</title>
-<link rel="stylesheet" href="/assets/original-css/modules_work-orders_id_.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="work-order-details">
-  <div class="page-header">
-    <button class="back-button">
-      ← Back to Work Orders
-    </button>
-    
-    <div class="header-content">
-        <div class="header-left">
-          <h1>Work Order</h1>
-          <p class="subtitle"></p>
-        </div>
-        
-        <div class="header-badges">
-          <div 
-            class="priority-badge" 
-            style="background-color:"
-          >
-            
-          </div>
-          
-          <div 
-            class="status-badge" 
-            style="background-color:"
-          >
-            open
-          </div>
-        </div>
-      </div>
-  </div>
-  
-  <!-- Alerts -->
-  
-  
-  
-  
-  
-    <div class="content-grid">
-      <!-- Main Content -->
-      <div class="main-column">
-        <!-- Description -->
-        <div class="card">
-          <h3>📋 Description</h3>
-          <p class="description">No description provided</p>
-          
-          
-        </div>
-        
-        <!-- Location -->
-        
-        
-        <!-- Customer Info -->
-        
-        
-        <!-- Resolution -->
-        
-        
-        <!-- Work Log -->
-        
-      </div>
-      
-      <!-- Sidebar -->
-      <div class="sidebar-column">
-        <!-- Actions -->
-        <div class="card actions-card">
-          <h3>⚡ Quick Actions</h3>
-          
-          <button 
-              class="action-btn start-btn"
-            >
-              ▶️ Start Work
-            </button>
-          
-          
-          
-          
-          
-          <button 
-            class="action-btn secondary-btn"
-          >
-            ✏️ Edit Details
-          </button>
-        </div>
-        
-        <!-- Details -->
-        <div class="card">
-          <h3>ℹ️ Details</h3>
-          
-          <div class="detail-list">
-            <div class="detail-item">
-              <span class="detail-label">Type:</span>
-              <span class="detail-value"></span>
-            </div>
-            
-            <div class="detail-item">
-              <span class="detail-label">Created:</span>
-              <span class="detail-value">2026-07-01 12:00:00</span>
-            </div>
-            
-            
-            
-            
-            
-            
-            
-            
-          </div>
-        </div>
-        
-        <!-- SLA -->
-        
-        
-        <!-- Timeline -->
-        <div class="card">
-          <h3>📅 Timeline</h3>
-          
-          <div class="timeline">
-            <div class="timeline-item">
-              <span class="timeline-icon">📝</span>
-              <div class="timeline-content">
-                <span class="timeline-label">Created</span>
-                <span class="timeline-time">2026-07-01 12:00:00</span>
-              </div>
-            </div>
-            
-            
-            
-            
-            
-            
-            
-            
-          </div>
-        </div>
-      </div>
-    </div>
-  
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_work_orders_id" data-wisp-path="/modules/work-orders/:id" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/work-orders">
+  <header class="wisp-demo-header">
+    <h1>:id</h1>
+    <p class="wisp-demo-desc">Operational workspace for :id — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>0</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>11</strong><span>Pending tasks</span></article>
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/work-orders/:id","apiPath":"/api/work-orders","api_ok":true,"api_surface":"wisp-api-native","api_resource":"work-orders","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label=":id data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>wo-1</td><td>Install CPE</td><td>open</td><td></td></tr><tr><td>wo-2</td><td>Tower climb</td><td>scheduled</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/work-orders/:id","apiPath":"/api/work-orders","api_ok":true,"api_surface":"wisp-api-native","api_resource":"work-orders","api_op":"list","tracedApiStatus":200}</script>

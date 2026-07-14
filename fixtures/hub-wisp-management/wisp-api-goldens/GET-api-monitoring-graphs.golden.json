@@ -1,6 +1,20 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "monitoring-graphs",
-  "op": "list"
+  "stats": {
+    "points": 48
+  },
+  "series": [
+    {
+      "id": "rssi",
+      "name": "RSSI",
+      "status": "ok"
+    }
+  ],
+  "items": [
+    {
+      "id": "rssi",
+      "name": "RSSI",
+      "status": "ok"
+    }
+  ]
 }

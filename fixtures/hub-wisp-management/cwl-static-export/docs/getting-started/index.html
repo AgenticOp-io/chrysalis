@@ -1,59 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>getting-started</title>
-<link rel="stylesheet" href="/assets/original-css/docs_getting-started.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<svelte:head>
-  <title>Getting Started – WISP Management Docs</title>
-</svelte:head>
-
-<h1>Getting Started</h1>
-<p class="lead">Welcome to WISP Management. This guide helps you get started with the LTE WISP platform on wisptools.io.</p>
-
-<section class="doc-section">
-  <h2>What is WISP Management?</h2>
-  <p>WISP Management is the main app on wisptools.io for LTE WISPs. It provides:</p>
-  <ul>
-    <li><strong>Multi-tenant architecture</strong> – Manage multiple organizations</li>
-    <li><strong>HSS management</strong> – Home Subscriber Server for Open5GS</li>
-    <li><strong>Device management</strong> – TR-069/CWMP via GenieACS</li>
-    <li><strong>Network planning</strong> – Coverage mapping and PCI collision prevention</li>
-    <li><strong>Monitoring</strong> – SNMP monitoring and performance graphs</li>
-    <li><strong>CBRS/SAS</strong> – Spectrum Access System integration</li>
-  </ul>
-</section>
-
-<section class="doc-section">
-  <h2>Quick start</h2>
-  <h3>For new users</h3>
-  <ol>
-    <li><strong>Create an account</strong> – Complete registration and verify your email.</li>
-    <li><strong>Set up your first tenant</strong> – Configure organization details and subscription.</li>
-    <li><strong>Use the platform</strong> – Open the <a href="/dashboard">dashboard</a>, explore modules, and start managing your network.</li>
-  </ol>
-  <h3>For administrators</h3>
-  <ol>
-    <li><strong>Deploy the platform</strong> – Follow the <a href="/help">deployment guide</a>; set up backend and frontend.</li>
-    <li><strong>Configure HSS</strong> – Set up Open5GS and connect MMEs (see repo <code>docs/</code> for admin guides).</li>
-    <li><strong>Manage tenants</strong> – Use Admin Management from the dashboard; configure GenieACS and user roles.</li>
-  </ol>
-</section>
-
-<section class="doc-section">
-  <h2>Next steps</h2>
-  <ul>
-    <li><a href="/help">Help & Documentation</a></li>
-    <li><a href="/help">Deployment</a></li>
-    <li><a href="/help">Project status & next steps</a></li>
-    <li><a href="/help">Help by topic</a></li>
-    <li><a href="/wizards">Wizards</a> – Guided flows for sites, subscribers, customers, RMA, plans, groups</li>
-  </ul>
-</section>
+<div class="wisp-docs-shell wisp-demo-content" data-wisp-page="docs_getting_started" data-wisp-path="/docs/getting-started" data-cwl-island="client" data-wisp-layout="docs">
+  <header class="wisp-docs-topbar">
+    <nav class="wisp-docs-crumb" aria-label="Documentation">
+      <a href="/dashboard">Dashboard</a>
+      <span aria-hidden="true">/</span>
+      <a href="/help">Help</a>
+      <span aria-hidden="true">/</span>
+      <span>Getting Started</span>
+    </nav>
+  </header>
+  <main class="wisp-docs-main">
+    <div class="wisp-docs-body wisp-docs-body-article">
+  <section class="wisp-docs-hero wisp-docs-hero-compact">
+    <p class="wisp-docs-eyebrow"><a href="/docs">Documentation</a></p>
+    <h2>Getting Started</h2>
+    <p class="wisp-docs-lead">Install Chrysalis, run your first ingest/emit/verify loop, and try the tiny-blog fixture.</p>
+  </section>
+  <section class="wisp-docs-section">
+    <a class="wisp-docs-hub-cta" href="https://hub.agenticop.io/#/guide?doc=installation" target="_blank" rel="noopener">Read full guide on Translation Hub</a>
+    <p class="wisp-docs-inline-links"><a href="/docs">← Documentation home</a> · <a href="/help">Help</a></p>
+  </section>
+</div>
+  </main>
+</div>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/docs/getting-started"}</script>
-
-</body>
-</html>

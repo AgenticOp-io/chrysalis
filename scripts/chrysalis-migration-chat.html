@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chrysalis Migration Chat</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a222c;
+      --text: #e7ecf1;
+      --muted: #8b9aab;
+      --accent: #3d8bfd;
+      --ok: #3dd68c;
+      --bad: #f07178;
+      --font: "IBM Plex Sans", "Segoe UI", sans-serif;
+      --mono: "IBM Plex Mono", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: radial-gradient(1200px 600px at 10% -10%, #1b2a3d, var(--bg));
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 1.25rem 1.5rem 0.75rem;
+      border-bottom: 1px solid #2a3542;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: 0.02em;
+    }
+    header p {
+      margin: 0.4rem 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      max-width: 52rem;
+    }
+    header a { color: var(--accent); }
+    #log {
+      flex: 1;
+      overflow: auto;
+      padding: 1rem 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    .row-user { color: #9ecbff; }
+    .row-ok { color: var(--ok); }
+    .row-bad { color: var(--bad); }
+    form {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem 1.25rem;
+      border-top: 1px solid #2a3542;
+      background: var(--panel);
+    }
+    input {
+      flex: 1;
+      background: #0c1015;
+      border: 1px solid #334155;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 0.65rem 0.75rem;
+      font-family: var(--mono);
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+      border-radius: 6px;
+      padding: 0.65rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: wait; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Chrysalis Migration Chat</h1>
+    <p>
+      Works best with an AI assistant. Same tools as MCP —
+      <strong>models propose; verify disposes</strong>.
+      LiteRT.js is not supported.
+      Docs: <a href="/reports/">reports</a> · connect Cursor via <code>docs/AI-ASSIST.md</code>.
+    </p>
+  </header>
+  <div id="log"></div>
+  <form id="f">
+    <input id="line" autocomplete="off" spellcheck="false" placeholder="help | tools | say … | call &lt;tool&gt; {…}" />
+    <button type="submit">Send</button>
+  </form>
+  <script>
+    const log = document.getElementById("log");
+    const form = document.getElementById("f");
+    const input = document.getElementById("line");
+    let busy = false;
+
+    function append(cls, text) {
+      const d = document.createElement("div");
+      d.className = cls;
+      d.textContent = text;
+      log.appendChild(d);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      if (busy) return;
+      const line = input.value.trim();
+      if (!line) return;
+      append("row-user", "> " + line);
+      input.value = "";
+      busy = true;
+      form.querySelector("button").disabled = true;
+      try {
+        const res = await fetch("/api/hub/migration-chat/turn", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ line }),
+        });
+        const body = await res.json();
+        append(body.ok ? "row-ok" : "row-bad", body.reply || JSON.stringify(body));
+        if (body.quit) append("row-ok", "(session ended — refresh to start again)");
+      } catch (e) {
+        append("row-bad", String(e));
+      } finally {
+        busy = false;
+        form.querySelector("button").disabled = false;
+        input.focus();
+      }
+    });
+
+    append("row-ok", "Session ready. Type help to begin.");
+  </script>
+</body>
+</html>

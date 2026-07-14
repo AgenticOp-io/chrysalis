@@ -104,10 +104,10 @@ CWL `@page` routes (e.g. `/docs`) run on **GCE chimera** via `runtime-cwl`. Fire
 
 | ID | Gate | Smoke |
 | --- | --- | --- |
-| G6305 | `runWispCwlHoleManifestGate` | `pnpm run wisp:hole-manifest` |
+| G6305 | `runWispCwlHoleManifestGate` | hole budget + `backendConversion` deferred **or** `native-cwl-handlers` (Phase 27b) |
 | G6306 | `runWispCwlRoutesFixtureGate` | 87 UI routes in `routes.cwl` + preview |
 | G6307 | `runWispCwlTopologyDocGate` | deploy topology section in this doc |
-| G6308 | `runWispCwlBackendDeferralGate` | Mongo `backendConversion: deferred` |
+| G6308 | `runWispCwlBackendDeferralGate` | Mongo `backendConversion`: `deferred` **or** `native-cwl-handlers` |
 | G6309 | `runWispCwlDeployScriptsGate` | chimera gateway + GCE deploy scripts |
 | G6310 | `runWispCwlPhase12Phase0CloseGate` | `pnpm run hub:wisp-cwl-phase12-phase0-close-smoke` |
 

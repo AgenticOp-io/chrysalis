@@ -2,7 +2,7 @@
   "kind": "chrysalis.wisp.ui-parity.verify",
   "schemaVersion": 1,
   "ok": true,
-  "generatedAt": "2026-07-11T22:06:38.781Z",
+  "generatedAt": "2026-07-14T04:23:26.425Z",
   "anchors": [
     {
       "path": "/login",
@@ -51,9 +51,8 @@
     {
       "path": "/modules/hardware",
       "required": [
-        "wisp-demo-content",
-        "Hardware",
-        "wisp-demo-table"
+        "hardware-page",
+        "Hardware Management"
       ],
       "minLength": 400
     },
@@ -68,8 +67,8 @@
   ],
   "stubScan": {
     "ok": true,
-    "routeCount": 127,
-    "htmlRoutes": 127,
+    "routeCount": 104,
+    "htmlRoutes": 104,
     "uiRoutes": 0,
     "violationCount": 0,
     "violations": []

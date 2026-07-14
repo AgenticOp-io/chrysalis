@@ -1,133 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>monitoring</title>
-<link rel="stylesheet" href="/assets/original-css/modules_monitoring.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<!-- Monitoring Setup Wizard -->
-  
-
-  <div class="app">
-    <!-- Full Screen Map -->
-    <div class="map-fullscreen">
-      
-        
-      
-    </div>
-
-    <!-- Floating Header Overlay -->
-    <div class="module-header-overlay" style="background: var(--gradient-success);">
-      <div class="module-header-left">
-        <button class="module-back-btn" title="Back to Modules">
-          ←
-        </button>
-        <h1>🗺️ Monitor</h1>
-      </div>
-      <div class="module-header-controls">
-        <button class="help-button" aria-label="Open Help" title="Help">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            </modules/monitoring d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"><//modules/monitoring>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-        </button>
-        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> true}
-        />
-        <button class="module-control-btn" title="Configuration">
-          <span class="control-icon">🔧</span>
-          <span class="control-label">Config</span>
-        </button>
-        <button 
-          class="module-control-btn"
-          title="Geographic View"
-        >
-          <span class="control-icon">🗺️</span>
-          <span class="control-label">Geographic</span>
-        </button>
-        <button 
-          class="module-control-btn"
-          title="Topology View"
-        >
-          <span class="control-icon">🕸️</span>
-          <span class="control-label">Topology</span>
-        </button>
-        <button 
-          class="module-control-btn"
-          title="EPC Devices"
-        >
-          <span class="control-icon">📡</span>
-          <span class="control-label">EPC (1)</span>
-        </button>
-        <button 
-          class="module-control-btn"
-          title="SNMP Graphs"
-        >
-          <span class="control-icon">📈</span>
-          <span class="control-label">Graphs</span>
-        </button>
-        <button 
-          class="module-control-btn"
-          title="Mikrotik Devices"
-        >
-          <span class="control-icon">🖥️</span>
-          <span class="control-label">Mikrotik</span>
-        </button>
-        <button 
-          class="module-control-btn"
-          title="ACS CPE Management"
-        >
-          <span class="control-icon">📡</span>
-          <span class="control-label">ACS CPE</span>
-        </button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- SNMP Graphs View -->
-  
-  
-  <!-- Mikrotik Devices View -->
-  
-  
-  <!-- ACS CPE Management View -->
-  
-  
-  <!-- EPC Devices View -->
-  
-
-<!-- Mikrotik Credentials Modal -->
-<div class="cwl-modal-shell" data-cwl-modal-shell="MikrotikCredentialsModal" aria-hidden="true" role="dialog"></div> }
-/>
-
-  <!-- Help Modal -->
-  <div class="cwl-modal-shell" data-cwl-modal-shell="HelpModal" aria-hidden="true" role="dialog"></div> false}
-  />
-
-  <!-- Tips Modal -->
-  <div class="cwl-modal-shell" data-cwl-modal-shell="TipsModal" aria-hidden="true" role="dialog"></div> false}
-  />
-
-<!-- SNMP Configuration Modal -->
-<div class="cwl-widget-shell" data-cwl-widget-shell="SNMPConfigurationPanel" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>rssi</td><td>ok</td></tr></tbody></table></div> }
-/>
-
-<!-- EPC Deployment Modal -->
-<div class="cwl-modal-shell" data-cwl-modal-shell="EPCDeploymentModal" aria-hidden="true" role="dialog"></div> }
-/>
-
-<!-- Alert Details Modal -->
-
-
-<!-- Create Ticket from Alert Modal -->
-
-
-<!-- Monitoring Site Details Modal (right-click on sites) -->
-<!-- Monitoring Site Details Modal (right-click on sites) -->
-
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/monitoring","apiPath":"/api/monitoring/graphs","api_ok":true,"api_surface":"wisp-api-native","api_resource":"monitoring-graphs","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_monitoring" data-wisp-path="/modules/monitoring" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/monitoring/graphs">
+  <header class="wisp-demo-header">
+    <h1>Monitoring</h1>
+    <p class="wisp-demo-desc">Operational workspace for Monitoring — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/monitoring/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>48</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>11</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>26</strong><span>Pending tasks</span></article>
+</div>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Monitoring data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>rssi</td><td>RSSI</td><td>ok</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/monitoring","apiPath":"/api/monitoring/graphs","api_ok":true,"api_surface":"wisp-api-native","api_resource":"monitoring-graphs","api_op":"list","tracedApiStatus":200}</script>

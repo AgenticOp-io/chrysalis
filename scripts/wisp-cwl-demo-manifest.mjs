@@ -6,7 +6,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadWispPipelineConfig } from "./wisp-cwl-pipeline.mjs";
+import { loadWispPipelineConfig } from "./wisp-cwl-gateway-config.mjs";
 import { WISP_CLIENT_REDIRECT_ROUTES } from "./wisp-cwl-apply-client-redirects.mjs";
 import { isWispNativeCutoverMode } from "./wisp-cwl-post-g7790.mjs";
 
@@ -30,10 +30,11 @@ export function buildWispDemoManifest(opts = {}) {
     null;
 
   const nativeMode = isWispNativeCutoverMode();
+  const hybridUi = gce.operatorUi === "svelte-chimera" || gce.svelteSidecar === true;
   const manifest = {
     kind: WISP_DEMO_MANIFEST_KIND,
     schemaVersion: WISP_DEMO_MANIFEST_SCHEMA_VERSION,
-    operator: nativeMode ? "wisp-cwl-native-gce" : "phase14-hss",
+    operator: hybridUi ? "wisp-svelte-chimera-gce" : nativeMode ? "wisp-cwl-native-gce" : "phase14-hss",
     gce: {
       project: gce.project ?? prior.gce?.project,
       zone: gce.zone ?? prior.gce?.zone,
@@ -45,21 +46,67 @@ export function buildWispDemoManifest(opts = {}) {
     backend: {
       url: gce.backendUrl ?? prior.backend?.url ?? "https://hss.wisptools.io",
       policy: nativeMode
-        ? "native-cwl-handlers — api-proxy.cwl on chimera (runtime-cwl-native)"
+        ? hybridUi
+          ? "svelte UI sidecar + native CWL /api (api-proxy.cwl)"
+          : "native-cwl-handlers — api-proxy.cwl on chimera (runtime-cwl-native)"
         : "proxy-only — Mongo/backend-services unchanged on acs-hss-server",
     },
     firebase: {
       hostingTarget: firebase.hostingTarget ?? prior.firebase?.hostingTarget,
       optional: true,
     },
-    healthProbes: nativeMode
+    healthProbes: hybridUi
+      ? [
+          { path: "/", expect: "200-html-any", chimera: "svelte-or-cwl" },
+          { path: "/login", expect: "200-html-any", chimera: "svelte-or-cwl" },
+          { path: "/dashboard", expect: "200-html-any", chimera: "svelte-or-cwl" },
+          { path: "/modules/hardware", expect: "200-html-any", chimera: "svelte-or-cwl" },
+          {
+            path: "/login",
+            method: "POST",
+            expect: "cwl-login-post",
+            chimera: "cwl",
+            body: { email: "demo@wisptools.io", password: "WisptoolsDemo2026!" },
+          },
+          { path: "/api/me", expect: "cwl-auth-me", chimera: "cwl-native-api" },
+          { path: "/api/tenants", expect: "json-has-items", chimera: "cwl-native-api" },
+          { path: "/api/inventory", expect: "json-has-items", chimera: "cwl-native-api" },
+          { path: "/api/hardware", expect: "json-has-items", chimera: "cwl-native-api" },
+          { path: "/api/customers", expect: "json-has-items", chimera: "cwl-native-api" },
+          { path: "/api/monitoring", expect: "json-has-items", chimera: "cwl-native-api" },
+        ]
+      : nativeMode
       ? [
           { path: "/", expect: "redirect-login", chimera: "cwl" },
           { path: "/docs", expect: "200-html", chimera: "cwl" },
           { path: "/login", expect: "cwl-native-login", chimera: "cwl" },
-          { path: "/api/tenants", expect: "cwl-native-api", chimera: "cwl-native-api" },
+          {
+            path: "/login",
+            method: "POST",
+            expect: "cwl-login-post",
+            chimera: "cwl",
+            body: { email: "demo@wisptools.io", password: "WisptoolsDemo2026!" },
+          },
+          { path: "/api/me", expect: "cwl-auth-me", chimera: "cwl-native-api" },
+          { path: "/api/tenants", expect: "json-has-items", chimera: "cwl-native-api" },
+          { path: "/api/customers", expect: "json-has-items", chimera: "cwl-native-api" },
+          { path: "/api/inventory", expect: "json-has-items", chimera: "cwl-native-api" },
+          { path: "/api/hardware", expect: "json-has-items", chimera: "cwl-native-api" },
           { path: "/api/hss", expect: "cwl-native-api", chimera: "cwl-native-api" },
-          { path: "/api/monitoring", expect: "cwl-native-api", chimera: "cwl-native-api" },
+          { path: "/api/monitoring", expect: "json-has-items", chimera: "cwl-native-api" },
+          { path: "/dashboard", expect: "html-dashboard", chimera: "cwl" },
+          {
+            path: "/modules/hardware",
+            expect: "html-has",
+            htmlIncludes: "hardware",
+            chimera: "cwl",
+          },
+          {
+            path: "/modules/customers",
+            expect: "html-has",
+            htmlIncludes: "customer",
+            chimera: "cwl",
+          },
         ]
       : [
           { path: "/", expect: "redirect-login", chimera: "cwl" },

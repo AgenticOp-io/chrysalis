@@ -11,17 +11,24 @@ export const WISP_CWL_PHASE12_PHASE0_CLOSE_SMOKE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-/** G6305 — hole manifest published and within budget. */
+/** G6305 — hole manifest published and within budget (native or deferred backend). */
 export function runWispCwlHoleManifestGate() {
   const path = join(scriptRoot, "fixtures/hub-wisp-management/wisp-hole-manifest.v1.json");
   const live = buildWispHoleManifest();
   if (!existsSync(path) && !live.ok) return { ok: false, skip: "hole-manifest-missing" };
   const json = existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : live;
+  const backend = json.backendConversion;
+  const backendOk = backend === "deferred" || backend === "native-cwl-handlers";
   const ok =
     json.withinBudget === true &&
     (json.routeCount ?? 0) >= 87 &&
-    json.backendConversion === "deferred";
-  return { ok, totalUiHoles: json.totalUiHoles ?? null, routeCount: json.routeCount ?? null };
+    backendOk;
+  return {
+    ok,
+    totalUiHoles: json.totalUiHoles ?? null,
+    routeCount: json.routeCount ?? null,
+    backendConversion: backend ?? null,
+  };
 }
 
 /** G6306 — lifted UI routes fixture present. */
@@ -54,14 +61,21 @@ export function runWispCwlTopologyDocGate() {
   return { ok, topologyDocOk: ok };
 }
 
-/** G6308 — backend deferral in scenario inventory. */
+/** G6308 — backend policy recorded (deferred Phase 0 or native Phase 27b). */
 export function runWispCwlBackendDeferralGate() {
   const path = join(scriptRoot, "fixtures/hub-wisp-management/wisp-scenarios.v1.json");
   if (!existsSync(path)) return { ok: false, skip: "missing-scenario-inventory" };
   const json = JSON.parse(readFileSync(path, "utf8"));
+  const mongo = (json.scenarios ?? []).find((s) => s.id === "backend-mongodb");
+  const policy = mongo?.backendConversion ?? null;
+  const ok = policy === "deferred" || policy === "native-cwl-handlers";
   const deferred = (json.scenarios ?? []).filter((s) => s.backendConversion === "deferred");
-  const ok = deferred.some((s) => s.id === "backend-mongodb");
-  return { ok, deferredCount: deferred.length };
+  return {
+    ok,
+    deferredCount: deferred.length,
+    backendConversion: policy,
+    scenarioId: mongo?.id ?? null,
+  };
 }
 
 /** G6309 — deploy + bootstrap scripts present (GCE + Firebase). */

@@ -30,10 +30,25 @@ if [[ -f "${PIDFILE}" ]]; then
   fi
   rm -f "${PIDFILE}"
 fi
-if command -v fuser >/dev/null 2>&1; then
-  fuser -k "${PORT}/tcp" 2>/dev/null || true
+# Free port even if another user/session owns the old sidecar (common on shared chrysalis-test-vm).
+free_port() {
+  local p="$1"
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -k "${p}/tcp" 2>/dev/null || true
+  fi
+  if command -v ss >/dev/null 2>&1; then
+    local pids
+    pids="$(ss -ltnp "sport = :${p}" 2>/dev/null | sed -n 's/.*pid=\([0-9]\+\).*/\1/p' | sort -u)"
+    for pid in ${pids}; do
+      kill -9 "${pid}" 2>/dev/null || true
+    done
+  fi
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -ti "tcp:${p}" 2>/dev/null | xargs -r kill -9 2>/dev/null || true
+  fi
   sleep 1
-fi
+}
+free_port "${PORT}"
 
 nohup node "${SERVER}" --root "${CLIENT}" --host "${BIND}" --port "${PORT}" >>"${LOG}" 2>&1 &
 echo $! >"${PIDFILE}"

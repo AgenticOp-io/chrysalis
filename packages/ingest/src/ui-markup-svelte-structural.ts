@@ -253,6 +253,103 @@ function widgetShellMarkup(name: string): string {
   return `<div class="cwl-widget-shell" data-cwl-widget-shell="${safe}" aria-hidden="true"></div>`;
 }
 
+/**
+ * Scan a PascalCase Svelte component open/self-closing tag with brace-aware
+ * attribute parsing. Naive `[^>]*` breaks on `on:click={() => …}` because `=>`
+ * contains `>` (G9904).
+ */
+export function findPascalComponentTagEnd(source: string, start: number): number | null {
+  if (source[start] !== "<") return null;
+  const nameMatch = /^<([A-Z][A-Za-z0-9_]*)/.exec(source.slice(start));
+  if (nameMatch === null) return null;
+  let j = start + nameMatch[0].length;
+  let brace = 0;
+  let quote: '"' | "'" | null = null;
+  while (j < source.length) {
+    const ch = source[j]!;
+    if (quote !== null) {
+      if (ch === "\\") {
+        j += 2;
+        continue;
+      }
+      if (ch === quote) quote = null;
+      j++;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      j++;
+      continue;
+    }
+    if (ch === "{") {
+      brace++;
+      j++;
+      continue;
+    }
+    if (ch === "}") {
+      brace = Math.max(0, brace - 1);
+      j++;
+      continue;
+    }
+    if (brace === 0 && ch === "/" && source[j + 1] === ">") {
+      return j + 2;
+    }
+    if (brace === 0 && ch === ">") {
+      return j + 1;
+    }
+    j++;
+  }
+  return null;
+}
+
+/**
+ * Remove leftover Svelte self-close tails after shell substitution
+ * (e.g. ` true}` + `/>` from `on:select={() => x = true}`).
+ */
+export function scrubStructuralMarkupArtifacts(html: string): string {
+  let s = html;
+  // Full shell element followed by orphan prop/event tail + `/>`
+  s = s.replace(
+    /(<(?:nav|div)\b[^>]*\b(?:cwl-(?:nav|wizard|widget|modal|map|chart)-shell|data-cwl-(?:nav|wizard|widget|modal|map|chart)-shell)\b[^>]*>\s*<\/(?:nav|div)>)\s*[^<]*?\}\s*\/>/gi,
+    "$1",
+  );
+  // Standalone orphan tails (already-hydrated shells, partial prior lifts)
+  s = s.replace(/\s+(?:true|false)\}\s*\/>/g, "");
+  s = s.replace(/\s*\([^)]*?=\s*(?:true|false)\)\}\s*\/>/g, "");
+  s = s.replace(/\s+[A-Za-z_][\w.]*\s*=\s*(?:true|false)\}\s*\/>/g, "");
+  // G9906 — residual attribute / directive junk
+  s = s.replace(/\bclass="([^"]*)"\}/g, 'class="$1"');
+  s = s.replace(/\bclass='([^']*)'\}/g, "class='$1'");
+  s = s.replace(/\s+on:[a-zA-Z][\w|:.]*=(?=["'\s/>]|$)/g, "");
+  s = s.replace(/\s+on:[a-zA-Z][\w|:]*="[^"]*"/g, "");
+  s = s.replace(/\s+on:[a-zA-Z][\w|:]*='[^']*'/g, "");
+  s = s.replace(/\bform\}>/g, "form>");
+  s = s.replace(/\)\}>/g, ">");
+  s = s.replace(/"\}(?=[\s>])/g, '"');
+  // Broken SVG open tags like `</modules/inventory d="…">`
+  s = s.replace(/<\/modules\/[^>\s"]+\s+d=/gi, "<path d=");
+  // G9911 — broken SVG closes like `<//modules/inventory>`
+  s = s.replace(/<\/?\/modules\/[^>]*>/gi, "</path>");
+  // G9914 — residual Svelte directives left in static HTML (do not strip <script>/<style>)
+  s = s.replace(/<svelte:head>[\s\S]*?<\/svelte:head>/gi, "");
+  s = s.replace(/<svelte:window\b[^>]*?\/>/gi, "");
+  s = s.replace(/<svelte:window\b[\s\S]*?<\/svelte:window>/gi, "");
+  s = s.replace(/<svelte:body\b[^>]*?\/>/gi, "");
+  s = s.replace(/<svelte:body\b[\s\S]*?<\/svelte:body>/gi, "");
+  s = s.replace(/<svelte:document\b[^>]*?\/>/gi, "");
+  s = s.replace(/<svelte:document\b[\s\S]*?<\/svelte:document>/gi, "");
+  // Literal `\r` / `\n` sequences left in markup text
+  s = s.replace(/\\r\\n/g, "\n");
+  s = s.replace(/\\r/g, "");
+  s = s.replace(/\\n/g, "\n");
+  // Mojibake after ← (e.g. ←)
+  s = s.replace(/←[\u0080-\u009F\uFFFD\u0090]+/g, "←");
+  // G9920 — orphan `}` / handler tails after closed shell divs
+  s = s.replace(/(<\/(?:div|nav)>)\s*[^<\n]*?\}\s*\/>/g, "$1");
+  s = s.replace(/(<\/(?:div|nav)>)\s*\}/g, "$1");
+  return s;
+}
+
 export interface LiftStructuralSvelteOptions {
   readonly loadBools?: Readonly<Record<string, boolean>>;
   /** When true (default for convert-site), merge {@link DEFAULT_SHOWCASE_LOAD_BOOLS}. */
@@ -596,45 +693,57 @@ export function liftStructuralSveltePageHtml(
   // Balanced if/each (fixes nested blocks that left orphan `{/if}` → fake `/if` interps)
   s = expandControlFlow(s, loadBools, holes);
 
-  // Component tags (PascalCase)
+  // Component tags (PascalCase) — brace-aware so `() =>` does not truncate (G9904)
   s = s.replace(/<\/([A-Z][A-Za-z0-9_]*)>/g, (_m, name) =>
     passthrough.has(String(name)) ? "" : "</div>",
   );
-  s = s.replace(/<([A-Z][A-Za-z0-9_]*)(\s[^>]*)?\/>/g, (_m, name) => {
-    const n = String(name);
-    if (passthrough.has(n)) return "";
-    const shell = shellMarkupFor(n);
-    if (shell !== null) return shell;
-    const inlined = tryInlineStaticComponent(
-      n,
-      opts.componentSources,
-      staticInline,
-      loadBools,
-      passthrough,
-      inlineDepth,
-    );
-    if (inlined !== null) return inlined;
-    pushHole(holes, HOLE_COMPONENT, n);
-    return holeMarker(HOLE_COMPONENT, n);
-  });
-  s = s.replace(/<([A-Z][A-Za-z0-9_]*)(\s[^>]*)?>/g, (_m, name) => {
-    const n = String(name);
-    if (passthrough.has(n)) return "";
-    const shell = shellMarkupFor(n);
-    if (shell !== null) return shell;
-    const inlined = tryInlineStaticComponent(
-      n,
-      opts.componentSources,
-      staticInline,
-      loadBools,
-      passthrough,
-      inlineDepth,
-    );
-    if (inlined !== null) return inlined;
-    pushHole(holes, HOLE_COMPONENT, n);
-    const safe = n.replace(/"/g, "'");
-    return `<div data-cwl-hole="${HOLE_COMPONENT}" data-cwl-hole-detail="${safe}" data-cwl-component="${safe}">`;
-  });
+  {
+    let out = "";
+    let i = 0;
+    while (i < s.length) {
+      if (s[i] === "<" && /[A-Z]/.test(s[i + 1] ?? "")) {
+        const nameMatch = /^<([A-Z][A-Za-z0-9_]*)/.exec(s.slice(i));
+        const end = findPascalComponentTagEnd(s, i);
+        if (nameMatch !== null && end !== null) {
+          const n = nameMatch[1]!;
+          const selfClosing = s.slice(end - 2, end) === "/>";
+          if (passthrough.has(n)) {
+            out += "";
+          } else {
+            const shell = shellMarkupFor(n);
+            if (shell !== null) {
+              out += shell;
+            } else {
+              const inlined = tryInlineStaticComponent(
+                n,
+                opts.componentSources,
+                staticInline,
+                loadBools,
+                passthrough,
+                inlineDepth,
+              );
+              if (inlined !== null) {
+                out += inlined;
+              } else {
+                pushHole(holes, HOLE_COMPONENT, n);
+                if (selfClosing) {
+                  out += holeMarker(HOLE_COMPONENT, n);
+                } else {
+                  const safe = n.replace(/"/g, "'");
+                  out += `<div data-cwl-hole="${HOLE_COMPONENT}" data-cwl-hole-detail="${safe}" data-cwl-component="${safe}">`;
+                }
+              }
+            }
+          }
+          i = end;
+          continue;
+        }
+      }
+      out += s[i];
+      i++;
+    }
+    s = out;
+  }
 
   // Event handlers and binds on attributes
   if (/\bon[a-z]+\s*=\s*\{/i.test(s) || /\bbind:[a-zA-Z]/.test(s)) {
@@ -756,6 +865,7 @@ export function liftStructuralSveltePageHtml(
   }
 
   s = s.replace(/\s+[a-zA-Z_:][\w:.-]*\s*=\s*(?:""|'')?(?=[\s/>])/g, "");
+  s = scrubStructuralMarkupArtifacts(s);
   s = s.trim().replace(/\n{3,}/g, "\n\n");
   if (s.length === 0 || !/<[a-z]/i.test(s)) return null;
 

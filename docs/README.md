@@ -13,8 +13,11 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 
 | Doc | What |
 | --- | --- |
+| [**AI Assist + Migration Chat**](./AI-ASSIST.md) | **Closed (D6417)** — MCP + `chrysalis chat` + hub `/migration-chat`; LiteRT refused |
 | [**Migration OS**](./MIGRATION-OS.md) | **Primary entry** — pipeline, demos, gates, reading order |
 | [**Whole-site CWL conversion**](./WHOLE-SITE-CWL-CONVERSION.md) | **Closed (G9450)** — package pipeline close; regression `hub:whole-site-cwl-close-smoke` |
+| [**Svelte → CWL lessons**](./SVELTE-CWL-CONVERSION-LESSONS.md) | **Active (D6405)** — what failed (sidecar/demos) + actual-build rules |
+| [**Multi-origin lift expansion**](./MULTI-ORIGIN-LIFT-EXPANSION.md) | **Active (G9840–G9880)** — extrapolate Svelte lessons to all languages + LLM/IS |
 | [Site → CWL → LLM](./SITE-TO-CWL-LLM-PROGRAM.md) | `chrysalis port-site`, trajectories, WVB |
 | [Verified Migration Federation](./SITE-PORT-FEDERATION-PROGRAM.md) | VMF, Open Legacy Index, hub API |
 | [Migration Evidence POC](./MIGRATION-EVIDENCE-POC-PROGRAM.md) | Unified evidence hub (**G8480** / **G8550**) |
@@ -24,7 +27,7 @@ Chrysalis migrates legacy web applications to verified **CWL** over **WebIR** wi
 | [Web-LLM training recipe](./WEB-LLM-TRAINING-RECIPE.md) | Shard export |
 | [Web Verify Benchmark](./WEB-VERIFY-BENCHMARK.md) | WVB manifest |
 
-**Governance:** [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) (locked build order) · [`ROADMAP.md`](../ROADMAP.md) (status) · [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) (default queue)
+**Governance:** [`STRATEGIC-PLAN.md`](./STRATEGIC-PLAN.md) (locked build order) · [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) (**D6438** product canon) · [`ROADMAP.md`](../ROADMAP.md) (status) · [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) (default queue hangoffs) · [`initiative-knowledge.v1.json`](./initiative-knowledge.v1.json) (what we tried)
 
 ---
 

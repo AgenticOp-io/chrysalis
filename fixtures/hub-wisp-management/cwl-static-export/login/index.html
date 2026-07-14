@@ -1,132 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>login</title>
-<link rel="stylesheet" href="/assets/original-css/login.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="login-page">
+<div class="login-page" data-wisp-page="login" data-cwl-island="client">
   <div class="login-container">
-    <!-- Branding Section -->
     <div class="login-brand">
-      <img src="/wisptools-logo.svg" alt="WISP Management" class="brand-logo" />
-      
+      <img src="/wisptools-logo.svg" alt="WISP Management" class="brand-logo" width="120" height="120" />
       <h1>WISP Management</h1>
-      <p class="brand-tagline">wisptools.io</p>
-        <p class="poc-notice">Part of wisptools.io. Source code: <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></p>
     </div>
-
-    <!-- Login Form -->
     <div class="login-card">
-      <h2>Welcome Back</h2>
-      
-
-      <p class="subtitle">
-        
-          Sign in to access your network management tools
-        
-      </p>
-
-      
-
-      
-
-      
-
-      
-
-      <form}>
+      <h2>Sign in</h2>
+      <div class="demo-credentials-panel" role="note">
+        <p class="demo-credentials-title">Demo login</p>
+        <p><strong>Email:</strong> demo@wisptools.io</p>
+        <p><strong>Password:</strong> WisptoolsDemo2026!</p>
+        <p class="demo-credentials-hint">On management.wisptools.io uses Firebase Auth; on the GCE demo uses native CWL session.</p>
+      </div>
+      <p class="subtitle">Use your email and password to access WISP Management.</p>
+      <div id="wisp-cwl-status" class="wisp-status" hidden aria-live="polite"></div>
+      <form id="login-form" autocomplete="on">
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            required
-          />
+          <input id="email" name="email" type="email" value="demo@wisptools.io" placeholder="you@example.com" required />
         </div>
-
         <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <label for="password">Password</label>
-            <button 
-              type="button" 
-              class="link-btn" 
-              style="font-size: 0.875rem; padding: 0;"
-            >
-              Forgot password?
-            </button>
-          </div>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            required
-          />
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="Enter your password" required />
         </div>
-
-        <button type="submit" class="btn-primary">
-          
-            Sign In
-          
-        </button>
+        <button type="submit" class="btn-primary" id="sign-in">Sign In</button>
       </form>
-
-      
-        <div class="form-footer">
-          <span class="link-btn" style="text-decoration: none; opacity: 0.8;">
-            Contact your admin for access
-          </span>
-        </div>
-
-        <div class="login-divider">
-          <span></span>
-          <p>or</p>
-          <span></span>
-        </div>
-
-        <button type="button" class="btn-google">
-          <svg aria-hidden="true" viewBox="0 0 533.5 544.3">
-            <path fill="#4285f4" d="M533.5 278.4c0-17.4-1.4-34.1-4.1-50.2H272v95h147.5c-6.4 34-25 62.8-53.4 82v68h86.1c50.4-46.5 80.3-115.1 80.3-194.8z"/>
-            <path fill="#34a853" d="M272 544.3c72.2 0 132.8-23.9 177-64.7l-86.1-68c-23.9 16.1-54.5 25.7-90.9 25.7-69.9 0-129.2-47.2-150.4-110.5h-90.7v69.8c44 87.4 134.5 148.7 241.1 148.7z"/>
-            <path fill="#fbbc04" d="M121.6 326.8c-10.2-30-10.2-62.5 0-92.5v-69.8h-90.7c-37.3 74.6-37.3 158.4 0 233z"/>
-            <path fill="#ea4335" d="M272 107.7c39.2-.6 76.4 13.8 105 39.9l78.2-78.2C404.5 25.5 344 0 272 0 165.4 0 74.9 61.3 30.9 148.7l90.7 69.8C142.7 175 202.1 107.7 272 107.7z"/>
-          </svg>
-          <span>Sign in with Google</span>
-        </button>
-      
-
+      <p class="form-footer simple-only-hint">Access is managed by your administrator.</p>
     </div>
-
-    <!-- Features Section -->
-    <div class="features">
-      <div class="feature">
-        <span class="feature-icon">📊</span>
-        <h3>PCI Resolution</h3>
-        <p>Automated conflict detection</p>
-      </div>
-      <div class="feature">
-        <span class="feature-icon">📡</span>
-        <h3>Coverage Planning</h3>
-        <p>RF analysis tools</p>
-      </div>
-      <div class="feature">
-        <span class="feature-icon">🌐</span>
-        <h3>Spectrum Management</h3>
-        <p>Frequency planning</p>
-      </div>
-    </div>
-
-    <footer class="login-footer">
-      <a href="https://github.com/theorem6/WISP-Management" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <span class="sep">·</span>
-      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
-    </footer>
   </div>
 </div>
-<script type="application/json" id="cwl-page-load">{"surface":"wisp-auth-native","source":"wisp-30","profile":"gce-single-use","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<script type="application/json" id="cwl-page-load">{"surface":"wisp-auth-native","source":"wisp-30","profile":"gce-single-use"}</script>

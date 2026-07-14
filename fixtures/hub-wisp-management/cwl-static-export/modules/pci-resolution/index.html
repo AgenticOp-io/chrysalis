@@ -1,98 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>pci-resolution</title>
-<link rel="stylesheet" href="/assets/original-css/modules_pci-resolution.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<!-- Full Screen Map -->
-<!-- Note: Auth check removed - Module_Manager dashboard handles authentication -->
-<div class="app">
-  <!-- Map Background -->
-  <div class="map-fullscreen">
-    
-  </div>
-
-  <!-- New UI Layout: Separate Positioned Elements -->
-  
-  <!-- Top Left: Brand -->
-  <div class="top-brand">
-  <div class="brand-content">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="brand-icon">
-      </modules/pci-resolution d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"><//modules/pci-resolution>
-      <circle cx="12" cy="10" r="3"></circle>
-    </svg>
-    <h1 class="app-title">LTE PCI Mapper</h1>
-  </div>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_pci_resolution" data-wisp-path="/modules/pci-resolution" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/network">
+  <header class="wisp-demo-header">
+    <h1>Pci Resolution</h1>
+    <p class="wisp-demo-desc">Operational workspace for Pci Resolution — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/pci-resolution/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>7</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>19</strong><span>Pending tasks</span></article>
 </div>
-  
-  <!-- Top Right: Basemap Switcher -->
-  <div class="cwl-map-shell" data-cwl-map-shell="BasemapSwitcher" aria-hidden="true" role="img"></div>
-  
-  <!-- Right Side: PCI Status Widget -->
-  <div class="cwl-widget-shell" data-cwl-widget-shell="PCIStatusWidget" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>s1</td><td>online</td></tr></tbody></table></div>
-  
-  <!-- Left Sidebar: Vertical Menu -->
-  <nav class="cwl-nav-shell" data-cwl-nav-shell="VerticalMenu" aria-hidden="true"></nav> true}
-  />
-  
-  <!-- Bottom Right: Settings Gear Menu -->
-  <nav class="cwl-nav-shell" data-cwl-nav-shell="SettingsMenu" aria-hidden="true"></nav>
-  
-  <!-- Help Button -->
-  <button class="help-button" aria-label="Open Help" title="Help">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"></circle>
-      </modules/pci-resolution d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"><//modules/pci-resolution>
-      <line x1="12" y1="17" x2="12.01" y2="17"></line>
-    </svg>
-  </button>
-
-  <!-- Modular Components - Isolated and reusable -->
-  <div class="cwl-widget-shell" data-cwl-widget-shell="NetworkManager" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>s1</td><td>online</td></tr></tbody></table></div> false}
-  />
-  
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="ImportWizard" aria-hidden="true" role="dialog"></div> false}
-  />
-  
-  <div class="cwl-modal-shell" data-cwl-modal-shell="AnalysisModal" aria-hidden="true" role="dialog"></div> uiActions.closeModal('showAnalysisModal')}
-  />
-  
-  <div class="cwl-modal-shell" data-cwl-modal-shell="ConflictsModal" aria-hidden="true" role="dialog"></div> uiActions.closeModal('showConflictsModal')}
-  />
-  
-  <div class="cwl-modal-shell" data-cwl-modal-shell="RecommendationsModal" aria-hidden="true" role="dialog"></div> uiActions.closeModal('showRecommendationsModal')}
-  />
-  
-  <div class="cwl-modal-shell" data-cwl-modal-shell="OptimizationResultModal" aria-hidden="true" role="dialog"></div> uiActions.closeModal('showOptimizationResultModal')}
-  />
-  
-  <div class="cwl-widget-shell" data-cwl-widget-shell="CellEditor" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>s1</td><td>online</td></tr></tbody></table></div> }
-  />
-  
-  <div class="cwl-widget-shell" data-cwl-widget-shell="SiteEditor" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>s1</td><td>online</td></tr></tbody></table></div> }
-  />
-  
-  <nav class="cwl-nav-shell" data-cwl-nav-shell="ContextMenu" aria-hidden="true"></nav> false}
-  />
-  
-  <div class="cwl-widget-shell" data-cwl-widget-shell="TowerManager" data-cwl-hydrated="1"><table class="cwl-widget-summary"><tbody><tr><td>tw-1</td><td>online</td></tr></tbody></table></div> false}
-  />
-  
-  <!-- Export Modal -->
-  
-  
-  <!-- Help Modal -->
-  <div class="cwl-modal-shell" data-cwl-modal-shell="HelpModal" aria-hidden="true" role="dialog"></div> false}
-  />
-  
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="ConflictResolutionWizard" aria-hidden="true" role="dialog"></div> false}
-  />
-  
-        </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/pci-resolution","apiPath":"/api/network","api_ok":true,"api_surface":"wisp-api-native","api_resource":"network","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Pci Resolution data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>s1</td><td>North Tower</td><td>active</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/pci-resolution","apiPath":"/api/network","api_ok":true,"api_surface":"wisp-api-native","api_resource":"network","api_op":"list","tracedApiStatus":200}</script>

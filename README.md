@@ -6,6 +6,10 @@ Chrysalis turns legacy modernization from a **translation problem** into a
 **specification problem**: your running app becomes the spec, and translated
 code is verified against its real behavior — not trusted on faith.
 
+**Works best with an AI assistant** (Cursor, MCP, Migration Chat) — models
+propose; WebIR + oracle + verify dispose. See [`docs/AI-ASSIST.md`](./docs/AI-ASSIST.md).
+LiteRT.js is **not** part of the convert path.
+
 It converts PHP to modern TypeScript, but that's only one of its three legs:
 
 1. **WebIR** — a multi-dialect, typed, effect-aware intermediate representation

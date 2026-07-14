@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "cpe": [
+    {
+      "id": "cpe-1",
+      "name": "CPE Acme",
+      "status": "active",
+      "lat": 39.842,
+      "lng": -98.57,
+      "location": { "latitude": 39.842, "longitude": -98.57 }
+    }
+  ],
+  "items": [
+    { "id": "cpe-1", "name": "CPE Acme", "status": "active", "lat": 39.842, "lng": -98.57 }
+  ]
+}

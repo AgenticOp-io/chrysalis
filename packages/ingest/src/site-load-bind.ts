@@ -16,7 +16,7 @@ import {
   patchCwlRouteBlockHtml,
 } from "@chrysalis/emit-shared";
 import { inferUiPageApiPath } from "./infer-ui-page-api-path.js";
-import { DEFAULT_SHOWCASE_LOAD_BOOLS } from "./ui-markup-svelte-structural.js";
+import { DEFAULT_SHOWCASE_LOAD_BOOLS, scrubStructuralMarkupArtifacts } from "./ui-markup-svelte-structural.js";
 
 export const SITE_LOAD_BIND_REPORT_KIND = "chrysalis.site-load-bind.v1";
 export const SITE_LOAD_BIND_REPORT_SCHEMA_VERSION = 1;
@@ -138,8 +138,27 @@ function mergeLoadBlock(routeBlock: string, fields: Record<string, string>): str
 
 const STAT_LABELS = ["Active records", "Open alerts", "Pending tasks"] as const;
 
+/** Svelte / Vue / Next / Angular interp hole markers (G9927 / D6420). */
 const INTERP_HOLE_RE =
-  /<(?:span|div)\s+data-cwl-hole="legacy:markup-lift-svelte-interp"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?><\/(?:span|div)>/g;
+  /<(?:span|div)\s+data-cwl-hole="legacy:markup-lift-(?:svelte|vue|next|angular)-interp"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?><\/(?:span|div)>/g;
+
+/** Strip Vue `{{ … }}` wrappers from interp hole details. */
+export function normalizeInterpHoleDetail(detail: string): string {
+  let d = detail.trim();
+  const vue = /^\{\{\s*([\s\S]*?)\s*\}\}$/.exec(d);
+  if (vue) d = vue[1]!.trim();
+  return d;
+}
+
+/** Strip Vue `v-if=` / Angular `*ngIf=` wrappers from if-hole details. */
+export function normalizeIfHoleDetail(detail: string): string {
+  let d = detail.trim();
+  const vue = /^v-(?:if|else-if|show)=(?:"([^"]*)"|'([^']*)'|(.+)$)/i.exec(d);
+  if (vue) return (vue[1] ?? vue[2] ?? vue[3] ?? "").trim();
+  const ng = /^\*ngIf=(?:"([^"]*)"|'([^']*)'|(.+)$)/i.exec(d);
+  if (ng) return (ng[1] ?? ng[2] ?? ng[3] ?? "").trim();
+  return d;
+}
 
 /** Resolve a dotted path against a JSON-like value (G9490). */
 export function resolveJsonPath(root: unknown, path: string): unknown {
@@ -543,8 +562,14 @@ export function parseEachHeader(
   const withIndex = /^([a-zA-Z_][\w.]*)\s+as\s+([a-zA-Z_][\w]*)\s*,\s*[a-zA-Z_][\w]*$/.exec(trimmed);
   if (withIndex) return { collection: withIndex[1]!, itemName: withIndex[2]! };
   const plain = /^([a-zA-Z_][\w.]*)\s+as\s+([a-zA-Z_][\w]*)$/.exec(trimmed);
-  if (!plain) return null;
-  return { collection: plain[1]!, itemName: plain[2]! };
+  if (plain) return { collection: plain[1]!, itemName: plain[2]! };
+  // Vue / Angular: "item in items" | "(item, i) in items" | "item of items" | "let item of items"
+  const vueIn =
+    /^(?:let\s+)?\(?\s*([a-zA-Z_][\w]*)\s*(?:,\s*[a-zA-Z_][\w]*)?\s*\)?\s+(?:in|of)\s+([a-zA-Z_][\w.]*)$/.exec(
+      trimmed,
+    );
+  if (vueIn) return { collection: vueIn[2]!, itemName: vueIn[1]! };
+  return null;
 }
 
 function resolveGetterAliasName(detail: string): string | null {
@@ -599,7 +624,7 @@ function hydrateEachHoleInner(
 ): string {
   let out = template;
   out = out.replace(INTERP_HOLE_RE, (_m, detail: string) => {
-    const d = String(detail).trim();
+    const d = normalizeInterpHoleDetail(String(detail));
     if (d === itemName) {
       // Prefer own-key on entry objects (Object.entries rows) over stringifying the row.
       if (item !== null && typeof item === "object" && !Array.isArray(item) && d in item) {
@@ -649,7 +674,7 @@ function expandEachHoles(
 ): string {
   const lookup = collectHydrationLookup(body);
   const eachOpenGlobal =
-    /<div\s+data-cwl-hole="legacy:markup-lift-svelte-each"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?>/g;
+    /<div\s+data-cwl-hole="legacy:markup-lift-(?:svelte-each|vue-for|angular-for)"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?>/g;
   let rebuilt = "";
   let cursor = 0;
   let em: RegExpExecArray | null;
@@ -824,14 +849,14 @@ function hydrateWidgetShells(html: string, body: unknown): string {
 }
 
 const IF_HOLE_OPEN_RE =
-  /<div\s+data-cwl-hole="legacy:markup-lift-svelte-if"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?>/g;
+  /<div\s+data-cwl-hole="legacy:markup-lift-(?:svelte|vue|angular)-if"\s+data-cwl-hole-detail="([^"]*)"(?:\s[^>]*)?>/g;
 
 /**
  * Evaluate a simple if-hole detail against hydrate body (G9740 / G9780).
  * Supports path/ident, !, === / !== string|number, `.length` cmp, numeric cmp, and && / || of those.
  */
 export function evaluateIfDetail(detail: string, body: unknown): boolean | null {
-  const d = detail.trim();
+  const d = normalizeIfHoleDetail(detail);
   if (!d) return null;
 
   if (d.includes("&&")) {
@@ -997,15 +1022,15 @@ export function hydrateStructuralHtmlFromApiBody(
   const force = opts?.forceSettle === true;
   const depth = opts?._depth ?? 0;
   if (force && depth > 6) {
-    return stripRemainingMarkupHoles(html);
+    return scrubStructuralMarkupArtifacts(stripRemainingMarkupHoles(html));
   }
-  let out = html;
+  let out = scrubStructuralMarkupArtifacts(html);
   for (let pass = 0; pass < (force ? 8 : 1); pass++) {
     const before = out;
     const lookup = collectHydrationLookup(body);
 
     out = out.replace(INTERP_HOLE_RE, (m, detail: string) => {
-      const d = String(detail).trim();
+      const d = normalizeInterpHoleDetail(String(detail));
       if (Object.prototype.hasOwnProperty.call(lookup, d)) {
         const t = formatHydrationText(lookup[d]);
         return t ?? m;
@@ -1025,7 +1050,7 @@ export function hydrateStructuralHtmlFromApiBody(
   if (force && out.includes("data-cwl-hole=")) {
     out = stripRemainingMarkupHoles(out);
   }
-  return out;
+  return scrubStructuralMarkupArtifacts(out);
 }
 
 /** Showcase force-settle for unresolved interp details (G9800). */
@@ -1089,14 +1114,14 @@ function stripRemainingMarkupHoles(html: string): string {
   let guard = 0;
   while (out.includes("data-cwl-hole=") && guard++ < 400) {
     const ifIdx = out.search(
-      /<div\s+data-cwl-hole="legacy:markup-lift-svelte-if"\s+data-cwl-hole-detail="/,
+      /<div\s+data-cwl-hole="legacy:markup-lift-(?:svelte|vue|angular)-if"\s+data-cwl-hole-detail="/,
     );
     const eachIdx = out.search(
-      /<div\s+data-cwl-hole="legacy:markup-lift-svelte-each"\s+data-cwl-hole-detail="/,
+      /<div\s+data-cwl-hole="legacy:markup-lift-(?:svelte-each|vue-for|angular-for)"\s+data-cwl-hole-detail="/,
     );
     const otherDiv = out.search(/<div\s+data-cwl-hole="/);
     const spanIdx = out.search(
-      /<(?:span|div)\s+data-cwl-hole="legacy:markup-lift-svelte-interp"/,
+      /<(?:span|div)\s+data-cwl-hole="legacy:markup-lift-(?:svelte|vue|next|angular)-interp"/,
     );
 
     // Prefer balanced if unwrap
@@ -1125,7 +1150,7 @@ function stripRemainingMarkupHoles(html: string): string {
     // empty interp spans
     if (spanIdx >= 0) {
       out = out.replace(
-        /<(?:span|div)\s+data-cwl-hole="legacy:markup-lift-svelte-interp"[^>]*><\/(?:span|div)>/,
+        /<(?:span|div)\s+data-cwl-hole="legacy:markup-lift-(?:svelte|vue|next|angular)-interp"[^>]*><\/(?:span|div)>/,
         "",
       );
       out = out.replace(/<(?:span|div)\s+data-cwl-hole="[^"]*"[^>]*\/>/, "");

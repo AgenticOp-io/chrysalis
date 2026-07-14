@@ -16,6 +16,7 @@ import { UI_ROUTE_STYLE_MAP_KIND, UI_ROUTE_STYLE_MAP_SCHEMA_VERSION } from "@chr
 import { viteVueCssAdapter } from "./ui-assets-vue.js";
 import { viteCssModulesAdapter } from "./ui-assets-css-modules.js";
 import { angularCssAdapter } from "./ui-assets-angular.js";
+import { nextAppCssAdapter } from "./ui-assets-next.js";
 import { uiRouteBundleSlug, uiRoutePatternSource } from "./ui-route-patterns.js";
 
 /** One source route with the stylesheets its page loads (layouts first). */
@@ -46,6 +47,11 @@ export interface UiFrameworkCssAdapter {
   };
   /** Resolve a manifest stylesheet path to an absolute file path. */
   resolveStylesheet(buildRoot: string, stylesheet: string): string;
+  /**
+   * Optional content reader (e.g. extract `<style>` from a Vue SFC path).
+   * When omitted, {@link liftUiAssets} reads the file as plain CSS.
+   */
+  readStylesheetContent?(buildRoot: string, stylesheet: string, absPath: string): string | null;
   /**
    * De-scope one selector. Return the cleaned selector, or null when it
    * cannot survive the strip (was only the scope class, or a bare pseudo /
@@ -171,6 +177,7 @@ export const svelteKitCssAdapter: UiFrameworkCssAdapter = {
 export const UI_FRAMEWORK_CSS_ADAPTERS: ReadonlyArray<UiFrameworkCssAdapter> = [
   svelteKitCssAdapter,
   viteVueCssAdapter,
+  nextAppCssAdapter,
   viteCssModulesAdapter,
   angularCssAdapter,
 ];
@@ -313,7 +320,11 @@ export function liftUiAssets(opts: LiftUiAssetsOptions): LiftUiAssetsResult {
     if (cached !== undefined) return cached;
     const abs = adapter.resolveStylesheet(opts.buildRoot, stylesheet);
     if (!existsSync(abs)) return null;
-    const raw = readFileSync(abs, "utf8");
+    const raw =
+      adapter.readStylesheetContent !== undefined
+        ? adapter.readStylesheetContent(opts.buildRoot, stylesheet, abs)
+        : readFileSync(abs, "utf8");
+    if (raw === null || raw.trim().length === 0) return null;
     const descoped = descopeStylesheet(raw, adapter);
     selectorsDropped += descoped.dropped.length;
     const css = rewriteUrls(descoped.css, abs, assetHrefPrefix, assetCopies);

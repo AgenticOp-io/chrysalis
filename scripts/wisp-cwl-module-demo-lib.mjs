@@ -18,6 +18,18 @@ export const WISP_MODULE_DEMO_SKIP_PATHS = new Set([
   "/modules/coverage-map",
 ]);
 
+/**
+ * Force-demo paths retired for visual parity — Module_Manager Svelte UI is the operator look.
+ * Kept as empty set for call-site compatibility.
+ */
+export const WISP_FORCE_MODULE_DEMO_PATHS = new Set([]);
+
+/** @param {string} httpPath */
+export function shouldForceModuleDemo(httpPath) {
+  void httpPath;
+  return false;
+}
+
 /** @param {string} s */
 function esc(s) {
   return String(s)
@@ -45,6 +57,7 @@ export function inferWispModuleApiPath(httpPath) {
     ["/modules/hardware", "/api/inventory"],
     ["/modules/sites", "/api/network"],
     ["/modules/pci-resolution", "/api/network"],
+    ["/modules/coverage-map", "/api/coverage"],
     ["/modules/help-desk", "/api/maintain"],
     ["/modules/tenant-management", "/api/tenants"],
     ["/modules/user-management", "/api/users"],
@@ -52,6 +65,8 @@ export function inferWispModuleApiPath(httpPath) {
     ["/modules/backend-management", "/api/admin"],
     ["/modules/cbrs-management", "/api/network"],
     ["/modules/customers/portal", "/api/customers"],
+    ["/settings/module-access", "/api/module-access"],
+    ["/support-dashboard", "/api/maintain"],
   ];
   for (const [prefix, api] of map) {
     if (p === prefix || p.startsWith(`${prefix}/`)) return api;
@@ -105,6 +120,35 @@ function buildDemoToolbar(httpPath, layout) {
     const addPath = `${httpPath.replace(/\/$/, "")}/add`;
     if (!httpPath.endsWith("/add")) {
       actions.push(`<a class="wisp-demo-btn primary" href="${esc(addPath)}">Add new</a>`);
+    }
+    // Module_Manager secondary chrome — converted data-actions (G9950).
+    actions.push(
+      '<button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button>',
+    );
+    actions.push(
+      '<button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button>',
+    );
+    if (httpPath.startsWith("/modules/hardware") || httpPath.startsWith("/modules/inventory")) {
+      actions.push(
+        '<button type="button" class="wisp-demo-btn" data-action="scan" title="Scan lookup">Scan</button>',
+      );
+      actions.push(
+        '<button type="button" class="wisp-demo-btn" data-action="transfer" title="Transfer item">Transfer</button>',
+      );
+      actions.push(`<a class="wisp-demo-btn" href="/modules/inventory/bundles">Bundles</a>`);
+    }
+    if (httpPath.startsWith("/modules/customers") && !httpPath.includes("/portal")) {
+      actions.push(`<a class="wisp-demo-btn" href="/modules/customers/portal">Portal</a>`);
+      actions.push(`<a class="wisp-demo-btn" href="/modules/customers/portal-setup">Portal setup</a>`);
+    }
+    if (httpPath.startsWith("/modules/sites")) {
+      actions.push(`<a class="wisp-demo-btn" href="/modules/deploy">Deploy map</a>`);
+      actions.push(`<a class="wisp-demo-btn" href="/modules/plan">Plan map</a>`);
+    }
+    if (httpPath.startsWith("/modules/work-orders") || httpPath.startsWith("/modules/help-desk")) {
+      actions.push(
+        '<button type="button" class="wisp-demo-btn" data-action="filter-open" title="Open only">Open</button>',
+      );
     }
   }
   if (parts[0] === "modules" && parts.length === 2) {
@@ -364,6 +408,11 @@ export function buildWispModuleDemoHtml(httpPath) {
 
 /** @param {string} block @param {string} [httpPath] */
 export function routeBlockNeedsModuleDemo(block, httpPath = "") {
+  if (httpPath && shouldForceModuleDemo(httpPath)) {
+    // Force even when markup lift left a painted-but-dead Svelte shell.
+    if (block && /\bwisp-module-demo\b/.test(block) && /\bdata-wisp-api=/.test(block)) return false;
+    return true;
+  }
   if (!block) return true;
   if (
     (httpPath === "/help" || httpPath.startsWith("/docs")) &&
@@ -373,6 +422,15 @@ export function routeBlockNeedsModuleDemo(block, httpPath = "") {
   }
   if (/\bwisp-demo-content\b/.test(block) && !/<main class="wisp-surface-body">\s*<\/main>/.test(block)) {
     if (httpPath === "/modules/monitor" && /Redirecting to Monitoring/.test(block)) return true;
+    // G9950 — refresh demo chrome when Module_Manager secondary actions missing.
+    if (
+      httpPath.startsWith("/modules/") &&
+      !httpPath.includes("/add") &&
+      /\bwisp-demo-toolbar\b/.test(block) &&
+      !/\bdata-action="export"/.test(block)
+    ) {
+      return true;
+    }
     return false;
   }
   if (httpPath.startsWith("/docs") && !/\bwisp-demo-content\b/.test(block)) return true;
@@ -381,6 +439,24 @@ export function routeBlockNeedsModuleDemo(block, httpPath = "") {
   if (/\bwisp-app-surface\b/.test(block) && !/\bwisp-demo-content\b/.test(block)) return true;
   if (/<svelte:head>/.test(block)) return true;
   return false;
+}
+
+/**
+ * Ensure demo @page load { } blocks carry apiPath when inferable (G9948).
+ * @param {string} routesText
+ */
+export function ensureWispDemoLoadApiPaths(routesText) {
+  return routesText.replace(
+    /(@page GET "([^"]+)"[\s\S]*?load \{)([^}]*?)(\};)/g,
+    (full, prefix, httpPath, inner, suffix) => {
+      if (/\bapiPath\s*:/.test(inner)) return full;
+      const apiPath = inferWispModuleApiPath(httpPath);
+      if (!apiPath) return full;
+      const trimmed = inner.trim().replace(/,\s*$/, "");
+      const nextInner = trimmed ? `${trimmed}, apiPath: "${apiPath}" ` : `apiPath: "${apiPath}" `;
+      return `${prefix}${nextInner}${suffix}`;
+    },
+  );
 }
 
 /** @param {string} httpPath */

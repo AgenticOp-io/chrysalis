@@ -1,0 +1,5 @@
+/* nested portal layout — must not leak into /login */
+.portal-region {
+  --next-portal-token: #b45309;
+  border-top: 2px solid #b45309;
+}

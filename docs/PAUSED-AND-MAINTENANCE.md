@@ -144,6 +144,8 @@ Detail: [`WISP-CWL-FULLSTACK-PROGRAM.md`](./WISP-CWL-FULLSTACK-PROGRAM.md) (arch
 | WPTP D2+ sibling repos | Out-of-repo matrix | `MULTI-REPO-WORKSPACE.md` |
 | IR helper lifting backlog | Phase 45 first-class **G6731** / **G7200** | [`IR-HELPER-LIFTING.md`](./IR-HELPER-LIFTING.md) |
 
+**Unpaused 2026-07-13 (D6424):** WISP empty-page hydrate grind (was paused under **D6416**) — remaining structural surfaces closed at **G9932–G9939** (`hub:wisp-cwl-remaining-surface-smoke`). Still not default build without an explicit WISP ask: inventing GenieACS/maps/FCAPS widgets.
+
 Governance hooks: `runMaintenanceProgramCompleteGate`, `runHonestGapsProgramCompleteGate`, `runHonestGapsImplementationCloseGate`.
 
 ---

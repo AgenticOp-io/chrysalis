@@ -1,108 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>billing</title>
-<link rel="stylesheet" href="/assets/original-css/modules_billing.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="billing-module">
-    <!-- Header -->
-    <div class="module-header">
-      <div class="header-content">
-        <button class="back-btn">
-          <span class="back-icon">←</span>
-          Back to Dashboard
-        </button>
-        <div class="module-title">
-          <h1>💳 Billing & Subscriptions</h1>
-          <p>Manage your subscription and billing information</p>
-        </div>
-        <div class="tenant-info">
-          <span class="tenant-name">Demo Tenant</span>
-            <span class="tenant-subdomain">demo</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="module-content">
-      
-
-      
-        <!-- Current Subscription -->
-        <div class="current-subscription">
-          <h2>Current Subscription</h2>
-          
-        </div>
-
-        <!-- Available Plans -->
-        <div class="plans-section">
-          <h2>Available Plans</h2>
-          <div class="plans-grid">
-            <div class="plan-card ">
-                
-                <div class="plan-header">
-                  <h3></h3>
-                  <div class="plan-price">
-                    <span class="price"></span>
-                    <span class="interval">/</span>
-                  </div>
-                </div>
-                <p class="plan-description"></p>
-                <ul class="plan-features">
-                  <li>✓ </li><li>✓ </li>
-                </ul>
-                <div class="plan-limits">
-                  <span>Up to  users</span>
-                </div>
-                <button 
-                  class="select-plan-btn">
-                  
-                </button>
-              </div><div class="plan-card ">
-                
-                <div class="plan-header">
-                  <h3></h3>
-                  <div class="plan-price">
-                    <span class="price"></span>
-                    <span class="interval">/</span>
-                  </div>
-                </div>
-                <p class="plan-description"></p>
-                <ul class="plan-features">
-                  <li>✓ </li><li>✓ </li>
-                </ul>
-                <div class="plan-limits">
-                  <span>Up to  users</span>
-                </div>
-                <button 
-                  class="select-plan-btn">
-                  
-                </button>
-              </div>
-          </div>
-        </div>
-
-        <!-- Payment Methods -->
-        <div class="payment-methods-section">
-          <h2>Payment Methods</h2>
-          
-        </div>
-
-        <!-- Recent Invoices -->
-        <div class="invoices-section">
-          <h2>Recent Invoices</h2>
-          
-        </div>
-      
-    </div>
-
-    <!-- Edit Payment Method Modal -->
-    
-  </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/billing","apiPath":"/api/customer-billing","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customer-billing","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_billing" data-wisp-path="/modules/billing" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/customer-billing">
+  <header class="wisp-demo-header">
+    <h1>Billing</h1>
+    <p class="wisp-demo-desc">Operational workspace for Billing — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/billing/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>8</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>25</strong><span>Pending tasks</span></article>
+</div>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Billing data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>inv-1</td><td>Acme invoice</td><td>paid</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/billing","apiPath":"/api/customer-billing","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customer-billing","api_op":"list","tracedApiStatus":200}</script>

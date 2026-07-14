@@ -28,10 +28,18 @@ export const WISP_CWL_FULL_BUILD_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const fixtureDir = join(scriptRoot, "fixtures/hub-wisp-management");
+
+function runBindShowcase() {
+  return spawnSync(process.execPath, [join(scriptRoot, "scripts/wisp-cwl-bind-showcase.mjs")], {
+    cwd: scriptRoot,
+    encoding: "utf8",
+    env: process.env,
+  });
+}
 const defaultRoot =
   process.env.CHRYSALIS_WISP_ROOT ??
   process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/Downloads/WISPTools/Module_Manager";
+  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager";
 
 function runNode(script, args = []) {
   const r = spawnSync(process.execPath, [join(scriptRoot, script), ...args], {
@@ -103,12 +111,23 @@ export function runWispCwlFullBuild(opts = {}) {
     applyWispPhase32CompleteDemo();
     // Client redirects last — later lifts can reintroduce dead-end spinner shells.
     const redirects = applyWispClientRedirects();
+    const bindR = runBindShowcase();
+    let bindOk = bindR.status === 0;
+    let bindDetail = null;
+    try {
+      bindDetail = bindR.stdout ? JSON.parse(bindR.stdout) : null;
+      bindOk = bindOk && bindDetail?.ok !== false;
+    } catch {
+      bindOk = false;
+    }
     const integrity = inspectRoutesCwlIntegrity();
     steps.push({
       step: "post-g7790-apply-chain",
-      status: chain.ok && redirects.ok !== false && integrity.ok ? 0 : 1,
+      status: chain.ok && redirects.ok !== false && bindOk && integrity.ok ? 0 : 1,
       chainOk: chain.ok === true,
       redirectsOk: redirects.ok !== false,
+      bindOk,
+      bind: bindDetail,
       routesIntegrityOk: integrity.ok === true,
       junkCount: integrity.junkCount ?? 0,
     });

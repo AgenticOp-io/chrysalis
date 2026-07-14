@@ -14,10 +14,12 @@ import {
 import { angularCssAdapter } from "./ui-assets-angular.js";
 import { viteCssModulesAdapter } from "./ui-assets-css-modules.js";
 import { viteVueCssAdapter } from "./ui-assets-vue.js";
+import { nextAppCssAdapter } from "./ui-assets-next.js";
 
 const DISCOVER_ADAPTERS = [
   svelteKitCssAdapter,
   viteVueCssAdapter,
+  nextAppCssAdapter,
   viteCssModulesAdapter,
   angularCssAdapter,
 ] as const;

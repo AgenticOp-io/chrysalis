@@ -14,6 +14,10 @@ export function isStaticHtmlFragment(html: string): boolean {
   if (/\*ng[A-Za-z]/.test(s)) return false;
   if (/\[[a-zA-Z@]/.test(s)) return false;
   if (/\([a-zA-Z@]/.test(s)) return false;
+  // Vue directives / events / binds
+  if (/\sv-(?:if|else-if|else|for|show|bind|on|model|slot)\b/i.test(s)) return false;
+  if (/\s@[A-Za-z]/.test(s)) return false;
+  if (/\s:[A-Za-z_][\w.-]*=/.test(s)) return false;
   return true;
 }
 

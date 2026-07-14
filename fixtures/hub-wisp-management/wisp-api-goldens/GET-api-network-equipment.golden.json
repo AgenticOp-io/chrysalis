@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "equipment": [
+    {
+      "id": "eq-1",
+      "name": "Core Switch",
+      "status": "online",
+      "locationType": "noc",
+      "lat": 39.78,
+      "lng": -98.52,
+      "location": {
+        "latitude": 39.78,
+        "longitude": -98.52
+      }
+    }
+  ],
+  "items": [
+    {
+      "id": "eq-1",
+      "name": "Core Switch",
+      "status": "online"
+    }
+  ]
+}

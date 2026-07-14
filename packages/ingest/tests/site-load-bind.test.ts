@@ -92,6 +92,9 @@ describe("site-load-bind (G9430)", () => {
 
   test("inferUiPageApiPath and seedApiPathsIntoCwlSource (G9480)", () => {
     expect(inferUiPageApiPath("/modules/hardware")).toBe("/api/inventory");
+    expect(inferUiPageApiPath("/modules/inventory/bundles")).toBe("/api/bundles");
+    expect(inferUiPageApiPath("/modules/user-management/permissions")).toBe("/api/permissions");
+    expect(inferUiPageApiPath("/support-dashboard")).toBe("/api/maintain");
     expect(inferUiPageApiPath("/admin/billing")).toBe("/api/admin");
     expect(inferUiPageApiPath("/docs/getting-started")).toBeNull();
 
@@ -299,5 +302,25 @@ page hardware {
     const out = hydrateStructuralHtmlFromApiBody(html, {}, { forceSettle: true });
     expect(out).not.toContain("data-cwl-hole=");
     expect(out).toContain("{filename}");
+  });
+
+  test("hydrate Vue if/for/interp holes on shared path (G9927)", () => {
+    expect(parseEachHeader("item in items")).toEqual({ collection: "items", itemName: "item" });
+    expect(parseEachHeader("let item of items")).toEqual({ collection: "items", itemName: "item" });
+    const html =
+      '<h1><span data-cwl-hole="legacy:markup-lift-vue-interp" data-cwl-hole-detail="{{ title }}"></span></h1>' +
+      '<div data-cwl-hole="legacy:markup-lift-vue-if" data-cwl-hole-detail="showHint"><p class="hint">Enter credentials</p></div>' +
+      '<div data-cwl-hole="legacy:markup-lift-vue-for" data-cwl-hole-detail="item in items">' +
+      '<li><span data-cwl-hole="legacy:markup-lift-vue-interp" data-cwl-hole-detail="{{ item.label }}"></span></li>' +
+      "</div>";
+    const out = hydrateStructuralHtmlFromApiBody(html, {
+      title: "Vue Sign in",
+      showHint: true,
+      items: [{ label: "Alpha" }],
+    });
+    expect(out).toContain("Vue Sign in");
+    expect(out).toContain("Enter credentials");
+    expect(out).toContain("Alpha");
+    expect(out).not.toContain("legacy:markup-lift-vue-for");
   });
 });

@@ -130,13 +130,18 @@ export function copyWispCwlStaticAssets(clientDir) {
 }
 
 /**
- * The static export writes bare HTML fragments (the runtime normally wraps
- * them per-request). Wrap each page with the same document shell the chimera
- * gateway uses so styling matches the live GCE deployment.
+ * The static export may write bare fragments or runtime-wrapped DOCTYPE shells
+ * (original-css only via @chrysalis/runtime-cwl uiAssets). Always restage with
+ * the chimera document shell so Firebase gets overlay CSS + client scripts.
  * @param {string} clientDir
  */
 export function wrapExportedHtmlDocuments(clientDir) {
   let wrapped = 0;
+  /** @param {string} html */
+  const extractBodyInner = (html) => {
+    const m = /<body\b[^>]*>([\s\S]*?)<\/body>/i.exec(html);
+    return m ? m[1].trim() : html.trim();
+  };
   /** @param {string} dir */
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -146,8 +151,20 @@ export function wrapExportedHtmlDocuments(clientDir) {
         continue;
       }
       if (!entry.name.endsWith(".html")) continue;
-      const body = readFileSync(abs, "utf8");
-      if (body.trimStart().startsWith("<!DOCTYPE") || body.trimStart().startsWith("<html")) continue;
+      const raw = readFileSync(abs, "utf8");
+      const trimmed = raw.trimStart();
+      const body =
+        trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html")
+          ? extractBodyInner(raw)
+          : raw;
+      // Skip if already has full chimera client (idempotent restage).
+      if (
+        body.includes("data-wisp-page") &&
+        raw.includes("/assets/wisp-cwl-client.js") &&
+        raw.includes("/assets/wisp-cwl-")
+      ) {
+        continue;
+      }
       const rel = relative(clientDir, abs).replace(/\\/g, "/");
       const pathname = rel === "index.html" ? "/" : `/${rel.replace(/\/index\.html$/, "")}`;
       const doc = wrapWispCwlHtmlDocument(body, "WISP Management", pathname);

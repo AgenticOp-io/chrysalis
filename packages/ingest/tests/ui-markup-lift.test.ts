@@ -63,6 +63,19 @@ describe("liftStructuralSveltePageHtml (D6367)", () => {
     expect(wizard?.html).toContain('data-cwl-wizard-shell="DeploymentWizard"');
   });
 
+  test("arrow-fn props do not leak true}/ /> tails (G9904)", () => {
+    const r = liftStructuralSveltePageHtml(`<div>
+      <ModuleWizardMenu
+        wizards={getWizardsForPath('/modules/hardware')}
+        on:select={() => showEPCWizard = true}
+      />
+</div>`);
+    expect(r?.html).toContain('data-cwl-nav-shell="ModuleWizardMenu"');
+    expect(r?.html).not.toMatch(/true\}\s*\/>/);
+    expect(r?.html).not.toContain("true}");
+    expect(r?.html).not.toMatch(/\n\s*\/>/);
+  });
+
   test("widget shells collapse without component holes (G9730)", () => {
     const w = liftStructuralSveltePageHtml(`<DeviceList />`);
     expect(w?.html).toContain('data-cwl-widget-shell="DeviceList"');

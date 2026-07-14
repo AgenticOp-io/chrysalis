@@ -1,0 +1,6 @@
+# Migration Chat smoke turns (G9921)
+say|Start migration chat smoke — AI Assist recommended; LiteRT refused
+tools|
+call|hub_convert_govern_action|{"action":"hub_convert_is_routing"}
+status|
+quit|

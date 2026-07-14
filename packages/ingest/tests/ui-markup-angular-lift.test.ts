@@ -7,7 +7,11 @@ import { verifyUiRouteMarkupParity } from "@chrysalis/verify";
 const FIXTURE = resolve(dirname(fileURLToPath(import.meta.url)), "../../../fixtures/ui-markup-angular");
 
 describe("liftUiMarkup (angular fixture)", () => {
-  const result = liftUiMarkup({ buildRoot: FIXTURE, adapter: angularMarkupAdapter });
+  const result = liftUiMarkup({
+    buildRoot: FIXTURE,
+    adapter: angularMarkupAdapter,
+    mode: "structural-shell",
+  });
 
   test("lifts per-route angular template bundles", () => {
     expect(result.ok).toBe(true);
@@ -21,7 +25,10 @@ describe("liftUiMarkup (angular fixture)", () => {
     if (!result.ok) return;
     const login = result.bundles.find((b) => b.routeId === "/login");
     const portal = result.bundles.find((b) => b.routeId === "/portal/login");
-    expect(login?.html).toContain("Angular Sign in");
+    expect(login?.html).toContain("login-card");
+    expect(login?.liftMode).toBe("structural-shell");
+    expect(login?.holes?.some((h) => h.reason === "legacy:markup-lift-angular-if")).toBe(true);
+    expect(login?.holes?.some((h) => h.reason === "legacy:markup-lift-angular-di")).toBe(true);
     expect(login?.html).not.toContain("portal-shell");
     expect(portal?.html).toContain("Angular Portal Sign in");
   });

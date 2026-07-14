@@ -33,17 +33,19 @@
 
 | North star | POC |
 | --- | --- |
-| **CWL** — the final consolidated **web language** (API, Pages, Data, UI, Effects) over **WebIR**, verified by oracle | **WISP Module_Manager** — a **showcase lab** that demonstrates CWL surfaces on a real operator app |
-| **CWL is authoritative** — RFCs, WebIR, oracle, and verify define the language | **The POC exists solely to showcase the language** — wins must **generalize**; WISP-specific paths stay catalogued, not baked in |
-| Success = language + engine + verify truth | Success on WISP = evidence that a surface wave **closes with gates** — transferable, not “ship WISP” |
+| **Universal Translator** — AI-assisted web conversion through **WebIR + CWL**, with **LLM / Intelligence Shorthand** proposing and **oracle/verify** disposing (**D6437**) | **WISP Module_Manager** — optional **showcase lab** only; **not** engine code, not the product name |
+| **CWL** — consolidated web language (API, Pages, Data, UI, Effects) over WebIR | POC exists solely to evidence surface waves — wins must **generalize** into packages / `scripts/lib` |
+| Success = language + engine + verify truth + chartered N×N edges | Success on WISP = transferable gate evidence — never bake `wisp` into package APIs |
 
-WISP is **important** as a showcase. It is **not** the product name, the north star, or the definition of CWL. **GenieACS is standalone C (WISPTools legacy) — permanently out of Chrysalis scope** (**D6205**, **D6370**).
+WISP-named scripts under `scripts/` are **legacy/POC**; prefer `scripts/lib/*`. **GenieACS is standalone C (WISPTools legacy) — permanently out of Chrysalis scope** (**D6205**, **D6370**).
+
+**Path document:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) (**canon, D6438**) · [`UNIVERSAL-TRANSLATOR-PATH.md`](./UNIVERSAL-TRANSLATOR-PATH.md) (historical notes) · **Attempt database:** [`initiative-knowledge.v1.json`](./initiative-knowledge.v1.json)
 
 ---
 
 ## 1. One-sentence strategy
 
-**Win verified migration with oracle and Hub operations while promoting CWL from interchange contract to a full-stack authoring language + runtime surface: own the semantic layer of the web by making credible delivery depend on WebIR + oracle + CWL contracts and, where mature, CWL-authored applications.**
+**Ship the AI-assisted Universal Translator:** WebIR + CWL as hub, LLM/IS propose, oracle/verify dispose, Hub/Migration OS for programs at scale — with PHP→TS as the adoption wedge. **Canon:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) (**D6438**). WISP is POC only.
 
 ---
 
@@ -439,7 +441,390 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-07-03 (Phase 43 LLM convert full — D6303):** Phase **43** **closed** at **G8940**: LLM/stub hole enrichment, verify-gated operator apply, repair bridge, MCP **`hub_convert_apply_holes`** — extends closed Phase 42 without bypassing WebIR/oracle. See [`LLM-CONVERT-FULL-PROGRAM.md`](./LLM-CONVERT-FULL-PROGRAM.md).
 
-## 12. Default queue (maintenance)
+## 12. Default queue (active)
+
+**Amended 2026-07-14 (D6438) — Universal Translator Canon locked.**
+
+**Canon:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) — Waves **A–D** (**G9960–G9990**). WISP = POC only.
+
+**Status:** **UT Canon program closed** (**G9990** — Waves A–D). Default queue = maintain canon + Migration OS + edge-only gold. WISP = POC only.
+
+When the user says "build" without specifying:
+
+1. **Maintain G9990** — `hub:ut-canon-program-close-smoke`
+2. **G8550 composite** — `hub:migration-os-close-smoke`
+3. **G7690 UT regression** — `hub:cwl-universal-translator-close-smoke`
+4. **Origin gold only where a customer/chartered UT edge fails**
+5. **Optional POC** — WISP / management.wisptools.io only if explicitly requested
+
+**Closed program regression:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-wave-a-close-smoke` (**G9965**) · `hub:ut-wave-b-close-smoke` (**G9975**) · `hub:ut-wave-c-close-smoke` (**G9985**) · `hub:ut-wave-d-close-smoke` (**G9989**) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) · [`initiative-knowledge.v1.json`](./initiative-knowledge.v1.json) · [`MIGRATION-OS.md`](./MIGRATION-OS.md) · [`AI-ASSIST.md`](./AI-ASSIST.md) · [`PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-14 by D6438)
+
+**Amended 2026-07-14 (D6437) — Universal Translator reframing (WISP = POC only).** Superceded by **D6438** canon.
+
+**Amended 2026-07-14 (D6436 / G9952) / 2026-07-13 (D6435 / G9951)** — WISP POC closes (Firebase look, module depth).
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6435 / G9951)
+
+**Amended 2026-07-13 (D6434 / G9950) — Module_Manager buttons converted.**
+
+**Status:** **G9950** closed. Plan/deploy toolbars + structural Search/Export/Scan + marketing spatial discover over API geometry. Prior map interact (**G9949**) / ArcGIS grind (**G9947–G9948**) remain. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `hub:migration-os-close-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **Multi-origin regression** — `hub:multi-origin-lift-close-smoke` · `hub:multi-origin-convert-orch-smoke`
+4. **WISP regression** — `hub:wisp-cwl-module-buttons-smoke` · `hub:wisp-cwl-map-interact-smoke` · arcgis/remaining smokes · `wisp:operator-verify -- --require`
+5. **Optional Tier C entry** — only after an explicit plan amendment naming Blazor/ERB/Django/Flutter
+
+**Closed program regression:** `hub:wisp-cwl-module-buttons-smoke` (**G9950**) · `hub:wisp-cwl-map-interact-smoke` (**G9949**) · `hub:wisp-cwl-arcgis-grind-smoke` (**G9947–G9948**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6434 / G9950)
+
+**Amended 2026-07-13 (D6433 / G9949) — SharedMap↔ArcGIS interaction converted.**
+
+**Status:** **G9949** closed. Plan/deploy chrome drives coverage-map via converted Module_Manager postMessage protocol (`state-update`, layers, Sketch rectangle, asset-click). Prior ArcGIS grind (**G9947–G9948**) remains. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `hub:migration-os-close-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **Multi-origin regression** — `hub:multi-origin-lift-close-smoke` · `hub:multi-origin-convert-orch-smoke`
+4. **WISP regression** — `hub:wisp-cwl-map-interact-smoke` · `hub:wisp-cwl-arcgis-grind-smoke` · remaining/admin smokes · `wisp:operator-verify -- --require`
+5. **Optional Tier C entry** — only after an explicit plan amendment naming Blazor/ERB/Django/Flutter
+
+**Closed program regression:** `hub:wisp-cwl-map-interact-smoke` (**G9949**) · `hub:wisp-cwl-arcgis-grind-smoke` (**G9947–G9948**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6433 / G9949)
+
+**Amended 2026-07-13 (D6432 / G9947–G9948) — WISP ArcGIS + grind complete.**
+
+**Status:** **G9947–G9948** closed. ArcGIS MapView overlays from `/api/coverage` + `/api/network` geometry; `/api/module-access` + PCI map host grind; mistaken Google key removed from ArcGIS config. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `hub:migration-os-close-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **Multi-origin regression** — `hub:multi-origin-lift-close-smoke` · `hub:multi-origin-convert-orch-smoke`
+4. **WISP regression** — `hub:wisp-cwl-arcgis-grind-smoke` · `hub:wisp-cwl-remaining-surface-smoke` · admin/ops surface smokes · `wisp:operator-verify -- --require`
+5. **Optional Tier C entry** — only after an explicit plan amendment naming Blazor/ERB/Django/Flutter
+
+**Closed program regression:** `hub:wisp-cwl-arcgis-grind-smoke` (**G9947–G9948**) · `hub:next-loading-font-smoke` (**G9944**) · `hub:angular-ngmodule-providers-smoke` (**G9945**) · `hub:vue-app-shell-css-smoke` (**G9946**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6432 / G9947–G9948)
+
+**Amended 2026-07-13 (D6429–D6431 / G9944–G9946) — Next loading/font, Angular NgModule, Vue App.vue.**
+
+**Status:** **G9944–G9946** closed. Next companion `loading.tsx` + `next/font` honesty holes; Angular `@NgModule` providers edges; Vue `App.vue` shell CSS. Multi-origin close schema **v4**. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `hub:migration-os-close-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **Multi-origin regression** — `hub:multi-origin-lift-close-smoke` · `hub:multi-origin-convert-orch-smoke`
+4. **WISP regression** — `hub:wisp-cwl-remaining-surface-smoke` · admin/ops surface smokes · `wisp:operator-verify -- --require`
+5. **Optional Tier C entry** — only after an explicit plan amendment naming Blazor/ERB/Django/Flutter
+
+**Closed program regression:** `hub:next-loading-font-smoke` (**G9944**) · `hub:angular-ngmodule-providers-smoke` (**G9945**) · `hub:vue-app-shell-css-smoke` (**G9946**) · `hub:angular-provided-in-smoke` (**G9941**) · `hub:vue-nuxt-layout-css-smoke` (**G9942**) · `hub:multi-origin-convert-orch-smoke` (**G9943**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6429–D6431 / G9944–G9946)
+
+**Amended 2026-07-13 (D6426–D6428 / G9941–G9943) — Angular providedIn, Vue/Nuxt layouts, shared convert orch.**
+
+**Status:** **G9941–G9943** closed. Angular `providedIn`/`providers` holes; Vue/Nuxt layout CSS isolation; `convertMultiOriginProjects` proves shared convert-site orchestration (Tier C precondition). Multi-origin close schema **v3**. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `hub:migration-os-close-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **Multi-origin regression** — `hub:multi-origin-lift-close-smoke` · `hub:multi-origin-convert-orch-smoke`
+4. **WISP regression** — `hub:wisp-cwl-remaining-surface-smoke` · admin/ops surface smokes · `wisp:operator-verify -- --require`
+5. **Optional Tier C entry** — only after an explicit plan amendment naming Blazor/ERB/Django/Flutter
+
+**Closed program regression:** `hub:angular-provided-in-smoke` (**G9941**) · `hub:vue-nuxt-layout-css-smoke` (**G9942**) · `hub:multi-origin-convert-orch-smoke` (**G9943**) · `hub:next-layout-css-depth-smoke` (**G9940**) · `hub:wisp-cwl-remaining-surface-smoke` (**G9932–G9939**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6426–D6428 / G9941–G9943)
+
+**Amended 2026-07-13 (D6425 / G9940) — Next layout/globals CSS depth.**
+
+**Status:** **G9940** closed. Ancestor App Router `layout` CSS attributed per route (nested portal isolation); multi-origin close schema **v2**. Prior **G9924–G9939** remain closed regression. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `hub:migration-os-close-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **Multi-origin regression** — `hub:multi-origin-lift-close-smoke` · `hub:next-layout-css-depth-smoke`
+4. **WISP regression** — `hub:wisp-cwl-remaining-surface-smoke` · admin/ops surface smokes · `wisp:operator-verify -- --require`
+
+**Closed program regression:** `hub:next-layout-css-depth-smoke` (**G9940**) · `hub:wisp-cwl-remaining-surface-smoke` (**G9932–G9939**) · `hub:angular-di-graph-smoke` (**G9931**) · `hub:next-css-depth-smoke` (**G9930**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6425 / G9940)
+
+**Amended 2026-07-13 (D6424 / G9932–G9939) — Remaining WISP empty-page hydrate unpaused.**
+
+**Status:** **G9932–G9939** closed. Voice/plan/bundles/permissions/roles/CBRS/support structural hydrate shipped; `routes.cwl`/`inferUiPageApiPath` apiPath fixes; empty-list honesty (no invented FCAPS). Pause from **D6416** lifted after multi-origin language POCs. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `hub:migration-os-close-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **Multi-origin regression** — `hub:multi-origin-lift-close-smoke` · `hub:angular-di-graph-smoke`
+4. **WISP regression** — `hub:wisp-cwl-remaining-surface-smoke` · admin/ops surface smokes · `wisp:operator-verify -- --require`
+
+**Closed program regression:** `hub:wisp-cwl-remaining-surface-smoke` (**G9932–G9939**) · `hub:angular-di-graph-smoke` (**G9931**) · `hub:next-css-depth-smoke` (**G9930**) · `hub:vue-scoped-css-depth-smoke` (**G9929**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6424 / G9932–G9939)
+
+**Amended 2026-07-13 (D6423 / G9931) — Angular DI graph depth.**
+
+**Status:** **G9931** closed. Angular inject graph walks relative service edges; multi-origin close includes DI graph. Tier B Vue/Next/Angular structural+CSS+DI polish closed for this program slice. WISP page-hydrate remains paused. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **G8550 composite** — `hub:migration-os-close-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **Multi-origin regression** — `hub:multi-origin-lift-close-smoke` · `hub:angular-di-graph-smoke`
+4. **WISP regression only** — admin/ops surface smokes + `wisp:operator-verify -- --require` (no new WISP page-hydrate gates unless asked)
+
+**Closed program regression:** `hub:angular-di-graph-smoke` (**G9931**) · `hub:next-css-depth-smoke` (**G9930**) · `hub:vue-scoped-css-depth-smoke` (**G9929**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6423 / G9931)
+
+**Amended 2026-07-13 (D6422 / G9930) — Next App Router CSS depth.**
+
+**Status:** **G9930** closed. Next co-located CSS modules lift without `.next`; multi-origin close includes Next CSS. Prior **G9924–G9929** remain closed regression. WISP page-hydrate remains paused. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Multi-origin polish** — optional Angular DI graph · `hub:multi-origin-lift-close-smoke` · `hub:next-css-depth-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **G8550 composite** — `hub:migration-os-close-smoke`
+4. **WISP regression only** — admin/ops surface smokes + `wisp:operator-verify -- --require` (no new WISP page-hydrate gates unless asked)
+
+**Closed program regression:** `hub:next-css-depth-smoke` (**G9930**) · `hub:vue-scoped-css-depth-smoke` (**G9929**) · `hub:vue-load-bind-smoke` / `hub:next-rsc-depth-smoke` (**G9927–G9928**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-13 by D6422 / G9930)
+
+**Amended 2026-07-12 (D6421 / G9929) — Vue scoped-CSS depth.**
+
+**Status:** **G9929** closed. Vue SFC `<style scoped>` lifts without a Vite dist manifest; multi-origin close includes CSS depth. Prior **G9924–G9928** remain closed regression. WISP page-hydrate remains paused. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Multi-origin polish** — optional Angular DI graph · Next CSS adapter · `hub:multi-origin-lift-close-smoke` · `hub:vue-scoped-css-depth-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **G8550 composite** — `hub:migration-os-close-smoke`
+4. **WISP regression only** — admin/ops surface smokes + `wisp:operator-verify -- --require` (no new WISP page-hydrate gates unless asked)
+
+**Closed program regression:** `hub:vue-scoped-css-depth-smoke` (**G9929**) · `hub:vue-load-bind-smoke` / `hub:next-rsc-depth-smoke` (**G9927–G9928**) · `hub:angular-structural-shell-depth-smoke` (**G9926**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-12 by D6421 / G9929)
+
+**Amended 2026-07-12 (D6420 / G9927–G9928) — Vue load-bind + Next RSC depth.**
+
+**Status:** **G9927–G9928** closed. Shared load-bind hydrates Vue/Next/Angular structural markers; Next async RSC fixture proven. Prior **G9924–G9926** remain closed regression. WISP page-hydrate remains paused. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Multi-origin polish** — Vue scoped-CSS depth · optional Angular DI graph · `hub:multi-origin-lift-close-smoke` · `hub:vue-load-bind-smoke` · `hub:next-rsc-depth-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **G8550 composite** — `hub:migration-os-close-smoke`
+4. **WISP regression only** — admin/ops surface smokes + `wisp:operator-verify -- --require` (no new WISP page-hydrate gates unless asked)
+
+**Closed program regression:** `hub:vue-load-bind-smoke` / `hub:next-rsc-depth-smoke` (**G9927–G9928**) · `hub:angular-structural-shell-depth-smoke` (**G9926**) · `hub:vue-structural-shell-depth-smoke` / `hub:next-structural-shell-depth-smoke` (**G9924–G9925**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-12 by D6420 / G9927–G9928)
+
+**Amended 2026-07-12 (D6419 / G9926) — Angular structural-shell depth.**
+
+**Status:** **G9926** closed (after **G9924–G9925**). Vue/Next/Angular structural-shell emit named holes (template + Angular DI); depth smokes folded into `hub:multi-origin-lift-close-smoke`. WISP page-hydrate remains paused. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Multi-origin depth** — Vue load-bind / Next deeper RSC · optional Tier B polish · `hub:multi-origin-lift-close-smoke` · depth smokes
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **G8550 composite** — `hub:migration-os-close-smoke`
+4. **WISP regression only** — admin/ops surface smokes + `wisp:operator-verify -- --require` (no new WISP page-hydrate gates unless asked)
+
+**Closed program regression:** `hub:angular-structural-shell-depth-smoke` (**G9926**) · `hub:vue-structural-shell-depth-smoke` / `hub:next-structural-shell-depth-smoke` (**G9924–G9925**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:wisp-cwl-admin-surface-smoke` (**G9917–G9920**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-12 by D6419 / G9926)
+
+**Amended 2026-07-12 (D6418 / G9924–G9925) — Vue/Next structural-shell depth.**
+
+**Status:** **G9924–G9925** closed. Vue/Next structural-shell emit named holes (no silent strip); depth smokes folded into `hub:multi-origin-lift-close-smoke`. Prior **G9921–G9923** Migration Chat remains closed regression. WISP page-hydrate remains paused. LiteRT refused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Multi-origin depth** — Angular DI / service holes · further Vue load-bind / Next RSC depth · `hub:multi-origin-lift-close-smoke` · `hub:vue-structural-shell-depth-smoke` · `hub:next-structural-shell-depth-smoke`
+2. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+3. **G8550 composite** — `hub:migration-os-close-smoke`
+4. **WISP regression only** — admin/ops surface smokes + `wisp:operator-verify -- --require` (no new WISP page-hydrate gates unless asked)
+
+**Closed program regression:** `hub:vue-structural-shell-depth-smoke` / `hub:next-structural-shell-depth-smoke` (**G9924–G9925**) · `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:wisp-cwl-admin-surface-smoke` (**G9917–G9920**) · `hub:wisp-cwl-ops-surface-smoke` (**G9913–G9916**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md) · [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-12 by D6418 / G9924–G9925)
+
+**Amended 2026-07-12 (D6417 / G9921–G9923) — Migration Chat + AI Assist; LiteRT refused.**
+
+**Status:** **G9921–G9923** closed. Interactive/scripted Migration Chat (CLI + hub), AI Assist packaging (`docs/AI-ASSIST.md`, MCP example, `/api/config.aiAssist`). **Refused:** LiteRT.js as convert/runtime substrate. WISP page-hydrate remains paused. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Migration Chat / AI Assist regression** — `hub:migration-chat-smoke`
+2. **Multi-origin / language substrates** — `hub:multi-origin-lift-close-smoke` · Next/Vue/Angular structural smokes (expand origins that lack a WISP-scale POC)
+3. **G8550 composite** — `hub:migration-os-close-smoke`
+4. **WISP regression only** — admin/ops surface smokes + `wisp:operator-verify -- --require` (no new WISP page-hydrate gates unless asked)
+
+**Closed program regression:** `hub:migration-chat-smoke` (**G9921–G9923**) · `hub:wisp-cwl-admin-surface-smoke` (**G9917–G9920**) · `hub:wisp-cwl-ops-surface-smoke` (**G9913–G9916**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/AI-ASSIST.md`](./AI-ASSIST.md) · [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md) · [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-12 by D6417 / G9921–G9923)
+
+**Amended 2026-07-12 (D6416 / G9917–G9920) — Admin surface closed; WISP page-hydrate grind paused.**
+
+**Status:** **G9917–G9920** closed. Users/tenants/monitoring/HSS/deploy hydrate + catalog/scrub shipped. **Paused:** further WISP empty-module hydrate — diminishing returns without non-WISP language POCs. Prior **G9900–G9916** remain closed regression. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Multi-origin / language substrates** — `hub:multi-origin-lift-close-smoke` · `hub:next-structural-shell-smoke` · `hub:vue-structural-shell-smoke` · `hub:angular-structural-shell-smoke` (expand origins that lack a WISP-scale POC)
+2. **G8550 composite** — `hub:migration-os-close-smoke`
+3. **WISP regression only** — `hub:wisp-cwl-admin-surface-smoke` · `hub:wisp-cwl-ops-surface-smoke` · `pnpm run wisp:operator-verify -- --require` (do **not** start new WISP page-hydrate gates unless explicitly requested)
+4. **Operator GPU / census** — `gpu-lab:gce` · `hub:extended-matrix-oracle-progress-smoke`
+
+**Closed program regression:** `hub:wisp-cwl-admin-surface-smoke` (**G9917–G9920**) · `hub:wisp-cwl-ops-surface-smoke` (**G9913–G9916**) · `hub:wisp-cwl-route-depth-smoke` (**G9910–G9912**) · `hub:wisp-cwl-all-shells-smoke` (**G9909**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:whole-site-cwl-close-smoke` (**G9450**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md) · [`docs/MULTI-ORIGIN-LIFT-EXPANSION.md`](./MULTI-ORIGIN-LIFT-EXPANSION.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-12 by D6416 / G9917–G9920)
+
+**Amended 2026-07-12 (D6415 / G9913–G9916) — Ops/billing showcase surface.**
+
+**Status:** **G9913–G9916** closed. Help-desk/maintain + billing hydrate; residual `svelte:*`/`\r`/mojibake scrub; live `/api/maintain` + `/api/customer-billing` contract. Prior **G9900–G9912** remain closed. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Ops surface** — `hub:wisp-cwl-ops-surface-smoke` then `pnpm run wisp:deploy:gce`
+2. **Route depth** — `hub:wisp-cwl-route-depth-smoke`
+3. **All shells** — `hub:wisp-cwl-all-shells-smoke`
+4. **Showcase depth** — `hub:wisp-cwl-showcase-depth-smoke`
+5. **Island live hydrate** — `hub:wisp-cwl-island-live-hydrate-smoke`
+6. **Operator verify** — `pnpm run wisp:operator-verify -- --require`
+7. **G8550 / regression** — `hub:migration-os-close-smoke` · `hub:wisp-cwl-visual-depth-smoke` · `hub:multi-origin-lift-close-smoke`
+
+**Closed program regression:** `hub:wisp-cwl-ops-surface-smoke` (**G9913–G9916**) · `hub:wisp-cwl-route-depth-smoke` (**G9910–G9912**) · `hub:wisp-cwl-all-shells-smoke` (**G9909**) · `hub:wisp-cwl-showcase-depth-smoke` (**G9905–G9908**) · `hub:wisp-cwl-markup-artifact-smoke` (**G9904**) · `hub:wisp-cwl-shell-island-smoke` (**G9903**) · `hub:wisp-cwl-island-live-hydrate-smoke` (**G9902**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:whole-site-cwl-close-smoke` (**G9450**)
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (superseded 2026-07-12 by D6415 / G9913–G9916)
+
+**Amended 2026-07-12 (D6414 / G9910–G9912) — Showcase route depth.**
+
+**Status:** **G9910–G9912** closed. Dashboard module cards from known CWL routes + `/api/admin`; SVG `<//modules/>` scrub; sites → `/api/network` + work-orders structural hydrate. Prior **G9900–G9909** remain closed. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **Route depth** — `hub:wisp-cwl-route-depth-smoke` then `pnpm run wisp:deploy:gce`
+2. **All shells** — `hub:wisp-cwl-all-shells-smoke`
+3. **Showcase depth** — `hub:wisp-cwl-showcase-depth-smoke`
+4. **Island live hydrate** — `hub:wisp-cwl-island-live-hydrate-smoke`
+5. **Operator verify** — `pnpm run wisp:operator-verify -- --require`
+6. **G8550 / regression** — `hub:migration-os-close-smoke` · `hub:wisp-cwl-visual-depth-smoke` · `hub:multi-origin-lift-close-smoke`
+
+**Closed program regression:** `hub:wisp-cwl-route-depth-smoke` (**G9910–G9912**) · `hub:wisp-cwl-all-shells-smoke` (**G9909**) · `hub:wisp-cwl-showcase-depth-smoke` (**G9905–G9908**) · `hub:wisp-cwl-markup-artifact-smoke` (**G9904**) · `hub:wisp-cwl-shell-island-smoke` (**G9903**) · `hub:wisp-cwl-island-live-hydrate-smoke` (**G9902**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:whole-site-cwl-close-smoke` (**G9450**)
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (maintenance, superseded 2026-07-12 by D6413 / G9909)
+
+**Amended 2026-07-12 (D6413 / G9909) — Convert all CWL shells at once.**
+
+**Status:** **G9909** closed. All six shell kinds (modal/map/chart/wizard/nav/widget) become honest island chrome in one client pass. Prior **G9900–G9908** remain closed. GenieACS OOS.
+
+When the user says "build" without specifying:
+
+1. **All shells** — `hub:wisp-cwl-all-shells-smoke` then `pnpm run wisp:deploy:gce`
+2. **Showcase depth** — `hub:wisp-cwl-showcase-depth-smoke`
+3. **Island live hydrate** — `hub:wisp-cwl-island-live-hydrate-smoke`
+4. **Operator verify** — `pnpm run wisp:operator-verify -- --require`
+5. **G8550 / regression** — `hub:migration-os-close-smoke` · `hub:wisp-cwl-visual-depth-smoke` · `hub:multi-origin-lift-close-smoke`
+
+**Closed program regression:** `hub:wisp-cwl-all-shells-smoke` (**G9909**) · `hub:wisp-cwl-showcase-depth-smoke` (**G9905–G9908**) · `hub:wisp-cwl-markup-artifact-smoke` (**G9904**) · `hub:wisp-cwl-shell-island-smoke` (**G9903**) · `hub:wisp-cwl-island-live-hydrate-smoke` (**G9902**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:whole-site-cwl-close-smoke` (**G9450**)
+
+**Index:** [`docs/PAUSED-AND-MAINTENANCE.md`](./PAUSED-AND-MAINTENANCE.md) · [`docs/MIGRATION-OS.md`](./MIGRATION-OS.md)
+
+---
+
+## 12 (archived) — Default queue (maintenance, superseded 2026-07-12 by D6405 / G9840)
 
 **Post D6401 close (2026-07-11) — WISP fill-all holes shipped.**
 

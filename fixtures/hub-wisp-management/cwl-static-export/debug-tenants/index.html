@@ -1,36 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>debug-tenants</title>
-<link rel="stylesheet" href="/assets/original-css/debug-tenants.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="debug-container">
-  <h1>Tenant Debug Information</h1>
-  
-  <div class="debug-section">
-    <h2>Authentication Status</h2>
-    <p><strong>Is Authenticated:</strong> true</p>
-    <p><strong>User Email:</strong> demo@wisptools.io</p>
-    <p><strong>User UID:</strong> u1</p>
-  </div>
-
-  <div class="debug-section">
-    <h2>Tenant Store State</h2>
-    <pre>{"id":"t1"}</pre>
-  </div>
-
-  <div class="debug-section">
-    <h2>User Tenants (Direct API Call)</h2>
-    <p><strong>Count:</strong> 1</p>
-    <pre>[{"id":"t1"}]</pre>
-  </div>
-
-  
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="debug_tenants" data-wisp-path="/debug-tenants" data-cwl-island="client" data-wisp-layout="list">
+  <header class="wisp-demo-header">
+    <h1>Debug Tenants</h1>
+    <p class="wisp-demo-desc">Operational workspace for Debug Tenants — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/debug-tenants/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>10</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>16</strong><span>Pending tasks</span></article>
+</div>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Debug Tenants data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
 </div>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/debug-tenants"}</script>
-
-</body>
-</html>

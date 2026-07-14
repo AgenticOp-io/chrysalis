@@ -23,10 +23,18 @@ describe("descopeVueSelector", () => {
     expect(descopeVueSelector(":slotted(.slot-item[data-v-x])")).toBe(".slot-item");
   });
 
+  test("unwraps :global, ::v-deep, and /deep/ (G9929)", () => {
+    expect(descopeVueSelector(":global(.toast)")).toBe(".toast");
+    expect(descopeVueSelector("::v-deep(.child)")).toBe(".child");
+    expect(descopeVueSelector("/deep/ .child")).toBe(".child");
+    expect(descopeVueSelector(">>> .child")).toBe(".child");
+  });
+
   test("drops over-broad selectors", () => {
     expect(descopeVueSelector("[data-v-x]:hover")).toBeNull();
   });
 });
+
 
 describe("viteVueManifestKeyToRouteId", () => {
   test("maps view file paths to route ids", () => {

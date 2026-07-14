@@ -33,6 +33,12 @@ export function evaluateDemoProbe(expect, res, text, proxyHeader) {
         (res.headers.get("content-type") ?? "").includes("text/html") &&
         text.length > 20
       );
+    case "200-html-any":
+      return (
+        res.status === 200 &&
+        (res.headers.get("content-type") ?? "").includes("text/html") &&
+        text.length > 40
+      );
     case "svelte-fallback":
       return (
         res.status === 200 &&
@@ -46,6 +52,66 @@ export function evaluateDemoProbe(expect, res, text, proxyHeader) {
         (res.headers.get("content-type") ?? "").includes("text/html") &&
         text.includes("login-page") &&
         text.includes("wisptools-logo.svg")
+      );
+    case "cwl-login-post": {
+      if (res.status < 200 || res.status >= 300) return false;
+      if (!(res.headers.get("content-type") ?? "").includes("application/json")) return false;
+      try {
+        const j = JSON.parse(text);
+        return j.ok === true && (j.surface === "wisp-auth-native" || typeof j.email === "string");
+      } catch {
+        return false;
+      }
+    }
+    case "cwl-auth-me": {
+      if (res.status !== 200) return false;
+      if (proxyHeader !== "cwl-native-api" && proxyHeader !== "") return false;
+      try {
+        const j = JSON.parse(text);
+        return j.ok === true && j.authenticated === true && typeof j.email === "string";
+      } catch {
+        return false;
+      }
+    }
+    case "json-has-items": {
+      if (res.status !== 200) return false;
+      if (proxyHeader !== "cwl-native-api" && proxyHeader !== "") return false;
+      try {
+        const j = JSON.parse(text);
+        if (j.ok !== true) return false;
+        // Reject stub-only surface envelopes.
+        if (
+          j.surface === "wisp-api-native" &&
+          j.resource &&
+          j.op &&
+          Object.keys(j).length <= 4 &&
+          !j.items &&
+          !j.customers &&
+          !j.tenants &&
+          !j.stats
+        ) {
+          return false;
+        }
+        const arrays = ["items", "customers", "tenants", "devices", "records", "graphs"];
+        if (arrays.some((k) => Array.isArray(j[k]) && j[k].length > 0)) return true;
+        if (j.stats && typeof j.stats === "object") return true;
+        return false;
+      } catch {
+        return false;
+      }
+    }
+    case "html-dashboard":
+      return (
+        res.status === 200 &&
+        (res.headers.get("content-type") ?? "").includes("text/html") &&
+        text.includes("dashboard-container")
+      );
+    case "html-has":
+      // Marker supplied via probe.htmlIncludes (checked in runner).
+      return (
+        res.status === 200 &&
+        (res.headers.get("content-type") ?? "").includes("text/html") &&
+        text.length > 40
       );
     case "api-proxy":
       return isWispApiProxyHeaderOk(proxyHeader, isWispNativeCutoverMode());
@@ -81,16 +147,42 @@ export async function runWispDemoManifestVerify(opts) {
     return { ...base, skip: "invalid-demo-manifest-kind" };
   }
 
+  /** @type {string | null} */
+  let cookieJar = null;
   const probes = [];
   for (const spec of manifest.healthProbes ?? []) {
     const url = `${baseUrl}${spec.path}`;
+    const method = (spec.method ?? "GET").toUpperCase();
     try {
-      const res = await fetch(url, { redirect: "manual" });
+      /** @type {Record<string, string>} */
+      const headers = {};
+      if (cookieJar) headers.cookie = cookieJar;
+      if (method !== "GET" && method !== "HEAD") {
+        headers["content-type"] = "application/json";
+      }
+      const res = await fetch(url, {
+        method,
+        redirect: "manual",
+        headers,
+        body:
+          method === "GET" || method === "HEAD"
+            ? undefined
+            : JSON.stringify(spec.body ?? { email: "demo@wisptools.io", password: "WisptoolsDemo2026!" }),
+      });
       const text = await res.text();
       const proxyHeader = res.headers.get("x-chrysalis-wisp-proxy") ?? "";
-      const ok = evaluateDemoProbe(spec.expect, res, text, proxyHeader);
+      const setCookie = res.headers.get("set-cookie");
+      if (setCookie) {
+        const first = setCookie.split(";")[0];
+        cookieJar = cookieJar ? `${cookieJar}; ${first}` : first;
+      }
+      let ok = evaluateDemoProbe(spec.expect, res, text, proxyHeader);
+      if (ok && spec.expect === "html-has" && typeof spec.htmlIncludes === "string") {
+        ok = text.includes(spec.htmlIncludes);
+      }
       probes.push({
         path: spec.path,
+        method,
         expect: spec.expect,
         chimera: spec.chimera,
         status: res.status,
@@ -100,6 +192,7 @@ export async function runWispDemoManifestVerify(opts) {
     } catch (e) {
       probes.push({
         path: spec.path,
+        method,
         expect: spec.expect,
         ok: false,
         error: String(e),

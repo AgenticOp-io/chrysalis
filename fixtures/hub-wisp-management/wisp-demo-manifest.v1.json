@@ -35,8 +35,38 @@
       "chimera": "cwl"
     },
     {
+      "path": "/login",
+      "method": "POST",
+      "expect": "cwl-login-post",
+      "chimera": "cwl",
+      "body": {
+        "email": "demo@wisptools.io",
+        "password": "WisptoolsDemo2026!"
+      }
+    },
+    {
+      "path": "/api/me",
+      "expect": "cwl-auth-me",
+      "chimera": "cwl-native-api"
+    },
+    {
       "path": "/api/tenants",
-      "expect": "cwl-native-api",
+      "expect": "json-has-items",
+      "chimera": "cwl-native-api"
+    },
+    {
+      "path": "/api/customers",
+      "expect": "json-has-items",
+      "chimera": "cwl-native-api"
+    },
+    {
+      "path": "/api/inventory",
+      "expect": "json-has-items",
+      "chimera": "cwl-native-api"
+    },
+    {
+      "path": "/api/hardware",
+      "expect": "json-has-items",
       "chimera": "cwl-native-api"
     },
     {
@@ -46,16 +76,32 @@
     },
     {
       "path": "/api/monitoring",
-      "expect": "cwl-native-api",
+      "expect": "json-has-items",
       "chimera": "cwl-native-api"
+    },
+    {
+      "path": "/dashboard",
+      "expect": "html-dashboard",
+      "chimera": "cwl"
+    },
+    {
+      "path": "/modules/hardware",
+      "expect": "html-has",
+      "htmlIncludes": "hardware",
+      "chimera": "cwl"
+    },
+    {
+      "path": "/modules/customers",
+      "expect": "html-has",
+      "htmlIncludes": "customer",
+      "chimera": "cwl"
     }
   ],
   "clientRedirectPaths": [
     "/",
-    "/modules",
     "/modules/customers/portal",
     "/modules/monitor",
     "/portal/:tenantId"
   ],
-  "generatedAt": "2026-07-11T21:47:00.783Z"
+  "generatedAt": "2026-07-14T04:24:05.259Z"
 }

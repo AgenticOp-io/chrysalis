@@ -1,0 +1,5 @@
+{
+  "ok": true,
+  "op": "transfer",
+  "item": { "id": "inv-1", "name": "CPE-AX100", "status": "in-transit" }
+}

@@ -1,0 +1,73 @@
+{
+  "ok": true,
+  "sites": [
+    {
+      "id": "s1",
+      "_id": "s1",
+      "name": "North Tower",
+      "status": "active",
+      "type": [
+        "tower"
+      ],
+      "lat": 39.85,
+      "lng": -98.58,
+      "location": {
+        "latitude": 39.85,
+        "longitude": -98.58
+      }
+    },
+    {
+      "id": "s2",
+      "_id": "s2",
+      "name": "Beta Rooftop",
+      "status": "active",
+      "type": [
+        "rooftop"
+      ],
+      "lat": 39.91,
+      "lng": -98.65,
+      "location": {
+        "latitude": 39.91,
+        "longitude": -98.65
+      }
+    },
+    {
+      "id": "s3",
+      "_id": "s3",
+      "name": "Core Monopole",
+      "status": "online",
+      "type": [
+        "monopole"
+      ],
+      "lat": 39.78,
+      "lng": -98.52,
+      "location": {
+        "latitude": 39.78,
+        "longitude": -98.52
+      }
+    }
+  ],
+  "items": [
+    {
+      "id": "s1",
+      "name": "North Tower",
+      "status": "active",
+      "lat": 39.85,
+      "lng": -98.58
+    },
+    {
+      "id": "s2",
+      "name": "Beta Rooftop",
+      "status": "active",
+      "lat": 39.91,
+      "lng": -98.65
+    },
+    {
+      "id": "s3",
+      "name": "Core Monopole",
+      "status": "online",
+      "lat": 39.78,
+      "lng": -98.52
+    }
+  ]
+}

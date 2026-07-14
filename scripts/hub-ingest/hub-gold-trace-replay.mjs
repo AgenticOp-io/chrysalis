@@ -23,6 +23,11 @@ const emitScript = join(scriptRoot, "scripts/hub-ingest/emit-from-hub.mjs");
 const emitNextjsScript = join(scriptRoot, "scripts/hub-ingest/emit-nextjs-from-hub.mjs");
 const workerScript = join(scriptRoot, "scripts/hub-ingest/hub-gold-replay-worker.mjs");
 
+function wptpEmitNextjsAvailable() {
+  const root = resolve(process.env.WPTP_EMIT_NEXTJS_ROOT ?? join(scriptRoot, "..", "wptp-emit-nextjs"));
+  return existsSync(join(root, "package.json"));
+}
+
 function parseArgs(argv) {
   let suiteId = null;
   for (let i = 2; i < argv.length; i++) {
@@ -133,6 +138,20 @@ export async function runTraceReplaySuite(suite) {
       ? [emitNextjsScript, [fixture, "--origin", origin]]
       : [emitScript, [fixture, "--origin", origin, "--target", target]];
   await ensureHubWebirForTraceReplay(fixture, origin);
+
+  // Next.js emit is WPTP-silver sibling (`wptp-emit-nextjs`). Absent sibling ⇒ honest skip
+  // (same contract as hub-php-nextjs-verify / hub-wptp-strict-batch), not a red fail.
+  if (target === "nextjs" && !wptpEmitNextjsAvailable()) {
+    return {
+      kind: "chrysalis.hub.trace-replay",
+      schemaVersion: 1,
+      ok: true,
+      skip: "no-wptp-emit-nextjs",
+      suiteId: suite.id,
+      correctness: null,
+    };
+  }
+
   const emitOnly = emitArgs;
   const r = spawnSync(process.execPath, [emitOnly[0], ...emitOnly[1]], { cwd: scriptRoot, encoding: "utf8" });
   if (r.status !== 0) {

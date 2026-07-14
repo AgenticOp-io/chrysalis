@@ -5,6 +5,10 @@
  * primary showcase corpus.
  */
 const PREFIX_API_MAP: ReadonlyArray<readonly [string, string]> = [
+  // Longer / more-specific prefixes first (bundles ≠ inventory; permissions ≠ users).
+  ["/modules/inventory/bundles", "/api/bundles"],
+  ["/modules/user-management/permissions", "/api/permissions"],
+  ["/modules/user-management/roles", "/api/permissions"],
   ["/modules/inventory", "/api/inventory"],
   ["/modules/customers", "/api/customers"],
   ["/modules/monitor", "/api/monitoring"],
@@ -13,13 +17,14 @@ const PREFIX_API_MAP: ReadonlyArray<readonly [string, string]> = [
   ["/modules/work-orders", "/api/work-orders"],
   ["/modules/deploy", "/api/deploy"],
   ["/modules/plan", "/api/plans"],
-  ["/modules/coverage-map", "/api/network"],
+  ["/modules/coverage-map", "/api/coverage"],
   ["/modules/billing", "/api/customer-billing"],
   ["/modules/maintain", "/api/maintain"],
   ["/modules/voice-telephony", "/api/voice"],
   ["/modules/hardware", "/api/inventory"],
   ["/modules/sites", "/api/network"],
   ["/modules/pci-resolution", "/api/network"],
+  ["/settings/module-access", "/api/module-access"],
   ["/modules/help-desk", "/api/maintain"],
   ["/modules/tenant-management", "/api/tenants"],
   ["/modules/user-management", "/api/users"],
@@ -27,6 +32,7 @@ const PREFIX_API_MAP: ReadonlyArray<readonly [string, string]> = [
   ["/modules/backend-management", "/api/admin"],
   ["/modules/cbrs-management", "/api/network"],
   ["/modules/customers/portal", "/api/customers"],
+  ["/support-dashboard", "/api/maintain"],
   ["/dashboard", "/api/admin"],
   ["/login", "/api/admin"],
 ];

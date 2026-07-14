@@ -5,5 +5,11 @@
       "args": ["scripts/web-llm-mcp-server.mjs"],
       "cwd": "REPLACE_WITH_CHRYSALIS_REPO_ROOT"
     }
+  },
+  "_chrysalis": {
+    "aiAssistRecommended": true,
+    "liteRtSupported": false,
+    "docs": "docs/AI-ASSIST.md",
+    "chat": "pnpm run chrysalis:chat"
   }
 }

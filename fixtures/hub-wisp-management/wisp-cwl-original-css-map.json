@@ -94,61 +94,6 @@
       "href": "/assets/original-css/modules.css"
     },
     {
-      "routeId": "/modules/acs-cpe-management",
-      "pattern": "^/modules/acs-cpe-management/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/alerts",
-      "pattern": "^/modules/acs-cpe-management/alerts/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_alerts.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/devices",
-      "pattern": "^/modules/acs-cpe-management/devices/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_devices.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/faults",
-      "pattern": "^/modules/acs-cpe-management/faults/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_faults.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/files",
-      "pattern": "^/modules/acs-cpe-management/files/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_files.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/firmware",
-      "pattern": "^/modules/acs-cpe-management/firmware/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_firmware.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/graphs",
-      "pattern": "^/modules/acs-cpe-management/graphs/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_graphs.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/monitoring",
-      "pattern": "^/modules/acs-cpe-management/monitoring/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_monitoring.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/presets",
-      "pattern": "^/modules/acs-cpe-management/presets/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_presets.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/settings",
-      "pattern": "^/modules/acs-cpe-management/settings/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_settings.css"
-    },
-    {
-      "routeId": "/modules/acs-cpe-management/tasks",
-      "pattern": "^/modules/acs-cpe-management/tasks/?$",
-      "href": "/assets/original-css/modules_acs-cpe-management_tasks.css"
-    },
-    {
       "routeId": "/modules/backend-management",
       "pattern": "^/modules/backend-management/?$",
       "href": "/assets/original-css/modules_backend-management.css"

@@ -10,8 +10,10 @@ import {
   WISP_UI_PARITY_KIND,
   buildWispLoginParityHtml,
   buildWispDashboardParityHtml,
+  buildWispModulesIndexHtml,
   buildWispLoginPageBlock,
   buildWispDashboardPageBlock,
+  buildWispModulesPageBlock,
 } from "./wisp-cwl-ui-parity-lib.mjs";
 
 export const WISP_PHASE30_UI_PARITY_KIND = WISP_UI_PARITY_KIND;
@@ -46,6 +48,14 @@ export function applyWispPhase30UiParity(opts = {}) {
     return { kind: WISP_PHASE30_UI_PARITY_KIND, schemaVersion: 1, ok: false, skip: dashApplied.skip };
   }
   text = dashApplied.text;
+
+  const modulesApplied = replaceRouteHandlerBlock(
+    text,
+    [`@page GET "/modules"`, `@route GET "/modules"`],
+    buildWispModulesPageBlock(buildWispModulesIndexHtml()),
+  );
+  if (modulesApplied.ok) text = modulesApplied.text;
+
   writeFileSync(path, text, "utf8");
 
   const preview = reconcilePreviewFromRoutesCwl();
@@ -55,14 +65,20 @@ export function applyWispPhase30UiParity(opts = {}) {
     routesText.includes("login-page") &&
     routesText.includes("wisptools-logo.svg") &&
     routesText.includes("demo@wisptools.io");
-  const dashboardOk = routesText.includes("dashboard-container") && routesText.includes("modules-grid");
+  const dashboardOk =
+    routesText.includes("dashboard-container") &&
+    routesText.includes("modules-grid") &&
+    routesText.includes("coverage-map");
+  const modulesOk =
+    routesText.includes("wisp-modules-index") || routesText.includes('data-wisp-page=\\"modules\\"');
 
   return {
     kind: WISP_PHASE30_UI_PARITY_KIND,
     schemaVersion: 1,
-    ok: loginOk && dashboardOk,
+    ok: loginOk && dashboardOk && modulesOk,
     loginOk,
     dashboardOk,
+    modulesOk,
     preview,
     holeManifest,
     generatedAt: new Date().toISOString(),

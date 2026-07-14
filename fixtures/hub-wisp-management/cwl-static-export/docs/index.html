@@ -1,48 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>docs</title>
-<link rel="stylesheet" href="/assets/original-css/docs.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<svelte:head>
-  <title>Documentation – WISP Management</title>
-</svelte:head>
-
-<h1>WISP Management Documentation</h1>
-<p class="lead">Documentation is integrated into the app. Use the sidebar or the links below.</p>
-
-<section class="doc-section">
-  <h2>Quick links</h2>
-  <ul>
-    <li><a href="/help">Getting Started</a> – New users and administrators.</li>
-    <li><a href="/help">Using WISP Management</a> – For end users: dashboard, wizards, help.</li>
-    <li><a href="/help">Project Status & Next Steps</a> – Current status and what to work on next.</li>
-    <li><a href="/help">Help by topic</a> – Module-specific help (Inventory, ACS, Deploy, Plan, etc.).</li>
-    <li><a href="/wizards">Wizards</a> – Guided flows (sites, subscribers, customers, RMA, plans, groups, troubleshooting).</li>
-  </ul>
-</section>
-
-<section class="doc-section">
-  <h2>What is WISP Management?</h2>
-  <p>WISP Management is the main app on wisptools.io for LTE WISP operations:</p>
-  <ul>
-    <li><strong>Multi-tenant</strong> – Manage multiple organizations</li>
-    <li><strong>HSS</strong> – Home Subscriber Server for Open5GS</li>
-    <li><strong>Device management</strong> – TR-069/CWMP via GenieACS</li>
-    <li><strong>Network planning</strong> – Coverage mapping, PCI resolution</li>
-    <li><strong>Monitoring</strong> – SNMP and performance graphs</li>
-    <li><strong>CBRS/SAS</strong> – Spectrum Access System integration</li>
-  </ul>
-</section>
-
-<section class="doc-section">
-  <h2>In-app help</h2>
-  <p>Each module (Inventory, Deploy, ACS CPE, HSS, Plan, Coverage Map, CBRS, PCI Resolution, Monitoring) has a <strong>Help</strong> button that opens module-specific documentation. The <a href="/help">Help by topic</a> page lists all topics in one place. For reference and project status, use the sidebar or <a href="/docs/reference/project-status">Project Status &amp; Next Steps</a>.</p>
-</section>
+<div class="wisp-docs-shell wisp-demo-content" data-wisp-page="docs" data-wisp-path="/docs" data-cwl-island="client" data-wisp-layout="docs">
+  <header class="wisp-docs-topbar">
+    <nav class="wisp-docs-crumb" aria-label="Documentation">
+      <a href="/dashboard">Dashboard</a>
+      <span aria-hidden="true">/</span>
+      <a href="/help">Help</a>
+      <span aria-hidden="true">/</span>
+      <span>Docs</span>
+    </nav>
+  </header>
+  <main class="wisp-docs-main">
+    <div class="wisp-docs-body">
+  <section class="wisp-docs-hero">
+    <p class="wisp-docs-eyebrow">Documentation</p>
+    <h2>Operator documentation</h2>
+    <p class="wisp-docs-lead">Migration OS, CLI, Translation Hub, governance, and WISP showcase programs.</p>
+    <p class="wisp-docs-inline-links"><a href="/help">Help home</a> · <a href="/dashboard">Dashboard</a></p>
+  </section>
+  <section class="wisp-docs-section">
+    <h3 class="wisp-docs-section-title">Topics on this demo</h3>
+    <div class="wisp-docs-quick-grid">
+  <a class="wisp-docs-quick-card" href="/docs/getting-started">
+    <span class="wisp-docs-quick-label">Getting started</span>
+    <span class="wisp-docs-quick-desc">Install Chrysalis and run your first verify loop</span>
+  </a>
+  <a class="wisp-docs-quick-card" href="/docs/deployment">
+    <span class="wisp-docs-quick-label">Deployment</span>
+    <span class="wisp-docs-quick-desc">GCE hub deploy, WISP chimera, operator refresh</span>
+  </a>
+  <a class="wisp-docs-quick-card" href="/docs/reference/project-status">
+    <span class="wisp-docs-quick-label">Project status</span>
+    <span class="wisp-docs-quick-desc">Maintenance queue and honest product gaps</span>
+  </a>
+  <a class="wisp-docs-quick-card" href="https://hub.agenticop.io/#/guide?doc=migration-os" target="_blank" rel="noopener">
+    <span class="wisp-docs-quick-label">Migration OS</span>
+    <span class="wisp-docs-quick-desc">Primary operator entry on the Translation Hub</span>
+  </a>
+</div>
+  </section>
+  <section class="wisp-docs-section">
+    <h3 class="wisp-docs-section-title">Full library</h3>
+    <div class="wisp-docs-library">
+<div class="wisp-docs-library-head">
+<p class="wisp-docs-library-lead">Browse on this page or open the full reader on the Translation Hub.</p>
+<a class="wisp-docs-hub-cta" href="https://hub.agenticop.io/#/guide" target="_blank" rel="noopener">Open full library in Translation Hub</a>
+</div>
+<details class="wisp-docs-category" open>
+<summary><span>Migration OS</span><span class="wisp-docs-count">15</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=migration-os" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Migration OS</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=site-to-cwl-llm" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Site → CWL → LLM</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=site-port-federation" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Verified Migration Federation</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=migration-evidence" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Migration Evidence POC</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=intelligence-shorthand" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Intelligence Shorthand</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=intelligence-shorthand-protocol" target="_blank" rel="noopener"><span class="wisp-docs-card-title">IS runtime protocol</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=open-web-llm" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Open web-LLM program</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=open-web-llm-poc" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Web-LLM agent POC</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=llm-assisted-convert" target="_blank" rel="noopener"><span class="wisp-docs-card-title">LLM-assisted convert</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=llm-convert-full" target="_blank" rel="noopener"><span class="wisp-docs-card-title">LLM convert full program</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=full-matrix-oracle" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Full matrix oracle</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=web-llm-training" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Web-LLM training recipe</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=web-verify-benchmark" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Web Verify Benchmark (WVB)</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=cwl" target="_blank" rel="noopener"><span class="wisp-docs-card-title">CWL overview</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=cwl-rfc" target="_blank" rel="noopener"><span class="wisp-docs-card-title">CWL RFC index</span><span class="wisp-docs-card-meta">Migration OS</span></a>
+</div></details>
+<details class="wisp-docs-category" open>
+<summary><span>Hub</span><span class="wisp-docs-count">3</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=hub-install" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Demo install &amp; walkthrough</span><span class="wisp-docs-card-meta">Hub</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=hub-connectivity" target="_blank" rel="noopener"><span class="wisp-docs-card-title">SSH &amp; connectivity</span><span class="wisp-docs-card-meta">Hub</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=hub-server-install" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Hub server install</span><span class="wisp-docs-card-meta">Hub</span></a>
+</div></details>
+<details class="wisp-docs-category" open>
+<summary><span>Engine &amp; CLI</span><span class="wisp-docs-count">11</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=whitepaper" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Whitepaper</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=use-cases" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Use cases</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=installation" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Installation</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=user-guide" target="_blank" rel="noopener"><span class="wisp-docs-card-title">User guide (CLI)</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=how-to" target="_blank" rel="noopener"><span class="wisp-docs-card-title">How-to cookbook</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=operations" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Operations</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=deployment" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Deployment</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=administration" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Administration</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=gce-local-verify" target="_blank" rel="noopener"><span class="wisp-docs-card-title">GCE test runner</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=gce-gpu-lab" target="_blank" rel="noopener"><span class="wisp-docs-card-title">GCE GPU lab</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=windows-compat" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Windows vs Linux</span><span class="wisp-docs-card-meta">Engine &amp; CLI</span></a>
+</div></details>
+<details class="wisp-docs-category" open>
+<summary><span>Governance</span><span class="wisp-docs-count">3</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=strategic-plan" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Strategic plan (locked)</span><span class="wisp-docs-card-meta">Governance</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=paused-and-maintenance" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Paused &amp; maintenance index</span><span class="wisp-docs-card-meta">Governance</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=roadmap" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Roadmap (active)</span><span class="wisp-docs-card-meta">Governance</span></a>
+</div></details>
+<details class="wisp-docs-category" open>
+<summary><span>WISP showcase</span><span class="wisp-docs-count">3</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=wisp-cwl-fullstack" target="_blank" rel="noopener"><span class="wisp-docs-card-title">WISP CWL fullstack program</span><span class="wisp-docs-card-meta">WISP showcase</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=wisp-cwl-ui-parity" target="_blank" rel="noopener"><span class="wisp-docs-card-title">WISP CWL UI parity</span><span class="wisp-docs-card-meta">WISP showcase</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=wisp-production" target="_blank" rel="noopener"><span class="wisp-docs-card-title">WISP production completion</span><span class="wisp-docs-card-meta">WISP showcase</span></a>
+</div></details>
+<details class="wisp-docs-category" open>
+<summary><span>Hub &amp; commercial</span><span class="wisp-docs-count">4</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=commercial" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Commercial offering</span><span class="wisp-docs-card-meta">Hub &amp; commercial</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=agenticop" target="_blank" rel="noopener"><span class="wisp-docs-card-title">AgenticOp practice</span><span class="wisp-docs-card-meta">Hub &amp; commercial</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=github-project" target="_blank" rel="noopener"><span class="wisp-docs-card-title">GitHub Project</span><span class="wisp-docs-card-meta">Hub &amp; commercial</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=multi-repo-workspace" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Multi-repo workspace</span><span class="wisp-docs-card-meta">Hub &amp; commercial</span></a>
+</div></details>
+<details class="wisp-docs-category" open>
+<summary><span>Architecture</span><span class="wisp-docs-count">4</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=design" target="_blank" rel="noopener"><span class="wisp-docs-card-title">DESIGN.md</span><span class="wisp-docs-card-meta">Architecture</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=agents" target="_blank" rel="noopener"><span class="wisp-docs-card-title">AGENTS.md</span><span class="wisp-docs-card-meta">Architecture</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=roadmap-archive" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Roadmap archive</span><span class="wisp-docs-card-meta">Architecture</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=docs-index" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Documentation index</span><span class="wisp-docs-card-meta">Architecture</span></a>
+</div></details>
+<details class="wisp-docs-category" open>
+<summary><span>Archive</span><span class="wisp-docs-count">4</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=archive-index" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Archive index</span><span class="wisp-docs-card-meta">Archive</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=strategic-plan-shipped-log" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Strategic plan ship log</span><span class="wisp-docs-card-meta">Archive</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=cwl-fullstack-build-log" target="_blank" rel="noopener"><span class="wisp-docs-card-title">CWL full-stack build log</span><span class="wisp-docs-card-meta">Archive</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=master-program" target="_blank" rel="noopener"><span class="wisp-docs-card-title">WPTP master program</span><span class="wisp-docs-card-meta">Archive</span></a>
+</div></details>
+<details class="wisp-docs-category" open>
+<summary><span>Community</span><span class="wisp-docs-count">3</span></summary>
+<div class="wisp-docs-grid">
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=code-of-conduct" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Code of conduct</span><span class="wisp-docs-card-meta">Community</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=contributing" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Contributing</span><span class="wisp-docs-card-meta">Community</span></a>
+<a class="wisp-docs-card" href="https://hub.agenticop.io/#/guide?doc=security" target="_blank" rel="noopener"><span class="wisp-docs-card-title">Security</span><span class="wisp-docs-card-meta">Community</span></a>
+</div></details>
+</div>
+  </section>
+</div>
+  </main>
+</div>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/docs"}</script>
-
-</body>
-</html>

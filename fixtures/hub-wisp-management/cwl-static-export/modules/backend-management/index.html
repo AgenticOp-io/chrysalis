@@ -1,24 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>backend-management</title>
-<link rel="stylesheet" href="/assets/original-css/modules_backend-management.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<svelte:head>
-  <title>Backend Management - Platform Admin</title>
-</svelte:head>
-
-
-  <div class="access-denied">
-    <div class="denied-icon">🔒</div>
-    <h2>Access Denied</h2>
-    <p>This module is restricted to platform administrators only.</p>
-    <a href="/dashboard" class="btn-primary">← Back to Dashboard</a>
-  </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/backend-management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_backend_management" data-wisp-path="/modules/backend-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/admin">
+  <header class="wisp-demo-header">
+    <h1>Backend Management</h1>
+    <p class="wisp-demo-desc">Operational workspace for Backend Management — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/backend-management/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>12</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>2</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>3</strong><span>Pending tasks</span></article>
+</div>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Backend Management data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>t1</td><td>Acme Org</td><td>active</td><td></td></tr><tr><td>t2</td><td>Beta Org</td><td>trial</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/backend-management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>

@@ -1,3 +1,4 @@
 {
-  "apiKey": "AIzaSyAVBmH_eC98f6GCIpHZJ8B_y40TuoIjXOg"
+  "apiKey": "",
+  "note": "Optional Esri API key for topo-vector. Empty uses OpenStreetMapLayer basemap. Do not commit Google Maps keys."
 }

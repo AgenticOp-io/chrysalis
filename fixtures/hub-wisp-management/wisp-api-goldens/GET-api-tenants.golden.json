@@ -1,6 +1,27 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "tenants",
-  "op": "list"
+  "tenants": [
+    {
+      "id": "t1",
+      "name": "Acme Org",
+      "status": "active"
+    },
+    {
+      "id": "t2",
+      "name": "Beta Org",
+      "status": "trial"
+    }
+  ],
+  "items": [
+    {
+      "id": "t1",
+      "name": "Acme Org",
+      "status": "active"
+    },
+    {
+      "id": "t2",
+      "name": "Beta Org",
+      "status": "trial"
+    }
+  ]
 }

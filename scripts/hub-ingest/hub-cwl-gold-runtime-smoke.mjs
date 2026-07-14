@@ -27,8 +27,10 @@ export async function loadCwlProjection(cwlPath) {
  * @param {string[]} suiteIds
  */
 export function runGoldTraceReplay(suiteIds) {
-  /** @type {Record<string, boolean>} */
+  /** @type {Record<string, boolean | string>} */
   const traceReplay = {};
+  /** @type {Record<string, string | undefined>} */
+  const traceSkip = {};
   let traceOk = true;
   for (const suite of suiteIds) {
     const r = spawnSync(process.execPath, ["--import", "tsx", traceReplayScript, "--suite", suite], {
@@ -37,10 +39,29 @@ export function runGoldTraceReplay(suiteIds) {
       maxBuffer: 20 * 1024 * 1024,
       timeout: process.env.CHRYSALIS_GCE_ALL_TESTS === "1" ? 600_000 : undefined,
     });
+    let skipped = false;
+    if (r.status === 0) {
+      try {
+        const text = (r.stdout ?? "").trim();
+        const start = text.indexOf("{");
+        const end = text.lastIndexOf("}");
+        if (start >= 0 && end > start) {
+          const j = JSON.parse(text.slice(start, end + 1));
+          const first = Array.isArray(j.results) ? j.results[0] : j;
+          if (first?.skip === "no-wptp-emit-nextjs") {
+            skipped = true;
+            traceSkip[suite] = "no-wptp-emit-nextjs";
+          }
+        }
+      } catch {
+        /* ignore parse — status 0 is enough */
+      }
+    }
     traceReplay[suite] = r.status === 0;
     if (r.status !== 0) traceOk = false;
+    if (skipped) traceReplay[suite] = "skipped-no-wptp-emit-nextjs";
   }
-  return { traceReplay, traceOk };
+  return { traceReplay, traceSkip, traceOk };
 }
 
 /**
@@ -75,7 +96,7 @@ export async function runCwlGoldRuntimeSmoke(opts) {
     return { ...base, skip: "cwl-ingest-failed", detail: String(e).slice(0, 200) };
   }
 
-  const { traceReplay, traceOk } = runGoldTraceReplay(opts.suiteIds);
+  const { traceReplay, traceSkip, traceOk } = runGoldTraceReplay(opts.suiteIds);
   const projectionOk = opts.projectionOk(cwlProjection);
   const ok = projectionOk && traceOk && (cwlProjection.total ?? 0) >= 1;
 
@@ -84,6 +105,7 @@ export async function runCwlGoldRuntimeSmoke(opts) {
     ok,
     cwlProjection,
     traceReplay,
+    traceSkip: Object.keys(traceSkip).length ? traceSkip : undefined,
     projectionOk,
     generatedAt: new Date().toISOString(),
   };

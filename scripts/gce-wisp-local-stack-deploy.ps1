@@ -17,7 +17,7 @@ param(
   [string] $Project,
   [string] $Zone = "us-central1-a",
   [string] $Name = "chrysalis-test-vm",
-  [string] $WispModuleDir = "C:\Users\david\Downloads\WISPTools\Module_Manager",
+  [string] $WispModuleDir = "C:\Users\david\AgenticOps\products\wisptools\Module_Manager",
   [string] $BackendUrl = "https://hss.wisptools.io",
   [string] $SvelteFallback = "http://127.0.0.1:3000",
   [int] $Port = 19100,
@@ -66,7 +66,8 @@ try {
     "wisp-cwl-post-g7790.mjs", "wisp-pipeline.config.json", "favicon.svg",
     "wisp-cwl-login.css", "wisp-cwl-app.css", "wisp-cwl-client.js", "wisp-firebase-config.json",
     "wisp-cwl-modules.css", "wisp-cwl-modules.js", "wisp-cwl-map.js", "wisp-arcgis-config.json",
-    "wisptools-logo.svg", "routes.webir.json", "api-proxy.webir.json"
+    "wisptools-logo.svg", "routes.webir.json", "api-proxy.webir.json",
+    "wisp-cwl-original-css-map.json", "original-css"
   )
   $present = $tarFiles | Where-Object { Test-Path $_ }
   tar -czf $tarball @present
@@ -98,7 +99,7 @@ try {
     "export WISP_CWL_NATIVE_PREFIXES='*';"
   }
   $sidecarSetup = if (-not $SkipSvelteSidecar) {
-    "mkdir -p ~/wisp-svelte-sidecar; tar -xzf ~/wisp-svelte-sidecar.tgz -C ~/wisp-svelte-sidecar; chmod +x ~/gce-wisp-svelte-sidecar-bootstrap.sh;"
+    "mkdir -p ~/wisp-svelte-sidecar; tar -xzf ~/wisp-svelte-sidecar.tgz -C ~/wisp-svelte-sidecar; chmod +x ~/gce-wisp-svelte-sidecar-bootstrap.sh; ~/gce-wisp-svelte-sidecar-bootstrap.sh;"
   } else { "" }
   $remoteCmd = "set -e; ${sidecarSetup} mkdir -p ~/wisp-cwl-poc; tar -xzf ~/wisp-cwl-poc.tgz -C ~/wisp-cwl-poc; chmod +x ~/gce-wisp-chimera-bootstrap.sh; export WISP_BACKEND_URL='$BackendUrl'; export WISP_CWL_POC_PORT=$Port; $svelteEnv ~/gce-wisp-chimera-bootstrap.sh"
   Write-Host "Starting chimera gateway on ${Name}..."

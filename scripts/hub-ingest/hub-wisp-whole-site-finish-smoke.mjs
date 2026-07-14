@@ -93,12 +93,21 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
   mkdirSync(dirname(genCwl), { recursive: true });
   cpSync(fixtureCwl, genCwl);
 
+  const { wispPackageUiLiftSkipPaths } = await import(
+    pathToFileURL(join(root, "scripts/wisp-cwl-package-ui-lift.mjs")).href
+  );
+  const { applyWispClientRedirects } = await import(
+    pathToFileURL(join(root, "scripts/wisp-cwl-apply-client-redirects.mjs")).href
+  );
+  const skipHttpPaths = [...wispPackageUiLiftSkipPaths()];
+
   const convert = ingest.convertSiteProjectUi({
     projectDir: wisp,
     cwlPaths: [genCwl, fixtureCwl],
     markupMode: "structural-shell",
     writeReport: true,
     tracesDir: undefined,
+    skipHttpPaths,
   });
 
   const known = new Set(
@@ -124,6 +133,19 @@ export async function runWispWholeSiteFinishSmoke(opts = {}) {
     forceSettleResidualHoles: true,
   });
 
+  // Client redirects last — bind/force-settle can leave dead-end spinner shells (G9830).
+  const redirects = applyWispClientRedirects();
+  if (redirects.ok !== true) {
+    return {
+      kind: WISP_WHOLE_SITE_FINISH_KIND,
+      schemaVersion: WISP_WHOLE_SITE_FINISH_SCHEMA_VERSION,
+      ok: false,
+      skip: "client-redirects-failed",
+      redirects,
+      hyphen,
+    };
+  }
+  cpSync(fixtureCwl, genCwl);
   cwlText = readFileSync(fixtureCwl, "utf8");
   const demoLeft = (cwlText.match(/wisp-module-demo/g) ?? []).length;
   const noSourceHoles = (cwlText.match(/legacy:markup-no-source-route/g) ?? []).length;

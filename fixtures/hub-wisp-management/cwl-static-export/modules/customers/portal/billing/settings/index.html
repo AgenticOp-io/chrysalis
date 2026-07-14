@@ -1,67 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>settings</title>
-<link rel="stylesheet" href="/assets/original-css/modules_customers_portal_billing_settings.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="billing-settings-page">\r
-    <h1>Billing settings</h1>\r
-    <p class="subtitle">Payment method and invoice preferences</p>\r
-\r
-    \r
-    \r
-\r
-    <form on:submit|preventDefault= class="settings-form">\r
-      \r
-\r
-      <section class="settings-section">\r
-        <h2>Invoice delivery</h2>\r
-        <p class="hint">How you want to receive invoices.</p>\r
-        <label>\r
-          <input type="radio" value="email" />\r
-          Email only\r
-        </label>\r
-        <label>\r
-          <input type="radio" value="portal" />\r
-          Portal only (view in Billing page)\r
-        </label>\r
-        <label>\r
-          <input type="radio" value="both" />\r
-          Both email and portal\r
-        </label>\r
-      </section>\r
-\r
-      <section class="settings-section read-only">\r
-        <h2>Invoice format</h2>\r
-        <p class="hint">Set by your provider (read-only).</p>\r
-        <div class="info-rows">\r
-          <div class="info-row">\r
-            <span class="label">Company name</span>\r
-            <span class="value">—</span>\r
-          </div>\r
-          <div class="info-row">\r
-            <span class="label">Payment due (days)</span>\r
-            <span class="value"></span>\r
-          </div>\r
-          <div class="info-row">\r
-            <span class="label">Currency</span>\r
-            <span class="value"></span>\r
-          </div>\r
-        </div>\r
-      </section>\r
-\r
-      <div class="actions">\r
-        <button type="submit" class="btn-primary">\r
-          Save settings\r
-        </button>\r
-        <a href="/modules/customers/portal/billing" class="btn-secondary">Back to Billing</a>\r
-      </div>\r
-    </form>\r
-  </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers/portal/billing/settings","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_billing_settings" data-wisp-path="/modules/customers/portal/billing/settings" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
+  <header class="wisp-demo-header">
+    <h1>Settings</h1>
+    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-portal">
+  <nav class="wisp-demo-portal-nav">
+    <a href="/modules/customers/portal/dashboard">Dashboard</a>
+    <a href="/modules/customers/portal/tickets">Tickets</a>
+    <a href="/modules/customers/portal/billing">Billing</a>
+    <a href="/modules/customers/portal/knowledge">Knowledge</a>
+  </nav>
+  <section class="wisp-demo-portal-body">
+    <h2>Settings</h2>
+    <p>Customer portal surface — demo content wired to native CWL API.</p>
+    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
+  </section>
+</div>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers/portal/billing/settings","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>

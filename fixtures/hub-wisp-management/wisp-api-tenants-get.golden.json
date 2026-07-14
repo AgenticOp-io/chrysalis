@@ -1,16 +1,27 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "tenants",
-  "op": "list",
-  "count": 1,
   "tenants": [
     {
-      "id": "674a1b2c3d4e5f6789012345",
-      "name": "WISP Oracle Tenant",
-      "subdomain": "wisp-oracle",
-      "status": "active",
-      "userCount": 1
+      "id": "t1",
+      "name": "Acme Org",
+      "status": "active"
+    },
+    {
+      "id": "t2",
+      "name": "Beta Org",
+      "status": "trial"
+    }
+  ],
+  "items": [
+    {
+      "id": "t1",
+      "name": "Acme Org",
+      "status": "active"
+    },
+    {
+      "id": "t2",
+      "name": "Beta Org",
+      "status": "trial"
     }
   ]
 }

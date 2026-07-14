@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "modules": [
+    { "id": "plan", "name": "Plan", "roles": ["owner", "admin"] },
+    { "id": "deploy", "name": "Deploy", "roles": ["owner", "admin"] },
+    { "id": "billing", "name": "Billing", "roles": ["owner"] }
+  ],
+  "items": [
+    { "id": "plan", "name": "Plan", "status": "configured" },
+    { "id": "deploy", "name": "Deploy", "status": "configured" },
+    { "id": "billing", "name": "Billing", "status": "configured" }
+  ]
+}

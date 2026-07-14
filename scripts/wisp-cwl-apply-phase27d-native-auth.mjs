@@ -42,14 +42,14 @@ handler login_post {
   header X-Tenant-ID;
   body email;
   body password;
-  return { ok: true, surface: "wisp-auth-native" };
+  return { ok: true, email: "demo@wisptools.io", surface: "wisp-auth-native" };
 }
 
 @route GET "/api/me"
 handler session_me {
   effects: session.read;
   use auth session;
-  return { ok: true, surface: "wisp-auth-native" };
+  return { ok: true, authenticated: true, email: "preview@wisptools.local", surface: "wisp-auth-native" };
 }`;
 
 /**
@@ -75,6 +75,33 @@ export function applyWispPhase27dNativeAuth(opts = {}) {
     text = text.replace(/hub-svelte:firebase-auth/g, "cwl-auth-native");
     const afterApply = dedupeNativeAuthRouteHandlers(text);
     text = afterApply.text;
+  } else {
+    // Keep parity login HTML; refresh POST /login + /api/me handler bodies.
+    const loginPost = replaceRouteHandlerBlock(
+      text,
+      [`@route POST "/login"`],
+      `@route POST "/login"
+handler login_post {
+  effects: session.write;
+  use auth session;
+  header X-Tenant-ID;
+  body email;
+  body password;
+  return { ok: true, email: "demo@wisptools.io", surface: "wisp-auth-native" };
+}`,
+    );
+    if (loginPost.ok && !loginPost.skipped) text = loginPost.text;
+    const me = replaceRouteHandlerBlock(
+      text,
+      [`@route GET "/api/me"`],
+      `@route GET "/api/me"
+handler session_me {
+  effects: session.read;
+  use auth session;
+  return { ok: true, authenticated: true, email: "preview@wisptools.local", surface: "wisp-auth-native" };
+}`,
+    );
+    if (me.ok && !me.skipped) text = me.text;
   }
 
   writeFileSync(path, text, "utf8");

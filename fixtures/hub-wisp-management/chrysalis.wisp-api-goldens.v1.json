@@ -2,8 +2,8 @@
   "kind": "chrysalis.wisp.api-goldens",
   "schemaVersion": 1,
   "goldensDir": "wisp-api-goldens",
-  "handlerCount": 109,
-  "appliedCount": 109,
+  "handlerCount": 124,
+  "appliedCount": 124,
   "routes": [
     {
       "method": "GET",
@@ -64,6 +64,78 @@
       "path": "/api/network",
       "handler": "wisp_api_network_delete",
       "goldenPath": "wisp-api-goldens/DELETE-api-network.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/sites",
+      "handler": "wisp_api_network_sites_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network-sites.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/sectors",
+      "handler": "wisp_api_network_sectors_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network-sectors.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/cpe",
+      "handler": "wisp_api_network_cpe_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network-cpe.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/network/equipment",
+      "handler": "wisp_api_network_equipment_get",
+      "goldenPath": "wisp-api-goldens/GET-api-network-equipment.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/network/import/cbrs",
+      "handler": "wisp_api_network_import_cbrs_post",
+      "goldenPath": "wisp-api-goldens/POST-api-network-import-cbrs.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/plans/marketing/discover",
+      "handler": "wisp_api_plans_marketing_discover_post",
+      "goldenPath": "wisp-api-goldens/POST-api-plans-marketing-discover.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory/scan/lookup",
+      "handler": "wisp_api_inventory_scan_lookup_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-lookup.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory/scan/check-in",
+      "handler": "wisp_api_inventory_scan_checkin_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-check-in.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory/scan/check-out",
+      "handler": "wisp_api_inventory_scan_checkout_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory-scan-check-out.golden.json"
+    },
+    {
+      "method": "POST",
+      "path": "/api/inventory/transfer",
+      "handler": "wisp_api_inventory_transfer_post",
+      "goldenPath": "wisp-api-goldens/POST-api-inventory-transfer.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/coverage",
+      "handler": "wisp_api_coverage_get",
+      "goldenPath": "wisp-api-goldens/GET-api-coverage.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/module-access",
+      "handler": "wisp_api_module_access_get",
+      "goldenPath": "wisp-api-goldens/GET-api-module-access.golden.json"
     },
     {
       "method": "GET",
@@ -154,6 +226,24 @@
       "path": "/api/inventory",
       "handler": "wisp_api_inventory_delete",
       "goldenPath": "wisp-api-goldens/DELETE-api-inventory.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/hardware",
+      "handler": "wisp_api_hardware_get",
+      "goldenPath": "wisp-api-goldens/GET-api-hardware.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/billing",
+      "handler": "wisp_api_billing_alias_get",
+      "goldenPath": "wisp-api-goldens/GET-api-billing.golden.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/me",
+      "handler": "wisp_api_me_get",
+      "goldenPath": "wisp-api-goldens/GET-api-me.golden.json"
     },
     {
       "method": "GET",
@@ -660,5 +750,5 @@
       "goldenPath": "wisp-api-goldens/POST-api-internal.golden.json"
     }
   ],
-  "generatedAt": "2026-07-11T22:06:35.915Z"
+  "generatedAt": "2026-07-14T04:23:25.731Z"
 }

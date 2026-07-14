@@ -1,114 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>support-dashboard</title>
-<link rel="stylesheet" href="/assets/original-css/support-dashboard.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="support-dashboard">
-    <header class="dashboard-header">
-      <div class="header-content">
-        <h1>🎧 Customer Support Dashboard</h1>
-        <p class="subtitle">Demo Tenant - Support Portal</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-secondary">
-          ⚙️ Portal Settings
-        </button>
-      </div>
-    </header>
-
-    
-      <!-- Stats Cards -->
-      <div class="stats-grid">
-        <div class="stat-card alerts">
-          <div class="stat-icon">🚨</div>
-          <div class="stat-content">
-            <div class="stat-value"></div>
-            <div class="stat-label">Active Alerts</div>
-          </div>
-        </div>
-        
-        <div class="stat-card tickets">
-          <div class="stat-icon">🎫</div>
-          <div class="stat-content">
-            <div class="stat-value"></div>
-            <div class="stat-label">Pending Tickets</div>
-          </div>
-        </div>
-        
-        <div class="stat-card chats">
-          <div class="stat-icon">💬</div>
-          <div class="stat-content">
-            <div class="stat-value"></div>
-            <div class="stat-label">Open Chats</div>
-          </div>
-        </div>
-        
-        <div class="stat-card customers">
-          <div class="stat-icon">👥</div>
-          <div class="stat-content">
-            <div class="stat-value"></div>
-            <div class="stat-label">Customers</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <h2>Quick Actions</h2>
-        <div class="actions-grid">
-          <button class="action-card">
-            <span class="action-icon">🚨</span>
-            <span class="action-label">Manage Alerts</span>
-          </button>
-          
-          <button class="action-card">
-            <span class="action-icon">❓</span>
-            <span class="action-label">Edit FAQ</span>
-          </button>
-          
-          <button class="action-card">
-            <span class="action-icon">📚</span>
-            <span class="action-label">Knowledge Base</span>
-          </button>
-          
-          <button class="action-card">
-            <span class="action-icon">💬</span>
-            <span class="action-label">Chat Settings</span>
-          </button>
-          
-          <button class="action-card">
-            <span class="action-icon">🎫</span>
-            <span class="action-label">Help Desk</span>
-          </button>
-          
-          <button class="action-card">
-            <span class="action-icon">👥</span>
-            <span class="action-label">Customers</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Active Alerts Section -->
-      
-
-      <!-- Recent Tickets Section -->
-      <div class="section">
-        <div class="section-header">
-          <h2>🎫 Recent Support Tickets</h2>
-          <button class="btn-link">
-            View All →
-          </button>
-        </div>
-        
-        
-      </div>
-    
-  </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/support-dashboard"}</script>
-
-</body>
-</html>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="support_dashboard" data-wisp-path="/support-dashboard" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/maintain">
+  <header class="wisp-demo-header">
+    <h1>Support Dashboard</h1>
+    <p class="wisp-demo-desc">Operational workspace for Support Dashboard — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/support-dashboard/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>6</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>9</strong><span>Pending tasks</span></article>
+</div>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Support Dashboard data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>tk-1</td><td>Outage</td><td>open</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/support-dashboard","apiPath":"/api/maintain","api_ok":true,"api_surface":"wisp-api-native","api_resource":"maintain","api_op":"list","tracedApiStatus":200}</script>

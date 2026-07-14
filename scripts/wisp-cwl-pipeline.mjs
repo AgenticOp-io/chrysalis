@@ -10,7 +10,7 @@
  *   CHRYSALIS_WISP_ROOT, WISP_MODULE_DIR, CHRYSALIS_WISP_DEPLOY_GCE=1,
  *   CHRYSALIS_WISP_DEPLOY_FIREBASE=1, CHRYSALIS_WISP_GCE_PROJECT, CHRYSALIS_WISP_BACKEND_URL
  */
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -44,12 +44,56 @@ export const WISP_CWL_PIPELINE_SCHEMA_VERSION = 1;
 
 const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
+/**
+ * Sync lifted original CSS from Module_Manager (or fixture) into fixture + deploy bundle.
+ * @param {object} opts
+ * @param {string} opts.wispRoot
+ * @param {string} opts.fixtureDir
+ * @param {string} [opts.bundleDir]
+ */
+export function syncWispOriginalCssAssets(opts) {
+  const { wispRoot, fixtureDir, bundleDir } = opts;
+  const wispUi = join(wispRoot, ".chrysalis/ui-assets");
+  const wispCss = join(wispUi, "original-css");
+  const wispMap = join(wispUi, "ui-route-style-map.json");
+  const fixtureCss = join(fixtureDir, "original-css");
+  const fixtureMap = join(fixtureDir, "wisp-cwl-original-css-map.json");
+
+  if (existsSync(wispCss)) {
+    mkdirSync(fixtureCss, { recursive: true });
+    cpSync(wispCss, fixtureCss, { recursive: true });
+  }
+  if (existsSync(wispMap)) {
+    copyFileSync(wispMap, fixtureMap);
+  }
+
+  if (bundleDir) {
+    if (existsSync(fixtureCss)) {
+      mkdirSync(join(bundleDir, "original-css"), { recursive: true });
+      cpSync(fixtureCss, join(bundleDir, "original-css"), { recursive: true });
+    }
+    if (existsSync(fixtureMap)) {
+      copyFileSync(fixtureMap, join(bundleDir, "wisp-cwl-original-css-map.json"));
+    }
+  }
+
+  const hardwareCss = join(bundleDir ?? fixtureDir, "original-css", "modules_hardware.css");
+  const mapPath = bundleDir
+    ? join(bundleDir, "wisp-cwl-original-css-map.json")
+    : fixtureMap;
+  return {
+    ok: existsSync(mapPath) && existsSync(hardwareCss),
+    mapPath,
+    hardwareCssPresent: existsSync(hardwareCss),
+  };
+}
+
 /** @param {Record<string, unknown>} config */
 export function resolveWispRoot(config) {
   for (const key of config.wispRootEnv ?? ["CHRYSALIS_WISP_ROOT", "WISP_MODULE_DIR"]) {
     if (process.env[key]) return resolve(process.env[key]);
   }
-  return resolve(config.defaultWispRoot ?? "C:/Users/david/Downloads/WISPTools/Module_Manager");
+  return resolve(config.defaultWispRoot ?? "C:/Users/david/AgenticOps/products/wisptools/Module_Manager");
 }
 
 /**
@@ -123,6 +167,9 @@ export function prepareWispCwlDeployBundle(opts = {}) {
     if (existsSync(shellSrc)) copyFileSync(shellSrc, join(bundleDir, shellAsset));
   }
 
+  // Lifted Module_Manager CSS — required for CWL-native visual depth (D6407 / G9890).
+  syncWispOriginalCssAssets({ wispRoot, fixtureDir, bundleDir });
+
   if (isWispFullSiteProgramClosed()) {
     applyWispPostG7790Chain();
     applyWispPhase28gIntegrationsUi();
@@ -131,12 +178,30 @@ export function prepareWispCwlDeployBundle(opts = {}) {
     applyWispPhase30bModuleParity();
     applyWispPhase32CompleteDemo();
     // Client redirects last — later lifts can reintroduce dead-end spinner shells.
+    // Showcase bind re-applies redirects after load-bind hydration.
     const redirects = applyWispClientRedirects();
+    const bindR = spawnSync(process.execPath, [join(scriptRoot, "scripts/wisp-cwl-bind-showcase.mjs")], {
+      cwd: scriptRoot,
+      encoding: "utf8",
+      env: process.env,
+    });
+    let bindOk = bindR.status === 0;
+    try {
+      const parsed = bindR.stdout ? JSON.parse(bindR.stdout) : null;
+      if (parsed && parsed.ok === false) bindOk = false;
+    } catch {
+      bindOk = false;
+    }
     const integrity = inspectRoutesCwlIntegrity();
-    if (redirects.ok === false || integrity.ok !== true) {
+    if (redirects.ok === false || !bindOk || integrity.ok !== true) {
       return {
         ok: false,
-        skip: redirects.ok === false ? redirects.skip ?? "client-redirects-failed" : "routes-integrity-failed",
+        skip:
+          redirects.ok === false
+            ? redirects.skip ?? "client-redirects-failed"
+            : !bindOk
+              ? "showcase-bind-failed"
+              : "routes-integrity-failed",
         bundleDir,
         wispRoot,
         routesSrc,
@@ -215,9 +280,10 @@ export function verifyWispGceDeployBundle(bundle) {
 
   const deployConfig = JSON.parse(readFileSync(join(dir, "wisp-pipeline.config.json"), "utf8"));
   const operatorOk =
-    deployConfig.gce?.operatorUi === "cwl-native" &&
-    deployConfig.gce?.svelteSidecar === false &&
-    deployConfig.gce?.nativeApi === true;
+    deployConfig.gce?.nativeApi === true &&
+    (deployConfig.gce?.operatorUi === "svelte-chimera"
+      ? deployConfig.gce?.svelteSidecar === true
+      : deployConfig.gce?.operatorUi === "cwl-native" && deployConfig.gce?.svelteSidecar === false);
   const gatewayText = readFileSync(join(dir, "wisp-cwl-chimera-gateway.mjs"), "utf8");
   const wrapOk =
     gatewayText.includes("wrapWispCwlHtmlDocument") &&
@@ -249,7 +315,20 @@ function commandExists(cmd) {
  * @param {boolean} [opts.tunnelThroughIap]
  */
 export function runWispGceDeploy(opts = {}) {
-  const config = loadWispPipelineConfig();
+  // Default: CWL-native conversion experience (D6405). Sidecar only if explicitly requested.
+  const wantSidecar = process.env.CHRYSALIS_WISP_SVELTE_SIDECAR === "1";
+  const config = wantSidecar
+    ? {
+        ...loadWispPipelineConfig(),
+        gce: {
+          ...(loadWispPipelineConfig().gce ?? {}),
+          svelteSidecar: true,
+          svelteFallback: "http://127.0.0.1:3000",
+          operatorUi: "svelte-chimera",
+          cwlNativePrefixes: "/docs,/help,/favicon.ico,/favicon.svg",
+        },
+      }
+    : patchOperatorGceDeployPipelineConfig(loadWispPipelineConfig());
   const gce = config.gce ?? {};
   const bundle = prepareWispCwlDeployBundle({ wispRoot: opts.wispRoot });
   if (!bundle.ok) return { ok: false, skip: bundle.skip ?? "bundle-failed" };
@@ -258,6 +337,7 @@ export function runWispGceDeploy(opts = {}) {
   const project = process.env.CHRYSALIS_WISP_GCE_PROJECT ?? gce.project;
   if (!project) return { ok: false, skip: "missing-gce-project" };
 
+  const skipSidecar = !wantSidecar || process.env.CHRYSALIS_WISP_SKIP_SVELTE_SIDECAR === "1";
   const args = [
     "-Project", project,
     "-Zone", process.env.CHRYSALIS_WISP_GCE_ZONE ?? gce.zone ?? "us-central1-a",
@@ -265,12 +345,17 @@ export function runWispGceDeploy(opts = {}) {
     "-BackendUrl", process.env.CHRYSALIS_WISP_BACKEND_URL ?? gce.backendUrl ?? "https://hss.wisptools.io",
     "-Port", String(gce.port ?? 19100),
     "-SkipLift",
-    "-SkipSvelteSidecar",
   ];
+  if (skipSidecar) {
+    args.push("-SkipSvelteSidecar");
+  }
   const wispRoot = opts.wispRoot ?? bundle.wispRoot;
   if (wispRoot) args.push("-WispModuleDir", wispRoot);
-  const svelte = process.env.CHRYSALIS_WISP_SVELTE_FALLBACK ?? gce.svelteFallback ?? "";
-  if (svelte) args.push("-SvelteFallback", svelte);
+  const svelte =
+    process.env.CHRYSALIS_WISP_SVELTE_FALLBACK ??
+    gce.svelteFallback ??
+    "http://127.0.0.1:3000";
+  if (svelte && !skipSidecar) args.push("-SvelteFallback", svelte);
   if (opts.tunnelThroughIap) args.push("-TunnelThroughIap");
 
   let r;
@@ -289,10 +374,10 @@ export function runWispGceDeploy(opts = {}) {
       "--backend-url", process.env.CHRYSALIS_WISP_BACKEND_URL ?? gce.backendUrl ?? "https://hss.wisptools.io",
       "--port", String(gce.port ?? 19100),
       "--skip-lift",
-      "--skip-svelte-sidecar",
     ];
+    if (skipSidecar) shArgs.push("--skip-svelte-sidecar");
     if (wispRoot) shArgs.push("--wisp-root", wispRoot);
-    if (svelte) shArgs.push("--svelte-fallback", svelte);
+    if (svelte && !skipSidecar) shArgs.push("--svelte-fallback", svelte);
     if (opts.tunnelThroughIap) shArgs.push("--tunnel-through-iap");
     r = spawnSync("bash", shArgs, { cwd: scriptRoot, encoding: "utf8", shell: false });
   }

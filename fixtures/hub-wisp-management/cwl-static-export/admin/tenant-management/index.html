@@ -1,47 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>tenant-management</title>
-<link rel="stylesheet" href="/assets/original-css/admin_tenant-management.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="admin-page">
-  <header>
-    <nav class="cwl-nav-shell" data-cwl-nav-shell="AdminBreadcrumb" aria-hidden="true"></nav>
-    <div class="header-content">
-      <div class="header-title">
-        <h1>🏢 Platform Admin - Tenant Management</h1>
-        <p>Create and manage organization tenants</p>
-      </div>
-      <button class="btn-create">
-        ➕ Create New Tenant
-      </button>
-    </div>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="admin_tenant_management" data-wisp-path="/admin/tenant-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/admin">
+  <header class="wisp-demo-header">
+    <h1>Tenant Management</h1>
+    <p class="wisp-demo-desc">Platform administration — tenants, billing, and system configuration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/admin/tenant-management/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
   </header>
-  
-  <main>
-    
-      <div class="tenants-grid">
-        
-      </div>
-    
-  </main>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>12</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>2</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>3</strong><span>Pending tasks</span></article>
 </div>
-
-<!-- Create/Edit Modal -->
-
-
-<!-- Delete Confirmation Modal -->
-
-
-<!-- Assign Owner Modal -->
-
-
-<!-- Users Modal -->
-
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Tenant Management data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>t1</td><td>Acme Org</td><td>active</td><td></td></tr><tr><td>t2</td><td>Beta Org</td><td>trial</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/admin/tenant-management","apiPath":"/api/admin","api_ok":true,"api_surface":"wisp-api-native","api_resource":"admin-prefix","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>

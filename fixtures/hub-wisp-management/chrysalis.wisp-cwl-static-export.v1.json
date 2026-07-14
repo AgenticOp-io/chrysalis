@@ -2,8 +2,8 @@
   "kind": "chrysalis.wisp.cwl-static-export",
   "schemaVersion": 1,
   "outRoot": "cwl-static-export",
-  "pageCount": 126,
-  "exportedCount": 126,
+  "pageCount": 104,
+  "exportedCount": 104,
   "routes": [
     {
       "path": "/",
@@ -110,72 +110,6 @@
     {
       "path": "/modules",
       "out": "modules/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management",
-      "out": "modules/acs-cpe-management/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/alerts",
-      "out": "modules/acs-cpe-management/alerts/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/devices",
-      "out": "modules/acs-cpe-management/devices/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/faults",
-      "out": "modules/acs-cpe-management/faults/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/files",
-      "out": "modules/acs-cpe-management/files/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/firmware",
-      "out": "modules/acs-cpe-management/firmware/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/graphs",
-      "out": "modules/acs-cpe-management/graphs/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/monitoring",
-      "out": "modules/acs-cpe-management/monitoring/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/presets",
-      "out": "modules/acs-cpe-management/presets/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/settings",
-      "out": "modules/acs-cpe-management/settings/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/tasks",
-      "out": "modules/acs-cpe-management/tasks/index.html",
       "status": 200,
       "ok": true
     },
@@ -558,72 +492,6 @@
       "ok": true
     },
     {
-      "path": "/modules/acs-cpe-management/add",
-      "out": "modules/acs-cpe-management/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/alerts/add",
-      "out": "modules/acs-cpe-management/alerts/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/devices/add",
-      "out": "modules/acs-cpe-management/devices/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/faults/add",
-      "out": "modules/acs-cpe-management/faults/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/files/add",
-      "out": "modules/acs-cpe-management/files/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/firmware/add",
-      "out": "modules/acs-cpe-management/firmware/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/graphs/add",
-      "out": "modules/acs-cpe-management/graphs/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/monitoring/add",
-      "out": "modules/acs-cpe-management/monitoring/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/presets/add",
-      "out": "modules/acs-cpe-management/presets/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/settings/add",
-      "out": "modules/acs-cpe-management/settings/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
-      "path": "/modules/acs-cpe-management/tasks/add",
-      "out": "modules/acs-cpe-management/tasks/add/index.html",
-      "status": 200,
-      "ok": true
-    },
-    {
       "path": "/modules/backend-management/add",
       "out": "modules/backend-management/add/index.html",
       "status": 200,
@@ -762,5 +630,5 @@
       "ok": true
     }
   ],
-  "generatedAt": "2026-07-11T17:54:02.912Z"
+  "generatedAt": "2026-07-14T05:11:32.507Z"
 }

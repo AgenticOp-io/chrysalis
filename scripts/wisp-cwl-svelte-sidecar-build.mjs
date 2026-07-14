@@ -15,7 +15,7 @@ const scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultRoot =
   process.env.CHRYSALIS_WISP_ROOT ??
   process.env.WISP_MODULE_DIR ??
-  "C:/Users/david/Downloads/WISPTools/Module_Manager";
+  "C:/Users/david/AgenticOps/products/wisptools/Module_Manager";
 const defaultOut = join(scriptRoot, "generated/wisp-svelte-sidecar");
 
 /** @param {string} src @param {string} dest */

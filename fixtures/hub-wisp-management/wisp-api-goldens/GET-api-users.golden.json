@@ -1,6 +1,36 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "users",
-  "op": "list"
+  "users": [
+    {
+      "id": "u1",
+      "name": "Admin",
+      "email": "admin@example.com",
+      "status": "active"
+    },
+    {
+      "id": "u2",
+      "name": "Ops",
+      "email": "ops@example.com",
+      "status": "active"
+    }
+  ],
+  "roles": [
+    {
+      "id": "r1",
+      "name": "admin",
+      "status": "active"
+    }
+  ],
+  "items": [
+    {
+      "id": "u1",
+      "name": "Admin",
+      "status": "active"
+    },
+    {
+      "id": "u2",
+      "name": "Ops",
+      "status": "active"
+    }
+  ]
 }

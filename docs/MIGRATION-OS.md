@@ -19,6 +19,8 @@ Chrysalis is not “a PHP converter.” The product is **verified migration infr
 | **Migration Evidence hub** | One dashboard linking port, federation, and web-LLM POCs | `reports/migration-evidence/poc/` |
 | **Intelligence Shorthand (IS)** | CPU-only IS-T3/T4/T5 export (~10³–10⁶× vs 7B weights) | `reports/web-llm/shorthand/` |
 | **Open web-LLM** | Trajectories, WVB, MCP tools, agent POC scenarios | `@chrysalis/web-llm`, `web-llm:mcp-server` |
+| **AI Assist / Migration Chat** | Human+AI session over same tools; LiteRT refused | `docs/AI-ASSIST.md`, `chrysalis chat`, `hub:migration-chat-smoke` |
+| **Multi-origin lift** | Vue/Next structural-shell depth (named holes); Angular shell | `docs/MULTI-ORIGIN-LIFT-EXPANSION.md`, `hub:multi-origin-lift-close-smoke` |
 
 WISP Module_Manager remains the **CWL showcase lab** (subordinate to this stack). The **language** is CWL; WISP proves surfaces close with gates — it is not the product name.
 
@@ -78,6 +80,7 @@ CLI equivalents: `chrysalis evidence demo`, `chrysalis federation demo`, `chrysa
 | Gate | Smoke | What it proves |
 | --- | --- | --- |
 | **G8550** | `hub:migration-os-close-smoke` | Evidence + open legacy + VMF + IS + showcase/GPU + product sample + shells + hydrate + public reports + live hit-rate READY + WISP residual settle (schema **v20**) |
+| **G9840** | `hub:svelte-native-convert-entry-smoke` | Svelte→CWL actual build entry (**D6405**) — no sidecar as product |
 | **G8560** | `hub:intelligence-shorthand-close-smoke` | IS-T3/T4/T5 export + hub (CPU) |
 | **G8540** | `hub:site-port-federation-hub-close-smoke` | VMF hub program |
 | **G8520** | `hub:site-port-open-legacy-close-smoke` | 7-fixture index + nightly + wedge |

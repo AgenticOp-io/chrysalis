@@ -1,8 +1,8 @@
 {
   "kind": "chrysalis.web-llm.web-verify-benchmark",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-11T02:12:29.536Z",
-  "caseCount": 355,
+  "generatedAt": "2026-07-14T05:52:03.304Z",
+  "caseCount": 333,
   "cases": [
     {
       "id": "auth-tag-probe-GET-_probe-0",
@@ -2681,7 +2681,7 @@
       ]
     },
     {
-      "id": "wisp-static-_admin_billing_add-87",
+      "id": "wisp-static-_admin_billing_add-76",
       "fixture": "hub-wisp-management",
       "path": "/admin/billing/add",
       "method": "GET",
@@ -2705,7 +2705,7 @@
       ]
     },
     {
-      "id": "wisp-static-_admin_management_add-88",
+      "id": "wisp-static-_admin_management_add-77",
       "fixture": "hub-wisp-management",
       "path": "/admin/management/add",
       "method": "GET",
@@ -2729,7 +2729,7 @@
       ]
     },
     {
-      "id": "wisp-static-_admin_system_management_add-89",
+      "id": "wisp-static-_admin_system_management_add-78",
       "fixture": "hub-wisp-management",
       "path": "/admin/system-management/add",
       "method": "GET",
@@ -2753,7 +2753,7 @@
       ]
     },
     {
-      "id": "wisp-static-_admin_tenant_management_add-90",
+      "id": "wisp-static-_admin_tenant_management_add-79",
       "fixture": "hub-wisp-management",
       "path": "/admin/tenant-management/add",
       "method": "GET",
@@ -2777,7 +2777,7 @@
       ]
     },
     {
-      "id": "wisp-static-_admin_tenants_tenantId_modules_add-91",
+      "id": "wisp-static-_admin_tenants_tenantId_modules_add-80",
       "fixture": "hub-wisp-management",
       "path": "/admin/tenants/:tenantId/modules/add",
       "method": "GET",
@@ -2937,271 +2937,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_acs_cpe_management_add-92",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_alerts_add-93",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/alerts/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_alerts-19",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/alerts",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_devices_add-94",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/devices/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_devices-20",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/devices",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_faults_add-95",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/faults/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_faults-21",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/faults",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_files_add-96",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/files/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_files-22",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/files",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_firmware_add-97",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/firmware/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_firmware-23",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/firmware",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_graphs_add-98",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/graphs/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_graphs-24",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/graphs",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_monitoring_add-99",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/monitoring/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_monitoring-25",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/monitoring",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_presets_add-100",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/presets/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_presets-26",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/presets",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_settings_add-101",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/settings/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_settings-27",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/settings",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_tasks_add-102",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/tasks/add",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management_tasks-28",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management/tasks",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_acs_cpe_management-18",
-      "fixture": "hub-wisp-management",
-      "path": "/modules/acs-cpe-management",
-      "method": "GET",
-      "task": "ui-parity",
-      "tier": "showcase",
-      "tags": [
-        "wisp",
-        "cwl-static-export"
-      ]
-    },
-    {
-      "id": "wisp-static-_modules_backend_management_add-103",
+      "id": "wisp-static-_modules_backend_management_add-81",
       "fixture": "hub-wisp-management",
       "path": "/modules/backend-management/add",
       "method": "GET",
@@ -3213,7 +2949,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_backend_management-29",
+      "id": "wisp-static-_modules_backend_management-18",
       "fixture": "hub-wisp-management",
       "path": "/modules/backend-management",
       "method": "GET",
@@ -3225,7 +2961,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_billing_add-104",
+      "id": "wisp-static-_modules_billing_add-82",
       "fixture": "hub-wisp-management",
       "path": "/modules/billing/add",
       "method": "GET",
@@ -3237,7 +2973,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_billing-30",
+      "id": "wisp-static-_modules_billing-19",
       "fixture": "hub-wisp-management",
       "path": "/modules/billing",
       "method": "GET",
@@ -3249,7 +2985,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_cbrs_management_add-105",
+      "id": "wisp-static-_modules_cbrs_management_add-83",
       "fixture": "hub-wisp-management",
       "path": "/modules/cbrs-management/add",
       "method": "GET",
@@ -3261,7 +2997,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_cbrs_management-31",
+      "id": "wisp-static-_modules_cbrs_management-20",
       "fixture": "hub-wisp-management",
       "path": "/modules/cbrs-management",
       "method": "GET",
@@ -3273,7 +3009,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_coverage_map-32",
+      "id": "wisp-static-_modules_coverage_map-21",
       "fixture": "hub-wisp-management",
       "path": "/modules/coverage-map",
       "method": "GET",
@@ -3287,7 +3023,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_add-106",
+      "id": "wisp-static-_modules_customers_add-84",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/add",
       "method": "GET",
@@ -3299,7 +3035,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_billing_settings-37",
+      "id": "wisp-static-_modules_customers_portal_billing_settings-26",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/billing/settings",
       "method": "GET",
@@ -3311,7 +3047,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_billing-36",
+      "id": "wisp-static-_modules_customers_portal_billing-25",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/billing",
       "method": "GET",
@@ -3323,7 +3059,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_dashboard-38",
+      "id": "wisp-static-_modules_customers_portal_dashboard-27",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/dashboard",
       "method": "GET",
@@ -3335,7 +3071,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_faq-39",
+      "id": "wisp-static-_modules_customers_portal_faq-28",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/faq",
       "method": "GET",
@@ -3347,7 +3083,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_knowledge_id-41",
+      "id": "wisp-static-_modules_customers_portal_knowledge_id-30",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/knowledge/:id",
       "method": "GET",
@@ -3359,7 +3095,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_knowledge-40",
+      "id": "wisp-static-_modules_customers_portal_knowledge-29",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/knowledge",
       "method": "GET",
@@ -3371,7 +3107,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_live_chat-42",
+      "id": "wisp-static-_modules_customers_portal_live_chat-31",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/live-chat",
       "method": "GET",
@@ -3383,7 +3119,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_login-43",
+      "id": "wisp-static-_modules_customers_portal_login-32",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/login",
       "method": "GET",
@@ -3395,7 +3131,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_service-44",
+      "id": "wisp-static-_modules_customers_portal_service-33",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/service",
       "method": "GET",
@@ -3407,7 +3143,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_setup_add-107",
+      "id": "wisp-static-_modules_customers_portal_setup_add-85",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal-setup/add",
       "method": "GET",
@@ -3419,7 +3155,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_setup-35",
+      "id": "wisp-static-_modules_customers_portal_setup-24",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal-setup",
       "method": "GET",
@@ -3431,7 +3167,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_signup-45",
+      "id": "wisp-static-_modules_customers_portal_signup-34",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/signup",
       "method": "GET",
@@ -3443,7 +3179,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_tickets_id-47",
+      "id": "wisp-static-_modules_customers_portal_tickets_id-36",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/tickets/:id",
       "method": "GET",
@@ -3455,7 +3191,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_tickets_new-48",
+      "id": "wisp-static-_modules_customers_portal_tickets_new-37",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/tickets/new",
       "method": "GET",
@@ -3467,7 +3203,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal_tickets-46",
+      "id": "wisp-static-_modules_customers_portal_tickets-35",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal/tickets",
       "method": "GET",
@@ -3479,7 +3215,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers_portal-34",
+      "id": "wisp-static-_modules_customers_portal-23",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers/portal",
       "method": "GET",
@@ -3491,7 +3227,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_customers-33",
+      "id": "wisp-static-_modules_customers-22",
       "fixture": "hub-wisp-management",
       "path": "/modules/customers",
       "method": "GET",
@@ -3503,7 +3239,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_deploy-49",
+      "id": "wisp-static-_modules_deploy-38",
       "fixture": "hub-wisp-management",
       "path": "/modules/deploy",
       "method": "GET",
@@ -3517,7 +3253,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_hardware_add-108",
+      "id": "wisp-static-_modules_hardware_add-86",
       "fixture": "hub-wisp-management",
       "path": "/modules/hardware/add",
       "method": "GET",
@@ -3531,7 +3267,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_hardware-50",
+      "id": "wisp-static-_modules_hardware-39",
       "fixture": "hub-wisp-management",
       "path": "/modules/hardware",
       "method": "GET",
@@ -3545,7 +3281,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_help_desk_add-109",
+      "id": "wisp-static-_modules_help_desk_add-87",
       "fixture": "hub-wisp-management",
       "path": "/modules/help-desk/add",
       "method": "GET",
@@ -3557,7 +3293,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_help_desk_reports_add-110",
+      "id": "wisp-static-_modules_help_desk_reports_add-88",
       "fixture": "hub-wisp-management",
       "path": "/modules/help-desk/reports/add",
       "method": "GET",
@@ -3569,7 +3305,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_help_desk_reports-52",
+      "id": "wisp-static-_modules_help_desk_reports-41",
       "fixture": "hub-wisp-management",
       "path": "/modules/help-desk/reports",
       "method": "GET",
@@ -3581,7 +3317,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_help_desk-51",
+      "id": "wisp-static-_modules_help_desk-40",
       "fixture": "hub-wisp-management",
       "path": "/modules/help-desk",
       "method": "GET",
@@ -3593,7 +3329,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_hss_management_add-111",
+      "id": "wisp-static-_modules_hss_management_add-89",
       "fixture": "hub-wisp-management",
       "path": "/modules/hss-management/add",
       "method": "GET",
@@ -3605,7 +3341,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_hss_management-53",
+      "id": "wisp-static-_modules_hss_management-42",
       "fixture": "hub-wisp-management",
       "path": "/modules/hss-management",
       "method": "GET",
@@ -3617,7 +3353,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_inventory_add-57",
+      "id": "wisp-static-_modules_inventory_add-46",
       "fixture": "hub-wisp-management",
       "path": "/modules/inventory/add",
       "method": "GET",
@@ -3629,7 +3365,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_inventory_bundles_add-112",
+      "id": "wisp-static-_modules_inventory_bundles_add-90",
       "fixture": "hub-wisp-management",
       "path": "/modules/inventory/bundles/add",
       "method": "GET",
@@ -3641,7 +3377,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_inventory_bundles-58",
+      "id": "wisp-static-_modules_inventory_bundles-47",
       "fixture": "hub-wisp-management",
       "path": "/modules/inventory/bundles",
       "method": "GET",
@@ -3653,7 +3389,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_inventory_id_edit-56",
+      "id": "wisp-static-_modules_inventory_id_edit-45",
       "fixture": "hub-wisp-management",
       "path": "/modules/inventory/:id/edit",
       "method": "GET",
@@ -3665,7 +3401,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_inventory_id-55",
+      "id": "wisp-static-_modules_inventory_id-44",
       "fixture": "hub-wisp-management",
       "path": "/modules/inventory/:id",
       "method": "GET",
@@ -3677,7 +3413,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_inventory_reports_add-113",
+      "id": "wisp-static-_modules_inventory_reports_add-91",
       "fixture": "hub-wisp-management",
       "path": "/modules/inventory/reports/add",
       "method": "GET",
@@ -3689,7 +3425,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_inventory_reports-59",
+      "id": "wisp-static-_modules_inventory_reports-48",
       "fixture": "hub-wisp-management",
       "path": "/modules/inventory/reports",
       "method": "GET",
@@ -3701,7 +3437,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_inventory-54",
+      "id": "wisp-static-_modules_inventory-43",
       "fixture": "hub-wisp-management",
       "path": "/modules/inventory",
       "method": "GET",
@@ -3713,7 +3449,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_maintain_add-114",
+      "id": "wisp-static-_modules_maintain_add-92",
       "fixture": "hub-wisp-management",
       "path": "/modules/maintain/add",
       "method": "GET",
@@ -3725,7 +3461,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_maintain-60",
+      "id": "wisp-static-_modules_maintain-49",
       "fixture": "hub-wisp-management",
       "path": "/modules/maintain",
       "method": "GET",
@@ -3737,7 +3473,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_monitor-61",
+      "id": "wisp-static-_modules_monitor-50",
       "fixture": "hub-wisp-management",
       "path": "/modules/monitor",
       "method": "GET",
@@ -3749,7 +3485,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_monitoring_add-115",
+      "id": "wisp-static-_modules_monitoring_add-93",
       "fixture": "hub-wisp-management",
       "path": "/modules/monitoring/add",
       "method": "GET",
@@ -3761,7 +3497,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_monitoring-62",
+      "id": "wisp-static-_modules_monitoring-51",
       "fixture": "hub-wisp-management",
       "path": "/modules/monitoring",
       "method": "GET",
@@ -3773,7 +3509,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_pci_resolution_add-116",
+      "id": "wisp-static-_modules_pci_resolution_add-94",
       "fixture": "hub-wisp-management",
       "path": "/modules/pci-resolution/add",
       "method": "GET",
@@ -3785,7 +3521,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_pci_resolution-63",
+      "id": "wisp-static-_modules_pci_resolution-52",
       "fixture": "hub-wisp-management",
       "path": "/modules/pci-resolution",
       "method": "GET",
@@ -3797,7 +3533,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_plan-64",
+      "id": "wisp-static-_modules_plan-53",
       "fixture": "hub-wisp-management",
       "path": "/modules/plan",
       "method": "GET",
@@ -3811,7 +3547,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_sites_add-117",
+      "id": "wisp-static-_modules_sites_add-95",
       "fixture": "hub-wisp-management",
       "path": "/modules/sites/add",
       "method": "GET",
@@ -3823,7 +3559,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_sites-65",
+      "id": "wisp-static-_modules_sites-54",
       "fixture": "hub-wisp-management",
       "path": "/modules/sites",
       "method": "GET",
@@ -3835,7 +3571,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_tenant_management_add-118",
+      "id": "wisp-static-_modules_tenant_management_add-96",
       "fixture": "hub-wisp-management",
       "path": "/modules/tenant-management/add",
       "method": "GET",
@@ -3847,7 +3583,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_tenant_management_cbrs_platform_add-119",
+      "id": "wisp-static-_modules_tenant_management_cbrs_platform_add-97",
       "fixture": "hub-wisp-management",
       "path": "/modules/tenant-management/cbrs-platform/add",
       "method": "GET",
@@ -3859,7 +3595,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_tenant_management_cbrs_platform-67",
+      "id": "wisp-static-_modules_tenant_management_cbrs_platform-56",
       "fixture": "hub-wisp-management",
       "path": "/modules/tenant-management/cbrs-platform",
       "method": "GET",
@@ -3871,7 +3607,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_tenant_management_users_add-120",
+      "id": "wisp-static-_modules_tenant_management_users_add-98",
       "fixture": "hub-wisp-management",
       "path": "/modules/tenant-management/users/add",
       "method": "GET",
@@ -3883,7 +3619,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_tenant_management_users-68",
+      "id": "wisp-static-_modules_tenant_management_users-57",
       "fixture": "hub-wisp-management",
       "path": "/modules/tenant-management/users",
       "method": "GET",
@@ -3895,7 +3631,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_tenant_management-66",
+      "id": "wisp-static-_modules_tenant_management-55",
       "fixture": "hub-wisp-management",
       "path": "/modules/tenant-management",
       "method": "GET",
@@ -3907,7 +3643,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_user_management_add-121",
+      "id": "wisp-static-_modules_user_management_add-99",
       "fixture": "hub-wisp-management",
       "path": "/modules/user-management/add",
       "method": "GET",
@@ -3919,7 +3655,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_user_management_permissions_add-122",
+      "id": "wisp-static-_modules_user_management_permissions_add-100",
       "fixture": "hub-wisp-management",
       "path": "/modules/user-management/permissions/add",
       "method": "GET",
@@ -3931,7 +3667,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_user_management_permissions-70",
+      "id": "wisp-static-_modules_user_management_permissions-59",
       "fixture": "hub-wisp-management",
       "path": "/modules/user-management/permissions",
       "method": "GET",
@@ -3943,7 +3679,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_user_management_roles_add-123",
+      "id": "wisp-static-_modules_user_management_roles_add-101",
       "fixture": "hub-wisp-management",
       "path": "/modules/user-management/roles/add",
       "method": "GET",
@@ -3955,7 +3691,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_user_management_roles-71",
+      "id": "wisp-static-_modules_user_management_roles-60",
       "fixture": "hub-wisp-management",
       "path": "/modules/user-management/roles",
       "method": "GET",
@@ -3967,7 +3703,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_user_management-69",
+      "id": "wisp-static-_modules_user_management-58",
       "fixture": "hub-wisp-management",
       "path": "/modules/user-management",
       "method": "GET",
@@ -3979,7 +3715,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_voice_telephony_add-124",
+      "id": "wisp-static-_modules_voice_telephony_add-102",
       "fixture": "hub-wisp-management",
       "path": "/modules/voice-telephony/add",
       "method": "GET",
@@ -3991,7 +3727,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_voice_telephony-72",
+      "id": "wisp-static-_modules_voice_telephony-61",
       "fixture": "hub-wisp-management",
       "path": "/modules/voice-telephony",
       "method": "GET",
@@ -4003,7 +3739,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_work_orders_add-125",
+      "id": "wisp-static-_modules_work_orders_add-103",
       "fixture": "hub-wisp-management",
       "path": "/modules/work-orders/add",
       "method": "GET",
@@ -4015,7 +3751,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_work_orders_id-74",
+      "id": "wisp-static-_modules_work_orders_id-63",
       "fixture": "hub-wisp-management",
       "path": "/modules/work-orders/:id",
       "method": "GET",
@@ -4027,7 +3763,7 @@
       ]
     },
     {
-      "id": "wisp-static-_modules_work_orders-73",
+      "id": "wisp-static-_modules_work_orders-62",
       "fixture": "hub-wisp-management",
       "path": "/modules/work-orders",
       "method": "GET",
@@ -4051,7 +3787,7 @@
       ]
     },
     {
-      "id": "wisp-static-_oauth_google_callback-75",
+      "id": "wisp-static-_oauth_google_callback-64",
       "fixture": "hub-wisp-management",
       "path": "/oauth/google/callback",
       "method": "GET",
@@ -4063,7 +3799,7 @@
       ]
     },
     {
-      "id": "wisp-static-_onboarding-76",
+      "id": "wisp-static-_onboarding-65",
       "fixture": "hub-wisp-management",
       "path": "/onboarding",
       "method": "GET",
@@ -4075,7 +3811,7 @@
       ]
     },
     {
-      "id": "wisp-static-_portal_tenantId-77",
+      "id": "wisp-static-_portal_tenantId-66",
       "fixture": "hub-wisp-management",
       "path": "/portal/:tenantId",
       "method": "GET",
@@ -4087,7 +3823,7 @@
       ]
     },
     {
-      "id": "wisp-static-_reset_password-78",
+      "id": "wisp-static-_reset_password-67",
       "fixture": "hub-wisp-management",
       "path": "/reset-password",
       "method": "GET",
@@ -4099,7 +3835,7 @@
       ]
     },
     {
-      "id": "wisp-static-_settings_module_access-79",
+      "id": "wisp-static-_settings_module_access-68",
       "fixture": "hub-wisp-management",
       "path": "/settings/module-access",
       "method": "GET",
@@ -4111,7 +3847,7 @@
       ]
     },
     {
-      "id": "wisp-static-_setup_admin-80",
+      "id": "wisp-static-_setup_admin-69",
       "fixture": "hub-wisp-management",
       "path": "/setup-admin",
       "method": "GET",
@@ -4123,7 +3859,7 @@
       ]
     },
     {
-      "id": "wisp-static-_signup-81",
+      "id": "wisp-static-_signup-70",
       "fixture": "hub-wisp-management",
       "path": "/signup",
       "method": "GET",
@@ -4135,7 +3871,7 @@
       ]
     },
     {
-      "id": "wisp-static-_support_dashboard-82",
+      "id": "wisp-static-_support_dashboard-71",
       "fixture": "hub-wisp-management",
       "path": "/support-dashboard",
       "method": "GET",
@@ -4147,7 +3883,7 @@
       ]
     },
     {
-      "id": "wisp-static-_tenant_admin-83",
+      "id": "wisp-static-_tenant_admin-72",
       "fixture": "hub-wisp-management",
       "path": "/tenant-admin",
       "method": "GET",
@@ -4159,7 +3895,7 @@
       ]
     },
     {
-      "id": "wisp-static-_tenant_selector-84",
+      "id": "wisp-static-_tenant_selector-73",
       "fixture": "hub-wisp-management",
       "path": "/tenant-selector",
       "method": "GET",
@@ -4171,7 +3907,7 @@
       ]
     },
     {
-      "id": "wisp-static-_tenant_setup-85",
+      "id": "wisp-static-_tenant_setup-74",
       "fixture": "hub-wisp-management",
       "path": "/tenant-setup",
       "method": "GET",
@@ -4183,7 +3919,7 @@
       ]
     },
     {
-      "id": "wisp-static-_wizards-86",
+      "id": "wisp-static-_wizards-75",
       "fixture": "hub-wisp-management",
       "path": "/wizards",
       "method": "GET",
@@ -4282,11 +4018,11 @@
   "tiers": {
     "structural": 163,
     "oracle": 66,
-    "showcase": 126
+    "showcase": 104
   },
   "tasks": {
     "verify": 130,
     "migrate": 99,
-    "ui-parity": 126
+    "ui-parity": 104
   }
 }

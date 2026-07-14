@@ -126,6 +126,20 @@ import {
 import { createOrg, joinOrg, listOrgs, orgIdsForActorFromStore } from "./chrysalis-hub-org.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
+const repoRootFromScripts = resolve(__dir, "..");
+
+/** @type {null | Awaited<ReturnType<typeof import("./chrysalis-migration-chat.mjs").createMigrationChatSession>>} */
+let migrationChatSession = null;
+
+async function ensureMigrationChatSession() {
+  if (migrationChatSession) return migrationChatSession;
+  const mod = await import("./chrysalis-migration-chat.mjs");
+  migrationChatSession = await mod.createMigrationChatSession({
+    repoRoot: repoRootFromScripts,
+    trajectoryPath: join(repoRootFromScripts, "reports/web-llm/migration-chat/hub-session.jsonl"),
+  });
+  return migrationChatSession;
+}
 const port = Number(process.env.CHRYSALIS_OPERATOR_PORT ?? process.env.CHRYSALIS_STATUS_PORT ?? "19090");
 const bind = process.env.CHRYSALIS_OPERATOR_BIND ?? process.env.CHRYSALIS_STATUS_BIND ?? "0.0.0.0";
 const repo = process.env.CHRYSALIS_OPERATOR_REPO ?? process.env.CHRYSALIS_STATUS_REPO ?? join(homedir(), "chrysalis-test");
@@ -778,6 +792,12 @@ const server = createServer(async (req, res) => {
     res.end(indexHtml);
     return;
   }
+  if (req.method === "GET" && (url.pathname === "/migration-chat" || url.pathname === "/migration-chat/")) {
+    const html = await readFile(join(__dir, "chrysalis-migration-chat.html"), "utf8");
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", ...noCache });
+    res.end(html);
+    return;
+  }
   if (req.method === "GET" && url.pathname.startsWith("/ui.js")) {
     await loadStatic();
     res.writeHead(200, { "content-type": "application/javascript; charset=utf-8", ...noCache });
@@ -884,6 +904,56 @@ const server = createServer(async (req, res) => {
       demoMode: isHubDemoMode()
         ? { on: true, maxRoutesPerRequest: demoMaxRoutes(), maxSitesPerRequest: demoMaxSites() }
         : { on: false },
+      aiAssist: {
+        recommended: true,
+        docs: "docs/AI-ASSIST.md",
+        mcpExample: "fixtures/web-llm/cursor-mcp.example.json",
+        mcpServer: "pnpm run web-llm:mcp-server",
+        chatCli: "chrysalis chat",
+        chatPath: "/migration-chat",
+        liteRtSupported: false,
+        note: "Works best with an AI assistant. Models propose; verify disposes. LiteRT.js refused.",
+      },
+    });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/hub/migration-chat/turn") {
+    try {
+      const body = await readBody(req);
+      const line = String(body.line ?? body.command ?? "").trim();
+      if (!line) {
+        sendJson(res, 400, { ok: false, error: "missing-line" });
+        return;
+      }
+      const session = await ensureMigrationChatSession();
+      const chat = await import("./chrysalis-migration-chat.mjs");
+      if (line === "quit" || line === "exit") {
+        migrationChatSession = null;
+      }
+      const result = await chat.handleMigrationChatLine(session, line);
+      sendJson(res, result.ok === false ? 200 : 200, {
+        ok: result.ok !== false,
+        reply: result.reply ?? "",
+        quit: Boolean(result.quit),
+        sessionId: session.sessionId,
+        aiAssistRecommended: true,
+        liteRtSupported: false,
+      });
+    } catch (e) {
+      sendJson(res, 500, { ok: false, error: String(e) });
+    }
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/hub/migration-chat/session") {
+    const session = await ensureMigrationChatSession();
+    sendJson(res, 200, {
+      ok: true,
+      sessionId: session.sessionId,
+      trajectoryPath: session.trajectoryPath,
+      aiAssistRecommended: true,
+      liteRtSupported: false,
     });
     return;
   }

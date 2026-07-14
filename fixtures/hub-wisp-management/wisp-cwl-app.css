@@ -1,220 +1,4 @@
-/* WISP app shell — dashboard + module pages (lifted from Module_Manager POC). */
-:root {
-  color-scheme: dark;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #1e3a4f 100%);
-  color: #f1f5f9;
-}
-
-.dashboard-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #1e3a4f 100%);
-}
-
-.header {
-  background: linear-gradient(90deg, #1a2332 0%, #1e3a4f 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-  padding: 1rem 0 0.75rem;
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  display: flex;
-  justify-content: center;
-}
-
-.header-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 0.5rem 0 0;
-}
-
-.dashboard-logo {
-  width: 72px;
-  height: 72px;
-  filter: drop-shadow(0 0 12px rgba(0, 217, 255, 0.5));
-}
-
-.app-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 1px;
-}
-
-.app-subtitle {
-  font-size: 0.95rem;
-  color: #00d9ff;
-  margin: 0;
-  font-weight: 500;
-}
-
-.poc-notice {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0.25rem 0 0;
-}
-
-.poc-notice a { color: #00d9ff; text-decoration: underline; }
-
-.header-icons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
-.icon-btn {
-  background: #1a2332;
-  color: #f1f5f9;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.icon-btn:hover {
-  border-color: #00d9ff;
-  color: #00f2fe;
-}
-
-.power-btn:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-.power-icon { width: 18px; height: 18px; }
-
-.main-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.modules-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-@media (min-width: 1025px) {
-  .modules-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-.module-card {
-  background: linear-gradient(135deg, #1e3a4f 0%, #1a2332 100%);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid rgba(0, 217, 255, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-
-.module-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0, 217, 255, 0.4);
-  border-color: #00d9ff;
-}
-
-.module-header {
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid rgba(0, 217, 255, 0.3);
-}
-
-.module-name {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #00f2fe;
-  font-weight: 700;
-}
-
-.module-description {
-  color: #a0d9e8;
-  font-size: 0.9rem;
-  margin: 0 0 0.75rem;
-}
-
-.module-features ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.module-features li {
-  padding: 0.4rem 0;
-  color: #a0d9e8;
-  font-size: 0.9rem;
-}
-
-.module-features li:before {
-  content: "▸";
-  color: #00d9ff;
-  font-weight: bold;
-  margin-right: 0.75rem;
-}
-
-.module-status { display: flex; justify-content: flex-end; }
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.status-badge.active {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.app-footer {
-  margin-top: 2rem;
-  padding: 1rem 2rem;
-  text-align: center;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.app-footer a { color: #00d9ff; text-decoration: none; }
-.app-footer a:hover { text-decoration: underline; }
-.app-footer .sep { margin: 0 0.5rem; }
-
+/* CWL additive chrome only — original look is original-css/*.css (Module_Manager). */
 /* Module interior pages (Phase 27c shells) */
 .wisp-module-page {
   max-width: 1200px;
@@ -234,40 +18,6 @@ body {
 
 .wisp-module-page .wisp-module-nav a:hover { color: #00f2fe; }
 
-main.wisp-module-shell,
-.wisp-module-shell {
-  background: linear-gradient(135deg, #1e3a4f 0%, #1a2332 100%);
-  border: 2px solid rgba(0, 217, 255, 0.25);
-  border-radius: 1rem;
-  padding: 1.5rem 1.75rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-}
-
-.wisp-module-shell h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.75rem;
-  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.wisp-module-shell .api-surface,
-.wisp-module-shell .ui-native-note {
-  color: #a0d9e8;
-  margin: 0.25rem 0 1rem;
-}
-
-.wisp-module-shell button {
-  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-  color: #0f1419;
-  border: 2px solid #00d9ff;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .wisp-status {
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
@@ -281,48 +31,40 @@ main.wisp-module-shell,
   color: #ef4444;
 }
 
-/* Phase 32 — complete module demo surfaces */
+/* Phase 32 — module demo chrome (lean on original-css; avoid cyan-glass override) */
 .wisp-module-demo {
-  background: linear-gradient(135deg, #1e3a4f 0%, #1a2332 100%);
-  border: 2px solid rgba(0, 217, 255, 0.25);
-  border-radius: 1rem;
-  padding: 1.5rem 1.75rem 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  padding: 0.25rem 0 1.5rem;
 }
 
 .wisp-demo-header h1 {
   margin: 0 0 0.35rem;
   font-size: 1.75rem;
-  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: inherit;
 }
 
-.wisp-demo-desc { color: #a0d9e8; margin: 0 0 1rem; max-width: 52rem; }
+.wisp-demo-desc { margin: 0 0 1rem; max-width: 52rem; opacity: 0.9; }
 
 .wisp-demo-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
 
 .wisp-demo-btn {
   display: inline-block;
-  background: rgba(0, 217, 255, 0.12);
-  color: #00d9ff;
-  border: 1px solid rgba(0, 217, 255, 0.35);
-  border-radius: 0.5rem;
   padding: 0.45rem 0.9rem;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
   font-size: 0.875rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
 }
 
 .wisp-demo-btn.primary {
-  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-  color: #0f1419;
-  border-color: #00d9ff;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
-.wisp-demo-btn:hover { filter: brightness(1.08); }
+.wisp-demo-btn:hover { filter: brightness(1.06); }
 
 .wisp-demo-stats {
   display: grid;
@@ -332,14 +74,15 @@ main.wisp-module-shell,
 }
 
 .wisp-demo-stat {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(0, 217, 255, 0.2);
-  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
   padding: 0.85rem 1rem;
+  background: rgba(0, 0, 0, 0.12);
 }
 
-.wisp-demo-stat strong { display: block; font-size: 1.5rem; color: #00f2fe; }
-.wisp-demo-stat span { color: #8bb; font-size: 0.8rem; }
+.wisp-demo-stat strong { display: block; font-size: 1.5rem; }
+
+.wisp-demo-stat span { opacity: 0.75; font-size: 0.8rem; }
 
 .wisp-demo-table {
   width: 100%;
@@ -355,11 +98,15 @@ main.wisp-module-shell,
 }
 
 .wisp-demo-table th { color: #00d9ff; font-weight: 600; }
+
 .wisp-demo-table tbody tr:hover { background: rgba(0, 217, 255, 0.06); }
 
 .wisp-demo-form { max-width: 32rem; }
+
 .wisp-demo-field { margin-bottom: 1rem; }
+
 .wisp-demo-field label { display: block; color: #a0d9e8; margin-bottom: 0.35rem; font-size: 0.875rem; }
+
 .wisp-demo-field input,
 .wisp-demo-field textarea,
 .wisp-demo-field select {
@@ -379,7 +126,9 @@ main.wisp-module-shell,
 }
 
 .wisp-demo-portal-nav a { color: #00d9ff; text-decoration: none; font-weight: 500; }
+
 .wisp-demo-docs { color: #cde; line-height: 1.6; }
+
 .wisp-demo-docs code { background: rgba(0,0,0,0.3); padding: 0.15rem 0.35rem; border-radius: 4px; }
 
 /* Documentation / help surfaces */
@@ -422,6 +171,7 @@ html.wisp-docs-mode body {
 }
 
 .wisp-docs-crumb a:hover { text-decoration: underline; }
+
 .wisp-docs-crumb span:last-child { color: #cbd5e1; }
 
 .wisp-docs-main {
@@ -538,7 +288,9 @@ html.wisp-docs-mode body {
 }
 
 .wisp-docs-linklist { list-style: none; padding: 0; }
+
 .wisp-docs-linklist a { color: #00d9ff; text-decoration: none; font-weight: 500; }
+
 .wisp-docs-linklist li + li { margin-top: 0.45rem; }
 
 .wisp-docs-inline-links {
@@ -547,6 +299,7 @@ html.wisp-docs-mode body {
 }
 
 .wisp-docs-inline-links a { color: #00d9ff; text-decoration: none; }
+
 .wisp-docs-inline-links a:hover { text-decoration: underline; }
 
 .wisp-docs-library-head {
@@ -657,4 +410,164 @@ html.wisp-docs-mode body {
   color: #7aa;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 0.75rem;
+}
+
+/* G9903 — honest modal/map shell islands (no invented widget bodies) */
+.cwl-modal-shell {
+  display: none;
+}
+
+.cwl-map-shell-ready {
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(0, 217, 255, 0.28);
+  border-radius: 0.65rem;
+  background: rgba(15, 20, 25, 0.55);
+  color: #8aa;
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+.cwl-map-shell-label {
+  width: 100%;
+  text-align: center;
+}
+
+.cwl-hydrated-list {
+  margin: 1rem 1.25rem 1.5rem;
+  overflow-x: auto;
+}
+
+.cwl-hydrated-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.cwl-hydrated-table th,
+.cwl-hydrated-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+}
+
+.cwl-hydrated-card {
+  display: block;
+  padding: 0.85rem 1rem;
+  margin: 0.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  background: rgba(15, 20, 25, 0.45);
+}
+
+.cwl-hydrated-card h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.cwl-hydrated-card p {
+  margin: 0;
+  color: #9bb;
+  font-size: 0.85rem;
+}
+
+select[data-cwl-filter-shell] {
+  opacity: 0.7;
+}
+
+.wisp-secondary-modules {
+  margin-top: 1.5rem;
+  padding: 1rem 0 0;
+}
+
+.wisp-secondary-title {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+  color: #9bb;
+  font-weight: 600;
+}
+
+.wisp-secondary-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+
+.wisp-secondary-module {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.35rem;
+  color: #cfe;
+  text-decoration: none;
+  font-size: 0.9rem;
+  background: rgba(15, 20, 25, 0.4);
+}
+
+.wisp-secondary-module:hover {
+  border-color: rgba(0, 217, 255, 0.4);
+  color: #fff;
+}
+
+.cwl-map-controls {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-width: min(92vw, 42rem);
+  background: rgba(12, 18, 28, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.4rem;
+  padding: 0.4rem;
+}
+
+.cwl-map-controls button,
+.cwl-map-controls select {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 40, 55, 0.9);
+  color: #e8f0f8;
+  cursor: pointer;
+}
+
+.cwl-map-filter-panel {
+  position: absolute;
+  top: 3.5rem;
+  left: 0.75rem;
+  z-index: 21;
+  width: 16rem;
+  max-height: 70vh;
+  overflow: auto;
+  padding: 0.75rem;
+  background: rgba(12, 18, 28, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.4rem;
+  color: #dde;
+}
+
+.cwl-map-filter-panel label {
+  display: block;
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.cwl-map-stats {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  z-index: 20;
+  padding: 0.4rem 0.65rem;
+  background: rgba(12, 18, 28, 0.88);
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+  color: #cde;
 }

@@ -1,6 +1,44 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "maintain",
-  "op": "list"
+  "tickets": [
+    {
+      "id": "tk-1",
+      "name": "Outage",
+      "status": "open"
+    }
+  ],
+  "workOrders": [
+    {
+      "id": "wo-1",
+      "name": "Repair",
+      "status": "open"
+    }
+  ],
+  "items": [
+    {
+      "id": "tk-1",
+      "name": "Outage",
+      "status": "open"
+    }
+  ],
+  "report": {
+    "summary": {
+      "totalTickets": 10,
+      "totalItems": 10,
+      "byStatus": {
+        "open": 4,
+        "closed": 5,
+        "pending": 1
+      },
+      "byCategory": {
+        "network": 3,
+        "billing": 2,
+        "support": 5
+      },
+      "slaCompliance": {
+        "onTime": 8,
+        "breached": 2
+      }
+    }
+  }
 }

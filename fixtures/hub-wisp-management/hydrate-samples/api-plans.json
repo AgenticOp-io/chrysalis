@@ -2,9 +2,42 @@
   "ok": true,
   "plans": [
     {
+      "id": "plan-north",
+      "name": "North Sector Build",
+      "status": "draft",
+      "kind": "plan-project",
+      "lat": 39.85,
+      "lng": -98.58,
+      "showOnMap": true
+    },
+    {
+      "id": "plan-beta",
+      "name": "Beta Coverage Expand",
+      "status": "approved",
+      "kind": "plan-project",
+      "lat": 39.91,
+      "lng": -98.65,
+      "showOnMap": true,
+      "marketing": {
+        "targetRadiusMiles": 2,
+        "lastResultCount": 0,
+        "addresses": []
+      }
+    },
+    {
+      "id": "plan-core",
+      "name": "Core Site Deploy",
+      "status": "deployed",
+      "kind": "plan-project",
+      "lat": 39.78,
+      "lng": -98.52,
+      "showOnMap": true
+    },
+    {
       "id": "p1",
       "name": "Residential 100",
       "status": "active",
+      "kind": "service-plan",
       "price": 49.99,
       "isPopular": true,
       "features": ["100 Mbps", "Unlimited data"]
@@ -13,13 +46,38 @@
       "id": "p2",
       "name": "Business 500",
       "status": "active",
+      "kind": "service-plan",
       "price": 149.99,
       "isPopular": false,
       "features": ["500 Mbps", "SLA"]
     }
   ],
   "items": [
-    { "id": "p1", "name": "Residential 100", "status": "active" },
-    { "id": "p2", "name": "Business 500", "status": "active" }
+    {
+      "id": "plan-north",
+      "name": "North Sector Build",
+      "status": "draft",
+      "kind": "plan-project",
+      "lat": 39.85,
+      "lng": -98.58
+    },
+    {
+      "id": "plan-beta",
+      "name": "Beta Coverage Expand",
+      "status": "approved",
+      "kind": "plan-project",
+      "lat": 39.91,
+      "lng": -98.65
+    },
+    {
+      "id": "plan-core",
+      "name": "Core Site Deploy",
+      "status": "deployed",
+      "kind": "plan-project",
+      "lat": 39.78,
+      "lng": -98.52
+    },
+    { "id": "p1", "name": "Residential 100", "status": "active", "kind": "service-plan" },
+    { "id": "p2", "name": "Business 500", "status": "active", "kind": "service-plan" }
   ]
 }

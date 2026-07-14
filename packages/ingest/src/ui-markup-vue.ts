@@ -7,6 +7,7 @@ import type { UiFrameworkMarkupAdapter } from "./ui-markup.js";
 import { uiRoutePatternSource } from "./ui-route-patterns.js";
 import { kebabCase } from "./ui-assets-vite-shared.js";
 import { finalizeStaticMarkup } from "./ui-markup-static.js";
+import { liftStructuralVueTemplateHtml } from "./ui-markup-vue-structural.js";
 
 /** Extract static template HTML from a .vue SFC. */
 export function liftStaticVueTemplateHtml(source: string): string | null {
@@ -70,6 +71,19 @@ export const viteVueMarkupAdapter: UiFrameworkMarkupAdapter = {
   },
   liftPageHtml(source) {
     return liftStaticVueTemplateHtml(source);
+  },
+  liftPageMarkup(source, _routeId, mode) {
+    if (mode === "static") {
+      const html = liftStaticVueTemplateHtml(source);
+      return html === null ? null : { html, liftMode: "static", holes: [] };
+    }
+    const lifted = liftStructuralVueTemplateHtml(source);
+    if (lifted === null) return null;
+    return {
+      html: lifted.html,
+      liftMode: lifted.liftMode,
+      holes: lifted.holes,
+    };
   },
   routePatternSource: uiRoutePatternSource,
 };

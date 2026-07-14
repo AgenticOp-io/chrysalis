@@ -1,40 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>wizards</title>
-<link rel="stylesheet" href="/assets/original-css/wizards.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="wizards-page">\r
-    <header class="wizards-header">\r
-      <button class="back-btn" type="button">\r
-        ← Dashboard\r
-      </button>\r
-      <div class="wizards-header-row">\r
-        <h1>🧙 List of wizards</h1>\r
-        <div class="wizards-pulldown-wrap">\r
-          <button\r
-            type="button"\r
-            class="wizards-pulldown-trigger"\r
-            aria-haspopup="true"\r
-          >\r
-            Jump to wizard ▼\r
-          </button>\r
-          \r
-        </div>\r
-      </div>\r
-      <p class="subtitle">Guided flows for setup, deployment, and operations. Each wizard runs inside its module. Use <strong>Jump to wizard</strong> above or "Open in [Module]" below to go to that module, then click the wizard button in the module header.</p>\r
-    </header>\r
-\r
-    <div class="wizards-grid">\r
-      \r
-    </div>\r
-  </div>\r
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="OrganizationSetupWizard" aria-hidden="true" role="dialog"></div> (showOrgWizard = false)} />\r
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="InitialConfigurationWizard" aria-hidden="true" role="dialog"></div> (showConfigWizard = false)} />
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="wizards" data-wisp-path="/wizards" data-cwl-island="client" data-wisp-layout="list">
+  <header class="wisp-demo-header">
+    <h1>Wizards</h1>
+    <p class="wisp-demo-desc">Operational workspace for Wizards — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/wizards/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>25000</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>4</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>14</strong><span>Pending tasks</span></article>
+</div>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Wizards data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
 <script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/wizards"}</script>
-
-</body>
-</html>

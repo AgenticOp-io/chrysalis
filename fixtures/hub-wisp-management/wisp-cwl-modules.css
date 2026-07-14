@@ -239,6 +239,61 @@ html, body {
 
 .map-loading.hidden { display: none; }
 
+.map-honesty {
+  position: absolute;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: min(36rem, 90vw);
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  background: rgba(26, 35, 50, 0.92);
+  color: #f0c674;
+  font-size: 0.85rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.map-honesty[hidden] { display: none; }
+
+.plan-layers-panel .plan-layers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem 1rem;
+}
+.plan-layers-panel label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+}
+.map-asset-detail {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 5;
+  min-width: 12rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #e2e8f0;
+}
+
+.map-fullscreen {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.map-fullscreen .map-view-host {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
 /* Wizard launcher (wizards page) */
 .wisp-wizard-grid {
   display: grid;
@@ -310,3 +365,66 @@ html, body {
 }
 .wisp-wizard-status { margin-top: 0.6rem; font-size: 0.86rem; color: #4ade80; }
 .wisp-wizard-status.error { color: #f87171; }
+
+.cwl-map-controls {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-width: min(92vw, 42rem);
+  background: rgba(12, 18, 28, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.4rem;
+  padding: 0.4rem;
+}
+.cwl-map-controls button,
+.cwl-map-controls select {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 40, 55, 0.9);
+  color: #e8f0f8;
+  cursor: pointer;
+}
+.cwl-map-filter-panel {
+  position: absolute;
+  top: 3.5rem;
+  left: 0.75rem;
+  z-index: 21;
+  width: 16rem;
+  max-height: 70vh;
+  overflow: auto;
+  padding: 0.75rem;
+  background: rgba(12, 18, 28, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.4rem;
+  color: #dde;
+}
+.cwl-map-filter-panel label { display: block; margin: 0.25rem 0; font-size: 0.85rem; }
+.cwl-map-stats {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  z-index: 20;
+  padding: 0.4rem 0.65rem;
+  background: rgba(12, 18, 28, 0.88);
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+  color: #cde;
+}
+.wisp-secondary-nav { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; }
+.wisp-secondary-module {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.35rem;
+  color: #cfe;
+  text-decoration: none;
+  font-size: 0.9rem;
+  background: rgba(15, 20, 25, 0.4);
+}

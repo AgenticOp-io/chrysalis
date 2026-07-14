@@ -1,39 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>tickets</title>
-<link rel="stylesheet" href="/assets/original-css/modules_customers_portal_tickets.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="tickets-page">
-  <div class="page-header">
-    <h1>My Tickets</h1>
-    <a href="/modules/customers/portal/tickets/new" class="btn-primary">
-      Create New Ticket
-    </a>
-  </div>
-  
-  <div class="filters">
-    <select class="filter-select">
-      <option value="all">All Status</option>
-      <option value="open">Open</option>
-      <option value="assigned">Assigned</option>
-      <option value="in-progress">In Progress</option>
-      <option value="waiting-parts">Waiting Parts</option>
-      <option value="resolved">Resolved</option>
-      <option value="closed">Closed</option>
-    </select>
-  </div>
-  
-  
-    <div class="tickets-list">
-      
-    </div>
-  
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_tickets" data-wisp-path="/modules/customers/portal/tickets" data-cwl-island="client" data-wisp-layout="portal" data-wisp-api="/api/customers">
+  <header class="wisp-demo-header">
+    <h1>Tickets</h1>
+    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-portal">
+  <nav class="wisp-demo-portal-nav">
+    <a href="/modules/customers/portal/dashboard">Dashboard</a>
+    <a href="/modules/customers/portal/tickets">Tickets</a>
+    <a href="/modules/customers/portal/billing">Billing</a>
+    <a href="/modules/customers/portal/knowledge">Knowledge</a>
+  </nav>
+  <section class="wisp-demo-portal-body">
+    <h2>Tickets</h2>
+    <p>Customer portal surface — demo content wired to native CWL API.</p>
+    <table class="wisp-demo-table" id="wisp-demo-table"><tbody><tr><td colspan="4">Loading portal data…</td></tr></tbody></table>
+  </section>
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers/portal/tickets","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers/portal/tickets","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>

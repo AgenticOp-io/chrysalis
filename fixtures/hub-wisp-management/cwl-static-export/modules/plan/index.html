@@ -1,103 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>plan</title>
-<link rel="stylesheet" href="/assets/original-css/modules_plan.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="app">
-    <!-- Full Screen Map -->
-    <div class="map-fullscreen">
-      <div class="cwl-map-shell" data-cwl-map-shell="SharedMap" aria-hidden="true" role="img"></div>
-    </div>
-
-    <!-- Enhanced Header Overlay -->
-    <div class="module-header-overlay" style="background: var(--gradient-primary);">
-      <div class="module-header-left">
-        <button class="module-back-btn" title="Back to Dashboard">
-          ←
-        </button>
-        <h1>📋 Plan</h1>
-      </div>
-      <div class="module-header-controls">
-        <button class="help-button" aria-label="Open Help" title="Help">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-        </button>
-          <button class="module-control-btn" title="View All Hardware">
-          <span class="control-icon">🔧</span>
-          <span class="control-label">Hardware</span>
-        </button>
-        <button class="module-control-btn" title="Project List">
-          <span class="control-icon">📁</span>
-          <span class="control-label">Projects</span>
-        </button>
-        <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> }
-        />
-        <button
-          class="module-control-btn marketing-btn"
-            type="button"
-        >
-          <span class="control-icon">🔍</span>
-          <span class="control-label">Find Addresses</span>
-        </button>
-        <button 
-          class="module-control-btn filter-btn"
-          type="button"}
-          title="Toggle Layer Filters"
-        >
-          <span class="control-icon">🎛️</span>
-          <span class="control-label">Layers</span>
-        </button>
-      </div>
-    </div>
-
-    
+<div class="wisp-plan-app" data-wisp-page="plan" data-cwl-island="client">
+  <div class="map-fullscreen">
+    <iframe id="plan-map-iframe" class="plan-map-iframe" title="Plan map" src="/modules/coverage-map?mode=plan&hideStats=true&planMode=true"></iframe>
   </div>
-
-  <!-- Filter Panel (non-modal) -->
-  
-  
-  <!-- Click outside to close filter panel -->
-  
-
-  <!-- Hardware View Modal -->
-
-
-  <!-- Project List Modal -->
-  
-
-  <!-- Create Project Modal -->
-
-
-  <!-- Missing Hardware Modal -->
-
-
-  <!-- Marketing Modal (deprecated - kept for backward compatibility) -->
-  
-
-  <!-- Marketing Results Popup -->
-  
-
-  <!-- Add Hardware Requirement Modal -->
-
-
-  <!-- Planning Report Modal -->
-
-  
-  <!-- Global Settings Button - Hidden in plan mode, shown in coverage-map iframe instead -->
-
-  <!-- Help Modal -->
-  <div class="cwl-modal-shell" data-cwl-modal-shell="HelpModal" aria-hidden="true" role="dialog"></div> false}
-  />
-
-<!-- MapLayerManager: overlay/visibleProjects/projectOverlays wired. Staging CRUD (site/equipment add/edit/delete from plan) planned – see docs/PROJECT_WORKFLOW_STATUS.md -->
+  <div class="wisp-header-overlay">
+    <div class="wisp-header-left">
+      <button type="button" class="wisp-back-btn" data-action="back" title="Back to Dashboard" aria-label="Back to Dashboard">←</button>
+      <h1>📋 Plan</h1>
+    </div>
+    <div class="wisp-header-controls">
+      <button type="button" class="wisp-control-btn" data-action="help" title="Help"><span class="control-icon">❓</span><span class="control-label">Help</span></button>
+      <button type="button" class="wisp-control-btn" data-action="hardware" title="View hardware on map context"><span class="control-icon">🔧</span><span class="control-label">Hardware</span></button>
+      <button type="button" class="wisp-control-btn" data-action="projects" title="Project list"><span class="control-icon">📁</span><span class="control-label">Projects</span></button>
+      <button type="button" class="wisp-control-btn" data-action="create-project" title="Create plan project"><span class="control-icon">➕</span><span class="control-label">Create</span></button>
+      <button type="button" class="wisp-control-btn" data-action="layers" title="Layer filters"><span class="control-icon">🎛️</span><span class="control-label">Layers</span></button>
+      <button type="button" class="wisp-control-btn marketing-btn" data-action="marketing" title="Find addresses"><span class="control-icon">🔍</span><span class="control-label">Find Addresses</span></button>
+    </div>
+  </div>
+  <aside id="plan-projects-panel" class="plan-side-panel" hidden aria-label="Plan projects">
+    <div class="plan-panel-header">
+      <h2>Plan projects</h2>
+      <button type="button" class="plan-panel-close" data-action="close-projects" aria-label="Close">✕</button>
+    </div>
+    <div id="plan-projects-list" class="plan-projects-list"><p class="plan-panel-loading">Loading projects…</p></div>
+  </aside>
+  <div id="plan-active-summary" class="plan-summary" hidden></div>
+</div>
 <script type="application/json" id="cwl-page-load">{"moduleKey":"plan","source":"wisp-m30","apiPath":"/api/plans","api_ok":true,"api_surface":"wisp-api-native","api_resource":"plans","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>

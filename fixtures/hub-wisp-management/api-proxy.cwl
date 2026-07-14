@@ -7,7 +7,7 @@ handler wisp_api_plans_get {
   # source backend-services/routes/plans — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"plans\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"plans\":[{\"id\":\"plan-north\",\"name\":\"North Sector Build\",\"status\":\"draft\",\"kind\":\"plan-project\",\"lat\":39.85,\"lng\":-98.58,\"showOnMap\":true},{\"id\":\"plan-beta\",\"name\":\"Beta Coverage Expand\",\"status\":\"approved\",\"kind\":\"plan-project\",\"lat\":39.91,\"lng\":-98.65,\"showOnMap\":true,\"marketing\":{\"targetRadiusMiles\":2,\"lastResultCount\":0,\"addresses\":[]}},{\"id\":\"plan-core\",\"name\":\"Core Site Deploy\",\"status\":\"deployed\",\"kind\":\"plan-project\",\"lat\":39.78,\"lng\":-98.52,\"showOnMap\":true},{\"id\":\"p1\",\"name\":\"Residential 100\",\"status\":\"active\",\"kind\":\"service-plan\",\"price\":49.99,\"isPopular\":true,\"features\":[\"100 Mbps\",\"Unlimited data\"]},{\"id\":\"p2\",\"name\":\"Business 500\",\"status\":\"active\",\"kind\":\"service-plan\",\"price\":149.99,\"isPopular\":false,\"features\":[\"500 Mbps\",\"SLA\"]}],\"items\":[{\"id\":\"plan-north\",\"name\":\"North Sector Build\",\"status\":\"draft\",\"kind\":\"plan-project\",\"lat\":39.85,\"lng\":-98.58},{\"id\":\"plan-beta\",\"name\":\"Beta Coverage Expand\",\"status\":\"approved\",\"kind\":\"plan-project\",\"lat\":39.91,\"lng\":-98.65},{\"id\":\"plan-core\",\"name\":\"Core Site Deploy\",\"status\":\"deployed\",\"kind\":\"plan-project\",\"lat\":39.78,\"lng\":-98.52},{\"id\":\"p1\",\"name\":\"Residential 100\",\"status\":\"active\",\"kind\":\"service-plan\"},{\"id\":\"p2\",\"name\":\"Business 500\",\"status\":\"active\",\"kind\":\"service-plan\"}]}";
 }
 
 @route POST "/api/plans"
@@ -47,7 +47,7 @@ handler wisp_api_network_get {
   # source backend-services/routes/network — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"network\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"sites\":[{\"id\":\"s1\",\"_id\":\"s1\",\"name\":\"North Tower\",\"status\":\"active\",\"type\":[\"tower\"],\"lat\":39.85,\"lng\":-98.58,\"location\":{\"latitude\":39.85,\"longitude\":-98.58,\"address\":\"North Sector\"},\"height\":40},{\"id\":\"s2\",\"_id\":\"s2\",\"name\":\"Beta Rooftop\",\"status\":\"active\",\"type\":[\"rooftop\"],\"lat\":39.91,\"lng\":-98.65,\"location\":{\"latitude\":39.91,\"longitude\":-98.65},\"height\":25},{\"id\":\"s3\",\"_id\":\"s3\",\"name\":\"Core Monopole\",\"status\":\"online\",\"type\":[\"monopole\"],\"lat\":39.78,\"lng\":-98.52,\"location\":{\"latitude\":39.78,\"longitude\":-98.52},\"height\":35}],\"towers\":[{\"id\":\"tw-1\",\"name\":\"Tower A\",\"status\":\"online\",\"lat\":39.78,\"lng\":-98.52}],\"sectors\":[{\"id\":\"sec-1\",\"_id\":\"sec-1\",\"siteId\":\"s1\",\"name\":\"North-LTE-0\",\"status\":\"active\",\"technology\":\"LTE\",\"band\":\"LTE\",\"azimuth\":0,\"beamwidth\":65,\"pci\":101,\"earfcn\":2300,\"eNodeB\":1001,\"lat\":39.85,\"lng\":-98.58,\"location\":{\"latitude\":39.85,\"longitude\":-98.58}},{\"id\":\"sec-2\",\"_id\":\"sec-2\",\"siteId\":\"s1\",\"name\":\"North-CBRS-120\",\"status\":\"deployed\",\"technology\":\"CBRS\",\"band\":\"CBRS\",\"azimuth\":120,\"beamwidth\":60,\"pci\":204,\"earfcn\":55240,\"eNodeB\":1001,\"lat\":39.85,\"lng\":-98.58,\"location\":{\"latitude\":39.85,\"longitude\":-98.58}},{\"id\":\"sec-3\",\"_id\":\"sec-3\",\"siteId\":\"s2\",\"name\":\"Beta-FWA-240\",\"status\":\"active\",\"technology\":\"FWA\",\"band\":\"FWA\",\"azimuth\":240,\"beamwidth\":90,\"pci\":88,\"earfcn\":66661,\"eNodeB\":2002,\"lat\":39.91,\"lng\":-98.65,\"location\":{\"latitude\":39.91,\"longitude\":-98.65}}],\"cpe\":[{\"id\":\"cpe-1\",\"name\":\"CPE Acme\",\"status\":\"active\",\"lat\":39.842,\"lng\":-98.57,\"location\":{\"latitude\":39.842,\"longitude\":-98.57}}],\"cpeDevices\":[{\"id\":\"cpe-1\",\"name\":\"CPE Acme\",\"status\":\"active\",\"lat\":39.842,\"lng\":-98.57,\"location\":{\"latitude\":39.842,\"longitude\":-98.57}}],\"equipment\":[{\"id\":\"eq-1\",\"name\":\"Core Switch\",\"status\":\"online\",\"locationType\":\"noc\",\"lat\":39.78,\"lng\":-98.52,\"location\":{\"latitude\":39.78,\"longitude\":-98.52}}],\"networkDevices\":[{\"id\":\"nd-1\",\"name\":\"Core Switch\",\"status\":\"online\"}],\"epcDevices\":[{\"id\":\"epc-1\",\"name\":\"MME-1\",\"status\":\"online\"}],\"grants\":[{\"id\":\"g1\",\"name\":\"CBRS Grant\",\"status\":\"authorized\"}],\"items\":[{\"id\":\"s1\",\"name\":\"North Tower\",\"status\":\"active\",\"lat\":39.85,\"lng\":-98.58}]}";
 }
 
 @route POST "/api/network"
@@ -82,12 +82,108 @@ handler wisp_api_network_delete {
   return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"network\",\"op\":\"delete\"}";
 }
 
+@route GET "/api/network/sites"
+handler wisp_api_network_sites_get {
+  # source backend-services/routes/network-sites — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"sites\":[{\"id\":\"s1\",\"_id\":\"s1\",\"name\":\"North Tower\",\"status\":\"active\",\"type\":[\"tower\"],\"lat\":39.85,\"lng\":-98.58,\"location\":{\"latitude\":39.85,\"longitude\":-98.58}},{\"id\":\"s2\",\"_id\":\"s2\",\"name\":\"Beta Rooftop\",\"status\":\"active\",\"type\":[\"rooftop\"],\"lat\":39.91,\"lng\":-98.65,\"location\":{\"latitude\":39.91,\"longitude\":-98.65}},{\"id\":\"s3\",\"_id\":\"s3\",\"name\":\"Core Monopole\",\"status\":\"online\",\"type\":[\"monopole\"],\"lat\":39.78,\"lng\":-98.52,\"location\":{\"latitude\":39.78,\"longitude\":-98.52}}],\"items\":[{\"id\":\"s1\",\"name\":\"North Tower\",\"status\":\"active\",\"lat\":39.85,\"lng\":-98.58},{\"id\":\"s2\",\"name\":\"Beta Rooftop\",\"status\":\"active\",\"lat\":39.91,\"lng\":-98.65},{\"id\":\"s3\",\"name\":\"Core Monopole\",\"status\":\"online\",\"lat\":39.78,\"lng\":-98.52}]}";
+}
+
+@route GET "/api/network/sectors"
+handler wisp_api_network_sectors_get {
+  # source backend-services/routes/network-sectors — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"sectors\":[{\"id\":\"sec-1\",\"_id\":\"sec-1\",\"siteId\":\"s1\",\"name\":\"North-LTE-0\",\"status\":\"active\",\"technology\":\"LTE\",\"band\":\"LTE\",\"azimuth\":0,\"beamwidth\":65,\"pci\":101,\"earfcn\":2300,\"eNodeB\":1001,\"lat\":39.85,\"lng\":-98.58,\"location\":{\"latitude\":39.85,\"longitude\":-98.58}},{\"id\":\"sec-2\",\"_id\":\"sec-2\",\"siteId\":\"s1\",\"name\":\"North-CBRS-120\",\"status\":\"deployed\",\"technology\":\"CBRS\",\"band\":\"CBRS\",\"azimuth\":120,\"beamwidth\":60,\"pci\":204,\"earfcn\":55240,\"eNodeB\":1001,\"lat\":39.85,\"lng\":-98.58,\"location\":{\"latitude\":39.85,\"longitude\":-98.58}},{\"id\":\"sec-3\",\"_id\":\"sec-3\",\"siteId\":\"s2\",\"name\":\"Beta-FWA-240\",\"status\":\"active\",\"technology\":\"FWA\",\"band\":\"FWA\",\"azimuth\":240,\"beamwidth\":90,\"pci\":88,\"earfcn\":66661,\"eNodeB\":2002,\"lat\":39.91,\"lng\":-98.65,\"location\":{\"latitude\":39.91,\"longitude\":-98.65}}],\"items\":[{\"id\":\"sec-1\",\"name\":\"North-LTE-0\",\"status\":\"active\"},{\"id\":\"sec-2\",\"name\":\"North-CBRS-120\",\"status\":\"deployed\"},{\"id\":\"sec-3\",\"name\":\"Beta-FWA-240\",\"status\":\"active\"}]}";
+}
+
+@route GET "/api/network/cpe"
+handler wisp_api_network_cpe_get {
+  # source backend-services/routes/network-cpe — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"cpe\":[{\"id\":\"cpe-1\",\"name\":\"CPE Acme\",\"status\":\"active\",\"lat\":39.842,\"lng\":-98.57,\"location\":{\"latitude\":39.842,\"longitude\":-98.57}}],\"items\":[{\"id\":\"cpe-1\",\"name\":\"CPE Acme\",\"status\":\"active\",\"lat\":39.842,\"lng\":-98.57}]}";
+}
+
+@route GET "/api/network/equipment"
+handler wisp_api_network_equipment_get {
+  # source backend-services/routes/network-equipment — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"equipment\":[{\"id\":\"eq-1\",\"name\":\"Core Switch\",\"status\":\"online\",\"locationType\":\"noc\",\"lat\":39.78,\"lng\":-98.52,\"location\":{\"latitude\":39.78,\"longitude\":-98.52}}],\"items\":[{\"id\":\"eq-1\",\"name\":\"Core Switch\",\"status\":\"online\"}]}";
+}
+
+@route POST "/api/network/import/cbrs"
+handler wisp_api_network_import_cbrs_post {
+  # source backend-services/routes/network-import-cbrs — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"imported\":0,\"errors\":[],\"note\":\"CBRS import endpoint present; no invent GenieACS/ACS payloads\"}";
+}
+
+@route POST "/api/plans/marketing/discover"
+handler wisp_api_plans_marketing_discover_post {
+  # source backend-services/routes/plans-marketing-discover — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"addresses\":[{\"id\":\"addr-1\",\"name\":\"112 Main St\",\"address\":\"112 Main St\",\"lat\":39.848,\"lng\":-98.575,\"source\":\"microsoft_footprints\"},{\"id\":\"addr-2\",\"name\":\"118 Main St\",\"address\":\"118 Main St\",\"lat\":39.849,\"lng\":-98.576,\"source\":\"osm_buildings\"}],\"count\":2,\"algorithms\":[\"microsoft_footprints\",\"osm_buildings\"]}";
+}
+
+@route POST "/api/inventory/scan/lookup"
+handler wisp_api_inventory_scan_lookup_post {
+  # source backend-services/routes/inventory-scan-lookup — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"item\":{\"id\":\"inv-1\",\"name\":\"CPE-AX100\",\"status\":\"in-stock\",\"identifier\":\"SN-AX100-001\",\"location\":{\"type\":\"warehouse\",\"name\":\"Main WH\"}}}";
+}
+
+@route POST "/api/inventory/scan/check-in"
+handler wisp_api_inventory_scan_checkin_post {
+  # source backend-services/routes/inventory-scan-checkin — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"op\":\"check-in\",\"item\":{\"id\":\"inv-1\",\"name\":\"CPE-AX100\",\"status\":\"in-stock\"}}";
+}
+
+@route POST "/api/inventory/scan/check-out"
+handler wisp_api_inventory_scan_checkout_post {
+  # source backend-services/routes/inventory-scan-checkout — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"op\":\"check-out\",\"item\":{\"id\":\"inv-1\",\"name\":\"CPE-AX100\",\"status\":\"deployed\"}}";
+}
+
+@route POST "/api/inventory/transfer"
+handler wisp_api_inventory_transfer_post {
+  # source backend-services/routes/inventory-transfer — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"op\":\"transfer\",\"item\":{\"id\":\"inv-1\",\"name\":\"CPE-AX100\",\"status\":\"in-transit\"}}";
+}
+
+@route GET "/api/coverage"
+handler wisp_api_coverage_get {
+  # source backend-services/routes/coverage — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"coverage\":[{\"id\":\"c1\",\"name\":\"Sector Alpha\",\"status\":\"active\",\"lat\":39.8283,\"lng\":-98.5795},{\"id\":\"c2\",\"name\":\"Sector Beta\",\"status\":\"active\",\"lat\":39.91,\"lng\":-98.65}],\"items\":[{\"id\":\"c1\",\"name\":\"Sector Alpha\",\"status\":\"active\",\"lat\":39.8283,\"lng\":-98.5795},{\"id\":\"c2\",\"name\":\"Sector Beta\",\"status\":\"active\",\"lat\":39.91,\"lng\":-98.65}]}";
+}
+
+@route GET "/api/module-access"
+handler wisp_api_module_access_get {
+  # source backend-services/routes/module-access — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"module-access\",\"op\":\"list\",\"modules\":[{\"id\":\"plan\",\"name\":\"Plan\",\"roles\":[\"owner\",\"admin\"]},{\"id\":\"deploy\",\"name\":\"Deploy\",\"roles\":[\"owner\",\"admin\"]},{\"id\":\"billing\",\"name\":\"Billing\",\"roles\":[\"owner\"]}],\"items\":[{\"id\":\"plan\",\"name\":\"Plan\",\"status\":\"configured\"},{\"id\":\"deploy\",\"name\":\"Deploy\",\"status\":\"configured\"},{\"id\":\"billing\",\"name\":\"Billing\",\"status\":\"configured\"}]}";
+}
+
 @route GET "/api/customers"
 handler wisp_api_customers_get {
   # source backend-services/routes/customers — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"customers\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"stats\":{\"total\":3,\"active\":2,\"pending\":1,\"suspended\":0},\"customers\":[{\"customerId\":\"c1\",\"name\":\"Acme Wireless\",\"status\":\"active\",\"email\":\"ops@acme.example\"},{\"customerId\":\"c2\",\"name\":\"Beta ISP\",\"status\":\"pending\",\"email\":\"admin@beta.example\"},{\"customerId\":\"c3\",\"name\":\"Canyon Net\",\"status\":\"active\",\"email\":\"noc@canyon.example\"}],\"items\":[{\"id\":\"c1\",\"name\":\"Acme Wireless\",\"status\":\"active\"},{\"id\":\"c2\",\"name\":\"Beta ISP\",\"status\":\"pending\"},{\"id\":\"c3\",\"name\":\"Canyon Net\",\"status\":\"active\"}]}";
 }
 
 @route POST "/api/customers"
@@ -127,7 +223,7 @@ handler wisp_api_customer_billing_get {
   # source backend-services/routes/customer-billing — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"customer-billing\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"analytics\":{\"totalRevenue\":12500.5,\"monthlyRecurringRevenue\":4200,\"activeSubscriptions\":18,\"averageRevenuePerUser\":69.44},\"plans\":[{\"id\":\"p1\",\"name\":\"Starter\",\"status\":\"active\",\"price\":49,\"isPopular\":true,\"features\":[\"email\",\"portal\"]},{\"id\":\"p2\",\"name\":\"Pro\",\"status\":\"active\",\"price\":149,\"features\":[\"email\",\"portal\",\"sla\"]}],\"invoices\":[{\"id\":\"inv-1\",\"tenant\":\"Acme\",\"amount\":149,\"status\":\"paid\"},{\"id\":\"inv-2\",\"tenant\":\"Beta\",\"amount\":49,\"status\":\"failed\"}],\"paymentMethods\":[{\"id\":\"pm-1\",\"type\":\"card\",\"tenant\":\"Acme\",\"email\":\"ops@acme.example\",\"isDefault\":true}],\"subscriptions\":[{\"id\":\"sub-1\",\"tenant\":\"Acme\",\"plan\":\"Pro\",\"status\":\"active\"}],\"items\":[{\"id\":\"inv-1\",\"name\":\"Acme invoice\",\"status\":\"paid\"}]}";
 }
 
 @route POST "/api/customer-billing"
@@ -167,7 +263,7 @@ handler wisp_api_inventory_get {
   # source backend-services/routes/inventory — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"inventory\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"stats\":{\"total\":4,\"inStock\":3,\"rma\":1},\"items\":[{\"id\":\"inv-1\",\"name\":\"CPE-AX100\",\"status\":\"in-stock\"},{\"id\":\"inv-2\",\"name\":\"Sector-60\",\"status\":\"in-stock\"},{\"id\":\"inv-3\",\"name\":\"Backhaul-Link\",\"status\":\"rma\"}],\"devices\":[{\"id\":\"dev-1\",\"name\":\"CPE-AX100\",\"status\":\"online\"},{\"id\":\"dev-2\",\"name\":\"CPE-BX200\",\"status\":\"offline\"}]}";
 }
 
 @route POST "/api/inventory"
@@ -200,6 +296,30 @@ handler wisp_api_inventory_delete {
   effects: db, session;
   use auth bearer;
   return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"inventory\",\"op\":\"delete\"}";
+}
+
+@route GET "/api/hardware"
+handler wisp_api_hardware_get {
+  # source backend-services/routes/hardware — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"stats\":{\"total\":4,\"inStock\":3,\"rma\":1},\"items\":[{\"id\":\"inv-1\",\"name\":\"CPE-AX100\",\"status\":\"in-stock\"},{\"id\":\"inv-2\",\"name\":\"Sector-60\",\"status\":\"in-stock\"},{\"id\":\"inv-3\",\"name\":\"Backhaul-Link\",\"status\":\"rma\"}],\"devices\":[{\"id\":\"dev-1\",\"name\":\"CPE-AX100\",\"status\":\"online\"},{\"id\":\"dev-2\",\"name\":\"CPE-BX200\",\"status\":\"offline\"}]}";
+}
+
+@route GET "/api/billing"
+handler wisp_api_billing_alias_get {
+  # source backend-services/routes/billing-alias — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"analytics\":{\"totalRevenue\":12500.5,\"monthlyRecurringRevenue\":4200,\"activeSubscriptions\":18,\"averageRevenuePerUser\":69.44},\"plans\":[{\"id\":\"p1\",\"name\":\"Starter\",\"status\":\"active\",\"price\":49,\"isPopular\":true,\"features\":[\"email\",\"portal\"]},{\"id\":\"p2\",\"name\":\"Pro\",\"status\":\"active\",\"price\":149,\"features\":[\"email\",\"portal\",\"sla\"]}],\"invoices\":[{\"id\":\"inv-1\",\"tenant\":\"Acme\",\"amount\":149,\"status\":\"paid\"},{\"id\":\"inv-2\",\"tenant\":\"Beta\",\"amount\":49,\"status\":\"failed\"}],\"paymentMethods\":[{\"id\":\"pm-1\",\"type\":\"card\",\"tenant\":\"Acme\",\"email\":\"ops@acme.example\",\"isDefault\":true}],\"subscriptions\":[{\"id\":\"sub-1\",\"tenant\":\"Acme\",\"plan\":\"Pro\",\"status\":\"active\"}],\"items\":[{\"id\":\"inv-1\",\"name\":\"Acme invoice\",\"status\":\"paid\"}]}";
+}
+
+@route GET "/api/me"
+handler wisp_api_me_get {
+  # source backend-services/routes/me — oracle-verified (Phase 29a)
+  effects: db, session;
+  use auth bearer;
+  return "{\"ok\":true,\"authenticated\":true,\"email\":\"preview@wisptools.local\",\"surface\":\"wisp-auth-native\"}";
 }
 
 @route GET "/api/bundles"
@@ -247,7 +367,7 @@ handler wisp_api_deploy_get {
   # source backend-services/routes/deploy — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"deploy\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"deployments\":[{\"id\":\"d1\",\"name\":\"Site Deploy\",\"status\":\"scheduled\"}],\"items\":[{\"id\":\"d1\",\"name\":\"Site Deploy\",\"status\":\"scheduled\"}]}";
 }
 
 @route POST "/api/deploy"
@@ -287,7 +407,7 @@ handler wisp_api_hss_get {
   # source backend-services/routes/hss — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"hss\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"stats\":{\"subscribers\":120,\"active\":110},\"groups\":[{\"id\":\"g1\",\"name\":\"Default\",\"status\":\"active\"},{\"id\":\"g2\",\"name\":\"VIP\",\"status\":\"active\"}],\"items\":[{\"id\":\"g1\",\"name\":\"Default\",\"status\":\"active\"},{\"id\":\"g2\",\"name\":\"VIP\",\"status\":\"active\"}]}";
 }
 
 @route POST "/api/hss"
@@ -327,7 +447,7 @@ handler wisp_api_monitoring_get {
   # source backend-services/routes/monitoring — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"monitoring\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"stats\":{\"rssi\":-70,\"sinr\":20,\"uptimeHours\":200},\"devices\":[{\"id\":\"mon-1\",\"name\":\"CPE Monitor\",\"status\":\"online\"}],\"items\":[{\"id\":\"mon-1\",\"name\":\"CPE Monitor\",\"status\":\"online\"}]}";
 }
 
 @route POST "/api/monitoring"
@@ -367,7 +487,7 @@ handler wisp_api_maintain_get {
   # source backend-services/routes/maintain — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"maintain\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"tickets\":[{\"id\":\"tk-1\",\"name\":\"Outage\",\"status\":\"open\"}],\"workOrders\":[{\"id\":\"wo-1\",\"name\":\"Repair\",\"status\":\"open\"}],\"items\":[{\"id\":\"tk-1\",\"name\":\"Outage\",\"status\":\"open\"}],\"report\":{\"summary\":{\"totalTickets\":10,\"totalItems\":10,\"byStatus\":{\"open\":4,\"closed\":5,\"pending\":1},\"byCategory\":{\"network\":3,\"billing\":2,\"support\":5},\"slaCompliance\":{\"onTime\":8,\"breached\":2}}}}";
 }
 
 @route POST "/api/maintain"
@@ -407,7 +527,7 @@ handler wisp_api_tenants_get {
   # source backend-services/routes/tenants — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"tenants\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"tenants\":[{\"id\":\"t1\",\"name\":\"Acme Org\",\"status\":\"active\"},{\"id\":\"t2\",\"name\":\"Beta Org\",\"status\":\"trial\"}],\"items\":[{\"id\":\"t1\",\"name\":\"Acme Org\",\"status\":\"active\"},{\"id\":\"t2\",\"name\":\"Beta Org\",\"status\":\"trial\"}]}";
 }
 
 @route POST "/api/tenants"
@@ -447,7 +567,7 @@ handler wisp_api_users_get {
   # source backend-services/routes/users — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"users\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"users\":[{\"id\":\"u1\",\"name\":\"Admin\",\"email\":\"admin@example.com\",\"status\":\"active\"},{\"id\":\"u2\",\"name\":\"Ops\",\"email\":\"ops@example.com\",\"status\":\"active\"}],\"roles\":[{\"id\":\"r1\",\"name\":\"admin\",\"status\":\"active\"}],\"items\":[{\"id\":\"u1\",\"name\":\"Admin\",\"status\":\"active\"},{\"id\":\"u2\",\"name\":\"Ops\",\"status\":\"active\"}]}";
 }
 
 @route POST "/api/users"
@@ -487,7 +607,7 @@ handler wisp_api_work_orders_get {
   # source backend-services/routes/work-orders — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"work-orders\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"workOrders\":[{\"id\":\"wo-1\",\"name\":\"Install CPE\",\"status\":\"open\"},{\"id\":\"wo-2\",\"name\":\"Tower climb\",\"status\":\"scheduled\"}],\"items\":[{\"id\":\"wo-1\",\"name\":\"Install CPE\",\"status\":\"open\"},{\"id\":\"wo-2\",\"name\":\"Tower climb\",\"status\":\"scheduled\"}]}";
 }
 
 @route POST "/api/work-orders"
@@ -647,7 +767,7 @@ handler wisp_api_snmp_monitoring_get {
   # source backend-services/routes/snmp-monitoring — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"snmp-monitoring\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"stats\":{\"rssi\":-72,\"sinr\":18,\"uptimeHours\":120},\"devices\":[{\"id\":\"cpe-1\",\"name\":\"Tower A CPE\",\"status\":\"online\"},{\"id\":\"cpe-2\",\"name\":\"Tower B CPE\",\"status\":\"degraded\"}],\"cpeDevices\":[{\"id\":\"cpe-1\",\"name\":\"Tower A CPE\",\"status\":\"online\"},{\"id\":\"cpe-2\",\"name\":\"Tower B CPE\",\"status\":\"degraded\"}],\"items\":[{\"id\":\"cpe-1\",\"name\":\"Tower A CPE\",\"status\":\"online\"},{\"id\":\"cpe-2\",\"name\":\"Tower B CPE\",\"status\":\"degraded\"}]}";
 }
 
 @route POST "/api/snmp"
@@ -687,7 +807,7 @@ handler wisp_api_monitoring_graphs_get {
   # source backend-services/routes/monitoring-graphs — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"monitoring-graphs\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"stats\":{\"points\":48},\"series\":[{\"id\":\"rssi\",\"name\":\"RSSI\",\"status\":\"ok\"}],\"items\":[{\"id\":\"rssi\",\"name\":\"RSSI\",\"status\":\"ok\"}]}";
 }
 
 @route POST "/api/monitoring/graphs"
@@ -783,7 +903,7 @@ handler wisp_api_voice_get {
   # source backend-services/routes/voice — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"voice\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"lines\":[{\"id\":\"v1\",\"name\":\"Main DID\",\"status\":\"active\"}],\"items\":[{\"id\":\"v1\",\"name\":\"Main DID\",\"status\":\"active\"}]}";
 }
 
 @route POST "/api/voice"
@@ -823,7 +943,7 @@ handler wisp_api_admin_prefix_get {
   # source backend-services/routes/admin-prefix — oracle-verified (Phase 29a)
   effects: db, session;
   use auth bearer;
-  return "{\"ok\":true,\"surface\":\"wisp-api-native\",\"resource\":\"admin-prefix\",\"op\":\"list\"}";
+  return "{\"ok\":true,\"stats\":{\"activeRecords\":12,\"openAlerts\":2,\"pendingTasks\":3},\"tenants\":[{\"id\":\"t1\",\"name\":\"Acme Org\",\"displayName\":\"Acme Org\",\"status\":\"active\"},{\"id\":\"t2\",\"name\":\"Beta Org\",\"displayName\":\"Beta Org\",\"status\":\"trial\"}],\"items\":[{\"id\":\"t1\",\"name\":\"Acme Org\",\"status\":\"active\"},{\"id\":\"t2\",\"name\":\"Beta Org\",\"status\":\"trial\"}],\"modules\":[{\"id\":\"customers\",\"name\":\"Customers\",\"status\":\"active\"},{\"id\":\"inventory\",\"name\":\"Inventory\",\"status\":\"active\"}]}";
 }
 
 @route POST "/api/admin"

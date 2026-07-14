@@ -55,6 +55,11 @@ export interface ConvertSiteProjectOptions {
   readonly hydrateSamplesDir?: string;
   /** Write `.chrysalis/site-convert.json`. Default true. */
   readonly writeReport?: boolean;
+  /**
+   * HTTP paths that must not receive lifted markup patches (parity pages,
+   * client redirects). Load-bind may still run unless callers re-apply after.
+   */
+  readonly skipHttpPaths?: readonly string[];
 }
 
 export interface CwlMarkupPatchResult {
@@ -88,7 +93,11 @@ export function defaultSiteConvertCwlPaths(projectDir: string): string[] {
   return candidates.filter((p) => existsSync(p));
 }
 
-function patchCwlWithLiftedMarkup(cwlPath: string, uiMarkupDir: string): CwlMarkupPatchResult {
+function patchCwlWithLiftedMarkup(
+  cwlPath: string,
+  uiMarkupDir: string,
+  skipHttpPaths?: readonly string[],
+): CwlMarkupPatchResult {
   const loaded = loadUiMarkupLiftArtifacts(uiMarkupDir);
   if (loaded === null) {
     return {
@@ -104,6 +113,9 @@ function patchCwlWithLiftedMarkup(cwlPath: string, uiMarkupDir: string): CwlMark
     source,
     loaded.map,
     loaded.bundles,
+    skipHttpPaths !== undefined && skipHttpPaths.length > 0
+      ? { skipHttpPaths }
+      : undefined,
   );
   if (patched.routesPatched > 0) {
     writeFileSync(cwlPath, patched.text, "utf8");
@@ -182,7 +194,7 @@ export function convertSiteProjectUi(opts: ConvertSiteProjectOptions): ConvertSi
   if (ok && opts.liftOnly !== true) {
     const uiMarkupDir = join(projectDir, ".chrysalis", "ui-markup");
     for (const cwlPath of paths) {
-      cwlPatches.push(patchCwlWithLiftedMarkup(cwlPath, uiMarkupDir));
+      cwlPatches.push(patchCwlWithLiftedMarkup(cwlPath, uiMarkupDir, opts.skipHttpPaths));
     }
   }
 

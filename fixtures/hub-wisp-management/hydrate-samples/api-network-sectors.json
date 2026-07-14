@@ -1,0 +1,61 @@
+{
+  "ok": true,
+  "sectors": [
+    {
+      "id": "sec-1",
+      "_id": "sec-1",
+      "siteId": "s1",
+      "name": "North-LTE-0",
+      "status": "active",
+      "technology": "LTE",
+      "band": "LTE",
+      "azimuth": 0,
+      "beamwidth": 65,
+      "pci": 101,
+      "earfcn": 2300,
+      "eNodeB": 1001,
+      "lat": 39.85,
+      "lng": -98.58,
+      "location": { "latitude": 39.85, "longitude": -98.58 }
+    },
+    {
+      "id": "sec-2",
+      "_id": "sec-2",
+      "siteId": "s1",
+      "name": "North-CBRS-120",
+      "status": "deployed",
+      "technology": "CBRS",
+      "band": "CBRS",
+      "azimuth": 120,
+      "beamwidth": 60,
+      "pci": 204,
+      "earfcn": 55240,
+      "eNodeB": 1001,
+      "lat": 39.85,
+      "lng": -98.58,
+      "location": { "latitude": 39.85, "longitude": -98.58 }
+    },
+    {
+      "id": "sec-3",
+      "_id": "sec-3",
+      "siteId": "s2",
+      "name": "Beta-FWA-240",
+      "status": "active",
+      "technology": "FWA",
+      "band": "FWA",
+      "azimuth": 240,
+      "beamwidth": 90,
+      "pci": 88,
+      "earfcn": 66661,
+      "eNodeB": 2002,
+      "lat": 39.91,
+      "lng": -98.65,
+      "location": { "latitude": 39.91, "longitude": -98.65 }
+    }
+  ],
+  "items": [
+    { "id": "sec-1", "name": "North-LTE-0", "status": "active" },
+    { "id": "sec-2", "name": "North-CBRS-120", "status": "deployed" },
+    { "id": "sec-3", "name": "Beta-FWA-240", "status": "active" }
+  ]
+}

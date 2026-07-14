@@ -14,6 +14,7 @@ import { UI_ROUTE_MARKUP_MAP_KIND, UI_ROUTE_MARKUP_MAP_SCHEMA_VERSION } from "@c
 import { extractHtmlClassNames, svelteKitMarkupAdapter } from "./ui-markup-svelte.js";
 import { viteVueMarkupAdapter } from "./ui-markup-vue.js";
 import { angularMarkupAdapter } from "./ui-markup-angular.js";
+import { nextAppMarkupAdapter } from "./ui-markup-next.js";
 import { uiRouteBundleSlug } from "./ui-route-patterns.js";
 import type { LiftStructuralSvelteOptions } from "./ui-markup-svelte-structural.js";
 import { indexSvelteComponentSources } from "./ui-markup-svelte-structural.js";
@@ -45,6 +46,8 @@ export interface UiFrameworkMarkupAdapter {
     routeId: string,
     mode: "static" | "structural-shell",
     structuralOpts?: LiftStructuralSvelteOptions,
+    /** Absolute source path when available (Angular DI graph G9931). */
+    fileAbsPath?: string,
   ): UiMarkupPageLiftDetail | null;
   routePatternSource(routeId: string): string;
 }
@@ -55,6 +58,7 @@ export const UI_FRAMEWORK_MARKUP_ADAPTERS: ReadonlyArray<UiFrameworkMarkupAdapte
   svelteKitMarkupAdapter,
   viteVueMarkupAdapter,
   angularMarkupAdapter,
+  nextAppMarkupAdapter,
 ];
 
 export interface LiftUiMarkupOptions {
@@ -104,9 +108,10 @@ function liftOneSource(
   routeId: string,
   mode: UiMarkupLiftModeOption,
   structuralOpts?: LiftStructuralSvelteOptions,
+  fileAbsPath?: string,
 ): UiMarkupPageLiftDetail | null {
   if (adapter.liftPageMarkup !== undefined) {
-    return adapter.liftPageMarkup(raw, routeId, mode, structuralOpts);
+    return adapter.liftPageMarkup(raw, routeId, mode, structuralOpts, fileAbsPath);
   }
   const html = adapter.liftPageHtml(raw, routeId);
   if (html === null) return null;
@@ -161,7 +166,7 @@ export function liftUiMarkup(opts: LiftUiMarkupOptions): LiftUiMarkupResult {
       const abs = adapter.resolveSourceFile(opts.buildRoot, rel);
       if (!existsSync(abs)) continue;
       const raw = readFileSync(abs, "utf8");
-      const detail = liftOneSource(adapter, raw, route.routeId, mode, structuralOpts);
+      const detail = liftOneSource(adapter, raw, route.routeId, mode, structuralOpts, abs);
       if (detail === null) {
         routesSkipped += 1;
         continue;

@@ -1,89 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>hss-management</title>
-<link rel="stylesheet" href="/assets/original-css/modules_hss-management.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="hss-management">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-content">
-      <div class="header-main">
-        <div class="header-row">
-          <button class="back-button">
-            ← Back to Dashboard
-          </button>
-          <nav class="cwl-nav-shell" data-cwl-nav-shell="ModuleWizardMenu" aria-hidden="true"></nav> }
-          />
-        </div>
-        <div>
-          <h1>🔐 HSS & Subscriber Management</h1>
-          <p class="subtitle">Home Subscriber Server - Authentication & User Management</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Help Button - Fixed Position -->
-  <button class="help-button" aria-label="Open Help" title="Help">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"></circle>
-      </modules/hss-management d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"><//modules/hss-management>
-      <line x1="12" y1="17" x2="12.01" y2="17"></line>
-    </svg>
-  </button>
-  
-  
-    <!-- Navigation Tabs -->
-    <div class="tabs">
-      <button
-      >
-        📊 Dashboard
-      </button>
-      <button
-      >
-        📦 Groups
-      </button>
-      <button
-      >
-        🚀 Bandwidth Plans
-      </button>
-      <button
-      >
-        🌐 MME Connections
-      </button>
-      <button
-      >
-        📥 Bulk Import
-      </button>
-      <button
-      >
-        🌐 Remote EPCs
-      </button>
-    </div>
-    
-    <!-- Tab Content -->
-    <div class="tab-content">
-      
-    </div>
-  
-  
-  <!-- Help Modal -->
-  <div class="cwl-modal-shell" data-cwl-modal-shell="HelpModal" aria-hidden="true" role="dialog"></div> false}
-  />
-
-  <!-- Subscriber Creation Wizard -->
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="SubscriberCreationWizard" aria-hidden="true" role="dialog"></div> }
-  />
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="BandwidthPlanWizard" aria-hidden="true" role="dialog"></div> }
-  />
-  <div class="cwl-wizard-shell" data-cwl-wizard-shell="SubscriberGroupWizard" aria-hidden="true" role="dialog"></div> }
-  />
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_hss_management" data-wisp-path="/modules/hss-management" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/hss">
+  <header class="wisp-demo-header">
+    <h1>Hss Management</h1>
+    <p class="wisp-demo-desc">Operational workspace for Hss Management — native CWL handlers with live API integration.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/hss-management/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><a class="wisp-demo-btn" href="/help">Help</a><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>120</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>110</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>19</strong><span>Pending tasks</span></article>
 </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/hss-management","apiPath":"/api/hss","api_ok":true,"api_surface":"wisp-api-native","api_resource":"hss","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Hss Management data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>g1</td><td>Default</td><td>active</td><td></td></tr><tr><td>g2</td><td>VIP</td><td>active</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/hss-management","apiPath":"/api/hss","api_ok":true,"api_surface":"wisp-api-native","api_resource":"hss","api_op":"list","tracedApiStatus":200}</script>

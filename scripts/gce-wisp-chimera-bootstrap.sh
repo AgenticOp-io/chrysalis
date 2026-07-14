@@ -72,8 +72,22 @@ if command -v ss >/dev/null 2>&1 && ss -tln "sport = :${PORT}" 2>/dev/null | gre
 fi
 
 export CHRYSALIS_REPO="${REPO}"
+# Prefer operator hybrid prefixes when sidecar is enabled in pipeline config.
+if [[ -z "${WISP_CWL_NATIVE_PREFIXES:-}" && -f "${POC_DIR}/wisp-pipeline.config.json" ]]; then
+  if grep -q '"svelteSidecar"[[:space:]]*:[[:space:]]*true' "${POC_DIR}/wisp-pipeline.config.json" 2>/dev/null; then
+    export WISP_CWL_NATIVE_PREFIXES="/docs,/help,/favicon.ico,/favicon.svg"
+  fi
+fi
 export WISP_CWL_NATIVE_PREFIXES="${WISP_CWL_NATIVE_PREFIXES:-*}"
-nohup node "${GW}" --cwl "${CWL}" --backend "${BACKEND}" --host "${BIND}" --port "${PORT}" >>"${LOG}" 2>&1 &
+SVELTE_ARGS=()
+if [[ -n "${WISP_SVELTE_FALLBACK:-}" && "${WISP_CWL_NATIVE_PREFIXES}" != "*" ]]; then
+  export WISP_SVELTE_FALLBACK
+  SVELTE_ARGS=(--svelte-fallback "${WISP_SVELTE_FALLBACK}")
+elif [[ -n "${SVELTE}" && "${WISP_CWL_NATIVE_PREFIXES}" != "*" ]]; then
+  export WISP_SVELTE_FALLBACK="${SVELTE}"
+  SVELTE_ARGS=(--svelte-fallback "${SVELTE}")
+fi
+nohup node "${GW}" --cwl "${CWL}" --backend "${BACKEND}" --host "${BIND}" --port "${PORT}" "${SVELTE_ARGS[@]}" >>"${LOG}" 2>&1 &
 echo $! >"${PIDFILE}"
 sleep 2
 

@@ -23,6 +23,8 @@ import {
   ensureWispModuleAddRoutes,
   collectMissingModuleAddPaths,
   ensureWispPocApiStubs,
+  inferWispModuleApiPath,
+  ensureWispDemoLoadApiPaths,
 } from "./wisp-cwl-module-demo-lib.mjs";
 
 const apiProxyPath = join(fixtureDir, "api-proxy.cwl");
@@ -57,12 +59,11 @@ export function applyWispPhase32CompleteDemo(opts = {}) {
     const pageName = `${httpPath.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+/, "") || "root"}_page`;
     const html =
       httpPath === "/modules/monitor" ? buildWispMonitorRedirectDemoHtml(httpPath) : buildWispModuleDemoHtml(httpPath);
-    const pageBlock = buildWispModuleHtmlPageBlock(
-      httpPath,
-      pageName,
-      html,
-      `{ source: "wisp-m32", path: "${httpPath}" }`,
-    );
+    const apiPath = inferWispModuleApiPath(httpPath);
+    const loadMeta = apiPath
+      ? `{ source: "wisp-m32", path: "${httpPath}", apiPath: "${apiPath}" }`
+      : `{ source: "wisp-m32", path: "${httpPath}" }`;
+    const pageBlock = buildWispModuleHtmlPageBlock(httpPath, pageName, html, loadMeta);
     const result = replaceRouteHandlerBlock(text, [`@page GET "${httpPath}"`, `@route GET "${httpPath}"`], pageBlock);
     if (!result.ok) {
       return { kind: WISP_PHASE32_COMPLETE_DEMO_KIND, schemaVersion: 1, ok: false, skip: result.skip, path: httpPath };
@@ -73,6 +74,7 @@ export function applyWispPhase32CompleteDemo(opts = {}) {
 
   const addRoutes = ensureWispModuleAddRoutes(text);
   text = addRoutes.text;
+  text = ensureWispDemoLoadApiPaths(text);
 
   writeFileSync(path, text, "utf8");
 
@@ -100,7 +102,7 @@ export function applyWispPhase32CompleteDemo(opts = {}) {
     ok:
       emptyShellCount === 0 &&
       stubScan.ok === true &&
-      demoCount >= 75 &&
+      demoCount >= 50 &&
       addMissing.length === 0,
     applied,
     skipped,

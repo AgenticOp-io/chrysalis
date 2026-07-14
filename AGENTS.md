@@ -5,8 +5,8 @@
 ## 0. Before you do anything
 
 1. Read `DESIGN.md` in full. It is the north star for architecture and invariants.
-2. Read **`docs/STRATEGIC-PLAN.md` in full. It is the **locked path** for what to build, in what order, and what to refuse. **Do not deviate** from it unless the user explicitly amends the plan (`DESIGN.md` Decision Log + edit `STRATEGIC-PLAN.md`).
-3. Read `ROADMAP.md` for **status** and the **active build queue** (`docs/STRATEGIC-PLAN.md` §12; index: [`docs/MIGRATION-OS.md`](docs/MIGRATION-OS.md)). Completed history is in **`ROADMAP-ARCHIVE.md`**. Maintenance and closed programs: [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md).
+2. Read **`docs/UNIVERSAL-TRANSLATOR-CANON.md`** (**D6438** product canon) and **`docs/STRATEGIC-PLAN.md`** in full. They are the **locked path** for what to build, in what order, and what to refuse. **Do not deviate** unless the user explicitly amends the plan (`DESIGN.md` Decision Log + edit the canon + `STRATEGIC-PLAN.md`).
+3. Read `ROADMAP.md` for **status** and the **active build queue** (`docs/STRATEGIC-PLAN.md` §12; canon: [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md); index: [`docs/MIGRATION-OS.md`](docs/MIGRATION-OS.md)). Completed history is in **`ROADMAP-ARCHIVE.md`**. Maintenance and closed programs: [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md).
 4. Read the `README.md` of the specific package you're about to touch.
 5. For **install / operations / administration / releases**, see **`docs/`** (index: [`docs/README.md`](docs/README.md); **operator stack:** [`docs/MIGRATION-OS.md`](docs/MIGRATION-OS.md)).
 6. If your plan contradicts `DESIGN.md`, do one of two things:
@@ -28,9 +28,9 @@ The user may lock strategy in conversation. Unless they **explicitly** amend it:
 
 **Close before build:** A phase (or phase slice) is not **active for new implementation** until its **close gate** passes and status docs mark it **closed**. Do not start the next queue on scaffolding alone.
 
-**North star vs POC:** **CWL** (final web language) is authoritative; **WISP** exists solely to **showcase** CWL — prioritize generalizable language/engine wins over WISP-only convenience. **GenieACS is WISPTools legacy — not Chrysalis POC scope** (**D6205**).
+**North star vs POC:** **Universal Translator** (WebIR + CWL + LLM/IS propose / verify dispose) is the product (**D6438**). **WISP** is POC showcase only — prioritize generalizable engine wins. **GenieACS is WISPTools legacy — not Chrysalis scope** (**D6205**).
 
-**Default implementation queue** when build scope is unclear: [`docs/STRATEGIC-PLAN.md`](docs/STRATEGIC-PLAN.md) §12 and [`docs/MIGRATION-OS.md`](docs/MIGRATION-OS.md). Historical programs: [`docs/archive/INDEX.md`](docs/archive/INDEX.md).
+**Default implementation queue** when build scope is unclear: [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md) + [`docs/STRATEGIC-PLAN.md`](docs/STRATEGIC-PLAN.md) §12 and [`docs/MIGRATION-OS.md`](docs/MIGRATION-OS.md). Historical programs: [`docs/archive/INDEX.md`](docs/archive/INDEX.md).
 
 ## 1. The project is Chrysalis, not "a PHP-to-TS converter"
 

@@ -1,84 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>portal-setup</title>
-<link rel="stylesheet" href="/assets/original-css/modules_customers_portal-setup.css"><link rel="stylesheet" href="/assets/original-css/_layout.css">
-</head>
-<body>
-<div class="portal-admin-page">
-    <div class="page-header">
-      <div class="header-left">
-        <button class="back-btn" title="Back to Modules">
-          ← Exit to Modules
-        </button>
-      </div>
-      <div class="header-content">
-        <h1>🌐 Customer Portal Management</h1>
-        <p class="subtitle">Configure your customer-facing portal, content, and support features</p>
-      </div>
-      <div class="header-actions">
-        <a target="_blank" class="btn-secondary">
-          View Portal →
-        </a>
-      </div>
-    </div>
-    
-    
-    
-    
-    
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-      <button class="tab-btn">
-        🎨 Branding
-      </button>
-      <button class="tab-btn">
-        ⚙️ Features
-      </button>
-      <button class="tab-btn">
-        💳 Billing Portal
-      </button>
-      <button class="tab-btn">
-        🚨 Alerts & Outages
-      </button>
-      <button class="tab-btn">
-        ❓ FAQ
-      </button>
-      <button class="tab-btn">
-        📚 Knowledge Base
-      </button>
-      <button class="tab-btn">
-        💬 Live Chat
-      </button>
-    </div>
-    
-    <!-- Tab Content -->
-    <div class="tab-content">
-      <!-- Branding Tab -->
-      
-      
-      <!-- Billing Portal Tab: payment gateways & invoice customization -->
-      
-      
-      <!-- Features Tab -->
-      
-      
-      <!-- Alerts Tab -->
-      
-      
-      <!-- FAQ Tab -->
-      
-      
-      <!-- Knowledge Base Tab -->
-      
-      
-      <!-- Live Chat Tab -->
-      
-    </div>
-  </div>
-<script type="application/json" id="cwl-page-load">{"source":"wisp-m31","path":"/modules/customers/portal-setup","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>
-
-</body>
-</html>
+<div class="wisp-module-demo wisp-demo-content" data-wisp-page="modules_customers_portal_setup" data-wisp-path="/modules/customers/portal-setup" data-cwl-island="client" data-wisp-layout="list" data-wisp-api="/api/customers">
+  <header class="wisp-demo-header">
+    <h1>Portal Setup</h1>
+    <p class="wisp-demo-desc">Customer self-service portal — tickets, billing, knowledge base, and live chat.</p>
+    <div class="wisp-demo-toolbar"><button type="button" class="wisp-demo-btn" data-action="refresh">Refresh</button><a class="wisp-demo-btn primary" href="/modules/customers/portal-setup/add">Add new</a><button type="button" class="wisp-demo-btn" data-action="search" title="Filter table">Search</button><button type="button" class="wisp-demo-btn" data-action="export" title="Export CSV">Export</button><button type="button" class="wisp-demo-btn" data-action="back">← Dashboard</button></div>
+  </header>
+  <section class="wisp-demo-panel">
+    <div class="wisp-demo-stats">
+  <article class="wisp-demo-stat"><strong>3</strong><span>Active records</span></article>
+  <article class="wisp-demo-stat"><strong>2</strong><span>Open alerts</span></article>
+  <article class="wisp-demo-stat"><strong>1</strong><span>Pending tasks</span></article>
+</div>
+<table class="wisp-demo-table" id="wisp-demo-table" aria-label="Portal Setup data">
+  <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Updated</th></tr></thead>
+  <tbody><tr><td>c1</td><td>Acme Wireless</td><td>active</td><td></td></tr><tr><td>c2</td><td>Beta ISP</td><td>pending</td><td></td></tr><tr><td>c3</td><td>Canyon Net</td><td>active</td><td></td></tr></tbody>
+</table>
+  </section>
+  <footer class="wisp-demo-api-status" id="wisp-demo-api-status" aria-live="polite">Ready</footer>
+</div>
+<script type="application/json" id="cwl-page-load">{"source":"wisp-m32","path":"/modules/customers/portal-setup","apiPath":"/api/customers","api_ok":true,"api_surface":"wisp-api-native","api_resource":"customers","api_op":"list","tracedApiStatus":200}</script>

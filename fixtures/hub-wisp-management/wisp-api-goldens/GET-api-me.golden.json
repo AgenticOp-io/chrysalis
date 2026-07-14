@@ -1,0 +1,6 @@
+{
+  "ok": true,
+  "authenticated": true,
+  "email": "preview@wisptools.local",
+  "surface": "wisp-auth-native"
+}

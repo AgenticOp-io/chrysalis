@@ -1,0 +1,5 @@
+/* root layout globals — distinctive token for G9940 */
+.next-root {
+  --next-root-token: #1e3a5f;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+}

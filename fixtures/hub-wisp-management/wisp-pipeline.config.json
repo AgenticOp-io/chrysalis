@@ -5,7 +5,7 @@
     "CHRYSALIS_WISP_ROOT",
     "WISP_MODULE_DIR"
   ],
-  "defaultWispRoot": "C:/Users/david/Downloads/WISPTools/Module_Manager",
+  "defaultWispRoot": "C:/Users/david/AgenticOps/products/wisptools/Module_Manager",
   "fixtureDir": "fixtures/hub-wisp-management",
   "reportPath": "reports/wisp/wisp-cwl-pipeline.json",
   "gce": {
@@ -18,7 +18,8 @@
     "svelteSidecar": false,
     "cwlNativePrefixes": "*",
     "apiMode": "runtime-cwl-native",
-    "nativeApi": true
+    "nativeApi": true,
+    "operatorUi": "cwl-native"
   },
   "firebase": {
     "hostingTarget": "hosting:management",

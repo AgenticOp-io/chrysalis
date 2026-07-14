@@ -423,7 +423,10 @@ export {
 } from "./ui-assets.js";
 export {
   cleanupDescopedSelector,
+  collectVueLayoutStylesheets,
   descopeVueSelector,
+  extractVueSfcStyleCss,
+  parseVuePageLayoutName,
   viteVueCssAdapter,
   viteVueManifestKeyToRouteId,
 } from "./ui-assets-vue.js";
@@ -432,6 +435,12 @@ export {
   viteCssModulesAdapter,
   viteJsManifestKeyToRouteId,
 } from "./ui-assets-css-modules.js";
+export {
+  collectNextLayoutStylesheets,
+  collectNextPageStylesheets,
+  descopeNextCssSelector,
+  nextAppCssAdapter,
+} from "./ui-assets-next.js";
 export {
   angularComponentManifestKeyToRouteId,
   angularCssAdapter,
@@ -465,8 +474,10 @@ export {
   HOLE_IF,
   HOLE_INTERP,
   findNextSvelteBlock,
+  findPascalComponentTagEnd,
   indexSvelteComponentSources,
   liftStructuralSveltePageHtml,
+  scrubStructuralMarkupArtifacts,
   stripSvelteNonMarkup,
   type LiftStructuralSvelteOptions,
   type SvelteMarkupLiftHole,
@@ -479,10 +490,62 @@ export {
   liftStaticAngularTemplateHtml,
 } from "./ui-markup-angular.js";
 export {
+  liftStructuralAngularSource,
+  liftStructuralAngularTemplateHtml,
+  scanAngularTsForDiHoles,
+  HOLE_ANGULAR_ASYNC,
+  HOLE_ANGULAR_BIND,
+  HOLE_ANGULAR_COMPONENT,
+  HOLE_ANGULAR_DI,
+  HOLE_ANGULAR_EVENT,
+  HOLE_ANGULAR_FOR,
+  HOLE_ANGULAR_IF,
+  HOLE_ANGULAR_INTERP,
+} from "./ui-markup-angular-structural.js";
+export {
+  buildAngularDiGraph,
+  liftAngularComponentTsWithDiGraph,
+  parseAngularProvidedIn,
+  parseAngularProvidersList,
+  HOLE_ANGULAR_DI_EDGE,
+  HOLE_ANGULAR_DI_NGMODULE,
+  HOLE_ANGULAR_DI_PROVIDED_IN,
+  HOLE_ANGULAR_DI_PROVIDERS,
+  HOLE_ANGULAR_DI_SERVICE,
+  type AngularDiEdge,
+  type AngularDiGraph,
+  type AngularDiProvidedIn,
+} from "./ui-markup-angular-di-graph.js";
+export {
+  liftStaticNextPageJsx,
+  nextAppMarkupAdapter,
+  nextAppPageFileToRouteId,
+} from "./ui-markup-next.js";
+export {
+  liftStructuralNextPageJsx,
+  scanNextCompanionHoles,
+  scanNextFontHoles,
+  HOLE_NEXT_CLIENT,
+  HOLE_NEXT_COMPONENT,
+  HOLE_NEXT_FONT,
+  HOLE_NEXT_INTERP,
+  HOLE_NEXT_LOADING,
+  HOLE_NEXT_RSC,
+} from "./ui-markup-next-structural.js";
+export {
   liftStaticVueTemplateHtml,
   viteVueMarkupAdapter,
   vueSourceFileToRouteId,
 } from "./ui-markup-vue.js";
+export {
+  liftStructuralVueTemplateHtml,
+  HOLE_VUE_BIND,
+  HOLE_VUE_COMPONENT,
+  HOLE_VUE_EVENT,
+  HOLE_VUE_FOR,
+  HOLE_VUE_IF,
+  HOLE_VUE_INTERP,
+} from "./ui-markup-vue-structural.js";
 export { finalizeStaticMarkup, isStaticHtmlFragment } from "./ui-markup-static.js";
 export {
   liftUiMarkup,
@@ -516,6 +579,14 @@ export {
   type CwlMarkupPatchResult,
 } from "./site-convert.js";
 export {
+  convertMultiOriginProjects,
+  MULTI_ORIGIN_CONVERT_KIND,
+  MULTI_ORIGIN_CONVERT_SCHEMA_VERSION,
+  type MultiOriginConvertProjectResult,
+  type MultiOriginConvertProjectSpec,
+  type MultiOriginConvertResult,
+} from "./site-convert-multi-origin.js";
+export {
   bindSiteProjectLoadFromTraces,
   bindTracedLoadToCwlSource,
   hydrateDemoHtmlFromApiBody,
@@ -524,6 +595,8 @@ export {
   parseEachHeader,
   resolveInterpDetail,
   evaluateIfDetail,
+  normalizeInterpHoleDetail,
+  normalizeIfHoleDetail,
   resolveJsonPath,
   mergeShowcaseHydrateBody,
   DEFAULT_SHOWCASE_HYDRATE_CONSTANTS,

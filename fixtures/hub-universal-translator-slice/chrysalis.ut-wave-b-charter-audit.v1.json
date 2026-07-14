@@ -1,0 +1,133 @@
+{
+  "kind": "chrysalis.ut.wave-b-charter-audit",
+  "schemaVersion": 1,
+  "gate": "G9971",
+  "charterId": "universal-translator-v1",
+  "maxCrossEdgeHoleCount": 0,
+  "requireRoundtripRouteParity": true,
+  "edgeCount": 16,
+  "outboundCount": 11,
+  "edges": [
+    {
+      "from": "php",
+      "to": "python",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": true
+    },
+    {
+      "from": "javascript",
+      "to": "go",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "typescript",
+      "to": "hono",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "vue",
+      "to": "fastify",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "svelte",
+      "to": "hono",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "python",
+      "to": "java",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "java",
+      "to": "kotlin",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "kotlin",
+      "to": "scala",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "go",
+      "to": "ruby",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "ruby",
+      "to": "csharp",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "csharp",
+      "to": "rust",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "rust",
+      "to": "swift",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "scala",
+      "to": "python",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "cpp",
+      "to": "go",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "c",
+      "to": "python",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    },
+    {
+      "from": "swift",
+      "to": "java",
+      "hasEmit": true,
+      "maxHoleCount": 0,
+      "fixtureOverride": false
+    }
+  ],
+  "weakEdges": [
+    {
+      "id": "cwl->nextjs",
+      "severity": "honest-refuse-prereq",
+      "detail": "Next.js outbound not chartered; auth-effects-nextjs skips without WPTP sibling"
+    }
+  ],
+  "wptpEmitNextjsAvailable": false,
+  "generatedAt": "2026-07-14T06:02:05.727Z"
+}

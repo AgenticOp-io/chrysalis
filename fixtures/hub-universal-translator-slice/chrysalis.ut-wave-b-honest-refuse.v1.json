@@ -1,0 +1,16 @@
+{
+  "kind": "chrysalis.ut.wave-b-honest-refuse",
+  "schemaVersion": 1,
+  "gate": "G9972",
+  "description": "Chartered edges or outbound targets refused until prerequisites exist (not silent green).",
+  "refuses": [
+    {
+      "id": "refuse-cwl-outbound-nextjs-without-wptp",
+      "edge": { "from": "cwl", "to": "nextjs" },
+      "reasonCode": "no-wptp-emit-nextjs",
+      "workItemId": "UT-ADAPTER-NEXTJS-WPTP",
+      "until": "WPTP_EMIT_NEXTJS_ROOT sibling package.json present, or in-repo Next emit without @wptp/ir",
+      "notAGreenClaim": true
+    }
+  ]
+}

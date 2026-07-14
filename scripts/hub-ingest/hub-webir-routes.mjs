@@ -363,6 +363,24 @@ function cwlRenderValue(v) {
 }
 
 /**
+ * CWL `IDENT` for handler/page names (`docs/CWL.md` grammar). File-derived
+ * WebIR names often contain `.` (e.g. `config.json`); those are not valid IDENT
+ * and round-trip lift would drop the route.
+ * @param {unknown} name
+ * @param {string} [fallback]
+ */
+export function toCwlIdent(name, fallback = "handler") {
+  let s = String(name ?? "")
+    .replace(/[^a-zA-Z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .replace(/_+/g, "_");
+  if (!s) s = fallback;
+  if (!/^[a-zA-Z_]/.test(s)) s = `h_${s}`;
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(s)) s = fallback;
+  return s;
+}
+
+/**
  * Render the CWL projection of `listCwlRoutes` to CWL source text. Shared by the
  * round-trip emit (`emit-cwl-from-hub`) and the project-to-CWL migration export
  * (`hub-project-cwl-export`) so both carry the same status/param/`??`-default/
@@ -380,8 +398,12 @@ export function renderCwlRoutes(routes, opts = {}) {
     const isPage =
       r.surfaceKind === "page" ||
       (r.contentType && String(r.contentType).includes("html"));
+    const handlerIdent = toCwlIdent(
+      r.handlerName,
+      `${String(r.method ?? "GET").toLowerCase()}_${String(r.path ?? "/").replace(/[^a-zA-Z0-9]+/g, "_") || "root"}`,
+    );
     lines.push(isPage ? `@page ${r.method} "${r.path}"` : `@route ${r.method} "${r.path}"`);
-    lines.push(isPage ? `page ${r.handlerName} {` : `handler ${r.handlerName} {`);
+    lines.push(isPage ? `page ${handlerIdent} {` : `handler ${handlerIdent} {`);
     lines.push("  effects: none;");
     const renderSurface = () => {
       if (typeof r.status === "number" && r.status !== 200) {

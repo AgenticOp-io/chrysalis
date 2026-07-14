@@ -1,6 +1,22 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "monitoring",
-  "op": "list"
+  "stats": {
+    "rssi": -70,
+    "sinr": 20,
+    "uptimeHours": 200
+  },
+  "devices": [
+    {
+      "id": "mon-1",
+      "name": "CPE Monitor",
+      "status": "online"
+    }
+  ],
+  "items": [
+    {
+      "id": "mon-1",
+      "name": "CPE Monitor",
+      "status": "online"
+    }
+  ]
 }

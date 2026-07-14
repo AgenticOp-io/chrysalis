@@ -114,11 +114,12 @@ export function resolveWispPreviewSession(ctx) {
   const cookies = ctx.cookies ?? {};
   const auth = cookies.chrysalis_session ?? cookies.wisp_session ?? cookies.session;
   if (auth) {
+    const email = String(auth).includes("@") ? String(auth) : "preview@wisptools.local";
     return {
       authenticated: true,
       userId: "preview-user",
       tenantId: cookies.wisp_tenant ?? "preview-tenant",
-      email: "preview@wisptools.local",
+      email,
     };
   }
   return { authenticated: false };

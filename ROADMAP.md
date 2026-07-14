@@ -7,7 +7,50 @@
 ## Status (2026-07)
 
 - **Releases:** `v1.0.0` -> `v2.0.x` tagged on `main`.
-- **Active lane:** maintenance **G8550** (schema **v22** / **D6401–D6404**) — census **601/601** (**G9160**).
+- **Active lane:** **D6438 Universal Translator Canon** — **G9990 program closed** (Waves A–D). Default queue = maintain canon + Migration OS + edge-only gold. WISP = POC only; GenieACS OOS; **LiteRT.js refused**.
+- **Canon:** [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md) (**G9960–G9990**)
+- **Closed (2026-07-14):** **G9990** UT Canon program (`hub:ut-canon-program-close-smoke`).
+- **Closed (2026-07-14):** **Wave D** — engine depth (`hub:ut-wave-d-close-smoke` **G9989**); multi-origin llmIs reads `scripts/lib/cwl-svelte-native-convert.mjs`.
+- **Closed (2026-07-14):** **Wave C** — AI assist under verify (`hub:ut-wave-c-close-smoke` **G9985**): Migration Chat, LLM verify-apply, IS close, live hit-rate honesty, convert governor.
+- **Closed (2026-07-14):** **Wave B** — composer strength (`hub:ut-wave-b-close-smoke` **G9975**, **D6439**): G7690 green (nextjs honest WPTP skip + CWL `toCwlIdent` roundtrip); charter audit; php→python proof; adapter work-items; outbound G7602.
+- **Closed (2026-07-14):** **Wave A** — canon lock + `scripts/lib` extract (`hub:ut-wave-a-close-smoke` **G9965**, **D6438**).
+- **Closed (2026-07-14):** **D6438** canon document + STRATEGY/AGENTS lock (**G9960**).
+- **Closed (2026-07-14):** **D6437** UT reframing + initiative knowledge DB.
+- **Closed (2026-07-14):** **management.wisptools.io visual + multipage Firebase** (**G9952**, **D6436**) — POC deploy.
+- **Closed (2026-07-13):** **Module_Manager depth** (**G9951**, **D6435**) — POC; `hub:wisp-cwl-module-depth-smoke`.
+- **Maintained:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:cwl-universal-translator-close-smoke` (**G7690**).
+- **Closed (2026-07-13):** **Module buttons convert** (**G9950**, **D6434**) — plan/deploy toolbars + structural search/export/scan; `hub:wisp-cwl-module-buttons-smoke`.
+- **Closed (2026-07-13):** **SharedMap↔ArcGIS interaction** (**G9949**, **D6433**) — plan/deploy postMessage drives map; `hub:wisp-cwl-map-interact-smoke`.
+- **Closed (2026-07-13):** **WISP ArcGIS + grind** (**G9947–G9948**, **D6432**) — MapView + API geometry; module-access/PCI host; `hub:wisp-cwl-arcgis-grind-smoke`.
+- **Closed (2026-07-13):** **Next loading.tsx + next/font honesty** (**G9944**, **D6429**) — `hub:next-loading-font-smoke`.
+- **Closed (2026-07-13):** **Angular NgModule providers** (**G9945**, **D6430**) — `hub:angular-ngmodule-providers-smoke`.
+- **Closed (2026-07-13):** **Vue App.vue shell CSS** (**G9946**, **D6431**) — `hub:vue-app-shell-css-smoke`; multi-origin close **v4**.
+- **Closed (2026-07-13):** **Angular providedIn / providers** (**G9941**, **D6426**) — `hub:angular-provided-in-smoke`.
+- **Closed (2026-07-13):** **Vue/Nuxt layout CSS** (**G9942**, **D6427**) — `hub:vue-nuxt-layout-css-smoke`.
+- **Closed (2026-07-13):** **Shared multi-origin convert orch** (**G9943**, **D6428**) — `hub:multi-origin-convert-orch-smoke`.
+- **Closed (2026-07-13):** **Next layout/globals CSS depth** (**G9940**, **D6425**) — ancestor `layout` CSS per route; nested portal isolation; `hub:next-layout-css-depth-smoke`.
+- **Closed (2026-07-13):** **Remaining WISP empty-page hydrate** (**G9932–G9939**, **D6424**) — voice/plan/bundles/permissions/roles/CBRS/support; empty-list honesty; `hub:wisp-cwl-remaining-surface-smoke`. Pause from **D6416** lifted.
+- **Closed (2026-07-13):** **Angular DI graph depth** (**G9931**, **D6423**) — `LoginComponent→AuthService→SessionStore` edges; `hub:angular-di-graph-smoke`.
+- **Closed (2026-07-13):** **Next App Router CSS depth** (**G9930**, **D6422**) — co-located `page.module.css` without `.next`; `hub:next-css-depth-smoke`.
+- **Closed (2026-07-12):** **Vue scoped-CSS depth** (**G9929**, **D6421**) — SFC `<style scoped>` lift without Vite dist; `:global`/`::v-deep` descope; `hub:vue-scoped-css-depth-smoke`.
+- **Closed (2026-07-12):** **Vue load-bind + Next RSC depth** (**G9927–G9928**, **D6420**) — shared hydrate for Vue/Next/Angular markers; `hub:vue-load-bind-smoke` · `hub:next-rsc-depth-smoke`.
+- **Closed (2026-07-12):** **Angular structural-shell depth** (**G9926**, **D6419**) — `*ngIf`/`*ngFor`/interp/event/bind/component/async + `inject()` DI holes; `hub:angular-structural-shell-depth-smoke`.
+- **Closed (2026-07-12):** **Vue/Next structural-shell depth** (**G9924–G9925**, **D6418**) — named holes (no silent `{…}` strip); `hub:vue-structural-shell-depth-smoke` · `hub:next-structural-shell-depth-smoke`; multi-origin close composite updated.
+- **Closed (2026-07-12):** **Migration Chat + AI Assist** (**G9921–G9923**, **D6417**) — `chrysalis chat`, hub `/migration-chat`, `docs/AI-ASSIST.md`; LiteRT refused; `hub:migration-chat-smoke`.
+- **Closed (2026-07-12):** **Admin/monitor/deploy surface** (**G9917–G9920**, **D6416**) — users/tenants; monitoring/HSS; deploy counts; catalog + orphan `}` scrub; `hub:wisp-cwl-admin-surface-smoke`. **Was paused** further WISP empty-page hydrate until non-WISP language POCs — **unpaused D6424**.
+- **Closed (2026-07-12):** **Ops/billing surface + residual scrub** (**G9913–G9916**, **D6415**) — help-desk/maintain `/api/maintain`; billing plans; svelte/`\r`/mojibake scrub; `hub:wisp-cwl-ops-surface-smoke`.
+- **Closed (2026-07-12):** **Dashboard + sites/work-orders + SVG scrub** (**G9910–G9912**, **D6414**) — catalog cards; `/api/network` + work-orders hydrate; `<//modules/>` scrub; `hub:wisp-cwl-route-depth-smoke`.
+- **Closed (2026-07-12):** **Convert all CWL shells at once** (**G9909**, **D6413**) — modal/map/chart/wizard/nav/widget; `hub:wisp-cwl-all-shells-smoke`.
+- **Closed (2026-07-12):** **WISP showcase depth** (**G9905–G9908**, **D6412**) — stats/list hydrate; attr scrub; wizard/nav shells; filter honesty; `hub:wisp-cwl-showcase-depth-smoke`.
+- **Closed (2026-07-12):** **Svelte arrow-fn markup leak scrub** (**G9904**, **D6411**) — brace-aware component tags; `hub:wisp-cwl-markup-artifact-smoke`.
+- **Closed (2026-07-12):** **Modal/map shell island chrome** (**G9903**, **D6410**) — Tips/Help openers; map placeholders; `hub:wisp-cwl-shell-island-smoke`.
+- **Closed (2026-07-12):** **Multi-module structural island hydrate** (**G9902**, **D6409**) — inventory/customers/sites; live hydrate contract smoke.
+- **Closed (2026-07-12):** **CWL island/event fidelity + Next.js shell** (**G9900–G9901**, **D6408**) — hardware structural hydrate; `hub:wisp-cwl-island-fidelity-smoke`; `hub:next-structural-shell-smoke`.
+- **Closed (2026-07-12):** **CWL-native visual depth** (**G9890–G9892**, **D6407**) — original CSS on GCE; Angular shell smoke; `hub:wisp-cwl-visual-depth-smoke`.
+
+- **Closed (2026-07-12):** **Multi-origin lift program** (**G9840–G9880**, **D6405–D6406**) — Svelte→CWL actual build; LLM/IS; Vue shared API; close `hub:multi-origin-lift-close-smoke`.
+- **Closed (2026-07-12):** **Svelte convert depth + LLM/IS + Vue shell** (**G9850–G9870**, **D6406**) — close/llm-is/vue smokes; convert report schema v2.
+- **Closed (2026-07-12):** **Svelte native convert entry** (**G9840**, **D6405**) — lessons + multi-origin plan; CWL-native default; `wisp:svelte-native-convert`; `hub:svelte-native-convert-entry-smoke`.
 - **Closed (2026-07-11):** **WISP apply/deploy integrity** (**G9830**, **D6404**) — string-aware CWL block replace; client redirects last; routes integrity smoke.
 - **Closed (2026-07-11):** **GPU lab adapter fetch + honest status** (**G9820**, **D6403**) — fetch LoRA before stop; `ADAPTER_PRESENT` status; recover script; gate checks in `hub:gpu-lab-close-smoke`.
 - **Closed (2026-07-11):** **Convert force-settle default** (**G9810**, **D6402**) — structural-shell `convertSiteProjectUi` clears residual holes without leaving markers after reconvert.

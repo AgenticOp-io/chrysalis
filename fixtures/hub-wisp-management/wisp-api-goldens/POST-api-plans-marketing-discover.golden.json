@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "addresses": [
+    {
+      "id": "addr-1",
+      "name": "112 Main St",
+      "address": "112 Main St",
+      "lat": 39.848,
+      "lng": -98.575,
+      "source": "microsoft_footprints"
+    },
+    {
+      "id": "addr-2",
+      "name": "118 Main St",
+      "address": "118 Main St",
+      "lat": 39.849,
+      "lng": -98.576,
+      "source": "osm_buildings"
+    }
+  ],
+  "count": 2,
+  "algorithms": ["microsoft_footprints", "osm_buildings"]
+}

@@ -1,6 +1,27 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "work-orders",
-  "op": "list"
+  "workOrders": [
+    {
+      "id": "wo-1",
+      "name": "Install CPE",
+      "status": "open"
+    },
+    {
+      "id": "wo-2",
+      "name": "Tower climb",
+      "status": "scheduled"
+    }
+  ],
+  "items": [
+    {
+      "id": "wo-1",
+      "name": "Install CPE",
+      "status": "open"
+    },
+    {
+      "id": "wo-2",
+      "name": "Tower climb",
+      "status": "scheduled"
+    }
+  ]
 }

@@ -1,6 +1,46 @@
 {
   "ok": true,
-  "surface": "wisp-api-native",
-  "resource": "customers",
-  "op": "list"
+  "stats": {
+    "total": 3,
+    "active": 2,
+    "pending": 1,
+    "suspended": 0
+  },
+  "customers": [
+    {
+      "customerId": "c1",
+      "name": "Acme Wireless",
+      "status": "active",
+      "email": "ops@acme.example"
+    },
+    {
+      "customerId": "c2",
+      "name": "Beta ISP",
+      "status": "pending",
+      "email": "admin@beta.example"
+    },
+    {
+      "customerId": "c3",
+      "name": "Canyon Net",
+      "status": "active",
+      "email": "noc@canyon.example"
+    }
+  ],
+  "items": [
+    {
+      "id": "c1",
+      "name": "Acme Wireless",
+      "status": "active"
+    },
+    {
+      "id": "c2",
+      "name": "Beta ISP",
+      "status": "pending"
+    },
+    {
+      "id": "c3",
+      "name": "Canyon Net",
+      "status": "active"
+    }
+  ]
 }

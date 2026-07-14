@@ -12,6 +12,7 @@ import { applyWispPhase27fCutover } from "./wisp-cwl-apply-phase27f-cutover.mjs"
 import { applyWispPhase28gIntegrationsUi } from "./wisp-cwl-apply-phase28g-integrations-ui.mjs";
 import { applyWispApiPilotHandler } from "./wisp-cwl-apply-api-pilot-handler.mjs";
 import { applyWispApiGoldenHandlers } from "./wisp-cwl-apply-api-golden-handlers.mjs";
+import { syncWispHydrateGoldens } from "./wisp-cwl-sync-hydrate-goldens.mjs";
 import { buildWispHoleManifest } from "./wisp-cwl-hole-manifest.mjs";
 
 export const WISP_POST_G7790_CHAIN_KIND = "chrysalis.wisp.post-g7790-apply-chain";
@@ -27,6 +28,7 @@ export function applyWispPostG7790Chain(opts = {}) {
   const phase27d = applyWispPhase27dNativeAuth(opts);
   const phase27f = applyWispPhase27fCutover(opts);
   const phase28g = applyWispPhase28gIntegrationsUi(opts);
+  const hydrateGoldens = syncWispHydrateGoldens();
   const phase28dPilot = existsSync(goldensIndexPath)
     ? applyWispApiGoldenHandlers({ includeTenantsPilot: false })
     : existsSync(pilotGoldenPath)
@@ -39,6 +41,7 @@ export function applyWispPostG7790Chain(opts = {}) {
     phase27d.ok === true &&
     phase27f.ok === true &&
     phase28g.ok === true &&
+    hydrateGoldens.ok !== false &&
     phase28dPilot.ok !== false &&
     holeManifest.ok === true &&
     holeManifest.uiHoleCount === 0 &&
@@ -52,6 +55,7 @@ export function applyWispPostG7790Chain(opts = {}) {
     phase27d,
     phase27f,
     phase28g,
+    hydrateGoldens,
     phase28dPilot,
     holeManifest,
     generatedAt: new Date().toISOString(),
