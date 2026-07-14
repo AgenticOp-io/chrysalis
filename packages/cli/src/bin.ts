@@ -124,6 +124,10 @@ const SUBCOMMANDS = [
   ["ui-assets", "Lift a source app's scoped CSS into per-route bundles (DESIGN D6365)"],
   ["ui-markup", "Lift static HTML per route into markup bundles (DESIGN D6365 G9306)"],
   ["convert-site", "Whole-site UI convert: CSS + markup lift, CWL patch, optional load-bind (D6366)"],
+  [
+    "chat",
+    "Migration Chat — interactive / scripted AI Assist session (verify-gated tools; docs/AI-ASSIST.md)",
+  ],
 ] as const;
 
 /** Written by `chrysalis init`; other tooling may use it to detect a Chrysalis PHP root. */
@@ -163,11 +167,13 @@ function parseMinTierEnv(): LicenseTier | null | "invalid" {
 }
 
 /**
- * When `CHRYSALIS_REQUIRE_LICENSE=1`, all commands except `license`, `init`, and `cwl` require a valid
- * local envelope + public key (no network). Optional `CHRYSALIS_LICENSE_MIN_TIER=dev|pro|enterprise`.
+ * When `CHRYSALIS_REQUIRE_LICENSE=1`, all commands except `license`, `init`, `cwl`, and `chat`
+ * require a valid local envelope + public key (no network). Optional
+ * `CHRYSALIS_LICENSE_MIN_TIER=dev|pro|enterprise`. Migration Chat is an operator
+ * bootstrap surface (AI Assist), same class as `init` / `cwl`.
  */
 function runLicenseGate(cmd: string): number | null {
-  if (cmd === "license" || cmd === "init" || cmd === "cwl") return null;
+  if (cmd === "license" || cmd === "init" || cmd === "cwl" || cmd === "chat") return null;
   if (!licenseEnforcementEnabled()) return null;
   const minTier = parseMinTierEnv();
   if (minTier === "invalid") {
@@ -484,6 +490,26 @@ async function cmdUiMarkup(rest: string[]): Promise<number> {
 }
 
 /**
+ * `chrysalis chat` — Migration Chat (D6417). Delegates to scripts/chrysalis-migration-chat.mjs.
+ * Verify-gated agent tools; AI Assist recommended; LiteRT refused.
+ */
+async function cmdChat(rest: string[]): Promise<number> {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const repoRoot = resolve(here, "../../..");
+  const script = join(repoRoot, "scripts/chrysalis-migration-chat.mjs");
+  if (!existsSync(script)) {
+    console.error("[chrysalis] chat: missing scripts/chrysalis-migration-chat.mjs (run from monorepo root)");
+    return 2;
+  }
+  const r = spawnSync(process.execPath, [script, ...rest], {
+    cwd: repoRoot,
+    stdio: "inherit",
+    env: process.env,
+  });
+  return r.status ?? 1;
+}
+
+/**
  * `chrysalis convert-site <project-dir>` — whole-site UI conversion (D6366).
  * Lifts CSS/markup, patches CWL `@page` bodies, binds traced API into `load { }`,
  * writes `.chrysalis/site-convert.json`.
@@ -494,7 +520,7 @@ async function cmdConvertSite(rest: string[]): Promise<number> {
   const projectDir = pos[0] ? resolve(pos[0]) : null;
   if (projectDir === null) {
     console.error(
-      "usage: chrysalis convert-site <project-dir> [--traces <dir>] [--lift-only] [--markup-mode static|structural-shell] [--json] [--no-report]",
+      "usage: chrysalis convert-site <project-dir> [--traces <dir>] [--lift-only] [--markup-mode static|structural-shell] [--skip-http-path <path>]… [--json] [--no-report]",
     );
     return 2;
   }
@@ -504,10 +530,21 @@ async function cmdConvertSite(rest: string[]): Promise<number> {
     console.error("error: --markup-mode must be static or structural-shell");
     return 2;
   }
+  /** @type {string[]} */
+  const skipHttpPaths: string[] = [];
+  for (let i = 0; i < rest.length; i++) {
+    const flag = rest[i];
+    const value = rest[i + 1];
+    if (flag === "--skip-http-path" && typeof value === "string" && !value.startsWith("-")) {
+      skipHttpPaths.push(value);
+      i += 1;
+    }
+  }
   const result = convertSiteProjectUi({
     projectDir,
     ...(tracesDir !== undefined ? { tracesDir } : {}),
     ...(markupModeFlag !== undefined ? { markupMode: markupModeFlag } : {}),
+    ...(skipHttpPaths.length > 0 ? { skipHttpPaths } : {}),
     liftOnly: rest.includes("--lift-only"),
     writeReport: !rest.includes("--no-report"),
   });
@@ -4158,6 +4195,8 @@ async function main(): Promise<number> {
       return await cmdUiMarkup(rest);
     case "convert-site":
       return await cmdConvertSite(rest);
+    case "chat":
+      return await cmdChat(rest);
     default:
       console.log(`[chrysalis] '${cmd}' is not implemented yet (Milestone 0 scaffold).`);
       console.log(`[chrysalis] args: ${JSON.stringify(rest)}`);

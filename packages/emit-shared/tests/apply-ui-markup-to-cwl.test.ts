@@ -86,6 +86,16 @@ describe("applyLiftedMarkupToCwlSource", () => {
     expect(loginCount).toBe(2);
     expect(result.text).toContain("Lifted login");
   });
+
+  test("honors skipHttpPaths for parity / redirect routes (G9830)", () => {
+    const result = applyLiftedMarkupToCwlSource(cwlSource, map, bundles, {
+      skipHttpPaths: ["/login"],
+    });
+    expect(result.routesPatched).toBe(1);
+    expect(result.routesSkipped).toBeGreaterThanOrEqual(1);
+    expect(result.text).toContain("stub login");
+    expect(result.text).toContain("Lifted portal");
+  });
 });
 
 describe("extractCwlRouteBlock (G9490)", () => {

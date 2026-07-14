@@ -312,6 +312,24 @@ export function classifyHubHandlerBody(get, bodyId) {
 }
 
 /**
+ * CWL `IDENT` for handler/page names (`docs/CWL.md` grammar). File-derived
+ * WebIR names often contain `.` (e.g. `config.json`); those are not valid IDENT
+ * and round-trip lift would drop the route.
+ * @param {unknown} name
+ * @param {string} [fallback]
+ */
+export function toCwlIdent(name, fallback = "handler") {
+  let s = String(name ?? "")
+    .replace(/[^a-zA-Z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .replace(/_+/g, "_");
+  if (!s) s = fallback;
+  if (!/^[a-zA-Z_]/.test(s)) s = `h_${s}`;
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(s)) s = fallback;
+  return s;
+}
+
+/**
  * List routes with CWL-shaped handler projections (status/params/value).
  * @param {import('@chrysalis/webir').Module} module
  */
@@ -330,7 +348,8 @@ export function listCwlRoutes(module) {
     if (!handler || handler.dialect !== "web.request" || handler.op !== "handler") continue;
     const bodyId = handler.operands?.[0];
     if (bodyId === undefined) continue;
-    const handlerName = String(handler.attrs?.name ?? `${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`);
+    const rawName = String(handler.attrs?.name ?? `${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`);
+    const handlerName = toCwlIdent(rawName, `${method.toLowerCase()}_${path.replace(/[^a-zA-Z0-9]+/g, "_") || "root"}`);
     routes.push({ method, path, handlerName, ...walkCwlHandlerBody(get, bodyId) });
   }
   return routes.sort((a, b) => a.path.localeCompare(b.path) || a.method.localeCompare(b.method));
@@ -360,24 +379,6 @@ function cwlRenderValue(v) {
     return `{ ${ent.join(", ")} }`;
   }
   return '""';
-}
-
-/**
- * CWL `IDENT` for handler/page names (`docs/CWL.md` grammar). File-derived
- * WebIR names often contain `.` (e.g. `config.json`); those are not valid IDENT
- * and round-trip lift would drop the route.
- * @param {unknown} name
- * @param {string} [fallback]
- */
-export function toCwlIdent(name, fallback = "handler") {
-  let s = String(name ?? "")
-    .replace(/[^a-zA-Z0-9_]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .replace(/_+/g, "_");
-  if (!s) s = fallback;
-  if (!/^[a-zA-Z_]/.test(s)) s = `h_${s}`;
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(s)) s = fallback;
-  return s;
 }
 
 /**
@@ -531,7 +532,11 @@ export function listHubWebRoutes(module) {
     if (!handler || handler.dialect !== "web.request" || handler.op !== "handler") continue;
     const bodyId = handler.operands?.[0];
     if (bodyId === undefined) continue;
-    const handlerName = String(handler.attrs?.name ?? `${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`);
+    const rawName = String(handler.attrs?.name ?? `${method}_${path.replace(/[^a-zA-Z0-9]+/g, "_")}`);
+    const handlerName = toCwlIdent(
+      rawName,
+      `${method.toLowerCase()}_${path.replace(/[^a-zA-Z0-9]+/g, "_") || "root"}`,
+    );
     routes.push({
       method,
       path,

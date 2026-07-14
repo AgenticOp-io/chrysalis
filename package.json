@@ -213,6 +213,7 @@
     "hub:ut-wave-c-close-smoke": "node scripts/hub-ingest/hub-ut-wave-c-close-smoke.mjs",
     "hub:ut-wave-d-close-smoke": "node scripts/hub-ingest/hub-ut-wave-d-close-smoke.mjs",
     "hub:ut-canon-program-close-smoke": "node scripts/hub-ingest/hub-ut-canon-program-close-smoke.mjs",
+    "hub:ut-maintain-packaging-smoke": "node scripts/hub-ingest/hub-ut-maintain-packaging-smoke.mjs",
     "cwl:static-export": "node scripts/lib/cwl-static-export.mjs",
     "cwl:chimera-serve": "node scripts/lib/cwl-chimera-serve.mjs",
     "cwl:svelte-native-convert": "node scripts/lib/cwl-svelte-native-convert.mjs",

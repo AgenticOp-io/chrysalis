@@ -114,7 +114,7 @@ Smoke: `hub:ut-canon-program-close-smoke`
 
 ## 5. Default build queue (when user says “build”)
 
-1. **Maintained canon** — `hub:ut-canon-program-close-smoke` (**G9990**)  
+1. **Maintain canon** — `hub:ut-canon-program-close-smoke` (**G9990**) + `hub:ut-maintain-packaging-smoke` (**G9991**, **D6440**)  
 2. **G8550** Migration OS composite (ship stack)  
 3. **G7690** UT regression  
 4. **Origin gold only where a customer/chartered UT edge fails**  

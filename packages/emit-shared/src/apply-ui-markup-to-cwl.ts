@@ -99,6 +99,11 @@ export function patchCwlRouteBlockHtml(block: string, html: string): string | nu
   return block.slice(0, span.start) + buildCwlReturnHtmlStatement(html).trim() + block.slice(span.end);
 }
 
+export interface ApplyLiftedMarkupToCwlOptions {
+  /** HTTP paths that must retain hand-authored / redirect CWL bodies. */
+  readonly skipHttpPaths?: ReadonlySet<string> | readonly string[];
+}
+
 /**
  * Apply lifted markup bundles into matching `@page GET` routes in a CWL source.
  * Only patches routes with a bundle and a replaceable `return html` body.
@@ -107,13 +112,24 @@ export function applyLiftedMarkupToCwlSource(
   cwlSource: string,
   map: UiRouteMarkupMapV1,
   bundles: ReadonlyArray<UiMarkupBundle>,
+  opts?: ApplyLiftedMarkupToCwlOptions,
 ): ApplyUiMarkupToCwlResult {
   let text = cwlSource;
   let routesPatched = 0;
   let routesSkipped = 0;
   let routesWithoutBundle = 0;
+  const skip =
+    opts?.skipHttpPaths === undefined
+      ? null
+      : opts.skipHttpPaths instanceof Set
+        ? opts.skipHttpPaths
+        : new Set(opts.skipHttpPaths);
 
   for (const httpPath of listCwlPageGetPaths(cwlSource)) {
+    if (skip?.has(httpPath) === true) {
+      routesSkipped += 1;
+      continue;
+    }
     const bundle = findRouteMarkupBundle(map, bundles, httpPath);
     if (bundle === null) {
       routesWithoutBundle += 1;

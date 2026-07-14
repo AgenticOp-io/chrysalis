@@ -17,6 +17,7 @@ import { canPythonAstIngest } from "./python-ast-ingest.mjs";
 import { trySpecializedHubLift } from "./hub-lift-dispatch.mjs";
 import { HUB_SILVER_FILE_LIFT_ORIGIN_IDS } from "./language-catalog.mjs";
 import { lowerHubLiteral } from "./hub-lift-webir-route.mjs";
+import { toCwlIdent } from "./hub-webir-routes.mjs";
 
 const silverFileLiftOrigins = new Set(HUB_SILVER_FILE_LIFT_ORIGIN_IDS);
 
@@ -216,7 +217,7 @@ async function main() {
         });
     const handlerId = wr.handler({
       attrs: {
-        name: file.replace(/[/\\]/g, "_"),
+        name: toCwlIdent(file.replace(/[/\\]/g, "_"), "handler"),
         input: { kind: "unknown" },
         output: { kind: "unknown" },
       },

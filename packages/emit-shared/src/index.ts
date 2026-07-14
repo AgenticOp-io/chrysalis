@@ -108,6 +108,7 @@ export {
   extractCwlRouteBlock,
   listCwlPageGetPaths,
   patchCwlRouteBlockHtml,
+  type ApplyLiftedMarkupToCwlOptions,
   type ApplyUiMarkupToCwlResult,
 } from "./apply-ui-markup-to-cwl.js";
 export {
