@@ -1,9 +1,9 @@
 {
   "kind": "chrysalis.wisp.fidelity-deepen-catalog",
   "schemaVersion": 1,
-  "closedThroughPass": 162,
-  "nextBatchId": "n10q",
-  "nextPassRange": [163, 172],
+  "closedThroughPass": 172,
+  "nextBatchId": "n10r",
+  "nextPassRange": [173, 182],
   "desk": {
     "harness": "scripts/lib/wisp-fidelity-deepen-harness.mjs",
     "cli": "scripts/lib/wisp-fidelity-deepen-cli.mjs",
@@ -35,7 +35,8 @@
     { "id": "n10m", "passRange": [123, 132], "status": "closed-harness" },
     { "id": "n10n", "passRange": [133, 142], "status": "closed-harness" },
     { "id": "n10o", "passRange": [143, 152], "status": "closed-harness" },
-    { "id": "n10p", "passRange": [153, 162], "status": "closed-harness" }
+    { "id": "n10p", "passRange": [153, 162], "status": "closed-harness" },
+    { "id": "n10q", "passRange": [163, 172], "status": "closed-harness" }
   ],
   "passes": [
     { "id": 63, "batch": "n10g", "title": "HSS groups PUT/DELETE", "status": "done", "apiPaths": ["/api/hss/groups"] },
@@ -137,7 +138,17 @@
     { "id": 159, "batch": "n10p", "title": "Inventory maintenance-due alerts", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
     { "id": 160, "batch": "n10p", "title": "Work-orders assigned/:userId GET", "status": "done", "apiPaths": ["/api/work-orders"], "source": "backend-services/routes/work-orders.js" },
     { "id": 161, "batch": "n10p", "title": "Customer create-subscriber; GET subscriber residual", "status": "honest", "residual": "hssSubscriberId-get-404", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
-    { "id": 162, "batch": "n10p", "title": "Inventory export/csv GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" }
+    { "id": 162, "batch": "n10p", "title": "Inventory export/csv GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
+    { "id": 163, "batch": "n10q", "title": "Work-orders by site GET", "status": "done", "apiPaths": ["/api/work-orders"], "source": "backend-services/routes/work-orders.js" },
+    { "id": 164, "batch": "n10q", "title": "Customers search/phone GET", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
+    { "id": 165, "batch": "n10q", "title": "Customers search/imsi GET", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/routes/customers.js" },
+    { "id": 166, "batch": "n10q", "title": "Customers service-history POST", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/models/customer.js" },
+    { "id": 167, "batch": "n10q", "title": "Customers complaints POST", "status": "done", "apiPaths": ["/api/customers"], "source": "backend-services/models/customer.js" },
+    { "id": 168, "batch": "n10q", "title": "Inventory transfer (newLocation)", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
+    { "id": 169, "batch": "n10q", "title": "Inventory by-site GET", "status": "done", "apiPaths": ["/api/inventory"], "source": "backend-services/routes/inventory.js" },
+    { "id": 170, "batch": "n10q", "title": "Notifications count GET", "status": "done", "apiPaths": ["/api/notifications"], "source": "backend-services/routes/notifications.js" },
+    { "id": 171, "batch": "n10q", "title": "Network site sectors GET", "status": "done", "apiPaths": ["/api/network/sites"], "source": "backend-services/routes/network.js" },
+    { "id": 172, "batch": "n10q", "title": "Voice schema GET", "status": "done", "apiPaths": ["/api/voice"], "source": "backend-services/routes/voice-sip.js" }
   ],
   "heldResiduals": [
     { "pass": 64, "title": "HSS bandwidth-plans create", "blocker": "POST 500 on live HSS despite backend-services/routes/hss/hss-bandwidth-plans.js accepting req.body spread", "source": "backend-services/routes/hss/hss-bandwidth-plans.js" },

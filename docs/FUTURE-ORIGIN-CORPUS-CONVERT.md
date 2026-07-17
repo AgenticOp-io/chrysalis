@@ -172,7 +172,8 @@ node -e "const {DatabaseSync}=require('node:sqlite'); const db=new DatabaseSync(
 | 2026-07-16 | **Script hygiene:** removed orphan one-shots (`wisp-hydrate-audit`, `wisp-residual-audit`, `wisp-reconvert-triage`, `wisp-cwl-slim-overlay-css`, `gce-wisp-hybrid-restart`); collapsed redundant `hub:fidelity-deepen-n10g`…`n10n` package aliases → `--batch` | **done** |
 | 2026-07-16 | **Deepen passes 143–152 (×10):** source-doc first — plan req del / feature PATCH / missing-hw; bundle items category; CPE/equip ownership (`X-User-Email`); inv alerts/by-location; HSS group cycle; pricing `/price`; `hub:fidelity-deepen -- --batch n10o` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10o.json`) |
 | 2026-07-16 | **Deepen passes 153–162 (×10):** WO/incident/customer stats + SLA/warranty/maint alerts; customer email search; WO assigned; create-subscriber (GET subscriber honest residual); inv csv; stats toolbar UI; `hub:fidelity-deepen -- --batch n10p` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10p.json`) |
-| — | (none — deepen-n10p closed; next `n10q` 163–172 via `--source-doc`) | **open** |
+| 2026-07-17 | **Deepen passes 163–172 (×10):** source-doc — WO by site; customer phone/imsi/history/complaints; inv transfer+by-site; notif count; site sectors; voice schema; toolbar UI; `hub:fidelity-deepen -- --batch n10q` + Firebase | **done** (`reports/wisp/fidelity-deepen-n10q.json`) |
+| — | (none — deepen-n10q closed; next `n10r` 173–182 via `--source-doc`) | **open** |
 
 ### Next 10 (execute in order) — **batch closed 2026-07-16**
 

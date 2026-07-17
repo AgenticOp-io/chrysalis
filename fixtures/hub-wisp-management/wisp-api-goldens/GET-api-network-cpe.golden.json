@@ -10,7 +10,7 @@
     "siteId": null,
     "tenantId": "6a166eb07089304417ec967a",
     "createdAt": "2026-07-17T00:02:36.794Z",
-    "updatedAt": "2026-07-17T00:17:32.089Z",
+    "updatedAt": "2026-07-17T00:18:10.745Z",
     "__v": 0,
     "updatedBy": "System"
   },
@@ -1324,6 +1324,39 @@
     "createdBy": "System",
     "createdAt": "2026-07-17T00:17:29.896Z",
     "updatedAt": "2026-07-17T00:17:29.897Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a5974c0ad923e3601e0360d",
+    "name": "CWL Trace CPE 1784247475446",
+    "status": "active",
+    "technology": "LTE",
+    "manufacturer": "Trace",
+    "model": "CWL",
+    "serialNumber": "CPE-1784247475446",
+    "location": {
+      "latitude": 39.75,
+      "longitude": -104.98,
+      "country": "US",
+      "_id": "6a5974c0ad923e3601e0360e"
+    },
+    "siteId": {
+      "_id": "6a596f4dad923e3601e03063",
+      "name": "Bulk 1784246090538",
+      "type": [
+        "tower"
+      ],
+      "location": {
+        "latitude": 39.7,
+        "longitude": -105,
+        "country": "US",
+        "_id": "6a596f4dad923e3601e03064"
+      }
+    },
+    "tenantId": "6a166eb07089304417ec967a",
+    "createdBy": "System",
+    "createdAt": "2026-07-17T00:18:08.610Z",
+    "updatedAt": "2026-07-17T00:18:08.610Z",
     "__v": 0
   },
   {

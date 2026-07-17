@@ -2106,6 +2106,61 @@ function openStructuralIncidentEditor(isEdit, prefill) {
   initDeepenN10hSurfaces();
   initDeepenN10iSurfaces();
   initDeepenN10pSurfaces();
+  initDeepenN10qSurfaces();
+
+  function initDeepenN10qSurfaces() {
+    if (!window.WispCwlApi) return;
+    function addGet(host, key, path, label) {
+      if (!host || host.querySelector('[data-cwl-n10q="' + key + '"]')) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "wisp-demo-btn";
+      b.setAttribute("data-cwl-n10q", key);
+      b.textContent = label;
+      b.title = "GET " + path;
+      b.addEventListener("click", function () {
+        b.disabled = true;
+        window.WispCwlApi
+          .fetch(path)
+          .then(function (r) {
+            if (!r.ok) throw new Error(path + " " + r.status);
+            return r.json();
+          })
+          .then(function (body) {
+            b.disabled = false;
+            b.title = JSON.stringify(body).slice(0, 240);
+            if (typeof setApiStatus === "function") setApiStatus(label + " ok", false);
+          })
+          .catch(function (e) {
+            b.disabled = false;
+            if (typeof setApiStatus === "function")
+              setApiStatus((e && e.message) || label + " failed", true);
+          });
+      });
+      host.appendChild(b);
+    }
+    var woHost =
+      document.querySelector(".work-orders-page .page-header") ||
+      document.querySelector('[data-wisp-page="work-orders"] .page-header') ||
+      document.querySelector(".work-orders-page");
+    addGet(woHost, "wo-site", "/api/work-orders/site/demo-site", "WO by site");
+    var custHost =
+      document.querySelector(".customers-page .page-header") ||
+      document.querySelector('[data-wisp-page="customers"] .page-header');
+    addGet(custHost, "cust-phone", "/api/customers/search/phone/555", "Search phone");
+    addGet(custHost, "cust-imsi", "/api/customers/search/imsi/00101", "Search IMSI");
+    var invHost =
+      document.querySelector(".inventory-page .page-header") ||
+      document.querySelector('[data-wisp-page="inventory"] .page-header');
+    addGet(invHost, "inv-bysite", "/api/inventory/by-site/demo-site", "Inv by site");
+    addGet(woHost, "notif-count", "/api/notifications/count", "Notif count");
+    var voiceHost =
+      document.querySelector(".voice-telephony-page .page-header") ||
+      document.querySelector('[data-wisp-page="voice-telephony"] .page-header') ||
+      document.querySelector(".voice-telephony-page") ||
+      custHost;
+    addGet(voiceHost, "voice-schema", "/api/voice/schema", "Voice schema");
+  }
 
   function initDeepenN10pSurfaces() {
     if (!window.WispCwlApi) return;
