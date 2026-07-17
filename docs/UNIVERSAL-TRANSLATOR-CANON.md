@@ -1,7 +1,7 @@
 # Chrysalis Universal Translator — Canon Plan (locked)
 
-> **Status:** **CANON** — locked 2026-07-14 (**DESIGN D6438**)  
-> **Authority:** This document + `DESIGN.md` §1–3 + Decision Log **D6438**. It **supersedes** ad-hoc WISP-first queues and soft guidance in older path notes.  
+> **Status:** **CANON** — locked 2026-07-14 (**DESIGN D6438**); amended **D6442** (translate-only); **D6447** (no demo-only code)  
+> **Authority:** This document + `DESIGN.md` §1–3 + Decision Log **D6438** / **D6442** / **D6447**. It **supersedes** ad-hoc WISP-first queues and soft guidance in older path notes.  
 > **Supersedes for default build:** prior §12 “WISP depth / management.firebase” as product work; those remain **POC-only**.  
 > **Knowledge base:** [`initiative-knowledge.v1.json`](./initiative-knowledge.v1.json)  
 > **Operator stack (ship today):** [`MIGRATION-OS.md`](./MIGRATION-OS.md)  
@@ -12,6 +12,10 @@
 ## 0. One-sentence canon
 
 **Chrysalis is the AI-assisted Universal Translator for the web:** lift any supported site into **WebIR → CWL**, emit to any supported target, with **LLM / Intelligence Shorthand proposing** and **oracle + verify disposing** — grown inside a live app via chimera, never trusted as a one-shot dump.
+
+**Translate only (**D6442**).** Do not invent features, map engines, or helper dialects. Make the translation of the source work; otherwise emit a hole.
+
+**Never demo-only code (**D6447**).** The process is **true conversion of origin code**. Hand-built showcase pages, simplified parity shells, and force-settled “looks green” holes are **process violations** — not acceptable shortcuts. This law is **language-agnostic**: every matrix edge (any supported origin → any supported emit) must convert origin or emit a hole — never ship a parallel demo of that app.
 
 **WISP Module_Manager is POC evidence only.** It must not define package names, default queues, or “done.”
 
@@ -40,7 +44,55 @@ Capture (oracle) → Lift (WebIR) → CWL ↔ emit → Verify (replay)
                          └────── dispose ─────┘
 ```
 
-**Refuse forever:** string-only transpile, silent best-effort without holes, inventing backends (maps/GenieACS/FCAPS), treating smoke-green as production-idiomatic rewrite.
+**Refuse forever:** string-only transpile, silent best-effort without holes, inventing backends (maps/GenieACS/FCAPS), treating smoke-green as production-idiomatic rewrite, **demo façades that are not a conversion of origin**.
+
+### 2A. Translate-only fidelity law (**DESIGN D6442** — locked) + no demo-only code (**D6447**)
+
+**Top rule:** Chrysalis **only translates** from one web language/stack to another and makes that translation work. It is **not** a product atelier for rewriting apps. It is **not** a license to ship parallel “demo” implementations.
+
+| Allowed | Forbidden |
+| --- | --- |
+| Lift what the source does into WebIR / CWL / emit | Invent features, widgets, APIs, or UX the source does not have |
+| Preserve third-party SDKs as source islands (same package + toolchain + behavior) | Replace ArcGIS with Bing, OSM-as-default, Google Maps, or “any map that works” |
+| Emit holes when something cannot be lowered honestly | Silent substitutes, CDN dialect rewrites, hand-written “better” loaders |
+| Fix translation bugs so **origin behavior** appears | Additive layout/chrome/helpers that exist only for agent convenience |
+| POC **hosting** of the **converted** artifact | Hand-built login/dashboard/shells, parity HTML not lifted from origin, force-settle to fake completeness |
+| POC work **only** when origin parity requires it (and still translate-only) | Expanding WISP POC with net-new Chrysalis ideas |
+
+**Maps (explicit):** WISP Module_Manager coverage maps are **ArcGIS** (`@arcgis/core`, basemap `topo-vector` / source list, `PUBLIC_ARCGIS_API_KEY`, source fallback `gray-vector`). Deprecation noise inside ArcGIS internals is not a license to change map engines. **Do not** introduce Bing basemaps or invent OSM defaults.
+
+**Agent expectation reset:** Prefer **holes + fidelity to source** over cleverness. Prefer **stop and amend the plan** over shipping another dialect. Prefer **delete invented helpers** over nesting more of them. Prefer **signed-in test against origin** over deploy/smoke green.
+
+When the operator says **“do not add new code”** / **“no demo code”** / **“true conversion only”**, that means: no inventiveness — only mechanical translation / plan amendments / honest holes. **Never** ship demo-only façades (**D6447**).
+
+### 2B. Source-authoritative UI conversion (**DESIGN D6443** — locked)
+
+**Top rule:** Origin markup class names + origin stylesheets + origin vendor islands are the **only** look/behavior authority. Chrysalis converts them; it does not redesign them.
+
+| Step | Requirement |
+| --- | --- |
+| 1. Read all | Convert must index the full origin UI tree (pages, components, `<style>`, client islands) — not a stub subset |
+| 2. Lift CSS | Per-route `original-css` from origin build / SFC styles (**D6365**) |
+| 3. Lift markup | Preserve origin classes (`floating-controls`, `control-btn`, `filters-modal`, `coverage-map-container`, …) |
+| 4. Vendor islands | Same package + toolchain (**D6441**); ArcGIS stays ArcGIS (**D6442**) |
+| 5. No overlay redefine | CWL additive CSS must **not** redefine selectors already in that route’s lifted original CSS |
+| 6. Behavior | Wire origin interactions or emit a hole — never replace working origin chrome with empty shells and call it done |
+
+**Done means:** origin colors/layout appear because origin CSS is linked and unopposed; origin controls exist in the DOM; vendor islands load. Smoke-green without those properties is incomplete.
+
+### 2C. Origin source corpus + piecemeal convert (**DESIGN D6444** — locked)
+
+**Top rule:** Features are spread across many files. Convert does not guess from UI alone — it **indexes the whole origin tree first**.
+
+| Step | Requirement |
+| --- | --- |
+| 1. Ingest all files | Walk every origin source file (POC: Module_Manager + `backend-services`) into a corpus DB |
+| 2. Code database | Persist file metadata, imports, symbols, HTTP path inference (SQLite + planning JSON) |
+| 3. Convert queue | Group into pieces: UI routes, module support, API clusters, shared libs — ordered by dependency |
+| 4. One piece at a time | Convert / bind / verify the next queue item; mark status; do not claim site-done from one page shell |
+| 5. Background truth | API + services pieces are first-class; empty `/api/*` or unbound clients are holes |
+
+**Artifacts:** `reports/origin-corpus/chrysalis.source-corpus.v1.{json,sqlite}` + `chrysalis.convert-queue.v1.json`. Gate: `hub:origin-source-corpus-smoke` (**G9993**).
 
 ---
 
@@ -118,7 +170,7 @@ Smoke: `hub:ut-canon-program-close-smoke`
 2. **G8550** Migration OS composite (ship stack)  
 3. **G7690** UT regression  
 4. **Origin gold only where a customer/chartered UT edge fails**  
-5. **POC** (WISP / management.wisptools.io) — **only on explicit ask**  
+5. **POC** (WISP / management.wisptools.io) — **only on explicit ask** → `hub:wisp-poc-from-scratch` (**G9992**); [`WISP-POC-FROM-SCRATCH.md`](./WISP-POC-FROM-SCRATCH.md)  
 
 UT Canon Waves A–D are **closed**. Do not invent Wave E without amending this file.
 
@@ -158,6 +210,10 @@ Already extracted (Wave A partial): hole-metrics, apply-surfaces, route-lift, bu
 4. LiteRT.js as convert runtime  
 5. Commercial launch drama blocking UT depth  
 6. Treating WISP Firebase look polish as the product roadmap  
+7. **Inventing** basemap engines (Bing / OSM-as-default / “any map”), CDN loader dialects, or helpful UI not in the source (**D6442**)  
+8. Shipping net-new code when the order was translate-only / plan amendment only  
+9. **Demo-only façades** — hand-built showcase pages, non-lifted parity shells, force-settled holes as “complete” (**D6447**)
+9. Treating POC showcase polish as engine product work  
 
 ---
 

@@ -12,10 +12,11 @@
 
 | User message sounds like                            | Treat as                                                                                                    |
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| “Build …”, “Implement …”, “Add …”, “Fix …”          | Implementation request (still must fit this plan)                                                           |
+| “Build …”, “Implement …”, “Add …”, “Fix …”          | Implementation request (still must fit this plan) — **true conversion only** (**D6442**/**D6447**)          |
 | “What if …”, “Should we …”, “Can we …”, “Explain …” | **Clarification** — answer in plan terms; **do not fork** unless user explicitly approves a plan change     |
 | “Also do X” without “build”                         | **Question** — is X on-plan or off-plan? Say which phase/workstream it belongs to, or that it is **paused** |
-| “Forget the plan, do Y”                             | Requires **explicit** plan amendment: `DESIGN.md` Decision Log + edit this file + user approval             |
+| “Forget the plan, do Y” / “rewrite the plan …”      | Requires **explicit** plan amendment: `DESIGN.md` Decision Log + edit canon + this file                   |
+| “Do not add new code” / “only translate” / “stop making things up” / “no demo code” | **D6442**/**D6447** — translation / holes / plan docs only; **refuse** façades and invented helpers |
 | New phase / wave build                              | **Refuse** until prior phase **close gate** passes and docs say **closed** (**close before build**)         |
 
 
@@ -45,7 +46,7 @@ WISP-named scripts under `scripts/` are **legacy/POC**; prefer `scripts/lib/*`. 
 
 ## 1. One-sentence strategy
 
-**Ship the AI-assisted Universal Translator:** WebIR + CWL as hub, LLM/IS propose, oracle/verify dispose, Hub/Migration OS for programs at scale — with PHP→TS as the adoption wedge. **Canon:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) (**D6438**). WISP is POC only.
+**Ship the AI-assisted Universal Translator:** WebIR + CWL as hub, LLM/IS propose, oracle/verify dispose — **translate only**, make the translation work (**D6442**). **Never demo-only code** (**D6447**) — true conversion of origin, or an honest hole. **Canon:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) (**D6438** + **D6442**/**D6447** §2A). WISP is POC only. **Refuse invention** (Bing/OSM map engines when source is ArcGIS; CDN dialects; net-new chrome; parity façades).
 
 ---
 
@@ -395,6 +396,10 @@ Without plan amendment, treat these as **out of scope**:
 
 **Amended 2026-06-19 (POC vs language — D6205):** **CWL is authoritative.** WISP **exists solely to showcase the language** — not to define it. GenieACS removed from Chrysalis consideration (WISPTools original design only).
 
+**Amended 2026-07-14 (D6442 — translate-only fidelity law).** Reset after ArcGIS map dialectic / invented loaders. **Only translate** source → WebIR/CWL → emit; preserve ArcGIS as ArcGIS (not Bing/OSM invents); holes over substitutes; no new invented code when ordered translate-only. Canon §2A. Extends **D6441** vendor islands.
+
+**Amended 2026-07-14 (D6441 — vendor islands preserved).** Third-party SDK add-ins (`@arcgis/core`, charts, Firebase client, etc.) stay as **source client islands**: same package + origin toolchain (e.g. Module_Manager Vite). CWL owns shell/contracts/holes — **do not rewrite** vendors to CDN AMD/ESM or alternate bundler dialects. See DESIGN **D6441** / **D6442**; WISP hole `hub-svelte:arcgis-map`.
+
 **Amended 2026-06-16 (WISP POC decoupled — D6259):** WISP Module_Manager showcase **decoupled from default CI/build**. Smokes, scripts, and optional weekly **`wisp-poc-regression`** workflow remain for operator demo refresh; default queue is **G7200 + G7150** only.
 
 **Amended 2026-06-16 (CWL universal web language — D6260):** Phases **19–23** active locked path after **G7150**: **UI v1 → Data v2 → Effects middleware → Universal ingest → Greenfield cutover**; program close **G7390**. See [`CWL-UNIVERSAL-LANGUAGE-PROGRAM.md`](./CWL-UNIVERSAL-LANGUAGE-PROGRAM.md).
@@ -443,11 +448,19 @@ Without plan amendment, treat these as **out of scope**:
 
 ## 12. Default queue (active)
 
+**Amended 2026-07-15 (D6444) — Origin source corpus + piecemeal convert.** See canon §2C. Ingest all origin files → code DB → convert queue; background/API pieces are first-class.
+
+**Amended 2026-07-15 (D6443) — Source-authoritative UI conversion.** See canon §2B. Origin CSS + class names + vendor islands are look/behavior authority; no overlay redefine.
+
+**Amended 2026-07-17 (D6447) — True conversion only; never demo-only code (all languages).** See canon §0/§2A and `AGENTS.md` absolute law. Applies to every origin→emit pair — WISP is POC proof only. Agents: lift origin or emit honest holes — **refuse** hand-built showcase pages, non-lifted parity shells, force-settled “green” holes. After convert: sign in and test against origin.
+
+**Amended 2026-07-14 (D6442) — Translate-only fidelity law.** See canon §2A. Agents: translate / verify / holes only — **do not invent**.
+
 **Amended 2026-07-14 (D6438) — Universal Translator Canon locked.**
 
-**Canon:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) — Waves **A–D** (**G9960–G9990**). WISP = POC only.
+**Canon:** [`UNIVERSAL-TRANSLATOR-CANON.md`](./UNIVERSAL-TRANSLATOR-CANON.md) — Waves **A–D** (**G9960–G9990**) + **§2A D6442**/**D6447**. WISP = POC only.
 
-**Status:** **UT Canon program closed** (**G9990** — Waves A–D). Default queue = maintain canon + Migration OS + edge-only gold. WISP = POC only.
+**Status:** **UT Canon program closed** (**G9990** — Waves A–D). Default queue = maintain canon + Migration OS + edge-only gold. WISP = POC only. **Map/SDK work:** preserve source ArcGIS (and other vendor) behavior — no dialect rewrite unless amending the plan again.
 
 When the user says "build" without specifying:
 
@@ -455,7 +468,7 @@ When the user says "build" without specifying:
 2. **G8550 composite** — `hub:migration-os-close-smoke`
 3. **G7690 UT regression** — `hub:cwl-universal-translator-close-smoke`
 4. **Origin gold only where a customer/chartered UT edge fails**
-5. **Optional POC** — WISP / management.wisptools.io only if explicitly requested
+5. **Optional POC** — WISP / management.wisptools.io only if explicitly requested → **G9992** `hub:wisp-poc-from-scratch` ([`WISP-POC-FROM-SCRATCH.md`](./WISP-POC-FROM-SCRATCH.md)) — still **true conversion only** (**D6442**/**D6447**)
 
 **Closed program regression:** `hub:ut-canon-program-close-smoke` (**G9990**) · `hub:ut-maintain-packaging-smoke` (**G9991**) · `hub:ut-wave-a-close-smoke` (**G9965**) · `hub:ut-wave-b-close-smoke` (**G9975**) · `hub:ut-wave-c-close-smoke` (**G9985**) · `hub:ut-wave-d-close-smoke` (**G9989**) · `hub:cwl-universal-translator-close-smoke` (**G7690**) · `hub:migration-os-close-smoke` (**G8550**) · `hub:multi-origin-lift-close-smoke` (**G9880**)
 

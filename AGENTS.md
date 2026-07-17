@@ -2,10 +2,27 @@
 
 **You are building a specific thing. Do not drift.**
 
+## Absolute conversion law (every AI, every session)
+
+**True conversion only. Never demo-only code.**
+
+Applies to **every origin → WebIR/CWL → emit** pair (PHP, SvelteKit, Kotlin, Next, Express, …) — not WISP-only. WISP is the POC that proves the law; the law is product-wide.
+
+| Law | Meaning |
+| --- | --- |
+| **D6442** | Translate source → WebIR/CWL → emit. Make **that** work. |
+| **D6443** | Origin UI (markup classes + CSS + islands) is look/behavior authority. |
+| **D6444** | Convert from the origin file corpus / piece queue — not a stub page. |
+| **D6447** | **No demo façades.** Do not invent simplified login/dashboard/shells, parity HTML that is not a lift of origin, force-settled “green” holes, or helper apps that only look like the product. If it is not present in origin (or an honest **hole**), it does not ship. |
+
+**Refuse:** hand-written showcase pages, “good enough for demo” substitutes, invented widgets/APIs/maps, overlay chrome that redesigns origin, claiming done from smoke/hole-count without signed-in parity against origin.
+
+**Required after convert:** sign in and test against the **origin site** (for WISP: `wisptools.io` vs management/CWL host). Deploy OK ≠ fidelity.
+
 ## 0. Before you do anything
 
 1. Read `DESIGN.md` in full. It is the north star for architecture and invariants.
-2. Read **`docs/UNIVERSAL-TRANSLATOR-CANON.md`** (**D6438** product canon) and **`docs/STRATEGIC-PLAN.md`** in full. They are the **locked path** for what to build, in what order, and what to refuse. **Do not deviate** unless the user explicitly amends the plan (`DESIGN.md` Decision Log + edit the canon + `STRATEGIC-PLAN.md`).
+2. Read **`docs/UNIVERSAL-TRANSLATOR-CANON.md`** (**D6438** product canon + **D6442**/**D6447** translate-only / no-demo) and **`docs/STRATEGIC-PLAN.md`** in full. They are the **locked path** for what to build, in what order, and what to refuse. **Do not deviate** unless the user explicitly amends the plan (`DESIGN.md` Decision Log + edit the canon + `STRATEGIC-PLAN.md`).
 3. Read `ROADMAP.md` for **status** and the **active build queue** (`docs/STRATEGIC-PLAN.md` §12; canon: [`docs/UNIVERSAL-TRANSLATOR-CANON.md`](docs/UNIVERSAL-TRANSLATOR-CANON.md); index: [`docs/MIGRATION-OS.md`](docs/MIGRATION-OS.md)). Completed history is in **`ROADMAP-ARCHIVE.md`**. Maintenance and closed programs: [`docs/PAUSED-AND-MAINTENANCE.md`](docs/PAUSED-AND-MAINTENANCE.md).
 4. Read the `README.md` of the specific package you're about to touch.
 5. For **install / operations / administration / releases**, see **`docs/`** (index: [`docs/README.md`](docs/README.md); **operator stack:** [`docs/MIGRATION-OS.md`](docs/MIGRATION-OS.md)).
@@ -21,12 +38,21 @@ The user may lock strategy in conversation. Unless they **explicitly** amend it:
 
 | They say | You do |
 | --- | --- |
-| “Build / implement / add / fix …” | Work that fits **`STRATEGIC-PLAN.md`** phases and priorities (still obey `DESIGN.md`) |
+| “Build / implement / add / fix …” | Work that fits **`STRATEGIC-PLAN.md`** phases and priorities (still obey `DESIGN.md`) — **true conversion only** (**D6442**/**D6447**); no invented or demo-only code |
 | “What if …”, “Should we …”, “Can we …”, “Why …”, “Explain …” | **Clarify** against the strategic plan; map to phase/tier; **do not implement a fork** |
 | “Also …” without a build verb | Assume **clarification** unless they clearly command implementation |
-| “Ignore the plan and …” | Refuse off-plan implementation; offer to amend the plan formally if they want a new direction |
+| “Do not add new code” / “only translate” / “stop making things up” / “no demo code” | **D6442**/**D6447** — plan/holes/true conversion only; **refuse** façades, Bing/OSM substitutes, CDN dialects, helper chrome not in source |
+| “Ignore the plan and …” / “rewrite the plan …” | Amend formally (`DESIGN.md` Decision Log + canon + `STRATEGIC-PLAN.md`) or refuse off-plan implementation |
 
 **Close before build:** A phase (or phase slice) is not **active for new implementation** until its **close gate** passes and status docs mark it **closed**. Do not start the next queue on scaffolding alone.
+
+**Translate-only (**D6442**):** Only translate language/stack → WebIR/CWL → emit and make that work. **Maps are ArcGIS when the source is ArcGIS** — not Bing, not invented OSM defaults. Prefer holes over substitutes.
+
+**No demo-only code (**D6447**):** POC hosting may showcase the **converted** product; it must not ship parallel hand-built demos. Parity helpers that invent markup (instead of lifting origin) are forbidden. Force-settling holes to claim “complete” without origin behavior is forbidden.
+
+**Source-authoritative UI (**D6443**):** Origin CSS + class names + vendor islands are look/behavior authority. Do not restyle origin selectors with CWL overlays. Follow canon §2B convert steps.
+
+**Origin source corpus (**D6444**):** Before claiming background/app fidelity, ingest **all** origin files into the code DB + convert queue (`pnpm run hub:origin-source-corpus` / canon §2C). Convert **one piece at a time** from that queue — UI alone is not enough.
 
 **North star vs POC:** **Universal Translator** (WebIR + CWL + LLM/IS propose / verify dispose) is the product (**D6438**). **WISP** is POC showcase only — prioritize generalizable engine wins. **GenieACS is WISPTools legacy — not Chrysalis scope** (**D6205**).
 
@@ -56,6 +82,9 @@ If you find yourself doing any of these, stop:
 8. Reading from `Date.now()`, `Math.random()`, `process.env`, or the real
    network inside generated handlers or verify sandboxes. Use the injected
    context (`ctx.time`, `ctx.random`, etc.).
+9. Shipping **demo-only** or hand-built showcase code instead of a true
+   conversion of origin (**D6447**) — including invented parity shells and
+   force-settled holes that fake completeness.
 
 ## 3. How to add a feature
 
